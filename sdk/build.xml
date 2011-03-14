@@ -44,23 +44,17 @@
     </target>
 
     <!--creates update center version via hudson build server-->
-    <target name="dist-gde-hudson" depends="suite.clean, -revert-svn-changes, -update-help-sets, zip-templates, -set-impl-version-hudson, suite.nbms, -unset-impl-version-hudson">
+    <target name="hudson-updatecenter" depends="suite.clean, -revert-svn-changes, -update-help-sets, zip-templates, set-impl-version, suite.nbms, unset-impl-version">
     </target>
 
-    <!--zip up mac version using command line tool-->
-    <target name="jmp-release-mac" depends="build-mac" description="Build Mac OS X Application and zip it">
-        <exec executable="zip" dir="dist/">
-            <arg value="-yr"/>
-            <arg value="${app.release.name}-MacOSX.zip"/>
-            <arg value="jmonkeyplatform.app"/>
-            <arg value="../README.TXT"/>
-        </exec>
+    <!--creates update center version via hudson build server-->
+    <target name="hudson-release" depends="suite.clean, -revert-svn-changes, -update-help-sets, zip-templates, set-impl-version, build, unset-impl-version">
     </target>
 
     <target name="set-impl-version">
         <property file="nbproject/project.properties"/>
         <antcall target="-create-jme3-svn-properties" inheritall="true">
-            <param name="jme3_dir" value="../jme3/"/>
+            <param name="jme3_dir" value="../engine/"/>
         </antcall>
         <foreach target="-do-impl-version" list="${modules}" delimiter=":" param="module_dir" inheritall="true">
             <param name="set_impl_version" value="true"/>
@@ -68,23 +62,6 @@
     </target>
 
     <target name="unset-impl-version">
-        <property file="nbproject/project.properties"/>
-        <foreach target="-do-impl-version" list="${modules}" delimiter=":" param="module_dir" inheritall="true">
-            <param name="set_impl_version" value="false"/>
-        </foreach>
-    </target>
-
-    <target name="-set-impl-version-hudson">
-        <property file="nbproject/project.properties"/>
-        <antcall target="-create-jme3-svn-properties" inheritall="true">
-            <param name="jme3_dir" value="../../jme3/workspace/"/>
-        </antcall>
-        <foreach target="-do-impl-version" list="${modules}" delimiter=":" param="module_dir" inheritall="true">
-            <param name="set_impl_version" value="true"/>
-        </foreach>
-    </target>
-
-    <target name="-unset-impl-version-hudson">
         <property file="nbproject/project.properties"/>
         <foreach target="-do-impl-version" list="${modules}" delimiter=":" param="module_dir" inheritall="true">
             <param name="set_impl_version" value="false"/>

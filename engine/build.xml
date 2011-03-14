@@ -72,29 +72,29 @@
         </zip>
     </target>
     
-    <!-- convenience target to transfer jme3 libraries to jme3-gde (jMonkeyPlatform) -->
-    <target name="update-gde" depends="jar, javadoc">
-        <antcall target="-do-update-gde" inheritall="true">
-            <param name="jmp_dir" value="../jme3-gde/"/>
+    <!-- convenience target to transfer jme3 libraries to sdk (jMonkeyPlatform) -->
+    <target name="update-sdk" depends="jar, javadoc">
+        <antcall target="-do-update-sdk" inheritall="true">
+            <param name="jmp_dir" value="../sdk/"/>
         </antcall>
     </target>
 
     <!-- convenience target to transfer jme3 libraries to the jme3-jmp folder on the Hudson build server (jMonkeyPlatform) -->
-    <target name="update-jmp-hudson">
+    <target name="hudson-update-sdk">
         <!--update jme3 svn revision info properly-->
         <exec executable="svn" dir=".">
             <arg value="update" />
         </exec>
         <!--update jmp-->
-        <antcall target="-do-update-gde" inheritall="true">
-            <param name="jmp_dir" value="../../jme3-jmp/workspace/"/>
+        <antcall target="-do-update-sdk" inheritall="true">
+            <param name="jmp_dir" value="../sdk/"/>
         </antcall>
         <!--antcall target="-create-jme3-svn-properties" inheritall="true">
             <param name="jmp_dir" value="../../jme3-jmp/workspace/"/>
         </antcall-->
     </target>
 
-    <target name="-do-update-gde">
+    <target name="-do-update-sdk">
         <!--clear old files-->
         <delete dir="${jmp_dir}/JME3TestsTemplate/src/"/>
         <delete dir="${jmp_dir}/jme3-core-baselibs/release/modules/ext/"/>
