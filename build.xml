@@ -13,6 +13,11 @@
         <ant dir="sdk" target="build"/>
     </target>
 
+    <target name="build-engine" description="Builds the engine only">
+        <ant dir="engine" target="clean"/>
+        <ant dir="engine" target="jar"/>
+    </target>
+
     <target name="clean" description="Clean all build products">
         <ant dir="engine" target="clean"/>
         <ant dir="sdk" target="clean"/>
@@ -27,12 +32,13 @@
         <move file="sdk/dist/jmonkeyplatform.zip" tofile="./jME3-SDK.zip"/>
     </target>
 
-    <target name="build-engine" description="Builds the engine only">
-        <ant dir="engine" target="clean"/>
-        <ant dir="engine" target="jar"/>
+    <target name="update-platform" description="Updates the base platform to the latest available build">
+        <delete dir="netbeans"/>
+        <antcall target="-get-platform"/>
     </target>
 
-    <target name="hudson-nightly" depends="clean">
+    <target name="hudson-nightly" depends="clean" depends="update-platform">
+        <ant dir="engine" target="deploy-hudson"/>
         <ant dir="engine" target="hudson-update-sdk"/>
         <ant dir="sdk" target="hudson-updatecenter"/>
     </target>
@@ -41,6 +47,7 @@
         <echo message="Downloading base platform, this only has to be done once."/>
         <get src="http://jmonkeyengine.com/platform/base/alpha/platform-base.zip" dest="./" skipexisting="true"/>
         <unzip src="platform-base.zip" dest="./"/>
+        <delete file="platform-base.zip"/>
     </target>
 
     <target name="-check-platform">
