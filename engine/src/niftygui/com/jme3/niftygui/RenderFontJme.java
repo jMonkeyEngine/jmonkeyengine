@@ -80,7 +80,13 @@ public class RenderFontJme implements RenderFont {
     public int getWidth(final String str) {
         if (str.length() == 0)
             return 0;
-        
+ 
+        // Note: BitmapFont is now fixed to return the proper line width
+        //       at least for now.  The older commented out (by someone else, not me)
+        //       code below is arguably 'more accurate' if BitmapFont gets
+        //       buggy again.  The issue is that the BitmapText and BitmapFont
+        //       use a different algorithm for calculating size and both must
+        //       be modified in sync.       
         int result = (int) font.getLineWidth(str);
 //        text.setText(str);
 //        text.updateLogicalState(0);
