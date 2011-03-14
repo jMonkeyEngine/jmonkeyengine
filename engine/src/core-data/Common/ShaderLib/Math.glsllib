@@ -1,0 +1,4 @@
+/// Multiplies the vector by the quaternion, then returns the resultant vector.
+vec3 Math_QuaternionMult(in vec4 quat, in vec3 vec){
+	return vec + 2.0 * cross(quat.xyz, cross(quat.xyz, vec) + quat.w * vec);
+}

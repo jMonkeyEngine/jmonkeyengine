@@ -1,0 +1,32 @@
+#ifdef SPHERE_MAP
+#define ENVMAP sampler2D
+#define TEXENV texture2D
+#else
+#define ENVMAP samplerCube
+#define TEXENV textureCube
+#endif
+
+// converts a normalized direction vector
+// into a texture coordinate for fetching
+// texel from a sphere map
+vec2 Optics_SphereCoord(in vec3 dir){
+    float dzplus1 = dir.z + 1.0;
+
+    // compute 1/2p
+    // NOTE: this simplification only works if dir is normalized.
+    float inv_two_p = 1.414 * sqrt(dzplus1);
+    //float inv_two_p = sqrt(dir.x * dir.x + dir.y * dir.y + dzplus1 * dzplus1);
+    inv_two_p *= 2.0;
+    inv_two_p = 1.0 / inv_two_p;
+
+    // compute texcoord
+    return (dir.xy * vec2(inv_two_p)) + vec2(0.5);
+}
+
+vec4 Optics_GetEnvColor(in ENVMAP envMap, in vec3 dir){
+    #ifdef SPHERE_MAP
+    return texture2D(envMap, Optics_SphereCoord(dir));
+    #else
+    return textureCube(envMap, dir);
+    #endif
+}

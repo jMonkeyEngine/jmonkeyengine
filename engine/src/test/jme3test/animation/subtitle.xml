@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<nifty xmlns="http://nifty-gui.sourceforge.net/nifty.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://nifty-gui.sourceforge.net/nifty.xsd http://nifty-gui.sourceforge.net/nifty.xsd">
+  <screen id="start" controller="de.lessvoid.nifty.examples.helloworld.HelloWorldStartScreen">
+    <layer id="layer" backgroundColor="#0000" childLayout="center">
+      <panel id="panel"  width="100%"  backgroundColor="#0000" childLayout="center" visibleToMouse="true" >
+          <text id="text" font="aurulent-sans-17.fnt" color="#000f" text="" align="center" valign="bottom"  />
+      </panel>
+    </layer>
+  </screen>
+</nifty>

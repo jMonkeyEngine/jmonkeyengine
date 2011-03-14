@@ -1,0 +1,184 @@
+MaterialDef Terrain Lighting {
+
+    MaterialParameters {
+
+        // use tri-planar mapping
+        Boolean useTriPlanarMapping
+
+        // Use ward specular instead of phong
+        Boolean WardIso
+
+        // Ambient color
+        Color Ambient
+
+        // Diffuse color
+        Color Diffuse
+
+        // Specular color
+        Color Specular
+
+        // Specular power/shininess
+        Float Shininess
+
+        // Texture map #0
+        Texture2D DiffuseMap
+        Float DiffuseMap_0_scale
+        Texture2D NormalMap
+
+        // Texture map #1
+        Texture2D DiffuseMap_1
+        Float DiffuseMap_1_scale
+        Texture2D NormalMap_1
+
+        // Texture map #2
+        Texture2D DiffuseMap_2
+        Float DiffuseMap_2_scale
+        Texture2D NormalMap_2
+
+        // Texture map #3
+        Texture2D DiffuseMap_3
+        Float DiffuseMap_3_scale
+        Texture2D NormalMap_3
+
+        // Specular/gloss map
+        Texture2D SpecularMap
+
+
+        // Texture that specifies alpha values
+        Texture2D AlphaMap
+        Texture2D AlphaMap_1
+        Texture2D AlphaMap_2
+
+        // Texture of the glowing parts of the material
+        Texture2D GlowMap
+
+        // The glow color of the object
+        Color GlowColor
+    }
+
+    Technique {
+
+        LightMode MultiPass
+
+        VertexShader GLSL100:   Common/MatDefs/Terrain/TerrainLighting.vert
+        FragmentShader GLSL100: Common/MatDefs/Terrain/TerrainLighting.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+            NormalMatrix
+            WorldViewMatrix
+            ViewMatrix
+        }
+
+        Defines {
+            TRI_PLANAR_MAPPING : useTriPlanarMapping
+            WARDISO   : WardIso
+
+            DIFFUSEMAP : DiffuseMap
+            DIFFUSEMAP_1 : DiffuseMap_1
+            DIFFUSEMAP_2 : DiffuseMap_2
+            DIFFUSEMAP_3 : DiffuseMap_3
+            NORMALMAP : NormalMap
+            NORMALMAP_1 : NormalMap_1
+            NORMALMAP_2 : NormalMap_2
+            NORMALMAP_3 : NormalMap_3
+            SPECULARMAP : SpecularMap
+            ALPHAMAP : AlphaMap
+            ALPHAMAP_1 : AlphaMap_1
+            ALPHAMAP_2 : AlphaMap_2
+            DIFFUSEMAP_0_SCALE : DiffuseMap_0_scale
+            DIFFUSEMAP_1_SCALE : DiffuseMap_1_scale
+            DIFFUSEMAP_2_SCALE : DiffuseMap_2_scale
+            DIFFUSEMAP_3_SCALE : DiffuseMap_3_scale
+        }
+    }
+
+    Technique PreShadow {
+
+        VertexShader GLSL100 :   Common/MatDefs/Shadow/PreShadow.vert
+        FragmentShader GLSL100 : Common/MatDefs/Shadow/PreShadow.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+            WorldViewMatrix
+        }
+
+        Defines {
+            DIFFUSEMAP_ALPHA : DiffuseMap
+        }
+
+        RenderState {
+            FaceCull Off
+            DepthTest On
+            DepthWrite On
+            PolyOffset 5 0
+            ColorWrite Off
+        }
+
+    }
+
+  Technique PreNormalPass {
+
+        VertexShader GLSL100 :   Common/MatDefs/SSAO/normal.vert
+        FragmentShader GLSL100 : Common/MatDefs/SSAO/normal.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+            WorldViewMatrix
+            NormalMatrix
+        }
+
+        Defines {
+            DIFFUSEMAP_ALPHA : DiffuseMap
+        }
+
+        RenderState {
+
+        }
+
+    }
+
+    Technique GBuf {
+
+        VertexShader GLSL100:   Common/MatDefs/Light/GBuf.vert
+        FragmentShader GLSL100: Common/MatDefs/Light/GBuf.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+            WorldMatrix
+        }
+
+        Defines {
+            VERTEX_COLOR : UseVertexColor
+            MATERIAL_COLORS : UseMaterialColors
+            V_TANGENT : VTangent
+            MINNAERT  : Minnaert
+            WARDISO   : WardIso
+
+            DIFFUSEMAP : DiffuseMap
+            NORMALMAP : NormalMap
+            SPECULARMAP : SpecularMap
+            PARALLAXMAP : ParallaxMap
+        }
+    }
+
+    Technique FixedFunc {
+        LightMode FixedPipeline
+    }
+
+    Technique Glow {
+
+        VertexShader GLSL100:   Common/MatDefs/Misc/SimpleTextured.vert
+        FragmentShader GLSL100: Common/MatDefs/Light/Glow.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+        }
+
+        Defines {
+            HAS_GLOWMAP : GlowMap
+            HAS_GLOWCOLOR : GlowColor
+        }
+    }
+
+}

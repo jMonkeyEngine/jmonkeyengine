@@ -1,0 +1,44 @@
+#define SCALE 0.12
+#define BIAS -0.04
+#define BIN_ITER 5
+
+#ifndef BUMP_HQ
+    #define LIN_ITER 5
+#endif
+
+vec2 Bump_DoOcclusionParallax(in sampler2D heightMap, in vec2 texCoord, in vec3 tanViewDir){
+    float size = 1.0 / float(BIN_ITER);
+
+     // depth
+    float d = 1.0;
+    // best depth
+    float bd = 0.0;
+
+    #ifdef BUMP_HQ
+        const int N = 8;
+        int LIN_ITER = mix(2 * N, N, tanViewDir.z);
+    #endif
+
+    // search from front to back
+    for (int i = 0; i < LIN_ITER; i++){
+        d -= dstep;
+        float h = texture2D(heightMap, dp + ds * (1.0 - d)).a;
+        if (bd < 0.005) // if no depth found yet
+        if (d <= h) bd = depth; // best depth
+    }
+
+    for (int i = 0; i < BIN_ITER; i++) {
+        size *= 0.5;
+        float t = texture2D(heightMap, dp + ds * (1.0 - d)).a;
+        if (d <= t) {
+            bd = depth;
+            d += 2 * size;
+        }
+        d -= size;
+    }
+}
+
+vec2 Bump_DoParallax(in sampler2D heightMap, in vec2 texCoord, in vec3 tanViewDir){
+    float h = texture2D(heightMap, texCoord).a * SCALE + BIAS;
+    return texCoord + h * tanViewDir.xy;
+}

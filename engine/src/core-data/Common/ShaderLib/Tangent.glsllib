@@ -1,0 +1,11 @@
+uniform mat3 g_NormalMatrix;
+
+void Tangent_ComputeVS(out vec3 outNormal, out vec3 outTangent){
+    outNormal = normalize(g_NormalMatrix * inNormal);
+    outTangent = normalize(g_NormalMatrix * inTangent);
+}
+
+mat3 Tangent_GetBasis(){
+    vec3 wvBinormal = cross(wvNormal, wvTangent);
+    return mat3(wvTangent, wvBinormal, wvNormal);
+}

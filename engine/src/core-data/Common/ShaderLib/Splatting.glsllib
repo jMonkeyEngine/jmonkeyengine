@@ -1,0 +1,10 @@
+void Splatting_Base(in sampler2D baseMap, in vec2 tc, in float scale, out vec3 outColor){
+    outColor = texture2D(baseMap, tc * vec2(scale)).rgb;
+}
+
+void Splatting_AlphaDetail(in sampler2D alphaMap, in sampler2D detailMap, in vec2 tc, in float scale, out vec3 outColor){
+    float alpha = sampler2D(alphaMap, tc).r;
+    vec3  color = sampler2D(detailMap, tc * vec2(scale)).rgb;
+    //outColor  = mix(outColor, color, alpha);
+    outColor    = outColor + color * vec3(alpha);
+}

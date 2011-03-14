@@ -1,0 +1,21 @@
+MaterialDef Default GUI {
+
+    MaterialParameters {
+        Texture2D Texture
+        Boolean UseTex
+        Vector4 Color : Color
+    }
+
+    Technique {
+        VertexShader GLSL100:   Common/MatDefs/Nifty/Nifty.vert
+        FragmentShader GLSL100: Common/MatDefs/Nifty/Nifty.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+        }
+    }
+
+    Technique FixedFunc {
+    }
+
+}

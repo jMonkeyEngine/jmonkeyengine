@@ -1,0 +1,36 @@
+#ifdef USE_HWSKINNING
+
+#ifndef NUM_BONES
+#error A required pre-processor define "NUM_BONES" is not set!
+#endif
+
+attribute vec4 inBoneWeight;
+attribute vec4 inBoneIndices;
+uniform mat4 m_BoneMatrices[NUM_BONES];
+
+void Skinning_Compute(inout vec4 position, inout vec4 normal){
+    vec4 index  = inBoneIndices;
+    vec4 weight = inBoneWeight;
+
+    vec4 newPos    = vec4(0.0);
+    vec4 newNormal = vec4(0.0);
+
+    for (float i = 0.0; i < 4.0; i += 1.0){
+        mat4 skinMat = m_BoneMatrices[int(index.x)];
+        newPos    += weight.x * (skinMat * position);
+        newNormal += weight.x * (skinMat * normal);
+        index = index.yzwx;
+        weight = weight.yzwx;
+    }
+
+    position = newPos;
+    normal = newNormal;
+}
+
+#else
+
+void Skinning_Compute(inout vec4 position, inout vec4 normal){
+   // skinning disabled, leave position and normal unaltered
+}
+
+#endif

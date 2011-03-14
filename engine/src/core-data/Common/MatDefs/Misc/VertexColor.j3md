@@ -1,0 +1,16 @@
+MaterialDef Vertex Color {
+
+    Technique {
+        VertexShader GLSL100:   Common/MatDefs/Misc/Unshaded.vert
+        FragmentShader GLSL100: Common/MatDefs/Misc/Unshaded.frag
+
+        Defines {
+            HAS_VERTEXCOLOR
+        }
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+        }
+    }
+
+}

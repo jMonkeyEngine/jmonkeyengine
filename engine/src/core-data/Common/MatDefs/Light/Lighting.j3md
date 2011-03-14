@@ -1,0 +1,219 @@
+MaterialDef Phong Lighting {
+
+    MaterialParameters {
+
+        // Compute vertex lighting in the shader
+        // For better performance
+        Boolean VertexLighting
+
+        // Use more efficent algorithms to improve performance
+        Boolean LowQuality
+
+        // Improve quality at the cost of performance
+        Boolean HighQuality
+
+        // Output alpha from the diffuse map
+        Boolean UseAlpha
+
+        // Apha threshold for fragment discarding
+        Float AlphaDiscardThreshold
+
+        // Normal map is in BC5/ATI2n/LATC/3Dc compression format
+        Boolean LATC
+
+        // Use the provided ambient, diffuse, and specular colors
+        Boolean UseMaterialColors
+
+        // Activate shading along the tangent, instead of the normal
+        // Requires tangent data to be available on the model.
+        Boolean VTangent
+
+        // Use minnaert diffuse instead of lambert
+        Boolean Minnaert
+
+        // Use ward specular instead of phong
+        Boolean WardIso
+
+        // Use vertex color as an additional diffuse color.
+        Boolean UseVertexColor
+
+        // Ambient color
+        Color Ambient
+
+        // Diffuse color
+        Color Diffuse : Color
+
+        // Specular color
+        Color Specular
+
+        // Specular power/shininess
+        Float Shininess
+
+        // Diffuse map
+        Texture2D DiffuseMap
+
+        // Normal map
+        Texture2D NormalMap
+
+        // Specular/gloss map
+        Texture2D SpecularMap
+
+        // Parallax/height map
+        Texture2D ParallaxMap
+
+        // Texture that specifies alpha values
+        Texture2D AlphaMap
+
+        // Color ramp, will map diffuse and specular values through it.
+        Texture2D ColorRamp
+
+        // Texture of the glowing parts of the material
+        Texture2D GlowMap
+
+        // The glow color of the object
+        Color GlowColor
+
+        // Parameters for fresnel
+        // X = bias
+        // Y = scale
+        // Z = power
+        Vector3 FresnelParams
+
+        // Env Map for reflection
+        TextureCubeMap EnvMap
+
+        // the env map is a spheremap and not a cube map
+        Boolean EnvMapAsSphereMap
+    }
+
+    Technique {
+
+        LightMode MultiPass
+
+        VertexShader GLSL100:   Common/MatDefs/Light/Lighting.vert
+        FragmentShader GLSL100: Common/MatDefs/Light/Lighting.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+            NormalMatrix
+            WorldViewMatrix
+            ViewMatrix
+            CameraPosition
+            WorldMatrix
+        }
+
+        Defines {
+            LATC : LATC
+            VERTEX_COLOR : UseVertexColor
+            VERTEX_LIGHTING : VertexLighting
+            ATTENUATION : Attenuation
+            MATERIAL_COLORS : UseMaterialColors
+            V_TANGENT : VTangent
+            MINNAERT  : Minnaert
+            WARDISO   : WardIso
+            LOW_QUALITY : LowQuality
+            HQ_ATTENUATION : HighQuality
+
+            DIFFUSEMAP : DiffuseMap
+            NORMALMAP : NormalMap
+            SPECULARMAP : SpecularMap
+            PARALLAXMAP : ParallaxMap
+            ALPHAMAP : AlphaMap
+            COLORRAMP : ColorRamp
+
+            USE_REFLECTION : EnvMap
+            SPHERE_MAP : SphereMap
+        }
+    }
+
+    Technique PreShadow {
+
+        VertexShader GLSL100 :   Common/MatDefs/Shadow/PreShadow.vert
+        FragmentShader GLSL100 : Common/MatDefs/Shadow/PreShadow.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+            WorldViewMatrix
+        }
+
+        Defines {
+            DIFFUSEMAP_ALPHA : DiffuseMap
+        }
+
+        RenderState {
+            FaceCull Off
+            DepthTest On
+            DepthWrite On
+            PolyOffset 5 0
+            ColorWrite Off
+        }
+
+    }
+
+  Technique PreNormalPass {
+
+        VertexShader GLSL100 :   Common/MatDefs/SSAO/normal.vert
+        FragmentShader GLSL100 : Common/MatDefs/SSAO/normal.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+            WorldViewMatrix
+            NormalMatrix
+        }
+
+        Defines {
+            DIFFUSEMAP_ALPHA : DiffuseMap
+        }
+
+        RenderState {
+
+        }
+
+    }
+
+    Technique GBuf {
+
+        VertexShader GLSL100:   Common/MatDefs/Light/GBuf.vert
+        FragmentShader GLSL100: Common/MatDefs/Light/GBuf.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+            NormalMatrix
+            WorldViewMatrix
+            WorldMatrix
+        }
+
+        Defines {
+            VERTEX_COLOR : UseVertexColor
+            MATERIAL_COLORS : UseMaterialColors
+            V_TANGENT : VTangent
+            MINNAERT  : Minnaert
+            WARDISO   : WardIso
+
+            DIFFUSEMAP : DiffuseMap
+            NORMALMAP : NormalMap
+            SPECULARMAP : SpecularMap
+            PARALLAXMAP : ParallaxMap
+        }
+    }
+
+    Technique FixedFunc {
+        LightMode FixedPipeline
+    }
+
+    Technique Glow {
+
+        VertexShader GLSL100:   Common/MatDefs/Misc/SimpleTextured.vert
+        FragmentShader GLSL100: Common/MatDefs/Light/Glow.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+        }
+
+        Defines {
+            HAS_GLOWMAP : GlowMap
+            HAS_GLOWCOLOR : GlowColor
+        }
+    }
+
+}

@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="jME3_ordered" default="default" basedir=".">
+    <description>Builds, tests, and runs the project jME3_ordered.</description>
+    <import file="nbproject/build-impl.xml"/>
+    <import file="nbproject/profiler-build-impl.xml"/>
+
+
+    <!--this target creates the assets jar file and modifies the classpath to include it-->
+    <target name="-pre-jar">
+        <!--separate test classes-->
+        <mkdir dir="build/testclasses/"/>
+        <move file="build/classes/jme3test" todir="build/testclasses/" failonerror="false"/>
+        <move file="build/classes/jme3game" todir="build/testclasses/" failonerror="false"/>
+        <jar jarfile="build/jme3test.jar" basedir="build/testclasses/" compress="true"/>
+
+        <!--create jar from assets-->
+        <jar jarfile="build/jme3testdata.jar" basedir="src/test-data" compress="true"/>
+        <!--resolve assets and assets jar location-->
+        <property location="src/test-data" name="testdata.dir.resolved"/>
+        <property location="build/jme3testdata.jar" name="testdata.jar.resolved"/>
+        <!--this sets properties that would normally later be created in the build-impl.xml-->
+        <property location="${build.classes.dir}" name="build.classes.dir.resolved"/>
+        <pathconvert property="run.classpath.without.build.classes.dir">
+            <path path="${run.classpath}"/>
+            <map from="${build.classes.dir.resolved}" to=""/>
+            <!--replace assets folder in dist classpath-->
+            <map from="${testdata.dir.resolved}" to="${testdata.jar.resolved}"/>
+            <!--add tests jar to dist classpath-->
+            <path path="build/jme3test.jar"/>
+        </pathconvert>
+    </target>
+
+    <!-- puts jme3 jars, libs, source and javadoc in a dated zip file -->
+    <target name="dist" depends="clean, jar, javadoc">
+        <!-- create date in the format MM-dd-yyyy -->
+        <tstamp>
+            <format property="date" pattern="yyyy-MM-dd" locale="en,US"/>
+        </tstamp>
+        <property name="jme3zip" value="jME3_${date}.zip"/>
+
+        <!-- make zip file -->
+        <zip destfile="${jme3zip}">
+            <fileset dir=".">
+                <include name="TestChooser.exe"/>
+                <include name="README.TXT"/>
+            </fileset>
+            <fileset dir="dist/">
+                <include name="jMonkeyEngine3.jar"/>
+            </fileset>
+            <zipfileset dir="dist/lib" prefix="lib"/>
+            <zipfileset dir="dist/javadoc" prefix="javadoc"/>
+            <zipfileset dir="${src.core.dir}" prefix="source"/>
+            <zipfileset dir="${src.core-data.dir}" prefix="source"/>
+            <zipfileset dir="${src.core-plugins.dir}" prefix="source"/>
+            <zipfileset dir="${src.desktop.dir}" prefix="source"/>
+            <zipfileset dir="${src.desktop-fx.dir}" prefix="source"/>
+            <zipfileset dir="${src.games.dir}" prefix="source"/>
+            <zipfileset dir="${src.jbullet.dir}" prefix="source"/>
+            <zipfileset dir="${src.niftygui.dir}" prefix="source"/>
+            <zipfileset dir="${src.jogg.dir}" prefix="source"/>
+            <zipfileset dir="${src.lwjgl-oal.dir}" prefix="source"/>
+            <zipfileset dir="${src.lwjgl-ogl.dir}" prefix="source"/>
+            <zipfileset dir="${src.ogre.dir}" prefix="source"/>
+            <zipfileset dir="${src.pack.dir}" prefix="source"/>
+            <zipfileset dir="${src.jheora.dir}" prefix="source"/>
+            <zipfileset dir="${src.test.dir}" prefix="source"/>
+            <zipfileset dir="${src.tools.dir}" prefix="source"/>
+            <zipfileset dir="${src.xml.dir}" prefix="source"/>
+            <zipfileset dir="${src.terrain.dir}" prefix="source"/>
+            <zipfileset dir="${src.networking.dir}" prefix="source"/>
+        </zip>
+    </target>
+    
+    <!-- convenience target to transfer jme3 libraries to jme3-gde (jMonkeyPlatform) -->
+    <target name="update-gde" depends="jar, javadoc">
+        <antcall target="-do-update-gde" inheritall="true">
+            <param name="jmp_dir" value="../jme3-gde/"/>
+        </antcall>
+    </target>
+
+    <!-- convenience target to transfer jme3 libraries to the jme3-jmp folder on the Hudson build server (jMonkeyPlatform) -->
+    <target name="update-jmp-hudson">
+        <!--update jme3 svn revision info properly-->
+        <exec executable="svn" dir=".">
+            <arg value="update" />
+        </exec>
+        <!--update jmp-->
+        <antcall target="-do-update-gde" inheritall="true">
+            <param name="jmp_dir" value="../../jme3-jmp/workspace/"/>
+        </antcall>
+        <!--antcall target="-create-jme3-svn-properties" inheritall="true">
+            <param name="jmp_dir" value="../../jme3-jmp/workspace/"/>
+        </antcall-->
+    </target>
+
+    <target name="-do-update-gde">
+        <!--clear old files-->
+        <delete dir="${jmp_dir}/JME3TestsTemplate/src/"/>
+        <delete dir="${jmp_dir}/jme3-core-baselibs/release/modules/ext/"/>
+        <delete dir="${jmp_dir}/jme3-core-libraries/release/modules/ext/"/>
+        <delete dir="${jmp_dir}/jme3-project-libraries/release/libs/"/>
+        <delete dir="${jmp_dir}/jme3-project-baselibs/release/libs/"/>
+        <delete dir="${jmp_dir}/jme3-project-testdata/release/libs/"/>
+
+        <!--jme3 base libs-->
+        <copy file="${dist.jar}" toDir="${jmp_dir}/jme3-core-baselibs/release/modules/ext/" overwrite="true" failonerror="true" verbose="true"/>
+        <copy file="dist/lib/jME3-lwjgl-natives.jar" toDir="${jmp_dir}/jme3-core-baselibs/release/modules/ext/" overwrite="true" failonerror="true" verbose="true"/>
+<!--        <copy file="dist/lib/jME3-jogl-natives.jar" toDir="${jmp_dir}/jme3-core-baselibs/release/modules/ext/" overwrite="true" failonerror="true" verbose="true"/>-->
+<!--        <copy file="dist/lib/jME3-natives-joal.jar" toDir="${jmp_dir}/jme3-core-baselibs/release/modules/ext/" overwrite="true" failonerror="true" verbose="true"/>-->
+
+        <copy file="${dist.jar}" toDir="${jmp_dir}/jme3-project-baselibs/release/libs/" overwrite="true" failonerror="true" verbose="true"/>
+
+        <!--jme3 libraries-->
+        <copy todir="${jmp_dir}/jme3-core-libraries/release/modules/ext/" overwrite="true" failonerror="true" verbose="true">
+            <!--exclude jme3 test data from core-->
+            <fileset dir="dist/lib/">
+                <exclude name="jme3testdata.jar"/>
+                <exclude name="jme3test.jar"/>
+                <exclude name="jME3-lwjgl-natives.jar"/>
+                <exclude name="jME3-jogl-natives.jar"/>
+                <exclude name="jME3-natives-joal.jar"/>
+            </fileset>
+        </copy>
+        <copy todir="${jmp_dir}/jme3-project-libraries/release/libs/" overwrite="true" failonerror="true" verbose="true">
+            <!--exclude jme3 test data from libs-->
+            <fileset dir="dist/lib/">
+                <exclude name="jme3testdata.jar"/>
+                <exclude name="jme3test.jar"/>
+            </fileset>
+        </copy>
+
+        <!--test data-->
+        <copy file="dist/lib/jme3testdata.jar" toDir="${jmp_dir}/jme3-project-testdata/release/libs/" overwrite="true" failonerror="true" verbose="true"/>
+
+        <!--javadoc-->
+        <zip destfile="dist/jMonkeyEngine3-javadoc.zip">
+            <zipfileset dir="dist/javadoc/"/>
+        </zip>
+        <copy file="dist/jMonkeyEngine3-javadoc.zip" toDir="${jmp_dir}/jme3-project-baselibs/release/libs/" overwrite="true" failonerror="true" verbose="true"/>
+
+        <!--sources-->
+        <zip destfile="dist/jMonkeyEngine3-sources.zip">
+            <zipfileset dir="${src.core.dir}"/>
+            <zipfileset dir="${src.core-data.dir}"/>
+            <zipfileset dir="${src.core-plugins.dir}"/>
+            <zipfileset dir="${src.desktop.dir}"/>
+            <zipfileset dir="${src.desktop-fx.dir}"/>
+            <zipfileset dir="${src.games.dir}"/>
+            <zipfileset dir="${src.jbullet.dir}"/>
+            <zipfileset dir="${src.niftygui.dir}"/>
+            <zipfileset dir="${src.jogg.dir}"/>
+            <zipfileset dir="${src.lwjgl-oal.dir}"/>
+            <zipfileset dir="${src.lwjgl-ogl.dir}"/>
+            <zipfileset dir="${src.ogre.dir}"/>
+            <zipfileset dir="${src.pack.dir}"/>
+            <zipfileset dir="${src.jheora.dir}"/>
+            <zipfileset dir="${src.test.dir}"/>
+            <zipfileset dir="${src.tools.dir}"/>
+            <zipfileset dir="${src.xml.dir}"/>
+            <zipfileset dir="${src.terrain.dir}"/>
+            <zipfileset dir="${src.networking.dir}"/>
+        </zip>
+        <copy file="dist/jMonkeyEngine3-sources.zip" toDir="${jmp_dir}/jme3-project-baselibs/release/libs/" overwrite="true" failonerror="true" verbose="true"/>
+        
+        <!--examples-->
+        <copy todir="${jmp_dir}/JME3TestsTemplate/src/" overwrite="true" failonerror="true" verbose="true">
+            <fileset dir="src/test/">
+                <exclude name=".svn"/>
+            </fileset>
+        </copy>
+    </target>
+
+    <!--creates properties files containing svn info for the jme3 folders in jMP-->
+    <target name="-create-jme3-svn-properties">
+        <mkdir dir="${jmp_dir}/build"/>
+        <!--update jme3 svn revision-->
+        <exec executable="svn" dir=".">
+            <arg value="update" />
+        </exec>
+        <!--jme3 svn properties-->
+        <exec executable="svn" dir="." output="${jmp_dir}/build/jme3-svn.properties">
+            <arg value="info" />
+        </exec>
+        <replace file="${jmp_dir}/build/jme3-svn.properties" token=" " value=""/>
+        <!--jme3 test data svn properties-->
+        <exec executable="svn" dir="src/test-data/" output="${jmp_dir}/build/jme3-testdata-svn.properties">
+            <arg value="info" />
+        </exec>
+        <replace file="${jmp_dir}/build/jme3-testdata-svn.properties" token=" " value=""/>
+        <!--jme3 libraries svn properties-->
+        <exec executable="svn" dir="lib/" output="${jmp_dir}/build/jme3-lib-svn.properties">
+            <arg value="info" />
+        </exec>
+        <replace file="${jmp_dir}/build/jme3-lib-svn.properties" token=" " value=""/>
+        <!--jme3 tests svn properties-->
+        <exec executable="svn" dir="src/test/" output="${jmp_dir}/build/jme3-tests-svn.properties">
+            <arg value="info" />
+        </exec>
+        <replace file="${jmp_dir}/build/jme3-tests-svn.properties" token=" " value=""/>
+    </target>
+
+    <!-- upload jme3 zip to jmonkeyengine.com/nightly -->
+    <target name="deploy" depends="dist">
+        <scp todir="${sshpath}:/var/www/nightly" verbose="yes" trust="yes">
+            <fileset dir=".">
+                <include name="${jme3zip}"/>
+            </fileset>
+        </scp>
+    </target>
+
+    <!-- upload jme3 zip to jmonkeyengine.com/nightly -->
+    <target name="deploy-hudson" depends="dist">
+        <copy
+            file="${jme3zip}"
+            toDir="/var/www/nightly" overwrite="true" failonerror="true" verbose="true"
+            />
+        <copydir
+            src="dist/javadoc/" dest="/var/wwworg/javadoc/" forceoverwrite="true"
+            />
+    </target>
+
+</project>

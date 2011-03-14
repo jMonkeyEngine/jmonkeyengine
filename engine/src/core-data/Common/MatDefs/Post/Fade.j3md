@@ -1,0 +1,34 @@
+MaterialDef Fade {
+
+    MaterialParameters {
+        Int NumSamples
+        Texture2D Texture
+        Float Value
+    }
+
+    Technique {
+        VertexShader GLSL150:   Common/MatDefs/Post/Post15.vert
+        FragmentShader GLSL150: Common/MatDefs/Post/Fade15.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+        }
+
+        Defines {
+            RESOLVE_MS : NumSamples
+        }
+    }
+
+    Technique {
+        VertexShader GLSL100:   Common/MatDefs/Post/Post.vert
+        FragmentShader GLSL100: Common/MatDefs/Post/Fade.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix           
+        }
+    }
+
+    Technique FixedFunc {
+    }
+
+}

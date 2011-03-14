@@ -1,0 +1,26 @@
+MaterialDef Post Shadow {
+
+    MaterialParameters {
+        Texture2D ShadowMap
+        Matrix4 LightViewProjectionMatrix
+    }
+
+    Technique {
+        VertexShader GLSL100:   Common/MatDefs/Shadow/PostShadow.vert
+        FragmentShader GLSL100: Common/MatDefs/Shadow/PostShadow.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+            WorldMatrix
+        }
+
+        Defines {
+            NO_SHADOW2DPROJ
+        }
+
+        RenderState {
+            Blend Modulate
+        }
+    }
+
+}

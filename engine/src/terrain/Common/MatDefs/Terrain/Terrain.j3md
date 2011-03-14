@@ -1,0 +1,33 @@
+MaterialDef Terrain {
+
+	MaterialParameters {
+
+        // use tri-planar mapping
+        Boolean useTriPlanarMapping
+
+		Texture2D Alpha
+		Texture2D Tex1
+		Texture2D Tex2
+		Texture2D Tex3
+		Float Tex1Scale
+		Float Tex2Scale
+		Float Tex3Scale
+	}
+
+	Technique {
+		VertexShader GLSL100:   Common/MatDefs/Terrain/Terrain.vert
+		FragmentShader GLSL100: Common/MatDefs/Terrain/Terrain.frag
+		
+		WorldParameters {
+			WorldViewProjectionMatrix
+		}
+
+        Defines {
+            TRI_PLANAR_MAPPING : useTriPlanarMapping
+        }
+	}
+	
+	Technique FixedFunc {
+    }
+
+}

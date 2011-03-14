@@ -1,0 +1,41 @@
+#import "Common/ShaderLib/Common.glsllib"
+
+vec3 Texture_GetNormal(in sampler2D normalMap, in vec2 texCoord){
+    #ifdef NORMAL_LATC
+        return Common_UnpackNormalLA( texture2D(normalMap, texCoord) );
+    #else
+        return Common_UnpackNormal( texture2D(normalMap, texCoord).rgb );
+    #endif
+}
+
+#ifdef DXT_YCOCG
+const mat4 ycocg_mat = mat4( 1.0, -1.0,  0.0,                 1.0,
+                             0.0,  1.0, -0.5 * 256.0 / 255.0, 1.0,
+                            -1.0, -1.0,        256.0 / 255.0, 1.0,
+                             0.0,  0.0,  0.0,                 0.0 );
+#endif
+
+vec4 Texture_GetColor(in sampler2D colorMap, in vec2 texCoord){
+    #ifdef DXT_YCOCG
+        vec4 color = texture2D(colorMap, texCoord);
+        // fast YCoCg decode:
+        color.z = 1.0 / ((color.z * ( 255.0 / 8.0 )) + 1.0);
+        color.xy *= color.z;
+        return color * ycocg_mat;
+
+        // slow decode:
+        //float Y = color.a;
+        //float scale = 1.0 / ((255.0 / 8.0) * color.b + 1.0);
+        //const float offset = 128.0 / 255.0;
+        //float Co = (color.r - offset) * scale;
+        //float Cg = (color.g - offset) * scale;
+
+        //float R = Y + Co - Cg;
+        //float G = Y + Cg;
+        //float B = Y - Co - Cg;
+
+        //return vec4(R, G, B, 1.0);
+    #else
+        return texture2D(colorMap, texCoord);
+    #endif
+}

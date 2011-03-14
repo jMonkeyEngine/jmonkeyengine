@@ -1,0 +1,21 @@
+MaterialDef Bloom {
+
+    MaterialParameters {
+        Int NumSamples
+        Texture2D Texture
+        Float Size
+        Float Scale
+    }
+
+    Technique {
+        VertexShader GLSL100:   Common/MatDefs/Post/Post.vert
+        FragmentShader GLSL100: Common/MatDefs/Blur/HGaussianBlur.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+        }
+    }
+
+    Technique FixedFunc {
+    }
+}

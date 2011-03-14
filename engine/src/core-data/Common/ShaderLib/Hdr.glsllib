@@ -1,0 +1,65 @@
+const float epsilon = 0.0001;
+const vec3 lumConv = vec3(0.27, 0.67, 0.06);
+
+float HDR_GetLum(in vec3 color){
+    return dot(color, lumConv);
+}
+
+vec4 HDR_EncodeLum(in float lum){
+    float Le = 2.0 * log2(lum + epsilon) + 127.0;
+    vec4 result = vec4(0.0);
+    result.a = fract(Le);
+    result.rgb = vec3((Le - (floor(result.a * 255.0)) / 255.0) / 255.0);
+    return result;
+}
+
+float HDR_DecodeLum(in vec4 logLum){
+    float Le = logLum.r * 255.0 + logLum.a;
+    return exp2((Le - 127.0) / 2.0);
+}
+
+const mat3 rgbToXyz = mat3(
+    0.2209, 0.3390, 0.4184,
+    0.1138, 0.6780, 0.7319,
+    0.0102, 0.1130, 0.2969);
+
+const mat3 xyzToRgb = mat3(
+    6.0013,    -2.700,    -1.7995,
+    -1.332,    3.1029,    -5.7720,
+    .3007,    -1.088,    5.6268);
+
+vec4 HDR_LogLuvEncode(in vec3 rgb){
+    vec4 result;
+    vec3 Xp_Y_XYZp = rgb * rgbToXyz;
+    Xp_Y_XYZp = max(Xp_Y_XYZp, vec3(1e-6, 1e-6, 1e-6));
+    result.xy = Xp_Y_XYZp.xy / Xp_Y_XYZp.z;
+    float Le = 2.0 * log2(Xp_Y_XYZp.y) + 127.0;
+    result.w = fract(Le);
+    result.z = (Le - (floor(result.w * 255.0)) / 255.0) / 255.0;
+    return result;
+}
+
+vec3 HDR_LogLuvDecode(in vec4 logLuv){
+    float Le = logLuv.z * 255.0 + logLuv.w;
+    vec3 Xp_Y_XYZp;
+    Xp_Y_XYZp.y = exp2((Le - 127.0) / 2.0);
+    Xp_Y_XYZp.z = Xp_Y_XYZp.y / logLuv.y;
+    Xp_Y_XYZp.x = logLuv.x * Xp_Y_XYZp.z;
+    vec3 rgb = Xp_Y_XYZp * xyzToRgb;
+    return max(rgb, 0.0);
+}
+
+vec3 HDR_ToneMap(in vec3 color, in float lumAvg, in float a, in float white){
+    white *= white;
+    float lumHDR = HDR_GetLum(color);
+    float L = (a / lumAvg) * lumHDR;
+    float Ld = 1.0 + (L / white);
+    Ld = (Ld * L) / (1.0 + L);
+    return (color / lumHDR) * Ld;
+    //return color * vec3(Ld);
+}
+
+vec3 HDR_ToneMap2(in vec3 color, in float lumAvg, in float a, in float white){
+    float scale = a / (lumAvg + 0.001);
+    return (vec3(scale) * color) / (color + vec3(1.0));
+}

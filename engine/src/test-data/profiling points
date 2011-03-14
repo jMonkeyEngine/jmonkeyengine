@@ -1,0 +1,32 @@
+CPU usage:
+----------
+
+ObjLoader.load()
+ - ObjLoader.readLine()
+
+HDRLoader.writeRGBE() // need faster RGBE8 -> RGB16F conversion
+
+// OpenGL resource-intesive points
+Renderer.renderQueue()
+Renderer.setVertexAttrib()
+Material.apply()
+
+Memory usage:
+-------------
+ - OBJLoader
+Java's Scanner class allocates approx. 8 MB of memory
+to load the teapot model. Either implement ObjLoader without Scanner
+or create an import/export system!
+
+ - AWTLoader
+Using AWT for loading images is slow and uses more memory
+than a home-grown loader. Use DDS and TGA formats more.
+
+ - Shader.getUniforms
+This method generates a collection to represent the Uniforms
+in the shader and is used by Renderer.updateShaderUniforms()
+Need a faster method to iterate & update uniforms in a shader.
+
+ - Material.apply
+Same thing as above. Generates a Collection and then an Iterator for a HashMap.
+First, consider if using a HashMap is neccessary..

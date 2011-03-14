@@ -1,0 +1,40 @@
+convert all leafs in octree to PvsNode, add to list pvsNodes
+
+for (every nodeX in pvsNodes):
+    for (every nodeY in pvsNodes):
+        if (nodeX == nodeY or nodeX adjecent or intersecting nodeY):
+            continue
+
+        setup camera for (nodeX, nodeY)
+        draw every node except nodeX & nodeY
+
+        turn on occlusion query
+        draw nodeY as bounding box
+        turn off occlusion query
+
+        if (numSamples > 0): // node is visible
+            add nodeY to nodeX's potentially visible set
+
+
+setup camera for node, sideI:
+
+    float width, height, near;
+
+    switch (sideI):
+        case X+
+        case X-
+            width  = x extent
+            height = y extent
+            near   = z extent / 2
+        case Y+
+        case Y-
+            width  = x extent
+            height = z extent
+            near   = y extent / 2
+        case Z+
+        case Z-
+            width  = z extent
+            height = y extent
+            near   = x extent / 2
+
+
