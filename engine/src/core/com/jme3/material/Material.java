@@ -288,6 +288,7 @@ public class Material implements Cloneable, Savable, Comparable<Material> {
     private String checkSetParam(VarType type, String name) {
         MatParam paramDef = def.getMaterialParam(name);
         String newName = name;
+       
         if (paramDef == null && name.startsWith("m_")) {
             newName = name.substring(2);
             paramDef = def.getMaterialParam(newName);
@@ -335,8 +336,9 @@ public class Material implements Cloneable, Savable, Comparable<Material> {
      * @param name the name of the parameter to clear
      */
     public void clearParam(String name) {
-        name = checkSetParam(null, name);
-
+       //On removal, we don't check if the param exists in the paramDef, and just go on with the process.
+       // name = checkSetParam(null, name);
+ 
         MatParam matParam = getParam(name);
         if (matParam != null) {
             paramValues.remove(name);
@@ -413,7 +415,7 @@ public class Material implements Cloneable, Savable, Comparable<Material> {
      */
     public void setTexture(String name, Texture value) {
         if (value == null) {
-            // clear it
+             // clear it
             clearTextureParam(name);
             return;
         }
