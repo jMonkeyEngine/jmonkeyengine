@@ -54,6 +54,8 @@ class Letters {
             Range end = ranges.getLast();
             setColor(end.start, plainText.length(), end.color);
         }
+        
+        invalidate();
     }
 
     LetterQuad getHead() {
