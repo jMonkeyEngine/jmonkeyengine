@@ -290,7 +290,7 @@ public class Geometry extends Spatial {
                 geomClone.material = material;
         }
         
-        if (mesh.getBuffer(Type.BindPosePosition) != null){
+        if (mesh != null && mesh.getBuffer(Type.BindPosePosition) != null){
             geomClone.mesh = mesh.cloneForAnim();
         }
         
