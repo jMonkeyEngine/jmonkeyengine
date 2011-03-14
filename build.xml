@@ -37,7 +37,7 @@
         <antcall target="-get-platform"/>
     </target>
 
-    <target name="hudson-nightly" depends="clean" depends="update-platform">
+    <target name="hudson-nightly" depends="clean, update-platform">
         <ant dir="engine" target="deploy-hudson"/>
         <ant dir="engine" target="hudson-update-sdk"/>
         <ant dir="sdk" target="hudson-updatecenter"/>
