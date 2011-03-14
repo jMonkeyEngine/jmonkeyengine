@@ -80,7 +80,7 @@
     </target>
 
     <!-- convenience target to transfer jme3 libraries to the jme3-jmp folder on the Hudson build server (jMonkeyPlatform) -->
-    <target name="hudson-update-sdk">
+    <target name="hudson-update-sdk" depends="init">
         <!--update jme3 svn revision info properly-->
         <exec executable="svn" dir=".">
             <arg value="update" />
