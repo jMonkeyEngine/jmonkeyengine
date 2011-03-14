@@ -1,0 +1,89 @@
+
+<h1><a>Serialization system</a></h1>
+<div>
+
+<p>
+In this lesson you&#039;ll learn about a pretty advanced system of SpiderMonkey. Why so early, you may ask; it&#039;s because it is an important aspect of SpiderMonkey, that you need to understand to effectively network your games.
+</p>
+
+<p>
+Let&#039;s start with a general explanation of how the serialization system works. SpiderMonkey&#039;s Serializer class is the entry point for everything serializing. Serializing is the act of translating an object into bytes, so it can be transferred over the network. SpiderMonkey does this by having Serializer classes (they extend Serializer itself), and having some static methods available in the Serializer class. A serializer does not exist without a class it can serialize - this means that Serializers need to be registered with a class. For example, the String type is registered to the StringSerializer class. Without the String type being registered, there&#039;d be no instance of StringSerializer. So! Let&#039;s get down to business!
+
+</p>
+
+</div>
+
+<h3><a>Writing your own serializer</a></h3>
+<div>
+
+<p>
+There is going to be a situation where you need to serialize something yourself, whether you like it or not. We&#039;re going through how you&#039;re going to do, by writing a entirely new Serializer - please note that this Serializer is not necessary in SpiderMonkey, since SpiderMonkey can serialize Serializable, and InetAddress4 implements Serializable (though it does save a LOT of bytes by doing it yourself). The field that makes an InetAddress4 an InetAddress4 is the IP address, so that&#039;s what we&#039;re going to serialize. Let&#039;s start by going through the basics of extending the Serializer class:
+
+</p>
+<pre>public class Inet4AddressSerializer extends Serializer &#123;
+   public IOException
+      return null;
+   &#125;
+&nbsp;
+   public void writeObject&#40;ByteBuffer buffer, IOException &#123;
+      InetAddress&#41;object;
+   &#125;
+&#125;</pre>
+<p>
+
+As you can see, you have to extend Serializer and implement the methods T readObject(ByteBuffer, Class) and writeObject(ByteBuffer, Object). These are the methods that actually do the job. Obviously, writeObject is used when sending, and readObject is used when reading. The next part is just Java coding - you just kind of have to know the <acronym title="Application Programming Interface">API</acronym> of those objects you&#039;re serializing to convert into bytes. This one&#039;s really simple though ;)
+</p>
+<pre>public class Inet4AddressSerializer extends Serializer &#123;
+   @Override
+   public &lt;T&gt; T readObject&#40;ByteBuffer data, Class&lt;T&gt; c&#41; throws IOException &#123;
+       byte&#91;&#93; address = new byte&#91;4&#93;;
+       data.get&#40;address&#41;;
+       return &#40;T&#41;Inet4Address.getByAddress&#40;address&#41;;
+   &#125;
+&nbsp;
+   @Override
+   public void writeObject&#40;ByteBuffer buffer, IOException &#123;
+       Inet4Address address = &#40;Inet4Address&#41;object;
+       buffer.put&#40;address.getAddress&#40;&#41;&#41;;
+   &#125;
+&#125;</pre>
+<p>
+
+So now you&#039;ve got this serializer, and you don&#039;t know what to do with it. Well, you need to register it to a class, and what other class would you want to register it to, than Inet4Address?
+
+</p>
+<pre>
+Serializer.registerClass(Inet4Address.class, new Inet4AddressSerializer());
+</pre>
+
+<p>
+
+And now you can use the Inet4Address anywhere in a Message! Now we&#039;ll test this Serializer, and see if we can get the IP on the other side:
+</p>
+<pre>public class AddressMessage extends Message &#123;
+  public Inet4Address addr;
+  public AddressMessage&#40;Inet4Address addr&#41; &#123; this.addr = addr; &#125;
+&#125;
+...
+client.send&#40;new AddressMessage&#40;Inet4Address.getByName&#40;&quot;google.com&quot;&#41;&#41;&#41;;</pre>
+<p>
+
+Results in a message being received, which prints out as:
+
+</p>
+<pre>
+/66.102.13.106
+</pre>
+
+<p>
+
+And there you go, that&#039;s the end of this tutorial!
+</p>
+
+<p>
+Next tutorial you&#039;ll learn about a simple, but powerful feature - compression.
+
+</p>
+
+</div>
+<p><em><a href="http://jmonkeyengine.org/wiki/doku.php/spidermonkey:tutorial:serializing?do=export_xhtmlbody">view online version</a></em></p>

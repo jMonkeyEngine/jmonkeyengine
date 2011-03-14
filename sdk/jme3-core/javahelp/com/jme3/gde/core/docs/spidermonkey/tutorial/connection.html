@@ -1,0 +1,101 @@
+
+<h1><a>Connecting</a></h1>
+<div>
+
+<p>
+This very first tutorial is going to teach you how to open a server and a client, and connect them to eachother. I&#039;ll also discuss how connection registration works. Since this is a very simple process in SpiderMonkey, this tutorial will be quite short.
+</p>
+
+</div>
+
+<h3><a>Simple connections</a></h3>
+<div>
+
+<p>
+Creating a server is as simple as doing this:
+
+</p>
+<pre>Server myServer = new Server&#40;4040, 5050&#41;;
+myServer.start&#40;&#41;;</pre>
+<p>
+This initializes and starts a server on TCP port 4040 and UDP port 5050. Now it&#039;s time to connect a client:
+</p>
+<pre>Client client = new Client&#40;&quot;localhost&quot;, 4040, 5050&#41;;
+client.start&#40;&#41;;</pre>
+<p>
+This initializes and starts a client, and it will immediately connect to localhost, TCP port 4040, and UDP port 5050. In the log, you&#039;ll get to see this:
+</p>
+<pre>
+Sep 16, 2010 11:52:16 AM com.jme3.network.connection.TCPConnection bind
+INFO: [Server#1][TCP] Bound to 0.0.0.0/0.0.0.0:4040
+Sep 16, 2010 11:52:16 AM com.jme3.network.connection.UDPConnection bind
+INFO: [Server#1][UDP] Bound to 0.0.0.0/0.0.0.0:5050
+Sep 16, 2010 11:52:16 AM com.jme3.network.connection.Server start
+INFO: [Server#1][???] Started server.
+Sep 16, 2010 11:52:16 AM com.jme3.network.connection.TCPConnection connect
+INFO: [Client#1][TCP] Connecting to localhost/127.0.0.1:4040
+Sep 16, 2010 11:52:16 AM com.jme3.network.connection.UDPConnection connect
+INFO: [Client#1][UDP] Set target to localhost/127.0.0.1:5050
+Sep 16, 2010 11:52:16 AM com.jme3.network.connection.TCPConnection accept
+INFO: [Server#1][TCP] A client connected with address /127.0.0.1
+Sep 16, 2010 11:52:16 AM com.jme3.network.connection.TCPConnection connect
+INFO: [Client#1][TCP] Connection succeeded.
+</pre>
+
+<p>
+
+As you can see, this is a combined log of the client and server. Even though it looks like only a connection has been made, the Client registration has already happened at this point as well. Client registration is necessary so you can call TCP and UDP methods on only one Client instance on the server. You don&#039;t have to worry about client registration, since SpiderMonkey does this automatically on connection.
+
+</p>
+
+</div>
+
+<h3><a>Connector filters</a></h3>
+<div>
+
+<p>
+You can also filter connections (or connectors as I call them) in SpiderMonkey. You can do this by implementing the ConnectorFilter interface:
+</p>
+<pre>public class MyConnectorFilter implements ConnectorFilter &#123;
+   public String filterConnector&#40;InetSocketAddress address&#41; &#123;
+      if &#40;address.isLoopbackAddress&#40;&#41;&#41; return &quot;I don't like locals!&quot;;
+      return null;
+   &#125;  
+&#125;</pre>
+<p>
+
+Return null for no filtering, or a String with the reason if you want to filter this person.
+</p>
+
+</div>
+
+<h3><a>Discover hosts</a></h3>
+<div>
+
+<p>
+SpiderMonkey Clients are also able to discover hosts running in the LAN. This is also a very simple process, and can be done as follows:
+
+</p>
+<pre>Client client = new Client&#40;&#41;;
+List&lt;InetAddress&gt; foundHosts = client.discoverHosts&#40;5050, 5000&#41;;</pre>
+<p>
+
+This starts the host discovery on port 5050, and listens for servers for 5 seconds. Typically, servers respond pretty fast so a few seconds should be enough. To do something with these hosts it&#039;s as simple as doing:
+
+</p>
+<pre>for &#40;InetAddress host : foundHosts&#41; &#123;
+    client.connect&#40;host.getCanonicalHostName&#40;&#41;, 4040, 5050&#41;;
+&#125;
+client.start&#40;&#41;;</pre>
+<p>
+
+Do note that this would connect to every host found, so this does not work properly, but the idea is that you can configure it the way you want it. Don&#039;t forget to start() the client.
+</p>
+
+<p>
+This concludes the first tutorial. In the next tutorial, it&#039;s time to send and listen for messages!
+
+</p>
+
+</div>
+<p><em><a href="http://jmonkeyengine.org/wiki/doku.php/spidermonkey:tutorial:connection?do=export_xhtmlbody">view online version</a></em></p>

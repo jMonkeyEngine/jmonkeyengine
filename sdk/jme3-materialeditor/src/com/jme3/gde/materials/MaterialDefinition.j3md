@@ -1,0 +1,16 @@
+MaterialDef My MaterialDef {
+
+    MaterialParameters {
+        Vector4 Color
+    }
+
+    Technique {
+        VertexShader GLSL100:   Common/MatDefs/Misc/SolidColor.vert
+        FragmentShader GLSL100: Common/MatDefs/Misc/SolidColor.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+        }
+    }
+
+}

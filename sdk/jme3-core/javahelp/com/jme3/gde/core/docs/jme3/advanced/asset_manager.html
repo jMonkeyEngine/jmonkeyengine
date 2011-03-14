@@ -1,0 +1,145 @@
+
+<h1><a>AssetManager</a></h1>
+<div>
+
+<p>
+
+JME3 has an integrated an asset manager that helps you keep your project assets organized. By assets we mean media files, such as 3D models, materials, textures, scenes, shaders, sounds, and fonts. 
+</p>
+
+<p>
+The <code>assetManager</code> object is an com.jme3.asset.AssetManager instance that every com.jme3.app.Application can access. It maintains a root that also includes your project&#039;s classpath by default, so you can load any asset that&#039;s on the classpath, that is, the top level of your project directory. 
+</p>
+
+<p>
+You can use the inherited <code>assetManager</code> object directly, or use the accessor <code>getAssetManager()</code>.
+</p>
+
+<p>
+Here is an example how you load assets using the  AssetManager. This lines loads a default Material from the Common directory:
+</p>
+<pre>Material mat = &#40;Material&#41; assetManager.loadAsset&#40;
+    new AssetKey&#40;&quot;Common/Materials/RedColor.j3m&quot;&#41;&#41;;</pre>
+<p>
+The Material is “somewhere” in the jME3 JAR, but the default Asset Manager is configured to handle a <code>Common/…</code> path correctly, so you don&#039;t have to specify the whole path.
+</p>
+
+<p>
+Additionally, You can configure the Asset Manager and add any path to its root. This means, you can load assets from any project directory you specify. 
+</p>
+
+<p>
+<strong>In project created with  jMonkeyPlatform, jME3 searches for models in the <code>assets</code> directory of your project by default.</strong> This is our recommended directory structure for storing assets:
+</p>
+<pre>
+MyGame/assets/Interface/
+MyGame/assets/MatDefs/
+MyGame/assets/Materials/
+MyGame/assets/Models/
+MyGame/assets/Scenes/
+MyGame/assets/Shaders/
+MyGame/assets/Sounds/
+MyGame/assets/Textures/
+MyGame/build.xml
+MyGame/src/...
+</pre>
+
+<p>
+These are just the most common examples, you can name the directories inside the assets directory how you like.
+</p>
+
+</div>
+
+<h2><a>Loading Assets</a></h2>
+<div>
+<pre>      Material mat_brick = new Material( 
+          assetManager, &quot;Common/MatDefs/Misc/SimpleTextured.j3md&quot;);</pre>
+<pre>      mat_brick.setTexture(&quot;m_ColorMap&quot;, 
+          assetManager.loadTexture(&quot;Textures/Terrain/BrickWall/BrickWall.jpg&quot;));</pre>
+<pre>      guiFont = assetManager.loadFont(&quot;Interface/Fonts/Default.fnt&quot;);</pre>
+<pre>      Spatial ninja = assetManager.loadModel(&quot;Models/Ninja/Ninja.mesh.xml&quot;);</pre>
+<pre>    assetManager.registerLocator&#40;&quot;town.zip&quot;, ZipLocator.class.getName&#40;&#41;&#41;;
+    Spatial scene = assetManager.loadModel&#40;&quot;main.scene&quot;&#41;;
+    rootNode.attachChild&#40;scene&#41;;</pre>
+<p>
+Here is a HttpZipLocator that can download zipped models:
+</p>
+<pre>    assetManager.registerLocator&#40;&quot;http://jmonkeyengine.googlecode.com/files/wildhouse.zip&quot;, 
+                                 HttpZipLocator.class.getName&#40;&#41;&#41;;
+    Spatial scene = assetManager.loadModel&#40;&quot;main.scene&quot;&#41;;
+    rootNode.attachChild&#40;scene&#41;;</pre>
+<p>
+JME3 offers ClasspathLocator, ZipLocator, FileLocator, HttpZipLocator, and UrlLocator (see <code>com.jme3.asset.plugins</code>). 
+</p>
+<table>
+	<tr>
+		<th> Task? </th><th> Solution! </th>
+	</tr>
+	<tr>
+		<td> Load a model with materials </td><td> Use the asset managers <code>loadModel()</code> method and attach the Spatial to the rootNode. <pre>Spatial elephant = assetManager.loadModel&#40;&quot;Models/Elephant/Elephant.mesh.xml&quot;&#41;;
+rootNode.attachChild&#40;elephant&#41;;</pre><pre>Spatial elephant = assetManager.loadModel&#40;&quot;Models/Elephant/Elephant.j3o&quot;&#41;;
+rootNode.attachChild&#40;elephant&#41;;</pre></td>
+	</tr>
+	<tr>
+		<td> Load a model without materials </td><td> If you have a model without materials, you have to add a default material to make it visible. <pre>Spatial teapot = assetManager.loadModel&#40;&quot;Models/Teapot/Teapot.obj&quot;&#41;;
+Material mat = new Material&#40;assetManager, &quot;Common/MatDefs/Misc/ShowNormals.j3md&quot;&#41;;
+teapot.setMaterial&#40;mat&#41;;
+rootNode.attachChild&#40;teapot&#41;;</pre></td>
+	</tr>
+	<tr>
+		<td> Load a scene </td><td> You load scenes just like you load models: <pre>Spatial scene = assetManager.loadModel&#40;&quot;Scenes/house/main.scene&quot;&#41;;
+rootNode.attachChild&#40;scene&#41;;</pre></td>
+	</tr>
+</table>
+
+</div>
+
+<h2><a>NullPointerException: Cannot locate resource?</a></h2>
+<div>
+
+<p>
+
+An error mesage similar to the following can occur in the console when you run executables, even if the game runs fine when started from the jMoneykPlatform. 
+</p>
+<pre>com.jme3.asset.DesktopAssetManager loadAsset
+WARNING: Cannot locate resource: Scenes/town/main.scene
+com.jme3.app.Application handleError
+SEVERE: Uncaught exception thrown in Thread[LWJGL Renderer Thread,5,main]
+java.lang.NullPointerException
+</pre>
+
+<p>
+Reason: If you use the default build script created by the jMonkeyPlatform then <strong>the original OgreXML files are not included in the executable.</strong> 
+</p>
+
+<p>
+For a stand-alone build, you <strong>work with .j3o files only</strong>. The default build script makes sure to include .j3o files in the executable. 
+</p>
+
+<p>
+You must use the jMonkeyPlatform&#039;s context menu action to <a href="/com/jme3/gde/core/docs/jme3/jmonkeyplatform/model_loader_and_viewer.html">convert OgreXML models to .j3o format</a> to get rid of this error. 
+
+</p>
+<ol>
+<li><div> Open the JME3 Project in the jMonkeyplatform.</div>
+</li>
+<li><div> Browse the Assets directory in the Projects window. </div>
+</li>
+<li><div> Right-click a .mesh.xml file, and choose “convert to JME3 binary”. </div>
+</li>
+<li><div> The converted file appears in the same directory as the .mesh.xml file. It has the same name  and a .j3o suffix. </div>
+</li>
+</ol>
+
+</div>
+
+<h2><a>Asset Handling: Codeless Projects</a></h2>
+<div>
+
+<p>
+
+If you are using another IDE than jMonkeyPlatform, you can create a codeless project in the jMonkeyPlatform to maintain assets. This method will not meddle with your sources or custom build scripts, but you can still browse your assets, and preview, arrange, and convert models. You can, for example, give the designers in your team access to such a codeless project.
+</p>
+
+</div>
+<p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:asset_manager?do=export_xhtmlbody">view online version</a></em></p>

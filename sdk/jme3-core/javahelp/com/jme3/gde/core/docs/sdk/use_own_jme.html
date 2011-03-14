@@ -1,0 +1,38 @@
+
+<h2><a>How to integrate your own jME3 compile in jMP projects</a></h2>
+<div>
+<ol>
+<li><div> <a href="/com/jme3/gde/core/docs/jme3/build_jme3_sources_with_netbeans.html">Download jme3 project from svn</a></div>
+</li>
+<li><div> Make your changes</div>
+</li>
+<li><div> Compile jme3 project</div>
+</li>
+<li><div> Go to Tools → Libraries</div>
+</li>
+<li><div> Press “New Library”</div>
+</li>
+<li><div> Name it “jme3-modified”</div>
+</li>
+<li><div> Press “Add Jar/Folder”</div>
+</li>
+<li><div> Select <code>jMonkeyEngine3.jar</code> from the <code>dist</code> dir of the compiled jme3 version</div>
+</li>
+<li><div> Add the <code>src</code> folder of the jme3 project in the “sources” tab</div>
+</li>
+<li><div> Optionally javadoc in the “javadoc” tab</div>
+</li>
+<li><div> Press “OK”</div>
+</li>
+<li><div> Right-click your project and select “Properties”</div>
+</li>
+<li><div> Select “Libraries” to the left</div>
+</li>
+<li><div> Remove the “jme3” library</div>
+</li>
+<li><div> Press “Add Library” and select the “jme3-modified” library</div>
+</li>
+</ol>
+
+</div>
+<p><em><a href="http://jmonkeyengine.org/wiki/doku.php/sdk:use_own_jme?do=export_xhtmlbody">view online version</a></em></p>

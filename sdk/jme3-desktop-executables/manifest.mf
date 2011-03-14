@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+OpenIDE-Module: com.jme3.gde.desktop.executables
+OpenIDE-Module-Implementation-Version: 0
+OpenIDE-Module-Layer: com/jme3/gde/desktop/executables/layer.xml
+OpenIDE-Module-Localizing-Bundle: com/jme3/gde/desktop/executables/Bundle.properties
+

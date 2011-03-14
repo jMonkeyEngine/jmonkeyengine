@@ -1,0 +1,595 @@
+
+<h1><a>Getting Started with JME3 (13) - Hello Physics</a></h1>
+<div>
+
+<p>
+
+Previous: <a href="/com/jme3/gde/core/docs/jme3/beginner/hello_effects.html">Hello Effects</a>,
+Next: <a href="/com/jme3/gde/core/docs/jme3.html">JME 3 documentation</a>
+</p>
+
+<p>
+For the simulation of physical forces, jME3 integrates the <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://jbullet.advel.cz/"><param name="text" value="<html><u>jBullet</u></html>"><param name="textColor" value="blue"></object> library. The most common use cases for physics in 3D games are:
+
+</p>
+<ul>
+<li><div> Driving vehicles with suspensions, tyre friction, ramp jumping, drifting – example: car racers</div>
+</li>
+<li><div> Rolling and bouncing balls – example: pong, pool billiard, bowling</div>
+</li>
+<li><div> Sliding and falling boxes – example: Breakout, Arkanoid</div>
+</li>
+<li><div> Exposing objects to forces and gravity – example: spaceships or zero-g flight</div>
+</li>
+<li><div> Animating ragdolls – example: “realistic” character simulations</div>
+</li>
+<li><div> … and much more: swinging pendulums, flexible chains…</div>
+</li>
+</ul>
+
+<p>
+
+All that can be done in JME3. Let&#039;s have a look at a Physics simulation in this example where we shoot cannon balls at a wall.
+</p>
+
+<p>
+<img src="nbdocs:/com/jme3/gde/core/docs/jme3/beginner/beginner-physics.png">
+</p>
+
+</div>
+
+<h2><a>Sample Code</a></h2>
+<div>
+
+<p>
+
+Thanks to double1984 for contributing this fun sample!
+</p>
+<pre>package jme3test.helloworld;
+&nbsp;
+import com.jme3.app.SimpleApplication;
+import com.jme3.asset.TextureKey;
+import com.jme3.bullet.BulletAppState;
+import com.jme3.bullet.control.RigidBodyControl;
+import com.jme3.font.BitmapText;
+import com.jme3.input.MouseInput;
+import com.jme3.input.controls.ActionListener;
+import com.jme3.input.controls.MouseButtonTrigger;
+import com.jme3.material.Material;
+import com.jme3.math.Vector2f;
+import com.jme3.math.Vector3f;
+import com.jme3.renderer.queue.RenderQueue.ShadowMode;
+import com.jme3.scene.Geometry;
+import com.jme3.scene.shape.Box;
+import com.jme3.scene.shape.Sphere;
+import com.jme3.scene.shape.Sphere.TextureMode;
+import com.jme3.shadow.BasicShadowRenderer;
+import com.jme3.texture.Texture;
+import com.jme3.texture.Texture.WrapMode;
+&nbsp;
+<span>/**
+ * Example 12 - how to give objects physical properties so they bounce and fall.
+ * @author base code by double1984, updated by zathras
+ */</span>
+public class HelloPhysics extends SimpleApplication &#123;
+&nbsp;
+  public static void main&#40;String args&#91;&#93;&#41; &#123;
+    HelloPhysics app = new HelloPhysics&#40;&#41;;
+    app.start&#40;&#41;;
+  &#125;
+&nbsp;
+  /** Prepare the Physics Application State (jBullet) */
+  private BulletAppState bulletAppState;
+&nbsp;
+  /** Activate custom rendering of shadows */
+  BasicShadowRenderer bsr;
+&nbsp;
+  /** Prepare Materials */
+  Material wall_mat;
+  Material stone_mat;
+  Material floor_mat;
+&nbsp;
+  /** Prepare geometries and physical nodes for bricks and cannon balls. */
+  private RigidBodyControl    brick_phy;
+  private static final Box    box;
+  private RigidBodyControl    ball_phy;
+  private static final Sphere sphere;
+  private RigidBodyControl    floor_phy;
+  private static final Box    floor;
+&nbsp;
+  /** dimensions used for bricks and wall */
+  private static final float brickLength = 0.48f;
+  private static final float brickWidth  = 0.24f;
+  private static final float brickHeight = 0.12f;
+&nbsp;
+  static &#123;
+    /** Initialize the cannon ball geometry */
+    sphere = new Sphere&#40;32, 32, 0.4f, true, false&#41;;
+    sphere.setTextureMode&#40;TextureMode.Projected&#41;;
+    /** Initialize the brick geometry */
+    box = new Box&#40;Vector3f.ZERO, brickLength, brickHeight, brickWidth&#41;;
+    box.scaleTextureCoordinates&#40;new Vector2f&#40;1f, .5f&#41;&#41;;
+    /** Initialize the floor geometry */
+    floor = new Box&#40;Vector3f.ZERO, 10f, 0.1f, 5f&#41;;
+    floor.scaleTextureCoordinates&#40;new Vector2f&#40;3, 6&#41;&#41;;
+  &#125;
+&nbsp;
+  @Override
+  public void simpleInitApp&#40;&#41; &#123;
+    /** Set up Physics Game */
+    bulletAppState = new BulletAppState&#40;&#41;;
+    stateManager.attach&#40;bulletAppState&#41;;
+    /** Configure cam to look at scene */
+    cam.setLocation&#40;new Vector3f&#40;0, 6f, 6f&#41;&#41;;
+    cam.lookAt&#40;Vector3f.ZERO, new Vector3f&#40;0, 1, 0&#41;&#41;;
+    cam.setFrustumFar&#40;15&#41;;
+    /** Add InputManager action: Left click triggers shooting. */
+    inputManager.addMapping&#40;&quot;shoot&quot;, new MouseButtonTrigger&#40;MouseInput.BUTTON_LEFT&#41;&#41;;
+    inputManager.addListener&#40;actionListener, &quot;shoot&quot;&#41;;
+    /** Initialize the scene, materials, and physics space */
+    initMaterials&#40;&#41;;
+    initWall&#40;&#41;;
+    initFloor&#40;&#41;;
+    initCrossHairs&#40;&#41;;
+    initShadows&#40;&#41;;
+  &#125;
+&nbsp;
+  <span>/**
+   * Every time the shoot action is triggered, a new cannon ball is produced.
+   * The ball is set up to fly from the camera position in the camera direction.
+   */</span>
+  private ActionListener&#40;&#41; &#123;
+    public void onAction&#40;String name, boolean keyPressed, float tpf&#41; &#123;
+      if &#40;name.equals&#40;&quot;shoot&quot;&#41; &amp;&amp; !keyPressed&#41; &#123;
+        makeCannonBall&#40;&#41;;
+      &#125;
+    &#125;
+  &#125;;
+&nbsp;
+  /** Initialize the materials used in this scene. */
+  public void initMaterials&#40;&#41; &#123;
+    wall_mat = new Material&#40;assetManager, &quot;Common/MatDefs/Misc/Unshaded.j3md&quot;&#41;;
+    TextureKey key = new TextureKey&#40;&quot;Textures/Terrain/BrickWall/BrickWall.jpg&quot;&#41;;
+    key.setGenerateMips&#40;true&#41;;
+    Texture tex = assetManager.loadTexture&#40;key&#41;;
+    wall_mat.setTexture&#40;&quot;ColorMap&quot;, tex&#41;;
+&nbsp;
+    stone_mat = new Material&#40;assetManager, &quot;Common/MatDefs/Misc/Unshaded.j3md&quot;&#41;;
+    TextureKey key2 = new TextureKey&#40;&quot;Textures/Terrain/Rock/Rock.PNG&quot;&#41;;
+    key2.setGenerateMips&#40;true&#41;;
+    Texture tex2 = assetManager.loadTexture&#40;key2&#41;;
+    stone_mat.setTexture&#40;&quot;ColorMap&quot;, tex2&#41;;
+&nbsp;
+    floor_mat = new Material&#40;assetManager, &quot;Common/MatDefs/Misc/Unshaded.j3md&quot;&#41;;
+    TextureKey key3 = new TextureKey&#40;&quot;Textures/Terrain/Pond/Pond.png&quot;&#41;;
+    key3.setGenerateMips&#40;true&#41;;
+    Texture tex3 = assetManager.loadTexture&#40;key3&#41;;
+    tex3.setWrap&#40;WrapMode.Repeat&#41;;
+    floor_mat.setTexture&#40;&quot;ColorMap&quot;, tex3&#41;;
+  &#125;
+&nbsp;
+  /** Make a solid floor and add it to the scene. */
+  public void initFloor&#40;&#41; &#123;
+    Geometry floor_geo = new Geometry&#40;&quot;Floor&quot;, floor&#41;;
+    floor_geo.setMaterial&#40;floor_mat&#41;;
+    floor_geo.setShadowMode&#40;ShadowMode.Receive&#41;;
+    floor_geo.setLocalTranslation&#40;0, -0.1f, 0&#41;;
+    this.rootNode.attachChild&#40;floor_geo&#41;;
+    /* Make the floor physical with mass 0.0f! */
+    floor_phy = new RigidBodyControl&#40;0.0f&#41;;
+    floor_geo.addControl&#40;floor_phy&#41;;
+    bulletAppState.getPhysicsSpace&#40;&#41;.add&#40;floor_phy&#41;;
+  &#125;
+&nbsp;
+  /** This loop builds a wall out of individual bricks. */
+  public void initWall&#40;&#41; &#123;
+    float startpt = brickLength / 4;
+    float height = 0;
+    for &#40;int j = 0; j &lt; 15; j++&#41; &#123;
+      for &#40;int i = 0; i &lt; 4; i++&#41; &#123;
+        Vector3f vt =
+         new Vector3f&#40;i * brickLength * 2 + startpt, brickHeight + height, 0&#41;;
+        makeBrick&#40;vt&#41;;
+      &#125;
+      startpt = -startpt;
+      height += 2 * brickHeight;
+    &#125;
+  &#125;
+&nbsp;
+  /** Activate shadow casting and light direction */
+  private void initShadows&#40;&#41; &#123;
+    bsr = new BasicShadowRenderer&#40;assetManager, 256&#41;;
+    bsr.setDirection&#40;new Vector3f&#40;-1, -1, -1&#41;.normalizeLocal&#40;&#41;&#41;;
+    viewPort.addProcessor&#40;bsr&#41;;
+    // Default mode is Off -- Every node declares own shadow mode!
+    rootNode.setShadowMode&#40;ShadowMode.Off&#41;;
+  &#125;
+&nbsp;
+  /** This method creates one individual physical brick. */
+  public void makeBrick&#40;Vector3f loc&#41; &#123;
+    /** Create a brick geometry and attach to scene graph. */
+    Geometry brick_geo = new Geometry&#40;&quot;brick&quot;, box&#41;;
+    brick_geo.setMaterial&#40;wall_mat&#41;;
+    rootNode.attachChild&#40;brick_geo&#41;;
+    /** Position the brick geometry and activate shadows */
+    brick_geo.setLocalTranslation&#40;loc&#41;;
+    brick_geo.setShadowMode&#40;ShadowMode.CastAndReceive&#41;;
+    /** Make brick physical with a mass &gt; 0.0f. */
+    brick_phy = new RigidBodyControl&#40;2f&#41;;
+    /** Add physical brick to physics space. */
+    brick_geo.addControl&#40;brick_phy&#41;;
+    bulletAppState.getPhysicsSpace&#40;&#41;.add&#40;brick_phy&#41;;
+  &#125;
+&nbsp;
+  <span>/** This method creates one individual physical cannon ball.
+   * By defaul, the ball is accelerated and flies
+   * from the camera position in the camera direction.*/</span>
+  public void makeCannonBall&#40;&#41; &#123;
+    /** Create a cannon ball geometry and attach to scene graph. */
+    Geometry ball_geo = new Geometry&#40;&quot;cannon ball&quot;, sphere&#41;;
+    ball_geo.setMaterial&#40;stone_mat&#41;;
+    rootNode.attachChild&#40;ball_geo&#41;;
+    /** Position the cannon ball and activate shadows */
+    ball_geo.setLocalTranslation&#40;cam.getLocation&#40;&#41;&#41;;
+    ball_geo.setShadowMode&#40;ShadowMode.CastAndReceive&#41;;
+    /** Make the ball physcial with a mass &gt; 0.0f */
+    ball_phy = new RigidBodyControl&#40;1f&#41;;
+    /** Add physical ball to physics space. */
+    ball_geo.addControl&#40;ball_phy&#41;;
+    bulletAppState.getPhysicsSpace&#40;&#41;.add&#40;ball_phy&#41;;
+    /** Accelerate the physcial ball to shoot it. */
+    ball_phy.setLinearVelocity&#40;cam.getDirection&#40;&#41;.mult&#40;25&#41;&#41;;
+  &#125;
+&nbsp;
+  /** A plus sign used as crosshairs to help the player with aiming.*/
+  protected void initCrossHairs&#40;&#41; &#123;
+    guiNode.detachAllChildren&#40;&#41;;
+    guiFont = assetManager.loadFont&#40;&quot;Interface/Fonts/Default.fnt&quot;&#41;;
+    BitmapText ch = new BitmapText&#40;guiFont, false&#41;;
+    ch.setSize&#40;guiFont.getCharSet&#40;&#41;.getRenderedSize&#40;&#41; * 2&#41;;
+    ch.setText&#40;&quot;+&quot;&#41;;        // fake crosshairs :)
+    ch.setLocalTranslation&#40; // center
+      settings.getWidth&#40;&#41; / 2 - guiFont.getCharSet&#40;&#41;.getRenderedSize&#40;&#41; / 3 * 2,
+      settings.getHeight&#40;&#41; / 2 + ch.getLineHeight&#40;&#41; / 2, 0&#41;;
+    guiNode.attachChild&#40;ch&#41;;
+  &#125;
+&#125;</pre>
+<p>
+You should see a brick wall that is casting a shadow on a floor. Click to shoot cannon balls. Watch the bricks fall and bounce off one another!
+</p>
+
+</div>
+
+<h2><a>A Basic Physics Application</a></h2>
+<div>
+
+<p>
+
+In the previous tutorials, we were using Geometries (boxes, spheres, and models) that we placed in the scene. Geometries can float in mid-air and even overlap – they are not affected by “gravity” and have no physical mass. This tutorial shows how to add physical properties to Geometries. 
+</p>
+
+<p>
+As always, we start with a standard com.jme3.app.SimpleApplication. To activate physics, we create a com.jme3.bullet.BulletAppState, and and attach it to the SimpleApplication&#039;s application state manager. 
+</p>
+<pre>public class HelloPhysics extends SimpleApplication &#123;
+  private BulletAppState bulletAppState;
+&nbsp;
+  public void simpleInitApp&#40;&#41; &#123;
+    bulletAppState = new BulletAppState&#40;&#41;;
+    stateManager.attach&#40;bulletAppState&#41;;
+  &#125;
+&#125;</pre>
+<p>
+The BulletAppState gives the game access to a Physics Space. The Physics Space allows us to use com.jme3.bullet.control.PhysicsControls that add physical properties to Nodes. 
+</p>
+
+</div>
+
+<h2><a>Creating Bricks and Cannon Balls</a></h2>
+<div>
+
+</div>
+
+<h3><a>Geometries</a></h3>
+<div>
+
+<p>
+
+In this “shoot at the wall” example, we use Geometries such as cannon balls and bricks. A geometry just describes the shape and look of an object.
+</p>
+<pre>  /** Prepare geometries and physical nodes for bricks and cannon balls. */
+  private static final Box    box;
+  private static final Sphere sphere;
+  private static final Box    floor;
+&nbsp;
+  /** dimensions used for bricks and wall */
+  private static final float brickLength = 0.48f;
+  private static final float brickWidth  = 0.24f;
+  private static final float brickHeight = 0.12f;
+&nbsp;
+  static &#123;
+    /** Initialize the cannon ball geometry */
+    sphere = new Sphere&#40;32, 32, 0.4f, true, false&#41;;
+    sphere.setTextureMode&#40;TextureMode.Projected&#41;;
+    /** Initialize the brick geometry */
+    box = new Box&#40;Vector3f.ZERO, brickLength, brickHeight, brickWidth&#41;;
+    box.scaleTextureCoordinates&#40;new Vector2f&#40;1f, .5f&#41;&#41;;
+    /** Initialize the floor geometry */
+    floor = new Box&#40;Vector3f.ZERO, 10f, 0.1f, 5f&#41;;
+    floor.scaleTextureCoordinates&#40;new Vector2f&#40;3, 6&#41;&#41;;
+  &#125;</pre>
+</div>
+
+<h3><a>RigidBodyControl: Brick</a></h3>
+<div>
+
+<p>
+
+For each Geometry that we want to have physcial properties, we add a RigidBodyControl. 
+</p>
+<pre>  private RigidBodyControl brick_phy;</pre>
+<p>
+The <code>makeBrick(loc)</code> methods creates a physics node <code>brickNode</code> at a location loc. Our brick shall have 
+</p>
+<ul>
+<li><div> a visible Geometry <code>brick_geo</code></div>
+</li>
+<li><div> physical properties <code>brick_phy</code></div>
+<ul>
+<li><div> a mass of 2.0f. </div>
+</li>
+</ul>
+</li>
+</ul>
+<pre>  public void makeBrick&#40;Vector3f loc&#41; &#123;
+    /** Create a brick geometry and attach to scene graph. */
+    Geometry brick_geo = new Geometry&#40;&quot;brick&quot;, box&#41;;
+    brick_geo.setMaterial&#40;wall_mat&#41;;
+    rootNode.attachChild&#40;brick_geo&#41;;
+    /** Position the brick geometry and activate shadows */
+    brick_geo.setLocalTranslation&#40;loc&#41;;
+    brick_geo.setShadowMode&#40;ShadowMode.CastAndReceive&#41;;
+    /** Make brick physical with a mass &gt; 0.0f. */
+    brick_phy = new RigidBodyControl&#40;2f&#41;;
+    /** Add physical brick to physics space. */
+    brick_geo.addControl&#40;brick_phy&#41;;
+    bulletAppState.getPhysicsSpace&#40;&#41;.add&#40;brick_phy&#41;;
+  &#125;</pre>
+<p>
+This code sample does the following:
+</p>
+<ol>
+<li><div> We use a box shape as brick, and give it a brick-colored material. </div>
+</li>
+<li><div> We attach the brick to the rootNode and position it at the position loc in the scene graph.</div>
+</li>
+<li><div> (Optionally, we activate a “Cast and Receive” shadow mode for each brick.)</div>
+</li>
+<li><div> We create a RigidBodyControl for the brick, add it to the brick Geometry, and register it to the PhysicsSpace. </div>
+</li>
+</ol>
+
+</div>
+
+<h3><a>RigidBodyControl: Cannonball</a></h3>
+<div>
+
+<p>
+
+You will notice that the cannon ball is created in the same way: 
+</p>
+
+<p>
+The <code>makeCannonBall()</code> methods creates a physics node <code>cannonballNode</code>. The cannon ball shall have
+</p>
+<ul>
+<li><div> a visible Geometry <code>ball_geo</code></div>
+</li>
+<li><div> physical properties <code>ball_phy</code></div>
+<ul>
+<li><div> a mass of 1.0f. </div>
+</li>
+</ul>
+</li>
+</ul>
+<pre>  public void makeCannonBall&#40;&#41; &#123;
+    /** Create a cannon ball geometry and attach to scene graph. */
+    Geometry ball_geo = new Geometry&#40;&quot;cannon ball&quot;, sphere&#41;;
+    ball_geo.setMaterial&#40;stone_mat&#41;;
+    rootNode.attachChild&#40;ball_geo&#41;;
+    /** Position the cannon ball and activate shadows */
+    ball_geo.setLocalTranslation&#40;cam.getLocation&#40;&#41;&#41;;
+    ball_geo.setShadowMode&#40;ShadowMode.CastAndReceive&#41;;
+    /** Make the ball physcial with a mass &gt; 0.0f */
+    ball_phy = new RigidBodyControl&#40;1f&#41;;
+    /** Add physical ball to physics space. */
+    ball_geo.addControl&#40;ball_phy&#41;;
+    bulletAppState.getPhysicsSpace&#40;&#41;.add&#40;ball_phy&#41;;
+    /** Accelerate the physcial ball to shoot it. */
+    ball_phy.setLinearVelocity&#40;cam.getDirection&#40;&#41;.mult&#40;25&#41;&#41;;
+  &#125;</pre>
+<p>
+This code sample does the following:
+</p>
+<ol>
+<li><div> We use a sphere shape as cannonball, and give it a stone material. </div>
+</li>
+<li><div> We attach the ball to the rootNode and position it where the camera is.</div>
+</li>
+<li><div> (Optionally, we activate a “Cast and Receive” shadow mode for the ball.)</div>
+</li>
+<li><div> We create a RigidBodyControl for the ball, add it to the ball Geometry, and register it to the PhysicsSpace. </div>
+</li>
+<li><div> Since are are shooting cannon balls here, we accelerate the ball in the direction the camera is looking, with a speed of 25f.</div>
+</li>
+</ol>
+
+</div>
+
+<h3><a>RigidBodyControl: Floor</a></h3>
+<div>
+
+<p>
+
+The (static) floor has one important difference compared to the (dynamic) bricks and cannonballs: A mass of zero.
+</p>
+
+<p>
+As before, we write a custom <code>initFloor()</code> method that creates a flat box with a rock texture that we use as floor. The floor shall have:
+</p>
+<ul>
+<li><div> a visible Geometry <code>floor_geo</code></div>
+</li>
+<li><div> physical properties <code>floor_phy</code></div>
+<ul>
+<li><div> A mass of 0.0f!</div>
+</li>
+</ul>
+</li>
+</ul>
+<pre>  private RigidBodyControl    floor_phy;
+  ...
+  public void initFloor&#40;&#41; &#123;
+    Box&#40;Vector3f.ZERO, 10f, 0.1f, 5f&#41;;
+    floorBox.scaleTextureCoordinates&#40;new Vector2f&#40;3, 6&#41;&#41;;
+    floor_geo = new Geometry&#40;&quot;floor&quot;, floorBox&#41;;
+    floor_geo.setMaterial&#40;floor_mat&#41;;
+    floor_geo.setShadowMode&#40;ShadowMode.Receive&#41;;
+    floor_geo.setLocalTranslation&#40;0, -0.1f, 0&#41;;
+    this.rootNode.attachChild&#40;floor_geo&#41;;
+    /* Make the floor physical with mass 0.0f! */
+    floor_phy = new RigidBodyControl&#40;0.0f&#41;;
+    floor_geo.addControl&#40;floor_phy&#41;;
+    bulletAppState.getPhysicsSpace&#40;&#41;.add&#40;floor_phy&#41;;
+&nbsp;</pre>
+<p>
+This code sample does the following:
+</p>
+<ol>
+<li><div> We use a box shape as floor, and give it a floor material. </div>
+</li>
+<li><div> We attach the floor to the rootNode and position it a bit below the origin – to prevent overlap with other physical nodes.</div>
+</li>
+<li><div> (Optionally, we activate a “Receive” shadow mode for the floor. The floor does not cast any shadows, this saves computing time.)</div>
+</li>
+<li><div> Static objects such as floors are mass-less and are not affected by gravity! Therefor we create a RigidBodyControl with a mass of 0.0f. </div>
+</li>
+<li><div> We add the RigidBodyControl to the floor Geometry, and register it to the PhysicsSpace. </div>
+</li>
+</ol>
+
+</div>
+
+<h2><a>Creating the Scene</a></h2>
+<div>
+
+<p>
+
+Let&#039;s have a quick look at the remaining custom helper methods: <code>initMaterial()</code>, <code>initShadows()</code>, <code>initCrossHairs()</code>, and <code>initWall()</code>. 
+
+</p>
+<ul>
+<li><div> <code>initMaterial()</code> – This method initializes all the materials we use in this demo.</div>
+</li>
+<li><div> <code>initShadows()</code> – (Optional) We deactivate the rootNode&#039;s default ShadowMode and use a JME SceneProcessor called BasicShadowRenderer from the <code>com.jme3.shadow</code> package. For every relevant scene node (floor, cannon balls, bricks) we specify individually what shadow behaviour we want, Cast, Receive, or both.</div>
+</li>
+<li><div> <code>initWall()</code> – A double loop that generates a wall by positioning brick objects: 15 rows high with 4 bricks per row. It&#039;s important to space the bricks so the do not overlap.</div>
+</li>
+<li><div> <code>initCrossHairs()</code> – This method simply displays a plus sign that we use as crosshairs for aiming. Note that screen elements such as crosshairs are attached to the <code>guiNode</code>, not the <code>rootNode</code>.</div>
+</li>
+</ul>
+
+<p>
+
+These methods are each called once from the <code>simpleInitApp()</code> method at the start of the game. As you see, you write any number of custom methods to set up your game&#039;s scene. 
+</p>
+
+</div>
+
+<h2><a>The Cannon Ball Shooting Action</a></h2>
+<div>
+
+<p>
+
+In the <code>initSimpleApp()</code> we add an input mapping that triggers a shoot action when the left mouse button is pressed.
+</p>
+<pre>    public void simpleInitApp&#40;&#41; &#123;
+    ...
+        inputManager.addMapping&#40;&quot;shoot&quot;, new MouseButtonTrigger&#40;0&#41;&#41;;
+        inputManager.addListener&#40;actionListener, &quot;shoot&quot;&#41;;
+    ...
+    &#125;</pre>
+<p>
+
+ 
+The action of shooting a new cannon ball is defined as follows:
+</p>
+<pre>    private ActionListener&#40;&#41; &#123;
+        public void onAction&#40;String name, boolean keyPressed, float tpf&#41; &#123;
+            if &#40;name.equals&#40;&quot;shoot&quot;&#41; &amp;&amp; !keyPressed&#41; &#123;
+                makeCannonBall&#40;&#41;;
+            &#125;
+        &#125;
+    &#125;;</pre>
+<p>
+In the moment the cannonball appears in the scene, it flies off with the velocity (and in the direction) that we have specified using <code>setLinearVelocity()</code> inside <code>makeCannonBall()</code>. The newly created cannon ball flies off, hits the wall, and exerts a <em>physical force</em> that shifts the individual bricks. 
+</p>
+
+</div>
+
+<h2><a>Movement of the physics enabled Spatial</a></h2>
+<div>
+
+<p>
+The location of the spatial is defined by the RigidBodyControl, move that to move the spatial or if its a non-world-object set the RigidBodyControl to kinematic mode to have it move along with the spatial. This will make the RigidBody be unaffected by the physics but it will effect the physics objects around it based on its location and amount of movement that is applied. Note that a kinematic RigidBody needs to have a mass!
+</p>
+
+</div>
+
+<h2><a>Excercises</a></h2>
+<div>
+
+<p>
+
+<strong>Exercise 1</strong> 
+</p>
+
+<p>
+What happens if you give a static node such as the floor a mass of more than 0.0f? 
+</p>
+
+<p>
+<strong>Exercise 2</strong> 
+</p>
+
+<p>
+Popular AAA games use a clever mix of physics, animation and prerendered graphics to give you the illusion of a real, “physical” world. Look at your favorite games and try to spot where and how the game designers trick you into believing that the whole scene is physical. – For example, a building “breaking” into 4-8 parts when falling apart is most likely being replaced by dynamic physics nodes only after it has been destroyed… Now that you start to implement game physics yourself, look behind the curtain.
+</p>
+
+</div>
+
+<h2><a>Conclusion</a></h2>
+<div>
+
+<p>
+
+Using physics everywhere in a game sounds like a cool idea, but it is easily overused. Although the physics nodes are put to “sleep” when they are not moved, creating a world solely out of dynamic physics nodes will quickly bring you to the limits of your computer&#039;s capabilities. 
+</p>
+
+<p>
+You have learned how to add a PhysicsSpace to an application by attaching a <code>BulletAppState</code>. You know how to create PhysicsNodes from a geometry, a collision shape, and a mass value. You have learned that physical objects are not only attached to the rootNode but also registered to the PhysicsSpace. You are aware that overusing physics has a huge performance impact.
+</p>
+
+<p>
+Additionally you have learned how to add shadows to a scene. 
+
+</p>
+<hr />
+
+<p>
+This is the last beginner tutorial for now. Now you are ready to start <a href="/com/jme3/gde/core/docs/jme3.html">combining</a> what you learned to create a game of your own!
+
+</p>
+
+</div>
+<p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:beginner:hello_physics?do=export_xhtmlbody">view online version</a></em></p>

@@ -1,0 +1,53 @@
+
+<h2><a>Vehicle Creator</a></h2>
+<div>
+
+<p>
+
+Best results when car is facing in z direction (towards you)
+</p>
+
+<p>
+Usage:
+</p>
+<ol>
+<li><div> Select a j3o that contains a vehicle model and press the vehicle button (or right-click → edit vehicle)</div>
+</li>
+<li><div> The VehicleCreator automatically adds a PhysicsVehicleControl to the rootNode of the model if there is none</div>
+</li>
+<li><div> Select the Geometry or Node that contains the chassis in the SceneExplorer and press “create hull shape from selected”</div>
+</li>
+<li><div> Select a Geometry that contains a wheel and press “make selected spatial wheel”, select the “front wheel” checkboxes for front wheels</div>
+</li>
+<li><div> Do so for all wheels</div>
+</li>
+</ol>
+
+<p>
+
+New wheels will get the current suspension settings, you can edit single wheels via the SceneExplorer (update VehicleControl if wheels dont show up) or apply settings created with the settings generator to wheel groups.
+</p>
+
+<p>
+Press the “test vehicle” button to drive the vehicle, use WASD to control, Enter to reset.
+</p>
+
+<p>
+Known Issues: Dont save while testing the vehicle, you will save the location and acceleration info in the j3o.
+</p>
+
+<p>
+Code Example to load vehicle:
+
+</p>
+<pre>//load vehicle and access VehicleControl
+Spatial car=assetManager.loadModel&#40;&quot;Models/MyCar.j3o&quot;&#41;;
+VehicleControl control=car.getControl&#40;VehicleControl.class&#41;;
+rootNode.attachChild&#40;car&#41;;
+physicsSpace.add&#40;control&#41;;
+ 
+//then use the control to control the vehicle:
+control.setPhysicsLocation&#40;new Vector3f&#40;10,2,10&#41;&#41;;
+control.accelerate&#40;100&#41;;</pre>
+</div>
+<p><em><a href="http://jmonkeyengine.org/wiki/doku.php/sdk:vehicle_creator?do=export_xhtmlbody">view online version</a></em></p>

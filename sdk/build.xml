@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- You may freely edit this file. See harness/README in the NetBeans platform -->
+<!-- for some information on what you could do (e.g. targets to override). -->
+<!-- If you delete this file and reopen the project it will be recreated. -->
+<project name="jme-gde" basedir=".">
+    <description>Builds the module suite jme-gde.</description>
+    <import file="nbproject/build-impl.xml"/>
+    <!--Load ant extensions-->
+    <path id="ant-import.classpath">
+        <fileset dir="ant-lib/" includes="*.jar"/>
+    </path>
+    <taskdef resource="net/sf/antcontrib/antcontrib.properties" classpathref="ant-import.classpath"/>
+    <taskdef name="deb" classname="com.googlecode.ant_deb_task.Deb" classpathref="ant-import.classpath"/>
+    <taskdef name="desktopentry" classname="com.googlecode.ant_deb_task.DesktopEntry" classpathref="ant-import.classpath"/>
+
+    <!--zips up the templates and adds them to the template project-->
+    <target name="zip-templates" description="Updates the template zip files">
+        <zip basedir="BasicGameTemplate/" destfile="jme3-templates/src/com/jme3/gde/templates/BasicGameProject.zip">
+            <exclude name="**/build/"/>
+            <exclude name="**/dist/"/>
+            <exclude name="**/nbproject/private/"/>
+        </zip>
+        <zip basedir="JME3TestsTemplate/" destfile="jme3-tests-template/src/com/jme3/gde/templates/tests/JmeTestsProject.zip">
+            <exclude name="**/build/"/>
+            <exclude name="**/dist/"/>
+            <exclude name="**/nbproject/private/"/>
+        </zip>
+    </target>
+
+    <!--override build to include netbeans config file creation-->
+    <target name="build" depends="-create-netbeans-config, suite.build">
+    </target>
+
+    <!--replaces default values in jmonkeyplatform.conf file with run.args.extra from project.properties-->
+    <target name="-create-netbeans-config">
+        <property file="nbproject/project.properties"/>
+        <mkdir dir="build/launcher/etc"/>
+        <copy file="${harness.dir}/etc/app.conf" tofile="build/launcher/etc/${app.name}.conf">
+            <filterchain>
+                <replacestring from="$${branding.token}" to="${branding.token}"/>
+                <replacestring from="-J-Xmx64m" to="${run.args.extra}"/>
+            </filterchain>
+        </copy>
+    </target>
+
+    <!--creates update center version via hudson build server-->
+    <target name="dist-gde-hudson" depends="suite.clean, -revert-svn-changes, -update-help-sets, zip-templates, -set-impl-version-hudson, suite.nbms, -unset-impl-version-hudson">
+    </target>
+
+    <!--zip up mac version using command line tool-->
+    <target name="jmp-release-mac" depends="build-mac" description="Build Mac OS X Application and zip it">
+        <exec executable="zip" dir="dist/">
+            <arg value="-yr"/>
+            <arg value="${app.release.name}-MacOSX.zip"/>
+            <arg value="jmonkeyplatform.app"/>
+            <arg value="../README.TXT"/>
+        </exec>
+    </target>
+
+    <target name="set-impl-version">
+        <property file="nbproject/project.properties"/>
+        <antcall target="-create-jme3-svn-properties" inheritall="true">
+            <param name="jme3_dir" value="../jme3/"/>
+        </antcall>
+        <foreach target="-do-impl-version" list="${modules}" delimiter=":" param="module_dir" inheritall="true">
+            <param name="set_impl_version" value="true"/>
+        </foreach>
+    </target>
+
+    <target name="unset-impl-version">
+        <property file="nbproject/project.properties"/>
+        <foreach target="-do-impl-version" list="${modules}" delimiter=":" param="module_dir" inheritall="true">
+            <param name="set_impl_version" value="false"/>
+        </foreach>
+    </target>
+
+    <target name="-set-impl-version-hudson">
+        <property file="nbproject/project.properties"/>
+        <antcall target="-create-jme3-svn-properties" inheritall="true">
+            <param name="jme3_dir" value="../../jme3/workspace/"/>
+        </antcall>
+        <foreach target="-do-impl-version" list="${modules}" delimiter=":" param="module_dir" inheritall="true">
+            <param name="set_impl_version" value="true"/>
+        </foreach>
+    </target>
+
+    <target name="-unset-impl-version-hudson">
+        <property file="nbproject/project.properties"/>
+        <foreach target="-do-impl-version" list="${modules}" delimiter=":" param="module_dir" inheritall="true">
+            <param name="set_impl_version" value="false"/>
+        </foreach>
+    </target>
+
+    <!--sets/unsets implementation version to svn revision for plugins-->
+    <target name="-do-impl-version">
+        <!--jme3 libraries-->
+        <if>
+            <or>
+                <equals arg1="${module_dir}" arg2="jme3-core-libraries"/>
+                <equals arg1="${module_dir}" arg2="jme3-project-libraries"/>
+            </or>
+            <then>
+                <!--set jme3 libraries svn revision-->
+                <property prefix="svn" file="build/jme3-lib-svn.properties"/>
+            </then>
+            <else>
+                <!--jme3 core-->
+                <if>
+                    <or>
+                        <equals arg1="${module_dir}" arg2="jme3-core-baselibs"/>
+                        <equals arg1="${module_dir}" arg2="jme3-project-baselibs"/>
+                    </or>
+                    <then>
+                        <!--set jme3 svn revision-->
+                        <property prefix="svn" file="build/jme3-svn.properties"/>
+                    </then>
+                    <else>
+                        <!--jme3 test data-->
+                        <if>
+                            <equals arg1="${module_dir}" arg2="jme3-project-testdata"/>
+                            <then>
+                                <!--set jme3 testdata svn revision-->
+                                <property prefix="svn" file="build/jme3-testdata-svn.properties"/>
+                            </then>
+                            <else>
+                                <!--jme3 tests-->
+                                <if>
+                                    <equals arg1="${module_dir}" arg2="jme3-tests-template"/>
+                                    <then>
+                                        <!--set jme3 tests svn revision-->
+                                        <property prefix="svn" file="build/jme3-tests-svn.properties"/>
+                                    </then>
+                                    <!--"normal" module-->
+                                    <else>
+                                        <!--load svn revision of this modules folder if we are setting the value-->
+                                        <if>
+                                            <equals arg1="${set_impl_version}" arg2="true"/>
+                                            <then>
+                                                <exec executable="svn" output="build/${module_dir}-svn.properties" dir="${module_dir}">
+                                                    <arg value="info" />
+                                                </exec>
+                                                <replace file="build/${module_dir}-svn.properties" token=" " value=""/>
+                                            </then>
+                                        </if>
+                                        <!--set svn revision of module-->
+                                        <property prefix="svn" file="build/${module_dir}-svn.properties"/>
+                                    </else>
+                                </if>
+                            </else>
+                        </if>
+                    </else>
+                </if>
+            </else>
+        </if>
+
+        <if>
+            <equals arg1="${set_impl_version}" arg2="true"/>
+            <then>
+                <echo>Setting implementation version for ${module_dir} to revision: ${svn.LastChangedRev}</echo>
+                <replace  file="${module_dir}/manifest.mf" token="OpenIDE-Module-Implementation-Version: 0" value="OpenIDE-Module-Implementation-Version: ${svn.LastChangedRev}"/>
+            </then>
+            <else>
+                <echo>Removing implementation version for ${module_dir} from revision: ${svn.LastChangedRev}</echo>
+                <replace file="${module_dir}/manifest.mf" token="OpenIDE-Module-Implementation-Version: ${svn.LastChangedRev}" value="OpenIDE-Module-Implementation-Version: 0"/>
+            </else>
+        </if>
+
+    </target>
+
+    <!--reverts svn changes (in case the revision numbers haven't been reset-->
+    <target name="-revert-svn-changes">
+        <!--remove changes from jMP (old version numbers)-->
+        <exec executable="svn" dir=".">
+            <arg value="revert" />
+            <arg value="." />
+            <arg value="-R" />
+        </exec>
+        <!--update gde svn revision-->
+        <exec executable="svn" dir=".">
+            <arg value="update" />
+        </exec>
+    </target>
+
+    <!--updates the help sets-->
+    <target name="-update-help-sets">
+        <ant antfile="build.xml" target="update-help-sets" inheritall="false" inheritrefs="false" dir="jme3-core/"/>
+    </target>
+
+    <!--creates properties files containing svn info for the jme3 folders-->
+    <target name="-create-jme3-svn-properties">
+        <mkdir dir="build"/>
+        <!--jme3 svn properties-->
+        <exec executable="svn" dir="${jme3_dir}" output="build/jme3-svn.properties">
+            <arg value="info" />
+        </exec>
+        <replace file="build/jme3-svn.properties" token=" " value=""/>
+        <!--jme3 test data svn properties-->
+        <exec executable="svn" dir="${jme3_dir}/src/test-data/" output="build/jme3-testdata-svn.properties">
+            <arg value="info" />
+        </exec>
+        <replace file="build/jme3-testdata-svn.properties" token=" " value=""/>
+        <!--jme3 libraries svn properties-->
+        <exec executable="svn" dir="${jme3_dir}/lib/" output="build/jme3-lib-svn.properties">
+            <arg value="info" />
+        </exec>
+        <replace file="build/jme3-lib-svn.properties" token=" " value=""/>
+        <!--jme3 tests svn properties-->
+        <exec executable="svn" dir="${jme3_dir}/src/test/" output="build/jme3-tests-svn.properties">
+            <arg value="info" />
+        </exec>
+        <replace file="build/jme3-tests-svn.properties" token=" " value=""/>
+    </target>
+
+    <target name="create-private-config">
+        <exec executable="mkdir" dir="./nbproject/" failonerror="false">
+            <arg value="private" />
+        </exec>
+        <exec executable="echo" dir="." output="./nbproject/private/platform-private.properties">
+            <arg value="nbplatform.default.netbeans.dest.dir=/var/www/platform/base/alpha/platform-base/netbeans"/>
+        </exec>
+        <exec executable="echo" dir="." output="./nbproject/private/platform-private.properties" append="true">
+            <arg value="nbplatform.default.harness.dir=/var/www/platform/base/alpha/platform-base/netbeans/harness"/>
+        </exec>
+    </target>
+    
+    <!--creates a debian package from the installer-->
+    <target name="create-deb-package" depends="suite.build-zip">
+        <unzip src="${dist.dir}/${app.name}.zip" dest="${dist.dir}/${app.name}">
+            <globmapper from="${app.name}/*" to="*"/>
+        </unzip>
+        <desktopentry
+            toFile="build/jmonkeyplatform.desktop"
+            name="jMonkeyEngine3 SDK"
+            comment="jMonkeyEngine3 Game SDK"
+            exec="/usr/local/jmonkeyplatform/bin/jmonkeyplatform"
+            icon="/usr/local/jmonkeyplatform/jmonkeyplatform.png"
+            categories="Development;Java"
+        />
+        <deb toDir="dist"
+            package="jme3-sdk"
+            version="0.6.1"
+            section="devel"
+            depends="sun-java6-jdk"
+            maintainer="jMonkeyEngine"
+            homepage="http://www.jmonkeyengine.com"
+            postrm="debscripts/postrm"
+            >
+            <tarfileset dir="dist/jmonkeyplatform/" prefix="usr/local/jmonkeyplatform">
+                <exclude name="bin/**"/>
+            </tarfileset>
+            <tarfileset dir="dist/jmonkeyplatform/bin" prefix="usr/local/jmonkeyplatform/bin" filemode="755">
+                <exclude name="*.exe"/>
+            </tarfileset>
+            <tarfileset file="build/jmonkeyplatform.desktop" prefix="usr/share/applications"/>
+            <tarfileset file="jmonkeyplatform.png" prefix="usr/local/jmonkeyplatform"/>
+            <description synopsis="jMonkeyEngine3 SDK is a complete solution for Java OpenGL game development.">
+jMonkeyEngine 3 was rebuilt from the ground up to be a modern 3D game engine,
+compatible with OpenGL 2.0 and above.
+Its architecture is shader-based, making it fully capable of current and
+next generation graphics standards. The jMonkeyPlatform gives you a complete IDE
+for coding and for managing and creating game assets.</description>
+        </deb>
+    </target>
+
+</project>

@@ -1,0 +1,83 @@
+
+<h1><a>Models and Scenes</a></h1>
+<div>
+
+<p>
+
+Like <a href="/com/jme3/gde/core/docs/jme3/advanced/shape.html">Shape</a>s, 3D models are also made up of <a href="/com/jme3/gde/core/docs/jme3/advanced/mesh.html">Mesh</a>es, but models are more complex than Shapes. While Shapes are built into jME3, you typically create models in external 3D Mesh Editors. 
+</p>
+
+</div>
+
+<h2><a>Using Models and Scenes with jME3</a></h2>
+<div>
+
+<p>
+
+To use 3D models in a jME3 application: 
+</p>
+<ol>
+<li><div> Export the 3D model in Ogre <acronym title="Extensible Markup Language">XML</acronym> or Wavefront OBJ format. Export Scenes as Ogre DotScene format.</div>
+</li>
+<li><div> Save the files into a subdirectory of your jME3 project&#039;s <code>assets</code> directory.</div>
+</li>
+<li><div> In your code, you use the <a href="/com/jme3/gde/core/docs/jme3/advanced/asset_manager.html">Asset Manager</a> to load models as <a href="/com/jme3/gde/core/docs/jme3/advanced/spatial.html">Spatial</a>s into a jME application. <pre>Spatial model = assetManager.loadModel&#40;
+    &quot;Models/MonkeyHead/MonkeyHead.mesh.xml&quot; &#41;;</pre></div>
+</li>
+<li><div> (For the release build:) Use the jMonkeyPlatform to convert models to .j3o format. You don&#039;t need this step as long you still develop and test the aplication within the jMonkeyPlatform.</div>
+</li>
+</ol>
+
+</div>
+
+<h2><a>Creating Models and Scenes</a></h2>
+<div>
+
+<p>
+
+To create 3D models and scenes, you need a 3D Mesh Editor such as <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://www.blender.org/"><param name="text" value="<html><u>Blender</u></html>"><param name="textColor" value="blue"></object>, with an OgreXML Exporter plugin. 
+</p>
+
+<p>
+<strong>Tip:</strong> Consider creating <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://en.wikibooks.org/wiki/Blender_3D:_Noob_to_Pro/UV_Map_Basics"><param name="text" value="<html><u>UV textures</u></html>"><param name="textColor" value="blue"></object> for more complex models, it looks more professional. 
+</p>
+
+<p>
+3D mesh editors are third-party products, so please consult their documentation for instructions how to use them. Here is an example workflow for Blender users:
+</p>
+
+<p>
+To export your models as Ogre <acronym title="Extensible Markup Language">XML</acronym> meshes with materials:
+</p>
+<ol>
+<li><div> Open the menu File &gt; Export &gt; OgreXML Exporter to open the exporter dialog.</div>
+</li>
+<li><div> In the Export Materials field: Give the material the same name as the model. For example, the model <code>something.mesh.xml</code> goes with <code>something.material</code>, plus (optionally) <code>something.skeleton.xml</code>, and some <acronym title="Joint Photographics Experts Group">JPG</acronym> files.</div>
+</li>
+<li><div> In the Export Meshes field: Select a target subdirectory of your <code>assets/Models/</code> directory. E.g. <code>assets/Models/something/</code>.</div>
+</li>
+<li><div> Activate the following exporter settings: </div>
+<ul>
+<li><div> Copy Textures: YES</div>
+</li>
+<li><div> Rendering Materials: YES</div>
+</li>
+<li><div> Flip Axis: YES</div>
+</li>
+<li><div> Require Materials: YES</div>
+</li>
+<li><div> Skeleton name follows mesh: YES</div>
+</li>
+</ul>
+</li>
+<li><div> Click export.</div>
+</li>
+</ol>
+
+<p>
+
+You can now use the <a href="/com/jme3/gde/core/docs/sdk.html">jMonkeyPlatform</a> to <a href="/com/jme3/gde/core/docs/sdk/model_loader_and_viewer.html">load and view models</a>. You can <a href="/com/jme3/gde/core/docs/sdk/scene_composer.html">create scenes</a> from them and write cde that loads them into your application. 
+</p>
+
+</div>
+<p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:3d_models?do=export_xhtmlbody">view online version</a></em></p>

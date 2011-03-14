@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<nifty xmlns="http://nifty-gui.sourceforge.net/nifty.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://nifty-gui.sourceforge.net/nifty.xsd http://nifty-gui.sourceforge.net/nifty.xsd">
+    <useStyles filename="nifty-default-styles.xml" />
+    <useControls filename="nifty-default-controls.xml" />
+    <style id="my-listbox-item-style" base="nifty-listbox-item">
+        <effect>
+            <onCustom name="updateScrollpanelPositionToDisplayElement" target="listBoxStatic" oneShot="true" />
+        </effect>
+    </style>
+
+    <!-- start screen -->
+    <screen id="start" controller="com.jme3.gde.welcome.WelcomeScreen">
+        <layer id="layer" childLayout="center">
+            <image align="center" valign="center" filename="Textures/jme-logo.png" >
+                <interact onClick="startIntro()"/>
+                <effect>
+                    <onStartScreen name="fade" startColor="#0000" endColor="#000f" length="1500" startDelay="1500"/>
+                    <onEndScreen name="imageSize" startSize="1.0" endSize="0.0" length="300" inherit="true"/>
+                </effect>
+            </image>
+        </layer>
+    </screen>
+
+    <!-- intro screen -->
+    <screen id="intro" controller="com.jme3.gde.welcome.WelcomeScreen">
+        <layer id="mainLayer" childLayout="center">
+            <panel id="mainPanel" childLayout="vertical" height="80%" width="80%" align="center" valign="center">
+                <image align="center" valign="center" filename="Textures/f1-help.png" >
+                    <effect>
+                        <onStartScreen name="imageSize" startSize="0.0" endSize="1.0" length="300" inherit="true"/>
+                        <onEndScreen name="imageSize" startSize="1.0" endSize="0.0" length="300" inherit="true"/>
+                    </effect>
+                    <interact onClick="startUpdating()"/>
+                </image>
+            </panel>
+        </layer>
+    </screen>
+
+    <!-- updating screen -->
+    <screen id="updating" controller="com.jme3.gde.welcome.WelcomeScreen">
+        <layer id="mainLayer" childLayout="center">
+            <panel id="mainPanel" childLayout="vertical" height="80%" width="80%" align="center" valign="center">
+                <image align="center" valign="center" filename="Textures/updating.png" >
+                    <effect>
+                        <onStartScreen name="imageSize" startSize="0.0" endSize="1.0" length="300" inherit="true"/>
+                        <onEndScreen name="imageSize" startSize="1.0" endSize="0.0" length="300" inherit="true"/>
+                    </effect>
+                    <interact onClick="startPlanet()"/>
+                </image>
+            </panel>
+        </layer>
+    </screen>
+
+    <!-- planet screen -->
+    <screen id="planet" controller="com.jme3.gde.welcome.WelcomeScreen">
+        <layer id="mainLayer" childLayout="center">
+            <panel id="mainPanel" childLayout="horizontal" height="100%" width="100%" align="left" valign="top">
+                <control id="quitButton" name="button" label="Close" align="left" >
+                    <interact onClick="quit()"/>
+                </control>
+                <text style="nifty-label" text="  planet shader by jME3 user jiyarza       " align="left" />
+                <panel id="mainPanel" childLayout="horizontal" align="right" valign="top">
+                </panel>
+                <control id="checkbox" name="checkbox" checked="false" align="right" />
+                <text style="nifty-label" text="dont show again   " align="right" />
+                <effect>
+                    <onStartScreen name="imageSize" startSize="0.0" endSize="1.0" length="300" inherit="true"/>
+                    <onEndScreen name="imageSize" startSize="1.0" endSize="0.0" length="300" inherit="true"/>
+                </effect>
+            </panel>
+        </layer>
+    </screen>
+</nifty>

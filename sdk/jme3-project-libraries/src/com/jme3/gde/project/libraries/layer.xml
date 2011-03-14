@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<filesystem>
+    <folder name="org-netbeans-api-project-libraries">
+        <folder name="Libraries">
+            <file name="jme3-libraries.xml" url="jme3-libraries.xml"/>
+            <file name="jme3-libraries-lwjgl-minimum.xml" url="jme3-libraries-lwjgl-minimum.xml"/>
+            <file name="jme3-libraries-gui.xml" url="jme3-libraries-gui.xml"/>
+            <file name="jme3-libraries-physics.xml" url="jme3-libraries-physics.xml"/>
+            <file name="jme3-libraries-video.xml" url="jme3-libraries-video.xml"/>
+            <file name="jme3-libraries-oggvorbis.xml" url="jme3-libraries-oggvorbis.xml"/>
+        </folder>
+    </folder>
+</filesystem>

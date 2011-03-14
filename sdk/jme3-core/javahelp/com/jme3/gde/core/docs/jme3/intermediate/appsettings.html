@@ -1,0 +1,106 @@
+
+<h1><a>jME3 Application Display Settings</a></h1>
+<div>
+
+<p>
+
+Every class that extends jme3.app.Application (or jme3.app.SimpleApplication) has properties that can be configured by customizing a <code>com.jme3.system.AppSettings</code> object. Configure the settings before you call <code>app.start()</code> on the application object. If you change display settings during runtime, call <code>app.restart()</code> to make them take effect.
+</p>
+
+<p>
+<strong>Note:</strong> Other runtime settings are covered in <a href="/com/jme3/gde/core/docs/jme3/intermediate/simpleapplication.html">SimpleApplication</a>.
+</p>
+
+</div>
+
+<h2><a>Code Sample</a></h2>
+<div>
+<pre>AppSettings settings = new AppSettings&#40;true&#41;;
+settings.setRenderer&#40;AppSettings.LWJGL_OPENGL3&#41;;
+Application app = new Application&#40;&#41;;
+app.setSettings&#40;settings&#41;;
+app.start&#40;&#41;;</pre>
+<p>
+Set the boolean in the AppSettings contructor to true if you want to keep the default settings for everything that you do not specify. Set this parameter to false if you want to specify each property yourself (you&#039;ll get an exception if you missed one).
+</p>
+
+<p>
+Use <code>app.setShowSettings(false);</code> to disable the default settings-window at startup.
+</p>
+
+</div>
+
+<h2><a>Properties</a></h2>
+<div>
+<table>
+	<tr>
+		<th>Property</th><th>Dscription</th><th>Default</th>
+	</tr>
+	<tr>
+		<td>setRenderer(AppSettings.LWJGL_OPENGL2) <br/>
+ setRenderer(AppSettings.LWJGL_OPENGL3)</td><td>Switch Video Renderer</td><td>OpenGL 2</td>
+	</tr>
+	<tr>
+		<td>setAudioRenderer(AppSettings.LWJGL_OPENAL) <br/>
+ setAudioRenderer(AppSettings.LWJGL_JOAL)</td><td>Switch Audio Renderer</td><td>OpenAL</td>
+	</tr>
+	<tr>
+		<td>setBitsPerPixel(8)</td><td>Set color depth. <br/>
+ 1 = black and white, 2 bit = gray, <br/>
+ 4 = 16 colors, 8 = 256 colors, 24 or 32 = “truecolor”.</td><td>24</td>
+	</tr>
+	<tr>
+		<td>setFrequency(60)</td><td>The screen frequency (refresh rate of the graphics card), usually 60 or 75 fps.</td><td>60 fps</td>
+	</tr>
+	<tr>
+		<td>setFramerate(60)</td><td>How often per second the engine should try to refresh the frame. For the release, usually 60 fps. Can be lower (59-30) for FX-intensive games. Do not set to a higher value than the screen frequency.</td><td>-1 (auto)</td>
+	</tr>
+	<tr>
+		<td>setFullscreen(true)</td><td>Set this to true to make the display fill the whole screen; you need to provide a key that calls app.stop() to exit the fullscreen view gracefully (default: escape). <br/>
+ Set it to false to play the game in a normal window of its own.</td><td>False (windowed)</td>
+	</tr>
+	<tr>
+		<td>setHeight(480), setWidth(640) <br/>
+ setResolution(640,480)</td><td>Two equivalent ways of setting the display resolution.</td><td>640&times;480 pixels</td>
+	</tr>
+	<tr>
+		<td>setSamples(4)</td><td>Set multisampling to 0 to switch antialiasing off (harder edges, faster.) <br/>
+ Set multisampling to 2 or 4 to activate antialising (softer edges, may be slower.) <br/>
+ Depending on your graphic card, you may be able to go set multisampling to 8, 16, or 32 samples.</td><td>0</td>
+	</tr>
+	<tr>
+		<td>setVSync(true)</td><td>Set vertical syncing to true to time the frame buffer to coincide with the refresh interval of the screen: Prevents page tearing, but slower; recommened for release. <br/>
+ Set to false to deactivate vertical syncing (faster, but possible page tearing artifacts); can be deactivated during development.</td><td>false</td>
+	</tr>
+	<tr>
+		<td>useInput(false)</td><td>Respond to user input by mouse and keyboard. Can be deactivated for use cases where you only display a 3D scene on the canvas without any interaction.</td><td>true</td>
+	</tr>
+	<tr>
+		<td>useJoysticks(true)</td><td>Activate optional joystick support</td><td>false</td>
+	</tr>
+	<tr>
+		<td>setSettingsDialogImage(”/path/in/assets.png”)</td><td>A custom image to display when the settings dialog is shown.</td><td>”/com/jme3/app/Monkey.png”</td>
+	</tr>
+	<tr>
+		<td>setTitle(“My Game”)</td><td>This string will be visible in the titlebar, unless the window is fullscreen.</td><td>“jMonkey Engine 3.0”</td>
+	</tr>
+</table>
+
+</div>
+
+<h2><a>Methods</a></h2>
+<div>
+
+<p>
+
+An AppSettings object also supports the following methods:
+</p>
+<ul>
+<li><div> Use <code>settings.save(outstream)</code> and <code>settings.load(instream)</code> to save and load your settings via standard java.io serialization.</div>
+</li>
+<li><div> Use <code>newSettings.copyFrom(oldSettings)</code> to copy a settings object.</div>
+</li>
+</ul>
+
+</div>
+<p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:intermediate:appsettings?do=export_xhtmlbody">view online version</a></em></p>

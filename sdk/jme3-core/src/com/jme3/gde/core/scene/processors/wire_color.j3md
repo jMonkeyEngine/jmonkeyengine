@@ -1,0 +1,31 @@
+MaterialDef Wire Color {
+
+    MaterialParameters {
+        Vector4 Color
+    }
+
+    Technique {
+        VertexShader GLSL100: solid_color.vert
+        FragmentShader GLSL100: solid_color.frag
+
+        RenderState {
+            FaceCull Off
+            Blend Alpha
+            AlphaTestFalloff 0.01
+            Wireframe On
+        }
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+        }
+    }
+
+    Technique FixedFunc {
+        RenderState {
+            FaceCull Off
+            Blend Alpha
+            AlphaTestFalloff 0.01
+        }
+    }
+
+}

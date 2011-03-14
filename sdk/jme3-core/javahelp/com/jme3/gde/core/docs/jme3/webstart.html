@@ -1,0 +1,84 @@
+
+<p>
+When running under WebStart, jMonkeyEngine may not have permission to extract the native libraries to the current directory. To avoid this problem, you can instruct WebStart to load the native libraries itself using the JNLP file, and then instruct jME3 not to try to do so itself.
+</p>
+
+<h4><a>Simple way</a></h4>
+<div>
+
+<p>
+
+You can import the LWJGL JNLP extension directly into your extension, however be aware that your application will break whenever they update their jars. Simply add this line to your JNLP:
+</p>
+<pre><span>&lt;extension name=&quot;lwjgl&quot; href=&quot;http://lwjgl.org/webstart/2.7.1/extension.jnlp&quot; /&gt;</span></pre>
+</div>
+
+<h4><a>Reliable way</a></h4>
+<div>
+
+</div>
+
+<h5><a>Native jars</a></h5>
+<div>
+
+<p>
+
+You can download the LWJGL native jars from their site, or to ensure you&#039;re using the exact same version as bundled with your jME3 release, make your own:
+</p>
+<pre>
+mkdir tmp
+cd tmp
+jar xfv ../jME3-lwjgl-natives.jar
+cd native
+for i in *; do
+  cd $i
+  jar cfv ../../native_$i.jar .
+  cd ..
+done
+</pre>
+
+<p>
+Remember to sign all the jar files and move them into the right place from the tmp directory.
+</p>
+
+</div>
+
+<h5><a>JNLP file</a></h5>
+<div>
+
+<p>
+
+Add the following to your JNLP file:
+</p>
+<pre>  <span>&lt;resources os=&quot;Windows&quot;&gt;</span>
+    <span>&lt;j2se version=&quot;1.4+&quot;/&gt;</span>
+    <span>&lt;nativelib href=&quot;native_windows.jar&quot;/&gt;</span>
+  <span><span>&lt;/resources&gt;</span></span>
+  <span>&lt;resources os=&quot;Linux&quot;&gt;</span>
+    <span>&lt;j2se version=&quot;1.4+&quot;/&gt;</span>
+    <span>&lt;nativelib href=&quot;native_linux.jar&quot;/&gt;</span>
+  <span><span>&lt;/resources&gt;</span></span>
+  <span>&lt;resources os=&quot;Mac OS X&quot;&gt;</span>
+    <span>&lt;j2se version=&quot;1.4+&quot;/&gt;</span>
+    <span>&lt;nativelib href=&quot;native_macosx.jar&quot;/&gt;</span>
+  <span><span>&lt;/resources&gt;</span></span>
+  <span>&lt;resources os=&quot;SunOS&quot; arch=&quot;x86&quot;&gt;</span>
+    <span>&lt;j2se version=&quot;1.4+&quot;/&gt;</span>
+    <span>&lt;nativelib href=&quot;native_solaris.jar&quot;/&gt;</span>
+  <span><span>&lt;/resources&gt;</span></span></pre>
+</div>
+
+<h5><a>Set low-permissions mode</a></h5>
+<div>
+
+<p>
+
+In your main() method, if running under WebStart, tell jME3 it is running in a low-permission environment so that it doesn&#039;t try to load the natives itself:
+</p>
+<pre>  public static void main&#40;String&#91;&#93; args&#41;
+  &#123;
+      if &#40;System.getProperty&#40;&quot;javawebstart.version&quot;&#41; != null&#41; &#123;
+        JmeSystem.setLowPermissions&#40;true&#41;;
+      &#125;</pre>
+</div>
+<p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:webstart?do=export_xhtmlbody">view online version</a></em></p>

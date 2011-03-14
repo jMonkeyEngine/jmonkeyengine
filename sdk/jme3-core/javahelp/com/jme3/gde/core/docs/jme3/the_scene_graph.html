@@ -1,0 +1,132 @@
+
+<h1><a>The Scene Graph and Other jME3 Terminology</a></h1>
+<div>
+
+<p>
+
+Before you start making games, make sure you understand general <a href="/com/jme3/gde/core/docs/jme3/terminology.html">3D Gaming terminology</a>.
+</p>
+
+<p>
+Second, if you are a beginner, we recommend our <a href="/com/jme3/gde/core/docs/jme3/scenegraph_for_dummies.html">Scene Graph for Dummies</a> presentation for a visual introduction to the concept of a scene graph. 
+</p>
+
+<p>
+Then continue learning about jME3 concepts here.
+</p>
+
+</div>
+
+<h2><a>Coordinate System</a></h2>
+<div>
+
+<p>
+
+<img src="nbdocs:/com/jme3/gde/core/docs/jme3/intermediate/coordinate-system.png">
+</p>
+
+<p>
+The jMonkeyEngine uses a right-handed coordinate system, just as OpenGL does.
+</p>
+
+<p>
+The coordinate system consists of:
+
+</p>
+<ul>
+<li><div> The origin, a single point in space.</div>
+<ul>
+<li><div> This point is always at coordinate (0,0,0)</div>
+</li>
+</ul>
+</li>
+<li><div> Three coordinate axes that are mutually perpendicular, and meet in the origin. </div>
+<ul>
+<li><div> The X axis is “right/left”</div>
+</li>
+<li><div> The Y axis is “up/down”</div>
+</li>
+<li><div> The Z axis is “towards you/away from you”</div>
+</li>
+</ul>
+</li>
+</ul>
+
+<p>
+
+Every point in 3D space is defined by its (x,y,z) coordinates. The data type for vectors is com.jme3.math.Vector3f. 
+</p>
+
+<p>
+For your orientation, the default camera&#039;s location is (0.0f,0.0f,10.0f), and it is looking in the direction described by the unit vector (0.0f, 0.0f, -1.0f). This means your point of view is on the positive side of the Z axis, looking towards the origin, down the Z axis.
+</p>
+
+<p>
+The unit of meassurement is <code>world unit</code> (wu). Typically, 1 wu is considered to be one meter. All scales, vectors and points are relative to this coordinate system.
+</p>
+
+</div>
+
+<h2><a>Scene Graph and RootNode</a></h2>
+<div>
+
+<p>
+
+The scene graph represents your 3D world. Objects in the jME3 scene graph are called <a href="/com/jme3/gde/core/docs/jme3/advanced/spatial.html">Spatial</a>s. Everything attached to the <em>rootNode</em> is part of the scene graph. <em>Attaching</em> a Spatial to the rootNode (or other nodes) adds the Spatial to the scene; <em>detaching</em> removes it.
+</p>
+
+<p>
+<img src="nbdocs:/com/jme3/gde/core/docs/jme3/intermediate/scene-graph.png">
+</p>
+
+</div>
+
+<h2><a>Spatials: Node vs Geometry</a></h2>
+<div>
+
+<p>
+
+A Spatial can be transformed, loaded and saved. There are two types of Spatials, <em>Nodes</em> and <em>Geometries</em>.
+
+</p>
+<table>
+	<tr>
+		<td>  </td><th> Spatial </th>
+	</tr>
+	<tr>
+		<th> Purpose: </th><td> A Spatial is an abstract data structure that stores transformations (translation, rotation, scale). </td>
+	</tr>
+	<tr>
+		<td>  </td><th> Geometry </th><th> Node </th>
+	</tr>
+	<tr>
+		<th> Visibility: </th><td> A visible 3-D object. </td><td> An invisible “handle” for a group of objects. </td>
+	</tr>
+	<tr>
+		<th> Purpose: </th><td> Represents the “look” of an object: Shape, color, texture, opacity/transparency. </td><td> Groups Geometries and other Nodes together: You transform a Node to affect all attached Nodes. </td>
+	</tr>
+	<tr>
+		<th> Content: </th><td> Transformations, mesh, material. </td><td> Transformations. No mesh, no material. </td>
+	</tr>
+	<tr>
+		<th> Examples: </th><td> A box, a sphere, player, a building, a piece of terrain, a vehicle, missiles, NPCs, etc… </td><td> The rootNode, the guiNode, an audio node, a custom grouping node, etc. </td>
+	</tr>
+</table>
+
+</div>
+
+<h2><a>How to Use This Knowledge?</a></h2>
+<div>
+
+<p>
+
+Before you start creating your game, you should have completed the <a href="/com/jme3/gde/core/docs/jme3/beginner.html">Hello World tutorial series</a>. It shows how to load and create Spatials, how to lay out a scene by attaching and transforming Spatials, and how to add interaction and effects to a game.
+</p>
+
+<p>
+The <a href="/com/jme3/gde/core/docs/jme3.html">intermediate and advanced documentation</a> gives you more details on how to put all the parts together to create an awesome Java 3D game!
+
+</p>
+
+</div>
+<p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:the_scene_graph?do=export_xhtmlbody">view online version</a></em></p>

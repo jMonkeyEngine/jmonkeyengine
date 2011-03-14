@@ -1,0 +1,148 @@
+
+<h1><a>Audio in jME3</a></h1>
+<div>
+
+<p>
+
+There are two ways to handle audio data: Short audio files are to be stored entirely in memory, while long audio files (music) is streamed from the hard drive as it is played.
+</p>
+
+<p>
+Place audio files in the <code>assets/Sound/</code> directory of your project. jME3 supports Ogg Vorbis (.ogg) and Wave (.wav) formats.
+</p>
+
+</div>
+
+<h2><a>Creating Audio Nodes</a></h2>
+<div>
+
+<p>
+
+The main class to look at is <code>com.jme3.audio.AudioNode</code>.
+</p>
+
+<p>
+By default, a new audio node loads the whole file into memory:
+
+</p>
+<pre>AudioNode boom = new AudioNode&#40;assetManager, &quot;Sound/boom.wav&quot;&#41;;</pre>
+<p>
+If it is a long file, you set the boolean to true to stream the audio.
+
+</p>
+<pre>AudioNode music = new AudioNode&#40;assetManager, &quot;Sound/music.wav&quot;, true&#41;;</pre>
+</div>
+
+<h2><a>Setting AudioNode Properties</a></h2>
+<div>
+<table>
+	<tr>
+		<th>AudioNode method</th><th>Usage</th>
+	</tr>
+	<tr>
+		<td>getStatus()</td><td>Returns either Status.Playing, Status.Stopped, or Status.Paused.</td>
+	</tr>
+	<tr>
+		<td>setVolume(5)</td><td>Set the volume between 0 (mute) and 10 (loud).</td>
+	</tr>
+	<tr>
+		<td>setPitch(1)</td><td>Make the sound play higher or lower.</td>
+	</tr>
+	<tr>
+		<td>setLooping(false)</td><td>Play it once and stop.</td>
+	</tr>
+	<tr>
+		<td>setLooping(true)</td><td>Play it over and over again from the beginning, until stopSource() or pauseSource() is called. E.g. for background noises.</td>
+	</tr>
+	<tr>
+		<td>setPositional(true) <br/>
+ setLocalTranslation()</td><td>Activates 3D audio, the sound appears to come from a certain position. Good for Players or NPCs.</td>
+	</tr>
+	<tr>
+		<td>setReverbEnabled(true)</td><td>A 3D echo effect that only makes sense to use with moving positional AudioNodes.</td>
+	</tr>
+	<tr>
+		<td>setDirectional(true) <br/>
+ setDirection() </td><td>Activates 3D audio, sound can only be heard from a certain direction. Good for noises that should not be heard through a wall.</td>
+	</tr>
+	<tr>
+		<td>setInnerAngle() <br/>
+ setOuterAngle()</td><td>?</td>
+	</tr>
+	<tr>
+		<td>setPositional(false) <br/>
+ setDirectional(false)</td><td>The sound comes from a everywhere. Good for environmental background sounds and music.</td>
+	</tr>
+	<tr>
+		<td>setLocalTranslation()</td><td>Position the AudioNode in the 3D scene if you have set setPositional() to true.</td>
+	</tr>
+	<tr>
+		<td>setTimeOffset(0.5f)</td><td>Start playing after a pause?</td>
+	</tr>
+	<tr>
+		<td>setMaxDistance(100f)</td><td>Maximum distance the sound can be heard, in world units.</td>
+	</tr>
+</table>
+
+</div>
+
+<h2><a>Playing Audio Nodes</a></h2>
+<div>
+
+<p>
+
+For playing you use the <code>com.jme3.audio.AudioRenderer</code>. A default <code>audioRenderer</code> object is provided by the com.jme3.app.Application class.
+</p>
+<pre>audioRenderer.playSource&#40; myAudioNode &#41;;</pre>
+<p>
+<strong>Note:</strong> Whether the AudioNode plays continuously or only once, depends on the Loop properties you have set.
+</p>
+
+<p>
+You pause and stop music with the following methods:
+</p>
+<pre>audioRenderer.pauseSource&#40; myAudioNode &#41;;</pre><pre>audioRenderer.stopSource&#40; myAudioNode &#41;;</pre>
+</div>
+
+<h2><a>Setting Environment Properties</a></h2>
+<div>
+
+<p>
+
+You can choose from the following environmental presets from <code>com.jme3.audio.Environment</code>.
+
+</p>
+<table>
+	<tr>
+		<th>Environment</th><th>density</th><th>diffusion</th><th>gain</th><th>gainHf</th><th>decayTime</th><th>decayHf</th><th>reflGain</th><th>reflDelay</th><th>lateGain</th><th>lateDelay</th>
+	</tr>
+	<tr>
+		<td>Garage      </td><td>1.00f</td><td>1.0f</td><td>1.0f</td><td>1.00f</td><td>0.90f</td><td>0.5f</td><td>0.751f</td><td>0.0039f</td><td>0.661f</td><td>0.0137f</td>
+	</tr>
+	<tr>
+		<td>Dungeon     </td><td>0.75f</td><td>1.0f</td><td>1.0f</td><td>0.75f</td><td>1.60f</td><td>1.0f</td><td>0.950f</td><td>0.0026f</td><td>0.930f</td><td>0.0103f</td>
+	</tr>
+	<tr>
+		<td>Cavern      </td><td>0.50f</td><td>1.0f</td><td>1.0f</td><td>0.50f</td><td>2.25f</td><td>1.0f</td><td>0.908f</td><td>0.0103f</td><td>0.930f</td><td>0.0410f</td>
+	</tr>
+	<tr>
+		<td>AcousticLab </td><td>0.50f</td><td>1.0f</td><td>1.0f</td><td>1.00f</td><td>0.28f</td><td>1.0f</td><td>0.870f</td><td>0.0020f</td><td>0.810f</td><td>0.0080f</td>
+	</tr>
+	<tr>
+		<td>Closet      </td><td>1.00f</td><td>1.0f</td><td>1.0f</td><td>1.00f</td><td>0.15f</td><td>1.0f</td><td>0.600f</td><td>0.0025f</td><td>0.500f</td><td>0.0006f</td>
+	</tr>
+</table>
+
+<p>
+
+Activate the preset with: 
+</p>
+<pre>audioRenderer.setEnvironment&#40;new Environment.Dungeon&#41;&#41;;</pre>
+<p>
+Alternatively you can create a <code>com.​jme3.​audio.Environment</code> object to specify custom environment factors. Activate your custom environment settings in the Environment constructor: 
+</p>
+<pre>audioRenderer.setEnvironment&#40;
+        new Environment&#40; density, diffusion, gain, gainHf, decayTime, decayHf, 
+                reflGain, reflDelay, lateGain, lateDelay &#41; &#41;;</pre>
+</div>
+<p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:audio?do=export_xhtmlbody">view online version</a></em></p>

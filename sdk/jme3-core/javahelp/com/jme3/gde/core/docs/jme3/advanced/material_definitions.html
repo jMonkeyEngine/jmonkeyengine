@@ -1,0 +1,107 @@
+
+<h1><a>How to Use Material Definitions (.j3md)</a></h1>
+<div>
+
+<p>
+
+Typically, you create a set of custom materials, and use them throughout the game. For example, you can initialize and configure your materials objects in the <code>initSimpleApp()</code> method, and then load 3D models (Geometries) and use setMaterial() on them. 
+</p>
+
+<p>
+<strong>Tip:</strong> If you use one custom material very often, additionally read about storing material configurations in user-friendly <a href="/com/jme3/gde/core/docs/jme3/advanced/j3m_material_files.html">j3m Material Files</a>.
+</p>
+
+</div>
+
+<h2><a>Preparing a Material</a></h2>
+<div>
+<ol>
+<li><div> Choose a Material Definition from the <a href="/com/jme3/gde/core/docs/jme3/advanced/materials_overview.html">Materials Overview</a> list that has the features that you need. </div>
+<ul>
+<li><div> Tip: If you don&#039;t know, you can always start with <code>Unshaded.j3md</code>.</div>
+</li>
+</ul>
+</li>
+<li><div> Look at the applicable parameters of the Material Definition and determine which ones you need to achieve the desired effect. Most parameters are optional.</div>
+<ol>
+<li><div> Create and save the necessary Texture files to the assets directory.</div>
+<ul>
+<li><div> E.g. ColorMap; DiffuseMap, NormalMap, AlphaMap, etc…</div>
+</li>
+</ul>
+</li>
+<li><div> Determine the required values to achieve the effect that you want.</div>
+<ul>
+<li><div> E.g. Colors, floats, booleans, etc… </div>
+</li>
+</ul>
+</li>
+</ol>
+</li>
+</ol>
+
+</div>
+
+<h2><a>Using a Material</a></h2>
+<div>
+<ol>
+<li><div> In you Java code, create a Material object based on the .j3md file: e.g. <pre>Material mat = new Material&#40;assetManager, &quot;Common/MatDefs/Misc/Unshaded.j3md&quot;&#41;;</pre></div>
+</li>
+<li><div> Configure your Material by setting the appropriate values listed in the <a href="/com/jme3/gde/core/docs/jme3/advanced/materials_overview.html">Materials Overview</a> table. Here are examples of the methods that set the different data types:</div>
+<ul>
+<li><div> <code>mat.setColor(   “Color”,       ColorRGBA.White );</code></div>
+</li>
+<li><div> <code>mat.setTexture( “ColorMap”,    assetManager.loadTexture(“Interface/Logo/Monkey.png” ));</code></div>
+</li>
+<li><div> <code>mat.setFloat(   “Shininess”,   5f);</code></div>
+</li>
+<li><div> <code>mat.setBoolean( “SphereMap”,   true);</code></div>
+</li>
+<li><div> <code>mat.setVector3( “NormalScale”, new Vector3f(1f,1f,1f));</code></div>
+</li>
+</ul>
+</li>
+<li><div> Use your prepared material on a Geometry: <pre>myGeometry.setMaterial&#40;mat&#41;;</pre></div>
+</li>
+<li><div> (Optional) Adjust the texture scale: <pre>geometry.scaleTextureCoordinates&#40;new Vector2f&#40;1f, .5f&#41;&#41;;</pre></div>
+</li>
+</ol>
+
+</div>
+
+<h2><a>Examples</a></h2>
+<div>
+
+<p>
+
+A simpled textured material.
+
+</p>
+<pre>Material mat = new Material&#40;assetManager, 
+    &quot;Common/MatDefs/Misc/Unshaded.j3md&quot;&#41;;
+mat.setTexture&#40;&quot;ColorMap&quot;, assetManager.loadTexture&#40;
+    &quot;Interface/Logo/Monkey.jpg&quot;&#41;&#41;;</pre>
+<p>
+A textured material with a color bleeding through transparent areas.
+
+</p>
+<pre>Material mat = new Material&#40;assetManager, 
+    &quot;Common/MatDefs/Misc/Unshaded.j3md&quot;&#41;;
+mat.setTexture&#40;&quot;ColorMap&quot;, assetManager.loadTexture&#40;
+    &quot;Textures/ColoredTex/Monkey.png&quot;&#41;&#41;;
+mat.setColor&#40;&quot;Color&quot;, ColorRGBA.Blue&#41;;</pre>
+<p>
+You can test these examples within the following code snippet. It creates a box and applies the material:
+</p>
+<pre> Box&#40;Vector3f.ZERO, 1, 1, 1&#41;;
+Geometry geom = new Geometry&#40;&quot;Box&quot;, b&#41;;
+// ... insert Material definition...
+geom.setMaterial&#40;mat&#41;;
+rootNode.attachChild&#40;geom&#41;;</pre>
+<p>
+<strong>Tip:</strong> You can find these and other common code snippets in the jMonkeyPlatform Code Palette. Drag and drop them into your source code.
+
+</p>
+
+</div>
+<p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:material_definitions?do=export_xhtmlbody">view online version</a></em></p>

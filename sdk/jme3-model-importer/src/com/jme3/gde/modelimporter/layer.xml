@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.2//EN" "http://www.netbeans.org/dtds/filesystem-1_2.dtd">
+<filesystem>
+    <folder name="Actions">
+        <folder name="Import">
+            <file name="com-jme3-gde-modelimporter-ImportModel.instance">
+                <attr name="delegate" methodvalue="org.openide.awt.Actions.inject"/>
+                <attr name="displayName" bundlevalue="com.jme3.gde.modelimporter.Bundle#CTL_ImportModel"/>
+                <attr name="iconBase" stringvalue="com/jme3/gde/modelimporter/103_.png"/>
+                <attr name="injectable" stringvalue="com.jme3.gde.modelimporter.ImportModel"/>
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.context"/>
+                <attr name="noIconInMenu" boolvalue="false"/>
+                <attr name="selectionType" stringvalue="EXACTLY_ONE"/>
+                <attr name="type" stringvalue="org.netbeans.api.project.Project"/>
+            </file>
+        </folder>
+    </folder>
+    <folder name="Menu">
+        <folder name="File">
+            <file name="com-jme3-gde-modelimporter-ImportModel.shadow">
+                <attr name="originalFile" stringvalue="Actions/Import/com-jme3-gde-modelimporter-ImportModel.instance"/>
+                <attr name="position" intvalue="1413"/>
+            </file>
+        </folder>
+    </folder>
+    <folder name="Toolbars">
+        <folder name="File">
+            <file name="com-jme3-gde-modelimporter-ImportModel.shadow">
+                <attr name="position" intvalue="310"/>
+                <attr name="originalFile" stringvalue="Actions/Import/com-jme3-gde-modelimporter-ImportModel.instance"/>
+            </file>
+        </folder>
+    </folder>
+</filesystem>

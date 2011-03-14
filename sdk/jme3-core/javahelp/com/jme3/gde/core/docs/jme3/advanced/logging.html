@@ -1,0 +1,90 @@
+
+<h1><a>Logging and Monitoring</a></h1>
+<div>
+
+</div>
+
+<h2><a>Development Log Output</a></h2>
+<div>
+
+<p>
+
+jME uses the standard Java logger from <code>java.util.logging</code>. 
+</p>
+
+<p>
+To write to the log:
+</p>
+<pre>private static final Logger logger = Logger.getLogger&#40;HelloWorld.class.getName&#40;&#41;&#41;;</pre>
+<p>
+
+Replace HelloWorld by the name of the class where you are using this line.
+
+</p>
+<pre>logger.severe&#40;&quot;something has failed&quot;&#41;;</pre>
+<p>
+
+or
+
+</p>
+<pre>logger.warning&#40;&quot;verify something...&quot;&#41;;</pre>
+<p>
+More about <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://download.oracle.com/javase/6/docs/api/java/util/logging/Level.html"><param name="text" value="<html><u>log levels here</u></html>"><param name="textColor" value="blue"></object>.
+</p>
+
+</div>
+
+<h3><a>Switching the Logger on and off</a></h3>
+<div>
+
+<p>
+
+In the release version you will deactivate the logging output to the terminal.
+</p>
+
+<p>
+To deactivate the default logger, you set the log level to only report severe messages:
+
+</p>
+<pre>Logger.getLogger&#40;””&#41;.setLevel&#40;Level.SEVERE&#41;;</pre>
+<p>
+To reactivate it: 
+
+</p>
+<pre>Logger.getLogger&#40;””&#41;.setLevel&#40;Level.FINE&#41;;</pre>
+</div>
+
+<h2><a>jMonkeyPlatform Log Files</a></h2>
+<div>
+
+<p>
+
+You find the jMonkeyPlatform log file in /dev/var/log/messages.log in the jMonkeyPlatform preferences folder. You can learn the location of the preferences folder in the “About” screen of the jMonkeyPlatform under the label <strong>Userdir</strong>. 
+
+</p>
+<ul>
+<li><div> Windows: C:\Documents and Settings\YOUR_NAME\.jmonkeyplatform\”</div>
+</li>
+<li><div> Linux: /home/YOUR_NAME/.jmonkeyplatform/”</div>
+</li>
+<li><div> Mac <acronym title="Operating System">OS</acronym>: <code>/Users/YOUR_NAME/Library/Application Support/jmonkeyplatform/</code></div>
+</li>
+</ul>
+
+</div>
+
+<h2><a>Read Graphic Card Capabilites</a></h2>
+<div>
+
+<p>
+
+You can read the graphic card&#039;s capabilities using the <code>com.jme3.renderer.Caps</code> class:
+</p>
+<pre>Collection&lt;Caps&gt; caps = renderer.getCaps&#40;&#41;;
+Logger.getLogger&#40;HelloWorld.class.getName&#40;&#41;&#41;.log&#40;Level.INFO, “Caps: &#123;0&#125;” + caps.toString&#40;&#41;&#41;; 	</pre>
+<p>
+Replace HelloWorld by the name of the class where you are using this line.
+</p>
+
+</div>
+<p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:logging?do=export_xhtmlbody">view online version</a></em></p>

@@ -1,0 +1,387 @@
+
+<h1><a>jME3 Cinematics</a></h1>
+<div>
+
+<p>
+
+JME3 cinematics (com.jme.cinematic) allow you to remote control nodes and cameras in a 3D game. You use cinematics to script and record scenes. Use it for example to create <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://en.wikipedia.org/wiki/Cutscene"><param name="text" value="<html><u>cutscenes</u></html>"><param name="textColor" value="blue"></object> of your game.
+</p>
+
+<p>
+Cinematics are implemented as AppStates. Attach the scene that you want to be visible in the cinematic to one Node. You create a Cinematic object, and add individual CinematicEvents to it. 
+</p>
+
+</div>
+
+<h2><a>Overview</a></h2>
+<div>
+<pre>Cinematic cinematic = new Cinematic&#40;sceneNode, duration&#41;;
+cinematic.addCinematicEvent&#40;triggerTime, cinematicEvent&#41;;</pre><ol>
+<li><div> Create one Cinematic per scene.</div>
+<ul>
+<li><div> sceneNode is the node containing the scene</div>
+</li>
+<li><div> duration is the duration of the cinematic scene in seconds</div>
+</li>
+</ul>
+</li>
+<li><div> Create CinematicEvents to script your “movie”. Each Cinematic is a set of CinematicEvents, that are triggered at a given time. </div>
+<ul>
+<li><div> cinematicEvent is the cinematic event. More details below.</div>
+</li>
+<li><div> triggerTime is the time when this particular cinematic event starts. Specify the start time in seconds since the beginning of the scene.</div>
+</li>
+</ul>
+</li>
+<li><div> Play and pause the Cinematic using <code>cinematic.pause()</code> and <code>cinematic.play();</code></div>
+</li>
+</ol>
+
+</div>
+
+<h2><a>CinematicEvents</a></h2>
+<div>
+
+<p>
+
+There are several kinds of cinematic events:
+
+</p>
+<table>
+	<tr>
+		<th>CinematicEvent</th><th>Description</th>
+	</tr>
+	<tr>
+		<td>MotionTrack</td><td>Use this to move a Spatial non-linearly over time. A motionPath is a list of several waypoints added to a MotionPath. The path is interpolated using Catmull-Rom Splines between waypoints.</td>
+	</tr>
+	<tr>
+		<td>PositionTrack</td><td>Use this to move a Spatial linearly over time. It translates the Spatial to a destination in the given amount of time by linearly interpolating the positions.</td>
+	</tr>
+	<tr>
+		<td>RotationTrack</td><td>Use this to change the rotation of a Spatial over time. It rotates the Spatial in the given amount of time by linearly interpolating the rotation.</td>
+	</tr>
+	<tr>
+		<td>ScaleTrack</td><td>Use this to change the size of a Spatial over time. It scales the Spatial in the given amount of time by linearly interpolating the scale.</td>
+	</tr>
+	<tr>
+		<td>SoundTrack</td><td>Use this to play a sound at a given time for the given duration.</td>
+	</tr>
+	<tr>
+		<td>GuiTrack</td><td>Displays a <a href="/com/jme3/gde/core/docs/jme3/advanced/nifty_gui.html">Nifty GUI</a> at a given time for the given duration. Use it to display subtitles or HUD elements. Bind the Nifty <acronym title="Graphical User Interface">GUI</acronym> <acronym title="Extensible Markup Language">XML</acronym> to the cinematic using <code>cinematic.bindUi(“path/to/nifty/file.xml”);</code></td>
+	</tr>
+	<tr>
+		<td>AnimationTrack</td><td>Use this to start playing a model animation at a given time (a character walking animation for example)</td>
+	</tr>
+</table>
+
+<p>
+
+We will add more types of track implementions over time. 
+</p>
+
+<p>
+Each CinematicEvent supports the following methods to control the event.
+
+</p>
+<table>
+	<tr>
+		<th>CinematicEvent method</th><th>Usage</th>
+	</tr>
+	<tr>
+		<td>play()</td><td>Starts playing the cinematic.</td>
+	</tr>
+	<tr>
+		<td>stop()</td><td>Stops playing the cinematic.</td>
+	</tr>
+	<tr>
+		<td>pause()</td><td>Pauses the cinematic.</td>
+	</tr>
+</table>
+
+<p>
+
+Those methods, must be called on the Cinematic and are propagated to the events. Don&#039;t use them directly on a sub cinematic event
+</p>
+
+</div>
+
+<h3><a>MotionTrack &amp; MotionPath</a></h3>
+<div>
+
+<p>
+
+A motion track is made up of MotionPaths.
+</p>
+<pre>MotionPath path = new MotionPath&#40;&#41;;</pre><table>
+	<tr>
+		<th> MotionPath Method </th><th> Usage </th>
+	</tr>
+	<tr>
+		<td>setCycle(true)</td><td>Sets whether the motion along this path should be closed (true) or not (false). </td>
+	</tr>
+	<tr>
+		<td>addWayPoint(vector)</td><td>Adds individual waypoints to this path. The order is relevant.</td>
+	</tr>
+	<tr>
+		<td>removeWayPoint(vector) <br/>
+ removeWayPoint(index)</td><td>Removes individual waypoints from this path. You can specify a vector or the integer index.</td>
+	</tr>
+	<tr>
+		<td>setCurveTension(0.83f)</td><td>Sets the tension of the curve (only for Catmull Rom Spline). A value of 0.0f will give a straight linear line, 1.0 a round curve.</td>
+	</tr>
+	<tr>
+		<td>enableDebugShape(assetManager,rootNode)</td><td>Shows a line to visualize the path. Used for debugging.</td>
+	</tr>
+	<tr>
+		<td>disableDebugShape()</td><td>Hides the line that visualizes the path. Used for debugging.</td>
+	</tr>
+	<tr>
+		<td>getNbWayPoints()</td><td>Returns the number of waypoints in this path.</td>
+	</tr>
+</table>
+<pre>MotionTrack thingMotionControl = new MotionTrack&#40;thingNode, path&#41;;</pre><table>
+	<tr>
+		<th>MotionTrack method</th><th>Usage</th>
+	</tr>
+	<tr>
+		<td>setLoopMode(LoopMode.Loop)</td><td>Sets whether the animation along this path should loop (true) or play only once (false).</td>
+	</tr>
+	<tr>
+		<td>setDirectionType(MotionTrack.Direction.None)</td><td>Sets the direction behavior type of the controled node. Direction.None deactivates this feature. See the following options:</td>
+	</tr>
+	<tr>
+		<td>setDirectionType(MotionTrack.Direction.LookAt)</td><td>Rotate to keep facing a point. Specify the point with setLookAt().</td>
+	</tr>
+	<tr>
+		<td>setDirectionType(MotionTrack.Direction.Path)</td><td>Face the direction of the path.</td>
+	</tr>
+	<tr>
+		<td>setDirectionType(MotionTrack.Direction.PathAndRotation)</td><td>Face the direction of the path, plus an added rotation. Use together with the setRotation() method.</td>
+	</tr>
+	<tr>
+		<td>setDirectionType(MotionTrack.Direction.Rotation)</td><td>Rotate while moving. Use together with the setRotation() method.</td>
+	</tr>
+	<tr>
+		<td>setLookAt(teapot.getWorldTranslation(), Vector3f.UNIT_Y)</td><td>Optional: Make the moving face towards a certain location. Use together with setDirectionType().</td>
+	</tr>
+	<tr>
+		<td>setRotation(quaternion)</td><td>Optional: Sets the rotation. Use together with MotionTrack.Direction.Rotation or MotionTrack.Direction.PathAndRotation.</td>
+	</tr>
+</table>
+
+</div>
+
+<h3><a>MotionPathListener</a></h3>
+<div>
+
+<p>
+
+You can register a MotionPathListener to the MotionPath to track whether waypoints have been reached, and then trigger a custom action. In this example we just print the status. The onWayPointReach() method of the interface gives you access to the MotionTrack object <code>control</code>, and an integer value representing the current wayPointIndex.
+</p>
+<pre>path.addListener&#40; new MotionPathListener&#40;&#41; &#123;
+  public void onWayPointReach&#40;MotionTrack control, int wayPointIndex&#41; &#123;
+    if &#40;path.getNbWayPoints&#40;&#41; == wayPointIndex + 1&#41; &#123;
+      println&#40;control.getSpatial&#40;&#41;.getName&#40;&#41; + &quot;Finished!!! &quot;&#41;;
+    &#125; else &#123;
+      println&#40;control.getSpatial&#40;&#41;.getName&#40;&#41; + &quot; Reached way point &quot; + wayPointIndex&#41;;
+    &#125;
+  &#125;
+&#125;&#41;;</pre>
+</div>
+
+<h3><a>PositionTrack</a></h3>
+<div>
+<pre>PositionTrack thingPositionControl = new PositionTrack&#40;
+    thingNode, endPosition,  duration, loopMode&#41;;</pre>
+<p>
+Details of the constructor:
+</p>
+<ul>
+<li><div> thingNode is the Spatial to be moved.</div>
+</li>
+<li><div> endPosition is the target location as Vector3f. </div>
+</li>
+<li><div> duration is the time that it should take from start to end point.</div>
+</li>
+<li><div> loopMode can be LoopMode.Loop, LoopMode.DontLoop, LoopMode.Cycle.</div>
+</li>
+</ul>
+
+<p>
+
+The start location is always the current location of the Spatial.
+</p>
+
+</div>
+
+<h3><a>RotationTrack</a></h3>
+<div>
+<pre>RotationTrack thingRotationControl = new RotationTrack&#40;
+    thingNode, endRotation,  duration, loopMode&#41;;</pre>
+<p>
+Details of the constructor:
+</p>
+<ul>
+<li><div> thingNode is the Spatial to be rotated.</div>
+</li>
+<li><div> endRotation is the target rotation in Quaternion format. </div>
+</li>
+<li><div> duration is the time that it should take from start to target rotation.</div>
+</li>
+<li><div> loopMode can be LoopMode.Loop, LoopMode.DontLoop, LoopMode.Cycle.</div>
+</li>
+</ul>
+
+</div>
+
+<h3><a>ScaleTrack</a></h3>
+<div>
+<pre>ScaleTrack thingScaleControl = new ScaleTrack&#40;
+    thingNode, endScale,  duration, loopMode&#41;;</pre>
+<p>
+Details of the constructor:
+</p>
+<ul>
+<li><div> thingNode is the Spatial to be resized.</div>
+</li>
+<li><div> endScale is the target Scale in Vector3f format. </div>
+</li>
+<li><div> duration is the time that it should take from start to target scale.</div>
+</li>
+<li><div> loopMode can be LoopMode.Loop, LoopMode.DontLoop, LoopMode.Cycle.</div>
+</li>
+</ul>
+
+</div>
+
+<h3><a>SoundTrack</a></h3>
+<div>
+<pre>SoundTrack&#40; audioPath, isStream, duration, loopMode &#41;</pre>
+<p>
+
+Details of the constructor:
+</p>
+<ul>
+<li><div> audioPath is the path to an audio file as String, e.g. “Sounds/mySound.wav”.</div>
+</li>
+<li><div> isStream Set this to true to play a longer audio file as stream, or to false to play a short sound without streaming.</div>
+</li>
+<li><div> duration is the time that it should take to play.</div>
+</li>
+<li><div> loopMode can be LoopMode.Loop, LoopMode.DontLoop, LoopMode.Cycle.</div>
+</li>
+</ul>
+
+</div>
+
+<h3><a>GuiTrack</a></h3>
+<div>
+<pre>GuiTrack&#40; screen, duration, loopMode &#41;</pre>
+<p>
+
+You must use this together with bindUI() to specify the Nifty <acronym title="Graphical User Interface">GUI</acronym> <acronym title="Extensible Markup Language">XML</acronym> file that you want to load:
+
+</p>
+<pre>cinematic.bindUi&#40;&quot;Interface/subtitle.xml&quot;&#41;;</pre>
+<p>
+Details of the constructor:
+</p>
+<ul>
+<li><div> screen is the name of the Nifty <acronym title="Graphical User Interface">GUI</acronym> screen to load, as String. </div>
+</li>
+<li><div> duration is the time that it should take to play.</div>
+</li>
+<li><div> loopMode can be LoopMode.Loop, LoopMode.DontLoop, LoopMode.Cycle.</div>
+</li>
+</ul>
+
+</div>
+
+<h3><a>AnimationTrack</a></h3>
+<div>
+<pre>AnimationTrack&#40; thingNode, animationName, duration, loopMode &#41;</pre>
+<p>
+
+Details of the constructor:
+</p>
+<ul>
+<li><div> thingNode is the Spatial whose animation you want to play.</div>
+</li>
+<li><div> AnimationName the animation of the animated model that you want to trigger, as a String.</div>
+</li>
+<li><div> duration is the time that it should take to play.</div>
+</li>
+<li><div> loopMode can be LoopMode.Loop, LoopMode.DontLoop, LoopMode.Cycle.</div>
+</li>
+</ul>
+
+</div>
+
+<h3><a>Customizations</a></h3>
+<div>
+
+<p>
+
+You can extend individual CinematicEvents. The <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/branches/jme3/src/test/jme3test/animation/SubtitleTrack.java"><param name="text" value="<html><u>SubtitleTrack.java example</u></html>"><param name="textColor" value="blue"></object> shows how to extend a GuiTrack to script subtitles. See how the subtitles are used in the <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/branches/jme3/src/test/jme3test/animation/TestCinematic.java"><param name="text" value="<html><u>TestCinematic.java example</u></html>"><param name="textColor" value="blue"></object>.
+</p>
+
+<p>
+You can also create new CinematicEvent by extending <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/branches/jme3/src/core/com/jme3/cinematic/events/AbstractCinematicEvent.java"><param name="text" value="<html><u>AbstractCinematicEvent</u></html>"><param name="textColor" value="blue"></object>. An AbstractCinematicEvent implements the CinematicEvent interface and provides duration, time, speed, etc… management. Look at the <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/branches/jme3/src/test/jme3test/animation/TestCinematic.java"><param name="text" value="<html><u>TestCinematic.java example</u></html>"><param name="textColor" value="blue"></object> is to use this for a custom fadeIn/fadeOut effect in combination with a com.jme3.post.filters.FadeFilter.
+</p>
+
+</div>
+
+<h2><a>Camera Handling</a></h2>
+<div>
+
+<p>
+
+The camera management is handled as follows:
+
+</p>
+<ol>
+<li><div> Create a camera Node and bind the camera object to the cinematic. Note that we also give the camera node a name in this step. <pre>CameraNode camNode = cinematic.bindCamera&#40;&quot;topView&quot;, cam&#41;;</pre></div>
+</li>
+<li><div> Position the camera node in its start location.</div>
+</li>
+<li><div> Use activateCamera() to give the control of the camera to this node. You now see the scene from this camera&#039;s point of view. For example to see through the camera node named “top view”, 6 seconds after the start of the cinematic, you&#039;d write <pre>cinematic.activateCamera&#40;6, &quot;topView&quot;&#41;;</pre></div>
+</li>
+<li><div> If desired, attach the camNode to a MotionTrack to let it travel along waypoints. This is demonstrated in the <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/branches/jme3/src/test/jme3test/animation/TestCinematic.java"><param name="text" value="<html><u>TestCameraMotionPath.java example</u></html>"><param name="textColor" value="blue"></object>.</div>
+</li>
+</ol>
+
+<p>
+
+Code samples:
+</p>
+<pre>flyCam.setEnabled&#40;false&#41;;
+&nbsp;
+CameraNode camNodeTop = cinematic.bindCamera&#40;&quot;topView&quot;, cam&#41;;
+camNodeTop.setControlDir&#40;ControlDirection.SpatialToCamera&#41;;
+camNodeTop.getControl&#40;0&#41;.setEnabled&#40;false&#41;;
+&nbsp;
+CameraNode camNodeSide = cinematic.bindCamera&#40;&quot;sideView&quot;, cam&#41;;
+camNodeSide.setControlDir&#40;ControlDirection.CameraToSpatial&#41;;
+camNodeSide.getControl&#40;0&#41;.setEnabled&#40;false&#41;;</pre>
+</div>
+
+<h2><a>Physics Interaction</a></h2>
+<div>
+
+<p>
+
+Upcoming.
+</p>
+
+</div>
+
+<h2><a>More Information</a></h2>
+<div>
+
+<p>
+See also: <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://jmonkeyengine.org/groups/development-discussion-jme3/forum/topic/cinematics-system-for-jme3/"><param name="text" value="<html><u>Cinematics by Nehon</u></html>"><param name="textColor" value="blue"></object>
+
+</p>
+
+</div>
+<p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:cinematics?do=export_xhtmlbody">view online version</a></em></p>

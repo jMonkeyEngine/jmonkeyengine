@@ -1,0 +1,330 @@
+
+<h1><a>Getting Started with JME3 (12) - Hello Effects</a></h1>
+<div>
+
+<p>
+
+Previous: <a href="/com/jme3/gde/core/docs/jme3/beginner/hello_audio.html">Hello Audio</a>,
+Next: <a href="/com/jme3/gde/core/docs/jme3/beginner/hello_physics.html">Hello Physics</a>
+</p>
+
+<p>
+<img src="nbdocs:/com/jme3/gde/core/docs/jme3/beginner/beginner-effect-fire.png">
+</p>
+
+<p>
+When you see one of the following in a game, then a particle system is likely behind it:
+</p>
+<ul>
+<li><div> Fire, flames, sparks;</div>
+</li>
+<li><div> Rain, snow, waterfalls, leaves;</div>
+</li>
+<li><div> Explosions, debris, shockwaves;</div>
+</li>
+<li><div> Dust, fog, clouds, smoke;</div>
+</li>
+<li><div> Insects swarms, meteor showers;</div>
+</li>
+<li><div> Magic spells.</div>
+</li>
+</ul>
+
+<p>
+
+These things typically cannot be modeled by meshes.
+In very simple terms:
+</p>
+<ul>
+<li><div> The difference between an explosion and a dust cloud is the speed of the effect. </div>
+</li>
+<li><div> The difference between flames and a waterfall is the direction and the color of the effect. </div>
+</li>
+</ul>
+
+<p>
+
+Particle effects can be animated (e.g. sparks, drops) and static (strands of grass, hair). Non-particle effects include bloom/glow, and motion blur/afterimage. In this tutorial we will look at animated particles (com.jme3.effect). 
+</p>
+
+</div>
+
+<h2><a>Sample Code</a></h2>
+<div>
+<pre>package jme3test.helloworld;
+&nbsp;
+import com.jme3.app.SimpleApplication;
+import com.jme3.effect.ParticleEmitter;
+import com.jme3.effect.ParticleMesh;
+import com.jme3.material.Material;
+import com.jme3.math.ColorRGBA;
+import com.jme3.math.Vector3f;
+&nbsp;
+/** Sample 11 - how to create fire, water, and explosion effects. */
+public class HelloEffects extends SimpleApplication &#123;
+&nbsp;
+  public static void main&#40;String&#91;&#93; args&#41; &#123;
+    HelloEffects app = new HelloEffects&#40;&#41;;
+    app.start&#40;&#41;;
+  &#125;
+&nbsp;
+  @Override
+  public void simpleInitApp&#40;&#41; &#123;
+&nbsp;
+    ParticleEmitter fire = new ParticleEmitter&#40;&quot;Emitter&quot;, ParticleMesh.Type.Triangle, 30&#41;;
+    Material mat_red = new Material&#40;assetManager, &quot;Common/MatDefs/Misc/Particle.j3md&quot;&#41;;
+    mat_red.setTexture&#40;&quot;Texture&quot;, assetManager.loadTexture&#40;&quot;Effects/Explosion/flame.png&quot;&#41;&#41;;
+    fire.setMaterial&#40;mat_red&#41;;
+    fire.setImagesX&#40;2&#41;; fire.setImagesY&#40;2&#41;; // 2x2 texture animation
+    fire.setEndColor&#40;  new ColorRGBA&#40;1f, 0f, 0f, 1f&#41;&#41;;   // red
+    fire.setStartColor&#40;new ColorRGBA&#40;1f, 1f, 0f, 0.5f&#41;&#41;; // yellow
+    fire.setInitialVelocity&#40;new Vector3f&#40;0, 2, 0&#41;&#41;;
+    fire.setStartSize&#40;1.5f&#41;;
+    fire.setEndSize&#40;0.1f&#41;;
+    fire.setGravity&#40;0&#41;;
+    fire.setLowLife&#40;0.5f&#41;;
+    fire.setHighLife&#40;3f&#41;;
+    fire.setVelocityVariation&#40;0.3f&#41;; 
+    rootNode.attachChild&#40;fire&#41;;
+&nbsp;
+    ParticleEmitter debris = new ParticleEmitter&#40;&quot;Debris&quot;, ParticleMesh.Type.Triangle, 10&#41;;
+    Material debris_mat = new Material&#40;assetManager, &quot;Common/MatDefs/Misc/Particle.j3md&quot;&#41;;
+    debris_mat.setTexture&#40;&quot;Texture&quot;, assetManager.loadTexture&#40;&quot;Effects/Explosion/Debris.png&quot;&#41;&#41;;
+    debris.setMaterial&#40;debris_mat&#41;;
+    debris.setImagesX&#40;3&#41;; debris.setImagesY&#40;3&#41;; // 3x3 texture animation
+    debris.setRotateSpeed&#40;4&#41;;
+    debris.setSelectRandomImage&#40;true&#41;;
+    debris.setInitialVelocity&#40;new Vector3f&#40;0, 4, 0&#41;&#41;;
+    debris.setStartColor&#40;new ColorRGBA&#40;1f, 1f, 1f, 1f&#41;&#41;;
+    debris.setGravity&#40;6f&#41;;
+    debris.setVelocityVariation&#40;.60f&#41;;
+    rootNode.attachChild&#40;debris&#41;;
+    debris.emitAllParticles&#40;&#41;;
+&nbsp;
+  &#125;
+&#125;</pre>
+<p>
+You should see an explosion that sends debris flying, and a fire.
+<object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://jmonkeyengine.googlecode.com/svn/branches/jme3/src/test/jme3test/effect/"><param name="text" value="<html><u>More example code</u></html>"><param name="textColor" value="blue"></object>
+</p>
+
+</div>
+
+<h3><a>Texture Animation and Variation</a></h3>
+<div>
+
+<p>
+
+<img src="/wiki/lib/exe/fetch.php">
+</p>
+
+<p>
+Start by choosing a material texture for your effect. If you provide the emitter with a set of textures (see image), it can use them either for variation (random order), or as animation steps (fixed order). 
+</p>
+
+<p>
+Setting emitter textures works just as you have already learned in previous chapters. This time we use the <code>Particle.j3md</code> default material. In the following example, we have a closer look at the Debris effect. 
+</p>
+<pre>    ...
+    Material debris_mat = new Material&#40;assetManager, &quot;Common/MatDefs/Misc/Particle.j3md&quot;&#41;;
+    debris_mat.setTexture&#40;&quot;Texture&quot;, assetManager.loadTexture&#40;&quot;Effects/Explosion/Debris.png&quot;&#41;&#41;;
+    debris.setMaterial&#40;debris_mat&#41;;
+    debris.setImagesX&#40;3&#41;; // columns
+    debris.setImagesY&#40;3&#41;; // rows
+    debris.setSelectRandomImage&#40;true&#41;;
+    ...</pre><ol>
+<li><div> Load the texture in the emitter&#039;s material.</div>
+</li>
+<li><div> Tell the Emitter into how many animation steps (x*y) the texture is divided. 1&times;1 is default.</div>
+</li>
+<li><div> Optionally, tell the Emitter whether the animation steps are to be at random, or in order.</div>
+</li>
+</ol>
+
+<p>
+
+As you see in the debris example, texture animations improve effects because each “flame” or “piece of debris” looks different. Also think of electric or magic effects, where you can create very interesting animations by using an ordered morphing series of lightning bolts; or flying leaves or snow flakes, for instance.
+</p>
+
+</div>
+
+<h3><a>Default Particle Textures</a></h3>
+<div>
+
+<p>
+
+The following effect textures are some of the example textures included in <code>test-data.jar</code>.
+
+</p>
+<table>
+	<tr>
+		<th> Texture Path                     </th><th> Dimension </th><th> Preview </th>
+	</tr>
+	<tr>
+		<td> Effects/Explosion/Debris.png     </td><td> 3*3  </td><td> <img src="/wiki/lib/exe/fetch.php"> </td>
+	</tr>
+	<tr>
+		<td> Effects/Explosion/flame.png      </td><td> 2*2  </td><td> <img src="/wiki/lib/exe/fetch.php"> </td>
+	</tr>
+	<tr>
+		<td> Effects/Explosion/shockwave.png  </td><td> 1*1  </td><td> <img src="/wiki/lib/exe/fetch.php"> </td>
+	</tr>
+	<tr>
+		<td> Effects/Explosion/smoketrail.png </td><td> 1*3  </td><td> <img src="/wiki/lib/exe/fetch.php"> </td>
+	</tr>
+	<tr>
+		<td> Effects/Smoke/Smoke.png          </td><td> 1*15 </td><td> <img src="/wiki/lib/exe/fetch.php"> </td>
+	</tr>
+</table>
+
+<p>
+
+Copy them into you <code>assets/Effects</code> directory to use them.
+</p>
+
+</div>
+
+<h2><a>Creating Custom Textures</a></h2>
+<div>
+
+<p>
+
+For your game, you will likely create custom textures. Look at the fire example again.
+</p>
+<pre>    ParticleEmitter fire = new ParticleEmitter&#40;&quot;Emitter&quot;, ParticleMesh.Type.Triangle, 30&#41;;
+    Material mat_red = new Material&#40;assetManager, &quot;Common/MatDefs/Misc/Particle.j3md&quot;&#41;;
+    mat_red.setTexture&#40;&quot;m_Texture&quot;, assetManager.loadTexture&#40;&quot;Effects/Explosion/flame.png&quot;&#41;&#41;;
+    fire.setMaterial&#40;mat_red&#41;;
+    fire.setImagesX&#40;2&#41;; // columns 
+    fire.setImagesY&#40;2&#41;; // rows
+    fire.setEndColor&#40;  new ColorRGBA&#40;1f, 0f, 0f, 1f&#41;&#41;;   // red
+    fire.setStartColor&#40;new ColorRGBA&#40;1f, 1f, 0f, 0.5f&#41;&#41;; // yellow</pre>
+<p>
+<img src="/wiki/lib/exe/fetch.php">
+</p>
+<ul>
+<li><div> Black parts of the image will be rendered transparent. </div>
+</li>
+<li><div> White/gray parts of the image are transparent and will be colored.</div>
+</li>
+<li><div> You set the color (here, a gradient from yellow to red) in the code. </div>
+</li>
+<li><div> By default the animation will be played in order (?) and loop.</div>
+</li>
+</ul>
+
+<p>
+
+Create a grayscale texture in a graphic editor, and save it to your <code>assets/Effects</code> directory. If you split up one image file into x*y animation steps, make sure each animation step is of equal size–just as you see in the examples here. 
+</p>
+
+</div>
+
+<h3><a>Emitter Parameters</a></h3>
+<div>
+
+<p>
+
+A particle system is always centered around an emitter. 
+</p>
+
+<p>
+Use the <code>setShape()</code> method to change the EmitterShape:
+</p>
+<ul>
+<li><div> EmitterPointShape(Vector3f.ZERO) – default shape</div>
+</li>
+<li><div> EmitterSphereShape(Vector3f.ZERO,2f)</div>
+</li>
+<li><div> EmitterBoxShape(new Vector3f(-1f,-1f,-1f),new Vector3f(1f,1f,1f))</div>
+</li>
+</ul>
+
+<p>
+Example: <code>emitter.setShape(new EmitterPointShape(Vector3f.ZERO));</code>
+</p>
+
+<p>
+You create different effects by changing the emitter parameters: 
+
+</p>
+<table>
+	<tr>
+		<th> Parameter           </th><th> Method (default value) </th><th> Description </th>
+	</tr>
+	<tr>
+		<td> number              </td><td> <code>setNumParticles()</code> </td><td> The maximum number of particles visible at the same time. Value is specified by user in constructor. </td>
+	</tr>
+	<tr>
+		<td> velocity            </td><td> <code>setInitialVelocity()</code> (Vector3f.ZERO) </td><td> You must specify a vector how fast particles should move and it which start direction. </td>
+	</tr>
+	<tr>
+		<td> direction           </td><td> <code>setVelocityVariation()</code> (0.2f) <br/>
+ <code>setFacingVelocity()</code> (false) <br/>
+ <code>setRandomAngle()</code> (false) <br/>
+ <code>setFaceNormal()</code> (Vector3f.NAN) <br/>
+ <code>setRotateSpeed()</code> (0f) </td><td> Optional accessors that control in which direction particles face when flying. </td>
+	</tr>
+	<tr>
+		<td> lifetime            </td><td> <code>setLowLife()</code> (3f) <br/>
+ <code>setHighLife()</code> (7f) </td><td> Minimum and maximum time period before particles fade. </td>
+	</tr>
+	<tr>
+		<td> emission rate       </td><td> <code>setParticlesPerSec()</code> (20) </td><td> How many new particles are emitted per second. </td>
+	</tr>
+	<tr>
+		<td> color               </td><td> <code>setStartColor()</code> <br/>
+ <code>setEndColor()</code>  (gray)</td><td> Set to two different colors for gradient effects, or to same color. </td>
+	</tr>
+	<tr>
+		<td> size                </td><td> <code>setStartSize()</code> (0.2f) <br/>
+ <code>setEndSize()</code> (2f) </td><td> Set to two different values for shrink/grow effect, or to same size. </td>
+	</tr>
+	<tr>
+		<td> gravity             </td><td> <code>setGravity()</code> (0.1f) </td><td> Whether particles falls down eventually. Set to 0f for zero-g effects. </td>
+	</tr>
+</table>
+
+<p>
+
+You can find details about <a href="/com/jme3/gde/core/docs/jme3/advanced/particle_emitters#configure_parameters.html">effect parameters</a> in the user guide.
+Add and modify one paramter at a time, and try different values until you get the effect you want. <strong>Tip:</strong> Use the jMonkeyPlatform SceneComposer to preview effects settings (instructions: TODO).
+</p>
+
+</div>
+
+<h2><a>Exercise</a></h2>
+<div>
+
+<p>
+
+Can you “invert” the campfire into a small waterfall?
+</p>
+<ul>
+<li><div> Change the Red and Yellow color to Cyan and Blue…</div>
+</li>
+<li><div> Invert the velocity vector (direction) by using a negative number…</div>
+</li>
+<li><div> Swap start and end size…</div>
+</li>
+<li><div> Activate gravity by setting it to 1…</div>
+</li>
+</ul>
+
+</div>
+
+<h2><a>Conclusion</a></h2>
+<div>
+
+<p>
+
+You have learned that many different effects can be created by changing the parameters and textures of one general emitter object.
+</p>
+
+<p>
+Now we move on to the next exciting chapter – the simulation of <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://jmonkeyengine.org/wiki/doku.php/jme3:beginner:hello_physics"><param name="text" value="<html><u>physical objects</u></html>"><param name="textColor" value="blue"></object>. Let&#039;s shoot some cannon balls at a brick wall!
+
+</p>
+
+</div>
+<p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:beginner:hello_effects?do=export_xhtmlbody">view online version</a></em></p>

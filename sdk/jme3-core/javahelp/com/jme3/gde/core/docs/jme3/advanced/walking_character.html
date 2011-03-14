@@ -1,0 +1,137 @@
+
+<h1><a>Walking Character</a></h1>
+<div>
+
+<p>
+
+<strong>Work in progress.</strong>
+</p>
+
+<p>
+In other code samples we have seen how to create collidable landscapes and walk around in a first-person perspective, by enclosing the camera with a collision shape. 
+</p>
+
+<p>
+Many games however require a third-person perspective of the character. If you load a character model, create a PhysicsControl for it, and use forces to push it around, you may not get the desired effect: Phyical objects often fall over when pushed, and that is not what you expect of a walking character.
+</p>
+
+<p>
+This is why jME3 offers a special CharacterControl to implement walking characters.
+</p>
+
+</div>
+
+<h2><a>Sample Code</a></h2>
+<div>
+
+<p>
+
+The full code sample can be found here:
+</p>
+<ul>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/branches/jme3/src/test/jme3test/bullet/TestWalkingChar.java"><param name="text" value="<html><u>TestPhysicsCharacter.java</u></html>"><param name="textColor" value="blue"></object> (third-person view)</div>
+</li>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/branches/jme3/src/test/jme3test/bullet/TestWalkingChar.java"><param name="text" value="<html><u>TestWalkingChar.java</u></html>"><param name="textColor" value="blue"></object> (third-person view)</div>
+</li>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/branches/jme3/src/test/jme3test/bullet/TestQ3.java"><param name="text" value="<html><u>TestQ3.java</u></html>"><param name="textColor" value="blue"></object> (first-person view)</div>
+</li>
+</ul>
+
+</div>
+
+<h2><a>Overview of this Physics Application</a></h2>
+<div>
+<ol>
+<li><div> Create a SimpleApplication with a <a href="/com/jme3/gde/core/docs/jme3/advanced/physics.html">BulletAppState</a> </div>
+<ul>
+<li><div> This gives us a Physics Space</div>
+</li>
+</ul>
+</li>
+<li><div> Load any physical game level model, terrain, or floor</div>
+</li>
+<li><div> Load an animated character model</div>
+</li>
+<li><div> Set up animation channel and controller</div>
+</li>
+<li><div> Add a CharacterControl to the model</div>
+</li>
+</ol>
+
+</div>
+
+<h2><a>Creating the Character</a></h2>
+<div>
+<ol>
+<li><div> Initialze physical character behaviour, including collision shape </div>
+<ol>
+<li><div> Create CapsuleCollisionShape of the right size for the model.</div>
+<ul>
+<li><div> A Capsule is a cylinder with rounded top and bottom: A good collision shape for a character since it reduces the risk of getting stuck on obstacles.</div>
+</li>
+</ul>
+</li>
+<li><div> Create a CharacterControl from the collision shape</div>
+</li>
+</ol>
+</li>
+<li><div> Load the visible character model, and add the physical behaviour to it</div>
+<ol>
+<li><div> Load an animated model (e.g. “Models/Oto/Oto.mesh.xml”).</div>
+</li>
+<li><div> Add the CharacterControl to the character model.</div>
+</li>
+</ol>
+</li>
+<li><div> Make character visible and physical</div>
+<ol>
+<li><div> Attach the model to the rootNode to make it appear in the scene.</div>
+</li>
+<li><div> Add the CharacterControl to the PhysicsSpace to make it physical.</div>
+</li>
+</ol>
+</li>
+</ol>
+<pre>// initialze physical character behaviour, including collision shape
+CapsuleCollisionShape capsule = new CapsuleCollisionShape&#40;3f, 4f&#41;;
+CharacterControl character = new CharacterControl&#40;capsule, 0.01f&#41;;
+// load the visible character model and add the physical behaviour to it
+Node model = &#40;Node&#41; assetManager.loadModel&#40;&quot;Models/Oto/Oto.mesh.xml&quot;&#41;;
+model.addControl&#40;character&#41;;
+// Make character visible and physical
+rootNode.attachChild&#40;model&#41;;      // make it visible
+getPhysicsSpace&#40;&#41;.add&#40;character&#41;; // make it physical</pre>
+</div>
+
+<h2><a>Setting Up the Animation Controller</a></h2>
+<div>
+
+<p>
+
+We create two AninChannels, for example one for walking, one for shooting. The shootingChannel only controls one arm, while the walking channels controls the whole animation.
+</p>
+<pre>AnimControl animationControl = model.getControl&#40;AnimControl.class&#41;;
+animationControl.addListener&#40;this&#41;;
+&nbsp;
+AnimChannel animationChannel = animationControl.createChannel&#40;&#41;;
+AnimChannel shootingChannel = animationControl.createChannel&#40;&#41;;
+&nbsp;
+shootingChannel.addBone&#40;animationControl.getSkeleton&#40;&#41;.getBone&#40;&quot;uparm.right&quot;&#41;&#41;;
+shootingChannel.addBone&#40;animationControl.getSkeleton&#40;&#41;.getBone&#40;&quot;arm.right&quot;&#41;&#41;;
+shootingChannel.addBone&#40;animationControl.getSkeleton&#40;&#41;.getBone&#40;&quot;hand.right&quot;&#41;&#41;;</pre>
+<p>
+The extra shooting channel exists so the character can lift an arm to shoot and walk at the same time.
+</p>
+
+</div>
+
+<h2><a>Walking</a></h2>
+<div>
+
+<p>
+Work in progress (this is being updated for the new physics and chase cam.)
+
+</p>
+
+</div>
+<p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:walking_character?do=export_xhtmlbody">view online version</a></em></p>

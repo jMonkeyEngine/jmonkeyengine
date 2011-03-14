@@ -1,0 +1,18 @@
+
+    <target name="-linux-launcher" depends="-test-linux-launcher-enabled" if="is.linux.launcher.enabled">
+        <echo>Linux Launcher Creation</echo>
+        <echo file="${application.title}.sh">#!/bin/sh
+java -jar ${application.title}.jar
+        </echo>
+        <zip destfile="${dist.dir}/${application.title}-Linux.zip">
+            <zipfileset file="${application.title}.sh" filemode="755" prefix=""/>
+            <zipfileset file="${dist.jar}" prefix=""/>
+            <zipfileset dir="${dist.dir}/lib" prefix="lib/"/>
+        </zip>
+        <delete file="${application.title}.sh"/>
+    </target>
+    <target name="-test-linux-launcher-enabled">
+        <condition property="is.linux.launcher.enabled">
+            <istrue value="${linux.launcher.enabled}"/>
+        </condition>
+    </target>

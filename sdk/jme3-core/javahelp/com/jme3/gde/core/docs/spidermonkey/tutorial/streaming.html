@@ -1,0 +1,54 @@
+
+<h1><a>Streaming service</a></h1>
+<div>
+
+<p>
+The streaming service is meant for situations where you want to transfer files, or other types of data to clients. In this tutorial we&#039;ll discuss how it works, and how to use it.
+</p>
+
+<p>
+Let&#039;s start off with how it works; streaming service uses messages to transfer data. This is done so it doesn&#039;t block other messages from being sent, while transferring. First a message is sent the describes the stream. The peer can now choose whether to accept or reject the stream. When the peer accepts, the data will be sent. You have to handle this data yourself. At the end of the stream you get the same message as when the stream was offered, to indicate the end of the stream.
+</p>
+
+<p>
+Let&#039;s transfer a file to a client:
+
+</p>
+<pre>StreamingService sService = client.getService&#40;StreamingService.class&#41;;
+sService.addStreamListener&#40;this&#41;;
+&nbsp;
+sService = server.getService&#40;StreamingService.class&#41;;
+Client receiver = server.getConnectors&#40;&#41;.get&#40;0&#41;; // Note that you can't use 'client' here, since it's not a connector.
+sService.offerStream&#40;receiver, new StreamMessage&#40;&#41;, new FileInputStream&#40;&quot;test.txt&quot;&#41;&#41;; // StreamMessage used here as start and end message, but can be anything to describe the stream on the other end.</pre>
+<p>
+
+As you can see, this system uses the Service system. First, we get the client&#039;s StreamingService, and register ourselves as a listener. Then we get the server&#039;s version of the StreamingService, from which you can stream things. Then we get a connector client (the first one), and send the file via an InputStream.
+</p>
+
+<p>
+Now to receive this stuff is simple;
+
+</p>
+<pre>public boolean streamOffered&#40;StreamMessage message&#41; &#123;
+   // Here you'd normally check the message what this stream is all about, and 
+   // base your acception criteria on that.
+   fileStream = new FileOutputStream&#40;&quot;test.txt&quot;&#41;;
+   return true; // Sure, we'll just accept this message.
+&#125;
+&nbsp;
+public void streamDataReceived&#40;StreamDataMessage message&#41; &#123;
+   fileStream.write&#40;message.getData&#40;&#41;&#41;;
+&#125;
+&nbsp;
+public void streamCompleted&#40;StreamMessage message&#41; &#123;
+   fileStream.flush&#40;&#41;;
+   fileStream.close&#40;&#41;;
+&#125;</pre>
+<p>
+
+That was all; simple right?
+
+</p>
+
+</div>
+<p><em><a href="http://jmonkeyengine.org/wiki/doku.php/spidermonkey:tutorial:streaming?do=export_xhtmlbody">view online version</a></em></p>

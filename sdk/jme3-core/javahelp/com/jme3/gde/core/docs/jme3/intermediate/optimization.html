@@ -1,0 +1,54 @@
+
+<h1><a>Optimization reference</a></h1>
+<div>
+
+<p>
+
+This page is intended as a reference collection of optimization tricks that can be used to speed up JME3 applications.
+</p>
+
+</div>
+
+<h2><a>Maintain low Geometry count</a></h2>
+<div>
+
+<p>
+
+The more Geometry objects are added to the scene, the harder it gets to handle them in a speedy fashion.
+The reson for this is, that for every object a render command must be done, here is a bottleneck betwenn the CPU and the Graficcard.
+</p>
+
+<p>
+<strong>Possible optimization techniques</strong>
+</p>
+<ul>
+<li><div> Use GeometryBatchFactory.optimize(node) to merge the meshes of the geometries contained in the given node into fewer batches (based on common Material used).</div>
+</li>
+</ul>
+
+<p>
+
+<strong>Side-effects</strong>
+</p>
+<ul>
+<li><div> Using GeometryBatchFactory merges individual Geometries into a single mesh. Thereby it becomes hard to apply specific Materials or to remove a single Geometry. Therefore it should be used for static Geometry only that does not require frequent changes or individual materials/texturing.</div>
+</li>
+<li><div>Using Texture atlases might be a way to provide a limited individual texturing.</div>
+</li>
+</ul>
+
+</div>
+
+<h2><a>Avoid creating new objects</a></h2>
+<div>
+
+<p>
+
+When you use math operations like vectorA.mult(vectorB); new objects are created that have to be garbage collected when you don&#039;t use them anymore. Check your math operations for opportunities to use the local version of the math operations, e.g. vectorA.multLocal(vectorB). This way the result is stored in vectorA and no new object needs to be created.
+</p>
+<div><span>
+	<a href="/wiki/doku.php/tag:performance?do=showtag&amp;tag=tag%3Aperformance">performance</a>
+</span></div>
+
+</div>
+<p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:intermediate:optimization?do=export_xhtmlbody">view online version</a></em></p>

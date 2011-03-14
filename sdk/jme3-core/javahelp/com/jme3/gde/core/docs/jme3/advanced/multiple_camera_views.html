@@ -1,0 +1,137 @@
+
+<h1><a>Multiple Camera Views</a></h1>
+<div>
+
+<p>
+
+You can split the screen and look into the 3D scene from different camera angles at the same time. In this example, we create four views (2&times;2) with the same aspect ratio as the normal view, but half the size. 
+</p>
+
+<p>
+The packages used in this example are <code>com.jme3.renderer.Camera</code> and <code>com.jme3.renderer.ViewPort</code>. You can get the full sample code here: <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/branches/jme3/src/test/jme3test/renderer/TestMultiViews.java"><param name="text" value="<html><u>TestMultiViews.java</u></html>"><param name="textColor" value="blue"></object>
+</p>
+
+</div>
+
+<h2><a>Set up the First View</a></h2>
+<div>
+
+<p>
+
+We use the preconfigured Camera <code>cam</code> and <code>viewPort</code> from <code>SimpleApplication</code> for the first view.
+</p>
+<pre>viewPort.setBackgroundColor&#40;ColorRGBA.Blue&#41;;
+cam.setViewPort&#40;.5f, 1f, 0f, 0.5f&#41;; // resize the viewPort
+cam.setLocation&#40;new Vector3f&#40;3.3212643f, 4.484704f, 4.2812433f&#41;&#41;;
+cam.setRotation&#40;new Quaternion &#40;-0.07680723f, 0.92299235f, -0.2564353f, -0.27645364f&#41;&#41;;</pre>
+<p>
+Place the main camera in the scene and rotate it in its start position. 
+</p>
+
+<p>
+We will have a detailed look at how we use setViewPort() to position and resize the default view later.
+</p>
+
+</div>
+
+<h2><a>Set up Three Additional Views</a></h2>
+<div>
+
+<p>
+
+Here is the outline for how you create the three other cams and viewPorts (<object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/branches/jme3/src/test/jme3test/renderer/TestMultiViews.java"><param name="text" value="<html><u>Full code sample is here</u></html>"><param name="textColor" value="blue"></object>.) In the code snippet, <code>cam_n</code> stand for <code>cam_2</code> - <code>cam_4</code>, respectively, same for <code>view_n</code>.
+
+</p>
+<ol>
+<li><div> Clone the first cam to reuse its settings</div>
+</li>
+<li><div> Resize and position the cam&#039;s viewPort with setViewPort() – details below.</div>
+</li>
+<li><div> Place the cameras in the scene and rotate them.</div>
+</li>
+<li><div> Create a main view for each camera</div>
+</li>
+<li><div> Reset the cameras&#039; enabled statuses</div>
+</li>
+<li><div> Attach the rootNode to be displayed to this view</div>
+<ol>
+<li><div> It doesn&#039;t have to be rootNode, but that is the most common use case</div>
+</li>
+</ol>
+</li>
+<li><div> You can set other optional view properties such as backgroundColor</div>
+</li>
+</ol>
+<pre>Camera cam_n    = cam.clone&#40;&#41;;
+cam_n.setViewPort&#40;...&#41;; // resize the viewPort
+cam_n.setLocation&#40;new Vector3f&#40;...&#41;&#41;;
+cam_n.setRotation&#40;new Quaternion&#40;...&#41;&#41;;
+&nbsp;
+ViewPort view_n = renderManager.createMainView&#40;&quot;View of camera #n&quot;, cam_n&#41;;
+view_n.setClearEnabled&#40;true&#41;;
+view_n.attachScene&#40;rootNode&#41;;
+view_n.setBackgroundColor&#40;ColorRGBA.Black&#41;;</pre>
+</div>
+
+<h2><a>How to resize and position the ViewPorts</a></h2>
+<div>
+
+<p>
+
+How does jme know which of the four views should appear where on the screen?
+</p>
+
+<p>
+Imagine the view as a 1&times;1-sized box. By default, the settings is <code>cam.setViewPort(0f, 1f, 0f, 1f);</code>. This means the view takes up the whole box, from 0 to 1 left to right, and from 0 to 1 bottom to top.
+</p>
+
+<p>
+In the <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/branches/jme3/src/test/jme3test/renderer/TestMultiViews.java"><param name="text" value="<html><u>code sample</u></html>"><param name="textColor" value="blue"></object>, note the following four lines:
+</p>
+<pre>cam.setViewPort&#40;  0.5f, 1.0f, 0.0f, 0.5f&#41;;
+...
+cam_2.setViewPort&#40;0.0f, 0.5f, 0.0f, 0.5f&#41;;
+...
+cam_3.setViewPort&#40;0.0f, 0.5f, 0.5f, 1.0f&#41;;
+...
+cam_4.setViewPort&#40;0.5f, 1.0f, 0.5f, 1.0f&#41;;</pre>
+<p>
+These viewport parameters are, in this order, the left - right - bottom - top extend of a camera&#039;s box on the screen. Note that we have set a few values to 0.5f – this is where we resize each view to half its default height and width.
+</p>
+<pre>
+0.0 , 1.0       1.0 , 1.0
+       +----+----+
+       |    |    |
+       |cam3|cam4|
+       +---------+
+       |    |    |
+       |cam2|cam |
+       +----+----+
+0.0 , 0.0       1.0 , 0.0</pre>
+
+<p>
+Example: Cam3&#039;s rect extends from bottom-left (0.0 , 0.5) to top-right (0.5 , 1.0)
+</p>
+<ul>
+<li><div> The left corner is at 0, and the right corner is 0.5 on the x axis. </div>
+</li>
+<li><div> The bottom of the box is at 0.5 and the top at 1.0 on the y axis.</div>
+</li>
+</ul>
+
+</div>
+
+<h2><a>Other Layouts</a></h2>
+<div>
+
+<p>
+
+This layout shows 2&times;2 views. For a split screen you may want to lay out two views, one above the other, or one next to the other.
+</p>
+
+<p>
+If you scale the views in a way so that the aspect ratio changes, the views will obviously be distorted. In these cases, create custom camera objects with the right aspect ratio (redefine the default cam).  
+</p>
+
+</div>
+<p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:multiple_camera_views?do=export_xhtmlbody">view online version</a></em></p>

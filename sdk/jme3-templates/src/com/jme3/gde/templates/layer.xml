@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.2//EN" "http://www.netbeans.org/dtds/filesystem-1_2.dtd">
+<filesystem>
+    <folder name="Templates">
+        <folder name="Project">
+            <folder name="JME3">
+                <file name="BasicGameProject.zip" url="BasicGameProject.zip">
+                    <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/com/jme3/gde/templates/jme-logo.png"/>
+                    <attr name="displayName" bundlevalue="com.jme3.gde.templates.Bundle#Templates/Project/JME3/BasicGameProject.zip"/>
+                    <attr name="instantiatingIterator" methodvalue="com.jme3.gde.templates.basic.BasicGameWizardIterator.createIterator"/>
+                    <attr name="instantiatingWizardURL" urlvalue="nbresloc:/com/jme3/gde/templates/basic/BasicGameDescription.html"/>
+                    <attr name="template" boolvalue="true"/>
+                </file>
+            </folder>
+        </folder>
+    </folder>
+</filesystem>

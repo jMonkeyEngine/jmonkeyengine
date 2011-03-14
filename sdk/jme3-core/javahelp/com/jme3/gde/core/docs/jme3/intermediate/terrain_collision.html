@@ -1,0 +1,302 @@
+
+<h3><a>Terrain Collision</a></h3>
+<div>
+
+<p>
+
+<strong>*Work in progress</strong>*
+</p>
+
+<p>
+This page will extend (not the Java keyword!) the Hello_Terrain tutorial in a few small ways in order to show you a quick way to create a Collision Shape out of the map we have generated.  A Collision Shape allows a player (who is also a Collision Shape in this tutorial) to collide with the map, i.e. clip, walk on, stand on, etc. in order to create the type of world and interactivity most gamers are familiar with in FPS or MMOs.
+
+</p>
+<div><span>
+	<a href="/wiki/doku.php/tag:about?do=showtag&amp;tag=tag%3Aabout">about</a>
+</span></div>
+
+</div>
+
+<h3><a>Sample Code</a></h3>
+<div>
+<pre>package mygame;
+&nbsp;
+import jme3tools.converters.ImageToAwt;
+import com.jme3.app.SimpleBulletApplication;
+import com.jme3.bullet.collision.shapes.CapsuleCollisionShape;
+import com.jme3.bullet.collision.shapes.HeightfieldCollisionShape;
+import com.jme3.bullet.nodes.PhysicsCharacterNode;
+import com.jme3.bullet.nodes.PhysicsNode;
+import com.jme3.input.KeyInput;
+import com.jme3.input.controls.ActionListener;
+import com.jme3.input.controls.KeyTrigger;
+import com.jme3.material.Material;
+import com.jme3.math.Vector3f;
+import com.jme3.renderer.Camera;
+import com.jme3.terrain.geomipmap.TerrainLodControl;
+import com.jme3.terrain.heightmap.AbstractHeightMap;
+import com.jme3.terrain.heightmap.ImageBasedHeightMap;
+import com.jme3.terrain.geomipmap.TerrainQuad;
+import com.jme3.texture.Texture;
+import com.jme3.texture.Texture.WrapMode;
+import java.util.ArrayList;
+import java.util.List;
+&nbsp;
+public class Main extends SimpleBulletApplication &#123;
+&nbsp;
+    private TerrainQuad terrain;
+    PhysicsCharacterNode player;
+    Boolean left = false, right = false, up = false, down = false;
+    private Vector3f walkDirection = new Vector3f&#40;&#41;;
+&nbsp;
+    public static void main&#40;String&#91;&#93; args&#41; &#123;
+        Main app = new Main&#40;&#41;;
+        app.start&#40;&#41;;
+    &#125;
+&nbsp;
+    @Override
+    public void simpleInitApp&#40;&#41; &#123;
+        setupKeys&#40;&#41;;
+        setupPlayer&#40;&#41;;
+&nbsp;
+        Material terrain_mat;
+        PhysicsNode landscape;
+&nbsp;
+        /** 1. Create terrain material and load four textures into it. */
+        terrain_mat = new Material&#40;assetManager, &quot;Common/MatDefs/Terrain/Terrain.j3md&quot;&#41;;
+&nbsp;
+        /** 1.1) Add ALPHA map (for red-blue-green coded splat textures) */
+        terrain_mat.setTexture&#40;&quot;m_Alpha&quot;, assetManager.loadTexture&#40;&quot;Textures/Terrain/splat/alphamap.png&quot;&#41;&#41;;
+&nbsp;
+        /** 1.2) Add GRASS texture into the red layer (m_Tex1). */
+        Texture grass = assetManager.loadTexture&#40;&quot;Textures/Terrain/splat/grass.jpg&quot;&#41;;
+        grass.setWrap&#40;WrapMode.Repeat&#41;;
+        terrain_mat.setTexture&#40;&quot;m_Tex1&quot;, grass&#41;;
+        terrain_mat.setFloat&#40;&quot;m_Tex1Scale&quot;, 64f&#41;;
+&nbsp;
+        /** 1.3) Add DIRT texture into the green layer (m_Tex2) */
+        Texture dirt = assetManager.loadTexture&#40;&quot;Textures/Terrain/splat/dirt.jpg&quot;&#41;;
+        dirt.setWrap&#40;WrapMode.Repeat&#41;;
+        terrain_mat.setTexture&#40;&quot;m_Tex2&quot;, dirt&#41;;
+        terrain_mat.setFloat&#40;&quot;m_Tex2Scale&quot;, 32f&#41;;
+&nbsp;
+        /** 1.4) Add ROAD texture into the blue layer (m_Tex3) */
+        Texture rock = assetManager.loadTexture&#40;&quot;Textures/Terrain/splat/road.jpg&quot;&#41;;
+        rock.setWrap&#40;WrapMode.Repeat&#41;;
+        terrain_mat.setTexture&#40;&quot;m_Tex3&quot;, rock&#41;;
+        terrain_mat.setFloat&#40;&quot;m_Tex3Scale&quot;, 128f&#41;;
+&nbsp;
+        /** 2. Create the height map */
+        AbstractHeightMap heightmap = null;
+        Texture heightMapImage = assetManager.loadTexture&#40;&quot;Textures/Terrain/splat/mountains512.png&quot;&#41;;
+        heightmap = new ImageBasedHeightMap&#40;
+                ImageToAwt.convert&#40;heightMapImage.getImage&#40;&#41;, false, true, 0&#41;&#41;;
+        heightmap.load&#40;&#41;;
+&nbsp;
+        <span>/** 3. We have prepared material and heightmap. Now we create the actual terrain:
+         * 3.1) We create a TerrainQuad and name it &quot;my terrain&quot;.
+         * 3.2) A good value for terrain tiles is 64x64 -- so we supply 64+1=65.
+         * 3.3) We prepared a heightmap of size 512x512 -- so we supply 512+1=513.
+         * 3.4) At last, we supply the prepared heightmap itself.*/</span>
+        terrain = new TerrainQuad&#40;&quot;my terrain&quot;, 65, 513, heightmap.getHeightMap&#40;&#41;&#41;;
+&nbsp;
+        HeightfieldCollisionShape sceneShape = new HeightfieldCollisionShape&#40;heightmap.getHeightMap&#40;&#41;&#41;;
+        landscape = new PhysicsNode&#40;terrain, sceneShape, 0&#41;;
+&nbsp;
+&nbsp;
+        /** 4. The LOD (level of detail) depends on were the camera is: */
+        List&lt;Camera&gt; cameras = new ArrayList&lt;Camera&gt;&#40;&#41;;
+        cameras.add&#40;getCamera&#40;&#41;&#41;;
+        TerrainLodControl control = new TerrainLodControl&#40;terrain, cameras&#41;;
+        terrain.addControl&#40;control&#41;;
+&nbsp;
+        /** 5. We give the terrain its material, position &amp; scale it, and attach it. */
+        terrain.setMaterial&#40;terrain_mat&#41;;
+        landscape.setLocalTranslation&#40;0, -100, 0&#41;;
+        rootNode.attachChild&#40;landscape&#41;;
+        getPhysicsSpace&#40;&#41;.add&#40;landscape&#41;;
+    &#125;
+&nbsp;
+    @Override
+    public void simpleUpdate&#40;float tpf&#41; &#123;
+        Vector3f camDir = cam.getDirection&#40;&#41;.clone&#40;&#41;.multLocal&#40;0.2f&#41;;
+        Vector3f camLeft = cam.getLeft&#40;&#41;.clone&#40;&#41;.multLocal&#40;0.1f&#41;;
+        walkDirection.set&#40;0, 0, 0&#41;;
+        if &#40;left&#41; &#123;
+            walkDirection.addLocal&#40;camLeft&#41;;
+        &#125;
+        if &#40;right&#41; &#123;
+            walkDirection.addLocal&#40;camLeft.negate&#40;&#41;&#41;;
+        &#125;
+        if &#40;up&#41; &#123;
+            walkDirection.addLocal&#40;camDir&#41;;
+            walkDirection.y = 0;
+        &#125;
+        if &#40;down&#41; &#123;
+            walkDirection.addLocal&#40;camDir.negate&#40;&#41;&#41;;
+            walkDirection.y = 0;
+        &#125;
+        player.setWalkDirection&#40;walkDirection&#41;;
+        cam.setLocation&#40;player.getLocalTranslation&#40;&#41;&#41;;
+    &#125;
+&nbsp;
+    public void setupPlayer&#40;&#41; &#123;
+        player = new PhysicsCharacterNode&#40;new CapsuleCollisionShape&#40;1.2f, 3f, 1&#41;, .05f&#41;;
+        player.setJumpSpeed&#40;20&#41;;    //10 default
+        player.setFallSpeed&#40;30&#41;;    //30 default
+        player.setGravity&#40;30&#41;;      //30 default
+        player.setLocalTranslation&#40;new Vector3f&#40;0f, 250f, 150f&#41;&#41;;
+        rootNode.attachChild&#40;player&#41;;
+        getPhysicsSpace&#40;&#41;.add&#40;player&#41;;
+    &#125;
+&nbsp;
+    private void setupKeys&#40;&#41; &#123;
+        inputManager.addMapping&#40;&quot;Lefts&quot;, new KeyTrigger&#40;KeyInput.KEY_A&#41;&#41;;
+        inputManager.addMapping&#40;&quot;Rights&quot;, new KeyTrigger&#40;KeyInput.KEY_D&#41;&#41;;
+        inputManager.addMapping&#40;&quot;Ups&quot;, new KeyTrigger&#40;KeyInput.KEY_W&#41;&#41;;
+        inputManager.addMapping&#40;&quot;Downs&quot;, new KeyTrigger&#40;KeyInput.KEY_S&#41;&#41;;
+        inputManager.addMapping&#40;&quot;Jumps&quot;, new KeyTrigger&#40;KeyInput.KEY_SPACE&#41;&#41;;
+        inputManager.addListener&#40;actionListener, new String&#91;&#93;&#123;&quot;Lefts&quot;, &quot;Rights&quot;, &quot;Ups&quot;,
+                    &quot;Downs&quot;, &quot;Jumps&quot;&#125;&#41;;
+    &#125;
+    private ActionListener&#40;&#41; &#123;
+&nbsp;
+        public void onAction&#40;String binding, boolean value, float tpf&#41; &#123;
+            if &#40;binding.equals&#40;&quot;Lefts&quot;&#41;&#41; &#123;
+                if &#40;value &amp;&amp; player.onGround&#40;&#41;&#41; &#123;
+                    left = true;
+                &#125; else &#123;
+                    left = false;
+                &#125;
+            &#125; else if &#40;binding.equals&#40;&quot;Rights&quot;&#41;&#41; &#123;
+                if &#40;value &amp;&amp; player.onGround&#40;&#41;&#41; &#123;
+                    right = true;
+                &#125; else &#123;
+                    right = false;
+                &#125;
+            &#125; else if &#40;binding.equals&#40;&quot;Ups&quot;&#41;&#41; &#123;
+                if &#40;value &amp;&amp; player.onGround&#40;&#41;&#41; &#123;
+                    up = true;
+                &#125; else &#123;
+                    up = false;
+                &#125;
+            &#125; else if &#40;binding.equals&#40;&quot;Downs&quot;&#41;&#41; &#123;
+                if &#40;value &amp;&amp; player.onGround&#40;&#41;&#41; &#123;
+                    down = true;
+                &#125; else &#123;
+                    down = false;
+                &#125;
+            &#125; else if &#40;binding.equals&#40;&quot;Jumps&quot;&#41; &amp;&amp; player.onGround&#40;&#41;&#41; &#123;
+                player.jump&#40;&#41;;
+            &#125;
+        &#125;
+    &#125;;
+&#125;</pre>
+</div>
+
+<h3><a>What&#039;s Going On?</a></h3>
+<div>
+
+<p>
+To try this code, go into a New Project → JME3 → BasicGame using the default settings (if you haven&#039;t already made a default project before) the name should be BasicGame and the package would be called myGame, then just paste this over the entire preconstructed main.java text.  Then Add the jme3-test-data library which is available through your library list.  This should compile and run from there.
+</p>
+
+</div>
+
+<h3><a>Explaining the Code</a></h3>
+<div>
+
+<p>
+I will only briefly describe the sections that are covered in the original Hello_Terrain.  Most detail will be given to the additives.
+</p>
+
+<p>
+Imports are to bring in the appropriate class definitions.
+</p>
+<pre>private TerrainQuad terrain;</pre>
+<p>
+
+Holds our map.
+
+</p>
+<pre>PhysicsCharacterNode player;</pre>
+<p>
+
+Creates our character in the style of FPS that many gamers are familiar with.
+
+</p>
+<pre>Boolean left = false, right = false, up = false, down = false;</pre>
+<p>
+
+Variables for creating fluid movement.
+
+</p>
+<pre>private Vector3f walkDirection = new Vector3f&#40;&#41;;</pre>
+<p>
+
+The direction we determine from combinations of the booleans.
+</p>
+
+<p>
+
+The main function is standard.
+In simpleInit we run setupKeys() first and create the common WASD and SPACEBAR to jump.
+
+</p>
+<pre>inputManager.addListener(actionListener, new String[]{&quot;Lefts&quot;, &quot;Rights&quot;, &quot;Ups&quot;, &quot;Downs&quot;, &quot;Jumps&quot;})</pre>
+
+<p>
+
+This line indicates our actionListener function and what to do when each command (the string names) is sent.
+</p>
+
+<p>
+The onAction function basically sets the booleans true based on which directions we&#039;re pressing or makes us jump.
+The simpleUpdate function constants changed our direction based on the boolean (ie the directions) we&#039;re pressing.
+</p>
+
+<p>
+The real collisioning happens in these parts;
+
+</p>
+<pre>player = new PhysicsCharacterNode(new CapsuleCollisionShape(1.2f, 3f, 1), .05f);
+rootNode.attachChild(player);
+getPhysicsSpace().add(player);
+
+HeightfieldCollisionShape sceneShape = new HeightfieldCollisionShape(heightmap.getHeightMap());
+landscape = new PhysicsNode(terrain, sceneShape, 0);
+
+landscape.setLocalTranslation(0, -100, 0);
+rootNode.attachChild(landscape);
+getPhysicsSpace().add(landscape);</pre>
+
+<p>
+The first chunk makes our player into a collision shape that&#039;s a capsule, kinda like a human right? And then attaches it to the rootNode and gets it&#039;s physics (important!).
+The second chunk feeds the heightmap we made into a heightfield collision shape generator to create the collidable shape of the land mass.
+The third chunk sets our land and it&#039;s collision down some, attaches em to root, and gets the physics.
+</p>
+
+</div>
+
+<h3><a>Conclusion</a></h3>
+<div>
+
+<p>
+You should spawn high up in the area and fall down to the map, giving you a few seconds to survey the domain.  Then walk around and see how you like the lay of the land.
+
+</p>
+<hr />
+
+<p>
+See also:
+
+</p>
+<ul>
+<li><div> <a href="/com/jme3/gde/core/docs/jme3/beginner/hello_terrain.html">Hello Terrain</a>,</div>
+</li>
+<li><div> <a href="/com/jme3/gde/core/docs/jme3/advanced/terrain.html">Terrain</a></div>
+</li>
+</ul>
+
+</div>
+<p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:intermediate:terrain_collision?do=export_xhtmlbody">view online version</a></em></p>

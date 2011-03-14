@@ -1,0 +1,213 @@
+
+<h1><a>The Scene</a></h1>
+<div>
+
+<p>
+
+To reduce system overhead the jMonkeyPlatform Core supplies one scene/jme3 application that is shared between plugins. Furthermore there&#039;s the “SceneExplorer” that shows a visual representation of the scenegraph and its objects properties across plugins.
+</p>
+
+<p>
+<br/>
+
+Note: All info due to change until jMP is stable!
+</p>
+
+</div>
+
+<h2><a>How to access the Scene</a></h2>
+<div>
+
+<p>
+
+There are several ways for your plugin to interact with the Scene:
+</p>
+<ul>
+<li><div> It listens for selected spatials / objects and offers options for those</div>
+</li>
+<li><div> It requests the whole scene for itself and loads/arranges the content in it (e.g. a terrain editor or model animation plugin).</div>
+</li>
+</ul>
+
+</div>
+
+<h5><a>Notes</a></h5>
+<div>
+<ul>
+<li><div> <em>Although the scene can be accessed at any time via SceneApplication.getApplication() it is not recommended to modify the scene like that. Other plugins might be accessing the scene and updates will not be properly recognized.</em></div>
+</li>
+<li><div> <em>Remember the scene runs on the render thread and most everything you do in the plugin (button events etc.) runs on the AWT thread, always encapsulate calls to either side correctly via Callables/Runnables or register as an AppState to the SceneApplication to have an update() call by the render thread.</em></div>
+</li>
+<li><div> <em>It became a standard in jMP to start the name of methods that execute directly on the OpenGL thread with “do” e.g “doMoveSpatial”, this makes identifying threading issues easier.</em></div>
+</li>
+<li><div> <em>The AssetManager of jme3 is threadsafe and can be used from any thread to load assets</em></div>
+</li>
+</ul>
+
+</div>
+
+<h2><a>Listening for Node selection</a></h2>
+<div>
+
+<p>
+
+In jMP, all objects are wrapped into NetBeans “Nodes” (different thing than jme Nodes!). Such nodes can have properties and icons and can be displayed and selected in the jMP UI. The SceneExplorer shows a tree of Nodes that wrap the Spatials of the current scene and allows manipulating their properties on selection. A jME “Spatial” is wrapped by a “JmeSpatial” node, for example. One advantage of these Nodes is that one can manipulate properties of Spatials directly from the AWT thread.
+</p>
+
+<p>
+<br/>
+
+To listen to the current selection, implement org.openide.util.LookupListener and register like this:
+</p>
+<pre>private final Result&lt;JmeSpatial&gt; result;
+&nbsp;
+//method to register the listener;
+private void registerListener&#40;&#41;&#123;
+    result = Utilities.actionsGlobalContext&#40;&#41;.lookupResult&#40;JmeSpatial.class&#41;;
+    result.addLookupListener&#40;this&#41;;
+&#125;
+&nbsp;
+//implements org.openide.util.LookupListener (called from AWT thread)
+public void resultChanged&#40;LookupEvent ev&#41; &#123;
+    Collection&lt;JmeSpatial&gt; items = &#40;Collection&lt;JmeSpatial&gt;&#41; result.allInstances&#40;&#41;;
+    for &#40;JmeSpatial jmeSpatial : items&#41; &#123;
+        //Using the JmeSpatials properties you can modify the spatial directly from the AWT thread:
+        spatial.getPropertySets&#40;&#41;&#91;0&#93;.setValue&#40;&quot;Local Translation&quot;, Vector3f.ZERO&#41;;
+        return;
+    &#125;
+&#125;</pre>
+<p>
+You can also access the “real” spatial but since its part of the scenegraph you will have to modify it on that thread:
+</p>
+<pre>//retrieve the &quot;real&quot; spatial class from the JmeNode
+for &#40;JmeSpatial jmeSpatial : items&#41; &#123;
+    //the spatial is stored inside the JmeSpatials &quot;Lookup&quot;, a general container for Objects
+    final Spatial realSpatial = jmeSpatial.getLookup&#40;&#41;.lookup&#40;Spatial.class&#41;;
+    //use a Callable to execute on the render thread:
+    SceneApplication.getApplication&#40;&#41;.enqueue&#40;new Callable&#40;&#41; &#123;
+        public Exception &#123;
+            realSpatial.setLocalTranslation&#40;Vector3f.ZERO&#41;;
+            return null;
+        &#125;
+    &#125;&#41;;
+    return;
+&#125;</pre>
+</div>
+
+<h2><a>Requesting the Scene</a></h2>
+<div>
+
+<p>
+
+If your plugin wants to use the scene by itself, it first has to implement SceneListener and register at the scene and then send a SceneRequest to the SceneApplication. When the SceneRequest has been approved and the current Scene has been closed, the SceneListener (your class) is called with its own SceneRequest as a parameter. When another plugin sends a SceneRequest it is also reported to you and its a hint that your RootNode has been removed from the Scene and you are no longer in control of it. You could also hook into the SceneRequests of other plugins to see if/when they are activated to display add-on plugins for that plugin.
+</p>
+
+<p>
+<br/>
+
+The SceneRequest object has to contain several things. A thing that you must supply is a jme “Node” wrapped into a “JmeNode” object. This is your rootNode that you use to display and build your scene. As soon as you control the scene, you will have to control the camera etc. yourself.
+</p>
+<pre>com.jme3.scene.Node rootNode = new com.jme3.scene.Node&#40;&quot;MyRootNode&quot;&#41;;
+&nbsp;
+private void registerSceneListener&#40;&#41;&#123;
+    SceneApplication.getApplication&#40;&#41;.addSceneListener&#40;this&#41;;
+&#125;
+&nbsp;
+private void requestScene&#40;&#41;&#123;
+    //create a jmeNode from the rootNode using the NodeUtility
+    JmeNode jmeNode = NodeUtility.createNode&#40;rootNode&#41;;
+    //create the scene request
+    SceneRequest request=new SceneRequest&#40;this, jmeNode, assetManager&#41;;
+    //request the scene
+    SceneApplication.getApplication&#40;&#41;.requestScene&#40;request&#41;;
+&#125;
+&nbsp;
+//implements SceneListener (called from render thread)
+public void sceneRequested&#40;SceneRequest request&#41;&#123;
+    //check if its our request
+    if &#40;request.getRequester&#40;&#41; == this&#41; &#123;
+        //we now own the scene
+    &#125;
+&#125;
+&nbsp;
+public boolean sceneClose&#40;SceneRequest request&#41; &#123;
+    if &#40;request.getRequester&#40;&#41; == this&#41; &#123;
+        //we have to close the scene, if we cannot, return false
+        if&#40;isNotSaved&#40;&#41;&#41;&#123;
+            return false;
+        &#125;
+    &#125;
+    return true;
+&#125;</pre>
+</div>
+
+<h2><a>Undo/Redo support</a></h2>
+<div>
+
+<p>
+jMP has a global undo/redo queue that activates the undo/redo buttons. To use it in your TopComponent, add the following method:
+
+</p>
+<pre>@Override 
+public UndoRedo getUndoRedo&#40;&#41; &#123; 
+return Lookup.getDefault&#40;&#41;.lookup&#40;SceneUndoRedoManager.class&#41;; 
+&#125;</pre>
+<p>
+To add a undo/redo event that modifies objects on the Scenegraph, theres a special version of AbstractUndoableEdit which executes the undo/redo calls on the scene thread. Simply implement that class and add it to the queue like this:
+
+</p>
+<pre>Lookup.getDefault&#40;&#41;.lookup&#40;SceneUndoRedoManager.class&#41;.addEdit&#40;this, new AbstractUndoableSceneEdit&#40;&#41; &#123; 
+&nbsp;
+@Override 
+public void sceneUndo&#40;&#41; &#123; 
+    //undo stuff in scene here
+&#125; 
+&nbsp;
+@Override 
+public void sceneRedo&#40;&#41; &#123; 
+    //redo stuff in scene here
+&#125; 
+&nbsp;
+@Override 
+public void awtUndo&#40;&#41; &#123; 
+    //undo stuff on awt thread here (updating of visual nodes etc, called post scene edit)
+&#125; 
+&nbsp;
+@Override 
+public void awtRedo&#40;&#41; &#123; 
+    //redo stuff on awt thread here
+&#125; 
+&#125;&#41;;</pre>
+<p>
+Note: Its important that you use the method addEdit(Object source, UndoableEdit edit);
+</p>
+
+</div>
+
+<h2><a>Handy things in jMonkeyPlatform Core</a></h2>
+<div>
+<ul>
+<li><div> com.jme3.gde.core.scene.controller</div>
+<ul>
+<li><div> AbstractCameraController → A basic camera control for plugins, used by SimpleSceneComposer and “View Model”</div>
+</li>
+<li><div> SceneToolController → A basic controller for having selection, cursor etc. displayed in the scene, used by SimpleSceneComposer</div>
+</li>
+</ul>
+</li>
+<li><div> com.jme3.gde.core.scene</div>
+<ul>
+<li><div> OffViewPanel → A panel that renders a 3d scene in a preview and displays it in a lightweight swing panel</div>
+</li>
+</ul>
+</li>
+<li><div> com.jme3.gde.core.util</div>
+<ul>
+<li><div> DataObjectSaveNode → Allows enabling the save all button by using any file and implementing the SvaeCookie yourself.</div>
+</li>
+</ul>
+</li>
+</ul>
+
+</div>
+<p><em><a href="http://jmonkeyengine.org/wiki/doku.php/sdk:development:scene?do=export_xhtmlbody">view online version</a></em></p>

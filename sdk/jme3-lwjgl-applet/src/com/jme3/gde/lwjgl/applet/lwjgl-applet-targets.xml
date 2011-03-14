@@ -1,0 +1,120 @@
+<target name="-lwjgl-applet-packlogo" if="splashscreen.available">
+        <echo>Packing Splash</echo>
+        <copy file="${application.splash}" todir="${applet.dir}"/>
+
+        <!-- <jar destfile="${applet.dir}/logo.jar">
+            <fileset file="${application.splash}"/>
+        </jar> -->
+        
+    </target>
+    <target name="-lwjgl-applet" depends="-test-lwjgl-applet-enabled" if="is.lwjgl.applet.enabled">
+        <echo>Applet Creation</echo>
+        <property name="libs.appletloader" location="${libs.lwjgl-applet.classpath}"/>
+        <property name="applet.dir" location="${dist.dir}/Applet"/>
+        <property name="applet.version" value="1.0"/>
+        
+        <delete dir="${applet.dir}"/>
+        <unzip src="${libs.appletloader}" dest="${applet.dir}"/>
+        <move file="${applet.dir}/applet-template.html" tofile="${applet.dir}/run-applet.html"/>
+        <move file="${assets.jar.resolved}" tofile="${applet.dir}/data.jar"/>
+
+        <!-- if using many small jars -->
+            <!--
+            <dirset id="absolute.dist.dir" dir="${dist.dir}">
+                <exclude name="lib"/>
+            </dirset>
+            <pathconvert dirsep="/" property="absolute.dist.dir" refid="absolute.dist.dir"/>
+
+            <fileset id="applet.classpath" dir="${dist.dir}/lib">
+                <include name="**/*.jar"/>
+            </fileset>
+
+            <pathconvert dirsep="/" pathsep=", " property="applet.classpath" refid="applet.classpath">
+                <map from="${absolute.dist.dir}/" to=""/>
+            </pathconvert>
+            <echo>${applet.classpath}</echo>
+
+            <copy file="${dist.jar}" todir="${applet.dir}"/>
+            -->
+
+        <!-- if using onejar -->
+            <jar destfile="${applet.dir}/code.jar">
+                <zipgroupfileset dir="${dist.dir}/lib" includes="*.jar"
+                                                       excludes="*natives*, ${assets.jar.name}, lwjgl.jar"/>
+                <zipgroupfileset file="${dist.jar}"/>
+            </jar>
+            <property name="applet.classpath" value="code.jar, data.jar, lwjgl.jar.pack.lzma"/>
+            <property name="applet.logo" value="appletlogo.png"/>
+
+            <antcall target="-lwjgl-applet-packlogo"/>
+
+            <property name="applet.archive" value="lwjgl_util_applet.jar, lzma.jar"/>
+            <!--
+            <condition property="applet.archive" value="lwjgl_util_applet.jar, lzma.jar">
+               <not>
+                  <isset property="splashscreen.available"/>
+               </not>
+            </condition>
+            <condition property="applet.archive" value="lwjgl_util_applet.jar, lzma.jar, logo.jar">
+               <isset property="splashscreen.available"/>
+            </condition>-->
+
+            <condition property="application.splash" value="appletlogo.png">
+               <not>
+                  <isset property="splashscreen.available"/>
+               </not>
+            </condition>
+            <fileset id="applet.logo.name" file="${application.splash}"/>
+            <pathconvert refid="applet.logo.name" property="applet.logo.name">
+                <mapper type="flatten"/>
+            </pathconvert>
+
+        <replace file="${applet.dir}/run-applet.html">
+            <replacefilter>
+                <replacetoken>${applet.title}</replacetoken>
+                <replacevalue expandProperties="true">${application.title}</replacevalue>
+            </replacefilter>
+
+            <replacefilter>
+                <replacetoken>${applet.main.class}</replacetoken>
+                <replacevalue expandProperties="true">${main.class}</replacevalue>
+            </replacefilter>
+
+            <replacefilter>
+                <replacetoken>${applet.archive}</replacetoken>
+                <replacevalue expandProperties="true">${applet.archive}</replacevalue>
+            </replacefilter>
+
+            <replacefilter>
+                <replacetoken>${applet.classpath}</replacetoken>
+                <replacevalue expandProperties="true">${applet.classpath}</replacevalue>
+            </replacefilter>
+
+            <replacefilter>
+                <replacetoken>${applet.logo}</replacetoken>
+                <replacevalue expandProperties="true">${applet.logo.name}</replacevalue>
+            </replacefilter>
+
+            <replacefilter>
+                <replacetoken>${applet.version}</replacetoken>
+                <replacevalue expandProperties="true">${applet.version}</replacevalue>
+            </replacefilter>
+
+            <replacefilter>
+                <replacetoken>${applet.width}</replacetoken>
+                <replacevalue expandProperties="true">${lwjgl.applet.width}</replacevalue>
+            </replacefilter>
+
+            <replacefilter>
+                <replacetoken>${applet.height}</replacetoken>
+                <replacevalue expandProperties="true">${lwjgl.applet.height}</replacevalue>
+            </replacefilter>
+            
+        </replace>
+
+    </target>
+    <target name="-test-lwjgl-applet-enabled">
+        <condition property="is.lwjgl.applet.enabled">
+            <istrue value="${lwjgl.applet.enabled}"/>
+        </condition>
+    </target>

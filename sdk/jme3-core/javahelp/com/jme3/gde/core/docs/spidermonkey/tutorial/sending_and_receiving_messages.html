@@ -1,0 +1,65 @@
+
+<h1><a>Sending and receiving messages</a></h1>
+<div>
+
+<p>
+In this tutorial I&#039;m going to cover sending and receiving messages. I&#039;ll also explain how to write your own messages. This tutorial assumes you already have a working server-client connection.
+</p>
+
+<p>
+Let&#039;s start by creating our own message. Later on we&#039;ll send this across the network.
+
+</p>
+<pre>@Serializable&#40;&#41;
+public class HelloMessage extends Message &#123;
+   public String hello = &quot;Hello!&quot;;
+&#125;</pre>
+<p>
+
+This is probably the smallest and simplest message you&#039;ll find. This is simply the process of creating a class, extending Message, and adding your fields to it. Also you need the @Serializable annotation, but we&#039;ll get to that later. Even though you don&#039;t <strong>have to</strong> extend Message, you generally should since then SpiderMonkey can add client and connection information on receiving. You can also send separate data, but we&#039;ll not go into that here - you should just send Messages.
+</p>
+
+<p>
+Now let&#039;s send this message across the network. We&#039;ll send it from the client to the server.
+
+</p>
+<pre>Serializer.registerClass&#40;HelloMessage.class&#41;;
+server.addMessageListener&#40;this, HelloMessage.class&#41;;
+client.addMessageListener&#40;this, HelloMessage.class&#41;;
+client.send&#40;new HelloMessage&#40;&#41;&#41;;</pre>
+<p>
+
+First we&#039;ve registered the class to the Serializer. This needs to happen on both the client and server, I&#039;ll explain why in the next tutorial. Then we add the message listeners for both the server and client, this makes sure we&#039;re notified when messages are received. Then we send the message. The message is by default reliable, and so it will be sent over TCP. Now we&#039;ll handle it on the server:
+
+</p>
+<pre>public void messageReceived&#40;Message message&#41; &#123;
+   // This message is of type HelloMessage, so we don't have to check.
+   HelloMessage helloMessage = &#40;HelloMessage&#41;message;
+   System.out.println&#40;helloMessage.hello&#41;;
+   helloMessage.hello = &quot;Hi!&quot;;
+   message.getClient&#40;&#41;.send&#40;helloMessage&#41;;
+&#125;</pre>
+<p>
+
+This simply receives the message, and changes the Hello! to Hi! and sends it back to the client. The client, can of course handle this message however it wants to.
+</p>
+
+</div>
+
+<h3><a>Serializable annotation</a></h3>
+<div>
+
+<p>
+The Serializable annotation is used to determine which serializer you want to use for your message, and which ID you want to register to it. If you specify no ID and no serializer, a ID will be assigned, and the default serializer will be used. The problem with specifying no ID is that you have to have the same order of registration on both the client and server, otherwise serializing will go wrong. It&#039;s therefore advisable that you use the id field, if you want to register classes in a different order.
+</p>
+
+<p>
+The default serializer is, of course, FieldSerializer, which&#039;ll do just fine for just about any message you can throw at it. However, if you wish to serialize your message yourself, all you must do is write your own serializer, and then pass the class to the serializer field in the annotation. For example, this Serializable annotation sets ID to four, and serializer to CustomSerializer (which doesn&#039;t exist, mind you).
+</p>
+<pre>@Serializable&#40;id=4, serializer=CustomSerializer.class&#41;</pre>
+<p>
+That was it! The next tutorial explains how the Serializer system works, and how you can register your own serializers!
+</p>
+
+</div>
+<p><em><a href="http://jmonkeyengine.org/wiki/doku.php/spidermonkey:tutorial:sending_and_receiving_messages?do=export_xhtmlbody">view online version</a></em></p>

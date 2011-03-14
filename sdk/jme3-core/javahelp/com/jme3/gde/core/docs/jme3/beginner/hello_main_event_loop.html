@@ -1,0 +1,160 @@
+
+<h1><a>Getting Started with JME3 (4) - Hello Event Loop</a></h1>
+<div>
+
+<p>
+
+<br/>
+
+Previous: <a href="/com/jme3/gde/core/docs/jme3/beginner/hello_asset.html">Hello Assets</a>,
+Next: <a href="/com/jme3/gde/core/docs/jme3/beginner/hello_input_system.html">Hello Input System</a>
+<br/>
+
+<br/>
+
+Now that you know how to load assets such as 3-D models, you want them to implement the actual gameplay. The event loop of your game is where the action happens.
+</p>
+
+</div>
+
+<h2><a>Code Sample</a></h2>
+<div>
+<pre>package jme3test.helloworld;
+&nbsp;
+import com.jme3.app.SimpleApplication;
+import com.jme3.material.Material;
+import com.jme3.math.ColorRGBA;
+import com.jme3.math.Vector3f;
+import com.jme3.scene.Geometry;
+import com.jme3.scene.shape.Box;
+&nbsp;
+<span>/** Sample 4 - how to trigger repeating actions from the main event loop.
+ * In this example, we make the player character rotate. */</span>
+public class HelloLoop extends SimpleApplication &#123;
+&nbsp;
+    public static void main&#40;String&#91;&#93; args&#41;&#123;
+        HelloLoop app = new HelloLoop&#40;&#41;;
+        app.start&#40;&#41;;
+    &#125;
+&nbsp;
+    protected Geometry player;
+&nbsp;
+    @Override
+    public void simpleInitApp&#40;&#41; &#123;
+&nbsp;
+        Box&#40;Vector3f.ZERO, 1, 1, 1&#41;;
+        player = new Geometry&#40;&quot;blue cube&quot;, b&#41;;
+        Material mat = new Material&#40;assetManager, &quot;Common/MatDefs/Misc/Unshaded.j3md&quot;&#41;;
+        mat.setColor&#40;&quot;Color&quot;, ColorRGBA.Blue&#41;;
+        player.setMaterial&#40;mat&#41;;
+        rootNode.attachChild&#40;player&#41;;
+    &#125;
+&nbsp;
+    /* This is the main event loop */
+    @Override
+    public void simpleUpdate&#40;float tpf&#41; &#123;
+        // make the player rotate
+        player.rotate&#40;0, 2*tpf, 0&#41;; 
+    &#125;
+&#125;</pre>
+<p>
+Build and run the file: You see a constantly rotating cube. 
+</p>
+
+</div>
+
+<h2><a>Understanding the Code</a></h2>
+<div>
+
+<p>
+
+Compared to our previous code samples you note that the player Geometry is now a class field. This is because we want the main event loop to be able to access and transform this Geometry. As you can see, we initialize the player object in the <code>simpleInitApp()</code> method. 
+</p>
+
+<p>
+<br/>
+
+Now have a closer look at the <code>simpleUpdate()</code> method, this is the main event loop. 
+</p>
+<ul>
+<li><div> The <code>player.rotate(0, 2*tpf, 0);</code> line changes the rotation of the player object. </div>
+</li>
+<li><div> We use the <code>tpf</code> variable (“time per frame”) to time this action depending on the current frames per second rate. This means the cube rotates with the same speed on fast machines, and the game remains playable.</div>
+</li>
+</ul>
+
+</div>
+
+<h2><a>The Event Loop</a></h2>
+<div>
+
+<p>
+
+A rotating object is just a simple example. In the event loop, you can update score and health points, check for collisions, make enemies calculate their next move, roll the dice whether a trap has been set off, play random ambient sounds, and much more.  
+</p>
+
+<p>
+<br/>
+
+</p>
+<ul>
+<li><div> The event loop starts after the <code>simpleInitApp()</code> method has set up the scenegraph and state variables.</div>
+</li>
+<li><div> JME executes everything in the <code>simpleUpdate()</code> method repeatedly, as fast as possible.</div>
+<ol>
+<li><div> Use the loop to poll the game state and initiate actions. </div>
+</li>
+<li><div> Use the loop to trigger reactions and update the game state.</div>
+</li>
+<li><div> Use it wisely, because having too many calls in the loop also slows down the game. </div>
+</li>
+</ol>
+</li>
+</ul>
+
+</div>
+
+<h2><a>Exercises</a></h2>
+<div>
+
+<p>
+
+Here are some fun things to try:
+</p>
+<ol>
+<li><div> What happens if you give the rotate() method negative numbers?</div>
+</li>
+<li><div> Can you create two models next to each other, and make one rotate twice as fast as the other? (use the <code>tpf</code>)</div>
+</li>
+<li><div> Can you make a cube that pulsates? (grows and shrinks)</div>
+</li>
+<li><div> Can you make a rolling cube? (spin around the x axis, and translate along the z axis)</div>
+</li>
+</ol>
+
+<p>
+
+Look back at the <a href="/com/jme3/gde/core/docs/jme3/beginner/hello_node.html">Hello Node</a> tutorial if you do not remember the transformation methods for scaling, translating, and rotating.
+</p>
+
+</div>
+
+<h2><a>Conclusion</a></h2>
+<div>
+
+<p>
+
+Now you are listening to the update loop, “the heart beat” of the game, and you can add all kinds of action to it. 
+</p>
+
+<p>
+The next thing the game needs is some <em>inter</em>action! Continue learning how to <a href="/com/jme3/gde/core/docs/jme3/beginner/hello_input_system.html">respond to user input</a>.
+</p>
+<hr />
+
+<p>
+See also: Advanced jME3 developers additionally use <a href="/com/jme3/gde/core/docs/jme3/advanced/application_states.html">Application States</a> and <a href="/com/jme3/gde/core/docs/jme3/advanced/custom_controls.html">Custom Controls</a> to implement more complex mechanics in their game loops. You will come across these topics later when you proceed to advanced documentation.
+</p>
+
+</div>
+<p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:beginner:hello_main_event_loop?do=export_xhtmlbody">view online version</a></em></p>

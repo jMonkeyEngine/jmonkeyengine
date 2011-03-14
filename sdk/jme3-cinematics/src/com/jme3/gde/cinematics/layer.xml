@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.2//EN" "http://www.netbeans.org/dtds/filesystem-1_2.dtd">
+<filesystem>
+    <folder name="Actions">
+        <folder name="Window">
+            <file name="com-jme3-gde-cinematics-CinematicsAction.instance">
+                <attr name="component" methodvalue="com.jme3.gde.cinematics.CinematicsTopComponent.findInstance"/>
+                <attr name="displayName" bundlevalue="com.jme3.gde.cinematics.Bundle#CTL_CinematicsAction"/>
+                <attr name="iconBase" stringvalue="com/jme3/gde/cinematics/objects_016.gif"/>
+                <attr name="instanceCreate" methodvalue="org.openide.windows.TopComponent.openAction"/>
+            </file>
+        </folder>
+    </folder>
+    <!--folder name="Menu">
+        <folder name="Window">
+            <file name="CinematicsAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Window/com-jme3-gde-cinematics-CinematicsAction.instance"/>
+            </file>
+        </folder>
+    </folder-->
+    <folder name="Windows2">
+        <folder name="Components">
+            <file name="CinematicsTopComponent.settings" url="CinematicsTopComponentSettings.xml"/>
+        </folder>
+        <folder name="Modes">
+            <folder name="output">
+                <file name="CinematicsTopComponent.wstcref" url="CinematicsTopComponentWstcref.xml"/>
+            </folder>
+        </folder>
+    </folder>
+</filesystem>
