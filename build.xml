@@ -36,7 +36,7 @@
 
     <target name="update-platform" description="Updates the base platform to the latest available build" depends="-remove-platform,-check-platform"/>
 
-    <target name="hudson-nightly" depends="clean, update-platform">
+    <target name="hudson-nightly" depends="update-platform">
         <ant dir="engine" target="deploy-hudson"/>
         <ant dir="engine" target="hudson-update-sdk"/>
         <ant dir="sdk" target="hudson-updatecenter"/>
@@ -50,12 +50,12 @@
         <delete file="platform-base.zip"/>
     </target>
 
-    <target name="-remove-platform">
-        <delete dir="netbeans" failonerror="false"/>
-    </target>
-
     <target name="-check-platform-present">
         <available file="netbeans" property="platform.present"/>
+    </target>
+
+    <target name="-remove-platform">
+        <delete dir="netbeans" failonerror="false"/>
     </target>
 
     <target name="-update-sdk-platform-config">
