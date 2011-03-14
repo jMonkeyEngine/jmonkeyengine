@@ -138,6 +138,18 @@ public class BitmapFont implements Savable {
     }
 
     public float getLineWidth(CharSequence text){
+    
+        // This method will probably always be a bit of a maintenance
+        // nightmare since it basis its calculation on a different 
+        // routine than the Letters class.  The ideal situation would
+        // be to abstract out letter position and size into its own
+        // class that both BitmapFont and Letters could use for
+        // positioning.
+        // If getLineWidth() here ever again returns a different value
+        // than Letters does with the same text then it might be better
+        // just to create a Letters object for the sole purpose of
+        // getting a text size.  It's less efficient but at least it
+        // would be accurate.  
         float lineWidth = 0f;
         float maxLineWidth = 0f;
         char lastChar = 0;
@@ -149,6 +161,8 @@ public class BitmapFont implements Savable {
             if (theChar == '\n'){
                 maxLineWidth = Math.max(maxLineWidth, lineWidth);
                 lineWidth = 0f;
+                firstCharOfLine = true;
+                continue;
             }
             BitmapCharacter c = charSet.getCharacter((int) theChar);
             if (c != null){
@@ -162,10 +176,20 @@ public class BitmapFont implements Savable {
                     }
                 }
                 if (!firstCharOfLine){
+                    lineWidth += c.getXOffset() * sizeScale;
                     lineWidth += findKerningAmount(lastChar, theChar) * sizeScale;
+                } else {
+                    firstCharOfLine = false;
                 }
                 float xAdvance = c.getXAdvance() * sizeScale;
-                lineWidth += xAdvance;
+                
+                // If this is the last character, then we really should have
+                // only add its width
+                if (i == text.length() - 1) {
+                    lineWidth += c.getWidth() * sizeScale;
+                } else {                 
+                    lineWidth += xAdvance;
+                }
             }
         }
         return Math.max(maxLineWidth, lineWidth);
