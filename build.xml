@@ -3,13 +3,8 @@
 <project name="jME3-SDK" default="default" basedir=".">
     <description>Builds, tests, and runs the jMonkeyEngine3 SDK.</description>
 
-    <target name="build" description="Builds the complete SDK" depends="-get-platform">
+    <target name="build" description="Builds the complete SDK" depends="-update-sdk-platform-config, -get-platform">
         <ant dir="engine" target="update-sdk"/>
-        <property name="nbplatform.dir" location="netbeans"/>
-        <echo file="sdk/nbproject/private/platform-private.properties"
-              message="nbplatform.default.netbeans.dest.dir=${nbplatform.dir}&#xa;"/>
-        <echo file="sdk/nbproject/private/platform-private.properties"
-              message="nbplatform.default.harness.dir=${nbplatform.dir}/harness" append="true"/>
         <ant dir="sdk" target="build"/>
     </target>
 
@@ -43,7 +38,7 @@
         <ant dir="sdk" target="hudson-updatecenter"/>
     </target>
 
-    <target name="-get-platform" depends="-check-platform" unless="platform.present">
+    <target name="-get-platform" depends="-check-platform, -update-sdk-platform-config" unless="platform.present">
         <echo message="Downloading base platform, this only has to be done once."/>
         <get src="http://jmonkeyengine.com/platform/base/alpha/platform-base.zip" dest="./" skipexisting="true"/>
         <unzip src="platform-base.zip" dest="./"/>
@@ -52,6 +47,14 @@
 
     <target name="-check-platform">
         <available file="netbeans" property="platform.present"/>
+    </target>
+
+    <target name="-update-sdk-platform-config">
+        <property name="nbplatform.dir" location="netbeans"/>
+        <echo file="sdk/nbproject/private/platform-private.properties"
+              message="nbplatform.default.netbeans.dest.dir=${nbplatform.dir}&#xa;"/>
+        <echo file="sdk/nbproject/private/platform-private.properties"
+              message="nbplatform.default.harness.dir=${nbplatform.dir}/harness" append="true"/>
     </target>
 
 </project>
