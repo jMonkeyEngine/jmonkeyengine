@@ -52,6 +52,9 @@ public class RenderFontJme implements RenderFont {
     public RenderFontJme(String name, NiftyJmeDisplay display) {
         this.display = display;
         font = display.getAssetManager().loadFont(name);
+        if (font == null) {
+            throw new RuntimeException( "Font not loaded:" + name );
+        }
         text = new BitmapText(font);
         actualSize = font.getPreferredSize();
         text.setSize(actualSize);
