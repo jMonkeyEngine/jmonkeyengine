@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="jME3-SDK" default="default" basedir=".">
+    <description>Builds, tests, and runs the jMonkeyEngine3 SDK.</description>
+
+    <target name="build" description="Builds the complete SDK" depends="-get-platform">
+        <ant dir="engine" target="update-sdk"/>
+        <property name="nbplatform.dir" location="netbeans"/>
+        <echo file="sdk/nbproject/private/platform-private.properties"
+              message="nbplatform.default.netbeans.dest.dir=${nbplatform.dir}&#xa;"/>
+        <echo file="sdk/nbproject/private/platform-private.properties"
+              message="nbplatform.default.harness.dir=${nbplatform.dir}/harness" append="true"/>
+        <ant dir="sdk" target="build"/>
+    </target>
+
+    <target name="clean" description="Clean all build products">
+        <ant dir="engine" target="clean"/>
+        <ant dir="sdk" target="clean"/>
+    </target>
+
+    <target name="run" description="Runs the SDK">
+        <ant dir="sdk" target="run"/>
+    </target>
+
+    <target name="zip" description="Builds the complete SDK and packs it as a ZIP file" depends="build">
+        <ant dir="sdk" target="build-zip"/>
+        <move file="sdk/dist/jmonkeyplatform.zip" tofile="./jME3-SDK.zip"/>
+    </target>
+
+    <target name="build-engine" description="Builds the engine only">
+        <ant dir="engine" target="clean"/>
+        <ant dir="engine" target="jar"/>
+    </target>
+
+    <target name="hudson-nightly" depends="clean">
+        <ant dir="engine" target="hudson-update-sdk"/>
+        <ant dir="sdk" target="hudson-updatecenter"/>
+    </target>
+
+    <target name="-get-platform" depends="-check-platform" unless="platform.present">
+        <echo message="Downloading base platform, this only has to be done once."/>
+        <get src="http://jmonkeyengine.com/platform/base/alpha/platform-base.zip" dest="./" skipexisting="true"/>
+        <unzip src="platform-base.zip" dest="./"/>
+    </target>
+
+    <target name="-check-platform">
+        <available file="netbeans" property="platform.present"/>
+    </target>
+
+</project>
