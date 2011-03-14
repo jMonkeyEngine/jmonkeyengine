@@ -2,8 +2,15 @@
 
 <project name="jME3-SDK" default="default" basedir=".">
     <description>Builds, tests, and runs the jMonkeyEngine3 SDK.</description>
+    <fail message="Please build using Ant 1.7.1 or higher.">
+        <condition>
+            <not>
+                <antversion atleast="1.7.1"/>
+            </not>
+        </condition>
+    </fail>
 
-    <target name="build" description="Builds the complete SDK" depends="-update-sdk-platform-config, -get-platform">
+    <target name="build" description="Builds the complete SDK" depends="-check-platform">
         <ant dir="engine" target="update-sdk"/>
         <ant dir="sdk" target="build"/>
     </target>
@@ -27,10 +34,7 @@
         <move file="sdk/dist/jmonkeyplatform.zip" tofile="./jME3-SDK.zip"/>
     </target>
 
-    <target name="update-platform" description="Updates the base platform to the latest available build">
-        <delete dir="netbeans"/>
-        <antcall target="-get-platform"/>
-    </target>
+    <target name="update-platform" description="Updates the base platform to the latest available build" depends="-remove-platform,-check-platform"/>
 
     <target name="hudson-nightly" depends="clean, update-platform">
         <ant dir="engine" target="deploy-hudson"/>
@@ -38,14 +42,19 @@
         <ant dir="sdk" target="hudson-updatecenter"/>
     </target>
 
-    <target name="-get-platform" depends="-check-platform, -update-sdk-platform-config" unless="platform.present">
+    <target name="-check-platform" depends="-check-platform-present" unless="platform.present">
         <echo message="Downloading base platform, this only has to be done once."/>
         <get src="http://jmonkeyengine.com/platform/base/alpha/platform-base.zip" dest="./" skipexisting="true"/>
         <unzip src="platform-base.zip" dest="./"/>
+        <antcall target="-update-sdk-platform-config"/>
         <delete file="platform-base.zip"/>
     </target>
 
-    <target name="-check-platform">
+    <target name="-remove-platform">
+        <delete dir="netbeans" failonerror="false"/>
+    </target>
+
+    <target name="-check-platform-present">
         <available file="netbeans" property="platform.present"/>
     </target>
 
