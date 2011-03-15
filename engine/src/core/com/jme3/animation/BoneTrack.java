@@ -123,7 +123,7 @@ public final class BoneTrack implements Savable {
     public void setKeyframes(float[] times, Vector3f[] translations, Quaternion[] rotations, Vector3f[] scales) {
         this.setKeyframes(times, translations, rotations);
         assert times.length == scales.length;
-        if (scales != null) {            
+        if (scales != null) {
             this.scales = new CompactVector3Array();
             this.scales.add(scales);
             this.scales.freeze();
@@ -157,10 +157,9 @@ public final class BoneTrack implements Savable {
             // use lastFrame so we never overflow the array
             int i;
             for (i = 0; i < lastFrame && times[i] < time; i++) {
-                startFrame = i;                
+                startFrame = i;
+                endFrame = i + 1;
             }
-            //i is now startFrame+1;
-            endFrame = i ;
 
             float blend = (time - times[startFrame])
                     / (times[endFrame] - times[startFrame]);
@@ -177,16 +176,16 @@ public final class BoneTrack implements Savable {
             }
             tempQ.slerp(tempQ2, blend);
             tempV.interpolate(tempV2, blend);
-            tempS.interpolate(tempS2, blend);           
+            tempS.interpolate(tempS2, blend);
         }
 
         if (weight != 1f) {
 //            tempQ.slerp(Quaternion.IDENTITY, 1f - weight);
 //            tempV.multLocal(weight);
-            target.blendAnimTransforms(tempV, tempQ, scales != null?tempS:null, weight);
+            target.blendAnimTransforms(tempV, tempQ, scales != null ? tempS : null, weight);
 //            target.setAnimTransforms(tempV, tempQ);
         } else {
-            target.setAnimTransforms(tempV, tempQ, scales != null?tempS:null);
+            target.setAnimTransforms(tempV, tempQ, scales != null ? tempS : null);
         }
     }
 

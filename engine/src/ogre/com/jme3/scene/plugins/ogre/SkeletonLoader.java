@@ -29,7 +29,6 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package com.jme3.scene.plugins.ogre;
 
 import com.jme3.animation.Bone;
@@ -42,13 +41,12 @@ import com.jme3.asset.AssetManager;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.util.xml.SAXUtil;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Stack;
 import java.util.logging.Logger;
@@ -62,130 +60,123 @@ import org.xml.sax.helpers.XMLReaderFactory;
 public class SkeletonLoader extends DefaultHandler implements AssetLoader {
 
     private static final Logger logger = Logger.getLogger(SceneLoader.class.getName());
-
     private AssetManager assetManager;
     private Stack<String> elementStack = new Stack<String>();
-
     private HashMap<Integer, Bone> indexToBone = new HashMap<Integer, Bone>();
     private HashMap<String, Bone> nameToBone = new HashMap<String, Bone>();
-
     private BoneTrack track;
     private ArrayList<BoneTrack> tracks = new ArrayList<BoneTrack>();
-
     private BoneAnimation animation;
     private ArrayList<BoneAnimation> animations;
-
     private Bone bone;
     private Skeleton skeleton;
-
     private ArrayList<Float> times = new ArrayList<Float>();
     private ArrayList<Vector3f> translations = new ArrayList<Vector3f>();
     private ArrayList<Quaternion> rotations = new ArrayList<Quaternion>();
-
+    private ArrayList<Vector3f> scales = new ArrayList<Vector3f>();
     private float time = -1;
     private Vector3f position;
     private Quaternion rotation;
     private Vector3f scale;
-
     private float angle;
     private Vector3f axis;
 
-    public void startElement(String uri, String localName, String qName, Attributes attribs) throws SAXException{
-        if (qName.equals("position") || qName.equals("translate")){
+    public void startElement(String uri, String localName, String qName, Attributes attribs) throws SAXException {
+        if (qName.equals("position") || qName.equals("translate")) {
             position = SAXUtil.parseVector3(attribs);
-        }else if (qName.equals("rotation") || qName.equals("rotate")){
+        } else if (qName.equals("rotation") || qName.equals("rotate")) {
             angle = SAXUtil.parseFloat(attribs.getValue("angle"));
-        }else if (qName.equals("axis")){
+        } else if (qName.equals("axis")) {
             assert elementStack.peek().equals("rotation")
-                || elementStack.peek().equals("rotate");
+                    || elementStack.peek().equals("rotate");
             axis = SAXUtil.parseVector3(attribs);
-        }else if (qName.equals("scale")){
+        } else if (qName.equals("scale")) {
             scale = SAXUtil.parseVector3(attribs);
-        }else if (qName.equals("keyframe")){
+        } else if (qName.equals("keyframe")) {
             assert elementStack.peek().equals("keyframes");
             time = SAXUtil.parseFloat(attribs.getValue("time"));
-        }else if (qName.equals("keyframes")){
-            assert elementStack.peek().equals("track"); 
-        }else if (qName.equals("track")){
+        } else if (qName.equals("keyframes")) {
+            assert elementStack.peek().equals("track");
+        } else if (qName.equals("track")) {
             assert elementStack.peek().equals("tracks");
             String boneName = SAXUtil.parseString(attribs.getValue("bone"));
             Bone bone = nameToBone.get(boneName);
             int index = skeleton.getBoneIndex(bone);
             track = new BoneTrack(index);
-        }else if (qName.equals("boneparent")){
+        } else if (qName.equals("boneparent")) {
             assert elementStack.peek().equals("bonehierarchy");
             String boneName = attribs.getValue("bone");
             String parentName = attribs.getValue("parent");
             Bone bone = nameToBone.get(boneName);
             Bone parent = nameToBone.get(parentName);
             parent.addChild(bone);
-        }else if (qName.equals("bone")){
+        } else if (qName.equals("bone")) {
             assert elementStack.peek().equals("bones");
-           
+
             // insert bone into indexed map
             bone = new Bone(attribs.getValue("name"));
             int id = SAXUtil.parseInt(attribs.getValue("id"));
             indexToBone.put(id, bone);
             nameToBone.put(bone.getName(), bone);
-        }else if (qName.equals("tracks")){
+        } else if (qName.equals("tracks")) {
             assert elementStack.peek().equals("animation");
             tracks.clear();
-        }else if (qName.equals("animation")){
+        } else if (qName.equals("animation")) {
             assert elementStack.peek().equals("animations");
             String name = SAXUtil.parseString(attribs.getValue("name"));
             float length = SAXUtil.parseFloat(attribs.getValue("length"));
             animation = new BoneAnimation(name, length);
-        }else if (qName.equals("bonehierarchy")){
+        } else if (qName.equals("bonehierarchy")) {
             assert elementStack.peek().equals("skeleton");
-        }else if (qName.equals("animations")){
+        } else if (qName.equals("animations")) {
             assert elementStack.peek().equals("skeleton");
             animations = new ArrayList<BoneAnimation>();
-        }else if (qName.equals("bones")){
+        } else if (qName.equals("bones")) {
             assert elementStack.peek().equals("skeleton");
-        }else if (qName.equals("skeleton")){
+        } else if (qName.equals("skeleton")) {
             assert elementStack.size() == 0;
         }
         elementStack.add(qName);
     }
 
     public void endElement(String uri, String name, String qName) {
-        if (qName.equals("translate") || qName.equals("position")){
-        }else if (qName.equals("axis")){
-        }else if (qName.equals("rotate") || qName.equals("rotation")){
+        if (qName.equals("translate") || qName.equals("position") || qName.equals("scale")) {
+        } else if (qName.equals("axis")) {
+        } else if (qName.equals("rotate") || qName.equals("rotation")) {
             rotation = new Quaternion();
             axis.normalizeLocal();
             rotation.fromAngleNormalAxis(angle, axis);
             angle = 0;
             axis = null;
-        }else if (qName.equals("bone")){
+        } else if (qName.equals("bone")) {
             bone.setBindTransforms(position, rotation, scale);
             bone = null;
             position = null;
             rotation = null;
             scale = null;
-        }else if (qName.equals("bonehierarchy")){
+        } else if (qName.equals("bonehierarchy")) {
             Bone[] bones = new Bone[indexToBone.size()];
             // find bones without a parent and attach them to the skeleton
             // also assign the bones to the bonelist
-            for (Map.Entry<Integer, Bone> entry: indexToBone.entrySet()){
+            for (Map.Entry<Integer, Bone> entry : indexToBone.entrySet()) {
                 Bone bone = entry.getValue();
                 bones[entry.getKey()] = bone;
             }
             indexToBone.clear();
             skeleton = new Skeleton(bones);
-        }else if (qName.equals("animation")){
+        } else if (qName.equals("animation")) {
             animations.add(animation);
             animation = null;
-        }else if (qName.equals("track")){
-            if (track != null){ // if track has keyframes
+        } else if (qName.equals("track")) {
+            if (track != null) { // if track has keyframes
                 tracks.add(track);
                 track = null;
             }
-        }else if (qName.equals("tracks")){
+        } else if (qName.equals("tracks")) {
             BoneTrack[] trackList = tracks.toArray(new BoneTrack[tracks.size()]);
             animation.setTracks(trackList);
             tracks.clear();
-        }else if (qName.equals("keyframe")){
+        } else if (qName.equals("keyframe")) {
             assert time >= 0;
             assert position != null;
             assert rotation != null;
@@ -193,28 +184,38 @@ public class SkeletonLoader extends DefaultHandler implements AssetLoader {
             times.add(time);
             translations.add(position);
             rotations.add(rotation);
+            if (scale != null) {
+                scales.add(scale);
+            }else{
+                scales.add(new Vector3f(1,1,1));
+            }
 
             time = -1;
             position = null;
             rotation = null;
             scale = null;
-        }else if (qName.equals("keyframes")){
-            if (times.size() > 0){
+        } else if (qName.equals("keyframes")) {
+            if (times.size() > 0) {
                 float[] timesArray = new float[times.size()];
-                for (int i = 0; i < timesArray.length; i++)
+                for (int i = 0; i < timesArray.length; i++) {
                     timesArray[i] = times.get(i);
+                }
 
                 Vector3f[] transArray = translations.toArray(new Vector3f[translations.size()]);
                 Quaternion[] rotArray = rotations.toArray(new Quaternion[rotations.size()]);
-                track.setKeyframes(timesArray, transArray, rotArray);
-            }else{
+                Vector3f[] scalesArray = scales.toArray(new Vector3f[scales.size()]);
+                
+                track.setKeyframes(timesArray, transArray, rotArray, scalesArray);
+                //track.setKeyframes(timesArray, transArray, rotArray);
+            } else {
                 track = null;
             }
 
             times.clear();
             translations.clear();
             rotations.clear();
-        }else if (qName.equals("skeleton")){
+            scales.clear();
+        } else if (qName.equals("skeleton")) {
             nameToBone.clear();
         }
         assert elementStack.peek().equals(qName);
@@ -225,16 +226,17 @@ public class SkeletonLoader extends DefaultHandler implements AssetLoader {
      * Reset the SkeletonLoader in case an error occured while parsing XML.
      * This allows future use of the loader even after an error.
      */
-    private void fullReset(){
+    private void fullReset() {
         elementStack.clear();
         indexToBone.clear();
         nameToBone.clear();
         track = null;
         tracks.clear();
         animation = null;
-        if (animations != null)
+        if (animations != null) {
             animations.clear();
-        
+        }
+
         bone = null;
         skeleton = null;
         times.clear();
@@ -248,21 +250,21 @@ public class SkeletonLoader extends DefaultHandler implements AssetLoader {
         axis = null;
     }
 
-    public Object load(InputStream in) throws IOException{
-        try{
+    public Object load(InputStream in) throws IOException {
+        try {
             XMLReader xr = XMLReaderFactory.createXMLReader();
             xr.setContentHandler(this);
             xr.setErrorHandler(this);
             InputStreamReader r = new InputStreamReader(in);
             xr.parse(new InputSource(r));
-            if (animations == null){
+            if (animations == null) {
                 animations = new ArrayList<BoneAnimation>();
             }
             AnimData data = new AnimData(skeleton, animations);
             skeleton = null;
             animations = null;
             return data;
-        } catch (SAXException ex){
+        } catch (SAXException ex) {
             IOException ioEx = new IOException("Error while parsing Ogre3D dotScene");
             ioEx.initCause(ex);
             fullReset();
@@ -277,5 +279,4 @@ public class SkeletonLoader extends DefaultHandler implements AssetLoader {
         in.close();
         return obj;
     }
-
 }

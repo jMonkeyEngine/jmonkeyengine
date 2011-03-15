@@ -413,6 +413,7 @@ public final class Bone implements Savable {
 
         localPos.set(initialPos).addLocal(translation);
         localRot.set(initialRot).multLocal(rotation);
+       
         if (scale != null) {
             localScale.set(initialScale).multLocal(scale);
         }
@@ -440,7 +441,7 @@ public final class Bone implements Savable {
 
         //scale
         if (scale != null) {
-            tmpV2.set(initialScale).addLocal(translation);
+            tmpV2.set(initialScale).multLocal(scale);
             localScale.interpolate(tmpV2, weight);
         }
 
