@@ -258,6 +258,10 @@
                 <package>com.jme3.gde.core.undoredo</package>
                 <package>com.jme3.gde.core.util</package>
             </public-packages>
+            <class-path-extension>
+                <runtime-relative-path>ext/DDSUtils.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/DDSUtils.jar</binary-origin>
+            </class-path-extension>
         </data>
     </configuration>
 </project>

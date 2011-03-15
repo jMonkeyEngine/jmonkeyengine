@@ -31,12 +31,19 @@
  */
 package com.jme3.gde.core.sceneexplorer.nodes.properties;
 
+import Model.DDSImageFile;
 import com.jme3.gde.core.assets.ProjectAssetManager;
 import com.jme3.texture.Texture;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.logging.Logger;
 import javax.swing.DefaultListSelectionModel;
 import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import jme3tools.converters.ImageToAwt;
+import org.openide.filesystems.FileUtil;
+import org.openide.util.Exceptions;
 import org.openide.util.ImageUtilities;
 
 /**
@@ -199,7 +206,19 @@ public class TextureBrowser extends javax.swing.JDialog {
         if (textureList.getSelectedIndex() > -1) {
             String selected = (String) textureList.getSelectedValue();
             Texture tex = assetManager.loadTexture(selected);
-            Icon newicon = ImageUtilities.image2Icon(ImageToAwt.convert(tex.getImage(), false, true, 0));
+            Icon newicon = null;
+            if(selected.endsWith(".dds")||selected.endsWith(".DDS")){
+                try {
+                    File file = FileUtil.toFile(assetManager.getAssetFolder().getFileObject(selected));
+                    DDSImageFile ddsImageFile = new DDSImageFile(file);
+                    BufferedImage bufferedImage = ddsImageFile.getData();
+                    newicon = new ImageIcon(bufferedImage);
+                } catch (IOException ex) {
+                    Exceptions.printStackTrace(ex);
+                }
+            }else{
+                 newicon = ImageUtilities.image2Icon(ImageToAwt.convert(tex.getImage(), false, true, 0));
+            }
             imagePreviewLabel.setIcon(newicon);
         } else {
             imagePreviewLabel.setIcon(null);
