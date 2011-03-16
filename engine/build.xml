@@ -200,23 +200,14 @@
         <replace file="${jmp_dir}/build/jme3-tests-svn.properties" token=" " value=""/>
     </target>
 
-    <!-- upload jme3 zip to jmonkeyengine.com/nightly -->
-    <target name="deploy" depends="dist">
-        <scp todir="${sshpath}:/var/www/nightly" verbose="yes" trust="yes">
-            <fileset dir=".">
-                <include name="${jme3zip}"/>
-            </fileset>
-        </scp>
-    </target>
-
-    <!-- upload jme3 zip to jmonkeyengine.com/nightly -->
+    <!-- copy jme3 zip to jmonkeyengine.com/nightly -->
     <target name="deploy-hudson" depends="dist">
         <copy
             file="${jme3zip}"
-            toDir="/var/www/nightly" overwrite="true" failonerror="true" verbose="true"
+            toDir="/var/www/com/nightly" overwrite="true" failonerror="true" verbose="true"
             />
         <copydir
-            src="dist/javadoc/" dest="/var/wwworg/javadoc/" forceoverwrite="true"
+            src="dist/javadoc/" dest="/var/www/org/javadoc/" forceoverwrite="true"
             />
     </target>
 
