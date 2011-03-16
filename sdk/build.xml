@@ -44,11 +44,15 @@
     </target>
 
     <!--creates update center version via hudson build server-->
-    <target name="hudson-updatecenter" depends="suite.clean, -revert-svn-changes, -update-help-sets, zip-templates, set-impl-version, suite.nbms, unset-impl-version">
+    <target name="hudson-stable" depends="suite.clean, -revert-svn-changes, zip-templates, set-impl-version, suite.nbms, unset-impl-version">
     </target>
 
     <!--creates update center version via hudson build server-->
-    <target name="hudson-release" depends="suite.clean, -revert-svn-changes, -update-help-sets, zip-templates, set-impl-version, build, unset-impl-version">
+    <target name="hudson-nightly" depends="suite.clean, -revert-svn-changes, -update-help-sets, zip-templates, set-impl-version, suite.nbms, unset-impl-version">
+    </target>
+
+    <!--creates update center version via hudson build server-->
+    <target name="hudson-release" depends="suite.clean, -revert-svn-changes, zip-templates, set-impl-version, build, unset-impl-version">
     </target>
 
     <target name="set-impl-version">
@@ -188,18 +192,6 @@
         <replace file="build/jme3-tests-svn.properties" token=" " value=""/>
     </target>
 
-    <target name="create-private-config">
-        <exec executable="mkdir" dir="./nbproject/" failonerror="false">
-            <arg value="private" />
-        </exec>
-        <exec executable="echo" dir="." output="./nbproject/private/platform-private.properties">
-            <arg value="nbplatform.default.netbeans.dest.dir=/var/www/platform/base/alpha/platform-base/netbeans"/>
-        </exec>
-        <exec executable="echo" dir="." output="./nbproject/private/platform-private.properties" append="true">
-            <arg value="nbplatform.default.harness.dir=/var/www/platform/base/alpha/platform-base/netbeans/harness"/>
-        </exec>
-    </target>
-    
     <!--creates a debian package from the installer-->
     <target name="create-deb-package" depends="suite.build-zip">
         <unzip src="${dist.dir}/${app.name}.zip" dest="${dist.dir}/${app.name}">
