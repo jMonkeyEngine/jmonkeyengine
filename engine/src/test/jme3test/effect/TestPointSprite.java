@@ -55,7 +55,7 @@ public class TestPointSprite extends SimpleApplication {
         emit.setGravity(0);
         emit.setLowLife(60);
         emit.setHighLife(60);
-        emit.setStartVel(new Vector3f(0, 0, 0));
+        emit.setInitialVelocity(new Vector3f(0, 0, 0));
         emit.setImagesX(15);
         emit.setStartSize(0.05f);
         emit.setEndSize(0.05f);
