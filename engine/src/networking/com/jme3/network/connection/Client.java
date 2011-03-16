@@ -54,7 +54,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class Client extends ServiceManager implements MessageListener, ConnectionListener {
+public class Client extends ServiceManager {
     protected Logger            log = Logger.getLogger(Client.class.getName());
 
     protected static int        clientIDCounter = 0;
@@ -79,6 +79,7 @@ public class Client extends ServiceManager implements MessageListener, Connectio
 
     protected boolean           isConnector;
 
+    protected ClientObserver    listener = new ClientObserver();
 
     /**
      * Constructs this client.
@@ -211,10 +212,10 @@ public class Client extends ServiceManager implements MessageListener, Connectio
 
     private void registerInternalListeners() {
         if (tcp != null) {
-            tcp.addConnectionListener(this);
+            tcp.addConnectionListener(listener);
             tcp.socketChannel.keyFor(tcp.selector).attach(this);
         }
-        addMessageListener(this, DisconnectMessage.class);
+        addMessageListener(listener, DisconnectMessage.class);
     }
 
     /**
@@ -516,57 +517,6 @@ public class Client extends ServiceManager implements MessageListener, Connectio
             if (udp != null) udp.removeMessageListener(c, listener);
         }
     }
-
-    public void messageReceived(Message message) {
-        try {
-            disconnectInternal((DisconnectMessage)message);
-        } catch (IOException e) {
-            log.log(Level.WARNING, "[{0}][???] Could not disconnect.", label);
-        }
-    }
-
-    public void messageSent(Message message) {
-
-    }
-
-    public void objectReceived(Object object) {
-
-    }
-
-    public void objectSent(Object object) {
-
-    }
-
-    public void clientConnected(Client client) {
-        // We are a client. This means that we succeeded in connecting to the server.
-        if (!isConnected) return;
-        long time = System.currentTimeMillis();
-        playerID = time;
-        ClientRegistrationMessage message = new ClientRegistrationMessage();
-        message.setId(time);
-        try {
-            message.setReliable(false);
-            send(message);
-            message.setReliable(true);
-            send(message);
-        } catch (Exception e) {
-            e.printStackTrace();
-            log.log(Level.SEVERE, "[{0}][???] Could not sent client registration message. Disconnecting.", label);
-            try {
-                disconnect(DisconnectMessage.ERROR);
-            } catch (IOException ie) {}
-        }
-    }
-
-    public void clientDisconnected(Client client) {
-        if (thread != null) {
-            // We can disconnect now.
-            thread.setKeepAlive(false);
-
-            // GC it.
-            thread = null;
-        }
-    }
     
     /**
      * {@inheritDoc}
@@ -580,6 +530,60 @@ public class Client extends ServiceManager implements MessageListener, Connectio
             return ((Integer)obj).intValue() == getClientID();
         } else {
             return false;
+        }
+    }
+    
+    protected class ClientObserver implements MessageListener, ConnectionListener {
+
+        public void messageReceived(Message message) {
+            try {
+                disconnectInternal((DisconnectMessage)message);
+            } catch (IOException e) {
+                log.log(Level.WARNING, "[{0}][???] Could not disconnect.", label);
+            }
+        }
+    
+        public void messageSent(Message message) {
+    
+        }
+    
+        public void objectReceived(Object object) {
+    
+        }
+    
+        public void objectSent(Object object) {
+    
+        }
+    
+        public void clientConnected(Client client) {
+            // We are a client. This means that we succeeded in connecting to the server.
+            if (!isConnected) return;
+            long time = System.currentTimeMillis();
+            playerID = time;
+            ClientRegistrationMessage message = new ClientRegistrationMessage();
+            message.setId(time);
+            try {
+                message.setReliable(false);
+                send(message);
+                message.setReliable(true);
+                send(message);
+            } catch (Exception e) {
+                e.printStackTrace();
+                log.log(Level.SEVERE, "[{0}][???] Could not sent client registration message. Disconnecting.", label);
+                try {
+                    disconnect(DisconnectMessage.ERROR);
+                } catch (IOException ie) {}
+            }
+        }
+
+        public void clientDisconnected(Client client) {
+            if (thread != null) {
+                // We can disconnect now.
+                thread.setKeepAlive(false);
+    
+                // GC it.
+                thread = null;
+            }
         }
     }
     

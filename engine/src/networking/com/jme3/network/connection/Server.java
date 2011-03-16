@@ -56,7 +56,7 @@ import java.util.logging.Logger;
  *
  * @author Lars Wesselius
  */
-public class Server extends ServiceManager implements MessageListener {
+public class Server extends ServiceManager {
     protected Logger        log = Logger.getLogger(Server.class.getName());
 
     protected static int    serverIDCounter = 0;
@@ -74,6 +74,8 @@ public class Server extends ServiceManager implements MessageListener {
     protected SocketAddress lastTCPAddress;
 
     protected ClientManager clientManager = new ClientManager();
+
+    protected MessageListener listener = new ServerMessageObserver();
 
     /**
      * Default constructor. Sets the label to
@@ -171,12 +173,12 @@ public class Server extends ServiceManager implements MessageListener {
 
     private void registerInternalListeners() {
         if (tcp != null) {
-            tcp.addMessageListener(DisconnectMessage.class, this);
+            tcp.addMessageListener(DisconnectMessage.class, listener);
             tcp.addMessageListener(ClientRegistrationMessage.class, clientManager);
             tcp.addConnectionListener(clientManager);
         }
         if (udp != null) {
-            udp.addMessageListener(DisconnectMessage.class, this);
+            udp.addMessageListener(DisconnectMessage.class, listener);
             udp.addMessageListener(ClientRegistrationMessage.class, clientManager);
             udp.addConnectionListener(clientManager);
         }
@@ -423,31 +425,34 @@ public class Server extends ServiceManager implements MessageListener {
         }
     }
 
-    public void messageReceived(Message message) {
-        // Right now, this is definitely a DisconnectMessage.
-        DisconnectMessage dcMessage = (DisconnectMessage)message;
-        Client client = dcMessage.getClient();
-
-        if (clientManager.isClientConnected(client)) {
-            log.log(Level.INFO, "[{0}][???] Client {1} disconnected ({2}: {3}).", new Object[]{
-                    label,
-                    client,
-                    dcMessage.getType(),
-                    (dcMessage.getReason() != null) ? dcMessage.getReason() : "No description"
-            });
+    protected class ServerMessageObserver implements MessageListener {
+    
+        public void messageReceived(Message message) {
+            // Right now, this is definitely a DisconnectMessage.
+            DisconnectMessage dcMessage = (DisconnectMessage)message;
+            Client client = dcMessage.getClient();
+    
+            if (clientManager.isClientConnected(client)) {
+                log.log(Level.INFO, "[{0}][???] Client {1} disconnected ({2}: {3}).", new Object[]{
+                        label,
+                        client,
+                        dcMessage.getType(),
+                        (dcMessage.getReason() != null) ? dcMessage.getReason() : "No description"
+                });
+            }
+            dcMessage.getConnection().addToDisconnectionQueue(client);
         }
-        dcMessage.getConnection().addToDisconnectionQueue(client);
-    }
+    
+        public void messageSent(Message message) {
+    
+        }
 
-    public void messageSent(Message message) {
+        public void objectReceived(Object object) {
+    
+        }
 
-    }
-
-    public void objectReceived(Object object) {
-
-    }
-
-    public void objectSent(Object object) {
-
-    }
+        public void objectSent(Object object) {
+    
+        }
+    }        
 }
