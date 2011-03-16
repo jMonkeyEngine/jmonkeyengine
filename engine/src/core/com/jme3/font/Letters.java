@@ -20,6 +20,7 @@ class Letters {
     private float totalWidth;
     private float totalHeight;
     private ColorTags colorTags = new ColorTags();
+    private ColorRGBA baseColor = null;
     
     Letters(BitmapFont font, StringBlock bound, boolean rightToLeft) {
         final String text = bound.getText();
@@ -41,6 +42,11 @@ class Letters {
             LetterQuad l = head;
             for (int i = 0; i < plainText.length(); i++) {
                 l = l.addNextCharacter(plainText.charAt(i));
+                if (baseColor != null) {
+                    // Give the letter a default color if
+                    // one has been provided.
+                    l.setColor( baseColor );
+                }                
             }
         }
         
@@ -294,6 +300,15 @@ class Letters {
             }
             cursor = cursor.getNext();
         }
+    }
+
+    /**
+     * Sets the base color for all new letter quads and resets
+     * the color of existing letter quads.
+     */
+    void setColor( ColorRGBA color ) {
+        baseColor = color;
+        setColor( 0, block.getText().length(), color );
     }
 
     /**

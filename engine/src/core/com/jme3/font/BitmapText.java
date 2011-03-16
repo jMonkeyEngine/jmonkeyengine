@@ -143,7 +143,7 @@ public class BitmapText extends Node {
      * @param color new color of text
      */
     public void setColor(ColorRGBA color) {
-        letters.setColor(0, block.getText().length(), color);
+        letters.setColor(color);
         letters.invalidate(); // TODO: Don't have to align.
         needRefresh = true;
     }
