@@ -243,44 +243,6 @@ public class Client extends ServiceManager implements MessageListener, Connectio
     }
 
     /**
-     * Send a message over TCP. If this client is a connector, it'll simply send to this
-     *  connector. If the client is a normal client, this'll be sent to the server.
-     *
-     * @param object The object to send.
-     * @throws IOException When a writing error occurs.
-     * @deprecated Use send with the reliable message flag set to true.
-     */
-    @Deprecated
-    public void sendTCP(Object object) throws IOException {
-        if (tcp == null) throw new IOException("No TCP client/server.");
-        if (!isConnected) throw new IOException("Not connected yet. Use connect() first.");
-        if (isConnector) {
-            tcp.sendObject(this, object);
-        } else {
-            tcp.sendObject(object);
-        }
-    }
-
-    /**
-     * Send a message over UDP. If this client is a connector, it'll simply send to this
-     *  connector. If the client is a normal client, this'll be sent to the server.
-     *
-     * @param object The object to send.
-     * @throws IOException When a writing error occurs.
-     * @deprecated Use send.
-     */
-    @Deprecated
-    public void sendUDP(Object object) throws IOException {
-        if (udp == null) throw new IOException("No UDP client/server.");
-        if (!isConnected) throw new IOException("Not connected yet. Use connect() first.");
-        if (isConnector) {
-            udp.sendObject(this, object);
-        } else {
-            udp.sendObject(object);
-        }
-    }
-
-    /**
      * Disconnect from the server.
      *
      * @param type See DisconnectMessage for the available types.
@@ -552,64 +514,6 @@ public class Client extends ServiceManager implements MessageListener, Connectio
         for (Class c : classes) {
             if (tcp != null) tcp.removeMessageListener(c, listener);
             if (udp != null) udp.removeMessageListener(c, listener);
-        }
-    }
-
-    ///
-
-    /**
-     * Add a message listener for a specific class.
-     *
-     * @param messageClass The class to listen for.
-     * @param listener The listener.
-     * @deprecated Use addMessageListener(MessageListener, Class...) instead.
-     */
-    @Deprecated
-    public void addIndividualMessageListener(Class messageClass, MessageListener listener) {
-        if (tcp != null) tcp.addIndividualMessageListener(messageClass, listener);
-        if (udp != null) udp.addIndividualMessageListener(messageClass, listener);
-    }
-
-    /**
-     * Add a message listener for specific classes.
-     *
-     * @param messageClass The classes to listen for.
-     * @param listener The listener.
-     * @deprecated Use addMessageListener(MessageListener, Class...) instead.
-     */
-    @Deprecated
-    public void addIndividualMessageListener(Class[] messageClass, MessageListener listener) {
-        for (Class c : messageClass) {
-            if (tcp != null) tcp.addIndividualMessageListener(c, listener);
-            if (udp != null) udp.addIndividualMessageListener(c, listener);
-        }
-    }
-
-    /**
-     * Remove a message listener for a specific class.
-     *
-     * @param messageClass The class to what this listener is registered.
-     * @param listener The listener.
-     * @deprecated Use removeMessageListener(MessageListener, Class...) instead.
-     */
-    @Deprecated
-    public void removeIndividualMessageListener(Class messageClass, MessageListener listener) {
-        if (tcp != null) tcp.removeIndividualMessageListener(messageClass, listener);
-        if (udp != null) udp.removeIndividualMessageListener(messageClass, listener);
-    }
-
-    /**
-     *Remove a message listener for specific classes.
-     *
-     * @param messageClass The classes to remove for.
-     * @param listener The listener.
-     * @deprecated Use addMessageListener(MessageListener, Class...) instead.
-     */
-    @Deprecated
-    public void removeIndividualMessageListener(Class[] messageClass, MessageListener listener) {
-        for (Class c : messageClass) {
-            if (tcp != null) tcp.removeIndividualMessageListener(c, listener);
-            if (udp != null) udp.removeIndividualMessageListener(c, listener);
         }
     }
 

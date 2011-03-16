@@ -324,26 +324,6 @@ public abstract class Connection implements Runnable {
         }
     }
 
-    //
-
-    @Deprecated
-    public void addIndividualMessageListener(Class messageClass, MessageListener listener) {
-        if (individualMessageListeners.containsKey(messageClass)) {
-            individualMessageListeners.get(messageClass).add(listener);
-        } else {
-            List<MessageListener> list = new ArrayList<MessageListener>();
-            list.add(listener);
-            individualMessageListeners.put(messageClass, list);
-        }
-    }
-
-    @Deprecated
-    public void removeIndividualMessageListener(Class messageClass, MessageListener listener) {
-        if (individualMessageListeners.containsKey(messageClass)) {
-            individualMessageListeners.get(messageClass).remove(listener);
-        }
-    }
-
     protected void fireMessageReceived(Message message) {
         // Pass to listeners.
         for (MessageListener listener : messageListeners) {

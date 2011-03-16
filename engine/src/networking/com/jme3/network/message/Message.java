@@ -50,13 +50,6 @@ public class Message {
     private transient Connection    connection;
     private transient boolean       reliable = true;
 
-    /**
-     * @deprecated Do NOT use anymore. No alternative, since it's set automatically.
-     */
-    public Message(Connection connection) {
-        this.connection = connection;
-    }
-
     public Message() {}
 
     public Message(boolean reliable) {
