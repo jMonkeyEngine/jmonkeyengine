@@ -153,8 +153,8 @@ public class ServerSyncService extends ConnectionAdapter implements Service {
     }
 
     @Override
-    public void clientConnected(Client id){
-        System.out.println("Server: Client connected: " + id);
+    public void clientConnected(Client client){
+        System.out.println("Server: Client connected: " + client);
         SyncMessage msg = new SyncMessage();
         msg.setReliable(true); // sending INIT information, has to be reliable.
 
@@ -169,7 +169,7 @@ public class ServerSyncService extends ConnectionAdapter implements Service {
             }
             
             try {
-                id.send(msg);
+                client.send(msg);
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
@@ -177,8 +177,8 @@ public class ServerSyncService extends ConnectionAdapter implements Service {
     }
 
     @Override
-    public void clientDisconnected(Client id){
-        System.out.println("Server: Client disconnected: " + id);
+    public void clientDisconnected(Client client){
+        System.out.println("Server: Client disconnected: " + client);
     }
 
     private void sendDelayedMessages(){
@@ -191,9 +191,9 @@ public class ServerSyncService extends ConnectionAdapter implements Service {
             if (packetDropRate > FastMath.nextRandomFloat())
                 continue;
 
-            for (Client id : server.getConnectors()){
+            for (Client client : server.getConnectors()){
                 try {
-                    id.send(entry.getValue());
+                    client.send(entry.getValue());
                 } catch (IOException ex) {
                     ex.printStackTrace();
                 }
@@ -237,9 +237,9 @@ public class ServerSyncService extends ConnectionAdapter implements Service {
             long timeToSend = System.currentTimeMillis() + latencyTime;
             latencyQueue.put(timeToSend, msg);
         }else{
-            for (Client id : server.getConnectors()){
+            for (Client client : server.getConnectors()){
                 try {
-                    id.send(msg); // unreliable
+                    client.send(msg); // unreliable
                 } catch (IOException ex) {
                     ex.printStackTrace();
                 }
