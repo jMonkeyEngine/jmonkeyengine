@@ -156,7 +156,7 @@ public class UDPConnection extends Connection {
         readBuffer.clear();
     }
 
-    protected void send(SocketAddress dest, Object object) {
+    protected synchronized void send(SocketAddress dest, Object object) {
         try {
             Serializer.writeClassAndObject(writeBuffer, object);
             writeBuffer.flip();
