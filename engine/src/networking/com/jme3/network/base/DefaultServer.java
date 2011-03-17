@@ -41,6 +41,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import com.jme3.network.*;
 import com.jme3.network.kernel.*;
 import com.jme3.network.message.ClientRegistrationMessage; //hopefully temporary
+import com.jme3.network.message.DisconnectMessage; //hopefully temporary 
 import com.jme3.network.serializing.Serializer;
 
 /**
@@ -352,7 +353,16 @@ public class DefaultServer implements Server
         public void close( String reason )
         {
             // Send a reason
-        
+            DisconnectMessage m = new DisconnectMessage();
+            m.setType( DisconnectMessage.KICK );
+            m.setReason( reason );
+            m.setReliable( true );
+            send( m );
+            
+            // Note: without a way to flush the pending messages
+            //       during close, the above message may never
+            //       go out.
+                   
             // Just close the reliable endpoint
             // fast will be cleaned up as a side-effect
             if( reliable != null ) {
