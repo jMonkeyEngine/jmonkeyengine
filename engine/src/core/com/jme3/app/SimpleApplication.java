@@ -73,6 +73,7 @@ public abstract class SimpleApplication extends Application {
     protected StatsView statsView;
     protected FlyByCamera flyCam;
     protected boolean showSettings = true;
+    private  boolean showFps = true;
     private AppActionListener actionListener = new AppActionListener();
 
     private class AppActionListener implements ActionListener {
@@ -227,11 +228,13 @@ public abstract class SimpleApplication extends Application {
 
         float tpf = timer.getTimePerFrame() * speed;
 
-        secondCounter += timer.getTimePerFrame();
-        int fps = (int) timer.getFrameRate();
-        if (secondCounter >= 1.0f) {
-            fpsText.setText("Frames per second: " + fps);
-            secondCounter = 0.0f;
+        if (showFps) {
+            secondCounter += timer.getTimePerFrame();
+            int fps = (int) timer.getFrameRate();
+            if (secondCounter >= 1.0f) {
+                fpsText.setText("Frames per second: " + fps);
+                secondCounter = 0.0f;
+            }          
         }
 
         // update states
@@ -249,6 +252,17 @@ public abstract class SimpleApplication extends Application {
         renderManager.render(tpf);
         simpleRender(renderManager);
         stateManager.postRender();
+    }
+
+    public void setDisplayFps(boolean show) {
+        showFps = show;
+        fpsText.setCullHint(show ? CullHint.Never : CullHint.Always);
+
+    }
+
+    public void setDisplayStatView(boolean show) {
+        statsView.setEnabled(show);
+        statsView.setCullHint(show ? CullHint.Never : CullHint.Always);
     }
 
     public abstract void simpleInitApp();
