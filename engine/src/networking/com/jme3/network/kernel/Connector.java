@@ -76,7 +76,8 @@ public interface Connector
     public ByteBuffer read();
     
     /**
-     *  Writes a chunk of data to the connection.
+     *  Writes a chunk of data to the connection from data.position()
+     *  to data.limit().
      */
     public void write( ByteBuffer data );
 }
