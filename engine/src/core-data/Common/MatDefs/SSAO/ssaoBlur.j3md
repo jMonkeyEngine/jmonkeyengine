@@ -1,6 +1,8 @@
 MaterialDef SSAOBlur {
 
     MaterialParameters {       
+        Int NumSamples
+        Int NumSamplesDepth
         Texture2D Texture
         Texture2D SSAOMap
         Texture2D DepthTexture
@@ -11,21 +13,23 @@ MaterialDef SSAOBlur {
         Float YScale
     }
 
-//    Technique {
-//        VertexShader GLSL150:   Common/MatDefs/Post/Post15.vert
-//        FragmentShader GLSL150: Common/MatDefs/SSAO/ssaoBlur15.frag
-//
-//        WorldParameters {
-//            WorldViewProjectionMatrix
-//            WorldViewMatrix
-//            Resolution
-//        }
-//
-//        Defines {
-//            RESOLVE_MS : NumSamples
-//            RESOLVE_DEPTH_MS : NumSamplesDepth
-//        }
-//    }
+    Technique {
+        VertexShader GLSL150:   Common/MatDefs/Post/Post15.vert
+        FragmentShader GLSL150: Common/MatDefs/SSAO/ssaoBlur15.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+            WorldViewMatrix
+            Resolution
+        }
+
+        Defines {
+            USE_AO : UseAo
+            USE_ONLY_AO : UseOnlyAo
+            RESOLVE_MS : NumSamples
+            RESOLVE_DEPTH_MS : NumSamplesDepth
+        }
+    }
 
     Technique {
         VertexShader GLSL120:   Common/MatDefs/Post/Post.vert
@@ -36,6 +40,13 @@ MaterialDef SSAOBlur {
             WorldViewMatrix
             Resolution
 
+        }
+        
+        Defines {
+            USE_AO : UseAo
+            USE_ONLY_AO : UseOnlyAo
+            RESOLVE_MS : NumSamples
+            RESOLVE_DEPTH_MS : NumSamplesDepth
         }
     }
 

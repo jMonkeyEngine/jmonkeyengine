@@ -1,5 +1,7 @@
-uniform sampler2D m_Texture;
-uniform sampler2D m_DepthTexture;
+#import "Common/ShaderLib/MultiSample.glsllib"
+
+uniform COLORTEXTURE m_Texture;
+uniform DEPTHTEXTURE m_DepthTexture;
 uniform sampler2D m_SSAOMap;
 uniform vec2 g_Resolution;
 uniform bool m_UseOnlyAo;
@@ -10,22 +12,21 @@ uniform vec2 m_FrustumNearFar;
 
 varying vec2 texCoord;
 
-vec4 getColor(vec4 color){
-
-    
+vec4 getResult(vec4 color){
+ 
     #ifdef USE_ONLY_AO
         return color;
     #endif
     #ifdef USE_AO
-        return texture2D(m_Texture,texCoord)* color;
+        return getColor(m_Texture,texCoord)* color;
     #endif
     
-    return texture2D(m_Texture,texCoord);
+    return getColor(m_Texture,texCoord);
 
 }
 
 float readDepth(in vec2 uv){
-    float depthv =texture2D(m_DepthTexture,uv).r;
+    float depthv =fetchTextureSample(m_DepthTexture,uv,0).r;
     return (2.0 * m_FrustumNearFar.x) / (m_FrustumNearFar.y + m_FrustumNearFar.x - depthv* (m_FrustumNearFar.y-m_FrustumNearFar.x));
 }
 
@@ -152,8 +153,8 @@ float readDepth(in vec2 uv){
     void main(){
         //  float depth =texture2D(m_DepthTexture,uv).r;
 
-       gl_FragColor=getColor(convolutionFilter());
-      // gl_FragColor=getColor(bilateralFilter());
-      //  gl_FragColor=texture2D(m_SSAOMap,texCoord);
+       gl_FragColor=getResult(convolutionFilter());
+      // gl_FragColor=getResult(bilateralFilter());
+      //  gl_FragColor=getColor(m_SSAOMap,texCoord);
 
     }
