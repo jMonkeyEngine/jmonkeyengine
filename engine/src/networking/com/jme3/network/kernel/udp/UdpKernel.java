@@ -49,8 +49,7 @@ import com.jme3.network.kernel.*;
  */
 public class UdpKernel extends AbstractKernel
 {
-    private InetAddress host;
-    private int port;
+    private InetSocketAddress address;
     private HostThread thread;
 
     // The nature of UDP means that even through a firewall, 
@@ -60,13 +59,17 @@ public class UdpKernel extends AbstractKernel
 
     public UdpKernel( InetAddress host, int port )
     {
-        this.host = host;
-        this.port = port;
+        this( new InetSocketAddress(host, port) );
     }
 
     public UdpKernel( int port ) throws IOException
     {
-        this( InetAddress.getLocalHost(), port );
+        this( new InetSocketAddress(port) );
+    }
+
+    public UdpKernel( InetSocketAddress address )
+    {
+        this.address = address;
     }
 
     protected HostThread createHostThread()
@@ -85,7 +88,7 @@ public class UdpKernel extends AbstractKernel
             thread.connect();
             thread.start();
         } catch( IOException e ) {
-            throw new KernelException( "Error hosting:" + host + " port:" + port, e );
+            throw new KernelException( "Error hosting:" + address, e );
         }
     }
 
@@ -98,7 +101,7 @@ public class UdpKernel extends AbstractKernel
             thread.close();
             thread = null;
         } catch( IOException e ) {
-            throw new KernelException( "Error closing host connection:" + host + " port:" + port, e );
+            throw new KernelException( "Error closing host connection:" + address, e );
         }
     }
 
@@ -170,7 +173,7 @@ public class UdpKernel extends AbstractKernel
 
         public HostThread()
         {
-            setName( "UDP Host@" + host + ":" + port );
+            setName( "UDP Host@" + address );
             setDaemon(true);
         }
 
@@ -181,7 +184,7 @@ public class UdpKernel extends AbstractKernel
 
         public void connect() throws IOException
         {
-            socket = new DatagramSocket( port, host );
+            socket = new DatagramSocket( address );
         }
 
         public void close() throws IOException, InterruptedException

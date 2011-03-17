@@ -54,21 +54,24 @@ import com.jme3.network.kernel.*;
  */
 public class SelectorKernel extends AbstractKernel
 {
-    private InetAddress host;
-    private int port;
+    private InetSocketAddress address;
     private SelectorThread thread;
 
     private Map<Long,NioEndpoint> endpoints = new ConcurrentHashMap<Long,NioEndpoint>();
 
     public SelectorKernel( InetAddress host, int port )
     {
-        this.host = host;
-        this.port = port;
+        this( new InetSocketAddress(host, port) );
     }
 
     public SelectorKernel( int port ) throws IOException
     {
-        this( InetAddress.getLocalHost(), port );
+        this( new InetSocketAddress(port) );
+    }
+
+    public SelectorKernel( InetSocketAddress address ) 
+    {
+        this.address = address;   
     }
 
     protected SelectorThread createSelectorThread()
@@ -87,7 +90,7 @@ public class SelectorKernel extends AbstractKernel
             thread.connect();
             thread.start();
         } catch( IOException e ) {
-            throw new KernelException( "Error hosting:" + host + " port:" + port, e );
+            throw new KernelException( "Error hosting:" + address, e );
         }
     }
 
@@ -100,7 +103,7 @@ public class SelectorKernel extends AbstractKernel
             thread.close();
             thread = null;
         } catch( IOException e ) {
-            throw new KernelException( "Error closing host connection:" + host + " port:" + port, e );
+            throw new KernelException( "Error closing host connection:" + address, e );
         }
     }
 
@@ -205,7 +208,7 @@ public class SelectorKernel extends AbstractKernel
 
         public SelectorThread()
         {
-            setName( "Selector@" + host + ":" + port );
+            setName( "Selector@" + address );
             setDaemon(true);
         }
 
@@ -219,8 +222,7 @@ public class SelectorKernel extends AbstractKernel
             serverChannel.configureBlocking(false);
 
             // Bind the server socket to the specified address and port
-            InetSocketAddress isa = new InetSocketAddress(host, port);
-            serverChannel.socket().bind(isa);
+            serverChannel.socket().bind(address);
 
             // Register the server socket channel, indicating an interest in
             // accepting new connections

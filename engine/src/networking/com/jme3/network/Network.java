@@ -57,11 +57,21 @@ public class Network
      *  will be used for both TCP and UDP communication.
      */
     public static Server createServer( int port ) throws IOException
+    {   
+        return createServer( port, port );
+    }
+
+    /**
+     *  Creates a Server that will utilize both reliable and fast
+     *  transports to communicate with clients.  The specified port
+     *  will be used for both TCP and UDP communication.
+     */
+    public static Server createServer( int tcpPort, int udpPort ) throws IOException
     {
-        InetAddress local = InetAddress.getLocalHost();
+        //InetAddress local = InetAddress.getLocalHost();
         
-        UdpKernel fast = new UdpKernel(local, port);
-        SelectorKernel reliable = new SelectorKernel(local,port);
+        UdpKernel fast = new UdpKernel(udpPort);
+        SelectorKernel reliable = new SelectorKernel(tcpPort);
  
         return new DefaultServer( reliable, fast );       
     }

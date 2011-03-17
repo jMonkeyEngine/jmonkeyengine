@@ -65,18 +65,22 @@ public class Message implements com.jme3.network.Message {
         return this;
     }
 
+    @Deprecated
     public Client getClient() {
         return connector;
     }
 
+    @Deprecated
     public void setClient(Client connector) {
         this.connector = connector;
     }
 
+    @Deprecated
     public Connection getConnection() {
         return connection;
     }
 
+    @Deprecated
     public void setConnection(Connection connection) {
         this.connection = connection;
     }
