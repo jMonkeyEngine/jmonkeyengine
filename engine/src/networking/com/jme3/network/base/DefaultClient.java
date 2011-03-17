@@ -131,24 +131,6 @@ public class DefaultClient implements Client
         return id;
     }     
  
-    protected ByteBuffer messageToBuffer( Message message )
-    {
-        ByteBuffer buffer = ByteBuffer.allocate( 32767 + 2 );
-        
-        try {
-            buffer.position( 2 );
-            Serializer.writeClassAndObject( buffer, message );
-            buffer.flip();
-            short dataLength = (short)(buffer.remaining() - 2);
-            buffer.putShort( dataLength );
-            buffer.position( 0 );
-            
-            return buffer;
-        } catch( IOException e ) {
-            throw new RuntimeException( "Error serializing message", e );
-        }
-    }
- 
     public void send( Message message )
     {
         checkRunning();
@@ -158,7 +140,7 @@ public class DefaultClient implements Client
         // be called from multiple threads.  If writing
         // is queued into its own thread then that could
         // be shared.
-        ByteBuffer buffer = messageToBuffer(message);
+        ByteBuffer buffer = MessageProtocol.messageToBuffer(message, null);
         if( message.isReliable() || fast == null ) {
             if( reliable == null )
                 throw new RuntimeException( "No reliable connector configured" );

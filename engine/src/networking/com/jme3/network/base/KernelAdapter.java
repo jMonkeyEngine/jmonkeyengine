@@ -93,74 +93,34 @@ public class KernelAdapter extends Thread
         server.connectionClosed(p);
     }
  
-    protected void createAndDispatch( Endpoint p, ByteBuffer buffer )
+    protected void dispatch( Endpoint p, Message m )
     {
-        try {
-            Object obj = Serializer.readClassAndObject( buffer );
-            Message m = (Message)obj;
- 
-            // Because this class is the only one with the information
-            // to do it... we need to pull of the registration message
-            // here.
-            if( m instanceof ClientRegistrationMessage ) {
-                server.registerClient( this, p, (ClientRegistrationMessage)m );
-                return;           
-            }                
+        // Because this class is the only one with the information
+        // to do it... we need to pull of the registration message
+        // here.
+        if( m instanceof ClientRegistrationMessage ) {
+            server.registerClient( this, p, (ClientRegistrationMessage)m );
+            return;           
+        }                
             
-            HostedConnection source = getConnection(p);
-            messageDispatcher.messageReceived( source, m );
-        } catch( IOException e ) {
-            throw new RuntimeException( "Error deserializing object", e );   
-        }         
+        HostedConnection source = getConnection(p);
+        messageDispatcher.messageReceived( source, m );
     }
 
     protected void createAndDispatch( Envelope env )
     {
+        MessageProtocol protocol = new MessageProtocol();
+    
         byte[] data = env.getData();
         ByteBuffer buffer = ByteBuffer.wrap(data);
+
+        protocol.addBuffer( buffer );
         
-        ByteBuffer current = null;
-        int size = 0;
-        
-        // push the data from the buffer into as
-        // many messages as we can
-        while( buffer.remaining() > 0 ) {
-                
-            if( current == null ) {
-                // We are not currently reading an object so
-                // grab the size.
-                // Note: this is somewhat limiting... int would
-                // be better.
-                size = buffer.getShort();
-                current = ByteBuffer.allocate(size);
-            }
-                
-            if( current.remaining() <= buffer.remaining() ) {
-                // We have at least one complete object so
-                // copy what we can into current, create a message,
-                // and then continue pulling from buffer.
-                    
-                // Artificially set the limit so we don't overflow
-                int extra = buffer.remaining() - current.remaining();
-                buffer.limit( buffer.position() + current.remaining() );
- 
-                // Now copy the data                   
-                current.put( buffer );
-                current.flip();                
-                    
-                // Now set the limit back to a good value
-                buffer.limit( buffer.position() + extra );
- 
-                createAndDispatch( env.getSource(), current );
- 
-                current = null;                    
-            } else {
-                
-                // Not yet a complete object so just copy what we have
-                current.put( buffer ); 
-            }            
-        }            
-            
+        // Should be complete... and maybe we should check but we don't
+        Message m = null;
+        while( (m = protocol.getMessage()) != null ) {
+            dispatch( env.getSource(), m );
+        }
     } 
 
     protected void createAndDispatch( EndpointEvent event )

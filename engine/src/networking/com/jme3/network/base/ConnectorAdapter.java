@@ -79,63 +79,24 @@ public class ConnectorAdapter extends Thread
         connector.close();
     }
  
-    protected void createAndDispatch( ByteBuffer buffer )
+    protected void dispatch( Message m )
     {
-        try {
-            Object obj = Serializer.readClassAndObject( buffer );
-            Message m = (Message)obj;
-            dispatcher.messageReceived( null, m );                        
-        } catch( IOException e ) {
-            throw new RuntimeException( "Error deserializing object", e );   
-        }         
+        dispatcher.messageReceived( null, m );                        
     }
  
     public void run()
     {
-        ByteBuffer current = null;
-        int size = 0;
-    
+        MessageProtocol protocol = new MessageProtocol();
+        
         while( go.get() ) {
             ByteBuffer buffer = connector.read();
             
-            // push the data from the buffer into as
-            // many messages as we can
-            while( buffer.remaining() > 0 ) {
-                
-                if( current == null ) {
-                    // We are not currently reading an object so
-                    // grab the size.
-                    // Note: this is somewhat limiting... int would
-                    // be better.
-                    size = buffer.getShort();
-                    current = ByteBuffer.allocate(size);
-                }
-
-                if( current.remaining() <= buffer.remaining() ) {
-                    // We have at least one complete object so
-                    // copy what we can into current, create a message,
-                    // and then continue pulling from buffer.
-                    
-                    // Artificially set the limit so we don't overflow
-                    int extra = buffer.remaining() - current.remaining();
-                    buffer.limit( buffer.position() + current.remaining() );
- 
-                    // Now copy the data                   
-                    current.put( buffer );
-                    current.flip();
-                    
-                    // Now set the limit back to a good value
-                    buffer.limit( buffer.position() + extra );
- 
-                    createAndDispatch( current );
- 
-                    current = null;                    
-                } else {
-                
-                    // Not yet a complete object so just copy what we have
-                    current.put( buffer ); 
-                }            
-            }            
+            protocol.addBuffer( buffer );
+            
+            Message m = null;
+            while( (m = protocol.getMessage()) != null ) {
+                dispatch( m );
+            }
         }
     }
         
