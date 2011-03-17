@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2010 jMonkeyEngine
+ * Copyright (c) 2011 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,54 +30,16 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.jme3.network.message;
+package com.jme3.network;
 
-import com.jme3.network.connection.Client;
-import com.jme3.network.connection.Connection;
-import com.jme3.network.serializing.Serializable;
 
 /**
- * Message represents data being sent to the other side. This can be anything,
- *  and it will be serialized field by field. Extend this class if you wish to
- *  provide objects with common fields to the other side.
+ *  Listener notified about new messages 
  *
- * @author Lars Wesselius
+ *  @version   $Revision$
+ *  @author    Paul Speed
  */
-@Serializable()
-public class Message implements com.jme3.network.Message {
-    // The connector this message is meant for.
-    private transient Client        connector;
-    private transient Connection    connection;
-    private transient boolean       reliable = true;
-
-    public Message() {}
-
-    public Message(boolean reliable) {
-        this.reliable = reliable;
-    }
-
-    public boolean isReliable() {
-        return reliable;
-    }
-
-    public Message setReliable(boolean reliable) {
-        this.reliable = reliable;
-        return this;
-    }
-
-    public Client getClient() {
-        return connector;
-    }
-
-    public void setClient(Client connector) {
-        this.connector = connector;
-    }
-
-    public Connection getConnection() {
-        return connection;
-    }
-
-    public void setConnection(Connection connection) {
-        this.connection = connection;
-    }
+public interface MessageListener<S>
+{
+    public void messageReceived( S source, Message m );
 }
