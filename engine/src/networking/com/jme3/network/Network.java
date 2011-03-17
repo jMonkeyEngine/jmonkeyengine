@@ -67,13 +67,32 @@ public class Network
     }
     
     /**
+     *  Creates a client that can be connected at a later time.
+     */
+    public static NetworkClient createClient()
+    {
+        return new NetworkClientImpl();
+    }     
+    
+    /**
      *  Creates a Client that communicates with the specified host and port
      *  using both reliable and fast transports.  The localUdpPort specifies the
      *  local port to use for listening for incoming 'fast' UDP messages.
      */   
     public static Client connectToServer( String host, int hostPort, int localUdpPort ) throws IOException
     {
-        return connectToServer( InetAddress.getByName(host), hostPort, localUdpPort );   
+        return connectToServer( InetAddress.getByName(host), hostPort, hostPort, localUdpPort );   
+    }
+
+    /**
+     *  Creates a Client that communicates with the specified host and port
+     *  using both reliable and fast transports.  The localUdpPort specifies the
+     *  local port to use for listening for incoming 'fast' UDP messages.
+     */   
+    public static Client connectToServer( String host, int hostPort, int remoteUdpPort, 
+                                          int localUdpPort ) throws IOException
+    {
+        return connectToServer( InetAddress.getByName(host), hostPort, remoteUdpPort, localUdpPort );   
     }
  
     /**
@@ -83,10 +102,44 @@ public class Network
      */   
     public static Client connectToServer( InetAddress address, int port, int localUdpPort ) throws IOException
     {
+        return connectToServer( address, port, port, localUdpPort );
+    }
+    
+    /**
+     *  Creates a Client that communicates with the specified address and port
+     *  using both reliable and fast transports.  The localUdpPort specifies the
+     *  local port to use for listening for incoming 'fast' messages.
+     */   
+    public static Client connectToServer( InetAddress address, int port, int remoteUdpPort, 
+                                          int localUdpPort ) throws IOException
+    {
         InetAddress local = InetAddress.getLocalHost();
         UdpConnector fast = new UdpConnector( local, localUdpPort, address, port ); 
         SocketConnector reliable = new SocketConnector( address, port );        
        
         return new DefaultClient( reliable, fast );
     }
+ 
+    protected static class NetworkClientImpl extends DefaultClient implements NetworkClient
+    {
+        public NetworkClientImpl()
+        {
+        }
+        
+        public void connectToServer( String host, int port, int remoteUdpPort, 
+                                     int localUdpPort ) throws IOException
+        {
+            connectToServer( InetAddress.getByName(host), port, remoteUdpPort, localUdpPort );
+        }                                     
+                                 
+        public void connectToServer( InetAddress address, int port, int remoteUdpPort, 
+                                     int localUdpPort ) throws IOException
+        {
+            InetAddress local = InetAddress.getLocalHost();
+            UdpConnector fast = new UdpConnector( local, localUdpPort, address, port ); 
+            SocketConnector reliable = new SocketConnector( address, port );        
+            
+            setConnectors( reliable, fast );
+        }                                             
+    }   
 }

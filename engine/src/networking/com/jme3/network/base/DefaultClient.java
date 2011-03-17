@@ -65,8 +65,22 @@ public class DefaultClient implements Client
     private ConnectorAdapter reliableAdapter;    
     private ConnectorAdapter fastAdapter;    
     
+    public DefaultClient()
+    {
+    }
+    
     public DefaultClient( Connector reliable, Connector fast )
     {
+        setConnectors( reliable, fast );
+    }
+
+    protected void setConnectors( Connector reliable, Connector fast )
+    {
+        if( reliable == null )
+            throw new IllegalArgumentException( "The reliable connector cannot be null." );            
+        if( isRunning )
+            throw new IllegalStateException( "Client is already started." );
+            
         this.reliable = reliable;
         this.fast = fast;
         if( reliable != null ) {
@@ -75,7 +89,7 @@ public class DefaultClient implements Client
         if( fast != null ) {
             fastAdapter = new ConnectorAdapter(fast, dispatcher);
         }
-    }
+    }  
 
     protected void checkRunning()
     {
