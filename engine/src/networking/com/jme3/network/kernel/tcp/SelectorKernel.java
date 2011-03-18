@@ -42,6 +42,8 @@ import java.net.Socket;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import com.jme3.network.kernel.*;
 
@@ -54,6 +56,8 @@ import com.jme3.network.kernel.*;
  */
 public class SelectorKernel extends AbstractKernel
 {
+    static Logger log = Logger.getLogger(SelectorKernel.class.getName());
+
     private InetSocketAddress address;
     private SelectorThread thread;
 
@@ -69,9 +73,9 @@ public class SelectorKernel extends AbstractKernel
         this( new InetSocketAddress(port) );
     }
 
-    public SelectorKernel( InetSocketAddress address ) 
+    public SelectorKernel( InetSocketAddress address )
     {
-        this.address = address;   
+        this.address = address;
     }
 
     protected SelectorThread createSelectorThread()
@@ -227,6 +231,8 @@ public class SelectorKernel extends AbstractKernel
             // Register the server socket channel, indicating an interest in
             // accepting new connections
             serverChannel.register(selector, SelectionKey.OP_ACCEPT);
+
+            log.log( Level.INFO, "Hosting TCP connection:{0}.", address );
         }
 
         public void close() throws IOException, InterruptedException
@@ -273,9 +279,9 @@ public class SelectorKernel extends AbstractKernel
             // Setup the connection to be non-blocking
             SocketChannel remoteChan = serverChan.accept();
             remoteChan.configureBlocking(false);
- 
+
             // And disable Nagle's buffering algorithm... we want
-            // data to go when we put it there.            
+            // data to go when we put it there.
             Socket sock = remoteChan.socket();
             sock.setTcpNoDelay(true);
 
@@ -381,6 +387,8 @@ public class SelectorKernel extends AbstractKernel
 
         public void run()
         {
+            log.log( Level.INFO, "Kernel started for connection:{0}.", address );
+
             // An atomic is safest and costs almost nothing
             while( go.get() ) {
                 // Setup any queued option changes

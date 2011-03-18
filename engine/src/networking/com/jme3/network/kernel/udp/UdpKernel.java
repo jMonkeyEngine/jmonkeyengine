@@ -38,6 +38,8 @@ import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import com.jme3.network.kernel.*;
 
@@ -49,10 +51,12 @@ import com.jme3.network.kernel.*;
  */
 public class UdpKernel extends AbstractKernel
 {
+    static Logger log = Logger.getLogger(UdpKernel.class.getName());
+
     private InetSocketAddress address;
     private HostThread thread;
 
-    // The nature of UDP means that even through a firewall, 
+    // The nature of UDP means that even through a firewall,
     // a user would have to have a unique address+port since UDP
     // can't really be NAT'ed.
     private Map<SocketAddress,UdpEndpoint> socketEndpoints = new ConcurrentHashMap<SocketAddress,UdpEndpoint>();
@@ -185,6 +189,7 @@ public class UdpKernel extends AbstractKernel
         public void connect() throws IOException
         {
             socket = new DatagramSocket( address );
+            log.log( Level.INFO, "Hosting UDP connection:{0}.", address );
         }
 
         public void close() throws IOException, InterruptedException
@@ -201,6 +206,8 @@ public class UdpKernel extends AbstractKernel
 
         public void run()
         {
+            log.log( Level.INFO, "Kernel started for connection:{0}.", address );
+
             // An atomic is safest and costs almost nothing
             while( go.get() ) {
                 try {
