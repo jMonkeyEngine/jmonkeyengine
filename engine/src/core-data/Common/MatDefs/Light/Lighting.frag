@@ -188,20 +188,22 @@ void main(){
            specularColor.rgb *= texture2D(m_ColorRamp, vec2(light.y, 0.0)).rgb;
        #endif
 
+       // Workaround, since it is not possible to modify varying variables
+       vec4 SpecularSum2 = SpecularSum;
        #ifdef USE_REFLECTION
             vec4 refColor = Optics_GetEnvColor(m_EnvMap, refVec.xyz);
 
             // Interpolate light specularity toward reflection color
             // Multiply result by specular map
-            specularColor = mix(SpecularSum * light.y, refColor, refVec.w) * specularColor;
+            specularColor = mix(SpecularSum2 * light.y, refColor, refVec.w) * specularColor;
 
-            SpecularSum = vec4(1.0);
+            SpecularSum2 = vec4(1.0);
             light.y = 1.0;
        #endif
 
        gl_FragColor =  AmbientSum * diffuseColor +
                        DiffuseSum * diffuseColor  * light.x +
-                       SpecularSum * specularColor * light.y;
+                       SpecularSum2 * specularColor * light.y;
     #endif
     gl_FragColor.a = alpha;
 }

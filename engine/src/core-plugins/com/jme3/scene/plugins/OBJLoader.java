@@ -332,6 +332,9 @@ public final class OBJLoader implements AssetLoader {
         }else if (cmd.equals("usemtl")){
             // use material from MTL lib for the following faces
             currentMatName = scan.next();
+            if (!matList.containsKey(currentMatName))
+                throw new IOException("Cannot locate material " + currentMatName + " in MTL file!");
+            
         }else if (cmd.equals("mtllib")){
             // specify MTL lib to use for this OBJ file
             String mtllib = scan.nextLine().trim();
