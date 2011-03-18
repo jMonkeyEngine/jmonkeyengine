@@ -37,6 +37,8 @@ import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import com.jme3.network.*;
 import com.jme3.network.kernel.*;
@@ -53,6 +55,8 @@ import com.jme3.network.serializing.Serializer;
  */
 public class DefaultServer implements Server
 {
+    static Logger log = Logger.getLogger(DefaultServer.class.getName());
+    
     private boolean isRunning = false;
     private AtomicLong nextId = new AtomicLong(0);
     private Kernel reliable;
@@ -215,7 +219,7 @@ public class DefaultServer implements Server
     protected void registerClient( KernelAdapter ka, Endpoint p, ClientRegistrationMessage m )
     {
         Connection addedConnection = null;
-    
+
         // generally this will only be called by one thread but it's        
         // important enough I won't take chances
         synchronized( this ) {       
@@ -227,7 +231,10 @@ public class DefaultServer implements Server
             Connection c = connecting.remove(tempId);
             if( c == null ) {
                 c = new Connection();
-            }
+                log.log( Level.FINE, "Registering client for endpoint, pass 1:{0}.", p );
+            } else {
+                log.log( Level.FINE, "Refining client registration for endpoint:{0}.", p );
+            } 
  
             // Fill in what we now know       
             if( ka == fastAdapter ) {
@@ -267,7 +274,9 @@ public class DefaultServer implements Server
         // Best to do this outside of the synch block to avoid
         // over synchronizing which is the path to deadlocks
         if( addedConnection != null ) {       
-            // Nnow we can notify the listeners about the
+            log.log( Level.INFO, "Client registered:{0}.", addedConnection );
+            
+            // Now we can notify the listeners about the
             // new connection.
             fireConnectionAdded( addedConnection );
                                                     
@@ -385,7 +394,12 @@ public class DefaultServer implements Server
         public Set<String> attributeNames()
         {
             return Collections.unmodifiableSet(sessionData.keySet());
-        }             
+        }           
+        
+        public String toString()
+        {
+            return "Connection[ id=" + id + ", reliable=" + reliable + ", fast=" + fast + " ]"; 
+        }  
     } 
 
     protected class Redispatch implements MessageListener<HostedConnection>
