@@ -55,7 +55,9 @@ import java.util.logging.Logger;
  *  no arg constructor, and then call bind later on.
  *
  * @author Lars Wesselius
+ * @deprecated Use {@link com.jme3.network.Server} from {@link com.jme3.network.Network} instead. 
  */
+@Deprecated
 public class Server extends ServiceManager {
     protected Logger        log = Logger.getLogger(Server.class.getName());
 
@@ -154,7 +156,9 @@ public class Server extends ServiceManager {
      * @param tcpPort The TCP port to use.
      * @param udpPort The UDP port to use.
      * @throws IOException When a binding error occurs.
+     * @deprecated Call createServer() on {@link com.jme3.network.Network} instead.
      */
+    @Deprecated
     public Server(int tcpPort, int udpPort) throws IOException {
         this();
 

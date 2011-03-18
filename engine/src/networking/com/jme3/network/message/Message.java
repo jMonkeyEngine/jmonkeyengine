@@ -65,6 +65,9 @@ public class Message implements com.jme3.network.Message {
         return this;
     }
 
+    /**
+     *  @deprecated This method always returns null in the new API.
+     */
     @Deprecated
     public Client getClient() {
         return connector;
@@ -75,6 +78,9 @@ public class Message implements com.jme3.network.Message {
         this.connector = connector;
     }
 
+    /**
+     *  @deprecated This method always returns null in the new API.
+     */
     @Deprecated
     public Connection getConnection() {
         return connection;

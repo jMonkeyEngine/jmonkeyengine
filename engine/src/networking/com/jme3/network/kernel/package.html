@@ -8,19 +8,19 @@ have to deal with these classes unless they are writing their own
 client and server implementations that diverge from the standard 
 classes that are provided.
 
-<p>{@link Kernel} defines the core of a server-side message
+<p>{@link com.jme3.network.kernel.Kernel} defines the core of a server-side message
 broker that abstracts away the specific transport and underlying
 threading model used.  For example, it might use NIO selectors
 in a single threaded model or straight multithreaded socket
 model.  Or it might implement SSL connections.  Once created,
-{@link Kernel} users don't need to care about the details.</p>
+{@link com.jme3.network.kernel.Kernel} users don't need to care about the details.</p>
 
-<p>{@link Endpoint} is a managed connection within a {@link Kernel}
-providing kernel to client connectivity.</p>
+<p>{@link com.jme3.network.kernel.Endpoint} is a managed connection within a 
+{@link com.jme3.network.kernel.Kernel} providing kernel to client connectivity.</p>
 
-<p>{@link Connector} defines the basic client-side message sender
-and these objects are typically used to connect to a {@link Kernel} though
-they can connect to any network port that supports the implementation's
+<p>{@link com.jme3.network.kernel.Connector} defines the basic client-side message sender
+and these objects are typically used to connect to a {@link com.jme3.network.kernel.Kernel} 
+though they can connect to any network port that supports the implementation's
 protocol.  Implementations are provided for straight TCP and UDP communication
 and could be extended to support SSL or different threading models.</p>  
 

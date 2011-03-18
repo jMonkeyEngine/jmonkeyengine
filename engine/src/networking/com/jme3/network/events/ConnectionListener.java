@@ -38,7 +38,9 @@ import com.jme3.network.connection.Client;
  * Listener for server events.
  *
  * @author Lars Wesselius
+ * @deprecated Use {@link com.jme3.network.ConnectionListener} instead. 
  */
+@Deprecated
 public interface ConnectionListener {
     public void clientConnected(Client client);
     public void clientDisconnected(Client client);

@@ -54,6 +54,10 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ *  @deprecated Use {@link com.jme3.network.Client} from {@link com.jme3.network.Network} instead. 
+ */
+@Deprecated
 public class Client extends ServiceManager {
     protected Logger            log = Logger.getLogger(Client.class.getName());
 
@@ -83,7 +87,9 @@ public class Client extends ServiceManager {
 
     /**
      * Constructs this client.
+     * @deprecated Call createClient() on {@link com.jme3.network.Network} instead.
      */
+    @Deprecated
     public Client() {
         this(false);
     }
@@ -174,7 +180,9 @@ public class Client extends ServiceManager {
      * @param tcpPort The TCP port to use.
      * @param udpPort The UDP port to use.
      * @throws IOException When a connection error occurs.
+     * @deprecated Call connectToServer() on {@link com.jme3.network.Network} instead.
      */
+    @Deprecated
     public Client(String ip, int tcpPort, int udpPort) throws IOException {
         this();
 

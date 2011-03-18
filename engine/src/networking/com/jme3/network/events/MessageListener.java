@@ -38,7 +38,9 @@ import com.jme3.network.message.Message;
  * Listener for messages.
  *
  * @author Lars Wesselius
+ * @deprecated Use {@link com.jme3.network.MessageListener} instead. 
  */
+@Deprecated
 public interface MessageListener {
     public void messageReceived(Message message);
     public void messageSent(Message message);
