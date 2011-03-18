@@ -55,7 +55,7 @@ public class DefaultClient implements Client
 {
     static Logger log = Logger.getLogger(DefaultClient.class.getName());
     
-    private long id = -1;
+    private int id = -1;
     private boolean isRunning = false;
     private Connector reliable;
     private Connector fast;
@@ -113,7 +113,7 @@ public class DefaultClient implements Client
         // Send our connection message with a generated ID until
         // we get one back from the server.  We'll hash time in
         // millis and time in nanos.
-        long tempId = System.currentTimeMillis() ^ System.nanoTime();
+        long tempId = System.currentTimeMillis() + System.nanoTime();
 
         // Set it true here so we can send some messages.
         isRunning = true;        
@@ -140,7 +140,7 @@ public class DefaultClient implements Client
         return id != -1; // for now
     }     
 
-    public long getId()
+    public int getId()
     {   
         return id;
     }     
@@ -235,7 +235,7 @@ public class DefaultClient implements Client
         // interested in and then pass on the rest.
         if( m instanceof ClientRegistrationMessage ) {
             // Then we've gotten our real id
-            this.id = ((ClientRegistrationMessage)m).getId();
+            this.id = (int)((ClientRegistrationMessage)m).getId();
             log.log( Level.INFO, "Connection established, id:{0}.", this.id );
             fireConnected();
             return;

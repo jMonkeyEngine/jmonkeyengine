@@ -36,7 +36,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -58,7 +58,7 @@ public class DefaultServer implements Server
     static Logger log = Logger.getLogger(DefaultServer.class.getName());
     
     private boolean isRunning = false;
-    private AtomicLong nextId = new AtomicLong(0);
+    private AtomicInteger nextId = new AtomicInteger(0);
     private Kernel reliable;
     private KernelAdapter reliableAdapter;
     private Kernel fast;
@@ -335,7 +335,7 @@ public class DefaultServer implements Server
 
     protected class Connection implements HostedConnection
     {
-        private long id;
+        private int id;
         private Endpoint reliable;
         private Endpoint fast;
         

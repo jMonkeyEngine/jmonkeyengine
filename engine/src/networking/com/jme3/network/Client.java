@@ -59,7 +59,7 @@ public interface Client extends MessageConnection
      *  server or -1 if this client isn't fully connected to the
      *  server.
      */
-    public long getId();     
+    public int getId();     
  
     /**
      *  Sends a message to the server.
