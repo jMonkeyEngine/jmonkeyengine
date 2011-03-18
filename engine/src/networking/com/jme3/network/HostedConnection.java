@@ -32,6 +32,7 @@
 
 package com.jme3.network;
 
+import java.util.Set;
 
 /**
  *  This is the connection back to a client that is being
@@ -51,5 +52,25 @@ public interface HostedConnection extends MessageConnection
      *  Closes and removes this connection from the server
      *  sending the optional reason to the remote client.
      */
-    public void close( String reason );     
+    public void close( String reason );
+    
+    /**
+     *  Sets a session attribute specific to this connection.
+     *
+     *  @return The previous session value for this key or null
+     *          if there was no previous value.
+     */
+    public Object setAttribute( String name, Object value );
+    
+    /**
+     *  Retrieves a previosly stored session attribute or
+     *  null if no such attribute exists.
+     */
+    public <T> T getAttribute( String name );
+    
+    /**
+     *  Returns a read-only set of attribute names currently stored
+     *  for this client session.
+     */
+    public Set<String> attributeNames();     
 }

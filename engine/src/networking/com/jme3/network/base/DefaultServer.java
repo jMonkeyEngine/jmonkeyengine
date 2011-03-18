@@ -328,7 +328,9 @@ public class DefaultServer implements Server
     {
         private long id;
         private Endpoint reliable;
-        private Endpoint fast;       
+        private Endpoint fast;
+        
+        private Map<String,Object> sessionData = new ConcurrentHashMap<String,Object>();       
         
         public Connection()
         {
@@ -368,7 +370,22 @@ public class DefaultServer implements Server
             if( reliable != null ) {
                 reliable.close();
             }
-        }     
+        }
+        
+        public Object setAttribute( String name, Object value )
+        {
+            return sessionData.put(name, value);
+        }
+    
+        public <T> T getAttribute( String name )
+        {
+            return (T)sessionData.get(name);
+        }             
+
+        public Set<String> attributeNames()
+        {
+            return Collections.unmodifiableSet(sessionData.keySet());
+        }             
     } 
 
     protected class Redispatch implements MessageListener<HostedConnection>
