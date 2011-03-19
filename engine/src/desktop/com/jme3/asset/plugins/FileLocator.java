@@ -56,7 +56,7 @@ public class FileLocator implements AssetLocator {
 
         root = new File(rootPath);
         if (!root.isDirectory())
-            throw new RuntimeException("Given root path not a directory");
+            throw new IllegalArgumentException("Given root path \"" + root + "\" not a directory");
     }
 
     private static class AssetInfoFile extends AssetInfo {

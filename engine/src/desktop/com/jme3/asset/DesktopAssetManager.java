@@ -192,11 +192,11 @@ public class DesktopAssetManager implements AssetManager {
     }
 
     /**
-     * This method is thread-safe.
-     * @param name
-     * @return
-     *
      * <font color="red">Thread-safe.</font>
+     *
+     * @param <T>
+     * @param key
+     * @return
      */
     public <T> T loadAsset(AssetKey<T> key){
         if (eventListener != null)
@@ -220,35 +220,29 @@ public class DesktopAssetManager implements AssetManager {
         if (o == null){
             AssetLoader loader = handler.aquireLoader(key);
             if (loader == null){
-                logger.log(Level.WARNING,"No loader registered for type {0}.",
-                                            key.getExtension());
-                return null;
+                throw new IllegalStateException("No loader registered for type \"" +
+                                                key.getExtension() + "\"");
             }
 
             if (handler.getLocatorCount() == 0){
-                logger.warning("There are no locators currently"+
-                               " registered. Use AssetManager."+
-                               "registerLocator() to register a"+
-                               " locator.");
-                return null;
+                throw new IllegalStateException("There are no locators currently"+
+                                                " registered. Use AssetManager."+
+                                                "registerLocator() to register a"+
+                                                " locator.");
             }
 
             AssetInfo info = handler.tryLocate(key);
             if (info == null){
-                logger.log(Level.WARNING, "Cannot locate resource: {0}", key);
-                return null;
+                throw new AssetNotFoundException(key.toString());
             }
 
             try {
                 o = loader.load(info);
             } catch (IOException ex) {
-                logger.log(Level.WARNING, "Failed to load resource: "+key, ex);
+                throw new AssetLoadException("An exception has occured while loading asset: " + key, ex);
             }
             if (o == null){
-                logger.log(Level.WARNING, "Error occured while loading resource {0} using {1}",
-                        new Object[]{key, loader.getClass().getSimpleName()});
-                
-                return null;
+                throw new AssetLoadException("Error occured while loading asset \"" + key + "\" using" + loader.getClass().getSimpleName());
             }else{
                 if (logger.isLoggable(Level.FINER)){
                     logger.log(Level.FINER, "Loaded {0} with {1}",
