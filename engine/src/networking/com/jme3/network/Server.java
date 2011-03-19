@@ -53,6 +53,14 @@ public interface Server
      *  the filter.  If no filter is specified then this is the same as
      *  calling broadcast(message) and the message will be delivered to
      *  all connections.
+     *  <p>Examples:</p>
+     *  <pre>
+     *    // Broadcast to connections: conn1, conn2, and conn3
+     *    server.broadcast( Filters.in( conn1, conn2, conn3 ), message );
+     *
+     *    // Broadcast to all connections exception source
+     *    server.broadcast( Filters.notEqualTo( source ), message );
+     *  </pre>
      */ 
     public void broadcast( Filter<? super HostedConnection> filter, Message message );
 
