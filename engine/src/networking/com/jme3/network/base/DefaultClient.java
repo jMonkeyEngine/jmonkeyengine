@@ -40,6 +40,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.jme3.network.*;
+import com.jme3.network.ClientStateListener.DisconnectInfo;
 import com.jme3.network.message.ClientRegistrationMessage; //hopefully temporary
 import com.jme3.network.message.DisconnectMessage; //hopefully temporary
 import com.jme3.network.kernel.Connector;
@@ -208,7 +209,7 @@ public class DefaultClient implements Client
         
         // Wait for the threads?
         
-        fireDisconnected();
+        fireDisconnected(null);
         
         isRunning = false;
     }         
@@ -250,10 +251,10 @@ public class DefaultClient implements Client
         }            
     }
     
-    protected void fireDisconnected()
+    protected void fireDisconnected( DisconnectInfo info )
     {
         for( ClientStateListener l : stateListeners ) {
-            l.clientDisconnected( this );
+            l.clientDisconnected( this, info );
         }            
     }
  
@@ -271,6 +272,9 @@ public class DefaultClient implements Client
             // Can't do too much else yet
             String reason = ((DisconnectMessage)m).getReason();
             log.log( Level.SEVERE, "Connection terminated, reason:{0}.", reason );
+            DisconnectInfo info = new DisconnectInfo();
+            info.reason = reason;
+            fireDisconnected(info);
             close();               
         }
     
