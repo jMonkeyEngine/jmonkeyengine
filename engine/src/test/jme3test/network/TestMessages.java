@@ -32,9 +32,11 @@
 
 package jme3test.network;
 
-import com.jme3.network.connection.Client;
-import com.jme3.network.connection.Server;
-import com.jme3.network.events.MessageAdapter;
+import com.jme3.network.Client;
+import com.jme3.network.HostedConnection;
+import com.jme3.network.MessageListener;
+import com.jme3.network.Network;
+import com.jme3.network.Server;
 import com.jme3.network.message.Message;
 import com.jme3.network.serializing.Serializable;
 import com.jme3.network.serializing.Serializer;
@@ -50,19 +52,19 @@ public class TestMessages {
     public static class PongMessage extends Message {
     }
 
-    private static class PingResponder extends MessageAdapter {
-        @Override
-        public void messageReceived(Message message) {
-            try {
-                if (message instanceof PingMessage){
-                    System.out.println("Received ping message!");
-                    System.out.println("Sending pong message..");
-                    message.getClient().send(new PongMessage());
-                }else if (message instanceof PongMessage){
-                    System.out.println("Received pong message!");
-                }
-            } catch (IOException ex) {
-                ex.printStackTrace();
+    private static class ServerPingResponder implements MessageListener<HostedConnection> {
+        public void messageReceived(HostedConnection source, com.jme3.network.Message message) {
+            if (message instanceof PingMessage){
+                System.out.println("Server: Received ping message!");
+                source.send(new PongMessage());
+            }
+        }
+    }
+
+    private static class ClientPingResponder implements MessageListener<Client> {
+        public void messageReceived(Client source, com.jme3.network.Message message) {
+            if (message instanceof PongMessage){
+                System.out.println("Client: Received pong message!");
             }
         }
     }
@@ -71,14 +73,14 @@ public class TestMessages {
         Serializer.registerClass(PingMessage.class);
         Serializer.registerClass(PongMessage.class);
 
-        Server server = new Server(5110, 5110);
+        Server server = Network.createServer(5110);
         server.start();
 
-        Client client = new Client("localhost", 5110, 5110);
+        Client client = Network.connectToServer("192.168.1.101", 5110, 5111);
         client.start();
 
-        server.addMessageListener(new PingResponder(), PingMessage.class);
-        client.addMessageListener(new PingResponder(), PongMessage.class);
+        server.addMessageListener(new ServerPingResponder(), PingMessage.class);
+        client.addMessageListener(new ClientPingResponder(), PongMessage.class);
 
         Thread.sleep(100);
 

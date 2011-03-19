@@ -127,7 +127,11 @@ public class Mesh implements Savable, Cloneable {
         try{
             Mesh clone = (Mesh) super.clone();
             clone.meshBound = meshBound != null ? meshBound.clone() : null;
-            clone.collisionTree = collisionTree != null ? collisionTree : null;
+
+            // TODO: Collision tree cloning
+            //clone.collisionTree = collisionTree != null ? collisionTree : null;
+            clone.collisionTree = null; // it will get re-generated in any case
+
             clone.buffers = new IntMap<VertexBuffer>();
             for (Entry<VertexBuffer> ent : buffers){
                 clone.buffers.put(ent.getKey(), ent.getValue().clone());

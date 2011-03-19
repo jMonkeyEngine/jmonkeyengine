@@ -44,7 +44,7 @@ import com.jme3.math.Matrix4f;
  *
  * @author Kirill Vainer
  */
-public interface CollisionData extends Savable {
+public interface CollisionData extends Savable, Cloneable {
     public int collideWith(Collidable other,
                            Matrix4f worldMatrix,
                            BoundingVolume worldBound,
