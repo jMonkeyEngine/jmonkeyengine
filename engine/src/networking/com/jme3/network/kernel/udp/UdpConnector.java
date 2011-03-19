@@ -71,8 +71,22 @@ public class UdpConnector implements Connector
         remoteAddress = new InetSocketAddress( remote, remotePort );
         
         // Setup to receive only from the remote address
-        sock.connect( remoteAddress );
-        
+        //sock.connect( remoteAddress );
+        //
+        // The above is a really nice idea since it means that we
+        // wouldn't get random datagram packets from anything that
+        // happened to send garbage to our UDP port.  The problem is
+        // when connecting to a server at "localhost" because "localhost"
+        // will/should always resolve to 127.0.0.1... but the server
+        // doesn't send packets from 127.0.0.1 because it's listening
+        // on the real interface.  And that doesn't match and this end
+        // rejects them.
+        //
+        // This means at some point the read() code will need to validate
+        // that the packets came from the real server before parsing them.
+        // Otherwise we likely throw random deserialization errors and kill
+        // the client.  Which may or may not warrant extra code below.  <shrug>
+ 
         connected.set(true);
     }
  
