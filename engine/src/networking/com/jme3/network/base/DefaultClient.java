@@ -41,6 +41,7 @@ import java.util.logging.Logger;
 
 import com.jme3.network.*;
 import com.jme3.network.message.ClientRegistrationMessage; //hopefully temporary
+import com.jme3.network.message.DisconnectMessage; //hopefully temporary
 import com.jme3.network.kernel.Connector;
 import com.jme3.network.serializing.Serializer;
 
@@ -137,6 +138,8 @@ public class DefaultClient implements Client
         if( reliable != null ) {
             reg = new ClientRegistrationMessage();
             reg.setId(tempId);
+            reg.setGameName(getGameName());
+            reg.setVersion(getVersion());
             reg.setReliable(true);
             send(reg);            
         }
@@ -264,6 +267,11 @@ public class DefaultClient implements Client
             log.log( Level.INFO, "Connection established, id:{0}.", this.id );
             fireConnected();
             return;
+        } if( m instanceof DisconnectMessage ) {
+            // Can't do too much else yet
+            String reason = ((DisconnectMessage)m).getReason();
+            log.log( Level.SEVERE, "Connection terminated, reason:{0}.", reason );
+            close();               
         }
     
         messageListeners.messageReceived( this, m );

@@ -235,6 +235,7 @@ public class DefaultServer implements Server
     protected void registerClient( KernelAdapter ka, Endpoint p, ClientRegistrationMessage m )
     {
         Connection addedConnection = null;
+        Connection bootedConnection = null;
 
         // generally this will only be called by one thread but it's        
         // important enough I won't take chances
@@ -251,7 +252,7 @@ public class DefaultServer implements Server
             } else {
                 log.log( Level.FINE, "Refining client registration for endpoint:{0}.", p );
             } 
- 
+          
             // Fill in what we now know       
             if( ka == fastAdapter ) {
                 c.fast = p;
@@ -264,6 +265,20 @@ public class DefaultServer implements Server
             } else {
                 // It must be the reliable one            
                 c.reliable = p;
+ 
+                // Validate the name and version which is only sent
+                // over the reliable connection at this point.
+                if( !getGameName().equals(m.getGameName()) 
+                    || getVersion() != m.getVersion() ) {
+ 
+                    log.log( Level.INFO, "Kicking client due to name/version mismatch:{0}.", c );
+            
+                    // Need to kick them off... I may regret doing this from within
+                    // the sync block but the alternative is more code
+                    c.close( "Server client mismatch, server:" + getGameName() + " v" + getVersion()
+                             + "  client:" + m.getGameName() + " v" + m.getVersion() );
+                    return;                        
+                }                                   
                 
                 if( c.fast == null && fastAdapter != null ) {
                     // Still waiting for the fast connection to

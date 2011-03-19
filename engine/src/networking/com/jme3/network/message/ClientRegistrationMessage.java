@@ -46,6 +46,8 @@ import com.jme3.network.serializing.Serializable;
 @Serializable()
 public class ClientRegistrationMessage extends Message {
     private long id;
+    private String gameName;
+    private int version;
 
     public long getId() {
         return id;
@@ -53,5 +55,21 @@ public class ClientRegistrationMessage extends Message {
 
     public void setId(long id) {
         this.id = id;
+    }
+    
+    public void setGameName( String name ) {
+        this.gameName = name;
+    }
+ 
+    public String getGameName() {
+        return gameName;
+    }
+    
+    public void setVersion( int version ) {
+        this.version = version;
+    }
+    
+    public int getVersion() {
+        return version;
     }
 }
