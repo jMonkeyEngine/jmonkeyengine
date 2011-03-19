@@ -64,7 +64,7 @@ public class DefaultServer implements Server
     private Kernel fast;
     private KernelAdapter fastAdapter;
     private Redispatch dispatcher = new Redispatch();
-    private Map<Long,HostedConnection> connections = new ConcurrentHashMap<Long,HostedConnection>();
+    private Map<Integer,HostedConnection> connections = new ConcurrentHashMap<Integer,HostedConnection>();
     private Map<Endpoint,HostedConnection> endpointConnections 
                             = new ConcurrentHashMap<Endpoint,HostedConnection>();
     
@@ -346,7 +346,7 @@ public class DefaultServer implements Server
             id = nextId.getAndIncrement();
         }
         
-        public long getId()
+        public int getId()
         {
             return id;
         }

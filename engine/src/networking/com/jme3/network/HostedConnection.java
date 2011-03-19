@@ -46,7 +46,7 @@ public interface HostedConnection extends MessageConnection
     /**
      *  Returns the server-unique ID for this client.
      */
-    public long getId();
+    public int getId();
     
     /**
      *  Closes and removes this connection from the server
