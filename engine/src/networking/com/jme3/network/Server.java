@@ -117,6 +117,16 @@ public interface Server
     /**
      *  Adds a listener that will be notified when any message or object
      *  is received from one of the clients.
+     *
+     *  <p>Note about MessageListener multithreading: on the server, message events may
+     *  be delivered by more than one thread depending on the server
+     *  implementation used.  Listener implementations should treat their
+     *  shared data structures accordingly and set them up for multithreaded 
+     *  access.  The only threading guarantee is that for a single
+     *  HostedConnection, there will only ever be one thread at a time
+     *  and the messages will always be delivered to that connection in the 
+     *  order that they were delivered.  This is the only restriction placed
+     *  upon server message dispatch pool implementations.</p>   
      */
     public void addMessageListener( MessageListener<? super HostedConnection> listener ); 
 
