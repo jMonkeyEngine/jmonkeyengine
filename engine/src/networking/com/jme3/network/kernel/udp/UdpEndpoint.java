@@ -86,6 +86,11 @@ public class UdpEndpoint implements Endpoint
         return id;
     }
 
+    public String getAddress()
+    {
+        return String.valueOf(address); 
+    }     
+
     public boolean isConnected()
     {
         return socket.isConnected();

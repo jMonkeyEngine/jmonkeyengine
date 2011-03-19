@@ -50,6 +50,13 @@ public interface Endpoint
     public long getId();
 
     /**
+     *  Returns the transport specific remote address of this endpoint
+     *  as a string.  This may or may not be unique per endpoint depending
+     *  on the type of transport. 
+     */
+    public String getAddress();     
+
+    /**
      *  Returns the kernel to which this endpoint belongs.
      */
     public Kernel getKernel();    

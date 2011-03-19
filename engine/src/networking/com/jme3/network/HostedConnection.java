@@ -47,7 +47,15 @@ public interface HostedConnection extends MessageConnection
      *  Returns the server-unique ID for this client.
      */
     public int getId();
-    
+
+    /**
+     *  Returns the transport specific remote address of this connection
+     *  as a string.  This may or may not be unique per connection depending
+     *  on the type of transport.  It is provided for information and filtering
+     *  purposes. 
+     */
+    public String getAddress();
+   
     /**
      *  Closes and removes this connection from the server
      *  sending the optional reason to the remote client.

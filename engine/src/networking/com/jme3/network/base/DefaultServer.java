@@ -352,7 +352,12 @@ public class DefaultServer implements Server
         {
             return id;
         }
-        
+ 
+        public String getAddress()
+        {            
+            return reliable == null ? null : reliable.getAddress();
+        }
+       
         public void send( Message message )
         {
             ByteBuffer buffer = MessageProtocol.messageToBuffer(message, null);

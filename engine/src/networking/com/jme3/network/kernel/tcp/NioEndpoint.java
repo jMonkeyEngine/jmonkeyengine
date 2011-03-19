@@ -81,6 +81,11 @@ public class NioEndpoint implements Endpoint
         return id;
     }
 
+    public String getAddress()
+    {
+        return String.valueOf(socket.socket().getRemoteSocketAddress()); 
+    }     
+
     public boolean isConnected()
     {
         return socket.isConnected();
