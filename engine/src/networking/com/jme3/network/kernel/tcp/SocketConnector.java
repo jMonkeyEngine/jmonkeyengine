@@ -35,6 +35,7 @@ package com.jme3.network.kernel.tcp;
 import java.io.*;
 import java.net.*;
 import java.nio.ByteBuffer;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.jme3.network.kernel.*;
 
@@ -54,6 +55,7 @@ public class SocketConnector implements Connector
     private OutputStream out;
     private SocketAddress remoteAddress;
     private byte[] buffer = new byte[65535];
+    private AtomicBoolean connected = new AtomicBoolean(false);
 
     public SocketConnector( InetAddress address, int port ) throws IOException
     {
@@ -66,6 +68,8 @@ public class SocketConnector implements Connector
         
         in = sock.getInputStream();
         out = sock.getOutputStream();
+        
+        connected.set(true);
     }
  
     protected void checkClosed()
@@ -87,6 +91,7 @@ public class SocketConnector implements Connector
         try {
             Socket temp = sock;
             sock = null;            
+            connected.set(false);
             temp.close();
         } catch( IOException e ) {            
             throw new ConnectorException( "Error closing socket for:" + remoteAddress, e );
@@ -111,14 +116,18 @@ public class SocketConnector implements Connector
             // Read what we can
             int count = in.read(buffer);
             if( count < 0 ) {
-                // Socket it closed
+                // Socket is closed
                 close();
                 return null;
             }
 
             // Wrap it in a ByteBuffer for the caller
             return ByteBuffer.wrap( buffer, 0, count ); 
-        } catch( IOException e ) {        
+        } catch( IOException e ) {
+            if( !connected.get() ) {
+                // Nothing to see here... just move along
+                return null;
+            }        
             throw new ConnectorException( "Error reading from connection to:" + remoteAddress, e );    
         }                
     }

@@ -39,6 +39,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import com.jme3.network.Message;
 import com.jme3.network.MessageListener;
 import com.jme3.network.kernel.Connector;
+import com.jme3.network.kernel.ConnectorException;
 import com.jme3.network.serializing.Serializer;
 
 /**
@@ -90,6 +91,15 @@ public class ConnectorAdapter extends Thread
         
         while( go.get() ) {
             ByteBuffer buffer = connector.read();
+            if( buffer == null ) {
+                if( go.get() ) {
+                    throw new ConnectorException( "Connector closed." ); 
+                } else {
+                    // Just dump out because a null buffer is expected
+                    // from a closed/closing connector
+                    break;
+                }
+            }
             
             protocol.addBuffer( buffer );
             
