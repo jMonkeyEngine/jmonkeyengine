@@ -80,14 +80,15 @@ public class DefaultServer implements Server
     
     public DefaultServer( String gameName, int version, Kernel reliable, Kernel fast )
     {
+        if( reliable == null )
+            throw new IllegalArgumentException( "Default server reqiures a reliable kernel instance." );
+            
         this.gameName = gameName;
         this.version = version;
         this.reliable = reliable;
         this.fast = fast;
         
-        if( reliable != null ) {
-            reliableAdapter = new KernelAdapter( this, reliable, dispatcher );
-        }
+        reliableAdapter = new KernelAdapter( this, reliable, dispatcher );
         if( fast != null ) {
             fastAdapter = new KernelAdapter( this, fast, dispatcher );
         }
@@ -109,17 +110,13 @@ public class DefaultServer implements Server
             throw new IllegalStateException( "Server is already started." );
             
         // Initialize the kernels
-        if( reliable != null ) {
-            reliable.initialize();
-        }
+        reliable.initialize();
         if( fast != null ) {
             fast.initialize();
         }
  
         // Start em up
-        if( reliableAdapter != null ) {
-            reliableAdapter.start();            
-        }
+        reliableAdapter.start();            
         if( fastAdapter != null ) {
             fastAdapter.start();
         }
@@ -142,11 +139,9 @@ public class DefaultServer implements Server
             if( fastAdapter != null ) {
                 fastAdapter.close();
             }
-            if( reliableAdapter != null ) {
-                reliableAdapter.close();
-                
+            
+            reliableAdapter.close();                           
             isRunning = false;            
-            }
         } catch( InterruptedException e ) {
             throw new RuntimeException( "Interrupted while closing", e );
         }                               
@@ -165,8 +160,6 @@ public class DefaultServer implements Server
                
         // Ignore the filter for the moment
         if( message.isReliable() || fast == null ) {
-            if( reliable == null )
-                throw new RuntimeException( "No reliable kernel configured" );
             reliable.broadcast( adapter, buffer, true );
         } else {
             fast.broadcast( adapter, buffer, false );
@@ -215,7 +208,17 @@ public class DefaultServer implements Server
  
     protected void dispatch( HostedConnection source, Message m )
     {
-        messageListeners.messageReceived( source, m );
+        if( source == null ) {
+            messageListeners.messageReceived( source, m );
+        } else {
+        
+            // A semi-heavy handed way to make sure the listener
+            // doesn't get called at the same time from two different
+            // threads for the same hosted connection.
+            synchronized( source ) {
+                messageListeners.messageReceived( source, m );
+            }
+        }
     }
 
     protected void fireConnectionAdded( HostedConnection conn )
