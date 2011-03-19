@@ -73,7 +73,16 @@ public interface Endpoint
     public void send( ByteBuffer data );
 
     /**
-     *  Closes this endpoint.
+     *  Closes this endpoint without flushing any of its
+     *  currently enqueued outbound data.
      */
     public void close();
+    
+    /**
+     *  Closes this endpoint, optionally flushing any queued
+     *  data before closing.  As soon as this method is called,
+     *  ne send() calls will fail with an exception... even while
+     *  close() is still flushing the earlier queued messages.
+     */
+    public void close(boolean flushData);
 }

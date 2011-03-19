@@ -74,6 +74,15 @@ public class UdpEndpoint implements Endpoint
 
     public void close()
     {
+        close( false );
+    }
+
+    public void close( boolean flush )
+    {
+        // No real reason to flush UDP traffic yet... especially
+        // when considering that the outbound UDP isn't even
+        // queued.
+    
         try {
             kernel.closeEndpoint(this);
         } catch( IOException e ) {

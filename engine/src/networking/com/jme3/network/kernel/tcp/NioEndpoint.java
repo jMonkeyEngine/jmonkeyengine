@@ -50,10 +50,13 @@ import com.jme3.network.kernel.*;
  */
 public class NioEndpoint implements Endpoint
 {
+    protected static final ByteBuffer CLOSE_MARKER = ByteBuffer.allocate(0);
+
     private long id;
     private SocketChannel socket;
     private SelectorKernel kernel;
     private ConcurrentLinkedQueue<ByteBuffer> outbound = new ConcurrentLinkedQueue<ByteBuffer>();
+    private boolean closing = false;
 
     public NioEndpoint( SelectorKernel kernel, long id, SocketChannel socket )
     {
@@ -69,6 +72,21 @@ public class NioEndpoint implements Endpoint
 
     public void close()
     {
+        close(false);
+    }
+
+    public void close( boolean flushData )
+    {
+        if( flushData ) {
+            closing = true;
+            
+            // Enqueue a close marker message to let the server
+            // know we should close
+            send( CLOSE_MARKER, false, true );
+            
+            return;
+        }
+    
         try {
             kernel.closeEndpoint(this);
         } catch( IOException e ) {
@@ -142,7 +160,13 @@ public class NioEndpoint implements Endpoint
     }
 
     public void send( ByteBuffer data )
-    {
+    {   
+        if( data == null ) {
+            throw new IllegalArgumentException( "Data cannot be null." );
+        }
+        if( closing ) {
+            throw new KernelException( "Endpoint has been closed:" + socket );
+        }
         send( data, true, true );
     }
 

@@ -409,14 +409,12 @@ public class DefaultServer implements Server
             m.setReliable( true );
             send( m );
             
-            // Note: without a way to flush the pending messages
-            //       during close, the above message may never
-            //       go out.
-                   
             // Just close the reliable endpoint
             // fast will be cleaned up as a side-effect
             if( reliable != null ) {
-                reliable.close();
+                // Close with flush so we make sure our
+                // message gets out
+                reliable.close(true);
             }
         }
         

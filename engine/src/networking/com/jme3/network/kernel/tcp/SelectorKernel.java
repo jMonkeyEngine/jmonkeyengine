@@ -354,6 +354,14 @@ public class SelectorKernel extends AbstractKernel
 
             // We will send what we can and move on.
             ByteBuffer current = p.peekPending();
+            if( current == NioEndpoint.CLOSE_MARKER ) {
+                // This connection wants to be closed now
+                closeEndpoint(p);
+                
+                // Nothing more to do
+                return;   
+            }
+            
             c.write( current );
 
             // If we wrote all of that packet then we need to remove it
