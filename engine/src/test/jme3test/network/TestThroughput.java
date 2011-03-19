@@ -32,16 +32,12 @@
 
 package jme3test.network;
 
-//import com.jme3.network.connection.OldClient;
-//import com.jme3.network.connection.OldServer;
 import com.jme3.network.Client;
 import com.jme3.network.Message;
 import com.jme3.network.MessageConnection;
 import com.jme3.network.MessageListener;
 import com.jme3.network.Network;
 import com.jme3.network.Server;
-//import com.jme3.network.events.MessageAdapter;
-//import com.jme3.network.message.Message;
 import com.jme3.network.serializing.Serializable;
 import com.jme3.network.serializing.Serializer;
 import java.io.IOException;
@@ -51,9 +47,11 @@ public class TestThroughput implements MessageListener<MessageConnection> { //ex
     private static long lastTime = -1;
     private static long counter = 0;
     private static long total = 0;
-//    private static OldClient client;
     private static Client client;
 
+    // Change this flag to test UDP instead of TCP
+    private static boolean testReliable = true;
+    
     private boolean isOnServer;
 
     public TestThroughput( boolean isOnServer ) {
@@ -81,9 +79,12 @@ public class TestThroughput implements MessageListener<MessageConnection> { //ex
             }
         } else {
             if( source == null ) {
-System.out.println( "Received a message from a not fully connected source, msg:"+ msg );
+                System.out.println( "Received a message from a not fully connected source, msg:"+ msg );
             } else {
 //System.out.println( "sending:" + msg + " back to client:" + source );
+                // The 'reliable' flag is transient and the server doesn't
+                // (yet) reset this value for us.
+                ((com.jme3.network.message.Message)msg).setReliable(testReliable);
                 source.send(msg);
             }
         }
@@ -93,14 +94,10 @@ System.out.println( "Received a message from a not fully connected source, msg:"
     
         Serializer.registerClass(TestMessage.class);
 
-        //OldServer server = new OldServer(5110, 5110);
-        //server.start();
         Server server = Network.createServer( 5110 );
         server.start();
 
-        //client = new OldClient("localhost", 5110, 5110);
-        //client.start();
-        Client client = Network.connectToServer( "hydra", 5110, 5000 );
+        Client client = Network.connectToServer( "localhost", 5110, 5000 );
         client.start();
 
         client.addMessageListener(new TestThroughput(false), TestMessage.class);
@@ -122,7 +119,7 @@ System.out.println( "Received a message from a not fully connected source, msg:"
     public static class TestMessage extends com.jme3.network.message.Message {
 
         public TestMessage(){
-            setReliable(true);
+            setReliable(testReliable);
         }
     }
 
