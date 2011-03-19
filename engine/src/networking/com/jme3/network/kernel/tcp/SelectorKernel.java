@@ -124,7 +124,7 @@ public class SelectorKernel extends AbstractKernel
         // Hand it to all of the endpoints that match our routing
         for( NioEndpoint p : endpoints.values() ) {
             // Does it match the filter?
-            if( !filter.apply(p) )
+            if( filter != null && !filter.apply(p) )
                 continue;
 
             // Give it the data
