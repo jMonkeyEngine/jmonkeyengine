@@ -67,11 +67,13 @@ public class UdpConnector implements Connector
     public UdpConnector( InetAddress local, int localPort, 
                          InetAddress remote, int remotePort ) throws IOException
     {
-        this.sock = new DatagramSocket( localPort, local );
+        InetSocketAddress localSocketAddress = new InetSocketAddress(localPort);
+        this.sock = new DatagramSocket( localSocketAddress );
+        //this.sock = new DatagramSocket( localPort, local );
         remoteAddress = new InetSocketAddress( remote, remotePort );
         
         // Setup to receive only from the remote address
-        //sock.connect( remoteAddress );
+        sock.connect( remoteAddress );
         //
         // The above is a really nice idea since it means that we
         // wouldn't get random datagram packets from anything that
