@@ -42,25 +42,36 @@ import com.jme3.network.serializing.Serializer;
 import com.jme3.util.IntMap;
 import com.jme3.util.IntMap.Entry;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.HashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class ObjectStore implements MessageListener, ConnectionListener {
 
+    private static final Logger logger = Logger.getLogger(ObjectStore.class.getName());
+
     private static final class Invocation {
+
         Object retVal;
         boolean available = false;
+
+        @Override
+        public String toString(){
+            return "Invocation[" + retVal + "]";
+        }
     }
 
     private Client client;
     private Server server;
 
     // Local object ID counter
-    private short objectIdCounter = 0;
+    private volatile short objectIdCounter = 0;
     
     // Local invocation ID counter
-    private short invocationIdCounter = 0;
+    private volatile short invocationIdCounter = 0;
 
     // Invocations waiting ..
     private IntMap<Invocation> pendingInvocations = new IntMap<Invocation>();
@@ -120,10 +131,13 @@ public class ObjectStore implements MessageListener, ConnectionListener {
         RemoteObjectDefMessage defMsg = new RemoteObjectDefMessage();
         defMsg.objects = new ObjectDef[]{ makeObjectDef(localObj) };
 
-        if (client != null)
+        if (client != null) {
             client.send(defMsg);
-        else
+            logger.log(Level.INFO, "Client: Sending {0}", defMsg);
+        } else {
             server.broadcast(defMsg);
+            logger.log(Level.INFO, "Server: Sending {0}", defMsg);
+        }
     }
 
     public <T> T getExposedObject(String name, Class<T> type, boolean waitFor) throws InterruptedException{
@@ -140,7 +154,6 @@ public class ObjectStore implements MessageListener, ConnectionListener {
             }
         }
             
-
         Object proxy = Proxy.newProxyInstance(getClass().getClassLoader(), new Class[]{ type }, ro);
         ro.loadMethods(type);
         return (T) proxy;
@@ -163,14 +176,17 @@ public class ObjectStore implements MessageListener, ConnectionListener {
         if (needReturn){
             call.invocationId = invocationIdCounter++;
             invoke = new Invocation();
+            // Note: could cause threading issues if used from multiple threads
             pendingInvocations.put(call.invocationId, invoke);
         }
 
         try{
             if (server != null){
                 remoteObj.client.send(call);
+                logger.log(Level.INFO, "Server: Sending {0}", call);
             }else{
                 client.send(call);
+                logger.log(Level.INFO, "Client: Sending {0}", call);
             }
         } catch (IOException ex){
             ex.printStackTrace();
@@ -186,6 +202,7 @@ public class ObjectStore implements MessageListener, ConnectionListener {
                     }
                 }
             }
+            // Note: could cause threading issues if used from multiple threads
             pendingInvocations.remove(call.invocationId);
             return invoke.retVal;
         }else{
@@ -194,6 +211,9 @@ public class ObjectStore implements MessageListener, ConnectionListener {
     }
 
     public void messageReceived(Message message) {
+        // Might want to do more strict validation of the data
+        // in the message to prevent crashes
+
         if (message instanceof RemoteObjectDefMessage){
             RemoteObjectDefMessage defMsg = (RemoteObjectDefMessage) message;
 
@@ -212,27 +232,38 @@ public class ObjectStore implements MessageListener, ConnectionListener {
         }else if (message instanceof RemoteMethodCallMessage){
             RemoteMethodCallMessage call = (RemoteMethodCallMessage) message;
             LocalObject localObj = localObjects.get(call.objectId);
+            if (localObj == null)
+                return;
+
+            if (call.methodId < 0 || call.methodId >= localObj.methods.length)
+                return;
 
             Object obj = localObj.theObject;
             Method method = localObj.methods[call.methodId];
             Object[] args = call.args;
-            Object ret;
+            Object ret = null;
             try {
                 ret = method.invoke(obj, args);
-            } catch (Exception ex){
-                throw new RuntimeException(ex);
+            } catch (IllegalAccessException ex){
+                logger.log(Level.WARNING, "RMI: Error accessing method", ex);
+            } catch (IllegalArgumentException ex){
+                logger.log(Level.WARNING, "RMI: Invalid arguments", ex);
+            } catch (InvocationTargetException ex){
+                logger.log(Level.WARNING, "RMI: Invocation exception", ex);
             }
 
             if (method.getReturnType() != void.class){
                 // send return value back
                 RemoteMethodReturnMessage retMsg = new RemoteMethodReturnMessage();
-                retMsg.invocationID = invocationIdCounter++;
+                retMsg.invocationID = call.invocationId;
                 retMsg.retVal = ret;
                 try {
                     if (server != null){
                         call.getClient().send(retMsg);
+                        logger.log(Level.INFO, "Server: Sending {0}", retMsg);
                     } else{
                         client.send(retMsg);
+                        logger.log(Level.INFO, "Client: Sending {0}", retMsg);
                     }
                 } catch (IOException ex){
                     ex.printStackTrace();
@@ -242,7 +273,8 @@ public class ObjectStore implements MessageListener, ConnectionListener {
             RemoteMethodReturnMessage retMsg = (RemoteMethodReturnMessage) message;
             Invocation invoke = pendingInvocations.get(retMsg.invocationID);
             if (invoke == null){
-                throw new RuntimeException("Cannot find invocation ID: " + retMsg.invocationID);
+                logger.log(Level.WARNING, "Cannot find invocation ID: {0}", retMsg.invocationID);
+                return;
             }
 
             synchronized (invoke){
@@ -268,8 +300,10 @@ public class ObjectStore implements MessageListener, ConnectionListener {
             try {
                 if (this.client != null){
                     this.client.send(defMsg);
+                    logger.log(Level.INFO, "Client: Sending {0}", defMsg);
                 } else{
                     client.send(defMsg);
+                    logger.log(Level.INFO, "Server: Sending {0}", defMsg);
                 }
             } catch (IOException ex){
                 ex.printStackTrace();

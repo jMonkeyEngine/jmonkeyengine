@@ -37,6 +37,8 @@ import com.jme3.network.serializing.SerializerRegistration;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * {@link RmiSerializer} is responsible for serializing RMI messages
@@ -46,12 +48,17 @@ import java.nio.ByteBuffer;
  */
 public class RmiSerializer extends Serializer {
 
+    private static final Logger logger = Logger.getLogger(RmiSerializer.class.getName());
+
+    // not good for multithread applications
     private char[] chrBuf = new char[256];
 
     private void writeString(ByteBuffer buffer, String string) throws IOException{
         int length = string.length();
         if (length > 255){
-            throw new IOException("Cannot serialize: "+ string + "\nToo long!");
+            logger.log(Level.WARNING, "The string length exceeds the limit! {0} > 255", length);
+            buffer.put( (byte) 0 );
+            return;
         }
 
         buffer.put( (byte) length );
@@ -73,9 +80,10 @@ public class RmiSerializer extends Serializer {
             buffer.putShort((short)0);
         } else {
             SerializerRegistration reg = Serializer.getSerializerRegistration(clazz);
-            if (reg == null)
-                throw new IOException("Unknown class: "+clazz);
-
+            if (reg == null){
+                logger.log(Level.WARNING, "Unknown class: {0}", clazz);
+                throw new IOException(); // prevents message from being serialized
+            }
             buffer.putShort(reg.getId());
         }
     }
@@ -85,10 +93,12 @@ public class RmiSerializer extends Serializer {
         if (reg == null){
             // either "void" or unknown val
             short id = buffer.getShort(buffer.position()-2);
-            if (id == 0)
+            if (id == 0){
                 return void.class;
-            else
-                throw new IOException("Undefined class ID: " + id);
+            } else{
+                logger.log(Level.WARNING, "Undefined class ID: {0}", id);
+                throw new IOException(); // prevents message from being serialized
+            }
         }
         return reg.getType();
     }
@@ -173,6 +183,10 @@ public class RmiSerializer extends Serializer {
             buffer.put((byte)0);
         }else{
             buffer.put((byte)call.args.length);
+
+            // Right now it writes 0 for every null argument
+            // and 1 for every non-null argument followed by the serialized
+            // argument. For the future, using a bit set should be considered.
             for (Object obj : call.args){
                 if (obj != null){
                     buffer.put((byte)0x01);

@@ -41,7 +41,7 @@ import com.jme3.network.serializing.Serializable;
  * @author Kirill Vainer
  */
 @Serializable
-class RemoteMethodCallMessage extends Message {
+public class RemoteMethodCallMessage extends Message {
 
     public RemoteMethodCallMessage(){
         super(true);
@@ -50,30 +50,30 @@ class RemoteMethodCallMessage extends Message {
     /**
      * The object ID on which the call is being made.
      */
-    int objectId;
+    public int objectId;
 
     /**
      * The method ID used for look-up in the LocalObject.methods array.
      */
-    short methodId;
+    public short methodId;
 
     /**
      * Invocation ID is used to identify a particular call if the calling
      * client needs the return value of the called RMI method.
      * This is set to zero if the method does not return a value.
      */
-    short invocationId;
+    public short invocationId;
 
     /**
      * Arguments of the remote method invocation.
      */
-    Object[] args;
+    public Object[] args;
 
     
     @Override
     public String toString(){
         StringBuilder sb = new StringBuilder();
-        sb.append("MethodCall[objectID=").append(objectId).append(", methodID=")
+        sb.append("RemoteMethodCallMessage[objectID=").append(objectId).append(", methodID=")
           .append(methodId);
         if (args != null && args.length > 0){
             sb.append(", args={");

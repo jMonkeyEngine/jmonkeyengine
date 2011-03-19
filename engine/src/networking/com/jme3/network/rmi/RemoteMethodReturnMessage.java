@@ -43,7 +43,7 @@ import com.jme3.network.serializing.Serializable;
  * @author Kirill Vainer.
  */
 @Serializable
-class RemoteMethodReturnMessage extends Message {
+public class RemoteMethodReturnMessage extends Message {
 
     public RemoteMethodReturnMessage(){
         super(true);
@@ -52,16 +52,16 @@ class RemoteMethodReturnMessage extends Message {
     /**
      * Invocation ID that was set in the {@link RemoteMethodCallMessage}.
      */
-    short invocationID;
+    public short invocationID;
 
     /**
      * The return value, could be null.
      */
-    Object retVal;
+    public Object retVal;
 
 
     @Override
     public String toString(){
-        return "MethodReturn[ID="+invocationID+", Value="+retVal.toString()+"]";
+        return "RemoteMethodReturnMessage[ID="+invocationID+", Value="+retVal.toString()+"]";
     }
 }

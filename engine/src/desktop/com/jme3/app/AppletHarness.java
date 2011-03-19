@@ -43,10 +43,13 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
 /**
- * @author Kirill
+ * @author Kirill Vainer
  */
 public class AppletHarness extends Applet {
 
@@ -70,12 +73,26 @@ public class AppletHarness extends Applet {
 
         // load app cfg
         if (appCfg != null){
+            InputStream in = null;
             try {
-                InputStream in = appCfg.openStream();
+                in = appCfg.openStream();
                 settings.load(in);
                 in.close();
             } catch (IOException ex){
+                // Called before application has been created ....
+                // Display error message through AWT
+                JOptionPane.showMessageDialog(this, "An error has occured while "
+                                                  + "loading applet configuration"
+                                                  + ex.getMessage(),
+                                              "jME3 Applet",
+                                              JOptionPane.ERROR_MESSAGE);
                 ex.printStackTrace();
+            } finally {
+                if (in != null)
+                    try {
+                    in.close();
+                } catch (IOException ex) {
+                }
             }
         }
 

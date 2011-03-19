@@ -39,20 +39,20 @@ package com.jme3.network.rmi;
  *
  * @author Kirill Vainer
  */
-class MethodDef {
+public class MethodDef {
 
     /**
      * Method name
      */
-    String name;
+    public String name;
 
     /**
      * Return type
      */
-    Class<?> retType;
+    public Class<?> retType;
 
     /**
      * Parameter types
      */
-    Class<?>[] paramTypes;
+    public Class<?>[] paramTypes;
 }

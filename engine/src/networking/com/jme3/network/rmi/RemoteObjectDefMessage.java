@@ -42,12 +42,23 @@ import com.jme3.network.serializing.Serializable;
  * @author Kirill Vainer
  */
 @Serializable
-class RemoteObjectDefMessage extends Message {
+public class RemoteObjectDefMessage extends Message {
 
-    ObjectDef[] objects;
+    public ObjectDef[] objects;
     
     public RemoteObjectDefMessage(){
         super(true);
+    }
+
+    @Override
+    public String toString(){
+        StringBuilder sb = new StringBuilder();
+        sb.append("RemoteObjectDefMessage[\n");
+        for (ObjectDef def : objects){
+            sb.append("\t").append(def).append("\n");
+        }
+        sb.append("]");
+        return sb.toString();
     }
 
 }
