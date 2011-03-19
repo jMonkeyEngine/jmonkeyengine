@@ -59,6 +59,7 @@ public class DefaultClient implements Client
     
     private int id = -1;
     private boolean isRunning = false;
+    private CountDownLatch connecting = new CountDownLatch(1);
     private String gameName;
     private int version;
     private Connector reliable;
@@ -142,7 +143,7 @@ public class DefaultClient implements Client
             reg.setGameName(getGameName());
             reg.setVersion(getVersion());
             reg.setReliable(true);
-            send(reg);            
+            send(reg, false);            
         }
         if( fast != null ) {
             // We create two different ones to prepare for someday
@@ -150,13 +151,25 @@ public class DefaultClient implements Client
             reg = new ClientRegistrationMessage();
             reg.setId(tempId);
             reg.setReliable(false);
-            send(reg); 
+            send(reg, false); 
         }        
+    }
+
+    protected void waitForConnected()
+    {
+        if( isConnected() )
+            return;
+            
+        try {
+            connecting.await();
+        } catch( InterruptedException e ) {
+            throw new RuntimeException( "Interrupted waiting for connect", e );
+        }
     }
 
     public boolean isConnected()
     {
-        return id != -1; // for now
+        return id != -1 && isRunning; 
     }     
 
     public int getId()
@@ -176,7 +189,17 @@ public class DefaultClient implements Client
    
     public void send( Message message )
     {
+        send( message, true );
+    }
+    
+    protected void send( Message message, boolean waitForConnected )
+    {
         checkRunning();
+ 
+        if( waitForConnected ) {       
+            // Make sure we aren't still connecting
+            waitForConnected();
+        }        
         
         // For now just send direclty.  We allocate our
         // own buffer each time because this method might
@@ -208,6 +231,9 @@ public class DefaultClient implements Client
         }
         
         // Wait for the threads?
+
+        // Just in case we never fully connected
+        connecting.countDown();
         
         fireDisconnected(null);
         
@@ -266,6 +292,7 @@ public class DefaultClient implements Client
             // Then we've gotten our real id
             this.id = (int)((ClientRegistrationMessage)m).getId();
             log.log( Level.INFO, "Connection established, id:{0}.", this.id );
+            connecting.countDown();
             fireConnected();
             return;
         } if( m instanceof DisconnectMessage ) {
