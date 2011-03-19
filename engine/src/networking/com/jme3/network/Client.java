@@ -62,6 +62,19 @@ public interface Client extends MessageConnection
     public int getId();     
  
     /**
+     *  Returns the 'game name' for servers to which this client should be able
+     *  to connect.  This should match the 'game name' set on the server or this
+     *  client will be turned away.
+     */
+    public String getGameName();
+ 
+    /**
+     *  Returns the game-specific version of the server this client should
+     *  be able to connect to.
+     */   
+    public int getVersion();
+ 
+    /**
      *  Sends a message to the server.
      */   
     public void send( Message message );

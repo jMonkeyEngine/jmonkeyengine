@@ -73,8 +73,9 @@ public class DefaultClient implements Client
         this.version = version;
     }
     
-    public DefaultClient( Connector reliable, Connector fast )
+    public DefaultClient( String gameName, int version, Connector reliable, Connector fast )
     {
+        this( gameName, version );
         setConnectors( reliable, fast );
     }
 
@@ -100,7 +101,7 @@ public class DefaultClient implements Client
         if( !isRunning )
             throw new IllegalStateException( "Client is not started." );
     }
-    
+ 
     public void start()
     {
         if( isRunning )
@@ -159,6 +160,16 @@ public class DefaultClient implements Client
         return id;
     }     
  
+    public String getGameName()
+    {
+        return gameName;
+    }
+
+    public int getVersion()
+    {
+        return version;
+    }
+   
     public void send( Message message )
     {
         checkRunning();
