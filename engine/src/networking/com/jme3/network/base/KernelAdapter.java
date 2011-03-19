@@ -93,6 +93,26 @@ public class KernelAdapter extends Thread
         server.connectionClosed(p);
     }
  
+    /**
+     *  Note on threading for those writing their own server 
+     *  or adapter implementations.  The rule that a single connection be 
+     *  processed by only one thread at a time is more about ensuring that
+     *  the messages are delivered in the order that they are received
+     *  than for any user-code safety.  99% of the time the user code should
+     *  be writing for multithreaded access anyway.
+     *
+     *  <p>The issue with the messages is that if a an implementation is
+     *  using a general thread pool then it would be possible for a 
+     *  naive implementation to have one thread grab an Envelope from
+     *  connection 1's and another grab the next Envelope.  Since an Envelope
+     *  may contain several messages, delivering the second thread's messages
+     *  before or during the first's would be really confusing and hard
+     *  to code for in user code.</p>
+     *
+     *  <p>And that's why this note is here.  DefaultServer does a rudimentary
+     *  per-connection locking but it couldn't possibly guard against
+     *  out of order Envelope processing.</p>    
+     */
     protected void dispatch( Endpoint p, Message m )
     {
         // Because this class is the only one with the information
