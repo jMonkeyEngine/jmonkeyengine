@@ -50,9 +50,11 @@ public interface Server
 
     /**
      *  Sends the specified message to all connected clients that match
-     *  the filter.
+     *  the filter.  If no filter is specified then this is the same as
+     *  calling broadcast(message) and the message will be delivered to
+     *  all connections.
      */ 
-    public void broadcast( Object filter, Message message );
+    public void broadcast( Filter<? super HostedConnection> filter, Message message );
 
     /**
      *  Start the server so that it will began accepting new connections

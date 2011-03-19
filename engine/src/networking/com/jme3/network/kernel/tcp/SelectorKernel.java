@@ -45,6 +45,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.jme3.network.Filter;
 import com.jme3.network.kernel.*;
 
 
@@ -111,7 +112,7 @@ public class SelectorKernel extends AbstractKernel
         }
     }
 
-    public void broadcast( Object routing, ByteBuffer data, boolean reliable )
+    public void broadcast( Filter<? super Endpoint> filter, ByteBuffer data, boolean reliable )
     {
         if( !reliable )
             throw new UnsupportedOperationException( "Unreliable send not supported by this kernel." );
@@ -122,7 +123,9 @@ public class SelectorKernel extends AbstractKernel
 
         // Hand it to all of the endpoints that match our routing
         for( NioEndpoint p : endpoints.values() ) {
-            // Does it match the routing information?  FIXME
+            // Does it match the filter?
+            if( !filter.apply(p) )
+                continue;
 
             // Give it the data
             p.send( data, false, false );

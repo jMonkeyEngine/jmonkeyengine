@@ -30,54 +30,22 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.jme3.network.kernel;
+package com.jme3.network;
 
-import java.nio.ByteBuffer;
-import java.util.Collection;
-
-import com.jme3.network.Filter;
 
 /**
- *  Defines the basic byte[] passing messaging
- *  kernel.
+ *  Determines a true or false value for a given input. 
  *
  *  @version   $Revision$
  *  @author    Paul Speed
  */
-public interface Kernel
+public interface Filter<T>
 {
     /**
-     *  Initializes the kernel and starts any internal processing.
+     *  Returns true if the specified input is accepted by this
+     *  filter. 
      */
-    public void initialize();
-    
-    /**
-     *  Gracefully terminates the kernel and stops any internal 
-     *  daemon processing.  This method will not return until all
-     *  internal threads have been shut down.
-     */
-    public void terminate() throws InterruptedException;
-
-    /**
-     *  Dispatches the data to all endpoints managed by the
-     *  kernel that match the specified endpoint filter..  
-     */ 
-    public void broadcast( Filter<? super Endpoint> filter, ByteBuffer data, boolean reliable );
- 
-    /**
-     *  Returns true if there are waiting envelopes.
-     */   
-    public boolean hasEnvelopes();
- 
-    /**
-     *  Removes one envelope from the received messages queue or
-     *  blocks until one is available.
-     */   
-    public Envelope read() throws InterruptedException;
-    
-    /**
-     *  Removes and returnsn one endpoint event from the event queue or
-     *  null if there are no endpoint events.     
-     */
-    public EndpointEvent nextEvent();     
+    public boolean apply( T input ); 
 }
+
+

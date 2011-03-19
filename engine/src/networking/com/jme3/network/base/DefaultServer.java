@@ -143,17 +143,19 @@ public class DefaultServer implements Server
         broadcast( null, message );
     }
 
-    public void broadcast( Object filter, Message message )
+    public void broadcast( Filter<? super HostedConnection> filter, Message message )
     {
         ByteBuffer buffer = MessageProtocol.messageToBuffer(message, null);
-        
+ 
+        FilterAdapter adapter = filter == null ? null : new FilterAdapter(filter);
+               
         // Ignore the filter for the moment
         if( message.isReliable() || fast == null ) {
             if( reliable == null )
                 throw new RuntimeException( "No reliable kernel configured" );
-            reliable.broadcast( filter, buffer, true );
+            reliable.broadcast( adapter, buffer, true );
         } else {
-            fast.broadcast( filter, buffer, false );
+            fast.broadcast( adapter, buffer, false );
         }               
     }
 
@@ -410,4 +412,21 @@ public class DefaultServer implements Server
         }
     }                                          
      
+    protected class FilterAdapter implements Filter<Endpoint>
+    {
+        private Filter<? super HostedConnection> delegate;
+        
+        public FilterAdapter( Filter<? super HostedConnection> delegate )
+        {
+            this.delegate = delegate;
+        }
+        
+        public boolean apply( Endpoint input )
+        {
+            HostedConnection conn = getConnection( input );
+            if( conn == null )
+                return false;
+            return delegate.apply(conn);
+        } 
+    }     
 }

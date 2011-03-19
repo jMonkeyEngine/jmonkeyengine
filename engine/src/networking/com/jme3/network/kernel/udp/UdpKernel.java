@@ -41,6 +41,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.jme3.network.Filter;
 import com.jme3.network.kernel.*;
 
 /**
@@ -113,14 +114,16 @@ public class UdpKernel extends AbstractKernel
      *  Dispatches the data to all endpoints managed by the
      *  kernel.  'routing' is currently ignored.
      */
-    public void broadcast( Object routing, ByteBuffer data, boolean reliable )
+    public void broadcast( Filter<? super Endpoint> filter, ByteBuffer data, boolean reliable )
     {
         if( reliable )
             throw new UnsupportedOperationException( "Reliable send not supported by this kernel." );
 
         // Hand it to all of the endpoints that match our routing
         for( UdpEndpoint p : socketEndpoints.values() ) {
-            // Does it match the routing information?  FIXME
+            // Does it match the filter?
+            if( !filter.apply(p) )
+                continue;
 
             // Send the data
             p.send( data );
