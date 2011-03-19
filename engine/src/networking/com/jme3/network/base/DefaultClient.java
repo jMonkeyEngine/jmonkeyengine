@@ -57,6 +57,8 @@ public class DefaultClient implements Client
     
     private int id = -1;
     private boolean isRunning = false;
+    private String gameName;
+    private int version;
     private Connector reliable;
     private Connector fast;
     private MessageListenerRegistry<Client> messageListeners = new MessageListenerRegistry<Client>();
@@ -65,8 +67,10 @@ public class DefaultClient implements Client
     private ConnectorAdapter reliableAdapter;    
     private ConnectorAdapter fastAdapter;    
     
-    public DefaultClient()
+    public DefaultClient( String gameName, int version )
     {
+        this.gameName = gameName;
+        this.version = version;
     }
     
     public DefaultClient( Connector reliable, Connector fast )

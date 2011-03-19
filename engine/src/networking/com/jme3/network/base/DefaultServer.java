@@ -59,6 +59,8 @@ public class DefaultServer implements Server
     
     private boolean isRunning = false;
     private AtomicInteger nextId = new AtomicInteger(0);
+    private String gameName;
+    private int version;
     private Kernel reliable;
     private KernelAdapter reliableAdapter;
     private Kernel fast;
@@ -76,8 +78,10 @@ public class DefaultServer implements Server
                             = new MessageListenerRegistry<HostedConnection>();                        
     private List<ConnectionListener> connectionListeners = new CopyOnWriteArrayList<ConnectionListener>();
     
-    public DefaultServer( Kernel reliable, Kernel fast )
+    public DefaultServer( String gameName, int version, Kernel reliable, Kernel fast )
     {
+        this.gameName = gameName;
+        this.version = version;
         this.reliable = reliable;
         this.fast = fast;
         
@@ -88,6 +92,16 @@ public class DefaultServer implements Server
             fastAdapter = new KernelAdapter( this, fast, dispatcher );
         }
     }   
+
+    public String getGameName()
+    {
+        return gameName;
+    }
+
+    public int getVersion()
+    {
+        return version;
+    }
 
     public void start()
     {

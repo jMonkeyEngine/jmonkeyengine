@@ -44,6 +44,18 @@ import java.util.Collection;
 public interface Server
 {
     /**
+     *  Returns the 'game name' for this server.  This should match the
+     *  'game name' set on connecting clients or they will be turned away.
+     */
+    public String getGameName();
+ 
+    /**
+     *  Returns the game-specific version of this server used for detecting
+     *  mismatched clients.
+     */   
+    public int getVersion();
+
+    /**
      *  Sends the specified message to all connected clients.
      */ 
     public void broadcast( Message message );

@@ -58,7 +58,7 @@ public class Network
      */
     public static Server createServer( int port ) throws IOException
     {   
-        return createServer( port, port );
+        return createServer( "Unnamed Game", 42, port, port );
     }
 
     /**
@@ -68,12 +68,29 @@ public class Network
      */
     public static Server createServer( int tcpPort, int udpPort ) throws IOException
     {
-        //InetAddress local = InetAddress.getLocalHost();
-        
+        return createServer( "Unnamed Game", 42, tcpPort, udpPort );
+    }
+
+    /**
+     *  Creates a named and versioned Server that will utilize both reliable and fast
+     *  transports to communicate with clients.  The specified port
+     *  will be used for both TCP and UDP communication.
+     *
+     *  @param gameName This is the name that identifies the game.  Connecting clients
+     *                  must use this name or be turned away.
+     *  @param gersion  This is a game-specific verison that helps detect when out-of-date
+     *                  clients have connected to an incompatible server.
+     *  @param tcpPort  The port upon which the TCP hosting will listen for new connections.
+     *  @param udpPort  The port upon which the UDP hosting will listen for new 'fast' UDP 
+     *                  messages.
+     */
+    public static Server createServer( String gameName, int version, int tcpPort, int udpPort ) throws IOException
+    {
         UdpKernel fast = new UdpKernel(udpPort);
+        //UdpKernel fast = new UdpKernel( InetAddress.getByName("localhost"), udpPort);
         SelectorKernel reliable = new SelectorKernel(tcpPort);
  
-        return new DefaultServer( reliable, fast );       
+        return new DefaultServer( gameName, version, reliable, fast );       
     }
     
     /**
@@ -81,7 +98,17 @@ public class Network
      */
     public static NetworkClient createClient()
     {
-        return new NetworkClientImpl();
+        return createClient( "Unnamed Game", 42 );
+    }     
+
+    /**
+     *  Creates a client that can be connected at a later time.  The specified
+     *  game name and version must match the server or the client will be turned
+     *  away.
+     */
+    public static NetworkClient createClient( String gameName, int version )
+    {
+        return new NetworkClientImpl(gameName, version);
     }     
     
     /**
@@ -123,8 +150,7 @@ public class Network
     public static Client connectToServer( InetAddress address, int port, int remoteUdpPort, 
                                           int localUdpPort ) throws IOException
     {
-        InetAddress local = InetAddress.getLocalHost();
-        UdpConnector fast = new UdpConnector( local, localUdpPort, address, port ); 
+        UdpConnector fast = new UdpConnector( localUdpPort, address, port ); 
         SocketConnector reliable = new SocketConnector( address, port );        
        
         return new DefaultClient( reliable, fast );
@@ -132,8 +158,9 @@ public class Network
  
     protected static class NetworkClientImpl extends DefaultClient implements NetworkClient
     {
-        public NetworkClientImpl()
+        public NetworkClientImpl(String gameName, int version)
         {
+            super( gameName, version );
         }
         
         public void connectToServer( String host, int port, int remoteUdpPort, 
@@ -145,8 +172,7 @@ public class Network
         public void connectToServer( InetAddress address, int port, int remoteUdpPort, 
                                      int localUdpPort ) throws IOException
         {
-            InetAddress local = InetAddress.getLocalHost();
-            UdpConnector fast = new UdpConnector( local, localUdpPort, address, port ); 
+            UdpConnector fast = new UdpConnector( localUdpPort, address, port ); 
             SocketConnector reliable = new SocketConnector( address, port );        
             
             setConnectors( reliable, fast );
