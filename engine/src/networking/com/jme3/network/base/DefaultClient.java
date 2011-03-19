@@ -113,6 +113,16 @@ public class DefaultClient implements Client
         // Send our connection message with a generated ID until
         // we get one back from the server.  We'll hash time in
         // millis and time in nanos.
+        // This is used to match the TCP and UDP endpoints up on the
+        // other end since they may take different routes to get there.
+        // Behind NAT, many game clients may be coming over the same
+        // IP address from the server's perspective and they may have
+        // their UDP ports mapped all over the place.
+        //
+        // Since currentTimeMillis() is absolute time and nano time
+        // is roughtly related to system start time, adding these two
+        // together should be plenty unique for our purposes.  It wouldn't
+        // hurt to reconcile with IP on the server side, though.
         long tempId = System.currentTimeMillis() + System.nanoTime();
 
         // Set it true here so we can send some messages.
