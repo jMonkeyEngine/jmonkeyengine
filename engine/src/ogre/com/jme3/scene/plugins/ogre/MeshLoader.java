@@ -38,6 +38,7 @@ import com.jme3.asset.AssetInfo;
 import com.jme3.asset.AssetKey;
 import com.jme3.asset.AssetLoader;
 import com.jme3.asset.AssetManager;
+import com.jme3.asset.AssetNotFoundException;
 import com.jme3.material.Material;
 import com.jme3.material.MaterialList;
 import com.jme3.math.ColorRGBA;
@@ -797,12 +798,17 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
             }
             assetManager = info.getManager();
 
-            OgreMeshKey meshKey = null;
+            OgreMeshKey meshKey = null;       
             if (key instanceof OgreMeshKey){
                 meshKey = (OgreMeshKey) key;
                 materialList = meshKey.getMaterialList();
-            }else{
-                materialList = (MaterialList) assetManager.loadAsset(folderName + meshName + ".material");
+            }else{             
+                try {
+                    materialList = (MaterialList) assetManager.loadAsset(folderName + meshName + ".material");
+                } catch (AssetNotFoundException e) {
+                    logger.log(Level.WARNING, "Cannot locate {0}{1}.material for model {2}{3}.{4}", new Object[]{folderName, meshName, folderName, meshName, ext});
+                }
+                
             }
 
             XMLReader xr = XMLReaderFactory.createXMLReader();
