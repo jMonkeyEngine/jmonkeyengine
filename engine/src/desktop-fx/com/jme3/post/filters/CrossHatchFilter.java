@@ -61,8 +61,8 @@ public class CrossHatchFilter extends Filter {
     private float luminance3 = 0.5f;
     private float luminance4 = 0.3f;
     private float luminance5 = 0.0f;
-    private int lineThickness = 1;
-    private int lineDistance = 4;
+    private float lineThickness = 1.0f;
+    private float lineDistance = 4.0f;
 
     public CrossHatchFilter() {
         super("CrossHatchFilter");
@@ -96,8 +96,8 @@ public class CrossHatchFilter extends Filter {
         material.setFloat("Luminance4", luminance4);
         material.setFloat("Luminance5", luminance5);
 
-        material.setInt("LineThickness", lineThickness);
-        material.setInt("LineDistance", lineDistance);
+        material.setFloat("LineThickness", lineThickness);
+        material.setFloat("LineDistance", lineDistance);
     }
 
     @Override
@@ -191,10 +191,10 @@ public class CrossHatchFilter extends Filter {
     /*
      * Sets the thickness of lines drawn
      */
-    public void setLineThickness(int lineThickness) {
+    public void setLineThickness(float lineThickness) {
         this.lineThickness = lineThickness;
         if (material != null) {
-            material.setInt("LineThickness", lineThickness);
+            material.setFloat("LineThickness", lineThickness);
         }
     }
 
@@ -203,10 +203,10 @@ public class CrossHatchFilter extends Filter {
      * Primary lines are drawn at 2*lineDistance
      * Secondary lines are drawn at lineDistance
      */
-    public void setLineDistance(int lineDistance) {
+    public void setLineDistance(float lineDistance) {
         this.lineDistance = lineDistance;
         if (material != null) {
-            material.setInt("LineDistance", lineDistance);
+            material.setFloat("LineDistance", lineDistance);
         }
     }
 
@@ -248,14 +248,14 @@ public class CrossHatchFilter extends Filter {
     /*
      * Returns the thickness of the lines drawn
      */
-    public int getLineThickness() {
+    public float getLineThickness() {
         return lineThickness;
     }
 
     /*
      * Returns minimum distance between lines
      */
-    public int getLineDistance() {
+    public float getLineDistance() {
         return lineDistance;
     }
 

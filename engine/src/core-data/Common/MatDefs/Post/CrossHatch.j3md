@@ -13,8 +13,8 @@ MaterialDef CrossHatch {
         Float Luminance3;
         Float Luminance4;
         Float Luminance5;
-        Int LineThickness;
-        Int LineDistance;
+        Float LineThickness;
+        Float LineDistance;
     }
  
     Technique {
