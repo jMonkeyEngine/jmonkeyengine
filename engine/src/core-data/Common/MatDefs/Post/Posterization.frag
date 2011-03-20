@@ -9,9 +9,9 @@ void main() {
     vec4 texVal = texture2D(m_Texture, texCoord);
  
     texVal = pow(texVal, vec4(m_Gamma));
-    texVal = texVal * m_NumColors;
+    texVal = texVal * vec4(m_NumColors);
     texVal = floor(texVal);
-    texVal = texVal / m_NumColors;
+    texVal = texVal / vec4(m_NumColors);
     texVal = pow(texVal, vec4(1.0/m_Gamma));
  
     gl_FragColor = mix(texture2D(m_Texture, texCoord), texVal, m_Strength);
