@@ -66,12 +66,18 @@ public class KernelAdapter extends Thread
     private MessageListener messageDispatcher;
     private AtomicBoolean go = new AtomicBoolean(true);
     
-    public KernelAdapter( DefaultServer server, Kernel kernel, MessageListener messageDispatcher )
+    // Marks the messages as reliable or not if they came
+    // through this connector.
+    private boolean reliable;
+    
+    public KernelAdapter( DefaultServer server, Kernel kernel, MessageListener messageDispatcher,
+                          boolean reliable )
     {
         super( String.valueOf(kernel) );
         this.server = server;
         this.kernel = kernel;
         this.messageDispatcher = messageDispatcher;
+        this.reliable = reliable;
         setDaemon(true);
     }
  
@@ -139,6 +145,7 @@ public class KernelAdapter extends Thread
         // Should be complete... and maybe we should check but we don't
         Message m = null;
         while( (m = protocol.getMessage()) != null ) {
+            m.setReliable(reliable);
             dispatch( env.getSource(), m );
         }
     } 

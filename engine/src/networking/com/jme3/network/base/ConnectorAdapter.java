@@ -64,11 +64,16 @@ public class ConnectorAdapter extends Thread
     private MessageListener dispatcher;
     private AtomicBoolean go = new AtomicBoolean(true);
     
-    public ConnectorAdapter( Connector connector, MessageListener dispatcher )
+    // Marks the messages as reliable or not if they came
+    // through this connector.
+    private boolean reliable;
+    
+    public ConnectorAdapter( Connector connector, MessageListener dispatcher, boolean reliable )
     {
         super( String.valueOf(connector) );
-        this.connector = connector;
+        this.connector = connector;        
         this.dispatcher = dispatcher;
+        this.reliable = reliable;
         setDaemon(true);
     }
  
@@ -105,6 +110,7 @@ public class ConnectorAdapter extends Thread
             
             Message m = null;
             while( (m = protocol.getMessage()) != null ) {
+                m.setReliable( reliable );
                 dispatch( m );
             }
         }

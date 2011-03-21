@@ -88,9 +88,9 @@ public class DefaultServer implements Server
         this.reliable = reliable;
         this.fast = fast;
         
-        reliableAdapter = new KernelAdapter( this, reliable, dispatcher );
+        reliableAdapter = new KernelAdapter( this, reliable, dispatcher, true );
         if( fast != null ) {
-            fastAdapter = new KernelAdapter( this, fast, dispatcher );
+            fastAdapter = new KernelAdapter( this, fast, dispatcher, false );
         }
     }   
 

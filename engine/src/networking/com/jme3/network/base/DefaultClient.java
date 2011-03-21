@@ -92,10 +92,10 @@ public class DefaultClient implements Client
         this.reliable = reliable;
         this.fast = fast;
         if( reliable != null ) {
-            reliableAdapter = new ConnectorAdapter(reliable, dispatcher);
+            reliableAdapter = new ConnectorAdapter(reliable, dispatcher, true);
         }
         if( fast != null ) {
-            fastAdapter = new ConnectorAdapter(fast, dispatcher);
+            fastAdapter = new ConnectorAdapter(fast, dispatcher, false);
         }
     }  
 
