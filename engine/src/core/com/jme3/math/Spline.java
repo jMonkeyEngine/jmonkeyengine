@@ -156,6 +156,8 @@ public class Spline implements Savable {
                     totalLength += l;
                 }
             }
+        } else if(type == SplineType.Bezier) { 
+        	this.computeBezierLength();
         } else {
             initCatmullRomWayPoints(controlPoints);
             computeCatmulLength();
@@ -168,6 +170,21 @@ public class Spline implements Savable {
             for (int i = 0; i < controlPoints.size() - 1; i++) {
                 l = FastMath.getCatmullRomP1toP2Length(CRcontrolPoints.get(i),
                         CRcontrolPoints.get(i + 1), CRcontrolPoints.get(i + 2), CRcontrolPoints.get(i + 3), 0, 1, curveTension);
+                segmentsLength.add(l);
+                totalLength += l;
+            }
+        }
+    }
+    
+    /**
+     * This method calculates the Bezier curve length.
+     */
+    private void computeBezierLength() {
+    	float l = 0;
+        if (controlPoints.size() > 1) {
+            for (int i = 0; i < controlPoints.size() - 1; i+=3) {
+                l = FastMath.getBezierP1toP2Length(controlPoints.get(i),
+                		controlPoints.get(i + 1), controlPoints.get(i + 2), controlPoints.get(i + 3), 0, 1);
                 segmentsLength.add(l);
                 totalLength += l;
             }

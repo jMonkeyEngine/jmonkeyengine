@@ -334,6 +334,39 @@ final public class FastMath {
         return l;
     }
 
+    /**
+     * Compute the length on a Bezier spline between control point 1 and 2.
+     * @param p0 control point 0
+     * @param p1 control point 1
+     * @param p2 control point 2
+     * @param p3 control point 3
+     * @param startRange the starting range on the segment (use 0)
+     * @param endRange the end range on the segment (use 1)
+     * @return the length of the segment
+     */
+    public static float getBezierP1toP2Length(Vector3f p0, Vector3f p1, Vector3f p2, Vector3f p3, float startRange, float endRange) {
+        float epsilon = 0.001f;
+        float middleValue = (startRange + endRange) * 0.5f;
+        Vector3f start = p1.clone();
+        if (startRange != 0) {
+        	FastMath.interpolateBezier(startRange, p0, p1, p2, p3, start);
+        }
+        Vector3f end = p2.clone();
+        if (endRange != 1) {
+        	FastMath.interpolateBezier(endRange, p0, p1, p2, p3, end);
+        }
+        Vector3f middle = FastMath.interpolateBezier(middleValue, p0, p1, p2, p3);
+        float l = end.subtract(start).length();
+        float l1 = middle.subtract(start).length();
+        float l2 = end.subtract(middle).length();
+        float len = l1 + l2;
+        if (l + epsilon < len) {
+            l1 = FastMath.getBezierP1toP2Length(p0, p1, p2, p3, startRange, middleValue);
+            l2 = FastMath.getBezierP1toP2Length(p0, p1, p2, p3, middleValue, endRange);
+        }
+        l = l1 + l2;
+        return l;
+    }
 
     /**
      * Returns the arc cosine of an angle given in radians.<br>
