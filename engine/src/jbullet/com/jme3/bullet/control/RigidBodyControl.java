@@ -52,7 +52,7 @@ public class RigidBodyControl extends PhysicsRigidBody implements PhysicsControl
     }
 
     /**
-     * Creates a new PhysicsNode with the supplied collision shape
+     * Creates a new PhysicsNode with the supplied collision shape and mass 1
      * @param child
      * @param shape
      */
@@ -179,7 +179,7 @@ public class RigidBodyControl extends PhysicsRigidBody implements PhysicsControl
 
     /**
      * When set to true, the physics coordinates will be applied to the local
-     * translation of the Spatial
+     * translation of the Spatial instead of the world traslation.
      * @param applyPhysicsLocal
      */
     public void setApplyPhysicsLocal(boolean applyPhysicsLocal) {

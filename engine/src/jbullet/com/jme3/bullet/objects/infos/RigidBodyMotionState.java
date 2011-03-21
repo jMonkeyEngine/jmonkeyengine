@@ -33,15 +33,12 @@ package com.jme3.bullet.objects.infos;
 
 import com.bulletphysics.linearmath.MotionState;
 import com.bulletphysics.linearmath.Transform;
-import com.jme3.bullet.nodes.PhysicsBaseNode;
 import com.jme3.bullet.objects.PhysicsVehicle;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.bullet.util.Converter;
 import com.jme3.math.Matrix3f;
 import com.jme3.scene.Spatial;
-import java.util.Iterator;
-import java.util.LinkedList;
 
 /**
  * stores transform info of a PhysicsNode in a threadsafe manner to
@@ -109,10 +106,7 @@ public class RigidBodyMotionState extends MotionState {
         if (!physicsLocationDirty) {
             return false;
         }
-        if (spatial instanceof PhysicsBaseNode) {
-            ((PhysicsBaseNode) spatial).setWorldRotation(worldRotationQuat);
-            ((PhysicsBaseNode) spatial).setWorldTranslation(worldLocation);
-        } else if (!applyPhysicsLocal && spatial.getParent() != null) {
+        if (!applyPhysicsLocal && spatial.getParent() != null) {
             localLocation.set(worldLocation).subtractLocal(spatial.getParent().getWorldTranslation());
             localLocation.divideLocal(spatial.getParent().getWorldScale());
             tmp_inverseWorldRotation.set(spatial.getParent().getWorldRotation()).inverseLocal().multLocal(localLocation);
