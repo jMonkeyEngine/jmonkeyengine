@@ -247,6 +247,8 @@ public class Converter {
         for (int i = 0; i < indicesLength; i++) {
             jBulletIndexedMesh.triangleIndexBase.putInt(indices.get(i));
         }
+        vertices.rewind();
+        vertices.clear();
 
         return jBulletIndexedMesh;
     }
@@ -267,9 +269,9 @@ public class Converter {
         for (int i = 0; i < mesh.numVertices * 3; i++) {
             vertices.put(i, mesh.vertexBase.getFloat(i * 4));
         }
-        jmeMesh.getFloatBuffer(Type.Position).clear();
         jmeMesh.updateCounts();
         jmeMesh.updateBound();
+        jmeMesh.getFloatBuffer(Type.Position).clear();
 
         return jmeMesh;
     }

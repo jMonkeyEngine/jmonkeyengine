@@ -125,11 +125,13 @@ public class DebugShapeFactory {
         if(shape.getCShape() instanceof ConvexShape){
             mesh=new Mesh();
             mesh.setBuffer(Type.Position, 3, getVertices((ConvexShape)shape.getCShape()));
+            mesh.getFloatBuffer(Type.Position).clear();
         }
         else if(shape.getCShape() instanceof ConcaveShape)
         {
             mesh=new Mesh();
             mesh.setBuffer(Type.Position, 3, getVertices((ConcaveShape)shape.getCShape()));
+            mesh.getFloatBuffer(Type.Position).clear();
         }
         return mesh;
     }

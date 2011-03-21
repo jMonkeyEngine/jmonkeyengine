@@ -129,23 +129,9 @@ public class RigidBodyControl extends PhysicsRigidBody implements PhysicsControl
             }
         }
         if (mass > 0) {
-            Node parent = spatial.getParent();
-            if (parent != null) {
-                spatial.removeFromParent();
-            }
             collisionShape = CollisionShapeFactory.createDynamicMeshShape(spatial);
-            if (parent != null) {
-                parent.attachChild(spatial);
-            }
         } else {
-            Node parent = spatial.getParent();
-            if (parent != null) {
-                spatial.removeFromParent();
-            }
             collisionShape = CollisionShapeFactory.createMeshShape(spatial);
-            if (parent != null) {
-                parent.attachChild(spatial);
-            }
         }
     }
 
