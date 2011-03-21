@@ -42,9 +42,12 @@ import com.jme3.network.serializing.Serializable;
  *  provide objects with common fields to the other side.
  *
  * @author Lars Wesselius
+ * @deprecated Message implementations should extend {@linke com.jme3.network.AbstractMessage} 
+ *             instead or use the {@linke com.jme3.network.Message} for referencing. 
  */
+@Deprecated
 @Serializable()
-public class Message implements com.jme3.network.Message {
+public class Message extends com.jme3.network.AbstractMessage {
     // The connector this message is meant for.
     private transient Client        connector;
     private transient Connection    connection;
