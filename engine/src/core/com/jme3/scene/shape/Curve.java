@@ -181,4 +181,12 @@ public class Curve extends Mesh {
         updateBound();
         updateCounts();
     }
+    
+    /**
+     * This method returns the length of the curve.
+     * @return the length of the curve
+     */
+    public float getLength() {
+    	return spline.getTotalLength();
+    }
 }
