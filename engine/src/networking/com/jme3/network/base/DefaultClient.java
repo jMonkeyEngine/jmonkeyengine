@@ -305,7 +305,12 @@ public class DefaultClient implements Client
             close();               
         }
     
-        messageListeners.messageReceived( this, m );
+        // Make sure client MessageListeners are called single-threaded
+        // since it could receive messages from the TCP and UDP
+        // thread simultaneously.
+        synchronized( this ) {
+            messageListeners.messageReceived( this, m );
+        }
     }
  
     protected class Redispatch implements MessageListener
