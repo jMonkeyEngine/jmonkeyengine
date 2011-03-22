@@ -71,6 +71,30 @@
             <zipfileset dir="${src.networking.dir}" prefix="source"/>
         </zip>
     </target>
+
+    <target name="dist-android" depends="jar" description="builds the jMonkeyEngine3 distribution for android">
+        <path id="android-classpath">
+            <pathelement path="lib/android/android.jar"/>
+            <pathelement path="dist/jMonkeyEngine3.jar"/>
+        </path>
+        <mkdir dir="build/android"/>
+        <javac  target="1.6"
+                encoding="UTF-8"
+                debug="true"
+                deprecation="on"
+                srcdir="src/android"
+                destdir="build/android"
+                classpathref="android-classpath"
+                excludes="**/OGLESRenderer.java,**/TestsActivity.java,**/AboutActivity.java"/>
+        <jar jarfile="dist/jMonkeyEngine3-Android.jar"
+                basedir="build/android"/>
+        <jar jarfile="dist/jMonkeyEngine3-Android.jar"
+                basedir="build/classes"
+		excludes="com/jme3/system/JmeSystem*"
+                update="true"/>
+        <!--<jar jarfile="dist/jmonkeyengine3-android-tests.jar"
+		basedir="build/testclasses"/>-->
+    </target>
     
     <!-- convenience target to transfer jme3 libraries to sdk (jMonkeyPlatform) -->
     <target name="update-sdk" depends="jar, javadoc">
