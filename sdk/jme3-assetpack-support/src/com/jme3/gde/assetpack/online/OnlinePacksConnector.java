@@ -20,7 +20,9 @@ import org.openide.filesystems.FileUtil;
 public class OnlinePacksConnector {
 
     public static void upload(String exsistingFileName, String user, String pass) {
-        upload("http://jmonkeyengine.org/assetpacks/upload.php", exsistingFileName, user, pass);
+        if (test("http://jmonkeyengine.org/assetpacks/test.php", user, pass)) {
+            upload("http://jmonkeyengine.org/assetpacks/upload.php", exsistingFileName, user, pass);
+        }
     }
 
     public static void upload(String urlString, String exsistingFileName, String user, String pass) {
@@ -57,7 +59,7 @@ public class OnlinePacksConnector {
                             NotifyDescriptor.OK_CANCEL_OPTION,
                             NotifyDescriptor.ERROR_MESSAGE);
                     DialogDisplayer.getDefault().notifyLater(msg);
-                }else{
+                } else {
                     Confirmation msg = new NotifyDescriptor.Confirmation(
                             "Successfully uploaded to jmonkeyengine.org!\n" + line,
                             NotifyDescriptor.OK_CANCEL_OPTION,
@@ -71,5 +73,48 @@ public class OnlinePacksConnector {
             Logger.getLogger(OnlinePacksConnector.class.getName()).log(Level.SEVERE, null, ex);
         } finally {
         }
+    }
+
+    private static boolean test(String urlString, String user, String pass) {
+        try {
+            URL url = new URL(urlString);
+            String boundary = MultiPartFormOutputStream.createBoundary();
+            URLConnection urlConn = MultiPartFormOutputStream.createConnection(url);
+            urlConn.setRequestProperty("Accept", "*/*");
+            urlConn.setRequestProperty("Content-Type", MultiPartFormOutputStream.getContentType(boundary));
+            urlConn.setRequestProperty("Connection", "Keep-Alive");
+            urlConn.setRequestProperty("Cache-Control", "no-cache");
+            MultiPartFormOutputStream out = new MultiPartFormOutputStream(urlConn.getOutputStream(), boundary);
+            // write a text field element
+            out.writeField("user", user);
+            out.writeField("pass", pass);
+            out.close();
+            // read response from server
+            BufferedReader in = new BufferedReader(new InputStreamReader(urlConn.getInputStream()));
+            String line = "";
+            boolean success = false;
+            while ((line = in.readLine()) != null) {
+                if (line.startsWith("Success")) {
+                    success = true;
+                } else {
+                    Confirmation msg = new NotifyDescriptor.Confirmation(
+                            "Error connecting to jmonkeyengine.org,\nwrong user name or password!\nPlease configure in application settings.",
+                            NotifyDescriptor.OK_CANCEL_OPTION,
+                            NotifyDescriptor.ERROR_MESSAGE);
+                    DialogDisplayer.getDefault().notifyLater(msg);
+                }
+            }
+            in.close();
+            return success;
+        } catch (Exception ex) {
+            Confirmation msg = new NotifyDescriptor.Confirmation(
+                    "Error connecting to jmonkeyengine.org!\n" + ex.getMessage(),
+                    NotifyDescriptor.OK_CANCEL_OPTION,
+                    NotifyDescriptor.ERROR_MESSAGE);
+            DialogDisplayer.getDefault().notifyLater(msg);
+            Logger.getLogger(OnlinePacksConnector.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+        }
+        return false;
     }
 }
