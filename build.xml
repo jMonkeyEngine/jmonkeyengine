@@ -66,6 +66,7 @@
 
     <target name="-update-sdk-platform-config">
         <property name="nbplatform.dir" location="netbeans"/>
+        <mkdir dir="sdk/nbproject/private"/>
         <echo file="sdk/nbproject/private/platform-private.properties"
               message="nbplatform.default.netbeans.dest.dir=${nbplatform.dir}&#xa;"/>
         <echo file="sdk/nbproject/private/platform-private.properties"
