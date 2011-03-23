@@ -25,7 +25,7 @@
         <ant dir="sdk" target="clean"/>
     </target>
 
-    <target name="run" description="Runs the SDK">
+    <target name="run" description="Runs the SDK" depends="build">
         <ant dir="sdk" target="run"/>
     </target>
 
@@ -68,7 +68,7 @@
         <property name="nbplatform.dir" location="netbeans"/>
         <mkdir dir="sdk/nbproject/private"/>
         <echo file="sdk/nbproject/private/platform-private.properties"
-              message="nbplatform.default.netbeans.dest.dir=${nbplatform.dir}&#xa;"/>
+              message="nbplatform.default.netbeans.dest.dir=${nbplatform.dir}&#xA;&#xD;"/>
         <echo file="sdk/nbproject/private/platform-private.properties"
               message="nbplatform.default.harness.dir=${nbplatform.dir}/harness" append="true"/>
     </target>
