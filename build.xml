@@ -68,7 +68,7 @@
         <property name="nbplatform.dir" location="netbeans"/>
         <mkdir dir="sdk/nbproject/private"/>
         <echo file="sdk/nbproject/private/platform-private.properties"
-              message="nbplatform.default.netbeans.dest.dir=${nbplatform.dir}&#xA;&#xD;"/>
+              message="nbplatform.default.netbeans.dest.dir=${nbplatform.dir}&#xD;&#xA;"/>
         <echo file="sdk/nbproject/private/platform-private.properties"
               message="nbplatform.default.harness.dir=${nbplatform.dir}/harness" append="true"/>
     </target>
