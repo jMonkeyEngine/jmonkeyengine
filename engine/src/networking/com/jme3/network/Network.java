@@ -149,7 +149,7 @@ public class Network
     public static Client connectToServer( String gameName, int version, 
                                           String host, int hostPort, int localUdpPort ) throws IOException
     {
-        return connectToServer( host, hostPort, hostPort, localUdpPort );   
+        return connectToServer( gameName, version, host, hostPort, hostPort, localUdpPort );   
     }
 
     /**
