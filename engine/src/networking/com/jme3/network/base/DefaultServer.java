@@ -160,9 +160,11 @@ public class DefaultServer implements Server
                
         // Ignore the filter for the moment
         if( message.isReliable() || fast == null ) {
-            reliable.broadcast( adapter, buffer, true );
+            // Don't need to copy the data because message protocol is already
+            // giving us a fresh buffer
+            reliable.broadcast( adapter, buffer, true, false );
         } else {
-            fast.broadcast( adapter, buffer, false );
+            fast.broadcast( adapter, buffer, false, false );
         }               
     }
 

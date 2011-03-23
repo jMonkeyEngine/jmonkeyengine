@@ -114,10 +114,14 @@ public class UdpKernel extends AbstractKernel
      *  Dispatches the data to all endpoints managed by the
      *  kernel.  'routing' is currently ignored.
      */
-    public void broadcast( Filter<? super Endpoint> filter, ByteBuffer data, boolean reliable )
+    public void broadcast( Filter<? super Endpoint> filter, ByteBuffer data, boolean reliable,
+                           boolean copy )
     {
         if( reliable )
             throw new UnsupportedOperationException( "Reliable send not supported by this kernel." );
+
+        // We ignore the copy flag because we know all outbound traffic
+        // goes instantly.
 
         // Hand it to all of the endpoints that match our routing
         for( UdpEndpoint p : socketEndpoints.values() ) {
