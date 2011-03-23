@@ -96,7 +96,7 @@ public class TestChatServer
                 // a good example of session data
                 source.setAttribute( "name", ((ChatMessage)m).getName() );
  
-                System.out.println( "Broadcasting:" + m );
+                System.out.println( "Broadcasting:" + m + "  reliable:" + m.isReliable() );
                                    
                 // Just rebroadcast... the reliable flag will stay the
                 // same so if it came in on UDP it will go out on that too

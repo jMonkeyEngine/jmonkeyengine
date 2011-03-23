@@ -98,7 +98,7 @@ public class TestChatClient extends JFrame
         getContentPane().add( p, "South" );
         
         client = Network.connectToServer( TestChatServer.NAME, TestChatServer.VERSION,
-                                          host, TestChatServer.PORT, TestChatServer.PORT + 1 );                                          
+                                          host, TestChatServer.PORT );                                          
         client.addMessageListener( new ChatHandler(), ChatMessage.class );                                             
         client.start();                                                                               
     }

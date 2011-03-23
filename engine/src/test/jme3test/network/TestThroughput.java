@@ -50,7 +50,7 @@ public class TestThroughput implements MessageListener<MessageConnection> { //ex
     private static Client client;
 
     // Change this flag to test UDP instead of TCP
-    private static boolean testReliable = true;
+    private static boolean testReliable = false;
     
     private boolean isOnServer;
 
@@ -94,10 +94,12 @@ public class TestThroughput implements MessageListener<MessageConnection> { //ex
     
         Serializer.registerClass(TestMessage.class);
 
-        Server server = Network.createServer( 5110 );
+        // Use this to test the client/server name version check
+        //Server server = Network.createServer( "bad name", 42, 5110, 5110 );
+        Server server = Network.createServer( 5110, 5110 );
         server.start();
 
-        Client client = Network.connectToServer( "localhost", 5110, 5000 );
+        Client client = Network.connectToServer( "localhost", 5110 );
         client.start();
 
         client.addMessageListener(new TestThroughput(false), TestMessage.class);
