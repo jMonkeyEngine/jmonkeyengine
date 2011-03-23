@@ -58,9 +58,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
@@ -110,7 +107,6 @@ public class SceneApplication extends Application implements LookupProvider, Loo
     private ApplicationLogHandler logHandler = new ApplicationLogHandler();
     private WireProcessor wireProcessor;
     private ProgressHandle progressHandle = ProgressHandleFactory.createHandle("Opening SceneViewer..");
-    private boolean sceneActive = true;
     private String lastError = "";
     private boolean started = false;
 
@@ -246,42 +242,6 @@ public class SceneApplication extends Application implements LookupProvider, Loo
         }
     }
 
-    @Override
-    public <V> Future<V> enqueue(Callable<V> callable) {
-        if (sceneActive) {
-            return super.enqueue(callable);
-        } else {
-            try {
-                final V value = callable.call();
-                return new Future<V>() {
-
-                    public boolean cancel(boolean mayInterruptIfRunning) {
-                        return true;
-                    }
-
-                    public boolean isCancelled() {
-                        return false;
-                    }
-
-                    public boolean isDone() {
-                        return true;
-                    }
-
-                    public V get() throws InterruptedException, ExecutionException {
-                        return value;
-                    }
-
-                    public V get(long timeout, TimeUnit unit) {
-                        return value;
-                    }
-                };
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return null;
-        }
-    }
-
     //TODO: Lookup for Application
     public Lookup createAdditionalLookup(Lookup baseContext) {
         return Lookups.fixed(getApplication());
@@ -359,7 +319,7 @@ public class SceneApplication extends Application implements LookupProvider, Loo
                 }
                 currentSceneRequest = request;
                 if (request.getDataObject() != null) {
-                    setSelectedNode(request.getDataObject().getNodeDelegate());
+                    setCurrentFileNode(request.getDataObject().getNodeDelegate());
                 }
                 setHelpContext(request.getHelpCtx());
                 getCurrentSceneRequest().setDisplayed(true);
@@ -393,6 +353,7 @@ public class SceneApplication extends Application implements LookupProvider, Loo
                             camController.disable();
                         }
                         currentSceneRequest = null;
+                        setCurrentFileNode(null);
                         setWindowTitle("SceneViewer");
                     }
                 }
@@ -416,7 +377,6 @@ public class SceneApplication extends Application implements LookupProvider, Loo
         }
         toolsNode.detachAllChildren();
         rootNode.detachAllChildren();
-        setSelectedNode(null);
         setHelpContext(null);
         resetCam();
         currentSceneRequest = null;
@@ -443,12 +403,11 @@ public class SceneApplication extends Application implements LookupProvider, Loo
 
             public void run() {
                 SceneViewerTopComponent.findInstance().setDisplayName(string);
-                SceneViewerTopComponent.findInstance().requestActive();
             }
         });
     }
 
-    public void setSelectedNode(final org.openide.nodes.Node node) {
+    public void setCurrentFileNode(final org.openide.nodes.Node node) {
         java.awt.EventQueue.invokeLater(new Runnable() {
 
             public void run() {
@@ -456,6 +415,8 @@ public class SceneApplication extends Application implements LookupProvider, Loo
                     SceneViewerTopComponent.findInstance().setActivatedNodes(new org.openide.nodes.Node[]{});
                 } else {
                     SceneViewerTopComponent.findInstance().setActivatedNodes(new org.openide.nodes.Node[]{node});
+                    SceneViewerTopComponent.findInstance().open();
+                    SceneViewerTopComponent.findInstance().requestActive();
                 }
             }
         });
@@ -522,20 +483,6 @@ public class SceneApplication extends Application implements LookupProvider, Loo
      */
     public SceneRequest getCurrentSceneRequest() {
         return currentSceneRequest;
-    }
-
-    /**
-     * @return the sceneActive
-     */
-    public boolean isSceneActive() {
-        return sceneActive;
-    }
-
-    /**
-     * @param sceneActive the sceneActive to set
-     */
-    public void setSceneActive(boolean sceneActive) {
-        this.sceneActive = sceneActive;
     }
 
     @Override

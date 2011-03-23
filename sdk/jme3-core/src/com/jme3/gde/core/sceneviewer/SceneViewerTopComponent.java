@@ -43,7 +43,6 @@ import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.NotifyDescriptor.Message;
 import org.openide.awt.UndoRedo;
-import org.openide.util.Exceptions;
 import org.openide.util.HelpCtx;
 import org.openide.util.Lookup;
 import org.openide.util.lookup.InstanceContent;
@@ -73,8 +72,15 @@ public final class SceneViewerTopComponent extends TopComponent {
         setIcon(ImageUtilities.loadImage(ICON_PATH, true));
 //        lookup = new AbstractLookup(lookupContents);
 //        associateLookup(lookup);
-        putClientProperty(TopComponent.PROP_CLOSING_DISABLED, Boolean.TRUE);
-        app = SceneApplication.getApplication();
+//        putClientProperty(TopComponent.PROP_CLOSING_DISABLED, Boolean.TRUE);
+        try {
+            app = SceneApplication.getApplication();
+            oGLPanel.add(((JmeCanvasContext) app.getContext()).getCanvas());
+        } catch (Exception e) {
+            showOpenGLError(e.toString());
+        } catch (Error err) {
+            showOpenGLError(err.toString());
+        }
     }
 
     /** This method is called from within the constructor to
@@ -228,7 +234,6 @@ public final class SceneViewerTopComponent extends TopComponent {
         super.componentOpened();
         try {
             oGLPanel.add(((JmeCanvasContext) app.getContext()).getCanvas());
-            app.setSceneActive(true);
         } catch (Exception e) {
             showOpenGLError(e.toString());
         } catch (Error err) {
@@ -249,8 +254,7 @@ public final class SceneViewerTopComponent extends TopComponent {
     @Override
     public void componentClosed() {
         super.componentClosed();
-        app.setSceneActive(false);
-        oGLPanel.removeAll();
+//        oGLPanel.removeAll();
     }
 
     void writeProperties(java.util.Properties p) {

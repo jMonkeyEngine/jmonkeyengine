@@ -749,7 +749,7 @@ public final class SceneComposerTopComponent extends TopComponent implements Sce
             setSelectedObjectText(null);
             setSelectionData(false);
         }
-        SceneApplication.getApplication().setSelectedNode(spatial);
+        SceneApplication.getApplication().setCurrentFileNode(spatial);
         setActivatedNodes(new org.openide.nodes.Node[]{spatial});
     }
 

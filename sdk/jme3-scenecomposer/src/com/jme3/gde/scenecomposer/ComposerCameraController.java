@@ -75,9 +75,9 @@ public class ComposerCameraController extends AbstractCameraController {
 
                 public void run() {
                     if (result != null && result.getGeometry() != null) {
-                        SceneApplication.getApplication().setSelectedNode(jmeRootNode.getChild(result.getGeometry()));
+                        SceneApplication.getApplication().setCurrentFileNode(jmeRootNode.getChild(result.getGeometry()));
                     } else {
-                        SceneApplication.getApplication().setSelectedNode(jmeRootNode);
+                        SceneApplication.getApplication().setCurrentFileNode(jmeRootNode);
                     }
                 }
             });
