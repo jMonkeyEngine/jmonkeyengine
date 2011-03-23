@@ -36,6 +36,7 @@ import com.jme3.input.event.MouseButtonEvent;
 import com.jme3.input.event.MouseMotionEvent;
 import com.jme3.input.MouseInput;
 import com.jme3.input.RawInputListener;
+import com.jme3.system.lwjgl.LwjglAbstractDisplay;
 import com.jme3.system.lwjgl.LwjglTimer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -48,6 +49,8 @@ public class LwjglMouseInput implements MouseInput {
 
     private static final Logger logger = Logger.getLogger(LwjglMouseInput.class.getName());
 
+    private LwjglAbstractDisplay context;
+
     private RawInputListener listener;
 
     private boolean supportHardwareCursor = false;
@@ -55,11 +58,21 @@ public class LwjglMouseInput implements MouseInput {
 
     private int curX, curY, curWheel;
 
+    public LwjglMouseInput(LwjglAbstractDisplay context){
+        this.context = context;
+    }
+
     public void initialize() {
+        if (!context.isRenderable())
+            return;
+
         try {
             Mouse.create();
             logger.info("Mouse created.");
             supportHardwareCursor = (Cursor.getCapabilities() & Cursor.CURSOR_ONE_BIT_TRANSPARENCY) != 0;
+            
+            // Recall state that was set before initialization
+            Mouse.setGrabbed(!cursorVisible);
         } catch (LWJGLException ex) {
             logger.log(Level.SEVERE, "Error while creating mouse", ex);
         }
@@ -74,6 +87,9 @@ public class LwjglMouseInput implements MouseInput {
     }
 
     public void update() {
+        if (!context.isRenderable())
+            return;
+
         while (Mouse.next()){
             int btn = Mouse.getEventButton();
 
@@ -109,13 +125,19 @@ public class LwjglMouseInput implements MouseInput {
     }
 
     public void destroy() {
+        if (!context.isRenderable())
+            return;
+
         Mouse.destroy();
         logger.info("Mouse destroyed.");
     }
 
     public void setCursorVisible(boolean visible){
-        Mouse.setGrabbed(!visible);
         cursorVisible = visible;
+        if (!context.isRenderable())
+            return;
+        
+        Mouse.setGrabbed(!visible);
     }
 
     public void setInputListener(RawInputListener listener) {

@@ -218,4 +218,9 @@ public class NullContext implements JmeContext, Runnable {
         return timer;
     }
 
+    public boolean isRenderable() {
+        return true; // Doesn't really matter if true or false. Either way
+                     // RenderManager won't render anything. 
+    }
+
 }

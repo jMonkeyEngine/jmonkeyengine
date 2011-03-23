@@ -47,16 +47,13 @@ import java.util.logging.Logger;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.Sys;
 import org.lwjgl.opengl.Display;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL20;
-import org.lwjgl.opengl.GLContext;
 import org.lwjgl.opengl.OpenGLException;
 import org.lwjgl.opengl.Util;
 
-
 public abstract class LwjglAbstractDisplay extends LwjglContext implements Runnable {
 
-    private static final Logger logger = Logger.getLogger(LwjglDisplay.class.getName());
+    private static final Logger logger = Logger.getLogger(LwjglAbstractDisplay.class.getName());
+    
     protected AtomicBoolean needClose = new AtomicBoolean(false);
     protected boolean wasActive = false;
     protected int frameRate = 0;
@@ -84,6 +81,8 @@ public abstract class LwjglAbstractDisplay extends LwjglContext implements Runna
      */
     protected abstract void createContext(AppSettings settings) throws LWJGLException;
 
+    
+
     /**
      * Does LWJGL display initialization in the OpenGL thread
      */
@@ -97,42 +96,22 @@ public abstract class LwjglAbstractDisplay extends LwjglContext implements Runna
                 });
             }
 
+            // For canvas, this wont happen until its initialized.
             createContext(settings);
-//            String rendererStr = settings.getString("Renderer");
+            if (renderable.get()) // assumes createContext will set this flag
+                printContextInitInfo();
 
-            logger.info("Display created.");
-            logger.log(Level.FINE, "Running on thread: {0}", Thread.currentThread().getName());
-
-            logger.log(Level.INFO, "Adapter: {0}", Display.getAdapter());
-            logger.log(Level.INFO, "Driver Version: {0}", Display.getVersion());
-
-            String vendor = GL11.glGetString(GL11.GL_VENDOR);
-            logger.log(Level.INFO, "Vendor: {0}", vendor);
-
-            String version = GL11.glGetString(GL11.GL_VERSION);
-            logger.log(Level.INFO, "OpenGL Version: {0}", version);
-
-            String renderer = GL11.glGetString(GL11.GL_RENDERER);
-            logger.log(Level.INFO, "Renderer: {0}", renderer);
-
-            if (GLContext.getCapabilities().OpenGL20){
-                String shadingLang = GL11.glGetString(GL20.GL_SHADING_LANGUAGE_VERSION);
-                logger.log(Level.INFO, "GLSL Ver: {0}", shadingLang);
-            }
-            
             created.set(true);
         } catch (Exception ex){
-            listener.handleError("Failed to create display", ex);
-        } finally {
-            // TODO: It is possible to avoid "Failed to find pixel format"
-            // error here by creating a default display.
-
-            if (!created.get()){
+            try {
                 if (Display.isCreated())
                     Display.destroy();
-
-                return; // if we failed to create display, do not continue
+            } catch (Exception ex2){
+                logger.log(Level.WARNING, null, ex2);
             }
+
+            listener.handleError("Failed to create display", ex);
+            return; // if we failed to create display, do not continue
         }
         super.internalCreate();
         listener.initialize();
@@ -156,26 +135,29 @@ public abstract class LwjglAbstractDisplay extends LwjglContext implements Runna
             throw new IllegalStateException();
 
         listener.update();
-        assert checkGLError();
 
-        // calls swap buffers, etc.
-        try {
-            if (autoFlush){
-                Display.update();
-            }else{
-                Display.processMessages();
-                Thread.sleep(50);
-                // add a small wait
-                // to reduce CPU usage
+        if (renderable.get()){
+            assert checkGLError();
+
+            // calls swap buffers, etc.
+            try {
+                if (autoFlush){
+                    Display.update();
+                }else{
+                    Display.processMessages();
+                    Thread.sleep(50);
+                    // add a small wait
+                    // to reduce CPU usage
+                }
+            } catch (Throwable ex){
+                listener.handleError("Error while swapping buffers", ex);
             }
-        } catch (Throwable ex){
-            listener.handleError("Error while swapping buffers", ex);
         }
 
         if (frameRate > 0)
             Display.sync(frameRate);
 
-        if (autoFlush)
+        if (renderable.get() && autoFlush)
             renderer.onFrame();
     }
 
@@ -205,16 +187,18 @@ public abstract class LwjglAbstractDisplay extends LwjglContext implements Runna
         logger.log(Level.INFO, "Using LWJGL {0}", Sys.getVersion());
         initInThread();
         while (true){
-            if (Display.isCloseRequested())
-                listener.requestClose(false);
+            if (renderable.get()){
+                if (Display.isCloseRequested())
+                    listener.requestClose(false);
 
-            if (wasActive != Display.isActive()){
-                if (!wasActive){
-                    listener.gainFocus();
-                    wasActive = true;
-                }else{
-                    listener.loseFocus();
-                    wasActive = false;
+                if (wasActive != Display.isActive()) {
+                    if (!wasActive) {
+                        listener.gainFocus();
+                        wasActive = true;
+                    } else {
+                        listener.loseFocus();
+                        wasActive = false;
+                    }
                 }
             }
 
@@ -227,15 +211,24 @@ public abstract class LwjglAbstractDisplay extends LwjglContext implements Runna
     }
 
     public JoyInput getJoyInput() {
-        return new JInputJoyInput();
+        if (joyInput == null){
+            joyInput = new JInputJoyInput();
+        }
+        return joyInput;
     }
 
     public MouseInput getMouseInput() {
-        return new LwjglMouseInput();
+        if (mouseInput == null){
+            mouseInput = new LwjglMouseInput(this);
+        }
+        return mouseInput;
     }
 
     public KeyInput getKeyInput() {
-        return new LwjglKeyInput();
+        if (keyInput == null){
+            keyInput = new LwjglKeyInput(this);
+        }
+        return keyInput;
     }
 
     public void setAutoFlushFrames(boolean enabled){

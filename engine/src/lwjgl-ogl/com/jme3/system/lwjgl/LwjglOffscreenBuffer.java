@@ -42,14 +42,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.Sys;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL20;
-import org.lwjgl.opengl.GLContext;
 import org.lwjgl.opengl.OpenGLException;
 import org.lwjgl.opengl.Pbuffer;
 import org.lwjgl.opengl.PixelFormat;
 import org.lwjgl.opengl.Util;
-
 
 public class LwjglOffscreenBuffer extends LwjglContext implements Runnable {
 
@@ -74,6 +70,12 @@ public class LwjglOffscreenBuffer extends LwjglContext implements Runnable {
         width = settings.getWidth();
         height = settings.getHeight();
         try{
+            Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+                public void uncaughtException(Thread thread, Throwable thrown) {
+                    listener.handleError("Uncaught exception thrown in "+thread.toString(), thrown);
+                }
+            });
+
             //String rendererStr = settings.getString("Renderer");
 //            if (rendererStr.startsWith("LWJGL-OpenGL3")){
 //                ContextAttribs attribs;
@@ -86,35 +88,15 @@ public class LwjglOffscreenBuffer extends LwjglContext implements Runnable {
 //                attribs.withDebug(false);
 //                Display.create(pf, attribs);
 //            }else{
-              pbuffer = new Pbuffer(width, height, pixelFormat, null);
+            pbuffer = new Pbuffer(width, height, pixelFormat, null, null, createContextAttribs());
 //            }
 
             pbuffer.makeCurrent();
 
+            renderable.set(true);
+
             logger.info("Offscreen buffer created.");
-            logger.log(Level.FINE, "Running on thread: {0}", Thread.currentThread().getName());
-
-            Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
-                public void uncaughtException(Thread thread, Throwable thrown) {
-                    listener.handleError("Uncaught exception thrown in "+thread.toString(), thrown);
-                }
-            });
-
-            String vendor = GL11.glGetString(GL11.GL_VENDOR);
-            logger.log(Level.INFO, "Vendor: {0}", vendor);
-
-            String version = GL11.glGetString(GL11.GL_VERSION);
-            logger.log(Level.INFO, "OpenGL Version: {0}", version);
-
-            String renderer = GL11.glGetString(GL11.GL_RENDERER);
-            logger.log(Level.INFO, "Renderer: {0}", renderer);
-
-            if (GLContext.getCapabilities().OpenGL20){
-                String shadingLang = GL11.glGetString(GL20.GL_SHADING_LANGUAGE_VERSION);
-                logger.log(Level.INFO, "GLSL Ver: {0}", shadingLang);
-            }
-
-            created.set(true);
+            printContextInitInfo();
         } catch (LWJGLException ex){
             listener.handleError("Failed to create display", ex);
         } finally {

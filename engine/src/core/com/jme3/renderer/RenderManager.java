@@ -108,7 +108,6 @@ public class RenderManager {
     public RenderManager(Renderer renderer) {
         this.renderer = renderer;
         this.shader = renderer.getCaps().contains(Caps.GLSL100);
-
     }
 
     public ViewPort getPreView(String viewName) {

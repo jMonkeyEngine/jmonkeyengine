@@ -35,6 +35,7 @@ package com.jme3.input.lwjgl;
 import com.jme3.input.KeyInput;
 import com.jme3.input.event.KeyInputEvent;
 import com.jme3.input.RawInputListener;
+import com.jme3.system.lwjgl.LwjglAbstractDisplay;
 import com.jme3.system.lwjgl.LwjglTimer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -46,9 +47,18 @@ public class LwjglKeyInput implements KeyInput {
 
     private static final Logger logger = Logger.getLogger(LwjglKeyInput.class.getName());
 
+    private LwjglAbstractDisplay context;
+
     private RawInputListener listener;
 
+    public LwjglKeyInput(LwjglAbstractDisplay context){
+        this.context = context;
+    }
+
     public void initialize() {
+        if (!context.isRenderable())
+            return;
+        
         try {
             Keyboard.create();
             Keyboard.enableRepeatEvents(true);
@@ -58,15 +68,14 @@ public class LwjglKeyInput implements KeyInput {
         }
     }
 
-    public boolean isKeyDown(int key){
-        return Keyboard.isKeyDown(key);
-    }
-
     public int getKeyCount(){
         return Keyboard.KEYBOARD_SIZE;
     }
 
     public void update() {
+        if (!context.isRenderable())
+            return;
+        
         Keyboard.poll();
         while (Keyboard.next()){
             int keyCode = Keyboard.getEventKey();
@@ -81,6 +90,9 @@ public class LwjglKeyInput implements KeyInput {
     }
 
     public void destroy() {
+        if (!context.isRenderable())
+            return;
+        
         Keyboard.destroy();
         logger.info("Keyboard destroyed.");
     }

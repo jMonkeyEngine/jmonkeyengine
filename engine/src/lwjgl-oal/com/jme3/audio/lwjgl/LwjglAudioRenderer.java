@@ -154,7 +154,9 @@ public class LwjglAudioRenderer implements AudioRenderer, Runnable {
 
     public void initInThread(){
         try{
-            AL.create();
+            if (!AL.isCreated()){
+                AL.create();
+            }
         }catch (OpenALException ex){
             logger.log(Level.SEVERE, "Failed to load audio library", ex);
             audioDisabled = true;

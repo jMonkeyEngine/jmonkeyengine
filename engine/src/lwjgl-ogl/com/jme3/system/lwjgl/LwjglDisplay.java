@@ -47,6 +47,7 @@ import java.util.logging.Logger;
 import org.lwjgl.opengl.ARBMultisample;
 import org.lwjgl.opengl.ContextAttribs;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GLContext;
 import org.lwjgl.opengl.PixelFormat;
 
 public class LwjglDisplay extends LwjglAbstractDisplay {
@@ -118,64 +119,20 @@ public class LwjglDisplay extends LwjglAbstractDisplay {
         Display.setVSyncEnabled(settings.isVSync());
 
         if (!created.get() || pixelFormatChanged){
-            if (settings.getBoolean("GraphicsDebug") || settings.getRenderer().equals(AppSettings.LWJGL_OPENGL3)){
-                ContextAttribs attr;
-                if (settings.getRenderer().equals(AppSettings.LWJGL_OPENGL3)){
-                    attr = new ContextAttribs(3, 3);
-                    attr = attr.withProfileCore(true).withForwardCompatible(true).withProfileCompatibility(false);
-                }else{
-                    attr = new ContextAttribs();
-                }
-                if (settings.getBoolean("GraphicsDebug")){
-                    attr = attr.withDebug(true);
-                }
+            ContextAttribs attr = createContextAttribs();
+            if (attr != null){
                 Display.create(pixelFormat, attr);
             }else{
                 Display.create(pixelFormat);
             }
+            renderable.set(true);
             
-            if (pixelFormatChanged && pixelFormat.getSamples() > 1){
+            if (pixelFormatChanged && pixelFormat.getSamples() > 1
+             && GLContext.getCapabilities().GL_ARB_multisample){
                 GL11.glEnable(ARBMultisample.GL_MULTISAMPLE_ARB);
             }
         }
     }
-
-    private ByteBuffer[] imagesToByteBuffers(BufferedImage[] images) {
-        ByteBuffer[] out = new ByteBuffer[images.length];
-        for (int i = 0; i < images.length; i++) {
-            out[i] = imageToByteBuffer(images[i]);
-        }
-        return out;
-    }
-
-    private ByteBuffer imageToByteBuffer(BufferedImage image) {
-        if (image.getType() != BufferedImage.TYPE_INT_ARGB_PRE) {
-            BufferedImage convertedImage = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_ARGB_PRE);
-            Graphics2D g = convertedImage.createGraphics();
-            double width = image.getWidth() * (double) 1;
-            double height = image.getHeight() * (double) 1;
-            g.drawImage(image, (int) ((convertedImage.getWidth() - width) / 2),
-                    (int) ((convertedImage.getHeight() - height) / 2),
-                    (int) (width), (int) (height), null);
-            g.dispose();
-            image = convertedImage;
-        }
-
-        byte[] imageBuffer = new byte[image.getWidth() * image.getHeight() * 4];
-        int counter = 0;
-        for (int i = 0; i < image.getHeight(); i++) {
-            for (int j = 0; j < image.getWidth(); j++) {
-                int colorSpace = image.getRGB(j, i);
-                imageBuffer[counter + 0] = (byte) ((colorSpace << 8)  >> 24);
-                imageBuffer[counter + 1] = (byte) ((colorSpace << 16) >> 24);
-                imageBuffer[counter + 2] = (byte) ((colorSpace << 24) >> 24);
-                imageBuffer[counter + 3] = (byte) (colorSpace >> 24);
-                counter += 4;
-            }
-        }
-        return ByteBuffer.wrap(imageBuffer);
-  }
-
 
     public void create(boolean waitFor){
         if (created.get()){
@@ -190,6 +147,7 @@ public class LwjglDisplay extends LwjglAbstractDisplay {
 
     @Override
     public void runLoop(){
+        // This method is overriden to do restart
         if (needRestart.getAndSet(false)){
             try{
                 createContext(settings);
@@ -219,6 +177,42 @@ public class LwjglDisplay extends LwjglAbstractDisplay {
     public void setTitle(String title){
         if (created.get())
             Display.setTitle(title);
+    }
+    
+    private ByteBuffer[] imagesToByteBuffers(BufferedImage[] images) {
+        ByteBuffer[] out = new ByteBuffer[images.length];
+        for (int i = 0; i < images.length; i++) {
+            out[i] = imageToByteBuffer(images[i]);
+        }
+        return out;
+    }
+
+    private ByteBuffer imageToByteBuffer(BufferedImage image) {
+        if (image.getType() != BufferedImage.TYPE_INT_ARGB_PRE) {
+            BufferedImage convertedImage = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_ARGB_PRE);
+            Graphics2D g = convertedImage.createGraphics();
+            double width = image.getWidth() * (double) 1;
+            double height = image.getHeight() * (double) 1;
+            g.drawImage(image, (int) ((convertedImage.getWidth() - width) / 2),
+                    (int) ((convertedImage.getHeight() - height) / 2),
+                    (int) (width), (int) (height), null);
+            g.dispose();
+            image = convertedImage;
+        }
+
+        byte[] imageBuffer = new byte[image.getWidth() * image.getHeight() * 4];
+        int counter = 0;
+        for (int i = 0; i < image.getHeight(); i++) {
+            for (int j = 0; j < image.getWidth(); j++) {
+                int colorSpace = image.getRGB(j, i);
+                imageBuffer[counter + 0] = (byte) ((colorSpace << 8) >> 24);
+                imageBuffer[counter + 1] = (byte) ((colorSpace << 16) >> 24);
+                imageBuffer[counter + 2] = (byte) ((colorSpace << 24) >> 24);
+                imageBuffer[counter + 3] = (byte) (colorSpace >> 24);
+                counter += 4;
+            }
+        }
+        return ByteBuffer.wrap(imageBuffer);
     }
 
 }

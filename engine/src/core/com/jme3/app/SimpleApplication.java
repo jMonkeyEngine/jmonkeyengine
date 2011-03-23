@@ -249,7 +249,9 @@ public abstract class SimpleApplication extends Application {
 
         // render states
         stateManager.render(renderManager);
-        renderManager.render(tpf);
+        if (context.isRenderable()){
+            renderManager.render(tpf);
+        }
         simpleRender(renderManager);
         stateManager.postRender();
     }
@@ -257,7 +259,6 @@ public abstract class SimpleApplication extends Application {
     public void setDisplayFps(boolean show) {
         showFps = show;
         fpsText.setCullHint(show ? CullHint.Never : CullHint.Always);
-
     }
 
     public void setDisplayStatView(boolean show) {

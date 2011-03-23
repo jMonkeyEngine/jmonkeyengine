@@ -48,16 +48,19 @@ public interface JmeContext {
     public enum Type {
         /**
          * A display can represent a windowed or a fullscreen-exclusive display.
-         * If windowed, the graphics are rendered to a new onscreen surface
-         * enclosed in a system defined by the operating system. Implementations
-         * are encourged to not use AWT or Swing to create the OpenGL display
+         * If windowed, the graphics are rendered to a new on-screen surface
+         * enclosed in a window defined by the operating system. Implementations
+         * are encouraged to not use AWT or Swing to create the OpenGL display
          * but rather use native operating system functions to set up a native
          * display with the windowing system.
          */
         Display,
         
         /**
-         * 
+         * A canvas type context makes a rendering surface available as an
+         * AWT {@link java.awt.Canvas} object that can be embedded in a Swing/AWT
+         * frame. To retrieve the Canvas object, you should cast the context
+         * to {@link JmeCanvasContext}.
          */
         Canvas,
         
@@ -140,16 +143,17 @@ public interface JmeContext {
     public boolean isCreated();
 
     /**
+     * @return True if the context contains a valid render surface,
+     * if any of the rendering methods in {@link Renderer} are called
+     * while this is <code>false</code>, then the result is undefined.
+     */
+    public boolean isRenderable();
+
+    /**
      * @param enabled If enabled, the context will automatically flush
      * frames to the video card (swap buffers) after an update cycle.
      */
     public void setAutoFlushFrames(boolean enabled);
-
-    /**
-     * Creates the context and makes it active.
-     */
-    @Deprecated
-    public void create();
 
     /**
      * Creates the context and makes it active.
@@ -163,12 +167,6 @@ public interface JmeContext {
      * the display settings have been changed.
      */
     public void restart();
-
-    /**
-     * Destroys the context completely, making it inactive.
-     */
-    @Deprecated
-    public void destroy();
 
     /**
      * Destroys the context completely, making it inactive.

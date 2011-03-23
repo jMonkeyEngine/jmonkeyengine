@@ -14,7 +14,7 @@ import javax.swing.JFrame;
 
 public class TestSafeCanvas extends SimpleApplication {
 
-    public static void main(String[] args){
+    public static void main(String[] args) throws InterruptedException{
         AppSettings settings = new AppSettings(true);
         settings.setWidth(640);
         settings.setHeight(480);
@@ -28,6 +28,10 @@ public class TestSafeCanvas extends SimpleApplication {
         Canvas canvas = context.getCanvas();
         canvas.setSize(settings.getWidth(), settings.getHeight());
 
+        app.startCanvas(true);
+
+        Thread.sleep(3000);
+
         JFrame frame = new JFrame("Test");
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.addWindowListener(new WindowAdapter() {
@@ -40,6 +44,14 @@ public class TestSafeCanvas extends SimpleApplication {
         frame.pack();
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
+
+        Thread.sleep(3000);
+
+        frame.getContentPane().remove(canvas);
+
+        Thread.sleep(3000);
+
+        frame.getContentPane().add(canvas);
     }
 
     @Override

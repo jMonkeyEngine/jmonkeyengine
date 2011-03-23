@@ -299,13 +299,17 @@ public class Application implements SystemListener {
     public Camera getCamera(){
         return cam;
     }
-    
+
+    /**
+     * Starts the application as a display.
+     */
     public void start(){
         start(JmeContext.Type.Display);
     }
 
     /**
-     * Starts the application. Creating a display and running the main loop.
+     * Starts the application. Creating a rendering context and executing
+     * the main loop in a separate thread.
      */
     public void start(JmeContext.Type contextType){
         if (context != null && context.isCreated()){
@@ -423,6 +427,10 @@ public class Application implements SystemListener {
         context.destroy(false);
     }
 
+    /**
+     * Enqueues a task/callable object to execute in the jME3
+     * rendering thread.
+     */
     public <V> Future<V> enqueue(Callable<V> callable) {
         AppTask<V> task = new AppTask<V>(callable);
         taskQueue.add(task);
@@ -494,7 +502,5 @@ public class Application implements SystemListener {
     public ViewPort getViewPort() {
         return viewPort;
     }
-
-    
 
 }
