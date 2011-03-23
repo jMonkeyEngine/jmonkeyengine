@@ -70,7 +70,8 @@
         <echo file="sdk/nbproject/private/platform-private.properties"
               message="nbplatform.default.netbeans.dest.dir=${nbplatform.dir}&#xD;&#xA;"/>
         <echo file="sdk/nbproject/private/platform-private.properties"
-              message="nbplatform.default.harness.dir=${nbplatform.dir}${file.separator}harness" append="true"/>
+              message="nbplatform.default.harness.dir=${nbplatform.dir}${file.separator}harness&#xD;&#xA;" append="true"/>
+        <replace file="sdk/nbproject/private/platform-private.properties" token="\" value="\\"/>
     </target>
 
 </project>
