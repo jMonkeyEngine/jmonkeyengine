@@ -115,56 +115,41 @@ public class Network
     
     /**
      *  Creates a Client that communicates with the specified host and port
-     *  using both reliable and fast transports.  The localUdpPort specifies the
-     *  local port to use for listening for incoming 'fast' UDP messages from the
-     *  server.  This port is different than the host port in case the client
-     *  and server are run on the same machine.
+     *  using both reliable and fast transports. 
      */   
-    public static Client connectToServer( String host, int hostPort, int localUdpPort ) throws IOException
+    public static Client connectToServer( String host, int hostPort ) throws IOException
     {
-        return connectToServer( DEFAULT_GAME_NAME, DEFAULT_VERSION, host, hostPort, hostPort, localUdpPort );   
+        return connectToServer( DEFAULT_GAME_NAME, DEFAULT_VERSION, host, hostPort, hostPort );   
+    }
+
+    /**
+     *  Creates a Client that communicates with the specified host and separate TCP and UDP ports
+     *  using both reliable and fast transports.  
+     */   
+    public static Client connectToServer( String host, int hostPort, int remoteUdpPort ) throws IOException
+    {
+        return connectToServer( DEFAULT_GAME_NAME, DEFAULT_VERSION, host, hostPort, remoteUdpPort );
     }
 
     /**
      *  Creates a Client that communicates with the specified host and port
-     *  using both reliable and fast transports.  The localUdpPort specifies the
-     *  local port to use for listening for incoming 'fast' UDP messages from the
-     *  server.  This port is different than the host port in case the client
-     *  and server are run on the same machine.
-     */   
-    public static Client connectToServer( String host, int hostPort, int remoteUdpPort, 
-                                          int localUdpPort ) throws IOException
-    {
-        return connectToServer( DEFAULT_GAME_NAME, DEFAULT_VERSION, host, hostPort, remoteUdpPort,
-                                localUdpPort );
-    }
-
-    /**
-     *  Creates a Client that communicates with the specified host and port
-     *  using both reliable and fast transports.  The localUdpPort specifies the
-     *  local port to use for listening for incoming 'fast' UDP messages from the
-     *  server.  This port is different than the host port in case the client
-     *  and server are run on the same machine.
+     *  using both reliable and fast transports.  
      */   
     public static Client connectToServer( String gameName, int version, 
-                                          String host, int hostPort, int localUdpPort ) throws IOException
+                                          String host, int hostPort ) throws IOException
     {
-        return connectToServer( gameName, version, host, hostPort, hostPort, localUdpPort );   
+        return connectToServer( gameName, version, host, hostPort, hostPort );   
     }
 
     /**
-     *  Creates a Client that communicates with the specified host and port
-     *  using both reliable and fast transports.  The localUdpPort specifies the
-     *  local port to use for listening for incoming 'fast' UDP messages from the
-     *  server.  This port is different than the host port in case the client
-     *  and server are run on the same machine.
+     *  Creates a Client that communicates with the specified host and and separate TCP and UDP ports
+     *  using both reliable and fast transports.  
      */   
     public static Client connectToServer( String gameName, int version, 
-                                          String host, int hostPort, int remoteUdpPort, 
-                                          int localUdpPort ) throws IOException
+                                          String host, int hostPort, int remoteUdpPort ) throws IOException
     {
         InetAddress remoteAddress = InetAddress.getByName(host);   
-        UdpConnector fast = new UdpConnector( localUdpPort, remoteAddress, remoteUdpPort ); 
+        UdpConnector fast = new UdpConnector( remoteAddress, remoteUdpPort ); 
         SocketConnector reliable = new SocketConnector( remoteAddress, hostPort );        
        
         return new DefaultClient( gameName, version, reliable, fast );
@@ -178,16 +163,14 @@ public class Network
             super( gameName, version );
         }
         
-        public void connectToServer( String host, int port, int remoteUdpPort, 
-                                     int localUdpPort ) throws IOException
+        public void connectToServer( String host, int port, int remoteUdpPort ) throws IOException
         {
-            connectToServer( InetAddress.getByName(host), port, remoteUdpPort, localUdpPort );
+            connectToServer( InetAddress.getByName(host), port, remoteUdpPort );
         }                                     
                                  
-        public void connectToServer( InetAddress address, int port, int remoteUdpPort, 
-                                     int localUdpPort ) throws IOException
+        public void connectToServer( InetAddress address, int port, int remoteUdpPort ) throws IOException
         {
-            UdpConnector fast = new UdpConnector( localUdpPort, address, remoteUdpPort ); 
+            UdpConnector fast = new UdpConnector( address, remoteUdpPort ); 
             SocketConnector reliable = new SocketConnector( address, port );        
             
             setConnectors( reliable, fast );

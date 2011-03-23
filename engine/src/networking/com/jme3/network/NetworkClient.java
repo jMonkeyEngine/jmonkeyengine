@@ -46,10 +46,8 @@ import java.net.InetAddress;
  */
 public interface NetworkClient extends Client
 {
-    public void connectToServer( String host, int port, int remoteUdpPort, 
-                                 int localUdpPort ) throws IOException;
+    public void connectToServer( String host, int port, int remoteUdpPort ) throws IOException;
                                  
-    public void connectToServer( InetAddress address, int port, int remoteUdpPort, 
-                                 int localUdpPort ) throws IOException;
+    public void connectToServer( InetAddress address, int port, int remoteUdpPort ) throws IOException;
     
 }

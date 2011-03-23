@@ -64,9 +64,9 @@ public class UdpConnector implements Connector
      *  Creates a new UDP connection that send datagrams to the
      *  specified address and port.
      */
-    public UdpConnector( int localPort, InetAddress remote, int remotePort ) throws IOException
+    public UdpConnector( InetAddress remote, int remotePort ) throws IOException
     {
-        InetSocketAddress localSocketAddress = new InetSocketAddress(localPort);
+        InetSocketAddress localSocketAddress = new InetSocketAddress(0);
         this.sock = new DatagramSocket( localSocketAddress );
         remoteAddress = new InetSocketAddress( remote, remotePort );
         
