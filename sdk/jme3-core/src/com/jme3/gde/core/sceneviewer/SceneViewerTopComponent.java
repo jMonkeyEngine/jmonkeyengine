@@ -58,10 +58,10 @@ public final class SceneViewerTopComponent extends TopComponent {
     /** path to the icon used by the component and its open action */
     static final String ICON_PATH = "com/jme3/gde/core/sceneviewer/jme-logo.png";
     private static final String PREFERRED_ID = "SceneViewerTopComponent";
-    private JmeCanvasContext ctx;
+//    private JmeCanvasContext ctx;
     private SceneApplication app;
-    private Lookup lookup;
-    private final InstanceContent lookupContents = new InstanceContent();
+//    private Lookup lookup;
+//    private final InstanceContent lookupContents = new InstanceContent();
     private HelpCtx helpContext = new HelpCtx("com.jme3.gde.core.sceneviewer");
 
     public SceneViewerTopComponent() {
@@ -75,6 +75,8 @@ public final class SceneViewerTopComponent extends TopComponent {
 //        putClientProperty(TopComponent.PROP_CLOSING_DISABLED, Boolean.TRUE);
         try {
             app = SceneApplication.getApplication();
+//            app.createCanvas();
+//            app.startCanvas(true);
             oGLPanel.add(((JmeCanvasContext) app.getContext()).getCanvas());
         } catch (Exception e) {
             showOpenGLError(e.toString());
@@ -233,7 +235,8 @@ public final class SceneViewerTopComponent extends TopComponent {
     public void componentOpened() {
         super.componentOpened();
         try {
-            oGLPanel.add(((JmeCanvasContext) app.getContext()).getCanvas());
+//            app.startCanvas(true);
+//            oGLPanel.add(((JmeCanvasContext) app.getContext()).getCanvas());
         } catch (Exception e) {
             showOpenGLError(e.toString());
         } catch (Error err) {

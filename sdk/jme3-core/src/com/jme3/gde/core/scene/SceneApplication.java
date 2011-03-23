@@ -126,9 +126,20 @@ public class SceneApplication extends Application implements LookupProvider, Loo
             nodeSelectionResult.addLookupListener(this);
 
             createCanvas();
+            startCanvas(true);
             getContext().setAutoFlushFrames(true);
             getContext().setSystemListener(this);
             progressHandle.progress("initialize Base Application", 1);
+//            if (!java.awt.EventQueue.isDispatchThread()) {
+//                java.awt.EventQueue.invokeAndWait(new Runnable() {
+//
+//                    public void run() {
+//                        SceneViewerTopComponent.findInstance();
+//                    }
+//                });
+//            } else {
+//                SceneViewerTopComponent.findInstance();
+//            }
         } catch (Exception e) {
             getProgressHandle().finish();
             SceneViewerTopComponent.showOpenGLError(e.toString());
@@ -488,6 +499,9 @@ public class SceneApplication extends Application implements LookupProvider, Loo
     @Override
     public void handleError(String msg, Throwable t) {
         progressHandle.finish();
+        if (msg == null) {
+            return;
+        }
         if (!started) {
             SceneViewerTopComponent.showOpenGLError(msg);
             Exceptions.printStackTrace(t);
