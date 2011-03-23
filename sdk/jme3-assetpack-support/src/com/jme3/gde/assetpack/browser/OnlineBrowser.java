@@ -23,6 +23,9 @@ import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
+import org.openide.DialogDisplayer;
+import org.openide.NotifyDescriptor;
+import org.openide.NotifyDescriptor.Confirmation;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.Exceptions;
@@ -67,6 +70,11 @@ public class OnlineBrowser extends javax.swing.JPanel implements HyperlinkListen
                         Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, "Error creating URL: {0}", ex.toString());
                     }
                     handle.finish();
+                    Confirmation msg = new NotifyDescriptor.Confirmation(
+                            "Successfully downloades asset pack!\n" + name,
+                            NotifyDescriptor.OK_CANCEL_OPTION,
+                            NotifyDescriptor.INFORMATION_MESSAGE);
+                    DialogDisplayer.getDefault().notifyLater(msg);
                 }
             }).start();
         }
