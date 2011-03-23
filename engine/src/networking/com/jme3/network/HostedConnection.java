@@ -44,6 +44,11 @@ import java.util.Set;
 public interface HostedConnection extends MessageConnection
 {
     /**
+     *  Returns the Server instance that is hosting this connection.
+     */
+    public Server getServer();     
+
+    /**
      *  Returns the server-unique ID for this client.
      */
     public int getId();

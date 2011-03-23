@@ -379,7 +379,12 @@ public class DefaultServer implements Server
         {
             id = nextId.getAndIncrement();
         }
-        
+ 
+        public Server getServer()
+        {   
+            return DefaultServer.this;
+        }     
+       
         public int getId()
         {
             return id;
