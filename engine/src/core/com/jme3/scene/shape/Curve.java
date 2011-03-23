@@ -72,6 +72,9 @@ public class Curve extends Mesh {
             case Bezier:
             	this.createBezierMesh(nbSubSegments);
             	break;
+            case Nurb:
+            	this.createNurbMesh(nbSubSegments);
+            	break;
             case Linear:
             default:
             	this.createLinearMesh();
@@ -80,8 +83,8 @@ public class Curve extends Mesh {
     }
 
     private void createCatmullRomMesh(int nbSubSegments) {
-        float[] array = new float[(((spline.getControlPoints().size() - 1) * nbSubSegments) + 1) * 3];
-        short[] indices = new short[((spline.getControlPoints().size() - 1) * nbSubSegments) * 2];
+        float[] array = new float[((spline.getControlPoints().size() - 1) * nbSubSegments + 1) * 3];
+        short[] indices = new short[(spline.getControlPoints().size() - 1) * nbSubSegments * 2];
         int i = 0;
         int cptCP = 0;
         for (Iterator<Vector3f> it = spline.getControlPoints().iterator(); it.hasNext();) {
@@ -108,7 +111,7 @@ public class Curve extends Mesh {
 
         i = 0;
         int k = 0;
-        for (int j = 0; j < ((spline.getControlPoints().size() - 1) * nbSubSegments); j++) {
+        for (int j = 0; j < (spline.getControlPoints().size() - 1) * nbSubSegments; j++) {
             k = j;
             indices[i] = (short) k;
             i++;
@@ -117,11 +120,11 @@ public class Curve extends Mesh {
             i++;
         }
 
-        setMode(Mesh.Mode.Lines);
-        setBuffer(VertexBuffer.Type.Position, 3, array);
-        setBuffer(VertexBuffer.Type.Index, ((spline.getControlPoints().size() - 1) * nbSubSegments) * 2, indices);
-        updateBound();
-        updateCounts();
+        this.setMode(Mesh.Mode.Lines);
+        this.setBuffer(VertexBuffer.Type.Position, 3, array);
+        this.setBuffer(VertexBuffer.Type.Index, (spline.getControlPoints().size() - 1) * nbSubSegments * 2, indices);
+        this.updateBound();
+        this.updateCounts();
     }
 
     /**
@@ -175,6 +178,43 @@ public class Curve extends Mesh {
 		this.updateBound();
 		this.updateCounts();
 	}
+	
+	/**
+	 * This method creates the Nurb path for this curve.
+	 * @param nbSubSegments
+	 *            amount of subsegments between position control points
+	 */
+	private void createNurbMesh(int nbSubSegments) {
+		float minKnot = spline.getMinNurbKnot();
+		float maxKnot = spline.getMaxNurbKnot();
+		float deltaU = (maxKnot - minKnot)/nbSubSegments;
+		
+		float[] array = new float[(nbSubSegments + 1) * 3];
+		
+		float u = minKnot;
+		Vector3f interpolationResult = new Vector3f();
+		for(int i=0;i<array.length;i+=3) {
+			spline.interpolate(u, 0, interpolationResult);
+			array[i] = interpolationResult.x;
+			array[i + 1] = interpolationResult.y;
+			array[i + 2] = interpolationResult.z;
+			u += deltaU;
+		}
+		
+		//calculating indexes
+		int i = 0;
+		short[] indices = new short[nbSubSegments << 1];
+		for (int j = 0; j < nbSubSegments; ++j) {
+			indices[i++] = (short) j;
+			indices[i++] = (short) (j + 1);
+		}
+
+		this.setMode(Mesh.Mode.Lines);
+		this.setBuffer(VertexBuffer.Type.Position, 3, array);
+		this.setBuffer(VertexBuffer.Type.Index, 2, indices);
+		this.updateBound();
+		this.updateCounts();
+	}
     
     private void createLinearMesh() {
         float[] array = new float[spline.getControlPoints().size() * 3];
@@ -202,11 +242,11 @@ public class Curve extends Mesh {
             }
         }
 
-        setMode(Mesh.Mode.Lines);
-        setBuffer(VertexBuffer.Type.Position, 3, array);
-        setBuffer(VertexBuffer.Type.Index, (spline.getControlPoints().size() - 1) * 2, indices);
-        updateBound();
-        updateCounts();
+        this.setMode(Mesh.Mode.Lines);
+        this.setBuffer(VertexBuffer.Type.Position, 3, array);
+        this.setBuffer(VertexBuffer.Type.Index, (spline.getControlPoints().size() - 1) * 2, indices);
+        this.updateBound();
+        this.updateCounts();
     }
     
     /**

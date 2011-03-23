@@ -698,6 +698,19 @@ final public class FastMath {
         }
         return val3;
     }
+    
+    /**
+     * A method that computes normal for a triangle defined by three vertices.
+     * @param v1 first vertex
+     * @param v2 second vertex
+     * @param v3 third vertex
+     * @return a normal for the face
+     */
+    public static Vector3f computeNormal(Vector3f v1, Vector3f v2, Vector3f v3) {
+    	Vector3f a1 = v1.subtract(v2);
+		Vector3f a2 = v3.subtract(v2);
+		return a2.crossLocal(a1).normalizeLocal();
+    }
 
     /**
      * Returns the determinant of a 4x4 matrix.
