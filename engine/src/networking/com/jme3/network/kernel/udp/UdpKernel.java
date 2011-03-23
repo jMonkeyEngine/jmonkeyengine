@@ -122,7 +122,7 @@ public class UdpKernel extends AbstractKernel
         // Hand it to all of the endpoints that match our routing
         for( UdpEndpoint p : socketEndpoints.values() ) {
             // Does it match the filter?
-            if( !filter.apply(p) )
+            if( filter != null && !filter.apply(p) )
                 continue;
 
             // Send the data
