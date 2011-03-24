@@ -85,7 +85,7 @@ public class RenderManager {
     private Material forcedMaterial = null;
     private String forcedTechnique = null;
     private RenderState forcedRenderState = null;
-    private final boolean shader;
+    private boolean shader;
     private int viewX, viewY, viewWidth, viewHeight;
     private float near, far;
     private Matrix4f orthoMatrix = new Matrix4f();
@@ -733,6 +733,8 @@ public class RenderManager {
         if (renderer instanceof NullRenderer) {
             return;
         }
+
+        this.shader = renderer.getCaps().contains(Caps.GLSL100);
 
         for (int i = 0; i < preViewPorts.size(); i++) {
             renderViewPort(preViewPorts.get(i), tpf);

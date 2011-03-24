@@ -10,7 +10,7 @@
         </condition>
     </fail>
 
-    <target name="build" description="Builds the complete SDK" depends="-check-platform">
+    <target name="build" description="Builds the complete SDK" depends="-check-platform, -update-sdk-platform-config">
         <ant dir="engine" target="update-sdk"/>
         <ant dir="sdk" target="build"/>
     </target>
@@ -73,5 +73,7 @@
               message="nbplatform.default.harness.dir=${nbplatform.dir}${file.separator}harness&#xD;&#xA;" append="true"/>
         <replace file="sdk/nbproject/private/platform-private.properties" token="\" value="\\"/>
     </target>
+    
+    <target name="update-sdk-platform-config" depends="-update-sdk-platform-config"/>
 
 </project>

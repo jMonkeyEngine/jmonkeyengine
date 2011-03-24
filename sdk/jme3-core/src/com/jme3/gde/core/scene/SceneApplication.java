@@ -127,8 +127,6 @@ public class SceneApplication extends Application implements LookupProvider, Loo
 
             createCanvas();
             startCanvas(true);
-            getContext().setAutoFlushFrames(true);
-            getContext().setSystemListener(this);
             progressHandle.progress("initialize Base Application", 1);
 //            if (!java.awt.EventQueue.isDispatchThread()) {
 //                java.awt.EventQueue.invokeAndWait(new Runnable() {
@@ -179,9 +177,6 @@ public class SceneApplication extends Application implements LookupProvider, Loo
 
             previewProcessor = new ScenePreviewProcessor();
             previewProcessor.setupPreviewView();
-
-            // enable depth test and back-face culling for performance
-            renderer.applyRenderState(RenderState.DEFAULT);
 
             getProgressHandle().progress("Prepare Camera", 4);
             camLight = new PointLight();
@@ -244,7 +239,9 @@ public class SceneApplication extends Application implements LookupProvider, Loo
             guiNode.updateGeometricState();
             toolsNode.updateGeometricState();
             getStateManager().render(renderManager);
-            renderManager.render(tpf);
+            if (context.isRenderable()){
+                renderManager.render(tpf);
+            }
             getStateManager().postRender();
         } catch (Exception e) {
             handleError(e.getMessage(), e);
