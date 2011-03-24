@@ -114,11 +114,13 @@ public class LwjglMouseInput implements MouseInput {
 
             if (xDelta != 0 || yDelta != 0 || wheelDelta != 0){
                 MouseMotionEvent evt = new MouseMotionEvent(x, y, xDelta, yDelta, curWheel, wheelDelta);
+                evt.setTime(Mouse.getEventNanoseconds());
                 listener.onMouseMotionEvent(evt);
             }
             if (btn != -1){
                 MouseButtonEvent evt = new MouseButtonEvent(btn,
                                                             Mouse.getEventButtonState(), x, y);
+                evt.setTime(Mouse.getEventNanoseconds());
                 listener.onMouseButtonEvent(evt);
             }
         }
