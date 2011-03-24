@@ -81,11 +81,12 @@ public class Network
      *
      *  @param gameName This is the name that identifies the game.  Connecting clients
      *                  must use this name or be turned away.
-     *  @param gersion  This is a game-specific verison that helps detect when out-of-date
+     *  @param version  This is a game-specific verison that helps detect when out-of-date
      *                  clients have connected to an incompatible server.
      *  @param tcpPort  The port upon which the TCP hosting will listen for new connections.
      *  @param udpPort  The port upon which the UDP hosting will listen for new 'fast' UDP 
-     *                  messages.
+     *                  messages.  Set to -1 if 'fast' traffic should go over TCP.  This will
+     *                  comletely disable UDP traffic for this server.
      */
     public static Server createServer( String gameName, int version, int tcpPort, int udpPort ) throws IOException
     {
@@ -124,7 +125,7 @@ public class Network
 
     /**
      *  Creates a Client that communicates with the specified host and separate TCP and UDP ports
-     *  using both reliable and fast transports.  
+     *  using both reliable and fast transports.
      */   
     public static Client connectToServer( String host, int hostPort, int remoteUdpPort ) throws IOException
     {
@@ -144,12 +145,24 @@ public class Network
     /**
      *  Creates a Client that communicates with the specified host and and separate TCP and UDP ports
      *  using both reliable and fast transports.  
+     *  
+     *  @param gameName This is the name that identifies the game.  This must match
+     *                  the target server's name or this client will be turned away.
+     *  @param version  This is a game-specific verison that helps detect when out-of-date
+     *                  clients have connected to an incompatible server.  This must match
+     *                  the server's version of this client will be turned away.
+     *  @param tcpPort  The remote TCP port on the server to which this client should
+     *                  send reliable messages. 
+     *  @param udpPort  The remote UDP port on the server to which this client should
+     *                  send 'fast'/unreliable messages.   Set to -1 if 'fast' traffic should 
+     *                  go over TCP.  This will completely disable UDP traffic for this
+     *                  client.
      */   
     public static Client connectToServer( String gameName, int version, 
                                           String host, int hostPort, int remoteUdpPort ) throws IOException
     {
         InetAddress remoteAddress = InetAddress.getByName(host);   
-        UdpConnector fast = new UdpConnector( remoteAddress, remoteUdpPort ); 
+        UdpConnector fast = remoteUdpPort == -1 ? null : new UdpConnector( remoteAddress, remoteUdpPort ); 
         SocketConnector reliable = new SocketConnector( remoteAddress, hostPort );        
        
         return new DefaultClient( gameName, version, reliable, fast );
