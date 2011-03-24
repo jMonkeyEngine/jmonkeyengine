@@ -421,6 +421,7 @@ public class SceneApplication extends Application implements LookupProvider, Loo
             public void run() {
                 if (node == null) {
                     SceneViewerTopComponent.findInstance().setActivatedNodes(new org.openide.nodes.Node[]{});
+                    SceneViewerTopComponent.findInstance().close();
                 } else {
                     SceneViewerTopComponent.findInstance().setActivatedNodes(new org.openide.nodes.Node[]{node});
                     SceneViewerTopComponent.findInstance().open();
