@@ -57,6 +57,7 @@ public class TestChatServer
     public static final int VERSION = 1;
 
     public static final int PORT = 5110;
+    public static final int UDP_PORT = 5110;
 
     public static void initializeClasses()
     {
@@ -70,7 +71,7 @@ public class TestChatServer
         initializeClasses();
     
         // Use this to test the client/server name version check
-        Server server = Network.createServer( NAME, VERSION, PORT, PORT );
+        Server server = Network.createServer( NAME, VERSION, PORT, UDP_PORT );
         server.start();
 
         ChatHandler handler = new ChatHandler();
