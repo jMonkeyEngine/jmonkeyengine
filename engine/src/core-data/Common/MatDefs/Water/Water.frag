@@ -292,6 +292,6 @@ void main(){
             color = color2;
     }
 
-    gl_FragColor = vec4(color,0.0);
+    gl_FragColor = vec4(color,1.0);
     
 }
