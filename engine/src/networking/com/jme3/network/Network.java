@@ -90,7 +90,7 @@ public class Network
      */
     public static Server createServer( String gameName, int version, int tcpPort, int udpPort ) throws IOException
     {
-        UdpKernel fast = new UdpKernel(udpPort);
+        UdpKernel fast = udpPort == -1 ? null : new UdpKernel(udpPort);
         SelectorKernel reliable = new SelectorKernel(tcpPort);
  
         return new DefaultServer( gameName, version, reliable, fast );       
