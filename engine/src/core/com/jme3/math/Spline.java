@@ -231,7 +231,7 @@ public class Spline implements Savable {
         if (controlPoints.size() > 1) {
             for (int i = 0; i < controlPoints.size() - 1; i+=3) {
                 l = FastMath.getBezierP1toP2Length(controlPoints.get(i),
-                		controlPoints.get(i + 1), controlPoints.get(i + 2), controlPoints.get(i + 3), 0, 1);
+                		controlPoints.get(i + 1), controlPoints.get(i + 2), controlPoints.get(i + 3));
                 segmentsLength.add(l);
                 totalLength += l;
             }
