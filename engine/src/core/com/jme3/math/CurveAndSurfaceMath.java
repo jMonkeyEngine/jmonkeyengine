@@ -47,6 +47,7 @@ public class CurveAndSurfaceMath {
 
 	/**
 	 * This method interpolates tha data for the nurbs surface.
+	 * 
 	 * @param u
 	 *            the u value
 	 * @param v
@@ -54,20 +55,23 @@ public class CurveAndSurfaceMath {
 	 * @param controlPoints
 	 *            the nurbs' control points
 	 * @param knots
-	 * 			  the nurbs' knots
+	 *            the nurbs' knots
+	 * @param basisUFunctionDegree
+	 *            the degree of basis U function
+	 * @param basisVFunctionDegree
+	 *            the degree of basis V function
 	 * @param store
 	 *            the resulting point in 3D space
 	 */
-	public static void interpolate(float u, float v, List<List<Vector4f>> controlPoints, List<Float>[] knots, Vector3f store) {
+	public static void interpolate(float u, float v, List<List<Vector4f>> controlPoints, List<Float>[] knots, 
+			int basisUFunctionDegree, int basisVFunctionDegree, Vector3f store) {
 		store.set(Vector3f.ZERO);
 		float delimeter = 0;
 		int vControlPointsAmount = controlPoints.size();
 		int uControlPointsAmount = controlPoints.get(0).size();
-		int basisUFunctionDegree = knots[0].size() - controlPoints.get(0).size();
-		int basisVFunctionDegree = knots[1]==null ? 0 : knots[1].size() - controlPoints.size();
 		for (int i = 0; i < vControlPointsAmount; ++i) {
 			for (int j = 0; j < uControlPointsAmount; ++j) {
-				Vector4f controlPoint = controlPoints.get(j).get(i);
+				Vector4f controlPoint = controlPoints.get(i).get(j);
 				float val = controlPoint.w
 								* CurveAndSurfaceMath.computeBaseFunctionValue(i, basisVFunctionDegree, v, knots[1])
 								* CurveAndSurfaceMath.computeBaseFunctionValue(j, basisUFunctionDegree, u, knots[0]);
@@ -90,15 +94,18 @@ public class CurveAndSurfaceMath {
 	// point and the following one is lower than it
 	public static void prepareNurbsKnots(List<Float> knots, int basisFunctionDegree) {
 		float delta = KNOTS_MINIMUM_DELTA;
-		for (int i = 1; i < basisFunctionDegree && knots.get(i).equals(knots.get(0)); ++i) {
-			knots.set(i, Float.valueOf(knots.get(i).floatValue() + delta));
-			delta += KNOTS_MINIMUM_DELTA;
-		}
-		float lastKnot = knots.get(knots.size() - 1);
-		delta = KNOTS_MINIMUM_DELTA;
-		for (int i = knots.size() - basisFunctionDegree + 1; i < knots.size() && knots.get(i).equals(lastKnot); ++i) {
-			knots.set(i, Float.valueOf(knots.get(i).floatValue() + delta));
-			delta += KNOTS_MINIMUM_DELTA;
+		float prevValue = knots.get(0).floatValue();
+		for(int i=1;i<knots.size();++i) {
+			float value = knots.get(i).floatValue();
+			if(value<=prevValue) {
+				value += delta;
+				knots.set(i, Float.valueOf(value));
+				delta += KNOTS_MINIMUM_DELTA;
+			} else {
+				delta = KNOTS_MINIMUM_DELTA;//reset the delta's value
+			}
+			
+			prevValue = value;
 		}
 	}
 

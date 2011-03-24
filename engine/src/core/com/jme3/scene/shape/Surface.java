@@ -23,8 +23,8 @@ public class Surface extends Mesh {
 	private SplineType type;						//the type of the surface
 	private List<List<Vector4f>> controlPoints;		//space control points and their weights
 	private List<Float>[] knots;					//knots of the surface
-	private int basisUFunctionDegree;				//the degree of basis U function (computed automatically)
-	private int basisVFunctionDegree;				//the degree of basis V function (computed automatically)
+	private int basisUFunctionDegree;				//the degree of basis U function
+	private int basisVFunctionDegree;				//the degree of basis V function
 	private int uSegments;							//the amount of U segments
 	private int vSegments;							//the amount of V segments
 
@@ -34,18 +34,21 @@ public class Surface extends Mesh {
 	 * @param nurbKnots knots of the surface
 	 * @param uSegments the amount of U segments
 	 * @param vSegments the amount of V segments
+	 * @param basisUFunctionDegree the degree of basis U function
+	 * @param basisVFunctionDegree the degree of basis V function
 	 */
-	private Surface(List<List<Vector4f>> controlPoints, List<Float>[] nurbKnots, int uSegments, int vSegments) {
+	private Surface(List<List<Vector4f>> controlPoints, List<Float>[] nurbKnots, 
+					int uSegments, int vSegments, int basisUFunctionDegree, int basisVFunctionDegree) {
 		this.validateInputData(controlPoints, nurbKnots, uSegments, vSegments);
 		this.type = SplineType.Nurb;
 		this.uSegments = uSegments;
 		this.vSegments = vSegments;
 		this.controlPoints = controlPoints;
 		this.knots = nurbKnots;
-		this.basisUFunctionDegree = nurbKnots[0].size() - controlPoints.get(0).size();
+		this.basisUFunctionDegree = basisUFunctionDegree;
 		CurveAndSurfaceMath.prepareNurbsKnots(nurbKnots[0], basisUFunctionDegree);
 		if(nurbKnots[1]!=null) {
-			this.basisVFunctionDegree = nurbKnots[1].size() - controlPoints.size();
+			this.basisVFunctionDegree = basisVFunctionDegree;
 			CurveAndSurfaceMath.prepareNurbsKnots(nurbKnots[1], basisVFunctionDegree);
 		}
 		
@@ -58,10 +61,13 @@ public class Surface extends Mesh {
 	 * @param nurbKnots knots of the surface
 	 * @param uSegments the amount of U segments
 	 * @param vSegments the amount of V segments
+	 * @param basisUFunctionDegree the degree of basis U function
+	 * @param basisVFunctionDegree the degree of basis V function
 	 * @return an instance of NURBS surface
 	 */
-	public static final Surface createNurbsSurface(List<List<Vector4f>> controlPoints, List<Float>[] nurbKnots, int uSegments, int vSegments) {
-		Surface result = new Surface(controlPoints, nurbKnots, uSegments, vSegments);
+	public static final Surface createNurbsSurface(List<List<Vector4f>> controlPoints, List<Float>[] nurbKnots, 
+			int uSegments, int vSegments, int basisUFunctionDegree, int basisVFunctionDegree) {
+		Surface result = new Surface(controlPoints, nurbKnots, uSegments, vSegments, basisUFunctionDegree, basisVFunctionDegree);
 		result.type = SplineType.Nurb;
 		return result;
 	}
@@ -87,7 +93,7 @@ public class Surface extends Mesh {
 		for(int i=0;i<=vSegments; ++i) {
 			for(int j=0;j<=uSegments; ++j) {
 				Vector3f interpolationResult = new Vector3f();
-				CurveAndSurfaceMath.interpolate(u, v, controlPoints, knots, interpolationResult);
+				CurveAndSurfaceMath.interpolate(u, v, controlPoints, knots, basisUFunctionDegree, basisVFunctionDegree, interpolationResult);
 				vertices[arrayIndex++] = interpolationResult;
 				u += deltaU;
 			}
@@ -200,7 +206,7 @@ public class Surface extends Mesh {
 	 * @return the maximum nurb curve knot value
 	 */
     private float getMaxUNurbKnot() {
-    	return knots[0].get(controlPoints.get(0).size());
+    	return knots[0].get(knots[0].size() - basisUFunctionDegree);
     }
     
     /**
@@ -216,7 +222,7 @@ public class Surface extends Mesh {
 	 * @return the maximum nurb curve knot value
 	 */
     private float getMaxVNurbKnot() {
-    	return knots[1].get(controlPoints.size());
+    	return knots[1].get(knots[1].size() - basisVFunctionDegree);
     }
     
     /**
