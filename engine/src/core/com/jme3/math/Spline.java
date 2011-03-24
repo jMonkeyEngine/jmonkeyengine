@@ -265,6 +265,7 @@ public class Spline implements Savable {
                 break;
             case Bezier:
             	FastMath.interpolateBezier(value, controlPoints.get(currentControlPoint), controlPoints.get(currentControlPoint + 1), controlPoints.get(currentControlPoint + 2), controlPoints.get(currentControlPoint + 3), store);
+            	break;
             case Nurb:
             	CurveAndSurfaceMath.interpolateNurbs(value, this, store);
             	break;
