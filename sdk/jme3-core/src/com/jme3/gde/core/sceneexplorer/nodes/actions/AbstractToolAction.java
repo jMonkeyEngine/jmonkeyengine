@@ -59,12 +59,13 @@ public abstract class AbstractToolAction implements ToolAction {
                 SceneApplication.getApplication().enqueue(new Callable<Void>() {
 
                     public Void call() throws Exception {
-                        if (doApplyTool(rootNode)) {
+                        final Object object = doApplyTool(rootNode);
+                        if (object!=null) {
                             Lookup.getDefault().lookup(SceneUndoRedoManager.class).addEdit(this, new AbstractUndoableSceneEdit() {
 
                                 @Override
                                 public void sceneUndo() throws CannotUndoException {
-                                    doUndoTool(rootNode);
+                                    doUndoTool(rootNode,object);
                                     setModified();
                                 }
 
@@ -105,9 +106,9 @@ public abstract class AbstractToolAction implements ToolAction {
         };
     }
 
-    protected abstract boolean doApplyTool(AbstractSceneExplorerNode rootNode);
+    protected abstract Object doApplyTool(AbstractSceneExplorerNode rootNode);
 
-    protected abstract void doUndoTool(AbstractSceneExplorerNode rootNode);
+    protected abstract void doUndoTool(AbstractSceneExplorerNode rootNode, Object undoObject);
 
 //    protected abstract void doAwtUndo();
 //    protected abstract void doAwtRedo();

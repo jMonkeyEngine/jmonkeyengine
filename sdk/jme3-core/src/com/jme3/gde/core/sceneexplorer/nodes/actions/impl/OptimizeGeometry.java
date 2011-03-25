@@ -32,46 +32,38 @@
 package com.jme3.gde.core.sceneexplorer.nodes.actions.impl;
 
 import com.jme3.gde.core.sceneexplorer.nodes.AbstractSceneExplorerNode;
-import com.jme3.gde.core.sceneexplorer.nodes.JmeGeometry;
+import com.jme3.gde.core.sceneexplorer.nodes.JmeSpatial;
 import com.jme3.gde.core.sceneexplorer.nodes.actions.AbstractToolAction;
 import com.jme3.gde.core.sceneexplorer.nodes.actions.ToolAction;
-import com.jme3.scene.Geometry;
-import com.jme3.scene.Mesh;
-import com.jme3.scene.VertexBuffer.Type;
-import com.jme3.util.TangentBinormalGenerator;
+import com.jme3.scene.Spatial;
+import jme3tools.optimize.GeometryBatchFactory;
 
 /**
  *
  * @author normenhansen
  */
 @org.openide.util.lookup.ServiceProvider(service = ToolAction.class)
-public class GenerateTangentsTool extends AbstractToolAction {
+public class OptimizeGeometry extends AbstractToolAction {
 
-    public GenerateTangentsTool() {
-        name = "Generate Tangents";
+    public OptimizeGeometry() {
+        name = "Optimize Geometry";
     }
 
     @Override
     protected Object doApplyTool(AbstractSceneExplorerNode rootNode) {
-        Geometry geom = rootNode.getLookup().lookup(Geometry.class);
-        Mesh mesh = geom.getMesh();
-        if (mesh != null) {
-            TangentBinormalGenerator.generate(mesh);
-        }
+        Spatial geom = rootNode.getLookup().lookup(Spatial.class);
+        GeometryBatchFactory.optimize(geom);
         return true;
     }
 
     @Override
     protected void doUndoTool(AbstractSceneExplorerNode rootNode, Object undoObject) {
-        Geometry geom = rootNode.getLookup().lookup(Geometry.class);
-        Mesh mesh = geom.getMesh();
-        if (mesh != null) {
-            mesh.clearBuffer(Type.Tangent);
-        }
+//        Spatial geom = rootNode.getLookup().lookup(Spatial.class);
+//        geom.removeFromParent();
     }
 
     public Class<?> getNodeClass() {
-        return JmeGeometry.class;
+        return JmeSpatial.class;
     }
 
 }

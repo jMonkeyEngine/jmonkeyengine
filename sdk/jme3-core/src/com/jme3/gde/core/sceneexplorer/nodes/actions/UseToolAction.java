@@ -61,7 +61,7 @@ public class UseToolAction extends AbstractAction implements Presenter.Popup {
     public JMenuItem getPopupPresenter() {
         JMenu result = new JMenu("Tools..");
         for (ToolAction di : Lookup.getDefault().lookupAll(ToolAction.class)) {
-            if(exNode.getClass().isAssignableFrom(di.getNodeClass())){
+            if(di.getNodeClass().isAssignableFrom(exNode.getClass())){
                 result.add(new JMenuItem(di.getAction(exNode, dataObject)));
             }
         }
