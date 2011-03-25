@@ -117,9 +117,10 @@ public class InputSystemJme implements InputSystem, RawInputListener {
 
     public void onMouseMotionEvent(MouseMotionEvent evt) {
         // Only forward the event if there's actual motion involved.
-        // Ignores mouse wheel
+        // No longer ignores mouse wheel
         if (inputManager.isCursorVisible() && (evt.getDX() != 0 ||
-                                               evt.getDY() != 0)){
+                                               evt.getDY() != 0 ||
+                                               evt.getDeltaWheel() != 0)){
             inputQueue.add(evt);
         }
     }
@@ -142,7 +143,7 @@ public class InputSystemJme implements InputSystem, RawInputListener {
     }
 
     public void onMouseButtonEvent(MouseButtonEvent evt) {
-        if (inputManager.isCursorVisible() && evt.getButtonIndex() == 0){
+        if (inputManager.isCursorVisible() && evt.getButtonIndex() >= 0 || evt.getButtonIndex() <= 2){
             inputQueue.add(evt);
         }
     }
