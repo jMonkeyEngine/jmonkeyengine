@@ -10,6 +10,8 @@ import javax.swing.JPanel;
 
 public final class AngelFontVisualPanel1 extends JPanel {
 
+    String selectedFont = "";
+
     /** Creates new form AngelFontVisualPanel1 */
     public AngelFontVisualPanel1() {
         initComponents();
@@ -23,8 +25,8 @@ public final class AngelFontVisualPanel1 extends JPanel {
         return "Select Font";
     }
 
-    public String getSelectedFont(){
-        return (String)jList1.getSelectedValue();
+    public String getSelectedFont() {
+        return selectedFont;
     }
 
     /** This method is called from within the constructor to
@@ -70,7 +72,8 @@ public final class AngelFontVisualPanel1 extends JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void updateFont(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_updateFont
-        jLabel1.setIcon(new ImageIcon(FontCreator.buildFont((String)jList1.getSelectedValue())));
+        jLabel1.setIcon(new ImageIcon(FontCreator.buildFont((String) jList1.getSelectedValue())));
+        selectedFont = (String) jList1.getSelectedValue();
     }//GEN-LAST:event_updateFont
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel jLabel1;

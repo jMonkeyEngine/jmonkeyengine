@@ -79,9 +79,9 @@ public class AngelFontWizardPanel1 implements WizardDescriptor.Panel {
     // WizardDescriptor.getProperty & putProperty to store information entered
     // by the user.
     public void readSettings(Object settings) {
-        ((WizardDescriptor)settings).putProperty("font_name", component.getSelectedFont());
     }
 
     public void storeSettings(Object settings) {
+        ((WizardDescriptor)settings).putProperty("font_name", component.getSelectedFont());
     }
 }
