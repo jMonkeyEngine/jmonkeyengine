@@ -32,11 +32,6 @@
 
 package com.jme3.input.awt;
 
-import com.jme3.input.MouseInput;
-import com.jme3.input.RawInputListener;
-import com.jme3.input.event.MouseButtonEvent;
-import com.jme3.input.event.MouseMotionEvent;
-import de.lessvoid.nifty.input.mouse.MouseInputEvent;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Point;
@@ -49,12 +44,15 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import javax.swing.SwingUtilities;
+
+import com.jme3.input.MouseInput;
+import com.jme3.input.RawInputListener;
+import com.jme3.input.event.MouseButtonEvent;
+import com.jme3.input.event.MouseMotionEvent;
 
 /**
  * <code>AwtMouseInput</code>

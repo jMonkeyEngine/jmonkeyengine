@@ -43,8 +43,9 @@ import com.jme3.input.event.MouseButtonEvent;
 import com.jme3.input.event.MouseMotionEvent;
 import de.lessvoid.nifty.Nifty;
 import de.lessvoid.nifty.NiftyInputConsumer;
+import de.lessvoid.nifty.input.NiftyMouseInputEvent;
 import de.lessvoid.nifty.input.keyboard.KeyboardInputEvent;
-import de.lessvoid.nifty.input.mouse.MouseInputEvent;
+import de.lessvoid.nifty.input.mouse.MouseInputEventQueue;
 import de.lessvoid.nifty.spi.input.InputSystem;
 import java.util.ArrayList;
 
@@ -100,11 +101,18 @@ public class InputSystemJme implements InputSystem, RawInputListener {
     private void onMouseMotionEventQueued(MouseMotionEvent evt, NiftyInputConsumer nic) {
         x = evt.getX();
         y = height - evt.getY();
-        MouseInputEvent niftyEvt = new MouseInputEvent(x, y, pressed);
-        if (nic.processMouseEvent(niftyEvt) /*|| nifty.getCurrentScreen().isMouseOverElement()*/){
+        MouseInputEventQueue niftyEvtQueue = nifty.getMouseInputEventQueue();
+        NiftyMouseInputEvent niftyEvt = new NiftyMouseInputEvent();
+        if (niftyEvtQueue.hasLastMouseDownEvent()) {
+            niftyEvt = niftyEvtQueue.getLastMouseDownEvent();
+        }
+        niftyEvt.initialize(x, y, evt.getDeltaWheel(), niftyEvt.isButton0Down(), niftyEvt.isButton1Down(), niftyEvt.isButton2Down());
+        niftyEvtQueue.process(niftyEvt);
+        //MouseInputEvent niftyEvt = new MouseInputEvent(x, y, pressed);
+//        if (nic.processMouseEvent(niftyEvt) /*|| nifty.getCurrentScreen().isMouseOverElement()*/){
             // Do not consume motion events
             //evt.setConsumed();
-        }
+//        }
     }
 
     public void onMouseMotionEvent(MouseMotionEvent evt) {
@@ -118,10 +126,19 @@ public class InputSystemJme implements InputSystem, RawInputListener {
 
     private void onMouseButtonEventQueued(MouseButtonEvent evt, NiftyInputConsumer nic) {
         pressed = evt.isPressed();
-        MouseInputEvent niftyEvt = new MouseInputEvent(x, y, pressed);
-        if (nic.processMouseEvent(niftyEvt) /*|| nifty.getCurrentScreen().isMouseOverElement()*/){
-            evt.setConsumed();
+        MouseInputEventQueue niftyEvtQueue = nifty.getMouseInputEventQueue();
+        NiftyMouseInputEvent niftyEvt = new NiftyMouseInputEvent();
+        if (niftyEvtQueue.hasLastMouseDownEvent()) {
+            niftyEvt = niftyEvtQueue.getLastMouseDownEvent();
         }
+        niftyEvt.initialize(x, y, 0, evt.getButtonIndex() == 0 && evt.isPressed(), evt.getButtonIndex() == 1
+                && evt.isPressed(), evt.getButtonIndex() == 2 && evt.isPressed());
+        niftyEvtQueue.process(niftyEvt);
+
+//        MouseInputEvent niftyEvt = new MouseInputEvent(x, y, pressed);
+//        if (nic.processMouseEvent(niftyEvt) /*|| nifty.getCurrentScreen().isMouseOverElement()*/){
+            evt.setConsumed();
+//        }
     }
 
     public void onMouseButtonEvent(MouseButtonEvent evt) {
