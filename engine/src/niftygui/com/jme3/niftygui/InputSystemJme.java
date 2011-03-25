@@ -56,6 +56,7 @@ public class InputSystemJme implements InputSystem, RawInputListener {
     private InputManager inputManager;
 
     private boolean pressed = false;
+    private int buttonIndex;
     private int x, y;
     private int height;
 
@@ -63,6 +64,7 @@ public class InputSystemJme implements InputSystem, RawInputListener {
     private boolean ctrlDown  = false;
 
     private Nifty nifty;
+
 
     public InputSystemJme(InputManager inputManager){
         this.inputManager = inputManager;
@@ -101,13 +103,7 @@ public class InputSystemJme implements InputSystem, RawInputListener {
     private void onMouseMotionEventQueued(MouseMotionEvent evt, NiftyInputConsumer nic) {
         x = evt.getX();
         y = height - evt.getY();
-        MouseInputEventQueue niftyEvtQueue = nifty.getMouseInputEventQueue();
-        NiftyMouseInputEvent niftyEvt = new NiftyMouseInputEvent();
-        if (niftyEvtQueue.hasLastMouseDownEvent()) {
-            niftyEvt = niftyEvtQueue.getLastMouseDownEvent();
-        }
-        niftyEvt.initialize(x, y, evt.getDeltaWheel(), niftyEvt.isButton0Down(), niftyEvt.isButton1Down(), niftyEvt.isButton2Down());
-        niftyEvtQueue.process(niftyEvt);
+        nic.processMouseEvent(x, y, evt.getDeltaWheel(), buttonIndex, pressed);
         //MouseInputEvent niftyEvt = new MouseInputEvent(x, y, pressed);
 //        if (nic.processMouseEvent(niftyEvt) /*|| nifty.getCurrentScreen().isMouseOverElement()*/){
             // Do not consume motion events
@@ -126,16 +122,9 @@ public class InputSystemJme implements InputSystem, RawInputListener {
     }
 
     private void onMouseButtonEventQueued(MouseButtonEvent evt, NiftyInputConsumer nic) {
+        buttonIndex = evt.getButtonIndex();
         pressed = evt.isPressed();
-        MouseInputEventQueue niftyEvtQueue = nifty.getMouseInputEventQueue();
-        NiftyMouseInputEvent niftyEvt = new NiftyMouseInputEvent();
-        if (niftyEvtQueue.hasLastMouseDownEvent()) {
-            niftyEvt = niftyEvtQueue.getLastMouseDownEvent();
-        }
-        niftyEvt.initialize(x, y, 0, evt.getButtonIndex() == 0 && evt.isPressed(), evt.getButtonIndex() == 1
-                && evt.isPressed(), evt.getButtonIndex() == 2 && evt.isPressed());
-        niftyEvtQueue.process(niftyEvt);
-
+        nic.processMouseEvent(x, y, 0, buttonIndex, pressed);
 //        MouseInputEvent niftyEvt = new MouseInputEvent(x, y, pressed);
 //        if (nic.processMouseEvent(niftyEvt) /*|| nifty.getCurrentScreen().isMouseOverElement()*/){
             evt.setConsumed();
