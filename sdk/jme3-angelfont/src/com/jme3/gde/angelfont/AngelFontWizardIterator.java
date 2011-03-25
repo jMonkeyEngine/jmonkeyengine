@@ -95,7 +95,7 @@ public final class AngelFontWizardIterator implements WizardDescriptor.Instantia
             }
             outputFile = FileUtil.toFile(pm.getAssetFolder().getFileObject("Interface/Fonts"));
             if (!outputFile.getName().endsWith(".png")) {
-                outputFile = new File(outputFile.getAbsoluteFile() + File.separator + name + ".png");
+                outputFile = new File(outputFile.getAbsoluteFile() + File.separator + name.replaceAll(" ", "") + ".png");
             }
             // write png file
             ImageIO.write(fontImage, "PNG", outputFile);

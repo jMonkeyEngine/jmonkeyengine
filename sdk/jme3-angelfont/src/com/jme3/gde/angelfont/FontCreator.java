@@ -25,14 +25,17 @@ public abstract class FontCreator {
     }
 
     public static BufferedImage buildFont(String fontName) {
-        return buildFont(fontName, 63);
+        return buildFont(fontName, 512);
     }
 
-    public static BufferedImage buildFont(String fontName, int offset) {
+    public static BufferedImage buildFont(String fontName, int bitmapSize) {
+        return buildFont(fontName, bitmapSize, 63);
+    }
+
+    public static BufferedImage buildFont(String fontName, int bitmapSize, int offset) {
         BufferedImage fontImage;
         Font font;
 
-        int bitmapSize = 512; // set the size for the bitmap texture
         boolean sizeFound = false;
         boolean directionSet = false;
         int delta = 0;
@@ -134,5 +137,4 @@ public abstract class FontCreator {
 //        System.out.println(charLocs);
         return fontImage;
     }
-
 }
