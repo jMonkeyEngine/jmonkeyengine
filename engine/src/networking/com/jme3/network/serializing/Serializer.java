@@ -132,7 +132,7 @@ public abstract class Serializer {
             Serializable serializable = (Serializable)cls.getAnnotation(Serializable.class);
 
             Class serializerClass = serializable.serializer();
-            short classId = serializable.id();
+            short classId = serializable.id();           
             if (classId == 0) classId = --nextId;
 
             Serializer serializer = getSerializer(serializerClass);

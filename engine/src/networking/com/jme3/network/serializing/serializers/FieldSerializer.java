@@ -88,6 +88,11 @@ public class FieldSerializer extends Serializer {
     }
 
     public <T> T readObject(ByteBuffer data, Class<T> c) throws IOException {
+    
+        // Read the null/non-null marker
+        if (data.get() == 0x0)
+            return null;
+    
         SavedField[] fields = savedFields.get(c);
 
         T object;
@@ -117,6 +122,14 @@ public class FieldSerializer extends Serializer {
     }
 
     public void writeObject(ByteBuffer buffer, Object object) throws IOException {
+    
+        // Add the null/non-null marker
+        buffer.put( (byte)(object != null ? 0x1 : 0x0) );
+        if (object == null) {
+            // Nothing left to do
+            return;
+        }
+        
         SavedField[] fields = savedFields.get(object.getClass());
         if (fields == null)
             throw new IOException("The " + object.getClass() + " is not registered"
