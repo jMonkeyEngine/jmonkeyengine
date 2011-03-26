@@ -34,6 +34,7 @@ package com.jme3.network.serializing.serializers;
 
 import com.jme3.network.message.Message;
 import com.jme3.network.serializing.Serializer;
+import com.jme3.network.serializing.SerializerException;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -109,7 +110,7 @@ public class FieldSerializer extends Serializer {
             try {
                 field.set(object, value);
             } catch (IllegalAccessException e) {
-                throw new IOException(e.toString());
+                throw new SerializerException( "Error reading object", e);
             }
         }
         return object;
@@ -140,7 +141,7 @@ public class FieldSerializer extends Serializer {
                 throw boe;
             } catch (Exception e) {
                 log.log(Level.WARNING, "[FieldSerializer][???] Exception occurred on writing. Maybe you've forgotten to register a class, or maybe a class member does not have a serializer.");
-                throw new IOException(e.toString());
+                throw new SerializerException( "Error writing object", e);
             }
         }
     }
