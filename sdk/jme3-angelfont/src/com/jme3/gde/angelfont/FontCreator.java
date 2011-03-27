@@ -104,7 +104,7 @@ public abstract class FontCreator {
                 + "stretchH=100 "
                 + "smooth=1 "
                 + "aa=1 "
-                + "paiing=0,0,0,0 "
+                + "padding=0,0,0,0 "
                 + "spacing=1,1 "
                 + "\n"
                 + "common lineHeight=" + height + " "
