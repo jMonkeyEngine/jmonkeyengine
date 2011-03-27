@@ -160,11 +160,22 @@ public class SelectorKernel extends AbstractKernel
 
     protected void removeEndpoint( NioEndpoint p, SocketChannel c )
     {
+System.out.println( "removeEndpoint(" + p + ", " + c + ")" );    
         endpoints.remove( p.getId() );
 
         // Enqueue an endpoint event for the listeners
         addEvent( EndpointEvent.createRemove( this, p ) );
-    }
+        
+        // If there are no pending messages then add one so that the
+        // kernel-user knows to wake up if it is only listening for
+        // envelopes.
+        if( !hasEnvelopes() ) {
+            // Note: this is not really a race condition.  At worst, our
+            // event has already been handled by now and it does no harm
+            // to check again.
+            addEnvelope( EVENTS_PENDING );
+        }
+    }    
 
     /**
      *  Called by the endpoints when they need to be closed.
@@ -393,7 +404,11 @@ public class SelectorKernel extends AbstractKernel
                 i.remove();
 
                 if( !key.isValid() )
+                    {
+                    // When does this happen?
+                    log.log( Level.INFO, "Key is not valid:{0}.", key );
                     continue;
+                    }
 
                 if( key.isAcceptable() )
                     accept(key);

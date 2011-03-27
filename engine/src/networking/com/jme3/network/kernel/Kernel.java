@@ -47,6 +47,13 @@ import com.jme3.network.Filter;
 public interface Kernel
 {
     /**
+     *  A marker envelope returned from read() that indicates that
+     *  there are events pending.  This allows a single thread to
+     *  more easily process the envelopes and endpoint events.
+     */
+    public static final Envelope EVENTS_PENDING = new Envelope( null, new byte[0], false );     
+
+    /**
      *  Initializes the kernel and starts any internal processing.
      */
     public void initialize();

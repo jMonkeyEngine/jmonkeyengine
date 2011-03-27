@@ -140,7 +140,9 @@ public class KernelAdapter extends Thread
         byte[] data = env.getData();
         ByteBuffer buffer = ByteBuffer.wrap(data);
 
-        protocol.addBuffer( buffer );
+        int count = protocol.addBuffer( buffer );
+        if( count == 0 )
+            throw new RuntimeException( "Envelope contained incomplete data:" + env );
         
         // Should be complete... and maybe we should check but we don't
         Message m = null;
@@ -153,7 +155,7 @@ public class KernelAdapter extends Thread
     protected void createAndDispatch( EndpointEvent event )
     {
         // Only need to tell the server about disconnects 
-        if( event.getType() == EndpointEvent.Type.REMOVE ) {
+        if( event.getType() == EndpointEvent.Type.REMOVE ) {            
             connectionClosed( event.getEndpoint() );
         }            
     }
@@ -177,6 +179,8 @@ public class KernelAdapter extends Thread
  
                 // Grab the next envelope
                 Envelope e = kernel.read();
+                if( e == Kernel.EVENTS_PENDING )
+                    continue; // We'll catch it up above
  
                 // Check for pending events that might have
                 // come in while we were blocking.  This is usually
