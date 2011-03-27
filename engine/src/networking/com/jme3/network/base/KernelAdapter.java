@@ -35,6 +35,8 @@ package com.jme3.network.base;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import com.jme3.network.*;
 import com.jme3.network.kernel.Endpoint;
@@ -61,6 +63,8 @@ import com.jme3.network.serializing.Serializer;
  */
 public class KernelAdapter extends Thread
 {
+    static Logger log = Logger.getLogger(KernelAdapter.class.getName());
+    
     private DefaultServer server; // this is unfortunate
     private Kernel kernel;
     private MessageListener messageDispatcher;
@@ -87,6 +91,13 @@ public class KernelAdapter extends Thread
         
         // Kill the kernel
         kernel.terminate();
+    }
+
+    protected void reportError( Exception e )
+    {
+        // Should really be queued up so the outer thread can
+        // retrieve them.  For now we'll just log it.  FIXME
+        log.log( Level.SEVERE, "Unhandled error", e );
     }
 
     protected HostedConnection getConnection( Endpoint p )
@@ -128,9 +139,13 @@ public class KernelAdapter extends Thread
             server.registerClient( this, p, (ClientRegistrationMessage)m );
             return;           
         }                
-            
-        HostedConnection source = getConnection(p);
-        messageDispatcher.messageReceived( source, m );
+ 
+        try {           
+            HostedConnection source = getConnection(p);
+            messageDispatcher.messageReceived( source, m );
+        } catch( Exception e ) {
+            reportError(e);
+        }
     }
 
     protected void createAndDispatch( Envelope env )
@@ -163,10 +178,13 @@ public class KernelAdapter extends Thread
     protected void flushEvents()
     {
         EndpointEvent event;
-        while( (event = kernel.nextEvent()) != null )
-            {
-            createAndDispatch( event );
+        while( (event = kernel.nextEvent()) != null ) {
+            try {
+                createAndDispatch( event );
+            } catch( Exception e ) {
+                reportError(e);        
             }
+        }
     }
  
     public void run()
