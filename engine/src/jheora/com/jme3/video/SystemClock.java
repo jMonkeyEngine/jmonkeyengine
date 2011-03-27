@@ -32,6 +32,7 @@
 
 package com.jme3.video;
 
+@Deprecated
 public class SystemClock implements Clock {
 
     private long startTime = 0;

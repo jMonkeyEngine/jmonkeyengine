@@ -36,6 +36,7 @@ import com.jme3.texture.Image.Format;
 import com.jme3.texture.Texture2D;
 import com.jme3.util.BufferUtils;
 
+@Deprecated
 public class VFrame extends Texture2D {
 
     private long time;

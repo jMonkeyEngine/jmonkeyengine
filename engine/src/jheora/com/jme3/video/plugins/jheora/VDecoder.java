@@ -43,6 +43,7 @@ import com.jme3.video.VFrame;
 import com.jme3.video.VQueue;
 import java.nio.ByteBuffer;
 
+@Deprecated
 public class VDecoder implements Clock {
 
     private int packetIndex = 0;

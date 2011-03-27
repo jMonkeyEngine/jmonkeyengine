@@ -124,11 +124,10 @@ public class InputSystemJme implements InputSystem, RawInputListener {
     private void onMouseButtonEventQueued(MouseButtonEvent evt, NiftyInputConsumer nic) {
         buttonIndex = evt.getButtonIndex();
         pressed = evt.isPressed();
-        nic.processMouseEvent(x, y, 0, buttonIndex, pressed);
-//        MouseInputEvent niftyEvt = new MouseInputEvent(x, y, pressed);
-//        if (nic.processMouseEvent(niftyEvt) /*|| nifty.getCurrentScreen().isMouseOverElement()*/){
+
+        if (nic.processMouseEvent(x, y, 0, buttonIndex, pressed)){
             evt.setConsumed();
-//        }
+        }
     }
 
     public void onMouseButtonEvent(MouseButtonEvent evt) {

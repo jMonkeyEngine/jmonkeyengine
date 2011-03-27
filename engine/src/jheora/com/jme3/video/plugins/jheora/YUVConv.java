@@ -34,6 +34,7 @@ package com.jme3.video.plugins.jheora;
 
 import com.fluendo.jheora.YUVBuffer;
 
+@Deprecated
 public final class YUVConv {
 
     private int[] pixels;

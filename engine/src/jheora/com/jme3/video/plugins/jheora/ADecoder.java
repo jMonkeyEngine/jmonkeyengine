@@ -43,6 +43,7 @@ import com.jme3.video.RingBuffer;
 import com.jme3.video.SystemClock;
 import java.io.InputStream;
 
+@Deprecated
 public class ADecoder extends InputStream implements Clock {
 
     private int packetIndex = 0;

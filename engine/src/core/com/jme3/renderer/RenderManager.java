@@ -31,13 +31,8 @@
  */
 package com.jme3.renderer;
 
-import com.jme3.light.AmbientLight;
-import com.jme3.light.Light;
-import com.jme3.light.LightList;
 import com.jme3.material.Material;
 import com.jme3.material.RenderState;
-import com.jme3.material.Technique;
-import com.jme3.math.ColorRGBA;
 import com.jme3.math.Matrix3f;
 import com.jme3.math.Matrix4f;
 import com.jme3.math.Quaternion;
@@ -107,7 +102,7 @@ public class RenderManager {
      */
     public RenderManager(Renderer renderer) {
         this.renderer = renderer;
-        this.shader = renderer.getCaps().contains(Caps.GLSL100);
+        //this.shader = renderer.getCaps().contains(Caps.GLSL100);
     }
 
     public ViewPort getPreView(String viewName) {

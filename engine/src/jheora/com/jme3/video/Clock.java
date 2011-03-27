@@ -32,6 +32,7 @@
 
 package com.jme3.video;
 
+@Deprecated
 public interface Clock {
 
     public static final long MILLIS_TO_NANOS  = 1000000;

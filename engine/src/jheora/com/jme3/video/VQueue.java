@@ -37,6 +37,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+@Deprecated
 public class VQueue extends ArrayBlockingQueue<VFrame> {
 
 //    private final ArrayList<VFrame> returnedFrames;

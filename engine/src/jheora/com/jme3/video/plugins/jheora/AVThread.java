@@ -47,6 +47,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+@Deprecated
 public class AVThread implements Runnable {
 
     private static final Logger logger = Logger.getLogger(AVThread.class.getName());

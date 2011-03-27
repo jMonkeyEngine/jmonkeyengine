@@ -80,7 +80,6 @@ public class AbstractAppState implements AppState {
     }
 
     public void postRender(){
-        
     }
 
     public void cleanup() {

@@ -28,28 +28,6 @@ public class ClientBoxEntity extends BoxEntity {
             pos.addLocal(vel.mult(latencyDelta));
         }
 
-        private static float interpolateCubic(float v0, float v1, float v2, float v3, float x){
-            float p = (v3 - v2) - (v0 - v1);
-            float q = (v0 - v1) - p;
-            float r = v2 - v0;
-            float s = v1;
-
-            return p * x * x * x
-                 + q * x * x
-                 + r * x
-                 + s;
-        }
-
-        private static Vector3f interpolateCubic(Vector3f v0, Vector3f v1,
-                                                 Vector3f v2, Vector3f v3,
-                                                 float x){
-            Vector3f vec = new Vector3f();
-            vec.x = interpolateCubic(v0.x, v1.x, v2.x, v3.x, x);
-            vec.y = interpolateCubic(v0.y, v1.y, v2.y, v3.y, x);
-            vec.z = interpolateCubic(v0.z, v1.z, v2.z, v3.z, x);
-            return vec;
-        }
-
         @Override
         public void interpolate(float blendAmount) {
             if (pos != null){

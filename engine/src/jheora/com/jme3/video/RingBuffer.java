@@ -32,6 +32,7 @@
 
 package com.jme3.video;
 
+@Deprecated
 public final class RingBuffer {
     
     private final int bufSize;
