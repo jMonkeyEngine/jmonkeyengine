@@ -128,6 +128,10 @@ public abstract class Serializer {
     }
 
     public static SerializerRegistration registerClass(Class cls) {
+        return registerClass(cls, true);
+    }
+    
+    public static SerializerRegistration registerClass(Class cls, boolean failOnMiss) {
         if (cls.isAnnotationPresent(Serializable.class)) {
             Serializable serializable = (Serializable)cls.getAnnotation(Serializable.class);
 
@@ -151,6 +155,9 @@ public abstract class Serializer {
 
             return reg;
         }
+        if (failOnMiss) {
+            throw new IllegalArgumentException( "Class is not marked @Serializable:" + cls );            
+        }
         return null;
     }
 
@@ -172,7 +179,7 @@ public abstract class Serializer {
             SerializerRegistration[] registeredClasses = new SerializerRegistration[classes.size()];
             for (int i = 0; i != classes.size(); ++i) {
                 Class clz = classes.get(i);
-                registeredClasses[i] = registerClass(clz);
+                registeredClasses[i] = registerClass(clz, false);
             }
             return registeredClasses;
         } catch (Exception e) {
