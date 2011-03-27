@@ -95,7 +95,7 @@ public class BombControl extends RigidBodyControl implements PhysicsCollisionLis
             space.add(ghostObject);
             ghostObject.setPhysicsLocation(getPhysicsLocation(vector));
             space.addTickListener(this);
-            if (effect != null && spatial.getParent()!=null) {
+            if (effect != null && spatial.getParent() != null) {
                 curTime = 0;
                 effect.setLocalTranslation(spatial.getLocalTranslation());
                 spatial.getParent().attachChild(effect);
@@ -120,6 +120,7 @@ public class BombControl extends RigidBodyControl implements PhysicsCollisionLis
                 vector2.subtractLocal(vector);
                 float force = explosionRadius - vector2.length();
                 force *= forceFactor;
+                force = force > 0 ? force : 0;
                 vector2.normalizeLocal();
                 vector2.multLocal(force);
                 ((PhysicsRigidBody) physicsCollisionObject).applyImpulse(vector2, Vector3f.ZERO);
@@ -133,9 +134,9 @@ public class BombControl extends RigidBodyControl implements PhysicsCollisionLis
     public void update(float tpf) {
         super.update(tpf);
         if (enabled && curTime >= 0) {
-            curTime+=tpf;
-            if(curTime>fxTime){
-                curTime=-1;
+            curTime += tpf;
+            if (curTime > fxTime) {
+                curTime = -1;
                 effect.removeFromParent();
             }
         }
@@ -165,6 +166,4 @@ public class BombControl extends RigidBodyControl implements PhysicsCollisionLis
     public void write(JmeExporter ex) throws IOException {
         throw new UnsupportedOperationException("Saving not supported.");
     }
-
-
 }
