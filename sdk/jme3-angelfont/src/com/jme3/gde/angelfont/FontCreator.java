@@ -25,24 +25,28 @@ public abstract class FontCreator {
     }
 
     public static AngelFont buildFont(String fontName) {
-        return buildFont(fontName, 512);
+        return buildFont(fontName, 256);
     }
 
     public static AngelFont buildFont(String fontName, int bitmapSize) {
-        return buildFont(fontName, bitmapSize, 16, false);
+        return buildFont(fontName, bitmapSize, 16);
     }
 
     public static AngelFont buildFont(String fontName, int bitmapSize, int fontSize) {
-        return buildFont(fontName, bitmapSize, fontSize, false);
+        return buildFont(fontName, bitmapSize, fontSize, Font.PLAIN);
     }
 
-    public static AngelFont buildFont(String fontName, int bitmapSize, int fontSize, boolean debug) {
+    public static AngelFont buildFont(String fontName, int bitmapSize, int fontSize, int style) {
+        return buildFont(fontName, bitmapSize, fontSize, Font.PLAIN, false);
+    }
+
+    public static AngelFont buildFont(String fontName, int bitmapSize, int fontSize, int style, boolean debug) {
         BufferedImage fontImage;
         Font font;
 
         String charLocs = "";
 
-        font = new Font(fontName, Font.BOLD, fontSize); // Font Name
+        font = new Font(fontName, style, fontSize); // Font Name
         // use BufferedImage.TYPE_4BYTE_ABGR to allow alpha blending
         fontImage = new BufferedImage(bitmapSize, bitmapSize,
                 BufferedImage.TYPE_4BYTE_ABGR);

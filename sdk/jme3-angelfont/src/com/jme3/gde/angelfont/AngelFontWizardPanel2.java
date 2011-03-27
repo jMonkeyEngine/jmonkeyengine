@@ -83,6 +83,7 @@ public class AngelFontWizardPanel2 implements WizardDescriptor.Panel {
     }
 
     public void storeSettings(Object settings) {
+        ((WizardDescriptor)settings).putProperty("font_style", component.style);
         ((WizardDescriptor)settings).putProperty("font_size", component.fontSize);
         ((WizardDescriptor)settings).putProperty("image_size", component.imageSize);
     }

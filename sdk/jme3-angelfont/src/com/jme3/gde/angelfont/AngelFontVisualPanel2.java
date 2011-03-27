@@ -4,6 +4,7 @@
  */
 package com.jme3.gde.angelfont;
 
+import java.awt.Font;
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 
@@ -12,10 +13,15 @@ public final class AngelFontVisualPanel2 extends JPanel {
     String fontName = "";
     int fontSize = 16;
     int imageSize = 256;
+    int style = Font.PLAIN;
 
     /** Creates new form AngelFontVisualPanel2 */
     public AngelFontVisualPanel2() {
         initComponents();
+        jComboBox1.removeAllItems();
+        jComboBox1.addItem("PLAIN");
+        jComboBox1.addItem("ITALIC");
+        jComboBox1.addItem("BOLD");
     }
 
     @Override
@@ -29,7 +35,7 @@ public final class AngelFontVisualPanel2 extends JPanel {
     }
 
     private void updateFont() {
-        jLabel3.setIcon(new ImageIcon(FontCreator.buildFont(fontName, imageSize, fontSize, true).getImage()));
+        jLabel3.setIcon(new ImageIcon(FontCreator.buildFont(fontName, imageSize, fontSize, style, true).getImage()));
         jLabel3.repaint();
         jPanel1.repaint();
     }
@@ -45,6 +51,7 @@ public final class AngelFontVisualPanel2 extends JPanel {
         jPanel1 = new javax.swing.JPanel();
         jLabel3 = new javax.swing.JLabel();
         jToolBar1 = new javax.swing.JToolBar();
+        jComboBox1 = new javax.swing.JComboBox();
         jLabel1 = new javax.swing.JLabel();
         jSpinner1 = new javax.swing.JSpinner();
         jLabel2 = new javax.swing.JLabel();
@@ -58,6 +65,14 @@ public final class AngelFontVisualPanel2 extends JPanel {
 
         jToolBar1.setFloatable(false);
         jToolBar1.setRollover(true);
+
+        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        jComboBox1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jComboBox1ActionPerformed(evt);
+            }
+        });
+        jToolBar1.add(jComboBox1);
 
         org.openide.awt.Mnemonics.setLocalizedText(jLabel1, org.openide.util.NbBundle.getMessage(AngelFontVisualPanel2.class, "AngelFontVisualPanel2.jLabel1.text")); // NOI18N
         jToolBar1.add(jLabel1);
@@ -106,7 +121,19 @@ public final class AngelFontVisualPanel2 extends JPanel {
         imageSize = (Integer) jSpinner2.getValue();
         updateFont();
     }//GEN-LAST:event_updateImageSize
+
+    private void jComboBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox1ActionPerformed
+        if ("PLAIN".equals(jComboBox1.getSelectedItem())) {
+            style = Font.PLAIN;
+        } else if ("BOLD".equals(jComboBox1.getSelectedItem())) {
+            style = Font.BOLD;
+        } else if ("ITALIC".equals(jComboBox1.getSelectedItem())) {
+            style = Font.ITALIC;
+        }
+        updateFont();
+    }//GEN-LAST:event_jComboBox1ActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JComboBox jComboBox1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
