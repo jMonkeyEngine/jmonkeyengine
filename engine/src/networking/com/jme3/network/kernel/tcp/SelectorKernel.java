@@ -160,7 +160,6 @@ public class SelectorKernel extends AbstractKernel
 
     protected void removeEndpoint( NioEndpoint p, SocketChannel c )
     {
-System.out.println( "removeEndpoint(" + p + ", " + c + ")" );    
         endpoints.remove( p.getId() );
 
         // Enqueue an endpoint event for the listeners
