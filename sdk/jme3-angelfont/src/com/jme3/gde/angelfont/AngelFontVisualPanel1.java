@@ -88,7 +88,7 @@ public final class AngelFontVisualPanel1 extends JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void updateFont(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_updateFont
-        jLabel1.setIcon(new ImageIcon(FontCreator.buildFont((String) jList1.getSelectedValue(), 256)));
+        jLabel1.setIcon(new ImageIcon(FontCreator.buildFont((String) jList1.getSelectedValue(), 256).getImage()));
         selectedFont = (String) jList1.getSelectedValue();
     }//GEN-LAST:event_updateFont
     // Variables declaration - do not modify//GEN-BEGIN:variables

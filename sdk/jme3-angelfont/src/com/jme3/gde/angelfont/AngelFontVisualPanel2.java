@@ -4,9 +4,14 @@
  */
 package com.jme3.gde.angelfont;
 
+import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 
 public final class AngelFontVisualPanel2 extends JPanel {
+
+    String fontName = "";
+    int fontSize = 16;
+    int imageSize = 256;
 
     /** Creates new form AngelFontVisualPanel2 */
     public AngelFontVisualPanel2() {
@@ -15,7 +20,18 @@ public final class AngelFontVisualPanel2 extends JPanel {
 
     @Override
     public String getName() {
-        return "Step #2";
+        return "Configure Font";
+    }
+
+    public void setFont(String name) {
+        this.fontName = name;
+        updateFont();
+    }
+
+    private void updateFont() {
+        jLabel3.setIcon(new ImageIcon(FontCreator.buildFont(fontName, imageSize, fontSize, true).getImage()));
+        jLabel3.repaint();
+        jPanel1.repaint();
     }
 
     /** This method is called from within the constructor to
@@ -26,17 +42,77 @@ public final class AngelFontVisualPanel2 extends JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        jPanel1 = new javax.swing.JPanel();
+        jLabel3 = new javax.swing.JLabel();
+        jToolBar1 = new javax.swing.JToolBar();
+        jLabel1 = new javax.swing.JLabel();
+        jSpinner1 = new javax.swing.JSpinner();
+        jLabel2 = new javax.swing.JLabel();
+        jSpinner2 = new javax.swing.JSpinner();
+
+        jPanel1.setBackground(new java.awt.Color(0, 0, 0));
+        jPanel1.setLayout(new javax.swing.BoxLayout(jPanel1, javax.swing.BoxLayout.LINE_AXIS));
+
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel3, org.openide.util.NbBundle.getMessage(AngelFontVisualPanel2.class, "AngelFontVisualPanel2.jLabel3.text")); // NOI18N
+        jPanel1.add(jLabel3);
+
+        jToolBar1.setFloatable(false);
+        jToolBar1.setRollover(true);
+
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel1, org.openide.util.NbBundle.getMessage(AngelFontVisualPanel2.class, "AngelFontVisualPanel2.jLabel1.text")); // NOI18N
+        jToolBar1.add(jLabel1);
+
+        jSpinner1.setModel(new javax.swing.SpinnerNumberModel(Integer.valueOf(16), Integer.valueOf(1), null, Integer.valueOf(1)));
+        jSpinner1.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                updateFontSize(evt);
+            }
+        });
+        jToolBar1.add(jSpinner1);
+
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel2, org.openide.util.NbBundle.getMessage(AngelFontVisualPanel2.class, "AngelFontVisualPanel2.jLabel2.text")); // NOI18N
+        jToolBar1.add(jLabel2);
+
+        jSpinner2.setModel(new javax.swing.SpinnerNumberModel(Integer.valueOf(256), Integer.valueOf(64), null, Integer.valueOf(1)));
+        jSpinner2.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                updateImageSize(evt);
+            }
+        });
+        jToolBar1.add(jSpinner2);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 360, Short.MAX_VALUE)
+            .addComponent(jToolBar1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 441, Short.MAX_VALUE)
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 441, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 256, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 307, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jToolBar1, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
     }// </editor-fold>//GEN-END:initComponents
+
+    private void updateFontSize(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_updateFontSize
+        fontSize = (Integer) jSpinner1.getValue();
+        updateFont();
+    }//GEN-LAST:event_updateFontSize
+
+    private void updateImageSize(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_updateImageSize
+        imageSize = (Integer) jSpinner2.getValue();
+        updateFont();
+    }//GEN-LAST:event_updateImageSize
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JSpinner jSpinner1;
+    private javax.swing.JSpinner jSpinner2;
+    private javax.swing.JToolBar jToolBar1;
     // End of variables declaration//GEN-END:variables
 }

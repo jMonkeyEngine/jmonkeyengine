@@ -15,7 +15,7 @@ public class AngelFontWizardPanel2 implements WizardDescriptor.Panel {
      * The visual component that displays this panel. If you need to access the
      * component from this class, just use getComponent().
      */
-    private Component component;
+    private AngelFontVisualPanel2 component;
 
     // Get the visual component for the panel. In this template, the component
     // is kept separate. This can be more efficient: if the wizard is created
@@ -79,8 +79,11 @@ public class AngelFontWizardPanel2 implements WizardDescriptor.Panel {
     // WizardDescriptor.getProperty & putProperty to store information entered
     // by the user.
     public void readSettings(Object settings) {
+        component.setFont((String)((WizardDescriptor)settings).getProperty("font_name"));
     }
 
     public void storeSettings(Object settings) {
+        ((WizardDescriptor)settings).putProperty("font_size", component.fontSize);
+        ((WizardDescriptor)settings).putProperty("image_size", component.imageSize);
     }
 }

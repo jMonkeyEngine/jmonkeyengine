@@ -9,6 +9,7 @@ import java.awt.Component;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.nio.ByteBuffer;
 import java.util.Collections;
 import java.util.Iterator;
@@ -72,19 +73,23 @@ public final class AngelFontWizardIterator implements WizardDescriptor.Instantia
 
     public Set<FileObject> instantiate() throws IOException {
         String name = (String) wizard.getProperty("font_name");
+        int fontSize = (Integer) wizard.getProperty("font_size");
+        int imageSize = (Integer) wizard.getProperty("image_size");
         Project project = (Project) wizard.getProperty("project");
         ProjectAssetManager pm = project.getLookup().lookup(ProjectAssetManager.class);
         if (pm == null) {
             Logger.getLogger(AngelFontWizardIterator.class.getName()).log(Level.WARNING, "No ProjectAssetManager found!");
             return Collections.EMPTY_SET;
         }
-        BufferedImage fontImage = FontCreator.buildFont(name);
+        AngelFont font = FontCreator.buildFont(name, imageSize, fontSize);
+        BufferedImage fontImage = font.getImage();
         ByteBuffer scratch = ByteBuffer.allocateDirect(4 * fontImage.getWidth() * fontImage.getHeight());
         byte[] data = (byte[]) fontImage.getRaster().getDataElements(0, 0,
                 fontImage.getWidth(), fontImage.getHeight(), null);
         scratch.clear();
         scratch.put(data);
         scratch.rewind();
+        name = name.replaceAll(" ", "");
         File outputFile;
         try {
             if (pm.getAssetFolder().getFileObject("Interface") == null) {
@@ -95,10 +100,18 @@ public final class AngelFontWizardIterator implements WizardDescriptor.Instantia
             }
             outputFile = FileUtil.toFile(pm.getAssetFolder().getFileObject("Interface/Fonts"));
             if (!outputFile.getName().endsWith(".png")) {
-                outputFile = new File(outputFile.getAbsoluteFile() + File.separator + name.replaceAll(" ", "") + ".png");
+                outputFile = new File(outputFile.getAbsoluteFile() + File.separator + name + ".png");
             }
             // write png file
             ImageIO.write(fontImage, "PNG", outputFile);
+
+            FileObject object = pm.getAssetFolder().getFileObject("Interface/Fonts/" + name, "fnt");
+            if (object == null) {
+                object = pm.getAssetFolder().getFileObject("Interface/Fonts").createData(name, "fnt");
+            }
+            OutputStreamWriter out = new OutputStreamWriter(object.getOutputStream());
+            out.write(font.getDescription());
+            out.close();
         } catch (Exception e) {
             Exceptions.printStackTrace(e);
             return Collections.EMPTY_SET;
@@ -108,11 +121,6 @@ public final class AngelFontWizardIterator implements WizardDescriptor.Instantia
 
     public void initialize(WizardDescriptor wizard) {
         this.wizard = wizard;
-        System.out.println("FOLDERRRR:" + wizard.getProperty("folder"));
-        for (Iterator<Entry<String, Object>> it = wizard.getProperties().entrySet().iterator(); it.hasNext();) {
-            Entry<String, Object> entry = it.next();
-            System.out.println(entry.getKey() + ": " + wizard.getProperty(entry.getKey()));
-        }
     }
 
     public void uninitialize(WizardDescriptor wizard) {
