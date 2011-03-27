@@ -21,18 +21,21 @@ import org.openide.util.Lookup;
  *
  * @author gw152771
  */
-public class GuiXMLPaletteFactory {
+public class NiftyGUIPaletteFactory {
+    //TODO: Create TopComponent for layout and use Palette:
+    //http://blogs.sun.com/geertjan/entry/convert_your_topcomponent_to_a
+    //http://www.javanb.com/netbeans/1/19785.html
     
-    public static final String JAVA_PALETTE_FOLDER = "JavaPalette";
+    public static final String PALETTE_FOLDER = "NiftyGUIPalette";
     private static PaletteController palette = null;
     
-    public GuiXMLPaletteFactory() {
+    public NiftyGUIPaletteFactory() {
     }
     
     public static PaletteController createPalette() {
         try {
             if (null == palette)
-                palette = PaletteFactory.createPalette(JAVA_PALETTE_FOLDER, new MyActions());
+                palette = PaletteFactory.createPalette(PALETTE_FOLDER, new MyActions());
             return palette;
         } catch (IOException ex) {
             Exceptions.printStackTrace(ex);

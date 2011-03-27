@@ -88,4 +88,11 @@
             </file>
         </folder>
     </folder>
+    <folder name="NiftyGUIPalette">
+        <folder name="Basic">
+            <file name="Screen.xml" url="nbresloc:/com/jme3/gde/gui/palette/Screen.xml">
+                <attr name="position" intvalue="150"/>
+            </file>
+        </folder>
+    </folder>
 </filesystem>
