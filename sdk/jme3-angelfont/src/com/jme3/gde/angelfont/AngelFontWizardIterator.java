@@ -7,8 +7,8 @@ package com.jme3.gde.angelfont;
 import com.jme3.gde.core.assets.ProjectAssetManager;
 import java.awt.Component;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.ByteBuffer;
 import java.util.Collections;
@@ -23,7 +23,6 @@ import javax.swing.event.ChangeListener;
 import org.netbeans.api.project.Project;
 import org.openide.WizardDescriptor;
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileUtil;
 import org.openide.util.Exceptions;
 
 public final class AngelFontWizardIterator implements WizardDescriptor.InstantiatingIterator {
@@ -70,6 +69,11 @@ public final class AngelFontWizardIterator implements WizardDescriptor.Instantia
         return panels;
     }
 
+    /**
+     * Creates the files based on the info in the WizardDescriptor
+     * @return
+     * @throws IOException
+     */
     public Set<FileObject> instantiate() throws IOException {
         String name = (String) wizard.getProperty("font_name");
         int fontSize = (Integer) wizard.getProperty("font_size");
@@ -90,36 +94,39 @@ public final class AngelFontWizardIterator implements WizardDescriptor.Instantia
         scratch.put(data);
         scratch.rewind();
         name = name.replaceAll(" ", "");
-        File outputFile;
-        FileObject object;
+        FileObject imageFile;
+        FileObject descriptionFile;
         try {
+            //create fonts folder if it doesnt exist
             if (pm.getAssetFolder().getFileObject("Interface") == null) {
                 pm.getAssetFolder().createFolder("Interface");
             }
             if (pm.getAssetFolder().getFileObject("Interface/Fonts") == null) {
                 pm.getAssetFolder().getFileObject("Interface").createFolder("Fonts");
             }
-            outputFile = FileUtil.toFile(pm.getAssetFolder().getFileObject("Interface/Fonts"));
-            if (!outputFile.getName().endsWith(".png")) {
-                outputFile = new File(outputFile.getAbsoluteFile() + File.separator + name + ".png");
+            //create PNG file
+            imageFile = pm.getAssetFolder().getFileObject("Interface/Fonts" + name, "png");
+            if (imageFile == null) {
+                imageFile = pm.getAssetFolder().getFileObject("Interface/Fonts").createData(name, "png");
             }
-            // write png file
-            ImageIO.write(fontImage, "PNG", outputFile);
-
-            object = pm.getAssetFolder().getFileObject("Interface/Fonts/" + name, "fnt");
-            if (object == null) {
-                object = pm.getAssetFolder().getFileObject("Interface/Fonts").createData(name, "fnt");
-            }
-            OutputStreamWriter out = new OutputStreamWriter(object.getOutputStream());
-            out.write(font.getDescription());
+            OutputStream out = imageFile.getOutputStream();
+            ImageIO.write(fontImage, "PNG", out);
             out.close();
+            //create fnt file
+            descriptionFile = pm.getAssetFolder().getFileObject("Interface/Fonts/" + name, "fnt");
+            if (descriptionFile == null) {
+                descriptionFile = pm.getAssetFolder().getFileObject("Interface/Fonts").createData(name, "fnt");
+            }
+            OutputStreamWriter out2 = new OutputStreamWriter(descriptionFile.getOutputStream());
+            out2.write(font.getDescription());
+            out2.close();
         } catch (Exception e) {
             Exceptions.printStackTrace(e);
             return Collections.EMPTY_SET;
         }
         Set<FileObject> set = new HashSet<FileObject>();
-        set.add(FileUtil.toFileObject(outputFile));
-        set.add(object);
+        set.add(imageFile);
+        set.add(descriptionFile);
         return set;
     }
 
