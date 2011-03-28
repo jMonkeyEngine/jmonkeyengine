@@ -443,9 +443,11 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
 
     private void pushTexCoord(Attributes attribs) throws SAXException{
         if (texCoordIdx >= 1)
-            return; // TODO: Support multi-texcoords
+            return; // TODO: More than 2 texcoords
+
+        Type type = texCoordIdx == 0 ? Type.TexCoord : Type.TexCoord2;
         
-        VertexBuffer tcvb = mesh.getBuffer(Type.TexCoord);
+        VertexBuffer tcvb = mesh.getBuffer(type);
         FloatBuffer buf = (FloatBuffer) tcvb.getData();
 
         buf.put(parseFloat(attribs.getValue("u")));
