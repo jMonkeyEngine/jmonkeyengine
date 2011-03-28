@@ -44,6 +44,7 @@ import java.net.URL;
 import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.jar.Attributes;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -153,6 +154,7 @@ public abstract class Serializer {
 
             serializer.initialize(cls);
 
+            log.log( Level.INFO, "Registered class:{0}.", cls );
             return reg;
         }
         if (failOnMiss) {
@@ -161,6 +163,11 @@ public abstract class Serializer {
         return null;
     }
 
+    /**
+     *  @deprecated This cannot be implemented in a reasonable way that works in
+     *              all deployment methods.
+     */
+    @Deprecated
     public static SerializerRegistration[] registerPackage(String pkgName) {
         try {
             ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
