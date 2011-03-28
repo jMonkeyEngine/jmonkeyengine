@@ -1,10 +1,10 @@
 
-<h1><a>Setting up a svn checkout of the jME3 Engine</a></h1>
+<h1><a>Setting up JME3 in Netbeans 6.x</a></h1>
 <div>
 
 <p>
 
-You are welcome to try out the new jME3, and contribute patches and features! This document shows how to download, set up, build, and run the latest development version from the sources.
+You are welcome to try out the new jME3, and contribute patches and features! This document shows how to download, set up, build, and run the latest development version from the sources. (As of Spring 2010, we are in alpha.) These instructions work in NetBeans IDE 6 or better.
 </p>
 
 <p>
@@ -18,12 +18,13 @@ Note: In the following, always replace ”~” with the path to your home direct
 
 <p>
 
-Check out the sources from the repository.
+Check out the sources from the repository. (The following NetBeans instructions are equivalent to executing <code>cd ~/NetBeansProjects; svn checkout <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://jmonkeyengine.googlecode.com/svn/trunk/engine"><param name="text" value="<html><u>http://jmonkeyengine.googlecode.com/svn/trunk/engine</u></html>"><param name="textColor" value="blue"></object> jme3</code> on the commandline.)
+
 </p>
 <ol>
-<li><div> In jMonkeyPlatform go to Team &gt; Subversion &gt; Checkout</div>
+<li><div> In NetBeans go to Team &gt; Subversion &gt; Checkout</div>
 <ol>
-<li><div> Repository <acronym title="Uniform Resource Locator">URL</acronym>: <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="https://jmonkeyengine.googlecode.com/svn"><param name="text" value="<html><u>https://jmonkeyengine.googlecode.com/svn</u></html>"><param name="textColor" value="blue"></object></div>
+<li><div> Repository <acronym title="Uniform Resource Locator">URL</acronym>: <code><object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="https://jmonkeyengine.googlecode.com/svn"><param name="text" value="<html><u>https://jmonkeyengine.googlecode.com/svn</u></html>"><param name="textColor" value="blue"></object></code></div>
 </li>
 <li><div> You can leave user/pw blank for anonymous access. </div>
 </li>
@@ -31,9 +32,11 @@ Check out the sources from the repository.
 </li>
 <li><div> Click Next</div>
 <ol>
-<li><div> Repository Folders: “trunk/engine”</div>
+<li><div> Repository Folders: <code>trunk/engine</code></div>
 </li>
-<li><div> Local Folder: ~/jMonkeyProjects</div>
+<li><div> Enable the checkbox to Skip “engine” and only checkout its contents.</div>
+</li>
+<li><div> Local Folder: <code>~/NetBeansProjects/jme3</code></div>
 </li>
 </ol>
 </li>
@@ -43,8 +46,52 @@ Check out the sources from the repository.
 
 <p>
 
-The jme3 project opens in the Project window.
+The jme3 project opens in the Project window. It already includes a working ANT build script for building and running.
 </p>
+
+<p>
+Look into the Libraries node and confirm that the project depends on the following libraries in the classpath:
+</p>
+<pre>
+jME3-natives-joal.jar	lwjgl.jar       gluegen-rt.jar
+jME3-lwjgl-natives.jar	jinput.jar	swing-layout-1.0.4.jar
+j-ogg-oggd.jar	        vecmath.jar     stack-alloc.jar
+j-ogg-vorbisd.jar       asm-all-3.1.jar jbullet.jar	         
+jheora-jst-debug-0.6.0.jar              xmlpull.xpp3-1.1.4c.jar
+nifty*.jar                              eventbus-1.4.jar
+</pre>
+
+</div>
+
+<h3><a>Optional: Setting up Android Support</a></h3>
+<div>
+
+<p>
+
+Work in progress …
+</p>
+
+<p>
+A jme3 application can either be deployed to the desktop (as Java Swing application) and web browser (as JNLP/WebStart or Applet), or to an Android phone. While the former is the default, switching to Android deployment can be done in a few steps.
+
+</p>
+<ol>
+<li><div> Open Project Properties, go to Sources category.</div>
+</li>
+<li><div> At Source Packages Folders, click “Add Folder”. </div>
+<ul>
+<li><div> Add <code>src/android/</code></div>
+</li>
+<li><div> Remove <code>src/desktop</code></div>
+</li>
+<li><div> Remove <code>src/desktop_fx</code></div>
+</li>
+</ul>
+</li>
+<li><div> build.xml…</div>
+</li>
+</ol>
+
 </div>
 
 <h2><a>Build and Run</a></h2>
@@ -52,14 +99,14 @@ The jme3 project opens in the Project window.
 
 <p>
 
-That&#039;s it!
+That&#039;s it! 
 </p>
 <ol>
 <li><div> Right-click the jme3 project node and “Clean and Build” the project.</div>
 </li>
-<li><div> In the Projects window, browse to the <code>src/jme3_test</code> folder. </div>
+<li><div> In the Projects window, browse to the <code>src/test/jme3test</code> folder. </div>
 </li>
-<li><div> Right-click the file <code>jme3_test/model/TestBox.java</code> and choose “Run” to run a sample. </div>
+<li><div> Right-click e.g. the file <code>src/test/jme3test/model/TestHoverTank.java</code> and choose “Run” to run a sample. </div>
 <ol>
 <li><div> In the sample application, use the mouse and the AWSD keys to move around the test object.</div>
 </li>
@@ -68,6 +115,73 @@ That&#039;s it!
 </ol>
 </li>
 </ol>
+
+<p>
+
+Sample code for cool features is in the <code>src/test/jme3test</code> folder. A sample game can be found in <code>src/games/jme3game/cubefield/CubeField.java</code>.
+</p>
+
+<p>
+Tips: 
+</p>
+<ul>
+<li><div> To run runnable classes from the Projects window, right-click and choose Run.</div>
+</li>
+<li><div> To run any runnable class that is open in the editor, press shift-F6.</div>
+</li>
+</ul>
+
+</div>
+
+<h2><a>Optional: Javadoc Popups and Source Navigation in NetBeans</a></h2>
+<div>
+
+<p>
+
+If you are working on the jme3 sources:
+</p>
+<ol>
+<li><div> In the Projects window, right-click the jme3 project and choose Generate Javadoc. Wait.</div>
+</li>
+<li><div> Confirm in the Files window that the javadoc has been created in <code>~/NetBeansProjects/jme3/dist/javadoc</code></div>
+</li>
+<li><div> In the editor, place the caret in a jme class and press ctrl-space to view javadoc.</div>
+</li>
+</ol>
+
+<p>
+
+If you are working on a game project that depends on jme3:
+</p>
+<ol>
+<li><div> First follow the previous tip. (In the future, we may offer jme javadoc as download instead.)</div>
+</li>
+<li><div> In your game project, right-click the Libraries node and choose “Properties”.</div>
+</li>
+<li><div> In the Library properties, select jme3.jar and click the Edit button.</div>
+<ol>
+<li><div> For the Javadoc field, browse to <code>~/NetBeansProjects/jme3/dist/javadoc</code>. Check “as relative path” and click select.</div>
+</li>
+<li><div> For the Sources field, browse to <code>~/NetBeansProjects/jme3/src</code>. Check “as relative path” and click select.</div>
+</li>
+<li><div> Click OK.</div>
+</li>
+</ol>
+</li>
+<li><div> In the editor, place the caret in a jme class and press ctrl-space to view javadoc. Ctrl-click any jme3 method to jump to its definition in the sources. </div>
+</li>
+</ol>
+
+<p>
+
+This tip works for any third-party JAR library that you use. (You may have to download the javadoc/sources from their home page separately).
+</p>
+<hr />
+
+<p>
+
+Sources used: <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/wiki/BuildJme3"><param name="text" value="<html><u>BuildJme3</u></html>"><param name="textColor" value="blue"></object>, <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://www.jmonkeyengine.com/forum/index.php?topic=13108.0"><param name="text" value="<html><u>netbeans tutorial from forum</u></html>"><param name="textColor" value="blue"></object>
+</p>
 
 </div>
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:build_jme3_sources_with_netbeans?do=export_xhtmlbody">view online version</a></em></p>

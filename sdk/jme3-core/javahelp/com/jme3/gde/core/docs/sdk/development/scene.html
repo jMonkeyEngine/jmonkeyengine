@@ -42,6 +42,8 @@ There are several ways for your plugin to interact with the Scene:
 </li>
 <li><div> <em>The AssetManager of jme3 is threadsafe and can be used from any thread to load assets</em></div>
 </li>
+<li><div> <em>Use org.openide.filesystems.FileObject instead of java.io.File for file access, it always uses system-independent ”/” path separators and has some more advanced functions that make file handling easier. You can get a file from a string using Repository.getDefault().getDefaultFileSystem().getRoot().getFileObject(“aaa/bbb/ccc/whatever”);</em></div>
+</li>
 </ul>
 
 </div>

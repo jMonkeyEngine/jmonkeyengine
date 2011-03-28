@@ -4,7 +4,7 @@
 
 <p>
 
-JME3 has an integrated an asset manager that helps you keep your project assets organized. By assets we mean media files, such as 3D models, materials, textures, scenes, shaders, sounds, and fonts. 
+JME3 has an integrated an asset manager that helps you keep your project assets organized. By assets we mean media files, such as 3D models, materials, textures, scenes, shaders, sounds, and fonts. Think of the asset manager as the filesystem of your game, independent of the actual deployment platform. It also manages the appropriate managing of OpenGL objects like textures so that they are e.g. not uploaded to the graphics card multiple times when multiple models use them.
 </p>
 
 <p>
@@ -52,17 +52,26 @@ These are just the most common examples, you can name the directories inside the
 
 <h2><a>Loading Assets</a></h2>
 <div>
-<pre>      Material mat_brick = new Material( 
-          assetManager, &quot;Common/MatDefs/Misc/SimpleTextured.j3md&quot;);</pre>
-<pre>      mat_brick.setTexture(&quot;m_ColorMap&quot;, 
-          assetManager.loadTexture(&quot;Textures/Terrain/BrickWall/BrickWall.jpg&quot;));</pre>
-<pre>      guiFont = assetManager.loadFont(&quot;Interface/Fonts/Default.fnt&quot;);</pre>
-<pre>      Spatial ninja = assetManager.loadModel(&quot;Models/Ninja/Ninja.mesh.xml&quot;);</pre>
-<pre>    assetManager.registerLocator&#40;&quot;town.zip&quot;, ZipLocator.class.getName&#40;&#41;&#41;;
-    Spatial scene = assetManager.loadModel&#40;&quot;main.scene&quot;&#41;;
-    rootNode.attachChild&#40;scene&#41;;</pre>
+<pre>// Creating a material instance with the definition &quot;Unshaded.j3md&quot;.
+Material mat_brick = new Material&#40; 
+    assetManager, &quot;Common/MatDefs/Misc/Unshaded.j3md&quot;&#41;;
+&nbsp;
+// Applying a texture to the material
+mat_brick.setTexture&#40;&quot;ColorMap&quot;, 
+    assetManager.loadTexture&#40;&quot;Textures/Terrain/BrickWall/BrickWall.jpg&quot;&#41;&#41;;
+&nbsp;
+// Loading a font
+guiFont = assetManager.loadFont&#40;&quot;Interface/Fonts/Default.fnt&quot;&#41;;
+&nbsp;
+// Loading a model
+Spatial ninja = assetManager.loadModel&#40;&quot;Models/Ninja/Ninja.mesh.xml&quot;&#41;;
+&nbsp;
+// Loading a scene from an Ogre3D dotScene file stored inside a zip
+assetManager.registerLocator&#40;&quot;town.zip&quot;, ZipLocator.class.getName&#40;&#41;&#41;;
+Spatial scene = assetManager.loadModel&#40;&quot;main.scene&quot;&#41;;
+rootNode.attachChild&#40;scene&#41;;</pre>
 <p>
-Here is a HttpZipLocator that can download zipped models:
+Here is a HttpZipLocator that can stream models from a zip file online:
 </p>
 <pre>    assetManager.registerLocator&#40;&quot;http://jmonkeyengine.googlecode.com/files/wildhouse.zip&quot;, 
                                  HttpZipLocator.class.getName&#40;&#41;&#41;;

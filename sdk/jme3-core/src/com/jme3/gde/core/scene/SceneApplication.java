@@ -44,7 +44,6 @@ import com.jme3.input.MouseInput;
 import com.jme3.input.controls.MouseAxisTrigger;
 import com.jme3.input.controls.MouseButtonTrigger;
 import com.jme3.light.PointLight;
-import com.jme3.material.RenderState;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.RenderManager;
@@ -128,16 +127,6 @@ public class SceneApplication extends Application implements LookupProvider, Loo
             createCanvas();
             startCanvas(true);
             progressHandle.progress("initialize Base Application", 1);
-//            if (!java.awt.EventQueue.isDispatchThread()) {
-//                java.awt.EventQueue.invokeAndWait(new Runnable() {
-//
-//                    public void run() {
-//                        SceneViewerTopComponent.findInstance();
-//                    }
-//                });
-//            } else {
-//                SceneViewerTopComponent.findInstance();
-//            }
         } catch (Exception e) {
             getProgressHandle().finish();
             SceneViewerTopComponent.showOpenGLError(e.toString());

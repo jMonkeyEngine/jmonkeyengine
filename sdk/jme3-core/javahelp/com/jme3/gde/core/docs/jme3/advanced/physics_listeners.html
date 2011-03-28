@@ -1,0 +1,174 @@
+
+<h1><a>Physics Listeners</a></h1>
+<div>
+
+<p>
+
+You can control physical objects by triggering forces. Or maybe you want to respond to collisions, e.g. by substracting health points, or by playing a sound. To specify how the game responds to such physics events, you use Physics Listeners.
+</p>
+
+</div>
+
+<h2><a>Physics Tick Listener</a></h2>
+<div>
+
+<p>
+
+The jBullet Physics implementation is stepped at a constant 60 physics ticks per second frame rate. 
+Applying forces or checking for overlaps only has an effect right at a physics update cycle, which is not every frame. If you do physics interactions at arbitrary spots in the simpleUpdate() loop, calls will be dropped at irregular intervals, because they happen out of cycle. 
+</p>
+
+</div>
+
+<h3><a>When (Not) to Use Tick Listener?</a></h3>
+<div>
+
+<p>
+
+When you write game mechanics that apply forces, you must implement a tick listener (com.jme3.bullet.PhysicsTickListener) for it. The tick listener makes certain the forces are not dropped, but applied in time for the next physics tick.
+</p>
+
+<p>
+Also, when you check for overlaps of physical objects with a PhysicsGhostObject, you cannot just go <code>physicsSpace.add(ghost); ghost.getOverLappingObjects()</code> somewhere. You have to make certain 1 physics tick has passed before the overlapping objects list is filled with data. Again, the PhysicsTickListener does that for you.
+</p>
+
+<p>
+When your game mechanics however just poll the current state (e.g. location) of physical objects, or if you only use the Ghost control like a sphere trigger, then you don&#039;t need a PhysicsTickListener. 
+</p>
+
+</div>
+
+<h3><a>How to Listen to Physics Ticks</a></h3>
+<div>
+
+<p>
+
+Here&#039;s is the declaration of an examplary Physics Control that listens to ticks.
+</p>
+<pre>public class MyCustomControl 
+    extends RigidBodyControl implements PhysicsTickListener &#123; ... &#125;</pre>
+<p>
+When you implement the interface, you have to implement preTick() and postTick() methods. 
+</p>
+<ul>
+<li><div> <code>prePhysicsTick()</code> is called before the step, here you apply forces (change the state).</div>
+</li>
+<li><div> <code>physicsTick()</code> is called after the step, here you poll the results (get the current state).</div>
+</li>
+</ul>
+<pre>@override
+public void prePhysicsTick&#40;PhysicsSpace space, float f&#41;&#123; 
+  // apply state changes ... 
+&#125;
+@override
+public void physicsTick&#40;PhysicsSpace space, float f&#41;&#123; 
+  // poll game state ... 
+&#125;</pre>
+</div>
+
+<h2><a>Physics Collision Listener</a></h2>
+<div>
+
+</div>
+
+<h3><a>When (Not) to Use Collision Listener</a></h3>
+<div>
+
+<p>
+
+If you do not implement the Collision Listener interface (com.jme3.bullet.collision.PhysicsCollisionListener), a collisions will just mean that physical forces are applied automatically. If you just want “Balls rolling, bricks falling” you do not need a listener. 
+</p>
+
+<p>
+If however you want to respond to a collision event (com.jme3.bullet.collision.PhysicsCollisionEvent) with a custom action, then you need to implement the PhysicsCollisionListener interface. Typical actions triggered by collisions include:
+
+</p>
+<ul>
+<li><div> Increasing a counter (e.g. score points)</div>
+</li>
+<li><div> Decreasing a counter (e.g. health points)</div>
+</li>
+<li><div> Triggering an effect (e.g. explosion)</div>
+</li>
+<li><div> Playing a sound (e.g. explosion, ouch) </div>
+</li>
+<li><div> … and countless more, depending on your game</div>
+</li>
+</ul>
+
+</div>
+
+<h3><a>How to Listen to Collisions</a></h3>
+<div>
+
+<p>
+
+Again, here&#039;s the example declaration of a Physics Control that uses a collision listener.
+</p>
+<pre>public class MyCustomControl 
+    extends RigidBodyControl 
+    implements PhysicsCollisionListener &#123; ... &#125;</pre>
+<p>
+To respond to the PhysicsCollisionEvent you have to override the <code>collision()</code> method. This gives you access to the event object. Mostly you will be interested in the identity of any two nodes that collided: <code>event.getNodeA()</code> and <code>event.getNodeB()</code>. 
+</p>
+
+<p>
+After you identify the colliding nodes, specify the action to trigger when this pair collides. Note that you cannot know which one will be Node A or Node B, you have to deal with either variant.
+</p>
+<pre>    public void collision&#40;PhysicsCollisionEvent event&#41; &#123;
+        if &#40; event.getNodeA&#40;&#41;.getName&#40;&#41;.equals&#40;&quot;player&quot;&#41; &#41; &#123;
+            final Node node = event.getNodeA&#40;&#41;;
+            /** ... do something with the node ... */
+        &#125; else if &#40; event.getNodeB&#40;&#41;.getName&#40;&#41;.equals&#40;&quot;player&quot;&#41; &#41; &#123;
+            final Node node = event.getNodeB&#40;&#41;;
+            /** ... do something with the node ... */
+        &#125;
+    &#125;</pre>
+<p>
+<p><div>Note that after the collision() method ends, the PhysicsCollisionEvent is cleared. You must get all objects and values you need within the collision() method.
+</div></p>
+</p>
+
+</div>
+
+<h3><a>Reading Details From a PhysicsCollisionEvent</a></h3>
+<div>
+
+<p>
+
+The PhysicsCollisionEvent <code>event</code> gives you access to detailed information about the collision. You already know the event objects can identify which nodes collided, but it even knows how hard they collided:
+
+</p>
+<table>
+	<tr>
+		<th>Method                        </th><th>Purpose</th>
+	</tr>
+	<tr>
+		<td> getNodeA() <br/>
+ getNodeB()     </td><td> The two participants in the collision. You cannot know in advance whether some node will be recorded as A or B, you always have to consider both cases. </td>
+	</tr>
+	<tr>
+		<td> getAppliedImpulse()          </td><td> A float value representing the collision impulse </td>
+	</tr>
+	<tr>
+		<td> getAppliedImpulseLateral1()  </td><td> A float value representing the lateral collision impulse </td>
+	</tr>
+	<tr>
+		<td> getAppliedImpulseLateral2()  </td><td> A float value representing the lateral collision impulse </td>
+	</tr>
+	<tr>
+		<td> getCombinedFriction()        </td><td> A float value representing the collision friction </td>
+	</tr>
+	<tr>
+		<td> getCombinedRestitution()     </td><td> A float value representing the collision restitution (bounciness) </td>
+	</tr>
+</table>
+
+<p>
+
+Note that after the collision method has been called the object is not valid anymore so you should copy any data you want to keep into local variables.
+
+</p>
+
+</div>
+<p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:physics_listeners?do=export_xhtmlbody">view online version</a></em></p>

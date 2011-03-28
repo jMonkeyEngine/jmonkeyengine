@@ -192,7 +192,7 @@ Note that in the shader the uniform names will be prefixed by a “g_”.<br/>
 
 In the example above, WorldViewProjectionMatrix is declared as uniform mat4 g_WorldViewProjectionMatrix in the shader.<br/>
 
-The complete list of global uniforms that can be used in JME3 can be found <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/branches/jme3/src/core/com/jme3/shader/UniformBinding.java"><param name="text" value="<html><u>here</u></html>"><param name="textColor" value="blue"></object>.<br/>
+The complete list of global uniforms that can be used in JME3 can be found <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/core/com/jme3/shader/UniformBinding.java"><param name="text" value="<html><u>here</u></html>"><param name="textColor" value="blue"></object>.<br/>
 
 <br/>
 
@@ -207,13 +207,49 @@ The complete list of global uniforms that can be used in JME3 can be found <obje
 <p>
 Those are different attributes that are always passed to your shader.<br/>
 
-you can find a complete list of those attribute in the Type enum of the VertexBuffer <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/branches/jme3/src/core/com/jme3/scene/VertexBuffer.java"><param name="text" value="<html><u>here</u></html>"><param name="textColor" value="blue"></object>.<br/>
+you can find a complete list of those attribute in the Type enum of the VertexBuffer <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/core/com/jme3/scene/VertexBuffer.java"><param name="text" value="<html><u>here</u></html>"><param name="textColor" value="blue"></object>.<br/>
 
 Note that in the shader the attributes names will be prefixed by a “in”.<br/>
 
 <br/>
 
 
+</p>
+
+</div>
+
+<h3><a>User&#039;s uniforms</a></h3>
+<div>
+
+<p>
+At some point when making your own shader you&#039;ll need to pass your own uniforms<br/>
+
+Any uniform has to be declared in the material definition file in the “MaterialParameters” section.<br/>
+
+
+</p>
+<pre>    MaterialParameters &#123;
+        Vector4 Color
+    &#125;</pre>
+<p>
+
+This material parameter will be sent from the engine to the shader as follow
+
+</p>
+<pre>   material.setColor&#40;&quot;Color&quot;, ColorRGBA&#40;1.0f, 0.0f, 0.0f, 1.0f&#41;;//red color</pre>
+<p>
+
+Note that there is a setXXXX method for any type of uniform you want to pass.<br/>
+
+To use this uniform in the shader, you need to declare it in the .frag or in the .vert files (depending on where you need it) as follow :
+
+</p>
+<pre>   uniform vec4 m_Color;</pre>
+<p>
+
+<strong>Note the “m_” prefix that specifies that the uniform is a material parameter.</strong><br/>
+
+This uniform will be populated at runtime with the value you sent.
 </p>
 
 </div>
@@ -278,12 +314,21 @@ GLSL 1.0 to 1.2 comes with build in attributes and uniforms (ie, gl_Vertex, gl_M
 		<td>gl_ProjectionMatrix	</td><td>g_ProjectionMatrix</td>
 	</tr>
 	<tr>
-		<td>gl_ModelViewProjectionMatrix	</td><td>g_WorldViewMatrix</td>
+		<td>gl_ModelViewProjectionMatrix	</td><td>g_WorldViewProjectionMatrix</td>
 	</tr>
 	<tr>
 		<td>gl_NormalMatrix	</td><td>g_NormalMatrix</td>
 	</tr>
 </table>
+
+</div>
+
+<h3><a>Useful links</a></h3>
+<div>
+
+<p>
+<object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://www.eng.utah.edu/~cs5610/lectures/GLSL-ATI-Intro.pdf"><param name="text" value="<html><u>http://www.eng.utah.edu/~cs5610/lectures/GLSL-ATI-Intro.pdf</u></html>"><param name="textColor" value="blue"></object>
+</p>
 
 </div>
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:jme3_shaders?do=export_xhtmlbody">view online version</a></em></p>

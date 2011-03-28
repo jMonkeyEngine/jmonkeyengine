@@ -5,7 +5,10 @@
 <p>
 The jMonkeyEngine3 has built-in support for <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://jbullet.advel.cz"><param name="text" value="<html><u>jBullet physics</u></html>"><param name="textColor" value="blue"></object> via the <code>com.jme3.bullet</code> package.
 Game Physics are used in applications that simulate mass/gravity, collisions, and friction. Think of pool billiard or car racing simulations.
+</p>
 
+<p>
+If you are looking for info on how to respond to physics events, read about <a href="/com/jme3/gde/core/docs/jme3/advanced/physics_listeners.html">Physics Listeners</a>.
 </p>
 
 </div>
@@ -52,13 +55,13 @@ Full code samples are here:
 
 </p>
 <ul>
-<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/branches/jme3/src/test/jme3test/bullet/TestBrickWall.java"><param name="text" value="<html><u>TestBrickWall.java</u></html>"><param name="textColor" value="blue"></object></div>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/bullet/TestBrickWall.java"><param name="text" value="<html><u>TestBrickWall.java</u></html>"><param name="textColor" value="blue"></object></div>
 </li>
-<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/branches/jme3/src/test/jme3test/bullet/TestQ3.java"><param name="text" value="<html><u>TestQ3.java</u></html>"><param name="textColor" value="blue"></object></div>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/bullet/TestQ3.java"><param name="text" value="<html><u>TestQ3.java</u></html>"><param name="textColor" value="blue"></object></div>
 </li>
-<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/branches/jme3/src/test/jme3test/bullet/TestSimplePhysics.java"><param name="text" value="<html><u>TestSimplePhysics.java</u></html>"><param name="textColor" value="blue"></object></div>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/bullet/TestSimplePhysics.java"><param name="text" value="<html><u>TestSimplePhysics.java</u></html>"><param name="textColor" value="blue"></object></div>
 </li>
-<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/branches/jme3/src/test/jme3test/bullet/TestWalkingChar.java"><param name="text" value="<html><u>TestWalkingChar.java</u></html>"><param name="textColor" value="blue"></object></div>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/bullet/TestWalkingChar.java"><param name="text" value="<html><u>TestWalkingChar.java</u></html>"><param name="textColor" value="blue"></object></div>
 </li>
 </ul>
 
@@ -540,104 +543,15 @@ Physics also supports the following features:
 
 </div>
 
-<h2><a>Responding to a PhysicsCollisionEvent</a></h2>
-<div>
-
-<p>
-
-If you do not implement the PhysicsCollisionListener interface, a collisions will just mean that forces are applied automatically. If you just want “Balls rolling, bricks falling” you do not need a listener. 
-</p>
-
-<p>
-If you want to respond to a collision event with a custom action however, then you need to implement the PhysicsCollisionListener interface. Typical actions triggered by collisions include:
-</p>
-<ul>
-<li><div> increasing a counter (score points)</div>
-</li>
-<li><div> decreasing a counter (health points)</div>
-</li>
-<li><div> triggering an effect (explosion)</div>
-</li>
-<li><div> playing a sound (explosion, ouch) </div>
-</li>
-<li><div> … and countless more</div>
-</li>
-</ul>
-
-</div>
-
-<h3><a>Overriding the Collision() Method</a></h3>
-<div>
-
-<p>
-
-To respond to the PhysicsCollisionEvent you have to override the <code>collision()</code> method. This gives you access to the event object. Mostly you will be interested in the identity of any two nodes that collided: <code>event.getNodeA()</code> and <code>event.getNodeB()</code>. 
-</p>
-
-<p>
-After you identify the colliding nodes, specify the action to trigger when this pair collides. Note that you cannot know which one will be Node A or Node B, you have to deal with either variant.
-</p>
-<pre>    public void collision&#40;PhysicsCollisionEvent event&#41; &#123;
-        if &#40; event.getNodeA&#40;&#41;.getName&#40;&#41;.equals&#40;&quot;player&quot;&#41; &#41; &#123;
-            final Node node = event.getNodeA&#40;&#41;;
-            /** ... do something with the node ... */
-        &#125; else if &#40; event.getNodeB&#40;&#41;.getName&#40;&#41;.equals&#40;&quot;player&quot;&#41; &#41; &#123;
-            final Node node = event.getNodeB&#40;&#41;;
-            /** ... do something with the node ... */
-        &#125;
-    &#125;</pre>
-<p>
-<p><div>Note that after the collision() method ends, the PhysicsCollisionEvent is cleared. You must get all objects and values you need within the collision() method.
-</div></p>
-</p>
-
-</div>
-
-<h3><a>Reading Details From a PhysicsCollisionEvent</a></h3>
-<div>
-
-<p>
-
-The PhysicsCollisionEvent <code>event</code> gives you access to detailed information about the collision. You already know the event objects can identify which nodes collided, but it even knows how hard they collided:
-
-</p>
-<table>
-	<tr>
-		<th>Method                        </th><th>Purpose</th>
-	</tr>
-	<tr>
-		<td> getNodeA() <br/>
- getNodeB()     </td><td> The two participants in the collision. You cannot know in advance whether some node will be recorded as A or B, you always have to consider both cases. </td>
-	</tr>
-	<tr>
-		<td> getAppliedImpulse()          </td><td> A float value representing the collision impulse </td>
-	</tr>
-	<tr>
-		<td> getAppliedImpulseLateral1()  </td><td> A float value representing the lateral collision impulse </td>
-	</tr>
-	<tr>
-		<td> getAppliedImpulseLateral2()  </td><td> A float value representing the lateral collision impulse </td>
-	</tr>
-	<tr>
-		<td> getCombinedFriction()        </td><td> A float value representing the collision friction </td>
-	</tr>
-	<tr>
-		<td> getCombinedRestitution()     </td><td> A float value representing the collision restitution (bounciness) </td>
-	</tr>
-</table>
-
-<p>
-
-Note that after the collision method has been called the object is not valid anymore so you should copy any data you want to keep into local variables.
-</p>
-
-</div>
-
 <h2><a>Best Practices</a></h2>
 <div>
 
 <p>
 
+You can control the game by triggering forces; or may want to respond to collisions, e.g. by substracting health points, or by playing a sound. To specify how the game responds to physics events, you use <a href="/com/jme3/gde/core/docs/jme3/advanced/physics_listeners.html">Physics Listeners</a>. 
+</p>
+
+<p>
 Do not overuse physics nodes. Although the physics nodes are put to “sleep” when they are not moved, creating a world solely out of dynamic physics nodes will quickly bring you to the limits of your computer&#039;s capabilities. 
 </p>
 
@@ -651,7 +565,6 @@ If you get weird behaviour, such as physical nodes jittering wildy and being eje
 
 <p>
 For large static meshes like shooter levels or terrain its best to divide the mesh into multiple physics objects to allow the less cpu intense broadphase to filter out most collision items.
-
 </p>
 
 </div>

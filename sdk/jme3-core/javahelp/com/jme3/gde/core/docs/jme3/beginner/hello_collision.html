@@ -1,5 +1,5 @@
 
-<h1><a>Getting Started with JME3 (9) - Hello Collision</a></h1>
+<h1><a>JME 3 Tutorial (9) - Hello Collision</a></h1>
 <div>
 
 <p>
@@ -31,7 +31,7 @@ The solution shown here can be used for first-person shooters, mazes, and simila
 
 <p>
 
-If you don&#039;t have it yet, <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://jmonkeyengine.googlecode.com/svn/branches/jme3/town.zip"><param name="text" value="<html><u>download the town.zip</u></html>"><param name="textColor" value="blue"></object> sample scene. 
+If you don&#039;t have it yet, <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://jmonkeyengine.googlecode.com/svn/trunk/engine/town.zip"><param name="text" value="<html><u>download the town.zip</u></html>"><param name="textColor" value="blue"></object> sample scene. 
 </p>
 <pre>jMonkeyProjects$ ls -1 BasicGame
 assets/
@@ -155,13 +155,13 @@ public class HelloCollision extends SimpleApplication
    * We do not walk yet, we just keep track of the direction the user pressed. */</span>
   public void onAction&#40;String binding, boolean value, float tpf&#41; &#123;
     if &#40;binding.equals&#40;&quot;Lefts&quot;&#41;&#41; &#123;
-      if &#40;value&#41; &#123; left = true; &#125;  else &#123; left = false; &#125;
+      left = value;
     &#125; else if &#40;binding.equals&#40;&quot;Rights&quot;&#41;&#41; &#123;
-      if &#40;value&#41; &#123; right = true; &#125; else &#123; right = false; &#125;
+      right = value;
     &#125; else if &#40;binding.equals&#40;&quot;Ups&quot;&#41;&#41; &#123;
-      if &#40;value&#41; &#123; up = true; &#125;    else &#123; up = false; &#125;
+      up = value;
     &#125; else if &#40;binding.equals&#40;&quot;Downs&quot;&#41;&#41; &#123;
-      if &#40;value&#41; &#123; down = true; &#125;  else &#123; down = false; &#125;
+      down = value;
     &#125; else if &#40;binding.equals&#40;&quot;Jumps&quot;&#41;&#41; &#123;
       player.jump&#40;&#41;;
     &#125;
@@ -269,7 +269,7 @@ For the scene, you load the <code>sceneModel</code> from a zip file, and adjust 
     sceneModel = assetManager.loadModel&#40;&quot;main.scene&quot;&#41;;
     sceneModel.setLocalScale&#40;2f&#41;;</pre>
 <p>
-The file <code>town.zip</code> is included as a sample model in the JME3 sources – you can <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://jmonkeyengine.googlecode.com/svn/branches/jme3/town.zip"><param name="text" value="<html><u>download it here</u></html>"><param name="textColor" value="blue"></object>. (Optionally, use any OgreXML scene of your own.) For this sample, place the zip file in the application&#039;s top level directory (that is, next to src/, assets/, build.xml).
+The file <code>town.zip</code> is included as a sample model in the JME3 sources – you can <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://jmonkeyengine.googlecode.com/svn/trunk/engine/town.zip"><param name="text" value="<html><u>download it here</u></html>"><param name="textColor" value="blue"></object>. (Optionally, use any OgreXML scene of your own.) For this sample, place the zip file in the application&#039;s top level directory (that is, next to src/, assets/, build.xml).
 </p>
 <pre>    CollisionShape sceneShape =
       CollisionShapeFactory.createMeshShape&#40;&#40;Node&#41; sceneModel&#41;;
@@ -397,13 +397,13 @@ Remember that we declared this class an <code>ActionListener</code> so we could 
 </p>
 <pre>  public void onAction&#40;String binding, boolean value, float tpf&#41; &#123;
     if &#40;binding.equals&#40;&quot;Lefts&quot;&#41;&#41; &#123;
-      if &#40;value&#41; &#123; left = true; &#125;  else &#123; left = false; &#125;
+      left = value;
     &#125; else if &#40;binding.equals&#40;&quot;Rights&quot;&#41;&#41; &#123;
-      if &#40;value&#41; &#123; right = true; &#125; else &#123; right = false; &#125;
+      right = value;
     &#125; else if &#40;binding.equals&#40;&quot;Ups&quot;&#41;&#41; &#123;
-      if &#40;value&#41; &#123; up = true; &#125;    else &#123; up = false; &#125;
+      up = value;
     &#125; else if &#40;binding.equals&#40;&quot;Downs&quot;&#41;&#41; &#123;
-      if &#40;value&#41; &#123; down = true; &#125;  else &#123; down = false; &#125;
+      down = value;
     &#125; else if &#40;binding.equals&#40;&quot;Jumps&quot;&#41;&#41; &#123;
       player.jump&#40;&#41;;
     &#125;
@@ -476,7 +476,7 @@ To learn more about different ways of loading models and scene have a look at <a
 
 <p>
 There are also other possible solutions for this task that do not require physics. 
-Have a look at <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/branches/jme3/src/test/jme3test/collision/TestSimpleCollision.java?r=5192&amp;spec=svn5192"><param name="text" value="<html><u>jme3test.collision.TestSimpleCollision.java</u></html>"><param name="textColor" value="blue"></object> (and SphereMotionAllowedListener.java).
+Have a look at <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/collision/TestSimpleCollision.java?r=5192&amp;spec=svn5192"><param name="text" value="<html><u>jme3test.collision.TestSimpleCollision.java</u></html>"><param name="textColor" value="blue"></object> (and SphereMotionAllowedListener.java).
 To learn more about complex physics scenes where several mobile physical objects bump into each other, read <a href="/com/jme3/gde/core/docs/jme3/beginner/hello_physics.html">Hello Physics</a>.
 </p>
 
@@ -484,6 +484,17 @@ To learn more about complex physics scenes where several mobile physical objects
 Do you want to hear your player say “ouch!” when he bumps into a wall? Continue with learning <a href="/com/jme3/gde/core/docs/jme3/beginner/hello_audio.html">how to add sound</a> to your game.
 
 </p>
+<div><span>
+	<a href="/wiki/doku.php/tag:beginner?do=showtag&amp;tag=tag%3Abeginner">beginner</a>,
+	<a href="/wiki/doku.php/tag:beginner?do=showtag&amp;tag=tag%3Abeginner">beginner,</a>,
+	<a href="/wiki/doku.php/tag:collision?do=showtag&amp;tag=tag%3Acollision">collision</a>,
+	<a href="/wiki/doku.php/tag:controller?do=showtag&amp;tag=tag%3Acontroller">controller</a>,
+	<a href="/wiki/doku.php/tag:controllers?do=showtag&amp;tag=tag%3Acontrollers">controllers</a>,
+	<a href="/wiki/doku.php/tag:intro?do=showtag&amp;tag=tag%3Aintro">intro</a>,
+	<a href="/wiki/doku.php/tag:documentation?do=showtag&amp;tag=tag%3Adocumentation">documentation</a>,
+	<a href="/wiki/doku.php/tag:model?do=showtag&amp;tag=tag%3Amodel">model</a>,
+	<a href="/wiki/doku.php/tag:physics?do=showtag&amp;tag=tag%3Aphysics">physics</a>
+</span></div>
 
 </div>
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:beginner:hello_collision?do=export_xhtmlbody">view online version</a></em></p>

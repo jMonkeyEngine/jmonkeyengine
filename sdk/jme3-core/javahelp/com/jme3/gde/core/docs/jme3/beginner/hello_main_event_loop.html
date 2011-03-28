@@ -1,18 +1,15 @@
 
-<h1><a>Getting Started with JME3 (4) - Hello Event Loop</a></h1>
+<h1><a>JME 3 Tutorial (4) - Hello Update Loop</a></h1>
 <div>
 
 <p>
 
-<br/>
-
 Previous: <a href="/com/jme3/gde/core/docs/jme3/beginner/hello_asset.html">Hello Assets</a>,
 Next: <a href="/com/jme3/gde/core/docs/jme3/beginner/hello_input_system.html">Hello Input System</a>
-<br/>
+</p>
 
-<br/>
-
-Now that you know how to load assets such as 3-D models, you want them to implement the actual gameplay. The event loop of your game is where the action happens.
+<p>
+Now that you know how to load assets such as 3-D models, you want them to implement the actual gameplay. In this tutorial we look at the update loop. The update loop of your game is where the action happens.
 </p>
 
 </div>
@@ -28,7 +25,7 @@ import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Box;
 &nbsp;
-<span>/** Sample 4 - how to trigger repeating actions from the main event loop.
+<span>/** Sample 4 - how to trigger repeating actions from the main update loop.
  * In this example, we make the player character rotate. */</span>
 public class HelloLoop extends SimpleApplication &#123;
 &nbsp;
@@ -50,7 +47,7 @@ public class HelloLoop extends SimpleApplication &#123;
         rootNode.attachChild&#40;player&#41;;
     &#125;
 &nbsp;
-    /* This is the main event loop */
+    /* This is the update loop */
     @Override
     public void simpleUpdate&#40;float tpf&#41; &#123;
         // make the player rotate
@@ -68,13 +65,11 @@ Build and run the file: You see a constantly rotating cube.
 
 <p>
 
-Compared to our previous code samples you note that the player Geometry is now a class field. This is because we want the main event loop to be able to access and transform this Geometry. As you can see, we initialize the player object in the <code>simpleInitApp()</code> method. 
+Compared to our previous code samples you note that the player Geometry is now a class field. This is because we want the update loop to be able to access and transform this Geometry. As you can see, we initialize the player object in the <code>simpleInitApp()</code> method. 
 </p>
 
 <p>
-<br/>
-
-Now have a closer look at the <code>simpleUpdate()</code> method, this is the main event loop. 
+Now have a closer look at the <code>simpleUpdate()</code> method, this is the update loop. 
 </p>
 <ul>
 <li><div> The <code>player.rotate(0, 2*tpf, 0);</code> line changes the rotation of the player object. </div>
@@ -85,20 +80,16 @@ Now have a closer look at the <code>simpleUpdate()</code> method, this is the ma
 
 </div>
 
-<h2><a>The Event Loop</a></h2>
+<h2><a>The Update Loop</a></h2>
 <div>
 
 <p>
 
-A rotating object is just a simple example. In the event loop, you can update score and health points, check for collisions, make enemies calculate their next move, roll the dice whether a trap has been set off, play random ambient sounds, and much more.  
-</p>
-
-<p>
-<br/>
+A rotating object is just a simple example. In the update loop, you can update score and health points, check for collisions, make enemies calculate their next move, roll the dice whether a trap has been set off, play random ambient sounds, and much more.  
 
 </p>
 <ul>
-<li><div> The event loop starts after the <code>simpleInitApp()</code> method has set up the scenegraph and state variables.</div>
+<li><div> The update loop starts after the <code>simpleInitApp()</code> method has set up the scenegraph and state variables.</div>
 </li>
 <li><div> JME executes everything in the <code>simpleUpdate()</code> method repeatedly, as fast as possible.</div>
 <ol>
@@ -155,6 +146,17 @@ The next thing the game needs is some <em>inter</em>action! Continue learning ho
 <p>
 See also: Advanced jME3 developers additionally use <a href="/com/jme3/gde/core/docs/jme3/advanced/application_states.html">Application States</a> and <a href="/com/jme3/gde/core/docs/jme3/advanced/custom_controls.html">Custom Controls</a> to implement more complex mechanics in their game loops. You will come across these topics later when you proceed to advanced documentation.
 </p>
+<div><span>
+	<a href="/wiki/doku.php/tag:documentation?do=showtag&amp;tag=tag%3Adocumentation">documentation</a>,
+	<a href="/wiki/doku.php/tag:beginner?do=showtag&amp;tag=tag%3Abeginner">beginner,</a>,
+	<a href="/wiki/doku.php/tag:state?do=showtag&amp;tag=tag%3Astate">state</a>,
+	<a href="/wiki/doku.php/tag:states?do=showtag&amp;tag=tag%3Astates">states</a>,
+	<a href="/wiki/doku.php/tag:intro?do=showtag&amp;tag=tag%3Aintro">intro</a>,
+	<a href="/wiki/doku.php/tag:beginner?do=showtag&amp;tag=tag%3Abeginner">beginner</a>,
+	<a href="/wiki/doku.php/tag:controller?do=showtag&amp;tag=tag%3Acontroller">controller</a>,
+	<a href="/wiki/doku.php/tag:controllers?do=showtag&amp;tag=tag%3Acontrollers">controllers</a>,
+	<a href="/wiki/doku.php/tag:loop?do=showtag&amp;tag=tag%3Aloop">loop</a>
+</span></div>
 
 </div>
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:beginner:hello_main_event_loop?do=export_xhtmlbody">view online version</a></em></p>

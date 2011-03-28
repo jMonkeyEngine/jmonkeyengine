@@ -1,0 +1,193 @@
+
+<h1><a>Laying out the GUI in XML</a></h1>
+<div>
+<ol>
+<li><div> <strong>Nifty <acronym title="Graphical User Interface">GUI</acronym> <acronym title="Extensible Markup Language">XML</acronym> Layout</strong></div>
+</li>
+<li><div> <a href="/com/jme3/gde/core/docs/jme3/advanced/nifty_gui_overlay.html">Nifty GUI Overlay</a> or <a href="/com/jme3/gde/core/docs/jme3/advanced/nifty_gui_projection.html">Nifty GUI Projection</a></div>
+</li>
+<li><div> <a href="/com/jme3/gde/core/docs/jme3/advanced/nifty_gui_java_interaction.html">Interact with the GUI from Java</a></div>
+</li>
+</ol>
+
+<p>
+<img src="nbdocs:/com/jme3/gde/core/docs/jme3/advanced/nifty-screen-layer-panel.png">
+</p>
+
+<p>
+You “draw” the <acronym title="Graphical User Interface">GUI</acronym> to the screen by writing <acronym title="Extensible Markup Language">XML</acronym> code. We will be referring to the following elements:
+</p>
+<ul>
+<li><div> Every Nifty Gui is made up of screens.</div>
+<ul>
+<li><div> Nifty can display only one screen at a time.</div>
+</li>
+<li><div> You must name the first screen <code>id=“start”</code>. Name any others whatever you like.</div>
+</li>
+<li><div> Every screen is <a href="/com/jme3/gde/core/docs/jme3/advanced/nifty_gui_java_interaction.html">controlled by a Java class</a>.</div>
+</li>
+</ul>
+</li>
+<li><div> A screen contains one or more layers. </div>
+<ul>
+<li><div> Layers are containers that impose an alignment on their content (vertical, horizontal, centered)</div>
+</li>
+<li><div> Layers can overlap (z-order), but cannot be nested.</div>
+</li>
+<li><div> Layers are usually transparent (but can be opaque).</div>
+</li>
+</ul>
+</li>
+<li><div> A layer contains panels.</div>
+<ul>
+<li><div> Panels are containers that impose an alignment on their content (vertical, horizontal, centered)</div>
+</li>
+<li><div> Panels can be nested, but not overlap.</div>
+</li>
+<li><div> Panels are usually opaque (but can be transparent). ?</div>
+</li>
+</ul>
+</li>
+<li><div> A panel can contain images, text fields, buttons, controls.</div>
+</li>
+<li><div> Every element has an id to refer to it.</div>
+</li>
+</ul>
+
+</div>
+
+<h2><a>How to Use Screens and Layers</a></h2>
+<div>
+
+<p>
+
+Create an empty helloworld.xml file in the <code>assets/Interfaces/</code> directory of your project.
+</p>
+
+<p>
+Here&#039;s a minimal example showing an empty centered layer on the start screen:
+</p>
+<pre><span>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
+<span>&lt;nifty xmlns=&quot;http://nifty-gui.sourceforge.net/nifty.xsd&quot; </span>
+<span>       xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; </span>
+<span>       xsi:schemaLocation=&quot;http://nifty-gui.sourceforge.net/nifty.xsd 
+                           http://nifty-gui.sourceforge.net/nifty.xsd&quot;&gt;</span>
+&nbsp;
+  <span>&lt;screen id=&quot;start&quot; controller=&quot;de.lessvoid.nifty.examples.helloworld.HelloWorldStartScreen&quot;&gt;</span>
+    <span>&lt;layer id=&quot;layer1&quot; backgroundColor=&quot;#003f&quot; childLayout=&quot;center&quot;&gt;</span>
+       &lt;!-- ... panels go here... --&gt;
+    <span><span>&lt;/layer&gt;</span></span>
+  <span><span>&lt;/screen&gt;</span></span>
+&nbsp;
+<span><span>&lt;/nifty&gt;</span></span></pre>
+<p>
+Into a layer, you add panels (text, images, etc), and specify their properties:
+</p>
+
+</div>
+
+<h3><a>Panel</a></h3>
+<div>
+
+<p>
+
+A panels looks like a rectangular colored box.
+</p>
+<pre>...
+<span>&lt;panel height=&quot;25%&quot; width=&quot;35%&quot; align=&quot;center&quot; valign=&quot;center&quot; backgroundColor=&quot;#f60f&quot;</span>
+<span>       childLayout=&quot;center&quot; visibleToMouse=&quot;true&quot;&gt;</span>
+<span><span>&lt;/panel&gt;</span></span>
+...</pre>
+</div>
+
+<h3><a>Text</a></h3>
+<div>
+<pre>...
+<span>&lt;text font=&quot;verdana-24-shadow.fnt&quot; text=&quot;Hello World!&quot; align=&quot;center&quot; valign=&quot;center&quot; /&gt;</span>
+...</pre>
+<p>
+
+or 
+</p>
+<pre>...
+<span>&lt;label text=&quot;this is my text&quot; align=&quot;left&quot;/&gt;</span>
+...</pre>
+</div>
+
+<h3><a>Image</a></h3>
+<div>
+<pre><span>&lt;image filename=&quot;Textures/jme-logo.png&quot; &gt;<span>&lt;/image&gt;</span></span></pre>
+<p>
+Nifty additionally offers predefined controls – learn more from the NiftyGUI page:
+</p>
+<ul>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://sourceforge.net/apps/mediawiki/nifty-gui/index.php?title=Layout_Introduction"><param name="text" value="<html><u>http://sourceforge.net/apps/mediawiki/nifty-gui/index.php?title=Layout_Introduction</u></html>"><param name="textColor" value="blue"></object></div>
+</li>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://sourceforge.net/apps/mediawiki/nifty-gui/index.php?title=Elements"><param name="text" value="<html><u>http://sourceforge.net/apps/mediawiki/nifty-gui/index.php?title=Elements</u></html>"><param name="textColor" value="blue"></object></div>
+</li>
+</ul>
+
+</div>
+
+<h2><a>Effects</a></h2>
+<div>
+
+<p>
+
+You can register effects to screen elements.
+</p>
+<ul>
+<li><div> Respond to element events such as onStartScreen, onEndScreen, onHover, onFocus, onActive,</div>
+</li>
+<li><div> Trigger effects that change movement, blending, size, color, fading, and much more.</div>
+</li>
+</ul>
+
+<p>
+
+Here is an example that moves a panel when the startScreen opens. You place an &lt; effect &gt; tag inside the element that you want to want to be affected.
+</p>
+<pre>...
+  <span>&lt;panel height=&quot;25%&quot; width=&quot;35%&quot; ...&gt;</span>
+    <span><span>&lt;effect&gt;</span></span>
+      <span>&lt;onStartScreen name=&quot;move&quot; mode=&quot;in&quot; direction=&quot;top&quot; </span>
+<span>                     length=&quot;300&quot; startDelay=&quot;0&quot; inherit=&quot;true&quot;/&gt;</span>
+    <span><span>&lt;/effect&gt;</span></span>
+  <span><span>&lt;/panel&gt;</span></span>
+...</pre>
+<p>
+Playing sounds using nifty is also possible with effects as triggers. Remember to first register the sound you&#039;re going to play:
+</p>
+<pre>...
+  <span>&lt;registerSound id=&quot;click&quot; filename=&quot;Sounds/Gui/ButtonClick.ogg&quot; /&gt;</span>
+...
+  <span><span>&lt;label&gt;</span></span>
+    <span><span>&lt;effect&gt;</span></span>
+       <span>&lt;onClick name=&quot;playSound&quot; sound=&quot;click&quot;/&gt;</span>
+    <span><span>&lt;/effect&gt;</span></span>
+  <span><span>&lt;/label&gt;</span></span>
+...</pre>
+<p>
+
+Learn more from the NiftyGUI page:
+</p>
+<ul>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://sourceforge.net/apps/mediawiki/nifty-gui/index.php?title=Effects"><param name="text" value="<html><u>http://sourceforge.net/apps/mediawiki/nifty-gui/index.php?title=Effects</u></html>"><param name="textColor" value="blue"></object></div>
+</li>
+</ul>
+<hr />
+<ol>
+<li><div> <strong>Nifty <acronym title="Graphical User Interface">GUI</acronym> <acronym title="Extensible Markup Language">XML</acronym> Layout</strong></div>
+</li>
+<li><div> <a href="/com/jme3/gde/core/docs/jme3/advanced/nifty_gui_overlay.html">Nifty GUI Overlay</a> or <a href="/com/jme3/gde/core/docs/jme3/advanced/nifty_gui_projection.html">Nifty GUI Projection</a></div>
+</li>
+<li><div> <a href="/com/jme3/gde/core/docs/jme3/advanced/nifty_gui_java_interaction.html">Interact with the GUI from Java</a></div>
+</li>
+</ol>
+<div><span>
+	<a href="/wiki/doku.php/tag:documentation?do=showtag&amp;tag=tag%3Adocumentation">documentation</a>,
+	<a href="/wiki/doku.php/tag:gui?do=showtag&amp;tag=tag%3Agui">gui</a>
+</span></div>
+
+</div>
+<p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:nifty_gui_xml_layout?do=export_xhtmlbody">view online version</a></em></p>

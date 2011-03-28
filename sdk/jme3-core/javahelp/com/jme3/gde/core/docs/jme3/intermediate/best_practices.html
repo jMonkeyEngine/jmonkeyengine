@@ -8,7 +8,7 @@ A collection of recommendations and expert tips. Feel free to add your own!
 </p>
 
 <p>
-If you are a beginner, you should first <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://www.gamedevlessons.com/?page=free"><param name="text" value="<html><u>read some</u></html>"><param name="textColor" value="blue"></object> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://gamasutra.com/"><param name="text" value="<html><u>articles about</u></html>"><param name="textColor" value="blue"></object> game developement. We cannot cover all general tips here. 
+If you are a beginner, you should first <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://www.gamedevlessons.com/?page=free"><param name="text" value="<html><u>read some</u></html>"><param name="textColor" value="blue"></object> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://gamasutra.com/"><param name="text" value="<html><u>articles about</u></html>"><param name="textColor" value="blue"></object> game development. We cannot cover all general tips here. 
 </p>
 
 </div>
@@ -44,9 +44,9 @@ As a quick overview, answer yourself the following questions:
 <ul>
 <li><div> What is the start state, what is the end state? </div>
 </li>
-<li><div> What resources does the player manage? E.g. speed, gold, health, “points”</div>
+<li><div> What resources does the player manage? How are resources gained, transformed, spent? E.g. speed, gold, health, “points”.</div>
 </li>
-<li><div> How does the player interact? Rules, challenges, game mechanics</div>
+<li><div> How does the player interact? I.e. rules, challenges, game mechanics.</div>
 </li>
 <li><div> What state is considered winning, and what losing?</div>
 </li>
@@ -63,7 +63,7 @@ As a quick overview, answer yourself the following questions:
 <ul>
 <li><div> Can you achieve a high degree of input control? Even minor navigation and interaction glitches make the game unsolvable.</div>
 </li>
-<li><div> Clearly reflect status and changes in game states. E.g. health/damage.</div>
+<li><div> Clearly reflect current status, and changes in game states. E.g. health/damage.</div>
 </li>
 <li><div> Clearly reward good moves and discourage bad ones.</div>
 </li>
@@ -104,23 +104,23 @@ As a quick overview, answer yourself the following questions:
 </li>
 </ol>
 </li>
-<li><div> Release Candidate</div>
+<li><div> Gamma, Delta = Release Candidates</div>
 <ol>
 <li><div> Last chance to find a horrible bug.</div>
 </li>
 </ol>
 </li>
-<li><div> Final Release</div>
+<li><div> Omega = Final Release</div>
 </li>
 </ol>
 
 <p>
 
-How you actually name or number these milestones is up to you. People use the words “milestone”, Greek letters, versions, numbers, or combinations thereof.
+How you actually name or number these milestones is up to you. People use the words “milestone”, Greek letters, version numbers, or combinations thereof.
 </p>
 
 <p>
-Every milestone has a development phase and a test phase. Here are some best practices:
+Every milestone is made up of a development phase and a test phase. Here are some best practices:
 </p>
 
 </div>
@@ -165,7 +165,7 @@ Acknowledge whether you want a feature because it is necessary for gameplay, or 
 
 <p>
 
-Typically developers create a custom class off of jME3&#039;s SimpleApplication. For a racing game you would create a different base game class than for a space game or shooter.
+Typically, developers extend a custom class off of jME3&#039;s com.jme3.app.SimpleApplication (or even com.jme3.app.Application). For a racing game you would create a different base game class than for a space game or a shooter.
 
 </p>
 <ol>
@@ -229,11 +229,12 @@ Learn more about <a href="/com/jme3/gde/core/docs/jme3/advanced/custom_controls.
 
 <h3><a>Optimize Application Performance</a></h3>
 <div>
-
-<p>
-
-<a href="/com/jme3/gde/core/docs/jme3/intermediate/optimization.html">Optimization</a>
-</p>
+<ul>
+<li><div> <a href="/com/jme3/gde/core/docs/jme3/intermediate/optimization.html">Optimization</a></div>
+</li>
+<li><div> <a href="/com/jme3/gde/core/docs/jme3/advanced/multithreading.html">Multithreading</a></div>
+</li>
+</ul>
 
 </div>
 
@@ -293,7 +294,7 @@ jMonkeyProjects/Pong/assets/Textures/  # .mesh.xml+.material, .mtl+.obj, .jpg, .
 </pre>
 
 <p>
-See also: <a href="/com/jme3/gde/core/docs/jme3/jmonkeyplatform/asset_packs.html">Asset Packs</a>
+See also: <a href="/com/jme3/gde/core/docs/sdk/asset_packs.html">Asset Packs</a>
 </p>
 
 </div>
@@ -448,13 +449,15 @@ A Java Profiler can be added to the jMonkeyPlatform via Tools → Plugins → Av
 <ul>
 <li><div> Verify that all assets are up-to-date and converted to .j3o.</div>
 </li>
+<li><div> Prepare licenses of assets that you use for inclusion (you <em>did</em> obtain permission to use them, right…?)</div>
+</li>
 <li><div> Switch off fine <a href="/com/jme3/gde/core/docs/jme3/advanced/logging.html">logging</a> output.</div>
 </li>
-<li><div> Prepare a web page</div>
+<li><div> Prepare promotional art: Cool screenshots (in thumbnail, square, vertical, horizontal, and fullscreen formats) and video clips. Include name, contact info, slogan, etc so customers can find you.</div>
 </li>
-<li><div> Prepare a readme.txt file, installation guide, or handbook – if applicable.</div>
+<li><div> Prepare a web page, start getting advertisment slots, etc</div>
 </li>
-<li><div> Prepare promotional art: Cool screenshots (in thumbnail, square, vertical, horizontal, and fullscreen formats) and video clips. Include name, contact info, slogan, etc.</div>
+<li><div> Prepare a readme.txt file, or installation guide, or handbook – if applicable.</div>
 </li>
 <li><div> Get a certificate if it is required for your distribution method (see below).</div>
 </li>
@@ -470,7 +473,7 @@ A Java Profiler can be added to the jMonkeyPlatform via Tools → Plugins → Av
 </p>
 
 <p>
-Do you release your game as WebStart, Desktop JAR, or Applet? Each has its pros and cons.
+The <a href="/com/jme3/gde/core/docs/sdk.html">SDK</a> can help you with deployment. Do you release your game as WebStart, Desktop JAR, or Applet? Each has its pros and cons.
 
 </p>
 <table>
@@ -479,19 +482,19 @@ Do you release your game as WebStart, Desktop JAR, or Applet? Each has its pros 
 	</tr>
 	<tr>
 		<td>Desktop Launcher <br/>
- (.EXE, .app, .jar+.sh)</td><td>This is the standard way of distributing desktop applications. The jMonkeyPlatform can be configured to automatically create zipped launchers for each operating system. Your company does not need a certificate.</td><td>You need to offer three separate, platform-dependent downloads.</td>
+ (.EXE, .app, .jar+.sh)</td><td>This is the standard way of distributing desktop applications. The jMonkeyPlatform can be configured to automatically create zipped launchers for each operating system. </td><td>You need to offer three separate, platform-dependent downloads.</td>
 	</tr>
 	<tr>
 		<td>Desktop Application <br/>
- (.JAR)</td><td>Platform independent desktop application. Your company does not need a certificate.</td><td>User must have Java configured to run JARs when they are opened; or user must know how to run JARs from command line; or you must provide a custom JAR wrapper.</td>
+ (.JAR)</td><td>Platform independent desktop application. </td><td>User must have Java configured to run JARs when they are opened; or user must know how to run JARs from command line; or you must provide a custom JAR wrapper.</td>
 	</tr>
 	<tr>
 		<td>Web Start <br/>
- (.JNLP)</td><td>The user accesses a <acronym title="Uniform Resource Locator">URL</acronym>, saves the game as one executable file. Easy process, no installer required. You can allow the game to be played offline.</td><td>Users need network connection to install the game. Downloading bigger games takes a while as opposed to running them from a CD. Your company must have a trusted certificate.</td>
+ (.JNLP)</td><td>The user accesses a <acronym title="Uniform Resource Locator">URL</acronym>, saves the game as one executable file. Easy process, no installer required. You can allow the game to be played offline.</td><td>Users need network connection to install the game. Downloading bigger games takes a while as opposed to running them from a CD. </td>
 	</tr>
 	<tr>
 		<td>Browser Applet <br/>
- (.<acronym title="HyperText Markup Language">HTML</acronym>+.JAR)</td><td>Easy to access and play game via most web browsers. Userfriendly solution for quick small games.</td><td>Game only runs in the browser. Game or settings cannot be saved to disk. Your company must have a trusted certificate. Some restrictions in default camera navigation (jME cannot capture mouse.)</td>
+ (.<acronym title="HyperText Markup Language">HTML</acronym>+.JAR)</td><td>Easy to access and play game via most web browsers. Userfriendly solution for quick small games.</td><td>Game only runs in the browser. Game or settings cannot be saved to disk. Some restrictions in default camera navigation (jME cannot capture mouse.)</td>
 	</tr>
 </table>
 

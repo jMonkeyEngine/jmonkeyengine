@@ -8,7 +8,7 @@ You can split the screen and look into the 3D scene from different camera angles
 </p>
 
 <p>
-The packages used in this example are <code>com.jme3.renderer.Camera</code> and <code>com.jme3.renderer.ViewPort</code>. You can get the full sample code here: <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/branches/jme3/src/test/jme3test/renderer/TestMultiViews.java"><param name="text" value="<html><u>TestMultiViews.java</u></html>"><param name="textColor" value="blue"></object>
+The packages used in this example are <code>com.jme3.renderer.Camera</code> and <code>com.jme3.renderer.ViewPort</code>. You can get the full sample code here: <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/renderer/TestMultiViews.java"><param name="text" value="<html><u>TestMultiViews.java</u></html>"><param name="textColor" value="blue"></object>
 </p>
 
 </div>
@@ -39,7 +39,7 @@ We will have a detailed look at how we use setViewPort() to position and resize 
 
 <p>
 
-Here is the outline for how you create the three other cams and viewPorts (<object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/branches/jme3/src/test/jme3test/renderer/TestMultiViews.java"><param name="text" value="<html><u>Full code sample is here</u></html>"><param name="textColor" value="blue"></object>.) In the code snippet, <code>cam_n</code> stand for <code>cam_2</code> - <code>cam_4</code>, respectively, same for <code>view_n</code>.
+Here is the outline for how you create the three other cams and viewPorts (<object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/renderer/TestMultiViews.java"><param name="text" value="<html><u>Full code sample is here</u></html>"><param name="textColor" value="blue"></object>.) In the code snippet, <code>cam_n</code> stand for <code>cam_2</code> - <code>cam_4</code>, respectively, same for <code>view_n</code>.
 
 </p>
 <ol>
@@ -86,7 +86,7 @@ Imagine the view as a 1&times;1-sized box. By default, the settings is <code>cam
 </p>
 
 <p>
-In the <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/branches/jme3/src/test/jme3test/renderer/TestMultiViews.java"><param name="text" value="<html><u>code sample</u></html>"><param name="textColor" value="blue"></object>, note the following four lines:
+In the <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/renderer/TestMultiViews.java"><param name="text" value="<html><u>code sample</u></html>"><param name="textColor" value="blue"></object>, note the following four lines:
 </p>
 <pre>cam.setViewPort&#40;  0.5f, 1.0f, 0.0f, 0.5f&#41;;
 ...
@@ -132,6 +132,10 @@ This layout shows 2&times;2 views. For a split screen you may want to lay out tw
 <p>
 If you scale the views in a way so that the aspect ratio changes, the views will obviously be distorted. In these cases, create custom camera objects with the right aspect ratio (redefine the default cam).  
 </p>
+<div><span>
+	<a href="/wiki/doku.php/tag:camera?do=showtag&amp;tag=tag%3Acamera">camera</a>,
+	<a href="/wiki/doku.php/tag:documentation?do=showtag&amp;tag=tag%3Adocumentation">documentation</a>
+</span></div>
 
 </div>
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:multiple_camera_views?do=export_xhtmlbody">view online version</a></em></p>

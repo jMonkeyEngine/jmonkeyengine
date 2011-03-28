@@ -1,0 +1,184 @@
+
+<h1><a>Interacting with the GUI from Java</a></h1>
+<div>
+<ol>
+<li><div> <a href="/com/jme3/gde/core/docs/jme3/advanced/nifty_gui_xml_layout.html">Nifty GUI XML Layout</a> </div>
+</li>
+<li><div> <a href="/com/jme3/gde/core/docs/jme3/advanced/nifty_gui_overlay.html">Nifty GUI Overlay</a> or <a href="/com/jme3/gde/core/docs/jme3/advanced/nifty_gui_projection.html">Nifty GUI Projection</a></div>
+</li>
+<li><div> <strong>Nifty <acronym title="Graphical User Interface">GUI</acronym> Java Interaction</strong></div>
+</li>
+</ol>
+
+<p>
+
+The main purpose of the <acronym title="Graphical User Interface">GUI</acronym> is to send events back to your Java class that indicate what the users clicked, which settings they chose, which values they entered into a field, etc. In the Java class, you want to respond with an appropriate action, or store the entered settings in a file, etc. 
+</p>
+
+</div>
+
+<h2><a>Connect GUI to Java Controller</a></h2>
+<div>
+
+<p>
+
+How does the <acronym title="Extensible Markup Language">XML</acronym> file send a message back to your Java application? You register a ScreenController (a Java class) to every NiftyGUI screen. 
+</p>
+
+<p>
+Create a ScreenController by creating a Java class that implements the <code>de.lessvoid.nifty.screen.ScreenController</code> interface and its abtract methods.
+</p>
+<pre>package my.game;
+import de.lessvoid.nifty.Nifty;
+import de.lessvoid.nifty.screen.Screen;
+import de.lessvoid.nifty.screen.ScreenController;
+&nbsp;
+public class MySettingsScreen implements ScreenController &#123;
+&nbsp;
+    public void bind&#40;Nifty nifty, Screen screen&#41; &#123; &#125;
+&nbsp;
+    public void onStartScreen&#40;&#41; &#123; &#125;
+&nbsp;
+    public void onEndScreen&#40;&#41; &#123;  &#125;
+&#125;</pre>
+<p>
+The name and package of your custom ScreenController class (here <code>my.game.MySettingsScreen</code>) goes into the controller parameter of the respective screen it belongs to:
+</p>
+<pre><span><span>&lt;nifty&gt;</span></span>
+  <span>&lt;screen id=&quot;settings&quot; controller=&quot;my.game.MySettingsScreen&quot;&gt;</span>
+      &lt;!-- layer and panel code ... --&gt;
+  <span><span>&lt;/screen&gt;</span></span>
+<span><span>&lt;/nifty&gt;</span></span></pre>
+<p>
+Now the Java class <code>my.game.MySettingsScreen</code> and this <acronym title="Graphical User Interface">GUI</acronym> screen (<code>settings</code>) are connected. 
+</p>
+
+</div>
+
+<h2><a>Make GUI and Java Interact</a></h2>
+<div>
+
+<p>
+
+You can use any of the three following approaches to interact, and you can also combine them, depending on what you want to do.
+</p>
+
+</div>
+
+<h3><a>GUI Calls a Void Java Method</a></h3>
+<div>
+
+<p>
+
+To respond to an interaction, add the &lt;interact /&gt; element to a panel and specify the Java method you want to call. In this example, we want to call <code>sayHello()</code> when a panel on the screen is clicked. 
+</p>
+<pre>...
+<span>&lt;panel id=&quot;panel&quot; height=&quot;25%&quot; width=&quot;35%&quot; align=&quot;center&quot; valign=&quot;center&quot; </span>
+<span>       backgroundColor=&quot;#f60f&quot; childLayout=&quot;center&quot; visibleToMouse=&quot;true&quot;&gt;</span>
+    <span>&lt;text id=&quot;text&quot; font=&quot;aurulent-sans-17.fnt&quot; color=&quot;#000f&quot; </span>
+<span>          text=&quot;Hello World!&quot; align=&quot;center&quot; valign=&quot;center&quot; /&gt;</span>
+    <span>&lt;interact onClick=&quot;sayHello(hi)&quot;/&gt;</span>
+<span><span>&lt;/panel&gt;</span></span>
+...</pre>
+<p>
+Back in this screen&#039;s Java class, we specify what the <code>sayHello()</code> method does. As you see, you can include String arguments in the call.
+</p>
+<pre>public class MySettingsScreen implements ScreenController &#123;
+  ...
+  public void sayHello&#40;String myarg&#41; &#123;
+     System.out.println&#40;&quot;Nifty says &quot;+myarg&#41;;
+  &#125;
+&#125;</pre>
+</div>
+
+<h3><a>GUI Gets Return Value from Java Method</a></h3>
+<div>
+
+<p>
+
+You can send a message from Java to Nifty. In this example, the Java class <code>callThis()</code> in MySettingsScreen defines the Text that is displayed in the textfield after the words <code>Hello World, …!</code>
+</p>
+
+<p>
+First define a Java method in the screen controller, in this example, <code>callThis()</code>.
+</p>
+<pre>public class MySettingsScreen implements ScreenController &#123;
+  ...
+  public String callThis&#40;&#41; &#123;
+     return &quot;my friend&quot;;
+  &#125;
+&#125;</pre>
+<p>
+Nifty uses <code>${CALL.callThis()}</code> to get the return value of a method from your ScreenController Java class. 
+</p>
+<pre>...
+<span>&lt;panel id=&quot;panel&quot; height=&quot;25%&quot; width=&quot;35%&quot; align=&quot;center&quot; valign=&quot;center&quot; </span>
+<span>       backgroundColor=&quot;#f60f&quot; childLayout=&quot;center&quot; visibleToMouse=&quot;true&quot;&gt;</span>
+    <span>&lt;text id=&quot;text&quot; font=&quot;aurulent-sans-17.fnt&quot; color=&quot;#000f&quot; </span>
+<span>          text=&quot;Hello World, ${CALL.callThis()}!&quot; align=&quot;center&quot; valign=&quot;center&quot; /&gt;</span>
+    <span>&lt;interact onClick=&quot;sayHello(hi)&quot;/&gt;</span>
+<span><span>&lt;/panel&gt;</span></span>
+...</pre>
+<p>
+You can also use this for Strings and numeric values, e.g. when you read settings from a file, you read them like this.
+</p>
+
+</div>
+
+<h3><a>Java Modifies Nifty Elements and Events</a></h3>
+<div>
+
+<p>
+
+You can also alter the appearance and functions of your nifty elements from Java.
+</p>
+
+<p>
+Here&#039;s an example of how to change the image <code>myElement</code>:
+</p>
+<pre>NiftyImage img = nifty.getRenderEngine&#40;&#41;.createImage&#40;&quot;Interface/Images/image.png&quot;, false&#41;;
+Element niftyElement = nifty.getCurrentScreen&#40;&#41;.findElementByName&#40;&quot;myElement&quot;&#41;;
+niftyElement.getRenderer&#40;ImageRenderer.class&#41;.setImage&#40;img&#41;;</pre>
+<p>
+The same is valid for other elements, for example text fields:
+
+</p>
+<pre>niftyElement.getRenderer&#40;TextRenderer.class&#41;.setText&#40;&quot;New text&quot;&#41;;</pre>
+<p>
+Similarly, to change the onClick() event of an element, create an <code>ElementInteraction</code> object:
+</p>
+<pre>Element niftyElement = nifty.getCurrentScreen&#40;&#41;.findElementByName&#40;&quot;myElement&quot;&#41;;
+niftyElement.setInteraction&#40;new ElementInteraction&#40;nifty&#41; &#123;
+&nbsp;
+    @Override
+    public void onClick&#40;&#41; &#123;
+        // call java functions normally.
+        niftyController.onElementClicked&#40;&#41;;
+        super.onClick&#40;&#41;;
+    &#125;
+&nbsp;
+    @Override
+    public boolean onClick&#40;MouseInputEvent inputEvent&#41; &#123;
+        niftyController.onElementClicked&#40;&#41;;
+        return super.onClick&#40;inputEvent&#41;;
+    &#125;
+&#125;&#41;;</pre>
+<p>
+For this to work, there already needs to be an &lt; interact &gt; tag inside your xml element:
+</p>
+<pre>&lt;interact onClick=&quot;doNothing()&quot;/&gt;</pre>
+
+<p>
+Learn more: <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://sourceforge.net/apps/mediawiki/nifty-gui/index.php?title=MarkUp"><param name="text" value="<html><u>Nifty Syntax</u></html>"><param name="textColor" value="blue"></object>
+
+</p>
+<div><span>
+	<a href="/wiki/doku.php/tag:gui?do=showtag&amp;tag=tag%3Agui">gui</a>,
+	<a href="/wiki/doku.php/tag:documentation?do=showtag&amp;tag=tag%3Adocumentation">documentation</a>,
+	<a href="/wiki/doku.php/tag:input?do=showtag&amp;tag=tag%3Ainput">input</a>,
+	<a href="/wiki/doku.php/tag:controller?do=showtag&amp;tag=tag%3Acontroller">controller</a>,
+	<a href="/wiki/doku.php/tag:controllers?do=showtag&amp;tag=tag%3Acontrollers">controllers</a>
+</span></div>
+
+</div>
+<p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:nifty_gui_java_interaction?do=export_xhtmlbody">view online version</a></em></p>

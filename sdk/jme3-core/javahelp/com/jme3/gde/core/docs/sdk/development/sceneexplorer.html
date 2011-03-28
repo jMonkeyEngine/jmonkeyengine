@@ -13,19 +13,15 @@ If your plugin brings in its own SceneGraph objects you can still have them work
 </p>
 
 <p>
-<br/>
-
 You will have to create your own class that extends org.openide.nodes.Node and implement the interface com.jme3.gde.core.sceneexplorer.nodes.SceneExplorerNode. Then you register that class by adding 
 </p>
 <pre>@org.openide.util.lookup.ServiceProvider(service=com.jme3.gde.core.sceneexplorer.nodes.SceneExplorerNode.class)</pre>
 
 <p>
- above the “public class MyClass” line in your class. Thats all, your Spatial type will automatically be used and displayed in the SceneExplorer.
+ above the “public class MyClass” line in your class. Thats all, your Spatial type will automatically be used and displayed in the SceneExplorer. Make sure you register a jar with the used classes in the plugin preferences under “wrapped libraries”, otherwise the IDE cannot access those classes.
 </p>
 
 <p>
-<br/>
-
 Theres also AbstractSceneExplorerNode which brings some other useful features you might want to include like automatic creation of properly threaded properties etc. JmeSpatial for example bases on it. A simple SceneExplorerNode example for an object extending Spatial would be JmeGeometry (see below).
 </p>
 
@@ -107,16 +103,16 @@ public class JmeGhostControl extends AbstractSceneExplorerNode &#123;
 &nbsp;
     private static Image smallImage =
             ImageUtilities.loadImage&#40;&quot;com/jme3/gde/core/sceneexplorer/nodes/icons/ghostcontrol.gif&quot;&#41;;
-    private GhostControl geom;
+    private GhostControl control;
 &nbsp;
     public JmeGhostControl&#40;&#41; &#123;
     &#125;
 &nbsp;
-    public JmeGhostControl&#40;GhostControl spatial, DataObject dataObject&#41; &#123;
+    public JmeGhostControl&#40;GhostControl control, DataObject dataObject&#41; &#123;
         super&#40;dataObject&#41;;
         getLookupContents&#40;&#41;.add&#40;this&#41;;
-        getLookupContents&#40;&#41;.add&#40;spatial&#41;;
-        this.geom = spatial;
+        getLookupContents&#40;&#41;.add&#40;control&#41;;
+        this.control = control;
         setName&#40;&quot;GhostControl&quot;&#41;;
     &#125;
 &nbsp;
@@ -152,7 +148,7 @@ public class JmeGhostControl extends AbstractSceneExplorerNode &#123;
             SceneApplication.getApplication&#40;&#41;.enqueue&#40;new Callable&lt;Void&gt;&#40;&#41; &#123;
 &nbsp;
                 public Exception &#123;
-                    spat.removeControl&#40;geom&#41;;
+                    spat.removeControl&#40;control&#41;;
                     return null;
                 &#125;
             &#125;&#41;.get&#40;&#41;;
@@ -170,7 +166,7 @@ public class JmeGhostControl extends AbstractSceneExplorerNode &#123;
         Sheet.Set set = Sheet.createPropertiesSet&#40;&#41;;
         set.setDisplayName&#40;&quot;GhostControl&quot;&#41;;
         set.setName&#40;GhostControl.class.getName&#40;&#41;&#41;;
-        GhostControl obj = geom;//getLookup().lookup(Spatial.class);
+        GhostControl obj = control;//getLookup().lookup(Spatial.class);
         if &#40;obj == null&#41; &#123;
             return sheet;
         &#125;
@@ -224,17 +220,17 @@ public class GenerateTangentsTool extends AbstractToolAction &#123;
     &#125;
 &nbsp;
     @Override
-    protected boolean doApplyTool&#40;AbstractSceneExplorerNode rootNode&#41; &#123;
+    protected Object doApplyTool&#40;AbstractSceneExplorerNode rootNode&#41; &#123;
         Geometry geom = rootNode.getLookup&#40;&#41;.lookup&#40;Geometry.class&#41;;
         Mesh mesh = geom.getMesh&#40;&#41;;
         if &#40;mesh != null&#41; &#123;
             TangentBinormalGenerator.generate&#40;mesh&#41;;
         &#125;
-        return true;
+        return geom;
     &#125;
 &nbsp;
     @Override
-    protected void doUndoTool&#40;AbstractSceneExplorerNode rootNode&#41; &#123;
+    protected void doUndoTool&#40;AbstractSceneExplorerNode rootNode, Object undoObject&#41; &#123;
         Geometry geom = rootNode.getLookup&#40;&#41;.lookup&#40;Geometry.class&#41;;
         Mesh mesh = geom.getMesh&#40;&#41;;
         if &#40;mesh != null&#41; &#123;

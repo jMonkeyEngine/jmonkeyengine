@@ -33,6 +33,7 @@ package com.jme3.gde.core.sceneviewer;
 
 import com.jme3.gde.core.scene.SceneApplication;
 import com.jme3.system.JmeCanvasContext;
+import java.awt.Canvas;
 import java.util.logging.Logger;
 import org.openide.util.NbBundle;
 import org.openide.windows.TopComponent;
@@ -45,7 +46,6 @@ import org.openide.NotifyDescriptor.Message;
 import org.openide.awt.UndoRedo;
 import org.openide.util.HelpCtx;
 import org.openide.util.Lookup;
-import org.openide.util.lookup.InstanceContent;
 
 /**
  * Top component which displays something.
@@ -58,11 +58,9 @@ public final class SceneViewerTopComponent extends TopComponent {
     /** path to the icon used by the component and its open action */
     static final String ICON_PATH = "com/jme3/gde/core/sceneviewer/jme-logo.png";
     private static final String PREFERRED_ID = "SceneViewerTopComponent";
-//    private JmeCanvasContext ctx;
     private SceneApplication app;
-//    private Lookup lookup;
-//    private final InstanceContent lookupContents = new InstanceContent();
     private HelpCtx helpContext = new HelpCtx("com.jme3.gde.core.sceneviewer");
+    private Canvas oglCanvas;
 
     public SceneViewerTopComponent() {
         initComponents();
@@ -70,14 +68,10 @@ public final class SceneViewerTopComponent extends TopComponent {
         setName(NbBundle.getMessage(SceneViewerTopComponent.class, "CTL_SceneViewerTopComponent"));
         setToolTipText(NbBundle.getMessage(SceneViewerTopComponent.class, "HINT_SceneViewerTopComponent"));
         setIcon(ImageUtilities.loadImage(ICON_PATH, true));
-//        lookup = new AbstractLookup(lookupContents);
-//        associateLookup(lookup);
-//        putClientProperty(TopComponent.PROP_CLOSING_DISABLED, Boolean.TRUE);
         try {
             app = SceneApplication.getApplication();
-//            app.createCanvas();
-//            app.startCanvas(true);
-            oGLPanel.add(((JmeCanvasContext) app.getContext()).getCanvas());
+            oglCanvas = ((JmeCanvasContext) app.getContext()).getCanvas();
+            oGLPanel.add(oglCanvas);
         } catch (Exception e) {
             showOpenGLError(e.toString());
         } catch (Error err) {
@@ -234,14 +228,9 @@ public final class SceneViewerTopComponent extends TopComponent {
     @Override
     public void componentOpened() {
         super.componentOpened();
-        try {
-//            app.startCanvas(true);
-//            oGLPanel.add(((JmeCanvasContext) app.getContext()).getCanvas());
-        } catch (Exception e) {
-            showOpenGLError(e.toString());
-        } catch (Error err) {
-            showOpenGLError(err.toString());
-        }
+//        oGLPanel.setMaximumSize(new Dimension(10000, 10000));
+//        ToolbarPool.getDefault().findToolbar("jMonkeyPlatform-Tools").remove(oglCanvas);
+//        oGLPanel.add(oglCanvas);
     }
 
     @Override
@@ -257,7 +246,10 @@ public final class SceneViewerTopComponent extends TopComponent {
     @Override
     public void componentClosed() {
         super.componentClosed();
-//        oGLPanel.removeAll();
+//        oGLPanel.remove(oglCanvas);
+//        oGLPanel.setPreferredSize(new Dimension(10, 10));
+//        oGLPanel.setMaximumSize(new Dimension(10, 10));
+//        ToolbarPool.getDefault().findToolbar("jMonkeyPlatform-Tools").add(oglCanvas);
     }
 
     void writeProperties(java.util.Properties p) {

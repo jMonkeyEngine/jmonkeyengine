@@ -8,11 +8,7 @@
 <div>
 
 <p>
-With computers having multiple cores nowadays, it seems feasible to let the physics run on a separate thread. However, there are some implications and plain multithreading is not always the solution for problems but bring on new ones.
-</p>
-
-<p>
-Multithreading is misunderstood by many programmers nowadays. The secret is not to have separate detached logical loops going on in parallel and have them communicate about their state (Like one thread AI, one Sound, one Graphics) but to have a normal “loop” for logic and then just multithread within that loop when its appropriate. Each for loop in the main loop might be a chance for MT&#039;ing, this scales way better to multiple cores and does not break up code logic. So ideally, the physics system makes use of multiple cores itself and is still included in a “normal” update order. Since bullet is not (yet) multithreaded or GPU accelerated the jME3 implementation allows some ways to run the physics on a separate thread. These are described here.
+Since bullet is not (yet) multithreaded or GPU accelerated the jME3 implementation allows to run each physics space on a separate thread that is executed in parallel to rendering.
 </p>
 
 </div>
@@ -27,7 +23,7 @@ A SimpleApplication with a BulletAppState allows setting the threading type via
 <pre>setThreadingType(ThreadingType type);</pre>
 
 <p>
- where ThreadingType can be either SEQUENTIAL, PARALLEL or DETACHED.
+ where ThreadingType can be either SEQUENTIAL or PARALLEL.
 </p>
 
 <p>
@@ -36,101 +32,8 @@ In the simpleInitApp() method:
 <pre>bulletAppState = new BulletAppState&#40;&#41;;
 bulletAppState.setThreadingType&#40;BulletAppState.ThreadingType.PARALLEL&#41;;
 stateManager.attach&#40;bulletAppState&#41;;</pre>
-</div>
-
-<h3><a>SEQUENTIAL</a></h3>
-<div>
-
 <p>
-This does everything sequentially on one thread, updating the scene, updating physics and then rendering the scene.
-</p>
-
-</div>
-
-<h4><a>Good about this way:</a></h4>
-<div>
-<ol>
-<li><div> Seamless for user, no syncing problems</div>
-</li>
-</ol>
-
-</div>
-
-<h4><a>Bad about this way:</a></h4>
-<div>
-<ol>
-<li><div> no multithreading (only one core is used)</div>
-</li>
-</ol>
-
-</div>
-
-<h3><a>PARALLEL</a></h3>
-<div>
-
-<p>
-
-This solution comes close to the “one loop /w parallel computations” way I described before. Here the physics update happens in parallel to rendering, after the users changes have been made in the update() call. This way the loop logic is still maintained: the user can set and change values in physics and scenegraph objects before render() and physicsUpdate() are called in parallel.
-This is the “standard” form of multithreading since it will produce less problems for users.
-</p>
-
-</div>
-
-<h4><a>Good about this way:</a></h4>
-<div>
-<ol>
-<li><div> Seamless for user, no syncing problems</div>
-</li>
-</ol>
-
-</div>
-
-<h4><a>Bad about this way:</a></h4>
-<div>
-<ol>
-<li><div> render and physics thread will have to wait for each other, lowering the multithreading efficiency</div>
-</li>
-<li><div> user update(), updateGeometric() and updateLogic() takes away cpu cycles for rendering and physics, not just render time</div>
-</li>
-</ol>
-
-</div>
-
-<h3><a>DETACHED</a></h3>
-<div>
-
-<p>
-This mode lets the physics update loop run completely separate on another thread and the location/rotation of the single physics objects (via the MotionState) is atomized. This way the scenegraph loop can safely get and set these values. However all physics parameters have still to be changed from the physics thread and adding/removing of objects has to happen via the physics thread.
-The updatePhysics() method is called by a separate thread and you have to care for yourself that you access the physics parameters of a PhysicsNode from the physics thread and the “rest” of the parameters via the opengl thread.
-</p>
-
-</div>
-
-<h4><a>Good about this way:</a></h4>
-<div>
-<ol>
-<li><div> Because only the single objects are atomized, the scenegraph and physics update loops will seldom block each other as they&#039;re probably working in different “areas” of the scenegraph most of the time. This means maximum thread efficiency.</div>
-</li>
-</ol>
-
-</div>
-
-<h4><a>Bad about this way:</a></h4>
-<div>
-<ol>
-<li><div> Because only the single objects are atomized, the state of the physics objects that is applied to the jme objects is not assured to be from the same physics step for all objects. But still many users of bullet handle it this way and in effect its not noticeable.</div>
-</li>
-<li><div> User has to care about what to modify from what thread</div>
-</li>
-</ol>
-
-</div>
-
-<h2><a>Future of jme3/bullet</a></h2>
-<div>
-
-<p>
-In the future, I hope that when I have integrated the native bullet version with OpenCL support etc. the PARALLEL solution or even the SEQUENTIAL solution becomes the standard way of doing things as the boost in performance from the graphics card should beat the boost from using another CPU by far.
+The physics update happens in parallel to rendering, after the users changes have been made in the update() call. This way the loop logic is still maintained: the user can set and change values in physics and scenegraph objects before render() and physicsUpdate() are called in parallel.
 
 </p>
 

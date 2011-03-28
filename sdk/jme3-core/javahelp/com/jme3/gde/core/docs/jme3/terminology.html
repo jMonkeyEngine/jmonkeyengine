@@ -574,4 +574,49 @@ In the JME3 application, you register animated models to the Animation Controlle
 </p>
 
 </div>
+
+<h1><a>Artificial Intelligence (AI)</a></h1>
+<div>
+
+<p>
+
+Non-player (computer-controlled) characters (NPCs) are only fun in a game if they do not stupidly bump into walls, or blindly run into the line of fire. You want to make NPCs “aware” of their surroundings and let them make decisions based on the game state – otherwise the player can just ignore them. The most common use case is that you want to make enemies interact in a way so they offer a more interesting challenge for the player. 
+</p>
+
+<p>
+“Smart” game elements are called artificially intelligent agents (AI agents). An AI agent can be an NPC, but also an “automatic alarm system” that locks doors after an intruder alert, or a trained pet.
+</p>
+
+<p>
+The domain of artificial intelligence deals, among other things, with:
+</p>
+<ul>
+<li><div> Knowledge – An agent only “knows” what it can “see and hear”, this implies that things can be hidden from it. You can make a group of agents share knowledge (e.g. guards with two-way radios know, other guards don&#039;t know about the intruder).</div>
+</li>
+<li><div> Goal Planning – The agent has a priority to achieve a specific goal (a future state). It splits the goal into subgoals, determines tactics and strategies, and prioritizes them. The agent keeps testing whether the current state is closer to the (sub)goal. If unsuccessful, the agent changes the tactics/strategy. E.g. Finding the best path to reach a target in a changing environment.</div>
+</li>
+<li><div> Problem solving – The agent uses a given set of facts and rules to deduct what state it is in. In every state, only a certain subset of reactions makes sense. The actual decision depends on the agent&#039;s goal. Examples: If target in range, attack or protect base or raise alarm. If idle, lay traps or heal oneself or recharge ammunition. If floor on fire, then danger. If danger, escape or kamikaze.</div>
+</li>
+</ul>
+
+<p>
+
+There are lots of resources explaining interesting AI algorithms:
+</p>
+<ul>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://www.policyalmanac.org/games/aStarTutorial.htm"><param name="text" value="<html><u>A* (A-Star) pathfinding for beginners</u></html>"><param name="textColor" value="blue"></object></div>
+</li>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://theory.stanford.edu/~amitp/GameProgramming/"><param name="text" value="<html><u>A* (A-star) pathfinding theory</u></html>"><param name="textColor" value="blue"></object></div>
+</li>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://hem.fyristorg.com/dawnbringer/z-path.html"><param name="text" value="<html><u>&quot;Z-Path&quot; algorithm</u></html>"><param name="textColor" value="blue"></object> (backwards pathfinding)</div>
+</li>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://web.media.mit.edu/~jorkin/goap.html"><param name="text" value="<html><u>Goal-Oriented Action Planning</u></html>"><param name="textColor" value="blue"></object></div>
+</li>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://neuroph.sourceforge.net/"><param name="text" value="<html><u>Java Neural Networks</u></html>"><param name="textColor" value="blue"></object></div>
+</li>
+<li><div> …</div>
+</li>
+</ul>
+
+</div>
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:terminology?do=export_xhtmlbody">view online version</a></em></p>
