@@ -442,7 +442,7 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
     }
 
     private void pushTexCoord(Attributes attribs) throws SAXException{
-        if (texCoordIdx >= 1)
+        if (texCoordIdx >= 2)
             return; // TODO: More than 2 texcoords
 
         Type type = texCoordIdx == 0 ? Type.TexCoord : Type.TexCoord2;
