@@ -37,6 +37,7 @@
  */
 package com.jme3.gde.core.scene;
 
+import com.jme3.gde.core.sceneviewer.SceneViewerTopComponent;
 import com.jme3.light.PointLight;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
@@ -125,6 +126,14 @@ public class OffScenePanel extends javax.swing.JPanel implements SceneProcessor 
     }
 
     public void startPreview() {
+        java.awt.EventQueue.invokeLater(new Runnable() {
+
+            public void run() {
+                if(!SceneViewerTopComponent.findInstance().isOpened()){
+                    SceneViewerTopComponent.findInstance().open();
+                }
+            }
+        });
         SceneApplication.getApplication().enqueue(new Callable<Object>() {
 
             public Object call() throws Exception {

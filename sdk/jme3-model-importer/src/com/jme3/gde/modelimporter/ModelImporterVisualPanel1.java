@@ -77,7 +77,7 @@ public final class ModelImporterVisualPanel1 extends JPanel implements AssetEven
             currentModel = (Spatial) manager.loadAsset(mainKey);
             if (currentModel != null) {
                 offPanel.attach(currentModel);
-            }else{
+            } else {
                 Message msg = new NotifyDescriptor.Message(
                         "Cannot import this file!",
                         NotifyDescriptor.ERROR_MESSAGE);
@@ -104,6 +104,7 @@ public final class ModelImporterVisualPanel1 extends JPanel implements AssetEven
 
     public void assetRequested(AssetKey ak) {
         if (!"j3md".equalsIgnoreCase(ak.getExtension())
+                && !"glsllib".equalsIgnoreCase(ak.getExtension())
                 && !"frag".equalsIgnoreCase(ak.getExtension())
                 && !"vert".equalsIgnoreCase(ak.getExtension())) {
             requestedAssets.add(ak);
