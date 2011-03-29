@@ -6,7 +6,7 @@ package com.jme3.gde.terraineditor.sky;
 
 import com.jme3.asset.AssetManager;
 import com.jme3.gde.core.scene.SceneApplication;
-import com.jme3.gde.core.sceneexplorer.nodes.actions.AbstractNewSpatialAction;
+import com.jme3.gde.core.sceneexplorer.nodes.actions.AbstractNewSpatialWizardAction;
 import com.jme3.gde.core.sceneexplorer.nodes.actions.NewSpatialAction;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
@@ -27,7 +27,7 @@ import org.openide.util.Exceptions;
  * @author normenhansen
  */
 @org.openide.util.lookup.ServiceProvider(service = NewSpatialAction.class)
-public class AddSkyboxAction extends AbstractNewSpatialAction {
+public class AddSkyboxAction extends AbstractNewSpatialWizardAction {
 
     private WizardDescriptor.Panel[] panels;
 
@@ -36,28 +36,24 @@ public class AddSkyboxAction extends AbstractNewSpatialAction {
     }
 
     @Override
-    protected Spatial doCreateSpatial(Node parent) {
-        try {
-            final WizardDescriptor wizardDescriptor = new WizardDescriptor(getPanels());
-            java.awt.EventQueue.invokeAndWait(new Runnable() {
+    protected Object showWizard(Spatial spatial) {
+        WizardDescriptor wizardDescriptor = new WizardDescriptor(getPanels());
+        wizardDescriptor.setTitleFormat(new MessageFormat("{0}"));
+        wizardDescriptor.setTitle("Skybox Wizard");
+        Dialog dialog = DialogDisplayer.getDefault().createDialog(wizardDescriptor);
+        dialog.setVisible(true);
+        dialog.toFront();
+        boolean cancelled = wizardDescriptor.getValue() != WizardDescriptor.FINISH_OPTION;
+        if (!cancelled) {
+            return wizardDescriptor;
+        }
+        return null;
+    }
 
-                public void run() {
-                    // {0} will be replaced by WizardDesriptor.Panel.getComponent().getName()
-                    wizardDescriptor.setTitleFormat(new MessageFormat("{0}"));
-                    wizardDescriptor.setTitle("Skybox Wizard");
-                    Dialog dialog = DialogDisplayer.getDefault().createDialog(wizardDescriptor);
-                    dialog.setVisible(true);
-                    dialog.toFront();
-                }
-            });
-            boolean cancelled = wizardDescriptor.getValue() != WizardDescriptor.FINISH_OPTION;
-            if (!cancelled) {
-                return generateSkybox(wizardDescriptor);
-            }
-        } catch (InterruptedException ex) {
-            Exceptions.printStackTrace(ex);
-        } catch (InvocationTargetException ex) {
-            Exceptions.printStackTrace(ex);
+    @Override
+    protected Spatial doCreateSpatial(Node parent, Object properties) {
+        if (properties != null) {
+            return generateSkybox((WizardDescriptor) properties);
         }
         return null;
     }
