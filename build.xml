@@ -12,6 +12,7 @@
 
     <target name="build" description="Builds the complete SDK" depends="-check-platform, -update-sdk-platform-config">
         <ant dir="engine" target="update-sdk"/>
+        <ant dir="sdk" target="zip-templates"/>
         <ant dir="sdk" target="build"/>
     </target>
 
