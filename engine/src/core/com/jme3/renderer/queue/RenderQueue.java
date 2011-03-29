@@ -71,6 +71,48 @@ public class RenderQueue {
         Inherit
     }
 
+    /**
+     *  Sets a different geometry comparator for the specified bucket, one
+     *  of Gui, Opaque, Sky, or Transparent.  The GeometryComparators are
+     *  used to sort the accumulated list of geometries before actual rendering
+     *  occurs.
+     *
+     *  <p>The most significant comparator is the one for the transparent
+     *  bucket since there is no correct way to sort the transparent bucket
+     *  that will handle all geometry all the time.  In certain cases, the
+     *  application may know the best way to sort and now has the option of
+     *  configuring a specific implementation.</p>
+     *
+     *  <p>The default comparators are:</p>
+     *  <ul>
+     *  <li>Bucket.Opaque: {@link com.jme3.renderer.queue.OpaqueComparator} which sorts
+     *                     by material first and front to back within the same material.
+     *  <li>Bucket.Transparent: {@link com.jme3.renderer.queue.TransparentComparator} which
+     *                     sorts purely back to front by leading bounding edge with no material sort.
+     *  <li>Bucket.Sky: {@link com.jme3.renderer.queue.NullComparator} which does no sorting
+     *                     at all.
+     *  <li>Bucket.Gui: {@link com.jme3.renderer.queue.GuiComparator} sorts geometries back to
+     *                     front based on their Z values.
+     */
+    public void setGeometryComparator(Bucket bucket, GeometryComparator c) {
+        switch (bucket) {
+            case Gui:
+                guiList = new GeometryList(c);
+                break;
+            case Opaque:
+                opaqueList = new GeometryList(c);
+                break;
+            case Sky:
+                skyList = new GeometryList(c);
+                break;
+            case Transparent:
+                transparentList = new GeometryList(c);
+                break;
+            default:
+                throw new UnsupportedOperationException("Unknown bucket type: "+bucket);
+        }
+    }
+
     public void addToShadowQueue(Geometry g, ShadowMode shadBucket){
         switch (shadBucket){
             case Inherit: break;
@@ -125,7 +167,7 @@ public class RenderQueue {
         list.sort();
         for (int i = 0; i < list.size(); i++){
             Spatial obj = list.get(i);
-            assert obj != null;           
+            assert obj != null;
             //if(obj.checkCulling(cam)){
                 if (obj instanceof Geometry){
                     Geometry g = (Geometry) obj;
