@@ -31,6 +31,7 @@
  */
 package com.jme3.gde.core.sceneexplorer.nodes.actions;
 
+import com.jme3.gde.core.assets.ProjectAssetManager;
 import com.jme3.gde.core.scene.SceneApplication;
 import com.jme3.gde.core.sceneexplorer.nodes.JmeNode;
 import com.jme3.gde.core.undoredo.AbstractUndoableSceneEdit;
@@ -53,17 +54,19 @@ import org.openide.util.Lookup;
 public abstract class AbstractNewSpatialWizardAction implements NewSpatialAction {
 
     protected String name = "*";
+    protected ProjectAssetManager pm;
 
     protected abstract Object showWizard(Spatial spatial);
 
     protected abstract Spatial doCreateSpatial(Node parent, Object configuration);
 
     protected Action makeAction(final JmeNode rootNode, final DataObject dataObject) {
+        pm = rootNode.getLookup().lookup(ProjectAssetManager.class);
         final Node node = rootNode.getLookup().lookup(Node.class);
         return new AbstractAction(name) {
 
             public void actionPerformed(ActionEvent e) {
-                final Object obj=showWizard(node);
+                final Object obj = showWizard(node);
                 SceneApplication.getApplication().enqueue(new Callable<Void>() {
 
                     public Void call() throws Exception {

@@ -4,8 +4,6 @@
  */
 package com.jme3.gde.terraineditor.sky;
 
-import com.jme3.asset.AssetManager;
-import com.jme3.gde.core.scene.SceneApplication;
 import com.jme3.gde.core.sceneexplorer.nodes.actions.AbstractNewSpatialWizardAction;
 import com.jme3.gde.core.sceneexplorer.nodes.actions.NewSpatialAction;
 import com.jme3.math.Vector3f;
@@ -15,12 +13,10 @@ import com.jme3.texture.Texture;
 import com.jme3.util.SkyFactory;
 import java.awt.Component;
 import java.awt.Dialog;
-import java.lang.reflect.InvocationTargetException;
 import java.text.MessageFormat;
 import javax.swing.JComponent;
 import org.openide.DialogDisplayer;
 import org.openide.WizardDescriptor;
-import org.openide.util.Exceptions;
 
 /**
  *
@@ -59,7 +55,6 @@ public class AddSkyboxAction extends AbstractNewSpatialWizardAction {
     }
 
     public Spatial generateSkybox(WizardDescriptor wiz) {
-        AssetManager assetManager = SceneApplication.getApplication().getAssetManager();
         if ((Boolean) wiz.getProperty("multipleTextures")) {
             Texture south = (Texture) wiz.getProperty("textureSouth");
             Texture north = (Texture) wiz.getProperty("textureNorth");
@@ -68,12 +63,12 @@ public class AddSkyboxAction extends AbstractNewSpatialWizardAction {
             Texture top = (Texture) wiz.getProperty("textureTop");
             Texture bottom = (Texture) wiz.getProperty("textureBottom");
             Vector3f normalScale = (Vector3f) wiz.getProperty("normalScale");
-            return SkyFactory.createSky(assetManager, west, east, north, south, top, bottom, normalScale);
+            return SkyFactory.createSky(pm, west, east, north, south, top, bottom, normalScale);
         } else {
             Texture textureSingle = (Texture) wiz.getProperty("textureSingle");
             Vector3f normalScale = (Vector3f) wiz.getProperty("normalScale");
             boolean useSpheremap = (Boolean) wiz.getProperty("useSpheremap");
-            return SkyFactory.createSky(assetManager, textureSingle, normalScale, useSpheremap);
+            return SkyFactory.createSky(pm, textureSingle, normalScale, useSpheremap);
         }
     }
 

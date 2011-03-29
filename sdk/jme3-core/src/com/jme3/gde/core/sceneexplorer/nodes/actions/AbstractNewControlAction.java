@@ -31,6 +31,7 @@
  */
 package com.jme3.gde.core.sceneexplorer.nodes.actions;
 
+import com.jme3.gde.core.assets.ProjectAssetManager;
 import com.jme3.gde.core.scene.SceneApplication;
 import com.jme3.gde.core.sceneexplorer.nodes.JmeSpatial;
 import com.jme3.gde.core.undoredo.AbstractUndoableSceneEdit;
@@ -53,10 +54,12 @@ import org.openide.util.Lookup;
 public abstract class AbstractNewControlAction implements NewControlAction {
 
     protected String name = "*";
+    protected ProjectAssetManager pm;
 
     protected abstract Control doCreateControl(Spatial spatial);
 
     protected Action makeAction(final JmeSpatial rootNode, final DataObject dataObject) {
+        pm = rootNode.getLookup().lookup(ProjectAssetManager.class);
         final Spatial spatial = rootNode.getLookup().lookup(Spatial.class);
         return new AbstractAction(name) {
 
