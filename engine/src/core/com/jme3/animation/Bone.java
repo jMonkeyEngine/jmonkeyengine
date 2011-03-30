@@ -360,7 +360,7 @@ public final class Bone implements Savable {
 
         localPos.addLocal(translation);
         localRot = localRot.mult(rotation);
-        localScale.addLocal(scale);
+        localScale.multLocal(scale);
     }
 
     /**
