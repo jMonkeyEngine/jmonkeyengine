@@ -32,7 +32,6 @@
 
 package jme3test;
 
-import com.jme3.app.Application;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -40,10 +39,15 @@ import java.awt.HeadlessException;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.JarURLConnection;
@@ -58,23 +62,16 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 
-import javax.swing.DefaultListModel;
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.ListModel;
-import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+
+import com.jme3.app.Application;
+import com.jme3.app.SimpleApplication;
+import com.jme3.system.JmeContext;
 
 
 /**
@@ -90,13 +87,14 @@ public class TestChooser extends JDialog {
     /**
      * Only accessed from EDT
      */
-    private Class<?> selectedClass = null;
+    private Object[] selectedClass = null;
+    private boolean showSetting = true;
 
     /**
      * Constructs a new TestChooser that is initially invisible.
      */
     public TestChooser() throws HeadlessException {
-        super((JFrame) null, "TestChooser", true);
+        super((JFrame) null, "TestChooser");
     }
 
     /**
@@ -252,7 +250,7 @@ public class TestChooser extends JDialog {
         };
     }
 
-    private void startApp(final Class<?> appClass){
+    private void startApp(final Object[] appClass){
         if (appClass == null){
             JOptionPane.showMessageDialog(rootPane,
                                           "Please select a test from the list",
@@ -261,30 +259,47 @@ public class TestChooser extends JDialog {
             return;
         }
 
-        final Object app;
-        try {
-            app = appClass.newInstance();
-            final Method mainMethod = appClass.getMethod("main", (new String[0]).getClass());
             new Thread(new Runnable(){
                 public void run(){
-                    try {
-                        mainMethod.invoke(app, new Object[]{new String[0]});
-                    } catch (IllegalAccessException ex) {
-                        logger.log(Level.SEVERE, "Cannot access constructor: "+appClass.getName(), ex);
-                    } catch (IllegalArgumentException ex) {
-                        logger.log(Level.SEVERE, "main() had illegal argument: "+appClass.getName(), ex);
-                    } catch (InvocationTargetException ex) {
-                        logger.log(Level.SEVERE, "main() method had exception: "+appClass.getName(), ex);
-                    }
+                    for (int i = 0; i < appClass.length; i++) {
+                	    Class<?> clazz = (Class)appClass[i];
+                		try {
+                			Object app = clazz.newInstance();
+                			final Method settingMethod = clazz.getMethod("setShowSettings", boolean.class);
+                			settingMethod.invoke(app, showSetting);
+                			final Method mainMethod = clazz.getMethod("start", null);
+                			mainMethod.invoke(app, null);
+                			// wait for destroy
+                			Field contextField = Application.class.getDeclaredField("context");
+                			contextField.setAccessible(true);
+                			JmeContext context = null; 
+                			while (context == null) {
+                			    context = (JmeContext) contextField.get(app);
+                			    Thread.sleep(100);
+                			}
+                			while (!context.isCreated()) {
+                			    Thread.sleep(100);
+                			}
+                			while (context.isCreated()) {
+                			    Thread.sleep(100);
+                			}
+                		} catch (IllegalAccessException ex) {
+                			logger.log(Level.SEVERE, "Cannot access constructor: "+clazz.getName(), ex);
+                		} catch (IllegalArgumentException ex) {
+                			logger.log(Level.SEVERE, "main() had illegal argument: "+clazz.getName(), ex);
+                		} catch (InvocationTargetException ex) {
+                			logger.log(Level.SEVERE, "main() method had exception: "+clazz.getName(), ex);
+                		} catch (InstantiationException ex) {
+                			logger.log(Level.SEVERE, "Failed to create app: "+clazz.getName(), ex);
+                		} catch (NoSuchMethodException ex){
+                			logger.log(Level.SEVERE, "Test class doesn't have main method: "+clazz.getName(), ex);
+                		} catch (Exception ex) {
+                		    logger.log(Level.SEVERE, "Cannot start test: "+clazz.getName(), ex);
+                            ex.printStackTrace();
+                        }
+                	}
                 }
             }).start();
-        } catch (InstantiationException ex) {
-            logger.log(Level.SEVERE, "Failed to create app: "+appClass.getName(), ex);
-        } catch (IllegalAccessException ex) {
-            logger.log(Level.SEVERE, "Cannot access constructor: "+appClass.getName(), ex);
-        } catch (NoSuchMethodException ex){
-            logger.log(Level.SEVERE, "Test class doesn't have main method: "+appClass.getName(), ex);
-        }
     }
 
     /**
@@ -301,6 +316,7 @@ public class TestChooser extends JDialog {
         mainPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
 
         final FilteredJList list = new FilteredJList();
+        list.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         DefaultListModel model = new DefaultListModel();
         for (Class c : classes) {
             model.addElement(c);
@@ -313,9 +329,26 @@ public class TestChooser extends JDialog {
         list.getSelectionModel().addListSelectionListener(
                 new ListSelectionListener() {
                     public void valueChanged(ListSelectionEvent e) {
-                        selectedClass = (Class) list.getSelectedValue();
+                        selectedClass = list.getSelectedValues();
                     }
                 });
+        list.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent e) {
+                if (e.getClickCount() == 2 && selectedClass != null) {
+                    startApp(selectedClass);
+                }
+            }
+        });
+        list.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    startApp(selectedClass);
+                } else if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+                    dispose();
+                }
+            }
+        });
 
         final JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         mainPanel.add(buttonPanel, BorderLayout.PAGE_END);
@@ -327,7 +360,6 @@ public class TestChooser extends JDialog {
         okButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 startApp(selectedClass);
-                dispose();
             }
         });
 
@@ -369,6 +401,9 @@ public class TestChooser extends JDialog {
                 }
             }
             super.setModel(v);
+            if (v.getSize() == 1) {
+                setSelectedIndex(0);
+            }
             revalidate();
         }
 
@@ -409,11 +444,7 @@ public class TestChooser extends JDialog {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (Exception e) {
         }
-        SwingUtilities.invokeLater(new Runnable(){
-            public void run(){
-                new TestChooser().start(args);
-            }
-        });
+        new TestChooser().start(args);
     }
 
     protected void start(String[] args) {
@@ -450,14 +481,19 @@ public class TestChooser extends JDialog {
         });
         jtf.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                if (classes.getModel().getSize() == 1) {
-                    selectedClass = (Class) classes.getModel().getElementAt(0);
-                    TestChooser.this.dispose();
-                }
+                selectedClass = classes.getSelectedValues();
+                startApp(selectedClass);
             }
         });
-
+        final JCheckBox showSettingCheck = new JCheckBox("Show Setting");
+        showSettingCheck.setSelected(true);
+        showSettingCheck.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                showSetting = showSettingCheck.isSelected();
+            }
+        });
         search.add(jtf);
+        search.add(showSettingCheck);
         return search;
     }
 }
