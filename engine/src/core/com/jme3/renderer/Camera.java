@@ -31,6 +31,7 @@
  */
 package com.jme3.renderer;
 
+import com.jme3.bounding.BoundingBox;
 import com.jme3.bounding.BoundingVolume;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
@@ -205,6 +206,7 @@ public class Camera implements Savable, Cloneable {
     protected Matrix4f viewMatrix = new Matrix4f();
     protected Matrix4f projectionMatrix = new Matrix4f();
     protected Matrix4f viewProjectionMatrix = new Matrix4f();
+    private BoundingBox guiBounding = new BoundingBox();
 
     /**
      * Constructor instantiates a new <code>Camera</code> object. All
@@ -962,6 +964,10 @@ public class Camera implements Savable, Cloneable {
 
         return rVal;
     }
+    
+    public boolean containsGui(BoundingVolume bound) {
+        return guiBounding.intersects(bound);
+    }
 
     /**
      * @return the view matrix of the camera.
@@ -1042,6 +1048,20 @@ public class Camera implements Savable, Cloneable {
      */
     public void onViewPortChange() {
         viewportChanged = true;
+        setGuiBounding();
+    }
+    
+    private void setGuiBounding() {
+        float sx = width*viewPortLeft;
+        float ex = width*viewPortRight;
+        float sy = height*viewPortBottom;
+        float ey = height*viewPortTop;
+        float xExtent = (ex-sx)/2;
+        float yExtent = (ey-sy)/2;
+        guiBounding.setCenter(new Vector3f(sx+xExtent, sy+yExtent, 0));
+        guiBounding.setXExtent(xExtent);
+        guiBounding.setYExtent(yExtent);
+        guiBounding.setZExtent(Float.MAX_VALUE);
     }
 
     /**

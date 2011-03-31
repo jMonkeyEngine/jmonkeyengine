@@ -51,6 +51,7 @@ import com.jme3.renderer.Camera;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.RenderQueue;
+import com.jme3.renderer.queue.RenderQueue.Bucket;
 import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.control.Control;
 import com.jme3.util.TempVars;
@@ -247,11 +248,15 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
                 : Camera.FrustumIntersect.Intersects);
 
         if (frustrumIntersects == Camera.FrustumIntersect.Intersects) {
-            int state = cam.getPlaneState();
-
-            frustrumIntersects = cam.contains(getWorldBound());
-            
-            cam.setPlaneState(state);
+            if (getQueueBucket() == Bucket.Gui) {
+                return cam.containsGui(getWorldBound());
+            } else {
+                int state = cam.getPlaneState();
+                
+                frustrumIntersects = cam.contains(getWorldBound());
+                
+                cam.setPlaneState(state);
+            }
         }
 
         return frustrumIntersects != Camera.FrustumIntersect.Outside;
