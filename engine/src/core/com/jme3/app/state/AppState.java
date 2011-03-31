@@ -64,21 +64,40 @@ public interface AppState {
     public boolean isInitialized();
 
     /**
+     * Use setEnabled() instead.
      * Activate or deactivate the functionality of the <code>AppState</code>.
      * The effect of this call depends on implementation. An 
      * <code>AppState</code> starts as being active by default.
      * 
      * @param active activate the AppState or not.
      */
+    @Deprecated
     public void setActive(boolean active);
 
     /**
+     * Use isEnabled() instead.
      * @return True if the <code>AppState</code> is active, false otherwise.
      * 
      * @see AppState#setActive(boolean)
      */
+    @Deprecated
     public boolean isActive();
 
+    /**
+     * Enable or disable the functionality of the <code>AppState</code>.
+     * The effect of this call depends on implementation. An 
+     * <code>AppState</code> starts as being enabled by default.
+     * 
+     * @param active activate the AppState or not.
+     */
+    public void setEnabled(boolean active);
+    
+    /**
+     * @return True if the <code>AppState</code> is enabled, false otherwise.
+     * 
+     * @see AppState#setEnabled(boolean)
+     */
+    public boolean isEnabled();
     /**
      * Called when the state was attached.
      *

@@ -149,11 +149,27 @@ public class BulletAppState implements AppState, PhysicsTickListener {
         return initialized;
     }
 
+    /**
+     * Use setEnabled() instead
+     */
+    @Deprecated
     public void setActive(boolean active) {
-        this.active = active;
+        setEnabled(active);
     }
 
+    /**
+     * Use isEnabled() instead
+     */
+    @Deprecated
     public boolean isActive() {
+        return isEnabled();
+    }
+    
+    public void setEnabled(boolean enabled) {
+        this.active = enabled;
+    }
+    
+    public boolean isEnabled() {
         return active;
     }
 

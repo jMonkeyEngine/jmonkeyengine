@@ -49,7 +49,7 @@ public class AbstractAppState implements AppState {
      * is set back to false.
      */
     protected boolean initialized = false;
-    private boolean active = true;
+    private boolean enabled = true;
 
     public void initialize(AppStateManager stateManager, Application app) {
         initialized = true;
@@ -59,12 +59,28 @@ public class AbstractAppState implements AppState {
         return initialized;
     }
 
+    /**
+     * Use setEnabled() instead
+     */
+    @Deprecated
     public void setActive(boolean active) {
-        this.active = active;
+        setEnabled(active);
     }
 
+    /**
+     * Use isEnabled() instead
+     */
+    @Deprecated
     public boolean isActive() {
-        return active;
+        return isEnabled();
+    }
+    
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+    
+    public boolean isEnabled() {
+        return enabled;
     }
 
     public void stateAttached(AppStateManager stateManager) {

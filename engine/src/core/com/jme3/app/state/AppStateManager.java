@@ -139,7 +139,7 @@ public class AppStateManager {
                 if (!state.isInitialized())
                     state.initialize(this, app);
 
-                if (state.isActive()) {
+                if (state.isEnabled()) {
                    state.update(tpf);
                 }
             }
@@ -158,7 +158,7 @@ public class AppStateManager {
                 if (!state.isInitialized())
                     state.initialize(this, app);
 
-                if (state.isActive()) {
+                if (state.isEnabled()) {
                    state.render(rm);
                 }
             }
@@ -177,7 +177,7 @@ public class AppStateManager {
                 if (!state.isInitialized())
                     state.initialize(this, app);
 
-                if (state.isActive()) {
+                if (state.isEnabled()) {
                    state.postRender();
                 }
             }
