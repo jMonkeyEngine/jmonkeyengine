@@ -54,6 +54,7 @@ import com.jme3.texture.Image.Format;
 import com.jme3.texture.Texture.WrapMode;
 import com.jme3.texture.Texture2D;
 import com.jme3.ui.Picture;
+import com.jme3.util.TempVars;
 
 /**
  *
@@ -179,7 +180,16 @@ public class SimpleWaterProcessor implements SceneProcessor {
                 sceneCam.getFrustumRight(),
                 sceneCam.getFrustumTop(),
                 sceneCam.getFrustumBottom());
-        reflectionCam.lookAt(targetLocation, Vector3f.UNIT_Y);
+        TempVars vars=TempVars.get();
+        vars.lock();
+        // tempVec and calcVect are just temporary vector3f objects
+        vars.vect1.set( sceneCam.getLocation() ).addLocal( sceneCam.getUp() );
+        float planeDistance = plane.pseudoDistance( vars.vect1 );
+        vars.vect2.set(plane.getNormal()).multLocal( planeDistance * 2.0f );
+        vars.vect3.set( vars.vect1.subtractLocal( vars.vect2 ) ).subtractLocal( loc ).normalizeLocal().negateLocal();
+        // now set the up vector
+        reflectionCam.lookAt(targetLocation, vars.vect3);
+        vars.unlock();
         if (inv) {
             reflectionCam.setAxes(reflectionCam.getLeft().negateLocal(), reflectionCam.getUp(), reflectionCam.getDirection().negateLocal());
         }
