@@ -231,6 +231,7 @@ public final class Ray implements Savable, Cloneable, Collidable {
             dirDotNorm = -dirDotNorm;
         } else {
             // ray and triangle/quad are parallel
+            assert vars.unlock();
             return false;
         }
 
