@@ -94,6 +94,9 @@ public class SimpleWaterProcessor implements SceneProcessor {
     private Plane refractionClipPlane;
     private float refractionClippingOffset = 0.3f;
     private float reflectionClippingOffset = -5f;
+    private Vector3f vect1 = new Vector3f();
+    private Vector3f vect2 = new Vector3f();
+    private Vector3f vect3 = new Vector3f();
 
     public SimpleWaterProcessor(AssetManager manager) {
         this.manager = manager;
@@ -180,16 +183,13 @@ public class SimpleWaterProcessor implements SceneProcessor {
                 sceneCam.getFrustumRight(),
                 sceneCam.getFrustumTop(),
                 sceneCam.getFrustumBottom());
-        TempVars vars=TempVars.get();
-        vars.lock();
         // tempVec and calcVect are just temporary vector3f objects
-        vars.vect1.set( sceneCam.getLocation() ).addLocal( sceneCam.getUp() );
-        float planeDistance = plane.pseudoDistance( vars.vect1 );
-        vars.vect2.set(plane.getNormal()).multLocal( planeDistance * 2.0f );
-        vars.vect3.set( vars.vect1.subtractLocal( vars.vect2 ) ).subtractLocal( loc ).normalizeLocal().negateLocal();
+        vect1.set(sceneCam.getLocation()).addLocal(sceneCam.getUp());
+        float planeDistance = plane.pseudoDistance(vect1);
+        vect2.set(plane.getNormal()).multLocal(planeDistance * 2.0f);
+        vect3.set(vect1.subtractLocal(vect2)).subtractLocal(loc).normalizeLocal().negateLocal();
         // now set the up vector
-        reflectionCam.lookAt(targetLocation, vars.vect3);
-        vars.unlock();
+        reflectionCam.lookAt(targetLocation, vect3);
         if (inv) {
             reflectionCam.setAxes(reflectionCam.getLeft().negateLocal(), reflectionCam.getUp(), reflectionCam.getDirection().negateLocal());
         }
@@ -481,9 +481,6 @@ public class SimpleWaterProcessor implements SceneProcessor {
         updateClipPlanes();
     }
 
-
-
-  
     /**
      * Refraction Processor
      */
