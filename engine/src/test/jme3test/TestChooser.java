@@ -265,24 +265,32 @@ public class TestChooser extends JDialog {
                 	    Class<?> clazz = (Class)appClass[i];
                 		try {
                 			Object app = clazz.newInstance();
-                			final Method settingMethod = clazz.getMethod("setShowSettings", boolean.class);
-                			settingMethod.invoke(app, showSetting);
-                			final Method mainMethod = clazz.getMethod("start", null);
-                			mainMethod.invoke(app, null);
+                			if (app instanceof Application) {
+                			    if (app instanceof SimpleApplication) {
+                			        final Method settingMethod = clazz.getMethod("setShowSettings", boolean.class);
+                			        settingMethod.invoke(app, showSetting);
+                			    }
+                			    final Method mainMethod = clazz.getMethod("start", null);
+                			    mainMethod.invoke(app, null);
+                			    Field contextField = Application.class.getDeclaredField("context");
+                			    contextField.setAccessible(true);
+                			    JmeContext context = null; 
+                			    while (context == null) {
+                			        context = (JmeContext) contextField.get(app);
+                			        Thread.sleep(100);
+                			    }
+                			    while (!context.isCreated()) {
+                			        Thread.sleep(100);
+                			    }
+                			    while (context.isCreated()) {
+                			        Thread.sleep(100);
+                			    }
+                			} else {
+                                final Method mainMethod = clazz.getMethod("main", (new String[0]).getClass());
+                                mainMethod.invoke(app, new Object[]{new String[0]});
+                			}
                 			// wait for destroy
-                			Field contextField = Application.class.getDeclaredField("context");
-                			contextField.setAccessible(true);
-                			JmeContext context = null; 
-                			while (context == null) {
-                			    context = (JmeContext) contextField.get(app);
-                			    Thread.sleep(100);
-                			}
-                			while (!context.isCreated()) {
-                			    Thread.sleep(100);
-                			}
-                			while (context.isCreated()) {
-                			    Thread.sleep(100);
-                			}
+                			System.gc();
                 		} catch (IllegalAccessException ex) {
                 			logger.log(Level.SEVERE, "Cannot access constructor: "+clazz.getName(), ex);
                 		} catch (IllegalArgumentException ex) {
