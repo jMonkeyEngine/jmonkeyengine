@@ -27,10 +27,15 @@ public class HullCollisionShape extends CollisionShape {
         createShape(this.points);
     }
 
+    public HullCollisionShape(float[] points) {
+        this.points = points;
+        createShape(this.points);
+    }
+
     @Override
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
-        
+
         OutputCapsule capsule = ex.getCapsule(this);
         capsule.write(points, "points", null);
     }
@@ -41,37 +46,36 @@ public class HullCollisionShape extends CollisionShape {
         InputCapsule capsule = im.getCapsule(this);
 
         // for backwards compatability
-        Mesh mesh = (Mesh)capsule.readSavable("hullMesh", null);
-        if (mesh != null){
+        Mesh mesh = (Mesh) capsule.readSavable("hullMesh", null);
+        if (mesh != null) {
             this.points = getPoints(mesh);
-        }else{
+        } else {
             this.points = capsule.readFloatArray("points", null);
-            
+
         }
         createShape(this.points);
     }
 
-    protected void createShape(float[] points){
+    protected void createShape(float[] points) {
         ObjectArrayList<Vector3f> pointList = new ObjectArrayList<Vector3f>();
         for (int i = 0; i < points.length; i += 3) {
-            pointList.add(new Vector3f(points[i], points[i+1], points[i+2]));
+            pointList.add(new Vector3f(points[i], points[i + 1], points[i + 2]));
         }
         cShape = new ConvexHullShape(pointList);
         cShape.setLocalScaling(Converter.convert(getScale()));
         cShape.setMargin(margin);
     }
 
-    protected float[] getPoints(Mesh mesh){
+    protected float[] getPoints(Mesh mesh) {
         FloatBuffer vertices = mesh.getFloatBuffer(Type.Position);
         vertices.rewind();
         int components = mesh.getVertexCount() * 3;
         float[] pointsArray = new float[components];
         for (int i = 0; i < components; i += 3) {
             pointsArray[i] = vertices.get();
-            pointsArray[i+1] = vertices.get();
-            pointsArray[i+2] = vertices.get();
+            pointsArray[i + 1] = vertices.get();
+            pointsArray[i + 2] = vertices.get();
         }
         return pointsArray;
     }
-
 }

@@ -35,14 +35,31 @@ package jme3test.bullet;
 import com.jme3.animation.AnimControl;
 import com.jme3.bullet.BulletAppState;
 import com.jme3.app.SimpleApplication;
+import com.jme3.asset.TextureKey;
 import com.jme3.bullet.PhysicsSpace;
+import com.jme3.bullet.collision.shapes.SphereCollisionShape;
 import com.jme3.bullet.control.RagdollControl;
+import com.jme3.bullet.control.RigidBodyControl;
+import com.jme3.font.BitmapText;
+import com.jme3.input.ChaseCamera;
+import com.jme3.input.KeyInput;
+import com.jme3.input.MouseInput;
+import com.jme3.input.controls.ActionListener;
+import com.jme3.input.controls.KeyTrigger;
+import com.jme3.input.controls.MouseButtonTrigger;
 import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
+import com.jme3.math.FastMath;
+import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
+import com.jme3.renderer.queue.RenderQueue.ShadowMode;
+import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.debug.SkeletonDebugger;
+import com.jme3.scene.shape.Sphere;
+import com.jme3.scene.shape.Sphere.TextureMode;
+import com.jme3.texture.Texture;
 
 /**
  * PHYSICS RAGDOLLS ARE NOT WORKING PROPERLY YET!
@@ -51,6 +68,8 @@ import com.jme3.scene.debug.SkeletonDebugger;
 public class TestBoneRagdoll  extends SimpleApplication {
 
     private BulletAppState bulletAppState;
+    Material matBullet;
+    Node model;
 
     public static void main(String[] args){
         TestBoneRagdoll app = new TestBoneRagdoll();
@@ -58,13 +77,18 @@ public class TestBoneRagdoll  extends SimpleApplication {
     }
 
     public void simpleInitApp() {
+        initCrossHairs();
+        initMaterial();
         bulletAppState = new BulletAppState();
+        bulletAppState.setEnabled(false);
         stateManager.attach(bulletAppState);
         bulletAppState.getPhysicsSpace().enableDebug(assetManager);
         PhysicsTestHelper.createPhysicsTestWorld(rootNode, assetManager, bulletAppState.getPhysicsSpace());
         setupLight();
 
-        Node model = (Node) assetManager.loadModel("Models/Oto/Oto.mesh.xml");
+        model = (Node) assetManager.loadModel("Models/Oto/Oto.mesh.xml");
+//           model.setLocalTranslation(5,5,5);
+//        model.setLocalRotation(new Quaternion().fromAngleAxis(FastMath.HALF_PI, Vector3f.UNIT_X));
 
         //debug view
         AnimControl control= model.getControl(AnimControl.class);
@@ -73,17 +97,61 @@ public class TestBoneRagdoll  extends SimpleApplication {
         mat2.setColor("Color", ColorRGBA.Green);
         mat2.getAdditionalRenderState().setDepthTest(false);
         skeletonDebug.setMaterial(mat2);
+        skeletonDebug.setLocalTranslation(model.getLocalTranslation());
+        control.createChannel().setAnim("Dodge");
 
         //Note: PhysicsRagdollControl is still TODO, constructor will change
         RagdollControl ragdoll = new RagdollControl();
+      //  ragdoll.setEnabled(true);
+      //  ragdoll.attachDebugShape(assetManager);
         
-        model.addControl(ragdoll);
-        getPhysicsSpace().add(ragdoll);
-        speed = .2f;
+        ragdoll.setSpatial(model);
+        ragdoll.setPhysicsSpace(getPhysicsSpace());
+        control.setRagdoll(ragdoll);
+        
+//        model.addControl(ragdoll);
+//        getPhysicsSpace().add(ragdoll);
+        speed = 1f;
 
         rootNode.attachChild(model);
         rootNode.attachChild(skeletonDebug);
+        flyCam.setEnabled(false);
+      //  flyCam.setMoveSpeed(10);
+        ChaseCamera chaseCamera=new ChaseCamera(cam, inputManager);
+        model.addControl(chaseCamera);
+        
+        inputManager.addListener(new ActionListener() {
+
+            public void onAction(String name, boolean isPressed, float tpf) {
+               if(name.equals("toggle") && isPressed){
+                   bulletAppState.setEnabled(!bulletAppState.isEnabled());
+               }
+               if (name.equals("shoot") && !isPressed) {
+                Geometry bulletg = new Geometry("bullet", bullet);
+                bulletg.setMaterial(matBullet);      
+                bulletg.setLocalTranslation(cam.getLocation());
+                RigidBodyControl bulletNode = new BombControl(assetManager, bulletCollisionShape, 1);
+              //  RigidBodyControl bulletNode = new RigidBodyControl(bulletCollisionShape, 1);
+                bulletNode.setLinearVelocity(cam.getDirection().mult(60));
+                bulletg.addControl(bulletNode);
+                rootNode.attachChild(bulletg);
+                getPhysicsSpace().add(bulletNode);
+                
+               
+              }
+            }
+        }, "toggle", "shoot");
+        inputManager.addMapping("toggle", new KeyTrigger(KeyInput.KEY_SPACE));
+        inputManager.addMapping("shoot", new MouseButtonTrigger(MouseInput.BUTTON_LEFT));
+        
     }
+
+    @Override
+    public void simpleUpdate(float tpf) {
+  
+    }
+    
+    
 
     private void setupLight() {
         DirectionalLight dl = new DirectionalLight();
@@ -96,4 +164,41 @@ public class TestBoneRagdoll  extends SimpleApplication {
         return bulletAppState.getPhysicsSpace();
     }
 
+    
+        
+    Material mat;
+ 
+    Material mat3;
+  
+    private static final Sphere bullet;   
+    private static final SphereCollisionShape bulletCollisionShape;
+
+    static {
+        bullet = new Sphere(32, 32, 0.4f, true, false);
+        bullet.setTextureMode(TextureMode.Projected);
+        bulletCollisionShape = new SphereCollisionShape(0.4f);      
+    }
+   
+
+    public void initMaterial() {
+      
+        matBullet = new Material(assetManager, "Common/MatDefs/Misc/SimpleTextured.j3md");
+        TextureKey key2 = new TextureKey("Textures/Terrain/Rock/Rock.PNG");
+        key2.setGenerateMips(true);
+        Texture tex2 = assetManager.loadTexture(key2);
+        matBullet.setTexture("ColorMap", tex2);       
+    }
+
+ 
+
+    protected void initCrossHairs() {
+        guiFont = assetManager.loadFont("Interface/Fonts/Default.fnt");
+        BitmapText ch = new BitmapText(guiFont, false);
+        ch.setSize(guiFont.getCharSet().getRenderedSize() * 2);
+        ch.setText("+"); // crosshairs
+        ch.setLocalTranslation( // center
+                settings.getWidth() / 2 - guiFont.getCharSet().getRenderedSize() / 3 * 2,
+                settings.getHeight() / 2 + ch.getLineHeight() / 2, 0);
+        guiNode.attachChild(ch);
+    }
 }

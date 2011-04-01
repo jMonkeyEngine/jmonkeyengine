@@ -32,6 +32,7 @@
 
 package com.jme3.animation;
 
+import com.jme3.bullet.control.RagdollControl;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.InputCapsule;
@@ -372,6 +373,13 @@ public final class AnimControl extends AbstractControl implements Savable, Clone
 
         return a.getLength();
     }
+    
+    private RagdollControl ragdoll=null;
+
+    public void setRagdoll(RagdollControl ragdoll) {
+        this.ragdoll = ragdoll;
+    }
+    
 
     @Override
     protected void controlUpdate(float tpf) {
@@ -383,8 +391,12 @@ public final class AnimControl extends AbstractControl implements Savable, Clone
         }
 
         skeleton.updateWorldVectors();
-        // here update the targets verticles if no hardware skinning supported
+        // here update the targets vertices if no hardware skinning supported
 
+        if(ragdoll!=null){
+            ragdoll.update(tpf);
+        }
+        
         Matrix4f[] offsetMatrices = skeleton.computeSkinningMatrices();
 
         // if hardware skinning is supported, the matrices and weight buffer
