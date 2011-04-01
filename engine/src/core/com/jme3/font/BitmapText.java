@@ -67,8 +67,6 @@ public class BitmapText extends Node {
             attachChild(textPages[page]);
         }
 
-        setQueueBucket(Bucket.Gui);
-
         this.font = font;
         this.block = new StringBlock();
         block.setSize(font.getPreferredSize());
