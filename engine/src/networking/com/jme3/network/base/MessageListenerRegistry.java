@@ -34,6 +34,8 @@ package com.jme3.network.base;
 
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import com.jme3.network.Message;
 import com.jme3.network.MessageListener;
@@ -47,6 +49,8 @@ import com.jme3.network.MessageListener;
  */
 public class MessageListenerRegistry<S> implements MessageListener<S>
 {
+    static Logger log = Logger.getLogger(MessageListenerRegistry.class.getName());
+    
     private List<MessageListener<? super S>> listeners = new CopyOnWriteArrayList<MessageListener<? super S>>();
     private Map<Class,List<MessageListener<? super S>>> typeListeners 
                     = new ConcurrentHashMap<Class,List<MessageListener<? super S>>>(); 
@@ -57,12 +61,20 @@ public class MessageListenerRegistry<S> implements MessageListener<S>
  
     public void messageReceived( S source, Message m )
     {
+        boolean delivered = false;
+        
         for( MessageListener<? super S> l : listeners ) {
             l.messageReceived( source, m );
+            delivered = true;
         }
         
         for( MessageListener<? super S> l : getListeners(m.getClass(),false) ) {
             l.messageReceived( source, m );
+            delivered = true;
+        }
+        
+        if( !delivered ) {
+            log.log( Level.INFO, "Received message had no registered listeners: {0}", m );
         }
     }
  
