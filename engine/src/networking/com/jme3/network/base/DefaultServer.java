@@ -168,7 +168,7 @@ public class DefaultServer implements Server
         }               
     }
 
-    public HostedConnection getConnection( long id )
+    public HostedConnection getConnection( int id )
     {
         return connections.get(id);
     }     

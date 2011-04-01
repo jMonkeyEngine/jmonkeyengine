@@ -96,7 +96,7 @@ public interface Server
     /**
      *  Retrieves a hosted connection by ID.
      */
-    public HostedConnection getConnection( long id );     
+    public HostedConnection getConnection( int id );     
  
     /**
      *  Retrieves a read-only collection of all currently connected connections.
