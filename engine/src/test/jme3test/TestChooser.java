@@ -500,8 +500,9 @@ public class TestChooser extends JDialog {
                 showSetting = showSettingCheck.isSelected();
             }
         });
-        search.add(jtf);
-        search.add(showSettingCheck);
+        jtf.setPreferredSize(new Dimension(100, 25));
+        search.add(jtf, BorderLayout.CENTER);
+        search.add(showSettingCheck, BorderLayout.EAST);
         return search;
     }
 }
