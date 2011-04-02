@@ -3,6 +3,7 @@ package com.jme3.bullet.control;
 import com.jme3.animation.AnimControl;
 import com.jme3.animation.Bone;
 import com.jme3.animation.Skeleton;
+import com.jme3.animation.SkeletonControl;
 import com.jme3.asset.AssetManager;
 import com.jme3.bullet.PhysicsSpace;
 import com.jme3.bullet.collision.shapes.BoxCollisionShape;
@@ -107,6 +108,15 @@ public class RagdollControl implements PhysicsControl {
 
     public void setSpatial(Spatial model) {
         targetModel = model;
+        
+        //HACK ALERT change this
+        //I remove the skeletonControl and readd it to the spatial to make sure it's after the ragdollControl in the stack
+        //Find a proper way to order the controls.
+        SkeletonControl sc = model.getControl(SkeletonControl.class);
+        model.removeControl(sc);
+        model.addControl(sc);
+        //---- 
+        
         removeFromPhysicsSpace();
         clearData();
         // put into bind pose and compute bone transforms in model space

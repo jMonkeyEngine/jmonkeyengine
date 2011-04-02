@@ -29,7 +29,6 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package com.jme3.scene;
 
 import com.jme3.bounding.BoundingVolume;
@@ -64,7 +63,6 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.logging.Logger;
 
-
 /**
  * <code>Spatial</code> defines the base class for scene graph nodes. It
  * maintains a link to a parent, it's local transforms and the world's
@@ -80,77 +78,59 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
     private static final Logger logger = Logger.getLogger(Spatial.class.getName());
 
     public enum CullHint {
+
         /** 
          * Do whatever our parent does. If no parent, we'll default to dynamic.
          */
         Inherit,
-
         /**
          * Do not draw if we are not at least partially within the view frustum
          * of the renderer's camera.
          */
         Dynamic,
-
         /** 
          * Always cull this from view.
          */
         Always,
-
         /**
          * Never cull this from view. Note that we will still get culled if our
          * parent is culled.
          */
         Never;
     }
-
     /**
      * Refresh flag types
      */
     protected static final int RF_TRANSFORM = 0x01, // need light resort + combine transforms
-                               RF_BOUND = 0x02,
-                               RF_LIGHTLIST = 0x04; // changes in light lists
-
+            RF_BOUND = 0x02,
+            RF_LIGHTLIST = 0x04; // changes in light lists
     protected CullHint cullHint = CullHint.Inherit;
-
     /** 
      * Spatial's bounding volume relative to the world.
      */
     protected BoundingVolume worldBound;
-
     /**
      * LightList
      */
     protected LightList localLights;
-
     protected transient LightList worldLights;
-
     /** 
      * This spatial's name.
      */
     protected String name;
-
     // scale values
     protected transient Camera.FrustumIntersect frustrumIntersects = Camera.FrustumIntersect.Intersects;
-
     protected RenderQueue.Bucket queueBucket = RenderQueue.Bucket.Inherit;
-
     protected ShadowMode shadowMode = RenderQueue.ShadowMode.Inherit;
-
     public transient float queueDistance = Float.NEGATIVE_INFINITY;
-
     protected Transform localTransform;
-
     protected Transform worldTransform;
-
     protected ArrayList<Control> controls = new ArrayList<Control>(1);
-
     protected HashMap<String, Savable> userData = null;
-
     /** 
      * Spatial's parent, or null if it has none.
      */
     protected transient Node parent;
-
     /**
      * Refresh flags. Indicate what data of the spatial need to be
      * updated to reflect the correct state.
@@ -187,12 +167,12 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
      * Indicate that the transform of this spatial has changed and that
      * a refresh is required.
      */
-    protected void setTransformRefresh(){
+    protected void setTransformRefresh() {
         refreshFlags |= RF_TRANSFORM;
         setBoundRefresh();
     }
 
-    protected void setLightListRefresh(){
+    protected void setLightListRefresh() {
         refreshFlags |= RF_LIGHTLIST;
     }
 
@@ -200,14 +180,15 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
      * Indicate that the bounding of this spatial has changed and that
      * a refresh is required.
      */
-    protected void setBoundRefresh(){
+    protected void setBoundRefresh() {
         refreshFlags |= RF_BOUND;
 
         // XXX: Replace with a recursive call?
         Spatial p = parent;
-        while (p != null){
-            if ((p.refreshFlags & RF_BOUND) != 0)
+        while (p != null) {
+            if ((p.refreshFlags & RF_BOUND) != 0) {
                 return;
+            }
 
             p.refreshFlags |= RF_BOUND;
             p = p.parent;
@@ -225,20 +206,20 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
      * @return true if inside or intersecting camera frustum
      * (should be rendered), false if outside.
      */
-    public boolean checkCulling(Camera cam){
-        if (refreshFlags != 0){
+    public boolean checkCulling(Camera cam) {
+        if (refreshFlags != 0) {
             throw new IllegalStateException("Scene graph is not properly updated for rendering.\n"
-                                          + "Make sure scene graph state was not changed after\n"
-                                          + " rootNode.updateGeometricState() call. \n"
-                                          + "Problem spatial name: "+getName());
+                    + "Make sure scene graph state was not changed after\n"
+                    + " rootNode.updateGeometricState() call. \n"
+                    + "Problem spatial name: " + getName());
         }
 
         CullHint cm = getCullHint();
         assert cm != CullHint.Inherit;
-        if (cm == Spatial.CullHint.Always){
+        if (cm == Spatial.CullHint.Always) {
             setLastFrustumIntersection(Camera.FrustumIntersect.Outside);
             return false;
-        } else if (cm == Spatial.CullHint.Never){
+        } else if (cm == Spatial.CullHint.Never) {
             setLastFrustumIntersection(Camera.FrustumIntersect.Intersects);
             return true;
         }
@@ -252,9 +233,9 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
                 return cam.containsGui(getWorldBound());
             } else {
                 int state = cam.getPlaneState();
-                
+
                 frustrumIntersects = cam.contains(getWorldBound());
-                
+
                 cam.setPlaneState(state);
             }
         }
@@ -281,7 +262,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
         return name;
     }
 
-    public LightList getLocalLightList(){
+    public LightList getLocalLightList() {
         return localLights;
     }
 
@@ -328,7 +309,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
      *
      * @return the world transform.
      */
-    public Transform getWorldTransform(){
+    public Transform getWorldTransform() {
         checkDoTransformUpdate();
         return worldTransform;
     }
@@ -387,7 +368,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
         assert vars.lock();
         Vector3f compVecA = vars.vect4;
         assert vars.unlock();
-        
+
         compVecA.set(position).subtractLocal(worldTranslation);
         getLocalRotation().lookAt(compVecA, upVector);
 
@@ -397,7 +378,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
     /**
      * Should be overriden by Node and Geometry.
      */
-    protected void updateWorldBound(){
+    protected void updateWorldBound() {
         // the world bound of a leaf is the same as it's model bound
         // for a node, the world bound is a combination of all it's children
         // bounds
@@ -405,15 +386,15 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
         refreshFlags &= ~RF_BOUND;
     }
 
-    protected void updateWorldLightList(){
-        if (parent == null){
+    protected void updateWorldLightList() {
+        if (parent == null) {
             worldLights.update(localLights, null);
             refreshFlags &= ~RF_LIGHTLIST;
-        }else{
-            if ((parent.refreshFlags & RF_LIGHTLIST) == 0){
+        } else {
+            if ((parent.refreshFlags & RF_LIGHTLIST) == 0) {
                 worldLights.update(localLights, parent.worldLights);
                 refreshFlags &= ~RF_LIGHTLIST;
-            }else{
+            } else {
                 assert false;
             }
         }
@@ -423,11 +404,11 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
      * Should only be called from updateGeometricState().
      * In most cases should not be subclassed.
      */
-    protected void updateWorldTransforms(){
-        if (parent == null){
+    protected void updateWorldTransforms() {
+        if (parent == null) {
             worldTransform.set(localTransform);
             refreshFlags &= ~RF_TRANSFORM;
-        }else{
+        } else {
             // check if transform for parent is updated
             assert ((parent.refreshFlags & RF_TRANSFORM) == 0);
             worldTransform.set(localTransform);
@@ -436,23 +417,24 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
         }
     }
 
-    void checkDoTransformUpdate(){
-        if ( (refreshFlags & RF_TRANSFORM) == 0 )
+    void checkDoTransformUpdate() {
+        if ((refreshFlags & RF_TRANSFORM) == 0) {
             return;
+        }
 
-        if (parent == null){
+        if (parent == null) {
             worldTransform.set(localTransform);
             refreshFlags &= ~RF_TRANSFORM;
-        }else{
+        } else {
             TempVars vars = TempVars.get();
             assert vars.lock();
 
             Spatial[] stack = vars.spatialStack;
             Spatial rootNode = this;
             int i = 0;
-            while (true){
+            while (true) {
                 Spatial hisParent = rootNode.parent;
-                if (hisParent == null){
+                if (hisParent == null) {
                     rootNode.worldTransform.set(rootNode.localTransform);
                     rootNode.refreshFlags &= ~RF_TRANSFORM;
                     i--;
@@ -461,7 +443,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
 
                 stack[i] = rootNode;
 
-                if ( (hisParent.refreshFlags & RF_TRANSFORM) == 0 ){
+                if ((hisParent.refreshFlags & RF_TRANSFORM) == 0) {
                     break;
                 }
 
@@ -471,7 +453,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
 
             assert vars.unlock();
 
-            for (int j = i; j >= 0; j--){
+            for (int j = i; j >= 0; j--) {
                 rootNode = stack[j];
                 //rootNode.worldTransform.set(rootNode.localTransform);
                 //rootNode.worldTransform.combineWithParent(rootNode.parent.worldTransform);
@@ -481,17 +463,18 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
         }
     }
 
-    void checkDoBoundUpdate(){
-        if ( (refreshFlags & RF_BOUND) == 0 )
+    void checkDoBoundUpdate() {
+        if ((refreshFlags & RF_BOUND) == 0) {
             return;
+        }
 
         checkDoTransformUpdate();
 
         // Go to children recursively and update their bound
-        if (this instanceof Node){
+        if (this instanceof Node) {
             Node node = (Node) this;
             int len = node.getQuantity();
-            for (int i = 0; i < len; i++){
+            for (int i = 0; i < len; i++) {
                 Spatial child = node.getChild(i);
                 child.checkDoBoundUpdate();
             }
@@ -501,11 +484,12 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
         updateWorldBound();
     }
 
-    private void runControlUpdate(float tpf){
-        if (controls.size() == 0)
+    private void runControlUpdate(float tpf) {
+        if (controls.size() == 0) {
             return;
+        }
 
-        for (int i = 0; i < controls.size(); i++){
+        for (int i = 0; i < controls.size(); i++) {
             controls.get(i).update(tpf);
         }
     }
@@ -520,11 +504,12 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
      * @see Spatial#addControl(com.jme3.scene.control.Control)
      * @see Spatial#getControl(java.lang.Class) 
      */
-    public void runControlRender(RenderManager rm, ViewPort vp){
-        if (controls.size() == 0)
+    public void runControlRender(RenderManager rm, ViewPort vp) {
+        if (controls.size() == 0) {
             return;
+        }
 
-        for (int i = 0; i < controls.size(); i++){
+        for (int i = 0; i < controls.size(); i++) {
             controls.get(i).render(rm, vp);
         }
     }
@@ -535,7 +520,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
      *
      * @see Spatial#removeControl(java.lang.Class) 
      */
-    public void addControl(Control control){
+    public void addControl(Control control) {
         controls.add(control);
         control.setSpatial(this);
     }
@@ -545,9 +530,9 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
      *
      * @see Spatial#addControl(com.jme3.scene.control.Control) 
      */
-    public void removeControl(Class<? extends Control> controlType){
-        for (int i = 0; i < controls.size(); i++){
-            if (controlType.isAssignableFrom(controls.get(i).getClass())){
+    public void removeControl(Class<? extends Control> controlType) {
+        for (int i = 0; i < controls.size(); i++) {
+            if (controlType.isAssignableFrom(controls.get(i).getClass())) {
                 Control control = controls.remove(i);
                 control.setSpatial(null);
             }
@@ -563,11 +548,12 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
      * 
      * @see Spatial#addControl(com.jme3.scene.control.Control) 
      */
-    public boolean removeControl(Control control){
+    public boolean removeControl(Control control) {
         boolean result = controls.remove(control);
-        if (result)
+        if (result) {
             control.setSpatial(null);
-        
+        }
+
         return result;
     }
 
@@ -580,9 +566,9 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
      *
      * @see Spatial#addControl(com.jme3.scene.control.Control) 
      */
-    public <T extends Control> T getControl(Class<T> controlType){
-        for (int i = 0; i < controls.size(); i++){
-            if (controlType.isAssignableFrom(controls.get(i).getClass())){
+    public <T extends Control> T getControl(Class<T> controlType) {
+        for (int i = 0; i < controls.size(); i++) {
+            if (controlType.isAssignableFrom(controls.get(i).getClass())) {
                 return (T) controls.get(i);
             }
         }
@@ -600,7 +586,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
      *
      * @see Spatial#addControl(com.jme3.scene.control.Control)
      */
-    public Control getControl(int index){
+    public Control getControl(int index) {
         return controls.get(index);
     }
 
@@ -609,10 +595,9 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
      * @see Spatial#addControl(com.jme3.scene.control.Control)
      * @see Spatial#removeControl(java.lang.Class) 
      */
-    public int getNumControls(){
+    public int getNumControls() {
         return controls.size();
     }
-
 
     /**
      * <code>updateLogicalState</code> calls the <code>update()</code> method
@@ -622,7 +607,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
      *
      * @see Spatial#addControl(com.jme3.scene.control.Control)
      */
-    public void updateLogicalState(float tpf){
+    public void updateLogicalState(float tpf) {
         runControlUpdate(tpf);
     }
 
@@ -638,19 +623,19 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
      * @see Spatial#getWorldTransform()
      * @see Spatial#getWorldBound()
      */
-    public void updateGeometricState(){
+    public void updateGeometricState() {
         // assume that this Spatial is a leaf, a proper implementation
         // for this method should be provided by Node.
 
         // NOTE: Update world transforms first because
         // bound transform depends on them.
-        if ((refreshFlags & RF_LIGHTLIST) != 0){
+        if ((refreshFlags & RF_LIGHTLIST) != 0) {
             updateWorldLightList();
         }
-        if ((refreshFlags & RF_TRANSFORM) != 0){
+        if ((refreshFlags & RF_TRANSFORM) != 0) {
             updateWorldTransforms();
         }
-        if ((refreshFlags & RF_BOUND) != 0){
+        if ((refreshFlags & RF_BOUND) != 0) {
             updateWorldBound();
         }
 
@@ -846,7 +831,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
      * spatial.
      */
     public void setLocalTranslation(float x, float y, float z) {
-        this.localTransform.setTranslation(x,y,z);
+        this.localTransform.setTranslation(x, y, z);
         this.worldTransform.setTranslation(this.localTransform.getTranslation());
         setTransformRefresh();
     }
@@ -866,7 +851,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
      *
      * @return the local transform of this spatial.
      */
-    public Transform getLocalTransform(){
+    public Transform getLocalTransform() {
         return localTransform;
     }
 
@@ -876,7 +861,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
      *
      * @param material The material to set.
      */
-    public void setMaterial(Material material){
+    public void setMaterial(Material material) {
     }
 
     /**
@@ -885,7 +870,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
      *
      * @param light The light to add.
      */
-    public void addLight(Light light){
+    public void addLight(Light light) {
         localLights.add(light);
         setLightListRefresh();
     }
@@ -896,7 +881,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
      * @param light The light to remove.
      * @see Spatial#addLight(com.jme3.light.Light) 
      */
-    public void removeLight(Light light){
+    public void removeLight(Light light) {
         localLights.remove(light);
         setLightListRefresh();
     }
@@ -906,7 +891,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
      *
      * @return The spatial on which this method is called, e.g <code>this</code>.
      */
-    public Spatial move(float x, float y, float z){
+    public Spatial move(float x, float y, float z) {
         this.localTransform.getTranslation().addLocal(x, y, z);
         this.worldTransform.setTranslation(this.localTransform.getTranslation());
         setTransformRefresh();
@@ -919,7 +904,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
      *
      * @return The spatial on which this method is called, e.g <code>this</code>.
      */
-    public Spatial move(Vector3f offset){
+    public Spatial move(Vector3f offset) {
         this.localTransform.getTranslation().addLocal(offset);
         this.worldTransform.setTranslation(this.localTransform.getTranslation());
         setTransformRefresh();
@@ -932,8 +917,8 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
      *
      * @return The spatial on which this method is called, e.g <code>this</code>.
      */
-    public Spatial scale(float s){
-        return scale(s,s,s);
+    public Spatial scale(float s) {
+        return scale(s, s, s);
     }
 
     /**
@@ -941,8 +926,8 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
      *
      * @return The spatial on which this method is called, e.g <code>this</code>.
      */
-    public Spatial scale(float x, float y, float z){
-        this.localTransform.getScale().multLocal(x,y,z);
+    public Spatial scale(float x, float y, float z) {
+        this.localTransform.getScale().multLocal(x, y, z);
         this.worldTransform.setScale(this.localTransform.getScale());
         setTransformRefresh();
 
@@ -954,7 +939,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
      *
      * @return The spatial on which this method is called, e.g <code>this</code>.
      */
-    public Spatial rotate(Quaternion rot){
+    public Spatial rotate(Quaternion rot) {
         this.localTransform.getRotation().multLocal(rot);
         this.worldTransform.setRotation(this.localTransform.getRotation());
         setTransformRefresh();
@@ -968,7 +953,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
      *
      * @return The spatial on which this method is called, e.g <code>this</code>.
      */
-    public Spatial rotate(float yaw, float roll, float pitch){
+    public Spatial rotate(float yaw, float roll, float pitch) {
         assert TempVars.get().lock();
         Quaternion q = TempVars.get().quat1;
         q.fromAngles(yaw, roll, pitch);
@@ -982,7 +967,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
      * Centers the spatial in the origin of the world bound.
      * @return The spatial on which this method is called, e.g <code>this</code>.
      */
-    public Spatial center(){
+    public Spatial center() {
         Vector3f worldTrans = getWorldTranslation();
         Vector3f worldCenter = getWorldBound().getCenter();
 
@@ -998,14 +983,14 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
      * the cullmode of it's parent.
      */
     public CullHint getCullHint() {
-        if (cullHint != CullHint.Inherit)
+        if (cullHint != CullHint.Inherit) {
             return cullHint;
-        else if (parent != null)
+        } else if (parent != null) {
             return parent.getCullHint();
-        else
+        } else {
             return CullHint.Dynamic;
+        }
     }
-
 
     /**
      * Returns this spatial's renderqueue bucket. If the mode is set to inherit,
@@ -1014,12 +999,13 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
      * @return The spatial's current renderqueue mode.
      */
     public RenderQueue.Bucket getQueueBucket() {
-        if (queueBucket != RenderQueue.Bucket.Inherit)
+        if (queueBucket != RenderQueue.Bucket.Inherit) {
             return queueBucket;
-        else if (parent != null)
+        } else if (parent != null) {
             return parent.getQueueBucket();
-        else
+        } else {
             return RenderQueue.Bucket.Opaque;
+        }
     }
 
     /**
@@ -1030,12 +1016,13 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
      * @see ShadowMode
      */
     public RenderQueue.ShadowMode getShadowMode() {
-        if (shadowMode != RenderQueue.ShadowMode.Inherit)
+        if (shadowMode != RenderQueue.ShadowMode.Inherit) {
             return shadowMode;
-        else if (parent != null)
+        } else if (parent != null) {
             return parent.getShadowMode();
-        else
+        } else {
             return ShadowMode.Off;
+        }
     }
 
     /**
@@ -1044,7 +1031,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
      *
      * @param lod The lod level to set.
      */
-    public void setLodLevel(int lod){
+    public void setLodLevel(int lod) {
     }
 
     /**
@@ -1083,11 +1070,12 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
      *
      * @see Mesh#cloneForAnim() 
      */
-    public Spatial clone(boolean cloneMaterial){
-        try{
+    public Spatial clone(boolean cloneMaterial) {
+        try {
             Spatial clone = (Spatial) super.clone();
-            if (worldBound != null)
+            if (worldBound != null) {
                 clone.worldBound = worldBound.clone();
+            }
             clone.worldLights = worldLights.clone();
             clone.localLights = localLights.clone();
 
@@ -1098,11 +1086,11 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
             clone.worldTransform = worldTransform.clone();
             clone.localTransform = localTransform.clone();
 
-            if (clone instanceof Node){
+            if (clone instanceof Node) {
                 Node node = (Node) this;
                 Node nodeClone = (Node) clone;
                 nodeClone.children = new ArrayList<Spatial>();
-                for (Spatial child : node.children){
+                for (Spatial child : node.children) {
                     Spatial childClone = child.clone(cloneMaterial);
                     childClone.parent = nodeClone;
                     nodeClone.children.add(childClone);
@@ -1115,16 +1103,16 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
             clone.setLightListRefresh();
 
             clone.controls = new ArrayList<Control>();
-            for (int i = 0; i < controls.size(); i++){
-                clone.controls.add( controls.get(i).cloneForSpatial(clone) );
+            for (int i = 0; i < controls.size(); i++) {
+                clone.controls.add(controls.get(i).cloneForSpatial(clone));
             }
 
-            if (userData != null){
+            if (userData != null) {
                 clone.userData = (HashMap<String, Savable>) userData.clone();
             }
 
             return clone;
-        }catch (CloneNotSupportedException ex){
+        } catch (CloneNotSupportedException ex) {
             throw new AssertionError();
         }
     }
@@ -1142,7 +1130,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
      * @see Mesh#cloneForAnim() 
      */
     @Override
-    public Spatial clone(){
+    public Spatial clone() {
         return clone(true);
     }
 
@@ -1155,33 +1143,36 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
      */
     public abstract Spatial deepClone();
 
-    public void setUserData(String key, Object data){
-        if (userData == null)
+    public void setUserData(String key, Object data) {
+        if (userData == null) {
             userData = new HashMap<String, Savable>();
+        }
 
-        if (data instanceof Savable){
+        if (data instanceof Savable) {
             userData.put(key, (Savable) data);
-        }else{
+        } else {
             userData.put(key, new UserData(UserData.getObjectType(data), data));
         }
     }
 
-    public Object getUserData(String key){
-        if (userData == null)
+    public Object getUserData(String key) {
+        if (userData == null) {
             return null;
+        }
 
         Savable s = userData.get(key);
-        if (s instanceof UserData){
-            return ((UserData)s).getValue();
-        }else{
+        if (s instanceof UserData) {
+            return ((UserData) s).getValue();
+        } else {
             return s;
         }
     }
 
-    public Collection<String> getUserDataKeys(){
-        if (userData != null)
+    public Collection<String> getUserDataKeys() {
+        if (userData != null) {
             return userData.keySet();
-        
+        }
+
         return Collections.EMPTY_SET;
     }
 
@@ -1202,12 +1193,14 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
      * @see java.util.regex.Pattern
      */
     public boolean matches(Class<? extends Spatial> spatialSubclass,
-                                String nameRegex) {
-        if (spatialSubclass != null && !spatialSubclass.isInstance(this))
+            String nameRegex) {
+        if (spatialSubclass != null && !spatialSubclass.isInstance(this)) {
             return false;
-      
-        if (nameRegex != null && (name == null || !name.matches(nameRegex)))
+        }
+
+        if (nameRegex != null && (name == null || !name.matches(nameRegex))) {
             return false;
+        }
 
         return true;
     }
@@ -1232,16 +1225,22 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
         worldBound = (BoundingVolume) ic.readSavable("world_bound", null);
         cullHint = ic.readEnum("cull_mode", CullHint.class, CullHint.Inherit);
         queueBucket = ic.readEnum("queue", RenderQueue.Bucket.class,
-                                    RenderQueue.Bucket.Inherit);
+                RenderQueue.Bucket.Inherit);
         shadowMode = ic.readEnum("shadow_mode", ShadowMode.class,
-                                    ShadowMode.Inherit);
+                ShadowMode.Inherit);
 
         localTransform = (Transform) ic.readSavable("transform", Transform.Identity);
-        
+
         localLights = (LightList) ic.readSavable("lights", null);
         localLights.setOwner(this);
 
-        controls = ic.readSavableArrayList("controlsList", null);
+        //changed for backward compatibility with j3o files generated before the AnimControl/SkeletonControl split
+        //the AnimControl creates the SkeletonControl for old files and add it to the spatial.
+        //The SkeletonControl must be the last in the stack so we add the list of all other control before it.
+        //When backward compatibility won't be needed anymore this can be replaced by : 
+        //controls = ic.readSavableArrayList("controlsList", null));
+        controls.addAll(0, ic.readSavableArrayList("controlsList", null));
+
         userData = (HashMap<String, Savable>) ic.readStringSavableMap("user_data", null);
     }
 
@@ -1315,7 +1314,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
      *
      * @param shadowMode The local shadow mode to set.
      */
-    public void setShadowMode(RenderQueue.ShadowMode shadowMode){
+    public void setShadowMode(RenderQueue.ShadowMode shadowMode) {
         this.shadowMode = shadowMode;
     }
 
@@ -1398,13 +1397,13 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
         store.setTranslation(getWorldTranslation());
         return store;
     }
-    
+
     /**
      * Visit each scene graph element ordered by DFS
      * @param visitor
      */
     public abstract void depthFirstTraversal(SceneGraphVisitor visitor);
-    
+
     /**
      * Visit each scene graph element ordered by BFS
      * @param visitor
@@ -1412,14 +1411,13 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
     public void breadthFirstTraversal(SceneGraphVisitor visitor) {
         Queue<Spatial> queue = new LinkedList<Spatial>();
         queue.add(this);
-        
+
         while (!queue.isEmpty()) {
             Spatial s = queue.poll();
             visitor.visit(s);
             s.breadthFirstTraversal(visitor, queue);
         }
     }
-    
+
     protected abstract void breadthFirstTraversal(SceneGraphVisitor visitor, Queue<Spatial> queue);
 }
-

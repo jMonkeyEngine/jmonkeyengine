@@ -87,8 +87,8 @@ public class TestBoneRagdoll  extends SimpleApplication {
         setupLight();
 
         model = (Node) assetManager.loadModel("Models/Oto/Oto.mesh.xml");
-//           model.setLocalTranslation(5,5,5);
-//        model.setLocalRotation(new Quaternion().fromAngleAxis(FastMath.HALF_PI, Vector3f.UNIT_X));
+      //     model.setLocalTranslation(5,5,5);
+      //  model.setLocalRotation(new Quaternion().fromAngleAxis(FastMath.HALF_PI, Vector3f.UNIT_X));
 
         //debug view
         AnimControl control= model.getControl(AnimControl.class);
@@ -105,12 +105,12 @@ public class TestBoneRagdoll  extends SimpleApplication {
       //  ragdoll.setEnabled(true);
       //  ragdoll.attachDebugShape(assetManager);
         
-        ragdoll.setSpatial(model);
-        ragdoll.setPhysicsSpace(getPhysicsSpace());
-        control.setRagdoll(ragdoll);
+//        ragdoll.setSpatial(model);
+//        ragdoll.setPhysicsSpace(getPhysicsSpace());
+//        control.setRagdoll(ragdoll);
         
-//        model.addControl(ragdoll);
-//        getPhysicsSpace().add(ragdoll);
+        model.addControl(ragdoll);
+        getPhysicsSpace().add(ragdoll);
         speed = 1f;
 
         rootNode.attachChild(model);
