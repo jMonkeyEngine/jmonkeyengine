@@ -347,7 +347,7 @@ public final class Bone implements Savable {
 
     /**
      * Set user transform.
-     * The transforms are used as increments to current translations
+     * Combine the given transforms to bone's current transforms
      * @see setUserControl
      */
     public void setUserTransforms(Vector3f translation, Quaternion rotation, Vector3f scale) {
@@ -361,7 +361,7 @@ public final class Bone implements Savable {
 
         localPos.addLocal(translation);
         localRot = localRot.mult(rotation);
-        localScale.addLocal(scale);
+        localScale.multLocal(scale);
     }
 
     /**
