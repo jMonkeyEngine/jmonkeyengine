@@ -296,11 +296,11 @@ public class SceneToolController implements AppState {
 //        throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public void setActive(boolean bln) {
+    public void setEnabled(boolean bln) {
 //        throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public boolean isActive() {
+    public boolean isEnabled() {
         return true;
 //        throw new UnsupportedOperationException("Not supported yet.");
     }
