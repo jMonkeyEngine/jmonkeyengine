@@ -246,7 +246,7 @@ public final class OBJLoader implements AssetLoader {
             f.verticies[i] = vertList.get(i);
         }
 
-        if (matList != null){
+        if (matList != null && matFaces.containsKey(currentMatName)){
             matFaces.get(currentMatName).add(f);
         }else{
             faces.add(f); // faces that belong to the default material

@@ -774,6 +774,7 @@ public class LwjglAudioRenderer implements AudioRenderer, Runnable {
             }
             
             this.listener = listener;
+            this.listener.setRenderer(this);
             setListenerParams(listener);
         }
     }

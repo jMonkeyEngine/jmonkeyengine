@@ -60,26 +60,6 @@ public class Listener {
         this.renderer = renderer;
     }
 
-    /**
-     *
-     * @return
-     * @deprecated Use {@link Listener#getVolume() }
-     */
-    @Deprecated
-    public float getGain() {
-        return getVolume();
-    }
-
-    /**
-     *
-     * @param gain
-     * @deprecated Use {@link Listener#setVolume(float) }
-     */
-    @Deprecated
-    public void setGain(float gain) {
-        setVolume(gain);
-    }
-
     public float getVolume() {
         return volume;
     }
@@ -131,13 +111,4 @@ public class Listener {
         if (renderer != null)
             renderer.updateListenerParam(this, ListenerParam.Velocity);
     }
-
-    @Deprecated
-    public boolean isRefreshNeeded(){
-        return true;
-    }
-
-    public void clearRefreshNeeded(){
-    }
-
 }
