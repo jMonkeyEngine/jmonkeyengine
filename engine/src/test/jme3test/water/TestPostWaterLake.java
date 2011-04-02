@@ -52,10 +52,7 @@ public class TestPostWaterLake extends SimpleApplication {
     private static boolean useHttp = true;
 
     public static void main(String[] args) {
-        File file = new File("wildhouse.zip");
-        if (file.exists()) {
-            useHttp = false;
-        }
+     
         TestPostWaterLake app = new TestPostWaterLake();
         app.start();
     }
@@ -68,6 +65,11 @@ public class TestPostWaterLake extends SimpleApplication {
         // load sky
         rootNode.attachChild(SkyFactory.createSky(assetManager, "Textures/Sky/Bright/BrightSky.dds", false));
 
+        File file = new File("wildhouse.zip");
+        
+        if (file.exists()) {
+            useHttp = false;
+        }
         // create the geometry and attach it
         // load the level from zip or http zip
         if (useHttp) {

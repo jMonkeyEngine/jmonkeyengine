@@ -59,10 +59,7 @@ public class TestSceneWater extends SimpleApplication {
     private static boolean useHttp = true;
 
     public static void main(String[] args) {
-        File file = new File("wildhouse.zip");
-        if (file.exists()) {
-            useHttp = false;
-        }
+      
         TestSceneWater app = new TestSceneWater();
         app.start();
     }
@@ -76,6 +73,11 @@ public class TestSceneWater extends SimpleApplication {
         // load sky
         mainScene.attachChild(SkyFactory.createSky(assetManager, "Textures/Sky/Bright/BrightSky.dds", false));
 
+        
+        File file = new File("wildhouse.zip");
+        if (file.exists()) {
+            useHttp = false;
+        }
         // create the geometry and attach it
         // load the level from zip or http zip
         if (useHttp) {

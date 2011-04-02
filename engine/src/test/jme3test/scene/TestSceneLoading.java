@@ -56,10 +56,7 @@ public class TestSceneLoading extends SimpleApplication {
     private static boolean useHttp = false;
 
     public static void main(String[] args) {
-        File file = new File("wildhouse.zip");
-        if (!file.exists()) {
-            useHttp = true;
-        }
+     
         TestSceneLoading app = new TestSceneLoading();
         app.start();
     }
@@ -75,6 +72,10 @@ public class TestSceneLoading extends SimpleApplication {
         // load sky
         rootNode.attachChild(SkyFactory.createSky(assetManager, "Textures/Sky/Bright/BrightSky.dds", false));
 
+        File file = new File("wildhouse.zip");
+        if (!file.exists()) {
+            useHttp = true;
+        }
         // create the geometry and attach it
         // load the level from zip or http zip
         if (useHttp) {
