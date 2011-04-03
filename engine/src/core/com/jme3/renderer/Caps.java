@@ -139,7 +139,12 @@ public enum Caps {
      * Supports Format.LATC for textures, this includes
      * support for ATI's 3Dc texture compression.
      */
-    TextureCompressionLATC, 
+    TextureCompressionLATC,
+
+    /**
+     * Supports Non-Power-Of-Two (NPOT) textures and framebuffers
+     */
+    NonPowerOfTwoTextures,
 
     /// Vertex Buffer features
     MeshInstancing,

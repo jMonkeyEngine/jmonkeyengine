@@ -37,11 +37,14 @@ import com.jme3.app.SettingsDialog.SelectionListener;
 import com.jme3.asset.AssetManager;
 import com.jme3.asset.DesktopAssetManager;
 import com.jme3.audio.AudioRenderer;
+import com.jme3.util.JmeFormatter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.SwingUtilities;
@@ -318,7 +321,6 @@ public class JmeSystem {
             }
 
             AudioRenderer ar = clazz.newInstance();
-//            ar = new QueuedAudioRenderer(ar);
             return ar;
         }catch (InstantiationException ex){
             logger.log(Level.SEVERE, "Failed to create context", ex);
@@ -336,28 +338,28 @@ public class JmeSystem {
             return;
         
         initialized = true;
-//        try {
-//            if (!lowPermissions){
-//                // can only modify logging settings
-//                // if permissions are available
-//
-//                JmeFormatter formatter = new JmeFormatter();
+        try {
+            if (!lowPermissions){
+                // can only modify logging settings
+                // if permissions are available
+
+                JmeFormatter formatter = new JmeFormatter();
 //                Handler fileHandler = new FileHandler("jme.log");
 //                fileHandler.setFormatter(formatter);
 //                Logger.getLogger("").addHandler(fileHandler);
-//
-//                Handler consoleHandler = new ConsoleHandler();
-//                consoleHandler.setFormatter(formatter);
-//                Logger.getLogger("").removeHandler(Logger.getLogger("").getHandlers()[0]);
-//                Logger.getLogger("").addHandler(consoleHandler);
-//
+
+                Handler consoleHandler = new ConsoleHandler();
+                consoleHandler.setFormatter(formatter);
+                Logger.getLogger("").removeHandler(Logger.getLogger("").getHandlers()[0]);
+                Logger.getLogger("").addHandler(consoleHandler);
+
 //                Logger.getLogger("com.jme3").setLevel(Level.FINEST);
-//            }
+            }
 //        } catch (IOException ex){
 //            logger.log(Level.SEVERE, "I/O Error while creating log file", ex);
-//        } catch (SecurityException ex){
-//            logger.log(Level.SEVERE, "Security error in creating log file", ex);
-//        }
+        } catch (SecurityException ex){
+            logger.log(Level.SEVERE, "Security error in creating log file", ex);
+        }
         logger.log(Level.INFO, "Running on {0}", getFullName());
 
         

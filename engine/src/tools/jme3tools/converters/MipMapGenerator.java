@@ -32,6 +32,7 @@
 
 package jme3tools.converters;
 
+import com.jme3.math.FastMath;
 import com.jme3.texture.Image;
 import com.jme3.texture.Image.Format;
 import com.jme3.texture.plugins.AWTLoader;
@@ -56,6 +57,25 @@ public class MipMapGenerator {
         g.dispose();
 
         return targetImage;
+    }
+
+    public static void resizeToPowerOf2(Image image){
+        BufferedImage original = ImageToAwt.convert(image, false, true, 0);
+        int potWidth = FastMath.nearestPowerOfTwo(image.getWidth());
+        int potHeight = FastMath.nearestPowerOfTwo(image.getHeight());
+        int potSize = Math.max(potWidth, potHeight);
+
+        BufferedImage scaled = scaleDown(original, potSize, potSize);
+
+        AWTLoader loader = new AWTLoader();
+        Image output = loader.load(scaled, false);
+
+        image.setWidth(potSize);
+        image.setHeight(potSize);
+        image.setDepth(0);
+        image.setData(output.getData(0));
+        image.setFormat(output.getFormat());
+        image.setMipMapSizes(null);
     }
 
     public static void generateMipMaps(Image image){

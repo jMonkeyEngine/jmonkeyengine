@@ -34,6 +34,7 @@ package com.jme3.renderer.lwjgl;
 import com.jme3.light.LightList;
 import com.jme3.material.RenderState;
 import com.jme3.math.ColorRGBA;
+import com.jme3.math.FastMath;
 import com.jme3.math.Matrix4f;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector2f;
@@ -314,6 +315,14 @@ public class LwjglRenderer implements Renderer {
 
         if (ctxCaps.GL_ARB_vertex_array_object) {
             caps.add(Caps.VertexBufferArray);
+        }
+
+        if (ctxCaps.GL_ARB_texture_non_power_of_two){
+            caps.add(Caps.NonPowerOfTwoTextures);
+        }else{
+            logger.log(Level.WARNING, "Your graphics card does not "
+                                    + "support non-power-of-2 textures. "
+                                    + "Some features might not work.");
         }
 
         boolean latc = ctxCaps.GL_EXT_texture_compression_latc;
@@ -1598,6 +1607,18 @@ public class LwjglRenderer implements Renderer {
                 img.setMultiSamples(Math.min(maxDepthTexSamples, imageSamples));
             } else {
                 img.setMultiSamples(Math.min(maxColorTexSamples, imageSamples));
+            }
+        }
+
+        // Check sizes if graphics card doesn't support NPOT
+        if (!GLContext.getCapabilities().GL_ARB_texture_non_power_of_two){
+            if (img.getWidth() != 0 && img.getHeight() != 0){
+                if (!FastMath.isPowerOfTwo(img.getWidth())
+                    || !FastMath.isPowerOfTwo(img.getHeight())
+                    || img.getWidth() != img.getHeight()){
+                    logger.log(Level.WARNING, "Encountered NPOT texture {0}, "
+                                            + "it might not display correctly.", img);
+                }
             }
         }
 

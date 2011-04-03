@@ -1,5 +1,6 @@
 package com.jme3.renderer.lwjgl;
 
+import com.jme3.math.FastMath;
 import com.jme3.renderer.GL1Renderer;
 import com.jme3.shader.Shader;
 import com.jme3.shader.Shader.ShaderSource;
@@ -33,6 +34,7 @@ import java.nio.IntBuffer;
 import java.util.EnumSet;
 import java.util.logging.Logger;
 import jme3tools.converters.MipMapGenerator;
+import org.lwjgl.opengl.GLContext;
 
 import static org.lwjgl.opengl.GL11.*;
 
@@ -47,6 +49,7 @@ public class LwjglGL1Renderer implements GL1Renderer {
     private final FloatBuffer fb16 = BufferUtils.createFloatBuffer(16);
     private final RenderContext context = new RenderContext();
     private final GLObjectManager objManager = new GLObjectManager();
+    private final EnumSet<Caps> caps = EnumSet.noneOf(Caps.class);
 
     private int maxTexSize;
     private int maxCubeTexSize;
@@ -80,13 +83,21 @@ public class LwjglGL1Renderer implements GL1Renderer {
     }
 
     public EnumSet<Caps> getCaps() {
-        return EnumSet.noneOf(Caps.class);
+        return caps;
     }
 
     public void initialize() {
         //glDisable(GL_DEPTH_TEST);
         glShadeModel(GL_SMOOTH);
         glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+
+        if (GLContext.getCapabilities().GL_ARB_texture_non_power_of_two){
+            caps.add(Caps.NonPowerOfTwoTextures);
+        }else{
+            logger.log(Level.WARNING, "Your graphics card does not "
+                                    + "support non-power-of-2 textures. "
+                                    + "Some features might not work.");
+        }
     }
 
     public void resetGLObjects() {
@@ -468,6 +479,20 @@ public class LwjglGL1Renderer implements GL1Renderer {
             context.boundTextures[unit] = img;
 
             statistics.onTextureUse(img, true);
+        }
+
+        // Check sizes if graphics card doesn't support NPOT
+        if (!GLContext.getCapabilities().GL_ARB_texture_non_power_of_two){
+            if (img.getWidth() != 0 && img.getHeight() != 0){
+                if (!FastMath.isPowerOfTwo(img.getWidth())
+                    || !FastMath.isPowerOfTwo(img.getHeight())
+                    || img.getWidth() != img.getHeight()){
+                    
+                    // Resize texture to Power-of-2 size
+                    MipMapGenerator.resizeToPowerOf2(img);
+
+                }
+            }
         }
 
         if (!img.hasMipmaps() && mips) {
