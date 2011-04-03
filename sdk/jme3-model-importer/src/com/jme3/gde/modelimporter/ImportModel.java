@@ -58,12 +58,12 @@ public final class ImportModel implements ActionListener {
         dialog.setVisible(true);
         dialog.toFront();
         boolean cancelled = wiz.getValue() != WizardDescriptor.FINISH_OPTION;
-        ((ModelImporterWizardPanel1)panels[0]).cleanup();
+        ((ModelImporterWizardPanel1) panels[0]).cleanup();
         if (!cancelled) {
             new Thread(new Runnable() {
 
                 public void run() {
-                    ProgressHandle handle=ProgressHandleFactory.createHandle("Importing Model..");
+                    ProgressHandle handle = ProgressHandleFactory.createHandle("Importing Model..");
                     handle.start();
                     try {
                         copyModel(wiz);
@@ -86,7 +86,7 @@ public final class ImportModel implements ActionListener {
         if (manager == null) {
             throw new IllegalStateException("Cannot find project AssetManager!");
         }
-        List<FileObject> deleteList=new LinkedList<FileObject>();
+        List<FileObject> deleteList = new LinkedList<FileObject>();
         for (Iterator<AssetKey> it = keyList.iterator(); it.hasNext();) {
             AssetKey assetKey = it.next();
             File file = new File(path + "/" + assetKey.getFolder() + assetKey.getName());
@@ -96,8 +96,8 @@ public final class ImportModel implements ActionListener {
                 destFolder.mkdirs();
                 FileObject dest = FileUtil.toFileObject(destFolder);
                 try {
-                    FileObject fileObj=source.copy(dest, source.getName(), source.getExt());
-                    if(!(assetKey instanceof TextureKey)){
+                    FileObject fileObj = source.copy(dest, source.getName(), source.getExt());
+                    if (!(assetKey instanceof TextureKey)) {
                         deleteList.add(fileObj);
                     }
                 } catch (IOException ex) {
@@ -116,7 +116,7 @@ public final class ImportModel implements ActionListener {
                 Spatial spat = ((SpatialAssetDataObject) targetModel).loadAsset();
                 if (spat == null) {
                     throw new IllegalStateException("Cannot load model after copying!");
-                    
+
                 }
                 BinaryExporter exp = BinaryExporter.getInstance();
                 exp.save(spat, outFile);
@@ -124,7 +124,7 @@ public final class ImportModel implements ActionListener {
         } catch (Exception ex) {
             Exceptions.printStackTrace(ex);
         }
-        if(!keepFiles){
+        if (!keepFiles) {
             for (Iterator<FileObject> it = deleteList.iterator(); it.hasNext();) {
                 FileObject fileObject = it.next();
                 try {
@@ -134,8 +134,10 @@ public final class ImportModel implements ActionListener {
                 }
             }
         }
-        FileObject dest = FileUtil.toFileObject(new File(manager.getAssetFolderName() + "/" + importPath).getParentFile());
-        dest.refresh();
+        FileObject importFolder = manager.getAssetFolder().getFileObject(importPath);//FileUtil.toFileObject(new File(manager.getAssetFolderName() + "/" + importPath));
+        FileObject importParentFolder = importFolder.getParent();
+        importParentFolder.refresh();
+        importFolder.refresh();
     }
 
     /**
