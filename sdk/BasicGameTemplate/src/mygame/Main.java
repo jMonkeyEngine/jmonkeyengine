@@ -25,8 +25,8 @@ public class Main extends SimpleApplication {
         Geometry geom = new Geometry("Box", b);
         geom.updateModelBound();
 
-        Material mat = new Material(assetManager, "Common/MatDefs/Misc/SolidColor.j3md");
-        mat.setColor("m_Color", ColorRGBA.Blue);
+        Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        mat.setColor("Color", ColorRGBA.Blue);
         geom.setMaterial(mat);
 
         rootNode.attachChild(geom);
