@@ -149,15 +149,13 @@ public class Node extends Spatial implements Savable {
     @Override
     public void updateLogicalState(float tpf){
         super.updateLogicalState(tpf);
-        for (int i = 0, cSize = children.size(); i < cSize; i++) {
+
+        // FIXME: Iterating through the children list backwards
+        // to avoid IndexOutOfBoundsException. This is sometimes unreliable,
+        // a more robust solution is needed.
+        for (int i = children.size(); i >= 0; i--){
             Spatial child = children.get(i);
             child.updateLogicalState(tpf);
-            
-            // added this line so that nodes removed by Controls
-            // don't cause IndexOutOfBoundsExceptions
-            // FIXME: This is sometimes unreliable, a more
-            // robust solution is needed
-            cSize = children.size();
         }
     }
 
@@ -477,6 +475,15 @@ public class Node extends Spatial implements Savable {
         return children;
     }
 
+    /**
+     * Dead code
+     * 
+     * @param geometry
+     * @param index1
+     * @param index2
+     * @deprecated Dead code
+     */
+    @Deprecated
     public void childChange(Geometry geometry, int index1, int index2) {
         //just pass to parent
         if(parent != null) {
