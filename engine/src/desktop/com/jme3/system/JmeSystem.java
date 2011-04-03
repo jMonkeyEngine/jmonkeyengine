@@ -350,8 +350,10 @@ public class JmeSystem {
 
                 Handler consoleHandler = new ConsoleHandler();
                 consoleHandler.setFormatter(formatter);
-                Logger.getLogger("").removeHandler(Logger.getLogger("").getHandlers()[0]);
-                Logger.getLogger("").addHandler(consoleHandler);
+                Logger.getLogger("com.jme3").removeHandler(Logger.getLogger("").getHandlers()[0]);
+                Logger.getLogger("jme3tools").removeHandler(Logger.getLogger("").getHandlers()[0]);
+                Logger.getLogger("com.jme3").addHandler(consoleHandler);
+                Logger.getLogger("jme3tools").addHandler(consoleHandler);
 
 //                Logger.getLogger("com.jme3").setLevel(Level.FINEST);
             }
