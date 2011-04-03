@@ -153,7 +153,7 @@ public class Node extends Spatial implements Savable {
         // FIXME: Iterating through the children list backwards
         // to avoid IndexOutOfBoundsException. This is sometimes unreliable,
         // a more robust solution is needed.
-        for (int i = children.size(); i >= 0; i--){
+        for (int i = children.size()-1; i >= 0; i--){
             Spatial child = children.get(i);
             child.updateLogicalState(tpf);
         }
