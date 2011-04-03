@@ -101,7 +101,7 @@ public class Node extends Spatial implements Savable {
         super.setTransformRefresh();
         for (Spatial child : children){
             if ((child.refreshFlags & RF_TRANSFORM) != 0)
-                return;
+                continue;
 
             child.setTransformRefresh();
         }
@@ -112,7 +112,7 @@ public class Node extends Spatial implements Savable {
         super.setLightListRefresh();
         for (Spatial child : children){
             if ((child.refreshFlags & RF_LIGHTLIST) != 0)
-                return;
+                continue;
 
             child.setLightListRefresh();
         }
