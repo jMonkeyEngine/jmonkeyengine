@@ -77,6 +77,7 @@ public class TextureKey extends AssetKey<Texture> {
         return true;
     }
 
+    @Override
     public Object createClonedInstance(Object asset){
         Texture tex = (Texture) asset;
         return tex.createSimpleClone();
@@ -138,6 +139,14 @@ public class TextureKey extends AssetKey<Texture> {
 
     public void setGenerateMips(boolean generateMips) {
         this.generateMips = generateMips;
+    }
+
+    @Override
+    public boolean equals(Object other){
+        if (!(other instanceof TextureKey)){
+            return false;
+        }
+        return super.equals(other) && isFlipY() == ((TextureKey)other).isFlipY();
     }
 
     public void write(JmeExporter ex) throws IOException{
