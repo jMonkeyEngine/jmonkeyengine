@@ -31,11 +31,10 @@
  */
 package com.jme3.gde.core.scene;
 
-import java.util.logging.Formatter;
+import com.jme3.util.JmeFormatter;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
-import java.util.logging.SimpleFormatter;
 import org.openide.windows.IOProvider;
 import org.openide.windows.InputOutput;
 
@@ -46,7 +45,7 @@ import org.openide.windows.InputOutput;
 public class ApplicationLogHandler extends Handler {
 
     InputOutput io = IOProvider.getDefault().getIO("Application", true);
-    Formatter formatter = new SimpleFormatter();
+    JmeFormatter formatter = new JmeFormatter();
 
     public ApplicationLogHandler() {
     }
