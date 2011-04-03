@@ -270,8 +270,8 @@ public class TestChooser extends JDialog {
                 			        final Method settingMethod = clazz.getMethod("setShowSettings", boolean.class);
                 			        settingMethod.invoke(app, showSetting);
                 			    }
-                			    final Method mainMethod = clazz.getMethod("start", null);
-                			    mainMethod.invoke(app, null);
+                			    final Method mainMethod = clazz.getMethod("start");
+                			    mainMethod.invoke(app);
                 			    Field contextField = Application.class.getDeclaredField("context");
                 			    contextField.setAccessible(true);
                 			    JmeContext context = null; 
