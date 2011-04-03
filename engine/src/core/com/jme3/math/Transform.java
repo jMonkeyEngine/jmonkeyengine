@@ -48,7 +48,15 @@ import java.io.IOException;
  */
 public final class Transform implements Savable, Cloneable {
 
+    /**
+     * 
+     * @deprecated To follow with the standard for constants,
+     * which should be all upper case. Use {@link Transform#IDENTITY} instead.
+     */
+    @Deprecated
     public static final Transform Identity = new Transform();
+    
+    public static final Transform IDENTITY = new Transform();
 
     private Quaternion rot = new Quaternion();
     private Vector3f translation = new Vector3f();
@@ -281,8 +289,8 @@ public final class Transform implements Savable, Cloneable {
         InputCapsule capsule = e.getCapsule(this);
         
         rot = (Quaternion)capsule.readSavable("rot", new Quaternion());
-        translation = (Vector3f)capsule.readSavable("translation", Vector3f.ZERO.clone());
-        scale = (Vector3f)capsule.readSavable("scale", Vector3f.UNIT_XYZ.clone());
+        translation = (Vector3f)capsule.readSavable("translation", Vector3f.ZERO);
+        scale = (Vector3f)capsule.readSavable("scale", Vector3f.UNIT_XYZ);
     }
     
     @Override
