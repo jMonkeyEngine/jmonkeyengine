@@ -93,8 +93,6 @@ public final class Bone implements Savable {
     private Quaternion worldRot = new Quaternion();
     private Vector3f worldScale = new Vector3f();
 
-    // TODO: Get rid of this temp variable
-    private Matrix3f rotMat = new Matrix3f();
     
     /**
      * Creates a new bone with the given name.
@@ -343,7 +341,12 @@ public final class Bone implements Savable {
         
         //populating the matrix
         m.loadIdentity();
+        TempVars vars = TempVars.get();
+        assert vars.lock();
+        Matrix3f rotMat = vars.tempMat3;
         m.setTransform(translate, scale, rotate.toRotationMatrix(rotMat));
+
+        assert vars.unlock();
     }
 
     /**
