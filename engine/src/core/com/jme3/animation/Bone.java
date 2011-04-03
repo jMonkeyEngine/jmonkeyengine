@@ -72,7 +72,7 @@ public final class Bone implements Savable {
      */
     private Vector3f initialPos;
     private Quaternion initialRot;
-    private Vector3f initialScale = new Vector3f(1.0f, 1.0f, 1.0f);
+    private Vector3f initialScale;
     /**
      * The inverse world bind transform.
      * BONE SPACE -> MODEL SPACE
@@ -92,6 +92,9 @@ public final class Bone implements Savable {
     private Vector3f worldPos = new Vector3f();
     private Quaternion worldRot = new Quaternion();
     private Vector3f worldScale = new Vector3f();
+
+    // TODO: Get rid of this temp variable
+    private Matrix3f rotMat = new Matrix3f();
     
     /**
      * Creates a new bone with the given name.
@@ -103,7 +106,7 @@ public final class Bone implements Savable {
 
         initialPos = new Vector3f();
         initialRot = new Quaternion();
-        initialScale = new Vector3f();
+        initialScale = new Vector3f(1,1,1);
 
         worldBindInversePos = new Vector3f();
         worldBindInverseRot = new Quaternion();
@@ -321,8 +324,6 @@ public final class Bone implements Savable {
         }
     }
 
-    //Temp 3x3 rotation matrix for transform computation
-    Matrix3f rotMat=new Matrix3f();
     /**
      * Stores the skinning transform in the specified Matrix4f.
      * The skinning transform applies the animation of the bone to a vertex.
@@ -395,7 +396,7 @@ public final class Bone implements Savable {
      * Used internally after model cloning.
      * @param attachNode
      */
-    public void setAttachmentsNode(Node attachNode) {
+    void setAttachmentsNode(Node attachNode) {
         this.attachNode = attachNode;
     }
 

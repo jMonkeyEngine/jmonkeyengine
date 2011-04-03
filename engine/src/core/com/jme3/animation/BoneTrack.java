@@ -56,6 +56,7 @@ public final class BoneTrack implements Savable {
     private CompactQuaternionArray rotations;
     private CompactVector3Array scales;
     private float[] times;
+    
     // temp vectors for interpolation
     private transient final Vector3f tempV = new Vector3f();
     private transient final Quaternion tempQ = new Quaternion();

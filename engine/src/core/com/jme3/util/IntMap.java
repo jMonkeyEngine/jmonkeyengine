@@ -40,7 +40,7 @@ import java.util.Iterator;
  * 
  * @author Nate 
  */
-public final class IntMap<T> implements Iterable<Entry>, Cloneable {
+public final class IntMap<T> implements Iterable<Entry<T>>, Cloneable {
 
     private Entry[] table;
     private final float loadFactor;
@@ -193,11 +193,11 @@ public final class IntMap<T> implements Iterable<Entry>, Cloneable {
         size = 0;
     }
 
-    public Iterator<Entry> iterator() {
-        return (Iterator<Entry>) new IntMapIterator();
+    public Iterator<Entry<T>> iterator() {
+        return (Iterator<Entry<T>>) new IntMapIterator();
     }
 
-    final class IntMapIterator implements Iterator<Entry> {
+    final class IntMapIterator implements Iterator<Entry<T>> {
 
         /**
          * Current entry.
