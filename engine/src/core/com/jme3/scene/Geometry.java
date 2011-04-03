@@ -32,6 +32,7 @@
 
 package com.jme3.scene;
 
+import com.jme3.asset.AssetNotFoundException;
 import com.jme3.bounding.BoundingVolume;
 import com.jme3.collision.Collidable;
 import com.jme3.collision.CollisionResults;
@@ -45,8 +46,12 @@ import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.util.TempVars;
 import java.io.IOException;
 import java.util.Queue;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class Geometry extends Spatial {
+
+    private static final Logger logger = Logger.getLogger(Geometry.class.getName());
 
     /**
      * The mesh contained herein
@@ -327,6 +332,9 @@ public class Geometry extends Spatial {
         super.write(ex);
         OutputCapsule oc = ex.getCapsule(this);
         oc.write(mesh, "mesh", null);
+        if (material != null){
+            oc.write(material.getAssetName(), "materialName", null);
+        }
         oc.write(material, "material", null);
         oc.write(ignoreTransform, "ignoreTransform", false);
     }
@@ -336,7 +344,24 @@ public class Geometry extends Spatial {
         super.read(im);
         InputCapsule ic = im.getCapsule(this);
         mesh = (Mesh) ic.readSavable("mesh", null);
-        material = (Material) ic.readSavable("material", null);
+
+        material = null;
+        String matName = ic.readString("materialName", null);
+        if (matName != null){
+            // Material name is set,
+            // Attempt to load material via J3M
+            try {
+                material = im.getAssetManager().loadMaterial(matName);
+            } catch (AssetNotFoundException ex){
+                // Cannot find J3M file.
+                logger.log(Level.FINE, "Could not load J3M file {0} for Geometry.",
+                        matName);
+            }
+        }
+        // If material is NULL, try to load it from the geometry
+        if (material == null){
+            material = (Material) ic.readSavable("material", null);
+        }
         ignoreTransform = ic.readBoolean("ignoreTransform", false);
     }
 

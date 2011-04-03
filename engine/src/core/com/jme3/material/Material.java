@@ -84,6 +84,8 @@ public class Material implements Cloneable, Savable, Comparable<Material> {
         additiveLight.setBlendMode(RenderState.BlendMode.AlphaAdditive);
         additiveLight.setDepthWrite(false);
     }
+
+    private String assetName;
     private MaterialDef def;
     private ListMap<String, MatParam> paramValues = new ListMap<String, MatParam>();
     private Technique technique;
@@ -171,6 +173,14 @@ public class Material implements Cloneable, Savable, Comparable<Material> {
      * Do not use this constructor. Serialization purposes only.
      */
     public Material() {
+    }
+
+    public String getAssetName() {
+        return assetName;
+    }
+
+    public void setAssetName(String assetName) {
+        this.assetName = assetName;
     }
 
     public int getSortId() {

@@ -534,6 +534,7 @@ public class J3MLoader implements AssetLoader {
                 throw new IOException("Extended material "+extendedMat+" cannot be found.");
 
             material = new Material(def);
+            material.setAssetName(fileName);
         }else if (scan.hasNext("\\{")){
             if (extending){
                 throw new IOException("Expected ':', got '{'");

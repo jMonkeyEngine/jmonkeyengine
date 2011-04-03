@@ -65,12 +65,12 @@ public class MaterialDef {
         logger.log(Level.INFO, "Loaded material definition: {0}", name);
     }
 
-    public void setAssetName(String assetName){
-        this.assetName = assetName;
+    public String getAssetName() {
+        return assetName;
     }
 
-    public String getAssetName(){
-        return assetName;
+    public void setAssetName(String assetName) {
+        this.assetName = assetName;
     }
 
     public AssetManager getAssetManager(){
