@@ -79,10 +79,15 @@ public class TestBoneRagdoll  extends SimpleApplication {
     public void simpleInitApp() {
         initCrossHairs();
         initMaterial();
+        
+        cam.setLocation(new Vector3f(0.26924422f, 6.646658f, 22.265987f));
+        cam.setRotation(new Quaternion(-2.302544E-4f, 0.99302495f, -0.117888905f, -0.0019395084f));                
+              
+
         bulletAppState = new BulletAppState();
-        bulletAppState.setEnabled(false);
+        bulletAppState.setEnabled(true);
         stateManager.attach(bulletAppState);
-        bulletAppState.getPhysicsSpace().enableDebug(assetManager);
+ //       bulletAppState.getPhysicsSpace().enableDebug(assetManager);
         PhysicsTestHelper.createPhysicsTestWorld(rootNode, assetManager, bulletAppState.getPhysicsSpace());
         setupLight();
 
@@ -98,7 +103,7 @@ public class TestBoneRagdoll  extends SimpleApplication {
         mat2.getAdditionalRenderState().setDepthTest(false);
         skeletonDebug.setMaterial(mat2);
         skeletonDebug.setLocalTranslation(model.getLocalTranslation());
-        control.createChannel().setAnim("Dodge");
+        control.createChannel().setAnim("Walk");
 
         //Note: PhysicsRagdollControl is still TODO, constructor will change
         RagdollControl ragdoll = new RagdollControl();
@@ -115,10 +120,11 @@ public class TestBoneRagdoll  extends SimpleApplication {
 
         rootNode.attachChild(model);
         rootNode.attachChild(skeletonDebug);
-        flyCam.setEnabled(false);
-      //  flyCam.setMoveSpeed(10);
-        ChaseCamera chaseCamera=new ChaseCamera(cam, inputManager);
-        model.addControl(chaseCamera);
+      //  flyCam.setEnabled(false);
+        flyCam.setMoveSpeed(50);
+//        ChaseCamera chaseCamera=new ChaseCamera(cam, inputManager);
+//        chaseCamera.setLookAtOffset(Vector3f.UNIT_Y.mult(4));
+//        model.addControl(chaseCamera);
         
         inputManager.addListener(new ActionListener() {
 
@@ -130,9 +136,9 @@ public class TestBoneRagdoll  extends SimpleApplication {
                 Geometry bulletg = new Geometry("bullet", bullet);
                 bulletg.setMaterial(matBullet);      
                 bulletg.setLocalTranslation(cam.getLocation());
-                RigidBodyControl bulletNode = new BombControl(assetManager, bulletCollisionShape, 1);
-              //  RigidBodyControl bulletNode = new RigidBodyControl(bulletCollisionShape, 1);
-                bulletNode.setLinearVelocity(cam.getDirection().mult(60));
+              //  RigidBodyControl bulletNode = new BombControl(assetManager, bulletCollisionShape, 1);
+                RigidBodyControl bulletNode = new RigidBodyControl(bulletCollisionShape, 20);
+                bulletNode.setLinearVelocity(cam.getDirection().mult(80));
                 bulletg.addControl(bulletNode);
                 rootNode.attachChild(bulletg);
                 getPhysicsSpace().add(bulletNode);
