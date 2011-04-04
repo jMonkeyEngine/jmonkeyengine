@@ -57,6 +57,8 @@ import java.util.logging.Logger;
 public abstract class Serializer {
     protected static final Logger log = Logger.getLogger(Serializer.class.getName());
 
+    private static final SerializerRegistration NULL_CLASS = new SerializerRegistration( null, Void.class, (short)-1 );
+
     private static final Map<Short, SerializerRegistration> idRegistrations         = new HashMap<Short, SerializerRegistration>();
     private static final Map<Class, SerializerRegistration> classRegistrations      = new HashMap<Class, SerializerRegistration>();
 
@@ -267,7 +269,7 @@ public abstract class Serializer {
      */
     public static SerializerRegistration readClass(ByteBuffer buffer) {
         short classID = buffer.getShort();
-        if (classID == -1) return null;
+        if (classID == -1) return NULL_CLASS;
         return idRegistrations.get(classID);
     }
 
@@ -280,7 +282,8 @@ public abstract class Serializer {
      */
     public static Object readClassAndObject(ByteBuffer buffer) throws IOException {
         SerializerRegistration reg = readClass(buffer);
-        if (reg == null) return null;
+        if (reg == NULL_CLASS) return null;
+        if (reg == null) throw new SerializerException( "Class not found for buffer data." );
         return reg.getSerializer().readObject(buffer, reg.getType());
     }
 
