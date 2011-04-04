@@ -208,6 +208,9 @@ public class Camera implements Savable, Cloneable {
     protected Matrix4f viewProjectionMatrix = new Matrix4f();
     private BoundingBox guiBounding = new BoundingBox();
 
+    /** The camera's name. */
+    protected String name;
+
     /**
      * Constructor instantiates a new <code>Camera</code> object. All
      * values of the camera are set to default.
@@ -282,6 +285,22 @@ public class Camera implements Savable, Cloneable {
         } catch (CloneNotSupportedException ex) {
             throw new AssertionError();
         }
+    }
+
+    /**
+     * This method sets the cameras name.
+     * @param name the cameras name
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    /**
+     * This method returns the cameras name.
+     * @return the cameras name
+     */
+    public String getName() {
+        return name;
     }
 
     /**

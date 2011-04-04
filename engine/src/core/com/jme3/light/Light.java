@@ -77,11 +77,30 @@ public abstract class Light implements Savable, Cloneable {
      */
     protected boolean enabled = true;
 
+    /** The light's name. */
+    protected String name;
+
     /**
      * @return The color of the light.
      */
     public ColorRGBA getColor() {
         return color;
+    }
+
+    /**
+     * This method sets the light's name.
+     * @param name the light's name
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    /**
+     * This method returns the light's name.
+     * @return the light's name
+     */
+    public String getName() {
+        return name;
     }
 
     public void setLastDistance(float lastDistance){
