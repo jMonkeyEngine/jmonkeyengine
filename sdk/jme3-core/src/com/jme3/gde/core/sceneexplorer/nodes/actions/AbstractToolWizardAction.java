@@ -107,7 +107,7 @@ public abstract class AbstractToolWizardAction implements ToolAction {
         };
     }
 
-    protected abstract Object showWizard(AbstractSceneExplorerNode rootNode);
+    protected abstract Object showWizard(org.openide.nodes.Node node);
 
     protected abstract Object doApplyTool(AbstractSceneExplorerNode rootNode, Object settings);
 

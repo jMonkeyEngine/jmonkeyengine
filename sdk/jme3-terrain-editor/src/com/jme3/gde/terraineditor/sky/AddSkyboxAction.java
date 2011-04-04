@@ -32,7 +32,7 @@ public class AddSkyboxAction extends AbstractNewSpatialWizardAction {
     }
 
     @Override
-    protected Object showWizard(Spatial spatial) {
+    protected Object showWizard(org.openide.nodes.Node node) {
         WizardDescriptor wizardDescriptor = new WizardDescriptor(getPanels());
         wizardDescriptor.setTitleFormat(new MessageFormat("{0}"));
         wizardDescriptor.setTitle("Skybox Wizard");

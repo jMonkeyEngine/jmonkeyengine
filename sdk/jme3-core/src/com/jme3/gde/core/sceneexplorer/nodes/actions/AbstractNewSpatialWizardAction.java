@@ -56,7 +56,7 @@ public abstract class AbstractNewSpatialWizardAction implements NewSpatialAction
     protected String name = "*";
     protected ProjectAssetManager pm;
 
-    protected abstract Object showWizard(Spatial spatial);
+    protected abstract Object showWizard(org.openide.nodes.Node node);
 
     protected abstract Spatial doCreateSpatial(Node parent, Object configuration);
 
@@ -66,7 +66,7 @@ public abstract class AbstractNewSpatialWizardAction implements NewSpatialAction
         return new AbstractAction(name) {
 
             public void actionPerformed(ActionEvent e) {
-                final Object obj = showWizard(node);
+                final Object obj = showWizard(rootNode);
                 SceneApplication.getApplication().enqueue(new Callable<Void>() {
 
                     public Void call() throws Exception {

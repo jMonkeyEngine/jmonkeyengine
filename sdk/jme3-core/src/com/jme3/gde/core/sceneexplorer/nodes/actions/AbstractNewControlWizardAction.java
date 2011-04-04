@@ -56,7 +56,7 @@ public abstract class AbstractNewControlWizardAction implements NewControlAction
     protected String name = "*";
     protected ProjectAssetManager pm;
 
-    protected abstract Object showWizard(Spatial spatial);
+    protected abstract Object showWizard(org.openide.nodes.Node node);
 
     protected abstract Control doCreateControl(Spatial spatial, Object configuration);
 
@@ -66,7 +66,7 @@ public abstract class AbstractNewControlWizardAction implements NewControlAction
         return new AbstractAction(name) {
 
             public void actionPerformed(ActionEvent e) {
-                final Object obj=showWizard(spatial);
+                final Object obj=showWizard(rootNode);
                 SceneApplication.getApplication().enqueue(new Callable<Void>() {
 
                     public Void call() throws Exception {
