@@ -1326,6 +1326,7 @@ public class Camera implements Savable, Cloneable {
         capsule.write(viewPortBottom, "viewPortBottom", 0);
         capsule.write(width, "width", 0);
         capsule.write(height, "height", 0);
+        capsule.write(name, "name", null);
     }
 
     public void read(JmeImporter e) throws IOException {
@@ -1348,5 +1349,6 @@ public class Camera implements Savable, Cloneable {
         viewPortBottom = capsule.readFloat("viewPortBottom", 0);
         width = capsule.readInt("width", 0);
         height = capsule.readInt("height", 0);
+        name = capsule.readString("name", null);
     }
 }

@@ -132,12 +132,14 @@ public abstract class Light implements Savable, Cloneable {
         OutputCapsule oc = ex.getCapsule(this);
         oc.write(color, "color", null);
         oc.write(enabled, "enabled", true);
+        oc.write(name, "name", null);
     }
 
     public void read(JmeImporter im) throws IOException {
         InputCapsule ic = im.getCapsule(this);
         color = (ColorRGBA) ic.readSavable("color", null);
         enabled = ic.readBoolean("enabled", true);
+        name = ic.readString("name", null);
     }
 
     public abstract void computeLastDistance(Spatial owner);
