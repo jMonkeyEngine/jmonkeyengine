@@ -81,7 +81,11 @@ public class MaterialPropertyEditor implements PropertyEditor {
     }
 
     public String getAsText() {
-        return material.toString();
+        String name = material.getAssetName();
+        if (name == null) {
+            name = "stored in file";
+        }
+        return name;
     }
 
     public void setAsText(final String text) throws IllegalArgumentException {
@@ -109,7 +113,9 @@ public class MaterialPropertyEditor implements PropertyEditor {
 
     public String[] getTags() {
         SceneRequest request = SceneApplication.getApplication().getCurrentSceneRequest();
-        if(request==null) return new String[]{};
+        if (request == null) {
+            return new String[]{};
+        }
         String[] mats = request.getManager().getMaterials();
         return mats;
     }
