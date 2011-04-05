@@ -4,6 +4,8 @@
  */
 package com.jme3.gde.materials;
 
+import com.jme3.asset.AssetKey;
+import com.jme3.asset.TextureKey;
 import com.jme3.material.MatParam;
 import com.jme3.math.ColorRGBA;
 import com.jme3.texture.Texture2D;
@@ -33,13 +35,18 @@ public class MaterialProperty {
         Object obj = param.getValue();
         this.value = obj.toString();
         //TODO: change to correct string
-        if(obj instanceof ColorRGBA){
+        if (obj instanceof ColorRGBA) {
             value = value.replaceAll("Color\\[([^\\]]*)\\]", "$1");
             value = value.replaceAll(",", "");
-        }
-        else if(obj instanceof Texture2D)
-        {
-            value = value.replaceAll("Texture2D\\[name=([^,]*)\\,([^\\]]*)]", "$1");
+        } else if (obj instanceof Texture2D) {
+            AssetKey key = ((Texture2D) obj).getKey();
+            String flip = "";
+            if (key instanceof TextureKey) {
+                if (((TextureKey) key).isFlipY()) {
+                    flip = "Flip ";
+                }
+            }
+            value = value.replaceAll("Texture2D\\[name=([^,]*)\\,([^\\]]*)]", flip + "$1");
         }
     }
 
