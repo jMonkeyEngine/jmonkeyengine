@@ -31,7 +31,7 @@ import org.openide.util.Exceptions;
  * Provides an editable j3m file
  * @author normenhansen
  */
-public class MaterialProperties {
+public class EditableMaterialFile {
 
     private String name;
     private String matDefName;
@@ -44,7 +44,7 @@ public class MaterialProperties {
     private FileSystem fs;
     public static final String[] variableTypes = new String[]{"Int", "Boolean", "Float", "Vector2", "Vector3", "Vector4", "Color", "Texture2D", "TextureCubeMap"};
 
-    public MaterialProperties(FileObject material, ProjectAssetManager manager) {
+    public EditableMaterialFile(FileObject material, ProjectAssetManager manager) {
         this.material = material;
         this.manager = manager;
     }
@@ -236,7 +236,7 @@ public class MaterialProperties {
                 Exceptions.printStackTrace(ex);
             }
         } else {
-            Logger.getLogger(MaterialProperties.class.getName()).log(Level.WARNING, "Could not read MaterialDef!");
+            Logger.getLogger(EditableMaterialFile.class.getName()).log(Level.WARNING, "Could not read MaterialDef!");
         }
         for (Iterator<Map.Entry<String, MaterialProperty>> it = materialParameters.entrySet().iterator(); it.hasNext();) {
             Map.Entry<String, MaterialProperty> entry = it.next();

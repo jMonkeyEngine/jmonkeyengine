@@ -126,10 +126,13 @@ The Mesh data is stored in a buffer.
 </li>
 <li><div> The third parameter describes the number of components of the values. Vertex postions are 3 float values, texture coordinates are 2 float values, and the indices are single ints. </div>
 </li>
+<li><div> In order for JMonkey to correctly show the mesh in the scene, it needs to know the bounds of our new mesh. This can easily be achieved by calling the updateBound() method on it.</div>
+</li>
 </ol>
 <pre>m.setBuffer&#40;Type.Position, 3, BufferUtils.createFloatBuffer&#40;vertices&#41;&#41;;
 m.setBuffer&#40;Type.TexCoord, 2, BufferUtils.createFloatBuffer&#40;texCoord&#41;&#41;;
-m.setBuffer&#40;Type.Index,    1, BufferUtils.createIntBuffer&#40;indexes&#41;&#41;;</pre>
+m.setBuffer&#40;Type.Index,    1, BufferUtils.createIntBuffer&#40;indexes&#41;&#41;;
+m.updateBound&#40;&#41;;</pre>
 <p>
 Our Mesh is ready! Now we want to see it.
 </p>

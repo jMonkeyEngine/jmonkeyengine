@@ -23,8 +23,15 @@ Knowing exactly what you are looking for allows you to search more efficiently, 
 		<th>Start with a preconfigured game </th><td>com.jme3.app.SimpleApplication </td><td><a href="/com/jme3/gde/core/docs/jme3/beginner/hello_simpleapplication.html">Hello SimpleApplication</a> </td>
 	</tr>
 	<tr>
-		<th>Make an object appear in the scene </th><td>Attach nodes and geometries to the rootNode: rootNode.attach(geo); <br/>
- com.jme3.scene.Node, com.jme3.scene.Geometry </td><td><a href="/com/jme3/gde/core/docs/jme3/the_scene_graph.html">The Scene Graph</a> <br/>
+		<th>Make an object appear in the scene</th><td>Attach nodes and geometries to the rootNode: rootNode.attachChild(geo); <br/>
+ com.jme3.scene.Node, com.jme3.scene.Geometry <br/>
+ node.setCullHint(CullHint.Never); </td><td><a href="/com/jme3/gde/core/docs/jme3/the_scene_graph.html">The Scene Graph</a> <br/>
+ <a href="/com/jme3/gde/core/docs/jme3/beginner/hello_asset.html">Hello Asset</a> <br/>
+ <a href="/com/jme3/gde/core/docs/jme3/beginner/hello_node.html">Hello Node</a> </td>
+	</tr>
+	<tr>
+		<th>Make an object disappear from the scene</th><td>Detach nodes and geometries from the rootNode: rootNode.detachChild(geo); <br/>
+ node.setCullHint(CullHint.Always);</td><td><a href="/com/jme3/gde/core/docs/jme3/the_scene_graph.html">The Scene Graph</a> <br/>
  <a href="/com/jme3/gde/core/docs/jme3/beginner/hello_asset.html">Hello Asset</a> <br/>
  <a href="/com/jme3/gde/core/docs/jme3/beginner/hello_node.html">Hello Node</a> </td>
 	</tr>
@@ -50,10 +57,7 @@ Knowing exactly what you are looking for allows you to search more efficiently, 
  <a href="/com/jme3/gde/core/docs/jme3/intermediate/appsettings.html">AppSettings</a> </td>
 	</tr>
 	<tr>
-		<th>Force or disable culling</th><td>rootNode.setCullHint(CullHint.Never);</td><td>N/A </td>
-	</tr>
-	<tr>
-		<th>Disable the logger</th><td>Logger.getLogger(””).setLevel(Level.SEVERE); <br/>
+		<th>Disable the logger output</th><td>Logger.getLogger(””).setLevel(Level.SEVERE); <br/>
  java.util.logging.*</td><td> <a href="/com/jme3/gde/core/docs/jme3/advanced/logging.html">Logging</a> </td>
 	</tr>
 </table>
@@ -264,7 +268,8 @@ Knowing exactly what you are looking for allows you to search more efficiently, 
  Logger.getLogger(HelloJME3.class.getName()).log(Level.INFO, “Caps: {0}” + caps.toString()); </td><td> N/A </td>
 	</tr>
 	<tr>
-		
+		<th>Optimize the heck out of the scenegraph</th><td>jme3tools.optimize.GeometryBatchFactory <br/>
+ GeometryBatchFactory.optimize(rootNode); </td><td> N/A </td>
 	</tr>
 </table>
 

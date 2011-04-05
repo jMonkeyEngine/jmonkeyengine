@@ -12,7 +12,7 @@ import com.jme3.gde.core.scene.PreviewRequest;
 import com.jme3.gde.core.scene.SceneApplication;
 import com.jme3.gde.core.scene.SceneListener;
 import com.jme3.gde.core.scene.SceneRequest;
-import com.jme3.gde.materials.MaterialProperties;
+import com.jme3.gde.materials.EditableMaterialFile;
 import com.jme3.gde.materials.MaterialProperty;
 import com.jme3.gde.materials.multiview.widgets.MaterialPropertyWidget;
 import com.jme3.gde.materials.multiview.widgets.MaterialWidgetListener;
@@ -65,7 +65,7 @@ public final class MaterialEditorTopComponent extends CloneableTopComponent impl
     private final InstanceContent lookupContents = new InstanceContent();
 //    private SaveNode saveNode;
     private DataObject dataObject;
-    private MaterialProperties properties;
+    private EditableMaterialFile materialFile;
     private String materialFileName;
     private ProjectAssetManager manager;
     private Sphere sphMesh;
@@ -89,9 +89,9 @@ public final class MaterialEditorTopComponent extends CloneableTopComponent impl
         setActivatedNodes(new Node[]{dataObject.getNodeDelegate()});
         ((AssetDataObject) dataObject).setSaveCookie(saveCookie);
         manager = dataObject.getLookup().lookup(ProjectAssetManager.class);
-        properties = new MaterialProperties(dataObject.getPrimaryFile(), dataObject.getLookup().lookup(ProjectAssetManager.class));
-        properties.read();
-        setMatDefList(manager.getMatDefs(), properties.getMatDefName());
+        materialFile = new EditableMaterialFile(dataObject.getPrimaryFile(), dataObject.getLookup().lookup(ProjectAssetManager.class));
+        materialFile.read();
+        setMatDefList(manager.getMatDefs(), materialFile.getMatDefName());
         try {
             jTextArea1.setText(dataObject.getPrimaryFile().asText());
         } catch (IOException ex) {
@@ -331,10 +331,10 @@ public final class MaterialEditorTopComponent extends CloneableTopComponent impl
     }// </editor-fold>//GEN-END:initComponents
 
     private void jComboBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox1ActionPerformed
-        if (properties != null) {
+        if (materialFile != null) {
             updateProperties = true;
-            properties.setMatDefName((String) jComboBox1.getSelectedItem());
-            String string = properties.getUpdatedContent();
+            materialFile.setMatDefName((String) jComboBox1.getSelectedItem());
+            String string = materialFile.getUpdatedContent();
             jTextArea1.setText(string);
         }
     }//GEN-LAST:event_jComboBox1ActionPerformed
@@ -344,9 +344,9 @@ public final class MaterialEditorTopComponent extends CloneableTopComponent impl
     }//GEN-LAST:event_reloadPreview
 
     private void jTextField1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField1ActionPerformed
-        if (properties != null) {
-            properties.setName(jTextField1.getText());
-            String string = properties.getUpdatedContent();
+        if (materialFile != null) {
+            materialFile.setName(jTextField1.getText());
+            String string = materialFile.getUpdatedContent();
             jTextArea1.setText(string);
         }
 }//GEN-LAST:event_jTextField1ActionPerformed
@@ -508,15 +508,15 @@ public final class MaterialEditorTopComponent extends CloneableTopComponent impl
 
         public void save() throws IOException {
             String text = jTextArea1.getText();
-            properties.setAsText(text);
+            materialFile.setAsText(text);
             dataObject.setModified(false);
             showMaterial();
         }
     }
 
     public void setMatDefList(final String[] strings, String selected) {
-        MaterialProperties prop = properties;
-        properties = null;
+        EditableMaterialFile prop = materialFile;
+        materialFile = null;
         jComboBox1.removeAllItems();
         jComboBox1.addItem("");
 
@@ -533,7 +533,7 @@ public final class MaterialEditorTopComponent extends CloneableTopComponent impl
         jComboBox1.addItem("Common/MatDefs/Terrain/Terrain.j3md");
 //        jComboBox1.addItem("Common/MatDefs/Misc/ShowNormals.j3md");
         jComboBox1.setSelectedItem(selected);
-        properties = prop;
+        materialFile = prop;
     }
 
     private void updateProperties() {
@@ -556,7 +556,7 @@ public final class MaterialEditorTopComponent extends CloneableTopComponent impl
         List<Component> valueList = new LinkedList<Component>();
         List<Component> textureList = new LinkedList<Component>();
         List<Component> otherList = new LinkedList<Component>();
-        for (Iterator<Entry<String, MaterialProperty>> it = properties.getParameterMap().entrySet().iterator(); it.hasNext();) {
+        for (Iterator<Entry<String, MaterialProperty>> it = materialFile.getParameterMap().entrySet().iterator(); it.hasNext();) {
             Entry<String, MaterialProperty> entry = it.next();
             MaterialPropertyWidget widget = WidgetFactory.getWidget(entry.getValue(), manager);
             widget.registerChangeListener(this);
@@ -596,11 +596,11 @@ public final class MaterialEditorTopComponent extends CloneableTopComponent impl
         }
         jScrollPane2.repaint();
         jScrollPane3.repaint();
-        setDisplayName(properties.getName() + " - " + properties.getMaterialPath());
-        MaterialProperties prop = properties;
-        properties = null;
+        setDisplayName(materialFile.getName() + " - " + materialFile.getMaterialPath());
+        EditableMaterialFile prop = materialFile;
+        materialFile = null;
         jTextField1.setText(prop.getName());
-        properties = prop;
+        materialFile = prop;
         updateStates();
     }
 
@@ -612,7 +612,7 @@ public final class MaterialEditorTopComponent extends CloneableTopComponent impl
             }
         }
         statesPanel.removeAll();
-        for (Iterator<Entry<String, MaterialProperty>> it = properties.getStateMap().entrySet().iterator(); it.hasNext();) {
+        for (Iterator<Entry<String, MaterialProperty>> it = materialFile.getStateMap().entrySet().iterator(); it.hasNext();) {
             Entry<String, MaterialProperty> entry = it.next();
             MaterialPropertyWidget widget = WidgetFactory.getWidget(entry.getValue(), manager);
             widget.registerChangeListener(this);
@@ -654,7 +654,7 @@ public final class MaterialEditorTopComponent extends CloneableTopComponent impl
     }
 
     public void propertyChanged(MaterialProperty property) {
-        String string = properties.getUpdatedContent();
+        String string = materialFile.getUpdatedContent();
         jTextArea1.setText(string);
     }
 }

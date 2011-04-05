@@ -114,7 +114,7 @@ public class MaterialPropertyEditor implements PropertyEditor, SceneExplorerProp
                     newFile = currentFolder.getFileObject(currentFile.getName() + "_" + i, "j3m");
                 }
                 newFile = currentFolder.createData(currentFile.getName() + "_" + i, "j3m");
-                MaterialProperties properties = new MaterialProperties(newFile, pm);
+                EditableMaterialFile properties = new EditableMaterialFile(newFile, pm);
                 material.setAssetName(pm.getRelativeAssetPath(newFile.getPath()));
                 properties.setAsMaterial(material);
                 currentFolder.refresh();

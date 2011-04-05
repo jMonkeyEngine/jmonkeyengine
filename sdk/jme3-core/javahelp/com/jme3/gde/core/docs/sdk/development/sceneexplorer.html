@@ -15,19 +15,24 @@ If your plugin brings in its own SceneGraph objects you can still have them work
 <p>
 You will have to create your own class that extends org.openide.nodes.Node and implement the interface com.jme3.gde.core.sceneexplorer.nodes.SceneExplorerNode. Then you register that class by adding 
 </p>
-<pre>@org.openide.util.lookup.ServiceProvider(service=com.jme3.gde.core.sceneexplorer.nodes.SceneExplorerNode.class)</pre>
+<pre>@org.openide.util.lookup.ServiceProvider(service=SceneExplorerNode.class)</pre>
 
 <p>
- above the “public class MyClass” line in your class. Thats all, your Spatial type will automatically be used and displayed in the SceneExplorer. Make sure you register a jar with the used classes in the plugin preferences under “wrapped libraries”, otherwise the IDE cannot access those classes.
+ above the body of your class. Thats all, your Spatial type will automatically be used and displayed in the SceneExplorer. Make sure you register a jar with the used classes in the plugin preferences under “wrapped libraries”, otherwise the IDE cannot access those classes.
 </p>
 
 <p>
-Theres also AbstractSceneExplorerNode which brings some other useful features you might want to include like automatic creation of properly threaded properties etc. JmeSpatial for example bases on it. A simple SceneExplorerNode example for an object extending Spatial would be JmeGeometry (see below).
+Theres also AbstractSceneExplorerNode which brings some other useful features you might want to include like automatic creation of properly threaded properties etc. JmeSpatial for example bases on it. A simple SceneExplorerNode example for an object extending Spatial would be JmeGeometry (see below). Editors for special variable types can be added using the SceneExplorerPropertyEditor interface, which can be registered as a ServiceProvider as well.
 </p>
 
 <p>
 The SceneExplorerNode can be used for Spatial and Control type objects.
+
 </p>
+<ul>
+<li><div><em>Add the “Nodes <acronym title="Application Programming Interface">API</acronym>” and “Lookup <acronym title="Application Programming Interface">API</acronym>” libraries to your project when you want to use this</em></div>
+</li>
+</ul>
 
 </div>
 
@@ -201,7 +206,7 @@ public class JmeGhostControl extends AbstractSceneExplorerNode &#123;
 <div>
 
 <p>
-For adding Spatials, Contols and for general tools theres premade abstract classes that you can use to extend the options. Undo/Redo is handled by the abstract class.
+For adding Spatials, Contols and for general tools theres premade abstract classes that you can use to extend the options. Undo/Redo is handled by the abstract class. AbstractNewSpatial<strong>Wizard</strong>Action allows you to show an AWT wizard before creating the Spatial. You can also just implement the base ServiceProvider class and return any kind of action (such as a wizard), in this case you have to handle the threading yourself!
 </p>
 
 <p>
@@ -286,5 +291,110 @@ public class NewRigidBodyAction extends AbstractNewControlAction &#123;
         return control;
     &#125;
 &#125;</pre>
+</div>
+
+<h4><a>Adding using a Wizard</a></h4>
+<div>
+
+<p>
+You can create a new wizard using the wizard template in the <acronym title="Software Development Kit">SDK</acronym>. The Action the wizard creates can easily be changed to a Wizard for adding a Control or Spatial or for applying a Tool. Note that we extend AbstractNewSpatial<strong>Wizard</strong>Action here.
+</p>
+
+<p>
+A good example is the “Add SkyBox” Wizard:
+
+</p>
+<pre>@org.openide.util.lookup.ServiceProvider&#40;service = NewSpatialAction.class&#41;
+public class AddSkyboxAction extends AbstractNewSpatialWizardAction &#123;
+&nbsp;
+    private WizardDescriptor.Panel&#91;&#93; panels;
+&nbsp;
+    public AddSkyboxAction&#40;&#41; &#123;
+        name = &quot;Skybox..&quot;;
+    &#125;
+&nbsp;
+    @Override
+    protected Object showWizard&#40;org.openide.nodes.Node node&#41; &#123;
+        WizardDescriptor wizardDescriptor = new WizardDescriptor&#40;getPanels&#40;&#41;&#41;;
+        wizardDescriptor.setTitleFormat&#40;new MessageFormat&#40;&quot;{0}&quot;&#41;&#41;;
+        wizardDescriptor.setTitle&#40;&quot;Skybox Wizard&quot;&#41;;
+        Dialog dialog = DialogDisplayer.getDefault&#40;&#41;.createDialog&#40;wizardDescriptor&#41;;
+        dialog.setVisible&#40;true&#41;;
+        dialog.toFront&#40;&#41;;
+        boolean cancelled = wizardDescriptor.getValue&#40;&#41; != WizardDescriptor.FINISH_OPTION;
+        if &#40;!cancelled&#41; &#123;
+            return wizardDescriptor;
+        &#125;
+        return null;
+    &#125;
+&nbsp;
+    @Override
+    protected Spatial doCreateSpatial&#40;Node parent, Object properties&#41; &#123;
+        if &#40;properties != null&#41; &#123;
+            return generateSkybox&#40;&#40;WizardDescriptor&#41; properties&#41;;
+        &#125;
+        return null;
+    &#125;
+&nbsp;
+    private Spatial generateSkybox&#40;WizardDescriptor wiz&#41; &#123;
+        if &#40;&#40;Boolean&#41; wiz.getProperty&#40;&quot;multipleTextures&quot;&#41;&#41; &#123;
+            Texture south = &#40;Texture&#41; wiz.getProperty&#40;&quot;textureSouth&quot;&#41;;
+            Texture north = &#40;Texture&#41; wiz.getProperty&#40;&quot;textureNorth&quot;&#41;;
+            Texture east = &#40;Texture&#41; wiz.getProperty&#40;&quot;textureEast&quot;&#41;;
+            Texture west = &#40;Texture&#41; wiz.getProperty&#40;&quot;textureWest&quot;&#41;;
+            Texture top = &#40;Texture&#41; wiz.getProperty&#40;&quot;textureTop&quot;&#41;;
+            Texture bottom = &#40;Texture&#41; wiz.getProperty&#40;&quot;textureBottom&quot;&#41;;
+            Vector3f normalScale = &#40;Vector3f&#41; wiz.getProperty&#40;&quot;normalScale&quot;&#41;;
+            return SkyFactory.createSky&#40;pm, west, east, north, south, top, bottom, normalScale&#41;;
+        &#125; else &#123;
+            Texture textureSingle = &#40;Texture&#41; wiz.getProperty&#40;&quot;textureSingle&quot;&#41;;
+            Vector3f normalScale = &#40;Vector3f&#41; wiz.getProperty&#40;&quot;normalScale&quot;&#41;;
+            boolean useSpheremap = &#40;Boolean&#41; wiz.getProperty&#40;&quot;useSpheremap&quot;&#41;;
+            return SkyFactory.createSky&#40;pm, textureSingle, normalScale, useSpheremap&#41;;
+        &#125;
+    &#125;
+&nbsp;
+    <span>/**
+     * Initialize panels representing individual wizard's steps and sets
+     * various properties for them influencing wizard appearance.
+     */</span>
+    private WizardDescriptor.Panel&#91;&#93; getPanels&#40;&#41; &#123;
+        if &#40;panels == null&#41; &#123;
+            panels = new WizardDescriptor.Panel&#91;&#93;&#123;
+                        new SkyboxWizardPanel1&#40;&#41;,
+                        new SkyboxWizardPanel2&#40;&#41;
+                    &#125;;
+            String&#91;panels.length&#93;;
+            for &#40;int i = 0; i &lt; panels.length; i++&#41; &#123;
+                Component c = panels&#91;i&#93;.getComponent&#40;&#41;;
+                // Default step name to component name of panel. Mainly useful
+                // for getting the name of the target chooser to appear in the
+                // list of steps.
+                steps&#91;i&#93; = c.getName&#40;&#41;;
+                if &#40;c instanceof JComponent&#41; &#123; // assume Swing components
+                    JComponent&#41; c;
+                    // Sets step number of a component
+                    // TODO if using org.openide.dialogs &gt;= 7.8, can use WizardDescriptor.PROP_*:
+                    jc.putClientProperty&#40;&quot;WizardPanel_contentSelectedIndex&quot;, new Integer&#40;i&#41;&#41;;
+                    // Sets steps names for a panel
+                    jc.putClientProperty&#40;&quot;WizardPanel_contentData&quot;, steps&#41;;
+                    // Turn on subtitle creation on each step
+                    jc.putClientProperty&#40;&quot;WizardPanel_autoWizardStyle&quot;, Boolean.TRUE&#41;;
+                    // Show steps on the left side with the image on the background
+                    jc.putClientProperty&#40;&quot;WizardPanel_contentDisplayed&quot;, Boolean.TRUE&#41;;
+                    // Turn on numbering of all steps
+                    jc.putClientProperty&#40;&quot;WizardPanel_contentNumbered&quot;, Boolean.TRUE&#41;;
+                &#125;
+            &#125;
+        &#125;
+        return panels;
+    &#125;
+&#125;</pre>
+<p>
+
+The 
+
+</p>
+
 </div>
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/sdk:development:sceneexplorer?do=export_xhtmlbody">view online version</a></em></p>

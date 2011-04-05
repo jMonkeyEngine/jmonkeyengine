@@ -31,23 +31,6 @@ There are several ways for your plugin to interact with the Scene:
 
 </div>
 
-<h5><a>Notes</a></h5>
-<div>
-<ul>
-<li><div> <em>Although the scene can be accessed at any time via SceneApplication.getApplication() it is not recommended to modify the scene like that. Other plugins might be accessing the scene and updates will not be properly recognized.</em></div>
-</li>
-<li><div> <em>Remember the scene runs on the render thread and most everything you do in the plugin (button events etc.) runs on the AWT thread, always encapsulate calls to either side correctly via Callables/Runnables or register as an AppState to the SceneApplication to have an update() call by the render thread.</em></div>
-</li>
-<li><div> <em>It became a standard in jMP to start the name of methods that execute directly on the OpenGL thread with “do” e.g “doMoveSpatial”, this makes identifying threading issues easier.</em></div>
-</li>
-<li><div> <em>The AssetManager of jme3 is threadsafe and can be used from any thread to load assets</em></div>
-</li>
-<li><div> <em>Use org.openide.filesystems.FileObject instead of java.io.File for file access, it always uses system-independent ”/” path separators and has some more advanced functions that make file handling easier. You can get a file from a string using Repository.getDefault().getDefaultFileSystem().getRoot().getFileObject(“aaa/bbb/ccc/whatever”);</em></div>
-</li>
-</ul>
-
-</div>
-
 <h2><a>Listening for Node selection</a></h2>
 <div>
 

@@ -1,0 +1,89 @@
+
+<h2><a>Developing for jMonkeyPlatform</a></h2>
+<div>
+
+<p>
+
+<em>Note that all info is subject to change while jMP is still in alpha!</em>
+</p>
+
+<p>
+In general, developing plugins for jMonkeyPlatform is not much different than creating plugins for the NetBeans Platform which in turn is not much different than creating Swing applications. You can use jMonkeyPlatform to develop plugins, be it for personal use or to contribute to the community.
+</p>
+
+<p>
+If you feel like you want to make an addition to jMonkeyPlatform dont hesitate to contact the jme team regardless of your knowledge in NetBeans platform development. For new plugins, the basic project creation and layout of the plugin can always be handled by a core developer and you can go on from there fleshing out the plugin.
+</p>
+
+<p>
+By using the Platform functions, your plugin feels more like a Platform application (global save button, file type support etc.).
+</p>
+
+</div>
+
+<h4><a>Creating plugins and components</a></h4>
+<div>
+<ul>
+<li><div> <a href="/com/jme3/gde/core/docs/sdk/development/setup.html">Creating a plugin</a></div>
+</li>
+<li><div> <a href="/com/jme3/gde/core/docs/sdk/development/general.html">Creating components</a></div>
+</li>
+</ul>
+
+</div>
+
+<h4><a>Extending jMonkeyPlatform</a></h4>
+<div>
+<ul>
+<li><div> <a href="/com/jme3/gde/core/docs/sdk/development/scene.html">The Main Scene</a></div>
+</li>
+<li><div> <a href="/com/jme3/gde/core/docs/sdk/development/sceneexplorer.html">The Scene Explorer</a></div>
+</li>
+<li><div> <a href="/com/jme3/gde/core/docs/sdk/development/projects_assets.html">Projects and Assets</a></div>
+</li>
+</ul>
+
+</div>
+
+<h4><a>Recipes</a></h4>
+<div>
+<ul>
+<li><div> <a href="/com/jme3/gde/core/docs/sdk/development/extension_library.html">Create a library plugin from a jar file</a></div>
+</li>
+<li><div> <a href="/com/jme3/gde/core/docs/sdk/development/model_loader.html">Create a new or custom model filetype and loader</a></div>
+</li>
+</ul>
+
+</div>
+
+<h4><a>General Notes</a></h4>
+<div>
+<ul>
+<li><div> <em>Although the scene can be accessed at any time via SceneApplication.getApplication() it is not recommended to modify the scene like that. Other plugins might be accessing the scene and updates will not be properly recognized.</em></div>
+</li>
+<li><div> <em>Remember the scene runs on the render thread and most everything you do in the plugin (button events etc.) runs on the AWT thread, always encapsulate calls to either side correctly via Callables/Runnables or register as an AppState to the SceneApplication to have an update() call by the render thread.</em></div>
+</li>
+<li><div> <em>It became a standard in jMP to start the name of methods that execute directly on the OpenGL thread with “do” e.g “doMoveSpatial”, this makes identifying threading issues easier.</em></div>
+</li>
+<li><div> <em>The AssetManager of jme3 is threadsafe and can be used from any thread to load assets</em></div>
+</li>
+<li><div> <em>You can get access to the ProjectAssetManager via the Lookup of a JmeSpatial and other objects</em></div>
+</li>
+<li><div> <em>Use org.openide.filesystems.FileObject instead of java.io.File for file access, it always uses system-independent ”/” path separators and has some more advanced functions that make file handling easier.
+  * You can get a file from a string using Repository.getDefault().getDefaultFileSystem().getRoot().getFileObject(“aaa/bbb/ccc/whatever”);</em></div>
+</li>
+<li><div> You can convert a regular java File to a FileObject and vice versa using org.openide.filesystems.FileUtil</div>
+</li>
+<li><div> <em>If you have problems with unresolved classes, check if all needed Libraries are registered in the settings of your Project. To find out which library contains a certain class, just enter the name in the library search field.</em></div>
+</li>
+</ul>
+
+<p>
+
+Learn more about NetBeans Plugin Development at <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://platform.netbeans.org"><param name="text" value="<html><u>http://platform.netbeans.org</u></html>"><param name="textColor" value="blue"></object> .<br/>
+
+Also check out this Essential NetBeans Platform Refcard: <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://refcardz.dzone.com/refcardz/essential-netbeans-platform"><param name="text" value="<html><u>http://refcardz.dzone.com/refcardz/essential-netbeans-platform</u></html>"><param name="textColor" value="blue"></object>
+</p>
+
+</div>
+<p><em><a href="http://jmonkeyengine.org/wiki/doku.php/sdk:development?do=export_xhtmlbody">view online version</a></em></p>

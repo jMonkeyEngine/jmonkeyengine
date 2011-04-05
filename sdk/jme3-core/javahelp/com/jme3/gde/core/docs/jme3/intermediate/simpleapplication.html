@@ -21,12 +21,17 @@ public class HelloWorld extends SimpleApplication &#123;
 &nbsp;
     @Override
     public void simpleInitApp&#40;&#41; &#123;
-       /* Initialize your game scene here */
+       /* Initialize the game scene here */
     &#125;
 &nbsp;
     @Override
     public void simpleUpdate&#40;float tpf&#41; &#123;
-       /* Interact with game events here in the main loop */
+       /* (optional) Interact with game events in the main loop */
+    &#125;
+&nbsp;
+    @Override
+    public void simpleRender&#40;RenderManager rm&#41; &#123;
+       /* (optional) Make advanced modifications to frameBuffer and scene graph. */
     &#125;
 &#125;</pre>
 <p>
@@ -262,6 +267,18 @@ If useInput() is true, the default Flyby Cam is active. Then the following so-ca
 		<td>Rotate drag</td><td>Hold left mouse button and move</td>
 	</tr>
 </table>
+<div><span>
+	<a href="/wiki/doku.php/tag:display?do=showtag&amp;tag=tag%3Adisplay">display</a>,
+	<a href="/wiki/doku.php/tag:basegame?do=showtag&amp;tag=tag%3Abasegame">basegame</a>,
+	<a href="/wiki/doku.php/tag:documentation?do=showtag&amp;tag=tag%3Adocumentation">documentation</a>,
+	<a href="/wiki/doku.php/tag:intro?do=showtag&amp;tag=tag%3Aintro">intro</a>,
+	<a href="/wiki/doku.php/tag:intermediate?do=showtag&amp;tag=tag%3Aintermediate">intermediate</a>,
+	<a href="/wiki/doku.php/tag:init?do=showtag&amp;tag=tag%3Ainit">init</a>,
+	<a href="/wiki/doku.php/tag:input?do=showtag&amp;tag=tag%3Ainput">input</a>,
+	<a href="/wiki/doku.php/tag:game?do=showtag&amp;tag=tag%3Agame">game</a>,
+	<a href="/wiki/doku.php/tag:loop?do=showtag&amp;tag=tag%3Aloop">loop</a>,
+	<a href="/wiki/doku.php/tag:rootnode?do=showtag&amp;tag=tag%3Arootnode">rootnode</a>
+</span></div>
 
 </div>
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:intermediate:simpleapplication?do=export_xhtmlbody">view online version</a></em></p>

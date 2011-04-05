@@ -8,15 +8,15 @@ First, make sure you know what <a href="/com/jme3/gde/core/docs/jme3/advanced/ap
 </p>
 
 <p>
-More complex games may feature complex mathematical operations or artificially intelligent calculations (such as path finding for several NPCs). If you make many time-intensive calls on the same thread (e.g. in the simpleUpdate() loop), they will block one another, and thus slow down the game to a degree that makes it unplayable. If your game requires long running tasks, you should run them concurrently on separate threads, which speeds up the application considerably.
+More complex games may feature complex mathematical operations or artificially intelligent calculations (such as path finding for several NPCs). If you make many time-intensive calls on the same thread (in the update loop), they will block one another, and thus slow down the game to a degree that makes it unplayable. If your game requires long running tasks, you should run them concurrently on separate threads, which speeds up the application considerably.
 </p>
 
 <p>
-Often multithreading means having separate detached logical loops going on in parallel, which communicate about their state. (For example, one thread for AI, one Sound, one Graphics). However many programmers use a global update loop for game logic, and then just do multithreading within that loop when it is appropriate. This scales way better to multiple cores and does not break up your code logic. 
+Often multithreading means having separate detached logical loops going on in parallel, which communicate about their state. (For example, one thread for AI, one Sound, one Graphics). However we recommend to use a global update loop for game logic, and do multithreading within that loop when it is appropriate. This approach scales way better to multiple cores and does not break up your code logic. 
 </p>
 
 <p>
-Effectively, each for-loop in the main event loop might be a chance for multithreading, if you can break it up into self-contained tasks.
+Effectively, each for-loop in the main update loop might be a chance for multithreading, if you can break it up into self-contained tasks.
 </p>
 
 </div>
@@ -26,7 +26,7 @@ Effectively, each for-loop in the main event loop might be a chance for multithr
 
 <p>
 
-The java.util.concurrent package provides a good foundation for multithreading and dividing work into tasks that can be executed concurrently (hence the name). The three basic components are the Executor, Callable Objects (the tasks), and Future Objects. You can read about the concurrent package more <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://download.oracle.com/javase/tutorial/essential/concurrency/"><param name="text" value="<html><u>here</u></html>"><param name="textColor" value="blue"></object>, I will give just a short introduction.
+The java.util.concurrent package provides a good foundation for multithreading and dividing work into tasks that can be executed concurrently (hence the name). The three basic components are the Executor, Callable Objects (the tasks), and Future Objects. You can <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://download.oracle.com/javase/tutorial/essential/concurrency/"><param name="text" value="<html><u>read about the concurrent package more here</u></html>"><param name="textColor" value="blue"></object>, I will give just a short introduction.
 
 </p>
 <ul>
@@ -49,7 +49,7 @@ So how do we implement multithreading in jME3?
 </p>
 
 <p>
-Let&#039;s take the example of a Control that controls an NPC Spatial. The NPC Control has to compute a lengthy pathfinding operation for each NPC. If we would execute the operations directly in the simpleUpdate() loop, it would block the game  each time a NPC wants to move from A to B. Even if we move this behaviour into the update() method of a dedicated NPC Control, we would still get annoying freeze frames, because it still runs on the same event loop thread. 
+Let&#039;s take the example of a Control that controls an NPC Spatial. The NPC Control has to compute a lengthy pathfinding operation for each NPC. If we would execute the operations directly in the simpleUpdate() loop, it would block the game  each time a NPC wants to move from A to B. Even if we move this behaviour into the update() method of a dedicated NPC Control, we would still get annoying freeze frames, because it still runs on the same update loop thread. 
 </p>
 
 <p>
@@ -87,7 +87,7 @@ MyWayList wayList = null;
 //The future that is used to check the execution status:
 Future future = null;</pre>
 <p>
-Here we also created the Future object to track the state of this task.
+Here we also created the Future variable to track the state of this task.
 </p>
 
 </div>
@@ -198,6 +198,14 @@ private Callable&lt;MyWayList&gt; findWay = new Callable&lt;MyWayList&gt;&#40;&#
 The cool thing about this appraoch is that every entity creates one self-contained Callable for the Executor, and they are all executed in parallel. In theory, you can have one thread per entity without changing anything else but the settings of the executor.
 
 </p>
+<div><span>
+	<a href="/wiki/doku.php/tag:loop?do=showtag&amp;tag=tag%3Aloop">loop</a>,
+	<a href="/wiki/doku.php/tag:game?do=showtag&amp;tag=tag%3Agame">game</a>,
+	<a href="/wiki/doku.php/tag:performance?do=showtag&amp;tag=tag%3Aperformance">performance</a>,
+	<a href="/wiki/doku.php/tag:state?do=showtag&amp;tag=tag%3Astate">state</a>,
+	<a href="/wiki/doku.php/tag:states?do=showtag&amp;tag=tag%3Astates">states</a>,
+	<a href="/wiki/doku.php/tag:documentation?do=showtag&amp;tag=tag%3Adocumentation">documentation</a>
+</span></div>
 
 </div>
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:multithreading?do=export_xhtmlbody">view online version</a></em></p>

@@ -5,7 +5,6 @@
 
 package com.jme3.gde.materials.multiview.widgets;
 
-import com.jme3.gde.materials.MaterialProperties;
 import com.jme3.gde.materials.MaterialProperty;
 import javax.swing.JPanel;
 

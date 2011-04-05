@@ -61,7 +61,7 @@
             <tocitem text="Deployment" target="sdk.application_deployment"/>
         </tocitem>
         <tocitem text="jMP Plugin Development" expand="false">
-            <tocitem text="About jMP Plugin Development" target="com.jme3.gde.development"/>
+            <tocitem text="About jMP Plugin Development" target="sdk.development"/>
             <tocitem text="Creating a plugin" target="sdk.development.setup"/>
             <tocitem text="Creating components" target="sdk.development.general"/>
             <tocitem text="Accessing the Scene" target="sdk.development.scene"/>
