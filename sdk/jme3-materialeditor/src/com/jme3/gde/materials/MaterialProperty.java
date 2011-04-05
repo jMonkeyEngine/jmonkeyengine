@@ -5,6 +5,8 @@
 package com.jme3.gde.materials;
 
 import com.jme3.material.MatParam;
+import com.jme3.math.ColorRGBA;
+import com.jme3.texture.Texture2D;
 
 /**
  *
@@ -28,9 +30,17 @@ public class MaterialProperty {
     public MaterialProperty(MatParam param) {
         this.type = param.getVarType().name();
         this.name = param.getName();
-//        param.getVarType().
+        Object obj = param.getValue();
+        this.value = obj.toString();
         //TODO: change to correct string
-        this.value = param.getValue().toString();
+        if(obj instanceof ColorRGBA){
+            value = value.replaceAll("Color\\[([^\\]]*)\\]", "$1");
+            value = value.replaceAll(",", "");
+        }
+        else if(obj instanceof Texture2D)
+        {
+            value = value.replaceAll("Texture2D\\[name=([^,]*)\\,([^\\]]*)]", "$1");
+        }
     }
 
     /**

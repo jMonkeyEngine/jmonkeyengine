@@ -107,7 +107,6 @@ public class MaterialPropertyEditor implements PropertyEditor, SceneExplorerProp
             FileObject currentFile = obj.getPrimaryFile();
             FileObject currentFolder = currentFile.getParent();
             try {
-                Material old = material.clone();
                 int i = 1;
                 FileObject newFile = currentFolder.getFileObject(currentFile.getName() + "_" + i, "j3m");
                 while (newFile != null) {
@@ -118,14 +117,18 @@ public class MaterialPropertyEditor implements PropertyEditor, SceneExplorerProp
                 MaterialProperties properties = new MaterialProperties(newFile, pm);
                 material.setAssetName(pm.getRelativeAssetPath(newFile.getPath()));
                 properties.setAsMaterial(material);
-                notifyListeners(old, material);
                 currentFolder.refresh();
+                applyMaterial(material.getAssetName());
             } catch (IOException ex) {
                 Exceptions.printStackTrace(ex);
                 return;
             }
-            return;
+        }else{
+            applyMaterial(text);
         }
+    }
+
+    private void applyMaterial(final String text) {
         try {
             Material old = material;
             SceneApplication.getApplication().enqueue(new Callable<Void>() {

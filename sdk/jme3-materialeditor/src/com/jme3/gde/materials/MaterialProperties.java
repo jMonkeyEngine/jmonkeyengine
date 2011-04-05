@@ -479,7 +479,7 @@ public class MaterialProperties {
         additionalRenderStates.put("FaceCull", new MaterialProperty("FaceCullMode", "FaceCull", mat.getAdditionalRenderState().getFaceCullMode().name()));
         additionalRenderStates.put("Blend", new MaterialProperty("BlendMode", "Blend", mat.getAdditionalRenderState().getBlendMode().name()));
         additionalRenderStates.put("AlphaTestFalloff", new MaterialProperty("Float", "AlphaTestFalloff", mat.getAdditionalRenderState().getAlphaFallOff() + ""));
-        additionalRenderStates.put("PolyOffset", new MaterialProperty("Float,Float", "PolyOffset", mat.getAdditionalRenderState().getPolyOffsetUnits() + ", " + mat.getAdditionalRenderState().getPolyOffsetFactor()));
+        additionalRenderStates.put("PolyOffset", new MaterialProperty("Float,Float", "PolyOffset", mat.getAdditionalRenderState().getPolyOffsetUnits() + " " + mat.getAdditionalRenderState().getPolyOffsetFactor()));
         parseMatDef();
         setAsText(getUpdatedContent());
     }
