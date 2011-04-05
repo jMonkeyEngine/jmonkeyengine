@@ -40,6 +40,7 @@ import com.jme3.util.IntMap;
 import com.jme3.util.IntMap.Entry;
 import java.nio.ByteBuffer;
 
+@Deprecated
 public class ClientSyncService extends MessageAdapter implements Service {
 
     private static final ByteBuffer BUFFER = ByteBuffer.wrap(new byte[10000]);

@@ -1,5 +1,6 @@
 package com.jme3.network.sync;
 
+@Deprecated
 public final class EntitySyncInfo {
 
     public static final byte TYPE_NEW = 0x1,

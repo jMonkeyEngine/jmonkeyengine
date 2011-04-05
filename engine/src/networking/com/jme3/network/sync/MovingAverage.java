@@ -32,6 +32,7 @@
 
 package com.jme3.network.sync;
 
+@Deprecated
 public class MovingAverage {
 
     private long[] samples;

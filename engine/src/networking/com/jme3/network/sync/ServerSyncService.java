@@ -43,6 +43,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+@Deprecated
 public class ServerSyncService extends ConnectionAdapter implements Service {
 
     private static final ByteBuffer BUFFER = ByteBuffer.wrap(new byte[10000]);

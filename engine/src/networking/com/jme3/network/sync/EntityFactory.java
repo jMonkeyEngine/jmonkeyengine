@@ -32,6 +32,7 @@
 
 package com.jme3.network.sync;
 
+@Deprecated
 public interface EntityFactory {
     public SyncEntity createEntity(Class<? extends SyncEntity> entityType);
 }

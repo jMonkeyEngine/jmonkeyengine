@@ -32,6 +32,7 @@
 
 package com.jme3.network.sync;
 
+@Deprecated
 public interface SyncEntity {
     
     public void onRemoteCreate();

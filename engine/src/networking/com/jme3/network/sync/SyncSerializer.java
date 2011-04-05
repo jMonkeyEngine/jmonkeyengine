@@ -41,6 +41,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+@Deprecated
 class SyncSerializer {
 
     static class SyncFieldInfo {

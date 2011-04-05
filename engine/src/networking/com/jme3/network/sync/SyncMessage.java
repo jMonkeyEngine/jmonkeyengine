@@ -35,6 +35,7 @@ package com.jme3.network.sync;
 import com.jme3.network.message.Message;
 import com.jme3.network.serializing.Serializable;
 
+@Deprecated
 @Serializable
 public class SyncMessage extends Message {
     public int heartbeat;
