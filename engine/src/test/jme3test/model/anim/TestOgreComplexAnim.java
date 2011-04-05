@@ -131,10 +131,10 @@ public class TestOgreComplexAnim extends SimpleApplication {
         q.fromAngles(0, angle, 0);
 
         b.setUserControl(true);
-        b.setUserTransforms(Vector3f.ZERO, q, Vector3f.ZERO);
+        b.setUserTransforms(Vector3f.ZERO, q, Vector3f.UNIT_XYZ);
         
         b2.setUserControl(true);
-        b2.setUserTransforms(Vector3f.ZERO, Quaternion.IDENTITY, new Vector3f(angle, angle, angle));
+        b2.setUserTransforms(Vector3f.ZERO, Quaternion.IDENTITY, new Vector3f(1+angle,1+ angle, 1+angle));
   
   
     }
