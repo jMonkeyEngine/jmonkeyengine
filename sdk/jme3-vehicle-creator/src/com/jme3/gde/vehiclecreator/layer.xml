@@ -35,13 +35,6 @@
             </folder>
         </folder>
     </folder>
-    <folder name="Menu">
-        <folder name="Window">
-            <file name="VehicleCreatorAction.shadow">
-                <attr name="originalFile" stringvalue="Actions/Window/com-jme3-gde-vehiclecreator-VehicleCreatorAction.instance"/>
-            </file>
-        </folder>
-    </folder>
     <folder name="Toolbars">
         <folder name="jMonkeyPlatform-Tools">
             <file name="com-jme3-gde-vehiclecreator-EditVehicleAction.shadow">

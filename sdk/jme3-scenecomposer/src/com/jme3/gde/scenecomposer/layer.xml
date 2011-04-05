@@ -47,25 +47,21 @@
         <folder name="application">
             <folder name="jme3model">
                 <folder name="Actions">
-                    <file name="scenecomposer_sep-1.instance">
-                        <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
-                        <attr name="position" intvalue="50"/>
-                    </file>
                     <file name="com-jme3-gde-scenecomposer-OpenSceneComposer.shadow">
                         <attr name="originalFile" stringvalue="Actions/SceneComposer/com-jme3-gde-scenecomposer-OpenSceneComposer.instance"/>
-                        <attr name="position" intvalue="51"/>
+                        <attr name="position" intvalue="10"/>
                     </file>
                     <file name="com-jme3-gde-scenecomposer-AddSceneComposer.shadow">
                         <attr name="originalFile" stringvalue="Actions/SceneComposer/com-jme3-gde-scenecomposer-AddSceneComposer.instance"/>
-                        <attr name="position" intvalue="52"/>
+                        <attr name="position" intvalue="20"/>
                     </file>
                     <file name="com-jme3-gde-scenecomposer-LinkSceneComposer.shadow">
                         <attr name="originalFile" stringvalue="Actions/SceneComposer/com-jme3-gde-scenecomposer-LinkSceneComposer.instance"/>
-                        <attr name="position" intvalue="53"/>
+                        <attr name="position" intvalue="30"/>
                     </file>
                     <file name="scenecomposer_sep-2.instance">
                         <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
-                        <attr name="position" intvalue="69"/>
+                        <attr name="position" intvalue="40"/>
                     </file>
                 </folder>
             </folder>
