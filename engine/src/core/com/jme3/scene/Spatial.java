@@ -1157,16 +1157,16 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
         }
     }
 
-    public Object getUserData(String key) {
+    public <T> T getUserData(String key) {
         if (userData == null) {
             return null;
         }
 
         Savable s = userData.get(key);
         if (s instanceof UserData) {
-            return ((UserData) s).getValue();
+            return (T)((UserData) s).getValue();
         } else {
-            return s;
+            return (T)s;
         }
     }
 
