@@ -76,6 +76,7 @@ public final class SceneExplorerTopComponent extends TopComponent implements Exp
     private SceneRequest request;
     private final Result<AbstractSceneExplorerNode> nodeSelectionResult;
     private AbstractSceneExplorerNode selectedSpatial;
+    private AbstractSceneExplorerNode lastSelected;
 
     public SceneExplorerTopComponent() {
         initComponents();
@@ -250,6 +251,7 @@ public final class SceneExplorerTopComponent extends TopComponent implements Exp
             Object object = it.next();
             if (object instanceof AbstractSceneExplorerNode) {
                 selectedSpatial = (AbstractSceneExplorerNode) object;
+                lastSelected = (AbstractSceneExplorerNode) object;
                 return;
             }
         }
@@ -272,5 +274,12 @@ public final class SceneExplorerTopComponent extends TopComponent implements Exp
     }
 
     public void previewRequested(PreviewRequest request) {
+    }
+
+    /**
+     * @return the selectedSpatial
+     */
+    public AbstractSceneExplorerNode getLastSelected() {
+        return lastSelected;
     }
 }

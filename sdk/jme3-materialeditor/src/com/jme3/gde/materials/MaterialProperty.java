@@ -2,14 +2,16 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package com.jme3.gde.materials;
+
+import com.jme3.material.MatParam;
 
 /**
  *
  * @author normenhansen
  */
 public class MaterialProperty {
+
     private String type;
     private String name;
     private String value;
@@ -17,13 +19,19 @@ public class MaterialProperty {
     public MaterialProperty() {
     }
 
-
     public MaterialProperty(String type, String name, String value) {
         this.type = type;
         this.name = name;
         this.value = value;
     }
 
+    public MaterialProperty(MatParam param) {
+        this.type = param.getVarType().name();
+        this.name = param.getName();
+//        param.getVarType().
+        //TODO: change to correct string
+        this.value = param.getValue().toString();
+    }
 
     /**
      * @return the type
@@ -66,5 +74,4 @@ public class MaterialProperty {
     public void setValue(String value) {
         this.value = value;
     }
-
 }

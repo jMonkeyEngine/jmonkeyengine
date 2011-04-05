@@ -75,10 +75,11 @@ public class SceneExplorerProperty<T> extends PropertySupport.Reflection<T> {
             setPropertyEditorClass(Matrix3fPropertyEditor.class);
         } else if (valueType == ColorRGBA.class) {
             setPropertyEditorClass(ColorRGBAPropertyEditor.class);
-        } else if (valueType == Material.class) {
-            setPropertyEditorClass(MaterialPropertyEditor.class);
         } else if (valueType == EmitterShape.class) {
             setPropertyEditorClass(EmitterShapePropertyEditor.class);
+        }
+        for (SceneExplorerPropertyEditor di : Lookup.getDefault().lookupAll(SceneExplorerPropertyEditor.class)) {
+            di.setEditor(valueType, this);
         }
     }
 

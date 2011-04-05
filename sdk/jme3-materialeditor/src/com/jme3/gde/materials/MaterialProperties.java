@@ -5,6 +5,8 @@
 package com.jme3.gde.materials;
 
 import com.jme3.gde.core.assets.ProjectAssetManager;
+import com.jme3.material.MatParam;
+import com.jme3.material.Material;
 import com.jme3.system.JmeSystem;
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,6 +14,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -389,6 +392,15 @@ public class MaterialProperties {
         return "";
     }
 
+    private void createBaseMaterialFile() throws IOException {
+        OutputStreamWriter out = new OutputStreamWriter(material.getOutputStream());
+        out.write("Material MyMaterial : " + matDefName + " {\n");
+        out.write("    MaterialParameters {\n");
+        out.write("    }\n");
+        out.write("}\n");
+        out.close();
+    }
+
     /**
      * trims a line and removes comments
      * @param line
@@ -445,6 +457,34 @@ public class MaterialProperties {
     }
 
     /**
+     * Creates the data from a material
+     * @param mat
+     */
+    public void setAsMaterial(Material mat) throws IOException {
+        assert (mat.getMaterialDef().getAssetName() != null);
+        setName("MyMaterial");
+        setMatDefName(mat.getMaterialDef().getAssetName());
+        createBaseMaterialFile();
+        materialParameters.clear();
+        Collection<MatParam> params=mat.getParams();
+        for (Iterator<MatParam> it = params.iterator(); it.hasNext();) {
+            MatParam matParam = it.next();
+            materialParameters.put(matParam.getName(), new MaterialProperty(matParam));
+        }
+        additionalRenderStates.put("Wireframe", new MaterialProperty("OnOff", "Wireframe", mat.getAdditionalRenderState().isWireframe() ? "On" : "Off"));
+        additionalRenderStates.put("DepthWrite", new MaterialProperty("OnOff", "DepthWrite", mat.getAdditionalRenderState().isDepthWrite() ? "On" : "Off"));
+        additionalRenderStates.put("DepthTest", new MaterialProperty("OnOff", "DepthTest", mat.getAdditionalRenderState().isDepthTest() ? "On" : "Off"));
+        additionalRenderStates.put("ColorWrite", new MaterialProperty("OnOff", "ColorWrite", mat.getAdditionalRenderState().isColorWrite() ? "On" : "Off"));
+        additionalRenderStates.put("PointSprite", new MaterialProperty("OnOff", "PointSprite", mat.getAdditionalRenderState().isPointSprite() ? "On" : "Off"));
+        additionalRenderStates.put("FaceCull", new MaterialProperty("FaceCullMode", "FaceCull", mat.getAdditionalRenderState().getFaceCullMode().name()));
+        additionalRenderStates.put("Blend", new MaterialProperty("BlendMode", "Blend", mat.getAdditionalRenderState().getBlendMode().name()));
+        additionalRenderStates.put("AlphaTestFalloff", new MaterialProperty("Float", "AlphaTestFalloff", mat.getAdditionalRenderState().getAlphaFallOff() + ""));
+        additionalRenderStates.put("PolyOffset", new MaterialProperty("Float,Float", "PolyOffset", mat.getAdditionalRenderState().getPolyOffsetUnits() + ", " + mat.getAdditionalRenderState().getPolyOffsetFactor()));
+        parseMatDef();
+        setAsText(getUpdatedContent());
+    }
+
+    /**
      * @return the matDefName
      */
     public String getMatDefName() {
@@ -456,6 +496,7 @@ public class MaterialProperties {
      */
     public void setMatDefName(String matDefName) {
         this.matDefName = matDefName;
+        assert (matDefName != null);
         initMatDef();
         parseMatDef();
     }
