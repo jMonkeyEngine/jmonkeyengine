@@ -1157,6 +1157,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
         }
     }
 
+    @SuppressWarnings("unchecked")
     public <T> T getUserData(String key) {
         if (userData == null) {
             return null;
