@@ -1622,6 +1622,12 @@ public class LwjglRenderer implements Renderer {
             }
         }
 
+        // Check if graphics card doesn't support multisample textures
+        if (!GLContext.getCapabilities().GL_ARB_texture_multisample){
+            if (img.getMultiSamples() > 1)
+                throw new RendererException("Multisample textures not supported by graphics hardware");
+        }
+
         if (target == GL_TEXTURE_CUBE_MAP) {
             List<ByteBuffer> data = img.getData();
             if (data.size() != 6) {
