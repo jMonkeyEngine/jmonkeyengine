@@ -38,13 +38,13 @@ import com.jme3.audio.AudioStream;
 import com.jme3.asset.AssetInfo;
 import com.jme3.asset.AssetLoader;
 import com.jme3.audio.AudioKey;
-import com.jme3.asset.TextureKey;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.LittleEndien;
 import java.io.DataInput;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class WAVLoader implements AssetLoader {
@@ -84,8 +84,7 @@ public class WAVLoader implements AssetLoader {
     private int dataLength;
     private float duration;
 
-    private DataInput in;
-    private InputStream stream;
+    private LittleEndien in;
 
     private boolean adpcm = false;
     private int predictor;
@@ -116,7 +115,8 @@ public class WAVLoader implements AssetLoader {
 
         int expectedBytesPerSec = (bitsPerSample * channels * sampleRate) / 8;
         if (expectedBytesPerSec != bytesPerSec){
-            logger.warning("Expected "+expectedBytesPerSec+" bytes per second, got "+bytesPerSec);
+            logger.log(Level.WARNING, "Expected {0} bytes per second, got {1}",
+                    new Object[]{expectedBytesPerSec, bytesPerSec});
         }
         duration = dataLength / bytesPerSec;
         
@@ -178,17 +178,16 @@ public class WAVLoader implements AssetLoader {
         ByteBuffer data = BufferUtils.createByteBuffer(dataLength);
         byte[] buf = new byte[512];
         int read = 0;
-        while ( (read = stream.read(buf)) > 0){
+        while ( (read = in.read(buf)) > 0){
             data.put(buf, 0, read);
         }
         data.flip();
         audioBuffer.updateData(data);
-        stream.close();
+        in.close();
     }
 
     public Object load(AssetInfo info) throws IOException {
-        this.stream = info.openStream();
-        in = new LittleEndien(stream);
+        this.in = new LittleEndien(info.openStream());
 
         int sig = in.readInt();
         if (sig != i_RIFF)
@@ -219,7 +218,7 @@ public class WAVLoader implements AssetLoader {
                     break;
                 case i_data:
                     if (readStream){
-                        audioStream.updateData(stream, duration);
+                        audioStream.updateData(in, duration);
                     }else{
                         readDataChunkForBuffer(len);
                     }

@@ -29,7 +29,6 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package com.jme3.util;
 
 import java.io.BufferedInputStream;
@@ -45,7 +44,7 @@ import java.io.InputStreamReader;
  * assume they come from a LittleEndien input stream.  Currently used to read .ms3d and .3ds files.
  * @author Jack Lindamood
  */
-public class LittleEndien implements DataInput{
+public class LittleEndien extends InputStream implements DataInput {
 
     private BufferedInputStream in;
     private BufferedReader inRead;
@@ -55,100 +54,112 @@ public class LittleEndien implements DataInput{
      * stream is wrapped in a BufferedReader automatically.
      * @param in The input stream to read from.
      */
-    public LittleEndien(InputStream in){
+    public LittleEndien(InputStream in) {
         this.in = new BufferedInputStream(in);
-        inRead=new BufferedReader(new InputStreamReader(in));
+        inRead = new BufferedReader(new InputStreamReader(in));
     }
 
-    public final int readUnsignedShort() throws IOException{
-        return (in.read()&0xff) | ((in.read()&0xff) << 8);
-    }
-    
-    /**
-     * read an unsigned int as a long
-     */
-    public final long readUInt() throws IOException{
-        return ((in.read()&0xff) |
-            ((in.read()&0xff) << 8) |
-            ((in.read()&0xff) << 16) |
-            (((long)(in.read()&0xff)) << 24)
-        );
-    }
-    
-    public final boolean readBoolean() throws IOException{
-        return (in.read()!=0);
-    }
-
-    public final byte readByte() throws IOException{
-        return (byte) in.read();
-    }
-
-    public final int readUnsignedByte() throws IOException{
+    public int read() throws IOException {
         return in.read();
     }
 
-    public final short readShort() throws IOException{
+    @Override
+    public int read(byte[] buf) throws IOException {
+        return in.read(buf);
+    }
+
+    @Override
+    public int read(byte[] buf, int off, int len) throws IOException {
+        return in.read(buf, off, len);
+    }
+
+    public int readUnsignedShort() throws IOException {
+        return (in.read() & 0xff) | ((in.read() & 0xff) << 8);
+    }
+
+    /**
+     * read an unsigned int as a long
+     */
+    public long readUInt() throws IOException {
+        return ((in.read() & 0xff)
+                | ((in.read() & 0xff) << 8)
+                | ((in.read() & 0xff) << 16)
+                | (((long) (in.read() & 0xff)) << 24));
+    }
+
+    public boolean readBoolean() throws IOException {
+        return (in.read() != 0);
+    }
+
+    public byte readByte() throws IOException {
+        return (byte) in.read();
+    }
+
+    public int readUnsignedByte() throws IOException {
+        return in.read();
+    }
+
+    public short readShort() throws IOException {
         return (short) this.readUnsignedShort();
     }
 
-    public final char readChar() throws IOException{
+    public char readChar() throws IOException {
         return (char) this.readUnsignedShort();
     }
-    public final int readInt() throws IOException{
-        return (
-            (in.read()&0xff) |
-            ((in.read()&0xff) << 8) |
-            ((in.read()&0xff) << 16) |
-            ((in.read()&0xff) << 24)
-        );
+
+    public int readInt() throws IOException {
+        return ((in.read() & 0xff)
+                | ((in.read() & 0xff) << 8)
+                | ((in.read() & 0xff) << 16)
+                | ((in.read() & 0xff) << 24));
     }
 
-    public final long readLong() throws IOException{
-        return (
-            (in.read()&0xff) |
-            ((long)(in.read()&0xff) << 8) |
-            ((long)(in.read()&0xff) << 16) |
-            ((long)(in.read()&0xff) << 24) |
-            ((long)(in.read()&0xff) << 32) |
-            ((long)(in.read()&0xff) << 40) |
-            ((long)(in.read()&0xff) << 48) |
-            ((long)(in.read()&0xff) << 56)
-        );
+    public long readLong() throws IOException {
+        return ((in.read() & 0xff)
+                | ((long) (in.read() & 0xff) << 8)
+                | ((long) (in.read() & 0xff) << 16)
+                | ((long) (in.read() & 0xff) << 24)
+                | ((long) (in.read() & 0xff) << 32)
+                | ((long) (in.read() & 0xff) << 40)
+                | ((long) (in.read() & 0xff) << 48)
+                | ((long) (in.read() & 0xff) << 56));
     }
 
-    public final float readFloat() throws IOException{
+    public float readFloat() throws IOException {
         return Float.intBitsToFloat(readInt());
     }
 
-    public final double readDouble() throws IOException{
+    public double readDouble() throws IOException {
         return Double.longBitsToDouble(readLong());
     }
 
-    public final void readFully(byte b[]) throws IOException{
+    public void readFully(byte b[]) throws IOException {
         in.read(b, 0, b.length);
     }
 
-    public final void readFully(byte b[], int off, int len) throws IOException{
+    public void readFully(byte b[], int off, int len) throws IOException {
         in.read(b, off, len);
     }
 
-    public final int skipBytes(int n) throws IOException{
+    public int skipBytes(int n) throws IOException {
         return (int) in.skip(n);
     }
 
-    public final String readLine() throws IOException{
+    public String readLine() throws IOException {
         return inRead.readLine();
     }
 
-    public final String readUTF() throws IOException{
+    public String readUTF() throws IOException {
         throw new IOException("Unsupported operation");
     }
 
-    public final  void close() throws IOException{
+    @Override
+    public void close() throws IOException {
         in.close();
     }
-    
-    public final int available() throws IOException{
+
+    @Override
+    public int available() throws IOException {
         return in.available();
     }
 }
