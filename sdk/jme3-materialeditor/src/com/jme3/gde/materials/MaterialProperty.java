@@ -33,21 +33,7 @@ public class MaterialProperty {
         this.type = param.getVarType().name();
         this.name = param.getName();
         Object obj = param.getValue();
-        this.value = obj.toString();
-        //TODO: change to correct string
-        if (obj instanceof ColorRGBA) {
-            value = value.replaceAll("Color\\[([^\\]]*)\\]", "$1");
-            value = value.replaceAll(",", "");
-        } else if (obj instanceof Texture2D) {
-            AssetKey key = ((Texture2D) obj).getKey();
-            String flip = "";
-            if (key instanceof TextureKey) {
-                if (((TextureKey) key).isFlipY()) {
-                    flip = "Flip ";
-                }
-            }
-            value = value.replaceAll("Texture2D\\[name=([^,]*)\\,([^\\]]*)]", flip + "$1");
-        }
+        this.value = param.getValueAsString();
     }
 
     /**

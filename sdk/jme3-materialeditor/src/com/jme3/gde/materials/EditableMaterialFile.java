@@ -42,7 +42,7 @@ public class EditableMaterialFile {
     private List<String> matDefEntries = new ArrayList<String>();
     private ProjectAssetManager manager;
     private FileSystem fs;
-    public static final String[] variableTypes = new String[]{"Int", "Boolean", "Float", "Vector2", "Vector3", "Vector4", "Color", "Texture2D", "TextureCubeMap"};
+    public static final String[] variableTypes = new String[]{"Int", "Boolean", "Float", "Vector2", "Vector3", "Vector4", "Color", "Texture2D", "Texture3D", "TextureArray", "TextureBuffer", "TextureCubeMap"};
 
     public EditableMaterialFile(FileObject material, ProjectAssetManager manager) {
         this.material = material;
