@@ -32,15 +32,22 @@
 
 package com.jme3.material;
 
+import com.jme3.asset.TextureKey;
 import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
 import com.jme3.export.Savable;
+import com.jme3.math.ColorRGBA;
+import com.jme3.math.Quaternion;
+import com.jme3.math.Vector2f;
+import com.jme3.math.Vector3f;
+import com.jme3.math.Vector4f;
 import com.jme3.renderer.GL1Renderer;
 import com.jme3.renderer.Renderer;
-import com.jme3.shader.Uniform;
 import com.jme3.shader.VarType;
+import com.jme3.texture.Texture;
+import com.jme3.texture.Texture.WrapMode;
 import java.io.IOException;
 
 public class MatParam implements Savable, Cloneable {
@@ -49,7 +56,6 @@ public class MatParam implements Savable, Cloneable {
     protected String name;
     protected Object value;
     protected FixedFuncBinding ffBinding;
-//    protected Uniform uniform;
 
     public MatParam(VarType type, String name, Object value, FixedFuncBinding ffBinding){
         this.type = type;
@@ -85,13 +91,66 @@ public class MatParam implements Savable, Cloneable {
         this.value = value;
     }
 
-//    public Uniform getUniform() {
-//        return uniform;
-//    }
-//
-//    public void setUniform(Uniform uniform) {
-//        this.uniform = uniform;
-//    }
+    /**
+     * Returns the material parameter value as it would appear in a J3M
+     * file. E.g.<br/>
+     * <code>
+     * MaterialParameters {<br/>
+     *     ABC : 1 2 3 4<br/>
+     * }<br/>
+     * </code>
+     * Assuming "ABC" is a Vector4 parameter, then the value
+     * "1 2 3 4" would be returned by this method.
+     * <br/><br/>
+     * @return material parameter value as it would appear in a J3M file.
+     */
+    public String getValueAsString(){
+        switch (type){
+            case Boolean:
+            case Float:
+            case Int:
+                return value.toString();
+            case Vector2:
+                Vector2f v2 = (Vector2f) value;
+                return v2.getX() + " " + v2.getY();
+            case Vector3:
+                Vector3f v3 = (Vector3f) value;
+                return v3.getX() + " " + v3.getY() + " " + v3.getZ();
+            case Vector4:
+                // can be either ColorRGBA, Vector4f or Quaternion
+                if (value instanceof Vector4f){
+                    Vector4f v4 = (Vector4f) value;
+                    return v4.getX() + " " + v4.getY() + " " +
+                           v4.getZ() + " " + v4.getW();
+                }else if (value instanceof ColorRGBA){
+                    ColorRGBA color = (ColorRGBA) value;
+                    return color.getRed()  + " " + color.getGreen() + " " +
+                           color.getBlue() + " " + color.getAlpha();
+                }else if (value instanceof Quaternion){
+                    Quaternion quat = (Quaternion) value;
+                    return quat.getX() + " " + quat.getY() + " " +
+                           quat.getZ() + " " + quat.getW();
+                }else{
+                    throw new UnsupportedOperationException("Unexpected Vector4 type: " + value);
+                }
+            case Texture2D:
+            case Texture3D:
+            case TextureArray:
+            case TextureBuffer:
+            case TextureCubeMap:
+                Texture texVal = (Texture) value;
+                TextureKey texKey = (TextureKey) texVal.getKey();
+                String ret = "";
+                if (texKey.isFlipY())
+                    ret += "Flip ";
+                if (texVal.getWrap(Texture.WrapAxis.S) == WrapMode.Repeat)
+                    ret += "Repeat ";
+
+                return ret + texKey.getName();
+            default:
+                return null; // parameter type not supported in J3M
+        }
+    }
 
     @Override
     public MatParam clone(){
