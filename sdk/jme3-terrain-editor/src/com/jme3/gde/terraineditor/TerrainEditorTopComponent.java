@@ -39,6 +39,7 @@ import com.jme3.gde.core.scene.SceneListener;
 import com.jme3.gde.core.scene.SceneRequest;
 import com.jme3.gde.core.sceneexplorer.nodes.JmeNode;
 import com.jme3.gde.core.sceneexplorer.nodes.JmeSpatial;
+import com.jme3.gde.core.sceneexplorer.nodes.JmeTerrainQuad;
 import com.jme3.gde.core.sceneexplorer.nodes.NodeUtility;
 import com.jme3.gde.core.sceneexplorer.nodes.properties.TexturePropertyEditor;
 import com.jme3.gde.core.util.DataObjectSaveNode;
@@ -53,6 +54,9 @@ import com.jme3.texture.Texture;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeListenerProxy;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -78,6 +82,9 @@ import jme3tools.converters.ImageToAwt;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
 import org.openide.loaders.DataObjectNotFoundException;
+import org.openide.nodes.NodeEvent;
+import org.openide.nodes.NodeMemberEvent;
+import org.openide.nodes.NodeReorderEvent;
 import org.openide.util.NbBundle;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
@@ -89,6 +96,7 @@ import org.openide.NotifyDescriptor.Confirmation;
 import org.openide.WizardDescriptor;
 import org.openide.cookies.SaveCookie;
 import org.openide.loaders.DataObject;
+import org.openide.nodes.NodeListener;
 import org.openide.util.Exceptions;
 import org.openide.util.HelpCtx;
 import org.openide.util.Lookup.Result;
@@ -117,6 +125,7 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
     private CreateTerrainWizardAction terrainWizard;
     private SkyboxWizardAction skyboxWizard;
     private JmeSpatial selectedSpat;
+    private TerrainNodeListener terrainDeletedNodeListener;
 
     public enum TerrainEditButton {none, raiseTerrain, lowerTerrain, smoothTerrain, levelTerrain, paintTerrain, eraseTerrain};
 
@@ -761,7 +770,8 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
         reinitTextureTable(); // update the UI
 
         refreshSelected();
-
+        
+        createTerrainButton.setEnabled(false); // only let the user add one terrain
     }
 
     public void generateSkybox(WizardDescriptor wiz) {
@@ -817,9 +827,35 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
 
     private void selectSpatial(JmeSpatial spatial) {
         selectedSpat = spatial;
+        if (selectedSpat instanceof JmeTerrainQuad) { //TODO shouldn't be terrainQuad, should be a generic JmeTerrain
+            selectedSpat.removeNodeListener(terrainDeletedNodeListener); // remove it if it exists, no way to check if it is there already
+            selectedSpat.addNodeListener(terrainDeletedNodeListener); // add it back
+        }
     }
 
+    /**
+     * When the terrain is deleted, enable the 'add terrain' button again
+     * and reinitialize the texture table
+     */
+    private class TerrainNodeListener implements NodeListener {
+        public void childrenAdded(NodeMemberEvent nme) {
+        }
 
+        public void childrenRemoved(NodeMemberEvent nme) {
+        }
+
+        public void childrenReordered(NodeReorderEvent nre) {
+        }
+
+        public void nodeDestroyed(NodeEvent ne) {
+            createTerrainButton.setEnabled(true);
+            reinitTextureTable();
+        }
+
+        public void propertyChange(PropertyChangeEvent evt) {
+        }
+
+    }
 
     /*
      *
@@ -923,6 +959,8 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
         request.setWindowTitle("TerrainEditor - " + manager.getRelativeAssetPath(file.getPrimaryFile().getPath()));
         request.setToolNode(new Node("TerrainEditorToolNode"));
         SceneApplication.getApplication().requestScene(request);
+
+        terrainDeletedNodeListener = new TerrainNodeListener();
     }
 
     // run on GL thread
@@ -955,8 +993,8 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
                 toolController.cleanup();
             }
 
-            for (int i=0; i<textureTable.getModel().getRowCount(); i++)
-                ((TextureTableModel)textureTable.getModel()).removeRow(i);
+            //for (int i=0; i<textureTable.getModel().getRowCount(); i++)
+            //    ((TextureTableModel)textureTable.getModel()).removeRow(i);
 
             toolController = new TerrainToolController(currentRequest.getToolNode(), currentRequest.getManager().getManager(), request.getJmeNode());
             camController = new TerrainCameraController(SceneApplication.getApplication().getCamera());
@@ -974,6 +1012,8 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
             java.awt.EventQueue.invokeLater(new Runnable() {
                 public void run() {
                     reinitTextureTable(); // update the UI
+                    if (editorController.getTerrain(null) != null)
+                        createTerrainButton.setEnabled(false); // only let the user add one terrain
                 }
             });
             //editorController.getAlphaSaveDataObject(this);
@@ -1087,6 +1127,10 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
         NormalCellRendererEditor rendererNormal = new NormalCellRendererEditor();
         textureTable.getColumnModel().getColumn(2).setCellRenderer(rendererNormal); // normal
         textureTable.getColumnModel().getColumn(2).setCellEditor(rendererNormal);
+
+        // empty out the table
+        for (int i=0; i<textureTable.getModel().getRowCount(); i++)
+            ((TextureTableModel)textureTable.getModel()).removeRow(i);
 
         if (editorController.getTerrain(null) == null)
             return;
