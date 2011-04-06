@@ -1,7 +1,7 @@
 Material Trunk : Common/MatDefs/Light/Lighting.j3md {
     MaterialParameters {
-        DiffuseMap : Repeat Models/Tree/BarkColor.png
-        NormalMap :  Repeat Models/Tree/BarkNormal.png
+        DiffuseMap : Repeat Models/Tree/BarkColor.jpg
+        NormalMap :  Repeat Models/Tree/BarkNormal.jpg
         UseMaterialColors : true
         Ambient : 0 0 0 1
 	  Diffuse : 1 1 1 1
