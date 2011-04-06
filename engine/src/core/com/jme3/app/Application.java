@@ -405,6 +405,8 @@ public class Application implements SystemListener {
 
     public void handleError(String errMsg, Throwable t){
         logger.log(Level.SEVERE, errMsg, t);
+        // user should add additional code to handle the error.
+        stop(); // stop the application
     }
 
     public void gainFocus(){

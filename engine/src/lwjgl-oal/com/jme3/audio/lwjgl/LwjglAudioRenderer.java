@@ -167,6 +167,10 @@ public class LwjglAudioRenderer implements AudioRenderer, Runnable {
             return;
         }
 
+        ALCdevice device = AL.getDevice();
+        String deviceName = ALC10.alcGetString(device, ALC10.ALC_DEVICE_SPECIFIER);
+
+        logger.log(Level.FINER, "Audio Device: {0}", deviceName);
         logger.log(Level.FINER, "Audio Vendor: {0}", alGetString(AL_VENDOR));
         logger.log(Level.FINER, "Audio Renderer: {0}", alGetString(AL_RENDERER));
         logger.log(Level.FINER, "Audio Version: {0}", alGetString(AL_VERSION));
@@ -192,7 +196,6 @@ public class LwjglAudioRenderer implements AudioRenderer, Runnable {
 
         logger.log(Level.INFO, "AudioRenderer supports {0} channels", channels.length);
 
-        ALCdevice device = AL.getDevice();
         supportEfx = ALC10.alcIsExtensionPresent(device, "ALC_EXT_EFX");
         logger.log(Level.FINER, "Audio EFX support: {0}", supportEfx);
 

@@ -221,7 +221,7 @@ public class LwjglCanvas extends LwjglAbstractDisplay implements JmeCanvasContex
         logger.log(Level.INFO, "OGL: Waiting for canvas to become displayable..");
         while (!canvas.isDisplayable()){
             try {
-                Thread.sleep(1);
+                Thread.sleep(10);
             } catch (InterruptedException ex) {
                 logger.log(Level.SEVERE, "OGL: Interrupted! ", ex);
             }
@@ -237,7 +237,7 @@ public class LwjglCanvas extends LwjglAbstractDisplay implements JmeCanvasContex
         logger.log(Level.INFO, "OGL: Waiting for display to become active..");
         while (!Display.isCreated()){
             try {
-                Thread.sleep(1);
+                Thread.sleep(10);
             } catch (InterruptedException ex) {
                 logger.log(Level.SEVERE, "OGL: Interrupted! ", ex);
             }
@@ -257,7 +257,7 @@ public class LwjglCanvas extends LwjglAbstractDisplay implements JmeCanvasContex
             }
             logger.log(Level.INFO, "OGL: Input has been reinitialized");
         } catch (LWJGLException ex) {
-            logger.log(Level.SEVERE, "Failed to re-init input", ex);
+            listener.handleError("Failed to re-init input", ex);
         }
 
         SwingUtilities.invokeLater(new Runnable(){

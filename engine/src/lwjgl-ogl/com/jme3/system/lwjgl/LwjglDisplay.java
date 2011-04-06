@@ -69,7 +69,7 @@ public class LwjglDisplay extends LwjglAbstractDisplay {
                 }
             }
         } catch (LWJGLException ex) {
-            logger.log(Level.SEVERE, "Failed to acquire fullscreen display mode!", ex);
+            listener.handleError("Failed to acquire fullscreen display mode!", ex);
         }
         return null;
     }
