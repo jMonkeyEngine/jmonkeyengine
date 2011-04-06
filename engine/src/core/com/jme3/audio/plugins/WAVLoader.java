@@ -40,9 +40,7 @@ import com.jme3.asset.AssetLoader;
 import com.jme3.audio.AudioKey;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.LittleEndien;
-import java.io.DataInput;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -57,39 +55,15 @@ public class WAVLoader implements AssetLoader {
     private static final int i_fmt  = 0x20746D66 ;
     private static final int i_data = 0x61746164;
 
-    private static final int[] index_table =
-    {
-      -1, -1, -1, -1, 2, 4, 6, 8,
-      -1, -1, -1, -1, 2, 4, 6, 8
-    };
-    private static final int[] step_table = 
-    {
-      7, 8, 9, 10, 11, 12, 13, 14, 16, 17,
-      19, 21, 23, 25, 28, 31, 34, 37, 41, 45,
-      50, 55, 60, 66, 73, 80, 88, 97, 107, 118,
-      130, 143, 157, 173, 190, 209, 230, 253, 279, 307,
-      337, 371, 408, 449, 494, 544, 598, 658, 724, 796,
-      876, 963, 1060, 1166, 1282, 1411, 1552, 1707, 1878, 2066,
-      2272, 2499, 2749, 3024, 3327, 3660, 4026, 4428, 4871, 5358,
-      5894, 6484, 7132, 7845, 8630, 9493, 10442, 11487, 12635, 13899,
-      15289, 16818, 18500, 20350, 22385, 24623, 27086, 29794, 32767
-    };
-
     private boolean readStream = false;
 
     private AudioBuffer audioBuffer;
     private AudioStream audioStream;
     private AudioData audioData;
     private int bytesPerSec;
-    private int dataLength;
     private float duration;
 
     private LittleEndien in;
-
-    private boolean adpcm = false;
-    private int predictor;
-    private int step_index;
-    private int step;
 
     private void readFormatChunk(int size) throws IOException{
         // if other compressions are supported, size doesn't have to be 16
@@ -97,12 +71,8 @@ public class WAVLoader implements AssetLoader {
 //            logger.warning("Expected size of format chunk to be 16");
 
         int compression = in.readShort();
-        if (compression == 1){
-
-        }else if (compression == 17){
-            adpcm = true;
-        }else{
-            throw new IOException("WAV Loader only supports PCM or ADPCM wave files");
+        if (compression != 1){
+            throw new IOException("WAV Loader only supports PCM wave files");
         }
 
         int channels = in.readShort();
@@ -118,72 +88,39 @@ public class WAVLoader implements AssetLoader {
             logger.log(Level.WARNING, "Expected {0} bytes per second, got {1}",
                     new Object[]{expectedBytesPerSec, bytesPerSec});
         }
-        duration = dataLength / bytesPerSec;
         
-        if (!adpcm){
-            if (bitsPerSample != 8 && bitsPerSample != 16)
-                throw new IOException("Only 8 and 16 bits per sample are supported!");
+        if (bitsPerSample != 8 && bitsPerSample != 16)
+            throw new IOException("Only 8 and 16 bits per sample are supported!");
 
-            if ( (bitsPerSample / 8) * channels != bytesPerSample)
-                throw new IOException("Invalid bytes per sample value");
+        if ( (bitsPerSample / 8) * channels != bytesPerSample)
+            throw new IOException("Invalid bytes per sample value");
 
-            if (bytesPerSample * sampleRate != bytesPerSec)
-                throw new IOException("Invalid bytes per second value");
+        if (bytesPerSample * sampleRate != bytesPerSec)
+            throw new IOException("Invalid bytes per second value");
 
-            audioData.setupFormat(channels, bitsPerSample, sampleRate);
+        audioData.setupFormat(channels, bitsPerSample, sampleRate);
 
-            int remaining = size - 16;
-            if (remaining > 0)
-                in.skipBytes(remaining);
-        }else{
-            if (bitsPerSample != 4)
-                throw new IOException("IMA ADPCM header currupt");
-
-            predictor = in.readShort();
-            step_index = in.readByte(); // ????
-            int what = in.readByte(); // skip reserved byte
-            step = index_table[what];
-
-            audioData.setupFormat(channels, 16, sampleRate);
+        int remaining = size - 16;
+        if (remaining > 0){
+            in.skipBytes(remaining);
         }
+       
     }
 
-    private int decodeNibble(int nibble){
-        step = step_table[step_index];
-        step_index += index_table[nibble];
-
-        if (step_index < 0)
-            step_index = 0;
-        else if (step_index > 88)
-            step_index = 88;
-
-        boolean sign = (nibble & 8) != 0;
-        int delta = nibble & 7;
-
-        int diff = (2 * delta + 1) * step;
-        if (sign) predictor -= diff;
-        else predictor += diff;
-
-        predictor &= 0xFFFF;
-
-        return predictor;
-    }
-
-//    private ByteBuffer decodeAdpcm(int len){
-//        dataLength = len * 4; // 4 bits per sample to 16 bits per sample
-//    }
-
-    private void readDataChunkForBuffer(int len) throws IOException{
-        dataLength = len;
-        ByteBuffer data = BufferUtils.createByteBuffer(dataLength);
+    private void readDataChunkForBuffer(int len) throws IOException {
+        ByteBuffer data = BufferUtils.createByteBuffer(len);
         byte[] buf = new byte[512];
         int read = 0;
         while ( (read = in.read(buf)) > 0){
-            data.put(buf, 0, read);
+            data.put(buf, 0, Math.min(read, data.remaining()) );
         }
         data.flip();
         audioBuffer.updateData(data);
         in.close();
+    }
+
+    private void readDataChunkForStream(int len) throws IOException {
+        audioStream.updateData(in, duration);
     }
 
     public Object load(AssetInfo info) throws IOException {
@@ -208,26 +145,30 @@ public class WAVLoader implements AssetLoader {
             audioData = audioBuffer;
         }
 
-        while (true){
+        while (true) {
             int type = in.readInt();
             int len = in.readInt();
 
-            switch (type){
+            switch (type) {
                 case i_fmt:
                     readFormatChunk(len);
                     break;
                 case i_data:
-                    if (readStream){
-                        audioStream.updateData(in, duration);
-                    }else{
+                    // Compute duration based on data chunk size
+                    duration = len / bytesPerSec;
+
+                    if (readStream) {
+                        readDataChunkForStream(len);
+                    } else {
                         readDataChunkForBuffer(len);
                     }
                     return audioData;
                 default:
                     int skipped = in.skipBytes(len);
-                    if (skipped <= 0)
+                    if (skipped <= 0) {
                         return null;
-                    
+                    }
+
                     break;
             }
         }

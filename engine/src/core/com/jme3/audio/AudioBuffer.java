@@ -58,7 +58,7 @@ public class AudioBuffer extends AudioData {
     }
 
     /**
-     * @return The duratiion of the audio in seconds. It is expected
+     * @return The duration of the audio in seconds. It is expected
      * that audio is uncompressed.
      */
     public float getDuration(){
