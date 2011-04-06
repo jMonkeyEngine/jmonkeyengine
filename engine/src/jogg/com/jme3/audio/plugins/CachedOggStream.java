@@ -41,6 +41,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Collection;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -72,7 +73,7 @@ public class CachedOggStream implements PhysicalOggStream {
      *  file is not automatically deleted when this class is disposed.
      */
     public CachedOggStream(InputStream stream, int length, int numPages) throws IOException {
-        logger.info("Creating memory cache of size "+length);
+        logger.log(Level.INFO, "Creating memory cache of size {0}", length);
 
         memoryCache = new byte[length];
         sourceStream = stream;

@@ -55,6 +55,7 @@ public class UncachedOggStream implements PhysicalOggStream {
     private InputStream sourceStream;
     private LinkedList<OggPage> pageCache = new LinkedList<OggPage>();
     private HashMap<Integer, LogicalOggStream> logicalStreams = new HashMap();
+    private OggPage lastPage = null;
 
     public UncachedOggStream(InputStream in) throws OggFormatException, IOException {
         this.sourceStream = in;
@@ -65,6 +66,10 @@ public class UncachedOggStream implements PhysicalOggStream {
         }
     }
 
+    public OggPage getLastOggPage() {
+        return lastPage;
+    }
+
     private void readNextOggPage() throws IOException {
         OggPage op = OggPage.create(sourceStream);
         if (!op.isBos()){
@@ -72,6 +77,7 @@ public class UncachedOggStream implements PhysicalOggStream {
         }
         if (op.isEos()){
             eos = true;
+            lastPage = op;
         }
 
         LogicalOggStreamImpl los = (LogicalOggStreamImpl) getLogicalStream(op.getStreamSerialNumber());

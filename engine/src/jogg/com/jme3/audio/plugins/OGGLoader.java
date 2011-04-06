@@ -38,10 +38,9 @@ import com.jme3.audio.AudioStream;
 import com.jme3.asset.AssetLoader;
 import com.jme3.audio.AudioKey;
 import com.jme3.util.BufferUtils;
-import com.jme3.util.TempVars;
 import de.jarnbjo.ogg.EndOfOggStreamException;
 import de.jarnbjo.ogg.LogicalOggStream;
-import de.jarnbjo.ogg.PhysicalOggStream;
+import de.jarnbjo.ogg.OggPage;
 import de.jarnbjo.vorbis.IdentificationHeader;
 import de.jarnbjo.vorbis.VorbisStream;
 import java.io.ByteArrayOutputStream;
@@ -54,7 +53,7 @@ public class OGGLoader implements AssetLoader {
 
 //    private static int BLOCK_SIZE = 4096*64;
 
-    private PhysicalOggStream oggStream;
+    private UncachedOggStream oggStream;
     private LogicalOggStream loStream;
     private VorbisStream vorbisStream;
 
@@ -121,10 +120,24 @@ public class OGGLoader implements AssetLoader {
         } catch (EndOfOggStreamException ex){
         }
 
+       
         byte[] dataBytes = baos.toByteArray();
         swapBytes(dataBytes, 0, dataBytes.length);
-        ByteBuffer data = BufferUtils.createByteBuffer(dataBytes.length);
-        data.put(dataBytes).flip();
+        // Vorbis stream could have more samples than than the duration of the sound
+        // Must truncate.
+        int numSamples =  (int) oggStream.getLastOggPage().getAbsoluteGranulePosition();
+
+        // Number of Samples * Number of Channels * Bytes Per Sample
+        int totalBytes = numSamples * streamHdr.getChannels() * 2;
+
+//        System.out.println("Sample Rate: " + streamHdr.getSampleRate());
+//        System.out.println("Channels: " + streamHdr.getChannels());
+//        System.out.println("Stream Length: " + numSamples);
+//        System.out.println("Bytes Calculated: " + totalBytes);
+//        System.out.println("Bytes Available:  " + dataBytes.length);
+
+        ByteBuffer data = BufferUtils.createByteBuffer(totalBytes);
+        data.put(dataBytes, 0, totalBytes).flip();
 
         vorbisStream.close();
         loStream.close();
