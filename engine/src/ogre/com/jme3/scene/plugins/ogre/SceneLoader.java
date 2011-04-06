@@ -37,6 +37,7 @@ import com.jme3.asset.AssetInfo;
 import com.jme3.asset.AssetKey;
 import com.jme3.asset.AssetLoader;
 import com.jme3.asset.AssetManager;
+import com.jme3.asset.AssetNotFoundException;
 import com.jme3.light.DirectionalLight;
 import com.jme3.light.Light;
 import com.jme3.light.PointLight;
@@ -206,9 +207,13 @@ public class SceneLoader extends DefaultHandler implements AssetLoader {
             assert elementStack.peek().equals("externals");
         }else if (qName.equals("file")){
             assert elementStack.peek().equals("item");
-            materialList = (MaterialList)
-                assetManager.loadAsset(folderName+attribs.getValue("name"));
-
+            String matFile = folderName+attribs.getValue("name");
+            try {
+                materialList = (MaterialList) assetManager.loadAsset(matFile);
+            } catch (AssetNotFoundException ex){
+                materialList = null;
+                logger.log(Level.WARNING, "Cannot locate material file: {0}", matFile);
+            }
         }else if (qName.equals("node")){
             String curElement = elementStack.peek();
             assert curElement.equals("nodes") || curElement.equals("node");
