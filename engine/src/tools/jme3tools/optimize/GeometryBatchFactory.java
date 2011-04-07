@@ -207,6 +207,11 @@ public class GeometryBatchFactory {
     }
 
 
+    /**
+     * Batches a collection of Geometries so that all with the same material get combined.
+     * @param geometries The Geometries to combine
+     * @return A List of newly created Geometries, each with a  distinct material
+     */
     public static List<Geometry> makeBatches(Collection<Geometry> geometries){
         ArrayList<Geometry> retVal = new ArrayList<Geometry>();
         HashMap<Material, List<Geometry>> matToGeom = new HashMap<Material, List<Geometry>>();
@@ -248,6 +253,13 @@ public class GeometryBatchFactory {
         }
     }
 
+    /**
+     * Optimizes a scene by combining Geometry with the same material. If the
+     * given spatial has a parent it is removed from the parent and the newly
+     * generated scene is attached instead.
+     * @param scene The scene to optimize
+     * @return The newly created optimized scene
+     */
     public static Spatial optimize(Spatial scene){
         ArrayList<Geometry> geoms = new ArrayList<Geometry>();
         gatherGeoms(scene, geoms);
