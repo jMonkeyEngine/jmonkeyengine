@@ -24,6 +24,7 @@ import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -254,30 +255,27 @@ public class GeometryBatchFactory {
     }
 
     /**
-     * Optimizes a scene by combining Geometry with the same material. If the
-     * given spatial has a parent it is removed from the parent and the newly
-     * generated scene is attached instead.
+     * Optimizes a scene by combining Geometry with the same material.
+     * All Geometries found in the scene are detached from their parent and
+     * a new Node containing the optimized Geometries is attached.
      * @param scene The scene to optimize
-     * @return The newly created optimized scene
+     * @return The newly created optimized geometries attached to a node
      */
-    public static Spatial optimize(Spatial scene){
+    public static Node optimize(Node scene){
         ArrayList<Geometry> geoms = new ArrayList<Geometry>();
         gatherGeoms(scene, geoms);
 
         List<Geometry> batchedGeoms = makeBatches(geoms);
-
-        Node node = new Node(scene.getName());
         for (Geometry geom : batchedGeoms){
-            node.attachChild(geom);
+            scene.attachChild(geom);
         }
 
-        Node parent = scene.getParent();
-        if(parent != null){
-            scene.removeFromParent();
-            parent.attachChild(node);
+        for (Iterator<Geometry> it = geoms.iterator(); it.hasNext();) {
+            Geometry geometry = it.next();
+            geometry.removeFromParent();
         }
 
-        return node;
+        return scene;
     }
 
     public static void printMesh(Mesh mesh){
