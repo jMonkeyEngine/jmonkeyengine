@@ -32,10 +32,10 @@
 package com.jme3.gde.core.sceneexplorer.nodes.actions.impl;
 
 import com.jme3.gde.core.sceneexplorer.nodes.AbstractSceneExplorerNode;
-import com.jme3.gde.core.sceneexplorer.nodes.JmeSpatial;
+import com.jme3.gde.core.sceneexplorer.nodes.JmeNode;
 import com.jme3.gde.core.sceneexplorer.nodes.actions.AbstractToolAction;
 import com.jme3.gde.core.sceneexplorer.nodes.actions.ToolAction;
-import com.jme3.scene.Spatial;
+import com.jme3.scene.Node;
 import jme3tools.optimize.GeometryBatchFactory;
 
 /**
@@ -51,7 +51,7 @@ public class OptimizeGeometry extends AbstractToolAction {
 
     @Override
     protected Object doApplyTool(AbstractSceneExplorerNode rootNode) {
-        Spatial geom = rootNode.getLookup().lookup(Spatial.class);
+        Node geom = rootNode.getLookup().lookup(Node.class);
         GeometryBatchFactory.optimize(geom);
         return null;
     }
@@ -63,7 +63,7 @@ public class OptimizeGeometry extends AbstractToolAction {
     }
 
     public Class<?> getNodeClass() {
-        return JmeSpatial.class;
+        return JmeNode.class;
     }
 
 }
