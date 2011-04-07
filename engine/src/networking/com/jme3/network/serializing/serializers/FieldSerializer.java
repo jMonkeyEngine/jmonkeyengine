@@ -99,7 +99,7 @@ public class FieldSerializer extends Serializer {
         try {
             object = c.newInstance();
         } catch (Exception e) {
-            throw new IOException(e.toString());
+            throw new SerializerException( "Error creating object of type:" + c, e );
         }
 
         for (SavedField savedField : fields) {
