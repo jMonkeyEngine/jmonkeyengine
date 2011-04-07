@@ -259,6 +259,12 @@ public class GeometryBatchFactory {
             node.attachChild(geom);
         }
 
+        Node parent = scene.getParent();
+        if(parent != null){
+            scene.removeFromParent();
+            parent.attachChild(node);
+        }
+
         return node;
     }
 
