@@ -50,9 +50,19 @@ public class AppStateManager {
 
     private final ArrayList<AppState> states = new ArrayList<AppState>();
     private final Application app;
+    private AppState[] stateArray;
 
     public AppStateManager(Application app){
         this.app = app;
+    }
+
+    protected AppState[] getArray(){
+        synchronized (states){
+            if (stateArray == null){
+                stateArray = states.toArray(new AppState[states.size()]);
+            }
+            return stateArray;
+        }
     }
 
     /**
@@ -68,6 +78,7 @@ public class AppStateManager {
             if (!states.contains(state)){
                 state.stateAttached(this);
                 states.add(state);
+                stateArray = null;
                 return true;
             }else{
                 return false;
@@ -87,6 +98,7 @@ public class AppStateManager {
             if (states.contains(state)){
                 state.stateDetached(this);
                 states.remove(state);
+                stateArray = null;
                 return true;
             }else{
                 return false;
@@ -132,18 +144,15 @@ public class AppStateManager {
      * @param tpf Time per frame.
      */
     public void update(float tpf){
-        synchronized (states){
-            int num = states.size();
-            for (int i = 0; i < num; i++){
-                AppState state = states.get(i);
-                if (!state.isInitialized())
-                    state.initialize(this, app);
+        AppState[] array = getArray();
+        for (AppState state : array){
+            if (!state.isInitialized())
+                state.initialize(this, app);
 
-                if (state.isEnabled()) {
-                   state.update(tpf);
-                }
+            if (state.isEnabled()) {
+                state.update(tpf);
             }
-        } 
+        }
     }
 
     /**
@@ -151,16 +160,13 @@ public class AppStateManager {
      * @param rm The RenderManager
      */
     public void render(RenderManager rm){
-        synchronized (states){
-            int num = states.size();
-            for (int i = 0; i < num; i++){
-                AppState state = states.get(i);
-                if (!state.isInitialized())
-                    state.initialize(this, app);
+        AppState[] array = getArray();
+        for (AppState state : array){
+            if (!state.isInitialized())
+                state.initialize(this, app);
 
-                if (state.isEnabled()) {
-                   state.render(rm);
-                }
+            if (state.isEnabled()) {
+                state.render(rm);
             }
         }
     }
@@ -170,16 +176,13 @@ public class AppStateManager {
      * @param rm The RenderManager
      */
     public void postRender(){
-        synchronized (states){
-            int num = states.size();
-            for (int i = 0; i < num; i++){
-                AppState state = states.get(i);
-                if (!state.isInitialized())
-                    state.initialize(this, app);
+        AppState[] array = getArray();
+        for (AppState state : array){
+            if (!state.isInitialized())
+                state.initialize(this, app);
 
-                if (state.isEnabled()) {
-                   state.postRender();
-                }
+            if (state.isEnabled()) {
+                state.postRender();
             }
         }
     }
@@ -188,11 +191,9 @@ public class AppStateManager {
      * Calls cleanup on attached states, do not call directly.
      */
     public void cleanup(){
-        synchronized (states){
-            for (int i = 0; i < states.size(); i++){
-                AppState state = states.get(i);
-                state.cleanup();
-            }
+        AppState[] array = getArray();
+        for (AppState state : array){
+            state.cleanup();
         }
-    }
+    }    
 }
