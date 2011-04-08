@@ -71,6 +71,7 @@ public class MapSerializer extends Serializer {
 
      */
 
+    @SuppressWarnings("unchecked")
     public <T> T readObject(ByteBuffer data, Class<T> c) throws IOException {
         int length = data.getInt();
 
@@ -123,6 +124,7 @@ public class MapSerializer extends Serializer {
         return (T)map;
     }
 
+    @SuppressWarnings("unchecked")
     public void writeObject(ByteBuffer buffer, Object object) throws IOException {
         Map map = (Map)object;
         int length = map.size();

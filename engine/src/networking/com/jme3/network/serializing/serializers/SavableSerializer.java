@@ -101,6 +101,7 @@ public class SavableSerializer extends Serializer {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public <T> T readObject(ByteBuffer data, Class<T> c) throws IOException {
         BufferInputStream in = new BufferInputStream(data);
         Savable s = importer.load(in);

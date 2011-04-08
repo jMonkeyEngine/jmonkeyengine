@@ -48,6 +48,7 @@ import java.util.logging.Level;
  */
 public class CollectionSerializer extends Serializer {
 
+    @SuppressWarnings("unchecked")
     public <T> T readObject(ByteBuffer data, Class<T> c) throws IOException {
         int length = data.getInt();
 

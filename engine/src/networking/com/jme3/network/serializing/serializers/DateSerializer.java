@@ -42,7 +42,9 @@ import java.util.Date;
  *
  * @author Lars Wesselius
  */
+@SuppressWarnings("unchecked")
 public class DateSerializer extends Serializer {
+
     public Date readObject(ByteBuffer data, Class c) throws IOException {
         return new Date(data.getLong());
     }

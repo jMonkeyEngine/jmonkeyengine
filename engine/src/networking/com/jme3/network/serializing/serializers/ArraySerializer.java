@@ -43,6 +43,7 @@ import java.nio.ByteBuffer;
  *
  * @author Nathan Sweet
  */
+@SuppressWarnings("unchecked")
 public class ArraySerializer extends Serializer {
     private int[] getDimensions (Object array) {
         int depth = 0;

@@ -42,7 +42,9 @@ import java.nio.ByteBuffer;
  *
  * @author Lars Wesselius
  */
+@SuppressWarnings("unchecked")
 public class StringSerializer extends Serializer {
+
     public String readObject(ByteBuffer data, Class c) throws IOException {
 
         int length = -1;

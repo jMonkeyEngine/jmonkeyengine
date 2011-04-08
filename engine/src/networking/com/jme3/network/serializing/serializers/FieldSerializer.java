@@ -60,7 +60,7 @@ public class FieldSerializer extends Serializer {
             processingClass = processingClass.getSuperclass();
         }
 
-        List<SavedField> cachedFields = new ArrayList(fields.size());
+        List<SavedField> cachedFields = new ArrayList<SavedField>(fields.size());
         for (Field field : fields) {
             int modifiers = field.getModifiers();
             if (Modifier.isTransient(modifiers)) continue;
@@ -87,6 +87,7 @@ public class FieldSerializer extends Serializer {
         
     }
 
+    @SuppressWarnings("unchecked")
     public <T> T readObject(ByteBuffer data, Class<T> c) throws IOException {
     
         // Read the null/non-null marker

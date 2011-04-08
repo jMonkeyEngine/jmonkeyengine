@@ -50,6 +50,7 @@ import java.util.zip.ZipOutputStream;
  */
 public class ZIPSerializer extends Serializer {
 
+    @SuppressWarnings("unchecked")
     public <T> T readObject(ByteBuffer data, Class<T> c) throws IOException {
         try
         {

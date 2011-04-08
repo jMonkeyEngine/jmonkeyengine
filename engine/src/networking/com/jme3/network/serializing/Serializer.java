@@ -134,6 +134,7 @@ public abstract class Serializer {
         return registerClass(cls, true);
     }
     
+    @SuppressWarnings("unchecked")
     public static SerializerRegistration registerClass(Class cls, boolean failOnMiss) {
         if (cls.isAnnotationPresent(Serializable.class)) {
             Serializable serializable = (Serializable)cls.getAnnotation(Serializable.class);
@@ -240,7 +241,8 @@ public abstract class Serializer {
     public static SerializerRegistration getExactSerializerRegistration(Class cls) {
         return classRegistrations.get(cls);
     }
-
+    
+    @SuppressWarnings("unchecked")
     public static SerializerRegistration getSerializerRegistration(Class cls) {
         SerializerRegistration reg = classRegistrations.get(cls);
 
@@ -280,6 +282,7 @@ public abstract class Serializer {
      * @return The Object that was read.
      * @throws IOException If serialization failed.
      */
+    @SuppressWarnings("unchecked")
     public static Object readClassAndObject(ByteBuffer buffer) throws IOException {
         SerializerRegistration reg = readClass(buffer);
         if (reg == NULL_CLASS) return null;

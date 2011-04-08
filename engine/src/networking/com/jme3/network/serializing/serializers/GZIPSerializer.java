@@ -49,6 +49,7 @@ import java.util.zip.GZIPOutputStream;
  */
 public class GZIPSerializer extends Serializer {
 
+    @SuppressWarnings("unchecked")
     public <T> T readObject(ByteBuffer data, Class<T> c) throws IOException {
         try
         {

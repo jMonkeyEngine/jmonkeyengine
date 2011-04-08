@@ -43,11 +43,14 @@ import java.nio.ByteBuffer;
  * TODO
  * @author Lars Wesselius
  */
+@SuppressWarnings("unchecked")
 public class SerializableSerializer extends Serializer {
+
     public Serializable readObject(ByteBuffer data, Class c) throws IOException {
-        return null;
+        throw new UnsupportedOperationException( "Serializable serialization not supported." );
     }
 
     public void writeObject(ByteBuffer buffer, Object object) throws IOException {
+        throw new UnsupportedOperationException( "Serializable serialization not supported." );
     }
 }

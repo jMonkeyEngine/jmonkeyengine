@@ -41,6 +41,7 @@ import java.nio.ByteBuffer;
  *
  * @author Lars Wesselius
  */
+@SuppressWarnings("unchecked")
 public class ShortSerializer extends Serializer {
     public Short readObject(ByteBuffer data, Class c) throws IOException {
         return data.getShort();

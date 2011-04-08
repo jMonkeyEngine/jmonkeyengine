@@ -8,7 +8,9 @@ import java.nio.ByteBuffer;
 /**
  * @author Kirill Vainer
  */
+@SuppressWarnings("unchecked")
 public class Vector3Serializer extends Serializer {
+
     public Vector3f readObject(ByteBuffer data, Class c) throws IOException {
         Vector3f vec3 = new Vector3f();
         vec3.x = data.getFloat();

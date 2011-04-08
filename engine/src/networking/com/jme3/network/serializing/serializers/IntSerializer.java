@@ -41,7 +41,9 @@ import java.nio.ByteBuffer;
  *
  * @author Lars Wesselius
  */
+@SuppressWarnings("unchecked")
 public class IntSerializer extends Serializer {
+
     public Integer readObject(ByteBuffer data, Class c) throws IOException {
         return data.getInt();
     }
