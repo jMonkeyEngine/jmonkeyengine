@@ -175,7 +175,7 @@ public class SkeletonControl extends AbstractControl implements Savable, Cloneab
             fnb.position(fnb.position() - bufLength);
             fnb.put(normBuf, 0, bufLength);
         }
-        
+
         assert vars.unlock();
 
         vb.updateData(fvb);
@@ -196,6 +196,7 @@ public class SkeletonControl extends AbstractControl implements Savable, Cloneab
         Node clonedNode = (Node) spatial;
         AnimControl ctrl = spatial.getControl(AnimControl.class);
         SkeletonControl clone = new SkeletonControl();
+        clone.setSpatial(clonedNode);
 
         clone.skeleton = ctrl.getSkeleton();
         Mesh[] meshes = new Mesh[targets.length];
