@@ -311,7 +311,7 @@ public class DefaultClient implements Client
         }
     }
  
-    protected class Redispatch implements MessageListener
+    protected class Redispatch implements MessageListener<Object>
     {
         public void messageReceived( Object source, Message m )
         {

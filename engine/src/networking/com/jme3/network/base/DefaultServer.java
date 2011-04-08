@@ -434,6 +434,7 @@ public class DefaultServer implements Server
             return sessionData.put(name, value);
         }
     
+        @SuppressWarnings("unchecked")
         public <T> T getAttribute( String name )
         {
             return (T)sessionData.get(name);

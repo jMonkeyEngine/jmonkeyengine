@@ -61,14 +61,14 @@ import com.jme3.network.serializing.Serializer;
 public class ConnectorAdapter extends Thread
 {
     private Connector connector;
-    private MessageListener dispatcher;
+    private MessageListener<Object> dispatcher;
     private AtomicBoolean go = new AtomicBoolean(true);
     
     // Marks the messages as reliable or not if they came
     // through this connector.
     private boolean reliable;
     
-    public ConnectorAdapter( Connector connector, MessageListener dispatcher, boolean reliable )
+    public ConnectorAdapter( Connector connector, MessageListener<Object> dispatcher, boolean reliable )
     {
         super( String.valueOf(connector) );
         this.connector = connector;        

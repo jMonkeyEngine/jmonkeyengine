@@ -67,14 +67,14 @@ public class KernelAdapter extends Thread
     
     private DefaultServer server; // this is unfortunate
     private Kernel kernel;
-    private MessageListener messageDispatcher;
+    private MessageListener<HostedConnection> messageDispatcher;
     private AtomicBoolean go = new AtomicBoolean(true);
     
     // Marks the messages as reliable or not if they came
     // through this connector.
     private boolean reliable;
     
-    public KernelAdapter( DefaultServer server, Kernel kernel, MessageListener messageDispatcher,
+    public KernelAdapter( DefaultServer server, Kernel kernel, MessageListener<HostedConnection> messageDispatcher,
                           boolean reliable )
     {
         super( String.valueOf(kernel) );
