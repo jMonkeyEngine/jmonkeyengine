@@ -68,6 +68,7 @@ public abstract class Serializer {
 
     private static short                                    nextId                  = -1;
 
+    private static boolean strictRegistration = true;
 
 
     // Registers the classes we already have serializers for.
@@ -129,21 +130,35 @@ public abstract class Serializer {
         registerClass(StreamDataMessage.class);
         registerClass(StreamMessage.class);
     }
+    
+    /**
+     *  When set to true, classes that do not have intrinsic IDs in their
+     *  @Serializable will not be auto-registered during write.  Defaults
+     *  to true since this is almost never desired behavior with the way
+     *  this code works.  Set to false to get the old permissive behavior.
+     */
+    public static void setStrictRegistration( boolean b ) {
+        strictRegistration = b;
+    }
 
     public static SerializerRegistration registerClass(Class cls) {
         return registerClass(cls, true);
     }
     
+    /**
+     *  Registers the specified class. The failOnMiss flag controls whether or
+     *  not this method returns null for failed registration or throws an exception.
+     */
     @SuppressWarnings("unchecked")
     public static SerializerRegistration registerClass(Class cls, boolean failOnMiss) {
         if (cls.isAnnotationPresent(Serializable.class)) {
             Serializable serializable = (Serializable)cls.getAnnotation(Serializable.class);
 
             Class serializerClass = serializable.serializer();
-            short classId = serializable.id();           
+            short classId = serializable.id();
             if (classId == 0) classId = --nextId;
 
-            Serializer serializer = getSerializer(serializerClass);
+            Serializer serializer = getSerializer(serializerClass, false);
 
             if (serializer == null) serializer = fieldSerializer;
 
@@ -235,15 +250,23 @@ public abstract class Serializer {
     }
 
     public static Serializer getSerializer(Class cls) {
-        return getSerializerRegistration(cls).getSerializer();
+        return getSerializer(cls, true);
+    }
+    
+    public static Serializer getSerializer(Class cls, boolean failOnMiss) {
+        return getSerializerRegistration(cls, failOnMiss).getSerializer();
     }
 
     public static SerializerRegistration getExactSerializerRegistration(Class cls) {
         return classRegistrations.get(cls);
     }
     
-    @SuppressWarnings("unchecked")
     public static SerializerRegistration getSerializerRegistration(Class cls) {
+        return getSerializerRegistration(cls, strictRegistration); 
+    }
+    
+    @SuppressWarnings("unchecked")
+    public static SerializerRegistration getSerializerRegistration(Class cls, boolean failOnMiss) {
         SerializerRegistration reg = classRegistrations.get(cls);
 
         if (reg != null) return reg;
@@ -255,7 +278,23 @@ public abstract class Serializer {
 
         if (cls.isArray()) return registerClass(cls, arraySerializer);
 
-        if (Serializable.class.isAssignableFrom(cls)) return getExactSerializerRegistration(java.io.Serializable.class);
+        if (Serializable.class.isAssignableFrom(cls)) { 
+            return getExactSerializerRegistration(java.io.Serializable.class);
+        }
+
+        // See if the class could be safely auto-registered
+        if (cls.isAnnotationPresent(Serializable.class)) {
+            Serializable serializable = (Serializable)cls.getAnnotation(Serializable.class);
+            short classId = serializable.id();
+            if( classId != 0 ) {
+                // No reason to fail because the ID is fixed
+                failOnMiss = false;
+            }
+        }            
+        
+        if( failOnMiss ) {
+            throw new IllegalArgumentException( "Class has not been registered:" + cls );
+        }
         return registerClass(cls, fieldSerializer);
     }
 
