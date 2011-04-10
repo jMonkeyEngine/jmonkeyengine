@@ -31,10 +31,8 @@
  */
 package jme3test.bullet;
 
-import com.jme3.animation.AnimChannel;
 import com.jme3.animation.AnimControl;
 import com.jme3.animation.Bone;
-import com.jme3.animation.LoopMode;
 import com.jme3.bullet.BulletAppState;
 import com.jme3.app.SimpleApplication;
 import com.jme3.asset.TextureKey;
@@ -45,7 +43,6 @@ import com.jme3.bullet.collision.shapes.SphereCollisionShape;
 import com.jme3.bullet.control.RagdollControl;
 import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.font.BitmapText;
-import com.jme3.input.ChaseCamera;
 import com.jme3.input.KeyInput;
 import com.jme3.input.MouseInput;
 import com.jme3.input.controls.ActionListener;
@@ -54,6 +51,7 @@ import com.jme3.input.controls.MouseButtonTrigger;
 import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
+import com.jme3.math.FastMath;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
@@ -73,6 +71,7 @@ public class TestBoneRagdoll extends SimpleApplication implements RagdollCollisi
     Material matBullet;
     Node model;
     RagdollControl ragdoll;
+    float timer = 0;
 
     public static void main(String[] args) {
         TestBoneRagdoll app = new TestBoneRagdoll();
@@ -90,12 +89,12 @@ public class TestBoneRagdoll extends SimpleApplication implements RagdollCollisi
         bulletAppState = new BulletAppState();
         bulletAppState.setEnabled(true);
         stateManager.attach(bulletAppState);
-  //         bulletAppState.getPhysicsSpace().enableDebug(assetManager);
+        //       bulletAppState.getPhysicsSpace().enableDebug(assetManager);
         PhysicsTestHelper.createPhysicsTestWorld(rootNode, assetManager, bulletAppState.getPhysicsSpace());
         setupLight();
 
         model = (Node) assetManager.loadModel("Models/Oto/Oto.mesh.xml");
-        //     model.setLocalTranslation(5,5,5);
+        //    model.setLocalTranslation(5, 0, 5);
         //  model.setLocalRotation(new Quaternion().fromAngleAxis(FastMath.HALF_PI, Vector3f.UNIT_X));
 
         //debug view
@@ -110,30 +109,51 @@ public class TestBoneRagdoll extends SimpleApplication implements RagdollCollisi
 //        channel.setAnim("Dodge");
 //        channel.setLoopMode(LoopMode.Cycle);
 //        channel.setSpeed(0.1f);
-               
-        
+
+
 
         //Note: PhysicsRagdollControl is still TODO, constructor will change
-        ragdoll = new RagdollControl();
+        ragdoll = new RagdollControl(1.0f);
         ragdoll.addCollisionListener(this);
-        //  ragdoll.setEnabled(true);
-        //  ragdoll.attachDebugShape(assetManager);
-
-//        ragdoll.setSpatial(model);
-//        ragdoll.setPhysicsSpace(getPhysicsSpace());
-//        control.setRagdoll(ragdoll);
-
         model.addControl(ragdoll);
+
+        ragdoll.setJointLimit("head", FastMath.QUARTER_PI, -FastMath.QUARTER_PI, FastMath.QUARTER_PI, -FastMath.QUARTER_PI, FastMath.QUARTER_PI, -FastMath.QUARTER_PI);
+
+        ragdoll.setJointLimit("spinehigh", FastMath.QUARTER_PI, -FastMath.QUARTER_PI, 0, 0, FastMath.QUARTER_PI, -FastMath.QUARTER_PI);
+
+        ragdoll.setJointLimit("hip.right", FastMath.PI, -FastMath.QUARTER_PI, FastMath.QUARTER_PI, -FastMath.QUARTER_PI, FastMath.QUARTER_PI, -FastMath.QUARTER_PI);
+        ragdoll.setJointLimit("hip.left", FastMath.PI, -FastMath.QUARTER_PI, FastMath.QUARTER_PI, -FastMath.QUARTER_PI, FastMath.QUARTER_PI, -FastMath.QUARTER_PI);
+
+        ragdoll.setJointLimit("leg.left", 0, -FastMath.PI, 0, 0, 0, 0);
+        ragdoll.setJointLimit("leg.right", 0, -FastMath.PI, 0, 0, 0, 0);
+
+        ragdoll.setJointLimit("foot.right", 0, -FastMath.QUARTER_PI, FastMath.QUARTER_PI, -FastMath.QUARTER_PI, FastMath.QUARTER_PI, -FastMath.QUARTER_PI);
+        ragdoll.setJointLimit("foot.left", 0, -FastMath.QUARTER_PI, FastMath.QUARTER_PI, -FastMath.QUARTER_PI, FastMath.QUARTER_PI, -FastMath.QUARTER_PI);
+
+        ragdoll.setJointLimit("uparm.right", FastMath.HALF_PI, -FastMath.QUARTER_PI, 0, 0, FastMath.QUARTER_PI, -FastMath.HALF_PI);
+        ragdoll.setJointLimit("uparm.left", FastMath.HALF_PI, -FastMath.QUARTER_PI, 0, 0, FastMath.QUARTER_PI, -FastMath.HALF_PI);
+            
+
+        ragdoll.setJointLimit("arm.right", FastMath.PI, 0, 0, 0, 0, 0);
+        ragdoll.setJointLimit("arm.left", FastMath.PI, 0, 0, 0, 0, 0);
+
+        ragdoll.setJointLimit("hand.right", FastMath.QUARTER_PI, -FastMath.QUARTER_PI, FastMath.QUARTER_PI, -FastMath.QUARTER_PI, FastMath.QUARTER_PI, -FastMath.QUARTER_PI);
+        ragdoll.setJointLimit("hand.left", FastMath.QUARTER_PI, -FastMath.QUARTER_PI, FastMath.QUARTER_PI, -FastMath.QUARTER_PI, FastMath.QUARTER_PI, -FastMath.QUARTER_PI);
+
+
+
+
         getPhysicsSpace().add(ragdoll);
-        speed = 1f;
+        speed = 1.3f;
 
         rootNode.attachChild(model);
-    //    rootNode.attachChild(skeletonDebug);
+        //    rootNode.attachChild(skeletonDebug);
         //flyCam.setEnabled(false);
         flyCam.setMoveSpeed(50);
 //        ChaseCamera chaseCamera=new ChaseCamera(cam, inputManager);
 //        chaseCamera.setLookAtOffset(Vector3f.UNIT_Y.mult(4));
 //        model.addControl(chaseCamera);
+
 
         inputManager.addListener(new ActionListener() {
 
@@ -141,12 +161,18 @@ public class TestBoneRagdoll extends SimpleApplication implements RagdollCollisi
                 if (name.equals("toggle") && isPressed) {
                     ragdoll.setControl(false);
                 }
+                if (name.equals("shoot") && isPressed) {
+                    timer = 0;
+
+                }
                 if (name.equals("shoot") && !isPressed) {
                     Geometry bulletg = new Geometry("bullet", bullet);
                     bulletg.setMaterial(matBullet);
                     bulletg.setLocalTranslation(cam.getLocation());
+                    bulletg.setLocalScale(timer);
+                    bulletCollisionShape = new SphereCollisionShape(timer);
                     //  RigidBodyControl bulletNode = new BombControl(assetManager, bulletCollisionShape, 1);
-                    RigidBodyControl bulletNode = new RigidBodyControl(bulletCollisionShape, 50);
+                    RigidBodyControl bulletNode = new RigidBodyControl(bulletCollisionShape, timer * 10);
                     bulletNode.setLinearVelocity(cam.getDirection().mult(80));
                     bulletg.addControl(bulletNode);
                     rootNode.attachChild(bulletg);
@@ -174,12 +200,12 @@ public class TestBoneRagdoll extends SimpleApplication implements RagdollCollisi
     Material mat;
     Material mat3;
     private static final Sphere bullet;
-    private static final SphereCollisionShape bulletCollisionShape;
+    private static SphereCollisionShape bulletCollisionShape;
 
     static {
-        bullet = new Sphere(32, 32, 0.4f, true, false);
+        bullet = new Sphere(32, 32, 1.0f, true, false);
         bullet.setTextureMode(TextureMode.Projected);
-        bulletCollisionShape = new SphereCollisionShape(0.4f);
+        bulletCollisionShape = new SphereCollisionShape(1.0f);
     }
 
     public void initMaterial() {
@@ -203,9 +229,12 @@ public class TestBoneRagdoll extends SimpleApplication implements RagdollCollisi
     }
 
     public void collide(Bone bone, PhysicsCollisionObject object) {
+
         if (!ragdoll.hasControl()) {
-            bulletTime();
+
+            //   bulletTime();
             ragdoll.setControl(true);
+
         }
     }
 
@@ -217,9 +246,11 @@ public class TestBoneRagdoll extends SimpleApplication implements RagdollCollisi
 
     @Override
     public void simpleUpdate(float tpf) {
+        //  System.out.println(model.getLocalTranslation());
         elTime += tpf;
         if (elTime > 0.05f && speed < 1.0f) {
             speed += tpf * 8;
         }
+        timer += tpf;
     }
 }
