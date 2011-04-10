@@ -134,7 +134,37 @@ public class VertexBuffer extends GLObject implements Savable, Cloneable {
         /**
          * Texture coordinate #2
          */
-        TexCoord2;
+        TexCoord2,
+
+        /**
+         * Texture coordinate #3
+         */
+        TexCoord3,
+
+        /**
+         * Texture coordinate #4
+         */
+        TexCoord4,
+
+        /**
+         * Texture coordinate #5
+         */
+        TexCoord5,
+
+        /**
+         * Texture coordinate #6
+         */
+        TexCoord6,
+
+        /**
+         * Texture coordinate #7
+         */
+        TexCoord7,
+
+        /**
+         * Texture coordinate #8
+         */
+        TexCoord8,
     }
 
     /**

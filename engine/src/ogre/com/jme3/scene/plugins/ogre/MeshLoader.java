@@ -81,8 +81,22 @@ import static com.jme3.util.xml.SAXUtil.*;
 public class MeshLoader extends DefaultHandler implements AssetLoader {
 
     private static final Logger logger = Logger.getLogger(MeshLoader.class.getName());
+
     public static boolean AUTO_INTERLEAVE = true;
     public static boolean HARDWARE_SKINNING = false;
+
+    private static final Type[] TEXCOORD_TYPES =
+        new Type[]{
+            Type.TexCoord,
+            Type.TexCoord2,
+            Type.TexCoord3,
+            Type.TexCoord4,
+            Type.TexCoord5,
+            Type.TexCoord6,
+            Type.TexCoord7,
+            Type.TexCoord8,
+        };
+
     private String meshName;
     private String folderName;
     private AssetManager assetManager;
@@ -397,14 +411,11 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
                 throw new SAXException("Texture coord dimensions must be 1 <= dims <= 4");
             }
 
-            if (i >= 2) {
-                throw new SAXException("More than 2 texture coordinates not supported");
-            }
-
-            if (i == 0) {
-                vb = new VertexBuffer(Type.TexCoord);
+            if (i <= 7) {
+                vb = new VertexBuffer( TEXCOORD_TYPES[i] );
             } else {
-                vb = new VertexBuffer(Type.TexCoord2);
+                // more than 8 texture coordinates are not supported by ogre.
+                throw new SAXException("More than 8 texture coordinates not supported");
             }
             fb = BufferUtils.createFloatBuffer(vertCount * dims);
             vb.setupData(Usage.Static, dims, Format.Float, fb);
@@ -439,10 +450,10 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
     }
 
     private void pushTexCoord(Attributes attribs) throws SAXException {
-        if (texCoordIdx >= 2) {
-            return; // TODO: More than 2 texcoords
+        if (texCoordIdx >= 8) {
+            return; // More than 8 not supported by ogre.
         }
-        Type type = texCoordIdx == 0 ? Type.TexCoord : Type.TexCoord2;
+        Type type = TEXCOORD_TYPES[texCoordIdx];
 
         VertexBuffer tcvb = mesh.getBuffer(type);
         FloatBuffer buf = (FloatBuffer) tcvb.getData();
