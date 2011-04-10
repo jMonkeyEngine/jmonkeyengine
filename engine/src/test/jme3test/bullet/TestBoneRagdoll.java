@@ -48,6 +48,7 @@ import com.jme3.input.MouseInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.input.controls.MouseButtonTrigger;
+import com.jme3.light.AmbientLight;
 import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
@@ -117,7 +118,9 @@ public class TestBoneRagdoll extends SimpleApplication implements RagdollCollisi
         ragdoll.addCollisionListener(this);
         model.addControl(ragdoll);
 
-        ragdoll.setJointLimit("head", FastMath.QUARTER_PI, -FastMath.QUARTER_PI, FastMath.QUARTER_PI, -FastMath.QUARTER_PI, FastMath.QUARTER_PI, -FastMath.QUARTER_PI);
+        float eighth_pi = FastMath.PI * 0.125f;
+
+        ragdoll.setJointLimit("head", eighth_pi, -eighth_pi, eighth_pi, -eighth_pi, eighth_pi, -eighth_pi);
 
         ragdoll.setJointLimit("spinehigh", FastMath.QUARTER_PI, -FastMath.QUARTER_PI, 0, 0, FastMath.QUARTER_PI, -FastMath.QUARTER_PI);
 
@@ -133,7 +136,6 @@ public class TestBoneRagdoll extends SimpleApplication implements RagdollCollisi
         ragdoll.setJointLimit("uparm.right", FastMath.HALF_PI, -FastMath.QUARTER_PI, 0, 0, FastMath.QUARTER_PI, -FastMath.HALF_PI);
         ragdoll.setJointLimit("uparm.left", FastMath.HALF_PI, -FastMath.QUARTER_PI, 0, 0, FastMath.QUARTER_PI, -FastMath.HALF_PI);
             
-
         ragdoll.setJointLimit("arm.right", FastMath.PI, 0, 0, 0, 0, 0);
         ragdoll.setJointLimit("arm.left", FastMath.PI, 0, 0, 0, 0, 0);
 
@@ -173,6 +175,7 @@ public class TestBoneRagdoll extends SimpleApplication implements RagdollCollisi
                     bulletCollisionShape = new SphereCollisionShape(timer);
                     //  RigidBodyControl bulletNode = new BombControl(assetManager, bulletCollisionShape, 1);
                     RigidBodyControl bulletNode = new RigidBodyControl(bulletCollisionShape, timer * 10);
+                    bulletNode.setCcdMotionThreshold(0.001f);
                     bulletNode.setLinearVelocity(cam.getDirection().mult(80));
                     bulletg.addControl(bulletNode);
                     rootNode.attachChild(bulletg);
@@ -188,6 +191,10 @@ public class TestBoneRagdoll extends SimpleApplication implements RagdollCollisi
     }
 
     private void setupLight() {
+        AmbientLight al = new AmbientLight();
+        al.setColor(ColorRGBA.White.mult(10));
+        rootNode.addLight(al);
+
         DirectionalLight dl = new DirectionalLight();
         dl.setDirection(new Vector3f(-0.1f, -0.7f, -1).normalizeLocal());
         dl.setColor(new ColorRGBA(1f, 1f, 1f, 1.0f));
