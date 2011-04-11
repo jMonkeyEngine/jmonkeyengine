@@ -91,7 +91,7 @@ public class TestBoneRagdoll extends SimpleApplication implements RagdollCollisi
         bulletAppState = new BulletAppState();
         bulletAppState.setEnabled(true);
         stateManager.attach(bulletAppState);
-        //       bulletAppState.getPhysicsSpace().enableDebug(assetManager);
+       //        bulletAppState.getPhysicsSpace().enableDebug(assetManager);
         PhysicsTestHelper.createPhysicsTestWorld(rootNode, assetManager, bulletAppState.getPhysicsSpace());
         setupLight();
 
@@ -107,12 +107,6 @@ public class TestBoneRagdoll extends SimpleApplication implements RagdollCollisi
         mat2.getAdditionalRenderState().setDepthTest(false);
         skeletonDebug.setMaterial(mat2);
         skeletonDebug.setLocalTranslation(model.getLocalTranslation());
-//        AnimChannel channel=control.createChannel();
-//        channel.setAnim("Dodge");
-//        channel.setLoopMode(LoopMode.Cycle);
-//        channel.setSpeed(0.1f);
-
-
 
         //Note: PhysicsRagdollControl is still TODO, constructor will change
         ragdoll = new RagdollControl(1.0f);
@@ -121,41 +115,15 @@ public class TestBoneRagdoll extends SimpleApplication implements RagdollCollisi
 
         float eighth_pi = FastMath.PI * 0.125f;
 
-        ragdoll.setJointLimit("head", eighth_pi, -eighth_pi, eighth_pi, -eighth_pi, eighth_pi, -eighth_pi);
-
-        ragdoll.setJointLimit("spinehigh", FastMath.QUARTER_PI, -FastMath.QUARTER_PI, 0, 0, FastMath.QUARTER_PI, -FastMath.QUARTER_PI);
-
-        ragdoll.setJointLimit("hip.right", FastMath.PI, -FastMath.QUARTER_PI, FastMath.QUARTER_PI, -FastMath.QUARTER_PI, FastMath.QUARTER_PI, -FastMath.QUARTER_PI);
-        ragdoll.setJointLimit("hip.left", FastMath.PI, -FastMath.QUARTER_PI, FastMath.QUARTER_PI, -FastMath.QUARTER_PI, FastMath.QUARTER_PI, -FastMath.QUARTER_PI);
-
-        ragdoll.setJointLimit("leg.left", 0, -FastMath.PI, 0, 0, 0, 0);
-        ragdoll.setJointLimit("leg.right", 0, -FastMath.PI, 0, 0, 0, 0);
-
-        ragdoll.setJointLimit("foot.right", 0, -FastMath.QUARTER_PI, FastMath.QUARTER_PI, -FastMath.QUARTER_PI, FastMath.QUARTER_PI, -FastMath.QUARTER_PI);
-        ragdoll.setJointLimit("foot.left", 0, -FastMath.QUARTER_PI, FastMath.QUARTER_PI, -FastMath.QUARTER_PI, FastMath.QUARTER_PI, -FastMath.QUARTER_PI);
-
-        ragdoll.setJointLimit("uparm.right", FastMath.HALF_PI, -FastMath.QUARTER_PI, 0, 0, FastMath.QUARTER_PI, -FastMath.HALF_PI);
-        ragdoll.setJointLimit("uparm.left", FastMath.HALF_PI, -FastMath.QUARTER_PI, 0, 0, FastMath.QUARTER_PI, -FastMath.HALF_PI);
-            
-        ragdoll.setJointLimit("arm.right", FastMath.PI, 0, 0, 0, 0, 0);
-        ragdoll.setJointLimit("arm.left", FastMath.PI, 0, 0, 0, 0, 0);
-
-        ragdoll.setJointLimit("hand.right", FastMath.QUARTER_PI, -FastMath.QUARTER_PI, FastMath.QUARTER_PI, -FastMath.QUARTER_PI, FastMath.QUARTER_PI, -FastMath.QUARTER_PI);
-        ragdoll.setJointLimit("hand.left", FastMath.QUARTER_PI, -FastMath.QUARTER_PI, FastMath.QUARTER_PI, -FastMath.QUARTER_PI, FastMath.QUARTER_PI, -FastMath.QUARTER_PI);
-
-
-
+        //Oto's head is almost rigid
+        ragdoll.setJointLimit("head", 0, 0, eighth_pi, -eighth_pi, 0, 0);
 
         getPhysicsSpace().add(ragdoll);
         speed = 1.3f;
 
         rootNode.attachChild(model);
-        //    rootNode.attachChild(skeletonDebug);
-        //flyCam.setEnabled(false);
         flyCam.setMoveSpeed(50);
-//        ChaseCamera chaseCamera=new ChaseCamera(cam, inputManager);
-//        chaseCamera.setLookAtOffset(Vector3f.UNIT_Y.mult(4));
-//        model.addControl(chaseCamera);
+
 
         final AnimChannel channel = control.createChannel();
         channel.setAnim("Walk");
@@ -176,8 +144,8 @@ public class TestBoneRagdoll extends SimpleApplication implements RagdollCollisi
                     bulletg.setLocalTranslation(cam.getLocation());
                     bulletg.setLocalScale(timer);
                     bulletCollisionShape = new SphereCollisionShape(timer);
-                      RigidBodyControl bulletNode = new BombControl(assetManager, bulletCollisionShape, 1);
-//                    RigidBodyControl bulletNode = new RigidBodyControl(bulletCollisionShape, timer * 10);
+                  //    RigidBodyControl bulletNode = new BombControl(assetManager, bulletCollisionShape, 1);
+                    RigidBodyControl bulletNode = new RigidBodyControl(bulletCollisionShape, timer * 10);
                     bulletNode.setCcdMotionThreshold(0.001f);
                     bulletNode.setLinearVelocity(cam.getDirection().mult(80));
                     bulletg.addControl(bulletNode);
@@ -195,8 +163,8 @@ public class TestBoneRagdoll extends SimpleApplication implements RagdollCollisi
 
     private void setupLight() {
         AmbientLight al = new AmbientLight();
-        al.setColor(ColorRGBA.White.mult(10));
-        rootNode.addLight(al);
+      //  al.setColor(ColorRGBA.White.mult(1));
+     //   rootNode.addLight(al);
 
         DirectionalLight dl = new DirectionalLight();
         dl.setDirection(new Vector3f(-0.1f, -0.7f, -1).normalizeLocal());
@@ -240,6 +208,14 @@ public class TestBoneRagdoll extends SimpleApplication implements RagdollCollisi
 
     public void collide(Bone bone, PhysicsCollisionObject object) {
 
+        if(object.getUserObject()!=null && object.getUserObject() instanceof Geometry){
+            Geometry geom=(Geometry)object.getUserObject();
+            if ("Floor".equals(geom.getName())) {              
+                return;
+            }
+        }
+        
+       
         if (!ragdoll.hasControl()) {
 
             //   bulletTime();
