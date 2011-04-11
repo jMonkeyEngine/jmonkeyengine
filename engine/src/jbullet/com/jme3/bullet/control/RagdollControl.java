@@ -530,6 +530,7 @@ public class RagdollControl implements PhysicsControl, PhysicsCollisionListener 
         this.control = control;
         for (PhysicsBoneLink link : boneLinks.values()) {
             link.bone.setUserControl(control);
+            link.rigidBody.setKinematic(!control);
         }
 
     }
