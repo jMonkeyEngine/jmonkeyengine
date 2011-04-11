@@ -31,6 +31,7 @@
  */
 package jme3test.bullet;
 
+import com.jme3.animation.AnimChannel;
 import com.jme3.animation.AnimControl;
 import com.jme3.animation.Bone;
 import com.jme3.bullet.BulletAppState;
@@ -156,6 +157,8 @@ public class TestBoneRagdoll extends SimpleApplication implements RagdollCollisi
 //        chaseCamera.setLookAtOffset(Vector3f.UNIT_Y.mult(4));
 //        model.addControl(chaseCamera);
 
+        final AnimChannel channel = control.createChannel();
+        channel.setAnim("Walk");
 
         inputManager.addListener(new ActionListener() {
 
@@ -173,8 +176,8 @@ public class TestBoneRagdoll extends SimpleApplication implements RagdollCollisi
                     bulletg.setLocalTranslation(cam.getLocation());
                     bulletg.setLocalScale(timer);
                     bulletCollisionShape = new SphereCollisionShape(timer);
-                    //  RigidBodyControl bulletNode = new BombControl(assetManager, bulletCollisionShape, 1);
-                    RigidBodyControl bulletNode = new RigidBodyControl(bulletCollisionShape, timer * 10);
+                      RigidBodyControl bulletNode = new BombControl(assetManager, bulletCollisionShape, 1);
+//                    RigidBodyControl bulletNode = new RigidBodyControl(bulletCollisionShape, timer * 10);
                     bulletNode.setCcdMotionThreshold(0.001f);
                     bulletNode.setLinearVelocity(cam.getDirection().mult(80));
                     bulletg.addControl(bulletNode);

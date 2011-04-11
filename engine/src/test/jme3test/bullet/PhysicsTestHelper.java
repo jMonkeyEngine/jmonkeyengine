@@ -72,7 +72,7 @@ public class PhysicsTestHelper {
         Sphere sphere = new Sphere(8, 8, 1);
         Geometry sphereGeometry = new Geometry("Sphere", sphere);
         sphereGeometry.setMaterial(material);
-        sphereGeometry.setLocalTranslation(2, -4, 2);
+        sphereGeometry.setLocalTranslation(4, -4, 2);
         sphereGeometry.addControl(new RigidBodyControl(new MeshCollisionShape(sphere), 0));
         rootNode.attachChild(sphereGeometry);
         space.add(sphereGeometry);
