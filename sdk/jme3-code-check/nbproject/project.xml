@@ -38,7 +38,7 @@
                     <compile-dependency/>
                     <run-dependency>
                         <release-version>3</release-version>
-                        <specification-version>1.50.1.3.10.2</specification-version>
+                        <specification-version>1.56.0.5.13.8</specification-version>
                     </run-dependency>
                 </dependency>
                 <dependency>
@@ -72,8 +72,8 @@
                     <build-prerequisite/>
                     <compile-dependency/>
                     <run-dependency>
-                        <release-version>0</release-version>
-                        <implementation-version/>
+                        <release-version>0-1</release-version>
+                        <specification-version>1.17.0.7.8</specification-version>
                     </run-dependency>
                 </dependency>
                 <dependency>

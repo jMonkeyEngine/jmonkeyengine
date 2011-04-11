@@ -17,6 +17,7 @@
                 </dependency>
             </module-dependencies>
             <public-packages>
+                <package>checkers.quals</package>
                 <package>com.jme3.animation</package>
                 <package>com.jme3.app</package>
                 <package>com.jme3.app.state</package>
@@ -34,7 +35,6 @@
                 <package>com.jme3.bullet.control</package>
                 <package>com.jme3.bullet.joints</package>
                 <package>com.jme3.bullet.joints.motors</package>
-                <package>com.jme3.bullet.nodes</package>
                 <package>com.jme3.bullet.objects</package>
                 <package>com.jme3.bullet.objects.infos</package>
                 <package>com.jme3.bullet.util</package>
@@ -58,8 +58,13 @@
                 <package>com.jme3.material</package>
                 <package>com.jme3.material.plugins</package>
                 <package>com.jme3.math</package>
+                <package>com.jme3.network</package>
+                <package>com.jme3.network.base</package>
                 <package>com.jme3.network.connection</package>
                 <package>com.jme3.network.events</package>
+                <package>com.jme3.network.kernel</package>
+                <package>com.jme3.network.kernel.tcp</package>
+                <package>com.jme3.network.kernel.udp</package>
                 <package>com.jme3.network.message</package>
                 <package>com.jme3.network.queue</package>
                 <package>com.jme3.network.rmi</package>

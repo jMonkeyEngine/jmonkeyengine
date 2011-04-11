@@ -140,7 +140,7 @@ public class EditableMaterialFile {
                     }
                 }
             }
-            parseMatDef();
+            checkWithMatDef();
         } catch (IOException ex) {
             Exceptions.printStackTrace(ex);
         }
@@ -189,10 +189,11 @@ public class EditableMaterialFile {
     }
 
     /**
-     * finds and loads the matdef file either from project or from base jme
+     * Finds and loads the matdef file either from project or from base jme,
+     * then applies the parameter values to the material parameter entries.
      * @param line
      */
-    private void parseMatDef() {
+    private void checkWithMatDef() {
         //load matdef
         matDefEntries.clear();
         boolean params = false;
@@ -480,7 +481,7 @@ public class EditableMaterialFile {
         additionalRenderStates.put("Blend", new MaterialProperty("BlendMode", "Blend", mat.getAdditionalRenderState().getBlendMode().name()));
         additionalRenderStates.put("AlphaTestFalloff", new MaterialProperty("Float", "AlphaTestFalloff", mat.getAdditionalRenderState().getAlphaFallOff() + ""));
         additionalRenderStates.put("PolyOffset", new MaterialProperty("Float,Float", "PolyOffset", mat.getAdditionalRenderState().getPolyOffsetUnits() + " " + mat.getAdditionalRenderState().getPolyOffsetFactor()));
-        parseMatDef();
+        checkWithMatDef();
         setAsText(getUpdatedContent());
     }
 
@@ -498,7 +499,7 @@ public class EditableMaterialFile {
         this.matDefName = matDefName;
         assert (matDefName != null);
         initMatDef();
-        parseMatDef();
+        checkWithMatDef();
     }
 
     public String getMaterialPath() {

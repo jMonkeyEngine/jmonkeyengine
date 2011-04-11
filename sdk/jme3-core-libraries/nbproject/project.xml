@@ -60,6 +60,7 @@
                 <package>de.lessvoid.nifty.effects</package>
                 <package>de.lessvoid.nifty.effects.impl</package>
                 <package>de.lessvoid.nifty.elements</package>
+                <package>de.lessvoid.nifty.elements.events</package>
                 <package>de.lessvoid.nifty.elements.render</package>
                 <package>de.lessvoid.nifty.elements.tools</package>
                 <package>de.lessvoid.nifty.input</package>
@@ -77,6 +78,9 @@
                 <package>de.lessvoid.nifty.loaderv2.types.resolver.style</package>
                 <package>de.lessvoid.nifty.nulldevice</package>
                 <package>de.lessvoid.nifty.render</package>
+                <package>de.lessvoid.nifty.render.image</package>
+                <package>de.lessvoid.nifty.render.image.areaprovider</package>
+                <package>de.lessvoid.nifty.render.image.renderstrategy</package>
                 <package>de.lessvoid.nifty.screen</package>
                 <package>de.lessvoid.nifty.sound</package>
                 <package>de.lessvoid.nifty.spi.input</package>
@@ -105,6 +109,8 @@
                 <package>org.lwjgl</package>
                 <package>org.lwjgl.input</package>
                 <package>org.lwjgl.openal</package>
+                <package>org.lwjgl.opencl</package>
+                <package>org.lwjgl.opencl.api</package>
                 <package>org.lwjgl.opengl</package>
                 <package>org.xmlpull.mxp1</package>
                 <package>org.xmlpull.mxp1_serializer</package>
