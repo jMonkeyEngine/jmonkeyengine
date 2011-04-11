@@ -36,6 +36,28 @@ MaterialDef Point Sprite {
         }
     }
 
+    Technique {
+
+        VertexShader   GLSL100 : Common/MatDefs/Misc/Particle.vert
+        FragmentShader GLSL100 : Common/MatDefs/Misc/Particle.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+            WorldViewMatrix
+            WorldMatrix
+            CameraPosition
+        }
+
+        RenderState {
+            Blend AlphaAdditive
+            DepthWrite Off
+        }
+
+        Defines {
+            USE_TEXTURE : Texture
+        }
+    }
+
     Technique FixedFunc {
         RenderState {
             Blend AlphaAdditive
