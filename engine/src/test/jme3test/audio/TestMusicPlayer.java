@@ -39,7 +39,6 @@ import com.jme3.audio.AudioRenderer;
 import com.jme3.audio.AudioNode;
 import com.jme3.audio.AudioNode.Status;
 import com.jme3.audio.Listener;
-import com.jme3.audio.QueuedAudioRenderer;
 import com.jme3.audio.plugins.OGGLoader;
 import com.jme3.system.AppSettings;
 import com.jme3.system.JmeSystem;
@@ -67,7 +66,7 @@ public class TestMusicPlayer extends javax.swing.JFrame {
 
     private void initAudioPlayer(){
         AppSettings settings = new AppSettings(true);
-        settings.setRenderer(null); // force dummy renderer (?)
+        settings.setRenderer(null); // disable rendering
         settings.setAudioRenderer("LWJGL");
         ar = JmeSystem.newAudioRenderer(settings);
         ar.initialize();
@@ -189,11 +188,13 @@ public class TestMusicPlayer extends javax.swing.JFrame {
                         try{
                             return new FileInputStream(selected);
                         }catch (FileNotFoundException ex){
+                            ex.printStackTrace();
                         }
                         return null;
                     }
                 });
             }catch (IOException ex){
+                ex.printStackTrace();
             }
 
             musicSource = new AudioNode(musicData, key);

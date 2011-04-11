@@ -32,7 +32,6 @@
 
 package jme3test.audio;
 
-import com.jme3.asset.plugins.UrlLocator;
 import com.jme3.audio.AudioNode;
 import com.jme3.audio.LowPassFilter;
 

@@ -468,7 +468,7 @@ public class Mesh implements Savable, Cloneable {
             // accepted format for buffers
             ShortBuffer sib = (ShortBuffer) ib.getData();
 
-            // aquire triangle's vertex indices
+            // acquire triangle's vertex indices
             int vertIndex = index * 3;
             indices[0] = sib.get(vertIndex);
             indices[1] = sib.get(vertIndex+1);

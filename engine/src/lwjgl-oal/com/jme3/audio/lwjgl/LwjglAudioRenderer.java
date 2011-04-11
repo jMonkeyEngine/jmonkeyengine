@@ -69,7 +69,9 @@ public class LwjglAudioRenderer implements AudioRenderer, Runnable {
 
     private static final Logger logger = Logger.getLogger(LwjglAudioRenderer.class.getName());
 
-    private static final int BUFFER_SIZE = 8192;
+    // When multiplied by STREAMING_BUFFER_COUNT, will equal 44100 * 2 * 2
+    // which is exactly 1 second of audio.
+    private static final int BUFFER_SIZE = 35280;
     private static final int STREAMING_BUFFER_COUNT = 5;
 
     private final static int MAX_NUM_CHANNELS = 64;
@@ -91,7 +93,9 @@ public class LwjglAudioRenderer implements AudioRenderer, Runnable {
     private int reverbFx = -1;
     private int reverbFxSlot = -1;
 
-    private static final float UPDATE_RATE = 0.01f;
+    // Update audio 20 times per second
+    private static final float UPDATE_RATE = 0.05f;
+
     private final Thread audioThread = new Thread(this, "jME3 Audio Thread");
     private final AtomicBoolean threadLock = new AtomicBoolean(false);
 
