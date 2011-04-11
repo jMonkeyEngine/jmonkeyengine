@@ -1,7 +1,5 @@
 package com.jme3.bullet.control;
 
-import com.jme3.bullet.control.ragdoll.RagdollPreset;
-import com.jme3.bullet.control.ragdoll.HumanoidRagdollPreset;
 import com.jme3.animation.AnimControl;
 import com.jme3.animation.Bone;
 import com.jme3.animation.Skeleton;
