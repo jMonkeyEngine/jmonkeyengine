@@ -207,7 +207,6 @@ public class Camera implements Savable, Cloneable {
     protected Matrix4f projectionMatrix = new Matrix4f();
     protected Matrix4f viewProjectionMatrix = new Matrix4f();
     private BoundingBox guiBounding = new BoundingBox();
-
     /** The camera's name. */
     protected String name;
 
@@ -913,10 +912,11 @@ public class Camera implements Savable, Cloneable {
      * @param top    the top boundary of the viewport (default: 1)
      */
     public void setViewPort(float left, float right, float bottom, float top) {
-        setViewPortLeft(left);
-        setViewPortRight(right);
-        setViewPortBottom(bottom);
-        setViewPortTop(top);
+        this.viewPortLeft = left;
+        this.viewPortRight = right;
+        this.viewPortBottom = bottom;
+        this.viewPortTop = top;
+        onViewPortChange();
     }
 
     /**
@@ -983,7 +983,7 @@ public class Camera implements Savable, Cloneable {
 
         return rVal;
     }
-    
+
     public boolean containsGui(BoundingVolume bound) {
         return guiBounding.intersects(bound);
     }
@@ -1069,15 +1069,15 @@ public class Camera implements Savable, Cloneable {
         viewportChanged = true;
         setGuiBounding();
     }
-    
+
     private void setGuiBounding() {
-        float sx = width*viewPortLeft;
-        float ex = width*viewPortRight;
-        float sy = height*viewPortBottom;
-        float ey = height*viewPortTop;
-        float xExtent = (ex-sx)/2;
-        float yExtent = (ey-sy)/2;
-        guiBounding.setCenter(new Vector3f(sx+xExtent, sy+yExtent, 0));
+        float sx = width * viewPortLeft;
+        float ex = width * viewPortRight;
+        float sy = height * viewPortBottom;
+        float ey = height * viewPortTop;
+        float xExtent = (ex - sx) / 2;
+        float yExtent = (ey - sy) / 2;
+        guiBounding.setCenter(new Vector3f(sx + xExtent, sy + yExtent, 0));
         guiBounding.setXExtent(xExtent);
         guiBounding.setYExtent(yExtent);
         guiBounding.setZExtent(Float.MAX_VALUE);
