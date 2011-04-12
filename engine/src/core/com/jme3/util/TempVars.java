@@ -167,6 +167,7 @@ public class TempVars {
      * General quaternions.
      */
     public final Quaternion quat1 = new Quaternion();
+    public final Quaternion quat2 = new Quaternion();
 
     /**
      * Eigen

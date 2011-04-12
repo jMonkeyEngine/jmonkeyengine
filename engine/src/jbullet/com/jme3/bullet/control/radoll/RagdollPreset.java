@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.jme3.bullet.control;
+package com.jme3.bullet.control.radoll;
 
 import com.jme3.bullet.joints.SixDofJoint;
 import java.util.HashMap;

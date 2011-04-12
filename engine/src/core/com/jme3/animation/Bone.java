@@ -235,7 +235,7 @@ public final class Bone implements Savable {
     /**
      * Updates the world transforms for this bone, and, possibly the attach node if not null.
      */
-    final void updateWorldVectors() {
+    public final void updateWorldVectors() {
         if (parent != null) {
 
             //rotation
@@ -381,7 +381,16 @@ public final class Bone implements Savable {
         worldPos.set(translation);
         worldRot.set(rotation);
     }
-
+    
+    protected Vector3f tmpVec=new Vector3f();
+    protected Quaternion tmpQuat=new Quaternion();
+    public Quaternion getTmpQuat() {
+        return tmpQuat;
+    }
+    public Vector3f getTmpVec() {
+        return tmpVec;
+    }
+ 
     /**
      * Returns the attachment node.
      * Attach models and effects to this node to make

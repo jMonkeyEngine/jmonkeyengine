@@ -1,5 +1,7 @@
 package com.jme3.bullet.control;
 
+import com.jme3.bullet.control.radoll.RagdollPreset;
+import com.jme3.bullet.control.radoll.HumanoidRagdollPreset;
 import com.jme3.animation.AnimControl;
 import com.jme3.animation.Bone;
 import com.jme3.animation.Skeleton;
@@ -12,12 +14,10 @@ import com.jme3.bullet.collision.PhysicsCollisionObject;
 import com.jme3.bullet.collision.RagdollCollisionListener;
 import com.jme3.bullet.collision.shapes.BoxCollisionShape;
 import com.jme3.bullet.collision.shapes.HullCollisionShape;
-import com.jme3.bullet.joints.PhysicsJoint;
 import com.jme3.bullet.joints.SixDofJoint;
 import com.jme3.bullet.objects.PhysicsRigidBody;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
-import com.jme3.math.FastMath;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.RenderManager;
@@ -35,6 +35,7 @@ import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -61,6 +62,7 @@ public class RagdollControl implements PhysicsControl, PhysicsCollisionListener 
     protected float eventDispatchImpulseThreshold = 10;
     protected float eventDiscardImpulseThreshold = 3;
     protected RagdollPreset preset = new HumanoidRagdollPreset();
+    protected List<String> boneList = new LinkedList<String>();
 
     public RagdollControl() {
     }
@@ -78,6 +80,8 @@ public class RagdollControl implements PhysicsControl, PhysicsCollisionListener 
         if (control) {
 
             Quaternion q2 = vars.quat1;
+            Quaternion q3 = vars.quat2;
+            Vector3f p2 = vars.vect2;
             //   skeleton.reset();
             for (PhysicsBoneLink link : boneLinks.values()) {
 
@@ -101,9 +105,12 @@ public class RagdollControl implements PhysicsControl, PhysicsCollisionListener 
                 }
 
 
-                link.bone.setUserControl(true);
-                link.bone.setUserTransformsWorld(position, q2);
-
+                if (boneList.isEmpty()) {
+                    link.bone.setUserControl(true);
+                    link.bone.setUserTransformsWorld(position, q2);
+                } else {
+                    setTransform(link.bone, position, q2);
+                }
             }
 
 
@@ -112,6 +119,9 @@ public class RagdollControl implements PhysicsControl, PhysicsCollisionListener 
             for (PhysicsBoneLink link : boneLinks.values()) {
                 //the ragdoll does not control the skeleton
                 link.bone.setUserControl(false);
+                if (!link.rigidBody.isKinematic()) {
+                    link.rigidBody.setKinematic(true);
+                }
 
                 Vector3f position = vars.vect1;
                 Quaternion rotation = vars.quat1;
@@ -132,6 +142,21 @@ public class RagdollControl implements PhysicsControl, PhysicsCollisionListener 
 
         assert vars.unlock();
 
+    }
+
+    private void setTransform(Bone bone, Vector3f pos, Quaternion rot) {
+        bone.setUserControl(true);
+        bone.setUserTransformsWorld(pos, rot);
+        for (Bone childBone : bone.getChildren()) {
+            if (!boneList.contains(childBone.getName())) {
+                Vector3f tmpVec = childBone.getTmpVec();
+                Quaternion tmpQuat = childBone.getTmpQuat();
+                rot.mult(childBone.getLocalPosition(), tmpVec).addLocal(pos);
+                tmpQuat.set(rot).multLocal(childBone.getLocalRotation());
+                setTransform(childBone, tmpVec, tmpQuat);
+
+            }
+        }
     }
 
     public Control cloneForSpatial(Spatial spatial) {
@@ -165,7 +190,7 @@ public class RagdollControl implements PhysicsControl, PhysicsCollisionListener 
         // maybe dont reset to ragdoll out of animations?
         scanSpatial(model);
 
-       
+
         if (parent != null) {
             parent.attachChild(model);
 
@@ -178,7 +203,7 @@ public class RagdollControl implements PhysicsControl, PhysicsCollisionListener 
     }
 
     public void addBoneName(String name) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        boneList.add(name);
     }
 
     private void scanSpatial(Spatial model) {
@@ -204,52 +229,59 @@ public class RagdollControl implements PhysicsControl, PhysicsCollisionListener 
     }
 
     private void boneRecursion(Spatial model, Bone bone, PhysicsRigidBody parent, int reccount) {
-
-        //get world space position of the bone
-        Vector3f pos = bone.getModelSpacePosition().add(model.getLocalTranslation());
+        PhysicsRigidBody parentShape = parent;
+        if (boneList.isEmpty() || boneList.contains(bone.getName())) {
+            //get world space position of the bone
+            Vector3f pos = bone.getModelSpacePosition().add(model.getLocalTranslation());
 //        Quaternion rot = bone.getModelSpaceRotation().mult(initRotation);
 
-        //creating the collision shape from the bone's associated vertices
-        PhysicsRigidBody shapeNode = new PhysicsRigidBody(makeShape(bone, model), 10.0f / (float) reccount);
+            //creating the collision shape from the bone's associated vertices
+            PhysicsRigidBody shapeNode = new PhysicsRigidBody(makeShape(bone, model), 10.0f / (float) reccount);
 
 
 
-        //   shapeNode.setPhysicsRotation(rot);
+            //   shapeNode.setPhysicsRotation(rot);
 
-        PhysicsBoneLink link = new PhysicsBoneLink();
-        link.bone = bone;
-        link.rigidBody = shapeNode;
-        link.initalWorldRotation = bone.getModelSpaceRotation().clone();
-        //       link.mass = 10.0f / (float) reccount;
+            PhysicsBoneLink link = new PhysicsBoneLink();
+            link.bone = bone;
+            link.rigidBody = shapeNode;
 
-        //TODO: ragdoll mass 1
-        if (parent != null) {
-            //get joint position for parent
-            Vector3f posToParent = new Vector3f();
-            if (bone.getParent() != null) {
-                bone.getModelSpacePosition().subtract(bone.getParent().getModelSpacePosition(), posToParent);
+            link.initalWorldRotation = bone.getModelSpaceRotation().clone();
+            //       link.mass = 10.0f / (float) reccount;
+
+            //TODO: ragdoll mass 1
+            if (parent != null) {
+                //get joint position for parent
+                Vector3f posToParent = new Vector3f();
+                if (bone.getParent() != null) {
+                    bone.getModelSpacePosition().subtract(bone.getParent().getModelSpacePosition(), posToParent);
+                }
+
+                //Joint local position from parent
+                link.pivotA = posToParent;
+                //joint local position from current bone
+                link.pivotB = new Vector3f(0, 0, 0f);
+
+                SixDofJoint joint = new SixDofJoint(parent, shapeNode, link.pivotA, link.pivotB, true);
+                joint.getTranslationalLimitMotor().setUpperLimit(new Vector3f(0, 0, 0));
+                joint.getTranslationalLimitMotor().setLowerLimit(new Vector3f(0, 0, 0));
+                //TODO find a way to correctly compute/import joints (maybe based on their names)
+                preset.setupJointForBone(bone.getName(), joint);
+                //setJointLimit(joint, 0, 0, 0, 0, 0, 0);
+
+                link.joint = joint;
+                joint.setCollisionBetweenLinkedBodys(false);
             }
-
-            //Joint local position from parent
-            link.pivotA = posToParent;
-            //joint local position from current bone
-            link.pivotB = new Vector3f(0, 0, 0f);
-
-            SixDofJoint joint = new SixDofJoint(parent, shapeNode, link.pivotA, link.pivotB, true);
-            //TODO find a way to correctly compute/import joints (maybe based on their names)
-            preset.setupJointForBone(bone.getName(), joint);
-            //setJointLimit(joint, 0, 0, 0, 0, 0, 0);
-
-            link.joint = joint;
-            joint.setCollisionBetweenLinkedBodys(false);
+            boneLinks.put(bone.getName(), link);
+            shapeNode.setUserObject(link);
+            parentShape = shapeNode;
         }
-        boneLinks.put(bone.getName(), link);
-        shapeNode.setUserObject(link);
 
         for (Iterator<Bone> it = bone.getChildren().iterator(); it.hasNext();) {
             Bone childBone = it.next();
-            boneRecursion(model, childBone, shapeNode, reccount++);
+            boneRecursion(model, childBone, parentShape, reccount++);
         }
+
 
     }
 
@@ -323,17 +355,31 @@ public class RagdollControl implements PhysicsControl, PhysicsCollisionListener 
     }
 
     private HullCollisionShape makeShape(Bone bone, Spatial model) {
-        int boneIndex = skeleton.getBoneIndex(bone);        
+
+        List<Integer> boneIndices = null;
+        if (boneList.isEmpty()) {
+            boneIndices = new LinkedList<Integer>();
+            boneIndices.add(skeleton.getBoneIndex(bone));
+        } else {
+            boneIndices = getBoneIndices(bone, skeleton);
+        }
+
+
         ArrayList<Float> points = new ArrayList<Float>();
         if (model instanceof Geometry) {
             Geometry g = (Geometry) model;
-            points.addAll(getPoints(g.getMesh(), boneIndex, bone.getModelSpacePosition()));
+            for (Integer index : boneIndices) {
+                points.addAll(getPoints(g.getMesh(), index, bone.getModelSpacePosition()));
+            }
         } else if (model instanceof Node) {
             Node node = (Node) model;
             for (Spatial s : node.getChildren()) {
                 if (s instanceof Geometry) {
                     Geometry g = (Geometry) s;
-                    points.addAll(getPoints(g.getMesh(), boneIndex, bone.getModelSpacePosition()));
+                    for (Integer index : boneIndices) {
+                        points.addAll(getPoints(g.getMesh(), index, bone.getModelSpacePosition()));
+                    }
+
                 }
             }
         }
@@ -343,6 +389,17 @@ public class RagdollControl implements PhysicsControl, PhysicsCollisionListener 
         }
 
         return new HullCollisionShape(p);
+    }
+
+    private List<Integer> getBoneIndices(Bone bone, Skeleton skeleton) {
+        List<Integer> list = new LinkedList<Integer>();
+        list.add(skeleton.getBoneIndex(bone));
+        for (Bone chilBone : bone.getChildren()) {
+            if (!boneList.contains(chilBone.getName())) {
+                list.addAll(getBoneIndices(chilBone, skeleton));
+            }
+        }
+        return list;
     }
 
     protected List<Float> getPoints(Mesh mesh, int boneIndex, Vector3f offset) {
@@ -529,10 +586,22 @@ public class RagdollControl implements PhysicsControl, PhysicsCollisionListener 
 
         this.control = control;
         for (PhysicsBoneLink link : boneLinks.values()) {
-            link.bone.setUserControl(control);
+            //  link.bone.setUserControl(control);
             link.rigidBody.setKinematic(!control);
         }
 
+
+        for (Bone bone : skeleton.getRoots()) {
+            setUserControl(bone, control);
+        }
+
+    }
+
+    private void setUserControl(Bone bone, boolean bool) {
+        bone.setUserControl(bool);
+        for (Bone child : bone.getChildren()) {
+            setUserControl(child, bool);
+        }
     }
 
     public boolean hasControl() {

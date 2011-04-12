@@ -150,8 +150,8 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
 
         refreshFlags |= RF_BOUND;
     }
-
-    /**
+    
+     /**
      * Constructor instantiates a new <code>Spatial</code> object setting the
      * rotation, translation and scale value to defaults.
      *
@@ -487,7 +487,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
     }
 
     private void runControlUpdate(float tpf) {
-        if (controls.size() == 0) {
+        if (controls.isEmpty()) {
             return;
         }
 
@@ -507,7 +507,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
      * @see Spatial#getControl(java.lang.Class) 
      */
     public void runControlRender(RenderManager rm, ViewPort vp) {
-        if (controls.size() == 0) {
+        if (controls.isEmpty()) {
             return;
         }
 

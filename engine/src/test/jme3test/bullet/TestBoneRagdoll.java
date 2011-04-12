@@ -91,11 +91,11 @@ public class TestBoneRagdoll extends SimpleApplication implements RagdollCollisi
         bulletAppState = new BulletAppState();
         bulletAppState.setEnabled(true);
         stateManager.attach(bulletAppState);
-       //        bulletAppState.getPhysicsSpace().enableDebug(assetManager);
+        //bulletAppState.getPhysicsSpace().enableDebug(assetManager);
         PhysicsTestHelper.createPhysicsTestWorld(rootNode, assetManager, bulletAppState.getPhysicsSpace());
         setupLight();
 
-        model = (Node) assetManager.loadModel("Models/Oto/Oto.mesh.xml");
+        model = (Node) assetManager.loadModel("Models/Sinbad/Sinbad.mesh.xml");
         //    model.setLocalTranslation(5, 0, 5);
         //  model.setLocalRotation(new Quaternion().fromAngleAxis(FastMath.HALF_PI, Vector3f.UNIT_X));
 
@@ -109,24 +109,26 @@ public class TestBoneRagdoll extends SimpleApplication implements RagdollCollisi
         skeletonDebug.setLocalTranslation(model.getLocalTranslation());
 
         //Note: PhysicsRagdollControl is still TODO, constructor will change
-        ragdoll = new RagdollControl(1.0f);
+        ragdoll = new RagdollControl(0.7f);
+        setupSinbad(ragdoll);
         ragdoll.addCollisionListener(this);
         model.addControl(ragdoll);
 
         float eighth_pi = FastMath.PI * 0.125f;
 
         //Oto's head is almost rigid
-        ragdoll.setJointLimit("head", 0, 0, eighth_pi, -eighth_pi, 0, 0);
+        //    ragdoll.setJointLimit("head", 0, 0, eighth_pi, -eighth_pi, 0, 0);
 
         getPhysicsSpace().add(ragdoll);
         speed = 1.3f;
 
         rootNode.attachChild(model);
+       // rootNode.attachChild(skeletonDebug);
         flyCam.setMoveSpeed(50);
 
 
         final AnimChannel channel = control.createChannel();
-        channel.setAnim("Walk");
+        channel.setAnim("Dance");
 
         inputManager.addListener(new ActionListener() {
 
@@ -138,13 +140,17 @@ public class TestBoneRagdoll extends SimpleApplication implements RagdollCollisi
                     timer = 0;
 
                 }
+                if (name.equals("stop") && isPressed) {
+                   bulletAppState.setEnabled(!bulletAppState.isEnabled());
+
+                }
                 if (name.equals("shoot") && !isPressed) {
                     Geometry bulletg = new Geometry("bullet", bullet);
                     bulletg.setMaterial(matBullet);
                     bulletg.setLocalTranslation(cam.getLocation());
                     bulletg.setLocalScale(timer);
                     bulletCollisionShape = new SphereCollisionShape(timer);
-                  //    RigidBodyControl bulletNode = new BombControl(assetManager, bulletCollisionShape, 1);
+                    //    RigidBodyControl bulletNode = new BombControl(assetManager, bulletCollisionShape, 1);
                     RigidBodyControl bulletNode = new RigidBodyControl(bulletCollisionShape, timer * 10);
                     bulletNode.setCcdMotionThreshold(0.001f);
                     bulletNode.setLinearVelocity(cam.getDirection().mult(80));
@@ -155,16 +161,17 @@ public class TestBoneRagdoll extends SimpleApplication implements RagdollCollisi
 
                 }
             }
-        }, "toggle", "shoot");
+        }, "toggle", "shoot","stop");
         inputManager.addMapping("toggle", new KeyTrigger(KeyInput.KEY_SPACE));
         inputManager.addMapping("shoot", new MouseButtonTrigger(MouseInput.BUTTON_LEFT));
+        inputManager.addMapping("stop",  new KeyTrigger(KeyInput.KEY_H));
 
     }
 
     private void setupLight() {
         AmbientLight al = new AmbientLight();
-      //  al.setColor(ColorRGBA.White.mult(1));
-     //   rootNode.addLight(al);
+        //  al.setColor(ColorRGBA.White.mult(1));
+        //   rootNode.addLight(al);
 
         DirectionalLight dl = new DirectionalLight();
         dl.setDirection(new Vector3f(-0.1f, -0.7f, -1).normalizeLocal());
@@ -208,20 +215,113 @@ public class TestBoneRagdoll extends SimpleApplication implements RagdollCollisi
 
     public void collide(Bone bone, PhysicsCollisionObject object) {
 
-        if(object.getUserObject()!=null && object.getUserObject() instanceof Geometry){
-            Geometry geom=(Geometry)object.getUserObject();
-            if ("Floor".equals(geom.getName())) {              
+        if (object.getUserObject() != null && object.getUserObject() instanceof Geometry) {
+            Geometry geom = (Geometry) object.getUserObject();
+            if ("Floor".equals(geom.getName())) {
                 return;
             }
         }
-        
-       
+
+
         if (!ragdoll.hasControl()) {
 
-            //   bulletTime();
+            //bulletTime();
             ragdoll.setControl(true);
 
         }
+    }
+
+    private void setupSinbad(RagdollControl ragdoll) {
+        ragdoll.addBoneName("Ulna.L");
+        ragdoll.addBoneName("Ulna.R");
+        ragdoll.addBoneName("Chest");
+        ragdoll.addBoneName("Foot.L");
+        ragdoll.addBoneName("Foot.R");
+        ragdoll.addBoneName("Hand.R");
+        ragdoll.addBoneName("Hand.L");
+        ragdoll.addBoneName("Neck");
+        ragdoll.addBoneName("Head");
+        ragdoll.addBoneName("Root");
+        ragdoll.addBoneName("Stomach");
+        ragdoll.addBoneName("Waist");
+        ragdoll.addBoneName("Humerus.L");
+        ragdoll.addBoneName("Humerus.R");
+        ragdoll.addBoneName("Thigh.L");
+        ragdoll.addBoneName("Thigh.R");
+        ragdoll.addBoneName("Calf.L");
+        ragdoll.addBoneName("Calf.R");
+        ragdoll.addBoneName("Clavicle.L");
+        ragdoll.addBoneName("Clavicle.R");
+
+//        <boneparent bone="ThumbMed.R" parent="ThumbProx.R" />
+//        <boneparent bone="IndexFingerMed.R" parent="IndexFingerProx.R" />
+//        <boneparent bone="Clavicle.R" parent="Chest" />
+//        <boneparent bone="PinkyDist.L" parent="PinkyMed.L" />
+//        <boneparent bone="IndexFingerDist.R" parent="IndexFingerMed.R" />
+//        <boneparent bone="Cheek.L" parent="Head" />
+//        <boneparent bone="MiddleFingerMed.L" parent="MiddleFingerProx.L" />
+//        <boneparent bone="Jaw" parent="Head" />
+//        <boneparent bone="TongueMid" parent="TongueBase" />
+//        <boneparent bone="Ulna.L" parent="Humerus.L" />
+//        <boneparent bone="Handle.R" parent="Hand.R" />
+//        <boneparent bone="Ulna.R" parent="Humerus.R" />
+//        <boneparent bone="Chest" parent="Stomach" />
+//        <boneparent bone="Foot.L" parent="Calf.L" />
+//        <boneparent bone="Foot.R" parent="Calf.R" />
+//        <boneparent bone="Hand.R" parent="Ulna.R" />
+//        <boneparent bone="IndexFingerDist.L" parent="IndexFingerMed.L" />
+//        <boneparent bone="Cheek.R" parent="Head" />
+//        <boneparent bone="PinkyDist.R" parent="PinkyMed.R" />
+//        <boneparent bone="IndexFingerProx.R" parent="Hand.R" />
+//        <boneparent bone="Handle.L" parent="Hand.L" />
+//        <boneparent bone="RingFingerProx.R" parent="Hand.R" />
+//        <boneparent bone="LowerLip" parent="Jaw" />
+//        <boneparent bone="Neck" parent="Chest" />
+//        <boneparent bone="TongueBase" parent="Jaw" />
+//        <boneparent bone="Head" parent="Neck" />
+//        <boneparent bone="Sheath.R" parent="Chest" />
+//        <boneparent bone="Stomach" parent="Waist" />
+//        <boneparent bone="Toe.L" parent="Foot.L" />
+//        <boneparent bone="MiddleFingerProx.L" parent="Hand.L" />
+//        <boneparent bone="RingFingerMed.L" parent="RingFingerProx.L" />
+//        <boneparent bone="PinkyMed.L" parent="PinkyProx.L" />
+//        <boneparent bone="MiddleFingerMed.R" parent="MiddleFingerProx.R" />
+//        <boneparent bone="ThumbProx.L" parent="Hand.L" />
+//        <boneparent bone="PinkyMed.R" parent="PinkyProx.R" />
+//        <boneparent bone="Clavicle.L" parent="Chest" />
+//        <boneparent bone="MiddleFingerProx.R" parent="Hand.R" />
+//        <boneparent bone="Toe.R" parent="Foot.R" />
+//        <boneparent bone="Sheath.L" parent="Chest" />
+//        <boneparent bone="TongueTip" parent="TongueMid" />
+//        <boneparent bone="RingFingerProx.L" parent="Hand.L" />
+//        <boneparent bone="Waist" parent="Root" />
+//        <boneparent bone="MiddleFingerDist.R" parent="MiddleFingerMed.R" />
+//        <boneparent bone="Hand.L" parent="Ulna.L" />
+//        <boneparent bone="Humerus.R" parent="Clavicle.R" />
+//        <boneparent bone="RingFingerDist.L" parent="RingFingerMed.L" />
+//        <boneparent bone="Eye.L" parent="Head" />
+//        <boneparent bone="Humerus.L" parent="Clavicle.L" />
+//        <boneparent bone="RingFingerDist.R" parent="RingFingerMed.R" />
+//        <boneparent bone="MiddleFingerDist.L" parent="MiddleFingerMed.L" />
+//        <boneparent bone="IndexFingerMed.L" parent="IndexFingerProx.L" />
+//        <boneparent bone="ThumbMed.L" parent="ThumbProx.L" />
+//        <boneparent bone="Thigh.L" parent="Root" />
+//        <boneparent bone="UpperLip" parent="Head" />
+//        <boneparent bone="RingFingerMed.R" parent="RingFingerProx.R" />
+//        <boneparent bone="Eye.R" parent="Head" />
+//        <boneparent bone="Brow.L" parent="Head" />
+//        <boneparent bone="Brow.C" parent="Head" />
+//        <boneparent bone="Calf.L" parent="Thigh.L" />
+//        <boneparent bone="PinkyProx.L" parent="Hand.L" />
+//        <boneparent bone="ThumbDist.L" parent="ThumbMed.L" />
+//        <boneparent bone="ThumbProx.R" parent="Hand.R" />
+//        <boneparent bone="ThumbDist.R" parent="ThumbMed.R" />
+//        <boneparent bone="Calf.R" parent="Thigh.R" />
+//        <boneparent bone="PinkyProx.R" parent="Hand.R" />
+//        <boneparent bone="IndexFingerProx.L" parent="Hand.L" />
+//        <boneparent bone="Brow.R" parent="Head" />
+//        <boneparent bone="Thigh.R" parent="Root" />
+
     }
 
     private void bulletTime() {
