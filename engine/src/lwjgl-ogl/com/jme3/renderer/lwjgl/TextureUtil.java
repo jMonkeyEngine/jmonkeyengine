@@ -230,6 +230,7 @@ public class TextureUtil {
                 internalFormat = ARBTextureFloat.GL_LUMINANCE_ALPHA16F_ARB;
                 format = GL_LUMINANCE_ALPHA;
                 dataType = GL_UNSIGNED_BYTE;
+                break;
             case Intensity8:
                 internalFormat = GL_INTENSITY8;
                 format = GL_INTENSITY;
@@ -249,10 +250,12 @@ public class TextureUtil {
                 internalFormat = GL_LUMINANCE8_ALPHA8;
                 format = GL_LUMINANCE_ALPHA;
                 dataType = GL_UNSIGNED_BYTE;
+                break;
             case Luminance16Alpha16:
                 internalFormat = GL_LUMINANCE16_ALPHA16;
                 format = GL_LUMINANCE_ALPHA;
                 dataType = GL_UNSIGNED_BYTE;
+                break;
             case Luminance16:
                 internalFormat = GL_LUMINANCE16;
                 format = GL_LUMINANCE;
