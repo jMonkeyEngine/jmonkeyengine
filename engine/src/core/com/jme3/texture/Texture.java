@@ -504,18 +504,15 @@ public abstract class Texture implements Asset, Savable, Cloneable {
 
     @Override
     public String toString(){
-        String imgTxt = null;
-        if (image != null){
-            imgTxt = ", img="+image.getWidth()
-                    +"x"+image.getHeight();
-            if (image.getDepth() > 1)
-                imgTxt += "x"+image.getDepth();
-            imgTxt += "-"+image.getFormat().name();
-            if (image.hasMipmaps())
-                imgTxt += "/mips";
-        }
+        StringBuilder sb = new StringBuilder();
+        sb.append(getClass().getSimpleName());
+        sb.append("[name=").append(name);
+        if (image != null)
+            sb.append(", image=").append(image.toString());
 
-        return getClass().getSimpleName() + "[name="+name+imgTxt+"]";
+        sb.append("]");
+
+        return sb.toString();
     }
 
 //    public boolean equals(Object other) {

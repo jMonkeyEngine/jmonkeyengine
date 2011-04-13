@@ -534,6 +534,28 @@ public class Image extends GLObject implements Savable /*, Cloneable*/ {
         return mipMapSizes;
     }
 
+    @Override
+    public String toString(){
+        StringBuilder sb = new StringBuilder();
+        sb.append(getClass().getSimpleName());
+        sb.append("[size=").append(width).append("x").append(height);
+
+        if (depth > 1)
+            sb.append("x").append(depth);
+
+        sb.append(", format=").append(format.name());
+
+        if (hasMipmaps())
+            sb.append(", mips");
+
+        if (getId() >= 0)
+            sb.append(", id=").append(id);
+
+        sb.append("]");
+        
+        return sb.toString();
+    }
+
     public boolean equals(Object other) {
         if (other == this) {
             return true;

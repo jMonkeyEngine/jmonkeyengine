@@ -40,7 +40,6 @@ import com.jme3.audio.AudioKey;
 import com.jme3.util.BufferUtils;
 import de.jarnbjo.ogg.EndOfOggStreamException;
 import de.jarnbjo.ogg.LogicalOggStream;
-import de.jarnbjo.ogg.OggPage;
 import de.jarnbjo.vorbis.IdentificationHeader;
 import de.jarnbjo.vorbis.VorbisStream;
 import java.io.ByteArrayOutputStream;
@@ -136,8 +135,12 @@ public class OGGLoader implements AssetLoader {
 //        System.out.println("Bytes Calculated: " + totalBytes);
 //        System.out.println("Bytes Available:  " + dataBytes.length);
 
-        ByteBuffer data = BufferUtils.createByteBuffer(totalBytes);
-        data.put(dataBytes, 0, totalBytes).flip();
+        // Take the minimum of the number of bytes available
+        // and the expected duration of the audio.
+        int bytesToCopy = Math.min(totalBytes, dataBytes.length);
+
+        ByteBuffer data = BufferUtils.createByteBuffer(bytesToCopy);
+        data.put(dataBytes, 0, bytesToCopy).flip();
 
         vorbisStream.close();
         loStream.close();

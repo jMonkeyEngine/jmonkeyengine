@@ -43,6 +43,8 @@ public class RenderImageJme implements RenderImage {
 
     private Texture2D texture;
     private Image image;
+    private int width;
+    private int height;
 
     public RenderImageJme(String filename, boolean linear, NiftyJmeDisplay display){
         TextureKey key = new TextureKey(filename, true);
@@ -55,6 +57,9 @@ public class RenderImageJme implements RenderImage {
         texture.setMagFilter(MagFilter.Bilinear);
         texture.setMinFilter(MinFilter.BilinearNoMipMaps);
         image = texture.getImage();
+
+        width = image.getWidth();
+        height = image.getHeight();
     }
 
     public RenderImageJme(Texture2D texture){
