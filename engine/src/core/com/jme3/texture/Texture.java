@@ -515,72 +515,45 @@ public abstract class Texture implements Asset, Savable, Cloneable {
         return sb.toString();
     }
 
-//    public boolean equals(Object other) {
-//        if (other == this) {
-//            return true;
-//        }
-//        if (!(other instanceof Texture)) {
-//            return false;
-//        }
-////        super.equals(other);
-//
-//        Texture that = (Texture) other;
-//        if (this.textureId != that.textureId)
-//            return false;
-//        if (this.textureId == 0) {
-//            if (this.getImage() != null
-//                    && !this.getImage().equals(that.getImage()))
-//                return false;
-//            if (this.getImage() == null && that.getImage() != null)
-//                return false;
-//            if (this.getAnisotropicFilterPercent() != that
-//                    .getAnisotropicFilterPercent())
-//                return false;
-//            if (this.getApply() != that.getApply())
-//                return false;
-//            if (this.getCombineFuncAlpha() != that.getCombineFuncAlpha())
-//                return false;
-//            if (this.getCombineFuncRGB() != that.getCombineFuncRGB())
-//                return false;
-//            if (this.getCombineOp0Alpha() != that.getCombineOp0Alpha())
-//                return false;
-//            if (this.getCombineOp1RGB() != that.getCombineOp1RGB())
-//                return false;
-//            if (this.getCombineOp2Alpha() != that.getCombineOp2Alpha())
-//                return false;
-//            if (this.getCombineOp2RGB() != that.getCombineOp2RGB())
-//                return false;
-//            if (this.getCombineScaleAlpha() != that.getCombineScaleAlpha())
-//                return false;
-//            if (this.getCombineScaleRGB() != that.getCombineScaleRGB())
-//                return false;
-//            if (this.getCombineSrc0Alpha() != that.getCombineSrc0Alpha())
-//                return false;
-//            if (this.getCombineSrc0RGB() != that.getCombineSrc0RGB())
-//                return false;
-//            if (this.getCombineSrc1Alpha() != that.getCombineSrc1Alpha())
-//                return false;
-//            if (this.getCombineSrc1RGB() != that.getCombineSrc1RGB())
-//                return false;
-//            if (this.getCombineSrc2Alpha() != that.getCombineSrc2Alpha())
-//                return false;
-//            if (this.getCombineSrc2RGB() != that.getCombineSrc2RGB())
-//                return false;
-//            if (this.getEnvironmentalMapMode() != that
-//                    .getEnvironmentalMapMode())
-//                return false;
-//            if (this.getMagnificationFilter() != that.getMagnificationFilter())
-//                return false;
-//            if (this.getMinificationFilter() != that.getMinificationFilter())
-//                return false;
-//            if (this.getBlendColor() != null
-//                    && !this.getBlendColor().equals(that.getBlendColor()))
-//                return false;
-//            if (this.getBlendColor() == null && that.getBlendColor() != null)
-//                return false;
-//        }
-//        return true;
-//    }
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final Texture other = (Texture) obj;
+        if (this.image != other.image && (this.image == null || !this.image.equals(other.image))) {
+            return false;
+        }
+        if (this.minificationFilter != other.minificationFilter) {
+            return false;
+        }
+        if (this.magnificationFilter != other.magnificationFilter) {
+            return false;
+        }
+        if (this.shadowCompareMode != other.shadowCompareMode) {
+            return false;
+        }
+        if (this.anisotropicFilter != other.anisotropicFilter) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 67 * hash + (this.image != null ? this.image.hashCode() : 0);
+        hash = 67 * hash + (this.minificationFilter != null ? this.minificationFilter.hashCode() : 0);
+        hash = 67 * hash + (this.magnificationFilter != null ? this.magnificationFilter.hashCode() : 0);
+        hash = 67 * hash + (this.shadowCompareMode != null ? this.shadowCompareMode.hashCode() : 0);
+        hash = 67 * hash + this.anisotropicFilter;
+        return hash;
+    }
+
+    
 
 //    public abstract Texture createSimpleClone();
 

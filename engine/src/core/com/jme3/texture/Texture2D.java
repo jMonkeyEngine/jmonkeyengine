@@ -134,6 +134,8 @@ public class Texture2D extends Texture {
             case T:
                 this.wrapT = mode;
                 break;
+            default:
+                throw new IllegalArgumentException("Not applicable for 2D textures");
         }
     }
 
@@ -169,8 +171,9 @@ public class Texture2D extends Texture {
                 return wrapS;
             case T:
                 return wrapT;
+            default:
+                throw new IllegalArgumentException("invalid WrapAxis: " + axis);
         }
-        throw new IllegalArgumentException("invalid WrapAxis: " + axis);
     }
 
     @Override
@@ -189,6 +192,14 @@ public class Texture2D extends Texture {
         if (this.getWrap(WrapAxis.T) != that.getWrap(WrapAxis.T))
             return false;
         return super.equals(other);
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = super.hashCode();
+        hash = 79 * hash + (this.wrapS != null ? this.wrapS.hashCode() : 0);
+        hash = 79 * hash + (this.wrapT != null ? this.wrapT.hashCode() : 0);
+        return hash;
     }
 
     @Override

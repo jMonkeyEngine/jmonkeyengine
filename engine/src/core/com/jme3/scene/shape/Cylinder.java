@@ -201,31 +201,6 @@ public class Cylinder extends Mesh {
     }
 
     /**
-     * Set the half angle of the cone.
-     *
-     * @param radians
-     */
-    public void setHalfAngle(float radians) {
-        updateGeometry(getAxisSamples(), getRadialSamples(), FastMath.tan(radians), getRadius2(), getHeight(), isClosed(), isInverted());
-    }
-
-    /**
-     * Set the bottom radius of the 'cylinder' to differ from the top radius.
-     * This makes the Geometry be a frustum of pyramid, or if set to 0, a cone.
-     * <p>
-     * <strong>Note:</strong> this method causes the tri-mesh geometry data
-     * to be recalculated, see <a href="package-summary.html#mutator-methods">
-     * the package description</a> for more information about this.
-     *
-     * @param radius the second radius to set.
-     * @see {@link Cone}
-     * @deprecated use {@link #recomputeGeometry(int, int, float, float, boolean, boolean)}.
-     */
-    public void setRadius2(float radius2) {
-        updateGeometry(axisSamples, radialSamples, radius, radius2, height, closed, inverted);
-    }
-
-    /**
      * Rebuilds the cylinder based on a new set of parameters.
      *
      * @param axisSamples the number of samples along the axis.

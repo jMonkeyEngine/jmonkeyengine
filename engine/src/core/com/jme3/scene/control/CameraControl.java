@@ -86,29 +86,6 @@ public class CameraControl extends AbstractControl {
         this.controlDir = controlDir;
     }
 
-    /**
-     * @param spatial
-     * @param camera
-     * @param controlDir
-     * @deprecated Use the constructor that doesn't take a spatial argument
-     */
-    public CameraControl(Spatial spatial, Camera camera, ControlDirection controlDir) {
-        super(spatial);
-        this.camera = camera;
-        this.controlDir = controlDir;
-    }
-
-    /**
-     * @param spatial The spatial to be synced.
-     * @param camera The Camera to be synced.
-     * @deprecated Use the constructor that doesn't take a spatial argument
-     */
-    @Deprecated
-    public CameraControl(Spatial spatial, Camera camera) {
-        super(spatial);
-        this.camera = camera;
-    }
-
     public Camera getCamera() {
         return camera;
     }

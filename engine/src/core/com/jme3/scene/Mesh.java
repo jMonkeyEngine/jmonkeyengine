@@ -57,6 +57,7 @@ import com.jme3.util.IntMap.Entry;
 import java.io.IOException;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
+import java.nio.DoubleBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
@@ -334,6 +335,12 @@ public class Mesh implements Savable, Cloneable {
                         IntBuffer ib = (IntBuffer) vb.getData();
                         for (int comp = 0; comp < vb.components; comp++){
                             dataBuf.putInt(ib.get());
+                        }
+                        break;
+                    case Double:
+                        DoubleBuffer db = (DoubleBuffer) vb.getData();
+                        for (int comp = 0; comp < vb.components; comp++){
+                            dataBuf.putDouble(db.get());
                         }
                         break;
                 }

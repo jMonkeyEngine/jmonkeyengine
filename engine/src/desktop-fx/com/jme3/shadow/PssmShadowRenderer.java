@@ -59,21 +59,6 @@ import com.jme3.ui.Picture;
 
 public class PssmShadowRenderer implements SceneProcessor {
 
-    @Deprecated
-    public static final String EDGE_FILTERING_PCF = "EDGE_FILTERING_PCF";
-
-    @Deprecated
-    public static final String EDGE_FILTERING_DITHER = "EDGE_FILTERING_DITHER";
-
-    @Deprecated
-    public enum FILTERING {
-        PCF4X4,
-        PCF8X8,
-        PCF10X10,
-        PCF16X16,
-        PCF20X20
-    }
-
     /**
      * <code>FilterMode</code> specifies how shadows are filtered
      */
@@ -202,16 +187,6 @@ public class PssmShadowRenderer implements SceneProcessor {
 
         for (int i = 0; i < points.length; i++) {
             points[i] = new Vector3f();
-        }
-    }
-
-    @Deprecated
-    public PssmShadowRenderer(AssetManager manager, int size, int nbSplits, String filterMode){
-        this(manager, size, nbSplits);
-        if (filterMode.equals(EDGE_FILTERING_DITHER)){
-            setFilterMode(FilterMode.Dither);
-        }else if (filterMode.equals(EDGE_FILTERING_PCF)){
-            setFilterMode(FilterMode.PCF4);
         }
     }
 
@@ -508,31 +483,5 @@ public class PssmShadowRenderer implements SceneProcessor {
         this.edgesThickness *= 0.1f;
         postshadowMat.setFloat("PCFEdge", edgesThickness);
     }
-
-    @Deprecated
-    public FILTERING getPcfFilter() {
-        switch (filterMode){
-            case PCF4:
-                return FILTERING.PCF4X4;
-            case PCF8:
-                return FILTERING.PCF8X8;
-            default:
-                return null;
-        }
-    }
-
-    @Deprecated
-    public void setPcfFilter(FILTERING pcfFilter) {
-        switch (pcfFilter){
-            case PCF4X4:
-                setFilterMode(FilterMode.PCF4);
-                break;
-            case PCF8X8:
-                setFilterMode(FilterMode.PCF8);
-                break;
-        }
-    }
-
-
 }
 

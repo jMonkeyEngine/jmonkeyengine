@@ -194,6 +194,8 @@ public class RenderQueue {
             case Receive:
                 renderGeometryList(shadowRecv, rm, cam, clear);
                 break;
+            default:
+                throw new IllegalArgumentException("Unexpected shadow bucket: " + shadBucket);
         }
     }
 

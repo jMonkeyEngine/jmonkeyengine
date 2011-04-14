@@ -214,6 +214,14 @@ public class MatParam implements Savable, Cloneable {
     }
 
     @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 17 * hash + (this.type != null ? this.type.hashCode() : 0);
+        hash = 17 * hash + (this.name != null ? this.name.hashCode() : 0);
+        return hash;
+    }
+
+    @Override
     public String toString(){
         return type.name()+" "+name;
     }

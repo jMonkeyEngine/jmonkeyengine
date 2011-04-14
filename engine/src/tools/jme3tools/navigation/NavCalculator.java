@@ -48,8 +48,10 @@ public class NavCalculator {
         switch (calcType) {
             case MERCATOR:
                 mercatorSailing(P1, P2);
+                break;
             case GC:
                 greatCircleSailing(P1, P2);
+                break;
         }
     }
 

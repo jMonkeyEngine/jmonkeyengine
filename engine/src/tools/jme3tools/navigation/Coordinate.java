@@ -153,6 +153,7 @@ public class Coordinate {
                 }
                 str = su.padNumZero(Math.abs(deg), 3);
                 str += "\u00b0" + su.padNumZero(Math.abs(minsDecMins), 2, MINPRECISION) + "'" + quad;
+                break;
         }
         return str;
     }

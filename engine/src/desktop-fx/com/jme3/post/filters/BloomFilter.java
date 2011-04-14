@@ -73,18 +73,7 @@ public class BloomFilter extends Filter {
          */
         SceneAndObjects;
     }
-    /**@deprecated use {@link GlowMode} enum */
-    public static final int GLOW_SCENE = 0;
-    /**@deprecated use {@link GlowMode} enum */
-    public static final int GLOW_OBJECTS = 1;
-    /**@deprecated use {@link GlowMode} enum */
-    public static final int GLOW_BOTH = 2;
-    /**@deprecated use GLOW_SCENE instead*/
-    public static final int GLOW_MODE_ONLY_EXTRACTED_LIGHTS = 0;
-    /**@deprecated use GLOW_OBJECTS instead*/
-    public static final int GLOW_MODE_ONLY_GLOW_OBJECTS = 1;
-    /**@deprecated use GLOW_BOTH instead*/
-    public static final int GLOW_MODE_BOTH = 2;
+
     private GlowMode glowMode = GlowMode.Scene;
     //Bloom parameters
     private float blurScale = 1.5f;
@@ -116,32 +105,6 @@ public class BloomFilter extends Filter {
      */
     public BloomFilter(GlowMode glowMode) {
         this();
-        this.glowMode = glowMode;
-    }
-
-    /**
-     * 
-     * @param width
-     * @param height
-     * @deprecated use BloomFilter() instead
-     */
-    @Deprecated
-    public BloomFilter(int width, int height) {
-        super("BloomFilter");
-        screenWidth = width;
-        screenHeight = height;
-    }
-
-    /**
-     * 
-     * @param width
-     * @param height
-     * @param glowMode
-     * @deprecated use BloomFilter(GlowMode glowMode) instead
-     */
-    @Deprecated
-    public BloomFilter(int width, int height, GlowMode glowMode) {
-        this(width, height);
         this.glowMode = glowMode;
     }
 

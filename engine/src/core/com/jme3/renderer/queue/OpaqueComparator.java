@@ -40,7 +40,8 @@ import com.jme3.scene.Geometry;
 public class OpaqueComparator implements GeometryComparator {
 
     private Camera cam;
-    private final Vector3f tempVec = new Vector3f();
+    private final Vector3f tempVec  = new Vector3f();
+    private final Vector3f tempVec2 = new Vector3f();
 
     public void setCamera(Camera cam){
         this.cam = cam;
@@ -54,7 +55,7 @@ public class OpaqueComparator implements GeometryComparator {
                 return spat.queueDistance;
  
         Vector3f camPosition = cam.getLocation();
-        Vector3f viewVector = cam.getDirection();
+        Vector3f viewVector = cam.getDirection(tempVec2);
         Vector3f spatPosition = null;
  
         if (spat.getWorldBound() != null){

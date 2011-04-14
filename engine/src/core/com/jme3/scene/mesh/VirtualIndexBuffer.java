@@ -34,6 +34,8 @@ public class VirtualIndexBuffer extends IndexBuffer {
             case Triangles:
                 numIndices = numVerts;
                 return;
+            case Hybrid:
+                throw new UnsupportedOperationException();
         }
     }
 

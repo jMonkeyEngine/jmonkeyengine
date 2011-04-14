@@ -36,7 +36,6 @@ import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.InputCapsule;
 import com.jme3.export.OutputCapsule;
-import com.jme3.renderer.GLObject;
 import java.io.IOException;
 
 /**
@@ -176,6 +175,15 @@ public class TextureCubeMap extends Texture {
         if (this.getWrap(WrapAxis.R) != that.getWrap(WrapAxis.R))
             return false;
         return super.equals(other);
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = super.hashCode();
+        hash = 53 * hash + (this.wrapS != null ? this.wrapS.hashCode() : 0);
+        hash = 53 * hash + (this.wrapT != null ? this.wrapT.hashCode() : 0);
+        hash = 53 * hash + (this.wrapR != null ? this.wrapR.hashCode() : 0);
+        return hash;
     }
 
     @Override

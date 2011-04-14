@@ -172,6 +172,7 @@ public class Image extends GLObject implements Savable /*, Cloneable*/ {
         return new Image(id);
     }
 
+    @Override
     public Image clone(){
         Image clone = (Image) super.clone();
         clone.mipMapSizes = mipMapSizes != null ? mipMapSizes.clone() : null;
@@ -583,6 +584,19 @@ public class Image extends GLObject implements Savable /*, Cloneable*/ {
             return false;
         
         return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 97 * hash + (this.format != null ? this.format.hashCode() : 0);
+        hash = 97 * hash + this.width;
+        hash = 97 * hash + this.height;
+        hash = 97 * hash + this.depth;
+        hash = 97 * hash + Arrays.hashCode(this.mipMapSizes);
+        hash = 97 * hash + (this.data != null ? this.data.hashCode() : 0);
+        hash = 97 * hash + this.multiSamples;
+        return hash;
     }
 
     public void write(JmeExporter e) throws IOException {

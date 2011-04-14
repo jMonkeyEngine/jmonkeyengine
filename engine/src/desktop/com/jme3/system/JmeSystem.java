@@ -93,11 +93,6 @@ public class JmeSystem {
          * Apple Mac OS X 64 bit PowerPC
          */
         MacOSX_PPC64,
-
-        /**
-         * Google Android Smartphone OS
-         */
-        Android
     }
 
     private static final Logger logger = Logger.getLogger(JmeSystem.class.getName());

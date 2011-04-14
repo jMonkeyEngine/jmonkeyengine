@@ -257,6 +257,9 @@ public class Uniform extends ShaderVariable {
                     this.value = Quaternion.ZERO;
                 }
                 break;
+            default:
+                break; // won't happen because those are either textures
+                       // or multidata types
         }
     }
 

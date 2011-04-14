@@ -65,6 +65,7 @@ public class LwjglGL1Renderer implements GL1Renderer {
 //    private Matrix4f projMatrix = new Matrix4f();
 
     private boolean colorSet = false;
+    private boolean materialSet = false;
 
     protected void updateNameBuffer() {
         int len = stringBuf.length();
@@ -137,12 +138,36 @@ public class LwjglGL1Renderer implements GL1Renderer {
         glClearColor(color.r, color.g, color.b, color.a);
     }
 
+    private void setMaterialColor(int type, ColorRGBA color){
+        if (!materialSet){
+            materialSet = true;
+            glEnable(GL_COLOR_MATERIAL);
+        }
+
+        fb16.clear();
+        fb16.put(color.r).put(color.g).put(color.b).put(color.a);
+        fb16.clear();
+        glMaterial(GL_FRONT_AND_BACK, type, fb16);
+    }
+
     public void setFixedFuncBinding(FixedFuncBinding ffBinding, Object val){
         switch (ffBinding){
             case Color:
                 ColorRGBA color = (ColorRGBA) val;
                 glColor4f(color.r, color.g, color.b, color.a);
                 colorSet = true;
+                break;
+            case MaterialAmbient:
+                ColorRGBA ambient = (ColorRGBA) val;
+                setMaterialColor(GL_AMBIENT, ambient);
+                break;
+            case MaterialDiffuse:
+                ColorRGBA diffuse = (ColorRGBA) val;
+                setMaterialColor(GL_DIFFUSE, diffuse);
+                break;
+            case MaterialSpecular:
+                ColorRGBA specular = (ColorRGBA) val;
+                setMaterialColor(GL_SPECULAR, specular);
                 break;
         }
     }
@@ -151,6 +176,10 @@ public class LwjglGL1Renderer implements GL1Renderer {
         if (colorSet){
             glColor4f(1,1,1,1);
             colorSet = false;
+        }
+        if (materialSet){
+            glDisable(GL_COLOR_MATERIAL);
+            materialSet = false; // TODO: not efficient
         }
     }
 
@@ -709,6 +738,9 @@ public class LwjglGL1Renderer implements GL1Renderer {
                     throw new UnsupportedOperationException();
 
                 glTexCoordPointer(comps, vb.getStride(), (FloatBuffer)data);
+                break;
+            default:
+                // Ignore, this is an unsupported attribute for OpenGL1.
                 break;
         }
     }
