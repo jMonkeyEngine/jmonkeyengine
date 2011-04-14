@@ -65,6 +65,10 @@ import com.jme3.util.BufferUtils;
  */
 public abstract class SimpleApplication extends Application {
 
+    public static final String INPUT_MAPPING_EXIT = "SIMPLEAPP_Exit";
+    public static final String INPUT_MAPPING_CAMERA_POS = "SIMPLEAPP_CameraPos";
+    public static final String INPUT_MAPPING_MEMORY = "SIMPLEAPP_Memory";
+                                                                         
     protected Node rootNode = new Node("Root Node");
     protected Node guiNode = new Node("Gui Node");
     protected float secondCounter = 0.0f;
@@ -83,9 +87,9 @@ public abstract class SimpleApplication extends Application {
                 return;
             }
 
-            if (name.equals("SIMPLEAPP_Exit")) {
+            if (name.equals(INPUT_MAPPING_EXIT)) {
                 stop();
-            } else if (name.equals("SIMPLEAPP_CameraPos")) {
+            } else if (name.equals(INPUT_MAPPING_CAMERA_POS)) {
                 if (cam != null) {
                     Vector3f loc = cam.getLocation();
                     Quaternion rot = cam.getRotation();
@@ -94,7 +98,7 @@ public abstract class SimpleApplication extends Application {
                     System.out.println("Camera Rotation: " + rot);
                     System.out.println("Camera Direction: " + cam.getDirection());
                 }
-            } else if (name.equals("SIMPLEAPP_Memory")) {
+            } else if (name.equals(INPUT_MAPPING_MEMORY)) {
                 BufferUtils.printCurrentDirectMemory(null);
             }
         }
@@ -206,13 +210,13 @@ public abstract class SimpleApplication extends Application {
             flyCam.registerWithInput(inputManager);
 
             if (context.getType() == Type.Display) {
-                inputManager.addMapping("SIMPLEAPP_Exit", new KeyTrigger(KeyInput.KEY_ESCAPE));
+                inputManager.addMapping(INPUT_MAPPING_EXIT, new KeyTrigger(KeyInput.KEY_ESCAPE));
             }
 
-            inputManager.addMapping("SIMPLEAPP_CameraPos", new KeyTrigger(KeyInput.KEY_C));
-            inputManager.addMapping("SIMPLEAPP_Memory", new KeyTrigger(KeyInput.KEY_M));
-            inputManager.addListener(actionListener, "SIMPLEAPP_Exit",
-                    "SIMPLEAPP_CameraPos", "SIMPLEAPP_Memory");
+            inputManager.addMapping(INPUT_MAPPING_CAMERA_POS, new KeyTrigger(KeyInput.KEY_C));
+            inputManager.addMapping(INPUT_MAPPING_MEMORY, new KeyTrigger(KeyInput.KEY_M));
+            inputManager.addListener(actionListener, INPUT_MAPPING_EXIT,
+                    INPUT_MAPPING_CAMERA_POS, INPUT_MAPPING_MEMORY);
         }
 
         // call user code
