@@ -286,6 +286,7 @@ public class PssmShadowRenderer implements SceneProcessor {
         this.direction.set(direction).normalizeLocal();
     }
 
+    @SuppressWarnings("fallthrough") 
     public void postQueue(RenderQueue rq) {
         GeometryList occluders = rq.getShadowQueueContent(ShadowMode.Cast);        
         if (occluders.size() == 0)
@@ -317,6 +318,8 @@ public class PssmShadowRenderer implements SceneProcessor {
         shadowCam.updateViewProjection();
 
         PssmShadowUtil.updateFrustumSplits(splitsArray, viewCam.getFrustumNear(), zFar, lambda);
+
+
         switch (splitsArray.length){
             case 5:
                 splits.a = splitsArray[4];

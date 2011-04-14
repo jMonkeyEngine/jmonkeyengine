@@ -82,6 +82,7 @@ import java.util.logging.Logger;
 //import org.lwjgl.opengl.ARBVertexArrayObject;
 //import org.lwjgl.opengl.ARBHalfFloatVertex;
 //import org.lwjgl.opengl.ARBVertexArrayObject;
+//import jme3tools.converters.MipMapGenerator;
 import org.lwjgl.opengl.ARBDrawBuffers;
 //import org.lwjgl.opengl.ARBDrawInstanced;
 import org.lwjgl.opengl.ARBDrawInstanced;
@@ -168,6 +169,7 @@ public class LwjglRenderer implements Renderer {
         return caps;
     }
 
+    @SuppressWarnings("fallthrough") 
     public void initialize() {
         ContextCapabilities ctxCaps = GLContext.getCapabilities();
         if (ctxCaps.OpenGL20) {
@@ -1514,6 +1516,7 @@ public class LwjglRenderer implements Renderer {
         }
     }
 
+    @SuppressWarnings("fallthrough") 
     private void setupTextureParams(Texture tex) {
         Image image = tex.getImage();
         int target = convertTextureType(tex.getType(), image != null ? image.getMultiSamples() : 1);
@@ -1618,6 +1621,8 @@ public class LwjglRenderer implements Renderer {
                     || img.getWidth() != img.getHeight()){
                     logger.log(Level.WARNING, "Encountered NPOT texture {0}, "
                                             + "it might not display correctly.", img);
+
+                    //MipMapGenerator.resizeToPowerOf2(img);
                 }
             }
         }

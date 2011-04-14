@@ -170,6 +170,7 @@ public final class Matrix3f implements Savable, Cloneable {
      *            the colum index.
      * @return the value at (i, j).
      */
+    @SuppressWarnings("fallthrough")
     public float get(int i, int j) {
         switch (i) {
         case 0:
@@ -489,6 +490,7 @@ public final class Matrix3f implements Savable, Cloneable {
      *            the value for (i, j).
      * @return this
      */
+    @SuppressWarnings("fallthrough")
     public Matrix3f set(int i, int j, float value) {
         switch (i) {
         case 0:
@@ -846,7 +848,6 @@ public final class Matrix3f implements Savable, Cloneable {
      * @return This matrix, after the multiplication
      */
     public Matrix3f multLocal(Matrix3f mat) {
-        
         return mult(mat, this);
     }
 
@@ -1050,8 +1051,9 @@ public final class Matrix3f implements Savable, Cloneable {
      * 
      * @return the string representation of this object.
      */
+    @Override
     public String toString() {
-        StringBuffer result = new StringBuffer("Matrix3f\n[\n");
+        StringBuilder result = new StringBuilder("Matrix3f\n[\n");
         result.append(" ");
         result.append(m00);
         result.append("  ");
@@ -1085,6 +1087,7 @@ public final class Matrix3f implements Savable, Cloneable {
      * @return the hashcode for this instance of Matrix4f.
      * @see java.lang.Object#hashCode()
      */
+    @Override
     public int hashCode() {
         int hash = 37;
         hash = 37 * hash + Float.floatToIntBits(m00);
@@ -1109,6 +1112,7 @@ public final class Matrix3f implements Savable, Cloneable {
      *            the object to compare for equality
      * @return true if they are equal
      */
+    @Override
     public boolean equals(Object o) {
         if (!(o instanceof Matrix3f) || o == null) {
             return false;
@@ -1270,7 +1274,7 @@ public final class Matrix3f implements Savable, Cloneable {
     	m22 *= scale.z;
     }
 
-    static final boolean equalIdentity(Matrix3f mat) {
+    static boolean equalIdentity(Matrix3f mat) {
 		if (Math.abs(mat.m00 - 1) > 1e-4) return false;
 		if (Math.abs(mat.m11 - 1) > 1e-4) return false;
 		if (Math.abs(mat.m22 - 1) > 1e-4) return false;

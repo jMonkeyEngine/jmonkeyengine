@@ -280,6 +280,7 @@ public final class Matrix4f implements Savable, Cloneable {
      *            the colum index.
      * @return the value at (i, j).
      */
+    @SuppressWarnings("fallthrough")
     public float get(int i, int j) {
         switch (i) {
             case 0:
@@ -450,6 +451,7 @@ public final class Matrix4f implements Savable, Cloneable {
      * @param value
      *            the value for (i, j).
      */
+    @SuppressWarnings("fallthrough")
     public void set(int i, int j, float value) {
         switch (i) {
             case 0:

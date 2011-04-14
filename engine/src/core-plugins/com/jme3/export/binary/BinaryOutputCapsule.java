@@ -416,6 +416,13 @@ final class BinaryOutputCapsule implements OutputCapsule {
         return Arrays.equals(bytes, other);
     }
 
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 23 * hash + Arrays.hashCode(this.bytes);
+        return hash;
+    }
+
     public void finish() {
         // renamed to finish as 'finalize' in java.lang.Object should not be
         // overridden like this

@@ -153,13 +153,9 @@ public class Torus extends Mesh {
                 float sinPhi = FastMath.sin(phi);
                 tempNormal.set(radialAxis).multLocal(cosPhi);
                 tempNormal.z += sinPhi;
-                if (true)
-                    fnb.put(tempNormal.x).put(tempNormal.y).put(
-                            tempNormal.z);
-                else
-                    fnb.put(-tempNormal.x).put(-tempNormal.y)
-                            .put(-tempNormal.z);
-
+                fnb.put(tempNormal.x).put(tempNormal.y).put(
+                        tempNormal.z);
+       
                 tempNormal.multLocal(innerRadius).addLocal(torusMiddle);
                 fpb.put(tempNormal.x).put(tempNormal.y).put(
                         tempNormal.z);
