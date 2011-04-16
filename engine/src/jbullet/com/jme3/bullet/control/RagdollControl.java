@@ -53,9 +53,6 @@ public class RagdollControl implements PhysicsControl, PhysicsCollisionListener 
     protected PhysicsRigidBody baseRigidBody;
     protected float weightThreshold = 1.0f;
     protected Spatial targetModel;
-    protected Vector3f initPosition;
-    protected Quaternion initRotation;
-    protected Quaternion invInitRotation;
     protected Vector3f initScale;
     protected boolean control = false;
     protected List<RagdollCollisionListener> listeners;
@@ -88,21 +85,14 @@ public class RagdollControl implements PhysicsControl, PhysicsCollisionListener 
                 Vector3f p = link.rigidBody.getMotionState().getWorldLocation();
                 Vector3f position = vars.vect1;
 
-                //.multLocal(invInitRotation)
-                //        invInitRotation.mult(p,position);
-                position.set(p).subtractLocal(initPosition);
+                targetModel.getWorldTransform().transformInverseVector(p, position);
 
                 Quaternion q = link.rigidBody.getMotionState().getWorldRotationQuat();
 
                 q2.set(q).multLocal(link.initalWorldRotation).normalize();
+                q3.set(targetModel.getWorldRotation()).inverseLocal().mult(q2,q2);
+                q2.normalize();
 
-                if (link.bone.getParent() == null) {
-                    //   targetModel.getLocalTransform().setTranslation(position);
-//                  Vector3f loc=vars.vect1;
-//                  loc.set(baseRigidBody.getMotionState().getWorldLocation());//.subtractLocal(rootBoneInit);
-//                 (targetModel).setLocalTranslation(loc);
-//                
-                }
 
 
                 if (boneList.isEmpty()) {
@@ -112,7 +102,6 @@ public class RagdollControl implements PhysicsControl, PhysicsCollisionListener 
                     setTransform(link.bone, position, q2);
                 }
             }
-
 
             targetModel.updateModelBound();
         } else {
@@ -128,10 +117,12 @@ public class RagdollControl implements PhysicsControl, PhysicsCollisionListener 
                 //Vector3f pos2 = vars.vect2;
 
                 //computing position from rotation and scale
-                initRotation.mult(link.bone.getModelSpacePosition(), position);
-                position.addLocal(initPosition);
+                targetModel.getWorldTransform().transformVector(link.bone.getModelSpacePosition(), position);
+
                 //computing rotation
-                rotation.set(link.bone.getModelSpaceRotation()).multLocal(link.bone.getWorldBindInverseRotation()).multLocal(initRotation);
+                rotation.set(link.bone.getModelSpaceRotation()).multLocal(link.bone.getWorldBindInverseRotation());
+                targetModel.getWorldRotation().mult(rotation,rotation);
+                rotation.normalize();
 
                 // scale.set(link.bone.getModelSpaceScale());
                 link.rigidBody.setPhysicsLocation(position);
@@ -167,9 +158,9 @@ public class RagdollControl implements PhysicsControl, PhysicsCollisionListener 
         targetModel = model;
         Node parent = model.getParent();
 
-        initPosition = model.getLocalTranslation().clone();
-        initRotation = model.getLocalRotation().clone();
-        invInitRotation = initRotation.inverse();
+
+        Vector3f initPosition = model.getLocalTranslation().clone();
+        Quaternion initRotation = model.getLocalRotation().clone();     
         initScale = model.getLocalScale().clone();
 
         model.removeFromParent();
@@ -215,11 +206,9 @@ public class RagdollControl implements PhysicsControl, PhysicsCollisionListener 
             Bone childBone = skeleton.getRoots()[i];
             //  childBone.setUserControl(true);
             if (childBone.getParent() == null) {
-                Vector3f parentPos = childBone.getModelSpacePosition().add(initPosition);
                 // Quaternion parentRot= childBone.getModelSpaceRotation().mult(initRotation);
                 logger.log(Level.INFO, "Found root bone in skeleton {0}", skeleton);
                 baseRigidBody = new PhysicsRigidBody(new BoxCollisionShape(Vector3f.UNIT_XYZ.mult(.1f)), 1);
-                baseRigidBody.setPhysicsLocation(parentPos);
                 //  baseRigidBody.setPhysicsRotation(parentRot);
                 boneRecursion(model, childBone, baseRigidBody, 1);
                 return;
@@ -231,16 +220,9 @@ public class RagdollControl implements PhysicsControl, PhysicsCollisionListener 
     private void boneRecursion(Spatial model, Bone bone, PhysicsRigidBody parent, int reccount) {
         PhysicsRigidBody parentShape = parent;
         if (boneList.isEmpty() || boneList.contains(bone.getName())) {
-            //get world space position of the bone
-            Vector3f pos = bone.getModelSpacePosition().add(model.getLocalTranslation());
-//        Quaternion rot = bone.getModelSpaceRotation().mult(initRotation);
-
+       
             //creating the collision shape from the bone's associated vertices
             PhysicsRigidBody shapeNode = new PhysicsRigidBody(makeShape(bone, model), 10.0f / (float) reccount);
-
-
-
-            //   shapeNode.setPhysicsRotation(rot);
 
             PhysicsBoneLink link = new PhysicsBoneLink();
             link.bone = bone;
@@ -254,7 +236,7 @@ public class RagdollControl implements PhysicsControl, PhysicsCollisionListener 
                 //get joint position for parent
                 Vector3f posToParent = new Vector3f();
                 if (bone.getParent() != null) {
-                    bone.getModelSpacePosition().subtract(bone.getParent().getModelSpacePosition(), posToParent);
+                    bone.getModelSpacePosition().subtract(bone.getParent().getModelSpacePosition(), posToParent).multLocal(initScale);
                 }
 
                 //Joint local position from parent
@@ -430,7 +412,7 @@ public class RagdollControl implements PhysicsControl, PhysicsCollisionListener 
                 pos.x = vertices.get(i);
                 pos.y = vertices.get(i + 1);
                 pos.z = vertices.get(i + 2);
-                pos.subtractLocal(offset);
+                pos.subtractLocal(offset).multLocal(initScale);
                 results.add(pos.x);
                 results.add(pos.y);
                 results.add(pos.z);
