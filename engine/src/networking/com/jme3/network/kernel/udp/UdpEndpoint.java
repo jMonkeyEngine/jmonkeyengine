@@ -114,10 +114,17 @@ public class UdpEndpoint implements Endpoint
         if( !isConnected() ) {
             throw new KernelException( "Endpoint is not connected:" + this );
         }
+        
+        
         try {
             DatagramPacket p = new DatagramPacket( data.array(), data.position(), 
                                                    data.remaining(), address );
-            socket.send(p);
+                                                   
+            // Just queue it up for the kernel threads to write
+            // out
+            kernel.enqueueWrite( this, p );
+                                                               
+            //socket.send(p);
         } catch( IOException e ) {
             throw new KernelException( "Error sending datagram to:" + address, e );
         }
