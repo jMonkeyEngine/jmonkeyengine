@@ -53,6 +53,7 @@ public class UdpEndpoint implements Endpoint
     private SocketAddress address;
     private DatagramSocket socket;
     private UdpKernel kernel;
+    private boolean connected = true; // it's connectionless but we track logical state
 
     public UdpEndpoint( UdpKernel kernel, long id, SocketAddress address, DatagramSocket socket )
     {
@@ -85,6 +86,7 @@ public class UdpEndpoint implements Endpoint
     
         try {
             kernel.closeEndpoint(this);
+            connected = false;
         } catch( IOException e ) {
             throw new KernelException( "Error closing endpoint for socket:" + socket, e );
         }
@@ -102,11 +104,16 @@ public class UdpEndpoint implements Endpoint
 
     public boolean isConnected()
     {
-        return socket.isConnected();
+        // The socket is always unconnected anyway so we track our
+        // own logical state for the kernel's benefit.
+        return connected;
     }
 
     public void send( ByteBuffer data )
     {
+        if( !isConnected() ) {
+            throw new KernelException( "Endpoint is not connected:" + this );
+        }
         try {
             DatagramPacket p = new DatagramPacket( data.array(), data.position(), 
                                                    data.remaining(), address );

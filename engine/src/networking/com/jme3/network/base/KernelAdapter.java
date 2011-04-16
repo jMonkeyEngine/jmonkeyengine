@@ -142,6 +142,10 @@ public class KernelAdapter extends Thread
  
         try {           
             HostedConnection source = getConnection(p);
+            if( source == null ) {
+                log.log( Level.WARNING, "Recieved message from unconnected endpoint:" + p + "  message:" + m );
+                return; 
+            }
             messageDispatcher.messageReceived( source, m );
         } catch( Exception e ) {
             reportError(e);

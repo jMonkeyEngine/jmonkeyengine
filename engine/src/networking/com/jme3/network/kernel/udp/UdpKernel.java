@@ -128,7 +128,7 @@ public class UdpKernel extends AbstractKernel
             // Does it match the filter?
             if( filter != null && !filter.apply(p) )
                 continue;
-
+    
             // Send the data
             p.send( data );
         }
