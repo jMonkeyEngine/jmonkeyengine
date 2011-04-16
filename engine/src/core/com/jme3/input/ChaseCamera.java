@@ -851,6 +851,22 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control {
     public void setLookAtOffset(Vector3f lookAtOffset) {
         this.lookAtOffset = lookAtOffset;
     }
+    
+    /**
+     * Sets the up vector of the camera used for the lookAt on the target
+     * @param up 
+     */
+    public void setUpVector(Vector3f up){
+        initialUpVec=up;
+    }
+    
+    /**
+     * Returns the up vector of the camera used for the lookAt on the target
+     * @return 
+     */
+    public Vector3f getUpVector(){
+        return initialUpVec;
+    }
 
     /**
      *
