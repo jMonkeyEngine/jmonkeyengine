@@ -49,7 +49,7 @@ import com.jme3.network.kernel.*;
  */
 public class UdpEndpoint implements Endpoint
 {
-    private long id;
+    private long id;    
     private SocketAddress address;
     private DatagramSocket socket;
     private UdpKernel kernel;

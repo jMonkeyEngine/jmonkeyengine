@@ -181,6 +181,8 @@ public class SelectorKernel extends AbstractKernel
      */
     protected void closeEndpoint( NioEndpoint p ) throws IOException
     {
+        log.log( Level.INFO, "Closing endpoint:{0}.", p );
+            
         thread.cancel(p);
     }
 

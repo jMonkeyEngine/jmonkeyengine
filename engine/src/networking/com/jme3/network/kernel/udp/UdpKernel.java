@@ -152,6 +152,8 @@ public class UdpKernel extends AbstractKernel
      */
     protected void closeEndpoint( UdpEndpoint p ) throws IOException
     {
+        log.log( Level.INFO, "Closing endpoint:{0}.", p );
+            
         // Just book-keeping to do here.
         socketEndpoints.remove( p.getRemoteAddress() );
 

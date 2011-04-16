@@ -358,18 +358,8 @@ public class DefaultServer implements Server
         if( removed != null ) {
         
             log.log( Level.INFO, "Client closed:{0}.", removed );
-        
-            // Make sure both endpoints are closed.  Note: reliable
-            // should always already be closed through all paths that I
-            // can conceive... but it doesn't hurt to be sure. 
-            if( removed.reliable != null && removed.reliable.isConnected() ) {
-                removed.reliable.close();
-            }
-            if( removed.fast != null && removed.fast.isConnected() ) {
-                removed.fast.close();
-            }
-        
-            fireConnectionRemoved( removed );
+            
+            removed.closeConnection();
         }
     }
 
@@ -378,6 +368,7 @@ public class DefaultServer implements Server
         private int id;
         private Endpoint reliable;
         private Endpoint fast;
+        private boolean closed;
         
         private Map<String,Object> sessionData = new ConcurrentHashMap<String,Object>();       
         
@@ -410,6 +401,25 @@ public class DefaultServer implements Server
                 fast.send( buffer );
             }
         }
+ 
+        protected void closeConnection()
+        {
+            if( closed ) 
+                return;
+            closed = true;
+            
+            // Make sure both endpoints are closed.  Note: reliable
+            // should always already be closed through all paths that I
+            // can conceive... but it doesn't hurt to be sure. 
+            if( reliable != null && reliable.isConnected() ) {
+                reliable.close();
+            }
+            if( fast != null && fast.isConnected() ) {
+                fast.close();
+            }
+        
+            fireConnectionRemoved( this );
+        }
         
         public void close( String reason )
         {
@@ -422,6 +432,8 @@ public class DefaultServer implements Server
             
             // Just close the reliable endpoint
             // fast will be cleaned up as a side-effect
+            // when closeConnection() is called by the
+            // connectionClosed() endpoint callback.
             if( reliable != null ) {
                 // Close with flush so we make sure our
                 // message gets out
