@@ -1,7 +1,38 @@
+/*
+ * Copyright (c) 2009-2010 jMonkeyEngine
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ * * Redistributions of source code must retain the above copyright
+ *   notice, this list of conditions and the following disclaimer.
+ *
+ * * Redistributions in binary form must reproduce the above copyright
+ *   notice, this list of conditions and the following disclaimer in the
+ *   documentation and/or other materials provided with the distribution.
+ *
+ * * Neither the name of 'jMonkeyEngine' nor the names of its contributors
+ *   may be used to endorse or promote products derived from this software
+ *   without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+ * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 package com.jme3.bullet.control;
 
-import com.jme3.bullet.control.radoll.RagdollPreset;
-import com.jme3.bullet.control.radoll.HumanoidRagdollPreset;
+import com.jme3.bullet.control.ragdoll.RagdollPreset;
+import com.jme3.bullet.control.ragdoll.HumanoidRagdollPreset;
 import com.jme3.animation.AnimControl;
 import com.jme3.animation.Bone;
 import com.jme3.animation.Skeleton;
@@ -41,6 +72,10 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * 
+ * @author Normen Hansen and Rémy Bouquet (Nehon)
+ */
 public class RagdollControl implements PhysicsControl, PhysicsCollisionListener {
 
     protected static final Logger logger = Logger.getLogger(RagdollControl.class.getName());
@@ -79,8 +114,7 @@ public class RagdollControl implements PhysicsControl, PhysicsCollisionListener 
 
             Quaternion q2 = vars.quat1;
             Quaternion q3 = vars.quat2;
-            Vector3f pos = vars.vect2;
-            //   skeleton.reset();
+          
             for (PhysicsBoneLink link : boneLinks.values()) {
 
                 Vector3f p = link.rigidBody.getMotionState().getWorldLocation();
@@ -117,8 +151,7 @@ public class RagdollControl implements PhysicsControl, PhysicsCollisionListener 
                 }
 
                 Vector3f position = vars.vect1;
-                Quaternion rotation = vars.quat1;
-                //Vector3f pos2 = vars.vect2;
+                Quaternion rotation = vars.quat1;           
 
                 //computing position from rotation and scale
                 targetModel.getWorldTransform().transformVector(link.bone.getModelSpacePosition(), position);
@@ -207,8 +240,7 @@ public class RagdollControl implements PhysicsControl, PhysicsCollisionListener 
         skeleton = animControl.getSkeleton();
         skeleton.resetAndUpdate();
         for (int i = 0; i < skeleton.getRoots().length; i++) {
-            Bone childBone = skeleton.getRoots()[i];
-            //  childBone.setUserControl(true);
+            Bone childBone = skeleton.getRoots()[i];           
             if (childBone.getParent() == null) {
                 // Quaternion parentRot= childBone.getModelSpaceRotation().mult(initRotation);
                 logger.log(Level.INFO, "Found root bone in skeleton {0}", skeleton);
@@ -553,7 +585,7 @@ public class RagdollControl implements PhysicsControl, PhysicsCollisionListener 
                 hitObject = objA;
 
             }
-        }
+        }    
 
         if (hit && event.getAppliedImpulse() > eventDispatchImpulseThreshold) {
             // System.out.println("trigger impact " + event.getNodeA() + " " + event.getNodeB() + " " + event.getAppliedImpulse());

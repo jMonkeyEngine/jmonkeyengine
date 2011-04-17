@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.jme3.bullet.control.radoll;
+package com.jme3.bullet.control.ragdoll;
 
 import com.jme3.math.FastMath;
 
