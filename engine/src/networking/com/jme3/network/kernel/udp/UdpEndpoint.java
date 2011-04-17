@@ -132,6 +132,6 @@ public class UdpEndpoint implements Endpoint
 
     public String toString()
     {
-        return "UdpEndpoint[" + id + ", " + socket + "]";
+        return "UdpEndpoint[" + id + ", " + address + "]";
     }
 }
