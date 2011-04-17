@@ -49,6 +49,13 @@
         <ant dir="sdk" target="hudson-nightly"/>
     </target>
 
+    <target name="update-platform-hudson" description="Updates the base platform to the latest available build" depends="-remove-platform">
+        <copy file="/var/www/com/platform/base/alpha/platform-base.zip" todir="./"/>
+        <unzip src="platform-base.zip" dest="./"/>
+        <antcall target="-update-sdk-platform-config"/>
+        <delete file="platform-base.zip"/>
+    </target>
+
     <target name="-check-platform" depends="-check-platform-present" unless="platform.present">
         <echo message="Downloading base platform, this only has to be done once."/>
         <get src="http://jmonkeyengine.googlecode.com/files/platform-base.zip" dest="./" skipexisting="true"/>
