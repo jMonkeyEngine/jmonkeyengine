@@ -48,6 +48,7 @@ import com.jme3.input.KeyInput;
 import com.jme3.input.MouseInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
+import com.jme3.input.controls.MouseAxisTrigger;
 import com.jme3.input.controls.MouseButtonTrigger;
 import com.jme3.light.AmbientLight;
 import com.jme3.light.DirectionalLight;
@@ -73,7 +74,7 @@ public class TestBoneRagdoll extends SimpleApplication implements RagdollCollisi
     Material matBullet;
     Node model;
     RagdollControl ragdoll;
-    float timer = 0;
+    float bulletSize = 1f;
 
     public static void main(String[] args) {
         TestBoneRagdoll app = new TestBoneRagdoll();
@@ -123,7 +124,7 @@ public class TestBoneRagdoll extends SimpleApplication implements RagdollCollisi
         speed = 1.3f;
 
         rootNode.attachChild(model);
-       // rootNode.attachChild(skeletonDebug);
+        // rootNode.attachChild(skeletonDebug);
         flyCam.setMoveSpeed(50);
 
 
@@ -135,23 +136,31 @@ public class TestBoneRagdoll extends SimpleApplication implements RagdollCollisi
             public void onAction(String name, boolean isPressed, float tpf) {
                 if (name.equals("toggle") && isPressed) {
                     ragdoll.setControl(false);
+                    model.setLocalTranslation(0, 0, 0);
                 }
-                if (name.equals("shoot") && isPressed) {
-                    timer = 0;
+                if (name.equals("bullet+") && isPressed) {
+                    bulletSize += 0.1f;
 
                 }
+                if (name.equals("bullet-") && isPressed) {
+                    bulletSize -= 0.1f;
+
+                }
+                if (name.equals("shoot") && isPressed) {
+//                    bulletSize = 0;
+                }
                 if (name.equals("stop") && isPressed) {
-                   bulletAppState.setEnabled(!bulletAppState.isEnabled());
+                    bulletAppState.setEnabled(!bulletAppState.isEnabled());
 
                 }
                 if (name.equals("shoot") && !isPressed) {
                     Geometry bulletg = new Geometry("bullet", bullet);
                     bulletg.setMaterial(matBullet);
                     bulletg.setLocalTranslation(cam.getLocation());
-                    bulletg.setLocalScale(timer);
-                    bulletCollisionShape = new SphereCollisionShape(timer);
+                    bulletg.setLocalScale(bulletSize);
+                    bulletCollisionShape = new SphereCollisionShape(bulletSize);
                     //    RigidBodyControl bulletNode = new BombControl(assetManager, bulletCollisionShape, 1);
-                    RigidBodyControl bulletNode = new RigidBodyControl(bulletCollisionShape, timer * 10);
+                    RigidBodyControl bulletNode = new RigidBodyControl(bulletCollisionShape, bulletSize * 10);
                     bulletNode.setCcdMotionThreshold(0.001f);
                     bulletNode.setLinearVelocity(cam.getDirection().mult(80));
                     bulletg.addControl(bulletNode);
@@ -161,10 +170,13 @@ public class TestBoneRagdoll extends SimpleApplication implements RagdollCollisi
 
                 }
             }
-        }, "toggle", "shoot","stop");
+        }, "toggle", "shoot", "stop", "bullet+", "bullet-");
         inputManager.addMapping("toggle", new KeyTrigger(KeyInput.KEY_SPACE));
         inputManager.addMapping("shoot", new MouseButtonTrigger(MouseInput.BUTTON_LEFT));
-        inputManager.addMapping("stop",  new KeyTrigger(KeyInput.KEY_H));
+        inputManager.addMapping("stop", new KeyTrigger(KeyInput.KEY_H));
+        inputManager.addMapping("bullet-", new KeyTrigger(KeyInput.KEY_COMMA));
+        inputManager.addMapping("bullet+", new KeyTrigger(KeyInput.KEY_PERIOD));
+
 
     }
 
@@ -329,14 +341,28 @@ public class TestBoneRagdoll extends SimpleApplication implements RagdollCollisi
         elTime = 0;
     }
     float elTime = 0;
+    boolean forward = true;
 
     @Override
     public void simpleUpdate(float tpf) {
         //  System.out.println(model.getLocalTranslation());
-        elTime += tpf;
-        if (elTime > 0.05f && speed < 1.0f) {
-            speed += tpf * 8;
+//        elTime += tpf;
+//        if (elTime > 0.05f && speed < 1.0f) {
+//            speed += tpf * 8;
+//        }
+//        timer += tpf;
+        fpsText.setText("Bullet Size: " + bulletSize);
+        if (!ragdoll.hasControl()) {
+            if (model.getLocalTranslation().getZ() < -10) {
+                forward = true;
+            } else if (model.getLocalTranslation().getZ() > 10) {
+                forward = false;
+            }
+            if (forward) {
+                model.move(-tpf, 0, tpf);
+            } else {
+                model.move(tpf, 0, -tpf);
+            }
         }
-        timer += tpf;
     }
 }
