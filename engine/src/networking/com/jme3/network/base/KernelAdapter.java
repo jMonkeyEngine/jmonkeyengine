@@ -93,12 +93,12 @@ public class KernelAdapter extends Thread
         kernel.terminate();
     }
 
-    protected void reportError( Exception e )
+    protected void reportError( Endpoint p, Object context, Exception e )
     {
         // Should really be queued up so the outer thread can
         // retrieve them.  For now we'll just log it.  FIXME
-        log.log( Level.SEVERE, "Unhandled error", e );
-    }
+        log.log( Level.SEVERE, "Unhandled error, endpoint:" + p + ", context:" + context, e );
+    }                                                      
 
     protected HostedConnection getConnection( Endpoint p )
     {
@@ -148,7 +148,7 @@ public class KernelAdapter extends Thread
             }
             messageDispatcher.messageReceived( source, m );
         } catch( Exception e ) {
-            reportError(e);
+            reportError(p, m, e);
         }
     }
 
@@ -186,7 +186,7 @@ public class KernelAdapter extends Thread
             try {
                 createAndDispatch( event );
             } catch( Exception e ) {
-                reportError(e);        
+                reportError(event.getEndpoint(), event, e);        
             }
         }
     }
@@ -209,7 +209,12 @@ public class KernelAdapter extends Thread
                 // when the connection add events come through
                 flushEvents();
             
-                createAndDispatch( e );
+                try {
+                    createAndDispatch( e );
+                } catch( Exception ex ) {
+                    reportError(e.getSource(), e, ex);        
+                }
+                        
             } catch( InterruptedException ex ) {
                 if( !go.get() )
                     return;
