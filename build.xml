@@ -37,13 +37,13 @@
 
     <target name="update-platform" description="Updates the base platform to the latest available build" depends="-remove-platform,-check-platform"/>
 
-    <target name="hudson-nightly" depends="update-platform">
+    <target name="hudson-nightly" depends="update-platform-hudson">
         <ant dir="engine" target="deploy-hudson"/>
         <ant dir="engine" target="hudson-update-sdk"/>
         <ant dir="sdk" target="hudson-nightly"/>
     </target>
 
-    <target name="hudson-stable" depends="update-platform">
+    <target name="hudson-stable" depends="update-platform-hudson">
         <ant dir="engine" target="dist"/>
         <ant dir="engine" target="hudson-update-sdk"/>
         <ant dir="sdk" target="hudson-nightly"/>
