@@ -418,12 +418,24 @@ public class SelectorKernel extends AbstractKernel
                     continue;
                     }
 
-                if( key.isAcceptable() )
-                    accept(key);
-                else if( key.isWritable() )
-                    write(key);
-                else if( key.isReadable() )
-                    read(key);
+                try {
+                    if( key.isAcceptable() )
+                        accept(key);
+                    else if( key.isWritable() )
+                        write(key);
+                    else if( key.isReadable() )
+                        read(key);
+                } catch( IOException e ) {
+                    if( !go.get() )
+                        return;  // error likely due to shutting down
+                    reportError( e );
+                    
+                    // And at this level, errors likely mean the key is now
+                    // dead and it doesn't hurt to kick them anyway.  If we
+                    // find IOExceptions that are not fatal, this can be
+                    // readdressed
+                    cancel( key, (SocketChannel)key.channel() );                    
+                }                        
             }
         }
 
