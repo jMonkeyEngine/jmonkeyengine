@@ -42,6 +42,7 @@ import com.jme3.network.Message;
 import com.jme3.network.MessageListener;
 import com.jme3.network.kernel.Connector;
 import com.jme3.network.kernel.ConnectorException;
+import com.jme3.network.kernel.NamedThreadFactory;
 import com.jme3.network.serializing.Serializer;
 
 /**
@@ -67,7 +68,7 @@ public class ConnectorAdapter extends Thread
     private AtomicBoolean go = new AtomicBoolean(true);
  
     // Writes messages out on a background thread
-    private ExecutorService writer = Executors.newFixedThreadPool(1);
+    private ExecutorService writer;
    
     // Marks the messages as reliable or not if they came
     // through this connector.
@@ -79,7 +80,9 @@ public class ConnectorAdapter extends Thread
         this.connector = connector;        
         this.dispatcher = dispatcher;
         this.reliable = reliable;
-        setDaemon(true);
+        setDaemon(true);        
+        writer = Executors.newFixedThreadPool(1, 
+                            new NamedThreadFactory(String.valueOf(connector) + "-writer"));
     }
  
     public void close()

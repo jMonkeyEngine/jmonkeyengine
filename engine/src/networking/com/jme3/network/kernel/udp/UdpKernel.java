@@ -59,7 +59,7 @@ public class UdpKernel extends AbstractKernel
     private InetSocketAddress address;
     private HostThread thread;
 
-    private ExecutorService writer = Executors.newFixedThreadPool(2);
+    private ExecutorService writer;
     
     // The nature of UDP means that even through a firewall,
     // a user would have to have a unique address+port since UDP
@@ -91,6 +91,8 @@ public class UdpKernel extends AbstractKernel
         if( thread != null )
             throw new IllegalStateException( "Kernel already initialized." );
 
+        writer = Executors.newFixedThreadPool(2, new NamedThreadFactory(toString() + "-writer"));
+        
         thread = createHostThread();
 
         try {
