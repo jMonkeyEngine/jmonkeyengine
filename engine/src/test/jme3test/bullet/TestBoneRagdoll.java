@@ -38,11 +38,13 @@ import com.jme3.bullet.BulletAppState;
 import com.jme3.app.SimpleApplication;
 import com.jme3.asset.TextureKey;
 import com.jme3.bullet.PhysicsSpace;
+import com.jme3.bullet.collision.PhysicsCollisionEvent;
 import com.jme3.bullet.collision.PhysicsCollisionObject;
 import com.jme3.bullet.collision.RagdollCollisionListener;
 import com.jme3.bullet.collision.shapes.SphereCollisionShape;
 import com.jme3.bullet.control.RagdollControl;
 import com.jme3.bullet.control.RigidBodyControl;
+import com.jme3.bullet.joints.SixDofJoint;
 import com.jme3.font.BitmapText;
 import com.jme3.input.KeyInput;
 import com.jme3.input.MouseInput;
@@ -92,7 +94,7 @@ public class TestBoneRagdoll extends SimpleApplication implements RagdollCollisi
         bulletAppState = new BulletAppState();
         bulletAppState.setEnabled(true);
         stateManager.attach(bulletAppState);
-        //bulletAppState.getPhysicsSpace().enableDebug(assetManager);
+//        bulletAppState.getPhysicsSpace().enableDebug(assetManager);
         PhysicsTestHelper.createPhysicsTestWorld(rootNode, assetManager, bulletAppState.getPhysicsSpace());
         setupLight();
 
@@ -110,13 +112,16 @@ public class TestBoneRagdoll extends SimpleApplication implements RagdollCollisi
         skeletonDebug.setLocalTranslation(model.getLocalTranslation());
 
         //Note: PhysicsRagdollControl is still TODO, constructor will change
-        ragdoll = new RagdollControl(0.7f);
+        ragdoll = new RagdollControl(0.5f);
         setupSinbad(ragdoll);
         ragdoll.addCollisionListener(this);
         model.addControl(ragdoll);
 
         float eighth_pi = FastMath.PI * 0.125f;
-
+        ragdoll.setJointLimit("Waist", eighth_pi, eighth_pi, eighth_pi, eighth_pi, eighth_pi, eighth_pi);
+        ragdoll.setJointLimit("Chest", eighth_pi, eighth_pi, 0, 0, eighth_pi, eighth_pi);
+   
+        
         //Oto's head is almost rigid
         //    ragdoll.setJointLimit("head", 0, 0, eighth_pi, -eighth_pi, 0, 0);
 
@@ -128,8 +133,8 @@ public class TestBoneRagdoll extends SimpleApplication implements RagdollCollisi
         flyCam.setMoveSpeed(50);
 
 
-        final AnimChannel channel = control.createChannel();
-        channel.setAnim("Dance");
+        animChannel = control.createChannel();
+        animChannel.setAnim("Dance");
 
         inputManager.addListener(new ActionListener() {
 
@@ -158,21 +163,34 @@ public class TestBoneRagdoll extends SimpleApplication implements RagdollCollisi
                     bulletg.setMaterial(matBullet);
                     bulletg.setLocalTranslation(cam.getLocation());
                     bulletg.setLocalScale(bulletSize);
-                    bulletCollisionShape = new SphereCollisionShape(bulletSize);
-                    //    RigidBodyControl bulletNode = new BombControl(assetManager, bulletCollisionShape, 1);
+                    bulletCollisionShape = new SphereCollisionShape(bulletSize);                   
                     RigidBodyControl bulletNode = new RigidBodyControl(bulletCollisionShape, bulletSize * 10);
                     bulletNode.setCcdMotionThreshold(0.001f);
-                    bulletNode.setLinearVelocity(cam.getDirection().mult(80));
+                    bulletNode.setLinearVelocity(cam.getDirection().mult(180));
                     bulletg.addControl(bulletNode);
                     rootNode.attachChild(bulletg);
                     getPhysicsSpace().add(bulletNode);
-
-
+                }
+                if (name.equals("boom") && !isPressed) {
+                    Geometry bulletg = new Geometry("bullet", bullet);
+                    bulletg.setMaterial(matBullet);
+                    bulletg.setLocalTranslation(cam.getLocation());
+                    bulletg.setLocalScale(bulletSize);
+                    bulletCollisionShape = new SphereCollisionShape(bulletSize);
+                    BombControl bulletNode = new BombControl(assetManager, bulletCollisionShape, 1);
+                    bulletNode.setForceFactor(10);
+                    bulletNode.setExplosionRadius(30);                    
+                    bulletNode.setCcdMotionThreshold(0.001f);
+                    bulletNode.setLinearVelocity(cam.getDirection().mult(180));
+                    bulletg.addControl(bulletNode);
+                    rootNode.attachChild(bulletg);
+                    getPhysicsSpace().add(bulletNode);
                 }
             }
-        }, "toggle", "shoot", "stop", "bullet+", "bullet-");
+        }, "toggle", "shoot", "stop", "bullet+", "bullet-","boom");
         inputManager.addMapping("toggle", new KeyTrigger(KeyInput.KEY_SPACE));
         inputManager.addMapping("shoot", new MouseButtonTrigger(MouseInput.BUTTON_LEFT));
+        inputManager.addMapping("boom", new MouseButtonTrigger(MouseInput.BUTTON_RIGHT));
         inputManager.addMapping("stop", new KeyTrigger(KeyInput.KEY_H));
         inputManager.addMapping("bullet-", new KeyTrigger(KeyInput.KEY_COMMA));
         inputManager.addMapping("bullet+", new KeyTrigger(KeyInput.KEY_PERIOD));
@@ -181,7 +199,7 @@ public class TestBoneRagdoll extends SimpleApplication implements RagdollCollisi
     }
 
     private void setupLight() {
-        AmbientLight al = new AmbientLight();
+       // AmbientLight al = new AmbientLight();
         //  al.setColor(ColorRGBA.White.mult(1));
         //   rootNode.addLight(al);
 
@@ -225,7 +243,7 @@ public class TestBoneRagdoll extends SimpleApplication implements RagdollCollisi
         guiNode.attachChild(ch);
     }
 
-    public void collide(Bone bone, PhysicsCollisionObject object) {
+    public void collide(Bone bone, PhysicsCollisionObject object,PhysicsCollisionEvent event) {
 
         if (object.getUserObject() != null && object.getUserObject() instanceof Geometry) {
             Geometry geom = (Geometry) object.getUserObject();
@@ -237,7 +255,6 @@ public class TestBoneRagdoll extends SimpleApplication implements RagdollCollisi
 
         if (!ragdoll.hasControl()) {
 
-            //bulletTime();
             ragdoll.setControl(true);
 
         }
@@ -252,7 +269,7 @@ public class TestBoneRagdoll extends SimpleApplication implements RagdollCollisi
         ragdoll.addBoneName("Hand.R");
         ragdoll.addBoneName("Hand.L");
         ragdoll.addBoneName("Neck");
-        ragdoll.addBoneName("Head");
+        //  ragdoll.addBoneName("Head");
         ragdoll.addBoneName("Root");
         ragdoll.addBoneName("Stomach");
         ragdoll.addBoneName("Waist");
@@ -265,104 +282,53 @@ public class TestBoneRagdoll extends SimpleApplication implements RagdollCollisi
         ragdoll.addBoneName("Clavicle.L");
         ragdoll.addBoneName("Clavicle.R");
 
-//        <boneparent bone="ThumbMed.R" parent="ThumbProx.R" />
-//        <boneparent bone="IndexFingerMed.R" parent="IndexFingerProx.R" />
-//        <boneparent bone="Clavicle.R" parent="Chest" />
-//        <boneparent bone="PinkyDist.L" parent="PinkyMed.L" />
-//        <boneparent bone="IndexFingerDist.R" parent="IndexFingerMed.R" />
-//        <boneparent bone="Cheek.L" parent="Head" />
-//        <boneparent bone="MiddleFingerMed.L" parent="MiddleFingerProx.L" />
-//        <boneparent bone="Jaw" parent="Head" />
-//        <boneparent bone="TongueMid" parent="TongueBase" />
-//        <boneparent bone="Ulna.L" parent="Humerus.L" />
-//        <boneparent bone="Handle.R" parent="Hand.R" />
-//        <boneparent bone="Ulna.R" parent="Humerus.R" />
-//        <boneparent bone="Chest" parent="Stomach" />
-//        <boneparent bone="Foot.L" parent="Calf.L" />
-//        <boneparent bone="Foot.R" parent="Calf.R" />
-//        <boneparent bone="Hand.R" parent="Ulna.R" />
-//        <boneparent bone="IndexFingerDist.L" parent="IndexFingerMed.L" />
-//        <boneparent bone="Cheek.R" parent="Head" />
-//        <boneparent bone="PinkyDist.R" parent="PinkyMed.R" />
-//        <boneparent bone="IndexFingerProx.R" parent="Hand.R" />
-//        <boneparent bone="Handle.L" parent="Hand.L" />
-//        <boneparent bone="RingFingerProx.R" parent="Hand.R" />
-//        <boneparent bone="LowerLip" parent="Jaw" />
-//        <boneparent bone="Neck" parent="Chest" />
-//        <boneparent bone="TongueBase" parent="Jaw" />
-//        <boneparent bone="Head" parent="Neck" />
-//        <boneparent bone="Sheath.R" parent="Chest" />
-//        <boneparent bone="Stomach" parent="Waist" />
-//        <boneparent bone="Toe.L" parent="Foot.L" />
-//        <boneparent bone="MiddleFingerProx.L" parent="Hand.L" />
-//        <boneparent bone="RingFingerMed.L" parent="RingFingerProx.L" />
-//        <boneparent bone="PinkyMed.L" parent="PinkyProx.L" />
-//        <boneparent bone="MiddleFingerMed.R" parent="MiddleFingerProx.R" />
-//        <boneparent bone="ThumbProx.L" parent="Hand.L" />
-//        <boneparent bone="PinkyMed.R" parent="PinkyProx.R" />
-//        <boneparent bone="Clavicle.L" parent="Chest" />
-//        <boneparent bone="MiddleFingerProx.R" parent="Hand.R" />
-//        <boneparent bone="Toe.R" parent="Foot.R" />
-//        <boneparent bone="Sheath.L" parent="Chest" />
-//        <boneparent bone="TongueTip" parent="TongueMid" />
-//        <boneparent bone="RingFingerProx.L" parent="Hand.L" />
-//        <boneparent bone="Waist" parent="Root" />
-//        <boneparent bone="MiddleFingerDist.R" parent="MiddleFingerMed.R" />
-//        <boneparent bone="Hand.L" parent="Ulna.L" />
-//        <boneparent bone="Humerus.R" parent="Clavicle.R" />
-//        <boneparent bone="RingFingerDist.L" parent="RingFingerMed.L" />
-//        <boneparent bone="Eye.L" parent="Head" />
-//        <boneparent bone="Humerus.L" parent="Clavicle.L" />
-//        <boneparent bone="RingFingerDist.R" parent="RingFingerMed.R" />
-//        <boneparent bone="MiddleFingerDist.L" parent="MiddleFingerMed.L" />
-//        <boneparent bone="IndexFingerMed.L" parent="IndexFingerProx.L" />
-//        <boneparent bone="ThumbMed.L" parent="ThumbProx.L" />
-//        <boneparent bone="Thigh.L" parent="Root" />
-//        <boneparent bone="UpperLip" parent="Head" />
-//        <boneparent bone="RingFingerMed.R" parent="RingFingerProx.R" />
-//        <boneparent bone="Eye.R" parent="Head" />
-//        <boneparent bone="Brow.L" parent="Head" />
-//        <boneparent bone="Brow.C" parent="Head" />
-//        <boneparent bone="Calf.L" parent="Thigh.L" />
-//        <boneparent bone="PinkyProx.L" parent="Hand.L" />
-//        <boneparent bone="ThumbDist.L" parent="ThumbMed.L" />
-//        <boneparent bone="ThumbProx.R" parent="Hand.R" />
-//        <boneparent bone="ThumbDist.R" parent="ThumbMed.R" />
-//        <boneparent bone="Calf.R" parent="Thigh.R" />
-//        <boneparent bone="PinkyProx.R" parent="Hand.R" />
-//        <boneparent bone="IndexFingerProx.L" parent="Hand.L" />
-//        <boneparent bone="Brow.R" parent="Head" />
-//        <boneparent bone="Thigh.R" parent="Root" />
-
     }
 
-    private void bulletTime() {
-        speed = 0.1f;
-        elTime = 0;
-    }
     float elTime = 0;
     boolean forward = true;
 
+    AnimControl animControl;
+    AnimChannel animChannel;
+    Vector3f direction = new Vector3f(0, 0, 1);
+    Quaternion rotate = new Quaternion().fromAngleAxis(FastMath.PI / 8, Vector3f.UNIT_Y);
+    boolean dance = true;
+
     @Override
     public void simpleUpdate(float tpf) {
-        //  System.out.println(model.getLocalTranslation());
-//        elTime += tpf;
-//        if (elTime > 0.05f && speed < 1.0f) {
-//            speed += tpf * 8;
-//        }
-//        timer += tpf;
-        fpsText.setText("Bullet Size: " + bulletSize);
-        if (!ragdoll.hasControl()) {
-            if (model.getLocalTranslation().getZ() < -10) {
-                forward = true;
-            } else if (model.getLocalTranslation().getZ() > 10) {
-                forward = false;
+        elTime += tpf;
+        if (elTime > 3) {
+            elTime = 0;
+            if (dance) {
+                rotate.multLocal(direction);
             }
-            if (forward) {
-                model.move(-tpf, 0, tpf);
+            if (Math.random() > 0.80) {
+                dance = true;
+                animChannel.setAnim("Dance");
             } else {
-                model.move(tpf, 0, -tpf);
+                dance = false;
+                animChannel.setAnim("RunBase");
+                rotate.fromAngleAxis(FastMath.QUARTER_PI * ((float) Math.random() - 0.5f), Vector3f.UNIT_Y);
+                rotate.multLocal(direction);
             }
+        }
+        if (!ragdoll.hasControl() && !dance) {
+            if (model.getLocalTranslation().getZ() < -10) {
+                direction.z = 1;
+                direction.normalizeLocal();
+            } else if (model.getLocalTranslation().getZ() > 10) {
+                direction.z = -1;
+                direction.normalizeLocal();
+            }
+            if (model.getLocalTranslation().getX() < -10) {
+                direction.x = 1;
+                direction.normalizeLocal();
+            } else if (model.getLocalTranslation().getX() > 10) {
+                direction.x = -1;
+                direction.normalizeLocal();
+            }
+            model.move(direction.multLocal(tpf * 8));
+            direction.normalizeLocal();
+            model.lookAt(model.getLocalTranslation().add(direction), Vector3f.UNIT_Y);
         }
     }
 }

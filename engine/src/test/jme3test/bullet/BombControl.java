@@ -105,14 +105,14 @@ public class BombControl extends RigidBodyControl implements PhysicsCollisionLis
             spatial.removeFromParent();
         }
     }
-
+    
     public void prePhysicsTick(PhysicsSpace space, float f) {
         space.removeCollisionListener(this);
     }
 
     public void physicsTick(PhysicsSpace space, float f) {
         //get all overlapping objects and apply impulse to them
-        for (Iterator<PhysicsCollisionObject> it = ghostObject.getOverlappingObjects().iterator(); it.hasNext();) {
+        for (Iterator<PhysicsCollisionObject> it = ghostObject.getOverlappingObjects().iterator(); it.hasNext();) {            
             PhysicsCollisionObject physicsCollisionObject = it.next();
             if (physicsCollisionObject instanceof PhysicsRigidBody) {
                 PhysicsRigidBody rBody = (PhysicsRigidBody) physicsCollisionObject;
@@ -157,6 +157,15 @@ public class BombControl extends RigidBodyControl implements PhysicsCollisionLis
         createGhostObject();
     }
 
+    public float getForceFactor() {
+        return forceFactor;
+    }
+
+    public void setForceFactor(float forceFactor) {
+        this.forceFactor = forceFactor;
+    }
+    
+    
     @Override
     public void read(JmeImporter im) throws IOException {
         throw new UnsupportedOperationException("Reading not supported.");

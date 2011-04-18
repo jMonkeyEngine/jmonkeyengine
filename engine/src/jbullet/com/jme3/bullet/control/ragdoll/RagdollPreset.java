@@ -35,18 +35,16 @@ public abstract class RagdollPreset {
         String resultName = "";
         int resultScore = 0;
 
-        System.out.println("-------------- " +boneName); 
         for (String key : lexicon.keySet()) {
         
-            int score = lexicon.get(key).getScore(boneName);
-            System.out.println(key+" " +score);
+            int score = lexicon.get(key).getScore(boneName);        
             if (score > resultScore) {
                 resultScore = score;
                 resultName = key;
             }
             
         }
-        System.out.println("-------------- "); 
+        
         JointPreset preset = boneMap.get(resultName);
 
         if (preset != null && resultScore >= 50) {
