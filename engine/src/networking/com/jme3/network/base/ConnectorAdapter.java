@@ -35,6 +35,8 @@ package com.jme3.network.base;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ExecutorService;
 
 import com.jme3.network.Message;
 import com.jme3.network.MessageListener;
@@ -63,7 +65,10 @@ public class ConnectorAdapter extends Thread
     private Connector connector;
     private MessageListener<Object> dispatcher;
     private AtomicBoolean go = new AtomicBoolean(true);
-    
+ 
+    // Writes messages out on a background thread
+    private ExecutorService writer = Executors.newFixedThreadPool(1);
+   
     // Marks the messages as reliable or not if they came
     // through this connector.
     private boolean reliable;
@@ -80,6 +85,9 @@ public class ConnectorAdapter extends Thread
     public void close()
     {
         go.set(false);
+
+        // Kill the writer service
+        writer.shutdown();
         
         // Kill the connector
         connector.close();
@@ -88,6 +96,11 @@ public class ConnectorAdapter extends Thread
     protected void dispatch( Message m )
     {
         dispatcher.messageReceived( null, m );                        
+    }
+ 
+    public void write( ByteBuffer data )
+    {
+        writer.execute( new MessageWriter(data) );
     }
  
     public void run()
@@ -115,5 +128,23 @@ public class ConnectorAdapter extends Thread
             }
         }
     }
+        
+    protected class MessageWriter implements Runnable
+    {
+        private ByteBuffer data;
+        
+        public MessageWriter( ByteBuffer data )
+        {
+            this.data = data;
+        }
+        
+        public void run()
+        {
+            if( !go.get() )
+                return;                    
+            connector.write(data);
+        } 
+    }
+
         
 }

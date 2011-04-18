@@ -204,13 +204,16 @@ public class DefaultClient implements Client
         // be called from multiple threads.  If writing
         // is queued into its own thread then that could
         // be shared.
+        // Writing is now done on a background thread.
+        // If we ever share a ByteBuffer then it will need to be 
+        // copied before handing off.
         ByteBuffer buffer = MessageProtocol.messageToBuffer(message, null);
         if( message.isReliable() || fast == null ) {
             if( reliable == null )
                 throw new RuntimeException( "No reliable connector configured" );
-            reliable.write(buffer);
+            reliableAdapter.write(buffer);
         } else {
-            fast.write(buffer); 
+            fastAdapter.write(buffer); 
         }
     }
  
