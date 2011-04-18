@@ -57,6 +57,8 @@ public class DefaultClient implements Client
 {
     static Logger log = Logger.getLogger(DefaultClient.class.getName());
     
+    private ThreadLocal<ByteBuffer> dataBuffer = new ThreadLocal<ByteBuffer>();
+    
     private int id = -1;
     private boolean isRunning = false;
     private CountDownLatch connecting = new CountDownLatch(1);
@@ -197,17 +199,25 @@ public class DefaultClient implements Client
         if( waitForConnected ) {       
             // Make sure we aren't still connecting
             waitForConnected();
-        }        
+        }
         
-        // For now just send direclty.  We allocate our
-        // own buffer each time because this method might
-        // be called from multiple threads.  If writing
-        // is queued into its own thread then that could
-        // be shared.
-        // Writing is now done on a background thread.
-        // If we ever share a ByteBuffer then it will need to be 
-        // copied before handing off.
-        ByteBuffer buffer = MessageProtocol.messageToBuffer(message, null);
+        ByteBuffer buffer = dataBuffer.get();
+        if( buffer == null ) {
+            buffer = ByteBuffer.allocate( 65536 + 2 );
+            dataBuffer.set(buffer);
+        }
+        buffer.clear();        
+ 
+        // Convert the message to bytes
+        buffer = MessageProtocol.messageToBuffer(message, buffer);
+                
+        // Since we share the buffer between invocations, we will need to 
+        // copy this message's part out of it.  This is because we actually
+        // do the send on a background thread.       
+        byte[] temp = new byte[buffer.remaining()];
+        System.arraycopy(buffer.array(), buffer.position(), temp, 0, buffer.remaining());
+        buffer = ByteBuffer.wrap(temp);
+        
         if( message.isReliable() || fast == null ) {
             if( reliable == null )
                 throw new RuntimeException( "No reliable connector configured" );
