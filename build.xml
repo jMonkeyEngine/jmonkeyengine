@@ -58,8 +58,8 @@
 
     <target name="-check-platform" depends="-check-platform-present" unless="platform.present">
         <echo message="Downloading base platform, this only has to be done once."/>
-        <get src="http://jmonkeyengine.googlecode.com/files/platform-base.zip" dest="./" skipexisting="true"/>
-        <!--get src="http://jmonkeyengine.com/platform/base/alpha/platform-base.zip" dest="./" skipexisting="true"/-->
+        <!--get src="http://jmonkeyengine.googlecode.com/files/platform-base.zip" dest="./" skipexisting="true"/-->
+        <get src="http://jmonkeyengine.com/platform/base/alpha/platform-base.zip" dest="./" skipexisting="true"/>
         <unzip src="platform-base.zip" dest="./"/>
         <antcall target="-update-sdk-platform-config"/>
         <delete file="platform-base.zip"/>
