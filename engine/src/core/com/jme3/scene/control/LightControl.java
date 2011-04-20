@@ -33,6 +33,9 @@ package com.jme3.scene.control;
 
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
+import com.jme3.light.DirectionalLight;
+import com.jme3.light.Light;
+import com.jme3.light.PointLight;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
@@ -48,51 +51,51 @@ import java.io.IOException;
  * of the current spatial.
  * @author tim
  */
-public class CameraControl extends AbstractControl {
+public class LightControl extends AbstractControl {
 
     public static enum ControlDirection {
 
         /**
-         * Means, that the Camera's transform is "copied"
+         * Means, that the Light's transform is "copied"
          * to the Transform of the Spatial.
          */
-        CameraToSpatial,
+        LightToSpatial,
         /**
          * Means, that the Spatial's transform is "copied"
-         * to the Transform of the Camera.
+         * to the Transform of the light.
          */
-        SpatialToCamera;
+        SpatialToLight;
     }
-    private Camera camera;
-    private ControlDirection controlDir = ControlDirection.CameraToSpatial;
+    private Light light;
+    private ControlDirection controlDir = ControlDirection.SpatialToLight;
 
     /**
      * Constructor used for Serialization.
      */
-    public CameraControl() {
+    public LightControl() {
     }
 
     /**
      * @param camera The Camera to be synced.
      */
-    public CameraControl(Camera camera) {
-        this.camera = camera;
+    public LightControl(Light light) {
+        this.light = light;
     }
 
     /**
      * @param camera The Camera to be synced.
      */
-    public CameraControl(Camera camera, ControlDirection controlDir) {
-        this.camera = camera;
+    public LightControl(Light light, ControlDirection controlDir) {
+        this.light = light;
         this.controlDir = controlDir;
     }
 
-    public Camera getCamera() {
-        return camera;
+    public Light getLight() {
+        return light;
     }
 
-    public void setCamera(Camera camera) {
-        this.camera = camera;
+    public void setLight(Light light) {
+        this.light = light;
     }
 
     public ControlDirection getControlDir() {
@@ -106,28 +109,60 @@ public class CameraControl extends AbstractControl {
     // fields used, when inversing ControlDirection:
     @Override
     protected void controlUpdate(float tpf) {
-        if (spatial != null && camera != null) {
+        if (spatial != null && light != null) {
             switch (controlDir) {
-                case SpatialToCamera:
-                    camera.setLocation(spatial.getWorldTranslation());
-                    camera.setRotation(spatial.getWorldRotation());
+                case SpatialToLight:
+                    spatialTolight(light);
                     break;
-                case CameraToSpatial:
-                    // set the localtransform, so that the worldtransform would be equal to the camera's transform.
-                    // Location:
-                    TempVars vars = TempVars.get();
-                    assert vars.lock();
-
-                    Vector3f vecDiff = vars.vect1.set(camera.getLocation()).subtractLocal(spatial.getWorldTranslation());
-                    spatial.setLocalTranslation(vecDiff.addLocal(spatial.getLocalTranslation()));
-
-                    // Rotation:
-                    Quaternion worldDiff = vars.quat1.set(camera.getRotation()).subtractLocal(spatial.getWorldRotation());
-                    spatial.setLocalRotation(worldDiff.addLocal(spatial.getLocalRotation()));
-                    assert vars.unlock();
+                case LightToSpatial:
+                    lightToSpatial(light);
                     break;
             }
         }
+    }
+
+    private void spatialTolight(Light light) {
+        if (light instanceof PointLight) {
+            ((PointLight) light).setPosition(spatial.getWorldTranslation());
+        }
+        TempVars vars = TempVars.get();
+        assert vars.lock();
+
+        if (light instanceof DirectionalLight) {
+            ((DirectionalLight) light).setDirection(vars.vect1.set(spatial.getWorldTranslation()).multLocal(-1.0f));
+        }
+        assert vars.unlock();
+        //TODO add code for Spot light here when it's done
+//        if( light instanceof SpotLight){
+//            ((SpotLight)light).setPosition(spatial.getWorldTranslation());                
+//            ((SpotLight)light).setRotation(spatial.getWorldRotation());
+//        }
+
+    }
+
+    private void lightToSpatial(Light light) {
+        TempVars vars = TempVars.get();
+        assert vars.lock();
+        if (light instanceof PointLight) {
+
+            PointLight pLight = (PointLight) light;
+
+            Vector3f vecDiff = vars.vect1.set(pLight.getPosition()).subtractLocal(spatial.getWorldTranslation());
+            spatial.setLocalTranslation(vecDiff.addLocal(spatial.getLocalTranslation()));
+            assert vars.unlock();
+
+        }
+
+        if (light instanceof DirectionalLight) {
+            DirectionalLight dLight = (DirectionalLight) light;
+            vars.vect1.set(dLight.getDirection()).multLocal(-1.0f);
+            Vector3f vecDiff = vars.vect1.subtractLocal(spatial.getWorldTranslation());
+            spatial.setLocalTranslation(vecDiff.addLocal(spatial.getLocalTranslation()));
+        }
+        assert vars.unlock();
+        //TODO add code for Spot light here when it's done
+
+
     }
 
     @Override
@@ -137,7 +172,7 @@ public class CameraControl extends AbstractControl {
 
     @Override
     public Control cloneForSpatial(Spatial newSpatial) {
-        CameraControl control = new CameraControl(camera, controlDir);
+        LightControl control = new LightControl(light, controlDir);
         control.setSpatial(newSpatial);
         control.setEnabled(isEnabled());
         return control;
@@ -148,13 +183,13 @@ public class CameraControl extends AbstractControl {
     public void read(JmeImporter im) throws IOException {
         super.read(im);
         im.getCapsule(this).readEnum(CONTROL_DIR_NAME,
-                ControlDirection.class, ControlDirection.SpatialToCamera);
+                ControlDirection.class, ControlDirection.SpatialToLight);
     }
 
     @Override
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
         ex.getCapsule(this).write(controlDir, CONTROL_DIR_NAME,
-                ControlDirection.SpatialToCamera);
+                ControlDirection.SpatialToLight);
     }
 }
