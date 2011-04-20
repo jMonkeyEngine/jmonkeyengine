@@ -616,14 +616,18 @@ public class Camera implements Savable, Cloneable {
     }
 
     /**
-     * <code>setDirection</code> sets the direction this camera is facing. In
-     * most cases, this changes the up and left vectors of the camera. If your
-     * left or up vectors change, you must updates those as well for correct
-     * culling.
+     * <code>setDirection</code> sets the direction vector of the camera.
+     * This operation doesn't change the left and up vectors of the camera,
+     * which must change if the camera is to actually face the given
+     * direction. In most cases the method {@link Camera#lookAt(com.jme3.math.Vector3f, com.jme3.math.Vector3f) }
+     * should be used instead.
      *
      * @param direction the direction this camera is facing.
-     * @see Camera#setDirection(com.jme.math.Vector3f)
+     * @see Camera#set
+     * @deprecated Manipulate the quaternion rotation instead: 
+     * {@link Camera#setRotation(com.jme3.math.Quaternion) }.
      */
+    @Deprecated
     public void setDirection(Vector3f direction) {
         //this.rotation.lookAt(direction, getUp());
         Vector3f left = getLeft();
