@@ -111,7 +111,7 @@ public final class AnimControl extends AbstractControl implements Savable, Clone
 
         this.skeleton = skeleton;
 
-        skeletonControl = new SkeletonControl(model, meshes, this.skeleton);
+        skeletonControl = new SkeletonControl(meshes, this.skeleton);
         reset();
     }
 
@@ -389,7 +389,7 @@ public final class AnimControl extends AbstractControl implements Savable, Clone
             Mesh[] tg = null;
             tg = new Mesh[sav.length];
             System.arraycopy(sav, 0, tg, 0, sav.length);
-            skeletonControl = new SkeletonControl((Node) spatial, tg, skeleton);
+            skeletonControl = new SkeletonControl(tg, skeleton);
             spatial.addControl(skeletonControl);
         }
         //------

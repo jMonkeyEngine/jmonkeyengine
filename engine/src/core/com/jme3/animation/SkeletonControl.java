@@ -44,8 +44,7 @@ public class SkeletonControl extends AbstractControl implements Savable, Cloneab
     public SkeletonControl() {
     }
 
-    public SkeletonControl(Node model, Mesh[] targets, Skeleton skeleton) {
-        super(model);
+    public SkeletonControl(Mesh[] targets, Skeleton skeleton) {
         this.skeleton = skeleton;
         this.targets = targets;
     }
@@ -95,6 +94,9 @@ public class SkeletonControl extends AbstractControl implements Savable, Cloneab
 
     private void softwareSkinUpdate(Mesh mesh, Matrix4f[] offsetMatrices) {
         int maxWeightsPerVert = mesh.getMaxNumWeights();
+        if (maxWeightsPerVert <= 0)
+            throw new IllegalStateException("Max weights per vert is incorrectly set!");
+
         int fourMinusMaxWeights = 4 - maxWeightsPerVert;
 
         // NOTE: This code assumes the vertex buffer is in bind pose

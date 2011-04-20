@@ -168,6 +168,41 @@ public class Mesh implements Savable, Cloneable {
         return clone;
     }
 
+    public void generateBindPose(boolean swAnim){
+        if (swAnim){
+            VertexBuffer pos = getBuffer(Type.Position);
+            if (pos == null || getBuffer(Type.BoneIndex) == null) {
+                // ignore, this mesh doesn't have positional data
+                // or it doesn't have bone-vertex assignments, so its not animated
+                return;
+            }
+
+            VertexBuffer bindPos = new VertexBuffer(Type.BindPosePosition);
+            bindPos.setupData(Usage.CpuOnly,
+                    3,
+                    Format.Float,
+                    BufferUtils.clone(pos.getData()));
+            setBuffer(bindPos);
+
+            // XXX: note that this method also sets stream mode
+            // so that animation is faster. this is not needed for hardware skinning
+            pos.setUsage(Usage.Stream);
+
+            VertexBuffer norm = getBuffer(Type.Normal);
+            if (norm != null) {
+                VertexBuffer bindNorm = new VertexBuffer(Type.BindPoseNormal);
+                bindNorm.setupData(Usage.CpuOnly,
+                        3,
+                        Format.Float,
+                        BufferUtils.clone(norm.getData()));
+                setBuffer(bindNorm);
+                norm.setUsage(Usage.Stream);
+            }
+
+            norm.setUsage(Usage.Stream);
+        }
+    }
+
     public void prepareForAnim(boolean swAnim){
         if (swAnim){
             // convert indices

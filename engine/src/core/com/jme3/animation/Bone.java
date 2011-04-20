@@ -382,11 +382,13 @@ public final class Bone implements Savable {
         worldRot.set(rotation);
     }
     
-    protected Vector3f tmpVec=new Vector3f();
-    protected Quaternion tmpQuat=new Quaternion();
+    protected Vector3f tmpVec = new Vector3f();
+    protected Quaternion tmpQuat = new Quaternion();
+
     public Quaternion getTmpQuat() {
         return tmpQuat;
     }
+
     public Vector3f getTmpVec() {
         return tmpVec;
     }

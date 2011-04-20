@@ -705,37 +705,6 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
     public void characters(char ch[], int start, int length) {
     }
 
-    private void createBindPose(Mesh mesh) {
-        VertexBuffer pos = mesh.getBuffer(Type.Position);
-        if (pos == null || mesh.getBuffer(Type.BoneIndex) == null) {
-            // ignore, this mesh doesn't have positional data
-            // or it doesn't have bone-vertex assignments, so its not animated
-            return;
-        }
-
-        VertexBuffer bindPos = new VertexBuffer(Type.BindPosePosition);
-        bindPos.setupData(Usage.CpuOnly,
-                3,
-                Format.Float,
-                BufferUtils.clone(pos.getData()));
-        mesh.setBuffer(bindPos);
-
-        // XXX: note that this method also sets stream mode
-        // so that animation is faster. this is not needed for hardware skinning
-        pos.setUsage(Usage.Stream);
-
-        VertexBuffer norm = mesh.getBuffer(Type.Normal);
-        if (norm != null) {
-            VertexBuffer bindNorm = new VertexBuffer(Type.BindPoseNormal);
-            bindNorm.setupData(Usage.CpuOnly,
-                    3,
-                    Format.Float,
-                    BufferUtils.clone(norm.getData()));
-            mesh.setBuffer(bindNorm);
-            norm.setUsage(Usage.Stream);
-        }
-    }
-
     private Node compileModel() {
         String nodeName;
         if (meshName == null) {
@@ -757,7 +726,7 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
                 boolean useShared = usesSharedGeom.get(i);
                 // create bind pose
                 if (!useShared) {
-                    createBindPose(m);
+                    m.generateBindPose(!HARDWARE_SKINNING);
                     newMeshes.add(m);
                 } else {
                     VertexBuffer bindPos = sharedmesh.getBuffer(Type.BindPosePosition);
