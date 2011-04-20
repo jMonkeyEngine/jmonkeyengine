@@ -767,7 +767,7 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
             AnimControl ctrl = new AnimControl(animData.skeleton);
             ctrl.setAnimations(anims);
             model.addControl(ctrl);
-            SkeletonControl skeletonControl = new SkeletonControl(model, meshes, animData.skeleton);
+            SkeletonControl skeletonControl = new SkeletonControl(meshes, animData.skeleton);
             model.addControl(skeletonControl);
         }
 
