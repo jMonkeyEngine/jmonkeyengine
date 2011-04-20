@@ -338,19 +338,16 @@ public class JmeSystem {
                 // can only modify logging settings
                 // if permissions are available
 
-                JmeFormatter formatter = new JmeFormatter();
+//                JmeFormatter formatter = new JmeFormatter();
 //                Handler fileHandler = new FileHandler("jme.log");
 //                fileHandler.setFormatter(formatter);
 //                Logger.getLogger("").addHandler(fileHandler);
 
-                Handler consoleHandler = new ConsoleHandler();
-                consoleHandler.setFormatter(formatter);
-                Logger.getLogger("com.jme3").removeHandler(Logger.getLogger("").getHandlers()[0]);
-                Logger.getLogger("jme3tools").removeHandler(Logger.getLogger("").getHandlers()[0]);
-                Logger.getLogger("com.jme3").addHandler(consoleHandler);
-                Logger.getLogger("jme3tools").addHandler(consoleHandler);
+//                Handler consoleHandler = new ConsoleHandler();
+//                consoleHandler.setFormatter(formatter);
 
-//                Logger.getLogger("com.jme3").setLevel(Level.FINEST);
+//                Logger.getLogger("").removeHandler(Logger.getLogger("").getHandlers()[0]);
+//                Logger.getLogger("").addHandler(consoleHandler);
             }
 //        } catch (IOException ex){
 //            logger.log(Level.SEVERE, "I/O Error while creating log file", ex);
