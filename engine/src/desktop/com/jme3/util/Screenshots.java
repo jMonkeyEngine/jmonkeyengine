@@ -1,5 +1,6 @@
 package com.jme3.util;
 
+import com.jme3.util.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.awt.image.WritableRaster;
