@@ -52,7 +52,7 @@ public class MipMapGenerator {
         BufferedImage targetImage = new BufferedImage(targetWidth, targetHeight, sourceImage.getType());
 
         Graphics2D g = targetImage.createGraphics();
-        g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+        g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
         g.drawImage(sourceImage, 0, 0, targetWidth, targetHeight, 0, 0, sourceWidth, sourceHeight, null);
         g.dispose();
 

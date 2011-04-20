@@ -74,11 +74,11 @@ public class RenderImageJme implements RenderImage {
     }
 
     public int getWidth() {
-        return image.getWidth();
+        return width;
     }
 
     public int getHeight() {
-        return image.getHeight();
+        return height;
     }
 
     public void dispose() {

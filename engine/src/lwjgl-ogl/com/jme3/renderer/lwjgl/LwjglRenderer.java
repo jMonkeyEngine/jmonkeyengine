@@ -83,6 +83,7 @@ import java.util.logging.Logger;
 //import org.lwjgl.opengl.ARBHalfFloatVertex;
 //import org.lwjgl.opengl.ARBVertexArrayObject;
 //import jme3tools.converters.MipMapGenerator;
+import jme3tools.converters.MipMapGenerator;
 import org.lwjgl.opengl.ARBDrawBuffers;
 //import org.lwjgl.opengl.ARBDrawInstanced;
 import org.lwjgl.opengl.ARBDrawInstanced;
@@ -1620,16 +1621,16 @@ public class LwjglRenderer implements Renderer {
             }
         }
 
-        // Check sizes if graphics card doesn't support NPOT
+        // Yes, some OpenGL2 cards (GeForce 5) still dont support NPOT.
         if (!GLContext.getCapabilities().GL_ARB_texture_non_power_of_two){
             if (img.getWidth() != 0 && img.getHeight() != 0){
                 if (!FastMath.isPowerOfTwo(img.getWidth())
                     || !FastMath.isPowerOfTwo(img.getHeight())
                     || img.getWidth() != img.getHeight()){
-                    logger.log(Level.WARNING, "Encountered NPOT texture {0}, "
-                                            + "it might not display correctly.", img);
+//                    logger.log(Level.WARNING, "Encountered NPOT texture {0}, "
+//                                            + "it might not display correctly.", img);
 
-                    //MipMapGenerator.resizeToPowerOf2(img);
+                    MipMapGenerator.resizeToPowerOf2(img);
                 }
             }
         }

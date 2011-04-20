@@ -224,8 +224,8 @@ public class RenderDeviceJme implements RenderDevice {
         niftyMat.setBoolean("UseTex", true);
         setColor(color);
 
-        float imageWidth  = texture.getImage().getWidth();
-        float imageHeight = texture.getImage().getHeight();
+        float imageWidth  = jmeImage.getWidth();
+        float imageHeight = jmeImage.getHeight();
         FloatBuffer texCoords = (FloatBuffer) quadModTC.getData();
 
         float startX = srcX / imageWidth;
