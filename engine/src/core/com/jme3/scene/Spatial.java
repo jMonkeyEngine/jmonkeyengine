@@ -656,6 +656,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
      * @return the result (store)
      */
     public Vector3f localToWorld(final Vector3f in, Vector3f store) {
+        checkDoTransformUpdate();
         return worldTransform.transformVector(in, store);
     }
 
@@ -670,6 +671,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
      * @return the result (store)
      */
     public Vector3f worldToLocal(final Vector3f in, final Vector3f store) {
+        checkDoTransformUpdate();
         return worldTransform.transformInverseVector(in, store);
     }
 
@@ -1085,6 +1087,9 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
             clone.localLights.setOwner(clone);
             clone.worldLights.setOwner(clone);
 
+            // No need to force cloned to update.
+            // This node already has the refresh flags
+            // set below so it will have to update anyway.
             clone.worldTransform = worldTransform.clone();
             clone.localTransform = localTransform.clone();
 
