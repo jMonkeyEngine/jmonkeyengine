@@ -993,12 +993,13 @@ public class LwjglRenderer implements Renderer {
 
     public void setShader(Shader shader) {
         if (shader == null) {
-            if (context.boundShaderProgram > 0) {
-                glUseProgram(0);
-                statistics.onShaderUse(null, true);
-                context.boundShaderProgram = 0;
-                boundShader = null;
-            }
+            throw new IllegalArgumentException("shader cannot be null");
+//            if (context.boundShaderProgram > 0) {
+//                glUseProgram(0);
+//                statistics.onShaderUse(null, true);
+//                context.boundShaderProgram = 0;
+//                boundShader = null;
+//            }
         } else {
             if (shader.isUpdateNeeded()) {
                 updateShaderData(shader);

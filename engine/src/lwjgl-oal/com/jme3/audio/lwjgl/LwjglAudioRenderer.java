@@ -623,7 +623,8 @@ public class LwjglAudioRenderer implements AudioRenderer, Runnable {
         boolean active = true;
         int processed = alGetSourcei(sourceId, AL_BUFFERS_PROCESSED);
 
-        while((processed--) != 0){
+//        while((processed--) != 0){
+        if (processed > 0){
             int buffer;
 
             ib.position(0).limit(1);
