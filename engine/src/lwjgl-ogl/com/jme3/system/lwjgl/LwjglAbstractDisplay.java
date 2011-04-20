@@ -194,6 +194,7 @@ public abstract class LwjglAbstractDisplay extends LwjglContext implements Runna
                 if (wasActive != Display.isActive()) {
                     if (!wasActive) {
                         listener.gainFocus();
+                        timer.reset();
                         wasActive = true;
                     } else {
                         listener.loseFocus();
