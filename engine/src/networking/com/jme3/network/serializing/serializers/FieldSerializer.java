@@ -72,7 +72,20 @@ public class FieldSerializer extends Serializer {
             SavedField cachedField = new SavedField();
             cachedField.field = field;
 
-            if (Modifier.isFinal(field.getType().getModifiers())) cachedField.serializer = Serializer.getSerializer(field.getType());
+            if (Modifier.isFinal(field.getType().getModifiers())) {
+                // The type of this field is implicit in the outer class
+                // definition and because the type is final, it can confidently
+                // be determined on the other end.
+                // Note: passing false to this method has the side-effect that field.getType()
+                // will be registered as a real class that can then be read/written
+                // directly as any other registered class.  It should be safe to take
+                // an ID like this because Serializer.initialize() is only called 
+                // during registration... so this is like nested registration and
+                // doesn't have any ordering problems.
+                // ...well, as long as the order of fields is consistent from one
+                // end to the next. 
+                cachedField.serializer = Serializer.getSerializer(field.getType(), false);
+            }                
 
             cachedFields.add(cachedField);
         }

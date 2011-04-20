@@ -293,8 +293,7 @@ public abstract class Serializer {
         }            
         
         if( failOnMiss ) {
-            Logger.getLogger(Serializer.class.getName()).log(Level.WARNING, "Class has not been registered {0}", cls);
-//            throw new IllegalArgumentException( "Class has not been registered:" + cls );
+            throw new IllegalArgumentException( "Class has not been registered:" + cls );
         }
         return registerClass(cls, fieldSerializer);
     }
