@@ -60,6 +60,12 @@ public interface Renderer {
     public Statistics getStatistics();
 
     /**
+     * Invalidates the current rendering state. Should be called after
+     * the GL state was changed manually or through an external library.
+     */
+    public void invalidateState();
+
+    /**
      * Clears certain channels of the current bound framebuffer.
      *
      * @param color True if to clear colors (RGBA)

@@ -407,6 +407,12 @@ public class LwjglRenderer implements Renderer {
         logger.log(Level.INFO, "Caps: {0}", caps);
     }
 
+    public void invalidateState(){
+        context.reset();
+        boundShader = null;
+        lastFb = null;
+    }
+
     public void resetGLObjects() {
         objManager.resetObjects();
         statistics.clearMemory();

@@ -62,6 +62,9 @@ public class NullRenderer implements Renderer {
         return stats;
     }
 
+    public void invalidateState(){
+    }
+
     public void clearBuffers(boolean color, boolean depth, boolean stencil) {
     }
 

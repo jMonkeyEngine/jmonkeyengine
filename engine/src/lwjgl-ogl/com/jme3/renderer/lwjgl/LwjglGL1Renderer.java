@@ -101,6 +101,10 @@ public class LwjglGL1Renderer implements GL1Renderer {
         }
     }
 
+    public void invalidateState(){
+        context.reset();
+    }
+
     public void resetGLObjects() {
         colorSet = false;
 
