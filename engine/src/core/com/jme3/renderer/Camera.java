@@ -619,11 +619,10 @@ public class Camera implements Savable, Cloneable {
      * <code>setDirection</code> sets the direction vector of the camera.
      * This operation doesn't change the left and up vectors of the camera,
      * which must change if the camera is to actually face the given
-     * direction. In most cases the method {@link Camera#lookAt(com.jme3.math.Vector3f, com.jme3.math.Vector3f) }
+     * direction. In most cases the method {@link Camera#lookAtDirection(com.jme3.math.Vector3f, com.jme3.math.Vector3f) }
      * should be used instead.
      *
      * @param direction the direction this camera is facing.
-     * @see Camera#set
      * @deprecated Manipulate the quaternion rotation instead: 
      * {@link Camera#setRotation(com.jme3.math.Quaternion) }.
      */
@@ -633,6 +632,17 @@ public class Camera implements Savable, Cloneable {
         Vector3f left = getLeft();
         Vector3f up = getUp();
         this.rotation.fromAxes(left, up, direction);
+        onFrameChange();
+    }
+
+    /**
+     * <code>lookAtDirection</code> sets the direction the camera is facing
+     * given a direction and an up vector.
+     *
+     * @param direction the direction this camera is facing.
+     */
+    public void lookAtDirection(Vector3f direction, Vector3f up) {
+        this.rotation.lookAt(direction, up);
         onFrameChange();
     }
 
@@ -988,6 +998,15 @@ public class Camera implements Savable, Cloneable {
         return rVal;
     }
 
+    /**
+     * <code>containsGui</code> tests a bounding volume against the ortho
+     * bounding box of the camera. A bounding box spanning from
+     * 0, 0 to Width, Height. Constrained by the viewport settings on the
+     * camera.
+     *
+     * @param bound the bound to check for culling
+     * @return True if the camera contains the gui element bounding volume.
+     */
     public boolean containsGui(BoundingVolume bound) {
         return guiBounding.intersects(bound);
     }
