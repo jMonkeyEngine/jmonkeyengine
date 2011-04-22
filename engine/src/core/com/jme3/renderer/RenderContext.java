@@ -42,7 +42,7 @@ import com.jme3.texture.Texture;
  * internally to reduce state changes. NOTE: This class is specific to OpenGL.
  */
 public class RenderContext {
-    
+
     /**
      * If back-face culling is enabled.
      */
@@ -138,6 +138,19 @@ public class RenderContext {
     public IDList textureIndexList = new IDList();
 
     public int boundTextureUnit = 0;
+
+    /**
+     * Stencil Buffer state
+     */
+    public boolean stencilTest = false;
+    public RenderState.StencilOperation frontStencilStencilFailOperation = RenderState.StencilOperation.Keep;
+    public RenderState.StencilOperation frontStencilDepthFailOperation = RenderState.StencilOperation.Keep;
+    public RenderState.StencilOperation frontStencilDepthPassOperation = RenderState.StencilOperation.Keep;
+    public RenderState.StencilOperation backStencilStencilFailOperation = RenderState.StencilOperation.Keep;
+    public RenderState.StencilOperation backStencilDepthFailOperation = RenderState.StencilOperation.Keep;
+    public RenderState.StencilOperation backStencilDepthPassOperation = RenderState.StencilOperation.Keep;
+    public RenderState.StencilFunction frontStencilFunction = RenderState.StencilFunction.Always;
+    public RenderState.StencilFunction backStencilFunction = RenderState.StencilFunction.Always;
 
     /**
      * Vertex attribs currently bound and enabled. If a slot is null, then

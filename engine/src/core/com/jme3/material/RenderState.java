@@ -125,9 +125,32 @@ public class RenderState implements Cloneable, Savable {
          */
         Back,
         /**
-         * Cull both front and back faces. 
+         * Cull both front and back faces.
          */
         FrontAndBack
+    }
+
+
+    public enum StencilOperation {
+        Keep, //keep the current value
+        Zero, //set the value to 0
+        Replace,  //sets the buffer to
+        Increment,
+        IncrementWrap,
+        Decrement,
+        DecrementWrap,
+        Invert
+    }
+
+    public enum StencilFunction {
+        Never,
+        Less,
+        LessEqual,
+        Greater,
+        GreaterEqual,
+        Equal,
+        NotEqual,
+        Always
     }
 
     static {
@@ -147,7 +170,7 @@ public class RenderState implements Cloneable, Savable {
         ADDITIONAL.applyAlphaFallOff = false;
         ADDITIONAL.applyPolyOffset = false;
     }
-    
+
     boolean pointSprite = false;
     boolean applyPointSprite = true;
     boolean wireframe = false;
@@ -170,6 +193,15 @@ public class RenderState implements Cloneable, Savable {
     boolean applyPolyOffset = true;
     float offsetFactor = 0;
     float offsetUnits = 0;
+    boolean stencilTest = false;
+    StencilOperation frontStencilStencilFailOperation = StencilOperation.Keep;
+    StencilOperation frontStencilDepthFailOperation = StencilOperation.Keep;
+    StencilOperation frontStencilDepthPassOperation = StencilOperation.Keep;
+    StencilOperation backStencilStencilFailOperation = StencilOperation.Keep;
+    StencilOperation backStencilDepthFailOperation = StencilOperation.Keep;
+    StencilOperation backStencilDepthPassOperation = StencilOperation.Keep;
+    StencilFunction frontStencilFunction = StencilFunction.Always;
+    StencilFunction backStencilFunction = StencilFunction.Always;
 
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule oc = ex.getCapsule(this);
@@ -185,6 +217,15 @@ public class RenderState implements Cloneable, Savable {
         oc.write(offsetEnabled, "offsetEnabled", false);
         oc.write(offsetFactor, "offsetFactor", 0);
         oc.write(offsetUnits, "offsetUnits", 0);
+        oc.write(stencilTest, "stencilTest", false);
+        oc.write(frontStencilStencilFailOperation, "frontStencilStencilFailOperation", StencilOperation.Keep);
+        oc.write(frontStencilDepthFailOperation, "frontStencilDepthFailOperation", StencilOperation.Keep);
+        oc.write(frontStencilDepthPassOperation, "frontStencilDepthPassOperation", StencilOperation.Keep);
+        oc.write(backStencilStencilFailOperation, "frontStencilStencilFailOperation", StencilOperation.Keep);
+        oc.write(backStencilDepthFailOperation, "backStencilDepthFailOperation", StencilOperation.Keep);
+        oc.write(backStencilDepthPassOperation, "backStencilDepthPassOperation", StencilOperation.Keep);
+        oc.write(frontStencilFunction, "frontStencilFunction", StencilFunction.Always);
+        oc.write(backStencilFunction, "backStencilFunction", StencilFunction.Always);
     }
 
     public void read(JmeImporter im) throws IOException {
@@ -201,6 +242,15 @@ public class RenderState implements Cloneable, Savable {
         offsetEnabled = ic.readBoolean("offsetEnabled", false);
         offsetFactor = ic.readFloat("offsetFactor", 0);
         offsetUnits = ic.readFloat("offsetUnits", 0);
+        stencilTest = ic.readBoolean("stencilTest", false);
+        frontStencilStencilFailOperation = ic.readEnum("frontStencilStencilFailOperation", StencilOperation.class, StencilOperation.Keep);
+        frontStencilDepthFailOperation = ic.readEnum("frontStencilDepthFailOperation", StencilOperation.class, StencilOperation.Keep);
+        frontStencilDepthPassOperation = ic.readEnum("frontStencilDepthPassOperation", StencilOperation.class, StencilOperation.Keep);
+        backStencilStencilFailOperation = ic.readEnum("backStencilStencilFailOperation", StencilOperation.class, StencilOperation.Keep);
+        backStencilDepthFailOperation = ic.readEnum("backStencilDepthFailOperation", StencilOperation.class, StencilOperation.Keep);
+        backStencilDepthPassOperation = ic.readEnum("backStencilDepthPassOperation", StencilOperation.class, StencilOperation.Keep);
+        frontStencilFunction = ic.readEnum("frontStencilFunction", StencilFunction.class, StencilFunction.Always);
+        backStencilFunction = ic.readEnum("backStencilFunction", StencilFunction.class, StencilFunction.Always);
     }
 
     @Override
@@ -281,6 +331,41 @@ public class RenderState implements Cloneable, Savable {
         offsetFactor = factor;
         offsetUnits = units;
     }
+
+    public void setStencil(boolean enabled,
+            StencilOperation _frontStencilStencilFailOperation,
+            StencilOperation _frontStencilDepthFailOperation,
+            StencilOperation _frontStencilDepthPassOperation,
+            StencilOperation _backStencilStencilFailOperation,
+            StencilOperation _backStencilDepthFailOperation,
+            StencilOperation _backStencilDepthPassOperation,
+            StencilFunction _frontStencilFunction,
+            StencilFunction _backStencilFunction){
+
+        stencilTest = enabled;
+        this.frontStencilStencilFailOperation = _frontStencilStencilFailOperation;
+        this.frontStencilDepthFailOperation = _frontStencilDepthFailOperation;
+        this.frontStencilDepthPassOperation = _frontStencilDepthPassOperation;
+        this.backStencilStencilFailOperation = _backStencilStencilFailOperation;
+        this.backStencilDepthFailOperation = _backStencilDepthFailOperation;
+        this.backStencilDepthPassOperation = _backStencilDepthPassOperation;
+        this.frontStencilFunction = _frontStencilFunction;
+        this.backStencilFunction = _backStencilFunction;
+    }
+
+    public boolean isStencilTest() {
+        return stencilTest;
+    }
+
+    public StencilOperation getFrontStencilStencilFailOperation(){ return frontStencilStencilFailOperation; }
+    public StencilOperation getFrontStencilDepthFailOperation(){ return frontStencilDepthFailOperation; }
+    public StencilOperation getFrontStencilDepthPassOperation(){ return frontStencilDepthPassOperation; }
+    public StencilOperation getBackStencilStencilFailOperation(){ return backStencilStencilFailOperation; }
+    public StencilOperation getBackStencilDepthFailOperation(){ return backStencilDepthFailOperation; }
+    public StencilOperation getBackStencilDepthPassOperation(){ return backStencilDepthPassOperation; }
+
+    public StencilFunction getFrontStencilFunction(){ return frontStencilFunction; }
+    public StencilFunction getBackStencilFunction(){ return backStencilFunction; }
 
     public void setFaceCullMode(FaceCullMode cullMode) {
         applyCullMode = true;

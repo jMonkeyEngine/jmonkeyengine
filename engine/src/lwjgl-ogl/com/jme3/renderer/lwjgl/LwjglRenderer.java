@@ -170,7 +170,7 @@ public class LwjglRenderer implements Renderer {
         return caps;
     }
 
-    @SuppressWarnings("fallthrough") 
+    @SuppressWarnings("fallthrough")
     public void initialize() {
         ContextCapabilities ctxCaps = GLContext.getCapabilities();
         if (ctxCaps.OpenGL20) {
@@ -471,7 +471,7 @@ public class LwjglRenderer implements Renderer {
 
         if (state.isDepthTest() && !context.depthTestEnabled) {
             glEnable(GL_DEPTH_TEST);
-            glDepthFunc(GL_LEQUAL);
+            glDepthFunc(GL_LESS);
             context.depthTestEnabled = true;
         } else if (!state.isDepthTest() && context.depthTestEnabled) {
             glDisable(GL_DEPTH_TEST);
@@ -603,6 +603,97 @@ public class LwjglRenderer implements Renderer {
             context.blendMode = state.getBlendMode();
         }
 
+        if(context.stencilTest!=state.isStencilTest()
+                || context.frontStencilStencilFailOperation!=state.getFrontStencilStencilFailOperation()
+                || context.frontStencilDepthFailOperation!=state.getFrontStencilDepthFailOperation()
+                || context.frontStencilDepthPassOperation!=state.getFrontStencilDepthPassOperation()
+                || context.backStencilStencilFailOperation!=state.getBackStencilStencilFailOperation()
+                || context.backStencilDepthFailOperation!=state.getBackStencilDepthFailOperation()
+                || context.backStencilDepthPassOperation!=state.getBackStencilDepthPassOperation()
+                || context.frontStencilFunction!=state.getFrontStencilFunction()
+                || context.backStencilFunction!=state.getBackStencilFunction()
+                ){
+
+            context.frontStencilStencilFailOperation=state.getFrontStencilStencilFailOperation();   //terrible looking, I know
+            context.frontStencilDepthFailOperation=state.getFrontStencilDepthFailOperation();
+            context.frontStencilDepthPassOperation=state.getFrontStencilDepthPassOperation();
+            context.backStencilStencilFailOperation=state.getBackStencilStencilFailOperation();
+            context.backStencilDepthFailOperation=state.getBackStencilDepthFailOperation();
+            context.backStencilDepthPassOperation=state.getBackStencilDepthPassOperation();
+            context.frontStencilFunction=state.getFrontStencilFunction();
+            context.backStencilFunction=state.getBackStencilFunction();
+
+            if(state.isStencilTest()){
+                glEnable(GL_STENCIL_TEST);
+                glStencilOpSeparate(GL_FRONT,
+                        glStencilOpFromStencilOp(state.getFrontStencilStencilFailOperation()),
+                        glStencilOpFromStencilOp(state.getFrontStencilDepthFailOperation()),
+                        glStencilOpFromStencilOp(state.getFrontStencilDepthPassOperation())
+                        );
+                glStencilOpSeparate(GL_BACK,
+                        glStencilOpFromStencilOp(state.getBackStencilStencilFailOperation()),
+                        glStencilOpFromStencilOp(state.getBackStencilDepthFailOperation()),
+                        glStencilOpFromStencilOp(state.getBackStencilDepthPassOperation())
+                        );
+                glStencilFuncSeparate(GL_FRONT,
+                        glStencilFuncFromStencilFunc(state.getFrontStencilFunction()),
+                        0,Integer.MAX_VALUE
+                        );
+                glStencilFuncSeparate(GL_BACK,
+                        glStencilFuncFromStencilFunc(state.getBackStencilFunction()),
+                        0,Integer.MAX_VALUE
+                        );
+            }else{
+                glDisable(GL_STENCIL_TEST);
+            }
+        }
+
+    }
+
+    private int glStencilOpFromStencilOp(RenderState.StencilOperation s){
+        switch(s){
+        case Keep:
+            return GL_KEEP;
+        case Zero:
+            return GL_ZERO;
+        case Replace:
+            return GL_REPLACE;
+        case Increment:
+            return GL_INCR;
+        case IncrementWrap:
+            return GL_INCR_WRAP;
+        case Decrement:
+            return GL_DECR;
+        case DecrementWrap:
+            return GL_DECR_WRAP;
+        case Invert:
+            return GL_INVERT;
+        default:
+            throw new UnsupportedOperationException("Unrecognized front stencil operation: " + s);
+        }  //end switch
+    }
+
+    private int glStencilFuncFromStencilFunc(RenderState.StencilFunction s){
+        switch(s){
+        case Never:
+            return GL_NEVER;
+        case Less:
+            return GL_LESS;
+        case LessEqual:
+            return GL_LEQUAL;
+        case Greater:
+            return GL_GREATER;
+        case GreaterEqual:
+            return GL_GEQUAL;
+        case Equal:
+            return GL_EQUAL;
+        case NotEqual:
+            return GL_NOTEQUAL;
+        case Always:
+            return GL_ALWAYS;
+        default:
+            throw new UnsupportedOperationException("Unrecognized front stencil functin: " + s);
+        }  //end switch
     }
 
     /*********************************************************************\
@@ -1524,7 +1615,7 @@ public class LwjglRenderer implements Renderer {
         }
     }
 
-    @SuppressWarnings("fallthrough") 
+    @SuppressWarnings("fallthrough")
     private void setupTextureParams(Texture tex) {
         Image image = tex.getImage();
         int target = convertTextureType(tex.getType(), image != null ? image.getMultiSamples() : 1);

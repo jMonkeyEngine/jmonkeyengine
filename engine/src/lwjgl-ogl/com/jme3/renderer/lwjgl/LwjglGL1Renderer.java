@@ -324,6 +324,9 @@ public class LwjglGL1Renderer implements GL1Renderer {
             context.blendMode = state.getBlendMode();
         }
 
+        if(state.isStencilTest())
+            throw new UnsupportedOperationException("OpenGL 1.1 doesn't support two sided stencil operations.");
+
     }
 
     public void setViewPort(int x, int y, int w, int h) {
@@ -520,7 +523,7 @@ public class LwjglGL1Renderer implements GL1Renderer {
                 if (!FastMath.isPowerOfTwo(img.getWidth())
                     || !FastMath.isPowerOfTwo(img.getHeight())
                     || img.getWidth() != img.getHeight()){
-                    
+
                     // Resize texture to Power-of-2 size
                     MipMapGenerator.resizeToPowerOf2(img);
 
@@ -685,7 +688,7 @@ public class LwjglGL1Renderer implements GL1Renderer {
     public void drawTriangleArray(Mesh.Mode mode, int count, int vertCount) {
         if (count > 1)
             throw new UnsupportedOperationException();
-        
+
         glDrawArrays(convertElementMode(mode), 0, vertCount);
     }
 
@@ -800,7 +803,7 @@ public class LwjglGL1Renderer implements GL1Renderer {
                 drawElements(elMode,
                              fmt,
                              indexData);
-                
+
                 curOffset += elementLength;
             }*/
         } else {
@@ -810,7 +813,7 @@ public class LwjglGL1Renderer implements GL1Renderer {
         }
     }
 
-    
+
 
     public void clearVertexAttribs() {
         for (int i = 0; i < 16; i++) {
@@ -895,7 +898,7 @@ public class LwjglGL1Renderer implements GL1Renderer {
         }
 
         statistics.onMeshDrawn(mesh, lod);
-        
+
 //        if (!dynamic) {
             // dealing with a static object, generate display list
 //            renderMeshDisplayList(mesh);
