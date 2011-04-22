@@ -72,6 +72,7 @@ import com.jme3.bullet.collision.PhysicsSweepTestResult;
 import com.jme3.bullet.collision.shapes.CollisionShape;
 import com.jme3.bullet.control.PhysicsControl;
 import com.jme3.bullet.control.RigidBodyControl;
+import com.jme3.bullet.control.VehicleControl;
 import com.jme3.bullet.joints.PhysicsJoint;
 import com.jme3.bullet.objects.PhysicsGhostObject;
 import com.jme3.bullet.objects.PhysicsCharacter;
@@ -534,20 +535,24 @@ public class PhysicsSpace {
     }
 
     private void addGhostObject(PhysicsGhostObject node) {
+        Logger.getLogger(PhysicsSpace.class.getName()).log(Level.INFO, "Adding ghost object {0} to physics space.", node.getObjectId());
         dynamicsWorld.addCollisionObject(node.getObjectId());
     }
 
     private void removeGhostObject(PhysicsGhostObject node) {
+        Logger.getLogger(PhysicsSpace.class.getName()).log(Level.INFO, "Removing ghost object {0} from physics space.", node.getObjectId());
         dynamicsWorld.removeCollisionObject(node.getObjectId());
     }
 
     private void addCharacter(PhysicsCharacter node) {
+        Logger.getLogger(PhysicsSpace.class.getName()).log(Level.INFO, "Adding character {0} to physics space.", node.getObjectId());
 //        dynamicsWorld.addCollisionObject(node.getObjectId());
         dynamicsWorld.addCollisionObject(node.getObjectId(), CollisionFilterGroups.CHARACTER_FILTER, (short) (CollisionFilterGroups.STATIC_FILTER | CollisionFilterGroups.DEFAULT_FILTER));
         dynamicsWorld.addAction(node.getControllerId());
     }
 
     private void removeCharacter(PhysicsCharacter node) {
+        Logger.getLogger(PhysicsSpace.class.getName()).log(Level.INFO, "Removing character {0} from physics space.", node.getObjectId());
         dynamicsWorld.removeAction(node.getControllerId());
         dynamicsWorld.removeCollisionObject(node.getObjectId());
     }
@@ -555,7 +560,9 @@ public class PhysicsSpace {
     private void addRigidBody(PhysicsRigidBody node) {
         physicsNodes.put(node.getObjectId(), node);
         dynamicsWorld.addRigidBody(node.getObjectId());
+        Logger.getLogger(PhysicsSpace.class.getName()).log(Level.INFO, "Adding RigidBody {0} to physics space.", node.getObjectId());
         if (node instanceof PhysicsVehicle) {
+            Logger.getLogger(PhysicsSpace.class.getName()).log(Level.INFO, "Adding vehicle constraint {0} to physics space.", ((PhysicsVehicle) node).getVehicleId());
             ((PhysicsVehicle) node).createVehicle(this);
             dynamicsWorld.addVehicle(((PhysicsVehicle) node).getVehicleId());
         }
@@ -563,20 +570,24 @@ public class PhysicsSpace {
 
     private void removeRigidBody(PhysicsRigidBody node) {
         if (node instanceof PhysicsVehicle) {
+            Logger.getLogger(PhysicsSpace.class.getName()).log(Level.INFO, "Removing vehicle constraint {0} from physics space.", ((PhysicsVehicle) node).getVehicleId());
             dynamicsWorld.removeVehicle(((PhysicsVehicle) node).getVehicleId());
         }
+        Logger.getLogger(PhysicsSpace.class.getName()).log(Level.INFO, "Removing RigidBody {0} from physics space.", node.getObjectId());
         physicsNodes.remove(node.getObjectId());
         dynamicsWorld.removeRigidBody(node.getObjectId());
     }
 
     private void addJoint(PhysicsJoint joint) {
+        Logger.getLogger(PhysicsSpace.class.getName()).log(Level.INFO, "Adding Joint {0} to physics space.", joint.getObjectId());
         physicsJoints.add(joint);
-        dynamicsWorld.addConstraint(joint.getConstraint(), !joint.isCollisionBetweenLinkedBodys());
+        dynamicsWorld.addConstraint(joint.getObjectId(), !joint.isCollisionBetweenLinkedBodys());
     }
 
     private void removeJoint(PhysicsJoint joint) {
+        Logger.getLogger(PhysicsSpace.class.getName()).log(Level.INFO, "Removing Joint {0} from physics space.", joint.getObjectId());
         physicsJoints.remove(joint);
-        dynamicsWorld.removeConstraint(joint.getConstraint());
+        dynamicsWorld.removeConstraint(joint.getObjectId());
     }
 
     /**

@@ -77,7 +77,7 @@ public abstract class PhysicsJoint implements Savable {
     /**
      * @return the constraint
      */
-    public TypedConstraint getConstraint() {
+    public TypedConstraint getObjectId() {
         return constraint;
     }
 
