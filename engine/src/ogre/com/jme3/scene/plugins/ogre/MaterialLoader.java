@@ -246,6 +246,9 @@ public class MaterialLoader implements AssetLoader {
             String mode = scan.next();
             if (mode.equals("alpha_blend")){
                 blend = true;
+            }else{
+                // skip the rest
+                readString("\n");
             }
         }else if (keyword.equals("cull_hardware")){
             String mode = scan.next();

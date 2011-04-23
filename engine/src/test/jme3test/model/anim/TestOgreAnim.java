@@ -36,6 +36,7 @@ import com.jme3.animation.AnimChannel;
 import com.jme3.animation.AnimControl;
 import com.jme3.animation.AnimEventListener;
 import com.jme3.animation.LoopMode;
+import com.jme3.animation.SkeletonControl;
 import com.jme3.app.SimpleApplication;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
@@ -83,11 +84,13 @@ public class TestOgreAnim extends SimpleApplication
 
         channel.setAnim("stand");
 
+        SkeletonControl skeletonControl = model.getControl(SkeletonControl.class);
+
         Box b = new Box(.25f,3f,.25f);
         Geometry item = new Geometry("Item", b);
         item.move(0, 1.5f, 0);
         item.setMaterial(assetManager.loadMaterial("Common/Materials/RedColor.j3m"));
-        Node n = control.getAttachmentsNode("hand.right");
+        Node n = skeletonControl.getAttachmentsNode("hand.right");
         n.attachChild(item);
 
         rootNode.attachChild(model);
