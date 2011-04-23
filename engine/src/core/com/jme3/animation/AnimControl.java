@@ -270,14 +270,15 @@ public final class AnimControl extends AbstractControl implements Savable, Clone
 
     @Override
     public void setSpatial(Spatial spatial) {
+        if (spatial == null && skeletonControl != null){
+            this.spatial.removeControl(skeletonControl);
+        }
+
         super.setSpatial(spatial);
 
         //Backward compatibility.
-        if (skeletonControl != null) {
+        if (spatial != null && skeletonControl != null) {
             spatial.addControl(skeletonControl);
-            // once the skeleton control is added to the spatial,
-            // the AnimControl returns to "non-compatible" mode.
-            skeletonControl = null;
         }
     }
 
