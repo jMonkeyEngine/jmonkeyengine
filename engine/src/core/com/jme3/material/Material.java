@@ -694,7 +694,7 @@ public class Material implements Cloneable, Savable, Comparable<Material> {
 
             if (name.equals("Default")) {
                 List<TechniqueDef> techDefs = def.getDefaultTechniques();
-                if (techDefs == null || techDefs.size() == 0) {
+                if (techDefs == null || techDefs.isEmpty()) {
                     throw new IllegalStateException("No default techniques are available on material '" + def.getName() + "'");
                 }
 
@@ -723,7 +723,7 @@ public class Material implements Cloneable, Savable, Comparable<Material> {
 
                 if (!rendererCaps.containsAll(techDef.getRequiredCaps())) {
                     throw new UnsupportedOperationException("The explicitly chosen technique '" + name + "' on material '" + def.getName() + "'\n"
-                            + "requires caps " + techDef.getRequiredCaps() + " which are not"
+                            + "requires caps " + techDef.getRequiredCaps() + " which are not "
                             + "supported by the video renderer");
                 }
 

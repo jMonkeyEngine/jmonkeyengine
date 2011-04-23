@@ -71,51 +71,40 @@ import java.util.HashMap;
 public final class AnimControl extends AbstractControl implements Savable, Cloneable {
 
     /**
-     * List of targets which this controller effects.
-     */
-    //  Mesh[] targets;
-    /**
      * Skeleton object must contain corresponding data for the targets' weight buffers.
      */
     Skeleton skeleton;
+
     /** only used for backward compatibility */
     @Deprecated
     private SkeletonControl skeletonControl;
+
     /**
      * List of animations
      */
     HashMap<String, BoneAnimation> animationMap;
+
     /**
      * Animation channels
      */
-    transient ArrayList<AnimChannel> channels = new ArrayList<AnimChannel>();
-    transient ArrayList<AnimEventListener> listeners = new ArrayList<AnimEventListener>();
+    private transient ArrayList<AnimChannel> channels = new ArrayList<AnimChannel>();
 
     /**
-     * Create a new <code>AnimControl</code> that will animate the given skins
-     * using the skeleton and provided animations.
-     *
-     * @param model The root node of all the skins specified in
-     * <code>meshes</code> argument.
-     * @param meshes The skins, or meshes, to animate. Should have
-     * properly set BoneIndex and BoneWeight buffers.
-     * @param skeleton The skeleton structure represents a bone hierarchy
-     * to be animated.
-     * @deprecated AnimControl doesnt' hande the skinning anymore, use AnimControl(Skeleton skeleton);
-     * Then create a SkeletonControl(Node model, Mesh[] meshes, Skeleton skeleton);
-     * and add it to the spatial.
+     * Animation event listeners
      */
-    @Deprecated
-    public AnimControl(Node model, Mesh[] meshes, Skeleton skeleton) {
-        super(model);
+    private transient ArrayList<AnimEventListener> listeners = new ArrayList<AnimEventListener>();
 
-        this.skeleton = skeleton;
-
-        skeletonControl = new SkeletonControl(meshes, this.skeleton);
-        reset();
-    }
-
+    /**
+     * Creates a new animation control for the given skeleton.
+     * The method {@link AnimControl#setAnimations(java.util.HashMap) }
+     * must be called after initialization in order for this class to be useful.
+     *
+     * @param skeleton The skeleton to animate
+     */
     public AnimControl(Skeleton skeleton) {
+        if (skeleton == null)
+            throw new IllegalArgumentException("skeleton cannot be null");
+
         this.skeleton = skeleton;
         reset();
     }
@@ -134,6 +123,8 @@ public final class AnimControl extends AbstractControl implements Savable, Clone
             clone.spatial = spatial;
             clone.skeleton = new Skeleton(skeleton);
             clone.channels = new ArrayList<AnimChannel>();
+            // animationMap is reference-copied, animation data should be shared
+            // to reduce memory usage.
             return clone;
         } catch (CloneNotSupportedException ex) {
             throw new AssertionError();
@@ -179,28 +170,6 @@ public final class AnimControl extends AbstractControl implements Savable, Clone
         }
 
         animationMap.remove(anim.getName());
-    }
-
-    /**
-     * 
-     * @param boneName the name of the bone
-     * @return the node attached to this bone
-     * @deprecated use SkeletonControl.getAttachementNode instead.
-     */
-    @Deprecated
-    public Node getAttachmentsNode(String boneName) {
-        Bone b = skeleton.getBone(boneName);
-        if (b == null) {
-            throw new IllegalArgumentException("Given bone name does not exist "
-                    + "in the skeleton.");
-        }
-
-        Node n = b.getAttachmentsNode();
-        if (spatial != null) {
-            Node model = (Node) spatial;
-            model.attachChild(n);
-        }
-        return n;
     }
 
     /**
@@ -251,17 +220,6 @@ public final class AnimControl extends AbstractControl implements Savable, Clone
      */
     public Skeleton getSkeleton() {
         return skeleton;
-    }
-
-    /**
-     * @return The targets, or skins, being influenced by this
-     * <code>AnimControl</code>.
-     * @deprecated use SkeletonControl.getTargets() instead
-     * get the SkeletonControl doing spatial.getControl(SkeletonControl.class);
-     */
-    @Deprecated
-    public Mesh[] getTargets() {
-        return skeletonControl.getTargets();
     }
 
     /**
@@ -317,8 +275,10 @@ public final class AnimControl extends AbstractControl implements Savable, Clone
         //Backward compatibility.
         if (skeletonControl != null) {
             spatial.addControl(skeletonControl);
+            // once the skeleton control is added to the spatial,
+            // the AnimControl returns to "non-compatible" mode.
+            skeletonControl = null;
         }
-
     }
 
     final void reset() {
@@ -380,7 +340,6 @@ public final class AnimControl extends AbstractControl implements Savable, Clone
         skeleton = (Skeleton) in.readSavable("skeleton", null);
         animationMap = (HashMap<String, BoneAnimation>) in.readStringSavableMap("animations", null);
 
-
         //changed for backward compatibility with j3o files generated before the AnimControl/SkeletonControl split
         //if we find a target mesh array the AnimControl creates the SkeletonControl for old files and add it to the spatial.        
         //When backward compatibility won't be needed anymore this can deleted        
@@ -392,7 +351,5 @@ public final class AnimControl extends AbstractControl implements Savable, Clone
             skeletonControl = new SkeletonControl(tg, skeleton);
             spatial.addControl(skeletonControl);
         }
-        //------
-
     }
 }

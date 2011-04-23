@@ -55,7 +55,7 @@ public class TestWav extends AudioApp {
     public void updateAudioApp(float tpf){
         time += tpf;
         if (time > .1f){
-            ar.playSourceInstance(src);
+            audioRenderer.playSourceInstance(src);
             time = 0;
         }
         
@@ -63,7 +63,7 @@ public class TestWav extends AudioApp {
 
     @Override
     public void initAudioApp(){
-        src = new AudioNode(manager, "Sound/Effects/Gun.wav", false);
+        src = new AudioNode(assetManager, "Sound/Effects/Gun.wav", false);
         src.setLooping(false);
     }
 

@@ -47,20 +47,20 @@ public class TestOgg extends AudioApp {
     @Override
     public void initAudioApp(){
         System.out.println("Playing without filter");
-        src = new AudioNode(manager, "Sound/Effects/Foot steps.ogg", true);
-        ar.playSource(src);
+        src = new AudioNode(assetManager, "Sound/Effects/Foot steps.ogg", true);
+        audioRenderer.playSource(src);
     }
 
     @Override
     public void updateAudioApp(float tpf){
         if (src.getStatus() != AudioNode.Status.Playing){
-            ar.deleteAudioData(src.getAudioData());
+            audioRenderer.deleteAudioData(src.getAudioData());
 
             System.out.println("Playing with low pass filter");
-            src = new AudioNode(manager, "Sound/Effects/Foot steps.ogg", true);
+            src = new AudioNode(assetManager, "Sound/Effects/Foot steps.ogg", true);
             src.setDryFilter(new LowPassFilter(1f, .1f));
             src.setVolume(3);
-            ar.playSource(src);
+            audioRenderer.playSource(src);
         }
     }
 

@@ -43,20 +43,20 @@ public class AudioApp {
 
     private static final float UPDATE_RATE = 0.01f;
 
-    protected AssetManager manager;
+    protected AssetManager assetManager;
     protected Listener listener;
-    protected AudioRenderer ar;
+    protected AudioRenderer audioRenderer;
 
     public AudioApp(){
         AppSettings settings = new AppSettings(true);
         settings.setRenderer(null); // force dummy renderer (?)
         settings.setAudioRenderer(AppSettings.LWJGL_OPENAL);
-        ar = JmeSystem.newAudioRenderer(settings);
-        ar.initialize();
-        manager = new DesktopAssetManager(true);
+        audioRenderer = JmeSystem.newAudioRenderer(settings);
+        audioRenderer.initialize();
+        assetManager = new DesktopAssetManager(true);
 
         listener = new Listener();
-        ar.setListener(listener);
+        audioRenderer.setListener(listener);
     }
 
     public void initAudioApp(){
@@ -70,7 +70,7 @@ public class AudioApp {
 
         while (true){
             updateAudioApp(UPDATE_RATE);
-            ar.update(UPDATE_RATE);
+            audioRenderer.update(UPDATE_RATE);
 
             try{
                 Thread.sleep((int) (UPDATE_RATE * 1000f));

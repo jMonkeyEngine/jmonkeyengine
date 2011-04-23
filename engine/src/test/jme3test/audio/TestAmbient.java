@@ -51,10 +51,10 @@ public class TestAmbient extends AudioApp {
 
     @Override
     public void initAudioApp(){
-        waves  = new AudioNode(manager, "Sound/Environment/Ocean Waves.ogg", false);
+        waves  = new AudioNode(assetManager, "Sound/Environment/Ocean Waves.ogg", false);
         waves.setPositional(true);
 
-        nature = new AudioNode(manager, "Sound/Environment/Nature.ogg", true);
+        nature = new AudioNode(assetManager, "Sound/Environment/Nature.ogg", true);
 //        river  = new AudioSource(manager, "sounds/river.ogg");
 
 //        float[] eax = new float[]
@@ -69,8 +69,8 @@ public class TestAmbient extends AudioApp {
         waves.setRefDistance(1);
         
         nature.setVolume(3);
-        ar.playSourceInstance(waves);
-        ar.playSource(nature);
+        audioRenderer.playSourceInstance(waves);
+        audioRenderer.playSource(nature);
     }
 
     @Override

@@ -51,16 +51,6 @@ public abstract class AbstractControl implements Control {
     protected boolean enabled = true;
     protected Spatial spatial;
 
-    /**
-     * @param spatial
-     * @deprecated The spatial parameter is passed in {@link AbstractControl#setSpatial(com.jme3.scene.Spatial) }
-     * automatically.
-     */
-    @Deprecated
-    public AbstractControl(Spatial spatial){
-        this.spatial = spatial;
-    }
-
     public AbstractControl(){
     }
 
