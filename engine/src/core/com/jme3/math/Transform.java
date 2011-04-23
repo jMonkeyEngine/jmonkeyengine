@@ -253,8 +253,15 @@ public final class Transform implements Savable, Cloneable {
         if (store == null)
             store = new Vector3f();
 
-        in.subtract(translation, store).divideLocal(scale);
+        // The author of this code should look above and take the inverse of that
+        // But for some reason, they didnt ..
+//        in.subtract(translation, store).divideLocal(scale);
+//        rot.inverse().mult(store, store);
+
+        in.subtract(translation, store);
         rot.inverse().mult(store, store);
+        store.divideLocal(scale);
+
         return store;
     }
 
