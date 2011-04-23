@@ -237,7 +237,6 @@ public final class Bone implements Savable {
      */
     public final void updateWorldVectors() {
         if (parent != null) {
-
             //rotation
             parent.worldRot.mult(localRot, worldRot);
 
@@ -251,9 +250,6 @@ public final class Bone implements Savable {
             parent.worldRot.mult(localPos, worldPos);
             worldPos.multLocal(parent.worldScale);
             worldPos.addLocal(parent.worldPos);
-
-
-
         } else {
             worldRot.set(localRot);
             worldPos.set(localPos);

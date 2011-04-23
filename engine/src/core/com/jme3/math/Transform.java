@@ -200,11 +200,18 @@ public final class Transform implements Savable, Cloneable {
         scale.multLocal(parent.scale);
 //        rot.multLocal(parent.rot);
         parent.rot.mult(rot, rot);
-        
+
+        // This here, is evil code
+//        parent
+//            .rot
+//            .multLocal(translation)
+//            .multLocal(parent.scale)
+//            .addLocal(parent.translation);
+
+        translation.multLocal(parent.scale);
         parent
             .rot
             .multLocal(translation)
-            .multLocal(parent.scale)
             .addLocal(parent.translation);
         return this;
     }
@@ -262,8 +269,9 @@ public final class Transform implements Savable, Cloneable {
 
     @Override
     public String toString(){
-        return getClass().getSimpleName() + "[ "+translation.x + ", "+ translation.y + ", "+translation.z+"]\n"+
-                                            "[ "+rot.x + ", " + rot.y + ", " + rot.z + ", " + rot.w + "]";
+        return getClass().getSimpleName() + "[ " + translation.x + ", " + translation.y + ", " + translation.z + "]\n"
+                                          + "[ " + rot.x + ", " + rot.y + ", " + rot.z + ", " + rot.w + "]\n"
+                                          + "[ " + scale.x + " , " + scale.y + ", " + scale.z + "]";
     }
 
     /**
