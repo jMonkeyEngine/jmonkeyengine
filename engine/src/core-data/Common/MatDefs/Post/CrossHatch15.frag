@@ -15,8 +15,8 @@ uniform float m_Luminance3;
 uniform float m_Luminance4;
 uniform float m_Luminance5;
  
-uniform int m_LineDistance;
-uniform int m_LineThickness;
+uniform float m_LineDistance;
+uniform float m_LineThickness;
  
 void main() {
     vec4 texVal = getColor(m_Texture, texCoord);
@@ -25,11 +25,11 @@ void main() {
     float lum = texVal.r*0.2126 + texVal.g*0.7152 + texVal.b*0.0722;
  
     if (lum < m_Luminance1){
-        if (mod(gl_FragCoord.x + gl_FragCoord.y, m_LineDistance * 2) < m_LineThickness)
+        if (mod(gl_FragCoord.x + gl_FragCoord.y, m_LineDistance * 2.0) < m_LineThickness)
             linePixel = 1;
     }
     if (lum < m_Luminance2){
-        if (mod(gl_FragCoord.x - gl_FragCoord.y, m_LineDistance * 2) < m_LineThickness)
+        if (mod(gl_FragCoord.x - gl_FragCoord.y, m_LineDistance * 2.0) < m_LineThickness)
             linePixel = 1;
     }
     if (lum < m_Luminance3){
