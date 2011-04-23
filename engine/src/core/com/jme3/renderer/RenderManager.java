@@ -435,7 +435,6 @@ public class RenderManager {
         for (int i = 0; i < gl.size(); i++) {
             renderGeometry(gl.get(i));
         }
-
     }
 
     /**

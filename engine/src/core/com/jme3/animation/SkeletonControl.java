@@ -36,10 +36,17 @@ public class SkeletonControl extends AbstractControl implements Savable, Cloneab
      * The skelrton of the model
      */
     private Skeleton skeleton;
+
     /**
      * List of targets which this controller effects.
      */
-    Mesh[] targets;
+    private Mesh[] targets;
+
+    /**
+     * Used to track when a mesh was updated. Meshes are only updated
+     * if they are visible in at least one camera.
+     */
+    private boolean wasMeshUpdated = false;
 
     public SkeletonControl() {
     }
@@ -50,19 +57,41 @@ public class SkeletonControl extends AbstractControl implements Savable, Cloneab
     }
 
     @Override
-    protected void controlUpdate(float tpf) {
-        resetToBind(); // reset morph meshes to bind pose 
+    protected void controlRender(RenderManager rm, ViewPort vp) {
+        if (!wasMeshUpdated){
+            resetToBind(); // reset morph meshes to bind pose
 
-        Matrix4f[] offsetMatrices = skeleton.computeSkinningMatrices();
+            Matrix4f[] offsetMatrices = skeleton.computeSkinningMatrices();
 
-        // if hardware skinning is supported, the matrices and weight buffer
-        // will be sent by the SkinningShaderLogic object assigned to the shader
-        for (int i = 0; i < targets.length; i++) {
-            // only update targets with bone-vertex assignments
-            if (targets[i].getBuffer(Type.BoneIndex) != null) {
-                softwareSkinUpdate(targets[i], offsetMatrices);
+            // if hardware skinning is supported, the matrices and weight buffer
+            // will be sent by the SkinningShaderLogic object assigned to the shader
+            for (int i = 0; i < targets.length; i++) {
+                // only update targets with bone-vertex assignments
+                if (targets[i].getBuffer(Type.BoneIndex) != null) {
+                    softwareSkinUpdate(targets[i], offsetMatrices);
+                }
             }
+            
+            wasMeshUpdated = true;
         }
+    }
+
+    @Override
+    protected void controlUpdate(float tpf) {
+        wasMeshUpdated = false;
+        
+//        resetToBind(); // reset morph meshes to bind pose
+//
+//        Matrix4f[] offsetMatrices = skeleton.computeSkinningMatrices();
+//
+//        // if hardware skinning is supported, the matrices and weight buffer
+//        // will be sent by the SkinningShaderLogic object assigned to the shader
+//        for (int i = 0; i < targets.length; i++) {
+//            // only update targets with bone-vertex assignments
+//            if (targets[i].getBuffer(Type.BoneIndex) != null) {
+//                softwareSkinUpdate(targets[i], offsetMatrices);
+//            }
+//        }
     }
 
     void resetToBind() {
@@ -90,6 +119,70 @@ public class SkeletonControl extends AbstractControl implements Savable, Cloneab
                 nb.put(bnb).clear();
             }
         }
+    }
+
+    public Control cloneForSpatial(Spatial spatial) {
+        Node clonedNode = (Node) spatial;
+        AnimControl ctrl = spatial.getControl(AnimControl.class);
+        SkeletonControl clone = new SkeletonControl();
+        clone.setSpatial(clonedNode);
+
+        clone.skeleton = ctrl.getSkeleton();
+        Mesh[] meshes = new Mesh[targets.length];
+        for (int i = 0; i < meshes.length; i++) {
+            meshes[i] = ((Geometry) clonedNode.getChild(i)).getMesh();
+        }
+        for (int i = meshes.length; i < clonedNode.getQuantity(); i++) {
+            // go through attachment nodes, apply them to correct bone
+            Spatial child = clonedNode.getChild(i);
+            if (child instanceof Node) {
+                Node clonedAttachNode = (Node) child;
+                Bone originalBone = (Bone) clonedAttachNode.getUserData("AttachedBone");
+
+                if (originalBone != null) {
+                    Bone clonedBone = clone.skeleton.getBone(originalBone.getName());
+
+                    clonedAttachNode.setUserData("AttachedBone", clonedBone);
+                    clonedBone.setAttachmentsNode(clonedAttachNode);
+                }
+            }
+        }
+        clone.targets = meshes;
+        return clone;
+    }
+
+    /**
+     * 
+     * @param boneName the name of the bone
+     * @return the node attached to this bone    
+     */
+    public Node getAttachmentsNode(String boneName) {
+        Bone b = skeleton.getBone(boneName);
+        if (b == null) {
+            throw new IllegalArgumentException("Given bone name does not exist "
+                    + "in the skeleton.");
+        }
+
+        Node n = b.getAttachmentsNode();
+        Node model = (Node) spatial;
+        model.attachChild(n);
+        return n;
+    }
+
+    public Skeleton getSkeleton() {
+        return skeleton;
+    }
+
+    public void setSkeleton(Skeleton skeleton) {
+        this.skeleton = skeleton;
+    }
+
+    public Mesh[] getTargets() {
+        return targets;
+    }
+
+    public void setTargets(Mesh[] targets) {
+        this.targets = targets;
     }
 
     private void softwareSkinUpdate(Mesh mesh, Matrix4f[] offsetMatrices) {
@@ -184,79 +277,6 @@ public class SkeletonControl extends AbstractControl implements Savable, Cloneab
         nb.updateData(fnb);
 
 //        mesh.updateBound();
-    }
-
-    final void reset() {
-        resetToBind();
-    }
-
-    @Override
-    protected void controlRender(RenderManager rm, ViewPort vp) {
-    }
-
-    public Control cloneForSpatial(Spatial spatial) {
-        Node clonedNode = (Node) spatial;
-        AnimControl ctrl = spatial.getControl(AnimControl.class);
-        SkeletonControl clone = new SkeletonControl();
-        clone.setSpatial(clonedNode);
-
-        clone.skeleton = ctrl.getSkeleton();
-        Mesh[] meshes = new Mesh[targets.length];
-        for (int i = 0; i < meshes.length; i++) {
-            meshes[i] = ((Geometry) clonedNode.getChild(i)).getMesh();
-        }
-        for (int i = meshes.length; i < clonedNode.getQuantity(); i++) {
-            // go through attachment nodes, apply them to correct bone
-            Spatial child = clonedNode.getChild(i);
-            if (child instanceof Node) {
-                Node clonedAttachNode = (Node) child;
-                Bone originalBone = (Bone) clonedAttachNode.getUserData("AttachedBone");
-
-                if (originalBone != null) {
-                    Bone clonedBone = clone.skeleton.getBone(originalBone.getName());
-
-                    clonedAttachNode.setUserData("AttachedBone", clonedBone);
-                    clonedBone.setAttachmentsNode(clonedAttachNode);
-                }
-            }
-        }
-        clone.targets = meshes;
-        return clone;
-
-    }
-
-    /**
-     * 
-     * @param boneName the name of the bone
-     * @return the node attached to this bone    
-     */
-    public Node getAttachmentsNode(String boneName) {
-        Bone b = skeleton.getBone(boneName);
-        if (b == null) {
-            throw new IllegalArgumentException("Given bone name does not exist "
-                    + "in the skeleton.");
-        }
-
-        Node n = b.getAttachmentsNode();
-        Node model = (Node) spatial;
-        model.attachChild(n);
-        return n;
-    }
-
-    public Skeleton getSkeleton() {
-        return skeleton;
-    }
-
-    public void setSkeleton(Skeleton skeleton) {
-        this.skeleton = skeleton;
-    }
-
-    public Mesh[] getTargets() {
-        return targets;
-    }
-
-    public void setTargets(Mesh[] targets) {
-        this.targets = targets;
     }
 
     @Override
