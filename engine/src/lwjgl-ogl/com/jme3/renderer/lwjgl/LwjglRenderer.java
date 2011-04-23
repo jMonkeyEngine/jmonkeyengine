@@ -471,7 +471,7 @@ public class LwjglRenderer implements Renderer {
 
         if (state.isDepthTest() && !context.depthTestEnabled) {
             glEnable(GL_DEPTH_TEST);
-            glDepthFunc(GL_LESS);
+            glDepthFunc(GL_LEQUAL);
             context.depthTestEnabled = true;
         } else if (!state.isDepthTest() && context.depthTestEnabled) {
             glDisable(GL_DEPTH_TEST);
