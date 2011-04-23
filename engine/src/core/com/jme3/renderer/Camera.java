@@ -1098,8 +1098,8 @@ public class Camera implements Savable, Cloneable {
         float ex = width * viewPortRight;
         float sy = height * viewPortBottom;
         float ey = height * viewPortTop;
-        float xExtent = (ex - sx) / 2;
-        float yExtent = (ey - sy) / 2;
+        float xExtent = Math.max(0f, (ex - sx) / 2f);
+        float yExtent = Math.max(0f, (ey - sy) / 2f);
         guiBounding.setCenter(new Vector3f(sx + xExtent, sy + yExtent, 0));
         guiBounding.setXExtent(xExtent);
         guiBounding.setYExtent(yExtent);
