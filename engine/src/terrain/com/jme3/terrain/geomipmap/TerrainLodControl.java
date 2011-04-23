@@ -61,27 +61,25 @@ import java.util.ArrayList;
  * @author Brent Owens
  */
 public class TerrainLodControl extends AbstractControl {
-	
-	private TerrainQuad terrain;
-	private List<Camera> cameras;
+
+    private TerrainQuad terrain;
+    private List<Camera> cameras;
     private List<Vector3f> cameraLocations = new ArrayList<Vector3f>();
 
-
     public TerrainLodControl() {
-
     }
     
-	/**
-	 * Only uses the first camera right now.
-	 * @param terrain to act upon (must be a Spatial)
-	 * @param cameras one or more cameras to reference for LOD calc
-	 */
-	public TerrainLodControl(Terrain terrain, List<Camera> cameras) {
-		super((Spatial)terrain);
-        if (terrain instanceof TerrainQuad)
-            this.terrain = (TerrainQuad)terrain;
-		this.cameras = cameras;
-	}
+   /**
+     * Only uses the first camera right now.
+     * @param terrain to act upon (must be a Spatial)
+     * @param cameras one or more cameras to reference for LOD calc
+     */
+    public TerrainLodControl(Terrain terrain, List<Camera> cameras) {
+        if (terrain instanceof TerrainQuad) {
+            this.terrain = (TerrainQuad) terrain;
+        }
+        this.cameras = cameras;
+    }
 	
 	@Override
 	protected void controlRender(RenderManager rm, ViewPort vp) {
