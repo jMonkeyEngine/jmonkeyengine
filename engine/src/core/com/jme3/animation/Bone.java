@@ -39,6 +39,7 @@ import com.jme3.export.Savable;
 import com.jme3.math.Matrix3f;
 import com.jme3.math.Matrix4f;
 import com.jme3.math.Quaternion;
+import com.jme3.math.Transform;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
 import com.jme3.util.TempVars;
@@ -92,6 +93,9 @@ public final class Bone implements Savable {
     private Vector3f worldPos = new Vector3f();
     private Quaternion worldRot = new Quaternion();
     private Vector3f worldScale = new Vector3f();
+    
+    //used for getCombinedTransform 
+    private Transform tmpTransform=new Transform();
 
     /**
      * Creates a new bone with the given name.
@@ -372,17 +376,19 @@ public final class Bone implements Savable {
         worldPos.set(translation);
         worldRot.set(rotation);
     }
-    protected Vector3f tmpVec = new Vector3f();
-    protected Quaternion tmpQuat = new Quaternion();
-
-    public Quaternion getTmpQuat() {
-        return tmpQuat;
+    
+    /**
+     * Returns teh local transform of this bone combined with the given position and rotation
+     * @param position a position
+     * @param rotation a rotation
+     * @return 
+     */
+    public Transform getCombinedTransform(Vector3f position, Quaternion rotation){
+            rotation.mult(localPos, tmpTransform.getTranslation()).addLocal(position);
+            tmpTransform.setRotation(rotation).getRotation().multLocal(localRot);
+            return tmpTransform;
     }
-
-    public Vector3f getTmpVec() {
-        return tmpVec;
-    }
-
+    
     /**
      * Returns the attachment node.
      * Attach models and effects to this node to make

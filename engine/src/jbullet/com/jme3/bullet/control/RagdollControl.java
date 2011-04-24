@@ -50,6 +50,7 @@ import com.jme3.bullet.objects.PhysicsRigidBody;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.math.Quaternion;
+import com.jme3.math.Transform;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
@@ -83,7 +84,7 @@ public class RagdollControl implements PhysicsControl, PhysicsCollisionListener 
     protected Skeleton skeleton;
     protected PhysicsSpace space;
     protected boolean enabled = true;
-    protected boolean debug = false;   
+    protected boolean debug = false;
     protected PhysicsRigidBody baseRigidBody;
     protected float weightThreshold = 1.0f;
     protected Spatial targetModel;
@@ -186,12 +187,8 @@ public class RagdollControl implements PhysicsControl, PhysicsCollisionListener 
         bone.setUserTransformsWorld(pos, rot);
         for (Bone childBone : bone.getChildren()) {
             if (!boneList.contains(childBone.getName())) {
-                Vector3f tmpVec = childBone.getTmpVec();
-                Quaternion tmpQuat = childBone.getTmpQuat();
-                rot.mult(childBone.getLocalPosition(), tmpVec).addLocal(pos);
-                tmpQuat.set(rot).multLocal(childBone.getLocalRotation());
-                setTransform(childBone, tmpVec, tmpQuat);
-
+                Transform t = childBone.getCombinedTransform(pos, rot);
+                setTransform(childBone, t.getTranslation(), t.getRotation());
             }
         }
     }
@@ -592,7 +589,7 @@ public class RagdollControl implements PhysicsControl, PhysicsCollisionListener 
             }
         }
 
-        if (hit && event.getAppliedImpulse() > eventDispatchImpulseThreshold) {       
+        if (hit && event.getAppliedImpulse() > eventDispatchImpulseThreshold) {
             for (RagdollCollisionListener listener : listeners) {
                 listener.collide(hitBone, hitObject, event);
             }
@@ -680,6 +677,4 @@ public class RagdollControl implements PhysicsControl, PhysicsCollisionListener 
     public void setEventDispatchImpulseThreshold(float eventDispatchImpulseThreshold) {
         this.eventDispatchImpulseThreshold = eventDispatchImpulseThreshold;
     }
-    
-    
 }
