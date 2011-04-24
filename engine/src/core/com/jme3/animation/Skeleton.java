@@ -213,7 +213,7 @@ public final class Skeleton implements Savable {
         TempVars vars = TempVars.get();
         assert vars.lock();
         for (int i = 0; i < boneList.length; i++) {
-            boneList[i].getOffsetTransform(skinningMatrixes[i], vars.quat1, vars.vect1, vars.vect2);
+            boneList[i].getOffsetTransform(skinningMatrixes[i], vars.quat1, vars.vect1, vars.vect2, vars.tempMat3);
         }
         assert vars.unlock();
         return skinningMatrixes;

@@ -93,7 +93,6 @@ public final class Bone implements Savable {
     private Quaternion worldRot = new Quaternion();
     private Vector3f worldScale = new Vector3f();
 
-    
     /**
      * Creates a new bone with the given name.
      * 
@@ -104,7 +103,7 @@ public final class Bone implements Savable {
 
         initialPos = new Vector3f();
         initialRot = new Quaternion();
-        initialScale = new Vector3f(1,1,1);
+        initialScale = new Vector3f(1, 1, 1);
 
         worldBindInversePos = new Vector3f();
         worldBindInverseRot = new Quaternion();
@@ -323,7 +322,7 @@ public final class Bone implements Savable {
      * The skinning transform applies the animation of the bone to a vertex.
      * @param m
      */
-    void getOffsetTransform(Matrix4f m, Quaternion tmp1, Vector3f tmp2, Vector3f tmp3) {
+    void getOffsetTransform(Matrix4f m, Quaternion tmp1, Vector3f tmp2, Vector3f tmp3, Matrix3f rotMat) {
 
         //Computing scale
         Vector3f scale = worldScale.mult(worldBindInverseScale, tmp3);
@@ -334,15 +333,11 @@ public final class Bone implements Savable {
         //computing translation
         //translation depend on rotation and scale
         Vector3f translate = worldPos.add(rotate.mult(scale.mult(worldBindInversePos, tmp2), tmp2), tmp2);
-        
+
         //populating the matrix
         m.loadIdentity();
-        TempVars vars = TempVars.get();
-        assert vars.lock();
-        Matrix3f rotMat = vars.tempMat3;
         m.setTransform(translate, scale, rotate.toRotationMatrix(rotMat));
 
-        assert vars.unlock();
     }
 
     /**
@@ -377,7 +372,6 @@ public final class Bone implements Savable {
         worldPos.set(translation);
         worldRot.set(rotation);
     }
-    
     protected Vector3f tmpVec = new Vector3f();
     protected Quaternion tmpQuat = new Quaternion();
 
@@ -388,7 +382,7 @@ public final class Bone implements Savable {
     public Vector3f getTmpVec() {
         return tmpVec;
     }
- 
+
     /**
      * Returns the attachment node.
      * Attach models and effects to this node to make
@@ -425,7 +419,7 @@ public final class Bone implements Savable {
 
         localPos.set(initialPos).addLocal(translation);
         localRot.set(initialRot).multLocal(rotation);
-       
+
         if (scale != null) {
             localScale.set(initialScale).multLocal(scale);
         }
