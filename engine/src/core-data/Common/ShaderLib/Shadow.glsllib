@@ -99,7 +99,7 @@ float Shadow_DoPCF_2x2(in SHADOWMAP tex, in vec4 projCoord){
 
 
 float Shadow_GetShadow(in SHADOWMAP tex, in vec4 projCoord){
-    return Shadow_DoDither_2x2(tex, projCoord) + Shadow_BorderCheck(projCoord.xy);
+    return clamp(Shadow_DoDither_2x2(tex, projCoord) + Shadow_BorderCheck(projCoord.xy), 0.0, 1.0);
 }
 
 
