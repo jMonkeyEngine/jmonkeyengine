@@ -7,6 +7,7 @@ package com.jme3.gde.assetpack;
 import com.jme3.animation.AnimControl;
 import com.jme3.animation.BoneAnimation;
 import com.jme3.animation.BoneTrack;
+import com.jme3.animation.SkeletonControl;
 import com.jme3.asset.ModelKey;
 import com.jme3.gde.assetpack.actions.AddAssetAction;
 import com.jme3.gde.assetpack.project.wizards.FileDescription;
@@ -47,7 +48,7 @@ public class AssetPackLoader {
         Spatial model = null;
         Node node = null;
         while (fileElement != null) {
-            Logger.getLogger(AssetPackLoader.class.getName()).log(Level.INFO, "Load main file {0}",fileElement.getAttribute("path"));
+            Logger.getLogger(AssetPackLoader.class.getName()).log(Level.INFO, "Load main file {0}", fileElement.getAttribute("path"));
             if (model != null && node == null) {
                 node = new Node(assetElement.getAttribute("name"));
                 node.attachChild(model);
@@ -72,7 +73,14 @@ public class AssetPackLoader {
         AnimControl control = to.getControl(AnimControl.class);
         AnimControl control2 = from.getControl(AnimControl.class);
         if (control == null) {
-            control = new AnimControl(to, control2.getTargets(), control2.getSkeleton());
+            SkeletonControl fromSkeletonControl = from.getControl(SkeletonControl.class);
+            control = new AnimControl(control2.getSkeleton());
+            SkeletonControl toSkeletonControl = to.getControl(SkeletonControl.class);
+            if (toSkeletonControl == null) {
+                toSkeletonControl = new SkeletonControl(fromSkeletonControl.getTargets(), control.getSkeleton());
+            }
+            to.addControl(control);
+            to.addControl(toSkeletonControl);
         }
         Collection<String> names = control.getAnimationNames();
         Collection<String> names2 = new LinkedList<String>(control2.getAnimationNames());
@@ -140,7 +148,7 @@ public class AssetPackLoader {
         baseLightExt.setTextureMapping("NormalHeightMap", "NormalMap");
         baseLightExt.setTextureMapping("SpecularMap", "SpecularMap");
         matExts.addMaterialExtension(baseLightExt);
-        
+
         MaterialExtension baseLightExt2 = new MaterialExtension("/base/normalmap",
                 "Common/MatDefs/Light/Lighting.j3md");
         baseLightExt2.setTextureMapping("DiffuseMap", "DiffuseMap");
