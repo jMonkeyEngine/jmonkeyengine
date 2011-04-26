@@ -143,7 +143,11 @@ public class KernelAdapter extends Thread
         try {           
             HostedConnection source = getConnection(p);
             if( source == null ) {
-                log.log( Level.WARNING, "Recieved message from unconnected endpoint:" + p + "  message:" + m );
+                if( reliable ) {
+                    // If it's a reliable connection then it's slightly more
+                    // concerning but this can happen all the time for a UDP endpoint.
+                    log.log( Level.WARNING, "Recieved message from unconnected endpoint:" + p + "  message:" + m );
+                }                    
                 return; 
             }
             messageDispatcher.messageReceived( source, m );

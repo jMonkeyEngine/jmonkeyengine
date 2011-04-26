@@ -82,7 +82,7 @@ public class ConnectorAdapter extends Thread
         this.reliable = reliable;
         setDaemon(true);        
         writer = Executors.newFixedThreadPool(1, 
-                            new NamedThreadFactory(String.valueOf(connector) + "-writer"));
+                            new NamedThreadFactory(String.valueOf(connector) + "-writer", true));
     }
  
     public void close()
