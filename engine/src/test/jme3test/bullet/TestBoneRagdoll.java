@@ -33,7 +33,9 @@ package jme3test.bullet;
 
 import com.jme3.animation.AnimChannel;
 import com.jme3.animation.AnimControl;
+import com.jme3.animation.AnimEventListener;
 import com.jme3.animation.Bone;
+import com.jme3.animation.LoopMode;
 import com.jme3.bullet.BulletAppState;
 import com.jme3.app.SimpleApplication;
 import com.jme3.asset.TextureKey;
@@ -57,6 +59,7 @@ import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
+import com.jme3.math.Matrix3f;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
@@ -70,7 +73,7 @@ import com.jme3.texture.Texture;
  * PHYSICS RAGDOLLS ARE NOT WORKING PROPERLY YET!
  * @author normenhansen
  */
-public class TestBoneRagdoll extends SimpleApplication implements RagdollCollisionListener {
+public class TestBoneRagdoll extends SimpleApplication implements RagdollCollisionListener, AnimEventListener{
 
     private BulletAppState bulletAppState;
     Material matBullet;
@@ -135,13 +138,26 @@ public class TestBoneRagdoll extends SimpleApplication implements RagdollCollisi
 
         animChannel = control.createChannel();
         animChannel.setAnim("Dance");
+        control.addListener(this);
 
         inputManager.addListener(new ActionListener() {
 
             public void onAction(String name, boolean isPressed, float tpf) {
                 if (name.equals("toggle") && isPressed) {
-                    ragdoll.setControl(false);
-                    model.setLocalTranslation(0, 0, 0);
+                    
+                    Vector3f v=new Vector3f();
+                    v.set(model.getLocalTranslation());
+                    v.y=0;
+                    model.setLocalTranslation(v);
+                    Quaternion q=new Quaternion();
+                    float[] angles=new float[3];
+                    model.getLocalRotation().toAngles(angles);
+                    q.fromAngleAxis(angles[1],  Vector3f.UNIT_Y);
+                    //q.lookAt(model.getLocalRotation().toRotationMatrix().getColumn(2), Vector3f.UNIT_Y);
+                    model.setLocalRotation(q);
+                  //  animChannel.setAnim("StandUpBack");
+                    ragdoll.blendControlToAnim("StandUpFront",animChannel);
+                   //  animChannel.setAnim("StandUpFront",0.00f);
                 }
                 if (name.equals("bullet+") && isPressed) {
                     bulletSize += 0.1f;
@@ -166,7 +182,7 @@ public class TestBoneRagdoll extends SimpleApplication implements RagdollCollisi
                     bulletCollisionShape = new SphereCollisionShape(bulletSize);                   
                     RigidBodyControl bulletNode = new RigidBodyControl(bulletCollisionShape, bulletSize * 10);
                     bulletNode.setCcdMotionThreshold(0.001f);
-                    bulletNode.setLinearVelocity(cam.getDirection().mult(180));
+                    bulletNode.setLinearVelocity(cam.getDirection().mult(80));
                     bulletg.addControl(bulletNode);
                     rootNode.attachChild(bulletg);
                     getPhysicsSpace().add(bulletNode);
@@ -295,40 +311,60 @@ public class TestBoneRagdoll extends SimpleApplication implements RagdollCollisi
 
     @Override
     public void simpleUpdate(float tpf) {
-        elTime += tpf;
-        if (elTime > 3) {
-            elTime = 0;
-            if (dance) {
-                rotate.multLocal(direction);
-            }
-            if (Math.random() > 0.80) {
-                dance = true;
-                animChannel.setAnim("Dance");
-            } else {
-                dance = false;
-                animChannel.setAnim("RunBase");
-                rotate.fromAngleAxis(FastMath.QUARTER_PI * ((float) Math.random() - 0.5f), Vector3f.UNIT_Y);
-                rotate.multLocal(direction);
-            }
+//        elTime += tpf;
+//        if (elTime > 3) {
+//            elTime = 0;
+//            if (dance) {
+//                rotate.multLocal(direction);
+//            }
+//            if (Math.random() > 0.80) {
+//                dance = true;
+//                animChannel.setAnim("Dance");
+//            } else {
+//                dance = false;
+//                animChannel.setAnim("RunBase");
+//                rotate.fromAngleAxis(FastMath.QUARTER_PI * ((float) Math.random() - 0.5f), Vector3f.UNIT_Y);
+//                rotate.multLocal(direction);
+//            }
+//        }
+//        if (!ragdoll.hasControl() && !dance) {
+//            if (model.getLocalTranslation().getZ() < -10) {
+//                direction.z = 1;
+//                direction.normalizeLocal();
+//            } else if (model.getLocalTranslation().getZ() > 10) {
+//                direction.z = -1;
+//                direction.normalizeLocal();
+//            }
+//            if (model.getLocalTranslation().getX() < -10) {
+//                direction.x = 1;
+//                direction.normalizeLocal();
+//            } else if (model.getLocalTranslation().getX() > 10) {
+//                direction.x = -1;
+//                direction.normalizeLocal();
+//            }
+//            model.move(direction.multLocal(tpf * 8));
+//            direction.normalizeLocal();
+//            model.lookAt(model.getLocalTranslation().add(direction), Vector3f.UNIT_Y);
+//        }
+    }
+
+    public void onAnimCycleDone(AnimControl control, AnimChannel channel, String animName) {
+//        if(channel.getAnimationName().equals("StandUpFront")){
+//            channel.setAnim("Dance");
+//        }
+       
+        if(channel.getAnimationName().equals("StandUpBack") || channel.getAnimationName().equals("StandUpFront")){
+            channel.setLoopMode(LoopMode.DontLoop);
+            channel.setAnim("IdleTop",5);
+            channel.setLoopMode(LoopMode.Loop);
         }
-        if (!ragdoll.hasControl() && !dance) {
-            if (model.getLocalTranslation().getZ() < -10) {
-                direction.z = 1;
-                direction.normalizeLocal();
-            } else if (model.getLocalTranslation().getZ() > 10) {
-                direction.z = -1;
-                direction.normalizeLocal();
-            }
-            if (model.getLocalTranslation().getX() < -10) {
-                direction.x = 1;
-                direction.normalizeLocal();
-            } else if (model.getLocalTranslation().getX() > 10) {
-                direction.x = -1;
-                direction.normalizeLocal();
-            }
-            model.move(direction.multLocal(tpf * 8));
-            direction.normalizeLocal();
-            model.lookAt(model.getLocalTranslation().add(direction), Vector3f.UNIT_Y);
-        }
+//        if(channel.getAnimationName().equals("IdleTop")){
+//            channel.setAnim("StandUpFront");
+//        }
+       
+    }
+
+    public void onAnimChange(AnimControl control, AnimChannel channel, String animName) {
+      
     }
 }
