@@ -155,9 +155,13 @@ public class TestBoneRagdoll extends SimpleApplication implements RagdollCollisi
                     q.fromAngleAxis(angles[1],  Vector3f.UNIT_Y);
                     //q.lookAt(model.getLocalRotation().toRotationMatrix().getColumn(2), Vector3f.UNIT_Y);
                     model.setLocalRotation(q);
-                  //  animChannel.setAnim("StandUpBack");
-                    ragdoll.blendControlToAnim("StandUpFront",animChannel);
-                   //  animChannel.setAnim("StandUpFront",0.00f);
+                    System.out.println(angles[0]+ " "+angles[2]);
+                    if(angles[0]<0){
+                        ragdoll.blendControlToAnim("StandUpBack",animChannel);
+                    }else{
+                        ragdoll.blendControlToAnim("StandUpFront",animChannel);
+                    }
+
                 }
                 if (name.equals("bullet+") && isPressed) {
                     bulletSize += 0.1f;

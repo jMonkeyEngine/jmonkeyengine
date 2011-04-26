@@ -666,7 +666,7 @@ public class RagdollControl implements PhysicsControl, PhysicsCollisionListener 
         control = false;
         AnimControl animControl = targetModel.getControl(AnimControl.class);
         animControl.setEnabled(true);
-        channel.setAnim(anim, 0);
+        channel.setAnim(anim);
         channel.setLoopMode(LoopMode.DontLoop);
 
         TempVars vars = TempVars.get();
