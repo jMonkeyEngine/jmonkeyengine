@@ -94,10 +94,6 @@ public class TestBoneRagdoll extends SimpleApplication implements RagdollCollisi
         initCrossHairs();
         initMaterial();
 
-        bullet = new Sphere(32, 32, 1.0f, true, false);
-        bullet.setTextureMode(TextureMode.Projected);
-        bulletCollisionShape = new SphereCollisionShape(1.0f);
-
         cam.setLocation(new Vector3f(0.26924422f, 6.646658f, 22.265987f));
         cam.setRotation(new Quaternion(-2.302544E-4f, 0.99302495f, -0.117888905f, -0.0019395084f));
 
@@ -105,6 +101,10 @@ public class TestBoneRagdoll extends SimpleApplication implements RagdollCollisi
         bulletAppState = new BulletAppState();
         bulletAppState.setEnabled(true);
         stateManager.attach(bulletAppState);
+        bullet = new Sphere(32, 32, 1.0f, true, false);
+        bullet.setTextureMode(TextureMode.Projected);
+        bulletCollisionShape = new SphereCollisionShape(1.0f);
+
         bulletAppState.getPhysicsSpace().enableDebug(assetManager);
         PhysicsTestHelper.createPhysicsTestWorld(rootNode, assetManager, bulletAppState.getPhysicsSpace());
         setupLight();
