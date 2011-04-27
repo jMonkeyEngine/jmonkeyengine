@@ -97,7 +97,7 @@ public class TestBoneRagdoll extends SimpleApplication implements RagdollCollisi
         bulletAppState = new BulletAppState();
         bulletAppState.setEnabled(true);
         stateManager.attach(bulletAppState);
-//        bulletAppState.getPhysicsSpace().enableDebug(assetManager);
+        bulletAppState.getPhysicsSpace().enableDebug(assetManager);
         PhysicsTestHelper.createPhysicsTestWorld(rootNode, assetManager, bulletAppState.getPhysicsSpace());
         setupLight();
 
@@ -154,8 +154,7 @@ public class TestBoneRagdoll extends SimpleApplication implements RagdollCollisi
                     model.getLocalRotation().toAngles(angles);
                     q.fromAngleAxis(angles[1],  Vector3f.UNIT_Y);
                     //q.lookAt(model.getLocalRotation().toRotationMatrix().getColumn(2), Vector3f.UNIT_Y);
-                    model.setLocalRotation(q);
-                    System.out.println(angles[0]+ " "+angles[2]);
+                    model.setLocalRotation(q);              
                     if(angles[0]<0){
                         ragdoll.blendControlToAnim("StandUpBack",animChannel);
                     }else{

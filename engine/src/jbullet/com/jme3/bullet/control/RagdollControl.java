@@ -103,7 +103,8 @@ public class RagdollControl implements PhysicsControl, PhysicsCollisionListener 
     protected Vector3f modelPosition = new Vector3f();
     protected Quaternion modelRotation = new Quaternion();
     protected float rootMass = 15;
-    private float totalMass = 0;
+    protected float totalMass = 0;
+    protected boolean added=false;
 
     public RagdollControl() {
     }
@@ -142,9 +143,9 @@ public class RagdollControl implements PhysicsControl, PhysicsCollisionListener 
 
                 Quaternion q = link.rigidBody.getMotionState().getWorldRotationQuat();
 
-                q2.set(q).multLocal(link.initalWorldRotation).normalize();
+                q2.set(q).multLocal(link.initalWorldRotation).normalizeLocal();
                 q3.set(targetModel.getWorldRotation()).inverseLocal().mult(q2, q2);
-                q2.normalize();
+                q2.normalizeLocal();
                 if (link.bone.getParent() == null) {
                     modelPosition.set(p).subtractLocal(link.bone.getInitialPos());
                     modelRotation.set(q).multLocal(link.bone.getInitialRot().inverse());
@@ -244,6 +245,11 @@ public class RagdollControl implements PhysicsControl, PhysicsCollisionListener 
     }
 
     public void setSpatial(Spatial model) {
+        if (model == null) {
+            removeFromPhysicsSpace();
+            clearData();
+            return;
+        }
         targetModel = model;
         Node parent = model.getParent();
 
@@ -399,21 +405,26 @@ public class RagdollControl implements PhysicsControl, PhysicsCollisionListener 
     }
 
     private void addToPhysicsSpace() {
+        
         if (baseRigidBody != null) {
             space.add(baseRigidBody);
+            added=true;
         }
         for (Iterator<PhysicsBoneLink> it = boneLinks.values().iterator(); it.hasNext();) {
             PhysicsBoneLink physicsBoneLink = it.next();
             if (physicsBoneLink.rigidBody != null) {
                 space.add(physicsBoneLink.rigidBody);
+                added=true;
             }
         }
         for (Iterator<PhysicsBoneLink> it = boneLinks.values().iterator(); it.hasNext();) {
             PhysicsBoneLink physicsBoneLink = it.next();
             if (physicsBoneLink.joint != null) {
                 space.add(physicsBoneLink.joint);
+                added=true;
             }
         }
+        
     }
 
     private HullCollisionShape makeShape(PhysicsBoneLink link, Spatial model) {
@@ -506,6 +517,7 @@ public class RagdollControl implements PhysicsControl, PhysicsCollisionListener 
     }
 
     private void removeFromPhysicsSpace() {
+        
         if (baseRigidBody != null) {
             space.remove(baseRigidBody);
         }
@@ -521,6 +533,7 @@ public class RagdollControl implements PhysicsControl, PhysicsCollisionListener 
                 space.remove(physicsBoneLink.rigidBody);
             }
         }
+        added=false;
     }
 
     public void setEnabled(boolean enabled) {
@@ -542,7 +555,7 @@ public class RagdollControl implements PhysicsControl, PhysicsCollisionListener 
     public void attachDebugShape(AssetManager manager) {
         for (Iterator<PhysicsBoneLink> it = boneLinks.values().iterator(); it.hasNext();) {
             PhysicsBoneLink physicsBoneLink = it.next();
-            physicsBoneLink.rigidBody.attachDebugShape(manager);
+            physicsBoneLink.rigidBody.createDebugShape(manager);
         }
         debug = true;
     }

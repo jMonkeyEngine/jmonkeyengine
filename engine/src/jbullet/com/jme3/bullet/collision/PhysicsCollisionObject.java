@@ -32,7 +32,6 @@
 package com.jme3.bullet.collision;
 
 import com.jme3.asset.AssetManager;
-import com.jme3.bullet.collision.shapes.BoxCollisionShape;
 import com.jme3.bullet.collision.shapes.CollisionShape;
 import com.jme3.bullet.util.DebugShapeFactory;
 import com.jme3.export.InputCapsule;
@@ -167,20 +166,25 @@ public abstract class PhysicsCollisionObject implements Savable {
     protected Spatial attachDebugShape(AssetManager manager) {
         debugMaterialBlue = new Material(manager, "Common/MatDefs/Misc/WireColor.j3md");
         debugMaterialBlue.setColor("Color", ColorRGBA.Blue);
-   //     debugMaterialBlue.getAdditionalRenderState().setDepthTest(false);
         debugMaterialGreen = new Material(manager, "Common/MatDefs/Misc/WireColor.j3md");
         debugMaterialGreen.setColor("Color", ColorRGBA.Green);
-//        debugMaterialGreen.getAdditionalRenderState().setDepthTest(false);
         debugMaterialRed = new Material(manager, "Common/MatDefs/Misc/WireColor.j3md");
         debugMaterialRed.setColor("Color", ColorRGBA.Red);
-  //      debugMaterialRed.getAdditionalRenderState().setDepthTest(false);
         debugMaterialYellow = new Material(manager, "Common/MatDefs/Misc/WireColor.j3md");
         debugMaterialYellow.setColor("Color", ColorRGBA.Yellow);
-   //     debugMaterialYellow.getAdditionalRenderState().setDepthTest(false);
         debugArrow = new Arrow(Vector3f.UNIT_XYZ);
         debugArrowGeom = new Geometry("DebugArrow", debugArrow);
         debugArrowGeom.setMaterial(debugMaterialGreen);
         return attachDebugShape();
+    }
+    
+    /**
+     * creates a debug shape for this CollisionObject
+     * @param manager
+     * @return 
+     */
+    public Spatial createDebugShape(AssetManager manager){
+        return attachDebugShape(manager);
     }
 
     protected Spatial attachDebugShape(Material material) {
