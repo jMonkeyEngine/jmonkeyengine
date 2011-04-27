@@ -67,14 +67,8 @@ public class LodControl extends AbstractControl implements Cloneable {
     private int[] numTris;
 
     /**
-     * 
-     * @param geom
-     * @deprecated Use {@link LodControl#LodControl() }
+     * Serialization only. Do not use.
      */
-    @Deprecated
-    public LodControl(Geometry geom){
-    }
-
     public LodControl(){
     }
 

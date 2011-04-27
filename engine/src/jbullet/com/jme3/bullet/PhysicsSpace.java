@@ -766,23 +766,6 @@ public class PhysicsSpace {
     }
 
     /**
-     * Sets the deterministic mode of this physics space.
-     * If the physicsSpace is deterministic, low fps values will
-     * be compensated by stepping the physics space multiple times per frame.
-     * If not, low fps values will make the physics inaccurate. Default is false.
-     * @param deterministic
-     * @deprecated in favor of PhysicsSpace.setMaxSubSteps
-     */
-    @Deprecated
-    public void setDeterministic(boolean deterministic) {
-        if (!deterministic) {
-            maxSubSteps = 1;
-        } else {
-            maxSubSteps = 4;
-        }
-    }
-
-    /**
      * Sets the maximum amount of extra steps that will be used to step the physics
      * when the fps is below the physics fps. Doing this maintains determinism in physics.
      * For example a maximum number of 2 can compensate for framerates as low as 30fps

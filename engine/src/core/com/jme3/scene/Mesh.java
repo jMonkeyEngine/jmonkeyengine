@@ -453,28 +453,6 @@ public class Mesh implements Savable, Cloneable {
         return vertCount;
     }
 
-    /**
-     *
-     * @param count
-     * @deprecated Use {@link Mesh#updateCounts() } to update the counts after
-     * updating the buffers.
-     */
-    @Deprecated
-    public void setTriangleCount(int count){
-        throw new UnsupportedOperationException("Deprecated");
-    }
-
-    /**
-     *
-     * @param count
-     * @deprecated Use {@link Mesh#updateCounts() } to update the counts after
-     * updating the buffers.
-     */
-    @Deprecated
-    public void setVertexCount(int count){
-        throw new UnsupportedOperationException("Deprecated");
-    }
-
     public void getTriangle(int index, Vector3f v1, Vector3f v2, Vector3f v3){
         VertexBuffer pb = getBuffer(Type.Position);
         VertexBuffer ib = getBuffer(Type.Index);

@@ -740,7 +740,7 @@ public class LwjglAudioRenderer implements AudioRenderer, Runnable {
                     if (stopped){
                         // became inactive
                         src.setStatus(Status.Stopped);
-                        src.setChannel(null, -1);
+                        src.setChannel(-1);
                         clearChannel(i);
                         freeChannel(i);
                     }
@@ -754,7 +754,7 @@ public class LwjglAudioRenderer implements AudioRenderer, Runnable {
                 if (stopped){
                     if (boundSource){
                         src.setStatus(Status.Stopped);
-                        src.setChannel(null, -1);
+                        src.setChannel(-1);
                     }
                     clearChannel(i);
                     freeChannel(i);  
@@ -853,7 +853,7 @@ public class LwjglAudioRenderer implements AudioRenderer, Runnable {
                     return;
                 }
                 clearChannel(index);
-                src.setChannel(this, index);
+                src.setChannel(index);
 
                 AudioData data = src.getAudioData();
                 if (data.isUpdateNeeded())
@@ -908,7 +908,7 @@ public class LwjglAudioRenderer implements AudioRenderer, Runnable {
                 assert chan != -1; // if it's not stopped, must have id
 
                 src.setStatus(Status.Stopped);
-                src.setChannel(null, -1);
+                src.setChannel(-1);
                 clearChannel(chan);
                 freeChannel(chan);
             }

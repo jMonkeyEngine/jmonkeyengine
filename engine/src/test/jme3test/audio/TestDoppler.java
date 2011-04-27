@@ -52,7 +52,7 @@ public class TestDoppler extends AudioApp {
 
     @Override
     public void initAudioApp(){
-        ufo  = new AudioNode(assetManager, "Sound/Effects/Beep.ogg", false);
+        ufo  = new AudioNode(audioRenderer, assetManager, "Sound/Effects/Beep.ogg", false);
         ufo.setPositional(true);
         ufo.setLooping(true);
         audioRenderer.playSource(ufo);

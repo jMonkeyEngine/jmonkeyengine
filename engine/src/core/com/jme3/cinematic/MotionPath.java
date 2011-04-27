@@ -71,24 +71,6 @@ public class MotionPath implements Savable {
     private Vector3f tmpVector = new Vector3f();
 
     /**
-     *
-     * @deprecated replaced by com.jme3.scene.shape.Spline.SplineType
-     */
-    @Deprecated
-    public enum PathInterpolation {
-
-        /**
-         * Compute a linear path between the waypoints
-         */
-        Linear,
-        /**
-         * Compute a Catmull-Rom spline path between the waypoints
-         * see http://www.mvps.org/directx/articles/catmull/
-         */
-        CatmullRom
-    }
-
-    /**
      * Create a motion Path
      */
     public MotionPath() {
@@ -246,33 +228,6 @@ public class MotionPath implements Savable {
      */
     public Iterator<Vector3f> iterator() {
         return spline.getControlPoints().iterator();
-    }
-
-    /**
-     * @deprecated use getPathSplineType
-     * return the type of path interpolation for this path
-     * @return the path interpolation
-     */
-    @Deprecated
-    public PathInterpolation getPathInterpolation() {
-        if (spline.getType() == SplineType.CatmullRom) {
-            return PathInterpolation.CatmullRom;
-        }
-        return PathInterpolation.Linear;
-    }
-
-    /**
-     * @deprecated use setPathSplineType instead
-     * sets the path interpolation for this path
-     * @param pathInterpolation
-     */
-    @Deprecated
-    public void setPathInterpolation(PathInterpolation pathInterpolation) {
-        if (pathInterpolation == PathInterpolation.CatmullRom) {
-            setPathSplineType(SplineType.CatmullRom);
-        } else {
-            setPathSplineType(SplineType.Linear);
-        }
     }
 
     /**

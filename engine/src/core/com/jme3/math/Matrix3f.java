@@ -1001,25 +1001,6 @@ public final class Matrix3f implements Savable, Cloneable {
     }
 
     /**
-     * <code>add</code> adds the values of a parameter matrix to this matrix.
-     * 
-     * @param mat
-     *            the matrix to add to this.
-     */
-    @Deprecated
-    public void add(Matrix3f mat) {
-        m00 += mat.m00;
-        m01 += mat.m01;
-        m02 += mat.m02;
-        m10 += mat.m10;
-        m11 += mat.m11;
-        m12 += mat.m12;
-        m20 += mat.m20;
-        m21 += mat.m21;
-        m22 += mat.m22;
-    }
-
-    /**
      * <code>transpose</code> <b>locally</b> transposes this Matrix.
      * This is inconsistent with general value vs local semantics, but is
      * preserved for backwards compatibility. Use transposeNew() to transpose

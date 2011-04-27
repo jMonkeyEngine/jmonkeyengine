@@ -580,42 +580,6 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control {
     }
 
     /**
-     * 
-     * @deprecated use getMaxVerticalRotation()
-     */
-    @Deprecated
-    public float getMaxHeight() {
-        return getMaxVerticalRotation();
-    }
-
-    /**
-     *
-     * @deprecated use setMaxVerticalRotation()
-     */
-    @Deprecated
-    public void setMaxHeight(float maxHeight) {
-        setMaxVerticalRotation(maxHeight);
-    }
-
-    /**
-     *
-     * @deprecated use getMinVerticalRotation()
-     */
-    @Deprecated
-    public float getMinHeight() {
-        return getMinVerticalRotation();
-    }
-
-    /**
-     *
-     * @deprecated use setMinVerticalRotation()
-     */
-    @Deprecated
-    public void setMinHeight(float minHeight) {
-        setMinVerticalRotation(minHeight);
-    }
-
-    /**
      * returns the maximal vertical rotation angle of the camera around the target
      * @return
      */
@@ -866,16 +830,6 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control {
      */
     public Vector3f getUpVector(){
         return initialUpVec;
-    }
-
-    /**
-     *
-     * @param invertYaxis
-     * @deprecated use setInvertVerticalAxis
-     */
-    @Deprecated
-    public void setInvertYaxis(boolean invertYaxis) {
-        setInvertVerticalAxis(invertYaxis);
     }
 
     /**

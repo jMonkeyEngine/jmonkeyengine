@@ -362,8 +362,6 @@ public class RenderManager {
                 case FrameRate:
                     u.setValue(VarType.Float, timer.getFrameRate());
                     break;
-                case AmbientLightColor:
-                    break;
             }
         }
 

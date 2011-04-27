@@ -88,12 +88,12 @@ public class FadeFilter extends Filter {
             if (direction > 0 && value > 1) {
                 value = 1;
                 playing = false;
-                processor.setFilterEnabled(this, false);
+                setEnabled(false);
             }
             if (direction < 0 && value < 0) {
                 value = 0;
                 playing = false;
-                processor.setFilterEnabled(this, false);
+                setEnabled(false);
             }
         }
     }
@@ -107,13 +107,13 @@ public class FadeFilter extends Filter {
     }
 
     public void fadeIn() {
-        processor.setFilterEnabled(this, true);
+        setEnabled(true);
         direction = 1;
         playing = true;
     }
 
     public void fadeOut() {
-        processor.setFilterEnabled(this, true);
+        setEnabled(true);
         direction = -1;
         playing = true;
 

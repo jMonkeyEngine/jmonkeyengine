@@ -198,22 +198,6 @@ public class Cinematic extends AbstractCinematicEvent implements Savable, AppSta
         return initialized;
     }
 
-    /**
-     * Use setEnabled() instead
-     */
-    @Deprecated
-    public void setActive(boolean active) {
-        setEnabled(active);
-    }
-
-    /**
-     * Use isEnabled() instead
-     */
-    @Deprecated
-    public boolean isActive() {
-        return isEnabled();
-    }
-    
     public void setEnabled(boolean enabled) {
         if (enabled) {
             play();

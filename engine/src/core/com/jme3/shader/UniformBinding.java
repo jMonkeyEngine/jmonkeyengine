@@ -161,13 +161,4 @@ public enum UniformBinding {
      * Type: float
      */
     FrameRate,
-
-    /**
-     * AmbientLightColor.
-     * The sum of all the colors in the LightList with type
-     * {@link AmbientLight}.
-     * Type: vec4
-     */
-    @Deprecated
-    AmbientLightColor;
 }

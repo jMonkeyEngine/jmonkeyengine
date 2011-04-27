@@ -1220,7 +1220,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
         capsule.write(cullHint, "cull_mode", CullHint.Inherit);
         capsule.write(queueBucket, "queue", RenderQueue.Bucket.Inherit);
         capsule.write(shadowMode, "shadow_mode", ShadowMode.Inherit);
-        capsule.write(localTransform, "transform", Transform.Identity);
+        capsule.write(localTransform, "transform", Transform.IDENTITY);
         capsule.write(localLights, "lights", null);
         capsule.writeSavableArrayList(controls, "controlsList", null);
         capsule.writeStringSavableMap(userData, "user_data", null);

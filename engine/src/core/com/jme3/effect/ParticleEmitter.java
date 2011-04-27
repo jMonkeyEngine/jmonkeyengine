@@ -406,22 +406,6 @@ public class ParticleEmitter extends Geometry implements Control {
         this.startSize = startSize;
     }
 
-    /**
-     * @deprecated Use {@link ParticleEmitter#getInitialVelocity() }
-     */
-    @Deprecated
-    public Vector3f getStartVel() {
-        return startVel;
-    }
-
-    /**
-     * @deprecated Use {@link ParticleEmitter#setInitialVelocity(com.jme3.math.Vector3f) }
-     */
-    @Deprecated
-    public void setStartVel(Vector3f startVel) {
-        this.startVel.set(startVel);
-    }
-
     public Vector3f getInitialVelocity(){
         return startVel;
     }
@@ -438,22 +422,6 @@ public class ParticleEmitter extends Geometry implements Control {
      */
     public void setInitialVelocity(Vector3f initialVelocity){
         this.startVel.set(initialVelocity);
-    }
-
-    /**
-     * @deprecated Use {@link ParticleEmitter#getVelocityVariation() }
-     */
-    @Deprecated
-    public float getVariation() {
-        return variation;
-    }
-
-    /**
-     * @deprecated Use {@link ParticleEmitter#setVelocityVariation() }
-     */
-    @Deprecated
-    public void setVariation(float variation) {
-        this.variation = variation;
     }
 
     public float getVelocityVariation() {

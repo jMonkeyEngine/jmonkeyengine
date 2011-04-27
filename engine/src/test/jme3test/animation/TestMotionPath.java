@@ -45,11 +45,11 @@ import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Quaternion;
+import com.jme3.math.Spline.SplineType;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Box;
-import com.jme3.scene.shape.Line;
 
 public class TestMotionPath extends SimpleApplication {
 
@@ -170,10 +170,10 @@ public class TestMotionPath extends SimpleApplication {
                 }
 
                 if (name.equals("SwitchPathInterpolation") && keyPressed) {
-                    if (path.getPathInterpolation() == MotionPath.PathInterpolation.CatmullRom) {
-                        path.setPathInterpolation(MotionPath.PathInterpolation.Linear);
+                    if (path.getPathSplineType() == SplineType.CatmullRom){
+                        path.setPathSplineType(SplineType.Linear);
                     } else {
-                        path.setPathInterpolation(MotionPath.PathInterpolation.CatmullRom);
+                        path.setPathSplineType(SplineType.CatmullRom);
                     }
                 }
 

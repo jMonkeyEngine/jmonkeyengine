@@ -110,7 +110,7 @@ public class SoundTrack extends AbstractCinematicEvent {
     @Override
     public void initEvent(Application app, Cinematic cinematic) {
         audioRenderer = app.getAudioRenderer();
-        audioNode = new AudioNode(app.getAssetManager(), path, stream);
+        audioNode = new AudioNode(audioRenderer, app.getAssetManager(), path, stream);
         setLoopMode(loopMode);
 
     }

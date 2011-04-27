@@ -47,7 +47,7 @@ import java.io.IOException;
  */
 public class AudioNode extends Node {
 
-    protected AudioRenderer renderer;
+    protected final AudioRenderer renderer;
 
     protected boolean loop = false;
     protected float volume = 1;
@@ -75,30 +75,32 @@ public class AudioNode extends Node {
         Stopped,
     }
 
-    public AudioNode() {
+    public AudioNode(AudioRenderer audioRenderer) {
+        this.renderer = audioRenderer;
     }
 
-    public AudioNode(AudioData ad, AudioKey key) {
-        this();
+    public AudioNode(AudioRenderer audioRenderer, AudioData ad, AudioKey key) {
+        this(audioRenderer);
         setAudioData(ad, key);
     }
 
-    public AudioNode(AssetManager manager, String name, boolean stream) {
-        this();
+    public AudioNode(AudioRenderer audioRenderer, AssetManager assetManager, String name, boolean stream) {
+        this(audioRenderer);
         this.key = new AudioKey(name, stream);
-        this.data = (AudioData) manager.loadAsset(key);
+        this.data = (AudioData) assetManager.loadAsset(key);
     }
 
-    public AudioNode(AssetManager manager, String name) {
-        this(manager, name, false);
+    public AudioNode(AudioRenderer audioRenderer, AssetManager assetManager, String name) {
+        this(audioRenderer, assetManager, name, false);
     }
 
-    public void setChannel(AudioRenderer renderer, int channel) {
+        
+
+    public void setChannel(int channel) {
         if (status != Status.Stopped) {
             throw new IllegalStateException("Can only set source id when stopped");
         }
 
-        this.renderer = renderer;
         this.channel = channel;
     }
 
@@ -116,7 +118,7 @@ public class AudioNode extends Node {
         }
 
         this.dryFilter = dryFilter;
-        if (renderer != null)
+        if (channel >= 0)
             renderer.updateSourceParam(this, AudioParam.DryFilter);
     }
 
@@ -147,7 +149,7 @@ public class AudioNode extends Node {
 
     public void setLooping(boolean loop) {
         this.loop = loop;
-        if (renderer != null)
+        if (channel >= 0)
             renderer.updateSourceParam(this, AudioParam.Looping);
     }
 
@@ -161,7 +163,7 @@ public class AudioNode extends Node {
         }
 
         this.pitch = pitch;
-        if (renderer != null)
+        if (channel >= 0)
             renderer.updateSourceParam(this, AudioParam.Pitch);
     }
 
@@ -175,7 +177,7 @@ public class AudioNode extends Node {
         }
 
         this.volume = volume;
-        if (renderer != null)
+        if (channel >= 0)
             renderer.updateSourceParam(this, AudioParam.Volume);
     }
 
@@ -197,7 +199,7 @@ public class AudioNode extends Node {
 
     public void setVelocity(Vector3f velocity) {
         this.velocity.set(velocity);
-        if (renderer != null)
+        if (channel >= 0)
             renderer.updateSourceParam(this, AudioParam.Velocity);
     }
 
@@ -207,7 +209,7 @@ public class AudioNode extends Node {
 
     public void setReverbEnabled(boolean reverbEnabled) {
         this.reverbEnabled = reverbEnabled;
-        if (renderer != null)
+        if (channel >= 0)
             renderer.updateSourceParam(this, AudioParam.ReverbEnabled);
     }
 
@@ -221,7 +223,7 @@ public class AudioNode extends Node {
         }
 
         this.reverbFilter = reverbFilter;
-        if (renderer != null)
+        if (channel >= 0)
             renderer.updateSourceParam(this, AudioParam.ReverbFilter);
     }
 
@@ -235,7 +237,7 @@ public class AudioNode extends Node {
         }
 
         this.maxDistance = maxDistance;
-        if (renderer != null)
+        if (channel >= 0)
             renderer.updateSourceParam(this, AudioParam.MaxDistance);
     }
 
@@ -249,7 +251,7 @@ public class AudioNode extends Node {
         }
 
         this.refDistance = refDistance;
-        if (renderer != null)
+        if (channel >= 0)
             renderer.updateSourceParam(this, AudioParam.RefDistance);
     }
 
@@ -259,7 +261,7 @@ public class AudioNode extends Node {
 
     public void setDirectional(boolean directional) {
         this.directional = directional;
-        if (renderer != null)
+        if (channel >= 0)
             renderer.updateSourceParam(this, AudioParam.IsDirectional);
     }
 
@@ -269,7 +271,7 @@ public class AudioNode extends Node {
 
     public void setDirection(Vector3f direction) {
         this.direction = direction;
-        if (renderer != null)
+        if (channel >= 0)
             renderer.updateSourceParam(this, AudioParam.Direction);
     }
 
@@ -279,7 +281,7 @@ public class AudioNode extends Node {
 
     public void setInnerAngle(float innerAngle) {
         this.innerAngle = innerAngle;
-        if (renderer != null)
+        if (channel >= 0)
             renderer.updateSourceParam(this, AudioParam.InnerAngle);
     }
 
@@ -289,7 +291,7 @@ public class AudioNode extends Node {
 
     public void setOuterAngle(float outerAngle) {
         this.outerAngle = outerAngle;
-        if (renderer != null)
+        if (channel >= 0)
             renderer.updateSourceParam(this, AudioParam.OuterAngle);
     }
 
@@ -299,7 +301,7 @@ public class AudioNode extends Node {
 
     public void setPositional(boolean inHeadspace) {
         this.positional = inHeadspace;
-        if (renderer != null)
+        if (channel >= 0)
             renderer.updateSourceParam(this, AudioParam.IsPositional);
     }
 
@@ -316,15 +318,6 @@ public class AudioNode extends Node {
             renderer.updateSourceParam(this, AudioParam.Position);
     }
 
-    @Deprecated
-    public boolean isUpdateNeeded(){
-        return true;
-    }
-
-    @Deprecated
-    public void clearUpdateNeeded(){
-    }
-
 //    @Override
 //    public AudioNode clone(){
 //        try{
@@ -334,6 +327,7 @@ public class AudioNode extends Node {
 //        }
 //    }
     
+    @Override
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
         OutputCapsule oc = ex.getCapsule(this);
@@ -356,6 +350,7 @@ public class AudioNode extends Node {
         oc.write(outerAngle, "outer_angle", 360);
     }
 
+    @Override
     public void read(JmeImporter im) throws IOException {
         super.read(im);
         InputCapsule ic = im.getCapsule(this);
@@ -379,6 +374,7 @@ public class AudioNode extends Node {
         data = im.getAssetManager().loadAudio(key);
     }
 
+    @Override
     public String toString() {
         String ret = getClass().getSimpleName()
                 + "[status=" + status;

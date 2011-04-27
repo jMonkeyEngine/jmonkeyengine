@@ -59,22 +59,6 @@ public class AbstractAppState implements AppState {
         return initialized;
     }
 
-    /**
-     * Use setEnabled() instead
-     */
-    @Deprecated
-    public void setActive(boolean active) {
-        setEnabled(active);
-    }
-
-    /**
-     * Use isEnabled() instead
-     */
-    @Deprecated
-    public boolean isActive() {
-        return isEnabled();
-    }
-    
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
     }

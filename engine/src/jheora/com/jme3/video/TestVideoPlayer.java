@@ -127,7 +127,7 @@ public class TestVideoPlayer extends SimpleApplication {
     public void simpleUpdate(float tpf){
         if (source == null){
             if (decoder.getAudioStream() != null){
-                source = new AudioNode(decoder.getAudioStream(), null);
+                source = new AudioNode(audioRenderer, decoder.getAudioStream(), null);
                 source.setPositional(false);
                 source.setReverbEnabled(false);
                 audioRenderer.playSource(source);

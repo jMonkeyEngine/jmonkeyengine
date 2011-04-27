@@ -48,14 +48,6 @@ import java.io.IOException;
  */
 public final class Transform implements Savable, Cloneable {
 
-    /**
-     * 
-     * @deprecated To follow with the standard for constants,
-     * which should be all upper case. Use {@link Transform#IDENTITY} instead.
-     */
-    @Deprecated
-    public static final Transform Identity = new Transform();
-    
     public static final Transform IDENTITY = new Transform();
 
     private Quaternion rot = new Quaternion();

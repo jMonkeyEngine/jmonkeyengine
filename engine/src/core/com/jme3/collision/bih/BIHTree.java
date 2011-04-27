@@ -40,7 +40,6 @@ import com.jme3.bounding.BoundingBox;
 import com.jme3.bounding.BoundingVolume;
 import com.jme3.collision.Collidable;
 import com.jme3.collision.CollisionResults;
-import com.jme3.collision.SweepSphere;
 import com.jme3.collision.UnsupportedCollisionException;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
@@ -422,26 +421,6 @@ public class BIHTree implements CollisionData {
         return 0;
     }
 
-    private int collideWithSweepSphere(SweepSphere ss,
-                                       Matrix4f worldMatrix,
-                                       BoundingVolume worldBound,
-                                       CollisionResults results){
-
-        Vector3f min = new Vector3f(ss.getCenter());
-        min.subtractLocal(ss.getDimension());
-
-        Vector3f max = new Vector3f(ss.getCenter());
-        max.addLocal(ss.getVelocity()).addLocal(ss.getDimension());
-
-        BoundingBox bbox = new BoundingBox();
-        bbox.setMinMax(min, max);
-
-        if (worldBound.intersectsBoundingBox(bbox)){
-            return root.intersectWhere(ss, bbox, worldMatrix, this, results);
-        }
-        return 0;
-    }
-
     private int collideWithBoundingVolume(BoundingVolume bv,
                                           Matrix4f worldMatrix,
                                           CollisionResults results){
@@ -466,10 +445,7 @@ public class BIHTree implements CollisionData {
                            BoundingVolume worldBound,
                            CollisionResults results){
         
-        if (other instanceof SweepSphere){
-            SweepSphere ss = (SweepSphere) other;
-            return collideWithSweepSphere(ss, worldMatrix, worldBound, results);
-        }else if (other instanceof Ray){
+        if (other instanceof Ray){
             Ray ray = (Ray) other;
             return collideWithRay(ray, worldMatrix, worldBound, results);
         }else if (other instanceof BoundingVolume){

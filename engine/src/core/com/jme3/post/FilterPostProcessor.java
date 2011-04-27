@@ -242,20 +242,6 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
         }
     }
 
-    /**
-     * Enable or disable a filter
-     * @param filter the filter
-     * @param enabled true to enable
-     * @deprecated use filter.setEnabled(boolean enabled) instead
-     */
-    @Deprecated
-    public void setFilterEnabled(Filter filter, boolean enabled) {
-        if (filters.contains(filter)) {
-            filter.enabled = enabled;
-            updateLastFilterIndex();
-        }
-    }
-
     protected void setFilterState(Filter filter, boolean enabled) {
         if (filters.contains(filter)) {
             filter.enabled = enabled;
@@ -272,15 +258,6 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
             }
         }
 
-    }
-
-    /**
-     * return tru if the filter is enabled
-     * @param filter
-     * @return
-     */
-    public boolean isFilterEnabled(Filter filter) {
-        return filter.isEnabled();
     }
 
     public void cleanup() {

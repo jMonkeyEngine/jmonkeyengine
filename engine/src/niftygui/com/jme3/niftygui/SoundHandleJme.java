@@ -78,7 +78,7 @@ public class SoundHandleJme implements SoundHandle {
                 ar.stopSource(node);
             }
 
-            node = new AudioNode(am, fileName, true);
+            node = new AudioNode(ar, am, fileName, true);
             node.setPositional(false);
             node.setVolume(volume);
             ar.playSource(node);

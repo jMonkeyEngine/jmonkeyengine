@@ -22,11 +22,17 @@ public class SkyFactory {
         sky.setCullHint(Spatial.CullHint.Never);
 
         Material skyMat = new Material(assetManager, "Common/MatDefs/Misc/Sky.j3md");
-        skyMat.setTexture("Texture", texture);
+        
         skyMat.setVector3("NormalScale", normalScale);
         if (sphereMap){
             skyMat.setBoolean("SphereMap", sphereMap);
+        }else if (!(texture instanceof TextureCubeMap)){
+            // make sure its a cubemap
+            Image img = texture.getImage();
+            texture = new TextureCubeMap();
+            texture.setImage(img);
         }
+        skyMat.setTexture("Texture", texture);
         sky.setMaterial(skyMat);
         
         return sky;

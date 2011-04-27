@@ -51,26 +51,6 @@ public class CameraNode extends Node {
     public CameraNode() {
     }
 
-    /**
-     * 
-     * @param camera
-     * @deprecated Use the constructors that take a name
-     */
-    @Deprecated
-    public CameraNode(Camera camera) {
-        this("defCamNodeName", camera);
-    }
-
-    /**
-     * 
-     * @param control
-     * @deprecated Use the constructors that take a name
-     */
-    @Deprecated
-    public CameraNode(CameraControl control) {
-        this("defCamNodeName", control);
-    }
-
     public CameraNode(String name, Camera camera) {
         this(name, new CameraControl(camera));
     }

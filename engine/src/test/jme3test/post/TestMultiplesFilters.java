@@ -35,6 +35,7 @@ import com.jme3.app.SimpleApplication;
 import com.jme3.asset.plugins.HttpZipLocator;
 import com.jme3.asset.plugins.ZipLocator;
 import com.jme3.input.KeyInput;
+import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
@@ -111,35 +112,36 @@ public class TestMultiplesFilters extends SimpleApplication {
         viewPort.addProcessor(fpp);
 
         rootNode.attachChild(scene);
-        inputManager.addListener(new com.jme3.input.controls.ActionListener() {
+        
+        inputManager.addListener(new ActionListener() {
 
             public void onAction(String name, boolean isPressed, float tpf) {
                 if ("toggleSSAO".equals(name) && isPressed) {
-                    if (fpp.isFilterEnabled(ssaoFilter)) {
-                        fpp.setFilterEnabled(ssaoFilter, false);
+                    if (ssaoFilter.isEnabled()) {
+                        ssaoFilter.setEnabled(false);
                     } else {
-                        fpp.setFilterEnabled(ssaoFilter, true);
+                        ssaoFilter.setEnabled(true);
                     }
                 }
                 if ("toggleWater".equals(name) && isPressed) {
-                    if (fpp.isFilterEnabled(water)) {
-                        fpp.setFilterEnabled(water, false);
+                    if (water.isEnabled()) {
+                        water.setEnabled(false);
                     } else {
-                        fpp.setFilterEnabled(water, true);
+                        water.setEnabled(true);
                     }
                 }
                 if ("toggleBloom".equals(name) && isPressed) {
-                    if (fpp.isFilterEnabled(bloom)) {
-                        fpp.setFilterEnabled(bloom, false);
+                    if (bloom.isEnabled()) {
+                        bloom.setEnabled(false);
                     } else {
-                        fpp.setFilterEnabled(bloom, true);
+                        bloom.setEnabled(true);
                     }
                 }
                 if ("toggleOverlay".equals(name) && isPressed) {
-                    if (fpp.isFilterEnabled(overlay)) {
-                        fpp.setFilterEnabled(overlay, false);
+                    if (overlay.isEnabled()) {
+                        overlay.setEnabled(false);
                     } else {
-                        fpp.setFilterEnabled(overlay, true);
+                        overlay.setEnabled(true);
                     }
                 }
             }

@@ -37,6 +37,7 @@ import net.java.games.input.RawInputEnvironmentPlugin;
 import com.jme3.app.SimpleApplication;
 import com.jme3.font.BitmapFont;
 import com.jme3.font.BitmapText;
+import com.jme3.font.LineWrapMode;
 import com.jme3.font.Rectangle;
 import com.jme3.input.KeyInput;
 import com.jme3.input.RawInputListener;
@@ -93,7 +94,8 @@ public class TestBitmapFont extends SimpleApplication {
         @Override
         public void onAction(String name, boolean isPressed, float tpf) {
             if (name.equals("WordWrap") && !isPressed) {
-                txt.setWordWrap(!txt.isWordWrap());
+                txt.setLineWrapMode( txt.getLineWrapMode() == LineWrapMode.Word ?
+                                        LineWrapMode.NoWrap : LineWrapMode.Word );
             }            
         }
     };

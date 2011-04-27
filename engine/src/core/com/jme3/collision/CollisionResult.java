@@ -107,16 +107,6 @@ public class CollisionResult implements Comparable<CollisionResult> {
         return contactPoint;
     }
 
-    /**
-     * 
-     * @return
-     * @deprecated Use getContactPoint() instead, its already in world space.
-     */
-    @Deprecated
-    public Vector3f getWorldContactPoint() {
-        return contactPoint;
-    }
-
     public Vector3f getContactNormal() {
         return contactNormal;
     }

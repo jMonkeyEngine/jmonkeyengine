@@ -39,15 +39,12 @@ import com.jme3.math.Triangle;
 import com.jme3.math.Vector3f;
 
 /**
- * Sweep sphere implements a collidable moving sphere.
- * Usually used to simulate simple physics for character entities in games.
- * The sweep sphere can be used to check collision against
- * a triangle or another sweep sphere.
+ * No longer public ..
  *
  * @author Kirill Vainer
  */
 @Deprecated
-public class SweepSphere implements Collidable {
+class SweepSphere implements Collidable {
 
     private Vector3f velocity = new Vector3f();
     private Vector3f center = new Vector3f();

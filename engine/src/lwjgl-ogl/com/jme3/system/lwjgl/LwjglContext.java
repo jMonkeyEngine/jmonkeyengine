@@ -41,6 +41,7 @@ import com.jme3.renderer.lwjgl.LwjglRenderer;
 import com.jme3.system.AppSettings;
 import com.jme3.system.SystemListener;
 import com.jme3.system.JmeContext;
+import com.jme3.system.NullRenderer;
 import com.jme3.system.Timer;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
@@ -116,6 +117,12 @@ public abstract class LwjglContext implements JmeContext {
     protected void initContextFirstTime(){
         assert renderable.get();
 
+        if (GLContext.getCapabilities().OpenGL20){
+            renderer = new LwjglRenderer();
+        }else{
+            renderer = new LwjglGL1Renderer();
+        }
+        
         // Init renderer
         if (renderer instanceof LwjglRenderer){
             ((LwjglRenderer)renderer).initialize();
@@ -148,22 +155,25 @@ public abstract class LwjglContext implements JmeContext {
     
     public void internalCreate(){
         timer = new LwjglTimer();
-        if (settings.getRenderer().equals(AppSettings.LWJGL_OPENGL2)
-         || settings.getRenderer().equals(AppSettings.LWJGL_OPENGL3)){
-            renderer = new LwjglRenderer();
-        }else if (settings.getRenderer().equals(AppSettings.LWJGL_OPENGL1)){
-            renderer = new LwjglGL1Renderer();
-        }else{
-            throw new UnsupportedOperationException("Unsupported renderer: " + settings.getRenderer());
-        }
+        
+//        if (settings.getRenderer().equals(AppSettings.LWJGL_OPENGL2)
+//         || settings.getRenderer().equals(AppSettings.LWJGL_OPENGL3)){
+//            renderer = new LwjglRenderer();
+//        }else if (settings.getRenderer().equals(AppSettings.LWJGL_OPENGL1)){
+//            renderer = new LwjglGL1Renderer();
+//        }else{
+//            throw new UnsupportedOperationException("Unsupported renderer: " + settings.getRenderer());
+//        }
         synchronized (createdLock){
             created.set(true);
             createdLock.notifyAll();
         }
-        if (renderable.get())
+        
+        if (renderable.get()){
             initContextFirstTime();
-        else
+        }else{
             assert getType() == Type.Canvas;
+        }
     }
 
     public void create(){

@@ -83,11 +83,13 @@ public class GeometryBatchFactory {
 
         int totalVerts = 0;
         int totalTris  = 0;
+        int totalLodLevels = 0;
 
         Mode mode = null;
         for (Geometry geom : geometries){
             totalVerts += geom.getVertexCount();
             totalTris  += geom.getTriangleCount();
+            totalLodLevels = Math.min(totalLodLevels, geom.getMesh().getNumLodLevels());
 
             Mode listMode;
             int components;

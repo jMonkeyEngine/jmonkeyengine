@@ -42,12 +42,12 @@ public class HelloAudio extends SimpleApplication {
   /** We create two audio nodes. */
   private void initAudio() {
     /* gun shot sound is to be triggered by a mouse click. */
-    audio_gun = new AudioNode(assetManager, "Sound/Effects/Gun.wav", false);
+    audio_gun = new AudioNode(audioRenderer, assetManager, "Sound/Effects/Gun.wav", false);
     audio_gun.setLooping(false);
     audio_gun.setVolume(2);
 
     /* nature sound - keeps playing in a loop. */
-    audio_nature = new AudioNode(assetManager, "Sound/Environment/Nature.ogg", false);
+    audio_nature = new AudioNode(audioRenderer, assetManager, "Sound/Environment/Nature.ogg", false);
     audio_nature.setLooping(true);
     audio_nature.setPositional(true);
     audio_nature.setLocalTranslation(Vector3f.ZERO.clone());

@@ -44,6 +44,7 @@ import com.jme3.input.controls.KeyTrigger;
 import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
+import com.jme3.math.Spline.SplineType;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.CameraNode;
 import com.jme3.scene.Geometry;
@@ -70,10 +71,9 @@ public class TestCameraMotionPath extends SimpleApplication {
     public void simpleInitApp() {
         createScene();
         cam.setLocation(new Vector3f(8.4399185f, 11.189463f, 14.267577f));
-        camNode = new CameraNode(cam);
+        camNode = new CameraNode("Motion cam", cam);
         camNode.setControlDir(ControlDirection.SpatialToCamera);
         camNode.getControl(0).setEnabled(false);
-        camNode.setName("Motion cam");
         path = new MotionPath();
         path.setCycle(true);
         path.addWayPoint(new Vector3f(20, 3, 0));
@@ -180,10 +180,10 @@ public class TestCameraMotionPath extends SimpleApplication {
                 }
 
                 if (name.equals("SwitchPathInterpolation") && keyPressed) {
-                    if (path.getPathInterpolation() == MotionPath.PathInterpolation.CatmullRom) {
-                        path.setPathInterpolation(MotionPath.PathInterpolation.Linear);
+                    if (path.getPathSplineType() == SplineType.CatmullRom){
+                        path.setPathSplineType(SplineType.Linear);
                     } else {
-                        path.setPathInterpolation(MotionPath.PathInterpolation.CatmullRom);
+                        path.setPathSplineType(SplineType.CatmullRom);
                     }
                 }
 

@@ -50,7 +50,7 @@ public class SoundDeviceJme implements SoundDevice {
     }
 
     public SoundHandle loadSound(SoundSystem soundSystem, String filename) {
-        AudioNode an = new AudioNode(assetManager, filename, false);
+        AudioNode an = new AudioNode(ar, assetManager, filename, false);
         an.setPositional(false);
         return new SoundHandleJme(ar, an);
     }

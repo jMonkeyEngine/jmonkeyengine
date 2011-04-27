@@ -76,7 +76,7 @@ public class TestPostWater extends SimpleApplication {
         mainScene.attachChild(sky);
         cam.setFrustumFar(4000);
         //cam.setFrustumNear(100);
-        AudioNode waves = new AudioNode(assetManager, "Sound/Environment/Ocean Waves.ogg", false);
+        AudioNode waves = new AudioNode(audioRenderer, assetManager, "Sound/Environment/Ocean Waves.ogg", false);
         waves.setLooping(true);
         audioRenderer.playSource(waves);
 

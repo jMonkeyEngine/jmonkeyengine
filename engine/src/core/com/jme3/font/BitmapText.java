@@ -202,20 +202,6 @@ public class BitmapText extends Node {
         return block.getLineCount();
     }
     
-    @Deprecated
-    public boolean isWordWrap() {
-        return block.getLineWrapMode() == LineWrapMode.Word;
-    }
-    
-    @Deprecated
-    public void setWordWrap(boolean wrap) {
-        if (wrap) {
-            setLineWrapMode(LineWrapMode.Word);
-        } else {
-            setLineWrapMode(LineWrapMode.Character);
-        }
-    }
-    
     public LineWrapMode getLineWrapMode() {
         return block.getLineWrapMode();
     }

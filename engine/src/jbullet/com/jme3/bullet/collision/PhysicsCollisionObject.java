@@ -163,10 +163,8 @@ public abstract class PhysicsCollisionObject implements Savable {
      * Creates a visual debug shape of the current collision shape of this physics object<br/>
      * <b>Does not work with detached physics, please switch to PARALLEL or SEQUENTIAL for debugging</b>
      * @param manager AssetManager to load the default wireframe material for the debug shape
-     * @deprecated in favor of PhysicsSpace.enableDebug(AssetManager manager);
      */
-    @Deprecated
-    public Spatial attachDebugShape(AssetManager manager) {
+    protected Spatial attachDebugShape(AssetManager manager) {
         debugMaterialBlue = new Material(manager, "Common/MatDefs/Misc/WireColor.j3md");
         debugMaterialBlue.setColor("Color", ColorRGBA.Blue);
    //     debugMaterialBlue.getAdditionalRenderState().setDepthTest(false);
@@ -185,11 +183,7 @@ public abstract class PhysicsCollisionObject implements Savable {
         return attachDebugShape();
     }
 
-    /**
-     * @deprecated in favor of PhysicsSpace.enableDebug(AssetManager manager);
-     */
-    @Deprecated
-    public Spatial attachDebugShape(Material material) {
+    protected Spatial attachDebugShape(Material material) {
         debugMaterialBlue = material;
         debugMaterialGreen = material;
         debugMaterialRed = material;

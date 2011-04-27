@@ -63,7 +63,7 @@ public class TestWav extends AudioApp {
 
     @Override
     public void initAudioApp(){
-        src = new AudioNode(assetManager, "Sound/Effects/Gun.wav", false);
+        src = new AudioNode(audioRenderer, assetManager, "Sound/Effects/Gun.wav", false);
         src.setLooping(false);
     }
 

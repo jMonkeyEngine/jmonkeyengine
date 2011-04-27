@@ -407,26 +407,6 @@ public abstract class Texture implements Asset, Savable, Cloneable {
     public AssetKey getKey(){
         return this.key;
     }
-    
-    /**
-     * 
-     * @param key
-     * @deprecated Use {@link Texture#setKey(com.jme3.asset.AssetKey) }
-     */
-    @Deprecated
-    public void setTextureKey(TextureKey key){
-        this.key = key;
-    }
-
-    /**
-     * 
-     * @return
-     * @deprecated Use {@link Texture#getKey() }
-     */
-    @Deprecated
-    public TextureKey getTextureKey(){
-        return key;
-    }
 
     /**
      * <code>getImage</code> returns the image data that makes up this

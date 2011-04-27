@@ -45,7 +45,7 @@ import com.jme3.scene.shape.Torus;
 
 public class TestLightRadius extends SimpleApplication {
 
-    float angle;
+    float pos, vel=1;
     PointLight pl;
     Geometry lightMdl;
 
@@ -95,10 +95,14 @@ public class TestLightRadius extends SimpleApplication {
 //        cam.setLocation(new Vector3f(5.0347548f, 6.6481347f, 3.74853f));
 //        cam.setRotation(new Quaternion(-0.19183293f, 0.80776674f, -0.37974006f, -0.40805697f));
 
-        angle += tpf;
-        angle %= FastMath.TWO_PI;
-
-        pl.setPosition(new Vector3f(FastMath.cos(angle) * 3f, 2, FastMath.sin(angle) * 3f));
+        pos += tpf * vel * 5f;
+        if (pos > 15){
+            vel *= -1;
+        }else if (pos < -15){
+            vel *= -1;
+        }
+        
+        pl.setPosition(new Vector3f(pos, 2, 0));
         lightMdl.setLocalTranslation(pl.getPosition());
     }
 

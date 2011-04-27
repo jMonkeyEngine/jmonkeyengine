@@ -373,13 +373,7 @@ public class Material implements Cloneable, Savable, Comparable<Material> {
 //        }
     }
 
-    /**
-     * 
-     * @param name 
-     * @deprecated use clearParam instead
-     */
-    @Deprecated
-    public void clearTextureParam(String name) {
+    private void clearTextureParam(String name) {
         name = checkSetParam(null, name);
 
         MatParamTexture val = getTextureParam(name);

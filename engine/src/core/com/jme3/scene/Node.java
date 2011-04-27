@@ -475,22 +475,6 @@ public class Node extends Spatial implements Savable {
         return children;
     }
 
-    /**
-     * Dead code
-     * 
-     * @param geometry
-     * @param index1
-     * @param index2
-     * @deprecated Dead code
-     */
-    @Deprecated
-    public void childChange(Geometry geometry, int index1, int index2) {
-        //just pass to parent
-        if(parent != null) {
-            parent.childChange(geometry, index1, index2);
-        }
-    }
-
     @Override
     public void setMaterial(Material mat){
         for (int i = 0; i < children.size(); i++){

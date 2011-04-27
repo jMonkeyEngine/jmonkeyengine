@@ -197,7 +197,7 @@ public class TestMusicPlayer extends javax.swing.JFrame {
                 ex.printStackTrace();
             }
 
-            musicSource = new AudioNode(musicData, key);
+            musicSource = new AudioNode(ar, musicData, key);
             musicLength = musicData.getDuration();
             updateTime();
         }
