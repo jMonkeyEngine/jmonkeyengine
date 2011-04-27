@@ -82,9 +82,6 @@ public class TestBrickWall extends SimpleApplication {
 
     @Override
     public void simpleInitApp() {
-        System.loadLibrary("bulletjme");
-        PhysicsSpace.initNativePhysics();
-        System.out.println("processors: " + Runtime.getRuntime().availableProcessors());
         
         bulletAppState = new BulletAppState();
         bulletAppState.setThreadingType(BulletAppState.ThreadingType.PARALLEL);
