@@ -269,10 +269,13 @@ public class LwjglCanvas extends LwjglAbstractDisplay implements JmeCanvasContex
 
     @Override
     protected void createContext(AppSettings settings) {
+        // In case canvas is not visible, we still take framerate
+        // from settings to prevent "100% CPU usage"
+        frameRate = settings.getFrameRate();
+        
         if (!renderable.get())
             return;
 
-        frameRate = settings.getFrameRate();
         Display.setVSyncEnabled(settings.isVSync());
 
         try{

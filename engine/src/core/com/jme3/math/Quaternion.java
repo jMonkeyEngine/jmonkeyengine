@@ -1062,8 +1062,22 @@ public final class Quaternion implements Savable, Cloneable {
 
     /**
      * <code>normalize</code> normalizes the current <code>Quaternion</code>
+     * @deprecated The naming of this method doesn't follow convention.
+     * Please use {@link Quaternion#normalizeLocal() } instead.
      */
+    @Deprecated
     public void normalize() {
+        float n = FastMath.invSqrt(norm());
+        x *= n;
+        y *= n;
+        z *= n;
+        w *= n;
+    }
+
+    /**
+     * <code>normalize</code> normalizes the current <code>Quaternion</code>
+     */
+    public void normalizeLocal(){
         float n = FastMath.invSqrt(norm());
         x *= n;
         y *= n;
