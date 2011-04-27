@@ -96,6 +96,14 @@
 		basedir="build/testclasses"/>-->
     </target>
     
+    <!--target name="-post-jar" depends="build-bullet-natives">
+    </target-->
+    
+    <target name="build-bullet-natives">
+        <ant antfile="src/jbullet/native/build.xml" target="build-bullet-natives"/>
+        <copy file="lib/bullet/libbulletjme.jnilib" todir="./" overwrite="true"/>
+    </target>
+    
     <!-- convenience target to transfer jme3 libraries to sdk (jMonkeyPlatform) -->
     <target name="update-sdk" depends="jar, javadoc">
         <antcall target="-do-update-sdk" inheritall="true">
