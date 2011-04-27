@@ -59,14 +59,8 @@ public class TestPhysicsCharacter extends SimpleApplication implements ActionLis
     private CharacterControl physicsCharacter;
     private Vector3f walkDirection = new Vector3f();
     private Material mat;
-    private static final Sphere bullet;
-    private static final SphereCollisionShape bulletCollisionShape;
-
-    static {
-        bullet = new Sphere(32, 32, 0.4f, true, false);
-        bullet.setTextureMode(TextureMode.Projected);
-        bulletCollisionShape = new SphereCollisionShape(0.4f);
-    }
+    private Sphere bullet;
+    private SphereCollisionShape bulletCollisionShape;
 
     public static void main(String[] args) {
         TestPhysicsCharacter app = new TestPhysicsCharacter();
@@ -86,12 +80,17 @@ public class TestPhysicsCharacter extends SimpleApplication implements ActionLis
         inputManager.addListener(this, "Ups");
         inputManager.addListener(this, "Downs");
         inputManager.addListener(this, "Space");
+        inputManager.addMapping("gc", new KeyTrigger(KeyInput.KEY_X));
+        inputManager.addListener(this, "gc");
     }
 
     @Override
     public void simpleInitApp() {
         bulletAppState = new BulletAppState();
         stateManager.attach(bulletAppState);
+        bullet = new Sphere(32, 32, 0.4f, true, false);
+        bullet.setTextureMode(TextureMode.Projected);
+        bulletCollisionShape = new SphereCollisionShape(0.4f);
         PhysicsTestHelper.createPhysicsTestWorld(rootNode, assetManager, bulletAppState.getPhysicsSpace());
 
         setupKeys();
@@ -150,6 +149,9 @@ public class TestPhysicsCharacter extends SimpleApplication implements ActionLis
             }
         } else if (binding.equals("Space")) {
             physicsCharacter.jump();
+        }
+        if (binding.equals("gc") && !value) {
+            System.gc();
         }
     }
 }

@@ -79,18 +79,10 @@ public class TestBrickTower extends SimpleApplication {
     Material mat2;
     Material mat3;
     PssmShadowRenderer bsr;
-    private static final Sphere bullet;
-    private static final Box brick;
-    private static final SphereCollisionShape bulletCollisionShape;
+    private Sphere bullet;
+    private Box brick;
+    private SphereCollisionShape bulletCollisionShape;
 
-    static {
-        bullet = new Sphere(32, 32, 0.4f, true, false);
-        bullet.setTextureMode(TextureMode.Projected);
-        bulletCollisionShape = new SphereCollisionShape(0.4f);
-
-        brick = new Box(Vector3f.ZERO, brickWidth, brickHeight, brickDepth);
-        brick.scaleTextureCoordinates(new Vector2f(1f, .5f));
-    }
     private BulletAppState bulletAppState;
 
     public static void main(String args[]) {
@@ -103,6 +95,12 @@ public class TestBrickTower extends SimpleApplication {
         bulletAppState = new BulletAppState();
         bulletAppState.setThreadingType(BulletAppState.ThreadingType.PARALLEL);
         stateManager.attach(bulletAppState);
+        bullet = new Sphere(32, 32, 0.4f, true, false);
+        bullet.setTextureMode(TextureMode.Projected);
+        bulletCollisionShape = new SphereCollisionShape(0.4f);
+
+        brick = new Box(Vector3f.ZERO, brickWidth, brickHeight, brickDepth);
+        brick.scaleTextureCoordinates(new Vector2f(1f, .5f));
 //        bulletAppState.getPhysicsSpace().enableDebug(assetManager);
         initMaterial();
         initTower();

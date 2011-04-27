@@ -39,8 +39,10 @@ import com.jme3.bullet.collision.shapes.BoxCollisionShape;
 import com.jme3.bullet.collision.shapes.SphereCollisionShape;
 import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.font.BitmapText;
+import com.jme3.input.KeyInput;
 import com.jme3.input.MouseInput;
 import com.jme3.input.controls.ActionListener;
+import com.jme3.input.controls.KeyTrigger;
 import com.jme3.input.controls.MouseButtonTrigger;
 import com.jme3.material.Material;
 import com.jme3.math.Vector2f;
@@ -67,18 +69,10 @@ public class TestBrickWall extends SimpleApplication {
     Material mat2;
     Material mat3;
     BasicShadowRenderer bsr;
-    private static final Sphere bullet;
-    private static final Box brick;
-    private static final SphereCollisionShape bulletCollisionShape;
+    private static Sphere bullet;
+    private static Box brick;
+    private static SphereCollisionShape bulletCollisionShape;
 
-    static {
-        bullet = new Sphere(32, 32, 0.4f, true, false);
-        bullet.setTextureMode(TextureMode.Projected);
-        bulletCollisionShape = new SphereCollisionShape(0.4f);
-
-        brick = new Box(Vector3f.ZERO, bLength, bHeight, bWidth);
-        brick.scaleTextureCoordinates(new Vector2f(1f, .5f));
-    }
     private BulletAppState bulletAppState;
 
     public static void main(String args[]) {
@@ -88,9 +82,20 @@ public class TestBrickWall extends SimpleApplication {
 
     @Override
     public void simpleInitApp() {
+        System.loadLibrary("bulletjme");
+        PhysicsSpace.initNativePhysics();
+        System.out.println("processors: " + Runtime.getRuntime().availableProcessors());
+        
         bulletAppState = new BulletAppState();
         bulletAppState.setThreadingType(BulletAppState.ThreadingType.PARALLEL);
         stateManager.attach(bulletAppState);
+
+        bullet = new Sphere(32, 32, 0.4f, true, false);
+        bullet.setTextureMode(TextureMode.Projected);
+        bulletCollisionShape = new SphereCollisionShape(0.4f);
+        brick = new Box(Vector3f.ZERO, bLength, bHeight, bWidth);
+        brick.scaleTextureCoordinates(new Vector2f(1f, .5f));
+
         initMaterial();
         initWall();
         initFloor();
@@ -100,6 +105,8 @@ public class TestBrickWall extends SimpleApplication {
         cam.setFrustumFar(15);
         inputManager.addMapping("shoot", new MouseButtonTrigger(MouseInput.BUTTON_LEFT));
         inputManager.addListener(actionListener, "shoot");
+        inputManager.addMapping("gc", new KeyTrigger(KeyInput.KEY_X));
+        inputManager.addListener(actionListener, "gc");
 
         rootNode.setShadowMode(ShadowMode.Off);
         bsr = new BasicShadowRenderer(assetManager, 256);
@@ -118,12 +125,17 @@ public class TestBrickWall extends SimpleApplication {
                 bulletg.setMaterial(mat2);
                 bulletg.setShadowMode(ShadowMode.CastAndReceive);
                 bulletg.setLocalTranslation(cam.getLocation());
+                
+                SphereCollisionShape bulletCollisionShape = new SphereCollisionShape(0.4f);
                 RigidBodyControl bulletNode = new BombControl(assetManager, bulletCollisionShape, 1);
 //                RigidBodyControl bulletNode = new RigidBodyControl(bulletCollisionShape, 1);
                 bulletNode.setLinearVelocity(cam.getDirection().mult(25));
                 bulletg.addControl(bulletNode);
                 rootNode.attachChild(bulletg);
                 getPhysicsSpace().add(bulletNode);
+            }
+            if (name.equals("gc") && !keyPressed) {
+                System.gc();
             }
         }
     };

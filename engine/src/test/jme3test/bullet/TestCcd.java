@@ -61,15 +61,9 @@ public class TestCcd extends SimpleApplication implements ActionListener{
 
     private Material mat;
     private Material mat2;
-    private static final Sphere bullet;
-    private static final SphereCollisionShape bulletCollisionShape;
+    private Sphere bullet;
+    private SphereCollisionShape bulletCollisionShape;
     private BulletAppState bulletAppState;
-
-    static {
-        bullet = new Sphere(32, 32, 0.4f, true, false);
-        bullet.setTextureMode(TextureMode.Projected);
-        bulletCollisionShape = new SphereCollisionShape(0.1f);
-    }
 
     public static void main(String[] args) {
         TestCcd app = new TestCcd();
@@ -88,6 +82,9 @@ public class TestCcd extends SimpleApplication implements ActionListener{
         bulletAppState = new BulletAppState();
         stateManager.attach(bulletAppState);
         bulletAppState.getPhysicsSpace().enableDebug(assetManager);
+        bullet = new Sphere(32, 32, 0.4f, true, false);
+        bullet.setTextureMode(TextureMode.Projected);
+        bulletCollisionShape = new SphereCollisionShape(0.1f);
         setupKeys();
 
         mat = new Material(getAssetManager(), "Common/MatDefs/Misc/WireColor.j3md");

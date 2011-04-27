@@ -80,6 +80,10 @@ public class TestBoneRagdoll extends SimpleApplication implements RagdollCollisi
     Node model;
     RagdollControl ragdoll;
     float bulletSize = 1f;
+    Material mat;
+    Material mat3;
+    private Sphere bullet;
+    private SphereCollisionShape bulletCollisionShape;
 
     public static void main(String[] args) {
         TestBoneRagdoll app = new TestBoneRagdoll();
@@ -89,6 +93,10 @@ public class TestBoneRagdoll extends SimpleApplication implements RagdollCollisi
     public void simpleInitApp() {
         initCrossHairs();
         initMaterial();
+
+        bullet = new Sphere(32, 32, 1.0f, true, false);
+        bullet.setTextureMode(TextureMode.Projected);
+        bulletCollisionShape = new SphereCollisionShape(1.0f);
 
         cam.setLocation(new Vector3f(0.26924422f, 6.646658f, 22.265987f));
         cam.setRotation(new Quaternion(-2.302544E-4f, 0.99302495f, -0.117888905f, -0.0019395084f));
@@ -230,16 +238,6 @@ public class TestBoneRagdoll extends SimpleApplication implements RagdollCollisi
 
     private PhysicsSpace getPhysicsSpace() {
         return bulletAppState.getPhysicsSpace();
-    }
-    Material mat;
-    Material mat3;
-    private static final Sphere bullet;
-    private static SphereCollisionShape bulletCollisionShape;
-
-    static {
-        bullet = new Sphere(32, 32, 1.0f, true, false);
-        bullet.setTextureMode(TextureMode.Projected);
-        bulletCollisionShape = new SphereCollisionShape(1.0f);
     }
 
     public void initMaterial() {

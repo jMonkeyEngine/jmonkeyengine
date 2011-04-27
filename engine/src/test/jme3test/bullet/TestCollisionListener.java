@@ -52,14 +52,8 @@ public class TestCollisionListener extends SimpleApplication implements PhysicsC
 
     private BulletAppState bulletAppState;
     private Material mat;
-    private static final Sphere bullet;
-    private static final SphereCollisionShape bulletCollisionShape;
-
-    static {
-        bullet = new Sphere(32, 32, 0.4f, true, false);
-        bullet.setTextureMode(TextureMode.Projected);
-        bulletCollisionShape = new SphereCollisionShape(0.4f);
-    }
+    private Sphere bullet;
+    private SphereCollisionShape bulletCollisionShape;
 
     public static void main(String[] args) {
         TestCollisionListener app = new TestCollisionListener();
@@ -71,6 +65,9 @@ public class TestCollisionListener extends SimpleApplication implements PhysicsC
         bulletAppState = new BulletAppState();
         stateManager.attach(bulletAppState);
         bulletAppState.getPhysicsSpace().enableDebug(assetManager);
+        bullet = new Sphere(32, 32, 0.4f, true, false);
+        bullet.setTextureMode(TextureMode.Projected);
+        bulletCollisionShape = new SphereCollisionShape(0.4f);
 
         PhysicsTestHelper.createPhysicsTestWorld(rootNode, assetManager, bulletAppState.getPhysicsSpace());
         PhysicsTestHelper.createBallShooter(this, rootNode, bulletAppState.getPhysicsSpace());
