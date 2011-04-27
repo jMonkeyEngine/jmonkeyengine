@@ -42,8 +42,20 @@ import com.jme3.scene.Node;
 import java.io.IOException;
 
 /**
- *
+ * An <code>AudioNode</code> is used in jME3 for playing audio files.
+ * <br/>
+ * First, an {@link AudioNode} is loaded from file, and then assigned
+ * to an audio node for playback. Once the audio node is attached to the 
+ * scene, its location will influence the position it is playing from relative
+ * to the {@link Listener}.
+ * <br/>
+ * An audio node can also play in "headspace", meaning its location
+ * or velocity does not influence how it is played. 
+ * The "positional" property of an AudioNode can be set via 
+ * {@link AudioNode#setPositional(boolean) }.
+ * 
  * @author normenhansen
+ * @author Kirill Vainer
  */
 public class AudioNode extends Node {
 
@@ -67,35 +79,108 @@ public class AudioNode extends Node {
     protected Vector3f direction = new Vector3f(0, 0, 1);
     protected float innerAngle = 360;
     protected float outerAngle = 360;
-    private boolean positional = true;
+    protected boolean positional = true;
 
+    /**
+     * <code>Status</code> indicates the current status of the audio node.
+     */
     public enum Status {
+        /**
+         * The audio node is currently playing. This will be set if
+         * {@link AudioNode#play() } is called.
+         */
         Playing,
+        
+        /**
+         * The audio node is currently paused.
+         */
         Paused,
+        
+        /**
+         * The audio node is currently stopped.
+         * This will be set if {@link AudioNode#stop() } is called 
+         * or the audio has reached the end of the file.
+         */
         Stopped,
     }
 
+    /**
+     * Creates a new <code>AudioNode</code> without any audio data set.
+     * 
+     * @param audioRenderer The audio renderer to use for playing. Cannot be null.
+     */
     public AudioNode(AudioRenderer audioRenderer) {
+        if (audioRenderer == null)
+            throw new IllegalArgumentException("audioRenderer cannot be null");
+        
         this.renderer = audioRenderer;
     }
 
-    public AudioNode(AudioRenderer audioRenderer, AudioData ad, AudioKey key) {
+    /**
+     * Creates a new <code>AudioNode</code> with the given data and key.
+     * 
+     * @param audioRenderer The audio renderer to use for playing. Cannot be null.
+     * @param audioData The audio data contains the audio track to play.
+     * @param key The audio key that was used to load the AudioData
+     */
+    public AudioNode(AudioRenderer audioRenderer, AudioData audioData, AudioKey key) {
         this(audioRenderer);
-        setAudioData(ad, key);
+        setAudioData(audioData, key);
     }
 
+    /**
+     * Creates a new <code>AudioNode</code> with the given audio file.
+     * 
+     * @param audioRenderer The audio renderer to use for playing. Cannot be null.
+     * @param assetManager The asset manager to use to load the audio file
+     * @param name The filename of the audio file
+     * @param stream If true, the audio will be streamed gradually from disk, 
+     *               otherwise, it will be buffered.
+     */
     public AudioNode(AudioRenderer audioRenderer, AssetManager assetManager, String name, boolean stream) {
         this(audioRenderer);
         this.key = new AudioKey(name, stream);
         this.data = (AudioData) assetManager.loadAsset(key);
     }
 
+    /**
+     * Creates a new <code>AudioNode</code> with the given audio file.
+     * 
+     * @param audioRenderer The audio renderer to use for playing. Cannot be null.
+     * @param assetManager The asset manager to use to load the audio file
+     * @param name The filename of the audio file
+     */
     public AudioNode(AudioRenderer audioRenderer, AssetManager assetManager, String name) {
         this(audioRenderer, assetManager, name, false);
     }
+    
+    /**
+     * Start playing the audio.
+     */
+    public void play(){
+        renderer.playSource(this);
+    }
 
-        
-
+    /**
+     * Start playing an instance of this audio. This method can be used
+     * to play the same <code>AudioNode</code> multiple times. Note
+     * that changes to the parameters of this AudioNode will not effect the 
+     * instances already playing.
+     */
+    public void playInstance(){
+        renderer.playSourceInstance(this);
+    }
+    
+    /**
+     * Stop playing the audio that was started with {@link AudioNode#play() }.
+     */
+    public void stop(){
+        renderer.stopSource(this);
+    }
+    
+    /**
+     * Do not use.
+     */
     public void setChannel(int channel) {
         if (status != Status.Stopped) {
             throw new IllegalStateException("Can only set source id when stopped");
@@ -104,59 +189,117 @@ public class AudioNode extends Node {
         this.channel = channel;
     }
 
+    /**
+     * Do not use.
+     */
     public int getChannel() {
         return channel;
     }
 
+    /**
+     * @return The {#link Filter dry filter} that is set.
+     * @see AudioNode#setDryFilter(com.jme3.audio.Filter) 
+     */
     public Filter getDryFilter() {
         return dryFilter;
     }
 
+    /**
+     * Set the dry filter to use for this audio node.
+     * 
+     * When {@link AudioNode#setReverbEnabled(boolean) reverb} is used, 
+     * the dry filter will only influence the "dry" portion of the audio, 
+     * e.g. not the reverberated parts of the AudioNode playing.
+     * 
+     * See the relevent documentation for the {@link Filter} to determine
+     * the effect.
+     * 
+     * @param dryFilter The filter to set, or null to disable dry filter.
+     */
     public void setDryFilter(Filter dryFilter) {
-        if (this.dryFilter != null) {
-            throw new IllegalStateException("Filter already set");
-        }
-
         this.dryFilter = dryFilter;
         if (channel >= 0)
             renderer.updateSourceParam(this, AudioParam.DryFilter);
     }
 
-    public void setAudioData(AudioData ad, AudioKey key) {
+    /**
+     * Set the audio data to use for the audio. Note that this method
+     * can only be called once, if for example the audio node was initialized
+     * without an {@link AudioData}.
+     * 
+     * @param audioData The audio data contains the audio track to play.
+     * @param key The audio key that was used to load the AudioData
+     */
+    public void setAudioData(AudioData audioData, AudioKey key) {
         if (data != null) {
             throw new IllegalStateException("Cannot change data once its set");
         }
 
-        data = ad;
+        data = audioData;
         this.key = key;
     }
 
+    /**
+     * @return The {@link AudioData} set previously with 
+     * {@link AudioNode#setAudioData(com.jme3.audio.AudioData, com.jme3.audio.AudioKey) }
+     * or any of the constructors that initialize the audio data.
+     */
     public AudioData getAudioData() {
         return data;
     }
 
+    /**
+     * @return The {@link Status} of the audio node. 
+     * The status will be changed when either the {@link AudioNode#play() }
+     * or {@link AudioNode#stop() } methods are called.
+     */
     public Status getStatus() {
         return status;
     }
 
+    /**
+     * Do not use.
+     */
     public void setStatus(Status status) {
         this.status = status;
     }
 
+    /**
+     * @return True if the audio will keep looping after it is done playing,
+     * otherwise, false.
+     * @see AudioNode#setLooping(boolean)
+     */
     public boolean isLooping() {
         return loop;
     }
 
+    /**
+     * Set the looping mode for the audio node. The default is false.
+     * 
+     * @param loop True if the audio should keep looping after it is done playing.
+     */
     public void setLooping(boolean loop) {
         this.loop = loop;
         if (channel >= 0)
             renderer.updateSourceParam(this, AudioParam.Looping);
     }
 
+    /**
+     * @return The pitch of the audio, also the speed of playback.
+     * 
+     * @see AudioNode#setPitch(float) 
+     */
     public float getPitch() {
         return pitch;
     }
 
+    /**
+     * Set the pitch of the audio, also the speed of playback.
+     * The value must be between 0.5 and 2.0.
+     * 
+     * @param pitch The pitch to set.
+     * @throws IllegalArgumentException If pitch is not between 0.5 and 2.0.
+     */
     public void setPitch(float pitch) {
         if (pitch < 0.5f || pitch > 2.0f) {
             throw new IllegalArgumentException("Pitch must be between 0.5 and 2.0");
@@ -167,10 +310,23 @@ public class AudioNode extends Node {
             renderer.updateSourceParam(this, AudioParam.Pitch);
     }
 
+    /**
+     * @return The volume of this audio node.
+     * 
+     * @see AudioNode#setVolume(float)
+     */
     public float getVolume() {
         return volume;
     }
 
+    /**
+     * Set the volume of this audio node.
+     * 
+     * The volume is specified as gain. 1.0 is the default.
+     * 
+     * @param volume The volume to set.
+     * @throws IllegalArgumentException If volume is negative
+     */
     public void setVolume(float volume) {
         if (volume < 0f) {
             throw new IllegalArgumentException("Volume cannot be negative");
@@ -181,10 +337,19 @@ public class AudioNode extends Node {
             renderer.updateSourceParam(this, AudioParam.Volume);
     }
 
+    /**
+     * @return The time offset in seconds when the sound will start playing.
+     */
     public float getTimeOffset() {
         return timeOffset;
     }
 
+    /**
+     * Set the time offset in seconds when the sound will start playing.
+     * 
+     * @param timeOffset The time offset
+     * @throws IllegalArgumentException If timeOffset is negative
+     */
     public void setTimeOffset(float timeOffset) {
         if (timeOffset < 0f) {
             throw new IllegalArgumentException("Time offset cannot be negative");
@@ -193,30 +358,72 @@ public class AudioNode extends Node {
         this.timeOffset = timeOffset;
     }
 
+    /**
+     * @return The velocity of the audio node.
+     * 
+     * @see AudioNode#setVelocity(com.jme3.math.Vector3f)
+     */
     public Vector3f getVelocity() {
         return velocity;
     }
 
+    /**
+     * Set the velocity of the audio node. The velocity is expected
+     * to be in meters. Does nothing if the audio node is not positional.
+     * 
+     * @param velocity The velocity to set.
+     * @see AudioNode#setPositional(boolean)
+     */
     public void setVelocity(Vector3f velocity) {
         this.velocity.set(velocity);
         if (channel >= 0)
             renderer.updateSourceParam(this, AudioParam.Velocity);
     }
 
+    /**
+     * @return True if reverb is enabled, otherwise false.
+     * 
+     * @see AudioNode#setReverbEnabled(boolean)
+     */
     public boolean isReverbEnabled() {
         return reverbEnabled;
     }
 
+    /**
+     * Set to true to enable reverberation effects for this audio node.
+     * Does nothing if the audio node is not positional.
+     * <br/>
+     * When enabled, the audio environment set with 
+     * {@link AudioRenderer#setEnvironment(com.jme3.audio.Environment) }
+     * will apply a reverb effect to the audio playing from this audio node.
+     * 
+     * @param reverbEnabled True to enable reverb.
+     */
     public void setReverbEnabled(boolean reverbEnabled) {
         this.reverbEnabled = reverbEnabled;
         if (channel >= 0)
             renderer.updateSourceParam(this, AudioParam.ReverbEnabled);
     }
 
+    /**
+     * @return Filter for the reverberations of this audio node.
+     * 
+     * @see AudioNode#setReverbFilter(com.jme3.audio.Filter) 
+     */
     public Filter getReverbFilter() {
         return reverbFilter;
     }
 
+    /**
+     * Set the reverb filter for this audio node.
+     * <br/>
+     * The reverb filter will influence the reverberations
+     * of the audio node playing. This only has an effect if
+     * reverb is enabled.
+     * 
+     * @param reverbFilter The reverb filter to set.
+     * @see AudioNode#setDryFilter(com.jme3.audio.Filter)
+     */
     public void setReverbFilter(Filter reverbFilter) {
         if (this.reverbFilter != null) {
             throw new IllegalStateException("Filter already set");
@@ -227,10 +434,25 @@ public class AudioNode extends Node {
             renderer.updateSourceParam(this, AudioParam.ReverbFilter);
     }
 
+    /**
+     * @return Max distance for this audio node.
+     * 
+     * @see AudioNode#setMaxDistance(float)
+     */
     public float getMaxDistance() {
         return maxDistance;
     }
 
+    /**
+     * Set the maximum playing distance for the audio node.
+     * Does nothing if the audio node is not positional.
+     * <br/>
+     * The maximum distance is the distance beyond which the audio
+     * node will no longer be heard.
+     * 
+     * @param maxDistance The maximum playing distance.
+     * @throws IllegalArgumentException If maxDistance is negative
+     */
     public void setMaxDistance(float maxDistance) {
         if (maxDistance < 0) {
             throw new IllegalArgumentException("Max distance cannot be negative");
@@ -241,10 +463,25 @@ public class AudioNode extends Node {
             renderer.updateSourceParam(this, AudioParam.MaxDistance);
     }
 
+    /**
+     * @return The reference playing distance for the audio node.
+     * 
+     * @see AudioNode#setRefDistance(float) 
+     */
     public float getRefDistance() {
         return refDistance;
     }
 
+    /**
+     * Set the reference playing distance for the audio node.
+     * Does nothing if the audio node is not positional.
+     * <br/>
+     * The reference playing distance is the distance at which the
+     * audio node will be exactly half of its volume.
+     * 
+     * @param refDistance The reference playing distance.
+     * @throws  IllegalArgumentException If refDistance is negative
+     */
     public void setRefDistance(float refDistance) {
         if (refDistance < 0) {
             throw new IllegalArgumentException("Reference distance cannot be negative");
@@ -255,52 +492,114 @@ public class AudioNode extends Node {
             renderer.updateSourceParam(this, AudioParam.RefDistance);
     }
 
+    /**
+     * @return True if the audio node is directional
+     * 
+     * @see AudioNode#setDirectional(boolean) 
+     */
     public boolean isDirectional() {
         return directional;
     }
 
+    /**
+     * Set the audio node to be directional.
+     * Does nothing if the audio node is not positional.
+     * <br/>
+     * After setting directional, you should call 
+     * {@link AudioNode#setDirection(com.jme3.math.Vector3f) }
+     * to set the audio node's direction.
+     * 
+     * @param directional If the audio node is directional
+     */
     public void setDirectional(boolean directional) {
         this.directional = directional;
         if (channel >= 0)
             renderer.updateSourceParam(this, AudioParam.IsDirectional);
     }
 
+    /**
+     * @return The direction of this audio node.
+     * 
+     * @see AudioNode#setDirection(com.jme3.math.Vector3f)
+     */
     public Vector3f getDirection() {
         return direction;
     }
 
+    /**
+     * Set the direction of this audio node.
+     * Does nothing if the audio node is not directional.
+     * 
+     * @param direction 
+     * @see AudioNode#setDirectional(boolean) 
+     */
     public void setDirection(Vector3f direction) {
         this.direction = direction;
         if (channel >= 0)
             renderer.updateSourceParam(this, AudioParam.Direction);
     }
 
+    /**
+     * @return The directional audio node, cone inner angle.
+     * 
+     * @see AudioNode#setInnerAngle(float) 
+     */
     public float getInnerAngle() {
         return innerAngle;
     }
 
+    /**
+     * Set the directional audio node cone inner angle.
+     * Does nothing if the audio node is not directional.
+     * 
+     * @param innerAngle The cone inner angle.
+     */
     public void setInnerAngle(float innerAngle) {
         this.innerAngle = innerAngle;
         if (channel >= 0)
             renderer.updateSourceParam(this, AudioParam.InnerAngle);
     }
 
+    /**
+     * @return The directional audio node, cone outer angle.
+     * 
+     * @see AudioNode#setOuterAngle(float) 
+     */
     public float getOuterAngle() {
         return outerAngle;
     }
 
+    /**
+     * Set the directional audio node cone outer angle.
+     * Does nothing if the audio node is not directional.
+     * 
+     * @param outerAngle The cone outer angle.
+     */
     public void setOuterAngle(float outerAngle) {
         this.outerAngle = outerAngle;
         if (channel >= 0)
             renderer.updateSourceParam(this, AudioParam.OuterAngle);
     }
 
+    /**
+     * @return True if the audio node is positional.
+     * 
+     * @see AudioNode#setPositional(boolean) 
+     */
     public boolean isPositional() {
         return positional;
     }
 
-    public void setPositional(boolean inHeadspace) {
-        this.positional = inHeadspace;
+    /**
+     * Set the audio node as positional.
+     * The position, velocity, and distance parameters effect positional
+     * audio nodes. Set to false if the audio node should play in "headspace".
+     * 
+     * @param positional True if the audio node should be positional, otherwise
+     * false if it should be headspace.
+     */
+    public void setPositional(boolean positional) {
+        this.positional = positional;
         if (channel >= 0)
             renderer.updateSourceParam(this, AudioParam.IsPositional);
     }
@@ -318,14 +617,15 @@ public class AudioNode extends Node {
             renderer.updateSourceParam(this, AudioParam.Position);
     }
 
-//    @Override
-//    public AudioNode clone(){
-//        try{
-//            return (AudioNode) super.clone();
-//        }catch (CloneNotSupportedException ex){
-//            return null;
-//        }
-//    }
+    @Override
+    public AudioNode clone(){
+        AudioNode clone = (AudioNode) super.clone();
+        
+        clone.direction = direction.clone();
+        clone.velocity  = velocity.clone();
+        
+        return clone;
+    }
     
     @Override
     public void write(JmeExporter ex) throws IOException {
@@ -348,6 +648,8 @@ public class AudioNode extends Node {
         oc.write(direction, "direction", null);
         oc.write(innerAngle, "inner_angle", 360);
         oc.write(outerAngle, "outer_angle", 360);
+        
+        oc.write(positional, "positional", false);
     }
 
     @Override
@@ -371,6 +673,9 @@ public class AudioNode extends Node {
         direction = (Vector3f) ic.readSavable("direction", null);
         innerAngle = ic.readFloat("inner_angle", 360);
         outerAngle = ic.readFloat("outer_angle", 360);
+        
+        positional = ic.readBoolean("positional", false);
+        
         data = im.getAssetManager().loadAudio(key);
     }
 
