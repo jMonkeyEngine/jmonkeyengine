@@ -39,7 +39,9 @@ public class BombControl extends RigidBodyControl implements PhysicsCollisionLis
     private float forceFactor = 1;
     private ParticleEmitter effect;
     private float fxTime = 0.5f;
+    private float maxTime = 4f;
     private float curTime = -1.0f;
+    private float timer;
 
     public BombControl(CollisionShape shape, float mass) {
         super(shape, mass);
@@ -133,6 +135,16 @@ public class BombControl extends RigidBodyControl implements PhysicsCollisionLis
     @Override
     public void update(float tpf) {
         super.update(tpf);
+        if(enabled){
+            timer+=tpf;
+            if(timer>maxTime){
+                if(spatial.getParent()!=null){
+                    space.removeCollisionListener(this);
+                    space.remove(this);
+                    spatial.removeFromParent();
+                }
+            }
+        }
         if (enabled && curTime >= 0) {
             curTime += tpf;
             if (curTime > fxTime) {
