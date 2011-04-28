@@ -89,7 +89,8 @@ public abstract class LwjglAbstractDisplay extends LwjglContext implements Runna
     protected void initInThread(){
         try{
             if (!JmeSystem.isLowPermissions()){
-                Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+                // Enable uncaught exception handler only for current thread
+                Thread.currentThread().setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
                     public void uncaughtException(Thread thread, Throwable thrown) {
                         listener.handleError("Uncaught exception thrown in "+thread.toString(), thrown);
                     }
