@@ -565,7 +565,14 @@ public abstract class Texture implements Asset, Savable, Cloneable {
     public void write(JmeExporter e) throws IOException {
         OutputCapsule capsule = e.getCapsule(this);
         capsule.write(name, "name", null);
-        capsule.write(key, "key", null);
+        
+        if (key == null){
+            // no texture key is set, try to save image instead then
+            capsule.write(image, "image", null);
+        }else{
+            capsule.write(key, "key", null);
+        }
+        
         capsule.write(anisotropicFilter, "anisotropicFilter", 1);
         capsule.write(minificationFilter, "minificationFilter",
                 MinFilter.BilinearNoMipMaps);
@@ -577,18 +584,26 @@ public abstract class Texture implements Asset, Savable, Cloneable {
         InputCapsule capsule = e.getCapsule(this);
         name = capsule.readString("name", null);
         key = (TextureKey) capsule.readSavable("key", null);
-        // load texture from key
+        
+        // load texture from key, if available
         if (key != null) {
+            // key is available, so try the texture from there.
             Texture loadedTex = e.getAssetManager().loadTexture(key);
             if (loadedTex == null) {
                 Logger.getLogger(Texture.class.getName()).log(Level.SEVERE, "Could not load texture: {0}", key.toString());
             } else {
                 image = loadedTex.getImage();
             }
+        }else{
+            // no key is set on the texture. Attempt to load an embedded image
+            image = (Image) capsule.readSavable("image", null);
+            if (image == null){
+                // TODO: what to print out here? the texture has no key or data, there's no useful information .. 
+                // assume texture.name is set even though the key is null
+                Logger.getLogger(Texture.class.getName()).log(Level.SEVERE, "Could not load embedded image: {0}", toString() );
+            }
         }
-//        image = (Image) capsule.readSavable("image", null);
-//        if (image == null) {
-//        }
+
         anisotropicFilter = capsule.readInt("anisotropicFilter", 1);
         minificationFilter = capsule.readEnum("minificationFilter",
                 MinFilter.class,
