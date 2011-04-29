@@ -46,20 +46,16 @@ import com.jme3.bullet.collision.RagdollCollisionListener;
 import com.jme3.bullet.collision.shapes.SphereCollisionShape;
 import com.jme3.bullet.control.RagdollControl;
 import com.jme3.bullet.control.RigidBodyControl;
-import com.jme3.bullet.joints.SixDofJoint;
 import com.jme3.font.BitmapText;
 import com.jme3.input.KeyInput;
 import com.jme3.input.MouseInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
-import com.jme3.input.controls.MouseAxisTrigger;
 import com.jme3.input.controls.MouseButtonTrigger;
-import com.jme3.light.AmbientLight;
 import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
-import com.jme3.math.Matrix3f;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
@@ -73,7 +69,7 @@ import com.jme3.texture.Texture;
  * PHYSICS RAGDOLLS ARE NOT WORKING PROPERLY YET!
  * @author normenhansen
  */
-public class TestBoneRagdoll extends SimpleApplication implements RagdollCollisionListener, AnimEventListener{
+public class TestBoneRagdoll extends SimpleApplication implements RagdollCollisionListener, AnimEventListener {
 
     private BulletAppState bulletAppState;
     Material matBullet;
@@ -131,8 +127,8 @@ public class TestBoneRagdoll extends SimpleApplication implements RagdollCollisi
         float eighth_pi = FastMath.PI * 0.125f;
         ragdoll.setJointLimit("Waist", eighth_pi, eighth_pi, eighth_pi, eighth_pi, eighth_pi, eighth_pi);
         ragdoll.setJointLimit("Chest", eighth_pi, eighth_pi, 0, 0, eighth_pi, eighth_pi);
-   
-        
+
+
         //Oto's head is almost rigid
         //    ragdoll.setJointLimit("head", 0, 0, eighth_pi, -eighth_pi, 0, 0);
 
@@ -152,21 +148,21 @@ public class TestBoneRagdoll extends SimpleApplication implements RagdollCollisi
 
             public void onAction(String name, boolean isPressed, float tpf) {
                 if (name.equals("toggle") && isPressed) {
-                    
-                    Vector3f v=new Vector3f();
+
+                    Vector3f v = new Vector3f();
                     v.set(model.getLocalTranslation());
-                    v.y=0;
+                    v.y = 0;
                     model.setLocalTranslation(v);
-                    Quaternion q=new Quaternion();
-                    float[] angles=new float[3];
+                    Quaternion q = new Quaternion();
+                    float[] angles = new float[3];
                     model.getLocalRotation().toAngles(angles);
-                    q.fromAngleAxis(angles[1],  Vector3f.UNIT_Y);
+                    q.fromAngleAxis(angles[1], Vector3f.UNIT_Y);
                     //q.lookAt(model.getLocalRotation().toRotationMatrix().getColumn(2), Vector3f.UNIT_Y);
-                    model.setLocalRotation(q);              
-                    if(angles[0]<0){
-                        ragdoll.blendControlToAnim("StandUpBack",animChannel);
-                    }else{
-                        ragdoll.blendControlToAnim("StandUpFront",animChannel);
+                    model.setLocalRotation(q);
+                    if (angles[0] < 0) {
+                        ragdoll.blendRagdollToAnim("StandUpBack", animChannel, 1);
+                    } else {
+                        ragdoll.blendRagdollToAnim("StandUpFront", animChannel, 1);
                     }
 
                 }
@@ -190,7 +186,7 @@ public class TestBoneRagdoll extends SimpleApplication implements RagdollCollisi
                     bulletg.setMaterial(matBullet);
                     bulletg.setLocalTranslation(cam.getLocation());
                     bulletg.setLocalScale(bulletSize);
-                    bulletCollisionShape = new SphereCollisionShape(bulletSize);                   
+                    bulletCollisionShape = new SphereCollisionShape(bulletSize);
                     RigidBodyControl bulletNode = new RigidBodyControl(bulletCollisionShape, bulletSize * 10);
                     bulletNode.setCcdMotionThreshold(0.001f);
                     bulletNode.setLinearVelocity(cam.getDirection().mult(80));
@@ -206,7 +202,7 @@ public class TestBoneRagdoll extends SimpleApplication implements RagdollCollisi
                     bulletCollisionShape = new SphereCollisionShape(bulletSize);
                     BombControl bulletNode = new BombControl(assetManager, bulletCollisionShape, 1);
                     bulletNode.setForceFactor(10);
-                    bulletNode.setExplosionRadius(30);                    
+                    bulletNode.setExplosionRadius(30);
                     bulletNode.setCcdMotionThreshold(0.001f);
                     bulletNode.setLinearVelocity(cam.getDirection().mult(180));
                     bulletg.addControl(bulletNode);
@@ -214,7 +210,7 @@ public class TestBoneRagdoll extends SimpleApplication implements RagdollCollisi
                     getPhysicsSpace().add(bulletNode);
                 }
             }
-        }, "toggle", "shoot", "stop", "bullet+", "bullet-","boom");
+        }, "toggle", "shoot", "stop", "bullet+", "bullet-", "boom");
         inputManager.addMapping("toggle", new KeyTrigger(KeyInput.KEY_SPACE));
         inputManager.addMapping("shoot", new MouseButtonTrigger(MouseInput.BUTTON_LEFT));
         inputManager.addMapping("boom", new MouseButtonTrigger(MouseInput.BUTTON_RIGHT));
@@ -226,7 +222,7 @@ public class TestBoneRagdoll extends SimpleApplication implements RagdollCollisi
     }
 
     private void setupLight() {
-       // AmbientLight al = new AmbientLight();
+        // AmbientLight al = new AmbientLight();
         //  al.setColor(ColorRGBA.White.mult(1));
         //   rootNode.addLight(al);
 
@@ -260,7 +256,7 @@ public class TestBoneRagdoll extends SimpleApplication implements RagdollCollisi
         guiNode.attachChild(ch);
     }
 
-    public void collide(Bone bone, PhysicsCollisionObject object,PhysicsCollisionEvent event) {
+    public void collide(Bone bone, PhysicsCollisionObject object, PhysicsCollisionEvent event) {
 
         if (object.getUserObject() != null && object.getUserObject() instanceof Geometry) {
             Geometry geom = (Geometry) object.getUserObject();
@@ -269,10 +265,8 @@ public class TestBoneRagdoll extends SimpleApplication implements RagdollCollisi
             }
         }
 
-
-        if (!ragdoll.hasControl()) {
-
-            ragdoll.setControl(true);
+        if (!ragdoll.isRagdollEnabled()) {
+            ragdoll.setRagdollEnabled(true);
 
         }
     }
@@ -300,10 +294,8 @@ public class TestBoneRagdoll extends SimpleApplication implements RagdollCollisi
         ragdoll.addBoneName("Clavicle.R");
 
     }
-
     float elTime = 0;
     boolean forward = true;
-
     AnimControl animControl;
     AnimChannel animChannel;
     Vector3f direction = new Vector3f(0, 0, 1);
@@ -353,19 +345,18 @@ public class TestBoneRagdoll extends SimpleApplication implements RagdollCollisi
 //        if(channel.getAnimationName().equals("StandUpFront")){
 //            channel.setAnim("Dance");
 //        }
-       
-        if(channel.getAnimationName().equals("StandUpBack") || channel.getAnimationName().equals("StandUpFront")){
+
+        if (channel.getAnimationName().equals("StandUpBack") || channel.getAnimationName().equals("StandUpFront")) {
             channel.setLoopMode(LoopMode.DontLoop);
-            channel.setAnim("IdleTop",5);
+            channel.setAnim("IdleTop", 5);
             channel.setLoopMode(LoopMode.Loop);
         }
 //        if(channel.getAnimationName().equals("IdleTop")){
 //            channel.setAnim("StandUpFront");
 //        }
-       
+
     }
 
     public void onAnimChange(AnimControl control, AnimChannel channel, String animName) {
-      
     }
 }
