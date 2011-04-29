@@ -59,7 +59,7 @@ import java.io.IOException;
  */
 public class AudioNode extends Node {
 
-    protected final AudioRenderer renderer;
+    protected AudioRenderer renderer;
 
     protected boolean loop = false;
     protected float volume = 1;
@@ -102,6 +102,9 @@ public class AudioNode extends Node {
          * or the audio has reached the end of the file.
          */
         Stopped,
+    }
+
+    public AudioNode() {
     }
 
     /**
