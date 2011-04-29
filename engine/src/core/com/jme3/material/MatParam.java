@@ -223,7 +223,7 @@ public class MatParam implements Savable, Cloneable {
 
     @Override
     public String toString(){
-        return type.name()+" "+name;
+        return type.name() + " " + name + " : " + getValueAsString();
     }
 
     public void apply(Renderer r, Technique technique) {
