@@ -48,7 +48,7 @@
     </target>
 
     <!--creates update center version via hudson build server-->
-    <target name="hudson-nightly" depends="suite.clean, -revert-svn-changes, -update-help-sets, zip-templates, set-impl-version, suite.nbms, unset-impl-version">
+    <target name="hudson-nightly" depends="suite.clean, -revert-svn-changes, zip-templates, set-impl-version, suite.nbms, unset-impl-version">
     </target>
 
     <!--creates update center version via hudson build server-->
@@ -227,7 +227,8 @@ jMonkeyEngine 3 was rebuilt from the ground up to be a modern 3D game engine,
 compatible with OpenGL 2.0 and above.
 Its architecture is shader-based, making it fully capable of current and
 next generation graphics standards. The jMonkeyPlatform gives you a complete IDE
-for coding and for managing and creating game assets.</description>
+for coding and for managing and creating game assets.
+            </description>
         </deb>
     </target>
 
