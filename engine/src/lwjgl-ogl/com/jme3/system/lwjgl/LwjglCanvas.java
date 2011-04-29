@@ -227,12 +227,14 @@ public class LwjglCanvas extends LwjglAbstractDisplay implements JmeCanvasContex
             }
         }
         
-        renderer.resetGLObjects();
         logger.log(Level.INFO, "OGL: Creating display..");
 
         // Set renderable to true, since canvas is now displayable.
         renderable.set(true);
         createContext(settings);
+        
+        // must call after createContext, as renderer might be null
+        renderer.resetGLObjects();
 
         logger.log(Level.INFO, "OGL: Waiting for display to become active..");
         while (!Display.isCreated()){
