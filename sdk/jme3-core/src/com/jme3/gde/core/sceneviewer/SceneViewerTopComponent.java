@@ -44,6 +44,7 @@ import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.NotifyDescriptor.Message;
 import org.openide.awt.UndoRedo;
+import org.openide.util.Exceptions;
 import org.openide.util.HelpCtx;
 import org.openide.util.Lookup;
 
@@ -73,8 +74,10 @@ public final class SceneViewerTopComponent extends TopComponent {
             oglCanvas = ((JmeCanvasContext) app.getContext()).getCanvas();
             oGLPanel.add(oglCanvas);
         } catch (Exception e) {
+            Exceptions.printStackTrace(e);
             showOpenGLError(e.toString());
         } catch (Error err) {
+            Exceptions.printStackTrace(err);
             showOpenGLError(err.toString());
         }
     }

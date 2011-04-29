@@ -130,9 +130,11 @@ public class SceneApplication extends Application implements LookupProvider, Loo
         } catch (Exception e) {
             getProgressHandle().finish();
             SceneViewerTopComponent.showOpenGLError(e.toString());
+            Exceptions.printStackTrace(e);
         } catch (Error e) {
             getProgressHandle().finish();
             SceneViewerTopComponent.showOpenGLError(e.toString());
+            Exceptions.printStackTrace(e);
         }
     }
 
@@ -198,9 +200,11 @@ public class SceneApplication extends Application implements LookupProvider, Loo
             started = true;
         } catch (Exception e) {
             getProgressHandle().finish();
+            Exceptions.printStackTrace(e);
             SceneViewerTopComponent.showOpenGLError(e.toString());
         } catch (Error e) {
             getProgressHandle().finish();
+            Exceptions.printStackTrace(e);
             SceneViewerTopComponent.showOpenGLError(e.toString());
         }
     }
