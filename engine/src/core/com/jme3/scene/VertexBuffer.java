@@ -225,6 +225,7 @@ public class VertexBuffer extends GLObject implements Savable, Cloneable {
     }
 
     protected int offset = 0;
+    protected int lastLimit = 0;
     protected int stride = 0;
     protected int components = 0;
 
@@ -233,7 +234,6 @@ public class VertexBuffer extends GLObject implements Savable, Cloneable {
      */
     protected transient int componentsLength = 0;
     protected Buffer data = null;
-    protected transient ByteBuffer mappedData;
     protected Usage usage;
     protected Type bufType;
     protected Format format;
@@ -301,14 +301,6 @@ public class VertexBuffer extends GLObject implements Savable, Cloneable {
      */
     public Buffer getData(){
         return data;
-    }
-
-    public ByteBuffer getMappedData() {
-        return mappedData;
-    }
-
-    public void setMappedData(ByteBuffer mappedData) {
-        this.mappedData = mappedData;
     }
 
     /**
@@ -403,6 +395,7 @@ public class VertexBuffer extends GLObject implements Savable, Cloneable {
         this.usage = usage;
         this.format = format;
         this.componentsLength = components * format.getComponentSize();
+        this.lastLimit = data.limit();
         setUpdateNeeded();
     }
 
@@ -424,8 +417,9 @@ public class VertexBuffer extends GLObject implements Savable, Cloneable {
         }
 
         // will force renderer to call glBufferData again
-        if (this.data.capacity() != data.capacity()){
+        if (this.data.getClass() != data.getClass() || data.limit() != lastLimit){
             dataSizeChanged = true;
+            lastLimit = data.limit();
         }
         this.data = data;
         setUpdateNeeded();
@@ -696,10 +690,13 @@ public class VertexBuffer extends GLObject implements Savable, Cloneable {
         }
     }
 
+    @Override
     public VertexBuffer clone(){
         // NOTE: Superclass GLObject automatically creates shallow clone
         // e.g re-use ID.
         VertexBuffer vb = (VertexBuffer) super.clone();
+        vb.handleRef = new Object();
+        vb.id = -1;
         if (data != null)
             vb.updateData(BufferUtils.clone(data));
         

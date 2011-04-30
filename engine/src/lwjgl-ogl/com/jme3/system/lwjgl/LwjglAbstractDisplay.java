@@ -81,7 +81,10 @@ public abstract class LwjglAbstractDisplay extends LwjglContext implements Runna
      */
     protected abstract void createContext(AppSettings settings) throws LWJGLException;
 
-    
+    /**
+     * Destroy the context.
+     */
+    protected abstract void destroyContext();
 
     /**
      * Does LWJGL display initialization in the OpenGL thread
@@ -97,10 +100,12 @@ public abstract class LwjglAbstractDisplay extends LwjglContext implements Runna
                 });
             }
 
-            // For canvas, this wont happen until its initialized.
+            // For canvas, this will create a pbuffer,
+            // allowing us to query information.
+            // When the canvas context becomes available, it will
+            // be replaced seamlessly.
             createContext(settings);
-            if (renderable.get()) // assumes createContext will set this flag
-                printContextInitInfo();
+            printContextInitInfo();
 
             created.set(true);
         } catch (Exception ex){
@@ -137,6 +142,9 @@ public abstract class LwjglAbstractDisplay extends LwjglContext implements Runna
 
         listener.update();
 
+        // All this does is call swap buffers
+        // If the canvas is not active, there's no need to waste time
+        // doing that ..
         if (renderable.get()){
             assert checkGLError();
 
@@ -158,22 +166,16 @@ public abstract class LwjglAbstractDisplay extends LwjglContext implements Runna
         if (frameRate > 0)
             Display.sync(frameRate);
 
-        if (renderable.get() && autoFlush)
-            renderer.onFrame();
+        // Subclasses just call GLObjectManager clean up objects here
+        // it is safe .. for now.
+        renderer.onFrame();
     }
 
     /**
      * De-initialize in the OpenGL thread.
      */
     protected void deinitInThread(){
-        if (Display.isCreated()){
-            renderer.cleanup();
-            Display.destroy();
-        }else{
-            // If using canvas temporary closing, the display would
-            // be closed at this point
-            renderer.resetGLObjects();
-        }
+        destroyContext();
 
         listener.destroy();
         logger.info("Display destroyed.");

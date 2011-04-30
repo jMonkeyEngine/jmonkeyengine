@@ -115,8 +115,6 @@ public abstract class LwjglContext implements JmeContext {
     }
 
     protected void initContextFirstTime(){
-        assert renderable.get();
-
         if (GLContext.getCapabilities().OpenGL20){
             renderer = new LwjglRenderer();
         }else{

@@ -43,10 +43,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.SwingUtilities;
 import org.lwjgl.LWJGLException;
-import org.lwjgl.input.Controllers;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
+import org.lwjgl.opengl.Pbuffer;
 import org.lwjgl.opengl.PixelFormat;
 
 public class LwjglCanvas extends LwjglAbstractDisplay implements JmeCanvasContext {
@@ -63,67 +63,72 @@ public class LwjglCanvas extends LwjglAbstractDisplay implements JmeCanvasContex
     private Thread renderThread;
     private boolean runningFirstTime = true;
     private boolean mouseWasGrabbed = false;
-    private boolean mouseActive, keyboardActive, joyActive;
+    private boolean mouseActive, keyboardActive;
+
+    private Pbuffer pbuffer;
+
+    private class GLCanvas extends Canvas {
+        @Override
+        public void addNotify(){
+            super.addNotify();
+
+            if (renderThread != null && renderThread.getState() == Thread.State.TERMINATED)
+                return; // already destroyed.
+
+            if (renderThread == null){
+                logger.log(Level.INFO, "EDT: Creating OGL thread.");
+
+                // Also set some settings on the canvas here.
+                // So we don't do it outside the AWT thread.
+                canvas.setFocusable(true);
+                canvas.setIgnoreRepaint(true);
+
+                renderThread = new Thread(LwjglCanvas.this, "LWJGL Renderer Thread");
+                renderThread.start();
+            }else if (needClose.get()){
+                return;
+            }
+
+            logger.log(Level.INFO, "EDT: Notifying OGL that canvas is visible..");
+            needRestoreCanvas.set(true);
+
+            // NOTE: no need to wait for OGL to initialize the canvas,
+            // it can happen at any time.
+        }
+
+        @Override
+        public void removeNotify(){
+            if (needClose.get()){
+                logger.log(Level.INFO, "EDT: Application is stopped. Not restoring canvas.");
+                super.removeNotify();
+                return;
+            }
+
+            // We must tell GL context to shutdown and wait for it to
+            // shutdown, otherwise, issues will occur.
+            logger.log(Level.INFO, "EDT: Notifying OGL that canvas is about to become invisible..");
+            needDestroyCanvas.set(true);
+            try {
+                actionRequiredBarrier.await();
+            } catch (InterruptedException ex) {
+                logger.log(Level.SEVERE, "EDT: Interrupted! ", ex);
+            } catch (BrokenBarrierException ex){
+                logger.log(Level.SEVERE, "EDT: Broken barrier! ", ex);
+            }
+
+            logger.log(Level.INFO, "EDT: Acknowledged receipt of canvas death");
+            // GL context is dead at this point
+
+            // Reset barrier for future use
+            actionRequiredBarrier.reset();
+
+            super.removeNotify();
+        }
+    }
 
     public LwjglCanvas(){
         super();
-
-        canvas = new Canvas(){
-            @Override
-            public void addNotify(){
-                super.addNotify();
-                
-                if (renderThread != null && renderThread.getState() == Thread.State.TERMINATED)
-                    return; // already destroyed.
-
-                if (renderThread == null){
-                    logger.log(Level.INFO, "EDT: Creating OGL thread.");
-                    
-                    renderThread = new Thread(LwjglCanvas.this, "LWJGL Renderer Thread");
-                    renderThread.start();
-                }else if (needClose.get()){
-                    return;
-                }
-
-                logger.log(Level.INFO, "EDT: Notifying OGL that canvas is visible..");
-                needRestoreCanvas.set(true);
-
-                // NOTE: no need to wait for OGL to initialize the canvas,
-                // it can happen at any time.
-            }
-
-            @Override
-            public void removeNotify(){
-                if (needClose.get()){
-                    logger.log(Level.INFO, "EDT: Application is stopped. Not restoring canvas.");
-                    super.removeNotify();
-                    return;
-                }
-                
-                // We must tell GL context to shutdown and wait for it to
-                // shutdown, otherwise, issues will occur.
-                logger.log(Level.INFO, "EDT: Sending destroy request..");
-                needDestroyCanvas.set(true);
-                try {
-                    actionRequiredBarrier.await();
-                } catch (InterruptedException ex) {
-                    logger.log(Level.SEVERE, "EDT: Interrupted! ", ex);
-                } catch (BrokenBarrierException ex){
-                    logger.log(Level.SEVERE, "EDT: Broken barrier! ", ex);
-                }
-                
-                logger.log(Level.INFO, "EDT: Acknowledged receipt of destroy request!");
-                // GL context is dead at this point
-
-                // Reset barrier for future use
-                actionRequiredBarrier.reset();
-
-                super.removeNotify();
-            }
-        };
-        
-        canvas.setFocusable(true);
-        canvas.setIgnoreRepaint(true);
+        canvas = new GLCanvas();
     }
 
     @Override
@@ -150,6 +155,8 @@ public class LwjglCanvas extends LwjglAbstractDisplay implements JmeCanvasContex
 
     @Override
     public void restart() {
+        frameRate = settings.getFrameRate();
+        // TODO: Handle other cases, like change of pixel format, etc.
     }
 
     public Canvas getCanvas(){
@@ -194,7 +201,6 @@ public class LwjglCanvas extends LwjglAbstractDisplay implements JmeCanvasContex
     private void pauseCanvas(){
         mouseActive = Mouse.isCreated();
         keyboardActive = Keyboard.isCreated();
-        joyActive = Controllers.isCreated();
 
         if (mouseActive && Mouse.isGrabbed()){
             Mouse.setGrabbed(false);
@@ -205,13 +211,11 @@ public class LwjglCanvas extends LwjglAbstractDisplay implements JmeCanvasContex
             Mouse.destroy();
         if (keyboardActive)
             Keyboard.destroy();
-        if (joyActive)
-            Controllers.destroy();
 
-        logger.log(Level.INFO, "OGL: Destroying display (temporarily)");
-        Display.destroy();
-
+        logger.log(Level.INFO, "OGL: Canvas will become invisible! Destroying ..");
+        
         renderable.set(false);
+        destroyContext();
     }
 
     /**
@@ -234,9 +238,10 @@ public class LwjglCanvas extends LwjglAbstractDisplay implements JmeCanvasContex
         createContext(settings);
         
         // must call after createContext, as renderer might be null
-        renderer.resetGLObjects();
+//        renderer.resetGLObjects();
 
         logger.log(Level.INFO, "OGL: Waiting for display to become active..");
+        // NOTE: A deadlock will happen here if createContext had an exception
         while (!Display.isCreated()){
             try {
                 Thread.sleep(10);
@@ -269,33 +274,101 @@ public class LwjglCanvas extends LwjglAbstractDisplay implements JmeCanvasContex
         });
     }
 
+    /**
+     * Makes sure the pbuffer is available and ready for use
+     */
+    protected void makePbufferAvailable() throws LWJGLException{
+        if (pbuffer == null || pbuffer.isBufferLost()){
+            if (pbuffer != null && pbuffer.isBufferLost()){
+                pbuffer.releaseContext();
+                pbuffer.destroy();
+            }
+            pbuffer = new Pbuffer(1, 1, new PixelFormat(0, 0, 0), null);
+            logger.log(Level.INFO, "OGL: Pbuffer has been created");
+        }
+    }
+
+    /**
+     * This is called:
+     * 1) When the context thread ends
+     * 2) Any time the canvas becomes non-displayable
+     */
+    protected void destroyContext(){
+        try {
+            renderer.resetGLObjects();
+            if (Display.isCreated()){
+                Display.releaseContext();
+                Display.destroy();
+            }
+        } catch (LWJGLException ex) {
+            listener.handleError("Failed to destroy context", ex);
+        }
+
+        try {
+            // The canvas is no longer visible,
+            // but the context thread is still running.
+            if (!needClose.get()){
+                // MUST make sure there's still a context current here ..
+                // Display is dead, make pbuffer available to the system
+                makePbufferAvailable();
+
+                // pbuffer is now available, make it current
+                pbuffer.makeCurrent();
+            }else{
+                // The context thread is no longer running.
+                // Destroy pbuffer.
+                if (pbuffer != null){
+                    pbuffer.destroy();
+                }
+            }
+        } catch (LWJGLException ex) {
+            listener.handleError("Failed make pbuffer available", ex);
+        }
+    }
+
+    /**
+     * This is called:
+     * 1) When the context thread starts
+     * 2) Any time the canvas becomes displayable again.
+     */
     @Override
     protected void createContext(AppSettings settings) {
         // In case canvas is not visible, we still take framerate
         // from settings to prevent "100% CPU usage"
         frameRate = settings.getFrameRate();
         
-        if (!renderable.get())
-            return;
+        try {
+            // First create the pbuffer, if it is needed.
+            makePbufferAvailable();
 
-        Display.setVSyncEnabled(settings.isVSync());
+            if (renderable.get()){
+                if (pbuffer.isCurrent()){
+                    pbuffer.releaseContext();
+                }
 
-        try{
-            Display.setParent(canvas);
-            PixelFormat pf = new PixelFormat(settings.getBitsPerPixel(),
-                                             0,
-                                             settings.getDepthBits(),
-                                             settings.getStencilBits(),
-                                             settings.getSamples());
-            Display.create(pf);
-            Display.makeCurrent();
+                Display.setVSyncEnabled(settings.isVSync());
+                Display.setParent(canvas);
+                PixelFormat pf = new PixelFormat(settings.getBitsPerPixel(),
+                        0,
+                        settings.getDepthBits(),
+                        settings.getStencilBits(),
+                        settings.getSamples());
+                Display.create(pf, pbuffer);
+                Display.makeCurrent();
+            }else{
+                pbuffer.makeCurrent();
+            }
+            // At this point, the OpenGL context is active.
 
             if (runningFirstTime){
+                // THIS is the part that creates the renderer.
+                // It must always be called, now that we have the pbuffer workaround.
                 initContextFirstTime();
                 runningFirstTime = false;
             }
-        }catch (LWJGLException ex){
-            listener.handleError("Failed to parent canvas to display", ex);
+        } catch (LWJGLException ex) {
+            listener.handleError("Failed to initialize OpenGL context", ex);
+            // TODO: Fix deadlock that happens after the error (throw runtime exception?)
         }
     }
 

@@ -133,6 +133,16 @@ public class LwjglDisplay extends LwjglAbstractDisplay {
             }
         }
     }
+    
+    protected void destroyContext(){
+        try {
+            renderer.cleanup();
+            Display.releaseContext();
+            Display.destroy();
+        } catch (LWJGLException ex) {
+            listener.handleError("Failed to destroy context", ex);
+        }
+    }
 
     public void create(boolean waitFor){
         if (created.get()){

@@ -417,9 +417,9 @@ public class LwjglRenderer implements Renderer {
     public void resetGLObjects() {
         objManager.resetObjects();
         statistics.clearMemory();
+        context.reset();
         boundShader = null;
         lastFb = null;
-        context.reset();
     }
 
     public void cleanup() {

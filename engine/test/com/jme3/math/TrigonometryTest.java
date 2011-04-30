@@ -1,11 +1,7 @@
 package com.jme3.math;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
-import com.jme3.math.FastMath;
-import com.jme3.math.Vector2f;
 import org.junit.Test;
 
 public class TrigonometryTest {

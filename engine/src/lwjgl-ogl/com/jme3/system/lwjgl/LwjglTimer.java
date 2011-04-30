@@ -34,6 +34,7 @@ package com.jme3.system.lwjgl;
 
 import com.jme3.math.FastMath;
 import com.jme3.system.Timer;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.lwjgl.Sys;
 
@@ -81,7 +82,7 @@ public class LwjglTimer extends Timer {
         reset();
 
         //print timer resolution info
-        logger.info("Timer resolution: " + LWJGL_TIMER_RES + " ticks per second");
+        logger.log(Level.INFO, "Timer resolution: {0} ticks per second", LWJGL_TIMER_RES);
     }
 
     public void reset() {

@@ -73,7 +73,6 @@ public class WireFrustum extends Mesh {
             return;
         }
 
-
         FloatBuffer b = BufferUtils.createFloatBuffer(points);
         FloatBuffer a = (FloatBuffer) vb.getData();
         b.rewind();
@@ -81,7 +80,7 @@ public class WireFrustum extends Mesh {
         a.put(b);
         a.rewind();
 
-        vb.setUpdateNeeded();
+        vb.updateData(a);
         
         updateBound();
     }
