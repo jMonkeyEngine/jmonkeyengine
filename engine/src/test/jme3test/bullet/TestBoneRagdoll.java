@@ -39,12 +39,13 @@ import com.jme3.animation.LoopMode;
 import com.jme3.bullet.BulletAppState;
 import com.jme3.app.SimpleApplication;
 import com.jme3.asset.TextureKey;
+import com.jme3.bounding.BoundingBox;
 import com.jme3.bullet.PhysicsSpace;
 import com.jme3.bullet.collision.PhysicsCollisionEvent;
 import com.jme3.bullet.collision.PhysicsCollisionObject;
 import com.jme3.bullet.collision.RagdollCollisionListener;
 import com.jme3.bullet.collision.shapes.SphereCollisionShape;
-import com.jme3.bullet.control.RagdollControl;
+import com.jme3.bullet.control.KinematicRagdollControl;
 import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.font.BitmapText;
 import com.jme3.input.KeyInput;
@@ -74,7 +75,7 @@ public class TestBoneRagdoll extends SimpleApplication implements RagdollCollisi
     private BulletAppState bulletAppState;
     Material matBullet;
     Node model;
-    RagdollControl ragdoll;
+    KinematicRagdollControl ragdoll;
     float bulletSize = 1f;
     Material mat;
     Material mat3;
@@ -106,7 +107,7 @@ public class TestBoneRagdoll extends SimpleApplication implements RagdollCollisi
         setupLight();
 
         model = (Node) assetManager.loadModel("Models/Sinbad/Sinbad.mesh.xml");
-        //    model.setLocalTranslation(5, 0, 5);
+
         //  model.setLocalRotation(new Quaternion().fromAngleAxis(FastMath.HALF_PI, Vector3f.UNIT_X));
 
         //debug view
@@ -119,7 +120,7 @@ public class TestBoneRagdoll extends SimpleApplication implements RagdollCollisi
         skeletonDebug.setLocalTranslation(model.getLocalTranslation());
 
         //Note: PhysicsRagdollControl is still TODO, constructor will change
-        ragdoll = new RagdollControl(0.5f);
+        ragdoll = new KinematicRagdollControl(0.5f);
         setupSinbad(ragdoll);
         ragdoll.addCollisionListener(this);
         model.addControl(ragdoll);
@@ -157,12 +158,16 @@ public class TestBoneRagdoll extends SimpleApplication implements RagdollCollisi
                     float[] angles = new float[3];
                     model.getLocalRotation().toAngles(angles);
                     q.fromAngleAxis(angles[1], Vector3f.UNIT_Y);
-                    //q.lookAt(model.getLocalRotation().toRotationMatrix().getColumn(2), Vector3f.UNIT_Y);
                     model.setLocalRotation(q);
                     if (angles[0] < 0) {
-                        ragdoll.blendRagdollToAnim("StandUpBack", animChannel, 1);
+                        animChannel.setAnim("StandUpBack");
+                        //  ragdoll.setKinematicMode();
+                        ragdoll.blendToKinematicMode(0.5f);
                     } else {
-                        ragdoll.blendRagdollToAnim("StandUpFront", animChannel, 1);
+                        animChannel.setAnim("StandUpFront");
+                        ragdoll.blendToKinematicMode(0.5f);
+                        // ragdoll.setKinematicMode();
+
                     }
 
                 }
@@ -178,8 +183,10 @@ public class TestBoneRagdoll extends SimpleApplication implements RagdollCollisi
 //                    bulletSize = 0;
                 }
                 if (name.equals("stop") && isPressed) {
-                    bulletAppState.setEnabled(!bulletAppState.isEnabled());
+                    // bulletAppState.setEnabled(!bulletAppState.isEnabled());
 
+                    ragdoll.setEnabled(!ragdoll.isEnabled());
+                    ragdoll.setRagdollMode();
                 }
                 if (name.equals("shoot") && !isPressed) {
                     Geometry bulletg = new Geometry("bullet", bullet);
@@ -265,13 +272,11 @@ public class TestBoneRagdoll extends SimpleApplication implements RagdollCollisi
             }
         }
 
-        if (!ragdoll.isRagdollEnabled()) {
-            ragdoll.setRagdollEnabled(true);
+        ragdoll.setRagdollMode();
 
-        }
     }
 
-    private void setupSinbad(RagdollControl ragdoll) {
+    private void setupSinbad(KinematicRagdollControl ragdoll) {
         ragdoll.addBoneName("Ulna.L");
         ragdoll.addBoneName("Ulna.R");
         ragdoll.addBoneName("Chest");
@@ -304,6 +309,7 @@ public class TestBoneRagdoll extends SimpleApplication implements RagdollCollisi
 
     @Override
     public void simpleUpdate(float tpf) {
+        System.out.println(((BoundingBox) model.getWorldBound()).getYExtent());
 //        elTime += tpf;
 //        if (elTime > 3) {
 //            elTime = 0;
