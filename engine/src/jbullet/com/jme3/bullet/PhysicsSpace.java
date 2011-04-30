@@ -132,8 +132,8 @@ public class PhysicsSpace {
     private int maxSubSteps = 4;
     private javax.vecmath.Vector3f rayVec1 = new javax.vecmath.Vector3f();
     private javax.vecmath.Vector3f rayVec2 = new javax.vecmath.Vector3f();
-    private com.bulletphysics.linearmath.Transform sweepTrans1=new com.bulletphysics.linearmath.Transform(new javax.vecmath.Matrix3f());
-    private com.bulletphysics.linearmath.Transform sweepTrans2=new com.bulletphysics.linearmath.Transform(new javax.vecmath.Matrix3f());
+    private com.bulletphysics.linearmath.Transform sweepTrans1 = new com.bulletphysics.linearmath.Transform(new javax.vecmath.Matrix3f());
+    private com.bulletphysics.linearmath.Transform sweepTrans2 = new com.bulletphysics.linearmath.Transform(new javax.vecmath.Matrix3f());
     private AssetManager debugManager;
 
     /**
@@ -559,7 +559,20 @@ public class PhysicsSpace {
 
     private void addRigidBody(PhysicsRigidBody node) {
         physicsNodes.put(node.getObjectId(), node);
+
+        //Workaround
+        //It seems that adding a Kinematic RigidBody to the dynamicWorld prevent it from being non kinematic again afterward.
+        //so we add it non kinematic, then set it kinematic again.
+        boolean kinematic = false;
+        if (node.isKinematic()) {
+            kinematic = true;
+            node.setKinematic(false);
+        }
         dynamicsWorld.addRigidBody(node.getObjectId());
+        if (kinematic) {
+            node.setKinematic(true);
+        }
+
         Logger.getLogger(PhysicsSpace.class.getName()).log(Level.INFO, "Adding RigidBody {0} to physics space.", node.getObjectId());
         if (node instanceof PhysicsVehicle) {
             Logger.getLogger(PhysicsSpace.class.getName()).log(Level.INFO, "Adding vehicle constraint {0} to physics space.", ((PhysicsVehicle) node).getVehicleId());
@@ -695,13 +708,13 @@ public class PhysicsSpace {
      * You have to use different Transforms for start and end (at least distance > 0.4f).
      * SweepTest will not see a collision if it starts INSIDE an object and is moving AWAY from its center.
      */
-    public List<PhysicsSweepTestResult> sweepTest(CollisionShape shape, Transform start, Transform end){
+    public List<PhysicsSweepTestResult> sweepTest(CollisionShape shape, Transform start, Transform end) {
         List<PhysicsSweepTestResult> results = new LinkedList<PhysicsSweepTestResult>();
-        if(!(shape.getCShape() instanceof ConvexShape)){
+        if (!(shape.getCShape() instanceof ConvexShape)) {
             Logger.getLogger(PhysicsSpace.class.getName()).log(Level.WARNING, "Trying to sweep test with incompatible mesh shape!");
             return results;
         }
-        dynamicsWorld.convexSweepTest((ConvexShape)shape.getCShape(), Converter.convert(start, sweepTrans1), Converter.convert(end, sweepTrans2), new InternalSweepListener(results));
+        dynamicsWorld.convexSweepTest((ConvexShape) shape.getCShape(), Converter.convert(start, sweepTrans1), Converter.convert(end, sweepTrans2), new InternalSweepListener(results));
         return results;
 
     }
@@ -711,17 +724,17 @@ public class PhysicsSpace {
      * You have to use different Transforms for start and end (at least distance > 0.4f).
      * SweepTest will not see a collision if it starts INSIDE an object and is moving AWAY from its center.
      */
-    public List<PhysicsSweepTestResult> sweepTest(CollisionShape shape, Transform start, Transform end, List<PhysicsSweepTestResult> results){
+    public List<PhysicsSweepTestResult> sweepTest(CollisionShape shape, Transform start, Transform end, List<PhysicsSweepTestResult> results) {
         results.clear();
-        if(!(shape.getCShape() instanceof ConvexShape)){
+        if (!(shape.getCShape() instanceof ConvexShape)) {
             Logger.getLogger(PhysicsSpace.class.getName()).log(Level.WARNING, "Trying to sweep test with incompatible mesh shape!");
             return results;
         }
-        dynamicsWorld.convexSweepTest((ConvexShape)shape.getCShape(), Converter.convert(start, sweepTrans1), Converter.convert(end, sweepTrans2), new InternalSweepListener(results));
+        dynamicsWorld.convexSweepTest((ConvexShape) shape.getCShape(), Converter.convert(start, sweepTrans1), Converter.convert(end, sweepTrans2), new InternalSweepListener(results));
         return results;
     }
 
-    private class InternalSweepListener extends CollisionWorld.ConvexResultCallback{
+    private class InternalSweepListener extends CollisionWorld.ConvexResultCallback {
 
         private List<PhysicsSweepTestResult> results;
 
@@ -735,7 +748,6 @@ public class PhysicsSpace {
             results.add(new PhysicsSweepTestResult(obj, Converter.convert(lcr.hitNormalLocal), lcr.hitFraction, bln));
             return lcr.hitFraction;
         }
-
     }
 
     /**
