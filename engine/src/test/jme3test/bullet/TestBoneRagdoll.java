@@ -309,7 +309,7 @@ public class TestBoneRagdoll extends SimpleApplication implements RagdollCollisi
 
     @Override
     public void simpleUpdate(float tpf) {
-        System.out.println(((BoundingBox) model.getWorldBound()).getYExtent());
+       // System.out.println(((BoundingBox) model.getWorldBound()).getYExtent());
 //        elTime += tpf;
 //        if (elTime > 3) {
 //            elTime = 0;
