@@ -39,7 +39,6 @@ import com.jme3.animation.LoopMode;
 import com.jme3.bullet.BulletAppState;
 import com.jme3.app.SimpleApplication;
 import com.jme3.asset.TextureKey;
-import com.jme3.bounding.BoundingBox;
 import com.jme3.bullet.PhysicsSpace;
 import com.jme3.bullet.collision.PhysicsCollisionEvent;
 import com.jme3.bullet.collision.PhysicsCollisionObject;
@@ -102,7 +101,7 @@ public class TestBoneRagdoll extends SimpleApplication implements RagdollCollisi
         bullet.setTextureMode(TextureMode.Projected);
         bulletCollisionShape = new SphereCollisionShape(1.0f);
 
-        bulletAppState.getPhysicsSpace().enableDebug(assetManager);
+//        bulletAppState.getPhysicsSpace().enableDebug(assetManager);
         PhysicsTestHelper.createPhysicsTestWorld(rootNode, assetManager, bulletAppState.getPhysicsSpace());
         setupLight();
 
@@ -161,13 +160,10 @@ public class TestBoneRagdoll extends SimpleApplication implements RagdollCollisi
                     model.setLocalRotation(q);
                     if (angles[0] < 0) {
                         animChannel.setAnim("StandUpBack");
-                        //  ragdoll.setKinematicMode();
                         ragdoll.blendToKinematicMode(0.5f);
                     } else {
                         animChannel.setAnim("StandUpFront");
                         ragdoll.blendToKinematicMode(0.5f);
-                        // ragdoll.setKinematicMode();
-
                     }
 
                 }
@@ -179,15 +175,12 @@ public class TestBoneRagdoll extends SimpleApplication implements RagdollCollisi
                     bulletSize -= 0.1f;
 
                 }
-                if (name.equals("shoot") && isPressed) {
-//                    bulletSize = 0;
-                }
-                if (name.equals("stop") && isPressed) {
-                    // bulletAppState.setEnabled(!bulletAppState.isEnabled());
 
+                if (name.equals("stop") && isPressed) {
                     ragdoll.setEnabled(!ragdoll.isEnabled());
                     ragdoll.setRagdollMode();
                 }
+
                 if (name.equals("shoot") && !isPressed) {
                     Geometry bulletg = new Geometry("bullet", bullet);
                     bulletg.setMaterial(matBullet);
@@ -208,8 +201,8 @@ public class TestBoneRagdoll extends SimpleApplication implements RagdollCollisi
                     bulletg.setLocalScale(bulletSize);
                     bulletCollisionShape = new SphereCollisionShape(bulletSize);
                     BombControl bulletNode = new BombControl(assetManager, bulletCollisionShape, 1);
-                    bulletNode.setForceFactor(10);
-                    bulletNode.setExplosionRadius(30);
+                    bulletNode.setForceFactor(8);
+                    bulletNode.setExplosionRadius(20);
                     bulletNode.setCcdMotionThreshold(0.001f);
                     bulletNode.setLinearVelocity(cam.getDirection().mult(180));
                     bulletg.addControl(bulletNode);
@@ -285,7 +278,6 @@ public class TestBoneRagdoll extends SimpleApplication implements RagdollCollisi
         ragdoll.addBoneName("Hand.R");
         ragdoll.addBoneName("Hand.L");
         ragdoll.addBoneName("Neck");
-        //  ragdoll.addBoneName("Head");
         ragdoll.addBoneName("Root");
         ragdoll.addBoneName("Stomach");
         ragdoll.addBoneName("Waist");
@@ -309,7 +301,7 @@ public class TestBoneRagdoll extends SimpleApplication implements RagdollCollisi
 
     @Override
     public void simpleUpdate(float tpf) {
-       // System.out.println(((BoundingBox) model.getWorldBound()).getYExtent());
+        // System.out.println(((BoundingBox) model.getWorldBound()).getYExtent());
 //        elTime += tpf;
 //        if (elTime > 3) {
 //            elTime = 0;

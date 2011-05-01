@@ -31,12 +31,10 @@
  */
 package com.jme3.bullet.control;
 
-import com.jme3.animation.AnimChannel;
 import com.jme3.bullet.control.ragdoll.RagdollPreset;
 import com.jme3.bullet.control.ragdoll.HumanoidRagdollPreset;
 import com.jme3.animation.AnimControl;
 import com.jme3.animation.Bone;
-import com.jme3.animation.LoopMode;
 import com.jme3.animation.Skeleton;
 import com.jme3.animation.SkeletonControl;
 import com.jme3.asset.AssetManager;
@@ -47,6 +45,7 @@ import com.jme3.bullet.collision.PhysicsCollisionObject;
 import com.jme3.bullet.collision.RagdollCollisionListener;
 import com.jme3.bullet.collision.shapes.BoxCollisionShape;
 import com.jme3.bullet.collision.shapes.HullCollisionShape;
+import com.jme3.bullet.control.ragdoll.RagdollUtils;
 import com.jme3.bullet.joints.SixDofJoint;
 import com.jme3.bullet.objects.PhysicsRigidBody;
 import com.jme3.export.JmeExporter;
@@ -56,22 +55,18 @@ import com.jme3.math.Transform;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
-import com.jme3.scene.Geometry;
-import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
-import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.scene.control.Control;
 import com.jme3.util.TempVars;
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -114,7 +109,7 @@ public class KinematicRagdollControl implements PhysicsControl, PhysicsCollision
     protected boolean enabled = true;
     protected boolean debug = false;
     protected PhysicsRigidBody baseRigidBody;
-    protected float weightThreshold = 1.0f;
+    protected float weightThreshold = -1.0f;
     protected Spatial targetModel;
     protected Vector3f initScale;
     protected Mode mode = Mode.Kinetmatic;
@@ -124,17 +119,27 @@ public class KinematicRagdollControl implements PhysicsControl, PhysicsCollision
     protected List<RagdollCollisionListener> listeners;
     protected float eventDispatchImpulseThreshold = 10;
     protected RagdollPreset preset = new HumanoidRagdollPreset();
-    protected List<String> boneList = new LinkedList<String>();
+    protected Set<String> boneList = new TreeSet<String>();
     protected Vector3f modelPosition = new Vector3f();
     protected Quaternion modelRotation = new Quaternion();
     protected float rootMass = 15;
     protected float totalMass = 0;
     protected boolean added = false;
 
-    public enum Mode {
+    public static enum Mode {
 
         Kinetmatic,
         Ragdoll
+    }
+
+    protected class PhysicsBoneLink {
+
+        protected Bone bone;
+        protected Quaternion initalWorldRotation;
+        protected SixDofJoint joint;
+        protected PhysicsRigidBody rigidBody;
+        protected Quaternion startBlendingRot = new Quaternion();
+        protected Vector3f startBlendingPos = new Vector3f();
     }
 
     /**
@@ -206,7 +211,7 @@ public class KinematicRagdollControl implements PhysicsControl, PhysicsCollision
                     } else {
                         //boneList is not empty, this means some bones of the skeleton might not be associated with a collision shape.
                         //So we update them recusively
-                        setTransform(link.bone, position, tmpRot1, false);
+                        RagdollUtils.setTransform(link.bone, position, tmpRot1, false, boneList);
                     }
                 }
             }
@@ -238,7 +243,7 @@ public class KinematicRagdollControl implements PhysicsControl, PhysicsCollision
                         //we give control back to the key framed animation.
                         link.bone.setUserControl(false);
                     } else {
-                        setTransform(link.bone, position, tmpRot1, true);
+                        RagdollUtils.setTransform(link.bone, position, tmpRot1, true, boneList);
                     }
 
                 }
@@ -252,40 +257,10 @@ public class KinematicRagdollControl implements PhysicsControl, PhysicsCollision
                 blendStart += tpf;
                 if (blendStart > blendTime) {
                     blendedControl = false;
-
                 }
             }
         }
         assert vars.unlock();
-
-    }
-
-    /**
-     * Updates a bone position and rotation.
-     * if the child bones are not in the bone list this means, they are not associated with a physic shape.
-     * So they have to be updated
-     * @param bone the bone
-     * @param pos the position
-     * @param rot the rotation
-     */
-    private void setTransform(Bone bone, Vector3f pos, Quaternion rot, boolean restoreBoneControl) {
-        //we ensure that we have the control
-        if (restoreBoneControl) {
-            bone.setUserControl(true);
-        }
-        //we set te user transforms of the bone
-        bone.setUserTransformsWorld(pos, rot);
-        for (Bone childBone : bone.getChildren()) {
-            //each child bone that is not in the list is updated
-            if (!boneList.contains(childBone.getName())) {
-                Transform t = childBone.getCombinedTransform(pos, rot);
-                setTransform(childBone, t.getTranslation(), t.getRotation(), restoreBoneControl);
-            }
-        }
-        //we give back the control to the keyframed animation
-        if (restoreBoneControl) {
-            bone.setUserControl(false);
-        }
 
     }
 
@@ -309,16 +284,17 @@ public class KinematicRagdollControl implements PhysicsControl, PhysicsCollision
         link.rigidBody.setPhysicsLocation(position);
         link.rigidBody.setPhysicsRotation(tmpRot1);
 
-//        position.set(link.bone.getModelSpaceScale()).multLocal(targetModel.getWorldScale());
-//        //TODO support scale!
-//        link.rigidBody.getCollisionShape().setScale(position);
     }
 
     public Control cloneForSpatial(Spatial spatial) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public void reInit() {
+    /**
+     * rebuild the ragdoll
+     * this is useful if you applied scale on the ragdoll after it's been initialized
+     */
+    public void reBuild() {
         setSpatial(targetModel);
         addToPhysicsSpace();
     }
@@ -367,12 +343,21 @@ public class KinematicRagdollControl implements PhysicsControl, PhysicsCollision
         logger.log(Level.INFO, "Created physics ragdoll for skeleton {0}", skeleton);
     }
 
+    /**
+     * Add a bone name to this control
+     * Using this method you can specify which bones of the skeleton will be used to build the collision shapes.
+     * @param name 
+     */
     public void addBoneName(String name) {
         boneList.add(name);
     }
 
     private void scanSpatial(Spatial model) {
         AnimControl animControl = model.getControl(AnimControl.class);
+        Map<Integer, List<Float>> pointsMap = null;
+        if (weightThreshold == -1.0f) {
+            pointsMap = RagdollUtils.buildPointMap(model);
+        }
 
         skeleton = animControl.getSkeleton();
         skeleton.resetAndUpdate();
@@ -382,19 +367,29 @@ public class KinematicRagdollControl implements PhysicsControl, PhysicsCollision
                 logger.log(Level.INFO, "Found root bone in skeleton {0}", skeleton);
                 baseRigidBody = new PhysicsRigidBody(new BoxCollisionShape(Vector3f.UNIT_XYZ.mult(0.1f)), 1);
                 baseRigidBody.setKinematic(mode == Mode.Kinetmatic);
-                boneRecursion(model, childBone, baseRigidBody, 1);
+                boneRecursion(model, childBone, baseRigidBody, 1, pointsMap);
             }
         }
     }
 
-    private void boneRecursion(Spatial model, Bone bone, PhysicsRigidBody parent, int reccount) {
+    private void boneRecursion(Spatial model, Bone bone, PhysicsRigidBody parent, int reccount, Map<Integer, List<Float>> pointsMap) {
         PhysicsRigidBody parentShape = parent;
         if (boneList.isEmpty() || boneList.contains(bone.getName())) {
 
             PhysicsBoneLink link = new PhysicsBoneLink();
             link.bone = bone;
-            //creating the collision shape from the bone's associated vertices
-            PhysicsRigidBody shapeNode = new PhysicsRigidBody(makeShape(link, model), rootMass / (float) reccount);
+
+            //creating the collision shape 
+            HullCollisionShape shape = null;
+            if (pointsMap != null) {
+                //build a shape for the bone, using the vertices that are most influenced by this bone
+                shape = RagdollUtils.makeShapeFromPointMap(pointsMap, RagdollUtils.getBoneIndices(link.bone, skeleton, boneList), initScale, link.bone.getModelSpacePosition());
+            } else {
+                //build a shape for the bone, using the vertices associated with this bone with a weight above the threshold
+                shape = RagdollUtils.makeShapeFromVerticeWeights(model, RagdollUtils.getBoneIndices(link.bone, skeleton, boneList), initScale, link.bone.getModelSpacePosition(), weightThreshold);
+            }
+
+            PhysicsRigidBody shapeNode = new PhysicsRigidBody(shape, rootMass / (float) reccount);
             shapeNode.setKinematic(mode == Mode.Kinetmatic);
             totalMass += rootMass / (float) reccount;
 
@@ -408,12 +403,7 @@ public class KinematicRagdollControl implements PhysicsControl, PhysicsCollision
                     bone.getModelSpacePosition().subtract(bone.getParent().getModelSpacePosition(), posToParent).multLocal(initScale);
                 }
 
-                //Joint local position from parent
-                link.pivotA = posToParent;
-                //joint local position from current bone
-                link.pivotB = new Vector3f(0, 0, 0f);
-
-                SixDofJoint joint = new SixDofJoint(parent, shapeNode, link.pivotA, link.pivotB, true);
+                SixDofJoint joint = new SixDofJoint(parent, shapeNode, posToParent, new Vector3f(0, 0, 0f), true);
                 preset.setupJointForBone(bone.getName(), joint);
 
                 link.joint = joint;
@@ -426,10 +416,8 @@ public class KinematicRagdollControl implements PhysicsControl, PhysicsCollision
 
         for (Iterator<Bone> it = bone.getChildren().iterator(); it.hasNext();) {
             Bone childBone = it.next();
-            boneRecursion(model, childBone, parentShape, reccount + 1);
+            boneRecursion(model, childBone, parentShape, reccount + 1, pointsMap);
         }
-
-
     }
 
     /**
@@ -446,7 +434,7 @@ public class KinematicRagdollControl implements PhysicsControl, PhysicsCollision
     public void setJointLimit(String boneName, float maxX, float minX, float maxY, float minY, float maxZ, float minZ) {
         PhysicsBoneLink link = boneLinks.get(boneName);
         if (link != null) {
-            setJointLimit(link.joint, maxX, minX, maxY, minY, maxZ, minZ);
+            RagdollUtils.setJointLimit(link.joint, maxX, minX, maxY, minY, maxZ, minZ);
         } else {
             logger.log(Level.WARNING, "Not joint was found for bone {0}. make sure you call spatial.addControl(ragdoll) before setting joints limit", boneName);
         }
@@ -466,16 +454,6 @@ public class KinematicRagdollControl implements PhysicsControl, PhysicsCollision
             logger.log(Level.WARNING, "Not joint was found for bone {0}. make sure you call spatial.addControl(ragdoll) before setting joints limit", boneName);
             return null;
         }
-    }
-
-    private void setJointLimit(SixDofJoint joint, float maxX, float minX, float maxY, float minY, float maxZ, float minZ) {
-
-        joint.getRotationalLimitMotor(0).setHiLimit(maxX);
-        joint.getRotationalLimitMotor(0).setLoLimit(minX);
-        joint.getRotationalLimitMotor(1).setHiLimit(maxY);
-        joint.getRotationalLimitMotor(1).setLoLimit(minY);
-        joint.getRotationalLimitMotor(2).setHiLimit(maxZ);
-        joint.getRotationalLimitMotor(2).setLoLimit(minZ);
     }
 
     private void clearData() {
@@ -502,111 +480,6 @@ public class KinematicRagdollControl implements PhysicsControl, PhysicsCollision
                 added = true;
             }
         }
-    }
-
-    /**
-     * Create a hull collision shape from linked vertices to this bone.
-     * 
-     * @param link
-     * @param model
-     * @return 
-     */
-    protected HullCollisionShape makeShape(PhysicsBoneLink link, Spatial model) {
-        Bone bone = link.bone;
-        List<Integer> boneIndices = null;
-        if (boneList.isEmpty()) {
-            boneIndices = new LinkedList<Integer>();
-            boneIndices.add(skeleton.getBoneIndex(bone));
-        } else {
-            boneIndices = getBoneIndices(bone, skeleton);
-        }
-
-        ArrayList<Float> points = new ArrayList<Float>();
-        if (model instanceof Geometry) {
-            Geometry g = (Geometry) model;
-            for (Integer index : boneIndices) {
-                points.addAll(getPoints(g.getMesh(), index, bone.getModelSpacePosition()));
-            }
-        } else if (model instanceof Node) {
-            Node node = (Node) model;
-            for (Spatial s : node.getChildren()) {
-                if (s instanceof Geometry) {
-                    Geometry g = (Geometry) s;
-                    for (Integer index : boneIndices) {
-                        points.addAll(getPoints(g.getMesh(), index, bone.getModelSpacePosition()));
-                    }
-
-                }
-            }
-        }
-        float[] p = new float[points.size()];
-        for (int i = 0; i < points.size(); i++) {
-            p[i] = points.get(i);
-        }
-
-
-        return new HullCollisionShape(p);
-    }
-
-    //retruns the list of bone indices of the given bone and its child(if they are not in the boneList)
-    protected List<Integer> getBoneIndices(Bone bone, Skeleton skeleton) {
-        List<Integer> list = new LinkedList<Integer>();
-        list.add(skeleton.getBoneIndex(bone));
-        for (Bone chilBone : bone.getChildren()) {
-            if (!boneList.contains(chilBone.getName())) {
-                list.addAll(getBoneIndices(chilBone, skeleton));
-            }
-        }
-        return list;
-    }
-
-    /**
-     * returns a list of points for the given bone
-     * @param mesh
-     * @param boneIndex
-     * @param offset
-     * @param link
-     * @return 
-     */
-    private List<Float> getPoints(Mesh mesh, int boneIndex, Vector3f offset) {
-
-        FloatBuffer vertices = mesh.getFloatBuffer(Type.Position);
-        ByteBuffer boneIndices = (ByteBuffer) mesh.getBuffer(Type.BoneIndex).getData();
-        FloatBuffer boneWeight = (FloatBuffer) mesh.getBuffer(Type.BoneWeight).getData();
-
-        vertices.rewind();
-        boneIndices.rewind();
-        boneWeight.rewind();
-
-        ArrayList<Float> results = new ArrayList<Float>();
-
-        int vertexComponents = mesh.getVertexCount() * 3;
-
-        for (int i = 0; i < vertexComponents; i += 3) {
-            int k;
-            boolean add = false;
-            int start = i / 3 * 4;
-            for (k = start; k < start + 4; k++) {
-                if (boneIndices.get(k) == boneIndex && boneWeight.get(k) >= weightThreshold) {
-                    add = true;
-                    break;
-                }
-            }
-            if (add) {
-
-                Vector3f pos = new Vector3f();
-                pos.x = vertices.get(i);
-                pos.y = vertices.get(i + 1);
-                pos.z = vertices.get(i + 2);
-                pos.subtractLocal(offset).multLocal(initScale);
-                results.add(pos.x);
-                results.add(pos.y);
-                results.add(pos.z);
-
-            }
-        }
-
-        return results;
     }
 
     protected void removeFromPhysicsSpace() {
@@ -818,28 +691,7 @@ public class KinematicRagdollControl implements PhysicsControl, PhysicsCollision
         assert vars.unlock();
 
         for (Bone bone : skeleton.getRoots()) {
-            setUserControl(bone, mode == Mode.Ragdoll);
-        }
-    }
-
-    /**
-     * Set the control into Kinematic mode
-     * In theis mode, the collision shapes follow the movements of the skeleton,
-     * and can interact with physical environement
-     */
-    public void setKinematicMode() {
-        if (mode != Mode.Kinetmatic) {
-            setMode(Mode.Kinetmatic);
-        }
-    }
-
-    /**
-     * Sets the control into Ragdoll mode
-     * The skeleton is entirely controlled by physics.
-     */
-    public void setRagdollMode() {
-        if (mode != Mode.Ragdoll) {
-            setMode(Mode.Ragdoll);
+            RagdollUtils.setUserControl(bone, mode == Mode.Ragdoll);
         }
     }
 
@@ -883,16 +735,30 @@ public class KinematicRagdollControl implements PhysicsControl, PhysicsCollision
         assert vars.unlock();
 
         for (Bone bone : skeleton.getRoots()) {
-            setUserControl(bone, false);
+            RagdollUtils.setUserControl(bone, false);
         }
 
         blendStart = 0;
     }
 
-    private void setUserControl(Bone bone, boolean bool) {
-        bone.setUserControl(bool);
-        for (Bone child : bone.getChildren()) {
-            setUserControl(child, bool);
+    /**
+     * Set the control into Kinematic mode
+     * In theis mode, the collision shapes follow the movements of the skeleton,
+     * and can interact with physical environement
+     */
+    public void setKinematicMode() {
+        if (mode != Mode.Kinetmatic) {
+            setMode(Mode.Kinetmatic);
+        }
+    }
+
+    /**
+     * Sets the control into Ragdoll mode
+     * The skeleton is entirely controlled by physics.
+     */
+    public void setRagdollMode() {
+        if (mode != Mode.Ragdoll) {
+            setMode(Mode.Ragdoll);
         }
     }
 
@@ -913,18 +779,6 @@ public class KinematicRagdollControl implements PhysicsControl, PhysicsCollision
             listeners = new ArrayList<RagdollCollisionListener>();
         }
         listeners.add(listener);
-    }
-
-    protected static class PhysicsBoneLink {
-
-        Bone bone;
-        Quaternion initalWorldRotation;
-        SixDofJoint joint;
-        PhysicsRigidBody rigidBody;
-        Vector3f pivotA;
-        Vector3f pivotB;
-        Quaternion startBlendingRot = new Quaternion();
-        Vector3f startBlendingPos = new Vector3f();
     }
 
     public void setRootMass(float rootMass) {
