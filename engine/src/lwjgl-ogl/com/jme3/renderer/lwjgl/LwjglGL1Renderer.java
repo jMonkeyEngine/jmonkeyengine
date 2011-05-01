@@ -1,5 +1,6 @@
 package com.jme3.renderer.lwjgl;
 
+import org.lwjgl.opengl.GL14;
 import com.jme3.math.FastMath;
 import com.jme3.renderer.GL1Renderer;
 import com.jme3.shader.Shader;
@@ -518,7 +519,7 @@ public class LwjglGL1Renderer implements GL1Renderer {
         }
 
         // Check sizes if graphics card doesn't support NPOT
-//        if (!GLContext.getCapabilities().GL_ARB_texture_non_power_of_two){
+        if (!GLContext.getCapabilities().GL_ARB_texture_non_power_of_two){
             if (img.getWidth() != 0 && img.getHeight() != 0){
                 if (!FastMath.isPowerOfTwo(img.getWidth())
                     || !FastMath.isPowerOfTwo(img.getHeight())
@@ -529,14 +530,18 @@ public class LwjglGL1Renderer implements GL1Renderer {
 
                 }
             }
-//        }
+        }
 
         if (!img.hasMipmaps() && mips) {
             // No pregenerated mips available,
             // generate from base level if required
-//            glTexParameteri(target, GL_GENERATE_MIPMAP, GL_TRUE);
-            // TODO: Generate mipmaps here
-            MipMapGenerator.generateMipMaps(img);
+
+            // Check if hardware mips are supported
+            if (GLContext.getCapabilities().OpenGL14){
+                glTexParameteri(target, GL14.GL_GENERATE_MIPMAP, GL_TRUE);
+            }else{
+                MipMapGenerator.generateMipMaps(img);
+            }
         } else {
         }
 

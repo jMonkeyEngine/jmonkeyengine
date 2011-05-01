@@ -115,10 +115,20 @@ public abstract class LwjglContext implements JmeContext {
     }
 
     protected void initContextFirstTime(){
-        if (GLContext.getCapabilities().OpenGL20){
+        if (settings.getRenderer().equals(AppSettings.LWJGL_OPENGL2)
+         || settings.getRenderer().equals(AppSettings.LWJGL_OPENGL3)){
             renderer = new LwjglRenderer();
-        }else{
+        }else if (settings.getRenderer().equals(AppSettings.LWJGL_OPENGL1)){
             renderer = new LwjglGL1Renderer();
+        }else if (settings.getRenderer().equals(AppSettings.LWJGL_OPENGL_ANY)){
+            // Choose an appropriate renderer based on capabilities
+            if (GLContext.getCapabilities().OpenGL20){
+                renderer = new LwjglRenderer();
+            }else{
+                renderer = new LwjglGL1Renderer();
+            }
+        }else{
+            throw new UnsupportedOperationException("Unsupported renderer: " + settings.getRenderer());
         }
         
         // Init renderer
@@ -154,14 +164,6 @@ public abstract class LwjglContext implements JmeContext {
     public void internalCreate(){
         timer = new LwjglTimer();
         
-//        if (settings.getRenderer().equals(AppSettings.LWJGL_OPENGL2)
-//         || settings.getRenderer().equals(AppSettings.LWJGL_OPENGL3)){
-//            renderer = new LwjglRenderer();
-//        }else if (settings.getRenderer().equals(AppSettings.LWJGL_OPENGL1)){
-//            renderer = new LwjglGL1Renderer();
-//        }else{
-//            throw new UnsupportedOperationException("Unsupported renderer: " + settings.getRenderer());
-//        }
         synchronized (createdLock){
             created.set(true);
             createdLock.notifyAll();
