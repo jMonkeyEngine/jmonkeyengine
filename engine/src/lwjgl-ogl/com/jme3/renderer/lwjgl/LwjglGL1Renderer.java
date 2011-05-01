@@ -518,7 +518,7 @@ public class LwjglGL1Renderer implements GL1Renderer {
         }
 
         // Check sizes if graphics card doesn't support NPOT
-        if (!GLContext.getCapabilities().GL_ARB_texture_non_power_of_two){
+//        if (!GLContext.getCapabilities().GL_ARB_texture_non_power_of_two){
             if (img.getWidth() != 0 && img.getHeight() != 0){
                 if (!FastMath.isPowerOfTwo(img.getWidth())
                     || !FastMath.isPowerOfTwo(img.getHeight())
@@ -529,7 +529,7 @@ public class LwjglGL1Renderer implements GL1Renderer {
 
                 }
             }
-        }
+//        }
 
         if (!img.hasMipmaps() && mips) {
             // No pregenerated mips available,

@@ -906,7 +906,7 @@ public class LwjglRenderer implements Renderer {
 //            case Geometry:
 //                return ARBGeometryShader4.GL_GEOMETRY_SHADER_ARB;
             default:
-                throw new RuntimeException("Unrecognized shader type.");
+                throw new UnsupportedOperationException("Unrecognized shader type.");
         }
     }
 
@@ -1219,7 +1219,7 @@ public class LwjglRenderer implements Renderer {
                 throw ex;
             }
         } else {
-            throw new UnsupportedOperationException("EXT_framebuffer_blit required.");
+            throw new RendererException("EXT_framebuffer_blit required.");
             // TODO: support non-blit copies?
         }
     }
@@ -1269,9 +1269,11 @@ public class LwjglRenderer implements Renderer {
         }
 
         if (fb.getWidth() > maxRBSize || fb.getHeight() > maxRBSize) {
-            throw new UnsupportedOperationException("Resolution " + fb.getWidth()
+            throw new RendererException("Resolution " + fb.getWidth()
                     + ":" + fb.getHeight() + " is not supported.");
         }
+
+        TextureUtil.checkFormatSupported(rb.getFormat());
 
         if (fb.getSamples() > 1 && GLContext.getCapabilities().GL_EXT_framebuffer_multisample) {
             int samples = fb.getSamples();
@@ -1457,7 +1459,7 @@ public class LwjglRenderer implements Renderer {
             } else {
                 if (fb.isMultiTarget()) {
                     if (fb.getNumColorBuffers() > maxMRTFBOAttachs) {
-                        throw new UnsupportedOperationException("Framebuffer has more"
+                        throw new RendererException("Framebuffer has more"
                                 + " targets than are supported"
                                 + " on the system!");
                     }
@@ -1843,7 +1845,7 @@ public class LwjglRenderer implements Renderer {
             case Stream:
                 return GL_STREAM_DRAW;
             default:
-                throw new RuntimeException("Unknown usage type.");
+                throw new UnsupportedOperationException("Unknown usage type.");
         }
     }
 
@@ -1869,7 +1871,7 @@ public class LwjglRenderer implements Renderer {
             case Double:
                 return GL_DOUBLE;
             default:
-                throw new RuntimeException("Unknown buffer format.");
+                throw new UnsupportedOperationException("Unknown buffer format.");
 
         }
     }
@@ -1929,7 +1931,7 @@ public class LwjglRenderer implements Renderer {
                     glBufferData(target, (DoubleBuffer) vb.getData(), usage);
                     break;
                 default:
-                    throw new RuntimeException("Unknown buffer format.");
+                    throw new UnsupportedOperationException("Unknown buffer format.");
             }
         } else {
             switch (vb.getFormat()) {
@@ -1952,7 +1954,7 @@ public class LwjglRenderer implements Renderer {
                     glBufferSubData(target, 0, (DoubleBuffer) vb.getData());
                     break;
                 default:
-                    throw new RuntimeException("Unknown buffer format.");
+                    throw new UnsupportedOperationException("Unknown buffer format.");
             }
         }
 //        }else{

@@ -32,6 +32,8 @@
 
 package com.jme3.renderer.lwjgl;
 
+import org.lwjgl.opengl.GLContext;
+import com.jme3.renderer.RendererException;
 import org.lwjgl.opengl.EXTAbgr;
 import com.jme3.texture.Image;
 import com.jme3.texture.Image.Format;
@@ -40,6 +42,7 @@ import org.lwjgl.opengl.ARBDepthBufferFloat;
 import org.lwjgl.opengl.ARBHalfFloatPixel;
 import org.lwjgl.opengl.ARBTextureFloat;
 import org.lwjgl.opengl.ARBTextureMultisample;
+import org.lwjgl.opengl.ContextCapabilities;
 import org.lwjgl.opengl.EXTPackedFloat;
 import org.lwjgl.opengl.EXTTextureArray;
 import org.lwjgl.opengl.EXTTextureSharedExponent;
@@ -53,6 +56,49 @@ import static org.lwjgl.opengl.GL13.*;
 import static org.lwjgl.opengl.GL14.*;
 
 public class TextureUtil {
+
+    private static boolean isFormatSupported(Format fmt, ContextCapabilities caps){
+        switch (fmt){
+            case ARGB4444:
+                return false;
+            case BGR8:
+                return caps.OpenGL12 || caps.GL_EXT_bgra;
+            case DXT1:
+            case DXT1A:
+            case DXT3:
+            case DXT5:
+                return caps.GL_EXT_texture_compression_s3tc;
+            case Depth:
+            case Depth16:
+            case Depth24:
+            case Depth32:
+                return caps.OpenGL14 || caps.GL_ARB_depth_texture;
+            case Depth32F:
+            case Luminance16F:
+            case Luminance16FAlpha16F:
+            case Luminance32F:
+            case RGBA16F:
+            case RGBA32F:
+                return caps.OpenGL30 || caps.GL_ARB_texture_float;
+            case LATC:
+            case LTC:
+                return caps.GL_EXT_texture_compression_latc;
+            case RGB9E5:
+            case RGB16F_to_RGB9E5:
+                return caps.OpenGL30 || caps.GL_EXT_texture_shared_exponent;
+            case RGB111110F:
+            case RGB16F_to_RGB111110F:
+                return caps.OpenGL30 || caps.GL_EXT_packed_float;
+            default:
+                return true;
+        }
+    }
+
+    public static void checkFormatSupported(Format fmt) {
+        if (!isFormatSupported(fmt, GLContext.getCapabilities())) {
+            throw new RendererException("Image format '" + fmt + "' is unsupported by the video hardware.");
+        }
+    }
 
     public static int convertTextureFormat(Format fmt){
         switch (fmt){
@@ -132,8 +178,10 @@ public class TextureUtil {
                                      int index,
                                      int border,
                                      boolean tdc){
-
         Image.Format fmt = img.getFormat();
+
+        checkFormatSupported(fmt);
+
         ByteBuffer data;
         if (index >= 0 && img.getData() != null && img.getData().size() > 0){
             data = img.getData(index);
