@@ -24,7 +24,7 @@ public class HumanoidRagdollPreset extends RagdollPreset {
 
         boneMap.put("foot", new JointPreset(0, -FastMath.QUARTER_PI, FastMath.QUARTER_PI, -FastMath.QUARTER_PI, FastMath.QUARTER_PI, -FastMath.QUARTER_PI));
 
-        boneMap.put("upperarm", new JointPreset(FastMath.HALF_PI, -FastMath.QUARTER_PI, 0, 0, FastMath.PI, -FastMath.QUARTER_PI));
+        boneMap.put("upperarm", new JointPreset(FastMath.HALF_PI, -FastMath.QUARTER_PI, 0, 0, FastMath.HALF_PI, -FastMath.QUARTER_PI));
 
         boneMap.put("lowerarm", new JointPreset(FastMath.HALF_PI, 0, 0, 0, 0, 0));
 
