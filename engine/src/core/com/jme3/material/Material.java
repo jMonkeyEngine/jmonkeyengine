@@ -377,21 +377,22 @@ public class Material implements Cloneable, Savable, Comparable<Material> {
         name = checkSetParam(null, name);
 
         MatParamTexture val = getTextureParam(name);
-        if (val == null) {
+        if (val == null)
             throw new IllegalArgumentException("The given texture parameter is not set.");
-        } else {
-            int texUnit = val.getUnit();
-            paramValues.remove(name);
-            nextTexUnit--;
-            for (MatParam param : paramValues.values()) {
-                if (param instanceof MatParamTexture) {
-                    MatParamTexture texParam = (MatParamTexture) param;
-                    if (texParam.getUnit() > texUnit) {
-                        texParam.setUnit(texParam.getUnit() - 1);
-                    }
+        
+        int texUnit = val.getUnit();
+        paramValues.remove(name);
+        nextTexUnit--;
+        for (MatParam param : paramValues.values()) {
+            if (param instanceof MatParamTexture) {
+                MatParamTexture texParam = (MatParamTexture) param;
+                if (texParam.getUnit() > texUnit) {
+                    texParam.setUnit(texParam.getUnit() - 1);
                 }
             }
         }
+
+        sortingId = -1;
     }
 
     public void setTextureParam(String name, VarType type, Texture value) {
@@ -410,6 +411,9 @@ public class Material implements Cloneable, Savable, Comparable<Material> {
         if (technique != null) {
             technique.notifySetParam(name, type, nextTexUnit - 1);
         }
+        
+        // need to recompute sort ID
+        sortingId = -1;
     }
 
     /**
@@ -547,8 +551,7 @@ public class Material implements Cloneable, Savable, Comparable<Material> {
      * @param lightList
      */
     protected void updateLightListUniforms(Shader shader, Geometry g, int numLights) {
-        if (numLights == 0) // this shader does not do lighting, ignore.
-        {
+        if (numLights == 0){ // this shader does not do lighting, ignore.
             return;
         }
 
@@ -732,6 +735,9 @@ public class Material implements Cloneable, Savable, Comparable<Material> {
 
         technique = tech;
         tech.makeCurrent(def.getAssetManager());
+
+        // shader was changed
+        sortingId = -1;
     }
 
     private void autoSelectTechnique(RenderManager rm) {
