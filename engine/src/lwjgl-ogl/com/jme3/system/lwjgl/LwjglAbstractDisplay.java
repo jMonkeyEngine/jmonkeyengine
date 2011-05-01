@@ -151,7 +151,7 @@ public abstract class LwjglAbstractDisplay extends LwjglContext implements Runna
             // calls swap buffers, etc.
             try {
                 if (autoFlush){
-                    Display.update();
+                    Display.update(false);
                 }else{
                     Display.processMessages();
                     Thread.sleep(50);
@@ -165,6 +165,14 @@ public abstract class LwjglAbstractDisplay extends LwjglContext implements Runna
 
         if (frameRate > 0)
             Display.sync(frameRate);
+
+        if (renderable.get()){
+            if (autoFlush){
+                // check input after we synchronize with framerate.
+                // this reduces input lag.
+                Display.processMessages();
+            }
+        }
 
         // Subclasses just call GLObjectManager clean up objects here
         // it is safe .. for now.

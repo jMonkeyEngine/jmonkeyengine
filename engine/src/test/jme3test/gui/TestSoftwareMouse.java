@@ -41,18 +41,9 @@ import com.jme3.input.event.MouseButtonEvent;
 import com.jme3.input.event.MouseMotionEvent;
 import com.jme3.math.FastMath;
 import com.jme3.system.AppSettings;
-import com.jme3.texture.Image;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture2D;
 import com.jme3.ui.Picture;
-import com.jme3.util.BufferUtils;
-import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import org.lwjgl.LWJGLException;
-import org.lwjgl.input.Cursor;
-import org.lwjgl.input.Mouse;
 
 public class TestSoftwareMouse extends SimpleApplication {
 
@@ -90,13 +81,18 @@ public class TestSoftwareMouse extends SimpleApplication {
 
     public static void main(String[] args){
         TestSoftwareMouse app = new TestSoftwareMouse();
+
+//        AppSettings settings = new AppSettings(true);
+//        settings.setFrameRate(60);
+//        app.setSettings(settings);
+
         app.start();
     }
 
     @Override
     public void simpleInitApp() {
         flyCam.setEnabled(false);
-        inputManager.setCursorVisible(false);
+//        inputManager.setCursorVisible(false);
 
         Texture tex = assetManager.loadTexture("Interface/Logo/Cursor.png");
         
