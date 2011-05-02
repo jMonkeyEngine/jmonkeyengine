@@ -79,6 +79,10 @@ public class NiftyJmeDisplay implements SceneProcessor {
         }
     }
 
+    //Empty constructor needed for jMP to create replacement input system
+    public NiftyJmeDisplay() {
+    }
+    
     public NiftyJmeDisplay(AssetManager assetManager, 
                            InputManager inputManager,
                            AudioRenderer audioRenderer,

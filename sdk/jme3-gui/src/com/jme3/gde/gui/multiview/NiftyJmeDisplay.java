@@ -46,6 +46,7 @@ import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.texture.FrameBuffer;
 import de.lessvoid.nifty.Nifty;
 import de.lessvoid.nifty.spi.input.InputSystem;
+import de.lessvoid.nifty.tools.TimeProvider;
 
 public class NiftyJmeDisplay extends com.jme3.niftygui.NiftyJmeDisplay implements SceneProcessor {
 
@@ -62,7 +63,7 @@ public class NiftyJmeDisplay extends com.jme3.niftygui.NiftyJmeDisplay implement
 
         soundDev = new SoundDeviceJme(assetManager, audioRenderer);
         renderDev = new RenderDeviceJme(this);
-        nifty = new Nifty(renderDev, soundDev, inputManager, this);
+        nifty = new Nifty(renderDev, soundDev, inputManager, new TimeProvider());
     }
 
     @Override
