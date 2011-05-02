@@ -2845,4 +2845,9 @@ public class OGLESShaderRenderer implements Renderer {
    {
        // TODO Auto-generated method stub
    }
+
+   public void invalidateState(){
+       // TODO invalidateState
+   }
+    
 }

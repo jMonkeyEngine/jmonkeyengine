@@ -271,6 +271,11 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer {
     public void restart() {
     }
 
+    public boolean isRenderable() {
+       // TODO isRenderable
+        return true;
+    }
+    
     /**
      * TODO: get these methods to follow the spec
      * @param waitFor
