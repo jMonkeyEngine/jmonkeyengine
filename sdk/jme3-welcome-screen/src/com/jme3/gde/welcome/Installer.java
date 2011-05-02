@@ -16,7 +16,7 @@ public class Installer extends ModuleInstall {
     @Override
     public void restored() {
         if(!"true".equals(NbPreferences.forModule(Installer.class).get("NO_WELCOME_SCREEN", null))){
-            new WelcomeScreen().startScreen();
+//            new WelcomeScreen().startScreen();
         }
     }
 }
