@@ -122,6 +122,7 @@
                 <include name="jMonkeyEngine3.jar"/>
             </fileset>
             <zipfileset dir="dist/lib" prefix="lib"/>
+            <zipfileset dir="dist/opt" prefix="opt"/>
             <zipfileset dir="dist/javadoc" prefix="javadoc"/>
             <zipfileset dir="${src.core.dir}" prefix="source"/>
             <zipfileset dir="${src.core-data.dir}" prefix="source"/>
@@ -288,7 +289,7 @@
     </target>
 
     <!-- copy jme3 zip to jmonkeyengine.com/nightly -->
-    <target name="deploy-hudson" depends="dist">
+    <target name="deploy-hudson" depends="dist, -build-bullet-natives">
         <copy
             file="${jme3zip}"
             toDir="/var/www/com/nightly" overwrite="true" failonerror="true" verbose="false"
