@@ -58,15 +58,20 @@ public class Natives {
     }
 
     protected static void extractNativeLib(String sysName, String name) throws IOException {
+        extractNativeLib(sysName, name, false);
+    }
+
+    protected static void extractNativeLib(String sysName, String name, boolean load) throws IOException {
         String fullname = System.mapLibraryName(name);
 
         String path = "native/" + sysName + "/" + fullname;
         InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream(path);
         //InputStream in = Natives.class.getResourceAsStream();
         if (in == null) {
-            if(name!="bulletjme")
-            logger.log(Level.WARNING, "Cannot locate native library: {0}/{1}",
-                    new String[]{sysName, fullname});
+            if (name != "bulletjme") {
+                logger.log(Level.WARNING, "Cannot locate native library: {0}/{1}",
+                        new String[]{sysName, fullname});
+            }
             return;
         }
         File targetFile = new File(workingDir, fullname);
@@ -80,12 +85,17 @@ public class Natives {
             out.close();
         } catch (FileNotFoundException ex) {
             if (ex.getMessage().contains("used by another process")) {
+                if (load) {
+                    System.load(targetFile.getAbsolutePath());
+                }
                 return;
             }
 
             throw ex;
         }
-
+        if (load) {
+            System.load(targetFile.getAbsolutePath());
+        }
         logger.log(Level.FINE, "Copied {0} to {1}", new Object[]{fullname, targetFile});
     }
 
@@ -150,8 +160,8 @@ public class Natives {
                     extractNativeLib("windows", "jinput-dx8_64");
                     extractNativeLib("windows", "jinput-raw_64");
                 }
-                if(needNativeBullet){
-                    extractNativeLib("windows", "bulletjme");
+                if (needNativeBullet) {
+                    extractNativeLib("windows", "bulletjme", true);
                 }
                 break;
             case Windows32:
@@ -165,8 +175,8 @@ public class Natives {
                     extractNativeLib("windows", "jinput-dx8");
                     extractNativeLib("windows", "jinput-raw");
                 }
-                if(needNativeBullet){
-                    extractNativeLib("windows", "bulletjme");
+                if (needNativeBullet) {
+                    extractNativeLib("windows", "bulletjme", true);
                 }
                 break;
             case Linux64:
@@ -179,8 +189,8 @@ public class Natives {
                 if (needOAL) {
                     extractNativeLib("linux", "openal64");
                 }
-                if(needNativeBullet){
-                    extractNativeLib("linux", "bulletjme");
+                if (needNativeBullet) {
+                    extractNativeLib("linux", "bulletjme", true);
                 }
                 break;
             case Linux32:
@@ -193,8 +203,8 @@ public class Natives {
                 if (needOAL) {
                     extractNativeLib("linux", "openal");
                 }
-                if(needNativeBullet){
-                    extractNativeLib("linux", "bulletjme32");
+                if (needNativeBullet) {
+                    extractNativeLib("linux", "bulletjme", true);
                 }
                 break;
             case MacOSX_PPC32:
@@ -209,8 +219,8 @@ public class Natives {
                 if (needJInput) {
                     extractNativeLib("macosx", "jinput-osx");
                 }
-                if(needNativeBullet){
-                    extractNativeLib("macosx", "bulletjme");
+                if (needNativeBullet) {
+                    extractNativeLib("macosx", "bulletjme", true);
                 }
                 break;
         }
