@@ -151,7 +151,7 @@ public class Natives {
                     extractNativeLib("windows", "jinput-raw_64");
                 }
                 if(needNativeBullet){
-                    extractNativeLib("windows", "bulletjme_64");
+                    extractNativeLib("windows", "bulletjme");
                 }
                 break;
             case Windows32:
@@ -166,7 +166,7 @@ public class Natives {
                     extractNativeLib("windows", "jinput-raw");
                 }
                 if(needNativeBullet){
-                    extractNativeLib("windows", "bulletjme");
+                    extractNativeLib("windows", "bulletjme64");
                 }
                 break;
             case Linux64:
@@ -180,7 +180,7 @@ public class Natives {
                     extractNativeLib("linux", "openal64");
                 }
                 if(needNativeBullet){
-                    extractNativeLib("linux", "bulletjme64");
+                    extractNativeLib("linux", "bulletjme");
                 }
                 break;
             case Linux32:
@@ -194,7 +194,7 @@ public class Natives {
                     extractNativeLib("linux", "openal");
                 }
                 if(needNativeBullet){
-                    extractNativeLib("linux", "bulletjme");
+                    extractNativeLib("linux", "bulletjme32");
                 }
                 break;
             case MacOSX_PPC32:
