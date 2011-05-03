@@ -28,16 +28,6 @@
                 <package>com.jme3.audio.lwjgl</package>
                 <package>com.jme3.audio.plugins</package>
                 <package>com.jme3.bounding</package>
-                <package>com.jme3.bullet</package>
-                <package>com.jme3.bullet.collision</package>
-                <package>com.jme3.bullet.collision.shapes</package>
-                <package>com.jme3.bullet.collision.shapes.infos</package>
-                <package>com.jme3.bullet.control</package>
-                <package>com.jme3.bullet.joints</package>
-                <package>com.jme3.bullet.joints.motors</package>
-                <package>com.jme3.bullet.objects</package>
-                <package>com.jme3.bullet.objects.infos</package>
-                <package>com.jme3.bullet.util</package>
                 <package>com.jme3.cinematic</package>
                 <package>com.jme3.cinematic.events</package>
                 <package>com.jme3.collision</package>
@@ -115,6 +105,18 @@
                 <package>jme3tools.nvtex</package>
                 <package>jme3tools.optimize</package>
             </public-packages>
+            <class-path-extension>
+                <runtime-relative-path>ext/jME3-bullet-natives.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/jME3-bullet-natives.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/jME3-bullet.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/jME3-bullet.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/jME3-jbullet.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/jME3-jbullet.jar</binary-origin>
+            </class-path-extension>
             <class-path-extension>
                 <runtime-relative-path>ext/jMonkeyEngine3.jar</runtime-relative-path>
                 <binary-origin>release/modules/ext/jMonkeyEngine3.jar</binary-origin>
