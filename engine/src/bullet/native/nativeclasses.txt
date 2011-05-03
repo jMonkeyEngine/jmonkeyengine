@@ -1,0 +1,6 @@
+Classes that differ from the jbullet implementation:
+- com.jme3.bullet.PhysicsSpace
+- com.jme3.bullet.collision.PhysicsCollisionObject
+- All classes in com.jme3.bullet.objects
+- All classes in com.jme3.bullet.joints
+- All classes in com.jme3.bullet.collision.shapes
