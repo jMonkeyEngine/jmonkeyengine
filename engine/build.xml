@@ -40,7 +40,7 @@
         <jar jarfile="build/jME3-testdata.jar" basedir="src/test-data" compress="true"/>
         <property location="src/test-data" name="testdata.dir.resolved"/>
         <property location="build/jME3-testdata.jar" name="testdata.jar.resolved"/>
-        
+
         <!--this sets properties that would normally later be created in the build-impl.xml-->
         <property location="${build.classes.dir}" name="build.classes.dir.resolved"/>
         <pathconvert property="run.classpath.without.build.classes.dir">
@@ -146,35 +146,27 @@
         </zip>
     </target>
 
+
     <!--
        ****************************************************************
-       Only Relevant for building on hudson nightly server from here on
+       Only Relevant for building the SDK from here on
        ****************************************************************
       -->
 
     <!-- convenience target to transfer jme3 libraries to sdk (jMonkeyPlatform) -->
-    <target name="update-sdk" depends="jar, javadoc">
+    <target name="update-sdk" depends="jar">
         <antcall target="-do-update-sdk" inheritall="true">
             <param name="jmp_dir" value="../sdk/"/>
         </antcall>
-    </target>
-
-    <!-- convenience target to transfer jme3 libraries to the jme3-jmp folder on the Hudson build server (jMonkeyPlatform) -->
-    <target name="hudson-update-sdk" depends="init">
-        <!--update jme3 svn revision info properly-->
-        <exec executable="svn" dir=".">
-            <arg value="update" />
-        </exec>
-        <!--update jmp-->
-        <antcall target="-do-update-sdk" inheritall="true">
-            <param name="jmp_dir" value="../sdk/"/>
-        </antcall>
-        <!--antcall target="-create-jme3-svn-properties" inheritall="true">
-            <param name="jmp_dir" value="../../jme3-jmp/workspace/"/>
-        </antcall-->
     </target>
 
     <target name="-do-update-sdk">
+        <fileset id="jme3-jars" dir="dist/">
+            <include name="**/jME3-jbullet.jar"/>
+            <include name="**/jME3-bullet.jar"/>
+            <include name="**/jME3-bullet-natives.jar"/>
+        </fileset>
+
         <!--clear old files-->
         <delete dir="${jmp_dir}/JME3TestsTemplate/src/"/>
         <delete dir="${jmp_dir}/jme3-core-baselibs/release/modules/ext/"/>
@@ -185,36 +177,35 @@
 
         <!--jMonkeyPlatform jME3 libs-->
         <copy file="${dist.jar}" toDir="${jmp_dir}/jme3-core-baselibs/release/modules/ext/" overwrite="true" failonerror="true" verbose="false"/>
-        <copy file="dist/opt/native-bullet/lib/jME3-bullet.jar" toDir="${jmp_dir}/jme3-core-baselibs/release/modules/ext/" overwrite="true" failonerror="true" verbose="false"/>
-        <copy file="dist/opt/native-bullet/lib/jME3-bullet-natives.jar" toDir="${jmp_dir}/jme3-core-baselibs/release/modules/ext/" overwrite="true" failonerror="true" verbose="false"/>
-        <copy file="dist/lib/jME3-jbullet.jar" toDir="${jmp_dir}/jme3-core-baselibs/release/modules/ext/" overwrite="true" failonerror="true" verbose="false"/>
-        <!--natives need to be in jme3 package fro jme to work in jMP-->
+        <copy toDir="${jmp_dir}/jme3-core-baselibs/release/modules/ext/" overwrite="true" failonerror="true" verbose="false" flatten="true">
+            <fileset refid="jme3-jars"/>
+        </copy>
+        <!--natives need to be in jme3 package for jme to work in jMP-->
         <copy file="dist/lib/jME3-lwjgl-natives.jar" toDir="${jmp_dir}/jme3-core-baselibs/release/modules/ext/" overwrite="true" failonerror="true" verbose="false"/>
 
         <!--Project jME3 libs-->
         <copy file="${dist.jar}" toDir="${jmp_dir}/jme3-project-baselibs/release/libs/" overwrite="true" failonerror="true" verbose="false"/>
-        <copy file="dist/opt/native-bullet/lib/jME3-bullet.jar" toDir="${jmp_dir}/jme3-project-baselibs/release/libs/" overwrite="true" failonerror="true" verbose="false"/>
-        <copy file="dist/opt/native-bullet/lib/jME3-bullet-natives.jar" toDir="${jmp_dir}/jme3-project-baselibs/release/libs/" overwrite="true" failonerror="true" verbose="false"/>
-        <copy file="dist/lib/jME3-jbullet.jar" toDir="${jmp_dir}/jme3-project-baselibs/release/libs/" overwrite="true" failonerror="true" verbose="false"/>
+        <copy toDir="${jmp_dir}/jme3-project-baselibs/release/libs/" overwrite="true" failonerror="true" verbose="false" flatten="true">
+            <fileset refid="jme3-jars"/>
+        </copy>
 
         <!--jMonkeyPlatform external libraries-->
-        <copy todir="${jmp_dir}/jme3-core-libraries/release/modules/ext/" overwrite="true" failonerror="true" verbose="false">
+        <copy todir="${jmp_dir}/jme3-core-libraries/release/modules/ext/" overwrite="true" failonerror="true" verbose="false" flatten="true">
             <!--exclude jme3 test data from core-->
             <fileset dir="dist/lib/">
-                <exclude name="jME3-testdata.jar"/>
-                <exclude name="jME3-test.jar"/>
-                <exclude name="jME3-lwjgl-natives.jar"/>
-                <exclude name="jME3-jbullet.jar"/>
+                <exclude name="jME3-**"/>
             </fileset>
         </copy>
         
         <!--Project external libraries-->
-        <copy todir="${jmp_dir}/jme3-project-libraries/release/libs/" overwrite="true" failonerror="true" verbose="false">
+        <copy todir="${jmp_dir}/jme3-project-libraries/release/libs/" overwrite="true" failonerror="true" verbose="false" flatten="true">
             <!--exclude jme3 test data from libs-->
             <fileset dir="dist/lib/">
-                <exclude name="jME3-testdata.jar"/>
-                <exclude name="jME3-test.jar"/>
-                <exclude name="jME3-jbullet.jar"/>
+                <exclude name="jME3-**"/>
+            </fileset>
+            <!--lwjgl is an external library but has the "jME3-" prefix-->
+            <fileset dir="dist/lib/">
+                <include name="jME3-lwjgl-natives.jar"/>
             </fileset>
         </copy>
 
@@ -286,6 +277,28 @@
             <arg value="info" />
         </exec>
         <replace file="${jmp_dir}/build/jme3-tests-svn.properties" token=" " value=""/>
+    </target>
+
+    
+    <!--
+       ****************************************************************
+       Only Relevant for building nightly on Hudson server from here on
+       ****************************************************************
+      -->
+      
+    <!-- convenience target to transfer jme3 libraries to the jme3-jmp folder on the Hudson build server (jMonkeyPlatform) -->
+    <target name="hudson-update-sdk" depends="init">
+        <!--update jme3 svn revision info properly-->
+        <exec executable="svn" dir=".">
+            <arg value="update" />
+        </exec>
+        <!--update jmp-->
+        <antcall target="-do-update-sdk" inheritall="true">
+            <param name="jmp_dir" value="../sdk/"/>
+        </antcall>
+        <!--antcall target="-create-jme3-svn-properties" inheritall="true">
+            <param name="jmp_dir" value="../../jme3-jmp/workspace/"/>
+        </antcall-->
     </target>
 
     <!-- copy jme3 zip to jmonkeyengine.com/nightly -->
