@@ -85,16 +85,14 @@ public class Natives {
             out.close();
         } catch (FileNotFoundException ex) {
             if (ex.getMessage().contains("used by another process")) {
-                if (load) {
-                    System.load(targetFile.getAbsolutePath());
-                }
                 return;
             }
 
             throw ex;
-        }
-        if (load) {
-            System.load(targetFile.getAbsolutePath());
+        } finally {
+            if (load) {
+                System.load(targetFile.getAbsolutePath());
+            }
         }
         logger.log(Level.FINE, "Copied {0} to {1}", new Object[]{fullname, targetFile});
     }
