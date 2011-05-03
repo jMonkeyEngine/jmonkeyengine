@@ -289,7 +289,7 @@
     </target>
 
     <!-- copy jme3 zip to jmonkeyengine.com/nightly -->
-    <target name="deploy-hudson" depends="dist, -build-bullet-natives">
+    <target name="deploy-hudson" depends="dist, build-bullet-natives">
         <copy
             file="${jme3zip}"
             toDir="/var/www/com/nightly" overwrite="true" failonerror="true" verbose="false"
