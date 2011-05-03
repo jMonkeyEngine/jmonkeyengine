@@ -31,9 +31,11 @@
                 <package>de.lessvoid.nifty.controls</package>
                 <package>de.lessvoid.nifty.controls.button</package>
                 <package>de.lessvoid.nifty.controls.button.builder</package>
+                <package>de.lessvoid.nifty.controls.chatcontrol</package>
                 <package>de.lessvoid.nifty.controls.checkbox</package>
                 <package>de.lessvoid.nifty.controls.checkbox.builder</package>
-                <package>de.lessvoid.nifty.controls.console.controller</package>
+                <package>de.lessvoid.nifty.controls.console</package>
+                <package>de.lessvoid.nifty.controls.console.builder</package>
                 <package>de.lessvoid.nifty.controls.dragndrop</package>
                 <package>de.lessvoid.nifty.controls.dragndrop.controller</package>
                 <package>de.lessvoid.nifty.controls.dropdown</package>
@@ -45,6 +47,7 @@
                 <package>de.lessvoid.nifty.controls.label.builder</package>
                 <package>de.lessvoid.nifty.controls.listbox</package>
                 <package>de.lessvoid.nifty.controls.listbox.builder</package>
+                <package>de.lessvoid.nifty.controls.menu</package>
                 <package>de.lessvoid.nifty.controls.nullobjects</package>
                 <package>de.lessvoid.nifty.controls.scrollbar</package>
                 <package>de.lessvoid.nifty.controls.scrollbar.builder</package>
