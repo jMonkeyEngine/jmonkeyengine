@@ -166,7 +166,7 @@ public class Natives {
                     extractNativeLib("windows", "jinput-raw");
                 }
                 if(needNativeBullet){
-                    extractNativeLib("windows", "bulletjme64");
+                    extractNativeLib("windows", "bulletjme");
                 }
                 break;
             case Linux64:
