@@ -840,7 +840,7 @@ public class LwjglAudioRenderer implements AudioRenderer, Runnable {
             if (audioDisabled)
                 return;
 
-            assert src.getStatus() == Status.Stopped || src.getChannel() == -1;
+            //assert src.getStatus() == Status.Stopped || src.getChannel() == -1;
 
             if (src.getStatus() == Status.Playing){
                 return;
