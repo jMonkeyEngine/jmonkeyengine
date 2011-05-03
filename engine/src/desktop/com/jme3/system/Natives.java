@@ -58,17 +58,21 @@ public class Natives {
     }
 
     protected static void extractNativeLib(String sysName, String name) throws IOException {
-        extractNativeLib(sysName, name, false);
+        extractNativeLib(sysName, name, false, true);
     }
 
     protected static void extractNativeLib(String sysName, String name, boolean load) throws IOException {
+        extractNativeLib(sysName, name, load, true);
+    }
+    
+    protected static void extractNativeLib(String sysName, String name, boolean load, boolean warning) throws IOException {
         String fullname = System.mapLibraryName(name);
 
         String path = "native/" + sysName + "/" + fullname;
         InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream(path);
         //InputStream in = Natives.class.getResourceAsStream();
         if (in == null) {
-            if (name != "bulletjme") {
+            if (!warning) {
                 logger.log(Level.WARNING, "Cannot locate native library: {0}/{1}",
                         new String[]{sysName, fullname});
             }
@@ -159,7 +163,7 @@ public class Natives {
                     extractNativeLib("windows", "jinput-raw_64");
                 }
                 if (needNativeBullet) {
-                    extractNativeLib("windows", "bulletjme", true);
+                    extractNativeLib("windows", "bulletjme", true, false);
                 }
                 break;
             case Windows32:
@@ -174,7 +178,7 @@ public class Natives {
                     extractNativeLib("windows", "jinput-raw");
                 }
                 if (needNativeBullet) {
-                    extractNativeLib("windows", "bulletjme", true);
+                    extractNativeLib("windows", "bulletjme", true, false);
                 }
                 break;
             case Linux64:
@@ -188,7 +192,7 @@ public class Natives {
                     extractNativeLib("linux", "openal64");
                 }
                 if (needNativeBullet) {
-                    extractNativeLib("linux", "bulletjme", true);
+                    extractNativeLib("linux", "bulletjme", true, false);
                 }
                 break;
             case Linux32:
@@ -202,7 +206,7 @@ public class Natives {
                     extractNativeLib("linux", "openal");
                 }
                 if (needNativeBullet) {
-                    extractNativeLib("linux", "bulletjme", true);
+                    extractNativeLib("linux", "bulletjme", true, false);
                 }
                 break;
             case MacOSX_PPC32:
@@ -218,7 +222,7 @@ public class Natives {
                     extractNativeLib("macosx", "jinput-osx");
                 }
                 if (needNativeBullet) {
-                    extractNativeLib("macosx", "bulletjme", true);
+                    extractNativeLib("macosx", "bulletjme", true, false);
                 }
                 break;
         }
