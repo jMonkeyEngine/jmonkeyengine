@@ -42,6 +42,7 @@
     </pathconvert>
 
     <target name="build-bullet-natives" description="builds the native bullet library for the platform being run on" depends="-create-folders, create-native-headers, -nativelib-osx, -nativelib-windows, -nativelib-linux">
+        <echo message="Updating native jME3-bullet-natives.jar"/>
         <zip basedir="${bullet.output.base}/jarcontent" file="${bullet.output.base}/jME3-bullet-natives.jar" compress="true"/>
         <copy file="${bullet.output.base}/jME3-bullet-natives.jar" todir="dist/lib"/>
     </target>
@@ -88,6 +89,7 @@
 
     <!-- compares the API of native bullet and java version-->
     <target name="bullet-api-diff">
+        <echo message="Comparing bullet and jbullet API"/>
         <property name="dependencyfinder.home" value="lib/antlibs/depfinder"/>
         <path id="dependencyfinder">
             <pathelement location="${dependencyfinder.home}/classes"/>
@@ -124,6 +126,7 @@
     </target>
     
     <target name="-nativelib-osx" if="isMac">
+        <echo message="Building MacOSX version of native bullet"/>
         <mkdir dir="${bullet.output.dir}/macosx"/>
         <cc name="${bullet.osx.compiler}" warnings="none" debug="${bullet.compile.debug}" link="shared" outfile="${bullet.output.dir}/macosx/${bullet.library.name}" objdir="${bullet.build.dir}">
             <fileset dir="${bullet.source.dir}">
@@ -158,6 +161,7 @@
     </target>
     
     <target name="-nativelib-linux" if="isLinux">
+        <echo message="Building Linux version of native bullet"/>
         <mkdir dir="${bullet.output.dir}/linux"/>
         <cc name="${bullet.linux.compiler}" warnings="severe" debug="${bullet.compile.debug}" link="shared" outfile="${bullet.output.dir}/linux/${bullet.library.name}" objdir="${bullet.build.dir}">
             <fileset dir="${bullet.source.dir}">
@@ -179,6 +183,7 @@
     </target>
 
     <target name="-nativelib-windows" if="isWindows">
+        <echo message="Building Windows version of native bullet"/>
         <mkdir dir="${bullet.output.dir}/windows"/>
         <cc multithreaded="" name="${bullet.windows.compiler}" warnings="none" debug="${bullet.compile.debug}" outtype="shared" outfile="${bullet.output.dir}/windows/${bullet.library.name}" objdir="${bullet.build.dir}">
             <fileset dir="${bullet.source.dir}">
