@@ -154,7 +154,7 @@
       -->
 
     <!-- convenience target to transfer jme3 libraries to sdk (jMonkeyPlatform) -->
-    <target name="update-sdk" depends="jar">
+    <target name="update-sdk" depends="jar, javadoc">
         <antcall target="-do-update-sdk" inheritall="true">
             <param name="jmp_dir" value="../sdk/"/>
         </antcall>

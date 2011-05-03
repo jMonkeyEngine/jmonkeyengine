@@ -9,6 +9,8 @@
             </not>
         </condition>
     </fail>
+    
+    <target name="default" depends="zip"/>
 
     <target name="build" description="Builds the complete SDK" depends="-check-platform, -update-sdk-platform-config">
         <ant dir="engine" target="update-sdk"/>
