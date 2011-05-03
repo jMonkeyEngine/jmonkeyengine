@@ -178,6 +178,8 @@ public class JmeSystem {
             return true;
         else if (arch.equals("i386") || arch.equals("i686"))
             return false;
+        else if (arch.equals("universal"))
+            return false;
         else
             throw new UnsupportedOperationException("Unsupported architecture: "+arch);
     }
@@ -190,7 +192,7 @@ public class JmeSystem {
             return is64 ? Platform.Windows64 : Platform.Windows32;
         }else if (os.contains("linux") || os.contains("freebsd") || os.contains("sunos")){
             return is64 ? Platform.Linux64 : Platform.Linux32;
-        }else if (os.contains("mac os x")){
+        }else if (os.contains("mac os x") || os.contains("darwin")){
             if (arch.startsWith("ppc")){
                 return is64 ? Platform.MacOSX_PPC64 : Platform.MacOSX_PPC32;
             }else{

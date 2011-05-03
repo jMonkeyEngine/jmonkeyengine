@@ -13,7 +13,8 @@
 <!--${JNLP.RESOURCES.RUNTIME}-->
 <!--${JNLP.RESOURCES.MAIN.JAR}-->
 <!--${JNLP.RESOURCES.JARS}-->
-<jar href='lib/jme3testdata.jar'/>
+<jar href='lib/jME3-testdata.jar'/>
+<jar href="lib/jME3-test.jar"/>
 <!--${JNLP.RESOURCES.EXTENSIONS}-->
     </resources>
     <application-desc main-class="${jnlp.main.class}">

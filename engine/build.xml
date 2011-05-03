@@ -5,34 +5,103 @@
     <import file="nbproject/build-impl.xml"/>
     <!-- <import file="nbproject/profiler-build-impl.xml"/> -->
 
+    <target name="-post-compile" depends="-compile-bullet, -compile-android">
+    </target>
+    
+    <target name="-pre-jar" depends="-prepare-separate-jar-files">
+    </target>
+    
+    <target name="-post-jar" depends="-create-optional-packages">
+    </target>
 
-    <!--this target creates the assets jar file and modifies the classpath to include it-->
-    <target name="-pre-jar">
+    <!-- compiles the java classes of the native bullet version (works on all systems) -->
+    <target name="-compile-bullet">
+        <mkdir dir="build/bullet"/>
+        <javac classpath="${javac.classpath}${path.separator}${build.classes.dir}" destdir="build/bullet" srcdir="src/bullet"/>
+        <jar jarfile="build/jME3-bullet.jar" basedir="build/bullet/" compress="true"/>
+    </target>
+    
+    <!--this target creates the separate jar files for jme3 and modifies the classpath to include them-->
+    <target name="-prepare-separate-jar-files">
         <!--separate test classes-->
         <mkdir dir="build/testclasses/"/>
         <move file="build/classes/jme3test" todir="build/testclasses/" failonerror="false"/>
         <move file="build/classes/jme3game" todir="build/testclasses/" failonerror="false"/>
-        <jar jarfile="build/jme3test.jar" basedir="build/testclasses/" compress="true"/>
+        <jar jarfile="build/jME3-test.jar" basedir="build/testclasses/" compress="true"/>
 
-        <!--create jar from assets-->
-        <jar jarfile="build/jme3testdata.jar" basedir="src/test-data" compress="true"/>
-        <!--resolve assets and assets jar location-->
+        <!--separate jbullet physics classes-->
+        <mkdir dir="build/jbullet/com/jme3/"/>
+        <move file="build/classes/com/jme3/bullet" todir="build/jbullet/com/jme3/" failonerror="false"/>
+        <jar jarfile="build/jME3-jbullet.jar" basedir="build/jbullet/" compress="true"/>
+
+        <!--separate assets-->
+        <jar jarfile="build/jME3-testdata.jar" basedir="src/test-data" compress="true"/>
         <property location="src/test-data" name="testdata.dir.resolved"/>
-        <property location="build/jme3testdata.jar" name="testdata.jar.resolved"/>
+        <property location="build/jME3-testdata.jar" name="testdata.jar.resolved"/>
+        
         <!--this sets properties that would normally later be created in the build-impl.xml-->
         <property location="${build.classes.dir}" name="build.classes.dir.resolved"/>
         <pathconvert property="run.classpath.without.build.classes.dir">
             <path path="${run.classpath}"/>
             <map from="${build.classes.dir.resolved}" to=""/>
+            
             <!--replace assets folder in dist classpath-->
             <map from="${testdata.dir.resolved}" to="${testdata.jar.resolved}"/>
-            <!--add tests jar to dist classpath-->
-            <path path="build/jme3test.jar"/>
+            
+            <!--add both bullet jar files to dist classpath, will both be in manifest-->
+            <path path="build/jME3-jbullet.jar"/>
+            <path path="build/jME3-bullet.jar"/>
+            <path path="build/jME3-test.jar"/>
         </pathconvert>
     </target>
+    
+    <!-- compiles the android jar for jME3 -->
+    <target name="-compile-android" description="builds the jMonkeyEngine3 distribution for android">
+        <path id="android-classpath">
+            <pathelement path="lib/android/android.jar"/>
+            <pathelement path="build/classes"/>
+        </path>
+        <mkdir dir="build/android"/>
+        <javac  target="1.6"
+                encoding="UTF-8"
+                debug="true"
+                deprecation="on"
+                srcdir="src/android"
+                destdir="build/android"
+                classpathref="android-classpath"
+                excludes="**/OGLESRenderer.java,**/TestsActivity.java,**/AboutActivity.java"/>
+    </target>
+    
+    <!--separates and packs the o ptional packages-->
+    <target name="-create-optional-packages">
+        <!--native bullet-->
+        <mkdir dir="dist/opt/native-bullet"/>
+        <mkdir dir="dist/opt/native-bullet/lib"/>
+        <ant antfile="src/bullet/native/build.xml" target="bullet-api-diff"/>
+        <move file="bullet-api-diff.html" todir="dist/opt/native-bullet" overwrite="true"/>
+        <move file="dist/lib/jME3-bullet.jar" todir="dist/opt/native-bullet/lib" overwrite="true"/>
+        <move file="dist/lib/jME3-bullet-natives.jar" todir="dist/opt/native-bullet/lib" overwrite="true"/>
 
+        <!--android-->
+        <mkdir dir="dist/opt/android"/>
+        <jar jarfile="dist/opt/android/jMonkeyEngine3.jar"
+                basedir="build/android"
+                />
+        <jar jarfile="dist/opt/android/jMonkeyEngine3.jar"
+                basedir="build/classes"
+		excludes="com/jme3/system/JmeSystem*"
+                update="true"/>
+        <!--<jar jarfile="dist/opt/jME3-android-tests.jar"
+		basedir="build/testclasses"/>-->
+    </target>
+
+    <!-- compiles the *native binary* of the native bullet version (read bullet-native-build.txt for more info) -->
+    <target name="build-bullet-natives" description="uses native build tools to build the bulletjme binary (read bullet-native-build.txt for more info)">
+        <ant antfile="src/bullet/native/build.xml" target="build-bullet-natives"/>
+    </target>
+    
     <!-- puts jme3 jars, libs, source and javadoc in a dated zip file -->
-    <target name="dist" depends="clean, jar, javadoc">
+    <target name="dist" depends="clean, jar, javadoc" description="puts jme3 jars, libs, source and javadoc in a dated zip file">
         <!-- create date in the format MM-dd-yyyy -->
         <tstamp>
             <format property="date" pattern="yyyy-MM-dd" locale="en,US"/>
@@ -72,38 +141,12 @@
         </zip>
     </target>
 
-    <target name="dist-android" depends="jar" description="builds the jMonkeyEngine3 distribution for android">
-        <path id="android-classpath">
-            <pathelement path="lib/android/android.jar"/>
-            <pathelement path="dist/jMonkeyEngine3.jar"/>
-        </path>
-        <mkdir dir="build/android"/>
-        <javac  target="1.6"
-                encoding="UTF-8"
-                debug="true"
-                deprecation="on"
-                srcdir="src/android"
-                destdir="build/android"
-                classpathref="android-classpath"
-                excludes="**/OGLESRenderer.java,**/TestsActivity.java,**/AboutActivity.java"/>
-        <jar jarfile="dist/jMonkeyEngine3-Android.jar"
-                basedir="build/android"/>
-        <jar jarfile="dist/jMonkeyEngine3-Android.jar"
-                basedir="build/classes"
-		excludes="com/jme3/system/JmeSystem*"
-                update="true"/>
-        <!--<jar jarfile="dist/jmonkeyengine3-android-tests.jar"
-		basedir="build/testclasses"/>-->
-    </target>
-    
-    <!--target name="-post-jar" depends="build-bullet-natives">
-    </target-->
-    
-    <target name="build-bullet-natives">
-        <ant antfile="src/jbullet/native/build.xml" target="build-bullet-natives"/>
-        <copy file="lib/bullet/libbulletjme.jnilib" todir="./" overwrite="true"/>
-    </target>
-    
+    <!--
+       ****************************************************************
+       Only Relevant for building on hudson nightly server from here on
+       ****************************************************************
+      -->
+
     <!-- convenience target to transfer jme3 libraries to sdk (jMonkeyPlatform) -->
     <target name="update-sdk" depends="jar, javadoc">
         <antcall target="-do-update-sdk" inheritall="true">
@@ -135,35 +178,42 @@
         <delete dir="${jmp_dir}/jme3-project-baselibs/release/libs/"/>
         <delete dir="${jmp_dir}/jme3-project-testdata/release/libs/"/>
 
-        <!--jme3 base libs-->
+        <!--jMonkeyPlatform jME3 libs-->
         <copy file="${dist.jar}" toDir="${jmp_dir}/jme3-core-baselibs/release/modules/ext/" overwrite="true" failonerror="true" verbose="true"/>
+        <copy file="dist/opt/native-bullet/lib/jME3-bullet.jar" toDir="${jmp_dir}/jme3-core-baselibs/release/modules/ext/" overwrite="true" failonerror="true" verbose="true"/>
+        <copy file="dist/opt/native-bullet/lib/jME3-bullet-natives.jar" toDir="${jmp_dir}/jme3-core-baselibs/release/modules/ext/" overwrite="true" failonerror="true" verbose="true"/>
+        <!--natives need to be in jme3 package fro jme to work in jMP-->
         <copy file="dist/lib/jME3-lwjgl-natives.jar" toDir="${jmp_dir}/jme3-core-baselibs/release/modules/ext/" overwrite="true" failonerror="true" verbose="true"/>
-<!--        <copy file="dist/lib/jME3-jogl-natives.jar" toDir="${jmp_dir}/jme3-core-baselibs/release/modules/ext/" overwrite="true" failonerror="true" verbose="true"/>-->
-<!--        <copy file="dist/lib/jME3-natives-joal.jar" toDir="${jmp_dir}/jme3-core-baselibs/release/modules/ext/" overwrite="true" failonerror="true" verbose="true"/>-->
 
+        <!--Project jME3 libs-->
         <copy file="${dist.jar}" toDir="${jmp_dir}/jme3-project-baselibs/release/libs/" overwrite="true" failonerror="true" verbose="true"/>
+        <copy file="dist/opt/native-bullet/lib/jME3-bullet.jar" toDir="${jmp_dir}/jme3-project-baselibs/release/libs/" overwrite="true" failonerror="true" verbose="true"/>
+        <copy file="dist/opt/native-bullet/lib/jME3-bullet-natives.jar" toDir="${jmp_dir}/jme3-project-baselibs/release/libs/" overwrite="true" failonerror="true" verbose="true"/>
+        <copy file="dist/lib/jME3-jbullet.jar" toDir="${jmp_dir}/jme3-project-baselibs/release/libs/" overwrite="true" failonerror="true" verbose="true"/>
 
-        <!--jme3 libraries-->
+        <!--jMonkeyPlatform external libraries-->
         <copy todir="${jmp_dir}/jme3-core-libraries/release/modules/ext/" overwrite="true" failonerror="true" verbose="true">
             <!--exclude jme3 test data from core-->
             <fileset dir="dist/lib/">
-                <exclude name="jme3testdata.jar"/>
-                <exclude name="jme3test.jar"/>
+                <exclude name="jME3-testdata.jar"/>
+                <exclude name="jME3-test.jar"/>
                 <exclude name="jME3-lwjgl-natives.jar"/>
-                <exclude name="jME3-jogl-natives.jar"/>
-                <exclude name="jME3-natives-joal.jar"/>
+                <exclude name="jME3-jbullet.jar"/>
             </fileset>
         </copy>
+        
+        <!--Project external libraries-->
         <copy todir="${jmp_dir}/jme3-project-libraries/release/libs/" overwrite="true" failonerror="true" verbose="true">
             <!--exclude jme3 test data from libs-->
             <fileset dir="dist/lib/">
-                <exclude name="jme3testdata.jar"/>
-                <exclude name="jme3test.jar"/>
+                <exclude name="jME3-testdata.jar"/>
+                <exclude name="jME3-test.jar"/>
+                <exclude name="jME3-jbullet.jar"/>
             </fileset>
         </copy>
 
         <!--test data-->
-        <copy file="dist/lib/jme3testdata.jar" toDir="${jmp_dir}/jme3-project-testdata/release/libs/" overwrite="true" failonerror="true" verbose="true"/>
+        <copy file="dist/lib/jME3-testdata.jar" toDir="${jmp_dir}/jme3-project-testdata/release/libs/" overwrite="true" failonerror="true" verbose="true"/>
 
         <!--javadoc-->
         <zip destfile="dist/jMonkeyEngine3-javadoc.zip">
