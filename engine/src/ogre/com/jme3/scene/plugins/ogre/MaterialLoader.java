@@ -224,7 +224,13 @@ public class MaterialLoader implements AssetLoader {
                 diffuse = readColor();
             }
         }else if(keyword.equals("ambient")) {
-            ambient = readColor();
+           if (scan.hasNext("vertexcolour")){
+                // use vertex colors
+               ambient = ColorRGBA.White;
+               scan.next(); // skip it
+            }else{
+               ambient = readColor();
+            }
         }else if (keyword.equals("specular")){
             specular = new ColorRGBA();
             specular.r = scan.nextFloat();
