@@ -9,6 +9,7 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Sphere;
 import com.jme3.texture.Image;
+import com.jme3.texture.Image.Format;
 import com.jme3.texture.Texture;
 import com.jme3.texture.TextureCubeMap;
 
@@ -38,6 +39,35 @@ public class SkyFactory {
         return sky;
     }
 
+    private static void checkImage(Image image){
+        if (image.getDepth() != 1)
+            throw new IllegalArgumentException("3D/Array images not allowed");
+
+        if (image.getWidth() != image.getHeight())
+            throw new IllegalArgumentException("Image width and height must be the same");
+
+        if (image.getMultiSamples() != 1)
+            throw new IllegalArgumentException("Multisample textures not allowed");
+    }
+
+    private static void checkImagesForCubeMap(Image ... images){
+        if (images.length == 1) return;
+
+        Format fmt = images[0].getFormat();
+        int width = images[0].getWidth();
+        int size = images[0].getData(0).capacity();
+
+        checkImage(images[0]);
+
+        for (int i = 1; i < images.length; i++){
+            Image image = images[i];
+            checkImage(images[i]);
+            if (image.getFormat() != fmt) throw new IllegalArgumentException("Images must have same format");
+            if (image.getWidth() != width) throw new IllegalArgumentException("Images must have same resolution");
+            if (image.getData(0).capacity() != size) throw new IllegalArgumentException("Images must have same size");
+        }
+    }
+
     public static Spatial createSky(AssetManager assetManager, Texture west, Texture east, Texture north, Texture south, Texture up, Texture down, Vector3f normalScale){
         Geometry sky = new Geometry("Sky", sphereMesh);
         sky.setQueueBucket(Bucket.Sky);
@@ -49,6 +79,8 @@ public class SkyFactory {
         Image southImg = south.getImage();
         Image upImg    = up.getImage();
         Image downImg  = down.getImage();
+
+        checkImagesForCubeMap(westImg, eastImg, northImg, southImg, upImg, downImg);
 
         Image cubeImage = new Image(westImg.getFormat(), westImg.getWidth(), westImg.getHeight(), null);
         
