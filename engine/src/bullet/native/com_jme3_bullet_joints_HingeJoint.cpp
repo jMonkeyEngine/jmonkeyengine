@@ -157,6 +157,7 @@ extern "C" {
      */
     JNIEXPORT jlong JNICALL Java_com_jme3_bullet_joints_HingeJoint_createJoint
     (JNIEnv * env, jobject object, jlong bodyIdA, jlong bodyIdB, jobject pivotA, jobject axisA, jobject pivotB, jobject axisB) {
+        jmeClasses::initJavaClasses(env);
         btRigidBody* bodyA = (btRigidBody*) bodyIdA;
         btRigidBody* bodyB = (btRigidBody*) bodyIdB;
         btVector3* vec1 = &btVector3();

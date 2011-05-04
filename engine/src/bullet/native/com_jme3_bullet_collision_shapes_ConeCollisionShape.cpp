@@ -47,6 +47,7 @@ extern "C" {
      */
     JNIEXPORT jlong JNICALL Java_com_jme3_bullet_collision_shapes_ConeCollisionShape_createShape
     (JNIEnv * env, jobject object, jint axis, jfloat radius, jfloat height) {
+        jmeClasses::initJavaClasses(env);
         btCollisionShape* shape;
         switch (axis) {
             case 0:

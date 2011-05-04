@@ -47,6 +47,7 @@ extern "C" {
      */
     JNIEXPORT jlong JNICALL Java_com_jme3_bullet_collision_shapes_CompoundCollisionShape_createShape
     (JNIEnv *env, jobject object) {
+        jmeClasses::initJavaClasses(env);
         btCompoundShape* shape = new btCompoundShape();
         return (long) shape;
     }

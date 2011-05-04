@@ -48,6 +48,7 @@ extern "C" {
      */
     JNIEXPORT jlong JNICALL Java_com_jme3_bullet_collision_shapes_HullCollisionShape_createShape
     (JNIEnv *env, jobject object, jobject array) {
+        jmeClasses::initJavaClasses(env);
         float* data = (float*) env->GetDirectBufferAddress(array);
         //TODO: capacity will not always be length!
         int length = env->GetDirectBufferCapacity(array)/4;

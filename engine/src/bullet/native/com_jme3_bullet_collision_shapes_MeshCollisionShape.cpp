@@ -48,6 +48,7 @@ extern "C" {
      */
     JNIEXPORT jlong JNICALL Java_com_jme3_bullet_collision_shapes_MeshCollisionShape_createShape
     (JNIEnv * env, jobject object, jlong arrayId) {
+        jmeClasses::initJavaClasses(env);
         btTriangleIndexVertexArray* array = (btTriangleIndexVertexArray*) arrayId;
         btBvhTriangleMeshShape* shape = new btBvhTriangleMeshShape(array, true, true);
         return (long) shape;

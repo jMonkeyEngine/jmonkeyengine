@@ -113,6 +113,7 @@ extern "C" {
      */
     JNIEXPORT jlong JNICALL Java_com_jme3_bullet_joints_Point2PointJoint_createJoint
     (JNIEnv * env, jobject object, jlong bodyIdA, jlong bodyIdB, jobject pivotA, jobject pivotB) {
+        jmeClasses::initJavaClasses(env);
         btRigidBody* bodyA = (btRigidBody*) bodyIdA;
         btRigidBody* bodyB = (btRigidBody*) bodyIdB;
         //TODO: matrix not needed?

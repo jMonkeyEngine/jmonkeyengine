@@ -47,6 +47,7 @@ extern "C" {
      */
     JNIEXPORT jlong JNICALL Java_com_jme3_bullet_collision_shapes_SphereCollisionShape_createShape
     (JNIEnv *env, jobject object, jfloat radius) {
+        jmeClasses::initJavaClasses(env);
         btSphereShape* shape=new btSphereShape(radius);
         return (long)shape;
     }

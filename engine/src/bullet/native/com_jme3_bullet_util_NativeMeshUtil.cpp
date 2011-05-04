@@ -47,6 +47,7 @@ extern "C" {
      */
     JNIEXPORT jlong JNICALL Java_com_jme3_bullet_util_NativeMeshUtil_createTriangleIndexVertexArray
     (JNIEnv * env, jclass cls, jobject triangleIndexBase, jobject vertexIndexBase, jint numTriangles, jint numVertices, jint vertexStride, jint triangleIndexStride) {
+        jmeClasses::initJavaClasses(env);
         int* triangles = (int*) env->GetDirectBufferAddress(triangleIndexBase);
         float* vertices = (float*) env->GetDirectBufferAddress(vertexIndexBase);
         btTriangleIndexVertexArray* array = new btTriangleIndexVertexArray(numTriangles, triangles, triangleIndexStride, numVertices, vertices, vertexStride);

@@ -48,6 +48,7 @@ extern "C" {
      */
     JNIEXPORT jlong JNICALL Java_com_jme3_bullet_objects_PhysicsRigidBody_createRigidBody
     (JNIEnv *env, jobject object, jfloat mass, jlong motionstatId, jlong shapeId) {
+        jmeClasses::initJavaClasses(env);
         btMotionState* motionState = (btMotionState*) motionstatId;
         btCollisionShape* shape = (btCollisionShape*) shapeId;
         btVector3* localInertia = &btVector3();

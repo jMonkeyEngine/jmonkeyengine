@@ -50,6 +50,7 @@ extern "C" {
      */
     JNIEXPORT jlong JNICALL Java_com_jme3_bullet_objects_PhysicsGhostObject_createGhostObject
     (JNIEnv * env, jobject object) {
+        jmeClasses::initJavaClasses(env);
         btPairCachingGhostObject* ghost = new btPairCachingGhostObject();
         return (long) ghost;
     }

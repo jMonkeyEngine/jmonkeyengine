@@ -663,6 +663,7 @@ extern "C" {
      */
     JNIEXPORT jlong JNICALL Java_com_jme3_bullet_joints_SliderJoint_createJoint
     (JNIEnv * env, jobject object, jlong bodyIdA, jlong bodyIdB, jobject pivotA, jobject rotA, jobject pivotB, jobject rotB, jboolean useLinearReferenceFrameA) {
+        jmeClasses::initJavaClasses(env);
         btRigidBody* bodyA = (btRigidBody*) bodyIdA;
         btRigidBody* bodyB = (btRigidBody*) bodyIdB;
         btMatrix3x3* mtx1=&btMatrix3x3();

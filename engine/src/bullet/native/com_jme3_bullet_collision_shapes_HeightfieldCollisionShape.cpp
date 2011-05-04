@@ -48,6 +48,7 @@ extern "C" {
      */
     JNIEXPORT jlong JNICALL Java_com_jme3_bullet_collision_shapes_HeightfieldCollisionShape_createShape
     (JNIEnv * env, jobject object, jint heightStickWidth, jint heightStickLength, jobject heightfieldData, jfloat heightScale, jfloat minHeight, jfloat maxHeight, jint upAxis, jboolean flipQuadEdges) {
+        jmeClasses::initJavaClasses(env);
         void* data = env->GetDirectBufferAddress(heightfieldData);
         btHeightfieldTerrainShape* shape=new btHeightfieldTerrainShape(heightStickWidth, heightStickLength, data, heightScale, minHeight, maxHeight, upAxis, PHY_FLOAT, flipQuadEdges);
         return (long)shape;
