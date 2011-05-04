@@ -64,6 +64,7 @@ public class LwjglCanvas extends LwjglAbstractDisplay implements JmeCanvasContex
     private boolean mouseWasGrabbed = false;
 
     private Pbuffer pbuffer;
+    private PixelFormat pixelFormat;
 
     private class GLCanvas extends Canvas {
         @Override
@@ -240,6 +241,21 @@ public class LwjglCanvas extends LwjglAbstractDisplay implements JmeCanvasContex
             }
         });
     }
+    
+    /**
+     * It seems it is best to use one pixel format for all shared contexts.
+     * See http://developer.apple.com/library/mac/#qa/qa1248/_index.html.
+     */
+    protected PixelFormat acquirePixelFormat(){
+        if (pixelFormat == null){
+            pixelFormat = new PixelFormat(settings.getBitsPerPixel(),
+                                          0,
+                                          settings.getDepthBits(),
+                                          settings.getStencilBits(),
+                                          settings.getSamples());
+        }
+        return pixelFormat;
+    }
 
     /**
      * Makes sure the pbuffer is available and ready for use
@@ -250,7 +266,7 @@ public class LwjglCanvas extends LwjglAbstractDisplay implements JmeCanvasContex
                 logger.log(Level.WARNING, "PBuffer was lost!");
                 pbuffer.destroy();
             }
-            pbuffer = new Pbuffer(1, 1, new PixelFormat(0, 0, 0), null);
+            pbuffer = new Pbuffer(1, 1, acquirePixelFormat(), null);
             logger.log(Level.INFO, "OGL: Pbuffer has been created");
         }
     }
@@ -314,12 +330,7 @@ public class LwjglCanvas extends LwjglAbstractDisplay implements JmeCanvasContex
 
                 Display.setVSyncEnabled(settings.isVSync());
                 Display.setParent(canvas);
-                PixelFormat pf = new PixelFormat(settings.getBitsPerPixel(),
-                        0,
-                        settings.getDepthBits(),
-                        settings.getStencilBits(),
-                        settings.getSamples());
-                Display.create(pf, pbuffer);
+                Display.create(acquirePixelFormat(), pbuffer);
                 
                 // because the display is a different opengl context
                 // must reset the context state.
