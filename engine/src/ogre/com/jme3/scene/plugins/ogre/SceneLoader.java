@@ -335,8 +335,12 @@ public class SceneLoader extends DefaultHandler implements AssetLoader {
             folderName = info.getKey().getFolder();
             sceneName = sceneName.substring(0, sceneName.length() - ext.length() - 1);
 
-            materialList = (MaterialList) 
-                    assetManager.loadAsset(new AssetKey(sceneName+".material"));
+            try {
+                materialList = (MaterialList) 
+                      assetManager.loadAsset(new AssetKey(sceneName+".material"));
+            } catch (AssetNotFoundException ex){
+                logger.log(Level.WARNING, "Cannot locate material file {0}", ex.getMessage());
+            }
 
             XMLReader xr = XMLReaderFactory.createXMLReader();
             xr.setContentHandler(this);
