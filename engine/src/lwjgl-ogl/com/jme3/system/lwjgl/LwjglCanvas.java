@@ -43,7 +43,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.SwingUtilities;
 import org.lwjgl.LWJGLException;
-import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.Pbuffer;
@@ -63,7 +62,6 @@ public class LwjglCanvas extends LwjglAbstractDisplay implements JmeCanvasContex
     private Thread renderThread;
     private boolean runningFirstTime = true;
     private boolean mouseWasGrabbed = false;
-    private boolean mouseActive, keyboardActive;
 
     private Pbuffer pbuffer;
 
@@ -116,11 +114,11 @@ public class LwjglCanvas extends LwjglAbstractDisplay implements JmeCanvasContex
                 logger.log(Level.SEVERE, "EDT: Broken barrier! ", ex);
             }
 
-            logger.log(Level.INFO, "EDT: Acknowledged receipt of canvas death");
-            // GL context is dead at this point
-
             // Reset barrier for future use
             actionRequiredBarrier.reset();
+            
+            logger.log(Level.INFO, "EDT: Acknowledged receipt of canvas death");
+            // GL context is dead at this point
 
             super.removeNotify();
         }
@@ -199,18 +197,10 @@ public class LwjglCanvas extends LwjglAbstractDisplay implements JmeCanvasContex
     }
 
     private void pauseCanvas(){
-        mouseActive = Mouse.isCreated();
-        keyboardActive = Keyboard.isCreated();
-
-        if (mouseActive && Mouse.isGrabbed()){
+        if (Mouse.isCreated() && Mouse.isGrabbed()){
             Mouse.setGrabbed(false);
             mouseWasGrabbed = true;
         }
-
-        if (mouseActive)
-            Mouse.destroy();
-        if (keyboardActive)
-            Keyboard.destroy();
 
         logger.log(Level.INFO, "OGL: Canvas will become invisible! Destroying ..");
         
@@ -236,35 +226,12 @@ public class LwjglCanvas extends LwjglAbstractDisplay implements JmeCanvasContex
         // Set renderable to true, since canvas is now displayable.
         renderable.set(true);
         createContext(settings);
-        
-        // must call after createContext, as renderer might be null
-//        renderer.resetGLObjects();
 
-        logger.log(Level.INFO, "OGL: Waiting for display to become active..");
-        // NOTE: A deadlock will happen here if createContext had an exception
-        while (!Display.isCreated()){
-            try {
-                Thread.sleep(10);
-            } catch (InterruptedException ex) {
-                logger.log(Level.SEVERE, "OGL: Interrupted! ", ex);
-            }
-        }
         logger.log(Level.INFO, "OGL: Display is active!");
 
-        try {
-            if (mouseActive){
-                Mouse.create();
-                if (mouseWasGrabbed){
-                    Mouse.setGrabbed(true);
-                    mouseWasGrabbed = false;
-                }
-            }
-            if (keyboardActive){
-                Keyboard.create();
-            }
-            logger.log(Level.INFO, "OGL: Input has been reinitialized");
-        } catch (LWJGLException ex) {
-            listener.handleError("Failed to re-init input", ex);
+        if (Mouse.isCreated() && mouseWasGrabbed){
+            Mouse.setGrabbed(true);
+            mouseWasGrabbed = false;
         }
 
         SwingUtilities.invokeLater(new Runnable(){
@@ -280,30 +247,24 @@ public class LwjglCanvas extends LwjglAbstractDisplay implements JmeCanvasContex
     protected void makePbufferAvailable() throws LWJGLException{
         if (pbuffer == null || pbuffer.isBufferLost()){
             if (pbuffer != null && pbuffer.isBufferLost()){
-                pbuffer.releaseContext();
+                logger.log(Level.WARNING, "PBuffer was lost!");
                 pbuffer.destroy();
             }
             pbuffer = new Pbuffer(1, 1, new PixelFormat(0, 0, 0), null);
             logger.log(Level.INFO, "OGL: Pbuffer has been created");
         }
     }
-
+    
     /**
      * This is called:
      * 1) When the context thread ends
      * 2) Any time the canvas becomes non-displayable
      */
     protected void destroyContext(){
-        try {
-            renderer.resetGLObjects();
-            if (Display.isCreated()){
-                Display.releaseContext();
-                Display.destroy();
-            }
-        } catch (LWJGLException ex) {
-            listener.handleError("Failed to destroy context", ex);
+        if (Display.isCreated()){
+            Display.destroy();
         }
-
+        
         try {
             // The canvas is no longer visible,
             // but the context thread is still running.
@@ -314,6 +275,9 @@ public class LwjglCanvas extends LwjglAbstractDisplay implements JmeCanvasContex
 
                 // pbuffer is now available, make it current
                 pbuffer.makeCurrent();
+                
+                // invalidate the state so renderer can resume operation
+                renderer.invalidateState();
             }else{
                 // The context thread is no longer running.
                 // Destroy pbuffer.
@@ -342,6 +306,8 @@ public class LwjglCanvas extends LwjglAbstractDisplay implements JmeCanvasContex
             makePbufferAvailable();
 
             if (renderable.get()){
+                // if the pbuffer is currently active, 
+                // make sure to deactivate it
                 if (pbuffer.isCurrent()){
                     pbuffer.releaseContext();
                 }
@@ -354,7 +320,10 @@ public class LwjglCanvas extends LwjglAbstractDisplay implements JmeCanvasContex
                         settings.getStencilBits(),
                         settings.getSamples());
                 Display.create(pf, pbuffer);
-                Display.makeCurrent();
+                
+                // because the display is a different opengl context
+                // must reset the context state.
+                renderer.invalidateState();
             }else{
                 pbuffer.makeCurrent();
             }

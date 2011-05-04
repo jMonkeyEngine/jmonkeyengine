@@ -37,12 +37,16 @@ import com.jme3.app.SimpleApplication;
 import com.jme3.system.AppSettings;
 import com.jme3.system.JmeCanvasContext;
 import com.jme3.system.JmeSystem;
+import com.jme3.util.JmeFormatter;
 import java.awt.Canvas;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.concurrent.Callable;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.Handler;
+import java.util.logging.Logger;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -173,6 +177,14 @@ public class TestCanvas {
     }
 
     public static void main(String[] args){
+        JmeFormatter formatter = new JmeFormatter();
+
+        Handler consoleHandler = new ConsoleHandler();
+        consoleHandler.setFormatter(formatter);
+
+        Logger.getLogger("").removeHandler(Logger.getLogger("").getHandlers()[0]);
+        Logger.getLogger("").addHandler(consoleHandler);
+        
         SwingUtilities.invokeLater(new Runnable(){
             public void run(){
                 JPopupMenu.setDefaultLightWeightPopupEnabled(false);
