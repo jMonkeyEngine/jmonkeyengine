@@ -526,9 +526,6 @@ public class Mesh implements Savable, Cloneable {
     }
 
     public void setBuffer(Type type, int components, FloatBuffer buf) {
-        if (components < 1 || components > 4)
-            throw new IllegalArgumentException("components must be between 1 and 4");
-
 //        VertexBuffer vb = buffers.get(type);
         VertexBuffer vb = buffers.get(type.ordinal());
         if (vb == null){
@@ -550,9 +547,6 @@ public class Mesh implements Savable, Cloneable {
     }
 
     public void setBuffer(Type type, int components, IntBuffer buf) {
-        if (components < 1 || components > 4)
-            throw new IllegalArgumentException("components must be between 1 and 4");
-
         VertexBuffer vb = buffers.get(type.ordinal());
         if (vb == null){
             vb = new VertexBuffer(type);
@@ -567,9 +561,6 @@ public class Mesh implements Savable, Cloneable {
     }
 
     public void setBuffer(Type type, int components, ShortBuffer buf) {
-        if (components < 1 || components > 4)
-            throw new IllegalArgumentException("components must be between 1 and 4");
-
         VertexBuffer vb = buffers.get(type.ordinal());
         if (vb == null){
             vb = new VertexBuffer(type);
@@ -584,9 +575,6 @@ public class Mesh implements Savable, Cloneable {
     }
 
     public void setBuffer(Type type, int components, ByteBuffer buf) {
-        if (components < 1 || components > 4)
-            throw new IllegalArgumentException("components must be between 1 and 4");
-        
         VertexBuffer vb = buffers.get(type.ordinal());
         if (vb == null){
             vb = new VertexBuffer(type);
