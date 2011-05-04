@@ -209,7 +209,7 @@ public class ImageToAwt {
     public static void convert(BufferedImage image, Format format, ByteBuffer buf){
         DecodeParams p = params.get(format);
         if (p == null)
-            throw new UnsupportedOperationException();
+            throw new UnsupportedOperationException("Image format " + format + " is not supported");
 
         int width = image.getWidth();
         int height = image.getHeight();
