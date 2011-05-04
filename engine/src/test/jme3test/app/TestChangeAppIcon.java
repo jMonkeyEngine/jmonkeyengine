@@ -39,10 +39,6 @@ import java.io.IOException;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 
-/**
- * Test Application functionality, such as create, restart, destroy, etc.
- * @author Kirill
- */
 public class TestChangeAppIcon extends SimpleApplication {
 
     private static final Logger log=Logger.getLogger(TestChangeAppIcon.class.getName());
