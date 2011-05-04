@@ -1715,8 +1715,11 @@ public class LwjglRenderer implements Renderer {
         }
 
         // Yes, some OpenGL2 cards (GeForce 5) still dont support NPOT.
-        if (!GLContext.getCapabilities().GL_ARB_texture_non_power_of_two){
-            if (img.getWidth() != 0 && img.getHeight() != 0){
+          if (!GLContext.getCapabilities().GL_ARB_texture_non_power_of_two){
+            if (img.getData(0) == null)
+                throw new RendererException("non-power-of-2 framebuffer textures are not supported by the video hardware");
+            
+            if (img.getWidth() != 0 && img.getHeight() != 0){ 
                 if (!FastMath.isPowerOfTwo(img.getWidth())
                     || !FastMath.isPowerOfTwo(img.getHeight())
                     || img.getWidth() != img.getHeight()){
