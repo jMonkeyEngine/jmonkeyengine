@@ -278,6 +278,13 @@ public class LwjglCanvas extends LwjglAbstractDisplay implements JmeCanvasContex
      */
     protected void destroyContext(){
         if (Display.isCreated()){
+            try {
+                // NOTE: On Windows XP, not calling setParent(null)
+                // freezes the application.
+                Display.setParent(null);
+            } catch (LWJGLException ex) {
+                logger.log(Level.SEVERE, "Encountered exception when setting parent to null", ex);
+            }
             Display.destroy();
         }
         
