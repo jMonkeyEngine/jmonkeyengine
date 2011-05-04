@@ -73,11 +73,6 @@ Requirements:
 - Gnu C++ Compiler: http://gcc.gnu.org/
 - CMake: http://www.cmake.org/ (or via your package manager of choice)
 
-On Linux, I had to remove two lines from bullet-2.77/src/BulletMultiThreaded/CMakeLists.txt
-to compile correctly:
-    SpuNarrowPhaseCollisionTask/SpuMinkowskiPenetrationDepthSolver.cpp
-    SpuNarrowPhaseCollisionTask/SpuMinkowskiPenetrationDepthSolver.h
-
 Commands:
 > cd bullet-trunk
 > cmake -DBUILD_SHARED_LIBS=OFF -DBUILD_STATIC_LIBS=ON -DCMAKE_C_FLAGS="-fPIC" -DCMAKE_CXX_FLAGS="-fPIC"\
