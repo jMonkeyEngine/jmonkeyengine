@@ -21,6 +21,9 @@ public class TestJoystick extends SimpleApplication implements AnalogListener {
     @Override
     public void simpleInitApp() {
         Joystick[] joysticks = inputManager.getJoysticks();
+        if (joysticks == null)
+            throw new IllegalStateException("Cannot find any joysticks!");
+            
         for (Joystick joy : joysticks){
             System.out.println(joy.toString());
         }
