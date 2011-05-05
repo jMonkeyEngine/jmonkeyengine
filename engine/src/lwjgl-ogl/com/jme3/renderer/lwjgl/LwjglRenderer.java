@@ -202,8 +202,14 @@ public class LwjglRenderer implements Renderer {
 
         // Fix issue in TestRenderToMemory when GL_FRONT is the main
         // buffer being used.
-        initialDrawBuf = glGetInteger(GL_DRAW_BUFFER);
-        initialReadBuf = glGetInteger(GL_READ_BUFFER);
+//        initialDrawBuf = glGetInteger(GL_DRAW_BUFFER);
+//        initialReadBuf = glGetInteger(GL_READ_BUFFER);
+        
+        // XXX: This has to be GL_BACK for canvas on Mac
+        // Since initialDrawBuf is GL_FRONT for pbuffer, gotta
+        // change this value later on ...
+        initialDrawBuf = GL_BACK;
+        initialReadBuf = GL_BACK;
 
         int spaceIdx = versionStr.indexOf(" ");
         if (spaceIdx >= 1) {
@@ -1395,7 +1401,7 @@ public class LwjglRenderer implements Renderer {
         if (lastFb == fb) {
             return;
         }
-
+        
         // generate mipmaps for last FB if needed
         if (lastFb != null) {
             for (int i = 0; i < lastFb.getNumColorBuffers(); i++) {
