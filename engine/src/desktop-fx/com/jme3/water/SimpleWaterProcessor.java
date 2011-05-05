@@ -51,6 +51,8 @@ import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Quad;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Image.Format;
+import com.jme3.texture.Texture.MagFilter;
+import com.jme3.texture.Texture.MinFilter;
 import com.jme3.texture.Texture.WrapMode;
 import com.jme3.texture.Texture2D;
 import com.jme3.ui.Picture;
@@ -142,6 +144,7 @@ public class SimpleWaterProcessor implements SceneProcessor {
         return rm != null;
     }
     float time = 0;
+    float savedTpf = 0;
 
     public void preFrame(float tpf) {
         time = time + (tpf * speed);
@@ -149,6 +152,7 @@ public class SimpleWaterProcessor implements SceneProcessor {
             time = 0;
         }
         material.setFloat("time", time);
+        savedTpf = tpf;
     }
 
     public void postQueue(RenderQueue rq) {
@@ -193,6 +197,13 @@ public class SimpleWaterProcessor implements SceneProcessor {
         if (inv) {
             reflectionCam.setAxes(reflectionCam.getLeft().negateLocal(), reflectionCam.getUp(), reflectionCam.getDirection().negateLocal());
         }
+
+        //Rendering reflection and refraction
+        rm.renderViewPort(reflectionView, savedTpf);
+        rm.renderViewPort(refractionView, savedTpf);
+        rm.getRenderer().setFrameBuffer(vp.getOutputFrameBuffer());
+        rm.setCamera(sceneCam, false);
+
     }
 
     public void postFrame(FrameBuffer out) {
@@ -247,7 +258,7 @@ public class SimpleWaterProcessor implements SceneProcessor {
         refractionCam = new Camera(renderWidth, renderHeight);
 
         // create a pre-view. a view that is rendered before the main view
-        reflectionView = rm.createPreView("Reflection View", reflectionCam);
+        reflectionView = new ViewPort("Reflection View", reflectionCam);
         reflectionView.setClearEnabled(true);
         reflectionView.setBackgroundColor(ColorRGBA.Black);
         // create offscreen framebuffer
@@ -263,7 +274,7 @@ public class SimpleWaterProcessor implements SceneProcessor {
         reflectionView.attachScene(reflectionScene);
 
         // create a pre-view. a view that is rendered before the main view
-        refractionView = rm.createPreView("Refraction View", refractionCam);
+        refractionView = new ViewPort("Refraction View", refractionCam);
         refractionView.setClearEnabled(true);
         refractionView.setBackgroundColor(ColorRGBA.Black);
         // create offscreen framebuffer
@@ -503,6 +514,7 @@ public class SimpleWaterProcessor implements SceneProcessor {
 
         public void preFrame(float tpf) {
             refractionCam.setClipPlane(refractionClipPlane, Plane.Side.Negative);//,-1
+
         }
 
         public void postQueue(RenderQueue rq) {
