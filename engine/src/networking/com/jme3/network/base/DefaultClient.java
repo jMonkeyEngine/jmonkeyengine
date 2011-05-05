@@ -68,6 +68,7 @@ public class DefaultClient implements Client
     private Connector fast;
     private MessageListenerRegistry<Client> messageListeners = new MessageListenerRegistry<Client>();
     private List<ClientStateListener> stateListeners = new CopyOnWriteArrayList<ClientStateListener>();
+    private List<ErrorListener<? super Client>> errorListeners = new CopyOnWriteArrayList<ErrorListener<? super Client>>();
     private Redispatch dispatcher = new Redispatch();
     private ConnectorAdapter reliableAdapter;    
     private ConnectorAdapter fastAdapter;    
@@ -93,9 +94,9 @@ public class DefaultClient implements Client
             
         this.reliable = reliable;
         this.fast = fast;
-        reliableAdapter = new ConnectorAdapter(reliable, dispatcher, true);
+        reliableAdapter = new ConnectorAdapter(reliable, dispatcher, dispatcher, true);
         if( fast != null ) {
-            fastAdapter = new ConnectorAdapter(fast, dispatcher, false);
+            fastAdapter = new ConnectorAdapter(fast, dispatcher, dispatcher, false);
         }
     }  
 
@@ -230,7 +231,15 @@ public class DefaultClient implements Client
     public void close()
     {
         checkRunning();
-            
+ 
+        closeConnections( null );            
+    }         
+
+    protected void closeConnections( DisconnectInfo info )
+    {
+        if( !isRunning )
+            return;
+
         // Send a close message
     
         // Tell the thread it's ok to die
@@ -246,7 +255,7 @@ public class DefaultClient implements Client
         // Just in case we never fully connected
         connecting.countDown();
         
-        fireDisconnected(null);
+        fireDisconnected(info);
         
         isRunning = false;
     }         
@@ -280,6 +289,16 @@ public class DefaultClient implements Client
     {
         messageListeners.removeMessageListener( listener, classes );
     } 
+
+    public void addErrorListener( ErrorListener<? super Client> listener )
+    {
+        errorListeners.add( listener );
+    } 
+
+    public void removeErrorListener( ErrorListener<? super Client> listener )
+    {
+        errorListeners.remove( listener );
+    } 
  
     protected void fireConnected()
     {
@@ -293,6 +312,27 @@ public class DefaultClient implements Client
         for( ClientStateListener l : stateListeners ) {
             l.clientDisconnected( this, info );
         }            
+    }
+ 
+    /**
+     *  Either calls the ErrorListener or closes the connection
+     *  if there are no listeners.  
+     */ 
+    protected void handleError( Throwable t )
+    {
+        // If there are no listeners then close the connection with
+        // a reason
+        if( errorListeners.isEmpty() ) {
+            DisconnectInfo info = new DisconnectInfo();
+            info.reason = "Connection Error";
+            info.error = t;
+            closeConnections(info);
+            return;
+        }
+    
+        for( ErrorListener l : errorListeners ) {
+            l.handleError( this, t );
+        } 
     }
  
     protected void dispatch( Message m )
@@ -312,8 +352,7 @@ public class DefaultClient implements Client
             log.log( Level.SEVERE, "Connection terminated, reason:{0}.", reason );
             DisconnectInfo info = new DisconnectInfo();
             info.reason = reason;
-            fireDisconnected(info);
-            close();               
+            closeConnections(info);
         }
     
         // Make sure client MessageListeners are called single-threaded
@@ -324,11 +363,19 @@ public class DefaultClient implements Client
         }
     }
  
-    protected class Redispatch implements MessageListener<Object>
+    protected class Redispatch implements MessageListener<Object>, ErrorListener<Object>
     {
         public void messageReceived( Object source, Message m )
         {
             dispatch( m );
         }
-    }
+        
+        public void handleError( Object source, Throwable t )
+        {
+            // Only doing the DefaultClient.this to make the code
+            // checker happy... it compiles fine without it but I
+            // don't like red lines in my editor. :P
+            DefaultClient.this.handleError( t );   
+        }
+    }    
 }

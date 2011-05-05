@@ -119,6 +119,19 @@ public interface Client extends MessageConnection
      */
     public void removeMessageListener( MessageListener<? super Client> listener, Class... classes ); 
     
+    /**
+     *  Adds a listener that will be notified when any connection errors
+     *  occur.  If a client has no error listeners then the default behavior
+     *  is to close the connection and provide an appropriate DisconnectInfo
+     *  to any ClientStateListeners.  If the application adds its own error
+     *  listeners then it must take care of closing the connection itself.
+     */
+    public void addErrorListener( ErrorListener<? super Client> listener ); 
+
+    /**
+     *  Removes a previously registered error listener.
+     */
+    public void removeErrorListener( ErrorListener<? super Client> listener ); 
 }
 
 

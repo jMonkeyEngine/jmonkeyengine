@@ -38,6 +38,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ExecutorService;
 
+import com.jme3.network.ErrorListener;
 import com.jme3.network.Message;
 import com.jme3.network.MessageListener;
 import com.jme3.network.kernel.Connector;
@@ -65,6 +66,7 @@ public class ConnectorAdapter extends Thread
 {
     private Connector connector;
     private MessageListener<Object> dispatcher;
+    private ErrorListener<Object> errorHandler;
     private AtomicBoolean go = new AtomicBoolean(true);
  
     // Writes messages out on a background thread
@@ -74,11 +76,13 @@ public class ConnectorAdapter extends Thread
     // through this connector.
     private boolean reliable;
     
-    public ConnectorAdapter( Connector connector, MessageListener<Object> dispatcher, boolean reliable )
+    public ConnectorAdapter( Connector connector, MessageListener<Object> dispatcher, 
+                             ErrorListener<Object> errorHandler, boolean reliable )
     {
         super( String.valueOf(connector) );
         this.connector = connector;        
         this.dispatcher = dispatcher;
+        this.errorHandler = errorHandler;
         this.reliable = reliable;
         setDaemon(true);        
         writer = Executors.newFixedThreadPool(1, 
@@ -106,30 +110,42 @@ public class ConnectorAdapter extends Thread
         writer.execute( new MessageWriter(data) );
     }
  
+    protected void handleError( Exception e )
+    {
+        if( !go.get() )
+            return;
+        
+        errorHandler.handleError( this, e );
+    }
+ 
     public void run()
     {
         MessageProtocol protocol = new MessageProtocol();
-        
-        while( go.get() ) {
-            ByteBuffer buffer = connector.read();
-            if( buffer == null ) {
-                if( go.get() ) {
-                    throw new ConnectorException( "Connector closed." ); 
-                } else {
-                    // Just dump out because a null buffer is expected
-                    // from a closed/closing connector
-                    break;
+ 
+        try {                  
+            while( go.get() ) {
+                ByteBuffer buffer = connector.read();
+                if( buffer == null ) {
+                    if( go.get() ) {
+                        throw new ConnectorException( "Connector closed." ); 
+                    } else {
+                        // Just dump out because a null buffer is expected
+                        // from a closed/closing connector
+                        break;
+                    }
+                }
+                
+                protocol.addBuffer( buffer );
+                
+                Message m = null;
+                while( (m = protocol.getMessage()) != null ) {
+                    m.setReliable( reliable );
+                    dispatch( m );
                 }
             }
-            
-            protocol.addBuffer( buffer );
-            
-            Message m = null;
-            while( (m = protocol.getMessage()) != null ) {
-                m.setReliable( reliable );
-                dispatch( m );
-            }
-        }
+        } catch( Exception e ) {
+            handleError( e );
+        }            
     }
         
     protected class MessageWriter implements Runnable
@@ -144,8 +160,13 @@ public class ConnectorAdapter extends Thread
         public void run()
         {
             if( !go.get() )
-                return;                    
-            connector.write(data);
+                return;
+                                        
+            try {                                        
+                connector.write(data);
+            } catch( Exception e ) {
+                handleError( e );
+            }
         } 
     }
 
