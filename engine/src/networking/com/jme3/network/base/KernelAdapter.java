@@ -34,7 +34,9 @@ package com.jme3.network.base;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -69,6 +71,10 @@ public class KernelAdapter extends Thread
     private Kernel kernel;
     private MessageListener<HostedConnection> messageDispatcher;
     private AtomicBoolean go = new AtomicBoolean(true);
+ 
+    // Keeps track of the in-progress messages that are received
+    // on reliable connections
+    private Map<Endpoint, MessageProtocol> messageBuffers = new ConcurrentHashMap<Endpoint,MessageProtocol>();
     
     // Marks the messages as reliable or not if they came
     // through this connector.
@@ -107,6 +113,10 @@ public class KernelAdapter extends Thread
  
     protected void connectionClosed( Endpoint p )
     {
+        // Remove any message buffer we've been accumulating 
+        // on behalf of this endpoing
+        messageBuffers.remove(p);
+    
         server.connectionClosed(p);
     }
  
@@ -156,16 +166,49 @@ public class KernelAdapter extends Thread
         }
     }
 
+    protected MessageProtocol getMessageBuffer( Endpoint p )
+    {
+        if( !reliable ) {
+            // Since UDP comes in packets and they aren't split
+            // up, there is no reason to buffer.  In fact, there would
+            // be a down side because there is no way for us to reliably
+            // clean these up later since we'd create another one for 
+            // any random UDP packet that comes to the port.
+            return new MessageProtocol();
+        } else {
+            // See if we already have one
+            MessageProtocol result = messageBuffers.get(p);
+            if( result != null ) {
+                result = new MessageProtocol();
+                messageBuffers.put(p, result);
+            }
+            return result;
+        }
+    }
+
     protected void createAndDispatch( Envelope env )
     {
-        MessageProtocol protocol = new MessageProtocol();
+        MessageProtocol protocol = getMessageBuffer(env.getSource()); 
     
         byte[] data = env.getData();
         ByteBuffer buffer = ByteBuffer.wrap(data);
 
         int count = protocol.addBuffer( buffer );
-        if( count == 0 )
-            throw new RuntimeException( "Envelope contained incomplete data:" + env );
+        if( count == 0 ) {
+            // This can happen if there was only a partial message
+            // received.  However, this should never happen for unreliable
+            // connections.
+            if( !reliable ) {
+                // Log some additional information about the packet.
+                int len = Math.min( 10, data.length );
+                StringBuilder sb = new StringBuilder();
+                for( int i = 0; i < len; i++ ) {
+                    sb.append( "[" + Integer.toHexString(data[i]) + "]" ); 
+                }
+                log.log( Level.INFO, "First 10 bytes of incomplete nessage:" + sb );         
+                throw new RuntimeException( "Envelope contained incomplete data:" + env );
+            }                
+        }            
         
         // Should be complete... and maybe we should check but we don't
         Message m = null;
