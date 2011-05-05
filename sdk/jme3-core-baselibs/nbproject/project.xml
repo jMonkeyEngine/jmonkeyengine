@@ -117,14 +117,6 @@
                 <package>jme3tools.optimize</package>
             </public-packages>
             <class-path-extension>
-                <runtime-relative-path>ext/jME3-bullet-natives.jar</runtime-relative-path>
-                <binary-origin>release/modules/ext/jME3-bullet-natives.jar</binary-origin>
-            </class-path-extension>
-            <class-path-extension>
-                <runtime-relative-path>ext/jME3-bullet.jar</runtime-relative-path>
-                <binary-origin>release/modules/ext/jME3-bullet.jar</binary-origin>
-            </class-path-extension>
-            <class-path-extension>
                 <runtime-relative-path>ext/jME3-jbullet.jar</runtime-relative-path>
                 <binary-origin>release/modules/ext/jME3-jbullet.jar</binary-origin>
             </class-path-extension>
