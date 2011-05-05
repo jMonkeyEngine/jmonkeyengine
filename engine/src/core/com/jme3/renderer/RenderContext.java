@@ -178,7 +178,8 @@ public class RenderContext {
         boundShaderProgram = 0;
         boundFBO = 0;
         boundRB = 0;
-        boundDrawBuf = -1;
+        boundDrawBuf = -1; 
+        boundReadBuf = -1;
         boundElementArrayVBO = 0;
         boundVertexArray = 0;
         boundArrayVBO = 0;

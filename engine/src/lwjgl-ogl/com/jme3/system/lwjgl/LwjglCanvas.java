@@ -35,6 +35,8 @@ package com.jme3.system.lwjgl;
 import com.jme3.system.AppSettings;
 import com.jme3.system.JmeCanvasContext;
 import com.jme3.system.JmeContext.Type;
+import com.jme3.system.JmeSystem;
+import com.jme3.system.JmeSystem.Platform;
 import java.awt.Canvas;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
@@ -281,7 +283,11 @@ public class LwjglCanvas extends LwjglAbstractDisplay implements JmeCanvasContex
             try {
                 // NOTE: On Windows XP, not calling setParent(null)
                 // freezes the application.
-                Display.setParent(null);
+                // On Mac it freezes the application.
+                if (JmeSystem.getPlatform() == Platform.Windows32
+                 || JmeSystem.getPlatform() == Platform.Windows64){
+                    Display.setParent(null);
+                }
             } catch (LWJGLException ex) {
                 logger.log(Level.SEVERE, "Encountered exception when setting parent to null", ex);
             }
