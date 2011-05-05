@@ -178,7 +178,7 @@ public class KernelAdapter extends Thread
         } else {
             // See if we already have one
             MessageProtocol result = messageBuffers.get(p);
-            if( result != null ) {
+            if( result == null ) {
                 result = new MessageProtocol();
                 messageBuffers.put(p, result);
             }
