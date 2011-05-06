@@ -73,7 +73,7 @@ public class TestMultiViews extends SimpleApplication {
         cam2.setRotation(new Quaternion(0.0010108891f, 0.99857414f, -0.04928594f, 0.020481428f));
         
         ViewPort view2 = renderManager.createMainView("Bottom Left", cam2);
-        view2.setClearEnabled(true);
+        view2.setClearFlags(true, true, true);
         view2.attachScene(rootNode);
 
         // Setup third view
@@ -83,7 +83,7 @@ public class TestMultiViews extends SimpleApplication {
         cam3.setRotation(new Quaternion(0.004381671f, 0.72363687f, -0.69015175f, 0.0045953835f));
 
         ViewPort view3 = renderManager.createMainView("Top Left", cam3);
-        view3.setClearEnabled(true);
+        view3.setClearFlags(true, true, true);
         view3.attachScene(rootNode);
 
         // Setup fourth view
@@ -93,7 +93,7 @@ public class TestMultiViews extends SimpleApplication {
         cam4.setRotation(new Quaternion(0.02356979f, -0.74957186f, 0.026729556f, 0.66096294f));
 
         ViewPort view4 = renderManager.createMainView("Top Right", cam4);
-        view4.setClearEnabled(true);
+        view4.setClearFlags(true, true, true);
         view4.attachScene(rootNode);
     }
 }

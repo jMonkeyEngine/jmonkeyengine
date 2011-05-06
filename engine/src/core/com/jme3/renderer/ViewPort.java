@@ -50,8 +50,7 @@ public class ViewPort {
     protected FrameBuffer out = null;
 
     protected final ColorRGBA backColor = new ColorRGBA(0,0,0,0);
-    protected boolean clearEnabled = false;
-    protected boolean clearDepth = true, clearColor = true, clearStencil = true;
+    protected boolean clearDepth = false, clearColor = false, clearStencil = false;
     private boolean enabled = true;
 
     public ViewPort(String name, Camera cam) {
@@ -76,8 +75,24 @@ public class ViewPort {
         processor.cleanup();
     }
 
+    /**
+     * Does nothing.
+     * @deprecated Use {@link ViewPort#setClearColor(boolean) } and similar
+     * methods.
+     */
+    @Deprecated
     public boolean isClearEnabled() {
-        return clearEnabled;
+        return clearDepth && clearColor && clearStencil;
+    }
+    
+    /**
+     * Does nothing.
+     * @deprecated Use {@link ViewPort#setClearColor(boolean) } and similar
+     * methods.
+     */
+    @Deprecated
+    public void setClearEnabled(boolean clearEnabled) {
+        clearDepth = clearColor = clearStencil = clearEnabled;
     }
 
     public boolean isClearDepth() {
@@ -104,12 +119,7 @@ public class ViewPort {
         this.clearStencil = clearStencil;
     }
 
-    public void setClearEnabled(boolean clearEnabled) {
-        this.clearEnabled = clearEnabled;
-    }
-
     public void setClearFlags(boolean color, boolean depth, boolean stencil){
-        this.clearEnabled = true;
         this.clearColor = color;
         this.clearDepth = depth;
         this.clearStencil = stencil;

@@ -58,7 +58,7 @@ public class TestNiftyToMesh extends SimpleApplication{
 
     public void simpleInitApp() {
        ViewPort niftyView = renderManager.createPreView("NiftyView", new Camera(1024, 768));
-       niftyView.setClearEnabled(true);
+       niftyView.setClearFlags(true, true, true);
         NiftyJmeDisplay niftyDisplay = new NiftyJmeDisplay(assetManager,
                                                           inputManager,
                                                           audioRenderer,
@@ -76,7 +76,7 @@ public class TestNiftyToMesh extends SimpleApplication{
         tex.setMagFilter(MagFilter.Bilinear);
 
         fb.setColorTexture(tex);
-        niftyView.setClearEnabled(true);
+        niftyView.setClearFlags(true, true, true);
         niftyView.setOutputFrameBuffer(fb);
 
         Box b = new Box(Vector3f.ZERO, 1, 1, 1);

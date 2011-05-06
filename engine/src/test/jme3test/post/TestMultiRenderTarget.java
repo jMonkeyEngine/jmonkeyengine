@@ -116,7 +116,7 @@ public class TestMultiRenderTarget extends SimpleApplication implements ScenePro
     public void initialize(RenderManager rm, ViewPort vp) {
         reshape(vp, vp.getCamera().getWidth(), vp.getCamera().getHeight());
         viewPort.setOutputFrameBuffer(fb);
-        guiViewPort.setClearEnabled(true);
+        guiViewPort.setClearFlags(true, true, true);
         guiNode.attachChild(display);
 //        guiNode.attachChild(display1);
 //        guiNode.attachChild(display2);

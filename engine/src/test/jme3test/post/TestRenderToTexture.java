@@ -69,7 +69,7 @@ public class TestRenderToTexture extends SimpleApplication implements ActionList
         Camera offCamera = new Camera(512, 512);
 
         offView = renderManager.createPreView("Offscreen View", offCamera);
-        offView.setClearEnabled(true);
+        offView.setClearFlags(true, true, true);
         offView.setBackgroundColor(ColorRGBA.DarkGray);
 
         // create offscreen framebuffer

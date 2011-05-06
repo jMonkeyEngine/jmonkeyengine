@@ -201,12 +201,12 @@ public class Application implements SystemListener {
         //Remy - 09/14/2010 setted the timer in the renderManager
         renderManager.setTimer(timer);
         viewPort = renderManager.createMainView("Default", cam);
-        viewPort.setClearEnabled(true);
+        viewPort.setClearFlags(true, true, true);
 
         // Create a new cam for the gui
         Camera guiCam = new Camera(settings.getWidth(), settings.getHeight());
         guiViewPort = renderManager.createPostView("Gui Default", guiCam);
-        guiViewPort.setClearEnabled(false);
+        guiViewPort.setClearFlags(false, false, false);
     }
 
     /**

@@ -691,11 +691,13 @@ public class RenderManager {
 
         renderer.setFrameBuffer(vp.getOutputFrameBuffer());
         setCamera(vp.getCamera(), false);
-        if (vp.isClearEnabled()) {
-            renderer.setBackgroundColor(vp.getBackgroundColor());
+        if (vp.isClearDepth() || vp.isClearColor() || vp.isClearStencil()) {
+            if (vp.isClearColor()){
+                renderer.setBackgroundColor(vp.getBackgroundColor());
+            }
             renderer.clearBuffers(vp.isClearColor(),
-                    vp.isClearDepth(),
-                    vp.isClearStencil());
+                                  vp.isClearDepth(),
+                                  vp.isClearStencil());
         }
 
         List<Spatial> scenes = vp.getScenes();

@@ -188,7 +188,7 @@ public class WaterFilter extends Filter {
         reflectionPass.init(renderManager.getRenderer(), reflectionMapSize, reflectionMapSize, Format.RGBA8, Format.Depth);
         reflectionCam = new Camera(reflectionMapSize, reflectionMapSize);
         reflectionView = new ViewPort("reflectionView", reflectionCam);
-        reflectionView.setClearEnabled(true);
+        reflectionView.setClearFlags(true, true, true);
         reflectionView.attachScene(reflectionScene);
         reflectionView.setOutputFrameBuffer(reflectionPass.getRenderFrameBuffer());
         plane = new Plane(Vector3f.UNIT_Y, new Vector3f(0, waterHeight, 0).dot(Vector3f.UNIT_Y));
