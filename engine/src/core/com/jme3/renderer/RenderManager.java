@@ -422,7 +422,7 @@ public class RenderManager {
         } else if (forcedMaterial != null) {
             // use forced material
             forcedMaterial.render(g, this);
-        } else {            
+        } else {
             g.getMaterial().render(g, this);
         }
         //re applying default render state at the end of the render to avoid depth write issues, MUST BE A BETTER WAY
@@ -611,14 +611,15 @@ public class RenderManager {
             cam.clearViewportChanged();
             prevCam = cam;
 
-            float translateX = viewWidth == viewX ? 0 : -(viewWidth + viewX) / (viewWidth - viewX);
-            float translateY = viewHeight == viewY ? 0 : -(viewHeight + viewY) / (viewHeight - viewY);
-            float scaleX = viewWidth == viewX ? 1f : 2f / (viewWidth - viewX);
-            float scaleY = viewHeight == viewY ? 1f : 2f / (viewHeight - viewY);
+
+//            float translateX = viewWidth == viewX ? 0 : -(viewWidth + viewX) / (viewWidth - viewX);
+//            float translateY = viewHeight == viewY ? 0 : -(viewHeight + viewY) / (viewHeight - viewY);
+//            float scaleX = viewWidth == viewX ? 1f : 2f / (viewWidth - viewX);
+//            float scaleY = viewHeight == viewY ? 1f : 2f / (viewHeight - viewY);
             orthoMatrix.loadIdentity();
-            orthoMatrix.setTranslation(translateX, translateY, 0);
-            orthoMatrix.setScale(scaleX, scaleY, /*-1f*/ 0f);
-//             System.out.println(orthoMatrix);
+            orthoMatrix.setTranslation(-1f, -1f, 0f);
+            orthoMatrix.setScale(2f / cam.getWidth(), 2f / cam.getHeight(), 0f);
+            System.out.println(orthoMatrix);
         }
     }
 
@@ -672,9 +673,9 @@ public class RenderManager {
     }
 
     public void renderViewPort(ViewPort vp, float tpf) {
-    	if (!vp.isEnabled()) {
-    		return;
-    	}
+        if (!vp.isEnabled()) {
+            return;
+        }
         List<SceneProcessor> processors = vp.getProcessors();
         if (processors.size() == 0) {
             processors = null;
@@ -692,12 +693,12 @@ public class RenderManager {
         renderer.setFrameBuffer(vp.getOutputFrameBuffer());
         setCamera(vp.getCamera(), false);
         if (vp.isClearDepth() || vp.isClearColor() || vp.isClearStencil()) {
-            if (vp.isClearColor()){
+            if (vp.isClearColor()) {
                 renderer.setBackgroundColor(vp.getBackgroundColor());
             }
             renderer.clearBuffers(vp.isClearColor(),
-                                  vp.isClearDepth(),
-                                  vp.isClearStencil());
+                    vp.isClearDepth(),
+                    vp.isClearStencil());
         }
 
         List<Spatial> scenes = vp.getScenes();

@@ -72,6 +72,8 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
     private FrameBuffer outputBuffer;
     private int width;
     private int height;
+    private int bottom;
+    private int left;
     private int lastFilterIndex = -1;
 
     /**
@@ -90,11 +92,11 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
 
     public void addFilter(Filter filter) {
         filters.add(filter);
-        
+
         if (isInitialized()) {
             initFilter(filter, viewPort);
         }
-        if(filter.isEnabled()){
+        if (filter.isEnabled()) {
             lastFilterIndex = filters.size() - 1;
         }
     }
@@ -115,7 +117,11 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
         viewPort = vp;
         fsQuad = new Picture("filter full screen quad");
 
-        reshape(vp, vp.getCamera().getWidth(), vp.getCamera().getHeight());
+        Camera cam = vp.getCamera();
+        //Changing the viewPort to the filter cam an reseting the viewport of the viewport cam
+        filterCam.setViewPort(cam.getViewPortLeft(), cam.getViewPortRight(), cam.getViewPortBottom(), cam.getViewPortTop());
+        cam.setViewPort(0, 1, 0, 1);
+        reshape(vp, cam.getWidth(), cam.getHeight());
     }
 
     private void initFilter(Filter filter, ViewPort vp) {
@@ -140,8 +146,12 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
             fsQuad.setHeight(buff.getHeight());
             filterCam.resize(buff.getWidth(), buff.getHeight(), true);
         }
+
+
         fsQuad.setMaterial(mat);
         fsQuad.updateGeometricState();
+        filterCam.setName("filterCam");
+        //fsQuad.setPosition(640, 360);
         renderManager.setCamera(filterCam, true);
         r.setFrameBuffer(buff);
         r.clearBuffers(true, true, true);
@@ -217,7 +227,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
     public void postFrame(FrameBuffer out) {
         //Added this to fix the issue where the filter were not rendered when an object in the scene had a DepthWrite to false. (particles for example)
         //there should be a better way...
-     //   renderer.applyRenderState(RenderState.DEFAULT);
+        //   renderer.applyRenderState(RenderState.DEFAULT);
         if (renderFrameBufferMS != null && !renderer.getCaps().contains(Caps.OpenGL31)) {
             renderer.copyFrameBuffer(renderFrameBufferMS, renderFrameBuffer);
         }
@@ -262,16 +272,20 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
 
     public void cleanup() {
         if (viewPort != null) {
+            //reseting the viewport camera viewport to its initial value
+            viewPort.getCamera().setViewPort(filterCam.getViewPortLeft(), filterCam.getViewPortRight(), filterCam.getViewPortBottom(), filterCam.getViewPortTop());
             viewPort.setOutputFrameBuffer(outputBuffer);
             viewPort = null;
         }
     }
 
     public void reshape(ViewPort vp, int w, int h) {
-
-        width = Math.max(1, w);
-        height = Math.max(1, h);
-        vp.getCamera().resize(width, height, true);
+        Camera cam = vp.getCamera();
+        width = (int) (w * (Math.abs(cam.getViewPortRight() - cam.getViewPortLeft())));
+        height = (int) (h * (Math.abs(cam.getViewPortBottom() - cam.getViewPortTop())));
+        width = Math.max(1, width);
+        height = Math.max(1, height);
+        // vp.getCamera().resize(width, height, true);
         computeDepth = false;
 
         if (renderFrameBuffer == null) {
@@ -332,7 +346,6 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
         filters.clear();
         updateLastFilterIndex();
     }
-
 
     /**
      * Sets the number of samples for antialiasing
