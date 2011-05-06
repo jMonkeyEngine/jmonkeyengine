@@ -79,7 +79,7 @@ public class MaterialLoader implements AssetLoader {
         scan.useDelimiter("\\p{javaWhitespace}+");
         return str.trim();
     }
-
+    
     private ColorRGBA readColor(){
         ColorRGBA color = new ColorRGBA();
         color.r = scan.nextFloat();
@@ -249,6 +249,10 @@ public class MaterialLoader implements AssetLoader {
         }else if (keyword.equals("texture_unit")){
             readTextureUnit();
         }else if (keyword.equals("scene_blend")){
+            if (scan.hasNextInt()){
+                readString("\n"); // blender2ogre workaround
+                return; 
+            }
             String mode = scan.next();
             if (mode.equals("alpha_blend")){
                 blend = true;
