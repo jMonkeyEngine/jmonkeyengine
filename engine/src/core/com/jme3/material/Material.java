@@ -279,7 +279,6 @@ public class Material implements Cloneable, Savable, Comparable<Material> {
         if (param instanceof MatParam) {
             return (MatParam) param;
         }
-
         return null;
     }
 

@@ -336,7 +336,7 @@ public class Mesh implements Savable, Cloneable {
 
         VertexBuffer allData = new VertexBuffer(Type.InterleavedData);
         ByteBuffer dataBuf = BufferUtils.createByteBuffer(stride * getVertexCount());
-        allData.setupData(Usage.Static, -1, Format.UnsignedByte, dataBuf);
+        allData.setupData(Usage.Static, 1, Format.UnsignedByte, dataBuf);
         // adding buffer directly so that no update counts is forced
         buffers.put(Type.InterleavedData.ordinal(), allData);
 
@@ -387,8 +387,8 @@ public class Mesh implements Savable, Cloneable {
             vb.setOffset(offset);
             vb.setStride(stride);
             
-            // discard old buffer
-            vb.setupData(vb.usage, vb.components, vb.format, null);
+            vb.updateData(null);
+            //vb.setupData(vb.usage, vb.components, vb.format, null);
             offset += vb.componentsLength;
         }
     }

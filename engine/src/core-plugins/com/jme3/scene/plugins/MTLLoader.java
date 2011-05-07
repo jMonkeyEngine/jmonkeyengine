@@ -40,7 +40,6 @@ import com.jme3.material.MatParam;
 import com.jme3.material.Material;
 import com.jme3.material.MaterialList;
 import com.jme3.material.RenderState.BlendMode;
-import com.jme3.material.RenderState.FaceCullMode;
 import com.jme3.math.ColorRGBA;
 import com.jme3.texture.Image.Format;
 import com.jme3.texture.Texture;
@@ -58,7 +57,7 @@ public class MTLLoader implements AssetLoader {
     protected Material material;
     protected AssetManager assetManager;
     protected String folderName;
-
+    
     public void reset(){
         scan = null;
         matList = null;
@@ -86,107 +85,130 @@ public class MTLLoader implements AssetLoader {
         material.setFloat("Shininess", 16f); // prevents "premature culling" bug
         matList.put(name, material);
     }
+    
+    protected Texture loadTexture(String path){
+        String name = new File(path).getName();
+        TextureKey key = new TextureKey(folderName + name);
+        key.setGenerateMips(true);
+        Texture texture = assetManager.loadTexture(key);
+        if (texture != null){
+            texture.setWrap(WrapMode.Repeat);
+        }
+        return texture;
+    }
 
     protected boolean readLine(){
         if (!scan.hasNext()){
             return false;
         }
 
-        String cmd = scan.next();
+        String cmd = scan.next().toLowerCase();
         if (cmd.startsWith("#")){
             // skip entire comment until next line
+            nextStatement();
         }else if (cmd.equals("newmtl")){
             String name = scan.next();
             startMaterial(name);
-        }else if (cmd.equals("Ka") || cmd.equals("Ke") || cmd.equals("Ni") || cmd.equals("illum")){
-            // ignore it for now
-        }else if (cmd.equals("Kd")){
+        }else if (cmd.equals("ka")){
+            material.setColor("Ambient", readColor());
+        }else if (cmd.equals("kd")){
             ColorRGBA color = readColor();
             MatParam param = material.getParam("Diffuse");
             if (param != null){
                 color.a = ((ColorRGBA) param.getValue()).getAlpha();
             }
             material.setColor("Diffuse", color);
-        }else if (cmd.equals("Ks")){
+        }else if (cmd.equals("ks")){
             material.setColor("Specular", readColor());
-        }else if (cmd.equals("Ns")){
+        }else if (cmd.equals("ns")){
             material.setFloat("Shininess", scan.nextFloat() /* (128f / 1000f)*/ );
-        }else if (cmd.equals("d")){
+        }else if (cmd.equals("d") || cmd.equals("tr")){
             float alpha = scan.nextFloat();
-//            if (alpha < 1f){
-//                MatParam param = material.getParam("Diffuse");
-//                ColorRGBA color;
-//                if (param != null)
-//                    color = (ColorRGBA) param.getValue();
-//                else
-//                    color = new ColorRGBA(ColorRGBA.White);
-//
-//                color.a = scan.nextFloat();
-//                material.setColor("Diffuse", color);
-//                material.setBoolean("UseAlpha", true);
-//                material.setTransparent(true);
-//                material.getAdditionalRenderState().setBlendMode(BlendMode.Alpha);
-//            }
-        }else if (cmd.equals("map_Ka")){
-            // ignore it for now
-        }else if (cmd.equals("map_Kd")){
-            String path = scan.next();
-            String name = new File(path).getName();
-            TextureKey key = new TextureKey(folderName + name);
-            key.setGenerateMips(true);
-            Texture texture = assetManager.loadTexture(key);
-            if (texture != null){
-                texture.setWrap(WrapMode.Repeat);
-                material.setTexture("DiffuseMap", texture);
+            if (alpha < 1f){
+                MatParam param = material.getParam("Diffuse");
+                ColorRGBA color;
+                if (param != null)
+                    color = (ColorRGBA) param.getValue();
+                else
+                    color = new ColorRGBA(ColorRGBA.White);
+
+                color.a = scan.nextFloat();
+                material.setColor("Diffuse", color);
+                material.setTransparent(true);
+                material.getAdditionalRenderState().setBlendMode(BlendMode.Alpha);
             }
+        }else if (cmd.equals("map_ka")){
+            // ignore it for now
+        }else if (cmd.equals("map_kd")){
+            String path = scan.next();
+            material.setTexture("DiffuseMap", loadTexture(path));
         }else if (cmd.equals("map_bump") || cmd.equals("bump")){
             if (material.getParam("NormalMap") == null){
                 String path = scan.next();
-                String name = new File(path).getName();
-                TextureKey key = new TextureKey(folderName + name);
-                key.setGenerateMips(true);
-                Texture texture = assetManager.loadTexture(key);
+                Texture texture = loadTexture(path);
                 if (texture != null){
-                    texture.setWrap(WrapMode.Repeat);
                     material.setTexture("NormalMap", texture);
                     if (texture.getImage().getFormat() == Format.LATC){
                         material.setBoolean("LATC", true);
                     }
                 }
             }
-        }else if (cmd.equals("map_Ks")){
+        }else if (cmd.equals("map_ks")){
             String path = scan.next();
-            String name = new File(path).getName();
-            TextureKey key = new TextureKey(folderName + name);
-            key.setGenerateMips(true);
-            Texture texture = assetManager.loadTexture(key);
+            Texture texture = loadTexture(path);
             if (texture != null){
-                texture.setWrap(WrapMode.Repeat);
                 material.setTexture("SpecularMap", texture);
 
                 // NOTE: since specular color is modulated with specmap
                 // make sure we have it set
-                material.setColor("Specular", ColorRGBA.White);
+                MatParam specParam = material.getParam("Specular");
+                if (specParam == null){
+                    material.setColor("Specular", ColorRGBA.White);
+                }else{
+                    ColorRGBA spec = (ColorRGBA) specParam.getValue();
+                    if (spec.equals(ColorRGBA.Black)){
+                        material.setColor("Specular", ColorRGBA.White);
+                    }
+                }
             }
         }else if (cmd.equals("map_d")){
             String path = scan.next();
-            String name = new File(path).getName();
-            TextureKey key = new TextureKey(folderName + name);
-            key.setGenerateMips(true);
-            Texture texture = assetManager.loadTexture(key);
+            Texture texture = loadTexture(path);
             if (texture != null){
-                texture.setWrap(WrapMode.Repeat);
                 material.setTexture("AlphaMap", texture);
                 material.setTransparent(true);
                 material.getAdditionalRenderState().setBlendMode(BlendMode.Alpha);
                 material.getAdditionalRenderState().setAlphaTest(true);
                 material.getAdditionalRenderState().setAlphaFallOff(0.01f);
             }
+        }else if (cmd.equals("illum")){
+            int mode = scan.nextInt();
+            
+            switch (mode){
+                case 0:
+                    // no ambient
+                    material.setColor("Ambient", ColorRGBA.Black);
+                    break;
+                case 4:
+                case 6:
+                case 7:
+                case 9:
+                    // Enable transparency
+                    material.setTransparent(true);
+                    material.getAdditionalRenderState().setBlendMode(BlendMode.Alpha);
+                    
+                    // Works best if diffuse map has an alpha channel
+                    break;
+            }
+        }else if (cmd.equals("ke") || cmd.equals("ni")){
+            // Ni: index of refraction - unsupported in jME
+            // Ke: emission color
+            nextStatement();
         }else{
             System.out.println("Unknown statement in MTL! "+cmd);
+            nextStatement();
         }
-        nextStatement();
-
+        
         return true;
     }
 
