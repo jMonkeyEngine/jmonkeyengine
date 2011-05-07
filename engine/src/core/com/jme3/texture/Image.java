@@ -58,55 +58,207 @@ import com.jme3.renderer.GLObject;
 public class Image extends GLObject implements Savable /*, Cloneable*/ {
 
     public enum Format {
+        /**
+         * 8-bit alpha
+         */
         Alpha8(8),
+        
+        /**
+         * 16-bit alpha
+         */
         Alpha16(16),
 
+        /**
+         * 8-bit grayscale/luminance.
+         */
         Luminance8(8),
+        
+        /**
+         * 16-bit grayscale/luminance.
+         */
         Luminance16(16),
+        
+        /**
+         * half-precision floating-point grayscale/luminance.
+         */
         Luminance16F(16,true),
+        
+        /**
+         * single-precision floating-point grayscale/luminance.
+         */
         Luminance32F(32,true),
         
+        /**
+         * 8-bit luminance/grayscale and 8-bit alpha.
+         */
         Luminance8Alpha8(16),
+        
+        /**
+         * 16-bit luminance/grayscale and 16-bit alpha.
+         */
         Luminance16Alpha16(32),
+        
+        /**
+         * half-precision floating-point grayscale/luminance and alpha.
+         */
         Luminance16FAlpha16F(32,true),
 
         Intensity8(8),
         Intensity16(16),
 
+        /**
+         * 8-bit blue, green, and red.
+         */
         BGR8(24), // BGR and ABGR formats are often used on windows systems
+        
+        /**
+         * 8-bit red, green, and blue.
+         */
         RGB8(24),
+        
+        /**
+         * 10-bit red, green, and blue.
+         */
         RGB10(30),
+        
+        /**
+         * 16-bit red, green, and blue.
+         */
         RGB16(48),
 
+        /**
+         * 5-bit red, 6-bit green, and 5-bit blue.
+         */
         RGB565(16),
+        
+        /**
+         * 4-bit alpha, red, green, and blue. Used on Android only.
+         */
         ARGB4444(16),
+        
+        /**
+         * 5-bit red, green, and blue with 1-bit alpha.
+         */
         RGB5A1(16),
+        
+        /**
+         * 8-bit red, green, blue, and alpha.
+         */
         RGBA8(32),
+        
+        /**
+         * 8-bit alpha, blue, green, and red.
+         */
         ABGR8(32),
+        
+        /**
+         * 16-bit red, green, blue and alpha
+         */
         RGBA16(64),
 
+        /**
+         * S3TC compression DXT1. 
+         * Called BC1 in DirectX10.
+         */
         DXT1(4,false,true, false),
+        
+        /**
+         * S3TC compression DXT1 with 1-bit alpha.
+         */
         DXT1A(4,false,true, false),
+        
+        /**
+         * S3TC compression DXT3 with 4-bit alpha.
+         * Called BC2 in DirectX10.
+         */
         DXT3(8,false,true, false),
+        
+        /**
+         * S3TC compression DXT5 with interpolated 8-bit alpha.
+         * Called BC3 in DirectX10.
+         */
         DXT5(8,false,true, false),
+        
+        /**
+         * Luminance-Alpha Texture Compression. 
+         * Called BC5 in DirectX10.
+         */
         LATC(8, false, true, false),
 
+        /**
+         * Arbitrary depth format. The precision is chosen by the video
+         * hardware.
+         */
         Depth(0,true,false,false),
+        
+        /**
+         * 16-bit depth.
+         */
         Depth16(16,true,false,false),
+        
+        /**
+         * 24-bit depth.
+         */
         Depth24(24,true,false,false),
+        
+        /**
+         * 32-bit depth.
+         */
         Depth32(32,true,false,false),
+        
+        /**
+         * single-precision floating point depth.
+         */
         Depth32F(32,true,false,true),
 
+        /**
+         * Texture data is stored as {@link Format#RGB16F} in system memory,
+         * but will be converted to {@link Format#RGB111110F} when sent
+         * to the video hardware.
+         */
         RGB16F_to_RGB111110F(48,true),
+        
+        /**
+         * unsigned floating-point red, green and blue that uses 32 bits.
+         */
         RGB111110F(32,true),
+        
+        /**
+         * Texture data is stored as {@link Format#RGB16F} in system memory,
+         * but will be converted to {@link Format#RGB9E5} when sent
+         * to the video hardware.
+         */
         RGB16F_to_RGB9E5(48,true),
+        
+        /**
+         * 9-bit red, green and blue with 5-bit exponent.
+         */
         RGB9E5(32,true),
         
+        /**
+         * half-precision floating point red, green, and blue.
+         */
         RGB16F(48,true),
+        
+        /**
+         * half-precision floating point red, green, blue, and alpha.
+         */
         RGBA16F(64,true),
+        
+        /**
+         * single-precision floating point red, green, and blue.
+         */
         RGB32F(96,true),
+        
+        /**
+         * single-precision floating point red, green, blue and alpha.
+         */
         RGBA32F(128,true),
 
+        /**
+         * Luminance/grayscale texture compression. 
+         * Called BC4 in DirectX10.
+         */
         LTC(4, false, true, false);
 
         private int bpp;
@@ -129,18 +281,32 @@ public class Image extends GLObject implements Savable /*, Cloneable*/ {
             this.isCompressed = isCompressed;
         }
 
+        /**
+         * @return bits per pixel.
+         */
         public int getBitsPerPixel(){
             return bpp;
         }
 
+        /**
+         * @return True if this format is a depth format, false otherwise.
+         */
         public boolean isDepthFormat(){
             return isDepth;
         }
 
+        /**
+         * @return True if this is a compressed image format, false if
+         * uncompressed.
+         */
         public boolean isCompressed() {
             return isCompressed;
         }
 
+        /**
+         * @return True if this image format is in floating point, 
+         * false if it is an integer format.
+         */
         public boolean isFloatingPont(){
             return isFloatingPoint;
         }
@@ -152,7 +318,7 @@ public class Image extends GLObject implements Savable /*, Cloneable*/ {
     protected int width, height, depth;
     protected int[] mipMapSizes;
     protected ArrayList<ByteBuffer> data;
-    protected transient Object efficentData;
+    protected transient Object efficientData;
     protected int multiSamples = 1;
 //    protected int mipOffset = 0;
 
@@ -172,6 +338,9 @@ public class Image extends GLObject implements Savable /*, Cloneable*/ {
         return new Image(id);
     }
 
+    /**
+     * @return A shallow clone of this image. The data is not cloned.
+     */
     @Override
     public Image clone(){
         Image clone = (Image) super.clone();
@@ -365,24 +534,24 @@ public class Image extends GLObject implements Savable /*, Cloneable*/ {
     }
 
     /**
-     * Set the efficent data representation of this image.
+     * Set the efficient data representation of this image.
      * <p>
-     * Some system implementations are more efficent at operating
+     * Some system implementations are more efficient at operating
      * on data other than ByteBuffers, in that case, this method can be used.
      *
      * @param efficentData
      */
-    public void setEfficentData(Object efficentData){
-        this.efficentData = efficentData;
+    public void setEfficentData(Object efficientData){
+        this.efficientData = efficientData;
         setUpdateNeeded();
     }
 
     /**
-     * @return The efficent data representation of this image.
+     * @return The efficient data representation of this image.
      * @see Image#setEfficentData(java.lang.Object)
      */
     public Object getEfficentData(){
-        return efficentData;
+        return efficientData;
     }
 
     /**
@@ -557,6 +726,7 @@ public class Image extends GLObject implements Savable /*, Cloneable*/ {
         return sb.toString();
     }
 
+    @Override
     public boolean equals(Object other) {
         if (other == this) {
             return true;

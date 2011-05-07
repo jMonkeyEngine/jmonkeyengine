@@ -74,6 +74,7 @@ public final class IntMap<T> implements Iterable<Entry<T>>, Cloneable {
         this.mask = capacity - 1;
     }
 
+    @Override
     public IntMap<T> clone(){
         try{
             IntMap<T> clone = (IntMap<T>) super.clone();

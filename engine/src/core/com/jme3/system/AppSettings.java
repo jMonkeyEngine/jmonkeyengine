@@ -31,6 +31,7 @@
  */
 package com.jme3.system;
 
+import com.jme3.renderer.Renderer;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
@@ -207,63 +208,156 @@ public class AppSettings extends HashMap<String, Object> {
         put(key, value);
     }
 
+    /**
+     * @param frameRate The frame-rate is the upper limit on how high
+     * the application's frames-per-second can go.
+     * (Default: -1 no frame rate limit imposed)
+     */
     public void setFrameRate(int frameRate) {
         putInteger("FrameRate", frameRate);
     }
 
+    /**
+     * @param use If true, the application will initialize and use input.
+     * Set to false for headless applications that do not require keyboard
+     * or mouse input.
+     * (Default: true)
+     */
     public void setUseInput(boolean use) {
         putBoolean("UseInput", use);
     }
 
+    /**
+     * @param use If true, the application will initialize and use joystick
+     * input. Set to false if no joystick input is desired.
+     * (Default: false)
+     */
     public void setUseJoysticks(boolean use) {
         putBoolean("DisableJoysticks", !use);
     }
 
+    /**
+     * Set the graphics renderer to use, one of:<br>
+     * <ul>
+     * <li>AppSettings.LWJGL_OPENGL1 - Force OpenGL1.1 compatability</li>
+     * <li>AppSettings.LWJGL_OPENGL2 - Force OpenGL2 compatability</li>
+     * <li>AppSettings.LWJGL_OPENGL3 - Force OpenGL3.3 compatability</li>
+     * <li>AppSettings.LWJGL_OPENGL_ANY - Choose an appropriate 
+     * OpenGL version based on system capabilities</li>
+     * <li>null - Disable graphics rendering</li>
+     * </ul>
+     * @param renderer The renderer to set
+     * (Default: AppSettings.LWJGL_OPENGL2)
+     */
     public void setRenderer(String renderer) {
         putString("Renderer", renderer);
     }
 
+    /**
+     * Set a custom graphics renderer to use. The class should implement 
+     * the {@link Renderer} interface.
+     * @param clazz The custom graphics renderer class.
+     * (Default: not set)
+     */
     public void setCustomRenderer(Class clazz){
         put("Renderer", "CUSTOM" + clazz.getName());
     }
 
+    /**
+     * Set the audio renderer to use. One of:<br>
+     * <ul>
+     * <li>AppSettings.LWJGL_OPENAL - Default for LWJGL</li>
+     * <li>null - Disable audio</li>
+     * </ul>
+     * @param audioRenderer 
+     * (Default: LWJGL)
+     */
     public void setAudioRenderer(String audioRenderer) {
         putString("AudioRenderer", audioRenderer);
     }
 
+    /**
+     * @param value the width for the rendering display.
+     * (Default: 640)
+     */
     public void setWidth(int value) {
         putInteger("Width", value);
     }
 
+    /**
+     * @param value the height for the rendering display.
+     * (Default: 480)
+     */
     public void setHeight(int value) {
         putInteger("Height", value);
     }
 
+    /**
+     * Set the resolution for the rendering display
+     * @param width The width
+     * @param height The height
+     * (Default: 640x480)
+     */
     public void setResolution(int width, int height) {
         setWidth(width);
         setHeight(height);
     }
 
+    /**
+     * Set the frequency, also known as refresh rate, for the 
+     * rendering display.
+     * @param value The frequency
+     * (Default: 60)
+     */
     public void setFrequency(int value) {
         putInteger("Frequency", value);
     }
 
+    /**
+     * Set the bits per pixel for the display. Appropriate
+     * values are 16 for RGB565 color format, or 24 for RGB8 color format.
+     * 
+     * @param value The bits per pixel to set
+     * (Default: 24)
+     */
     public void setBitsPerPixel(int value) {
         putInteger("BitsPerPixel", value);
     }
 
+    /**
+     * Set the number of samples per pixel. A value of 1 indicates
+     * each pixel should be single-sampled, higher values indicate
+     * a pixel should be multi-sampled.
+     * 
+     * @param value The number of samples
+     * (Default: 1)
+     */
     public void setSamples(int value) {
         putInteger("Samples", value);
     }
 
+    /**
+     * @param title The title of the rendering display
+     * (Default: jMonkeyEngine 3.0)
+     */
     public void setTitle(String title) {
         putString("Title", title);
     }
 
+    /**
+     * @param value true to enable full-screen rendering, false to render in a window
+     * (Default: false)
+     */
     public void setFullscreen(boolean value) {
         putBoolean("Fullscreen", value);
     }
 
+    /**
+     * Set to true to enable vertical-synchronization, limiting and synchronizing
+     * every frame rendered to the monitor's refresh rate.
+     * @param value 
+     * (Default: false)
+     */
     public void setVSync(boolean value) {
         putBoolean("VSync", value);
     }
@@ -280,6 +374,7 @@ public class AppSettings extends HashMap<String, Object> {
      * the icon working for alt-tab on the settings dialog in Windows.
      *
      * @param value An array of BufferedImages to use as icons.
+     * (Default: not set)
      */
     public void setIcons(BufferedImage[] value) {
         put("Icons", value);

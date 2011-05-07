@@ -70,6 +70,13 @@ public final class BufferUtils {
 
     ////  -- GENERIC CLONE -- ////
 
+    /**
+     * Creates a clone of the given buffer. The clone's capacity is
+     * equal to the given buffer's limit.
+     * 
+     * @param buf The buffer to clone
+     * @return The cloned buffer
+     */
     public static Buffer clone(Buffer buf){
         if (buf instanceof FloatBuffer){
             return clone( (FloatBuffer) buf );

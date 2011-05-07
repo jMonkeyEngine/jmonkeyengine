@@ -51,46 +51,104 @@ import com.jme3.texture.Texture2D;
  */
 public class Picture extends Geometry {
 
-    private float width;
-    private float height;
+    private float width  = 1f;
+    private float height = 1f;
 
+    /**
+     * Create a named picture. 
+     * By default a picture's width and height are 1
+     * and its position is 0, 0.
+     * 
+     * @param name the name of the picture in the scene graph
+     * @param flipY If true, the Y coordinates of the texture will be flipped.
+     */
     public Picture(String name, boolean flipY){
         super(name, new Quad(1, 1, flipY));
         setQueueBucket(Bucket.Gui);
         setCullHint(CullHint.Never);
     }
 
+    /**
+     * Creates a named picture.
+     * By default a picture's width and height are 1
+     * and its position is 0, 0.
+     * The image texture coordinates will not be flipped.
+     * 
+     * @param name the name of the picture in the scene graph 
+     */
     public Picture(String name){
         this(name, false);
     }
 
+    /*
+     * Serialization only. Do not use.
+     */
     public Picture(){
     }
 
+    /**
+     * Set the width in pixels of the picture, if the width
+     * does not match the texture's width, then the texture will
+     * be scaled to fit the picture.
+     * 
+     * @param width the width to set.
+     */
     public void setWidth(float width){
         this.width = width;
         setLocalScale(new Vector3f(width, height, 1f));
     }
 
+    /**
+     * Set the height in pixels of the picture, if the height
+     * does not match the texture's height, then the texture will
+     * be scaled to fit the picture.
+     * 
+     * @param height the height to set.
+     */
     public void setHeight(float height){
         this.height = height;
         setLocalScale(new Vector3f(width, height, 1f));
     }
 
+    /**
+     * Set the position of the picture in pixels.
+     * The origin (0, 0) is at the bottom-left of the screen.
+     * 
+     * @param x The x coordinate
+     * @param y The y coordinate
+     */
     public void setPosition(float x, float y){
         float z = getLocalTranslation().getZ();
         setLocalTranslation(x, y, z);
     }
 
-    public void setImage(AssetManager manager, String imgName, boolean useAlpha){
+    /**
+     * Set the image to put on the picture.
+     * 
+     * @param assetManager The {@link AssetManager} to use to load the image.
+     * @param imgName The image name.
+     * @param useAlpha If true, the picture will appear transparent and allow
+     * objects behind it to appear through. If false, the transparent
+     * portions will be black.
+     */
+    public void setImage(AssetManager assetManager, String imgName, boolean useAlpha){
         TextureKey key = new TextureKey(imgName, true);
-        Texture2D tex = (Texture2D) manager.loadTexture(key);
-        setTexture(manager, tex, useAlpha);
+        Texture2D tex = (Texture2D) assetManager.loadTexture(key);
+        setTexture(assetManager, tex, useAlpha);
     }
 
-    public void setTexture(AssetManager manager, Texture2D tex, boolean useAlpha){
+    /**
+     * Set the texture to put on the picture.
+     * 
+     * @param assetManager The {@link AssetManager} to use to load the material.
+     * @param tex The texture
+     * @param useAlpha If true, the picture will appear transparent and allow
+     * objects behind it to appear through. If false, the transparent
+     * portions will be black.
+     */
+    public void setTexture(AssetManager assetManager, Texture2D tex, boolean useAlpha){
         if (getMaterial() == null){
-            Material mat = new Material(manager, "Common/MatDefs/Gui/Gui.j3md");
+            Material mat = new Material(assetManager, "Common/MatDefs/Gui/Gui.j3md");
             mat.setColor("Color", ColorRGBA.White);
             setMaterial(mat);
         }
