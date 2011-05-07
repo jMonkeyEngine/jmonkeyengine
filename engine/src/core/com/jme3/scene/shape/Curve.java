@@ -122,7 +122,7 @@ public class Curve extends Mesh {
 
         this.setMode(Mesh.Mode.Lines);
         this.setBuffer(VertexBuffer.Type.Position, 3, array);
-        this.setBuffer(VertexBuffer.Type.Index, (spline.getControlPoints().size() - 1) * nbSubSegments * 2, indices);
+        this.setBuffer(VertexBuffer.Type.Index, 3, indices);//(spline.getControlPoints().size() - 1) * nbSubSegments * 2
         this.updateBound();
         this.updateCounts();
     }
