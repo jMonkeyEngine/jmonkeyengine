@@ -423,10 +423,11 @@ public class VertexBuffer extends GLObject implements Savable, Cloneable {
         }
 
         // will force renderer to call glBufferData again
-        if (this.data.getClass() != data.getClass() || data.limit() != lastLimit){
+        if (data != null && (this.data.getClass() != data.getClass() || data.limit() != lastLimit)){
             dataSizeChanged = true;
             lastLimit = data.limit();
         }
+        
         this.data = data;
         setUpdateNeeded();
     }
