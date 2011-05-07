@@ -341,7 +341,7 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
         if (gravity == null) {
             gravity = new Vector3f();
         }
-        getGravity(gravity);
+        getGravity(objectId, gravity);
         return gravity;
     }
 
