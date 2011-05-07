@@ -40,8 +40,8 @@ public class SkyFactory {
     }
 
     private static void checkImage(Image image){
-        if (image.getDepth() != 1)
-            throw new IllegalArgumentException("3D/Array images not allowed");
+//        if (image.getDepth() != 1)
+//            throw new IllegalArgumentException("3D/Array images not allowed");
 
         if (image.getWidth() != image.getHeight())
             throw new IllegalArgumentException("Image width and height must be the same");
