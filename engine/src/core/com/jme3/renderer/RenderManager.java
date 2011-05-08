@@ -618,7 +618,7 @@ public class RenderManager {
             
             orthoMatrix.loadIdentity();
             orthoMatrix.setTranslation(translateX, translateY, 0);
-            orthoMatrix.setScale(scaleX, scaleY, 1); 
+            orthoMatrix.setScale(scaleX, scaleY, 0); 
             
             //orthoMatrix.loadIdentity();
             //orthoMatrix.setTranslation(-1f, -1f, 0f);
