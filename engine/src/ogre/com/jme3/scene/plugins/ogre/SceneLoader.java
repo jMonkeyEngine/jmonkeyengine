@@ -282,9 +282,12 @@ public class SceneLoader extends DefaultHandler implements AssetLoader {
             node.setLocalScale(SAXUtil.parseVector3(attribs));
         } else if (qName.equals("light")) {
             parseLight(attribs);
-        } else if (qName.equals("colourDiffuse")) {
-            assert elementStack.peek().equals("light");
-            light.setColor(parseColor(attribs));
+        } else if (qName.equals("colourDiffuse") || qName.equals("colorDiffuse")) {
+            if (elementStack.peek().equals("light")){
+                light.setColor(parseColor(attribs));
+            }else{
+                assert elementStack.peek().equals("environment");
+            }
         } else if (qName.equals("normal")) {
             parseLightNormal(attribs);
         } else if (qName.equals("lightAttenuation")) {
