@@ -611,19 +611,18 @@ public class RenderManager {
             cam.clearViewportChanged();
             prevCam = cam;
 
-            float translateX = viewWidth == viewX ? 0 : -(viewWidth + viewX) / (viewWidth - viewX);
-            float translateY = viewHeight == viewY ? 0 : -(viewHeight + viewY) / (viewHeight - viewY);
-            float scaleX = viewWidth == viewX ? 1f : 2f / (viewWidth - viewX);
-            float scaleY = viewHeight == viewY ? 1f : 2f / (viewHeight - viewY);
+//            float translateX = viewWidth == viewX ? 0 : -(viewWidth + viewX) / (viewWidth - viewX);
+//            float translateY = viewHeight == viewY ? 0 : -(viewHeight + viewY) / (viewHeight - viewY);
+//            float scaleX = viewWidth == viewX ? 1f : 2f / (viewWidth - viewX);
+//            float scaleY = viewHeight == viewY ? 1f : 2f / (viewHeight - viewY);
+//            
+//            orthoMatrix.loadIdentity();
+//            orthoMatrix.setTranslation(translateX, translateY, 0);
+//            orthoMatrix.setScale(scaleX, scaleY, 0); 
             
             orthoMatrix.loadIdentity();
-            orthoMatrix.setTranslation(translateX, translateY, 0);
-            orthoMatrix.setScale(scaleX, scaleY, 0); 
-            
-            //orthoMatrix.loadIdentity();
-            //orthoMatrix.setTranslation(-1f, -1f, 0f);
-            //orthoMatrix.setScale(2f / cam.getWidth(), 2f / cam.getHeight(), 0f);
-            //System.out.println(orthoMatrix);
+            orthoMatrix.setTranslation(-1f, -1f, 0f);
+            orthoMatrix.setScale(2f / cam.getWidth(), 2f / cam.getHeight(), 0f);
         }
     }
 
@@ -638,7 +637,6 @@ public class RenderManager {
                 projMatrix.set(cam.getProjectionMatrix());
                 viewProjMatrix.set(cam.getViewProjectionMatrix());
             }
-
 
             camLoc.set(cam.getLocation());
             cam.getLeft(camLeft);
