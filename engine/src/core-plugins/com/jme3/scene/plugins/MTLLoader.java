@@ -132,7 +132,7 @@ public class MTLLoader implements AssetLoader {
                 else
                     color = new ColorRGBA(ColorRGBA.White);
 
-                color.a = scan.nextFloat();
+                color.a = alpha;
                 material.setColor("Diffuse", color);
                 material.setTransparent(true);
                 material.getAdditionalRenderState().setBlendMode(BlendMode.Alpha);
