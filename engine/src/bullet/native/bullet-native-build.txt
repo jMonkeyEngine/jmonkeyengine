@@ -160,7 +160,7 @@ of the old one.
 Netbeans Project
 -----------------------------------
 The project also includes a Netbeans project to edit and build
-the source in the Netbeans IDE.
+the source in the Netbeans IDE in the /src/bullet/ subfolder.
 
 To have correct syntax highlighting in .cpp/.h files:
 

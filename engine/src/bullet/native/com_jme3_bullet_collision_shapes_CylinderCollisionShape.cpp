@@ -48,18 +48,18 @@ extern "C" {
     JNIEXPORT jlong JNICALL Java_com_jme3_bullet_collision_shapes_CylinderCollisionShape_createShape
     (JNIEnv * env, jobject object, jint axis, jobject halfExtents) {
         jmeClasses::initJavaClasses(env);
-        btVector3* extents = &btVector3();
-        jmeBulletUtil::convert(env, halfExtents, extents);
+        btVector3 extents = btVector3();
+        jmeBulletUtil::convert(env, halfExtents, &extents);
         btCollisionShape* shape;
         switch (axis) {
             case 0:
-                shape = new btCylinderShapeX(*extents);
+                shape = new btCylinderShapeX(extents);
                 break;
             case 1:
-                shape = new btCylinderShape(*extents);
+                shape = new btCylinderShape(extents);
                 break;
             case 2:
-                shape = new btCylinderShapeZ(*extents);
+                shape = new btCylinderShapeZ(extents);
                 break;
         }
         return (long) shape;

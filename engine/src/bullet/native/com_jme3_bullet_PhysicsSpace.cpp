@@ -351,9 +351,9 @@ extern "C" {
             env->ThrowNew(newExc, "The physics space does not exist.");
             return;
         }
-        btVector3* gravity = &btVector3();
-        jmeBulletUtil::convert(env, vector, gravity);
-        space->getDynamicsWorld()->setGravity(*gravity);
+        btVector3 gravity = btVector3();
+        jmeBulletUtil::convert(env, vector, &gravity);
+        space->getDynamicsWorld()->setGravity(gravity);
     }
 
     /*

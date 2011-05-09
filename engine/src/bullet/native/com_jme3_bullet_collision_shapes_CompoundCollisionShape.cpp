@@ -61,11 +61,11 @@ extern "C" {
     (JNIEnv *env, jobject object, jlong compoundId, jlong childId, jobject childLocation, jobject childRotation) {
         btCompoundShape* shape = (btCompoundShape*) compoundId;
         btCollisionShape* child = (btCollisionShape*) childId;
-        btMatrix3x3* mtx = &btMatrix3x3();
-        btTransform* trans = &btTransform(*mtx);
-        jmeBulletUtil::convert(env, childLocation, &trans->getOrigin());
-        jmeBulletUtil::convert(env, childRotation, &trans->getBasis());
-        shape->addChildShape(*trans, child);
+        btMatrix3x3 mtx = btMatrix3x3();
+        btTransform trans = btTransform(mtx);
+        jmeBulletUtil::convert(env, childLocation, &trans.getOrigin());
+        jmeBulletUtil::convert(env, childRotation, &trans.getBasis());
+        shape->addChildShape(trans, child);
         return 0;
     }
 

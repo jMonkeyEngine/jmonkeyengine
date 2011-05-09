@@ -74,10 +74,6 @@ extern "C" {
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsGhostObject_setPhysicsLocation
     (JNIEnv *env, jobject object, jlong objectId, jobject value){
         btPairCachingGhostObject* ghost = (btPairCachingGhostObject*)objectId;
-//        btVector3* vec = new btVector3();
-//        jmeBulletUtil::convert(value, vec);
-//        ghost->getWorldTransform().setOrigin(vec);
-//        delete(vec);
         jmeBulletUtil::convert(env, value, &ghost->getWorldTransform().getOrigin());
     }
 
@@ -89,10 +85,6 @@ extern "C" {
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsGhostObject_setPhysicsRotation__JLcom_jme3_math_Matrix3f_2
     (JNIEnv *env, jobject object, jlong objectId, jobject value){
         btPairCachingGhostObject* ghost = (btPairCachingGhostObject*)objectId;
-//        btVector3* vec = new btVector3();
-//        jmeBulletUtil::convert(value, vec);
-//        ghost->getWorldTransform().setOrigin(vec);
-//        delete(vec);
         jmeBulletUtil::convert(env, value, &ghost->getWorldTransform().getBasis());
     }
 
@@ -104,10 +96,6 @@ extern "C" {
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsGhostObject_setPhysicsRotation__JLcom_jme3_math_Quaternion_2
     (JNIEnv *env, jobject object, jlong objectId, jobject value){
         btPairCachingGhostObject* ghost = (btPairCachingGhostObject*)objectId;
-//        btVector3* vec = new btVector3();
-//        jmeBulletUtil::convert(value, vec);
-//        ghost->getWorldTransform().setOrigin(vec);
-//        delete(vec);
         jmeBulletUtil::convertQuat(env, value, &ghost->getWorldTransform().getBasis());
     }
 

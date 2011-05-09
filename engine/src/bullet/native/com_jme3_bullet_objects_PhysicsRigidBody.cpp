@@ -51,9 +51,9 @@ extern "C" {
         jmeClasses::initJavaClasses(env);
         btMotionState* motionState = (btMotionState*) motionstatId;
         btCollisionShape* shape = (btCollisionShape*) shapeId;
-        btVector3* localInertia = &btVector3();
-        shape->calculateLocalInertia(mass, *localInertia);
-        btRigidBody* body = new btRigidBody(mass, motionState, shape, *localInertia);
+        btVector3 localInertia = btVector3();
+        shape->calculateLocalInertia(mass, localInertia);
+        btRigidBody* body = new btRigidBody(mass, motionState, shape, localInertia);
         return (long) body;
     }
 
@@ -257,9 +257,9 @@ extern "C" {
     (JNIEnv *env, jobject object, jlong bodyId, jlong shapeId, jfloat mass) {
         btRigidBody* body = (btRigidBody*) bodyId;
         btCollisionShape* shape = (btCollisionShape*) shapeId;
-        btVector3* localInertia = &btVector3();
-        shape->calculateLocalInertia(mass, *localInertia);
-        body->setMassProps(mass, *localInertia);
+        btVector3 localInertia = btVector3();
+        shape->calculateLocalInertia(mass, localInertia);
+        body->setMassProps(mass, localInertia);
         return (long) body;
     }
 
@@ -282,9 +282,9 @@ extern "C" {
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsRigidBody_setGravity
     (JNIEnv *env, jobject object, jlong bodyId, jobject value) {
         btRigidBody* body = (btRigidBody*) bodyId;
-        btVector3* vec = &btVector3();
-        jmeBulletUtil::convert(env, value, vec);
-        body->setGravity(*vec);
+        btVector3 vec = btVector3();
+        jmeBulletUtil::convert(env, value, &vec);
+        body->setGravity(vec);
     }
 
     /*
@@ -394,9 +394,9 @@ extern "C" {
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsRigidBody_setAngularVelocity
     (JNIEnv *env, jobject object, jlong bodyId, jobject value) {
         btRigidBody* body = (btRigidBody*) bodyId;
-        btVector3* vec = &btVector3();
-        jmeBulletUtil::convert(env, value, vec);
-        body->setAngularVelocity(*vec);
+        btVector3 vec = btVector3();
+        jmeBulletUtil::convert(env, value,&vec);
+        body->setAngularVelocity(vec);
     }
 
     /*
@@ -418,9 +418,9 @@ extern "C" {
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsRigidBody_setLinearVelocity
     (JNIEnv *env, jobject object, jlong bodyId, jobject value) {
         btRigidBody* body = (btRigidBody*) bodyId;
-        btVector3* vec = &btVector3();
-        jmeBulletUtil::convert(env, value, vec);
-        body->setLinearVelocity(*vec);
+        btVector3 vec = btVector3();
+        jmeBulletUtil::convert(env, value, &vec);
+        body->setLinearVelocity(vec);
     }
 
     /*
@@ -431,11 +431,11 @@ extern "C" {
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsRigidBody_applyForce
     (JNIEnv *env, jobject object, jlong bodyId, jobject force, jobject location) {
         btRigidBody* body = (btRigidBody*) bodyId;
-        btVector3* vec1 = &btVector3();
-        btVector3* vec2 = &btVector3();
-        jmeBulletUtil::convert(env, force, vec1);
-        jmeBulletUtil::convert(env, location, vec2);
-        body->applyForce(*vec1, *vec2);
+        btVector3 vec1 = btVector3();
+        btVector3 vec2 = btVector3();
+        jmeBulletUtil::convert(env, force, &vec1);
+        jmeBulletUtil::convert(env, location, &vec2);
+        body->applyForce(vec1, vec2);
     }
 
     /*
@@ -446,9 +446,9 @@ extern "C" {
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsRigidBody_applyCentralForce
     (JNIEnv *env, jobject object, jlong bodyId, jobject force) {
         btRigidBody* body = (btRigidBody*) bodyId;
-        btVector3* vec1 = &btVector3();
-        jmeBulletUtil::convert(env, force, vec1);
-        body->applyCentralForce(*vec1);
+        btVector3 vec1 = btVector3();
+        jmeBulletUtil::convert(env, force, &vec1);
+        body->applyCentralForce(vec1);
     }
 
     /*
@@ -459,9 +459,9 @@ extern "C" {
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsRigidBody_applyTorque
     (JNIEnv *env, jobject object, jlong bodyId, jobject force) {
         btRigidBody* body = (btRigidBody*) bodyId;
-        btVector3* vec1 = &btVector3();
-        jmeBulletUtil::convert(env, force, vec1);
-        body->applyTorque(*vec1);
+        btVector3 vec1 = btVector3();
+        jmeBulletUtil::convert(env, force, &vec1);
+        body->applyTorque(vec1);
     }
 
     /*
@@ -472,11 +472,11 @@ extern "C" {
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsRigidBody_applyImpulse
     (JNIEnv *env, jobject object, jlong bodyId, jobject force, jobject location) {
         btRigidBody* body = (btRigidBody*) bodyId;
-        btVector3* vec1 = &btVector3();
-        btVector3* vec2 = &btVector3();
-        jmeBulletUtil::convert(env, force, vec1);
-        jmeBulletUtil::convert(env, location, vec2);
-        body->applyImpulse(*vec1, *vec2);
+        btVector3 vec1 = btVector3();
+        btVector3 vec2 = btVector3();
+        jmeBulletUtil::convert(env, force, &vec1);
+        jmeBulletUtil::convert(env, location, &vec2);
+        body->applyImpulse(vec1, vec2);
     }
 
     /*
@@ -487,9 +487,9 @@ extern "C" {
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsRigidBody_applyTorqueImpulse
     (JNIEnv *env, jobject object, jlong bodyId, jobject force) {
         btRigidBody* body = (btRigidBody*) bodyId;
-        btVector3* vec1 = &btVector3();
-        jmeBulletUtil::convert(env, force, vec1);
-        body->applyTorqueImpulse(*vec1);
+        btVector3 vec1 = btVector3();
+        jmeBulletUtil::convert(env, force, &vec1);
+        body->applyTorqueImpulse(vec1);
     }
 
     /*
@@ -611,11 +611,11 @@ extern "C" {
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsRigidBody_setAngularFactor
     (JNIEnv *env, jobject object, jlong bodyId, jfloat value) {
         btRigidBody* body = (btRigidBody*) bodyId;
-        btVector3* vec1 = &btVector3();
-        vec1->setX(value);
-        vec1->setY(value);
-        vec1->setZ(value);
-        body->setAngularFactor(*vec1);
+        btVector3 vec1 = btVector3();
+        vec1.setX(value);
+        vec1.setY(value);
+        vec1.setZ(value);
+        body->setAngularFactor(vec1);
     }
 
 #ifdef __cplusplus

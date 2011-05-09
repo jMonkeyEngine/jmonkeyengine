@@ -70,9 +70,9 @@ extern "C" {
     JNIEXPORT void JNICALL Java_com_jme3_bullet_joints_SixDofJoint_setLinearUpperLimit
     (JNIEnv * env, jobject object, jlong jointId, jobject vector) {
         btGeneric6DofConstraint* joint = (btGeneric6DofConstraint*) jointId;
-        btVector3* vec = &btVector3();
-        jmeBulletUtil::convert(env, vector, vec);
-        joint->setLinearUpperLimit(*vec);
+        btVector3 vec = btVector3();
+        jmeBulletUtil::convert(env, vector, &vec);
+        joint->setLinearUpperLimit(vec);
     }
 
     /*
@@ -83,9 +83,9 @@ extern "C" {
     JNIEXPORT void JNICALL Java_com_jme3_bullet_joints_SixDofJoint_setLinearLowerLimit
     (JNIEnv * env, jobject object, jlong jointId, jobject vector) {
         btGeneric6DofConstraint* joint = (btGeneric6DofConstraint*) jointId;
-        btVector3* vec = &btVector3();
-        jmeBulletUtil::convert(env, vector, vec);
-        joint->setLinearLowerLimit(*vec);
+        btVector3 vec = btVector3();
+        jmeBulletUtil::convert(env, vector, &vec);
+        joint->setLinearLowerLimit(vec);
     }
 
     /*
@@ -96,9 +96,9 @@ extern "C" {
     JNIEXPORT void JNICALL Java_com_jme3_bullet_joints_SixDofJoint_setAngularUpperLimit
     (JNIEnv * env, jobject object, jlong jointId, jobject vector) {
         btGeneric6DofConstraint* joint = (btGeneric6DofConstraint*) jointId;
-        btVector3* vec = &btVector3();
-        jmeBulletUtil::convert(env, vector, vec);
-        joint->setAngularUpperLimit(*vec);
+        btVector3 vec = btVector3();
+        jmeBulletUtil::convert(env, vector, &vec);
+        joint->setAngularUpperLimit(vec);
     }
 
     /*
@@ -109,9 +109,9 @@ extern "C" {
     JNIEXPORT void JNICALL Java_com_jme3_bullet_joints_SixDofJoint_setAngularLowerLimit
     (JNIEnv * env, jobject object, jlong jointId, jobject vector) {
         btGeneric6DofConstraint* joint = (btGeneric6DofConstraint*) jointId;
-        btVector3* vec = &btVector3();
-        jmeBulletUtil::convert(env, vector, vec);
-        joint->setAngularLowerLimit(*vec);
+        btVector3 vec = btVector3();
+        jmeBulletUtil::convert(env, vector, &vec);
+        joint->setAngularLowerLimit(vec);
     }
 
     /*

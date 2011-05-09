@@ -101,14 +101,14 @@ extern "C" {
     JNIEXPORT jlong JNICALL Java_com_jme3_bullet_objects_PhysicsVehicle_addWheel
     (JNIEnv *env, jobject object, jlong vehicleId, jobject location, jobject direction, jobject axle, jfloat restLength, jfloat radius, jobject tuning, jboolean frontWheel) {
         btRaycastVehicle* vehicle = (btRaycastVehicle*) vehicleId;
-        btVector3* vec1 = &btVector3();
-        btVector3* vec2 = &btVector3();
-        btVector3* vec3 = &btVector3();
-        jmeBulletUtil::convert(env, location, vec1);
-        jmeBulletUtil::convert(env, direction, vec2);
-        jmeBulletUtil::convert(env, axle, vec3);
+        btVector3 vec1 = btVector3();
+        btVector3 vec2 = btVector3();
+        btVector3 vec3 = btVector3();
+        jmeBulletUtil::convert(env, location, &vec1);
+        jmeBulletUtil::convert(env, direction, &vec2);
+        jmeBulletUtil::convert(env, axle, &vec3);
         btRaycastVehicle::btVehicleTuning tune;
-        btWheelInfo* info = &vehicle->addWheel(*vec1, *vec2, *vec3, restLength, radius, tune, frontWheel);
+        btWheelInfo* info = &vehicle->addWheel(vec1, vec2, vec3, restLength, radius, tune, frontWheel);
         return (long) info;
     }
 

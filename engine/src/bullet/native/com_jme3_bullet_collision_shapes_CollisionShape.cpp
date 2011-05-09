@@ -59,9 +59,9 @@ extern "C" {
     JNIEXPORT void JNICALL Java_com_jme3_bullet_collision_shapes_CollisionShape_setLocalScaling
     (JNIEnv * env, jobject object, jlong shapeId, jobject scale) {
         btCollisionShape* shape = (btCollisionShape*) shapeId;
-        btVector3* scl = &btVector3();
-        jmeBulletUtil::convert(env, scale, scl);
-        shape->setLocalScaling(*scl);
+        btVector3 scl = btVector3();
+        jmeBulletUtil::convert(env, scale, &scl);
+        shape->setLocalScaling(scl);
     }
 
     /*
