@@ -31,22 +31,24 @@
  */
 package jme3test.post;
 
-import jme3test.renderer.*;
 import com.jme3.app.SimpleApplication;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
-import com.jme3.input.controls.InputListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.light.DirectionalLight;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
-import com.jme3.post.Filter;
 import com.jme3.post.FilterPostProcessor;
-import com.jme3.post.filters.ColorOverlayFilter;
+import com.jme3.post.filters.BloomFilter;
+import com.jme3.post.filters.CartoonEdgeFilter;
+import com.jme3.post.filters.FogFilter;
+import com.jme3.post.filters.RadialBlurFilter;
+import com.jme3.post.ssao.SSAOFilter;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Geometry;
+import com.jme3.util.SkyFactory;
 
 public class TestMultiViewsFilters extends SimpleApplication {
 
@@ -79,7 +81,7 @@ public class TestMultiViewsFilters extends SimpleApplication {
         cam2.setLocation(new Vector3f(-0.10947256f, 1.5760219f, 4.81758f));
         cam2.setRotation(new Quaternion(0.0010108891f, 0.99857414f, -0.04928594f, 0.020481428f));
 
-        ViewPort view2 = renderManager.createMainView("Bottom Left", cam2);
+        final ViewPort view2 = renderManager.createMainView("Bottom Left", cam2);
         view2.setClearFlags(true, true, true);
         view2.attachScene(rootNode);
 
@@ -90,7 +92,7 @@ public class TestMultiViewsFilters extends SimpleApplication {
         cam3.setLocation(new Vector3f(0.2846221f, 6.4271426f, 0.23380789f));
         cam3.setRotation(new Quaternion(0.004381671f, 0.72363687f, -0.69015175f, 0.0045953835f));
 
-        ViewPort view3 = renderManager.createMainView("Top Left", cam3);
+        final ViewPort view3 = renderManager.createMainView("Top Left", cam3);
         view3.setClearFlags(true, true, true);
         view3.attachScene(rootNode);
 
@@ -103,25 +105,39 @@ public class TestMultiViewsFilters extends SimpleApplication {
         cam4.setLocation(new Vector3f(4.775564f, 1.4548365f, 0.11491505f));
         cam4.setRotation(new Quaternion(0.02356979f, -0.74957186f, 0.026729556f, 0.66096294f));
 
-        ViewPort view4 = renderManager.createMainView("Top Right", cam4);
+        final ViewPort view4 = renderManager.createMainView("Top Right", cam4);
         view4.setClearFlags(true, true, true);
         view4.attachScene(rootNode);
 
+        rootNode.attachChild(SkyFactory.createSky(assetManager, "Textures/Sky/Bright/BrightSky.dds", false));
+
         final FilterPostProcessor fpp = new FilterPostProcessor(assetManager);
-        FilterPostProcessor fpp2 = new FilterPostProcessor(assetManager);
-        FilterPostProcessor fpp3 = new FilterPostProcessor(assetManager);
-        FilterPostProcessor fpp4 = new FilterPostProcessor(assetManager);
+        final FilterPostProcessor fpp2 = new FilterPostProcessor(assetManager);
+        final FilterPostProcessor fpp3 = new FilterPostProcessor(assetManager);
+        final FilterPostProcessor fpp4 = new FilterPostProcessor(assetManager);
 
-        fpp.addFilter(new ColorOverlayFilter(ColorRGBA.Red));
-        fpp2.addFilter(new ColorOverlayFilter(ColorRGBA.Green));
-        fpp3.addFilter(new ColorOverlayFilter(ColorRGBA.Blue));
-        fpp4.addFilter(new ColorOverlayFilter(ColorRGBA.Yellow));
 
+        //  fpp.addFilter(new WaterFilter(rootNode, Vector3f.UNIT_Y.mult(-1)));
+        fpp3.addFilter(new CartoonEdgeFilter());
+
+        fpp2.addFilter(new BloomFilter());
+        final FogFilter ff = new FogFilter(ColorRGBA.Yellow, 0.7f, 2);
+        fpp.addFilter(ff);
+
+        final RadialBlurFilter rbf = new RadialBlurFilter(1, 10);
+        //    rbf.setEnabled(false);
+        fpp.addFilter(rbf);
+
+
+        SSAOFilter f = new SSAOFilter(1.8899765f, 20.490374f, 0.4699998f, 0.1f);;
+        fpp4.addFilter(f);
+        SSAOUI ui = new SSAOUI(inputManager, f);
 
         viewPort.addProcessor(fpp);
         view2.addProcessor(fpp2);
         view3.addProcessor(fpp3);
         view4.addProcessor(fpp4);
+
 
 
         inputManager.addListener(new ActionListener() {
@@ -130,15 +146,26 @@ public class TestMultiViewsFilters extends SimpleApplication {
                 if (name.equals("press") && isPressed) {
                     if (filterEnabled) {
                         viewPort.removeProcessor(fpp);
+                        view2.removeProcessor(fpp2);
+                        view3.removeProcessor(fpp3);
+                        view4.removeProcessor(fpp4);
                     } else {
                         viewPort.addProcessor(fpp);
+                        view2.addProcessor(fpp2);
+                        view3.addProcessor(fpp3);
+                        view4.addProcessor(fpp4);
                     }
                     filterEnabled = !filterEnabled;
                 }
+                if (name.equals("filter") && isPressed) {
+                    ff.setEnabled(!ff.isEnabled());
+                    rbf.setEnabled(!rbf.isEnabled());
+                }
             }
-        }, "press");
+        }, "press", "filter");
 
         inputManager.addMapping("press", new KeyTrigger(KeyInput.KEY_SPACE));
+        inputManager.addMapping("filter", new KeyTrigger(KeyInput.KEY_F));
 
     }
 }

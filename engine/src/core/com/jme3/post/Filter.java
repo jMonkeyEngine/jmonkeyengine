@@ -81,17 +81,17 @@ public abstract class Filter implements Savable {
             if (numSamples > 1 && caps.contains(Caps.FrameBufferMultisample) && caps.contains(Caps.OpenGL31)) {
                 renderFrameBuffer = new FrameBuffer(width, height, numSamples);
                 renderedTexture = new Texture2D(width, height, numSamples, textureFormat);
-              //  depthTexture = new Texture2D(width, height, numSamples, depthBufferFormat);
+                //  depthTexture = new Texture2D(width, height, numSamples, depthBufferFormat);
             } else {
                 renderFrameBuffer = new FrameBuffer(width, height, 1);
-                renderedTexture = new Texture2D(width, height, textureFormat);                
+                renderedTexture = new Texture2D(width, height, textureFormat);
 //                depthTexture = new Texture2D(width, height,  depthBufferFormat);
             }
-            
+
             renderFrameBuffer.setColorTexture(renderedTexture);
             renderFrameBuffer.setDepthBuffer(depthBufferFormat);
-  //          renderFrameBuffer.setDepthTexture(depthTexture);
-            
+            //          renderFrameBuffer.setDepthTexture(depthTexture);
+
         }
 
         public void init(Renderer renderer, int width, int height, Format textureFormat, Format depthBufferFormat) {
@@ -111,7 +111,6 @@ public abstract class Filter implements Savable {
             return false;
         }
 
-
         public void beforeRender() {
         }
 
@@ -126,7 +125,6 @@ public abstract class Filter implements Savable {
         public Texture2D getDepthTexture() {
             return depthTexture;
         }
-        
 
         public Texture2D getRenderedTexture() {
             return renderedTexture;
@@ -160,15 +158,15 @@ public abstract class Filter implements Savable {
         this("filter");
     }
 
-    public void init(FilterPostProcessor parentProcessor, AssetManager manager, RenderManager renderManager, ViewPort vp, int w, int h) {
+    public void init(AssetManager manager, RenderManager renderManager, ViewPort vp, int w, int h) {
         //  cleanup(renderManager.getRenderer());
         defaultPass = new Pass();
-        defaultPass.init(renderManager.getRenderer(),w, h, getDefaultPassTextureFormat(), getDefaultPassDepthFormat());
-        processor = parentProcessor;
+        defaultPass.init(renderManager.getRenderer(), w, h, getDefaultPassTextureFormat(), getDefaultPassDepthFormat());
         initFilter(manager, renderManager, vp, w, h);
     }
 
     public void cleanup(Renderer r) {
+        processor = null;
         if (defaultPass != null) {
             defaultPass.cleanup(r);
         }
@@ -279,9 +277,9 @@ public abstract class Filter implements Savable {
     }
 
     public void setEnabled(boolean enabled) {
-        if(processor!=null){
+        if (processor != null) {
             processor.setFilterState(this, enabled);
-        }else{
+        } else {
             this.enabled = enabled;
         }
     }
@@ -289,5 +287,8 @@ public abstract class Filter implements Savable {
     public boolean isEnabled() {
         return enabled;
     }
-    
+
+    protected void setProcessor(FilterPostProcessor proc) {
+        processor = proc;
+    }
 }

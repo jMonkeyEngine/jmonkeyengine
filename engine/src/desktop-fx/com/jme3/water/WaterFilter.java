@@ -233,8 +233,8 @@ public class WaterFilter extends Filter {
         material.setBoolean("UseSpecular", useSpecular);
         material.setBoolean("UseFoam", useFoam);
         material.setBoolean("UseRefraction", useRefraction);
-        material.setFloat("m_ReflectionDisplace", reflectionDisplace);
-        material.setFloat("m_FoamIntensity", foamIntensity);
+        material.setFloat("ReflectionDisplace", reflectionDisplace);
+        material.setFloat("FoamIntensity", foamIntensity);
 
     }
 

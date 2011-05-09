@@ -72,9 +72,14 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
     private FrameBuffer outputBuffer;
     private int width;
     private int height;
-    private int bottom;
-    private int left;
+    private float bottom;
+    private float left;
+    private float right;
+    private float top;
+    private int originalWidth;
+    private int originalHeight;
     private int lastFilterIndex = -1;
+    private boolean cameraInit = false;
 
     /**
      * Create a FilterProcessor constructor
@@ -92,13 +97,14 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
 
     public void addFilter(Filter filter) {
         filters.add(filter);
+        filter.setProcessor(this);
 
         if (isInitialized()) {
             initFilter(filter, viewPort);
         }
-        if (filter.isEnabled()) {
-            lastFilterIndex = filters.size() - 1;
-        }
+
+        setFilterState(filter, filter.isEnabled());
+
     }
 
     public void removeFilter(Filter filter) {
@@ -118,14 +124,19 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
         fsQuad = new Picture("filter full screen quad");
 
         Camera cam = vp.getCamera();
+        left = cam.getViewPortLeft();
+        right = cam.getViewPortRight();
+        top = cam.getViewPortTop();
+        bottom = cam.getViewPortBottom();
         //Changing the viewPort to the filter cam an reseting the viewport of the viewport cam
-        filterCam.setViewPort(cam.getViewPortLeft(), cam.getViewPortRight(), cam.getViewPortBottom(), cam.getViewPortTop());
+        originalWidth = cam.getWidth();
+        originalHeight = cam.getHeight();
         cam.setViewPort(0, 1, 0, 1);
         reshape(vp, cam.getWidth(), cam.getHeight());
     }
 
     private void initFilter(Filter filter, ViewPort vp) {
-        filter.init(this, assetManager, renderManager, vp, width, height);
+        filter.init(assetManager, renderManager, vp, width, height);
         if (filter.isRequiresDepthTexture()) {
             if (!computeDepth && renderFrameBuffer != null) {
                 depthTexture = new Texture2D(width, height, Format.Depth24);
@@ -137,24 +148,25 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
     }
 
     private void renderProcessing(Renderer r, FrameBuffer buff, Material mat) {
-        if (buff == null) {
+        if (buff == outputBuffer) {
             fsQuad.setWidth(width);
             fsQuad.setHeight(height);
-            filterCam.resize(width, height, true);
+            filterCam.resize(originalWidth, originalHeight, true);
+            fsQuad.setPosition(left * originalWidth, bottom * originalHeight);
         } else {
             fsQuad.setWidth(buff.getWidth());
             fsQuad.setHeight(buff.getHeight());
             filterCam.resize(buff.getWidth(), buff.getHeight(), true);
+            fsQuad.setPosition(0, 0);
         }
 
 
         fsQuad.setMaterial(mat);
         fsQuad.updateGeometricState();
-        filterCam.setName("filterCam");
-        //fsQuad.setPosition(640, 360);
+
         renderManager.setCamera(filterCam, true);
         r.setFrameBuffer(buff);
-        r.clearBuffers(true, true, true);
+        r.clearBuffers(false, true, true);
         renderManager.renderGeometry(fsQuad);
     }
 
@@ -163,12 +175,14 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
     }
 
     public void postQueue(RenderQueue rq) {
+
         for (Iterator<Filter> it = filters.iterator(); it.hasNext();) {
             Filter filter = it.next();
             if (filter.isEnabled()) {
                 filter.preRender(renderManager, viewPort);
             }
         }
+
     }
 
     public void renderFilterChain(Renderer r) {
@@ -225,31 +239,45 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
     }
 
     public void postFrame(FrameBuffer out) {
-        //Added this to fix the issue where the filter were not rendered when an object in the scene had a DepthWrite to false. (particles for example)
-        //there should be a better way...
-        //   renderer.applyRenderState(RenderState.DEFAULT);
+
+
         if (renderFrameBufferMS != null && !renderer.getCaps().contains(Caps.OpenGL31)) {
             renderer.copyFrameBuffer(renderFrameBufferMS, renderFrameBuffer);
         }
         renderFilterChain(renderer);
+
     }
 
     public void preFrame(float tpf) {
         if (filters.isEmpty() || lastFilterIndex == -1) {
-            viewPort.setOutputFrameBuffer(outputBuffer);
+            //If the camera is initialized and there are no filter to render, the camera viewport is restored as it was
+            if (cameraInit) {
+                viewPort.getCamera().resize(originalWidth, originalHeight, true);
+                viewPort.getCamera().setViewPort(left, right, bottom, top);
+                viewPort.setOutputFrameBuffer(outputBuffer);
+                cameraInit = false;
+            }
+
         } else {
             if (renderFrameBufferMS != null) {
                 viewPort.setOutputFrameBuffer(renderFrameBufferMS);
             } else {
                 viewPort.setOutputFrameBuffer(renderFrameBuffer);
             }
+            //init of the camera if it wasn't already
+            if (!cameraInit) {
+                viewPort.getCamera().resize(width, height, true);
+                viewPort.getCamera().setViewPort(0, 1, 0, 1);
+            }
         }
+
         for (Iterator<Filter> it = filters.iterator(); it.hasNext();) {
             Filter filter = it.next();
             if (filter.isEnabled()) {
                 filter.preFrame(tpf);
             }
         }
+
     }
 
     protected void setFilterState(Filter filter, boolean enabled) {
@@ -267,25 +295,29 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
                 return;
             }
         }
-
+        if (lastFilterIndex == -1) {
+            cleanup();
+        }
     }
 
     public void cleanup() {
         if (viewPort != null) {
             //reseting the viewport camera viewport to its initial value
-            viewPort.getCamera().setViewPort(filterCam.getViewPortLeft(), filterCam.getViewPortRight(), filterCam.getViewPortBottom(), filterCam.getViewPortTop());
+            viewPort.getCamera().resize(originalWidth, originalHeight, true);
+            viewPort.getCamera().setViewPort(left, right, bottom, top);
             viewPort.setOutputFrameBuffer(outputBuffer);
             viewPort = null;
         }
+
     }
 
     public void reshape(ViewPort vp, int w, int h) {
-        Camera cam = vp.getCamera();
-        width = (int) (w * (Math.abs(cam.getViewPortRight() - cam.getViewPortLeft())));
-        height = (int) (h * (Math.abs(cam.getViewPortBottom() - cam.getViewPortTop())));
+        width = (int) (w * (Math.abs(right - left)));
+        height = (int) (h * (Math.abs(bottom - top)));
         width = Math.max(1, width);
         height = Math.max(1, height);
-        // vp.getCamera().resize(width, height, true);
+        vp.getCamera().resize(width, height, true);
+        cameraInit = true;
         computeDepth = false;
 
         if (renderFrameBuffer == null) {
