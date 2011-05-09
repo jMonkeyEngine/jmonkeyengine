@@ -85,7 +85,7 @@ extern "C" {
         btGeneric6DofConstraint* joint = (btGeneric6DofConstraint*) jointId;
         btVector3* vec = &btVector3();
         jmeBulletUtil::convert(env, vector, vec);
-        joint->setLinearUpperLimit(*vec);
+        joint->setLinearLowerLimit(*vec);
     }
 
     /*
@@ -98,7 +98,7 @@ extern "C" {
         btGeneric6DofConstraint* joint = (btGeneric6DofConstraint*) jointId;
         btVector3* vec = &btVector3();
         jmeBulletUtil::convert(env, vector, vec);
-        joint->setLinearUpperLimit(*vec);
+        joint->setAngularUpperLimit(*vec);
     }
 
     /*
