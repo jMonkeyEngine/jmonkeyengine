@@ -119,11 +119,11 @@ extern "C" {
         //TODO: matrix not needed?
         btMatrix3x3* mtx1=&btMatrix3x3();
         btMatrix3x3* mtx2=&btMatrix3x3();
-        btTransform* transA = &btTransform(*mtx1);
-        jmeBulletUtil::convert(env, pivotA, &transA->getOrigin());
-        btTransform* transB = &btTransform(*mtx2);
-        jmeBulletUtil::convert(env, pivotB, &transB->getOrigin());
-        btHingeConstraint* joint = new btHingeConstraint(*bodyA, *bodyB, *transA, *transB);
+        btTransform transA = btTransform(*mtx1);
+        jmeBulletUtil::convert(env, pivotA, &transA.getOrigin());
+        btTransform transB = btTransform(*mtx2);
+        jmeBulletUtil::convert(env, pivotB, &transB.getOrigin());
+        btHingeConstraint* joint = new btHingeConstraint(*bodyA, *bodyB, transA, transB);
         return (long) joint;
     }
 
