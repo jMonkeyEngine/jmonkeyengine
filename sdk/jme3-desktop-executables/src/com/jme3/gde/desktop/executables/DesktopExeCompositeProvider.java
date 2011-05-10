@@ -73,7 +73,7 @@ public class DesktopExeCompositeProvider implements ProjectCustomizer.CompositeC
             launch4j = new ProjectExtensionManager("launch4j", "v1.1", new String[]{"jar", "-launch4j-exe"});
             launch4j.setAntTaskLibrary("launch4j");
             macapp = new ProjectExtensionManager("macapp", "v1.1", new String[]{"jar", "-mac-app"});
-            linux = new ProjectExtensionManager("linuxlauncher", "v1.0", new String[]{"jar", "-linux-launcher"});
+            linux = new ProjectExtensionManager("linuxlauncher", "v1.1", new String[]{"jar", "-linux-launcher"});
         }
 
         public void actionPerformed(ActionEvent e) {

@@ -2,8 +2,9 @@
     <target name="-linux-launcher" depends="-test-linux-launcher-enabled" if="is.linux.launcher.enabled">
         <echo>Linux Launcher Creation</echo>
         <echo file="${application.title}.sh">#!/bin/sh
-java -jar ${application.title}.jar
+java JVMARGS -jar ${application.title}.jar
         </echo>
+        <replace file="${application.title}.sh" token="JVMARGS" value="${run.jvmargs}"/>
         <zip destfile="${dist.dir}/${application.title}-Linux.zip">
             <zipfileset file="${application.title}.sh" filemode="755" prefix=""/>
             <zipfileset file="${dist.jar}" prefix=""/>
