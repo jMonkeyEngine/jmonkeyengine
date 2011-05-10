@@ -197,6 +197,7 @@
             <linker name="${bullet.windows.compiler}" debug="${bullet.compile.debug}" >
                 <linkerarg value="-o${bullet.library.name}.dll" />
                 <linkerarg value="--kill-at" />
+                <linkerarg value="-static"/>
                 <libset dir="${bullet.folder}/lib" libs="BulletMultiThreaded,BulletDynamics,BulletCollision,LinearMath"/> 
             </linker>
         </cc>
