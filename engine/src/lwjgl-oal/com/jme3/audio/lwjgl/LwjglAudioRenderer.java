@@ -692,7 +692,7 @@ public class LwjglAudioRenderer implements AudioRenderer, Runnable {
             }
             if (src.isPositional()){
                 AudioNode pas = (AudioNode) src;
-                if (pas.getReverbFilter() != null){
+                if (pas.isReverbEnabled()) {
                     AL11.alSource3i(sourceId, EFX10.AL_AUXILIARY_SEND_FILTER, 0, 0, EFX10.AL_FILTER_NULL);
                 }
             }
