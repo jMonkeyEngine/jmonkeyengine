@@ -40,13 +40,13 @@ import com.jme3.bullet.collision.shapes.HullCollisionShape;
 import com.jme3.bullet.collision.shapes.MeshCollisionShape;
 import com.jme3.bullet.collision.shapes.infos.ChildCollisionShape;
 import com.jme3.math.Matrix3f;
-import com.jme3.math.Quaternion;
 import com.jme3.math.Transform;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
+import com.jme3.terrain.geomipmap.TerrainPatch;
 import com.jme3.terrain.geomipmap.TerrainQuad;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -147,6 +147,9 @@ public class CollisionShapeFactory {
         if (spatial instanceof TerrainQuad) {
             TerrainQuad terrain = (TerrainQuad) spatial;
             return new HeightfieldCollisionShape(terrain.getHeightMap(), terrain.getLocalScale());
+        } else if (spatial instanceof TerrainPatch) {
+            TerrainPatch terrain = (TerrainPatch) spatial;
+            return new HeightfieldCollisionShape(terrain.getHeightmap().array(), terrain.getLocalScale());
         } else if (spatial instanceof Geometry) {
             return createSingleMeshShape((Geometry) spatial, spatial);
         } else if (spatial instanceof Node) {
@@ -226,7 +229,7 @@ public class CollisionShapeFactory {
             return null;
         }
     }
-
+    
     /**
      * This method moves each child shape of a compound shape by the given vector
      * @param vector
