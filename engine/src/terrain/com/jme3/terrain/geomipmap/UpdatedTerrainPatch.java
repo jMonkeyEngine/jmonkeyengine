@@ -39,12 +39,12 @@ import com.jme3.scene.VertexBuffer.Type;
 /**
  * Stores a terrain patch's details so the LOD background thread can update
  * the actual terrain patch back on the ogl thread.
- * 
+ *
  * @author Brent Owens
  *
  */
 public class UpdatedTerrainPatch {
-	
+
 	private TerrainPatch updatedPatch;
 	private int newLod;
 	private int previousLod;
@@ -52,12 +52,12 @@ public class UpdatedTerrainPatch {
 	private IntBuffer newIndexBuffer;
 	private boolean reIndexNeeded = false;
 	private boolean fixEdges = false;
-	
+
 	public UpdatedTerrainPatch(TerrainPatch updatedPatch, int newLod) {
 		this.updatedPatch = updatedPatch;
 		this.newLod = newLod;
 	}
-	
+
 	public UpdatedTerrainPatch(TerrainPatch updatedPatch, int newLod, int prevLOD, boolean reIndexNeeded) {
 		this.updatedPatch = updatedPatch;
 		this.newLod = newLod;
@@ -70,14 +70,14 @@ public class UpdatedTerrainPatch {
 	public String getName() {
 		return updatedPatch.getName();
 	}
-	
+
 	protected boolean lodChanged() {
 		if (reIndexNeeded && previousLod != newLod)
 			return true;
 		else
 			return false;
 	}
-	
+
 	protected TerrainPatch getUpdatedPatch() {
 		return updatedPatch;
 	}
@@ -174,7 +174,7 @@ public class UpdatedTerrainPatch {
 		updatedPatch.setLodTop(topLod);
 		updatedPatch.setLodLeft(leftLod);
 		updatedPatch.setLodBottom(bottomLod);
-		if (reIndexNeeded || fixEdges) {
+		if (newIndexBuffer != null && (reIndexNeeded || fixEdges)) {
 			updatedPatch.setPreviousLod(previousLod);
 			updatedPatch.getMesh().clearBuffer(Type.Index);
 			updatedPatch.getMesh().setBuffer(Type.Index, 3, newIndexBuffer);
