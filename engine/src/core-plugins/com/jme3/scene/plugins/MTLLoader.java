@@ -70,10 +70,11 @@ public class MTLLoader implements AssetLoader {
         return v;
     }
 
-    protected void nextStatement(){
+    protected String nextStatement(){
         scan.useDelimiter("\n");
-        scan.next();
+        String result = scan.next();
         scan.useDelimiter("\\p{javaWhitespace}+");
+        return result;
     }
 
     protected void startMaterial(String name){
@@ -87,6 +88,11 @@ public class MTLLoader implements AssetLoader {
     }
     
     protected Texture loadTexture(String path){
+        String[] split = path.trim().split("\\p{javaWhitespace}+");
+        
+        // will crash if path is an empty string
+        path = split[split.length-1];
+        
         String name = new File(path).getName();
         TextureKey key = new TextureKey(folderName + name);
         key.setGenerateMips(true);
@@ -139,12 +145,13 @@ public class MTLLoader implements AssetLoader {
             }
         }else if (cmd.equals("map_ka")){
             // ignore it for now
+            nextStatement();
         }else if (cmd.equals("map_kd")){
-            String path = scan.next();
+            String path = nextStatement();
             material.setTexture("DiffuseMap", loadTexture(path));
         }else if (cmd.equals("map_bump") || cmd.equals("bump")){
             if (material.getParam("NormalMap") == null){
-                String path = scan.next();
+                String path = nextStatement();
                 Texture texture = loadTexture(path);
                 if (texture != null){
                     material.setTexture("NormalMap", texture);
@@ -154,7 +161,7 @@ public class MTLLoader implements AssetLoader {
                 }
             }
         }else if (cmd.equals("map_ks")){
-            String path = scan.next();
+            String path = nextStatement();
             Texture texture = loadTexture(path);
             if (texture != null){
                 material.setTexture("SpecularMap", texture);
