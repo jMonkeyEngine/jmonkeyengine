@@ -316,7 +316,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
         height = (int) (h * (Math.abs(bottom - top)));
         width = Math.max(1, width);
         height = Math.max(1, height);
-        vp.getCamera().resize(width, height, true);
+        vp.getCamera().resize(width, height, false);
         cameraInit = true;
         computeDepth = false;
 
