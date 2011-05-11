@@ -443,6 +443,8 @@ public class DefaultServer implements Server
         
         public Object setAttribute( String name, Object value )
         {
+            if( value == null )
+                return sessionData.remove(name);
             return sessionData.put(name, value);
         }
     

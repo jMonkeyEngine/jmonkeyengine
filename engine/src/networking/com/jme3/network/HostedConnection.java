@@ -68,7 +68,8 @@ public interface HostedConnection extends MessageConnection
     public void close( String reason );
     
     /**
-     *  Sets a session attribute specific to this connection.
+     *  Sets a session attribute specific to this connection.  If the value
+     *  is set to null then the attribute is removed.
      *
      *  @return The previous session value for this key or null
      *          if there was no previous value.
