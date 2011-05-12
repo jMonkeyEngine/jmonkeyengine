@@ -48,6 +48,11 @@ extern "C" {
     JNIEXPORT void JNICALL Java_com_jme3_bullet_joints_ConeJoint_setLimit
     (JNIEnv * env, jobject object, jlong jointId, jfloat swingSpan1, jfloat swingSpan2, jfloat twistSpan) {
         btConeTwistConstraint* joint = (btConeTwistConstraint*) jointId;
+        if (joint == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
         //TODO: extended setLimit!
         joint->setLimit(swingSpan1, swingSpan2, twistSpan);
     }
@@ -60,6 +65,11 @@ extern "C" {
     JNIEXPORT void JNICALL Java_com_jme3_bullet_joints_ConeJoint_setAngularOnly
     (JNIEnv * env, jobject object, jlong jointId, jboolean angularOnly) {
         btConeTwistConstraint* joint = (btConeTwistConstraint*) jointId;
+        if (joint == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
         joint->setAngularOnly(angularOnly);
     }
 

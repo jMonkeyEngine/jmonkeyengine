@@ -49,6 +49,11 @@ extern "C" {
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_VehicleWheel_getWheelLocation
     (JNIEnv *env, jobject object, jlong wheelId, jobject out) {
         btWheelInfo* wheel = (btWheelInfo*) wheelId;
+        if (wheel == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
         jmeBulletUtil::convert(env, &wheel->m_worldTransform.getOrigin(), out);
     }
 
@@ -60,6 +65,11 @@ extern "C" {
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_VehicleWheel_getWheelRotation
     (JNIEnv *env, jobject object, jlong wheelId, jobject out) {
         btWheelInfo* wheel = (btWheelInfo*) wheelId;
+        if (wheel == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
         jmeBulletUtil::convert(env, &wheel->m_worldTransform.getBasis(), out);
     }
 
@@ -92,6 +102,11 @@ extern "C" {
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_VehicleWheel_getCollisionLocation
     (JNIEnv *env, jobject object, jlong wheelId, jobject out) {
         btWheelInfo* wheel = (btWheelInfo*) wheelId;
+        if (wheel == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
         jmeBulletUtil::convert(env, &wheel->m_raycastInfo.m_contactPointWS, out);
     }
 
@@ -103,6 +118,11 @@ extern "C" {
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_VehicleWheel_getCollisionNormal
     (JNIEnv *env, jobject object, jlong wheelId, jobject out) {
         btWheelInfo* wheel = (btWheelInfo*) wheelId;
+        if (wheel == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
         jmeBulletUtil::convert(env, &wheel->m_raycastInfo.m_contactNormalWS, out);
     }
 
@@ -114,12 +134,22 @@ extern "C" {
     JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_objects_VehicleWheel_getSkidInfo
     (JNIEnv *env, jobject object, jlong wheelId) {
         btWheelInfo* wheel = (btWheelInfo*) wheelId;
+        if (wheel == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return 0;
+        }
         return wheel->m_skidInfo;
     }
 
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_VehicleWheel_finalizeNative
-      (JNIEnv *env, jobject object, jlong wheelId){
+    (JNIEnv *env, jobject object, jlong wheelId) {
         btWheelInfo* wheel = (btWheelInfo*) wheelId;
+        if (wheel == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
         delete(wheel);
     }
 #ifdef __cplusplus

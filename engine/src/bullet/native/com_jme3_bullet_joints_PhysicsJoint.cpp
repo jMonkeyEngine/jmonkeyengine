@@ -48,6 +48,11 @@ extern "C" {
     JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_joints_PhysicsJoint_getAppliedImpulse
     (JNIEnv * env, jobject object, jlong jointId) {
         btTypedConstraint* joint = (btTypedConstraint*) jointId;
+        if (joint == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return 0;
+        }
         return joint->getAppliedImpulse();
     }
 

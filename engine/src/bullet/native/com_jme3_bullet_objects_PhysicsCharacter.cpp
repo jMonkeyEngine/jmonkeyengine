@@ -63,6 +63,11 @@ extern "C" {
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsCharacter_setCharacterFlags
     (JNIEnv *env, jobject object, jlong ghostId) {
         btPairCachingGhostObject* ghost = (btPairCachingGhostObject*) ghostId;
+        if (ghost == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
         ghost->setCollisionFlags(ghost->getCollisionFlags() | btCollisionObject::CF_CHARACTER_OBJECT);
         ghost->setCollisionFlags(ghost->getCollisionFlags() & ~btCollisionObject::CF_NO_CONTACT_RESPONSE);
     }
@@ -75,6 +80,11 @@ extern "C" {
     JNIEXPORT jlong JNICALL Java_com_jme3_bullet_objects_PhysicsCharacter_createCharacterObject
     (JNIEnv *env, jobject object, jlong objectId, jlong shapeId, jfloat stepHeight) {
         btPairCachingGhostObject* ghost = (btPairCachingGhostObject*) objectId;
+        if (ghost == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return 0;
+        }
         //TODO: check convexshape!
         btConvexShape* shape = (btConvexShape*) shapeId;
         btKinematicCharacterController* character = new btKinematicCharacterController(ghost, shape, stepHeight);
@@ -89,6 +99,11 @@ extern "C" {
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsCharacter_warp
     (JNIEnv *env, jobject object, jlong objectId, jobject vector) {
         btKinematicCharacterController* character = (btKinematicCharacterController*) objectId;
+        if (character == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
         btVector3 vec = btVector3();
         jmeBulletUtil::convert(env, vector, &vec);
         character->warp(vec);
@@ -102,6 +117,11 @@ extern "C" {
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsCharacter_setWalkDirection
     (JNIEnv *env, jobject object, jlong objectId, jobject vector) {
         btKinematicCharacterController* character = (btKinematicCharacterController*) objectId;
+        if (character == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
         btVector3 vec = btVector3();
         jmeBulletUtil::convert(env, vector, &vec);
         character->setWalkDirection(vec);
@@ -115,6 +135,11 @@ extern "C" {
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsCharacter_setUpAxis
     (JNIEnv *env, jobject object, jlong objectId, jint value) {
         btKinematicCharacterController* character = (btKinematicCharacterController*) objectId;
+        if (character == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
         character->setUpAxis(value);
     }
 
@@ -126,6 +151,11 @@ extern "C" {
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsCharacter_setFallSpeed
     (JNIEnv *env, jobject object, jlong objectId, jfloat value) {
         btKinematicCharacterController* character = (btKinematicCharacterController*) objectId;
+        if (character == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
         character->setFallSpeed(value);
     }
 
@@ -137,6 +167,11 @@ extern "C" {
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsCharacter_setJumpSpeed
     (JNIEnv *env, jobject object, jlong objectId, jfloat value) {
         btKinematicCharacterController* character = (btKinematicCharacterController*) objectId;
+        if (character == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
         character->setJumpSpeed(value);
     }
 
@@ -148,6 +183,11 @@ extern "C" {
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsCharacter_setGravity
     (JNIEnv *env, jobject object, jlong objectId, jfloat value) {
         btKinematicCharacterController* character = (btKinematicCharacterController*) objectId;
+        if (character == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
         character->setGravity(value);
     }
 
@@ -159,6 +199,11 @@ extern "C" {
     JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_objects_PhysicsCharacter_getGravity
     (JNIEnv *env, jobject object, jlong objectId) {
         btKinematicCharacterController* character = (btKinematicCharacterController*) objectId;
+        if (character == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return 0;
+        }
         return character->getGravity();
     }
 
@@ -170,6 +215,11 @@ extern "C" {
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsCharacter_setMaxSlope
     (JNIEnv *env, jobject object, jlong objectId, jfloat value) {
         btKinematicCharacterController* character = (btKinematicCharacterController*) objectId;
+        if (character == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
         character->setMaxSlope(value);
     }
 
@@ -181,6 +231,11 @@ extern "C" {
     JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_objects_PhysicsCharacter_getMaxSlope
     (JNIEnv *env, jobject object, jlong objectId) {
         btKinematicCharacterController* character = (btKinematicCharacterController*) objectId;
+        if (character == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return 0;
+        }
         return character->getMaxSlope();
     }
 
@@ -192,6 +247,11 @@ extern "C" {
     JNIEXPORT jboolean JNICALL Java_com_jme3_bullet_objects_PhysicsCharacter_onGround
     (JNIEnv *env, jobject object, jlong objectId) {
         btKinematicCharacterController* character = (btKinematicCharacterController*) objectId;
+        if (character == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return false;
+        }
         return character->onGround();
     }
 
@@ -203,6 +263,11 @@ extern "C" {
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsCharacter_jump
     (JNIEnv *env, jobject object, jlong objectId) {
         btKinematicCharacterController* character = (btKinematicCharacterController*) objectId;
+        if (character == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
         character->jump();
     }
 
@@ -213,8 +278,13 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsCharacter_getPhysicsLocation
     (JNIEnv *env, jobject object, jlong objectId, jobject value) {
-        btGhostObject* character = (btGhostObject*) objectId;
-        jmeBulletUtil::convert(env, &character->getWorldTransform().getOrigin(), value);
+        btGhostObject* ghost = (btGhostObject*) objectId;
+        if (ghost == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
+        jmeBulletUtil::convert(env, &ghost->getWorldTransform().getOrigin(), value);
     }
 
     /*
@@ -224,8 +294,13 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsCharacter_setCcdSweptSphereRadius
     (JNIEnv *env, jobject object, jlong objectId, jfloat value) {
-        btGhostObject* character = (btGhostObject*) objectId;
-        character->setCcdSweptSphereRadius(value);
+        btGhostObject* ghost = (btGhostObject*) objectId;
+        if (ghost == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
+        ghost->setCcdSweptSphereRadius(value);
     }
 
     /*
@@ -235,8 +310,13 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsCharacter_setCcdMotionThreshold
     (JNIEnv *env, jobject object, jlong objectId, jfloat value) {
-        btGhostObject* character = (btGhostObject*) objectId;
-        character->setCcdMotionThreshold(value);
+        btGhostObject* ghost = (btGhostObject*) objectId;
+        if (ghost == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
+        ghost->setCcdMotionThreshold(value);
     }
 
     /*
@@ -246,8 +326,13 @@ extern "C" {
      */
     JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_objects_PhysicsCharacter_getCcdSweptSphereRadius
     (JNIEnv *env, jobject object, jlong objectId) {
-        btGhostObject* character = (btGhostObject*) objectId;
-        return character->getCcdSweptSphereRadius();
+        btGhostObject* ghost = (btGhostObject*) objectId;
+        if (ghost == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return 0;
+        }
+        return ghost->getCcdSweptSphereRadius();
     }
 
     /*
@@ -257,8 +342,13 @@ extern "C" {
      */
     JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_objects_PhysicsCharacter_getCcdMotionThreshold
     (JNIEnv *env, jobject object, jlong objectId) {
-        btGhostObject* character = (btGhostObject*) objectId;
-        return character->getCcdMotionThreshold();
+        btGhostObject* ghost = (btGhostObject*) objectId;
+        if (ghost == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return 0;
+        }
+        return ghost->getCcdMotionThreshold();
     }
 
     /*
@@ -268,8 +358,13 @@ extern "C" {
      */
     JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_objects_PhysicsCharacter_getCcdSquareMotionThreshold
     (JNIEnv *env, jobject object, jlong objectId) {
-        btGhostObject* character = (btGhostObject*) objectId;
-        return character->getCcdSquareMotionThreshold();
+        btGhostObject* ghost = (btGhostObject*) objectId;
+        if (ghost == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return 0;
+        }
+        return ghost->getCcdSquareMotionThreshold();
     }
 
     /*
@@ -280,6 +375,11 @@ extern "C" {
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsCharacter_finalizeNativeCharacter
     (JNIEnv *env, jobject object, jlong objectId) {
         btKinematicCharacterController* character = (btKinematicCharacterController*) objectId;
+        if (character == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
         delete(character);
     }
 

@@ -48,6 +48,11 @@ extern "C" {
     JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_joints_motors_RotationalLimitMotor_getLoLimit
     (JNIEnv *env, jobject object, jlong motorId) {
         btRotationalLimitMotor* motor = (btRotationalLimitMotor*) motorId;
+        if (motor == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return 0;
+        }
         return motor->m_loLimit;
     }
 
@@ -59,6 +64,11 @@ extern "C" {
     JNIEXPORT void JNICALL Java_com_jme3_bullet_joints_motors_RotationalLimitMotor_setLoLimit
     (JNIEnv *env, jobject object, jlong motorId, jfloat value) {
         btRotationalLimitMotor* motor = (btRotationalLimitMotor*) motorId;
+        if (motor == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
         motor->m_loLimit = value;
     }
 
@@ -70,6 +80,11 @@ extern "C" {
     JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_joints_motors_RotationalLimitMotor_getHiLimit
     (JNIEnv *env, jobject object, jlong motorId) {
         btRotationalLimitMotor* motor = (btRotationalLimitMotor*) motorId;
+        if (motor == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return 0;
+        }
         return motor->m_hiLimit;
     }
 
@@ -81,6 +96,11 @@ extern "C" {
     JNIEXPORT void JNICALL Java_com_jme3_bullet_joints_motors_RotationalLimitMotor_setHiLimit
     (JNIEnv *env, jobject object, jlong motorId, jfloat value) {
         btRotationalLimitMotor* motor = (btRotationalLimitMotor*) motorId;
+        if (motor == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
         motor->m_hiLimit = value;
     }
 
@@ -92,6 +112,11 @@ extern "C" {
     JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_joints_motors_RotationalLimitMotor_getTargetVelocity
     (JNIEnv *env, jobject object, jlong motorId) {
         btRotationalLimitMotor* motor = (btRotationalLimitMotor*) motorId;
+        if (motor == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return 0;
+        }
         return motor->m_targetVelocity;
     }
 
@@ -103,6 +128,11 @@ extern "C" {
     JNIEXPORT void JNICALL Java_com_jme3_bullet_joints_motors_RotationalLimitMotor_setTargetVelocity
     (JNIEnv *env, jobject object, jlong motorId, jfloat value) {
         btRotationalLimitMotor* motor = (btRotationalLimitMotor*) motorId;
+        if (motor == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
         motor->m_targetVelocity = value;
     }
 
@@ -114,6 +144,11 @@ extern "C" {
     JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_joints_motors_RotationalLimitMotor_getMaxMotorForce
     (JNIEnv *env, jobject object, jlong motorId) {
         btRotationalLimitMotor* motor = (btRotationalLimitMotor*) motorId;
+        if (motor == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return 0;
+        }
         return motor->m_maxMotorForce;
     }
 
@@ -125,6 +160,11 @@ extern "C" {
     JNIEXPORT void JNICALL Java_com_jme3_bullet_joints_motors_RotationalLimitMotor_setMaxMotorForce
     (JNIEnv *env, jobject object, jlong motorId, jfloat value) {
         btRotationalLimitMotor* motor = (btRotationalLimitMotor*) motorId;
+        if (motor == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
         motor->m_maxMotorForce = value;
     }
 
@@ -136,6 +176,11 @@ extern "C" {
     JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_joints_motors_RotationalLimitMotor_getMaxLimitForce
     (JNIEnv *env, jobject object, jlong motorId) {
         btRotationalLimitMotor* motor = (btRotationalLimitMotor*) motorId;
+        if (motor == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return 0;
+        }
         return motor->m_maxLimitForce;
     }
 
@@ -147,6 +192,11 @@ extern "C" {
     JNIEXPORT void JNICALL Java_com_jme3_bullet_joints_motors_RotationalLimitMotor_setMaxLimitForce
     (JNIEnv *env, jobject object, jlong motorId, jfloat value) {
         btRotationalLimitMotor* motor = (btRotationalLimitMotor*) motorId;
+        if (motor == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
         motor->m_maxLimitForce = value;
     }
 
@@ -158,6 +208,11 @@ extern "C" {
     JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_joints_motors_RotationalLimitMotor_getDamping
     (JNIEnv *env, jobject object, jlong motorId) {
         btRotationalLimitMotor* motor = (btRotationalLimitMotor*) motorId;
+        if (motor == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return 0;
+        }
         return motor->m_damping;
     }
 
@@ -169,6 +224,11 @@ extern "C" {
     JNIEXPORT void JNICALL Java_com_jme3_bullet_joints_motors_RotationalLimitMotor_setDamping
     (JNIEnv *env, jobject object, jlong motorId, jfloat value) {
         btRotationalLimitMotor* motor = (btRotationalLimitMotor*) motorId;
+        if (motor == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
         motor->m_damping = value;
     }
 
@@ -180,6 +240,11 @@ extern "C" {
     JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_joints_motors_RotationalLimitMotor_getLimitSoftness
     (JNIEnv *env, jobject object, jlong motorId) {
         btRotationalLimitMotor* motor = (btRotationalLimitMotor*) motorId;
+        if (motor == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return 0;
+        }
         return motor->m_limitSoftness;
     }
 
@@ -191,6 +256,11 @@ extern "C" {
     JNIEXPORT void JNICALL Java_com_jme3_bullet_joints_motors_RotationalLimitMotor_setLimitSoftness
     (JNIEnv *env, jobject object, jlong motorId, jfloat value) {
         btRotationalLimitMotor* motor = (btRotationalLimitMotor*) motorId;
+        if (motor == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
         motor->m_limitSoftness = value;
     }
 
@@ -202,6 +272,11 @@ extern "C" {
     JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_joints_motors_RotationalLimitMotor_getERP
     (JNIEnv *env, jobject object, jlong motorId) {
         btRotationalLimitMotor* motor = (btRotationalLimitMotor*) motorId;
+        if (motor == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return 0;
+        }
         return motor->m_stopERP;
     }
 
@@ -213,6 +288,11 @@ extern "C" {
     JNIEXPORT void JNICALL Java_com_jme3_bullet_joints_motors_RotationalLimitMotor_setERP
     (JNIEnv *env, jobject object, jlong motorId, jfloat value) {
         btRotationalLimitMotor* motor = (btRotationalLimitMotor*) motorId;
+        if (motor == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
         motor->m_stopERP = value;
     }
 
@@ -224,6 +304,11 @@ extern "C" {
     JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_joints_motors_RotationalLimitMotor_getBounce
     (JNIEnv *env, jobject object, jlong motorId) {
         btRotationalLimitMotor* motor = (btRotationalLimitMotor*) motorId;
+        if (motor == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return 0;
+        }
         return motor->m_bounce;
     }
 
@@ -235,6 +320,11 @@ extern "C" {
     JNIEXPORT void JNICALL Java_com_jme3_bullet_joints_motors_RotationalLimitMotor_setBounce
     (JNIEnv *env, jobject object, jlong motorId, jfloat value) {
         btRotationalLimitMotor* motor = (btRotationalLimitMotor*) motorId;
+        if (motor == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
         motor->m_bounce = value;
     }
 
@@ -246,6 +336,11 @@ extern "C" {
     JNIEXPORT jboolean JNICALL Java_com_jme3_bullet_joints_motors_RotationalLimitMotor_isEnableMotor
     (JNIEnv *env, jobject object, jlong motorId) {
         btRotationalLimitMotor* motor = (btRotationalLimitMotor*) motorId;
+        if (motor == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return false;
+        }
         return motor->m_enableMotor;
     }
 
@@ -257,6 +352,11 @@ extern "C" {
     JNIEXPORT void JNICALL Java_com_jme3_bullet_joints_motors_RotationalLimitMotor_setEnableMotor
     (JNIEnv *env, jobject object, jlong motorId, jboolean value) {
         btRotationalLimitMotor* motor = (btRotationalLimitMotor*) motorId;
+        if (motor == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
         motor->m_enableMotor = value;
     }
 

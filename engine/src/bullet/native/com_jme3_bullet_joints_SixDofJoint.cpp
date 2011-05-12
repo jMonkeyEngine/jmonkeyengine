@@ -48,7 +48,12 @@ extern "C" {
     JNIEXPORT jlong JNICALL Java_com_jme3_bullet_joints_SixDofJoint_getRotationalLimitMotor
     (JNIEnv * env, jobject object, jlong jointId, jint index) {
         btGeneric6DofConstraint* joint = (btGeneric6DofConstraint*) jointId;
-        return (long)joint->getRotationalLimitMotor(index);
+        if (joint == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return 0;
+        }
+        return (long) joint->getRotationalLimitMotor(index);
     }
 
     /*
@@ -59,7 +64,12 @@ extern "C" {
     JNIEXPORT jlong JNICALL Java_com_jme3_bullet_joints_SixDofJoint_getTranslationalLimitMotor
     (JNIEnv * env, jobject object, jlong jointId) {
         btGeneric6DofConstraint* joint = (btGeneric6DofConstraint*) jointId;
-        return (long)joint->getTranslationalLimitMotor();
+        if (joint == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return 0;
+        }
+        return (long) joint->getTranslationalLimitMotor();
     }
 
     /*
@@ -70,6 +80,11 @@ extern "C" {
     JNIEXPORT void JNICALL Java_com_jme3_bullet_joints_SixDofJoint_setLinearUpperLimit
     (JNIEnv * env, jobject object, jlong jointId, jobject vector) {
         btGeneric6DofConstraint* joint = (btGeneric6DofConstraint*) jointId;
+        if (joint == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
         btVector3 vec = btVector3();
         jmeBulletUtil::convert(env, vector, &vec);
         joint->setLinearUpperLimit(vec);
@@ -83,6 +98,11 @@ extern "C" {
     JNIEXPORT void JNICALL Java_com_jme3_bullet_joints_SixDofJoint_setLinearLowerLimit
     (JNIEnv * env, jobject object, jlong jointId, jobject vector) {
         btGeneric6DofConstraint* joint = (btGeneric6DofConstraint*) jointId;
+        if (joint == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
         btVector3 vec = btVector3();
         jmeBulletUtil::convert(env, vector, &vec);
         joint->setLinearLowerLimit(vec);
@@ -96,6 +116,11 @@ extern "C" {
     JNIEXPORT void JNICALL Java_com_jme3_bullet_joints_SixDofJoint_setAngularUpperLimit
     (JNIEnv * env, jobject object, jlong jointId, jobject vector) {
         btGeneric6DofConstraint* joint = (btGeneric6DofConstraint*) jointId;
+        if (joint == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
         btVector3 vec = btVector3();
         jmeBulletUtil::convert(env, vector, &vec);
         joint->setAngularUpperLimit(vec);
@@ -109,6 +134,11 @@ extern "C" {
     JNIEXPORT void JNICALL Java_com_jme3_bullet_joints_SixDofJoint_setAngularLowerLimit
     (JNIEnv * env, jobject object, jlong jointId, jobject vector) {
         btGeneric6DofConstraint* joint = (btGeneric6DofConstraint*) jointId;
+        if (joint == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
         btVector3 vec = btVector3();
         jmeBulletUtil::convert(env, vector, &vec);
         joint->setAngularLowerLimit(vec);
@@ -133,7 +163,7 @@ extern "C" {
         jmeBulletUtil::convert(env, pivotB, &transB.getOrigin());
         jmeBulletUtil::convert(env, rotB, &transB.getBasis());
         btGeneric6DofConstraint* joint = new btGeneric6DofConstraint(*bodyA, *bodyB, transA, transB, useLinearReferenceFrameA);
-        return (long)joint;
+        return (long) joint;
     }
 #ifdef __cplusplus
 }

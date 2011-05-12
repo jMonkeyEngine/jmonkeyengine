@@ -48,6 +48,11 @@ extern "C" {
     JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_collision_shapes_CollisionShape_getMargin
     (JNIEnv * env, jobject object, jlong shapeId) {
         btCollisionShape* shape = (btCollisionShape*) shapeId;
+        if (shape == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return 0;
+        }
         return shape->getMargin();
     }
 
@@ -59,6 +64,11 @@ extern "C" {
     JNIEXPORT void JNICALL Java_com_jme3_bullet_collision_shapes_CollisionShape_setLocalScaling
     (JNIEnv * env, jobject object, jlong shapeId, jobject scale) {
         btCollisionShape* shape = (btCollisionShape*) shapeId;
+        if (shape == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
         btVector3 scl = btVector3();
         jmeBulletUtil::convert(env, scale, &scl);
         shape->setLocalScaling(scl);
@@ -72,6 +82,11 @@ extern "C" {
     JNIEXPORT void JNICALL Java_com_jme3_bullet_collision_shapes_CollisionShape_setMargin
     (JNIEnv * env, jobject object, jlong shapeId, jfloat newMargin) {
         btCollisionShape* shape = (btCollisionShape*) shapeId;
+        if (shape == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
         shape->setMargin(newMargin);
     }
 
@@ -83,6 +98,11 @@ extern "C" {
     JNIEXPORT void JNICALL Java_com_jme3_bullet_collision_shapes_CollisionShape_finalizeNative
     (JNIEnv * env, jobject object, jlong shapeId) {
         btCollisionShape* shape = (btCollisionShape*) shapeId;
+        if (shape == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
         delete(shape);
     }
 #ifdef __cplusplus

@@ -50,7 +50,7 @@ extern "C" {
         jmeClasses::initJavaClasses(env);
         jmePhysicsSpace* space = new jmePhysicsSpace(env, object);
         if (space == NULL) {
-            jclass newExc = env->FindClass("java/lang/IllegalStateException");
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The physics space has not been created.");
             return 0;
         }
@@ -67,7 +67,7 @@ extern "C" {
     (JNIEnv * env, jobject object, jlong spaceId, jfloat tpf, jint maxSteps, jfloat accuracy) {
         jmePhysicsSpace* space = (jmePhysicsSpace*) spaceId;
         if (space == NULL) {
-            jclass newExc = env->FindClass("java/lang/IllegalStateException");
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The physics space does not exist.");
             return;
         }
@@ -84,12 +84,12 @@ extern "C" {
         jmePhysicsSpace* space = (jmePhysicsSpace*) spaceId;
         btCollisionObject* collisionObject = (btCollisionObject*) objectId;
         if (space == NULL) {
-            jclass newExc = env->FindClass("java/lang/IllegalStateException");
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The physics space does not exist.");
             return;
         }
         if (collisionObject == NULL) {
-            jclass newExc = env->FindClass("java/lang/IllegalStateException");
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The collision object does not exist.");
             return;
         }
@@ -106,12 +106,12 @@ extern "C" {
         jmePhysicsSpace* space = (jmePhysicsSpace*) spaceId;
         btCollisionObject* collisionObject = (btCollisionObject*) objectId;
         if (space == NULL) {
-            jclass newExc = env->FindClass("java/lang/IllegalStateException");
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The physics space does not exist.");
             return;
         }
         if (collisionObject == NULL) {
-            jclass newExc = env->FindClass("java/lang/IllegalStateException");
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The collision object does not exist.");
             return;
         }
@@ -128,12 +128,12 @@ extern "C" {
         jmePhysicsSpace* space = (jmePhysicsSpace*) spaceId;
         btRigidBody* collisionObject = (btRigidBody*) rigidBodyId;
         if (space == NULL) {
-            jclass newExc = env->FindClass("java/lang/IllegalStateException");
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The physics space does not exist.");
             return;
         }
         if (collisionObject == NULL) {
-            jclass newExc = env->FindClass("java/lang/IllegalStateException");
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The collision object does not exist.");
             return;
         }
@@ -150,12 +150,12 @@ extern "C" {
         jmePhysicsSpace* space = (jmePhysicsSpace*) spaceId;
         btRigidBody* collisionObject = (btRigidBody*) rigidBodyId;
         if (space == NULL) {
-            jclass newExc = env->FindClass("java/lang/IllegalStateException");
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The physics space does not exist.");
             return;
         }
         if (collisionObject == NULL) {
-            jclass newExc = env->FindClass("java/lang/IllegalStateException");
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The collision object does not exist.");
             return;
         }
@@ -172,12 +172,12 @@ extern "C" {
         jmePhysicsSpace* space = (jmePhysicsSpace*) spaceId;
         btCollisionObject* collisionObject = (btCollisionObject*) objectId;
         if (space == NULL) {
-            jclass newExc = env->FindClass("java/lang/IllegalStateException");
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The physics space does not exist.");
             return;
         }
         if (collisionObject == NULL) {
-            jclass newExc = env->FindClass("java/lang/IllegalStateException");
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The collision object does not exist.");
             return;
         }
@@ -194,12 +194,12 @@ extern "C" {
         jmePhysicsSpace* space = (jmePhysicsSpace*) spaceId;
         btCollisionObject* collisionObject = (btCollisionObject*) objectId;
         if (space == NULL) {
-            jclass newExc = env->FindClass("java/lang/IllegalStateException");
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The physics space does not exist.");
             return;
         }
         if (collisionObject == NULL) {
-            jclass newExc = env->FindClass("java/lang/IllegalStateException");
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The collision object does not exist.");
             return;
         }
@@ -216,12 +216,12 @@ extern "C" {
         jmePhysicsSpace* space = (jmePhysicsSpace*) spaceId;
         btActionInterface* actionObject = (btActionInterface*) objectId;
         if (space == NULL) {
-            jclass newExc = env->FindClass("java/lang/IllegalStateException");
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The physics space does not exist.");
             return;
         }
         if (actionObject == NULL) {
-            jclass newExc = env->FindClass("java/lang/IllegalStateException");
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The action object does not exist.");
             return;
         }
@@ -238,12 +238,12 @@ extern "C" {
         jmePhysicsSpace* space = (jmePhysicsSpace*) spaceId;
         btActionInterface* actionObject = (btActionInterface*) objectId;
         if (space == NULL) {
-            jclass newExc = env->FindClass("java/lang/IllegalStateException");
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The physics space does not exist.");
             return;
         }
         if (actionObject == NULL) {
-            jclass newExc = env->FindClass("java/lang/IllegalStateException");
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The action object does not exist.");
             return;
         }
@@ -260,12 +260,12 @@ extern "C" {
         jmePhysicsSpace* space = (jmePhysicsSpace*) spaceId;
         btActionInterface* actionObject = (btActionInterface*) objectId;
         if (space == NULL) {
-            jclass newExc = env->FindClass("java/lang/IllegalStateException");
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The physics space does not exist.");
             return;
         }
         if (actionObject == NULL) {
-            jclass newExc = env->FindClass("java/lang/IllegalStateException");
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The vehicle object does not exist.");
             return;
         }
@@ -282,12 +282,12 @@ extern "C" {
         jmePhysicsSpace* space = (jmePhysicsSpace*) spaceId;
         btActionInterface* actionObject = (btActionInterface*) objectId;
         if (space == NULL) {
-            jclass newExc = env->FindClass("java/lang/IllegalStateException");
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The physics space does not exist.");
             return;
         }
         if (actionObject == NULL) {
-            jclass newExc = env->FindClass("java/lang/IllegalStateException");
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The action object does not exist.");
             return;
         }
@@ -304,12 +304,12 @@ extern "C" {
         jmePhysicsSpace* space = (jmePhysicsSpace*) spaceId;
         btTypedConstraint* constraint = (btTypedConstraint*) objectId;
         if (space == NULL) {
-            jclass newExc = env->FindClass("java/lang/IllegalStateException");
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The physics space does not exist.");
             return;
         }
         if (constraint == NULL) {
-            jclass newExc = env->FindClass("java/lang/IllegalStateException");
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The constraint object does not exist.");
             return;
         }
@@ -326,12 +326,12 @@ extern "C" {
         jmePhysicsSpace* space = (jmePhysicsSpace*) spaceId;
         btTypedConstraint* constraint = (btTypedConstraint*) objectId;
         if (space == NULL) {
-            jclass newExc = env->FindClass("java/lang/IllegalStateException");
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The physics space does not exist.");
             return;
         }
         if (constraint == NULL) {
-            jclass newExc = env->FindClass("java/lang/IllegalStateException");
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The constraint object does not exist.");
             return;
         }
@@ -347,7 +347,7 @@ extern "C" {
     (JNIEnv * env, jobject object, jlong spaceId, jobject vector) {
         jmePhysicsSpace* space = (jmePhysicsSpace*) spaceId;
         if (space == NULL) {
-            jclass newExc = env->FindClass("java/lang/IllegalStateException");
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The physics space does not exist.");
             return;
         }

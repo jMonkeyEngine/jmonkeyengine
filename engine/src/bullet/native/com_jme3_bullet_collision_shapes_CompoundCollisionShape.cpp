@@ -60,7 +60,17 @@ extern "C" {
     JNIEXPORT jlong JNICALL Java_com_jme3_bullet_collision_shapes_CompoundCollisionShape_addChildShape
     (JNIEnv *env, jobject object, jlong compoundId, jlong childId, jobject childLocation, jobject childRotation) {
         btCompoundShape* shape = (btCompoundShape*) compoundId;
+        if (shape == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return 0;
+        }
         btCollisionShape* child = (btCollisionShape*) childId;
+        if (shape == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return 0;
+        }
         btMatrix3x3 mtx = btMatrix3x3();
         btTransform trans = btTransform(mtx);
         jmeBulletUtil::convert(env, childLocation, &trans.getOrigin());
@@ -77,7 +87,17 @@ extern "C" {
     JNIEXPORT jlong JNICALL Java_com_jme3_bullet_collision_shapes_CompoundCollisionShape_removeChildShape
     (JNIEnv * env, jobject object, jlong compoundId, jlong childId) {
         btCompoundShape* shape = (btCompoundShape*) compoundId;
+        if (shape == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return 0;
+        }
         btCollisionShape* child = (btCollisionShape*) childId;
+        if (shape == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return 0;
+        }
         shape->removeChildShape(child);
         return 0;
     }

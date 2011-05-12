@@ -61,6 +61,11 @@ extern "C" {
     JNIEXPORT jboolean JNICALL Java_com_jme3_bullet_objects_infos_RigidBodyMotionState_applyTransform
     (JNIEnv *env, jobject object, jlong stateId, jobject location, jobject rotation) {
         jmeMotionState* motionState = (jmeMotionState*) stateId;
+        if (motionState == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return false;
+        }
         return motionState->applyTransform(env, location, rotation);
     }
 
@@ -72,6 +77,11 @@ extern "C" {
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_infos_RigidBodyMotionState_getWorldLocation
     (JNIEnv *env, jobject object, jlong stateId, jobject value) {
         jmeMotionState* motionState = (jmeMotionState*) stateId;
+        if (motionState == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
         jmeBulletUtil::convert(env, &motionState->worldTransform.getOrigin(), value);
     }
 
@@ -83,6 +93,11 @@ extern "C" {
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_infos_RigidBodyMotionState_getWorldRotation
     (JNIEnv *env, jobject object, jlong stateId, jobject value) {
         jmeMotionState* motionState = (jmeMotionState*) stateId;
+        if (motionState == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
         jmeBulletUtil::convert(env, &motionState->worldTransform.getBasis(), value);
     }
 
@@ -94,6 +109,11 @@ extern "C" {
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_infos_RigidBodyMotionState_getWorldRotationQuat
     (JNIEnv *env, jobject object, jlong stateId, jobject value) {
         jmeMotionState* motionState = (jmeMotionState*) stateId;
+        if (motionState == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
         jmeBulletUtil::convertQuat(env, &motionState->worldTransform.getBasis(), value);
     }
 
@@ -103,8 +123,13 @@ extern "C" {
      * Signature: (J)V
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_infos_RigidBodyMotionState_finalizeNative
-    (JNIEnv *env, jobject object, jlong stateId){
+    (JNIEnv *env, jobject object, jlong stateId) {
         jmeMotionState* motionState = (jmeMotionState*) stateId;
+        if (motionState == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
         delete(motionState);
     }
 

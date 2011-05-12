@@ -48,6 +48,11 @@ extern "C" {
     JNIEXPORT void JNICALL Java_com_jme3_bullet_joints_HingeJoint_enableMotor
     (JNIEnv * env, jobject object, jlong jointId, jboolean enable, jfloat targetVelocity, jfloat maxMotorImpulse) {
         btHingeConstraint* joint = (btHingeConstraint*) jointId;
+        if (joint == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
         joint->enableAngularMotor(enable, targetVelocity, maxMotorImpulse);
     }
 
@@ -59,6 +64,11 @@ extern "C" {
     JNIEXPORT jboolean JNICALL Java_com_jme3_bullet_joints_HingeJoint_getEnableAngularMotor
     (JNIEnv * env, jobject object, jlong jointId) {
         btHingeConstraint* joint = (btHingeConstraint*) jointId;
+        if (joint == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return false;
+        }
         return joint->getEnableAngularMotor();
     }
 
@@ -70,6 +80,11 @@ extern "C" {
     JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_joints_HingeJoint_getMotorTargetVelocity
     (JNIEnv * env, jobject object, jlong jointId) {
         btHingeConstraint* joint = (btHingeConstraint*) jointId;
+        if (joint == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return 0;
+        }
         return joint->getMotorTargetVelosity();
     }
 
@@ -81,6 +96,11 @@ extern "C" {
     JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_joints_HingeJoint_getMaxMotorImpulse
     (JNIEnv * env, jobject object, jlong jointId) {
         btHingeConstraint* joint = (btHingeConstraint*) jointId;
+        if (joint == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return 0;
+        }
         return joint->getMaxMotorImpulse();
     }
 
@@ -92,6 +112,11 @@ extern "C" {
     JNIEXPORT void JNICALL Java_com_jme3_bullet_joints_HingeJoint_setLimit__JFF
     (JNIEnv * env, jobject object, jlong jointId, jfloat low, jfloat high) {
         btHingeConstraint* joint = (btHingeConstraint*) jointId;
+        if (joint == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
         return joint->setLimit(low, high);
     }
 
@@ -103,6 +128,11 @@ extern "C" {
     JNIEXPORT void JNICALL Java_com_jme3_bullet_joints_HingeJoint_setLimit__JFFFFF
     (JNIEnv * env, jobject object, jlong jointId, jfloat low, jfloat high, jfloat softness, jfloat biasFactor, jfloat relaxationFactor) {
         btHingeConstraint* joint = (btHingeConstraint*) jointId;
+        if (joint == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
         return joint->setLimit(low, high, softness, biasFactor, relaxationFactor);
     }
 
@@ -114,6 +144,11 @@ extern "C" {
     JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_joints_HingeJoint_getUpperLimit
     (JNIEnv * env, jobject object, jlong jointId) {
         btHingeConstraint* joint = (btHingeConstraint*) jointId;
+        if (joint == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return 0;
+        }
         return joint->getUpperLimit();
     }
 
@@ -125,6 +160,11 @@ extern "C" {
     JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_joints_HingeJoint_getLowerLimit
     (JNIEnv * env, jobject object, jlong jointId) {
         btHingeConstraint* joint = (btHingeConstraint*) jointId;
+        if (joint == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return 0;
+        }
         return joint->getLowerLimit();
     }
 
@@ -136,6 +176,11 @@ extern "C" {
     JNIEXPORT void JNICALL Java_com_jme3_bullet_joints_HingeJoint_setAngularOnly
     (JNIEnv * env, jobject object, jlong jointId, jboolean angular) {
         btHingeConstraint* joint = (btHingeConstraint*) jointId;
+        if (joint == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
         joint->setAngularOnly(angular);
     }
 
@@ -147,6 +192,11 @@ extern "C" {
     JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_joints_HingeJoint_getHingeAngle
     (JNIEnv * env, jobject object, jlong jointId) {
         btHingeConstraint* joint = (btHingeConstraint*) jointId;
+        if (joint == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return 0;
+        }
         return joint->getHingeAngle();
     }
 

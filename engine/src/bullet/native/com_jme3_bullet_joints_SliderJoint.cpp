@@ -48,6 +48,11 @@ extern "C" {
     JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_joints_SliderJoint_getLowerLinLimit
     (JNIEnv * env, jobject object, jlong jointId) {
         btSliderConstraint* joint = (btSliderConstraint*) jointId;
+        if (joint == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return 0;
+        }
         return joint->getLowerLinLimit();
     }
 
@@ -59,6 +64,11 @@ extern "C" {
     JNIEXPORT void JNICALL Java_com_jme3_bullet_joints_SliderJoint_setLowerLinLimit
     (JNIEnv * env, jobject object, jlong jointId, jfloat value) {
         btSliderConstraint* joint = (btSliderConstraint*) jointId;
+        if (joint == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
         joint->setLowerLinLimit(value);
     }
 
@@ -70,6 +80,11 @@ extern "C" {
     JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_joints_SliderJoint_getUpperLinLimit
     (JNIEnv * env, jobject object, jlong jointId) {
         btSliderConstraint* joint = (btSliderConstraint*) jointId;
+        if (joint == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return 0;
+        }
         return joint->getUpperLinLimit();
     }
 
@@ -81,6 +96,11 @@ extern "C" {
     JNIEXPORT void JNICALL Java_com_jme3_bullet_joints_SliderJoint_setUpperLinLimit
     (JNIEnv * env, jobject object, jlong jointId, jfloat value) {
         btSliderConstraint* joint = (btSliderConstraint*) jointId;
+        if (joint == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
         joint->setUpperLinLimit(value);
     }
 
@@ -92,6 +112,11 @@ extern "C" {
     JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_joints_SliderJoint_getLowerAngLimit
     (JNIEnv * env, jobject object, jlong jointId) {
         btSliderConstraint* joint = (btSliderConstraint*) jointId;
+        if (joint == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return 0;
+        }
         return joint->getLowerAngLimit();
     }
 
@@ -103,6 +128,11 @@ extern "C" {
     JNIEXPORT void JNICALL Java_com_jme3_bullet_joints_SliderJoint_setLowerAngLimit
     (JNIEnv * env, jobject object, jlong jointId, jfloat value) {
         btSliderConstraint* joint = (btSliderConstraint*) jointId;
+        if (joint == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
         joint->setLowerAngLimit(value);
     }
 
@@ -114,6 +144,11 @@ extern "C" {
     JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_joints_SliderJoint_getUpperAngLimit
     (JNIEnv * env, jobject object, jlong jointId) {
         btSliderConstraint* joint = (btSliderConstraint*) jointId;
+        if (joint == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return 0;
+        }
         return joint->getUpperAngLimit();
     }
 
@@ -125,6 +160,11 @@ extern "C" {
     JNIEXPORT void JNICALL Java_com_jme3_bullet_joints_SliderJoint_setUpperAngLimit
     (JNIEnv * env, jobject object, jlong jointId, jfloat value) {
         btSliderConstraint* joint = (btSliderConstraint*) jointId;
+        if (joint == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
         joint->setUpperAngLimit(value);
     }
 
@@ -136,6 +176,11 @@ extern "C" {
     JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_joints_SliderJoint_getSoftnessDirLin
     (JNIEnv * env, jobject object, jlong jointId) {
         btSliderConstraint* joint = (btSliderConstraint*) jointId;
+        if (joint == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return 0;
+        }
         return joint->getSoftnessDirLin();
     }
 
@@ -147,6 +192,11 @@ extern "C" {
     JNIEXPORT void JNICALL Java_com_jme3_bullet_joints_SliderJoint_setSoftnessDirLin
     (JNIEnv * env, jobject object, jlong jointId, jfloat value) {
         btSliderConstraint* joint = (btSliderConstraint*) jointId;
+        if (joint == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
         joint->setSoftnessDirLin(value);
     }
 
@@ -158,6 +208,11 @@ extern "C" {
     JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_joints_SliderJoint_getRestitutionDirLin
     (JNIEnv * env, jobject object, jlong jointId) {
         btSliderConstraint* joint = (btSliderConstraint*) jointId;
+        if (joint == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return 0;
+        }
         return joint->getRestitutionDirLin();
     }
 
@@ -169,6 +224,11 @@ extern "C" {
     JNIEXPORT void JNICALL Java_com_jme3_bullet_joints_SliderJoint_setRestitutionDirLin
     (JNIEnv * env, jobject object, jlong jointId, jfloat value) {
         btSliderConstraint* joint = (btSliderConstraint*) jointId;
+        if (joint == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
         joint->setRestitutionDirLin(value);
     }
 
@@ -180,6 +240,11 @@ extern "C" {
     JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_joints_SliderJoint_getDampingDirLin
     (JNIEnv * env, jobject object, jlong jointId) {
         btSliderConstraint* joint = (btSliderConstraint*) jointId;
+        if (joint == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return 0;
+        }
         return joint->getDampingDirLin();
     }
 
@@ -191,6 +256,11 @@ extern "C" {
     JNIEXPORT void JNICALL Java_com_jme3_bullet_joints_SliderJoint_setDampingDirLin
     (JNIEnv * env, jobject object, jlong jointId, jfloat value) {
         btSliderConstraint* joint = (btSliderConstraint*) jointId;
+        if (joint == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
         joint->setDampingDirLin(value);
     }
 
@@ -202,6 +272,11 @@ extern "C" {
     JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_joints_SliderJoint_getSoftnessDirAng
     (JNIEnv * env, jobject object, jlong jointId) {
         btSliderConstraint* joint = (btSliderConstraint*) jointId;
+        if (joint == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return 0;
+        }
         return joint->getSoftnessDirAng();
     }
 
@@ -213,6 +288,11 @@ extern "C" {
     JNIEXPORT void JNICALL Java_com_jme3_bullet_joints_SliderJoint_setSoftnessDirAng
     (JNIEnv * env, jobject object, jlong jointId, jfloat value) {
         btSliderConstraint* joint = (btSliderConstraint*) jointId;
+        if (joint == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
         joint->setSoftnessDirAng(value);
     }
 
@@ -224,6 +304,11 @@ extern "C" {
     JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_joints_SliderJoint_getRestitutionDirAng
     (JNIEnv * env, jobject object, jlong jointId) {
         btSliderConstraint* joint = (btSliderConstraint*) jointId;
+        if (joint == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return 0;
+        }
         return joint->getRestitutionDirAng();
     }
 
@@ -235,6 +320,11 @@ extern "C" {
     JNIEXPORT void JNICALL Java_com_jme3_bullet_joints_SliderJoint_setRestitutionDirAng
     (JNIEnv * env, jobject object, jlong jointId, jfloat value) {
         btSliderConstraint* joint = (btSliderConstraint*) jointId;
+        if (joint == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
         joint->setRestitutionDirAng(value);
     }
 
@@ -246,6 +336,11 @@ extern "C" {
     JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_joints_SliderJoint_getDampingDirAng
     (JNIEnv * env, jobject object, jlong jointId) {
         btSliderConstraint* joint = (btSliderConstraint*) jointId;
+        if (joint == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return 0;
+        }
         return joint->getDampingDirAng();
     }
 
@@ -257,6 +352,11 @@ extern "C" {
     JNIEXPORT void JNICALL Java_com_jme3_bullet_joints_SliderJoint_setDampingDirAng
     (JNIEnv * env, jobject object, jlong jointId, jfloat value) {
         btSliderConstraint* joint = (btSliderConstraint*) jointId;
+        if (joint == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
         joint->setDampingDirAng(value);
     }
 
@@ -268,6 +368,11 @@ extern "C" {
     JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_joints_SliderJoint_getSoftnessLimLin
     (JNIEnv * env, jobject object, jlong jointId) {
         btSliderConstraint* joint = (btSliderConstraint*) jointId;
+        if (joint == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return 0;
+        }
         return joint->getSoftnessLimLin();
     }
 
@@ -279,6 +384,11 @@ extern "C" {
     JNIEXPORT void JNICALL Java_com_jme3_bullet_joints_SliderJoint_setSoftnessLimLin
     (JNIEnv * env, jobject object, jlong jointId, jfloat value) {
         btSliderConstraint* joint = (btSliderConstraint*) jointId;
+        if (joint == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
         joint->setSoftnessLimLin(value);
     }
 
@@ -290,6 +400,11 @@ extern "C" {
     JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_joints_SliderJoint_getRestitutionLimLin
     (JNIEnv * env, jobject object, jlong jointId) {
         btSliderConstraint* joint = (btSliderConstraint*) jointId;
+        if (joint == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return 0;
+        }
         return joint->getRestitutionLimLin();
     }
 
@@ -301,6 +416,11 @@ extern "C" {
     JNIEXPORT void JNICALL Java_com_jme3_bullet_joints_SliderJoint_setRestitutionLimLin
     (JNIEnv * env, jobject object, jlong jointId, jfloat value) {
         btSliderConstraint* joint = (btSliderConstraint*) jointId;
+        if (joint == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
         joint->setRestitutionLimLin(value);
     }
 
@@ -312,6 +432,11 @@ extern "C" {
     JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_joints_SliderJoint_getDampingLimLin
     (JNIEnv * env, jobject object, jlong jointId) {
         btSliderConstraint* joint = (btSliderConstraint*) jointId;
+        if (joint == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return 0;
+        }
         return joint->getDampingLimLin();
     }
 
@@ -323,6 +448,11 @@ extern "C" {
     JNIEXPORT void JNICALL Java_com_jme3_bullet_joints_SliderJoint_setDampingLimLin
     (JNIEnv * env, jobject object, jlong jointId, jfloat value) {
         btSliderConstraint* joint = (btSliderConstraint*) jointId;
+        if (joint == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
         joint->setDampingLimLin(value);
     }
 
@@ -334,6 +464,11 @@ extern "C" {
     JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_joints_SliderJoint_getSoftnessLimAng
     (JNIEnv * env, jobject object, jlong jointId) {
         btSliderConstraint* joint = (btSliderConstraint*) jointId;
+        if (joint == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return 0;
+        }
         return joint->getSoftnessLimAng();
     }
 
@@ -345,6 +480,11 @@ extern "C" {
     JNIEXPORT void JNICALL Java_com_jme3_bullet_joints_SliderJoint_setSoftnessLimAng
     (JNIEnv * env, jobject object, jlong jointId, jfloat value) {
         btSliderConstraint* joint = (btSliderConstraint*) jointId;
+        if (joint == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
         joint->setSoftnessLimAng(value);
     }
 
@@ -356,6 +496,11 @@ extern "C" {
     JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_joints_SliderJoint_getRestitutionLimAng
     (JNIEnv * env, jobject object, jlong jointId) {
         btSliderConstraint* joint = (btSliderConstraint*) jointId;
+        if (joint == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return 0;
+        }
         return joint->getRestitutionLimAng();
     }
 
@@ -367,6 +512,11 @@ extern "C" {
     JNIEXPORT void JNICALL Java_com_jme3_bullet_joints_SliderJoint_setRestitutionLimAng
     (JNIEnv * env, jobject object, jlong jointId, jfloat value) {
         btSliderConstraint* joint = (btSliderConstraint*) jointId;
+        if (joint == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
         joint->setRestitutionLimAng(value);
     }
 
@@ -378,6 +528,11 @@ extern "C" {
     JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_joints_SliderJoint_getDampingLimAng
     (JNIEnv * env, jobject object, jlong jointId) {
         btSliderConstraint* joint = (btSliderConstraint*) jointId;
+        if (joint == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return 0;
+        }
         return joint->getDampingLimAng();
     }
 
@@ -389,6 +544,11 @@ extern "C" {
     JNIEXPORT void JNICALL Java_com_jme3_bullet_joints_SliderJoint_setDampingLimAng
     (JNIEnv * env, jobject object, jlong jointId, jfloat value) {
         btSliderConstraint* joint = (btSliderConstraint*) jointId;
+        if (joint == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
         joint->setDampingLimAng(value);
     }
 
@@ -400,6 +560,11 @@ extern "C" {
     JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_joints_SliderJoint_getSoftnessOrthoLin
     (JNIEnv * env, jobject object, jlong jointId) {
         btSliderConstraint* joint = (btSliderConstraint*) jointId;
+        if (joint == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return 0;
+        }
         return joint->getSoftnessOrthoLin();
     }
 
@@ -411,6 +576,11 @@ extern "C" {
     JNIEXPORT void JNICALL Java_com_jme3_bullet_joints_SliderJoint_setSoftnessOrthoLin
     (JNIEnv * env, jobject object, jlong jointId, jfloat value) {
         btSliderConstraint* joint = (btSliderConstraint*) jointId;
+        if (joint == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
         joint->setSoftnessOrthoLin(value);
     }
 
@@ -422,6 +592,11 @@ extern "C" {
     JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_joints_SliderJoint_getRestitutionOrthoLin
     (JNIEnv * env, jobject object, jlong jointId) {
         btSliderConstraint* joint = (btSliderConstraint*) jointId;
+        if (joint == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return 0;
+        }
         return joint->getRestitutionOrthoLin();
     }
 
@@ -433,6 +608,11 @@ extern "C" {
     JNIEXPORT void JNICALL Java_com_jme3_bullet_joints_SliderJoint_setRestitutionOrthoLin
     (JNIEnv * env, jobject object, jlong jointId, jfloat value) {
         btSliderConstraint* joint = (btSliderConstraint*) jointId;
+        if (joint == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
         joint->setRestitutionOrthoLin(value);
     }
 
@@ -444,6 +624,11 @@ extern "C" {
     JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_joints_SliderJoint_getDampingOrthoLin
     (JNIEnv * env, jobject object, jlong jointId) {
         btSliderConstraint* joint = (btSliderConstraint*) jointId;
+        if (joint == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return 0;
+        }
         return joint->getDampingOrthoLin();
     }
 
@@ -455,6 +640,11 @@ extern "C" {
     JNIEXPORT void JNICALL Java_com_jme3_bullet_joints_SliderJoint_setDampingOrthoLin
     (JNIEnv * env, jobject object, jlong jointId, jfloat value) {
         btSliderConstraint* joint = (btSliderConstraint*) jointId;
+        if (joint == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
         joint->setDampingOrthoLin(value);
     }
 
@@ -466,6 +656,11 @@ extern "C" {
     JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_joints_SliderJoint_getSoftnessOrthoAng
     (JNIEnv * env, jobject object, jlong jointId) {
         btSliderConstraint* joint = (btSliderConstraint*) jointId;
+        if (joint == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return 0;
+        }
         return joint->getSoftnessOrthoAng();
     }
 
@@ -477,6 +672,11 @@ extern "C" {
     JNIEXPORT void JNICALL Java_com_jme3_bullet_joints_SliderJoint_setSoftnessOrthoAng
     (JNIEnv * env, jobject object, jlong jointId, jfloat value) {
         btSliderConstraint* joint = (btSliderConstraint*) jointId;
+        if (joint == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
         joint->setSoftnessOrthoAng(value);
     }
 
@@ -488,6 +688,11 @@ extern "C" {
     JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_joints_SliderJoint_getRestitutionOrthoAng
     (JNIEnv * env, jobject object, jlong jointId) {
         btSliderConstraint* joint = (btSliderConstraint*) jointId;
+        if (joint == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return 0;
+        }
         return joint->getRestitutionOrthoAng();
     }
 
@@ -499,6 +704,11 @@ extern "C" {
     JNIEXPORT void JNICALL Java_com_jme3_bullet_joints_SliderJoint_setRestitutionOrthoAng
     (JNIEnv * env, jobject object, jlong jointId, jfloat value) {
         btSliderConstraint* joint = (btSliderConstraint*) jointId;
+        if (joint == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
         joint->setRestitutionOrthoAng(value);
     }
 
@@ -510,6 +720,11 @@ extern "C" {
     JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_joints_SliderJoint_getDampingOrthoAng
     (JNIEnv * env, jobject object, jlong jointId) {
         btSliderConstraint* joint = (btSliderConstraint*) jointId;
+        if (joint == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return 0;
+        }
         return joint->getDampingOrthoAng();
     }
 
@@ -521,6 +736,11 @@ extern "C" {
     JNIEXPORT void JNICALL Java_com_jme3_bullet_joints_SliderJoint_setDampingOrthoAng
     (JNIEnv * env, jobject object, jlong jointId, jfloat value) {
         btSliderConstraint* joint = (btSliderConstraint*) jointId;
+        if (joint == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
         joint->setDampingOrthoAng(value);
     }
 
@@ -532,6 +752,11 @@ extern "C" {
     JNIEXPORT jboolean JNICALL Java_com_jme3_bullet_joints_SliderJoint_isPoweredLinMotor
     (JNIEnv * env, jobject object, jlong jointId) {
         btSliderConstraint* joint = (btSliderConstraint*) jointId;
+        if (joint == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return false;
+        }
         return joint->getPoweredLinMotor();
     }
 
@@ -543,6 +768,11 @@ extern "C" {
     JNIEXPORT void JNICALL Java_com_jme3_bullet_joints_SliderJoint_setPoweredLinMotor
     (JNIEnv * env, jobject object, jlong jointId, jboolean value) {
         btSliderConstraint* joint = (btSliderConstraint*) jointId;
+        if (joint == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
         joint->setPoweredLinMotor(value);
     }
 
@@ -554,6 +784,11 @@ extern "C" {
     JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_joints_SliderJoint_getTargetLinMotorVelocity
     (JNIEnv * env, jobject object, jlong jointId) {
         btSliderConstraint* joint = (btSliderConstraint*) jointId;
+        if (joint == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return 0;
+        }
         return joint->getTargetLinMotorVelocity();
     }
 
@@ -565,6 +800,11 @@ extern "C" {
     JNIEXPORT void JNICALL Java_com_jme3_bullet_joints_SliderJoint_setTargetLinMotorVelocity
     (JNIEnv * env, jobject object, jlong jointId, jfloat value) {
         btSliderConstraint* joint = (btSliderConstraint*) jointId;
+        if (joint == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
         joint->setTargetLinMotorVelocity(value);
     }
 
@@ -576,6 +816,11 @@ extern "C" {
     JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_joints_SliderJoint_getMaxLinMotorForce
     (JNIEnv * env, jobject object, jlong jointId) {
         btSliderConstraint* joint = (btSliderConstraint*) jointId;
+        if (joint == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return 0;
+        }
         return joint->getMaxLinMotorForce();
     }
 
@@ -587,6 +832,11 @@ extern "C" {
     JNIEXPORT void JNICALL Java_com_jme3_bullet_joints_SliderJoint_setMaxLinMotorForce
     (JNIEnv * env, jobject object, jlong jointId, jfloat value) {
         btSliderConstraint* joint = (btSliderConstraint*) jointId;
+        if (joint == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
         joint->setMaxLinMotorForce(value);
     }
 
@@ -598,6 +848,11 @@ extern "C" {
     JNIEXPORT jboolean JNICALL Java_com_jme3_bullet_joints_SliderJoint_isPoweredAngMotor
     (JNIEnv * env, jobject object, jlong jointId) {
         btSliderConstraint* joint = (btSliderConstraint*) jointId;
+        if (joint == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return false;
+        }
         return joint->getPoweredAngMotor();
     }
 
@@ -609,6 +864,11 @@ extern "C" {
     JNIEXPORT void JNICALL Java_com_jme3_bullet_joints_SliderJoint_setPoweredAngMotor
     (JNIEnv * env, jobject object, jlong jointId, jboolean value) {
         btSliderConstraint* joint = (btSliderConstraint*) jointId;
+        if (joint == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
         joint->setPoweredAngMotor(value);
     }
 
@@ -620,6 +880,11 @@ extern "C" {
     JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_joints_SliderJoint_getTargetAngMotorVelocity
     (JNIEnv * env, jobject object, jlong jointId) {
         btSliderConstraint* joint = (btSliderConstraint*) jointId;
+        if (joint == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return 0;
+        }
         return joint->getTargetAngMotorVelocity();
     }
 
@@ -631,6 +896,11 @@ extern "C" {
     JNIEXPORT void JNICALL Java_com_jme3_bullet_joints_SliderJoint_setTargetAngMotorVelocity
     (JNIEnv * env, jobject object, jlong jointId, jfloat value) {
         btSliderConstraint* joint = (btSliderConstraint*) jointId;
+        if (joint == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
         joint->setTargetAngMotorVelocity(value);
     }
 
@@ -642,6 +912,11 @@ extern "C" {
     JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_joints_SliderJoint_getMaxAngMotorForce
     (JNIEnv * env, jobject object, jlong jointId) {
         btSliderConstraint* joint = (btSliderConstraint*) jointId;
+        if (joint == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return 0;
+        }
         return joint->getMaxAngMotorForce();
     }
 
@@ -653,6 +928,11 @@ extern "C" {
     JNIEXPORT void JNICALL Java_com_jme3_bullet_joints_SliderJoint_setMaxAngMotorForce
     (JNIEnv * env, jobject object, jlong jointId, jfloat value) {
         btSliderConstraint* joint = (btSliderConstraint*) jointId;
+        if (joint == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
         joint->setMaxAngMotorForce(value);
     }
 
@@ -666,8 +946,8 @@ extern "C" {
         jmeClasses::initJavaClasses(env);
         btRigidBody* bodyA = (btRigidBody*) bodyIdA;
         btRigidBody* bodyB = (btRigidBody*) bodyIdB;
-        btMatrix3x3 mtx1=btMatrix3x3();
-        btMatrix3x3 mtx2=btMatrix3x3();
+        btMatrix3x3 mtx1 = btMatrix3x3();
+        btMatrix3x3 mtx2 = btMatrix3x3();
         btTransform transA = btTransform(mtx1);
         jmeBulletUtil::convert(env, pivotA, &transA.getOrigin());
         jmeBulletUtil::convert(env, rotA, &transA.getBasis());
@@ -675,7 +955,7 @@ extern "C" {
         jmeBulletUtil::convert(env, pivotB, &transB.getOrigin());
         jmeBulletUtil::convert(env, rotB, &transB.getBasis());
         btSliderConstraint* joint = new btSliderConstraint(*bodyA, *bodyB, transA, transB, useLinearReferenceFrameA);
-        return (long)joint;
+        return (long) joint;
     }
 
 #ifdef __cplusplus

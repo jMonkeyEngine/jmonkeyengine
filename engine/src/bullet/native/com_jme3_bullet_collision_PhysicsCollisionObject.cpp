@@ -70,6 +70,11 @@ extern "C" {
     JNIEXPORT void JNICALL Java_com_jme3_bullet_collision_PhysicsCollisionObject_finalizeNative
     (JNIEnv * env, jobject object, jlong objectId) {
         btCollisionObject* collisionObject = (btCollisionObject*) objectId;
+        if (collisionObject == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
         delete(collisionObject);
     }
 #ifdef __cplusplus
