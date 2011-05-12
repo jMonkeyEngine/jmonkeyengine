@@ -31,6 +31,7 @@ public class TerrainGridTest extends SimpleApplication {
     private float grassScale = 64;
     private float dirtScale = 16;
     private float rockScale = 128;
+    private boolean usePhysics = false;
 
     public static void main(final String[] args) {
         TerrainGridTest app = new TerrainGridTest();
@@ -85,24 +86,25 @@ public class TerrainGridTest extends SimpleApplication {
         BulletAppState bulletAppState = new BulletAppState();
         stateManager.attach(bulletAppState);
 
-        RigidBodyControl body = new RigidBodyControl(new HeightfieldCollisionShape(terrain.getHeightMap(), terrain.getLocalScale()), 0);
-        terrain.addControl(body);
-        bulletAppState.getPhysicsSpace().add(terrain);
 
         this.getCamera().setLocation(new Vector3f(0, 256, 0));
 
         this.viewPort.setBackgroundColor(new ColorRGBA(0.7f, 0.8f, 1f, 1f));
 
-        CapsuleCollisionShape capsuleShape = new CapsuleCollisionShape(0.5f, 1.8f, 1);
-        this.player3 = new CharacterControl(capsuleShape, 0.5f);
-        this.player3.setJumpSpeed(20);
-        this.player3.setFallSpeed(30);
-        this.player3.setGravity(30);
+        if (usePhysics) {
+            RigidBodyControl body = new RigidBodyControl(new HeightfieldCollisionShape(terrain.getHeightMap(), terrain.getLocalScale()), 0);
+            terrain.addControl(body);
+            bulletAppState.getPhysicsSpace().add(terrain);
+            CapsuleCollisionShape capsuleShape = new CapsuleCollisionShape(0.5f, 1.8f, 1);
+            this.player3 = new CharacterControl(capsuleShape, 0.5f);
+            this.player3.setJumpSpeed(20);
+            this.player3.setFallSpeed(30);
+            this.player3.setGravity(30);
 
-        this.player3.setPhysicsLocation(new Vector3f(0, 256, 0));
+            this.player3.setPhysicsLocation(new Vector3f(0, 256, 0));
 
-        bulletAppState.getPhysicsSpace().add(this.player3);
-
+            bulletAppState.getPhysicsSpace().add(this.player3);
+        }
         this.initKeys();
     }
 
@@ -178,7 +180,9 @@ public class TerrainGridTest extends SimpleApplication {
             this.walkDirection.addLocal(camDir.negate());
         }
 
-        this.player3.setWalkDirection(this.walkDirection);
-        this.cam.setLocation(this.player3.getPhysicsLocation());
+        if (usePhysics) {
+            this.player3.setWalkDirection(this.walkDirection);
+            this.cam.setLocation(this.player3.getPhysicsLocation());
+        }
     }
 }

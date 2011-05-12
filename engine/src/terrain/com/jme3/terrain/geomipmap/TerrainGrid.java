@@ -86,19 +86,19 @@ public class TerrainGrid extends TerrainQuad {
         // 2: grids are associated with locations, and no incremental update is done, we load new grids for new locations, and unload those that are not needed anymore
         Vector3f cam = locations.get(0);
         Vector3f camCell = this.getCell(cam);
-        if (!camCell.equals(this.currentCell)) {
+        if (camCell.x != this.currentCell.x || camCell.z != currentCell.z) {
             this.updateChildrens(camCell);
             for (TerrainGridListener l : this.listeners.values()) {
                 l.gridMoved(camCell);
             }
         }
 
-        super.update(locations);
+        //super.update(locations);
     }
 
     public Vector3f getCell(Vector3f location) {
         final Vector3f v = location.clone().divideLocal(this.getLocalScale().mult(this.quadSize)).add(0.5f, 0, 0.5f);
-        return new Vector3f(FastMath.floor(v.x), FastMath.floor(v.y), FastMath.floor(v.z));
+        return new Vector3f(FastMath.floor(v.x), 0, FastMath.floor(v.z));
     }
 
     protected void removeQuad(int idx) {
