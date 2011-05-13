@@ -560,10 +560,15 @@ public class Material implements Cloneable, Savable, Comparable<Material> {
         lightColor.setVector4Length(numLights);
         lightPos.setVector4Length(numLights);
 
+        Uniform ambientColor = shader.getUniform("g_AmbientLightColor");
+        ambientColor.setValue(VarType.Vector4, getAmbientColor(lightList));
+        
+        int lightIndex = 0;
+        
         for (int i = 0; i < numLights; i++) {
             if (lightList.size() <= i) {
-                lightColor.setVector4InArray(0f, 0f, 0f, 0f, i);
-                lightPos.setVector4InArray(0f, 0f, 0f, 0f, i);
+                lightColor.setVector4InArray(0f, 0f, 0f, 0f, lightIndex);
+                lightPos.setVector4InArray(0f, 0f, 0f, 0f, lightIndex);
             } else {
                 Light l = lightList.get(i);
                 ColorRGBA color = l.getColor();
@@ -577,7 +582,7 @@ public class Material implements Cloneable, Savable, Comparable<Material> {
                     case Directional:
                         DirectionalLight dl = (DirectionalLight) l;
                         Vector3f dir = dl.getDirection();
-                        lightPos.setVector4InArray(dir.getX(), dir.getY(), dir.getZ(), -1, i);
+                        lightPos.setVector4InArray(dir.getX(), dir.getY(), dir.getZ(), -1, lightIndex);
                         break;
                     case Point:
                         PointLight pl = (PointLight) l;
@@ -586,12 +591,24 @@ public class Material implements Cloneable, Savable, Comparable<Material> {
                         if (invRadius != 0) {
                             invRadius = 1f / invRadius;
                         }
-                        lightPos.setVector4InArray(pos.getX(), pos.getY(), pos.getZ(), invRadius, i);
+                        lightPos.setVector4InArray(pos.getX(), pos.getY(), pos.getZ(), invRadius, lightIndex);
                         break;
+                    case Ambient:
+                        // skip this light. Does not increase lightIndex
+                        continue;
                     default:
                         throw new UnsupportedOperationException("Unknown type of light: " + l.getType());
                 }
             }
+            
+            lightIndex++;
+        }
+        
+        while (lightIndex < numLights){
+            lightColor.setVector4InArray(0f, 0f, 0f, 0f, lightIndex);
+            lightPos.setVector4InArray(0f, 0f, 0f, 0f, lightIndex);
+            
+            lightIndex++;
         }
     }
 
