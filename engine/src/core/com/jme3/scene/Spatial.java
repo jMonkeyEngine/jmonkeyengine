@@ -102,9 +102,8 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
      * Refresh flag types
      */
     protected static final int RF_TRANSFORM = 0x01, // need light resort + combine transforms
-                               RF_BOUND = 0x02,
-                               RF_LIGHTLIST = 0x04; // changes in light lists
-    
+            RF_BOUND = 0x02,
+            RF_LIGHTLIST = 0x04; // changes in light lists
     protected CullHint cullHint = CullHint.Inherit;
     /** 
      * Spatial's bounding volume relative to the world.
@@ -150,8 +149,8 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
 
         refreshFlags |= RF_BOUND;
     }
-    
-     /**
+
+    /**
      * Constructor instantiates a new <code>Spatial</code> object setting the
      * rotation, translation and scale value to defaults.
      *
@@ -163,7 +162,6 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
         this();
         this.name = name;
     }
-
 
     /**
      * Indicate that the transform of this spatial has changed and that
@@ -234,11 +232,12 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
             if (getQueueBucket() == Bucket.Gui) {
                 return cam.containsGui(getWorldBound());
             } else {
-                int state = cam.getPlaneState();
+
+//                int state = cam.getPlaneState();
 
                 frustrumIntersects = cam.contains(getWorldBound());
 
-                cam.setPlaneState(state);
+//                cam.setPlaneState(state);
             }
         }
 
@@ -1170,9 +1169,9 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
 
         Savable s = userData.get(key);
         if (s instanceof UserData) {
-            return (T)((UserData) s).getValue();
+            return (T) ((UserData) s).getValue();
         } else {
-            return (T)s;
+            return (T) s;
         }
     }
 

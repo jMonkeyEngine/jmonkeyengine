@@ -168,13 +168,11 @@ public class RenderQueue {
         for (int i = 0; i < list.size(); i++){
             Spatial obj = list.get(i);
             assert obj != null;
-            //if(obj.checkCulling(cam)){
                 if (obj instanceof Geometry){
                     Geometry g = (Geometry) obj;
                     rm.renderGeometry(g);
                     // make sure to reset queue distance
                 }
-            //}
             if (obj != null)
                 obj.queueDistance = Float.NEGATIVE_INFINITY;
         }

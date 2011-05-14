@@ -495,6 +495,9 @@ public class RenderManager {
      * @param cam
      */
     public void renderScene(Spatial scene, ViewPort vp) {
+        if (scene.getParent() == null) {
+            vp.getCamera().setPlaneState(0);
+        }
         // check culling first.
         if (!scene.checkCulling(vp.getCamera())) {
             // move on to shadow-only render
@@ -509,8 +512,13 @@ public class RenderManager {
             // recurse for all children
             Node n = (Node) scene;
             List<Spatial> children = n.getChildren();
+            //saving cam state for culling
+            int camState = vp.getCamera().getPlaneState();
             for (int i = 0; i < children.size(); i++) {
+                //restoring cam state before proceeding children recusively
+                vp.getCamera().setPlaneState(camState);
                 renderScene(children.get(i), vp);
+               
             }
         } else if (scene instanceof Geometry) {
 
@@ -619,7 +627,7 @@ public class RenderManager {
 //            orthoMatrix.loadIdentity();
 //            orthoMatrix.setTranslation(translateX, translateY, 0);
 //            orthoMatrix.setScale(scaleX, scaleY, 0); 
-            
+
             orthoMatrix.loadIdentity();
             orthoMatrix.setTranslation(-1f, -1f, 0f);
             orthoMatrix.setScale(2f / cam.getWidth(), 2f / cam.getHeight(), 0f);
