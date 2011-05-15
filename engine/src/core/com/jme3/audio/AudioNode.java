@@ -72,7 +72,7 @@ public class AudioNode extends Node {
     protected transient int channel = -1;
     protected Vector3f velocity = new Vector3f();
     protected boolean reverbEnabled = true;
-    protected float maxDistance = 20; // 20 meters
+    protected float maxDistance = 200; // 200 meters
     protected float refDistance = 10; // 10 meters
     protected Filter reverbFilter;
     private boolean directional = false;
@@ -447,11 +447,16 @@ public class AudioNode extends Node {
     }
 
     /**
-     * Set the maximum playing distance for the audio node.
+     * Set the maximum distance for the attenuation of the audio node.
      * Does nothing if the audio node is not positional.
      * <br/>
      * The maximum distance is the distance beyond which the audio
-     * node will no longer be heard.
+     * node will no longer be attenuated.  Normal attenuation is logarithmic
+     * from refDistance (it reduces by half when the distance doubles).
+     * Max distance sets where this fall-off stops and the sound will never
+     * get any quieter than at that distance.  If you want a sound to fall-off
+     * very quickly then set ref distance very short and leave this distance
+     * very long.
      * 
      * @param maxDistance The maximum playing distance.
      * @throws IllegalArgumentException If maxDistance is negative
