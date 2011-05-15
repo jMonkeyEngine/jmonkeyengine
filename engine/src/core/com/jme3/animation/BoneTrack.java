@@ -175,7 +175,7 @@ public final class BoneTrack implements Savable {
             if (scales != null) {
                 scales.get(endFrame, tempS2);
             }
-            tempQ.slerp(tempQ2, blend);
+            tempQ.nlerp(tempQ2, blend);
             tempV.interpolate(tempV2, blend);
             tempS.interpolate(tempS2, blend);
         }

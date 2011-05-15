@@ -449,7 +449,7 @@ public final class Bone implements Savable {
 
         //rotation
         tmpQ.set(initialRot).multLocal(rotation);
-        localRot.slerp(tmpQ, weight);
+        localRot.nlerp(tmpQ, weight);
 
         //scale
         if (scale != null) {

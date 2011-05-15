@@ -29,7 +29,6 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package com.jme3.math;
 
 import com.jme3.export.InputCapsule;
@@ -60,18 +59,16 @@ import java.util.logging.Logger;
 public final class Quaternion implements Savable, Cloneable {
 
     private static final Logger logger = Logger.getLogger(Quaternion.class.getName());
-
     /**
      * Represents the identity quaternion rotation (0, 0, 0, 1).
      */
     public static final Quaternion IDENTITY = new Quaternion();
     public static final Quaternion DIRECTION_Z = new Quaternion();
-    public static final Quaternion ZERO = new Quaternion(0,0,0,0);
+    public static final Quaternion ZERO = new Quaternion(0, 0, 0, 0);
 
     static {
         DIRECTION_Z.fromAxes(Vector3f.UNIT_X, Vector3f.UNIT_Y, Vector3f.UNIT_Z);
     }
-
     protected float x, y, z, w;
 
     /**
@@ -209,17 +206,18 @@ public final class Quaternion implements Savable, Cloneable {
         x = y = z = 0;
         w = 1;
     }
-    
+
     /**
      * @return true if this Quaternion is {0,0,0,1}
      */
     public boolean isIdentity() {
-        if (x == 0 && y == 0 && z == 0 && w == 1) 
+        if (x == 0 && y == 0 && z == 0 && w == 1) {
             return true;
-        else
+        } else {
             return false;
+        }
     }
-    
+
     /**
      * <code>fromAngles</code> builds a quaternion from the Euler rotation
      * angles (y,r,p).
@@ -228,29 +226,30 @@ public final class Quaternion implements Savable, Cloneable {
      *            the Euler angles of rotation (in radians).
      */
     public Quaternion fromAngles(float[] angles) {
-        if (angles.length != 3)
+        if (angles.length != 3) {
             throw new IllegalArgumentException(
                     "Angles array must have three elements");
+        }
 
         return fromAngles(angles[0], angles[1], angles[2]);
     }
 
-	/**
-	 * <code>fromAngles</code> builds a Quaternion from the Euler rotation
-	 * angles (y,r,p). Note that we are applying in order: roll, pitch, yaw but
-	 * we've ordered them in x, y, and z for convenience.
-	 * See: http://www.euclideanspace.com/maths/geometry/rotations/conversions/eulerToQuaternion/index.htm
-	 * 
-	 * @param yaw
-	 *            the Euler yaw of rotation (in radians). (aka Bank, often rot
-	 *            around x)
-	 * @param roll
-	 *            the Euler roll of rotation (in radians). (aka Heading, often
-	 *            rot around y)
-	 * @param pitch
-	 *            the Euler pitch of rotation (in radians). (aka Attitude, often
-	 *            rot around z)
-	 */
+    /**
+     * <code>fromAngles</code> builds a Quaternion from the Euler rotation
+     * angles (y,r,p). Note that we are applying in order: roll, pitch, yaw but
+     * we've ordered them in x, y, and z for convenience.
+     * See: http://www.euclideanspace.com/maths/geometry/rotations/conversions/eulerToQuaternion/index.htm
+     * 
+     * @param yaw
+     *            the Euler yaw of rotation (in radians). (aka Bank, often rot
+     *            around x)
+     * @param roll
+     *            the Euler roll of rotation (in radians). (aka Heading, often
+     *            rot around y)
+     * @param pitch
+     *            the Euler pitch of rotation (in radians). (aka Attitude, often
+     *            rot around z)
+     */
     public Quaternion fromAngles(float yaw, float roll, float pitch) {
         float angle;
         float sinRoll, sinPitch, sinYaw, cosRoll, cosPitch, cosYaw;
@@ -269,113 +268,111 @@ public final class Quaternion implements Savable, Cloneable {
         float sinRollXsinPitch = sinRoll * sinPitch;
         float cosRollXsinPitch = cosRoll * sinPitch;
         float sinRollXcosPitch = sinRoll * cosPitch;
-        
+
         w = (cosRollXcosPitch * cosYaw - sinRollXsinPitch * sinYaw);
         x = (cosRollXcosPitch * sinYaw + sinRollXsinPitch * cosYaw);
         y = (sinRollXcosPitch * cosYaw + cosRollXsinPitch * sinYaw);
         z = (cosRollXsinPitch * cosYaw - sinRollXcosPitch * sinYaw);
-        
+
         normalize();
         return this;
     }
-    
-    /**
-	 * <code>toAngles</code> returns this quaternion converted to Euler
-	 * rotation angles (yaw,roll,pitch).<br/>
-	 * See http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToEuler/index.htm
-	 * 
-	 * @param angles
-	 *            the float[] in which the angles should be stored, or null if
-	 *            you want a new float[] to be created
-	 * @return the float[] in which the angles are stored.
-	 */
-	public float[] toAngles(float[] angles) {
-		if (angles == null)
-			angles = new float[3];
-		else if (angles.length != 3)
-			throw new IllegalArgumentException("Angles array must have three elements");
-
-		float sqw = w * w;
-		float sqx = x * x;
-		float sqy = y * y;
-		float sqz = z * z;
-		float unit = sqx + sqy + sqz + sqw; // if normalized is one, otherwise
-											// is correction factor
-		float test = x * y + z * w;
-		if (test > 0.499 * unit) { // singularity at north pole
-			angles[1] = 2 * FastMath.atan2(x, w);
-			angles[2] = FastMath.HALF_PI;
-			angles[0] = 0;
-		} else if (test < -0.499 * unit) { // singularity at south pole
-			angles[1] = -2 * FastMath.atan2(x, w);
-			angles[2] = -FastMath.HALF_PI;
-			angles[0] = 0;
-		} else {
-			angles[1] = FastMath.atan2(2 * y * w - 2 * x * z, sqx - sqy - sqz + sqw); // roll or heading 
-			angles[2] = FastMath.asin(2 * test / unit); // pitch or attitude
-			angles[0] = FastMath.atan2(2 * x * w - 2 * y * z, -sqx + sqy - sqz + sqw); // yaw or bank
-		}
-		return angles;
-	}
 
     /**
-	 * 
-	 * <code>fromRotationMatrix</code> generates a quaternion from a supplied
-	 * matrix. This matrix is assumed to be a rotational matrix.
-	 * 
-	 * @param matrix
-	 *            the matrix that defines the rotation.
-	 */
+     * <code>toAngles</code> returns this quaternion converted to Euler
+     * rotation angles (yaw,roll,pitch).<br/>
+     * See http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToEuler/index.htm
+     * 
+     * @param angles
+     *            the float[] in which the angles should be stored, or null if
+     *            you want a new float[] to be created
+     * @return the float[] in which the angles are stored.
+     */
+    public float[] toAngles(float[] angles) {
+        if (angles == null) {
+            angles = new float[3];
+        } else if (angles.length != 3) {
+            throw new IllegalArgumentException("Angles array must have three elements");
+        }
+
+        float sqw = w * w;
+        float sqx = x * x;
+        float sqy = y * y;
+        float sqz = z * z;
+        float unit = sqx + sqy + sqz + sqw; // if normalized is one, otherwise
+        // is correction factor
+        float test = x * y + z * w;
+        if (test > 0.499 * unit) { // singularity at north pole
+            angles[1] = 2 * FastMath.atan2(x, w);
+            angles[2] = FastMath.HALF_PI;
+            angles[0] = 0;
+        } else if (test < -0.499 * unit) { // singularity at south pole
+            angles[1] = -2 * FastMath.atan2(x, w);
+            angles[2] = -FastMath.HALF_PI;
+            angles[0] = 0;
+        } else {
+            angles[1] = FastMath.atan2(2 * y * w - 2 * x * z, sqx - sqy - sqz + sqw); // roll or heading 
+            angles[2] = FastMath.asin(2 * test / unit); // pitch or attitude
+            angles[0] = FastMath.atan2(2 * x * w - 2 * y * z, -sqx + sqy - sqz + sqw); // yaw or bank
+        }
+        return angles;
+    }
+
+    /**
+     * 
+     * <code>fromRotationMatrix</code> generates a quaternion from a supplied
+     * matrix. This matrix is assumed to be a rotational matrix.
+     * 
+     * @param matrix
+     *            the matrix that defines the rotation.
+     */
     public Quaternion fromRotationMatrix(Matrix3f matrix) {
         return fromRotationMatrix(matrix.m00, matrix.m01, matrix.m02, matrix.m10,
                 matrix.m11, matrix.m12, matrix.m20, matrix.m21, matrix.m22);
     }
-    
+
     public Quaternion fromRotationMatrix(float m00, float m01, float m02,
             float m10, float m11, float m12,
             float m20, float m21, float m22) {
         // Use the Graphics Gems code, from 
         // ftp://ftp.cis.upenn.edu/pub/graphics/shoemake/quatut.ps.Z
         // *NOT* the "Matrix and Quaternions FAQ", which has errors!
-        
+
         // the trace is the sum of the diagonal elements; see
         // http://mathworld.wolfram.com/MatrixTrace.html
         float t = m00 + m11 + m22;
 
         // we protect the division by s by ensuring that s>=1
         if (t >= 0) { // |w| >= .5
-            float s = FastMath.sqrt(t+1); // |s|>=1 ...
+            float s = FastMath.sqrt(t + 1); // |s|>=1 ...
             w = 0.5f * s;
             s = 0.5f / s;                 // so this division isn't bad
             x = (m21 - m12) * s;
             y = (m02 - m20) * s;
             z = (m10 - m01) * s;
         } else if ((m00 > m11) && (m00 > m22)) {
-            float s = FastMath
-                    .sqrt(1.0f + m00 - m11 - m22); // |s|>=1
+            float s = FastMath.sqrt(1.0f + m00 - m11 - m22); // |s|>=1
             x = s * 0.5f; // |x| >= .5
             s = 0.5f / s;
             y = (m10 + m01) * s;
             z = (m02 + m20) * s;
             w = (m21 - m12) * s;
         } else if (m11 > m22) {
-            float s = FastMath
-                    .sqrt(1.0f + m11 - m00 - m22); // |s|>=1
+            float s = FastMath.sqrt(1.0f + m11 - m00 - m22); // |s|>=1
             y = s * 0.5f; // |y| >= .5
             s = 0.5f / s;
             x = (m10 + m01) * s;
             z = (m21 + m12) * s;
             w = (m02 - m20) * s;
         } else {
-            float s = FastMath
-                    .sqrt(1.0f + m22 - m00 - m11); // |s|>=1
+            float s = FastMath.sqrt(1.0f + m22 - m00 - m11); // |s|>=1
             z = s * 0.5f; // |z| >= .5
             s = 0.5f / s;
             x = (m02 + m20) * s;
             y = (m21 + m12) * s;
             w = (m10 - m01) * s;
         }
-        
+
         return this;
     }
 
@@ -403,33 +400,33 @@ public final class Quaternion implements Savable, Cloneable {
         float norm = norm();
         // we explicitly test norm against one here, saving a division
         // at the cost of a test and branch.  Is it worth it?
-        float s = (norm==1f) ? 2f : (norm > 0f) ? 2f/norm : 0;
-        
+        float s = (norm == 1f) ? 2f : (norm > 0f) ? 2f / norm : 0;
+
         // compute xs/ys/zs first to save 6 multiplications, since xs/ys/zs
         // will be used 2-4 times each.
-        float xs      = x * s;
-        float ys      = y * s;
-        float zs      = z * s;
-        float xx      = x * xs;
-        float xy      = x * ys;
-        float xz      = x * zs;
-        float xw      = w * xs;
-        float yy      = y * ys;
-        float yz      = y * zs;
-        float yw      = w * ys;
-        float zz      = z * zs;
-        float zw      = w * zs;
+        float xs = x * s;
+        float ys = y * s;
+        float zs = z * s;
+        float xx = x * xs;
+        float xy = x * ys;
+        float xz = x * zs;
+        float xw = w * xs;
+        float yy = y * ys;
+        float yz = y * zs;
+        float yw = w * ys;
+        float zz = z * zs;
+        float zw = w * zs;
 
         // using s=2/norm (instead of 1/norm) saves 9 multiplications by 2 here
-        result.m00  = 1 - ( yy + zz );
-        result.m01  =     ( xy - zw );
-        result.m02  =     ( xz + yw );
-        result.m10  =     ( xy + zw );
-        result.m11  = 1 - ( xx + zz );
-        result.m12  =     ( yz - xw );
-        result.m20  =     ( xz - yw );
-        result.m21  =     ( yz + xw );
-        result.m22  = 1 - ( xx + yy );
+        result.m00 = 1 - (yy + zz);
+        result.m01 = (xy - zw);
+        result.m02 = (xz + yw);
+        result.m10 = (xy + zw);
+        result.m11 = 1 - (xx + zz);
+        result.m12 = (yz - xw);
+        result.m20 = (xz - yw);
+        result.m21 = (yz + xw);
+        result.m22 = 1 - (xx + yy);
 
         return result;
     }
@@ -448,33 +445,33 @@ public final class Quaternion implements Savable, Cloneable {
         float norm = norm();
         // we explicitly test norm against one here, saving a division
         // at the cost of a test and branch.  Is it worth it?
-        float s = (norm==1f) ? 2f : (norm > 0f) ? 2f/norm : 0;
-        
+        float s = (norm == 1f) ? 2f : (norm > 0f) ? 2f / norm : 0;
+
         // compute xs/ys/zs first to save 6 multiplications, since xs/ys/zs
         // will be used 2-4 times each.
-        float xs      = x * s;
-        float ys      = y * s;
-        float zs      = z * s;
-        float xx      = x * xs;
-        float xy      = x * ys;
-        float xz      = x * zs;
-        float xw      = w * xs;
-        float yy      = y * ys;
-        float yz      = y * zs;
-        float yw      = w * ys;
-        float zz      = z * zs;
-        float zw      = w * zs;
+        float xs = x * s;
+        float ys = y * s;
+        float zs = z * s;
+        float xx = x * xs;
+        float xy = x * ys;
+        float xz = x * zs;
+        float xw = w * xs;
+        float yy = y * ys;
+        float yz = y * zs;
+        float yw = w * ys;
+        float zz = z * zs;
+        float zw = w * zs;
 
         // using s=2/norm (instead of 1/norm) saves 9 multiplications by 2 here
-        result.m00  = 1 - ( yy + zz );
-        result.m01  =     ( xy - zw );
-        result.m02  =     ( xz + yw );
-        result.m10  =     ( xy + zw );
-        result.m11  = 1 - ( xx + zz );
-        result.m12  =     ( yz - xw );
-        result.m20  =     ( xz - yw );
-        result.m21  =     ( yz + xw );
-        result.m22  = 1 - ( xx + yy );
+        result.m00 = 1 - (yy + zz);
+        result.m01 = (xy - zw);
+        result.m02 = (xz + yw);
+        result.m10 = (xy + zw);
+        result.m11 = 1 - (xx + zz);
+        result.m12 = (yz - xw);
+        result.m20 = (xz - yw);
+        result.m21 = (yz + xw);
+        result.m22 = 1 - (xx + yy);
 
         return result;
     }
@@ -505,39 +502,40 @@ public final class Quaternion implements Savable, Cloneable {
      * @return the column specified by the index.
      */
     public Vector3f getRotationColumn(int i, Vector3f store) {
-        if (store == null)
+        if (store == null) {
             store = new Vector3f();
+        }
 
         float norm = norm();
         if (norm != 1.0f) {
             norm = FastMath.invSqrt(norm);
         }
-        
-        float xx      = x * x * norm;
-        float xy      = x * y * norm;
-        float xz      = x * z * norm;
-        float xw      = x * w * norm;
-        float yy      = y * y * norm;
-        float yz      = y * z * norm;
-        float yw      = y * w * norm;
-        float zz      = z * z * norm;
-        float zw      = z * w * norm;
-        
+
+        float xx = x * x * norm;
+        float xy = x * y * norm;
+        float xz = x * z * norm;
+        float xw = x * w * norm;
+        float yy = y * y * norm;
+        float yz = y * z * norm;
+        float yw = y * w * norm;
+        float zz = z * z * norm;
+        float zw = z * w * norm;
+
         switch (i) {
             case 0:
-                store.x  = 1 - 2 * ( yy + zz );
-                store.y  =     2 * ( xy + zw );
-                store.z  =     2 * ( xz - yw );
+                store.x = 1 - 2 * (yy + zz);
+                store.y = 2 * (xy + zw);
+                store.z = 2 * (xz - yw);
                 break;
             case 1:
-                store.x  =     2 * ( xy - zw );
-                store.y  = 1 - 2 * ( xx + zz );
-                store.z  =     2 * ( yz + xw );
+                store.x = 2 * (xy - zw);
+                store.y = 1 - 2 * (xx + zz);
+                store.z = 2 * (yz + xw);
                 break;
             case 2:
-                store.x  =     2 * ( xz + yw );
-                store.y  =     2 * ( yz - xw );
-                store.z  = 1 - 2 * ( xx + yy );
+                store.x = 2 * (xz + yw);
+                store.y = 2 * (yz - xw);
+                store.z = 1 - 2 * (xx + yy);
                 break;
             default:
                 logger.warning("Invalid column index.");
@@ -574,16 +572,16 @@ public final class Quaternion implements Savable, Cloneable {
      *            the axis of rotation (already normalized).
      */
     public Quaternion fromAngleNormalAxis(float angle, Vector3f axis) {
-    	if (axis.x == 0 && axis.y == 0 && axis.z == 0) {
-    		loadIdentity();
-    	} else {
-	        float halfAngle = 0.5f * angle;
-	        float sin = FastMath.sin(halfAngle);
-	        w = FastMath.cos(halfAngle);
-	        x = sin * axis.x;
-	        y = sin * axis.y;
-	        z = sin * axis.z;
-    	}
+        if (axis.x == 0 && axis.y == 0 && axis.z == 0) {
+            loadIdentity();
+        } else {
+            float halfAngle = 0.5f * angle;
+            float sin = FastMath.sin(halfAngle);
+            w = FastMath.cos(halfAngle);
+            x = sin * axis.x;
+            y = sin * axis.y;
+            z = sin * axis.z;
+        }
         return this;
     }
 
@@ -734,6 +732,28 @@ public final class Quaternion implements Savable, Cloneable {
     }
 
     /**
+     * Sets the values of this quaternion to the nlerp from itself to q2 by blend.
+     * @param q2
+     * @param blend
+     */
+    public void nlerp(Quaternion q2, float blend) {
+        float dot = dot(q2);
+        float blendI = 1.0f - blend;
+        if (dot < 0.0f) {
+            x = blendI * x - blend * q2.x;
+            y = blendI * y - blend * q2.y;
+            z = blendI * z - blend * q2.z;
+            w = blendI * w - blend * q2.w;
+        } else {
+            x = blendI * x + blend * q2.x;
+            y = blendI * y + blend * q2.y;
+            z = blendI * z + blend * q2.z;
+            w = blendI * w + blend * q2.w;
+        }
+        normalizeLocal();
+    }
+
+    /**
      * <code>add</code> adds the values of this quaternion to those of the
      * parameter quaternion. The result is returned as a new quaternion.
      *
@@ -774,23 +794,23 @@ public final class Quaternion implements Savable, Cloneable {
         return new Quaternion(x - q.x, y - q.y, z - q.z, w - q.w);
     }
 
-	/**
-	 * <code>subtract</code> subtracts the values of the parameter quaternion
-	 * from those of this quaternion. The result is stored in this Quaternion.
-	 *
-	 * @param q
-	 *            the quaternion to subtract from this.
-	 * @return This Quaternion after subtraction.
-	 */
-	public Quaternion subtractLocal(Quaternion q) {
-		this.x -= q.x;
-		this.y -= q.y;
-		this.z -= q.z;
-		this.w -= q.w;
-		return this;
-	}
+    /**
+     * <code>subtract</code> subtracts the values of the parameter quaternion
+     * from those of this quaternion. The result is stored in this Quaternion.
+     *
+     * @param q
+     *            the quaternion to subtract from this.
+     * @return This Quaternion after subtraction.
+     */
+    public Quaternion subtractLocal(Quaternion q) {
+        this.x -= q.x;
+        this.y -= q.y;
+        this.z -= q.z;
+        this.w -= q.w;
+        return this;
+    }
 
-	/**
+    /**
      * <code>mult</code> multiplies this quaternion by a parameter quaternion.
      * The result is returned as a new quaternion. It should be noted that
      * quaternion multiplication is not commutative so q * p != p * q.
@@ -818,8 +838,9 @@ public final class Quaternion implements Savable, Cloneable {
      * @return the new quaternion.
      */
     public Quaternion mult(Quaternion q, Quaternion res) {
-        if (res == null)
+        if (res == null) {
             res = new Quaternion();
+        }
         float qw = q.w, qx = q.x, qy = q.y, qz = q.z;
         res.x = x * qw + y * qz - z * qy + w * qx;
         res.y = -x * qz + y * qw + z * qx + w * qy;
@@ -859,9 +880,10 @@ public final class Quaternion implements Savable, Cloneable {
      *            coordinate system.
      */
     public Quaternion fromAxes(Vector3f[] axis) {
-        if (axis.length != 3)
+        if (axis.length != 3) {
             throw new IllegalArgumentException(
                     "Axis array must have three elements");
+        }
         return fromAxes(axis[0], axis[1], axis[2]);
     }
 
@@ -991,8 +1013,9 @@ public final class Quaternion implements Savable, Cloneable {
      * @return the result vector.
      */
     public Vector3f mult(Vector3f v, Vector3f store) {
-        if (store == null)
+        if (store == null) {
             store = new Vector3f();
+        }
         if (v.x == 0 && v.y == 0 && v.z == 0) {
             store.set(0, 0, 0);
         } else {
@@ -1077,7 +1100,7 @@ public final class Quaternion implements Savable, Cloneable {
     /**
      * <code>normalize</code> normalizes the current <code>Quaternion</code>
      */
-    public void normalizeLocal(){
+    public void normalizeLocal() {
         float n = FastMath.invSqrt(norm());
         x *= n;
         y *= n;
@@ -1099,9 +1122,9 @@ public final class Quaternion implements Savable, Cloneable {
             float invNorm = 1.0f / norm;
             return new Quaternion(-x * invNorm, -y * invNorm, -z * invNorm, w
                     * invNorm);
-        } 
+        }
         // return an invalid result to flag the error
-        return null;        
+        return null;
     }
 
     /**
@@ -1159,7 +1182,7 @@ public final class Quaternion implements Savable, Cloneable {
      */
     @Override
     public boolean equals(Object o) {
-        if (!(o instanceof Quaternion) ) {
+        if (!(o instanceof Quaternion)) {
             return false;
         }
 
@@ -1168,10 +1191,18 @@ public final class Quaternion implements Savable, Cloneable {
         }
 
         Quaternion comp = (Quaternion) o;
-        if (Float.compare(x,comp.x) != 0) return false;
-        if (Float.compare(y,comp.y) != 0) return false;
-        if (Float.compare(z,comp.z) != 0) return false;
-        if (Float.compare(w,comp.w) != 0) return false;
+        if (Float.compare(x, comp.x) != 0) {
+            return false;
+        }
+        if (Float.compare(y, comp.y) != 0) {
+            return false;
+        }
+        if (Float.compare(z, comp.z) != 0) {
+            return false;
+        }
+        if (Float.compare(w, comp.w) != 0) {
+            return false;
+        }
         return true;
     }
 
@@ -1243,13 +1274,13 @@ public final class Quaternion implements Savable, Cloneable {
      *            a vector indicating the local up direction.
      *            (typically {0, 1, 0} in jME.)
      */
-    public void lookAt(Vector3f direction, Vector3f up ) {
+    public void lookAt(Vector3f direction, Vector3f up) {
         TempVars vars = TempVars.get();
         assert vars.lock();
-        vars.vect3.set( direction ).normalizeLocal();
-        vars.vect1.set( up ).crossLocal( direction ).normalizeLocal();
-        vars.vect2.set( direction ).crossLocal( vars.vect1 ).normalizeLocal();
-        fromAxes( vars.vect1, vars.vect2, vars.vect3 );
+        vars.vect3.set(direction).normalizeLocal();
+        vars.vect1.set(up).crossLocal(direction).normalizeLocal();
+        vars.vect2.set(direction).crossLocal(vars.vect1).normalizeLocal();
+        fromAxes(vars.vect1, vars.vect2, vars.vect3);
         assert vars.unlock();
     }
 
@@ -1268,7 +1299,7 @@ public final class Quaternion implements Savable, Cloneable {
         z = cap.readFloat("z", 0);
         w = cap.readFloat("w", 1);
     }
-    
+
     /**
      * @return A new quaternion that describes a rotation that would point you
      *         in the exact opposite direction of this Quaternion.
@@ -1287,9 +1318,10 @@ public final class Quaternion implements Savable, Cloneable {
      *         direction of this Quaternion.
      */
     public Quaternion opposite(Quaternion store) {
-        if (store == null)
+        if (store == null) {
             store = new Quaternion();
-        
+        }
+
         Vector3f axis = new Vector3f();
         float angle = toAngleAxis(axis);
 
@@ -1315,4 +1347,3 @@ public final class Quaternion implements Savable, Cloneable {
         }
     }
 }
-
