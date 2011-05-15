@@ -616,7 +616,7 @@ public class AudioNode extends Node {
         
         super.updateGeometricState();
 
-        if (updatePos && renderer != null)
+        if (updatePos && channel >= 0)
             renderer.updateSourceParam(this, AudioParam.Position);
     }
 
