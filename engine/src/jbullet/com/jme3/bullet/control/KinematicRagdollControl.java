@@ -125,6 +125,7 @@ public class KinematicRagdollControl implements PhysicsControl, PhysicsCollision
     protected float rootMass = 15;
     protected float totalMass = 0;
     protected boolean added = false;
+  
 
     public static enum Mode {
 
@@ -171,7 +172,7 @@ public class KinematicRagdollControl implements PhysicsControl, PhysicsCollision
         Quaternion tmpRot2 = vars.quat2;
 
         //if the ragdoll has the control of the skeleton, we update each bone with its position in physic world space.
-        if (mode == mode.Ragdoll) {
+        if (mode == mode.Ragdoll && targetModel.getLocalTranslation().equals(modelPosition)){                       
             for (PhysicsBoneLink link : boneLinks.values()) {
 
                 Vector3f position = vars.vect1;
@@ -192,12 +193,15 @@ public class KinematicRagdollControl implements PhysicsControl, PhysicsCollision
 
                 //if the bone is the root bone, we apply the physic's transform to the model, so its position and rotation are correctly updated
                 if (link.bone.getParent() == null) {
+                    
                     //offsetting the physic's position/rotation by the root bone inverse model space position/rotaion
                     modelPosition.set(p).subtractLocal(link.bone.getInitialPos());
                     modelRotation.set(q).multLocal(tmpRot2.set(link.bone.getInitialRot()).inverseLocal());
+                    
 
                     //applying transforms to the model
                     targetModel.setLocalTranslation(modelPosition);
+                    
                     targetModel.setLocalRotation(modelRotation);
 
                     //Applying computed transforms to the bone
@@ -249,6 +253,7 @@ public class KinematicRagdollControl implements PhysicsControl, PhysicsCollision
                 }
                 //setting skeleton transforms to the ragdoll
                 matchPhysicObjectToBone(link, position, tmpRot1);
+                modelPosition.set(targetModel.getLocalTranslation());
 
             }
 
