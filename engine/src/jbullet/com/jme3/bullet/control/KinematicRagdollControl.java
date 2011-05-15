@@ -125,7 +125,6 @@ public class KinematicRagdollControl implements PhysicsControl, PhysicsCollision
     protected float rootMass = 15;
     protected float totalMass = 0;
     protected boolean added = false;
-  
 
     public static enum Mode {
 
@@ -172,7 +171,7 @@ public class KinematicRagdollControl implements PhysicsControl, PhysicsCollision
         Quaternion tmpRot2 = vars.quat2;
 
         //if the ragdoll has the control of the skeleton, we update each bone with its position in physic world space.
-        if (mode == mode.Ragdoll && targetModel.getLocalTranslation().equals(modelPosition)){                       
+        if (mode == mode.Ragdoll && targetModel.getLocalTranslation().equals(modelPosition)) {
             for (PhysicsBoneLink link : boneLinks.values()) {
 
                 Vector3f position = vars.vect1;
@@ -193,15 +192,15 @@ public class KinematicRagdollControl implements PhysicsControl, PhysicsCollision
 
                 //if the bone is the root bone, we apply the physic's transform to the model, so its position and rotation are correctly updated
                 if (link.bone.getParent() == null) {
-                    
+
                     //offsetting the physic's position/rotation by the root bone inverse model space position/rotaion
                     modelPosition.set(p).subtractLocal(link.bone.getInitialPos());
                     modelRotation.set(q).multLocal(tmpRot2.set(link.bone.getInitialRot()).inverseLocal());
-                    
+
 
                     //applying transforms to the model
                     targetModel.setLocalTranslation(modelPosition);
-                    
+
                     targetModel.setLocalRotation(modelRotation);
 
                     //Applying computed transforms to the bone
@@ -234,7 +233,7 @@ public class KinematicRagdollControl implements PhysicsControl, PhysicsCollision
                     tmpRot1.set(link.startBlendingRot);
 
                     //interpolating between ragdoll position/rotation and keyframed position/rotation
-                    tmpRot2.set(tmpRot1).slerp(link.bone.getModelSpaceRotation(), blendStart / blendTime);
+                    tmpRot2.set(tmpRot1).nlerp(link.bone.getModelSpaceRotation(), blendStart / blendTime);
                     position2.set(position).interpolate(link.bone.getModelSpacePosition(), blendStart / blendTime);
                     tmpRot1.set(tmpRot2);
                     position.set(position2);
@@ -395,6 +394,7 @@ public class KinematicRagdollControl implements PhysicsControl, PhysicsCollision
             }
 
             PhysicsRigidBody shapeNode = new PhysicsRigidBody(shape, rootMass / (float) reccount);
+
             shapeNode.setKinematic(mode == Mode.Kinetmatic);
             totalMass += rootMass / (float) reccount;
 
@@ -808,5 +808,51 @@ public class KinematicRagdollControl implements PhysicsControl, PhysicsCollision
 
     public void setEventDispatchImpulseThreshold(float eventDispatchImpulseThreshold) {
         this.eventDispatchImpulseThreshold = eventDispatchImpulseThreshold;
+    }
+
+    /**
+     * Set the CcdMotionThreshold of all the bone's rigidBodies of the ragdoll
+     * @see PhysicsRigidBody#setCcdMotionThreshold(float) 
+     * @param value 
+     */
+    public void setCcdMotionThreshold(float value) {
+        for (PhysicsBoneLink link : boneLinks.values()) {
+            link.rigidBody.setCcdMotionThreshold(value);
+        }
+    }
+
+    /**
+     * Set the CcdSweptSphereRadius of all the bone's rigidBodies of the ragdoll
+     * @see PhysicsRigidBody#setCcdSweptSphereRadius(float) 
+     * @param value 
+     */
+    public void setCcdSweptSphereRadius(float value) {
+        for (PhysicsBoneLink link : boneLinks.values()) {
+            link.rigidBody.setCcdSweptSphereRadius(value);
+        }
+    }
+
+    /**
+     * Set the CcdMotionThreshold of the given bone's rigidBodies of the ragdoll
+     * @see PhysicsRigidBody#setCcdMotionThreshold(float) 
+     * @param value 
+     */
+    public void setBoneCcdMotionThreshold(String boneName, float value) {
+        PhysicsBoneLink link = boneLinks.get(boneName);
+        if (link != null) {
+            link.rigidBody.setCcdMotionThreshold(value);
+        }
+    }
+
+    /**
+     * Set the CcdSweptSphereRadius of the given bone's rigidBodies of the ragdoll
+     * @see PhysicsRigidBody#setCcdSweptSphereRadius(float) 
+     * @param value 
+     */
+    public void setBoneCcdSweptSphereRadius(String boneName, float value) {
+        PhysicsBoneLink link = boneLinks.get(boneName);
+        if (link != null) {
+            link.rigidBody.setCcdSweptSphereRadius(value);
+        }
     }
 }
