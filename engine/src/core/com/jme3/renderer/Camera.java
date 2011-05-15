@@ -209,6 +209,14 @@ public class Camera implements Savable, Cloneable {
     private BoundingBox guiBounding = new BoundingBox();
     /** The camera's name. */
     protected String name;
+    
+    
+    /**
+     * Don't use this constructor, use Camera(int width, int height)
+     * This constructor is for serialization only
+     */
+    public Camera(){        
+    }
 
     /**
      * Constructor instantiates a new <code>Camera</code> object. All
@@ -1373,5 +1381,8 @@ public class Camera implements Savable, Cloneable {
         width = capsule.readInt("width", 0);
         height = capsule.readInt("height", 0);
         name = capsule.readString("name", null);
+        onFrustumChange();
+        onViewPortChange();
+        onFrameChange();
     }
 }
