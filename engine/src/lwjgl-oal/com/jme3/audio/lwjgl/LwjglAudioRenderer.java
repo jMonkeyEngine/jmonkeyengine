@@ -360,6 +360,7 @@ public class LwjglAudioRenderer implements AudioRenderer, Runnable {
                         alSource3f(id, AL_POSITION, 0,0,0);
                         alSource3f(id, AL_VELOCITY, 0,0,0);
                     }else{
+                        alSourcei(id, AL_SOURCE_RELATIVE, AL_FALSE);
                         updateSourceParam(src, AudioParam.Position);
                         updateSourceParam(src, AudioParam.Velocity);
                         updateSourceParam(src, AudioParam.MaxDistance);
@@ -438,6 +439,7 @@ public class LwjglAudioRenderer implements AudioRenderer, Runnable {
             alSource3f(id, AL_VELOCITY, vel.x, vel.y, vel.z);
             alSourcef(id, AL_MAX_DISTANCE, src.getMaxDistance());
             alSourcef(id, AL_REFERENCE_DISTANCE, src.getRefDistance());
+            alSourcei(id, AL_SOURCE_RELATIVE, AL_FALSE);
 
             if (src.isReverbEnabled()){
                 int filter = EFX10.AL_FILTER_NULL;
