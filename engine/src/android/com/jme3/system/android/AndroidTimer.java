@@ -35,15 +35,14 @@ package com.jme3.system.android;
 import com.jme3.system.Timer;
 
 /**
- * <code>NanoTimer</code> is a System.nanoTime implementation of <code>Timer</code>.
- * This is primarily useful for headless applications running on a server.
- * 
- * @author Matthew D. Hicks
+ * <code>AndroidTimer</code> is a System.nanoTime implementation of <code>Timer</code>.
  */
 public class AndroidTimer extends Timer {
     
-    private static final long TIMER_RESOLUTION = 1000L;
-    private static final float INVERSE_TIMER_RESOLUTION = 1f/1000L;
+    //private static final long TIMER_RESOLUTION = 1000L;
+    //private static final float INVERSE_TIMER_RESOLUTION = 1f/1000L;
+    private static final long TIMER_RESOLUTION = 1000000000L;
+    private static final float INVERSE_TIMER_RESOLUTION = 1f/1000000000L;
     
     private long startTime;
     private long previousTime;
@@ -51,7 +50,8 @@ public class AndroidTimer extends Timer {
     private float fps;
     
     public AndroidTimer() {
-        startTime = System.currentTimeMillis();
+        //startTime = System.currentTimeMillis();
+        startTime = System.nanoTime();
     }
 
     /**
@@ -66,7 +66,8 @@ public class AndroidTimer extends Timer {
     }
 
     public long getTime() {
-        return System.currentTimeMillis() - startTime;
+        //return System.currentTimeMillis() - startTime;
+        return System.nanoTime() - startTime;
     }
 
     public long getResolution() {
@@ -88,7 +89,8 @@ public class AndroidTimer extends Timer {
     }
     
     public void reset() {
-        startTime = System.currentTimeMillis();
+        //startTime = System.currentTimeMillis();
+        startTime = System.nanoTime();
         previousTime = getTime();
     }
 }

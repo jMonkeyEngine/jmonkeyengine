@@ -1,6 +1,7 @@
 package com.jme3.renderer.android;
 
 import android.graphics.Bitmap;
+import android.opengl.GLES20;
 import android.opengl.GLUtils;
 import com.jme3.math.FastMath;
 import com.jme3.texture.Image;
@@ -36,7 +37,7 @@ public class TextureUtil {
         }
     }
 
-    private static void buildMipmap(GL10 gl, Bitmap bitmap) {
+    private static void buildMipmap(Bitmap bitmap) {
         int level = 0;
         int height = bitmap.getHeight();
         int width = bitmap.getWidth();
@@ -61,7 +62,7 @@ public class TextureUtil {
         }
     }
 
-    private static void uploadTextureBitmap(GL10 gl, Bitmap bitmap, boolean generateMips, boolean powerOf2){
+    private static void uploadTextureBitmap(Bitmap bitmap, boolean generateMips, boolean powerOf2){
         if (!powerOf2){
             int width = bitmap.getWidth();
             int height = bitmap.getHeight();
@@ -76,7 +77,7 @@ public class TextureUtil {
         }
 
         if (generateMips){
-            buildMipmap(gl, bitmap);
+            buildMipmap(bitmap);
         }else{
             GLUtils.texImage2D(GL10.GL_TEXTURE_2D, 0, bitmap, 0);
             bitmap.recycle();
@@ -84,18 +85,17 @@ public class TextureUtil {
     }
 
     public static void uploadTexture(
-		GL10 gl,
                                      Image img,
                                      int target,
                                      int index,
                                      int border,
-				     boolean tdc,
+                                     boolean tdc,
                                      boolean generateMips,
                                      boolean powerOf2){
 
         if (img.getEfficentData() instanceof Bitmap){
             Bitmap bitmap = (Bitmap) img.getEfficentData();
-            uploadTextureBitmap(gl, bitmap, generateMips, powerOf2);
+            uploadTextureBitmap(bitmap, generateMips, powerOf2);
 //            img.setEfficentData(null);
             return;
         }
@@ -118,71 +118,71 @@ public class TextureUtil {
 
         switch (fmt){
             case Alpha16:
-                format = gl.GL_ALPHA;
-                dataType = gl.GL_UNSIGNED_BYTE;
+                format = GL10.GL_ALPHA;
+                dataType = GL10.GL_UNSIGNED_BYTE;
                 break;
             case Alpha8:
-                format = gl.GL_ALPHA;
-                dataType = gl.GL_UNSIGNED_BYTE;
+                format = GL10.GL_ALPHA;
+                dataType = GL10.GL_UNSIGNED_BYTE;
                 break;
             case Luminance8:
-                format = gl.GL_LUMINANCE;
-                dataType = gl.GL_UNSIGNED_BYTE;
+                format = GL10.GL_LUMINANCE;
+                dataType = GL10.GL_UNSIGNED_BYTE;
                 break;
             case Luminance8Alpha8:
-                format = gl.GL_LUMINANCE_ALPHA;
-                dataType = gl.GL_UNSIGNED_BYTE;
+                format = GL10.GL_LUMINANCE_ALPHA;
+                dataType = GL10.GL_UNSIGNED_BYTE;
                 break;
             case Luminance16Alpha16:
-                format = gl.GL_LUMINANCE_ALPHA;
-                dataType = gl.GL_UNSIGNED_BYTE;
+                format = GL10.GL_LUMINANCE_ALPHA;
+                dataType = GL10.GL_UNSIGNED_BYTE;
                 break;
             case Luminance16:
-                format = gl.GL_LUMINANCE;
-                dataType = gl.GL_UNSIGNED_BYTE;
+                format = GL10.GL_LUMINANCE;
+                dataType = GL10.GL_UNSIGNED_BYTE;
                 break;
             case RGB565:
-                format = gl.GL_RGB;
-                dataType = gl.GL_UNSIGNED_SHORT_5_6_5;
+                format = GL10.GL_RGB;
+                dataType = GL10.GL_UNSIGNED_SHORT_5_6_5;
                 break;
             case ARGB4444:
-                format = gl.GL_RGBA;
-                dataType = gl.GL_UNSIGNED_SHORT_4_4_4_4;
+                format = GL10.GL_RGBA;
+                dataType = GL10.GL_UNSIGNED_SHORT_4_4_4_4;
                 break;
             case RGB10:
-                format = gl.GL_RGB;
-                dataType = gl.GL_UNSIGNED_BYTE;
+                format = GL10.GL_RGB;
+                dataType = GL10.GL_UNSIGNED_BYTE;
                 break;
             case RGB16:
-                format = gl.GL_RGB;
-                dataType = gl.GL_UNSIGNED_BYTE;
+                format = GL10.GL_RGB;
+                dataType = GL10.GL_UNSIGNED_BYTE;
                 break;
             case RGB5A1:
-                format = gl.GL_RGBA;
-                dataType = gl.GL_UNSIGNED_SHORT_5_5_5_1;
+                format = GL10.GL_RGBA;
+                dataType = GL10.GL_UNSIGNED_SHORT_5_5_5_1;
                 break;
             case RGB8:
-                format = gl.GL_RGB;
-                dataType = gl.GL_UNSIGNED_BYTE;
+                format = GL10.GL_RGB;
+                dataType = GL10.GL_UNSIGNED_BYTE;
                 break;
             case BGR8:
-                format = gl.GL_RGB;
-                dataType = gl.GL_UNSIGNED_BYTE;
+                format = GL10.GL_RGB;
+                dataType = GL10.GL_UNSIGNED_BYTE;
                 break;
             case RGBA16:
-                format = gl.GL_RGBA;
-                dataType = gl.GL_UNSIGNED_BYTE;
+                format = GL10.GL_RGBA;
+                dataType = GL10.GL_UNSIGNED_BYTE;
                 break;
             case RGBA8:
-                format = gl.GL_RGBA;
-                dataType = gl.GL_UNSIGNED_BYTE;
+                format = GL10.GL_RGBA;
+                dataType = GL10.GL_UNSIGNED_BYTE;
                 break;
             default:
                 throw new UnsupportedOperationException("Unrecognized format: "+fmt);
         }
 
         if (data != null)
-            gl.glPixelStorei(gl.GL_UNPACK_ALIGNMENT, 1);
+            GLES20.glPixelStorei(GLES20.GL_UNPACK_ALIGNMENT, 1);
 
         int[] mipSizes = img.getMipMapSizes();
         int pos = 0;
@@ -197,7 +197,7 @@ public class TextureUtil {
         // of more than paletted compressions is added..
         if (compress){
             data.clear();
-            gl.glCompressedTexImage2D(gl.GL_TEXTURE_2D,
+            GLES20.glCompressedTexImage2D(GLES20.GL_TEXTURE_2D,
                                       1 - mipSizes.length,
                                       format,
                                       width,
@@ -219,7 +219,7 @@ public class TextureUtil {
             }
 
             if (compress && data != null){
-                gl.glCompressedTexImage2D(gl.GL_TEXTURE_2D,
+                GLES20.glCompressedTexImage2D(GLES20.GL_TEXTURE_2D,
                                           i,
                                           format,
                                           mipWidth,
@@ -228,7 +228,7 @@ public class TextureUtil {
                                           data.remaining(),
                                           data);
             }else{
-                gl.glTexImage2D(gl.GL_TEXTURE_2D,
+                GLES20.glTexImage2D(GLES20.GL_TEXTURE_2D,
                                 i,
                                 format,
                                 mipWidth,

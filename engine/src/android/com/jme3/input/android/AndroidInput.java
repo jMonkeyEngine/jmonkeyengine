@@ -2,124 +2,45 @@ package com.jme3.input.android;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.logging.Logger;
 
 import android.content.Context;
 import android.opengl.GLSurfaceView;
 import android.util.AttributeSet;
+import android.view.GestureDetector;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
+import android.view.ScaleGestureDetector;
+import com.jme3.input.android.TouchEvent;
 import com.jme3.input.KeyInput;
 import com.jme3.input.MouseInput;
 import com.jme3.input.RawInputListener;
 import com.jme3.input.event.KeyInputEvent;
 import com.jme3.input.event.MouseButtonEvent;
 import com.jme3.input.event.MouseMotionEvent;
+import com.jme3.math.Vector2f;
 
-public class AndroidInput extends GLSurfaceView implements KeyInput, MouseInput {
+
+public class AndroidInput extends GLSurfaceView implements KeyInput, MouseInput, 
+                                                           GestureDetector.OnGestureListener, ScaleGestureDetector.OnScaleGestureListener
+{
+    private final static Logger logger = Logger.getLogger(AndroidInput.class.getName());
     
-    private RawInputListener listener;
-    private int lastX = -1, lastY = -1;
+    private RawInputListener listenerRaw = null;
+    private AndroidTouchInputListener listenerTouch = null;
+    private ScaleGestureDetector scaledetector;
+    private GestureDetector detector;
+    private Vector2f lastPos = new Vector2f();
+    private boolean dragging = false;
+    
+    private List<Object> currentEvents = new ArrayList<Object>();
 
-    private static final char[] ANDROID_TO_JME_CHR = {
-        0x0,// unknown
-        0x0,// soft left
-        0x0,// soft right
-        0x0,// home
-        0x0,// back
-        0x0,// call
-        0x0,// endcall
-        '0',
-        '1',
-        '2',
-        '3',
-        '4',
-        '5',
-        '6',
-        '7',
-        '8',
-        '9',
-        '*',
-        '#',
-        0x0,//dpad_up
-        0x0,//dpad_down
-        0x0,//dpad_left
-        0x0,//dpad_right
-        0x0,//dpad_center
-        0x0,//volume up
-        0x0,//volume down
-        0x0,//power
-        0x0,//camera
-        0x0,//clear
-        'a',
-        'b',
-        'c',
-        'd',
-        'e',
-        'f',
-        'g',
-        'h',
-        'i',
-        'j',
-        'k',
-        'l',
-        'm',
-        'n',
-        'o',
-        'p',
-        'q',
-        'r',
-        's',
-        't',
-        'u',
-        'v',
-        'w',
-        'x',
-        'y',
-        'z',
-        ',',
-        '.',
+    private final static int MAX_EVENTS = 1024;
 
-        0x0,//left alt
-        0x0,//right alt
-        0x0,//left ctrl
-        0x0,//right ctrl
+    
+    private boolean FIRE_MOUSE_EVENTS = true;
 
-//        0x0,//fn
-//        0x0,//cap
-
-        '\t',
-        ' ',
-        0x0,//sym(bol)
-        0x0,//explorer
-        0x0,//envelope
-        '\n',//newline
-        0x0,//delete
-        '`',
-        '-',
-        '=',
-        '[',
-        ']',
-        '\\',//backslash
-        ';',
-        '\'',//apostrophe
-        '/',//slash
-        '@',//at
-        0x0,//num
-        0x0,//headset hook
-        0x0,//focus
-        0x0,
-        0x0,//menu
-        0x0,//notification
-        0x0,//search
-        0x0,//media play/pause
-        0x0,//media stop
-        0x0,//media next
-        0x0,//media previous
-        0x0,//media rewind
-        0x0,//media fastforward
-        0x0,//mute
-    };
-
+   
     private static final int[] ANDROID_TO_JME = {
         0x0, // unknown
         0x0, // key code soft left
@@ -223,170 +144,170 @@ public class AndroidInput extends GLSurfaceView implements KeyInput, MouseInput 
         0x0,//mute
     };
 
-//    private int[] keyMap = {
-//        0x0,
-//        KeyEvent.KEYCODE_BACK, // ESC key
-//
-//        KeyEvent.KEYCODE_1,
-//        KeyEvent.KEYCODE_2,
-//        KeyEvent.KEYCODE_3,
-//        KeyEvent.KEYCODE_4,
-//        KeyEvent.KEYCODE_5,
-//        KeyEvent.KEYCODE_6,
-//        KeyEvent.KEYCODE_7,
-//        KeyEvent.KEYCODE_8,
-//        KeyEvent.KEYCODE_9,
-//        KeyEvent.KEYCODE_0,
-//        KeyEvent.KEYCODE_MINUS,
-//        KeyEvent.KEYCODE_EQUALS,
-//        KeyEvent.KEYCODE_BACK,
-//        KeyEvent.KEYCODE_TAB,
-//        KeyEvent.KEYCODE_Q,
-//        KeyEvent.KEYCODE_W,
-//        KeyEvent.KEYCODE_E,
-//        KeyEvent.KEYCODE_R,
-//        KeyEvent.KEYCODE_T,
-//        KeyEvent.KEYCODE_Y,
-//        KeyEvent.KEYCODE_U,
-//        KeyEvent.KEYCODE_I,
-//        KeyEvent.KEYCODE_O,
-//        KeyEvent.KEYCODE_P,
-//        KeyEvent.KEYCODE_LEFT_BRACKET,
-//        KeyEvent.KEYCODE_RIGHT_BRACKET,
-//        KeyEvent.KEYCODE_ENTER,
-//        KeyEvent.KEYCODE_SOFT_LEFT, // Left Ctrl
-//        KeyEvent.KEYCODE_A,
-//        KeyEvent.KEYCODE_S,
-//        KeyEvent.KEYCODE_D,
-//        KeyEvent.KEYCODE_F,
-//        KeyEvent.KEYCODE_G,
-//        KeyEvent.KEYCODE_H,
-//        KeyEvent.KEYCODE_J,
-//        KeyEvent.KEYCODE_K,
-//        KeyEvent.KEYCODE_L,
-//        KeyEvent.KEYCODE_SEMICOLON,
-//        KeyEvent.KEYCODE_APOSTROPHE,
-//        KeyEvent.KEYCODE_GRAVE,
-//        KeyEvent.KEYCODE_SHIFT_LEFT,
-//        KeyEvent.KEYCODE_BACKSLASH,
-//        KeyEvent.KEYCODE_Z,
-//        KeyEvent.KEYCODE_X,
-//        KeyEvent.KEYCODE_C,
-//        KeyEvent.KEYCODE_V,
-//        KeyEvent.KEYCODE_B,
-//        KeyEvent.KEYCODE_N,
-//        KeyEvent.KEYCODE_M,
-//
-//        KeyEvent.KEYCODE_COMMA,
-//        KeyEvent.KEYCODE_PERIOD,
-//        KeyEvent.KEYCODE_SLASH,
-//        KeyEvent.KEYCODE_SHIFT_RIGHT,
-//        KeyEvent.KEYCODE_STAR,
-//
-//        KeyEvent.KEYCODE_ALT_LEFT,
-//        KeyEvent.KEYCODE_SPACE,
-//
-//        0x0, // no caps lock
-//
-//        0x0, // F1
-//        0x0, // F2
-//        0x0, // F3
-//        0x0, // F4
-//        0x0, // F5
-//        0x0, // F6
-//        0x0, // F7
-//        0x0, // F8
-//        0x0, // F9
-//        0x0, // F10
-//
-//        KeyEvent.KEYCODE_NUM,
-//        0x0, // scroll lock
-//
-//        0x0, // numpad7
-//        0x0, // numpad8
-//        0x0, // numpad9
-//
-//        KeyEvent.
-//    }
-
-    public AndroidInput(Context ctx, AttributeSet attribs){
+    public AndroidInput(Context ctx, AttributeSet attribs)
+    {
         super(ctx, attribs);
+        detector=new GestureDetector(this);
+        scaledetector=new ScaleGestureDetector(ctx, this);        
     }
 
-    public AndroidInput(Context ctx){
+    public AndroidInput(Context ctx)
+    {
         super(ctx);
+        detector=new GestureDetector(this);
+        scaledetector=new ScaleGestureDetector(ctx, this);
     }
 
+    /**
+     * onTouchEvent gets called from android thread on touchpad events
+     */
     @Override
-    public boolean onTouchEvent(MotionEvent motionEvent){
-	int newX = getWidth() - (int) motionEvent.getX();
-	int newY = (int) motionEvent.getY();
+    public boolean onTouchEvent(MotionEvent event)
+    {
+        boolean bWasHandled = false;
+        MouseButtonEvent btn;
+        TouchEvent touch;
 
+        // Send the raw event
+        processEvent(event);
+        
+        // Try to detect gestures
+        this.detector.onTouchEvent(event);
+        this.scaledetector.onTouchEvent(event);
 
-        switch (motionEvent.getAction()){
+        
+        switch (event.getAction())
+        {
             case MotionEvent.ACTION_DOWN:
-                MouseButtonEvent btn = new MouseButtonEvent(0, true, newX, newY);
-                btn.setTime(motionEvent.getEventTime());
-		processEvent(btn);
-               // listener.onMouseButtonEvent(btn);
-                lastX = -1;
-                lastY = -1;
-                return true;
+                
+                // Store current pos
+                lastPos.set(event.getX(),event.getY());
+                
+                if (FIRE_MOUSE_EVENTS)
+                {
+                   // Handle mouse events 
+                    btn = new MouseButtonEvent(0, true, (int)lastPos.getX(), (int)lastPos.getY());
+                    btn.setTime(event.getEventTime());
+                    processEvent(btn);
+                }
+                
+                // Handle gesture events
+                touch = new TouchEvent(TouchEvent.Type.GRABBED, TouchEvent.Operation.NOP,event.getX(),event.getY(),0,0,null);
+                processEvent(touch);
+                
+                bWasHandled = true;
+                break;
+                
             case MotionEvent.ACTION_UP:
-                MouseButtonEvent btn2 = new MouseButtonEvent(0, false, newX, newY);
-                btn2.setTime(motionEvent.getEventTime());
-		processEvent(btn2);
-               // listener.onMouseButtonEvent(btn2);
-                lastX = -1;
-                lastY = -1;
-                return true;
+                
+                if (FIRE_MOUSE_EVENTS)
+                {                
+                    // Handle mouse events 
+                    btn = new MouseButtonEvent(0, false, (int)event.getX(), (int)event.getY());
+                    btn.setTime(event.getEventTime());
+                    processEvent(btn);
+                }                
+                // Handle gesture events             
+                if(dragging)
+                {
+                    touch = new TouchEvent(TouchEvent.Type.DRAGGED, TouchEvent.Operation.STOPPED,event.getX(),event.getY(),event.getX()-lastPos.getX(),event.getY()-lastPos.getY(),null);
+                    processEvent(touch);
+                }
+                touch = new TouchEvent(TouchEvent.Type.RELEASED, TouchEvent.Operation.NOP,event.getX(),event.getY(),0,0,null);
+                processEvent(touch);
+                dragging=false;
+                bWasHandled = true;
+                break;
             case MotionEvent.ACTION_MOVE:
-               // int newX = getWidth() - (int) motionEvent.getX();
-               // int newY = (int) motionEvent.getY();
-                int dx;
-                int dy;
-                if (lastX != -1){
-                    dx = newX - lastX;
-                    dy = newY - lastY;
-                }else{
-                    dx = 0;
-                    dy = 0;
+                if(!scaledetector.isInProgress())
+                {
+                    if(!dragging)
+                        touch = new TouchEvent(TouchEvent.Type.DRAGGED, TouchEvent.Operation.STARTED,event.getX(),event.getY(),event.getX()-lastPos.getX(),event.getY()-lastPos.getY(),null);
+                    else
+                        touch = new TouchEvent(TouchEvent.Type.DRAGGED, TouchEvent.Operation.RUNNING,event.getX(),event.getY(),event.getX()-lastPos.getX(),event.getY()-lastPos.getY(),null);
+                        
+                    processEvent(touch);
+                    dragging=true;
                 }
-                lastX = newX;
-                lastY = newY;
-                MouseMotionEvent mot = new MouseMotionEvent(newX, newY, dx, dy, 0, 0);
-                mot.setTime(motionEvent.getEventTime());
-		processEvent(mot);
-                //listener.onMouseMotionEvent(mot);
-                try{
-                    Thread.sleep(15);
-                } catch (InterruptedException ex) {
+                if (FIRE_MOUSE_EVENTS)
+                {
+                    int newX = getWidth() - (int) event.getX();
+                    int newY = (int) event.getY();
+                    int dx;
+                    int dy;
+                    if (lastPos.getX() != -1){
+                        dx = newX - (int)lastPos.getX();
+                        dy = newY - (int)lastPos.getY();
+                    }else{
+                        dx = 0;
+                        dy = 0;
+                    }                    
+                    MouseMotionEvent mot = new MouseMotionEvent(newX, newY, dx, dy, 0, 0);
+                    mot.setTime(event.getEventTime());
+                    processEvent(mot);
                 }
-                return true;
+                bWasHandled = true;
+                break;
+                
+            // TODO: implement motion events
+            case MotionEvent.ACTION_POINTER_UP:
+                break;
+
+            case MotionEvent.ACTION_POINTER_DOWN:
+                break;
+
+            case MotionEvent.ACTION_OUTSIDE:
+                break;
+
+            case MotionEvent.ACTION_CANCEL:
+                break;
         }
-        return false;
+        return bWasHandled;        
     }
 
     @Override
     public boolean onKeyDown (int keyCode, KeyEvent event) {
+
+        // Send the raw event
+        processEvent(event);
+        
         int jmeCode  = ANDROID_TO_JME[keyCode];
-        String str =  event.getCharacters();
-        char c = str != null && str.length() > 0 ? str.charAt(0) : 0x0;
-        KeyInputEvent evt = new KeyInputEvent(jmeCode, c, true, false);
-	processEvent(evt);
-	//     listener.onKeyEvent(evt);
-        return false;
+        if (jmeCode != 0)
+        {
+            String str =  event.getCharacters();
+            char c = str != null && str.length() > 0 ? str.charAt(0) : 0x0;
+            KeyInputEvent evt = new KeyInputEvent(jmeCode, c, true, false);
+            logger.info("onKeyDown " + evt);
+            processEvent(evt);
+        }
+        // Handle all keys ourself, except the back button (4)
+        if (keyCode == 4)
+            return false;
+        else
+            return true;
     }
 
     @Override
     public boolean onKeyUp (int keyCode, KeyEvent event) {
+        
+        // Send the raw event
+        processEvent(event);
+        
         int jmeCode  = ANDROID_TO_JME[keyCode];
-        String str =  event.getCharacters();
-        char c = str != null && str.length() > 0 ? str.charAt(0) : 0x0;
-        KeyInputEvent evt = new KeyInputEvent(jmeCode, c, false, false);
-	processEvent(evt);
-        //listener.onKeyEvent(evt);
-        return false;
+        if (jmeCode != 0)
+        {            
+            String str =  event.getCharacters();
+            char c = str != null && str.length() > 0 ? str.charAt(0) : 0x0;
+            KeyInputEvent evt = new KeyInputEvent(jmeCode, c, false, false);
+            logger.info("onKeyUp " + evt);
+            processEvent(evt);
+        }
+        
+        // Handle all keys ourself, except the back button (4)
+        if (keyCode == 4)
+            return false;
+        else
+            return true;
     }
 
     public void setCursorVisible(boolean visible){
@@ -410,39 +331,130 @@ public class AndroidInput extends GLSurfaceView implements KeyInput, MouseInput 
         return true;
     }
 
-	// XXX: android does not have an Event interface?
-	private List<Object> currentEvents = new ArrayList<Object>();
 
-	private final static int MAX_EVENTS = 1024;
 
-	private void processEvent(Object event) {
+	private void processEvent(Object event) 
+	{
 		synchronized (currentEvents) {
 			if (currentEvents.size() < MAX_EVENTS)
 				currentEvents.add(event);
 		}
 	}
 
+	Object event;
 	private void generateEvents() {
-		synchronized (currentEvents) {
-			for (Object event: currentEvents) {
-				if (event instanceof MouseButtonEvent) {
-              				listener.onMouseButtonEvent((MouseButtonEvent) event);
-				} else if (event instanceof MouseMotionEvent) {
-					listener.onMouseMotionEvent((MouseMotionEvent) event);
-				} else if (event instanceof KeyInputEvent) {
-					listener.onKeyEvent((KeyInputEvent) event);
-				}
-			}
-			currentEvents.clear();
-		}
+	    if (listenerRaw != null)
+	    {
+    		synchronized (currentEvents) {
+    			//for (Object event: currentEvents) {
+    			for (int i = 0; i < currentEvents.size(); i++) {
+    			    event = currentEvents.get(i);
+    				if (event instanceof MouseButtonEvent) {
+    				    listenerRaw.onMouseButtonEvent((MouseButtonEvent) event);
+    				} else if (event instanceof MouseMotionEvent) {
+    					listenerRaw.onMouseMotionEvent((MouseMotionEvent) event);
+    				} else if (event instanceof KeyInputEvent) {
+    					listenerRaw.onKeyEvent((KeyInputEvent) event);				
+                    } else if (event instanceof TouchEvent) {
+                        if (listenerTouch != null)
+                            listenerTouch.onTouchEvent((TouchEvent) event);
+                    } else if (event instanceof MotionEvent) {
+                        if (listenerTouch != null)
+                            listenerTouch.onMotionEvent((MotionEvent) event);                                                                        
+                    } else if (event instanceof KeyEvent) {
+                        if (listenerTouch != null)
+                            listenerTouch.onAndroidKeyEvent((KeyEvent) event);
+                    }    				    				    				
+    			}
+    			currentEvents.clear();
+    		}
+	    }
 	}
 
     public void setInputListener(RawInputListener listener) {
-        this.listener = listener;
+        this.listenerRaw = listener;
+    }
+    
+    public void setInputListener(AndroidTouchInputListener listener) {
+        this.listenerRaw = listener;
+        this.listenerTouch = listener;
     }
 
     public long getInputTimeNanos() {
         return System.nanoTime();
+    }
+
+    
+    // --------------- Gesture detected callback events ----------------------------------
+    
+    public boolean onDown(MotionEvent event)
+    {
+        return false;
+    }
+
+    public void onLongPress(MotionEvent event)
+    {
+        TouchEvent touch = new TouchEvent(TouchEvent.Type.LONGPRESSED, TouchEvent.Operation.NOP,event.getX(),event.getY(),0,0,null);
+        processEvent(touch);
+    }
+
+    public boolean onFling(MotionEvent event, MotionEvent event2, float vx, float vy)
+    {
+        TouchEvent touch = new TouchEvent(TouchEvent.Type.FLING, TouchEvent.Operation.NOP,event.getX(),event.getY(),0,0,null);
+        processEvent(touch);
+        return true;
+    }
+
+    public boolean onSingleTapConfirmed(MotionEvent event)
+    {
+        TouchEvent touch = new TouchEvent(TouchEvent.Type.TAP, TouchEvent.Operation.NOP,event.getX(),event.getY(),0,0,null);
+        processEvent(touch);
+        return true;
+    }
+
+    public boolean onDoubleTap(MotionEvent event)
+    {
+        TouchEvent touch = new TouchEvent(TouchEvent.Type.DOUBLETAP, TouchEvent.Operation.NOP,event.getX(),event.getY(),0,0,null);
+        processEvent(touch);
+        return true;
+    }
+
+    public boolean onScaleBegin(ScaleGestureDetector scaleGestureDetector)
+    {
+        TouchEvent touch = new TouchEvent(TouchEvent.Type.SCALE, TouchEvent.Operation.STARTED,scaleGestureDetector.getFocusX(),scaleGestureDetector.getFocusY(),0,0,new float[]{scaleGestureDetector.getCurrentSpan(),scaleGestureDetector.getScaleFactor()});
+        processEvent(touch);
+        return true;
+    }
+
+    public boolean onScale(ScaleGestureDetector scaleGestureDetector)
+    {        
+        TouchEvent touch = new TouchEvent(TouchEvent.Type.SCALE, TouchEvent.Operation.RUNNING,scaleGestureDetector.getFocusX(),scaleGestureDetector.getFocusY(),0,0,new float[]{scaleGestureDetector.getCurrentSpan(),scaleGestureDetector.getScaleFactor()});
+        processEvent(touch);
+        return false;
+    }
+
+    public void onScaleEnd(ScaleGestureDetector scaleGestureDetector)
+    {
+        TouchEvent touch = new TouchEvent(TouchEvent.Type.SCALE, TouchEvent.Operation.STOPPED,scaleGestureDetector.getFocusX(),scaleGestureDetector.getFocusY(),0,0,new float[]{scaleGestureDetector.getCurrentSpan(),scaleGestureDetector.getScaleFactor()});
+        processEvent(touch);        
+    }
+
+    public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX,
+            float distanceY) {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    public void onShowPress(MotionEvent e) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    public boolean onSingleTapUp(MotionEvent event) 
+    {
+        TouchEvent touch = new TouchEvent(TouchEvent.Type.TAP, TouchEvent.Operation.NOP,event.getX(),event.getY(),0,0,null);
+        processEvent(touch);
+        return true;
     }
 
 }

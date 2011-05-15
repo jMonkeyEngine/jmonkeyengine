@@ -6,8 +6,8 @@ import com.jme3.asset.AndroidAssetManager;
 import com.jme3.asset.AssetManager;
 import com.jme3.audio.AudioNode;
 import com.jme3.audio.AudioData;
-import com.jme3.audio.AudioRenderer;
 import com.jme3.audio.AudioParam;
+import com.jme3.audio.AudioRenderer;
 import com.jme3.audio.Environment;
 import com.jme3.audio.Listener;
 import com.jme3.audio.ListenerParam;
@@ -28,6 +28,7 @@ public class JmeSystem {
     private static final Logger logger = Logger.getLogger(JmeSystem.class.getName());
 
     private static boolean initialized = false;
+    private static boolean lowPermissions = false;
     private static Resources res;
 
     public static void initialize(AppSettings settings){
@@ -51,7 +52,15 @@ public class JmeSystem {
     }
 
     public static String getFullName(){
-        return "jMonkey Engine 3 ALPHA 0.50";
+        return "jMonkey Engine 3 ALPHA 0.50 Android";
+    }
+    
+    public static void setLowPermissions(boolean lowPerm){
+        lowPermissions = lowPerm;
+    }
+
+    public static boolean isLowPermissions() {
+        return lowPermissions;
     }
     
     public static JmeContext newContext(AppSettings settings, Type contextType) {
@@ -71,8 +80,15 @@ public class JmeSystem {
 			public void initialize() {}
 			public void update(float tpf) {}
 			public void cleanup() {}
-			public void updateListenerParam(Listener listener, ListenerParam parameter) {}
-			public void updateSourceParam(AudioNode node, AudioParam parameter) {}
+			public void updateListenerParam(Listener listener,
+					ListenerParam param) {
+				// TODO Auto-generated method stub
+				
+			}
+			public void updateSourceParam(AudioNode src, AudioParam param) {
+				// TODO Auto-generated method stub
+				
+			}
 		};
     }
 
@@ -85,16 +101,16 @@ public class JmeSystem {
     }
 
     public static AssetManager newAssetManager(){
-	logger.info("newAssetManager()");
-        return new AndroidAssetManager(true);
+	    logger.info("newAssetManager()");
+        return new AndroidAssetManager(null);
     }
 
     public static AssetManager newAssetManager(URL url){
-	logger.info("newAssetManager(" + url + ")");
-        return new AndroidAssetManager(true);
+	    logger.info("newAssetManager(" + url + ")");
+        return new AndroidAssetManager(url);
     }
 
-    public static boolean showSettingsDialog(AppSettings settings) {
+    public static boolean showSettingsDialog(AppSettings settings, boolean loadSettings) {
         return true;
     }
 

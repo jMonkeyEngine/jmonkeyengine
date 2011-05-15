@@ -76,53 +76,10 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-/*
-//import org.lwjgl.opengl.ARBGeometryShader4;
-//import org.lwjgl.opengl.ARBHalfFloatVertex;
-//import org.lwjgl.opengl.ARBVertexArrayObject;
-//import org.lwjgl.opengl.ARBHalfFloatVertex;
-//import org.lwjgl.opengl.ARBVertexArrayObject;
-import org.lwjgl.opengl.ARBDrawBuffers;
-//import org.lwjgl.opengl.ARBDrawInstanced;
-import org.lwjgl.opengl.ARBDrawInstanced;
-import org.lwjgl.opengl.ARBMultisample;
-import org.lwjgl.opengl.ContextCapabilities;
-import org.lwjgl.opengl.EXTTextureArray;
-import org.lwjgl.opengl.EXTTextureFilterAnisotropic;
-import org.lwjgl.opengl.GLContext;
-import org.lwjgl.opengl.NVHalfFloat;
-
-import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL12.*;
-import static org.lwjgl.opengl.GL13.*;
-import static org.lwjgl.opengl.GL14.*;
-import static org.lwjgl.opengl.GL15.*;
-import static org.lwjgl.opengl.GL20.*;
-
-import static org.lwjgl.opengl.EXTFramebufferObject.*;
-import static org.lwjgl.opengl.EXTFramebufferMultisample.*;
-import static org.lwjgl.opengl.EXTFramebufferBlit.*;
-import org.lwjgl.opengl.ARBShaderObjects.*;
-import org.lwjgl.opengl.ARBVertexArrayObject;
-//import static org.lwjgl.opengl.ARBDrawInstanced.*;
-*/
-
-import javax.microedition.khronos.egl.EGLConfig;
-import javax.microedition.khronos.egl.EGLContext;
 import javax.microedition.khronos.opengles.GL10;
-
-import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.opengl.GLES10;
 import android.opengl.GLES11;
 import android.opengl.GLES20;
-import android.opengl.GLSurfaceView;
-import android.opengl.GLUtils;
-import android.opengl.Matrix;
-import android.os.SystemClock;
-import android.util.Log;
 
 
 
@@ -168,14 +125,14 @@ public class OGLESShaderRenderer implements Renderer {
     private int clipX, clipY, clipW, clipH;
 
 
-	private final GL10 gl;
+	//private final GL10 gl;
 	private boolean powerOf2 = false;
 	private boolean verboseLogging = false;
-	private boolean useVBO = true;
+	private boolean useVBO = false;
 
 
-    public OGLESShaderRenderer(GL10 gl) {
-	this.gl = gl;
+    public OGLESShaderRenderer() {
+
     }
 
 	public void setUseVA(boolean value) {
@@ -1869,7 +1826,7 @@ public class OGLESShaderRenderer implements Renderer {
                 return;
             }
             for (int i = 0; i < 6; i++){
-                TextureUtil.uploadTexture(gl, img, GLES20.GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, i, 0, tdc, true, powerOf2);
+                TextureUtil.uploadTexture(img, GLES20.GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, i, 0, tdc, true, powerOf2);
             }
         }/*else if (target == EXTTextureArray.GL_TEXTURE_2D_ARRAY_EXT){
             List<ByteBuffer> data = img.getData();
@@ -1881,7 +1838,7 @@ public class OGLESShaderRenderer implements Renderer {
                  TextureUtil.uploadTexture(img, target, i, 0, tdc);
             }
         }*/else{
-            TextureUtil.uploadTexture(gl, img, target, 0, 0, tdc, true, powerOf2);
+            TextureUtil.uploadTexture(img, target, 0, 0, tdc, true, powerOf2);
 
 		if (verboseLogging)
 			logger.info("GLES20.glTexParameteri(" + target + "GLES11.GL_GENERATE_MIMAP, GLES20.GL_TRUE)");
@@ -2843,11 +2800,18 @@ public class OGLESShaderRenderer implements Renderer {
 
    public void setAlphaToCoverage(boolean value)
    {
-       // TODO Auto-generated method stub
+       if (value) {
+           GLES20.glEnable(GLES20.GL_SAMPLE_ALPHA_TO_COVERAGE);
+       } else {
+           GLES20.glDisable(GLES20.GL_SAMPLE_ALPHA_TO_COVERAGE);
+       }
    }
 
-   public void invalidateState(){
-       // TODO invalidateState
+   @Override
+   public void invalidateState() 
+   {
+       context.reset();
+       boundShader = null;
+       lastFb = null;
    }
-    
 }

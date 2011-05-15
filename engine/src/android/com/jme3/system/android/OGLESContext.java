@@ -39,7 +39,6 @@ import com.jme3.input.JoyInput;
 import com.jme3.input.KeyInput;
 import com.jme3.input.MouseInput;
 import com.jme3.input.android.AndroidInput;
-//import com.jme3.renderer.android.OGLESRenderer;
 import com.jme3.renderer.android.OGLESShaderRenderer;
 import com.jme3.system.AppSettings;
 import com.jme3.system.JmeContext;
@@ -51,48 +50,60 @@ import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 
-public class OGLESContext implements JmeContext, GLSurfaceView.Renderer {
+public class OGLESContext implements JmeContext, GLSurfaceView.Renderer 
+{
 
     private static final Logger logger = Logger.getLogger(OGLESContext.class.getName());
 
-    protected AtomicBoolean created = new AtomicBoolean(false);
-    protected AppSettings settings = new AppSettings(true);
+    protected final AtomicBoolean created = new AtomicBoolean(false);
+    protected final AtomicBoolean renderable = new AtomicBoolean(false);
+    protected final AtomicBoolean needClose = new AtomicBoolean(false);
+    protected final Object createdLock = new Object();
+    protected final AppSettings settings = new AppSettings(true);
 
-	/* < OpenGL ES 2.0 * */
-	//protected OGLESRenderer renderer;
 	/* >= OpenGL ES 2.0 (Android 2.2+) */
 	protected OGLESShaderRenderer renderer;
 
     protected Timer timer;
     protected SystemListener listener;
 
-    protected AtomicBoolean needClose = new AtomicBoolean(false);
+    
     protected boolean wasActive = false;
-    protected int frameRate = 0;
     protected boolean autoFlush = true;
 
     protected AndroidInput view;
+    
+    private long milliStart;
+    private long milliDelta;
+    protected int frameRate = 33;
+    //protected int minFrameDuration = 1000 / frameRate;  // Set a max FPS of 33
+    protected int minFrameDuration = 0;                   // No FPS cap
 
-    public OGLESContext(){
-    }
+    public OGLESContext() { }
 
-    public Type getType() {
+    @Override
+    public Type getType() 
+    {
         return Type.Display;
     }
+    
+    public GLSurfaceView createView(Activity activity)
+    {
+        return createView(new AndroidInput(activity));        
+    }
+    
+        
+    public GLSurfaceView createView(AndroidInput view)
+    {
+        this.view = view;    
 
-    public GLSurfaceView createView(Activity activity){
-        view = new AndroidInput(activity);
-
-	/*
-	 * Requesting client version from GLSurfaceView which is extended by
-	 * AndroidInput.
-	 * This is required to get OpenGL ES 2.0
-	 */
-
-	logger.info("setEGLContextClientVersion(2)");
-	view.setEGLContextClientVersion(2);
-	logger.info("setEGLContextClientVersion(2) ... done.");
-
+    	/*
+    	 * Requesting client version from GLSurfaceView which is extended by
+    	 * AndroidInput.
+    	 * This is required to get OpenGL ES 2.0
+    	 */    	
+    	view.setEGLContextClientVersion(2);
+    	
         //RGB565, Depth16
         view.setEGLConfigChooser(5, 6, 5, 0, 16, 0);
         view.setFocusableInTouchMode(true);
@@ -104,12 +115,11 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer {
         return view;
 
     }
+    
 
-    protected void applySettings(AppSettings setting){
-    }
-
-    protected void initInThread(GL10 gl){
-        logger.info("Display created.");
+    protected void initInThread()
+    {
+        logger.info("OGLESContext create");
         logger.fine("Running on thread: "+Thread.currentThread().getName());
 
         Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
@@ -117,175 +127,220 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer {
                 listener.handleError("Uncaught exception thrown in "+thread.toString(), thrown);
             }
         });
-
-        created.set(true);
-
+        
         timer = new AndroidTimer();
 
-        renderer = new OGLESShaderRenderer(gl);
-	applySettingsToRenderer(renderer, settings);
-
+        renderer = new OGLESShaderRenderer();
+    
+        renderer.setUseVA(true);
+        renderer.setVerboseLogging(false);
+        
         renderer.initialize();
-        listener.initialize();
-
-	// OGLESShaderRenderer does not support guiView yet
-	// forcefully remove all gui nodes
-
-	if (listener instanceof com.jme3.app.SimpleApplication) {
-		((com.jme3.app.SimpleApplication) listener).getGuiNode().detachAllChildren();
-	}
+        listener.initialize();                
+        created.set(true);
+        
+        needClose.set(false);
     }
 
     /**
      * De-initialize in the OpenGL thread.
      */
-    protected void deinitInThread(){
+    protected void deinitInThread()
+    {        
+        if (renderer != null) 
+            renderer.cleanup();
+            
         listener.destroy();
-	if (renderer != null) {
-		renderer.cleanup();
-		// do android specific cleaning here
-
-		logger.info("Display destroyed.");
+        
+        // do android specific cleaning here
+		logger.info("Display destroyed.");		
+		renderable.set(false);
 		created.set(false);
 		renderer = null;
 		timer = null;
-	}
+    }
+    
+    protected void  applySettingsToRenderer(OGLESShaderRenderer renderer, AppSettings settings) 
+    {
+        logger.warning("setSettings.USE_VA: [" + settings.getBoolean("USE_VA") + "]");
+        logger.warning("setSettings.VERBOSE_LOGGING: [" + settings.getBoolean("VERBOSE_LOGGING") + "]");
+        renderer.setUseVA(settings.getBoolean("USE_VA"));
+        renderer.setVerboseLogging(settings.getBoolean("VERBOSE_LOGGING"));
+    }
+    
+    protected void applySettings(AppSettings setting)
+    {
+        if (renderer != null)
+            applySettingsToRenderer(renderer, settings);        
     }
 
-
-	protected void  applySettingsToRenderer(OGLESShaderRenderer renderer, AppSettings settings) {
-		logger.warning("setSettings.USE_VA: [" + settings.getBoolean("USE_VA") + "]");
-		logger.warning("setSettings.VERBOSE_LOGGING: [" + settings.getBoolean("VERBOSE_LOGGING") + "]");
-		renderer.setUseVA(settings.getBoolean("USE_VA"));
-		renderer.setVerboseLogging(settings.getBoolean("VERBOSE_LOGGING"));
-	}
-
-	@Override
-    public void setSettings(AppSettings settings) {
-		this.settings.copyFrom(settings);
-
-		// XXX This code should be somewhere else
-		if (renderer != null)
-			applySettingsToRenderer(renderer, this.settings);
+    @Override
+    public void setSettings(AppSettings settings) 
+    {
+        this.settings.copyFrom(settings);
     }
 
+    @Override
     public void setSystemListener(SystemListener listener){
         this.listener = listener;
     }
 
+    @Override
     public AppSettings getSettings() {
         return settings;
     }
 
+    @Override
     public com.jme3.renderer.Renderer getRenderer() {
         return renderer;
     }
 
+    @Override
     public MouseInput getMouseInput() {
         return view;
     }
 
+    @Override
     public KeyInput getKeyInput() {
         return view;
     }
-
+    
+    @Override
     public JoyInput getJoyInput() {
         return null;
     }
-
-    public Timer getTimer() {
+    
+    @Override
+    public Timer getTimer() 
+    {
         return timer;
     }
 
-    public void setTitle(String title) {
+    @Override
+    public void setTitle(String title) 
+    {
     }
-
-    public boolean isCreated(){
+    
+    @Override
+    public boolean isCreated()
+    {
         return created.get();
     }
-
-    public void setAutoFlushFrames(boolean enabled){
+    @Override
+    public void setAutoFlushFrames(boolean enabled)
+    {
         this.autoFlush = enabled;
     }
 
     // renderer:initialize
-    public void onSurfaceCreated(GL10 gl, EGLConfig cfg) {
-        logger.info("Using Android");
-        initInThread(gl);
+    @Override
+    public void onSurfaceCreated(GL10 gl, EGLConfig cfg) 
+    {
+        logger.info("GL Surface created");
+        initInThread();
+        renderable.set(true);
     }
 
     // SystemListener:reshape
-    public void onSurfaceChanged(GL10 gl, int width, int height) {
+    @Override
+    public void onSurfaceChanged(GL10 gl, int width, int height) 
+    {
         settings.setResolution(width, height);
         listener.reshape(width, height);
     }
 
     // SystemListener:update
-    public void onDrawFrame(GL10 gl) {
-        if (needClose.get()){
-            deinitInThread(); // ???
-            return;
-        }
-
-//        if (wasActive != Display.isActive()){
-//            if (!wasActive){
-//                listener.gainFocus();
-//                wasActive = true;
-//            }else{
-//                listener.loseFocus();
-//                wasActive = false;
-//            }
-//        }
-
-		if (!created.get())
-            throw new IllegalStateException();
-
-        listener.update();
-
-        // swap buffers
+    @Override
+    public void onDrawFrame(GL10 gl) 
+    {
         
-        if (frameRate > 0){
-//            Display.sync(frameRate);
-            // synchronzie to framerate
-        }
-
-        if (autoFlush)
-            renderer.onFrame();
-    }
-
-    /**
-     * TODO: get these methods to follow the spec
-     * @param waitFor
-     */
-    public void create(boolean waitFor) {
-        if (created.get()){
-            logger.warning("create() called when display is already created!");
+        if (!created.get())
+            throw new IllegalStateException("onDrawFrame without create");
+        
+        if (needClose.get())
+        {
+            deinitInThread();
             return;
         }
-    }
+        
+        if (renderable.get())
+        {
+            milliStart = System.currentTimeMillis();
+                    
 
-    public void create(){
-        create(false);
-    }
-
-    public void restart() {
-    }
-
-    public boolean isRenderable() {
-       // TODO isRenderable
-        return true;
+    
+            listener.update();
+            
+            
+            if (autoFlush)
+            {
+                renderer.onFrame();
+            }
+            
+            milliDelta = System.currentTimeMillis() - milliStart;
+            
+            // Enforce a FPS cap
+            if (milliDelta < minFrameDuration) 
+            {
+                //logger.log(Level.INFO, "Time per frame {0}", milliDelta);
+                try {
+                    Thread.sleep(minFrameDuration - milliDelta);
+                } catch (InterruptedException e) {
+                }
+            }
+            
+        }
+        
+        
     }
     
-    /**
-     * TODO: get these methods to follow the spec
-     * @param waitFor
-     */
-    public void destroy(boolean waitFor) {
-        needClose.set(true);
+    @Override
+    public boolean isRenderable()
+    {
+        return renderable.get();
     }
-
-    public void destroy(){
+    
+    @Override
+    public void create(boolean waitFor)
+    {
+        if (waitFor)
+            waitFor(true);
+    }
+    
+    public void create()
+    {
+        create(false);
+    }
+    
+    @Override
+    public void restart() 
+    {
+        
+    }
+    
+    @Override
+    public void destroy(boolean waitFor) 
+    {
+        needClose.set(true);
+        if (waitFor)
+            waitFor(false);
+    }
+           
+    public void destroy()
+    {
         destroy(false);
+    }
+    
+    protected void waitFor(boolean createdVal)
+    {
+        synchronized (createdLock){
+            while (created.get() != createdVal){
+                try {
+                    createdLock.wait();
+                } catch (InterruptedException ex) {
+                }
+            }
+        }
     }
 
 }
