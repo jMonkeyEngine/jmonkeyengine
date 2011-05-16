@@ -51,7 +51,6 @@ import com.jme3.bullet.objects.PhysicsRigidBody;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.math.Quaternion;
-import com.jme3.math.Transform;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
@@ -836,7 +835,9 @@ public class KinematicRagdollControl implements PhysicsControl, PhysicsCollision
      * Set the CcdMotionThreshold of the given bone's rigidBodies of the ragdoll
      * @see PhysicsRigidBody#setCcdMotionThreshold(float) 
      * @param value 
+     * @deprecated use getBoneRigidBody(String BoneName).setCcdMotionThreshold(float) instead
      */
+    @Deprecated
     public void setBoneCcdMotionThreshold(String boneName, float value) {
         PhysicsBoneLink link = boneLinks.get(boneName);
         if (link != null) {
@@ -848,11 +849,26 @@ public class KinematicRagdollControl implements PhysicsControl, PhysicsCollision
      * Set the CcdSweptSphereRadius of the given bone's rigidBodies of the ragdoll
      * @see PhysicsRigidBody#setCcdSweptSphereRadius(float) 
      * @param value 
+     * @deprecated use getBoneRigidBody(String BoneName).setCcdSweptSphereRadius(float) instead
      */
+    @Deprecated
     public void setBoneCcdSweptSphereRadius(String boneName, float value) {
         PhysicsBoneLink link = boneLinks.get(boneName);
         if (link != null) {
             link.rigidBody.setCcdSweptSphereRadius(value);
         }
+    }
+
+    /**
+     * return the rigidBody associated to the given bone
+     * @param boneName the name of the bone
+     * @return the associated rigidBody.
+     */
+    public PhysicsRigidBody getBoneRigidBody(String boneName) {
+        PhysicsBoneLink link = boneLinks.get(boneName);
+        if (link != null) {
+            return link.rigidBody;
+        }
+        return null;
     }
 }
