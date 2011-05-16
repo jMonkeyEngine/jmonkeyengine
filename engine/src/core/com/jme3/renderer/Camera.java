@@ -209,13 +209,16 @@ public class Camera implements Savable, Cloneable {
     private BoundingBox guiBounding = new BoundingBox();
     /** The camera's name. */
     protected String name;
-    
-    
+
     /**
      * Don't use this constructor, use Camera(int width, int height)
      * This constructor is for serialization only
      */
-    public Camera(){        
+    public Camera() {
+        worldPlane = new Plane[MAX_WORLD_PLANES];
+        for (int i = 0; i < MAX_WORLD_PLANES; i++) {
+            worldPlane[i] = new Plane();
+        }
     }
 
     /**
@@ -223,6 +226,7 @@ public class Camera implements Savable, Cloneable {
      * values of the camera are set to default.
      */
     public Camera(int width, int height) {
+        this();
         location = new Vector3f();
         rotation = new Quaternion();
 
@@ -242,11 +246,6 @@ public class Camera implements Savable, Cloneable {
         viewPortRight = 1.0f;
         viewPortTop = 1.0f;
         viewPortBottom = 0.0f;
-
-        worldPlane = new Plane[MAX_WORLD_PLANES];
-        for (int i = 0; i < MAX_WORLD_PLANES; i++) {
-            worldPlane[i] = new Plane();
-        }
 
         this.width = width;
         this.height = height;
@@ -1363,7 +1362,7 @@ public class Camera implements Savable, Cloneable {
     public void read(JmeImporter e) throws IOException {
         InputCapsule capsule = e.getCapsule(this);
         location = (Vector3f) capsule.readSavable("location", Vector3f.ZERO.clone());
-        rotation = (Quaternion) capsule.readSavable("rotation", Quaternion.DIRECTION_Z);
+        rotation = (Quaternion) capsule.readSavable("rotation", Quaternion.DIRECTION_Z.clone());
         frustumNear = capsule.readFloat("frustumNear", 1);
         frustumFar = capsule.readFloat("frustumFar", 2);
         frustumLeft = capsule.readFloat("frustumLeft", -0.5f);
@@ -1378,8 +1377,8 @@ public class Camera implements Savable, Cloneable {
         viewPortRight = capsule.readFloat("viewPortRight", 1);
         viewPortTop = capsule.readFloat("viewPortTop", 1);
         viewPortBottom = capsule.readFloat("viewPortBottom", 0);
-        width = capsule.readInt("width", 0);
-        height = capsule.readInt("height", 0);
+        width = capsule.readInt("width", 1);
+        height = capsule.readInt("height", 1);
         name = capsule.readString("name", null);
         onFrustumChange();
         onViewPortChange();
