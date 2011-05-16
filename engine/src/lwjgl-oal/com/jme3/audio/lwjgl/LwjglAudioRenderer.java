@@ -298,6 +298,18 @@ public class LwjglAudioRenderer implements AudioRenderer, Runnable {
             }
             if (audioDisabled)
                 return;
+ 
+            // There is a race condition in AudioNode that can
+            // cause this to be called for a node that has been
+            // detached from its channel.  For example, setVolume()
+            // called from the render thread may see that that AudioNode
+            // still has a channel value but the audio thread may
+            // clear that channel before setVolume() gets to call
+            // updateSourceParam() (because the audio stopped playing
+            // on its own right as the volume was set).  In this case, 
+            // it should be safe to just ignore the update
+            if (src.getChannel() < 0) 
+                return;
            
             assert src.getChannel() >= 0;
 
@@ -745,6 +757,10 @@ public class LwjglAudioRenderer implements AudioRenderer, Runnable {
                         src.setChannel(-1);
                         clearChannel(i);
                         freeChannel(i);
+ 
+                        // And free the audio since it cannot be
+                        // played again anyway.
+                        deleteAudioData(stream);
                     }
                 }
             }else if (!streaming){
@@ -913,6 +929,18 @@ public class LwjglAudioRenderer implements AudioRenderer, Runnable {
                 src.setChannel(-1);
                 clearChannel(chan);
                 freeChannel(chan);
+                
+                if (src.getAudioData() instanceof AudioStream) {
+                    
+                    AudioStream stream = (AudioStream)src.getAudioData();
+                    if (stream.isOpen()) {
+                        stream.close();
+                    }
+                
+                    // And free the audio since it cannot be
+                    // played again anyway.
+                    deleteAudioData(src.getAudioData());
+                }                    
             }
         }
     }
@@ -958,7 +986,7 @@ public class LwjglAudioRenderer implements AudioRenderer, Runnable {
         int[] ids = new int[STREAMING_BUFFER_COUNT];
         ib.position(0).limit(STREAMING_BUFFER_COUNT);
         alGenBuffers(ib);
-        ib.position(0).limit(STREAMING_BUFFER_COUNT);
+        ib.position(0).limit(STREAMING_BUFFER_COUNT);        
         ib.get(ids);
         
         as.setIds(ids);
@@ -974,28 +1002,36 @@ public class LwjglAudioRenderer implements AudioRenderer, Runnable {
     }
 
     public void deleteAudioData(AudioData ad){
-        if (audioDisabled)
-            return;
+        synchronized (threadLock){
+            while (!threadLock.get()){
+                try {
+                    threadLock.wait();
+                } catch (InterruptedException ex) {
+                }
+            }
+            if (audioDisabled)
+                return;
         
-        if (ad instanceof AudioBuffer){
-            AudioBuffer ab = (AudioBuffer) ad;
-            int id = ab.getId();
-            if (id != -1){
-                ib.put(0,id);
-                ib.position(0).limit(1);
-                alDeleteBuffers(ib);
-                ab.resetObject();
+            if (ad instanceof AudioBuffer){
+                AudioBuffer ab = (AudioBuffer) ad;
+                int id = ab.getId();
+                if (id != -1){
+                    ib.put(0,id);
+                    ib.position(0).limit(1);
+                    alDeleteBuffers(ib);
+                    ab.resetObject();
+                }
+            }else if (ad instanceof AudioStream){
+                AudioStream as = (AudioStream) ad;
+                int[] ids = as.getIds();
+                if (ids != null){
+                    ib.clear();
+                    ib.put(ids).flip();
+                    alDeleteBuffers(ib);
+                    as.resetObject();
+                }
             }
-        }else if (ad instanceof AudioStream){
-            AudioStream as = (AudioStream) ad;
-            int[] ids = as.getIds();
-            if (ids != null){
-                ib.clear();
-                ib.put(ids).flip();
-                alDeleteBuffers(ib);
-                as.resetObject();
-            }
-        }
+        }            
     }
 
 }
