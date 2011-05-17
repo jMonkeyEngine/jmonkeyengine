@@ -537,7 +537,7 @@ public class PhysicsSpace {
             List<Spatial> children = ((Node) spatial).getChildren();
             for (Iterator<Spatial> it = children.iterator(); it.hasNext();) {
                 Spatial spat = it.next();
-                removeAll((Node) spat);
+                removeAll(spat);
             }
         }
     }
