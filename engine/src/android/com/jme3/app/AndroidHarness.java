@@ -1,27 +1,39 @@
 package com.jme3.app;
 
+import java.util.logging.Logger;
+
 import android.app.Activity;
-import android.content.res.Resources;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.view.Window;
 import android.view.WindowManager;
-import com.jme3.R;
+
+import com.jme3.app.Application;
+import com.jme3.input.android.AndroidInput;
 import com.jme3.system.AppSettings;
 import com.jme3.system.JmeSystem;
 import com.jme3.system.android.OGLESContext;
+
 
 /**
  *
  * @author Kirill
  */
-public class AndroidHarness extends Activity {
-
-    private OGLESContext ctx;
-    private GLSurfaceView view;
+public class AndroidHarness extends Activity implements DialogInterface.OnClickListener
+{
+    protected final static Logger logger = Logger.getLogger(AndroidHarness.class.getName());
+    
+    protected OGLESContext ctx;
+    protected GLSurfaceView view;
+    
+    protected String appClass = "jme3test.android.Test";
+    protected Application app = null;
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) 
+    {
         super.onCreate(savedInstanceState);
 
         JmeSystem.setResources(getResources());
@@ -31,11 +43,13 @@ public class AndroidHarness extends Activity {
         WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
         AppSettings settings = new AppSettings(true);
+        AndroidInput input = new AndroidInput(this);
+        
+        
 
-//        String appClass = getResources().getString(R.string.jme3_appclass);
-        String appClass = "jme3test.android.Test";
-        Application app = null;
+        // Create application instance
         try{
+            @SuppressWarnings("unchecked")
             Class<? extends Application> clazz = (Class<? extends Application>) Class.forName(appClass);
             app = clazz.newInstance();
         }catch (Exception ex){
@@ -46,8 +60,8 @@ public class AndroidHarness extends Activity {
         app.start();
 
         ctx = (OGLESContext) app.getContext();
-        view = ctx.createView(this);
-   		setContentView(view);
+        view = ctx.createView(input);
+   		setContentView(view);      
     }
 
     @Override
@@ -69,4 +83,50 @@ public class AndroidHarness extends Activity {
 //        Debug.stopMethodTracing();
 //    }
 
+    
+    /**
+     * Called when an error has occured. This is typically
+     * invoked when an uncought exception is thrown in the render thread.
+     * @param errorMsg The error message, if any, or null.
+     * @param t Throwable object, or null.
+     */
+    public void handleError(final String errorMsg, final Throwable t)
+    {
+        
+        String s = "";
+        if (t != null && t.getStackTrace() != null)
+        {
+            for (StackTraceElement ste: t.getStackTrace())
+            {
+                s +=  ste.getClassName() + "." + ste.getMethodName() + "(" + + ste.getLineNumber() + ") ";
+            }
+        }
+        final String sTrace = s;
+        this.runOnUiThread(new Runnable() {
+            @Override
+            public void run() 
+            {                                
+                AlertDialog dialog = new AlertDialog.Builder(AndroidHarness.this)
+               // .setIcon(R.drawable.alert_dialog_icon)
+                .setTitle(t != null ? t.toString() : "Failed")
+                .setPositiveButton("Kill", AndroidHarness.this)
+                .setMessage((errorMsg != null ? errorMsg + ": " : "") + sTrace)
+                .create();    
+                dialog.show();                
+            }
+        });
+        
+    }
+
+    
+    /**
+     * Called by the android alert dialog, terminate the activity and OpenGL rendering
+     * @param dialog
+     * @param whichButton
+     */
+    public void onClick(DialogInterface dialog, int whichButton) 
+    {
+        app.stop();
+        this.finish();
+    }
 }

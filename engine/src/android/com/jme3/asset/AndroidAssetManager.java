@@ -66,31 +66,29 @@ public class AndroidAssetManager extends DesktopAssetManager {
      */
     public AndroidAssetManager(URL configFile)
     {   
-        super(configFile);
+        
         System.setProperty("org.xml.sax.driver","org.xmlpull.v1.sax2.Driver");
         
-        if (configFile == null)
-        {
-        	// Set Default        	       
-	        this.registerLocator("", AndroidLocator.class);	        
-	        this.registerLocator("", ClasspathLocator.class);
-	        this.registerLoader(AndroidImageLoader.class, "jpg", "bmp", "gif", "png", "jpeg");        
-	        this.registerLoader(com.jme3.material.plugins.J3MLoader.class, "j3m");
-	        this.registerLoader(com.jme3.material.plugins.J3MLoader.class, "j3md");
-	        this.registerLoader(com.jme3.font.plugins.BitmapFontLoader.class, "fnt");
-	        this.registerLoader(com.jme3.texture.plugins.DDSLoader.class, "dds");
-	        this.registerLoader(com.jme3.texture.plugins.PFMLoader.class, "pfm");
-	        this.registerLoader(com.jme3.texture.plugins.HDRLoader.class, "hdr");
-	        this.registerLoader(com.jme3.texture.plugins.TGALoader.class, "tga");
-	        this.registerLoader(com.jme3.export.binary.BinaryImporter.class, "j3o");
-	        this.registerLoader(com.jme3.scene.plugins.OBJLoader.class, "obj");
-	        this.registerLoader(com.jme3.scene.plugins.MTLLoader.class, "mtl");
-	        this.registerLoader(com.jme3.scene.plugins.ogre.MeshLoader.class, "meshxml", "mesh.xml");
-	        this.registerLoader(com.jme3.scene.plugins.ogre.SkeletonLoader.class, "skeletonxml", "skeleton.xml");
-	        this.registerLoader(com.jme3.scene.plugins.ogre.MaterialLoader.class, "material");
-	        this.registerLoader(com.jme3.scene.plugins.ogre.SceneLoader.class, "scene");
-	        this.registerLoader(com.jme3.shader.plugins.GLSLLoader.class, "vert", "frag", "glsl", "glsllib");
-        }
+    	// Set Default Android config        	       
+        this.registerLocator("", AndroidLocator.class);	        
+        this.registerLocator("", ClasspathLocator.class);
+        this.registerLoader(AndroidImageLoader.class, "jpg", "bmp", "gif", "png", "jpeg");        
+        this.registerLoader(com.jme3.material.plugins.J3MLoader.class, "j3m");
+        this.registerLoader(com.jme3.material.plugins.J3MLoader.class, "j3md");
+        this.registerLoader(com.jme3.font.plugins.BitmapFontLoader.class, "fnt");
+        this.registerLoader(com.jme3.texture.plugins.DDSLoader.class, "dds");
+        this.registerLoader(com.jme3.texture.plugins.PFMLoader.class, "pfm");
+        this.registerLoader(com.jme3.texture.plugins.HDRLoader.class, "hdr");
+        this.registerLoader(com.jme3.texture.plugins.TGALoader.class, "tga");
+        this.registerLoader(com.jme3.export.binary.BinaryImporter.class, "j3o");
+        this.registerLoader(com.jme3.scene.plugins.OBJLoader.class, "obj");
+        this.registerLoader(com.jme3.scene.plugins.MTLLoader.class, "mtl");
+        this.registerLoader(com.jme3.scene.plugins.ogre.MeshLoader.class, "meshxml", "mesh.xml");
+        this.registerLoader(com.jme3.scene.plugins.ogre.SkeletonLoader.class, "skeletonxml", "skeleton.xml");
+        this.registerLoader(com.jme3.scene.plugins.ogre.MaterialLoader.class, "material");
+        this.registerLoader(com.jme3.scene.plugins.ogre.SceneLoader.class, "scene");
+        this.registerLoader(com.jme3.shader.plugins.GLSLLoader.class, "vert", "frag", "glsl", "glsllib");
+    
                 
         logger.info("AndroidAssetManager created.");
     }

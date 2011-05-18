@@ -33,8 +33,11 @@
 package com.jme3.system.android;
 
 import android.app.Activity;
+import android.content.Context;
 import android.opengl.GLSurfaceView;
 import android.view.SurfaceHolder;
+
+import com.jme3.app.AndroidHarness;
 import com.jme3.input.JoyInput;
 import com.jme3.input.KeyInput;
 import com.jme3.input.MouseInput;
@@ -120,13 +123,27 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer
     protected void initInThread()
     {
         logger.info("OGLESContext create");
-        logger.fine("Running on thread: "+Thread.currentThread().getName());
+        logger.info("Running on thread: "+Thread.currentThread().getName());
 
-        Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
-            public void uncaughtException(Thread thread, Throwable thrown) {
-                listener.handleError("Uncaught exception thrown in "+thread.toString(), thrown);
-            }
-        });
+        final Context ctx = this.view.getContext();
+        
+        // Setup unhandled Exception Handler
+        if (ctx instanceof AndroidHarness)
+        {
+            Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+                public void uncaughtException(Thread thread, Throwable thrown) {
+                    ((AndroidHarness)ctx).handleError("Uncaught exception thrown in "+thread.toString(), thrown);
+                }
+            });
+        }
+        else
+        {
+            Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+                public void uncaughtException(Thread thread, Throwable thrown) {
+                    listener.handleError("Uncaught exception thrown in "+thread.toString(), thrown);
+                }
+            });
+        }
         
         timer = new AndroidTimer();
 

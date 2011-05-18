@@ -430,6 +430,13 @@ public class AndroidInput extends GLSurfaceView implements KeyInput, MouseInput,
     {        
         TouchEvent touch = new TouchEvent(TouchEvent.Type.SCALE, TouchEvent.Operation.RUNNING,scaleGestureDetector.getFocusX(),scaleGestureDetector.getFocusY(),0,0,new float[]{scaleGestureDetector.getCurrentSpan(),scaleGestureDetector.getScaleFactor()});
         processEvent(touch);
+        
+        if (FIRE_MOUSE_EVENTS)
+        {                                
+            MouseMotionEvent mot = new MouseMotionEvent(0, 0, 0, 0, 0, (int)scaleGestureDetector.getScaleFactor());
+            mot.setTime(scaleGestureDetector.getEventTime());
+            processEvent(mot);
+        }
         return false;
     }
 
