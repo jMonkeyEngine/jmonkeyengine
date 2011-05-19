@@ -48,6 +48,7 @@ import com.jme3.scene.Spatial.CullHint;
 import com.jme3.system.AppSettings;
 import com.jme3.system.JmeSystem;
 import com.jme3.util.FastInteger;
+import com.jme3.app.AndroidHarness;
 
 
 /**
@@ -56,8 +57,9 @@ import com.jme3.util.FastInteger;
  * and an accessible root node that is updated and rendered regularly.
  * It will display the current frames-per-second value on-screen.
  * 
- *
+ * @deprecated Please use {@link AndroidHarness} instead.
  */
+ @Deprecated
 public abstract class AndroidApplication extends Application implements DialogInterface.OnClickListener 
 {
 
