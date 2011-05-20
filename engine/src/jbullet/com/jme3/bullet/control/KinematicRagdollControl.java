@@ -194,6 +194,7 @@ public class KinematicRagdollControl implements PhysicsControl, PhysicsCollision
 
                     //offsetting the physic's position/rotation by the root bone inverse model space position/rotaion
                     modelPosition.set(p).subtractLocal(link.bone.getInitialPos());
+                    targetModel.getParent().getWorldTransform().transformInverseVector(modelPosition, modelPosition);
                     modelRotation.set(q).multLocal(tmpRot2.set(link.bone.getInitialRot()).inverseLocal());
 
 
