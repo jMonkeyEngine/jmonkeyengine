@@ -36,12 +36,10 @@ import com.jme3.asset.AssetInfo;
 import com.jme3.asset.AssetLoader;
 import com.jme3.asset.AssetManager;
 import com.jme3.asset.TextureKey;
-import com.jme3.material.MatParam;
 import com.jme3.material.Material;
 import com.jme3.material.MaterialList;
 import com.jme3.material.RenderState.BlendMode;
 import com.jme3.math.ColorRGBA;
-import com.jme3.texture.Image.Format;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
 import java.io.File;
@@ -54,14 +52,26 @@ public class MTLLoader implements AssetLoader {
 
     protected Scanner scan;
     protected MaterialList matList;
-    protected Material material;
+    //protected Material material;
     protected AssetManager assetManager;
     protected String folderName;
+    
+    protected Texture diffuseMap, normalMap, specularMap, alphaMap;
+    protected ColorRGBA ambient = new ColorRGBA();
+    protected ColorRGBA diffuse = new ColorRGBA();
+    protected ColorRGBA specular = new ColorRGBA();
+    protected float shininess = 16;
+    protected boolean shadeless;
+    protected String matName;
+    protected float alpha = 1;
+    protected boolean transparent = false;
     
     public void reset(){
         scan = null;
         matList = null;
-        material = null;
+//        material = null;
+        
+        resetMaterial();
     }
 
     protected ColorRGBA readColor(){
@@ -76,15 +86,67 @@ public class MTLLoader implements AssetLoader {
         scan.useDelimiter("\\p{javaWhitespace}+");
         return result;
     }
+    
+    protected void resetMaterial(){
+        ambient.set(ColorRGBA.Black);
+        diffuse.set(ColorRGBA.Black);
+        specular.set(ColorRGBA.Black);
+        shininess = 16;
+        shadeless = false;
+        transparent = false;
+        matName = null;
+        diffuseMap = null;
+        specularMap = null;
+        normalMap = null;
+        alphaMap = null;
+        alpha = 1;
+    }
+    
+    protected void createMaterial(){
+        Material material;
+        
+        if (alpha < 1f){
+            diffuse.a = alpha;
+        }
+        
+        if (shadeless){
+            material = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+            material.setColor("Color", diffuse);
+            material.setTexture("ColorMap", diffuseMap);
+            // TODO: Add handling for alpha map?
+        }else{
+            material = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
+            material.setBoolean("UseMaterialColors", true);
+            material.setColor("Ambient",  ambient);
+            material.setColor("Diffuse",  diffuse);
+            material.setColor("Specular", specular);
+            material.setFloat("Shininess", shininess); // prevents "premature culling" bug
+            
+            if (diffuseMap != null)  material.setTexture("DiffuseMap", diffuseMap);
+            if (specularMap != null) material.setTexture("SpecularMap", specularMap);
+            if (normalMap != null)   material.setTexture("NormalMap", normalMap);
+            if (alphaMap != null)    material.setTexture("AlphaMap", alphaMap);
+        }
+        
+        if (transparent){
+            material.setTransparent(true);
+            material.getAdditionalRenderState().setBlendMode(BlendMode.Alpha);
+            material.getAdditionalRenderState().setAlphaTest(true);
+            material.getAdditionalRenderState().setAlphaFallOff(0.01f);
+        }
+        
+        matList.put(matName, material);
+    }
 
     protected void startMaterial(String name){
-        material = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
-        material.setBoolean("UseMaterialColors", true);
-        material.setColor("Ambient",  ColorRGBA.DarkGray);
-        material.setColor("Diffuse",  ColorRGBA.White);
-        material.setColor("Specular", ColorRGBA.Black);
-        material.setFloat("Shininess", 16f); // prevents "premature culling" bug
-        matList.put(name, material);
+        if (matName != null){
+            // material is already in cache, generate it
+            createMaterial();
+        }
+        
+        // now, reset the params and set the name to start a new material
+        resetMaterial();
+        matName = name;
     }
     
     protected Texture loadTexture(String path){
@@ -116,95 +178,56 @@ public class MTLLoader implements AssetLoader {
             String name = scan.next();
             startMaterial(name);
         }else if (cmd.equals("ka")){
-            material.setColor("Ambient", readColor());
+            ambient.set(readColor());
         }else if (cmd.equals("kd")){
-            ColorRGBA color = readColor();
-            MatParam param = material.getParam("Diffuse");
-            if (param != null){
-                color.a = ((ColorRGBA) param.getValue()).getAlpha();
-            }
-            material.setColor("Diffuse", color);
+            diffuse.set(readColor());
         }else if (cmd.equals("ks")){
-            material.setColor("Specular", readColor());
+            specular.set(readColor());
         }else if (cmd.equals("ns")){
-            material.setFloat("Shininess", scan.nextFloat() /* (128f / 1000f)*/ );
+            shininess = scan.nextFloat(); /* (128f / 1000f)*/
         }else if (cmd.equals("d") || cmd.equals("tr")){
-            float alpha = scan.nextFloat();
-            if (alpha < 1f){
-                MatParam param = material.getParam("Diffuse");
-                ColorRGBA color;
-                if (param != null)
-                    color = (ColorRGBA) param.getValue();
-                else
-                    color = new ColorRGBA(ColorRGBA.White);
-
-                color.a = alpha;
-                material.setColor("Diffuse", color);
-                material.setTransparent(true);
-                material.getAdditionalRenderState().setBlendMode(BlendMode.Alpha);
-            }
+            alpha = scan.nextFloat();
+            transparent = true;
         }else if (cmd.equals("map_ka")){
             // ignore it for now
             nextStatement();
         }else if (cmd.equals("map_kd")){
             String path = nextStatement();
-            material.setTexture("DiffuseMap", loadTexture(path));
+            diffuseMap = loadTexture(path);
         }else if (cmd.equals("map_bump") || cmd.equals("bump")){
-            if (material.getParam("NormalMap") == null){
+            if (normalMap == null){
                 String path = nextStatement();
-                Texture texture = loadTexture(path);
-                if (texture != null){
-                    material.setTexture("NormalMap", texture);
-                    if (texture.getImage().getFormat() == Format.LATC){
-                        material.setBoolean("LATC", true);
-                    }
-                }
+                normalMap = loadTexture(path);
             }
         }else if (cmd.equals("map_ks")){
             String path = nextStatement();
-            Texture texture = loadTexture(path);
-            if (texture != null){
-                material.setTexture("SpecularMap", texture);
-
+            specularMap = loadTexture(path);
+            if (specularMap != null){
                 // NOTE: since specular color is modulated with specmap
                 // make sure we have it set
-                MatParam specParam = material.getParam("Specular");
-                if (specParam == null){
-                    material.setColor("Specular", ColorRGBA.White);
-                }else{
-                    ColorRGBA spec = (ColorRGBA) specParam.getValue();
-                    if (spec.equals(ColorRGBA.Black)){
-                        material.setColor("Specular", ColorRGBA.White);
-                    }
+                if (specular.equals(ColorRGBA.Black)){
+                    specular.set(ColorRGBA.White);
                 }
             }
         }else if (cmd.equals("map_d")){
             String path = scan.next();
-            Texture texture = loadTexture(path);
-            if (texture != null){
-                material.setTexture("AlphaMap", texture);
-                material.setTransparent(true);
-                material.getAdditionalRenderState().setBlendMode(BlendMode.Alpha);
-                material.getAdditionalRenderState().setAlphaTest(true);
-                material.getAdditionalRenderState().setAlphaFallOff(0.01f);
-            }
+            alphaMap = loadTexture(path);
+            transparent = true;
         }else if (cmd.equals("illum")){
             int mode = scan.nextInt();
             
             switch (mode){
                 case 0:
-                    // no ambient
-                    material.setColor("Ambient", ColorRGBA.Black);
+                    // no lighting
+                    shadeless = true;
                     break;
                 case 4:
                 case 6:
                 case 7:
                 case 9:
                     // Enable transparency
-                    material.setTransparent(true);
-                    material.getAdditionalRenderState().setBlendMode(BlendMode.Alpha);
-                    
                     // Works best if diffuse map has an alpha channel
+                    transparent = true;
                     break;
             }
         }else if (cmd.equals("ke") || cmd.equals("ni")){
@@ -230,6 +253,13 @@ public class MTLLoader implements AssetLoader {
 
         matList = new MaterialList();
         while (readLine());
+        
+        if (matName != null){
+            // still have a material in the vars
+            createMaterial();
+            resetMaterial();
+        }
+        
         MaterialList list = matList;
 
         reset();

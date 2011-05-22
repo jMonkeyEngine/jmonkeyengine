@@ -43,6 +43,7 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Mesh.Mode;
 import com.jme3.scene.Node;
+import com.jme3.scene.Spatial;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.mesh.IndexBuffer;
 import com.jme3.scene.mesh.IndexIntBuffer;
@@ -71,14 +72,18 @@ public final class OBJLoader implements AssetLoader {
     protected final ArrayList<Vector3f> verts = new ArrayList<Vector3f>();
     protected final ArrayList<Vector2f> texCoords = new ArrayList<Vector2f>();
     protected final ArrayList<Vector3f> norms = new ArrayList<Vector3f>();
+    
     protected final ArrayList<Face> faces = new ArrayList<Face>();
     protected final HashMap<String, ArrayList<Face>> matFaces = new HashMap<String, ArrayList<Face>>();
+    
     protected String currentMatName;
+    protected String currentObjectName;
 
-    protected final HashMap<Vertex, Integer> vertIndexMap = new HashMap<Vertex, Integer>();
-    protected final IntMap<Vertex> indexVertMap = new IntMap<Vertex>();
-    protected int curIndex  = 0;
-    protected int geomIndex = 0;
+    protected final HashMap<Vertex, Integer> vertIndexMap = new HashMap<Vertex, Integer>(100);
+    protected final IntMap<Vertex> indexVertMap = new IntMap<Vertex>(100);
+    protected int curIndex    = 0;
+    protected int objectIndex = 0;
+    protected int geomIndex   = 0;
 
     protected Scanner scan;
     protected ModelKey key;
@@ -125,9 +130,38 @@ public final class OBJLoader implements AssetLoader {
             return hash;
         }
     }
-
+    
     protected static class Face {
         Vertex[] verticies;
+    }
+    
+    protected class ObjectGroup {
+        
+        final String objectName;
+        
+        public ObjectGroup(String objectName){
+            this.objectName = objectName;
+        }
+        
+        public Spatial createGeometry(){
+            Node groupNode = new Node(objectName);
+            
+//            if (matFaces.size() > 0){
+//                for (Entry<String, ArrayList<Face>> entry : matFaces.entrySet()){
+//                    ArrayList<Face> materialFaces = entry.getValue();
+//                    if (materialFaces.size() > 0){
+//                        Geometry geom = createGeometry(materialFaces, entry.getKey());
+//                        objNode.attachChild(geom);
+//                    }
+//                }
+//            }else if (faces.size() > 0){
+//                // generate final geometry
+//                Geometry geom = createGeometry(faces, null);
+//                objNode.attachChild(geom);
+//            }
+            
+            return groupNode;
+        }
     }
 
     public void reset(){
@@ -351,7 +385,7 @@ public final class OBJLoader implements AssetLoader {
     }
 
     protected Geometry createGeometry(ArrayList<Face> faceList, String matName) throws IOException{
-        if (faceList.size() == 0)
+        if (faceList.isEmpty())
             throw new IOException("No geometry data to generate mesh");
 
         // Create mesh from the faces
