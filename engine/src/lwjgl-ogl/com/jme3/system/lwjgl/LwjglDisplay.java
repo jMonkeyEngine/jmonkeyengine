@@ -102,8 +102,8 @@ public class LwjglDisplay extends LwjglAbstractDisplay {
                             ||pixelFormat.getDepthBits() != pf.getDepthBits()
                             ||pixelFormat.getStencilBits() != pf.getStencilBits()
                             ||pixelFormat.getSamples() != pf.getSamples())){
-            Display.destroy();
             renderer.resetGLObjects();
+            Display.destroy();
             pixelFormatChanged = true;
         }
         pixelFormat = pf;
