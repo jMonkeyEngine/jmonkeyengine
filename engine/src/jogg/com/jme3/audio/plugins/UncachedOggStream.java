@@ -54,7 +54,8 @@ public class UncachedOggStream implements PhysicalOggStream {
     private boolean bos = false;
     private InputStream sourceStream;
     private LinkedList<OggPage> pageCache = new LinkedList<OggPage>();
-    private HashMap<Integer, LogicalOggStream> logicalStreams = new HashMap();
+    private HashMap<Integer, LogicalOggStream> logicalStreams 
+            = new HashMap<Integer, LogicalOggStream>();
     private OggPage lastPage = null;
 
     public UncachedOggStream(InputStream in) throws OggFormatException, IOException {
@@ -64,6 +65,11 @@ public class UncachedOggStream implements PhysicalOggStream {
         while (!bos){
             readNextOggPage();
         }
+
+        // now buffer up an addition 25 pages
+//        while (pageCache.size() < 25 && !eos){
+//            readNextOggPage();
+//        }
     }
 
     public OggPage getLastOggPage() {
@@ -95,9 +101,19 @@ public class UncachedOggStream implements PhysicalOggStream {
             return null;
         }
 
-        if (pageCache.size() == 0){
-            readNextOggPage();
-        }
+//        if (!eos){
+//            int num = pageCache.size();
+//            long fiveMillis = 5000000;
+//            long timeStart  = System.nanoTime();
+//            do {
+//                readNextOggPage();
+//            } while ( !eos && (System.nanoTime() - timeStart) < fiveMillis );
+//            System.out.println( pageCache.size() - num );
+
+            if (pageCache.size() == 0 /*&& !eos*/){
+                readNextOggPage();
+            }
+//        }
 
         return pageCache.removeFirst();
     }

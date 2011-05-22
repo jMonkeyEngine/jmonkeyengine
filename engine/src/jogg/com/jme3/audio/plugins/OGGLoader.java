@@ -40,6 +40,7 @@ import com.jme3.audio.AudioKey;
 import com.jme3.util.BufferUtils;
 import de.jarnbjo.ogg.EndOfOggStreamException;
 import de.jarnbjo.ogg.LogicalOggStream;
+import de.jarnbjo.ogg.PhysicalOggStream;
 import de.jarnbjo.vorbis.IdentificationHeader;
 import de.jarnbjo.vorbis.VorbisStream;
 import java.io.ByteArrayOutputStream;
@@ -52,13 +53,13 @@ public class OGGLoader implements AssetLoader {
 
 //    private static int BLOCK_SIZE = 4096*64;
 
-    private UncachedOggStream oggStream;
+    private PhysicalOggStream oggStream;
     private LogicalOggStream loStream;
     private VorbisStream vorbisStream;
 
 //    private CommentHeader commentHdr;
     private IdentificationHeader streamHdr;
-
+  
     private static class JOggInputStream extends InputStream {
 
         private boolean endOfStream = false;
@@ -105,6 +106,54 @@ public class OGGLoader implements AssetLoader {
         }
 
     }
+    
+    /**
+     * Returns the total of expected OGG bytes. 
+     * 
+     * @param dataBytesTotal The number of bytes in the input
+     * @return If the computed number of bytes is less than the number
+     * of bytes in the input, it is returned, otherwise the number 
+     * of bytes in the input is returned.
+     */
+    private int getOggTotalBytes(int dataBytesTotal){
+        // Vorbis stream could have more samples than than the duration of the sound
+        // Must truncate.
+        int numSamples;
+        if (oggStream instanceof CachedOggStream){
+            CachedOggStream cachedOggStream = (CachedOggStream) oggStream;
+            numSamples = (int) cachedOggStream.getLastOggPage().getAbsoluteGranulePosition();
+        }else{
+            UncachedOggStream uncachedOggStream = (UncachedOggStream) oggStream;
+            numSamples = (int) uncachedOggStream.getLastOggPage().getAbsoluteGranulePosition();
+        }
+
+        // Number of Samples * Number of Channels * Bytes Per Sample
+        int totalBytes = numSamples * streamHdr.getChannels() * 2;
+
+//        System.out.println("Sample Rate: " + streamHdr.getSampleRate());
+//        System.out.println("Channels: " + streamHdr.getChannels());
+//        System.out.println("Stream Length: " + numSamples);
+//        System.out.println("Bytes Calculated: " + totalBytes);
+//        System.out.println("Bytes Available:  " + dataBytes.length);
+
+        // Take the minimum of the number of bytes available
+        // and the expected duration of the audio.
+        return Math.min(totalBytes, dataBytesTotal);
+    }
+    
+    private float computeStreamDuration(){
+        // for uncached stream sources, the granule position is not known.
+        if (oggStream instanceof UncachedOggStream)
+            return -1;
+        
+        // 2 bytes(16bit) * channels * sampleRate
+        int bytesPerSec = 2 * streamHdr.getChannels() * streamHdr.getSampleRate();
+        
+        // Don't know how many bytes are in input, pass MAX_VALUE
+        int totalBytes = getOggTotalBytes(Integer.MAX_VALUE);
+        
+        return (float)totalBytes / bytesPerSec;
+    }
 
     private ByteBuffer readToBuffer() throws IOException{
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -122,22 +171,8 @@ public class OGGLoader implements AssetLoader {
        
         byte[] dataBytes = baos.toByteArray();
         swapBytes(dataBytes, 0, dataBytes.length);
-        // Vorbis stream could have more samples than than the duration of the sound
-        // Must truncate.
-        int numSamples =  (int) oggStream.getLastOggPage().getAbsoluteGranulePosition();
-
-        // Number of Samples * Number of Channels * Bytes Per Sample
-        int totalBytes = numSamples * streamHdr.getChannels() * 2;
-
-//        System.out.println("Sample Rate: " + streamHdr.getSampleRate());
-//        System.out.println("Channels: " + streamHdr.getChannels());
-//        System.out.println("Stream Length: " + numSamples);
-//        System.out.println("Bytes Calculated: " + totalBytes);
-//        System.out.println("Bytes Available:  " + dataBytes.length);
-
-        // Take the minimum of the number of bytes available
-        // and the expected duration of the audio.
-        int bytesToCopy = Math.min(totalBytes, dataBytes.length);
+        
+        int bytesToCopy = getOggTotalBytes( dataBytes.length );
 
         ByteBuffer data = BufferUtils.createByteBuffer(bytesToCopy);
         data.put(dataBytes, 0, bytesToCopy).flip();
@@ -149,7 +184,7 @@ public class OGGLoader implements AssetLoader {
         return data;
     }
 
-    private static final void swapBytes(byte[] b, int off, int len) {
+    private static void swapBytes(byte[] b, int off, int len) {
         byte tempByte;
         for (int i = off; i < (off+len); i+=2) {
             tempByte = b[i];
@@ -163,8 +198,20 @@ public class OGGLoader implements AssetLoader {
     }
 
     public Object load(AssetInfo info) throws IOException {
+        if (!(info.getKey() instanceof AudioKey)){
+            throw new IllegalArgumentException("Audio assets must be loaded using an AudioKey");
+        }
+        
+        AudioKey key = (AudioKey) info.getKey();
+        boolean readStream = key.isStream();
+        boolean streamCache = key.useStreamCache();
+        
         InputStream in = info.openStream();
-        oggStream = new UncachedOggStream(in);
+        if (readStream && streamCache){
+            oggStream = new CachedOggStream(in);
+        }else{
+            oggStream = new UncachedOggStream(in);
+        }
 
         Collection<LogicalOggStream> streams = oggStream.getLogicalStreams();
         loStream = streams.iterator().next();
@@ -176,9 +223,7 @@ public class OGGLoader implements AssetLoader {
         vorbisStream = new VorbisStream(loStream);
         streamHdr = vorbisStream.getIdentificationHeader();
 //        commentHdr = vorbisStream.getCommentHeader();
-
-        boolean readStream = ((AudioKey)info.getKey()).isStream();
-        
+    
         if (!readStream){
             AudioBuffer audioBuffer = new AudioBuffer();
             audioBuffer.setupFormat(streamHdr.getChannels(), 16, streamHdr.getSampleRate());
@@ -187,7 +232,11 @@ public class OGGLoader implements AssetLoader {
         }else{
             AudioStream audioStream = new AudioStream();
             audioStream.setupFormat(streamHdr.getChannels(), 16, streamHdr.getSampleRate());
-            audioStream.updateData(readToStream(), -1);
+            
+            // might return -1 if unknown
+            float streamDuration = computeStreamDuration();
+            
+            audioStream.updateData(readToStream(), streamDuration);
             return audioStream;
         }
     }
