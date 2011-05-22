@@ -32,10 +32,13 @@
 
 package jme3test.network;
 
-import com.jme3.network.connection.Client;
-import com.jme3.network.connection.Server;
-import com.jme3.network.events.MessageAdapter;
-import com.jme3.network.message.Message;
+import com.jme3.network.AbstractMessage;
+import com.jme3.network.Client;
+import com.jme3.network.HostedConnection;
+import com.jme3.network.Message;
+import com.jme3.network.MessageListener;
+import com.jme3.network.Network;
+import com.jme3.network.Server;
 import com.jme3.network.serializing.Serializable;
 import com.jme3.network.serializing.Serializer;
 import java.io.IOException;
@@ -46,7 +49,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class TestSerialization extends MessageAdapter {
+public class TestSerialization implements MessageListener<HostedConnection> {
 
     @Serializable
     public static class SomeObject {
@@ -64,6 +67,7 @@ public class TestSerialization extends MessageAdapter {
             return val;
         }
 
+        @Override
         public String toString(){
             return "SomeObject[val="+val+"]";
         }
@@ -76,7 +80,7 @@ public class TestSerialization extends MessageAdapter {
     }
 
     @Serializable
-    public static class TestSerializationMessage extends Message {
+    public static class TestSerializationMessage extends AbstractMessage {
 
         boolean z;
         byte b;
@@ -128,9 +132,8 @@ public class TestSerialization extends MessageAdapter {
         }
     }
 
-    @Override
-    public void messageReceived(Message msg){
-        TestSerializationMessage cm = (TestSerializationMessage) msg;
+    public void messageReceived(HostedConnection source, Message m) {
+        TestSerializationMessage cm = (TestSerializationMessage) m;
         System.out.println(cm.z);
         System.out.println(cm.b);
         System.out.println(cm.c);
@@ -151,16 +154,16 @@ public class TestSerialization extends MessageAdapter {
         Serializer.registerClass(SomeObject.class);
         Serializer.registerClass(TestSerializationMessage.class);
 
-        Server server = new Server(5110, 5110);
+        Server server = Network.createServer( 5110 );
         server.start();
 
-        Client client = new Client("localhost", 5110, 5110);
+        Client client = Network.connectToServer( "localhost", 5110 ); 
         client.start();
-
-        Thread.sleep(100);
 
         server.addMessageListener(new TestSerialization(), TestSerializationMessage.class);
         client.send(new TestSerializationMessage(true));
+        
+        Thread.sleep(10000);
     }
 
 }

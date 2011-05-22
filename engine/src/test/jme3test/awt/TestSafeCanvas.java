@@ -23,12 +23,13 @@ public class TestSafeCanvas extends SimpleApplication {
         app.setPauseOnLostFocus(false);
         app.setSettings(settings);
         app.createCanvas();
+        app.startCanvas(true);
 
         JmeCanvasContext context = (JmeCanvasContext) app.getContext();
         Canvas canvas = context.getCanvas();
         canvas.setSize(settings.getWidth(), settings.getHeight());
 
-        app.startCanvas(true);
+        
 
         Thread.sleep(3000);
 

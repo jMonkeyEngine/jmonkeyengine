@@ -180,7 +180,7 @@ public class TestMusicPlayer extends javax.swing.JFrame {
             
             final File selected = chooser.getSelectedFile();
             OGGLoader loader = new OGGLoader();
-            AudioKey key = new AudioKey(selected.getName(), true);
+            AudioKey key = new AudioKey(selected.getName(), true, true);
             try{
                 musicData = (AudioData) loader.load(new AssetInfo(null, key) {
                     @Override
