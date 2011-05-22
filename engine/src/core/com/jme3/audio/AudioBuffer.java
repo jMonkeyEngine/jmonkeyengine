@@ -38,10 +38,10 @@ import java.nio.ByteBuffer;
 /**
  * An <code>AudioBuffer</code> is an implementation of AudioData
  * where the audio is buffered (stored in memory). All parts of it
- * are accessable at any time. <br/>
+ * are accessible at any time. <br/>
  * AudioBuffers are useful for short sounds, like effects, etc.
  *
- * @author Kirill
+ * @author Kirill Vainer
  */
 public class AudioBuffer extends AudioData {
 

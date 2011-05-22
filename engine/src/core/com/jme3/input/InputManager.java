@@ -434,7 +434,7 @@ public class InputManager implements RawInputListener {
                 names.add(mapping);
                 mapping.triggers.add(hash);
             } else {
-                logger.log(Level.WARNING, "Attempted to add mapping '{0}' twice to trigger.", mappingName);
+                logger.log(Level.WARNING, "Attempted to add mapping \"{0}\" twice to trigger.", mappingName);
             }
         }
     }

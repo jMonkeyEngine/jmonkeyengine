@@ -47,9 +47,9 @@ import java.io.InputStream;
 public class AudioStream extends AudioData implements Closeable{
 
     protected InputStream in;
-    private float duration = -1f;
-    private boolean open = false;
-    private int[] ids;
+    protected float duration = -1f;
+    protected boolean open = false;
+    protected int[] ids;
 
     public AudioStream(){
     }
@@ -104,6 +104,7 @@ public class AudioStream extends AudioData implements Closeable{
         throw new RuntimeException("Don't use getId() on streams");
     }
 
+    @Override
     public void setId(int id){
         throw new RuntimeException("Don't use setId() on streams");
     }

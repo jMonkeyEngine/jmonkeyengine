@@ -32,6 +32,11 @@
 
 package com.jme3.audio;
 
+/**
+ * Used for managing AL (Audio Library) objects.
+ * 
+ * @author Kirill Vainer
+ */
 public abstract class ALObject {
 
     protected int id = -1;

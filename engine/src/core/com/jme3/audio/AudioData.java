@@ -38,7 +38,7 @@ package com.jme3.audio;
  * are to be stored entirely in memory, while long audio files (music) is
  * streamed from the hard drive as it is played.
  *
- * @author Kirill
+ * @author Kirill Vainer
  */
 public abstract class AudioData extends ALObject {
 

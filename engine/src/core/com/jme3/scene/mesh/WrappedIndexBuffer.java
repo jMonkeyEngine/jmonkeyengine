@@ -8,6 +8,13 @@ import java.nio.Buffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
 
+/**
+ * <code>WrappedIndexBuffer</code> converts from one representation of mesh
+ * data to another. For example it can be used to read TriangleStrip data
+ * as if it was in Triangle format.
+ * 
+ * @author Kirill Vainer
+ */
 public class WrappedIndexBuffer extends VirtualIndexBuffer {
 
     private final IndexBuffer ib;

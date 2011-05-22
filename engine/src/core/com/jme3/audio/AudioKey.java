@@ -42,12 +42,29 @@ import java.io.IOException;
 /**
  * <code>AudioKey</code> is extending AssetKey by holding stream flag.
  *
- * @author Kirill
+ * @author Kirill Vainer
  */
 public class AudioKey extends AssetKey<AudioData> {
 
     private boolean stream;
+    private boolean streamCache;
 
+    /**
+     * Create a new AudioKey.
+     * 
+     * @param name Name of the asset
+     * @param stream If true, the audio will be streamed from harddrive,
+     * otherwise it will be buffered entirely and then played.
+     * @param streamCache If stream is true, then this specifies if
+     * the stream cache is used. When enabled, the audio stream will
+     * be read entirely but not decoded, allowing features such as 
+     * seeking, determining duration and looping.
+     */
+    public AudioKey(String name, boolean stream, boolean streamCache){
+        this(name, stream);
+        this.streamCache = streamCache;
+    }
+    
     /**
      * Create a new AudioKey
      *
@@ -70,15 +87,35 @@ public class AudioKey extends AssetKey<AudioData> {
 
     @Override
     public String toString(){
-        return name + (stream ? "/S" : "");
+        return name + (stream ? 
+                          (streamCache ? 
+                            " (Stream/Cache)" : 
+                            " (Stream)") : 
+                         " (Buffer)");
     }
 
+    /**
+     * @return True if the loaded audio should be a {@link AudioStream} or
+     * false if it should be a {@link AudioBuffer}.
+     */
     public boolean isStream() {
         return stream;
     }
+    
+    /**
+     * Specifies if the stream cache is used. 
+     * 
+     * When enabled, the audio stream will
+     * be read entirely but not decoded, allowing features such as 
+     * seeking, looping and determining duration.
+     */
+    public boolean useStreamCache(){
+        return streamCache;
+    }
 
+    @Override
     public boolean shouldCache(){
-        return !stream;
+        return !stream && !streamCache;
     }
 
     @Override
@@ -86,6 +123,7 @@ public class AudioKey extends AssetKey<AudioData> {
         super.write(ex);
         OutputCapsule oc = ex.getCapsule(this);
         oc.write(stream, "do_stream", false);
+        oc.write(streamCache, "use_stream_cache", false);
     }
 
     @Override
@@ -93,6 +131,7 @@ public class AudioKey extends AssetKey<AudioData> {
         super.read(im);
         InputCapsule ic = im.getCapsule(this);
         stream = ic.readBoolean("do_stream", false);
+        streamCache = ic.readBoolean("use_stream_cache", false);
     }
 
 }

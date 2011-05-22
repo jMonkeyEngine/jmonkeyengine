@@ -428,10 +428,6 @@ public class AudioNode extends Node {
      * @see AudioNode#setDryFilter(com.jme3.audio.Filter)
      */
     public void setReverbFilter(Filter reverbFilter) {
-        if (this.reverbFilter != null) {
-            throw new IllegalStateException("Filter already set");
-        }
-
         this.reverbFilter = reverbFilter;
         if (channel >= 0)
             renderer.updateSourceParam(this, AudioParam.ReverbFilter);

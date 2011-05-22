@@ -51,6 +51,8 @@ import com.jme3.math.Triangle;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.VertexBuffer.*;
+import com.jme3.scene.mesh.VirtualIndexBuffer;
+import com.jme3.scene.mesh.WrappedIndexBuffer;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.IntMap;
 import com.jme3.util.IntMap.Entry;
@@ -455,25 +457,27 @@ public class Mesh implements Savable, Cloneable {
 
     public void getTriangle(int index, Vector3f v1, Vector3f v2, Vector3f v3){
         VertexBuffer pb = getBuffer(Type.Position);
-        VertexBuffer ib = getBuffer(Type.Index);
 
+        IndexBuffer ib = getIndexBuffer();
+        if (ib == null){
+            ib = new VirtualIndexBuffer(vertCount, mode);
+        }else if (mode != Mode.Triangles){
+            ib = new WrappedIndexBuffer(this);
+        }
+        
         if (pb.getFormat() == Format.Float){
             FloatBuffer fpb = (FloatBuffer) pb.getData();
 
-            if (ib.getFormat() == Format.UnsignedShort){
-                // accepted format for buffers
-                ShortBuffer sib = (ShortBuffer) ib.getData();
+            // aquire triangle's vertex indices
+            int vertIndex = index * 3;
+            int vert1 = ib.get(vertIndex);
+            int vert2 = ib.get(vertIndex+1);
+            int vert3 = ib.get(vertIndex+2);
 
-                // aquire triangle's vertex indices
-                int vertIndex = index * 3;
-                int vert1 = sib.get(vertIndex);
-                int vert2 = sib.get(vertIndex+1);
-                int vert3 = sib.get(vertIndex+2);
-
-                BufferUtils.populateFromBuffer(v1, fpb, vert1);
-                BufferUtils.populateFromBuffer(v2, fpb, vert2);
-                BufferUtils.populateFromBuffer(v3, fpb, vert3);
-            }
+            BufferUtils.populateFromBuffer(v1, fpb, vert1);
+            BufferUtils.populateFromBuffer(v2, fpb, vert2);
+            BufferUtils.populateFromBuffer(v3, fpb, vert3);
+            
         }
     }
     
