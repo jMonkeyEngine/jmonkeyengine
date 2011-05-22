@@ -104,6 +104,9 @@ public class AudioNode extends Node {
         Stopped,
     }
 
+    /**
+     * Serialization only. Do not use.
+     */
     public AudioNode() {
     }
 
@@ -139,11 +142,28 @@ public class AudioNode extends Node {
      * @param name The filename of the audio file
      * @param stream If true, the audio will be streamed gradually from disk, 
      *               otherwise, it will be buffered.
+     * @param streamCache If stream is also true, then this specifies if
+     * the stream cache is used. When enabled, the audio stream will
+     * be read entirely but not decoded, allowing features such as 
+     * seeking, looping and determining duration.
+     */
+    public AudioNode(AudioRenderer audioRenderer, AssetManager assetManager, String name, boolean stream, boolean streamCache) {
+        this(audioRenderer);
+        this.key = new AudioKey(name, stream, streamCache);
+        this.data = (AudioData) assetManager.loadAsset(key);
+    }
+    
+    /**
+     * Creates a new <code>AudioNode</code> with the given audio file.
+     * 
+     * @param audioRenderer The audio renderer to use for playing. Cannot be null.
+     * @param assetManager The asset manager to use to load the audio file
+     * @param name The filename of the audio file
+     * @param stream If true, the audio will be streamed gradually from disk, 
+     *               otherwise, it will be buffered.
      */
     public AudioNode(AudioRenderer audioRenderer, AssetManager assetManager, String name, boolean stream) {
-        this(audioRenderer);
-        this.key = new AudioKey(name, stream);
-        this.data = (AudioData) assetManager.loadAsset(key);
+        this(audioRenderer, assetManager, name, stream, false);
     }
 
     /**
