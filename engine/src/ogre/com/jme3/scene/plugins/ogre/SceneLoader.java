@@ -163,8 +163,10 @@ public class SceneLoader extends DefaultHandler implements AssetLoader {
         String lightType = parseString(attribs.getValue("type"), "point");
         if(lightType.equals("point")) {
             light = new PointLight();
-        } else if(lightType.equals("directional")) {
+        } else if(lightType.equals("directional") || lightType.equals("sun")) {
             light = new DirectionalLight();
+            // Assuming "normal" property is not provided
+            ((DirectionalLight)light).setDirection(Vector3f.UNIT_Z);
         } else if(lightType.equals("spotLight")) {
             // TODO: SpotLight class.
             logger.warning("No SpotLight class atm, using Pointlight instead.");
@@ -284,7 +286,9 @@ public class SceneLoader extends DefaultHandler implements AssetLoader {
             parseLight(attribs);
         } else if (qName.equals("colourDiffuse") || qName.equals("colorDiffuse")) {
             if (elementStack.peek().equals("light")){
-                light.setColor(parseColor(attribs));
+                if (light != null){
+                    light.setColor(parseColor(attribs));
+                }
             }else{
                 assert elementStack.peek().equals("environment");
             }
@@ -309,16 +313,18 @@ public class SceneLoader extends DefaultHandler implements AssetLoader {
         }else if (qName.equals("light")){
             // apply the node's world transform on the light..
             root.updateGeometricState();
-            if (light instanceof DirectionalLight){
-                DirectionalLight dl = (DirectionalLight) light;
-                Quaternion q = node.getWorldRotation();
-                Vector3f dir = dl.getDirection();
-                q.multLocal(dir);
-                dl.setDirection(dir);
-            }else if (light instanceof PointLight){
-                PointLight pl = (PointLight) light;
-                Vector3f pos = node.getWorldTranslation();
-                pl.setPosition(pos);
+            if (light != null){
+                if (light instanceof DirectionalLight){
+                    DirectionalLight dl = (DirectionalLight) light;
+                    Quaternion q = node.getWorldRotation();
+                    Vector3f dir = dl.getDirection();
+                    q.multLocal(dir);
+                    dl.setDirection(dir);
+                }else if (light instanceof PointLight){
+                    PointLight pl = (PointLight) light;
+                    Vector3f pos = node.getWorldTranslation();
+                    pl.setPosition(pos);
+                }
             }
             light = null;
         }
