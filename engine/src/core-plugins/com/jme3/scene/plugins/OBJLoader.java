@@ -45,6 +45,7 @@ import com.jme3.scene.Mesh.Mode;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.VertexBuffer;
+import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.scene.mesh.IndexBuffer;
 import com.jme3.scene.mesh.IndexIntBuffer;
 import com.jme3.scene.mesh.IndexShortBuffer;
@@ -408,6 +409,12 @@ public final class OBJLoader implements AssetLoader {
             geom.setQueueBucket(Bucket.Transparent);
         else
             geom.setQueueBucket(Bucket.Opaque);
+        
+        if (material.getMaterialDef().getName().contains("Lighting")
+          || mesh.getFloatBuffer(Type.Normal) == null){
+            logger.log(Level.WARNING, "OBJ mesh {0} doesn't contain normals! "
+                                    + "It might not display correctly", geom.getName());
+        }
         
         return geom;
     }
