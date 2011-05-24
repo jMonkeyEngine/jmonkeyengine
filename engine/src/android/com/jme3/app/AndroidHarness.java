@@ -18,8 +18,9 @@ import com.jme3.system.android.OGLESContext;
 
 
 /**
- *
+ * <code>AndroidHarness</code> wraps a jme application object and runs it on Android
  * @author Kirill
+ * @author larynx
  */
 public class AndroidHarness extends Activity implements DialogInterface.OnClickListener
 {
@@ -30,6 +31,8 @@ public class AndroidHarness extends Activity implements DialogInterface.OnClickL
     
     protected String appClass = "jme3test.android.Test";
     protected Application app = null;
+    
+    protected boolean debug = false;
 
     @Override
     public void onCreate(Bundle savedInstanceState) 
@@ -57,31 +60,60 @@ public class AndroidHarness extends Activity implements DialogInterface.OnClickL
         }
 
         app.setSettings(settings);
-        app.start();
-
+        app.start();    
         ctx = (OGLESContext) app.getContext();
-        view = ctx.createView(input);
+        if (debug)
+        {
+            view = ctx.createView(input, GLSurfaceView.DEBUG_CHECK_GL_ERROR | GLSurfaceView.DEBUG_LOG_GL_CALLS);
+        }
+        else
+        {
+            view = ctx.createView(input);
+        }
    		setContentView(view);      
     }
 
+
+    @Override
+    protected void onRestart(){
+        super.onRestart(); 
+        app.restart();
+        logger.info("onRestart");
+    }
+    
+
+    @Override
+    protected void onStart(){
+        super.onStart();
+        logger.info("onStart");
+    }
+    
     @Override
     protected void onResume() {
         super.onResume();
         view.onResume();
+        logger.info("onResume");
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         view.onPause();
+        logger.info("onPause");
+    }
+    
+    @Override
+    protected void onStop(){
+        super.onStop();
+        logger.info("onStop");
     }
 
-//    @Override
-//    protected void onDestroy(){
-//        super.onDestroy();
-
-//        Debug.stopMethodTracing();
-//    }
+    @Override
+    protected void onDestroy(){
+        super.onDestroy();
+        app.stop();
+        logger.info("onDestroy");
+    }
 
     
     /**
@@ -100,8 +132,13 @@ public class AndroidHarness extends Activity implements DialogInterface.OnClickL
             {
                 s +=  ste.getClassName() + "." + ste.getMethodName() + "(" + + ste.getLineNumber() + ") ";
             }
-        }
+        }                
+        
         final String sTrace = s;
+        
+        logger.severe(t != null ? t.toString() : "Failed");
+        logger.severe((errorMsg != null ? errorMsg + ": " : "") + sTrace);
+        
         this.runOnUiThread(new Runnable() {
             @Override
             public void run() 

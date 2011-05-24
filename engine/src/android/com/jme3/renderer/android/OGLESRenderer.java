@@ -988,4 +988,22 @@ public final class OGLESRenderer implements Renderer {
         }
     }
 
+    @Override
+    public void invalidateState() {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void deleteImage(Image image) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void setAlphaToCoverage(boolean value) {
+        // TODO Auto-generated method stub
+        
+    }
+
 }

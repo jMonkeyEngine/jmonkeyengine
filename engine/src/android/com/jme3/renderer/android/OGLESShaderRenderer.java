@@ -32,6 +32,7 @@
 
 package com.jme3.renderer.android;
 
+import com.jme3.asset.TextureKey;
 import com.jme3.light.LightList;
 import com.jme3.material.RenderState;
 import com.jme3.math.ColorRGBA;
@@ -57,6 +58,7 @@ import com.jme3.shader.Shader;
 import com.jme3.shader.Shader.ShaderSource;
 import com.jme3.shader.Shader.ShaderType;
 import com.jme3.shader.Uniform;
+import com.jme3.system.JmeSystem;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.FrameBuffer.RenderBuffer;
 import com.jme3.texture.Image;
@@ -77,6 +79,8 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.microedition.khronos.opengles.GL10;
+
+import android.graphics.Bitmap;
 import android.opengl.GLES10;
 import android.opengl.GLES11;
 import android.opengl.GLES20;
@@ -407,7 +411,11 @@ public class OGLESShaderRenderer implements Renderer {
         logger.log(Level.INFO, "Caps: " + caps);
     }
 
-    public void resetGLObjects(){
+    /**
+     * <code>resetGLObjects</code> should be called when die GLView gets recreated to reset all GPU objects
+     */
+    public void resetGLObjects()
+    {
         objManager.resetObjects();
         statistics.clearMemory();
         boundShader = null;
@@ -1853,18 +1861,29 @@ public class OGLESShaderRenderer implements Renderer {
         img.clearUpdateNeeded();
     }
 
-    public void setTexture(int unit, Texture tex){
+    public void setTexture(int unit, Texture tex)
+    {        
         Image image = tex.getImage();
-         if (image.isUpdateNeeded()){
+        if (image.isUpdateNeeded())
+        {
+            Bitmap bmp = (Bitmap)image.getEfficentData();
+            // Check if the bitmap got recycled, can happen after wakeup/restart
+            if ( bmp.isRecycled() )
+            {
+                // We need to reload the bitmap
+                Texture textureReloaded = JmeSystem.newAssetManager().loadTexture((TextureKey)tex.getKey());
+                image.setEfficentData( textureReloaded.getImage().getEfficentData());
+            }
             updateTexImageData(image, tex.getType(), tex.getMinFilter().usesMipMapLevels());
         }
 
          int texId = image.getId();
          assert texId != -1;
 
-	if (texId == -1) {
-		logger.warning("error: texture image has -1 id");
-	}
+         if (texId == -1) 
+         {
+             logger.warning("error: texture image has -1 id");
+         }
 
          Image[] textures = context.boundTextures;
 
@@ -1877,22 +1896,26 @@ public class OGLESShaderRenderer implements Renderer {
 //             glEnable(type);
          }
 
-         if (textures[unit] != image){
-             if (context.boundTextureUnit != unit){
-		if (verboseLogging)
-			logger.info("GLES20.glActiveTexture(GLES20.GL_TEXTURE0 + " + unit + ")");
-                GLES20.glActiveTexture(GLES20.GL_TEXTURE0 + unit);
-                context.boundTextureUnit = unit;
+         if (textures[unit] != image)
+         {
+             if (context.boundTextureUnit != unit)
+             {
+                 if (verboseLogging)
+                     logger.info("GLES20.glActiveTexture(GLES20.GL_TEXTURE0 + " + unit + ")");
+                 GLES20.glActiveTexture(GLES20.GL_TEXTURE0 + unit);
+                 context.boundTextureUnit = unit;
              }
 
-		if (verboseLogging)
-			logger.info("GLES20.glBindTexture(" + type + ", " + texId + ")");
+             if (verboseLogging)
+                 logger.info("GLES20.glBindTexture(" + type + ", " + texId + ")");
 
              GLES20.glBindTexture(type, texId);
              textures[unit] = image;
 
              statistics.onTextureUse(tex.getImage(), true);
-         }else{
+         }
+         else
+         {
              statistics.onTextureUse(tex.getImage(), false);
          }
 

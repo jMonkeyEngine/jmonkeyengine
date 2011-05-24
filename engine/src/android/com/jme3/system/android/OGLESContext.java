@@ -90,13 +90,32 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer
         return Type.Display;
     }
     
+    /**
+     * <code>createView</code> 
+     * @param activity The Android activity which is parent for the GLSurfaceView  
+     * @return GLSurfaceView The newly created view
+     */
     public GLSurfaceView createView(Activity activity)
     {
         return createView(new AndroidInput(activity));        
     }
-    
-        
+    /**
+     * <code>createView</code> 
+     * @param AndroidInput The Android input which must be bound to an activity  
+     * @return GLSurfaceView The newly created view
+     */
     public GLSurfaceView createView(AndroidInput view)
+    {
+        return createView(view, 0);
+    }
+    
+    /**
+     * <code>createView</code> 
+     * @param AndroidInput The Android input which must be bound to an activity  
+     * @param debugflags 0, GLSurfaceView.DEBUG_CHECK_GL_ERROR | GLSurfaceView.DEBUG_LOG_GL_CALLS
+     * @return GLSurfaceView The newly created view
+     */    
+    public GLSurfaceView createView(AndroidInput view, int debugflags)
     {
         this.view = view;    
 
@@ -112,11 +131,9 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer
         view.setFocusableInTouchMode(true);
         view.setFocusable(true);
         view.getHolder().setType(SurfaceHolder.SURFACE_TYPE_GPU);
-//        view.setDebugFlags(GLSurfaceView.DEBUG_CHECK_GL_ERROR);
-//                         | GLSurfaceView.DEBUG_LOG_GL_CALLS);
+        view.setDebugFlags(debugflags);
    		view.setRenderer(this);
         return view;
-
     }
     
 
@@ -253,9 +270,16 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig cfg) 
     {
-        logger.info("GL Surface created");
-        initInThread();
-        renderable.set(true);
+        if (created.get() && renderer != null)
+        {
+            renderer.resetGLObjects();
+        }
+        else
+        {
+            logger.info("GL Surface created");
+            initInThread();
+            renderable.set(true);
+        }
     }
 
     // SystemListener:reshape
