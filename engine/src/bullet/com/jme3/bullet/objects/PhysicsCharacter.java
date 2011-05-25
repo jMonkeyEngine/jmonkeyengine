@@ -150,7 +150,7 @@ public class PhysicsCharacter extends PhysicsCollisionObject {
     }
 
     public void setJumpSpeed(float jumpSpeed) {
-        this.jumpSpeed = fallSpeed;
+        this.jumpSpeed = jumpSpeed;
         setJumpSpeed(characterId, jumpSpeed);
     }
 
