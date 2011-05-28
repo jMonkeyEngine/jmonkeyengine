@@ -73,9 +73,9 @@ import java.util.logging.Logger;
  * A terrain quad is a node in the quad tree of the terrain system.
  * The root terrain quad will be the only one that receives the update() call every frame
  * and it will determine if there has been any LOD change.
- * 
+ *
  * The leaves of the terrain quad tree are Terrain Patches. These have the real geometry mesh.
- * 
+ *
  * @author Brent Owens
  */
 public class TerrainQuad extends Node implements Terrain {
@@ -93,7 +93,7 @@ public class TerrainQuad extends Node implements Terrain {
 	protected float offsetAmount;
 
 	protected int quadrant = 1; // 1=upper left, 2=lower left, 3=upper right, 4=lower right
-	
+
 	protected LodCalculatorFactory lodCalculatorFactory;
 
 
@@ -107,20 +107,20 @@ public class TerrainQuad extends Node implements Terrain {
 
     private TerrainPicker picker;
 
-	
-	private ExecutorService executor = Executors.newSingleThreadExecutor(new ThreadFactory() {
+
+	protected ExecutorService executor = Executors.newSingleThreadExecutor(new ThreadFactory() {
 		           public Thread newThread(Runnable r) {
 		             Thread th = new Thread(r);
 		             th.setDaemon(true);
 		             return th;
 		           }
 		    });
-	
-	
+
+
 	public TerrainQuad() {
 		super("Terrain");
 	}
-	
+
 	public TerrainQuad(String name, int patchSize, int totalSize, float[] heightMap) {
 		this(name, patchSize, totalSize, heightMap, null);
 	}
@@ -135,7 +135,7 @@ public class TerrainQuad extends Node implements Terrain {
         fixNormalEdges(affectedAreaBBox);
         addControl(new NormalRecalcControl(this));
 	}
-	
+
 	protected TerrainQuad(String name, int patchSize, int size,
 				Vector3f stepScale, float[] heightMap, int totalSize,
 				Vector2f offset, float offsetAmount,
@@ -145,7 +145,7 @@ public class TerrainQuad extends Node implements Terrain {
 		if (!FastMath.isPowerOfTwo(size - 1)) {
 			throw new RuntimeException("size given: " + size + "  Terrain quad sizes may only be (2^N + 1)");
 		}
-		
+
 		if (heightMap == null)
 			heightMap = generateDefaultHeightMap(size);
 
@@ -158,7 +158,7 @@ public class TerrainQuad extends Node implements Terrain {
 		this.lodCalculatorFactory = lodCalculatorFactory;
 		split(patchSize, heightMap);
 	}
-	 
+
 	public void setLodCalculatorFactory(LodCalculatorFactory lodCalculatorFactory) {
 		if (children != null) {
 			for (int i = children.size(); --i >= 0;) {
@@ -171,8 +171,8 @@ public class TerrainQuad extends Node implements Terrain {
 			}
 		}
 	}
-	
-	
+
+
 	/**
 	 * Create just a flat heightmap
 	 */
@@ -184,11 +184,11 @@ public class TerrainQuad extends Node implements Terrain {
 	 /**
 	  * Call from the update() method of a terrain controller to update
 	  * the LOD values of each patch.
-	  * This will perform the geometry calculation in a background thread and 
+	  * This will perform the geometry calculation in a background thread and
 	  * do the actual update on the opengl thread.
 	  */
 	public void update(List<Vector3f> locations) {
-		
+
         updateLOD(locations);
 	}
 
@@ -197,12 +197,12 @@ public class TerrainQuad extends Node implements Terrain {
      * Should only be called on the root quad
      */
     protected void updateNormals() {
-        
+
         if (needToRecalculateNormals()) {
             //TODO background-thread this if it ends up being expensive
             fixNormals(affectedAreaBBox); // the affected patches
             fixNormalEdges(affectedAreaBBox); // the edges between the patches
-            
+
             setNormalRecalcNeeded(null); // set to false
         }
     }
@@ -234,11 +234,11 @@ public class TerrainQuad extends Node implements Terrain {
 		UpdateLOD updateLodThread = new UpdateLOD(locations);
 		executor.execute(updateLodThread);
     }
-	
+
 	private synchronized boolean isLodCalcRunning() {
 		return lodCalcRunning;
 	}
-	
+
 	private synchronized void setLodCalcRunning(boolean running) {
 		lodCalcRunning = running;
 	}
@@ -327,17 +327,17 @@ public class TerrainQuad extends Node implements Terrain {
     public float getTextureCoordinateScale() {
         return 1f/(float)totalSize;
     }
-	
+
 	/**
 	 * Calculates the LOD of all child terrain patches.
 	 */
 	private class UpdateLOD implements Runnable {
 		private List<Vector3f> camLocations;
-		
+
 		UpdateLOD(List<Vector3f> location) {
 			camLocations = location;
 		}
-		
+
 		public void run() {
 			long start = System.currentTimeMillis();
 			if (isLodCalcRunning()) {
@@ -346,11 +346,11 @@ public class TerrainQuad extends Node implements Terrain {
 			}
 			//System.out.println("spawned thread "+toString());
 			setLodCalcRunning(true);
-			
+
 			// go through each patch and calculate its LOD based on camera distance
 			HashMap<String,UpdatedTerrainPatch> updated = new HashMap<String,UpdatedTerrainPatch>();
 			boolean lodChanged = calculateLod(camLocations, updated); // 'updated' gets populated here
-			
+
 			if (!lodChanged) {
 				// not worth updating anything else since no one's LOD changed
 				setLodCalcRunning(false);
@@ -358,28 +358,28 @@ public class TerrainQuad extends Node implements Terrain {
 			}
 			// then calculate its neighbour LOD values for seaming in the shader
 			findNeighboursLod(updated);
-			
+
 			fixEdges(updated); // 'updated' can get added to here
-			
+
 			reIndexPages(updated);
-			
+
 			setUpdateQuadLODs(updated); // set back to main ogl thread
-			
+
 			setLodCalcRunning(false);
 			//double duration = (System.currentTimeMillis()-start);
 			//System.out.println("terminated in "+duration);
 		}
 
-		
-		
+
+
 	}
-	
+
 	private void setUpdateQuadLODs(HashMap<String,UpdatedTerrainPatch> updated) {
 		synchronized (updatePatchesLock) {
 			updatedPatches = updated;
 		}
 	}
-	
+
 	/**
 	 * Back on the ogl thread: update the terrain patch geometries
 	 * @param updatedPatches to be updated
@@ -390,20 +390,20 @@ public class TerrainQuad extends Node implements Terrain {
 			//	return;
 			if (updatedPatches == null || updatedPatches.isEmpty())
 				return;
-			
+
 			//TODO do the actual geometry update here
 			for (UpdatedTerrainPatch utp : updatedPatches.values()) {
 				utp.updateAll();
 			}
-			
+
 			updatedPatches.clear();
 		}
 	}
-	
+
 	protected boolean calculateLod(List<Vector3f> location, HashMap<String,UpdatedTerrainPatch> updates) {
-		
+
 		boolean lodChanged = false;
-		
+
 		if (children != null) {
 			for (int i = children.size(); --i >= 0;) {
 				Spatial child = children.get(i);
@@ -418,10 +418,10 @@ public class TerrainQuad extends Node implements Terrain {
 				}
 			}
 		}
-		
+
 		return lodChanged;
 	}
-	
+
 	protected synchronized void findNeighboursLod(HashMap<String,UpdatedTerrainPatch> updated) {
 		if (children != null) {
 			for (int x = children.size(); --x >= 0;) {
@@ -441,20 +441,20 @@ public class TerrainQuad extends Node implements Terrain {
 					}
 					TerrainPatch right = patch.rightNeighbour;
 					TerrainPatch down = patch.bottomNeighbour;
-					
+
 					UpdatedTerrainPatch utp = updated.get(patch.getName());
 					if (utp == null) {
 						utp = new UpdatedTerrainPatch(patch, patch.lod);
 						updated.put(utp.getName(), utp);
 					}
-					
+
 					if (right != null) {
 						UpdatedTerrainPatch utpR = updated.get(right.getName());
 						if (utpR == null) {
 							utpR = new UpdatedTerrainPatch(right, right.lod);
 							updated.put(utpR.getName(), utpR);
 						}
-						
+
 						utp.setRightLod(utpR.getNewLod());
 						utpR.setLeftLod(utp.getNewLod());
 					}
@@ -464,16 +464,16 @@ public class TerrainQuad extends Node implements Terrain {
 							utpD = new UpdatedTerrainPatch(down, down.lod);
 							updated.put(utpD.getName(), utpD);
 						}
-						
+
 						utp.setBottomLod(utpD.getNewLod());
 						utpD.setTopLod(utp.getNewLod());
 					}
-					
+
 				}
 			}
 		}
 	}
-	
+
 	/**
 	 * Find any neighbours that should have their edges seamed because another neighbour
 	 * changed its LOD to a greater value (less detailed)
@@ -487,7 +487,7 @@ public class TerrainQuad extends Node implements Terrain {
 				} else if (child instanceof TerrainPatch) {
 					TerrainPatch patch = (TerrainPatch) child;
 					UpdatedTerrainPatch utp = updated.get(patch.getName());
-					
+
 					if(utp.lodChanged()) {
 						if (!patch.searchedForNeighboursAlready) {
 							// set the references to the neighbours
@@ -538,7 +538,7 @@ public class TerrainQuad extends Node implements Terrain {
 			}
 		}
 	}
-	
+
 	protected synchronized void reIndexPages(HashMap<String,UpdatedTerrainPatch> updated) {
 		if (children != null) {
 			for (int i = children.size(); --i >= 0;) {
@@ -557,7 +557,7 @@ public class TerrainQuad extends Node implements Terrain {
 	 * children are either pages or blocks. This is dependent on the size of the
 	 * children. If the child's size is less than or equal to the set block
 	 * size, then blocks are created, otherwise, pages are created.
-	 * 
+	 *
 	 * @param blockSize
 	 *			the blocks size to test against.
 	 * @param heightMap
@@ -784,7 +784,7 @@ public class TerrainQuad extends Node implements Terrain {
 		patch4.setLodCalculator(lodCalculatorFactory);
         TangentBinormalGenerator.generate(patch4);
 	}
-	
+
 	public float[] createHeightSubBlock(float[] heightMap, int x,
 			int y, int side) {
 		float[] rVal = new float[side * side];
@@ -804,7 +804,7 @@ public class TerrainQuad extends Node implements Terrain {
      * A handy method that will attach all bounding boxes of this terrain
      * to the node you supply.
      * Useful to visualize the bounding boxes when debugging.
-     * 
+     *
      * @param parent that will get the bounding box shapes of the terrain attached to
      */
     public void attachBoundChildren(Node parent) {
@@ -1025,7 +1025,7 @@ public class TerrainQuad extends Node implements Terrain {
 
         if (!isPointOnTerrain(x,z))
             return;
-        
+
         adjustHeight(x, z,delta);
 
         setNormalRecalcNeeded(xz);
@@ -1075,7 +1075,7 @@ public class TerrainQuad extends Node implements Terrain {
         }
     }
 
-    
+
     // a position can be in multiple quadrants, so use a bit anded value.
     private int findQuadrant(int x, int y) {
         int split = (size + 1) >> 1;
@@ -1109,7 +1109,7 @@ public class TerrainQuad extends Node implements Terrain {
         }
     }
 
-	
+
 	public int getQuadrant() {
 		return quadrant;
 	}
@@ -1117,7 +1117,7 @@ public class TerrainQuad extends Node implements Terrain {
 	public void setQuadrant(short quadrant) {
 		this.quadrant = quadrant;
 	}
-	
+
 
 	protected TerrainPatch getPatch(int quad) {
 		if (children != null)
@@ -1183,8 +1183,8 @@ public class TerrainQuad extends Node implements Terrain {
 
 		return null;
 	}
-	
-	
+
+
 	protected TerrainPatch findTopPatch(TerrainPatch tp) {
 		if (tp.getQuadrant() == 2)
 			return getPatch(1);
@@ -1203,7 +1203,7 @@ public class TerrainQuad extends Node implements Terrain {
 
 		return null;
 	}
-	
+
 	protected TerrainPatch findLeftPatch(TerrainPatch tp) {
 		if (tp.getQuadrant() == 3)
 			return getPatch(1);
@@ -1268,7 +1268,7 @@ public class TerrainQuad extends Node implements Terrain {
 
 		return null;
 	}
-	
+
 	protected TerrainQuad findTopQuad() {
 		if (getParent() == null || !(getParent() instanceof TerrainQuad))
 			return null;
@@ -1291,7 +1291,7 @@ public class TerrainQuad extends Node implements Terrain {
 
 		return null;
 	}
-	
+
 	protected TerrainQuad findLeftQuad() {
 		if (getParent() == null || !(getParent() instanceof TerrainQuad))
 			return null;
@@ -1336,7 +1336,7 @@ public class TerrainQuad extends Node implements Terrain {
             }
         }
     }
-	
+
 	/**
 	 * fix the normals on the edge of the terrain patches.
 	 */
@@ -1372,13 +1372,13 @@ public class TerrainQuad extends Node implements Terrain {
                     bottomLeft = findDownPatch(left);
 
                 tp.fixNormalEdges(right, bottom, top, left, bottomRight, bottomLeft, topRight, topLeft);
-                
+
             }
         } // for each child
 
 	}
 
-    
+
 
     @Override
     public int collideWith(Collidable other, CollisionResults results){
@@ -1397,7 +1397,7 @@ public class TerrainQuad extends Node implements Terrain {
         }
         return total;
     }
-	
+
     /**
      * Gather the terrain patches that intersect the given ray (toTest).
      * This only tests the bounding boxes
@@ -1405,7 +1405,7 @@ public class TerrainQuad extends Node implements Terrain {
      * @param results
      */
     public void findPick(Ray toTest, List<TerrainPickData> results) {
-        
+
         if (getWorldBound() != null) {
             if (getWorldBound().intersects(toTest)) {
                 // further checking needed.
@@ -1460,7 +1460,7 @@ public class TerrainQuad extends Node implements Terrain {
 			}
 		}
 	}
-	
+
 	@Override
 	public void read(JmeImporter e) throws IOException {
 		super.read(e);
@@ -1472,7 +1472,7 @@ public class TerrainQuad extends Node implements Terrain {
 		quadrant = c.readInt("quadrant", 0);
 		totalSize = c.readInt("totalSize", 0);
 		lodCalculatorFactory = (LodCalculatorFactory) c.readSavable("lodCalculatorFactory", null);
-        
+
         // the terrain is re-built on load, so we need to run this once
         //affectedAreaBBox = new BoundingBox(new Vector3f(0,0,0), size, Float.MAX_VALUE, size);
         //updateNormals();
@@ -1541,13 +1541,13 @@ public class TerrainQuad extends Node implements Terrain {
     public int getTotalSize() {
         return totalSize;
     }
-    
+
 
 	public float[] getHeightMap() {
 
         //if (true)
         //    return heightMap;
-        
+
         float[] hm = null;
         int length = ((size-1)/2)+1;
         int area = size*size;
@@ -1576,7 +1576,7 @@ public class TerrainQuad extends Node implements Terrain {
             }
 
             // combine them into a single heightmap
-            
+
 
             // first upper blocks
             for (int y=0; y<length; y++) { // rows

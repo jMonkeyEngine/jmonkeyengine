@@ -12,6 +12,8 @@ import com.jme3.texture.Texture;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import jme3tools.converters.ImageToAwt;
 
@@ -34,16 +36,18 @@ public class ImageBasedHeightMapGrid implements HeightMapGrid {
 
     public HeightMap getHeightMapAt(Vector3f location) {
         // HEIGHTMAP image (for the terrain heightmap)
-        int x = (int) (FastMath.floor(location.x / this.size) * this.size);
-        int z = (int) (FastMath.floor(location.z / this.size) * this.size);
+        int x = (int) location.x;
+        int z = (int) location.z;
         AbstractHeightMap heightmap = null;
         try {
+            Logger.getLogger(ImageBasedHeightMapGrid.class.getCanonicalName()).log(Level.INFO, "Loading heightmap from file: " + textureBase + "_" + x + "_" + z + "." + textureExt);
             final InputStream stream = Thread.currentThread().getContextClassLoader().getResourceAsStream(textureBase + "_" + x + "_" + z + "." + textureExt);
             BufferedImage im = null;
             if (stream != null) {
                 im = ImageIO.read(stream);
             } else {
                 im = new BufferedImage(size, size, BufferedImage.TYPE_USHORT_GRAY);
+                Logger.getLogger(ImageBasedHeightMapGrid.class.getCanonicalName()).log(Level.INFO, "File: " + textureBase + "_" + x + "_" + z + "." + textureExt + " not found, loading zero heightmap instead");
             }
             // CREATE HEIGHTMAP
             heightmap = new Grayscale16BitHeightMap(im);

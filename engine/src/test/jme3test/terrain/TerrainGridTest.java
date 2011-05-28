@@ -20,9 +20,18 @@ import com.jme3.renderer.Camera;
 import com.jme3.terrain.geomipmap.TerrainGrid;
 import com.jme3.terrain.geomipmap.TerrainLodControl;
 import com.jme3.terrain.geomipmap.TerrainQuad;
+import com.jme3.terrain.heightmap.FractalHeightMapGrid;
 import com.jme3.terrain.heightmap.ImageBasedHeightMapGrid;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
+import org.novyon.noise.ShaderUtils;
+import org.novyon.noise.basis.FilteredBasis;
+import org.novyon.noise.filter.IterativeFilter;
+import org.novyon.noise.filter.OptimizedErode;
+import org.novyon.noise.filter.PerturbFilter;
+import org.novyon.noise.filter.SmoothFilter;
+import org.novyon.noise.fractal.FractalSum;
+import org.novyon.noise.modulator.NoiseModulator;
 
 public class TerrainGridTest extends SimpleApplication {
 
@@ -31,13 +40,18 @@ public class TerrainGridTest extends SimpleApplication {
     private float grassScale = 64;
     private float dirtScale = 16;
     private float rockScale = 128;
-    private boolean usePhysics = false;
+    private boolean usePhysics = true;
 
     public static void main(final String[] args) {
         TerrainGridTest app = new TerrainGridTest();
         app.start();
     }
     private CharacterControl player3;
+    private FractalSum base;
+    private PerturbFilter perturb;
+    private OptimizedErode therm;
+    private SmoothFilter smooth;
+    private IterativeFilter iterate;
 
     @Override
     public void simpleInitApp() {
@@ -70,8 +84,43 @@ public class TerrainGridTest extends SimpleApplication {
         mat_terrain.setTexture("Tex3", rock);
         mat_terrain.setFloat("Tex3Scale", rockScale);
 
-        this.terrain = new TerrainGrid("terrain", 65, 1025, new ImageBasedHeightMapGrid("Textures/Terrain/grid/mountains", "png",
-                this.assetManager));
+        this.base = new FractalSum();
+        this.base.setRoughness(0.7f);
+        this.base.setFrequency(1.0f);
+        this.base.setAmplitude(1.0f);
+        this.base.setLacunarity(2.12f);
+        this.base.setOctaves(8);
+        this.base.setScale(0.02125f);
+        this.base.addModulator(new NoiseModulator() {
+
+            @Override
+            public float value(float... in) {
+                return ShaderUtils.clamp(in[0] * 0.5f + 0.5f, 0, 1);
+            }
+        });
+
+        FilteredBasis ground = new FilteredBasis(this.base);
+
+        this.perturb = new PerturbFilter();
+        this.perturb.setMagnitude(0.119f);
+
+        this.therm = new OptimizedErode();
+        this.therm.setRadius(5);
+        this.therm.setTalus(0.011f);
+
+        this.smooth = new SmoothFilter();
+        this.smooth.setRadius(1);
+        this.smooth.setEffect(0.7f);
+
+        this.iterate = new IterativeFilter();
+        this.iterate.addPreFilter(this.perturb);
+        this.iterate.addPostFilter(this.smooth);
+        this.iterate.setFilter(this.therm);
+        this.iterate.setIterations(1);
+
+        ground.addPreFilter(this.iterate);
+
+        this.terrain = new TerrainGrid("terrain", 65, 257, new FractalHeightMapGrid(ground, null, 256f));
 
         this.terrain.setMaterial(this.mat_terrain);
         this.terrain.setLocalTranslation(0, 0, 0);

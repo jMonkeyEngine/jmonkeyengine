@@ -29,7 +29,6 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package com.jme3.terrain.geomipmap;
 
 import com.jme3.export.InputCapsule;
@@ -57,7 +56,7 @@ import java.util.ArrayList;
  * NOTE: right now it just uses the first camera passed in,
  * in the future it will use all of them to determine what
  * LOD to set.
- * 
+ *
  * @author Brent Owens
  */
 public class TerrainLodControl extends AbstractControl {
@@ -68,8 +67,8 @@ public class TerrainLodControl extends AbstractControl {
 
     public TerrainLodControl() {
     }
-    
-   /**
+
+    /**
      * Only uses the first camera right now.
      * @param terrain to act upon (must be a Spatial)
      * @param cameras one or more cameras to reference for LOD calc
@@ -80,52 +79,55 @@ public class TerrainLodControl extends AbstractControl {
         }
         this.cameras = cameras;
     }
-	
-	@Override
-	protected void controlRender(RenderManager rm, ViewPort vp) {
-		
-	}
 
-	@Override
-	protected void controlUpdate(float tpf) {
-		//list of cameras for when terrain supports multiple cameras (ie split screen)
-        
+    @Override
+    protected void controlRender(RenderManager rm, ViewPort vp) {
+    }
+
+    @Override
+    protected void controlUpdate(float tpf) {
+        //list of cameras for when terrain supports multiple cameras (ie split screen)
+
         if (cameras != null) {
             if (cameraLocations.isEmpty() && !cameras.isEmpty()) {
                 for (Camera c : cameras) // populate them
+                {
                     cameraLocations.add(c.getLocation());
+                }
             }
             terrain.update(cameraLocations);
         }
-	}
+    }
 
-	public Control cloneForSpatial(Spatial spatial) {
-		if (spatial instanceof Terrain) {
+    public Control cloneForSpatial(Spatial spatial) {
+        if (spatial instanceof Terrain) {
             List<Camera> cameraClone = new ArrayList<Camera>();
             if (cameras != null) {
-            for (Camera c : cameras)
-                cameraClone.add(c);
+                for (Camera c : cameras) {
+                    cameraClone.add(c);
+                }
             }
-			return new TerrainLodControl((TerrainQuad)spatial, cameraClone);
+            return new TerrainLodControl((TerrainQuad) spatial, cameraClone);
         }
-		return null;
-	}
-
+        return null;
+    }
 
     public void setCameras(List<Camera> cameras) {
         this.cameras = cameras;
         cameraLocations.clear();
-        for (Camera c : cameras)
+        for (Camera c : cameras) {
             cameraLocations.add(c.getLocation());
+        }
     }
 
     @Override
     public void setSpatial(Spatial spatial) {
         super.setSpatial(spatial);
-        if (spatial instanceof TerrainQuad)
-            this.terrain = (TerrainQuad)spatial;
+        if (spatial instanceof TerrainQuad) {
+            this.terrain = (TerrainQuad) spatial;
+        }
     }
-    
+
     public void setTerrain(TerrainQuad terrain) {
         this.terrain = terrain;
     }

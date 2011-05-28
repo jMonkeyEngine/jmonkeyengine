@@ -11,6 +11,8 @@ import com.jme3.terrain.heightmap.HeightMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.jme3.material.Material;
@@ -35,6 +37,37 @@ public class TerrainGrid extends TerrainQuad {
     private Vector3f[] quadIndex;
     private Map<String, TerrainGridListener> listeners = new HashMap<String, TerrainGridListener>();
     private Material material;
+    private LRUCache<Vector3f, TerrainQuad> cache = new LRUCache<Vector3f, TerrainQuad>(16);
+
+    private class UpdateQuadCache implements Runnable {
+
+        private final Vector3f location;
+        private final boolean centerOnly;
+
+        public UpdateQuadCache(Vector3f location) {
+            this.location = location;
+            this.centerOnly = false;
+        }
+
+        public UpdateQuadCache(Vector3f location, boolean centerOnly) {
+            this.location = location;
+            this.centerOnly = centerOnly;
+        }
+
+        public void run() {
+            for (int i = centerOnly ? 1 : 0; i < (centerOnly ? 3 : 4); i++) {
+                for (int j = centerOnly ? 1 : 0; j < (centerOnly ? 3 : 4); j++) {
+                    Vector3f temp = location.add(quadIndex[i * 4 + j]);
+                    if (cache.get(temp) == null) {
+                        HeightMap heightMapAt = heightMapGrid.getHeightMapAt(temp);
+                        TerrainQuad q = new TerrainQuad(getName() + "Quad" + temp, patchSize, quadSize, heightMapAt == null ? null : heightMapAt.getHeightMap(), lodCalculatorFactory);
+                        cache.put(temp, q);
+                    }
+                }
+            }
+
+        }
+    }
 
     public TerrainGrid(String name, int patchSize, int size, Vector3f stepScale, HeightMapGrid heightMapGrid, int totalSize,
             Vector2f offset, float offsetAmount, LodCalculatorFactory lodCalculatorFactory) {
@@ -57,7 +90,11 @@ public class TerrainGrid extends TerrainQuad {
             new Vector3f(-this.quarterSize, 0, this.quarterSize).mult(this.stepScale),
             new Vector3f(this.quarterSize, 0, -this.quarterSize).mult(this.stepScale),
             new Vector3f(this.quarterSize, 0, this.quarterSize).mult(this.stepScale)};
-        this.quadIndex = new Vector3f[]{new Vector3f(0, 0, 0), new Vector3f(0, 0, 1), new Vector3f(1, 0, 0), new Vector3f(1, 0, 1)};
+        this.quadIndex = new Vector3f[]{
+            new Vector3f(-1, 0, -1), new Vector3f(-1, 0, 0), new Vector3f(-1, 0, 1), new Vector3f(-1, 0, 2),
+            new Vector3f(0, 0, -1), new Vector3f(0, 0, 0), new Vector3f(0, 0, 1), new Vector3f(0, 0, 2),
+            new Vector3f(1, 0, -1), new Vector3f(1, 0, 0), new Vector3f(1, 0, 1), new Vector3f(1, 0, 2),
+            new Vector3f(2, 0, -1), new Vector3f(2, 0, 0), new Vector3f(2, 0, 1), new Vector3f(2, 0, 2)};
 
         updateChildrens(Vector3f.ZERO);
     }
@@ -93,7 +130,7 @@ public class TerrainGrid extends TerrainQuad {
             }
         }
 
-        //super.update(locations);
+        super.update(locations);
     }
 
     public Vector3f getCell(Vector3f location) {
@@ -102,7 +139,9 @@ public class TerrainGrid extends TerrainQuad {
     }
 
     protected void removeQuad(int idx) {
-        this.detachChild(this.getQuad(idx));
+        if (this.getQuad(idx) != null) {
+            this.detachChild(this.getQuad(idx));
+        }
     }
 
     protected void moveQuad(int from, int to) {
@@ -112,16 +151,66 @@ public class TerrainGrid extends TerrainQuad {
         fq.setLocalTranslation(this.quadOrigins[to - 1]);
     }
 
-    protected TerrainQuad createQuadAt(Vector3f location, int quadrant) {
-        final HeightMap heightMapAt = this.heightMapGrid.getHeightMapAt(location);
-        TerrainQuad q = new TerrainQuad(this.getName() + "Quad" + location, this.patchSize, this.quadSize, heightMapAt == null ? null : heightMapAt.getHeightMap(), this.lodCalculatorFactory);
-        q.setLocalTranslation(this.quadOrigins[quadrant - 1]);
+    protected void attachQuadAt(TerrainQuad q, int quadrant) {
         q.setMaterial(this.material);
+        q.setLocalTranslation(quadOrigins[quadrant - 1]);
         q.setQuadrant((short) quadrant);
-        return q;
+        this.attachChild(q);
     }
 
     private void updateChildrens(Vector3f cam) {
+        TerrainQuad q1 = cache.get(cam.add(quadIndex[5]));
+        TerrainQuad q2 = cache.get(cam.add(quadIndex[6]));
+        TerrainQuad q3 = cache.get(cam.add(quadIndex[9]));
+        TerrainQuad q4 = cache.get(cam.add(quadIndex[10]));
+
+        int dx = 0;
+        int dy = 0;
+        if (currentCell != null) {
+            dx = (int) (cam.x - currentCell.x);
+            dy = (int) (cam.z - currentCell.z);
+        }
+
+        int kxm = 0;
+        int kxM = 4;
+        int kym = 0;
+        int kyM = 4;
+        if (dx == -1) {
+            kxM = 3;
+        } else if (dx == 1) {
+            kxm = 1;
+        }
+
+        if (dy == -1) {
+            kyM = 3;
+        } else if (dy == 1) {
+            kym = 1;
+        }
+
+        for (int i=kym; i<kyM; i++) {
+            for (int j = kxm; j < kxM; j++) {
+                cache.get(cam.add(quadIndex[i * 4 + j]));
+            }
+        }
+
+        if (q1 == null || q2 == null || q3 == null || q4 == null) {
+            try {
+                executor.submit(new UpdateQuadCache(cam, true)).get();
+                q1 = cache.get(cam.add(quadIndex[5]));
+                q2 = cache.get(cam.add(quadIndex[6]));
+                q3 = cache.get(cam.add(quadIndex[9]));
+                q4 = cache.get(cam.add(quadIndex[10]));
+            } catch (InterruptedException ex) {
+                Logger.getLogger(TerrainGrid.class.getName()).log(Level.SEVERE, null, ex);
+                return;
+            } catch (ExecutionException ex) {
+                Logger.getLogger(TerrainGrid.class.getName()).log(Level.SEVERE, null, ex);
+                return;
+            }
+        }
+
+        executor.execute(new UpdateQuadCache(cam));
+
         RigidBodyControl control = getControl(RigidBodyControl.class);
         PhysicsSpace space = null;
         if (control != null) {
@@ -129,59 +218,16 @@ public class TerrainGrid extends TerrainQuad {
             space.remove(this);
             this.removeControl(control);
         }
-        int dx = (int) cam.x;
-        int dz = (int) cam.z;
-        if (this.currentCell != null) {
-            dx -= (int) (this.currentCell.x);
-            dz -= (int) (this.currentCell.z);
-        }
-        if (this.currentCell == null || FastMath.abs(dx) > 1 || FastMath.abs(dz) > 1 || (dx != 0 && dz != 0)) {
-            if (this.currentCell != null) {
-                // in case of teleport, otherwise the FastMath.abs(delta) should
-                // never be greater than 1
-                this.removeQuad(1);
-                this.removeQuad(2);
-                this.removeQuad(3);
-                this.removeQuad(4);
-            }
-            this.attachChild(this.createQuadAt(cam.add(this.quadIndex[0]).mult(this.quadSize - 1), 1));
-            this.attachChild(this.createQuadAt(cam.add(this.quadIndex[1]).mult(this.quadSize - 1), 2));
-            this.attachChild(this.createQuadAt(cam.add(this.quadIndex[2]).mult(this.quadSize - 1), 3));
-            this.attachChild(this.createQuadAt(cam.add(this.quadIndex[3]).mult(this.quadSize - 1), 4));
-        } else if (dx == 0) {
-            if (dz < 0) {
-                // move north
-                this.moveQuad(1, 2);
-                this.moveQuad(3, 4);
-                this.attachChild(this.createQuadAt(cam.add(this.quadIndex[0]).mult(this.quadSize - 1), 1));
-                this.attachChild(this.createQuadAt(cam.add(this.quadIndex[2]).mult(this.quadSize - 1), 3));
-            } else {
-                // move south
-                this.moveQuad(2, 1);
-                this.moveQuad(4, 3);
-                this.attachChild(this.createQuadAt(cam.add(this.quadIndex[1]).mult(this.quadSize - 1), 2));
-                this.attachChild(this.createQuadAt(cam.add(this.quadIndex[3]).mult(this.quadSize - 1), 4));
-            }
-        } else if (dz == 0) {
-            if (dx < 0) {
-                // move west
-                this.moveQuad(1, 3);
-                this.moveQuad(2, 4);
-                this.attachChild(this.createQuadAt(cam.add(this.quadIndex[0]).mult(this.quadSize - 1), 1));
-                this.attachChild(this.createQuadAt(cam.add(this.quadIndex[1]).mult(this.quadSize - 1), 2));
-            } else {
-                // move east
-                this.moveQuad(3, 1);
-                this.moveQuad(4, 2);
-                this.attachChild(this.createQuadAt(cam.add(this.quadIndex[2]).mult(this.quadSize - 1), 3));
-                this.attachChild(this.createQuadAt(cam.add(this.quadIndex[3]).mult(this.quadSize - 1), 4));
-            }
-        } else {
-            // rare situation to enter into a diagonally placed cell
-            // could not get into this part while testing, as it is handled by moving first
-            // in either horizontally or vertically than the other way
-            // I handle it in the first IF
-        }
+
+        this.removeQuad(1);
+        this.removeQuad(2);
+        this.removeQuad(3);
+        this.removeQuad(4);
+        attachQuadAt(q1, 1);
+        attachQuadAt(q2, 2);
+        attachQuadAt(q3, 3);
+        attachQuadAt(q4, 4);
+
         this.currentCell = cam;
         this.setLocalTranslation(cam.mult(2 * this.quadSize));
 
