@@ -1708,50 +1708,59 @@ public class OGLESShaderRenderer implements Renderer {
         }
     }
 
-    private void setupTextureParams(Texture tex){
+    /**
+     * <code>setupTextureParams</code> sets the OpenGL context texture parameters
+     * @param tex the Texture to set the texture parameters from
+     */
+    private void setupTextureParams(Texture tex)
+    {
         int target = convertTextureType(tex.getType());
 
         // filter things
         int minFilter = convertMinFilter(tex.getMinFilter());
         int magFilter = convertMagFilter(tex.getMagFilter());
 
-	if (verboseLogging)
-		logger.info("GLES20.glTexParameteri(" + target + ", GLES20.GL_TEXTURE_MIN_FILTER, " + minFilter + ")");
+        if (verboseLogging)
+            logger.info("GLES20.glTexParameteri(" + target + ", GLES20.GL_TEXTURE_MIN_FILTER, " + minFilter + ")");
 
         GLES20.glTexParameteri(target, GLES20.GL_TEXTURE_MIN_FILTER, minFilter);
 
-	if (verboseLogging)
-		logger.info("GLES20.glTexParameteri(" + target + ", GLES20.GL_TEXTURE_MAG_FILTER, " + magFilter + ")");
+        if (verboseLogging)
+            logger.info("GLES20.glTexParameteri(" + target + ", GLES20.GL_TEXTURE_MAG_FILTER, " + magFilter + ")");
 
         GLES20.glTexParameteri(target, GLES20.GL_TEXTURE_MAG_FILTER, magFilter);
 
+        /*        
         if (tex.getAnisotropicFilter() > 1){
-/*
+
             if (GLContext.getCapabilities().GL_EXT_texture_filter_anisotropic){
                 glTexParameterf(target,
                                 EXTTextureFilterAnisotropic.GL_TEXTURE_MAX_ANISOTROPY_EXT,
                                 tex.getAnisotropicFilter());
             }
-*/
+
         }
+        */        
         // repeat modes
 
         switch (tex.getType()){
             case ThreeDimensional:
             case CubeMap: // cubemaps use 3D coords
-//                GLES20.glTexParameteri(target, GLES20.GL_TEXTURE_WRAP_R, convertWrapMode(tex.getWrap(WrapAxis.R)));
+                // GL_TEXTURE_WRAP_R is not available in api 8
+                //GLES20.glTexParameteri(target, GLES20.GL_TEXTURE_WRAP_R, convertWrapMode(tex.getWrap(WrapAxis.R)));
             case TwoDimensional:
             case TwoDimensionalArray:
 
-		if (verboseLogging)
-			logger.info("GLES20.glTexParameteri(" + target + ", GLES20.GL_TEXTURE_WRAP_T, " + convertWrapMode(tex.getWrap(WrapAxis.T)));
+                if (verboseLogging)
+                    logger.info("GLES20.glTexParameteri(" + target + ", GLES20.GL_TEXTURE_WRAP_T, " + convertWrapMode(tex.getWrap(WrapAxis.T)));
 
                 GLES20.glTexParameteri(target, GLES20.GL_TEXTURE_WRAP_T, convertWrapMode(tex.getWrap(WrapAxis.T)));
+                
                 // fall down here is intentional..
-//            case OneDimensional:
+//          case OneDimensional:
 
-		if (verboseLogging)
-			logger.info("GLES20.glTexParameteri(" + target + ", GLES20.GL_TEXTURE_WRAP_S, " + convertWrapMode(tex.getWrap(WrapAxis.S)));
+                if (verboseLogging)
+                    logger.info("GLES20.glTexParameteri(" + target + ", GLES20.GL_TEXTURE_WRAP_S, " + convertWrapMode(tex.getWrap(WrapAxis.S)));
 
                 GLES20.glTexParameteri(target, GLES20.GL_TEXTURE_WRAP_S, convertWrapMode(tex.getWrap(WrapAxis.S)));
                 break;
@@ -1773,13 +1782,20 @@ public class OGLESShaderRenderer implements Renderer {
 */
     }
 
-    public void updateTexImageData(Image img, Texture.Type type, boolean mips){
+    /**
+     * <code>updateTexImageData</code> activates and binds the texture
+     * @param img
+     * @param type
+     * @param mips
+     */
+    public void updateTexImageData(Image img, Texture.Type type, boolean mips)
+    {        
         int texId = img.getId();
-        if (texId == -1){
+        if (texId == -1)
+        {
             // create texture
-
-		if (verboseLogging)
-			logger.info("GLES20.glGenTexture(1, buffer)");
+            if (verboseLogging)
+                logger.info("GLES20.glGenTexture(1, buffer)");
 
             GLES20.glGenTextures(1, intBuf1);
             texId = intBuf1.get(0);
@@ -1791,72 +1807,56 @@ public class OGLESShaderRenderer implements Renderer {
 
         // bind texture
         int target = convertTextureType(type);
-        if (context.boundTextures[0] != img){
-            if (context.boundTextureUnit != 0){
-
-		if (verboseLogging)
-			logger.info("GLES20.glActiveTexture(GLES20.GL_TEXTURE0)");
+        if (context.boundTextures[0] != img)
+        {
+            if (context.boundTextureUnit != 0)
+            {
+                if (verboseLogging)
+                    logger.info("GLES20.glActiveTexture(GLES20.GL_TEXTURE0)");
 
                 GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
                 context.boundTextureUnit = 0;
             }
 
-		if (verboseLogging)
-			logger.info("GLES20.glBindTexture(" + target + ", " + texId + ")");
+            if (verboseLogging)
+                logger.info("GLES20.glBindTexture(" + target + ", " + texId + ")");
 
             GLES20.glBindTexture(target, texId);
             context.boundTextures[0] = img;
         }
 
-        if (!img.hasMipmaps() && mips){
-            // No pregenerated mips available,
-            // generate from base level if required
-//          if (!GLContext.getCapabilities().GL_EXT_framebuffer_multisample){
 
-		if (verboseLogging)
-			logger.info("GLES20.glTexParameteri(" + target + "GLES11.GL_GENERATE_MIMAP, GLES20.GL_TRUE)");
-
-            GLES20.glTexParameteri(target, GLES11.GL_GENERATE_MIPMAP, GLES20.GL_TRUE);
-//          }
-        }else{
-//          glTexParameteri(target, GL_TEXTURE_BASE_LEVEL, 0 );
-            if (img.getMipMapSizes() != null){
-//               GLES20.glTexParameteri(target, GLES11.GL_TEXTURE_MAX_LEVEL,  img.getMipMapSizes().length );
+        if (target == GLES20.GL_TEXTURE_CUBE_MAP)
+        {
+            // Upload a cube map / sky box
+            @SuppressWarnings("unchecked")
+            List<Bitmap> bmps = (List<Bitmap>)img.getEfficentData();
+            if (bmps.size() != 6)
+            {
+                throw new UnsupportedOperationException("Invalid texture: " + img +
+                                                        "Cubemap textures must contain 6 data units." );
+            }
+            for (int i = 0; i < 6; i++)
+            {
+                TextureUtil.uploadTextureBitmap(GLES20.GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, bmps.get(i), false, powerOf2);                
             }
         }
+        else
+        {
+            TextureUtil.uploadTexture(img, target, 0, 0, tdc, false, powerOf2);
 
+            if (verboseLogging)
+                logger.info("GLES20.glTexParameteri(" + target + "GLES11.GL_GENERATE_MIMAP, GLES20.GL_TRUE)");
 
-        if (target == GLES20.GL_TEXTURE_CUBE_MAP){
-            List<ByteBuffer> data = img.getData();
-            if (data.size() != 6){
-                logger.log(Level.WARNING, "Invalid texture: {0}\n"
-                        + "Cubemap textures must contain 6 data units.", img);
-                return;
+            if (!img.hasMipmaps() && mips)
+            {
+                // No pregenerated mips available,
+                // generate from base level if required
+                if (verboseLogging)
+                    logger.info("GLES20.glGenerateMipmap(GLES20.GL_TEXTURE_2D)");
+                GLES20.glGenerateMipmap(GLES20.GL_TEXTURE_2D);
             }
-            for (int i = 0; i < 6; i++){
-                TextureUtil.uploadTexture(img, GLES20.GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, i, 0, tdc, true, powerOf2);
-            }
-        }/*else if (target == EXTTextureArray.GL_TEXTURE_2D_ARRAY_EXT){
-            List<ByteBuffer> data = img.getData();
-            // -1 index specifies prepare data for 2D Array
-            TextureUtil.uploadTexture(img, target, -1, 0, tdc);
-            for (int i = 0; i < data.size(); i++){
-                // upload each slice of 2D array in turn
-                // this time with the appropriate index
-                 TextureUtil.uploadTexture(img, target, i, 0, tdc);
-            }
-        }*/else{
-            TextureUtil.uploadTexture(img, target, 0, 0, tdc, true, powerOf2);
-
-		if (verboseLogging)
-			logger.info("GLES20.glTexParameteri(" + target + "GLES11.GL_GENERATE_MIMAP, GLES20.GL_TRUE)");
-
-		GLES20.glTexParameteri(target, GLES11.GL_GENERATE_MIPMAP, GLES20.GL_TRUE);
-        }
-            
-//            if (GLContext.getCapabilities().GL_EXT_framebuffer_multisample){
-//                glGenerateMipmapEXT(target);
-//            }
+        }            
         
         img.clearUpdateNeeded();
     }
@@ -1866,14 +1866,19 @@ public class OGLESShaderRenderer implements Renderer {
         Image image = tex.getImage();
         if (image.isUpdateNeeded())
         {
+            /*
             Bitmap bmp = (Bitmap)image.getEfficentData();
-            // Check if the bitmap got recycled, can happen after wakeup/restart
-            if ( bmp.isRecycled() )
+            if (bmp != null)
             {
-                // We need to reload the bitmap
-                Texture textureReloaded = JmeSystem.newAssetManager().loadTexture((TextureKey)tex.getKey());
-                image.setEfficentData( textureReloaded.getImage().getEfficentData());
+                // Check if the bitmap got recycled, can happen after wakeup/restart
+                if ( bmp.isRecycled() )
+                {
+                    // We need to reload the bitmap
+                    Texture textureReloaded = JmeSystem.newAssetManager().loadTexture((TextureKey)tex.getKey());
+                    image.setEfficentData( textureReloaded.getImage().getEfficentData());
+                }
             }
+            */
             updateTexImageData(image, tex.getType(), tex.getMinFilter().usesMipMapLevels());
         }
 

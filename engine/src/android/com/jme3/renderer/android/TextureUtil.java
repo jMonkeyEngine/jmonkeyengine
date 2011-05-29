@@ -62,11 +62,21 @@ public class TextureUtil {
         }
     }
 
-    private static void uploadTextureBitmap(Bitmap bitmap, boolean generateMips, boolean powerOf2){
-        if (!powerOf2){
+    /**
+     * <code>uploadTextureBitmap</code> uploads a native android bitmap
+     * @param target
+     * @param bitmap
+     * @param generateMips
+     * @param powerOf2
+     */
+    public static void uploadTextureBitmap(final int target, Bitmap bitmap, boolean generateMips, boolean powerOf2)
+    {
+        if (!powerOf2)
+        {
             int width = bitmap.getWidth();
             int height = bitmap.getHeight();
-            if (!FastMath.isPowerOfTwo(width) || !FastMath.isPowerOfTwo(height)){
+            if (!FastMath.isPowerOfTwo(width) || !FastMath.isPowerOfTwo(height))
+            {
                 // scale to power of two
                 width = FastMath.nearestPowerOfTwo(width);
                 height = FastMath.nearestPowerOfTwo(height);
@@ -76,11 +86,14 @@ public class TextureUtil {
             }
         }
 
-        if (generateMips){
+        if (generateMips)
+        {
             buildMipmap(bitmap);
-        }else{
-            GLUtils.texImage2D(GL10.GL_TEXTURE_2D, 0, bitmap, 0);
-            bitmap.recycle();
+        }
+        else
+        {
+            GLUtils.texImage2D(target, 0, bitmap, 0);
+            //bitmap.recycle();
         }
     }
 
@@ -95,8 +108,7 @@ public class TextureUtil {
 
         if (img.getEfficentData() instanceof Bitmap){
             Bitmap bitmap = (Bitmap) img.getEfficentData();
-            uploadTextureBitmap(bitmap, generateMips, powerOf2);
-//            img.setEfficentData(null);
+            uploadTextureBitmap(target, bitmap, generateMips, powerOf2);
             return;
         }
 
