@@ -33,6 +33,7 @@ package com.jme3.app.android;
 
 import java.nio.CharBuffer;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Logger;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -62,6 +63,7 @@ import com.jme3.app.AndroidHarness;
  @Deprecated
 public abstract class AndroidApplication extends Application implements DialogInterface.OnClickListener 
 {
+    protected final static Logger logger = Logger.getLogger(AndroidApplication.class.getName());
 
     protected Node rootNode = new Node("Root Node");
     protected Node guiNode = new Node("Gui Node");
@@ -258,6 +260,9 @@ public abstract class AndroidApplication extends Application implements DialogIn
             }
         }
         final String sTrace = s;
+        
+        logger.severe(t != null ? t.toString() : "Failed");
+        logger.severe((errorMsg != null ? errorMsg + ": " : "") + sTrace);
         activity.runOnUiThread(new Runnable() {
             @Override
             public void run() 

@@ -110,7 +110,7 @@ public class AndroidHarness extends Activity implements DialogInterface.OnClickL
 
     @Override
     protected void onDestroy(){
-        super.onDestroy();
+        super.onDestroy();        
         app.stop();
         logger.info("onDestroy");
     }

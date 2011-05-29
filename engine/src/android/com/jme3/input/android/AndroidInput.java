@@ -30,7 +30,8 @@ public class AndroidInput extends GLSurfaceView implements KeyInput, MouseInput,
     private AndroidTouchInputListener listenerTouch = null;
     private ScaleGestureDetector scaledetector;
     private GestureDetector detector;
-    private Vector2f lastPos = new Vector2f();
+    private int lastX;
+    private int lastY;
     private boolean dragging = false;
     
     private List<Object> currentEvents = new ArrayList<Object>();
@@ -175,22 +176,24 @@ public class AndroidInput extends GLSurfaceView implements KeyInput, MouseInput,
         this.detector.onTouchEvent(event);
         this.scaledetector.onTouchEvent(event);
 
+        int newX = getWidth() - (int) event.getX();
+        int newY = (int) event.getY();
         
         switch (event.getAction())
         {
             case MotionEvent.ACTION_DOWN:
-                
-                // Store current pos
-                lastPos.set(event.getX(),event.getY());
-                
+                                
                 if (FIRE_MOUSE_EVENTS)
                 {
                    // Handle mouse events 
-                    btn = new MouseButtonEvent(0, true, (int)lastPos.getX(), (int)lastPos.getY());
+                    btn = new MouseButtonEvent(0, true, newX, newY);
                     btn.setTime(event.getEventTime());
                     processEvent(btn);
                 }
-                
+                // Store current pos
+                lastX = -1;
+                lastY = -1;
+
                 // Handle gesture events
                 touch = new TouchEvent(TouchEvent.Type.GRABBED, TouchEvent.Operation.NOP,event.getX(),event.getY(),0,0,null);
                 processEvent(touch);
@@ -203,14 +206,18 @@ public class AndroidInput extends GLSurfaceView implements KeyInput, MouseInput,
                 if (FIRE_MOUSE_EVENTS)
                 {                
                     // Handle mouse events 
-                    btn = new MouseButtonEvent(0, false, (int)event.getX(), (int)event.getY());
+                    btn = new MouseButtonEvent(0, false, newX, newY);
                     btn.setTime(event.getEventTime());
                     processEvent(btn);
-                }                
+                }         
+                // Store current pos
+                lastX = -1;
+                lastY = -1;
+                
                 // Handle gesture events             
                 if(dragging)
                 {
-                    touch = new TouchEvent(TouchEvent.Type.DRAGGED, TouchEvent.Operation.STOPPED,event.getX(),event.getY(),event.getX()-lastPos.getX(),event.getY()-lastPos.getY(),null);
+                    touch = new TouchEvent(TouchEvent.Type.DRAGGED, TouchEvent.Operation.STOPPED,event.getX(),event.getY(),event.getX()-lastX,event.getY()-lastY,null);
                     processEvent(touch);
                 }
                 touch = new TouchEvent(TouchEvent.Type.RELEASED, TouchEvent.Operation.NOP,event.getX(),event.getY(),0,0,null);
@@ -222,22 +229,21 @@ public class AndroidInput extends GLSurfaceView implements KeyInput, MouseInput,
                 if(!scaledetector.isInProgress())
                 {
                     if(!dragging)
-                        touch = new TouchEvent(TouchEvent.Type.DRAGGED, TouchEvent.Operation.STARTED,event.getX(),event.getY(),event.getX()-lastPos.getX(),event.getY()-lastPos.getY(),null);
+                        touch = new TouchEvent(TouchEvent.Type.DRAGGED, TouchEvent.Operation.STARTED,event.getX(),event.getY(),event.getX()-lastX,event.getY()-lastY,null);
                     else
-                        touch = new TouchEvent(TouchEvent.Type.DRAGGED, TouchEvent.Operation.RUNNING,event.getX(),event.getY(),event.getX()-lastPos.getX(),event.getY()-lastPos.getY(),null);
+                        touch = new TouchEvent(TouchEvent.Type.DRAGGED, TouchEvent.Operation.RUNNING,event.getX(),event.getY(),event.getX()-lastX,event.getY()-lastY,null);
                         
                     processEvent(touch);
                     dragging=true;
                 }
                 if (FIRE_MOUSE_EVENTS)
                 {
-                    int newX = getWidth() - (int) event.getX();
-                    int newY = (int) event.getY();
+
                     int dx;
                     int dy;
-                    if (lastPos.getX() != -1){
-                        dx = newX - (int)lastPos.getX();
-                        dy = newY - (int)lastPos.getY();
+                    if (lastX != -1){
+                        dx = newX - lastX;
+                        dy = newY - lastY;
                     }else{
                         dx = 0;
                         dy = 0;
@@ -246,6 +252,8 @@ public class AndroidInput extends GLSurfaceView implements KeyInput, MouseInput,
                     mot.setTime(event.getEventTime());
                     processEvent(mot);
                 }
+                lastX = newX;
+                lastY = newY;
                 bWasHandled = true;
                 break;
                 

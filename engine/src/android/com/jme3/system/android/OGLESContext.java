@@ -295,8 +295,6 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer
     public void onDrawFrame(GL10 gl) 
     {
         
-        if (!created.get())
-            throw new IllegalStateException("onDrawFrame without create");
         
         if (needClose.get())
         {
@@ -306,6 +304,10 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer
         
         if (renderable.get())
         {
+
+            if (!created.get())
+                throw new IllegalStateException("onDrawFrame without create");
+
             milliStart = System.currentTimeMillis();
                     
 
@@ -369,7 +371,7 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer
            
     public void destroy()
     {
-        destroy(false);
+        destroy(true);
     }
     
     protected void waitFor(boolean createdVal)
