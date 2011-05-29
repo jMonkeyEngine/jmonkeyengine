@@ -60,29 +60,40 @@ public class TerrainGridTest extends SimpleApplication {
         this.stateManager.attach(state);
 
         // TERRAIN TEXTURE material
-        mat_terrain = new Material(assetManager, "Common/MatDefs/Terrain/Terrain.j3md");
-        mat_terrain.setBoolean("useTriPlanarMapping", false);
+        this.mat_terrain = new Material(this.assetManager, "Common/MatDefs/Terrain/HeightBasedTerrain.j3md");
 
-        // ALPHA map (for splat textures)
-        mat_terrain.setTexture("Alpha", assetManager.loadTexture("Textures/Terrain/splat/alphamap.png"));
-
+        // Parameters to material:
+        // regionXColorMap: X = 1..4 the texture that should be appliad to state X
+        // regionX: a Vector3f containing the following information:
+        //      regionX.x: the start height of the region
+        //      regionX.y: the end height of the region
+        //      regionX.z: the texture scale for the region
+        //  it might not be the most elegant way for storing these 3 values, but it packs the data nicely :)
+        // slopeColorMap: the texture to be used for cliffs, and steep mountain sites
+        // slopeTileFactor: the texture scale for slopes
+        // terrainSize: the total size of the terrain (used for scaling the texture)
         // GRASS texture
-        Texture grass = assetManager.loadTexture("Textures/Terrain/splat/grass.jpg");
+        Texture grass = this.assetManager.loadTexture("Textures/Terrain/splat/grass.jpg");
         grass.setWrap(WrapMode.Repeat);
-        mat_terrain.setTexture("Tex1", grass);
-        mat_terrain.setFloat("Tex1Scale", grassScale);
+        this.mat_terrain.setTexture("region1ColorMap", grass);
+        this.mat_terrain.setVector3("region1", new Vector3f(88, 200, this.grassScale));
 
         // DIRT texture
-        Texture dirt = assetManager.loadTexture("Textures/Terrain/splat/dirt.jpg");
+        Texture dirt = this.assetManager.loadTexture("Textures/Terrain/splat/dirt.jpg");
         dirt.setWrap(WrapMode.Repeat);
-        mat_terrain.setTexture("Tex2", dirt);
-        mat_terrain.setFloat("Tex2Scale", dirtScale);
+        this.mat_terrain.setTexture("region2ColorMap", dirt);
+        this.mat_terrain.setVector3("region2", new Vector3f(0, 90, this.dirtScale));
 
         // ROCK texture
-        Texture rock = assetManager.loadTexture("Textures/Terrain/splat/road.jpg");
+        Texture rock = this.assetManager.loadTexture("Textures/Terrain/grid/rock.jpg");
         rock.setWrap(WrapMode.Repeat);
-        mat_terrain.setTexture("Tex3", rock);
-        mat_terrain.setFloat("Tex3Scale", rockScale);
+        this.mat_terrain.setTexture("region3ColorMap", rock);
+        this.mat_terrain.setVector3("region3", new Vector3f(198, 260, this.rockScale));
+
+        this.mat_terrain.setTexture("slopeColorMap", rock);
+        this.mat_terrain.setFloat("slopeTileFactor", 32);
+
+        this.mat_terrain.setFloat("terrainSize", 513);
 
         this.base = new FractalSum();
         this.base.setRoughness(0.7f);
