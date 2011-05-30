@@ -111,15 +111,15 @@ public class MTLLoader implements AssetLoader {
         
         if (shadeless){
             material = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-            material.setColor("Color", diffuse);
+            material.setColor("Color", diffuse.clone());
             material.setTexture("ColorMap", diffuseMap);
             // TODO: Add handling for alpha map?
         }else{
             material = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
             material.setBoolean("UseMaterialColors", true);
-            material.setColor("Ambient",  ambient);
-            material.setColor("Diffuse",  diffuse);
-            material.setColor("Specular", specular);
+            material.setColor("Ambient",  ambient.clone());
+            material.setColor("Diffuse",  diffuse.clone());
+            material.setColor("Specular", specular.clone());
             material.setFloat("Shininess", shininess); // prevents "premature culling" bug
             
             if (diffuseMap != null)  material.setTexture("DiffuseMap", diffuseMap);
