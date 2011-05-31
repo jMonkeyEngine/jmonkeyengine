@@ -10,7 +10,7 @@ and open the template in the editor.
     <localizing-bundle>com.jme3.gde.project.testdata.Bundle</localizing-bundle>
     <volume>
         <type>classpath</type>
-        <resource>jar:nbinst://com.jme3.gde.project.testdata/libs/jme3testdata.jar!/</resource>
+        <resource>jar:nbinst://com.jme3.gde.project.testdata/libs/jME3-testdata.jar!/</resource>
     </volume>
     <volume>
         <type>src</type>
