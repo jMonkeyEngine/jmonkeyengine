@@ -80,12 +80,12 @@ public abstract class Filter implements Savable {
             Collection<Caps> caps = renderer.getCaps();
             if (numSamples > 1 && caps.contains(Caps.FrameBufferMultisample) && caps.contains(Caps.OpenGL31)) {
                 renderFrameBuffer = new FrameBuffer(width, height, numSamples);
-                renderedTexture = new Texture2D(width, height, numSamples, textureFormat);
+                renderedTexture = new Texture2D(width, height, numSamples, textureFormat);             
                 //  depthTexture = new Texture2D(width, height, numSamples, depthBufferFormat);
             } else {
                 renderFrameBuffer = new FrameBuffer(width, height, 1);
                 renderedTexture = new Texture2D(width, height, textureFormat);
-//                depthTexture = new Texture2D(width, height,  depthBufferFormat);
+               //                depthTexture = new Texture2D(width, height,  depthBufferFormat);
             }
 
             renderFrameBuffer.setColorTexture(renderedTexture);
@@ -200,7 +200,7 @@ public abstract class Filter implements Savable {
      * @param renderManager
      * @param viewPort
      */
-    public void preRender(RenderManager renderManager, ViewPort viewPort) {
+    public void postQueue(RenderManager renderManager, ViewPort viewPort) {
     }
 
     /**
@@ -209,6 +209,14 @@ public abstract class Filter implements Savable {
      * @param tpf the time used to render the previous frame
      */
     public void preFrame(float tpf) {
+    }
+
+    /**
+     * Override this method if you want to make a pass just after the frame has been rendered and just before the filter rendering
+     * @param renderManager
+     * @param viewPort
+     */
+    public void postFrame(RenderManager renderManager, ViewPort viewPort, FrameBuffer prevFilterBuffer, FrameBuffer sceneBuffer) {
     }
 
     /**
@@ -266,6 +274,14 @@ public abstract class Filter implements Savable {
      */
     public boolean isRequiresDepthTexture() {
         return false;
+    }
+    
+     /**
+     * Override this method and return false if your Filter does not need the scene texture
+     * @return
+     */
+    public boolean isRequiresSceneTexture() {
+        return true;
     }
 
     public List<Pass> getPostRenderPasses() {

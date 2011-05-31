@@ -42,6 +42,7 @@ import com.jme3.math.Vector3f;
 import com.jme3.post.FilterPostProcessor;
 import com.jme3.post.filters.BloomFilter;
 import com.jme3.post.filters.CartoonEdgeFilter;
+import com.jme3.post.filters.CrossHatchFilter;
 import com.jme3.post.filters.FogFilter;
 import com.jme3.post.filters.RadialBlurFilter;
 import com.jme3.post.ssao.SSAOFilter;
@@ -62,6 +63,7 @@ public class TestMultiViewsFilters extends SimpleApplication {
         // create the geometry and attach it
         Geometry teaGeom = (Geometry) assetManager.loadModel("Models/Teapot/Teapot.obj");
         teaGeom.scale(3);
+        teaGeom.getMaterial().setColor("GlowColor", ColorRGBA.Green);
 
         DirectionalLight dl = new DirectionalLight();
         dl.setColor(ColorRGBA.White);
@@ -109,18 +111,38 @@ public class TestMultiViewsFilters extends SimpleApplication {
         view4.setClearFlags(true, true, true);
         view4.attachScene(rootNode);
 
+//        Camera cam5 = new Camera(200, 200);
+//        cam5.setFrustumPerspective(45f, (float)cam.getWidth() / cam.getHeight(), 1f, 1000f);
+//        cam5.setName("cam5");
+//        cam5.setViewPort(5.23f, 6.33f, 0.56f, 1.66f);
+//          this.setViewPortAreas(5.23f, 6.33f, 0.56f, 1.66f);
+//          this.setViewPortCamSize(200, 200);
+//          1046,1266,112,332
+        Camera cam5 = cam.clone();
+        cam5.setName("cam5");
+        cam5.setViewPort(1046f/settings.getWidth(), 1266f/settings.getWidth(), 112f/settings.getHeight(), 332f/settings.getHeight());
+        cam5.setLocation(new Vector3f(0.2846221f, 6.4271426f, 0.23380789f));
+        cam5.setRotation(new Quaternion(0.004381671f, 0.72363687f, -0.69015175f, 0.0045953835f));
+
+        final ViewPort view5 = renderManager.createMainView("center", cam5);
+        view5.setClearFlags(true, true, true);
+        view5.attachScene(rootNode);
+
+        
+        
         rootNode.attachChild(SkyFactory.createSky(assetManager, "Textures/Sky/Bright/BrightSky.dds", false));
 
         final FilterPostProcessor fpp = new FilterPostProcessor(assetManager);
         final FilterPostProcessor fpp2 = new FilterPostProcessor(assetManager);
         final FilterPostProcessor fpp3 = new FilterPostProcessor(assetManager);
         final FilterPostProcessor fpp4 = new FilterPostProcessor(assetManager);
+        final FilterPostProcessor fpp5 = new FilterPostProcessor(assetManager);
 
 
         //  fpp.addFilter(new WaterFilter(rootNode, Vector3f.UNIT_Y.mult(-1)));
         fpp3.addFilter(new CartoonEdgeFilter());
 
-        fpp2.addFilter(new BloomFilter());
+        fpp2.addFilter(new CrossHatchFilter());
         final FogFilter ff = new FogFilter(ColorRGBA.Yellow, 0.7f, 2);
         fpp.addFilter(ff);
 
@@ -132,11 +154,14 @@ public class TestMultiViewsFilters extends SimpleApplication {
         SSAOFilter f = new SSAOFilter(1.8899765f, 20.490374f, 0.4699998f, 0.1f);;
         fpp4.addFilter(f);
         SSAOUI ui = new SSAOUI(inputManager, f);
+        
+        fpp5.addFilter(new BloomFilter(BloomFilter.GlowMode.Objects));
 
         viewPort.addProcessor(fpp);
         view2.addProcessor(fpp2);
         view3.addProcessor(fpp3);
         view4.addProcessor(fpp4);
+        view5.addProcessor(fpp5);
 
 
 
@@ -149,11 +174,13 @@ public class TestMultiViewsFilters extends SimpleApplication {
                         view2.removeProcessor(fpp2);
                         view3.removeProcessor(fpp3);
                         view4.removeProcessor(fpp4);
+                        view5.removeProcessor(fpp5);
                     } else {
                         viewPort.addProcessor(fpp);
                         view2.addProcessor(fpp2);
                         view3.addProcessor(fpp3);
                         view4.addProcessor(fpp4);
+                        view5.addProcessor(fpp5);
                     }
                     filterEnabled = !filterEnabled;
                 }

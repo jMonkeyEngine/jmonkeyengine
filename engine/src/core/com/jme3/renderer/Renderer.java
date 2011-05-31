@@ -29,7 +29,6 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package com.jme3.renderer;
 
 import com.jme3.light.LightList;
@@ -139,6 +138,12 @@ public interface Renderer {
     public void copyFrameBuffer(FrameBuffer src, FrameBuffer dst);
 
     /**
+     * Copies contents from src to dst, scaling if neccessary.
+     * set copyDepth to false ton ly copy the color
+     */
+    public void copyFrameBuffer(FrameBuffer src, FrameBuffer dst, boolean copyDepth);
+
+    /**
      * Sets the framebuffer that will be drawn to.
      */
     public void setFrameBuffer(FrameBuffer fb);
@@ -212,5 +217,4 @@ public interface Renderer {
      * @param value
      */
     public void setAlphaToCoverage(boolean value);
-    
 }

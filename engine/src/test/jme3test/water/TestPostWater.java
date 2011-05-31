@@ -3,20 +3,29 @@ package jme3test.water;
 import com.jme3.app.SimpleApplication;
 import com.jme3.audio.AudioNode;
 import com.jme3.bounding.BoundingBox;
+import com.jme3.effect.ParticleEmitter;
+import com.jme3.effect.ParticleMesh;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
+import com.jme3.material.RenderState.BlendMode;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 
 import com.jme3.post.FilterPostProcessor;
+import com.jme3.post.filters.DepthOfFieldFilter;
+import com.jme3.post.filters.LightScatteringFilter;
+import com.jme3.post.filters.TranslucentBucketFilter;
 import com.jme3.renderer.Camera;
+import com.jme3.renderer.queue.RenderQueue.Bucket;
 import com.jme3.renderer.queue.RenderQueue.ShadowMode;
+import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
+import com.jme3.scene.shape.Box;
 import com.jme3.terrain.geomipmap.TerrainQuad;
 import com.jme3.terrain.heightmap.AbstractHeightMap;
 import com.jme3.terrain.heightmap.ImageBasedHeightMap;
@@ -35,7 +44,6 @@ import jme3tools.converters.ImageToAwt;
  */
 public class TestPostWater extends SimpleApplication {
 
-    private FilterPostProcessor fpp;
     private Vector3f lightDir = new Vector3f(-4.9236743f, -1.27054665f, 5.896916f);
     private WaterFilter water;
     TerrainQuad terrain;
@@ -65,10 +73,10 @@ public class TestPostWater extends SimpleApplication {
         l.setColor(ColorRGBA.White.clone().multLocal(0.3f));
         mainScene.addLight(l);
 
-        flyCam.setMoveSpeed(50);
+        flyCam.setMoveSpeed(100);
 
         cam.setLocation(new Vector3f(-700, 100, 300));
-        cam.setRotation(new Quaternion().fromAngles(new float[]{FastMath.PI*0.06f,FastMath.PI*0.65f,0}));
+        cam.setRotation(new Quaternion().fromAngles(new float[]{FastMath.PI * 0.06f, FastMath.PI * 0.65f, 0}));
 
 
         Spatial sky = SkyFactory.createSky(assetManager, "Scenes/Beach/FullskiesSunset0068.dds", false);
@@ -80,44 +88,112 @@ public class TestPostWater extends SimpleApplication {
         waves.setLooping(true);
         audioRenderer.playSource(waves);
 
+        //private FilterPostProcessor fpp;
 
-        fpp = new FilterPostProcessor(assetManager);
-    //    fpp.setNumSamples(4);
 
         water = new WaterFilter(rootNode, lightDir);
+
+        FilterPostProcessor fpp = new FilterPostProcessor(assetManager);
+        fpp.addFilter(water);
+        
+        DepthOfFieldFilter dof=new DepthOfFieldFilter();
+        dof.setFocusDistance(0);
+        dof.setFocusRange(100);        
+        fpp.addFilter(new TranslucentBucketFilter());
+        fpp.addFilter(dof);
+        
+        
+        //     fpp.setNumSamples(4);
+
+
         water.setWaveScale(0.003f);
         water.setMaxAmplitude(2f);
         water.setFoamExistence(new Vector3f(1f, 4, 0.5f));
         water.setFoamTexture((Texture2D) assetManager.loadTexture("Common/MatDefs/Water/Textures/foam2.jpg"));
         //water.setNormalScale(0.5f);
-        
+
         //water.setRefractionConstant(0.25f);
-        water.setRefractionStrength(0.2f);        
+        water.setRefractionStrength(0.2f);
         //water.setFoamHardness(0.6f);
 
         water.setWaterHeight(initialWaterHeight);
-        fpp.addFilter(water);
+       
+      
+        //  
         viewPort.addProcessor(fpp);
 
         inputManager.addListener(new ActionListener() {
 
             public void onAction(String name, boolean isPressed, float tpf) {
-                if(isPressed){
-                    if(name.equals("foam1")){
-                        water.setFoamTexture((Texture2D) assetManager.loadTexture("Common/MatDefs/Water/Textures/foam.jpg"));                      
+                if (isPressed) {
+                    if (name.equals("foam1")) {
+                        water.setFoamTexture((Texture2D) assetManager.loadTexture("Common/MatDefs/Water/Textures/foam.jpg"));
                     }
-                    if(name.equals("foam2")){
+                    if (name.equals("foam2")) {
                         water.setFoamTexture((Texture2D) assetManager.loadTexture("Common/MatDefs/Water/Textures/foam2.jpg"));
                     }
-                    if(name.equals("foam3")){
+                    if (name.equals("foam3")) {
                         water.setFoamTexture((Texture2D) assetManager.loadTexture("Common/MatDefs/Water/Textures/foam3.jpg"));
                     }
                 }
             }
-        }, "foam1","foam2","foam3");
+        }, "foam1", "foam2", "foam3");
         inputManager.addMapping("foam1", new KeyTrigger(keyInput.KEY_1));
         inputManager.addMapping("foam2", new KeyTrigger(keyInput.KEY_2));
         inputManager.addMapping("foam3", new KeyTrigger(keyInput.KEY_3));
+        createBox();
+        createFire();
+    }
+    Geometry box;
+
+    private void createBox() {
+        //creating a transluscent box
+        box = new Geometry("box", new Box(new Vector3f(0, 0, 0), 50, 50, 50));
+        Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        mat.setColor("Color", new ColorRGBA(1.0f, 0, 0, 0.3f));
+        mat.getAdditionalRenderState().setBlendMode(BlendMode.Alpha);
+        //mat.getAdditionalRenderState().setDepthWrite(false);
+        //mat.getAdditionalRenderState().setDepthTest(false);
+        box.setMaterial(mat);
+        box.setQueueBucket(Bucket.Translucent);
+
+
+        //creating a post view port
+//        ViewPort post=renderManager.createPostView("transpPost", cam);
+//        post.setClearFlags(false, true, true);
+
+
+        box.setLocalTranslation(-600, 0, 300);
+
+        //attaching the box to the post viewport
+        //Don't forget to updateGeometricState() the box in the simpleUpdate
+        //  post.attachScene(box);
+
+        rootNode.attachChild(box);
+    }
+
+    private void createFire() {
+        /** Uses Texture from jme3-test-data library! */
+        ParticleEmitter fire = new ParticleEmitter("Emitter", ParticleMesh.Type.Triangle, 30);
+        Material mat_red = new Material(assetManager, "Common/MatDefs/Misc/Particle.j3md");
+        mat_red.setTexture("Texture", assetManager.loadTexture("Effects/Explosion/flame.png"));
+
+        fire.setMaterial(mat_red);
+        fire.setImagesX(2);
+        fire.setImagesY(2); // 2x2 texture animation
+        fire.setEndColor(new ColorRGBA(1f, 0f, 0f, 1f));   // red
+        fire.setStartColor(new ColorRGBA(1f, 1f, 0f, 0.5f)); // yellow
+        fire.setInitialVelocity(new Vector3f(0, 2, 0));
+        fire.setStartSize(10f);
+        fire.setEndSize(1f);
+        fire.setGravity(0);
+        fire.setLowLife(0.5f);
+        fire.setHighLife(1.5f);
+        fire.setVelocityVariation(0.3f);
+        fire.setLocalTranslation(-500, 30, 300);
+
+        fire.setQueueBucket(Bucket.Translucent);
+        rootNode.attachChild(fire);
     }
 
     private void createTerrain(Node rootNode) {
@@ -138,7 +214,7 @@ public class TestPostWater extends SimpleApplication {
         rock.setWrap(WrapMode.Repeat);
         matRock.setTexture("DiffuseMap_2", rock);
         matRock.setFloat("DiffuseMap_2_scale", 128);
-        Texture normalMap0 = assetManager.loadTexture("Textures/Terrain/splat/grass_normal.png");
+        Texture normalMap0 = assetManager.loadTexture("Textures/Terrain/splat/grass_normal.jpg");
         normalMap0.setWrap(WrapMode.Repeat);
         Texture normalMap1 = assetManager.loadTexture("Textures/Terrain/splat/dirt_normal.png");
         normalMap1.setWrap(WrapMode.Repeat);
@@ -161,8 +237,8 @@ public class TestPostWater extends SimpleApplication {
         List<Camera> cameras = new ArrayList<Camera>();
         cameras.add(getCamera());
         terrain.setMaterial(matRock);
-        terrain.setLocalScale(new Vector3f(5,5,5));
-        terrain.setLocalTranslation(new Vector3f(0,-30,0));
+        terrain.setLocalScale(new Vector3f(5, 5, 5));
+        terrain.setLocalTranslation(new Vector3f(0, -30, 0));
         terrain.setModelBound(new BoundingBox());
         terrain.updateModelBound();
         terrain.setLocked(false); // unlock it so we can edit the height
@@ -171,7 +247,6 @@ public class TestPostWater extends SimpleApplication {
         rootNode.attachChild(terrain);
 
     }
-
     //This part is to emulate tides, slightly varrying the height of the water plane
     private float time = 0.0f;
     private float waterHeight = 0.0f;
@@ -180,6 +255,7 @@ public class TestPostWater extends SimpleApplication {
     @Override
     public void simpleUpdate(float tpf) {
         super.simpleUpdate(tpf);
+        //     box.updateGeometricState();
         time += tpf;
         waterHeight = (float) Math.cos(((time * 0.6f) % FastMath.TWO_PI)) * 1.5f;
         water.setWaterHeight(initialWaterHeight + waterHeight);

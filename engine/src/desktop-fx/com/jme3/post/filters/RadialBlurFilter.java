@@ -74,9 +74,6 @@ public class RadialBlurFilter extends Filter {
         return material;
     }
 
-    @Override
-    public void preRender(RenderManager renderManager, ViewPort viewPort) {
-    }
 
     public float getSampleDist() {
         return sampleDist;

@@ -106,10 +106,6 @@ public class CrossHatchFilter extends Filter {
     }
 
     @Override
-    public void preRender(RenderManager renderManager, ViewPort viewPort) {
-    }
-
-    @Override
     public void cleanUpFilter(Renderer r) {
     }
 

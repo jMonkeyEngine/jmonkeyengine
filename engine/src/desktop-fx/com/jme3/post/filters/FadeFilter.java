@@ -71,9 +71,6 @@ public class FadeFilter extends Filter {
         return material;
     }
 
-    @Override
-    public void preRender(RenderManager renderManager, ViewPort viewPort) {
-    }
 
     @Override
     public void initFilter(AssetManager manager, RenderManager renderManager, ViewPort vp, int w, int h) {

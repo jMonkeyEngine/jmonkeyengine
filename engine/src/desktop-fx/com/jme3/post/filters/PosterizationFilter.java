@@ -88,9 +88,6 @@ public class PosterizationFilter extends Filter {
         return material;
     }
 
-    @Override
-    public void preRender(RenderManager renderManager, ViewPort viewPort) {
-    }
 
     @Override
     public void cleanUpFilter(Renderer r) {

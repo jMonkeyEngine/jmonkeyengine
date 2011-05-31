@@ -204,7 +204,7 @@ public class LwjglRenderer implements Renderer {
         // buffer being used.
         initialDrawBuf = glGetInteger(GL_DRAW_BUFFER);
         initialReadBuf = glGetInteger(GL_READ_BUFFER);
-        
+
         // XXX: This has to be GL_BACK for canvas on Mac
         // Since initialDrawBuf is GL_FRONT for pbuffer, gotta
         // change this value later on ...
@@ -326,12 +326,12 @@ public class LwjglRenderer implements Renderer {
             caps.add(Caps.VertexBufferArray);
         }
 
-        if (ctxCaps.GL_ARB_texture_non_power_of_two){
+        if (ctxCaps.GL_ARB_texture_non_power_of_two) {
             caps.add(Caps.NonPowerOfTwoTextures);
-        }else{
+        } else {
             logger.log(Level.WARNING, "Your graphics card does not "
-                                    + "support non-power-of-2 textures. "
-                                    + "Some features might not work.");
+                    + "support non-power-of-2 textures. "
+                    + "Some features might not work.");
         }
 
         boolean latc = ctxCaps.GL_EXT_texture_compression_latc;
@@ -414,11 +414,11 @@ public class LwjglRenderer implements Renderer {
         logger.log(Level.INFO, "Caps: {0}", caps);
     }
 
-    public void invalidateState(){
+    public void invalidateState() {
         context.reset();
         boundShader = null;
         lastFb = null;
-        
+
         initialDrawBuf = glGetInteger(GL_DRAW_BUFFER);
         initialReadBuf = glGetInteger(GL_READ_BUFFER);
     }
@@ -610,96 +610,91 @@ public class LwjglRenderer implements Renderer {
             context.blendMode = state.getBlendMode();
         }
 
-        if(context.stencilTest!=state.isStencilTest()
-                || context.frontStencilStencilFailOperation!=state.getFrontStencilStencilFailOperation()
-                || context.frontStencilDepthFailOperation!=state.getFrontStencilDepthFailOperation()
-                || context.frontStencilDepthPassOperation!=state.getFrontStencilDepthPassOperation()
-                || context.backStencilStencilFailOperation!=state.getBackStencilStencilFailOperation()
-                || context.backStencilDepthFailOperation!=state.getBackStencilDepthFailOperation()
-                || context.backStencilDepthPassOperation!=state.getBackStencilDepthPassOperation()
-                || context.frontStencilFunction!=state.getFrontStencilFunction()
-                || context.backStencilFunction!=state.getBackStencilFunction()
-                ){
+        if (context.stencilTest != state.isStencilTest()
+                || context.frontStencilStencilFailOperation != state.getFrontStencilStencilFailOperation()
+                || context.frontStencilDepthFailOperation != state.getFrontStencilDepthFailOperation()
+                || context.frontStencilDepthPassOperation != state.getFrontStencilDepthPassOperation()
+                || context.backStencilStencilFailOperation != state.getBackStencilStencilFailOperation()
+                || context.backStencilDepthFailOperation != state.getBackStencilDepthFailOperation()
+                || context.backStencilDepthPassOperation != state.getBackStencilDepthPassOperation()
+                || context.frontStencilFunction != state.getFrontStencilFunction()
+                || context.backStencilFunction != state.getBackStencilFunction()) {
 
-            context.frontStencilStencilFailOperation=state.getFrontStencilStencilFailOperation();   //terrible looking, I know
-            context.frontStencilDepthFailOperation=state.getFrontStencilDepthFailOperation();
-            context.frontStencilDepthPassOperation=state.getFrontStencilDepthPassOperation();
-            context.backStencilStencilFailOperation=state.getBackStencilStencilFailOperation();
-            context.backStencilDepthFailOperation=state.getBackStencilDepthFailOperation();
-            context.backStencilDepthPassOperation=state.getBackStencilDepthPassOperation();
-            context.frontStencilFunction=state.getFrontStencilFunction();
-            context.backStencilFunction=state.getBackStencilFunction();
+            context.frontStencilStencilFailOperation = state.getFrontStencilStencilFailOperation();   //terrible looking, I know
+            context.frontStencilDepthFailOperation = state.getFrontStencilDepthFailOperation();
+            context.frontStencilDepthPassOperation = state.getFrontStencilDepthPassOperation();
+            context.backStencilStencilFailOperation = state.getBackStencilStencilFailOperation();
+            context.backStencilDepthFailOperation = state.getBackStencilDepthFailOperation();
+            context.backStencilDepthPassOperation = state.getBackStencilDepthPassOperation();
+            context.frontStencilFunction = state.getFrontStencilFunction();
+            context.backStencilFunction = state.getBackStencilFunction();
 
-            if(state.isStencilTest()){
+            if (state.isStencilTest()) {
                 glEnable(GL_STENCIL_TEST);
                 glStencilOpSeparate(GL_FRONT,
                         glStencilOpFromStencilOp(state.getFrontStencilStencilFailOperation()),
                         glStencilOpFromStencilOp(state.getFrontStencilDepthFailOperation()),
-                        glStencilOpFromStencilOp(state.getFrontStencilDepthPassOperation())
-                        );
+                        glStencilOpFromStencilOp(state.getFrontStencilDepthPassOperation()));
                 glStencilOpSeparate(GL_BACK,
                         glStencilOpFromStencilOp(state.getBackStencilStencilFailOperation()),
                         glStencilOpFromStencilOp(state.getBackStencilDepthFailOperation()),
-                        glStencilOpFromStencilOp(state.getBackStencilDepthPassOperation())
-                        );
+                        glStencilOpFromStencilOp(state.getBackStencilDepthPassOperation()));
                 glStencilFuncSeparate(GL_FRONT,
                         glStencilFuncFromStencilFunc(state.getFrontStencilFunction()),
-                        0,Integer.MAX_VALUE
-                        );
+                        0, Integer.MAX_VALUE);
                 glStencilFuncSeparate(GL_BACK,
                         glStencilFuncFromStencilFunc(state.getBackStencilFunction()),
-                        0,Integer.MAX_VALUE
-                        );
-            }else{
+                        0, Integer.MAX_VALUE);
+            } else {
                 glDisable(GL_STENCIL_TEST);
             }
         }
 
     }
 
-    private int glStencilOpFromStencilOp(RenderState.StencilOperation s){
-        switch(s){
-        case Keep:
-            return GL_KEEP;
-        case Zero:
-            return GL_ZERO;
-        case Replace:
-            return GL_REPLACE;
-        case Increment:
-            return GL_INCR;
-        case IncrementWrap:
-            return GL_INCR_WRAP;
-        case Decrement:
-            return GL_DECR;
-        case DecrementWrap:
-            return GL_DECR_WRAP;
-        case Invert:
-            return GL_INVERT;
-        default:
-            throw new UnsupportedOperationException("Unrecognized front stencil operation: " + s);
+    private int glStencilOpFromStencilOp(RenderState.StencilOperation s) {
+        switch (s) {
+            case Keep:
+                return GL_KEEP;
+            case Zero:
+                return GL_ZERO;
+            case Replace:
+                return GL_REPLACE;
+            case Increment:
+                return GL_INCR;
+            case IncrementWrap:
+                return GL_INCR_WRAP;
+            case Decrement:
+                return GL_DECR;
+            case DecrementWrap:
+                return GL_DECR_WRAP;
+            case Invert:
+                return GL_INVERT;
+            default:
+                throw new UnsupportedOperationException("Unrecognized front stencil operation: " + s);
         }  //end switch
     }
 
-    private int glStencilFuncFromStencilFunc(RenderState.StencilFunction s){
-        switch(s){
-        case Never:
-            return GL_NEVER;
-        case Less:
-            return GL_LESS;
-        case LessEqual:
-            return GL_LEQUAL;
-        case Greater:
-            return GL_GREATER;
-        case GreaterEqual:
-            return GL_GEQUAL;
-        case Equal:
-            return GL_EQUAL;
-        case NotEqual:
-            return GL_NOTEQUAL;
-        case Always:
-            return GL_ALWAYS;
-        default:
-            throw new UnsupportedOperationException("Unrecognized front stencil functin: " + s);
+    private int glStencilFuncFromStencilFunc(RenderState.StencilFunction s) {
+        switch (s) {
+            case Never:
+                return GL_NEVER;
+            case Less:
+                return GL_LESS;
+            case LessEqual:
+                return GL_LEQUAL;
+            case Greater:
+                return GL_GREATER;
+            case GreaterEqual:
+                return GL_GEQUAL;
+            case Equal:
+                return GL_EQUAL;
+            case NotEqual:
+                return GL_NOTEQUAL;
+            case Always:
+                return GL_ALWAYS;
+            default:
+                throw new UnsupportedOperationException("Unrecognized front stencil functin: " + s);
         }  //end switch
     }
 
@@ -826,7 +821,7 @@ public class LwjglRenderer implements Renderer {
                 if (val instanceof ColorRGBA) {
                     ColorRGBA c = (ColorRGBA) val;
                     glUniform4f(loc, c.r, c.g, c.b, c.a);
-                }else if (val instanceof Vector4f) {
+                } else if (val instanceof Vector4f) {
                     Vector4f c = (Vector4f) val;
                     glUniform4f(loc, c.x, c.y, c.z, c.w);
                 } else {
@@ -991,9 +986,9 @@ public class LwjglRenderer implements Renderer {
             logger.log(Level.WARNING, "Bad compile of:\n{0}{1}",
                     new Object[]{source.getDefines(), source.getSource()});
             if (infoLog != null) {
-                throw new RendererException( "compile error in:" + source + " error:" + infoLog );
+                throw new RendererException("compile error in:" + source + " error:" + infoLog);
             } else {
-                throw new RendererException( "compile error in:" + source + " error: <not provided>" );
+                throw new RendererException("compile error in:" + source + " error: <not provided>");
             }
         }
 
@@ -1072,9 +1067,9 @@ public class LwjglRenderer implements Renderer {
             }
         } else {
             if (infoLog != null) {
-                throw new RendererException("Shader link failure, shader:" + shader + " info:" + infoLog );
+                throw new RendererException("Shader link failure, shader:" + shader + " info:" + infoLog);
             } else {
-                throw new RendererException("Shader link failure, shader:" + shader + " info: <not provided>" );
+                throw new RendererException("Shader link failure, shader:" + shader + " info: <not provided>");
             }
         }
 
@@ -1179,6 +1174,10 @@ public class LwjglRenderer implements Renderer {
     |* Framebuffers                                                      *|
     \*********************************************************************/
     public void copyFrameBuffer(FrameBuffer src, FrameBuffer dst) {
+        copyFrameBuffer(src, dst, true);
+    }
+
+    public void copyFrameBuffer(FrameBuffer src, FrameBuffer dst, boolean copyDepth) {
         if (GLContext.getCapabilities().GL_EXT_framebuffer_blit) {
             int srcW = 0;
             int srcH = 0;
@@ -1212,10 +1211,14 @@ public class LwjglRenderer implements Renderer {
                 dstW = dst.getWidth();
                 dstH = dst.getHeight();
             }
+            int mask = GL_COLOR_BUFFER_BIT;
+            if (copyDepth) {
+                mask |= GL_DEPTH_BUFFER_BIT;
+            }
             glBlitFramebufferEXT(0, 0, srcW, srcH,
-                    0, 0, dstW, dstH,
-                    GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT,
+                    0, 0, dstW, dstH, mask,
                     GL_NEAREST);
+
 
             glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, prevFBO);
             try {
@@ -1402,7 +1405,7 @@ public class LwjglRenderer implements Renderer {
         if (lastFb == fb) {
             return;
         }
-        
+
         // generate mipmaps for last FB if needed
         if (lastFb != null) {
             for (int i = 0; i < lastFb.getNumColorBuffers(); i++) {
@@ -1643,9 +1646,9 @@ public class LwjglRenderer implements Renderer {
             }
         }
 
-        if (context.pointSprite)
+        if (context.pointSprite) {
             return; // Attempt to fix glTexParameter crash for some ATI GPUs
-
+        }
         // repeat modes
         switch (tex.getType()) {
             case ThreeDimensional:
@@ -1722,14 +1725,15 @@ public class LwjglRenderer implements Renderer {
         }
 
         // Yes, some OpenGL2 cards (GeForce 5) still dont support NPOT.
-          if (!GLContext.getCapabilities().GL_ARB_texture_non_power_of_two){
-            if (img.getData(0) == null)
+        if (!GLContext.getCapabilities().GL_ARB_texture_non_power_of_two) {
+            if (img.getData(0) == null) {
                 throw new RendererException("non-power-of-2 framebuffer textures are not supported by the video hardware");
-            
-            if (img.getWidth() != 0 && img.getHeight() != 0){ 
+            }
+
+            if (img.getWidth() != 0 && img.getHeight() != 0) {
                 if (!FastMath.isPowerOfTwo(img.getWidth())
-                    || !FastMath.isPowerOfTwo(img.getHeight())
-                    || img.getWidth() != img.getHeight()){
+                        || !FastMath.isPowerOfTwo(img.getHeight())
+                        || img.getWidth() != img.getHeight()) {
 //                    logger.log(Level.WARNING, "Encountered NPOT texture {0}, "
 //                                            + "it might not display correctly.", img);
 
@@ -1739,9 +1743,10 @@ public class LwjglRenderer implements Renderer {
         }
 
         // Check if graphics card doesn't support multisample textures
-        if (!GLContext.getCapabilities().GL_ARB_texture_multisample){
-            if (img.getMultiSamples() > 1)
+        if (!GLContext.getCapabilities().GL_ARB_texture_multisample) {
+            if (img.getMultiSamples() > 1) {
                 throw new RendererException("Multisample textures not supported by graphics hardware");
+            }
         }
 
         if (target == GL_TEXTURE_CUBE_MAP) {

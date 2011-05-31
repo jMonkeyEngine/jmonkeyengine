@@ -71,10 +71,6 @@ public class DepthOfFieldFilter extends Filter {
     }
 
     @Override
-    public void preRender(RenderManager renderManager, ViewPort viewPort) {
-    }
-
-    @Override
     public void initFilter(AssetManager assets, RenderManager renderManager,
             ViewPort vp, int w, int h) {
         material = new Material(assets, "Common/MatDefs/Post/DepthOfField.j3md");

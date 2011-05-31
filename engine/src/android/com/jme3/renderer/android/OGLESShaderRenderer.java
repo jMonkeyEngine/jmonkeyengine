@@ -1259,6 +1259,9 @@ public class OGLESShaderRenderer implements Renderer {
     public void copyFrameBuffer(FrameBuffer src, FrameBuffer dst){
 	logger.warning("copyFrameBuffer is not supported.");
     }
+    public void copyFrameBuffer(FrameBuffer src, FrameBuffer dst, boolean copyDepth){
+	logger.warning("copyFrameBuffer is not supported.");
+    }
 /*
     public void copyFrameBuffer(FrameBuffer src, FrameBuffer dst){
         if (GLContext.getCapabilities().GL_EXT_framebuffer_blit){

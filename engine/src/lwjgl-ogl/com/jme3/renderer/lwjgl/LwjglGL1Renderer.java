@@ -42,7 +42,6 @@ import static org.lwjgl.opengl.GL11.*;
 public class LwjglGL1Renderer implements GL1Renderer {
 
     private static final Logger logger = Logger.getLogger(LwjglRenderer.class.getName());
-
     private final ByteBuffer nameBuf = BufferUtils.createByteBuffer(250);
     private final StringBuilder stringBuf = new StringBuilder(250);
     private final IntBuffer ib1 = BufferUtils.createIntBuffer(1);
@@ -51,20 +50,16 @@ public class LwjglGL1Renderer implements GL1Renderer {
     private final RenderContext context = new RenderContext();
     private final GLObjectManager objManager = new GLObjectManager();
     private final EnumSet<Caps> caps = EnumSet.noneOf(Caps.class);
-
     private int maxTexSize;
     private int maxCubeTexSize;
     private int maxVertCount;
     private int maxTriCount;
-
     private final Statistics statistics = new Statistics();
     private int vpX, vpY, vpW, vpH;
     private int clipX, clipY, clipW, clipH;
-
 //    private Matrix4f worldMatrix = new Matrix4f();
     private Matrix4f viewMatrix = new Matrix4f();
 //    private Matrix4f projMatrix = new Matrix4f();
-
     private boolean colorSet = false;
     private boolean materialSet = false;
 
@@ -93,16 +88,16 @@ public class LwjglGL1Renderer implements GL1Renderer {
         glShadeModel(GL_SMOOTH);
         glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 
-        if (GLContext.getCapabilities().GL_ARB_texture_non_power_of_two){
+        if (GLContext.getCapabilities().GL_ARB_texture_non_power_of_two) {
             caps.add(Caps.NonPowerOfTwoTextures);
-        }else{
+        } else {
             logger.log(Level.WARNING, "Your graphics card does not "
-                                    + "support non-power-of-2 textures. "
-                                    + "Some features might not work.");
+                    + "support non-power-of-2 textures. "
+                    + "Some features might not work.");
         }
     }
 
-    public void invalidateState(){
+    public void invalidateState() {
         context.reset();
     }
 
@@ -143,8 +138,8 @@ public class LwjglGL1Renderer implements GL1Renderer {
         glClearColor(color.r, color.g, color.b, color.a);
     }
 
-    private void setMaterialColor(int type, ColorRGBA color){
-        if (!materialSet){
+    private void setMaterialColor(int type, ColorRGBA color) {
+        if (!materialSet) {
             materialSet = true;
             glEnable(GL_COLOR_MATERIAL);
         }
@@ -155,8 +150,8 @@ public class LwjglGL1Renderer implements GL1Renderer {
         glMaterial(GL_FRONT_AND_BACK, type, fb16);
     }
 
-    public void setFixedFuncBinding(FixedFuncBinding ffBinding, Object val){
-        switch (ffBinding){
+    public void setFixedFuncBinding(FixedFuncBinding ffBinding, Object val) {
+        switch (ffBinding) {
             case Color:
                 ColorRGBA color = (ColorRGBA) val;
                 glColor4f(color.r, color.g, color.b, color.a);
@@ -177,12 +172,12 @@ public class LwjglGL1Renderer implements GL1Renderer {
         }
     }
 
-    public void clearSetFixedFuncBindings(){
-        if (colorSet){
-            glColor4f(1,1,1,1);
+    public void clearSetFixedFuncBindings() {
+        if (colorSet) {
+            glColor4f(1, 1, 1, 1);
             colorSet = false;
         }
-        if (materialSet){
+        if (materialSet) {
             glDisable(GL_COLOR_MATERIAL);
             materialSet = false; // TODO: not efficient
         }
@@ -231,7 +226,7 @@ public class LwjglGL1Renderer implements GL1Renderer {
             context.colorWriteEnabled = false;
         }
 
-        if (state.isPointSprite()){
+        if (state.isPointSprite()) {
             logger.log(Level.WARNING, "Point Sprite unsupported!");
         }
 
@@ -325,8 +320,9 @@ public class LwjglGL1Renderer implements GL1Renderer {
             context.blendMode = state.getBlendMode();
         }
 
-        if(state.isStencilTest())
+        if (state.isStencilTest()) {
             throw new UnsupportedOperationException("OpenGL 1.1 doesn't support two sided stencil operations.");
+        }
 
     }
 
@@ -519,11 +515,11 @@ public class LwjglGL1Renderer implements GL1Renderer {
         }
 
         // Check sizes if graphics card doesn't support NPOT
-        if (!GLContext.getCapabilities().GL_ARB_texture_non_power_of_two){
-            if (img.getWidth() != 0 && img.getHeight() != 0){
+        if (!GLContext.getCapabilities().GL_ARB_texture_non_power_of_two) {
+            if (img.getWidth() != 0 && img.getHeight() != 0) {
                 if (!FastMath.isPowerOfTwo(img.getWidth())
-                    || !FastMath.isPowerOfTwo(img.getHeight())
-                    || img.getWidth() != img.getHeight()){
+                        || !FastMath.isPowerOfTwo(img.getHeight())
+                        || img.getWidth() != img.getHeight()) {
 
                     // Resize texture to Power-of-2 size
                     MipMapGenerator.resizeToPowerOf2(img);
@@ -537,9 +533,9 @@ public class LwjglGL1Renderer implements GL1Renderer {
             // generate from base level if required
 
             // Check if hardware mips are supported
-            if (GLContext.getCapabilities().OpenGL14){
+            if (GLContext.getCapabilities().OpenGL14) {
                 glTexParameteri(target, GL14.GL_GENERATE_MIPMAP, GL_TRUE);
-            }else{
+            } else {
                 MipMapGenerator.generateMipMaps(img);
             }
         } else {
@@ -547,33 +543,33 @@ public class LwjglGL1Renderer implements GL1Renderer {
 
         /*
         if (target == GL_TEXTURE_CUBE_MAP) {
-            List<ByteBuffer> data = img.getData();
-            if (data.size() != 6) {
-                logger.log(Level.WARNING, "Invalid texture: {0}\n"
-                        + "Cubemap textures must contain 6 data units.", img);
-                return;
-            }
-            for (int i = 0; i < 6; i++) {
-                TextureUtil.uploadTexture(img, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, i, 0, tdc);
-            }
+        List<ByteBuffer> data = img.getData();
+        if (data.size() != 6) {
+        logger.log(Level.WARNING, "Invalid texture: {0}\n"
+        + "Cubemap textures must contain 6 data units.", img);
+        return;
+        }
+        for (int i = 0; i < 6; i++) {
+        TextureUtil.uploadTexture(img, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, i, 0, tdc);
+        }
         } else if (target == EXTTextureArray.GL_TEXTURE_2D_ARRAY_EXT) {
-            List<ByteBuffer> data = img.getData();
-            // -1 index specifies prepare data for 2D Array
-            TextureUtil.uploadTexture(img, target, -1, 0, tdc);
-            for (int i = 0; i < data.size(); i++) {
-                // upload each slice of 2D array in turn
-                // this time with the appropriate index
-                TextureUtil.uploadTexture(img, target, i, 0, tdc);
-            }
+        List<ByteBuffer> data = img.getData();
+        // -1 index specifies prepare data for 2D Array
+        TextureUtil.uploadTexture(img, target, -1, 0, tdc);
+        for (int i = 0; i < data.size(); i++) {
+        // upload each slice of 2D array in turn
+        // this time with the appropriate index
+        TextureUtil.uploadTexture(img, target, i, 0, tdc);
+        }
         } else {*/
-            TextureUtil.uploadTexture(img, target, 0, 0, false);
+        TextureUtil.uploadTexture(img, target, 0, 0, false);
         //}
 
         img.clearUpdateNeeded();
     }
 
     public void setTexture(int unit, Texture tex) {
-        if (unit != 0 || tex.getType() != Texture.Type.TwoDimensional){
+        if (unit != 0 || tex.getType() != Texture.Type.TwoDimensional) {
             //throw new UnsupportedOperationException();
             return;
         }
@@ -617,7 +613,7 @@ public class LwjglGL1Renderer implements GL1Renderer {
 
     private void checkTexturingUsed() {
         Image[] textures = context.boundTextures;
-        if (textures[0] != null){
+        if (textures[0] != null) {
             glDisable(GL_TEXTURE_2D);
             textures[0] = null;
         }
@@ -691,8 +687,9 @@ public class LwjglGL1Renderer implements GL1Renderer {
     }
 
     public void drawTriangleArray(Mesh.Mode mode, int count, int vertCount) {
-        if (count > 1)
+        if (count > 1) {
             throw new UnsupportedOperationException();
+        }
 
         glDrawArrays(convertElementMode(mode), 0, vertCount);
     }
@@ -725,31 +722,34 @@ public class LwjglGL1Renderer implements GL1Renderer {
 
         switch (vb.getBufferType()) {
             case Position:
-                if (!(data instanceof FloatBuffer))
+                if (!(data instanceof FloatBuffer)) {
                     throw new UnsupportedOperationException();
+                }
 
                 glVertexPointer(comps, vb.getStride(), (FloatBuffer) data);
                 break;
             case Normal:
-                if (!(data instanceof FloatBuffer))
+                if (!(data instanceof FloatBuffer)) {
                     throw new UnsupportedOperationException();
+                }
 
-                glNormalPointer(vb.getStride(), (FloatBuffer)data);
+                glNormalPointer(vb.getStride(), (FloatBuffer) data);
                 break;
             case Color:
-                if (data instanceof FloatBuffer){
-                    glColorPointer(comps, vb.getStride(), (FloatBuffer)data);
-                }else if (data instanceof ByteBuffer){
-                    glColorPointer(comps, true, vb.getStride(), (ByteBuffer)data);
-                }else{
+                if (data instanceof FloatBuffer) {
+                    glColorPointer(comps, vb.getStride(), (FloatBuffer) data);
+                } else if (data instanceof ByteBuffer) {
+                    glColorPointer(comps, true, vb.getStride(), (ByteBuffer) data);
+                } else {
                     throw new UnsupportedOperationException();
                 }
                 break;
             case TexCoord:
-                if (!(data instanceof FloatBuffer))
+                if (!(data instanceof FloatBuffer)) {
                     throw new UnsupportedOperationException();
+                }
 
-                glTexCoordPointer(comps, vb.getStride(), (FloatBuffer)data);
+                glTexCoordPointer(comps, vb.getStride(), (FloatBuffer) data);
                 break;
             default:
                 // Ignore, this is an unsupported attribute for OpenGL1.
@@ -761,16 +761,16 @@ public class LwjglGL1Renderer implements GL1Renderer {
         setVertexAttrib(vb, null);
     }
 
-    private void drawElements(int mode, int format, Buffer data){
-        switch (format){
+    private void drawElements(int mode, int format, Buffer data) {
+        switch (format) {
             case GL_UNSIGNED_BYTE:
-                glDrawElements(mode, (ByteBuffer)data);
+                glDrawElements(mode, (ByteBuffer) data);
                 break;
             case GL_UNSIGNED_SHORT:
-                glDrawElements(mode, (ShortBuffer)data);
+                glDrawElements(mode, (ShortBuffer) data);
                 break;
             case GL_UNSIGNED_INT:
-                glDrawElements(mode, (IntBuffer)data);
+                glDrawElements(mode, (IntBuffer) data);
                 break;
             default:
                 throw new UnsupportedOperationException();
@@ -788,37 +788,35 @@ public class LwjglGL1Renderer implements GL1Renderer {
             /*
             int[] modeStart = mesh.getModeStart();
             int[] elementLengths = mesh.getElementLengths();
-
+            
             int elMode = convertElementMode(Mode.Triangles);
             int fmt = convertVertexFormat(indexBuf.getFormat());
-//            int elSize = indexBuf.getFormat().getComponentSize();
-//            int listStart = modeStart[0];
+            //            int elSize = indexBuf.getFormat().getComponentSize();
+            //            int listStart = modeStart[0];
             int stripStart = modeStart[1];
             int fanStart = modeStart[2];
             int curOffset = 0;
             for (int i = 0; i < elementLengths.length; i++) {
-                if (i == stripStart) {
-                    elMode = convertElementMode(Mode.TriangleStrip);
-                } else if (i == fanStart) {
-                    elMode = convertElementMode(Mode.TriangleStrip);
-                }
-                int elementLength = elementLengths[i];
-                indexData.position(curOffset);
-
-                drawElements(elMode,
-                             fmt,
-                             indexData);
-
-                curOffset += elementLength;
+            if (i == stripStart) {
+            elMode = convertElementMode(Mode.TriangleStrip);
+            } else if (i == fanStart) {
+            elMode = convertElementMode(Mode.TriangleStrip);
+            }
+            int elementLength = elementLengths[i];
+            indexData.position(curOffset);
+            
+            drawElements(elMode,
+            fmt,
+            indexData);
+            
+            curOffset += elementLength;
             }*/
         } else {
             drawElements(convertElementMode(mode),
-                         convertVertexFormat(indexBuf.getFormat()),
-                         indexData);
+                    convertVertexFormat(indexBuf.getFormat()),
+                    indexData);
         }
     }
-
-
 
     public void clearVertexAttribs() {
         for (int i = 0; i < 16; i++) {
@@ -874,8 +872,9 @@ public class LwjglGL1Renderer implements GL1Renderer {
     }
 
     public void renderMesh(Mesh mesh, int lod, int count) {
-    	if (mesh.getVertexCount() == 0)
+        if (mesh.getVertexCount() == 0) {
             return;
+        }
 
         if (context.pointSize != mesh.getPointSize()) {
             glPointSize(mesh.getPointSize());
@@ -887,8 +886,9 @@ public class LwjglGL1Renderer implements GL1Renderer {
         }
 
         boolean dynamic = false;
-        if (mesh.getBuffer(Type.InterleavedData) != null)
+        if (mesh.getBuffer(Type.InterleavedData) != null) {
             throw new UnsupportedOperationException();
+        }
 
         if (mesh.getNumLodLevels() == 0) {
             IntMap<VertexBuffer> bufs = mesh.getBuffers();
@@ -905,10 +905,10 @@ public class LwjglGL1Renderer implements GL1Renderer {
         statistics.onMeshDrawn(mesh, lod);
 
 //        if (!dynamic) {
-            // dealing with a static object, generate display list
+        // dealing with a static object, generate display list
 //            renderMeshDisplayList(mesh);
 //        } else {
-            renderMeshDefault(mesh, lod, count);
+        renderMeshDefault(mesh, lod, count);
 //        }
 
 
@@ -929,6 +929,9 @@ public class LwjglGL1Renderer implements GL1Renderer {
     public void copyFrameBuffer(FrameBuffer src, FrameBuffer dst) {
     }
 
+    public void copyFrameBuffer(FrameBuffer src, FrameBuffer dst, boolean copyDepth) {
+    }
+
     public void setFrameBuffer(FrameBuffer fb) {
     }
 
@@ -943,5 +946,4 @@ public class LwjglGL1Renderer implements GL1Renderer {
 
     public void deleteBuffer(VertexBuffer vb) {
     }
-
 }

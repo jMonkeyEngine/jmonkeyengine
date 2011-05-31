@@ -138,7 +138,7 @@ public class WaterFilter extends Filter {
     }
 
     @Override
-    public void preRender(RenderManager renderManager, ViewPort viewPort) {
+    public void postQueue(RenderManager renderManager, ViewPort viewPort) {
         Camera sceneCam = viewPort.getCamera();
         biasMatrix.mult(sceneCam.getViewProjectionMatrix(), textureProjMatrix);
         material.setMatrix4("TextureProjMatrix", textureProjMatrix);
@@ -171,7 +171,15 @@ public class WaterFilter extends Filter {
             reflectionCam.setAxes(reflectionCam.getLeft().negateLocal(), reflectionCam.getUp(), reflectionCam.getDirection().negateLocal());
         }
 
+        boolean rtb = true;
+        if (!renderManager.isHandleTranslucentBucket()) {
+            renderManager.setHandleTranslucentBucket(true);
+            rtb = false;
+        }
         renderManager.renderViewPort(reflectionView, savedTpf);
+        if (!rtb) {
+            renderManager.setHandleTranslucentBucket(false);
+        }
         renderManager.getRenderer().setFrameBuffer(viewPort.getOutputFrameBuffer());
         renderManager.setCamera(sceneCam, false);
     }

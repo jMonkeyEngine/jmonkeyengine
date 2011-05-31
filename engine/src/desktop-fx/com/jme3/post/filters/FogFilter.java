@@ -84,9 +84,6 @@ public class FogFilter extends Filter {
         return material;
     }
 
-    @Override
-    public void preRender(RenderManager renderManager, ViewPort viewPort) {
-    }
 
     /**
      * returns the fog color

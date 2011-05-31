@@ -202,7 +202,7 @@ public class BloomFilter extends Filter {
     }
 
     @Override
-    public void preRender(RenderManager renderManager, ViewPort viewPort) {
+    public void postQueue(RenderManager renderManager, ViewPort viewPort) {
         if (glowMode != GlowMode.Scene) {
             backupColor = viewPort.getBackgroundColor();
             viewPort.setBackgroundColor(ColorRGBA.Black);

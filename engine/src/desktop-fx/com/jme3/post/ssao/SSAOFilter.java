@@ -70,7 +70,7 @@ public class SSAOFilter extends Filter {
     private Pass ssaoPass;
     private Material downSampleMat;
     private Pass downSamplePass;
-    private int downSampleFactor = 1;
+    private float downSampleFactor = 1f;
 
     /**
      * Create a Screen Space Ambiant Occlusion Filter
@@ -101,7 +101,7 @@ public class SSAOFilter extends Filter {
     }
 
     @Override
-    public void preRender(RenderManager renderManager, ViewPort viewPort) {
+    public void postQueue(RenderManager renderManager, ViewPort viewPort) {
         Renderer r = renderManager.getRenderer();
         r.setFrameBuffer(normalPass.getRenderFrameBuffer());
         renderManager.getRenderer().clearBuffers(true, true, true);
@@ -123,7 +123,7 @@ public class SSAOFilter extends Filter {
         postRenderPasses = new ArrayList<Pass>();
 
         normalPass = new Pass();
-        normalPass.init(renderManager.getRenderer(), screenWidth / downSampleFactor, screenHeight / downSampleFactor, Format.RGBA8, Format.Depth);
+        normalPass.init(renderManager.getRenderer(), (int)(screenWidth / downSampleFactor), (int)(screenHeight / downSampleFactor), Format.RGBA8, Format.Depth);
 
 
         frustumNearFar = new Vector2f();
@@ -149,11 +149,11 @@ public class SSAOFilter extends Filter {
 
             @Override
             public boolean requiresDepthAsTexture() {
-                return downSampleFactor == 1;
+                return true;
             }
         };
 
-        ssaoPass.init(renderManager.getRenderer(), screenWidth / downSampleFactor, screenHeight / downSampleFactor, Format.RGBA8, Format.Depth, 1, ssaoMat);
+        ssaoPass.init(renderManager.getRenderer(), (int)(screenWidth / downSampleFactor), (int)(screenHeight / downSampleFactor), Format.RGBA8, Format.Depth, 1, ssaoMat);
         ssaoPass.getRenderedTexture().setMinFilter(Texture.MinFilter.Trilinear);
         ssaoPass.getRenderedTexture().setMagFilter(Texture.MagFilter.Bilinear);
         postRenderPasses.add(ssaoPass);
@@ -174,7 +174,7 @@ public class SSAOFilter extends Filter {
         float xScale = 1.0f / w;
         float yScale = 1.0f / h;
 
-        float blurScale = 2.0f;
+        float blurScale = 2f;
         material.setFloat("XScale", blurScale * xScale);
         material.setFloat("YScale", blurScale * yScale);
 

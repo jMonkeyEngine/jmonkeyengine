@@ -110,6 +110,9 @@ public class NullRenderer implements Renderer {
     public void copyFrameBuffer(FrameBuffer src, FrameBuffer dst) {
     }
 
+    public void copyFrameBuffer(FrameBuffer src, FrameBuffer dst, boolean copyDepth) {
+    }
+    
     public void setFrameBuffer(FrameBuffer fb) {
     }
 

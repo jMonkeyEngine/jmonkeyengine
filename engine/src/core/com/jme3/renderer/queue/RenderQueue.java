@@ -29,7 +29,6 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package com.jme3.renderer.queue;
 
 import com.jme3.renderer.Camera;
@@ -42,28 +41,33 @@ public class RenderQueue {
     private GeometryList opaqueList;
     private GeometryList guiList;
     private GeometryList transparentList;
+    private GeometryList translucentList;
     private GeometryList skyList;
     private GeometryList shadowRecv;
     private GeometryList shadowCast;
 
-    public RenderQueue(){
-        this.opaqueList =  new GeometryList(new OpaqueComparator());
+    public RenderQueue() {
+        this.opaqueList = new GeometryList(new OpaqueComparator());
         this.guiList = new GeometryList(new GuiComparator());
         this.transparentList = new GeometryList(new TransparentComparator());
+        this.translucentList = new GeometryList(new TransparentComparator());
         this.skyList = new GeometryList(new NullComparator());
         this.shadowRecv = new GeometryList(new OpaqueComparator());
         this.shadowCast = new GeometryList(new OpaqueComparator());
     }
 
     public enum Bucket {
+
         Gui,
         Opaque,
         Sky,
         Transparent,
+        Translucent,
         Inherit,
     }
 
     public enum ShadowMode {
+
         Off,
         Cast,
         Receive,
@@ -89,6 +93,8 @@ public class RenderQueue {
      *                     by material first and front to back within the same material.
      *  <li>Bucket.Transparent: {@link com.jme3.renderer.queue.TransparentComparator} which
      *                     sorts purely back to front by leading bounding edge with no material sort.
+     *  <li>Bucket.Translucent: {@link com.jme3.renderer.queue.TransparentComparator} which
+     *                     sorts purely back to front by leading bounding edge with no material sort. this bucket is rendered after post processors.
      *  <li>Bucket.Sky: {@link com.jme3.renderer.queue.NullComparator} which does no sorting
      *                     at all.
      *  <li>Bucket.Gui: {@link com.jme3.renderer.queue.GuiComparator} sorts geometries back to
@@ -108,15 +114,20 @@ public class RenderQueue {
             case Transparent:
                 transparentList = new GeometryList(c);
                 break;
+            case Translucent:
+                translucentList = new GeometryList(c);
+                break;
             default:
-                throw new UnsupportedOperationException("Unknown bucket type: "+bucket);
+                throw new UnsupportedOperationException("Unknown bucket type: " + bucket);
         }
     }
 
-    public void addToShadowQueue(Geometry g, ShadowMode shadBucket){
-        switch (shadBucket){
-            case Inherit: break;
-            case Off: break;
+    public void addToShadowQueue(Geometry g, ShadowMode shadBucket) {
+        switch (shadBucket) {
+            case Inherit:
+                break;
+            case Off:
+                break;
             case Cast:
                 shadowCast.add(g);
                 break;
@@ -128,7 +139,7 @@ public class RenderQueue {
                 shadowRecv.add(g);
                 break;
             default:
-                throw new UnsupportedOperationException("Unrecognized shadow bucket type: "+shadBucket);
+                throw new UnsupportedOperationException("Unrecognized shadow bucket type: " + shadBucket);
         }
     }
 
@@ -146,13 +157,16 @@ public class RenderQueue {
             case Transparent:
                 transparentList.add(g);
                 break;
+            case Translucent:
+                translucentList.add(g);
+                break;
             default:
-                throw new UnsupportedOperationException("Unknown bucket type: "+bucket);
+                throw new UnsupportedOperationException("Unknown bucket type: " + bucket);
         }
     }
 
-    public GeometryList getShadowQueueContent(ShadowMode shadBucket){
-        switch (shadBucket){
+    public GeometryList getShadowQueueContent(ShadowMode shadBucket) {
+        switch (shadBucket) {
             case Cast:
                 return shadowCast;
             case Receive:
@@ -162,30 +176,32 @@ public class RenderQueue {
         }
     }
 
-    private void renderGeometryList(GeometryList list, RenderManager rm, Camera cam, boolean clear){
+    private void renderGeometryList(GeometryList list, RenderManager rm, Camera cam, boolean clear) {
         list.setCamera(cam); // select camera for sorting
         list.sort();
-        for (int i = 0; i < list.size(); i++){
+        for (int i = 0; i < list.size(); i++) {
             Spatial obj = list.get(i);
             assert obj != null;
-                if (obj instanceof Geometry){
-                    Geometry g = (Geometry) obj;
-                    rm.renderGeometry(g);
-                    // make sure to reset queue distance
-                }
-            if (obj != null)
+            if (obj instanceof Geometry) {
+                Geometry g = (Geometry) obj;
+                rm.renderGeometry(g);
+                // make sure to reset queue distance
+            }
+            if (obj != null) {
                 obj.queueDistance = Float.NEGATIVE_INFINITY;
+            }
         }
-        if (clear)
+        if (clear) {
             list.clear();
+        }
     }
 
-    public void renderShadowQueue(GeometryList list, RenderManager rm, Camera cam, boolean clear){
-          renderGeometryList(list, rm, cam, clear);
+    public void renderShadowQueue(GeometryList list, RenderManager rm, Camera cam, boolean clear) {
+        renderGeometryList(list, rm, cam, clear);
     }
 
-    public void renderShadowQueue(ShadowMode shadBucket, RenderManager rm, Camera cam, boolean clear){
-        switch (shadBucket){
+    public void renderShadowQueue(ShadowMode shadBucket, RenderManager rm, Camera cam, boolean clear) {
+        switch (shadBucket) {
             case Cast:
                 renderGeometryList(shadowCast, rm, cam, clear);
                 break;
@@ -197,8 +213,8 @@ public class RenderQueue {
         }
     }
 
-    public boolean isQueueEmpty(Bucket bucket){
-        switch (bucket){
+    public boolean isQueueEmpty(Bucket bucket) {
+        switch (bucket) {
             case Gui:
                 return guiList.size() == 0;
             case Opaque:
@@ -207,17 +223,19 @@ public class RenderQueue {
                 return skyList.size() == 0;
             case Transparent:
                 return transparentList.size() == 0;
+            case Translucent:
+                return translucentList.size() == 0;
             default:
-                throw new UnsupportedOperationException("Unsupported bucket type: "+bucket);
+                throw new UnsupportedOperationException("Unsupported bucket type: " + bucket);
         }
     }
 
-    public void renderQueue(Bucket bucket, RenderManager rm, Camera cam){
+    public void renderQueue(Bucket bucket, RenderManager rm, Camera cam) {
         renderQueue(bucket, rm, cam, true);
     }
 
-    public void renderQueue(Bucket bucket, RenderManager rm, Camera cam, boolean clear){
-        switch (bucket){
+    public void renderQueue(Bucket bucket, RenderManager rm, Camera cam, boolean clear) {
+        switch (bucket) {
             case Gui:
                 renderGeometryList(guiList, rm, cam, clear);
                 break;
@@ -230,18 +248,22 @@ public class RenderQueue {
             case Transparent:
                 renderGeometryList(transparentList, rm, cam, clear);
                 break;
+            case Translucent:
+                renderGeometryList(translucentList, rm, cam, clear);
+                break;
+
             default:
-                throw new UnsupportedOperationException("Unsupported bucket type: "+bucket);
+                throw new UnsupportedOperationException("Unsupported bucket type: " + bucket);
         }
     }
 
-    public void clear(){
+    public void clear() {
         opaqueList.clear();
         guiList.clear();
         transparentList.clear();
+        translucentList.clear();
         skyList.clear();
         shadowCast.clear();
         shadowRecv.clear();
     }
-
 }

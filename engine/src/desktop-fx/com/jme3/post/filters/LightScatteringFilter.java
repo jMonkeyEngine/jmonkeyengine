@@ -88,7 +88,7 @@ public class LightScatteringFilter extends Filter {
     }
 
     @Override
-    public void preRender(RenderManager renderManager, ViewPort viewPort) {
+    public void postQueue(RenderManager renderManager, ViewPort viewPort) {
         getClipCoordinates(lightPosition, screenLightPos, viewPort.getCamera());
         //  screenLightPos.x = screenLightPos.x / viewPort.getCamera().getWidth();
         //  screenLightPos.y = screenLightPos.y / viewPort.getCamera().getHeight();

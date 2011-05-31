@@ -40,6 +40,7 @@ import com.jme3.export.InputCapsule;
 import com.jme3.export.OutputCapsule;
 import com.jme3.export.Savable;
 import com.jme3.material.Material;
+import com.jme3.post.filters.TranslucentBucketFilter;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.Caps;
 import com.jme3.renderer.RenderManager;
@@ -80,6 +81,10 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
     private int originalHeight;
     private int lastFilterIndex = -1;
     private boolean cameraInit = false;
+//    private boolean handleTranslucentBucket = false;
+//    private FrameBuffer transFrameBuffer;
+//    private Material transMaterial;
+//    private boolean isTransparencyRendered=false;
 
     /**
      * Create a FilterProcessor constructor
@@ -159,8 +164,9 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
             filterCam.resize(buff.getWidth(), buff.getHeight(), true);
             fsQuad.setPosition(0, 0);
         }
-
-
+        if (mat.getAdditionalRenderState().isDepthWrite()) {
+            mat.getAdditionalRenderState().setDepthWrite(false);
+        }
         fsQuad.setMaterial(mat);
         fsQuad.updateGeometricState();
 
@@ -179,14 +185,16 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
         for (Iterator<Filter> it = filters.iterator(); it.hasNext();) {
             Filter filter = it.next();
             if (filter.isEnabled()) {
-                filter.preRender(renderManager, viewPort);
+                filter.postQueue(renderManager, viewPort);
             }
         }
 
     }
+    Picture pic = new Picture("debug");
 
-    public void renderFilterChain(Renderer r) {
+    public void renderFilterChain(Renderer r, FrameBuffer sceneFb) {
         Texture2D tex = filterTexture;
+        FrameBuffer buff = null;
         boolean msDepth = depthTexture != null && depthTexture.getImage().getMultiSamples() > 1;
         for (int i = 0; i < filters.size(); i++) {
             Filter filter = filters.get(i);
@@ -216,22 +224,27 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
                     }
                 }
 
+                filter.postFrame(renderManager, viewPort, buff, sceneFb);
+
                 Material mat = filter.getMaterial();
                 if (msDepth && filter.isRequiresDepthTexture()) {
                     mat.setInt("NumSamplesDepth", depthTexture.getImage().getMultiSamples());
                 }
 
-                mat.setTexture("Texture", tex);
-                if (tex.getImage().getMultiSamples() > 1) {
-                    mat.setInt("NumSamples", tex.getImage().getMultiSamples());
-                } else {
-                    mat.clearParam("NumSamples");
+                if (filter.isRequiresSceneTexture()) {
+                    mat.setTexture("Texture", tex);
+                    if (tex.getImage().getMultiSamples() > 1) {
+                        mat.setInt("NumSamples", tex.getImage().getMultiSamples());
+                    } else {
+                        mat.clearParam("NumSamples");
+                    }
                 }
 
-                FrameBuffer buff = outputBuffer;
+                buff = outputBuffer;
                 if (i != lastFilterIndex) {
                     buff = filter.getRenderFrameBuffer();
                     tex = filter.getRenderedTexture();
+
                 }
                 renderProcessing(r, buff, mat);
             }
@@ -240,11 +253,13 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
 
     public void postFrame(FrameBuffer out) {
 
-
+        FrameBuffer sceneBuffer = renderFrameBuffer;
         if (renderFrameBufferMS != null && !renderer.getCaps().contains(Caps.OpenGL31)) {
             renderer.copyFrameBuffer(renderFrameBufferMS, renderFrameBuffer);
+        } else if (renderFrameBufferMS != null) {
+            sceneBuffer = renderFrameBufferMS;
         }
-        renderFilterChain(renderer);
+        renderFilterChain(renderer, sceneBuffer);
 
     }
 
@@ -336,7 +351,6 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
                 renderFrameBufferMS.setColorTexture(msColor);
                 filterTexture = msColor;
                 depthTexture = msDepth;
-                //   samplePositions = ((LwjglRenderer) renderer).getFrameBufferSamplePositions(renderFrameBufferMS);
             } else {
                 renderFrameBufferMS.setDepthBuffer(Format.Depth);
                 renderFrameBufferMS.setColorBuffer(Format.RGBA8);
@@ -419,5 +433,13 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
         InputCapsule ic = im.getCapsule(this);
         numSamples = ic.readInt("numSamples", 0);
         filters = ic.readSavableArrayList("filters", null);
+    }
+
+    public Texture2D getDepthTexture() {
+        return depthTexture;
+    }
+
+    public Texture2D getFilterTexture() {
+        return filterTexture;
     }
 }

@@ -67,7 +67,7 @@ public class CartoonEdgeFilter extends Filter {
     }
 
     @Override
-    public void preRender(RenderManager renderManager, ViewPort viewPort) {
+    public void postQueue(RenderManager renderManager, ViewPort viewPort) {
         Renderer r = renderManager.getRenderer();
         r.setFrameBuffer(normalPass.getRenderFrameBuffer());
         renderManager.getRenderer().clearBuffers(true, true, true);

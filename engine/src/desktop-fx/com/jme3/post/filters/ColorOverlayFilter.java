@@ -77,10 +77,6 @@ public class ColorOverlayFilter extends Filter {
     }
 
     @Override
-    public void preRender(RenderManager renderManager, ViewPort viewPort) {
-    }
-
-    @Override
     public void initFilter(AssetManager manager, RenderManager renderManager, ViewPort vp, int w, int h) {
         material = new Material(manager, "Common/MatDefs/Post/Overlay.j3md");
     }

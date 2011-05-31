@@ -94,6 +94,7 @@ public class RenderManager {
             camLoc = new Vector3f();
     //temp technique
     private String tmpTech;
+    private boolean handleTranlucentBucket = true;
 
     /**
      * Create a high-level rendering interface over the
@@ -518,7 +519,7 @@ public class RenderManager {
                 //restoring cam state before proceeding children recusively
                 vp.getCamera().setPlaneState(camState);
                 renderScene(children.get(i), vp);
-               
+
             }
         } else if (scene instanceof Geometry) {
 
@@ -604,6 +605,13 @@ public class RenderManager {
         // restore range to default
         if (depthRangeChanged) {
             renderer.setDepthRange(0, 1);
+        }
+    }
+
+    public void renderTranslucentQueue(ViewPort vp) {
+        RenderQueue rq = vp.getQueue();
+        if (!rq.isQueueEmpty(Bucket.Translucent) && handleTranlucentBucket) {
+            rq.renderQueue(Bucket.Translucent, this, vp.getCamera(), true);
         }
     }
 
@@ -729,7 +737,8 @@ public class RenderManager {
                 proc.postFrame(vp.getOutputFrameBuffer());
             }
         }
-
+        //renders the translucent objects queue after processors have been rendered
+        renderTranslucentQueue(vp);
         // clear any remaining spatials that were not rendered.
         clearQueue(vp);
     }
@@ -767,5 +776,13 @@ public class RenderManager {
 
     public void setAlphaToCoverage(boolean value) {
         renderer.setAlphaToCoverage(value);
+    }
+
+    public boolean isHandleTranslucentBucket() {
+        return handleTranlucentBucket;
+    }
+
+    public void setHandleTranslucentBucket(boolean handleTranslucentBucket) {
+        this.handleTranlucentBucket = handleTranslucentBucket;
     }
 }
