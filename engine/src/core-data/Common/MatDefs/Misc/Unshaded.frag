@@ -1,6 +1,6 @@
 uniform vec4 m_Color;
 
-#if defined(HAS_COLORMAP) || (defined(HAS_LIGHTMAP) && !defined(SEPERATE_TEXCOORD))
+#if defined(HAS_GLOWMAP) || defined(HAS_COLORMAP) || (defined(HAS_LIGHTMAP) && !defined(SEPERATE_TEXCOORD))
     #define NEED_TEXCOORD1
 #endif
 
