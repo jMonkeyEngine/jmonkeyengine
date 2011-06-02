@@ -86,6 +86,7 @@ public class InputManager implements RawInputListener {
     private final IntMap<Long> pressedButtons = new IntMap<Long>();
     private final IntMap<Float> axisValues = new IntMap<Float>();
     private ArrayList<RawInputListener> rawListeners = new ArrayList<RawInputListener>();
+    private RawInputListener[] rawListenerArray = null;
     private ArrayList<InputEvent> inputQueue = new ArrayList<InputEvent>();
 
     private static class Mapping {
@@ -509,22 +510,30 @@ public class InputManager implements RawInputListener {
 
     public void addRawInputListener(RawInputListener listener) {
         rawListeners.add(listener);
+        rawListenerArray = null;
     }
 
     public void removeRawInputListener(RawInputListener listener) {
         rawListeners.remove(listener);
+        rawListenerArray = null;
     }
 
     public void clearRawInputListeners() {
         rawListeners.clear();
+        rawListenerArray = null;
+    }
+
+    private RawInputListener[] getRawListenerArray() {
+        if (rawListenerArray == null) 
+            rawListenerArray = rawListeners.toArray(new RawInputListener[rawListeners.size()]);
+        return rawListenerArray;
     }
 
     private void processQueue() {
         int queueSize = inputQueue.size();
-        int numRawListeners = rawListeners.size();
-
-        for (int i = 0; i < numRawListeners; i++) {
-            RawInputListener listener = rawListeners.get(i);
+        RawInputListener[] array = getRawListenerArray();
+ 
+        for (RawInputListener listener : array) {       
             listener.beginInput();
 
             for (int j = 0; j < queueSize; j++) {
