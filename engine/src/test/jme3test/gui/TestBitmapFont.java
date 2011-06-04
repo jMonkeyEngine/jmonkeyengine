@@ -48,6 +48,7 @@ import com.jme3.input.event.JoyButtonEvent;
 import com.jme3.input.event.KeyInputEvent;
 import com.jme3.input.event.MouseButtonEvent;
 import com.jme3.input.event.MouseMotionEvent;
+import com.jme3.input.event.TouchEvent;
 
 public class TestBitmapFont extends SimpleApplication {
 
@@ -132,6 +133,9 @@ public class TestBitmapFont extends SimpleApplication {
         
         @Override
         public void beginInput() { }
+
+        @Override
+        public void onTouchEvent(TouchEvent evt) { }
     };
 
 }

@@ -39,6 +39,7 @@ import com.jme3.input.event.JoyButtonEvent;
 import com.jme3.input.event.KeyInputEvent;
 import com.jme3.input.event.MouseButtonEvent;
 import com.jme3.input.event.MouseMotionEvent;
+import com.jme3.input.event.TouchEvent;
 import com.jme3.math.FastMath;
 import com.jme3.system.AppSettings;
 import com.jme3.texture.Texture;
@@ -76,6 +77,8 @@ public class TestSoftwareMouse extends SimpleApplication {
         public void onMouseButtonEvent(MouseButtonEvent evt) {
         }
         public void onKeyEvent(KeyInputEvent evt) {
+        }
+        public void onTouchEvent(TouchEvent evt) {             
         }
     };
 
