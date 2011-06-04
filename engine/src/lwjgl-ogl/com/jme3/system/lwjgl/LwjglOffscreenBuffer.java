@@ -35,6 +35,7 @@ package com.jme3.system.lwjgl;
 import com.jme3.input.JoyInput;
 import com.jme3.input.KeyInput;
 import com.jme3.input.MouseInput;
+import com.jme3.input.TouchInput;
 import com.jme3.input.dummy.DummyKeyInput;
 import com.jme3.input.dummy.DummyMouseInput;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -194,6 +195,10 @@ public class LwjglOffscreenBuffer extends LwjglContext implements Runnable {
     }
 
     public JoyInput getJoyInput() {
+        return null;
+    }
+    
+    public TouchInput getTouchInput() {
         return null;
     }
 

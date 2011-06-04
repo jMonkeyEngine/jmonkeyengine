@@ -366,5 +366,4 @@ public class LwjglCanvas extends LwjglAbstractDisplay implements JmeCanvasContex
             // TODO: Fix deadlock that happens after the error (throw runtime exception?)
         }
     }
-
 }
