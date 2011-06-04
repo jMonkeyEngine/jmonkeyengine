@@ -41,6 +41,8 @@ import com.jme3.input.event.JoyButtonEvent;
 import com.jme3.input.event.KeyInputEvent;
 import com.jme3.input.event.MouseButtonEvent;
 import com.jme3.input.event.MouseMotionEvent;
+import com.jme3.input.event.TouchEvent;
+
 import de.lessvoid.nifty.Nifty;
 import de.lessvoid.nifty.NiftyInputConsumer;
 import de.lessvoid.nifty.input.keyboard.KeyboardInputEvent;
@@ -173,5 +175,8 @@ public class InputSystemJme implements InputSystem, RawInputListener {
         }
 
         inputQueue.clear();
+    }
+    
+    public void onTouchEvent(TouchEvent evt) {        
     }
 }
