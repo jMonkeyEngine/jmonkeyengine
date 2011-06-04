@@ -35,6 +35,7 @@ package com.jme3.system;
 import com.jme3.input.JoyInput;
 import com.jme3.input.KeyInput;
 import com.jme3.input.MouseInput;
+import com.jme3.input.TouchInput;
 import com.jme3.input.dummy.DummyKeyInput;
 import com.jme3.input.dummy.DummyMouseInput;
 import com.jme3.renderer.Renderer;
@@ -172,6 +173,10 @@ public class NullContext implements JmeContext, Runnable {
     public JoyInput getJoyInput() {
         return null;
     }
+    
+    public TouchInput getTouchInput() {
+        return null;
+    }
 
     public void setTitle(String title) {
     }
@@ -222,5 +227,4 @@ public class NullContext implements JmeContext, Runnable {
         return true; // Doesn't really matter if true or false. Either way
                      // RenderManager won't render anything. 
     }
-
 }

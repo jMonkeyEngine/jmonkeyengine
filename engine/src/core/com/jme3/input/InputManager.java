@@ -39,6 +39,7 @@ import com.jme3.input.controls.JoyButtonTrigger;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.input.controls.MouseAxisTrigger;
 import com.jme3.input.controls.MouseButtonTrigger;
+import com.jme3.input.controls.TouchListener;
 import com.jme3.input.controls.Trigger;
 import com.jme3.input.event.InputEvent;
 import com.jme3.input.event.JoyAxisEvent;
@@ -46,6 +47,7 @@ import com.jme3.input.event.JoyButtonEvent;
 import com.jme3.input.event.KeyInputEvent;
 import com.jme3.input.event.MouseButtonEvent;
 import com.jme3.input.event.MouseMotionEvent;
+import com.jme3.input.event.TouchEvent;
 import com.jme3.math.FastMath;
 import com.jme3.math.Vector2f;
 import com.jme3.util.IntMap;
@@ -70,6 +72,7 @@ public class InputManager implements RawInputListener {
     private final KeyInput keys;
     private final MouseInput mouse;
     private final JoyInput joystick;
+    private final TouchInput touch;
     private float frameTPF;
     private long lastLastUpdateTime = 0;
     private long lastUpdateTime = 0;
@@ -108,7 +111,7 @@ public class InputManager implements RawInputListener {
      * @param joyInput
      * @throws IllegalArgumentException If either mouseInput or keyInput are null.
      */
-    public InputManager(MouseInput mouse, KeyInput keys, JoyInput joystick) {
+    public InputManager(MouseInput mouse, KeyInput keys, JoyInput joystick, TouchInput touch) {
         if (keys == null || mouse == null) {
             throw new NullPointerException("Mouse or keyboard cannot be null");
         }
@@ -116,12 +119,16 @@ public class InputManager implements RawInputListener {
         this.keys = keys;
         this.mouse = mouse;
         this.joystick = joystick;
+        this.touch = touch;
 
         keys.setInputListener(this);
         mouse.setInputListener(this);
         if (joystick != null) {
             joystick.setInputListener(this);
             joysticks = joystick.loadJoysticks(this);
+        }
+        if (touch != null) {
+            touch.setInputListener(this);
         }
 
         firstTime = keys.getInputTimeNanos();
@@ -528,6 +535,22 @@ public class InputManager implements RawInputListener {
             rawListenerArray = rawListeners.toArray(new RawInputListener[rawListeners.size()]);
         return rawListenerArray;
     }
+    
+    public TouchInput getTouchInput() {
+        return touch;
+    }
+    
+    public void setSimulateMouse(boolean value) {
+        if (touch != null) {
+            touch.setSimulateMouse(value);
+        }
+    }
+    
+    public void setSimulateKeyboard(boolean value) {
+        if (touch != null) {
+            touch.setSimulateKeyboard(value);
+        }
+    }
 
     private void processQueue() {
         int queueSize = inputQueue.size();
@@ -552,6 +575,8 @@ public class InputManager implements RawInputListener {
                     listener.onJoyAxisEvent((JoyAxisEvent) event);
                 } else if (event instanceof JoyButtonEvent) {
                     listener.onJoyButtonEvent((JoyButtonEvent) event);
+                } else if (event instanceof TouchEvent) {
+                    listener.onTouchEvent((TouchEvent) event);
                 } else {
                     assert false;
                 }
@@ -576,6 +601,8 @@ public class InputManager implements RawInputListener {
                 onJoyAxisEventQueued((JoyAxisEvent) event);
             } else if (event instanceof JoyButtonEvent) {
                 onJoyButtonEventQueued((JoyButtonEvent) event);
+            } else if (event instanceof TouchEvent) {
+                onTouchEventQueued((TouchEvent) event);
             } else {
                 assert false;
             }
@@ -603,6 +630,9 @@ public class InputManager implements RawInputListener {
         if (joystick != null) {
             joystick.update();
         }
+        if (touch != null) {
+            touch.update();
+        }
 
         eventsPermitted = false;
 
@@ -611,5 +641,26 @@ public class InputManager implements RawInputListener {
 
         lastLastUpdateTime = lastUpdateTime;
         lastUpdateTime = currentTime;
+    }
+
+    /**
+     * Dispatches touch events to touch listeners
+     * @param evt
+     */
+    public void onTouchEventQueued(TouchEvent evt) {
+        for (Mapping mapping : mappings.values()) {
+            for (InputListener listener : mapping.listeners) {
+                if (listener instanceof TouchListener) {
+                    ((TouchListener) listener).onTouch(mapping.name, evt, frameTPF); 
+                }
+            }
+        } 
+    }
+    @Override
+    public void onTouchEvent(TouchEvent evt) {
+        if (!eventsPermitted) {
+            throw new UnsupportedOperationException("TouchInput has raised an event at an illegal time.");
+        }
+        inputQueue.add(evt);         
     }
 }

@@ -35,6 +35,7 @@ package com.jme3.system;
 import com.jme3.input.JoyInput;
 import com.jme3.input.KeyInput;
 import com.jme3.input.MouseInput;
+import com.jme3.input.TouchInput;
 import com.jme3.renderer.Renderer;
 
 /**
@@ -124,7 +125,12 @@ public interface JmeContext {
      * @return Joystick input implementation. May be null if not available.
      */
     public JoyInput getJoyInput();
-
+    
+    /**
+     * @return Touch device input implementation. May be null if not available.
+     */
+    public TouchInput getTouchInput();
+    
     /**
      * @return The timer for this context, or null if not created yet.
      */

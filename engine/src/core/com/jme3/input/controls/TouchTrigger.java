@@ -30,29 +30,21 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.jme3.input;
+package com.jme3.input.controls;
 
-import com.jme3.input.event.JoyAxisEvent;
-import com.jme3.input.event.JoyButtonEvent;
-import com.jme3.input.event.KeyInputEvent;
-import com.jme3.input.event.MouseButtonEvent;
-import com.jme3.input.event.MouseMotionEvent;
-import com.jme3.input.event.TouchEvent;
+public class TouchTrigger implements Trigger {
 
-/**
- * An interface used for receiving raw input from devices.
- */
-public interface RawInputListener {
-
-    public void beginInput();
-    public void endInput();
-
-    public void onJoyAxisEvent(JoyAxisEvent evt);
-    public void onJoyButtonEvent(JoyButtonEvent evt);
-    public void onMouseMotionEvent(MouseMotionEvent evt);
-    public void onMouseButtonEvent(MouseButtonEvent evt);
-    public void onKeyEvent(KeyInputEvent evt);
+    public TouchTrigger() {
+        super();
+    }
     
-    // Generic Smartphone input event, used by the Android platform currently
-    public void onTouchEvent(TouchEvent evt);
+    @Override
+    public int hashCode(){
+        return 0xfedcba98;
+    }
+    
+    @Override
+    public String getName() {
+        return "TouchInput";
+    }
 }

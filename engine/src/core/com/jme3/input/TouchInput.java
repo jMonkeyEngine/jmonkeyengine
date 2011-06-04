@@ -32,27 +32,19 @@
 
 package com.jme3.input;
 
-import com.jme3.input.event.JoyAxisEvent;
-import com.jme3.input.event.JoyButtonEvent;
-import com.jme3.input.event.KeyInputEvent;
-import com.jme3.input.event.MouseButtonEvent;
-import com.jme3.input.event.MouseMotionEvent;
-import com.jme3.input.event.TouchEvent;
-
 /**
- * An interface used for receiving raw input from devices.
+ * A specific API for interfacing with smartphone touch devices
  */
-public interface RawInputListener {
+public interface TouchInput extends Input {
 
-    public void beginInput();
-    public void endInput();
+    /**
+     * @param simulate Whether mouse events should be generated
+     */
+    public void setSimulateMouse(boolean simulate);
 
-    public void onJoyAxisEvent(JoyAxisEvent evt);
-    public void onJoyButtonEvent(JoyButtonEvent evt);
-    public void onMouseMotionEvent(MouseMotionEvent evt);
-    public void onMouseButtonEvent(MouseButtonEvent evt);
-    public void onKeyEvent(KeyInputEvent evt);
-    
-    // Generic Smartphone input event, used by the Android platform currently
-    public void onTouchEvent(TouchEvent evt);
+    /**
+     * @param simulate Whether keyboard events should be generated
+     */
+    public void setSimulateKeyboard(boolean simulate);
+
 }

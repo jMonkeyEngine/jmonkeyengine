@@ -30,29 +30,20 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.jme3.input;
+package com.jme3.input.controls;
 
-import com.jme3.input.event.JoyAxisEvent;
-import com.jme3.input.event.JoyButtonEvent;
-import com.jme3.input.event.KeyInputEvent;
-import com.jme3.input.event.MouseButtonEvent;
-import com.jme3.input.event.MouseMotionEvent;
 import com.jme3.input.event.TouchEvent;
 
 /**
- * An interface used for receiving raw input from devices.
+ * <code>TouchListener</code> is used to receive events of inputs from smartphone touch devices 
+ *
+ * @author larynx
  */
-public interface RawInputListener {
-
-    public void beginInput();
-    public void endInput();
-
-    public void onJoyAxisEvent(JoyAxisEvent evt);
-    public void onJoyButtonEvent(JoyButtonEvent evt);
-    public void onMouseMotionEvent(MouseMotionEvent evt);
-    public void onMouseButtonEvent(MouseButtonEvent evt);
-    public void onKeyEvent(KeyInputEvent evt);
-    
-    // Generic Smartphone input event, used by the Android platform currently
-    public void onTouchEvent(TouchEvent evt);
+public interface TouchListener extends InputListener {
+    /**
+     * @param name - the name of the event
+     * @param event - the touch event itself
+     * @param tpf - how much time has passed since the last frame
+     */
+    public void onTouch(String name, TouchEvent event, float tpf);
 }

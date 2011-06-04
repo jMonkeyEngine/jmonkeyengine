@@ -36,6 +36,7 @@ import com.jme3.app.state.AppStateManager;
 import com.jme3.input.JoyInput;
 import com.jme3.input.KeyInput;
 import com.jme3.input.MouseInput;
+import com.jme3.input.TouchInput;
 import com.jme3.system.*;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
@@ -90,6 +91,7 @@ public class Application implements SystemListener {
     protected MouseInput mouseInput;
     protected KeyInput keyInput;
     protected JoyInput joyInput;
+    protected TouchInput touchInput;
     protected InputManager inputManager;
     protected AppStateManager stateManager;
 
@@ -222,6 +224,10 @@ public class Application implements SystemListener {
         keyInput = context.getKeyInput();
         if (keyInput != null)
             keyInput.initialize();
+        
+        touchInput = context.getTouchInput();
+        if (touchInput != null)
+            touchInput.initialize();
 
         if (!settings.getBoolean("DisableJoysticks")){
             joyInput = context.getJoyInput();
@@ -229,7 +235,7 @@ public class Application implements SystemListener {
                 joyInput.initialize();
         }
 
-        inputManager = new InputManager(mouseInput, keyInput, joyInput);
+        inputManager = new InputManager(mouseInput, keyInput, joyInput, touchInput);
     }
 
     private void initStateManager(){
@@ -479,6 +485,9 @@ public class Application implements SystemListener {
 
         if (joyInput != null)
             joyInput.destroy();
+        
+        if (touchInput != null)
+            touchInput.destroy();        
 
         inputManager = null;
     }
