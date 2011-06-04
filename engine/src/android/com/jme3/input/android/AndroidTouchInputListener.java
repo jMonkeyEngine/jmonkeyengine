@@ -1,6 +1,7 @@
 package com.jme3.input.android;
 
 import com.jme3.input.RawInputListener;
+import com.jme3.input.event.TouchEvent;
 
 import android.view.KeyEvent;
 import android.view.MotionEvent;

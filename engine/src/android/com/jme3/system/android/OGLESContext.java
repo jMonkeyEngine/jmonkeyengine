@@ -41,7 +41,10 @@ import com.jme3.app.AndroidHarness;
 import com.jme3.input.JoyInput;
 import com.jme3.input.KeyInput;
 import com.jme3.input.MouseInput;
+import com.jme3.input.TouchInput;
 import com.jme3.input.android.AndroidInput;
+import com.jme3.input.dummy.DummyKeyInput;
+import com.jme3.input.dummy.DummyMouseInput;
 import com.jme3.renderer.android.OGLESShaderRenderer;
 import com.jme3.system.AppSettings;
 import com.jme3.system.JmeContext;
@@ -231,17 +234,22 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer
 
     @Override
     public MouseInput getMouseInput() {
-        return view;
+        return new DummyMouseInput();
     }
 
     @Override
     public KeyInput getKeyInput() {
-        return view;
+        return new DummyKeyInput();
     }
     
     @Override
     public JoyInput getJoyInput() {
         return null;
+    }
+
+    @Override
+    public TouchInput getTouchInput() {
+        return view;
     }
     
     @Override
@@ -385,5 +393,6 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer
             }
         }
     }
+
 
 }
