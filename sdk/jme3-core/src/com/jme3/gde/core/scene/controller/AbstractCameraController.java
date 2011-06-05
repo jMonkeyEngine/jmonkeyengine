@@ -44,6 +44,7 @@ import com.jme3.input.event.JoyButtonEvent;
 import com.jme3.input.event.KeyInputEvent;
 import com.jme3.input.event.MouseButtonEvent;
 import com.jme3.input.event.MouseMotionEvent;
+import com.jme3.input.event.TouchEvent;
 import com.jme3.math.FastMath;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
@@ -234,6 +235,9 @@ public abstract class AbstractCameraController extends AbstractAppState implemen
     }
 
     public void onKeyEvent(KeyInputEvent kie) {
+    }
+    
+    public void onTouchEvent(TouchEvent evt) {        
     }
 
     /**APPSTATE**/
