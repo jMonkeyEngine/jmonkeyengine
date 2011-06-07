@@ -1,6 +1,6 @@
 uniform vec4 m_Color;
 
-#if defined(HAS_GLOWMAP) || defined(HAS_COLORMAP) || (defined(HAS_LIGHTMAP) && !defined(SEPERATE_TEXCOORD))
+#if defined(HAS_GLOWMAP) || defined(HAS_COLORMAP) || (defined(HAS_LIGHTMAP) && !defined(SEPARATE_TEXCOORD))
     #define NEED_TEXCOORD1
 #endif
 
@@ -39,7 +39,7 @@ void main(){
     #endif
 
     #ifdef HAS_LIGHTMAP
-        #ifdef SEPERATE_TEXCOORD
+        #ifdef SEPARATE_TEXCOORD
             color.rgb *= texture2D(m_LightMap, texCoord2).rgb;
         #else
             color.rgb *= texture2D(m_LightMap, texCoord1).rgb;

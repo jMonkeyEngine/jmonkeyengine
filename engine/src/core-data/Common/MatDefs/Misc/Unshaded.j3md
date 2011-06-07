@@ -5,7 +5,7 @@ MaterialDef Unshaded {
         Texture2D LightMap
         Color Color : Color
         Boolean VertexColor
-        Boolean SeperateTexCoord
+        Boolean SeparateTexCoord
 
         // Texture of the glowing parts of the material
         Texture2D GlowMap
@@ -22,7 +22,7 @@ MaterialDef Unshaded {
         }
 
         Defines {
-            SEPERATE_TEXCOORD : SeperateTexCoord
+            SEPARATE_TEXCOORD : SeparateTexCoord
             HAS_COLORMAP : ColorMap
             HAS_LIGHTMAP : LightMap
             HAS_VERTEXCOLOR : VertexColor

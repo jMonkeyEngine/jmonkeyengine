@@ -1,7 +1,7 @@
 uniform mat4 g_WorldViewProjectionMatrix;
 attribute vec3 inPosition;
 
-#if defined(HAS_COLORMAP) || (defined(HAS_LIGHTMAP) && !defined(SEPERATE_TEXCOORD))
+#if defined(HAS_COLORMAP) || (defined(HAS_LIGHTMAP) && !defined(SEPARATE_TEXCOORD))
     #define NEED_TEXCOORD1
 #endif
 
@@ -10,7 +10,7 @@ attribute vec3 inPosition;
     varying vec2 texCoord1;
 #endif
 
-#ifdef SEPERATE_TEXCOORD
+#ifdef SEPARATE_TEXCOORD
     attribute vec2 inTexCoord2;
     varying vec2 texCoord2;
 #endif
@@ -25,7 +25,7 @@ void main(){
         texCoord1 = inTexCoord;
     #endif
 
-    #ifdef SEPERATE_TEXCOORD
+    #ifdef SEPARATE_TEXCOORD
         texCoord2 = inTexCoord2;
     #endif
 
