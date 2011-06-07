@@ -87,6 +87,13 @@
                 <package>com.jme3.scene.debug</package>
                 <package>com.jme3.scene.mesh</package>
                 <package>com.jme3.scene.plugins</package>
+                <package>com.jme3.scene.plugins.blender</package>
+                <package>com.jme3.scene.plugins.blender.data</package>
+                <package>com.jme3.scene.plugins.blender.exception</package>
+                <package>com.jme3.scene.plugins.blender.helpers</package>
+                <package>com.jme3.scene.plugins.blender.helpers.v249</package>
+                <package>com.jme3.scene.plugins.blender.structures</package>
+                <package>com.jme3.scene.plugins.blender.utils</package>
                 <package>com.jme3.scene.plugins.ogre</package>
                 <package>com.jme3.scene.plugins.ogre.matext</package>
                 <package>com.jme3.scene.shape</package>
