@@ -180,6 +180,7 @@ is divided into following sections:
                 <available file="${src.lwjgl-oal.dir}"/>
                 <available file="${src.lwjgl-ogl.dir}"/>
                 <available file="${src.ogre.dir}"/>
+                <available file="${src.blender.dir}"/>
                 <available file="${src.pack.dir}"/>
                 <available file="${src.jheora.dir}"/>
                 <available file="${src.test.dir}"/>
@@ -263,6 +264,7 @@ is divided into following sections:
         <fail unless="src.lwjgl-oal.dir">Must set src.lwjgl-oal.dir</fail>
         <fail unless="src.lwjgl-ogl.dir">Must set src.lwjgl-ogl.dir</fail>
         <fail unless="src.ogre.dir">Must set src.ogre.dir</fail>
+        <fail unless="src.blender.dir">Must set src.blender.dir</fail>
         <fail unless="src.pack.dir">Must set src.pack.dir</fail>
         <fail unless="src.jheora.dir">Must set src.jheora.dir</fail>
         <fail unless="src.test.dir">Must set src.test.dir</fail>
@@ -289,7 +291,7 @@ is divided into following sections:
     </target>
     <target depends="-init-ap-cmdline-properties" if="ap.supported.internal" name="-init-macrodef-javac-with-processors">
         <macrodef name="javac" uri="http://www.netbeans.org/ns/j2se-project/3">
-            <attribute default="${src.core.dir}:${src.core-data.dir}:${src.core-plugins.dir}:${src.terrain.dir}:${src.networking.dir}:${src.desktop.dir}:${src.desktop-fx.dir}:${src.games.dir}:${src.jbullet.dir}:${src.niftygui.dir}:${src.jogg.dir}:${src.lwjgl-oal.dir}:${src.lwjgl-ogl.dir}:${src.ogre.dir}:${src.pack.dir}:${src.jheora.dir}:${src.test.dir}:${src.tools.dir}:${src.xml.dir}" name="srcdir"/>
+            <attribute default="${src.core.dir}:${src.core-data.dir}:${src.core-plugins.dir}:${src.terrain.dir}:${src.networking.dir}:${src.desktop.dir}:${src.desktop-fx.dir}:${src.games.dir}:${src.jbullet.dir}:${src.niftygui.dir}:${src.jogg.dir}:${src.lwjgl-oal.dir}:${src.lwjgl-ogl.dir}:${src.ogre.dir}:${src.blender.dir}:${src.pack.dir}:${src.jheora.dir}:${src.test.dir}:${src.tools.dir}:${src.xml.dir}" name="srcdir"/>
             <attribute default="${build.classes.dir}" name="destdir"/>
             <attribute default="${javac.classpath}" name="classpath"/>
             <attribute default="${javac.processorpath}" name="processorpath"/>
@@ -329,7 +331,7 @@ is divided into following sections:
     </target>
     <target depends="-init-ap-cmdline-properties" name="-init-macrodef-javac-without-processors" unless="ap.supported.internal">
         <macrodef name="javac" uri="http://www.netbeans.org/ns/j2se-project/3">
-            <attribute default="${src.core.dir}:${src.core-data.dir}:${src.core-plugins.dir}:${src.terrain.dir}:${src.networking.dir}:${src.desktop.dir}:${src.desktop-fx.dir}:${src.games.dir}:${src.jbullet.dir}:${src.niftygui.dir}:${src.jogg.dir}:${src.lwjgl-oal.dir}:${src.lwjgl-ogl.dir}:${src.ogre.dir}:${src.pack.dir}:${src.jheora.dir}:${src.test.dir}:${src.tools.dir}:${src.xml.dir}" name="srcdir"/>
+            <attribute default="${src.core.dir}:${src.core-data.dir}:${src.core-plugins.dir}:${src.terrain.dir}:${src.networking.dir}:${src.desktop.dir}:${src.desktop-fx.dir}:${src.games.dir}:${src.jbullet.dir}:${src.niftygui.dir}:${src.jogg.dir}:${src.lwjgl-oal.dir}:${src.lwjgl-ogl.dir}:${src.ogre.dir}:${src.blender.dir}:${src.pack.dir}:${src.jheora.dir}:${src.test.dir}:${src.tools.dir}:${src.xml.dir}" name="srcdir"/>
             <attribute default="${build.classes.dir}" name="destdir"/>
             <attribute default="${javac.classpath}" name="classpath"/>
             <attribute default="${javac.processorpath}" name="processorpath"/>
@@ -361,7 +363,7 @@ is divided into following sections:
     </target>
     <target depends="-init-macrodef-javac-with-processors,-init-macrodef-javac-without-processors" name="-init-macrodef-javac">
         <macrodef name="depend" uri="http://www.netbeans.org/ns/j2se-project/3">
-            <attribute default="${src.core.dir}:${src.core-data.dir}:${src.core-plugins.dir}:${src.terrain.dir}:${src.networking.dir}:${src.desktop.dir}:${src.desktop-fx.dir}:${src.games.dir}:${src.jbullet.dir}:${src.niftygui.dir}:${src.jogg.dir}:${src.lwjgl-oal.dir}:${src.lwjgl-ogl.dir}:${src.ogre.dir}:${src.pack.dir}:${src.jheora.dir}:${src.test.dir}:${src.tools.dir}:${src.xml.dir}" name="srcdir"/>
+            <attribute default="${src.core.dir}:${src.core-data.dir}:${src.core-plugins.dir}:${src.terrain.dir}:${src.networking.dir}:${src.desktop.dir}:${src.desktop-fx.dir}:${src.games.dir}:${src.jbullet.dir}:${src.niftygui.dir}:${src.jogg.dir}:${src.lwjgl-oal.dir}:${src.lwjgl-ogl.dir}:${src.ogre.dir}:${src.blender.dir}:${src.pack.dir}:${src.jheora.dir}:${src.test.dir}:${src.tools.dir}:${src.xml.dir}" name="srcdir"/>
             <attribute default="${build.classes.dir}" name="destdir"/>
             <attribute default="${javac.classpath}" name="classpath"/>
             <sequential>
@@ -659,7 +661,7 @@ is divided into following sections:
                 <include name="*"/>
             </dirset>
         </pathconvert>
-        <j2seproject3:depend srcdir="${src.core.dir}:${src.core-data.dir}:${src.core-plugins.dir}:${src.terrain.dir}:${src.networking.dir}:${src.desktop.dir}:${src.desktop-fx.dir}:${src.games.dir}:${src.jbullet.dir}:${src.niftygui.dir}:${src.jogg.dir}:${src.lwjgl-oal.dir}:${src.lwjgl-ogl.dir}:${src.ogre.dir}:${src.pack.dir}:${src.jheora.dir}:${src.test.dir}:${src.tools.dir}:${src.xml.dir}:${build.generated.subdirs}"/>
+        <j2seproject3:depend srcdir="${src.core.dir}:${src.core-data.dir}:${src.core-plugins.dir}:${src.terrain.dir}:${src.networking.dir}:${src.desktop.dir}:${src.desktop-fx.dir}:${src.games.dir}:${src.jbullet.dir}:${src.niftygui.dir}:${src.jogg.dir}:${src.lwjgl-oal.dir}:${src.lwjgl-ogl.dir}:${src.ogre.dir}:${src.blender.dir}:${src.pack.dir}:${src.jheora.dir}:${src.test.dir}:${src.tools.dir}:${src.xml.dir}:${build.generated.subdirs}"/>
     </target>
     <target depends="init,deps-jar,-pre-pre-compile,-pre-compile, -copy-persistence-xml,-compile-depend" if="have.sources" name="-do-compile">
         <j2seproject3:javac gensrcdir="${build.generated.sources.dir}"/>
@@ -678,6 +680,7 @@ is divided into following sections:
             <fileset dir="${src.lwjgl-oal.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
             <fileset dir="${src.lwjgl-ogl.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
             <fileset dir="${src.ogre.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
+            <fileset dir="${src.blender.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
             <fileset dir="${src.pack.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
             <fileset dir="${src.jheora.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
             <fileset dir="${src.test.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
@@ -703,7 +706,7 @@ is divided into following sections:
     <target depends="init,deps-jar,-pre-pre-compile" name="-do-compile-single">
         <fail unless="javac.includes">Must select some files in the IDE or set javac.includes</fail>
         <j2seproject3:force-recompile/>
-        <j2seproject3:javac excludes="" gensrcdir="${build.generated.sources.dir}" includes="${javac.includes}" sourcepath="${src.core.dir}:${src.core-data.dir}:${src.core-plugins.dir}:${src.terrain.dir}:${src.networking.dir}:${src.desktop.dir}:${src.desktop-fx.dir}:${src.games.dir}:${src.jbullet.dir}:${src.niftygui.dir}:${src.jogg.dir}:${src.lwjgl-oal.dir}:${src.lwjgl-ogl.dir}:${src.ogre.dir}:${src.pack.dir}:${src.jheora.dir}:${src.test.dir}:${src.tools.dir}:${src.xml.dir}"/>
+        <j2seproject3:javac excludes="" gensrcdir="${build.generated.sources.dir}" includes="${javac.includes}" sourcepath="${src.core.dir}:${src.core-data.dir}:${src.core-plugins.dir}:${src.terrain.dir}:${src.networking.dir}:${src.desktop.dir}:${src.desktop-fx.dir}:${src.games.dir}:${src.jbullet.dir}:${src.niftygui.dir}:${src.jogg.dir}:${src.lwjgl-oal.dir}:${src.lwjgl-ogl.dir}:${src.ogre.dir}:${src.blender.dir}:${src.pack.dir}:${src.jheora.dir}:${src.test.dir}:${src.tools.dir}:${src.xml.dir}"/>
     </target>
     <target name="-post-compile-single">
         <!-- Empty placeholder for easier customization. -->
@@ -965,6 +968,9 @@ is divided into following sections:
             <fileset dir="${src.ogre.dir}" excludes="${excludes}" includes="${includes}">
                 <filename name="**/*.java"/>
             </fileset>
+            <fileset dir="${src.blender.dir}" excludes="${excludes}" includes="${includes}">
+                <filename name="**/*.java"/>
+            </fileset>
             <fileset dir="${src.pack.dir}" excludes="${excludes}" includes="${includes}">
                 <filename name="**/*.java"/>
             </fileset>
@@ -1025,6 +1031,9 @@ is divided into following sections:
                 <filename name="**/doc-files/**"/>
             </fileset>
             <fileset dir="${src.ogre.dir}" excludes="${excludes}" includes="${includes}">
+                <filename name="**/doc-files/**"/>
+            </fileset>
+            <fileset dir="${src.blender.dir}" excludes="${excludes}" includes="${includes}">
                 <filename name="**/doc-files/**"/>
             </fileset>
             <fileset dir="${src.pack.dir}" excludes="${excludes}" includes="${includes}">

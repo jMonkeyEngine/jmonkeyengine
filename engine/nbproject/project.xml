@@ -25,6 +25,7 @@
                 <root id="src.lwjgl-oal.dir" name="LWJGL-OAL"/>
                 <root id="src.lwjgl-ogl.dir" name="LWJGL-OGL"/>
                 <root id="src.ogre.dir" name="Ogre"/>
+                <root id="src.blender.dir" name="Blender"/>
                 <root id="src.pack.dir" name="Pack"/>
                 <root id="src.jheora.dir" name="Jheora"/>
                 <root id="src.test.dir" name="Test"/>
