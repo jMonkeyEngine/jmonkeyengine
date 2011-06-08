@@ -317,6 +317,29 @@ public abstract class AbstractHeightMap implements HeightMap {
     }
 
     /**
+     * Find the minimum and maximum height values.
+     * @return a float array with two value: min height, max height
+     */
+    public float[] findMinMaxHeights() {
+        float[] minmax = new float[2];
+
+        float currentMin, currentMax;
+        currentMin = heightData[0];
+        currentMax = heightData[0];
+
+        for (int i = 0; i < heightData.length; i++) {
+            if (heightData[i] > currentMax) {
+                currentMax = heightData[i];
+            } else if (heightData[i] < currentMin) {
+                currentMin = heightData[i];
+            }
+        }
+        minmax[0] = currentMin;
+        minmax[1] = currentMax;
+        return minmax;
+    }
+
+    /**
      * <code>erodeTerrain</code> is a convenience method that applies the FIR
      * filter to a given height map. This simulates water errosion.
      *
@@ -378,7 +401,11 @@ public abstract class AbstractHeightMap implements HeightMap {
         if (flattening <= 1) {
             return;
         }
+
+        float[] minmax = findMinMaxHeights();
+
         normalizeTerrain(1f);
+
         for (int x = 0; x < size; x++) {
             for (int y = 0; y < size; y++) {
                 float flat = 1.0f;
@@ -391,6 +418,10 @@ public abstract class AbstractHeightMap implements HeightMap {
                 heightData[x + y * size] = flat;
             }
         }
+
+        // re-normalize back to its oraginal height range
+        float height = minmax[1] - minmax[0];
+        normalizeTerrain(height);
     }
 
     /**
