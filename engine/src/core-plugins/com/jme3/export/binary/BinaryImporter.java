@@ -48,8 +48,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.nio.ByteOrder;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -81,12 +83,20 @@ public final class BinaryImporter implements JmeImporter {
     private int aliasWidth;
 
     private static final boolean fastRead = ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN;
+    
+    private List<ClassLoader> loaders;
 
     public BinaryImporter() {
     }
-
+    
     public static boolean canUseFastBuffers(){
         return fastRead;
+    }
+
+    public void addClassLoader(ClassLoader loader){
+        if(loaders == null)
+            loaders = new ArrayList<ClassLoader>();
+        loaders.add(loader);
     }
 
     public static BinaryImporter getInstance() {
@@ -284,7 +294,7 @@ public final class BinaryImporter implements JmeImporter {
             BinaryInputCapsule cap = new BinaryInputCapsule(this, bco);
             cap.setContent(dataArray, loc, loc+dataLength);
 
-            Savable out = BinaryClassLoader.fromName(bco.className, cap);
+            Savable out = BinaryClassLoader.fromName(bco.className, cap, loaders);
 
             capsuleTable.put(out, cap);
             contentTable.put(id, out);

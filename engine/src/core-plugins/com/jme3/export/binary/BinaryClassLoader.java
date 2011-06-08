@@ -37,6 +37,8 @@ import java.util.logging.Logger;
 
 import com.jme3.export.InputCapsule;
 import com.jme3.export.Savable;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * This class is mis-named and is located in an inappropriate package:
@@ -80,4 +82,37 @@ public class BinaryClassLoader {
         }
     }
 
+    public static Savable fromName(String className, InputCapsule inputCapsule, List<ClassLoader> loaders) throws InstantiationException, 
+        IllegalAccessException, ClassNotFoundException, IOException {
+        if(loaders == null){
+            return fromName(className, inputCapsule);
+        }
+        for (Iterator<ClassLoader> it = loaders.iterator(); it.hasNext();) {
+            ClassLoader classLoader = it.next();
+            try {
+                return (Savable)classLoader.loadClass(className).newInstance();
+            }
+            catch (InstantiationException e) {
+            }
+            catch (IllegalAccessException e) {
+            }
+            
+        }
+        
+        try {
+            return (Savable)Class.forName(className).newInstance();
+        }
+        catch (InstantiationException e) {
+        	Logger.getLogger(BinaryClassLoader.class.getName()).severe(
+        			"Could not access constructor of class '" + className + "'! \n" +
+        			"Some types need to have the BinaryImporter set up in a special way. Please doublecheck the setup.");
+        	throw e;
+        }
+        catch (IllegalAccessException e) {
+        	Logger.getLogger(BinaryClassLoader.class.getName()).severe(
+        			e.getMessage() + " \n" +
+                    "Some types need to have the BinaryImporter set up in a special way. Please doublecheck the setup.");
+        	throw e;
+        }
+    }
 }
