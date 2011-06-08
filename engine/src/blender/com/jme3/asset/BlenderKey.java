@@ -61,7 +61,7 @@ import com.jme3.texture.Texture;
 
 /**
  * Blender key. Contains path of the blender file and its loading properties.
- * @author Marcin Roguski
+ * @author Marcin Roguski (Kaelthas)
  */
 public class BlenderKey extends ModelKey {
 	protected static final int					DEFAULT_FPS				= 25;
@@ -102,7 +102,12 @@ public class BlenderKey extends ModelKey {
 	protected Material							defaultMaterial;
 	/** Face cull mode. By default it is disabled. */
 	protected FaceCullMode						faceCullMode			= FaceCullMode.Off;
-
+	/** 
+	 * Variable describes which layers will be loaded. N-th bit set means N-th layer will be loaded.
+	 * If set to -1 then the current layer will be loaded.
+	 */
+	protected int								layersToLoad 			= -1;
+	
 	/**
 	 * Constructor used by serialization mechanisms.
 	 */
@@ -253,6 +258,22 @@ public class BlenderKey extends ModelKey {
 	}
 
 	/**
+	 * This method sets layers to be loaded.
+	 * @param layersToLoad layers to be loaded
+	 */
+	public void setLayersToLoad(int layersToLoad) {
+		this.layersToLoad = layersToLoad;
+	}
+	
+	/**
+	 * This method returns layers to be loaded.
+	 * @return layers to be loaded
+	 */
+	public int getLayersToLoad() {
+		return layersToLoad;
+	}
+	
+	/**
 	 * This method sets the asset root path.
 	 * @param assetRootPath
 	 *        the assets root path
@@ -387,6 +408,7 @@ public class BlenderKey extends ModelKey {
 		oc.write(usedWorld, "used-world", null);
 		oc.write(defaultMaterial, "default-material", null);
 		oc.write(faceCullMode, "face-cull-mode", FaceCullMode.Off);
+		oc.write(layersToLoad, "layers-to-load", -1);
 	}
 
 	@Override
@@ -422,6 +444,7 @@ public class BlenderKey extends ModelKey {
 		usedWorld = ic.readString("used-world", null);
 		defaultMaterial = (Material)ic.readSavable("default-material", null);
 		faceCullMode = ic.readEnum("face-cull-mode", FaceCullMode.class, FaceCullMode.Off);
+		layersToLoad = ic.readInt("layers-to=load", -1);
 	}
 
 	@Override
@@ -435,60 +458,72 @@ public class BlenderKey extends ModelKey {
 		result = prime * result + featuresToLoad;
 		result = prime * result + (fixUpAxis ? 1231 : 1237);
 		result = prime * result + fps;
+		result = prime * result + generatedTextureHeight;
+		result = prime * result + generatedTextureWidth;
+		result = prime * result + layersToLoad;
 		result = prime * result + (usedWorld == null ? 0 : usedWorld.hashCode());
 		return result;
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		if(this == obj) {
+		if (this == obj) {
 			return true;
 		}
-		if(!super.equals(obj)) {
+		if (!super.equals(obj)) {
 			return false;
 		}
-		if(this.getClass() != obj.getClass()) {
+		if (this.getClass() != obj.getClass()) {
 			return false;
 		}
-		BlenderKey other = (BlenderKey)obj;
-		if(animations == null) {
-			if(other.animations != null) {
+		BlenderKey other = (BlenderKey) obj;
+		if (animations == null) {
+			if (other.animations != null) {
 				return false;
 			}
-		} else if(!animations.equals(other.animations)) {
+		} else if (!animations.equals(other.animations)) {
 			return false;
 		}
-		if(assetRootPath == null) {
-			if(other.assetRootPath != null) {
+		if (assetRootPath == null) {
+			if (other.assetRootPath != null) {
 				return false;
 			}
-		} else if(!assetRootPath.equals(other.assetRootPath)) {
+		} else if (!assetRootPath.equals(other.assetRootPath)) {
 			return false;
 		}
-		if(defaultMaterial == null) {
-			if(other.defaultMaterial != null) {
+		if (defaultMaterial == null) {
+			if (other.defaultMaterial != null) {
 				return false;
 			}
-		} else if(!defaultMaterial.equals(other.defaultMaterial)) {
+		} else if (!defaultMaterial.equals(other.defaultMaterial)) {
 			return false;
 		}
-		if(faceCullMode != other.faceCullMode) {
+		if (faceCullMode != other.faceCullMode) {
 			return false;
 		}
-		if(featuresToLoad != other.featuresToLoad) {
+		if (featuresToLoad != other.featuresToLoad) {
 			return false;
 		}
-		if(fixUpAxis != other.fixUpAxis) {
+		if (fixUpAxis != other.fixUpAxis) {
 			return false;
 		}
-		if(fps != other.fps) {
+		if (fps != other.fps) {
 			return false;
 		}
-		if(usedWorld == null) {
-			if(other.usedWorld != null) {
+		if (generatedTextureHeight != other.generatedTextureHeight) {
+			return false;
+		}
+		if (generatedTextureWidth != other.generatedTextureWidth) {
+			return false;
+		}
+		if (layersToLoad != other.layersToLoad) {
+			return false;
+		}
+		if (usedWorld == null) {
+			if (other.usedWorld != null) {
 				return false;
 			}
-		} else if(!usedWorld.equals(other.usedWorld)) {
+		} else if (!usedWorld.equals(other.usedWorld)) {
 			return false;
 		}
 		return true;
@@ -496,7 +531,7 @@ public class BlenderKey extends ModelKey {
 
 	/**
 	 * This interface describes the features of the scene that are to be loaded.
-	 * @author Marcin Roguski
+	 * @author Marcin Roguski (Kaelthas)
 	 */
 	public static interface FeaturesToLoad {
 		int	SCENES		= 0x0000FFFF;
@@ -511,7 +546,7 @@ public class BlenderKey extends ModelKey {
 
 	/**
 	 * This class holds the loading results according to the given loading flag.
-	 * @author Marcin Roguski
+	 * @author Marcin Roguski (Kaelthas)
 	 */
 	public static class LoadingResults extends Spatial {
 		/** Bitwise mask of features that are to be loaded. */
@@ -730,7 +765,7 @@ public class BlenderKey extends ModelKey {
 	/**
 	 * The WORLD file block contains various data that could be added to the scene. The contained data includes: ambient
 	 * light.
-	 * @author Marcin Roguski
+	 * @author Marcin Roguski (Kaelthas)
 	 */
 	public static class WorldData {
 		/** The ambient light. */

@@ -93,6 +93,12 @@ public class JmeConverter implements IBlenderConverter<Node, Camera, Light, Obje
 		}
 		Structure id = (Structure)structure.getFieldValue("id");
 		String sceneName = id.getFieldValue("name").toString();
+		
+		//veryfying layers to be loaded
+		if(dataRepository.getBlenderKey().getLayersToLoad()<0) {
+			int lay = ((Number)structure.getFieldValue("lay")).intValue();
+			dataRepository.getBlenderKey().setLayersToLoad(lay);//load only current layer
+		}
 		return new Node(sceneName);
 	}
 
@@ -116,7 +122,9 @@ public class JmeConverter implements IBlenderConverter<Node, Camera, Light, Obje
 
 	@Override
 	public Object toObject(Structure structure) throws BlenderFileException {
-		if((dataRepository.getBlenderKey().getFeaturesToLoad() & FeaturesToLoad.OBJECTS) == 0) {
+		int lay = ((Number)structure.getFieldValue("lay")).intValue();
+		if((lay & dataRepository.getBlenderKey().getLayersToLoad()) == 0 ||
+		   (dataRepository.getBlenderKey().getFeaturesToLoad() & FeaturesToLoad.OBJECTS) == 0) {
 			return null;
 		}
 		ObjectHelper objectHelper = dataRepository.getHelper(ObjectHelper.class);
