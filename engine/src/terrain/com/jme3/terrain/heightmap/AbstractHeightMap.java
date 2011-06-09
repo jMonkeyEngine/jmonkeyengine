@@ -447,10 +447,10 @@ public abstract class AbstractHeightMap implements HeightMap {
                 for (int d = 0; d < 8; d++) {
                     int i = x + dxs[d];
                     int j = y + dys[d];
-                    if (i < 0 || i > size) {
+                    if (i < 0 || i >= size) {
                         continue;
                     }
-                    if (j < 0 || j > size) {
+                    if (j < 0 || j >= size) {
                         continue;
                     }
                     neighNumber++;
