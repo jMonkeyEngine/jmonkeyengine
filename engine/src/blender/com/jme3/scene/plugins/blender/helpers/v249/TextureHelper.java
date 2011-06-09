@@ -1086,6 +1086,38 @@ public class TextureHelper extends AbstractBlenderHelper {
 				newData.put(dataIndex++, (byte) (resultPixel[0] * 255.0f));
 				newData.put(dataIndex++, (byte) (resultPixel[1] * 255.0f));
 				newData.put(dataIndex++, (byte) (resultPixel[2] * 255.0f));
+			} else if (format == Format.RGBA8) {
+                pixelValue = data.get();
+                texPixel[1] = pixelValue >= 0 ? 1.0f - pixelValue / 255.0f : (~pixelValue + 1) / 255.0f;
+                if(neg) {
+                    texPixel[1] = 1.0f - texPixel[1];
+                }
+                pixelValue = data.get();
+                texPixel[2] = pixelValue >= 0 ? 1.0f - pixelValue / 255.0f : (~pixelValue + 1) / 255.0f;
+                if(neg) {
+                    texPixel[2] = 1.0f - texPixel[2];
+                }
+                data.get(); // ignore alpha
+                this.blendPixel(resultPixel, materialColor, texPixel, 1.0f, affectFactor, blendType, dataRepository);
+                newData.put(dataIndex++, (byte) (resultPixel[0] * 255.0f));
+                newData.put(dataIndex++, (byte) (resultPixel[1] * 255.0f));
+                newData.put(dataIndex++, (byte) (resultPixel[2] * 255.0f));
+			} else if (format == Format.BGR8) {
+                texPixel[2] = texPixel[0];
+                pixelValue = data.get();
+                texPixel[1] = pixelValue >= 0 ? 1.0f - pixelValue / 255.0f : (~pixelValue + 1) / 255.0f;
+                if(neg) {
+                    texPixel[1] = 1.0f - texPixel[1];
+                }
+                pixelValue = data.get();
+                texPixel[0] = pixelValue >= 0 ? 1.0f - pixelValue / 255.0f : (~pixelValue + 1) / 255.0f;
+                if(neg) {
+                    texPixel[0] = 1.0f - texPixel[0];
+                }
+                this.blendPixel(resultPixel, materialColor, texPixel, 1.0f, affectFactor, blendType, dataRepository);
+                newData.put(dataIndex++, (byte) (resultPixel[0] * 255.0f));
+                newData.put(dataIndex++, (byte) (resultPixel[1] * 255.0f));
+                newData.put(dataIndex++, (byte) (resultPixel[2] * 255.0f));
 			} else if (format == Format.Luminance8) {
 				this.blendPixel(resultPixel, materialColor, color, texPixel[0], affectFactor, blendType, dataRepository);
 				newData.put((byte) (resultPixel[0] * 255.0f));
