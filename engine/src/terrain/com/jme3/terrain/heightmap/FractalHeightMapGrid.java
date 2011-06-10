@@ -49,7 +49,7 @@ public class FractalHeightMapGrid implements HeightMapGrid {
 				BufferedImage im = null;
 				im = ImageIO.read(new File(this.cacheDir, "terrain_" + (int) location.x + "_" + (int) location.z + ".png"));
 				heightmap = new Grayscale16BitHeightMap(im);
-				heightmap.setHeightScale(256);
+				heightmap.setHeightScale(heightScale);
 			} catch (IOException e) {}
 		} else {
 			FloatBuffer buffer = this.base.getBuffer(location.x * (this.size - 1), location.z * (this.size - 1), 0, this.size);
