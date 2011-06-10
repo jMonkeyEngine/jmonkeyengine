@@ -49,7 +49,9 @@ public final class TranslucentBucketFilter extends Filter {
     @Override
     public void postFrame(RenderManager renderManager, ViewPort viewPort, FrameBuffer prevFilterBuffer, FrameBuffer sceneBuffer) {
         renderManager.setCamera(viewPort.getCamera(), false);
-        renderManager.getRenderer().copyFrameBuffer(prevFilterBuffer, sceneBuffer, false);
+        if(prevFilterBuffer != sceneBuffer){
+            renderManager.getRenderer().copyFrameBuffer(prevFilterBuffer, sceneBuffer, false);
+        }
         renderManager.getRenderer().setFrameBuffer(sceneBuffer);
         viewPort.getQueue().renderQueue(RenderQueue.Bucket.Translucent, renderManager, viewPort.getCamera());
     }

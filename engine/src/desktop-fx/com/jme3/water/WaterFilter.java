@@ -53,6 +53,7 @@ import com.jme3.scene.Spatial;
 import com.jme3.texture.Image.Format;
 import com.jme3.texture.Texture.WrapMode;
 import com.jme3.texture.Texture2D;
+import com.jme3.util.TempVars;
 import java.io.IOException;
 
 /**
@@ -166,7 +167,16 @@ public class WaterFilter extends Filter {
                 sceneCam.getFrustumRight(),
                 sceneCam.getFrustumTop(),
                 sceneCam.getFrustumBottom());
-        reflectionCam.lookAt(targetLocation, Vector3f.UNIT_Y);
+        TempVars vars = TempVars.get();
+        assert vars.lock();
+
+        vars.vect1.set(sceneCam.getLocation()).addLocal(sceneCam.getUp());
+        float planeDistance = plane.pseudoDistance(vars.vect1);
+        vars.vect2.set(plane.getNormal()).multLocal(planeDistance * 2.0f);
+        vars.vect3.set(vars.vect1.subtractLocal(vars.vect2)).subtractLocal(loc).normalizeLocal().negateLocal();
+        reflectionCam.lookAt(targetLocation, vars.vect3);
+
+        assert vars.unlock();
         if (inv) {
             reflectionCam.setAxes(reflectionCam.getLeft().negateLocal(), reflectionCam.getUp(), reflectionCam.getDirection().negateLocal());
         }

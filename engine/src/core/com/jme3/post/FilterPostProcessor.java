@@ -194,7 +194,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
 
     public void renderFilterChain(Renderer r, FrameBuffer sceneFb) {
         Texture2D tex = filterTexture;
-        FrameBuffer buff = null;
+        FrameBuffer buff = sceneFb;
         boolean msDepth = depthTexture != null && depthTexture.getImage().getMultiSamples() > 1;
         for (int i = 0; i < filters.size(); i++) {
             Filter filter = filters.get(i);
@@ -260,6 +260,9 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
             sceneBuffer = renderFrameBufferMS;
         }
         renderFilterChain(renderer, sceneBuffer);
+        renderManager.setCamera(viewPort.getCamera(), false);
+        
+        renderer.setFrameBuffer(outputBuffer);
 
     }
 
