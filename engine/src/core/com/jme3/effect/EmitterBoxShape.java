@@ -48,21 +48,35 @@ public class EmitterBoxShape implements EmitterShape {
     }
 
     public EmitterBoxShape(Vector3f min, Vector3f max) {
-        if (min == null || max == null)
-            throw new NullPointerException();
+        if (min == null || max == null) {
+			throw new NullPointerException();
+		}
 
         this.min = min;
         this.len = new Vector3f();
         this.len.set(max).subtractLocal(min);
     }
     
-    public void getRandomPoint(Vector3f store) {
+    @Override
+	public void getRandomPoint(Vector3f store) {
         store.x = min.x + len.x * FastMath.nextRandomFloat();
         store.y = min.y + len.y * FastMath.nextRandomFloat();
         store.z = min.z + len.z * FastMath.nextRandomFloat();
     }
+    
+    /**
+     * This method fills the point with data.
+     * It does not fill the normal.
+     * @param store the variable to store the point data
+     * @param normal not used in this class
+     */
+    @Override
+    public void getRandomPointAndNormal(Vector3f store, Vector3f normal) {
+    	this.getRandomPoint(store);
+    }
 
-    public EmitterShape deepClone(){
+    @Override
+	public EmitterShape deepClone(){
         try {
             EmitterBoxShape clone = (EmitterBoxShape) super.clone();
             clone.min = min.clone();
@@ -89,12 +103,14 @@ public class EmitterBoxShape implements EmitterShape {
         this.len = len;
     }
 
-    public void write(JmeExporter ex) throws IOException {
+    @Override
+	public void write(JmeExporter ex) throws IOException {
         OutputCapsule oc = ex.getCapsule(this);
         oc.write(min, "min", null);
         oc.write(len, "length", null);
     }
-    public void read(JmeImporter im) throws IOException {
+    @Override
+	public void read(JmeImporter im) throws IOException {
         InputCapsule ic = im.getCapsule(this);
         min = (Vector3f) ic.readSavable("min", null);
         len = (Vector3f) ic.readSavable("length", null);

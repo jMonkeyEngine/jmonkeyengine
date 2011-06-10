@@ -34,6 +34,8 @@ package com.jme3.effect;
 
 import com.jme3.bounding.BoundingBox;
 import com.jme3.effect.ParticleMesh.Type;
+import com.jme3.effect.influencers.DefaultParticleInfluencer;
+import com.jme3.effect.influencers.ParticleInfluencer;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.InputCapsule;
@@ -54,11 +56,12 @@ import com.jme3.util.TempVars;
 import java.io.IOException;
 
 public class ParticleEmitter extends Geometry implements Control {
-
     private static final EmitterShape DEFAULT_SHAPE = new EmitterPointShape(Vector3f.ZERO);
-
+    private static final ParticleInfluencer DEFAULT_INFLUENCER = new DefaultParticleInfluencer();
+    
     private EmitterShape shape = DEFAULT_SHAPE;
     private ParticleMesh particleMesh;
+    private ParticleInfluencer particleInfluencer = DEFAULT_INFLUENCER;
     private ParticleMesh.Type meshType;
     private Particle[] particles;
 
@@ -68,17 +71,15 @@ public class ParticleEmitter extends Geometry implements Control {
 //    private int next = 0;
 //    private ArrayList<Integer> unusedIndices = new ArrayList<Integer>();
 
-    private boolean randomAngle = false;
-    private boolean selectRandomImage = false;
-    private boolean facingVelocity = false;
+    private boolean randomAngle;
+    private boolean selectRandomImage;
+    private boolean facingVelocity;
     private float particlesPerSec = 20;
-    private float emitCarry = 0f;
+    private float emitCarry;
     private float lowLife  = 3f;
     private float highLife = 7f;
-    private float gravity = 0.1f;
-    private float variation = 0.2f;
-    private float rotateSpeed = 0;
-    private Vector3f startVel = new Vector3f();
+    private Vector3f gravity = new Vector3f(0.0f, 0.1f, 0.0f);
+    private float rotateSpeed;
     private Vector3f faceNormal = new Vector3f(Vector3f.NAN);
 
     private int imagesX = 1;
@@ -91,17 +92,18 @@ public class ParticleEmitter extends Geometry implements Control {
     private float endSize = 2f;
     private boolean worldSpace = true;
 
-    private Vector3f temp = new Vector3f();
-
+    //variable that helps with computations
+    private transient Vector3f temp = new Vector3f();
+    
     @Override
     public ParticleEmitter clone(){
         ParticleEmitter clone = (ParticleEmitter) super.clone();
         clone.shape = shape.deepClone();
         clone.setNumParticles(particles.length);
-        clone.startVel = startVel.clone();
         clone.faceNormal = faceNormal.clone();
         clone.startColor = startColor.clone();
         clone.endColor = endColor.clone();
+        clone.particleInfluencer = particleInfluencer.clone();
         clone.controls.add(clone);
         return clone;
     }
@@ -110,28 +112,28 @@ public class ParticleEmitter extends Geometry implements Control {
         super(name);
 
         // ignore world transform, unless user sets inLocalSpace
-        setIgnoreTransform(true);
+        this.setIgnoreTransform(true);
 
         // particles neither receive nor cast shadows
-        setShadowMode(ShadowMode.Off);
+        this.setShadowMode(ShadowMode.Off);
 
         // particles are usually transparent
-        setQueueBucket(Bucket.Transparent);
+        this.setQueueBucket(Bucket.Transparent);
 
         meshType = type;
 
-        setNumParticles(numParticles);
+        this.setNumParticles(numParticles);
 
         controls.add(this);
 
         switch (meshType){
             case Point:
                 particleMesh = new ParticlePointMesh();
-                setMesh(particleMesh);
+                this.setMesh(particleMesh);
                 break;
             case Triangle:
                 particleMesh = new ParticleTriMesh();
-                setMesh(particleMesh);
+                this.setMesh(particleMesh);
                 break;
             default:
                 throw new IllegalStateException("Unrecognized particle type: "+meshType);
@@ -143,7 +145,8 @@ public class ParticleEmitter extends Geometry implements Control {
         super();
     }
 
-    public Control cloneForSpatial(Spatial spatial){
+    @Override
+	public Control cloneForSpatial(Spatial spatial){
         return (Control) spatial;
     }
 
@@ -154,13 +157,25 @@ public class ParticleEmitter extends Geometry implements Control {
     public EmitterShape getShape(){
         return shape;
     }
+    
+    public void setParticleInfluencer(ParticleInfluencer particleInfluencer) {
+		this.particleInfluencer = particleInfluencer;
+	}
+    
+    public ParticleInfluencer getParticleInfluencer() {
+		return particleInfluencer;
+	}
 
+    public ParticleMesh.Type getMeshType() {
+		return meshType;
+	}
+    
     public boolean isInWorldSpace() {
         return worldSpace;
     }
 
     public void setInWorldSpace(boolean worldSpace) {
-        setIgnoreTransform(worldSpace);
+        this.setIgnoreTransform(worldSpace);
         this.worldSpace = worldSpace;
     }
 
@@ -195,10 +210,11 @@ public class ParticleEmitter extends Geometry implements Control {
     }
 
     public Vector3f getFaceNormal() {
-        if (Vector3f.isValidVector(faceNormal))
-            return faceNormal;
-        else
-            return null;
+        if (Vector3f.isValidVector(faceNormal)) {
+			return faceNormal;
+		} else {
+			return null;
+		}
     }
 
     /**
@@ -212,10 +228,11 @@ public class ParticleEmitter extends Geometry implements Control {
      * if particles should face the camera.
      */
     public void setFaceNormal(Vector3f faceNormal) {
-        if (faceNormal == null || !Vector3f.isValidVector(faceNormal))
-            this.faceNormal.set(Vector3f.NAN);
-        else
-            this.faceNormal = faceNormal;
+        if (faceNormal == null || !Vector3f.isValidVector(faceNormal)) {
+			this.faceNormal.set(Vector3f.NAN);
+		} else {
+			this.faceNormal = faceNormal;
+		}
     }
 
     public float getRotateSpeed() {
@@ -302,17 +319,54 @@ public class ParticleEmitter extends Geometry implements Control {
         this.endSize = endSize;
     }
 
-    public float getGravity() {
-        return gravity;
-    }
+	/**
+	 * This method sets the gravity value of Y axis.
+	 * By default the Y axis is the only one to have gravity value non zero.
+	 * @param gravity
+	 *        Set the gravity of Y axis, in units/sec/sec, of particles
+	 *        spawned.
+	 */
+	@Deprecated
+	public void setGravity(float gravity) {
+		this.gravity.y = gravity;
+	}
 
-    /**
-     * @param gravity Set the gravity, in units/sec/sec, of particles
-     * spawned.
-     */
-    public void setGravity(float gravity) {
-        this.gravity = gravity;
-    }
+	/**
+	 * This method returns the gravity vector.
+	 * @return the gravity vector
+	 */
+	public Vector3f getGravity() {
+		return gravity;
+	}
+
+	/**
+	 * This method sets the gravity vector.
+	 * @param gravity
+	 *        the gravity vector
+	 */
+	public void setGravity(Vector3f gravity) {
+		this.gravity.set(gravity);
+	}
+
+	/**
+	 * This method sets the gravity vector.
+	 * @param gravity
+	 *        the gravity vector
+	 */
+	public void setGravity(float[] gravity) {
+		this.setGravity(gravity[0], gravity[1], gravity[2]);
+	}
+
+	/**
+	 * This method sets the gravity vector.
+	 * @param gravity
+	 *        the gravity vector
+	 */
+	public void setGravity(float x, float y, float z) {
+		this.gravity.x = x;
+		this.gravity.y = y;
+		this.gravity.z = z;
+	}
 
     public float getHighLife() {
         return highLife;
@@ -406,8 +460,14 @@ public class ParticleEmitter extends Geometry implements Control {
         this.startSize = startSize;
     }
 
+    /**
+     * This method is deprecated.
+     * Use ParticleEmitter.getParticleInfluencer().getInitialVelocity() instead.
+     * @return the initial velocity for particles
+     */
+    @Deprecated
     public Vector3f getInitialVelocity(){
-        return startVel;
+        return particleInfluencer.getInitialVelocity();
     }
 
     /**
@@ -417,15 +477,27 @@ public class ParticleEmitter extends Geometry implements Control {
      * A particle will move toward its velocity unless it is effected by the
      * gravity.
      *
+     * @deprecated
+     * This method is deprecated. 
+     * Use ParticleEmitter.getParticleInfluencer().setInitialVelocity(initialVelocity); instead.
+     *
      * @see ParticleEmitter#setVelocityVariation(float) 
      * @see ParticleEmitter#setGravity(float)
      */
+    @Deprecated
     public void setInitialVelocity(Vector3f initialVelocity){
-        this.startVel.set(initialVelocity);
+        this.particleInfluencer.setInitialVelocity(initialVelocity);
     }
 
+    /**
+     * @deprecated
+     * This method is deprecated. 
+     * Use ParticleEmitter.getParticleInfluencer().getVelocityVariation(); instead.
+     * @return the initial velocity variation factor
+     */
+    @Deprecated
     public float getVelocityVariation() {
-        return variation;
+        return particleInfluencer.getVelocityVariation();
     }
 
     /**
@@ -434,9 +506,14 @@ public class ParticleEmitter extends Geometry implements Control {
      * from 0 to 1, where 0 means particles are to spawn with exactly
      * the velocity given in {@link ParticleEmitter#setStartVel(com.jme3.math.Vector3f) },
      * and 1 means particles are to spawn with a completely random velocity.
+     * 
+     * @deprecated
+     * This method is deprecated. 
+     * Use ParticleEmitter.getParticleInfluencer().setVelocityVariation(variation); instead.
      */
+    @Deprecated
     public void setVelocityVariation(float variation) {
-        this.variation = variation;
+        this.particleInfluencer.setVelocityVariation(variation);
     }
 
 //    private int newIndex(){
@@ -472,38 +549,33 @@ public class ParticleEmitter extends Geometry implements Control {
         }
 
         Particle p = particles[idx];
-        if (selectRandomImage)
-            p.imageIndex = (FastMath.nextRandomInt(0, imagesY-1) * imagesX) + FastMath.nextRandomInt(0, imagesX-1);
+        if (selectRandomImage) {
+			p.imageIndex = FastMath.nextRandomInt(0, imagesY-1) * imagesX + FastMath.nextRandomInt(0, imagesX-1);
+		}
 
         p.startlife = lowLife + FastMath.nextRandomFloat() * (highLife - lowLife);
         p.life = p.startlife;
         p.color.set(startColor);
         p.size = startSize;
-        shape.getRandomPoint(p.position);
+        //shape.getRandomPoint(p.position);
+        particleInfluencer.influenceParticle(p, shape);
         if (worldSpace){
             p.position.addLocal(worldTransform.getTranslation());
         }
-        p.velocity.set(startVel);
-        if (randomAngle)
-            p.angle = FastMath.nextRandomFloat() * FastMath.TWO_PI;
-        if (rotateSpeed != 0)
-            p.rotateSpeed = rotateSpeed * (0.2f + (FastMath.nextRandomFloat() * 2f - 1f) * .8f);
-
-        // NOTE: Using temp variable here
-        temp.set(FastMath.nextRandomFloat(),FastMath.nextRandomFloat(),FastMath.nextRandomFloat());
-        temp.multLocal(2f);
-        temp.subtractLocal(1f,1f,1f);
-        temp.multLocal(startVel.length());
-        p.velocity.interpolate(temp, variation);
-
-        temp.set(p.position).addLocal(p.size, p.size, p.size);
+        if (randomAngle) {
+			p.angle = FastMath.nextRandomFloat() * FastMath.TWO_PI;
+		}
+        if (rotateSpeed != 0) {
+			p.rotateSpeed = rotateSpeed * (0.2f + (FastMath.nextRandomFloat() * 2f - 1f) * .8f);
+		}
+		
+		temp.set(p.position).addLocal(p.size, p.size, p.size);
         max.maxLocal(temp);
         temp.set(p.position).subtractLocal(p.size, p.size, p.size);
         min.minLocal(temp);
 
-        lastUsed++;
+        ++lastUsed;
         firstUnUsed = idx + 1;
-
         return true;
     }
 
@@ -511,15 +583,14 @@ public class ParticleEmitter extends Geometry implements Control {
      * Instantly emits all the particles possible to be emitted. Any particles
      * which are currently inactive will be spawned immediately.
      */
-    @SuppressWarnings("empty-statement")
     public void emitAllParticles(){
         // Force world transform to update
-        getWorldTransform();
+        this.getWorldTransform();
 
         TempVars vars = TempVars.get();
         assert vars.lock();
         
-        BoundingBox bbox = (BoundingBox) getMesh().getBound();
+        BoundingBox bbox = (BoundingBox) this.getMesh().getBound();
 
         Vector3f min = vars.vect1;
         Vector3f max = vars.vect2;
@@ -534,10 +605,12 @@ public class ParticleEmitter extends Geometry implements Control {
             max.set(Vector3f.NEGATIVE_INFINITY);
         }
         
-        while (emitParticle(min, max));
+        while (this.emitParticle(min, max)) {
+			;
+		}
 
         bbox.setMinMax(min, max);
-        setBoundRefresh();
+        this.setBoundRefresh();
 
         assert vars.unlock();
     }
@@ -547,9 +620,10 @@ public class ParticleEmitter extends Geometry implements Control {
      * particles will be dead and no longer visible.
      */
     public void killAllParticles(){
-        for (int i = 0; i < particles.length; i++){
-            if (particles[i].life > 0)
-                freeParticle(i);
+        for (int i = 0; i < particles.length; ++i){
+            if (particles[i].life > 0) {
+				this.freeParticle(i);
+			}
         }
     }
 
@@ -582,7 +656,7 @@ public class ParticleEmitter extends Geometry implements Control {
 
     private void updateParticleState(float tpf){
         // Force world transform to update
-        getWorldTransform();
+        this.getWorldTransform();
 
         TempVars vars = TempVars.get();
         assert vars.lock();
@@ -590,7 +664,7 @@ public class ParticleEmitter extends Geometry implements Control {
         Vector3f min = vars.vect1.set(Vector3f.POSITIVE_INFINITY);
         Vector3f max = vars.vect2.set(Vector3f.NEGATIVE_INFINITY);
 
-        for (int i = 0; i < particles.length; i++){
+        for (int i = 0; i < particles.length; ++i){
             Particle p = particles[i];
             if (p.life == 0){ // particle is dead
 //                assert i <= firstUnUsed;
@@ -599,19 +673,21 @@ public class ParticleEmitter extends Geometry implements Control {
 
             p.life -= tpf;
             if (p.life <= 0){
-                freeParticle(i);
+                this.freeParticle(i);
                 continue;
             }
 
             // position += velocity * tpf
             p.distToCam = -1;
-            float g = gravity * tpf;
-            p.velocity.y -= g;
-
-            // NOTE: Using temp variable
+            
+            // applying gravity
+            p.velocity.x -= gravity.x * tpf;
+    		p.velocity.y -= gravity.y * tpf;
+    		p.velocity.z -= gravity.z * tpf;
             temp.set(p.velocity).multLocal(tpf);
             p.position.addLocal(temp);
 
+            // affecting color, size and angle
             float b = (p.startlife - p.life) / p.startlife;
             p.color.interpolate(startColor, endColor, b);
             p.size = FastMath.interpolateLinear(b, startSize, endSize);
@@ -619,15 +695,16 @@ public class ParticleEmitter extends Geometry implements Control {
 
             // Computing bounding volume
             temp.set(p.position).addLocal(p.size, p.size, p.size);
-            max.maxLocal(temp);
-            temp.set(p.position).subtractLocal(p.size, p.size, p.size);
-            min.minLocal(temp);
+    		max.maxLocal(temp);
+    		temp.set(p.position).subtractLocal(p.size, p.size, p.size);
+    		min.minLocal(temp);
 
-            if (!selectRandomImage) // use animated effect
-                p.imageIndex = (int) (b * imagesX * imagesY);
+            if (!selectRandomImage) {
+				p.imageIndex = (int) (b * imagesX * imagesY);
+			}
             
-             if (firstUnUsed < i) {
-                swap(firstUnUsed, i);
+            if (firstUnUsed < i) {
+                this.swap(firstUnUsed, i);
                 if (i == lastUsed) {
                     lastUsed = firstUnUsed;
                 }
@@ -636,21 +713,21 @@ public class ParticleEmitter extends Geometry implements Control {
         }
 
         float particlesToEmitF = particlesPerSec * tpf;
-        int particlesToEmit = (int) (particlesToEmitF);
+        int particlesToEmit = (int) particlesToEmitF;
         emitCarry += particlesToEmitF - particlesToEmit;
 
         while (emitCarry > 1f){
-            particlesToEmit ++;
+            ++particlesToEmit;
             emitCarry -= 1f;
         }
 
-        for (int i = 0; i < particlesToEmit; i++){
-            emitParticle(min, max);
+        for (int i = 0; i < particlesToEmit; ++i){
+            this.emitParticle(min, max);
         }
 
-        BoundingBox bbox = (BoundingBox) getMesh().getBound();
+        BoundingBox bbox = (BoundingBox) this.getMesh().getBound();
         bbox.setMinMax(min, max);
-        setBoundRefresh();
+        this.setBoundRefresh();
 
         assert vars.unlock();
     }
@@ -658,29 +735,33 @@ public class ParticleEmitter extends Geometry implements Control {
     /**
      * Do not use.
      */
-    public void setSpatial(Spatial spatial) {
+    @Override
+	public void setSpatial(Spatial spatial) {
     }
 
     /**
      * @param enabled Set to enable or disable a particle. When a particle is
      * disabled, it will be "frozen in time" and not update.
      */
-    public void setEnabled(boolean enabled) {
+    @Override
+	public void setEnabled(boolean enabled) {
         this.enabled = enabled;
     }
 
-    public boolean isEnabled() {
+    @Override
+	public boolean isEnabled() {
         return enabled;
     }
 
-    public void update(float tpf) {
-        if (!enabled)
-            return;
-
-        updateParticleState(tpf);
+    @Override
+	public void update(float tpf) {
+        if (enabled) {
+        	this.updateParticleState(tpf);
+		}
     }
 
-    public void render(RenderManager rm, ViewPort vp) {
+    @Override
+	public void render(RenderManager rm, ViewPort vp) {
         Camera cam = vp.getCamera();
 
         if (meshType == ParticleMesh.Type.Point){
@@ -688,14 +769,14 @@ public class ParticleEmitter extends Geometry implements Control {
             C *= cam.getWidth() * 0.5f;
 
             // send attenuation params
-            getMaterial().setFloat("Quadratic", C);
+            this.getMaterial().setFloat("Quadratic", C);
         }
 
         Matrix3f inverseRotation = Matrix3f.IDENTITY;
         if (!worldSpace){
             TempVars vars = TempVars.get();
             assert vars.lock();
-            inverseRotation = getWorldRotation().toRotationMatrix(vars.tempMat3).invertLocal();
+            inverseRotation = this.getWorldRotation().toRotationMatrix(vars.tempMat3).invertLocal();
         }
         particleMesh.updateParticleData(particles, cam, inverseRotation);
         if (!worldSpace){
@@ -704,7 +785,7 @@ public class ParticleEmitter extends Geometry implements Control {
     }
 
     public void preload(RenderManager rm, ViewPort vp){
-        updateParticleState(0);
+        this.updateParticleState(0);
         particleMesh.updateParticleData(particles, vp.getCamera(), Matrix3f.IDENTITY);
     }
 
@@ -719,12 +800,10 @@ public class ParticleEmitter extends Geometry implements Control {
         oc.write(particlesPerSec, "particlesPerSec", 0);
         oc.write(lowLife, "lowLife", 0);
         oc.write(highLife, "highLife", 0);
-        oc.write(gravity, "gravity", 0);
-        oc.write(variation, "variation", 0);
+        oc.write(gravity, "gravity", null);
         oc.write(imagesX, "imagesX", 1);
         oc.write(imagesY, "imagesY", 1);
 
-        oc.write(startVel, "startVel", null);
         oc.write(startColor, "startColor", null);
         oc.write(endColor, "endColor", null);
         oc.write(startSize, "startSize", 0);
@@ -734,6 +813,8 @@ public class ParticleEmitter extends Geometry implements Control {
         oc.write(selectRandomImage, "selectRandomImage", false);
         oc.write(randomAngle, "randomAngle", false);
         oc.write(rotateSpeed, "rotateSpeed", 0);
+        
+        oc.write(particleInfluencer, "influencer", DEFAULT_INFLUENCER);
     }
 
     @Override
@@ -743,18 +824,16 @@ public class ParticleEmitter extends Geometry implements Control {
         shape = (EmitterShape) ic.readSavable("shape", DEFAULT_SHAPE);
         meshType = ic.readEnum("meshType", ParticleMesh.Type.class, ParticleMesh.Type.Triangle);
         int numParticles = ic.readInt("numParticles", 0);
-        setNumParticles(numParticles);
+        this.setNumParticles(numParticles);
 
         enabled = ic.readBoolean("enabled", true);
         particlesPerSec = ic.readFloat("particlesPerSec", 0);
         lowLife = ic.readFloat("lowLife", 0);
         highLife = ic.readFloat("highLife", 0);
-        gravity = ic.readFloat("gravity", 0);
-        variation = ic.readFloat("variation", 0);
+        gravity = (Vector3f) ic.readSavable("gravity", null);
         imagesX = ic.readInt("imagesX", 1);
         imagesY = ic.readInt("imagesY", 1);
 
-        startVel = (Vector3f) ic.readSavable("startVel", null);
         startColor = (ColorRGBA) ic.readSavable("startColor", null);
         endColor = (ColorRGBA) ic.readSavable("endColor", null);
         startSize = ic.readFloat("startSize", 0);
@@ -768,16 +847,18 @@ public class ParticleEmitter extends Geometry implements Control {
         switch (meshType){
             case Point:
                 particleMesh = new ParticlePointMesh();
-                setMesh(particleMesh);
+                this.setMesh(particleMesh);
                 break;
             case Triangle:
                 particleMesh = new ParticleTriMesh();
-                setMesh(particleMesh);
+                this.setMesh(particleMesh);
                 break;
             default:
                 throw new IllegalStateException("Unrecognized particle type: "+meshType);
         }
         particleMesh.initParticleData(this, particles.length);
+        
+        particleInfluencer = (ParticleInfluencer) ic.readSavable("influencer", DEFAULT_INFLUENCER);
     }
 
 }

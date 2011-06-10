@@ -49,7 +49,8 @@ public class EmitterPointShape implements EmitterShape {
         this.point = point;
     }
 
-    public EmitterShape deepClone(){
+    @Override
+	public EmitterShape deepClone(){
         try {
             EmitterPointShape clone = (EmitterPointShape) super.clone();
             clone.point = point.clone();
@@ -59,8 +60,20 @@ public class EmitterPointShape implements EmitterShape {
         }
     }
 
-    public void getRandomPoint(Vector3f store) {
+    @Override
+	public void getRandomPoint(Vector3f store) {
        store.set(point);
+    }
+    
+    /**
+     * This method fills the point with data.
+     * It does not fill the normal.
+     * @param store the variable to store the point data
+     * @param normal not used in this class
+     */
+    @Override
+    public void getRandomPointAndNormal(Vector3f store, Vector3f normal) {
+    	store.set(point);
     }
 
     public Vector3f getPoint() {
@@ -71,12 +84,14 @@ public class EmitterPointShape implements EmitterShape {
         this.point = point;
     }
 
-    public void write(JmeExporter ex) throws IOException {
+    @Override
+	public void write(JmeExporter ex) throws IOException {
         OutputCapsule oc = ex.getCapsule(this);
         oc.write(point, "point", null);
     }
 
-    public void read(JmeImporter im) throws IOException {
+    @Override
+	public void read(JmeImporter im) throws IOException {
         this.point = (Vector3f) im.getCapsule(this).readSavable("point", null);
     }
 

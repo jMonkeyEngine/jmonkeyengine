@@ -49,11 +49,13 @@ public class EmitterSphereShape implements EmitterShape {
     }
 
     public EmitterSphereShape(Vector3f center, float radius) {
-        if (center == null)
-            throw new NullPointerException();
+        if (center == null) {
+			throw new NullPointerException();
+		}
 
-        if (radius <= 0)
-            throw new IllegalArgumentException("Radius must be greater than 0");
+        if (radius <= 0) {
+			throw new IllegalArgumentException("Radius must be greater than 0");
+		}
 
         this.center = center;
         this.radius = radius;
@@ -70,12 +72,18 @@ public class EmitterSphereShape implements EmitterShape {
         }
     }
 
-    public void getRandomPoint(Vector3f store) {
+    @Override
+	public void getRandomPoint(Vector3f store) {
         do {
-            store.x = ((FastMath.nextRandomFloat() * 2f) - 1f) * radius;
-            store.y = ((FastMath.nextRandomFloat() * 2f) - 1f) * radius;
-            store.z = ((FastMath.nextRandomFloat() * 2f) - 1f) * radius;
+            store.x = (FastMath.nextRandomFloat() * 2f - 1f) * radius;
+            store.y = (FastMath.nextRandomFloat() * 2f - 1f) * radius;
+            store.z = (FastMath.nextRandomFloat() * 2f - 1f) * radius;
         } while (store.distance(center) > radius);
+    }
+    
+    @Override
+    public void getRandomPointAndNormal(Vector3f store, Vector3f normal) {
+    	this.getRandomPoint(store);
     }
 
     public Vector3f getCenter() {
@@ -94,13 +102,15 @@ public class EmitterSphereShape implements EmitterShape {
         this.radius = radius;
     }
     
-    public void write(JmeExporter ex) throws IOException {
+    @Override
+	public void write(JmeExporter ex) throws IOException {
         OutputCapsule oc = ex.getCapsule(this);
         oc.write(center, "center", null);
         oc.write(radius, "radius", 0);
     }
 
-    public void read(JmeImporter im) throws IOException {
+    @Override
+	public void read(JmeImporter im) throws IOException {
         InputCapsule ic = im.getCapsule(this);
         center = (Vector3f) ic.readSavable("center", null);
         radius = ic.readFloat("radius", 0);
