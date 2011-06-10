@@ -40,7 +40,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.jme3.asset.BlenderKey.FeaturesToLoad;
-import com.jme3.asset.TextureKey;
 import com.jme3.material.MatParam;
 import com.jme3.material.Material;
 import com.jme3.material.Material.MatParamTexture;
@@ -63,22 +62,22 @@ import com.jme3.texture.Texture.WrapMode;
 import com.jme3.util.BufferUtils;
 
 public class MaterialHelper extends AbstractBlenderHelper {
-	private static final Logger		LOGGER					= Logger.getLogger(MaterialHelper.class.getName());
-	protected static final float	DEFAULT_SHININESS		= 20.0f;
+	private static final Logger					LOGGER					= Logger.getLogger(MaterialHelper.class.getName());
+	protected static final float				DEFAULT_SHININESS		= 20.0f;
 
-	public static final String		TEXTURE_TYPE_COLOR		= "ColorMap";
-	public static final String		TEXTURE_TYPE_DIFFUSE	= "DiffuseMap";
-	public static final String		TEXTURE_TYPE_NORMAL		= "NormalMap";
-	public static final String		TEXTURE_TYPE_SPECULAR	= "SpecularMap";
-	public static final String		TEXTURE_TYPE_GLOW		= "GlowMap";
-	public static final String		TEXTURE_TYPE_ALPHA		= "AlphaMap";
+	public static final String					TEXTURE_TYPE_COLOR		= "ColorMap";
+	public static final String					TEXTURE_TYPE_DIFFUSE	= "DiffuseMap";
+	public static final String					TEXTURE_TYPE_NORMAL		= "NormalMap";
+	public static final String					TEXTURE_TYPE_SPECULAR	= "SpecularMap";
+	public static final String					TEXTURE_TYPE_GLOW		= "GlowMap";
+	public static final String					TEXTURE_TYPE_ALPHA		= "AlphaMap";
 
-	public static final Integer		ALPHA_MASK_NONE			= Integer.valueOf(0);
-	public static final Integer		ALPHA_MASK_CIRCLE		= Integer.valueOf(1);
-	public static final Integer		ALPHA_MASK_CONE			= Integer.valueOf(2);
-	public static final Integer		ALPHA_MASK_HYPERBOLE	= Integer.valueOf(3);
-	protected final Map<Integer, IAlphaMask> alphaMasks = new HashMap<Integer, IAlphaMask>();
-	
+	public static final Integer					ALPHA_MASK_NONE			= Integer.valueOf(0);
+	public static final Integer					ALPHA_MASK_CIRCLE		= Integer.valueOf(1);
+	public static final Integer					ALPHA_MASK_CONE			= Integer.valueOf(2);
+	public static final Integer					ALPHA_MASK_HYPERBOLE	= Integer.valueOf(3);
+	protected final Map<Integer, IAlphaMask>	alphaMasks				= new HashMap<Integer, IAlphaMask>();
+
 	/**
 	 * The type of the material's diffuse shader.
 	 */
@@ -101,66 +100,66 @@ public class MaterialHelper extends AbstractBlenderHelper {
 	 * versions.
 	 * 
 	 * @param blenderVersion
-	 *            the version read from the blend file
+	 *        the version read from the blend file
 	 */
 	public MaterialHelper(String blenderVersion) {
 		super(blenderVersion);
-		//setting alpha masks
+		// setting alpha masks
 		alphaMasks.put(ALPHA_MASK_NONE, new IAlphaMask() {
 			@Override
 			public void setImageSize(int width, int height) {}
-			
+
 			@Override
 			public byte getAlpha(float x, float y) {
-				return (byte)255;
+				return (byte) 255;
 			}
 		});
 		alphaMasks.put(ALPHA_MASK_CIRCLE, new IAlphaMask() {
-			private float r;
-			private float[] center;
-			
+			private float	r;
+			private float[]	center;
+
 			@Override
 			public void setImageSize(int width, int height) {
 				r = Math.min(width, height) * 0.5f;
-				center = new float[] {width*0.5f, height * 0.5f};
+				center = new float[] { width * 0.5f, height * 0.5f };
 			}
-			
+
 			@Override
 			public byte getAlpha(float x, float y) {
-				float d = FastMath.abs(FastMath.sqrt((x-center[0])*(x-center[0]) + (y-center[1])*(y-center[1])));
-				return (byte)(d>=r ? 0 : 255);
+				float d = FastMath.abs(FastMath.sqrt((x - center[0]) * (x - center[0]) + (y - center[1]) * (y - center[1])));
+				return (byte) (d >= r ? 0 : 255);
 			}
 		});
 		alphaMasks.put(ALPHA_MASK_CONE, new IAlphaMask() {
-			private float r;
-			private float[] center;
-			
+			private float	r;
+			private float[]	center;
+
 			@Override
 			public void setImageSize(int width, int height) {
 				r = Math.min(width, height) * 0.5f;
-				center = new float[] {width*0.5f, height * 0.5f};
+				center = new float[] { width * 0.5f, height * 0.5f };
 			}
-			
+
 			@Override
 			public byte getAlpha(float x, float y) {
-				float d = FastMath.abs(FastMath.sqrt((x-center[0])*(x-center[0]) + (y-center[1])*(y-center[1])));
-				return (byte)(d>=r ? 0 : -255.0f*d/r+255.0f);
+				float d = FastMath.abs(FastMath.sqrt((x - center[0]) * (x - center[0]) + (y - center[1]) * (y - center[1])));
+				return (byte) (d >= r ? 0 : -255.0f * d / r + 255.0f);
 			}
 		});
 		alphaMasks.put(ALPHA_MASK_HYPERBOLE, new IAlphaMask() {
-			private float r;
-			private float[] center;
-			
+			private float	r;
+			private float[]	center;
+
 			@Override
 			public void setImageSize(int width, int height) {
 				r = Math.min(width, height) * 0.5f;
-				center = new float[] {width*0.5f, height * 0.5f};
+				center = new float[] { width * 0.5f, height * 0.5f };
 			}
-			
+
 			@Override
 			public byte getAlpha(float x, float y) {
-				float d = FastMath.abs(FastMath.sqrt((x-center[0])*(x-center[0]) + (y-center[1])*(y-center[1]))) / r;
-				return d>=1.0f ? 0 : (byte)((-FastMath.sqrt((2.0f-d)*d)+1.0f)*255.0f);
+				float d = FastMath.abs(FastMath.sqrt((x - center[0]) * (x - center[0]) + (y - center[1]) * (y - center[1]))) / r;
+				return d >= 1.0f ? 0 : (byte) ((-FastMath.sqrt((2.0f - d) * d) + 1.0f) * 255.0f);
 			}
 		});
 	}
@@ -169,7 +168,7 @@ public class MaterialHelper extends AbstractBlenderHelper {
 	 * This method sets the face cull mode to be used with every loaded material.
 	 * 
 	 * @param faceCullMode
-	 *            the face cull mode
+	 *        the face cull mode
 	 */
 	public void setFaceCullMode(FaceCullMode faceCullMode) {
 		this.faceCullMode = faceCullMode;
@@ -244,10 +243,10 @@ public class MaterialHelper extends AbstractBlenderHelper {
 					List<Structure> mtex = p.fetchData(dataRepository.getInputStream());
 					if (mtex.size() == 1) {
 						Structure textureLink = mtex.get(0);
-						int texflag = ((Number)textureLink.getFieldValue("texflag")).intValue();
-						//int texco = ((Number) textureLink.getFieldValue("texco")).intValue();
-						boolean negateTexture = (texflag & 0x04)==0;
-						
+						int texflag = ((Number) textureLink.getFieldValue("texflag")).intValue();
+						// int texco = ((Number) textureLink.getFieldValue("texco")).intValue();
+						boolean negateTexture = (texflag & 0x04) == 0;
+
 						// if(texco == 0x10) {//TEXCO_UV (this is only supported now)
 						int mapto = ((Number) textureLink.getFieldValue("mapto")).intValue();
 						if (mapto != 0) {
@@ -259,12 +258,9 @@ public class MaterialHelper extends AbstractBlenderHelper {
 									result.setBoolean("UseMaterialColors", Boolean.FALSE);
 									// blending the texture with material color and texture's defined color
 									int blendType = ((Number) textureLink.getFieldValue("blendtype")).intValue();
-									float[] color = new float[] { ((Number) textureLink.getFieldValue("r")).floatValue(),
-											((Number) textureLink.getFieldValue("g")).floatValue(),
-											((Number) textureLink.getFieldValue("b")).floatValue() };
+									float[] color = new float[] { ((Number) textureLink.getFieldValue("r")).floatValue(), ((Number) textureLink.getFieldValue("g")).floatValue(), ((Number) textureLink.getFieldValue("b")).floatValue() };
 									float colfac = ((Number) textureLink.getFieldValue("colfac")).floatValue();
-									texture = textureHelper.blendTexture(diffuseColor.getColorArray(), texture, color, colfac, blendType,
-											negateTexture, dataRepository);
+									texture = textureHelper.blendTexture(diffuseColor.getColorArray(), texture, color, colfac, blendType, negateTexture, dataRepository);
 									texture.setWrap(WrapMode.Repeat);
 									if (shadeless) {
 										result.setTexture(TEXTURE_TYPE_COLOR, texture);
@@ -309,14 +305,13 @@ public class MaterialHelper extends AbstractBlenderHelper {
 	 * returned itself.
 	 * 
 	 * @param material
-	 *            a material to be cloned without textures
+	 *        a material to be cloned without textures
 	 * @param imageType
-	 *            type of image defined by blender; the constants are defined in TextureHelper
+	 *        type of image defined by blender; the constants are defined in TextureHelper
 	 * @return material without textures of a specified type
 	 */
 	public Material getNonTexturedMaterial(Material material, int imageType) {
-		String[] textureParamNames = new String[] { TEXTURE_TYPE_DIFFUSE, TEXTURE_TYPE_NORMAL, TEXTURE_TYPE_GLOW, TEXTURE_TYPE_SPECULAR,
-				TEXTURE_TYPE_ALPHA };
+		String[] textureParamNames = new String[] { TEXTURE_TYPE_DIFFUSE, TEXTURE_TYPE_NORMAL, TEXTURE_TYPE_GLOW, TEXTURE_TYPE_SPECULAR, TEXTURE_TYPE_ALPHA };
 		Map<String, Texture> textures = new HashMap<String, Texture>(textureParamNames.length);
 		for (String textureParamName : textureParamNames) {
 			MatParamTexture matParamTexture = material.getTextureParam(textureParamName);
@@ -336,8 +331,7 @@ public class MaterialHelper extends AbstractBlenderHelper {
 						material.clearParam(textureParamName.getKey());
 					}
 				} catch (NumberFormatException e) {
-					LOGGER.log(Level.WARNING, "The name of the texture does not contain the texture type value! {0} will not be removed!",
-							name);
+					LOGGER.log(Level.WARNING, "The name of the texture does not contain the texture type value! {0} will not be removed!", name);
 				}
 			}
 			Material result = material.clone();
@@ -348,24 +342,26 @@ public class MaterialHelper extends AbstractBlenderHelper {
 			return result;
 		}
 	}
-	
+
 	/**
 	 * This method converts the given material into particles-usable material.
 	 * The texture and glow color are being copied.
 	 * The method assumes it receives the Lighting type of material.
-	 * @param material the source material
-	 * @param dataRepository the data repository
+	 * @param material
+	 *        the source material
+	 * @param dataRepository
+	 *        the data repository
 	 * @return material converted into particles-usable material
 	 */
 	public Material getParticlesMaterial(Material material, Integer alphaMaskIndex, DataRepository dataRepository) {
 		Material result = new Material(dataRepository.getAssetManager(), "Common/MatDefs/Misc/Particle.j3md");
-		
-		//copying texture
+
+		// copying texture
 		MatParam diffuseMap = material.getParam("DiffuseMap");
-		if(diffuseMap!=null) {
+		if (diffuseMap != null) {
 			Texture texture = ((Texture) diffuseMap.getValue()).clone();
-			
-			//applying alpha mask to the texture
+
+			// applying alpha mask to the texture
 			Image image = texture.getImage();
 			ByteBuffer sourceBB = image.getData(0);
 			sourceBB.rewind();
@@ -374,9 +370,9 @@ public class MaterialHelper extends AbstractBlenderHelper {
 			ByteBuffer bb = BufferUtils.createByteBuffer(w * h * 4);
 			IAlphaMask iAlphaMask = alphaMasks.get(alphaMaskIndex);
 			iAlphaMask.setImageSize(w, h);
-			
-			for(int x=0;x<w;++x) {
-				for(int y=0;y<h;++y) {
+
+			for (int x = 0; x < w; ++x) {
+				for (int y = 0; y < h; ++y) {
 					bb.put(sourceBB.get());
 					bb.put(sourceBB.get());
 					bb.put(sourceBB.get());
@@ -386,35 +382,26 @@ public class MaterialHelper extends AbstractBlenderHelper {
 
 			image = new Image(Format.RGBA8, w, h, bb);
 			texture.setImage(image);
-			
+
 			result.setTextureParam("Texture", VarType.Texture2D, texture);
 		}
-		
-		//copying glow color
+
+		// copying glow color
 		MatParam glowColor = material.getParam("GlowColor");
-		if(glowColor!=null) {
+		if (glowColor != null) {
 			ColorRGBA color = (ColorRGBA) glowColor.getValue();
 			result.setParam("GlowColor", VarType.Vector3, color);
 		}
 		return result;
-	}
-	
-	protected byte calculateAlpha(float x, float y) {
-		return (byte)255;
-	}
-	
-	protected Texture loadParticleAlphaMapTexture(DataRepository dataRepository) {
-		TextureKey textureKey = new TextureKey(this.getClass().getPackage().getName().replace('.', '/') + "/particle_alpha_map.png");
-		return dataRepository.getAssetManager().loadTexture(textureKey);
 	}
 
 	/**
 	 * This method indicates if the material has a texture of a specified type.
 	 * 
 	 * @param material
-	 *            the material
+	 *        the material
 	 * @param textureType
-	 *            the type of the texture
+	 *        the type of the texture
 	 * @return <b>true</b> if the texture exists in the material and <B>false</b> otherwise
 	 */
 	public boolean hasTexture(Material material, String textureType) {
@@ -466,7 +453,7 @@ public class MaterialHelper extends AbstractBlenderHelper {
 	 * This method returns an enum describing the type of a diffuse shader used by this material.
 	 * 
 	 * @param materialStructure
-	 *            the material structure filled with data
+	 *        the material structure filled with data
 	 * @return an enum describing the type of a diffuse shader used by this material
 	 */
 	public DiffuseShader getDiffuseShader(Structure materialStructure) {
@@ -478,7 +465,7 @@ public class MaterialHelper extends AbstractBlenderHelper {
 	 * This method returns an ambient color used by the material.
 	 * 
 	 * @param materialStructure
-	 *            the material structure filled with data
+	 *        the material structure filled with data
 	 * @return an ambient color used by the material
 	 */
 	public ColorRGBA getAmbientColor(Structure materialStructure) {
@@ -493,7 +480,7 @@ public class MaterialHelper extends AbstractBlenderHelper {
 	 * This method returns an enum describing the type of a specular shader used by this material.
 	 * 
 	 * @param materialStructure
-	 *            the material structure filled with data
+	 *        the material structure filled with data
 	 * @return an enum describing the type of a specular shader used by this material
 	 */
 	public SpecularShader getSpecularShader(Structure materialStructure) {
@@ -505,7 +492,7 @@ public class MaterialHelper extends AbstractBlenderHelper {
 	 * This method returns a specular color used by the material.
 	 * 
 	 * @param materialStructure
-	 *            the material structure filled with data
+	 *        the material structure filled with data
 	 * @return a specular color used by the material
 	 */
 	public ColorRGBA getSpecularColor(Structure materialStructure, SpecularShader specularShader) {
@@ -535,7 +522,7 @@ public class MaterialHelper extends AbstractBlenderHelper {
 	 * This method returns the sihiness of this material or DEFAULT_SHININESS value if not present.
 	 * 
 	 * @param materialStructure
-	 *            the material structure filled with data
+	 *        the material structure filled with data
 	 * @return the sihiness of this material or DEFAULT_SHININESS value if not present
 	 */
 	public float getShininess(Structure materialStructure) {
@@ -548,12 +535,12 @@ public class MaterialHelper extends AbstractBlenderHelper {
 	 * curve) but needs to have 'mat' field/
 	 * 
 	 * @param structureWithMaterials
-	 *            the structure containing the mesh data
+	 *        the structure containing the mesh data
 	 * @param dataRepository
-	 *            the data repository
+	 *        the data repository
 	 * @return a list of vertices colors, each color belongs to a single vertex
 	 * @throws BlenderFileException
-	 *             this exception is thrown when the blend file structure is somehow invalid or corrupted
+	 *         this exception is thrown when the blend file structure is somehow invalid or corrupted
 	 */
 	public Material[] getMaterials(Structure structureWithMaterials, DataRepository dataRepository) throws BlenderFileException {
 		Pointer ppMaterials = (Pointer) structureWithMaterials.getFieldValue("mat");
@@ -565,8 +552,7 @@ public class MaterialHelper extends AbstractBlenderHelper {
 				materials = new Material[materialStructures.size()];
 				int i = 0;
 				for (Structure s : materialStructures) {
-					Material material = (Material) dataRepository.getLoadedFeature(s.getOldMemoryAddress(),
-							LoadedFeatureDataType.LOADED_FEATURE);
+					Material material = (Material) dataRepository.getLoadedFeature(s.getOldMemoryAddress(), LoadedFeatureDataType.LOADED_FEATURE);
 					if (material == null) {
 						material = materialHelper.toMaterial(s, dataRepository);
 					}
@@ -581,9 +567,9 @@ public class MaterialHelper extends AbstractBlenderHelper {
 	 * This method converts rgb values to hsv values.
 	 * 
 	 * @param rgb
-	 *            rgb values of the color
+	 *        rgb values of the color
 	 * @param hsv
-	 *            hsv values of a color (this table contains the result of the transformation)
+	 *        hsv values of a color (this table contains the result of the transformation)
 	 */
 	public void rgbToHsv(float r, float g, float b, float[] hsv) {
 		float cmax = r;
@@ -630,13 +616,13 @@ public class MaterialHelper extends AbstractBlenderHelper {
 	 * This method converts rgb values to hsv values.
 	 * 
 	 * @param h
-	 *            hue
+	 *        hue
 	 * @param s
-	 *            saturation
+	 *        saturation
 	 * @param v
-	 *            value
+	 *        value
 	 * @param rgb
-	 *            rgb result vector (should have 3 elements)
+	 *        rgb result vector (should have 3 elements)
 	 */
 	public void hsvToRgb(float h, float s, float v, float[] rgb) {
 		h *= 360.0f;
@@ -687,9 +673,29 @@ public class MaterialHelper extends AbstractBlenderHelper {
 			}
 		}
 	}
-	
+
+	/**
+	 * An interface used in calculating alpha mask during particles' texture calculations.
+	 * @author Marcin Roguski (Kaelthas)
+	 */
 	protected static interface IAlphaMask {
+		/**
+		 * This method sets the size of the texture's image.
+		 * @param width
+		 *        the width of the image
+		 * @param height
+		 *        the height of the image
+		 */
 		void setImageSize(int width, int height);
+
+		/**
+		 * This method returns the alpha value for the specified texture position.
+		 * @param x
+		 *        the X coordinate of the texture position
+		 * @param y
+		 *        the Y coordinate of the texture position
+		 * @return the alpha value for the specified texture position
+		 */
 		byte getAlpha(float x, float y);
 	}
 }
