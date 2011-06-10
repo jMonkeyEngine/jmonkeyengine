@@ -2,14 +2,14 @@ package com.jme3.scene.plugins.blender.helpers.v249;
 
 import java.util.logging.Logger;
 
-import com.jme3.effect.EmitterMeshConvexHullShape;
-import com.jme3.effect.EmitterMeshFaceShape;
-import com.jme3.effect.EmitterMeshVertexShape;
 import com.jme3.effect.ParticleEmitter;
 import com.jme3.effect.ParticleMesh.Type;
 import com.jme3.effect.influencers.EmptyParticleInfluencer;
 import com.jme3.effect.influencers.ParticleInfluencer;
 import com.jme3.effect.influencers.NewtonianParticleInfluencer;
+import com.jme3.effect.shapes.EmitterMeshConvexHullShape;
+import com.jme3.effect.shapes.EmitterMeshFaceShape;
+import com.jme3.effect.shapes.EmitterMeshVertexShape;
 import com.jme3.math.ColorRGBA;
 import com.jme3.scene.plugins.blender.data.Structure;
 import com.jme3.scene.plugins.blender.exception.BlenderFileException;

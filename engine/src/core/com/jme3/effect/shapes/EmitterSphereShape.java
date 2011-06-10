@@ -30,30 +30,42 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.jme3.effect;
+package com.jme3.effect.shapes;
 
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
+import com.jme3.export.InputCapsule;
 import com.jme3.export.OutputCapsule;
+import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
 import java.io.IOException;
 
-public class EmitterPointShape implements EmitterShape {
+public class EmitterSphereShape implements EmitterShape {
 
-    private Vector3f point;
+    private Vector3f center;
+    private float radius;
 
-    public EmitterPointShape(){
+    public EmitterSphereShape(){
     }
 
-    public EmitterPointShape(Vector3f point){
-        this.point = point;
+    public EmitterSphereShape(Vector3f center, float radius) {
+        if (center == null) {
+			throw new NullPointerException();
+		}
+
+        if (radius <= 0) {
+			throw new IllegalArgumentException("Radius must be greater than 0");
+		}
+
+        this.center = center;
+        this.radius = radius;
     }
 
     @Override
-	public EmitterShape deepClone(){
+    public EmitterShape deepClone(){
         try {
-            EmitterPointShape clone = (EmitterPointShape) super.clone();
-            clone.point = point.clone();
+            EmitterSphereShape clone = (EmitterSphereShape) super.clone();
+            clone.center = center.clone();
             return clone;
         } catch (CloneNotSupportedException ex) {
             throw new AssertionError();
@@ -62,37 +74,46 @@ public class EmitterPointShape implements EmitterShape {
 
     @Override
 	public void getRandomPoint(Vector3f store) {
-       store.set(point);
+        do {
+            store.x = (FastMath.nextRandomFloat() * 2f - 1f) * radius;
+            store.y = (FastMath.nextRandomFloat() * 2f - 1f) * radius;
+            store.z = (FastMath.nextRandomFloat() * 2f - 1f) * radius;
+        } while (store.distance(center) > radius);
     }
     
-    /**
-     * This method fills the point with data.
-     * It does not fill the normal.
-     * @param store the variable to store the point data
-     * @param normal not used in this class
-     */
     @Override
     public void getRandomPointAndNormal(Vector3f store, Vector3f normal) {
-    	store.set(point);
+    	this.getRandomPoint(store);
     }
 
-    public Vector3f getPoint() {
-        return point;
+    public Vector3f getCenter() {
+        return center;
     }
 
-    public void setPoint(Vector3f point) {
-        this.point = point;
+    public void setCenter(Vector3f center) {
+        this.center = center;
     }
 
+    public float getRadius() {
+        return radius;
+    }
+
+    public void setRadius(float radius) {
+        this.radius = radius;
+    }
+    
     @Override
 	public void write(JmeExporter ex) throws IOException {
         OutputCapsule oc = ex.getCapsule(this);
-        oc.write(point, "point", null);
+        oc.write(center, "center", null);
+        oc.write(radius, "radius", 0);
     }
 
     @Override
 	public void read(JmeImporter im) throws IOException {
-        this.point = (Vector3f) im.getCapsule(this).readSavable("point", null);
+        InputCapsule ic = im.getCapsule(this);
+        center = (Vector3f) ic.readSavable("center", null);
+        radius = ic.readFloat("radius", 0);
     }
 
 }

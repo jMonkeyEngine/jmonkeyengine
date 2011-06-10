@@ -30,38 +30,39 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.jme3.effect;
+package com.jme3.effect.shapes;
 
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
-import com.jme3.export.InputCapsule;
 import com.jme3.export.OutputCapsule;
-import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
 import java.io.IOException;
 
-public class EmitterBoxShape implements EmitterShape {
+public class EmitterPointShape implements EmitterShape {
 
-    private Vector3f min, len;
+    private Vector3f point;
 
-    public EmitterBoxShape(){
+    public EmitterPointShape(){
     }
 
-    public EmitterBoxShape(Vector3f min, Vector3f max) {
-        if (min == null || max == null) {
-			throw new NullPointerException();
-		}
-
-        this.min = min;
-        this.len = new Vector3f();
-        this.len.set(max).subtractLocal(min);
+    public EmitterPointShape(Vector3f point){
+        this.point = point;
     }
-    
+
+    @Override
+	public EmitterShape deepClone(){
+        try {
+            EmitterPointShape clone = (EmitterPointShape) super.clone();
+            clone.point = point.clone();
+            return clone;
+        } catch (CloneNotSupportedException ex) {
+            throw new AssertionError();
+        }
+    }
+
     @Override
 	public void getRandomPoint(Vector3f store) {
-        store.x = min.x + len.x * FastMath.nextRandomFloat();
-        store.y = min.y + len.y * FastMath.nextRandomFloat();
-        store.z = min.z + len.z * FastMath.nextRandomFloat();
+       store.set(point);
     }
     
     /**
@@ -72,48 +73,26 @@ public class EmitterBoxShape implements EmitterShape {
      */
     @Override
     public void getRandomPointAndNormal(Vector3f store, Vector3f normal) {
-    	this.getRandomPoint(store);
+    	store.set(point);
     }
 
-    @Override
-	public EmitterShape deepClone(){
-        try {
-            EmitterBoxShape clone = (EmitterBoxShape) super.clone();
-            clone.min = min.clone();
-            clone.len = len.clone();
-            return clone;
-        } catch (CloneNotSupportedException ex) {
-            throw new AssertionError();
-        }
+    public Vector3f getPoint() {
+        return point;
     }
 
-    public Vector3f getMin() {
-        return min;
-    }
-
-    public void setMin(Vector3f min) {
-        this.min = min;
-    }
-
-    public Vector3f getLen() {
-        return len;
-    }
-
-    public void setLen(Vector3f len) {
-        this.len = len;
+    public void setPoint(Vector3f point) {
+        this.point = point;
     }
 
     @Override
 	public void write(JmeExporter ex) throws IOException {
         OutputCapsule oc = ex.getCapsule(this);
-        oc.write(min, "min", null);
-        oc.write(len, "length", null);
+        oc.write(point, "point", null);
     }
+
     @Override
 	public void read(JmeImporter im) throws IOException {
-        InputCapsule ic = im.getCapsule(this);
-        min = (Vector3f) ic.readSavable("min", null);
-        len = (Vector3f) ic.readSavable("length", null);
+        this.point = (Vector3f) im.getCapsule(this).readSavable("point", null);
     }
 
 }

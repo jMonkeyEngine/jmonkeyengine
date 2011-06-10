@@ -30,7 +30,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.jme3.effect;
+package com.jme3.effect.shapes;
 
 import com.jme3.export.Savable;
 import com.jme3.math.Vector3f;

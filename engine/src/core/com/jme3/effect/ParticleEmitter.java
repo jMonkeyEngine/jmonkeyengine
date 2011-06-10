@@ -36,6 +36,8 @@ import com.jme3.bounding.BoundingBox;
 import com.jme3.effect.ParticleMesh.Type;
 import com.jme3.effect.influencers.DefaultParticleInfluencer;
 import com.jme3.effect.influencers.ParticleInfluencer;
+import com.jme3.effect.shapes.EmitterPointShape;
+import com.jme3.effect.shapes.EmitterShape;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.InputCapsule;

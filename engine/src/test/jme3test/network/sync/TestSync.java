@@ -1,7 +1,7 @@
 package jme3test.network.sync;
 
 import com.jme3.app.SimpleApplication;
-import com.jme3.effect.EmitterSphereShape;
+import com.jme3.effect.shapes.EmitterSphereShape;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.network.connection.Client;

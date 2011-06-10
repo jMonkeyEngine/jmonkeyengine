@@ -1,4 +1,4 @@
-package com.jme3.effect;
+package com.jme3.effect.shapes;
 
 import java.util.ArrayList;
 import java.util.List;

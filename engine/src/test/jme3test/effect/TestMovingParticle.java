@@ -33,9 +33,9 @@
 package jme3test.effect;
 
 import com.jme3.app.SimpleApplication;
-import com.jme3.effect.EmitterSphereShape;
 import com.jme3.effect.ParticleEmitter;
 import com.jme3.effect.ParticleMesh.Type;
+import com.jme3.effect.shapes.EmitterSphereShape;
 import com.jme3.material.Material;
 import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;

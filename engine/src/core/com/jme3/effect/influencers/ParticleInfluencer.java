@@ -1,8 +1,8 @@
 package com.jme3.effect.influencers;
 
-import com.jme3.effect.EmitterShape;
 import com.jme3.effect.Particle;
 import com.jme3.effect.ParticleEmitter;
+import com.jme3.effect.shapes.EmitterShape;
 import com.jme3.export.Savable;
 import com.jme3.math.Vector3f;
 
