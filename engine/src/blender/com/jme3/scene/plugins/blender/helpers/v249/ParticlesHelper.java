@@ -7,8 +7,10 @@ import com.jme3.effect.EmitterMeshFaceShape;
 import com.jme3.effect.EmitterMeshVertexShape;
 import com.jme3.effect.ParticleEmitter;
 import com.jme3.effect.ParticleMesh.Type;
+import com.jme3.effect.influencers.EmptyParticleInfluencer;
+import com.jme3.effect.influencers.ParticleInfluencer;
+import com.jme3.effect.influencers.NewtonianParticleInfluencer;
 import com.jme3.math.ColorRGBA;
-import com.jme3.math.Vector3f;
 import com.jme3.scene.plugins.blender.data.Structure;
 import com.jme3.scene.plugins.blender.exception.BlenderFileException;
 import com.jme3.scene.plugins.blender.utils.AbstractBlenderHelper;
@@ -62,6 +64,24 @@ public class ParticlesHelper extends AbstractBlenderHelper {
 	public static final int PART_FROM_PARTICLE	=3;
 	public static final int PART_FROM_CHILD		=4;
 	
+	// part->phystype
+	public static final int PART_PHYS_NO	=	0;
+	public static final int PART_PHYS_NEWTON=	1;
+	public static final int PART_PHYS_KEYED	=	2;
+	public static final int PART_PHYS_BOIDS	=	3;
+	
+	// part->draw_as
+	public static final int PART_DRAW_NOT	=	0;
+	public static final int PART_DRAW_DOT	=	1;
+	public static final int PART_DRAW_CIRC	=	2;
+	public static final int PART_DRAW_CROSS	=	3;
+	public static final int PART_DRAW_AXIS	=	4;
+	public static final int PART_DRAW_LINE	=	5;
+	public static final int PART_DRAW_PATH	=	6;
+	public static final int PART_DRAW_OB	=	7;
+	public static final int PART_DRAW_GR	=	8;
+	public static final int PART_DRAW_BB	=	9;
+	
 	/**
 	 * This constructor parses the given blender version and stores the result. Some functionalities may differ in
 	 * different blender versions.
@@ -78,8 +98,35 @@ public class ParticlesHelper extends AbstractBlenderHelper {
 		Pointer pParticleSettings = (Pointer) particleSystem.getFieldValue("part");
 		if(!pParticleSettings.isNull()) {
 			Structure particleSettings = pParticleSettings.fetchData(dataRepository.getInputStream()).get(0);
+			
 			int totPart = ((Number) particleSettings.getFieldValue("totpart")).intValue();
-			result = new ParticleEmitter(particleSettings.getName(), Type.Triangle, totPart);
+			
+			//draw type will be stored temporarily in the name (it is used during modifier applying operation)
+			int drawAs = ((Number)particleSettings.getFieldValue("draw_as")).intValue();
+			char nameSuffix;//P - point, L - line, N - None, B - Bilboard
+			switch(drawAs) {
+				case PART_DRAW_NOT:
+					nameSuffix = 'N';
+					totPart = 0;//no need to generate particles in this case
+					break;
+				case PART_DRAW_BB:
+					nameSuffix = 'B';
+					break;
+				case PART_DRAW_OB:
+				case PART_DRAW_GR:
+					nameSuffix = 'P';
+					LOGGER.warning("Neither object nor group particles supported yet! Using point representation instead!");//TODO: support groups and aobjects
+					break;
+				case PART_DRAW_LINE:
+					nameSuffix = 'L';
+					LOGGER.warning("Lines not yet supported! Using point representation instead!");//TODO: support lines
+				default://all others are rendered as points in blender
+					nameSuffix = 'P';
+			}
+			result = new ParticleEmitter(particleSettings.getName()+nameSuffix, Type.Triangle, totPart);
+			if(nameSuffix=='N') {
+				return result;//no need to set anything else
+			}
 			
 			//setting the emitters shape (the shapes meshes will be set later during modifier applying operation)
 			int from = ((Number)particleSettings.getFieldValue("from")).intValue();
@@ -94,24 +141,49 @@ public class ParticlesHelper extends AbstractBlenderHelper {
 					result.setShape(new EmitterMeshConvexHullShape());
 					break;
 				default:
-					LOGGER.warning("Default shape used! Unknown emitter shape value ('from' parameter): " + from);
+					LOGGER.warning("Default shape used! Unknown emitter shape value ('from' parameter: " + from + ')');
 			}
 			
 			//reading acceleration
 			DynamicArray<Number> acc = (DynamicArray<Number>) particleSettings.getFieldValue("acc");
-			result.setInitialVelocity(new Vector3f(acc.get(0).floatValue(), acc.get(1).floatValue(), acc.get(2).floatValue()));
-			result.setGravity(0);//by default gravity is set to 0.1f so we need to disable it completely
-			// 2x2 texture animation
-			result.setImagesX(2);
-			result.setImagesY(2);
-			result.setEndColor(new ColorRGBA(1f, 0f, 0f, 1f));   // red
-			result.setStartColor(new ColorRGBA(1f, 1f, 0f, 0.5f)); // yellow
-			result.setStartSize(1.5f);
-			result.setEndSize(0.1f);
+			result.setGravity(-acc.get(0).floatValue(), -acc.get(1).floatValue(), -acc.get(2).floatValue());
 			
-			result.setLowLife(0.5f);
-		    result.setHighLife(3f);
-		    result.setVelocityVariation(0.3f);
+			//setting the colors
+			result.setEndColor(new ColorRGBA(1f, 1f, 1f, 1f));
+			result.setStartColor(new ColorRGBA(1f, 1f, 1f, 1f));
+			
+			//reading size
+			float sizeFactor = nameSuffix=='B' ? 1.0f : 0.3f;
+			float size = ((Number)particleSettings.getFieldValue("size")).floatValue() * sizeFactor;
+			result.setStartSize(size);
+			result.setEndSize(size);
+			
+			//reading lifetime
+			int fps = dataRepository.getBlenderKey().getFps();
+			float lifetime = ((Number)particleSettings.getFieldValue("lifetime")).floatValue() / fps;
+			float randlife = ((Number)particleSettings.getFieldValue("randlife")).floatValue() / fps;
+			result.setLowLife(lifetime * (1.0f - randlife));
+		    result.setHighLife(lifetime);
+		    
+		    //preparing influencer
+		    ParticleInfluencer influencer;
+		    int phystype = ((Number)particleSettings.getFieldValue("phystype")).intValue();
+		    switch(phystype) {
+		    	case PART_PHYS_NEWTON:
+		    		influencer = new NewtonianParticleInfluencer();
+		    		((NewtonianParticleInfluencer)influencer).setNormalVelocity(((Number)particleSettings.getFieldValue("normfac")).floatValue());
+		    		((NewtonianParticleInfluencer)influencer).setVelocityVariation(((Number)particleSettings.getFieldValue("randfac")).floatValue());
+		    		((NewtonianParticleInfluencer)influencer).setSurfaceTangentFactor(((Number)particleSettings.getFieldValue("tanfac")).floatValue());
+		    		((NewtonianParticleInfluencer)influencer).setSurfaceTangentRotation(((Number)particleSettings.getFieldValue("tanphase")).floatValue());
+		    		break;
+		    	case PART_PHYS_BOIDS:
+		    	case PART_PHYS_KEYED://TODO: support other influencers
+		    		LOGGER.warning("Boids and Keyed particles physic not yet supported! Empty influencer used!");
+		    	case PART_PHYS_NO:
+	    		default:
+	    			influencer = new EmptyParticleInfluencer();
+		    }
+		    result.setParticleInfluencer(influencer);
 		}
 		return result;
 	}

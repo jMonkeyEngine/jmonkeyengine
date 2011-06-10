@@ -235,28 +235,42 @@ public class ModifierHelper extends AbstractBlenderHelper {
 		}
 	}
 	
+	/**
+	 * This method applies particles emitter to the given node.
+	 * @param node the particles emitter node
+	 * @param modifier the modifier containing the emitter data
+	 * @param dataRepository the data repository
+	 * @return node with particles' emitter applied
+	 */
 	protected Node applyParticleSystemModifierData(Node node, Modifier modifier, DataRepository dataRepository) {
 		MaterialHelper materialHelper = dataRepository.getHelper(MaterialHelper.class);
 		ParticleEmitter emitter = (ParticleEmitter) modifier.getJmeModifierRepresentation();
 		emitter = emitter.clone();
 
+		//veryfying the alpha function for particles' texture
+		Integer alphaFunction = MaterialHelper.ALPHA_MASK_HYPERBOLE;
+		char nameSuffix = emitter.getName().charAt(emitter.getName().length()-1);
+		if(nameSuffix=='B' || nameSuffix=='N') {
+			alphaFunction = MaterialHelper.ALPHA_MASK_NONE;
+		}
+		//removing the type suffix from the name
+		emitter.setName(emitter.getName().substring(0, emitter.getName().length()-1));
+		
 		//applying emitter shape
 		EmitterShape emitterShape = emitter.getShape();
-		if(emitterShape instanceof EmitterMeshVertexShape) {
-			List<Mesh> meshes = new ArrayList<Mesh>();
-			for(Spatial spatial : node.getChildren()) {
-				if(spatial instanceof Geometry) {
-					Mesh mesh = ((Geometry) spatial).getMesh();
-					if(mesh != null) {
-						meshes.add(mesh);
-						Material material = materialHelper.getParticlesMaterial(((Geometry) spatial).getMaterial(), dataRepository);
-						emitter.setMaterial(material);//TODO: rozbić na kilka części
-					}
+		List<Mesh> meshes = new ArrayList<Mesh>();
+		for(Spatial spatial : node.getChildren()) {
+			if(spatial instanceof Geometry) {
+				Mesh mesh = ((Geometry) spatial).getMesh();
+				if(mesh != null) {
+					meshes.add(mesh);
+					Material material = materialHelper.getParticlesMaterial(((Geometry) spatial).getMaterial(), alphaFunction, dataRepository);
+					emitter.setMaterial(material);//TODO: divide into several pieces
 				}
 			}
-			if(meshes.size()>0) {
-				((EmitterMeshVertexShape) emitterShape).setMeshes(meshes);
-			}
+		}
+		if(meshes.size()>0 && emitterShape instanceof EmitterMeshVertexShape) {
+			((EmitterMeshVertexShape) emitterShape).setMeshes(meshes);
 		}
 		
 		node.attachChild(emitter);

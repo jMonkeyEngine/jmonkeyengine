@@ -301,13 +301,13 @@ public class MeshHelper extends AbstractBlenderHelper {
 
 			// creating vertices indices for this mesh
 			List<Integer> indexList = meshEntry.getValue();
-			int[] indices = new int[indexList.size()];
-			for (int i = 0; i < indexList.size(); ++i) {
-				indices[i] = indexList.get(i).intValue();
+			short[] indices = new short[indexList.size()];//TODO: check if the model doesn't have more than 32767 vertices
+			for (int i = 0; i < indexList.size(); ++i) {//if yes then mesh.getVertices method must be changed to accept other than ShortBuffer
+				indices[i] = indexList.get(i).shortValue();
 			}
 
 			// setting vertices
-			mesh.setBuffer(Type.Index, 1, BufferUtils.createIntBuffer(indices));
+			mesh.setBuffer(Type.Index, 1, BufferUtils.createShortBuffer(indices));
 			mesh.setBuffer(verticesBuffer);
 			mesh.setBuffer(verticesBind);
 

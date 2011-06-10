@@ -31,6 +31,7 @@
  */
 package com.jme3.scene.plugins.blender.helpers.v249;
 
+import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,12 +40,14 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.jme3.asset.BlenderKey.FeaturesToLoad;
+import com.jme3.asset.TextureKey;
 import com.jme3.material.MatParam;
 import com.jme3.material.Material;
 import com.jme3.material.Material.MatParamTexture;
 import com.jme3.material.RenderState.BlendMode;
 import com.jme3.material.RenderState.FaceCullMode;
 import com.jme3.math.ColorRGBA;
+import com.jme3.math.FastMath;
 import com.jme3.scene.plugins.blender.data.Structure;
 import com.jme3.scene.plugins.blender.exception.BlenderFileException;
 import com.jme3.scene.plugins.blender.utils.AbstractBlenderHelper;
@@ -53,8 +56,11 @@ import com.jme3.scene.plugins.blender.utils.DataRepository.LoadedFeatureDataType
 import com.jme3.scene.plugins.blender.utils.DynamicArray;
 import com.jme3.scene.plugins.blender.utils.Pointer;
 import com.jme3.shader.VarType;
+import com.jme3.texture.Image;
+import com.jme3.texture.Image.Format;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
+import com.jme3.util.BufferUtils;
 
 public class MaterialHelper extends AbstractBlenderHelper {
 	private static final Logger		LOGGER					= Logger.getLogger(MaterialHelper.class.getName());
@@ -67,6 +73,12 @@ public class MaterialHelper extends AbstractBlenderHelper {
 	public static final String		TEXTURE_TYPE_GLOW		= "GlowMap";
 	public static final String		TEXTURE_TYPE_ALPHA		= "AlphaMap";
 
+	public static final Integer		ALPHA_MASK_NONE			= Integer.valueOf(0);
+	public static final Integer		ALPHA_MASK_CIRCLE		= Integer.valueOf(1);
+	public static final Integer		ALPHA_MASK_CONE			= Integer.valueOf(2);
+	public static final Integer		ALPHA_MASK_HYPERBOLE	= Integer.valueOf(3);
+	protected final Map<Integer, IAlphaMask> alphaMasks = new HashMap<Integer, IAlphaMask>();
+	
 	/**
 	 * The type of the material's diffuse shader.
 	 */
@@ -93,6 +105,64 @@ public class MaterialHelper extends AbstractBlenderHelper {
 	 */
 	public MaterialHelper(String blenderVersion) {
 		super(blenderVersion);
+		//setting alpha masks
+		alphaMasks.put(ALPHA_MASK_NONE, new IAlphaMask() {
+			@Override
+			public void setImageSize(int width, int height) {}
+			
+			@Override
+			public byte getAlpha(float x, float y) {
+				return (byte)255;
+			}
+		});
+		alphaMasks.put(ALPHA_MASK_CIRCLE, new IAlphaMask() {
+			private float r;
+			private float[] center;
+			
+			@Override
+			public void setImageSize(int width, int height) {
+				r = Math.min(width, height) * 0.5f;
+				center = new float[] {width*0.5f, height * 0.5f};
+			}
+			
+			@Override
+			public byte getAlpha(float x, float y) {
+				float d = FastMath.abs(FastMath.sqrt((x-center[0])*(x-center[0]) + (y-center[1])*(y-center[1])));
+				return (byte)(d>=r ? 0 : 255);
+			}
+		});
+		alphaMasks.put(ALPHA_MASK_CONE, new IAlphaMask() {
+			private float r;
+			private float[] center;
+			
+			@Override
+			public void setImageSize(int width, int height) {
+				r = Math.min(width, height) * 0.5f;
+				center = new float[] {width*0.5f, height * 0.5f};
+			}
+			
+			@Override
+			public byte getAlpha(float x, float y) {
+				float d = FastMath.abs(FastMath.sqrt((x-center[0])*(x-center[0]) + (y-center[1])*(y-center[1])));
+				return (byte)(d>=r ? 0 : -255.0f*d/r+255.0f);
+			}
+		});
+		alphaMasks.put(ALPHA_MASK_HYPERBOLE, new IAlphaMask() {
+			private float r;
+			private float[] center;
+			
+			@Override
+			public void setImageSize(int width, int height) {
+				r = Math.min(width, height) * 0.5f;
+				center = new float[] {width*0.5f, height * 0.5f};
+			}
+			
+			@Override
+			public byte getAlpha(float x, float y) {
+				float d = FastMath.abs(FastMath.sqrt((x-center[0])*(x-center[0]) + (y-center[1])*(y-center[1]))) / r;
+				return d>=1.0f ? 0 : (byte)((-FastMath.sqrt((2.0f-d)*d)+1.0f)*255.0f);
+			}
+		});
 	}
 
 	/**
@@ -287,13 +357,36 @@ public class MaterialHelper extends AbstractBlenderHelper {
 	 * @param dataRepository the data repository
 	 * @return material converted into particles-usable material
 	 */
-	public Material getParticlesMaterial(Material material, DataRepository dataRepository) {
+	public Material getParticlesMaterial(Material material, Integer alphaMaskIndex, DataRepository dataRepository) {
 		Material result = new Material(dataRepository.getAssetManager(), "Common/MatDefs/Misc/Particle.j3md");
 		
 		//copying texture
 		MatParam diffuseMap = material.getParam("DiffuseMap");
 		if(diffuseMap!=null) {
-			Texture texture = (Texture) diffuseMap.getValue();
+			Texture texture = ((Texture) diffuseMap.getValue()).clone();
+			
+			//applying alpha mask to the texture
+			Image image = texture.getImage();
+			ByteBuffer sourceBB = image.getData(0);
+			sourceBB.rewind();
+			int w = image.getWidth();
+			int h = image.getHeight();
+			ByteBuffer bb = BufferUtils.createByteBuffer(w * h * 4);
+			IAlphaMask iAlphaMask = alphaMasks.get(alphaMaskIndex);
+			iAlphaMask.setImageSize(w, h);
+			
+			for(int x=0;x<w;++x) {
+				for(int y=0;y<h;++y) {
+					bb.put(sourceBB.get());
+					bb.put(sourceBB.get());
+					bb.put(sourceBB.get());
+					bb.put(iAlphaMask.getAlpha(x, y));
+				}
+			}
+
+			image = new Image(Format.RGBA8, w, h, bb);
+			texture.setImage(image);
+			
 			result.setTextureParam("Texture", VarType.Texture2D, texture);
 		}
 		
@@ -303,8 +396,16 @@ public class MaterialHelper extends AbstractBlenderHelper {
 			ColorRGBA color = (ColorRGBA) glowColor.getValue();
 			result.setParam("GlowColor", VarType.Vector3, color);
 		}
-		//material.setTexture("Texture", dataRepository.getAssetManager().loadTexture("Effects/Explosion/flame.png"));
 		return result;
+	}
+	
+	protected byte calculateAlpha(float x, float y) {
+		return (byte)255;
+	}
+	
+	protected Texture loadParticleAlphaMapTexture(DataRepository dataRepository) {
+		TextureKey textureKey = new TextureKey(this.getClass().getPackage().getName().replace('.', '/') + "/particle_alpha_map.png");
+		return dataRepository.getAssetManager().loadTexture(textureKey);
 	}
 
 	/**
@@ -585,5 +686,10 @@ public class MaterialHelper extends AbstractBlenderHelper {
 					break;
 			}
 		}
+	}
+	
+	protected static interface IAlphaMask {
+		void setImageSize(int width, int height);
+		byte getAlpha(float x, float y);
 	}
 }
