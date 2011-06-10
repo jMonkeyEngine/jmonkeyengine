@@ -31,10 +31,10 @@
  */
 package com.jme3.gde.core.sceneexplorer.nodes.properties;
 
-import com.jme3.effect.EmitterBoxShape;
-import com.jme3.effect.EmitterPointShape;
-import com.jme3.effect.EmitterShape;
-import com.jme3.effect.EmitterSphereShape;
+import com.jme3.effect.shapes.EmitterBoxShape;
+import com.jme3.effect.shapes.EmitterPointShape;
+import com.jme3.effect.shapes.EmitterShape;
+import com.jme3.effect.shapes.EmitterSphereShape;
 import com.jme3.math.Vector3f;
 import java.awt.Component;
 import java.awt.Graphics;
