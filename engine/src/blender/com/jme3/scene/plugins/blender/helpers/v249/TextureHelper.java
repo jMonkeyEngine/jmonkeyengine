@@ -144,7 +144,7 @@ public class TextureHelper extends AbstractBlenderHelper {
 	 * versions.
 	 * 
 	 * @param blenderVersion
-	 *            the version read from the blend file
+	 *        the version read from the blend file
 	 */
 	public TextureHelper(String blenderVersion) {
 		super(blenderVersion);
@@ -155,12 +155,12 @@ public class TextureHelper extends AbstractBlenderHelper {
 	 * its blender type.
 	 * 
 	 * @param tex
-	 *            texture structure filled with data
+	 *        texture structure filled with data
 	 * @param dataRepository
-	 *            the data repository
+	 *        the data repository
 	 * @return the texture that can be used by JME engine
 	 * @throws BlenderFileException
-	 *             this exception is thrown when the blend file structure is somehow invalid or corrupted
+	 *         this exception is thrown when the blend file structure is somehow invalid or corrupted
 	 */
 	public Texture getTexture(Structure tex, DataRepository dataRepository) throws BlenderFileException {
 		Texture result = (Texture) dataRepository.getLoadedFeature(tex.getOldMemoryAddress(), LoadedFeatureDataType.LOADED_FEATURE);
@@ -227,13 +227,13 @@ public class TextureHelper extends AbstractBlenderHelper {
 	 * This method generates the clouds texture. The result is one pixel.
 	 * 
 	 * @param tex
-	 *            the texture structure
+	 *        the texture structure
 	 * @param width
-	 *            the width of texture (in pixels)
+	 *        the width of texture (in pixels)
 	 * @param height
-	 *            the height of texture (in pixels)
+	 *        the height of texture (in pixels)
 	 * @param dataRepository
-	 *            the data repository
+	 *        the data repository
 	 * @return generated texture
 	 */
 	protected Texture clouds(Structure tex, int width, int height, DataRepository dataRepository) {
@@ -256,8 +256,7 @@ public class TextureHelper extends AbstractBlenderHelper {
 		width <<= 1;
 		height <<= 1;
 		ColorBand colorBand = this.readColorband(tex, dataRepository);
-		Format format = sType == com.jme3.scene.plugins.blender.helpers.v249.NoiseHelper.TEX_COLOR || colorBand != null ? Format.RGB8
-				: Format.Luminance8;
+		Format format = sType == com.jme3.scene.plugins.blender.helpers.v249.NoiseHelper.TEX_COLOR || colorBand != null ? Format.RGB8 : Format.Luminance8;
 		int bytesPerPixel = sType == com.jme3.scene.plugins.blender.helpers.v249.NoiseHelper.TEX_COLOR || colorBand != null ? 3 : 1;
 
 		ByteBuffer data = BufferUtils.createByteBuffer(width * height * bytesPerPixel);
@@ -272,12 +271,9 @@ public class TextureHelper extends AbstractBlenderHelper {
 					if (texres.nor != null) {
 						float nabla = ((Number) tex.getFieldValue("nabla")).floatValue();
 						// calculate bumpnormal
-						texres.nor[0] = noiseHelper.bliGTurbulence(noisesize, texvec[0] + nabla, texvec[1], texvec[2], noiseDepth, isHard,
-								noiseBasis);
-						texres.nor[1] = noiseHelper.bliGTurbulence(noisesize, texvec[0], texvec[1] + nabla, texvec[2], noiseDepth, isHard,
-								noiseBasis);
-						texres.nor[2] = noiseHelper.bliGTurbulence(noisesize, texvec[0], texvec[1], texvec[2] + nabla, noiseDepth, isHard,
-								noiseBasis);
+						texres.nor[0] = noiseHelper.bliGTurbulence(noisesize, texvec[0] + nabla, texvec[1], texvec[2], noiseDepth, isHard, noiseBasis);
+						texres.nor[1] = noiseHelper.bliGTurbulence(noisesize, texvec[0], texvec[1] + nabla, texvec[2], noiseDepth, isHard, noiseBasis);
+						texres.nor[2] = noiseHelper.bliGTurbulence(noisesize, texvec[0], texvec[1], texvec[2] + nabla, noiseDepth, isHard, noiseBasis);
 						noiseHelper.texNormalDerivate(colorBand, texres, dataRepository);
 					}
 					noiseHelper.brightnesAndContrastRGB(tex, texres);
@@ -307,13 +303,13 @@ public class TextureHelper extends AbstractBlenderHelper {
 	 * This method generates the wood texture.
 	 * 
 	 * @param tex
-	 *            the texture structure
+	 *        the texture structure
 	 * @param width
-	 *            the width of the texture
+	 *        the width of the texture
 	 * @param height
-	 *            the height of the texture
+	 *        the height of the texture
 	 * @param dataRepository
-	 *            the data repository
+	 *        the data repository
 	 * @return the generated texture
 	 */
 	protected Texture wood(Structure tex, int width, int height, DataRepository dataRepository) {
@@ -364,13 +360,13 @@ public class TextureHelper extends AbstractBlenderHelper {
 	 * This method generates the marble texture.
 	 * 
 	 * @param tex
-	 *            the texture structure
+	 *        the texture structure
 	 * @param width
-	 *            the width of the texture
+	 *        the width of the texture
 	 * @param height
-	 *            the height of the texture
+	 *        the height of the texture
 	 * @param dataRepository
-	 *            the data repository
+	 *        the data repository
 	 * @return the generated texture
 	 */
 	protected Texture marble(Structure tex, int width, int height, DataRepository dataRepository) {
@@ -421,13 +417,13 @@ public class TextureHelper extends AbstractBlenderHelper {
 	 * This method generates the magic texture.
 	 * 
 	 * @param tex
-	 *            the texture structure
+	 *        the texture structure
 	 * @param width
-	 *            the width of the texture
+	 *        the width of the texture
 	 * @param height
-	 *            the height of the texture
+	 *        the height of the texture
 	 * @param dataRepository
-	 *            the data repository
+	 *        the data repository
 	 * @return the generated texture
 	 */
 	protected Texture magic(Structure tex, int width, int height, DataRepository dataRepository) {
@@ -452,7 +448,7 @@ public class TextureHelper extends AbstractBlenderHelper {
 				x = (float) Math.sin((texvec[0] + texvec[1]) * 5.0f);// in blender: Math.sin((texvec[0] + texvec[1] + texvec[2]) * 5.0f);
 				y = (float) Math.cos((-texvec[0] + texvec[1]) * 5.0f);// in blender: Math.cos((-texvec[0] + texvec[1] - texvec[2]) * 5.0f);
 				z = -(float) Math.cos((-texvec[0] - texvec[1]) * 5.0f);// in blender: Math.cos((-texvec[0] - texvec[1] + texvec[2]) * 5.0f);
-				
+
 				if (colorBand != null) {
 					texres.tin = 0.3333f * (x + y + z);
 					noiseHelper.doColorband(colorBand, texres, dataRepository);
@@ -515,13 +511,13 @@ public class TextureHelper extends AbstractBlenderHelper {
 	 * This method generates the blend texture.
 	 * 
 	 * @param tex
-	 *            the texture structure
+	 *        the texture structure
 	 * @param width
-	 *            the width of the texture
+	 *        the width of the texture
 	 * @param height
-	 *            the height of the texture
+	 *        the height of the texture
 	 * @param dataRepository
-	 *            the data repository
+	 *        the data repository
 	 * @return the generated texture
 	 */
 	protected Texture blend(Structure tex, int width, int height, DataRepository dataRepository) {
@@ -604,13 +600,13 @@ public class TextureHelper extends AbstractBlenderHelper {
 	 * This method generates the stucci texture.
 	 * 
 	 * @param tex
-	 *            the texture structure
+	 *        the texture structure
 	 * @param width
-	 *            the width of the texture
+	 *        the width of the texture
 	 * @param height
-	 *            the height of the texture
+	 *        the height of the texture
 	 * @param dataRepository
-	 *            the data repository
+	 *        the data repository
 	 * @return the generated texture
 	 */
 	protected Texture stucci(Structure tex, int width, int height, DataRepository dataRepository) {
@@ -684,13 +680,13 @@ public class TextureHelper extends AbstractBlenderHelper {
 	 * This method generates the noise texture.
 	 * 
 	 * @param tex
-	 *            the texture structure
+	 *        the texture structure
 	 * @param width
-	 *            the width of the texture
+	 *        the width of the texture
 	 * @param height
-	 *            the height of the texture
+	 *        the height of the texture
 	 * @param dataRepository
-	 *            the data repository
+	 *        the data repository
 	 * @return the generated texture
 	 */
 	// TODO: correct this one, so it looks more like the texture generated by blender
@@ -741,13 +737,13 @@ public class TextureHelper extends AbstractBlenderHelper {
 	 * This method generates the musgrave texture.
 	 * 
 	 * @param tex
-	 *            the texture structure
+	 *        the texture structure
 	 * @param width
-	 *            the width of the texture
+	 *        the width of the texture
 	 * @param height
-	 *            the height of the texture
+	 *        the height of the texture
 	 * @param dataRepository
-	 *            the data repository
+	 *        the data repository
 	 * @return the generated texture
 	 */
 	protected Texture musgrave(Structure tex, int width, int height, DataRepository dataRepository) {
@@ -801,13 +797,13 @@ public class TextureHelper extends AbstractBlenderHelper {
 	 * This method generates the voronoi texture.
 	 * 
 	 * @param tex
-	 *            the texture structure
+	 *        the texture structure
 	 * @param width
-	 *            the width of the texture
+	 *        the width of the texture
 	 * @param height
-	 *            the height of the texture
+	 *        the height of the texture
 	 * @param dataRepository
-	 *            the data repository
+	 *        the data repository
 	 * @return the generated texture
 	 */
 	protected Texture voronoi(Structure tex, int width, int height, DataRepository dataRepository) {
@@ -923,13 +919,13 @@ public class TextureHelper extends AbstractBlenderHelper {
 	 * This method generates the distorted noise texture.
 	 * 
 	 * @param tex
-	 *            the texture structure
+	 *        the texture structure
 	 * @param width
-	 *            the width of the texture
+	 *        the width of the texture
 	 * @param height
-	 *            the height of the texture
+	 *        the height of the texture
 	 * @param dataRepository
-	 *            the data repository
+	 *        the data repository
 	 * @return the generated texture
 	 */
 	protected Texture distnoise(Structure tex, int width, int height, DataRepository dataRepository) {
@@ -987,9 +983,9 @@ public class TextureHelper extends AbstractBlenderHelper {
 	 * This method reads the colorband data from the given texture structure.
 	 * 
 	 * @param tex
-	 *            the texture structure
+	 *        the texture structure
 	 * @param dataRepository
-	 *            the data repository
+	 *        the data repository
 	 * @return read colorband or null if not present
 	 */
 	protected ColorBand readColorband(Structure tex, DataRepository dataRepository) {
@@ -1011,25 +1007,24 @@ public class TextureHelper extends AbstractBlenderHelper {
 
 	/**
 	 * This method blends the given texture with material color and the defined color in 'map to' panel. As a result of this method a new
-	 * texture is created. The input texture is NOT modified.
+	 * texture is created. The input texture is NOT.
 	 * 
 	 * @param materialColor
-	 *            the material diffuse color
+	 *        the material diffuse color
 	 * @param texture
-	 *            the texture we use in blending
+	 *        the texture we use in blending
 	 * @param color
-	 *            the color defined for the texture
+	 *        the color defined for the texture
 	 * @param affectFactor
-	 *            the factor that the color affects the texture (value form 0.0 to 1.0)
+	 *        the factor that the color affects the texture (value form 0.0 to 1.0)
 	 * @param blendType
-	 *            the blending type
+	 *        the blending type
 	 * @param dataRepository
-	 *            the data repository
+	 *        the data repository
 	 * @return new texture that was created after the blending
 	 */
-	public Texture blendTexture(float[] materialColor, Texture texture, float[] color, float affectFactor, 
-			int blendType, boolean neg,
-			DataRepository dataRepository) {
+	public Texture blendTexture(float[] materialColor, Texture texture, float[] color, float affectFactor, int blendType, boolean neg, DataRepository dataRepository) {
+		float[] materialColorClone = materialColor.clone();//this array may change, so we copy it
 		Format format = texture.getImage().getFormat();
 		ByteBuffer data = texture.getImage().getData(0);
 		data.rewind();
@@ -1038,118 +1033,146 @@ public class TextureHelper extends AbstractBlenderHelper {
 		ByteBuffer newData = BufferUtils.createByteBuffer(width * height * 3);
 
 		float[] resultPixel = new float[3];
-		float[] texPixel = new float[3];
 		int dataIndex = 0;
-
 		while (data.hasRemaining()) {
-			byte pixelValue = data.get();
-			texPixel[0] = pixelValue >= 0 ? 1.0f - pixelValue / 255.0f : (~pixelValue + 1) / 255.0f;
-			if(neg) {
-				texPixel[0] = 1.0f - texPixel[0];
-			}
-			if (format == Format.ABGR8) {
-				//intensity not used at the moment
-				pixelValue = data.get();
-				texPixel[2] = pixelValue >= 0 ? 1.0f - pixelValue / 255.0f : (~pixelValue + 1) / 255.0f;
-				if(neg) {
-					texPixel[2] = 1.0f - texPixel[2];
-				}
-				pixelValue = data.get();
-				texPixel[1] = pixelValue >= 0 ? 1.0f - pixelValue / 255.0f : (~pixelValue + 1) / 255.0f;
-				if(neg) {
-					texPixel[1] = 1.0f - texPixel[1];
-				}
-				pixelValue = data.get();
-				texPixel[0] = pixelValue >= 0 ? 1.0f - pixelValue / 255.0f : (~pixelValue + 1) / 255.0f;
-				if(neg) {
-					texPixel[0] = 1.0f - texPixel[0];
-				}
-				
-				this.blendPixel(resultPixel, materialColor, texPixel, 1.0f, affectFactor, blendType, dataRepository);
-
-				newData.put(dataIndex++, (byte) (resultPixel[0] * 255.0f));
-				newData.put(dataIndex++, (byte) (resultPixel[1] * 255.0f));
-				newData.put(dataIndex++, (byte) (resultPixel[2] * 255.0f));
-			} else if (format == Format.RGB8) {
-				pixelValue = data.get();
-				texPixel[1] = pixelValue >= 0 ? 1.0f - pixelValue / 255.0f : (~pixelValue + 1) / 255.0f;
-				if(neg) {
-					texPixel[1] = 1.0f - texPixel[1];
-				}
-				pixelValue = data.get();
-				texPixel[2] = pixelValue >= 0 ? 1.0f - pixelValue / 255.0f : (~pixelValue + 1) / 255.0f;
-				if(neg) {
-					texPixel[2] = 1.0f - texPixel[2];
-				}
-				float tin = texPixel[0];//(texPixel[0] + texPixel[1] + texPixel[2]) / 3.0f;
-				this.blendPixel(resultPixel, texPixel, color, tin, affectFactor, blendType, dataRepository);
-				newData.put(dataIndex++, (byte) (resultPixel[0] * 255.0f));
-				newData.put(dataIndex++, (byte) (resultPixel[1] * 255.0f));
-				newData.put(dataIndex++, (byte) (resultPixel[2] * 255.0f));
-			} else if (format == Format.RGBA8) {
-                pixelValue = data.get();
-                texPixel[1] = pixelValue >= 0 ? 1.0f - pixelValue / 255.0f : (~pixelValue + 1) / 255.0f;
-                if(neg) {
-                    texPixel[1] = 1.0f - texPixel[1];
-                }
-                pixelValue = data.get();
-                texPixel[2] = pixelValue >= 0 ? 1.0f - pixelValue / 255.0f : (~pixelValue + 1) / 255.0f;
-                if(neg) {
-                    texPixel[2] = 1.0f - texPixel[2];
-                }
-                data.get(); // ignore alpha
-                this.blendPixel(resultPixel, materialColor, texPixel, 1.0f, affectFactor, blendType, dataRepository);
-                newData.put(dataIndex++, (byte) (resultPixel[0] * 255.0f));
-                newData.put(dataIndex++, (byte) (resultPixel[1] * 255.0f));
-                newData.put(dataIndex++, (byte) (resultPixel[2] * 255.0f));
-			} else if (format == Format.BGR8) {
-                texPixel[2] = texPixel[0];
-                pixelValue = data.get();
-                texPixel[1] = pixelValue >= 0 ? 1.0f - pixelValue / 255.0f : (~pixelValue + 1) / 255.0f;
-                if(neg) {
-                    texPixel[1] = 1.0f - texPixel[1];
-                }
-                pixelValue = data.get();
-                texPixel[0] = pixelValue >= 0 ? 1.0f - pixelValue / 255.0f : (~pixelValue + 1) / 255.0f;
-                if(neg) {
-                    texPixel[0] = 1.0f - texPixel[0];
-                }
-                this.blendPixel(resultPixel, materialColor, texPixel, 1.0f, affectFactor, blendType, dataRepository);
-                newData.put(dataIndex++, (byte) (resultPixel[0] * 255.0f));
-                newData.put(dataIndex++, (byte) (resultPixel[1] * 255.0f));
-                newData.put(dataIndex++, (byte) (resultPixel[2] * 255.0f));
-			} else if (format == Format.Luminance8) {
-				this.blendPixel(resultPixel, materialColor, color, texPixel[0], affectFactor, blendType, dataRepository);
-				newData.put((byte) (resultPixel[0] * 255.0f));
-				newData.put((byte) (resultPixel[1] * 255.0f));
-				newData.put((byte) (resultPixel[2] * 255.0f));
-			} else {
-				throw new IllegalStateException("Invalid texture format for blending operation: " + format);
-			}
+			float tin = this.setupMaterialColor(data, format, neg, materialColorClone);
+			this.blendPixel(resultPixel, materialColorClone, color, tin, affectFactor, blendType, dataRepository);
+			newData.put(dataIndex++, (byte) (resultPixel[0] * 255.0f));
+			newData.put(dataIndex++, (byte) (resultPixel[1] * 255.0f));
+			newData.put(dataIndex++, (byte) (resultPixel[2] * 255.0f));
 		}
 		return new Texture2D(new Image(Format.RGB8, width, height, newData));
+	}
+
+	/**
+	 * This method alters the material color in a way dependent on the type of the image.
+	 * For example the color remains untouched if the texture is of Luminance type.
+	 * The luminance defines the interaction between the material color and color defined
+	 * for texture blending.
+	 * If the type has 3 or more color channels then the material color is replaces with the texture's
+	 * color and later blended with the defined blend color.
+	 * All alpha values (if present) are ignored and not used during blending.
+	 * @param data
+	 *        the image data
+	 * @param imageFormat
+	 *        the format of the image
+	 * @param neg
+	 *        defines it the result color should be nagated
+	 * @param materialColor
+	 *        the material's color (value may be changed)
+	 * @return texture intensity for the current pixel
+	 */
+	protected float setupMaterialColor(ByteBuffer data, Format imageFormat, boolean neg, float[] materialColor) {
+		// at least one byte is always taken :)
+		float tin = 0.0f;
+		byte pixelValue = data.get();
+		float firstPixelValue = pixelValue >= 0 ? 1.0f - pixelValue / 255.0f : (~pixelValue + 1) / 255.0f;
+		switch (imageFormat) {
+			case ABGR8:
+				pixelValue = data.get();
+				materialColor[2] = pixelValue >= 0 ? 1.0f - pixelValue / 255.0f : (~pixelValue + 1) / 255.0f;
+				pixelValue = data.get();
+				materialColor[1] = pixelValue >= 0 ? 1.0f - pixelValue / 255.0f : (~pixelValue + 1) / 255.0f;
+				pixelValue = data.get();
+				materialColor[0] = pixelValue >= 0 ? 1.0f - pixelValue / 255.0f : (~pixelValue + 1) / 255.0f;
+				break;
+			case BGR8:
+				materialColor[2] = firstPixelValue;
+				pixelValue = data.get();
+				materialColor[1] = pixelValue >= 0 ? 1.0f - pixelValue / 255.0f : (~pixelValue + 1) / 255.0f;
+				pixelValue = data.get();
+				materialColor[0] = pixelValue >= 0 ? 1.0f - pixelValue / 255.0f : (~pixelValue + 1) / 255.0f;
+				break;
+			case RGB8:
+				materialColor[0] = firstPixelValue;
+				pixelValue = data.get();
+				materialColor[1] = pixelValue >= 0 ? 1.0f - pixelValue / 255.0f : (~pixelValue + 1) / 255.0f;
+				pixelValue = data.get();
+				materialColor[2] = pixelValue >= 0 ? 1.0f - pixelValue / 255.0f : (~pixelValue + 1) / 255.0f;
+				break;
+			case RGBA8:
+				materialColor[0] = firstPixelValue;
+				pixelValue = data.get();
+				materialColor[1] = pixelValue >= 0 ? 1.0f - pixelValue / 255.0f : (~pixelValue + 1) / 255.0f;
+				pixelValue = data.get();
+				materialColor[2] = pixelValue >= 0 ? 1.0f - pixelValue / 255.0f : (~pixelValue + 1) / 255.0f;
+				data.get(); // ignore alpha
+				break;
+			case Luminance8:
+				tin = neg ? 1.0f - firstPixelValue : firstPixelValue;
+				neg = false;//do not negate the materialColor, it must be unchanged
+				break;
+			case Luminance8Alpha8:
+				tin = neg ? 1.0f - firstPixelValue : firstPixelValue;
+				neg = false;//do not negate the materialColor, it must be unchanged
+				data.get(); // ignore alpha
+				break;
+			case Luminance16:
+			case Luminance16Alpha16:
+			case Alpha16:
+			case Alpha8:
+			case ARGB4444:
+			case Depth:
+			case Depth16:
+			case Depth24:
+			case Depth32:
+			case Depth32F:
+			case DXT1:
+			case DXT1A:
+			case DXT3:
+			case DXT5:
+			case Intensity16:
+			case Intensity8:
+			case LATC:
+			case LTC:
+			case Luminance16F:
+			case Luminance16FAlpha16F:
+			case Luminance32F:
+			case RGB10:
+			case RGB111110F:
+			case RGB16:
+			case RGB16F:
+			case RGB16F_to_RGB111110F:
+			case RGB16F_to_RGB9E5:
+			case RGB32F:
+			case RGB565:
+			case RGB5A1:
+			case RGB9E5:
+			case RGBA16:
+			case RGBA16F:
+			case RGBA32F:
+				LOGGER.warning("Image type not yet supported for blending: " + imageFormat);
+				break;
+			default:
+				throw new IllegalStateException("Unknown image format type: " + imageFormat);
+		}
+		if (neg) {
+			materialColor[0] = 1.0f - materialColor[0];
+			materialColor[1] = 1.0f - materialColor[1];
+			materialColor[2] = 1.0f - materialColor[2];
+		}
+		return tin;
 	}
 
 	/**
 	 * This method blends the texture with an appropriate color.
 	 * 
 	 * @param result
-	 *            the result color (variable 'in' in blender source code)
+	 *        the result color (variable 'in' in blender source code)
 	 * @param materialColor
-	 *            the texture color (variable 'out' in blender source coude)
+	 *        the texture color (variable 'out' in blender source coude)
 	 * @param color
-	 *            the previous color (variable 'tex' in blender source code)
+	 *        the previous color (variable 'tex' in blender source code)
 	 * @param textureIntensity
-	 *            texture intensity (variable 'fact' in blender source code)
+	 *        texture intensity (variable 'fact' in blender source code)
 	 * @param textureFactor
-	 *            texture affection factor (variable 'facg' in blender source code)
+	 *        texture affection factor (variable 'facg' in blender source code)
 	 * @param blendtype
-	 *            the blend type
+	 *        the blend type
 	 * @param dataRepository
-	 *            the data repository
+	 *        the data repository
 	 */
-	public void blendPixel(float[] result, float[] materialColor, float[] color, float textureIntensity, float textureFactor,
-			int blendtype, DataRepository dataRepository) {
+	public void blendPixel(float[] result, float[] materialColor, float[] color, float textureIntensity, float textureFactor, int blendtype, DataRepository dataRepository) {
 		float facm, col;
 
 		switch (blendtype) {
@@ -1275,15 +1298,15 @@ public class TextureHelper extends AbstractBlenderHelper {
 	 * The method that performs the ramp blending (whatever it is :P - copied from blender sources).
 	 * 
 	 * @param type
-	 *            the ramp type
+	 *        the ramp type
 	 * @param rgb
-	 *            the rgb value where the result is stored
+	 *        the rgb value where the result is stored
 	 * @param fac
-	 *            color affection factor
+	 *        color affection factor
 	 * @param col
-	 *            the texture color
+	 *        the texture color
 	 * @param dataRepository
-	 *            the data repository
+	 *        the data repository
 	 */
 	public void rampBlend(int type, float[] rgb, float fac, float[] col, DataRepository dataRepository) {
 		float tmp, facm = 1.0f - fac;
@@ -1526,12 +1549,12 @@ public class TextureHelper extends AbstractBlenderHelper {
 	 * This class returns a texture read from the file or from packed blender data.
 	 * 
 	 * @param image
-	 *            image structure filled with data
+	 *        image structure filled with data
 	 * @param dataRepository
-	 *            the data repository
+	 *        the data repository
 	 * @return the texture that can be used by JME engine
 	 * @throws BlenderFileException
-	 *             this exception is thrown when the blend file structure is somehow invalid or corrupted
+	 *         this exception is thrown when the blend file structure is somehow invalid or corrupted
 	 */
 	public Texture getTextureFromImage(Structure image, DataRepository dataRepository) throws BlenderFileException {
 		Texture result = (Texture) dataRepository.getLoadedFeature(image.getOldMemoryAddress(), LoadedFeatureDataType.LOADED_FEATURE);
@@ -1568,9 +1591,9 @@ public class TextureHelper extends AbstractBlenderHelper {
 	 * This method loads the textre from outside the blend file.
 	 * 
 	 * @param name
-	 *            the path to the image
+	 *        the path to the image
 	 * @param dataRepository
-	 *            the data repository
+	 *        the data repository
 	 * @return the loaded image or null if the image cannot be found
 	 */
 	protected Texture loadTextureFromFile(String name, DataRepository dataRepository) {
@@ -1651,7 +1674,7 @@ public class TextureHelper extends AbstractBlenderHelper {
 	 * This method closes the given stream.
 	 * 
 	 * @param is
-	 *            the input stream that is to be closed
+	 *        the input stream that is to be closed
 	 */
 	protected void closeStream(InputStream is) {
 		if (is != null) {
@@ -1678,11 +1701,11 @@ public class TextureHelper extends AbstractBlenderHelper {
 		 * This method loads the image from the blender file itself. It tries each loader to load the image.
 		 * 
 		 * @param inputStream
-		 *            blender input stream
+		 *        blender input stream
 		 * @param startPosition
-		 *            position in the stream where the image data starts
+		 *        position in the stream where the image data starts
 		 * @param flipY
-		 *            if the image should be flipped (does not work with DirectX image)
+		 *        if the image should be flipped (does not work with DirectX image)
 		 * @return loaded image or null if it could not be loaded
 		 */
 		public Image loadImage(BlenderInputStream inputStream, int startPosition, boolean flipY) {
@@ -1711,11 +1734,11 @@ public class TextureHelper extends AbstractBlenderHelper {
 		 * This method loads an image of a specified type from the given input stream.
 		 * 
 		 * @param inputStream
-		 *            the input stream we read the image from
+		 *        the input stream we read the image from
 		 * @param imageType
-		 *            the type of the image {@link ImageType}
+		 *        the type of the image {@link ImageType}
 		 * @param flipY
-		 *            if the image should be flipped (does not work with DirectX image)
+		 *        if the image should be flipped (does not work with DirectX image)
 		 * @return loaded image or null if it could not be loaded
 		 */
 		public Image loadImage(InputStream inputStream, ImageType imageType, boolean flipY) {
@@ -1787,7 +1810,7 @@ public class TextureHelper extends AbstractBlenderHelper {
 		 * Constructor. Loads the data from the given structure.
 		 * 
 		 * @param cbdataStructure
-		 *            the colorband structure
+		 *        the colorband structure
 		 */
 		@SuppressWarnings("unchecked")
 		public ColorBand(Structure colorbandStructure) {
@@ -1815,7 +1838,7 @@ public class TextureHelper extends AbstractBlenderHelper {
 		 * Constructor. Loads the data from the given structure.
 		 * 
 		 * @param cbdataStructure
-		 *            the structure containing the CBData object
+		 *        the structure containing the CBData object
 		 */
 		public CBData(Structure cbdataStructure) {
 			this.r = ((Number) cbdataStructure.getFieldValue("r")).floatValue();
@@ -1831,14 +1854,14 @@ public class TextureHelper extends AbstractBlenderHelper {
 			return super.clone();
 		}
 	}
-	
+
 	public static class GeneratedTextureData {
-		public ByteBuffer luminanceData;
-		public ByteBuffer rgbData;
-		public Format rgbFormat;
-		public int width;
-		public int height;
-		
+		public ByteBuffer	luminanceData;
+		public ByteBuffer	rgbData;
+		public Format		rgbFormat;
+		public int			width;
+		public int			height;
+
 		public GeneratedTextureData(ByteBuffer luminanceData, ByteBuffer rgbData, Format rgbFormat, int width, int height) {
 			this.luminanceData = luminanceData;
 			this.rgbData = rgbData;
