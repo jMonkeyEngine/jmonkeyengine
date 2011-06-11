@@ -41,7 +41,11 @@ import com.jme3.scene.Spatial;
 import java.io.IOException;
 
 /**
- * A light coming from a certain direction in world space. E.g sun or moon light.
+ * <code>DirectionalLight</code> is a light coming from a certain direction in world space. 
+ * E.g sun or moon light.
+ * <p>
+ * Directional lights have no specific position in the scene, they always 
+ * come from their direction regardless of where an object is placed.
  */
 public class DirectionalLight extends Light {
 
@@ -53,7 +57,11 @@ public class DirectionalLight extends Light {
     }
 
     /**
+     * Returns the direction vector of the light.
+     * 
      * @return The direction vector of the light.
+     * 
+     * @see DirectionalLight#setDirection(com.jme3.math.Vector3f) 
      */
     public Vector3f getDirection() {
         return direction;
@@ -61,8 +69,11 @@ public class DirectionalLight extends Light {
 
     /**
      * Sets the direction of the light.
-     * @param dir Represents the vector direction the light is coming from.
-     * (1f, 0, 0) would represent a directional light coming from the X axis.
+     * <p>
+     * Represents the vector direction the light is coming from.
+     * (1, 0, 0) would represent a directional light coming from the X axis.
+     * 
+     * @param dir the direction of the light.
      */
     public void setDirection(Vector3f dir){
         direction.set(dir);

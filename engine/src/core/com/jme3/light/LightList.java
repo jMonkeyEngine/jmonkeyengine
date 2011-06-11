@@ -47,6 +47,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+/**
+ * <code>LightList</code> is used internally by {@link Spatial}s to manage
+ * lights that are attached to them.
+ * 
+ * @author Kirill Vainer
+ */
 public final class LightList implements Iterable<Light>, Savable, Cloneable {
 
     private Light[] list, tlist;
@@ -76,6 +82,11 @@ public final class LightList implements Iterable<Light>, Savable, Cloneable {
     public LightList(){
     }
 
+    /**
+     * Creates a <code>LightList</code> for the given {@link Spatial}.
+     * 
+     * @param owner The spatial owner
+     */
     public LightList(Spatial owner) {
         listSize = 0;
         list = new Light[DEFAULT_SIZE];
@@ -84,6 +95,10 @@ public final class LightList implements Iterable<Light>, Savable, Cloneable {
         this.owner = owner;
     }
 
+    /**
+     * Set the owner of the LightList. Only used for cloning.
+     * @param owner 
+     */
     public void setOwner(Spatial owner){
         this.owner = owner;
     }
@@ -132,6 +147,11 @@ public final class LightList implements Iterable<Light>, Savable, Cloneable {
         list[listSize] = null;
     }
 
+    /**
+     * Removes the given light from the LightList.
+     * 
+     * @param l the light to remove
+     */
     public void remove(Light l){
         for (int i = 0; i < listSize; i++){
             if (list[i] == l){
@@ -249,6 +269,11 @@ public final class LightList implements Iterable<Light>, Savable, Cloneable {
         }
     }
 
+    /**
+     * Returns an iterator that can be used to iterate over this LightList.
+     * 
+     * @return an iterator that can be used to iterate over this LightList.
+     */
     public Iterator<Light> iterator() {
         return new Iterator<Light>(){
 

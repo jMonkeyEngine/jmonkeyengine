@@ -43,14 +43,42 @@ import java.io.IOException;
 
 /**
  * Abstract class for representing a light source.
+ * <p>
+ * All light source types have a color.
  */
 public abstract class Light implements Savable, Cloneable {
 
-    public static enum Type {
+    /**
+     * Describes the light type.
+     */
+    public enum Type {
 
+        /**
+         * Directional light
+         * 
+         * @see DirectionalLight
+         */
         Directional(0),
+        
+        /**
+         * Point light
+         * 
+         * @see PointLight
+         */
         Point(1),
+        
+        /**
+         * Spot light.
+         * <p>
+         * Not supported by jMonkeyEngine
+         */
         Spot(2),
+        
+        /**
+         * Ambient light
+         * 
+         * @see AmbientLight
+         */
         Ambient(3);
 
         private int typeId;
@@ -59,6 +87,10 @@ public abstract class Light implements Savable, Cloneable {
             this.typeId = type;
         }
 
+        /**
+         * Returns an index for the light type
+         * @return an index for the light type
+         */
         public int getId(){
             return typeId;
         }
@@ -73,14 +105,18 @@ public abstract class Light implements Savable, Cloneable {
     protected transient float lastDistance = -1;
 
     /**
-     * If light is disabled, it will not take effect.
+     * If light is disabled, it will not have any 
      */
     protected boolean enabled = true;
 
-    /** The light's name. */
+    /** 
+     * The light name. 
+     */
     protected String name;
 
     /**
+     * Returns the color of the light.
+     * 
      * @return The color of the light.
      */
     public ColorRGBA getColor() {
@@ -88,21 +124,24 @@ public abstract class Light implements Savable, Cloneable {
     }
 
     /**
-     * This method sets the light's name.
-     * @param name the light's name
+     * This method sets the light name.
+     * 
+     * @param name the light name
      */
     public void setName(String name) {
         this.name = name;
     }
 
     /**
-     * This method returns the light's name.
-     * @return the light's name
+     * Return the light name.
+     * 
+     * @return the light name
      */
     public String getName() {
         return name;
     }
 
+    /*
     public void setLastDistance(float lastDistance){
         this.lastDistance = lastDistance;
     }
@@ -110,14 +149,29 @@ public abstract class Light implements Savable, Cloneable {
     public float getLastDistance(){
         return lastDistance;
     }
+    */
 
+    /**
+     * Sets the light color.
+     * 
+     * @param color the light color.
+     */
     public void setColor(ColorRGBA color){
         this.color.set(color);
     }
 
+    /**
+     * Returns true if the light is enabled
+     * 
+     * @return true if the light is enabled
+     * 
+     * @see Light#setEnabled(boolean)
+     */
+    /*
     public boolean isEnabled() {
         return enabled;
     }
+    */
     
     @Override
     public Light clone(){
@@ -142,7 +196,18 @@ public abstract class Light implements Savable, Cloneable {
         name = ic.readString("name", null);
     }
 
-    public abstract void computeLastDistance(Spatial owner);
+    /**
+     * Used internally to compute the last distance value.
+     */
+    protected abstract void computeLastDistance(Spatial owner);
+    
+    /**
+     * Returns the light type
+     * 
+     * @return the light type
+     * 
+     * @see Type
+     */
     public abstract Type getType();
 
 }
