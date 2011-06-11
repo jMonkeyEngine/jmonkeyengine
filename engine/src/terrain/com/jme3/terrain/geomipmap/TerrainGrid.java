@@ -229,7 +229,7 @@ public class TerrainGrid extends TerrainQuad {
         attachQuadAt(q4, 4);
 
         this.currentCell = cam;
-        this.setLocalTranslation(cam.mult(2 * this.quadSize));
+        this.setLocalTranslation(cam.mult(this.getLocalScale().mult(this.quadSize)));
 
         if (control != null) {
             control = new RigidBodyControl(new HeightfieldCollisionShape(getHeightMap(), getLocalScale()), 0);
