@@ -44,6 +44,12 @@ public class MouseButtonTrigger implements Trigger {
 
     private final int mouseButton;
 
+    /**
+     * Create a new <code>MouseButtonTrigger</code> to receive mouse button events.
+     * 
+     * @param mouseButton Mouse button index. See BUTTON_*** constants in
+     * {@link MouseInput}.
+     */
     public MouseButtonTrigger(int mouseButton) {
         if  (mouseButton < 0)
             throw new IllegalArgumentException("Mouse Button cannot be negative");

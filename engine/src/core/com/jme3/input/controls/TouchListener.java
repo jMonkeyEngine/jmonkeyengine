@@ -41,9 +41,9 @@ import com.jme3.input.event.TouchEvent;
  */
 public interface TouchListener extends InputListener {
     /**
-     * @param name - the name of the event
-     * @param event - the touch event itself
-     * @param tpf - how much time has passed since the last frame
+     * @param name the name of the event
+     * @param event the touch event
+     * @param tpf how much time has passed since the last frame
      */
     public void onTouch(String name, TouchEvent event, float tpf);
 }

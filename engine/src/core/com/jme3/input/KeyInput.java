@@ -519,9 +519,17 @@ public interface KeyInput extends Input {
      * delete key.
      */
     public static final int KEY_DELETE = 0xD3;
-    public static final int KEY_LMETA            = 0xDB; /* Left Windows/Option key */
     
-    public static final int KEY_RMETA            = 0xDC; /* Right Windows/Option key */
+    /**
+     * Left "Windows" key on PC keyboards, left "Option" key on Mac keyboards.
+     */
+    public static final int KEY_LMETA  = 0xDB;
+    
+    /**
+     * Right "Windows" key on PC keyboards, right "Option" key on Mac keyboards.
+     */
+    public static final int KEY_RMETA = 0xDC;
+    
     public static final int KEY_APPS = 0xDD;
     /**
      * power key.

@@ -38,11 +38,15 @@ package com.jme3.input;
 public interface TouchInput extends Input {
 
     /**
+     * Set whether mouse events should be generated
+     * 
      * @param simulate Whether mouse events should be generated
      */
     public void setSimulateMouse(boolean simulate);
 
     /**
+     * Set whether keyboard events should be generated
+     * 
      * @param simulate Whether keyboard events should be generated
      */
     public void setSimulateKeyboard(boolean simulate);

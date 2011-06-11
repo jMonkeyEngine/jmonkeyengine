@@ -29,51 +29,43 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package com.jme3.input.event;
 
-import com.jme3.input.event.InputEvent;
 import com.jme3.math.Vector2f;
 
 /**
  * <code>TouchEvent</code> represents a single event from multi-touch input devices
  * @author larynx
  */
-public class TouchEvent extends InputEvent
-{
-    public static enum Type 
-    {
+public class TouchEvent extends InputEvent {
+
+    public enum Type {
+
         /**
          * Touch down event, fields: posX, posY, pressure
          */
         DOWN,
-        
         /**
          * Move/Drag event, fields: posX, posY, deltaX, deltaY, pressure
          */
         MOVE,
-        
         /**
          * Touch up event, fields: posX, posY, pressure
          */
         UP,
-
         /**
          * Virtual keyboard or hardware key event down, fields: keyCode, characters
          */
         KEY_DOWN,
-        
         /**
          * Virtual keyboard or hardware key event up, fields: keyCode, characters
          */
         KEY_UP,
-        
         // Single finger gestures
         FLING,
         TAP,
         DOUBLETAP,
         LONGPRESSED,
-        
         // Two finger scale events
         /**
          * Two finger scale event start, fields: posX/posY = getFocusX/Y, scaleFactor, scaleSpan  
@@ -87,24 +79,19 @@ public class TouchEvent extends InputEvent
          * Two finger scale event end, fields: posX/posY = getFocusX/Y, scaleFactor, scaleSpan
          */
         SCALE_END,
-        
         /**
          *  Scroll event 
          */
         SCROLL,
-        
         /**
          * The user has performed a down MotionEvent and not performed a move or up yet. This event is commonly used to provide visual feedback to the user to let them know that their action has been recognized i.e. highlight an element.
          */
         SHOWPRESS,
-        
         // Others
         OUTSIDE,
-        IDLE}
-    
+        IDLE
+    }
     private Type type = Type.IDLE;
-
-
     private int pointerId;
     private float posX;
     private float posY;
@@ -115,28 +102,23 @@ public class TouchEvent extends InputEvent
     // Used only with KEY* events
     private int keyCode;
     private String characters;
-    
     // Used only with SCALE* events
     private float scaleFactor;
     private float scaleSpan;
-    
 
-    public TouchEvent()
-    {
+    public TouchEvent() {
         set(Type.IDLE, 0f, 0f, 0f, 0f);
     }
-    public TouchEvent(Type type, float x, float y, float deltax, float deltay)
-    {
+
+    public TouchEvent(Type type, float x, float y, float deltax, float deltay) {
         set(type, x, y, deltax, deltay);
     }
-    
-    public void set(Type type)
-    {
+
+    public void set(Type type) {
         set(type, 0f, 0f, 0f, 0f);
     }
-    
-    public void set(Type type, float x, float y, float deltax, float deltay)
-    {
+
+    public void set(Type type, float x, float y, float deltax, float deltay) {
         this.type = type;
         this.posX = x;
         this.posY = y;
@@ -145,29 +127,28 @@ public class TouchEvent extends InputEvent
         consumed = false;
     }
 
-
-    public Type getType()
-    {
+    /**
+     * Returns the type of touch event.
+     * 
+     * @return the type of touch event.
+     */
+    public Type getType() {
         return type;
     }
 
-    public float getX()
-    {
+    public float getX() {
         return posX;
     }
 
-    public float getY()
-    {
+    public float getY() {
         return posY;
     }
 
-    public float getDeltaX()
-    {
+    public float getDeltaX() {
         return deltaX;
     }
 
-    public float getDeltaY()
-    {
+    public float getDeltaY() {
         return deltaY;
     }
     
@@ -186,48 +167,39 @@ public class TouchEvent extends InputEvent
         return pointerId;
     }
 
-    public void setPointerId(int pointerId) 
-    {
+    public void setPointerId(int pointerId) {
         this.pointerId = pointerId;
     }
 
-    public int getKeyCode() 
-    {
+    public int getKeyCode() {
         return keyCode;
     }
-    
-    public void setKeyCode(int keyCode) 
-    {
+
+    public void setKeyCode(int keyCode) {
         this.keyCode = keyCode;
     }
-    
-    public String getCharacters() 
-    {
+
+    public String getCharacters() {
         return characters;
     }
-    
-    public void setCharacters(String characters) 
-    {
+
+    public void setCharacters(String characters) {
         this.characters = characters;
     }
 
-    public float getScaleFactor() 
-    {
+    public float getScaleFactor() {
         return scaleFactor;
     }
 
-    public void setScaleFactor(float scaleFactor) 
-    {
+    public void setScaleFactor(float scaleFactor) {
         this.scaleFactor = scaleFactor;
     }
 
-    public float getScaleSpan() 
-    {
+    public float getScaleSpan() {
         return scaleSpan;
     }
 
-    public void setScaleSpan(float scaleSpan) 
-    {
+    public void setScaleSpan(float scaleSpan) {
         this.scaleSpan = scaleSpan;
     }
 }

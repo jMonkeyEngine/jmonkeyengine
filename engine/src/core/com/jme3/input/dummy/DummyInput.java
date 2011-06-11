@@ -35,6 +35,12 @@ package com.jme3.input.dummy;
 import com.jme3.input.Input;
 import com.jme3.input.RawInputListener;
 
+/**
+ * DummyInput as an implementation of <code>Input</code> that raises no
+ * input events.
+ * 
+ * @author Kirill Vainer.
+ */
 public class DummyInput implements Input {
 
     protected boolean inited = false;

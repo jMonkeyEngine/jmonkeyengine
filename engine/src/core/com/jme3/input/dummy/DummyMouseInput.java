@@ -34,6 +34,12 @@ package com.jme3.input.dummy;
 
 import com.jme3.input.MouseInput;
 
+/**
+ * DummyMouseInput as an implementation of <code>MouseInput</code> that raises no
+ * input events.
+ * 
+ * @author Kirill Vainer.
+ */
 public class DummyMouseInput extends DummyInput implements MouseInput {
 
     public void setCursorVisible(boolean visible) {

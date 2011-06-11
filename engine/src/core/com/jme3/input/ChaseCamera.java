@@ -541,7 +541,7 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control {
     }
 
     /**
-     * update the camera control, should on ly be used internally
+     * update the camera control, should only be used internally
      * @param tpf
      */
     public void update(float tpf) {
@@ -549,7 +549,7 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control {
     }
 
     /**
-     * renders the camera control, should on ly be used internally
+     * renders the camera control, should only be used internally
      * @param rm
      * @param vp
      */

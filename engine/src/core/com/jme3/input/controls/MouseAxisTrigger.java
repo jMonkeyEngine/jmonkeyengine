@@ -46,6 +46,13 @@ public class MouseAxisTrigger implements Trigger {
     private int mouseAxis;
     private boolean negative;
 
+    /**
+     * Create a new <code>MouseAxisTrigger</code>.
+     * <p>
+     * @param mouseAxis Mouse axis. See AXIS_*** constants in {@link MouseInput}
+     * @param negative True if listen to negative axis events, false if
+     * listen to positive axis events.
+     */
     public MouseAxisTrigger(int mouseAxis, boolean negative){
         if (mouseAxis < 0 || mouseAxis > 2)
             throw new IllegalArgumentException("Mouse Axis must be between 0 and 2");
@@ -72,13 +79,8 @@ public class MouseAxisTrigger implements Trigger {
         }
     }
 
-    public static final int mouseAxisHash(int mouseAxis, boolean negative){
+    public static int mouseAxisHash(int mouseAxis, boolean negative){
         assert mouseAxis >= 0 && mouseAxis <= 255;
         return (negative ? 768 : 512) | (mouseAxis & 0xff);
-    }
-
-    @Override
-    public int hashCode(){
-        return mouseAxisHash(mouseAxis, negative);
     }
 }

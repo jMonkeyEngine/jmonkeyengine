@@ -32,10 +32,18 @@
 
 package com.jme3.input.controls;
 
+import com.jme3.input.Joystick;
+
 public class JoyButtonTrigger implements Trigger {
 
     private final int joyId, buttonId;
 
+    /**
+     * Use {@link Joystick#assignButton(java.lang.String, int) } instead.
+     * 
+     * @param joyId
+     * @param axisId 
+     */
     public JoyButtonTrigger(int joyId, int axisId) {
         this.joyId = joyId;
         this.buttonId = axisId;
@@ -44,11 +52,6 @@ public class JoyButtonTrigger implements Trigger {
     public static int joyButtonHash(int joyId, int joyButton){
         assert joyButton >= 0 && joyButton <= 255;
         return (2048 * joyId) | 1536 | (joyButton & 0xff);
-    }
-
-    @Override
-    public int hashCode(){
-        return joyButtonHash(joyId, buttonId);
     }
 
     public int getAxisId() {

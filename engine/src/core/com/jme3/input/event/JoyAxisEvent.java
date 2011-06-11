@@ -32,6 +32,14 @@
 
 package com.jme3.input.event;
 
+import com.jme3.input.InputManager;
+import com.jme3.input.Joystick;
+
+/**
+ * Joystick axis event.
+ * 
+ * @author Kirill Vainer
+ */
 public class JoyAxisEvent extends InputEvent {
 
     private int joyIdx;
@@ -44,18 +52,34 @@ public class JoyAxisEvent extends InputEvent {
         this.value = value;
     }
 
+    /**
+     * Returns the joystick axis index.
+     * 
+     * @return joystick axis index.
+     * 
+     * @see Joystick#assignAxis(java.lang.String, java.lang.String, int) 
+     */
     public int getAxisIndex() {
         return axisIdx;
     }
 
+    /**
+     * The joystick index.
+     * 
+     * @return joystick index.
+     * 
+     * @see InputManager#getJoysticks() 
+     */
     public int getJoyIndex() {
         return joyIdx;
     }
 
+    /**
+     * The value of the axis.
+     * 
+     * @return value of the axis.
+     */
     public float getValue() {
         return value;
     }
-
-
-
 }

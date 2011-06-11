@@ -135,11 +135,15 @@ public class FlyByCamera implements AnalogListener, ActionListener {
     }
 
     /**
-     * @param dragToRotate When true, the user must hold the mouse button
+     * Set if drag to rotate mode is enabled.
+     * 
+     * When true, the user must hold the mouse button
      * and drag over the screen to rotate the camera, and the cursor is
      * visible until dragged. Otherwise, the cursor is invisible at all times
      * and holding the mouse button is not needed to rotate the camera.
      * This feature is disabled by default.
+     * 
+     * @param dragToRotate True if drag to rotate mode is enabled.
      */
     public void setDragToRotate(boolean dragToRotate) {
         this.dragToRotate = dragToRotate;

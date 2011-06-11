@@ -32,6 +32,13 @@
 
 package com.jme3.input.event;
 
+import com.jme3.input.Joystick;
+
+/**
+ * Joystick button event.
+ * 
+ * @author Kirill Vainer
+ */
 public class JoyButtonEvent extends InputEvent {
 
     private int joyIdx;
@@ -44,14 +51,35 @@ public class JoyButtonEvent extends InputEvent {
         this.pressed = pressed;
     }
 
+    /**
+     * The button index.
+     * 
+     * @return button index.
+     * 
+     * @see Joystick#assignButton(java.lang.String, int) 
+     */
     public int getButtonIndex() {
         return btnIdx;
     }
 
+    /**
+     * The joystick index.
+     * 
+     * @return joystick index.
+     * 
+     * @see InputManager#getJoysticks() 
+     */
     public int getJoyIndex() {
         return joyIdx;
     }
 
+    /**
+     * Returns true if the event was a button press,
+     * returns false if the event was a button release.
+     * 
+     * @return true if the event was a button press,
+     * false if the event was a button release.
+     */
     public boolean isPressed() {
         return pressed;
     }
