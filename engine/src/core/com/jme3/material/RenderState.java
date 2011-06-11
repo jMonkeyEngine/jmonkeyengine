@@ -1015,8 +1015,30 @@ public class RenderState implements Cloneable, Savable {
         }
         if (additionalState.applyStencilTest){
             state.stencilTest = additionalState.stencilTest;
+            
+            state.frontStencilStencilFailOperation = additionalState.frontStencilStencilFailOperation;
+            state.frontStencilDepthFailOperation   = additionalState.frontStencilDepthFailOperation;
+            state.frontStencilDepthPassOperation   = additionalState.frontStencilDepthPassOperation;
+            
+            state.backStencilStencilFailOperation = additionalState.backStencilStencilFailOperation;
+            state.backStencilDepthFailOperation   = additionalState.backStencilDepthFailOperation;
+            state.backStencilDepthPassOperation   = additionalState.backStencilDepthPassOperation;
+            
+            state.frontStencilFunction = additionalState.frontStencilFunction;
+            state.backStencilFunction = additionalState.backStencilFunction;
         }else{
             state.stencilTest = stencilTest;
+            
+            state.frontStencilStencilFailOperation = frontStencilStencilFailOperation;
+            state.frontStencilDepthFailOperation   = frontStencilDepthFailOperation;
+            state.frontStencilDepthPassOperation   = frontStencilDepthPassOperation;
+            
+            state.backStencilStencilFailOperation = backStencilStencilFailOperation;
+            state.backStencilDepthFailOperation   = backStencilDepthFailOperation;
+            state.backStencilDepthPassOperation   = backStencilDepthPassOperation;
+            
+            state.frontStencilFunction = frontStencilFunction;
+            state.backStencilFunction = backStencilFunction;
         }
         return state;
     }
