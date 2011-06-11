@@ -41,8 +41,7 @@ import com.jme3.scene.shape.Box;
 import de.lessvoid.nifty.Nifty;
 import de.lessvoid.nifty.screen.Screen;
 import de.lessvoid.nifty.screen.ScreenController;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.net.URL;
 
 public class TestNiftyGui extends SimpleApplication implements ScreenController {
 
@@ -68,7 +67,9 @@ public class TestNiftyGui extends SimpleApplication implements ScreenController 
                                                           guiViewPort);
         nifty = niftyDisplay.getNifty();
 
-        nifty.fromXml("Tests/hellojme.xml", "start", this);
+        URL url = Thread.currentThread().getContextClassLoader().getResource("jme3test/niftygui/hellojme.xml");
+        
+        nifty.fromXml("Interface/Nifty/HelloJme.xml", "start", this);
 
         // attach the nifty display to the gui view port as a processor
         guiViewPort.addProcessor(niftyDisplay);

@@ -30,7 +30,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.jme3.animation;
+package com.jme3.scene.plugins.ogre;
 
 //import static com.jmex.model.XMLUtil.getAttribute;
 //import static com.jmex.model.XMLUtil.getIntAttribute;
