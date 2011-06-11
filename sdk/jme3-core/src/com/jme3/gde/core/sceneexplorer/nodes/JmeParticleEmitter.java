@@ -31,7 +31,7 @@
  */
 package com.jme3.gde.core.sceneexplorer.nodes;
 
-import com.jme3.effect.EmitterShape;
+import com.jme3.effect.shapes.EmitterShape;
 import com.jme3.effect.ParticleEmitter;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
