@@ -35,7 +35,6 @@ package com.jme3.renderer;
 import com.jme3.material.RenderState;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.texture.Image;
-import com.jme3.texture.Texture;
 
 /**
  * Represents the current state of the graphics library. This class is used
@@ -149,8 +148,8 @@ public class RenderContext {
     public RenderState.StencilOperation backStencilStencilFailOperation = RenderState.StencilOperation.Keep;
     public RenderState.StencilOperation backStencilDepthFailOperation = RenderState.StencilOperation.Keep;
     public RenderState.StencilOperation backStencilDepthPassOperation = RenderState.StencilOperation.Keep;
-    public RenderState.StencilFunction frontStencilFunction = RenderState.StencilFunction.Always;
-    public RenderState.StencilFunction backStencilFunction = RenderState.StencilFunction.Always;
+    public RenderState.TestFunction frontStencilFunction = RenderState.TestFunction.Always;
+    public RenderState.TestFunction backStencilFunction = RenderState.TestFunction.Always;
 
     /**
      * Vertex attribs currently bound and enabled. If a slot is null, then
@@ -193,5 +192,15 @@ public class RenderContext {
             boundAttribs[i] = null;
 
         attribIndexList.reset();
+        
+        stencilTest = false;
+        frontStencilStencilFailOperation = RenderState.StencilOperation.Keep;
+        frontStencilDepthFailOperation = RenderState.StencilOperation.Keep;
+        frontStencilDepthPassOperation = RenderState.StencilOperation.Keep;
+        backStencilStencilFailOperation = RenderState.StencilOperation.Keep;
+        backStencilDepthFailOperation = RenderState.StencilOperation.Keep;
+        backStencilDepthPassOperation = RenderState.StencilOperation.Keep;
+        frontStencilFunction = RenderState.TestFunction.Always;
+        backStencilFunction = RenderState.TestFunction.Always;
     }
 }

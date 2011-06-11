@@ -33,6 +33,8 @@ package com.jme3.renderer.lwjgl;
 
 import com.jme3.light.LightList;
 import com.jme3.material.RenderState;
+import com.jme3.material.RenderState.StencilOperation;
+import com.jme3.material.RenderState.TestFunction;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Matrix4f;
@@ -67,6 +69,7 @@ import com.jme3.util.BufferUtils;
 import com.jme3.util.IntMap;
 import com.jme3.util.IntMap.Entry;
 import com.jme3.util.ListMap;
+import java.io.File;
 import java.nio.ByteBuffer;
 import java.nio.DoubleBuffer;
 import java.nio.FloatBuffer;
@@ -632,28 +635,27 @@ public class LwjglRenderer implements Renderer {
             if (state.isStencilTest()) {
                 glEnable(GL_STENCIL_TEST);
                 glStencilOpSeparate(GL_FRONT,
-                        glStencilOpFromStencilOp(state.getFrontStencilStencilFailOperation()),
-                        glStencilOpFromStencilOp(state.getFrontStencilDepthFailOperation()),
-                        glStencilOpFromStencilOp(state.getFrontStencilDepthPassOperation()));
+                        convertStencilOperation(state.getFrontStencilStencilFailOperation()),
+                        convertStencilOperation(state.getFrontStencilDepthFailOperation()),
+                        convertStencilOperation(state.getFrontStencilDepthPassOperation()));
                 glStencilOpSeparate(GL_BACK,
-                        glStencilOpFromStencilOp(state.getBackStencilStencilFailOperation()),
-                        glStencilOpFromStencilOp(state.getBackStencilDepthFailOperation()),
-                        glStencilOpFromStencilOp(state.getBackStencilDepthPassOperation()));
+                        convertStencilOperation(state.getBackStencilStencilFailOperation()),
+                        convertStencilOperation(state.getBackStencilDepthFailOperation()),
+                        convertStencilOperation(state.getBackStencilDepthPassOperation()));
                 glStencilFuncSeparate(GL_FRONT,
-                        glStencilFuncFromStencilFunc(state.getFrontStencilFunction()),
+                        convertTestFunction(state.getFrontStencilFunction()),
                         0, Integer.MAX_VALUE);
                 glStencilFuncSeparate(GL_BACK,
-                        glStencilFuncFromStencilFunc(state.getBackStencilFunction()),
+                        convertTestFunction(state.getBackStencilFunction()),
                         0, Integer.MAX_VALUE);
             } else {
                 glDisable(GL_STENCIL_TEST);
             }
         }
-
     }
 
-    private int glStencilOpFromStencilOp(RenderState.StencilOperation s) {
-        switch (s) {
+    private int convertStencilOperation(StencilOperation stencilOp) {
+        switch (stencilOp) {
             case Keep:
                 return GL_KEEP;
             case Zero:
@@ -671,21 +673,21 @@ public class LwjglRenderer implements Renderer {
             case Invert:
                 return GL_INVERT;
             default:
-                throw new UnsupportedOperationException("Unrecognized front stencil operation: " + s);
-        }  //end switch
+                throw new UnsupportedOperationException("Unrecognized stencil operation: " + stencilOp);
+        }
     }
 
-    private int glStencilFuncFromStencilFunc(RenderState.StencilFunction s) {
-        switch (s) {
+    private int convertTestFunction(TestFunction testFunc) {
+        switch (testFunc) {
             case Never:
                 return GL_NEVER;
             case Less:
                 return GL_LESS;
-            case LessEqual:
+            case LessOrEqual:
                 return GL_LEQUAL;
             case Greater:
                 return GL_GREATER;
-            case GreaterEqual:
+            case GreaterOrEqual:
                 return GL_GEQUAL;
             case Equal:
                 return GL_EQUAL;
@@ -694,10 +696,10 @@ public class LwjglRenderer implements Renderer {
             case Always:
                 return GL_ALWAYS;
             default:
-                throw new UnsupportedOperationException("Unrecognized front stencil functin: " + s);
-        }  //end switch
+                throw new UnsupportedOperationException("Unrecognized test function: " + testFunc);
+        }
     }
-
+    
     /*********************************************************************\
     |* Camera and World transforms                                       *|
     \*********************************************************************/
