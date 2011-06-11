@@ -35,6 +35,7 @@ package com.jme3.effect;
 import com.jme3.renderer.Camera;
 import java.util.Comparator;
 
+@Deprecated
 class ParticleComparator implements Comparator<Particle> {
 
     private Camera cam;
@@ -44,6 +45,8 @@ class ParticleComparator implements Comparator<Particle> {
     }
 
     public int compare(Particle p1, Particle p2) {
+        return 0; // unused
+        /*
         if (p1.life <= 0 || p2.life <= 0)
             return 0;
 
@@ -69,5 +72,6 @@ class ParticleComparator implements Comparator<Particle> {
             return -1;
         else
             return 0;
+        */
     }
 }
