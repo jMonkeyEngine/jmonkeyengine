@@ -44,6 +44,8 @@
                 <package>com.jme3.collision</package>
                 <package>com.jme3.collision.bih</package>
                 <package>com.jme3.effect</package>
+                <package>com.jme3.effect.influencers</package>
+                <package>com.jme3.effect.shapes</package>
                 <package>com.jme3.export</package>
                 <package>com.jme3.export.binary</package>
                 <package>com.jme3.export.xml</package>
