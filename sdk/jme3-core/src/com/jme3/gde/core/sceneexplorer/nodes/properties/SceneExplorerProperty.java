@@ -31,7 +31,7 @@
  */
 package com.jme3.gde.core.sceneexplorer.nodes.properties;
 
-import com.jme3.effect.EmitterShape;
+import com.jme3.effect.shapes.EmitterShape;
 import com.jme3.gde.core.scene.SceneApplication;
 import com.jme3.gde.core.sceneexplorer.nodes.AbstractSceneExplorerNode;
 import com.jme3.gde.core.undoredo.AbstractUndoableSceneEdit;
