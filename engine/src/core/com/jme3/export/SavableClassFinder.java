@@ -43,6 +43,7 @@ import java.util.logging.Logger;
 
 import com.jme3.export.InputCapsule;
 import com.jme3.export.Savable;
+import com.jme3.material.MatParamTexture;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -71,6 +72,7 @@ public class SavableClassFinder {
         addRemapping("com.jme3.effect.EmitterMeshFaceShape", EmitterMeshFaceShape.class);
         addRemapping("com.jme3.effect.EmitterMeshVertexShape", EmitterMeshVertexShape.class);
         addRemapping("com.jme3.effect.EmitterPointShape", EmitterPointShape.class);
+        addRemapping("com.jme3.material.Material$MatParamTexture", MatParamTexture.class);
     }
     
     private static String remapClass(String className) throws ClassNotFoundException {
