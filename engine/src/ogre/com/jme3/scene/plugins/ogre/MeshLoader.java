@@ -359,7 +359,7 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
             weightsFloatData = FloatBuffer.allocate(vertCount * 4);
             indicesData = ByteBuffer.allocate(vertCount * 4);
         }
-
+        
         VertexBuffer weights = new VertexBuffer(Type.BoneWeight);
         VertexBuffer indices = new VertexBuffer(Type.BoneIndex);
 
@@ -536,17 +536,22 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
         int vert = parseInt(vertIndex);
         float w = parseFloat(weight);
         byte bone = (byte) parseInt(boneIndex);
-
+        
         assert bone >= 0;
         assert vert >= 0 && vert < mesh.getVertexCount();
 
         int i;
+        float v = 0;
         // see which weights are unused for a given bone
         for (i = vert * 4; i < vert * 4 + 4; i++) {
-            float v = weightsFloatData.get(i);
+            v = weightsFloatData.get(i);
             if (v == 0) {
                 break;
             }
+        }
+        if (v != 0){
+            logger.log(Level.WARNING, "Vertex {0} has more than 4 weights per vertex! Ignoring..", vert);
+            return;
         }
 
         weightsFloatData.put(i, w);
