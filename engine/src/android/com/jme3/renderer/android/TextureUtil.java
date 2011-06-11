@@ -1,6 +1,10 @@
 package com.jme3.renderer.android;
 
+
 import android.graphics.Bitmap;
+import android.opengl.GLES10;
+import android.opengl.GLES11;
+import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
 import android.opengl.GLUtils;
 import com.jme3.math.FastMath;
@@ -8,6 +12,7 @@ import com.jme3.texture.Image;
 import com.jme3.texture.Image.Format;
 import java.nio.ByteBuffer;
 import javax.microedition.khronos.opengles.GL10;
+import javax.microedition.khronos.opengles.GL10Ext;
 
 public class TextureUtil {
 
@@ -32,8 +37,10 @@ public class TextureUtil {
             case RGBA16:
             case RGBA8:
                 return GL10.GL_RGBA;
+            case DXT1A:
+                throw new UnsupportedOperationException("Unsupported format: " + fmt);
             default:
-                throw new UnsupportedOperationException("Unrecognized format: "+fmt);
+                throw new UnsupportedOperationException("Unrecognized format: " + fmt);
         }
     }
 
@@ -189,6 +196,9 @@ public class TextureUtil {
                 format = GL10.GL_RGBA;
                 dataType = GL10.GL_UNSIGNED_BYTE;
                 break;
+            case DXT1A:
+                format = GLES20.GL_COMPRESSED_TEXTURE_FORMATS;
+                dataType = GL10.GL_UNSIGNED_BYTE;           
             default:
                 throw new UnsupportedOperationException("Unrecognized format: "+fmt);
         }

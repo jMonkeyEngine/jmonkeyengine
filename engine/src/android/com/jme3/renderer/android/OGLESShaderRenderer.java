@@ -32,7 +32,6 @@
 
 package com.jme3.renderer.android;
 
-import com.jme3.asset.TextureKey;
 import com.jme3.light.LightList;
 import com.jme3.material.RenderState;
 import com.jme3.math.ColorRGBA;
@@ -58,7 +57,6 @@ import com.jme3.shader.Shader;
 import com.jme3.shader.Shader.ShaderSource;
 import com.jme3.shader.Shader.ShaderType;
 import com.jme3.shader.Uniform;
-import com.jme3.system.JmeSystem;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.FrameBuffer.RenderBuffer;
 import com.jme3.texture.Image;
@@ -385,11 +383,18 @@ public class OGLESShaderRenderer implements Renderer {
 */
 
         String extensions = GLES20.glGetString(GLES20.GL_EXTENSIONS);
-
-	logger.info("GL_EXTENSIONS: " + extensions);
+        logger.info("GL_EXTENSIONS: " + extensions);
+        
+        GLES20.glGetIntegerv(GLES20.GL_COMPRESSED_TEXTURE_FORMATS, intBuf16);
+        for (int i = 0; i < intBuf16.limit(); i++)
+        {
+            logger.info("Compressed Texture Formats: " + intBuf16.get(i));
+        }
 
         if (extensions.contains("GL_OES_texture_npot"))
             powerOf2 = true;
+        
+        
         
         applyRenderState(RenderState.DEFAULT);
 //        GLES20.glClearDepthf(1.0f);
@@ -1834,14 +1839,31 @@ public class OGLESShaderRenderer implements Renderer {
             // Upload a cube map / sky box
             @SuppressWarnings("unchecked")
             List<Bitmap> bmps = (List<Bitmap>)img.getEfficentData();
-            if (bmps.size() != 6)
+            if (bmps != null)
             {
-                throw new UnsupportedOperationException("Invalid texture: " + img +
-                                                        "Cubemap textures must contain 6 data units." );
+                // Native android bitmap                                       
+                if (bmps.size() != 6)
+                {
+                    throw new UnsupportedOperationException("Invalid texture: " + img +
+                                                            "Cubemap textures must contain 6 data units." );
+                }
+                for (int i = 0; i < 6; i++)
+                {
+                    TextureUtil.uploadTextureBitmap(GLES20.GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, bmps.get(i), false, powerOf2);                
+                }
             }
-            for (int i = 0; i < 6; i++)
+            else
             {
-                TextureUtil.uploadTextureBitmap(GLES20.GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, bmps.get(i), false, powerOf2);                
+                // Standard jme3 image data
+                List<ByteBuffer> data = img.getData();
+                if (data.size() != 6) {
+                    logger.log(Level.WARNING, "Invalid texture: {0}\n"
+                            + "Cubemap textures must contain 6 data units.", img);
+                    return;
+                }
+                for (int i = 0; i < 6; i++) {
+                    TextureUtil.uploadTexture(img, GLES20.GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, i, 0, tdc, false, powerOf2);
+                }
             }
         }
         else

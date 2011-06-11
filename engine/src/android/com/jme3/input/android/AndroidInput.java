@@ -20,6 +20,11 @@ import com.jme3.math.Vector2f;
 import com.jme3.util.RingBuffer;
 
 
+/**
+ * <code>AndroidInput</code> is one of the main components that connect jme with android. Is derived from GLSurfaceView and handles all Inputs
+ * @author larynx
+ *
+ */
 public class AndroidInput extends GLSurfaceView implements TouchInput, 
                                                            GestureDetector.OnGestureListener, ScaleGestureDetector.OnScaleGestureListener
 {
@@ -190,7 +195,7 @@ public class AndroidInput extends GLSurfaceView implements TouchInput,
         else
         {
             evt = eventPool.pop();    
-        }
+        }        
         return evt;
     }
     /**
@@ -218,6 +223,7 @@ public class AndroidInput extends GLSurfaceView implements TouchInput,
                     touch.set(Type.DOWN, event.getX(p), event.getY(p), 0, 0);
                     touch.setPointerId(event.getPointerId(p));
                     touch.setTime(event.getEventTime());
+                    touch.setPressure(event.getPressure(p));
                     processEvent(touch);
                 }
                 
@@ -233,6 +239,7 @@ public class AndroidInput extends GLSurfaceView implements TouchInput,
                     touch.set(Type.UP, event.getX(p), event.getY(p), 0, 0);
                     touch.setPointerId(event.getPointerId(p));
                     touch.setTime(event.getEventTime());
+                    touch.setPressure(event.getPressure(p));
                     processEvent(touch);
                 }
                                 
@@ -253,6 +260,7 @@ public class AndroidInput extends GLSurfaceView implements TouchInput,
                     touch.set(Type.MOVE, event.getX(p), event.getY(p), event.getX(p) - lastPos.x, event.getY(p) - lastPos.y);
                     touch.setPointerId(event.getPointerId(p));
                     touch.setTime(event.getEventTime());
+                    touch.setPressure(event.getPressure(p));
                     processEvent(touch);
                     lastPos.set(event.getX(p), event.getY(p));
                 }
