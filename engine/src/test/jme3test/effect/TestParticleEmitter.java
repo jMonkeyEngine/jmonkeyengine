@@ -50,7 +50,7 @@ public class TestParticleEmitter extends SimpleApplication {
     public void simpleInitApp() {
         ParticleEmitter emit = new ParticleEmitter("Emitter", Type.Triangle, 200);
         emit.setShape(new EmitterSphereShape(Vector3f.ZERO, 1f));
-        emit.setGravity(0);
+        emit.setGravity(0, 0, 0);
         emit.setLowLife(5);
         emit.setHighLife(10);
         emit.setInitialVelocity(new Vector3f(0, 0, 0));

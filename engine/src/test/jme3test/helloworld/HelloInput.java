@@ -93,13 +93,13 @@ public class HelloInput extends SimpleApplication {
     public void onAnalog(String name, float value, float tpf) {
       if (isRunning) {
         if (name.equals("Rotate")) {
-          player.rotate(0, value*speed, 0);
+          player.rotate(0, value, 0);
         }
         if (name.equals("Right")) {
-          player.move((new Vector3f(value*speed, 0,0)) );
+          player.move((new Vector3f(value, 0,0)) );
         }
         if (name.equals("Left")) {
-          player.move(new Vector3f(-value*speed, 0,0));
+          player.move(new Vector3f(-value, 0,0));
         }
       } else {
         System.out.println("Press P to unpause.");

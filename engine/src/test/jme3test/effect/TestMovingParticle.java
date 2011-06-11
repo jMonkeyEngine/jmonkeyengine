@@ -58,7 +58,7 @@ public class TestMovingParticle  extends SimpleApplication {
     @Override
     public void simpleInitApp() {
         emit = new ParticleEmitter("Emitter", Type.Triangle, 200);
-        emit.setGravity(0);
+        emit.setGravity(0, 0, 0);
         emit.setVelocityVariation(1);
         emit.setLowLife(1);
         emit.setHighLife(1);

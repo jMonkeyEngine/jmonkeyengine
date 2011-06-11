@@ -37,6 +37,7 @@ import com.jme3.export.InputCapsule;
 import com.jme3.export.OutputCapsule;
 import com.jme3.export.Savable;
 import com.jme3.scene.Mesh;
+import com.jme3.scene.Mesh.Mode;
 import java.io.IOException;
 
 /**
@@ -392,7 +393,7 @@ public class RenderState implements Cloneable, Savable {
      * Enables point sprite mode. 
      * 
      * <p>When point sprite is enabled, any meshes
-     * with the type of {@link Mesh#Mode#Points} will be rendered as 2D quads
+     * with the type of {@link Mode#Points} will be rendered as 2D quads
      * with texturing enabled. Fragment shaders can write to the 
      * <code>gl_PointCoord</code> variable to manipulate the texture coordinate 
      * for each pixel. The size of the 2D quad can be controlled by writing
@@ -413,7 +414,7 @@ public class RenderState implements Cloneable, Savable {
      * the pixel will be discarded.
      * 
      * @param alphaFallOff The alpha of all rendered pixels must be higher
-     * than this value to be rendered.
+     * than this value to be rendered. This value should be between 0 and 1.
      * 
      * @see RenderState#setAlphaTest(boolean) 
      */
@@ -426,8 +427,9 @@ public class RenderState implements Cloneable, Savable {
      * Enable alpha testing.
      * 
      * <p>When alpha testing is enabled, all input pixels' alpha are compared
-     * to the constant alpha falloff. If the input alpha is greater than 
-     * the falloff, the pixel will be rendered, otherwise it will be discarded.
+     * to the {@link RenderState#setAlphaFallOff(float) constant alpha falloff}. 
+     * If the input alpha is greater than the falloff, the pixel will be rendered, 
+     * otherwise it will be discarded.
      * 
      * @param alphaTest Set to true to enable alpha testing.
      * 
@@ -472,7 +474,7 @@ public class RenderState implements Cloneable, Savable {
     /**
      * Set the blending mode.
      * 
-     * <p>When blending is enabled, (<code>blendMode</code> is not BlendMode.Off)
+     * <p>When blending is enabled, (<code>blendMode</code> is not {@link BlendMode#Off})
      * the input pixel will be blended with the pixel
      * already in the color buffer. The blending operation is determined
      * by the {@link BlendMode}. For example, the {@link BlendMode#Additive}

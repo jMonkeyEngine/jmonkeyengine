@@ -69,5 +69,9 @@ public class JoyAxisTrigger implements Trigger {
     public String getName() {
         return "JoyAxis[joyId="+joyId+", axisId="+axisId+", neg="+negative+"]";
     }
+
+    public int triggerHashCode() {
+        return joyAxisHash(joyId, axisId, negative);
+    }
     
 }

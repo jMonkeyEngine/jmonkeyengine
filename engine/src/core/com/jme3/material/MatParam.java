@@ -50,6 +50,12 @@ import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
 import java.io.IOException;
 
+/**
+ * Describes a material parameter. This is used for both defining a name and type 
+ * as well as a material parameter value.
+ * 
+ * @author Kirill Vainer
+ */
 public class MatParam implements Savable, Cloneable {
 
     protected VarType type;
@@ -57,6 +63,9 @@ public class MatParam implements Savable, Cloneable {
     protected Object value;
     protected FixedFuncBinding ffBinding;
 
+    /**
+     * Create a new material parameter. For internal use only.
+     */
     public MatParam(VarType type, String name, Object value, FixedFuncBinding ffBinding){
         this.type = type;
         this.name = name;
@@ -64,33 +73,80 @@ public class MatParam implements Savable, Cloneable {
         this.ffBinding = ffBinding;
     }
 
+    /**
+     * Serialization only. Do not use.
+     */
     public MatParam(){
     }
 
+    /**
+     * Returns the fixed function binding.
+     * 
+     * @return the fixed function binding.
+     */
     public FixedFuncBinding getFixedFuncBinding() {
         return ffBinding;
     }
 
+    /**
+     * Returns the material parameter type.
+     * 
+     * @return the material parameter type.
+     */
     public VarType getVarType() {
         return type;
     }
 
+    /**
+     * Returns the name of the material parameter.
+     * @return the name of the material parameter.
+     */
     public String getName(){
         return name;
     }
 
-    public void setName(String name){
-        this.name=name;
+    /**
+     * Used internally
+     * @param name 
+     */
+    void setName(String name) {
+        this.name = name;
     }
 
+    /**
+     * Returns the value of this material parameter.
+     * <p>
+     * Material parameters that are used for material definitions
+     * will not have a value.
+     * 
+     * @return the value of this material parameter.
+     */
     public Object getValue(){
         return value;
     }
 
+    /**
+     * Sets the value of this material parameter.
+     * <p>
+     * It is assumed the value is of the same {@link MatParam#getVarType() type}
+     * as this material parameter.
+     * 
+     * @param value the value of this material parameter.
+     */
     public void setValue(Object value){
         this.value = value;
     }
 
+    void apply(Renderer r, Technique technique) {
+        TechniqueDef techDef = technique.getDef();
+        if (techDef.isUsingShaders()) {
+            technique.updateUniformParam(getName(), getVarType(), getValue(), true);
+        }
+        if (ffBinding != null && r instanceof GL1Renderer){
+            ((GL1Renderer)r).setFixedFuncBinding(ffBinding, getValue());
+        }
+    }
+    
     /**
      * Returns the material parameter value as it would appear in a J3M
      * file. E.g.<br/>
@@ -224,16 +280,6 @@ public class MatParam implements Savable, Cloneable {
     @Override
     public String toString(){
         return type.name() + " " + name + " : " + getValueAsString();
-    }
-
-    public void apply(Renderer r, Technique technique) {
-        TechniqueDef techDef = technique.getDef();
-        if (techDef.isUsingShaders()) {
-            technique.updateUniformParam(getName(), getVarType(), getValue(), true);
-        }
-        if (ffBinding != null && r instanceof GL1Renderer){
-            ((GL1Renderer)r).setFixedFuncBinding(ffBinding, getValue());
-        }
     }
 }
 

@@ -72,7 +72,7 @@ public class BombControl extends RigidBodyControl implements PhysicsCollisionLis
         effect.setEndSize(2f);
         effect.setShape(new EmitterSphereShape(Vector3f.ZERO, 1f));
         effect.setParticlesPerSec(0);
-        effect.setGravity(-5f);
+        effect.setGravity(0, -5f, 0);
         effect.setLowLife(.4f);
         effect.setHighLife(.5f);
         effect.setInitialVelocity(new Vector3f(0, 7, 0));

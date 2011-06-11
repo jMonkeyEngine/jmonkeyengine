@@ -70,8 +70,7 @@ public class MouseButtonTrigger implements Trigger {
         return 256 | (mouseButton & 0xff);
     }
 
-    @Override
-    public int hashCode(){
+    public int triggerHashCode() {
         return mouseButtonHash(mouseButton);
     }
 

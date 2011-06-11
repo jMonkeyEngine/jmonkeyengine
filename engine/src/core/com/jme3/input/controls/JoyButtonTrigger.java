@@ -66,4 +66,8 @@ public class JoyButtonTrigger implements Trigger {
         return "JoyButton[joyId="+joyId+", axisId="+buttonId+"]";
     }
 
+    public int triggerHashCode() {
+        return joyButtonHash(joyId, buttonId);
+    }
+
 }

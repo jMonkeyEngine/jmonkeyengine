@@ -32,6 +32,7 @@
 
 package com.jme3.export.binary;
 
+import com.jme3.export.SavableClassFinder;
 import com.jme3.asset.AssetInfo;
 import com.jme3.asset.AssetManager;
 import com.jme3.asset.ModelKey;
@@ -294,7 +295,7 @@ public final class BinaryImporter implements JmeImporter {
             BinaryInputCapsule cap = new BinaryInputCapsule(this, bco);
             cap.setContent(dataArray, loc, loc+dataLength);
 
-            Savable out = BinaryClassLoader.fromName(bco.className, cap, loaders);
+            Savable out = SavableClassFinder.fromName(bco.className, cap, loaders);
 
             capsuleTable.put(out, cap);
             contentTable.put(id, out);

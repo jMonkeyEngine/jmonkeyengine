@@ -83,4 +83,8 @@ public class MouseAxisTrigger implements Trigger {
         assert mouseAxis >= 0 && mouseAxis <= 255;
         return (negative ? 768 : 512) | (mouseAxis & 0xff);
     }
+
+    public int triggerHashCode() {
+        return mouseAxisHash(mouseAxis, negative);
+    }
 }

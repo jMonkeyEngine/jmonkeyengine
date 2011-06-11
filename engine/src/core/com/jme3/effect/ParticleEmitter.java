@@ -1119,5 +1119,24 @@ public class ParticleEmitter extends Geometry {
         particleMesh.initParticleData(this, particles.length);
 
         particleInfluencer = (ParticleInfluencer) ic.readSavable("influencer", DEFAULT_INFLUENCER);
+        
+        // compatibility before the control inside particle emitter
+        // was changed:
+        // find it in the controls and take it out, then add the proper one in
+        for (int i = 0; i < controls.size(); i++){
+            Object obj = controls.get(i);
+            if (obj instanceof ParticleEmitter){
+                controls.remove(i);
+                // now add the proper one in
+                controls.add(control);
+                break;
+            }
+        }
+        
+        // compatability before gravity was not a vector but a float
+        if (gravity == null){
+            gravity = new Vector3f();
+            gravity.y = ic.readFloat("gravity", 0);
+        }
     }
 }

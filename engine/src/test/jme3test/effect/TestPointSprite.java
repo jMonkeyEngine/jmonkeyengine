@@ -52,7 +52,7 @@ public class TestPointSprite extends SimpleApplication {
         ParticleEmitter emit = new ParticleEmitter("Emitter", Type.Point, 10000);
         emit.setShape(new EmitterBoxShape(new Vector3f(-1.8f, -1.8f, -1.8f),
                                           new Vector3f(1.8f, 1.8f, 1.8f)));
-        emit.setGravity(0);
+        emit.setGravity(0, 0, 0);
         emit.setLowLife(60);
         emit.setHighLife(60);
         emit.setInitialVelocity(new Vector3f(0, 0, 0));

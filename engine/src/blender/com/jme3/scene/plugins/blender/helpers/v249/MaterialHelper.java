@@ -41,8 +41,8 @@ import java.util.logging.Logger;
 
 import com.jme3.asset.BlenderKey.FeaturesToLoad;
 import com.jme3.material.MatParam;
+import com.jme3.material.MatParamTexture;
 import com.jme3.material.Material;
-import com.jme3.material.Material.MatParamTexture;
 import com.jme3.material.RenderState.BlendMode;
 import com.jme3.material.RenderState.FaceCullMode;
 import com.jme3.math.ColorRGBA;

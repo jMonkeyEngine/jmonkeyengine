@@ -60,7 +60,7 @@ public class HelloEffects extends SimpleApplication {
     fire.setInitialVelocity(new Vector3f(0, 2, 0));
     fire.setStartSize(1.5f);
     fire.setEndSize(0.1f);
-    fire.setGravity(0);
+    fire.setGravity(0, 0, 0);
     fire.setLowLife(1f);
     fire.setHighLife(3f);
     fire.setVelocityVariation(0.3f);
@@ -75,7 +75,7 @@ public class HelloEffects extends SimpleApplication {
     debris.setSelectRandomImage(true);
     debris.setInitialVelocity(new Vector3f(0, 4, 0));
     debris.setStartColor(ColorRGBA.White);
-    debris.setGravity(6f);
+    debris.setGravity(0, 6, 0);
     debris.setVelocityVariation(.60f);
     rootNode.attachChild(debris);
     debris.emitAllParticles();

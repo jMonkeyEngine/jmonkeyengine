@@ -62,6 +62,13 @@ public class Technique implements Savable {
     private Shader shader;
     private boolean needReload = true;
 
+    /**
+     * Creates a new technique instance that implements the given
+     * technique definition.
+     * 
+     * @param owner The material that will own this technique
+     * @param def The technique definition being implemented.
+     */
     public Technique(Material owner, TechniqueDef def) {
         this.owner = owner;
         this.def = def;
@@ -71,45 +78,49 @@ public class Technique implements Savable {
         }
     }
 
+    /**
+     * Serialization only. Do not use.
+     */
     public Technique() {
     }
 
-    public void write(JmeExporter ex) throws IOException {
-        OutputCapsule oc = ex.getCapsule(this);
-        oc.write(def, "def", null);
-        // TODO:
-        // oc.write(owner, "owner", null);
-        oc.writeSavableArrayList(worldBindUniforms, "worldBindUniforms", null);
-        oc.write(defines, "defines", null);
-        oc.write(shader, "shader", null);
-    }
-
-    public void read(JmeImporter im) throws IOException {
-        InputCapsule ic = im.getCapsule(this);
-        def = (TechniqueDef) ic.readSavable("def", null);
-        worldBindUniforms = ic.readSavableArrayList("worldBindUniforms", null);
-        defines = (DefineList) ic.readSavable("defines", null);
-        shader = (Shader) ic.readSavable("shader", null);
-        //if (shader != null)
-        //    owner.updateUniformLinks();
-    }
-
+    /**
+     * Returns the technique definition that is implemented by this technique
+     * instance. 
+     * 
+     * @return the technique definition that is implemented by this technique
+     * instance. 
+     */
     public TechniqueDef getDef() {
         return def;
     }
 
+    /**
+     * Returns the shader currently used by this technique instance.
+     * <p>
+     * Shaders are typically loaded dynamically when the technique is first
+     * used, therefore, this variable will most likely be null most of the time.
+     * 
+     * @return the shader currently used by this technique instance.
+     */
     public Shader getShader() {
         return shader;
     }
 
+    /**
+     * Returns a list of uniforms that implements the world parameters
+     * that were requested by the material definition.
+     * 
+     * @return a list of uniforms implementing the world parameters.
+     */
     public List<Uniform> getWorldBindUniforms() {
         return worldBindUniforms;
     }
 
     /**
-     * @param paramName
+     * Called by the material to tell the technique a parameter was modified
      */
-    public void notifySetParam(String paramName, VarType type, Object value) {
+    void notifySetParam(String paramName, VarType type, Object value) {
         String defineName = def.getShaderParamDefine(paramName);
         if (defineName != null) {
             defines.set(defineName, type, value);
@@ -121,9 +132,9 @@ public class Technique implements Savable {
     }
 
     /**
-     * @param paramName
+     * Called by the material to tell the technique a parameter was cleared
      */
-    public void notifyClearParam(String paramName) {
+    void notifyClearParam(String paramName) {
         String defineName = def.getShaderParamDefine(paramName);
         if (defineName != null) {
             defines.remove(defineName);
@@ -228,5 +239,25 @@ public class Technique implements Savable {
         }
 
         needReload = false;
+    }
+    
+    public void write(JmeExporter ex) throws IOException {
+        OutputCapsule oc = ex.getCapsule(this);
+        oc.write(def, "def", null);
+        // TODO:
+        // oc.write(owner, "owner", null);
+        oc.writeSavableArrayList(worldBindUniforms, "worldBindUniforms", null);
+        oc.write(defines, "defines", null);
+        oc.write(shader, "shader", null);
+    }
+
+    public void read(JmeImporter im) throws IOException {
+        InputCapsule ic = im.getCapsule(this);
+        def = (TechniqueDef) ic.readSavable("def", null);
+        worldBindUniforms = ic.readSavableArrayList("worldBindUniforms", null);
+        defines = (DefineList) ic.readSavable("defines", null);
+        shader = (Shader) ic.readSavable("shader", null);
+        //if (shader != null)
+        //    owner.updateUniformLinks();
     }
 }

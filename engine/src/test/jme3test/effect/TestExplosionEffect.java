@@ -72,7 +72,7 @@ public class TestExplosionEffect extends SimpleApplication {
         flame.setEndSize(2f);
         flame.setShape(new EmitterSphereShape(Vector3f.ZERO, 1f));
         flame.setParticlesPerSec(0);
-        flame.setGravity(-5f);
+        flame.setGravity(0, -5, 0);
         flame.setLowLife(.4f);
         flame.setHighLife(.5f);
         flame.setInitialVelocity(new Vector3f(0, 7, 0));
@@ -95,7 +95,7 @@ public class TestExplosionEffect extends SimpleApplication {
         flash.setEndSize(3.0f);
         flash.setShape(new EmitterSphereShape(Vector3f.ZERO, .05f));
         flash.setParticlesPerSec(0);
-        flash.setGravity(0);
+        flash.setGravity(0, 0, 0);
         flash.setLowLife(.2f);
         flash.setHighLife(.2f);
         flash.setInitialVelocity(new Vector3f(0, 5f, 0));
@@ -117,7 +117,7 @@ public class TestExplosionEffect extends SimpleApplication {
         roundspark.setEndSize(1.8f);
         roundspark.setShape(new EmitterSphereShape(Vector3f.ZERO, 2f));
         roundspark.setParticlesPerSec(0);
-        roundspark.setGravity(-.5f);
+        roundspark.setGravity(0, -.5f, 0);
         roundspark.setLowLife(1.8f);
         roundspark.setHighLife(2f);
         roundspark.setInitialVelocity(new Vector3f(0, 3, 0));
@@ -141,7 +141,7 @@ public class TestExplosionEffect extends SimpleApplication {
 //        spark.setShape(new EmitterSphereShape(Vector3f.ZERO, .05f));
         spark.setFacingVelocity(true);
         spark.setParticlesPerSec(0);
-        spark.setGravity(5);
+        spark.setGravity(0, 5, 0);
         spark.setLowLife(1.1f);
         spark.setHighLife(1.5f);
         spark.setInitialVelocity(new Vector3f(0, 20, 0));
@@ -164,7 +164,7 @@ public class TestExplosionEffect extends SimpleApplication {
 //        smoketrail.setShape(new EmitterSphereShape(Vector3f.ZERO, 1f));
         smoketrail.setFacingVelocity(true);
         smoketrail.setParticlesPerSec(0);
-        smoketrail.setGravity(1);
+        smoketrail.setGravity(0, 1, 0);
         smoketrail.setLowLife(.4f);
         smoketrail.setHighLife(.5f);
         smoketrail.setInitialVelocity(new Vector3f(0, 12, 0));
@@ -189,7 +189,7 @@ public class TestExplosionEffect extends SimpleApplication {
 
 //        debris.setShape(new EmitterSphereShape(Vector3f.ZERO, .05f));
         debris.setParticlesPerSec(0);
-        debris.setGravity(12f);
+        debris.setGravity(0, 12f, 0);
         debris.setLowLife(1.4f);
         debris.setHighLife(1.5f);
         debris.setInitialVelocity(new Vector3f(0, 15, 0));
@@ -213,7 +213,7 @@ public class TestExplosionEffect extends SimpleApplication {
         shockwave.setEndSize(7f);
 
         shockwave.setParticlesPerSec(0);
-        shockwave.setGravity(0);
+        shockwave.setGravity(0, 0, 0);
         shockwave.setLowLife(0.5f);
         shockwave.setHighLife(0.5f);
         shockwave.setInitialVelocity(new Vector3f(0, 0, 0));

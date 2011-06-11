@@ -122,7 +122,7 @@ public class TestTransparentShadow extends SimpleApplication {
         fire.setInitialVelocity(new Vector3f(0, 2, 0));
         fire.setStartSize(0.6f);
         fire.setEndSize(0.1f);
-        fire.setGravity(0);
+        fire.setGravity(0, 0, 0);
         fire.setLowLife(0.5f);
         fire.setHighLife(1.5f);
         fire.setVelocityVariation(0.3f);

@@ -446,28 +446,6 @@ public class InputManager implements RawInputListener {
 
         inputQueue.add(evt);
     }
-    
-    private void onTouchEventQueued(TouchEvent evt) {
-        for (Mapping mapping : mappings.values()) {
-            for (InputListener listener : mapping.listeners) {
-                if (listener instanceof TouchListener) {
-                    ((TouchListener) listener).onTouch(mapping.name, evt, frameTPF); 
-                }
-            }
-        } 
-    }
-    
-    /**
-     * Callback from RawInputListener. Do not use.
-     */
-    @Override
-    public void onTouchEvent(TouchEvent evt) {
-        if (!eventsPermitted) {
-            throw new UnsupportedOperationException("TouchInput has raised an event at an illegal time.");
-        }
-        
-        inputQueue.add(evt);         
-    }
 
     /**
      * Set the deadzone for joystick axes.
@@ -560,7 +538,7 @@ public class InputManager implements RawInputListener {
         }
 
         for (Trigger trigger : triggers) {
-            int hash = trigger.hashCode();
+            int hash = trigger.triggerHashCode();
             ArrayList<Mapping> names = bindings.get(hash);
             if (names == null) {
                 names = new ArrayList<Mapping>();
@@ -617,7 +595,7 @@ public class InputManager implements RawInputListener {
             throw new IllegalArgumentException("Cannot find mapping: " + mappingName);
         }
 
-        ArrayList<Mapping> maps = bindings.get(trigger.hashCode());
+        ArrayList<Mapping> maps = bindings.get(trigger.triggerHashCode());
         maps.remove(mapping);
 
     }
@@ -868,7 +846,7 @@ public class InputManager implements RawInputListener {
      * @param evt The touch event to be dispatched to all onTouch listeners
      */
     public void onTouchEventQueued(TouchEvent evt) { 
-        ArrayList<Mapping> maps = bindings.get(TouchTrigger.getHash());
+        ArrayList<Mapping> maps = bindings.get(TouchTrigger.touchHash());
         if (maps == null) {
             return;
         }
@@ -888,8 +866,7 @@ public class InputManager implements RawInputListener {
     }
     
     /**
-     * Receives the touch events from the touch hardware via the input interface
-     * @param evt The touch Event received
+     * Callback from RawInputListener. Do not use.
      */
     @Override
     public void onTouchEvent(TouchEvent evt) {

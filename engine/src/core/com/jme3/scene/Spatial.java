@@ -1247,7 +1247,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
         //When backward compatibility won't be needed anymore this can be replaced by : 
         //controls = ic.readSavableArrayList("controlsList", null));
         controls.addAll(0, ic.readSavableArrayList("controlsList", null));
-
+        
         userData = (HashMap<String, Savable>) ic.readStringSavableMap("user_data", null);
     }
 

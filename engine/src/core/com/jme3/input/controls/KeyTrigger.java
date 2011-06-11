@@ -65,4 +65,8 @@ public class KeyTrigger implements Trigger {
         return keyCode & 0xff;
     }
 
+    public int triggerHashCode() {
+        return keyHash(keyCode);
+    }
+
 }
