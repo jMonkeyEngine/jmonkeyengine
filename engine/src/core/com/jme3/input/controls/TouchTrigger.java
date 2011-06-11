@@ -40,11 +40,15 @@ public class TouchTrigger implements Trigger {
     
     @Override
     public int hashCode(){
-        return 0xfedcba98;
+        return getHash();
     }
     
     @Override
     public String getName() {
         return "TouchInput";
+    }
+    
+    public static int getHash() {
+        return 0xfedcba98;
     }
 }

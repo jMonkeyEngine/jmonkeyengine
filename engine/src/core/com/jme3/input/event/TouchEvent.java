@@ -38,24 +38,23 @@ import com.jme3.math.Vector2f;
 /**
  * <code>TouchEvent</code> represents a single event from multi-touch input devices
  * @author larynx
- *
  */
 public class TouchEvent extends InputEvent
 {
     public static enum Type 
     {
         /**
-         * Touch down event, fields: posX, posY
+         * Touch down event, fields: posX, posY, pressure
          */
         DOWN,
         
         /**
-         * Move/Drag event, fields: posX, posY, deltaX, deltaY
+         * Move/Drag event, fields: posX, posY, deltaX, deltaY, pressure
          */
         MOVE,
         
         /**
-         * Touch up event, fields: posX, posY
+         * Touch up event, fields: posX, posY, pressure
          */
         UP,
 
@@ -111,6 +110,7 @@ public class TouchEvent extends InputEvent
     private float posY;
     private float deltaX;
     private float deltaY;
+    private float pressure;
     
     // Used only with KEY* events
     private int keyCode;
@@ -132,11 +132,7 @@ public class TouchEvent extends InputEvent
     
     public void set(Type type)
     {
-        this.type = type;
-        this.posX = 0f;
-        this.posY = 0f;
-        this.deltaX = 0f;
-        this.deltaY = 0f;
+        set(type, 0f, 0f, 0f, 0f);
     }
     
     public void set(Type type, float x, float y, float deltax, float deltay)
@@ -146,6 +142,7 @@ public class TouchEvent extends InputEvent
         this.posY = y;
         this.deltaX = deltax;
         this.deltaY = deltay;
+        consumed = false;
     }
 
 
@@ -173,10 +170,15 @@ public class TouchEvent extends InputEvent
     {
         return deltaY;
     }
-
-    public Vector2f getDelta()
+    
+    public float getPressure() 
     {
-        return new Vector2f(deltaX,deltaY);
+        return pressure;
+    }
+    
+    public void setPressure(float pressure) 
+    {
+        this.pressure = pressure;
     }
     
     public int getPointerId() 

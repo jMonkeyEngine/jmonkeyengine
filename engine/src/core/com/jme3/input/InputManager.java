@@ -40,6 +40,7 @@ import com.jme3.input.controls.KeyTrigger;
 import com.jme3.input.controls.MouseAxisTrigger;
 import com.jme3.input.controls.MouseButtonTrigger;
 import com.jme3.input.controls.TouchListener;
+import com.jme3.input.controls.TouchTrigger;
 import com.jme3.input.controls.Trigger;
 import com.jme3.input.event.InputEvent;
 import com.jme3.input.event.JoyAxisEvent;
@@ -606,6 +607,11 @@ public class InputManager implements RawInputListener {
             } else {
                 assert false;
             }
+            // larynx, 2011.06.10 - flag event as reusable because
+            // the android input uses a non-allocating ringbuffer which
+            // needs to know when the event is not anymore in inputQueue
+            // and therefor can be reused.
+            event.setConsumed();
         }
 
         inputQueue.clear();
@@ -645,17 +651,32 @@ public class InputManager implements RawInputListener {
 
     /**
      * Dispatches touch events to touch listeners
-     * @param evt
+     * @param evt The touch event to be dispatched to all onTouch listeners
      */
-    public void onTouchEventQueued(TouchEvent evt) {
-        for (Mapping mapping : mappings.values()) {
-            for (InputListener listener : mapping.listeners) {
+    public void onTouchEventQueued(TouchEvent evt) { 
+        ArrayList<Mapping> maps = bindings.get(TouchTrigger.getHash());
+        if (maps == null) {
+            return;
+        }
+
+        int size = maps.size();
+        for (int i = size - 1; i >= 0; i--) {
+            Mapping mapping = maps.get(i);
+            ArrayList<InputListener> listeners = mapping.listeners;
+            int listenerSize = listeners.size();
+            for (int j = listenerSize - 1; j >= 0; j--) {
+                InputListener listener = listeners.get(j);
                 if (listener instanceof TouchListener) {
                     ((TouchListener) listener).onTouch(mapping.name, evt, frameTPF); 
                 }
             }
-        } 
+        }               
     }
+    
+    /**
+     * Receives the touch events from the touch hardware via the input interface
+     * @param evt The touch Event received
+     */
     @Override
     public void onTouchEvent(TouchEvent evt) {
         if (!eventsPermitted) {
