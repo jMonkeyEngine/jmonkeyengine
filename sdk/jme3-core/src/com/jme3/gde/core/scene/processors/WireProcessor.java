@@ -50,7 +50,8 @@ public class WireProcessor implements SceneProcessor {
     Material wireMaterial;
 
     public WireProcessor(AssetManager manager) {
-        wireMaterial = new Material(manager, "/Common/MatDefs/Misc/WireColor.j3md");
+        wireMaterial = new Material(manager, "/Common/MatDefs/Misc/Unshaded.j3md");
+        wireMaterial.getAdditionalRenderState().setWireframe(true);
         wireMaterial.setColor("Color", ColorRGBA.Blue);
     }
 

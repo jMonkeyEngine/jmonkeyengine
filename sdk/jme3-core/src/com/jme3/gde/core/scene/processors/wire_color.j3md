@@ -5,8 +5,8 @@ MaterialDef Wire Color {
     }
 
     Technique {
-        VertexShader GLSL100: solid_color.vert
-        FragmentShader GLSL100: solid_color.frag
+        VertexShader GLSL100: Unshaded.vert
+        FragmentShader GLSL100: Unshaded.frag
 
         RenderState {
             FaceCull Off
