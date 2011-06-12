@@ -34,7 +34,7 @@ import org.novyon.noise.filter.SmoothFilter;
 import org.novyon.noise.fractal.FractalSum;
 import org.novyon.noise.modulator.NoiseModulator;
 
-public class TerrainGridTest extends SimpleApplication {
+public class TerrainFractalGridTest extends SimpleApplication {
 
     private Material mat_terrain;
     private TerrainQuad terrain;
@@ -44,7 +44,7 @@ public class TerrainGridTest extends SimpleApplication {
     private boolean usePhysics = true;
 
     public static void main(final String[] args) {
-        TerrainGridTest app = new TerrainGridTest();
+        TerrainFractalGridTest app = new TerrainFractalGridTest();
         app.start();
     }
     private CharacterControl player3;
@@ -132,12 +132,7 @@ public class TerrainGridTest extends SimpleApplication {
 
         ground.addPreFilter(this.iterate);
 
-        this.terrain = new TerrainGrid("terrain", 65, 1025, new ImageBasedHeightMapGrid(assetManager, new Namer() {
-
-            public String getName(int x, int y) {
-                return "Textures/Terrain/grid/mountains_" + (x * 512) + "_" + (y * 512) + ".png";
-            }
-        }));
+        this.terrain = new TerrainGrid("terrain", 65, 257, new FractalHeightMapGrid(ground, null, 256f));
 
         this.terrain.setMaterial(this.mat_terrain);
         this.terrain.setLocalTranslation(0, 0, 0);
@@ -198,30 +193,30 @@ public class TerrainGridTest extends SimpleApplication {
         public void onAction(final String name, final boolean keyPressed, final float tpf) {
             if (name.equals("Lefts")) {
                 if (keyPressed) {
-                    TerrainGridTest.this.left = true;
+                    TerrainFractalGridTest.this.left = true;
                 } else {
-                    TerrainGridTest.this.left = false;
+                    TerrainFractalGridTest.this.left = false;
                 }
             } else if (name.equals("Rights")) {
                 if (keyPressed) {
-                    TerrainGridTest.this.right = true;
+                    TerrainFractalGridTest.this.right = true;
                 } else {
-                    TerrainGridTest.this.right = false;
+                    TerrainFractalGridTest.this.right = false;
                 }
             } else if (name.equals("Ups")) {
                 if (keyPressed) {
-                    TerrainGridTest.this.up = true;
+                    TerrainFractalGridTest.this.up = true;
                 } else {
-                    TerrainGridTest.this.up = false;
+                    TerrainFractalGridTest.this.up = false;
                 }
             } else if (name.equals("Downs")) {
                 if (keyPressed) {
-                    TerrainGridTest.this.down = true;
+                    TerrainFractalGridTest.this.down = true;
                 } else {
-                    TerrainGridTest.this.down = false;
+                    TerrainFractalGridTest.this.down = false;
                 }
             } else if (name.equals("Jumps")) {
-                TerrainGridTest.this.player3.jump();
+                TerrainFractalGridTest.this.player3.jump();
             }
         }
     };

@@ -23,15 +23,22 @@ import jme3tools.converters.ImageToAwt;
  */
 public class ImageBasedHeightMapGrid implements HeightMapGrid {
 
-    private final String textureBase;
-    private final String textureExt;
     private final AssetManager assetManager;
+    private final Namer namer;
     private int size;
 
-    public ImageBasedHeightMapGrid(String textureBase, String textureExt, AssetManager assetManager) {
-        this.textureBase = textureBase;
-        this.textureExt = textureExt;
+    public ImageBasedHeightMapGrid(final String textureBase, final String textureExt, AssetManager assetManager) {
+        this(assetManager, new Namer() {
+
+            public String getName(int x, int y) {
+                return textureBase + "_" + x + "_" + y + "." + textureExt;
+            }
+        });
+    }
+
+    public ImageBasedHeightMapGrid(AssetManager assetManager, Namer namer) {
         this.assetManager = assetManager;
+        this.namer = namer;
     }
 
     public HeightMap getHeightMapAt(Vector3f location) {
@@ -40,14 +47,15 @@ public class ImageBasedHeightMapGrid implements HeightMapGrid {
         int z = (int) location.z;
         AbstractHeightMap heightmap = null;
         try {
-            Logger.getLogger(ImageBasedHeightMapGrid.class.getCanonicalName()).log(Level.INFO, "Loading heightmap from file: " + textureBase + "_" + x + "_" + z + "." + textureExt);
-            final InputStream stream = Thread.currentThread().getContextClassLoader().getResourceAsStream(textureBase + "_" + x + "_" + z + "." + textureExt);
+            String name = namer.getName(x, z);
+            Logger.getLogger(ImageBasedHeightMapGrid.class.getCanonicalName()).log(Level.INFO, "Loading heightmap from file: " + name);
+            final InputStream stream = Thread.currentThread().getContextClassLoader().getResourceAsStream(name);
             BufferedImage im = null;
             if (stream != null) {
                 im = ImageIO.read(stream);
             } else {
                 im = new BufferedImage(size, size, BufferedImage.TYPE_USHORT_GRAY);
-                Logger.getLogger(ImageBasedHeightMapGrid.class.getCanonicalName()).log(Level.INFO, "File: " + textureBase + "_" + x + "_" + z + "." + textureExt + " not found, loading zero heightmap instead");
+                Logger.getLogger(ImageBasedHeightMapGrid.class.getCanonicalName()).log(Level.WARNING, "File: " + name + " not found, loading zero heightmap instead");
             }
             // CREATE HEIGHTMAP
             heightmap = new Grayscale16BitHeightMap(im);
