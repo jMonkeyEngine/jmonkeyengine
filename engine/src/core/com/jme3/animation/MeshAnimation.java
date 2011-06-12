@@ -39,11 +39,8 @@ import com.jme3.export.OutputCapsule;
 import com.jme3.export.Savable;
 import com.jme3.scene.Mesh;
 import java.io.IOException;
-import java.io.Serializable;
 
-public class MeshAnimation implements Serializable, Savable {
-
-    private static final long serialVersionUID = 1L;
+public class MeshAnimation implements Savable {
 
     private String name;
     private float length;

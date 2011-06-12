@@ -32,12 +32,14 @@
 
 package com.jme3.network.rmi;
 
-
-import com.jme3.network.connection.Client;
-import com.jme3.network.connection.Server;
-import com.jme3.network.events.ConnectionListener;
-import com.jme3.network.events.MessageListener;
-import com.jme3.network.message.Message;
+import com.jme3.network.Client;
+import com.jme3.network.ClientStateListener;
+import com.jme3.network.ClientStateListener.DisconnectInfo;
+import com.jme3.network.ConnectionListener;
+import com.jme3.network.HostedConnection;
+import com.jme3.network.Message;
+import com.jme3.network.MessageListener;
+import com.jme3.network.Server;
 import com.jme3.network.serializing.Serializer;
 import com.jme3.util.IntMap;
 import com.jme3.util.IntMap.Entry;
@@ -45,11 +47,12 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class ObjectStore implements MessageListener, ConnectionListener {
+public class ObjectStore {
 
     private static final Logger logger = Logger.getLogger(ObjectStore.class.getName());
 
@@ -66,6 +69,9 @@ public class ObjectStore implements MessageListener, ConnectionListener {
 
     private Client client;
     private Server server;
+    
+    private ClientEventHandler clientEventHandler = new ClientEventHandler();
+    private ServerEventHandler serverEventHandler = new ServerEventHandler();
 
     // Local object ID counter
     private volatile short objectIdCounter = 0;
@@ -85,6 +91,38 @@ public class ObjectStore implements MessageListener, ConnectionListener {
 
     private final Object receiveObjectLock = new Object();
 
+    public class ServerEventHandler implements MessageListener<HostedConnection>,
+                                                      ConnectionListener {
+
+        public void messageReceived(HostedConnection source, Message m) {
+            onMessage(source, m);
+        }
+
+        public void connectionAdded(Server server, HostedConnection conn) {
+            onConnection(conn);
+        }
+
+        public void connectionRemoved(Server server, HostedConnection conn) {
+        }
+        
+    } 
+    
+    public class ClientEventHandler implements MessageListener,
+                                                      ClientStateListener {
+
+        public void messageReceived(Object source, Message m) {
+            onMessage(null, m);
+        }
+
+        public void clientConnected(Client c) {
+            onConnection(null);
+        }
+
+        public void clientDisconnected(Client c, DisconnectInfo info) {
+        }
+        
+    }
+    
     static {
         Serializer s = new RmiSerializer();
         Serializer.registerClass(RemoteObjectDefMessage.class, s);
@@ -92,20 +130,22 @@ public class ObjectStore implements MessageListener, ConnectionListener {
         Serializer.registerClass(RemoteMethodReturnMessage.class, s);
     }
 
-    public ObjectStore(Client client){
+    public ObjectStore(Client client) {
         this.client = client;
-        client.addMessageListener(this, RemoteObjectDefMessage.class, 
-                                        RemoteMethodCallMessage.class,
-                                        RemoteMethodReturnMessage.class);
-        client.addConnectionListener(this);
+        client.addMessageListener(clientEventHandler, 
+                RemoteObjectDefMessage.class,
+                RemoteMethodCallMessage.class,
+                RemoteMethodReturnMessage.class);
+        client.addClientStateListener(clientEventHandler);
     }
 
-    public ObjectStore(Server server){
+    public ObjectStore(Server server) {
         this.server = server;
-        server.addMessageListener(this, RemoteObjectDefMessage.class, 
-                                        RemoteMethodCallMessage.class,
-                                        RemoteMethodReturnMessage.class);
-        server.addConnectionListener(this);
+        server.addMessageListener(serverEventHandler, 
+                RemoteObjectDefMessage.class,
+                RemoteMethodCallMessage.class,
+                RemoteMethodReturnMessage.class);
+        server.addConnectionListener(serverEventHandler);
     }
 
     private ObjectDef makeObjectDef(LocalObject localObj){
@@ -122,7 +162,15 @@ public class ObjectStore implements MessageListener, ConnectionListener {
         localObj.objectName = name;
         localObj.objectId  = objectIdCounter++;
         localObj.theObject = obj;
-        localObj.methods   = obj.getClass().getMethods();
+        //localObj.methods   = obj.getClass().getMethods();
+        
+        ArrayList<Method> methodList = new ArrayList<Method>();
+        for (Method method : obj.getClass().getMethods()){
+            if (method.getDeclaringClass() == obj.getClass()){
+                methodList.add(method);
+            }
+        }
+        localObj.methods = methodList.toArray(new Method[methodList.size()]);  
         
         // Put it in the store
         localObjects.put(localObj.objectId, localObj);
@@ -180,18 +228,14 @@ public class ObjectStore implements MessageListener, ConnectionListener {
             pendingInvocations.put(call.invocationId, invoke);
         }
 
-        try{
-            if (server != null){
-                remoteObj.client.send(call);
-                logger.log(Level.INFO, "Server: Sending {0}", call);
-            }else{
-                client.send(call);
-                logger.log(Level.INFO, "Client: Sending {0}", call);
-            }
-        } catch (IOException ex){
-            ex.printStackTrace();
+        if (server != null){
+            remoteObj.client.send(call);
+            logger.log(Level.INFO, "Server: Sending {0}", call);
+        }else{
+            client.send(call);
+            logger.log(Level.INFO, "Client: Sending {0}", call);
         }
-
+       
         if (invoke != null){
             synchronized(invoke){
                 while (!invoke.available){
@@ -210,7 +254,7 @@ public class ObjectStore implements MessageListener, ConnectionListener {
         }
     }
 
-    public void messageReceived(Message message) {
+    private void onMessage(HostedConnection source, Message message) {
         // Might want to do more strict validation of the data
         // in the message to prevent crashes
 
@@ -219,7 +263,7 @@ public class ObjectStore implements MessageListener, ConnectionListener {
 
             ObjectDef[] defs = defMsg.objects;
             for (ObjectDef def : defs){
-                RemoteObject remoteObject = new RemoteObject(this, message.getClient());
+                RemoteObject remoteObject = new RemoteObject(this, source);
                 remoteObject.objectId = (short)def.objectId;
                 remoteObject.methodDefs = def.methodDefs;
                 remoteObjects.put(def.objectName, remoteObject);
@@ -257,16 +301,12 @@ public class ObjectStore implements MessageListener, ConnectionListener {
                 RemoteMethodReturnMessage retMsg = new RemoteMethodReturnMessage();
                 retMsg.invocationID = call.invocationId;
                 retMsg.retVal = ret;
-                try {
-                    if (server != null){
-                        call.getClient().send(retMsg);
-                        logger.log(Level.INFO, "Server: Sending {0}", retMsg);
-                    } else{
-                        client.send(retMsg);
-                        logger.log(Level.INFO, "Client: Sending {0}", retMsg);
-                    }
-                } catch (IOException ex){
-                    ex.printStackTrace();
+                if (server != null){
+                    source.send(retMsg);
+                    logger.log(Level.INFO, "Server: Sending {0}", retMsg);
+                } else{
+                    client.send(retMsg);
+                    logger.log(Level.INFO, "Client: Sending {0}", retMsg);
                 }
             }
         }else if (message instanceof RemoteMethodReturnMessage){
@@ -285,7 +325,7 @@ public class ObjectStore implements MessageListener, ConnectionListener {
         }
     }
 
-    public void clientConnected(Client client) {
+    private void onConnection(HostedConnection conn) {
         if (localObjects.size() > 0){
             // send a object definition message
             ObjectDef[] defs = new ObjectDef[localObjects.size()];
@@ -297,31 +337,14 @@ public class ObjectStore implements MessageListener, ConnectionListener {
 
             RemoteObjectDefMessage defMsg = new RemoteObjectDefMessage();
             defMsg.objects = defs;
-            try {
-                if (this.client != null){
-                    this.client.send(defMsg);
-                    logger.log(Level.INFO, "Client: Sending {0}", defMsg);
-                } else{
-                    client.send(defMsg);
-                    logger.log(Level.INFO, "Server: Sending {0}", defMsg);
-                }
-            } catch (IOException ex){
-                ex.printStackTrace();
+            if (this.client != null){
+                this.client.send(defMsg);
+                logger.log(Level.INFO, "Client: Sending {0}", defMsg);
+            } else{
+                conn.send(defMsg);
+                logger.log(Level.INFO, "Server: Sending {0}", defMsg);
             }
         }
-    }
-
-    public void clientDisconnected(Client client) {
-
-    }
-
-    public void messageSent(Message message) {
-    }
-
-    public void objectReceived(Object object) {
-    }
-
-    public void objectSent(Object object) {
     }
 
 }

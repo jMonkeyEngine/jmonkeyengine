@@ -29,7 +29,6 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package com.jme3.effect.shapes;
 
 import com.jme3.export.JmeExporter;
@@ -42,15 +41,15 @@ public class EmitterPointShape implements EmitterShape {
 
     private Vector3f point;
 
-    public EmitterPointShape(){
+    public EmitterPointShape() {
     }
 
-    public EmitterPointShape(Vector3f point){
+    public EmitterPointShape(Vector3f point) {
         this.point = point;
     }
 
     @Override
-	public EmitterShape deepClone(){
+    public EmitterShape deepClone() {
         try {
             EmitterPointShape clone = (EmitterPointShape) super.clone();
             clone.point = point.clone();
@@ -61,10 +60,10 @@ public class EmitterPointShape implements EmitterShape {
     }
 
     @Override
-	public void getRandomPoint(Vector3f store) {
-       store.set(point);
+    public void getRandomPoint(Vector3f store) {
+        store.set(point);
     }
-    
+
     /**
      * This method fills the point with data.
      * It does not fill the normal.
@@ -73,7 +72,7 @@ public class EmitterPointShape implements EmitterShape {
      */
     @Override
     public void getRandomPointAndNormal(Vector3f store, Vector3f normal) {
-    	store.set(point);
+        store.set(point);
     }
 
     public Vector3f getPoint() {
@@ -85,14 +84,13 @@ public class EmitterPointShape implements EmitterShape {
     }
 
     @Override
-	public void write(JmeExporter ex) throws IOException {
+    public void write(JmeExporter ex) throws IOException {
         OutputCapsule oc = ex.getCapsule(this);
         oc.write(point, "point", null);
     }
 
     @Override
-	public void read(JmeImporter im) throws IOException {
+    public void read(JmeImporter im) throws IOException {
         this.point = (Vector3f) im.getCapsule(this).readSavable("point", null);
     }
-
 }

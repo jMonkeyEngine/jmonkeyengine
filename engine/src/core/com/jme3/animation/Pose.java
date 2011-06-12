@@ -40,15 +40,12 @@ import com.jme3.export.Savable;
 import com.jme3.math.Vector3f;
 import com.jme3.util.BufferUtils;
 import java.io.IOException;
-import java.io.Serializable;
 import java.nio.FloatBuffer;
 
 /**
  * A pose is a list of offsets that say where a mesh verticles should be for this pose.
  */
-public final class Pose implements Serializable, Savable {
-
-    private static final long serialVersionUID = 1L;
+public final class Pose implements Savable {
 
     private String name;
     private int targetMeshIndex;

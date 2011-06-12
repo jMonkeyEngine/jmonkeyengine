@@ -41,7 +41,6 @@ import com.jme3.scene.Mesh;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.VertexBuffer.Type;
 import java.io.IOException;
-import java.io.Serializable;
 import java.nio.FloatBuffer;
 
 /**
@@ -49,14 +48,10 @@ import java.nio.FloatBuffer;
  */
 public final class PoseTrack extends Track {
     
-    private static final long serialVersionUID = 1L;
-
     private PoseFrame[] frames;
     private float[]     times;
 
     public static class PoseFrame implements Savable {
-
-        private static final long serialVersionUID = 1L;
 
         Pose[] poses;
         float[] weights;

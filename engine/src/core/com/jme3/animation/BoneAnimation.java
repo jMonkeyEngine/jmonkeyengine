@@ -41,18 +41,22 @@ import java.io.IOException;
 import java.util.BitSet;
 
 /**
- * Bone animation updates each of it's tracks with the skeleton and time
+ * Bone animation updates each of its tracks with the skeleton and time
  * to apply the animation.
  */
 public final class BoneAnimation implements Savable {
-
-    private static final long serialVersionUID = 1L;
 
     private String name;
     private float length;
 
     private BoneTrack[] tracks;
 
+    /**
+     * Creates a new BoneAnimation with the given name and length.
+     * 
+     * @param name The name of the bone animation.
+     * @param length Length in seconds of the bone animation.
+     */
     public BoneAnimation(String name, float length){
         this.name = name;
         this.length = length;

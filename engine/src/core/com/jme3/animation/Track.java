@@ -37,15 +37,12 @@ import com.jme3.export.JmeImporter;
 import com.jme3.export.Savable;
 import com.jme3.scene.Mesh;
 import java.io.IOException;
-import java.io.Serializable;
 
 /**
  * A single track of mesh animation (either morph or pose based).
  * Currently morph animations are not supported (only pose).
  */
-public abstract class Track implements Serializable, Savable {
-    
-    private static final long serialVersionUID = 1L;
+public abstract class Track implements Savable {
 
     protected int targetMeshIndex;
 

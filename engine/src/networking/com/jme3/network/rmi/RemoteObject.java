@@ -32,8 +32,7 @@
 
 package com.jme3.network.rmi;
 
-
-import com.jme3.network.connection.Client;
+import com.jme3.network.HostedConnection;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -72,9 +71,9 @@ public class RemoteObject implements InvocationHandler {
      * The client who exposed the RMI interface, or null if the server
      * exposed it.
      */
-    Client client;
+    HostedConnection client;
 
-    public RemoteObject(ObjectStore store, Client client){
+    public RemoteObject(ObjectStore store, HostedConnection client){
         this.store = store;
         this.client = client;
     }

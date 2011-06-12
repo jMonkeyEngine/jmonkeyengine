@@ -57,7 +57,6 @@ import java.io.IOException;
 public final class Ray implements Savable, Cloneable, Collidable {
 
     //todo: merge with Line?
-    private static final long serialVersionUID = 1L;
 
     /** The ray's begining point. */
     public Vector3f origin;

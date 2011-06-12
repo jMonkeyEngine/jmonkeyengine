@@ -32,12 +32,12 @@
 
 package jme3test.network;
 
+import com.jme3.network.AbstractMessage;
 import com.jme3.network.Client;
 import com.jme3.network.HostedConnection;
 import com.jme3.network.MessageListener;
 import com.jme3.network.Network;
 import com.jme3.network.Server;
-import com.jme3.network.message.Message;
 import com.jme3.network.serializing.Serializable;
 import com.jme3.network.serializing.Serializer;
 import java.io.IOException;
@@ -45,11 +45,11 @@ import java.io.IOException;
 public class TestMessages {
 
     @Serializable
-    public static class PingMessage extends Message {
+    public static class PingMessage extends AbstractMessage {
     }
 
     @Serializable
-    public static class PongMessage extends Message {
+    public static class PongMessage extends AbstractMessage {
     }
 
     private static class ServerPingResponder implements MessageListener<HostedConnection> {
@@ -76,15 +76,18 @@ public class TestMessages {
         Server server = Network.createServer(5110);
         server.start();
 
-        Client client = Network.connectToServer("192.168.1.101", 5110, 5111);
+        Client client = Network.connectToServer("localhost", 5110);
         client.start();
 
         server.addMessageListener(new ServerPingResponder(), PingMessage.class);
         client.addMessageListener(new ClientPingResponder(), PongMessage.class);
 
-        Thread.sleep(100);
-
-        System.out.println("Sending ping message..");
+        System.out.println("Client: Sending ping message..");
         client.send(new PingMessage());
+        
+        Object obj = new Object();
+        synchronized (obj){
+            obj.wait();
+        }
     }
 }

@@ -56,8 +56,6 @@ import java.nio.ShortBuffer;
  */
 public class PQTorus extends Mesh {
 
-    private static final long serialVersionUID = 1L;
-
     private float p, q;
 
     private float radius, width;

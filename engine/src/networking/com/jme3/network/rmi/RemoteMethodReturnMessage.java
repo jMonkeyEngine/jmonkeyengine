@@ -32,8 +32,7 @@
 
 package com.jme3.network.rmi;
 
-
-import com.jme3.network.message.Message;
+import com.jme3.network.AbstractMessage;
 import com.jme3.network.serializing.Serializable;
 
 /**
@@ -43,7 +42,7 @@ import com.jme3.network.serializing.Serializable;
  * @author Kirill Vainer.
  */
 @Serializable
-public class RemoteMethodReturnMessage extends Message {
+public class RemoteMethodReturnMessage extends AbstractMessage {
 
     public RemoteMethodReturnMessage(){
         super(true);

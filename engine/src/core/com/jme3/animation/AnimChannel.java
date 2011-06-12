@@ -48,6 +48,8 @@ import java.util.BitSet;
  */
 public final class AnimChannel {
 
+    private static final float DEFAULT_BLEND_TIME = 0.15f;
+    
     private AnimControl control;
 
 //    private ArrayList<Integer> affectedBones;
@@ -61,7 +63,7 @@ public final class AnimChannel {
     private float speedBlendFrom;
 
     private LoopMode loopMode, loopModeBlendFrom;
-    private float defaultBlendTime = 0.15f;
+    
 
     private float blendAmount = 1f;
     private float blendRate   = 0;
@@ -95,6 +97,15 @@ public final class AnimChannel {
         this.control = control;
     }
 
+    /**
+     * Returns the parent control of this AnimChannel.
+     * @return the parent control of this AnimChannel.
+     * @see AnimControl
+     */
+    public AnimControl getControl() {
+        return control;
+    }
+    
     /**
      * @return The name of the currently playing animation, or null if
      * none is assigned.
@@ -180,6 +191,7 @@ public final class AnimChannel {
 
     /**
      * Set the current animation that is played by this AnimChannel.
+     * <p>
      * This resets the time to zero, and optionally blends the animation
      * over <code>blendTime</code> seconds with the currently playing animation.
      * Notice that this method will reset the control's speed to 1.0.
@@ -219,11 +231,15 @@ public final class AnimChannel {
     }
 
     /**
-     *
-     * @param name
+     * Set the current animation that is played by this AnimChannel.
+     * <p>
+     * See {@link #setAnim(java.lang.String, float) }.
+     * The blendTime argument by default is 150 milliseconds.
+     * 
+     * @param name The name of the animation to play
      */
     public void setAnim(String name){
-        setAnim(name, defaultBlendTime);
+        setAnim(name, DEFAULT_BLEND_TIME);
     }
 
     /**
@@ -294,7 +310,6 @@ public final class AnimChannel {
         }
     }
 
-
     void reset(){
         animation = null;
         blendFrom = null;
@@ -340,11 +355,4 @@ public final class AnimChannel {
 
         
     }
-
-    public AnimControl getControl() {
-        return control;
-    }
-
-    
-
 }

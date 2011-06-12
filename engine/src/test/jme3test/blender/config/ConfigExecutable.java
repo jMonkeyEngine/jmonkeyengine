@@ -9,7 +9,7 @@ import com.jme3.asset.ModelKey;
  * itself.
  * @author Marcin Roguski (Kaelthas)
  */
-public interface IConfigExecutable {
+public interface ConfigExecutable {
 	/**
 	 * This method runs the test with the given blender key.
 	 * @param modelKey

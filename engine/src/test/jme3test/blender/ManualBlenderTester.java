@@ -41,7 +41,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import jme3test.blender.config.ConfigDialog;
-import jme3test.blender.config.IConfigExecutable;
+import jme3test.blender.config.ConfigExecutable;
 import jme3test.blender.scene.Pivot;
 
 import com.jme3.animation.AnimControl;
@@ -67,157 +67,160 @@ import com.jme3.texture.plugins.AWTLoader;
  * @author Marcin Roguski (Kaelthas)
  */
 public class ManualBlenderTester extends SimpleApplication {
-	private static final Logger	LOGGER	= Logger.getLogger(ManualBlenderTester.class.getName());
-	private ModelKey modelKey;//the key that holds the test file configuration
-	private final boolean debug;
-	
-	/**
-	 * Starting method
-	 * @param args input parameters; the following options can be passed to the application:
-	 * <li> -debug   : this one indicates if the application runs in debug or not (it is used under linux
-	 * 				   in order to enable the mouse in debug mode since linuxes tend not to give the cursor back
-	 * 				   to eclipse)
-	 */
-	public static void main(String[] args) {
-		//veryfying if the application is in debug mode
-		boolean debug = false;
-		for(String arg : args) {
-			if("-debug".equalsIgnoreCase(arg)) {
-				debug = true;
-				break;
-			}
-		}
-		final boolean debugMode = debug;
-		//running the application
-		new ConfigDialog("./src/test-data/Blender", new IConfigExecutable() {
-			@Override
-			public void execute(ModelKey modelKey, Level logLevel) {
-				new ManualBlenderTester(modelKey, logLevel, debugMode).start();
-			}
-		});
-	}
-	
-	/**
-	 * Constructor stores the given key and disables the settings screen.
-	 * @param modelKey the key to be stored
-	 * @param logLevel the jme logger log level
-	 * @param debug variable that indicates if the application runs in debug mode
-	 * (this is required on linux to show release the mouse to be used in debug mode)
-	 */
-	public ManualBlenderTester(ModelKey modelKey, Level logLevel, boolean debug) {
-		this.debug = debug;
-		Logger.getLogger("com.jme3").setLevel(logLevel);
-		this.modelKey = modelKey;
-		this.showSettings = false;
-	}
 
-	@Override
-	public void simpleInitApp() {
-		if(debug) {
-			mouseInput.setCursorVisible(true);
-		}
-		assetManager.registerLocator(".", FileLocator.class);
-		assetManager.registerLoader(BlenderLoader.class, "blend");
-		assetManager.registerLoader(AWTLoader.class, "png");
+    private static final Logger LOGGER = Logger.getLogger(ManualBlenderTester.class.getName());
+    private ModelKey modelKey;//the key that holds the test file configuration
+    private final boolean debug;
 
-		viewPort.setBackgroundColor(ColorRGBA.Gray);
+    /**
+     * Starting method
+     * @param args input parameters; the following options can be passed to the application:
+     * <li> -debug   : this one indicates if the application runs in debug or not (it is used under linux
+     * 				   in order to enable the mouse in debug mode since linuxes tend not to give the cursor back
+     * 				   to eclipse)
+     */
+    public static void main(String[] args) {
+        //veryfying if the application is in debug mode
+        boolean debug = false;
+        for (String arg : args) {
+            if ("-debug".equalsIgnoreCase(arg)) {
+                debug = true;
+                break;
+            }
+        }
+        final boolean debugMode = debug;
+        //running the application
+        new ConfigDialog("./src/test-data/Blender", new ConfigExecutable() {
 
-		flyCam.setMoveSpeed(20);
-		cam.setFrustumFar(1000.0f);
-		cam.setFrustumNear(1.0f);
-		AssetInfo ai = new AssetInfo(assetManager, modelKey) {
-			@Override
-			public InputStream openStream() {
-				try {
-					return new FileInputStream(this.key.getName());
-				} catch(FileNotFoundException e) {
-					LOGGER.log(Level.SEVERE, e.getMessage(), e);
-					return null;
-				}
-			}
-		};
-		rootNode.attachChild(new Pivot(assetManager));
-		if(modelKey instanceof BlenderKey) {
-			Node blenderModel = this.testBlenderLoader(ai);
-			Map<String, Map<String, int[]>> animations = ((BlenderKey) modelKey).getAnimations();
-			//setting the first animation as active
-			if(((BlenderKey) modelKey).getAnimations()!=null) {
-				for(Entry<String, Map<String, int[]>> animEntry : animations.entrySet()) {
-					for(Entry<String, int[]> anim : animEntry.getValue().entrySet()) {
-						Spatial animatedSpatial = this.findNode(blenderModel, animEntry.getKey());
-						animatedSpatial.getControl(AnimControl.class).createChannel().setAnim(anim.getKey());
-						break;
-					}
-					break;
-				}
-			}
-		} else {
-			this.testBlenderModelLoader(ai);
-		}
-		
-		DirectionalLight sun = new DirectionalLight();
-		sun.setDirection(new Vector3f(0, -10, 0).normalizeLocal());
-		sun.setColor(ColorRGBA.White);
-		rootNode.addLight(sun);
-	}
-	
-	/**
-	 * This method finds a node of a given name.
-	 * @param rootNode the root node to search
-	 * @param name the name of the searched node
-	 * @return the found node or null
-	 */
-	private Spatial findNode(Node rootNode, String name) {
-		if(name.equals(rootNode.getName())) {
-			return rootNode;
-		}
-		return rootNode.getChild(name);
-	}
+            @Override
+            public void execute(ModelKey modelKey, Level logLevel) {
+                new ManualBlenderTester(modelKey, logLevel, debugMode).start();
+            }
+        });
+    }
 
-	/**
-	 * This method loads the model using blenderLoader.
-	 * @param assetInfo
-	 *        the asset info
-	 * @return the loaded model
-	 */
-	private Node testBlenderLoader(AssetInfo assetInfo) {
-		Node blenderModel = null;
-		BlenderLoader blenderLoader = new BlenderLoader();
-		try {
-			LoadingResults loadingResults = blenderLoader.load(assetInfo);
-			for(Node object : loadingResults.getObjects()) {
-				this.rootNode.attachChild(object);
-				blenderModel = object;
-			}
-			for(Light light : loadingResults.getLights()) {
-				this.rootNode.addLight(light);
-			}
-			for(Camera camera : loadingResults.getCameras()) {
-				LOGGER.info(camera.toString());
-			}
-		} catch(IOException e) {
-			LOGGER.log(Level.SEVERE, e.getMessage(), e);
-		}
-		return blenderModel;
-	}
+    /**
+     * Constructor stores the given key and disables the settings screen.
+     * @param modelKey the key to be stored
+     * @param logLevel the jme logger log level
+     * @param debug variable that indicates if the application runs in debug mode
+     * (this is required on linux to show release the mouse to be used in debug mode)
+     */
+    public ManualBlenderTester(ModelKey modelKey, Level logLevel, boolean debug) {
+        this.debug = debug;
+        Logger.getLogger("com.jme3").setLevel(logLevel);
+        this.modelKey = modelKey;
+        this.showSettings = false;
+    }
 
-	/**
-	 * This method loads the model using blenderModelLoader.
-	 * @param assetInfo
-	 *        the asset info
-	 * @return the loaded model
-	 */
-	private Node testBlenderModelLoader(AssetInfo assetInfo) {
-		BlenderModelLoader blenderLoader = new BlenderModelLoader();
-		try {
-			Spatial loadingResults = blenderLoader.load(assetInfo);
-			this.rootNode.attachChild(loadingResults);
-			if(loadingResults instanceof Node) {
-				return (Node)loadingResults;
-			}
-		} catch(IOException e) {
-			LOGGER.log(Level.SEVERE, e.getMessage(), e);
-		}
-		return null;
-	}
+    @Override
+    public void simpleInitApp() {
+        if (debug) {
+            mouseInput.setCursorVisible(true);
+        }
+        assetManager.registerLocator(".", FileLocator.class);
+        assetManager.registerLoader(BlenderLoader.class, "blend");
+        assetManager.registerLoader(AWTLoader.class, "png");
+
+        viewPort.setBackgroundColor(ColorRGBA.Gray);
+
+        flyCam.setMoveSpeed(20);
+        cam.setFrustumFar(1000.0f);
+        cam.setFrustumNear(1.0f);
+        AssetInfo ai = new AssetInfo(assetManager, modelKey) {
+
+            @Override
+            public InputStream openStream() {
+                try {
+                    return new FileInputStream(this.key.getName());
+                } catch (FileNotFoundException e) {
+                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                    return null;
+                }
+            }
+        };
+        rootNode.attachChild(new Pivot(assetManager));
+        if (modelKey instanceof BlenderKey) {
+            Node blenderModel = this.testBlenderLoader(ai);
+            Map<String, Map<String, int[]>> animations = ((BlenderKey) modelKey).getAnimations();
+            //setting the first animation as active
+            if (((BlenderKey) modelKey).getAnimations() != null) {
+                for (Entry<String, Map<String, int[]>> animEntry : animations.entrySet()) {
+                    for (Entry<String, int[]> anim : animEntry.getValue().entrySet()) {
+                        Spatial animatedSpatial = this.findNode(blenderModel, animEntry.getKey());
+                        animatedSpatial.getControl(AnimControl.class).createChannel().setAnim(anim.getKey());
+                        break;
+                    }
+                    break;
+                }
+            }
+        } else {
+            this.testBlenderModelLoader(ai);
+        }
+
+        DirectionalLight sun = new DirectionalLight();
+        sun.setDirection(new Vector3f(0, -10, 0).normalizeLocal());
+        sun.setColor(ColorRGBA.White);
+        rootNode.addLight(sun);
+    }
+
+    /**
+     * This method finds a node of a given name.
+     * @param rootNode the root node to search
+     * @param name the name of the searched node
+     * @return the found node or null
+     */
+    private Spatial findNode(Node rootNode, String name) {
+        if (name.equals(rootNode.getName())) {
+            return rootNode;
+        }
+        return rootNode.getChild(name);
+    }
+
+    /**
+     * This method loads the model using blenderLoader.
+     * @param assetInfo
+     *        the asset info
+     * @return the loaded model
+     */
+    private Node testBlenderLoader(AssetInfo assetInfo) {
+        Node blenderModel = null;
+        BlenderLoader blenderLoader = new BlenderLoader();
+        try {
+            LoadingResults loadingResults = blenderLoader.load(assetInfo);
+            for (Node object : loadingResults.getObjects()) {
+                this.rootNode.attachChild(object);
+                blenderModel = object;
+            }
+            for (Light light : loadingResults.getLights()) {
+                this.rootNode.addLight(light);
+            }
+            for (Camera camera : loadingResults.getCameras()) {
+                LOGGER.info(camera.toString());
+            }
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        }
+        return blenderModel;
+    }
+
+    /**
+     * This method loads the model using blenderModelLoader.
+     * @param assetInfo
+     *        the asset info
+     * @return the loaded model
+     */
+    private Node testBlenderModelLoader(AssetInfo assetInfo) {
+        BlenderModelLoader blenderLoader = new BlenderModelLoader();
+        try {
+            Spatial loadingResults = blenderLoader.load(assetInfo);
+            this.rootNode.attachChild(loadingResults);
+            if (loadingResults instanceof Node) {
+                return (Node) loadingResults;
+            }
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        }
+        return null;
+    }
 }

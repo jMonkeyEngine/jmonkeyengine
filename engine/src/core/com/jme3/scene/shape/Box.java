@@ -73,8 +73,6 @@ public class Box extends AbstractBox {
         1, 0, 0, 0, 0, 1, 1, 1  // bottom
     };
 
-    private static final long serialVersionUID = 1L;
-
     /**
      * Creates a new box.
      * <p>

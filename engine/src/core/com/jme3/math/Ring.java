@@ -38,7 +38,6 @@ import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
 import com.jme3.export.Savable;
 import java.io.IOException;
-import java.io.Serializable;
 
 
 /**
@@ -50,8 +49,7 @@ import java.io.Serializable;
  * @author Joshua Slack
  */
 
-public final class Ring implements Serializable, Savable, Cloneable {
-    private static final long serialVersionUID = 1L;
+public final class Ring implements Savable, Cloneable {
     
     private Vector3f center, up;
     private float innerRadius, outerRadius;

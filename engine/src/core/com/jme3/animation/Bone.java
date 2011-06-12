@@ -93,9 +93,8 @@ public final class Bone implements Savable {
     private Vector3f worldPos = new Vector3f();
     private Quaternion worldRot = new Quaternion();
     private Vector3f worldScale = new Vector3f();
-    
     //used for getCombinedTransform 
-    private Transform tmpTransform=new Transform();
+    private Transform tmpTransform = new Transform();
 
     /**
      * Creates a new bone with the given name.
@@ -143,6 +142,8 @@ public final class Bone implements Savable {
     }
 
     /**
+     * Returns the name of the bone, set in the constructor.
+     * 
      * @return The name of the bone, set in the constructor.
      */
     public String getName() {
@@ -150,6 +151,7 @@ public final class Bone implements Savable {
     }
 
     /**
+     * Returns parent bone of this bone, or null if it is a root bone.
      * @return The parent bone of this bone, or null if it is a root bone.
      */
     public Bone getParent() {
@@ -157,6 +159,8 @@ public final class Bone implements Savable {
     }
 
     /**
+     * Returns all the children bones of this bone.
+     * 
      * @return All the children bones of this bone.
      */
     public ArrayList<Bone> getChildren() {
@@ -164,6 +168,8 @@ public final class Bone implements Savable {
     }
 
     /**
+     * Returns the local position of the bone, relative to the parent bone.
+     * 
      * @return The local position of the bone, relative to the parent bone.
      */
     public Vector3f getLocalPosition() {
@@ -171,6 +177,8 @@ public final class Bone implements Savable {
     }
 
     /**
+     * Returns the local rotation of the bone, relative to the parent bone.
+     * 
      * @return The local rotation of the bone, relative to the parent bone.
      */
     public Quaternion getLocalRotation() {
@@ -178,6 +186,8 @@ public final class Bone implements Savable {
     }
 
     /**
+     * Returns the local scale of the bone, relative to the parent bone.
+     * 
      * @return The local scale of the bone, relative to the parent bone.
      */
     public Vector3f getLocalScale() {
@@ -185,6 +195,8 @@ public final class Bone implements Savable {
     }
 
     /**
+     * Returns the position of the bone in model space.
+     * 
      * @return The position of the bone in model space.
      */
     public Vector3f getModelSpacePosition() {
@@ -192,6 +204,8 @@ public final class Bone implements Savable {
     }
 
     /**
+     * Returns the rotation of the bone in model space.
+     * 
      * @return The rotation of the bone in model space.
      */
     public Quaternion getModelSpaceRotation() {
@@ -199,20 +213,37 @@ public final class Bone implements Savable {
     }
 
     /**
+     * Returns the scale of the bone in model space.
+     * 
      * @return The scale of the bone in model space.
      */
     public Vector3f getModelSpaceScale() {
         return worldScale;
     }
 
+    /**
+     * Returns the inverse world bind pose position.
+     * 
+     * @return the inverse world bind pose position.
+     */
     public Vector3f getWorldBindInversePosition() {
         return worldBindInversePos;
     }
 
+    /**
+     * Returns the inverse world bind pose rotation.
+     * 
+     * @return the inverse world bind pose rotation.
+     */
     public Quaternion getWorldBindInverseRotation() {
         return worldBindInverseRot;
     }
 
+    /**
+     * Returns the inverse world bind pose scale.
+     * 
+     * @return the inverse world bind pose scale.
+     */
     public Vector3f getWorldBindInverseScale() {
         return worldBindInverseScale;
     }
@@ -375,18 +406,18 @@ public final class Bone implements Savable {
         worldPos.set(translation);
         worldRot.set(rotation);
     }
-    
+
     /**
      * Returns the local transform of this bone combined with the given position and rotation
      * @param position a position
      * @param rotation a rotation
      */
-    public Transform getCombinedTransform(Vector3f position, Quaternion rotation){
-            rotation.mult(localPos, tmpTransform.getTranslation()).addLocal(position);
-            tmpTransform.setRotation(rotation).getRotation().multLocal(localRot);
-            return tmpTransform;
+    public Transform getCombinedTransform(Vector3f position, Quaternion rotation) {
+        rotation.mult(localPos, tmpTransform.getTranslation()).addLocal(position);
+        tmpTransform.setRotation(rotation).getRotation().multLocal(localRot);
+        return tmpTransform;
     }
-    
+
     /**
      * Returns the attachment node.
      * Attach models and effects to this node to make
@@ -475,14 +506,6 @@ public final class Bone implements Savable {
         if (scale != null) {
             localScale.set(scale);
         }
-    }
-
-    void setAnimTransforms(Vector3f translation, Quaternion rotation) {
-        this.setAnimTransforms(translation, rotation, Vector3f.UNIT_XYZ);
-    }
-
-    public void setBindTransforms(Vector3f translation, Quaternion rotation) {
-        this.setBindTransforms(translation, rotation, Vector3f.UNIT_XYZ);
     }
 
     private String toString(int depth) {

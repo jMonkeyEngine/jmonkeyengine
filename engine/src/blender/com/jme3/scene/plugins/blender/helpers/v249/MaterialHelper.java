@@ -260,7 +260,10 @@ public class MaterialHelper extends AbstractBlenderHelper {
                             Texture texture = textureHelper.getTexture(tex, dataRepository);
                             if (texture != null) {
                                 if ((mapto & 0x01) != 0) {// Col
-                                    result.setBoolean("UseMaterialColors", Boolean.FALSE);
+                                    if (!shadeless){
+                                        result.setBoolean("UseMaterialColors", false);
+                                    }
+                                    
                                     // blending the texture with material color and texture's defined color
                                     int blendType = ((Number) textureLink.getFieldValue("blendtype")).intValue();
                                     float[] color = new float[]{((Number) textureLink.getFieldValue("r")).floatValue(), ((Number) textureLink.getFieldValue("g")).floatValue(), ((Number) textureLink.getFieldValue("b")).floatValue()};

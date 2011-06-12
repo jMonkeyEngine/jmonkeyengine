@@ -18,72 +18,73 @@ import com.jme3.math.Vector3f;
  * @author Marcin Roguski (Kaelthas)
  */
 public class DefaultParticleInfluencer implements ParticleInfluencer {
-	/** Temporary variable used to help with calculations. */
-	protected transient Vector3f	temp				= new Vector3f();
-	/** The initial velocity of the particles. */
-	protected Vector3f				startVelocity		= new Vector3f();
-	/** The velocity's variation of the particles. */
-	protected float					velocityVariation	= 0.2f;
 
-	@Override
-	public void influenceParticle(Particle particle, EmitterShape emitterShape) {
-		emitterShape.getRandomPoint(particle.position);
-		this.applyVelocityVariation(particle);
-	}
+    /** Temporary variable used to help with calculations. */
+    protected transient Vector3f temp = new Vector3f();
+    /** The initial velocity of the particles. */
+    protected Vector3f startVelocity = new Vector3f();
+    /** The velocity's variation of the particles. */
+    protected float velocityVariation = 0.2f;
 
-	/**
-	 * This method applies the variation to the particle with already set velocity.
-	 * @param particle
-	 *        the particle to be affected
-	 */
-	protected void applyVelocityVariation(Particle particle) {
-		temp.set(FastMath.nextRandomFloat(), FastMath.nextRandomFloat(), FastMath.nextRandomFloat());
-		temp.multLocal(2f);
-		temp.subtractLocal(1f, 1f, 1f);
-		temp.multLocal(startVelocity.length());
-		particle.velocity.interpolate(temp, velocityVariation);
-	}
+    @Override
+    public void influenceParticle(Particle particle, EmitterShape emitterShape) {
+        emitterShape.getRandomPoint(particle.position);
+        this.applyVelocityVariation(particle);
+    }
 
-	@Override
-	public void write(JmeExporter ex) throws IOException {
-		OutputCapsule oc = ex.getCapsule(this);
-		oc.write(startVelocity, "startVelocity", Vector3f.ZERO);
-		oc.write(velocityVariation, "variation", 0.2f);
-	}
+    /**
+     * This method applies the variation to the particle with already set velocity.
+     * @param particle
+     *        the particle to be affected
+     */
+    protected void applyVelocityVariation(Particle particle) {
+        temp.set(FastMath.nextRandomFloat(), FastMath.nextRandomFloat(), FastMath.nextRandomFloat());
+        temp.multLocal(2f);
+        temp.subtractLocal(1f, 1f, 1f);
+        temp.multLocal(startVelocity.length());
+        particle.velocity.interpolate(temp, velocityVariation);
+    }
 
-	@Override
-	public void read(JmeImporter im) throws IOException {
-		InputCapsule ic = im.getCapsule(this);
-		startVelocity = (Vector3f) ic.readSavable("startVelocity", Vector3f.ZERO);
-		velocityVariation = ic.readFloat("variation", 0.2f);
-	}
+    @Override
+    public void write(JmeExporter ex) throws IOException {
+        OutputCapsule oc = ex.getCapsule(this);
+        oc.write(startVelocity, "startVelocity", Vector3f.ZERO);
+        oc.write(velocityVariation, "variation", 0.2f);
+    }
 
-	@Override
-	public ParticleInfluencer clone() {
-		try {
-			return (ParticleInfluencer) super.clone();
-		} catch (CloneNotSupportedException e) {
-			return null;
-		}
-	}
+    @Override
+    public void read(JmeImporter im) throws IOException {
+        InputCapsule ic = im.getCapsule(this);
+        startVelocity = (Vector3f) ic.readSavable("startVelocity", Vector3f.ZERO);
+        velocityVariation = ic.readFloat("variation", 0.2f);
+    }
 
-	@Override
-	public void setInitialVelocity(Vector3f initialVelocity) {
-		this.startVelocity.set(initialVelocity);
-	}
+    @Override
+    public ParticleInfluencer clone() {
+        try {
+            return (ParticleInfluencer) super.clone();
+        } catch (CloneNotSupportedException e) {
+            return null;
+        }
+    }
 
-	@Override
-	public Vector3f getInitialVelocity() {
-		return startVelocity;
-	}
+    @Override
+    public void setInitialVelocity(Vector3f initialVelocity) {
+        this.startVelocity.set(initialVelocity);
+    }
 
-	@Override
-	public void setVelocityVariation(float variation) {
-		this.velocityVariation = variation;
-	}
+    @Override
+    public Vector3f getInitialVelocity() {
+        return startVelocity;
+    }
 
-	@Override
-	public float getVelocityVariation() {
-		return velocityVariation;
-	}
+    @Override
+    public void setVelocityVariation(float variation) {
+        this.velocityVariation = variation;
+    }
+
+    @Override
+    public float getVelocityVariation() {
+        return velocityVariation;
+    }
 }

@@ -52,8 +52,6 @@ import java.util.logging.Logger;
 public final class Vector2f implements Savable, Cloneable {
     private static final Logger logger = Logger.getLogger(Vector2f.class.getName());
 
-    private static final long serialVersionUID = 1L;
-
     public static final Vector2f ZERO = new Vector2f(0f, 0f);
     public static final Vector2f UNIT_XY = new Vector2f(1f, 1f);
     

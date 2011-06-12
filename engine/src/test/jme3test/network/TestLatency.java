@@ -32,16 +32,18 @@
 
 package jme3test.network;
 
-import com.jme3.network.connection.Client;
-import com.jme3.network.connection.Server;
-import com.jme3.network.events.MessageAdapter;
-import com.jme3.network.message.Message;
+import com.jme3.network.Client;
+import com.jme3.network.HostedConnection;
+import com.jme3.network.MessageListener;
+import com.jme3.network.Network;
+import com.jme3.network.Server;
+import com.jme3.network.Message;
 import com.jme3.network.serializing.Serializable;
 import com.jme3.network.serializing.Serializer;
 import com.jme3.network.sync.MovingAverage;
 import java.io.IOException;
 
-public class TestLatency extends MessageAdapter {
+public class TestLatency {
 
     private static long startTime;
     private static Client client;
@@ -56,7 +58,7 @@ public class TestLatency extends MessageAdapter {
     }
 
     @Serializable
-    public static class TimestampMessage extends Message {
+    public static class TimestampMessage extends com.jme3.network.message.Message {
 
         long timeSent     = 0;
         long timeReceived = 0;
@@ -73,14 +75,19 @@ public class TestLatency extends MessageAdapter {
 
     }
 
-    @Override
-    public void messageReceived(Message msg){
-        TimestampMessage timeMsg = (TimestampMessage) msg;
-        try {
-            if (timeMsg.timeReceived == 0){
-                TimestampMessage outMsg = new TimestampMessage(timeMsg.timeSent, getTime());
-                msg.getClient().send(outMsg);
-            }else{
+    public static void main(String[] args) throws IOException, InterruptedException{
+        Serializer.registerClass(TimestampMessage.class);
+
+        Server server = Network.createServer(5110);
+        server.start();
+
+        client = Network.connectToServer("localhost", 5110);
+        client.start();
+        
+        client.addMessageListener(new MessageListener<Client>(){
+            public void messageReceived(Client source, Message m) {
+                TimestampMessage timeMsg = (TimestampMessage) m;
+
                 long curTime = getTime();
                 //System.out.println("Time sent: " + timeMsg.timeSent);
                 //System.out.println("Time received by server: " + timeMsg.timeReceived);
@@ -99,26 +106,24 @@ public class TestLatency extends MessageAdapter {
 
                 client.send(new TimestampMessage(getTime(), 0));
             }
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
-    }
+        }, TimestampMessage.class);
 
-    public static void main(String[] args) throws IOException, InterruptedException{
-        Serializer.registerClass(TimestampMessage.class);
-
-        Server server = new Server(5110, 5110);
-        server.start();
-
-        client = new Client("localhost", 5110, 5110);
-        client.start();
-
-        client.addMessageListener(new TestLatency(), TimestampMessage.class);
-        server.addMessageListener(new TestLatency(), TimestampMessage.class);
+        server.addMessageListener(new MessageListener<HostedConnection>(){
+            public void messageReceived(HostedConnection source, Message m) {
+                TimestampMessage timeMsg = (TimestampMessage) m;
+                TimestampMessage outMsg = new TimestampMessage(timeMsg.timeSent, getTime());
+                source.send(outMsg);
+            }
+        }, TimestampMessage.class);
 
         Thread.sleep(1);
 
         client.send(new TimestampMessage(getTime(), 0));
+        
+        Object obj = new Object();
+        synchronized(obj){
+            obj.wait();
+        }
     }
 
 }

@@ -110,13 +110,14 @@ public final class AnimControl extends AbstractControl implements Savable, Clone
     }
 
     /**
-     * Used only for Saving/Loading models (all parameters of the non-default
-     * constructor are restored from the saved model, but the object must be
-     * constructed beforehand)
+     * Serialization only. Do not use.
      */
     public AnimControl() {
     }
 
+    /**
+     * Internal use only.
+     */
     public Control cloneForSpatial(Spatial spatial) {
         try {
             AnimControl clone = (AnimControl) super.clone();
@@ -268,6 +269,9 @@ public final class AnimControl extends AbstractControl implements Savable, Clone
         }
     }
 
+    /**
+     * Internal use only.
+     */
     @Override
     public void setSpatial(Spatial spatial) {
         if (spatial == null && skeletonControl != null){
@@ -310,7 +314,10 @@ public final class AnimControl extends AbstractControl implements Savable, Clone
 
         return a.getLength();
     }
-
+    
+    /**
+     * Internal use only.
+     */
     @Override
     protected void controlUpdate(float tpf) {
         skeleton.reset(); // reset skeleton to bind pose
@@ -322,6 +329,9 @@ public final class AnimControl extends AbstractControl implements Savable, Clone
         skeleton.updateWorldVectors();
     }
 
+    /**
+     * Internal use only.
+     */
     @Override
     protected void controlRender(RenderManager rm, ViewPort vp) {
     }

@@ -40,7 +40,6 @@ import com.jme3.export.Savable;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.TempVars;
 import java.io.IOException;
-import java.io.Serializable;
 import java.nio.FloatBuffer;
 
 /**
@@ -51,8 +50,6 @@ import java.nio.FloatBuffer;
  * @author Joshua Slack
  */
 public class Line implements Savable, Cloneable {
-    //todo: merge with Ray?
-    private static final long serialVersionUID = 1L;
 
     private Vector3f origin;
     private Vector3f direction;
