@@ -39,13 +39,14 @@ package com.jme3.scene.plugins.blender.helpers;
  * @author Marcin Roguski (Kaelthas)
  */
 public class NoiseHelper extends com.jme3.scene.plugins.blender.helpers.v249.NoiseHelper {
-	/**
-	 * Constructor. Stores the blender version number and loads the constants needed for computations.
-	 * 
-	 * @param blenderVersion
-	 *            the number of blender version
-	 */
-	public NoiseHelper(String blenderVersion) {
-		super(blenderVersion);
-	}
+
+    /**
+     * Constructor. Stores the blender version number and loads the constants needed for computations.
+     * 
+     * @param blenderVersion
+     *            the number of blender version
+     */
+    public NoiseHelper(String blenderVersion) {
+        super(blenderVersion);
+    }
 }

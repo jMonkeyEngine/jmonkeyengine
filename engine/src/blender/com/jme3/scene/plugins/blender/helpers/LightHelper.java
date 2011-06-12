@@ -36,13 +36,14 @@ package com.jme3.scene.plugins.blender.helpers;
  * @author Marcin Roguski
  */
 public class LightHelper extends com.jme3.scene.plugins.blender.helpers.v249.LightHelper {
-	/**
-	 * This constructor parses the given blender version and stores the result. Some functionalities may differ in
-	 * different blender versions.
-	 * @param blenderVersion
-	 *        the version read from the blend file
-	 */
-	public LightHelper(String blenderVersion) {
-		super(blenderVersion);
-	}
+
+    /**
+     * This constructor parses the given blender version and stores the result. Some functionalities may differ in
+     * different blender versions.
+     * @param blenderVersion
+     *        the version read from the blend file
+     */
+    public LightHelper(String blenderVersion) {
+        super(blenderVersion);
+    }
 }

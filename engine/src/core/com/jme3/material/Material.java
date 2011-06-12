@@ -193,8 +193,7 @@ public class Material implements Cloneable, Savable, Comparable<Material> {
     }
 
     /**
-     * Clones this material. The result 
-     * @return 
+     * Clones this material. The result is returned.
      */
     @Override
     public Material clone() {
@@ -219,10 +218,27 @@ public class Material implements Cloneable, Savable, Comparable<Material> {
         }
     }
 
+    /**
+     * Returns the currently active technique.
+     * <p>
+     * The technique is selected automatically by the {@link RenderManager}
+     * based on system capabilities. Users may select their own
+     * technique by using 
+     * {@link #selectTechnique(java.lang.String, com.jme3.renderer.RenderManager) }.
+     * 
+     * @return the currently active technique.
+     * 
+     * @see #selectTechnique(java.lang.String, com.jme3.renderer.RenderManager) 
+     */
     public Technique getActiveTechnique() {
         return technique;
     }
 
+    /**
+     * Check if the transparent value marker is set on this material.
+     * @return True if the transparent value marker is set on this material.
+     * @see #setTransparent(boolean) 
+     */
     public boolean isTransparent() {
         return transparent;
     }
@@ -296,6 +312,13 @@ public class Material implements Cloneable, Savable, Comparable<Material> {
         return def;
     }
 
+    /**
+     * Returns the parameter set on this material with the given name,
+     * returns <code>null</code> if the parameter is not set.
+     * 
+     * @param name The parameter name to look up.
+     * @return The MatParam if set, or null if not set.
+     */
     public MatParam getParam(String name) {
         MatParam param = paramValues.get(name);
         if (param instanceof MatParam) {
@@ -304,6 +327,13 @@ public class Material implements Cloneable, Savable, Comparable<Material> {
         return null;
     }
 
+    /**
+     * Returns the texture parameter set on this material with the given name,
+     * returns <code>null</code> if the parameter is not set.
+     * 
+     * @param name The parameter name to look up.
+     * @return The MatParamTexture if set, or null if not set.
+     */
     public MatParamTexture getTextureParam(String name) {
         MatParam param = paramValues.get(name);
         if (param instanceof MatParamTexture) {
@@ -312,6 +342,13 @@ public class Material implements Cloneable, Savable, Comparable<Material> {
         return null;
     }
 
+    /**
+     * Returns a collection of all parameters set on this material.
+     * 
+     * @return a collection of all parameters set on this material.
+     * 
+     * @see #setParam(java.lang.String, com.jme3.shader.VarType, java.lang.Object) 
+     */
     public Collection<MatParam> getParams() {
         return paramValues.values();
     }
@@ -342,10 +379,11 @@ public class Material implements Cloneable, Savable, Comparable<Material> {
     }
 
     /**
-     * Pass a parameter to the material shader
+     * Pass a parameter to the material shader.
+     * 
      * @param name the name of the parameter defined in the material definition (j3md)
-     * @param type the type of the parameter @see com.jme3.shaderVarType
-     * @param value the value of the param
+     * @param type the type of the parameter {@link VarType}
+     * @param value the value of the parameter
      */
     public void setParam(String name, VarType type, Object value) {
         name = checkSetParam(type, name);
@@ -363,7 +401,7 @@ public class Material implements Cloneable, Savable, Comparable<Material> {
     }
 
     /**
-     * Clear a parameter from this material. The param must exist
+     * Clear a parameter from this material. The parameter must exist
      * @param name the name of the parameter to clear
      */
     public void clearParam(String name) {
@@ -416,9 +454,18 @@ public class Material implements Cloneable, Savable, Comparable<Material> {
         sortingId = -1;
     }
 
+    /**
+     * Set a texture parameter.
+     * 
+     * @param name The name of the parameter
+     * @param type The variable type {@link VarType}
+     * @param value The texture value of the parameter.
+     * 
+     * @throws IllegalArgumentException is value is null
+     */
     public void setTextureParam(String name, VarType type, Texture value) {
         if (value == null) {
-            throw new NullPointerException();
+            throw new IllegalArgumentException();
         }
 
         name = checkSetParam(type, name);
@@ -438,8 +485,10 @@ public class Material implements Cloneable, Savable, Comparable<Material> {
     }
 
     /**
-     * Pass a texture to the material shader
-     * @param name the name of the texture defined in the material definition (j3md) (for example Texture for Lighting.j3md)
+     * Pass a texture to the material shader.
+     * 
+     * @param name the name of the texture defined in the material definition 
+     * (j3md) (for example Texture for Lighting.j3md)
      * @param value the Texture object previously loaded by the asset manager
      */
     public void setTexture(String name, Texture value) {
@@ -471,7 +520,8 @@ public class Material implements Cloneable, Savable, Comparable<Material> {
     }
 
     /**
-     * Pass a Matrix4f to the material shader
+     * Pass a Matrix4f to the material shader.
+     * 
      * @param name the name of the matrix defined in the material definition (j3md)
      * @param value the Matrix4f object
      */
@@ -480,7 +530,8 @@ public class Material implements Cloneable, Savable, Comparable<Material> {
     }
 
     /**
-     * Pass a boolean to the material shader
+     * Pass a boolean to the material shader.
+     * 
      * @param name the name of the boolean defined in the material definition (j3md)
      * @param value the boolean value
      */
@@ -489,7 +540,8 @@ public class Material implements Cloneable, Savable, Comparable<Material> {
     }
 
     /**
-     * Pass a float to the material shader
+     * Pass a float to the material shader.
+     * 
      * @param name the name of the float defined in the material definition (j3md)
      * @param value the float value
      */
@@ -498,7 +550,8 @@ public class Material implements Cloneable, Savable, Comparable<Material> {
     }
 
     /**
-     * Pass an int to the material shader
+     * Pass an int to the material shader.
+     * 
      * @param name the name of the int defined in the material definition (j3md)
      * @param value the int value
      */
@@ -507,7 +560,8 @@ public class Material implements Cloneable, Savable, Comparable<Material> {
     }
 
     /**
-     * Pass a Color to the material shader
+     * Pass a Color to the material shader.
+     * 
      * @param name the name of the color defined in the material definition (j3md)
      * @param value the ColorRGBA value
      */
@@ -516,7 +570,8 @@ public class Material implements Cloneable, Savable, Comparable<Material> {
     }
 
     /**
-     * Pass a Vector2f to the material shader
+     * Pass a Vector2f to the material shader.
+     * 
      * @param name the name of the Vector2f defined in the material definition (j3md)
      * @param value the Vector2f value
      */
@@ -525,7 +580,8 @@ public class Material implements Cloneable, Savable, Comparable<Material> {
     }
 
     /**
-     * Pass a Vector3f to the material shader
+     * Pass a Vector3f to the material shader.
+     * 
      * @param name the name of the Vector3f defined in the material definition (j3md)
      * @param value the Vector3f value
      */
@@ -534,7 +590,8 @@ public class Material implements Cloneable, Savable, Comparable<Material> {
     }
 
     /**
-     * Pass a Vector4f to the material shader
+     * Pass a Vector4f to the material shader.
+     * 
      * @param name the name of the Vector4f defined in the material definition (j3md)
      * @param value the Vector4f value
      */
@@ -567,9 +624,6 @@ public class Material implements Cloneable, Savable, Comparable<Material> {
      * // or the direction of the light (for directional lights).<br/>
      * // g_LightPosition.w is the inverse radius (1/r) of the light (for attenuation) <br/>
      * </p>
-     *
-     * @param shader
-     * @param lightList
      */
     protected void updateLightListUniforms(Shader shader, Geometry g, int numLights) {
         if (numLights == 0){ // this shader does not do lighting, ignore.
@@ -719,6 +773,29 @@ public class Material implements Cloneable, Savable, Comparable<Material> {
         }
     }
 
+    /**
+     * Select the technique to use for rendering this material.
+     * <p>
+     * If <code>name</code> is "Default", then one of the 
+     * {@link MaterialDef#getDefaultTechniques() default techniques}
+     * on the material will be selected. Otherwise, the named technique
+     * will be found in the material definition.
+     * <p>
+     * Any candidate technique for selection (either default or named)
+     * must be verified to be compatible with the system, for that, the
+     * <code>renderManager</code> is queried for capabilities.
+     * 
+     * @param name The name of the technique to select, pass "Default" to
+     * select one of the default techniques.
+     * @param renderManager The {@link RenderManager render manager}
+     * to query for capabilities.
+     * 
+     * @throws IllegalArgumentException If "Default" is passed and no default 
+     * techniques are available on the material definition, or if a name
+     * is passed but there's no technique by that name.
+     * @throws UnsupportedOperationException If no candidate technique supports
+     * the system capabilities.
+     */
     public void selectTechnique(String name, RenderManager renderManager) {
         // check if already created
         Technique tech = techniques.get(name);
@@ -730,7 +807,7 @@ public class Material implements Cloneable, Savable, Comparable<Material> {
             if (name.equals("Default")) {
                 List<TechniqueDef> techDefs = def.getDefaultTechniques();
                 if (techDefs == null || techDefs.isEmpty()) {
-                    throw new IllegalStateException("No default techniques are available on material '" + def.getName() + "'");
+                    throw new IllegalArgumentException("No default techniques are available on material '" + def.getName() + "'");
                 }
 
                 TechniqueDef lastTech = null;
@@ -794,8 +871,13 @@ public class Material implements Cloneable, Savable, Comparable<Material> {
     }
 
     /**
-     * "Pre-load" the material, including textures and shaders, to the 
-     * renderer.
+     * Preloads this material for the given render manager.
+     * <p>
+     * Preloading the material can ensure that when the material is first
+     * used for rendering, there won't be any delay since the material has
+     * been already been setup for rendering.
+     * 
+     * @param rm The render manager to preload for
      */
     public void preload(RenderManager rm) {
         autoSelectTechnique(rm);
@@ -844,9 +926,11 @@ public class Material implements Cloneable, Savable, Comparable<Material> {
     }
 
     /**
-     * Should be called after selectTechnique()
-     * @param geom
-     * @param r
+     * Called by {@link RenderManager} to render the geometry by
+     * using this material.
+     * 
+     * @param geom The geometry to render
+     * @param rm The render manager requesting the rendering
      */
     public void render(Geometry geom, RenderManager rm) {
         autoSelectTechnique(rm);

@@ -664,11 +664,6 @@ public class VertexBuffer extends GLObject implements Savable, Cloneable {
      * of the parameters. The buffer will be of the type specified by
      * {@link Format format} and would be able to contain the given number
      * of elements with the given number of components in each element.
-     *
-     * @param format
-     * @param components
-     * @param numElements
-     * @return
      */
     public static Buffer createBuffer(Format format, int components, int numElements){
         if (components < 1 || components > 4)

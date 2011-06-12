@@ -380,7 +380,6 @@ public final class Shader extends GLObject implements Savable {
     /**
      * Returns true if this program and all it's shaders have been compiled,
      * linked and validated successfuly.
-     * @return
      */
     public boolean isUsable(){
         return usable;
@@ -417,7 +416,6 @@ public final class Shader extends GLObject implements Savable {
     /**
      * Called by the object manager to reset all object IDs. This causes
      * the shader to be reuploaded to the GPU incase the display was restarted.
-     * @param r
      */
     @Override
     public void resetObject() {

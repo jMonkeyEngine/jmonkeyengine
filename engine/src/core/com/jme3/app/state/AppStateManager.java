@@ -173,7 +173,6 @@ public class AppStateManager {
 
     /**
      * Calls render for all attached states, do not call directly.
-     * @param rm The RenderManager
      */
     public void postRender(){
         AppState[] array = getArray();

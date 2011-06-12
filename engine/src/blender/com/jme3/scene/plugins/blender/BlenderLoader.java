@@ -72,122 +72,123 @@ import com.jme3.scene.plugins.blender.utils.JmeConverter;
  * @author Marcin Roguski
  */
 public class BlenderLoader implements AssetLoader {
-	private static final Logger	LOGGER	= Logger.getLogger(BlenderLoader.class.getName());
 
-	@Override
-	public LoadingResults load(AssetInfo assetInfo) throws IOException {
-		try {
-			//registering loaders
-			ModelKey modelKey = (ModelKey)assetInfo.getKey();
-			BlenderKey blenderKey;
-			if(modelKey instanceof BlenderKey) {
-				blenderKey = (BlenderKey)modelKey;
-			} else {
-				blenderKey = new BlenderKey(modelKey.getName());
-				blenderKey.setAssetRootPath(modelKey.getFolder());
-			}
+    private static final Logger LOGGER = Logger.getLogger(BlenderLoader.class.getName());
 
-			//opening stream
-			BlenderInputStream inputStream = new BlenderInputStream(assetInfo.openStream(), assetInfo.getManager());
+    @Override
+    public LoadingResults load(AssetInfo assetInfo) throws IOException {
+        try {
+            //registering loaders
+            ModelKey modelKey = (ModelKey) assetInfo.getKey();
+            BlenderKey blenderKey;
+            if (modelKey instanceof BlenderKey) {
+                blenderKey = (BlenderKey) modelKey;
+            } else {
+                blenderKey = new BlenderKey(modelKey.getName());
+                blenderKey.setAssetRootPath(modelKey.getFolder());
+            }
 
-			//reading blocks
-			List<FileBlockHeader> blocks = new ArrayList<FileBlockHeader>();
-			FileBlockHeader fileBlock;
-			DataRepository dataRepository = new DataRepository();
-			dataRepository.setAssetManager(assetInfo.getManager());
-			dataRepository.setInputStream(inputStream);
-			dataRepository.setBlenderKey(blenderKey);
-			
-			//creating helpers
-			dataRepository.putHelper(ArmatureHelper.class, new ArmatureHelper(inputStream.getVersionNumber()));
-			dataRepository.putHelper(TextureHelper.class, new TextureHelper(inputStream.getVersionNumber()));
-			dataRepository.putHelper(MeshHelper.class, new MeshHelper(inputStream.getVersionNumber()));
-			dataRepository.putHelper(ObjectHelper.class, new ObjectHelper(inputStream.getVersionNumber()));
-			dataRepository.putHelper(CurvesHelper.class, new CurvesHelper(inputStream.getVersionNumber()));
-			dataRepository.putHelper(LightHelper.class, new LightHelper(inputStream.getVersionNumber()));
-			dataRepository.putHelper(CameraHelper.class, new CameraHelper(inputStream.getVersionNumber()));
-			dataRepository.putHelper(ModifierHelper.class, new ModifierHelper(inputStream.getVersionNumber()));
-			dataRepository.putHelper(MaterialHelper.class, new MaterialHelper(inputStream.getVersionNumber()));
-			dataRepository.putHelper(ConstraintHelper.class, new ConstraintHelper(inputStream.getVersionNumber(), dataRepository));
-			dataRepository.putHelper(IpoHelper.class, new IpoHelper(inputStream.getVersionNumber()));
-			dataRepository.putHelper(NoiseHelper.class, new NoiseHelper(inputStream.getVersionNumber()));
-			dataRepository.putHelper(ParticlesHelper.class, new ParticlesHelper(inputStream.getVersionNumber()));
-			
-			//setting additional data to helpers
-			if(blenderKey.isFixUpAxis()) {
-				ObjectHelper objectHelper = dataRepository.getHelper(ObjectHelper.class);
-				objectHelper.setyIsUpAxis(true);
-				CurvesHelper curvesHelper = dataRepository.getHelper(CurvesHelper.class);
-				curvesHelper.setyIsUpAxis(true);
-			}
-			MaterialHelper materialHelper = dataRepository.getHelper(MaterialHelper.class);
-			materialHelper.setFaceCullMode(blenderKey.getFaceCullMode());
+            //opening stream
+            BlenderInputStream inputStream = new BlenderInputStream(assetInfo.openStream(), assetInfo.getManager());
 
-			//reading the blocks (dna block is automatically saved in the data repository when found)//TODO: zmienić to
-			do {
-				fileBlock = new FileBlockHeader(inputStream, dataRepository);
-				if(!fileBlock.isDnaBlock()) {
-					blocks.add(fileBlock);
-				}
-			} while(!fileBlock.isLastBlock());
+            //reading blocks
+            List<FileBlockHeader> blocks = new ArrayList<FileBlockHeader>();
+            FileBlockHeader fileBlock;
+            DataRepository dataRepository = new DataRepository();
+            dataRepository.setAssetManager(assetInfo.getManager());
+            dataRepository.setInputStream(inputStream);
+            dataRepository.setBlenderKey(blenderKey);
 
-			JmeConverter converter = new JmeConverter(dataRepository);
-			LoadingResults loadingResults = blenderKey.prepareLoadingResults();
-			WorldData worldData = null;//a set of data used in different scene aspects
-			for(FileBlockHeader block : blocks) {
-				switch(block.getCode()) {
-					case FileBlockHeader.BLOCK_OB00://Object
-						Object object = converter.toObject(block.getStructure(dataRepository));
-						if(object instanceof Node) {
-							if((blenderKey.getFeaturesToLoad() & FeaturesToLoad.OBJECTS) != 0) {
-								LOGGER.log(Level.INFO, ((Node)object).getName() + ": " + ((Node)object).getLocalTranslation().toString() + "--> " + (((Node)object).getParent() == null ? "null" : ((Node)object).getParent().getName()));
-								if(((Node)object).getParent() == null) {
-									loadingResults.addObject((Node)object);
-								}
-							}
-						} else if(object instanceof Camera) {
-							if((blenderKey.getFeaturesToLoad() & FeaturesToLoad.CAMERAS) != 0) {
-								loadingResults.addCamera((Camera)object);
-							}
-						} else if(object instanceof Light) {
-							if((blenderKey.getFeaturesToLoad() & FeaturesToLoad.LIGHTS) != 0) {
-								loadingResults.addLight((Light)object);
-							}
-						}
-						break;
-					case FileBlockHeader.BLOCK_MA00://Material
-						if((blenderKey.getFeaturesToLoad() & FeaturesToLoad.MATERIALS) != 0) {
-							loadingResults.addMaterial(converter.toMaterial(block.getStructure(dataRepository)));
-						}
-						break;
-					case FileBlockHeader.BLOCK_SC00://Scene
-						if((blenderKey.getFeaturesToLoad() & FeaturesToLoad.SCENES) != 0) {
-							loadingResults.addScene(converter.toScene(block.getStructure(dataRepository)));
-						}
-						break;
-					case FileBlockHeader.BLOCK_WO00://World
-						if(worldData == null) {//onlu one world data is used
-							Structure worldStructure = block.getStructure(dataRepository);
-							String worldName = worldStructure.getName();
-							if(blenderKey.getUsedWorld() == null || blenderKey.getUsedWorld().equals(worldName)) {
-								worldData = converter.toWorldData(worldStructure);
-								if((blenderKey.getFeaturesToLoad() & FeaturesToLoad.LIGHTS) != 0) {
-									loadingResults.addLight(worldData.getAmbientLight());
-								}
-							}
-						}
-						break;
-				}
-			}
-			try {
-				inputStream.close();
-			} catch(IOException e) {
-				LOGGER.log(Level.SEVERE, e.getMessage(), e);
-			}
-			return loadingResults;
-		} catch(BlenderFileException e) {
-			LOGGER.log(Level.SEVERE, e.getMessage(), e);
-		}
-		return null;
-	}
+            //creating helpers
+            dataRepository.putHelper(ArmatureHelper.class, new ArmatureHelper(inputStream.getVersionNumber()));
+            dataRepository.putHelper(TextureHelper.class, new TextureHelper(inputStream.getVersionNumber()));
+            dataRepository.putHelper(MeshHelper.class, new MeshHelper(inputStream.getVersionNumber()));
+            dataRepository.putHelper(ObjectHelper.class, new ObjectHelper(inputStream.getVersionNumber()));
+            dataRepository.putHelper(CurvesHelper.class, new CurvesHelper(inputStream.getVersionNumber()));
+            dataRepository.putHelper(LightHelper.class, new LightHelper(inputStream.getVersionNumber()));
+            dataRepository.putHelper(CameraHelper.class, new CameraHelper(inputStream.getVersionNumber()));
+            dataRepository.putHelper(ModifierHelper.class, new ModifierHelper(inputStream.getVersionNumber()));
+            dataRepository.putHelper(MaterialHelper.class, new MaterialHelper(inputStream.getVersionNumber()));
+            dataRepository.putHelper(ConstraintHelper.class, new ConstraintHelper(inputStream.getVersionNumber(), dataRepository));
+            dataRepository.putHelper(IpoHelper.class, new IpoHelper(inputStream.getVersionNumber()));
+            dataRepository.putHelper(NoiseHelper.class, new NoiseHelper(inputStream.getVersionNumber()));
+            dataRepository.putHelper(ParticlesHelper.class, new ParticlesHelper(inputStream.getVersionNumber()));
+
+            //setting additional data to helpers
+            if (blenderKey.isFixUpAxis()) {
+                ObjectHelper objectHelper = dataRepository.getHelper(ObjectHelper.class);
+                objectHelper.setyIsUpAxis(true);
+                CurvesHelper curvesHelper = dataRepository.getHelper(CurvesHelper.class);
+                curvesHelper.setyIsUpAxis(true);
+            }
+            MaterialHelper materialHelper = dataRepository.getHelper(MaterialHelper.class);
+            materialHelper.setFaceCullMode(blenderKey.getFaceCullMode());
+
+            //reading the blocks (dna block is automatically saved in the data repository when found)//TODO: zmienić to
+            do {
+                fileBlock = new FileBlockHeader(inputStream, dataRepository);
+                if (!fileBlock.isDnaBlock()) {
+                    blocks.add(fileBlock);
+                }
+            } while (!fileBlock.isLastBlock());
+
+            JmeConverter converter = new JmeConverter(dataRepository);
+            LoadingResults loadingResults = blenderKey.prepareLoadingResults();
+            WorldData worldData = null;//a set of data used in different scene aspects
+            for (FileBlockHeader block : blocks) {
+                switch (block.getCode()) {
+                    case FileBlockHeader.BLOCK_OB00://Object
+                        Object object = converter.toObject(block.getStructure(dataRepository));
+                        if (object instanceof Node) {
+                            if ((blenderKey.getFeaturesToLoad() & FeaturesToLoad.OBJECTS) != 0) {
+                                LOGGER.log(Level.INFO, "{0}: {1}--> {2}", new Object[]{((Node) object).getName(), ((Node) object).getLocalTranslation().toString(), ((Node) object).getParent() == null ? "null" : ((Node) object).getParent().getName()});
+                                if (((Node) object).getParent() == null) {
+                                    loadingResults.addObject((Node) object);
+                                }
+                            }
+                        } else if (object instanceof Camera) {
+                            if ((blenderKey.getFeaturesToLoad() & FeaturesToLoad.CAMERAS) != 0) {
+                                loadingResults.addCamera((Camera) object);
+                            }
+                        } else if (object instanceof Light) {
+                            if ((blenderKey.getFeaturesToLoad() & FeaturesToLoad.LIGHTS) != 0) {
+                                loadingResults.addLight((Light) object);
+                            }
+                        }
+                        break;
+                    case FileBlockHeader.BLOCK_MA00://Material
+                        if ((blenderKey.getFeaturesToLoad() & FeaturesToLoad.MATERIALS) != 0) {
+                            loadingResults.addMaterial(converter.toMaterial(block.getStructure(dataRepository)));
+                        }
+                        break;
+                    case FileBlockHeader.BLOCK_SC00://Scene
+                        if ((blenderKey.getFeaturesToLoad() & FeaturesToLoad.SCENES) != 0) {
+                            loadingResults.addScene(converter.toScene(block.getStructure(dataRepository)));
+                        }
+                        break;
+                    case FileBlockHeader.BLOCK_WO00://World
+                        if (worldData == null) {//onlu one world data is used
+                            Structure worldStructure = block.getStructure(dataRepository);
+                            String worldName = worldStructure.getName();
+                            if (blenderKey.getUsedWorld() == null || blenderKey.getUsedWorld().equals(worldName)) {
+                                worldData = converter.toWorldData(worldStructure);
+                                if ((blenderKey.getFeaturesToLoad() & FeaturesToLoad.LIGHTS) != 0) {
+                                    loadingResults.addLight(worldData.getAmbientLight());
+                                }
+                            }
+                        }
+                        break;
+                }
+            }
+            try {
+                inputStream.close();
+            } catch (IOException e) {
+                LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            }
+            return loadingResults;
+        } catch (BlenderFileException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        }
+        return null;
+    }
 }

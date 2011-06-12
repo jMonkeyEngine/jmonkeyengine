@@ -526,7 +526,7 @@ public class Node extends Spatial implements Savable {
      * @return Non-null, but possibly 0-element, list of matching Spatials (also Instances extending Spatials).
      *
      * @see java.util.regex.Pattern
-     * @see Spatial#matches(Class<? extends Spatial>, String)
+     * @see Spatial#matches(java.lang.Class, java.lang.String) 
      */
     @SuppressWarnings("unchecked")
     public <T extends Spatial>List<T> descendantMatches(
@@ -546,7 +546,7 @@ public class Node extends Spatial implements Savable {
     /**
      * Convenience wrapper.
      *
-     * @see #descendantMatches(Class<? extends Spatial>, String)
+     * @see #descendantMatches(java.lang.Class, java.lang.String) 
      */
     public <T extends Spatial>List<T> descendantMatches(
             Class<T> spatialSubclass) {
@@ -556,7 +556,7 @@ public class Node extends Spatial implements Savable {
     /**
      * Convenience wrapper.
      *
-     * @see #descendantMatches(Class<? extends Spatial>, String)
+     * @see #descendantMatches(java.lang.Class, java.lang.String) 
      */
     public <T extends Spatial>List<T> descendantMatches(String nameRegex) {
         return descendantMatches(null, nameRegex);

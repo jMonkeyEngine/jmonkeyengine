@@ -29,7 +29,6 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package com.jme3.math;
 
 import com.jme3.export.JmeExporter;
@@ -50,15 +49,13 @@ public class Triangle extends AbstractTriangle implements Savable {
     private Vector3f pointa = new Vector3f();
     private Vector3f pointb = new Vector3f();
     private Vector3f pointc = new Vector3f();
-    
     private transient Vector3f center;
     private transient Vector3f normal;
-    
     private float projection;
-    
     private int index;
-    
-    public Triangle() {} 
+
+    public Triangle() {
+    }
 
     /**
      * Constructor instantiates a new <Code>Triangle</code> object with the
@@ -84,25 +81,29 @@ public class Triangle extends AbstractTriangle implements Savable {
      */
     public Vector3f get(int i) {
         switch (i) {
-        case 0: return pointa;
-        case 1: return pointb;
-        case 2: return pointc;
-        default: return null;
+            case 0:
+                return pointa;
+            case 1:
+                return pointb;
+            case 2:
+                return pointc;
+            default:
+                return null;
         }
     }
 
-    public Vector3f get1(){
+    public Vector3f get1() {
         return pointa;
     }
 
-    public Vector3f get2(){
+    public Vector3f get2() {
         return pointb;
     }
 
-    public Vector3f get3(){
+    public Vector3f get3() {
         return pointc;
     }
-    
+
     /**
      *
      * <code>set</code> sets one of the triangles points to that specified as
@@ -112,9 +113,15 @@ public class Triangle extends AbstractTriangle implements Savable {
      */
     public void set(int i, Vector3f point) {
         switch (i) {
-        case 0: pointa.set(point); break;
-        case 1: pointb.set(point); break;
-        case 2: pointc.set(point); break;
+            case 0:
+                pointa.set(point);
+                break;
+            case 1:
+                pointb.set(point);
+                break;
+            case 2:
+                pointc.set(point);
+                break;
         }
     }
 
@@ -123,68 +130,77 @@ public class Triangle extends AbstractTriangle implements Savable {
      * <code>set</code> sets one of the triangles points to that specified as
      * a parameter.
      * @param i the index to place the point.
-     * @param point the point to set.
      */
     public void set(int i, float x, float y, float z) {
         switch (i) {
-        case 0: pointa.set(x,y,z); break;
-        case 1: pointb.set(x,y,z); break;
-        case 2: pointc.set(x,y,z); break;
+            case 0:
+                pointa.set(x, y, z);
+                break;
+            case 1:
+                pointb.set(x, y, z);
+                break;
+            case 2:
+                pointc.set(x, y, z);
+                break;
         }
     }
 
-    public void set1(Vector3f v){
+    public void set1(Vector3f v) {
         pointa.set(v);
     }
 
-    public void set2(Vector3f v){
+    public void set2(Vector3f v) {
         pointb.set(v);
     }
 
-    public void set3(Vector3f v){
+    public void set3(Vector3f v) {
         pointc.set(v);
     }
 
-    public void set(Vector3f v1, Vector3f v2, Vector3f v3){
+    public void set(Vector3f v1, Vector3f v2, Vector3f v3) {
         pointa.set(v1);
         pointb.set(v2);
         pointc.set(v3);
     }
-    
+
     /**
      * calculateCenter finds the average point of the triangle. 
      *
      */
     public void calculateCenter() {
-        if (center == null)
+        if (center == null) {
             center = new Vector3f(pointa);
-        else center.set(pointa);
+        } else {
+            center.set(pointa);
+        }
         center.addLocal(pointb).addLocal(pointc).multLocal(FastMath.ONE_THIRD);
     }
-    
+
     /**
      * calculateCenter finds the average point of the triangle. 
      *
      */
     public void calculateNormal() {
-        if (normal == null)
+        if (normal == null) {
             normal = new Vector3f(pointb);
-        else normal.set(pointb);
-        normal.subtractLocal(pointa).crossLocal(pointc.x-pointa.x, pointc.y-pointa.y, pointc.z-pointa.z);
+        } else {
+            normal.set(pointb);
+        }
+        normal.subtractLocal(pointa).crossLocal(pointc.x - pointa.x, pointc.y - pointa.y, pointc.z - pointa.z);
         normal.normalizeLocal();
     }
-    
+
     /**
      * obtains the center point of this triangle (average of the three triangles)
      * @return the center point.
      */
     public Vector3f getCenter() {
-    	if(center == null) {
-    		calculateCenter();
-    	}
+        if (center == null) {
+            calculateCenter();
+        }
         return center;
     }
-    
+
     /**
      * sets the center point of this triangle (average of the three triangles)
      * @param center the center point.
@@ -192,7 +208,7 @@ public class Triangle extends AbstractTriangle implements Savable {
     public void setCenter(Vector3f center) {
         this.center = center;
     }
-    
+
     /**
      * obtains the unit length normal vector of this triangle, if set or
      * calculated
@@ -200,12 +216,12 @@ public class Triangle extends AbstractTriangle implements Savable {
      * @return the normal vector
      */
     public Vector3f getNormal() {
-    	if(normal == null) {
-    		calculateNormal();
-    	}
+        if (normal == null) {
+            calculateNormal();
+        }
         return normal;
     }
-    
+
     /**
      * sets the normal vector of this triangle (to conform, must be unit length)
      * @param normal the normal vector.
@@ -213,7 +229,7 @@ public class Triangle extends AbstractTriangle implements Savable {
     public void setNormal(Vector3f normal) {
         this.normal = normal;
     }
-    
+
     /**
      * obtains the projection of the vertices relative to the line origin.
      * @return the projection of the triangle.
@@ -221,7 +237,7 @@ public class Triangle extends AbstractTriangle implements Savable {
     public float getProjection() {
         return this.projection;
     }
-    
+
     /**
      * sets the projection of the vertices relative to the line origin.
      * @param projection the projection of the triangle.
@@ -229,7 +245,7 @@ public class Triangle extends AbstractTriangle implements Savable {
     public void setProjection(float projection) {
         this.projection = projection;
     }
-    
+
     /**
      * obtains an index that this triangle represents if it is contained in a OBBTree.
      * @return the index in an OBBtree
@@ -237,7 +253,7 @@ public class Triangle extends AbstractTriangle implements Savable {
     public int getIndex() {
         return index;
     }
-    
+
     /**
      * sets an index that this triangle represents if it is contained in a OBBTree.
      * @param index the index in an OBBtree
@@ -246,13 +262,14 @@ public class Triangle extends AbstractTriangle implements Savable {
         this.index = index;
     }
 
-    public static Vector3f computeTriangleNormal(Vector3f v1, Vector3f v2, Vector3f v3, Vector3f store){
-        if (store == null)
+    public static Vector3f computeTriangleNormal(Vector3f v1, Vector3f v2, Vector3f v3, Vector3f store) {
+        if (store == null) {
             store = new Vector3f(v2);
-        else
+        } else {
             store.set(v2);
+        }
 
-        store.subtractLocal(v1).crossLocal(v3.x-v1.x, v3.y-v1.y, v3.z-v1.z);
+        store.subtractLocal(v1).crossLocal(v3.x - v1.x, v3.y - v1.y, v3.z - v1.z);
         return store.normalizeLocal();
     }
 
@@ -263,11 +280,11 @@ public class Triangle extends AbstractTriangle implements Savable {
     }
 
     public void read(JmeImporter e) throws IOException {
-        pointa = (Vector3f)e.getCapsule(this).readSavable("pointa", Vector3f.ZERO.clone());
-        pointb = (Vector3f)e.getCapsule(this).readSavable("pointb", Vector3f.ZERO.clone());
-        pointc = (Vector3f)e.getCapsule(this).readSavable("pointc", Vector3f.ZERO.clone());
+        pointa = (Vector3f) e.getCapsule(this).readSavable("pointa", Vector3f.ZERO.clone());
+        pointb = (Vector3f) e.getCapsule(this).readSavable("pointb", Vector3f.ZERO.clone());
+        pointc = (Vector3f) e.getCapsule(this).readSavable("pointc", Vector3f.ZERO.clone());
     }
-    
+
     @Override
     public Triangle clone() {
         try {

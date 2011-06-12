@@ -677,7 +677,7 @@ public final class Vector4f implements Savable, Cloneable {
      *            the y value to subtract.
      * @param subtractZ
      *            the z value to subtract.
-     * @param subtract@
+     * @param subtractW
      *            the w value to subtract.
      * @return this
      */

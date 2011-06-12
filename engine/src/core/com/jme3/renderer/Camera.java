@@ -599,7 +599,6 @@ public class Camera implements Savable, Cloneable {
      * <code>setLocation</code> sets the position of the camera.
      *
      * @param location the position of the camera.
-     * @see Camera#setLocation(com.jme.math.Vector3f)
      */
     public void setLocation(Vector3f location) {
         this.location.set(location);
@@ -660,7 +659,8 @@ public class Camera implements Savable, Cloneable {
      * @param left      the left axis of the camera.
      * @param up        the up axis of the camera.
      * @param direction the direction the camera is facing.
-     * @see Camera#setAxes(com.jme.math.Vector3f,com.jme.math.Vector3f,com.jme.math.Vector3f)
+     * 
+     * @see Camera#setAxes(com.jme3.math.Quaternion) 
      */
     public void setAxes(Vector3f left, Vector3f up, Vector3f direction) {
         this.rotation.fromAxes(left, up, direction);

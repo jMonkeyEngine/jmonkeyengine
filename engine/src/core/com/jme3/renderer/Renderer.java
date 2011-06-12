@@ -99,7 +99,7 @@ public interface Renderer {
     public void onFrame();
 
     /**
-     * @param transform The world transform to use. This changes
+     * @param worldMatrix The world transform to use. This changes
      * the world matrix given in the shader.
      */
     public void setWorldMatrix(Matrix4f worldMatrix);
@@ -171,7 +171,6 @@ public interface Renderer {
 
     /**
      * Deletes a texture from the GPU.
-     * @param tex
      */
     public void deleteImage(Image image);
 

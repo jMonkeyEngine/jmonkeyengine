@@ -154,9 +154,8 @@ public abstract class GLObject implements Cloneable {
     /**
      * This should create a deep clone. For a shallow clone, use
      * createDestructableClone().
-     *
-     * @return
      */
+    @Override
     protected GLObject clone(){
         try{
             GLObject obj = (GLObject) super.clone();

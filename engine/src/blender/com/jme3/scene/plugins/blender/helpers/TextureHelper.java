@@ -44,39 +44,41 @@ import com.jme3.texture.Texture;
  * @author Marcin Roguski
  */
 public class TextureHelper extends com.jme3.scene.plugins.blender.helpers.v249.TextureHelper {
-	private static final Logger	LOGGER			= Logger.getLogger(TextureHelper.class.getName());
-	public static final int		TEX_POINTDENSITY	= 14;
-	public static final int		TEX_VOXELDATA		= 15;
-	/**
-	 * This constructor parses the given blender version and stores the result. Some functionalities may differ in
-	 * different blender versions.
-	 * @param blenderVersion
-	 *        the version read from the blend file
-	 */
-	public TextureHelper(String blenderVersion) {
-		super(blenderVersion);
-	}
-	
-	@Override
-	public Texture getTexture(Structure tex, DataRepository dataRepository) throws BlenderFileException {
-		if(blenderVersion<250) {
-			return super.getTexture(tex, dataRepository);
-		}
-		Texture result = (Texture) dataRepository.getLoadedFeature(tex.getOldMemoryAddress(), LoadedFeatureDataType.LOADED_FEATURE);
-		if (result != null) {
-			return result;
-		}
-		int type = ((Number)tex.getFieldValue("type")).intValue();
-		switch(type) {
-			case TEX_POINTDENSITY:
-				LOGGER.warning("Point density texture loading currently not supported!");
-				break;
-			case TEX_VOXELDATA:
-				LOGGER.warning("Voxel data texture loading currently not supported!");
-				break;
-			default:
-				result = super.getTexture(tex, dataRepository);
-		}
-		return result;
-	}
+
+    private static final Logger LOGGER = Logger.getLogger(TextureHelper.class.getName());
+    public static final int TEX_POINTDENSITY = 14;
+    public static final int TEX_VOXELDATA = 15;
+
+    /**
+     * This constructor parses the given blender version and stores the result. Some functionalities may differ in
+     * different blender versions.
+     * @param blenderVersion
+     *        the version read from the blend file
+     */
+    public TextureHelper(String blenderVersion) {
+        super(blenderVersion);
+    }
+
+    @Override
+    public Texture getTexture(Structure tex, DataRepository dataRepository) throws BlenderFileException {
+        if (blenderVersion < 250) {
+            return super.getTexture(tex, dataRepository);
+        }
+        Texture result = (Texture) dataRepository.getLoadedFeature(tex.getOldMemoryAddress(), LoadedFeatureDataType.LOADED_FEATURE);
+        if (result != null) {
+            return result;
+        }
+        int type = ((Number) tex.getFieldValue("type")).intValue();
+        switch (type) {
+            case TEX_POINTDENSITY:
+                LOGGER.warning("Point density texture loading currently not supported!");
+                break;
+            case TEX_VOXELDATA:
+                LOGGER.warning("Voxel data texture loading currently not supported!");
+                break;
+            default:
+                result = super.getTexture(tex, dataRepository);
+        }
+        return result;
+    }
 }

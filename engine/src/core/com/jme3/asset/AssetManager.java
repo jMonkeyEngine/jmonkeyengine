@@ -159,7 +159,7 @@ public interface AssetManager {
      * TGA and DDS.
      *
      * @param name The name of the texture to load.
-     * @return
+     * @return The texture that was loaded
      *
      * @see AssetManager#loadAsset(com.jme3.asset.AssetKey)
      */
@@ -168,7 +168,7 @@ public interface AssetManager {
     /**
      * Load audio file, supported types are WAV or OGG.
      * @param key
-     * @return
+     * @return The audio data loaded
      *
      * @see AssetManager#loadAsset(com.jme3.asset.AssetKey)
      */
@@ -178,7 +178,7 @@ public interface AssetManager {
      * Load audio file, supported types are WAV or OGG.
      * The file is loaded without stream-mode.
      * @param name
-     * @return
+     * @return The audio data loaded
      *
      * @see AssetManager#loadAsset(com.jme3.asset.AssetKey)
      */
@@ -188,7 +188,7 @@ public interface AssetManager {
      * Loads a named model. Models can be jME3 object files (J3O) or
      * OgreXML/OBJ files.
      * @param key
-     * @return
+     * @return The model that was loaded
      *
      * @see AssetManager#loadAsset(com.jme3.asset.AssetKey)
      */
@@ -198,7 +198,7 @@ public interface AssetManager {
      * Loads a named model. Models can be jME3 object files (J3O) or
      * OgreXML/OBJ files.
      * @param name
-     * @return
+     * @return The model that was loaded
      *
      * @see AssetManager#loadAsset(com.jme3.asset.AssetKey)
      */
@@ -207,7 +207,7 @@ public interface AssetManager {
     /**
      * Load a material (J3M) file.
      * @param name
-     * @return
+     * @return The material that was loaded
      *
      * @see AssetManager#loadAsset(com.jme3.asset.AssetKey)
      */
@@ -225,7 +225,7 @@ public interface AssetManager {
      * and are with the extension "fnt".
      *
      * @param name
-     * @return
+     * @return The font loaded
      *
      * @see AssetManager#loadAsset(com.jme3.asset.AssetKey) 
      */

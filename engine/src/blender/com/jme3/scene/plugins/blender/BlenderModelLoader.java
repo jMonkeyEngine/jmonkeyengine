@@ -69,89 +69,90 @@ import com.jme3.scene.plugins.blender.utils.JmeConverter;
  * @author Marcin Roguski
  */
 public class BlenderModelLoader implements AssetLoader {
-	private static final Logger	LOGGER	= Logger.getLogger(BlenderModelLoader.class.getName());
 
-	@Override
-	public Spatial load(AssetInfo assetInfo) throws IOException {
-		try {
-			//registering loaders
-			ModelKey modelKey = (ModelKey)assetInfo.getKey();
-			BlenderKey blenderKey;
-			if(modelKey instanceof BlenderKey) {
-				blenderKey = (BlenderKey)modelKey;
-			} else {
-				blenderKey = new BlenderKey(modelKey.getName());
-				blenderKey.setAssetRootPath(modelKey.getFolder());
-			}
+    private static final Logger LOGGER = Logger.getLogger(BlenderModelLoader.class.getName());
 
-			//opening stream
-			BlenderInputStream inputStream = new BlenderInputStream(assetInfo.openStream(), assetInfo.getManager());
-			List<FileBlockHeader> blocks = new ArrayList<FileBlockHeader>();
-			FileBlockHeader fileBlock;
-			DataRepository dataRepository = new DataRepository();
-			dataRepository.setAssetManager(assetInfo.getManager());
-			dataRepository.setInputStream(inputStream);
-			dataRepository.setBlenderKey(blenderKey);
-			dataRepository.putHelper(ArmatureHelper.class, new ArmatureHelper(inputStream.getVersionNumber()));
-			dataRepository.putHelper(TextureHelper.class, new TextureHelper(inputStream.getVersionNumber()));
-			dataRepository.putHelper(MeshHelper.class, new MeshHelper(inputStream.getVersionNumber()));
-			dataRepository.putHelper(ObjectHelper.class, new ObjectHelper(inputStream.getVersionNumber()));
-			dataRepository.putHelper(CurvesHelper.class, new CurvesHelper(inputStream.getVersionNumber()));
-			dataRepository.putHelper(LightHelper.class, new LightHelper(inputStream.getVersionNumber()));
-			dataRepository.putHelper(CameraHelper.class, new CameraHelper(inputStream.getVersionNumber()));
-			dataRepository.putHelper(ModifierHelper.class, new ModifierHelper(inputStream.getVersionNumber()));
-			dataRepository.putHelper(MaterialHelper.class, new MaterialHelper(inputStream.getVersionNumber()));
-			dataRepository.putHelper(ConstraintHelper.class, new ConstraintHelper(inputStream.getVersionNumber(), dataRepository));
-			dataRepository.putHelper(IpoHelper.class, new IpoHelper(inputStream.getVersionNumber()));
-			dataRepository.putHelper(NoiseHelper.class, new NoiseHelper(inputStream.getVersionNumber()));
-			dataRepository.putHelper(ParticlesHelper.class, new ParticlesHelper(inputStream.getVersionNumber()));
-			
-			//setting additional data to helpers
-			if(blenderKey.isFixUpAxis()) {
-				ObjectHelper objectHelper = dataRepository.getHelper(ObjectHelper.class);
-				objectHelper.setyIsUpAxis(true);
-				CurvesHelper curvesHelper = dataRepository.getHelper(CurvesHelper.class);
-				curvesHelper.setyIsUpAxis(true);
-			}
-			MaterialHelper materialHelper = dataRepository.getHelper(MaterialHelper.class);
-			materialHelper.setFaceCullMode(blenderKey.getFaceCullMode());
+    @Override
+    public Spatial load(AssetInfo assetInfo) throws IOException {
+        try {
+            //registering loaders
+            ModelKey modelKey = (ModelKey) assetInfo.getKey();
+            BlenderKey blenderKey;
+            if (modelKey instanceof BlenderKey) {
+                blenderKey = (BlenderKey) modelKey;
+            } else {
+                blenderKey = new BlenderKey(modelKey.getName());
+                blenderKey.setAssetRootPath(modelKey.getFolder());
+            }
 
-			//reading the blocks (dna block is automatically saved in the data repository when found)//TODO: zmienić to
-			do {
-				fileBlock = new FileBlockHeader(inputStream, dataRepository);
-				if(!fileBlock.isDnaBlock()) {
-					blocks.add(fileBlock);
-				}
-			} while(!fileBlock.isLastBlock());
+            //opening stream
+            BlenderInputStream inputStream = new BlenderInputStream(assetInfo.openStream(), assetInfo.getManager());
+            List<FileBlockHeader> blocks = new ArrayList<FileBlockHeader>();
+            FileBlockHeader fileBlock;
+            DataRepository dataRepository = new DataRepository();
+            dataRepository.setAssetManager(assetInfo.getManager());
+            dataRepository.setInputStream(inputStream);
+            dataRepository.setBlenderKey(blenderKey);
+            dataRepository.putHelper(ArmatureHelper.class, new ArmatureHelper(inputStream.getVersionNumber()));
+            dataRepository.putHelper(TextureHelper.class, new TextureHelper(inputStream.getVersionNumber()));
+            dataRepository.putHelper(MeshHelper.class, new MeshHelper(inputStream.getVersionNumber()));
+            dataRepository.putHelper(ObjectHelper.class, new ObjectHelper(inputStream.getVersionNumber()));
+            dataRepository.putHelper(CurvesHelper.class, new CurvesHelper(inputStream.getVersionNumber()));
+            dataRepository.putHelper(LightHelper.class, new LightHelper(inputStream.getVersionNumber()));
+            dataRepository.putHelper(CameraHelper.class, new CameraHelper(inputStream.getVersionNumber()));
+            dataRepository.putHelper(ModifierHelper.class, new ModifierHelper(inputStream.getVersionNumber()));
+            dataRepository.putHelper(MaterialHelper.class, new MaterialHelper(inputStream.getVersionNumber()));
+            dataRepository.putHelper(ConstraintHelper.class, new ConstraintHelper(inputStream.getVersionNumber(), dataRepository));
+            dataRepository.putHelper(IpoHelper.class, new IpoHelper(inputStream.getVersionNumber()));
+            dataRepository.putHelper(NoiseHelper.class, new NoiseHelper(inputStream.getVersionNumber()));
+            dataRepository.putHelper(ParticlesHelper.class, new ParticlesHelper(inputStream.getVersionNumber()));
 
-			JmeConverter converter = new JmeConverter(dataRepository);
-			LoadingResults loadingResults = blenderKey.prepareLoadingResults();
-			for(FileBlockHeader block : blocks) {
-				if(block.getCode() == FileBlockHeader.BLOCK_OB00) {
-					Object object = converter.toObject(block.getStructure(dataRepository));
-					if(object instanceof Node) {
-						LOGGER.log(Level.INFO, ((Node)object).getName() + ": " + ((Node)object).getLocalTranslation().toString() + "--> " + (((Node)object).getParent() == null ? "null" : ((Node)object).getParent().getName()));
-						if(((Node)object).getParent() == null) {
-							loadingResults.addObject((Node)object);
-						}
-					}
-				}
-			}
-			inputStream.close();
-			List<Node> objects = loadingResults.getObjects();
-			if(objects.size() > 0) {
-				Node modelNode = new Node(blenderKey.getName());
-				for(Iterator<Node> it = objects.iterator(); it.hasNext();) {
-					Node node = it.next();
-					modelNode.attachChild(node);
-				}
-				return modelNode;
-			} else if(objects.size() == 1) {
-				return objects.get(0);
-			}
-		} catch(BlenderFileException e) {
-			LOGGER.log(Level.SEVERE, e.getMessage(), e);
-		}
-		return null;
-	}
+            //setting additional data to helpers
+            if (blenderKey.isFixUpAxis()) {
+                ObjectHelper objectHelper = dataRepository.getHelper(ObjectHelper.class);
+                objectHelper.setyIsUpAxis(true);
+                CurvesHelper curvesHelper = dataRepository.getHelper(CurvesHelper.class);
+                curvesHelper.setyIsUpAxis(true);
+            }
+            MaterialHelper materialHelper = dataRepository.getHelper(MaterialHelper.class);
+            materialHelper.setFaceCullMode(blenderKey.getFaceCullMode());
+
+            //reading the blocks (dna block is automatically saved in the data repository when found)//TODO: zmienić to
+            do {
+                fileBlock = new FileBlockHeader(inputStream, dataRepository);
+                if (!fileBlock.isDnaBlock()) {
+                    blocks.add(fileBlock);
+                }
+            } while (!fileBlock.isLastBlock());
+
+            JmeConverter converter = new JmeConverter(dataRepository);
+            LoadingResults loadingResults = blenderKey.prepareLoadingResults();
+            for (FileBlockHeader block : blocks) {
+                if (block.getCode() == FileBlockHeader.BLOCK_OB00) {
+                    Object object = converter.toObject(block.getStructure(dataRepository));
+                    if (object instanceof Node) {
+                        LOGGER.log(Level.INFO, "{0}: {1}--> {2}", new Object[]{((Node) object).getName(), ((Node) object).getLocalTranslation().toString(), ((Node) object).getParent() == null ? "null" : ((Node) object).getParent().getName()});
+                        if (((Node) object).getParent() == null) {
+                            loadingResults.addObject((Node) object);
+                        }
+                    }
+                }
+            }
+            inputStream.close();
+            List<Node> objects = loadingResults.getObjects();
+            if (objects.size() > 0) {
+                Node modelNode = new Node(blenderKey.getName());
+                for (Iterator<Node> it = objects.iterator(); it.hasNext();) {
+                    Node node = it.next();
+                    modelNode.attachChild(node);
+                }
+                return modelNode;
+            } else if (objects.size() == 1) {
+                return objects.get(0);
+            }
+        } catch (BlenderFileException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        }
+        return null;
+    }
 }

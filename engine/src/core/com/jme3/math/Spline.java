@@ -277,7 +277,6 @@ public class Spline implements Savable {
 
     /**
      * returns the curve tension
-     * @return
      */
     public float getCurveTension() {
         return curveTension;
@@ -297,7 +296,6 @@ public class Spline implements Savable {
 
     /**
      * returns true if the spline cycle
-     * @return
      */
     public boolean isCycle() {
         return cycle;
@@ -326,7 +324,6 @@ public class Spline implements Savable {
 
     /**
      * return the total lenght of the spline
-     * @return
      */
     public float getTotalLength() {
         return totalLength;
@@ -334,7 +331,6 @@ public class Spline implements Savable {
 
     /**
      * return the type of the spline
-     * @return
      */
     public SplineType getType() {
         return type;
@@ -351,7 +347,6 @@ public class Spline implements Savable {
 
     /**
      * returns this spline control points
-     * @return
      */
     public List<Vector3f> getControlPoints() {
         return controlPoints;
@@ -359,7 +354,6 @@ public class Spline implements Savable {
 
     /**
      * returns a list of float representing the segments lenght
-     * @return
      */
     public List<Float> getSegmentsLength() {
         return segmentsLength;

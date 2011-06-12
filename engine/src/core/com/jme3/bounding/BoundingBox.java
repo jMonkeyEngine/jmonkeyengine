@@ -259,12 +259,8 @@ public class BoundingBox extends BoundingVolume {
      * <code>transform</code> modifies the center of the box to reflect the
      * change made via a rotation, translation and scale.
      * 
-     * @param rotate
-     *            the rotation change.
-     * @param translate
-     *            the translation change.
-     * @param scale
-     *            the size change.
+     * @param trans 
+     *            the transform to apply
      * @param store
      *            box to store result in
      */
@@ -570,7 +566,7 @@ public class BoundingBox extends BoundingVolume {
      * intersects determines if this Bounding Box intersects with another given
      * bounding volume. If so, true is returned, otherwise, false is returned.
      * 
-     * @see com.jme.bounding.BoundingVolume#intersects(com.jme.bounding.BoundingVolume)
+     * @see BoundingVolume#intersects(com.jme3.bounding.BoundingVolume) 
      */
     public boolean intersects(BoundingVolume bv) {
         return bv.intersectsBoundingBox(this);
@@ -579,7 +575,7 @@ public class BoundingBox extends BoundingVolume {
     /**
      * determines if this bounding box intersects a given bounding sphere.
      * 
-     * @see com.jme.bounding.BoundingVolume#intersectsSphere(com.jme.bounding.BoundingSphere)
+     * @see BoundingVolume#intersectsSphere(com.jme3.bounding.BoundingSphere)
      */
     public boolean intersectsSphere(BoundingSphere bs) {
         assert Vector3f.isValidVector(center) && Vector3f.isValidVector(bs.center);
@@ -600,7 +596,7 @@ public class BoundingBox extends BoundingVolume {
      * two boxes intersect in any way, true is returned. Otherwise, false is
      * returned.
      * 
-     * @see com.jme.bounding.BoundingVolume#intersectsBoundingBox(com.jme.bounding.BoundingBox)
+     * @see BoundingVolume#intersectsBoundingBox(com.jme3.bounding.BoundingBox)
      */
     public boolean intersectsBoundingBox(BoundingBox bb) {
         assert Vector3f.isValidVector(center) && Vector3f.isValidVector(bb.center);
@@ -632,7 +628,7 @@ public class BoundingBox extends BoundingVolume {
      * determines if this bounding box intersects with a given ray object. If an
      * intersection has occurred, true is returned, otherwise false is returned.
      * 
-     * @see com.jme.bounding.BoundingVolume#intersects(com.jme.math.Ray)
+     * @see BoundingVolume#intersects(com.jme3.math.Ray) 
      */
     public boolean intersects(Ray ray) {
         assert Vector3f.isValidVector(center);
@@ -766,10 +762,11 @@ public class BoundingBox extends BoundingVolume {
     /**
      * C code ported from http://www.cs.lth.se/home/Tomas_Akenine_Moller/code/tribox3.txt
      *
-     * @param v1
-     * @param v2
-     * @param v3
-     * @return
+     * @param v1 The first point in the triangle
+     * @param v2 The second point in the triangle
+     * @param v3 The third point in the triangle
+     * @return True if the bounding box intersects the triangle, false
+     * otherwise.
      */
     public boolean intersects(Vector3f v1, Vector3f v2, Vector3f v3){
        return Intersection.intersect(this, v1, v2, v3);

@@ -54,7 +54,7 @@ public interface AssetLocator {
      * 
      * @param manager
      * @param key
-     * @return
+     * @return The {@link AssetInfo} that was located, or null if not found.
      */
     public AssetInfo locate(AssetManager manager, AssetKey key);
 }

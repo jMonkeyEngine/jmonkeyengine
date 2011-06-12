@@ -46,87 +46,87 @@ import com.jme3.scene.plugins.blender.utils.BlenderInputStream;
 import com.jme3.scene.plugins.blender.utils.DataRepository;
 import com.jme3.scene.plugins.blender.utils.Pointer;
 
-
 /**
  * This class defines the methods to calculate certain aspects of animation and armature functionalities.
  * @author Marcin Roguski
  */
 public class ArmatureHelper extends com.jme3.scene.plugins.blender.helpers.v249.ArmatureHelper {
-	private static final Logger				LOGGER			= Logger.getLogger(ArmatureHelper.class.getName());
-	
-	/**
-	 * This constructor parses the given blender version and stores the result. Some functionalities may differ in
-	 * different blender versions.
-	 * @param blenderVersion
-	 *        the version read from the blend file
-	 */
-	public ArmatureHelper(String blenderVersion) {
-		super(blenderVersion);
-	}
-	
-	@Override
-	public BoneTrack[] getTracks(Structure actionStructure, DataRepository dataRepository, String objectName, String animationName) throws BlenderFileException {
-		if(blenderVersion<250) {
-			return super.getTracks(actionStructure, dataRepository, objectName, animationName);
-		}
-		LOGGER.log(Level.INFO, "Getting tracks!");
-		int fps = dataRepository.getBlenderKey().getFps();
-		int[] animationFrames = dataRepository.getBlenderKey().getAnimationFrames(objectName, animationName);
-		Structure groups = (Structure)actionStructure.getFieldValue("groups");
-		List<Structure> actionGroups = groups.evaluateListBase(dataRepository);//bActionGroup
-		if(actionGroups != null && actionGroups.size() > 0 && (bonesMap == null || bonesMap.size() == 0)) {
-			throw new IllegalStateException("No bones found! Cannot proceed to calculating tracks!");
-		}
-		
-		List<BoneTrack> tracks = new ArrayList<BoneTrack>();
-		for(Structure actionGroup : actionGroups) {
-			String name = actionGroup.getFieldValue("name").toString();
-			Integer boneIndex = bonesMap.get(name);
-			if(boneIndex != null) {
-				List<Structure> channels = ((Structure)actionGroup.getFieldValue("channels")).evaluateListBase(dataRepository);
-				BezierCurve[] bezierCurves = new BezierCurve[channels.size()];
-				int channelCounter = 0;
-				for(Structure c : channels) {
-					//reading rna path first
-					BlenderInputStream bis = dataRepository.getInputStream();
-					int currentPosition = bis.getPosition();
-					Pointer pRnaPath = (Pointer) c.getFieldValue("rna_path");
-					FileBlockHeader dataFileBlock = dataRepository.getFileBlock(pRnaPath.getOldMemoryAddress());
-					bis.setPosition(dataFileBlock.getBlockPosition());
-					String rnaPath = bis.readString();
-					bis.setPosition(currentPosition);
-					int arrayIndex = ((Number)c.getFieldValue("array_index")).intValue();
-					int type = this.getCurveType(rnaPath, arrayIndex);
 
-					Pointer pBezTriple = (Pointer)c.getFieldValue("bezt");
-					List<Structure> bezTriples = pBezTriple.fetchData(dataRepository.getInputStream());
-					bezierCurves[channelCounter++] = new BezierCurve(type, bezTriples, 2);
-				}
+    private static final Logger LOGGER = Logger.getLogger(ArmatureHelper.class.getName());
 
-				Ipo ipo = new Ipo(bezierCurves);
-				tracks.add(ipo.calculateTrack(boneIndex.intValue(), animationFrames[0], animationFrames[1], fps));
-			}
-		}
-		return tracks.toArray(new BoneTrack[tracks.size()]);
-	}
-	
-	/**
-	 * This method parses the information stored inside the curve rna path and returns the proper type
-	 * of the curve.
-	 * @param rnaPath the curve's rna path
-	 * @param arrayIndex the array index of the stored data
-	 * @return the type of the curve
-	 */
-	protected int getCurveType(String rnaPath, int arrayIndex) {
-		if(rnaPath.endsWith(".location")) {
-			return Ipo.AC_LOC_X + arrayIndex;
-		}
-		if(rnaPath.endsWith(".rotation_quaternion")) {
-			return Ipo.AC_QUAT_W + arrayIndex;
-		}
-		if(rnaPath.endsWith(".scale")) {
-			return Ipo.AC_SIZE_X + arrayIndex;
-		}
-		throw new IllegalStateException("Unknown curve rna path: " + rnaPath);
-	}
+    /**
+     * This constructor parses the given blender version and stores the result. Some functionalities may differ in
+     * different blender versions.
+     * @param blenderVersion
+     *        the version read from the blend file
+     */
+    public ArmatureHelper(String blenderVersion) {
+        super(blenderVersion);
+    }
+
+    @Override
+    public BoneTrack[] getTracks(Structure actionStructure, DataRepository dataRepository, String objectName, String animationName) throws BlenderFileException {
+        if (blenderVersion < 250) {
+            return super.getTracks(actionStructure, dataRepository, objectName, animationName);
+        }
+        LOGGER.log(Level.INFO, "Getting tracks!");
+        int fps = dataRepository.getBlenderKey().getFps();
+        int[] animationFrames = dataRepository.getBlenderKey().getAnimationFrames(objectName, animationName);
+        Structure groups = (Structure) actionStructure.getFieldValue("groups");
+        List<Structure> actionGroups = groups.evaluateListBase(dataRepository);//bActionGroup
+        if (actionGroups != null && actionGroups.size() > 0 && (bonesMap == null || bonesMap.size() == 0)) {
+            throw new IllegalStateException("No bones found! Cannot proceed to calculating tracks!");
+        }
+
+        List<BoneTrack> tracks = new ArrayList<BoneTrack>();
+        for (Structure actionGroup : actionGroups) {
+            String name = actionGroup.getFieldValue("name").toString();
+            Integer boneIndex = bonesMap.get(name);
+            if (boneIndex != null) {
+                List<Structure> channels = ((Structure) actionGroup.getFieldValue("channels")).evaluateListBase(dataRepository);
+                BezierCurve[] bezierCurves = new BezierCurve[channels.size()];
+                int channelCounter = 0;
+                for (Structure c : channels) {
+                    //reading rna path first
+                    BlenderInputStream bis = dataRepository.getInputStream();
+                    int currentPosition = bis.getPosition();
+                    Pointer pRnaPath = (Pointer) c.getFieldValue("rna_path");
+                    FileBlockHeader dataFileBlock = dataRepository.getFileBlock(pRnaPath.getOldMemoryAddress());
+                    bis.setPosition(dataFileBlock.getBlockPosition());
+                    String rnaPath = bis.readString();
+                    bis.setPosition(currentPosition);
+                    int arrayIndex = ((Number) c.getFieldValue("array_index")).intValue();
+                    int type = this.getCurveType(rnaPath, arrayIndex);
+
+                    Pointer pBezTriple = (Pointer) c.getFieldValue("bezt");
+                    List<Structure> bezTriples = pBezTriple.fetchData(dataRepository.getInputStream());
+                    bezierCurves[channelCounter++] = new BezierCurve(type, bezTriples, 2);
+                }
+
+                Ipo ipo = new Ipo(bezierCurves);
+                tracks.add(ipo.calculateTrack(boneIndex.intValue(), animationFrames[0], animationFrames[1], fps));
+            }
+        }
+        return tracks.toArray(new BoneTrack[tracks.size()]);
+    }
+
+    /**
+     * This method parses the information stored inside the curve rna path and returns the proper type
+     * of the curve.
+     * @param rnaPath the curve's rna path
+     * @param arrayIndex the array index of the stored data
+     * @return the type of the curve
+     */
+    protected int getCurveType(String rnaPath, int arrayIndex) {
+        if (rnaPath.endsWith(".location")) {
+            return Ipo.AC_LOC_X + arrayIndex;
+        }
+        if (rnaPath.endsWith(".rotation_quaternion")) {
+            return Ipo.AC_QUAT_W + arrayIndex;
+        }
+        if (rnaPath.endsWith(".scale")) {
+            return Ipo.AC_SIZE_X + arrayIndex;
+        }
+        throw new IllegalStateException("Unknown curve rna path: " + rnaPath);
+    }
 }

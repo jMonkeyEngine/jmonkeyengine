@@ -387,12 +387,8 @@ public class BoundingSphere extends BoundingVolume {
      * <code>transform</code> modifies the center of the sphere to reflect the
      * change made via a rotation, translation and scale.
      *
-     * @param rotate
-     *            the rotation change.
-     * @param translate
-     *            the translation change.
-     * @param scale
-     *            the size change.
+     * @param trans
+     *            the transform to apply
      * @param store
      *            sphere to store result in
      * @return BoundingVolume

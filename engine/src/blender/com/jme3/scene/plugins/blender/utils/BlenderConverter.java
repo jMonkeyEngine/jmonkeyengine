@@ -52,58 +52,59 @@ import com.jme3.scene.plugins.blender.exception.BlenderFileException;
  *        the type of material element
  */
 //TODO: ujednolicić wyrzucane wyjątki
-public interface IBlenderConverter<NodeType, CameraType, LightType, ObjectType, MeshType, MaterialType> {
-	/**
-	 * This method reads converts the given structure into scene. The given structure needs to be filled with the
-	 * appropriate data.
-	 * @param structure
-	 *        the structure we read the scene from
-	 * @return the scene feature
-	 */
-	NodeType toScene(Structure structure);
+public interface BlenderConverter<NodeType, CameraType, LightType, ObjectType, MeshType, MaterialType> {
 
-	/**
-	 * This method reads converts the given structure into camera. The given structure needs to be filled with the
-	 * appropriate data.
-	 * @param structure
-	 *        the structure we read the camera from
-	 * @return the camera feature
-	 */
-	CameraType toCamera(Structure structure) throws BlenderFileException;
+    /**
+     * This method reads converts the given structure into scene. The given structure needs to be filled with the
+     * appropriate data.
+     * @param structure
+     *        the structure we read the scene from
+     * @return the scene feature
+     */
+    NodeType toScene(Structure structure);
 
-	/**
-	 * This method reads converts the given structure into light. The given structure needs to be filled with the
-	 * appropriate data.
-	 * @param structure
-	 *        the structure we read the light from
-	 * @return the light feature
-	 */
-	LightType toLight(Structure structure) throws BlenderFileException;
+    /**
+     * This method reads converts the given structure into camera. The given structure needs to be filled with the
+     * appropriate data.
+     * @param structure
+     *        the structure we read the camera from
+     * @return the camera feature
+     */
+    CameraType toCamera(Structure structure) throws BlenderFileException;
 
-	/**
-	 * This method reads converts the given structure into objct. The given structure needs to be filled with the
-	 * appropriate data.
-	 * @param structure
-	 *        the structure we read the object from
-	 * @return the object feature
-	 */
-	ObjectType toObject(Structure structure) throws BlenderFileException;
+    /**
+     * This method reads converts the given structure into light. The given structure needs to be filled with the
+     * appropriate data.
+     * @param structure
+     *        the structure we read the light from
+     * @return the light feature
+     */
+    LightType toLight(Structure structure) throws BlenderFileException;
 
-	/**
-	 * This method reads converts the given structure into mesh. The given structure needs to be filled with the
-	 * appropriate data.
-	 * @param structure
-	 *        the structure we read the mesh from
-	 * @return the mesh feature
-	 */
-	MeshType toMesh(Structure structure) throws BlenderFileException;
+    /**
+     * This method reads converts the given structure into objct. The given structure needs to be filled with the
+     * appropriate data.
+     * @param structure
+     *        the structure we read the object from
+     * @return the object feature
+     */
+    ObjectType toObject(Structure structure) throws BlenderFileException;
 
-	/**
-	 * This method reads converts the given structure into material. The given structure needs to be filled with the
-	 * appropriate data.
-	 * @param structure
-	 *        the structure we read the material from
-	 * @return the material feature
-	 */
-	MaterialType toMaterial(Structure structure) throws BlenderFileException;
+    /**
+     * This method reads converts the given structure into mesh. The given structure needs to be filled with the
+     * appropriate data.
+     * @param structure
+     *        the structure we read the mesh from
+     * @return the mesh feature
+     */
+    MeshType toMesh(Structure structure) throws BlenderFileException;
+
+    /**
+     * This method reads converts the given structure into material. The given structure needs to be filled with the
+     * appropriate data.
+     * @param structure
+     *        the structure we read the material from
+     * @return the material feature
+     */
+    MaterialType toMaterial(Structure structure) throws BlenderFileException;
 }

@@ -347,7 +347,6 @@ public final class Bone implements Savable {
     /**
      * Set user transform.
      * Combine the given transforms to bone's current transforms
-     * @see setUserControl
      */
     public void setUserTransforms(Vector3f translation, Quaternion rotation, Vector3f scale) {
         if (!userControl) {
@@ -378,10 +377,9 @@ public final class Bone implements Savable {
     }
     
     /**
-     * Returns teh local transform of this bone combined with the given position and rotation
+     * Returns the local transform of this bone combined with the given position and rotation
      * @param position a position
      * @param rotation a rotation
-     * @return 
      */
     public Transform getCombinedTransform(Vector3f position, Quaternion rotation){
             rotation.mult(localPos, tmpTransform.getTranslation()).addLocal(position);

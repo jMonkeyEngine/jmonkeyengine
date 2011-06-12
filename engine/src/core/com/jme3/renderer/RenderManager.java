@@ -181,9 +181,6 @@ public class RenderManager {
     /**
      * Creates a new viewport, to display the given camera's content.
      * The view will be processed before the primary viewport.
-     * @param viewName
-     * @param cam
-     * @return
      */
     public ViewPort createPreView(String viewName, Camera cam) {
         ViewPort vp = new ViewPort(viewName, cam);
@@ -491,9 +488,6 @@ public class RenderManager {
 
     /**
      * Render scene graph
-     * @param s
-     * @param r
-     * @param cam
      */
     public void renderScene(Spatial scene, ViewPort vp) {
         if (scene.getParent() == null) {

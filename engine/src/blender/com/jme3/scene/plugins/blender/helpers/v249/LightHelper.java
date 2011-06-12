@@ -49,51 +49,52 @@ import com.jme3.scene.plugins.blender.utils.DataRepository.LoadedFeatureDataType
  * @author Marcin Roguski
  */
 public class LightHelper extends AbstractBlenderHelper {
-	private static final Logger			LOGGER		= Logger.getLogger(LightHelper.class.getName());
-	
-	/**
-	 * This constructor parses the given blender version and stores the result. Some functionalities may differ in
-	 * different blender versions.
-	 * @param blenderVersion
-	 *        the version read from the blend file
-	 */
-	public LightHelper(String blenderVersion) {
-		super(blenderVersion);
-	}
 
-	public Light toLight(Structure structure, DataRepository dataRepository) throws BlenderFileException {
-		Light result = (Light)dataRepository.getLoadedFeature(structure.getOldMemoryAddress(), LoadedFeatureDataType.LOADED_FEATURE);
-		if(result != null) {
-			return result;
-		}
-		int type = ((Number)structure.getFieldValue("type")).intValue();
-		switch(type) {
-			case 0://Lamp
-				result = new PointLight();
-				float distance = ((Number)structure.getFieldValue("dist")).floatValue();
-				((PointLight)result).setRadius(distance);
-				break;
-			case 1://Sun
-				LOGGER.log(Level.WARNING, "'Sun' lamp is not supported in jMonkeyEngine.");
-				break;
-			case 2://Spot
-				LOGGER.log(Level.WARNING, "'Spot' lamp is not supported in jMonkeyEngine.");
-				break;
-			case 3://Hemi
-				LOGGER.log(Level.WARNING, "'Hemi' lamp is not supported in jMonkeyEngine.");
-				break;
-			case 4://Area
-				result = new DirectionalLight();
-				break;
-			default:
-				throw new BlenderFileException("Unknown light source type: " + type);
-		}
-		if(result != null) {
-			float r = ((Number)structure.getFieldValue("r")).floatValue();
-			float g = ((Number)structure.getFieldValue("g")).floatValue();
-			float b = ((Number)structure.getFieldValue("b")).floatValue();
-			result.setColor(new ColorRGBA(r, g, b, 0.0f));//TODO: 0 czy 1 ???
-		}
-		return result;
-	}
+    private static final Logger LOGGER = Logger.getLogger(LightHelper.class.getName());
+
+    /**
+     * This constructor parses the given blender version and stores the result. Some functionalities may differ in
+     * different blender versions.
+     * @param blenderVersion
+     *        the version read from the blend file
+     */
+    public LightHelper(String blenderVersion) {
+        super(blenderVersion);
+    }
+
+    public Light toLight(Structure structure, DataRepository dataRepository) throws BlenderFileException {
+        Light result = (Light) dataRepository.getLoadedFeature(structure.getOldMemoryAddress(), LoadedFeatureDataType.LOADED_FEATURE);
+        if (result != null) {
+            return result;
+        }
+        int type = ((Number) structure.getFieldValue("type")).intValue();
+        switch (type) {
+            case 0://Lamp
+                result = new PointLight();
+                float distance = ((Number) structure.getFieldValue("dist")).floatValue();
+                ((PointLight) result).setRadius(distance);
+                break;
+            case 1://Sun
+                LOGGER.log(Level.WARNING, "'Sun' lamp is not supported in jMonkeyEngine.");
+                break;
+            case 2://Spot
+                LOGGER.log(Level.WARNING, "'Spot' lamp is not supported in jMonkeyEngine.");
+                break;
+            case 3://Hemi
+                LOGGER.log(Level.WARNING, "'Hemi' lamp is not supported in jMonkeyEngine.");
+                break;
+            case 4://Area
+                result = new DirectionalLight();
+                break;
+            default:
+                throw new BlenderFileException("Unknown light source type: " + type);
+        }
+        if (result != null) {
+            float r = ((Number) structure.getFieldValue("r")).floatValue();
+            float g = ((Number) structure.getFieldValue("g")).floatValue();
+            float b = ((Number) structure.getFieldValue("b")).floatValue();
+            result.setColor(new ColorRGBA(r, g, b, 0.0f));//TODO: 0 czy 1 ???
+        }
+        return result;
+    }
 }

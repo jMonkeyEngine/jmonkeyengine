@@ -55,115 +55,115 @@ import com.jme3.scene.plugins.blender.helpers.ObjectHelper;
  * This class converts blender file blocks into jMonkeyEngine data structures.
  * @author Marcin Roguski
  */
-public class JmeConverter implements IBlenderConverter<Node, Camera, Light, Object, List<Geometry>, Material> {
-	private static final Logger		LOGGER						= Logger.getLogger(JmeConverter.class.getName());
+public class JmeConverter implements BlenderConverter<Node, Camera, Light, Object, List<Geometry>, Material> {
 
-	private final DataRepository	dataRepository;
+    private static final Logger LOGGER = Logger.getLogger(JmeConverter.class.getName());
+    private final DataRepository dataRepository;
 
-	/**
-	 * Constructor. Creates the loader and checks if the given data is correct.
-	 * @param dataRepository
-	 *        the data repository; it should have the following field set: - asset manager - blender key - dna block
-	 *        data - blender input stream Otherwise IllegalArgumentException will be thrown.
-	 * @param featuresToLoad
-	 *        bitwise flag describing what features are to be loaded
-	 * @see FeaturesToLoad FeaturesToLoad
-	 */
-	public JmeConverter(DataRepository dataRepository) {
-		//validating the given data first
-		if(dataRepository.getAssetManager() == null) {
-			throw new IllegalArgumentException("Cannot find asset manager!");
-		}
-		if(dataRepository.getBlenderKey() == null) {
-			throw new IllegalArgumentException("Cannot find blender key!");
-		}
-		if(dataRepository.getDnaBlockData() == null) {
-			throw new IllegalArgumentException("Cannot find dna block!");
-		}
-		if(dataRepository.getInputStream() == null) {
-			throw new IllegalArgumentException("Cannot find blender file stream!");
-		}
-		this.dataRepository = dataRepository;
-	}
+    /**
+     * Constructor. Creates the loader and checks if the given data is correct.
+     * @param dataRepository
+     *        the data repository; it should have the following field set: - asset manager - blender key - dna block
+     *        data - blender input stream Otherwise IllegalArgumentException will be thrown.
+     * @param featuresToLoad
+     *        bitwise flag describing what features are to be loaded
+     * @see FeaturesToLoad FeaturesToLoad
+     */
+    public JmeConverter(DataRepository dataRepository) {
+        //validating the given data first
+        if (dataRepository.getAssetManager() == null) {
+            throw new IllegalArgumentException("Cannot find asset manager!");
+        }
+        if (dataRepository.getBlenderKey() == null) {
+            throw new IllegalArgumentException("Cannot find blender key!");
+        }
+        if (dataRepository.getDnaBlockData() == null) {
+            throw new IllegalArgumentException("Cannot find dna block!");
+        }
+        if (dataRepository.getInputStream() == null) {
+            throw new IllegalArgumentException("Cannot find blender file stream!");
+        }
+        this.dataRepository = dataRepository;
+    }
 
-	@Override
-	public Node toScene(Structure structure) {//TODO: poprawny import sceny
-		if((dataRepository.getBlenderKey().getFeaturesToLoad() & FeaturesToLoad.SCENES) == 0) {
-			return null;
-		}
-		Structure id = (Structure)structure.getFieldValue("id");
-		String sceneName = id.getFieldValue("name").toString();
-		
-		//veryfying layers to be loaded
-		if(dataRepository.getBlenderKey().getLayersToLoad()<0) {
-			int lay = ((Number)structure.getFieldValue("lay")).intValue();
-			dataRepository.getBlenderKey().setLayersToLoad(lay);//load only current layer
-		}
-		return new Node(sceneName);
-	}
+    @Override
+    public Node toScene(Structure structure) {//TODO: poprawny import sceny
+        if ((dataRepository.getBlenderKey().getFeaturesToLoad() & FeaturesToLoad.SCENES) == 0) {
+            return null;
+        }
+        Structure id = (Structure) structure.getFieldValue("id");
+        String sceneName = id.getFieldValue("name").toString();
 
-	@Override
-	public Camera toCamera(Structure structure) throws BlenderFileException {
-		if((dataRepository.getBlenderKey().getFeaturesToLoad() & FeaturesToLoad.CAMERAS) == 0) {
-			return null;
-		}
-		CameraHelper cameraHelper = dataRepository.getHelper(CameraHelper.class);
-		return cameraHelper.toCamera(structure);
-	}
+        //veryfying layers to be loaded
+        if (dataRepository.getBlenderKey().getLayersToLoad() < 0) {
+            int lay = ((Number) structure.getFieldValue("lay")).intValue();
+            dataRepository.getBlenderKey().setLayersToLoad(lay);//load only current layer
+        }
+        return new Node(sceneName);
+    }
 
-	@Override
-	public Light toLight(Structure structure) throws BlenderFileException {
-		if((dataRepository.getBlenderKey().getFeaturesToLoad() & FeaturesToLoad.LIGHTS) == 0) {
-			return null;
-		}
-		LightHelper lightHelper = dataRepository.getHelper(LightHelper.class);
-		return lightHelper.toLight(structure, dataRepository);
-	}
+    @Override
+    public Camera toCamera(Structure structure) throws BlenderFileException {
+        if ((dataRepository.getBlenderKey().getFeaturesToLoad() & FeaturesToLoad.CAMERAS) == 0) {
+            return null;
+        }
+        CameraHelper cameraHelper = dataRepository.getHelper(CameraHelper.class);
+        return cameraHelper.toCamera(structure);
+    }
 
-	@Override
-	public Object toObject(Structure structure) throws BlenderFileException {
-		int lay = ((Number)structure.getFieldValue("lay")).intValue();
-		if((lay & dataRepository.getBlenderKey().getLayersToLoad()) == 0 ||
-		   (dataRepository.getBlenderKey().getFeaturesToLoad() & FeaturesToLoad.OBJECTS) == 0) {
-			return null;
-		}
-		ObjectHelper objectHelper = dataRepository.getHelper(ObjectHelper.class);
-		return objectHelper.toObject(structure, dataRepository);
-	}
+    @Override
+    public Light toLight(Structure structure) throws BlenderFileException {
+        if ((dataRepository.getBlenderKey().getFeaturesToLoad() & FeaturesToLoad.LIGHTS) == 0) {
+            return null;
+        }
+        LightHelper lightHelper = dataRepository.getHelper(LightHelper.class);
+        return lightHelper.toLight(structure, dataRepository);
+    }
 
-	@Override
-	public List<Geometry> toMesh(Structure structure) throws BlenderFileException {
-		MeshHelper meshHelper = dataRepository.getHelper(MeshHelper.class);
-		return meshHelper.toMesh(structure, dataRepository);
-	}
+    @Override
+    public Object toObject(Structure structure) throws BlenderFileException {
+        int lay = ((Number) structure.getFieldValue("lay")).intValue();
+        if ((lay & dataRepository.getBlenderKey().getLayersToLoad()) == 0
+                || (dataRepository.getBlenderKey().getFeaturesToLoad() & FeaturesToLoad.OBJECTS) == 0) {
+            return null;
+        }
+        ObjectHelper objectHelper = dataRepository.getHelper(ObjectHelper.class);
+        return objectHelper.toObject(structure, dataRepository);
+    }
 
-	@Override
-	public Material toMaterial(Structure structure) throws BlenderFileException {
-		if((dataRepository.getBlenderKey().getFeaturesToLoad() & FeaturesToLoad.MATERIALS) == 0) {
-			return null;
-		}
-		MaterialHelper materialHelper = dataRepository.getHelper(MaterialHelper.class);
-		return materialHelper.toMaterial(structure, dataRepository);
-	}
+    @Override
+    public List<Geometry> toMesh(Structure structure) throws BlenderFileException {
+        MeshHelper meshHelper = dataRepository.getHelper(MeshHelper.class);
+        return meshHelper.toMesh(structure, dataRepository);
+    }
 
-	/**
-	 * This method returns the data read from the WORLD file block. The block contains data that can be stored as
-	 * separate jme features and therefore cannot be returned as a single jME scene feature.
-	 * @param structure
-	 *        the structure with WORLD block data
-	 * @return data read from the WORLD block that can be added to the scene
-	 */
-	public WorldData toWorldData(Structure structure) {
-		WorldData result = new WorldData();
+    @Override
+    public Material toMaterial(Structure structure) throws BlenderFileException {
+        if ((dataRepository.getBlenderKey().getFeaturesToLoad() & FeaturesToLoad.MATERIALS) == 0) {
+            return null;
+        }
+        MaterialHelper materialHelper = dataRepository.getHelper(MaterialHelper.class);
+        return materialHelper.toMaterial(structure, dataRepository);
+    }
 
-		//reading ambient light
-		AmbientLight ambientLight = new AmbientLight();
-		float ambr = ((Number)structure.getFieldValue("ambr")).floatValue();
-		float ambg = ((Number)structure.getFieldValue("ambg")).floatValue();
-		float ambb = ((Number)structure.getFieldValue("ambb")).floatValue();
-		ambientLight.setColor(new ColorRGBA(ambr, ambg, ambb, 0.0f));
-		result.setAmbientLight(ambientLight);
+    /**
+     * This method returns the data read from the WORLD file block. The block contains data that can be stored as
+     * separate jme features and therefore cannot be returned as a single jME scene feature.
+     * @param structure
+     *        the structure with WORLD block data
+     * @return data read from the WORLD block that can be added to the scene
+     */
+    public WorldData toWorldData(Structure structure) {
+        WorldData result = new WorldData();
 
-		return result;
-	}
+        //reading ambient light
+        AmbientLight ambientLight = new AmbientLight();
+        float ambr = ((Number) structure.getFieldValue("ambr")).floatValue();
+        float ambg = ((Number) structure.getFieldValue("ambg")).floatValue();
+        float ambb = ((Number) structure.getFieldValue("ambb")).floatValue();
+        ambientLight.setColor(new ColorRGBA(ambr, ambg, ambb, 0.0f));
+        result.setAmbientLight(ambientLight);
+
+        return result;
+    }
 }

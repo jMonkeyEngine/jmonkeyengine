@@ -455,7 +455,8 @@ public final class Ray implements Savable, Cloneable, Collidable {
      * <code>getLimit</code> returns the limit or the ray, aka the length.
      * If the limit is not infinity, then this ray is a line with length <code>
      * limit</code>.
-     * @return
+     * 
+     * @return the limit or the ray, aka the length.
      */
     public float getLimit(){
         return limit;

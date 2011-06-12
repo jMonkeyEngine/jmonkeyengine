@@ -177,7 +177,7 @@ public class Geometry extends Spatial {
      * this geometry. The location of the geometry is based on the location of
      * all this node's parents.
      *
-     * @see com.jme.scene.Spatial#updateWorldBound()
+     * @see Spatial#updateWorldBound()
      */
     @Override
     protected void updateWorldBound() {
@@ -282,7 +282,6 @@ public class Geometry extends Spatial {
      * Exception: if the mesh is marked as being a software
      * animated mesh, (bind pose is set) then the positions
      * and normals are deep copied.
-     * @return
      */
     @Override
     public Geometry clone(boolean cloneMaterial){
@@ -308,8 +307,8 @@ public class Geometry extends Spatial {
      * Exception: if the mesh is marked as being a software
      * animated mesh, (bind pose is set) then the positions
      * and normals are deep copied.
-     * @return
      */
+    @Override
     public Geometry clone(){
         return clone(true);
     }
@@ -318,7 +317,6 @@ public class Geometry extends Spatial {
      * Creates a deep clone of the geometry,
      * this creates an identical copy of the mesh
      * with the vertexbuffer data duplicated.
-     * @return
      */
     @Override
     public Spatial deepClone(){

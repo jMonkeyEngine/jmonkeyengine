@@ -32,6 +32,8 @@
 
 package com.jme3.input.controls;
 
+import com.jme3.input.MouseInput;
+
 /**
  * A <code>MouseButtonTrigger</code> is used as a mapping to receive events
  * from mouse buttons. It is generally expected for a mouse to have at least

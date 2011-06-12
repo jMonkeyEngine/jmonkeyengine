@@ -70,7 +70,7 @@ public class TextureKey extends AssetKey<Texture> {
 
     /**
      * Enable smart caching for textures
-     * @return
+     * @return true to enable smart cache
      */
     @Override
     public boolean useSmartCache(){

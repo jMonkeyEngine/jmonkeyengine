@@ -320,7 +320,8 @@ public final class Vector2f implements Savable, Cloneable {
      * <code>distanceSquared</code> calculates the distance squared between
      * this vector and vector v.
      *
-     * @param v the second vector to determine the distance squared.
+     * @param otherX The X coordinate of the v vector
+     * @param otherY The Y coordinate of the v vector
      * @return the distance squared between the two vectors.
      */
     public float distanceSquared(float otherX, float otherY) {

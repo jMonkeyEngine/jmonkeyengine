@@ -70,10 +70,10 @@ public class GeometryList {
     }
 
     /**
-     * Adds a spatial to the list. List size is doubled if there is no room.
+     * Adds a geometry to the list. List size is doubled if there is no room.
      *
-     * @param s
-     *            The spatial to add.
+     * @param g
+     *            The geometry to add.
      */
     public void add(Geometry g) {
         if (size == geometries.length) {

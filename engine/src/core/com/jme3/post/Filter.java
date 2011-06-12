@@ -189,9 +189,10 @@ public abstract class Filter implements Savable {
     public abstract void cleanUpFilter(Renderer r);
 
     /**
-     * this method should return the material used for this filter.
-     * this method is called every frames
-     * @return
+     * Returns the material used for this filter.
+     * this method is called every frame.
+     * 
+     * @return the material used for this filter.
      */
     public abstract Material getMaterial();
 
@@ -232,16 +233,14 @@ public abstract class Filter implements Savable {
     }
 
     /**
-     * Override this method if you want to load extra properties when the filter is loaded else only basic properties of the filter will be loaded
-     * This method should always begin by super.read(ex);
-     * @param ex
-     * @throws IOException
+     * Override this method if you want to load extra properties when the filter 
+     * is loaded else only basic properties of the filter will be loaded
+     * This method should always begin by super.read(im);
      */
     public void read(JmeImporter im) throws IOException {
         InputCapsule ic = im.getCapsule(this);
         name = ic.readString("name", "");
         enabled = ic.readBoolean("enabled", true);
-
     }
 
     public String getName() {
@@ -269,8 +268,9 @@ public abstract class Filter implements Savable {
     }
 
     /**
-     * Override this method and retrun true if your Filter need the depth texture
-     * @return
+     * Override this method and return true if your Filter need the depth texture
+     * 
+     * @return true if your Filter need the depth texture
      */
     public boolean isRequiresDepthTexture() {
         return false;
@@ -278,7 +278,8 @@ public abstract class Filter implements Savable {
     
      /**
      * Override this method and return false if your Filter does not need the scene texture
-     * @return
+     * 
+     * @return false if your Filter does not need the scene texture
      */
     public boolean isRequiresSceneTexture() {
         return true;

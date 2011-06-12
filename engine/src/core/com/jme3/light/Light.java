@@ -160,7 +160,8 @@ public abstract class Light implements Savable, Cloneable {
         this.color.set(color);
     }
 
-    /**
+    
+    /*
      * Returns true if the light is enabled
      * 
      * @return true if the light is enabled

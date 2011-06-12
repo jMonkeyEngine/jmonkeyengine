@@ -1197,8 +1197,7 @@ public final class Matrix4f implements Savable, Cloneable {
      *
      * @param vec
      *            vec to multiply against.
-     * @param store
-     *            a vector to store the result in.  created if null is passed.
+     * 
      * @return the rotated vector.
      */
     public Vector4f multAcross(Vector4f vec) {

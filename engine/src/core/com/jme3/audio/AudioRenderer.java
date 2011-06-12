@@ -48,7 +48,7 @@ public interface AudioRenderer {
     /**
      * Sets the environment, used for reverb effects.
      *
-     * @see PointAudioSource#setReverbEnabled(boolean)
+     * @see AudioNode#setReverbEnabled(boolean)
      * @param env The environment to set.
      */
     public void setEnvironment(Environment env);

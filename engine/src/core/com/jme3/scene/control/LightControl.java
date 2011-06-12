@@ -76,14 +76,14 @@ public class LightControl extends AbstractControl {
     }
 
     /**
-     * @param camera The Camera to be synced.
+     * @param light The light to be synced.
      */
     public LightControl(Light light) {
         this.light = light;
     }
 
     /**
-     * @param camera The Camera to be synced.
+     * @param light The light to be synced.
      */
     public LightControl(Light light, ControlDirection controlDir) {
         this.light = light;

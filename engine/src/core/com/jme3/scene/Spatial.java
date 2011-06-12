@@ -784,9 +784,6 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
 
     /**
      * <code>setLocalScale</code> sets the local scale of this node.
-     *
-     * @param localScale
-     *            the new local scale
      */
     public void setLocalScale(float x, float y, float z) {
         localTransform.setScale(x, y, z);

@@ -234,13 +234,11 @@ public abstract class CompactArray<T> {
      * deserialize object
      * @param compactIndex compacted object index
      * @param store
-     * @return
      */
     protected abstract T deserialize(int compactIndex, T store);
 
     /**
      * serialized size of one object element
-     * @return
      */
     protected abstract int getTupleSize();
     

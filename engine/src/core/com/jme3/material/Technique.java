@@ -176,6 +176,15 @@ public class Technique implements Savable {
         updateUniformParam(paramName, type, value, false);
     }
 
+    /**
+     * Returns true if the technique must be reloaded.
+     * <p>
+     * If a technique needs to reload, then the {@link Material} should
+     * call {@link #makeCurrent(com.jme3.asset.AssetManager) } on this
+     * technique.
+     * 
+     * @return true if the technique must be reloaded.
+     */
     public boolean isNeedReload() {
         return needReload;
     }
@@ -183,8 +192,10 @@ public class Technique implements Savable {
     /**
      * Prepares the technique for use by loading the shader and setting
      * the proper defines based on material parameters.
+     * 
+     * @param assetManager The asset manager to use for loading shaders.
      */
-    public void makeCurrent(AssetManager manager) {
+    public void makeCurrent(AssetManager assetManager) {
         // check if reload is needed..
         if (def.isUsingShaders()) {
             DefineList newDefines = new DefineList();
@@ -203,7 +214,7 @@ public class Technique implements Savable {
                 defines.clear();
                 defines.addFrom(newDefines);
                 // defines changed, recompile needed
-                loadShader(manager);
+                loadShader(assetManager);
             }
         }
     }
@@ -214,8 +225,8 @@ public class Technique implements Savable {
         allDefines.addFrom(def.getShaderPresetDefines());
         allDefines.addFrom(defines);
 
-        ShaderKey key = new ShaderKey(def.getVertName(),
-                def.getFragName(),
+        ShaderKey key = new ShaderKey(def.getVertexShaderName(),
+                def.getFragmentShaderName(),
                 allDefines,
                 def.getShaderLanguage());
         shader = manager.loadShader(key);
