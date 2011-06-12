@@ -241,16 +241,20 @@ public class Structure implements Cloneable {
         return oldMemoryAddress;
     }
 
-    /**
-     * This method returns the name of the structure. If the structure has an ID field then the name is returned.
-     * Otherwise the name does not exists and the method returns null.
-     * @return the name of the structure read from the ID field or null
-     */
-    public String getName() {
-        Structure id = (Structure) this.getFieldValue("ID");
-        return id == null ? null : id.getFieldValue("name").toString().substring(2);//blender adds 2-charactes as a name prefix
-    }
-
+/**
+	 * This method returns the name of the structure. If the structure has an ID field then the name is returned.
+	 * Otherwise the name does not exists and the method returns null.
+	 * @return the name of the structure read from the ID field or null
+	 */
+	public String getName() {
+		Object fieldValue = this.getFieldValue("ID");
+		if(fieldValue instanceof Structure) {
+			Structure id = (Structure)fieldValue;
+			return id == null ? null : id.getFieldValue("name").toString().substring(2);//blender adds 2-charactes as a name prefix
+		}
+		return null;
+	}
+	
     @Override
     public String toString() {
         StringBuilder result = new StringBuilder("struct ").append(type).append(" {\n");
