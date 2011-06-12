@@ -205,8 +205,6 @@ public final class SceneViewerTopComponent extends TopComponent {
     public static void showOpenGLError(String e) {
         Message msg = new NotifyDescriptor.Message(
                 "Error opening OpenGL window!\n"
-                + "Your graphics card needs to support at least OpenGL 2.0,\n"
-                + "if that is the case, please download the latest drivers.\n"
                 + "Error: " + e,
                 NotifyDescriptor.ERROR_MESSAGE);
         DialogDisplayer.getDefault().notifyLater(msg);
