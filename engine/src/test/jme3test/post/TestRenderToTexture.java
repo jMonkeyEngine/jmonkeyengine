@@ -114,7 +114,7 @@ public class TestRenderToTexture extends SimpleApplication implements ActionList
 
         Texture offTex = setupOffscreenView();
 
-        Material mat = new Material(assetManager, "Common/MatDefs/Misc/SimpleTextured.j3md");
+        Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         mat.setTexture("ColorMap", offTex);
         quad.setMaterial(mat);
         rootNode.attachChild(quad);

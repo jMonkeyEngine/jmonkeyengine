@@ -22,8 +22,8 @@ public class Pivot extends Node {
 	}
 
 	private void assignPoints(AssetManager assetManager) {
-		Material defaultMaterial = new Material(assetManager, "Common/MatDefs/Misc/SolidColor.j3md");
-		defaultMaterial.setColor("m_Color", ColorRGBA.DarkGray);
+		Material defaultMaterial = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+		defaultMaterial.setColor("Color", ColorRGBA.DarkGray);
 		for(int i = -10; i <= 10; ++i) {
 			Geometry g = new Geometry("", new Sphere(3, 3, 0.05f));
 			g.setLocalTranslation(i, 0, 0);
@@ -44,8 +44,8 @@ public class Pivot extends Node {
 
 	private Geometry getAxis(String name, Vector3f endPoint, ColorRGBA color, AssetManager assetManager) {
 		Line axis = new Line(new Vector3f(0, 0, 0), endPoint);
-		Material mat = new Material(assetManager, "Common/MatDefs/Misc/SolidColor.j3md");
-		mat.setColor("m_Color", color);
+		Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+		mat.setColor("Color", color);
 		Geometry geom = new Geometry(name, axis);
 		geom.setMaterial(mat);
 		return geom;

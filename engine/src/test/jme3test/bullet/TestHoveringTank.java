@@ -81,7 +81,6 @@ public class TestHoveringTank extends SimpleApplication implements AnalogListene
     private Spatial spaceCraft;
     TerrainQuad terrain;
     Material matRock;
-    Material matWire;
     boolean wireframe = false;
     protected BitmapText hintText;
     PointLight pl;
@@ -281,8 +280,6 @@ public class TestHoveringTank extends SimpleApplication implements AnalogListene
         matRock.setTexture("NormalMap_1", normalMap2);
         matRock.setTexture("NormalMap_2", normalMap2);
 
-        matWire = new Material(assetManager, "Common/MatDefs/Misc/WireColor.j3md");
-        matWire.setColor("Color", ColorRGBA.Green);
         AbstractHeightMap heightmap = null;
         try {
             heightmap = new ImageBasedHeightMap(ImageToAwt.convert(heightMapImage.getImage(), false, true, 0), 0.25f);

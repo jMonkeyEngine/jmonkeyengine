@@ -88,10 +88,6 @@ public class TestPhysicsHingeJoint extends SimpleApplication implements AnalogLi
     }
 
     public void setupJoint() {
-
-        Material mat = new Material(getAssetManager(), "Common/MatDefs/Misc/WireColor.j3md");
-        mat.setColor("Color", ColorRGBA.Yellow);
-
         Node holderNode=PhysicsTestHelper.createPhysicsTestNode(assetManager, new BoxCollisionShape(new Vector3f( .1f, .1f, .1f)),0);
         holderNode.getControl(RigidBodyControl.class).setPhysicsLocation(new Vector3f(0f,0,0f));
         rootNode.attachChild(holderNode);

@@ -372,7 +372,7 @@ public class DataRepository {
 	 */
 	public synchronized Material getDefaultMaterial() {
 		if(blenderKey.getDefaultMaterial() == null) {
-			Material defaultMaterial = new Material(assetManager, "Common/MatDefs/Misc/SolidColor.j3md");
+			Material defaultMaterial = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
 			defaultMaterial.setColor("Color", ColorRGBA.DarkGray);
 			blenderKey.setDefaultMaterial(defaultMaterial);
 		}

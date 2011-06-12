@@ -110,7 +110,7 @@ public class TestMousePick extends SimpleApplication {
     protected Geometry makeCube(String name, float x, float y, float z) {
         Box box = new Box(new Vector3f(x, y, z), 1, 1, 1);
         Geometry cube = new Geometry(name, box);
-        Material mat1 = new Material(assetManager, "Common/MatDefs/Misc/SolidColor.j3md");
+        Material mat1 = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         mat1.setColor("Color", ColorRGBA.randomColor());
         cube.setMaterial(mat1);
         return cube;
@@ -120,7 +120,7 @@ public class TestMousePick extends SimpleApplication {
     protected Geometry makeFloor() {
         Box box = new Box(new Vector3f(0, -4, -5), 15, .2f, 15);
         Geometry floor = new Geometry("the Floor", box);
-        Material mat1 = new Material(assetManager, "Common/MatDefs/Misc/SolidColor.j3md");
+        Material mat1 = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         mat1.setColor("Color", ColorRGBA.Gray);
         floor.setMaterial(mat1);
         return floor;
@@ -134,7 +134,7 @@ public class TestMousePick extends SimpleApplication {
         //Sphere sphere = new Sphere(30, 30, 0.2f);
         mark = new Geometry("BOOM!", arrow);
         //mark = new Geometry("BOOM!", sphere);
-        Material mark_mat = new Material(assetManager, "Common/MatDefs/Misc/SolidColor.j3md");
+        Material mark_mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         mark_mat.setColor("Color", ColorRGBA.Red);
         mark.setMaterial(mark_mat);
     }

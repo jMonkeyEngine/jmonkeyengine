@@ -112,7 +112,8 @@ public class TestBoneRagdoll extends SimpleApplication implements RagdollCollisi
         //debug view
         AnimControl control = model.getControl(AnimControl.class);
         SkeletonDebugger skeletonDebug = new SkeletonDebugger("skeleton", control.getSkeleton());
-        Material mat2 = new Material(assetManager, "Common/MatDefs/Misc/WireColor.j3md");
+        Material mat2 = new Material(getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
+        mat2.getAdditionalRenderState().setWireframe(true);
         mat2.setColor("Color", ColorRGBA.Green);
         mat2.getAdditionalRenderState().setDepthTest(false);
         skeletonDebug.setMaterial(mat2);
@@ -238,7 +239,7 @@ public class TestBoneRagdoll extends SimpleApplication implements RagdollCollisi
 
     public void initMaterial() {
 
-        matBullet = new Material(assetManager, "Common/MatDefs/Misc/SimpleTextured.j3md");
+        matBullet = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         TextureKey key2 = new TextureKey("Textures/Terrain/Rock/Rock.PNG");
         key2.setGenerateMips(true);
         Texture tex2 = assetManager.loadTexture(key2);

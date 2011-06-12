@@ -75,8 +75,8 @@ public class CubeField extends SimpleApplication implements AnalogListener {
     private float speed, coreTime,coreTime2;
     private float camAngle = 0;
     private BitmapText fpsScoreText, pressStart;
-    private String boxSolid;
 
+    private boolean solidBox = true;
     private Material playerMaterial;
     private Material floorMaterial;
 
@@ -133,7 +133,6 @@ public class CubeField extends SimpleApplication implements AnalogListener {
         obstacleColors.add(ColorRGBA.Red);
         obstacleColors.add(ColorRGBA.Yellow);
         renderer.setBackgroundColor(ColorRGBA.White);
-        boxSolid = "Common/MatDefs/Misc/SolidColor.j3md";
         speed = lowCap / 400f;
         coreTime = 20.0f;
         coreTime2 = 10.0f;
@@ -186,8 +185,10 @@ public class CubeField extends SimpleApplication implements AnalogListener {
 
 //        playerX+difficulty+30,playerX+difficulty+90
 
-
-        Material mat = new Material(assetManager, boxSolid);
+        Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        if (!solidBox){
+            mat.getAdditionalRenderState().setWireframe(true);
+        }
         mat.setColor("Color", obstacleColors.get(FastMath.nextRandomInt(0, obstacleColors.size() - 1)));
         cube.setMaterial(mat);
 
@@ -201,7 +202,7 @@ public class CubeField extends SimpleApplication implements AnalogListener {
         Box b = new Box(loc, 1, 1, 1);
 
         Geometry geom = new Geometry("Box", b);
-        Material mat = new Material(assetManager, "Common/MatDefs/Misc/SolidColor.j3md");
+        Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         mat.setColor("Color", ColorRGBA.Blue);
         geom.setMaterial(mat);
 
@@ -212,7 +213,7 @@ public class CubeField extends SimpleApplication implements AnalogListener {
         Dome b = new Dome(Vector3f.ZERO, 10, 100, 1);
         Geometry playerMesh = new Geometry("Box", b);
 
-        playerMaterial = new Material(assetManager, "Common/MatDefs/Misc/SolidColor.j3md");
+        playerMaterial = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         playerMaterial.setColor("Color", ColorRGBA.Red);
         playerMesh.setMaterial(playerMaterial);
         playerMesh.setName("player");
@@ -221,7 +222,7 @@ public class CubeField extends SimpleApplication implements AnalogListener {
                 playerMesh.getLocalTranslation().getY() - 1, 0), 100, 0, 100);
         Geometry floorMesh = new Geometry("Box", floor);
 
-        floorMaterial = new Material(assetManager, "Common/MatDefs/Misc/SolidColor.j3md");
+        floorMaterial = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         floorMaterial.setColor("Color", ColorRGBA.LightGray);
         floorMesh.setMaterial(floorMaterial);
         floorMesh.setName("floor");
@@ -335,7 +336,7 @@ public class CubeField extends SimpleApplication implements AnalogListener {
 	        switch (colorInt){
 	            case 1:
 	                obstacleColors.clear();
-	                boxSolid(false);
+	                solidBox = false;
 	                obstacleColors.add(ColorRGBA.Green);
 	                renderer.setBackgroundColor(ColorRGBA.Black);
 	                playerMaterial.setColor("Color", ColorRGBA.White);
@@ -343,7 +344,7 @@ public class CubeField extends SimpleApplication implements AnalogListener {
 	                break;
 	            case 2:
 	                obstacleColors.set(0, ColorRGBA.Black);
-	                boxSolid(true);
+	                solidBox = true;
 	                renderer.setBackgroundColor(ColorRGBA.White);
 	                playerMaterial.setColor("Color", ColorRGBA.Gray);
                         floorMaterial.setColor("Color", ColorRGBA.LightGray);
@@ -361,12 +362,12 @@ public class CubeField extends SimpleApplication implements AnalogListener {
 	            case 5:
 	                obstacleColors.remove(0);
 	                renderer.setBackgroundColor(ColorRGBA.Pink);
-	                boxSolid(false);
+	                solidBox = false;
 	                playerMaterial.setColor("Color", ColorRGBA.White);
 	                break;
 	            case 6:
 	                obstacleColors.set(0, ColorRGBA.White);
-	                boxSolid(true);
+	                solidBox = true;
 	                renderer.setBackgroundColor(ColorRGBA.Black);
 	                playerMaterial.setColor("Color", ColorRGBA.Gray);
                         floorMaterial.setColor("Color", ColorRGBA.LightGray);
@@ -410,17 +411,4 @@ public class CubeField extends SimpleApplication implements AnalogListener {
         txt.setText(text);
         guiNode.attachChild(txt);
     }
-
-    /**
-     * Changes the boolean variable boxSolid 
-     * @param solid the boolean to determine if the boxes will be solid or wireFrame
-     */
-    private void boxSolid(boolean solid) {
-        if (solid == false){
-            boxSolid = "Common/MatDefs/Misc/WireColor.j3md";
-        }else{
-            boxSolid = "Common/MatDefs/Misc/SolidColor.j3md";
-        }
-    }
-
 } 

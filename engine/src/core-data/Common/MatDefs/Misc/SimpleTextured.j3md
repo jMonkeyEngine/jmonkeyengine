@@ -1,3 +1,5 @@
+Exception SimpleTextured.j3md has been marked as obsolete. Please use Unshaded.j3md instead.
+
 MaterialDef Plain Texture {
 
     MaterialParameters {

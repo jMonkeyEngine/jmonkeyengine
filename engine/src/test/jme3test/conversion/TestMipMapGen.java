@@ -74,10 +74,10 @@ public class TestMipMapGen extends SimpleApplication {
         MipMapGenerator.generateMipMaps(imageCustomMip);
         texCustomMip.setImage(imageCustomMip);
 
-        Material mat1 = new Material(assetManager, "Common/MatDefs/Misc/SimpleTextured.j3md");
+        Material mat1 = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         mat1.setTexture("ColorMap", tex);
 
-        Material mat2 = new Material(assetManager, "Common/MatDefs/Misc/SimpleTextured.j3md");
+        Material mat2 = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         mat2.setTexture("ColorMap", texCustomMip);
 
         quad1.setMaterial(mat1);

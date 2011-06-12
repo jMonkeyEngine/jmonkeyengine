@@ -29,7 +29,6 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package jme3test.terrain;
 
 import jme3tools.converters.ImageToAwt;
@@ -67,69 +66,69 @@ import java.util.List;
  */
 public class TerrainTestAdvanced extends SimpleApplication {
 
-	private TerrainQuad terrain;
-	Material matTerrain;
-	Material matWire;
-	boolean wireframe = false;
+    private TerrainQuad terrain;
+    Material matTerrain;
+    Material matWire;
+    boolean wireframe = false;
     boolean triPlanar = false;
     boolean wardiso = false;
     boolean minnaert = false;
-	protected BitmapText hintText;
-	PointLight pl;
-	Geometry lightMdl;
+    protected BitmapText hintText;
+    PointLight pl;
+    Geometry lightMdl;
     private float grassScale = 64;
     private float dirtScale = 16;
     private float rockScale = 128;
 
-	public static void main(String[] args) {
-		TerrainTestAdvanced app = new TerrainTestAdvanced();
-		app.start();
-	}
+    public static void main(String[] args) {
+        TerrainTestAdvanced app = new TerrainTestAdvanced();
+        app.start();
+    }
 
-	@Override
-	public void initialize() {
-		super.initialize();
+    @Override
+    public void initialize() {
+        super.initialize();
 
-		loadHintText();
-	}
+        loadHintText();
+    }
 
-	@Override
-	public void simpleInitApp() {
-		setupKeys();
+    @Override
+    public void simpleInitApp() {
+        setupKeys();
 
         // First, we load up our textures and the heightmap texture for the terrain
 
-		// TERRAIN TEXTURE material
-		matTerrain = new Material(assetManager, "Common/MatDefs/Terrain/TerrainLighting.j3md");
+        // TERRAIN TEXTURE material
+        matTerrain = new Material(assetManager, "Common/MatDefs/Terrain/TerrainLighting.j3md");
         matTerrain.setBoolean("useTriPlanarMapping", false);
         matTerrain.setBoolean("WardIso", true);
 
-		// ALPHA map (for splat textures)
-		matTerrain.setTexture("AlphaMap", assetManager.loadTexture("Textures/Terrain/splat/alphamap.png"));
+        // ALPHA map (for splat textures)
+        matTerrain.setTexture("AlphaMap", assetManager.loadTexture("Textures/Terrain/splat/alphamap.png"));
 
-		// HEIGHTMAP image (for the terrain heightmap)
-		Texture heightMapImage = assetManager.loadTexture("Textures/Terrain/splat/mountains512.png");
+        // HEIGHTMAP image (for the terrain heightmap)
+        Texture heightMapImage = assetManager.loadTexture("Textures/Terrain/splat/mountains512.png");
 
-		// GRASS texture
-		Texture grass = assetManager.loadTexture("Textures/Terrain/splat/grass.jpg");
-		grass.setWrap(WrapMode.Repeat);
-		matTerrain.setTexture("DiffuseMap", grass);
-		matTerrain.setFloat("DiffuseMap_0_scale", grassScale);
-        
+        // GRASS texture
+        Texture grass = assetManager.loadTexture("Textures/Terrain/splat/grass.jpg");
+        grass.setWrap(WrapMode.Repeat);
+        matTerrain.setTexture("DiffuseMap", grass);
+        matTerrain.setFloat("DiffuseMap_0_scale", grassScale);
 
-		// DIRT texture
-		Texture dirt = assetManager.loadTexture("Textures/Terrain/splat/dirt.jpg");
-		dirt.setWrap(WrapMode.Repeat);
-		matTerrain.setTexture("DiffuseMap_1", dirt);
-		matTerrain.setFloat("DiffuseMap_1_scale", dirtScale);
 
-		// ROCK texture
-		Texture rock = assetManager.loadTexture("Textures/Terrain/splat/road.jpg");
-		rock.setWrap(WrapMode.Repeat);
-		matTerrain.setTexture("DiffuseMap_2", rock);
-		matTerrain.setFloat("DiffuseMap_2_scale", rockScale);
+        // DIRT texture
+        Texture dirt = assetManager.loadTexture("Textures/Terrain/splat/dirt.jpg");
+        dirt.setWrap(WrapMode.Repeat);
+        matTerrain.setTexture("DiffuseMap_1", dirt);
+        matTerrain.setFloat("DiffuseMap_1_scale", dirtScale);
 
-        
+        // ROCK texture
+        Texture rock = assetManager.loadTexture("Textures/Terrain/splat/road.jpg");
+        rock.setWrap(WrapMode.Repeat);
+        matTerrain.setTexture("DiffuseMap_2", rock);
+        matTerrain.setFloat("DiffuseMap_2_scale", rockScale);
+
+
         Texture normalMap0 = assetManager.loadTexture("Textures/Terrain/splat/grass_normal.png");
         normalMap0.setWrap(WrapMode.Repeat);
         Texture normalMap1 = assetManager.loadTexture("Textures/Terrain/splat/dirt_normal.png");
@@ -140,106 +139,106 @@ public class TerrainTestAdvanced extends SimpleApplication {
         matTerrain.setTexture("NormalMap_1", normalMap2);
         matTerrain.setTexture("NormalMap_2", normalMap2);
 
-		// WIREFRAME material
-		matWire = new Material(assetManager, "Common/MatDefs/Misc/WireColor.j3md");
+        // WIREFRAME material
+        matWire = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        matWire.getAdditionalRenderState().setWireframe(true);
         matWire.setColor("Color", ColorRGBA.Green);
 
         createSky();
 
-		// CREATE HEIGHTMAP
-		AbstractHeightMap heightmap = null;
-		try {
-			//heightmap = new HillHeightMap(1025, 1000, 50, 100, (byte) 3);
+        // CREATE HEIGHTMAP
+        AbstractHeightMap heightmap = null;
+        try {
+            //heightmap = new HillHeightMap(1025, 1000, 50, 100, (byte) 3);
 
-			heightmap = new ImageBasedHeightMap(ImageToAwt.convert(heightMapImage.getImage(), false, true, 0), 1f);
-			heightmap.load();
+            heightmap = new ImageBasedHeightMap(ImageToAwt.convert(heightMapImage.getImage(), false, true, 0), 1f);
+            heightmap.load();
 
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
-		/*
-		 * Here we create the actual terrain. The tiles will be 65x65, and the total size of the
-		 * terrain will be 513x513. It uses the heightmap we created to generate the height values.
-		 */
-		/**
-		 * Optimal terrain patch size is 65 (64x64).
-		 * The total size is up to you. At 1025 it ran fine for me (200+FPS), however at
-		 * size=2049, it got really slow. But that is a jump from 2 million to 8 million triangles...
-		 */
-		terrain = new TerrainQuad("terrain", 65, 513, heightmap.getHeightMap());//, new LodPerspectiveCalculatorFactory(getCamera(), 4)); // add this in to see it use entropy for LOD calculations
-		List<Camera> cameras = new ArrayList<Camera>();
-		cameras.add(getCamera());
-		TerrainLodControl control = new TerrainLodControl(terrain, cameras);
-		terrain.addControl(control);
-		terrain.setMaterial(matTerrain);
-		terrain.setModelBound(new BoundingBox());
-		terrain.updateModelBound();
-		terrain.setLocalTranslation(0, -100, 0);
-		terrain.setLocalScale(1f, 1f, 1f);
-		rootNode.attachChild(terrain);
+        /*
+         * Here we create the actual terrain. The tiles will be 65x65, and the total size of the
+         * terrain will be 513x513. It uses the heightmap we created to generate the height values.
+         */
+        /**
+         * Optimal terrain patch size is 65 (64x64).
+         * The total size is up to you. At 1025 it ran fine for me (200+FPS), however at
+         * size=2049, it got really slow. But that is a jump from 2 million to 8 million triangles...
+         */
+        terrain = new TerrainQuad("terrain", 65, 513, heightmap.getHeightMap());//, new LodPerspectiveCalculatorFactory(getCamera(), 4)); // add this in to see it use entropy for LOD calculations
+        List<Camera> cameras = new ArrayList<Camera>();
+        cameras.add(getCamera());
+        TerrainLodControl control = new TerrainLodControl(terrain, cameras);
+        terrain.addControl(control);
+        terrain.setMaterial(matTerrain);
+        terrain.setModelBound(new BoundingBox());
+        terrain.updateModelBound();
+        terrain.setLocalTranslation(0, -100, 0);
+        terrain.setLocalScale(1f, 1f, 1f);
+        rootNode.attachChild(terrain);
 
         DirectionalLight light = new DirectionalLight();
-        light.setDirection((new Vector3f(-0.5f,-1f, -0.5f)).normalize());
+        light.setDirection((new Vector3f(-0.5f, -1f, -0.5f)).normalize());
         rootNode.addLight(light);
 
         AmbientLight ambLight = new AmbientLight();
         ambLight.setColor(new ColorRGBA(1f, 1f, 0.8f, 0.2f));
         rootNode.addLight(ambLight);
 
-		getCamera().getLocation().y = 10;
-		getCamera().setDirection(new Vector3f(0, -1.5f, -1));
-	}
+        getCamera().getLocation().y = 10;
+        getCamera().setDirection(new Vector3f(0, -1.5f, -1));
+    }
 
-	public void loadHintText() {
-		hintText = new BitmapText(guiFont, false);
-		hintText.setSize(guiFont.getCharSet().getRenderedSize());
-		hintText.setLocalTranslation(0, getCamera().getHeight(), 0);
-		hintText.setText("Hit T to switch to wireframe,  P to switch to tri-planar texturing");
-		guiNode.attachChild(hintText);
-	}
+    public void loadHintText() {
+        hintText = new BitmapText(guiFont, false);
+        hintText.setSize(guiFont.getCharSet().getRenderedSize());
+        hintText.setLocalTranslation(0, getCamera().getHeight(), 0);
+        hintText.setText("Hit T to switch to wireframe,  P to switch to tri-planar texturing");
+        guiNode.attachChild(hintText);
+    }
 
-	private void setupKeys() {
-		flyCam.setMoveSpeed(50);
-		inputManager.addMapping("wireframe", new KeyTrigger(KeyInput.KEY_T));
-		inputManager.addListener(actionListener, "wireframe");
+    private void setupKeys() {
+        flyCam.setMoveSpeed(50);
+        inputManager.addMapping("wireframe", new KeyTrigger(KeyInput.KEY_T));
+        inputManager.addListener(actionListener, "wireframe");
         inputManager.addMapping("triPlanar", new KeyTrigger(KeyInput.KEY_P));
-		inputManager.addListener(actionListener, "triPlanar");
+        inputManager.addListener(actionListener, "triPlanar");
         inputManager.addMapping("WardIso", new KeyTrigger(KeyInput.KEY_9));
-		inputManager.addListener(actionListener, "WardIso");
+        inputManager.addListener(actionListener, "WardIso");
         inputManager.addMapping("Minnaert", new KeyTrigger(KeyInput.KEY_0));
-		inputManager.addListener(actionListener, "Minnaert");
-	}
+        inputManager.addListener(actionListener, "Minnaert");
+    }
+    private ActionListener actionListener = new ActionListener() {
 
-	private ActionListener actionListener = new ActionListener() {
-
-		public void onAction(String name, boolean pressed, float tpf) {
-			if (name.equals("wireframe") && !pressed) {
-				wireframe = !wireframe;
-				if (!wireframe) {
-					terrain.setMaterial(matWire);
-				} else {
-					terrain.setMaterial(matTerrain);
-				}
-			} else if (name.equals("triPlanar") && !pressed) {
+        public void onAction(String name, boolean pressed, float tpf) {
+            if (name.equals("wireframe") && !pressed) {
+                wireframe = !wireframe;
+                if (!wireframe) {
+                    terrain.setMaterial(matWire);
+                } else {
+                    terrain.setMaterial(matTerrain);
+                }
+            } else if (name.equals("triPlanar") && !pressed) {
                 triPlanar = !triPlanar;
                 if (triPlanar) {
                     matTerrain.setBoolean("useTriPlanarMapping", true);
                     // planar textures don't use the mesh's texture coordinates but real world coordinates,
                     // so we need to convert these texture coordinate scales into real world scales so it looks
                     // the same when we switch to/from tr-planar mode
-                    matTerrain.setFloat("DiffuseMap_0_scale", 1f/(float)(512f/grassScale));
-                    matTerrain.setFloat("DiffuseMap_1_scale", 1f/(float)(512f/dirtScale));
-                    matTerrain.setFloat("DiffuseMap_2_scale", 1f/(float)(512f/rockScale));
-                }  else {
+                    matTerrain.setFloat("DiffuseMap_0_scale", 1f / (float) (512f / grassScale));
+                    matTerrain.setFloat("DiffuseMap_1_scale", 1f / (float) (512f / dirtScale));
+                    matTerrain.setFloat("DiffuseMap_2_scale", 1f / (float) (512f / rockScale));
+                } else {
                     matTerrain.setBoolean("useTriPlanarMapping", false);
                     matTerrain.setFloat("DiffuseMap_0_scale", grassScale);
                     matTerrain.setFloat("DiffuseMap_1_scale", dirtScale);
                     matTerrain.setFloat("DiffuseMap_2_scale", rockScale);
                 }
             }
-		}
-	};
+        }
+    };
 
     private void createSky() {
         Texture west = assetManager.loadTexture("Textures/Sky/Lagoon/lagoon_west.jpg");

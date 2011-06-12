@@ -29,7 +29,6 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package jme3test.bullet;
 
 import com.jme3.bullet.BulletAppState;
@@ -57,7 +56,7 @@ import com.jme3.scene.shape.Sphere.TextureMode;
  *
  * @author normenhansen
  */
-public class TestCcd extends SimpleApplication implements ActionListener{
+public class TestCcd extends SimpleApplication implements ActionListener {
 
     private Material mat;
     private Material mat2;
@@ -87,17 +86,19 @@ public class TestCcd extends SimpleApplication implements ActionListener{
         bulletCollisionShape = new SphereCollisionShape(0.1f);
         setupKeys();
 
-        mat = new Material(getAssetManager(), "Common/MatDefs/Misc/WireColor.j3md");
+        mat = new Material(getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
+        mat.getAdditionalRenderState().setWireframe(true);
         mat.setColor("Color", ColorRGBA.Green);
 
-        mat2 = new Material(getAssetManager(), "Common/MatDefs/Misc/WireColor.j3md");
+        mat2 = new Material(getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
+        mat2.getAdditionalRenderState().setWireframe(true);
         mat2.setColor("Color", ColorRGBA.Red);
 
         // An obstacle mesh, does not move (mass=0)
         Node node2 = new Node();
         node2.setName("mesh");
         node2.setLocalTranslation(new Vector3f(2.5f, 0, 0f));
-        node2.addControl(new RigidBodyControl(new MeshCollisionShape(new Box(Vector3f.ZERO,4,4,0.1f)), 0));
+        node2.addControl(new RigidBodyControl(new MeshCollisionShape(new Box(Vector3f.ZERO, 4, 4, 0.1f)), 0));
         rootNode.attachChild(node2);
         getPhysicsSpace().add(node2);
 
@@ -110,7 +111,7 @@ public class TestCcd extends SimpleApplication implements ActionListener{
 
     }
 
-    private PhysicsSpace getPhysicsSpace(){
+    private PhysicsSpace getPhysicsSpace() {
         return bulletAppState.getPhysicsSpace();
     }
 
@@ -136,8 +137,7 @@ public class TestCcd extends SimpleApplication implements ActionListener{
             bulletg.getControl(RigidBodyControl.class).setLinearVelocity(cam.getDirection().mult(40));
             rootNode.attachChild(bulletg);
             getPhysicsSpace().add(bulletg);
-        }
-        else if(binding.equals("shoot2") && !value) {
+        } else if (binding.equals("shoot2") && !value) {
             Geometry bulletg = new Geometry("bullet", bullet);
             bulletg.setMaterial(mat2);
             bulletg.setName("bullet");
@@ -149,5 +149,4 @@ public class TestCcd extends SimpleApplication implements ActionListener{
             getPhysicsSpace().add(bulletg);
         }
     }
-
 }

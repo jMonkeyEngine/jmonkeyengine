@@ -152,7 +152,8 @@ public class MotionPath implements Savable {
 
     private Geometry CreateLinearPath() {
 
-        Material mat = new Material(assetManager, "Common/MatDefs/Misc/WireColor.j3md");
+        Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        mat.getAdditionalRenderState().setWireframe(true);
         mat.setColor("Color", ColorRGBA.Blue);
         Geometry lineGeometry = new Geometry("line", new Curve(spline, 0));
         lineGeometry.setMaterial(mat);
@@ -161,7 +162,8 @@ public class MotionPath implements Savable {
 
     private Geometry CreateCatmullRomPath() {
 
-        Material mat = new Material(assetManager, "Common/MatDefs/Misc/WireColor.j3md");
+        Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        mat.getAdditionalRenderState().setWireframe(true);
         mat.setColor("Color", ColorRGBA.Blue);
         Geometry lineGeometry = new Geometry("line", new Curve(spline, 10));
         lineGeometry.setMaterial(mat);

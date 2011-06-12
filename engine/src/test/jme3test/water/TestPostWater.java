@@ -48,7 +48,6 @@ public class TestPostWater extends SimpleApplication {
     private WaterFilter water;
     TerrainQuad terrain;
     Material matRock;
-    Material matWire;
 
     public static void main(String[] args) {
         TestPostWater app = new TestPostWater();
@@ -224,8 +223,6 @@ public class TestPostWater extends SimpleApplication {
         matRock.setTexture("NormalMap_1", normalMap2);
         matRock.setTexture("NormalMap_2", normalMap2);
 
-        matWire = new Material(assetManager, "Common/MatDefs/Misc/WireColor.j3md");
-        matWire.setColor("Color", ColorRGBA.Green);
         AbstractHeightMap heightmap = null;
         try {
             heightmap = new ImageBasedHeightMap(ImageToAwt.convert(heightMapImage.getImage(), false, true, 0), 0.25f);

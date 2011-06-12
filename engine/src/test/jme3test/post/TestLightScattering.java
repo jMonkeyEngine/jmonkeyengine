@@ -112,7 +112,7 @@ public class TestLightScattering extends SimpleApplication {
 //        fpp.addFilter(ssaoFilter);
 
 
-//           Material mat2 = new Material(assetManager, "Common/MatDefs/Misc/SimpleTextured.j3md");
+//           Material mat2 = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
 //        mat2.setTexture("ColorMap", assetManager.loadTexture("Interface/Logo/Monkey.jpg"));
 //
 //        Sphere lite=new Sphere(8, 8, 10.0f);

@@ -246,7 +246,9 @@ public class PssmShadowRenderer implements SceneProcessor {
         Geometry frustumMdl = new Geometry("f", frustum);
         frustumMdl.setCullHint(Spatial.CullHint.Never);
         frustumMdl.setShadowMode(ShadowMode.Off);
-        frustumMdl.setMaterial(new Material(assetManager, "Common/MatDefs/Misc/WireColor.j3md"));
+        Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        mat.getAdditionalRenderState().setWireframe(true);
+        frustumMdl.setMaterial(mat);
         switch (i) {
             case 0:
                 frustumMdl.getMaterial().setColor("Color", ColorRGBA.Pink);

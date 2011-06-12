@@ -98,7 +98,7 @@ public class TestSimpleWater extends SimpleApplication implements ActionListener
         cam.lookAt(Vector3f.ZERO, Vector3f.UNIT_Y);
         //init scene
         sceneNode = new Node("Scene");
-        mat = new Material(assetManager, "Common/MatDefs/Misc/SimpleTextured.j3md");
+        mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         mat.setTexture("ColorMap", assetManager.loadTexture("Interface/Logo/Monkey.jpg"));
         Box b = new Box(1, 1, 1);
         Geometry geom = new Geometry("Box", b);

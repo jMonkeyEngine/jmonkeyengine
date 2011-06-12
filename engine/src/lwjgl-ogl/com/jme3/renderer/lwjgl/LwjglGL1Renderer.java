@@ -35,6 +35,7 @@ import java.nio.IntBuffer;
 import java.util.EnumSet;
 import java.util.logging.Logger;
 import jme3tools.converters.MipMapGenerator;
+import org.lwjgl.opengl.GL12;
 import org.lwjgl.opengl.GLContext;
 
 import static org.lwjgl.opengl.GL11.*;
@@ -54,6 +55,7 @@ public class LwjglGL1Renderer implements GL1Renderer {
     private int maxCubeTexSize;
     private int maxVertCount;
     private int maxTriCount;
+    private boolean gl12 = false;
     private final Statistics statistics = new Statistics();
     private int vpX, vpY, vpW, vpH;
     private int clipX, clipY, clipW, clipH;
@@ -94,6 +96,10 @@ public class LwjglGL1Renderer implements GL1Renderer {
             logger.log(Level.WARNING, "Your graphics card does not "
                     + "support non-power-of-2 textures. "
                     + "Some features might not work.");
+        }
+        
+        if (GLContext.getCapabilities().OpenGL12){
+            gl12 = true;
         }
     }
 
@@ -150,6 +156,15 @@ public class LwjglGL1Renderer implements GL1Renderer {
         glMaterial(GL_FRONT_AND_BACK, type, fb16);
     }
 
+    private void setMaterialFloat(int type, float value){
+        if (!materialSet) {
+            materialSet = true;
+            glEnable(GL_COLOR_MATERIAL);
+        }
+
+        glMaterialf(GL_FRONT_AND_BACK, type, value);
+    }
+    
     public void setFixedFuncBinding(FixedFuncBinding ffBinding, Object val) {
         switch (ffBinding) {
             case Color:
@@ -169,6 +184,11 @@ public class LwjglGL1Renderer implements GL1Renderer {
                 ColorRGBA specular = (ColorRGBA) val;
                 setMaterialColor(GL_SPECULAR, specular);
                 break;
+            case MaterialShininess:
+                float shiny = (Float) val;
+                setMaterialFloat(GL_SPECULAR, shiny);
+                break;
+                
         }
     }
 
@@ -403,9 +423,7 @@ public class LwjglGL1Renderer implements GL1Renderer {
             return;
         }
 
-//        glEnable(GL_LIGHTING);
-
-        //TODO: ...
+        //glEnable(GL_LIGHTING);
     }
 
     private int convertTextureType(Texture.Type type) {
@@ -455,6 +473,7 @@ public class LwjglGL1Renderer implements GL1Renderer {
         switch (mode) {
             case EdgeClamp:
             case Clamp:
+            case BorderClamp:
                 return GL_CLAMP;
             case Repeat:
                 return GL_REPEAT;
@@ -611,7 +630,7 @@ public class LwjglGL1Renderer implements GL1Renderer {
         setupTextureParams(tex);
     }
 
-    private void checkTexturingUsed() {
+    private void clearTextureUnits() {
         Image[] textures = context.boundTextures;
         if (textures[0] != null) {
             glDisable(GL_TEXTURE_2D);
@@ -866,8 +885,10 @@ public class LwjglGL1Renderer implements GL1Renderer {
         } else {
             glDrawArrays(convertElementMode(mesh.getMode()), 0, mesh.getVertexCount());
         }
+        
+        // TODO: Fix these to use IDList??
         clearVertexAttribs();
-        checkTexturingUsed();
+        clearTextureUnits();
         clearSetFixedFuncBindings();
     }
 
@@ -887,7 +908,7 @@ public class LwjglGL1Renderer implements GL1Renderer {
 
         boolean dynamic = false;
         if (mesh.getBuffer(Type.InterleavedData) != null) {
-            throw new UnsupportedOperationException();
+            throw new UnsupportedOperationException("Interleaved meshes are not supported");
         }
 
         if (mesh.getNumLodLevels() == 0) {

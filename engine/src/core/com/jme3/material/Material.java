@@ -53,7 +53,10 @@ import com.jme3.math.Vector4f;
 import com.jme3.renderer.Caps;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.Renderer;
+import com.jme3.renderer.queue.RenderQueue.Bucket;
+import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.Geometry;
+import com.jme3.scene.Spatial;
 import com.jme3.shader.Shader;
 import com.jme3.shader.Uniform;
 import com.jme3.shader.VarType;
@@ -68,6 +71,16 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * <code>Material</code> describes the rendering style for a given 
+ * {@link Geometry}. 
+ * 
+ * <p>A material is essentially a list of {@link MatParam parameters}, those parameters
+ * map to uniforms which are defined in a shader. 
+ * Setting the parameters can modify the behavior of a shader.
+ * 
+ * @author Kirill Vainer
+ */
 public class Material implements Cloneable, Savable, Comparable<Material> {
 
     private static final Logger logger = Logger.getLogger(Material.class.getName());
@@ -98,70 +111,10 @@ public class Material implements Cloneable, Savable, Comparable<Material> {
     private int sortingId = -1;
     private transient ColorRGBA ambientLightColor = new ColorRGBA(0, 0, 0, 1);
 
-    public static class MatParamTexture extends MatParam {
-
-        private Texture texture;
-        private int unit;
-//        private transient TextureKey key;
-
-        public MatParamTexture(VarType type, String name, Texture texture, int unit) {
-            super(type, name, texture, null);
-            this.texture = texture;
-            this.unit = unit;
-        }
-
-        public MatParamTexture() {
-        }
-
-        public Texture getTextureValue() {
-            return texture;
-        }
-
-        public void setTextureValue(Texture value) {
-            this.value = value;
-            this.texture = value;
-        }
-
-        public void setUnit(int unit) {
-            this.unit = unit;
-        }
-
-        public int getUnit() {
-            return unit;
-        }
-
-        @Override
-        public void apply(Renderer r, Technique technique) {
-            TechniqueDef techDef = technique.getDef();
-            r.setTexture(getUnit(), getTextureValue());
-            if (techDef.isUsingShaders()) {
-                technique.updateUniformParam(getName(), getVarType(), getUnit(), true);
-            }
-        }
-
-        @Override
-        public void write(JmeExporter ex) throws IOException {
-            super.write(ex);
-            OutputCapsule oc = ex.getCapsule(this);
-            oc.write(unit, "texture_unit", -1);
-            oc.write(texture, "texture", null);
-        }
-
-        @Override
-        public void read(JmeImporter im) throws IOException {
-            super.read(im);
-            InputCapsule ic = im.getCapsule(this);
-            unit = ic.readInt("texture_unit", -1);
-            texture = (Texture) ic.readSavable("texture", null);
-//            key = texture.getTextureKey();
-        }
-    }
-
     public Material(MaterialDef def) {
         if (def == null) {
             throw new NullPointerException("Material definition cannot be null");
         }
-
         this.def = def;
     }
 
@@ -175,14 +128,36 @@ public class Material implements Cloneable, Savable, Comparable<Material> {
     public Material() {
     }
 
+    /**
+     * Returns the asset key name of the asset from which this material was loaded.
+     * 
+     * <p>This value will be <code>null</code> unless this material was loaded
+     * from a .j3m file.
+     * 
+     * @return Asset key name of the j3m file 
+     */
     public String getAssetName() {
         return assetName;
     }
 
+    /**
+     * Set the asset key name. This is used internally by the j3m material loader.
+     * 
+     * @param assetName the asset key name
+     */
     public void setAssetName(String assetName) {
         this.assetName = assetName;
     }
 
+    /**
+     * Returns the sorting ID or sorting index for this material. 
+     * 
+     * <p>The sorting ID is used internally by the system to sort rendering
+     * of geometries. It sorted to reduce shader switches, if the shaders
+     * are equal, then it is sorted by textures.
+     * 
+     * @return The sorting ID used for sorting geometries for rendering.
+     */
     public int getSortId() {
         Technique t = getActiveTechnique();
         if (sortingId == -1 && t != null && t.getShader() != null) {
@@ -204,14 +179,28 @@ public class Material implements Cloneable, Savable, Comparable<Material> {
         return sortingId;
     }
 
+    /**
+     * Uses the sorting ID for each material to compare them.
+     * 
+     * @param m The other material to compare to.
+     * 
+     * @return zero if the materials are equal, returns a negative value
+     * if <code>this</code> has a lower sorting ID than <code>m</code>, 
+     * otherwise returns a positive value.
+     */
     public int compareTo(Material m) {
         return m.getSortId() - getSortId();
     }
 
+    /**
+     * Clones this material. The result 
+     * @return 
+     */
     @Override
     public Material clone() {
         try {
             Material mat = (Material) super.clone();
+            
             if (additionalState != null) {
                 mat.additionalState = additionalState.clone();
             }
@@ -234,30 +223,62 @@ public class Material implements Cloneable, Savable, Comparable<Material> {
         return technique;
     }
 
-    /**
-     * Should only be used in Technique.makeCurrent()
-     * @param tech
-     */
-    public void setActiveTechnique(Technique tech) {
-        technique = tech;
-    }
-
     public boolean isTransparent() {
         return transparent;
     }
 
+    /**
+     * Set the transparent value marker.
+     * 
+     * <p>This value is merely a marker, by itself it does nothing.
+     * Generally model loaders will use this marker to indicate further
+     * up that the material is transparent and therefore any geometries
+     * using it should be put into the {@link Bucket#Transparent transparent
+     * bucket}.
+     * 
+     * @param transparent the transparent value marker.
+     */
     public void setTransparent(boolean transparent) {
         this.transparent = transparent;
     }
 
+    /**
+     * Check if the material should receive shadows or not.
+     * 
+     * @return True if the material should receive shadows.
+     * 
+     * @see Material#setReceivesShadows(boolean) 
+     */
     public boolean isReceivesShadows() {
         return receivesShadows;
     }
 
+    /**
+     * Set if the material should receive shadows or not.
+     * 
+     * <p>This value is merely a marker, by itself it does nothing.
+     * Generally model loaders will use this marker to indicate
+     * the material should receive shadows and therefore any
+     * geometries using it should have the {@link ShadowMode#Receive} set
+     * on them.
+     * 
+     * @param receivesShadows if the material should receive shadows or not.
+     */
     public void setReceivesShadows(boolean receivesShadows) {
         this.receivesShadows = receivesShadows;
     }
 
+    /**
+     * Acquire the additional {@link RenderState render state} to apply
+     * for this material. 
+     * 
+     * <p>The first call to this method will create an additional render
+     * state which can be modified by the user to apply any render
+     * states in addition to the ones used by the renderer. Only render
+     * states which are modified in the additional render state will be applied.
+     * 
+     * @return The additional render state.
+     */
     public RenderState getAdditionalRenderState() {
         if (additionalState == null) {
             additionalState = RenderState.ADDITIONAL.clone();
@@ -265,15 +286,16 @@ public class Material implements Cloneable, Savable, Comparable<Material> {
         return additionalState;
     }
 
+    /**
+     * Get the material definition (j3md file info) that <code>this</code>
+     * material is implementing.
+     * 
+     * @return the material definition this material implements.
+     */
     public MaterialDef getMaterialDef() {
         return def;
     }
 
-//    void updateUniformLinks(){
-//        for (MatParam param : paramValues.values()){
-//            param.uniform = technique.getShader().getUniform(param.name);
-//        }
-//    }
     public MatParam getParam(String name) {
         MatParam param = paramValues.get(name);
         if (param instanceof MatParam) {
@@ -924,7 +946,7 @@ public class Material implements Cloneable, Savable, Comparable<Material> {
 
                 // the texture failed to load for this param
                 // do not add to param values
-                if (texVal.texture == null || texVal.texture.getImage() == null) {
+                if (texVal.getTextureValue() == null || texVal.getTextureValue().getImage() == null) {
                     continue;
                 }
             }

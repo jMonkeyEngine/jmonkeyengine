@@ -30,44 +30,26 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.jme3.material;
+package jme3test.audio;
 
-/**
- * Fixed function binding is used to specify a binding for a {@link MatParam}
- * in case that shaders are not supported on the system.
- * 
- * @author Kirill Vainer
- */
-public enum FixedFuncBinding {
-    /**
-     * Specifies the material ambient color.
-     * Same as GL_AMBIENT for OpenGL.
-     */
-    MaterialAmbient,
-    
-    /**
-     * Specifies the material diffuse color.
-     * Same as GL_DIFFUSE for OpenGL.
-     */
-    MaterialDiffuse,
-    
-    /**
-     * Specifies the material specular color.
-     * Same as GL_SPECULAR for OpenGL
-     */
-    MaterialSpecular,
-    
-    /**
-     * Specifies the color of the object.
-     * <p>
-     * Used only for non-lit materials.
-     */
-    Color,
-    
-    /**
-     * Specifies the material shininess value.
-     * 
-     * Same as GL_SHININESS for OpenGL.
-     */
-    MaterialShininess
+import com.jme3.asset.plugins.UrlLocator;
+import com.jme3.audio.AudioNode;
+
+public class TestMusicStreaming extends AudioApp {
+
+    public static void main(String[] args){
+        TestMusicStreaming test = new TestMusicStreaming();
+        test.start();
+    }
+
+    @Override
+    public void updateAudioApp(float tpf){
+    }
+
+    @Override
+    public void initAudioApp(){
+        assetManager.registerLocator("http://www.vorbis.com/music/", UrlLocator.class);
+        AudioNode src = new AudioNode(audioRenderer, assetManager, "Lumme-Badloop.ogg", true);
+        audioRenderer.playSource(src);
+    }
 }

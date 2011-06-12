@@ -16,7 +16,6 @@
 
 
 void main(){
-   
     #ifdef HAS_GLOWMAP
         #if defined(NEED_TEXCOORD1) 
            gl_FragColor = texture2D(m_GlowMap, texCoord1);

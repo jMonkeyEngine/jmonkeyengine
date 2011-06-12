@@ -167,13 +167,17 @@ public abstract class PhysicsCollisionObject implements Savable {
      * @param manager AssetManager to load the default wireframe material for the debug shape
      */
     protected Spatial attachDebugShape(AssetManager manager) {
-        debugMaterialBlue = new Material(manager, "Common/MatDefs/Misc/WireColor.j3md");
+        debugMaterialBlue = new Material(manager, "Common/MatDefs/Misc/Unshaded.j3md");
+        debugMaterialBlue.getAdditionalRenderState().setWireframe(true);
         debugMaterialBlue.setColor("Color", ColorRGBA.Blue);
-        debugMaterialGreen = new Material(manager, "Common/MatDefs/Misc/WireColor.j3md");
+        debugMaterialGreen = new Material(manager, "Common/MatDefs/Misc/Unshaded.j3md");
+        debugMaterialGreen.getAdditionalRenderState().setWireframe(true);
         debugMaterialGreen.setColor("Color", ColorRGBA.Green);
-        debugMaterialRed = new Material(manager, "Common/MatDefs/Misc/WireColor.j3md");
+        debugMaterialRed = new Material(manager, "Common/MatDefs/Misc/Unshaded.j3md");
+        debugMaterialRed.getAdditionalRenderState().setWireframe(true);
         debugMaterialRed.setColor("Color", ColorRGBA.Red);
-        debugMaterialYellow = new Material(manager, "Common/MatDefs/Misc/WireColor.j3md");
+        debugMaterialYellow = new Material(manager, "Common/MatDefs/Misc/Unshaded.j3md");
+        debugMaterialYellow.getAdditionalRenderState().setWireframe(true);
         debugMaterialYellow.setColor("Color", ColorRGBA.Yellow);
         debugArrow = new Arrow(Vector3f.UNIT_XYZ);
         debugArrowGeom = new Geometry("DebugArrow", debugArrow);

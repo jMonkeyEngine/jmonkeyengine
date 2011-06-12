@@ -19,11 +19,11 @@ public class VisibleBone extends Node {
 	private Vector3f	globalPosition;
 
 	public VisibleBone(Bone bone, Vector3f parentLocation, Quaternion parentRotation, AssetManager assetManager) {
-		Material redMat = new Material(assetManager, "Common/MatDefs/Misc/SolidColor.j3md");
-		redMat.setColor("m_Color", ColorRGBA.Red);
+		Material redMat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+		redMat.setColor("Color", ColorRGBA.Red);
 
-		Material whiteMat = new Material(assetManager, "Common/MatDefs/Misc/SolidColor.j3md");
-		whiteMat.setColor("m_Color", ColorRGBA.White);
+		Material whiteMat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+		whiteMat.setColor("Color", ColorRGBA.White);
 
 		Geometry g = new Geometry(bone.getName(), new Sphere(9, 9, 0.01f));
 		globalPosition = bone.getLocalPosition().add(parentLocation);

@@ -125,14 +125,16 @@ public class TerrainTestCollision extends SimpleApplication {
         rock.setWrap(WrapMode.Repeat);
         matRock.setTexture("Tex3", rock);
         matRock.setFloat("Tex3Scale", 128f);
-        matWire = new Material(assetManager, "Common/MatDefs/Misc/WireColor.j3md");
+        matWire = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        matWire.getAdditionalRenderState().setWireframe(true);
         matWire.setColor("Color", ColorRGBA.Green);
         AbstractHeightMap heightmap = null;
         try {
             heightmap = new ImageBasedHeightMap(ImageToAwt.convert(heightMapImage.getImage(), false, true, 0), 0.25f);
             heightmap.load();
 
-        } catch (Exception e) {        }
+        } catch (Exception e) {
+        }
 
         terrain = new TerrainQuad("terrain", 65, 513, heightmap.getHeightMap());
         List<Camera> cameras = new ArrayList<Camera>();
@@ -158,18 +160,18 @@ public class TerrainTestCollision extends SimpleApplication {
         // let them drop from the sky
         for (int i = 0; i < 5; i++) {
             float r = (float) (8 * Math.random());
-            Geometry sphere = new Geometry("cannonball",new Sphere(10, 10, r) );
+            Geometry sphere = new Geometry("cannonball", new Sphere(10, 10, r));
             sphere.setMaterial(matWire);
             float x = (float) (20 * Math.random()) - 40; // random position
             float y = (float) (20 * Math.random()) - 40; // random position
             float z = (float) (20 * Math.random()) - 40; // random position
             sphere.setLocalTranslation(new Vector3f(x, 100 + y, z));
-            sphere.addControl(new RigidBodyControl(new SphereCollisionShape(r),2));
+            sphere.addControl(new RigidBodyControl(new SphereCollisionShape(r), 2));
             rootNode.attachChild(sphere);
             bulletAppState.getPhysicsSpace().add(sphere);
         }
 
-        collisionBox = new Geometry("collisionBox",new Box(2, 2, 2));
+        collisionBox = new Geometry("collisionBox", new Box(2, 2, 2));
         collisionBox.setModelBound(new BoundingBox());
         collisionBox.setLocalTranslation(new Vector3f(20, 95, 30));
         collisionBox.setMaterial(matWire);
@@ -236,7 +238,7 @@ public class TerrainTestCollision extends SimpleApplication {
         Sphere s = new Sphere(6, 6, 1);
         collisionMarker = new Geometry("collisionMarker");
         collisionMarker.setMesh(s);
-        Material mat = new Material(assetManager, "Common/MatDefs/Misc/SolidColor.j3md");
+        Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         mat.setColor("Color", ColorRGBA.Orange);
         collisionMarker.setMaterial(mat);
         rootNode.attachChild(collisionMarker);
@@ -268,38 +270,32 @@ public class TerrainTestCollision extends SimpleApplication {
                     }
                     Vector2f loc = new Vector2f(hit.getContactPoint().x, hit.getContactPoint().z);
                     float height = terrain.getHeight(loc);
-                    System.out.println("collide " + hit.getContactPoint() + ", height: " + height+", distance: "+hit.getDistance());
+                    System.out.println("collide " + hit.getContactPoint() + ", height: " + height + ", distance: " + hit.getDistance());
                     collisionMarker.setLocalTranslation(new Vector3f(hit.getContactPoint().x, height, hit.getContactPoint().z));
                 }
             } else if (binding.equals("cameraDown") && !keyPressed) {
-                getCamera().setDirection(new Vector3f(0,-1,0));
-            }
-            else if (binding.equals("Lefts") && !keyPressed) {
+                getCamera().setDirection(new Vector3f(0, -1, 0));
+            } else if (binding.equals("Lefts") && !keyPressed) {
                 Vector3f oldLoc = selectedCollisionObject.getLocalTranslation().clone();
                 selectedCollisionObject.move(-0.5f, 0, 0);
                 testCollision(oldLoc);
-            }
-            else if (binding.equals("Rights") && !keyPressed) {
+            } else if (binding.equals("Rights") && !keyPressed) {
                 Vector3f oldLoc = selectedCollisionObject.getLocalTranslation().clone();
                 selectedCollisionObject.move(0.5f, 0, 0);
                 testCollision(oldLoc);
-            }
-            else if (binding.equals("Forwards") && !keyPressed) {
+            } else if (binding.equals("Forwards") && !keyPressed) {
                 Vector3f oldLoc = selectedCollisionObject.getLocalTranslation().clone();
                 selectedCollisionObject.move(0, 0, 0.5f);
                 testCollision(oldLoc);
-            }
-            else if (binding.equals("Backs") && !keyPressed) {
+            } else if (binding.equals("Backs") && !keyPressed) {
                 Vector3f oldLoc = selectedCollisionObject.getLocalTranslation().clone();
                 selectedCollisionObject.move(0, 0, -0.5f);
                 testCollision(oldLoc);
-            }
-            else if (binding.equals("Ups") && !keyPressed) {
+            } else if (binding.equals("Ups") && !keyPressed) {
                 Vector3f oldLoc = selectedCollisionObject.getLocalTranslation().clone();
                 selectedCollisionObject.move(0, 0.5f, 0);
                 testCollision(oldLoc);
-            }
-            else if (binding.equals("Downs") && !keyPressed) {
+            } else if (binding.equals("Downs") && !keyPressed) {
                 Vector3f oldLoc = selectedCollisionObject.getLocalTranslation().clone();
                 selectedCollisionObject.move(0, -0.5f, 0);
                 testCollision(oldLoc);
@@ -309,7 +305,8 @@ public class TerrainTestCollision extends SimpleApplication {
     };
 
     private void testCollision(Vector3f oldLoc) {
-        if (terrain.collideWith(selectedCollisionObject.getWorldBound(), new CollisionResults()) > 0)
+        if (terrain.collideWith(selectedCollisionObject.getWorldBound(), new CollisionResults()) > 0) {
             selectedCollisionObject.setLocalTranslation(oldLoc);
+        }
     }
 }

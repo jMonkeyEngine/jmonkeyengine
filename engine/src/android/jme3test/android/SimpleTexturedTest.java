@@ -80,11 +80,11 @@ public class SimpleTexturedTest extends SimpleApplication {
 				material.setBoolean("LowQuality", true);
 				material.setTexture("DiffuseMap", texture);
 			} else {
-				material = new Material(assetManager, "Common/MatDefs/Misc/SimpleTextured.j3md");
+				material = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
 				material.setTexture("ColorMap", texture);
 			}
 		} else {
-			material = new Material(assetManager, "Common/MatDefs/Misc/SolidColor.j3md");
+			material = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
 			material.setColor("Color", ColorRGBA.Red);
 		}
 

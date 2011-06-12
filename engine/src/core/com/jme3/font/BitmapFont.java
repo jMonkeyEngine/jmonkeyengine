@@ -41,8 +41,6 @@ import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
 import com.jme3.export.Savable;
 import com.jme3.material.Material;
-import com.jme3.shader.VarType;
-import com.jme3.texture.Texture;
 
 /**
  * Represents a font within jME that is generated with the AngelCode Bitmap Font Generator

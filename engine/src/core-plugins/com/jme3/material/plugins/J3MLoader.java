@@ -34,6 +34,7 @@ package com.jme3.material.plugins;
 
 import com.jme3.asset.AssetInfo;
 import com.jme3.asset.AssetKey;
+import com.jme3.asset.AssetLoadException;
 import com.jme3.material.*;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector2f;
@@ -507,6 +508,9 @@ public class J3MLoader implements AssetLoader {
             extending = true;
         }else if (word.equals("MaterialDef")){
             extending = false;
+        }else if (word.equals("Exception")){
+            String exception = scan.nextLine();
+            throw new AssetLoadException(exception);
         }else{
             throw new IOException("Specified file is not a Material file");
         }

@@ -98,7 +98,6 @@ public class TestWalkingChar extends SimpleApplication implements ActionListener
     RigidBodyControl terrainPhysicsNode;
     //Materials
     Material matRock;
-    Material matWire;
     Material matBullet;
     //animation
     AnimChannel animationChannel;
@@ -202,7 +201,7 @@ public class TestWalkingChar extends SimpleApplication implements ActionListener
         bullet = new Sphere(32, 32, 0.4f, true, false);
         bullet.setTextureMode(TextureMode.Projected);
         bulletCollisionShape = new SphereCollisionShape(0.4f);
-        matBullet = new Material(getAssetManager(), "Common/MatDefs/Misc/SolidColor.j3md");
+        matBullet = new Material(getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
         matBullet.setColor("Color", ColorRGBA.Green);
         matBullet.setColor("m_GlowColor", ColorRGBA.Green);
         getPhysicsSpace().addCollisionListener(this);
@@ -272,8 +271,6 @@ public class TestWalkingChar extends SimpleApplication implements ActionListener
         matRock.setTexture("NormalMap", normalMap0);
         matRock.setTexture("NormalMap_1", normalMap2);
         matRock.setTexture("NormalMap_2", normalMap2);
-        matWire = new Material(assetManager, "Common/MatDefs/Misc/WireColor.j3md");
-        matWire.setColor("Color", ColorRGBA.Green);
 
         AbstractHeightMap heightmap = null;
         try {

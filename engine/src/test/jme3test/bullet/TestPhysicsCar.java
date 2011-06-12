@@ -95,7 +95,8 @@ public class TestPhysicsCar extends SimpleApplication implements ActionListener 
     }
 
     private void buildPlayer() {
-        Material mat = new Material(getAssetManager(), "Common/MatDefs/Misc/WireColor.j3md");
+        Material mat = new Material(getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
+        mat.getAdditionalRenderState().setWireframe(true);
         mat.setColor("Color", ColorRGBA.Red);
 
         //create a compound shape and attach the BoxCollisionShape for the car body at 0,1,0

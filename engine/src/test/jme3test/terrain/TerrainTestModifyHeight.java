@@ -29,7 +29,6 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package jme3test.terrain;
 
 import com.jme3.app.SimpleApplication;
@@ -65,13 +64,13 @@ import jme3tools.converters.ImageToAwt;
 public class TerrainTestModifyHeight extends SimpleApplication {
 
     private TerrainQuad terrain;
-	Material matTerrain;
-	Material matWire;
-	boolean wireframe = false;
+    Material matTerrain;
+    Material matWire;
+    boolean wireframe = false;
     boolean triPlanar = false;
     boolean wardiso = false;
     boolean minnaert = false;
-	protected BitmapText hintText;
+    protected BitmapText hintText;
     private float grassScale = 64;
     private float dirtScale = 16;
     private float rockScale = 128;
@@ -81,96 +80,96 @@ public class TerrainTestModifyHeight extends SimpleApplication {
         app.start();
     }
 
-
     @Override
-	public void initialize() {
-		super.initialize();
+    public void initialize() {
+        super.initialize();
 
-		loadHintText();
+        loadHintText();
         initCrossHairs();
-	}
+    }
 
     @Override
     public void update() {
         super.update();
-        
+
         updateHintText();
     }
 
-	@Override
-	public void simpleInitApp() {
-		setupKeys();
+    @Override
+    public void simpleInitApp() {
+        setupKeys();
 
         // First, we load up our textures and the heightmap texture for the terrain
 
-		// TERRAIN TEXTURE material
-		matTerrain = new Material(assetManager, "Common/MatDefs/Terrain/TerrainLighting.j3md");
+        // TERRAIN TEXTURE material
+        matTerrain = new Material(assetManager, "Common/MatDefs/Terrain/TerrainLighting.j3md");
         matTerrain.setBoolean("useTriPlanarMapping", false);
         matTerrain.setBoolean("WardIso", true);
 
-		// ALPHA map (for splat textures)
-		matTerrain.setTexture("AlphaMap", assetManager.loadTexture("Textures/Terrain/splat/alphamap.png"));
+        // ALPHA map (for splat textures)
+        matTerrain.setTexture("AlphaMap", assetManager.loadTexture("Textures/Terrain/splat/alphamap.png"));
 
-		// GRASS texture
-		Texture grass = assetManager.loadTexture("Textures/Terrain/splat/grass.jpg");
-		grass.setWrap(WrapMode.Repeat);
-		matTerrain.setTexture("DiffuseMap", grass);
-		matTerrain.setFloat("DiffuseMap_0_scale", grassScale);
+        // GRASS texture
+        Texture grass = assetManager.loadTexture("Textures/Terrain/splat/grass.jpg");
+        grass.setWrap(WrapMode.Repeat);
+        matTerrain.setTexture("DiffuseMap", grass);
+        matTerrain.setFloat("DiffuseMap_0_scale", grassScale);
 
-		// DIRT texture
-		Texture dirt = assetManager.loadTexture("Textures/Terrain/splat/dirt.jpg");
-		dirt.setWrap(WrapMode.Repeat);
-		matTerrain.setTexture("DiffuseMap_1", dirt);
-		matTerrain.setFloat("DiffuseMap_1_scale", dirtScale);
+        // DIRT texture
+        Texture dirt = assetManager.loadTexture("Textures/Terrain/splat/dirt.jpg");
+        dirt.setWrap(WrapMode.Repeat);
+        matTerrain.setTexture("DiffuseMap_1", dirt);
+        matTerrain.setFloat("DiffuseMap_1_scale", dirtScale);
 
-		// ROCK texture
-		Texture rock = assetManager.loadTexture("Textures/Terrain/splat/road.jpg");
-		rock.setWrap(WrapMode.Repeat);
-		matTerrain.setTexture("DiffuseMap_2", rock);
-		matTerrain.setFloat("DiffuseMap_2_scale", rockScale);
+        // ROCK texture
+        Texture rock = assetManager.loadTexture("Textures/Terrain/splat/road.jpg");
+        rock.setWrap(WrapMode.Repeat);
+        matTerrain.setTexture("DiffuseMap_2", rock);
+        matTerrain.setFloat("DiffuseMap_2_scale", rockScale);
 
-		// WIREFRAME material
-		matWire = new Material(assetManager, "Common/MatDefs/Misc/WireColor.j3md");
+        // WIREFRAME material
+        matWire = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        matWire.getAdditionalRenderState().setWireframe(true);
         matWire.setColor("Color", ColorRGBA.Green);
 
         // CREATE THE TERRAIN
-		terrain = new TerrainQuad("terrain", 65, 513, null);
-		List<Camera> cameras = new ArrayList<Camera>();
-		cameras.add(getCamera());
-		TerrainLodControl control = new TerrainLodControl(terrain, cameras);
-		terrain.addControl(control);
-		terrain.setMaterial(matTerrain);
-		terrain.setModelBound(new BoundingBox());
-		terrain.updateModelBound();
-		terrain.setLocalTranslation(0, -100, 0);
-		terrain.setLocalScale(2f, 1f, 2f);
-		rootNode.attachChild(terrain);
+        terrain = new TerrainQuad("terrain", 65, 513, null);
+        List<Camera> cameras = new ArrayList<Camera>();
+        cameras.add(getCamera());
+        TerrainLodControl control = new TerrainLodControl(terrain, cameras);
+        terrain.addControl(control);
+        terrain.setMaterial(matTerrain);
+        terrain.setModelBound(new BoundingBox());
+        terrain.updateModelBound();
+        terrain.setLocalTranslation(0, -100, 0);
+        terrain.setLocalScale(2f, 1f, 2f);
+        rootNode.attachChild(terrain);
 
         DirectionalLight light = new DirectionalLight();
-        light.setDirection((new Vector3f(-0.5f,-1f, -0.5f)).normalize());
+        light.setDirection((new Vector3f(-0.5f, -1f, -0.5f)).normalize());
         rootNode.addLight(light);
 
         AmbientLight ambLight = new AmbientLight();
         ambLight.setColor(new ColorRGBA(1f, 1f, 0.8f, 0.2f));
         rootNode.addLight(ambLight);
 
-		getCamera().getLocation().y = 10;
-		getCamera().setDirection(new Vector3f(0, -1.5f, -1));
-	}
+        getCamera().getLocation().y = 10;
+        getCamera().setDirection(new Vector3f(0, -1.5f, -1));
+    }
 
-	public void loadHintText() {
-		hintText = new BitmapText(guiFont, false);
-		hintText.setSize(guiFont.getCharSet().getRenderedSize());
-		hintText.setLocalTranslation(0, getCamera().getHeight(), 0);
-		hintText.setText("Hit 1 to raise terrain, hit 2 to lower terrain");
-		guiNode.attachChild(hintText);
-	}
+    public void loadHintText() {
+        hintText = new BitmapText(guiFont, false);
+        hintText.setSize(guiFont.getCharSet().getRenderedSize());
+        hintText.setLocalTranslation(0, getCamera().getHeight(), 0);
+        hintText.setText("Hit 1 to raise terrain, hit 2 to lower terrain");
+        guiNode.attachChild(hintText);
+    }
 
     public void updateHintText() {
         int x = (int) getCamera().getLocation().x;
         int y = (int) getCamera().getLocation().y;
         int z = (int) getCamera().getLocation().z;
-        hintText.setText("Hit 1 to raise terrain, hit 2 to lower terrain.  "+x+","+y+","+z);
+        hintText.setText("Hit 1 to raise terrain, hit 2 to lower terrain.  " + x + "," + y + "," + z);
     }
 
     protected void initCrossHairs() {
@@ -184,27 +183,26 @@ public class TerrainTestModifyHeight extends SimpleApplication {
         guiNode.attachChild(ch);
     }
 
-	private void setupKeys() {
-		flyCam.setMoveSpeed(100);
-		inputManager.addMapping("wireframe", new KeyTrigger(KeyInput.KEY_T));
-		inputManager.addListener(actionListener, "wireframe");
+    private void setupKeys() {
+        flyCam.setMoveSpeed(100);
+        inputManager.addMapping("wireframe", new KeyTrigger(KeyInput.KEY_T));
+        inputManager.addListener(actionListener, "wireframe");
         inputManager.addMapping("Raise", new KeyTrigger(KeyInput.KEY_1));
         inputManager.addListener(actionListener, "Raise");
         inputManager.addMapping("Lower", new KeyTrigger(KeyInput.KEY_2));
         inputManager.addListener(actionListener, "Lower");
-	}
+    }
+    private ActionListener actionListener = new ActionListener() {
 
-	private ActionListener actionListener = new ActionListener() {
-
-		public void onAction(String name, boolean pressed, float tpf) {
-			if (name.equals("wireframe") && !pressed) {
-				wireframe = !wireframe;
-				if (!wireframe) {
-					terrain.setMaterial(matWire);
-				} else {
-					terrain.setMaterial(matTerrain);
-				}
-			} else if (name.equals("Raise")) {
+        public void onAction(String name, boolean pressed, float tpf) {
+            if (name.equals("wireframe") && !pressed) {
+                wireframe = !wireframe;
+                if (!wireframe) {
+                    terrain.setMaterial(matWire);
+                } else {
+                    terrain.setMaterial(matTerrain);
+                }
+            } else if (name.equals("Raise")) {
                 if (pressed) {
                     Vector3f intersection = getWorldIntersection();
                     if (intersection != null) {
@@ -219,53 +217,54 @@ public class TerrainTestModifyHeight extends SimpleApplication {
                     }
                 }
             }
-            
-		}
-	};
+
+        }
+    };
 
     private void adjustHeight(Vector3f loc, float radius, float height) {
-    
+
         // offset it by radius because in the loop we iterate through 2 radii
         int radiusStepsX = (int) (radius / terrain.getLocalScale().x);
         int radiusStepsZ = (int) (radius / terrain.getLocalScale().z);
 
         float xStepAmount = terrain.getLocalScale().x;
         float zStepAmount = terrain.getLocalScale().z;
-long start = System.currentTimeMillis();
-        for (int z=-radiusStepsZ; z<radiusStepsZ; z++) {
-			for (int x=-radiusStepsZ; x<radiusStepsX; x++) {
+        long start = System.currentTimeMillis();
+        for (int z = -radiusStepsZ; z < radiusStepsZ; z++) {
+            for (int x = -radiusStepsZ; x < radiusStepsX; x++) {
 
-                float locX = loc.x + (x*xStepAmount);
-                float locZ = loc.z + (z*zStepAmount);
-                
-				if (isInRadius(locX-loc.x,locZ-loc.z,radius)) {
+                float locX = loc.x + (x * xStepAmount);
+                float locZ = loc.z + (z * zStepAmount);
+
+                if (isInRadius(locX - loc.x, locZ - loc.z, radius)) {
                     // see if it is in the radius of the tool
-					float h = calculateHeight(radius, height, locX-loc.x, locZ-loc.z);
-                    
-					// increase the height
-					terrain.adjustHeight(new Vector2f(locX, locZ), h);
-				}
-			}
-		}
-        System.out.println("took: "+(System.currentTimeMillis()-start));
+                    float h = calculateHeight(radius, height, locX - loc.x, locZ - loc.z);
+
+                    // increase the height
+                    terrain.adjustHeight(new Vector2f(locX, locZ), h);
+                }
+            }
+        }
+        System.out.println("took: " + (System.currentTimeMillis() - start));
         terrain.updateModelBound();
     }
 
     private boolean isInRadius(float x, float y, float radius) {
-		Vector2f point = new Vector2f(x,y);
-		// return true if the distance is less than equal to the radius
-		return point.length() <= radius;
-	}
+        Vector2f point = new Vector2f(x, y);
+        // return true if the distance is less than equal to the radius
+        return point.length() <= radius;
+    }
 
     private float calculateHeight(float radius, float heightFactor, float x, float z) {
         // find percentage for each 'unit' in radius
-        Vector2f point = new Vector2f(x,z);
+        Vector2f point = new Vector2f(x, z);
         float val = point.length() / radius;
         val = 1 - val;
-        if (val <= 0)
+        if (val <= 0) {
             val = 0;
+        }
         return heightFactor * val;
-	}
+    }
 
     private Vector3f getWorldIntersection() {
         Vector3f origin = cam.getWorldCoordinates(new Vector2f(settings.getWidth() / 2, settings.getHeight() / 2), 0.0f);

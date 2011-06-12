@@ -42,7 +42,7 @@ public class PhysicsTestHelper {
         light.setColor(ColorRGBA.LightGray);
         rootNode.addLight(light);
 
-        Material material = new Material(assetManager, "Common/MatDefs/Misc/SimpleTextured.j3md");
+        Material material = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         material.setTexture("ColorMap", assetManager.loadTexture("Interface/Logo/Monkey.jpg"));
 
         Box floorBox = new Box(140, 0.25f, 140);
@@ -85,7 +85,7 @@ public class PhysicsTestHelper {
      * @return
      */
     public static Geometry createPhysicsTestBox(AssetManager assetManager) {
-        Material material = new Material(assetManager, "Common/MatDefs/Misc/SimpleTextured.j3md");
+        Material material = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         material.setTexture("ColorMap", assetManager.loadTexture("Interface/Logo/Monkey.jpg"));
         Box box = new Box(0.25f, 0.25f, 0.25f);
         Geometry boxGeometry = new Geometry("Box", box);
@@ -101,7 +101,7 @@ public class PhysicsTestHelper {
      * @return
      */
     public static Geometry createPhysicsTestSphere(AssetManager assetManager) {
-        Material material = new Material(assetManager, "Common/MatDefs/Misc/SimpleTextured.j3md");
+        Material material = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         material.setTexture("ColorMap", assetManager.loadTexture("Interface/Logo/Monkey.jpg"));
         Sphere sphere = new Sphere(8, 8, 0.25f);
         Geometry boxGeometry = new Geometry("Sphere", sphere);
@@ -137,7 +137,7 @@ public class PhysicsTestHelper {
             public void onAction(String name, boolean keyPressed, float tpf) {
                 Sphere bullet = new Sphere(32, 32, 0.4f, true, false);
                 bullet.setTextureMode(TextureMode.Projected);
-                Material mat2 = new Material(app.getAssetManager(), "Common/MatDefs/Misc/SimpleTextured.j3md");
+                Material mat2 = new Material(app.getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
                 TextureKey key2 = new TextureKey("Textures/Terrain/Rock/Rock.PNG");
                 key2.setGenerateMips(true);
                 Texture tex2 = app.getAssetManager().loadTexture(key2);

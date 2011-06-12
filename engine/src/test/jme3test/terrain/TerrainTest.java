@@ -29,7 +29,6 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package jme3test.terrain;
 
 import jme3tools.converters.ImageToAwt;
@@ -77,153 +76,152 @@ import java.util.List;
  */
 public class TerrainTest extends SimpleApplication {
 
-	private TerrainQuad terrain;
-	Material matRock;
-	Material matWire;
-	boolean wireframe = false;
+    private TerrainQuad terrain;
+    Material matRock;
+    Material matWire;
+    boolean wireframe = false;
     boolean triPlanar = false;
-	protected BitmapText hintText;
-	PointLight pl;
-	Geometry lightMdl;
+    protected BitmapText hintText;
+    PointLight pl;
+    Geometry lightMdl;
     private float grassScale = 64;
     private float dirtScale = 16;
     private float rockScale = 128;
 
-	public static void main(String[] args) {
-		TerrainTest app = new TerrainTest();
-		app.start();
-	}
+    public static void main(String[] args) {
+        TerrainTest app = new TerrainTest();
+        app.start();
+    }
 
-	@Override
-	public void initialize() {
-		super.initialize();
+    @Override
+    public void initialize() {
+        super.initialize();
 
-		loadHintText();
-	}
+        loadHintText();
+    }
 
-	@Override
-	public void simpleInitApp() {
-		setupKeys();
+    @Override
+    public void simpleInitApp() {
+        setupKeys();
 
         // First, we load up our textures and the heightmap texture for the terrain
 
-		// TERRAIN TEXTURE material
-		matRock = new Material(assetManager, "Common/MatDefs/Terrain/Terrain.j3md");
+        // TERRAIN TEXTURE material
+        matRock = new Material(assetManager, "Common/MatDefs/Terrain/Terrain.j3md");
         matRock.setBoolean("useTriPlanarMapping", false);
 
-		// ALPHA map (for splat textures)
-		matRock.setTexture("Alpha", assetManager.loadTexture("Textures/Terrain/splat/alphamap.png"));
+        // ALPHA map (for splat textures)
+        matRock.setTexture("Alpha", assetManager.loadTexture("Textures/Terrain/splat/alphamap.png"));
 
-		// HEIGHTMAP image (for the terrain heightmap)
-		Texture heightMapImage = assetManager.loadTexture("Textures/Terrain/splat/mountains512.png");
-        
-		// GRASS texture
-		Texture grass = assetManager.loadTexture("Textures/Terrain/splat/grass.jpg");
-		grass.setWrap(WrapMode.Repeat);
-		matRock.setTexture("Tex1", grass);
-		matRock.setFloat("Tex1Scale", grassScale);
+        // HEIGHTMAP image (for the terrain heightmap)
+        Texture heightMapImage = assetManager.loadTexture("Textures/Terrain/splat/mountains512.png");
 
-		// DIRT texture
-		Texture dirt = assetManager.loadTexture("Textures/Terrain/splat/dirt.jpg");
-		dirt.setWrap(WrapMode.Repeat);
-		matRock.setTexture("Tex2", dirt);
-		matRock.setFloat("Tex2Scale", dirtScale);
+        // GRASS texture
+        Texture grass = assetManager.loadTexture("Textures/Terrain/splat/grass.jpg");
+        grass.setWrap(WrapMode.Repeat);
+        matRock.setTexture("Tex1", grass);
+        matRock.setFloat("Tex1Scale", grassScale);
 
-		// ROCK texture
-		Texture rock = assetManager.loadTexture("Textures/Terrain/splat/road.jpg");
-		rock.setWrap(WrapMode.Repeat);
-		matRock.setTexture("Tex3", rock);
-		matRock.setFloat("Tex3Scale", rockScale);
-        
-		// WIREFRAME material
-		matWire = new Material(assetManager, "Common/MatDefs/Misc/WireColor.j3md");
+        // DIRT texture
+        Texture dirt = assetManager.loadTexture("Textures/Terrain/splat/dirt.jpg");
+        dirt.setWrap(WrapMode.Repeat);
+        matRock.setTexture("Tex2", dirt);
+        matRock.setFloat("Tex2Scale", dirtScale);
+
+        // ROCK texture
+        Texture rock = assetManager.loadTexture("Textures/Terrain/splat/road.jpg");
+        rock.setWrap(WrapMode.Repeat);
+        matRock.setTexture("Tex3", rock);
+        matRock.setFloat("Tex3Scale", rockScale);
+
+        // WIREFRAME material
+        matWire = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        matWire.getAdditionalRenderState().setWireframe(true);
         matWire.setColor("Color", ColorRGBA.Green);
 
+        // CREATE HEIGHTMAP
+        AbstractHeightMap heightmap = null;
+        try {
+            //heightmap = new HillHeightMap(1025, 1000, 50, 100, (byte) 3);
 
-		// CREATE HEIGHTMAP
-		AbstractHeightMap heightmap = null;
-		try {
-			//heightmap = new HillHeightMap(1025, 1000, 50, 100, (byte) 3);
+            heightmap = new ImageBasedHeightMap(ImageToAwt.convert(heightMapImage.getImage(), false, true, 0), 1f);
+            heightmap.load();
 
-			heightmap = new ImageBasedHeightMap(ImageToAwt.convert(heightMapImage.getImage(), false, true, 0), 1f);
-			heightmap.load();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+        /*
+         * Here we create the actual terrain. The tiles will be 65x65, and the total size of the
+         * terrain will be 513x513. It uses the heightmap we created to generate the height values.
+         */
+        /**
+         * Optimal terrain patch size is 65 (64x64).
+         * The total size is up to you. At 1025 it ran fine for me (200+FPS), however at
+         * size=2049, it got really slow. But that is a jump from 2 million to 8 million triangles...
+         */
+        terrain = new TerrainQuad("terrain", 65, 513, heightmap.getHeightMap());//, new LodPerspectiveCalculatorFactory(getCamera(), 4)); // add this in to see it use entropy for LOD calculations
+        List<Camera> cameras = new ArrayList<Camera>();
+        cameras.add(getCamera());
+        TerrainLodControl control = new TerrainLodControl(terrain, cameras);
+        terrain.addControl(control);
+        terrain.setMaterial(matRock);
+        terrain.setModelBound(new BoundingBox());
+        terrain.updateModelBound();
+        terrain.setLocalTranslation(0, -100, 0);
+        terrain.setLocalScale(2f, 1f, 2f);
+        rootNode.attachChild(terrain);
 
-		/*
-		 * Here we create the actual terrain. The tiles will be 65x65, and the total size of the
-		 * terrain will be 513x513. It uses the heightmap we created to generate the height values.
-		 */
-		/**
-		 * Optimal terrain patch size is 65 (64x64).
-		 * The total size is up to you. At 1025 it ran fine for me (200+FPS), however at
-		 * size=2049, it got really slow. But that is a jump from 2 million to 8 million triangles...
-		 */
-		terrain = new TerrainQuad("terrain", 65, 513, heightmap.getHeightMap());//, new LodPerspectiveCalculatorFactory(getCamera(), 4)); // add this in to see it use entropy for LOD calculations
-		List<Camera> cameras = new ArrayList<Camera>();
-		cameras.add(getCamera());
-		TerrainLodControl control = new TerrainLodControl(terrain, cameras);
-		terrain.addControl(control);
-		terrain.setMaterial(matRock);
-		terrain.setModelBound(new BoundingBox());
-		terrain.updateModelBound();
-		terrain.setLocalTranslation(0, -100, 0);
-		terrain.setLocalScale(2f, 1f, 2f);
-		rootNode.attachChild(terrain);
-        
         DirectionalLight light = new DirectionalLight();
-        light.setDirection((new Vector3f(-0.5f,-1f, -0.5f)).normalize());
+        light.setDirection((new Vector3f(-0.5f, -1f, -0.5f)).normalize());
         rootNode.addLight(light);
 
-		getCamera().getLocation().y = 10;
-		getCamera().setDirection(new Vector3f(0, -1.5f, -1));
-	}
+        getCamera().getLocation().y = 10;
+        getCamera().setDirection(new Vector3f(0, -1.5f, -1));
+    }
 
-	public void loadHintText() {
-		hintText = new BitmapText(guiFont, false);
-		hintText.setSize(guiFont.getCharSet().getRenderedSize());
-		hintText.setLocalTranslation(0, getCamera().getHeight(), 0);
-		hintText.setText("Hit T to switch to wireframe,  P to switch to tri-planar texturing");
-		guiNode.attachChild(hintText);
-	}
+    public void loadHintText() {
+        hintText = new BitmapText(guiFont, false);
+        hintText.setSize(guiFont.getCharSet().getRenderedSize());
+        hintText.setLocalTranslation(0, getCamera().getHeight(), 0);
+        hintText.setText("Hit T to switch to wireframe,  P to switch to tri-planar texturing");
+        guiNode.attachChild(hintText);
+    }
 
-	private void setupKeys() {
-		flyCam.setMoveSpeed(50);
-		inputManager.addMapping("wireframe", new KeyTrigger(KeyInput.KEY_T));
-		inputManager.addListener(actionListener, "wireframe");
+    private void setupKeys() {
+        flyCam.setMoveSpeed(50);
+        inputManager.addMapping("wireframe", new KeyTrigger(KeyInput.KEY_T));
+        inputManager.addListener(actionListener, "wireframe");
         inputManager.addMapping("triPlanar", new KeyTrigger(KeyInput.KEY_P));
-		inputManager.addListener(actionListener, "triPlanar");
-	}
+        inputManager.addListener(actionListener, "triPlanar");
+    }
+    private ActionListener actionListener = new ActionListener() {
 
-	private ActionListener actionListener = new ActionListener() {
-
-		public void onAction(String name, boolean pressed, float tpf) {
-			if (name.equals("wireframe") && !pressed) {
-				wireframe = !wireframe;
-				if (!wireframe) {
-					terrain.setMaterial(matWire);
-				} else {
-					terrain.setMaterial(matRock);
-				}
-			} else if (name.equals("triPlanar") && !pressed) {
+        public void onAction(String name, boolean pressed, float tpf) {
+            if (name.equals("wireframe") && !pressed) {
+                wireframe = !wireframe;
+                if (!wireframe) {
+                    terrain.setMaterial(matWire);
+                } else {
+                    terrain.setMaterial(matRock);
+                }
+            } else if (name.equals("triPlanar") && !pressed) {
                 triPlanar = !triPlanar;
                 if (triPlanar) {
                     matRock.setBoolean("useTriPlanarMapping", true);
                     // planar textures don't use the mesh's texture coordinates but real world coordinates,
                     // so we need to convert these texture coordinate scales into real world scales so it looks
                     // the same when we switch to/from tr-planar mode
-                    matRock.setFloat("Tex1Scale", 1f/(float)(512f/grassScale));
-                    matRock.setFloat("Tex2Scale", 1f/(float)(512f/dirtScale));
-                    matRock.setFloat("Tex3Scale", 1f/(float)(512f/rockScale));
-                }  else {
+                    matRock.setFloat("Tex1Scale", 1f / (float) (512f / grassScale));
+                    matRock.setFloat("Tex2Scale", 1f / (float) (512f / dirtScale));
+                    matRock.setFloat("Tex3Scale", 1f / (float) (512f / rockScale));
+                } else {
                     matRock.setBoolean("useTriPlanarMapping", false);
                     matRock.setFloat("Tex1Scale", grassScale);
                     matRock.setFloat("Tex2Scale", dirtScale);
                     matRock.setFloat("Tex3Scale", rockScale);
                 }
             }
-		}
-	};
+        }
+    };
 }

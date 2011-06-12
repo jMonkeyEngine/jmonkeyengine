@@ -51,7 +51,6 @@ import com.jme3.scene.shape.Sphere.TextureMode;
 public class TestCollisionListener extends SimpleApplication implements PhysicsCollisionListener {
 
     private BulletAppState bulletAppState;
-    private Material mat;
     private Sphere bullet;
     private SphereCollisionShape bulletCollisionShape;
 
@@ -71,9 +70,6 @@ public class TestCollisionListener extends SimpleApplication implements PhysicsC
 
         PhysicsTestHelper.createPhysicsTestWorld(rootNode, assetManager, bulletAppState.getPhysicsSpace());
         PhysicsTestHelper.createBallShooter(this, rootNode, bulletAppState.getPhysicsSpace());
-
-        mat = new Material(getAssetManager(), "Common/MatDefs/Misc/WireColor.j3md");
-        mat.setColor("Color", ColorRGBA.Red);
 
         // add ourselves as collision listener
         getPhysicsSpace().addCollisionListener(this);

@@ -57,7 +57,7 @@ public class TestNormalLatc extends SimpleApplication {
         TextureKey key = new TextureKey(texName, true);
         key.setGenerateMips(false);
         Texture tex = assetManager.loadTexture(key);
-        Material mat = new Material(assetManager, "Common/MatDefs/Misc/SimpleTextured.j3md");
+        Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         mat.setTexture("ColorMap", tex);
 //        mat.setBoolean("Normalize", true);
         if (latc)

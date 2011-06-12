@@ -42,7 +42,6 @@ public class TestDepthOfField extends SimpleApplication {
     private Vector3f lightDir = new Vector3f(-4.9236743f, -1.27054665f, 5.896916f);
     TerrainQuad terrain;
     Material matRock;
-    Material matWire;
     DepthOfFieldFilter dofFilter;
 
     public static void main(String[] args) {
@@ -172,8 +171,6 @@ public class TestDepthOfField extends SimpleApplication {
         matRock.setTexture("NormalMap_1", normalMap2);
         matRock.setTexture("NormalMap_2", normalMap2);
 
-        matWire = new Material(assetManager, "Common/MatDefs/Misc/WireColor.j3md");
-        matWire.setColor("Color", ColorRGBA.Green);
         AbstractHeightMap heightmap = null;
         try {
             heightmap = new ImageBasedHeightMap(ImageToAwt.convert(heightMapImage.getImage(), false, true, 0), 0.25f);

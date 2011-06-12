@@ -61,7 +61,7 @@ public class HelloMaterial extends SimpleApplication {
     /** A simple textured cube -- in good MIP map quality. */
     Box boxshape1 = new Box(new Vector3f(-3f,1.1f,0f), 1f,1f,1f);
     Geometry cube = new Geometry("My Textured Box", boxshape1);
-    Material mat_stl = new Material(assetManager, "Common/MatDefs/Misc/SimpleTextured.j3md");
+    Material mat_stl = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
     Texture tex_ml = assetManager.loadTexture("Interface/Logo/Monkey.jpg");
     mat_stl.setTexture("ColorMap", tex_ml);
     cube.setMaterial(mat_stl);
@@ -70,7 +70,7 @@ public class HelloMaterial extends SimpleApplication {
     /** A translucent/transparent texture, similar to a window frame. */
     Box boxshape3 = new Box(new Vector3f(0f,0f,0f), 1f,1f,0.01f);
     Geometry window_frame = new Geometry("window frame", boxshape3);
-    Material mat_tt = new Material(assetManager, "Common/MatDefs/Misc/SimpleTextured.j3md");
+    Material mat_tt = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
     mat_tt.setTexture("ColorMap", assetManager.loadTexture("Textures/ColoredTex/Monkey.png"));
     mat_tt.getAdditionalRenderState().setBlendMode(BlendMode.Alpha);  // activate transparency
     window_frame.setQueueBucket(Bucket.Transparent);
