@@ -145,10 +145,10 @@ vec4 underWater(){
     eyeVecNorm = normalize(m_CameraPosition - surfacePoint);
 
     // Find normal of water surface
-    float normal1 = textureOffset(m_HeightMap, texC, ivec2(-1,  0)).r;
-    float normal2 = textureOffset(m_HeightMap, texC, ivec2( 1,  0)).r;
-    float normal3 = textureOffset(m_HeightMap, texC, ivec2( 0, -1)).r;
-    float normal4 = textureOffset(m_HeightMap, texC, ivec2( 0,  1)).r;
+    float normal1 = texture2D(m_HeightMap, (texC + vec2(-1.0, 0.0) / 256.0)).r;
+    float normal2 = texture2D(m_HeightMap, (texC + vec2(1.0, 0.0) / 256.0)).r;
+    float normal3 = texture2D(m_HeightMap, (texC + vec2(0.0, -1.0) / 256.0)).r;
+    float normal4 = texture2D(m_HeightMap, (texC + vec2(0.0, 1.0) / 256.0)).r;
 
     vec3 myNormal = normalize(vec3((normal1 - normal2) * m_MaxAmplitude,m_NormalScale,(normal3 - normal4) * m_MaxAmplitude));
     vec3 normal = myNormal*-1.0;
