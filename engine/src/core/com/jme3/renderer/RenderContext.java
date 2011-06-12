@@ -54,7 +54,7 @@ public class RenderContext {
 
     public boolean alphaTestEnabled = false;
 
-    public boolean depthWriteEnabled = false;
+    public boolean depthWriteEnabled = true;
 
     public boolean colorWriteEnabled = true;
 

@@ -423,8 +423,6 @@ public class RenderManager {
         } else {
             g.getMaterial().render(g, this);
         }
-        //re applying default render state at the end of the render to avoid depth write issues, MUST BE A BETTER WAY
-        renderer.applyRenderState(RenderState.DEFAULT);
     }
 
     public void renderGeometryList(GeometryList gl) {

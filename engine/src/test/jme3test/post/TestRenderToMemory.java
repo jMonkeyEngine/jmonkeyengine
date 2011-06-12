@@ -59,8 +59,6 @@ import java.awt.Graphics2D;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferByte;
-import java.awt.image.WritableRaster;
 import java.nio.ByteBuffer;
 import javax.swing.JFrame;
 import javax.swing.JPanel;

@@ -548,6 +548,7 @@ public class LwjglRenderer implements Renderer {
                 context.polyOffsetUnits = 0;
             }
         }
+        
         if (state.getFaceCullMode() != context.cullMode) {
             if (state.getFaceCullMode() == RenderState.FaceCullMode.Off) {
                 glDisable(GL_CULL_FACE);

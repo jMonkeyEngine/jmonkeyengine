@@ -40,7 +40,7 @@ import com.jme3.export.InputCapsule;
 import com.jme3.export.OutputCapsule;
 import com.jme3.export.Savable;
 import com.jme3.material.Material;
-import com.jme3.post.filters.TranslucentBucketFilter;
+import com.jme3.material.RenderState;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.Caps;
 import com.jme3.renderer.RenderManager;
@@ -164,9 +164,12 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
             filterCam.resize(buff.getWidth(), buff.getHeight(), true);
             fsQuad.setPosition(0, 0);
         }
+        
         if (mat.getAdditionalRenderState().isDepthWrite()) {
+            mat.getAdditionalRenderState().setDepthTest(false);
             mat.getAdditionalRenderState().setDepthWrite(false);
         }
+            
         fsQuad.setMaterial(mat);
         fsQuad.updateGeometricState();
 
@@ -174,6 +177,10 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
         r.setFrameBuffer(buff);
         r.clearBuffers(false, true, true);
         renderManager.renderGeometry(fsQuad);
+        
+        //re applying default render state at the end of the render 
+        // to avoid depth write issues, MUST BE A BETTER WAY
+        r.applyRenderState(RenderState.DEFAULT);
     }
 
     public boolean isInitialized() {
