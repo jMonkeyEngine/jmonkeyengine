@@ -34,6 +34,7 @@ package com.jme3.system.android;
 
 import android.app.Activity;
 import android.content.Context;
+import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.view.SurfaceHolder;
 
@@ -52,7 +53,11 @@ import com.jme3.system.SystemListener;
 import com.jme3.system.Timer;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
+
+import javax.microedition.khronos.egl.EGL10;
 import javax.microedition.khronos.egl.EGLConfig;
+import javax.microedition.khronos.egl.EGLContext;
+import javax.microedition.khronos.egl.EGLDisplay;
 import javax.microedition.khronos.opengles.GL10;
 
 
@@ -84,7 +89,12 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer
     protected int frameRate = 33;
     //protected int minFrameDuration = 1000 / frameRate;  // Set a max FPS of 33
     protected int minFrameDuration = 0;                   // No FPS cap
-
+    
+    /**
+     * EGL_RENDERABLE_TYPE: EGL_OPENGL_ES_BIT = OpenGL ES 1.0 | EGL_OPENGL_ES2_BIT = OpenGL ES 2.0 
+     */
+    protected int clientOpenGLESVersion = 1;
+    
     public OGLESContext() { }
 
     @Override
@@ -104,7 +114,7 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer
     }
     /**
      * <code>createView</code> 
-     * @param AndroidInput The Android input which must be bound to an activity  
+     * @param view The Android input which will be used as the GLSurfaceView for this context
      * @return GLSurfaceView The newly created view
      */
     public GLSurfaceView createView(AndroidInput view)
@@ -114,30 +124,190 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer
     
     /**
      * <code>createView</code> 
-     * @param AndroidInput The Android input which must be bound to an activity  
+     * @param view The Android input which will be used as the GLSurfaceView for this context
      * @param debugflags 0, GLSurfaceView.DEBUG_CHECK_GL_ERROR | GLSurfaceView.DEBUG_LOG_GL_CALLS
      * @return GLSurfaceView The newly created view
      */    
     public GLSurfaceView createView(AndroidInput view, int debugflags)
-    {
+    {                    
+        EGL10 egl = (EGL10) EGLContext.getEGL();
+        EGLDisplay display = egl.eglGetDisplay(EGL10.EGL_DEFAULT_DISPLAY);
+                       
+        int[] version = new int[2];
+        if (egl.eglInitialize(display, version) == true)
+        {
+            logger.info("Display EGL Version: " + version[0] + "." + version[1]);
+        }
+        
+        //Querying number of configurations
+        int[] num_conf = new int[1];
+        egl.eglGetConfigs(display, null, 0, num_conf);  //if configuration array is null it still returns the number of configurations
+        int configurations = num_conf[0];
+
+        //Querying actual configurations
+        EGLConfig[] conf = new EGLConfig[configurations];
+        egl.eglGetConfigs(display, conf, configurations, num_conf);
+
+        EGLConfig bestConfig = null;
+        int[] value = new int[1];
+        int EGL_OPENGL_ES2_BIT = 4;
+
+        // Loop over all configs to get the best
+        for(int i = 0; i < configurations; i++)
+        {
+            //logger.info("Supported EGL Configuration #" + i );
+        
+            if (conf[i] != null)
+            {
+                //logger.info(String.format("conf[%d] = %s", i, conf[i].toString() ) );
+                //logEGLConfig(conf[i], display, egl);     
+                egl.eglGetConfigAttrib(display, conf[i], EGL10.EGL_RENDERABLE_TYPE, value);
+                if ((value[0] & EGL_OPENGL_ES2_BIT) != 0)
+                {
+                    clientOpenGLESVersion = 2;  // OpenGL ES 2.0 detected
+                }
+                
+                bestConfig = better(bestConfig, conf[i], egl, display);
+            }
+            else
+            {
+                break;
+            }
+        }
+        
+        if (clientOpenGLESVersion < 2)
+        {
+            logger.severe("OpenGL ES 2.0 is not supported on this device");
+        }
+        
+        logger.info("JME3 using best EGL configuration available here: ");        
+        logEGLConfig(bestConfig, display, egl);
+        
+        // Finished querying the configs
+        
+        
+        // Start to set up the view
         this.view = view;    
 
-    	/*
-    	 * Requesting client version from GLSurfaceView which is extended by
-    	 * AndroidInput.
-    	 * This is required to get OpenGL ES 2.0
-    	 */    	
-    	view.setEGLContextClientVersion(2);
-    	
+        /*
+         * Requesting client version from GLSurfaceView which is extended by
+         * AndroidInput.        
+         */     
+        view.setEGLContextClientVersion(clientOpenGLESVersion);
+                
         //RGB565, Depth16
-        view.setEGLConfigChooser(5, 6, 5, 0, 16, 0);
+        //view.setEGLConfigChooser(5, 6, 5, 0, 16, 0);
+        
+        // Choose best config        
+        egl.eglGetConfigAttrib(display, bestConfig, EGL10.EGL_RED_SIZE, value);
+        int redSize = value[0];
+        
+        egl.eglGetConfigAttrib(display, bestConfig, EGL10.EGL_GREEN_SIZE, value);
+        int greenSize = value[0];
+        
+        egl.eglGetConfigAttrib(display, bestConfig, EGL10.EGL_BLUE_SIZE, value);
+        int blueSize = value[0];
+
+        egl.eglGetConfigAttrib(display, bestConfig, EGL10.EGL_ALPHA_SIZE, value);
+        int alphaSize = value[0];
+        
+        egl.eglGetConfigAttrib(display, bestConfig, EGL10.EGL_DEPTH_SIZE, value);
+        int depthSize = value[0];
+                
+        egl.eglGetConfigAttrib(display, bestConfig, EGL10.EGL_STENCIL_SIZE, value);
+        int stencilSize = value[0];
+        
+        view.setEGLConfigChooser(redSize, greenSize, blueSize, alphaSize, depthSize, stencilSize);
+        
         view.setFocusableInTouchMode(true);
         view.setFocusable(true);
         view.getHolder().setType(SurfaceHolder.SURFACE_TYPE_GPU);
-        view.setDebugFlags(debugflags);
-   		view.setRenderer(this);
+//        view.setDebugFlags(GLSurfaceView.DEBUG_CHECK_GL_ERROR);
+//                         | GLSurfaceView.DEBUG_LOG_GL_CALLS);
+        view.setRenderer(this);
         return view;
+
     }
+        
+    /**
+     * Returns the best of the two EGLConfig passed according to depth and colours
+     * @param a The first candidate
+     * @param b The second candidate
+     * @return The chosen candidate
+     */
+    private EGLConfig better(EGLConfig a, EGLConfig b, EGL10 egl, EGLDisplay display)
+    {
+        if(a == null) return b;
+    
+        EGLConfig result = null;
+    
+        int[] value = new int[1];
+    
+        egl.eglGetConfigAttrib(display, a, EGL10.EGL_DEPTH_SIZE, value);
+        int depthA = value[0];
+    
+        egl.eglGetConfigAttrib(display, b, EGL10.EGL_DEPTH_SIZE, value);
+        int depthB = value[0];
+    
+        if(depthA > depthB)
+            result = a;
+        else if(depthA < depthB)
+            result = b;
+        else //if depthA == depthB
+        {
+            egl.eglGetConfigAttrib(display, a, EGL10.EGL_RED_SIZE, value);
+            int redA = value[0];
+    
+            egl.eglGetConfigAttrib(display, b, EGL10.EGL_RED_SIZE, value);
+            int redB = value[0];
+    
+            if(redA > redB)
+                result = a;
+            else if(redA < redB)
+                result = b;
+            else //if redA == redB
+            {
+                // Don't care
+                result = a;
+            }
+        }
+        return result;
+    }
+
+    /**
+     * log output with egl config details
+     * @param conf
+     * @param display
+     * @param egl
+     */
+    private void logEGLConfig(EGLConfig conf, EGLDisplay display, EGL10 egl)
+    {
+        int[] value = new int[1];
+
+        egl.eglGetConfigAttrib(display, conf, EGL10.EGL_RED_SIZE, value);
+        logger.info(String.format("EGL_RED_SIZE  = %d", value[0] ) );
+        
+        egl.eglGetConfigAttrib(display, conf, EGL10.EGL_BLUE_SIZE, value);
+        logger.info(String.format("EGL_BLUE_SIZE  = %d", value[0] ) );
+
+        egl.eglGetConfigAttrib(display, conf, EGL10.EGL_GREEN_SIZE, value);
+        logger.info(String.format("EGL_GREEN_SIZE  = %d", value[0] ) );
+        
+        egl.eglGetConfigAttrib(display, conf, EGL10.EGL_ALPHA_SIZE, value);
+        logger.info(String.format("EGL_ALPHA_SIZE  = %d", value[0] ) );
+        
+        egl.eglGetConfigAttrib(display, conf, EGL10.EGL_DEPTH_SIZE, value);
+        logger.info(String.format("EGL_DEPTH_SIZE  = %d", value[0] ) );
+                
+        egl.eglGetConfigAttrib(display, conf, EGL10.EGL_STENCIL_SIZE, value);
+        logger.info(String.format("EGL_STENCIL_SIZE  = %d", value[0] ) );
+
+        egl.eglGetConfigAttrib(display, conf, EGL10.EGL_RENDERABLE_TYPE, value);
+        logger.info(String.format("EGL_RENDERABLE_TYPE  = %d", value[0] ) );
+
+        
+    }
+    
     
 
     protected void initInThread()
@@ -152,7 +322,7 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer
         {
             Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
                 public void uncaughtException(Thread thread, Throwable thrown) {
-                    ((AndroidHarness)ctx).handleError("Uncaught exception thrown in "+thread.toString(), thrown);
+                    ((AndroidHarness)ctx).handleError("Exception thrown in " + thread.toString(), thrown);
                 }
             });
         }
@@ -160,9 +330,14 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer
         {
             Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
                 public void uncaughtException(Thread thread, Throwable thrown) {
-                    listener.handleError("Uncaught exception thrown in "+thread.toString(), thrown);
+                    listener.handleError("Exception thrown in " + thread.toString(), thrown);
                 }
             });
+        }
+        
+        if (clientOpenGLESVersion < 2)
+        {
+            throw new UnsupportedOperationException("OpenGL ES 2.0 is not supported on this device");
         }
         
         timer = new AndroidTimer();
@@ -278,6 +453,7 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig cfg) 
     {
+        
         if (created.get() && renderer != null)
         {
             renderer.resetGLObjects();
@@ -394,5 +570,9 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer
         }
     }
 
+    public int getClientOpenGLESVersion() 
+    {
+        return clientOpenGLESVersion;
+    }
 
 }

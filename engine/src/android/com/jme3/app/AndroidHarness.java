@@ -136,7 +136,7 @@ public class AndroidHarness extends Activity implements DialogInterface.OnClickL
         
         final String sTrace = s;
         
-        logger.severe(t != null ? t.toString() : "Failed");
+        logger.severe(t != null ? t.toString() : "OpenGL Exception");
         logger.severe((errorMsg != null ? errorMsg + ": " : "") + sTrace);
         
         this.runOnUiThread(new Runnable() {
@@ -145,7 +145,7 @@ public class AndroidHarness extends Activity implements DialogInterface.OnClickL
             {                                
                 AlertDialog dialog = new AlertDialog.Builder(AndroidHarness.this)
                // .setIcon(R.drawable.alert_dialog_icon)
-                .setTitle(t != null ? t.toString() : "Failed")
+                .setTitle(t != null ? (t.getMessage() != null ? (t.getMessage() + ": " + t.getClass().getName()) : t.getClass().getName()) : "OpenGL Exception")
                 .setPositiveButton("Kill", AndroidHarness.this)
                 .setMessage((errorMsg != null ? errorMsg + ": " : "") + sTrace)
                 .create();    

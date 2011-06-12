@@ -266,10 +266,10 @@ public abstract class AndroidApplication extends Application implements DialogIn
         activity.runOnUiThread(new Runnable() {
             @Override
             public void run() 
-            {                                
+            {                                                
                 AlertDialog dialog = new AlertDialog.Builder(activity)
                // .setIcon(R.drawable.alert_dialog_icon)
-                .setTitle(t != null ? t.toString() : "Failed")
+                .setTitle(t != null ? (t.getMessage() != null ? (t.getMessage() + ": " + t.getClass().getName()) : t.getClass().getName()) : "Exception")
                 .setPositiveButton("Kill", AndroidApplication.this)
                 .setMessage((errorMsg != null ? errorMsg + ": " : "") + sTrace)
                 .create();    
