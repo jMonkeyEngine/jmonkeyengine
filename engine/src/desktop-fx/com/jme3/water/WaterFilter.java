@@ -67,6 +67,7 @@ public class WaterFilter extends Filter {
     protected ViewPort reflectionView;
     private Texture2D normalTexture;
     private Texture2D foamTexture;
+    private Texture2D causticsTexture;
     private Texture2D heightTexture;
     private Plane plane;
     private Camera reflectionCam;
@@ -102,11 +103,13 @@ public class WaterFilter extends Filter {
     private boolean useHQShoreline = true;
     private boolean useSpecular = true;
     private boolean useFoam = true;
+    private boolean useCaustics = true;
     private boolean useRefraction = true;
     private float time = 0;
     private float savedTpf = 0;
     private float reflectionDisplace = 30;
     private float foamIntensity = 0.5f;
+    private boolean underWater;
 
     /**
      * Create a Water Filter
@@ -124,11 +127,6 @@ public class WaterFilter extends Filter {
     @Override
     public boolean isRequiresDepthTexture() {
         return true;
-    }
-
-    @Override
-    protected Format getDefaultPassDepthFormat() {
-        return Format.Depth;
     }
 
     @Override
@@ -181,17 +179,23 @@ public class WaterFilter extends Filter {
             reflectionCam.setAxes(reflectionCam.getLeft().negateLocal(), reflectionCam.getUp(), reflectionCam.getDirection().negateLocal());
         }
 
-        boolean rtb = true;
-        if (!renderManager.isHandleTranslucentBucket()) {
-            renderManager.setHandleTranslucentBucket(true);
-            rtb = false;
+        //if we're under water no need to compute reflection
+        if (sceneCam.getLocation().y >= waterHeight) {
+            boolean rtb = true;
+            if (!renderManager.isHandleTranslucentBucket()) {
+                renderManager.setHandleTranslucentBucket(true);
+                rtb = false;
+            }
+            renderManager.renderViewPort(reflectionView, savedTpf);
+            if (!rtb) {
+                renderManager.setHandleTranslucentBucket(false);
+            }
+            renderManager.getRenderer().setFrameBuffer(viewPort.getOutputFrameBuffer());
+            renderManager.setCamera(sceneCam, false);
+            underWater=false;
+        }else{
+            underWater=true;
         }
-        renderManager.renderViewPort(reflectionView, savedTpf);
-        if (!rtb) {
-            renderManager.setHandleTranslucentBucket(false);
-        }
-        renderManager.getRenderer().setFrameBuffer(viewPort.getOutputFrameBuffer());
-        renderManager.setCamera(sceneCam, false);
     }
 
     @Override
@@ -217,14 +221,19 @@ public class WaterFilter extends Filter {
         if (foamTexture == null) {
             foamTexture = (Texture2D) manager.loadTexture("Common/MatDefs/Water/Textures/foam.jpg");
         }
+        if (causticsTexture == null) {
+            causticsTexture = (Texture2D) manager.loadTexture("Common/MatDefs/Water/Textures/caustics.jpg");
+        }
         heightTexture = (Texture2D) manager.loadTexture("Common/MatDefs/Water/Textures/heightmap.jpg");
 
         normalTexture.setWrap(WrapMode.Repeat);
         foamTexture.setWrap(WrapMode.Repeat);
+        causticsTexture.setWrap(WrapMode.Repeat);
         heightTexture.setWrap(WrapMode.Repeat);
 
         material = new Material(manager, "Common/MatDefs/Water/Water.j3md");
         material.setTexture("HeightMap", heightTexture);
+        material.setTexture("CausticsMap", causticsTexture);
         material.setTexture("FoamMap", foamTexture);
         material.setTexture("NormalMap", normalTexture);
         material.setTexture("ReflectionMap", reflectionPass.getRenderedTexture());
@@ -250,6 +259,7 @@ public class WaterFilter extends Filter {
         material.setBoolean("UseHQShoreline", useHQShoreline);
         material.setBoolean("UseSpecular", useSpecular);
         material.setBoolean("UseFoam", useFoam);
+        material.setBoolean("UseCaustics", useCaustics);
         material.setBoolean("UseRefraction", useRefraction);
         material.setFloat("ReflectionDisplace", reflectionDisplace);
         material.setFloat("FoamIntensity", foamIntensity);
@@ -293,6 +303,10 @@ public class WaterFilter extends Filter {
         this.waterHeight = waterHeight;
     }
 
+    /**
+     * sets the scene to render in the reflection map
+     * @param reflectionScene 
+     */
     public void setReflectionScene(Spatial reflectionScene) {
         this.reflectionScene = reflectionScene;
     }
@@ -340,6 +354,10 @@ public class WaterFilter extends Filter {
         }
     }
 
+    /**
+     * returns the refractoin constant
+     * @return 
+     */
     public float getRefractionConstant() {
         return refractionConstant;
     }
@@ -360,6 +378,10 @@ public class WaterFilter extends Filter {
         }
     }
 
+    /**
+     * return the maximum wave amplitude
+     * @return 
+     */
     public float getMaxAmplitude() {
         return maxAmplitude;
     }
@@ -437,7 +459,7 @@ public class WaterFilter extends Filter {
     }
 
     /**
-     * retunrs the foam hardness
+     * returns the foam hardness
      * @return
      */
     public float getFoamHardness() {
@@ -739,7 +761,37 @@ public class WaterFilter extends Filter {
     }
 
     /**
-     * 
+     * sets the texture to use to render caustics on the ground underwater
+     * @param causticsTexture 
+     */
+    public void setCausticsTexture(Texture2D causticsTexture) {
+        this.causticsTexture = causticsTexture;
+        if (material != null) {
+            material.setTexture("causticsMap", causticsTexture);
+        }
+    }
+
+    /**
+     * returns true if caustics are rendered
+     * @return 
+     */
+    public boolean isUseCaustics() {
+        return useCaustics;
+    }
+
+    /**
+     * set to true if you want caustics to be rendered on the ground underwater, false otherwise
+     * @param useCaustics 
+     */
+    public void setUseCaustics(boolean useCaustics) {
+        this.useCaustics = useCaustics;
+        if (material != null) {
+            material.setBoolean("UseCaustics", useCaustics);
+        }
+    }
+
+    /**
+     * return true 
      * @return
      */
     public boolean isUseHQShoreline() {
@@ -810,7 +862,15 @@ public class WaterFilter extends Filter {
         if (material != null) {
             material.setFloat("m_ReflectionDisplace", reflectionDisplace);
         }
-
-
     }
+
+    /**
+     * returns true if the camera is under the water level
+     * @return 
+     */
+    public boolean isUnderWater() {
+        return underWater;
+    }
+    
+    
 }

@@ -12,6 +12,7 @@ uniform DEPTHTEXTURE m_DepthTexture;
 uniform sampler2D m_HeightMap;
 uniform sampler2D m_NormalMap;
 uniform sampler2D m_FoamMap;
+uniform sampler2D m_CausticsMap;
 uniform sampler2D m_ReflectionMap;
 
 uniform mat4 m_ViewProjectionMatrixInverse;
@@ -38,11 +39,6 @@ uniform vec2 m_WindDirection;
 uniform float m_SunScale;
 uniform float m_WaveScale;
 
-uniform bool m_UseRipples,
-             m_UseHQShoreline,
-             m_UseSpecular,
-             m_UseFoam,
-             m_UseRefraction;
 
 vec2 scale = vec2(m_WaveScale, m_WaveScale);
 float refractionScale = m_WaveScale;
@@ -115,8 +111,124 @@ float fresnelTerm(in vec3 normal,in vec3 eyeVec){
     return saturate(fresnel * (1.0 - saturate(m_R0)) + m_R0 - m_RefractionStrength);
 }
 
+vec2 m_FrustumNearFar=vec2(1.0,50);
+const float LOG2 = 1.442695;
+
+vec4 underWater(int sampleNum){
+
+
+    float sceneDepth = fetchTextureSample(m_DepthTexture, texCoord, sampleNum).r;
+    vec3 color2 = fetchTextureSample(m_Texture, texCoord, sampleNum).rgb;
+    
+    vec3 position = getPosition(sceneDepth, texCoord);
+    float level = m_WaterHeight;
+
+    vec3 eyeVec = position - m_CameraPosition;    
+ 
+    // Find intersection with water surface
+    vec3 eyeVecNorm = normalize(eyeVec);
+    float t = (level - m_CameraPosition.y) / eyeVecNorm.y;
+    vec3 surfacePoint = m_CameraPosition + eyeVecNorm * t;
+
+    vec2 texC = vec2(0.0);
+
+    float cameraDepth = length(m_CameraPosition - surfacePoint);  
+    texC = (surfacePoint.xz + eyeVecNorm.xz) * scale + m_Time * 0.03 * m_WindDirection;
+    float bias = texture(m_HeightMap, texC).r;
+    level += bias * m_MaxAmplitude;
+    t = (level - m_CameraPosition.y) / eyeVecNorm.y;
+    surfacePoint = m_CameraPosition + eyeVecNorm * t; 
+    eyeVecNorm = normalize(m_CameraPosition - surfacePoint);
+
+    // Find normal of water surface
+    float normal1 = textureOffset(m_HeightMap, texC, ivec2(-1,  0)).r;
+    float normal2 = textureOffset(m_HeightMap, texC, ivec2( 1,  0)).r;
+    float normal3 = textureOffset(m_HeightMap, texC, ivec2( 0, -1)).r;
+    float normal4 = textureOffset(m_HeightMap, texC, ivec2( 0,  1)).r;
+
+    vec3 myNormal = normalize(vec3((normal1 - normal2) * m_MaxAmplitude,m_NormalScale,(normal3 - normal4) * m_MaxAmplitude));
+    vec3 normal = myNormal*-1.0;
+    float fresnel = fresnelTerm(normal, eyeVecNorm); 
+
+    vec3 refraction = color2;
+    #ifdef ENABLE_REFRACTION
+        texC = texCoord.xy *sin (fresnel+1.0);
+        #ifdef RESOLVE_MS
+            ivec2 iTexC = ivec2(texC * textureSize(m_Texture));
+            refraction = texelFetch(m_Texture, iTexC, sampleNum).rgb;
+        #else
+            ivec2 iTexC = ivec2(texC * textureSize(m_Texture, 0));
+            refraction = texelFetch(m_Texture, iTexC, 0).rgb;
+        #endif
+    #endif 
+
+   float waterCol = saturate(length(m_LightColor.rgb) / m_SunScale);
+   refraction = mix(mix(refraction, m_DeepWaterColor.rgb * waterCol, m_WaterTransparency),  m_WaterColor.rgb* waterCol,m_WaterTransparency);
+
+    vec3 foam = vec3(0.0);
+    #ifdef ENABLE_FOAM    
+        texC = (surfacePoint.xz + eyeVecNorm.xz * 0.1) * 0.05 + m_Time * 0.05 * m_WindDirection + sin(m_Time * 0.001 + position.x) * 0.005;
+        vec2 texCoord2 = (surfacePoint.xz + eyeVecNorm.xz * 0.1) * 0.05 + m_Time * 0.1 * m_WindDirection + sin(m_Time * 0.001 + position.z) * 0.005;
+
+        if(m_MaxAmplitude - m_FoamExistence.z> 0.0001){
+            foam += ((texture2D(m_FoamMap, texC) + texture2D(m_FoamMap, texCoord2)) * m_FoamIntensity  * m_FoamIntensity * 0.3 *
+               saturate((level - (m_WaterHeight + m_FoamExistence.z)) / (m_MaxAmplitude - m_FoamExistence.z))).rgb;
+        }
+        foam *= m_LightColor.rgb;    
+    #endif
+
+
+
+    vec3 specular = vec3(0.0);   
+    vec3 color ;
+    float fogFactor;
+
+    if(position.y>level){
+        #ifdef ENABLE_SPECULAR
+            if(step(0.9999,sceneDepth)==1.0){
+                vec3 lightDir=normalize(m_LightDir);
+                vec3 mirrorEye = (2.0 * dot(eyeVecNorm, normal) * normal - eyeVecNorm);
+                float dotSpec = saturate(dot(mirrorEye.xyz, -lightDir) * 0.5 + 0.5);
+                specular = vec3((1.0 - fresnel) * saturate(-lightDir.y) * ((pow(dotSpec, 512.0)) * (m_Shininess * 1.8 + 0.2)));
+                specular += specular * 25.0 * saturate(m_Shininess - 0.05);
+                specular=specular * m_LightColor.rgb * 100.0;
+            }
+        #endif
+        float fogIntensity= 8 * m_WaterTransparency;
+        fogFactor = exp2( -fogIntensity * fogIntensity * cameraDepth * 0.03 * LOG2 );
+        fogFactor = clamp(fogFactor, 0.0, 1.0);        
+        color =mix(m_DeepWaterColor.rgb,refraction,fogFactor);   
+        specular=specular*fogFactor;    
+        color = saturate(color + max(specular, foam ));
+    }else{
+        vec3 caustics = vec3(0.0);
+        #ifdef ENABLE_CAUSTICS 
+            vec2 windDirection=m_WindDirection;
+            texC = (position.xz + eyeVecNorm.xz * 0.1) * 0.05 + m_Time * 0.05 * windDirection + sin(m_Time  + position.x) * 0.01;
+            vec2 texCoord2 = (position.xz + eyeVecNorm.xz * 0.1) * 0.05 + m_Time * 0.05 * windDirection + sin(m_Time  + position.z) * 0.01;
+            caustics += (texture2D(m_CausticsMap, texC)+ texture2D(m_CausticsMap, texCoord2)).rgb;      
+            caustics *= m_WaterColor.rgb;
+            color=mix(color2, caustics,0.6);
+        #else
+            color=color2;
+        #endif
+                
+        float fogDepth= (2.0 * m_FrustumNearFar.x) / (m_FrustumNearFar.y + m_FrustumNearFar.x - sceneDepth* (m_FrustumNearFar.y-m_FrustumNearFar.x));
+        float fogIntensity= 18 * m_WaterTransparency;
+        fogFactor = exp2( -fogIntensity * fogIntensity * fogDepth *  fogDepth * LOG2 );
+        fogFactor = clamp(fogFactor, 0.0, 1.0);
+        color =mix(m_DeepWaterColor.rgb,color,fogFactor);
+    }
+
+    return vec4(color, 1.0);   
+}
 // NOTE: This will be called even for single-sampling
 vec4 main_multiSample(int sampleNum){
+    // If we are underwater let's call the underwater function
+    if(m_WaterHeight >= m_CameraPosition.y){
+
+        return underWater(sampleNum);
+    }
 
     float sceneDepth = fetchTextureSample(m_DepthTexture, texCoord, sampleNum).r;
     vec3 color2 = fetchTextureSample(m_Texture, texCoord, sampleNum).rgb;
@@ -125,22 +237,17 @@ vec4 main_multiSample(int sampleNum){
     vec3 position = getPosition(sceneDepth, texCoord);
 
     float level = m_WaterHeight;
-
-    // If we are underwater let's leave out complex computations
-    if(level >= m_CameraPosition.y){
-        return vec4(color2, 1.0);
-    }
-
+    
     float isAtFarPlane = step(0.99998, sceneDepth);
     //#ifndef ENABLE_RIPPLES
     // This optimization won't work on NVIDIA cards if ripples are enabled
     if(position.y > level + m_MaxAmplitude + isAtFarPlane * 100.0){
+
         return vec4(color2, 1.0);
     }
     //#endif
 
-    vec3 eyeVec = position - m_CameraPosition;
-    float diff = level - position.y;
+    vec3 eyeVec = position - m_CameraPosition;    
     float cameraDepth = m_CameraPosition.y - position.y;
 
     // Find intersection with water surface
@@ -150,9 +257,9 @@ vec4 main_multiSample(int sampleNum){
 
     vec2 texC = vec2(0.0);
     int samples = 1;
-    if (m_UseHQShoreline){
+    #ifdef ENABLE_HQ_SHORELINE
         samples = 10;
-    }
+    #endif
 
     float biasFactor = 1.0 / samples;
     for (int i = 0; i < samples; i++){
@@ -187,7 +294,7 @@ vec4 main_multiSample(int sampleNum){
     vec3 myNormal = normalize(vec3((normal1 - normal2) * m_MaxAmplitude,m_NormalScale,(normal3 - normal4) * m_MaxAmplitude));
     vec3 normal = vec3(0.0);
 
-    if (m_UseRipples){
+    #ifdef ENABLE_RIPPLES
         texC = surfacePoint.xz * 0.8 + m_WindDirection * m_Time* 1.6;
         mat3 tangentFrame = computeTangentFrame(myNormal, eyeVecNorm, texC);
         vec3 normal0a = normalize(tangentFrame*(2.0 * texture(m_NormalMap, texC).xyz - 1.0));
@@ -213,12 +320,12 @@ vec4 main_multiSample(int sampleNum){
         //    gl_FragColor = vec4(color2 + normal*0.0001, 1.0);
         //    return;
         //}
-    }else{
+    #else
         normal = myNormal;
-    }
+    #endif
 
     vec3 refraction = color2;
-    if (m_UseRefraction){
+    #ifdef ENABLE_REFRACTION
        // texC = texCoord.xy+ m_ReflectionDisplace * normal.x;
         texC = texCoord.xy;
         texC += sin(m_Time*1.8  + 3.0 * abs(position.y)) * (refractionScale * min(depth2, 1.0));
@@ -229,7 +336,7 @@ vec4 main_multiSample(int sampleNum){
             ivec2 iTexC = ivec2(texC * textureSize(m_Texture, 0));
             refraction = texelFetch(m_Texture, iTexC, 0).rgb;
         #endif
-    }
+    #endif
 
     vec3 waterPosition = surfacePoint.xyz;
     waterPosition.y -= (level - m_WaterHeight);
@@ -249,8 +356,11 @@ vec4 main_multiSample(int sampleNum){
     refraction = mix(mix(refraction, m_WaterColor.rgb * waterCol, saturate(depthN / visibility)),
         m_DeepWaterColor.rgb * waterCol, saturate(depth2 / m_ColorExtinction));
 
+
+
+
     vec3 foam = vec3(0.0);
-    if (m_UseFoam){
+    #ifdef ENABLE_FOAM
         texC = (surfacePoint.xz + eyeVecNorm.xz * 0.1) * 0.05 + m_Time * 0.05 * m_WindDirection + sin(m_Time * 0.001 + position.x) * 0.005;
         vec2 texCoord2 = (surfacePoint.xz + eyeVecNorm.xz * 0.1) * 0.05 + m_Time * 0.1 * m_WindDirection + sin(m_Time * 0.001 + position.z) * 0.005;
 
@@ -267,10 +377,10 @@ vec4 main_multiSample(int sampleNum){
                saturate((level - (m_WaterHeight + m_FoamExistence.z)) / (m_MaxAmplitude - m_FoamExistence.z))).rgb;
         }
         foam *= m_LightColor.rgb;
-    }
+    #endif
 
     vec3 specular = vec3(0.0);
-    if (m_UseSpecular){
+    #ifdef ENABLE_SPECULAR
         vec3 lightDir=normalize(m_LightDir);
         vec3 mirrorEye = (2.0 * dot(eyeVecNorm, normal) * normal - eyeVecNorm);
         float dotSpec = saturate(dot(mirrorEye.xyz, -lightDir) * 0.5 + 0.5);
@@ -278,7 +388,7 @@ vec4 main_multiSample(int sampleNum){
         specular += specular * 25.0 * saturate(m_Shininess - 0.05);
         //foam does not shine
         specular=specular * m_LightColor.rgb - (5.0 * foam);
-    }
+    #endif
 
     color = mix(refraction, reflection, fresnel);
     color = mix(refraction, color, saturate(depth * m_ShoreHardness));

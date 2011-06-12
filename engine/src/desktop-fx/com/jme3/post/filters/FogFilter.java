@@ -58,6 +58,12 @@ public class FogFilter extends Filter {
         super("FogFilter");
     }
 
+    /**
+     * Create a fog filter 
+     * @param fogColor the color of the fog (default is white)
+     * @param fogDensity the density of the fog (default is 0.7)
+     * @param fogDistance the distance of the fog (default is 1000)
+     */
     public FogFilter(ColorRGBA fogColor, float fogDensity, float fogDistance) {
         this();
         this.fogColor = fogColor;

@@ -59,7 +59,7 @@ public class LightScatteringFilter extends Filter {
     private float lightDensity = 1.4f;
     private boolean adaptative = true;
     Vector3f viewLightPos = new Vector3f();
-    private boolean display;
+    private boolean display=true;
     private float innerLightDensity;
 
     public LightScatteringFilter() {
@@ -101,6 +101,8 @@ public class LightScatteringFilter extends Filter {
 //System.err.println("screenLightPos "+screenLightPos);
         if (adaptative) {
             innerLightDensity = Math.max(lightDensity - Math.max(screenLightPos.x, screenLightPos.y), 0.0f);
+        }else{
+            innerLightDensity=lightDensity;
         }
     }
 

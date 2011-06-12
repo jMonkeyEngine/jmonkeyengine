@@ -2,6 +2,8 @@ package jme3test.water;
 
 import com.jme3.app.SimpleApplication;
 import com.jme3.audio.AudioNode;
+import com.jme3.audio.Filter;
+import com.jme3.audio.LowPassFilter;
 import com.jme3.bounding.BoundingBox;
 import com.jme3.effect.ParticleEmitter;
 import com.jme3.effect.ParticleMesh;
@@ -16,7 +18,9 @@ import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 
 import com.jme3.post.FilterPostProcessor;
+import com.jme3.post.filters.BloomFilter;
 import com.jme3.post.filters.DepthOfFieldFilter;
+import com.jme3.post.filters.FogFilter;
 import com.jme3.post.filters.LightScatteringFilter;
 import com.jme3.post.filters.TranslucentBucketFilter;
 import com.jme3.renderer.Camera;
@@ -34,6 +38,7 @@ import com.jme3.texture.Texture.WrapMode;
 import com.jme3.texture.Texture2D;
 import com.jme3.util.SkyFactory;
 import com.jme3.water.WaterFilter;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 import jme3tools.converters.ImageToAwt;
@@ -48,6 +53,10 @@ public class TestPostWater extends SimpleApplication {
     private WaterFilter water;
     TerrainQuad terrain;
     Material matRock;
+    AudioNode waves;
+    LowPassFilter underWaterAudioFilter = new LowPassFilter(0.5f, 0.1f);
+    LowPassFilter underWaterReverbFilter = new LowPassFilter(0.5f, 0.1f);
+    LowPassFilter aboveWaterAudioFilter = new LowPassFilter(1, 1);
 
     public static void main(String[] args) {
         TestPostWater app = new TestPostWater();
@@ -57,6 +66,8 @@ public class TestPostWater extends SimpleApplication {
     @Override
     public void simpleInitApp() {
 
+      setDisplayFps(false);
+      setDisplayStatView(false);
 
         Node mainScene = new Node("Main Scene");
         rootNode.attachChild(mainScene);
@@ -72,9 +83,14 @@ public class TestPostWater extends SimpleApplication {
         l.setColor(ColorRGBA.White.clone().multLocal(0.3f));
         mainScene.addLight(l);
 
-        flyCam.setMoveSpeed(100);
+        flyCam.setMoveSpeed(50);
 
-        cam.setLocation(new Vector3f(-700, 100, 300));
+        //cam.setLocation(new Vector3f(-700, 100, 300));
+         //cam.setRotation(new Quaternion().fromAngleAxis(0.5f, Vector3f.UNIT_Z));
+        cam.setLocation(new Vector3f(-327.21957f, 61.6459f, 126.884346f));
+        cam.setRotation(new Quaternion(0.052168474f, 0.9443102f, -0.18395276f, 0.2678024f));
+
+          
         cam.setRotation(new Quaternion().fromAngles(new float[]{FastMath.PI * 0.06f, FastMath.PI * 0.65f, 0}));
 
 
@@ -83,9 +99,8 @@ public class TestPostWater extends SimpleApplication {
         mainScene.attachChild(sky);
         cam.setFrustumFar(4000);
         //cam.setFrustumNear(100);
-        AudioNode waves = new AudioNode(audioRenderer, assetManager, "Sound/Environment/Ocean Waves.ogg", false);
-        waves.setLooping(true);
-        audioRenderer.playSource(waves);
+       
+        
 
         //private FilterPostProcessor fpp;
 
@@ -94,15 +109,22 @@ public class TestPostWater extends SimpleApplication {
 
         FilterPostProcessor fpp = new FilterPostProcessor(assetManager);
         fpp.addFilter(water);
-        
+        BloomFilter bloom=new BloomFilter();
+        bloom.setExposurePower(55);
+        fpp.addFilter(bloom);
+        LightScatteringFilter lsf = new LightScatteringFilter(lightDir.mult(-300));
+        lsf.setLightDensity(1.0f);
+        fpp.addFilter(lsf);
         DepthOfFieldFilter dof=new DepthOfFieldFilter();
         dof.setFocusDistance(0);
-        dof.setFocusRange(100);        
-        fpp.addFilter(new TranslucentBucketFilter());
+        dof.setFocusRange(100);     
         fpp.addFilter(dof);
+//        
         
+    //    fpp.addFilter(new TranslucentBucketFilter());
+ //       
         
-        //     fpp.setNumSamples(4);
+         // fpp.setNumSamples(4);
 
 
         water.setWaveScale(0.003f);
@@ -116,8 +138,17 @@ public class TestPostWater extends SimpleApplication {
         //water.setFoamHardness(0.6f);
 
         water.setWaterHeight(initialWaterHeight);
-       
+      uw=cam.getLocation().y<waterHeight; 
       
+        waves = new AudioNode(audioRenderer, assetManager, "Sound/Environment/Ocean Waves.ogg", false);
+        waves.setLooping(true);
+        waves.setReverbEnabled(true);
+        if(uw){
+            waves.setDryFilter(new LowPassFilter(0.5f, 0.1f));
+        }else{
+            waves.setDryFilter(aboveWaterAudioFilter);            
+        }
+        audioRenderer.playSource(waves);
         //  
         viewPort.addProcessor(fpp);
 
@@ -140,8 +171,8 @@ public class TestPostWater extends SimpleApplication {
         inputManager.addMapping("foam1", new KeyTrigger(keyInput.KEY_1));
         inputManager.addMapping("foam2", new KeyTrigger(keyInput.KEY_2));
         inputManager.addMapping("foam3", new KeyTrigger(keyInput.KEY_3));
-        createBox();
-        createFire();
+//        createBox();
+//        createFire();
     }
     Geometry box;
 
@@ -248,7 +279,7 @@ public class TestPostWater extends SimpleApplication {
     private float time = 0.0f;
     private float waterHeight = 0.0f;
     private float initialWaterHeight = 0.8f;
-
+private boolean uw=false;
     @Override
     public void simpleUpdate(float tpf) {
         super.simpleUpdate(tpf);
@@ -256,5 +287,17 @@ public class TestPostWater extends SimpleApplication {
         time += tpf;
         waterHeight = (float) Math.cos(((time * 0.6f) % FastMath.TWO_PI)) * 1.5f;
         water.setWaterHeight(initialWaterHeight + waterHeight);
+        if(water.isUnderWater() && !uw){
+           
+            waves.setDryFilter(new LowPassFilter(0.5f, 0.1f));
+            uw=true;
+        }
+        if(!water.isUnderWater() && uw){
+            uw=false;
+             //waves.setReverbEnabled(false);
+             waves.setDryFilter(new LowPassFilter(1, 1f));
+             //waves.setDryFilter(new LowPassFilter(1,1f));
+             
+        }
     }
 }

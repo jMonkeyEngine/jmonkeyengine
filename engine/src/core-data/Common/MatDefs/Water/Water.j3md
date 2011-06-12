@@ -4,6 +4,7 @@ MaterialDef Advanced Water {
         Int NumSamples
         Int NumSamplesDepth
         Texture2D FoamMap
+        Texture2D CausticsMap
         Texture2D NormalMap
         Texture2D ReflectionMap
         Texture2D HeightMap
@@ -39,10 +40,12 @@ MaterialDef Advanced Water {
         Boolean UseHQShoreline
         Boolean UseSpecular
         Boolean UseFoam
+        Boolean UseCaustics 
         Boolean UseRefraction
+
     }
 
-   Technique {
+    Technique {
         VertexShader   GLSL150 : Common/MatDefs/Post/Post15.vert
         FragmentShader GLSL150 : Common/MatDefs/Water/Water15.frag
 
@@ -51,8 +54,14 @@ MaterialDef Advanced Water {
         }
 
         Defines {
-            RESOLVE_MS : NumSamples
+          RESOLVE_MS : NumSamples
             RESOLVE_DEPTH_MS : NumSamplesDepth
+            ENABLE_RIPPLES : UseRipples
+            ENABLE_HQ_SHORELINE : UseHQShoreline
+            ENABLE_SPECULAR : UseSpecular
+            ENABLE_FOAM : UseFoam
+            ENABLE_CAUSTICS : UseCaustics
+            ENABLE_REFRACTION : UseRefraction
         }
     }
 
@@ -68,7 +77,9 @@ MaterialDef Advanced Water {
             ENABLE_HQ_SHORELINE : UseHQShoreline
             ENABLE_SPECULAR : UseSpecular
             ENABLE_FOAM : UseFoam
+            ENABLE_CAUSTICS : UseCaustics
             ENABLE_REFRACTION : UseRefraction
+
         }
     }
 

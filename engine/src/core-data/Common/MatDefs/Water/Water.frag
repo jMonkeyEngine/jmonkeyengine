@@ -8,6 +8,7 @@ uniform sampler2D m_Texture;
 uniform sampler2D m_DepthTexture;
 uniform sampler2D m_NormalMap;
 uniform sampler2D m_FoamMap;
+uniform sampler2D m_CausticsMap;
 uniform sampler2D m_ReflectionMap;
 
 uniform mat4 m_ViewProjectionMatrixInverse;
@@ -114,6 +115,112 @@ float fresnelTerm(in vec3 normal,in vec3 eyeVec){
     return saturate(fresnel * (1.0 - saturate(m_R0)) + m_R0 - m_RefractionStrength);
 }
 
+vec2 m_FrustumNearFar=vec2(1.0,50);
+const float LOG2 = 1.442695;
+
+vec4 underWater(){
+
+
+    float sceneDepth = texture2D(m_DepthTexture, texCoord).r;
+    vec3 color2 = texture2D(m_Texture, texCoord).rgb;
+    
+    vec3 position = getPosition(sceneDepth, texCoord);
+    float level = m_WaterHeight;
+
+    vec3 eyeVec = position - m_CameraPosition;    
+ 
+    // Find intersection with water surface
+    vec3 eyeVecNorm = normalize(eyeVec);
+    float t = (level - m_CameraPosition.y) / eyeVecNorm.y;
+    vec3 surfacePoint = m_CameraPosition + eyeVecNorm * t;
+
+    vec2 texC = vec2(0.0);
+
+    float cameraDepth = length(m_CameraPosition - surfacePoint);  
+    texC = (surfacePoint.xz + eyeVecNorm.xz) * scale + m_Time * 0.03 * m_WindDirection;
+    float bias = texture(m_HeightMap, texC).r;
+    level += bias * m_MaxAmplitude;
+    t = (level - m_CameraPosition.y) / eyeVecNorm.y;
+    surfacePoint = m_CameraPosition + eyeVecNorm * t; 
+    eyeVecNorm = normalize(m_CameraPosition - surfacePoint);
+
+    // Find normal of water surface
+    float normal1 = textureOffset(m_HeightMap, texC, ivec2(-1,  0)).r;
+    float normal2 = textureOffset(m_HeightMap, texC, ivec2( 1,  0)).r;
+    float normal3 = textureOffset(m_HeightMap, texC, ivec2( 0, -1)).r;
+    float normal4 = textureOffset(m_HeightMap, texC, ivec2( 0,  1)).r;
+
+    vec3 myNormal = normalize(vec3((normal1 - normal2) * m_MaxAmplitude,m_NormalScale,(normal3 - normal4) * m_MaxAmplitude));
+    vec3 normal = myNormal*-1.0;
+    float fresnel = fresnelTerm(normal, eyeVecNorm); 
+
+    vec3 refraction = color2;
+    #ifdef ENABLE_REFRACTION
+        texC = texCoord.xy *sin (fresnel+1.0);
+        refraction = texture2D(m_Texture, texC).rgb;
+    #endif 
+
+   float waterCol = saturate(length(m_LightColor.rgb) / m_SunScale);
+   refraction = mix(mix(refraction, m_DeepWaterColor.rgb * waterCol, m_WaterTransparency),  m_WaterColor.rgb* waterCol,m_WaterTransparency);
+
+    vec3 foam = vec3(0.0);
+    #ifdef ENABLE_FOAM    
+        texC = (surfacePoint.xz + eyeVecNorm.xz * 0.1) * 0.05 + m_Time * 0.05 * m_WindDirection + sin(m_Time * 0.001 + position.x) * 0.005;
+        vec2 texCoord2 = (surfacePoint.xz + eyeVecNorm.xz * 0.1) * 0.05 + m_Time * 0.1 * m_WindDirection + sin(m_Time * 0.001 + position.z) * 0.005;
+
+        if(m_MaxAmplitude - m_FoamExistence.z> 0.0001){
+            foam += ((texture2D(m_FoamMap, texC) + texture2D(m_FoamMap, texCoord2)) * m_FoamIntensity  * m_FoamIntensity * 0.3 *
+               saturate((level - (m_WaterHeight + m_FoamExistence.z)) / (m_MaxAmplitude - m_FoamExistence.z))).rgb;
+        }
+        foam *= m_LightColor.rgb;    
+    #endif
+
+
+
+    vec3 specular = vec3(0.0);   
+    vec3 color ;
+    float fogFactor;
+
+    if(position.y>level){
+        #ifdef ENABLE_SPECULAR
+            if(step(0.9999,sceneDepth)==1.0){
+                vec3 lightDir=normalize(m_LightDir);
+                vec3 mirrorEye = (2.0 * dot(eyeVecNorm, normal) * normal - eyeVecNorm);
+                float dotSpec = saturate(dot(mirrorEye.xyz, -lightDir) * 0.5 + 0.5);
+                specular = vec3((1.0 - fresnel) * saturate(-lightDir.y) * ((pow(dotSpec, 512.0)) * (m_Shininess * 1.8 + 0.2)));
+                specular += specular * 25.0 * saturate(m_Shininess - 0.05);
+                specular=specular * m_LightColor.rgb * 100.0;
+            }
+        #endif
+        float fogIntensity= 8 * m_WaterTransparency;
+        fogFactor = exp2( -fogIntensity * fogIntensity * cameraDepth * 0.03 * LOG2 );
+        fogFactor = clamp(fogFactor, 0.0, 1.0);        
+        color =mix(m_DeepWaterColor.rgb,refraction,fogFactor);   
+        specular=specular*fogFactor;    
+        color = saturate(color + max(specular, foam ));
+    }else{
+        vec3 caustics = vec3(0.0);
+        #ifdef ENABLE_CAUSTICS 
+            vec2 windDirection=m_WindDirection;
+            texC = (position.xz + eyeVecNorm.xz * 0.1) * 0.05 + m_Time * 0.05 * windDirection + sin(m_Time  + position.x) * 0.01;
+            vec2 texCoord2 = (position.xz + eyeVecNorm.xz * 0.1) * 0.05 + m_Time * 0.05 * windDirection + sin(m_Time  + position.z) * 0.01;
+            caustics += (texture2D(m_CausticsMap, texC)+ texture2D(m_CausticsMap, texCoord2)).rgb;      
+            caustics *= m_WaterColor.rgb;
+            color=mix(color2, caustics,0.6);
+        #else
+            color=color2;
+        #endif
+                
+        float fogDepth= (2.0 * m_FrustumNearFar.x) / (m_FrustumNearFar.y + m_FrustumNearFar.x - sceneDepth* (m_FrustumNearFar.y-m_FrustumNearFar.x));
+        float fogIntensity= 18 * m_WaterTransparency;
+        fogFactor = exp2( -fogIntensity * fogIntensity * fogDepth *  fogDepth * LOG2 );
+        fogFactor = clamp(fogFactor, 0.0, 1.0);
+        color =mix(m_DeepWaterColor.rgb,color,fogFactor);
+    }
+
+    return vec4(color, 1.0);   
+}
+
 void main(){
     float sceneDepth = texture2D(m_DepthTexture, texCoord).r;
     float isAtFarPlane = step(0.99998, sceneDepth);
@@ -125,10 +232,10 @@ void main(){
 
     float level = m_WaterHeight;
 
-    // If we are underwater let's leave out complex computations
+    // If we are underwater let's go to under water function
     if(level >= m_CameraPosition.y){
-        gl_FragColor = vec4(color2, 1.0);
-        return;
+        gl_FragColor = underWater();
+        return ;
     }
 
     //#ifndef ENABLE_RIPPLES
@@ -284,10 +391,6 @@ void main(){
     // to calculate the derivatives for all these pixels by using step()!
     // That way we won't get pixels around the edges of the terrain,
     // Where the derivatives are undefined
-/*    float coef=1.0;
-    if(position.y<level)coef=0.0;
-    gl_FragColor = vec4(mix(color, color2, coef), 1.0);
-    */
     if(position.y > level){
             color = color2;
     }
