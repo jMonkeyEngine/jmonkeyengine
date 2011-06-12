@@ -68,6 +68,8 @@ public class BlenderInputStream extends InputStream {
     protected int size;
     /** The current position of the read cursor. */
     protected int position;
+	/** The input stream we read the data from. */
+	protected InputStream		inputStream;
 
     /**
      * Constructor. The input stream is stored and used to read data.
@@ -82,6 +84,7 @@ public class BlenderInputStream extends InputStream {
      */
     public BlenderInputStream(InputStream inputStream, AssetManager assetManager) throws BlenderFileException {
         this.assetManager = assetManager;
+        this.inputStream = inputStream;
         //the size value will canche while reading the file; the available() method cannot be counted on
         try {
             size = inputStream.available();
@@ -376,6 +379,7 @@ public class BlenderInputStream extends InputStream {
 
     @Override
     public void close() throws IOException {
+		inputStream.close();
 //		cachedBuffer = null;
 //		size = position = 0;
     }
