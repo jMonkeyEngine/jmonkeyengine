@@ -75,6 +75,11 @@ public class Camera implements Savable, Cloneable {
 
     private static final Logger logger = Logger.getLogger(Camera.class.getName());
 
+    /**
+     * The <code>FrustumIntersect</code> enum is returned as a result
+     * of a culling check operation, 
+     * see {@link #contains(com.jme3.bounding.BoundingVolume) }
+     */
     public enum FrustumIntersect {
 
         /**
@@ -93,40 +98,40 @@ public class Camera implements Savable, Cloneable {
          */
         Intersects;
     }
-    //planes of the frustum
+    
     /**
      * LEFT_PLANE represents the left plane of the camera frustum.
      */
-    public static final int LEFT_PLANE = 0;
+    private static final int LEFT_PLANE = 0;
     /**
      * RIGHT_PLANE represents the right plane of the camera frustum.
      */
-    public static final int RIGHT_PLANE = 1;
+    private static final int RIGHT_PLANE = 1;
     /**
      * BOTTOM_PLANE represents the bottom plane of the camera frustum.
      */
-    public static final int BOTTOM_PLANE = 2;
+    private static final int BOTTOM_PLANE = 2;
     /**
      * TOP_PLANE represents the top plane of the camera frustum.
      */
-    public static final int TOP_PLANE = 3;
+    private static final int TOP_PLANE = 3;
     /**
      * FAR_PLANE represents the far plane of the camera frustum.
      */
-    public static final int FAR_PLANE = 4;
+    private static final int FAR_PLANE = 4;
     /**
      * NEAR_PLANE represents the near plane of the camera frustum.
      */
-    public static final int NEAR_PLANE = 5;
+    private static final int NEAR_PLANE = 5;
     /**
      * FRUSTUM_PLANES represents the number of planes of the camera frustum.
      */
-    public static final int FRUSTUM_PLANES = 6;
+    private static final int FRUSTUM_PLANES = 6;
     /**
      * MAX_WORLD_PLANES holds the maximum planes allowed by the system.
      */
-    public static final int MAX_WORLD_PLANES = 6;
-    //the location and orientation of the camera.
+    private static final int MAX_WORLD_PLANES = 6;
+    
     /**
      * Camera's location
      */
@@ -159,12 +164,14 @@ public class Camera implements Savable, Cloneable {
      * Distance from camera to bottom frustum plane.
      */
     protected float frustumBottom;
+    
     //Temporary values computed in onFrustumChange that are needed if a
     //call is made to onFrameChange.
     protected float[] coeffLeft;
     protected float[] coeffRight;
     protected float[] coeffBottom;
     protected float[] coeffTop;
+    
     //view port coordinates
     /**
      * Percent value on display where horizontal viewing starts for this camera.
@@ -190,11 +197,13 @@ public class Camera implements Savable, Cloneable {
      * Array holding the planes that this camera will check for culling.
      */
     protected Plane[] worldPlane;
+    
     /**
      * A mask value set during contains() that allows fast culling of a Node's
      * children.
      */
     private int planeState;
+    
     protected int width;
     protected int height;
     protected boolean viewportChanged = true;
@@ -211,8 +220,7 @@ public class Camera implements Savable, Cloneable {
     protected String name;
 
     /**
-     * Don't use this constructor, use Camera(int width, int height)
-     * This constructor is for serialization only
+     * Serialization only. Do not use.
      */
     public Camera() {
         worldPlane = new Plane[MAX_WORLD_PLANES];
@@ -378,13 +386,13 @@ public class Camera implements Savable, Cloneable {
     /**
      * Resizes this camera's view with the given width and height. This is
      * similar to constructing a new camera, but reusing the same Object. This
-     * method is called by an associated renderer to notify the camera of
+     * method is called by an associated {@link RenderManager} to notify the camera of
      * changes in the display dimensions.
      *
-     * @param width
-     *            the view width
-     * @param height
-     *            the view height
+     * @param width the view width
+     * @param height the view height
+     * @param fixAspect If true, the camera's aspect ratio will be recomputed.
+     * Recomputing the aspect ratio requires changing the frustum values.
      */
     public void resize(int width, int height, boolean fixAspect) {
         this.width = width;
@@ -622,26 +630,6 @@ public class Camera implements Savable, Cloneable {
     }
 
     /**
-     * <code>setDirection</code> sets the direction vector of the camera.
-     * This operation doesn't change the left and up vectors of the camera,
-     * which must change if the camera is to actually face the given
-     * direction. In most cases the method {@link Camera#lookAtDirection(com.jme3.math.Vector3f, com.jme3.math.Vector3f) }
-     * should be used instead.
-     *
-     * @param direction the direction this camera is facing.
-     * @deprecated Manipulate the quaternion rotation instead: 
-     * {@link Camera#setRotation(com.jme3.math.Quaternion) }.
-     */
-    @Deprecated
-    public void setDirection(Vector3f direction) {
-        //this.rotation.lookAt(direction, getUp());
-        Vector3f left = getLeft();
-        Vector3f up = getUp();
-        this.rotation.fromAxes(left, up, direction);
-        onFrameChange();
-    }
-
-    /**
      * <code>lookAtDirection</code> sets the direction the camera is facing
      * given a direction and an up vector.
      *
@@ -682,7 +670,7 @@ public class Camera implements Savable, Cloneable {
      * normalize normalizes the camera vectors.
      */
     public void normalize() {
-        this.rotation.normalize();
+        this.rotation.normalizeLocal();
         onFrameChange();
     }
 
@@ -794,7 +782,7 @@ public class Camera implements Savable, Cloneable {
         newUp.set(newDirection).crossLocal(newLeft).normalizeLocal();
 
         this.rotation.fromAxes(newLeft, newUp, newDirection);
-        this.rotation.normalize();
+        this.rotation.normalizeLocal();
         assert vars.unlock();
 
         onFrameChange();
@@ -1279,6 +1267,8 @@ public class Camera implements Savable, Cloneable {
     }
 
     /**
+     * Converts the given position from world space to screen space.
+     * 
      * @see Camera#getScreenCoordinates
      */
     public Vector3f getScreenCoordinates(Vector3f worldPos) {
@@ -1286,7 +1276,7 @@ public class Camera implements Savable, Cloneable {
     }
 
     /**
-     * Implementation contributed by Zbyl.
+     * Converts the given position from world space to screen space.
      *
      * @see Camera#getScreenCoordinates(Vector3f, Vector3f)
      */

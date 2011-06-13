@@ -40,44 +40,113 @@ import com.jme3.texture.Image.Format;
 import com.jme3.texture.Texture;
 import java.util.Collection;
 
+/**
+ * <code>Caps</code> is an enum specifying a capability that the {@link Renderer}
+ * supports.
+ * 
+ * @author Kirill Vainer
+ */
 public enum Caps {
 
-    /// Framebuffer features
     /**
-     * Supports FrameBuffer Objects (FBO)
+     * Supports {@link FrameBuffer FrameBuffers}.
+     * <p>
+     * OpenGL: Renderer exposes the GL_EXT_framebuffer_object extension.<br>
+     * OpenGL ES: Renderer supports OpenGL ES 2.0.
      */
     FrameBuffer,
 
     /**
      * Supports framebuffer Multiple Render Targets (MRT)
+     * <p>
+     * OpenGL: Renderer exposes the GL_ARB_draw_buffers extension
      */
     FrameBufferMRT,
 
     /**
      * Supports framebuffer multi-sampling
+     * <p>
+     * OpenGL: Renderer exposes the GL EXT framebuffer multisample extension<br>
+     * OpenGL ES: Renderer exposes GL_APPLE_framebuffer_multisample or
+     * GL_ANGLE_framebuffer_multisample.
      */
     FrameBufferMultisample,
 
     /**
      * Supports texture multi-sampling
+     * <p>
+     * OpenGL: Renderer exposes the GL_ARB_texture_multisample extension<br>
+     * OpenGL ES: Renderer exposes the GL_IMG_multisampled_render_to_texture
+     * extension.
      */
     TextureMultisample,
 
-    /// API Version
+    /**
+     * Supports OpenGL 2.0 or OpenGL ES 2.0.
+     */
     OpenGL20,
+    
+    /**
+     * Supports OpenGL 2.1
+     */
     OpenGL21,
+    
+    /**
+     * Supports OpenGL 3.0
+     */
     OpenGL30,
+    
+    /**
+     * Supports OpenGL 3.1
+     */
     OpenGL31,
+    
+    /**
+     * Supports OpenGL 3.2
+     */
     OpenGL32,
 
-    /// Shader language version
+    /**
+     * Supports OpenGL ARB program.
+     * <p>
+     * OpenGL: Renderer exposes ARB_vertex_program and ARB_fragment_program
+     * extensions.
+     */
     ARBprogram,
+    
+    /**
+     * Supports GLSL 1.0
+     */
     GLSL100,
+    
+    /**
+     * Supports GLSL 1.1
+     */
     GLSL110,
+    
+    /**
+     * Supports GLSL 1.2
+     */
     GLSL120,
+    
+    /**
+     * Supports GLSL 1.3
+     */
     GLSL130,
+    
+    /**
+     * Supports GLSL 1.4
+     */
     GLSL140,
+    
+    /**
+     * Supports GLSL 1.5
+     */
     GLSL150,
+    
+    /**
+     * Supports GLSL 3.3
+     */
     GLSL330,
 
     /**
@@ -159,6 +228,18 @@ public enum Caps {
      */
     Multisample;
 
+    /**
+     * Returns true if given the renderer capabilities, the texture
+     * can be supported by the renderer.
+     * <p>
+     * This only checks the format of the texture, non-power-of-2
+     * textures are scaled automatically inside the renderer 
+     * if are not supported natively.
+     * 
+     * @param caps The collection of renderer capabilities {@link Renderer#getCaps() }.
+     * @param tex The texture to check
+     * @return True if it is supported, false otherwise.
+     */
     public static boolean supports(Collection<Caps> caps, Texture tex){
         if (tex.getType() == Texture.Type.TwoDimensionalArray
          && !caps.contains(Caps.TextureArray))
@@ -188,6 +269,14 @@ public enum Caps {
         }
     }
 
+    /**
+     * Returns true if given the renderer capabilities, the framebuffer
+     * can be supported by the renderer.
+     * 
+     * @param caps The collection of renderer capabilities {@link Renderer#getCaps() }.
+     * @param fb The framebuffer to check
+     * @return True if it is supported, false otherwise.
+     */
     public static boolean supports(Collection<Caps> caps, FrameBuffer fb){
         if (!caps.contains(Caps.FrameBuffer))
             return false;
@@ -234,6 +323,14 @@ public enum Caps {
         return true;
     }
 
+    /**
+     * Returns true if given the renderer capabilities, the shader
+     * can be supported by the renderer.
+     * 
+     * @param caps The collection of renderer capabilities {@link Renderer#getCaps() }.
+     * @param fb The shader to check
+     * @return True if it is supported, false otherwise.
+     */
     public static boolean supports(Collection<Caps> caps, Shader shader){
         String lang = shader.getLanguage();
         if (lang.startsWith("GLSL")){
@@ -251,6 +348,8 @@ public enum Caps {
                     return caps.contains(Caps.GLSL140);
                 case 150:
                     return caps.contains(Caps.GLSL150);
+                case 330:
+                    return caps.contains(Caps.GLSL330);
                 default:
                     return false;
             }

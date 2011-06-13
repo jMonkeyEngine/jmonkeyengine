@@ -32,13 +32,12 @@
 
 package com.jme3.renderer;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 /**
  * Describes a GL object. An encapsulation of a certain object 
  * on the native side of the graphics library.
- * This class is used to track
+ * This class is used to track when OpenGL native objects are collected
+ * by the garbage collector, and then invoke the proper destructor
+ * on the OpenGL library to delete it from memory.
  */
 public abstract class GLObject implements Cloneable {
 
@@ -66,6 +65,9 @@ public abstract class GLObject implements Cloneable {
      */
     protected final Type type;
 
+    /**
+     * The type of the GLObject, usually specified by a subclass.
+     */
     public static enum Type {
         /**
          * A texture is an image that is applied to geometry.
@@ -97,6 +99,12 @@ public abstract class GLObject implements Cloneable {
         FrameBuffer,
     }
 
+    /**
+     * Creates a new GLObject with the given type. Should be
+     * called by the subclasses.
+     * 
+     * @param type The type that the subclass represents.
+     */
     public GLObject(Type type){
         this.type = type;
         this.handleRef = new Object();
@@ -131,17 +139,24 @@ public abstract class GLObject implements Cloneable {
         return id;
     }
 
+    /**
+     * Internal use only. Indicates that the object has changed
+     * and its state needs to be updated.
+     */
     public void setUpdateNeeded(){
         updateNeeded = true;
     }
 
     /**
-     * 
+     * Internal use only. Indicates that the state changes were applied.
      */
     public void clearUpdateNeeded(){
         updateNeeded = false;
     }
 
+    /**
+     * Internal use only. Check if {@link #setUpdateNeeded()} was called before.
+     */
     public boolean isUpdateNeeded(){
         return updateNeeded;
     }
@@ -168,17 +183,6 @@ public abstract class GLObject implements Cloneable {
         }
     }
 
-//    @Override
-//    public boolean equals(Object other){
-//        if (this == other)
-//            return true;
-//        if (!(other instanceof GLObject))
-//            return false;
-//
-//    }
-
-    // Specialized calls to be used by object manager only.
-
     /**
      * Called when the GL context is restarted to reset all IDs. Prevents
      * "white textures" on display restart.
@@ -188,7 +192,8 @@ public abstract class GLObject implements Cloneable {
     /**
      * Deletes the GL object from the GPU when it is no longer used. Called
      * automatically by the GL object manager.
-     * @param r
+     * 
+     * @param r The renderer to be used to delete the object
      */
     public abstract void deleteObject(Renderer r);
 
