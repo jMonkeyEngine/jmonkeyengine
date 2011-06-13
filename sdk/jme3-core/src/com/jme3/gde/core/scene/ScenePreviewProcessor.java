@@ -83,7 +83,7 @@ public class ScenePreviewProcessor implements SceneProcessor {
         // create a pre-view. a view that is rendered before the main view
         offView = SceneApplication.getApplication().getRenderManager().createPreView("Offscreen View", offCamera);
         offView.setBackgroundColor(ColorRGBA.DarkGray);
-        offView.setClearEnabled(true);
+        offView.setClearFlags(true, true, true);
         
         offView.addProcessor(this);
 

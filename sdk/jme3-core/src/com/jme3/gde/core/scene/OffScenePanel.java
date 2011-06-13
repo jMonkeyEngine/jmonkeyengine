@@ -191,7 +191,7 @@ public class OffScenePanel extends javax.swing.JPanel implements SceneProcessor 
         // create a pre-view. a view that is rendered before the main view
         viewPort = SceneApplication.getApplication().getRenderManager().createPreView("Offscreen View", camera);
         viewPort.setBackgroundColor(ColorRGBA.DarkGray);
-        viewPort.setClearEnabled(true);
+        viewPort.setClearFlags(true, true, true);
         viewPort.addProcessor(this);
     }
 
