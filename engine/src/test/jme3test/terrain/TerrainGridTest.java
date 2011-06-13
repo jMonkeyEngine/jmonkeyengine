@@ -40,7 +40,7 @@ import org.novyon.noise.modulator.NoiseModulator;
 public class TerrainGridTest extends SimpleApplication {
 
     private Material mat_terrain;
-    private TerrainQuad terrain;
+    private TerrainGrid terrain;
     private float grassScale = 64;
     private float dirtScale = 16;
     private float rockScale = 128;
@@ -65,7 +65,7 @@ public class TerrainGridTest extends SimpleApplication {
         }else{
             assetManager.registerLocator("mountains.zip", ZipLocator.class.getName());
         }
-        
+
         this.flyCam.setMoveSpeed(100f);
         ScreenshotAppState state = new ScreenshotAppState();
         this.stateManager.attach(state);
@@ -150,6 +150,7 @@ public class TerrainGridTest extends SimpleApplication {
         this.terrain.setMaterial(this.mat_terrain);
         this.terrain.setLocalTranslation(0, 0, 0);
         this.terrain.setLocalScale(2f, 1f, 2f);
+        this.terrain.initialize(Vector3f.ZERO);
         this.rootNode.attachChild(this.terrain);
 
         List<Camera> cameras = new ArrayList<Camera>();

@@ -37,7 +37,7 @@ import org.novyon.noise.modulator.NoiseModulator;
 public class TerrainFractalGridTest extends SimpleApplication {
 
     private Material mat_terrain;
-    private TerrainQuad terrain;
+    private TerrainGrid terrain;
     private float grassScale = 64;
     private float dirtScale = 16;
     private float rockScale = 128;
@@ -86,7 +86,7 @@ public class TerrainFractalGridTest extends SimpleApplication {
         this.mat_terrain.setVector3("region2", new Vector3f(0, 90, this.dirtScale));
 
         // ROCK texture
-        Texture rock = this.assetManager.loadTexture("Textures/Terrain/grid/rock.jpg");
+        Texture rock = this.assetManager.loadTexture("Textures/Terrain/Rock2/rock.jpg");
         rock.setWrap(WrapMode.Repeat);
         this.mat_terrain.setTexture("region3ColorMap", rock);
         this.mat_terrain.setVector3("region3", new Vector3f(198, 260, this.rockScale));
@@ -137,6 +137,7 @@ public class TerrainFractalGridTest extends SimpleApplication {
         this.terrain.setMaterial(this.mat_terrain);
         this.terrain.setLocalTranslation(0, 0, 0);
         this.terrain.setLocalScale(2f, 1f, 2f);
+        this.terrain.initialize(Vector3f.ZERO);
         this.rootNode.attachChild(this.terrain);
 
         List<Camera> cameras = new ArrayList<Camera>();
