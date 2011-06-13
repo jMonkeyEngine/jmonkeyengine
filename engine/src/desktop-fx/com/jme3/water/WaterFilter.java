@@ -112,6 +112,9 @@ public class WaterFilter extends Filter {
     private boolean underWater;
     private float underWaterFogDistance = 120;
     private float causticsIntensity = 0.5f;
+    
+    private RenderManager renderManager;
+    private ViewPort viewPort;
 
     /**
      * Create a Water Filter
@@ -135,11 +138,6 @@ public class WaterFilter extends Filter {
     public void preFrame(float tpf) {
         time = time + (tpf * speed);
         material.setFloat("Time", time);
-        savedTpf = tpf;
-    }
-
-    @Override
-    public void postQueue(RenderManager renderManager, ViewPort viewPort) {
         Camera sceneCam = viewPort.getCamera();
         biasMatrix.mult(sceneCam.getViewProjectionMatrix(), textureProjMatrix);
         material.setMatrix4("TextureProjMatrix", textureProjMatrix);
@@ -174,6 +172,7 @@ public class WaterFilter extends Filter {
         float planeDistance = plane.pseudoDistance(vars.vect1);
         vars.vect2.set(plane.getNormal()).multLocal(planeDistance * 2.0f);
         vars.vect3.set(vars.vect1.subtractLocal(vars.vect2)).subtractLocal(loc).normalizeLocal().negateLocal();
+        
         reflectionCam.lookAt(targetLocation, vars.vect3);
 
         assert vars.unlock();
@@ -188,17 +187,27 @@ public class WaterFilter extends Filter {
                 renderManager.setHandleTranslucentBucket(true);
                 rtb = false;
             }
-            renderManager.renderViewPort(reflectionView, savedTpf);
+            renderManager.renderViewPort(reflectionView, tpf);
             if (!rtb) {
                 renderManager.setHandleTranslucentBucket(false);
             }
-            renderManager.getRenderer().setFrameBuffer(viewPort.getOutputFrameBuffer());
             renderManager.setCamera(sceneCam, false);
+            renderManager.getRenderer().setFrameBuffer(viewPort.getOutputFrameBuffer());
+                        
+            
             underWater = false;
         } else {
             underWater = true;
         }
     }
+
+    @Override
+    public void init(AssetManager manager, RenderManager renderManager, ViewPort vp, int w, int h) {
+        super.init(manager, renderManager, vp, w, h);
+        this.renderManager=renderManager;
+        this.viewPort=vp;
+    }
+      
 
     @Override
     public Material getMaterial() {
