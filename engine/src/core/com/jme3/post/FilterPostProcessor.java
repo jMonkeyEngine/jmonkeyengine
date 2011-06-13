@@ -55,6 +55,11 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+/**
+ * A FilterPostProcessor is a processor that can apply several {@link Filter}s to a rendered scene<br>
+ * It manages a list of filters that will be applied in the order in which they've been added to the list
+ * @author Rémy Bouquet aka Nehon
+ */
 public class FilterPostProcessor implements SceneProcessor, Savable {
 
     private RenderManager renderManager;
@@ -81,25 +86,26 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
     private int originalHeight;
     private int lastFilterIndex = -1;
     private boolean cameraInit = false;
-//    private boolean handleTranslucentBucket = false;
-//    private FrameBuffer transFrameBuffer;
-//    private Material transMaterial;
-//    private boolean isTransparencyRendered=false;
 
     /**
-     * Create a FilterProcessor constructor
-     * @param assetManager the Asset Manager
+     * Create a FilterProcessor 
+     * @param assetManager the assetManager
      */
     public FilterPostProcessor(AssetManager assetManager) {
         this.assetManager = assetManager;
     }
 
     /**
-     * Don't use this constructor use FilterPostProcessor(AssetManager assetManager)
+     * Don't use this constructor use {@link FilterPostProcessor(AssetManager assetManager)}<br>
+     * This constructor is used for serialization only
      */
     public FilterPostProcessor() {
     }
 
+    /**
+     * Adds a filter to the filters list<br>
+     * @param filter the filter to add
+     */
     public void addFilter(Filter filter) {
         filters.add(filter);
         filter.setProcessor(this);
@@ -112,6 +118,10 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
 
     }
 
+    /**
+     * removes this filters from the filters list
+     * @param filter 
+     */
     public void removeFilter(Filter filter) {
         for (Iterator<Filter> it = filters.iterator(); it.hasNext();) {
             if (it.next() == filter) {
@@ -140,6 +150,11 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
         reshape(vp, cam.getWidth(), cam.getHeight());
     }
 
+    /**
+     * init the given filter
+     * @param filter
+     * @param vp 
+     */
     private void initFilter(Filter filter, ViewPort vp) {
         filter.init(assetManager, renderManager, vp, width, height);
         if (filter.isRequiresDepthTexture()) {
@@ -152,6 +167,12 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
         }
     }
 
+    /**
+     * renders a filter on a fullscreen quad
+     * @param r
+     * @param buff
+     * @param mat 
+     */
     private void renderProcessing(Renderer r, FrameBuffer buff, Material mat) {
         if (buff == outputBuffer) {
             fsQuad.setWidth(width);
@@ -199,7 +220,12 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
     }
     Picture pic = new Picture("debug");
 
-    public void renderFilterChain(Renderer r, FrameBuffer sceneFb) {
+    /**
+     * iterate through the filter list and renders filters
+     * @param r
+     * @param sceneFb 
+     */
+    private void renderFilterChain(Renderer r, FrameBuffer sceneFb) {
         Texture2D tex = filterTexture;
         FrameBuffer buff = sceneFb;
         boolean msDepth = depthTexture != null && depthTexture.getImage().getMultiSamples() > 1;
@@ -268,7 +294,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
         }
         renderFilterChain(renderer, sceneBuffer);
         renderManager.setCamera(viewPort.getCamera(), false);
-        
+
         renderer.setFrameBuffer(outputBuffer);
 
     }
@@ -305,6 +331,11 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
 
     }
 
+    /**
+     * sets the filter to enabled or disabled
+     * @param filter
+     * @param enabled 
+     */
     protected void setFilterState(Filter filter, boolean enabled) {
         if (filters.contains(filter)) {
             filter.enabled = enabled;
@@ -312,6 +343,9 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
         }
     }
 
+    /**
+     * compute the index of the last filter to render
+     */
     private void updateLastFilterIndex() {
         lastFilterIndex = -1;
         for (int i = filters.size() - 1; i >= 0 && lastFilterIndex == -1; i--) {
@@ -423,32 +457,32 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
         this.assetManager = assetManager;
     }
 
-    /**
-     * Writes the processor
-     * @param ex
-     * @throws IOException
-     */
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule oc = ex.getCapsule(this);
         oc.write(numSamples, "numSamples", 0);
         oc.writeSavableArrayList((ArrayList) filters, "filters", null);
     }
 
-    /**
-     * Reads the processor
-     * @param im
-     * @throws IOException
-     */
     public void read(JmeImporter im) throws IOException {
         InputCapsule ic = im.getCapsule(this);
         numSamples = ic.readInt("numSamples", 0);
         filters = ic.readSavableArrayList("filters", null);
     }
 
+    /**
+     * For internal use only<br>
+     * returns the depth texture of the scene
+     * @return 
+     */
     public Texture2D getDepthTexture() {
         return depthTexture;
     }
 
+    /**
+     * For internal use only<br>
+     * returns the rendered texture of the scene
+     * @return 
+     */
     public Texture2D getFilterTexture() {
         return filterTexture;
     }

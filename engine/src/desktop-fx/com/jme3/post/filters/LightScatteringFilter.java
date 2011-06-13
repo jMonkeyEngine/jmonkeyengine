@@ -41,13 +41,14 @@ import com.jme3.math.Vector3f;
 import com.jme3.post.Filter;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.RenderManager;
-import com.jme3.renderer.Renderer;
 import com.jme3.renderer.ViewPort;
 import java.io.IOException;
 
 /**
+ * LightScattering filters creates rays comming from a light sources 
+ * This is often reffered as god rays.
  *
- * @author nehon
+ * @author Rémy Bouquet aka Nehon
  */
 public class LightScatteringFilter extends Filter {
 
@@ -59,25 +60,32 @@ public class LightScatteringFilter extends Filter {
     private float lightDensity = 1.4f;
     private boolean adaptative = true;
     Vector3f viewLightPos = new Vector3f();
-    private boolean display=true;
+    private boolean display = true;
     private float innerLightDensity;
 
+    /**
+     * creates a lightScaterring filter
+     */
     public LightScatteringFilter() {
         super("Light Scattering");
     }
 
+    /**
+     * Creates a lightScatteringFilter
+     * @param lightPosition 
+     */
     public LightScatteringFilter(Vector3f lightPosition) {
         this();
         this.lightPosition = lightPosition;
     }
 
     @Override
-    public boolean isRequiresDepthTexture() {
+    protected boolean isRequiresDepthTexture() {
         return true;
     }
 
     @Override
-    public Material getMaterial() {
+    protected Material getMaterial() {
         material.setVector3("LightPosition", screenLightPos);
         material.setInt("NbSamples", nbSamples);
         material.setFloat("BlurStart", blurStart);
@@ -88,7 +96,7 @@ public class LightScatteringFilter extends Filter {
     }
 
     @Override
-    public void postQueue(RenderManager renderManager, ViewPort viewPort) {
+    protected void postQueue(RenderManager renderManager, ViewPort viewPort) {
         getClipCoordinates(lightPosition, screenLightPos, viewPort.getCamera());
         //  screenLightPos.x = screenLightPos.x / viewPort.getCamera().getWidth();
         //  screenLightPos.y = screenLightPos.y / viewPort.getCamera().getHeight();
@@ -101,12 +109,12 @@ public class LightScatteringFilter extends Filter {
 //System.err.println("screenLightPos "+screenLightPos);
         if (adaptative) {
             innerLightDensity = Math.max(lightDensity - Math.max(screenLightPos.x, screenLightPos.y), 0.0f);
-        }else{
-            innerLightDensity=lightDensity;
+        } else {
+            innerLightDensity = lightDensity;
         }
     }
 
-    public Vector3f getClipCoordinates(Vector3f worldPosition, Vector3f store, Camera cam) {
+    private Vector3f getClipCoordinates(Vector3f worldPosition, Vector3f store, Camera cam) {
 
         float w = cam.getViewProjectionMatrix().multProj(worldPosition, store);
         store.divideLocal(w);
@@ -119,46 +127,92 @@ public class LightScatteringFilter extends Filter {
     }
 
     @Override
-    public void initFilter(AssetManager manager, RenderManager renderManager, ViewPort vp, int w, int h) {
+    protected void initFilter(AssetManager manager, RenderManager renderManager, ViewPort vp, int w, int h) {
         material = new Material(manager, "Common/MatDefs/Post/LightScattering.j3md");
     }
 
+    /**
+     * returns the blur start of the scattering 
+     * see {@link  setBlurStart(float blurStart)}
+     * @return 
+     */
     public float getBlurStart() {
         return blurStart;
     }
 
+    /**
+     * sets the blur start<br>
+     * at which distance from the light source the effect starts default is 0.02
+     * @param blurStart 
+     */
     public void setBlurStart(float blurStart) {
         this.blurStart = blurStart;
     }
 
+    /**
+     * returns the blur width<br>
+     * see {@link setBlurWidth(float blurWidth)}
+     * @return 
+     */
     public float getBlurWidth() {
         return blurWidth;
     }
 
+    /**
+     * sets the blur width default is 0.9
+     * @param blurWidth 
+     */
     public void setBlurWidth(float blurWidth) {
         this.blurWidth = blurWidth;
     }
 
+    /**
+     * retiurns the light density<br>
+     * see {@link setLightDensity(float lightDensity)}
+     * 
+     * @return 
+     */
     public float getLightDensity() {
         return lightDensity;
     }
 
+    /**
+     * sets how much the effect is visible over the rendered scene default is 1.4
+     * @param lightDensity 
+     */
     public void setLightDensity(float lightDensity) {
         this.lightDensity = lightDensity;
     }
 
+    /**
+     * returns the light position
+     * @return 
+     */
     public Vector3f getLightPosition() {
         return lightPosition;
     }
 
+    /**
+     * sets the light position
+     * @param lightPosition 
+     */
     public void setLightPosition(Vector3f lightPosition) {
         this.lightPosition = lightPosition;
     }
 
+    /**
+     * returns the nmber of samples for the radial blur
+     * @return 
+     */
     public int getNbSamples() {
         return nbSamples;
     }
 
+    /**
+     * sets the number of samples for the radial blur default is 50
+     * the higher the value the higher the quality, but the slower the performances.
+     * @param nbSamples 
+     */
     public void setNbSamples(int nbSamples) {
         this.nbSamples = nbSamples;
     }
@@ -185,9 +239,5 @@ public class LightScatteringFilter extends Filter {
         blurWidth = ic.readFloat("blurWidth", 0.9f);
         lightDensity = ic.readFloat("lightDensity", 1.4f);
         adaptative = ic.readBoolean("adaptative", true);
-    }
-
-    @Override
-    public void cleanUpFilter(Renderer r) {
     }
 }

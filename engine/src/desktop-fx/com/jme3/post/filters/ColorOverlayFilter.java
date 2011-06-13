@@ -40,44 +40,58 @@ import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.post.Filter;
 import com.jme3.renderer.RenderManager;
-import com.jme3.renderer.Renderer;
 import com.jme3.renderer.ViewPort;
 import java.io.IOException;
 
 /** 
- *
- * @author nehon
+ * This filter simply multiply the whole scene by a color
+ * @author Rémy Bouquet aka Nehon
  */
 public class ColorOverlayFilter extends Filter {
 
     private ColorRGBA color = ColorRGBA.White;
 
+    /**
+     * creates a colorOverlayFilter with a white coor (transparent)
+     */
     public ColorOverlayFilter() {
         super("Color Overlay");
     }
 
+    /**
+     * creates a colorOverlayFilter with the given color
+     * @param color 
+     */
     public ColorOverlayFilter(ColorRGBA color) {
         this();
         this.color = color;
     }
 
     @Override
-    public Material getMaterial() {
+    protected Material getMaterial() {
 
         material.setColor("Color", color);
         return material;
     }
 
+    /**
+     * returns the color
+     * @return color
+     */
     public ColorRGBA getColor() {
         return color;
     }
 
+    /**
+     * sets the color 
+     * @param color 
+     */
     public void setColor(ColorRGBA color) {
         this.color = color;
     }
 
     @Override
-    public void initFilter(AssetManager manager, RenderManager renderManager, ViewPort vp, int w, int h) {
+    protected void initFilter(AssetManager manager, RenderManager renderManager, ViewPort vp, int w, int h) {
         material = new Material(manager, "Common/MatDefs/Post/Overlay.j3md");
     }
 
@@ -93,9 +107,5 @@ public class ColorOverlayFilter extends Filter {
         super.read(im);
         InputCapsule ic = im.getCapsule(this);
         color = (ColorRGBA) ic.readSavable("color", ColorRGBA.White);
-    }
-
-    @Override
-    public void cleanUpFilter(Renderer r) {
     }
 }

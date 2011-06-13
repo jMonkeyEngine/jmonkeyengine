@@ -112,7 +112,6 @@ public class WaterFilter extends Filter {
     private boolean underWater;
     private float underWaterFogDistance = 120;
     private float causticsIntensity = 0.5f;
-    
     private RenderManager renderManager;
     private ViewPort viewPort;
 
@@ -130,12 +129,12 @@ public class WaterFilter extends Filter {
     }
 
     @Override
-    public boolean isRequiresDepthTexture() {
+    protected boolean isRequiresDepthTexture() {
         return true;
     }
 
     @Override
-    public void preFrame(float tpf) {
+    protected void preFrame(float tpf) {
         time = time + (tpf * speed);
         material.setFloat("Time", time);
         Camera sceneCam = viewPort.getCamera();
@@ -172,7 +171,7 @@ public class WaterFilter extends Filter {
         float planeDistance = plane.pseudoDistance(vars.vect1);
         vars.vect2.set(plane.getNormal()).multLocal(planeDistance * 2.0f);
         vars.vect3.set(vars.vect1.subtractLocal(vars.vect2)).subtractLocal(loc).normalizeLocal().negateLocal();
-        
+
         reflectionCam.lookAt(targetLocation, vars.vect3);
 
         assert vars.unlock();
@@ -193,8 +192,8 @@ public class WaterFilter extends Filter {
             }
             renderManager.setCamera(sceneCam, false);
             renderManager.getRenderer().setFrameBuffer(viewPort.getOutputFrameBuffer());
-                        
-            
+
+
             underWater = false;
         } else {
             underWater = true;
@@ -202,21 +201,14 @@ public class WaterFilter extends Filter {
     }
 
     @Override
-    public void init(AssetManager manager, RenderManager renderManager, ViewPort vp, int w, int h) {
-        super.init(manager, renderManager, vp, w, h);
-        this.renderManager=renderManager;
-        this.viewPort=vp;
-    }
-      
-
-    @Override
-    public Material getMaterial() {
+    protected Material getMaterial() {
         return material;
     }
 
     @Override
-    public void initFilter(AssetManager manager, RenderManager renderManager, ViewPort vp, int w, int h) {
-
+    protected void initFilter(AssetManager manager, RenderManager renderManager, ViewPort vp, int w, int h) {
+        this.renderManager = renderManager;
+        this.viewPort = vp;
         reflectionPass = new Pass();
         reflectionPass.init(renderManager.getRenderer(), reflectionMapSize, reflectionMapSize, Format.RGBA8, Format.Depth);
         reflectionCam = new Camera(reflectionMapSize, reflectionMapSize);
@@ -744,13 +736,6 @@ public class WaterFilter extends Filter {
      */
     public void setReflectionMapSize(int reflectionMapSize) {
         this.reflectionMapSize = reflectionMapSize;
-    }
-
-    @Override
-    public void cleanUpFilter(Renderer r) {
-        if (reflectionPass != null) {
-            reflectionPass.cleanup(r);
-        }
     }
 
     /**

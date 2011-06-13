@@ -39,13 +39,13 @@ import com.jme3.export.OutputCapsule;
 import com.jme3.material.Material;
 import com.jme3.post.Filter;
 import com.jme3.renderer.RenderManager;
-import com.jme3.renderer.Renderer;
 import com.jme3.renderer.ViewPort;
 import java.io.IOException;
 
 /**
  *
- * @author Nehon
+ * Fade Filter allows you to make an animated fade effect on a scene.
+ * @author Rémy Bouquet aka Nehon
  * implemented from boxjar implementation
  * see http://jmonkeyengine.org/groups/graphics/forum/topic/newbie-question-general-fade-inout-effect/#post-105559
  */
@@ -56,29 +56,35 @@ public class FadeFilter extends Filter {
     private float direction = 1;
     private float duration = 1;
 
+    /**
+     * Creates a FadeFilter
+     */
     public FadeFilter() {
         super("Fade In/Out");
     }
 
+    /**
+     * Creates a FadeFilter with the given duration
+     * @param duration 
+     */
     public FadeFilter(float duration) {
         this();
         this.duration = duration;
     }
 
     @Override
-    public Material getMaterial() {
+    protected Material getMaterial() {
         material.setFloat("Value", value);
         return material;
     }
 
-
     @Override
-    public void initFilter(AssetManager manager, RenderManager renderManager, ViewPort vp, int w, int h) {
+    protected void initFilter(AssetManager manager, RenderManager renderManager, ViewPort vp, int w, int h) {
         material = new Material(manager, "Common/MatDefs/Post/Fade.j3md");
     }
 
     @Override
-    public void preFrame(float tpf) {
+    protected void preFrame(float tpf) {
         if (playing) {
             value += tpf * direction / duration;
 
@@ -95,20 +101,34 @@ public class FadeFilter extends Filter {
         }
     }
 
+    /**
+     * returns the duration of the effect 
+     * @return 
+     */
     public float getDuration() {
         return duration;
     }
 
+    /**
+     * Sets the duration of the filter default is 1 second
+     * @param duration 
+     */
     public void setDuration(float duration) {
         this.duration = duration;
     }
 
+    /**
+     * fades the scene in (black to scene)
+     */
     public void fadeIn() {
         setEnabled(true);
         direction = 1;
         playing = true;
     }
 
+    /**
+     * fades the scene out (scene to black)
+     */
     public void fadeOut() {
         setEnabled(true);
         direction = -1;
@@ -130,15 +150,21 @@ public class FadeFilter extends Filter {
         duration = ic.readFloat("duration", 1);
     }
 
+    /**
+     * return the current value of the fading
+     * can be used to chack if fade is complete (eg value=1)
+     * @return 
+     */
     public float getValue() {
         return value;
     }
 
+    /**
+     * sets the fade value
+     * can be used to force complete black or compete scene
+     * @param value 
+     */
     public void setValue(float value) {
         this.value = value;
-    }
-
-    @Override
-    public void cleanUpFilter(Renderer r) {
     }
 }

@@ -16,7 +16,8 @@ import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Texture2D;
 
 /**
- *
+ * A filter to handle translucent objects when rendering a scene with filters that uses depth like WaterFilter and SSAOFilter
+ * just create a TranslucentBucketFilter and add it to the Filter list of a FilterPostPorcessor
  * @author Nehon
  */
 public final class TranslucentBucketFilter extends Filter {
@@ -24,7 +25,7 @@ public final class TranslucentBucketFilter extends Filter {
     private RenderManager renderManager;
 
     @Override
-    public void initFilter(AssetManager manager, RenderManager rm, ViewPort vp, int w, int h) {
+    protected void initFilter(AssetManager manager, RenderManager rm, ViewPort vp, int w, int h) {
         this.renderManager = rm;
         material = new Material(manager, "Common/MatDefs/Post/Overlay.j3md");
         material.setColor("Color", ColorRGBA.White);
@@ -37,19 +38,20 @@ public final class TranslucentBucketFilter extends Filter {
         }
         renderManager.setHandleTranslucentBucket(false);
     }
-    
-     /**
+
+    /**
      * Override this method and return false if your Filter does not need the scene texture
      * @return
      */
-    public boolean isRequiresSceneTexture() {
+    @Override
+    protected boolean isRequiresSceneTexture() {
         return false;
     }
 
     @Override
-    public void postFrame(RenderManager renderManager, ViewPort viewPort, FrameBuffer prevFilterBuffer, FrameBuffer sceneBuffer) {
+    protected void postFrame(RenderManager renderManager, ViewPort viewPort, FrameBuffer prevFilterBuffer, FrameBuffer sceneBuffer) {
         renderManager.setCamera(viewPort.getCamera(), false);
-        if(prevFilterBuffer != sceneBuffer){
+        if (prevFilterBuffer != sceneBuffer) {
             renderManager.getRenderer().copyFrameBuffer(prevFilterBuffer, sceneBuffer, false);
         }
         renderManager.getRenderer().setFrameBuffer(sceneBuffer);
@@ -57,14 +59,14 @@ public final class TranslucentBucketFilter extends Filter {
     }
 
     @Override
-    public void cleanUpFilter(Renderer r) {
+    protected void cleanUpFilter(Renderer r) {
         if (renderManager != null) {
             renderManager.setHandleTranslucentBucket(true);
         }
     }
 
     @Override
-    public Material getMaterial() {
+    protected Material getMaterial() {
         return material;
     }
 

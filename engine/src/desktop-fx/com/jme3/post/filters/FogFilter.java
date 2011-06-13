@@ -40,13 +40,12 @@ import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.post.Filter;
 import com.jme3.renderer.RenderManager;
-import com.jme3.renderer.Renderer;
 import com.jme3.renderer.ViewPort;
 import java.io.IOException;
 
 /**
  * A filter to render a fog effect
- * @author Nehon
+ * @author Rémy Bouquet aka Nehon
  */
 public class FogFilter extends Filter {
 
@@ -54,6 +53,9 @@ public class FogFilter extends Filter {
     private float fogDensity = 0.7f;
     private float fogDistance = 1000;
 
+    /**
+     * Creates a FogFilter
+     */
     public FogFilter() {
         super("FogFilter");
     }
@@ -72,12 +74,12 @@ public class FogFilter extends Filter {
     }
 
     @Override
-    public boolean isRequiresDepthTexture() {
+    protected boolean isRequiresDepthTexture() {
         return true;
     }
 
     @Override
-    public void initFilter(AssetManager manager, RenderManager renderManager, ViewPort vp, int w, int h) {
+    protected void initFilter(AssetManager manager, RenderManager renderManager, ViewPort vp, int w, int h) {
         material = new Material(manager, "Common/MatDefs/Post/Fog.j3md");
         material.setColor("FogColor", fogColor);
         material.setFloat("FogDensity", fogDensity);
@@ -85,7 +87,7 @@ public class FogFilter extends Filter {
     }
 
     @Override
-    public Material getMaterial() {
+    protected Material getMaterial() {
 
         return material;
     }
@@ -166,7 +168,5 @@ public class FogFilter extends Filter {
         fogDistance = ic.readFloat("fogDistance", 1000);
     }
 
-    @Override
-    public void cleanUpFilter(Renderer r) {
-    }
+
 }

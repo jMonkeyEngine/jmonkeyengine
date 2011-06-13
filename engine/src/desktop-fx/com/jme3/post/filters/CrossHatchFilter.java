@@ -36,7 +36,6 @@ import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.post.Filter;
 import com.jme3.renderer.RenderManager;
-import com.jme3.renderer.Renderer;
 import com.jme3.renderer.ViewPort;
 
 /*
@@ -64,10 +63,18 @@ public class CrossHatchFilter extends Filter {
     private float lineThickness = 1.0f;
     private float lineDistance = 4.0f;
 
+    /**
+     * Creates a crossHatch filter
+     */
     public CrossHatchFilter() {
         super("CrossHatchFilter");
     }
 
+    /**
+     * Creates a crossHatch filter
+     * @param lineColor the colors of the lines
+     * @param paperColor the paper color
+     */
     public CrossHatchFilter(ColorRGBA lineColor, ColorRGBA paperColor) {
         this();
         this.lineColor = lineColor;
@@ -75,12 +82,12 @@ public class CrossHatchFilter extends Filter {
     }
 
     @Override
-    public boolean isRequiresDepthTexture() {
+    protected boolean isRequiresDepthTexture() {
         return false;
     }
 
     @Override
-    public void initFilter(AssetManager manager, RenderManager renderManager, ViewPort vp, int w, int h) {
+    protected void initFilter(AssetManager manager, RenderManager renderManager, ViewPort vp, int w, int h) {
         material = new Material(manager, "Common/MatDefs/Post/CrossHatch.j3md");
         material.setColor("LineColor", lineColor);
         material.setColor("PaperColor", paperColor);
@@ -101,16 +108,13 @@ public class CrossHatchFilter extends Filter {
     }
 
     @Override
-    public Material getMaterial() {
+    protected Material getMaterial() {
         return material;
     }
 
-    @Override
-    public void cleanUpFilter(Renderer r) {
-    }
-
-    /*
+    /**
      * Sets color used to draw lines
+     * @param lineColor 
      */
     public void setLineColor(ColorRGBA lineColor) {
         this.lineColor = lineColor;
@@ -119,8 +123,9 @@ public class CrossHatchFilter extends Filter {
         }
     }
 
-    /*
+    /**
      * Sets color used as background
+     * @param paperColor 
      */
     public void setPaperColor(ColorRGBA paperColor) {
         this.paperColor = paperColor;
@@ -128,10 +133,11 @@ public class CrossHatchFilter extends Filter {
             material.setColor("PaperColor", paperColor);
         }
     }
-    /*
-     * Sets color influence of original image on lines drawn
-     */
 
+    /**
+     * Sets color influence of original image on lines drawn
+     * @param colorInfluenceLine 
+     */
     public void setColorInfluenceLine(float colorInfluenceLine) {
         this.colorInfluenceLine = colorInfluenceLine;
         if (material != null) {
@@ -139,8 +145,9 @@ public class CrossHatchFilter extends Filter {
         }
     }
 
-    /*
+    /**
      * Sets color influence of original image on non-line areas
+     * @param colorInfluencePaper 
      */
     public void setColorInfluencePaper(float colorInfluencePaper) {
         this.colorInfluencePaper = colorInfluencePaper;
@@ -149,9 +156,10 @@ public class CrossHatchFilter extends Filter {
         }
     }
 
-    /*
+    /**
      * Sets line/paper color ratio for areas with values < luminance5,
      * really dark areas get no lines but a filled blob instead
+     * @param fillValue 
      */
     public void setFillValue(float fillValue) {
         this.fillValue = fillValue;
@@ -160,13 +168,14 @@ public class CrossHatchFilter extends Filter {
         }
     }
 
-    /*
+    /**
+     *
      * Sets minimum luminance levels for lines drawn
-     * Luminance1: Top-left to down right 1
-     * Luminance2: Top-right to bottom left 1
-     * Luminance3: Top-left to down right 2
-     * Luminance4: Top-right to bottom left 2
-     * Luminance5: Blobs
+     * @param luminance1 Top-left to down right 1
+     * @param luminance2 Top-right to bottom left 1
+     * @param luminance3 Top-left to down right 2
+     * @param luminance4 Top-right to bottom left 2
+     * @param luminance5 Blobs
      */
     public void setLuminanceLevels(float luminance1, float luminance2, float luminance3, float luminance4, float luminance5) {
         this.luminance1 = luminance1;
@@ -184,8 +193,9 @@ public class CrossHatchFilter extends Filter {
         }
     }
 
-    /*
+    /**
      * Sets the thickness of lines drawn
+     * @param lineThickness 
      */
     public void setLineThickness(float lineThickness) {
         this.lineThickness = lineThickness;
@@ -194,10 +204,11 @@ public class CrossHatchFilter extends Filter {
         }
     }
 
-    /*
+    /**
      * Sets minimum distance between lines drawn
      * Primary lines are drawn at 2*lineDistance
      * Secondary lines are drawn at lineDistance
+     * @param lineDistance 
      */
     public void setLineDistance(float lineDistance) {
         this.lineDistance = lineDistance;
@@ -206,84 +217,86 @@ public class CrossHatchFilter extends Filter {
         }
     }
 
-    /*
+    /**
      * Returns line color
+     * @return 
      */
     public ColorRGBA getLineColor() {
         return lineColor;
     }
 
-    /*
+    /**
      * Returns paper background color
+     * @return 
      */
     public ColorRGBA getPaperColor() {
         return paperColor;
     }
 
-    /*
+    /**
      * Returns current influence of image colors on lines
      */
     public float getColorInfluenceLine() {
         return colorInfluenceLine;
     }
 
-    /*
+    /**
      * Returns current influence of image colors on paper background
      */
     public float getColorInfluencePaper() {
         return colorInfluencePaper;
     }
 
-    /*
+    /**
      * Returns line/paper color ratio for blobs
      */
     public float getFillValue() {
         return fillValue;
     }
 
-    /*
+    /**
      * Returns the thickness of the lines drawn
      */
     public float getLineThickness() {
         return lineThickness;
     }
 
-    /*
+    /**
      * Returns minimum distance between lines
      */
     public float getLineDistance() {
         return lineDistance;
     }
 
-    /*
+    /**
      * Returns treshold for lines 1
      */
     public float getLuminance1() {
         return luminance1;
     }
 
-    /*
+    /**
      * Returns treshold for lines 2
      */
     public float getLuminance2() {
         return luminance2;
     }
 
-    /*
+    /**
      * Returns treshold for lines 3
      */
     public float getLuminance3() {
         return luminance3;
     }
 
-    /*
+    /**
      * Returns treshold for lines 4
      */
     public float getLuminance4() {
         return luminance4;
     }
 
-    /*
+    /**
      * Returns treshold for blobs
      */
     public float getLuminance5() {

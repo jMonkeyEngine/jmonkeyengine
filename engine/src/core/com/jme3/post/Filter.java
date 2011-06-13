@@ -51,10 +51,16 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * Filter abstract class
- * Any Filter must extends this class
- * Holds a frameBuffer and a texture
- * The getMaterial must return a Material that use a GLSL shader immplementing the desired effect
+ * Filters are 2D effects applied to the rendered scene.<br>
+ * The filter is fed with the rendered scene image rendered in an offscreen frame buffer.<br>
+ * This texture is applied on a fullscreen quad, with a special material.<br>
+ * This material uses a shader that aplly the desired effect to the scene texture.<br>
+ * <br>
+ * This class is abstract, any Filter must extend it.<br>
+ * Any filter holds a frameBuffer and a texture<br>
+ * The getMaterial must return a Material that use a GLSL shader immplementing the desired effect<br>
+ * 
+ * @author Rémy Bouquet aka Nehon
  */
 public abstract class Filter implements Savable {
 
@@ -69,6 +75,11 @@ public abstract class Filter implements Savable {
         this.name = name;
     }
 
+    /**
+     * Inner class Pass
+     * Pass are like filters in filters.
+     * Some filters will need multiple passes before the final render 
+     */
     public class Pass {
 
         protected FrameBuffer renderFrameBuffer;
@@ -76,28 +87,52 @@ public abstract class Filter implements Savable {
         protected Texture2D depthTexture;
         protected Material passMaterial;
 
+        /**
+         * init the pass called internally
+         * @param renderer
+         * @param width
+         * @param height
+         * @param textureFormat 
+         * @param depthBufferFormat
+         * @param numSamples 
+         */
         public void init(Renderer renderer, int width, int height, Format textureFormat, Format depthBufferFormat, int numSamples) {
             Collection<Caps> caps = renderer.getCaps();
             if (numSamples > 1 && caps.contains(Caps.FrameBufferMultisample) && caps.contains(Caps.OpenGL31)) {
                 renderFrameBuffer = new FrameBuffer(width, height, numSamples);
-                renderedTexture = new Texture2D(width, height, numSamples, textureFormat);             
-                //  depthTexture = new Texture2D(width, height, numSamples, depthBufferFormat);
+                renderedTexture = new Texture2D(width, height, numSamples, textureFormat);
             } else {
                 renderFrameBuffer = new FrameBuffer(width, height, 1);
                 renderedTexture = new Texture2D(width, height, textureFormat);
-               //                depthTexture = new Texture2D(width, height,  depthBufferFormat);
             }
 
             renderFrameBuffer.setColorTexture(renderedTexture);
             renderFrameBuffer.setDepthBuffer(depthBufferFormat);
-            //          renderFrameBuffer.setDepthTexture(depthTexture);
 
         }
 
+        /**
+         *  init the pass called internally
+         * @param renderer
+         * @param width
+         * @param height
+         * @param textureFormat
+         * @param depthBufferFormat 
+         */
         public void init(Renderer renderer, int width, int height, Format textureFormat, Format depthBufferFormat) {
             init(renderer, width, height, textureFormat, depthBufferFormat, 1);
         }
 
+        /**
+         *  init the pass called internally
+         * @param renderer
+         * @param width
+         * @param height
+         * @param textureFormat
+         * @param depthBufferFormat
+         * @param numSample
+         * @param material 
+         */
         public void init(Renderer renderer, int width, int height, Format textureFormat, Format depthBufferFormat, int numSample, Material material) {
             init(renderer, width, height, textureFormat, depthBufferFormat, numSample);
             passMaterial = material;
@@ -146,26 +181,51 @@ public abstract class Filter implements Savable {
         }
     }
 
+    /**
+     * returns the default pass texture format
+     * @return 
+     */
     protected Format getDefaultPassTextureFormat() {
         return Format.RGBA8;
     }
 
+    /**
+     * returns the default pass depth format
+     * @return 
+     */
     protected Format getDefaultPassDepthFormat() {
         return Format.Depth;
     }
 
-    public Filter() {
+    /**
+     * contruct a Filter 
+     */
+    protected Filter() {
         this("filter");
     }
 
-    public void init(AssetManager manager, RenderManager renderManager, ViewPort vp, int w, int h) {
+    /**
+     * 
+     * initialize this filter
+     * use InitFilter for overriding filter initialization
+     * @param manager the assetManager
+     * @param renderManager the renderManager
+     * @param vp the viewport
+     * @param w the width
+     * @param h the height
+     */
+    protected final void init(AssetManager manager, RenderManager renderManager, ViewPort vp, int w, int h) {
         //  cleanup(renderManager.getRenderer());
         defaultPass = new Pass();
         defaultPass.init(renderManager.getRenderer(), w, h, getDefaultPassTextureFormat(), getDefaultPassDepthFormat());
         initFilter(manager, renderManager, vp, w, h);
     }
 
-    public void cleanup(Renderer r) {
+    /**
+     * cleanup this filter
+     * @param r 
+     */
+    protected final void cleanup(Renderer r) {
         processor = null;
         if (defaultPass != null) {
             defaultPass.cleanup(r);
@@ -180,36 +240,49 @@ public abstract class Filter implements Savable {
     }
 
     /**
-     * This method is called once xhen the filter is added to the FilterPostProcessor
-     * It should contain Maerial initializations and extra passes initialization
-     * @param manager
+     * Initialization of sub classes filters
+     * This method is called once when the filter is added to the FilterPostProcessor
+     * It should contain Material initializations and extra passes initialization
+     * @param manager the assetManager
+     * @param renderManager the renderManager
+     * @param vp the viewPort where this filter is rendered
+     * @param w the width of the filter
+     * @param h the height of the filter
      */
-    public abstract void initFilter(AssetManager manager, RenderManager renderManager, ViewPort vp, int w, int h);
-
-    public abstract void cleanUpFilter(Renderer r);
+    protected abstract void initFilter(AssetManager manager, RenderManager renderManager, ViewPort vp, int w, int h);
 
     /**
-     * Returns the material used for this filter.
+     * override this method if you have some cleanup to do
+     * @param r the renderer
+     */
+    protected void cleanUpFilter(Renderer r) {
+    }
+
+    ;
+
+    /**
+     * Must return the material used for this filter.
      * this method is called every frame.
      * 
      * @return the material used for this filter.
      */
-    public abstract Material getMaterial();
+    protected abstract Material getMaterial();
 
     /**
      * Override this method if you want to make a pre pass, before the actual rendering of the frame
      * @param renderManager
      * @param viewPort
      */
-    public void postQueue(RenderManager renderManager, ViewPort viewPort) {
+    protected void postQueue(RenderManager renderManager, ViewPort viewPort) {
     }
 
     /**
-     * Use this method if you want to modify parameters according to tpf before the rendering of the frame.
+     * Override this method if you want to modify parameters according to tpf before the rendering of the frame.
      * This is usefull for animated filters
+     * Also it can be the place to render pre passes
      * @param tpf the time used to render the previous frame
      */
-    public void preFrame(float tpf) {
+    protected void preFrame(float tpf) {
     }
 
     /**
@@ -217,7 +290,7 @@ public abstract class Filter implements Savable {
      * @param renderManager
      * @param viewPort
      */
-    public void postFrame(RenderManager renderManager, ViewPort viewPort, FrameBuffer prevFilterBuffer, FrameBuffer sceneBuffer) {
+    protected void postFrame(RenderManager renderManager, ViewPort viewPort, FrameBuffer prevFilterBuffer, FrameBuffer sceneBuffer) {
     }
 
     /**
@@ -243,56 +316,84 @@ public abstract class Filter implements Savable {
         enabled = ic.readBoolean("enabled", true);
     }
 
+    /**
+     * returns the name of the filter
+     * @return 
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     * Sets the name of the filter
+     * @param name 
+     */
     public void setName(String name) {
         this.name = name;
     }
 
-    public FrameBuffer getRenderFrameBuffer() {
+    /**
+     * returns the default pass frame buffer
+     * @return 
+     */
+    protected FrameBuffer getRenderFrameBuffer() {
         return defaultPass.renderFrameBuffer;
     }
 
-    public void setRenderFrameBuffer(FrameBuffer renderFrameBuffer) {
+    /**
+     * sets the default pas frame buffer
+     * @param renderFrameBuffer 
+     */
+    protected void setRenderFrameBuffer(FrameBuffer renderFrameBuffer) {
         this.defaultPass.renderFrameBuffer = renderFrameBuffer;
     }
 
-    public Texture2D getRenderedTexture() {
+    /**
+     * returns the rendered texture of this filter
+     * @return 
+     */
+    protected Texture2D getRenderedTexture() {
         return defaultPass.renderedTexture;
     }
 
-    public void setRenderedTexture(Texture2D renderedTexture) {
+    /**
+     * sets the rendered texture of this filter
+     * @param renderedTexture 
+     */
+    protected void setRenderedTexture(Texture2D renderedTexture) {
         this.defaultPass.renderedTexture = renderedTexture;
     }
 
     /**
-     * Override this method and return true if your Filter need the depth texture
+     * Override this method and return true if your Filter needs the depth texture
      * 
      * @return true if your Filter need the depth texture
      */
-    public boolean isRequiresDepthTexture() {
+    protected boolean isRequiresDepthTexture() {
         return false;
     }
-    
-     /**
+
+    /**
      * Override this method and return false if your Filter does not need the scene texture
      * 
      * @return false if your Filter does not need the scene texture
      */
-    public boolean isRequiresSceneTexture() {
+    protected boolean isRequiresSceneTexture() {
         return true;
     }
 
-    public List<Pass> getPostRenderPasses() {
+    /**
+     * returns the list of the postRender passes
+     * @return 
+     */
+    protected List<Pass> getPostRenderPasses() {
         return postRenderPasses;
     }
 
-    public void setPostRenderPasses(List<Pass> postRenderPasses) {
-        this.postRenderPasses = postRenderPasses;
-    }
-
+    /**
+     * Enable or disable this filter
+     * @param enabled true to enable
+     */
     public void setEnabled(boolean enabled) {
         if (processor != null) {
             processor.setFilterState(this, enabled);
@@ -301,10 +402,18 @@ public abstract class Filter implements Savable {
         }
     }
 
+    /**
+     * returns ttrue if the filter is enabled
+     * @return enabled
+     */
     public boolean isEnabled() {
         return enabled;
     }
 
+    /**
+     * sets a reference to the FilterPostProcessor ti which this filter is attached
+     * @param proc 
+     */
     protected void setProcessor(FilterPostProcessor proc) {
         processor = proc;
     }

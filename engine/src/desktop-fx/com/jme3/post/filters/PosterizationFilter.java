@@ -35,7 +35,6 @@ import com.jme3.asset.AssetManager;
 import com.jme3.material.Material;
 import com.jme3.post.Filter;
 import com.jme3.renderer.RenderManager;
-import com.jme3.renderer.Renderer;
 import com.jme3.renderer.ViewPort;
 
 /**
@@ -56,27 +55,34 @@ public class PosterizationFilter extends Filter {
     private float gamma = 0.6f;
     private float strength = 1.0f;
 
+    /**
+     * Creates a posterization Filter
+     */
     public PosterizationFilter() {
         super("PosterizationFilter");
     }
 
+    /**
+     * Creates a posterization Filter with the given number of colors
+     * @param numColors 
+     */
     public PosterizationFilter(int numColors) {
         this();
         this.numColors = numColors;
     }
 
+    /**
+     * Creates a posterization Filter with the given number of colors and gamma
+     * @param numColors
+     * @param gamma 
+     */
     public PosterizationFilter(int numColors, float gamma) {
         this(numColors);
         this.gamma = gamma;
     }
 
     @Override
-    public boolean isRequiresDepthTexture() {
-        return false;
-    }
-
-    @Override
-    public void initFilter(AssetManager manager, RenderManager renderManager, ViewPort vp, int w, int h) {
+    protected void initFilter(AssetManager manager, RenderManager renderManager, ViewPort vp, int w, int h) {
         material = new Material(manager, "Common/MatDefs/Post/Posterization.j3md");
         material.setInt("NumColors", numColors);
         material.setFloat("Gamma", gamma);
@@ -84,16 +90,11 @@ public class PosterizationFilter extends Filter {
     }
 
     @Override
-    public Material getMaterial() {
+    protected Material getMaterial() {
         return material;
     }
 
-
-    @Override
-    public void cleanUpFilter(Renderer r) {
-    }
-
-    /*
+    /**
      * Sets number of color levels used to draw the screen
      */
     public void setNumColors(int numColors) {
@@ -103,7 +104,7 @@ public class PosterizationFilter extends Filter {
         }
     }
 
-    /*
+    /**
      * Sets gamma level used to enhange visual quality
      */
     public void setGamma(float gamma) {
@@ -113,7 +114,7 @@ public class PosterizationFilter extends Filter {
         }
     }
 
-    /*
+    /**
      * Sets urrent strength value, i.e. influence on final image
      */
     public void setStrength(float strength) {
@@ -123,21 +124,21 @@ public class PosterizationFilter extends Filter {
         }
     }
 
-    /*
+    /**
      * Returns number of color levels used
      */
     public int getNumColors() {
         return numColors;
     }
 
-    /*
+    /**
      * Returns current gamma value
      */
     public float getGamma() {
         return gamma;
     }
 
-    /*
+    /**
      * Returns current strength value, i.e. influence on final image
      */
     public float getStrength() {

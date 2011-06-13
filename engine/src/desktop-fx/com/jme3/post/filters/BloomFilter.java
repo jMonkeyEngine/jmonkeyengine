@@ -40,36 +40,37 @@ import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.post.Filter;
 import com.jme3.renderer.RenderManager;
-import com.jme3.renderer.Renderer;
 import com.jme3.renderer.ViewPort;
 import com.jme3.texture.Image.Format;
 import java.io.IOException;
 import java.util.ArrayList;
 
 /**
- * <code>BloomFilter</code> is used to make objects in the scene have a 
- * "soap opera" glow effect.
- *
- * @author Nehon
+ * BloomFilter is used to make objects in the scene have a glow effect.<br>
+ * There are 2 mode : Scene and Objects.<br>
+ * Scene mode extracts the bright parts of the scene to make them glow<br>
+ * Object mode make objects glow according to their material's glowMap or their GlowColor<br>
+ * see {@link http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:bloom_and_glow} for more details
+ * 
+ * @author Rémy Bouquet aka Nehon
  */
 public class BloomFilter extends Filter {
 
     /**
-     * <code>GlowMode</code> specifies if bright objects or objects
-     * with glow map will be bloomed.
+     * GlowMode specifies if the glow will be applied to the whole scene,or to objects that have aglow color or a glow map
      */
     public enum GlowMode {
 
         /**
-         * Apply bloom filter to bright objects in the scene.
+         * Apply bloom filter to bright areas in the scene.
          */
         Scene,
         /**
-         * Apply bloom only to objects that have a glow map.
+         * Apply bloom only to objects that have a glow map or a glow color.
          */
         Objects,
         /**
-         * Apply bloom to both bright objects and objects with glow map.
+         * Apply bloom to both bright parts of the scene and objects with glow map.
          */
         SceneAndObjects;
     }
@@ -93,14 +94,14 @@ public class BloomFilter extends Filter {
     private ColorRGBA backupColor;
 
     /**
-     * creates a Bloom filter
+     * Creates a Bloom filter
      */
     public BloomFilter() {
         super("BloomFilter");
     }
 
     /**
-     * Crete the bloom filter with the specific glow mode
+     * Creates the bloom filter with the specific glow mode
      * @param glowMode
      */
     public BloomFilter(GlowMode glowMode) {
@@ -109,7 +110,7 @@ public class BloomFilter extends Filter {
     }
 
     @Override
-    public void initFilter(AssetManager manager, RenderManager renderManager, ViewPort vp, int w, int h) {
+    protected void initFilter(AssetManager manager, RenderManager renderManager, ViewPort vp, int w, int h) {
         screenWidth = (int) (w / downSamplingFactor);
         screenHeight = (int) (h / downSamplingFactor);
         //    System.out.println(screenWidth + " " + screenHeight);
@@ -178,31 +179,15 @@ public class BloomFilter extends Filter {
         material.setTexture("BloomTex", verticalalBlur.getRenderedTexture());
     }
 
-    @Override
-    public void cleanUpFilter(Renderer r) {
-
-        if (preGlowPass != null) {
-            preGlowPass.cleanup(r);
-        }
-        if (extractPass != null) {
-            extractPass.cleanup(r);
-        }
-        if (horizontalBlur != null) {
-            horizontalBlur.cleanup(r);
-        }
-        if (verticalalBlur != null) {
-            verticalalBlur.cleanup(r);
-        }
-    }
 
     @Override
-    public Material getMaterial() {
+    protected Material getMaterial() {
         material.setFloat("BloomIntensity", bloomIntensity);
         return material;
     }
 
     @Override
-    public void postQueue(RenderManager renderManager, ViewPort viewPort) {
+    protected void postQueue(RenderManager renderManager, ViewPort viewPort) {
         if (glowMode != GlowMode.Scene) {
             backupColor = viewPort.getBackgroundColor();
             viewPort.setBackgroundColor(ColorRGBA.Black);
@@ -216,30 +201,43 @@ public class BloomFilter extends Filter {
         }
     }
 
+    /**
+     * returns the bloom intensity
+     * @return 
+     */
     public float getBloomIntensity() {
         return bloomIntensity;
     }
 
     /**
-     * intensity of the bloom effect
+     * intensity of the bloom effect default is 2.0
      * @param bloomIntensity
      */
     public void setBloomIntensity(float bloomIntensity) {
         this.bloomIntensity = bloomIntensity;
     }
 
+    /**
+     * returns the blur scale
+     * @return 
+     */
     public float getBlurScale() {
         return blurScale;
     }
 
     /**
-     * The spread of the bloom
+     * sets The spread of the bloom default is 1.5f
      * @param blurScale
      */
     public void setBlurScale(float blurScale) {
         this.blurScale = blurScale;
     }
 
+    /**
+     * returns the exposure cutoff<br>
+     * for more details see {@link setExposureCutOff(float exposureCutOff)}
+     * @return 
+     */    
     public float getExposureCutOff() {
         return exposureCutOff;
     }
@@ -252,12 +250,18 @@ public class BloomFilter extends Filter {
         this.exposureCutOff = exposureCutOff;
     }
 
+    /**
+     * returns the exposure power<br>
+     * form more details see {@link setExposurePower(float exposurePower)}
+     * @return 
+     */
     public float getExposurePower() {
         return exposurePower;
     }
 
     /**
-     * the power of the bloomed color
+     * defines how many time the bloom extracted color will be multiplied by itself. default id 5.0<br>
+     * a high value will reduce rough edges in the bloom and somhow the range of the bloom area     * 
      * @param exposurePower
      */
     public void setExposurePower(float exposurePower) {
@@ -265,7 +269,8 @@ public class BloomFilter extends Filter {
     }
 
     /**
-     * returns the downSampling factor
+     * returns the downSampling factor<br>
+     * form more details see {@link setDownSamplingFactor(float downSamplingFactor)}
      * @return
      */
     public float getDownSamplingFactor() {
@@ -273,7 +278,7 @@ public class BloomFilter extends Filter {
     }
 
     /**
-     * Sets the downSampling factor : the size of the computed texture will be divided by this factor.
+     * Sets the downSampling factor : the size of the computed texture will be divided by this factor. default is 1 for no downsampling
      * A 2 value is a good way of widening the blur
      * @param downSamplingFactor
      */

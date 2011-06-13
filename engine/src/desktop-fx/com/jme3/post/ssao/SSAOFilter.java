@@ -96,12 +96,12 @@ public class SSAOFilter extends Filter {
     }
 
     @Override
-    public boolean isRequiresDepthTexture() {
+    protected boolean isRequiresDepthTexture() {
         return true;
     }
 
     @Override
-    public void postQueue(RenderManager renderManager, ViewPort viewPort) {
+    protected void postQueue(RenderManager renderManager, ViewPort viewPort) {
         Renderer r = renderManager.getRenderer();
         r.setFrameBuffer(normalPass.getRenderFrameBuffer());
         renderManager.getRenderer().clearBuffers(true, true, true);
@@ -112,12 +112,12 @@ public class SSAOFilter extends Filter {
     }
 
     @Override
-    public Material getMaterial() {
+    protected Material getMaterial() {
         return material;
     }
 
     @Override
-    public void initFilter(AssetManager manager, RenderManager renderManager, ViewPort vp, int w, int h) {
+    protected void initFilter(AssetManager manager, RenderManager renderManager, ViewPort vp, int w, int h) {
         int screenWidth = w;
         int screenHeight = h;
         postRenderPasses = new ArrayList<Pass>();
@@ -270,7 +270,5 @@ public class SSAOFilter extends Filter {
         bias = ic.readFloat("bias", 0.1f);
     }
 
-    @Override
-    public void cleanUpFilter(Renderer r) {
-    }
+
 }

@@ -35,7 +35,6 @@ import com.jme3.asset.AssetManager;
 import com.jme3.post.Filter;
 import com.jme3.material.Material;
 import com.jme3.renderer.RenderManager;
-import com.jme3.renderer.Renderer;
 import com.jme3.renderer.ViewPort;
 
 /**
@@ -55,38 +54,37 @@ public class DepthOfFieldFilter extends Filter {
     private float xScale;
     private float yScale;
 
+    /**
+     * Creates a DepthOfField filter
+     */
     public DepthOfFieldFilter() {
         super("Depth Of Field");
     }
 
     @Override
-    public boolean isRequiresDepthTexture() {
+    protected boolean isRequiresDepthTexture() {
         return true;
     }
 
     @Override
-    public Material getMaterial() {
+    protected Material getMaterial() {
 
         return material;
     }
 
     @Override
-    public void initFilter(AssetManager assets, RenderManager renderManager,
+    protected void initFilter(AssetManager assets, RenderManager renderManager,
             ViewPort vp, int w, int h) {
         material = new Material(assets, "Common/MatDefs/Post/DepthOfField.j3md");
         material.setFloat("FocusDistance", focusDistance);
         material.setFloat("FocusRange", focusRange);
-   
+
 
         xScale = 1.0f / w;
         yScale = 1.0f / h;
 
         material.setFloat("XScale", blurScale * xScale);
         material.setFloat("YScale", blurScale * yScale);
-    }
-
-    @Override
-    public void cleanUpFilter(Renderer r) {
     }
 
     /**
@@ -101,6 +99,10 @@ public class DepthOfFieldFilter extends Filter {
 
     }
 
+    /**
+     * returns the focus distance
+     * @return 
+     */
     public float getFocusDistance() {
         return focusDistance;
     }
@@ -118,6 +120,10 @@ public class DepthOfFieldFilter extends Filter {
 
     }
 
+    /**
+     * returns the focus range
+     * @return 
+     */
     public float getFocusRange() {
         return focusRange;
     }
@@ -142,6 +148,10 @@ public class DepthOfFieldFilter extends Filter {
         }
     }
 
+    /**
+     * returns the blur scale
+     * @return 
+     */
     public float getBlurScale() {
         return blurScale;
     }

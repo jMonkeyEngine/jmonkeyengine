@@ -55,19 +55,22 @@ public class CartoonEdgeFilter extends Filter {
     private float depthThreshold = 0.1f;
     private float normalSensitivity = 1.0f;
     private float depthSensitivity = 10.0f;
-    private ColorRGBA edgeColor=new ColorRGBA(0, 0, 0, 1);
+    private ColorRGBA edgeColor = new ColorRGBA(0, 0, 0, 1);
 
+    /**
+     * Creates a CartoonEdgeFilter
+     */
     public CartoonEdgeFilter() {
         super("CartoonEdgeFilter");
     }
 
     @Override
-    public boolean isRequiresDepthTexture() {
+    protected boolean isRequiresDepthTexture() {
         return true;
     }
 
     @Override
-    public void postQueue(RenderManager renderManager, ViewPort viewPort) {
+    protected void postQueue(RenderManager renderManager, ViewPort viewPort) {
         Renderer r = renderManager.getRenderer();
         r.setFrameBuffer(normalPass.getRenderFrameBuffer());
         renderManager.getRenderer().clearBuffers(true, true, true);
@@ -78,13 +81,13 @@ public class CartoonEdgeFilter extends Filter {
     }
 
     @Override
-    public Material getMaterial() {
+    protected Material getMaterial() {
         material.setTexture("NormalsTexture", normalPass.getRenderedTexture());
         return material;
     }
 
     @Override
-    public void initFilter(AssetManager manager, RenderManager renderManager, ViewPort vp, int w, int h) {
+    protected void initFilter(AssetManager manager, RenderManager renderManager, ViewPort vp, int w, int h) {
         normalPass = new Pass();
         normalPass.init(renderManager.getRenderer(), w, h, Format.RGBA8, Format.Depth);
         material = new Material(manager, "Common/MatDefs/Post/CartoonEdge.j3md");
@@ -97,17 +100,20 @@ public class CartoonEdgeFilter extends Filter {
         material.setColor("EdgeColor", edgeColor);
     }
 
-    @Override
-    public void cleanUpFilter(Renderer r) {
-        if (normalPass != null) {
-            normalPass.cleanup(r);
-        }
-    }
-
+    /**
+     * Return the depth sensitivity<br>
+     * for more details see {@link setDepthSensitivity(float depthSensitivity)}
+     * @return 
+     */
     public float getDepthSensitivity() {
         return depthSensitivity;
     }
 
+    /**
+     * sets the depth sensitivity<br>
+     * defines how much depth will influence edges, default is 10
+     * @param depthSensitivity 
+     */
     public void setDepthSensitivity(float depthSensitivity) {
         this.depthSensitivity = depthSensitivity;
         if (material != null) {
@@ -115,10 +121,20 @@ public class CartoonEdgeFilter extends Filter {
         }
     }
 
+    /**
+     * returns the depth threshold<br>
+     * for more details see {@link setDepthThreshold(float depthThreshold)}
+     * @return 
+     */
     public float getDepthThreshold() {
         return depthThreshold;
     }
 
+    /**
+     * sets the depth threshold<br>
+     * Defines at what threshold of difference of depth an edge is outlined default is 0.1f
+     * @param depthThreshold 
+     */
     public void setDepthThreshold(float depthThreshold) {
         this.depthThreshold = depthThreshold;
         if (material != null) {
@@ -126,10 +142,20 @@ public class CartoonEdgeFilter extends Filter {
         }
     }
 
+    /**
+     * returns the edge intensity<br>
+     * for more details see {@link setEdgeIntensity(float edgeIntensity) }
+     * @return 
+     */
     public float getEdgeIntensity() {
         return edgeIntensity;
     }
 
+    /**
+     * sets the edge intensity<br>
+     * Defineshow visilble will be the outlined edges
+     * @param edgeIntensity 
+     */
     public void setEdgeIntensity(float edgeIntensity) {
         this.edgeIntensity = edgeIntensity;
         if (material != null) {
@@ -137,10 +163,18 @@ public class CartoonEdgeFilter extends Filter {
         }
     }
 
+    /**
+     * returns the width of the edges
+     * @return 
+     */
     public float getEdgeWidth() {
         return edgeWidth;
     }
 
+    /**
+     * sets the witdh of the edge in pixels default is 1
+     * @param edgeWidth 
+     */
     public void setEdgeWidth(float edgeWidth) {
         this.edgeWidth = edgeWidth;
         if (material != null) {
@@ -149,10 +183,19 @@ public class CartoonEdgeFilter extends Filter {
 
     }
 
+    /**
+     * returns the normals sensitivity<br>
+     * form more details see {@link setNormalSensitivity(float normalSensitivity)}
+     * @return 
+     */
     public float getNormalSensitivity() {
         return normalSensitivity;
     }
 
+    /**
+     * sets the normals sensitivity default is 1
+     * @param normalSensitivity 
+     */
     public void setNormalSensitivity(float normalSensitivity) {
         this.normalSensitivity = normalSensitivity;
         if (material != null) {
@@ -160,10 +203,20 @@ public class CartoonEdgeFilter extends Filter {
         }
     }
 
+    /**
+     * returns the normal threshold<br>
+     * for more details see {@link setNormalThreshold(float normalThreshold)}
+     * 
+     * @return 
+     */
     public float getNormalThreshold() {
         return normalThreshold;
     }
 
+    /**
+     * sets the normal threshold default is 0.5
+     * @param normalThreshold 
+     */
     public void setNormalThreshold(float normalThreshold) {
         this.normalThreshold = normalThreshold;
         if (material != null) {
@@ -185,10 +238,8 @@ public class CartoonEdgeFilter extends Filter {
      */
     public void setEdgeColor(ColorRGBA edgeColor) {
         this.edgeColor = edgeColor;
-        if(material!=null){
+        if (material != null) {
             material.setColor("EdgeColor", edgeColor);
         }
     }
-
-
 }
