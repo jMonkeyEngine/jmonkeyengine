@@ -129,7 +129,7 @@ public class TerrainTestAdvanced extends SimpleApplication {
         matTerrain.setFloat("DiffuseMap_2_scale", rockScale);
 
 
-        Texture normalMap0 = assetManager.loadTexture("Textures/Terrain/splat/grass_normal.png");
+        Texture normalMap0 = assetManager.loadTexture("Textures/Terrain/splat/grass_normal.jpg");
         normalMap0.setWrap(WrapMode.Repeat);
         Texture normalMap1 = assetManager.loadTexture("Textures/Terrain/splat/dirt_normal.png");
         normalMap1.setWrap(WrapMode.Repeat);
@@ -187,8 +187,8 @@ public class TerrainTestAdvanced extends SimpleApplication {
         ambLight.setColor(new ColorRGBA(1f, 1f, 0.8f, 0.2f));
         rootNode.addLight(ambLight);
 
-        getCamera().getLocation().y = 10;
-        getCamera().setDirection(new Vector3f(0, -1.5f, -1));
+        cam.setLocation(new Vector3f(0, 10, -10));
+        cam.lookAtDirection(new Vector3f(0, -1.5f, -1).normalizeLocal(), Vector3f.UNIT_Y);
     }
 
     public void loadHintText() {

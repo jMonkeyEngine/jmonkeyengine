@@ -1,0 +1,24 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+
+<head>
+<title></title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+</head>
+<body>
+
+The <code>com.jme3.post</code> package provides utilities for 
+render processing.
+<p>
+The {@link com.jme3.post.SceneProcessor} interface is used as the base interface
+for all render processing. The SceneProcessor contains hooks for various rendering
+events. 
+<p>
+One use of render processing is post-processing, which is applying effects
+on an already-rendered scene. The engine's post-processing system is implemented
+in the {@link com.jme3.post.FilterPostProcessor} class, which contains a list
+of {@link com.jme3.post.Filter filters}. Each are invoked in order to apply
+various effects on the rendered scene.
+
+</body>
+</html>

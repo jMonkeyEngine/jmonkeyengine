@@ -183,8 +183,8 @@ public class TerrainTestCollision extends SimpleApplication {
         dl.setColor(new ColorRGBA(0.50f, 0.40f, 0.50f, 1.0f));
         rootNode.addLight(dl);
 
-        getCamera().getLocation().y = 25;
-        getCamera().setDirection(new Vector3f(0, -1, 0));
+        cam.setLocation(new Vector3f(0, 25, -10));
+        cam.lookAtDirection(new Vector3f(0, -1, 0).normalizeLocal(), Vector3f.UNIT_Y);
     }
 
     public void loadHintText() {
@@ -274,7 +274,7 @@ public class TerrainTestCollision extends SimpleApplication {
                     collisionMarker.setLocalTranslation(new Vector3f(hit.getContactPoint().x, height, hit.getContactPoint().z));
                 }
             } else if (binding.equals("cameraDown") && !keyPressed) {
-                getCamera().setDirection(new Vector3f(0, -1, 0));
+                getCamera().lookAtDirection(new Vector3f(0, -1, 0), Vector3f.UNIT_Y);
             } else if (binding.equals("Lefts") && !keyPressed) {
                 Vector3f oldLoc = selectedCollisionObject.getLocalTranslation().clone();
                 selectedCollisionObject.move(-0.5f, 0, 0);

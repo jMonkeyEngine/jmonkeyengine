@@ -5,6 +5,8 @@ import java.util.List;
 
 import com.jme3.app.SimpleApplication;
 import com.jme3.app.state.ScreenshotAppState;
+import com.jme3.asset.plugins.HttpZipLocator;
+import com.jme3.asset.plugins.ZipLocator;
 import com.jme3.bullet.BulletAppState;
 import com.jme3.bullet.collision.shapes.CapsuleCollisionShape;
 import com.jme3.bullet.collision.shapes.HeightfieldCollisionShape;
@@ -25,6 +27,7 @@ import com.jme3.terrain.heightmap.ImageBasedHeightMapGrid;
 import com.jme3.terrain.heightmap.Namer;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
+import java.io.File;
 import org.novyon.noise.ShaderUtils;
 import org.novyon.noise.basis.FilteredBasis;
 import org.novyon.noise.filter.IterativeFilter;
@@ -56,6 +59,13 @@ public class TerrainGridTest extends SimpleApplication {
 
     @Override
     public void simpleInitApp() {
+        File file = new File("mountains.zip");
+        if (!file.exists()) {
+            assetManager.registerLocator("http://jmonkeyengine.googlecode.com/files/mountains.zip", HttpZipLocator.class.getName());
+        }else{
+            assetManager.registerLocator("mountains.zip", ZipLocator.class.getName());
+        }
+        
         this.flyCam.setMoveSpeed(100f);
         ScreenshotAppState state = new ScreenshotAppState();
         this.stateManager.attach(state);
@@ -86,7 +96,7 @@ public class TerrainGridTest extends SimpleApplication {
         this.mat_terrain.setVector3("region2", new Vector3f(0, 90, this.dirtScale));
 
         // ROCK texture
-        Texture rock = this.assetManager.loadTexture("Textures/Terrain/grid/rock.jpg");
+        Texture rock = this.assetManager.loadTexture("Textures/Terrain/Rock2/rock.jpg");
         rock.setWrap(WrapMode.Repeat);
         this.mat_terrain.setTexture("region3ColorMap", rock);
         this.mat_terrain.setVector3("region3", new Vector3f(198, 260, this.rockScale));
@@ -104,7 +114,6 @@ public class TerrainGridTest extends SimpleApplication {
         this.base.setOctaves(8);
         this.base.setScale(0.02125f);
         this.base.addModulator(new NoiseModulator() {
-
             @Override
             public float value(float... in) {
                 return ShaderUtils.clamp(in[0] * 0.5f + 0.5f, 0, 1);
@@ -133,9 +142,8 @@ public class TerrainGridTest extends SimpleApplication {
         ground.addPreFilter(this.iterate);
 
         this.terrain = new TerrainGrid("terrain", 65, 1025, new ImageBasedHeightMapGrid(assetManager, new Namer() {
-
             public String getName(int x, int y) {
-                return "Textures/Terrain/grid/mountains_" + (x * 512) + "_" + (y * 512) + ".png";
+                return "Scenes/TerrainMountains/mountains_" + (x * 512) + "_" + (y * 512) + ".png";
             }
         }));
 

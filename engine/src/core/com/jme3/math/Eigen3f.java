@@ -32,6 +32,7 @@
 
 package com.jme3.math;
 
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Eigen3f {
@@ -381,7 +382,7 @@ public class Eigen3f {
 
         logger.info("eigenvalues = ");
         for (int i = 0; i < 3; i++)
-            logger.info(eigenSystem.getEigenValue(i) + " ");
+            logger.log(Level.INFO, "{0} ", eigenSystem.getEigenValue(i));
 
         logger.info("eigenvectors = ");
         for (int i = 0; i < 3; i++) {

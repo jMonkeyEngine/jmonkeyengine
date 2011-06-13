@@ -1,0 +1,38 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+
+<head>
+<title></title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+</head>
+<body>
+
+The <code>com.jme3.renderer</code> package provides classes responsible for 
+rendering. 
+<p>
+The most critical classes are the {@link com.jme3.renderer.Renderer},
+which is the low-level rendering implementation and is abstract, and the
+{@link com.jme3.renderer.RenderManager} class, which provides the high-level
+rendering logic on top of the <code>Renderer</code>.
+<p>
+To accompany rendering, several helper classes are available. 
+<ul>
+    <li>The {@link com.jme3.renderer.Camera} is used to specify the point-of-view 
+        from which scenes are rendered.</li>
+    <li>The {@link com.jme3.renderer.ViewPort} is the 
+aggregation of a Camera and a set of {@link com.jme3.scene.Spatial scenes}
+which are to be rendered, as well as additional info.</li>
+    <li>The {@link com.jme3.renderer.Caps} class contains renderer capabilities
+which the user can query to find out what features are available in the 
+rendering implementation. </li>
+    <li>The {@link com.jme3.renderer.Statistics} class is updated in real time
+        by the Renderer, and is used to find out various statistics about
+        the rendering</li>
+    <li>The {@link com.jme3.renderer.GLObjectManager} and {@link com.jme3.renderer.GLObject} classes
+    provide a link between the renderer's native objects and Java's garbage collected objects,
+    allowing the engine to track when the Java object counterpart is garbage collected
+    and then delete the native object counterpart from the renderer.</li>
+</ul>
+
+</body>
+</html>

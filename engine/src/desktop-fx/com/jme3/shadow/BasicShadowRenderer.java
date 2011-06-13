@@ -140,7 +140,7 @@ public class BasicShadowRenderer implements SceneProcessor {
         shadowCam.setParallelProjection(true);
 //        shadowCam.setFrustumPerspective(45, 1, 1, 20);
         
-        shadowCam.setDirection(direction);
+        shadowCam.lookAtDirection(direction, Vector3f.UNIT_Y);
         shadowCam.update();
         shadowCam.setLocation(frustaCenter);
         shadowCam.update();

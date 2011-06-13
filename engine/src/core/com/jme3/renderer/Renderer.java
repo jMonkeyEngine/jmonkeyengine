@@ -45,15 +45,22 @@ import com.jme3.texture.Texture;
 import java.nio.ByteBuffer;
 import java.util.EnumSet;
 
+/**
+ * The <code>Renderer</code> is responsible for taking rendering commands and
+ * executing them on the underlying video hardware.
+ * 
+ * @author Kirill Vainer
+ */
 public interface Renderer {
 
     /**
+     * Get the capabilities of the renderer.
      * @return The capabilities of the renderer.
      */
     public EnumSet<Caps> getCaps();
 
     /**
-     * @return The statistics allow tracking of how data
+     * The statistics allow tracking of how data
      * per frame, such as number of objects rendered, number of triangles, etc.
      */
     public Statistics getStatistics();

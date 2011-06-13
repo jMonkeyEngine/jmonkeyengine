@@ -4,18 +4,17 @@
  */
 package com.jme3.terrain.heightmap;
 
+import com.jme3.asset.AssetInfo;
+import com.jme3.asset.AssetKey;
 import com.jme3.asset.AssetManager;
 import com.jme3.asset.AssetNotFoundException;
-import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
-import com.jme3.texture.Texture;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
-import jme3tools.converters.ImageToAwt;
 
 /**
  *
@@ -23,6 +22,7 @@ import jme3tools.converters.ImageToAwt;
  */
 public class ImageBasedHeightMapGrid implements HeightMapGrid {
 
+    private static final Logger logger = Logger.getLogger(ImageBasedHeightMapGrid.class.getName());
     private final AssetManager assetManager;
     private final Namer namer;
     private int size;
@@ -45,17 +45,20 @@ public class ImageBasedHeightMapGrid implements HeightMapGrid {
         // HEIGHTMAP image (for the terrain heightmap)
         int x = (int) location.x;
         int z = (int) location.z;
+        
         AbstractHeightMap heightmap = null;
+        BufferedImage im = null;
+        
         try {
             String name = namer.getName(x, z);
-            Logger.getLogger(ImageBasedHeightMapGrid.class.getCanonicalName()).log(Level.INFO, "Loading heightmap from file: " + name);
-            final InputStream stream = Thread.currentThread().getContextClassLoader().getResourceAsStream(name);
-            BufferedImage im = null;
-            if (stream != null) {
-                im = ImageIO.read(stream);
+            logger.log(Level.INFO, "Loading heightmap from file: {0}", name);
+            final AssetInfo assetInfo = assetManager.locateAsset(new AssetKey(name));
+            if (assetInfo != null){
+                InputStream in = assetInfo.openStream();
+                im = ImageIO.read(in);
             } else {
                 im = new BufferedImage(size, size, BufferedImage.TYPE_USHORT_GRAY);
-                Logger.getLogger(ImageBasedHeightMapGrid.class.getCanonicalName()).log(Level.WARNING, "File: " + name + " not found, loading zero heightmap instead");
+                logger.log(Level.WARNING, "File: {0} not found, loading zero heightmap instead", name);
             }
             // CREATE HEIGHTMAP
             heightmap = new Grayscale16BitHeightMap(im);

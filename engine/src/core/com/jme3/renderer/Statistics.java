@@ -38,6 +38,13 @@ import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Image;
 import java.util.HashSet;
 
+/**
+ * The statistics class allows tracking of real-time rendering statistics.
+ * <p>
+ * The <code>Statistics</code> can be retrieved by using {@link Renderer#getStatistics() }.
+ * 
+ * @author Kirill Vainer
+ */
 public class Statistics {
 
     protected int numObjects;
@@ -56,6 +63,13 @@ public class Statistics {
     protected HashSet<Integer> texturesUsed = new HashSet<Integer>();
     protected HashSet<Integer> fbosUsed = new HashSet<Integer>();
 
+    /**
+     * Returns a list of labels corresponding to each statistic.
+     * 
+     * @return a list of labels corresponding to each statistic.
+     * 
+     * @see #getData(int[]) 
+     */
     public String[] getLabels(){
         return new String[]{ "Vertices",
                              "Triangles",
@@ -176,6 +190,9 @@ public class Statistics {
         memoryFrameBuffers --;
     }
 
+    /**
+     * Called when video memory is cleared.
+     */
     public void clearMemory(){
         memoryFrameBuffers = 0;
         memoryShaders = 0;

@@ -58,7 +58,7 @@ public class ShadowCamera {
             DirectionalLight dl = (DirectionalLight) target;
             lightCam.setParallelProjection(true);
             lightCam.setLocation(Vector3f.ZERO);
-            lightCam.setDirection(dl.getDirection());
+            lightCam.lookAtDirection(dl.getDirection(), Vector3f.UNIT_Y );
             lightCam.setFrustum(-1, 1, -1, 1, 1, -1);
         }else{
             PointLight pl = (PointLight) target;

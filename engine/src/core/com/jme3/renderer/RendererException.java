@@ -32,7 +32,17 @@
 
 package com.jme3.renderer;
 
+/**
+ * <code>RendererException</code> is raised when a renderer encounters
+ * a fatal rendering error.
+ * 
+ * @author Kirill Vainer
+ */
 public class RendererException extends RuntimeException {
+    
+    /**
+     * Creates a new isntance of <code>RendererException</code>
+     */
     public RendererException(String message){
         super(message);
     }
