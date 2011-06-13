@@ -81,8 +81,8 @@
         <!--native bullet-->
         <mkdir dir="dist/opt/native-bullet"/>
         <mkdir dir="dist/opt/native-bullet/lib"/>
-        <ant antfile="src/bullet/native/build.xml" target="bullet-api-diff"/>
-        <move file="bullet-api-diff.html" todir="dist/opt/native-bullet" overwrite="true"/>
+        <!--ant antfile="src/bullet/native/build.xml" target="bullet-api-diff"/-->
+        <!--move file="bullet-api-diff.html" todir="dist/opt/native-bullet" overwrite="true"/-->
         <move file="dist/lib/jME3-bullet.jar" todir="dist/opt/native-bullet/lib" overwrite="true"/>
         <move file="dist/lib/jME3-bullet-natives.jar" todir="dist/opt/native-bullet/lib" overwrite="true"/>
 
