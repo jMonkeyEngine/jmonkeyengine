@@ -4,6 +4,7 @@
  */
 package com.jme3.terrain.geomipmap;
 
+import com.jme3.material.Material;
 import com.jme3.math.Vector3f;
 
 /**
@@ -13,5 +14,7 @@ import com.jme3.math.Vector3f;
 public interface TerrainGridListener {
 
     public void gridMoved(Vector3f newCenter);
+
+    public Material tileLoaded(Material material, Vector3f cell);
 
 }

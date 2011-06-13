@@ -61,6 +61,11 @@ public class TerrainGrid extends TerrainQuad {
                     if (cache.get(temp) == null) {
                         HeightMap heightMapAt = heightMapGrid.getHeightMapAt(temp);
                         TerrainQuad q = new TerrainQuad(getName() + "Quad" + temp, patchSize, quadSize, heightMapAt == null ? null : heightMapAt.getHeightMap(), lodCalculatorFactory);
+                        Material mat = material.clone();
+                        for (TerrainGridListener l : listeners.values()) {
+                            mat = l.tileLoaded(mat, temp);
+                        }
+                        q.setMaterial(mat);
                         cache.put(temp, q);
                     }
                 }
@@ -95,8 +100,6 @@ public class TerrainGrid extends TerrainQuad {
             new Vector3f(0, 0, -1), new Vector3f(0, 0, 0), new Vector3f(0, 0, 1), new Vector3f(0, 0, 2),
             new Vector3f(1, 0, -1), new Vector3f(1, 0, 0), new Vector3f(1, 0, 1), new Vector3f(1, 0, 2),
             new Vector3f(2, 0, -1), new Vector3f(2, 0, 0), new Vector3f(2, 0, 1), new Vector3f(2, 0, 2)};
-
-        updateChildrens(Vector3f.ZERO);
     }
 
     public TerrainGrid(String name, int patchSize, int size, Vector3f scale, HeightMapGrid heightMapGrid,
@@ -114,6 +117,14 @@ public class TerrainGrid extends TerrainQuad {
 
     public TerrainGrid() {
     }
+
+    public void initialize(Vector3f location) {
+        Vector3f camCell = this.getCell(location);
+        this.updateChildrens(camCell);
+        for (TerrainGridListener l : this.listeners.values()) {
+            l.gridMoved(camCell);
+        }
+   }
 
     @Override
     public void update(List<Vector3f> locations) {
@@ -152,7 +163,7 @@ public class TerrainGrid extends TerrainQuad {
     }
 
     protected void attachQuadAt(TerrainQuad q, int quadrant) {
-        q.setMaterial(this.material);
+        //q.setMaterial(this.material);
         q.setLocalTranslation(quadOrigins[quadrant - 1]);
         q.setQuadrant((short) quadrant);
         this.attachChild(q);
@@ -223,6 +234,7 @@ public class TerrainGrid extends TerrainQuad {
         this.removeQuad(2);
         this.removeQuad(3);
         this.removeQuad(4);
+
         attachQuadAt(q1, 1);
         attachQuadAt(q2, 2);
         attachQuadAt(q3, 3);
