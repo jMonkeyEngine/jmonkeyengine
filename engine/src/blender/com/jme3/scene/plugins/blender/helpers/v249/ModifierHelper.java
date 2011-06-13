@@ -31,6 +31,7 @@
  */
 package com.jme3.scene.plugins.blender.helpers.v249;
 
+import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -59,6 +60,8 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
+import com.jme3.scene.VertexBuffer;
+import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.scene.plugins.blender.data.FileBlockHeader;
 import com.jme3.scene.plugins.blender.data.Structure;
 import com.jme3.scene.plugins.blender.exception.BlenderFileException;
@@ -107,6 +110,8 @@ public class ModifierHelper extends AbstractBlenderHelper {
             return this.applyArrayModifierData(node, modifier, dataRepository);
         } else if (Modifier.PARTICLE_MODIFIER_DATA.equals(modifier.getType())) {
             return this.applyParticleSystemModifierData(node, modifier, dataRepository);
+        } else if(Modifier.MIRROR_MODIFIER_DATA.equals(modifier.getType())) {
+        	return this.applyMirrorModifierData(node, modifier, dataRepository);
         } else {
             LOGGER.warning("Modifier: " + modifier.getType() + " not yet implemented!!!");
             return node;
@@ -177,6 +182,16 @@ public class ModifierHelper extends AbstractBlenderHelper {
                 Pointer pEndCap = (Pointer) modifier.getFieldValue("end_cap");
                 if (!pEndCap.isNull()) {
                     params.put("endcap", pEndCap);
+                }
+                loadedModifier = params;
+            } if (Modifier.MIRROR_MODIFIER_DATA.equals(modifier.getType())) {//****************MIRROR MODIFIER
+                Map<String, Object> params = new HashMap<String, Object>();
+
+                params.put("flag", modifier.getFieldValue("flag"));
+                params.put("tolerance", modifier.getFieldValue("tolerance"));
+                Pointer pMirrorOb = (Pointer) modifier.getFieldValue("mirror_ob");
+                if (!pMirrorOb.isNull()) {
+                    params.put("mirrorob", pMirrorOb);
                 }
                 loadedModifier = params;
             } else if (Modifier.ARMATURE_MODIFIER_DATA.equals(modifier.getType())) {//****************ARMATURE MODIFIER
@@ -368,7 +383,7 @@ public class ModifierHelper extends AbstractBlenderHelper {
      *            the modifier to be applied
      * @param dataRepository
      *            the data repository
-     * @return object node with arry modifier applied
+     * @return object node with array modifier applied
      */
     @SuppressWarnings("unchecked")
     protected Node applyArrayModifierData(Node node, Modifier modifier, DataRepository dataRepository) {
@@ -484,6 +499,66 @@ public class ModifierHelper extends AbstractBlenderHelper {
         return node;
     }
 
+    /**
+     * This method applies the mirror modifier to the node.
+     * @param node
+     *            the object the modifier will be applied to
+     * @param modifier
+     *            the modifier to be applied
+     * @param dataRepository
+     *            the data repository
+     * @return object node with mirror modifier applied
+     */
+    @SuppressWarnings("unchecked")
+	protected Node applyMirrorModifierData(Node node, Modifier modifier, DataRepository dataRepository) {
+    	Map<String, Object> modifierData = (Map<String, Object>) modifier.getJmeModifierRepresentation();
+    	int flag = ((Number)modifierData.get("flag")).intValue();
+    	float[] mirrorFactor = new float[] {
+	    	(flag & 0x08) != 0 ? -1.0f : 1.0f,
+	    	(flag & 0x10) != 0 ? -1.0f : 1.0f,
+	    	(flag & 0x20) != 0 ? -1.0f : 1.0f
+    	};
+    	float[] center = new float[] {0.0f, 0.0f, 0.0f};
+    	float tolerance = ((Number)modifierData.get("tolerance")).floatValue();
+    	
+    	List<Geometry> geometriesToAdd = new ArrayList<Geometry>();
+    	for(int mirrorIndex = 0;mirrorIndex<3;++mirrorIndex) {
+    		if(mirrorFactor[mirrorIndex] == -1.0f) {
+		    	for (Spatial spatial : node.getChildren()) {
+		            if (spatial instanceof Geometry) {
+		                Mesh mesh = ((Geometry) spatial).getMesh();
+		                Mesh clone = mesh.deepClone();
+		                
+		                VertexBuffer position = clone.getBuffer(Type.Position);
+		                VertexBuffer bindPosePosition = clone.getBuffer(Type.BindPosePosition);
+		                FloatBuffer positionBuffer = (FloatBuffer) position.getData();
+		                FloatBuffer bindPosePositionBuffer = (FloatBuffer) bindPosePosition.getData();
+		                positionBuffer.rewind();
+		                bindPosePositionBuffer.rewind();
+		                for(int i=mirrorIndex;i<positionBuffer.limit();i+=3) {
+		                	float value = positionBuffer.get(i);
+		                	positionBuffer.put(i, Math.abs(value) <= tolerance ? 0.0f : -value);
+		                	
+		                	value = bindPosePositionBuffer.get(i);
+		                	bindPosePositionBuffer.put(i, Math.abs(value) <= tolerance ? 0.0f : -value);
+		                }
+		        		
+		        		Geometry geometry = new Geometry(null, clone);
+		        		geometry.setMaterial(((Geometry) spatial).getMaterial());
+		        		geometriesToAdd.add(geometry);
+		            }
+		    	}
+		    	
+		    	//adding meshes to node
+		    	for(Geometry geometry : geometriesToAdd) {
+		    		node.attachChild(geometry);
+		    	}
+		    	geometriesToAdd.clear();
+    		}
+    	}
+    	return node;
+    }
+    
     /**
      * This class clones the bone animation data.
      * @param source
