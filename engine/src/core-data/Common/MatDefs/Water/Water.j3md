@@ -35,6 +35,8 @@ MaterialDef Advanced Water {
         Vector2 WindDirection
         Float ReflectionDisplace
         Float FoamIntensity
+        Float CausticsIntensity
+        Float UnderWaterFogDistance
 
         Boolean UseRipples
         Boolean UseHQShoreline

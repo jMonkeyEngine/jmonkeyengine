@@ -95,7 +95,7 @@ public class WaterFilter extends Filter {
     private Vector3f colorExtinction = new Vector3f(5.0f, 20.0f, 30.0f);
     private float sunScale = 3.0f;
     private float shininess = 0.7f;
-    private ColorRGBA waterColor = new ColorRGBA(0.0078f, 0.5176f, 0.5f, 1.0f);
+    private ColorRGBA waterColor = new ColorRGBA(0.0078f, 0.3176f, 0.5f, 1.0f);
     private ColorRGBA deepWaterColor = new ColorRGBA(0.0039f, 0.00196f, 0.145f, 1.0f);
     private Vector2f windDirection = new Vector2f(0.0f, -1.0f);
     private int reflectionMapSize = 512;
@@ -110,6 +110,8 @@ public class WaterFilter extends Filter {
     private float reflectionDisplace = 30;
     private float foamIntensity = 0.5f;
     private boolean underWater;
+    private float underWaterFogDistance = 120;
+    private float causticsIntensity = 0.5f;
 
     /**
      * Create a Water Filter
@@ -192,9 +194,9 @@ public class WaterFilter extends Filter {
             }
             renderManager.getRenderer().setFrameBuffer(viewPort.getOutputFrameBuffer());
             renderManager.setCamera(sceneCam, false);
-            underWater=false;
-        }else{
-            underWater=true;
+            underWater = false;
+        } else {
+            underWater = true;
         }
     }
 
@@ -263,6 +265,9 @@ public class WaterFilter extends Filter {
         material.setBoolean("UseRefraction", useRefraction);
         material.setFloat("ReflectionDisplace", reflectionDisplace);
         material.setFloat("FoamIntensity", foamIntensity);
+        material.setFloat("UnderWaterFogDistance", underWaterFogDistance);
+        material.setFloat("m_CausticsIntensity", causticsIntensity);
+
 
     }
 
@@ -871,6 +876,43 @@ public class WaterFilter extends Filter {
     public boolean isUnderWater() {
         return underWater;
     }
-    
-    
+
+    /**
+     * returns the distance of the fog when under water
+     * @return 
+     */
+    public float getUnderWaterFogDistance() {
+        return underWaterFogDistance;
+    }
+
+    /**
+     * sets the distance of the fog when under water.
+     * default is 120 (120 world units) use a high value to raise the view range under water
+     * @param underWaterFogDistance 
+     */
+    public void setUnderWaterFogDistance(float underWaterFogDistance) {
+        this.underWaterFogDistance = underWaterFogDistance;
+        if (material != null) {
+            material.setFloat("m_UnderWaterFogDistance", underWaterFogDistance);
+        }
+    }
+
+    /**
+     * get the intensity of caustics under water
+     * @return 
+     */
+    public float getCausticsIntensity() {
+        return causticsIntensity;
+    }
+
+    /**
+     * sets the intensity of caustics under water. goes from 0 to 1, default is 0.5f
+     * @param causticsIntensity 
+     */
+    public void setCausticsIntensity(float causticsIntensity) {
+        this.causticsIntensity = causticsIntensity;
+        if (material != null) {
+            material.setFloat("m_CausticsIntensity", causticsIntensity);
+        }
+    }
 }

@@ -34,6 +34,8 @@ uniform vec4 m_DeepWaterColor;
 uniform vec2 m_WindDirection;
 uniform float m_SunScale;
 uniform float m_WaveScale;
+uniform float m_UnderWaterFogDistance;
+uniform float m_CausticsIntensity;
 
 vec2 scale = vec2(m_WaveScale, m_WaveScale);
 float refractionScale = m_WaveScale;
@@ -115,7 +117,7 @@ float fresnelTerm(in vec3 normal,in vec3 eyeVec){
     return saturate(fresnel * (1.0 - saturate(m_R0)) + m_R0 - m_RefractionStrength);
 }
 
-vec2 m_FrustumNearFar=vec2(1.0,50);
+vec2 m_FrustumNearFar=vec2(1.0,m_UnderWaterFogDistance);
 const float LOG2 = 1.442695;
 
 vec4 underWater(){
@@ -138,7 +140,7 @@ vec4 underWater(){
 
     float cameraDepth = length(m_CameraPosition - surfacePoint);  
     texC = (surfacePoint.xz + eyeVecNorm.xz) * scale + m_Time * 0.03 * m_WindDirection;
-    float bias = texture(m_HeightMap, texC).r;
+    float bias = texture2D(m_HeightMap, texC).r;
     level += bias * m_MaxAmplitude;
     t = (level - m_CameraPosition.y) / eyeVecNorm.y;
     surfacePoint = m_CameraPosition + eyeVecNorm * t; 
@@ -205,8 +207,8 @@ vec4 underWater(){
             texC = (position.xz + eyeVecNorm.xz * 0.1) * 0.05 + m_Time * 0.05 * windDirection + sin(m_Time  + position.x) * 0.01;
             vec2 texCoord2 = (position.xz + eyeVecNorm.xz * 0.1) * 0.05 + m_Time * 0.05 * windDirection + sin(m_Time  + position.z) * 0.01;
             caustics += (texture2D(m_CausticsMap, texC)+ texture2D(m_CausticsMap, texCoord2)).rgb;      
-            caustics *= m_WaterColor.rgb;
-            color=mix(color2, caustics,0.6);
+            caustics=saturate(mix(m_WaterColor.rgb,caustics,m_CausticsIntensity));            
+            color=mix(color2,caustics,m_CausticsIntensity);          
         #else
             color=color2;
         #endif
