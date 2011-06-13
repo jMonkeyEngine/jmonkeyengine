@@ -217,7 +217,7 @@ public class TextureHelper extends AbstractBlenderHelper {
 				throw new BlenderFileException("Unknown texture type: " + type + " for texture: " + tex.getName());
 		}
 		if (result != null) {
-			result.setName(String.valueOf(type));
+			result.setName(tex.getName());
 			result.setWrap(WrapMode.Repeat);
 		}
 		return result;
@@ -1579,7 +1579,6 @@ public class TextureHelper extends AbstractBlenderHelper {
 				}
 			}
 			if (result != null) {
-				result.setName(String.valueOf(8));// 8 = TEX_IMAGE
 				result.setWrap(Texture.WrapMode.Repeat);
 				dataRepository.addLoadedFeatures(image.getOldMemoryAddress(), image.getName(), image, result);
 			}
