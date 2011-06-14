@@ -19,10 +19,12 @@ import com.jme3.math.Vector3f;
 
 import com.jme3.post.FilterPostProcessor;
 import com.jme3.post.filters.BloomFilter;
+import com.jme3.post.filters.CartoonEdgeFilter;
 import com.jme3.post.filters.DepthOfFieldFilter;
 import com.jme3.post.filters.FogFilter;
 import com.jme3.post.filters.LightScatteringFilter;
 import com.jme3.post.filters.TranslucentBucketFilter;
+import com.jme3.post.ssao.SSAOFilter;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.queue.RenderQueue.Bucket;
 import com.jme3.renderer.queue.RenderQueue.ShadowMode;
@@ -81,7 +83,7 @@ public class TestPostWater extends SimpleApplication {
         DirectionalLight l = new DirectionalLight();
         l.setDirection(Vector3f.UNIT_Y.mult(-1));
         l.setColor(ColorRGBA.White.clone().multLocal(0.3f));
-        mainScene.addLight(l);
+//        mainScene.addLight(l);
 
         flyCam.setMoveSpeed(50);
 
@@ -96,6 +98,7 @@ public class TestPostWater extends SimpleApplication {
 
         Spatial sky = SkyFactory.createSky(assetManager, "Scenes/Beach/FullskiesSunset0068.dds", false);
         sky.setLocalScale(350);
+      
         mainScene.attachChild(sky);
         cam.setFrustumFar(4000);
         //cam.setFrustumNear(100);
@@ -108,9 +111,12 @@ public class TestPostWater extends SimpleApplication {
         water = new WaterFilter(rootNode, lightDir);
 
         FilterPostProcessor fpp = new FilterPostProcessor(assetManager);
+        
         fpp.addFilter(water);
         BloomFilter bloom=new BloomFilter();
+        //bloom.getE
         bloom.setExposurePower(55);
+        bloom.setBloomIntensity(1.0f);
         fpp.addFilter(bloom);
         LightScatteringFilter lsf = new LightScatteringFilter(lightDir.mult(-300));
         lsf.setLightDensity(1.0f);
@@ -121,7 +127,7 @@ public class TestPostWater extends SimpleApplication {
         fpp.addFilter(dof);
 //        
         
-    //    fpp.addFilter(new TranslucentBucketFilter());
+     //   fpp.addFilter(new TranslucentBucketFilter());
  //       
         
          // fpp.setNumSamples(4);
@@ -172,7 +178,7 @@ public class TestPostWater extends SimpleApplication {
         inputManager.addMapping("foam2", new KeyTrigger(keyInput.KEY_2));
         inputManager.addMapping("foam3", new KeyTrigger(keyInput.KEY_3));
 //        createBox();
-//        createFire();
+      //  createFire();
     }
     Geometry box;
 
@@ -213,16 +219,16 @@ public class TestPostWater extends SimpleApplication {
         fire.setImagesY(2); // 2x2 texture animation
         fire.setEndColor(new ColorRGBA(1f, 0f, 0f, 1f));   // red
         fire.setStartColor(new ColorRGBA(1f, 1f, 0f, 0.5f)); // yellow
-        fire.setInitialVelocity(new Vector3f(0, 2, 0));
+        fire.getParticleInfluencer().setInitialVelocity(new Vector3f(0, 2, 0));
         fire.setStartSize(10f);
         fire.setEndSize(1f);
         fire.setGravity(0, 0, 0);
         fire.setLowLife(0.5f);
         fire.setHighLife(1.5f);
-        fire.setVelocityVariation(0.3f);
-        fire.setLocalTranslation(-500, 30, 300);
+        fire.getParticleInfluencer().setVelocityVariation(0.3f);
+        fire.setLocalTranslation(-350, 40, 430);
 
-        fire.setQueueBucket(Bucket.Translucent);
+        fire.setQueueBucket(Bucket.Transparent);
         rootNode.attachChild(fire);
     }
 
@@ -298,6 +304,6 @@ private boolean uw=false;
              waves.setDryFilter(new LowPassFilter(1, 1f));
              //waves.setDryFilter(new LowPassFilter(1,1f));
              
-        }
+        }     
     }
 }
