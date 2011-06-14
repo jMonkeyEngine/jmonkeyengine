@@ -194,6 +194,7 @@ public class AssetDataObject extends MultiDataObject {
                     outFileObject = getPrimaryFile().getParent().createData(getPrimaryFile().getName(), saveExtension);
                 }
                 out = outFileObject.getOutputStream();
+                outFileObject.getParent().refresh();
             }
             exp.save(savable, out);
         } finally {
