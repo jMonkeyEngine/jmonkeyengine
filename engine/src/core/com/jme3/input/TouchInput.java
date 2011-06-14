@@ -38,16 +38,46 @@ package com.jme3.input;
 public interface TouchInput extends Input {
 
     /**
+     * No filter, get all events
+     */
+    public static final int ALL = 0x00;
+    /**
+     * Home key
+     */
+    public static final int KEYCODE_HOME = 0x03;
+    /**
+     * Escape key.
+     */
+    public static final int KEYCODE_BACK = 0x04;
+    /**
+     * Context Menu key.
+     */
+    public static final int KEYCODE_MENU = 0x52;
+    /**
+     * Search key.
+     */
+    public static final int KEYCODE_SEARCH = 0x54;
+    /**
+     * Volume up key.
+     */
+    public static final int KEYCODE_VOLUME_UP = 0x18;        
+    /**
+     * Volume down key.
+     */
+    public static final int KEYCODE_VOLUME_DOWN = 0x19;    
+
+    
+    /**
      * Set whether mouse events should be generated
      * 
-     * @param simulate Whether mouse events should be generated
+     * @param simulate if mouse events should be generated
      */
     public void setSimulateMouse(boolean simulate);
 
     /**
      * Set whether keyboard events should be generated
      * 
-     * @param simulate Whether keyboard events should be generated
+     * @param simulate if keyboard events should be generated
      */
     public void setSimulateKeyboard(boolean simulate);
 

@@ -124,6 +124,12 @@ public class TouchEvent extends InputEvent {
         this.posY = y;
         this.deltaX = deltax;
         this.deltaY = deltay;
+        pointerId = 0;
+        pressure = 0;
+        keyCode = 0;
+        scaleFactor = 0;
+        scaleSpan = 0;
+        characters = "";
         consumed = false;
     }
 

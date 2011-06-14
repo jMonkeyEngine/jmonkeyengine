@@ -846,7 +846,7 @@ public class InputManager implements RawInputListener {
      * @param evt The touch event to be dispatched to all onTouch listeners
      */
     public void onTouchEventQueued(TouchEvent evt) { 
-        ArrayList<Mapping> maps = bindings.get(TouchTrigger.touchHash());
+        ArrayList<Mapping> maps = bindings.get(TouchTrigger.touchHash(evt.getKeyCode()));
         if (maps == null) {
             return;
         }

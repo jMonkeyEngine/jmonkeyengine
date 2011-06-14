@@ -32,22 +32,42 @@
 
 package com.jme3.input.controls;
 
+/**
+ * Class to trigger TouchEvents, keycode can be TouchInput.ALL(=0) or TouchInput.KEYCODE_*
+ * @author larynx
+ *
+ */
 public class TouchTrigger implements Trigger {
-
-    public TouchTrigger() {
+    
+    private final int keyCode;
+    
+    /**
+     * Constructor
+     * @param keyCode can be zero to get all events or TouchInput.KEYCODE_*
+     */
+    public TouchTrigger(int keyCode) {
         super();
+        this.keyCode = keyCode;
     }
     
     @Override
     public String getName() {
-        return "TouchInput";
+        if (keyCode != 0)
+            return "TouchInput";
+        else
+            return "TouchInput KeyCode " + keyCode;
     }
     
-    public static int touchHash(){
-        return 0xfedcba98;
+    public static int touchHash(int keyCode){
+        assert keyCode >= 0 && keyCode <= 255;
+        return 0xfedcba98 + keyCode;
     }
 
     public int triggerHashCode() {
-        return touchHash();
+        return touchHash(keyCode);
+    }
+    
+    public int getKeyCode(){
+        return keyCode;
     }
 }
