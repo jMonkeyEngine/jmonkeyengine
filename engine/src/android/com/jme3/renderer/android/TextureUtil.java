@@ -1,10 +1,6 @@
 package com.jme3.renderer.android;
 
-
 import android.graphics.Bitmap;
-import android.opengl.GLES10;
-import android.opengl.GLES11;
-import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
 import android.opengl.GLUtils;
 import com.jme3.math.FastMath;
@@ -12,7 +8,6 @@ import com.jme3.texture.Image;
 import com.jme3.texture.Image.Format;
 import java.nio.ByteBuffer;
 import javax.microedition.khronos.opengles.GL10;
-import javax.microedition.khronos.opengles.GL10Ext;
 
 public class TextureUtil {
 
@@ -37,6 +32,16 @@ public class TextureUtil {
             case RGBA16:
             case RGBA8:
                 return GL10.GL_RGBA;
+                
+            case Depth:
+                return GLES20.GL_DEPTH_COMPONENT;
+            case Depth16:
+                return GLES20.GL_DEPTH_COMPONENT16;
+            case Depth24:
+            case Depth32:
+            case Depth32F:
+                throw new UnsupportedOperationException("Unsupported depth format: " + fmt);   
+                
             case DXT1A:
                 throw new UnsupportedOperationException("Unsupported format: " + fmt);
             default:
@@ -129,78 +134,97 @@ public class TextureUtil {
 
         int width = img.getWidth();
         int height = img.getHeight();
-//        int depth = img.getDepth();
+        int depth = img.getDepth();
 
         boolean compress = false;
+        int internalFormat = -1;
         int format = -1;
         int dataType = -1;
 
         switch (fmt){
             case Alpha16:
-                format = GL10.GL_ALPHA;
-                dataType = GL10.GL_UNSIGNED_BYTE;
-                break;
             case Alpha8:
-                format = GL10.GL_ALPHA;
-                dataType = GL10.GL_UNSIGNED_BYTE;
+                format = GLES20.GL_ALPHA;
+                dataType = GLES20.GL_UNSIGNED_BYTE;                
                 break;
             case Luminance8:
-                format = GL10.GL_LUMINANCE;
-                dataType = GL10.GL_UNSIGNED_BYTE;
+                format = GLES20.GL_LUMINANCE;
+                dataType = GLES20.GL_UNSIGNED_BYTE;
                 break;
             case Luminance8Alpha8:
-                format = GL10.GL_LUMINANCE_ALPHA;
-                dataType = GL10.GL_UNSIGNED_BYTE;
+                format = GLES20.GL_LUMINANCE_ALPHA;
+                dataType = GLES20.GL_UNSIGNED_BYTE;
                 break;
             case Luminance16Alpha16:
-                format = GL10.GL_LUMINANCE_ALPHA;
-                dataType = GL10.GL_UNSIGNED_BYTE;
+                format = GLES20.GL_LUMINANCE_ALPHA;
+                dataType = GLES20.GL_UNSIGNED_BYTE;
                 break;
             case Luminance16:
-                format = GL10.GL_LUMINANCE;
-                dataType = GL10.GL_UNSIGNED_BYTE;
+                format = GLES20.GL_LUMINANCE;
+                dataType = GLES20.GL_UNSIGNED_BYTE;
                 break;
             case RGB565:
-                format = GL10.GL_RGB;
-                dataType = GL10.GL_UNSIGNED_SHORT_5_6_5;
+                format = GLES20.GL_RGB;
+                internalFormat = GLES20.GL_RGB565;
+                dataType = GLES20.GL_UNSIGNED_SHORT_5_6_5;
                 break;
             case ARGB4444:
-                format = GL10.GL_RGBA;
-                dataType = GL10.GL_UNSIGNED_SHORT_4_4_4_4;
+                format = GLES20.GL_RGBA;
+                dataType = GLES20.GL_UNSIGNED_SHORT_4_4_4_4;
                 break;
             case RGB10:
-                format = GL10.GL_RGB;
-                dataType = GL10.GL_UNSIGNED_BYTE;
+                format = GLES20.GL_RGB;
+                dataType = GLES20.GL_UNSIGNED_BYTE;
                 break;
             case RGB16:
-                format = GL10.GL_RGB;
-                dataType = GL10.GL_UNSIGNED_BYTE;
+                format = GLES20.GL_RGB;
+                dataType = GLES20.GL_UNSIGNED_BYTE;
                 break;
             case RGB5A1:
-                format = GL10.GL_RGBA;
-                dataType = GL10.GL_UNSIGNED_SHORT_5_5_5_1;
+                format = GLES20.GL_RGBA;
+                internalFormat = GLES20.GL_RGB5_A1;
+                dataType = GLES20.GL_UNSIGNED_SHORT_5_5_5_1;
                 break;
             case RGB8:
-                format = GL10.GL_RGB;
-                dataType = GL10.GL_UNSIGNED_BYTE;
+                format = GLES20.GL_RGB;
+                dataType = GLES20.GL_UNSIGNED_BYTE;
                 break;
             case BGR8:
-                format = GL10.GL_RGB;
-                dataType = GL10.GL_UNSIGNED_BYTE;
+                format = GLES20.GL_RGB;
+                dataType = GLES20.GL_UNSIGNED_BYTE;
                 break;
             case RGBA16:
-                format = GL10.GL_RGBA;
-                dataType = GL10.GL_UNSIGNED_BYTE;
+                format = GLES20.GL_RGBA;
+                internalFormat = GLES20.GL_RGBA4;
+                dataType = GLES20.GL_UNSIGNED_BYTE;
                 break;
             case RGBA8:
-                format = GL10.GL_RGBA;
-                dataType = GL10.GL_UNSIGNED_BYTE;
+                format = GLES20.GL_RGBA;                
+                dataType = GLES20.GL_UNSIGNED_BYTE;
                 break;
             case DXT1A:
                 format = GLES20.GL_COMPRESSED_TEXTURE_FORMATS;
-                dataType = GL10.GL_UNSIGNED_BYTE;           
+                dataType = GLES20.GL_UNSIGNED_BYTE;
+            case Depth:
+                format = GLES20.GL_DEPTH_COMPONENT;
+                dataType = GLES20.GL_UNSIGNED_BYTE;
+                break;
+            case Depth16:
+                format = GLES20.GL_DEPTH_COMPONENT;
+                internalFormat = GLES20.GL_DEPTH_COMPONENT16;
+                dataType = GLES20.GL_UNSIGNED_BYTE;
+                break;
+            case Depth24:
+            case Depth32:
+            case Depth32F:
+                throw new UnsupportedOperationException("Unsupported depth format: " + fmt);                
             default:
-                throw new UnsupportedOperationException("Unrecognized format: "+fmt);
+                throw new UnsupportedOperationException("Unrecognized format: " + fmt);
+        }
+        
+        if (internalFormat == -1)
+        {
+            internalFormat = format;
         }
 
         if (data != null)
@@ -233,7 +257,7 @@ public class TextureUtil {
         for (int i = 0; i < mipSizes.length; i++){
             int mipWidth =  Math.max(1, width  >> i);
             int mipHeight = Math.max(1, height >> i);
-//            int mipDepth =  Math.max(1, depth  >> i);
+            int mipDepth =  Math.max(1, depth  >> i);
 
             if (data != null){
                 data.position(pos);
@@ -252,7 +276,7 @@ public class TextureUtil {
             }else{
                 GLES20.glTexImage2D(GLES20.GL_TEXTURE_2D,
                                 i,
-                                format,
+                                internalFormat,
                                 mipWidth,
                                 mipHeight,
                                 0,

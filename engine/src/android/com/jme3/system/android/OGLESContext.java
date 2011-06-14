@@ -165,9 +165,8 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer
                 if ((value[0] & EGL_OPENGL_ES2_BIT) != 0)
                 {
                     clientOpenGLESVersion = 2;  // OpenGL ES 2.0 detected
-                }
-                
-                bestConfig = better(bestConfig, conf[i], egl, display);
+                    bestConfig = better(bestConfig, conf[i], egl, display);
+                }                                
             }
             else
             {
@@ -178,11 +177,7 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer
         if (clientOpenGLESVersion < 2)
         {
             logger.severe("OpenGL ES 2.0 is not supported on this device");
-        }
-        
-        logger.info("JME3 using best EGL configuration available here: ");        
-        logEGLConfig(bestConfig, display, egl);
-        
+        }                
         // Finished querying the configs
         
         
@@ -193,32 +188,41 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer
          * Requesting client version from GLSurfaceView which is extended by
          * AndroidInput.        
          */     
-        view.setEGLContextClientVersion(clientOpenGLESVersion);
-                
-        //RGB565, Depth16
-        //view.setEGLConfigChooser(5, 6, 5, 0, 16, 0);
-        
-        // Choose best config        
-        egl.eglGetConfigAttrib(display, bestConfig, EGL10.EGL_RED_SIZE, value);
-        int redSize = value[0];
-        
-        egl.eglGetConfigAttrib(display, bestConfig, EGL10.EGL_GREEN_SIZE, value);
-        int greenSize = value[0];
-        
-        egl.eglGetConfigAttrib(display, bestConfig, EGL10.EGL_BLUE_SIZE, value);
-        int blueSize = value[0];
+        view.setEGLContextClientVersion(clientOpenGLESVersion);               
 
-        egl.eglGetConfigAttrib(display, bestConfig, EGL10.EGL_ALPHA_SIZE, value);
-        int alphaSize = value[0];
-        
-        egl.eglGetConfigAttrib(display, bestConfig, EGL10.EGL_DEPTH_SIZE, value);
-        int depthSize = value[0];
-                
-        egl.eglGetConfigAttrib(display, bestConfig, EGL10.EGL_STENCIL_SIZE, value);
-        int stencilSize = value[0];
-        
-        view.setEGLConfigChooser(redSize, greenSize, blueSize, alphaSize, depthSize, stencilSize);
-        
+        if (bestConfig != null)
+        {
+            logger.info("JME3 using best EGL configuration available here: ");        
+            logEGLConfig(bestConfig, display, egl);
+
+            // Choose best config        
+            egl.eglGetConfigAttrib(display, bestConfig, EGL10.EGL_RED_SIZE, value);
+            int redSize = value[0];
+            
+            egl.eglGetConfigAttrib(display, bestConfig, EGL10.EGL_GREEN_SIZE, value);
+            int greenSize = value[0];
+            
+            egl.eglGetConfigAttrib(display, bestConfig, EGL10.EGL_BLUE_SIZE, value);
+            int blueSize = value[0];
+    
+            egl.eglGetConfigAttrib(display, bestConfig, EGL10.EGL_ALPHA_SIZE, value);
+            int alphaSize = value[0];
+            
+            egl.eglGetConfigAttrib(display, bestConfig, EGL10.EGL_DEPTH_SIZE, value);
+            int depthSize = value[0];
+                    
+            egl.eglGetConfigAttrib(display, bestConfig, EGL10.EGL_STENCIL_SIZE, value);
+            int stencilSize = value[0];
+            
+            view.setEGLConfigChooser(redSize, greenSize, blueSize, alphaSize, depthSize, stencilSize);
+        }
+        else
+        {
+            //RGB565, Depth16            
+            logger.info("JME3 best EGL configuration not found using default: RGB565, Depth16, Alpha0, Stencil0");
+            view.setEGLConfigChooser(5, 6, 5, 0, 16, 0);
+        }
+    
         view.setFocusableInTouchMode(true);
         view.setFocusable(true);
         view.getHolder().setType(SurfaceHolder.SURFACE_TYPE_GPU);
