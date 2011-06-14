@@ -24,6 +24,12 @@ public class ReflectionProcessor implements SceneProcessor {
     private FrameBuffer reflectionBuffer;
     private Plane reflectionClipPlane;
 
+    /**
+     * Creates a ReflectionProcessor
+     * @param reflectionCam the cam to use for reflection
+     * @param reflectionBuffer the FrameBuffer to render to
+     * @param reflectionClipPlane the clipping plane
+     */
     public ReflectionProcessor(Camera reflectionCam, FrameBuffer reflectionBuffer, Plane reflectionClipPlane) {
         this.reflectionCam = reflectionCam;
         this.reflectionBuffer = reflectionBuffer;
@@ -67,26 +73,52 @@ public class ReflectionProcessor implements SceneProcessor {
     public void cleanup() {
     }
 
+    /**
+     * Internal use only<br>
+     * returns the frame buffer
+     * @return 
+     */
     public FrameBuffer getReflectionBuffer() {
         return reflectionBuffer;
     }
 
+    /**
+     * Internal use only<br>
+     * sets the frame buffer
+     * @param reflectionBuffer 
+     */
     public void setReflectionBuffer(FrameBuffer reflectionBuffer) {
         this.reflectionBuffer = reflectionBuffer;
     }
 
+    /**
+     * returns the reflection cam
+     * @return 
+     */
     public Camera getReflectionCam() {
         return reflectionCam;
     }
 
+    /**
+     * sets the reflection cam
+     * @param reflectionCam 
+     */
     public void setReflectionCam(Camera reflectionCam) {
         this.reflectionCam = reflectionCam;
     }
 
+    /**
+     * returns the reflection clip plane
+     * @return 
+     */
     public Plane getReflectionClipPlane() {
         return reflectionClipPlane;
     }
 
+    /**
+     * Sets the reflection clip plane
+     * @param reflectionClipPlane 
+     */
     public void setReflectionClipPlane(Plane reflectionClipPlane) {
         this.reflectionClipPlane = reflectionClipPlane;
     }

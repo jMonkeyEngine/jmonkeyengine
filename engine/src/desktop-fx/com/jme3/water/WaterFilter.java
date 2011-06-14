@@ -46,7 +46,6 @@ import com.jme3.post.Filter;
 import com.jme3.post.Filter.Pass;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.RenderManager;
-import com.jme3.renderer.Renderer;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
@@ -57,8 +56,12 @@ import com.jme3.util.TempVars;
 import java.io.IOException;
 
 /**
- *
- * @author nehon
+ * The WaterFilter is a 2D post process that simulate water.
+ * It renders water above and under water.
+ * See this blog post for more info http://jmonkeyengine.org/2011/01/15/new-advanced-water-effect-for-jmonkeyengine-3/
+ * 
+ * 
+ * @author Rémy Bouquet aka Nehon
  */
 public class WaterFilter extends Filter {
 
@@ -805,10 +808,18 @@ public class WaterFilter extends Filter {
 
     }
 
+    /**
+     * returns true if the water use the refraction
+     * @return 
+     */
     public boolean isUseRefraction() {
         return useRefraction;
     }
 
+    /**
+     * set to true to use refraction (default is true)
+     * @param useRefraction 
+     */
     public void setUseRefraction(boolean useRefraction) {
         this.useRefraction = useRefraction;
         if (material != null) {
@@ -817,10 +828,19 @@ public class WaterFilter extends Filter {
 
     }
 
+    /**
+     * returns true if the ater use ripples
+     * @return 
+     */
     public boolean isUseRipples() {
         return useRipples;
     }
 
+    /**
+     * 
+     * Set to true tu use ripples
+     * @param useRipples 
+     */
     public void setUseRipples(boolean useRipples) {
         this.useRipples = useRipples;
         if (material != null) {
@@ -829,10 +849,18 @@ public class WaterFilter extends Filter {
 
     }
 
+    /**
+     * returns true if the water use specular
+     * @return 
+     */
     public boolean isUseSpecular() {
         return useSpecular;
     }
 
+    /**
+     * Set to true to use specular lightings on the water
+     * @param useSpecular 
+     */
     public void setUseSpecular(boolean useSpecular) {
         this.useSpecular = useSpecular;
         if (material != null) {
@@ -840,10 +868,18 @@ public class WaterFilter extends Filter {
         }
     }
 
+    /**
+     * returns the foam intensity
+     * @return 
+     */
     public float getFoamIntensity() {
         return foamIntensity;
     }
 
+    /**
+     * sets the foam intensity default is 0.5f
+     * @param foamIntensity 
+     */
     public void setFoamIntensity(float foamIntensity) {
         this.foamIntensity = foamIntensity;
         if (material != null) {
@@ -852,10 +888,19 @@ public class WaterFilter extends Filter {
         }
     }
 
+    /**
+     * returns the reflection displace
+     * see {@link setReflectionDisplace(float reflectionDisplace)}
+     * @return 
+     */
     public float getReflectionDisplace() {
         return reflectionDisplace;
     }
 
+    /**
+     * Sets the reflection displace. define how troubled will look the reflection in the water. default is 30
+     * @param reflectionDisplace 
+     */
     public void setReflectionDisplace(float reflectionDisplace) {
         this.reflectionDisplace = reflectionDisplace;
         if (material != null) {

@@ -51,8 +51,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 /**
- *
- * @author nehon
+ * SSAO stands for screen space ambient occlusion
+ * It's a technique that fake ambient lighting by computind shadows that near by objects would casts on each others 
+ * under the effect of an ambient light
+ * more info on this in this blog post http://jmonkeyengine.org/2010/08/16/screen-space-ambient-occlusion-for-jmonkeyengine-3-0/
+ * 
+ * @author Rémy Bouquet aka Nehon
  */
 public class SSAOFilter extends Filter {
 
@@ -68,8 +72,8 @@ public class SSAOFilter extends Filter {
     private boolean useAo = true;
     private Material ssaoMat;
     private Pass ssaoPass;
-    private Material downSampleMat;
-    private Pass downSamplePass;
+//    private Material downSampleMat;
+//    private Pass downSamplePass;
     private float downSampleFactor = 1f;
 
     /**
@@ -80,12 +84,11 @@ public class SSAOFilter extends Filter {
     }
 
     /**
-     *
-     * @param vp
-     * @param sampleRadius
-     * @param intensity
-     * @param scale
-     * @param bias
+     * Create a Screen Space Ambiant Occlusion Filter
+     * @param sampleRadius The radius of the area where random samples will be picked. default 5.1f
+     * @param intensity intensity of the resulting AO. default 1.2f
+     * @param scale distance between occluders and occludee. default 0.2f
+     * @param bias the width of the occlusion cone considered by the occludee. default 0.1f
      */
     public SSAOFilter(float sampleRadius, float intensity, float scale, float bias) {
         this();
@@ -123,7 +126,7 @@ public class SSAOFilter extends Filter {
         postRenderPasses = new ArrayList<Pass>();
 
         normalPass = new Pass();
-        normalPass.init(renderManager.getRenderer(), (int)(screenWidth / downSampleFactor), (int)(screenHeight / downSampleFactor), Format.RGBA8, Format.Depth);
+        normalPass.init(renderManager.getRenderer(), (int) (screenWidth / downSampleFactor), (int) (screenHeight / downSampleFactor), Format.RGBA8, Format.Depth);
 
 
         frustumNearFar = new Vector2f();
@@ -153,7 +156,7 @@ public class SSAOFilter extends Filter {
             }
         };
 
-        ssaoPass.init(renderManager.getRenderer(), (int)(screenWidth / downSampleFactor), (int)(screenHeight / downSampleFactor), Format.RGBA8, Format.Depth, 1, ssaoMat);
+        ssaoPass.init(renderManager.getRenderer(), (int) (screenWidth / downSampleFactor), (int) (screenHeight / downSampleFactor), Format.RGBA8, Format.Depth, 1, ssaoMat);
         ssaoPass.getRenderedTexture().setMinFilter(Texture.MinFilter.Trilinear);
         ssaoPass.getRenderedTexture().setMagFilter(Texture.MagFilter.Bilinear);
         postRenderPasses.add(ssaoPass);
@@ -180,10 +183,19 @@ public class SSAOFilter extends Filter {
 
     }
 
+    /**
+     * Return the bias<br>
+     * see {@link  setBias(float bias)}
+     * @return 
+     */
     public float getBias() {
         return bias;
     }
 
+    /**
+     * Sets the the width of the occlusion cone considered by the occludee default is 0.1f
+     * @param bias 
+     */
     public void setBias(float bias) {
         this.bias = bias;
         if (ssaoMat != null) {
@@ -191,10 +203,18 @@ public class SSAOFilter extends Filter {
         }
     }
 
+    /**
+     * returns the ambient occlusion intensity
+     * @return 
+     */
     public float getIntensity() {
         return intensity;
     }
 
+    /**
+     * Sets the Ambient occlusion intensity default is 1.2f
+     * @param intensity 
+     */
     public void setIntensity(float intensity) {
         this.intensity = intensity;
         if (ssaoMat != null) {
@@ -203,10 +223,19 @@ public class SSAOFilter extends Filter {
 
     }
 
+    /**
+     * returns the sample radius<br>
+     * see {link setSampleRadius(float sampleRadius)}
+     * @return 
+     */
     public float getSampleRadius() {
         return sampleRadius;
     }
 
+    /**
+     * Sets the radius of the area where random samples will be picked dafault 5.1f     
+     * @param sampleRadius 
+     */
     public void setSampleRadius(float sampleRadius) {
         this.sampleRadius = sampleRadius;
         if (ssaoMat != null) {
@@ -215,22 +244,39 @@ public class SSAOFilter extends Filter {
 
     }
 
+    /**
+     * returns the scale<br>
+     * see {@link setScale(float scale)}
+     * @return 
+     */
     public float getScale() {
         return scale;
     }
 
+    /**
+     * 
+     * Returns the distance between occluders and occludee. dafault 0.2f
+     * @param scale 
+     */
     public void setScale(float scale) {
         this.scale = scale;
         if (ssaoMat != null) {
             ssaoMat.setFloat("Scale", scale);
         }
-
     }
 
+    /**
+     * debugging only , will be removed
+     * @return 
+     */
     public boolean isUseAo() {
         return useAo;
     }
 
+    /**
+     * debugging only , will be removed
+     * @return 
+     */
     public void setUseAo(boolean useAo) {
         this.useAo = useAo;
         if (material != null) {
@@ -239,10 +285,18 @@ public class SSAOFilter extends Filter {
 
     }
 
+    /**
+     * debugging only , will be removed
+     * @return 
+     */
     public boolean isUseOnlyAo() {
         return useOnlyAo;
     }
 
+    /**
+     * debugging only , will be removed
+     * @return 
+     */
     public void setUseOnlyAo(boolean useOnlyAo) {
         this.useOnlyAo = useOnlyAo;
         if (material != null) {
@@ -269,6 +323,4 @@ public class SSAOFilter extends Filter {
         scale = ic.readFloat("scale", 0.2f);
         bias = ic.readFloat("bias", 0.1f);
     }
-
-
 }

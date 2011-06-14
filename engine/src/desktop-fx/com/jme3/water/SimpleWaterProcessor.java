@@ -51,16 +51,46 @@ import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Quad;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Image.Format;
-import com.jme3.texture.Texture.MagFilter;
-import com.jme3.texture.Texture.MinFilter;
 import com.jme3.texture.Texture.WrapMode;
 import com.jme3.texture.Texture2D;
 import com.jme3.ui.Picture;
-import com.jme3.util.TempVars;
 
 /**
  *
- * @author normenhansen
+ * Simple Water renders a simple plane that use reflection and refraction to look like water.
+ * It's pretty basic, but much faster than the WaterFilter
+ * It's useful if you aim low specs hardware and still want a good looking water.
+ * Usage is : 
+ * <code>
+ *      SimpleWaterProcessor waterProcessor = new SimpleWaterProcessor(assetManager);
+ *      //setting the scene to use for reflection
+ *      waterProcessor.setReflectionScene(mainScene);
+ *      //setting the light position
+ *      waterProcessor.setLightPosition(lightPos);
+ *      
+ *      //setting the water plane
+ *      Vector3f waterLocation=new Vector3f(0,-20,0);
+ *      waterProcessor.setPlane(new Plane(Vector3f.UNIT_Y, waterLocation.dot(Vector3f.UNIT_Y)));
+ *      //setting the water color 
+ *      waterProcessor.setWaterColor(ColorRGBA.Brown);
+ *
+ *      //creating a quad to render water to
+ *      Quad quad = new Quad(400,400);
+ *
+ *      //the texture coordinates define the general size of the waves
+ *      quad.scaleTextureCoordinates(new Vector2f(6f,6f));
+ *
+ *      //creating a geom to attach the water material 
+ *      Geometry water=new Geometry("water", quad);
+ *      water.setLocalTranslation(-200, -20, 250);
+ *      water.setLocalRotation(new Quaternion().fromAngleAxis(-FastMath.HALF_PI, Vector3f.UNIT_X));
+ *      //finally setting the material
+ *      water.setMaterial(waterProcessor.getMaterial());
+ *    
+ *      //attaching the water to the root node
+ *      rootNode.attachChild(water);
+ * </code>
+ * @author Normen Hansen & Rémy Bouquet
  */
 public class SimpleWaterProcessor implements SceneProcessor {
 
@@ -100,6 +130,10 @@ public class SimpleWaterProcessor implements SceneProcessor {
     private Vector3f vect2 = new Vector3f();
     private Vector3f vect3 = new Vector3f();
 
+    /**
+     * Creates a SimpleWaterProcessor
+     * @param manager the asset manager
+     */
     public SimpleWaterProcessor(AssetManager manager) {
         this.manager = manager;
         material = new Material(manager, "Common/MatDefs/Water/SimpleWater.j3md");
@@ -312,10 +346,18 @@ public class SimpleWaterProcessor implements SceneProcessor {
         reflectionScene = spat;
     }
 
+    /**
+     * returns the width of the reflection and refraction textures
+     * @return 
+     */
     public int getRenderWidth() {
         return renderWidth;
     }
 
+    /**
+     * returns the height of the reflection and refraction textures
+     * @return 
+     */
     public int getRenderHeight() {
         return renderHeight;
     }
@@ -331,6 +373,10 @@ public class SimpleWaterProcessor implements SceneProcessor {
         renderHeight = height;
     }
 
+    /**
+     * returns the water plane
+     * @return 
+     */
     public Plane getPlane() {
         return plane;
     }
@@ -390,14 +436,26 @@ public class SimpleWaterProcessor implements SceneProcessor {
         material.setFloat("waterDepth", depth);
     }
 
+    /**
+     * return the water depth
+     * @return 
+     */
     public float getWaterDepth() {
         return waterDepth;
     }
 
+    /**
+     * returns water transparency
+     * @return 
+     */
     public float getWaterTransparency() {
         return waterTransparency;
     }
 
+    /**
+     * sets the water transparency default os 0.1f
+     * @param waterTransparency 
+     */
     public void setWaterTransparency(float waterTransparency) {
         this.waterTransparency = Math.max(0, waterTransparency);
         material.setFloat("waterTransparency", waterTransparency / 10);
@@ -434,10 +492,18 @@ public class SimpleWaterProcessor implements SceneProcessor {
         material.setColor("texScale", new ColorRGBA(value, value, value, value));
     }
 
+    /**
+     * retruns true if the waterprocessor is in debug mode
+     * @return 
+     */
     public boolean isDebug() {
         return debug;
     }
 
+    /**
+     * set to true to display reflection and refraction textures in the GUI for debug purpose
+     * @param debug 
+     */
     public void setDebug(boolean debug) {
         this.debug = debug;
     }
