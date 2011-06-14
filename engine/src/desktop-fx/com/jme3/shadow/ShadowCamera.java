@@ -29,7 +29,6 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package com.jme3.shadow;
 
 import com.jme3.light.DirectionalLight;
@@ -38,14 +37,19 @@ import com.jme3.light.PointLight;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
 
+/**
+ * Creates a camera according to a light
+ * Handy to compute projection matrix of a light
+ * @author Kirill Vainer
+ */
 public class ShadowCamera {
 
     private Vector3f[] points = new Vector3f[8];
     private Light target;
 
-    public ShadowCamera(Light target){
+    public ShadowCamera(Light target) {
         this.target = target;
-        for (int i = 0; i < points.length; i++){
+        for (int i = 0; i < points.length; i++) {
             points[i] = new Vector3f();
         }
     }
@@ -53,14 +57,14 @@ public class ShadowCamera {
     /**
      * Updates the camera view direction and position based on the light
      */
-    private void updateLightCamera(Camera lightCam){
-        if (target.getType() == Light.Type.Directional){
+    public void updateLightCamera(Camera lightCam) {
+        if (target.getType() == Light.Type.Directional) {
             DirectionalLight dl = (DirectionalLight) target;
             lightCam.setParallelProjection(true);
             lightCam.setLocation(Vector3f.ZERO);
-            lightCam.lookAtDirection(dl.getDirection(), Vector3f.UNIT_Y );
+            lightCam.lookAtDirection(dl.getDirection(), Vector3f.UNIT_Y);
             lightCam.setFrustum(-1, 1, -1, 1, 1, -1);
-        }else{
+        } else {
             PointLight pl = (PointLight) target;
             lightCam.setParallelProjection(false);
             lightCam.setLocation(pl.getPosition());
@@ -68,5 +72,4 @@ public class ShadowCamera {
             lightCam.setFrustumPerspective(45, 1, 1, 300);
         }
     }
-
 }

@@ -29,7 +29,6 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package com.jme3.shadow;
 
 import com.jme3.material.Material;
@@ -57,36 +56,42 @@ import com.jme3.texture.Texture.ShadowCompareMode;
 import com.jme3.texture.Texture2D;
 import com.jme3.ui.Picture;
 
+/**
+ * PssmShadow renderer use Parrallel Split Shadow Mapping technique (pssm)<br>
+ * It splits the view frustum in several parts and compute a shadow map for each one.<br>
+ * splits are distributed so that the closer they are from the camera, the smaller they are to maximize the resolution used of the shadow map.<br>
+ * This result in a better quality shadow than standard shadow mapping.<br>
+ * for more informations on this read this http://http.developer.nvidia.com/GPUGems3/gpugems3_ch10.html<br>
+ * 
+ * @author Rémy Bouquet aka Nehon
+ */
 public class PssmShadowRenderer implements SceneProcessor {
 
     /**
      * <code>FilterMode</code> specifies how shadows are filtered
      */
     public enum FilterMode {
+
         /**
          * Shadows are not filtered. Nearest sample is used, causing in blocky
          * shadows.
          */
         Nearest,
-
         /**
          * Bilinear filtering is used. Has the potential of being hardware
          * accelerated on some GPUs
          */
         Bilinear,
-
         /**
          * Dither-based sampling is used, very cheap but can look bad
          * at low resolutions.
          */
         Dither,
-
         /**
          * 4x4 percentage-closer filtering is used. Shadows will be smoother
          * at the cost of performance
          */
         PCF4,
-        
         /**
          * 8x8 percentage-closer  filtering is used. Shadows will be smoother
          * at the cost of performance
@@ -94,19 +99,21 @@ public class PssmShadowRenderer implements SceneProcessor {
         PCF8
     }
 
+    /**
+     * Specifies the shadow comparison mode 
+     */
     public enum CompareMode {
+
         /**
          * Shadow depth comparisons are done by using shader code
          */
         Software,
-
         /**
          * Shadow depth comparisons are done by using the GPU's dedicated
          * shadowing pipeline.
          */
         Hardware;
     }
-
     private int nbSplits = 3;
     private float lambda = 0.65f;
     private float shadowIntensity = 0.7f;
@@ -119,21 +126,17 @@ public class PssmShadowRenderer implements SceneProcessor {
     private Camera shadowCam;
     private Material preshadowMat;
     private Material postshadowMat;
-
     private GeometryList splitOccluders = new GeometryList(new OpaqueComparator());
     private Matrix4f[] lightViewProjectionsMatrices;
     private ColorRGBA splits;
     private float[] splitsArray;
     private boolean noOccluders = false;
-    
     private Vector3f direction = new Vector3f();
     private AssetManager assetManager;
     private boolean debug = false;
     private float edgesThickness = 1.0f;
-
     private FilterMode filterMode;
     private CompareMode compareMode;
-
     private Picture[] dispPic;
     private Vector3f[] points = new Vector3f[8];
 
@@ -154,26 +157,26 @@ public class PssmShadowRenderer implements SceneProcessor {
         dispPic = new Picture[nbSplits];
         lightViewProjectionsMatrices = new Matrix4f[nbSplits];
         splits = new ColorRGBA();
-        splitsArray = new float[nbSplits+1];
+        splitsArray = new float[nbSplits + 1];
 
         //DO NOT COMMENT THIS (it prevent the OSX incomplete read buffer crash)
-        dummyTex= new Texture2D(size, size, Format.RGBA8);
+        dummyTex = new Texture2D(size, size, Format.RGBA8);
 
-        preshadowMat  = new Material(manager, "Common/MatDefs/Shadow/PreShadow.j3md");
+        preshadowMat = new Material(manager, "Common/MatDefs/Shadow/PreShadow.j3md");
         postshadowMat = new Material(manager, "Common/MatDefs/Shadow/PostShadowPSSM.j3md");
 
         for (int i = 0; i < nbSplits; i++) {
             lightViewProjectionsMatrices[i] = new Matrix4f();
             shadowFB[i] = new FrameBuffer(size, size, 1);
             shadowMaps[i] = new Texture2D(size, size, Format.Depth);
-            
+
             shadowFB[i].setDepthTexture(shadowMaps[i]);
 
             //DO NOT COMMENT THIS (it prevent the OSX incomplete read buffer crash)
             shadowFB[i].setColorTexture(dummyTex);
 
             postshadowMat.setTexture("ShadowMap" + i, shadowMaps[i]);
-            
+
             //quads for debuging purpose
             dispPic[i] = new Picture("Picture" + i);
             dispPic[i].setTexture(manager, shadowMaps[i], false);
@@ -190,22 +193,28 @@ public class PssmShadowRenderer implements SceneProcessor {
         }
     }
 
-    public void setFilterMode(FilterMode filterMode){
-        if (filterMode == null)
+    /**
+     * Sets the filtering mode for shadow edges see {@link FilterMode} for more info
+     * @param filterMode 
+     */
+    public void setFilterMode(FilterMode filterMode) {
+        if (filterMode == null) {
             throw new NullPointerException();
+        }
 
-        if (this.filterMode == filterMode)
+        if (this.filterMode == filterMode) {
             return;
+        }
 
         this.filterMode = filterMode;
         postshadowMat.setInt("FilterMode", filterMode.ordinal());
         postshadowMat.setFloat("PCFEdge", edgesThickness);
-        if (compareMode == CompareMode.Hardware){
-            for (Texture2D shadowMap : shadowMaps){
-                if (filterMode == FilterMode.Bilinear){
+        if (compareMode == CompareMode.Hardware) {
+            for (Texture2D shadowMap : shadowMaps) {
+                if (filterMode == FilterMode.Bilinear) {
                     shadowMap.setMagFilter(MagFilter.Bilinear);
                     shadowMap.setMinFilter(MinFilter.BilinearNoMipMaps);
-                }else{
+                } else {
                     shadowMap.setMagFilter(MagFilter.Nearest);
                     shadowMap.setMinFilter(MinFilter.NearestNoMipMaps);
                 }
@@ -213,25 +222,31 @@ public class PssmShadowRenderer implements SceneProcessor {
         }
     }
 
+    /**
+     * sets the shadow compare mode see {@link CompareMode} for more info
+     * @param compareMode 
+     */
     public void setCompareMode(CompareMode compareMode) {
-        if (compareMode == null)
+        if (compareMode == null) {
             throw new NullPointerException();
+        }
 
-        if (this.compareMode == compareMode)
+        if (this.compareMode == compareMode) {
             return;
+        }
 
         this.compareMode = compareMode;
-        for (Texture2D shadowMap : shadowMaps){
-            if (compareMode == CompareMode.Hardware){
+        for (Texture2D shadowMap : shadowMaps) {
+            if (compareMode == CompareMode.Hardware) {
                 shadowMap.setShadowCompareMode(ShadowCompareMode.LessOrEqual);
-                if (filterMode == FilterMode.Bilinear){
+                if (filterMode == FilterMode.Bilinear) {
                     shadowMap.setMagFilter(MagFilter.Bilinear);
                     shadowMap.setMinFilter(MinFilter.BilinearNoMipMaps);
-                }else{
+                } else {
                     shadowMap.setMagFilter(MagFilter.Nearest);
                     shadowMap.setMinFilter(MinFilter.NearestNoMipMaps);
                 }
-            } else{
+            } else {
                 shadowMap.setShadowCompareMode(ShadowCompareMode.Off);
                 shadowMap.setMagFilter(MagFilter.Nearest);
                 shadowMap.setMinFilter(MinFilter.NearestNoMipMaps);
@@ -280,30 +295,40 @@ public class PssmShadowRenderer implements SceneProcessor {
         return viewPort != null;
     }
 
+    /**
+     * returns the light direction used by the processor
+     * @return 
+     */
     public Vector3f getDirection() {
         return direction;
     }
 
+    /**
+     * Sets the light direction to use to compute shadows
+     * @param direction 
+     */
     public void setDirection(Vector3f direction) {
         this.direction.set(direction).normalizeLocal();
     }
 
-    @SuppressWarnings("fallthrough") 
+    @SuppressWarnings("fallthrough")
     public void postQueue(RenderQueue rq) {
-        GeometryList occluders = rq.getShadowQueueContent(ShadowMode.Cast);        
-        if (occluders.size() == 0)
+        GeometryList occluders = rq.getShadowQueueContent(ShadowMode.Cast);
+        if (occluders.size() == 0) {
             return;
+        }
 
         GeometryList receivers = rq.getShadowQueueContent(ShadowMode.Receive);
-        if (receivers.size() == 0)
+        if (receivers.size() == 0) {
             return;
-        
+        }
+
         Camera viewCam = viewPort.getCamera();
 
         float zFar = zFarOverride;
         if (zFar == 0) {
-            zFar=viewCam.getFrustumFar();
-          // zFar = PssmShadowUtil.computeZFar(occluders, receivers, viewCam);
+            zFar = viewCam.getFrustumFar();
+            // zFar = PssmShadowUtil.computeZFar(occluders, receivers, viewCam);
         }
         //  System.out.println("Zfar : "+zFar);
         ShadowUtil.updateFrustumPoints(viewCam, viewCam.getFrustumNear(), zFar, 1.0f, points);
@@ -322,7 +347,7 @@ public class PssmShadowRenderer implements SceneProcessor {
         PssmShadowUtil.updateFrustumSplits(splitsArray, viewCam.getFrustumNear(), zFar, lambda);
 
 
-        switch (splitsArray.length){
+        switch (splitsArray.length) {
             case 5:
                 splits.a = splitsArray[4];
             case 4:
@@ -345,25 +370,7 @@ public class PssmShadowRenderer implements SceneProcessor {
             ShadowUtil.updateFrustumPoints(viewCam, splitsArray[i], splitsArray[i + 1], 1.0f, points);
 
             //Updating shadow cam with curent split frustra
-         //   if(cropShadows){
-                ShadowUtil.updateShadowCamera(occluders, receivers, shadowCam, points, splitOccluders);
-//            }else{
-//                ShadowUtil.updateShadowCamera(shadowCam, points);
-//            }           
-            //displaying the current splitted frustrum and the associated cropped light frustrums in wireframe.
-            //only for debuging purpose
-//            if (debug) {
-//                viewPort.attachScene(createFrustum(points, i));
-//                Vector3f[] pts = new Vector3f[8];
-//                for (int j = 0; j < pts.length; j++) {
-//                    pts[j] = new Vector3f();
-//                }
-//                ShadowUtil.updateFrustumPoints2(shadowCam, pts);
-//                viewPort.attachScene(createFrustum(pts, i));
-//                if (i == nbSplits-1) {
-//                    debug = false;
-//                }
-//            }
+            ShadowUtil.updateShadowCamera(occluders, receivers, shadowCam, points, splitOccluders);
 
             //saving light view projection matrix for this split
             lightViewProjectionsMatrices[i] = shadowCam.getViewProjectionMatrix().clone();
@@ -373,9 +380,7 @@ public class PssmShadowRenderer implements SceneProcessor {
             r.clearBuffers(false, true, false);
 
             // render shadow casters to shadow map
-            viewPort.getQueue().renderShadowQueue(splitOccluders, renderManager,  shadowCam, true);
-            //viewPort.getQueue().renderShadowQueue(ShadowMode.Cast, renderManager, shadowCam, i == nbSplits - 1);
-            
+            viewPort.getQueue().renderShadowQueue(splitOccluders, renderManager, shadowCam, true);
         }
         occluders.clear();
         //restore setting for future rendering
@@ -383,11 +388,11 @@ public class PssmShadowRenderer implements SceneProcessor {
         renderManager.setForcedMaterial(null);
         renderManager.setForcedTechnique(null);
         renderManager.setCamera(viewCam, false);
-        
+
     }
 
     //debug only : displays depth shadow maps
-    public void displayShadowMap(Renderer r) {
+    private void displayShadowMap(Renderer r) {
         Camera cam = viewPort.getCamera();
         renderManager.setCamera(cam, true);
         int h = cam.getHeight();
@@ -421,8 +426,9 @@ public class PssmShadowRenderer implements SceneProcessor {
             renderManager.setCamera(cam, false);
 
         }
-        if (debug)
+        if (debug) {
             displayShadowMap(renderManager.getRenderer());
+        }
     }
 
     public void preFrame(float tpf) {
@@ -434,6 +440,11 @@ public class PssmShadowRenderer implements SceneProcessor {
     public void reshape(ViewPort vp, int w, int h) {
     }
 
+    /**
+     * returns the labda parameter<br>
+     * see {@link setLambda(float lambda)}
+     * @return 
+     */
     public float getLambda() {
         return lambda;
     }
@@ -450,6 +461,11 @@ public class PssmShadowRenderer implements SceneProcessor {
         this.lambda = lambda;
     }
 
+    /**
+     * How far the shadows are rendered in the view
+     * see {@link setShadowZExtend(float zFar)}
+     * @return 
+     */
     public float getShadowZExtend() {
         return zFarOverride;
     }
@@ -463,6 +479,11 @@ public class PssmShadowRenderer implements SceneProcessor {
         this.zFarOverride = zFar;
     }
 
+    /**
+     * returns the shdaow intensity<br>
+     * see {@link setShadowIntensity(float shadowIntensity)}
+     * @return 
+     */
     public float getShadowIntensity() {
         return shadowIntensity;
     }
@@ -479,14 +500,22 @@ public class PssmShadowRenderer implements SceneProcessor {
         postshadowMat.setFloat("ShadowIntensity", shadowIntensity);
     }
 
+    /**
+     * returns the edges thickness <br>
+     * see {@link setEdgesThickness(int edgesThickness)}
+     * @return 
+     */
     public int getEdgesThickness() {
         return (int) (edgesThickness * 10);
     }
 
+    /**
+     * Stes the shadow edges thickness. default is 1, setting it to lower values can help to reduce the jagged effect of the shadow edges
+     * @param edgesThickness 
+     */
     public void setEdgesThickness(int edgesThickness) {
-        this.edgesThickness = Math.max(1, Math.min(edgesThickness,10));
+        this.edgesThickness = Math.max(1, Math.min(edgesThickness, 10));
         this.edgesThickness *= 0.1f;
         postshadowMat.setFloat("PCFEdge", edgesThickness);
     }
 }
-

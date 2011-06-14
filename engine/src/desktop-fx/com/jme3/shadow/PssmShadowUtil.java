@@ -29,7 +29,6 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package com.jme3.shadow;
 
 import com.jme3.bounding.BoundingBox;
@@ -51,18 +50,6 @@ import static java.lang.Math.*;
  * for more info.
  */
 public final class PssmShadowUtil {
-
-    public static void main(String[] args){
-        float[] splits = new float[5];
-        float[] splitsShader = new float[3];
-        updateFrustumSplits(splits, 1, 1000, 0.5f);
-        System.arraycopy(splits, 1, splitsShader, 0, splitsShader.length);
-        System.out.println(Arrays.toString(splitsShader));
-
-        for (int i = 0; i < splits.length-1; i++){
-            System.out.println(splits[i] + " - " + splits[i+1]);
-        }
-    }
 
     /**
      * Updates the frustum splits stores in <code>splits</code> using PSSM.
@@ -86,7 +73,7 @@ public final class PssmShadowUtil {
      */
     public static float computeZFar(GeometryList occ, GeometryList recv, Camera cam) {
         Matrix4f mat = cam.getViewMatrix();
-        BoundingBox bbOcc  = ShadowUtil.computeUnionBound(occ, mat);
+        BoundingBox bbOcc = ShadowUtil.computeUnionBound(occ, mat);
         BoundingBox bbRecv = ShadowUtil.computeUnionBound(recv, mat);
 
         return min(max(bbOcc.getZExtent() - bbOcc.getCenter().z, bbRecv.getZExtent() - bbRecv.getCenter().z), cam.getFrustumFar());
