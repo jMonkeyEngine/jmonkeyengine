@@ -46,6 +46,7 @@ import com.jme3.math.Ray;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
+import java.util.logging.Logger;
 
 
 /**
@@ -63,8 +64,8 @@ public class TerrainCameraController extends AbstractCameraController {
 
     private boolean terrainEditToolActivated = false;
     protected Application app;
-    private float toolModifyRate = 0.01f; // how frequently (in seconds) it should update
-    private long lastModifyTime;
+    private float toolModifyRate = 0.05f; // how frequently (in seconds) it should update to throttle down the tool effect
+    private float lastModifyTime; // last time the tool executed
 
     public TerrainCameraController(Camera cam) {
         super(cam, SceneApplication.getApplication().getInputManager());
@@ -193,7 +194,11 @@ public class TerrainCameraController extends AbstractCameraController {
     private void doTerrainUpdates(float dt) {
 
         if (terrainEditToolActivated) {
-            if (app.getContext().getTimer().getTime() >= lastModifyTime + (toolModifyRate*1000)) {
+            lastModifyTime += dt;
+            
+            if (lastModifyTime >= toolModifyRate) {
+                
+                lastModifyTime = 0;
                 toolController.doTerrainEditToolActivated();
                 terrainEditToolActivated = false;
                 lastModifyTime = app.getContext().getTimer().getTime();

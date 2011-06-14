@@ -55,13 +55,9 @@ import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeListenerProxy;
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Vector;
 import java.util.logging.Logger;
 import javax.swing.AbstractCellEditor;
 import javax.swing.DefaultListSelectionModel;
@@ -70,7 +66,6 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
-import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.filechooser.FileFilter;
@@ -81,7 +76,6 @@ import javax.swing.table.TableCellRenderer;
 import jme3tools.converters.ImageToAwt;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
-import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.nodes.NodeEvent;
 import org.openide.nodes.NodeMemberEvent;
 import org.openide.nodes.NodeReorderEvent;
@@ -94,8 +88,6 @@ import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.NotifyDescriptor.Confirmation;
 import org.openide.WizardDescriptor;
-import org.openide.cookies.SaveCookie;
-import org.openide.loaders.DataObject;
 import org.openide.nodes.NodeListener;
 import org.openide.util.Exceptions;
 import org.openide.util.HelpCtx;
@@ -126,6 +118,7 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
     private SkyboxWizardAction skyboxWizard;
     private JmeSpatial selectedSpat;
     private TerrainNodeListener terrainDeletedNodeListener;
+    
 
     public enum TerrainEditButton {none, raiseTerrain, lowerTerrain, smoothTerrain, levelTerrain, paintTerrain, eraseTerrain};
 
@@ -760,7 +753,7 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
 
         addSaveNode(selectedSpat);
         
-        editorController.getAlphaSaveDataObject(this);
+ //       editorController.getAlphaSaveDataObject(this);
         
         editorController.setNeedsSave(true);
 
@@ -971,7 +964,7 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
             
             setSceneInfo(currentRequest.getJmeNode(), true);
 
-            editorController.doGetAlphaSaveDataObject(this);
+            //editorController.doGetAlphaSaveDataObject(this);
 
             // if the opened scene has terrain, add it to a save node
             Terrain terrain = (Terrain)editorController.getTerrain(null);
@@ -1029,11 +1022,7 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
     }
 
     protected void addSaveNode(org.openide.nodes.Node node) {
-        org.openide.nodes.Node[] nodes = getActivatedNodes();
-        org.openide.nodes.Node[] newNodes = new org.openide.nodes.Node[nodes.length+1];
-        System.arraycopy(nodes, 0, newNodes, 0, nodes.length);
-        newNodes[newNodes.length-1] = node;
-        setActivatedNodes(newNodes);
+        setActivatedNodes(new org.openide.nodes.Node[]{node});
     }
 
     private void setSceneInfo(final JmeNode jmeNode, final boolean active) {
@@ -1057,25 +1046,6 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
             }
         });
     }
-
-    /*private boolean checkSaved() {
-        if (editorController != null && editorController.isNeedSave()) {
-                Confirmation msg = new NotifyDescriptor.Confirmation("Your Scene is not saved, do you want to save?", 
-                        NotifyDescriptor.YES_NO_CANCEL_OPTION, 
-                        NotifyDescriptor.WARNING_MESSAGE);
-                Object res = DialogDisplayer.getDefault().notify(msg);
-                if (NotifyDescriptor.CANCEL_OPTION.equals(res)) {
-                    return false;
-                } else if (NotifyDescriptor.YES_OPTION.equals(res)) {
-                    editorController.saveScene();
-                    return true;
-                } else if (NotifyDescriptor.NO_OPTION.equals(res)) {
-                    return true;
-                }
-                return true;
-        }
-        return true;
-    }*/
 
     public boolean sceneClose(SceneRequest request) {
         if (request.equals(currentRequest)) {

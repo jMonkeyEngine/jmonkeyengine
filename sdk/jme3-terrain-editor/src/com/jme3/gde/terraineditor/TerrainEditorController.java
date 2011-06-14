@@ -35,10 +35,10 @@ package com.jme3.gde.terraineditor;
 import com.jme3.asset.AssetManager;
 import com.jme3.asset.TextureKey;
 import com.jme3.bounding.BoundingBox;
+import com.jme3.gde.core.assets.AssetDataObject;
 import com.jme3.gde.core.assets.ProjectAssetManager;
 import com.jme3.gde.core.scene.SceneApplication;
 import com.jme3.gde.core.sceneexplorer.nodes.JmeSpatial;
-import com.jme3.gde.core.util.DataObjectSaveNode;
 import com.jme3.material.MatParam;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector2f;
@@ -67,9 +67,7 @@ import javax.imageio.ImageIO;
 import jme3tools.converters.ImageToAwt;
 import org.openide.cookies.SaveCookie;
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
-import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.util.Exceptions;
 
 /**
@@ -81,8 +79,7 @@ public class TerrainEditorController {
     private JmeSpatial jmeRootNode;
     private Node terrainNode;
     private Node rootNode;
-    private DataObject currentFileObject;
-    private DataObjectSaveNode alphaDataObject;
+    private AssetDataObject currentFileObject;
 
     // texture settings
     protected final String DEFAULT_TERRAIN_TEXTURE = "com/jme3/gde/terraineditor/dirt.jpg";
@@ -91,90 +88,33 @@ public class TerrainEditorController {
     private final int BASE_TEXTURE_COUNT = NUM_ALPHA_TEXTURES; // add any others here, like a global specular map
     protected final int MAX_TEXTURE_LAYERS = 7-BASE_TEXTURE_COUNT; // 16 max, minus the ones we are reserving
 
-    public TerrainEditorController(JmeSpatial jmeRootNode, DataObject currentFileObject, TerrainEditorTopComponent topComponent) {
-        this.jmeRootNode = jmeRootNode;
-        rootNode = this.jmeRootNode.getLookup().lookup(Node.class);
-        this.currentFileObject = currentFileObject;
-        alphaDataObject = null;
-    }
 
-    public void setToolController(TerrainToolController toolController) {
-        
-    }
+    //private DataObjectSaveNode alphaDataObject;
 
-    /**
-     * Saves the data object into the topComponent via
-     * TerrainEditorTopComponent.addDataObject()
-     */
-    public void getAlphaSaveDataObject(final TerrainEditorTopComponent topComponent) {
-        if (alphaDataObject != null)
-            topComponent.addDataObject(alphaDataObject);
-        else {
-            Terrain terrain = (Terrain) getTerrain(null);
-            if (terrain == null)
-                return;
-            SceneApplication.getApplication().enqueue(new Callable<Object>() {
+    protected SaveCookie terrainSaveCookie = new SaveCookie() {
+      public void save() throws IOException {
+            //TODO: On OpenGL thread? -- safest way.. with get()?
+            SceneApplication.getApplication().enqueue(new Callable() {
+
                 public Object call() throws Exception {
-                    doCreateAlphaSaveDataObject();
-                    topComponent.addDataObject(alphaDataObject);
+                    currentFileObject.saveAsset();
+                    doSaveAlphaImages((Terrain)getTerrain(null));
                     return null;
                 }
             });
         }
+    };
 
+    
+    public TerrainEditorController(JmeSpatial jmeRootNode, AssetDataObject currentFileObject, TerrainEditorTopComponent topComponent) {
+        this.jmeRootNode = jmeRootNode;
+        rootNode = this.jmeRootNode.getLookup().lookup(Node.class);
+        this.currentFileObject = currentFileObject;
+        this.currentFileObject.setSaveCookie(terrainSaveCookie);
     }
 
-    public void doGetAlphaSaveDataObject(final TerrainEditorTopComponent topComponent) {
-        if (alphaDataObject != null)
-            topComponent.addDataObject(alphaDataObject);
-        else {
-            Terrain terrain = (Terrain) getTerrain(null);
-            if (terrain == null)
-                return;
-            doCreateAlphaSaveDataObject();
-            topComponent.addDataObject(alphaDataObject);
-        }
-
-    }
-
-    /*public void createAlphaSaveDataObject() throws DataObjectNotFoundException {
-
-        if (alphaDataObject != null)
-            return;
-        try {
-            SceneApplication.getApplication().enqueue(new Callable<Object>() {
-
-                public Object call() throws Exception {
-                    doCreateAlphaSaveDataObject();
-                    return null;
-                }
-            }).get();
-        } catch (InterruptedException ex) {
-            Exceptions.printStackTrace(ex);
-        } catch (ExecutionException ex) {
-            Exceptions.printStackTrace(ex);
-        }
-    }*/
-
-    private void doCreateAlphaSaveDataObject() {
-        if (alphaDataObject != null)
-            return;
-        Terrain terrain = (Terrain) getTerrain(null);
-        if (terrain == null)
-            return;
-        String assetFolder = "";
-        AssetManager manager = SceneApplication.getApplication().getAssetManager();
-        if (manager != null && manager instanceof ProjectAssetManager)
-            assetFolder = ((ProjectAssetManager)manager).getAssetFolderName();
-        Texture alpha0 = doGetAlphaTexture(terrain, 0);
-        String path = alpha0.getKey().getName();
-        Logger.getLogger(TerrainEditorController.class.getName()).info("Creating AlphaSaveDataObject, path: "+assetFolder+path);
-        FileObject fb = FileUtil.toFileObject(new File(assetFolder+path));
-        try {
-            alphaDataObject = new DataObjectSaveNode(DataObject.find(fb));
-        } catch (DataObjectNotFoundException ex) {
-            Exceptions.printStackTrace(ex);
-        }
+    public void setToolController(TerrainToolController toolController) {
+        
     }
 
     public FileObject getCurrentFileObject() {
@@ -187,49 +127,6 @@ public class TerrainEditorController {
 
     public void setNeedsSave(boolean state) {
         currentFileObject.setModified(state);
-        setNeedsSaveAlpha(state);
-    }
-
-    private void setNeedsSaveAlpha(boolean state) {
-        if (alphaDataObject == null)
-            doCreateAlphaSaveDataObject();
-        
-        Terrain terrain = (Terrain)getTerrain(null);
-        AlphaTextureSaveCookie cookie = new AlphaTextureSaveCookie(terrain);
-        if(!alphaDataObject.getDataObject().isModified()){
-            alphaDataObject.setSaveCookie(cookie);
-        }
-    }
-
-    class AlphaTextureSaveCookie implements SaveCookie {
-
-        private Terrain terrain;
-
-        AlphaTextureSaveCookie(Terrain terrain) {
-            this.terrain = terrain;
-        }
-
-        public String getId() {
-            return terrain.getSpatial().getName();
-        }
-
-        public void save() throws IOException {
-            saveAlphaImages(terrain);
-            alphaDataObject.removeSaveCookie();
-        }
-
-    }
-
-    public boolean isNeedSave() {
-        return currentFileObject.isModified();
-    }
-
-    public void saveScene() {
-        try {
-            currentFileObject.getLookup().lookup(SaveCookie.class).save();
-        } catch (IOException ex) {
-            Exceptions.printStackTrace(ex);
-        }
     }
 
     protected Node getTerrain(Spatial root) {
@@ -336,7 +233,7 @@ public class TerrainEditorController {
         final Node node = jmeRootNode.getLookup().lookup(Node.class);
         terrainNode = null;
         rootNode = null;
-        alphaDataObject = null;
+//        alphaDataObject = null;
     }
 
     /**
@@ -559,6 +456,8 @@ public class TerrainEditorController {
         else
             terrain.getMaterial().setTexture("DiffuseMap_"+layer, tex);
 
+        doSetTextureScale(layer, DEFAULT_TEXTURE_SCALE);
+        
         setNeedsSave(true);
     }
     
@@ -861,7 +760,7 @@ public class TerrainEditorController {
 
         parent.attachChild(terrain);
 
-        doCreateAlphaSaveDataObject();
+//        doCreateAlphaSaveDataObject();
 
         setNeedsSave(true);
 
@@ -1025,7 +924,7 @@ public class TerrainEditorController {
             return;
 
         
-        setNeedsSaveAlpha(true);
+        setNeedsSave(true);
         
         Texture tex = doGetAlphaTextureFromDiffuse(terrain, selectedTextureIndex);
         Image image = tex.getImage();
@@ -1063,7 +962,7 @@ public class TerrainEditorController {
 	 * @param erase true if the tool should remove the paint instead of add it
 	 * @param fadeFalloff the percentage of the radius when the paint begins to start fading
 	 */
-	protected void doPaintAction(int texIndex, Image image, Vector2f uv, boolean dragged, float radius, boolean erase, float fadeFalloff){
+    protected void doPaintAction(int texIndex, Image image, Vector2f uv, boolean dragged, float radius, boolean erase, float fadeFalloff){
         Vector2f texuv = new Vector2f();
         ColorRGBA color = ColorRGBA.Black;
         
@@ -1075,6 +974,7 @@ public class TerrainEditorController {
         int miny = (int) (uv.y*height - radius*height);
         int maxy = (int) (uv.y*height + radius*height);
 
+        Logger.getLogger(TerrainEditorTopComponent.class.getName()).info("Paint "+uv );
         float radiusSquared = radius*radius;
         float radiusFalloff = radius*fadeFalloff;
         // go through each pixel, in the radius of the tool, in the image

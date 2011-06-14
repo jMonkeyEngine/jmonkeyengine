@@ -48,6 +48,7 @@ import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.shape.Sphere;
 import com.jme3.util.IntMap.Entry;
 import java.util.concurrent.Callable;
+import java.util.logging.Logger;
 
 /**
  * The controller for the terrain modification tools. It will in turn interact
@@ -104,7 +105,8 @@ public class TerrainToolController extends SceneToolController {
         marker = new Geometry("edit marker");
         Mesh m = new Sphere(8, 8, 3);
         marker.setMesh(m);
-        Material mat = new Material(manager, "Common/MatDefs/Misc/WireColor.j3md");
+        Material mat = new Material(manager, "Common/MatDefs/Misc/Unshaded.j3md");
+        mat.getAdditionalRenderState().setWireframe(true);
         mat.setColor("Color", ColorRGBA.Green);
         marker.setMaterial(mat);
         marker.setLocalTranslation(0,0,0);
@@ -125,8 +127,10 @@ public class TerrainToolController extends SceneToolController {
             hideEditTool();
         } else if (state == TerrainEditButton.raiseTerrain || state == TerrainEditButton.lowerTerrain) {
             showEditTool(state);
+            Logger.getLogger(TerrainEditorTopComponent.class.getName()).info("TERRAIN HEIGHT state");
         } else if (state == TerrainEditButton.paintTerrain || state == TerrainEditButton.eraseTerrain) {
             showEditTool(state);
+            Logger.getLogger(TerrainEditorTopComponent.class.getName()).info("PAINT TERRAIN state");
         }
     }
 
@@ -205,15 +209,19 @@ public class TerrainToolController extends SceneToolController {
 
         if (TerrainEditButton.raiseTerrain == getCurrentEditButtonState() ) {
             editorController.doModifyTerrainHeight(getMarkerLocation(), heightToolRadius, heightAmount);
+            Logger.getLogger(TerrainEditorTopComponent.class.getName()).info("terrain raise height");
         }
         else if (TerrainEditButton.lowerTerrain == getCurrentEditButtonState() ) {
             editorController.doModifyTerrainHeight(getMarkerLocation(), heightToolRadius, -heightAmount);
+            Logger.getLogger(TerrainEditorTopComponent.class.getName()).info("terrain lower height");
         }
         else if(TerrainEditButton.paintTerrain == getCurrentEditButtonState()) {
             editorController.doPaintTexture(selectedTextureIndex, getMarkerLocation(), heightToolRadius, paintAmount);
+            Logger.getLogger(TerrainEditorTopComponent.class.getName()).info("terrain paint");
         }
         else if (TerrainEditButton.eraseTerrain == getCurrentEditButtonState() ) {
             editorController.doPaintTexture(selectedTextureIndex, getMarkerLocation(), heightToolRadius, -paintAmount);
+            Logger.getLogger(TerrainEditorTopComponent.class.getName()).info("terrain erase");
         }
     }
 }
