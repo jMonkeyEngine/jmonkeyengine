@@ -456,6 +456,15 @@ public class LwjglRenderer implements Renderer {
             bits = GL_COLOR_BUFFER_BIT;
         }
         if (depth) {
+            
+            //glClear(GL_DEPTH_BUFFER_BIT) seems to not work when glDepthMask is false
+            //here s some link on openl board
+            //http://www.opengl.org/discussion_boards/ubbthreads.php?ubb=showflat&Number=257223
+            //if depth clear is requested, we enable the depthMask            
+            if (context.depthWriteEnabled == false) {
+                glDepthMask(true);
+                context.depthWriteEnabled = true;
+            }
             bits |= GL_DEPTH_BUFFER_BIT;
         }
         if (stencil) {
@@ -548,7 +557,7 @@ public class LwjglRenderer implements Renderer {
                 context.polyOffsetUnits = 0;
             }
         }
-        
+
         if (state.getFaceCullMode() != context.cullMode) {
             if (state.getFaceCullMode() == RenderState.FaceCullMode.Off) {
                 glDisable(GL_CULL_FACE);
@@ -700,7 +709,7 @@ public class LwjglRenderer implements Renderer {
                 throw new UnsupportedOperationException("Unrecognized test function: " + testFunc);
         }
     }
-    
+
     /*********************************************************************\
     |* Camera and World transforms                                       *|
     \*********************************************************************/

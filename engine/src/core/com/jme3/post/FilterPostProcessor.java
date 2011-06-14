@@ -185,12 +185,12 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
             filterCam.resize(buff.getWidth(), buff.getHeight(), true);
             fsQuad.setPosition(0, 0);
         }
-        
+
         if (mat.getAdditionalRenderState().isDepthWrite()) {
             mat.getAdditionalRenderState().setDepthTest(false);
             mat.getAdditionalRenderState().setDepthWrite(false);
         }
-            
+
         fsQuad.setMaterial(mat);
         fsQuad.updateGeometricState();
 
@@ -198,10 +198,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
         r.setFrameBuffer(buff);
         r.clearBuffers(false, true, true);
         renderManager.renderGeometry(fsQuad);
-        
-        //re applying default render state at the end of the render 
-        // to avoid depth write issues, MUST BE A BETTER WAY
-        r.applyRenderState(RenderState.DEFAULT);
+
     }
 
     public boolean isInitialized() {
