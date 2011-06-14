@@ -148,6 +148,7 @@ public class NiftyJmeDisplay implements SceneProcessor {
         this.w = w;
         this.h = h;
         inputSys.setHeight(h);
+        nifty.resolutionChanged();
     }
 
     public boolean isInitialized() {
