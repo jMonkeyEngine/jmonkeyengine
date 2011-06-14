@@ -45,6 +45,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.image.BufferedImage;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -250,8 +251,8 @@ public final class SettingsDialog extends JDialog {
             }
         });
 
-        if(source.getIcons()!=null){
-            safeSetIconImages(Arrays.asList(source.getIcons()));
+        if (source.getIcons() != null) {
+            safeSetIconImages( (List<BufferedImage>) Arrays.asList((BufferedImage[]) source.getIcons()) );
         }
 
         setTitle("Select Display Settings");

@@ -113,8 +113,9 @@ public class LwjglDisplay extends LwjglAbstractDisplay {
         if (displayMode != null)
             Display.setDisplayMode(displayMode);
 
-        if (settings.getIcons() != null)
+        if (settings.getIcons() != null) {
             Display.setIcon(imagesToByteBuffers(settings.getIcons()));
+        }
 
         Display.setFullscreen(settings.isFullscreen());
         Display.setVSyncEnabled(settings.isVSync());
@@ -190,10 +191,11 @@ public class LwjglDisplay extends LwjglAbstractDisplay {
             Display.setTitle(title);
     }
     
-    private ByteBuffer[] imagesToByteBuffers(BufferedImage[] images) {
+    private ByteBuffer[] imagesToByteBuffers(Object[] images) {
         ByteBuffer[] out = new ByteBuffer[images.length];
         for (int i = 0; i < images.length; i++) {
-            out[i] = imageToByteBuffer(images[i]);
+            BufferedImage image = (BufferedImage) images[i];
+            out[i] = imageToByteBuffer(image);
         }
         return out;
     }

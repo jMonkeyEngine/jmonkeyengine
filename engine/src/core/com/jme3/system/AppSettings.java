@@ -32,7 +32,6 @@
 package com.jme3.system;
 
 import com.jme3.renderer.Renderer;
-import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -376,7 +375,7 @@ public class AppSettings extends HashMap<String, Object> {
      * @param value An array of BufferedImages to use as icons.
      * (Default: not set)
      */
-    public void setIcons(BufferedImage[] value) {
+    public void setIcons(Object[] value) {
         put("Icons", value);
     }
 
@@ -440,8 +439,8 @@ public class AppSettings extends HashMap<String, Object> {
         return getString("AudioRenderer");
     }
 
-    public BufferedImage[] getIcons() {
-        return (BufferedImage[]) get("Icons");
+    public Object[] getIcons() {
+        return (Object[]) get("Icons");
     }
 
     public void setSettingsDialogImage(String path) {
