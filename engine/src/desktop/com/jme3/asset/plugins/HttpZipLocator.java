@@ -40,6 +40,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.CharacterCodingException;
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetDecoder;
+import java.nio.charset.CoderResult;
 import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -57,6 +63,15 @@ public class HttpZipLocator implements AssetLocator {
     private int tableOffset;
     private int tableLength;
     private HashMap<String, ZipEntry2> entries;
+    
+    private static final ByteBuffer byteBuf = ByteBuffer.allocate(250);
+    private static final CharBuffer charBuf = CharBuffer.allocate(250);
+    private static final CharsetDecoder utf8Decoder;
+    
+    static {
+        Charset utf8 = Charset.forName("UTF-8");
+        utf8Decoder = utf8.newDecoder();
+    }
 
     private static class ZipEntry2 {
         String name;
@@ -94,66 +109,48 @@ public class HttpZipLocator implements AssetLocator {
              (((long)(b[off]&0xff)) << 24);
     }
 
-    private static String getUTF8String(byte[] b, int off, int len) {
-	// First, count the number of characters in the sequence
-	int count = 0;
-	int max = off + len;
-	int i = off;
-	while (i < max) {
-	    int c = b[i++] & 0xff;
-	    switch (c >> 4) {
-	    case 0: case 1: case 2: case 3: case 4: case 5: case 6: case 7:
-		// 0xxxxxxx
-		count++;
-		break;
-	    case 12: case 13:
-		// 110xxxxx 10xxxxxx
-		if ((int)(b[i++] & 0xc0) != 0x80) {
-		    throw new IllegalArgumentException();
-		}
-		count++;
-		break;
-	    case 14:
-		// 1110xxxx 10xxxxxx 10xxxxxx
-		if (((int)(b[i++] & 0xc0) != 0x80) ||
-		    ((int)(b[i++] & 0xc0) != 0x80)) {
-		    throw new IllegalArgumentException();
-		}
-		count++;
-		break;
-	    default:
-		// 10xxxxxx, 1111xxxx
-		throw new IllegalArgumentException();
-	    }
-	}
-	if (i != max) {
-	    throw new IllegalArgumentException();
-	}
-	// Now decode the characters...
-	char[] cs = new char[count];
-	i = 0;
-	while (off < max) {
-	    int c = b[off++] & 0xff;
-	    switch (c >> 4) {
-	    case 0: case 1: case 2: case 3: case 4: case 5: case 6: case 7:
-		// 0xxxxxxx
-		cs[i++] = (char)c;
-		break;
-	    case 12: case 13:
-		// 110xxxxx 10xxxxxx
-		cs[i++] = (char)(((c & 0x1f) << 6) | (b[off++] & 0x3f));
-		break;
-	    case 14:
-		// 1110xxxx 10xxxxxx 10xxxxxx
-		int t = (b[off++] & 0x3f) << 6;
-		cs[i++] = (char)(((c & 0x0f) << 12) | t | (b[off++] & 0x3f));
-		break;
-	    default:
-		// 10xxxxxx, 1111xxxx
-		throw new IllegalArgumentException();
-	    }
-	}
-	return new String(cs, 0, count);
+    private static String getUTF8String(byte[] b, int off, int len) throws CharacterCodingException {
+        StringBuilder sb = new StringBuilder();
+        
+        int read = 0;
+        while (read < len){
+            // Either read n remaining bytes in b or 250 if n is higher.
+            int toRead = Math.min(len - read, byteBuf.capacity());
+            
+            boolean endOfInput = toRead < byteBuf.capacity();
+            
+            // read 'toRead' bytes into byteBuf
+            byteBuf.put(b, off + read, toRead);
+            
+            // set limit to position and set position to 0
+            // so data can be decoded
+            byteBuf.flip();
+            
+            // decode data in byteBuf
+            CoderResult result = utf8Decoder.decode(byteBuf, charBuf, endOfInput); 
+            
+            // if the result is not an underflow its an error
+            // that cannot be handled.
+            // if the error is an underflow and its the end of input
+            // then the decoder expects more bytes but there are no more => error
+            if (!result.isUnderflow() || !endOfInput){
+                result.throwException();
+            }
+            
+            // flip the char buf to get the string just decoded
+            charBuf.flip();
+            
+            // append the decoded data into the StringBuilder
+            sb.append(charBuf.toString());
+            
+            // clear buffers for next use
+            byteBuf.clear();
+            charBuf.clear();
+            
+            read += toRead;
+        }
+        
+        return sb.toString();
     }
 
     private InputStream readData(int offset, int length) throws IOException{

@@ -61,9 +61,9 @@ public class TerrainGridTest extends SimpleApplication {
     public void simpleInitApp() {
         File file = new File("mountains.zip");
         if (!file.exists()) {
-            assetManager.registerLocator("http://jmonkeyengine.googlecode.com/files/mountains.zip", HttpZipLocator.class.getName());
+            assetManager.registerLocator("http://jmonkeyengine.googlecode.com/files/mountains.zip", HttpZipLocator.class);
         }else{
-            assetManager.registerLocator("mountains.zip", ZipLocator.class.getName());
+            assetManager.registerLocator("mountains.zip", ZipLocator.class);
         }
 
         this.flyCam.setMoveSpeed(100f);

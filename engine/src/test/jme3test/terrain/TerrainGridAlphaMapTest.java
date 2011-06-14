@@ -5,6 +5,8 @@ import java.util.List;
 
 import com.jme3.app.SimpleApplication;
 import com.jme3.app.state.ScreenshotAppState;
+import com.jme3.asset.plugins.HttpZipLocator;
+import com.jme3.asset.plugins.ZipLocator;
 import com.jme3.bullet.BulletAppState;
 import com.jme3.bullet.collision.shapes.CapsuleCollisionShape;
 import com.jme3.bullet.collision.shapes.HeightfieldCollisionShape;
@@ -20,12 +22,11 @@ import com.jme3.renderer.Camera;
 import com.jme3.terrain.geomipmap.TerrainGrid;
 import com.jme3.terrain.geomipmap.TerrainGridListener;
 import com.jme3.terrain.geomipmap.TerrainLodControl;
-import com.jme3.terrain.geomipmap.TerrainQuad;
-import com.jme3.terrain.heightmap.FractalHeightMapGrid;
 import com.jme3.terrain.heightmap.ImageBasedHeightMapGrid;
 import com.jme3.terrain.heightmap.Namer;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
+import java.io.File;
 import org.novyon.noise.ShaderUtils;
 import org.novyon.noise.basis.FilteredBasis;
 import org.novyon.noise.filter.IterativeFilter;
@@ -58,6 +59,13 @@ public class TerrainGridAlphaMapTest extends SimpleApplication {
 
     @Override
     public void simpleInitApp() {
+        File file = new File("mountains.zip");
+        if (!file.exists()) {
+            assetManager.registerLocator("http://jmonkeyengine.googlecode.com/files/mountains.zip", HttpZipLocator.class);
+        }else{
+            assetManager.registerLocator("mountains.zip", ZipLocator.class);
+        }
+        
         this.flyCam.setMoveSpeed(100f);
         ScreenshotAppState state = new ScreenshotAppState();
         this.stateManager.attach(state);
@@ -126,9 +134,8 @@ public class TerrainGridAlphaMapTest extends SimpleApplication {
         ground.addPreFilter(this.iterate);
 
         this.terrain = new TerrainGrid("terrain", 65, 1025, new ImageBasedHeightMapGrid(assetManager, new Namer() {
-
             public String getName(int x, int y) {
-                return "Textures/Terrain/grid/terrain_" + x + "_" + y + ".png";
+                return "Scenes/TerrainAlphaTest/terrain_" + x + "_" + y + ".png";
             }
         }));
         this.terrain.setMaterial(this.matRock);
@@ -139,7 +146,9 @@ public class TerrainGridAlphaMapTest extends SimpleApplication {
             }
 
             public Material tileLoaded(Material material, Vector3f cell) {
-                material.setTexture("Alpha", assetManager.loadTexture("Textures/Terrain/grid/alphamap_" + (int)Math.abs(512 * (cell.x % 2)) + "_" + (int)Math.abs(512 * (cell.z % 2)) + ".png"));
+                int x = (int)Math.abs(512 * (cell.x % 2));
+                int z = (int)Math.abs(512 * (cell.z % 2));
+                material.setTexture("Alpha", assetManager.loadTexture("Scenes/TerrainAlphaTest/alphamap_" + x + "_" + z + ".png"));
                 return material;
             }
         });

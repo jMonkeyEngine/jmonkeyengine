@@ -40,12 +40,12 @@ import com.jme3.texture.FrameBuffer;
 /**
  * Scene processors are used to compute/render things before and after the classic render of the scene.
  * They have to be added to a viewport and are rendered in the order they've been added
- * @author Kirill Vainer aka Shadowislord aka Momoko_Fan
+ *
+ * @author Kirill Vainer
  */
 public interface SceneProcessor {
 
     /**
-     * For internal use only<br>
      * Called in the render thread to initialize the scene processor.
      *
      * @param rm The render manager to which the SP was added to
@@ -54,7 +54,6 @@ public interface SceneProcessor {
     public void initialize(RenderManager rm, ViewPort vp);
 
     /**
-     * For internal use only<br>
      * Called when the resolution of the viewport has been changed.
      * @param vp
      */
@@ -67,7 +66,6 @@ public interface SceneProcessor {
     public boolean isInitialized();
 
     /**
-     * For internal use only<br>
      * Called before a frame
      *
      * @param tpf Time per frame
@@ -75,7 +73,6 @@ public interface SceneProcessor {
     public void preFrame(float tpf);
 
     /**
-     * For internal use only<br>
      * Called after the scene graph has been queued, but before it is flushed.
      *
      * @param rq The render queue
@@ -83,7 +80,6 @@ public interface SceneProcessor {
     public void postQueue(RenderQueue rq);
 
     /**
-     * For internal use only<br>
      * Called after a frame has been rendered and the queue flushed.
      *
      * @param out The FB to which the scene was rendered.
@@ -91,7 +87,6 @@ public interface SceneProcessor {
     public void postFrame(FrameBuffer out);
 
     /**
-     * For internal use only<br>
      * Called when the SP is removed from the RM.
      */
     public void cleanup();

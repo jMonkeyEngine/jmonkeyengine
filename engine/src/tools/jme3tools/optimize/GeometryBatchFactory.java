@@ -2,6 +2,7 @@ package jme3tools.optimize;
 
 import com.jme3.material.Material;
 import com.jme3.math.Matrix4f;
+import com.jme3.math.Transform;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
@@ -348,6 +349,9 @@ public class GeometryBatchFactory {
             geometry.removeFromParent();
         }
 
+        // Since the scene is returned unaltered the transform must be reset
+        scene.setLocalTransform(Transform.IDENTITY);
+        
         return scene;
     }
 
