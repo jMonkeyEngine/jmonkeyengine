@@ -586,8 +586,8 @@ public class KinematicRagdollControl implements PhysicsControl, PhysicsCollision
             }
             this.space = space;
             addToPhysicsSpace();
+            this.space.addCollisionListener(this);
         }
-        this.space.addCollisionListener(this);
     }
 
     /**
