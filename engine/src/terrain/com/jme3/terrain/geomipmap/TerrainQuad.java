@@ -80,117 +80,116 @@ import java.util.logging.Logger;
  */
 public class TerrainQuad extends Node implements Terrain {
 
-	protected Vector2f offset;
+    protected Vector2f offset;
 
-	protected int totalSize; // the size of this entire terrain tree (on one side)
+    protected int totalSize; // the size of this entire terrain tree (on one side)
 
-	protected int size; // size of this quad, can be between totalSize and patchSize
+    protected int size; // size of this quad, can be between totalSize and patchSize
 
     protected int patchSize; // size of the individual patches
 
-	protected Vector3f stepScale;
+    protected Vector3f stepScale;
 
-	protected float offsetAmount;
+    protected float offsetAmount;
 
-	protected int quadrant = 1; // 1=upper left, 2=lower left, 3=upper right, 4=lower right
+    protected int quadrant = 1; // 1=upper left, 2=lower left, 3=upper right, 4=lower right
 
-	protected LodCalculatorFactory lodCalculatorFactory;
+    protected LodCalculatorFactory lodCalculatorFactory;
 
 
-	protected List<Vector3f> lastCameraLocations; // used for LOD calc
-	private boolean lodCalcRunning = false;
-	private boolean usingLOD = true;
-	private int maxLod = -1;
-	private HashMap<String,UpdatedTerrainPatch> updatedPatches;
-	private final Object updatePatchesLock = new Object();
+    protected List<Vector3f> lastCameraLocations; // used for LOD calc
+    private boolean lodCalcRunning = false;
+    private boolean usingLOD = true;
+    private int maxLod = -1;
+    private HashMap<String,UpdatedTerrainPatch> updatedPatches;
+    private final Object updatePatchesLock = new Object();
     private BoundingBox affectedAreaBBox; // only set in the root quad
 
     private TerrainPicker picker;
 
 
-	protected ExecutorService executor = Executors.newSingleThreadExecutor(new ThreadFactory() {
-		           public Thread newThread(Runnable r) {
-		             Thread th = new Thread(r);
-		             th.setDaemon(true);
-		             return th;
-		           }
-		    });
+    protected ExecutorService executor = Executors.newSingleThreadExecutor(new ThreadFactory() {
+        public Thread newThread(Runnable r) {
+            Thread th = new Thread(r);
+            th.setDaemon(true);
+            return th;
+        }
+    });
 
 
-	public TerrainQuad() {
-		super("Terrain");
-	}
+    public TerrainQuad() {
+        super("Terrain");
+    }
 
-	public TerrainQuad(String name, int patchSize, int totalSize, float[] heightMap) {
-		this(name, patchSize, totalSize, heightMap, null);
-	}
+    public TerrainQuad(String name, int patchSize, int totalSize, float[] heightMap) {
+        this(name, patchSize, totalSize, heightMap, null);
+    }
 
     public TerrainQuad(String name, int patchSize, int totalSize, float[] heightMap, LodCalculatorFactory lodCalculatorFactory) {
         this(name, patchSize, totalSize, Vector3f.UNIT_XYZ, heightMap, lodCalculatorFactory);
     }
 
-	public TerrainQuad(String name, int patchSize, int size, Vector3f scale, float[] heightMap, LodCalculatorFactory lodCalculatorFactory) {
-		this(name, patchSize, size, scale, heightMap, size, new Vector2f(), 0, lodCalculatorFactory);
+    public TerrainQuad(String name, int patchSize, int size, Vector3f scale, float[] heightMap, LodCalculatorFactory lodCalculatorFactory) {
+        this(name, patchSize, size, scale, heightMap, size, new Vector2f(), 0, lodCalculatorFactory);
         affectedAreaBBox = new BoundingBox(new Vector3f(0,0,0), size, Float.MAX_VALUE, size);
         fixNormalEdges(affectedAreaBBox);
         addControl(new NormalRecalcControl(this));
-	}
+    }
 
-	protected TerrainQuad(String name, int patchSize, int size,
-				Vector3f stepScale, float[] heightMap, int totalSize,
-				Vector2f offset, float offsetAmount,
-				LodCalculatorFactory lodCalculatorFactory)
-	{
-		super(name);
-		if (!FastMath.isPowerOfTwo(size - 1)) {
-			throw new RuntimeException("size given: " + size + "  Terrain quad sizes may only be (2^N + 1)");
-		}
+    protected TerrainQuad(String name, int patchSize, int size,
+                            Vector3f stepScale, float[] heightMap, int totalSize,
+                            Vector2f offset, float offsetAmount,
+                            LodCalculatorFactory lodCalculatorFactory)
+    {
+        super(name);
+        if (!FastMath.isPowerOfTwo(size - 1)) {
+            throw new RuntimeException("size given: " + size + "  Terrain quad sizes may only be (2^N + 1)");
+        }
 
-		if (heightMap == null)
-			heightMap = generateDefaultHeightMap(size);
+        if (heightMap == null)
+            heightMap = generateDefaultHeightMap(size);
 
-		this.offset = offset;
-		this.offsetAmount = offsetAmount;
-		this.totalSize = totalSize;
-		this.size = size;
+        this.offset = offset;
+        this.offsetAmount = offsetAmount;
+        this.totalSize = totalSize;
+        this.size = size;
         this.patchSize = patchSize;
-		this.stepScale = stepScale;
-		this.lodCalculatorFactory = lodCalculatorFactory;
-		split(patchSize, heightMap);
-	}
+        this.stepScale = stepScale;
+        this.lodCalculatorFactory = lodCalculatorFactory;
+        split(patchSize, heightMap);
+    }
 
-	public void setLodCalculatorFactory(LodCalculatorFactory lodCalculatorFactory) {
-		if (children != null) {
-			for (int i = children.size(); --i >= 0;) {
-				Spatial child = children.get(i);
-				if (child instanceof TerrainQuad) {
-					((TerrainQuad) child).setLodCalculatorFactory(lodCalculatorFactory);
-				} else if (child instanceof TerrainPatch) {
-					((TerrainPatch) child).setLodCalculator(lodCalculatorFactory.createCalculator((TerrainPatch) child));
-				}
-			}
-		}
-	}
+    public void setLodCalculatorFactory(LodCalculatorFactory lodCalculatorFactory) {
+        if (children != null) {
+            for (int i = children.size(); --i >= 0;) {
+                Spatial child = children.get(i);
+                if (child instanceof TerrainQuad) {
+                    ((TerrainQuad) child).setLodCalculatorFactory(lodCalculatorFactory);
+                } else if (child instanceof TerrainPatch) {
+                    ((TerrainPatch) child).setLodCalculator(lodCalculatorFactory.createCalculator((TerrainPatch) child));
+                }
+            }
+        }
+    }
 
 
-	/**
-	 * Create just a flat heightmap
-	 */
-	private float[] generateDefaultHeightMap(int size) {
-		float[] heightMap = new float[size*size];
-		return heightMap;
-	}
+    /**
+     * Create just a flat heightmap
+     */
+    private float[] generateDefaultHeightMap(int size) {
+        float[] heightMap = new float[size*size];
+        return heightMap;
+    }
 
-	 /**
-	  * Call from the update() method of a terrain controller to update
-	  * the LOD values of each patch.
-	  * This will perform the geometry calculation in a background thread and
-	  * do the actual update on the opengl thread.
-	  */
-	public void update(List<Vector3f> locations) {
-
+     /**
+      * Call from the update() method of a terrain controller to update
+      * the LOD values of each patch.
+      * This will perform the geometry calculation in a background thread and
+      * do the actual update on the opengl thread.
+      */
+    public void update(List<Vector3f> locations) {
         updateLOD(locations);
-	}
+    }
 
     /**
      * update the normals if there were any height changes recently.
@@ -210,57 +209,57 @@ public class TerrainQuad extends Node implements Terrain {
     // do all of the LOD calculations
     protected void updateLOD(List<Vector3f> locations) {
         // update any existing ones that need updating
-		updateQuadLODs();
+        updateQuadLODs();
 
-		if (lastCameraLocations != null) {
-			if (lastCameraLocationsTheSame(locations))
-				return; // don't update if in same spot
-			else
-				lastCameraLocations = cloneVectorList(locations);
-		}
-		else {
-			lastCameraLocations = cloneVectorList(locations);
-			return;
-		}
+        if (lastCameraLocations != null) {
+            if (lastCameraLocationsTheSame(locations))
+                return; // don't update if in same spot
+            else
+                lastCameraLocations = cloneVectorList(locations);
+        }
+        else {
+            lastCameraLocations = cloneVectorList(locations);
+            return;
+        }
 
-		if (isLodCalcRunning()) {
-			return;
-		}
+        if (isLodCalcRunning()) {
+            return;
+        }
 
-		if (getParent() instanceof TerrainQuad) {
-			return; // we just want the root quad to perform this.
-		}
+        if (getParent() instanceof TerrainQuad) {
+            return; // we just want the root quad to perform this.
+        }
 
-		UpdateLOD updateLodThread = new UpdateLOD(locations);
-		executor.execute(updateLodThread);
+        UpdateLOD updateLodThread = new UpdateLOD(locations);
+        executor.execute(updateLodThread);
     }
 
-	private synchronized boolean isLodCalcRunning() {
-		return lodCalcRunning;
-	}
+    private synchronized boolean isLodCalcRunning() {
+        return lodCalcRunning;
+    }
 
-	private synchronized void setLodCalcRunning(boolean running) {
-		lodCalcRunning = running;
-	}
+    private synchronized void setLodCalcRunning(boolean running) {
+        lodCalcRunning = running;
+    }
 
     private List<Vector3f> cloneVectorList(List<Vector3f> locations) {
-            List<Vector3f> cloned = new ArrayList<Vector3f>();
-            for(Vector3f l : locations)
-                cloned.add(l.clone());
-            return cloned;
+        List<Vector3f> cloned = new ArrayList<Vector3f>();
+        for(Vector3f l : locations)
+            cloned.add(l.clone());
+        return cloned;
     }
 
     private boolean lastCameraLocationsTheSame(List<Vector3f> locations) {
-            boolean theSame = true;
-            for (Vector3f l : locations) {
-                for (Vector3f v : lastCameraLocations) {
-                    if (!v.equals(l) ) {
-                        theSame = false;
-                        return false;
-                    }
+        boolean theSame = true;
+        for (Vector3f l : locations) {
+            for (Vector3f v : lastCameraLocations) {
+                if (!v.equals(l) ) {
+                    theSame = false;
+                    return false;
                 }
             }
-            return theSame;
+        }
+        return theSame;
     }
 
     private int collideWithRay(Ray ray, CollisionResults results) {
@@ -287,11 +286,11 @@ public class TerrainQuad extends Node implements Terrain {
             }
 
         if (children != null) {
-			for (int i = children.size(); --i >= 0;) {
-				Spatial child = children.get(i);
-				if (child instanceof TerrainQuad) {
-					((TerrainQuad) child).generateEntropy(progressMonitor);
-				} else if (child instanceof TerrainPatch) {
+            for (int i = children.size(); --i >= 0;) {
+                Spatial child = children.get(i);
+                if (child instanceof TerrainQuad) {
+                        ((TerrainQuad) child).generateEntropy(progressMonitor);
+                } else if (child instanceof TerrainPatch) {
                     ((TerrainPatch) child).generateLodEntropies();
                     if (progressMonitor != null)
                         progressMonitor.incrementProgress(1);
@@ -328,344 +327,341 @@ public class TerrainQuad extends Node implements Terrain {
         return 1f/(float)totalSize;
     }
 
-	/**
-	 * Calculates the LOD of all child terrain patches.
-	 */
-	private class UpdateLOD implements Runnable {
-		private List<Vector3f> camLocations;
+    /**
+     * Calculates the LOD of all child terrain patches.
+     */
+    private class UpdateLOD implements Runnable {
+        private List<Vector3f> camLocations;
 
-		UpdateLOD(List<Vector3f> location) {
-			camLocations = location;
-		}
+        UpdateLOD(List<Vector3f> location) {
+            camLocations = location;
+        }
 
-		public void run() {
-			long start = System.currentTimeMillis();
-			if (isLodCalcRunning()) {
-				//System.out.println("thread already running");
-				return;
-			}
-			//System.out.println("spawned thread "+toString());
-			setLodCalcRunning(true);
+        public void run() {
+            long start = System.currentTimeMillis();
+            if (isLodCalcRunning()) {
+                //System.out.println("thread already running");
+                return;
+            }
+            //System.out.println("spawned thread "+toString());
+            setLodCalcRunning(true);
 
-			// go through each patch and calculate its LOD based on camera distance
-			HashMap<String,UpdatedTerrainPatch> updated = new HashMap<String,UpdatedTerrainPatch>();
-			boolean lodChanged = calculateLod(camLocations, updated); // 'updated' gets populated here
+            // go through each patch and calculate its LOD based on camera distance
+            HashMap<String,UpdatedTerrainPatch> updated = new HashMap<String,UpdatedTerrainPatch>();
+            boolean lodChanged = calculateLod(camLocations, updated); // 'updated' gets populated here
 
-			if (!lodChanged) {
-				// not worth updating anything else since no one's LOD changed
-				setLodCalcRunning(false);
-				return;
-			}
-			// then calculate its neighbour LOD values for seaming in the shader
-			findNeighboursLod(updated);
+            if (!lodChanged) {
+                // not worth updating anything else since no one's LOD changed
+                setLodCalcRunning(false);
+                return;
+            }
+            // then calculate its neighbour LOD values for seaming in the shader
+            findNeighboursLod(updated);
 
-			fixEdges(updated); // 'updated' can get added to here
+            fixEdges(updated); // 'updated' can get added to here
 
-			reIndexPages(updated);
+            reIndexPages(updated);
 
-			setUpdateQuadLODs(updated); // set back to main ogl thread
+            setUpdateQuadLODs(updated); // set back to main ogl thread
 
-			setLodCalcRunning(false);
-			//double duration = (System.currentTimeMillis()-start);
-			//System.out.println("terminated in "+duration);
-		}
+            setLodCalcRunning(false);
+            //double duration = (System.currentTimeMillis()-start);
+            //System.out.println("terminated in "+duration);
+        }
+    }
 
+    private void setUpdateQuadLODs(HashMap<String,UpdatedTerrainPatch> updated) {
+        synchronized (updatePatchesLock) {
+            updatedPatches = updated;
+        }
+    }
 
+    /**
+     * Back on the ogl thread: update the terrain patch geometries
+     * @param updatedPatches to be updated
+     */
+    private void updateQuadLODs() {
+        synchronized (updatePatchesLock) {
+            //if (true)
+            //	return;
+            if (updatedPatches == null || updatedPatches.isEmpty())
+                return;
 
-	}
+            //TODO do the actual geometry update here
+            for (UpdatedTerrainPatch utp : updatedPatches.values()) {
+                utp.updateAll();
+            }
 
-	private void setUpdateQuadLODs(HashMap<String,UpdatedTerrainPatch> updated) {
-		synchronized (updatePatchesLock) {
-			updatedPatches = updated;
-		}
-	}
+            updatedPatches.clear();
+        }
+    }
 
-	/**
-	 * Back on the ogl thread: update the terrain patch geometries
-	 * @param updatedPatches to be updated
-	 */
-	private void updateQuadLODs() {
-		synchronized (updatePatchesLock) {
-			//if (true)
-			//	return;
-			if (updatedPatches == null || updatedPatches.isEmpty())
-				return;
+    protected boolean calculateLod(List<Vector3f> location, HashMap<String,UpdatedTerrainPatch> updates) {
 
-			//TODO do the actual geometry update here
-			for (UpdatedTerrainPatch utp : updatedPatches.values()) {
-				utp.updateAll();
-			}
+        boolean lodChanged = false;
 
-			updatedPatches.clear();
-		}
-	}
+        if (children != null) {
+            for (int i = children.size(); --i >= 0;) {
+                Spatial child = children.get(i);
+                if (child instanceof TerrainQuad) {
+                    boolean b = ((TerrainQuad) child).calculateLod(location, updates);
+                    if (b)
+                        lodChanged = true;
+                } else if (child instanceof TerrainPatch) {
+                    boolean b = ((TerrainPatch) child).calculateLod(location, updates);
+                    if (b)
+                        lodChanged = true;
+                }
+            }
+        }
 
-	protected boolean calculateLod(List<Vector3f> location, HashMap<String,UpdatedTerrainPatch> updates) {
+        return lodChanged;
+    }
 
-		boolean lodChanged = false;
+    protected synchronized void findNeighboursLod(HashMap<String,UpdatedTerrainPatch> updated) {
+        if (children != null) {
+            for (int x = children.size(); --x >= 0;) {
+                Spatial child = children.get(x);
+                if (child instanceof TerrainQuad) {
+                    ((TerrainQuad) child).findNeighboursLod(updated);
+                } else if (child instanceof TerrainPatch) {
 
-		if (children != null) {
-			for (int i = children.size(); --i >= 0;) {
-				Spatial child = children.get(i);
-				if (child instanceof TerrainQuad) {
-					boolean b = ((TerrainQuad) child).calculateLod(location, updates);
-					if (b)
-						lodChanged = true;
-				} else if (child instanceof TerrainPatch) {
-					boolean b = ((TerrainPatch) child).calculateLod(location, updates);
-					if (b)
-						lodChanged = true;
-				}
-			}
-		}
+                    TerrainPatch patch = (TerrainPatch) child;
+                    if (!patch.searchedForNeighboursAlready) {
+                        // set the references to the neighbours
+                        patch.rightNeighbour = findRightPatch(patch);
+                        patch.bottomNeighbour = findDownPatch(patch);
+                        patch.leftNeighbour = findLeftPatch(patch);
+                        patch.topNeighbour = findTopPatch(patch);
+                        patch.searchedForNeighboursAlready = true;
+                    }
+                    TerrainPatch right = patch.rightNeighbour;
+                    TerrainPatch down = patch.bottomNeighbour;
 
-		return lodChanged;
-	}
+                    UpdatedTerrainPatch utp = updated.get(patch.getName());
+                    if (utp == null) {
+                        utp = new UpdatedTerrainPatch(patch, patch.lod);
+                        updated.put(utp.getName(), utp);
+                    }
 
-	protected synchronized void findNeighboursLod(HashMap<String,UpdatedTerrainPatch> updated) {
-		if (children != null) {
-			for (int x = children.size(); --x >= 0;) {
-				Spatial child = children.get(x);
-				if (child instanceof TerrainQuad) {
-					((TerrainQuad) child).findNeighboursLod(updated);
-				} else if (child instanceof TerrainPatch) {
+                    if (right != null) {
+                        UpdatedTerrainPatch utpR = updated.get(right.getName());
+                        if (utpR == null) {
+                            utpR = new UpdatedTerrainPatch(right, right.lod);
+                            updated.put(utpR.getName(), utpR);
+                        }
 
-					TerrainPatch patch = (TerrainPatch) child;
-					if (!patch.searchedForNeighboursAlready) {
-						// set the references to the neighbours
-						patch.rightNeighbour = findRightPatch(patch);
-						patch.bottomNeighbour = findDownPatch(patch);
-						patch.leftNeighbour = findLeftPatch(patch);
-						patch.topNeighbour = findTopPatch(patch);
-						patch.searchedForNeighboursAlready = true;
-					}
-					TerrainPatch right = patch.rightNeighbour;
-					TerrainPatch down = patch.bottomNeighbour;
+                        utp.setRightLod(utpR.getNewLod());
+                        utpR.setLeftLod(utp.getNewLod());
+                    }
+                    if (down != null) {
+                        UpdatedTerrainPatch utpD = updated.get(down.getName());
+                        if (utpD == null) {
+                            utpD = new UpdatedTerrainPatch(down, down.lod);
+                            updated.put(utpD.getName(), utpD);
+                        }
 
-					UpdatedTerrainPatch utp = updated.get(patch.getName());
-					if (utp == null) {
-						utp = new UpdatedTerrainPatch(patch, patch.lod);
-						updated.put(utp.getName(), utp);
-					}
+                        utp.setBottomLod(utpD.getNewLod());
+                        utpD.setTopLod(utp.getNewLod());
+                    }
 
-					if (right != null) {
-						UpdatedTerrainPatch utpR = updated.get(right.getName());
-						if (utpR == null) {
-							utpR = new UpdatedTerrainPatch(right, right.lod);
-							updated.put(utpR.getName(), utpR);
-						}
+                }
+            }
+        }
+    }
 
-						utp.setRightLod(utpR.getNewLod());
-						utpR.setLeftLod(utp.getNewLod());
-					}
-					if (down != null) {
-						UpdatedTerrainPatch utpD = updated.get(down.getName());
-						if (utpD == null) {
-							utpD = new UpdatedTerrainPatch(down, down.lod);
-							updated.put(utpD.getName(), utpD);
-						}
+    /**
+     * Find any neighbours that should have their edges seamed because another neighbour
+     * changed its LOD to a greater value (less detailed)
+     */
+    protected synchronized void fixEdges(HashMap<String,UpdatedTerrainPatch> updated) {
+        if (children != null) {
+            for (int x = children.size(); --x >= 0;) {
+                Spatial child = children.get(x);
+                if (child instanceof TerrainQuad) {
+                    ((TerrainQuad) child).fixEdges(updated);
+                } else if (child instanceof TerrainPatch) {
+                    TerrainPatch patch = (TerrainPatch) child;
+                    UpdatedTerrainPatch utp = updated.get(patch.getName());
 
-						utp.setBottomLod(utpD.getNewLod());
-						utpD.setTopLod(utp.getNewLod());
-					}
+                    if(utp.lodChanged()) {
+                        if (!patch.searchedForNeighboursAlready) {
+                            // set the references to the neighbours
+                            patch.rightNeighbour = findRightPatch(patch);
+                            patch.bottomNeighbour = findDownPatch(patch);
+                            patch.leftNeighbour = findLeftPatch(patch);
+                            patch.topNeighbour = findTopPatch(patch);
+                            patch.searchedForNeighboursAlready = true;
+                        }
+                        TerrainPatch right = patch.rightNeighbour;
+                        TerrainPatch down = patch.bottomNeighbour;
+                        TerrainPatch top = patch.topNeighbour;
+                        TerrainPatch left = patch.leftNeighbour;
+                        if (right != null) {
+                            UpdatedTerrainPatch utpR = updated.get(right.getName());
+                            if (utpR == null) {
+                                utpR = new UpdatedTerrainPatch(right, right.lod);
+                                updated.put(utpR.getName(), utpR);
+                            }
+                            utpR.setFixEdges(true);
+                        }
+                        if (down != null) {
+                            UpdatedTerrainPatch utpD = updated.get(down.getName());
+                            if (utpD == null) {
+                                utpD = new UpdatedTerrainPatch(down, down.lod);
+                                updated.put(utpD.getName(), utpD);
+                            }
+                            utpD.setFixEdges(true);
+                        }
+                        if (top != null){
+                            UpdatedTerrainPatch utpT = updated.get(top.getName());
+                            if (utpT == null) {
+                                utpT = new UpdatedTerrainPatch(top, top.lod);
+                                updated.put(utpT.getName(), utpT);
+                            }
+                            utpT.setFixEdges(true);
+                        }
+                        if (left != null){
+                            UpdatedTerrainPatch utpL = updated.get(left.getName());
+                            if (utpL == null) {
+                                utpL = new UpdatedTerrainPatch(left, left.lod);
+                                updated.put(utpL.getName(), utpL);
+                            }
+                            utpL.setFixEdges(true);
+                        }
+                    }
+                }
+            }
+        }
+    }
 
-				}
-			}
-		}
-	}
+    protected synchronized void reIndexPages(HashMap<String,UpdatedTerrainPatch> updated) {
+        if (children != null) {
+            for (int i = children.size(); --i >= 0;) {
+                Spatial child = children.get(i);
+                if (child instanceof TerrainQuad) {
+                    ((TerrainQuad) child).reIndexPages(updated);
+                } else if (child instanceof TerrainPatch) {
+                    ((TerrainPatch) child).reIndexGeometry(updated);
+                }
+            }
+        }
+    }
 
-	/**
-	 * Find any neighbours that should have their edges seamed because another neighbour
-	 * changed its LOD to a greater value (less detailed)
-	 */
-	protected synchronized void fixEdges(HashMap<String,UpdatedTerrainPatch> updated) {
-		if (children != null) {
-			for (int x = children.size(); --x >= 0;) {
-				Spatial child = children.get(x);
-				if (child instanceof TerrainQuad) {
-					((TerrainQuad) child).fixEdges(updated);
-				} else if (child instanceof TerrainPatch) {
-					TerrainPatch patch = (TerrainPatch) child;
-					UpdatedTerrainPatch utp = updated.get(patch.getName());
+    /**
+     * <code>split</code> divides the heightmap data for four children. The
+     * children are either pages or blocks. This is dependent on the size of the
+     * children. If the child's size is less than or equal to the set block
+     * size, then blocks are created, otherwise, pages are created.
+     *
+     * @param blockSize
+     *			the blocks size to test against.
+     * @param heightMap
+     *			the height data.
+     */
+    protected void split(int blockSize, float[] heightMap) {
+        if ((size >> 1) + 1 <= blockSize) {
+            createQuadPatch(heightMap);
+        } else {
+            createQuad(blockSize, heightMap);
+        }
 
-					if(utp.lodChanged()) {
-						if (!patch.searchedForNeighboursAlready) {
-							// set the references to the neighbours
-							patch.rightNeighbour = findRightPatch(patch);
-							patch.bottomNeighbour = findDownPatch(patch);
-							patch.leftNeighbour = findLeftPatch(patch);
-							patch.topNeighbour = findTopPatch(patch);
-							patch.searchedForNeighboursAlready = true;
-						}
-						TerrainPatch right = patch.rightNeighbour;
-						TerrainPatch down = patch.bottomNeighbour;
-						TerrainPatch top = patch.topNeighbour;
-						TerrainPatch left = patch.leftNeighbour;
-						if (right != null) {
-							UpdatedTerrainPatch utpR = updated.get(right.getName());
-							if (utpR == null) {
-								utpR = new UpdatedTerrainPatch(right, right.lod);
-								updated.put(utpR.getName(), utpR);
-							}
-							utpR.setFixEdges(true);
-						}
-						if (down != null) {
-							UpdatedTerrainPatch utpD = updated.get(down.getName());
-							if (utpD == null) {
-								utpD = new UpdatedTerrainPatch(down, down.lod);
-								updated.put(utpD.getName(), utpD);
-							}
-							utpD.setFixEdges(true);
-						}
-						if (top != null){
-							UpdatedTerrainPatch utpT = updated.get(top.getName());
-							if (utpT == null) {
-								utpT = new UpdatedTerrainPatch(top, top.lod);
-								updated.put(utpT.getName(), utpT);
-							}
-							utpT.setFixEdges(true);
-						}
-						if (left != null){
-							UpdatedTerrainPatch utpL = updated.get(left.getName());
-							if (utpL == null) {
-								utpL = new UpdatedTerrainPatch(left, left.lod);
-								updated.put(utpL.getName(), utpL);
-							}
-							utpL.setFixEdges(true);
-						}
-					}
-				}
-			}
-		}
-	}
+    }
 
-	protected synchronized void reIndexPages(HashMap<String,UpdatedTerrainPatch> updated) {
-		if (children != null) {
-			for (int i = children.size(); --i >= 0;) {
-				Spatial child = children.get(i);
-				if (child instanceof TerrainQuad) {
-					((TerrainQuad) child).reIndexPages(updated);
-				} else if (child instanceof TerrainPatch) {
-					((TerrainPatch) child).reIndexGeometry(updated);
-				}
-			}
-		}
-	}
+    /**
+     * <code>createQuadPage</code> generates four new pages from this page.
+     */
+    protected void createQuad(int blockSize, float[] heightMap) {
+        // create 4 terrain pages
+        int quarterSize = size >> 2;
 
-	/**
-	 * <code>split</code> divides the heightmap data for four children. The
-	 * children are either pages or blocks. This is dependent on the size of the
-	 * children. If the child's size is less than or equal to the set block
-	 * size, then blocks are created, otherwise, pages are created.
-	 *
-	 * @param blockSize
-	 *			the blocks size to test against.
-	 * @param heightMap
-	 *			the height data.
-	 */
-	protected void split(int blockSize, float[] heightMap) {
-		if ((size >> 1) + 1 <= blockSize) {
-			createQuadPatch(heightMap);
-		} else {
-			createQuad(blockSize, heightMap);
-		}
+        int split = (size + 1) >> 1;
 
-	}
+        Vector2f tempOffset = new Vector2f();
+        offsetAmount += quarterSize;
 
-	/**
-	 * <code>createQuadPage</code> generates four new pages from this page.
-	 */
-	protected void createQuad(int blockSize, float[] heightMap) {
-		// create 4 terrain pages
-		int quarterSize = size >> 2;
+        if (lodCalculatorFactory == null)
+                lodCalculatorFactory = new LodDistanceCalculatorFactory(); // set a default one
 
-		int split = (size + 1) >> 1;
+        // 1 upper left
+        float[] heightBlock1 = createHeightSubBlock(heightMap, 0, 0, split);
 
-		Vector2f tempOffset = new Vector2f();
-		offsetAmount += quarterSize;
+        Vector3f origin1 = new Vector3f(-quarterSize * stepScale.x, 0,
+                        -quarterSize * stepScale.z);
 
-		if (lodCalculatorFactory == null)
-			lodCalculatorFactory = new LodDistanceCalculatorFactory(); // set a default one
+        tempOffset.x = offset.x;
+        tempOffset.y = offset.y;
+        tempOffset.x += origin1.x;
+        tempOffset.y += origin1.z;
 
-		// 1 upper left
-		float[] heightBlock1 = createHeightSubBlock(heightMap, 0, 0, split);
+        TerrainQuad page1 = new TerrainQuad(getName() + "Quad1", blockSize,
+                        split, stepScale, heightBlock1, totalSize, tempOffset,
+                        offsetAmount, lodCalculatorFactory);
+        page1.setLocalTranslation(origin1);
+        page1.quadrant = 1;
+        this.attachChild(page1);
 
-		Vector3f origin1 = new Vector3f(-quarterSize * stepScale.x, 0,
-				-quarterSize * stepScale.z);
+        // 2 lower left
+        float[] heightBlock2 = createHeightSubBlock(heightMap, 0, split - 1,
+                        split);
 
-		tempOffset.x = offset.x;
-		tempOffset.y = offset.y;
-		tempOffset.x += origin1.x;
-		tempOffset.y += origin1.z;
+        Vector3f origin2 = new Vector3f(-quarterSize * stepScale.x, 0,
+                        quarterSize * stepScale.z);
 
-		TerrainQuad page1 = new TerrainQuad(getName() + "Quad1", blockSize,
-				split, stepScale, heightBlock1, totalSize, tempOffset,
-				offsetAmount, lodCalculatorFactory);
-		page1.setLocalTranslation(origin1);
-		page1.quadrant = 1;
-		this.attachChild(page1);
+        tempOffset = new Vector2f();
+        tempOffset.x = offset.x;
+        tempOffset.y = offset.y;
+        tempOffset.x += origin2.x;
+        tempOffset.y += origin2.z;
 
-		// 2 lower left
-		float[] heightBlock2 = createHeightSubBlock(heightMap, 0, split - 1,
-				split);
+        TerrainQuad page2 = new TerrainQuad(getName() + "Quad2", blockSize,
+                        split, stepScale, heightBlock2, totalSize, tempOffset,
+                        offsetAmount, lodCalculatorFactory);
+        page2.setLocalTranslation(origin2);
+        page2.quadrant = 2;
+        this.attachChild(page2);
 
-		Vector3f origin2 = new Vector3f(-quarterSize * stepScale.x, 0,
-				quarterSize * stepScale.z);
+        // 3 upper right
+        float[] heightBlock3 = createHeightSubBlock(heightMap, split - 1, 0,
+                        split);
 
-		tempOffset = new Vector2f();
-		tempOffset.x = offset.x;
-		tempOffset.y = offset.y;
-		tempOffset.x += origin2.x;
-		tempOffset.y += origin2.z;
+        Vector3f origin3 = new Vector3f(quarterSize * stepScale.x, 0,
+                        -quarterSize * stepScale.z);
 
-		TerrainQuad page2 = new TerrainQuad(getName() + "Quad2", blockSize,
-				split, stepScale, heightBlock2, totalSize, tempOffset,
-				offsetAmount, lodCalculatorFactory);
-		page2.setLocalTranslation(origin2);
-		page2.quadrant = 2;
-		this.attachChild(page2);
+        tempOffset = new Vector2f();
+        tempOffset.x = offset.x;
+        tempOffset.y = offset.y;
+        tempOffset.x += origin3.x;
+        tempOffset.y += origin3.z;
 
-		// 3 upper right
-		float[] heightBlock3 = createHeightSubBlock(heightMap, split - 1, 0,
-				split);
+        TerrainQuad page3 = new TerrainQuad(getName() + "Quad3", blockSize,
+                        split, stepScale, heightBlock3, totalSize, tempOffset,
+                        offsetAmount, lodCalculatorFactory);
+        page3.setLocalTranslation(origin3);
+        page3.quadrant = 3;
+        this.attachChild(page3);
+        // //
+        // 4 lower right
+        float[] heightBlock4 = createHeightSubBlock(heightMap, split - 1,
+                        split - 1, split);
 
-		Vector3f origin3 = new Vector3f(quarterSize * stepScale.x, 0,
-				-quarterSize * stepScale.z);
+        Vector3f origin4 = new Vector3f(quarterSize * stepScale.x, 0,
+                        quarterSize * stepScale.z);
 
-		tempOffset = new Vector2f();
-		tempOffset.x = offset.x;
-		tempOffset.y = offset.y;
-		tempOffset.x += origin3.x;
-		tempOffset.y += origin3.z;
+        tempOffset = new Vector2f();
+        tempOffset.x = offset.x;
+        tempOffset.y = offset.y;
+        tempOffset.x += origin4.x;
+        tempOffset.y += origin4.z;
 
-		TerrainQuad page3 = new TerrainQuad(getName() + "Quad3", blockSize,
-				split, stepScale, heightBlock3, totalSize, tempOffset,
-				offsetAmount, lodCalculatorFactory);
-		page3.setLocalTranslation(origin3);
-		page3.quadrant = 3;
-		this.attachChild(page3);
-		// //
-		// 4 lower right
-		float[] heightBlock4 = createHeightSubBlock(heightMap, split - 1,
-				split - 1, split);
+        TerrainQuad page4 = new TerrainQuad(getName() + "Quad4", blockSize,
+                        split, stepScale, heightBlock4, totalSize, tempOffset,
+                        offsetAmount, lodCalculatorFactory);
+        page4.setLocalTranslation(origin4);
+        page4.quadrant = 4;
+        this.attachChild(page4);
 
-		Vector3f origin4 = new Vector3f(quarterSize * stepScale.x, 0,
-				quarterSize * stepScale.z);
-
-		tempOffset = new Vector2f();
-		tempOffset.x = offset.x;
-		tempOffset.y = offset.y;
-		tempOffset.x += origin4.x;
-		tempOffset.y += origin4.z;
-
-		TerrainQuad page4 = new TerrainQuad(getName() + "Quad4", blockSize,
-				split, stepScale, heightBlock4, totalSize, tempOffset,
-				offsetAmount, lodCalculatorFactory);
-		page4.setLocalTranslation(origin4);
-		page4.quadrant = 4;
-		this.attachChild(page4);
-
-	}
+    }
 
     public void generateDebugTangents(Material mat) {
         for (int x = children.size(); --x >= 0;) {
@@ -682,123 +678,124 @@ public class TerrainQuad extends Node implements Terrain {
             }
         }
     }
-	/**
-	 * <code>createQuadBlock</code> creates four child blocks from this page.
-	 */
-	protected void createQuadPatch(float[] heightMap) {
-		// create 4 terrain blocks
-		int quarterSize = size >> 2;
-		int halfSize = size >> 1;
-		int split = (size + 1) >> 1;
 
-		if (lodCalculatorFactory == null)
-			lodCalculatorFactory = new LodDistanceCalculatorFactory(); // set a default one
+    /**
+     * <code>createQuadBlock</code> creates four child blocks from this page.
+     */
+    protected void createQuadPatch(float[] heightMap) {
+        // create 4 terrain blocks
+        int quarterSize = size >> 2;
+        int halfSize = size >> 1;
+        int split = (size + 1) >> 1;
 
-		offsetAmount += quarterSize;
+        if (lodCalculatorFactory == null)
+                lodCalculatorFactory = new LodDistanceCalculatorFactory(); // set a default one
 
-		// 1 upper left
-		float[] heightBlock1 = createHeightSubBlock(heightMap, 0, 0, split);
+        offsetAmount += quarterSize;
 
-		Vector3f origin1 = new Vector3f(-halfSize * stepScale.x, 0, -halfSize
-				* stepScale.z);
+        // 1 upper left
+        float[] heightBlock1 = createHeightSubBlock(heightMap, 0, 0, split);
 
-		Vector2f tempOffset1 = new Vector2f();
-		tempOffset1.x = offset.x;
-		tempOffset1.y = offset.y;
-		tempOffset1.x += origin1.x / 2;
-		tempOffset1.y += origin1.z / 2;
+        Vector3f origin1 = new Vector3f(-halfSize * stepScale.x, 0, -halfSize
+                        * stepScale.z);
 
-		TerrainPatch patch1 = new TerrainPatch(getName() + "Patch1", split,
-				stepScale, heightBlock1, origin1, totalSize, tempOffset1,
-				offsetAmount);
-		patch1.setQuadrant((short) 1);
-		this.attachChild(patch1);
-		patch1.setModelBound(new BoundingBox());
-		patch1.updateModelBound();
-		patch1.setLodCalculator(lodCalculatorFactory);
+        Vector2f tempOffset1 = new Vector2f();
+        tempOffset1.x = offset.x;
+        tempOffset1.y = offset.y;
+        tempOffset1.x += origin1.x / 2;
+        tempOffset1.y += origin1.z / 2;
+
+        TerrainPatch patch1 = new TerrainPatch(getName() + "Patch1", split,
+                        stepScale, heightBlock1, origin1, totalSize, tempOffset1,
+                        offsetAmount);
+        patch1.setQuadrant((short) 1);
+        this.attachChild(patch1);
+        patch1.setModelBound(new BoundingBox());
+        patch1.updateModelBound();
+        patch1.setLodCalculator(lodCalculatorFactory);
         TangentBinormalGenerator.generate(patch1);
 
-		// 2 lower left
-		float[] heightBlock2 = createHeightSubBlock(heightMap, 0, split - 1,
-				split);
+        // 2 lower left
+        float[] heightBlock2 = createHeightSubBlock(heightMap, 0, split - 1,
+                        split);
 
-		Vector3f origin2 = new Vector3f(-halfSize * stepScale.x, 0, 0);
+        Vector3f origin2 = new Vector3f(-halfSize * stepScale.x, 0, 0);
 
-		Vector2f tempOffset2 = new Vector2f();
-		tempOffset2.x = offset.x;
-		tempOffset2.y = offset.y;
-		tempOffset2.x += origin1.x / 2;
-		tempOffset2.y += quarterSize * stepScale.z;
+        Vector2f tempOffset2 = new Vector2f();
+        tempOffset2.x = offset.x;
+        tempOffset2.y = offset.y;
+        tempOffset2.x += origin1.x / 2;
+        tempOffset2.y += quarterSize * stepScale.z;
 
-		TerrainPatch patch2 = new TerrainPatch(getName() + "Patch2", split,
-				stepScale, heightBlock2, origin2, totalSize, tempOffset2,
-				offsetAmount);
-		patch2.setQuadrant((short) 2);
-		this.attachChild(patch2);
-		patch2.setModelBound(new BoundingBox());
-		patch2.updateModelBound();
-		patch2.setLodCalculator(lodCalculatorFactory);
+        TerrainPatch patch2 = new TerrainPatch(getName() + "Patch2", split,
+                        stepScale, heightBlock2, origin2, totalSize, tempOffset2,
+                        offsetAmount);
+        patch2.setQuadrant((short) 2);
+        this.attachChild(patch2);
+        patch2.setModelBound(new BoundingBox());
+        patch2.updateModelBound();
+        patch2.setLodCalculator(lodCalculatorFactory);
         TangentBinormalGenerator.generate(patch2);
 
-		// 3 upper right
-		float[] heightBlock3 = createHeightSubBlock(heightMap, split - 1, 0,
-				split);
+        // 3 upper right
+        float[] heightBlock3 = createHeightSubBlock(heightMap, split - 1, 0,
+                        split);
 
-		Vector3f origin3 = new Vector3f(0, 0, -halfSize * stepScale.z);
+        Vector3f origin3 = new Vector3f(0, 0, -halfSize * stepScale.z);
 
-		Vector2f tempOffset3 = new Vector2f();
-		tempOffset3.x = offset.x;
-		tempOffset3.y = offset.y;
-		tempOffset3.x += quarterSize * stepScale.x;
-		tempOffset3.y += origin3.z / 2;
+        Vector2f tempOffset3 = new Vector2f();
+        tempOffset3.x = offset.x;
+        tempOffset3.y = offset.y;
+        tempOffset3.x += quarterSize * stepScale.x;
+        tempOffset3.y += origin3.z / 2;
 
-		TerrainPatch patch3 = new TerrainPatch(getName() + "Patch3", split,
-				stepScale, heightBlock3, origin3, totalSize, tempOffset3,
-				offsetAmount);
-		patch3.setQuadrant((short) 3);
-		this.attachChild(patch3);
-		patch3.setModelBound(new BoundingBox());
-		patch3.updateModelBound();
-		patch3.setLodCalculator(lodCalculatorFactory);
+        TerrainPatch patch3 = new TerrainPatch(getName() + "Patch3", split,
+                        stepScale, heightBlock3, origin3, totalSize, tempOffset3,
+                        offsetAmount);
+        patch3.setQuadrant((short) 3);
+        this.attachChild(patch3);
+        patch3.setModelBound(new BoundingBox());
+        patch3.updateModelBound();
+        patch3.setLodCalculator(lodCalculatorFactory);
         TangentBinormalGenerator.generate(patch3);
 
-		// 4 lower right
-		float[] heightBlock4 = createHeightSubBlock(heightMap, split - 1,
-				split - 1, split);
+        // 4 lower right
+        float[] heightBlock4 = createHeightSubBlock(heightMap, split - 1,
+                        split - 1, split);
 
-		Vector3f origin4 = new Vector3f(0, 0, 0);
+        Vector3f origin4 = new Vector3f(0, 0, 0);
 
-		Vector2f tempOffset4 = new Vector2f();
-		tempOffset4.x = offset.x;
-		tempOffset4.y = offset.y;
-		tempOffset4.x += quarterSize * stepScale.x;
-		tempOffset4.y += quarterSize * stepScale.z;
+        Vector2f tempOffset4 = new Vector2f();
+        tempOffset4.x = offset.x;
+        tempOffset4.y = offset.y;
+        tempOffset4.x += quarterSize * stepScale.x;
+        tempOffset4.y += quarterSize * stepScale.z;
 
-		TerrainPatch patch4 = new TerrainPatch(getName() + "Patch4", split,
-				stepScale, heightBlock4, origin4, totalSize, tempOffset4,
-				offsetAmount);
-		patch4.setQuadrant((short) 4);
-		this.attachChild(patch4);
-		patch4.setModelBound(new BoundingBox());
-		patch4.updateModelBound();
-		patch4.setLodCalculator(lodCalculatorFactory);
+        TerrainPatch patch4 = new TerrainPatch(getName() + "Patch4", split,
+                        stepScale, heightBlock4, origin4, totalSize, tempOffset4,
+                        offsetAmount);
+        patch4.setQuadrant((short) 4);
+        this.attachChild(patch4);
+        patch4.setModelBound(new BoundingBox());
+        patch4.updateModelBound();
+        patch4.setLodCalculator(lodCalculatorFactory);
         TangentBinormalGenerator.generate(patch4);
-	}
+    }
 
-	public float[] createHeightSubBlock(float[] heightMap, int x,
-			int y, int side) {
-		float[] rVal = new float[side * side];
-		int bsize = (int) FastMath.sqrt(heightMap.length);
-		int count = 0;
-		for (int i = y; i < side + y; i++) {
-			for (int j = x; j < side + x; j++) {
-				if (j < bsize && i < bsize)
-					rVal[count] = heightMap[j + (i * bsize)];
-				count++;
-			}
-		}
-		return rVal;
-	}
+    public float[] createHeightSubBlock(float[] heightMap, int x,
+                    int y, int side) {
+        float[] rVal = new float[side * side];
+        int bsize = (int) FastMath.sqrt(heightMap.length);
+        int count = 0;
+        for (int i = y; i < side + y; i++) {
+            for (int j = x; j < side + x; j++) {
+                if (j < bsize && i < bsize)
+                    rVal[count] = heightMap[j + (i * bsize)];
+                count++;
+            }
+        }
+        return rVal;
+    }
 
     /**
      * A handy method that will attach all bounding boxes of this terrain
@@ -1110,210 +1107,210 @@ public class TerrainQuad extends Node implements Terrain {
     }
 
 
-	public int getQuadrant() {
-		return quadrant;
-	}
+    public int getQuadrant() {
+        return quadrant;
+    }
 
-	public void setQuadrant(short quadrant) {
-		this.quadrant = quadrant;
-	}
-
-
-	protected TerrainPatch getPatch(int quad) {
-		if (children != null)
-			for (int x = children.size(); --x >= 0;) {
-				Spatial child = children.get(x);
-				if (child instanceof TerrainPatch) {
-					TerrainPatch tb = (TerrainPatch) child;
-					if (tb.getQuadrant() == quad)
-						return tb;
-				}
-			}
-		return null;
-	}
-
-	protected TerrainQuad getQuad(int quad) {
-		if (children != null)
-			for (int x = children.size(); --x >= 0;) {
-				Spatial child = children.get(x);
-				if (child instanceof TerrainQuad) {
-					TerrainQuad tq = (TerrainQuad) child;
-					if (tq.getQuadrant() == quad)
-						return tq;
-				}
-			}
-		return null;
-	}
-
-	protected TerrainPatch findRightPatch(TerrainPatch tp) {
-		if (tp.getQuadrant() == 1)
-			return getPatch(3);
-		else if (tp.getQuadrant() == 2)
-			return getPatch(4);
-		else if (tp.getQuadrant() == 3) {
-			// find the page to the right and ask it for child 1.
-			TerrainQuad quad = findRightQuad();
-			if (quad != null)
-				return quad.getPatch(1);
-		} else if (tp.getQuadrant() == 4) {
-			// find the page to the right and ask it for child 2.
-			TerrainQuad quad = findRightQuad();
-			if (quad != null)
-				return quad.getPatch(2);
-		}
-
-		return null;
-	}
-
-	protected TerrainPatch findDownPatch(TerrainPatch tp) {
-		if (tp.getQuadrant() == 1)
-			return getPatch(2);
-		else if (tp.getQuadrant() == 3)
-			return getPatch(4);
-		else if (tp.getQuadrant() == 2) {
-			// find the page below and ask it for child 1.
-			TerrainQuad quad = findDownQuad();
-			if (quad != null)
-				return quad.getPatch(1);
-		} else if (tp.getQuadrant() == 4) {
-			TerrainQuad quad = findDownQuad();
-			if (quad != null)
-				return quad.getPatch(3);
-		}
-
-		return null;
-	}
+    public void setQuadrant(short quadrant) {
+        this.quadrant = quadrant;
+    }
 
 
-	protected TerrainPatch findTopPatch(TerrainPatch tp) {
-		if (tp.getQuadrant() == 2)
-			return getPatch(1);
-		else if (tp.getQuadrant() == 4)
-			return getPatch(3);
-		else if (tp.getQuadrant() == 1) {
-			// find the page above and ask it for child 2.
-			TerrainQuad quad = findTopQuad();
-			if (quad != null)
-				return quad.getPatch(2);
-		} else if (tp.getQuadrant() == 3) {
-			TerrainQuad quad = findTopQuad();
-			if (quad != null)
-				return quad.getPatch(4);
-		}
+    protected TerrainPatch getPatch(int quad) {
+        if (children != null)
+            for (int x = children.size(); --x >= 0;) {
+                Spatial child = children.get(x);
+                if (child instanceof TerrainPatch) {
+                    TerrainPatch tb = (TerrainPatch) child;
+                    if (tb.getQuadrant() == quad)
+                        return tb;
+                }
+            }
+        return null;
+    }
 
-		return null;
-	}
+    protected TerrainQuad getQuad(int quad) {
+        if (children != null)
+            for (int x = children.size(); --x >= 0;) {
+                Spatial child = children.get(x);
+                if (child instanceof TerrainQuad) {
+                    TerrainQuad tq = (TerrainQuad) child;
+                    if (tq.getQuadrant() == quad)
+                        return tq;
+                }
+            }
+        return null;
+    }
 
-	protected TerrainPatch findLeftPatch(TerrainPatch tp) {
-		if (tp.getQuadrant() == 3)
-			return getPatch(1);
-		else if (tp.getQuadrant() == 4)
-			return getPatch(2);
-		else if (tp.getQuadrant() == 1) {
-			// find the page above and ask it for child 2.
-			TerrainQuad quad = findLeftQuad();
-			if (quad != null)
-				return quad.getPatch(3);
-		} else if (tp.getQuadrant() == 2) {
-			TerrainQuad quad = findLeftQuad();
-			if (quad != null)
-				return quad.getPatch(4);
-		}
+    protected TerrainPatch findRightPatch(TerrainPatch tp) {
+        if (tp.getQuadrant() == 1)
+            return getPatch(3);
+        else if (tp.getQuadrant() == 2)
+            return getPatch(4);
+        else if (tp.getQuadrant() == 3) {
+            // find the page to the right and ask it for child 1.
+            TerrainQuad quad = findRightQuad();
+            if (quad != null)
+                return quad.getPatch(1);
+        } else if (tp.getQuadrant() == 4) {
+            // find the page to the right and ask it for child 2.
+            TerrainQuad quad = findRightQuad();
+            if (quad != null)
+                return quad.getPatch(2);
+        }
 
-		return null;
-	}
+        return null;
+    }
 
-	protected TerrainQuad findRightQuad() {
-		if (getParent() == null || !(getParent() instanceof TerrainQuad))
-			return null;
+    protected TerrainPatch findDownPatch(TerrainPatch tp) {
+        if (tp.getQuadrant() == 1)
+            return getPatch(2);
+        else if (tp.getQuadrant() == 3)
+            return getPatch(4);
+        else if (tp.getQuadrant() == 2) {
+            // find the page below and ask it for child 1.
+            TerrainQuad quad = findDownQuad();
+            if (quad != null)
+                return quad.getPatch(1);
+        } else if (tp.getQuadrant() == 4) {
+            TerrainQuad quad = findDownQuad();
+            if (quad != null)
+                return quad.getPatch(3);
+        }
 
-		TerrainQuad pQuad = (TerrainQuad) getParent();
+        return null;
+    }
 
-		if (quadrant == 1)
-			return pQuad.getQuad(3);
-		else if (quadrant == 2)
-			return pQuad.getQuad(4);
-		else if (quadrant == 3) {
-			TerrainQuad quad = pQuad.findRightQuad();
-			if (quad != null)
-				return quad.getQuad(1);
-		} else if (quadrant == 4) {
-			TerrainQuad quad = pQuad.findRightQuad();
-			if (quad != null)
-				return quad.getQuad(2);
-		}
 
-		return null;
-	}
+    protected TerrainPatch findTopPatch(TerrainPatch tp) {
+        if (tp.getQuadrant() == 2)
+            return getPatch(1);
+        else if (tp.getQuadrant() == 4)
+            return getPatch(3);
+        else if (tp.getQuadrant() == 1) {
+            // find the page above and ask it for child 2.
+            TerrainQuad quad = findTopQuad();
+            if (quad != null)
+                return quad.getPatch(2);
+        } else if (tp.getQuadrant() == 3) {
+            TerrainQuad quad = findTopQuad();
+            if (quad != null)
+                return quad.getPatch(4);
+        }
 
-	protected TerrainQuad findDownQuad() {
-		if (getParent() == null || !(getParent() instanceof TerrainQuad))
-			return null;
+        return null;
+    }
 
-		TerrainQuad pQuad = (TerrainQuad) getParent();
+    protected TerrainPatch findLeftPatch(TerrainPatch tp) {
+        if (tp.getQuadrant() == 3)
+            return getPatch(1);
+        else if (tp.getQuadrant() == 4)
+            return getPatch(2);
+        else if (tp.getQuadrant() == 1) {
+            // find the page above and ask it for child 2.
+            TerrainQuad quad = findLeftQuad();
+            if (quad != null)
+                return quad.getPatch(3);
+        } else if (tp.getQuadrant() == 2) {
+            TerrainQuad quad = findLeftQuad();
+            if (quad != null)
+                return quad.getPatch(4);
+        }
 
-		if (quadrant == 1)
-			return pQuad.getQuad(2);
-		else if (quadrant == 3)
-			return pQuad.getQuad(4);
-		else if (quadrant == 2) {
-			TerrainQuad quad = pQuad.findDownQuad();
-			if (quad != null)
-				return quad.getQuad(1);
-		} else if (quadrant == 4) {
-			TerrainQuad quad = pQuad.findDownQuad();
-			if (quad != null)
-				return quad.getQuad(3);
-		}
+        return null;
+    }
 
-		return null;
-	}
+    protected TerrainQuad findRightQuad() {
+        if (getParent() == null || !(getParent() instanceof TerrainQuad))
+            return null;
 
-	protected TerrainQuad findTopQuad() {
-		if (getParent() == null || !(getParent() instanceof TerrainQuad))
-			return null;
+        TerrainQuad pQuad = (TerrainQuad) getParent();
 
-		TerrainQuad pQuad = (TerrainQuad) getParent();
+        if (quadrant == 1)
+            return pQuad.getQuad(3);
+        else if (quadrant == 2)
+            return pQuad.getQuad(4);
+        else if (quadrant == 3) {
+            TerrainQuad quad = pQuad.findRightQuad();
+            if (quad != null)
+                return quad.getQuad(1);
+        } else if (quadrant == 4) {
+            TerrainQuad quad = pQuad.findRightQuad();
+            if (quad != null)
+                return quad.getQuad(2);
+        }
 
-		if (quadrant == 2)
-			return pQuad.getQuad(1);
-		else if (quadrant == 4)
-			return pQuad.getQuad(3);
-		else if (quadrant == 1) {
-			TerrainQuad quad = pQuad.findTopQuad();
-			if (quad != null)
-				return quad.getQuad(2);
-		} else if (quadrant == 3) {
-			TerrainQuad quad = pQuad.findTopQuad();
-			if (quad != null)
-				return quad.getQuad(4);
-		}
+        return null;
+    }
 
-		return null;
-	}
+    protected TerrainQuad findDownQuad() {
+        if (getParent() == null || !(getParent() instanceof TerrainQuad))
+            return null;
 
-	protected TerrainQuad findLeftQuad() {
-		if (getParent() == null || !(getParent() instanceof TerrainQuad))
-			return null;
+        TerrainQuad pQuad = (TerrainQuad) getParent();
 
-		TerrainQuad pQuad = (TerrainQuad) getParent();
+        if (quadrant == 1)
+            return pQuad.getQuad(2);
+        else if (quadrant == 3)
+            return pQuad.getQuad(4);
+        else if (quadrant == 2) {
+            TerrainQuad quad = pQuad.findDownQuad();
+            if (quad != null)
+                return quad.getQuad(1);
+        } else if (quadrant == 4) {
+            TerrainQuad quad = pQuad.findDownQuad();
+            if (quad != null)
+                return quad.getQuad(3);
+        }
 
-		if (quadrant == 3)
-			return pQuad.getQuad(1);
-		else if (quadrant == 4)
-			return pQuad.getQuad(2);
-		else if (quadrant == 1) {
-			TerrainQuad quad = pQuad.findLeftQuad();
-			if (quad != null)
-				return quad.getQuad(3);
-		} else if (quadrant == 2) {
-			TerrainQuad quad = pQuad.findLeftQuad();
-			if (quad != null)
-				return quad.getQuad(4);
-		}
+        return null;
+    }
 
-		return null;
-	}
+    protected TerrainQuad findTopQuad() {
+        if (getParent() == null || !(getParent() instanceof TerrainQuad))
+                return null;
+
+        TerrainQuad pQuad = (TerrainQuad) getParent();
+
+        if (quadrant == 2)
+            return pQuad.getQuad(1);
+        else if (quadrant == 4)
+            return pQuad.getQuad(3);
+        else if (quadrant == 1) {
+            TerrainQuad quad = pQuad.findTopQuad();
+            if (quad != null)
+                return quad.getQuad(2);
+        } else if (quadrant == 3) {
+            TerrainQuad quad = pQuad.findTopQuad();
+            if (quad != null)
+                return quad.getQuad(4);
+        }
+
+        return null;
+    }
+
+    protected TerrainQuad findLeftQuad() {
+        if (getParent() == null || !(getParent() instanceof TerrainQuad))
+                return null;
+
+        TerrainQuad pQuad = (TerrainQuad) getParent();
+
+        if (quadrant == 3)
+            return pQuad.getQuad(1);
+        else if (quadrant == 4)
+            return pQuad.getQuad(2);
+        else if (quadrant == 1) {
+            TerrainQuad quad = pQuad.findLeftQuad();
+            if (quad != null)
+                return quad.getQuad(3);
+        } else if (quadrant == 2) {
+            TerrainQuad quad = pQuad.findLeftQuad();
+            if (quad != null)
+                return quad.getQuad(4);
+        }
+
+        return null;
+    }
 
     /**
      * Find what terrain patches need normal recalculations and update
@@ -1337,11 +1334,11 @@ public class TerrainQuad extends Node implements Terrain {
         }
     }
 
-	/**
-	 * fix the normals on the edge of the terrain patches.
-	 */
-	protected void fixNormalEdges(BoundingBox affectedArea) {
-		if (children == null)
+    /**
+     * fix the normals on the edge of the terrain patches.
+     */
+    protected void fixNormalEdges(BoundingBox affectedArea) {
+        if (children == null)
             return;
 
         for (int x = children.size(); --x >= 0;) {
@@ -1376,7 +1373,7 @@ public class TerrainQuad extends Node implements Terrain {
             }
         } // for each child
 
-	}
+    }
 
 
 
@@ -1429,67 +1426,67 @@ public class TerrainQuad extends Node implements Terrain {
     }
 
 
-	/**
-	 * Retrieve all Terrain Patches from all children and store them
-	 * in the 'holder' list
-	 * @param holder must not be null, will be populated when returns
-	 */
-	public void getAllTerrainPatches(List<TerrainPatch> holder) {
-		if (children != null) {
-			for (int i = children.size(); --i >= 0;) {
-				Spatial child = children.get(i);
-				if (child instanceof TerrainQuad) {
-					((TerrainQuad) child).getAllTerrainPatches(holder);
-				} else if (child instanceof TerrainPatch) {
-					holder.add((TerrainPatch)child);
-				}
-			}
-		}
-	}
+    /**
+     * Retrieve all Terrain Patches from all children and store them
+     * in the 'holder' list
+     * @param holder must not be null, will be populated when returns
+     */
+    public void getAllTerrainPatches(List<TerrainPatch> holder) {
+        if (children != null) {
+            for (int i = children.size(); --i >= 0;) {
+                Spatial child = children.get(i);
+                if (child instanceof TerrainQuad) {
+                    ((TerrainQuad) child).getAllTerrainPatches(holder);
+                } else if (child instanceof TerrainPatch) {
+                    holder.add((TerrainPatch)child);
+                }
+            }
+        }
+    }
 
-	public void getAllTerrainPatchesWithTranslation(Map<TerrainPatch,Vector3f> holder, Vector3f translation) {
-		if (children != null) {
-			for (int i = children.size(); --i >= 0;) {
-				Spatial child = children.get(i);
-				if (child instanceof TerrainQuad) {
-					((TerrainQuad) child).getAllTerrainPatchesWithTranslation(holder, translation.clone().add(child.getLocalTranslation()));
-				} else if (child instanceof TerrainPatch) {
-					//if (holder.size() < 4)
-					holder.put((TerrainPatch)child, translation.clone().add(child.getLocalTranslation()));
-				}
-			}
-		}
-	}
+    public void getAllTerrainPatchesWithTranslation(Map<TerrainPatch,Vector3f> holder, Vector3f translation) {
+        if (children != null) {
+            for (int i = children.size(); --i >= 0;) {
+                Spatial child = children.get(i);
+                if (child instanceof TerrainQuad) {
+                    ((TerrainQuad) child).getAllTerrainPatchesWithTranslation(holder, translation.clone().add(child.getLocalTranslation()));
+                } else if (child instanceof TerrainPatch) {
+                    //if (holder.size() < 4)
+                    holder.put((TerrainPatch)child, translation.clone().add(child.getLocalTranslation()));
+                }
+            }
+        }
+    }
 
-	@Override
-	public void read(JmeImporter e) throws IOException {
-		super.read(e);
-		InputCapsule c = e.getCapsule(this);
-		size = c.readInt("size", 0);
-		stepScale = (Vector3f) c.readSavable("stepScale", null);
-		offset = (Vector2f) c.readSavable("offset", new Vector2f(0,0));
-		offsetAmount = c.readFloat("offsetAmount", 0);
-		quadrant = c.readInt("quadrant", 0);
-		totalSize = c.readInt("totalSize", 0);
-		lodCalculatorFactory = (LodCalculatorFactory) c.readSavable("lodCalculatorFactory", null);
+    @Override
+    public void read(JmeImporter e) throws IOException {
+        super.read(e);
+        InputCapsule c = e.getCapsule(this);
+        size = c.readInt("size", 0);
+        stepScale = (Vector3f) c.readSavable("stepScale", null);
+        offset = (Vector2f) c.readSavable("offset", new Vector2f(0,0));
+        offsetAmount = c.readFloat("offsetAmount", 0);
+        quadrant = c.readInt("quadrant", 0);
+        totalSize = c.readInt("totalSize", 0);
+        lodCalculatorFactory = (LodCalculatorFactory) c.readSavable("lodCalculatorFactory", null);
 
         // the terrain is re-built on load, so we need to run this once
         //affectedAreaBBox = new BoundingBox(new Vector3f(0,0,0), size, Float.MAX_VALUE, size);
         //updateNormals();
-	}
+    }
 
-	@Override
-	public void write(JmeExporter e) throws IOException {
-		super.write(e);
-		OutputCapsule c = e.getCapsule(this);
-		c.write(size, "size", 0);
+    @Override
+    public void write(JmeExporter e) throws IOException {
+        super.write(e);
+        OutputCapsule c = e.getCapsule(this);
+        c.write(size, "size", 0);
         c.write(totalSize, "totalSize", 0);
-		c.write(stepScale, "stepScale", null);
-		c.write(offset, "offset", new Vector2f(0,0));
-		c.write(offsetAmount, "offsetAmount", 0);
-		c.write(quadrant, "quadrant", 0);
+        c.write(stepScale, "stepScale", null);
+        c.write(offset, "offset", new Vector2f(0,0));
+        c.write(offsetAmount, "offsetAmount", 0);
+        c.write(quadrant, "quadrant", 0);
         c.write(lodCalculatorFactory, "lodCalculatorFactory", null);
-	}
+    }
 
     @Override
     public TerrainQuad clone() {
@@ -1516,23 +1513,23 @@ public class TerrainQuad extends Node implements Terrain {
             normalControl.setTerrain(this);
 
         return quadClone;
-	}
+    }
 
 
-	public int getMaxLod() {
-		if (maxLod < 0)
-			maxLod = Math.max(1, (int) (FastMath.log(size-1)/FastMath.log(2)) -1); // -1 forces our minimum of 4 triangles wide
+    public int getMaxLod() {
+        if (maxLod < 0)
+            maxLod = Math.max(1, (int) (FastMath.log(size-1)/FastMath.log(2)) -1); // -1 forces our minimum of 4 triangles wide
 
-		return maxLod;
-	}
+        return maxLod;
+    }
 
-	public void useLOD(boolean useLod) {
-		usingLOD = useLod;
-	}
+    public void useLOD(boolean useLod) {
+        usingLOD = useLod;
+    }
 
-	public boolean isUsingLOD() {
-		return usingLOD;
-	}
+    public boolean isUsingLOD() {
+        return usingLOD;
+}
 
     public int getPatchSize() {
         return patchSize;
@@ -1543,7 +1540,7 @@ public class TerrainQuad extends Node implements Terrain {
     }
 
 
-	public float[] getHeightMap() {
+    public float[] getHeightMap() {
 
         //if (true)
         //    return heightMap;
@@ -1604,6 +1601,6 @@ public class TerrainQuad extends Node implements Terrain {
         }
 
         return hm;
-	}
+    }
 }
 

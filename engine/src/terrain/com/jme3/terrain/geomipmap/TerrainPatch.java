@@ -88,26 +88,26 @@ import java.util.List;
  */
 public class TerrainPatch extends Geometry {
 
-	protected LODGeomap geomap;
-	protected int lod = -1; // this terrain patch's LOD
-	private int maxLod = -1;
-	protected int previousLod = -1;
-	protected int lodLeft, lodTop, lodRight, lodBottom; // it's neighbour's LODs
-	
-	protected int size;
+    protected LODGeomap geomap;
+    protected int lod = -1; // this terrain patch's LOD
+    private int maxLod = -1;
+    protected int previousLod = -1;
+    protected int lodLeft, lodTop, lodRight, lodBottom; // it's neighbour's LODs
 
-	protected int totalSize;
+    protected int size;
 
-	protected short quadrant = 1;
+    protected int totalSize;
 
-	// x/z step
-	protected Vector3f stepScale;
+    protected short quadrant = 1;
 
-	// center of the block in relation to (0,0,0)
-	protected Vector2f offset;
+    // x/z step
+    protected Vector3f stepScale;
 
-	// amount the block has been shifted.
-	protected float offsetAmount;
+    // center of the block in relation to (0,0,0)
+    protected Vector2f offset;
+
+    // amount the block has been shifted.
+    protected float offsetAmount;
 
     protected LodCalculator lodCalculator;
     protected LodCalculatorFactory lodCalculatorFactory;
@@ -122,78 +122,78 @@ public class TerrainPatch extends Geometry {
         super("TerrainPatch");
     }
     
-	public TerrainPatch(String name) {
-		super(name);
-	}
-	
-	public TerrainPatch(String name, int size) {
-		this(name, size, new Vector3f(1,1,1), null, new Vector3f(0,0,0));
-	}
-	
-	/**
-	 * Constructor instantiates a new <code>TerrainPatch</code> object. The
-	 * parameters and heightmap data are then processed to generate a
-	 * <code>TriMesh</code> object for rendering.
-	 * 
-	 * @param name
-	 *			the name of the terrain block.
-	 * @param size
-	 *			the size of the heightmap.
-	 * @param stepScale
-	 *			the scale for the axes.
-	 * @param heightMap
-	 *			the height data.
-	 * @param origin
-	 *			the origin offset of the block.
-	 */
-	public TerrainPatch(String name, int size, Vector3f stepScale,
-			float[] heightMap, Vector3f origin) {
-		this(name, size, stepScale, heightMap, origin, size, new Vector2f(), 0);
-	}
+    public TerrainPatch(String name) {
+        super(name);
+    }
 
-	/**
-	 * Constructor instantiates a new <code>TerrainPatch</code> object. The
-	 * parameters and heightmap data are then processed to generate a
-	 * <code>TriMesh</code> object for renderering.
-	 * 
-	 * @param name
-	 *			the name of the terrain block.
-	 * @param size
-	 *			the size of the block.
-	 * @param stepScale
-	 *			the scale for the axes.
-	 * @param heightMap
-	 *			the height data.
-	 * @param origin
-	 *			the origin offset of the block.
-	 * @param totalSize
-	 *			the total size of the terrain. (Higher if the block is part of
-	 *			a <code>TerrainPage</code> tree.
-	 * @param offset
-	 *			the offset for texture coordinates.
-	 * @param offsetAmount
-	 *			the total offset amount. Used for texture coordinates.
-	 */
-	public TerrainPatch(String name, int size, Vector3f stepScale,
-			float[] heightMap, Vector3f origin, int totalSize,
-			Vector2f offset, float offsetAmount) {
-		super(name);
-		this.size = size;
-		this.stepScale = stepScale;
-		this.totalSize = totalSize;
-		this.offsetAmount = offsetAmount;
-		this.offset = offset;
+    public TerrainPatch(String name, int size) {
+        this(name, size, new Vector3f(1,1,1), null, new Vector3f(0,0,0));
+    }
 
-		setLocalTranslation(origin);
-		
-		FloatBuffer heightBuffer = BufferUtils.createFloatBuffer(size*size);
-		heightBuffer.put(heightMap);
-		
-		geomap = new LODGeomap(size, heightBuffer);
-		Mesh m = geomap.createMesh(stepScale, new Vector2f(1,1), offset, offsetAmount, totalSize, false);
-		setMesh(m);
-		
-	}
+    /**
+     * Constructor instantiates a new <code>TerrainPatch</code> object. The
+     * parameters and heightmap data are then processed to generate a
+     * <code>TriMesh</code> object for rendering.
+     *
+     * @param name
+     *			the name of the terrain block.
+     * @param size
+     *			the size of the heightmap.
+     * @param stepScale
+     *			the scale for the axes.
+     * @param heightMap
+     *			the height data.
+     * @param origin
+     *			the origin offset of the block.
+     */
+    public TerrainPatch(String name, int size, Vector3f stepScale,
+                    float[] heightMap, Vector3f origin) {
+        this(name, size, stepScale, heightMap, origin, size, new Vector2f(), 0);
+    }
+
+    /**
+     * Constructor instantiates a new <code>TerrainPatch</code> object. The
+     * parameters and heightmap data are then processed to generate a
+     * <code>TriMesh</code> object for renderering.
+     *
+     * @param name
+     *			the name of the terrain block.
+     * @param size
+     *			the size of the block.
+     * @param stepScale
+     *			the scale for the axes.
+     * @param heightMap
+     *			the height data.
+     * @param origin
+     *			the origin offset of the block.
+     * @param totalSize
+     *			the total size of the terrain. (Higher if the block is part of
+     *			a <code>TerrainPage</code> tree.
+     * @param offset
+     *			the offset for texture coordinates.
+     * @param offsetAmount
+     *			the total offset amount. Used for texture coordinates.
+     */
+    public TerrainPatch(String name, int size, Vector3f stepScale,
+                    float[] heightMap, Vector3f origin, int totalSize,
+                    Vector2f offset, float offsetAmount) {
+        super(name);
+        this.size = size;
+        this.stepScale = stepScale;
+        this.totalSize = totalSize;
+        this.offsetAmount = offsetAmount;
+        this.offset = offset;
+
+        setLocalTranslation(origin);
+
+        FloatBuffer heightBuffer = BufferUtils.createFloatBuffer(size*size);
+        heightBuffer.put(heightMap);
+
+        geomap = new LODGeomap(size, heightBuffer);
+        Mesh m = geomap.createMesh(stepScale, new Vector2f(1,1), offset, offsetAmount, totalSize, false);
+        setMesh(m);
+
+    }
 
     /**
      * This calculation is slow, so don't use it often.
@@ -216,23 +216,23 @@ public class TerrainPatch extends Geometry {
         return lodEntropy;
     }
 
-	public FloatBuffer getHeightmap() {
-		return geomap.getHeightData();
-	}
-	
-	/**
-	 * The maximum lod supported by this terrain patch.
-	 * If the patch size is 32 then the returned value would be log2(32)-2 = 3
-	 * You can then use that value, 3, to see how many times you can divide 32 by 2 
-	 * before the terrain gets too un-detailed (can't stitch it any further).
-	 * @return
-	 */
-	public int getMaxLod() {
-		if (maxLod < 0)
-			maxLod = Math.max(1, (int) (FastMath.log(size-1)/FastMath.log(2)) -1); // -1 forces our minimum of 4 triangles wide
-		
-		return maxLod;
-	}
+    public FloatBuffer getHeightmap() {
+        return geomap.getHeightData();
+    }
+
+    /**
+     * The maximum lod supported by this terrain patch.
+     * If the patch size is 32 then the returned value would be log2(32)-2 = 3
+     * You can then use that value, 3, to see how many times you can divide 32 by 2
+     * before the terrain gets too un-detailed (can't stitch it any further).
+     * @return
+     */
+    public int getMaxLod() {
+        if (maxLod < 0)
+            maxLod = Math.max(1, (int) (FastMath.log(size-1)/FastMath.log(2)) -1); // -1 forces our minimum of 4 triangles wide
+
+        return maxLod;
+    }
 
     
 	
@@ -243,30 +243,30 @@ public class TerrainPatch extends Geometry {
      * @param updates update objects that may or may not contain this terrain patch
      * @return true if the geometry needs re-indexing
      */
-	protected boolean calculateLod(List<Vector3f> locations, HashMap<String,UpdatedTerrainPatch> updates) {
+    protected boolean calculateLod(List<Vector3f> locations, HashMap<String,UpdatedTerrainPatch> updates) {
         return lodCalculator.calculateLod(locations, updates);
     }
 
-	protected void reIndexGeometry(HashMap<String,UpdatedTerrainPatch> updated) {
-		
-		UpdatedTerrainPatch utp = updated.get(getName());
-		
-		if (utp != null && (utp.isReIndexNeeded() || utp.isFixEdges()) ) {
-			int pow = (int) Math.pow(2, utp.getNewLod());
-			boolean left = utp.getLeftLod() > utp.getNewLod();
-			boolean top = utp.getTopLod() > utp.getNewLod();
-			boolean right = utp.getRightLod() > utp.getNewLod();
-			boolean bottom = utp.getBottomLod() > utp.getNewLod();
-            
+    protected void reIndexGeometry(HashMap<String,UpdatedTerrainPatch> updated) {
+
+        UpdatedTerrainPatch utp = updated.get(getName());
+
+        if (utp != null && (utp.isReIndexNeeded() || utp.isFixEdges()) ) {
+            int pow = (int) Math.pow(2, utp.getNewLod());
+            boolean left = utp.getLeftLod() > utp.getNewLod();
+            boolean top = utp.getTopLod() > utp.getNewLod();
+            boolean right = utp.getRightLod() > utp.getNewLod();
+            boolean bottom = utp.getBottomLod() > utp.getNewLod();
+
             IntBuffer ib = null;
             if (lodCalculator.usesVariableLod())
                 ib = geomap.writeIndexArrayLodVariable(null, pow, (int) Math.pow(2, utp.getRightLod()), (int) Math.pow(2, utp.getTopLod()), (int) Math.pow(2, utp.getLeftLod()), (int) Math.pow(2, utp.getBottomLod()));
             else
                 ib = geomap.writeIndexArrayLodDiff(null, pow, right, top, left, bottom);
-			utp.setNewIndexBuffer(ib);
-		}
-		
-	}
+            utp.setNewIndexBuffer(ib);
+        }
+
+    }
 
 
     public Vector2f getTex(float x, float z, Vector2f store) {
@@ -768,176 +768,176 @@ public class TerrainPatch extends Geometry {
         getMesh().setDynamic();
     }
 	
-	/**
-	 * Returns the offset amount this terrain block uses for textures.
-	 * 
-	 * @return The current offset amount.
-	 */
-	public float getOffsetAmount() {
-		return offsetAmount;
-	}
+    /**
+     * Returns the offset amount this terrain block uses for textures.
+     *
+     * @return The current offset amount.
+     */
+    public float getOffsetAmount() {
+        return offsetAmount;
+    }
 
-	/**
-	 * Returns the step scale that stretches the height map.
-	 * 
-	 * @return The current step scale.
-	 */
-	public Vector3f getStepScale() {
-		return stepScale;
-	}
+    /**
+     * Returns the step scale that stretches the height map.
+     *
+     * @return The current step scale.
+     */
+    public Vector3f getStepScale() {
+        return stepScale;
+    }
 
-	/**
-	 * Returns the total size of the terrain.
-	 * 
-	 * @return The terrain's total size.
-	 */
-	public int getTotalSize() {
-		return totalSize;
-	}
+    /**
+     * Returns the total size of the terrain.
+     *
+     * @return The terrain's total size.
+     */
+    public int getTotalSize() {
+        return totalSize;
+    }
 
-	/**
-	 * Returns the size of this terrain block.
-	 * 
-	 * @return The current block size.
-	 */
-	public int getSize() {
-		return size;
-	}
+    /**
+     * Returns the size of this terrain block.
+     *
+     * @return The current block size.
+     */
+    public int getSize() {
+        return size;
+    }
 
-	/**
-	 * Returns the current offset amount. This is used when building texture
-	 * coordinates.
-	 * 
-	 * @return The current offset amount.
-	 */
-	public Vector2f getOffset() {
-		return offset;
-	}
+    /**
+     * Returns the current offset amount. This is used when building texture
+     * coordinates.
+     *
+     * @return The current offset amount.
+     */
+    public Vector2f getOffset() {
+        return offset;
+    }
 
-	/**
-	 * Sets the value for the current offset amount to use when building texture
-	 * coordinates. Note that this does <b>NOT </b> rebuild the terrain at all.
-	 * This is mostly used for outside constructors of terrain blocks.
-	 * 
-	 * @param offset
-	 *			The new texture offset.
-	 */
-	public void setOffset(Vector2f offset) {
-		this.offset = offset;
-	}
+    /**
+     * Sets the value for the current offset amount to use when building texture
+     * coordinates. Note that this does <b>NOT </b> rebuild the terrain at all.
+     * This is mostly used for outside constructors of terrain blocks.
+     *
+     * @param offset
+     *			The new texture offset.
+     */
+    public void setOffset(Vector2f offset) {
+        this.offset = offset;
+    }
 
-	/**
-	 * Sets the size of this terrain block. Note that this does <b>NOT </b>
-	 * rebuild the terrain at all. This is mostly used for outside constructors
-	 * of terrain blocks.
-	 * 
-	 * @param size
-	 *			The new size.
-	 */
-	public void setSize(int size) {
-		this.size = size;
-		
-		maxLod = -1; // reset it
-	}
+    /**
+     * Sets the size of this terrain block. Note that this does <b>NOT </b>
+     * rebuild the terrain at all. This is mostly used for outside constructors
+     * of terrain blocks.
+     *
+     * @param size
+     *			The new size.
+     */
+    public void setSize(int size) {
+        this.size = size;
 
-	/**
-	 * Sets the total size of the terrain . Note that this does <b>NOT </b>
-	 * rebuild the terrain at all. This is mostly used for outside constructors
-	 * of terrain blocks.
-	 * 
-	 * @param totalSize
-	 *			The new total size.
-	 */
-	public void setTotalSize(int totalSize) {
-		this.totalSize = totalSize;
-	}
+        maxLod = -1; // reset it
+    }
 
-	/**
-	 * Sets the step scale of this terrain block's height map. Note that this
-	 * does <b>NOT </b> rebuild the terrain at all. This is mostly used for
-	 * outside constructors of terrain blocks.
-	 * 
-	 * @param stepScale
-	 *			The new step scale.
-	 */
-	public void setStepScale(Vector3f stepScale) {
-		this.stepScale = stepScale;
-	}
+    /**
+     * Sets the total size of the terrain . Note that this does <b>NOT </b>
+     * rebuild the terrain at all. This is mostly used for outside constructors
+     * of terrain blocks.
+     *
+     * @param totalSize
+     *			The new total size.
+     */
+    public void setTotalSize(int totalSize) {
+        this.totalSize = totalSize;
+    }
 
-	/**
-	 * Sets the offset of this terrain texture map. Note that this does <b>NOT
-	 * </b> rebuild the terrain at all. This is mostly used for outside
-	 * constructors of terrain blocks.
-	 * 
-	 * @param offsetAmount
-	 *			The new texture offset.
-	 */
-	public void setOffsetAmount(float offsetAmount) {
-		this.offsetAmount = offsetAmount;
-	}
-	
-	/**
-	 * @return Returns the quadrant.
-	 */
-	public short getQuadrant() {
-		return quadrant;
-	}
+    /**
+     * Sets the step scale of this terrain block's height map. Note that this
+     * does <b>NOT </b> rebuild the terrain at all. This is mostly used for
+     * outside constructors of terrain blocks.
+     *
+     * @param stepScale
+     *			The new step scale.
+     */
+    public void setStepScale(Vector3f stepScale) {
+        this.stepScale = stepScale;
+    }
 
-	/**
-	 * @param quadrant
-	 *			The quadrant to set.
-	 */
-	public void setQuadrant(short quadrant) {
-		this.quadrant = quadrant;
-	}
+    /**
+     * Sets the offset of this terrain texture map. Note that this does <b>NOT
+     * </b> rebuild the terrain at all. This is mostly used for outside
+     * constructors of terrain blocks.
+     *
+     * @param offsetAmount
+     *			The new texture offset.
+     */
+    public void setOffsetAmount(float offsetAmount) {
+        this.offsetAmount = offsetAmount;
+    }
 
-	public int getLod() {
-		return lod;
-	}
+    /**
+     * @return Returns the quadrant.
+     */
+    public short getQuadrant() {
+        return quadrant;
+    }
 
-	public void setLod(int lod) {
-		this.lod = lod;
-	}
+    /**
+     * @param quadrant
+     *			The quadrant to set.
+     */
+    public void setQuadrant(short quadrant) {
+        this.quadrant = quadrant;
+    }
 
-	public int getPreviousLod() {
-		return previousLod;
-	}
+    public int getLod() {
+        return lod;
+    }
 
-	public void setPreviousLod(int previousLod) {
-		this.previousLod = previousLod;
-	}
+    public void setLod(int lod) {
+        this.lod = lod;
+    }
 
-	protected int getLodLeft() {
-		return lodLeft;
-	}
+    public int getPreviousLod() {
+        return previousLod;
+    }
 
-	protected void setLodLeft(int lodLeft) {
-		this.lodLeft = lodLeft;
-	}
+    public void setPreviousLod(int previousLod) {
+        this.previousLod = previousLod;
+    }
 
-	protected int getLodTop() {
-		return lodTop;
-	}
+    protected int getLodLeft() {
+        return lodLeft;
+    }
 
-	protected void setLodTop(int lodTop) {
-		this.lodTop = lodTop;
-	}
+    protected void setLodLeft(int lodLeft) {
+        this.lodLeft = lodLeft;
+    }
 
-	protected int getLodRight() {
-		return lodRight;
-	}
+    protected int getLodTop() {
+        return lodTop;
+    }
 
-	protected void setLodRight(int lodRight) {
-		this.lodRight = lodRight;
-	}
+    protected void setLodTop(int lodTop) {
+        this.lodTop = lodTop;
+    }
 
-	protected int getLodBottom() {
-		return lodBottom;
-	}
+    protected int getLodRight() {
+        return lodRight;
+    }
 
-	protected void setLodBottom(int lodBottom) {
-		this.lodBottom = lodBottom;
-	}
+    protected void setLodRight(int lodRight) {
+        this.lodRight = lodRight;
+    }
+
+    protected int getLodBottom() {
+        return lodBottom;
+    }
+
+    protected void setLodBottom(int lodBottom) {
+        this.lodBottom = lodBottom;
+    }
 
     public LodCalculator getLodCalculator() {
         return lodCalculator;
