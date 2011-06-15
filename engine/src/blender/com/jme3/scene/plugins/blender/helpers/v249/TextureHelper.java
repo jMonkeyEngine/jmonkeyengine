@@ -1613,7 +1613,7 @@ public class TextureHelper extends AbstractBlenderHelper {
 				name = name.substring(1);
 			}
 
-			TextureKey texKey = new TextureKey(name, true);
+			TextureKey texKey = new TextureKey(name, false);
 			Texture tex = dataRepository.getAssetManager().loadTexture(texKey);
 			image = tex.getImage();
 		}

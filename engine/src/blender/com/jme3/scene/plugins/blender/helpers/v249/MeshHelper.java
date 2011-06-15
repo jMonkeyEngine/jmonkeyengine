@@ -155,9 +155,9 @@ public class MeshHelper extends AbstractBlenderHelper {
 				materialWithoutTextures = pImage.isNull();
 				// uvs always must be added wheater we have texture or not
 				uvs = (DynamicArray<Number>) mtFace.getFieldValue("uv");
-				uvCoordinates.add(new Vector2f(uvs.get(0, 0).floatValue(), uvs.get(0, 1).floatValue()));
-				uvCoordinates.add(new Vector2f(uvs.get(1, 0).floatValue(), uvs.get(1, 1).floatValue()));
-				uvCoordinates.add(new Vector2f(uvs.get(2, 0).floatValue(), uvs.get(2, 1).floatValue()));
+				uvCoordinates.add(new Vector2f(uvs.get(0, 0).floatValue(), 1.0f - uvs.get(0, 1).floatValue()));
+				uvCoordinates.add(new Vector2f(uvs.get(1, 0).floatValue(), 1.0f - uvs.get(1, 1).floatValue()));
+				uvCoordinates.add(new Vector2f(uvs.get(2, 0).floatValue(), 1.0f - uvs.get(2, 1).floatValue()));
 			}
 			int matNr = ((Number) mFace.getFieldValue("mat_nr")).intValue();
 			Integer materialNumber = Integer.valueOf(materialWithoutTextures ? -1 * matNr - 1 : matNr);
@@ -201,9 +201,9 @@ public class MeshHelper extends AbstractBlenderHelper {
 
 			if (v4 > 0) {
 				if (uvs != null) {
-					uvCoordinates.add(new Vector2f(uvs.get(0, 0).floatValue(), uvs.get(0, 1).floatValue()));
-					uvCoordinates.add(new Vector2f(uvs.get(2, 0).floatValue(), uvs.get(2, 1).floatValue()));
-					uvCoordinates.add(new Vector2f(uvs.get(3, 0).floatValue(), uvs.get(3, 1).floatValue()));
+					uvCoordinates.add(new Vector2f(uvs.get(0, 0).floatValue(), 1.0f - uvs.get(0, 1).floatValue()));
+					uvCoordinates.add(new Vector2f(uvs.get(2, 0).floatValue(), 1.0f - uvs.get(2, 1).floatValue()));
+					uvCoordinates.add(new Vector2f(uvs.get(3, 0).floatValue(), 1.0f - uvs.get(3, 1).floatValue()));
 				}
 				this.appendVertexReference(v1, vertexList.size(), vertexReferenceMap);
 				indexList.add(vertexList.size());
