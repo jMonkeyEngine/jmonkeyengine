@@ -114,8 +114,18 @@ public final class Bone implements Savable {
     }
 
     /**
-     * Copy constructor. local bind and world inverse bind transforms shallow copied.
-     * @param source
+     * Special-purpose copy constructor. 
+     * <p>
+     * Only copies the name and bind pose from the original.
+     * <p>
+     * WARNING: Local bind pose and world inverse bind pose transforms shallow 
+     * copied. Modifying that data on the original bone will cause it to
+     * be recomputed on any cloned bones.
+     * <p>
+     * The rest of the data is <em>NOT</em> copied, as it will be
+     * generated automatically when the bone is animated.
+     * 
+     * @param source The bone from which to copy the data.
      */
     Bone(Bone source) {
         this.name = source.name;
@@ -134,9 +144,7 @@ public final class Bone implements Savable {
     }
 
     /**
-     * Used for binary loading as a Savable; the object must be constructed,
-     * then the parameters usually present in the constructor for this class are
-     * restored from the file the object was saved to.
+     * Serialization only. Do not use.
      */
     public Bone() {
     }
@@ -223,6 +231,9 @@ public final class Bone implements Savable {
 
     /**
      * Returns the inverse world bind pose position.
+     * <p>
+     * The bind pose transform of the bone is its "default"
+     * transform with no animation applied.
      * 
      * @return the inverse world bind pose position.
      */
@@ -232,6 +243,9 @@ public final class Bone implements Savable {
 
     /**
      * Returns the inverse world bind pose rotation.
+     * <p>
+     * The bind pose transform of the bone is its "default"
+     * transform with no animation applied.
      * 
      * @return the inverse world bind pose rotation.
      */
@@ -241,11 +255,50 @@ public final class Bone implements Savable {
 
     /**
      * Returns the inverse world bind pose scale.
+     * <p>
+     * The bind pose transform of the bone is its "default"
+     * transform with no animation applied.
      * 
      * @return the inverse world bind pose scale.
      */
     public Vector3f getWorldBindInverseScale() {
         return worldBindInverseScale;
+    }
+    
+    /**
+     * Returns the world bind pose position.
+     * <p>
+     * The bind pose transform of the bone is its "default"
+     * transform with no animation applied.
+     * 
+     * @return the world bind pose position.
+     */
+    public Vector3f getWorldBindPosition() {
+        return initialPos;
+    }
+
+    /**
+     * Returns the world bind pose rotation.
+     * <p>
+     * The bind pose transform of the bone is its "default"
+     * transform with no animation applied.
+     * 
+     * @return the world bind pose rotation.
+     */
+    public Quaternion getWorldBindRotation() {
+        return initialRot;
+    }
+    
+    /**
+     * Returns the world bind pose scale.
+     * <p>
+     * The bind pose transform of the bone is its "default"
+     * transform with no animation applied.
+     * 
+     * @return the world bind pose scale.
+     */
+    public Vector3f getWorldBindScale() {
+        return initialScale;
     }
 
     /**
@@ -259,7 +312,8 @@ public final class Bone implements Savable {
     /**
      * Add a new child to this bone. Shouldn't be used by user code.
      * Can corrupt skeleton.
-     * @param bone
+     * 
+     * @param bone The bone to add
      */
     public void addChild(Bone bone) {
         children.add(bone);
@@ -267,7 +321,11 @@ public final class Bone implements Savable {
     }
 
     /**
-     * Updates the world transforms for this bone, and, possibly the attach node if not null.
+     * Updates the world transforms for this bone, and, possibly the attach node
+     * if not null.
+     * <p>
+     * The world transform of this bone is computed by combining the parent's
+     * world transform with this bones' local transform.
      */
     public final void updateWorldVectors() {
         if (parent != null) {
@@ -376,8 +434,7 @@ public final class Bone implements Savable {
     }
 
     /**
-     * Set user transform.
-     * Combine the given transforms to bone's current transforms
+     * Sets user transform.
      */
     public void setUserTransforms(Vector3f translation, Quaternion rotation, Vector3f scale) {
         if (!userControl) {
@@ -397,12 +454,13 @@ public final class Bone implements Savable {
      * Must update all bones in skeleton for this to work.
      * @param translation
      * @param rotation
-     *///TODO: add scale here ???
+     */
     public void setUserTransformsWorld(Vector3f translation, Quaternion rotation) {
         if (!userControl) {
             throw new IllegalStateException("User control must be on bone to allow user transforms");
         }
-
+        
+        // TODO: add scale here ???
         worldPos.set(translation);
         worldRot.set(rotation);
     }
@@ -497,15 +555,11 @@ public final class Bone implements Savable {
     public void setBindTransforms(Vector3f translation, Quaternion rotation, Vector3f scale) {
         initialPos.set(translation);
         initialRot.set(rotation);
-        if (scale != null) {
-            initialScale.set(scale);
-        }
-
+        initialScale.set(scale);
+        
         localPos.set(translation);
         localRot.set(rotation);
-        if (scale != null) {
-            localScale.set(scale);
-        }
+        localScale.set(scale);
     }
 
     private String toString(int depth) {
@@ -561,13 +615,5 @@ public final class Bone implements Savable {
         output.write(initialRot, "initialRot", null);
         output.write(initialScale, "initialScale", new Vector3f(1.0f, 1.0f, 1.0f));
         output.writeSavableArrayList(children, "children", null);
-    }
-
-    public Vector3f getInitialPos() {
-        return initialPos;
-    }
-
-    public Quaternion getInitialRot() {
-        return initialRot;
     }
 }

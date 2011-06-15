@@ -44,14 +44,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A skeleton is a hierarchy of bones.
+ * <code>Skeleton</code> is a convenience class for managing a bone hierarchy.
  * Skeleton updates the world transforms to reflect the current local
  * animated matrixes.
+ * 
+ * @author Kirill Vainer
  */
 public final class Skeleton implements Savable {
 
     private Bone[] rootBones;
     private Bone[] boneList;
+    
     /**
      * Contains the skinning matrices, multiplying it by a vertex effected by a bone
      * will cause it to go to the animated position.
@@ -59,8 +62,13 @@ public final class Skeleton implements Savable {
     private transient Matrix4f[] skinningMatrixes;
 
     /**
-     * Creates a skeleton from a bone list. The root bone is found automatically.
-     * @param boneList
+     * Creates a skeleton from a bone list. 
+     * The root bones are found automatically.
+     * <p>
+     * Note that using this constructor will cause the bones in the list
+     * to have their bind pose recomputed based on their local transforms.
+     * 
+     * @param boneList The list of bones to manage by this Skeleton
      */
     public Skeleton(Bone[] boneList) {
         this.boneList = boneList;
@@ -84,9 +92,12 @@ public final class Skeleton implements Savable {
     }
 
     /**
-     * Copy constructor.
-     * Most of the skeleton data is deeply-copied except the bone bind and inverseBind transforms.
-     * @param source
+     * Special-purpose copy constructor.
+     * <p>
+     * Shallow copies bind pose data from the source skeleton, does not
+     * copy any other data.
+     * 
+     * @param source The source Skeleton to copy from
      */
     public Skeleton(Skeleton source) {
         Bone[] sourceList = source.boneList;
@@ -107,9 +118,7 @@ public final class Skeleton implements Savable {
     }
 
     /**
-     * Used for binary loading as a Savable; the object must be constructed,
-     * then the parameters usually present in the constructor for this class are
-     * restored from the file the object was saved to.
+     * Serialization only. Do not use.
      */
     public Skeleton() {
     }

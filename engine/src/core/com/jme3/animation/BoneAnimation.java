@@ -40,7 +40,7 @@ import java.io.IOException;
 import java.util.BitSet;
 
 /**
- * Bone animation updates each of its tracks with the skeleton and time
+ * <code>BoneAnimation</code> updates each of its tracks with the skeleton and time
  * to apply the animation.
  * 
  * @author Kirill Vainer
@@ -69,36 +69,40 @@ public final class BoneAnimation implements Savable {
     }
 
     /**
-     * Returns the animation name
-     * @return 
+     * The name of the bone animation
+     * @return name of the bone animation
      */
-    public String getName() {
+    public String getName(){
         return name;
     }
 
     /**
-     * returns the animation length (in seconds)
-     * @return 
+     * Returns the length in seconds of this animation
+     * 
+     * @return the length in seconds of this animation
      */
-    public float getLength() {
+    public float getLength(){
         return length;
     }
 
     /**
-     * Sets the bone tracks to this bone animation
-     * @see BoneTrack
-     * @param tracks 
+     * Set the {@link BoneTrack}s to be used by this animation.
+     * <p>
+     * The array should be organized so that the appropriate BoneTrack can
+     * be retrieved based on a bone index. 
+     * 
+     * @param tracks The tracks to set.
      */
-    public void setTracks(BoneTrack[] tracks) {
+    public void setTracks(BoneTrack[] tracks){
         this.tracks = tracks;
     }
 
     /**
-     * returns the bone tracks of this animation
-     * @see BoneTrack
-     * @return 
+     * Returns the tracks set in {@link #setTracks(com.jme3.animation.BoneTrack[]) }.
+     * 
+     * @return the tracks set previously
      */
-    public BoneTrack[] getTracks() {
+    public BoneTrack[] getTracks(){
         return tracks;
     }
 
