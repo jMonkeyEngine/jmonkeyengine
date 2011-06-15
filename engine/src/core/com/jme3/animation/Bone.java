@@ -264,7 +264,7 @@ public final class Bone implements Savable {
     public Vector3f getWorldBindInverseScale() {
         return worldBindInverseScale;
     }
-    
+
     /**
      * Returns the world bind pose position.
      * <p>
@@ -288,7 +288,7 @@ public final class Bone implements Savable {
     public Quaternion getWorldBindRotation() {
         return initialRot;
     }
-    
+
     /**
      * Returns the world bind pose scale.
      * <p>
@@ -459,7 +459,7 @@ public final class Bone implements Savable {
         if (!userControl) {
             throw new IllegalStateException("User control must be on bone to allow user transforms");
         }
-        
+
         // TODO: add scale here ???
         worldPos.set(translation);
         worldRot.set(rotation);
@@ -555,11 +555,16 @@ public final class Bone implements Savable {
     public void setBindTransforms(Vector3f translation, Quaternion rotation, Vector3f scale) {
         initialPos.set(translation);
         initialRot.set(rotation);
-        initialScale.set(scale);
-        
+        //ogre.xml can have null scale values breaking this if the check is removed
+        if (scale != null) {
+            initialScale.set(scale);
+        }
+
         localPos.set(translation);
         localRot.set(rotation);
-        localScale.set(scale);
+        if (scale != null) {
+            localScale.set(scale);
+        }
     }
 
     private String toString(int depth) {
