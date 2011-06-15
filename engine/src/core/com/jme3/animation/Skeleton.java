@@ -163,6 +163,9 @@ public final class Skeleton implements Savable {
         }
     }
 
+    /**
+     * Reset the skeleton to bind pose and updates the bones
+     */
     public final void resetAndUpdate() {
         for (int i = rootBones.length - 1; i >= 0; i--) {
             Bone rootBone = rootBones[i];
@@ -171,14 +174,28 @@ public final class Skeleton implements Savable {
         }
     }
 
+    /**
+     * returns the array of all root bones of this skeleton
+     * @return 
+     */
     public Bone[] getRoots() {
         return rootBones;
     }
 
+    /**
+     * return a bone for the given index
+     * @param index
+     * @return 
+     */
     public Bone getBone(int index) {
         return boneList[index];
     }
 
+    /**
+     * returns the bone with the given name
+     * @param name
+     * @return 
+     */
     public Bone getBone(String name) {
         for (int i = 0; i < boneList.length; i++) {
             if (boneList[i].getName().equals(name)) {
@@ -189,6 +206,11 @@ public final class Skeleton implements Savable {
         return null;
     }
 
+    /**
+     * returns the bone index of the given bone
+     * @param bone
+     * @return 
+     */
     public int getBoneIndex(Bone bone) {
         for (int i = 0; i < boneList.length; i++) {
             if (boneList[i] == bone) {
@@ -199,8 +221,13 @@ public final class Skeleton implements Savable {
         return -1;
     }
 
+    /**
+     * returns the bone index of the bone that has the given name
+     * @param name
+     * @return 
+     */
     public int getBoneIndex(String name) {
-        for (int i = 0; i < boneList.length; i++) {           
+        for (int i = 0; i < boneList.length; i++) {
             if (boneList[i].getName().equals(name)) {
                 return i;
             }
@@ -209,6 +236,10 @@ public final class Skeleton implements Savable {
         return -1;
     }
 
+    /**
+     * Compute the skining matrices for each bone of the skeleton that would be used to transform vertices of associated meshes
+     * @return 
+     */
     public Matrix4f[] computeSkinningMatrices() {
         TempVars vars = TempVars.get();
         assert vars.lock();
@@ -219,6 +250,10 @@ public final class Skeleton implements Savable {
         return skinningMatrixes;
     }
 
+    /**
+     * returns the number of bones of this skeleton
+     * @return 
+     */
     public int getBoneCount() {
         return boneList.length;
     }

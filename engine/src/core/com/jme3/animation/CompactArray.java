@@ -29,14 +29,11 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package com.jme3.animation;
 
 import java.lang.reflect.Array;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-
 
 /**
  * Object is indexed and stored in primitive float[]
@@ -45,12 +42,14 @@ import java.util.Map;
  */
 public abstract class CompactArray<T> {
 
-    private Map<T,Integer> indexPool = new HashMap<T, Integer>();
-
+    private Map<T, Integer> indexPool = new HashMap<T, Integer>();
     protected int[] index;
     protected float[] array;
     private boolean invalid;
 
+    /**
+     * Creates a compact array
+     */
     public CompactArray() {
     }
 
@@ -70,8 +69,9 @@ public abstract class CompactArray<T> {
      * @param objArray
      */
     public void add(T... objArray) {
-        if (objArray == null || objArray.length == 0)
+        if (objArray == null || objArray.length == 0) {
             return;
+        }
         invalid = true;
         int base = 0;
         if (index == null) {
@@ -87,21 +87,21 @@ public abstract class CompactArray<T> {
             index = tmp;
             //index = Arrays.copyOf(index, base+objArray.length);
         }
-        for (int j=0; j < objArray.length; j++) {
+        for (int j = 0; j < objArray.length; j++) {
             T obj = objArray[j];
             if (obj == null) {
-                index[base+j] = -1;
+                index[base + j] = -1;
             } else {
                 Integer i = indexPool.get(obj);
                 if (i == null) {
                     i = indexPool.size();
                     indexPool.put(obj, i);
                 }
-                index[base+j] = i;
+                index[base + j] = i;
             }
         }
     }
-    
+
     /**
      * release objects.
      * add() method call is not allowed anymore.
@@ -120,22 +120,35 @@ public abstract class CompactArray<T> {
         serialize(j, value);
     }
 
+    /**
+     * returns the object for the given index
+     * @param index the index
+     * @param store an object to store the result 
+     * @return 
+     */
     public final T get(int index, T store) {
         serialize();
         int j = getCompactIndex(index);
         return deserialize(j, store);
     }
 
+    /**
+     * return a float array of serialized data
+     * @return 
+     */
     public final float[] getSerializedData() {
         serialize();
         return array;
     }
 
+    /**
+     * serialize this compact array
+     */
     public final void serialize() {
         if (invalid) {
-            int newSize = indexPool.size()*getTupleSize();
+            int newSize = indexPool.size() * getTupleSize();
             if (array == null || Array.getLength(array) < newSize) {
-                array = ensureCapacity(array, newSize); 
+                array = ensureCapacity(array, newSize);
                 for (Map.Entry<T, Integer> entry : indexPool.entrySet()) {
                     int i = entry.getValue();
                     T obj = entry.getKey();
@@ -153,6 +166,12 @@ public abstract class CompactArray<T> {
         return Array.getLength(getSerializedData());
     }
 
+    /**
+     * Ensure the capacity for the given array and the given size
+     * @param arr the array
+     * @param size the size
+     * @return 
+     */
     protected float[] ensureCapacity(float[] arr, int size) {
         if (arr == null) {
             return new float[size];
@@ -166,37 +185,43 @@ public abstract class CompactArray<T> {
         }
     }
 
+    /**
+     * retrun an array of indices for the given objects
+     * @param objArray
+     * @return 
+     */
     public final int[] getIndex(T... objArray) {
         int[] index = new int[objArray.length];
         for (int i = 0; i < index.length; i++) {
             T obj = objArray[i];
-            index[i] = obj!=null? indexPool.get(obj): -1;
+            index[i] = obj != null ? indexPool.get(obj) : -1;
         }
         return index;
     }
 
     /**
+     * returns the corresponding index in the compact array
      * @param objIndex
      * @return object index in the compacted object array
      */
     public int getCompactIndex(int objIndex) {
-        return index!=null ? index[objIndex]: objIndex;
+        return index != null ? index[objIndex] : objIndex;
     }
 
     /**
      * @return uncompressed object size
      */
     public final int getTotalObjectSize() {
-        assert getSerializedSize()%getTupleSize() == 0;
-        return index!=null? index.length: getSerializedSize()/getTupleSize();
+        assert getSerializedSize() % getTupleSize() == 0;
+        return index != null ? index.length : getSerializedSize() / getTupleSize();
     }
-    
+
     /**
      * @return compressed object size
      */
     public final int getCompactObjectSize() {
-        assert getSerializedSize()%getTupleSize() == 0;
-        return getSerializedSize()/getTupleSize();
+        assert getSerializedSize() % getTupleSize() == 0;
+        return getSerializedSize() / getTupleSize();
     }
 
     /**
@@ -205,12 +230,12 @@ public abstract class CompactArray<T> {
      */
     public final T[] toObjectArray() {
         try {
-            T[] compactArr = (T[]) Array.newInstance(getElementClass(), getSerializedSize()/getTupleSize());
+            T[] compactArr = (T[]) Array.newInstance(getElementClass(), getSerializedSize() / getTupleSize());
             for (int i = 0; i < compactArr.length; i++) {
                 compactArr[i] = getElementClass().newInstance();
                 deserialize(i, compactArr[i]);
             }
-            
+
             T[] objArr = (T[]) Array.newInstance(getElementClass(), getTotalObjectSize());
             for (int i = 0; i < objArr.length; i++) {
                 int compactIndex = getCompactIndex(i);
@@ -221,7 +246,6 @@ public abstract class CompactArray<T> {
             return null;
         }
     }
-
 
     /**
      * serialize object
@@ -241,7 +265,6 @@ public abstract class CompactArray<T> {
      * serialized size of one object element
      */
     protected abstract int getTupleSize();
-    
-    protected abstract Class<T> getElementClass();
 
+    protected abstract Class<T> getElementClass();
 }

@@ -27,30 +27,38 @@ import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 
 /**
- *
- * @author Nehon
+ * The Skeleton control deforms a model according to a skeleton, 
+ * It handles the computation of the deformtation matrices and performs the transformations on the mesh
+ * 
+ * @author Rémy Bouquet Based on AnimControl by Kirill Vainer
  */
 public class SkeletonControl extends AbstractControl implements Savable, Cloneable {
 
     /**
-     * The skelrton of the model
+     * The skeleton of the model
      */
     private Skeleton skeleton;
-
     /**
      * List of targets which this controller effects.
      */
     private Mesh[] targets;
-
     /**
      * Used to track when a mesh was updated. Meshes are only updated
      * if they are visible in at least one camera.
      */
     private boolean wasMeshUpdated = false;
 
+    /**
+     * for serialization only
+     */
     public SkeletonControl() {
     }
 
+    /**
+     * Creates a skeleton control 
+     * @param targets the meshes controled by the skeleton
+     * @param skeleton the skeleton
+     */
     public SkeletonControl(Mesh[] targets, Skeleton skeleton) {
         this.skeleton = skeleton;
         this.targets = targets;
@@ -58,7 +66,7 @@ public class SkeletonControl extends AbstractControl implements Savable, Cloneab
 
     @Override
     protected void controlRender(RenderManager rm, ViewPort vp) {
-        if (!wasMeshUpdated){
+        if (!wasMeshUpdated) {
             resetToBind(); // reset morph meshes to bind pose
 
             Matrix4f[] offsetMatrices = skeleton.computeSkinningMatrices();
@@ -71,7 +79,7 @@ public class SkeletonControl extends AbstractControl implements Savable, Cloneab
                     softwareSkinUpdate(targets[i], offsetMatrices);
                 }
             }
-            
+
             wasMeshUpdated = true;
         }
     }
@@ -79,19 +87,7 @@ public class SkeletonControl extends AbstractControl implements Savable, Cloneab
     @Override
     protected void controlUpdate(float tpf) {
         wasMeshUpdated = false;
-        
-//        resetToBind(); // reset morph meshes to bind pose
-//
-//        Matrix4f[] offsetMatrices = skeleton.computeSkinningMatrices();
-//
-//        // if hardware skinning is supported, the matrices and weight buffer
-//        // will be sent by the SkinningShaderLogic object assigned to the shader
-//        for (int i = 0; i < targets.length; i++) {
-//            // only update targets with bone-vertex assignments
-//            if (targets[i].getBuffer(Type.BoneIndex) != null) {
-//                softwareSkinUpdate(targets[i], offsetMatrices);
-//            }
-//        }
+
     }
 
     void resetToBind() {
@@ -169,26 +165,43 @@ public class SkeletonControl extends AbstractControl implements Savable, Cloneab
         return n;
     }
 
+    /**
+     * returns the skeleton of this control
+     * @return 
+     */
     public Skeleton getSkeleton() {
         return skeleton;
     }
 
+    /**
+     * sets the skeleton for this control
+     * @param skeleton 
+     */
     public void setSkeleton(Skeleton skeleton) {
         this.skeleton = skeleton;
     }
 
+    /**
+     * retuns the targets meshes of this ocntrol
+     * @return 
+     */
     public Mesh[] getTargets() {
         return targets;
     }
 
+    /**
+     * sets the target  meshes of this control
+     * @param targets 
+     */
     public void setTargets(Mesh[] targets) {
         this.targets = targets;
     }
 
     private void softwareSkinUpdate(Mesh mesh, Matrix4f[] offsetMatrices) {
         int maxWeightsPerVert = mesh.getMaxNumWeights();
-        if (maxWeightsPerVert <= 0)
+        if (maxWeightsPerVert <= 0) {
             throw new IllegalStateException("Max weights per vert is incorrectly set!");
+        }
 
         int fourMinusMaxWeights = 4 - maxWeightsPerVert;
 

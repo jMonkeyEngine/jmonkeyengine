@@ -29,7 +29,6 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package com.jme3.animation;
 
 import com.jme3.export.JmeExporter;
@@ -46,21 +45,35 @@ public abstract class Track implements Savable {
 
     protected int targetMeshIndex;
 
-    public Track(int targetMeshIndex){
+    /**
+     * build a track for a an index
+     * @param targetMeshIndex 
+     */
+    public Track(int targetMeshIndex) {
         this.targetMeshIndex = targetMeshIndex;
     }
 
-    public int getTargetMeshIndex(){
+    /**
+     * return the mesh index
+     * @return 
+     */
+    public int getTargetMeshIndex() {
         return targetMeshIndex;
     }
 
+    /**
+     * sets time for this track
+     * @param time
+     * @param targets
+     * @param weight 
+     */
     public abstract void setTime(float time, Mesh[] targets, float weight);
 
-    public void write(JmeExporter ex) throws IOException{
+    public void write(JmeExporter ex) throws IOException {
         ex.getCapsule(this).write(targetMeshIndex, "meshIndex", 0);
     }
 
-    public void read(JmeImporter im) throws IOException{
+    public void read(JmeImporter im) throws IOException {
         targetMeshIndex = im.getCapsule(this).readInt("meshIndex", 0);
     }
 }

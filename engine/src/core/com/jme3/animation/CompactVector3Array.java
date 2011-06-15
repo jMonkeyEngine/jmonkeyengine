@@ -47,9 +47,17 @@ import com.jme3.math.Vector3f;
  */
 public class CompactVector3Array extends CompactArray<Vector3f> implements Savable {
 
+    /**
+     * Creates a compact vector array
+     */
     public CompactVector3Array() {
     }
 
+    /**
+     * creates a compact vector array
+     * @param dataArray the data array
+     * @param index the indices
+     */
     public CompactVector3Array(float[] dataArray, int[] index) {
         super(dataArray, index);
     }

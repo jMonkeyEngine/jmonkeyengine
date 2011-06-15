@@ -42,6 +42,8 @@ import java.io.IOException;
 
 /**
  * Contains a list of transforms and times for each keyframe.
+ * 
+ * @author Kirill Vainer
  */
 public final class BoneTrack implements Savable {
 
@@ -56,7 +58,6 @@ public final class BoneTrack implements Savable {
     private CompactQuaternionArray rotations;
     private CompactVector3Array scales;
     private float[] times;
-    
     // temp vectors for interpolation
     private transient final Vector3f tempV = new Vector3f();
     private transient final Quaternion tempQ = new Quaternion();
@@ -71,40 +72,85 @@ public final class BoneTrack implements Savable {
     public BoneTrack() {
     }
 
+    /**
+     * Creates a bone track for the given bone index
+     * @param targetBoneIndex the bone index
+     * @param times a float array with the time of each frame
+     * @param translations the translation of the bone for each frame
+     * @param rotations the rontation of the bone for each frame
+     */
     public BoneTrack(int targetBoneIndex, float[] times, Vector3f[] translations, Quaternion[] rotations) {
         this.targetBoneIndex = targetBoneIndex;
         this.setKeyframes(times, translations, rotations);
     }
 
+    /**
+     * Creates a bone track for the given bone index
+     * @param targetBoneIndex the bone index
+     * @param times a float array with the time of each frame
+     * @param translations the translation of the bone for each frame
+     * @param rotations the rontation of the bone for each frame
+     * @param scales the scale of the bone for each frame
+     */
     public BoneTrack(int targetBoneIndex, float[] times, Vector3f[] translations, Quaternion[] rotations, Vector3f[] scales) {
         this(targetBoneIndex, times, translations, rotations);
         this.setKeyframes(times, translations, rotations);
     }
 
+    /**
+     * Creates a bone track for the given bone index
+     * @param targetBoneIndex the bone's index
+     */
     public BoneTrack(int targetBoneIndex) {
         this.targetBoneIndex = targetBoneIndex;
     }
 
+    /**
+     * returns the bone index of this bone track
+     * @return 
+     */
     public int getTargetBoneIndex() {
         return targetBoneIndex;
     }
 
+    /**
+     * return the array of rotations of this track
+     * @return 
+     */
     public Quaternion[] getRotations() {
         return rotations.toObjectArray();
     }
 
+    /**
+     * returns the array of scales for this track
+     * @return 
+     */
     public Vector3f[] getScales() {
         return scales == null ? null : scales.toObjectArray();
     }
 
+    /**
+     * returns the arrays of time for this track
+     * @return 
+     */
     public float[] getTimes() {
         return times;
     }
 
+    /**
+     * returns the array of translations of this track
+     * @return 
+     */
     public Vector3f[] getTranslations() {
         return translations.toObjectArray();
     }
 
+    /**
+     * Set the translations and rotations for this bone track
+     * @param times a float array with the time of each frame
+     * @param translations the translation of the bone for each frame
+     * @param rotations the rontation of the bone for each frame
+     */
     public void setKeyframes(float[] times, Vector3f[] translations, Quaternion[] rotations) {
         if (times.length == 0) {
             throw new RuntimeException("BoneTrack with no keyframes!");
@@ -121,6 +167,13 @@ public final class BoneTrack implements Savable {
         this.rotations.freeze();
     }
 
+    /**
+     *  Set the translations, rotations and scales for this bone track
+     * @param times a float array with the time of each frame
+     * @param translations the translation of the bone for each frame
+     * @param rotations the rontation of the bone for each frame
+     * @param scales the scale of the bone for each frame
+     */
     public void setKeyframes(float[] times, Vector3f[] translations, Quaternion[] rotations, Vector3f[] scales) {
         this.setKeyframes(times, translations, rotations);
         assert times.length == scales.length;
@@ -132,9 +185,14 @@ public final class BoneTrack implements Savable {
     }
 
     /**
+     * 
      * Modify the bone which this track modifies in the skeleton to contain
      * the correct animation transforms for a given time.
      * The transforms can be interpolated in some method from the keyframes.
+     *
+     * @param time the current time of the animation
+     * @param skeleton the skeleton to which the bone belong
+     * @param weight the weight of the animation
      */
     public void setTime(float time, Skeleton skeleton, float weight) {
         Bone target = skeleton.getBone(targetBoneIndex);
@@ -181,10 +239,7 @@ public final class BoneTrack implements Savable {
         }
 
         if (weight != 1f) {
-//            tempQ.slerp(Quaternion.IDENTITY, 1f - weight);
-//            tempV.multLocal(weight);
             target.blendAnimTransforms(tempV, tempQ, scales != null ? tempS : null, weight);
-//            target.setAnimTransforms(tempV, tempQ);
         } else {
             target.setAnimTransforms(tempV, tempQ, scales != null ? tempS : null);
         }

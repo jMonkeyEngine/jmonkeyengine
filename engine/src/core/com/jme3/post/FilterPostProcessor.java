@@ -123,11 +123,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
      * @param filter 
      */
     public void removeFilter(Filter filter) {
-        for (Iterator<Filter> it = filters.iterator(); it.hasNext();) {
-            if (it.next() == filter) {
-                it.remove();
-            }
-        }
+        filters.remove(filter);
         filter.cleanup(renderer);
         updateLastFilterIndex();
     }

@@ -29,7 +29,6 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package com.jme3.animation;
 
 import com.jme3.export.JmeExporter;
@@ -43,12 +42,13 @@ import java.util.BitSet;
 /**
  * Bone animation updates each of its tracks with the skeleton and time
  * to apply the animation.
+ * 
+ * @author Kirill Vainer
  */
 public final class BoneAnimation implements Savable {
 
     private String name;
     private float length;
-
     private BoneTrack[] tracks;
 
     /**
@@ -57,7 +57,7 @@ public final class BoneAnimation implements Savable {
      * @param name The name of the bone animation.
      * @param length Length in seconds of the bone animation.
      */
-    public BoneAnimation(String name, float length){
+    public BoneAnimation(String name, float length) {
         this.name = name;
         this.length = length;
     }
@@ -65,43 +65,55 @@ public final class BoneAnimation implements Savable {
     /**
      * Serialization-only. Do not use.
      */
-    public BoneAnimation(){
+    public BoneAnimation() {
     }
 
-    public String getName(){
+    /**
+     * Returns the animation name
+     * @return 
+     */
+    public String getName() {
         return name;
     }
 
-    public float getLength(){
+    /**
+     * returns the animation length (in seconds)
+     * @return 
+     */
+    public float getLength() {
         return length;
     }
 
-    public void setTracks(BoneTrack[] tracks){
+    /**
+     * Sets the bone tracks to this bone animation
+     * @see BoneTrack
+     * @param tracks 
+     */
+    public void setTracks(BoneTrack[] tracks) {
         this.tracks = tracks;
     }
 
-    public BoneTrack[] getTracks(){
+    /**
+     * returns the bone tracks of this animation
+     * @see BoneTrack
+     * @return 
+     */
+    public BoneTrack[] getTracks() {
         return tracks;
     }
 
-    void setTime(float time, Skeleton skeleton, float weight, BitSet affectedBones){
-        for (int i = 0; i < tracks.length; i++){
+    void setTime(float time, Skeleton skeleton, float weight, BitSet affectedBones) {
+        for (int i = 0; i < tracks.length; i++) {
             if (affectedBones == null
-             || affectedBones.get(tracks[i].getTargetBoneIndex()))               
+                    || affectedBones.get(tracks[i].getTargetBoneIndex())) {
                 tracks[i].setTime(time, skeleton, weight);
+            }
         }
     }
 
-//    void setTime(float time, Skeleton skeleton, float weight, ArrayList<Integer> affectedBones){
-//        for (int i = 0; i < tracks.length; i++){
-//            if (affectedBones == null
-//             || affectedBones.contains(tracks[i].getTargetBoneIndex()))
-//                tracks[i].setTime(time, skeleton, weight);
-//        }
-//    }
-
-    public String toString(){
-        return "BoneAnim[name="+name+", length="+length+"]";
+    @Override
+    public String toString() {
+        return "BoneAnim[name=" + name + ", length=" + length + "]";
     }
 
     public void write(JmeExporter e) throws IOException {
@@ -117,10 +129,9 @@ public final class BoneAnimation implements Savable {
         length = in.readFloat("length", 0f);
 
         Savable[] sav = in.readSavableArray("tracks", null);
-        if (sav != null){
+        if (sav != null) {
             tracks = new BoneTrack[sav.length];
             System.arraycopy(sav, 0, tracks, 0, sav.length);
         }
     }
-
 }
