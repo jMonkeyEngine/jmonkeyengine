@@ -38,6 +38,7 @@ public class DefaultParticleInfluencer implements ParticleInfluencer {
      *        the particle to be affected
      */
     protected void applyVelocityVariation(Particle particle) {
+    	particle.velocity.set(startVelocity);
         temp.set(FastMath.nextRandomFloat(), FastMath.nextRandomFloat(), FastMath.nextRandomFloat());
         temp.multLocal(2f);
         temp.subtractLocal(1f, 1f, 1f);
