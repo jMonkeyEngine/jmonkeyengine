@@ -41,7 +41,11 @@ import android.content.DialogInterface;
 import com.jme3.app.Application;
 import com.jme3.font.BitmapFont;
 import com.jme3.font.BitmapText;
+import com.jme3.input.TouchInput;
 import com.jme3.input.android.AndroidInput;
+import com.jme3.input.controls.TouchListener;
+import com.jme3.input.controls.TouchTrigger;
+import com.jme3.input.event.TouchEvent;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.queue.RenderQueue.Bucket;
 import com.jme3.scene.Node;
@@ -60,8 +64,8 @@ import com.jme3.app.AndroidHarness;
  * 
  * @deprecated Please use {@link AndroidHarness} instead.
  */
- @Deprecated
-public abstract class AndroidApplication extends Application implements DialogInterface.OnClickListener 
+@Deprecated
+public abstract class AndroidApplication extends Application implements DialogInterface.OnClickListener, TouchListener
 {
     protected final static Logger logger = Logger.getLogger(AndroidApplication.class.getName());
 
@@ -156,6 +160,9 @@ public abstract class AndroidApplication extends Application implements DialogIn
         loadFPSText();
         viewPort.attachScene(rootNode);
         guiViewPort.attachScene(guiNode);
+        
+        inputManager.addMapping("TouchEscape", new TouchTrigger(TouchInput.KEYCODE_BACK));
+        inputManager.addListener(this, new String[]{"TouchEscape"}); 
 
         // call user code
         init();
@@ -286,9 +293,47 @@ public abstract class AndroidApplication extends Application implements DialogIn
      * @param whichButton
      */
     public void onClick(DialogInterface dialog, int whichButton) 
-    {
-        this.stop();
-        activity.finish();
+    {        
+        if (whichButton != -2)
+        {
+            this.stop();
+            activity.finish();
+        }
     }
+    
+    /**
+     * Gets called by the InputManager on all touch/drag/scale events
+     */    
+    @Override    
+    public void onTouch(String name, TouchEvent evt, float tpf)  
+    {
+        switch(evt.getType())
+        {
+                
+            case KEY_UP:
+                activity.runOnUiThread(new Runnable() 
+                {
+                    @Override
+                    public void run() 
+                    {                                                
+                        AlertDialog dialog = new AlertDialog.Builder(activity)
+                       // .setIcon(R.drawable.alert_dialog_icon)
+                        .setTitle("Do you want to exit?")
+                        .setPositiveButton("Yes", AndroidApplication.this)
+                        .setNegativeButton("No", AndroidApplication.this)
+                        .setMessage("Use your home key to bring this app into the background or Exit to terminate it.")
+                        .create();    
+                        dialog.show();                
+                    }
+                });
+                        
+                        
+                break;
+                
+           default:
+               break;
+        }
+                        
+    }    
 
 }

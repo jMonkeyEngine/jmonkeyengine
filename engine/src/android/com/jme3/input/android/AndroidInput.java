@@ -35,11 +35,13 @@ public class AndroidInput extends GLSurfaceView implements TouchInput,
     final private static int MAX_EVENTS = 1024;
     
     final private RingBuffer<TouchEvent> eventQueue = new RingBuffer<TouchEvent>(MAX_EVENTS);
+    final private RingBuffer<TouchEvent> eventPoolUnConsumed = new RingBuffer<TouchEvent>(MAX_EVENTS);
     final private RingBuffer<TouchEvent> eventPool = new RingBuffer<TouchEvent>(MAX_EVENTS);
     final private HashMap<Integer, Vector2f> lastPositions = new HashMap<Integer, Vector2f>();
      
     public boolean fireMouseEvents = true;
     public boolean fireKeyboardEvents = false;
+    public boolean dontSendHistory = false;
 
     private ScaleGestureDetector scaledetector;
     private GestureDetector detector;
@@ -169,33 +171,67 @@ public class AndroidInput extends GLSurfaceView implements TouchInput,
         return getNextFreeTouchEvent(false);
     }
 
+    /**
+     * Fetches a touch event from the reuse pool
+     * @param wait
+     * @return
+     */
     private TouchEvent getNextFreeTouchEvent(boolean wait)
     {
-        TouchEvent evt;
-        if (eventPool.isEmpty() && wait)
+        TouchEvent evt = null;
+        synchronized(eventPoolUnConsumed)
         {
-            logger.warning("eventPool buffer underrun");
-            boolean isEmpty;
-            do
+            int size = eventPoolUnConsumed.size();
+            while (size > 0)
+            {
+                evt = eventPoolUnConsumed.pop();
+                if (!evt.isConsumed())
+                {
+                    eventPoolUnConsumed.push(evt);
+                    evt = null;
+                }
+                else
+                {
+                    break;
+                }                  
+                size--;
+            }
+        }
+            
+        
+        if (evt == null)
+        {
+            if (eventPool.isEmpty() && wait)
+            {
+                logger.warning("eventPool buffer underrun");
+                boolean isEmpty;
+                do
+                {
+                    synchronized(eventPool)
+                    {
+                        isEmpty = eventPool.isEmpty();
+                    }
+                    try { Thread.sleep(50); } catch (InterruptedException e) { }
+                }
+                while (isEmpty);
+                synchronized(eventPool)
+                {
+                    evt = eventPool.pop();
+                }
+            }
+            else if (eventPool.isEmpty())
+            {
+                evt = new TouchEvent(); 
+                logger.warning("eventPool buffer underrun");
+            }
+            else
             {
                 synchronized(eventPool)
                 {
-                    isEmpty = eventPool.isEmpty();
+                    evt = eventPool.pop();
                 }
-                try { Thread.sleep(50); } catch (InterruptedException e) { }
             }
-            while (isEmpty);
-            evt = eventPool.pop();
         }
-        else if (eventPool.isEmpty())
-        {
-            evt = new TouchEvent(); 
-            logger.warning("eventPool buffer underrun");
-        }
-        else
-        {
-            evt = eventPool.pop();    
-        }        
         return evt;
     }
     /**
@@ -210,17 +246,37 @@ public class AndroidInput extends GLSurfaceView implements TouchInput,
         // Try to detect gestures
         this.detector.onTouchEvent(event);
         this.scaledetector.onTouchEvent(event);
-
+                
+        final int historySize = event.getHistorySize();
+        final int pointerCount = event.getPointerCount();
         
         switch (event.getAction())
         {
-            case MotionEvent.ACTION_DOWN:
-                
+            case MotionEvent.ACTION_DOWN:                
+
+                if (!dontSendHistory)
+                {
+                    // Process history
+                    for (int h = 0; h < historySize; h++)
+                    {
+                        // Convert all pointers into events
+                        for (int p = 0; p < pointerCount; p++)
+                        {                              
+                            touch = getNextFreeTouchEvent();
+                            touch.set(Type.DOWN, event.getHistoricalX(p, h), this.getHeight() - event.getHistoricalY(p, h), 0, 0);
+                            touch.setPointerId(event.getPointerId(p));
+                            touch.setTime(event.getHistoricalEventTime(h));
+                            touch.setPressure(event.getHistoricalPressure(p, h));
+                            processEvent(touch);
+                        }   
+                        
+                    }
+                }
                 // Convert all pointers into events
-                for (int p = 0; p < event.getPointerCount(); p++)
+                for (int p = 0; p < pointerCount; p++)
                 {                              
                     touch = getNextFreeTouchEvent();
-                    touch.set(Type.DOWN, event.getX(p), event.getY(p), 0, 0);
+                    touch.set(Type.DOWN, event.getX(p), this.getHeight() - event.getY(p), 0, 0);
                     touch.setPointerId(event.getPointerId(p));
                     touch.setTime(event.getEventTime());
                     touch.setPressure(event.getPressure(p));
@@ -232,11 +288,30 @@ public class AndroidInput extends GLSurfaceView implements TouchInput,
                 
             case MotionEvent.ACTION_UP:
                 
+                if (!dontSendHistory)
+                {                    
+                    // Process history
+                    for (int h = 0; h < historySize; h++)
+                    {
+                        // Convert all pointers into events
+                        for (int p = 0; p < pointerCount; p++)
+                        {                              
+                            touch = getNextFreeTouchEvent();
+                            touch.set(Type.UP, event.getHistoricalX(p, h), this.getHeight() - event.getHistoricalY(p, h), 0, 0);
+                            touch.setPointerId(event.getPointerId(p));
+                            touch.setTime(event.getHistoricalEventTime(h));
+                            touch.setPressure(event.getHistoricalPressure(p, h));
+                            processEvent(touch);
+                        }   
+                        
+                    }
+                }
+                
                 // Convert all pointers into events
-                for (int p = 0; p < event.getPointerCount(); p++)
+                for (int p = 0; p < pointerCount; p++)
                 {                              
                     touch = getNextFreeTouchEvent();
-                    touch.set(Type.UP, event.getX(p), event.getY(p), 0, 0);
+                    touch.set(Type.UP, event.getX(p), this.getHeight() - event.getY(p), 0, 0);
                     touch.setPointerId(event.getPointerId(p));
                     touch.setTime(event.getEventTime());
                     touch.setPressure(event.getPressure(p));
@@ -247,22 +322,50 @@ public class AndroidInput extends GLSurfaceView implements TouchInput,
                 break;
             case MotionEvent.ACTION_MOVE:
                 
+                if (!dontSendHistory)
+                {                    
+                    // Process history
+                    for (int h = 0; h < historySize; h++)
+                    {
+                        // Convert all pointers into events
+                        for (int p = 0; p < pointerCount; p++)
+                        {
+                            Vector2f lastPos = lastPositions.get(event.getPointerId(p));
+                            if (lastPos == null)
+                            {
+                                lastPos = new Vector2f(event.getHistoricalX(p,h ), this.getHeight() - event.getHistoricalY(p, h));
+                                lastPositions.put(event.getPointerId(p), lastPos);
+                            }
+
+                            touch = getNextFreeTouchEvent();
+                            touch.set(Type.MOVE, event.getHistoricalX(p, h), this.getHeight() - event.getHistoricalY(p, h), 
+                                                 event.getHistoricalX(p, h) - lastPos.x, this.getHeight() - event.getHistoricalY(p, h) - lastPos.y);
+                            touch.setPointerId(event.getPointerId(p));
+                            touch.setTime(event.getHistoricalEventTime(h));
+                            touch.setPressure(event.getHistoricalPressure(p, h));
+                            processEvent(touch);
+                            lastPos.set(event.getHistoricalX(p, h), this.getHeight() - event.getHistoricalY(p, h));
+                        }   
+                        
+                    }
+                }
+                
                 // Convert all pointers into events
                 for (int p = 0; p < event.getPointerCount(); p++)
                 {                      
                     Vector2f lastPos = lastPositions.get(event.getPointerId(p));
                     if (lastPos == null)
                     {
-                        lastPos = new Vector2f(event.getX(p), event.getY(p));
+                        lastPos = new Vector2f(event.getX(p), this.getHeight() - event.getY(p));
                         lastPositions.put(event.getPointerId(p), lastPos);
                     }
                     touch = getNextFreeTouchEvent();
-                    touch.set(Type.MOVE, event.getX(p), event.getY(p), event.getX(p) - lastPos.x, event.getY(p) - lastPos.y);
+                    touch.set(Type.MOVE, event.getX(p), this.getHeight() - event.getY(p), event.getX(p) - lastPos.x, this.getHeight() - event.getY(p) - lastPos.y);
                     touch.setPointerId(event.getPointerId(p));
                     touch.setTime(event.getEventTime());
                     touch.setPressure(event.getPressure(p));
                     processEvent(touch);
-                    lastPos.set(event.getX(p), event.getY(p));
+                    lastPos.set(event.getX(p), this.getHeight() - event.getY(p));
                 }
                 bWasHandled = true;
                 break;
@@ -296,11 +399,8 @@ public class AndroidInput extends GLSurfaceView implements TouchInput,
         // Send the event
         processEvent(evt);
         
-        // Handle all keys ourself, except the back button (4)
-        if (keyCode == 4)
-            return false;
-        else
-            return true;
+        // Handle all keys ourself
+        return true;
     }
 
     @Override
@@ -316,11 +416,8 @@ public class AndroidInput extends GLSurfaceView implements TouchInput,
         // Send the event
         processEvent(evt);
         
-        // Handle all keys ourself, except the back button (4)
-        if (keyCode == 4)
-            return false;
-        else
-            return true;
+        // Handle all keys ourself
+        return true;
     }
 
 
@@ -408,8 +505,8 @@ public class AndroidInput extends GLSurfaceView implements TouchInput,
 
                     if (fireMouseEvents)
                     {
-    	                newX = getWidth() - (int) event.getX();
-    	                newY = (int) event.getY();
+    	                newX = this.getWidth() - (int) event.getX();
+    	                newY = this.getHeight() - (int) event.getY();
     	                switch (event.getType())
     	                {
     	                    case DOWN:    	                  
@@ -451,10 +548,22 @@ public class AndroidInput extends GLSurfaceView implements TouchInput,
             	        }	                
                     }
 	            }
-	            synchronized (eventPool) 
+	            
+	            if (event.isConsumed() == false)
 	            {
-	                eventPool.push(event);
-	            }	            
+	                synchronized (eventPoolUnConsumed) 
+	                {
+	                    eventPoolUnConsumed.push(event);
+	                }
+	            
+	            }
+	            else
+	            {
+    	            synchronized (eventPool) 
+    	            {
+    	                eventPool.push(event);
+    	            }
+	            }
 	        }
 
 	    }
@@ -470,7 +579,7 @@ public class AndroidInput extends GLSurfaceView implements TouchInput,
     public void onLongPress(MotionEvent event)
     {        
         TouchEvent touch = getNextFreeTouchEvent(); 
-        touch.set(Type.LONGPRESSED, event.getX(), event.getY(), 0f, 0f);
+        touch.set(Type.LONGPRESSED, event.getX(), this.getHeight() - event.getY(), 0f, 0f);
         touch.setPointerId(0);
         touch.setTime(event.getEventTime());
         processEvent(touch);
@@ -479,7 +588,7 @@ public class AndroidInput extends GLSurfaceView implements TouchInput,
     public boolean onFling(MotionEvent event, MotionEvent event2, float vx, float vy)
     {
         TouchEvent touch = getNextFreeTouchEvent(); 
-        touch.set(Type.FLING, event.getX(), event.getY(), vx, vy);
+        touch.set(Type.FLING, event.getX(), this.getHeight() - event.getY(), vx, vy);
         touch.setPointerId(0);
         touch.setTime(event.getEventTime());
         processEvent(touch);
@@ -490,7 +599,7 @@ public class AndroidInput extends GLSurfaceView implements TouchInput,
     public boolean onSingleTapConfirmed(MotionEvent event)
     {        
         TouchEvent touch = getNextFreeTouchEvent(); 
-        touch.set(Type.TAP, event.getX(), event.getY(), 0f, 0f);
+        touch.set(Type.TAP, event.getX(), this.getHeight() - event.getY(), 0f, 0f);
         touch.setPointerId(0);
         touch.setTime(event.getEventTime());
         processEvent(touch);
@@ -501,7 +610,7 @@ public class AndroidInput extends GLSurfaceView implements TouchInput,
     public boolean onDoubleTap(MotionEvent event)
     {
         TouchEvent touch = getNextFreeTouchEvent(); 
-        touch.set(Type.DOUBLETAP, event.getX(), event.getY(), 0f, 0f);
+        touch.set(Type.DOUBLETAP, event.getX(), this.getHeight() - event.getY(), 0f, 0f);
         touch.setPointerId(0);
         touch.setTime(event.getEventTime());
         processEvent(touch);        
@@ -524,7 +633,7 @@ public class AndroidInput extends GLSurfaceView implements TouchInput,
     public boolean onScale(ScaleGestureDetector scaleGestureDetector)
     {        
         TouchEvent touch = getNextFreeTouchEvent(); 
-        touch.set(Type.SCALE_MOVE, scaleGestureDetector.getFocusX(), scaleGestureDetector.getFocusY(), 0f, 0f);
+        touch.set(Type.SCALE_MOVE, scaleGestureDetector.getFocusX(), this.getHeight() - scaleGestureDetector.getFocusY(), 0f, 0f);
         touch.setPointerId(0);
         touch.setTime(scaleGestureDetector.getEventTime());
         touch.setScaleSpan(scaleGestureDetector.getCurrentSpan()); 
@@ -537,7 +646,7 @@ public class AndroidInput extends GLSurfaceView implements TouchInput,
     public void onScaleEnd(ScaleGestureDetector scaleGestureDetector)
     {        
         TouchEvent touch = getNextFreeTouchEvent(); 
-        touch.set(Type.SCALE_END, scaleGestureDetector.getFocusX(), scaleGestureDetector.getFocusY(), 0f, 0f);
+        touch.set(Type.SCALE_END, scaleGestureDetector.getFocusX(), this.getHeight() - scaleGestureDetector.getFocusY(), 0f, 0f);
         touch.setPointerId(0);
         touch.setTime(scaleGestureDetector.getEventTime());
         touch.setScaleSpan(scaleGestureDetector.getCurrentSpan()); 
@@ -548,7 +657,7 @@ public class AndroidInput extends GLSurfaceView implements TouchInput,
     public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) 
     {
         TouchEvent touch = getNextFreeTouchEvent(); 
-        touch.set(Type.SCROLL, e1.getX(), e1.getY(), distanceX, distanceY);
+        touch.set(Type.SCROLL, e1.getX(), this.getHeight() - e1.getY(), distanceX, distanceY*(-1));
         touch.setPointerId(0);
         touch.setTime(e1.getEventTime());
         processEvent(touch);
@@ -558,7 +667,7 @@ public class AndroidInput extends GLSurfaceView implements TouchInput,
     public void onShowPress(MotionEvent event) 
     {
         TouchEvent touch = getNextFreeTouchEvent(); 
-        touch.set(Type.SHOWPRESS, event.getX(), event.getY(), 0f, 0f);
+        touch.set(Type.SHOWPRESS, event.getX(), this.getHeight() - event.getY(), 0f, 0f);
         touch.setPointerId(0);
         touch.setTime(event.getEventTime());
         processEvent(touch);
@@ -567,7 +676,7 @@ public class AndroidInput extends GLSurfaceView implements TouchInput,
     public boolean onSingleTapUp(MotionEvent event) 
     {       
         TouchEvent touch = getNextFreeTouchEvent(); 
-        touch.set(Type.TAP, event.getX(), event.getY(), 0f, 0f);
+        touch.set(Type.TAP, event.getX(), this.getHeight() - event.getY(), 0f, 0f);
         touch.setPointerId(0);
         touch.setTime(event.getEventTime());
         processEvent(touch);
@@ -584,6 +693,11 @@ public class AndroidInput extends GLSurfaceView implements TouchInput,
     public void setSimulateKeyboard(boolean simulate) 
     {
         fireKeyboardEvents = simulate;        
+    }
+    @Override
+    public void setOmitHistoricEvents(boolean dontSendHistory)
+    {
+        this.dontSendHistory = dontSendHistory;
     }
 
 }

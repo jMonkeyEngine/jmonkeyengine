@@ -11,7 +11,12 @@ import android.view.Window;
 import android.view.WindowManager;
 
 import com.jme3.app.Application;
+import com.jme3.app.android.AndroidApplication;
+import com.jme3.input.TouchInput;
 import com.jme3.input.android.AndroidInput;
+import com.jme3.input.controls.TouchListener;
+import com.jme3.input.controls.TouchTrigger;
+import com.jme3.input.event.TouchEvent;
 import com.jme3.system.AppSettings;
 import com.jme3.system.JmeSystem;
 import com.jme3.system.android.OGLESContext;
@@ -22,7 +27,7 @@ import com.jme3.system.android.OGLESContext;
  * @author Kirill
  * @author larynx
  */
-public class AndroidHarness extends Activity implements DialogInterface.OnClickListener
+public class AndroidHarness extends Activity implements TouchListener, DialogInterface.OnClickListener
 {
     protected final static Logger logger = Logger.getLogger(AndroidHarness.class.getName());
     
@@ -33,6 +38,8 @@ public class AndroidHarness extends Activity implements DialogInterface.OnClickL
     protected Application app = null;
     
     protected boolean debug = false;
+    
+    final private String ESCAPE_EVENT = "TouchEscape";
 
     @Override
     public void onCreate(Bundle savedInstanceState) 
@@ -70,7 +77,10 @@ public class AndroidHarness extends Activity implements DialogInterface.OnClickL
         {
             view = ctx.createView(input);
         }
-   		setContentView(view);      
+   		setContentView(view);    
+   		
+        app.inputManager.addMapping(ESCAPE_EVENT, new TouchTrigger(TouchInput.KEYCODE_BACK));
+        app.inputManager.addListener(this, new String[]{ESCAPE_EVENT}); 
     }
 
 
@@ -154,7 +164,6 @@ public class AndroidHarness extends Activity implements DialogInterface.OnClickL
         });
         
     }
-
     
     /**
      * Called by the android alert dialog, terminate the activity and OpenGL rendering
@@ -162,8 +171,49 @@ public class AndroidHarness extends Activity implements DialogInterface.OnClickL
      * @param whichButton
      */
     public void onClick(DialogInterface dialog, int whichButton) 
-    {
-        app.stop();
-        this.finish();
+    {        
+        if (whichButton != -2)
+        {
+            app.stop();
+            this.finish();
+        }
     }
+    
+    /**
+     * Gets called by the InputManager on all touch/drag/scale events
+     */    
+    @Override    
+    public void onTouch(String name, TouchEvent evt, float tpf)  
+    {
+        if (name.equals(ESCAPE_EVENT))
+        {
+            switch(evt.getType())
+            {                
+                case KEY_UP:
+                    this.runOnUiThread(new Runnable() 
+                    {
+                        @Override
+                        public void run() 
+                        {                                                
+                            AlertDialog dialog = new AlertDialog.Builder(AndroidHarness.this)
+                           // .setIcon(R.drawable.alert_dialog_icon)
+                            .setTitle("Do you want to exit?")
+                            .setPositiveButton("Yes", AndroidHarness.this)
+                            .setNegativeButton("No", AndroidHarness.this)
+                            .setMessage("Use your home key to bring this app into the background or exit to terminate it.")
+                            .create();    
+                            dialog.show();                
+                        }
+                    });
+                            
+                            
+                    break;
+                    
+               default:
+                   break;
+            }
+        }
+                        
+    }    
+    
 }
