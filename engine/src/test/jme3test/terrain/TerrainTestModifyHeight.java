@@ -66,7 +66,7 @@ public class TerrainTestModifyHeight extends SimpleApplication {
     private TerrainQuad terrain;
     Material matTerrain;
     Material matWire;
-    boolean wireframe = false;
+    boolean wireframe = true;
     boolean triPlanar = false;
     boolean wardiso = false;
     boolean minnaert = false;
@@ -206,14 +206,14 @@ public class TerrainTestModifyHeight extends SimpleApplication {
                 if (pressed) {
                     Vector3f intersection = getWorldIntersection();
                     if (intersection != null) {
-                        adjustHeight(intersection, 16, 1);
+                        adjustHeight(intersection, 64, 1);
                     }
                 }
             } else if (name.equals("Lower")) {
                 if (pressed) {
                     Vector3f intersection = getWorldIntersection();
                     if (intersection != null) {
-                        adjustHeight(intersection, 16, -1);
+                        adjustHeight(intersection, 32, -1);
                     }
                 }
             }
@@ -230,8 +230,11 @@ public class TerrainTestModifyHeight extends SimpleApplication {
         float xStepAmount = terrain.getLocalScale().x;
         float zStepAmount = terrain.getLocalScale().z;
         long start = System.currentTimeMillis();
+        List<Vector2f> locs = new ArrayList<Vector2f>();
+        List<Float> heights = new ArrayList<Float>();
+        
         for (int z = -radiusStepsZ; z < radiusStepsZ; z++) {
-            for (int x = -radiusStepsZ; x < radiusStepsX; x++) {
+            for (int x = -radiusStepsX; x < radiusStepsX; x++) {
 
                 float locX = loc.x + (x * xStepAmount);
                 float locZ = loc.z + (z * zStepAmount);
@@ -239,13 +242,14 @@ public class TerrainTestModifyHeight extends SimpleApplication {
                 if (isInRadius(locX - loc.x, locZ - loc.z, radius)) {
                     // see if it is in the radius of the tool
                     float h = calculateHeight(radius, height, locX - loc.x, locZ - loc.z);
-
-                    // increase the height
-                    terrain.adjustHeight(new Vector2f(locX, locZ), h);
+                    locs.add(new Vector2f(locX, locZ));
+                    heights.add(h);
                 }
             }
         }
-        System.out.println("took: " + (System.currentTimeMillis() - start));
+
+        terrain.adjustHeight(locs, heights);
+        //System.out.println("Modified "+locs.size()+" points, took: " + (System.currentTimeMillis() - start)+" ms");
         terrain.updateModelBound();
     }
 

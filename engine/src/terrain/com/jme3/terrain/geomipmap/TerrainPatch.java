@@ -55,6 +55,7 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.VertexBuffer.Type;
+import com.jme3.terrain.geomipmap.TerrainQuad.LocationHeight;
 import com.jme3.terrain.geomipmap.lodcalc.DistanceLodCalculator;
 import com.jme3.terrain.geomipmap.lodcalc.LodCalculator;
 import com.jme3.terrain.geomipmap.lodcalc.LodCalculatorFactory;
@@ -306,16 +307,24 @@ public class TerrainPatch extends Geometry {
         return geomap.getGridTrianglesAtPoint(x, z, getWorldScale() , getWorldTranslation());
     }
 
-    public void setHeight(float x, float z, float height) {
-        if (x < 0 || z < 0 || x >= size || z >= size)
-            return;
-        int idx = (int) (z * size + x);
-        geomap.getHeightData().put(idx, height);
+    protected void setHeight(List<LocationHeight> locationHeights, boolean overrideHeight) {
         
+        for (LocationHeight lh : locationHeights) {
+            if (lh.x < 0 || lh.z < 0 || lh.x >= size || lh.z >= size)
+                continue;
+            int idx = lh.z * size + lh.x;
+            if (overrideHeight) {
+                geomap.getHeightData().put(idx, lh.h);
+            } else {
+                float h = getMesh().getFloatBuffer(Type.Position).get(idx*3+1);
+                geomap.getHeightData().put(idx, h+lh.h);
+            }
+            
+        }
+
         FloatBuffer newVertexBuffer = geomap.writeVertexArray(null, stepScale, false);
         getMesh().clearBuffer(Type.Position);
-		getMesh().setBuffer(Type.Position, 3, newVertexBuffer);
-        // normals are updated from the terrain controller on update()
+        getMesh().setBuffer(Type.Position, 3, newVertexBuffer);
     }
 
     public void adjustHeight(float x, float z, float delta) {
@@ -328,7 +337,7 @@ public class TerrainPatch extends Geometry {
 
         FloatBuffer newVertexBuffer = geomap.writeVertexArray(null, stepScale, false);
         getMesh().clearBuffer(Type.Position);
-		getMesh().setBuffer(Type.Position, 3, newVertexBuffer);
+        getMesh().setBuffer(Type.Position, 3, newVertexBuffer);
     }
 
     /**

@@ -50,12 +50,12 @@ import java.util.List;
  */
 public interface Terrain {
 
-	/**
-	 * Get the real-world height of the terrain at the specified X-Z coorindate.
-	 * @param xz the X-Z world coordinate
-	 * @return the height at the given point
-	 */
-	public float getHeight(Vector2f xz);
+    /**
+     * Get the real-world height of the terrain at the specified X-Z coorindate.
+     * @param xz the X-Z world coordinate
+     * @return the height at the given point
+     */
+    public float getHeight(Vector2f xz);
 
     /**
      * Get the heightmap height at the specified X-Z coordinate. This does not
@@ -65,15 +65,25 @@ public interface Terrain {
      */
     public float getHeightmapHeight(Vector2f xz);
 	
-	/**
-	 * Set the height at the specified X-Z coordinate.
+    /**
+     * Set the height at the specified X-Z coordinate.
      * To set the height of the terrain and see it, you will have
      * to unlock the terrain meshes by calling terrain.setLocked(false) before
      * you call setHeight().
-	 * @param xzCoordinate coordinate to set the height
-	 * @param height that will be set at the coordinate
-	 */
-	public void setHeight(Vector2f xzCoordinate, float height);
+     * @param xzCoordinate coordinate to set the height
+     * @param height that will be set at the coordinate
+     */
+    public void setHeight(Vector2f xzCoordinate, float height);
+
+    /**
+     * Set the height at many points. The two lists must be the same size.
+     * Each xz coordinate entry matches to a height entry, 1 for 1. So the 
+     * first coordinate matches to the first height value, the last to the 
+     * last etc.
+     * @param xz a list of coordinates where the hight will be set
+     * @param height the heights that match the xz coordinates
+     */
+    public void setHeight(List<Vector2f> xz, List<Float> height);
 
     /**
      * Raise/lower the height in one call (instead of getHeight then setHeight).
@@ -81,44 +91,54 @@ public interface Terrain {
      * @param delta +- value to adjust the height by
      */
     public void adjustHeight(Vector2f xzCoordinate, float delta);
-	
-	/**
-	 * Get the heightmap of the entire terrain.
-	 * This can return null if that terrain object does not store the height data.
-     * Infinite or "paged" terrains will not be able to support this, so use with caution.
-	 */
-	public float[] getHeightMap();
 
-	/**
-	 * Tell the terrain system to use/not use Level of Detail algorithms.
+    /**
+     * Raise/lower the height at many points. The two lists must be the same size.
+     * Each xz coordinate entry matches to a height entry, 1 for 1. So the
+     * first coordinate matches to the first height value, the last to the
+     * last etc.
+     * @param xz a list of coordinates where the hight will be adjusted
+     * @param height +- value to adjust the height by, that matches the xz coordinates
+     */
+    public void adjustHeight(List<Vector2f> xz, List<Float> height);
+
+    /**
+     * Get the heightmap of the entire terrain.
+     * This can return null if that terrain object does not store the height data.
+     * Infinite or "paged" terrains will not be able to support this, so use with caution.
+     */
+    public float[] getHeightMap();
+
+    /**
+     * Tell the terrain system to use/not use Level of Detail algorithms.
      * This is allowed to be ignored if a particular implementation cannot support it.
-	 */
-	public void useLOD(boolean useLod);
+     */
+    public void useLOD(boolean useLod);
 
     /**
      * Check if the terrain is using LOD techniques.
      * If a terrain system only supports enabled LOD, then this
      * should always return true.
      */
-	public boolean isUsingLOD();
+    public boolean isUsingLOD();
+
+    /**
+     * This is calculated by the specific LOD algorithm.
+     * A value of one means that the terrain is showing full detail.
+     * The higher the value, the more the terrain has been generalized
+     * and the less detailed it will be.
+     */
+    public int getMaxLod();
 	
-	/**
-	 * This is calculated by the specific LOD algorithm.
-	 * A value of one means that the terrain is showing full detail.
-	 * The higher the value, the more the terrain has been generalized 
-	 * and the less detailed it will be.
-	 */
-	public int getMaxLod();
-	
-	/**
-	 * Called in the update (pre or post, up to you) method of your game.
-	 * Calculates the level of detail of the terrain and adjusts its geometry.
-	 * This is where the Terrain's LOD algorithm will change the detail of 
-	 * the terrain based on how far away this position is from the particular
-	 * terrain patch.
-	 * @param location often the Camera's location
-	 */
-	public void update(List<Vector3f> location);
+    /**
+     * Called in the update (pre or post, up to you) method of your game.
+     * Calculates the level of detail of the terrain and adjusts its geometry.
+     * This is where the Terrain's LOD algorithm will change the detail of
+     * the terrain based on how far away this position is from the particular
+     * terrain patch.
+     * @param location often the Camera's location
+     */
+    public void update(List<Vector3f> location);
 	
     /**
      * Get the spatial instance of this Terrain. Right now just used in the 

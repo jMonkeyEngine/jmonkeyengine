@@ -806,15 +806,15 @@ public class TerrainQuad extends Node implements Terrain {
      */
     public void attachBoundChildren(Node parent) {
         for (int i = 0; i < this.getQuantity(); i++) {
-			if (this.getChild(i) instanceof TerrainQuad) {
-				((TerrainQuad) getChild(i)).attachBoundChildren(parent);
-			} else if (this.getChild(i) instanceof TerrainPatch) {
-				BoundingVolume bv = getChild(i).getWorldBound();
+            if (this.getChild(i) instanceof TerrainQuad) {
+                ((TerrainQuad) getChild(i)).attachBoundChildren(parent);
+            } else if (this.getChild(i) instanceof TerrainPatch) {
+                BoundingVolume bv = getChild(i).getWorldBound();
                 if (bv instanceof BoundingBox) {
                     attachBoundingBox((BoundingBox)bv, parent);
                 }
-			}
-		}
+            }
+        }
         BoundingVolume bv = getWorldBound();
         if (bv instanceof BoundingBox) {
             attachBoundingBox((BoundingBox)bv, parent);
@@ -858,13 +858,13 @@ public class TerrainQuad extends Node implements Terrain {
         return affectedAreaBBox != null;
     }
 
-	public float getHeightmapHeight(Vector2f xz) {
+    public float getHeightmapHeight(Vector2f xz) {
         // offset
-        int x = Math.round((xz.x / getLocalScale().x) + totalSize / 2);
-        int z = Math.round((xz.y / getLocalScale().z) + totalSize / 2);
+        int x = Math.round((xz.x / getLocalScale().x) + (float)totalSize / 2f);
+        int z = Math.round((xz.y / getLocalScale().z) + (float)totalSize / 2f);
 
         return getHeightmapHeight(x, z);
-	}
+    }
 
     /**
      * This will just get the heightmap value at the supplied point,
@@ -946,59 +946,155 @@ public class TerrainQuad extends Node implements Terrain {
             return 0;
     }
 
-
-    // the coord calculations should be the same as getHeight()
     public void setHeight(Vector2f xz, float height) {
+        List<Vector2f> coord = new ArrayList<Vector2f>();
+        coord.add(xz);
+        List<Float> h = new ArrayList<Float>();
+        h.add(height);
+        
+        setHeight(coord, h);
+    }
+
+    public void adjustHeight(Vector2f xz, float delta) {
+        List<Vector2f> coord = new ArrayList<Vector2f>();
+        coord.add(xz);
+        List<Float> h = new ArrayList<Float>();
+        h.add(delta);
+
+        adjustHeight(coord, h);
+    }
+
+    public void setHeight(List<Vector2f> xz, List<Float> height) {
+        setHeight(xz, height, true);
+    }
+
+    public void adjustHeight(List<Vector2f> xz, List<Float> height) {
+        setHeight(xz, height, false);
+    }
+
+    protected void setHeight(List<Vector2f> xz, List<Float> height, boolean overrideHeight) {
+        if (xz.size() != height.size())
+            throw new IllegalArgumentException("Both lists must be the same length!");
+
+        int halfSize = totalSize / 2;
+
+        List<LocationHeight> locations = new ArrayList<LocationHeight>();
+
         // offset
-        int x = Math.round((xz.x / getLocalScale().x) + totalSize / 2);
-        int z = Math.round((xz.y / getLocalScale().z) + totalSize / 2);
+        for (int i=0; i<xz.size(); i++) {
+            int x = Math.round((xz.get(i).x / getLocalScale().x) + halfSize);
+            int z = Math.round((xz.get(i).y / getLocalScale().z) + halfSize);
+            locations.add(new LocationHeight(x,z,height.get(i)));
+        }
 
-        setHeight(x, z, height); // adjust the actual mesh
+        setHeight(locations, overrideHeight); // adjust height of the actual mesh
 
-        setNormalRecalcNeeded(xz);
-	}
+        // signal that the normals need updating
+        for (int i=0; i<xz.size(); i++)
+            setNormalRecalcNeeded(xz.get(i) );
+    }
 
-    protected void setHeight(int x, int z, float newVal) {
-        int quad = findQuadrant(x, z);
-        int split = (size + 1) >> 1;
-        if (children != null) {
-            for (int i = children.size(); --i >= 0;) {
-                Spatial spat = children.get(i);
-                int col = x;
-                int row = z;
-                boolean match = false;
+    protected class LocationHeight {
+        int x;
+        int z;
+        float h;
 
-                // get the childs quadrant
-                int childQuadrant = 0;
-                if (spat instanceof TerrainQuad) {
-                    childQuadrant = ((TerrainQuad) spat).getQuadrant();
-                } else if (spat instanceof TerrainPatch) {
-                    childQuadrant = ((TerrainPatch) spat).getQuadrant();
-                }
+        LocationHeight(){}
+        
+        LocationHeight(int x, int z, float h){
+            this.x = x;
+            this.z = z;
+            this.h = h;
+        }
+    }
 
-                if (childQuadrant == 1 && (quad & 1) != 0) {
-                    match = true;
-                } else if (childQuadrant == 2 && (quad & 2) != 0) {
-                    row = z - split + 1;
-                    match = true;
-                } else if (childQuadrant == 3 && (quad & 4) != 0) {
-                    col = x - split + 1;
-                    match = true;
-                } else if (childQuadrant == 4 && (quad & 8) != 0) {
-                    col = x - split + 1;
-                    row = z - split + 1;
-                    match = true;
-                }
+    protected void setHeight(List<LocationHeight> locations, boolean overrideHeight) {
+        if (children == null)
+            return;
 
-                if (match) {
-                    if (spat instanceof TerrainQuad) {
-                        ((TerrainQuad) spat).setHeight(col, row, newVal);
-                    } else if (spat instanceof TerrainPatch) {
-                        ((TerrainPatch) spat).setHeight(col, row, newVal);
-                    }
-                }
+        List<LocationHeight> quadLH1 = new ArrayList<LocationHeight>();
+        List<LocationHeight> quadLH2 = new ArrayList<LocationHeight>();
+        List<LocationHeight> quadLH3 = new ArrayList<LocationHeight>();
+        List<LocationHeight> quadLH4 = new ArrayList<LocationHeight>();
+        Spatial quad1 = null;
+        Spatial quad2 = null;
+        Spatial quad3 = null;
+        Spatial quad4 = null;
 
+        // get the child quadrants
+        for (int i = children.size(); --i >= 0;) {
+            Spatial spat = children.get(i);
+            int childQuadrant = 0;
+            if (spat instanceof TerrainQuad) {
+                childQuadrant = ((TerrainQuad) spat).getQuadrant();
+            } else if (spat instanceof TerrainPatch) {
+                childQuadrant = ((TerrainPatch) spat).getQuadrant();
             }
+
+            if (childQuadrant == 1)
+                quad1 = spat;
+            else if (childQuadrant == 2)
+                quad2 = spat;
+            else if (childQuadrant == 3)
+                quad3 = spat;
+            else if (childQuadrant == 4)
+                quad4 = spat;
+        }
+
+        int split = (size + 1) >> 1;
+
+        // distribute each locationHeight into the quadrant it intersects
+        for (LocationHeight lh : locations) {
+            int quad = findQuadrant(lh.x, lh.z);
+
+            int col = lh.x;
+            int row = lh.z;
+
+            if ((quad & 1) != 0) {
+                quadLH1.add(lh);
+            }
+            if ((quad & 2) != 0) {
+                row = lh.z - split + 1;
+                quadLH2.add(new LocationHeight(lh.x, row, lh.h));
+            }
+            if ((quad & 4) != 0) {
+                col = lh.x - split + 1;
+                quadLH3.add(new LocationHeight(col, lh.z, lh.h));
+            }
+            if ((quad & 8) != 0) {
+                col = lh.x - split + 1;
+                row = lh.z - split + 1;
+                quadLH4.add(new LocationHeight(col, row, lh.h));
+            }
+        }
+
+        // send the locations to the children
+        if (!quadLH1.isEmpty()) {
+            if (quad1 instanceof TerrainQuad)
+                ((TerrainQuad)quad1).setHeight(quadLH1, overrideHeight);
+            else if(quad1 instanceof TerrainPatch)
+                ((TerrainPatch)quad1).setHeight(quadLH1, overrideHeight);
+        }
+        
+        if (!quadLH2.isEmpty()) {
+            if (quad2 instanceof TerrainQuad)
+                ((TerrainQuad)quad2).setHeight(quadLH2, overrideHeight);
+            else if(quad2 instanceof TerrainPatch)
+                ((TerrainPatch)quad2).setHeight(quadLH2, overrideHeight);
+        }
+
+        if (!quadLH3.isEmpty()) {
+            if (quad3 instanceof TerrainQuad)
+                ((TerrainQuad)quad3).setHeight(quadLH3, overrideHeight);
+            else if(quad3 instanceof TerrainPatch)
+                ((TerrainPatch)quad3).setHeight(quadLH3, overrideHeight);
+        }
+        
+        if (!quadLH4.isEmpty()) {
+            if (quad4 instanceof TerrainQuad)
+                ((TerrainQuad)quad4).setHeight(quadLH4, overrideHeight);
+            else if(quad4 instanceof TerrainPatch)
+                ((TerrainPatch)quad4).setHeight(quadLH4, overrideHeight);
         }
     }
 
@@ -1013,63 +1109,6 @@ public class TerrainQuad extends Node implements Terrain {
         uv.divideLocal(totalSize); // get the location as a percentage
 
         return uv;
-    }
-
-
-    public void adjustHeight(Vector2f xz, float delta) {
-        int x = Math.round((xz.x / getLocalScale().x) + totalSize / 2);
-        int z = Math.round((xz.y / getLocalScale().z) + totalSize / 2);
-
-        if (!isPointOnTerrain(x,z))
-            return;
-
-        adjustHeight(x, z,delta);
-
-        setNormalRecalcNeeded(xz);
-    }
-
-    protected void adjustHeight(int x, int z, float delta) {
-        int quad = findQuadrant(x, z);
-        int split = (size + 1) >> 1;
-        if (children != null) {
-            for (int i = children.size(); --i >= 0;) {
-                Spatial spat = children.get(i);
-                int col = x;
-                int row = z;
-                boolean match = false;
-
-                // get the childs quadrant
-                int childQuadrant = 0;
-                if (spat instanceof TerrainQuad) {
-                    childQuadrant = ((TerrainQuad) spat).getQuadrant();
-                } else if (spat instanceof TerrainPatch) {
-                    childQuadrant = ((TerrainPatch) spat).getQuadrant();
-                }
-
-                if (childQuadrant == 1 && (quad & 1) != 0) {
-                    match = true;
-                } else if (childQuadrant == 2 && (quad & 2) != 0) {
-                    row = z - split + 1;
-                    match = true;
-                } else if (childQuadrant == 3 && (quad & 4) != 0) {
-                    col = x - split + 1;
-                    match = true;
-                } else if (childQuadrant == 4 && (quad & 8) != 0) {
-                    col = x - split + 1;
-                    row = z - split + 1;
-                    match = true;
-                }
-
-                if (match) {
-                    if (spat instanceof TerrainQuad) {
-                        ((TerrainQuad) spat).adjustHeight(col, row, delta);
-                    } else if (spat instanceof TerrainPatch) {
-                        ((TerrainPatch) spat).adjustHeight(col, row, delta);
-                    }
-                }
-
-            }
-        }
     }
 
 
