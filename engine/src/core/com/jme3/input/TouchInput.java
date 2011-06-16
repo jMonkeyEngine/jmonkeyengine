@@ -68,17 +68,24 @@ public interface TouchInput extends Input {
 
     
     /**
-     * Set whether mouse events should be generated
+     * Set if mouse events should be generated
      * 
      * @param simulate if mouse events should be generated
      */
     public void setSimulateMouse(boolean simulate);
 
     /**
-     * Set whether keyboard events should be generated
+     * Set if keyboard events should be generated
      * 
      * @param simulate if keyboard events should be generated
      */
     public void setSimulateKeyboard(boolean simulate);
-
+    
+    /**
+     * Set if historic android events should be transmitted, can be used to get better performance and less mem
+     * see: <link>http://developer.android.com/reference/android/view/MotionEvent.html#getHistoricalX%28int,%20int%29</link> 
+     * @param dontSendHistory turn of historic events if true, false else and default
+     */
+    public void setOmitHistoricEvents(boolean dontSendHistory);
+    
 }
