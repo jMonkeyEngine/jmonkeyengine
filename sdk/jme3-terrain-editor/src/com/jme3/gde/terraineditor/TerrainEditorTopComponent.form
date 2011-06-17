@@ -195,7 +195,7 @@
                 <Property name="value" type="int" value="5"/>
               </Properties>
               <Events>
-                <EventHandler event="propertyChange" listener="java.beans.PropertyChangeListener" parameters="java.beans.PropertyChangeEvent" handler="radiusSliderPropertyChange"/>
+                <EventHandler event="stateChanged" listener="javax.swing.event.ChangeListener" parameters="javax.swing.event.ChangeEvent" handler="radiusSliderStateChanged"/>
               </Events>
             </Component>
             <Component class="javax.swing.JSlider" name="heightSlider">
@@ -205,7 +205,7 @@
                 <Property name="paintTicks" type="boolean" value="true"/>
               </Properties>
               <Events>
-                <EventHandler event="propertyChange" listener="java.beans.PropertyChangeListener" parameters="java.beans.PropertyChangeEvent" handler="heightSliderPropertyChange"/>
+                <EventHandler event="stateChanged" listener="javax.swing.event.ChangeListener" parameters="javax.swing.event.ChangeEvent" handler="heightSliderStateChanged"/>
               </Events>
             </Component>
             <Component class="javax.swing.JLabel" name="heightLabel">

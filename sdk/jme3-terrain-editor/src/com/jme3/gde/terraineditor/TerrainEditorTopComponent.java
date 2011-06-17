@@ -270,18 +270,18 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
         radiusSlider.setSnapToTicks(true);
         radiusSlider.setToolTipText(org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.radiusSlider.toolTipText")); // NOI18N
         radiusSlider.setValue(5);
-        radiusSlider.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
-            public void propertyChange(java.beans.PropertyChangeEvent evt) {
-                radiusSliderPropertyChange(evt);
+        radiusSlider.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                radiusSliderStateChanged(evt);
             }
         });
 
         heightSlider.setMajorTickSpacing(20);
         heightSlider.setMaximum(200);
         heightSlider.setPaintTicks(true);
-        heightSlider.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
-            public void propertyChange(java.beans.PropertyChangeEvent evt) {
-                heightSliderPropertyChange(evt);
+        heightSlider.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                heightSliderStateChanged(evt);
             }
         });
 
@@ -587,16 +587,6 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
         }
     }//GEN-LAST:event_lowerTerrainButtonActionPerformed
 
-    private void radiusSliderPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_radiusSliderPropertyChange
-        if (toolController != null)
-            toolController.setHeightToolRadius(radiusSlider.getValue());
-    }//GEN-LAST:event_radiusSliderPropertyChange
-
-    private void heightSliderPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_heightSliderPropertyChange
-        if (toolController != null)
-            toolController.setHeightToolHeight(heightSlider.getValue()); // should always be values upto and over 100, because it will be divided by 100
-    }//GEN-LAST:event_heightSliderPropertyChange
-
     private void genEntropiesButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_genEntropiesButtonActionPerformed
         if (editorController != null) {
             setHintText("Run entropy generation when you are finished modifying the terrain's height. It is a slow process but required for some LOD operations.");
@@ -671,6 +661,16 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
             setHintText(TerrainEditButton.none);
         }
     }//GEN-LAST:event_levelTerrainButtonActionPerformed
+
+    private void radiusSliderStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_radiusSliderStateChanged
+        if (toolController != null)
+            toolController.setHeightToolRadius(radiusSlider.getValue());
+    }//GEN-LAST:event_radiusSliderStateChanged
+
+    private void heightSliderStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_heightSliderStateChanged
+        if (toolController != null)
+            toolController.setHeightToolHeight(heightSlider.getValue()); // should always be values upto and over 100, because it will be divided by 100
+    }//GEN-LAST:event_heightSliderStateChanged
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton addTextureButton;
