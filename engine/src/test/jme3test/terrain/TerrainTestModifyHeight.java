@@ -49,13 +49,10 @@ import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
 import com.jme3.terrain.geomipmap.TerrainLodControl;
 import com.jme3.terrain.geomipmap.TerrainQuad;
-import com.jme3.terrain.heightmap.AbstractHeightMap;
-import com.jme3.terrain.heightmap.ImageBasedHeightMap;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
 import java.util.ArrayList;
 import java.util.List;
-import jme3tools.converters.ImageToAwt;
 
 /**
  *
@@ -74,6 +71,9 @@ public class TerrainTestModifyHeight extends SimpleApplication {
     private float grassScale = 64;
     private float dirtScale = 16;
     private float rockScale = 128;
+    
+    private boolean raiseTerrain = false;
+    private boolean lowerTerrain = false;
 
     public static void main(String[] args) {
         TerrainTestModifyHeight app = new TerrainTestModifyHeight();
@@ -81,22 +81,26 @@ public class TerrainTestModifyHeight extends SimpleApplication {
     }
 
     @Override
-    public void initialize() {
-        super.initialize();
-
-        loadHintText();
-        initCrossHairs();
-    }
-
-    @Override
-    public void update() {
-        super.update();
-
+    public void simpleUpdate(float tpf){
         updateHintText();
+        
+        if (raiseTerrain){
+            Vector3f intersection = getWorldIntersection();
+            if (intersection != null) {
+                adjustHeight(intersection, 64, 1);
+            }
+        }else if (lowerTerrain){
+            Vector3f intersection = getWorldIntersection();
+            if (intersection != null) {
+                adjustHeight(intersection, 64, -1);
+            }
+        }
     }
-
+    
     @Override
     public void simpleInitApp() {
+        loadHintText();
+        initCrossHairs();
         setupKeys();
 
         // First, we load up our textures and the heightmap texture for the terrain
@@ -203,21 +207,10 @@ public class TerrainTestModifyHeight extends SimpleApplication {
                     terrain.setMaterial(matTerrain);
                 }
             } else if (name.equals("Raise")) {
-                if (pressed) {
-                    Vector3f intersection = getWorldIntersection();
-                    if (intersection != null) {
-                        adjustHeight(intersection, 64, 1);
-                    }
-                }
+                raiseTerrain = pressed;
             } else if (name.equals("Lower")) {
-                if (pressed) {
-                    Vector3f intersection = getWorldIntersection();
-                    if (intersection != null) {
-                        adjustHeight(intersection, 32, -1);
-                    }
-                }
+                lowerTerrain = pressed;
             }
-
         }
     };
 
