@@ -1285,6 +1285,19 @@ public class TerrainEditorController {
         return levelTerrainDesiredHeight;
     }
 
+    /**
+     * Smooth bumps in the terrain by averaging the height in the tool radius.
+     * The smoothAmount affects how many neighbour points are averaged, The smaller
+     * the value, then only the smaller bumps will disappear. A large value will
+     * smooth larger hills
+     * @param markerLocation
+     * @param heightToolRadius
+     * @param smoothAmount
+     */
+    protected void doSmoothTerrain(Vector3f markerLocation, float heightToolRadius, float smoothAmount) {
+
+    }
+
 
 
 

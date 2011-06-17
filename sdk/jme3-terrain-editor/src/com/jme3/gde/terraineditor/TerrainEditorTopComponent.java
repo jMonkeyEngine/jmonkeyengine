@@ -481,8 +481,10 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
         roughTerrainButton.setEnabled(false);
         jToolBar1.add(roughTerrainButton);
 
+        terrainModButtonGroup.add(levelTerrainButton);
         levelTerrainButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/jme3/gde/terraineditor/icon_terrain-level.png"))); // NOI18N
         org.openide.awt.Mnemonics.setLocalizedText(levelTerrainButton, org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.levelTerrainButton.text")); // NOI18N
+        levelTerrainButton.setToolTipText(org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.levelTerrainButton.toolTipText")); // NOI18N
         levelTerrainButton.setFocusable(false);
         levelTerrainButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         levelTerrainButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);

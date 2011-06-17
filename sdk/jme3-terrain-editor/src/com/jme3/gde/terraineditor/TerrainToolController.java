@@ -69,6 +69,7 @@ public class TerrainToolController extends SceneToolController {
     private float heightToolRadius;
     private float heightAmount;
     private float levelAmount;
+    private float smoothAmount;
     private float paintAmount;
     private int selectedTextureIndex = -1;
 
@@ -257,7 +258,7 @@ public class TerrainToolController extends SceneToolController {
             editorController.doModifyTerrainHeight(getMarkerLocation(), heightToolRadius, -heightAmount);
         }
         else if (TerrainEditButton.smoothTerrain == getCurrentEditButtonState() ) {
-
+            editorController.doSmoothTerrain(getMarkerLocation(), heightToolRadius, smoothAmount);
         }
         else if (TerrainEditButton.levelTerrain == getCurrentEditButtonState() ) {
             if (editorController.doGetLevelTerrainDesiredHeight() == null) {
