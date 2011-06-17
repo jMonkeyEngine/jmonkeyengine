@@ -107,7 +107,7 @@ public class TerrainCameraController extends AbstractCameraController {
             movedR = true;
             if (isTerrainEditButtonEnabled() && !forceCameraControls) {
                 if (leftMouse)
-                    terrainEditToolActivated = true;//toolController.doTerrainEditToolActivated();
+                    terrainEditToolActivated = true;
             }
             else {
                 if (leftMouse) {
@@ -122,7 +122,7 @@ public class TerrainCameraController extends AbstractCameraController {
             movedR = true;
             if (isTerrainEditButtonEnabled() && !forceCameraControls) {
                 if (leftMouse)
-                    terrainEditToolActivated = true;//toolController.doTerrainEditToolActivated();
+                    terrainEditToolActivated = true;
             }
             else {
                 if (leftMouse) {
@@ -137,7 +137,7 @@ public class TerrainCameraController extends AbstractCameraController {
             movedR = true;
             if (isTerrainEditButtonEnabled() && !forceCameraControls) {
                 if (leftMouse)
-                    terrainEditToolActivated = true;//toolController.doTerrainEditToolActivated();
+                    terrainEditToolActivated = true;
             }
             else {
                 if (leftMouse) {
@@ -152,7 +152,7 @@ public class TerrainCameraController extends AbstractCameraController {
             movedR = true;
             if (isTerrainEditButtonEnabled() && !forceCameraControls) {
                 if (leftMouse)
-                    terrainEditToolActivated = true;//toolController.doTerrainEditToolActivated();
+                    terrainEditToolActivated = true;
             }
             else {
                 if (leftMouse) {
@@ -181,7 +181,12 @@ public class TerrainCameraController extends AbstractCameraController {
         if (button == 0) {
             if (isTerrainEditButtonEnabled() && !forceCameraControls) {
                 if (leftMouse)
-                    terrainEditToolActivated = true;//toolController.doTerrainEditToolActivated();
+                    terrainEditToolActivated = true;
+            }
+        }
+        if (button == 1) {
+            if (isTerrainEditButtonEnabled() && !forceCameraControls) {
+                toolController.doTerrainEditToolAlternateActivated();
             }
         }
     }
@@ -199,7 +204,8 @@ public class TerrainCameraController extends AbstractCameraController {
             if (lastModifyTime >= toolModifyRate) {
                 
                 lastModifyTime = 0;
-                toolController.doTerrainEditToolActivated();
+                if (terrainEditToolActivated)
+                    toolController.doTerrainEditToolActivated();
                 terrainEditToolActivated = false;
                 lastModifyTime = app.getContext().getTimer().getTime();
             }
@@ -222,7 +228,7 @@ public class TerrainCameraController extends AbstractCameraController {
     /**
      * Find where on the terrain the mouse intersects.
      */
-    private Vector3f getTerrainCollisionPoint() {
+    protected Vector3f getTerrainCollisionPoint() {
 
         if (editorController.getTerrain(null) == null)
             return null;

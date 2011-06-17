@@ -179,9 +179,13 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
 
     private void setHintText(TerrainEditButton terrainEditButton) {
         if (TerrainEditButton.none.equals(terrainEditButton) )
-            hintTextArea.setText("");
+            hintTextArea.setText(org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.toolHint.none"));
+        else if (TerrainEditButton.levelTerrain.equals(terrainEditButton) )
+            hintTextArea.setText(org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.toolHint.level"));
+        else if (TerrainEditButton.smoothTerrain.equals(terrainEditButton) )
+            hintTextArea.setText(org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.toolHint.smooth"));
         else
-            hintTextArea.setText("Switch between camera and tool controls by holding down SHIFT");
+            hintTextArea.setText(org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.toolHint.default"));
     }
 
 
@@ -222,6 +226,7 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
         lowerTerrainButton = new javax.swing.JToggleButton();
         smoothTerrainButton = new javax.swing.JToggleButton();
         roughTerrainButton = new javax.swing.JToggleButton();
+        levelTerrainButton = new javax.swing.JToggleButton();
         jSeparator2 = new javax.swing.JToolBar.Separator();
         paintButton = new javax.swing.JToggleButton();
         eraseButton = new javax.swing.JToggleButton();
@@ -247,11 +252,11 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
         hintPanel.setLayout(hintPanelLayout);
         hintPanelLayout.setHorizontalGroup(
             hintPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 189, Short.MAX_VALUE)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 283, Short.MAX_VALUE)
         );
         hintPanelLayout.setVerticalGroup(
             hintPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 131, Short.MAX_VALUE)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 151, Short.MAX_VALUE)
         );
 
         toolSettingsPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.toolSettingsPanel.border.title"))); // NOI18N
@@ -306,7 +311,7 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
                 .addGroup(toolSettingsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(heightLabel)
                     .addComponent(heightSlider, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(56, Short.MAX_VALUE))
+                .addContainerGap(76, Short.MAX_VALUE))
         );
 
         paintingPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.paintingPanel.border.title"))); // NOI18N
@@ -357,7 +362,7 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
             .addGroup(paintingPanelLayout.createSequentialGroup()
                 .addGroup(paintingPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, paintingPanelLayout.createSequentialGroup()
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 277, Short.MAX_VALUE)
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 425, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(paintingPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                             .addComponent(removeTextureButton, 0, 0, Short.MAX_VALUE)
@@ -366,7 +371,7 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
                         .addComponent(remainingTexTitleLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(remainingTexturesLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 78, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 228, Short.MAX_VALUE)
                         .addComponent(triPlanarCheckBox)))
                 .addContainerGap())
         );
@@ -378,7 +383,7 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
                         .addComponent(addTextureButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(removeTextureButton))
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 106, Short.MAX_VALUE))
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 126, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(paintingPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(remainingTexTitleLabel)
@@ -419,7 +424,7 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
                 .addComponent(genEntropiesButton)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jButton1)
-                .addContainerGap(79, Short.MAX_VALUE))
+                .addContainerGap(99, Short.MAX_VALUE))
         );
 
         jToolBar1.setFloatable(false);
@@ -475,6 +480,18 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
         roughTerrainButton.setActionCommand(org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.roughTerrainButton.actionCommand")); // NOI18N
         roughTerrainButton.setEnabled(false);
         jToolBar1.add(roughTerrainButton);
+
+        levelTerrainButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/jme3/gde/terraineditor/icon_terrain-level.png"))); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(levelTerrainButton, org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.levelTerrainButton.text")); // NOI18N
+        levelTerrainButton.setFocusable(false);
+        levelTerrainButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        levelTerrainButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        levelTerrainButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                levelTerrainButtonActionPerformed(evt);
+            }
+        });
+        jToolBar1.add(levelTerrainButton);
         jToolBar1.add(jSeparator2);
 
         terrainModButtonGroup.add(paintButton);
@@ -517,7 +534,7 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
                 .addComponent(terrainOpsPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(hintPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addComponent(jToolBar1, javax.swing.GroupLayout.DEFAULT_SIZE, 1019, Short.MAX_VALUE)
+            .addComponent(jToolBar1, javax.swing.GroupLayout.DEFAULT_SIZE, 1261, Short.MAX_VALUE)
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -645,6 +662,16 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
         addSpatial("Skybox");
     }//GEN-LAST:event_jButton1ActionPerformed
 
+    private void levelTerrainButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_levelTerrainButtonActionPerformed
+        if (levelTerrainButton.isSelected()) {
+            toolController.setTerrainEditButtonState(TerrainEditButton.levelTerrain);
+            setHintText(TerrainEditButton.levelTerrain);
+        } else {
+            toolController.setTerrainEditButtonState(TerrainEditButton.none);
+            setHintText(TerrainEditButton.none);
+        }
+    }//GEN-LAST:event_levelTerrainButtonActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton addTextureButton;
     private javax.swing.JButton createTerrainButton;
@@ -661,6 +688,7 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
     private javax.swing.JToolBar.Separator jSeparator1;
     private javax.swing.JToolBar.Separator jSeparator2;
     private javax.swing.JToolBar jToolBar1;
+    private javax.swing.JToggleButton levelTerrainButton;
     private javax.swing.JToggleButton lowerTerrainButton;
     private javax.swing.JToggleButton paintButton;
     private javax.swing.JPanel paintingPanel;
@@ -997,6 +1025,7 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
             camController.setToolController(toolController);
             camController.setEditorController(editorController);
             toolController.setEditorController(editorController);
+            toolController.setCameraController(camController);
             editorController.setToolController(toolController);
 
             toolController.setHeightToolRadius(radiusSlider.getValue());

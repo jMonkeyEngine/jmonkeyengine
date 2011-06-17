@@ -88,8 +88,11 @@ public class TerrainEditorController {
     private final int BASE_TEXTURE_COUNT = NUM_ALPHA_TEXTURES; // add any others here, like a global specular map
     protected final int MAX_TEXTURE_LAYERS = 7-BASE_TEXTURE_COUNT; // 16 max, minus the ones we are reserving
 
+    // level terrain settings
+    private Vector3f levelTerrainDesiredHeight;
+    private float levelTerrainSnapThreshold = 0.01f;
 
-    //private DataObjectSaveNode alphaDataObject;
+    
 
     protected SaveCookie terrainSaveCookie = new SaveCookie() {
       public void save() throws IOException {
@@ -177,38 +180,38 @@ public class TerrainEditorController {
         float zStepAmount = ((Node)terrain).getLocalScale().z;
 
         for (int z=-radiusStepsZ; z<radiusStepsZ; z++) {
-			for (int x=-radiusStepsZ; x<radiusStepsX; x++) {
+            for (int x=-radiusStepsZ; x<radiusStepsX; x++) {
 
                 float locX = worldLoc.x + (x*xStepAmount);
                 float locZ = worldLoc.z + (z*zStepAmount);
 
-				if (isInRadius(locX-worldLoc.x,locZ-worldLoc.z,radius)) {
-                    // see if it is in the radius of the tool
-					float h = calculateHeight(radius, heightFactor, locX-worldLoc.x, locZ-worldLoc.z);
-
-					// increase the height
-					terrain.adjustHeight(new Vector2f(locX, locZ), h);
-				}
-			}
-		}
+                // see if it is in the radius of the tool
+                if (isInRadius(locX-worldLoc.x,locZ-worldLoc.z,radius)) {
+                    // adjust height based on radius of the tool
+                    float h = calculateHeight(radius, heightFactor, locX-worldLoc.x, locZ-worldLoc.z);
+                    // increase the height
+                    terrain.adjustHeight(new Vector2f(locX, locZ), h);
+                }
+            }
+        }
 
         ((Node)terrain).updateModelBound(); // or else we won't collide with it where we just edited
         
     }
 
     /**
-	 * See if the X,Y coordinate is in the radius of the circle. It is assumed
-	 * that the "grid" being tested is located at 0,0 and its dimensions are 2*radius.
-	 * @param x
-	 * @param z
-	 * @param radius
-	 * @return
-	 */
-	private boolean isInRadius(float x, float y, float radius) {
-		Vector2f point = new Vector2f(x,y);
-		// return true if the distance is less than equal to the radius
-		return Math.abs(point.length()) <= radius;
-	}
+     * See if the X,Y coordinate is in the radius of the circle. It is assumed
+     * that the "grid" being tested is located at 0,0 and its dimensions are 2*radius.
+     * @param x
+     * @param z
+     * @param radius
+     * @return
+     */
+    private boolean isInRadius(float x, float y, float radius) {
+        Vector2f point = new Vector2f(x,y);
+        // return true if the distance is less than equal to the radius
+        return Math.abs(point.length()) <= radius;
+    }
 
     /**
      * Interpolate the height value based on its distance from the center (how far along
@@ -222,18 +225,21 @@ public class TerrainEditorController {
      * @return the adjusted height value
      */
     private float calculateHeight(float radius, float heightFactor, float x, float z) {
-        // find percentage for each 'unit' in radius
+        float val = calculateRadiusPercent(radius, x, z);
+        return heightFactor * val;
+    }
+
+    private float calculateRadiusPercent(float radius, float x, float z) {
+         // find percentage for each 'unit' in radius
         Vector2f point = new Vector2f(x,z);
         float val = Math.abs(point.length()) / radius;
-        val = 1 - val;
-        return heightFactor * val;
-	}
+        val = 1f - val;
+        return val;
+    }
 
     public void cleanup() {
-        final Node node = jmeRootNode.getLookup().lookup(Node.class);
         terrainNode = null;
         rootNode = null;
-//        alphaDataObject = null;
     }
 
     /**
@@ -410,17 +416,6 @@ public class TerrainEditorController {
         */
     }
 
-    /*private void doSetAlphaTexture(int layer, Texture tex) {
-        int alphaIdx = layer/4; // 4 = rgba = 4 textures
-
-        Terrain terrain = (Terrain) getTerrain(null);
-        if (terrain == null)
-            return;
-        if (alphaIdx == 0)
-            terrain.getMaterial().setTexture("AlphaMap", tex);
-        else
-            terrain.getMaterial().setTexture("AlphaMap_"+alphaIdx, tex);
-    }*/
 
     /**
      * Set the diffuse texture at the specified layer.
@@ -760,21 +755,12 @@ public class TerrainEditorController {
 
         parent.attachChild(terrain);
 
-//        doCreateAlphaSaveDataObject();
-
         setNeedsSave(true);
 
         return terrain;
     }
 
-    public void saveAlphaImages(final Terrain terrain) {
-        SceneApplication.getApplication().enqueue(new Callable<Object>() {
-            public Object call() throws Exception {
-                doSaveAlphaImages(terrain);
-                return null;
-            }
-        });
-    }
+    
 
     /**
      * Save the terrain's alpha maps to disk, in the Textures/terrain-alpha/ directory
@@ -1193,6 +1179,110 @@ public class TerrainEditorController {
         }
 
         setNeedsSave(true);
+    }
+
+    /**
+     * Level the terrain to the desired height.
+     * It will pull down or raise terrain towards the desired height, still
+     * using the radius of the tool and the weight. There are some slight rounding
+     * errors that are coorected with float epsilon testing.
+     * @param markerLocation
+     * @param heightToolRadius
+     * @param heightAmount
+     */
+    protected void doLevelTerrain(Vector3f worldLoc, float radius, float heightWeight) {
+        if (levelTerrainDesiredHeight == null)
+            return;
+
+        float desiredHeight = levelTerrainDesiredHeight.y;
+
+        Terrain terrain = (Terrain) getTerrain(null);
+        if (terrain == null)
+            return;
+
+        setNeedsSave(true);
+
+        int radiusStepsX = (int)(radius / ((Node)terrain).getLocalScale().x);
+        int radiusStepsZ = (int)(radius / ((Node)terrain).getLocalScale().z);
+
+        float xStepAmount = ((Node)terrain).getLocalScale().x;
+        float zStepAmount = ((Node)terrain).getLocalScale().z;
+
+        List<Vector2f> locs = new ArrayList<Vector2f>();
+        List<Float> heights = new ArrayList<Float>();
+
+        for (int z=-radiusStepsZ; z<radiusStepsZ; z++) {
+            for (int x=-radiusStepsZ; x<radiusStepsX; x++) {
+
+                float locX = worldLoc.x + (x*xStepAmount);
+                float locZ = worldLoc.z + (z*zStepAmount);
+                
+                // see if it is in the radius of the tool
+                if (isInRadius(locX-worldLoc.x,locZ-worldLoc.z,radius)) {
+
+                    Vector2f terrainLoc = new Vector2f(locX, locZ);
+                    // adjust height based on radius of the tool
+                    float terrainHeightAtLoc = terrain.getHeightmapHeight(terrainLoc)*terrain.getSpatial().getWorldScale().y;
+                    float radiusWeight = calculateRadiusPercent(radius, locX-worldLoc.x, locZ-worldLoc.z);
+
+                    float epsilon = 0.1f*heightWeight; // rounding error for snapping
+                    
+                    float adj = 0;
+                    if (terrainHeightAtLoc < desiredHeight)
+                        adj = 1;
+                    else if (terrainHeightAtLoc > desiredHeight)
+                        adj = -1;
+                            
+                    adj *= radiusWeight * heightWeight;
+
+                    // test if adjusting too far and then cap it
+                    if (adj > 0 && floatGreaterThan((terrainHeightAtLoc + adj), desiredHeight, epsilon))
+                        adj = desiredHeight - terrainHeightAtLoc;
+                    else if (adj < 0 && floatLessThan((terrainHeightAtLoc + adj), desiredHeight, epsilon))
+                        adj = terrainHeightAtLoc - desiredHeight;
+  
+                    if (!floatEquals(adj, 0, 0.001f)) {
+                        locs.add(terrainLoc);
+                        heights.add(adj);
+                    }
+                    
+                }
+            }
+        }
+        // do the actual height adjustment
+        terrain.adjustHeight(locs, heights);
+        
+        ((Node)terrain).updateModelBound(); // or else we won't collide with it where we just edited
+
+    }
+
+    private int compareFloat(float a, float b, float epsilon) {
+        if (floatEquals(a, b, epsilon))
+            return 0;
+        else if (floatLessThan(a, b, epsilon))
+            return -1;
+        else
+            return 1;
+    }
+
+    private boolean floatEquals(float a, float b, float epsilon) {
+        return a == b ? true : Math.abs(a - b) < epsilon;
+    }
+
+    private boolean floatLessThan(float a, float b, float epsilon) {
+        return b - a > epsilon;
+    }
+
+    private boolean floatGreaterThan(float a, float b, float epsilon) {
+        return a - b > epsilon;
+    }
+
+    protected void doSetLevelTerrainDesiredHeight(Vector3f point) {
+        this.levelTerrainDesiredHeight = point;
+    }
+
+    public Vector3f doGetLevelTerrainDesiredHeight() {
+        return levelTerrainDesiredHeight;
     }
 
 
