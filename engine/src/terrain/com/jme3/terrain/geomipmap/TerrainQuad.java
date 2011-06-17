@@ -860,8 +860,9 @@ public class TerrainQuad extends Node implements Terrain {
 
     public float getHeightmapHeight(Vector2f xz) {
         // offset
-        int x = Math.round((xz.x / getLocalScale().x) + (float)totalSize / 2f);
-        int z = Math.round((xz.y / getLocalScale().z) + (float)totalSize / 2f);
+        int halfSize = totalSize / 2;
+        int x = Math.round((xz.x / getLocalScale().x) + halfSize);
+        int z = Math.round((xz.y / getLocalScale().z) + halfSize);
 
         return getHeightmapHeight(x, z);
     }

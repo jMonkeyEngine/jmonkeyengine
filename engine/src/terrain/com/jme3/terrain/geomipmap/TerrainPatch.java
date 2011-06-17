@@ -327,19 +327,6 @@ public class TerrainPatch extends Geometry {
         getMesh().setBuffer(Type.Position, 3, newVertexBuffer);
     }
 
-    public void adjustHeight(float x, float z, float delta) {
-        if (x < 0 || z < 0 || x >= size || z >= size)
-            return;
-        int idx = (int) (z * size + x);
-        float h = getMesh().getFloatBuffer(Type.Position).get(idx*3+1);
-        
-        geomap.getHeightData().put(idx, h+delta);
-
-        FloatBuffer newVertexBuffer = geomap.writeVertexArray(null, stepScale, false);
-        getMesh().clearBuffer(Type.Position);
-        getMesh().setBuffer(Type.Position, 3, newVertexBuffer);
-    }
-
     /**
      * recalculate all of this normal vectors in this terrain patch
      */
