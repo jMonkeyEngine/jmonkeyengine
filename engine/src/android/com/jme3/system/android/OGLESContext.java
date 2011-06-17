@@ -39,11 +39,13 @@ import android.opengl.GLSurfaceView;
 import android.view.SurfaceHolder;
 
 import com.jme3.app.AndroidHarness;
+import com.jme3.app.Application;
 import com.jme3.input.JoyInput;
 import com.jme3.input.KeyInput;
 import com.jme3.input.MouseInput;
 import com.jme3.input.TouchInput;
 import com.jme3.input.android.AndroidInput;
+import com.jme3.input.controls.TouchTrigger;
 import com.jme3.input.dummy.DummyKeyInput;
 import com.jme3.input.dummy.DummyMouseInput;
 import com.jme3.renderer.android.OGLESShaderRenderer;
@@ -94,6 +96,8 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer
      * EGL_RENDERABLE_TYPE: EGL_OPENGL_ES_BIT = OpenGL ES 1.0 | EGL_OPENGL_ES2_BIT = OpenGL ES 2.0 
      */
     protected int clientOpenGLESVersion = 1;
+    
+    final private String ESCAPE_EVENT = "TouchEscape";
     
     public OGLESContext() { }
 
@@ -352,10 +356,21 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer
         renderer.setVerboseLogging(false);
         
         renderer.initialize();
-        listener.initialize();                
-        created.set(true);
+        listener.initialize();
         
-        needClose.set(false);
+        // Setup exit hook
+        if (ctx instanceof AndroidHarness)
+        {
+            Application app = ((AndroidHarness)ctx).getJmeApplication();            
+            if (app.getInputManager() != null)
+            {
+                app.getInputManager().addMapping(ESCAPE_EVENT, new TouchTrigger(TouchInput.KEYCODE_BACK));
+                app.getInputManager().addListener((AndroidHarness)ctx, new String[]{ESCAPE_EVENT});
+            }
+        }
+        
+        created.set(true);        
+        needClose.set(false);    
     }
 
     /**

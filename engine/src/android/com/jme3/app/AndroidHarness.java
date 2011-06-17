@@ -11,7 +11,6 @@ import android.view.Window;
 import android.view.WindowManager;
 
 import com.jme3.app.Application;
-import com.jme3.app.android.AndroidApplication;
 import com.jme3.input.TouchInput;
 import com.jme3.input.android.AndroidInput;
 import com.jme3.input.controls.TouchListener;
@@ -37,8 +36,7 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
     protected String appClass = "jme3test.android.Test";
     protected Application app = null;
     
-    protected boolean debug = false;
-    
+    protected boolean debug = false;  
     final private String ESCAPE_EVENT = "TouchEscape";
 
     @Override
@@ -54,16 +52,14 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
 
         AppSettings settings = new AppSettings(true);
         AndroidInput input = new AndroidInput(this);
-        
-        
-
+                
         // Create application instance
         try{
             @SuppressWarnings("unchecked")
             Class<? extends Application> clazz = (Class<? extends Application>) Class.forName(appClass);
             app = clazz.newInstance();
         }catch (Exception ex){
-            ex.printStackTrace();
+            handleError("Class " + appClass + " init failed", ex);
         }
 
         app.setSettings(settings);
@@ -77,10 +73,7 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
         {
             view = ctx.createView(input);
         }
-   		setContentView(view);    
-   		
-        app.inputManager.addMapping(ESCAPE_EVENT, new TouchTrigger(TouchInput.KEYCODE_BACK));
-        app.inputManager.addListener(this, new String[]{ESCAPE_EVENT}); 
+   		setContentView(view);       		
     }
 
 
@@ -125,7 +118,10 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
         logger.info("onDestroy");
     }
 
-    
+    public Application getJmeApplication()
+    {
+        return app;
+    }
     /**
      * Called when an error has occured. This is typically
      * invoked when an uncought exception is thrown in the render thread.
