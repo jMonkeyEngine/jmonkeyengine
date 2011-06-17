@@ -334,13 +334,8 @@ public final class OBJLoader implements AssetLoader {
         }
     }
 
-    private static final Pattern nl = Pattern.compile("\n");
-    private static final Pattern ws = Pattern.compile("\\p{javaWhitespace}+");
-
     protected void nextStatement(){
-        scan.useDelimiter(nl);
-        scan.next();
-        scan.useDelimiter(ws);
+        scan.skip(".*\r{0,1}\n");
     }
 
     protected boolean readLine() throws IOException{
@@ -586,5 +581,5 @@ public final class OBJLoader implements AssetLoader {
         else
             return objNode;
     }
-
+ 
 }

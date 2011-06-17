@@ -87,6 +87,10 @@ public class MTLLoader implements AssetLoader {
         return result;
     }
     
+    protected void skipLine(){
+        scan.skip(".*\r{0,1}\n");
+    }
+    
     protected void resetMaterial(){
         ambient.set(ColorRGBA.Black);
         diffuse.set(ColorRGBA.Black);
@@ -173,7 +177,7 @@ public class MTLLoader implements AssetLoader {
         String cmd = scan.next().toLowerCase();
         if (cmd.startsWith("#")){
             // skip entire comment until next line
-            nextStatement();
+            skipLine();
         }else if (cmd.equals("newmtl")){
             String name = scan.next();
             startMaterial(name);
@@ -190,7 +194,7 @@ public class MTLLoader implements AssetLoader {
             transparent = true;
         }else if (cmd.equals("map_ka")){
             // ignore it for now
-            nextStatement();
+            skipLine();
         }else if (cmd.equals("map_kd")){
             String path = nextStatement();
             diffuseMap = loadTexture(path);
@@ -233,10 +237,10 @@ public class MTLLoader implements AssetLoader {
         }else if (cmd.equals("ke") || cmd.equals("ni")){
             // Ni: index of refraction - unsupported in jME
             // Ke: emission color
-            nextStatement();
+            skipLine();
         }else{
             System.out.println("Unknown statement in MTL! "+cmd);
-            nextStatement();
+            skipLine();
         }
         
         return true;
