@@ -135,15 +135,18 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
         fsQuad = new Picture("filter full screen quad");
 
         Camera cam = vp.getCamera();
+
+
+        //save view port diensions
         left = cam.getViewPortLeft();
         right = cam.getViewPortRight();
         top = cam.getViewPortTop();
         bottom = cam.getViewPortBottom();
-        //Changing the viewPort to the filter cam an reseting the viewport of the viewport cam
         originalWidth = cam.getWidth();
         originalHeight = cam.getHeight();
-        cam.setViewPort(0, 1, 0, 1);
+        //first call to reshape
         reshape(vp, cam.getWidth(), cam.getHeight());
+
     }
 
     /**
@@ -364,11 +367,25 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
     }
 
     public void reshape(ViewPort vp, int w, int h) {
+        //this has no effect at first init but is useful when resizing the canvas with multi views
+        Camera cam = vp.getCamera();
+        cam.setViewPort(left, right, bottom, top);
+        //resizing the camera to fit the new viewport and saving original dimensions
+        cam.resize(w, h, false);
+        left = cam.getViewPortLeft();
+        right = cam.getViewPortRight();
+        top = cam.getViewPortTop();
+        bottom = cam.getViewPortBottom();
+        originalWidth = w;
+        originalHeight = h;
+        cam.setViewPort(0, 1, 0, 1);
+
+        //computing real dimension of the viewport and resizing he camera 
         width = (int) (w * (Math.abs(right - left)));
         height = (int) (h * (Math.abs(bottom - top)));
         width = Math.max(1, width);
         height = Math.max(1, height);
-        vp.getCamera().resize(width, height, false);
+        cam.resize(width, height, false);
         cameraInit = true;
         computeDepth = false;
 
