@@ -99,6 +99,7 @@ public class TerrainToolController extends SceneToolController {
     public void setHeightToolHeight(float heightToolHeight) {
         this.heightAmount = heightToolHeight/100f;
         this.levelAmount = heightToolHeight/200f;
+        this.smoothAmount = heightToolHeight/200f;
         this.paintAmount = heightToolHeight/200f;
     }
 

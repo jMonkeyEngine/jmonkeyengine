@@ -470,7 +470,11 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
         org.openide.awt.Mnemonics.setLocalizedText(smoothTerrainButton, org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.smoothTerrainButton.text")); // NOI18N
         smoothTerrainButton.setToolTipText(org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.smoothTerrainButton.toolTipText")); // NOI18N
         smoothTerrainButton.setActionCommand(org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.smoothTerrainButton.actionCommand")); // NOI18N
-        smoothTerrainButton.setEnabled(false);
+        smoothTerrainButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                smoothTerrainButtonActionPerformed(evt);
+            }
+        });
         jToolBar1.add(smoothTerrainButton);
 
         terrainModButtonGroup.add(roughTerrainButton);
@@ -673,6 +677,16 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
         if (toolController != null)
             toolController.setHeightToolHeight(heightSlider.getValue()); // should always be values upto and over 100, because it will be divided by 100
     }//GEN-LAST:event_heightSliderStateChanged
+
+    private void smoothTerrainButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_smoothTerrainButtonActionPerformed
+        if (smoothTerrainButton.isSelected()) {
+            toolController.setTerrainEditButtonState(TerrainEditButton.smoothTerrain);
+            setHintText(TerrainEditButton.smoothTerrain);
+        } else {
+            toolController.setTerrainEditButtonState(TerrainEditButton.none);
+            setHintText(TerrainEditButton.none);
+        }
+    }//GEN-LAST:event_smoothTerrainButtonActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton addTextureButton;

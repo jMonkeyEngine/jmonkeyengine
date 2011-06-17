@@ -1294,7 +1294,74 @@ public class TerrainEditorController {
      * @param heightToolRadius
      * @param smoothAmount
      */
-    protected void doSmoothTerrain(Vector3f markerLocation, float heightToolRadius, float smoothAmount) {
+    protected void doSmoothTerrain(Vector3f worldLoc, float radius, float weight) {
+        Terrain terrain = (Terrain) getTerrain(null);
+        if (terrain == null)
+            return;
+
+        setNeedsSave(true);
+
+        int radiusStepsX = (int)(radius / ((Node)terrain).getLocalScale().x);
+        int radiusStepsZ = (int)(radius / ((Node)terrain).getLocalScale().z);
+
+        float xStepAmount = ((Node)terrain).getLocalScale().x;
+        float zStepAmount = ((Node)terrain).getLocalScale().z;
+
+        List<Vector2f> locs = new ArrayList<Vector2f>();
+        List<Float> heights = new ArrayList<Float>();
+
+        for (int z=-radiusStepsZ; z<radiusStepsZ; z++) {
+            for (int x=-radiusStepsZ; x<radiusStepsX; x++) {
+
+                float locX = worldLoc.x + (x*xStepAmount);
+                float locZ = worldLoc.z + (z*zStepAmount);
+
+                // see if it is in the radius of the tool
+                if (isInRadius(locX-worldLoc.x,locZ-worldLoc.z,radius)) {
+
+                    Vector2f terrainLoc = new Vector2f(locX, locZ);
+                    // adjust height based on radius of the tool
+                    float center = terrain.getHeightmapHeight(terrainLoc);
+                    float left = terrain.getHeightmapHeight(new Vector2f(terrainLoc.x-1, terrainLoc.y));
+                    float right = terrain.getHeightmapHeight(new Vector2f(terrainLoc.x+1, terrainLoc.y));
+                    float up = terrain.getHeightmapHeight(new Vector2f(terrainLoc.x, terrainLoc.y+1));
+                    float down = terrain.getHeightmapHeight(new Vector2f(terrainLoc.x, terrainLoc.y-1));
+                    int count = 1;
+                    float amount = center;
+                    if (left != Float.NaN) {
+                        amount += left;
+                        count++;
+                    }
+                    if (right != Float.NaN) {
+                        amount += right;
+                        count++;
+                    }
+                    if (up != Float.NaN) {
+                        amount += up;
+                        count++;
+                    }
+                    if (down != Float.NaN) {
+                        amount += down;
+                        count++;
+                    }
+
+                    amount /= count; // take average
+
+                    // weigh it
+                    float diff = amount-center;
+                    diff *= weight;
+                    amount = center+diff;
+                        
+                    locs.add(terrainLoc);
+                    heights.add(amount);
+                }
+            }
+        }
+
+        // do the actual height adjustment
+        terrain.setHeight(locs, heights);
+
+        ((Node)terrain).updateModelBound(); // or else we won't collide with it where we just edited
 
     }
 
