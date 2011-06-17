@@ -270,7 +270,7 @@ public class WaterFilter extends Filter {
         material.setFloat("ReflectionDisplace", reflectionDisplace);
         material.setFloat("FoamIntensity", foamIntensity);
         material.setFloat("UnderWaterFogDistance", underWaterFogDistance);
-        material.setFloat("m_CausticsIntensity", causticsIntensity);
+        material.setFloat("CausticsIntensity", causticsIntensity);
 
 
     }
@@ -883,7 +883,7 @@ public class WaterFilter extends Filter {
     public void setFoamIntensity(float foamIntensity) {
         this.foamIntensity = foamIntensity;
         if (material != null) {
-            material.setFloat("m_FoamIntensity", foamIntensity);
+            material.setFloat("FoamIntensity", foamIntensity);
 
         }
     }
@@ -932,7 +932,7 @@ public class WaterFilter extends Filter {
     public void setUnderWaterFogDistance(float underWaterFogDistance) {
         this.underWaterFogDistance = underWaterFogDistance;
         if (material != null) {
-            material.setFloat("m_UnderWaterFogDistance", underWaterFogDistance);
+            material.setFloat("UnderWaterFogDistance", underWaterFogDistance);
         }
     }
 
@@ -951,7 +951,7 @@ public class WaterFilter extends Filter {
     public void setCausticsIntensity(float causticsIntensity) {
         this.causticsIntensity = causticsIntensity;
         if (material != null) {
-            material.setFloat("m_CausticsIntensity", causticsIntensity);
+            material.setFloat("CausticsIntensity", causticsIntensity);
         }
     }
 }
