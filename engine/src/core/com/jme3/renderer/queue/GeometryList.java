@@ -34,6 +34,7 @@ package com.jme3.renderer.queue;
 
 import com.jme3.renderer.Camera;
 import com.jme3.scene.Geometry;
+import com.jme3.util.SortUtil;
 import java.util.Arrays;
 
 /**
@@ -48,12 +49,14 @@ public class GeometryList {
     private static final int DEFAULT_SIZE = 32;
 
     private Geometry[] geometries;
+    private Geometry[] geometries2;
     private int size;
     private GeometryComparator comparator;
 
     public GeometryList(GeometryComparator comparator) {
         size = 0;
         geometries = new Geometry[DEFAULT_SIZE];
+        geometries2 = new Geometry[DEFAULT_SIZE];
         this.comparator = comparator;
     }
 
@@ -80,6 +83,8 @@ public class GeometryList {
             Geometry[] temp = new Geometry[size * 2];
             System.arraycopy(geometries, 0, temp, 0, size);
             geometries = temp; // original list replaced by double-size list
+            
+            geometries2 = new Geometry[size * 2];
         }
         geometries[size++] = g;
     }
@@ -101,8 +106,14 @@ public class GeometryList {
     public void sort() {
         if (size > 1) {
             // sort the spatial list using the comparator
-            Arrays.sort(geometries, 0, size, comparator);
-//            Arrays.sort(geometries, comparator);
+            
+//            SortUtil.qsort(geometries, 0, size, comparator);
+//            Arrays.sort(geometries, 0, size, comparator);            
+            
+            System.arraycopy(geometries, 0, geometries2, 0, size);
+            SortUtil.msort(geometries2, geometries, 0, size-1, comparator);
+            
+
         }
     }
 }

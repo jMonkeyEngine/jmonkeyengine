@@ -29,7 +29,6 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package com.jme3.util;
 
 import java.util.Arrays;
@@ -39,58 +38,133 @@ import java.util.Comparator;
  * Quick and merge sort implementations that create no garbage, unlike {@link
  * Arrays#sort}. The merge sort is stable, the quick sort is not.
  */
-public class SortUtil
-{
-    public static void gsort(Object[] a, Comparator comp){
-        int p = 0;
-        int l = a.length;
-        while (p < l){
-            int pm1 = p-1;
-            if (p == 0 || comp.compare(a[p], a[pm1]) >= 0){
-                p++;
+public class SortUtil {
+
+    /** 
+     * The size at or below which we will use insertion sort because it's
+     * probably faster. 
+     */
+    private static final int INSERTION_SORT_THRESHOLD = 7;
+    
+    
+    /**
+ procedure optimizedGnomeSort(a[])
+    pos := 1
+    last := 0
+    while pos < length(a)
+        if (a[pos] >= a[pos-1])
+            if (last != 0)
+                pos := last
+                last := 0
+            end if
+            pos := pos + 1
+        else
+            swap a[pos] and a[pos-1]
+            if (pos > 1)
+                if (last == 0)
+                    last := pos
+                end if
+                pos := pos - 1
+            else
+                pos := pos + 1
+            end if
+        end if
+    end while
+end procedure
+     */
+    
+    public static void gsort(Object[] a, Comparator comp) {
+        int pos = 1;
+        int last = 0;
+        int length = a.length;
+        
+        while (pos < length){
+            if ( comp.compare(a[pos], a[pos-1]) >= 0 ){
+                if (last != 0){
+                    pos = last;
+                    last = 0;
+                }
+                pos ++;
             }else{
-                Object t = a[p];
-                a[p] = a[pm1];
-                a[pm1] = t;
-                p--;
+                Object tmp = a[pos];
+                a[pos] = a[pos-1];
+                a[pos-1] = tmp;
+                
+                if (pos > 1){
+                    if (last == 0){
+                        last = pos;
+                    }
+                    pos --;
+                }else{
+                    pos ++;
+                }
             }
         }
+        
+//        int p = 0;
+//        int l = a.length;
+//        while (p < l) {
+//            int pm1 = p - 1;
+//            if (p == 0 || comp.compare(a[p], a[pm1]) >= 0) {
+//                p++;
+//            } else {
+//                Object t = a[p];
+//                a[p] = a[pm1];
+//                a[pm1] = t;
+//                p--;
+//            }
+//        }
     }
 
-    private static void test(Float[] original, Float[] sorted, Comparator<Float> ic){
-        for (int i = 0; i < 1000000; i++){
+    private static void test(Float[] original, Float[] sorted, Comparator<Float> ic) {
+        long time, dt;
+        
+        time = System.nanoTime();
+        for (int i = 0; i < 1000000; i++) {
             System.arraycopy(original, 0, sorted, 0, original.length);
             gsort(sorted, ic);
         }
+        dt = System.nanoTime() - time;
+        System.out.println("GSort " + (dt/1000000.0) + " ms");
 
-        for (int i = 0; i < 1000000; i++){
+        time = System.nanoTime();
+        for (int i = 0; i < 1000000; i++) {
             System.arraycopy(original, 0, sorted, 0, original.length);
             qsort(sorted, ic);
         }
+        dt = System.nanoTime() - time;
+        System.out.println("QSort " + (dt/1000000.0) + " ms");
 
-        for (int i = 0; i < 1000000; i++){
+        time = System.nanoTime();
+        for (int i = 0; i < 1000000; i++) {
             System.arraycopy(original, 0, sorted, 0, original.length);
             msort(original, sorted, ic);
         }
-   
-        for (int i = 0; i < 1000000; i++){
+        dt = System.nanoTime() - time;
+        System.out.println("MSort " + (dt/1000000.0) + " ms");
+
+        time = System.nanoTime();
+        for (int i = 0; i < 1000000; i++) {
             System.arraycopy(original, 0, sorted, 0, original.length);
             Arrays.sort(sorted, ic);
         }
+        dt = System.nanoTime() - time;
+        System.out.println("ASort " + (dt/1000000.0) + " ms");
     }
 
-    public static void main(String[] args){
+    public static void main(String[] args) {
         Comparator<Float> ic = new Comparator<Float>() {
+
             public int compare(Float o1, Float o2) {
                 return (int) (o1 - o2);
             }
         };
-        Float[] original = new Float[]{ 2f, 1f, 5f, 3f, 4f, 6f, 8f, 9f,
-                                        11f, 10f, 12f, 13f, 14f, 15f, 7f, 19f, 20f, 18f, 16f, 17f,
-                                        21f, 23f, 22f, 24f, 25f, 27f, 26f, 29f, 28f, 30f, 31f};
-        Float[] sorted   = new Float[original.length];
+        Float[] original = new Float[]{2f, 1f, 5f, 3f, 4f, 6f, 8f, 9f,
+            11f, 10f, 12f, 13f, 14f, 15f, 7f, 19f, 20f, 18f, 16f, 17f,
+            21f, 23f, 22f, 24f, 25f, 27f, 26f, 29f, 28f, 30f, 31f};
+        Float[] sorted = new Float[original.length];
 
-        while (true){
+        while (true) {
             test(original, sorted, ic);
         }
     }
@@ -98,9 +172,8 @@ public class SortUtil
     /**
      * Quick sorts the supplied array using the specified comparator.
      */
-    public static void qsort (Object[] a, Comparator comp)
-    {
-        qsort(a, 0, a.length-1, comp);
+    public static void qsort(Object[] a, Comparator comp) {
+        qsort(a, 0, a.length - 1, comp);
     }
 
     /**
@@ -110,8 +183,7 @@ public class SortUtil
      * @param hi0 the index of the highest element to include in the sort.
      */
     @SuppressWarnings("unchecked")
-    public static void qsort (Object[] a, int lo0, int hi0, Comparator comp)
-    {
+    public static void qsort(Object[] a, int lo0, int hi0, Comparator comp) {
         // bail out if we're already done
         if (hi0 <= lo0) {
             return;
@@ -122,16 +194,18 @@ public class SortUtil
         if (hi0 - lo0 == 1) {
             // if they're not already sorted, swap them
             if (comp.compare(a[hi0], a[lo0]) < 0) {
-                t = a[lo0]; a[lo0] = a[hi0]; a[hi0] = t;
+                t = a[lo0];
+                a[lo0] = a[hi0];
+                a[hi0] = t;
             }
             return;
         }
 
         // the middle element in the array is our partitioning element
-        Object mid = a[(lo0 + hi0)/2];
+        Object mid = a[(lo0 + hi0) / 2];
 
         // set up our partitioning boundaries
-        int lo = lo0-1, hi = hi0+1;
+        int lo = lo0 - 1, hi = hi0 + 1;
 
         // loop through the array until indices cross
         for (;;) {
@@ -145,7 +219,9 @@ public class SortUtil
 
             // swap the two elements or bail out of the loop
             if (hi > lo) {
-                t = a[lo]; a[lo] = a[hi]; a[hi] = t;
+                t = a[lo];
+                a[lo] = a[hi];
+                a[hi] = t;
             } else {
                 break;
             }
@@ -153,19 +229,18 @@ public class SortUtil
 
         // if the right index has not reached the left side of array
         // must now sort the left partition
-        if (lo0 < lo-1) {
-            qsort(a, lo0, lo-1, comp);
+        if (lo0 < lo - 1) {
+            qsort(a, lo0, lo - 1, comp);
         }
 
         // if the left index has not reached the right side of array
         // must now sort the right partition
-        if (hi+1 < hi0) {
-            qsort(a, hi+1, hi0, comp);
+        if (hi + 1 < hi0) {
+            qsort(a, hi + 1, hi0, comp);
         }
     }
 
-    public static void qsort (int[] a, int lo0, int hi0, Comparator comp)
-    {
+    public static void qsort(int[] a, int lo0, int hi0, Comparator comp) {
         // bail out if we're already done
         if (hi0 <= lo0) {
             return;
@@ -176,16 +251,18 @@ public class SortUtil
         if (hi0 - lo0 == 1) {
             // if they're not already sorted, swap them
             if (comp.compare(a[hi0], a[lo0]) < 0) {
-                t = a[lo0]; a[lo0] = a[hi0]; a[hi0] = t;
+                t = a[lo0];
+                a[lo0] = a[hi0];
+                a[hi0] = t;
             }
             return;
         }
 
         // the middle element in the array is our partitioning element
-        int mid = a[(lo0 + hi0)/2];
+        int mid = a[(lo0 + hi0) / 2];
 
         // set up our partitioning boundaries
-        int lo = lo0-1, hi = hi0+1;
+        int lo = lo0 - 1, hi = hi0 + 1;
 
         // loop through the array until indices cross
         for (;;) {
@@ -199,7 +276,9 @@ public class SortUtil
 
             // swap the two elements or bail out of the loop
             if (hi > lo) {
-                t = a[lo]; a[lo] = a[hi]; a[hi] = t;
+                t = a[lo];
+                a[lo] = a[hi];
+                a[hi] = t;
             } else {
                 break;
             }
@@ -207,85 +286,67 @@ public class SortUtil
 
         // if the right index has not reached the left side of array
         // must now sort the left partition
-        if (lo0 < lo-1) {
-            qsort(a, lo0, lo-1, comp);
+        if (lo0 < lo - 1) {
+            qsort(a, lo0, lo - 1, comp);
         }
 
         // if the left index has not reached the right side of array
         // must now sort the right partition
-        if (hi+1 < hi0) {
-            qsort(a, hi+1, hi0, comp);
+        if (hi + 1 < hi0) {
+            qsort(a, hi + 1, hi0, comp);
         }
     }
     
     /**
-     * Merge sorts the supplied array using the specified comparator.
-     *
-     * @param src contains the elements to be sorted.
-     * @param dest must contain the same values as the src array.
+     * Merge sort
      */
-    public static void msort (Object[] src, Object[] dest, Comparator comp)
-    {
-        msort(src, dest, 0, src.length, 0, comp);
+    public static void msort(Object[] src, Object[] dest, Comparator comp){
+        msort(src, dest, 0, src.length - 1, comp);
     }
-
+    
     /**
-     * Merge sorts the supplied array using the specified comparator.
-     *
-     * @param src contains the elements to be sorted.
-     * @param dest must contain the same values as the src array.
+     * Merge sort
+     * 
+     * @param src Source array
+     * @param dest Destination array
+     * @param low Index of beginning element
+     * @param high Index of end element
+     * @param comp Comparator
      */
-    public static void msort (Object[] src, Object[] dest, int low, int high,
-                              Comparator comp)
-    {
-        msort(src, dest, low, high, 0, comp);
-    }
-
-    /** Implements the actual merge sort. */
-    @SuppressWarnings("unchecked")
-    protected static void msort (Object[] src, Object[] dest, int low,
-                                 int high, int offset, Comparator comp)
-    {
-	// use an insertion sort on small arrays
-	int length = high - low;
-	if (length < INSERTION_SORT_THRESHOLD) {
-	    for (int ii = low; ii < high; ii++) {
-		for (int jj = ii;
-                     jj > low && comp.compare(dest[jj-1], dest[jj]) > 0; jj--) {
-                    Object temp = dest[jj];
-                    dest[jj] = dest[jj-1];
-                    dest[jj-1] = temp;
-                }
-            }
-	    return;
-	}
-
-        // recursively sort each half of dest into src
-        int destLow = low, destHigh = high;
-        low += offset;
-        high += offset;
-        int mid = (low + high) >> 1;
-        msort(dest, src, low, mid, -offset, comp);
-        msort(dest, src, mid, high, -offset, comp);
-
-        // if the list is already sorted, just copy from src to dest; this
-        // optimization results in faster sorts for nearly ordered lists
-        if (comp.compare(src[mid-1], src[mid]) <= 0) {
-            System.arraycopy(src, low, dest, destLow, length);
-            return;
+    public static void msort(Object[] src, Object[] dest, int low, int high,
+            Comparator comp) {
+        if(low < high) {
+            int center = (low + high) / 2;
+            msort(src, dest, low, center, comp);
+            msort(src, dest, center + 1, high, comp);
+            merge(src, dest, low, center + 1, high, comp);
         }
+    }
+    
+    private static void merge(Object[] src, Object[] dest,
+            int low, int middle, int high, Comparator comp) {
+        int leftEnd = middle - 1;
+        int pos = low;
+        int numElements = high - low + 1;
 
-        // merge the sorted halves (now in src) into dest
-        for (int ii = destLow, pp = low, qq = mid; ii < destHigh; ii++) {
-            if (qq >= high || pp < mid && comp.compare(src[pp], src[qq]) <= 0) {
-                dest[ii] = src[pp++];
+        while (low <= leftEnd && middle <= high) {
+            if (comp.compare(src[low], src[middle]) <= 0) {
+                dest[pos++] = src[low++];
             } else {
-                dest[ii] = src[qq++];
+                dest[pos++] = src[middle++];
             }
         }
-    }
 
-    /** The size at or below which we will use insertion sort because it's
-     * probably faster. */
-    private static final int INSERTION_SORT_THRESHOLD = 7;
+        while (low <= leftEnd) {
+            dest[pos++] = src[low++];
+        }
+
+        while (middle <= high) {
+            dest[pos++] = src[middle++];
+        }
+
+        for (int i = 0; i < numElements; i++, high--) {
+            src[high] = dest[high];
+        }
+    }
 }
