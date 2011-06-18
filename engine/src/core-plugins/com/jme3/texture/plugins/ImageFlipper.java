@@ -30,11 +30,19 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.jme3.texture;
+package com.jme3.texture.plugins;
 
+import com.jme3.texture.Image;
 import com.jme3.util.BufferUtils;
 import java.nio.ByteBuffer;
 
+/**
+ * ImageFlipper is a utility class used to flip images across the Y axis.
+ * Due to the standard of where the image origin is between OpenGL and
+ * other software, this class is required.
+ * 
+ * @author Kirill Vainer
+ */
 public class ImageFlipper {
 
     public static void flipImage(Image img, int index){

@@ -32,17 +32,20 @@
 
 package com.jme3.texture.plugins;
 
-import com.jme3.asset.*;
-import com.jme3.util.*;
+import com.jme3.asset.AssetInfo;
 import com.jme3.asset.AssetLoader;
+import com.jme3.asset.TextureKey;
 import com.jme3.texture.Image;
 import com.jme3.texture.Image.Format;
+import com.jme3.util.BufferUtils;
+import com.jme3.util.LittleEndien;
 import java.io.DataInput;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 
 import java.util.ArrayList;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -217,7 +220,8 @@ public class DDSLoader implements AssetLoader {
             } else if (mipMapCount != expectedMipmaps) {
                 // changed to warning- images often do not have the required amount,
                 // or specify that they have mipmaps but include only the top level..
-                logger.warning("Got " + mipMapCount + "mipmaps, expected" + expectedMipmaps);
+                logger.log(Level.WARNING, "Got {0} mipmaps, expected {1}", 
+                        new Object[]{mipMapCount, expectedMipmaps});
             }
         } else {
             mipMapCount = 1;
@@ -293,7 +297,8 @@ public class DDSLoader implements AssetLoader {
                     logger.warning("Must use linear size with fourcc");
                     pitchOrSize = size;
                 } else if (pitchOrSize != size) {
-                    logger.warning("Expected size = " + size + ", real = " + pitchOrSize);
+                    logger.log(Level.WARNING, "Expected size = {0}, real = {1}", 
+                            new Object[]{size, pitchOrSize});
                 }
             } else {
                 pitchOrSize = size;
@@ -363,7 +368,8 @@ public class DDSLoader implements AssetLoader {
                     logger.warning("Linear size said to contain valid value but does not");
                     pitchOrSize = size;
                 } else if (pitchOrSize != size) {
-                    logger.warning("Expected size = " + size + ", real = " + pitchOrSize);
+                    logger.log(Level.WARNING, "Expected size = {0}, real = {1}", 
+                            new Object[]{size, pitchOrSize});
                 }
             } else {
                 pitchOrSize = size;
@@ -603,7 +609,7 @@ public class DDSLoader implements AssetLoader {
     /**
      * Checks if flags contains the specified mask
      */
-    private static final boolean is(int flags, int mask) {
+    private static boolean is(int flags, int mask) {
         return (flags & mask) == mask;
     }
 
@@ -648,8 +654,8 @@ public class DDSLoader implements AssetLoader {
     /**
      * Converts a int representing a FourCC into a String
      */
-    private static final String string(int value) {
-        StringBuffer buf = new StringBuffer();
+    private static String string(int value) {
+        StringBuilder buf = new StringBuilder();
 
         buf.append((char) (value & 0xFF));
         buf.append((char) ((value & 0xFF00) >> 8));

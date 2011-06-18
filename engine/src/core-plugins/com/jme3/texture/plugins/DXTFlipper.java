@@ -38,7 +38,8 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 /**
- *
+ * DXTFlipper is a utility class used to flip along Y axis DXT compressed textures.
+ * 
  * @author Kirill Vainer
  */
 public class DXTFlipper {
@@ -69,7 +70,7 @@ public class DXTFlipper {
         return data;
     }
 
-    public static void flipDXT5Block(byte[] block, int h){
+    private static void flipDXT5Block(byte[] block, int h){
         if (h == 1)
             return;
 
@@ -122,7 +123,7 @@ public class DXTFlipper {
         assert c0 == block[0] && c1 == block[1];
     }
 
-    public static void flipDXT3Block(byte[] block, int h){
+    private static void flipDXT3Block(byte[] block, int h){
         if (h == 1)
             return;
 
@@ -164,7 +165,7 @@ public class DXTFlipper {
      * @param block
      * @param h
      */
-    public static void flipDXT1Block(byte[] block, int h){
+    private static void flipDXT1orDXTA3Block(byte[] block, int h){
         byte tmp;
         switch (h){
             case 1:
@@ -244,7 +245,7 @@ public class DXTFlipper {
                 if (type == 4 || type == 5)
                     flipDXT5Block(colorBlock, h);
                 else
-                    flipDXT1Block(colorBlock, h);
+                    flipDXT1orDXTA3Block(colorBlock, h);
 
                 // write block (no need to flip block indexes, only pixels
                 // inside block
@@ -301,7 +302,7 @@ public class DXTFlipper {
                     if (type == 4 || type == 5)
                         flipDXT5Block(colorBlock, h);
                     else
-                        flipDXT1Block(colorBlock, h);
+                        flipDXT1orDXTA3Block(colorBlock, h);
                     
                     retImg.put(colorBlock);
                 }
