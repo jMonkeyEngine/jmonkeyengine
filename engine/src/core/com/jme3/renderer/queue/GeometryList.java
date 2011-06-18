@@ -35,14 +35,14 @@ package com.jme3.renderer.queue;
 import com.jme3.renderer.Camera;
 import com.jme3.scene.Geometry;
 import com.jme3.util.SortUtil;
-import java.util.Arrays;
 
 /**
- * This class is a special function list of Spatial objects for render
+ * This class is a special purpose list of {@link Geometry} objects for render
  * queuing.
  *
  * @author Jack Lindamood
  * @author Three Rings - better sorting alg.
+ * @author Kirill Vainer
  */
 public class GeometryList {
 
@@ -53,6 +53,12 @@ public class GeometryList {
     private int size;
     private GeometryComparator comparator;
 
+    /**
+     * Initializes the GeometryList to use the given {@link GeometryComparator}
+     * to use for comparing geometries.
+     * 
+     * @param comparator The comparator to use.
+     */
     public GeometryList(GeometryComparator comparator) {
         size = 0;
         geometries = new Geometry[DEFAULT_SIZE];
@@ -60,20 +66,38 @@ public class GeometryList {
         this.comparator = comparator;
     }
 
+    /**
+     * Set the camera that will be set on the geometry comparators 
+     * via {@link GeometryComparator#setCamera(com.jme3.renderer.Camera)}.
+     * 
+     * @param cam Camera to use for sorting.
+     */
     public void setCamera(Camera cam){
         this.comparator.setCamera(cam);
     }
 
+    /**
+     * Returns the number of elements in this GeometryList.
+     * 
+     * @return Number of elements in the list
+     */
     public int size(){
         return size;
     }
 
+    /**
+     * Returns the element at the given index.
+     * 
+     * @param index The index to lookup
+     * @return Geometry at the index
+     */
     public Geometry get(int index){
         return geometries[index];
     }
 
     /**
-     * Adds a geometry to the list. List size is doubled if there is no room.
+     * Adds a geometry to the list. 
+     * List size is doubled if there is no room.
      *
      * @param g
      *            The geometry to add.

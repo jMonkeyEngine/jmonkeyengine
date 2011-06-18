@@ -91,6 +91,13 @@ public class Statistics {
 
     }
 
+    /**
+     * Retrieves the statistics data into the given array.
+     * The array should be as large as the array given in 
+     * {@link #getLabels() }.
+     * 
+     * @param data The data array to write to
+     */
     public void getData(int[] data){
         data[0] = numVertices;
         data[1] = numTriangles;
@@ -110,12 +117,22 @@ public class Statistics {
         data[12] = memoryFrameBuffers;
     }
 
+    /**
+     * Called by the Renderer when a mesh has been drawn.
+     * 
+     */
     public void onMeshDrawn(Mesh mesh, int lod){
         numObjects ++;
         numTriangles += mesh.getTriangleCount(lod);
         numVertices += mesh.getVertexCount();
     }
 
+    /**
+     * Called by the Renderer when a shader has been utilized.
+     * 
+     * @param shader The shader that was used
+     * @param wasSwitched If true, the shader has required a state switch
+     */
     public void onShaderUse(Shader shader, boolean wasSwitched){
         assert shader.id >= 1;
 
@@ -126,10 +143,19 @@ public class Statistics {
             numShaderSwitches++;
     }
 
+    /**
+     * Called by the Renderer when a uniform was set.
+     */
     public void onUniformSet(){
         numUniformsSet ++;
     }
 
+    /**
+     * Called by the Renderer when a texture has been set.
+     * 
+     * @param image The image that was set
+     * @param wasSwitched If true, the texture has required a state switch
+     */
     public void onTextureUse(Image image, boolean wasSwitched){
         assert image.id >= 1;
 
@@ -140,6 +166,12 @@ public class Statistics {
             numTextureBinds ++;
     }
 
+    /**
+     * Called by the Renderer when a framebuffer has been set.
+     * 
+     * @param fb The framebuffer that was set
+     * @param wasSwitched If true, the framebuffer required a state switch
+     */
     public void onFrameBufferUse(FrameBuffer fb, boolean wasSwitched){
         if (fb != null){
             assert fb.id >= 1;
@@ -152,6 +184,9 @@ public class Statistics {
             numFboSwitches ++;
     }
     
+    /**
+     * Clears all frame-specific statistics such as objects used per frame.
+     */
     public void clearFrame(){
         shadersUsed.clear();
         texturesUsed.clear();
@@ -166,26 +201,44 @@ public class Statistics {
         numUniformsSet = 0;
     }
 
+    /**
+     * Called by the Renderer when it creates a new shader
+     */
     public void onNewShader(){
         memoryShaders ++;
     }
 
+    /**
+     * Called by the Renderer when it creates a new texture
+     */
     public void onNewTexture(){
         memoryTextures ++;
     }
 
+    /**
+     * Called by the Renderer when it creates a new framebuffer
+     */
     public void onNewFrameBuffer(){
         memoryFrameBuffers ++;
     }
 
+    /**
+     * Called by the Renderer when it deletes a shader
+     */
     public void onDeleteShader(){
         memoryShaders --;
     }
 
+    /**
+     * Called by the Renderer when it deletes a texture
+     */
     public void onDeleteTexture(){
         memoryTextures --;
     }
 
+    /**
+     * Called by the Renderer when it deletes a framebuffer
+     */
     public void onDeleteFrameBuffer(){
         memoryFrameBuffers --;
     }

@@ -41,7 +41,7 @@ package com.jme3.renderer;
 public class RendererException extends RuntimeException {
     
     /**
-     * Creates a new isntance of <code>RendererException</code>
+     * Creates a new instance of <code>RendererException</code>
      */
     public RendererException(String message){
         super(message);

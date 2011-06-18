@@ -71,9 +71,6 @@ public class OpaqueComparator implements GeometryComparator {
     }
 
     public int compare(Geometry o1, Geometry o2) {
-        if (o1 == null || o2 == null)
-            return -1;
-
         Material m1 = o1.getMaterial();
         Material m2 = o2.getMaterial();
 

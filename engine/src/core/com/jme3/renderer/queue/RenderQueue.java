@@ -37,6 +37,12 @@ import com.jme3.renderer.RenderManager;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
 
+/**
+ * <code>RenderQueue</code> is used to queue up and sort 
+ * {@link Geometry geometries} for rendering.
+ * 
+ * @author Kirill Vainer
+ */
 public class RenderQueue {
 
     private GeometryList opaqueList;
@@ -47,6 +53,10 @@ public class RenderQueue {
     private GeometryList shadowRecv;
     private GeometryList shadowCast;
 
+    /**
+     * Creates a new RenderQueue, the default {@link GeometryComparator comparators}
+     * are used for all {@link GeometryList geometry lists}.
+     */
     public RenderQueue() {
         this.opaqueList = new GeometryList(new OpaqueComparator());
         this.guiList = new GeometryList(new GuiComparator());

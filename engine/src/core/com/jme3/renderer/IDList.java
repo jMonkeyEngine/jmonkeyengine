@@ -45,6 +45,9 @@ public class IDList {
     public int newLen = 0;
     public int oldLen = 0;
 
+    /**
+     * Reset all states to zero
+     */
     public void reset(){
         newLen = 0;
         oldLen = 0;
@@ -52,6 +55,16 @@ public class IDList {
         Arrays.fill(oldList, 0);
     }
 
+    /**
+     * Adds an index to the new list.
+     * If the index was not in the old list, false is returned,
+     * if the index was in the old list, it is removed from the old
+     * list and true is returned.
+     * 
+     * @param idx The index to move
+     * @return True if it existed in old list and was removed
+     * from there, false otherwise.
+     */
     public boolean moveToNew(int idx){
         if (newLen == 0 || newList[newLen-1] != idx)
             // add item to newList first
@@ -72,12 +85,18 @@ public class IDList {
         return false;
     }
 
+    /**
+     * Copies the new list to the old list, and clears the new list.
+     */
     public void copyNewToOld(){
         System.arraycopy(newList, 0, oldList, 0, newLen);
         oldLen = newLen;
         newLen = 0;
     }
 
+    /**
+     * Prints the contents of the lists
+     */
     public void print(){
         if (newLen > 0){
             System.out.print("New List: ");
