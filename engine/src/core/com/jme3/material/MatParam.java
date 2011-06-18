@@ -29,7 +29,6 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package com.jme3.material;
 
 import com.jme3.asset.TextureKey;
@@ -67,7 +66,7 @@ public class MatParam implements Savable, Cloneable {
     /**
      * Create a new material parameter. For internal use only.
      */
-    public MatParam(VarType type, String name, Object value, FixedFuncBinding ffBinding){
+    public MatParam(VarType type, String name, Object value, FixedFuncBinding ffBinding) {
         this.type = type;
         this.name = name;
         this.prefixedName = "m_" + name;
@@ -78,7 +77,7 @@ public class MatParam implements Savable, Cloneable {
     /**
      * Serialization only. Do not use.
      */
-    public MatParam(){
+    public MatParam() {
     }
 
     /**
@@ -103,7 +102,7 @@ public class MatParam implements Savable, Cloneable {
      * Returns the name of the material parameter.
      * @return the name of the material parameter.
      */
-    public String getName(){
+    public String getName() {
         return name;
     }
 
@@ -115,13 +114,14 @@ public class MatParam implements Savable, Cloneable {
     public String getPrefixedName() {
         return prefixedName;
     }
-    
+
     /**
      * Used internally
      * @param name 
      */
     void setName(String name) {
         this.name = name;
+        this.prefixedName = "m_" + name;
     }
 
     /**
@@ -132,7 +132,7 @@ public class MatParam implements Savable, Cloneable {
      * 
      * @return the value of this material parameter.
      */
-    public Object getValue(){
+    public Object getValue() {
         return value;
     }
 
@@ -144,7 +144,7 @@ public class MatParam implements Savable, Cloneable {
      * 
      * @param value the value of this material parameter.
      */
-    public void setValue(Object value){
+    public void setValue(Object value) {
         this.value = value;
     }
 
@@ -153,11 +153,11 @@ public class MatParam implements Savable, Cloneable {
         if (techDef.isUsingShaders()) {
             technique.updateUniformParam(getPrefixedName(), getVarType(), getValue(), true);
         }
-        if (ffBinding != null && r instanceof GL1Renderer){
-            ((GL1Renderer)r).setFixedFuncBinding(ffBinding, getValue());
+        if (ffBinding != null && r instanceof GL1Renderer) {
+            ((GL1Renderer) r).setFixedFuncBinding(ffBinding, getValue());
         }
     }
-    
+
     /**
      * Returns the material parameter value as it would appear in a J3M
      * file. E.g.<br/>
@@ -171,8 +171,8 @@ public class MatParam implements Savable, Cloneable {
      * <br/><br/>
      * @return material parameter value as it would appear in a J3M file.
      */
-    public String getValueAsString(){
-        switch (type){
+    public String getValueAsString() {
+        switch (type) {
             case Boolean:
             case Float:
             case Int:
@@ -185,19 +185,19 @@ public class MatParam implements Savable, Cloneable {
                 return v3.getX() + " " + v3.getY() + " " + v3.getZ();
             case Vector4:
                 // can be either ColorRGBA, Vector4f or Quaternion
-                if (value instanceof Vector4f){
+                if (value instanceof Vector4f) {
                     Vector4f v4 = (Vector4f) value;
-                    return v4.getX() + " " + v4.getY() + " " +
-                           v4.getZ() + " " + v4.getW();
-                }else if (value instanceof ColorRGBA){
+                    return v4.getX() + " " + v4.getY() + " "
+                            + v4.getZ() + " " + v4.getW();
+                } else if (value instanceof ColorRGBA) {
                     ColorRGBA color = (ColorRGBA) value;
-                    return color.getRed()  + " " + color.getGreen() + " " +
-                           color.getBlue() + " " + color.getAlpha();
-                }else if (value instanceof Quaternion){
+                    return color.getRed() + " " + color.getGreen() + " "
+                            + color.getBlue() + " " + color.getAlpha();
+                } else if (value instanceof Quaternion) {
                     Quaternion quat = (Quaternion) value;
-                    return quat.getX() + " " + quat.getY() + " " +
-                           quat.getZ() + " " + quat.getW();
-                }else{
+                    return quat.getX() + " " + quat.getY() + " "
+                            + quat.getZ() + " " + quat.getW();
+                } else {
                     throw new UnsupportedOperationException("Unexpected Vector4 type: " + value);
                 }
             case Texture2D:
@@ -208,10 +208,12 @@ public class MatParam implements Savable, Cloneable {
                 Texture texVal = (Texture) value;
                 TextureKey texKey = (TextureKey) texVal.getKey();
                 String ret = "";
-                if (texKey.isFlipY())
+                if (texKey.isFlipY()) {
                     ret += "Flip ";
-                if (texVal.getWrap(Texture.WrapAxis.S) == WrapMode.Repeat)
+                }
+                if (texVal.getWrap(Texture.WrapAxis.S) == WrapMode.Repeat) {
                     ret += "Repeat ";
+                }
 
                 return ret + texKey.getName();
             default:
@@ -220,41 +222,41 @@ public class MatParam implements Savable, Cloneable {
     }
 
     @Override
-    public MatParam clone(){
-        try{
+    public MatParam clone() {
+        try {
             MatParam param = (MatParam) super.clone();
             return param;
-        }catch (CloneNotSupportedException ex){
+        } catch (CloneNotSupportedException ex) {
             throw new AssertionError();
         }
     }
 
-    public void write(JmeExporter ex) throws IOException{
+    public void write(JmeExporter ex) throws IOException {
         OutputCapsule oc = ex.getCapsule(this);
         oc.write(type, "varType", null);
         oc.write(name, "name", null);
         oc.write(ffBinding, "ff_binding", null);
-        if (value instanceof Savable){
+        if (value instanceof Savable) {
             Savable s = (Savable) value;
             oc.write(s, "value_savable", null);
-        }else if (value instanceof Float){
+        } else if (value instanceof Float) {
             Float f = (Float) value;
             oc.write(f.floatValue(), "value_float", 0f);
-        }else if (value instanceof Integer){
+        } else if (value instanceof Integer) {
             Integer i = (Integer) value;
             oc.write(i.intValue(), "value_int", 0);
-        }else if (value instanceof Boolean){
+        } else if (value instanceof Boolean) {
             Boolean b = (Boolean) value;
             oc.write(b.booleanValue(), "value_bool", false);
         }
     }
 
-    public void read(JmeImporter im) throws IOException{
+    public void read(JmeImporter im) throws IOException {
         InputCapsule ic = im.getCapsule(this);
         type = ic.readEnum("varType", VarType.class, null);
         name = ic.readString("name", null);
         ffBinding = ic.readEnum("ff_binding", FixedFuncBinding.class, null);
-        switch (getVarType()){
+        switch (getVarType()) {
             case Boolean:
                 value = ic.readBoolean("value_bool", false);
                 break;
@@ -271,13 +273,14 @@ public class MatParam implements Savable, Cloneable {
     }
 
     @Override
-    public boolean equals(Object other){
-        if (!(other instanceof MatParam))
+    public boolean equals(Object other) {
+        if (!(other instanceof MatParam)) {
             return false;
+        }
 
         MatParam otherParam = (MatParam) other;
-        return otherParam.type == type &&
-               otherParam.name.equals(name);
+        return otherParam.type == type
+                && otherParam.name.equals(name);
     }
 
     @Override
@@ -289,8 +292,7 @@ public class MatParam implements Savable, Cloneable {
     }
 
     @Override
-    public String toString(){
+    public String toString() {
         return type.name() + " " + name + " : " + getValueAsString();
     }
 }
-
