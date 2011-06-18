@@ -75,6 +75,7 @@ import java.nio.DoubleBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
+import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.logging.Level;
@@ -477,6 +478,14 @@ public class LwjglRenderer implements Renderer {
 
     public void setBackgroundColor(ColorRGBA color) {
         glClearColor(color.r, color.g, color.b, color.a);
+    }
+    
+    public void setAlphaToCoverage(boolean value) {
+        if (value) {
+            glEnable(ARBMultisample.GL_SAMPLE_ALPHA_TO_COVERAGE_ARB);
+        } else {
+            glDisable(ARBMultisample.GL_SAMPLE_ALPHA_TO_COVERAGE_ARB);
+        }
     }
 
     public void applyRenderState(RenderState state) {
@@ -2260,8 +2269,10 @@ public class LwjglRenderer implements Renderer {
     }
 
     private void renderMeshVertexArray(Mesh mesh, int lod, int count) {
-        if (mesh.getId() == -1) {
+        if (mesh.getId() == -1){
             updateVertexArray(mesh);
+        }else{
+            // TODO: Check if it was updated
         }
 
         if (context.boundVertexArray != mesh.getId()) {
@@ -2269,18 +2280,17 @@ public class LwjglRenderer implements Renderer {
             context.boundVertexArray = mesh.getId();
         }
 
-        IntMap<VertexBuffer> buffers = mesh.getBuffers();
+//        IntMap<VertexBuffer> buffers = mesh.getBuffers();
         VertexBuffer indices = null;
         if (mesh.getNumLodLevels() > 0) {
             indices = mesh.getLodLevel(lod);
         } else {
-            indices = buffers.get(Type.Index.ordinal());
+            indices = mesh.getBuffer(Type.Index);
         }
         if (indices != null) {
             drawTriangleList(indices, mesh, count);
         } else {
-//            throw new UnsupportedOperationException("Cannot render without index buffer");
-            glDrawArrays(convertElementMode(mesh.getMode()), 0, mesh.getVertexCount());
+            drawTriangleArray(mesh.getMode(), count, mesh.getVertexCount());
         }
         clearVertexAttribs();
         clearTextureUnits();
@@ -2294,15 +2304,19 @@ public class LwjglRenderer implements Renderer {
             updateBufferData(interleavedData);
         }
 
-        IntMap<VertexBuffer> buffers = mesh.getBuffers();
+        //IntMap<VertexBuffer> buffers = mesh.getBuffers();
+        ArrayList<VertexBuffer> buffersList = mesh.getBufferList();
+        
         if (mesh.getNumLodLevels() > 0) {
             indices = mesh.getLodLevel(lod);
         } else {
-            indices = buffers.get(Type.Index.ordinal());
+            indices = mesh.getBuffer(Type.Index);
         }
-        for (Entry<VertexBuffer> entry : buffers) {
-            VertexBuffer vb = entry.getValue();
-
+        //for (Entry<VertexBuffer> entry : buffers) {
+        //     VertexBuffer vb = entry.getValue();
+        for (int i = 0; i < buffersList.size(); i++){
+            VertexBuffer vb = buffersList.get(i);
+            
             if (vb.getBufferType() == Type.InterleavedData
                     || vb.getUsage() == Usage.CpuOnly // ignore cpu-only buffers
                     || vb.getBufferType() == Type.Index) {
@@ -2317,11 +2331,11 @@ public class LwjglRenderer implements Renderer {
                 setVertexAttrib(vb, interleavedData);
             }
         }
+        
         if (indices != null) {
             drawTriangleList(indices, mesh, count);
         } else {
-//            throw new UnsupportedOperationException("Cannot render without index buffer");
-            glDrawArrays(convertElementMode(mesh.getMode()), 0, mesh.getVertexCount());
+            drawTriangleArray(mesh.getMode(), count, mesh.getVertexCount());
         }
         clearVertexAttribs();
         clearTextureUnits();
@@ -2344,15 +2358,7 @@ public class LwjglRenderer implements Renderer {
 //        if (GLContext.getCapabilities().GL_ARB_vertex_array_object){
 //            renderMeshVertexArray(mesh, lod, count);
 //        }else{
-        renderMeshDefault(mesh, lod, count);
+            renderMeshDefault(mesh, lod, count);
 //        }
-    }
-
-    public void setAlphaToCoverage(boolean value) {
-        if (value) {
-            glEnable(ARBMultisample.GL_SAMPLE_ALPHA_TO_COVERAGE_ARB);
-        } else {
-            glDisable(ARBMultisample.GL_SAMPLE_ALPHA_TO_COVERAGE_ARB);
-        }
     }
 }
