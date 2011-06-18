@@ -49,13 +49,18 @@ import java.util.Queue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * <code>Geometry</code> defines a leaf node of the scene graph. The leaf node
+ * contains the geometric data for rendering objects. It manages all rendering
+ * information such as a {@link Material} object to define how the surface
+ * should be shaded and the {@link Mesh} data to contain the actual geometry.
+ * 
+ * @author Kirill Vainer
+ */
 public class Geometry extends Spatial {
 
     private static final Logger logger = Logger.getLogger(Geometry.class.getName());
 
-    /**
-     * The mesh contained herein
-     */
     protected Mesh mesh;
 
     protected transient int lodLevel = 0;
@@ -70,13 +75,16 @@ public class Geometry extends Spatial {
     protected transient Matrix4f cachedWorldMat = new Matrix4f();
 
     /**
-     * Do not use this constructor. Serialization purposes only.
+     * Serialization only. Do not use.
      */
     public Geometry(){
     }
 
     /**
      * Create a geometry node without any mesh data.
+     * Both the mesh and the material are null, the geometry
+     * cannot be rendered until those are set.
+     * 
      * @param name The name of this geometry
      */
     public Geometry(String name){
@@ -85,7 +93,9 @@ public class Geometry extends Spatial {
 
     /**
      * Create a geometry node with mesh data.
-     *
+     * The material of the geometry is null, it cannot
+     * be rendered until it is set.
+     * 
      * @param name The name of this geometry
      * @param mesh The mesh data for this geometry
      */
@@ -99,6 +109,7 @@ public class Geometry extends Spatial {
 
     /**
      * @return If ignoreTransform mode is set.
+     * 
      * @see Geometry#setIgnoreTransform(boolean) 
      */
     public boolean isIgnoreTransform() {
@@ -112,6 +123,14 @@ public class Geometry extends Spatial {
         this.ignoreTransform = ignoreTransform;
     }
 
+    /**
+     * Sets the LOD level to use when rendering the mesh of this geometry.
+     * Level 0 indicates that the default index buffer should be used,
+     * levels [1, LodLevels + 1] represent the levels set on the mesh
+     * with {@link Mesh#setLodLevels(com.jme3.scene.VertexBuffer[]) }.
+     * 
+     * @param lod The lod level to set
+     */
     @Override
     public void setLodLevel(int lod){
         if (mesh.getNumLodLevels() == 0)
@@ -123,35 +142,80 @@ public class Geometry extends Spatial {
         lodLevel = lod;
     }
 
+    /**
+     * Returns the LOD level set with {@link #setLodLevel(int) }.
+     * 
+     * @return the LOD level set
+     */
     public int getLodLevel(){
         return lodLevel;
     }
 
+    /**
+     * Returns this geometry's mesh vertex count.
+     * 
+     * @return this geometry's mesh vertex count.
+     * 
+     * @see Mesh#getVertexCount() 
+     */
     public int getVertexCount(){
         return mesh.getVertexCount();
     }
 
+    /**
+     * Returns this geometry's mesh triangle count.
+     * 
+     * @return this geometry's mesh triangle count.
+     * 
+     * @see Mesh#getTriangleCount() 
+     */
     public int getTriangleCount(){
         return mesh.getTriangleCount();
     }
 
+    /**
+     * Sets the mesh to use for this geometry when rendering.
+     * 
+     * @param mesh the mesh to use for this geometry
+     * 
+     * @throws IllegalArgumentException If mesh is null
+     */
     public void setMesh(Mesh mesh){
         if (mesh == null)
-            throw new NullPointerException();
+            throw new IllegalArgumentException();
 
         this.mesh = mesh;
         setBoundRefresh();
     }
 
+    /**
+     * Returns the mseh to use for this geometry
+     * 
+     * @return the mseh to use for this geometry
+     * 
+     * @see #setMesh(com.jme3.scene.Mesh) 
+     */
     public Mesh getMesh(){
         return mesh;
     }
 
+    /**
+     * Sets the material to use for this geometry.
+     * 
+     * @param material the material to use for this geometry
+     */
     @Override
     public void setMaterial(Material material){
         this.material = material;
     }
 
+    /**
+     * Returns the material that is used for this geometry.
+     * 
+     * @return the material that is used for this geometry
+     * 
+     * @see #setMaterial(com.jme3.material.Material) 
+     */
     public Material getMaterial(){
         return material;
     }
@@ -228,16 +292,26 @@ public class Geometry extends Spatial {
     }
 
     /**
-     * @return A {@link Matrix4f matrix} that transforms the {@link Geometry#getMesh() mesh}
+     * A {@link Matrix4f matrix} that transforms the {@link Geometry#getMesh() mesh}
      * from model space to world space. This matrix is computed based on the
      * {@link Geometry#getWorldTransform() world transform} of this geometry.
      * In order to receive updated values, you must call {@link Geometry#computeWorldMatrix() }
      * before using this method.
+     * 
+     * @return Matrix to transform from local space to world space
      */
     public Matrix4f getWorldMatrix(){
         return cachedWorldMat;
     }
 
+    /**
+     * Sets the model bound to use for this geometry.
+     * This alters the bound used on the mesh as well via
+     * {@link Mesh#setBound(com.jme3.bounding.BoundingVolume) } and
+     * forces the world bounding volume to be recomputed.
+     * 
+     * @param modelBound The model bound to set
+     */
     @Override
     public void setModelBound(BoundingVolume modelBound) {
         this.worldBound = null;

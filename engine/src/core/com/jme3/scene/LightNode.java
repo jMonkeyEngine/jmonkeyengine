@@ -36,7 +36,8 @@ import com.jme3.scene.control.LightControl;
 import com.jme3.scene.control.LightControl.ControlDirection;
 
 /**
- * This Node is a shorthand for using a CameraControl.
+ * <code>LightNode</code> is used to link together a {@link Light} object
+ * with a {@link Node} object. 
  *
  * @author Tim8Dev
  */
@@ -45,7 +46,7 @@ public class LightNode extends Node {
     private LightControl lightControl;
 
     /**
-     * for IO purpose
+     * Serialization only. Do not use.
      */
     public LightNode() {
     }
@@ -60,6 +61,12 @@ public class LightNode extends Node {
         lightControl = control;
     }
 
+    /**
+     * Enable or disable the <code>LightNode</code> functionality.
+     * 
+     * @param enabled If false, the functionality of LightNode will
+     * be disabled.
+     */
     public void setEnabled(boolean enabled) {
         lightControl.setEnabled(enabled);
     }

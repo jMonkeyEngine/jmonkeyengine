@@ -67,23 +67,52 @@ public class LodControl extends AbstractControl implements Cloneable {
     private int[] numTris;
 
     /**
-     * Serialization only. Do not use.
+     * Creates a new <code>LodControl</code>.
      */
     public LodControl(){
     }
 
+    /**
+     * Returns the distance tolerance for changing LOD.
+     * 
+     * @return the distance tolerance for changing LOD.
+     * 
+     * @see #setDistTolerance(float) 
+     */
     public float getDistTolerance() {
         return distTolerance;
     }
 
+    /**
+     * Specifies the distance tolerance for changing the LOD level on the geometry.
+     * The LOD level will only get changed if the geometry has moved this 
+     * distance beyond the current LOD level.
+     * 
+     * @param distTolerance distance tolerance for changing LOD
+     */
     public void setDistTolerance(float distTolerance) {
         this.distTolerance = distTolerance;
     }
 
+    /**
+     * Returns the triangles per pixel value.
+     * 
+     * @return the triangles per pixel value.
+     * 
+     * @see #setTrisPerPixel(float) 
+     */
     public float getTrisPerPixel() {
         return trisPerPixel;
     }
 
+    /**
+     * Sets the triangles per pixel value.
+     * The <code>LodControl</code> will use this value as an error metric
+     * to determine which LOD level to use based on the geometry's
+     * area on the screen.
+     * 
+     * @param trisPerPixel triangles per pixel
+     */
     public void setTrisPerPixel(float trisPerPixel) {
         this.trisPerPixel = trisPerPixel;
     }

@@ -38,6 +38,13 @@ import com.jme3.export.OutputCapsule;
 import com.jme3.export.Savable;
 import java.io.IOException;
 
+/**
+ * <code>UserData</code> is used to contain user data objects
+ * set on spatials (primarily primitives) that do not implement
+ * the {@link Savable} interface. Note that attempting
+ * to export any models which have non-savable objects
+ * attached to them will fail.
+ */
 public final class UserData implements Savable {
 
     protected byte type;
@@ -46,6 +53,13 @@ public final class UserData implements Savable {
     public UserData() {
     }
 
+    /**
+     * Creates a new <code>UserData</code> with the given 
+     * type and value.
+     * 
+     * @param type Type of data, should be between 0 and 4.
+     * @param value Value of the data
+     */
     public UserData(byte type, Object value) {
         assert type >= 0 && type <= 4;
         this.type = type;

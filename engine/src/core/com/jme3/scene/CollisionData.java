@@ -40,7 +40,7 @@ import com.jme3.math.Matrix4f;
 
 /**
  * <code>CollisionData</code> is an interface that can be used to 
- * do triangle-accurate collision between bounding volumes and rays.
+ * do triangle-accurate collision with bounding volumes and rays.
  *
  * @author Kirill Vainer
  */

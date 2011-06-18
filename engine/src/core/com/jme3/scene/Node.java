@@ -68,7 +68,7 @@ public class Node extends Spatial implements Savable {
     protected ArrayList<Spatial> children = new ArrayList<Spatial>(1);
 
     /**
-     * Default constructor.
+     * Serialization only. Do not use.
      */
     public Node() {
     }
@@ -141,11 +141,6 @@ public class Node extends Spatial implements Savable {
         this.worldBound = resultBound;
     }
 
-    /**
-     * <code>updateLogicalState</code> updates logic state. Should
-     * be overriden by subclasses desiring this functionality.
-     * @param tpf Time per frame
-     */
     @Override
     public void updateLogicalState(float tpf){
         super.updateLogicalState(tpf);
@@ -159,15 +154,6 @@ public class Node extends Spatial implements Savable {
         }
     }
 
-    /**
-     * <code>updateGeometricState</code> updates all the geometry information
-     * for the node.
-     *
-     * @param time
-     *            the frame time.
-     * @param initiator
-     *            true if this node started the update process.
-     */
     @Override
     public void updateGeometricState(){
         if ((refreshFlags & RF_LIGHTLIST) != 0){
@@ -200,6 +186,7 @@ public class Node extends Spatial implements Savable {
     /**
      * <code>getTriangleCount</code> returns the number of triangles contained
      * in all sub-branches of this node that contain geometry.
+     * 
      * @return the triangle count of this branch.
      */
     @Override
@@ -217,6 +204,7 @@ public class Node extends Spatial implements Savable {
     /**
      * <code>getVertexCount</code> returns the number of vertices contained
      * in all sub-branches of this node that contain geometry.
+     * 
      * @return the vertex count of this branch.
      */
     @Override
@@ -232,7 +220,6 @@ public class Node extends Spatial implements Savable {
     }
 
     /**
-     * 
      * <code>attachChild</code> attaches a child to this node. This node
      * becomes the child's parent. The current number of children maintained is
      * returned.
@@ -305,7 +292,7 @@ public class Node extends Spatial implements Savable {
 
     /**
      * <code>detachChild</code> removes a given child from the node's list.
-     * This child will no longe be maintained.
+     * This child will no longer be maintained.
      * 
      * @param child
      *            the child to remove.
@@ -362,7 +349,7 @@ public class Node extends Spatial implements Savable {
         Spatial child =  children.remove(index);
         if ( child != null ) {
             child.setParent( null );
-            logger.info("Child removed.");
+            logger.log(Level.INFO, "{0}: Child removed.", this.toString());
 
             // since a child with a bound was detached;
             // our own bound will probably change.
@@ -387,17 +374,27 @@ public class Node extends Spatial implements Savable {
         for ( int i = children.size() - 1; i >= 0; i-- ) {
             detachChildAt(i);
         }
-        logger.info("All children removed.");
+        logger.log(Level.INFO, "{0}: All children removed.", this.toString());
     }
 
+    /**
+     * <code>getChildIndex</code> returns the index of the given spatial
+     * in this node's list of children.
+     * @param sp
+     *          The spatial to look up
+     * @return 
+     *          The index of the spatial in the node's children, or -1
+     *          if the spatial is not attached to this node
+     */
     public int getChildIndex(Spatial sp) {
         return children.indexOf(sp);
     }
 
     /**
      * More efficient than e.g detaching and attaching as no updates are needed.
-     * @param index1
-     * @param index2
+     * 
+     * @param index1 The index of the first child to swap
+     * @param index2 The index of the second child to swap
      */
     public void swapChildren(int index1, int index2) {
         Spatial c2 =  children.get(index2);
@@ -467,7 +464,8 @@ public class Node extends Spatial implements Savable {
     }
 
     /**
-     * Returns all children to this node.
+     * Returns all children to this node. Note that modifying that given
+     * list is not allowed.
      *
      * @return a list containing all children to this node
      */

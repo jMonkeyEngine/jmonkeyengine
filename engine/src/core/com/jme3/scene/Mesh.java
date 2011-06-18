@@ -72,9 +72,13 @@ import java.util.ArrayList;
  * All visible elements in a scene are represented by meshes.
  * Meshes may contain three types of geometric primitives:
  * <ul>
- * <li>Points</li>
- * <li>Lines</li>
- * <li>Triangles</li>
+ * <li>Points - Every vertex represents a single point in space, 
+ * the size of each point is specified via {@link Mesh#setPointSize(float) }.
+ * Points can also be used for {@link RenderState#setPointSprite(boolean) point
+ * sprite} mode.</li>
+ * <li>Lines - 2 vertices represent a line segment, with the width specified
+ * via {@link Mesh#setLineWidth(float) }.</li>
+ * <li>Triangles - 3 vertices represent a solid triangle primitive. </li>
  * </ul>
  * 
  * @author Kirill Vainer

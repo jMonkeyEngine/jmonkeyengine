@@ -54,6 +54,7 @@ import java.util.logging.Logger;
  * The AssetLinkNode does not store its children when exported to file.
  * Instead, you can add a list of AssetKeys that will be loaded and attached
  * when the AssetLinkNode is restored.
+ * 
  * @author normenhansen
  */
 public class AssetLinkNode extends Node {

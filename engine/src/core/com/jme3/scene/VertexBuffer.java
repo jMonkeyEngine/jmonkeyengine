@@ -52,6 +52,15 @@ import java.nio.ShortBuffer;
  * A <code>VertexBuffer</code> contains a particular type of geometry
  * data used by {@link Mesh}es. Every VertexBuffer set on a <code>Mesh</code>
  * is sent as an attribute to the vertex shader to be processed.
+ * <p>
+ * Several terms are used throughout the javadoc for this class, explanation:
+ * <ul>
+ * <li>Element - A single element is the largest individual object
+ * inside a VertexBuffer. E.g. if the VertexBuffer is used to store 3D position
+ * data, then an element will be a single 3D vector.</li>
+ * <li>Component - A component represents the parts inside an element. 
+ * For a 3D vector, a single component is one of the dimensions, X, Y or Z.</li>
+ * </ul>
  */
 public class VertexBuffer extends GLObject implements Savable, Cloneable {
 
@@ -65,17 +74,17 @@ public class VertexBuffer extends GLObject implements Savable, Cloneable {
         Position,
 
         /**
-         * The size of the point when using point buffers.
+         * The size of the point when using point buffers (float).
          */
         Size,
 
         /**
-         * Normal vector, normalized.
+         * Normal vector, normalized (3 floats).
          */
         Normal,
 
         /**
-         * Texture coordinate
+         * Texture coordinate (2 float)
          */
         TexCoord,
 
@@ -85,18 +94,19 @@ public class VertexBuffer extends GLObject implements Savable, Cloneable {
         Color,
 
         /**
-         * Tangent vector, normalized.
+         * Tangent vector, normalized (3 floats)
          */
         Tangent,
 
         /**
-         * Binormal vector, normalized.
+         * Binormal vector, normalized (3 floats, optional)
          */
         Binormal,
 
         /**
          * Specifies the source data for various vertex buffers
-         * when interleaving is used.
+         * when interleaving is used. By default the format is
+         * byte.
          */
         InterleavedData,
 
@@ -107,27 +117,42 @@ public class VertexBuffer extends GLObject implements Savable, Cloneable {
         MiscAttrib,
 
         /**
-         * Specifies the index buffer, must contain integer data.
+         * Specifies the index buffer, must contain integer data
+         * (ubyte, ushort, or uint).
          */
         Index,
 
         /** 
-         * Inital vertex position, used with animation 
+         * Initial vertex position, used with animation.
+         * Should have the same format and size as {@link Type#Position}.
+         * If used with software skinning, the usage should be 
+         * {@link Usage#CpuOnly}, and the buffer should be allocated
+         * on the heap.
          */
         BindPosePosition,
 
         /** 
-         * Inital vertex normals, used with animation
+         * Initial vertex normals, used with animation.
+         * Should have the same format and size as {@link Type#Normal}.
+         * If used with software skinning, the usage should be 
+         * {@link Usage#CpuOnly}, and the buffer should be allocated
+         * on the heap.
          */
         BindPoseNormal,
 
         /** 
-         * Bone weights, used with animation
+         * Bone weights, used with animation (4 floats).
+         * If used with software skinning, the usage should be 
+         * {@link Usage#CpuOnly}, and the buffer should be allocated
+         * on the heap.
          */
         BoneWeight,
 
         /** 
-         * Bone indices, used with animation
+         * Bone indices, used with animation (4 ubytes).
+         * If used with software skinning, the usage should be 
+         * {@link Usage#CpuOnly}, and the buffer should be allocated
+         * on the heap.
          */
         BoneIndex,
 
@@ -190,24 +215,68 @@ public class VertexBuffer extends GLObject implements Savable, Cloneable {
         Stream,
 
         /**
-         * Mesh data is not sent to GPU at all. It is only
+         * Mesh data is <em>not</em> sent to GPU at all. It is only
          * used by the CPU.
          */
         CpuOnly;
     }
 
+    /**
+     * Specifies format of the data stored in the buffer.
+     * This should directly correspond to the buffer's class, for example,
+     * an {@link Format#UnsignedShort} formatted buffer should use the
+     * class {@link ShortBuffer} (e.g. the closest resembling type).
+     * For the {@link Format#Half} type, {@link ByteBuffer}s should
+     * be used.
+     */
     public static enum Format {
-        // Floating point formats
+        /**
+         * Half precision floating point.
+         * 2 bytes, signed.
+         */
         Half(2),
+        
+        /**
+         * Single precision floating point.
+         * 4 bytes, signed
+         */
         Float(4),
+        
+        /**
+         * Double precision floating point.
+         * 8 bytes, signed. May not
+         * be supported by all GPUs.
+         */
         Double(8),
 
-        // Integer formats
+        /**
+         * 1 byte integer, signed.
+         */
         Byte(1),
+        
+        /**
+         * 1 byte integer, unsigned.
+         */
         UnsignedByte(1),
+        
+        /**
+         * 2 byte integer, signed.
+         */
         Short(2),
+        
+        /**
+         * 2 byte integer, unsigned.
+         */
         UnsignedShort(2),
+        
+        /**
+         * 4 byte integer, signed.
+         */
         Int(4),
+        
+        /**
+         * 4 byte integer, unsigned.
+         */
         UnsignedInt(4);
 
         private int componentSize = 0;
@@ -217,6 +286,8 @@ public class VertexBuffer extends GLObject implements Savable, Cloneable {
         }
 
         /**
+         * Returns the size in bytes of this data type.
+         * 
          * @return Size in bytes of this data type.
          */
         public int getComponentSize(){
@@ -250,7 +321,7 @@ public class VertexBuffer extends GLObject implements Savable, Cloneable {
     }
 
     /**
-     * Do not use this constructor. Serialization purposes only.
+     * Serialization only. Do not use.
      */
     public VertexBuffer(){
         super(GLObject.Type.VertexBuffer);
@@ -261,8 +332,9 @@ public class VertexBuffer extends GLObject implements Savable, Cloneable {
     }
 
     /**
-     * @return The offset (in bytes) from the start of the buffer
-     * after which the data is sent to the GPU.
+     * @return The offset after which the data is sent to the GPU.
+     * 
+     * @see #setOffset(int) 
      */
     public int getOffset() {
         return offset;
@@ -277,20 +349,22 @@ public class VertexBuffer extends GLObject implements Savable, Cloneable {
     }
 
     /**
-     * @return The stride (in bytes) for the data. If the data is packed
-     * in the buffer, then stride is 0, if there's other data that is between
-     * the current component and the next component in the buffer, then this
-     * specifies the size in bytes of that additional data.
+     * @return The stride (in bytes) for the data. 
+     * 
+     * @see #setStride(int) 
      */
     public int getStride() {
         return stride;
     }
 
     /**
-     * @param stride The stride (in bytes) for the data. If the data is packed
-     * in the buffer, then stride is 0, if there's other data that is between
-     * the current component and the next component in the buffer, then this
-     * specifies the size in bytes of that additional data.
+     * Set the stride (in bytes) for the data. 
+     * <p>
+     * If the data is packed in the buffer, then stride is 0, if there's other 
+     * data that is between the current component and the next component in the 
+     * buffer, then this specifies the size in bytes of that additional data.
+     * 
+     * @param stride the stride (in bytes) for the data
      */
     public void setStride(int stride) {
         this.stride = stride;
@@ -432,6 +506,11 @@ public class VertexBuffer extends GLObject implements Savable, Cloneable {
         setUpdateNeeded();
     }
 
+    /**
+     * Returns true if the data size of the VertexBuffer has changed.
+     * Internal use only.
+     * @return true if the data size has changed
+     */
     public boolean hasDataSizeChanged() {
         return dataSizeChanged;
     }
@@ -477,7 +556,7 @@ public class VertexBuffer extends GLObject implements Savable, Cloneable {
      * of elements, any elements at the end of the buffer are truncated
      * as necessary.
      *
-     * @param numElements
+     * @param numElements The number of elements to reduce to.
      */
     public void compact(int numElements){
         int total = components * numElements;
@@ -523,6 +602,16 @@ public class VertexBuffer extends GLObject implements Savable, Cloneable {
         dataSizeChanged = true;
     }
 
+    /**
+     * Modify a component inside an element.
+     * The <code>val</code> parameter must be in the buffer's format:
+     * {@link Format}.
+     * 
+     * @param elementIndex The element index to modify
+     * @param componentIndex The component index to modify
+     * @param val The value to set, either byte, short, int or float depending
+     * on the {@link Format}.
+     */
     public void setElementComponent(int elementIndex, int componentIndex, Object val){
         int inPos = elementIndex * components;
         int elementPos = componentIndex;
@@ -560,6 +649,14 @@ public class VertexBuffer extends GLObject implements Savable, Cloneable {
         }
     }
 
+    /**
+     * Get the component inside an element.
+     * 
+     * @param elementIndex The element index
+     * @param componentIndex The component index
+     * @return The component, as one of the primitive types, byte, short,
+     * int or float.
+     */
     public Object getElementComponent(int elementIndex, int componentIndex){
         int inPos = elementIndex * components;
         int elementPos = componentIndex;
@@ -597,9 +694,12 @@ public class VertexBuffer extends GLObject implements Savable, Cloneable {
      * Copies a single element of data from this <code>VertexBuffer</code>
      * to the given output VertexBuffer.
      * 
-     * @param inIndex
-     * @param outVb
-     * @param outIndex
+     * @param inIndex The input element index
+     * @param outVb The buffer to copy to
+     * @param outIndex The output element index
+     * 
+     * @throws IllegalArgumentException If the formats of the buffers do not
+     * match.
      */
     public void copyElement(int inIndex, VertexBuffer outVb, int outIndex){
         if (outVb.format != format || outVb.components != components)
@@ -692,6 +792,11 @@ public class VertexBuffer extends GLObject implements Savable, Cloneable {
         }
     }
 
+    /**
+     * Creates a deep clone of the {@link VertexBuffer}.
+     * 
+     * @return Deep clone of this buffer
+     */
     @Override
     public VertexBuffer clone(){
         // NOTE: Superclass GLObject automatically creates shallow clone
@@ -705,6 +810,13 @@ public class VertexBuffer extends GLObject implements Savable, Cloneable {
         return vb;
     }
 
+    /**
+     * Creates a deep clone of this VertexBuffer but overrides the
+     * {@link Type}.
+     * 
+     * @param overrideType The type of the cloned VertexBuffer
+     * @return A deep clone of the buffer
+     */
     public VertexBuffer clone(Type overrideType){
         VertexBuffer vb = new VertexBuffer(overrideType);
         vb.components = components;

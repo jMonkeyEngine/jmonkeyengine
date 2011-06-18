@@ -39,6 +39,9 @@ import com.jme3.scene.Spatial;
 
 /**
  * An interface for scene-graph controls. 
+ * <p>
+ * <code>Control</code>s are used to specify certain update and render logic
+ * for a {@link Spatial}. 
  *
  * @author Kirill Vainer
  */

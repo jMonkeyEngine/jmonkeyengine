@@ -66,8 +66,8 @@ import java.util.logging.Logger;
 /**
  * <code>Spatial</code> defines the base class for scene graph nodes. It
  * maintains a link to a parent, it's local transforms and the world's
- * transforms. All other nodes, such as <code>Node</code> and
- * <code>Geometry</code> are subclasses of <code>Spatial</code>.
+ * transforms. All other scene graph elements, such as {@link Node} and
+ * {@link Geometry} are subclasses of <code>Spatial</code>.
  *
  * @author Mark Powell
  * @author Joshua Slack
@@ -77,24 +77,30 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
 
     private static final Logger logger = Logger.getLogger(Spatial.class.getName());
 
+    /**
+     * Specifies how frustum culling should be handled by 
+     * this spatial.
+     */
     public enum CullHint {
-
+        
         /** 
-         * Do whatever our parent does. If no parent, we'll default to dynamic.
+         * Do whatever our parent does. If no parent, default to {@link #Dynamic}.
          */
         Inherit,
         /**
          * Do not draw if we are not at least partially within the view frustum
-         * of the renderer's camera.
+         * of the camera. This is determined via the defined
+         * Camera planes whether or not this Spatial should be culled.
          */
         Dynamic,
         /** 
-         * Always cull this from view.
+         * Always cull this from the view, throwing away this object
+         * and any children from rendering commands.
          */
         Always,
         /**
-         * Never cull this from view. Note that we will still get culled if our
-         * parent is culled.
+         * Never cull this from view, always draw it. 
+         * Note that we will still get culled if our parent is culled.
          */
         Never;
     }
@@ -138,7 +144,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
     protected transient int refreshFlags = 0;
 
     /**
-     * Default Constructor.
+     * Serialization only. Do not use.
      */
     public Spatial() {
         localTransform = new Transform();
@@ -156,7 +162,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
      *
      * @param name
      *            the name of the scene element. This is required for
-     *            identification and comparision purposes.
+     *            identification and comparison purposes.
      */
     public Spatial(String name) {
         this();
@@ -232,12 +238,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
             if (getQueueBucket() == Bucket.Gui) {
                 return cam.containsGui(getWorldBound());
             } else {
-
-//                int state = cam.getPlaneState();
-
                 frustrumIntersects = cam.contains(getWorldBound());
-
-//                cam.setPlaneState(state);
             }
         }
 
@@ -263,10 +264,25 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
         return name;
     }
 
+    /**
+     * Returns the local {@link LightList}, which are the lights
+     * that were directly attached to this <code>Spatial</code> through the
+     * {@link #addLight(com.jme3.light.Light) } and 
+     * {@link #removeLight(com.jme3.light.Light) } methods.
+     * 
+     * @return The local light list
+     */
     public LightList getLocalLightList() {
         return localLights;
     }
 
+    /**
+     * Returns the world {@link LightList}, containing the lights
+     * combined from all this <code>Spatial's</code> parents up to and including
+     * this <code>Spatial</code>'s lights.
+     * 
+     * @return The combined world light list
+     */
     public LightList getWorldLightList() {
         return worldLights;
     }
@@ -275,7 +291,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
      * <code>getWorldRotation</code> retrieves the absolute rotation of the
      * Spatial.
      *
-     * @return the Spatial's world rotation matrix.
+     * @return the Spatial's world rotation quaternion.
      */
     public Quaternion getWorldRotation() {
         checkDoTransformUpdate();
@@ -286,7 +302,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
      * <code>getWorldTranslation</code> retrieves the absolute translation of
      * the spatial.
      *
-     * @return the world's tranlsation vector.
+     * @return the Spatial's world tranlsation vector.
      */
     public Vector3f getWorldTranslation() {
         checkDoTransformUpdate();
@@ -297,7 +313,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
      * <code>getWorldScale</code> retrieves the absolute scale factor of the
      * spatial.
      *
-     * @return the world's scale factor.
+     * @return the Spatial's world scale factor.
      */
     public Vector3f getWorldScale() {
         checkDoTransformUpdate();
@@ -316,8 +332,8 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
     }
 
     /**
-     * <code>rotateUpTo</code> is a util function that alters the
-     * localrotation to point the Y axis in the direction given by newUp.
+     * <code>rotateUpTo</code> is a utility function that alters the
+     * local rotation to point the Y axis in the direction given by newUp.
      *
      * @param newUp
      *            the up vector to use - assumed to be a unit vector.
@@ -350,11 +366,11 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
     }
 
     /**
-     * <code>lookAt</code> is a convienence method for auto-setting the local
+     * <code>lookAt</code> is a convenience method for auto-setting the local
      * rotation based on a position and an up vector. It computes the rotation
      * to transform the z-axis to point onto 'position' and the y-axis to 'up'.
-     * Unlike {@link Quaternion#lookAt} this method takes a world position to
-     * look at not a relative direction.
+     * Unlike {@link Quaternion#lookAt(com.jme3.math.Vector3f, com.jme3.math.Vector3f) } 
+     * this method takes a world position to look at and not a relative direction.
      *
      * @param position
      *            where to look at in terms of world coordinates
@@ -377,7 +393,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
     }
 
     /**
-     * Should be overriden by Node and Geometry.
+     * Should be overridden by Node and Geometry.
      */
     protected void updateWorldBound() {
         // the world bound of a leaf is the same as it's model bound
@@ -418,6 +434,10 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
         }
     }
 
+    /**
+     * Computes the world transform of this Spatial in the most 
+     * efficient manner possible.
+     */
     void checkDoTransformUpdate() {
         if ((refreshFlags & RF_TRANSFORM) == 0) {
             return;
@@ -464,6 +484,10 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
         }
     }
 
+    /**
+     * Computes this Spatial's world bounding volume in the most efficient
+     * manner possible.
+     */
     void checkDoBoundUpdate() {
         if ((refreshFlags & RF_BOUND) == 0) {
             return;
@@ -675,7 +699,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
     }
 
     /**
-     * <code>getParent</code> retrieve's this node's parent. If the parent is
+     * <code>getParent</code> retrieves this node's parent. If the parent is
      * null this is the root node.
      *
      * @return the parent of this node.
@@ -737,7 +761,8 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
     }
 
     /**
-     * <code>setLocalRotation</code> sets the local rotation of this node.
+     * <code>setLocalRotation</code> sets the local rotation of this node
+     * by using a {@link Matrix3f}.
      *
      * @param rotation
      *            the new local rotation.
@@ -749,11 +774,10 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
     }
 
     /**
-     * <code>setLocalRotation</code> sets the local rotation of this node,
-     * using a quaterion to build the matrix.
+     * <code>setLocalRotation</code> sets the local rotation of this node.
      *
      * @param quaternion
-     *            the quaternion that defines the matrix.
+     *            the new local rotation.
      */
     public void setLocalRotation(Quaternion quaternion) {
         localTransform.setRotation(quaternion);
@@ -1261,13 +1285,8 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
 
     /**
      * <code>setCullHint</code> sets how scene culling should work on this
-     * spatial during drawing. CullHint.Dynamic: Determine via the defined
-     * Camera planes whether or not this Spatial should be culled.
-     * CullHint.Always: Always throw away this object and any children during
-     * draw commands. CullHint.Never: Never throw away this object (always draw
-     * it) CullHint.Inherit: Look for a non-inherit parent and use its cull
-     * mode. NOTE: You must set this AFTER attaching to a parent or it will be
-     * reset with the parent's cullMode value.
+     * spatial during drawing. NOTE: You must set this AFTER attaching to a 
+     * parent or it will be reset with the parent's cullMode value.
      *
      * @param hint
      *            one of CullHint.Dynamic, CullHint.Always, CullHint.Inherit or
@@ -1286,21 +1305,10 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
 
     /**
      * <code>setQueueBucket</code> determines at what phase of the
-     * rendering proces this Spatial will rendered. There are 4 different
-     * phases: Bucket.Opaque - The renderer will
-     * try to find the optimal order for rendering all objects using this mode.
-     * You should use this mode for most normal objects, except transparant
-     * ones, as it could give a nice performance boost to your application.
-     * Bucket.Transparent - This is the mode you should use for object with
-     * transparancy in them. It will ensure the objects furthest away are
-     * rendered first. That ensures when another transparent object is drawn on
-     * top of previously drawn objects, you can see those (and the object drawn
-     * using Opaque) through the tranparant parts of the newly drawn
-     * object. Bucket.Gui - This is a special mode, for drawing 2D object
-     * without prespective (such as GUI or HUD parts) Lastly, there is a special
-     * mode, Bucket.Inherit, that will ensure that this spatial uses the same
-     * mode as the parent Node does.
-     *
+     * rendering process this Spatial will rendered. See the
+     * {@link Bucket} enum for an explanation of the various 
+     * render queue buckets.
+     * 
      * @param queueBucket
      *            The bucket to use for this Spatial.
      */
@@ -1312,7 +1320,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
      * Sets the shadow mode of the spatial
      * The shadow mode determines how the spatial should be shadowed,
      * when a shadowing technique is used. See the
-     * documentation for the class ShadowMode for more information.
+     * documentation for the class {@link ShadowMode} for more information.
      *
      * @see ShadowMode
      *
@@ -1355,8 +1363,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
     /**
      * Overrides the last intersection result. This is useful for operations
      * that want to start rendering at the middle of a scene tree and don't want
-     * the parent of that node to influence culling. (See texture renderer code
-     * for example.)
+     * the parent of that node to influence culling.
      *
      * @param intersects
      *            the new value
