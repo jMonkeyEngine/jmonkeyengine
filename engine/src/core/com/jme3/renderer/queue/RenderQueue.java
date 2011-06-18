@@ -208,6 +208,19 @@ public class RenderQueue {
         }
     }
 
+    /**
+     * Adds a geometry to a shadow bucket.
+     * Note that this operation is done automatically by the
+     * {@link RenderManager}. {@link SceneProcessor}s that handle
+     * shadow rendering should fetch the queue by using
+     * {@link #getShadowQueueContent(com.jme3.renderer.queue.RenderQueue.ShadowMode) },
+     * by default no action is taken on the shadow queues.
+     * 
+     * @param g The geometry to add
+     * @param shadBucket The shadow bucket type, if it is
+     * {@link ShadowMode#CastAndReceive}, it is added to both the cast
+     * and the receive buckets.
+     */
     public void addToShadowQueue(Geometry g, ShadowMode shadBucket) {
         switch (shadBucket) {
             case Inherit:
@@ -229,6 +242,16 @@ public class RenderQueue {
         }
     }
 
+    /**
+     * Adds a geometry to the given bucket.
+     * The {@link RenderManager} automatically handles this task
+     * when flattening the scene graph. The bucket to add
+     * the geometry is determined by {@link Geometry#getQueueBucket() }.
+     * 
+     * @param g  The geometry to add
+     * @param bucket The bucket to add to, usually 
+     * {@link Geometry#getQueueBucket() }.
+     */
     public void addToQueue(Geometry g, Bucket bucket) {
         switch (bucket) {
             case Gui:
@@ -251,6 +274,11 @@ public class RenderQueue {
         }
     }
 
+    /**
+     * 
+     * @param shadBucket
+     * @return 
+     */
     public GeometryList getShadowQueueContent(ShadowMode shadBucket) {
         switch (shadBucket) {
             case Cast:
@@ -258,7 +286,7 @@ public class RenderQueue {
             case Receive:
                 return shadowRecv;
             default:
-                return null;
+                throw new IllegalArgumentException("Only Cast or Receive are allowed");
         }
     }
 
