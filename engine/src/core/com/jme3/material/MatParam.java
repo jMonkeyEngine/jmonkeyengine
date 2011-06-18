@@ -60,6 +60,7 @@ public class MatParam implements Savable, Cloneable {
 
     protected VarType type;
     protected String name;
+    protected String prefixedName;
     protected Object value;
     protected FixedFuncBinding ffBinding;
 
@@ -69,6 +70,7 @@ public class MatParam implements Savable, Cloneable {
     public MatParam(VarType type, String name, Object value, FixedFuncBinding ffBinding){
         this.type = type;
         this.name = name;
+        this.prefixedName = "m_" + name;
         this.value = value;
         this.ffBinding = ffBinding;
     }
@@ -106,6 +108,15 @@ public class MatParam implements Savable, Cloneable {
     }
 
     /**
+     * Returns the name with "m_" prefixed to it.
+     * 
+     * @return the name with "m_" prefixed to it
+     */
+    public String getPrefixedName() {
+        return prefixedName;
+    }
+    
+    /**
      * Used internally
      * @param name 
      */
@@ -140,7 +151,7 @@ public class MatParam implements Savable, Cloneable {
     void apply(Renderer r, Technique technique) {
         TechniqueDef techDef = technique.getDef();
         if (techDef.isUsingShaders()) {
-            technique.updateUniformParam(getName(), getVarType(), getValue(), true);
+            technique.updateUniformParam(getPrefixedName(), getVarType(), getValue(), true);
         }
         if (ffBinding != null && r instanceof GL1Renderer){
             ((GL1Renderer)r).setFixedFuncBinding(ffBinding, getValue());
