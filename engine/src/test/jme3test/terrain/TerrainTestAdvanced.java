@@ -47,12 +47,10 @@ import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
-import com.jme3.scene.shape.Box;
 import com.jme3.terrain.geomipmap.TerrainLodControl;
 import com.jme3.terrain.heightmap.AbstractHeightMap;
 import com.jme3.terrain.heightmap.ImageBasedHeightMap;
 import com.jme3.terrain.geomipmap.TerrainQuad;
-import com.jme3.terrain.geomipmap.lodcalc.LodPerspectiveCalculatorFactory;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
 import com.jme3.util.SkyFactory;
@@ -60,7 +58,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 
+ * Uses the terrain's lighting texture with normal maps and lights.
  *
  * @author bowens
  */
@@ -104,17 +102,18 @@ public class TerrainTestAdvanced extends SimpleApplication {
         matTerrain.setBoolean("WardIso", true);
 
         // ALPHA map (for splat textures)
-        matTerrain.setTexture("AlphaMap", assetManager.loadTexture("Textures/Terrain/splat/alphamap.png"));
+        matTerrain.setTexture("AlphaMap", assetManager.loadTexture("Textures/Terrain/splat/alpha1.png"));
+        matTerrain.setTexture("AlphaMap_1", assetManager.loadTexture("Textures/Terrain/splat/alpha2.png"));
 
         // HEIGHTMAP image (for the terrain heightmap)
         Texture heightMapImage = assetManager.loadTexture("Textures/Terrain/splat/mountains512.png");
+
 
         // GRASS texture
         Texture grass = assetManager.loadTexture("Textures/Terrain/splat/grass.jpg");
         grass.setWrap(WrapMode.Repeat);
         matTerrain.setTexture("DiffuseMap", grass);
         matTerrain.setFloat("DiffuseMap_0_scale", grassScale);
-
 
         // DIRT texture
         Texture dirt = assetManager.loadTexture("Textures/Terrain/splat/dirt.jpg");
@@ -128,6 +127,18 @@ public class TerrainTestAdvanced extends SimpleApplication {
         matTerrain.setTexture("DiffuseMap_2", rock);
         matTerrain.setFloat("DiffuseMap_2_scale", rockScale);
 
+        // BRICK texture
+        Texture brick = assetManager.loadTexture("Textures/Terrain/BrickWall/BrickWall.jpg");
+        brick.setWrap(WrapMode.Repeat);
+        matTerrain.setTexture("DiffuseMap_3", brick);
+        matTerrain.setFloat("DiffuseMap_3_scale", rockScale);
+
+        // RIVER ROCK texture
+        Texture riverRock = assetManager.loadTexture("Textures/Terrain/Pond/Pond.png");
+        riverRock.setWrap(WrapMode.Repeat);
+        matTerrain.setTexture("DiffuseMap_4", riverRock);
+        matTerrain.setFloat("DiffuseMap_4_scale", rockScale);
+
 
         Texture normalMap0 = assetManager.loadTexture("Textures/Terrain/splat/grass_normal.jpg");
         normalMap0.setWrap(WrapMode.Repeat);
@@ -138,6 +149,7 @@ public class TerrainTestAdvanced extends SimpleApplication {
         matTerrain.setTexture("NormalMap", normalMap0);
         matTerrain.setTexture("NormalMap_1", normalMap2);
         matTerrain.setTexture("NormalMap_2", normalMap2);
+        matTerrain.setTexture("NormalMap_4", normalMap2);
 
         // WIREFRAME material
         matWire = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
@@ -230,11 +242,15 @@ public class TerrainTestAdvanced extends SimpleApplication {
                     matTerrain.setFloat("DiffuseMap_0_scale", 1f / (float) (512f / grassScale));
                     matTerrain.setFloat("DiffuseMap_1_scale", 1f / (float) (512f / dirtScale));
                     matTerrain.setFloat("DiffuseMap_2_scale", 1f / (float) (512f / rockScale));
+                    matTerrain.setFloat("DiffuseMap_3_scale", 1f / (float) (512f / rockScale));
+                    matTerrain.setFloat("DiffuseMap_4_scale", 1f / (float) (512f / rockScale));
                 } else {
                     matTerrain.setBoolean("useTriPlanarMapping", false);
                     matTerrain.setFloat("DiffuseMap_0_scale", grassScale);
                     matTerrain.setFloat("DiffuseMap_1_scale", dirtScale);
                     matTerrain.setFloat("DiffuseMap_2_scale", rockScale);
+                    matTerrain.setFloat("DiffuseMap_3_scale", rockScale);
+                    matTerrain.setFloat("DiffuseMap_4_scale", rockScale);
                 }
             }
         }

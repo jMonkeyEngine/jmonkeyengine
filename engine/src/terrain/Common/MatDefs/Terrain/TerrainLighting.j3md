@@ -40,6 +40,27 @@ MaterialDef Terrain Lighting {
         Float DiffuseMap_3_scale
         Texture2D NormalMap_3
 
+        // Texture map #4
+        Texture2D DiffuseMap_4
+        Float DiffuseMap_4_scale
+        Texture2D NormalMap_4
+
+        // Texture map #5
+        Texture2D DiffuseMap_5
+        Float DiffuseMap_5_scale
+        Texture2D NormalMap_5
+
+        // Texture map #6
+        Texture2D DiffuseMap_6
+        Float DiffuseMap_6_scale
+        Texture2D NormalMap_6
+
+        // Texture map #7
+        Texture2D DiffuseMap_7
+        Float DiffuseMap_7_scale
+        Texture2D NormalMap_7
+
+
         // Specular/gloss map
         Texture2D SpecularMap
 
@@ -78,10 +99,18 @@ MaterialDef Terrain Lighting {
             DIFFUSEMAP_1 : DiffuseMap_1
             DIFFUSEMAP_2 : DiffuseMap_2
             DIFFUSEMAP_3 : DiffuseMap_3
+            DIFFUSEMAP_4 : DiffuseMap_4
+            DIFFUSEMAP_5 : DiffuseMap_5
+            DIFFUSEMAP_6 : DiffuseMap_6
+            DIFFUSEMAP_7 : DiffuseMap_7
             NORMALMAP : NormalMap
             NORMALMAP_1 : NormalMap_1
             NORMALMAP_2 : NormalMap_2
             NORMALMAP_3 : NormalMap_3
+            NORMALMAP_4 : NormalMap_4
+            NORMALMAP_5 : NormalMap_5
+            NORMALMAP_6 : NormalMap_6
+            NORMALMAP_7 : NormalMap_7
             SPECULARMAP : SpecularMap
             ALPHAMAP : AlphaMap
             ALPHAMAP_1 : AlphaMap_1
@@ -90,6 +119,10 @@ MaterialDef Terrain Lighting {
             DIFFUSEMAP_1_SCALE : DiffuseMap_1_scale
             DIFFUSEMAP_2_SCALE : DiffuseMap_2_scale
             DIFFUSEMAP_3_SCALE : DiffuseMap_3_scale
+            DIFFUSEMAP_4_SCALE : DiffuseMap_4_scale
+            DIFFUSEMAP_5_SCALE : DiffuseMap_5_scale
+            DIFFUSEMAP_6_SCALE : DiffuseMap_6_scale
+            DIFFUSEMAP_7_SCALE : DiffuseMap_7_scale
         }
     }
 
