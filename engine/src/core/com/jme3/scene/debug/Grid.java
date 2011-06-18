@@ -39,8 +39,19 @@ import com.jme3.util.BufferUtils;
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
 
+/**
+ * Simple grid shape.
+ * 
+ * @author Kirill Vainer
+ */
 public class Grid extends Mesh {
 
+    /**
+     * Creates a grid debug shape.
+     * @param xLines
+     * @param yLines
+     * @param lineDist 
+     */
     public Grid(int xLines, int yLines, float lineDist){
         xLines -= 2;
         yLines -= 2;
@@ -90,4 +101,5 @@ public class Grid extends Mesh {
         updateBound();
         updateCounts();
     }
+    
 }

@@ -42,8 +42,35 @@ import java.nio.Buffer;
  * @author lex
  */
 public abstract class IndexBuffer {
+    /**
+     * Returns the vertex index for the given index in the index buffer.
+     * 
+     * @param i The index inside the index buffer
+     * @return 
+     */
     public abstract int get(int i);
+    
+    /**
+     * Puts the vertex index at the index buffer's index.
+     * Implementations may throw an {@link UnsupportedOperationException}
+     * if modifying the IndexBuffer is not supported (e.g. virtual index
+     * buffers).
+     */
     public abstract void put(int i, int value);
+    
+    /**
+     * Returns the size of the index buffer.
+     * 
+     * @return the size of the index buffer.
+     */
     public abstract int size();
+    
+    /**
+     * Returns the underlying data-type specific {@link Buffer}.
+     * Implementations may return null if there's no underlying
+     * buffer.
+     * 
+     * @return the underlying {@link Buffer}.
+     */
     public abstract Buffer getBuffer();
 }

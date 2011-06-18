@@ -45,7 +45,6 @@ import static com.jme3.util.BufferUtils.*;
 
 import java.io.IOException;
 import java.nio.FloatBuffer;
-import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
 
 /**

@@ -39,7 +39,11 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- *
+ * A <code>Curve</code> is a visual, line-based representation of a {@link Spline}.
+ * The underlying Spline will be sampled N times where N is the number of 
+ * segments as specified in the constructor. Each segment will represent
+ * one line in the generated mesh.
+ * 
  * @author Nehon
  */
 public class Curve extends Mesh {
@@ -48,8 +52,15 @@ public class Curve extends Mesh {
     private Vector3f temp = new Vector3f();
 
     /**
-     * Create a curve mesh
+     * Serialization only. Do not use.
+     */
+    public Curve(){
+    }
+    
+    /**
+     * Create a curve mesh.
      * Use a CatmullRom spline model that does not cycle.
+     * 
      * @param controlPoints the control points to use to create this curve
      * @param nbSubSegments the number of subsegments between the control points
      */
@@ -59,6 +70,7 @@ public class Curve extends Mesh {
 
     /**
      * Create a curve mesh from a Spline
+     * 
      * @param spline the spline to use
      * @param nbSubSegments the number of subsegments between the control points
      */

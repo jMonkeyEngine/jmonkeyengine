@@ -29,7 +29,6 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package com.jme3.terrain;
 
 import com.jme3.material.Material;
@@ -64,7 +63,7 @@ public interface Terrain {
      * @return the height, unscaled and uninterpolated
      */
     public float getHeightmapHeight(Vector2f xz);
-	
+
     /**
      * Set the height at the specified X-Z coordinate.
      * To set the height of the terrain and see it, you will have
@@ -129,7 +128,7 @@ public interface Terrain {
      * and the less detailed it will be.
      */
     public int getMaxLod();
-	
+
     /**
      * Called in the update (pre or post, up to you) method of your game.
      * Calculates the level of detail of the terrain and adjusts its geometry.
@@ -139,7 +138,7 @@ public interface Terrain {
      * @param location often the Camera's location
      */
     public void update(List<Vector3f> location);
-	
+
     /**
      * Get the spatial instance of this Terrain. Right now just used in the 
      * terrain editor in JMP.
@@ -161,7 +160,6 @@ public interface Terrain {
      * cached ahead of time. Use this method to do that.
      */
     public void generateEntropy(ProgressMonitor monitor);
-
 
     /**
      * Returns the material that this terrain uses.
@@ -195,5 +193,4 @@ public interface Terrain {
      * texture scales.
      */
     public float getTextureCoordinateScale();
-    
 }

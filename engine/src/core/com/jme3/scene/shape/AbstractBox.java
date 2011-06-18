@@ -48,7 +48,7 @@ import java.io.IOException;
  * a way as to generate an axis-aligned box.
  * <p>
  * This class does not control how the geometry data is generated, see {@link Box}
- * and {@link StripBox} for that.
+ * for that.
  *
  * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
  * @version $Revision: 4131 $, $Date: 2009-03-19 16:15:28 -0400 (Thu, 19 Mar 2009) $
@@ -87,7 +87,7 @@ public abstract class AbstractBox extends Mesh {
     }
 
     /**
-     * Convert the indices into the list of vertices that define the box's tri-mesh.
+     * Convert the indices into the list of vertices that define the box's geometry.
      */
     protected abstract void duUpdateGeometryIndices();
     
@@ -111,22 +111,30 @@ public abstract class AbstractBox extends Mesh {
      */
     protected abstract void duUpdateGeometryVertices();
 
-    /** Get the centre point of this box. */
+    /** 
+     * Get the center point of this box. 
+     */
     public final Vector3f getCenter() {
         return center;
     }
 
-    /** Get the x-axis size (extent) of this box. */
+    /** 
+     * Get the x-axis size (extent) of this box. 
+     */
     public final float getXExtent() {
         return xExtent;
     }
 
-    /** Get the y-axis size (extent) of this box. */
+    /** 
+     * Get the y-axis size (extent) of this box. 
+     */
     public final float getYExtent() {
         return yExtent;
     }
 
-    /** Get the z-axis size (extent) of this box. */
+    /** 
+     * Get the z-axis size (extent) of this box.
+     */
     public final float getZExtent() {
         return zExtent;
     }
@@ -180,6 +188,7 @@ public abstract class AbstractBox extends Mesh {
         updateGeometry(center, x, y, z);
     }
 
+    @Override
     public void read(JmeImporter e) throws IOException {
         super.read(e);
         InputCapsule capsule = e.getCapsule(this);
@@ -189,6 +198,7 @@ public abstract class AbstractBox extends Mesh {
         center.set((Vector3f) capsule.readSavable("center", Vector3f.ZERO.clone()));
     }
 
+    @Override
     public void write(JmeExporter e) throws IOException {
         super.write(e);
         OutputCapsule capsule = e.getCapsule(this);

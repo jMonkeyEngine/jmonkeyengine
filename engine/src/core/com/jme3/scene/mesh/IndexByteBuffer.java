@@ -36,7 +36,8 @@ import java.nio.Buffer;
 import java.nio.ByteBuffer;
 
 /**
- *
+ * IndexBuffer implementation for {@link ByteBuffer}s.
+ * 
  * @author lex
  */
 public class IndexByteBuffer extends IndexBuffer {

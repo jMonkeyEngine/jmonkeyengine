@@ -9,9 +9,12 @@ import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
 
 /**
- * <code>WrappedIndexBuffer</code> converts from one representation of mesh
- * data to another. For example it can be used to read TriangleStrip data
- * as if it was in Triangle format.
+ * <code>WrappedIndexBuffer</code> converts vertex indices from a non list based
+ * mesh mode such as {@link Mode#TriangleStrip} or {@link Mode#LineLoop}
+ * into a list based mode such as {@link Mode#Triangles} or {@link Mode#Lines}.
+ * As it is often more convenient to read vertex data in list format
+ * than in a non-list format, using this class is recommended to avoid
+ * convoluting classes used to process mesh data from an external source.
  * 
  * @author Kirill Vainer
  */

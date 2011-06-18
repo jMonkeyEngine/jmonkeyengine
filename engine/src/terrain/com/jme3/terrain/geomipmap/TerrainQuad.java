@@ -111,6 +111,7 @@ public class TerrainQuad extends Node implements Terrain {
     protected ExecutorService executor = Executors.newSingleThreadExecutor(new ThreadFactory() {
         public Thread newThread(Runnable r) {
             Thread th = new Thread(r);
+            th.setName("jME Terrain Thread");
             th.setDaemon(true);
             return th;
         }

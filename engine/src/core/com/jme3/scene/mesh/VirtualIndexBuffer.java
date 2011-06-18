@@ -3,12 +3,28 @@ package com.jme3.scene.mesh;
 import com.jme3.scene.Mesh.Mode;
 import java.nio.Buffer;
 
+/**
+ * IndexBuffer implementation that generates vertex indices sequentially
+ * based on a specific Mesh {@link Mode}.
+ * The generated indices are as if the mesh is in the given mode
+ * but contains no index buffer, thus this implementation will
+ * return the indices if the index buffer was there and contained sequential
+ * triangles.
+ * Example:
+ * <ul>
+ * <li>{@link Mode#Triangles}: 0, 1, 2 | 3, 4, 5 | 6, 7, 8 | ...</li>
+ * <li>{@link Mode#TriangleStrip}: 0, 1, 2 | 2, 1, 3 | 2, 3, 4 | ...</li>
+ * <li>{@link Mode#TriangleFan}: 0, 1, 2 | 0, 2, 3 | 0, 3, 4 | ...</li>
+ * </ul>
+ * 
+ * @author Kirill Vainer
+ */
 public class VirtualIndexBuffer extends IndexBuffer {
 
     protected int numVerts = 0;
     protected int numIndices = 0;
     protected Mode meshMode;
-
+ 
     public VirtualIndexBuffer(int numVerts, Mode meshMode){
         this.numVerts = numVerts;
         this.meshMode = meshMode;

@@ -37,9 +37,17 @@ import com.jme3.scene.Mesh;
 import com.jme3.scene.VertexBuffer.Type;
 import java.nio.FloatBuffer;
 
+/**
+ * The <code>Arrow</code> debug shape represents an arrow.
+ * An arrow is simply a line going from the original toward an extent
+ * and at the tip there will be triangle-like shape.
+ * 
+ * @author Kirill Vainer
+ */
 public class Arrow extends Mesh {
-    Quaternion tempQuat = new Quaternion();
-    Vector3f tempVec = new Vector3f();
+    
+    private Quaternion tempQuat = new Quaternion();
+    private Vector3f tempVec = new Vector3f();
 
     private static final float[] positions = new float[]{
         0, 0, 0,
@@ -50,15 +58,25 @@ public class Arrow extends Mesh {
         0, -0.05f, 0.9f, // tip buttom
     };
 
+    /**
+     * Serialization only. Do not use.
+     */
     public Arrow() {
     }
 
+    /**
+     * Creates an arrow mesh with the given extent.
+     * The arrow will start at the origin (0,0,0) and finish
+     * at the given extent.
+     * 
+     * @param extent Extent of the arrow from origin
+     */
     public Arrow(Vector3f extent) {
         float len = extent.length();
         Vector3f dir = extent.normalize();
 
         tempQuat.lookAt(dir, Vector3f.UNIT_Y);
-        tempQuat.normalize();
+        tempQuat.normalizeLocal();
 
         float[] newPositions = new float[positions.length];
         for (int i = 0; i < positions.length; i += 3) {
@@ -87,12 +105,18 @@ public class Arrow extends Mesh {
         updateCounts();
     }
 
+    /**
+     * Sets the arrow's extent.
+     * This will modify the buffers on the mesh.
+     * 
+     * @param extent the arrow's extent.
+     */
     public void setArrowExtent(Vector3f extent) {
         float len = extent.length();
 //        Vector3f dir = extent.normalize();
 
         tempQuat.lookAt(extent, Vector3f.UNIT_Y);
-        tempQuat.normalize();
+        tempQuat.normalizeLocal();
 
         FloatBuffer buffer = getFloatBuffer(Type.Position);
         buffer.rewind();

@@ -36,7 +36,8 @@ import com.jme3.scene.control.CameraControl;
 import com.jme3.scene.control.CameraControl.ControlDirection;
 
 /**
- * This Node is a shorthand for using a CameraControl.
+ * <code>CameraNode</code> simply uses {@link CameraControl} to implement
+ * linking of camera and node data.
  *
  * @author Tim8Dev
  */
@@ -45,7 +46,7 @@ public class CameraNode extends Node {
     private CameraControl camControl;
 
     /**
-     * for IO purpose
+     * Serialization only. Do not use.
      */
     public CameraNode() {
     }

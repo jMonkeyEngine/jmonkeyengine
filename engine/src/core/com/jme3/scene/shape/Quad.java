@@ -32,24 +32,48 @@
 
 package com.jme3.scene.shape;
 
-import com.jme3.scene.*;
+import com.jme3.scene.Mesh;
 import com.jme3.scene.VertexBuffer.Type;
 
+/**
+ * <code>Quad</code> represents a rectangular plane in space
+ * defined by 4 vertices. The quad's lower-left side is contained
+ * at the local space origin (0, 0, 0), while the upper-right
+ * side is located at the width/height coordinates (width, height, 0).
+ * 
+ * @author Kirill Vainer
+ */
 public class Quad extends Mesh {
 
     private float width;
     private float height;
 
     /**
-     * Do not use this constructor. Serialization purposes only.
+     * Serialization only. Do not use.
      */
     public Quad(){
     }
 
+    /**
+     * Create a quad with the given width and height. The quad
+     * is always created in the XY plane.
+     * 
+     * @param width The X extent or width
+     * @param height The Y extent or width
+     */
     public Quad(float width, float height){
         updateGeometry(width, height);
     }
 
+    /**
+     * Create a quad with the given width and height. The quad
+     * is always created in the XY plane.
+     * 
+     * @param width The X extent or width
+     * @param height The Y extent or width
+     * @param flipCoords If true, the texture coordinates will be flipped
+     * along the Y axis.
+     */
     public Quad(float width, float height, boolean flipCoords){
         updateGeometry(width, height, flipCoords);
     }

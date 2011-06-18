@@ -28,7 +28,8 @@ import com.jme3.terrain.heightmap.HeightMapGrid;
  */
 public class TerrainGrid extends TerrainQuad {
 
-    private static Logger log = Logger.getLogger(TerrainGrid.class.getCanonicalName());
+    private static final Logger log = Logger.getLogger(TerrainGrid.class.getCanonicalName());
+    
     private Vector3f currentCell;
     private int quarterSize;
     private int quadSize;

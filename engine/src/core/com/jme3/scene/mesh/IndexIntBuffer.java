@@ -36,7 +36,8 @@ import java.nio.Buffer;
 import java.nio.IntBuffer;
 
 /**
- *
+ * IndexBuffer implementation for {@link IntBuffer}s.
+ * 
  * @author lex
  */
 public class IndexIntBuffer extends IndexBuffer {

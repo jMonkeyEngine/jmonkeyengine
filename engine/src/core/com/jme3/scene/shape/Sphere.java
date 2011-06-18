@@ -58,11 +58,16 @@ import java.nio.ShortBuffer;
 public class Sphere extends Mesh {
 
     public enum TextureMode {
-        /** Wrap texture radially and along z-axis */
+        /** 
+         * Wrap texture radially and along z-axis 
+         */
         Original,
-        /** Wrap texure radially, but spherically project along z-axis */
+        /** 
+         * Wrap texure radially, but spherically project along z-axis 
+         */
         Projected,
-        /** Apply texture to each pole.  Eliminates polar distortion,
+        /** 
+         * Apply texture to each pole.  Eliminates polar distortion,
          * but mirrors the texture across the equator 
          */
         Polar
@@ -86,7 +91,7 @@ public class Sphere extends Mesh {
     protected TextureMode textureMode = TextureMode.Original;
 
     /**
-     * Empty constructor for serialization only, do not use.
+     * Serialization only. Do not use.
      */
     public Sphere(){
     }

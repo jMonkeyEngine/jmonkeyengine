@@ -70,7 +70,7 @@ public class Dome extends Mesh {
     private boolean outsideView = true;
 
     /**
-     * Constructs a dome. By default the dome has not geometry data or center.
+     * Serialization only. Do not use.
      */
     public Dome() {
     }
@@ -140,25 +140,29 @@ public class Dome extends Mesh {
         return center;
     }
 
-    /** Get the number of planar segments along the z-axis of the dome. */
+    /** 
+     * Get the number of planar segments along the z-axis of the dome. 
+     */
     public int getPlanes() {
         return planes;
     }
 
-    /** Get the number of samples radially around the main axis of the dome. */
+    /** 
+     * Get the number of samples radially around the main axis of the dome. 
+     */
     public int getRadialSamples() {
         return radialSamples;
     }
 
-    /** Get the radius of the dome. */
+    /** 
+     * Get the radius of the dome. 
+     */
     public float getRadius() {
         return radius;
     }
 
     /**
-     * Are the triangles connected in such a way as to present aview out from the dome or not.
-     * 
-     * @return
+     * Are the triangles connected in such a way as to present a view out from the dome or not.
      */
     public boolean isOutsideView() {
         return outsideView;
@@ -298,6 +302,7 @@ public class Dome extends Mesh {
         updateBound();
     }
 
+    @Override
     public void read(JmeImporter e) throws IOException {
         super.read(e);
         InputCapsule capsule = e.getCapsule(this);
@@ -307,9 +312,7 @@ public class Dome extends Mesh {
         center = (Vector3f) capsule.readSavable("center", Vector3f.ZERO.clone());
     }
 
-    /**
-     * Generates the connections
-     */
+    @Override
     public void write(JmeExporter e) throws IOException {
         super.write(e);
         OutputCapsule capsule = e.getCapsule(this);
