@@ -62,6 +62,7 @@ import com.jme3.scene.plugins.blender.utils.DataRepository;
 import com.jme3.scene.plugins.blender.utils.DataRepository.LoadedFeatureDataType;
 import com.jme3.scene.plugins.blender.utils.DynamicArray;
 import com.jme3.scene.plugins.blender.utils.Pointer;
+import com.jme3.scene.plugins.blender.utils.Properties;
 import com.jme3.scene.plugins.ogre.AnimData;
 
 /**
@@ -259,6 +260,13 @@ public class ObjectHelper extends AbstractBlenderHelper {
 		} finally {
 			dataRepository.popParent();
 		}
+		
+		//reading custom properties
+		Properties properties = this.loadProperties(objectStructure, dataRepository);
+		if(properties != null && properties.getValue() != null) {
+			((Node)result).setUserData("properties", properties);
+		}
+		
 		if(result != null) {
 			dataRepository.addLoadedFeatures(objectStructure.getOldMemoryAddress(), name, objectStructure, result);
 		}

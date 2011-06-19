@@ -34,6 +34,8 @@ package com.jme3.scene.plugins.blender.utils;
 import java.nio.FloatBuffer;
 import java.util.List;
 
+import com.jme3.scene.plugins.blender.data.Structure;
+import com.jme3.scene.plugins.blender.exception.BlenderFileException;
 import com.jme3.util.BufferUtils;
 
 /**
@@ -43,62 +45,85 @@ import com.jme3.util.BufferUtils;
  */
 public abstract class AbstractBlenderHelper {
 
-    /** The version of the blend file. */
-    protected final int blenderVersion;
+	/** The version of the blend file. */
+	protected final int	blenderVersion;
 
-    /**
-     * This constructor parses the given blender version and stores the result. Some functionalities may differ in different blender
-     * versions.
-     * @param blenderVersion
-     *            the version read from the blend file
-     */
-    public AbstractBlenderHelper(String blenderVersion) {
-        this.blenderVersion = Integer.parseInt(blenderVersion);
-    }
+	/**
+	 * This constructor parses the given blender version and stores the result. Some functionalities may differ in different blender
+	 * versions.
+	 * @param blenderVersion
+	 *        the version read from the blend file
+	 */
+	public AbstractBlenderHelper(String blenderVersion) {
+		this.blenderVersion = Integer.parseInt(blenderVersion);
+	}
 
-    /**
-     * This method clears the state of the helper so that it can be used for different calculations of another feature.
-     */
-    public void clearState() {
-    }
+	/**
+	 * This method clears the state of the helper so that it can be used for different calculations of another feature.
+	 */
+	public void clearState() {}
 
-    /**
-     * This method should be used to check if the text is blank. Avoid using text.trim().length()==0. This causes that more strings are
-     * being created and stored in the memory. It can be unwise especially inside loops.
-     * @param text
-     *            the text to be checked
-     * @return <b>true</b> if the text is blank and <b>false</b> otherwise
-     */
-    protected boolean isBlank(String text) {
-        if (text != null) {
-            for (int i = 0; i < text.length(); ++i) {
-                if (!Character.isWhitespace(text.charAt(i))) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
+	/**
+	 * This method should be used to check if the text is blank. Avoid using text.trim().length()==0. This causes that more strings are
+	 * being created and stored in the memory. It can be unwise especially inside loops.
+	 * @param text
+	 *        the text to be checked
+	 * @return <b>true</b> if the text is blank and <b>false</b> otherwise
+	 */
+	protected boolean isBlank(String text) {
+		if (text != null) {
+			for (int i = 0; i < text.length(); ++i) {
+				if (!Character.isWhitespace(text.charAt(i))) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
 
-    /**
-     * Generate a new FloatBuffer using the given array of float[4] objects. The FloatBuffer will be 4 * data.length
-     * long and contain the vector data as data[0][0], data[0][1], data[0][2], data[0][3], data[1][0]... etc.
-     * @param data
-     *        list of float[4] objects to place into a new FloatBuffer
-     */
-    protected FloatBuffer createFloatBuffer(List<float[]> data) {
-        if (data == null) {
-            return null;
-        }
-        FloatBuffer buff = BufferUtils.createFloatBuffer(4 * data.size());
-        for (float[] v : data) {
-            if (v != null) {
-                buff.put(v[0]).put(v[1]).put(v[2]).put(v[3]);
-            } else {
-                buff.put(0).put(0).put(0).put(0);
-            }
-        }
-        buff.flip();
-        return buff;
-    }
+	/**
+	 * Generate a new FloatBuffer using the given array of float[4] objects. The FloatBuffer will be 4 * data.length
+	 * long and contain the vector data as data[0][0], data[0][1], data[0][2], data[0][3], data[1][0]... etc.
+	 * @param data
+	 *        list of float[4] objects to place into a new FloatBuffer
+	 */
+	protected FloatBuffer createFloatBuffer(List<float[]> data) {
+		if (data == null) {
+			return null;
+		}
+		FloatBuffer buff = BufferUtils.createFloatBuffer(4 * data.size());
+		for (float[] v : data) {
+			if (v != null) {
+				buff.put(v[0]).put(v[1]).put(v[2]).put(v[3]);
+			} else {
+				buff.put(0).put(0).put(0).put(0);
+			}
+		}
+		buff.flip();
+		return buff;
+	}
+
+	/**
+	 * This method loads the properties if they are available and defined for the structure.
+	 * @param structure
+	 *        the structure we read the properties from
+	 * @param dataRepository
+	 *        the data repository
+	 * @return loaded properties or null if they are not available
+	 * @throws BlenderFileException
+	 *         an exception is thrown when the blend file is somehow corrupted
+	 */
+	protected Properties loadProperties(Structure structure, DataRepository dataRepository) throws BlenderFileException {
+		Properties properties = null;
+		Structure id = (Structure) structure.getFieldValue("ID");
+		if (id != null) {
+			Pointer pProperties = (Pointer) id.getFieldValue("properties");
+			if (!pProperties.isNull()) {
+				Structure propertiesStructure = pProperties.fetchData(dataRepository.getInputStream()).get(0);
+				properties = new Properties();
+				properties.load(propertiesStructure, dataRepository);
+			}
+		}
+		return properties;
+	}
 }

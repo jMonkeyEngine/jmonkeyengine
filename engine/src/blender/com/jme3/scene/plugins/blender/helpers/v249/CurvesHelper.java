@@ -30,6 +30,7 @@ import com.jme3.scene.plugins.blender.utils.BlenderInputStream;
 import com.jme3.scene.plugins.blender.utils.DataRepository;
 import com.jme3.scene.plugins.blender.utils.DynamicArray;
 import com.jme3.scene.plugins.blender.utils.Pointer;
+import com.jme3.scene.plugins.blender.utils.Properties;
 import com.jme3.scene.shape.Curve;
 import com.jme3.scene.shape.Surface;
 import com.jme3.util.BufferUtils;
@@ -203,6 +204,15 @@ public class CurvesHelper extends AbstractBlenderHelper {
                 }
             }
         }
+        
+        //reading custom properties
+		Properties properties = this.loadProperties(curveStructure, dataRepository);
+		if(properties != null && properties.getValue() != null) {
+			for(Geometry geom : result) {
+				geom.setUserData("properties", properties);
+			}
+		}
+        
         return result;
     }
 

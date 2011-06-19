@@ -58,6 +58,7 @@ import com.jme3.scene.plugins.blender.utils.DataRepository;
 import com.jme3.scene.plugins.blender.utils.DataRepository.LoadedFeatureDataType;
 import com.jme3.scene.plugins.blender.utils.DynamicArray;
 import com.jme3.scene.plugins.blender.utils.Pointer;
+import com.jme3.scene.plugins.blender.utils.Properties;
 import com.jme3.texture.Texture;
 import com.jme3.util.BufferUtils;
 
@@ -292,6 +293,9 @@ public class MeshHelper extends AbstractBlenderHelper {
 					BufferUtils.createFloatBuffer(uvCoordinates.toArray(new Vector2f[uvCoordinates.size()])));
 		}
 
+		//reading custom properties
+		Properties properties = this.loadProperties(structure, dataRepository);
+		
 		// generating meshes
 		FloatBuffer verticesColorsBuffer = this.createFloatBuffer(verticesColors);
 		for (Entry<Integer, List<Integer>> meshEntry : meshesMap.entrySet()) {
@@ -363,6 +367,9 @@ public class MeshHelper extends AbstractBlenderHelper {
 				geometry.setMaterial(material);
 			} else {
 				geometry.setMaterial(dataRepository.getDefaultMaterial());
+			}
+			if(properties != null && properties.getValue() != null) {
+				geometry.setUserData("properties", properties);
 			}
 			geometries.add(geometry);
 		}
