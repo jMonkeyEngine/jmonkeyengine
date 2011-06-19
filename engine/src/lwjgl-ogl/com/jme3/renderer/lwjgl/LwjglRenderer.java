@@ -2068,7 +2068,7 @@ public class LwjglRenderer implements Renderer {
 
         int programId = context.boundShaderProgram;
         if (programId > 0) {
-            Attribute attrib = boundShader.getAttribute(vb.getBufferType().name());
+            Attribute attrib = boundShader.getAttribute(vb.getBufferType());
             int loc = attrib.getLocation();
             if (loc == -1) {
                 return; // not defined

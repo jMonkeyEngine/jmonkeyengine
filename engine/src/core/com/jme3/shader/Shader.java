@@ -39,6 +39,9 @@ import com.jme3.export.OutputCapsule;
 import com.jme3.export.Savable;
 import com.jme3.renderer.GLObject;
 import com.jme3.renderer.Renderer;
+import com.jme3.scene.VertexBuffer;
+import com.jme3.util.IntMap;
+import com.jme3.util.IntMap.Entry;
 import com.jme3.util.ListMap;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -69,7 +72,7 @@ public final class Shader extends GLObject implements Savable {
     /**
      * Maps attribute name to the location of the attribute in the shader.
      */
-    private HashMap<String, Attribute> attribs;
+    private IntMap<Attribute> attribs;
 
     /**
      * Type of shader. The shader will control the pipeline of it's type.
@@ -220,7 +223,7 @@ public final class Shader extends GLObject implements Savable {
         shaderList = new ArrayList<ShaderSource>();
 //        uniforms = new HashMap<String, Uniform>();
         uniforms = new ListMap<String, Uniform>();
-        attribs = new HashMap<String, Attribute>();
+        attribs = new IntMap<Attribute>();
     }
 
     /**
@@ -235,7 +238,7 @@ public final class Shader extends GLObject implements Savable {
         shaderList = new ArrayList<ShaderSource>();
 //        uniforms = new HashMap<String, Uniform>();
         uniforms = new ListMap<String, Uniform>();
-        attribs = new HashMap<String, Attribute>();
+        attribs = new IntMap<Attribute>();
         for (ShaderSource source : s.shaderList){
             addSource((ShaderSource) source.createDestructableClone());
         }
@@ -245,7 +248,7 @@ public final class Shader extends GLObject implements Savable {
         OutputCapsule oc = ex.getCapsule(this);
         oc.write(language, "language", null);
         oc.writeSavableArrayList(shaderList, "shaderList", null);
-        oc.writeStringSavableMap(attribs, "attribs", null);
+        oc.writeIntSavableMap(attribs, "attribs", null);
         oc.writeStringSavableMap(uniforms, "uniforms", null);
     }
 
@@ -253,7 +256,7 @@ public final class Shader extends GLObject implements Savable {
         InputCapsule ic = im.getCapsule(this);
         language = ic.readString("language", null);
         shaderList = ic.readSavableArrayList("shaderList", null);
-        attribs = (HashMap<String, Attribute>) ic.readStringSavableMap("attribs", null);
+        attribs = (IntMap<Attribute>) ic.readIntSavableMap("attribs", null);
 
         HashMap<String, Uniform> uniMap = (HashMap<String, Uniform>) ic.readStringSavableMap("uniforms", null);
         uniforms = new ListMap<String, Uniform>(uniMap);
@@ -331,12 +334,13 @@ public final class Shader extends GLObject implements Savable {
         uniforms.remove(name);
     }
 
-    public Attribute getAttribute(String name){
-        Attribute attrib = attribs.get(name);
+    public Attribute getAttribute(VertexBuffer.Type attribType){
+        int ordinal = attribType.ordinal();
+        Attribute attrib = attribs.get(ordinal);
         if (attrib == null){
             attrib = new Attribute();
-            attrib.name = name;
-            attribs.put(name, attrib);
+            attrib.name = attribType.name();
+            attribs.put(ordinal, attrib);
         }
         return attrib;
     }
@@ -349,9 +353,9 @@ public final class Shader extends GLObject implements Savable {
         return uniforms;
     }
 
-    public Collection<Attribute> getAttributes() {
-        return attribs.values();
-    }
+//    public Collection<Attribute> getAttributes() {
+//        return attribs.
+//    }
 
     public Collection<ShaderSource> getSources(){
         return shaderList;
@@ -402,8 +406,8 @@ public final class Shader extends GLObject implements Savable {
         for (Uniform uniform : uniforms.values()){
             uniform.reset(); // fixes issue with re-initialization
         }
-        for (Attribute attrib : attribs.values()){
-            attrib.location = -2;
+        for (Entry<Attribute> entry : attribs){
+            entry.getValue().location = -2;
         }
     }
 

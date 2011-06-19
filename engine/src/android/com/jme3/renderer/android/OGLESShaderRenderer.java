@@ -2347,7 +2347,7 @@ public class OGLESShaderRenderer implements Renderer {
 
         int programId = context.boundShaderProgram;
         if (programId > 0) {
-            Attribute attrib = boundShader.getAttribute(vb.getBufferType().name());
+            Attribute attrib = boundShader.getAttribute(vb.getBufferType());
             int loc = attrib.getLocation();
             if (loc == -1) {
 
@@ -2874,7 +2874,7 @@ public class OGLESShaderRenderer implements Renderer {
         if (programId > 0) {
             VertexBuffer[] attribs = context.boundAttribs;
 
-            Attribute attrib = boundShader.getAttribute(vb.getBufferType().name());
+            Attribute attrib = boundShader.getAttribute(vb.getBufferType());
             int loc = attrib.getLocation();
             if (loc == -1) {
                 //throw new IllegalArgumentException("Location is invalid for attrib: [" + vb.getBufferType().name() + "]");
