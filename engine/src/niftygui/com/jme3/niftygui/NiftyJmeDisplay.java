@@ -35,6 +35,7 @@ package com.jme3.niftygui;
 import com.jme3.asset.AssetInfo;
 import com.jme3.asset.AssetKey;
 import com.jme3.asset.AssetManager;
+import com.jme3.asset.AssetNotFoundException;
 import com.jme3.audio.AudioRenderer;
 import com.jme3.input.InputManager;
 import com.jme3.post.SceneProcessor;
@@ -71,7 +72,11 @@ public class NiftyJmeDisplay implements SceneProcessor {
         public InputStream getResourceAsStream(String path) {
             AssetKey<Object> key = new AssetKey<Object>(path);
             AssetInfo info = assetManager.locateAsset(key);
-            return info.openStream();
+            if (info != null){
+                return info.openStream();
+            }else{
+                throw new AssetNotFoundException(path);
+            }
         }
 
         public URL getResource(String path) {

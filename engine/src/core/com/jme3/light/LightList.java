@@ -223,7 +223,7 @@ public final class LightList implements Iterable<Light>, Savable, Cloneable {
             }
 
             // now merge sort tlist into list
-            SortUtil.msort(tlist, list, 0, listSize, c);
+            SortUtil.msort(tlist, list, 0, listSize - 1, c);
         }
     }
 

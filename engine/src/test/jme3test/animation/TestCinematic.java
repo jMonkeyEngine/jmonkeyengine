@@ -56,6 +56,7 @@ import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
 import com.jme3.post.FilterPostProcessor;
 import com.jme3.post.filters.FadeFilter;
+import com.jme3.renderer.Caps;
 import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.CameraNode;
 import com.jme3.scene.Geometry;
@@ -94,7 +95,7 @@ public class TestCinematic extends SimpleApplication {
         createScene();
 
         cinematic = new Cinematic(rootNode, 20);
-        cinematic.bindUi("jme3test/animation/subtitle.xml");
+        cinematic.bindUi("Interface/Nifty/CinematicTest.xml");
         stateManager.attach(cinematic);
 
         createCameraMotion();
@@ -158,7 +159,6 @@ public class TestCinematic extends SimpleApplication {
 
             @Override
             public void onPause() {
-               
             }
         });
 
@@ -175,9 +175,9 @@ public class TestCinematic extends SimpleApplication {
             }
 
             public void onStop(CinematicEvent cinematic) {
-               chaseCam.setEnabled(true);               
-               fade.setValue(1);
-               System.out.println("stop");
+                chaseCam.setEnabled(true);
+                fade.setValue(1);
+                System.out.println("stop");
             }
         });
 
@@ -215,7 +215,6 @@ public class TestCinematic extends SimpleApplication {
         model.setShadowMode(ShadowMode.CastAndReceive);
         rootNode.attachChild(model);
 
-
         Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         mat.setColor("Color", ColorRGBA.Cyan);
 
@@ -224,8 +223,6 @@ public class TestCinematic extends SimpleApplication {
         teapot.setMaterial(mat);
         teapot.setShadowMode(ShadowMode.CastAndReceive);
         rootNode.attachChild(teapot);
-
-
 
         Material matSoil = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
         matSoil.setBoolean("UseMaterialColors", true);
@@ -242,24 +239,22 @@ public class TestCinematic extends SimpleApplication {
         light.setColor(ColorRGBA.White.mult(1.5f));
         rootNode.addLight(light);
 
-        PssmShadowRenderer pssm = new PssmShadowRenderer(assetManager, 512, 1);
-        pssm.setDirection(new Vector3f(0, -1, -1).normalizeLocal());
-        pssm.setShadowIntensity(0.4f);
-        viewPort.addProcessor(pssm);
-
         fpp = new FilterPostProcessor(assetManager);
-        //fpp.setNumSamples(4);
         fade = new FadeFilter();
         fpp.addFilter(fade);
-        viewPort.addProcessor(fpp);
-
+        
+        if (renderer.getCaps().contains(Caps.GLSL100)){
+            PssmShadowRenderer pssm = new PssmShadowRenderer(assetManager, 512, 1);
+            pssm.setDirection(new Vector3f(0, -1, -1).normalizeLocal());
+            pssm.setShadowIntensity(0.4f);
+            viewPort.addProcessor(pssm);
+            viewPort.addProcessor(fpp);
+        }
     }
 
     private void initInputs() {
         inputManager.addMapping("togglePause", new KeyTrigger(keyInput.KEY_RETURN));
-
         ActionListener acl = new ActionListener() {
-
             public void onAction(String name, boolean keyPressed, float tpf) {
                 if (name.equals("togglePause") && keyPressed) {
                     if (cinematic.getPlayState() == PlayState.Playing) {
@@ -271,8 +266,6 @@ public class TestCinematic extends SimpleApplication {
 
             }
         };
-
         inputManager.addListener(acl, "togglePause");
-
     }
 }

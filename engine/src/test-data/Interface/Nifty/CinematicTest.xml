@@ -3,7 +3,7 @@
   <screen id="start" controller="de.lessvoid.nifty.examples.helloworld.HelloWorldStartScreen">
     <layer id="layer" backgroundColor="#0000" childLayout="center">
       <panel id="panel"  width="100%"  backgroundColor="#0000" childLayout="center" visibleToMouse="true" >
-          <text id="text" font="aurulent-sans-17.fnt" color="#000f" text="" align="center" valign="bottom"  />
+          <text id="text" font="aurulent-sans-16.fnt" color="#000f" text="" align="center" valign="bottom"  />
       </panel>
     </layer>
   </screen>

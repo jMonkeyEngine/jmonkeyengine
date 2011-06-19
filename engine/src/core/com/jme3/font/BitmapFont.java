@@ -204,8 +204,15 @@ public class BitmapFont implements Savable {
         charSet.merge(newFont.charSet);
         final int size1 = this.pages.length;
         final int size2 = newFont.pages.length;
-        this.pages = Arrays.copyOf(this.pages, size1+size2);
-        System.arraycopy(newFont.pages, 0, this.pages, size1, size2);
+        
+        Material[] tmp = new Material[size1+size2];
+        System.arraycopy(this.pages, 0, tmp, 0, size1);
+        System.arraycopy(newFont.pages, 0, tmp, size1, size2);
+        
+        this.pages = tmp;
+        
+//        this.pages = Arrays.copyOf(this.pages, size1+size2);
+//        System.arraycopy(newFont.pages, 0, this.pages, size1, size2);
     }
 
     public void setStyle(int style) {
