@@ -63,7 +63,7 @@ public class Plane implements Savable, Cloneable {
     /** 
      * Vector normal to the plane.
      */
-    protected Vector3f normal;
+    protected Vector3f normal = new Vector3f();
 
     /** 
      * Constant of the plane. See formula in class definition.
@@ -75,7 +75,6 @@ public class Plane implements Savable, Cloneable {
      * default object and contains a normal of (0,0,0) and a constant of 0.
      */
     public Plane() {
-        normal = new Vector3f();
     }
 
     /**
@@ -89,10 +88,10 @@ public class Plane implements Savable, Cloneable {
      */
     public Plane(Vector3f normal, float constant) {
         if (normal == null) {
-            logger.warning("Normal was null, created default normal.");
-            normal = new Vector3f();
+            throw new IllegalArgumentException("normal cannot be null");
         }
-        this.normal = normal;
+
+        this.normal.set(normal);
         this.constant = constant;
     }
 
@@ -104,8 +103,7 @@ public class Plane implements Savable, Cloneable {
      */
     public void setNormal(Vector3f normal) {
         if (normal == null) {
-            logger.warning("Normal was null, created default normal.");
-            normal = new Vector3f();
+            throw new IllegalArgumentException("normal cannot be null");
         }
         this.normal.set(normal);
     }
@@ -113,13 +111,10 @@ public class Plane implements Savable, Cloneable {
     /**
      * <code>setNormal</code> sets the normal of the plane.
      *
-     * @param normal
-     *            the new normal of the plane.
      */
     public void setNormal(float x, float y, float z) {
         if (normal == null) {
-            logger.warning("Normal was null, created default normal.");
-            normal = new Vector3f();
+            throw new IllegalArgumentException("normal cannot be null");
         }
         this.normal.set(x,y,z);
     }

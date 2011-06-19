@@ -37,8 +37,10 @@ import com.jme3.collision.CollisionResult;
 import com.jme3.collision.CollisionResults;
 import com.jme3.font.BitmapText;
 import com.jme3.input.KeyInput;
+import com.jme3.input.MouseInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
+import com.jme3.input.controls.MouseButtonTrigger;
 import com.jme3.light.AmbientLight;
 import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
@@ -87,12 +89,12 @@ public class TerrainTestModifyHeight extends SimpleApplication {
         if (raiseTerrain){
             Vector3f intersection = getWorldIntersection();
             if (intersection != null) {
-                adjustHeight(intersection, 64, 1);
+                adjustHeight(intersection, 64, tpf * 60);
             }
         }else if (lowerTerrain){
             Vector3f intersection = getWorldIntersection();
             if (intersection != null) {
-                adjustHeight(intersection, 64, -1);
+                adjustHeight(intersection, 64, -tpf * 60);
             }
         }
     }
@@ -143,8 +145,6 @@ public class TerrainTestModifyHeight extends SimpleApplication {
         TerrainLodControl control = new TerrainLodControl(terrain, cameras);
         terrain.addControl(control);
         terrain.setMaterial(matTerrain);
-        terrain.setModelBound(new BoundingBox());
-        terrain.updateModelBound();
         terrain.setLocalTranslation(0, -100, 0);
         terrain.setLocalScale(2f, 1f, 2f);
         rootNode.attachChild(terrain);
@@ -163,7 +163,6 @@ public class TerrainTestModifyHeight extends SimpleApplication {
 
     public void loadHintText() {
         hintText = new BitmapText(guiFont, false);
-        hintText.setSize(guiFont.getCharSet().getRenderedSize());
         hintText.setLocalTranslation(0, getCamera().getHeight(), 0);
         hintText.setText("Hit 1 to raise terrain, hit 2 to lower terrain");
         guiNode.attachChild(hintText);
@@ -173,11 +172,10 @@ public class TerrainTestModifyHeight extends SimpleApplication {
         int x = (int) getCamera().getLocation().x;
         int y = (int) getCamera().getLocation().y;
         int z = (int) getCamera().getLocation().z;
-        hintText.setText("Hit 1 to raise terrain, hit 2 to lower terrain.  " + x + "," + y + "," + z);
+        hintText.setText("Press left mouse button to raise terrain, press right mouse button to lower terrain.  " + x + "," + y + "," + z);
     }
 
     protected void initCrossHairs() {
-        //guiFont = assetManager.loadFont("Interface/Fonts/Default.fnt");
         BitmapText ch = new BitmapText(guiFont, false);
         ch.setSize(guiFont.getCharSet().getRenderedSize() * 2);
         ch.setText("+"); // crosshairs
@@ -189,11 +187,12 @@ public class TerrainTestModifyHeight extends SimpleApplication {
 
     private void setupKeys() {
         flyCam.setMoveSpeed(100);
+        
         inputManager.addMapping("wireframe", new KeyTrigger(KeyInput.KEY_T));
         inputManager.addListener(actionListener, "wireframe");
-        inputManager.addMapping("Raise", new KeyTrigger(KeyInput.KEY_1));
+        inputManager.addMapping("Raise", new MouseButtonTrigger(MouseInput.BUTTON_LEFT));
         inputManager.addListener(actionListener, "Raise");
-        inputManager.addMapping("Lower", new KeyTrigger(KeyInput.KEY_2));
+        inputManager.addMapping("Lower", new MouseButtonTrigger(MouseInput.BUTTON_RIGHT));
         inputManager.addListener(actionListener, "Lower");
     }
     private ActionListener actionListener = new ActionListener() {
