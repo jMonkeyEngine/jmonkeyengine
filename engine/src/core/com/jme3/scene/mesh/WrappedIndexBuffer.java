@@ -54,28 +54,29 @@ public class WrappedIndexBuffer extends VirtualIndexBuffer {
     public Buffer getBuffer() {
         return ib.getBuffer();
     }
-
+    
     public static void convertToList(Mesh mesh){
-        IndexBuffer inBuf = mesh.getIndexBuffer();
-        if (inBuf == null){
-            inBuf = new VirtualIndexBuffer(mesh.getVertexCount(), mesh.getMode());
-        }else{
-            inBuf = new WrappedIndexBuffer(mesh);
-        }
-
-        IndexBuffer outBuf;
-        if (inBuf.size() > Short.MAX_VALUE * 2){
-            outBuf = new IndexIntBuffer(BufferUtils.createIntBuffer(inBuf.size()));
-        }else{
-            outBuf = new IndexShortBuffer(BufferUtils.createShortBuffer(inBuf.size()));
-        }
+        IndexBuffer inBuf = mesh.getIndicesAsList();
+        IndexBuffer outBuf = IndexBuffer.createIndexBuffer(mesh.getVertexCount(),
+                                                           inBuf.size());
 
         for (int i = 0; i < inBuf.size(); i++){
             outBuf.put(i, inBuf.get(i));
         }
 
         mesh.clearBuffer(Type.Index);
-        mesh.setMode(Mode.Triangles);
+        switch (mesh.getMode()){
+            case LineLoop:
+            case LineStrip:
+                mesh.setMode(Mode.Lines);
+                break;
+            case TriangleStrip:
+            case TriangleFan:
+                mesh.setMode(Mode.Triangles);
+                break;
+            default:
+                break;
+        }
         if (outBuf instanceof IndexIntBuffer){
             mesh.setBuffer(Type.Index, 3, (IntBuffer)outBuf.getBuffer());
         }else{

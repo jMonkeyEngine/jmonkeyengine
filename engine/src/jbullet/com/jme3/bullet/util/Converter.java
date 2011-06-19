@@ -37,6 +37,7 @@ import com.jme3.math.FastMath;
 import com.jme3.scene.mesh.IndexBuffer;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.VertexBuffer.Type;
+import com.jme3.scene.mesh.WrappedIndexBuffer;
 import com.jme3.util.BufferUtils;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
@@ -224,12 +225,12 @@ public class Converter {
     }
 
     public static IndexedMesh convert(Mesh mesh) {
-
         IndexedMesh jBulletIndexedMesh = new IndexedMesh();
         jBulletIndexedMesh.triangleIndexBase = ByteBuffer.allocate(mesh.getTriangleCount() * 3 * 4);
         jBulletIndexedMesh.vertexBase = ByteBuffer.allocate(mesh.getVertexCount() * 3 * 4);
 
-        IndexBuffer indices = mesh.getIndexBuffer();
+        IndexBuffer indices = mesh.getIndicesAsList();
+        
         FloatBuffer vertices = mesh.getFloatBuffer(Type.Position);
         vertices.rewind();
 

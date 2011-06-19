@@ -94,14 +94,14 @@ public class Mesh implements Savable, Cloneable {
          * A primitive is a single point in space. The size of the points 
          * can be specified with {@link Mesh#setPointSize(float) }.
          */
-        Points,
+        Points(true),
         
         /**
          * A primitive is a line segment. Every two vertices specify
          * a single line. {@link Mesh#setLineWidth(float) } can be used 
          * to set the width of the lines.
          */
-        Lines,
+        Lines(true),
         
         /**
          * A primitive is a line segment. The first two vertices specify
@@ -109,7 +109,7 @@ public class Mesh implements Savable, Cloneable {
          * previous vertex to make a line. {@link Mesh#setLineWidth(float) } can 
          * be used to set the width of the lines.
          */
-        LineStrip,
+        LineStrip(false),
         
         /**
          * Identical to {@link #LineStrip} except that at the end
@@ -117,27 +117,27 @@ public class Mesh implements Savable, Cloneable {
          * {@link Mesh#setLineWidth(float) } can be used 
          * to set the width of the lines.
          */
-        LineLoop,
+        LineLoop(false),
         
         /**
          * A primitive is a triangle. Each 3 vertices specify a single
          * triangle.
          */
-        Triangles,
+        Triangles(true),
         
         /**
          * Similar to {@link #Triangles}, the first 3 vertices 
          * specify a triangle, while subsequent vertices are combined with
          * the previous two to form a triangle. 
          */
-        TriangleStrip,
+        TriangleStrip(false),
         
         /**
          * Similar to {@link #Triangles}, the first 3 vertices 
          * specify a triangle, each 2 subsequent vertices are combined
          * with the very first vertex to make a triangle.
          */
-        TriangleFan,
+        TriangleFan(false),
         
         /**
          * A combination of various triangle modes. It is best to avoid
@@ -146,7 +146,26 @@ public class Mesh implements Savable, Cloneable {
          * {@link Mesh#setElementLengths(int[]) element lengths} must 
          * be specified for this mode.
          */
-        Hybrid;
+        Hybrid(false);
+        
+        private boolean listMode = false;
+        
+        private Mode(boolean listMode){
+            this.listMode = listMode;
+        }
+        
+        /**
+         * Returns true if the specified mode is a list mode (meaning
+         * ,it specifies the indices as a linear list and not some special 
+         * format).
+         * Will return true for the types {@link #Points}, {@link #Lines} and
+         * {@link #Triangles}.
+         * 
+         * @return true if the mode is a list type mode
+         */
+        public boolean isListMode(){
+            return listMode;
+        }
     }
 
     /**
@@ -691,31 +710,44 @@ public class Mesh implements Savable, Cloneable {
     }
 
     /**
-     * Returns how many triangles are on this Mesh.
+     * Returns how many triangles or elements are on this Mesh.
      * This value is only updated when {@link #updateCounts() } is called.
+     * If the mesh mode is not a triangle mode, then this returns the 
+     * number of elements/primitives, e.g. how many lines or how many points,
+     * instead of how many triangles.
      * 
-     * @return how many triangles are on this Mesh.
+     * @return how many triangles/elements are on this Mesh.
      */
     public int getTriangleCount(){
         return elementCount;
     }
 
-    
+    /**
+     * Returns the number of vertices on this mesh.
+     * The value is computed based on the position buffer, which 
+     * must be set on all meshes.
+     * 
+     * @return Number of vertices on the mesh
+     */
     public int getVertexCount(){
         return vertCount;
     }
 
+    /**
+     * Gets the triangle vertex positions at the given triangle index 
+     * and stores them into the v1, v2, v3 arguments.
+     * 
+     * @param index The index of the triangle. 
+     * Should be between 0 and {@link #getTriangleCount()}.
+     * 
+     * @param v1 Vector to contain first vertex position
+     * @param v2 Vector to contain second vertex position
+     * @param v3 Vector to contain third vertex position
+     */
     public void getTriangle(int index, Vector3f v1, Vector3f v2, Vector3f v3){
         VertexBuffer pb = getBuffer(Type.Position);
-
-        IndexBuffer ib = getIndexBuffer();
-        if (ib == null){
-            ib = new VirtualIndexBuffer(vertCount, mode);
-        }else if (mode != Mode.Triangles){
-            ib = new WrappedIndexBuffer(this);
-        }
-        
-        if (pb.getFormat() == Format.Float){
+        IndexBuffer ib = getIndicesAsList();
+        if (pb != null && pb.getFormat() == Format.Float && pb.getNumComponents() == 3){
             FloatBuffer fpb = (FloatBuffer) pb.getData();
 
             // aquire triangle's vertex indices
@@ -727,33 +759,56 @@ public class Mesh implements Savable, Cloneable {
             BufferUtils.populateFromBuffer(v1, fpb, vert1);
             BufferUtils.populateFromBuffer(v2, fpb, vert2);
             BufferUtils.populateFromBuffer(v3, fpb, vert3);
-            
+        }else{
+            throw new UnsupportedOperationException("Position buffer not set or "
+                                                  + " has incompatible format");
         }
     }
     
+    /**
+     * Gets the triangle vertex positions at the given triangle index 
+     * and stores them into the {@link Triangle} argument.
+     * Also sets the triangle index to the <code>index</code> argument.
+     * 
+     * @param index The index of the triangle. 
+     * Should be between 0 and {@link #getTriangleCount()}.
+     * 
+     * @param tri The triangle to store the positions in
+     */
     public void getTriangle(int index, Triangle tri){
         getTriangle(index, tri.get1(), tri.get2(), tri.get3());
         tri.setIndex(index);
     }
 
+    /**
+     * Gets the triangle vertex indices at the given triangle index 
+     * and stores them into the given int array.
+     * 
+     * @param index The index of the triangle. 
+     * Should be between 0 and {@link #getTriangleCount()}.
+     * 
+     * @param indices Indices of the triangle's vertices
+     */
     public void getTriangle(int index, int[] indices){
-        VertexBuffer ib = getBuffer(Type.Index);
-        if (ib.getFormat() == Format.UnsignedShort){
-            // accepted format for buffers
-            ShortBuffer sib = (ShortBuffer) ib.getData();
+        IndexBuffer ib = getIndicesAsList();
 
-            // acquire triangle's vertex indices
-            int vertIndex = index * 3;
-            indices[0] = sib.get(vertIndex);
-            indices[1] = sib.get(vertIndex+1);
-            indices[2] = sib.get(vertIndex+2);
-        }
+        // acquire triangle's vertex indices
+        int vertIndex = index * 3;
+        indices[0] = ib.get(vertIndex);
+        indices[1] = ib.get(vertIndex+1);
+        indices[2] = ib.get(vertIndex+2);
     }
 
+    /**
+     * Returns the mesh's VAO ID. Internal use only.
+     */
     public int getId(){
         return vertexArrayID;
     }
 
+    /**
+     * Sets the mesh's VAO ID. Internal use only.
+     */
     public void setId(int id){
         if (vertexArrayID != -1)
             throw new IllegalStateException("ID has already been set.");
@@ -761,12 +816,24 @@ public class Mesh implements Savable, Cloneable {
         vertexArrayID = id;
     }
 
+    /**
+     * Generates a collision tree for the mesh.
+     * Called automatically by {@link #collideWith(com.jme3.collision.Collidable, 
+     * com.jme3.math.Matrix4f, 
+     * com.jme3.bounding.BoundingVolume, 
+     * com.jme3.collision.CollisionResults) }.
+     */
     public void createCollisionData(){
         BIHTree tree = new BIHTree(this);
         tree.construct();
         collisionTree = tree;
     }
 
+    /**
+     * Handles collision detection, internal use only.
+     * User code should only use collideWith() on scene
+     * graph elements such as {@link Spatial}s.
+     */
     public int collideWith(Collidable other, 
                            Matrix4f worldMatrix,
                            BoundingVolume worldBound,
@@ -779,6 +846,17 @@ public class Mesh implements Savable, Cloneable {
         return collisionTree.collideWith(other, worldMatrix, worldBound, results);
     }
 
+    /**
+     * Set a floating point {@link VertexBuffer} on the mesh. 
+     * 
+     * @param type The type of {@link VertexBuffer}, 
+     * e.g. {@link Type#Position}, {@link Type#Normal}, etc.
+     * 
+     * @param components Number of components on the vertex buffer, should
+     * be between 1 and 4.
+     * 
+     * @param buf The floating point data to contain
+     */
     public void setBuffer(Type type, int components, FloatBuffer buf) {
 //        VertexBuffer vb = buffers.get(type);
         VertexBuffer vb = buffers.get(type.ordinal());
@@ -851,6 +929,13 @@ public class Mesh implements Savable, Cloneable {
         updateCounts();
     }
 
+    /**
+     * Clears or unsets the {@link VertexBuffer} set on this mesh
+     * with the given type.
+     * Does nothing if the vertex buffer type is not set initially
+     * 
+     * @param type The type to remove
+     */
     public void clearBuffer(VertexBuffer.Type type){
         VertexBuffer vb = buffers.remove(type.ordinal());
         if (vb != null){
@@ -863,10 +948,24 @@ public class Mesh implements Savable, Cloneable {
         setBuffer(type, components, BufferUtils.createShortBuffer(buf));
     }
 
+    /**
+     * Get the {@link VertexBuffer} stored on this mesh with the given
+     * type.
+     * 
+     * @param type The type of VertexBuffer
+     * @return the VertexBuffer data, or null if not set 
+     */
     public VertexBuffer getBuffer(Type type){
         return buffers.get(type.ordinal());
     }
 
+    /**
+     * Get the {@link VertexBuffer} data stored on this mesh in float
+     * format.
+     * 
+     * @param type The type of VertexBuffer
+     * @return the VertexBuffer data, or null if not set
+     */
     public FloatBuffer getFloatBuffer(Type type) {
         VertexBuffer vb = getBuffer(type);
         if (vb == null)
@@ -875,6 +974,13 @@ public class Mesh implements Savable, Cloneable {
         return (FloatBuffer) vb.getData();
     }
     
+    /**
+     * Get the {@link VertexBuffer} data stored on this mesh in short
+     * format.
+     * 
+     * @param type The type of VertexBuffer
+     * @return the VertexBuffer data, or null if not set
+     */
     public ShortBuffer getShortBuffer(Type type) {
         VertexBuffer vb = getBuffer(type);
         if (vb == null)
@@ -883,6 +989,42 @@ public class Mesh implements Savable, Cloneable {
         return (ShortBuffer) vb.getData();
     }
 
+    /**
+     * Acquires an index buffer that will read the vertices on the mesh
+     * as a list.
+     * 
+     * @param mesh The mesh to read from
+     * @return A virtual or wrapped index buffer to read the data as a list
+     */
+    public IndexBuffer getIndicesAsList(){
+        if (mode == Mode.Hybrid)
+            throw new UnsupportedOperationException("Hybrid mode not supported");
+        
+        IndexBuffer ib = getIndexBuffer();
+        if (ib != null){
+            if (mode.isListMode()){
+                // already in list mode
+                return ib; 
+            }else{
+                // not in list mode but it does have an index buffer
+                // wrap it so the data is converted to list format
+                return new WrappedIndexBuffer(this);
+            }
+        }else{
+            // return a virtual index buffer that will supply
+            // "fake" indices in list format
+            return new VirtualIndexBuffer(vertCount, mode);
+        }
+    }
+    
+    /**
+     * Get the index buffer for this mesh. 
+     * Will return <code>null</code> if no index buffer is set.
+     * 
+     * @return The index buffer of this mesh.
+     * 
+     * @see Type#Index
+     */
     public IndexBuffer getIndexBuffer() {
         VertexBuffer vb = getBuffer(Type.Index);
         if (vb == null)
@@ -902,10 +1044,20 @@ public class Mesh implements Savable, Cloneable {
 
     /**
      * Scales the texture coordinate buffer on this mesh by the given
-     * scale factor.
+     * scale factor. 
+     * <p>
+     * Note that values above 1 will cause the 
+     * texture to tile, while values below 1 will cause the texture 
+     * to stretch.
+     * </p>
      * 
+     * @param scaleFactor The scale factor to scale by. Every texture
+     * coordinate is multiplied by this vector to get the result.
      * 
-     * @param scaleFactor 
+     * @throws IllegalStateException If there's no texture coordinate
+     * buffer on the mesh
+     * @throws UnsupportedOperationException If the texture coordinate
+     * buffer is not in 2D float format.
      */
     public void scaleTextureCoordinates(Vector2f scaleFactor){
         VertexBuffer tc = getBuffer(Type.TexCoord);

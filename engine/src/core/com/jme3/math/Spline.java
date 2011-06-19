@@ -22,12 +22,12 @@ import com.jme3.export.Savable;
 public class Spline implements Savable {
 
     public enum SplineType {
-
         Linear,
         CatmullRom,
         Bezier,
         Nurb
     }
+    
     private List<Vector3f> controlPoints = new ArrayList<Vector3f>();
     private List<Float> knots;				//knots of NURBS spline
     private float[] weights;				//weights of NURBS spline

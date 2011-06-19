@@ -176,12 +176,7 @@ public class GeometryBatchFactory {
                 if (Type.Index.ordinal() == bufType) {
                     int components = compsForBuf[bufType];
 
-                    IndexBuffer inIdx = inMesh.getIndexBuffer();
-                    if (inIdx == null) {
-                        inIdx = new VirtualIndexBuffer(geomVertCount, inMesh.getMode());
-                    } else if (inMesh.getMode() != mode) {
-                        inIdx = new WrappedIndexBuffer(inMesh);
-                    }
+                    IndexBuffer inIdx = inMesh.getIndicesAsList();
                     IndexBuffer outIdx = outMesh.getIndexBuffer();
 
                     for (int tri = 0; tri < geomTriCount; tri++) {

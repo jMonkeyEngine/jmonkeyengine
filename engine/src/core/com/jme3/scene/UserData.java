@@ -47,6 +47,12 @@ import java.io.IOException;
  */
 public final class UserData implements Savable {
 
+    /**
+     * Boolean type on Geometries to indicate that physics collision
+     * shape generation should ignore them.
+     */
+    public static final String JME_PHYSICSIGNORE = "JmePhysicsIgnore";
+    
     protected byte type;
     protected Object value;
 

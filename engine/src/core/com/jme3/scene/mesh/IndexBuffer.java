@@ -32,6 +32,7 @@
 
 package com.jme3.scene.mesh;
 
+import com.jme3.util.BufferUtils;
 import java.nio.Buffer;
 
 /**
@@ -42,6 +43,25 @@ import java.nio.Buffer;
  * @author lex
  */
 public abstract class IndexBuffer {
+    
+    /**
+     * Creates an index buffer that can contain the given amount
+     * of vertices.
+     * Returns {@link IndexShortBuffer}
+     * 
+     * @param vertexCount The amount of vertices to contain
+     * @param indexCount The amount of indices
+     * to contain.
+     * @return A new index buffer
+     */
+    public static IndexBuffer createIndexBuffer(int vertexCount, int indexCount){
+        if (vertexCount > 65535){
+            return new IndexIntBuffer(BufferUtils.createIntBuffer(indexCount));
+        }else{
+            return new IndexShortBuffer(BufferUtils.createShortBuffer(indexCount));
+        }
+    }
+    
     /**
      * Returns the vertex index for the given index in the index buffer.
      * 
