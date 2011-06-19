@@ -73,7 +73,7 @@ public class TestAppStates extends Application {
                                                            inputManager,
                                                            audioRenderer,
                                                            guiViewPort);
-        niftyDisplay.getNifty().fromXml("jme3test/niftygui/hellojme.xml", "start");
+        niftyDisplay.getNifty().fromXml("Interface/Nifty/HelloJme.xml", "start");
         guiViewPort.addProcessor(niftyDisplay);
     }
 

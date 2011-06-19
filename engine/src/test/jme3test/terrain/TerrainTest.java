@@ -166,8 +166,6 @@ public class TerrainTest extends SimpleApplication {
         TerrainLodControl control = new TerrainLodControl(terrain, cameras);
         terrain.addControl(control);
         terrain.setMaterial(matRock);
-        terrain.setModelBound(new BoundingBox());
-        terrain.updateModelBound();
         terrain.setLocalTranslation(0, -100, 0);
         terrain.setLocalScale(2f, 1f, 2f);
         rootNode.attachChild(terrain);

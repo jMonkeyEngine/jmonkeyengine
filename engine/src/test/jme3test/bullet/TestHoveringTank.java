@@ -294,8 +294,6 @@ public class TestHoveringTank extends SimpleApplication implements AnalogListene
         terrain.addControl(control);
         terrain.setMaterial(matRock);
         terrain.setLocalScale(new Vector3f(2, 2, 2));
-        terrain.setModelBound(new BoundingBox());
-        terrain.updateModelBound();
         terrain.setLocked(false); // unlock it so we can edit the height
 
         terrain.setShadowMode(ShadowMode.CastAndReceive);

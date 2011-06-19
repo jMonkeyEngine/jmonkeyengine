@@ -287,8 +287,6 @@ public class TestWalkingChar extends SimpleApplication implements ActionListener
         TerrainLodControl control = new TerrainLodControl(terrain, cameras);
         terrain.addControl(control);
         terrain.setMaterial(matRock);
-        terrain.setModelBound(new BoundingBox());
-        terrain.updateModelBound();
         terrain.setLocalScale(new Vector3f(2, 2, 2));
 
         terrainPhysicsNode = new RigidBodyControl(CollisionShapeFactory.createMeshShape(terrain), 0);

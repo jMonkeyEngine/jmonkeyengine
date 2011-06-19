@@ -273,8 +273,6 @@ public class TestPostWater extends SimpleApplication {
         terrain.setMaterial(matRock);
         terrain.setLocalScale(new Vector3f(5, 5, 5));
         terrain.setLocalTranslation(new Vector3f(0, -30, 0));
-        terrain.setModelBound(new BoundingBox());
-        terrain.updateModelBound();
         terrain.setLocked(false); // unlock it so we can edit the height
 
         terrain.setShadowMode(ShadowMode.Receive);
