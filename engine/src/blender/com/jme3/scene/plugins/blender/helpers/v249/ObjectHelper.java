@@ -152,7 +152,7 @@ public class ObjectHelper extends AbstractBlenderHelper {
 
 		Pointer pParent = (Pointer)objectStructure.getFieldValue("parent");
 		Object parent = dataRepository.getLoadedFeature(pParent.getOldMemoryAddress(), LoadedFeatureDataType.LOADED_FEATURE);
-		if(parent == null && !pParent.isNull()) {
+		if(parent == null && pParent.isNotNull()) {
 			Structure parentStructure = pParent.fetchData(dataRepository.getInputStream()).get(0);//TODO: moze byc wiecej rodzicow
 			parent = this.toObject(parentStructure, dataRepository);
 		}
@@ -203,7 +203,7 @@ public class ObjectHelper extends AbstractBlenderHelper {
 				case OBJECT_TYPE_CURVE:
 					LOGGER.log(Level.INFO, "Importing curve/nurb.");
 					Pointer pCurve = (Pointer)objectStructure.getFieldValue("data");
-					if(!pCurve.isNull()) {
+					if(pCurve.isNotNull()) {
 						CurvesHelper curvesHelper = dataRepository.getHelper(CurvesHelper.class);
 						Structure curveData = pCurve.fetchData(dataRepository.getInputStream()).get(0);
 						List<Geometry> curves = curvesHelper.toCurve(curveData, dataRepository);
@@ -217,7 +217,7 @@ public class ObjectHelper extends AbstractBlenderHelper {
 				case OBJECT_TYPE_LAMP:
 					LOGGER.log(Level.INFO, "Importing lamp.");
 					Pointer pLamp = (Pointer)objectStructure.getFieldValue("data");
-					if(!pLamp.isNull()) {
+					if(pLamp.isNotNull()) {
 						LightHelper lightHelper = dataRepository.getHelper(LightHelper.class);
 						List<Structure> lampsArray = pLamp.fetchData(dataRepository.getInputStream());
 						Light light = lightHelper.toLight(lampsArray.get(0), dataRepository);
@@ -239,7 +239,7 @@ public class ObjectHelper extends AbstractBlenderHelper {
 					break;
 				case OBJECT_TYPE_CAMERA:
 					Pointer pCamera = (Pointer)objectStructure.getFieldValue("data");
-					if(!pCamera.isNull()) {
+					if(pCamera.isNotNull()) {
 						CameraHelper cameraHelper = dataRepository.getHelper(CameraHelper.class);
 						List<Structure> camerasArray = pCamera.fetchData(dataRepository.getInputStream());
 						Camera camera = cameraHelper.toCamera(camerasArray.get(0));
@@ -357,7 +357,7 @@ public class ObjectHelper extends AbstractBlenderHelper {
 	 */
 	public Modifier readObjectAnimation(Structure objectStructure, DataRepository dataRepository) throws BlenderFileException {
 		Pointer pIpo = (Pointer)objectStructure.getFieldValue("ipo");
-		if(!pIpo.isNull()) {
+		if(pIpo.isNotNull()) {
 			//check if there is an action name connected with this ipo
 			String objectAnimationName = null;
 			List<FileBlockHeader> actionBlocks = dataRepository.getFileBlocks(Integer.valueOf(FileBlockHeader.BLOCK_AC00));

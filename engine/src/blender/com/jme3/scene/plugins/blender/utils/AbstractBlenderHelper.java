@@ -118,7 +118,7 @@ public abstract class AbstractBlenderHelper {
 		Structure id = (Structure) structure.getFieldValue("ID");
 		if (id != null) {
 			Pointer pProperties = (Pointer) id.getFieldValue("properties");
-			if (!pProperties.isNull()) {
+			if (pProperties.isNotNull()) {
 				Structure propertiesStructure = pProperties.fetchData(dataRepository.getInputStream()).get(0);
 				properties = new Properties();
 				properties.load(propertiesStructure, dataRepository);

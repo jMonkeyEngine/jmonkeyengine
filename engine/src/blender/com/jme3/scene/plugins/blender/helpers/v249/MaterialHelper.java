@@ -235,7 +235,7 @@ public class MaterialHelper extends AbstractBlenderHelper {
 			DynamicArray<Pointer> mtexs = (DynamicArray<Pointer>) structure.getFieldValue("mtex");
 			for (int i = 0; i < mtexs.getTotalSize(); ++i) {
 				Pointer p = mtexs.get(i);
-				if (!p.isNull()) {
+				if (p.isNotNull()) {
 					List<Structure> mtex = p.fetchData(dataRepository.getInputStream());
 					if (mtex.size() == 1) {
 						Structure textureLink = mtex.get(0);
@@ -544,7 +544,7 @@ public class MaterialHelper extends AbstractBlenderHelper {
 	public Material[] getMaterials(Structure structureWithMaterials, DataRepository dataRepository) throws BlenderFileException {
 		Pointer ppMaterials = (Pointer) structureWithMaterials.getFieldValue("mat");
 		Material[] materials = null;
-		if (!ppMaterials.isNull()) {
+		if (ppMaterials.isNotNull()) {
 			List<Structure> materialStructures = ppMaterials.fetchData(dataRepository.getInputStream());
 			if (materialStructures != null && materialStructures.size() > 0) {
 				MaterialHelper materialHelper = dataRepository.getHelper(MaterialHelper.class);

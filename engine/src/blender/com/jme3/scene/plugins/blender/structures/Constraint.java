@@ -47,7 +47,7 @@ public class Constraint {
             throw new IllegalArgumentException("Influence function is not defined!");
         }
         Pointer pData = (Pointer) constraintStructure.getFieldValue("data");
-        if (!pData.isNull()) {
+        if (pData.isNotNull()) {
             data = pData.fetchData(dataRepository.getInputStream()).get(0);
         } else {
             throw new BlenderFileException("The constraint has no data specified!");

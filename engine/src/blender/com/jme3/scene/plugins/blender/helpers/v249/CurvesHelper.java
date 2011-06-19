@@ -117,7 +117,7 @@ public class CurvesHelper extends AbstractBlenderHelper {
         //getting or creating bevel object
         List<Geometry> bevelObject = null;
         Pointer pBevelObject = (Pointer) curveStructure.getFieldValue("bevobj");
-        if (!pBevelObject.isNull()) {
+        if (pBevelObject.isNotNull()) {
             Pointer pBevelStructure = (Pointer) pBevelObject.fetchData(dataRepository.getInputStream()).get(0).getFieldValue("data");
             Structure bevelStructure = pBevelStructure.fetchData(dataRepository.getInputStream()).get(0);
             bevelObject = this.toCurve(bevelStructure, dataRepository);
@@ -177,7 +177,7 @@ public class CurvesHelper extends AbstractBlenderHelper {
         //getting taper object
         Curve taperObject = null;
         Pointer pTaperObject = (Pointer) curveStructure.getFieldValue("taperobj");
-        if (bevelObject != null && !pTaperObject.isNull()) {
+        if (bevelObject != null && pTaperObject.isNotNull()) {
             Pointer pTaperStructure = (Pointer) pTaperObject.fetchData(dataRepository.getInputStream()).get(0).getFieldValue("data");
             Structure taperStructure = pTaperStructure.fetchData(dataRepository.getInputStream()).get(0);
             taperObject = this.loadTaperObject(taperStructure, dataRepository);
@@ -236,7 +236,7 @@ public class CurvesHelper extends AbstractBlenderHelper {
             DataRepository dataRepository) throws BlenderFileException {
         Pointer pBezierTriple = (Pointer) nurb.getFieldValue("bezt");
         List<Geometry> result = new ArrayList<Geometry>();
-        if (!pBezierTriple.isNull()) {
+        if (pBezierTriple.isNotNull()) {
             boolean smooth = (((Number) nurb.getFlatFieldValue("flag")).intValue() & 0x01) != 0;
             int resolution = ((Number) nurb.getFieldValue("resolu")).intValue();
             boolean cyclic = (((Number) nurb.getFieldValue("flagu")).intValue() & 0x01) != 0;
@@ -291,7 +291,7 @@ public class CurvesHelper extends AbstractBlenderHelper {
         List<Float>[] knots = new List[2];
         Pointer[] pKnots = new Pointer[]{(Pointer) nurb.getFieldValue("knotsu"), (Pointer) nurb.getFieldValue("knotsv")};
         for (int i = 0; i < knots.length; ++i) {
-            if (!pKnots[i].isNull()) {
+            if (pKnots[i].isNotNull()) {
                 FileBlockHeader fileBlockHeader = dataRepository.getFileBlock(pKnots[i].getOldMemoryAddress());
                 BlenderInputStream blenderInputStream = dataRepository.getInputStream();
                 blenderInputStream.setPosition(fileBlockHeader.getBlockPosition());
@@ -563,7 +563,7 @@ public class CurvesHelper extends AbstractBlenderHelper {
         List<Structure> nurbStructures = ((Structure) taperStructure.getFieldValue("nurb")).evaluateListBase(dataRepository);
         for (Structure nurb : nurbStructures) {
             Pointer pBezierTriple = (Pointer) nurb.getFieldValue("bezt");
-            if (!pBezierTriple.isNull()) {
+            if (pBezierTriple.isNotNull()) {
                 //creating the curve object
                 BezierCurve bezierCurve = new BezierCurve(0, pBezierTriple.fetchData(dataRepository.getInputStream()), 3);
                 List<Vector3f> controlPoints = bezierCurve.getControlPoints();

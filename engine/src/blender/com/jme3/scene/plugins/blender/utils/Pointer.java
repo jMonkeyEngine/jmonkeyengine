@@ -137,6 +137,14 @@ public class Pointer {
     public boolean isNull() {
         return oldMemoryAddress == 0;
     }
+    
+    /**
+     * This method indicates if this is a null-pointer or not.
+     * @return <b>true</b> if the pointer is not null and <b>false</b> otherwise
+     */
+    public boolean isNotNull() {
+        return oldMemoryAddress != 0;
+    }
 
     /**
      * This method returns the old memory address of the structure pointed by the pointer.

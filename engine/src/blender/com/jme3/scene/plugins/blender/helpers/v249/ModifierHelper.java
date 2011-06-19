@@ -168,18 +168,18 @@ public class ModifierHelper extends AbstractBlenderHelper {
 				}
 				if ((offsettype & 0x04) != 0) {// Object offset
 					Pointer pOffsetObject = (Pointer) modifier.getFieldValue("offset_ob");
-					if (!pOffsetObject.isNull()) {
+					if (pOffsetObject.isNotNull()) {
 						params.put("offsetob", pOffsetObject);
 					}
 				}
 
 				// start cap and end cap
 				Pointer pStartCap = (Pointer) modifier.getFieldValue("start_cap");
-				if (!pStartCap.isNull()) {
+				if (pStartCap.isNotNull()) {
 					params.put("startcap", pStartCap);
 				}
 				Pointer pEndCap = (Pointer) modifier.getFieldValue("end_cap");
-				if (!pEndCap.isNull()) {
+				if (pEndCap.isNotNull()) {
 					params.put("endcap", pEndCap);
 				}
 				loadedModifier = params;
@@ -190,13 +190,13 @@ public class ModifierHelper extends AbstractBlenderHelper {
 				params.put("flag", modifier.getFieldValue("flag"));
 				params.put("tolerance", modifier.getFieldValue("tolerance"));
 				Pointer pMirrorOb = (Pointer) modifier.getFieldValue("mirror_ob");
-				if (!pMirrorOb.isNull()) {
+				if (pMirrorOb.isNotNull()) {
 					params.put("mirrorob", pMirrorOb);
 				}
 				loadedModifier = params;
 			} else if (Modifier.ARMATURE_MODIFIER_DATA.equals(modifier.getType())) {// ****************ARMATURE MODIFIER
 				Pointer pArmatureObject = (Pointer) modifier.getFieldValue("object");
-				if (!pArmatureObject.isNull()) {
+				if (pArmatureObject.isNotNull()) {
 					ObjectHelper objectHelper = dataRepository.getHelper(ObjectHelper.class);
 					Structure armatureObject = (Structure) dataRepository.getLoadedFeature(pArmatureObject.getOldMemoryAddress(), LoadedFeatureDataType.LOADED_STRUCTURE);
 					if (armatureObject == null) {// we check this first not to fetch the structure unnecessary
@@ -237,7 +237,7 @@ public class ModifierHelper extends AbstractBlenderHelper {
 				}
 			} else if (Modifier.PARTICLE_MODIFIER_DATA.equals(modifier.getType())) {// ****************PARTICLES MODIFIER
 				Pointer pParticleSystem = (Pointer) modifier.getFieldValue("psys");
-				if (!pParticleSystem.isNull()) {
+				if (pParticleSystem.isNotNull()) {
 					ParticlesHelper particlesHelper = dataRepository.getHelper(ParticlesHelper.class);
 					Structure particleSystem = pParticleSystem.fetchData(dataRepository.getInputStream()).get(0);
 					loadedModifier = particlesHelper.toParticleEmitter(particleSystem, dataRepository);

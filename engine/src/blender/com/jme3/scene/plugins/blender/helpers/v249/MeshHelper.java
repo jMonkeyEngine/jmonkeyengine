@@ -124,7 +124,7 @@ public class MeshHelper extends AbstractBlenderHelper {
 		List<Vector2f> uvCoordinates = null;
 		List<Structure> mtFaces = null;
 
-		if (!pMTFace.isNull()) {
+		if (pMTFace.isNotNull()) {
 			mtFaces = pMTFace.fetchData(dataRepository.getInputStream());
 			int facesAmount = ((Number) structure.getFieldValue("totface")).intValue();
 			if (mtFaces.size() != facesAmount) {
@@ -169,7 +169,7 @@ public class MeshHelper extends AbstractBlenderHelper {
 			}
 			
 			// attaching image to texture (face can have UV's and image whlie its material may have no texture attached)
-			if (pImage != null && !pImage.isNull() && !materialNumberToTexture.containsKey(materialNumber)) {
+			if (pImage != null && pImage.isNotNull() && !materialNumberToTexture.containsKey(materialNumber)) {
 				Texture texture = textureHelper.getTextureFromImage(pImage.fetchData(dataRepository.getInputStream()).get(0),
 						dataRepository);
 				if (texture != null) {
@@ -436,7 +436,7 @@ public class MeshHelper extends AbstractBlenderHelper {
 		Pointer pMCol = (Pointer) meshStructure.getFieldValue("mcol");
 		List<float[]> verticesColors = null;
 		List<Structure> mCol = null;
-		if (!pMCol.isNull()) {
+		if (pMCol.isNotNull()) {
 			verticesColors = new LinkedList<float[]>();
 			mCol = pMCol.fetchData(dataRepository.getInputStream());
 			for (Structure color : mCol) {
@@ -502,7 +502,7 @@ public class MeshHelper extends AbstractBlenderHelper {
 		Pointer pDvert = (Pointer) meshStructure.getFieldValue("dvert");// dvert = DeformVERTices
 		FloatBuffer weightsFloatData = BufferUtils.createFloatBuffer(vertexListSize * MAXIMUM_WEIGHTS_PER_VERTEX);
 		ByteBuffer indicesData = BufferUtils.createByteBuffer(vertexListSize * MAXIMUM_WEIGHTS_PER_VERTEX);
-		if (!pDvert.isNull()) {// assigning weights and bone indices
+		if (pDvert.isNotNull()) {// assigning weights and bone indices
 			List<Structure> dverts = pDvert.fetchData(dataRepository.getInputStream());// dverts.size() == verticesAmount (one dvert per
 																						// vertex in blender)
 			int vertexIndex = 0;
@@ -511,7 +511,7 @@ public class MeshHelper extends AbstractBlenderHelper {
 																						// (max. 4 in JME)
 				Pointer pDW = (Pointer) dvert.getFieldValue("dw");
 				List<Integer> vertexIndices = vertexReferenceMap.get(Integer.valueOf(vertexIndex));// we fetch the referenced vertices here
-				if (totweight > 0 && !pDW.isNull()) {// pDW should never be null here, but I check it just in case :)
+				if (totweight > 0 && pDW.isNotNull()) {// pDW should never be null here, but I check it just in case :)
 					int weightIndex = 0;
 					List<Structure> dw = pDW.fetchData(dataRepository.getInputStream());
 					for (Structure deformWeight : dw) {

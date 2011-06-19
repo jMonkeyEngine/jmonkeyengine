@@ -96,7 +96,7 @@ public class ParticlesHelper extends AbstractBlenderHelper {
 	public ParticleEmitter toParticleEmitter(Structure particleSystem, DataRepository dataRepository) throws BlenderFileException {
 		ParticleEmitter result = null;
 		Pointer pParticleSettings = (Pointer) particleSystem.getFieldValue("part");
-		if(!pParticleSettings.isNull()) {
+		if(pParticleSettings.isNotNull()) {
 			Structure particleSettings = pParticleSettings.fetchData(dataRepository.getInputStream()).get(0);
 			
 			int totPart = ((Number) particleSettings.getFieldValue("totpart")).intValue();

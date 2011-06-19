@@ -174,7 +174,7 @@ public class ArmatureHelper extends AbstractBlenderHelper {
             Integer boneIndex = bonesMap.get(name);
             if (boneIndex != null) {
                 Pointer p = (Pointer) bActionChannel.getFieldValue("ipo");
-                if (!p.isNull()) {
+                if (p.isNotNull()) {
                     Structure ipoStructure = p.fetchData(dataRepository.getInputStream()).get(0);
                     Ipo ipo = ipoHelper.createIpo(ipoStructure, dataRepository);
                     tracks.add(ipo.calculateTrack(boneIndex.intValue(), animationFrames[0], animationFrames[1], fps));

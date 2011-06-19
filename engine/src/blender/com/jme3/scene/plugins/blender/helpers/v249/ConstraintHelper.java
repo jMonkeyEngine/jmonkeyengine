@@ -568,7 +568,7 @@ public class ConstraintHelper extends AbstractBlenderHelper {
         IpoHelper ipoHelper = dataRepository.getHelper(IpoHelper.class);
         Map<String, Map<String, Ipo>> constraintsIpos = new HashMap<String, Map<String, Ipo>>();
         Pointer pActions = (Pointer) objectStructure.getFieldValue("action");
-        if (!pActions.isNull()) {
+        if (pActions.isNotNull()) {
             List<Structure> actions = pActions.fetchData(dataRepository.getInputStream());
             for (Structure action : actions) {
                 Structure chanbase = (Structure) action.getFieldValue("chanbase");
@@ -579,7 +579,7 @@ public class ConstraintHelper extends AbstractBlenderHelper {
                     List<Structure> constraintChannels = constChannels.evaluateListBase(dataRepository);
                     for (Structure constraintChannel : constraintChannels) {
                         Pointer pIpo = (Pointer) constraintChannel.getFieldValue("ipo");
-                        if (!pIpo.isNull()) {
+                        if (pIpo.isNotNull()) {
                             String constraintName = constraintChannel.getFieldValue("name").toString();
                             Ipo ipo = ipoHelper.createIpo(pIpo.fetchData(dataRepository.getInputStream()).get(0), dataRepository);
                             ipos.put(constraintName, ipo);
@@ -594,7 +594,7 @@ public class ConstraintHelper extends AbstractBlenderHelper {
         //loading constraints connected with the object's bones
         List<Constraint> constraintsList = new ArrayList<Constraint>();
         Pointer pPose = (Pointer) objectStructure.getFieldValue("pose");//TODO: what if the object has two armatures ????
-        if (!pPose.isNull()) {
+        if (pPose.isNotNull()) {
             //getting pose channels
             List<Structure> poseChannels = ((Structure) pPose.fetchData(dataRepository.getInputStream()).get(0).getFieldValue("chanbase")).evaluateListBase(dataRepository);
             for (Structure poseChannel : poseChannels) {
