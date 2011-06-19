@@ -36,15 +36,29 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 
+/**
+ * <code>CollisionResults</code> is a collection returned as a result of a 
+ * collision detection operation done by {@link Collidable}.
+ * 
+ * @author Kirill Vainer
+ */
 public class CollisionResults implements Iterable<CollisionResult> {
 
     private final ArrayList<CollisionResult> results = new ArrayList<CollisionResult>();
     private boolean sorted = true;
 
+    /**
+     * Clears all collision results added to this list
+     */
     public void clear(){
         results.clear();
     }
 
+    /**
+     * Iterator for iterating over the collision results.
+     * 
+     * @return the iterator
+     */
     public Iterator<CollisionResult> iterator() {
         if (!sorted){
             Collections.sort(results);

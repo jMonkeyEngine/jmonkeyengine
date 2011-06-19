@@ -193,6 +193,8 @@ public class TempVars {
      */
     public final Spatial[] spatialStack = new Spatial[32];
 
+    public final float[] matrixWrite = new float[16];
+    
     /**
      * BIHTree
      */

@@ -733,17 +733,26 @@ public final class Matrix4f implements Savable, Cloneable {
      *         limit set is not changed).
      */
     public FloatBuffer fillFloatBuffer(FloatBuffer fb, boolean columnMajor) {
-        if (columnMajor) {
-            fb.put(m00).put(m10).put(m20).put(m30);
-            fb.put(m01).put(m11).put(m21).put(m31);
-            fb.put(m02).put(m12).put(m22).put(m32);
-            fb.put(m03).put(m13).put(m23).put(m33);
-        } else {
-            fb.put(m00).put(m01).put(m02).put(m03);
-            fb.put(m10).put(m11).put(m12).put(m13);
-            fb.put(m20).put(m21).put(m22).put(m23);
-            fb.put(m30).put(m31).put(m32).put(m33);
-        }
+//        if (columnMajor) {
+//            fb.put(m00).put(m10).put(m20).put(m30);
+//            fb.put(m01).put(m11).put(m21).put(m31);
+//            fb.put(m02).put(m12).put(m22).put(m32);
+//            fb.put(m03).put(m13).put(m23).put(m33);
+//        } else {
+//            fb.put(m00).put(m01).put(m02).put(m03);
+//            fb.put(m10).put(m11).put(m12).put(m13);
+//            fb.put(m20).put(m21).put(m22).put(m23);
+//            fb.put(m30).put(m31).put(m32).put(m33);
+//        }
+        
+        TempVars vars = TempVars.get();
+        assert vars.lock();
+        
+        fillFloatArray(vars.matrixWrite, columnMajor);
+        fb.put(vars.matrixWrite, 0, 16);
+        
+        assert vars.unlock();
+        
         return fb;
     }
 

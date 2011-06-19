@@ -38,6 +38,7 @@ import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
 import com.jme3.export.Savable;
 import com.jme3.util.BufferUtils;
+import com.jme3.util.TempVars;
 import java.io.IOException;
 import java.nio.FloatBuffer;
 import java.util.logging.Logger;
@@ -384,16 +385,49 @@ public final class Matrix3f implements Savable, Cloneable {
      *         limit set is not changed).
      */
     public FloatBuffer fillFloatBuffer(FloatBuffer fb, boolean columnMajor) {
-        if (columnMajor){
-            fb.put(m00).put(m10).put(m20);
-            fb.put(m01).put(m11).put(m21);
-            fb.put(m02).put(m12).put(m22);
-        }else{
-            fb.put(m00).put(m01).put(m02);
-            fb.put(m10).put(m11).put(m12);
-            fb.put(m20).put(m21).put(m22);
-        }
+//        if (columnMajor){
+//            fb.put(m00).put(m10).put(m20);
+//            fb.put(m01).put(m11).put(m21);
+//            fb.put(m02).put(m12).put(m22);
+//        }else{
+//            fb.put(m00).put(m01).put(m02);
+//            fb.put(m10).put(m11).put(m12);
+//            fb.put(m20).put(m21).put(m22);
+//        }
+        
+        TempVars vars = TempVars.get();
+        assert vars.lock();
+        
+        fillFloatArray(vars.matrixWrite, columnMajor);
+        fb.put(vars.matrixWrite, 0, 9);
+        
+        assert vars.unlock();
+        
         return fb;
+    }
+    
+    public void fillFloatArray(float[] f, boolean columnMajor){
+        if (columnMajor) {
+            f[ 0] = m00;
+            f[ 1] = m10;
+            f[ 2] = m20;
+            f[ 3] = m01;
+            f[ 4] = m11;
+            f[ 5] = m21;
+            f[ 6] = m02;
+            f[ 7] = m12;
+            f[ 8] = m22;
+        }else{
+            f[ 0] = m00;
+            f[ 1] = m01;
+            f[ 2] = m02;
+            f[ 3] = m10;
+            f[ 4] = m11;
+            f[ 5] = m12;
+            f[ 6] = m20;
+            f[ 7] = m21;
+            f[ 8] = m22;
+        }
     }
 
     /**

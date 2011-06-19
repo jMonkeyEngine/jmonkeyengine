@@ -33,8 +33,11 @@
 package com.jme3.collision;
 
 /**
- *
- * @author Kirill
+ * Thrown by {@link Collidable} when the requested collision query could not
+ * be completed because one of the collidables does not support colliding with
+ * the other.
+ * 
+ * @author Kirill Vainer
  */
 public class UnsupportedCollisionException extends UnsupportedOperationException {
 
