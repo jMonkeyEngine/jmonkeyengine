@@ -35,6 +35,7 @@ import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -74,6 +75,7 @@ import com.jme3.scene.plugins.blender.utils.DataRepository.LoadedFeatureDataType
 import com.jme3.scene.plugins.blender.utils.DynamicArray;
 import com.jme3.scene.plugins.blender.utils.Pointer;
 import com.jme3.scene.plugins.ogre.AnimData;
+import com.jme3.scene.shape.Curve;
 
 /**
  * A class that is used in modifiers calculations.
@@ -149,7 +151,32 @@ public class ModifierHelper extends AbstractBlenderHelper {
 						params.put("length", modifier.getFieldValue("length"));
 						break;
 					case 2:// FITCURVE
-							// TODO: implement after loading curves is added; warning will be generated during modifier applying
+						Pointer pCurveOb = (Pointer) modifier.getFieldValue("curve_ob");
+						float length = 0;
+						if(pCurveOb.isNotNull()) {
+							Structure curveStructure = pCurveOb.fetchData(dataRepository.getInputStream()).get(0);
+							ObjectHelper objectHelper = dataRepository.getHelper(ObjectHelper.class);
+							Node curveObject = (Node)objectHelper.toObject(curveStructure, dataRepository);
+							Set<Number> referencesToCurveLengths = new HashSet<Number>(curveObject.getChildren().size());
+							for(Spatial spatial : curveObject.getChildren()) {
+								if(spatial instanceof Geometry) {
+									Mesh mesh = ((Geometry) spatial).getMesh();
+									if(mesh instanceof Curve) {
+										length += ((Curve) mesh).getLength();
+									} else {
+										//if bevel object has several parts then each mesh will have the same reference
+										//to length value (and we should use only one)
+										Number curveLength = spatial.getUserData("curveLength");
+										if(curveLength!=null && !referencesToCurveLengths.contains(curveLength)) {
+											length += curveLength.floatValue();
+											referencesToCurveLengths.add(curveLength);
+										}
+									}
+								}
+							}
+						}
+						params.put("length", Float.valueOf(length));
+						params.put("fittype", Integer.valueOf(1));// treat it like FIXED LENGTH
 						break;
 					default:
 						assert false : "Unknown array modifier fit type: " + fittype;
@@ -184,8 +211,7 @@ public class ModifierHelper extends AbstractBlenderHelper {
 					params.put("endcap", pEndCap);
 				}
 				loadedModifier = params;
-			}
-			if (Modifier.MIRROR_MODIFIER_DATA.equals(modifier.getType())) {// ****************MIRROR MODIFIER
+			} else if (Modifier.MIRROR_MODIFIER_DATA.equals(modifier.getType())) {// ****************MIRROR MODIFIER
 				Map<String, Object> params = new HashMap<String, Object>();
 
 				params.put("flag", modifier.getFieldValue("flag"));
@@ -471,7 +497,7 @@ public class ModifierHelper extends AbstractBlenderHelper {
 				count = (int) (length / translationVector.length()) - 1;
 			}
 		} else if (fittype == 2) {// Fit curve
-			LOGGER.warning("Fit curve mode in array modifier not yet implemented!");// TODO: implement fit curve
+			throw new IllegalStateException("Fit curve should be transformed to Fixed Length array type!");
 		} else {
 			throw new IllegalStateException("Unknown fit type: " + fittype);
 		}
@@ -479,7 +505,7 @@ public class ModifierHelper extends AbstractBlenderHelper {
 		// adding translated nodes and caps
 		if (count > 0) {
 			Node[] arrayNodes = new Node[count];
-			Vector3f newTranslation = node.getLocalTranslation().clone();
+			Vector3f newTranslation = new Vector3f();
 			for (int i = 0; i < count; ++i) {
 				newTranslation.addLocal(translationVector);
 				Node nodeClone = (Node) node.clone();

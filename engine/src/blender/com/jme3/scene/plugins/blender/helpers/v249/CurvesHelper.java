@@ -536,12 +536,14 @@ public class CurvesHelper extends AbstractBlenderHelper {
         }
 
         List<Geometry> result = new ArrayList<Geometry>(vertexBuffers.length);
+        Float oneReferenceToCurveLength = new Float(curveLength);//its important for array modifier to use one reference here
         for (int i = 0; i < vertexBuffers.length; ++i) {
             Mesh mesh = new Mesh();
             mesh.setBuffer(Type.Position, 3, vertexBuffers[i]);
             mesh.setBuffer(Type.Index, 3, indexBuffers[i]);
             mesh.setBuffer(Type.Normal, 3, normalBuffers[i]);
             Geometry g = new Geometry("g" + i, mesh);
+            g.setUserData("curveLength", oneReferenceToCurveLength);
             g.updateModelBound();
             result.add(g);
         }
