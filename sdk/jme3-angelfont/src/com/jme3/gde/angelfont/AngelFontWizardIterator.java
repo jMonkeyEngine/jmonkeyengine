@@ -74,6 +74,7 @@ public final class AngelFontWizardIterator implements WizardDescriptor.Instantia
      * @return
      * @throws IOException
      */
+    @SuppressWarnings("unchecked")
     public Set<FileObject> instantiate() throws IOException {
         String name = (String) wizard.getProperty("font_name");
         int fontSize = (Integer) wizard.getProperty("font_size");

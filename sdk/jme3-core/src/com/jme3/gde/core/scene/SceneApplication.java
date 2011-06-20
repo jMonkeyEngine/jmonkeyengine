@@ -77,6 +77,7 @@ import org.openide.util.lookup.Lookups;
  * 
  * @author normenhansen
  */
+@SuppressWarnings("unchecked")
 public class SceneApplication extends Application implements LookupProvider, LookupListener {
 
     private PointLight camLight;

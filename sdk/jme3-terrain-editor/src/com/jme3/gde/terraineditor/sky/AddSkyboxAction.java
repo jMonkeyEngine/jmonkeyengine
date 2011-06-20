@@ -54,7 +54,7 @@ public class AddSkyboxAction extends AbstractNewSpatialWizardAction {
         return null;
     }
 
-    public Spatial generateSkybox(WizardDescriptor wiz) {
+    private Spatial generateSkybox(WizardDescriptor wiz) {
         if ((Boolean) wiz.getProperty("multipleTextures")) {
             Texture south = (Texture) wiz.getProperty("textureSouth");
             Texture north = (Texture) wiz.getProperty("textureNorth");

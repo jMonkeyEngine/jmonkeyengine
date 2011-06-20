@@ -51,6 +51,7 @@ import org.openide.util.lookup.Lookups;
  *
  * @author normenhansen
  */
+@SuppressWarnings("unchecked")
 public class ProjectAssetManager extends DesktopAssetManager {
 
     private Project project;

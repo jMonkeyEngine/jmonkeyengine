@@ -66,6 +66,7 @@ import org.openide.util.lookup.ProxyLookup;
  *
  * @author normenhansen
  */
+@SuppressWarnings("unchecked")
 public class AssetDataObject extends MultiDataObject {
 
     protected final Lookup lookup;

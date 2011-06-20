@@ -620,6 +620,7 @@ public final class MaterialEditorTopComponent extends CloneableTopComponent impl
         }
     }
 
+    @SuppressWarnings("unchecked")
     private void showMaterial() {
         try {
             AssetKey key = new AssetKey(manager.getRelativeAssetPath(materialFileName));

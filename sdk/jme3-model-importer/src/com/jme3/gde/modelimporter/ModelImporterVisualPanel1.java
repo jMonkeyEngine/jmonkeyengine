@@ -24,6 +24,7 @@ import org.openide.NotifyDescriptor.Message;
 import org.openide.WizardDescriptor;
 import org.openide.filesystems.FileChooserBuilder;
 
+@SuppressWarnings("unchecked")
 public final class ModelImporterVisualPanel1 extends JPanel implements AssetEventListener {
 
     private OffScenePanel offPanel;

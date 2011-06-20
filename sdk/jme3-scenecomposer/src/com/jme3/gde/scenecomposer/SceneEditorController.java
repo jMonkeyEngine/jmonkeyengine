@@ -64,6 +64,7 @@ import org.openide.util.Lookup;
  *
  * @author normenhansen
  */
+@SuppressWarnings("unchecked")
 public class SceneEditorController implements PropertyChangeListener, NodeListener {
 
     private JmeSpatial jmeRootNode;

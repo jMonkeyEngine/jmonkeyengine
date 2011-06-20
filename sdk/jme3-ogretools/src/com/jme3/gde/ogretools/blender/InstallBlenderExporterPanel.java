@@ -168,6 +168,7 @@ public class InstallBlenderExporterPanel extends javax.swing.JDialog {
 
     }
 
+    @SuppressWarnings("unchecked")
     private static String getWindowsRegistryBlenderPath() {
 
         final int HKEY_CURRENT_USER = 0x80000001;

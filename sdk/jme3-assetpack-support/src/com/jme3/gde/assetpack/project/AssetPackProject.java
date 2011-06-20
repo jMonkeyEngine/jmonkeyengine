@@ -42,6 +42,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.InputSource;
 
+@SuppressWarnings("unchecked")
 public class AssetPackProject implements Project {
 
     private final FileObject projectDir;

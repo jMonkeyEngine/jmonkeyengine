@@ -75,6 +75,7 @@ import org.openide.util.Exceptions;
  * 
  * @author normenhansen, bowens
  */
+@SuppressWarnings("unchecked")
 public class TerrainEditorController {
     private JmeSpatial jmeRootNode;
     private Node terrainNode;

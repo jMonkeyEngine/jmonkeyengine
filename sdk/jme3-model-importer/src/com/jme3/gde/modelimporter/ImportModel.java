@@ -34,6 +34,7 @@ import org.openide.loaders.DataObject;
 import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
 
+@SuppressWarnings("unchecked")
 public final class ImportModel implements ActionListener {
 
     private final Project context;

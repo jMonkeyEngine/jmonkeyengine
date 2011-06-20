@@ -48,6 +48,7 @@ import org.openide.util.Utilities;
  *
  * @author normenhansen
  */
+@SuppressWarnings("unchecked")
 public class VehicleEditorController implements LookupListener, ActionListener {
 
     private JmeSpatial jmeRootNode;
