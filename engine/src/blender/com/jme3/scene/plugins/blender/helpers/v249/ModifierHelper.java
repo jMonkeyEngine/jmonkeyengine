@@ -32,6 +32,7 @@
 package com.jme3.scene.plugins.blender.helpers.v249;
 
 import java.nio.FloatBuffer;
+import java.nio.ShortBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -551,13 +552,14 @@ public class ModifierHelper extends AbstractBlenderHelper {
 						Mesh clone = mesh.deepClone();
 
 						// getting buffers
-						FloatBuffer position = (FloatBuffer) mesh.getBuffer(Type.Position).getData();
-						FloatBuffer bindPosePosition = (FloatBuffer) mesh.getBuffer(Type.BindPosePosition).getData();
+						FloatBuffer position = mesh.getFloatBuffer(Type.Position);
+						FloatBuffer bindPosePosition = mesh.getFloatBuffer(Type.BindPosePosition);
 
-						FloatBuffer clonePosition = (FloatBuffer) clone.getBuffer(Type.Position).getData();
-						FloatBuffer cloneBindPosePosition = (FloatBuffer) clone.getBuffer(Type.BindPosePosition).getData();
-						FloatBuffer cloneNormals = (FloatBuffer) clone.getBuffer(Type.Normal).getData();
-						FloatBuffer cloneBindPoseNormals = (FloatBuffer) clone.getBuffer(Type.BindPoseNormal).getData();
+						FloatBuffer clonePosition = clone.getFloatBuffer(Type.Position);
+						FloatBuffer cloneBindPosePosition = clone.getFloatBuffer(Type.BindPosePosition);
+						FloatBuffer cloneNormals = clone.getFloatBuffer(Type.Normal);
+						FloatBuffer cloneBindPoseNormals = clone.getFloatBuffer(Type.BindPoseNormal);
+						ShortBuffer cloneIndexes = (ShortBuffer) clone.getBuffer(Type.Index).getData();
 						
 						// modyfying data
 						for (int i = mirrorIndex; i < clonePosition.limit(); i += 3) {
@@ -575,6 +577,14 @@ public class ModifierHelper extends AbstractBlenderHelper {
 							}
 							cloneNormals.put(i, -cloneNormals.get(i));
 							cloneBindPoseNormals.put(i, -cloneNormals.get(i));
+							
+							//modifying clone indexes
+							int vertexIndex = (i - mirrorIndex) / 3;
+							if(vertexIndex % 3 == 0) {
+								short index = cloneIndexes.get(vertexIndex + 2);
+								cloneIndexes.put(vertexIndex + 2, cloneIndexes.get(vertexIndex + 1));
+								cloneIndexes.put(vertexIndex + 1, index);
+							}
 						}
 						
 						if(mirrorU) {
