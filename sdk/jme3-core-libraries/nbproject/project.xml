@@ -32,15 +32,19 @@
                 <package>de.lessvoid.nifty.controls.button</package>
                 <package>de.lessvoid.nifty.controls.button.builder</package>
                 <package>de.lessvoid.nifty.controls.chatcontrol</package>
+                <package>de.lessvoid.nifty.controls.chatcontrol.builder</package>
                 <package>de.lessvoid.nifty.controls.checkbox</package>
                 <package>de.lessvoid.nifty.controls.checkbox.builder</package>
                 <package>de.lessvoid.nifty.controls.console</package>
                 <package>de.lessvoid.nifty.controls.console.builder</package>
                 <package>de.lessvoid.nifty.controls.dragndrop</package>
+                <package>de.lessvoid.nifty.controls.dragndrop.builder</package>
                 <package>de.lessvoid.nifty.controls.dropdown</package>
                 <package>de.lessvoid.nifty.controls.dropdown.builder</package>
                 <package>de.lessvoid.nifty.controls.dynamic</package>
                 <package>de.lessvoid.nifty.controls.dynamic.attributes</package>
+                <package>de.lessvoid.nifty.controls.imageselect</package>
+                <package>de.lessvoid.nifty.controls.imageselect.builder</package>
                 <package>de.lessvoid.nifty.controls.label</package>
                 <package>de.lessvoid.nifty.controls.label.builder</package>
                 <package>de.lessvoid.nifty.controls.listbox</package>
@@ -57,6 +61,7 @@
                 <package>de.lessvoid.nifty.controls.textfield</package>
                 <package>de.lessvoid.nifty.controls.textfield.builder</package>
                 <package>de.lessvoid.nifty.controls.window</package>
+                <package>de.lessvoid.nifty.controls.window.builder</package>
                 <package>de.lessvoid.nifty.effects</package>
                 <package>de.lessvoid.nifty.effects.impl</package>
                 <package>de.lessvoid.nifty.elements</package>
@@ -112,6 +117,11 @@
                 <package>org.lwjgl.opencl</package>
                 <package>org.lwjgl.opencl.api</package>
                 <package>org.lwjgl.opengl</package>
+                <package>org.novyon.noise</package>
+                <package>org.novyon.noise.basis</package>
+                <package>org.novyon.noise.filter</package>
+                <package>org.novyon.noise.fractal</package>
+                <package>org.novyon.noise.modulator</package>
                 <package>org.xmlpull.mxp1</package>
                 <package>org.xmlpull.mxp1_serializer</package>
                 <package>org.xmlpull.v1</package>
