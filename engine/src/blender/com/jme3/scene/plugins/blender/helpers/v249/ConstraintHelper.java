@@ -1,9 +1,11 @@
 package com.jme3.scene.plugins.blender.helpers.v249;
 
+import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 
 import com.jme3.animation.Bone;
 import com.jme3.animation.BoneAnimation;
@@ -12,8 +14,11 @@ import com.jme3.animation.Skeleton;
 import com.jme3.math.FastMath;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
+import com.jme3.scene.Geometry;
+import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
+import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.scene.plugins.blender.data.Structure;
 import com.jme3.scene.plugins.blender.exception.BlenderFileException;
 import com.jme3.scene.plugins.blender.structures.AbstractInfluenceFunction;
@@ -23,8 +28,8 @@ import com.jme3.scene.plugins.blender.structures.ConstraintType;
 import com.jme3.scene.plugins.blender.structures.Ipo;
 import com.jme3.scene.plugins.blender.utils.AbstractBlenderHelper;
 import com.jme3.scene.plugins.blender.utils.DataRepository;
+import com.jme3.scene.plugins.blender.utils.DataRepository.LoadedFeatureDataType;
 import com.jme3.scene.plugins.blender.utils.Pointer;
-import java.util.logging.Level;
 
 /**
  * This class should be used for constraint calculations.
@@ -404,7 +409,6 @@ public class ConstraintHelper extends AbstractBlenderHelper {
 
 			//ROTLIMIT constraint
 			influenceFunctions[ConstraintType.CONSTRAINT_TYPE_ROTLIMIT.getConstraintId()] = new AbstractInfluenceFunction(ConstraintType.CONSTRAINT_TYPE_ROTLIMIT, dataRepository) {
-
 				@Override
 				public void affectAnimation(Skeleton skeleton, BoneAnimation boneAnimation, Constraint constraint) {
 					Structure constraintStructure = constraint.getData();
@@ -459,11 +463,57 @@ public class ConstraintHelper extends AbstractBlenderHelper {
 
 			//SHRINKWRAP constraint (TODO: to implement)
 			influenceFunctions[ConstraintType.CONSTRAINT_TYPE_SHRINKWRAP.getConstraintId()] = new AbstractInfluenceFunction(ConstraintType.CONSTRAINT_TYPE_SHRINKWRAP, dataRepository) {
+				@Override
+				public void affectAnimation(Skeleton skeleton, BoneAnimation boneAnimation, Constraint constraint) {
+					Structure constraintStructure = constraint.getData();
+					this.validateConstraintType(constraintStructure);
+					
+					//loading mesh points (blender ensures that the target is a mesh-object)
+					List<Vector3f> pts = new ArrayList<Vector3f>();
+					try {
+						Node node = (Node)this.getTarget(constraint, LoadedFeatureDataType.LOADED_FEATURE);
+						for(Spatial spatial : node.getChildren()) {
+							if(spatial instanceof Geometry) {
+								Mesh mesh = ((Geometry) spatial).getMesh();
+								FloatBuffer floatBuffer = mesh.getFloatBuffer(Type.Position);
+								for(int i=0;i<floatBuffer.limit();i+=3) {
+									pts.add(new Vector3f(floatBuffer.get(i), floatBuffer.get(i + 1), floatBuffer.get(i + 2)));
+								}
+							}
+						}
+						
+						//modifying traces
+						BoneTrack boneTrack = this.getBoneTrack(skeleton, boneAnimation, constraint);
+						if (boneTrack != null) {
+							Vector3f[] translations = boneTrack.getTranslations();
+							Quaternion[] rotations = boneTrack.getRotations();
+							int maxFrames = translations.length;
+							for (int frame = 0; frame < maxFrames; ++frame) {
+								Vector3f currentTranslation = translations[frame];
+								
+								//looking for minimum distanced point
+								Vector3f minDistancePoint = null;
+								float distance = Float.MAX_VALUE;
+								for(Vector3f p : pts) {
+									float temp = currentTranslation.distance(p);
+									if(temp < distance) {
+										distance = temp;
+										minDistancePoint = p;
+									}
+								}
+								translations[frame] = minDistancePoint.clone();
+							}
+							
+							boneTrack.setKeyframes(boneTrack.getTimes(), translations, rotations, boneTrack.getScales());
+						}
+					} catch (BlenderFileException e) {
+						LOGGER.severe(e.getLocalizedMessage());
+					}
+				}
 			};
 
 			//SIZELIKE constraint
 			influenceFunctions[ConstraintType.CONSTRAINT_TYPE_SIZELIKE.getConstraintId()] = new AbstractInfluenceFunction(ConstraintType.CONSTRAINT_TYPE_SIZELIKE, dataRepository) {
-
 				@Override
 				public void affectAnimation(Skeleton skeleton, BoneAnimation boneAnimation, Constraint constraint) {
 					Structure constraintData = constraint.getData();
@@ -497,7 +547,6 @@ public class ConstraintHelper extends AbstractBlenderHelper {
 
 			//SIZELIMIT constraint
 			influenceFunctions[ConstraintType.CONSTRAINT_TYPE_SIZELIMIT.getConstraintId()] = new AbstractInfluenceFunction(ConstraintType.CONSTRAINT_TYPE_SIZELIMIT, dataRepository) {
-
 				@Override
 				public void affectAnimation(Skeleton skeleton, BoneAnimation boneAnimation, Constraint constraint) {
 					Structure constraintStructure = constraint.getData();

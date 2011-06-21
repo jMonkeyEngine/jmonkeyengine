@@ -10,6 +10,8 @@ import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
 import com.jme3.scene.plugins.blender.data.Structure;
+import com.jme3.scene.plugins.blender.exception.BlenderFileException;
+import com.jme3.scene.plugins.blender.helpers.v249.ObjectHelper;
 import com.jme3.scene.plugins.blender.structures.Constraint.Space;
 import com.jme3.scene.plugins.blender.utils.DataRepository;
 import com.jme3.scene.plugins.blender.utils.DataRepository.LoadedFeatureDataType;
@@ -134,15 +136,23 @@ public abstract class AbstractInfluenceFunction {
      * @param constraint
      *        the constraint instance
      * @return target or subtarget feature
+     * @throws BlenderFileException this exception is thrown if the blend file is somehow corrupted
      */
-    protected Object getTarget(Constraint constraint, LoadedFeatureDataType loadedFeatureDataType) {
-        Long targetOMA = ((Pointer) constraint.getData().getFieldValue("tar")).getOldMemoryAddress();
-        Object targetObject = dataRepository.getLoadedFeature(targetOMA, loadedFeatureDataType);
-        String subtargetName = constraint.getData().getFieldValue("subtarget").toString();
-        if (subtargetName.length() > 0) {
+    protected Object getTarget(Constraint constraint, LoadedFeatureDataType loadedFeatureDataType) throws BlenderFileException {
+    	//TODO: load the feature through objectHelper, this way we are certain the object loads and has
+    	//his own constraints applied to traces
+    	ObjectHelper objectHelper = dataRepository.getHelper(ObjectHelper.class);
+    	//subtarget goes first
+    	Object subtarget = constraint.getData().getFieldValue("subtarget");
+    	String subtargetName = subtarget==null ? null : subtarget.toString();
+        if (subtargetName!=null && subtargetName.length() > 0) {
+        	//TODO: what if it is not yet loaded ???
             return dataRepository.getLoadedFeature(subtargetName, loadedFeatureDataType);
         }
-        return targetObject;
+        //and now use the target
+        Long targetOMA = ((Pointer) constraint.getData().getFieldValue("target")).getOldMemoryAddress();
+        Structure objectStructure = dataRepository.getFileBlock(targetOMA).getStructure(dataRepository);
+        return objectHelper.toObject(objectStructure, dataRepository);
     }
 
     /**
