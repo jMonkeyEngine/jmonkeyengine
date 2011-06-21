@@ -52,8 +52,16 @@ public class ConstraintHelper extends AbstractBlenderHelper {
      */
     public ConstraintHelper(String blenderVersion, DataRepository dataRepository) {
         super(blenderVersion);
-        if (influenceFunctions == null) {
-            //TODO: synchronization
+        this.initializeConstraintFunctions(dataRepository);
+    }
+
+	/**
+	 * This method initializes constraint functions for Blender 2.49.
+	 * @param dataRepository
+	 *           			the data repository
+	 */
+    private synchronized void initializeConstraintFunctions(DataRepository dataRepository) {
+    	if (influenceFunctions == null) {
             influenceFunctions = new AbstractInfluenceFunction[ConstraintType.getLastDefinedTypeValue() + 1];
             //ACTION constraint (TODO: to implement)
             influenceFunctions[ConstraintType.CONSTRAINT_TYPE_ACTION.getConstraintId()] = new AbstractInfluenceFunction(ConstraintType.CONSTRAINT_TYPE_ACTION, dataRepository) {
@@ -552,7 +560,7 @@ public class ConstraintHelper extends AbstractBlenderHelper {
             };
         }
     }
-
+    
     /**
      * This method reads constraints for for the given structure. The constraints are loaded only once for object/bone.
      * @param ownerOMA
