@@ -19,6 +19,7 @@ import com.jme3.input.event.TouchEvent;
 import com.jme3.system.AppSettings;
 import com.jme3.system.JmeSystem;
 import com.jme3.system.android.OGLESContext;
+import com.jme3.system.android.AndroidConfigChooser.ConfigType;
 
 
 /**
@@ -30,14 +31,27 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
 {
     protected final static Logger logger = Logger.getLogger(AndroidHarness.class.getName());
     
+    /**
+     * The application class to start
+     */
+    protected String appClass = "jme3test.android.Test";
+    
+    /**
+     * The jme3 application object
+     */
+    protected Application app = null;
+    
+    /**
+     * ConfigType.FASTEST is RGB565, GLSurfaceView default
+     * ConfigType.BEST is RGBA8888 or better if supported by the hardware
+     */
+    protected ConfigType eglConfigType = ConfigType.FASTEST;
+    
+          
     protected OGLESContext ctx;
     protected GLSurfaceView view;
     
-    protected String appClass = "jme3test.android.Test";
-    protected Application app = null;
-    
-    protected boolean debug = false;  
-    final private String ESCAPE_EVENT = "TouchEscape";
+    final private String ESCAPE_EVENT = "TouchEscape"; 
 
     @Override
     public void onCreate(Bundle savedInstanceState) 
@@ -65,14 +79,7 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
         app.setSettings(settings);
         app.start();    
         ctx = (OGLESContext) app.getContext();
-        if (debug)
-        {
-            view = ctx.createView(input, GLSurfaceView.DEBUG_CHECK_GL_ERROR | GLSurfaceView.DEBUG_LOG_GL_CALLS);
-        }
-        else
-        {
-            view = ctx.createView(input);
-        }
+        view = ctx.createView(input, eglConfigType);
    		setContentView(view);       		
     }
 

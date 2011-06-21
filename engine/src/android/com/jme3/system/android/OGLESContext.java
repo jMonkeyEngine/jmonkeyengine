@@ -34,8 +34,10 @@ package com.jme3.system.android;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.PixelFormat;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
+import android.opengl.GLSurfaceView.EGLConfigChooser;
 import android.view.SurfaceHolder;
 
 import com.jme3.app.AndroidHarness;
@@ -53,6 +55,8 @@ import com.jme3.system.AppSettings;
 import com.jme3.system.JmeContext;
 import com.jme3.system.SystemListener;
 import com.jme3.system.Timer;
+import com.jme3.system.android.AndroidConfigChooser.ConfigType;
+
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
@@ -63,7 +67,7 @@ import javax.microedition.khronos.egl.EGLDisplay;
 import javax.microedition.khronos.opengles.GL10;
 
 
-public class OGLESContext implements JmeContext, GLSurfaceView.Renderer 
+public class OGLESContext implements JmeContext, GLSurfaceView.Renderer
 {
 
     private static final Logger logger = Logger.getLogger(OGLESContext.class.getName());
@@ -123,7 +127,7 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer
      */
     public GLSurfaceView createView(AndroidInput view)
     {
-        return createView(view, 0);
+        return createView(view, ConfigType.FASTEST);
     }
     
     /**
@@ -132,7 +136,7 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer
      * @param debugflags 0, GLSurfaceView.DEBUG_CHECK_GL_ERROR | GLSurfaceView.DEBUG_LOG_GL_CALLS
      * @return GLSurfaceView The newly created view
      */    
-    public GLSurfaceView createView(AndroidInput view, int debugflags)
+    public GLSurfaceView createView(AndroidInput view, ConfigType configType)
     {                    
         EGL10 egl = (EGL10) EGLContext.getEGL();
         EGLDisplay display = egl.eglGetDisplay(EGL10.EGL_DEFAULT_DISPLAY);
@@ -143,179 +147,37 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer
             logger.info("Display EGL Version: " + version[0] + "." + version[1]);
         }
         
-        //Querying number of configurations
-        int[] num_conf = new int[1];
-        egl.eglGetConfigs(display, null, 0, num_conf);  //if configuration array is null it still returns the number of configurations
-        int configurations = num_conf[0];
+        // Start to set up the view
+        this.view = view;    
 
-        //Querying actual configurations
-        EGLConfig[] conf = new EGLConfig[configurations];
-        egl.eglGetConfigs(display, conf, configurations, num_conf);
-
-        EGLConfig bestConfig = null;
-        int[] value = new int[1];
-        int EGL_OPENGL_ES2_BIT = 4;
-
-        // Loop over all configs to get the best
-        for(int i = 0; i < configurations; i++)
+        // Create a config chooser
+        AndroidConfigChooser configChooser = new AndroidConfigChooser(configType);
+        // Init chooser
+        if (!configChooser.findConfig(egl, display))
         {
-            //logger.info("Supported EGL Configuration #" + i );
-        
-            if (conf[i] != null)
-            {
-                //logger.info(String.format("conf[%d] = %s", i, conf[i].toString() ) );
-                //logEGLConfig(conf[i], display, egl);     
-                egl.eglGetConfigAttrib(display, conf[i], EGL10.EGL_RENDERABLE_TYPE, value);
-                if ((value[0] & EGL_OPENGL_ES2_BIT) != 0)
-                {
-                    clientOpenGLESVersion = 2;  // OpenGL ES 2.0 detected
-                    bestConfig = better(bestConfig, conf[i], egl, display);
-                }                                
-            }
-            else
-            {
-                break;
-            }
+            logger.severe("Unable to find suitable EGL config");
         }
-        
+                
+        clientOpenGLESVersion = configChooser.getClientOpenGLESVersion();
         if (clientOpenGLESVersion < 2)
         {
             logger.severe("OpenGL ES 2.0 is not supported on this device");
         }                
-        // Finished querying the configs
         
-        
-        // Start to set up the view
-        this.view = view;    
-
         /*
          * Requesting client version from GLSurfaceView which is extended by
          * AndroidInput.        
          */     
-        view.setEGLContextClientVersion(clientOpenGLESVersion);               
-
-        if (bestConfig != null)
-        {
-            logger.info("JME3 using best EGL configuration available here: ");        
-            logEGLConfig(bestConfig, display, egl);
-
-            // Choose best config        
-            egl.eglGetConfigAttrib(display, bestConfig, EGL10.EGL_RED_SIZE, value);
-            int redSize = value[0];
-            
-            egl.eglGetConfigAttrib(display, bestConfig, EGL10.EGL_GREEN_SIZE, value);
-            int greenSize = value[0];
-            
-            egl.eglGetConfigAttrib(display, bestConfig, EGL10.EGL_BLUE_SIZE, value);
-            int blueSize = value[0];
-    
-            egl.eglGetConfigAttrib(display, bestConfig, EGL10.EGL_ALPHA_SIZE, value);
-            int alphaSize = value[0];
-            
-            egl.eglGetConfigAttrib(display, bestConfig, EGL10.EGL_DEPTH_SIZE, value);
-            int depthSize = value[0];
-                    
-            egl.eglGetConfigAttrib(display, bestConfig, EGL10.EGL_STENCIL_SIZE, value);
-            int stencilSize = value[0];
-            
-            view.setEGLConfigChooser(redSize, greenSize, blueSize, alphaSize, depthSize, stencilSize);
-        }
-        else
-        {
-            //RGB565, Depth16            
-            logger.info("JME3 best EGL configuration not found using default: RGB565, Depth16, Alpha0, Stencil0");
-            view.setEGLConfigChooser(5, 6, 5, 0, 16, 0);
-        }
-    
+        view.setEGLContextClientVersion(clientOpenGLESVersion);
+        view.setEGLConfigChooser(configChooser);
         view.setFocusableInTouchMode(true);
         view.setFocusable(true);
+        view.setZOrderOnTop(true);
         view.getHolder().setType(SurfaceHolder.SURFACE_TYPE_GPU);
-//        view.setDebugFlags(GLSurfaceView.DEBUG_CHECK_GL_ERROR);
-//                         | GLSurfaceView.DEBUG_LOG_GL_CALLS);
+        view.getHolder().setFormat(configChooser.getPixelFormat());
         view.setRenderer(this);
         return view;
-
     }
-        
-    /**
-     * Returns the best of the two EGLConfig passed according to depth and colours
-     * @param a The first candidate
-     * @param b The second candidate
-     * @return The chosen candidate
-     */
-    private EGLConfig better(EGLConfig a, EGLConfig b, EGL10 egl, EGLDisplay display)
-    {
-        if(a == null) return b;
-    
-        EGLConfig result = null;
-    
-        int[] value = new int[1];
-    
-        egl.eglGetConfigAttrib(display, a, EGL10.EGL_DEPTH_SIZE, value);
-        int depthA = value[0];
-    
-        egl.eglGetConfigAttrib(display, b, EGL10.EGL_DEPTH_SIZE, value);
-        int depthB = value[0];
-    
-        if(depthA > depthB)
-            result = a;
-        else if(depthA < depthB)
-            result = b;
-        else //if depthA == depthB
-        {
-            egl.eglGetConfigAttrib(display, a, EGL10.EGL_RED_SIZE, value);
-            int redA = value[0];
-    
-            egl.eglGetConfigAttrib(display, b, EGL10.EGL_RED_SIZE, value);
-            int redB = value[0];
-    
-            if(redA > redB)
-                result = a;
-            else if(redA < redB)
-                result = b;
-            else //if redA == redB
-            {
-                // Don't care
-                result = a;
-            }
-        }
-        return result;
-    }
-
-    /**
-     * log output with egl config details
-     * @param conf
-     * @param display
-     * @param egl
-     */
-    private void logEGLConfig(EGLConfig conf, EGLDisplay display, EGL10 egl)
-    {
-        int[] value = new int[1];
-
-        egl.eglGetConfigAttrib(display, conf, EGL10.EGL_RED_SIZE, value);
-        logger.info(String.format("EGL_RED_SIZE  = %d", value[0] ) );
-        
-        egl.eglGetConfigAttrib(display, conf, EGL10.EGL_BLUE_SIZE, value);
-        logger.info(String.format("EGL_BLUE_SIZE  = %d", value[0] ) );
-
-        egl.eglGetConfigAttrib(display, conf, EGL10.EGL_GREEN_SIZE, value);
-        logger.info(String.format("EGL_GREEN_SIZE  = %d", value[0] ) );
-        
-        egl.eglGetConfigAttrib(display, conf, EGL10.EGL_ALPHA_SIZE, value);
-        logger.info(String.format("EGL_ALPHA_SIZE  = %d", value[0] ) );
-        
-        egl.eglGetConfigAttrib(display, conf, EGL10.EGL_DEPTH_SIZE, value);
-        logger.info(String.format("EGL_DEPTH_SIZE  = %d", value[0] ) );
-                
-        egl.eglGetConfigAttrib(display, conf, EGL10.EGL_STENCIL_SIZE, value);
-        logger.info(String.format("EGL_STENCIL_SIZE  = %d", value[0] ) );
-
-        egl.eglGetConfigAttrib(display, conf, EGL10.EGL_RENDERABLE_TYPE, value);
-        logger.info(String.format("EGL_RENDERABLE_TYPE  = %d", value[0] ) );
-
-        
-    }
-    
     
 
     protected void initInThread()
