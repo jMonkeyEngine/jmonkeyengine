@@ -1,4 +1,4 @@
-package com.jme3.scene.plugins.blender.utils;
+package com.jme3.scene.plugins.blender.structures;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -17,6 +17,9 @@ import com.jme3.export.Savable;
 import com.jme3.scene.plugins.blender.data.FileBlockHeader;
 import com.jme3.scene.plugins.blender.data.Structure;
 import com.jme3.scene.plugins.blender.exception.BlenderFileException;
+import com.jme3.scene.plugins.blender.utils.BlenderInputStream;
+import com.jme3.scene.plugins.blender.utils.DataRepository;
+import com.jme3.scene.plugins.blender.utils.Pointer;
 
 /**
  * The blender object's custom properties.

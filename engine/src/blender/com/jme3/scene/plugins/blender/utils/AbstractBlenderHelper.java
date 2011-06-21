@@ -36,6 +36,7 @@ import java.util.List;
 
 import com.jme3.scene.plugins.blender.data.Structure;
 import com.jme3.scene.plugins.blender.exception.BlenderFileException;
+import com.jme3.scene.plugins.blender.structures.Properties;
 import com.jme3.util.BufferUtils;
 
 /**

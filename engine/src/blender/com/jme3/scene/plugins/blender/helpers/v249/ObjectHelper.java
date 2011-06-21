@@ -57,12 +57,12 @@ import com.jme3.scene.plugins.blender.data.Structure;
 import com.jme3.scene.plugins.blender.exception.BlenderFileException;
 import com.jme3.scene.plugins.blender.structures.Ipo;
 import com.jme3.scene.plugins.blender.structures.Modifier;
+import com.jme3.scene.plugins.blender.structures.Properties;
 import com.jme3.scene.plugins.blender.utils.AbstractBlenderHelper;
 import com.jme3.scene.plugins.blender.utils.DataRepository;
 import com.jme3.scene.plugins.blender.utils.DataRepository.LoadedFeatureDataType;
 import com.jme3.scene.plugins.blender.utils.DynamicArray;
 import com.jme3.scene.plugins.blender.utils.Pointer;
-import com.jme3.scene.plugins.blender.utils.Properties;
 import com.jme3.scene.plugins.ogre.AnimData;
 
 /**
