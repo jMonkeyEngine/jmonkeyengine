@@ -117,7 +117,7 @@ public abstract class AbstractInfluenceFunction {
     protected BoneTrack getBoneTrack(Skeleton skeleton, BoneAnimation boneAnimation, Constraint constraint) {
         Long boneOMA = constraint.getBoneOMA();
         Bone bone = (Bone) dataRepository.getLoadedFeature(boneOMA, LoadedFeatureDataType.LOADED_FEATURE);
-        int boneIndex = skeleton.getBoneIndex(bone);
+        int boneIndex = bone==null ? 0 : skeleton.getBoneIndex(bone);//bone==null may mean the object animation
         if (boneIndex != -1) {
             //searching for track for this bone
             for (BoneTrack boneTrack : boneAnimation.getTracks()) {

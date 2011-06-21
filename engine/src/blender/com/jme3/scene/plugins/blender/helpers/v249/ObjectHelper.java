@@ -403,7 +403,7 @@ public class ObjectHelper extends AbstractBlenderHelper {
 			Bone bone = new Bone(null);
 			bone.setBindTransforms(t.getTranslation(), t.getRotation(), t.getScale());
 
-			return new Modifier(Modifier.ARMATURE_MODIFIER_DATA, new AnimData(new Skeleton(new Bone[] {bone}), animations), null);
+			return new Modifier(Modifier.ARMATURE_MODIFIER_DATA, new AnimData(new Skeleton(new Bone[] {bone}), animations), objectStructure.getOldMemoryAddress());
 		}
 		return null;
 	}

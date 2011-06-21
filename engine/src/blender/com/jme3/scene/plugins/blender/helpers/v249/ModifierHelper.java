@@ -663,16 +663,14 @@ public class ModifierHelper extends AbstractBlenderHelper {
 
 			Vector3f[] translations = new Vector3f[tablesLength];
 			Quaternion[] rotations = new Quaternion[tablesLength];
-			Vector3f[] scales = sourceScales == null ? null : new Vector3f[tablesLength];
+			Vector3f[] scales = new Vector3f[tablesLength];
 			for (int j = 0; j < tablesLength; ++j) {
 				translations[j] = sourceTranslations[j].clone();
 				rotations[j] = sourceRotations[j].clone();
-				if (sourceScales != null) {// only scales may not be applied
-					scales[j] = sourceScales[j].clone();
-				}
+				scales[j] = sourceScales != null ? sourceScales[j].clone() : new Vector3f(1.0f, 1.0f, 1.0f);
 			}
-			boneTracks[i] = new BoneTrack(sourceTracks[i].getTargetBoneIndex(), sourceTracks[i].getTimes(),// times do not change, no need
-																											// to clone them,
+			// times do not change, no need to clone them
+			boneTracks[i] = new BoneTrack(sourceTracks[i].getTargetBoneIndex(), sourceTracks[i].getTimes(),
 					translations, rotations, scales);
 		}
 		result.setTracks(boneTracks);
