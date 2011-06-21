@@ -93,8 +93,8 @@ public final class BoneTrack implements Savable {
      * @param scales the scale of the bone for each frame
      */
     public BoneTrack(int targetBoneIndex, float[] times, Vector3f[] translations, Quaternion[] rotations, Vector3f[] scales) {
-        this(targetBoneIndex, times, translations, rotations);
-        this.setKeyframes(times, translations, rotations);
+    	this.targetBoneIndex = targetBoneIndex;
+        this.setKeyframes(times, translations, rotations, scales);
     }
 
     /**
