@@ -46,6 +46,7 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
+import com.jme3.scene.UserData;
 import com.jme3.terrain.geomipmap.TerrainPatch;
 import com.jme3.terrain.geomipmap.TerrainQuad;
 import java.util.Iterator;
@@ -91,6 +92,10 @@ public class CollisionShapeFactory {
             if (spatial instanceof Node) {
                 createCompoundShape(realRootNode, (Node) spatial, shape, meshAccurate, dynamic);
             } else if (spatial instanceof Geometry) {
+                Boolean bool = spatial.getUserData(UserData.JME_PHYSICSIGNORE);
+                if (bool != null && bool.booleanValue()) {
+                    continue; // go to the next child in the loop
+                }
                 if (meshAccurate) {
                     CollisionShape childShape = dynamic
                             ? createSingleDynamicMeshShape((Geometry) spatial, realRootNode)
@@ -229,7 +234,7 @@ public class CollisionShapeFactory {
             return null;
         }
     }
-    
+
     /**
      * This method moves each child shape of a compound shape by the given vector
      * @param vector
