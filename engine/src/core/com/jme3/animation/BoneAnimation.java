@@ -36,6 +36,9 @@ import com.jme3.export.JmeImporter;
 import com.jme3.export.InputCapsule;
 import com.jme3.export.OutputCapsule;
 import com.jme3.export.Savable;
+import com.jme3.math.Quaternion;
+import com.jme3.math.Vector3f;
+
 import java.io.IOException;
 import java.util.BitSet;
 
@@ -45,7 +48,7 @@ import java.util.BitSet;
  * 
  * @author Kirill Vainer
  */
-public final class BoneAnimation implements Savable {
+public final class BoneAnimation implements Savable, Cloneable {
 
     private String name;
     private float length;
@@ -119,15 +122,51 @@ public final class BoneAnimation implements Savable {
     public String toString() {
         return "BoneAnim[name=" + name + ", length=" + length + "]";
     }
+    
+    @Override
+	public BoneAnimation clone() {
+    	BoneAnimation result;
+    	try {
+			result = (BoneAnimation)super.clone();
+		} catch (CloneNotSupportedException e) {
+			result = new BoneAnimation(name, length);
+		}		
+		if(result.tracks == null) {
+			result.tracks = new BoneTrack[tracks.length];
+		}
+		for (int i = 0; i < tracks.length; ++i) {
+			int tablesLength = tracks[i].getTimes().length;
 
-    public void write(JmeExporter e) throws IOException {
+			float[] times = tracks[i].getTimes().clone();
+			Vector3f[] sourceTranslations = tracks[i].getTranslations();
+			Quaternion[] sourceRotations = tracks[i].getRotations();
+			Vector3f[] sourceScales = tracks[i].getScales();
+
+			Vector3f[] translations = new Vector3f[tablesLength];
+			Quaternion[] rotations = new Quaternion[tablesLength];
+			Vector3f[] scales = new Vector3f[tablesLength];
+			for (int j = 0; j < tablesLength; ++j) {
+				translations[j] = sourceTranslations[j].clone();
+				rotations[j] = sourceRotations[j].clone();
+				scales[j] = sourceScales != null ? sourceScales[j].clone() : new Vector3f(1.0f, 1.0f, 1.0f);
+			}
+			// times do not change, no need to clone them
+			result.tracks[i] = new BoneTrack(tracks[i].getTargetBoneIndex(), times,
+					translations, rotations, scales);
+		}
+		return result;
+    }
+
+    @Override
+	public void write(JmeExporter e) throws IOException {
         OutputCapsule out = e.getCapsule(this);
         out.write(name, "name", null);
         out.write(length, "length", 0f);
         out.write(tracks, "tracks", null);
     }
 
-    public void read(JmeImporter i) throws IOException {
+    @Override
+	public void read(JmeImporter i) throws IOException {
         InputCapsule in = i.getCapsule(this);
         name = in.readString("name", null);
         length = in.readFloat("length", 0f);
