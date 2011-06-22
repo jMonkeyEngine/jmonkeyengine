@@ -46,7 +46,16 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
      * ConfigType.BEST is RGBA8888 or better if supported by the hardware
      */
     protected ConfigType eglConfigType = ConfigType.FASTEST;
-    
+
+    /**
+     * Title of the exit dialog, default is "Do you want to exit?"
+     */
+    protected String exitDialogTitle = "Do you want to exit?";
+    /**
+     * Message of the exit dialog, default is "Use your home key to bring this app into the background or exit to terminate it."
+     */
+    protected String exitDialogMessage = "Use your home key to bring this app into the background or exit to terminate it.";
+
           
     protected OGLESContext ctx;
     protected GLSurfaceView view;
@@ -200,10 +209,10 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
                         {                                                
                             AlertDialog dialog = new AlertDialog.Builder(AndroidHarness.this)
                            // .setIcon(R.drawable.alert_dialog_icon)
-                            .setTitle("Do you want to exit?")
+                            .setTitle(exitDialogTitle)
                             .setPositiveButton("Yes", AndroidHarness.this)
                             .setNegativeButton("No", AndroidHarness.this)
-                            .setMessage("Use your home key to bring this app into the background or exit to terminate it.")
+                            .setMessage(exitDialogMessage)
                             .create();    
                             dialog.show();                
                         }
