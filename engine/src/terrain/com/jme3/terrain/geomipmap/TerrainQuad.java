@@ -920,8 +920,8 @@ public class TerrainQuad extends Node implements Terrain {
 
     public float getHeight(Vector2f xz) {
         // offset
-        float x = (float)((xz.x / getLocalScale().x) + (float)totalSize / 2f);
-        float z = (float)((xz.y / getLocalScale().z) + (float)totalSize / 2f);
+        float x = (float)(((xz.x - getLocalTranslation().x) / getLocalScale().x) + (float)totalSize / 2f);
+        float z = (float)(((xz.y - getLocalTranslation().z) / getLocalScale().z) + (float)totalSize / 2f);
         return getHeight(x, z, xz);
     }
 
@@ -953,7 +953,7 @@ public class TerrainQuad extends Node implements Terrain {
         coord.add(xz);
         List<Float> h = new ArrayList<Float>();
         h.add(height);
-        
+
         setHeight(coord, h);
     }
 
@@ -1002,7 +1002,7 @@ public class TerrainQuad extends Node implements Terrain {
         float h;
 
         LocationHeight(){}
-        
+
         LocationHeight(int x, int z, float h){
             this.x = x;
             this.z = z;
@@ -1077,7 +1077,7 @@ public class TerrainQuad extends Node implements Terrain {
             else if(quad1 instanceof TerrainPatch)
                 ((TerrainPatch)quad1).setHeight(quadLH1, overrideHeight);
         }
-        
+
         if (!quadLH2.isEmpty()) {
             if (quad2 instanceof TerrainQuad)
                 ((TerrainQuad)quad2).setHeight(quadLH2, overrideHeight);
@@ -1091,7 +1091,7 @@ public class TerrainQuad extends Node implements Terrain {
             else if(quad3 instanceof TerrainPatch)
                 ((TerrainPatch)quad3).setHeight(quadLH3, overrideHeight);
         }
-        
+
         if (!quadLH4.isEmpty()) {
             if (quad4 instanceof TerrainQuad)
                 ((TerrainQuad)quad4).setHeight(quadLH4, overrideHeight);

@@ -120,6 +120,9 @@ public class TerrainGrid extends TerrainQuad {
     }
 
     public void initialize(Vector3f location) {
+        if(this.material == null){
+           throw new RuntimeException("Material must be set prior to call of initialize");
+        }
         Vector3f camCell = this.getCell(location);
         this.updateChildrens(camCell);
         for (TerrainGridListener l : this.listeners.values()) {
@@ -243,9 +246,13 @@ public class TerrainGrid extends TerrainQuad {
 
         this.currentCell = cam;
         this.setLocalTranslation(cam.mult(this.getLocalScale().mult(this.quadSize)));
+        this.updateModelBound();
 
         if (control != null) {
+            int currentCollisionGroup = control.getCollideWithGroups();
             control = new RigidBodyControl(new HeightfieldCollisionShape(getHeightMap(), getLocalScale()), 0);
+            control.setCcdMotionThreshold(0.5f);
+            control.setCollisionGroup(currentCollisionGroup);
             this.addControl(control);
             space.add(this);
         }
