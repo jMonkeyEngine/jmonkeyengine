@@ -165,7 +165,7 @@ public class KinematicRagdollControl implements PhysicsControl, PhysicsCollision
             return;
         }
         TempVars vars = TempVars.get();
-        assert vars.lock();
+       
         Quaternion tmpRot1 = vars.quat1;
         Quaternion tmpRot2 = vars.quat2;
 
@@ -264,7 +264,7 @@ public class KinematicRagdollControl implements PhysicsControl, PhysicsCollision
                 }
             }
         }
-        assert vars.unlock();
+        vars.release();
 
     }
 
@@ -681,8 +681,7 @@ public class KinematicRagdollControl implements PhysicsControl, PhysicsCollision
         animControl.setEnabled(mode == Mode.Kinetmatic);
 
         baseRigidBody.setKinematic(mode == Mode.Kinetmatic);
-        TempVars vars = TempVars.get();
-        assert vars.lock();
+        TempVars vars = TempVars.get();        
         for (PhysicsBoneLink link : boneLinks.values()) {
             link.rigidBody.setKinematic(mode == Mode.Kinetmatic);
             if (mode == Mode.Ragdoll) {
@@ -693,7 +692,7 @@ public class KinematicRagdollControl implements PhysicsControl, PhysicsCollision
             }
 
         }
-        assert vars.unlock();
+        vars.release();
 
         for (Bone bone : skeleton.getRoots()) {
             RagdollUtils.setUserControl(bone, mode == Mode.Ragdoll);
@@ -718,7 +717,6 @@ public class KinematicRagdollControl implements PhysicsControl, PhysicsCollision
 
 
         TempVars vars = TempVars.get();
-        assert vars.lock();
         for (PhysicsBoneLink link : boneLinks.values()) {
 
             Vector3f p = link.rigidBody.getMotionState().getWorldLocation();
@@ -737,7 +735,7 @@ public class KinematicRagdollControl implements PhysicsControl, PhysicsCollision
             link.startBlendingRot.set(q2);
             link.rigidBody.setKinematic(true);
         }
-        assert vars.unlock();
+        vars.release();
 
         for (Bone bone : skeleton.getRoots()) {
             RagdollUtils.setUserControl(bone, false);

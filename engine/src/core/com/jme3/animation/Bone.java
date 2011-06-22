@@ -524,7 +524,7 @@ public final class Bone implements Savable {
         }
 
         TempVars vars = TempVars.get();
-        assert vars.lock();
+//        assert vars.lock();
 
         Vector3f tmpV = vars.vect1;
         Vector3f tmpV2 = vars.vect2;
@@ -545,7 +545,7 @@ public final class Bone implements Savable {
         }
 
 
-        assert vars.unlock();
+        vars.release();
     }
 
     /**

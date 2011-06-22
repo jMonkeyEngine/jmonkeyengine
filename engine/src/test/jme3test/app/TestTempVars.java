@@ -29,51 +29,82 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package jme3test.app;
 
 import com.jme3.util.TempVars;
+import java.util.Date;
+import java.util.Iterator;
 
 public class TestTempVars {
 
-    public static void methodThatUsesTempVars(){
+
+
+    public static void main(String[] args) {
+        
+        Date d,d2;
+        System.err.println("NOTE: This test simulates a data corruption attempt\n"
+                + " in the engine. If assertions are enabled (-ea VM flag), the \n"
+                + "data corruption will be detected and displayed below.");
+
+        //get the vars
         TempVars vars = TempVars.get();
+        
+        // do something with temporary vars
+        vars.vect1.addLocal(vars.vect2);
+        
+        //release the vars
+        vars.release();
 
-        assert vars.lock();
-        {
-            vars.vect1.set(123,999,-55);
-        }
-        assert vars.unlock();
-    }
-
-    public static void main(String[] args){
-        System.err.println("NOTE: This test simulates a data corruption attempt\n" +
-                           " in the engine. If assertions are enabled (-ea VM flag), the \n" +
-                           "data corruption will be detected and displayed below.");
-
-        TempVars vars = TempVars.get();
-
-        assert vars.lock();
-        {
-            // do something with temporary vars
-            vars.vect1.addLocal(vars.vect2);
-        }
-        assert vars.unlock();
-
-
-
-        assert vars.lock();
-        {
-            // set a value
-            vars.vect1.set(1,1,1);
-
-            // method that currupts the value
+        //Perf tests
+        
+        //100 million calls
+        d = new Date();
+        for (int i = 0; i < 100000000; i++) {
             methodThatUsesTempVars();
-
-            // read the value
-            System.out.println(vars.vect1);
         }
-        assert vars.unlock();
+        d2 = new Date();
+        System.out.println("100 million calls : " +(d2.getTime() - d.getTime())+" ms");
+  
+        
+        //recursive Method
+        d = new Date();
+        recursiveMethod();
+        d2 = new Date();
+       System.out.println("100 recursive calls : " +(d2.getTime() - d.getTime())+" ms");
+       
+        d = new Date();
+        for (int i = 0; i < 1000000; i++) {
+            methodThatUsesTempVarsWithNoRelease();
+        }
+        d2 = new Date();
+        System.out.println("1 million calls with no release : " +(d2.getTime() - d.getTime())+" ms");
+                
+    }
+    static int recurse = 0;
+    public static void recursiveMethod(){
+        TempVars vars = TempVars.get();
+        vars.vect1.set(123, 999, -55);
+        recurse++;
+        if(recurse<100){
+            recursiveMethod();
+        }
+        
+        vars.release();
+    }
+    
+    public static void methodThatUsesTempVars() {
+        TempVars vars = TempVars.get();
+        {
+            vars.vect1.set(123, 999, -55);
+        }
+        vars.release();
     }
 
+    public static void methodThatUsesTempVarsWithNoRelease() {
+        TempVars vars = TempVars.get();
+        {
+            vars.vect1.set(123, 999, -55);
+        }
+     
+    }
 }

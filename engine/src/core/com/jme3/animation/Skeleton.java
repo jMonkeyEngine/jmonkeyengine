@@ -54,7 +54,6 @@ public final class Skeleton implements Savable {
 
     private Bone[] rootBones;
     private Bone[] boneList;
-    
     /**
      * Contains the skinning matrices, multiplying it by a vertex effected by a bone
      * will cause it to go to the animated position.
@@ -251,11 +250,10 @@ public final class Skeleton implements Savable {
      */
     public Matrix4f[] computeSkinningMatrices() {
         TempVars vars = TempVars.get();
-        assert vars.lock();
         for (int i = 0; i < boneList.length; i++) {
             boneList[i].getOffsetTransform(skinningMatrixes[i], vars.quat1, vars.vect1, vars.vect2, vars.tempMat3);
         }
-        assert vars.unlock();
+        vars.release();
         return skinningMatrixes;
     }
 

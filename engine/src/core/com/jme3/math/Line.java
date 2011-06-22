@@ -29,7 +29,6 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package com.jme3.math;
 
 import com.jme3.export.InputCapsule;
@@ -110,10 +109,10 @@ public class Line implements Savable, Cloneable {
     public void setDirection(Vector3f direction) {
         this.direction = direction;
     }
-    
+
     public float distanceSquared(Vector3f point) {
         TempVars vars = TempVars.get();
-        assert vars.lock();
+
         Vector3f compVec1 = vars.vect1;
         Vector3f compVec2 = vars.vect2;
 
@@ -122,71 +121,71 @@ public class Line implements Savable, Cloneable {
         origin.add(direction.mult(lineParameter, compVec2), compVec2);
         compVec2.subtract(point, compVec1);
         float len = compVec1.lengthSquared();
-        assert vars.unlock();
+        vars.release();
         return len;
     }
-    
+
     public float distance(Vector3f point) {
-    	return FastMath.sqrt(distanceSquared(point));
+        return FastMath.sqrt(distanceSquared(point));
     }
-    
+
     public void orthogonalLineFit(FloatBuffer points) {
-		if (points == null) {
-			return;
-		}
+        if (points == null) {
+            return;
+        }
 
         TempVars vars = TempVars.get();
-        assert vars.lock();
+
         Vector3f compVec1 = vars.vect1;
         Vector3f compVec2 = vars.vect2;
         Matrix3f compMat1 = vars.tempMat3;
         Eigen3f compEigen1 = vars.eigen;
 
-		points.rewind();
+        points.rewind();
 
-		// compute average of points
-		int length = points.remaining() / 3;
-		
-		BufferUtils.populateFromBuffer(origin, points, 0);
-		for (int i = 1; i < length; i++) {
-			BufferUtils.populateFromBuffer(compVec1, points, i);
-			origin.addLocal(compVec1);
-		}
+        // compute average of points
+        int length = points.remaining() / 3;
 
-		origin.multLocal(1f / (float) length);
-		
-		// compute sums of products
-		float sumXX = 0.0f, sumXY = 0.0f, sumXZ = 0.0f;
-		float sumYY = 0.0f, sumYZ = 0.0f, sumZZ = 0.0f;
-		
-		points.rewind();
-		for (int i = 0; i < length; i++) {
-			BufferUtils.populateFromBuffer(compVec1, points, i);
-			compVec1.subtract(origin, compVec2);
-			sumXX += compVec2.x * compVec2.x;
-			sumXY += compVec2.x * compVec2.y;
-			sumXZ += compVec2.x * compVec2.z;
-			sumYY += compVec2.y * compVec2.y;
-			sumYZ += compVec2.y * compVec2.z;
-			sumZZ += compVec2.z * compVec2.z;
-		}
+        BufferUtils.populateFromBuffer(origin, points, 0);
+        for (int i = 1; i < length; i++) {
+            BufferUtils.populateFromBuffer(compVec1, points, i);
+            origin.addLocal(compVec1);
+        }
 
-		//find the smallest eigen vector for the direction vector
-		compMat1.m00 = sumYY + sumZZ;
-		compMat1.m01 = -sumXY;
-		compMat1.m02 = -sumXZ;
-		compMat1.m10 = -sumXY;
-		compMat1.m11 = sumXX + sumZZ;
-		compMat1.m12 = -sumYZ;
-		compMat1.m20 = -sumXZ;
-		compMat1.m21 = -sumYZ;
-		compMat1.m22 = sumXX + sumYY;
-		
-		compEigen1.calculateEigen(compMat1);
-		direction = compEigen1.getEigenVector(0);
+        origin.multLocal(1f / (float) length);
 
-                assert vars.unlock();
-	}
+        // compute sums of products
+        float sumXX = 0.0f, sumXY = 0.0f, sumXZ = 0.0f;
+        float sumYY = 0.0f, sumYZ = 0.0f, sumZZ = 0.0f;
+
+        points.rewind();
+        for (int i = 0; i < length; i++) {
+            BufferUtils.populateFromBuffer(compVec1, points, i);
+            compVec1.subtract(origin, compVec2);
+            sumXX += compVec2.x * compVec2.x;
+            sumXY += compVec2.x * compVec2.y;
+            sumXZ += compVec2.x * compVec2.z;
+            sumYY += compVec2.y * compVec2.y;
+            sumYZ += compVec2.y * compVec2.z;
+            sumZZ += compVec2.z * compVec2.z;
+        }
+
+        //find the smallest eigen vector for the direction vector
+        compMat1.m00 = sumYY + sumZZ;
+        compMat1.m01 = -sumXY;
+        compMat1.m02 = -sumXZ;
+        compMat1.m10 = -sumXY;
+        compMat1.m11 = sumXX + sumZZ;
+        compMat1.m12 = -sumYZ;
+        compMat1.m20 = -sumXZ;
+        compMat1.m21 = -sumYZ;
+        compMat1.m22 = sumXX + sumYY;
+
+        compEigen1.calculateEigen(compMat1);
+        direction = compEigen1.getEigenVector(0);
+
+        vars.release();
+    }
 
     /**
      *
@@ -224,10 +223,10 @@ public class Line implements Savable, Cloneable {
 
     public void read(JmeImporter e) throws IOException {
         InputCapsule capsule = e.getCapsule(this);
-        origin = (Vector3f)capsule.readSavable("origin", Vector3f.ZERO.clone());
-        direction = (Vector3f)capsule.readSavable("direction", Vector3f.ZERO.clone());
+        origin = (Vector3f) capsule.readSavable("origin", Vector3f.ZERO.clone());
+        direction = (Vector3f) capsule.readSavable("direction", Vector3f.ZERO.clone());
     }
-    
+
     @Override
     public Line clone() {
         try {

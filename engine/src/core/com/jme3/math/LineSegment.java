@@ -110,8 +110,8 @@ public class LineSegment implements Cloneable, Savable {
     }
 
     public float distanceSquared(Vector3f point) {
-        assert TempVars.get().lock();
-        Vector3f compVec1 = TempVars.get().vect1;
+        TempVars vars = TempVars.get();
+        Vector3f compVec1 = vars.vect1;
 
         point.subtract(origin, compVec1);
         float segmentParameter = direction.dot(compVec1);
@@ -129,20 +129,20 @@ public class LineSegment implements Cloneable, Savable {
 
         compVec1.subtractLocal(point);
         float len = compVec1.lengthSquared();
-        assert TempVars.get().unlock();
+        vars.release();
         return len;
     }
 
     public float distanceSquared(LineSegment test) {
-        assert TempVars.get().lock();
-        Vector3f compVec1 = TempVars.get().vect1;
+        TempVars vars = TempVars.get();
+        Vector3f compVec1 = vars.vect1;
 
         origin.subtract(test.getOrigin(), compVec1);
         float negativeDirectionDot = -(direction.dot(test.getDirection()));
         float diffThisDot = compVec1.dot(direction);
         float diffTestDot = -(compVec1.dot(test.getDirection()));
         float lengthOfDiff = compVec1.lengthSquared();
-        assert TempVars.get().unlock();
+        vars.release();
         float determinant = FastMath.abs(1.0f - negativeDirectionDot
                 * negativeDirectionDot);
         float s0, s1, squareDistance, extentDeterminant0, extentDeterminant1, tempS0, tempS1;

@@ -72,10 +72,9 @@ import java.io.IOException;
  * @author Kirill Vainer
  */
 public class ParticleEmitter extends Geometry {
-    
+
     private static final EmitterShape DEFAULT_SHAPE = new EmitterPointShape(Vector3f.ZERO);
     private static final ParticleInfluencer DEFAULT_INFLUENCER = new DefaultParticleInfluencer();
-    
     private ParticleEmitterControl control = new ParticleEmitterControl();
     private EmitterShape shape = DEFAULT_SHAPE;
     private ParticleMesh particleMesh;
@@ -110,7 +109,7 @@ public class ParticleEmitter extends Geometry {
     private class ParticleEmitterControl implements Control {
 
         public Control cloneForSpatial(Spatial spatial) {
-            return ((ParticleEmitter)spatial).control;
+            return ((ParticleEmitter) spatial).control;
         }
 
         public void setSpatial(Spatial spatial) {
@@ -139,9 +138,8 @@ public class ParticleEmitter extends Geometry {
         public void read(JmeImporter im) throws IOException {
             // the data is not written here
         }
-        
     }
-    
+
     @Override
     public ParticleEmitter clone() {
         ParticleEmitter clone = (ParticleEmitter) super.clone();
@@ -199,7 +197,6 @@ public class ParticleEmitter extends Geometry {
         this.shape = shape;
     }
 
-    
     public EmitterShape getShape() {
         return shape;
     }
@@ -838,7 +835,7 @@ public class ParticleEmitter extends Geometry {
         this.getWorldTransform();
 
         TempVars vars = TempVars.get();
-        assert vars.lock();
+
 
         BoundingBox bbox = (BoundingBox) this.getMesh().getBound();
 
@@ -862,7 +859,7 @@ public class ParticleEmitter extends Geometry {
         bbox.setMinMax(min, max);
         this.setBoundRefresh();
 
-        assert vars.unlock();
+        vars.release();
     }
 
     /**
@@ -909,7 +906,7 @@ public class ParticleEmitter extends Geometry {
         this.getWorldTransform();
 
         TempVars vars = TempVars.get();
-        assert vars.lock();
+
 
         Vector3f min = vars.vect1.set(Vector3f.POSITIVE_INFINITY);
         Vector3f max = vars.vect2.set(Vector3f.NEGATIVE_INFINITY);
@@ -979,7 +976,7 @@ public class ParticleEmitter extends Geometry {
         bbox.setMinMax(min, max);
         this.setBoundRefresh();
 
-        assert vars.unlock();
+        vars.release();
     }
 
     /**
@@ -1033,14 +1030,15 @@ public class ParticleEmitter extends Geometry {
         }
 
         Matrix3f inverseRotation = Matrix3f.IDENTITY;
+        TempVars vars = null;
         if (!worldSpace) {
-            TempVars vars = TempVars.get();
-            assert vars.lock();
+            vars = TempVars.get();
+
             inverseRotation = this.getWorldRotation().toRotationMatrix(vars.tempMat3).invertLocal();
         }
         particleMesh.updateParticleData(particles, cam, inverseRotation);
         if (!worldSpace) {
-            assert TempVars.get().unlock();
+            vars.release();
         }
     }
 
@@ -1119,22 +1117,22 @@ public class ParticleEmitter extends Geometry {
         particleMesh.initParticleData(this, particles.length);
 
         particleInfluencer = (ParticleInfluencer) ic.readSavable("influencer", DEFAULT_INFLUENCER);
-        
+
         // compatibility before the control inside particle emitter
         // was changed:
         // find it in the controls and take it out, then add the proper one in
-        for (int i = 0; i < controls.size(); i++){
+        for (int i = 0; i < controls.size(); i++) {
             Object obj = controls.get(i);
-            if (obj instanceof ParticleEmitter){
+            if (obj instanceof ParticleEmitter) {
                 controls.remove(i);
                 // now add the proper one in
                 controls.add(control);
                 break;
             }
         }
-        
+
         // compatability before gravity was not a vector but a float
-        if (gravity == null){
+        if (gravity == null) {
             gravity = new Vector3f();
             gravity.y = ic.readFloat("gravity", 0);
         }

@@ -159,7 +159,6 @@ public final class Matrix4f implements Savable, Cloneable {
         loadIdentity();
 
         TempVars vars = TempVars.get();
-        assert vars.lock();
 
         Vector3f f = vars.vect1.set(direction);
         Vector3f s = vars.vect2.set(f).crossLocal(up);
@@ -192,14 +191,14 @@ public final class Matrix4f implements Savable, Cloneable {
 //        m22 = -direction.z;
 //
 
-        Matrix4f transMatrix = TempVars.get().tempMat4;
+        Matrix4f transMatrix = vars.tempMat4;
         transMatrix.loadIdentity();
         transMatrix.m03 = -location.x;
         transMatrix.m13 = -location.y;
         transMatrix.m23 = -location.z;
         this.multLocal(transMatrix);
 
-        assert TempVars.get().unlock();
+        vars.release();
 
 //        transMatrix.multLocal(this);
 
@@ -744,15 +743,15 @@ public final class Matrix4f implements Savable, Cloneable {
 //            fb.put(m20).put(m21).put(m22).put(m23);
 //            fb.put(m30).put(m31).put(m32).put(m33);
 //        }
-        
+
         TempVars vars = TempVars.get();
-        assert vars.lock();
-        
+
+
         fillFloatArray(vars.matrixWrite, columnMajor);
         fb.put(vars.matrixWrite, 0, 16);
-        
-        assert vars.unlock();
-        
+
+        vars.release();
+
         return fb;
     }
 

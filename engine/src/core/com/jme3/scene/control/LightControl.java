@@ -126,12 +126,11 @@ public class LightControl extends AbstractControl {
             ((PointLight) light).setPosition(spatial.getWorldTranslation());
         }
         TempVars vars = TempVars.get();
-        assert vars.lock();
 
         if (light instanceof DirectionalLight) {
             ((DirectionalLight) light).setDirection(vars.vect1.set(spatial.getWorldTranslation()).multLocal(-1.0f));
         }
-        assert vars.unlock();
+        vars.release();
         //TODO add code for Spot light here when it's done
 //        if( light instanceof SpotLight){
 //            ((SpotLight)light).setPosition(spatial.getWorldTranslation());                
@@ -142,15 +141,12 @@ public class LightControl extends AbstractControl {
 
     private void lightToSpatial(Light light) {
         TempVars vars = TempVars.get();
-        assert vars.lock();
         if (light instanceof PointLight) {
 
             PointLight pLight = (PointLight) light;
 
             Vector3f vecDiff = vars.vect1.set(pLight.getPosition()).subtractLocal(spatial.getWorldTranslation());
             spatial.setLocalTranslation(vecDiff.addLocal(spatial.getLocalTranslation()));
-            assert vars.unlock();
-
         }
 
         if (light instanceof DirectionalLight) {
@@ -159,7 +155,7 @@ public class LightControl extends AbstractControl {
             Vector3f vecDiff = vars.vect1.subtractLocal(spatial.getWorldTranslation());
             spatial.setLocalTranslation(vecDiff.addLocal(spatial.getLocalTranslation()));
         }
-        assert vars.unlock();
+        vars.release();
         //TODO add code for Spot light here when it's done
 
 

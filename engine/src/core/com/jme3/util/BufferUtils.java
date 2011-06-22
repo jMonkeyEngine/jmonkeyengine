@@ -29,7 +29,6 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package com.jme3.util;
 
 import com.jme3.math.ColorRGBA;
@@ -48,7 +47,6 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.WeakHashMap;
 
-
 /**
  * <code>BufferUtils</code> is a helper class for generating nio buffers from
  * jME data classes such as Vectors and ColorRGBA.
@@ -62,14 +60,12 @@ public final class BufferUtils {
 //    private static final Vector2f _tempVec2 = new Vector2f();
 //    private static final Vector3f _tempVec3 = new Vector3f();
 //    private static final ColorRGBA _tempColor = new ColorRGBA();
-
     ////  -- TRACKER HASH --  ////
     private static final Map<Buffer, Object> trackingHash = Collections.synchronizedMap(new WeakHashMap<Buffer, Object>());
     private static final Object ref = new Object();
     private static final boolean trackDirectMemory = false;
 
     ////  -- GENERIC CLONE -- ////
-
     /**
      * Creates a clone of the given buffer. The clone's capacity is
      * equal to the given buffer's limit.
@@ -77,25 +73,23 @@ public final class BufferUtils {
      * @param buf The buffer to clone
      * @return The cloned buffer
      */
-    public static Buffer clone(Buffer buf){
-        if (buf instanceof FloatBuffer){
-            return clone( (FloatBuffer) buf );
-        }else if (buf instanceof ShortBuffer){
-            return clone( (ShortBuffer) buf );
-        }else if (buf instanceof ByteBuffer){
-            return clone( (ByteBuffer) buf );
-        }else if (buf instanceof IntBuffer){
-            return clone( (IntBuffer) buf );
-        }else if (buf instanceof DoubleBuffer){
-            return clone( (DoubleBuffer) buf );
-        }else{
+    public static Buffer clone(Buffer buf) {
+        if (buf instanceof FloatBuffer) {
+            return clone((FloatBuffer) buf);
+        } else if (buf instanceof ShortBuffer) {
+            return clone((ShortBuffer) buf);
+        } else if (buf instanceof ByteBuffer) {
+            return clone((ByteBuffer) buf);
+        } else if (buf instanceof IntBuffer) {
+            return clone((IntBuffer) buf);
+        } else if (buf instanceof DoubleBuffer) {
+            return clone((DoubleBuffer) buf);
+        } else {
             throw new UnsupportedOperationException();
         }
     }
 
-
     ////  -- VECTOR3F METHODS -- ////
-
     /**
      * Generate a new FloatBuffer using the given array of Vector3f objects.
      * The FloatBuffer will be 3 * data.length long and contain the vector data
@@ -103,14 +97,17 @@ public final class BufferUtils {
      *
      * @param data array of Vector3f objects to place into a new FloatBuffer
      */
-    public static FloatBuffer createFloatBuffer(Vector3f ... data) {
-        if (data == null) return null;
+    public static FloatBuffer createFloatBuffer(Vector3f... data) {
+        if (data == null) {
+            return null;
+        }
         FloatBuffer buff = createFloatBuffer(3 * data.length);
         for (int x = 0; x < data.length; x++) {
-            if (data[x] != null)
+            if (data[x] != null) {
                 buff.put(data[x].x).put(data[x].y).put(data[x].z);
-            else
+            } else {
                 buff.put(0).put(0).put(0);
+            }
         }
         buff.flip();
         return buff;
@@ -122,15 +119,17 @@ public final class BufferUtils {
      *
      * @param data array of Quaternion objects to place into a new FloatBuffer
      */
-    public static FloatBuffer createFloatBuffer(Quaternion ... data) {
-        if (data == null) return null;
+    public static FloatBuffer createFloatBuffer(Quaternion... data) {
+        if (data == null) {
+            return null;
+        }
         FloatBuffer buff = createFloatBuffer(4 * data.length);
         for (int x = 0; x < data.length; x++) {
-            if (data[x] != null)
-                buff.put(data[x].getX()).put(data[x].getY())
-                    .put(data[x].getZ()).put(data[x].getW());
-            else
+            if (data[x] != null) {
+                buff.put(data[x].getX()).put(data[x].getY()).put(data[x].getZ()).put(data[x].getW());
+            } else {
                 buff.put(0).put(0).put(0);
+            }
         }
         buff.flip();
         return buff;
@@ -140,8 +139,10 @@ public final class BufferUtils {
      * Generate a new FloatBuffer using the given array of float primitives.
      * @param data array of float primitives to place into a new FloatBuffer
      */
-    public static FloatBuffer createFloatBuffer(float ... data) {
-        if (data == null) return null;
+    public static FloatBuffer createFloatBuffer(float... data) {
+        if (data == null) {
+            return null;
+        }
         FloatBuffer buff = createFloatBuffer(data.length);
         buff.clear();
         buff.put(data);
@@ -197,7 +198,7 @@ public final class BufferUtils {
      */
     public static void setInBuffer(ColorRGBA color, FloatBuffer buf,
             int index) {
-        buf.position(index*4);
+        buf.position(index * 4);
         buf.put(color.r);
         buf.put(color.g);
         buf.put(color.b);
@@ -217,7 +218,7 @@ public final class BufferUtils {
      */
     public static void setInBuffer(Quaternion quat, FloatBuffer buf,
             int index) {
-        buf.position(index*4);
+        buf.position(index * 4);
         buf.put(quat.getX());
         buf.put(quat.getY());
         buf.put(quat.getZ());
@@ -236,17 +237,17 @@ public final class BufferUtils {
      *            the postion to place the data; in terms of vectors not floats
      */
     public static void setInBuffer(Vector3f vector, FloatBuffer buf, int index) {
-    	if(buf == null) {
-    		return;
-    	}
-        if(vector == null) {
-        	buf.put(index * 3, 0);
+        if (buf == null) {
+            return;
+        }
+        if (vector == null) {
+            buf.put(index * 3, 0);
             buf.put((index * 3) + 1, 0);
             buf.put((index * 3) + 2, 0);
         } else {
-        	buf.put(index * 3, vector.x);
-        	buf.put((index * 3) + 1, vector.y);
-        	buf.put((index * 3) + 2, vector.z);
+            buf.put(index * 3, vector.x);
+            buf.put((index * 3) + 1, vector.y);
+            buf.put((index * 3) + 2, vector.z);
         }
     }
 
@@ -263,9 +264,9 @@ public final class BufferUtils {
      *            the buf
      */
     public static void populateFromBuffer(Vector3f vector, FloatBuffer buf, int index) {
-        vector.x = buf.get(index*3);
-        vector.y = buf.get(index*3+1);
-        vector.z = buf.get(index*3+2);
+        vector.x = buf.get(index * 3);
+        vector.y = buf.get(index * 3 + 1);
+        vector.z = buf.get(index * 3 + 2);
     }
 
     /**
@@ -298,7 +299,7 @@ public final class BufferUtils {
      *            the index to copy the vector to
      */
     public static void copyInternalVector3(FloatBuffer buf, int fromPos, int toPos) {
-        copyInternal(buf, fromPos*3, toPos*3, 3);
+        copyInternal(buf, fromPos * 3, toPos * 3, 3);
     }
 
     /**
@@ -311,12 +312,12 @@ public final class BufferUtils {
      *            to normalize
      */
     public static void normalizeVector3(FloatBuffer buf, int index) {
-        assert TempVars.get().lock();
-        Vector3f tempVec3 = TempVars.get().vect1;
+        TempVars vars = TempVars.get();
+        Vector3f tempVec3 = vars.vect1;
         populateFromBuffer(tempVec3, buf, index);
         tempVec3.normalizeLocal();
         setInBuffer(tempVec3, buf, index);
-        assert TempVars.get().unlock();
+        vars.release();
     }
 
     /**
@@ -331,12 +332,12 @@ public final class BufferUtils {
      *            to add to
      */
     public static void addInBuffer(Vector3f toAdd, FloatBuffer buf, int index) {
-        assert TempVars.get().lock();
-        Vector3f tempVec3 = TempVars.get().vect1;
+        TempVars vars = TempVars.get();
+        Vector3f tempVec3 = vars.vect1;
         populateFromBuffer(tempVec3, buf, index);
         tempVec3.addLocal(toAdd);
         setInBuffer(tempVec3, buf, index);
-        assert TempVars.get().unlock();
+        vars.release();
     }
 
     /**
@@ -351,12 +352,12 @@ public final class BufferUtils {
      *            to multiply
      */
     public static void multInBuffer(Vector3f toMult, FloatBuffer buf, int index) {
-        assert TempVars.get().lock();
-        Vector3f tempVec3 = TempVars.get().vect1;
+        TempVars vars = TempVars.get();
+        Vector3f tempVec3 = vars.vect1;
         populateFromBuffer(tempVec3, buf, index);
         tempVec3.multLocal(toMult);
         setInBuffer(tempVec3, buf, index);
-        assert TempVars.get().unlock();
+        vars.release();
     }
 
     /**
@@ -373,16 +374,15 @@ public final class BufferUtils {
      * @return
      */
     public static boolean equals(Vector3f check, FloatBuffer buf, int index) {
-        assert TempVars.get().lock();
-        Vector3f tempVec3 = TempVars.get().vect1;
+        TempVars vars = TempVars.get();
+        Vector3f tempVec3 = vars.vect1;
         populateFromBuffer(tempVec3, buf, index);
         boolean eq = tempVec3.equals(check);
-        assert TempVars.get().unlock();
+        vars.release();
         return eq;
     }
 
     // // -- VECTOR2F METHODS -- ////
-
     /**
      * Generate a new FloatBuffer using the given array of Vector2f objects.
      * The FloatBuffer will be 2 * data.length long and contain the vector data
@@ -390,14 +390,17 @@ public final class BufferUtils {
      *
      * @param data array of Vector2f objects to place into a new FloatBuffer
      */
-    public static FloatBuffer createFloatBuffer(Vector2f ... data) {
-        if (data == null) return null;
+    public static FloatBuffer createFloatBuffer(Vector2f... data) {
+        if (data == null) {
+            return null;
+        }
         FloatBuffer buff = createFloatBuffer(2 * data.length);
         for (int x = 0; x < data.length; x++) {
-            if (data[x] != null)
+            if (data[x] != null) {
                 buff.put(data[x].x).put(data[x].y);
-            else
+            } else {
                 buff.put(0).put(0);
+            }
         }
         buff.flip();
         return buff;
@@ -467,8 +470,8 @@ public final class BufferUtils {
      *            the buf
      */
     public static void populateFromBuffer(Vector2f vector, FloatBuffer buf, int index) {
-        vector.x = buf.get(index*2);
-        vector.y = buf.get(index*2+1);
+        vector.x = buf.get(index * 2);
+        vector.y = buf.get(index * 2 + 1);
     }
 
     /**
@@ -501,7 +504,7 @@ public final class BufferUtils {
      *            the index to copy the vector to
      */
     public static void copyInternalVector2(FloatBuffer buf, int fromPos, int toPos) {
-        copyInternal(buf, fromPos*2, toPos*2, 2);
+        copyInternal(buf, fromPos * 2, toPos * 2, 2);
     }
 
     /**
@@ -514,12 +517,12 @@ public final class BufferUtils {
      *            to normalize
      */
     public static void normalizeVector2(FloatBuffer buf, int index) {
-        assert TempVars.get().lock();
-        Vector2f tempVec2 = TempVars.get().vect2d;
+        TempVars vars = TempVars.get();
+        Vector2f tempVec2 = vars.vect2d;
         populateFromBuffer(tempVec2, buf, index);
         tempVec2.normalizeLocal();
         setInBuffer(tempVec2, buf, index);
-        assert TempVars.get().unlock();
+        vars.release();
     }
 
     /**
@@ -534,12 +537,12 @@ public final class BufferUtils {
      *            to add to
      */
     public static void addInBuffer(Vector2f toAdd, FloatBuffer buf, int index) {
-        assert TempVars.get().lock();
-        Vector2f tempVec2 = TempVars.get().vect2d;
+        TempVars vars = TempVars.get();
+        Vector2f tempVec2 = vars.vect2d;
         populateFromBuffer(tempVec2, buf, index);
         tempVec2.addLocal(toAdd);
         setInBuffer(tempVec2, buf, index);
-        assert TempVars.get().unlock();
+        vars.release();
     }
 
     /**
@@ -554,12 +557,12 @@ public final class BufferUtils {
      *            to multiply
      */
     public static void multInBuffer(Vector2f toMult, FloatBuffer buf, int index) {
-        assert TempVars.get().lock();
-        Vector2f tempVec2 = TempVars.get().vect2d;
+        TempVars vars = TempVars.get();
+        Vector2f tempVec2 = vars.vect2d;
         populateFromBuffer(tempVec2, buf, index);
         tempVec2.multLocal(toMult);
         setInBuffer(tempVec2, buf, index);
-        assert TempVars.get().unlock();
+        vars.release();
     }
 
     /**
@@ -576,17 +579,15 @@ public final class BufferUtils {
      * @return
      */
     public static boolean equals(Vector2f check, FloatBuffer buf, int index) {
-        assert TempVars.get().lock();
-        Vector2f tempVec2 = TempVars.get().vect2d;
+        TempVars vars = TempVars.get();
+        Vector2f tempVec2 = vars.vect2d;
         populateFromBuffer(tempVec2, buf, index);
         boolean eq = tempVec2.equals(check);
-        assert TempVars.get().unlock();
+        vars.release();
         return eq;
     }
 
-
     ////  -- INT METHODS -- ////
-
     /**
      * Generate a new IntBuffer using the given array of ints. The IntBuffer
      * will be data.length long and contain the int data as data[0], data[1]...
@@ -596,7 +597,9 @@ public final class BufferUtils {
      *            array of ints to place into a new IntBuffer
      */
     public static IntBuffer createIntBuffer(int... data) {
-        if (data == null) return null;
+        if (data == null) {
+            return null;
+        }
         IntBuffer buff = createIntBuffer(data.length);
         buff.clear();
         buff.put(data);
@@ -613,7 +616,9 @@ public final class BufferUtils {
      * @return a new int array populated from the IntBuffer
      */
     public static int[] getIntArray(IntBuffer buff) {
-        if (buff == null) return null;
+        if (buff == null) {
+            return null;
+        }
         buff.clear();
         int[] inds = new int[buff.limit()];
         for (int x = 0; x < inds.length; x++) {
@@ -621,7 +626,7 @@ public final class BufferUtils {
         }
         return inds;
     }
-    
+
     /**
      * Create a new float[] array and populate it with the given FloatBuffer's
      * contents.
@@ -631,7 +636,9 @@ public final class BufferUtils {
      * @return a new float array populated from the FloatBuffer
      */
     public static float[] getFloatArray(FloatBuffer buff) {
-        if (buff == null) return null;
+        if (buff == null) {
+            return null;
+        }
         buff.clear();
         float[] inds = new float[buff.limit()];
         for (int x = 0; x < inds.length; x++) {
@@ -640,9 +647,7 @@ public final class BufferUtils {
         return inds;
     }
 
-
     //// -- GENERAL DOUBLE ROUTINES -- ////
-
     /**
      * Create a new DoubleBuffer of the specified size.
      *
@@ -691,13 +696,15 @@ public final class BufferUtils {
      * @return the copy
      */
     public static DoubleBuffer clone(DoubleBuffer buf) {
-        if (buf == null) return null;
+        if (buf == null) {
+            return null;
+        }
         buf.rewind();
 
         DoubleBuffer copy;
-        if (buf.isDirect()){
+        if (buf.isDirect()) {
             copy = createDoubleBuffer(buf.limit());
-        }else{
+        } else {
             copy = DoubleBuffer.allocate(buf.limit());
         }
         copy.put(buf);
@@ -705,10 +712,7 @@ public final class BufferUtils {
         return copy;
     }
 
-
-
     //// -- GENERAL FLOAT ROUTINES -- ////
-
     /**
      * Create a new FloatBuffer of the specified size.
      *
@@ -756,13 +760,15 @@ public final class BufferUtils {
      * @return the copy
      */
     public static FloatBuffer clone(FloatBuffer buf) {
-        if (buf == null) return null;
+        if (buf == null) {
+            return null;
+        }
         buf.rewind();
 
         FloatBuffer copy;
-        if (buf.isDirect()){
+        if (buf.isDirect()) {
             copy = createFloatBuffer(buf.limit());
-        }else{
+        } else {
             copy = FloatBuffer.allocate(buf.limit());
         }
         copy.put(buf);
@@ -770,9 +776,7 @@ public final class BufferUtils {
         return copy;
     }
 
-
     //// -- GENERAL INT ROUTINES -- ////
-
     /**
      * Create a new IntBuffer of the specified size.
      *
@@ -821,13 +825,15 @@ public final class BufferUtils {
      * @return the copy
      */
     public static IntBuffer clone(IntBuffer buf) {
-        if (buf == null) return null;
+        if (buf == null) {
+            return null;
+        }
         buf.rewind();
 
         IntBuffer copy;
-        if (buf.isDirect()){
+        if (buf.isDirect()) {
             copy = createIntBuffer(buf.limit());
-        }else{
+        } else {
             copy = IntBuffer.allocate(buf.limit());
         }
         copy.put(buf);
@@ -835,9 +841,7 @@ public final class BufferUtils {
         return copy;
     }
 
-
     //// -- GENERAL BYTE ROUTINES -- ////
-
     /**
      * Create a new ByteBuffer of the specified size.
      *
@@ -875,14 +879,14 @@ public final class BufferUtils {
         return buf;
     }
 
-    public static ByteBuffer createByteBuffer(byte ... data){
+    public static ByteBuffer createByteBuffer(byte... data) {
         ByteBuffer bb = createByteBuffer(data.length);
         bb.put(data);
         bb.flip();
         return bb;
     }
 
-    public static ByteBuffer createByteBuffer(String data){
+    public static ByteBuffer createByteBuffer(String data) {
         byte[] bytes = data.getBytes();
         ByteBuffer bb = createByteBuffer(bytes.length);
         bb.put(bytes);
@@ -901,13 +905,15 @@ public final class BufferUtils {
      * @return the copy
      */
     public static ByteBuffer clone(ByteBuffer buf) {
-        if (buf == null) return null;
+        if (buf == null) {
+            return null;
+        }
         buf.rewind();
 
         ByteBuffer copy;
-        if (buf.isDirect()){
+        if (buf.isDirect()) {
             copy = createByteBuffer(buf.limit());
-        }else{
+        } else {
             copy = ByteBuffer.allocate(buf.limit());
         }
         copy.put(buf);
@@ -915,9 +921,7 @@ public final class BufferUtils {
         return copy;
     }
 
-
     //// -- GENERAL SHORT ROUTINES -- ////
-
     /**
      * Create a new ShortBuffer of the specified size.
      *
@@ -956,7 +960,9 @@ public final class BufferUtils {
     }
 
     public static ShortBuffer createShortBuffer(short... data) {
-        if (data == null) return null;
+        if (data == null) {
+            return null;
+        }
         ShortBuffer buff = createShortBuffer(data.length);
         buff.clear();
         buff.put(data);
@@ -975,13 +981,15 @@ public final class BufferUtils {
      * @return the copy
      */
     public static ShortBuffer clone(ShortBuffer buf) {
-        if (buf == null) return null;
+        if (buf == null) {
+            return null;
+        }
         buf.rewind();
 
         ShortBuffer copy;
-        if (buf.isDirect()){
+        if (buf.isDirect()) {
             copy = createShortBuffer(buf.limit());
-        }else{
+        } else {
             copy = ShortBuffer.allocate(buf.limit());
         }
         copy.put(buf);
@@ -997,42 +1005,42 @@ public final class BufferUtils {
      * @return a buffer large enough to receive at least the <code>required</code> number of entries, same position as
      * the input buffer, not null
      */
-    public static FloatBuffer ensureLargeEnough( FloatBuffer buffer, int required ) {
-        if ( buffer == null || ( buffer.remaining() < required ) ) {
-            int position = ( buffer != null ? buffer.position() : 0 );
-            FloatBuffer newVerts = createFloatBuffer( position + required );
-            if ( buffer != null ) {
+    public static FloatBuffer ensureLargeEnough(FloatBuffer buffer, int required) {
+        if (buffer == null || (buffer.remaining() < required)) {
+            int position = (buffer != null ? buffer.position() : 0);
+            FloatBuffer newVerts = createFloatBuffer(position + required);
+            if (buffer != null) {
                 buffer.rewind();
-                newVerts.put( buffer );
-                newVerts.position( position );
+                newVerts.put(buffer);
+                newVerts.position(position);
             }
             buffer = newVerts;
         }
         return buffer;
     }
 
-    public static ShortBuffer ensureLargeEnough( ShortBuffer buffer, int required ) {
-        if ( buffer == null || ( buffer.remaining() < required ) ) {
-            int position = ( buffer != null ? buffer.position() : 0 );
-            ShortBuffer newVerts = createShortBuffer( position + required );
-            if ( buffer != null ) {
+    public static ShortBuffer ensureLargeEnough(ShortBuffer buffer, int required) {
+        if (buffer == null || (buffer.remaining() < required)) {
+            int position = (buffer != null ? buffer.position() : 0);
+            ShortBuffer newVerts = createShortBuffer(position + required);
+            if (buffer != null) {
                 buffer.rewind();
-                newVerts.put( buffer );
-                newVerts.position( position );
+                newVerts.put(buffer);
+                newVerts.position(position);
             }
             buffer = newVerts;
         }
         return buffer;
     }
 
-    public static ByteBuffer ensureLargeEnough( ByteBuffer buffer, int required ) {
-        if ( buffer == null || ( buffer.remaining() < required ) ) {
-            int position = ( buffer != null ? buffer.position() : 0 );
-            ByteBuffer newVerts = createByteBuffer( position + required );
-            if ( buffer != null ) {
+    public static ByteBuffer ensureLargeEnough(ByteBuffer buffer, int required) {
+        if (buffer == null || (buffer.remaining() < required)) {
+            int position = (buffer != null ? buffer.position() : 0);
+            ByteBuffer newVerts = createByteBuffer(position + required);
+            if (buffer != null) {
                 buffer.rewind();
-                newVerts.put( buffer );
-                newVerts.position( position );
+                newVerts.put(buffer);
+                newVerts.position(position);
             }
             buffer = newVerts;
         }
@@ -1068,25 +1076,20 @@ public final class BufferUtils {
                 dBufs++;
             }
         }
-        long heapMem = Runtime.getRuntime().totalMemory() -
-                       Runtime.getRuntime().freeMemory();
+        long heapMem = Runtime.getRuntime().totalMemory()
+                - Runtime.getRuntime().freeMemory();
 
         boolean printStout = store == null;
         if (store == null) {
             store = new StringBuilder();
         }
         store.append("Existing buffers: ").append(bufs.size()).append("\n");
-        store.append("(b: ").append(bBufs).append("  f: ").append(fBufs)
-                .append("  i: ").append(iBufs).append("  s: ").append(sBufs)
-                .append("  d: ").append(dBufs).append(")").append("\n");
-        store.append("Total   heap memory held: ").append(heapMem/1024).append("kb\n");
-        store.append("Total direct memory held: ").append(totalHeld/1024).append("kb\n");
-        store.append("(b: ").append(bBufsM/1024).append("kb  f: ").append(fBufsM/1024)
-                .append("kb  i: ").append(iBufsM/1024).append("kb  s: ").append(sBufsM/1024)
-                .append("kb  d: ").append(dBufsM/1024).append("kb)").append("\n");
+        store.append("(b: ").append(bBufs).append("  f: ").append(fBufs).append("  i: ").append(iBufs).append("  s: ").append(sBufs).append("  d: ").append(dBufs).append(")").append("\n");
+        store.append("Total   heap memory held: ").append(heapMem / 1024).append("kb\n");
+        store.append("Total direct memory held: ").append(totalHeld / 1024).append("kb\n");
+        store.append("(b: ").append(bBufsM / 1024).append("kb  f: ").append(fBufsM / 1024).append("kb  i: ").append(iBufsM / 1024).append("kb  s: ").append(sBufsM / 1024).append("kb  d: ").append(dBufsM / 1024).append("kb)").append("\n");
         if (printStout) {
             System.out.println(store.toString());
         }
     }
-
 }

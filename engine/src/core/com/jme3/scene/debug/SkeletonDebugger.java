@@ -67,4 +67,14 @@ public class SkeletonDebugger extends Node {
         wires.updateGeometry();
         points.updateGeometry();
     }
+
+    public SkeletonPoints getPoints() {
+        return points;
+    }
+
+    public SkeletonWire getWires() {
+        return wires;
+    }
+    
+    
 }

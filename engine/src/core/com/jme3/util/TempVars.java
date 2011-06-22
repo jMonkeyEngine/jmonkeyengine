@@ -29,7 +29,6 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package com.jme3.util;
 
 import com.jme3.collision.bih.BIHNode.BIHStackData;
@@ -45,94 +44,148 @@ import com.jme3.scene.Spatial;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Temporary variables assigned to each thread. Engine classes may access
- * these temp variables with TempVars.get(). A method using temp vars with this
- * class is not allowed to make calls to other methods using the class otherwise
- * memory corruption will occur. A locking mechanism may be implemented
- * in the future to prevent the occurance of such situation.
+ * these temp variables with TempVars.get().
+ * This returns an available instance of the TempVar class ensuring this particular instance is never used elsewhere in the mean time.
  */
-public class TempVars {
+public class TempVars {    
 
-    private static final ThreadLocal<TempVars> varsLocal
-            = new ThreadLocal<TempVars>(){
+    private static final Logger log = Logger.getLogger(TempVars.class.getName());
+    //default array size
+    private static final int arraySize = 30;
+    //one array per thread
+    private static final ThreadLocal<TempVars[]> varsLocal = new ThreadLocal<TempVars[]>() {
+
         @Override
-        public TempVars initialValue(){
-            return new TempVars();
+        public TempVars[] initialValue() {
+            TempVars[] l = new TempVars[arraySize];
+            //the array is initialized with one instance (should be enough in most cases)
+            l[0] = new TempVars();
+            return l;
         }
     };
+    //the current index in the stack
+    private static int stackLevel = 0;
+    //number of instanced TempVar, just to raise a warning if too much are instanced
+    private static int instanceCount = 1;
 
-    public static TempVars get(){
-        return varsLocal.get();
-    }
+    /**
+     * Returns an available instance of the TempVar class
+     * Warning, you have to release the instance once used by calling the release() method
+     * @return a TempVar instance
+     */
+    public static TempVars get() {
 
-    private TempVars(){
-    }
-
-    private boolean locked = false;
-    private StackTraceElement[] lockerStack;
-
-    public final boolean lock(){
-        if (locked){
-           System.err.println("INTERNAL ERROR");
-           System.err.println("Offending trace: ");
-
-           StackTraceElement[] stack = new Throwable().getStackTrace();
-           for (int i = 1; i < stack.length; i++){
-               System.err.println("\tat "+stack[i].toString());
-           }
-
-           System.err.println("Attempted to aquire TempVars lock owned by");
-           for (int i = 1; i < lockerStack.length; i++){
-               System.err.println("\tat "+lockerStack[i].toString());
-           }
-           System.exit(1);
-           return false;
-        }
-
-        lockerStack = new Throwable().getStackTrace();
-        locked = true;
-        return true;
-    }
-
-    public final boolean unlock(){
-        if (!locked){
-            System.err.println("INTERNAL ERROR");
-            System.err.println("Attempted to release non-existent lock: ");
-
-            StackTraceElement[] stack = new Throwable().getStackTrace();
-            for (int i = 1; i < stack.length; i++){
-                System.err.println("\tat "+stack[i].toString());
+        TempVars vars = null;
+        TempVars[] array = varsLocal.get();
+        //if the stack level is > 0 it means we have some instances in the array, we can return one of them
+        if (stackLevel >= 0) {
+            //getting the lastTempVar instance
+            vars = array[stackLevel];
+            //removing the reference to it in the array so if it's never released it will be garbage collected.
+            array[stackLevel] = null;
+            //decreasing the stack level since we have one less instance
+            stackLevel--;
+            
+            //In some cases (when lauching jme threads from another thread), the instance at 0 can be null
+            //so we check that to avoid NPE
+            if (vars==null){
+               vars = new TempVars();
+               //increasing the count to keep track
+               instanceCount++;          
             }
-
-            System.exit(1);
-            return false;
+        } else {
+            //if the stack level is <0 it means the stack is empty, we have to create a new instance
+            //there 
+            vars = new TempVars();
+            //increasing the count to keep track
+            instanceCount++;
+            //raising a warning if the instance count is to high, because it might be due to bad usage
+            if (instanceCount == array.length) {
+                log.log(Level.WARNING, "TempVars has been requested {0} times, maybe you forgot to call release()?", instanceCount);
+            }
         }
-
-        lockerStack = null;
-        locked = false;
-        return true;
+        return vars;
     }
 
+    private TempVars() {
+    }
+//    private boolean locked = false;
+//    private StackTraceElement[] lockerStack;
+
+//    public final boolean lock() {
+//        if (locked) {
+//            System.err.println("INTERNAL ERROR");
+//            System.err.println("Offending trace: ");
+//
+//            StackTraceElement[] stack = new Throwable().getStackTrace();
+//            for (int i = 1; i < stack.length; i++) {
+//                System.err.println("\tat " + stack[i].toString());
+//            }
+//
+//            System.err.println("Attempted to aquire TempVars lock owned by");
+//            for (int i = 1; i < lockerStack.length; i++) {
+//                System.err.println("\tat " + lockerStack[i].toString());
+//            }
+//            System.exit(1);
+//            return false;
+//        }
+//
+//        lockerStack = new Throwable().getStackTrace();
+//        locked = true;
+//        return true;
+//    }
+//
+//    public final boolean unlock() {
+//        if (!locked) {
+//            System.err.println("INTERNAL ERROR");
+//            System.err.println("Attempted to release non-existent lock: ");
+//
+//            StackTraceElement[] stack = new Throwable().getStackTrace();
+//            for (int i = 1; i < stack.length; i++) {
+//                System.err.println("\tat " + stack[i].toString());
+//            }
+//
+//            System.exit(1);
+//            return false;
+//        }
+//
+//        lockerStack = null;
+//        locked = false;
+//        return true;
+//    }
+    /**
+     * Release this instance of TempVar, allowing it to be reused later.
+     */
+    public final void release() {
+
+        //we only keep as much instances as we can, 
+        //but if too much are instanced, we just don't readd them, they'll be garbage collected
+        //This can happen only in case of recursive calls that are instancing the TempVar
+        if (stackLevel < arraySize - 1) {
+            stackLevel++;
+            varsLocal.get()[stackLevel] = this;
+        }
+    }
     /**
      * For interfacing with OpenGL in Renderer.
      */
     public final IntBuffer intBuffer1 = BufferUtils.createIntBuffer(1);
     public final IntBuffer intBuffer16 = BufferUtils.createIntBuffer(16);
     public final FloatBuffer floatBuffer16 = BufferUtils.createFloatBuffer(16);
-
     /**
      * Skinning buffers
      */
     public final float[] skinPositions = new float[512 * 3];
     public final float[] skinNormals = new float[512 * 3];
-    
     /**
      * Fetching triangle from mesh
      */
     public final Triangle triangle = new Triangle();
-
     /**
      * General vectors.
      */
@@ -143,42 +196,36 @@ public class TempVars {
     public final Vector3f vect5 = new Vector3f();
     public final Vector3f vect6 = new Vector3f();
     public final Vector3f vect7 = new Vector3f();
+    //seems the maximum number of vector used is 7 in com.jme3.bounding.java
     public final Vector3f vect8 = new Vector3f();
     public final Vector3f vect9 = new Vector3f();
     public final Vector3f vect10 = new Vector3f();
-
-    public final Vector3f[] tri = { new Vector3f(),
-                                    new Vector3f(),
-                                    new Vector3f() };
-
+    public final Vector3f[] tri = {new Vector3f(),
+        new Vector3f(),
+        new Vector3f()};
     /**
      * 2D vector
      */
-    public final Vector2f vect2d  = new Vector2f();
+    public final Vector2f vect2d = new Vector2f();
     public final Vector2f vect2d2 = new Vector2f();
-
     /**
      * General matrices.
      */
     public final Matrix3f tempMat3 = new Matrix3f();
     public final Matrix4f tempMat4 = new Matrix4f();
-
     /**
      * General quaternions.
      */
     public final Quaternion quat1 = new Quaternion();
     public final Quaternion quat2 = new Quaternion();
-
     /**
      * Eigen
      */
     public final Eigen3f eigen = new Eigen3f();
-
     /**
      * Plane
      */
-     public final Plane plane = new Plane();
-
+    public final Plane plane = new Plane();
     /**
      * BoundingBox ray collision
      */
@@ -187,18 +234,14 @@ public class TempVars {
     public final float[] fDdU = new float[3];
     public final float[] fADdU = new float[3];
     public final float[] fAWxDdU = new float[3];
-
     /**
      * Maximum tree depth .. 32 levels??
      */
     public final Spatial[] spatialStack = new Spatial[32];
-
     public final float[] matrixWrite = new float[16];
-    
     /**
      * BIHTree
      */
     public final float[] bihSwapTmp = new float[9];
     public final ArrayList<BIHStackData> bihStack = new ArrayList<BIHStackData>();
-
 }

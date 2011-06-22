@@ -29,7 +29,6 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package com.jme3.bounding;
 
 import com.jme3.collision.Collidable;
@@ -90,14 +89,14 @@ public class BoundingBox extends BoundingVolume {
         this.zExtent = z;
     }
 
-    public BoundingBox(BoundingBox source){
+    public BoundingBox(BoundingBox source) {
         this.center.set(source.center);
         this.xExtent = source.xExtent;
         this.yExtent = source.yExtent;
         this.zExtent = source.zExtent;
     }
 
-    public BoundingBox(Vector3f min, Vector3f max){
+    public BoundingBox(Vector3f min, Vector3f max) {
         setMinMax(min, max);
     }
 
@@ -130,10 +129,10 @@ public class BoundingBox extends BoundingVolume {
         }
 
         TempVars vars = TempVars.get();
-        assert vars.lock();
+
         Vector3f min = vars.vect1.set(new Vector3f(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY));
         Vector3f max = vars.vect2.set(new Vector3f(Float.NEGATIVE_INFINITY, Float.NEGATIVE_INFINITY, Float.NEGATIVE_INFINITY));
-        
+
         Vector3f point;
         for (int i = start; i < end; i++) {
             point = tris[i].get(0);
@@ -143,7 +142,7 @@ public class BoundingBox extends BoundingVolume {
             point = tris[i].get(2);
             checkMinMax(min, max, point);
         }
-        
+
         center.set(min.addLocal(max));
         center.multLocal(0.5f);
 
@@ -151,27 +150,27 @@ public class BoundingBox extends BoundingVolume {
         yExtent = max.y - center.y;
         zExtent = max.z - center.z;
 
-        assert vars.unlock();
+        vars.release();
     }
-    
+
     public void computeFromTris(int[] indices, Mesh mesh, int start, int end) {
-    	if (end - start <= 0) {
+        if (end - start <= 0) {
             return;
         }
 
         TempVars vars = TempVars.get();
-        assert vars.lock();
+
         Vector3f vect1 = vars.vect1;
         Vector3f vect2 = vars.vect2;
         Triangle triangle = vars.triangle;
 
-    	Vector3f min = vect1.set(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY);
+        Vector3f min = vect1.set(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY);
         Vector3f max = vect2.set(Float.NEGATIVE_INFINITY, Float.NEGATIVE_INFINITY, Float.NEGATIVE_INFINITY);
         Vector3f point;
 
         for (int i = start; i < end; i++) {
-        	mesh.getTriangle(indices[i], triangle);
-        	point = triangle.get(0);
+            mesh.getTriangle(indices[i], triangle);
+            point = triangle.get(0);
             checkMinMax(min, max, point);
             point = triangle.get(1);
             checkMinMax(min, max, point);
@@ -186,22 +185,28 @@ public class BoundingBox extends BoundingVolume {
         yExtent = max.y - center.y;
         zExtent = max.z - center.z;
 
-        assert vars.unlock();
+        vars.release();
     }
 
     public static final void checkMinMax(Vector3f min, Vector3f max, Vector3f point) {
-        if (point.x < min.x)
+        if (point.x < min.x) {
             min.x = point.x;
-        if (point.x > max.x)
+        }
+        if (point.x > max.x) {
             max.x = point.x;
-        if (point.y < min.y)
+        }
+        if (point.y < min.y) {
             min.y = point.y;
-        if (point.y > max.y)
+        }
+        if (point.y > max.y) {
             max.y = point.y;
-        if (point.z < min.z)
+        }
+        if (point.z < min.z) {
             min.z = point.z;
-        if (point.z > max.z)
+        }
+        if (point.z > max.z) {
             max.z = point.z;
+        }
     }
 
     /**
@@ -213,15 +218,18 @@ public class BoundingBox extends BoundingVolume {
      *            the list of points.
      */
     public void containAABB(FloatBuffer points) {
-        if (points == null)
+        if (points == null) {
             return;
+        }
 
         points.rewind();
         if (points.remaining() <= 2) // we need at least a 3 float vector
+        {
             return;
+        }
 
         TempVars vars = TempVars.get();
-        assert vars.lock();
+
         BufferUtils.populateFromBuffer(vars.vect1, points, 0);
         float minX = vars.vect1.x, minY = vars.vect1.y, minZ = vars.vect1.z;
         float maxX = vars.vect1.x, maxY = vars.vect1.y, maxZ = vars.vect1.z;
@@ -229,23 +237,26 @@ public class BoundingBox extends BoundingVolume {
         for (int i = 1, len = points.remaining() / 3; i < len; i++) {
             BufferUtils.populateFromBuffer(vars.vect1, points, i);
 
-            if (vars.vect1.x < minX)
+            if (vars.vect1.x < minX) {
                 minX = vars.vect1.x;
-            else if (vars.vect1.x > maxX)
+            } else if (vars.vect1.x > maxX) {
                 maxX = vars.vect1.x;
+            }
 
-            if (vars.vect1.y < minY)
+            if (vars.vect1.y < minY) {
                 minY = vars.vect1.y;
-            else if (vars.vect1.y > maxY)
+            } else if (vars.vect1.y > maxY) {
                 maxY = vars.vect1.y;
+            }
 
-            if (vars.vect1.z < minZ)
+            if (vars.vect1.z < minZ) {
                 minZ = vars.vect1.z;
-            else if (vars.vect1.z > maxZ)
+            } else if (vars.vect1.z > maxZ) {
                 maxZ = vars.vect1.z;
+            }
         }
 
-        assert vars.unlock();
+        vars.release();
 
         center.set(minX + maxX, minY + maxY, minZ + maxZ);
         center.multLocal(0.5f);
@@ -278,7 +289,7 @@ public class BoundingBox extends BoundingVolume {
         box.center.addLocal(trans.getTranslation());
 
         TempVars vars = TempVars.get();
-        assert vars.lock();
+
         Matrix3f transMatrix = vars.tempMat3;
         transMatrix.set(trans.getRotation());
         // Make the rotation matrix all positive to get the maximum x/y/z extent
@@ -292,12 +303,12 @@ public class BoundingBox extends BoundingVolume {
         box.yExtent = FastMath.abs(vars.vect2.getY());
         box.zExtent = FastMath.abs(vars.vect2.getZ());
 
-        assert vars.unlock();
+        vars.release();
 
         return box;
     }
 
-    public BoundingVolume transform(Matrix4f trans, BoundingVolume store){
+    public BoundingVolume transform(Matrix4f trans, BoundingVolume store) {
         BoundingBox box;
         if (store == null || store.getType() != Type.AABB) {
             box = new BoundingBox();
@@ -305,7 +316,7 @@ public class BoundingBox extends BoundingVolume {
             box = (BoundingBox) store;
         }
         TempVars vars = TempVars.get();
-        assert vars.lock();
+
 
         float w = trans.multProj(center, box.center);
         box.center.divideLocal(w);
@@ -318,13 +329,13 @@ public class BoundingBox extends BoundingVolume {
 
         vars.vect1.set(xExtent, yExtent, zExtent);
         transMatrix.mult(vars.vect1, vars.vect1);
-        
+
         // Assign the biggest rotations after scales.
         box.xExtent = FastMath.abs(vars.vect1.getX());
         box.yExtent = FastMath.abs(vars.vect1.getY());
         box.zExtent = FastMath.abs(vars.vect1.getZ());
 
-        assert vars.unlock();
+        vars.release();
 
         return box;
     }
@@ -371,14 +382,14 @@ public class BoundingBox extends BoundingVolume {
                 BoundingBox vBox = (BoundingBox) volume;
                 return merge(vBox.center, vBox.xExtent, vBox.yExtent,
                         vBox.zExtent, new BoundingBox(new Vector3f(0, 0, 0), 0,
-                                0, 0));
+                        0, 0));
             }
 
             case Sphere: {
                 BoundingSphere vSphere = (BoundingSphere) volume;
                 return merge(vSphere.center, vSphere.radius, vSphere.radius,
                         vSphere.radius, new BoundingBox(new Vector3f(0, 0, 0),
-                                0, 0, 0));
+                        0, 0, 0));
             }
 
 //            case OBB: {
@@ -471,7 +482,6 @@ public class BoundingBox extends BoundingVolume {
 //        zExtent = max.z - center.z;
 //        return this;
 //    }
-
     /**
      * <code>merge</code> combines this bounding box with another box which is
      * defined by the center, x, y, z extents.
@@ -492,26 +502,32 @@ public class BoundingBox extends BoundingVolume {
             float boxZ, BoundingBox rVal) {
 
         TempVars vars = TempVars.get();
-        assert vars.lock();
+
         vars.vect1.x = center.x - xExtent;
-        if (vars.vect1.x > boxCenter.x - boxX)
+        if (vars.vect1.x > boxCenter.x - boxX) {
             vars.vect1.x = boxCenter.x - boxX;
+        }
         vars.vect1.y = center.y - yExtent;
-        if (vars.vect1.y > boxCenter.y - boxY)
+        if (vars.vect1.y > boxCenter.y - boxY) {
             vars.vect1.y = boxCenter.y - boxY;
+        }
         vars.vect1.z = center.z - zExtent;
-        if (vars.vect1.z > boxCenter.z - boxZ)
+        if (vars.vect1.z > boxCenter.z - boxZ) {
             vars.vect1.z = boxCenter.z - boxZ;
+        }
 
         vars.vect2.x = center.x + xExtent;
-        if (vars.vect2.x < boxCenter.x + boxX)
+        if (vars.vect2.x < boxCenter.x + boxX) {
             vars.vect2.x = boxCenter.x + boxX;
+        }
         vars.vect2.y = center.y + yExtent;
-        if (vars.vect2.y < boxCenter.y + boxY)
+        if (vars.vect2.y < boxCenter.y + boxY) {
             vars.vect2.y = boxCenter.y + boxY;
+        }
         vars.vect2.z = center.z + zExtent;
-        if (vars.vect2.z < boxCenter.z + boxZ)
+        if (vars.vect2.z < boxCenter.z + boxZ) {
             vars.vect2.z = boxCenter.z + boxZ;
+        }
 
         center.set(vars.vect2).addLocal(vars.vect1).multLocal(0.5f);
 
@@ -519,7 +535,7 @@ public class BoundingBox extends BoundingVolume {
         yExtent = vars.vect2.y - center.y;
         zExtent = vars.vect2.z - center.z;
 
-        assert vars.unlock();
+        vars.release();
 
         return rVal;
     }
@@ -543,10 +559,10 @@ public class BoundingBox extends BoundingVolume {
             rVal.checkPlane = checkPlane;
             return rVal;
         }
-        
+
         BoundingBox rVal = new BoundingBox(center.clone(),
                 xExtent, yExtent, zExtent);
-        return rVal;        
+        return rVal;
     }
 
     /**
@@ -583,10 +599,11 @@ public class BoundingBox extends BoundingVolume {
         if (FastMath.abs(center.x - bs.center.x) < bs.getRadius()
                 + xExtent
                 && FastMath.abs(center.y - bs.center.y) < bs.getRadius()
-                        + yExtent
+                + yExtent
                 && FastMath.abs(center.z - bs.center.z) < bs.getRadius()
-                        + zExtent)
+                + zExtent) {
             return true;
+        }
 
         return false;
     }
@@ -602,16 +619,17 @@ public class BoundingBox extends BoundingVolume {
         assert Vector3f.isValidVector(center) && Vector3f.isValidVector(bb.center);
 
         if (center.x + xExtent < bb.center.x - bb.xExtent
-                || center.x - xExtent > bb.center.x + bb.xExtent)
+                || center.x - xExtent > bb.center.x + bb.xExtent) {
             return false;
-        else if (center.y + yExtent < bb.center.y - bb.yExtent
-                || center.y - yExtent > bb.center.y + bb.yExtent)
+        } else if (center.y + yExtent < bb.center.y - bb.yExtent
+                || center.y - yExtent > bb.center.y + bb.yExtent) {
             return false;
-        else if (center.z + zExtent < bb.center.z - bb.zExtent
-                || center.z - zExtent > bb.center.z + bb.zExtent)
+        } else if (center.z + zExtent < bb.center.z - bb.zExtent
+                || center.z - zExtent > bb.center.z + bb.zExtent) {
             return false;
-        else
+        } else {
             return true;
+        }
     }
 
     /**
@@ -623,7 +641,6 @@ public class BoundingBox extends BoundingVolume {
 //    public boolean intersectsOrientedBoundingBox(OrientedBoundingBox obb) {
 //        return obb.intersectsBoundingBox(this);
 //    }
-
     /**
      * determines if this bounding box intersects with a given ray object. If an
      * intersection has occurred, true is returned, otherwise false is returned.
@@ -636,21 +653,21 @@ public class BoundingBox extends BoundingVolume {
         float rhs;
 
         TempVars vars = TempVars.get();
-        assert vars.lock();
+
         Vector3f diff = ray.origin.subtract(getCenter(vars.vect2), vars.vect1);
 
-        final float[] fWdU      = vars.fWdU;
-        final float[] fAWdU     = vars.fAWdU;
-        final float[] fDdU      = vars.fDdU;
-        final float[] fADdU     = vars.fADdU;
-        final float[] fAWxDdU   = vars.fAWxDdU;
-        
+        final float[] fWdU = vars.fWdU;
+        final float[] fAWdU = vars.fAWdU;
+        final float[] fDdU = vars.fDdU;
+        final float[] fADdU = vars.fADdU;
+        final float[] fAWxDdU = vars.fAWxDdU;
+
         fWdU[0] = ray.getDirection().dot(Vector3f.UNIT_X);
         fAWdU[0] = FastMath.abs(fWdU[0]);
         fDdU[0] = diff.dot(Vector3f.UNIT_X);
         fADdU[0] = FastMath.abs(fDdU[0]);
         if (fADdU[0] > xExtent && fDdU[0] * fWdU[0] >= 0.0) {
-            assert vars.unlock();
+            vars.release();
             return false;
         }
 
@@ -659,7 +676,7 @@ public class BoundingBox extends BoundingVolume {
         fDdU[1] = diff.dot(Vector3f.UNIT_Y);
         fADdU[1] = FastMath.abs(fDdU[1]);
         if (fADdU[1] > yExtent && fDdU[1] * fWdU[1] >= 0.0) {
-            assert vars.unlock();
+            vars.release();
             return false;
         }
 
@@ -668,7 +685,7 @@ public class BoundingBox extends BoundingVolume {
         fDdU[2] = diff.dot(Vector3f.UNIT_Z);
         fADdU[2] = FastMath.abs(fDdU[2]);
         if (fADdU[2] > zExtent && fDdU[2] * fWdU[2] >= 0.0) {
-            assert vars.unlock();
+            vars.release();
             return false;
         }
 
@@ -677,25 +694,25 @@ public class BoundingBox extends BoundingVolume {
         fAWxDdU[0] = FastMath.abs(wCrossD.dot(Vector3f.UNIT_X));
         rhs = yExtent * fAWdU[2] + zExtent * fAWdU[1];
         if (fAWxDdU[0] > rhs) {
-            assert vars.unlock();
+            vars.release();
             return false;
         }
 
         fAWxDdU[1] = FastMath.abs(wCrossD.dot(Vector3f.UNIT_Y));
         rhs = xExtent * fAWdU[2] + zExtent * fAWdU[0];
         if (fAWxDdU[1] > rhs) {
-            assert vars.unlock();
+            vars.release();
             return false;
         }
 
         fAWxDdU[2] = FastMath.abs(wCrossD.dot(Vector3f.UNIT_Z));
         rhs = xExtent * fAWdU[1] + yExtent * fAWdU[0];
         if (fAWxDdU[2] > rhs) {
-            assert vars.unlock();
+            vars.release();
             return false;
         }
 
-        assert vars.unlock();
+        vars.release();
         return true;
     }
 
@@ -704,12 +721,12 @@ public class BoundingBox extends BoundingVolume {
      */
     private int collideWithRay(Ray ray, CollisionResults results) {
         TempVars vars = TempVars.get();
-        assert vars.lock();
+
         Vector3f diff = vars.vect1.set(ray.origin).subtractLocal(center);
         Vector3f direction = vars.vect2.set(ray.direction);
 
-        float[] t = { 0f, Float.POSITIVE_INFINITY };
-        
+        float[] t = {0f, Float.POSITIVE_INFINITY};
+
         float saveT0 = t[0], saveT1 = t[1];
         boolean notEntirelyClipped = clip(+direction.x, -diff.x - xExtent, t)
                 && clip(-direction.x, +diff.x - xExtent, t)
@@ -717,15 +734,15 @@ public class BoundingBox extends BoundingVolume {
                 && clip(-direction.y, +diff.y - yExtent, t)
                 && clip(+direction.z, -diff.z - zExtent, t)
                 && clip(-direction.z, +diff.z - zExtent, t);
-        assert vars.unlock();
-        
+        vars.release();
+
         if (notEntirelyClipped && (t[0] != saveT0 || t[1] != saveT1)) {
             if (t[1] > t[0]) {
                 float[] distances = t;
-                Vector3f[] points = new Vector3f[] { 
-                        new Vector3f(ray.direction).multLocal(distances[0]).addLocal(ray.origin),
-                        new Vector3f(ray.direction).multLocal(distances[1]).addLocal(ray.origin)
-                        };
+                Vector3f[] points = new Vector3f[]{
+                    new Vector3f(ray.direction).multLocal(distances[0]).addLocal(ray.origin),
+                    new Vector3f(ray.direction).multLocal(distances[1]).addLocal(ray.origin)
+                };
 
                 CollisionResult result = new CollisionResult(points[0], distances[0]);
                 results.addCollision(result);
@@ -733,8 +750,8 @@ public class BoundingBox extends BoundingVolume {
                 results.addCollision(result);
                 return 2;
             }
-           
-            Vector3f point = new Vector3f(ray.direction).multLocal(t[0]).addLocal(ray.origin);   
+
+            Vector3f point = new Vector3f(ray.direction).multLocal(t[0]).addLocal(ray.origin);
             CollisionResult result = new CollisionResult(point, t[0]);
             results.addCollision(result);
             return 1;
@@ -742,20 +759,20 @@ public class BoundingBox extends BoundingVolume {
         return 0;
     }
 
-    public int collideWith(Collidable other, CollisionResults results){
-        if (other instanceof Ray){
+    public int collideWith(Collidable other, CollisionResults results) {
+        if (other instanceof Ray) {
             Ray ray = (Ray) other;
             return collideWithRay(ray, results);
-        }else if (other instanceof Triangle){
+        } else if (other instanceof Triangle) {
             Triangle t = (Triangle) other;
-            if (intersects(t.get1(), t.get2(), t.get3())){
+            if (intersects(t.get1(), t.get2(), t.get3())) {
                 CollisionResult r = new CollisionResult();
                 results.addCollision(r);
                 return 1;
             }
             return 0;
-        }else{
-            throw new UnsupportedCollisionException("With: "+other.getClass().getSimpleName());
+        } else {
+            throw new UnsupportedCollisionException("With: " + other.getClass().getSimpleName());
         }
     }
 
@@ -768,8 +785,8 @@ public class BoundingBox extends BoundingVolume {
      * @return True if the bounding box intersects the triangle, false
      * otherwise.
      */
-    public boolean intersects(Vector3f v1, Vector3f v2, Vector3f v3){
-       return Intersection.intersect(this, v1, v2, v3);
+    public boolean intersects(Vector3f v1, Vector3f v2, Vector3f v3) {
+        return Intersection.intersect(this, v1, v2, v3);
     }
 
     @Override
@@ -844,16 +861,20 @@ public class BoundingBox extends BoundingVolume {
         // plane. Otherwise 'false' is returned in which case the line segment
         // is entirely clipped.
         if (denom > 0.0f) {
-            if (numer > denom * t[1])
+            if (numer > denom * t[1]) {
                 return false;
-            if (numer > denom * t[0])
+            }
+            if (numer > denom * t[0]) {
                 t[0] = numer / denom;
+            }
             return true;
         } else if (denom < 0.0f) {
-            if (numer > denom * t[0])
+            if (numer > denom * t[0]) {
                 return false;
-            if (numer > denom * t[1])
+            }
+            if (numer > denom * t[1]) {
                 t[1] = numer / denom;
+            }
             return true;
         } else {
             return numer <= 0.0;
@@ -875,40 +896,43 @@ public class BoundingBox extends BoundingVolume {
         return store;
     }
 
-    public float getXExtent(){
+    public float getXExtent() {
         return xExtent;
     }
 
-    public float getYExtent(){
+    public float getYExtent() {
         return yExtent;
     }
 
-    public float getZExtent(){
+    public float getZExtent() {
         return zExtent;
     }
 
     public void setXExtent(float xExtent) {
-        if (xExtent < 0)
+        if (xExtent < 0) {
             throw new IllegalArgumentException();
+        }
 
         this.xExtent = xExtent;
     }
 
     public void setYExtent(float yExtent) {
-        if (yExtent < 0)
+        if (yExtent < 0) {
             throw new IllegalArgumentException();
+        }
 
         this.yExtent = yExtent;
     }
 
     public void setZExtent(float zExtent) {
-        if (zExtent < 0)
+        if (zExtent < 0) {
             throw new IllegalArgumentException();
+        }
 
         this.zExtent = zExtent;
     }
-    
-    public Vector3f getMin(Vector3f store){
+
+    public Vector3f getMin(Vector3f store) {
         if (store == null) {
             store = new Vector3f();
         }
@@ -916,7 +940,7 @@ public class BoundingBox extends BoundingVolume {
         return store;
     }
 
-    public Vector3f getMax(Vector3f store){
+    public Vector3f getMax(Vector3f store) {
         if (store == null) {
             store = new Vector3f();
         }
@@ -924,13 +948,13 @@ public class BoundingBox extends BoundingVolume {
         return store;
     }
 
-    public void setMinMax(Vector3f min, Vector3f max){
+    public void setMinMax(Vector3f min, Vector3f max) {
         this.center.set(max).addLocal(min).multLocal(0.5f);
         xExtent = FastMath.abs(max.x - center.x);
         yExtent = FastMath.abs(max.y - center.y);
         zExtent = FastMath.abs(max.z - center.z);
     }
-    
+
     @Override
     public void write(JmeExporter e) throws IOException {
         super.write(e);
@@ -948,10 +972,9 @@ public class BoundingBox extends BoundingVolume {
         yExtent = capsule.readFloat("yExtent", 0);
         zExtent = capsule.readFloat("zExtent", 0);
     }
-    
+
     @Override
     public float getVolume() {
-        return (8*xExtent*yExtent*zExtent);
+        return (8 * xExtent * yExtent * zExtent);
     }
 }
-

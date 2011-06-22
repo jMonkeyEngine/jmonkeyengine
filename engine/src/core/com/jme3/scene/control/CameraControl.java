@@ -116,7 +116,6 @@ public class CameraControl extends AbstractControl {
                     // set the localtransform, so that the worldtransform would be equal to the camera's transform.
                     // Location:
                     TempVars vars = TempVars.get();
-                    assert vars.lock();
 
                     Vector3f vecDiff = vars.vect1.set(camera.getLocation()).subtractLocal(spatial.getWorldTranslation());
                     spatial.setLocalTranslation(vecDiff.addLocal(spatial.getLocalTranslation()));
@@ -124,7 +123,7 @@ public class CameraControl extends AbstractControl {
                     // Rotation:
                     Quaternion worldDiff = vars.quat1.set(camera.getRotation()).subtractLocal(spatial.getWorldRotation());
                     spatial.setLocalRotation(worldDiff.addLocal(spatial.getLocalRotation()));
-                    assert vars.unlock();
+                    vars.release();
                     break;
             }
         }

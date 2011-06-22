@@ -29,7 +29,6 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 // $Id: Sphere.java 4163 2009-03-25 01:14:55Z matt.yellen $
 package com.jme3.scene.shape;
 
@@ -47,7 +46,6 @@ import java.io.IOException;
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
 
-
 /**
  * <code>Sphere</code> represents a 3D object with all points equidistance
  * from a center point.
@@ -58,6 +56,7 @@ import java.nio.ShortBuffer;
 public class Sphere extends Mesh {
 
     public enum TextureMode {
+
         /** 
          * Wrap texture radially and along z-axis 
          */
@@ -72,28 +71,20 @@ public class Sphere extends Mesh {
          */
         Polar
     }
-
     protected int vertCount;
-
     protected int triCount;
-
     protected int zSamples;
-
     protected int radialSamples;
-
     protected boolean useEvenSlices;
-
     protected boolean interior;
-
     /** the distance from the center point each point falls on */
     public float radius;
-
     protected TextureMode textureMode = TextureMode.Original;
 
     /**
      * Serialization only. Do not use.
      */
-    public Sphere(){
+    public Sphere() {
     }
 
     /**
@@ -165,7 +156,7 @@ public class Sphere extends Mesh {
         FloatBuffer texBuf = BufferUtils.createVector2Buffer(vertCount);
 
         setBuffer(Type.Position, 3, posBuf);
-        setBuffer(Type.Normal,   3, normBuf);
+        setBuffer(Type.Normal, 3, normBuf);
         setBuffer(Type.TexCoord, 2, texBuf);
 
         // generate geometry
@@ -185,7 +176,6 @@ public class Sphere extends Mesh {
         afCos[radialSamples] = afCos[0];
 
         TempVars vars = TempVars.get();
-        assert vars.lock();
         Vector3f tempVa = vars.vect1;
         Vector3f tempVb = vars.vect2;
         Vector3f tempVc = vars.vect3;
@@ -195,11 +185,11 @@ public class Sphere extends Mesh {
         for (int iZ = 1; iZ < (zSamples - 1); iZ++) {
             float fAFraction = FastMath.HALF_PI * (-1.0f + fZFactor * iZ); // in (-pi/2, pi/2)
             float fZFraction;
-            if (useEvenSlices)
+            if (useEvenSlices) {
                 fZFraction = -1.0f + fZFactor * iZ; // in (-1, 1)
-            else
+            } else {
                 fZFraction = FastMath.sin(fAFraction); // in (-1,1)
-
+            }
             float fZ = radius * fZFraction;
 
             // compute center of slice
@@ -218,28 +208,29 @@ public class Sphere extends Mesh {
                 Vector3f kRadial = tempVc.set(afCos[iR], afSin[iR], 0);
                 kRadial.mult(fSliceRadius, tempVa);
                 posBuf.put(kSliceCenter.x + tempVa.x).put(
-                           kSliceCenter.y + tempVa.y).put(
-                           kSliceCenter.z + tempVa.z);
+                        kSliceCenter.y + tempVa.y).put(
+                        kSliceCenter.z + tempVa.z);
 
                 BufferUtils.populateFromBuffer(tempVa, posBuf, i);
                 kNormal = tempVa;
                 kNormal.normalizeLocal();
                 if (!interior) // allow interior texture vs. exterior
+                {
                     normBuf.put(kNormal.x).put(kNormal.y).put(
                             kNormal.z);
-                else
+                } else {
                     normBuf.put(-kNormal.x).put(-kNormal.y).put(
                             -kNormal.z);
+                }
 
-                if (textureMode == TextureMode.Original)
+                if (textureMode == TextureMode.Original) {
                     texBuf.put(fRadialFraction).put(
                             0.5f * (fZFraction + 1.0f));
-                else if (textureMode == TextureMode.Projected)
+                } else if (textureMode == TextureMode.Projected) {
                     texBuf.put(fRadialFraction).put(
                             FastMath.INV_PI
-                                    * (FastMath.HALF_PI + FastMath
-                                            .asin(fZFraction)));
-                else if (textureMode == TextureMode.Polar) {
+                            * (FastMath.HALF_PI + FastMath.asin(fZFraction)));
+                } else if (textureMode == TextureMode.Polar) {
                     float r = (FastMath.HALF_PI - FastMath.abs(fAFraction)) / FastMath.PI;
                     float u = r * afCos[iR] + 0.5f;
                     float v = r * afSin[iR] + 0.5f;
@@ -252,43 +243,41 @@ public class Sphere extends Mesh {
             BufferUtils.copyInternalVector3(posBuf, iSave, i);
             BufferUtils.copyInternalVector3(normBuf, iSave, i);
 
-            if (textureMode == TextureMode.Original)
+            if (textureMode == TextureMode.Original) {
                 texBuf.put(1.0f).put(
                         0.5f * (fZFraction + 1.0f));
-            else if (textureMode == TextureMode.Projected)
-                texBuf.put(1.0f)
-                        .put(
-                                FastMath.INV_PI
-                                        * (FastMath.HALF_PI + FastMath
-                                                .asin(fZFraction)));
-            else if (textureMode == TextureMode.Polar) {
+            } else if (textureMode == TextureMode.Projected) {
+                texBuf.put(1.0f).put(
+                        FastMath.INV_PI
+                        * (FastMath.HALF_PI + FastMath.asin(fZFraction)));
+            } else if (textureMode == TextureMode.Polar) {
                 float r = (FastMath.HALF_PI - FastMath.abs(fAFraction)) / FastMath.PI;
-                texBuf.put(r+0.5f).put(0.5f);
+                texBuf.put(r + 0.5f).put(0.5f);
             }
 
             i++;
         }
 
-        assert vars.unlock();
+        vars.release();
 
         // south pole
         posBuf.position(i * 3);
         posBuf.put(0f).put(0f).put(-radius);
 
         normBuf.position(i * 3);
-        if (!interior)
+        if (!interior) {
             normBuf.put(0).put(0).put(-1); // allow for inner
-                                                        // texture orientation
-                                                        // later.
-        else
+        } // texture orientation
+        // later.
+        else {
             normBuf.put(0).put(0).put(1);
+        }
 
         texBuf.position(i * 2);
 
         if (textureMode == TextureMode.Polar) {
             texBuf.put(0.5f).put(0.5f);
-        }
-        else {
+        } else {
             texBuf.put(0.5f).put(0.0f);
         }
 
@@ -297,10 +286,11 @@ public class Sphere extends Mesh {
         // north pole
         posBuf.put(0).put(0).put(radius);
 
-        if (!interior)
+        if (!interior) {
             normBuf.put(0).put(0).put(1);
-        else
+        } else {
             normBuf.put(0).put(0).put(-1);
+        }
 
         if (textureMode == TextureMode.Polar) {
             texBuf.put(0.5f).put(0.5f);
@@ -331,19 +321,19 @@ public class Sphere extends Mesh {
             int i3 = i2 + 1;
             for (int i = 0; i < radialSamples; i++, index += 6) {
                 if (!interior) {
-                    idxBuf.put((short)i0++);
-                    idxBuf.put((short)i1);
-                    idxBuf.put((short)i2);
-                    idxBuf.put((short)i1++);
-                    idxBuf.put((short)i3++);
-                    idxBuf.put((short)i2++);
+                    idxBuf.put((short) i0++);
+                    idxBuf.put((short) i1);
+                    idxBuf.put((short) i2);
+                    idxBuf.put((short) i1++);
+                    idxBuf.put((short) i3++);
+                    idxBuf.put((short) i2++);
                 } else { // inside view
-                    idxBuf.put((short)i0++);
-                    idxBuf.put((short)i2);
-                    idxBuf.put((short)i1);
-                    idxBuf.put((short)i1++);
-                    idxBuf.put((short)i2++);
-                    idxBuf.put((short)i3++);
+                    idxBuf.put((short) i0++);
+                    idxBuf.put((short) i2);
+                    idxBuf.put((short) i1);
+                    idxBuf.put((short) i1++);
+                    idxBuf.put((short) i2++);
+                    idxBuf.put((short) i3++);
                 }
             }
         }
@@ -351,13 +341,13 @@ public class Sphere extends Mesh {
         // south pole triangles
         for (int i = 0; i < radialSamples; i++, index += 3) {
             if (!interior) {
-                idxBuf.put((short)i);
-                idxBuf.put((short)(vertCount - 2));
-                idxBuf.put((short)(i + 1));
+                idxBuf.put((short) i);
+                idxBuf.put((short) (vertCount - 2));
+                idxBuf.put((short) (i + 1));
             } else { // inside view
-                idxBuf.put((short)i);
-                idxBuf.put((short)(i + 1));
-                idxBuf.put((short)(vertCount - 2));
+                idxBuf.put((short) i);
+                idxBuf.put((short) (i + 1));
+                idxBuf.put((short) (vertCount - 2));
             }
         }
 
@@ -365,13 +355,13 @@ public class Sphere extends Mesh {
         int iOffset = (zSamples - 3) * (radialSamples + 1);
         for (int i = 0; i < radialSamples; i++, index += 3) {
             if (!interior) {
-                idxBuf.put((short)(i + iOffset));
-                idxBuf.put((short)(i + 1 + iOffset));
-                idxBuf.put((short)(vertCount - 1));
+                idxBuf.put((short) (i + iOffset));
+                idxBuf.put((short) (i + 1 + iOffset));
+                idxBuf.put((short) (vertCount - 1));
             } else { // inside view
-                idxBuf.put((short)(i + iOffset));
-                idxBuf.put((short)(vertCount - 1));
-                idxBuf.put((short)(i + 1 + iOffset));
+                idxBuf.put((short) (i + iOffset));
+                idxBuf.put((short) (vertCount - 1));
+                idxBuf.put((short) (i + 1 + iOffset));
             }
         }
     }
@@ -427,5 +417,4 @@ public class Sphere extends Mesh {
         capsule.write(textureMode, "textureMode", TextureMode.Original);
         capsule.write(interior, "interior", false);
     }
-
 }

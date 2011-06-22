@@ -29,7 +29,6 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package com.jme3.collision.bih;
 
 import com.jme3.scene.mesh.VirtualIndexBuffer;
@@ -62,20 +61,16 @@ import static java.lang.Math.max;
 
 public class BIHTree implements CollisionData {
 
-    public static final int MAX_TREE_DEPTH     = 100;
-    public static final int MAX_TRIS_PER_NODE  = 21;
-
+    public static final int MAX_TREE_DEPTH = 100;
+    public static final int MAX_TRIS_PER_NODE = 21;
     private Mesh mesh;
-
     private BIHNode root;
     private int maxTrisPerNode;
     private int numTris;
     private float[] pointData;
     private int[] triIndices;
-
     private transient CollisionResults boundResults = new CollisionResults();
     private transient float[] bihSwapTmp;
-
     private static final TriangleAxisComparator[] comparators = new TriangleAxisComparator[3];
 
     static {
@@ -84,45 +79,47 @@ public class BIHTree implements CollisionData {
         comparators[2] = new TriangleAxisComparator(2);
     }
 
-    private void initTriList(FloatBuffer vb, IndexBuffer ib){
+    private void initTriList(FloatBuffer vb, IndexBuffer ib) {
         pointData = new float[numTris * 3 * 3];
         int p = 0;
-        for (int i = 0; i < numTris*3; i+=3){
-            int vert = ib.get(i)*3;
+        for (int i = 0; i < numTris * 3; i += 3) {
+            int vert = ib.get(i) * 3;
             pointData[p++] = vb.get(vert++);
             pointData[p++] = vb.get(vert++);
             pointData[p++] = vb.get(vert);
 
-            vert = ib.get(i+1)*3;
+            vert = ib.get(i + 1) * 3;
             pointData[p++] = vb.get(vert++);
             pointData[p++] = vb.get(vert++);
             pointData[p++] = vb.get(vert);
 
-            vert = ib.get(i+2)*3;
+            vert = ib.get(i + 2) * 3;
             pointData[p++] = vb.get(vert++);
             pointData[p++] = vb.get(vert++);
             pointData[p++] = vb.get(vert);
         }
 
         triIndices = new int[numTris];
-        for (int i = 0; i < numTris; i++)
+        for (int i = 0; i < numTris; i++) {
             triIndices[i] = i;
+        }
     }
 
-    public BIHTree(Mesh mesh, int maxTrisPerNode){
+    public BIHTree(Mesh mesh, int maxTrisPerNode) {
         this.mesh = mesh;
         this.maxTrisPerNode = maxTrisPerNode;
 
-        if (maxTrisPerNode < 1 || mesh == null)
+        if (maxTrisPerNode < 1 || mesh == null) {
             throw new IllegalArgumentException();
+        }
 
         bihSwapTmp = new float[9];
 
         FloatBuffer vb = (FloatBuffer) mesh.getBuffer(Type.Position).getData();
         IndexBuffer ib = mesh.getIndexBuffer();
-        if (ib == null){
+        if (ib == null) {
             ib = new VirtualIndexBuffer(mesh.getVertexCount(), mesh.getMode());
-        }else if (mesh.getMode() != Mode.Triangles){
+        } else if (mesh.getMode() != Mode.Triangles) {
             ib = new WrappedIndexBuffer(mesh);
         }
 
@@ -130,87 +127,89 @@ public class BIHTree implements CollisionData {
         initTriList(vb, ib);
     }
 
-    public BIHTree(Mesh mesh){
+    public BIHTree(Mesh mesh) {
         this(mesh, MAX_TRIS_PER_NODE);
     }
 
-    public BIHTree(){
+    public BIHTree() {
     }
 
-    public void construct(){
-        BoundingBox sceneBbox = createBox(0, numTris-1);
-        root = createNode(0, numTris-1, sceneBbox, 0);
+    public void construct() {
+        BoundingBox sceneBbox = createBox(0, numTris - 1);
+        root = createNode(0, numTris - 1, sceneBbox, 0);
     }
 
     private BoundingBox createBox(int l, int r) {
         TempVars vars = TempVars.get();
-        assert vars.lock();
+
         Vector3f min = vars.vect1.set(new Vector3f(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY));
         Vector3f max = vars.vect2.set(new Vector3f(Float.NEGATIVE_INFINITY, Float.NEGATIVE_INFINITY, Float.NEGATIVE_INFINITY));
 
         Vector3f v1 = vars.vect3,
-                 v2 = vars.vect4,
-                 v3 = vars.vect5;
+                v2 = vars.vect4,
+                v3 = vars.vect5;
 
         for (int i = l; i <= r; i++) {
-            getTriangle(i, v1,v2,v3);
+            getTriangle(i, v1, v2, v3);
             BoundingBox.checkMinMax(min, max, v1);
             BoundingBox.checkMinMax(min, max, v2);
             BoundingBox.checkMinMax(min, max, v3);
         }
 
-        BoundingBox bbox = new BoundingBox(min,max);
-        assert vars.unlock();
+        BoundingBox bbox = new BoundingBox(min, max);
+        vars.release();
         return bbox;
     }
 
-    int getTriangleIndex(int triIndex){
+    int getTriangleIndex(int triIndex) {
         return triIndices[triIndex];
     }
 
-     private int sortTriangles(int l, int r, float split, int axis){
+    private int sortTriangles(int l, int r, float split, int axis) {
         int pivot = l;
         int j = r;
 
         TempVars vars = TempVars.get();
-        assert vars.lock();
-        Vector3f v1 = vars.vect1,
-                 v2 = vars.vect2,
-                 v3 = vars.vect3;
 
-        while (pivot <= j){
+        Vector3f v1 = vars.vect1,
+                v2 = vars.vect2,
+                v3 = vars.vect3;
+
+        while (pivot <= j) {
             getTriangle(pivot, v1, v2, v3);
             v1.addLocal(v2).addLocal(v3).multLocal(FastMath.ONE_THIRD);
-            if (v1.get(axis) > split){
+            if (v1.get(axis) > split) {
                 swapTriangles(pivot, j);
                 --j;
-            }else{
+            } else {
                 ++pivot;
             }
         }
 
-        assert vars.unlock();
+        vars.release();
         pivot = (pivot == l && j < pivot) ? j : pivot;
         return pivot;
     }
 
-    private void setMinMax(BoundingBox bbox, boolean doMin, int axis, float value){
+    private void setMinMax(BoundingBox bbox, boolean doMin, int axis, float value) {
         Vector3f min = bbox.getMin(null);
         Vector3f max = bbox.getMax(null);
 
-        if (doMin)
+        if (doMin) {
             min.set(axis, value);
-        else
+        } else {
             max.set(axis, value);
+        }
 
         bbox.setMinMax(min, max);
     }
 
-    private float getMinMax(BoundingBox bbox, boolean doMin, int axis){
-        if (doMin)
+    private float getMinMax(BoundingBox bbox, boolean doMin, int axis) {
+        if (doMin) {
             return bbox.getMin(null).get(axis);
-        else
+        } else {
             return bbox.getMax(null).get(axis);
+        }
     }
 
 //    private BIHNode createNode2(int l, int r, BoundingBox nodeBbox, int depth){
@@ -290,12 +289,11 @@ public class BIHTree implements CollisionData {
 //
 //        return node;
 //    }
-
     private BIHNode createNode(int l, int r, BoundingBox nodeBbox, int depth) {
-        if ((r - l) < maxTrisPerNode || depth > MAX_TREE_DEPTH){
+        if ((r - l) < maxTrisPerNode || depth > MAX_TREE_DEPTH) {
             return new BIHNode(l, r);
         }
-        
+
         BoundingBox currentBox = createBox(l, r);
 
         Vector3f exteriorExt = nodeBbox.getExtent(null);
@@ -303,38 +301,42 @@ public class BIHTree implements CollisionData {
         exteriorExt.subtractLocal(interiorExt);
 
         int axis = 0;
-        if (exteriorExt.x > exteriorExt.y){
-            if (exteriorExt.x > exteriorExt.z)
+        if (exteriorExt.x > exteriorExt.y) {
+            if (exteriorExt.x > exteriorExt.z) {
                 axis = 0;
-            else
+            } else {
                 axis = 2;
-        }else{
-            if (exteriorExt.y > exteriorExt.z)
+            }
+        } else {
+            if (exteriorExt.y > exteriorExt.z) {
                 axis = 1;
-            else
+            } else {
                 axis = 2;
+            }
         }
-        if (exteriorExt.equals(Vector3f.ZERO))
+        if (exteriorExt.equals(Vector3f.ZERO)) {
             axis = 0;
+        }
 
 //        Arrays.sort(tris, l, r, comparators[axis]);
         float split = currentBox.getCenter().get(axis);
         int pivot = sortTriangles(l, r, split, axis);
-        if (pivot == l || pivot == r)
+        if (pivot == l || pivot == r) {
             pivot = (r + l) / 2;
+        }
 
         //If one of the partitions is empty, continue with recursion: same level but different bbox
-        if (pivot < l){
+        if (pivot < l) {
             //Only right
             BoundingBox rbbox = new BoundingBox(currentBox);
             setMinMax(rbbox, true, axis, split);
-            return createNode(l, r, rbbox, depth+1);
-        }else if (pivot > r){
+            return createNode(l, r, rbbox, depth + 1);
+        } else if (pivot > r) {
             //Only left
             BoundingBox lbbox = new BoundingBox(currentBox);
             setMinMax(lbbox, false, axis, split);
-            return createNode(l, r, lbbox, depth+1);
-        }else{
+            return createNode(l, r, lbbox, depth + 1);
+        } else {
             //Build the node
             BIHNode node = new BIHNode(axis);
 
@@ -343,21 +345,21 @@ public class BIHTree implements CollisionData {
             setMinMax(lbbox, false, axis, split);
 
             //The left node right border is the plane most right
-            node.setLeftPlane( getMinMax(createBox(l, max(l, pivot - 1)), false, axis) );
-            node.setLeftChild( createNode(l, max(l, pivot - 1), lbbox, depth+1) ); //Recursive call
+            node.setLeftPlane(getMinMax(createBox(l, max(l, pivot - 1)), false, axis));
+            node.setLeftChild(createNode(l, max(l, pivot - 1), lbbox, depth + 1)); //Recursive call
 
             //Right Child
             BoundingBox rbbox = new BoundingBox(currentBox);
             setMinMax(rbbox, true, axis, split);
             //The right node left border is the plane most left
-            node.setRightPlane( getMinMax(createBox(pivot, r), true, axis) );
-            node.setRightChild( createNode(pivot, r, rbbox, depth+1) ); //Recursive call
+            node.setRightPlane(getMinMax(createBox(pivot, r), true, axis));
+            node.setRightChild(createNode(pivot, r, rbbox, depth + 1)); //Recursive call
 
             return node;
         }
     }
 
-    public void getTriangle(int index, Vector3f v1, Vector3f v2, Vector3f v3){
+    public void getTriangle(int index, Vector3f v1, Vector3f v2, Vector3f v3) {
         int pointIndex = index * 9;
 
         v1.x = pointData[pointIndex++];
@@ -373,7 +375,7 @@ public class BIHTree implements CollisionData {
         v3.z = pointData[pointIndex++];
     }
 
-    public void swapTriangles(int index1, int index2){
+    public void swapTriangles(int index1, int index2) {
         int p1 = index1 * 9;
         int p2 = index2 * 9;
 
@@ -392,26 +394,28 @@ public class BIHTree implements CollisionData {
         triIndices[index2] = tmp2;
     }
 
-    private int collideWithRay(Ray r, 
-                               Matrix4f worldMatrix,
-                               BoundingVolume worldBound,
-                               CollisionResults results){
+    private int collideWithRay(Ray r,
+            Matrix4f worldMatrix,
+            BoundingVolume worldBound,
+            CollisionResults results) {
 
         boundResults.clear();
         worldBound.collideWith(r, boundResults);
-        if (boundResults.size() > 0){
+        if (boundResults.size() > 0) {
             float tMin = boundResults.getClosestCollision().getDistance();
             float tMax = boundResults.getFarthestCollision().getDistance();
-            
-            if (tMax <= 0)
+
+            if (tMax <= 0) {
                 tMax = Float.POSITIVE_INFINITY;
-            else if (tMin == tMax)
+            } else if (tMin == tMax) {
                 tMin = 0;
+            }
 
-            if (tMin <= 0)
+            if (tMin <= 0) {
                 tMin = 0;
+            }
 
-            if (r.getLimit() < Float.POSITIVE_INFINITY){
+            if (r.getLimit() < Float.POSITIVE_INFINITY) {
                 tMax = Math.min(tMax, r.getLimit());
             }
 
@@ -422,17 +426,17 @@ public class BIHTree implements CollisionData {
     }
 
     private int collideWithBoundingVolume(BoundingVolume bv,
-                                          Matrix4f worldMatrix,
-                                          CollisionResults results){
+            Matrix4f worldMatrix,
+            CollisionResults results) {
         BoundingBox bbox;
-        if (bv instanceof BoundingSphere){
+        if (bv instanceof BoundingSphere) {
             BoundingSphere sphere = (BoundingSphere) bv;
             bbox = new BoundingBox(bv.getCenter().clone(), sphere.getRadius(),
-                                                           sphere.getRadius(),
-                                                           sphere.getRadius());
-        }else if (bv instanceof BoundingBox){
-            bbox = new BoundingBox( (BoundingBox) bv );
-        }else{
+                    sphere.getRadius(),
+                    sphere.getRadius());
+        } else if (bv instanceof BoundingBox) {
+            bbox = new BoundingBox((BoundingBox) bv);
+        } else {
             throw new UnsupportedCollisionException();
         }
 
@@ -440,18 +444,18 @@ public class BIHTree implements CollisionData {
         return root.intersectWhere(bv, bbox, worldMatrix, this, results);
     }
 
-    public int collideWith(Collidable other, 
-                           Matrix4f worldMatrix,
-                           BoundingVolume worldBound,
-                           CollisionResults results){
-        
-        if (other instanceof Ray){
+    public int collideWith(Collidable other,
+            Matrix4f worldMatrix,
+            BoundingVolume worldBound,
+            CollisionResults results) {
+
+        if (other instanceof Ray) {
             Ray ray = (Ray) other;
             return collideWithRay(ray, worldMatrix, worldBound, results);
-        }else if (other instanceof BoundingVolume){
+        } else if (other instanceof BoundingVolume) {
             BoundingVolume bv = (BoundingVolume) other;
             return collideWithBoundingVolume(bv, worldMatrix, results);
-        }else{
+        } else {
             throw new UnsupportedCollisionException();
         }
     }
@@ -464,7 +468,7 @@ public class BIHTree implements CollisionData {
         oc.write(pointData, "points", null);
         oc.write(triIndices, "indices", null);
     }
-    
+
     public void read(JmeImporter im) throws IOException {
         InputCapsule ic = im.getCapsule(this);
         mesh = (Mesh) ic.readSavable("mesh", null);
@@ -473,5 +477,4 @@ public class BIHTree implements CollisionData {
         pointData = ic.readFloatArray("points", null);
         triIndices = ic.readIntArray("indices", null);
     }
-
 }

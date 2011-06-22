@@ -109,7 +109,6 @@ public class WaterFilter extends Filter {
     private boolean useCaustics = true;
     private boolean useRefraction = true;
     private float time = 0;
-    private float savedTpf = 0;
     private float reflectionDisplace = 30;
     private float foamIntensity = 0.5f;
     private boolean underWater;
@@ -168,7 +167,7 @@ public class WaterFilter extends Filter {
                 sceneCam.getFrustumTop(),
                 sceneCam.getFrustumBottom());
         TempVars vars = TempVars.get();
-        assert vars.lock();
+
 
         vars.vect1.set(sceneCam.getLocation()).addLocal(sceneCam.getUp());
         float planeDistance = plane.pseudoDistance(vars.vect1);
@@ -176,8 +175,8 @@ public class WaterFilter extends Filter {
         vars.vect3.set(vars.vect1.subtractLocal(vars.vect2)).subtractLocal(loc).normalizeLocal().negateLocal();
 
         reflectionCam.lookAt(targetLocation, vars.vect3);
+        vars.release();
 
-        assert vars.unlock();
         if (inv) {
             reflectionCam.setAxes(reflectionCam.getLeft().negateLocal(), reflectionCam.getUp(), reflectionCam.getDirection().negateLocal());
         }

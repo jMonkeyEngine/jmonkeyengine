@@ -90,14 +90,14 @@ public class DebugShapeFactory {
 
                 // apply rotation
                 TempVars vars = TempVars.get();
-                assert vars.lock();
+
                 Matrix3f tempRot = vars.tempMat3;
 
                 tempRot.set(geometry.getLocalRotation());
                 childCollisionShape.rotation.mult(tempRot, tempRot);
                 geometry.setLocalRotation(tempRot);
 
-                assert vars.unlock();
+                vars.release();
 
                 node.attachChild(geometry);
             }
@@ -120,17 +120,15 @@ public class DebugShapeFactory {
         return geom;
     }
 
-    public static Mesh getDebugMesh(CollisionShape shape){
-        Mesh mesh=null;
-        if(shape.getCShape() instanceof ConvexShape){
-            mesh=new Mesh();
-            mesh.setBuffer(Type.Position, 3, getVertices((ConvexShape)shape.getCShape()));
+    public static Mesh getDebugMesh(CollisionShape shape) {
+        Mesh mesh = null;
+        if (shape.getCShape() instanceof ConvexShape) {
+            mesh = new Mesh();
+            mesh.setBuffer(Type.Position, 3, getVertices((ConvexShape) shape.getCShape()));
             mesh.getFloatBuffer(Type.Position).clear();
-        }
-        else if(shape.getCShape() instanceof ConcaveShape)
-        {
-            mesh=new Mesh();
-            mesh.setBuffer(Type.Position, 3, getVertices((ConcaveShape)shape.getCShape()));
+        } else if (shape.getCShape() instanceof ConcaveShape) {
+            mesh = new Mesh();
+            mesh.setBuffer(Type.Position, 3, getVertices((ConcaveShape) shape.getCShape()));
             mesh.getFloatBuffer(Type.Position).clear();
         }
         return mesh;

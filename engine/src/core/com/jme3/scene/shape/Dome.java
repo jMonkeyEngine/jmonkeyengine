@@ -29,10 +29,8 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 // $Id: Dome.java 4131 2009-03-19 20:15:28Z blaine.dev $
 package com.jme3.scene.shape;
-
 
 import com.jme3.scene.*;
 import com.jme3.export.JmeImporter;
@@ -58,15 +56,11 @@ import java.nio.ShortBuffer;
 public class Dome extends Mesh {
 
     private int planes;
-
     private int radialSamples;
-
     /** The radius of the dome */
     private float radius;
-
     /** The center of the dome */
     private Vector3f center;
-    
     private boolean outsideView = true;
 
     /**
@@ -202,7 +196,7 @@ public class Dome extends Mesh {
         FloatBuffer nb = BufferUtils.createVector3Buffer(vertCount);
         FloatBuffer tb = BufferUtils.createVector2Buffer(vertCount);
         setBuffer(Type.Position, 3, vb);
-        setBuffer(Type.Normal,   3, nb);
+        setBuffer(Type.Normal, 3, nb);
         setBuffer(Type.TexCoord, 2, tb);
 
         // generate geometry
@@ -220,7 +214,6 @@ public class Dome extends Mesh {
         }
 
         TempVars vars = TempVars.get();
-        assert vars.lock();
         Vector3f tempVc = vars.vect3;
         Vector3f tempVb = vars.vect2;
         Vector3f tempVa = vars.vect1;
@@ -251,10 +244,11 @@ public class Dome extends Mesh {
                 BufferUtils.populateFromBuffer(tempVa, vb, i);
                 kNormal = tempVa.subtractLocal(center);
                 kNormal.normalizeLocal();
-                if (outsideView)
+                if (outsideView) {
                     nb.put(kNormal.x).put(kNormal.y).put(kNormal.z);
-                else
+                } else {
                     nb.put(-kNormal.x).put(-kNormal.y).put(-kNormal.z);
+                }
 
                 tb.put(fRadialFraction).put(fYFraction);
             }
@@ -263,7 +257,7 @@ public class Dome extends Mesh {
             tb.put(1.0f).put(fYFraction);
         }
 
-        assert vars.unlock();
+        vars.release();
 
         // pole
         vb.put(center.x).put(center.y + radius).put(center.z);
@@ -274,7 +268,7 @@ public class Dome extends Mesh {
         int triCount = (planes - 2) * radialSamples * 2 + radialSamples;
         ShortBuffer ib = BufferUtils.createShortBuffer(3 * triCount);
         setBuffer(Type.Index, 3, ib);
-        
+
         // generate connectivity
         int index = 0;
         // Generate only for middle planes
@@ -282,21 +276,21 @@ public class Dome extends Mesh {
             int bottomPlaneStart = ((plane - 1) * (radialSamples + 1));
             int topPlaneStart = (plane * (radialSamples + 1));
             for (int sample = 0; sample < radialSamples; sample++, index += 6) {
-                ib.put((short)(bottomPlaneStart + sample));
-                ib.put((short)(topPlaneStart + sample));
-                ib.put((short)(bottomPlaneStart + sample + 1));
-                ib.put((short)(bottomPlaneStart + sample + 1));
-                ib.put((short)(topPlaneStart + sample));
-                ib.put((short)(topPlaneStart + sample + 1));
+                ib.put((short) (bottomPlaneStart + sample));
+                ib.put((short) (topPlaneStart + sample));
+                ib.put((short) (bottomPlaneStart + sample + 1));
+                ib.put((short) (bottomPlaneStart + sample + 1));
+                ib.put((short) (topPlaneStart + sample));
+                ib.put((short) (topPlaneStart + sample + 1));
             }
         }
 
         // pole triangles
         int bottomPlaneStart = (planes - 2) * (radialSamples + 1);
         for (int samples = 0; samples < radialSamples; samples++, index += 3) {
-            ib.put((short)(bottomPlaneStart + samples));
-            ib.put((short)(vertCount - 1));
-            ib.put((short)(bottomPlaneStart + samples + 1));
+            ib.put((short) (bottomPlaneStart + samples));
+            ib.put((short) (vertCount - 1));
+            ib.put((short) (bottomPlaneStart + samples + 1));
         }
 
         updateBound();
@@ -321,5 +315,4 @@ public class Dome extends Mesh {
         capsule.write(radius, "radius", 0);
         capsule.write(center, "center", Vector3f.ZERO);
     }
-
 }

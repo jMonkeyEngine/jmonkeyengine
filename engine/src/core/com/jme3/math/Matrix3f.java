@@ -29,7 +29,6 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package com.jme3.math;
 
 import com.jme3.export.InputCapsule;
@@ -55,12 +54,10 @@ import java.util.logging.Logger;
 public final class Matrix3f implements Savable, Cloneable {
 
     private static final Logger logger = Logger.getLogger(Matrix3f.class.getName());
-
     protected float m00, m01, m02;
     protected float m10, m11, m12;
     protected float m20, m21, m22;
-
-    public static final Matrix3f ZERO = new Matrix3f(0,0,0,0,0,0,0,0,0);
+    public static final Matrix3f ZERO = new Matrix3f(0, 0, 0, 0, 0, 0, 0, 0, 0);
     public static final Matrix3f IDENTITY = new Matrix3f();
 
     /**
@@ -174,24 +171,33 @@ public final class Matrix3f implements Savable, Cloneable {
     @SuppressWarnings("fallthrough")
     public float get(int i, int j) {
         switch (i) {
-        case 0:
-            switch (j) {
-            case 0: return m00;
-            case 1: return m01;
-            case 2: return m02;
-            }
-        case 1:
-            switch (j) {
-            case 0: return m10;
-            case 1: return m11;
-            case 2: return m12;
-            }
-        case 2:
-            switch (j) {
-            case 0: return m20;
-            case 1: return m21;
-            case 2: return m22;
-            }
+            case 0:
+                switch (j) {
+                    case 0:
+                        return m00;
+                    case 1:
+                        return m01;
+                    case 2:
+                        return m02;
+                }
+            case 1:
+                switch (j) {
+                    case 0:
+                        return m10;
+                    case 1:
+                        return m11;
+                    case 2:
+                        return m12;
+                }
+            case 2:
+                switch (j) {
+                    case 0:
+                        return m20;
+                    case 1:
+                        return m21;
+                    case 2:
+                        return m22;
+                }
         }
 
         logger.warning("Invalid matrix index.");
@@ -220,8 +226,7 @@ public final class Matrix3f implements Savable, Cloneable {
                 data[6] = m20;
                 data[7] = m21;
                 data[8] = m22;
-            }
-            else {
+            } else {
                 data[0] = m00;
                 data[1] = m10;
                 data[2] = m20;
@@ -232,8 +237,7 @@ public final class Matrix3f implements Savable, Cloneable {
                 data[7] = m12;
                 data[8] = m22;
             }
-        }
-        else if (data.length == 16) {
+        } else if (data.length == 16) {
             if (rowMajor) {
                 data[0] = m00;
                 data[1] = m01;
@@ -244,8 +248,7 @@ public final class Matrix3f implements Savable, Cloneable {
                 data[8] = m20;
                 data[9] = m21;
                 data[10] = m22;
-            }
-            else {
+            } else {
                 data[0] = m00;
                 data[1] = m10;
                 data[2] = m20;
@@ -256,8 +259,7 @@ public final class Matrix3f implements Savable, Cloneable {
                 data[9] = m12;
                 data[10] = m22;
             }
-        }
-        else {
+        } else {
             throw new IndexOutOfBoundsException("Array size must be 9 or 16 in Matrix3f.get().");
         }
     }
@@ -286,26 +288,28 @@ public final class Matrix3f implements Savable, Cloneable {
      * @return the column specified by the index.
      */
     public Vector3f getColumn(int i, Vector3f store) {
-        if (store == null) store = new Vector3f();
+        if (store == null) {
+            store = new Vector3f();
+        }
         switch (i) {
-        case 0:
-            store.x = m00;
-            store.y = m10;
-            store.z = m20;
-            break;
-        case 1:
-            store.x = m01;
-            store.y = m11;
-            store.z = m21;
-            break;
-        case 2:
-            store.x = m02;
-            store.y = m12;
-            store.z = m22;
-            break;
-        default:
-            logger.warning("Invalid column index.");
-            throw new IllegalArgumentException("Invalid column index. " + i);
+            case 0:
+                store.x = m00;
+                store.y = m10;
+                store.z = m20;
+                break;
+            case 1:
+                store.x = m01;
+                store.y = m11;
+                store.z = m21;
+                break;
+            case 2:
+                store.x = m02;
+                store.y = m12;
+                store.z = m22;
+                break;
+            default:
+                logger.warning("Invalid column index.");
+                throw new IllegalArgumentException("Invalid column index. " + i);
         }
         return store;
     }
@@ -334,26 +338,28 @@ public final class Matrix3f implements Savable, Cloneable {
      * @return the row specified by the index.
      */
     public Vector3f getRow(int i, Vector3f store) {
-        if (store == null) store = new Vector3f();
+        if (store == null) {
+            store = new Vector3f();
+        }
         switch (i) {
-        case 0:
-            store.x = m00;
-            store.y = m01;
-            store.z = m02;
-            break;
-        case 1:
-            store.x = m10;
-            store.y = m11;
-            store.z = m12;
-            break;
-        case 2:
-            store.x = m20;
-            store.y = m21;
-            store.z = m22;
-            break;
-        default:
-            logger.warning("Invalid row index.");
-            throw new IllegalArgumentException("Invalid row index. " + i);
+            case 0:
+                store.x = m00;
+                store.y = m01;
+                store.z = m02;
+                break;
+            case 1:
+                store.x = m10;
+                store.y = m11;
+                store.z = m12;
+                break;
+            case 2:
+                store.x = m20;
+                store.y = m21;
+                store.z = m22;
+                break;
+            default:
+                logger.warning("Invalid row index.");
+                throw new IllegalArgumentException("Invalid row index. " + i);
         }
         return store;
     }
@@ -394,19 +400,19 @@ public final class Matrix3f implements Savable, Cloneable {
 //            fb.put(m10).put(m11).put(m12);
 //            fb.put(m20).put(m21).put(m22);
 //        }
-        
+
         TempVars vars = TempVars.get();
-        assert vars.lock();
-        
+
+
         fillFloatArray(vars.matrixWrite, columnMajor);
         fb.put(vars.matrixWrite, 0, 9);
-        
-        assert vars.unlock();
-        
+
+        vars.release();
+
         return fb;
     }
-    
-    public void fillFloatArray(float[] f, boolean columnMajor){
+
+    public void fillFloatArray(float[] f, boolean columnMajor) {
         if (columnMajor) {
             f[ 0] = m00;
             f[ 1] = m10;
@@ -417,7 +423,7 @@ public final class Matrix3f implements Savable, Cloneable {
             f[ 6] = m02;
             f[ 7] = m12;
             f[ 8] = m22;
-        }else{
+        } else {
             f[ 0] = m00;
             f[ 1] = m01;
             f[ 2] = m02;
@@ -448,28 +454,27 @@ public final class Matrix3f implements Savable, Cloneable {
             return this;
         }
         switch (i) {
-        case 0:
-            m00 = column.x;
-            m10 = column.y;
-            m20 = column.z;
-            break;
-        case 1:
-            m01 = column.x;
-            m11 = column.y;
-            m21 = column.z;
-            break;
-        case 2:
-            m02 = column.x;
-            m12 = column.y;
-            m22 = column.z;
-            break;
-        default:
-            logger.warning("Invalid column index.");
-            throw new IllegalArgumentException("Invalid column index. " + i);
+            case 0:
+                m00 = column.x;
+                m10 = column.y;
+                m20 = column.z;
+                break;
+            case 1:
+                m01 = column.x;
+                m11 = column.y;
+                m21 = column.z;
+                break;
+            case 2:
+                m02 = column.x;
+                m12 = column.y;
+                m22 = column.z;
+                break;
+            default:
+                logger.warning("Invalid column index.");
+                throw new IllegalArgumentException("Invalid column index. " + i);
         }
         return this;
     }
-
 
     /**
      * 
@@ -489,24 +494,24 @@ public final class Matrix3f implements Savable, Cloneable {
             return this;
         }
         switch (i) {
-        case 0:
-            m00 = row.x;
-            m01 = row.y;
-            m02 = row.z;
-            break;
-        case 1:
-            m10 = row.x;
-            m11 = row.y;
-            m12 = row.z;
-            break;
-        case 2:
-            m20 = row.x;
-            m21 = row.y;
-            m22 = row.z;
-            break;
-        default:
-            logger.warning("Invalid row index.");
-            throw new IllegalArgumentException("Invalid row index. " + i);
+            case 0:
+                m00 = row.x;
+                m01 = row.y;
+                m02 = row.z;
+                break;
+            case 1:
+                m10 = row.x;
+                m11 = row.y;
+                m12 = row.z;
+                break;
+            case 2:
+                m20 = row.x;
+                m21 = row.y;
+                m22 = row.z;
+                break;
+            default:
+                logger.warning("Invalid row index.");
+                throw new IllegalArgumentException("Invalid row index. " + i);
         }
         return this;
     }
@@ -527,24 +532,42 @@ public final class Matrix3f implements Savable, Cloneable {
     @SuppressWarnings("fallthrough")
     public Matrix3f set(int i, int j, float value) {
         switch (i) {
-        case 0:
-            switch (j) {
-            case 0: m00 = value; return this;
-            case 1: m01 = value; return this;
-            case 2: m02 = value; return this;
-            }
-        case 1:
-            switch (j) {
-            case 0: m10 = value; return this;
-            case 1: m11 = value; return this;
-            case 2: m12 = value; return this;
-            }
-        case 2:
-            switch (j) {
-            case 0: m20 = value; return this;
-            case 1: m21 = value; return this;
-            case 2: m22 = value; return this;
-            }
+            case 0:
+                switch (j) {
+                    case 0:
+                        m00 = value;
+                        return this;
+                    case 1:
+                        m01 = value;
+                        return this;
+                    case 2:
+                        m02 = value;
+                        return this;
+                }
+            case 1:
+                switch (j) {
+                    case 0:
+                        m10 = value;
+                        return this;
+                    case 1:
+                        m11 = value;
+                        return this;
+                    case 2:
+                        m12 = value;
+                        return this;
+                }
+            case 2:
+                switch (j) {
+                    case 0:
+                        m20 = value;
+                        return this;
+                    case 1:
+                        m21 = value;
+                        return this;
+                    case 2:
+                        m22 = value;
+                        return this;
+                }
         }
 
         logger.warning("Invalid matrix index.");
@@ -563,8 +586,10 @@ public final class Matrix3f implements Savable, Cloneable {
      * @return this
      */
     public Matrix3f set(float[][] matrix) {
-        if (matrix.length != 3 || matrix[0].length != 3) { throw new IllegalArgumentException(
-        "Array must be of size 9."); }
+        if (matrix.length != 3 || matrix[0].length != 3) {
+            throw new IllegalArgumentException(
+                    "Array must be of size 9.");
+        }
 
         m00 = matrix[0][0];
         m01 = matrix[0][1];
@@ -626,29 +651,31 @@ public final class Matrix3f implements Savable, Cloneable {
      * @return this
      */
     public Matrix3f set(float[] matrix, boolean rowMajor) {
-        if (matrix.length != 9) throw new IllegalArgumentException(
-                "Array must be of size 9.");
+        if (matrix.length != 9) {
+            throw new IllegalArgumentException(
+                    "Array must be of size 9.");
+        }
 
         if (rowMajor) {
-	        m00 = matrix[0];
-	        m01 = matrix[1];
-	        m02 = matrix[2];
-	        m10 = matrix[3];
-	        m11 = matrix[4];
-	        m12 = matrix[5];
-	        m20 = matrix[6];
-	        m21 = matrix[7];
-	        m22 = matrix[8];
+            m00 = matrix[0];
+            m01 = matrix[1];
+            m02 = matrix[2];
+            m10 = matrix[3];
+            m11 = matrix[4];
+            m12 = matrix[5];
+            m20 = matrix[6];
+            m21 = matrix[7];
+            m22 = matrix[8];
         } else {
-	        m00 = matrix[0];
-	        m01 = matrix[3];
-	        m02 = matrix[6];
-	        m10 = matrix[1];
-	        m11 = matrix[4];
-	        m12 = matrix[7];
-	        m20 = matrix[2];
-	        m21 = matrix[5];
-	        m22 = matrix[8];
+            m00 = matrix[0];
+            m01 = matrix[3];
+            m02 = matrix[6];
+            m10 = matrix[1];
+            m11 = matrix[4];
+            m12 = matrix[7];
+            m20 = matrix[2];
+            m21 = matrix[5];
+            m22 = matrix[8];
         }
         return this;
     }
@@ -681,10 +708,9 @@ public final class Matrix3f implements Savable, Cloneable {
      * @return true if this matrix is identity
      */
     public boolean isIdentity() {
-        return 
-        (m00 == 1 && m01 == 0 && m02 == 0) &&
-        (m10 == 0 && m11 == 1 && m12 == 0) &&
-        (m20 == 0 && m21 == 0 && m22 == 1);
+        return (m00 == 1 && m01 == 0 && m02 == 0)
+                && (m10 == 0 && m11 == 1 && m12 == 0)
+                && (m20 == 0 && m21 == 0 && m22 == 1);
     }
 
     /**
@@ -714,26 +740,26 @@ public final class Matrix3f implements Savable, Cloneable {
     public void fromAngleNormalAxis(float angle, Vector3f axis) {
         float fCos = FastMath.cos(angle);
         float fSin = FastMath.sin(angle);
-        float fOneMinusCos = ((float)1.0)-fCos;
-        float fX2 = axis.x*axis.x;
-        float fY2 = axis.y*axis.y;
-        float fZ2 = axis.z*axis.z;
-        float fXYM = axis.x*axis.y*fOneMinusCos;
-        float fXZM = axis.x*axis.z*fOneMinusCos;
-        float fYZM = axis.y*axis.z*fOneMinusCos;
-        float fXSin = axis.x*fSin;
-        float fYSin = axis.y*fSin;
-        float fZSin = axis.z*fSin;
-        
-        m00 = fX2*fOneMinusCos+fCos;
-        m01 = fXYM-fZSin;
-        m02 = fXZM+fYSin;
-        m10 = fXYM+fZSin;
-        m11 = fY2*fOneMinusCos+fCos;
-        m12 = fYZM-fXSin;
-        m20 = fXZM-fYSin;
-        m21 = fYZM+fXSin;
-        m22 = fZ2*fOneMinusCos+fCos;
+        float fOneMinusCos = ((float) 1.0) - fCos;
+        float fX2 = axis.x * axis.x;
+        float fY2 = axis.y * axis.y;
+        float fZ2 = axis.z * axis.z;
+        float fXYM = axis.x * axis.y * fOneMinusCos;
+        float fXZM = axis.x * axis.z * fOneMinusCos;
+        float fYZM = axis.y * axis.z * fOneMinusCos;
+        float fXSin = axis.x * fSin;
+        float fYSin = axis.y * fSin;
+        float fZSin = axis.z * fSin;
+
+        m00 = fX2 * fOneMinusCos + fCos;
+        m01 = fXYM - fZSin;
+        m02 = fXZM + fYSin;
+        m10 = fXYM + fZSin;
+        m11 = fY2 * fOneMinusCos + fCos;
+        m12 = fYZM - fXSin;
+        m20 = fXZM - fYSin;
+        m21 = fYZM + fXSin;
+        m22 = fZ2 * fOneMinusCos + fCos;
     }
 
     /**
@@ -761,12 +787,14 @@ public final class Matrix3f implements Savable, Cloneable {
      * @return a matrix3f object containing the result of this operation
      */
     public Matrix3f mult(Matrix3f mat, Matrix3f product) {
-        
+
         float temp00, temp01, temp02;
         float temp10, temp11, temp12;
         float temp20, temp21, temp22;
-        
-        if (product == null) product = new Matrix3f();
+
+        if (product == null) {
+            product = new Matrix3f();
+        }
         temp00 = m00 * mat.m00 + m01 * mat.m10 + m02 * mat.m20;
         temp01 = m00 * mat.m01 + m01 * mat.m11 + m02 * mat.m21;
         temp02 = m00 * mat.m02 + m01 * mat.m12 + m02 * mat.m22;
@@ -776,7 +804,7 @@ public final class Matrix3f implements Savable, Cloneable {
         temp20 = m20 * mat.m00 + m21 * mat.m10 + m22 * mat.m20;
         temp21 = m20 * mat.m01 + m21 * mat.m11 + m22 * mat.m21;
         temp22 = m20 * mat.m02 + m21 * mat.m12 + m22 * mat.m22;
-        
+
         product.m00 = temp00;
         product.m01 = temp01;
         product.m02 = temp02;
@@ -786,7 +814,7 @@ public final class Matrix3f implements Savable, Cloneable {
         product.m20 = temp20;
         product.m21 = temp21;
         product.m22 = temp22;
-        
+
         return product;
     }
 
@@ -815,7 +843,7 @@ public final class Matrix3f implements Savable, Cloneable {
      * @return The given product vector.
      */
     public Vector3f mult(Vector3f vec, Vector3f product) {
-        
+
         if (null == product) {
             product = new Vector3f();
         }
@@ -862,7 +890,9 @@ public final class Matrix3f implements Savable, Cloneable {
      * @return The passed vector after multiplication
      */
     public Vector3f multLocal(Vector3f vec) {
-        if (vec == null) return null;
+        if (vec == null) {
+            return null;
+        }
         float x = vec.x;
         float y = vec.y;
         vec.x = m00 * x + m01 * y + m02 * vec.z;
@@ -925,23 +955,26 @@ public final class Matrix3f implements Savable, Cloneable {
      * @return The store
      */
     public Matrix3f invert(Matrix3f store) {
-        if (store == null) store = new Matrix3f();
+        if (store == null) {
+            store = new Matrix3f();
+        }
 
         float det = determinant();
-        if ( FastMath.abs(det) <= FastMath.FLT_EPSILON )
+        if (FastMath.abs(det) <= FastMath.FLT_EPSILON) {
             return store.zero();
+        }
 
-        store.m00 = m11*m22 - m12*m21;
-        store.m01 = m02*m21 - m01*m22;
-        store.m02 = m01*m12 - m02*m11;
-        store.m10 = m12*m20 - m10*m22;
-        store.m11 = m00*m22 - m02*m20;
-        store.m12 = m02*m10 - m00*m12;
-        store.m20 = m10*m21 - m11*m20;
-        store.m21 = m01*m20 - m00*m21;
-        store.m22 = m00*m11 - m01*m10;
+        store.m00 = m11 * m22 - m12 * m21;
+        store.m01 = m02 * m21 - m01 * m22;
+        store.m02 = m01 * m12 - m02 * m11;
+        store.m10 = m12 * m20 - m10 * m22;
+        store.m11 = m00 * m22 - m02 * m20;
+        store.m12 = m02 * m10 - m00 * m12;
+        store.m20 = m10 * m21 - m11 * m20;
+        store.m21 = m01 * m20 - m00 * m21;
+        store.m22 = m00 * m11 - m01 * m10;
 
-        store.multLocal(1f/det);
+        store.multLocal(1f / det);
         return store;
     }
 
@@ -952,19 +985,20 @@ public final class Matrix3f implements Savable, Cloneable {
      */
     public Matrix3f invertLocal() {
         float det = determinant();
-        if ( FastMath.abs(det) <= FastMath.FLT_EPSILON )
+        if (FastMath.abs(det) <= FastMath.FLT_EPSILON) {
             return zero();
+        }
 
-        float f00 = m11*m22 - m12*m21;
-        float f01 = m02*m21 - m01*m22;
-        float f02 = m01*m12 - m02*m11;
-        float f10 = m12*m20 - m10*m22;
-        float f11 = m00*m22 - m02*m20;
-        float f12 = m02*m10 - m00*m12;
-        float f20 = m10*m21 - m11*m20;
-        float f21 = m01*m20 - m00*m21;
-        float f22 = m00*m11 - m01*m10;
-        
+        float f00 = m11 * m22 - m12 * m21;
+        float f01 = m02 * m21 - m01 * m22;
+        float f02 = m01 * m12 - m02 * m11;
+        float f10 = m12 * m20 - m10 * m22;
+        float f11 = m00 * m22 - m02 * m20;
+        float f12 = m02 * m10 - m00 * m12;
+        float f20 = m10 * m21 - m11 * m20;
+        float f21 = m01 * m20 - m00 * m21;
+        float f22 = m00 * m11 - m01 * m10;
+
         m00 = f00;
         m01 = f01;
         m02 = f02;
@@ -975,10 +1009,10 @@ public final class Matrix3f implements Savable, Cloneable {
         m21 = f21;
         m22 = f22;
 
-        multLocal(1f/det);
+        multLocal(1f / det);
         return this;
     }
-    
+
     /**
      * Returns a new matrix representing the adjoint of this matrix.
      * 
@@ -987,7 +1021,7 @@ public final class Matrix3f implements Savable, Cloneable {
     public Matrix3f adjoint() {
         return adjoint(null);
     }
-    
+
     /**
      * Places the adjoint of this matrix in store (creates store if null.)
      * 
@@ -996,17 +1030,19 @@ public final class Matrix3f implements Savable, Cloneable {
      * @return store
      */
     public Matrix3f adjoint(Matrix3f store) {
-        if (store == null) store = new Matrix3f();
+        if (store == null) {
+            store = new Matrix3f();
+        }
 
-        store.m00 = m11*m22 - m12*m21;
-        store.m01 = m02*m21 - m01*m22;
-        store.m02 = m01*m12 - m02*m11;
-        store.m10 = m12*m20 - m10*m22;
-        store.m11 = m00*m22 - m02*m20;
-        store.m12 = m02*m10 - m00*m12;
-        store.m20 = m10*m21 - m11*m20;
-        store.m21 = m01*m20 - m00*m21;
-        store.m22 = m00*m11 - m01*m10;
+        store.m00 = m11 * m22 - m12 * m21;
+        store.m01 = m02 * m21 - m01 * m22;
+        store.m02 = m01 * m12 - m02 * m11;
+        store.m10 = m12 * m20 - m10 * m22;
+        store.m11 = m00 * m22 - m02 * m20;
+        store.m12 = m02 * m10 - m00 * m12;
+        store.m20 = m10 * m21 - m11 * m20;
+        store.m21 = m01 * m20 - m00 * m21;
+        store.m22 = m00 * m11 - m01 * m10;
 
         return store;
     }
@@ -1017,10 +1053,10 @@ public final class Matrix3f implements Savable, Cloneable {
      * @return the determinate
      */
     public float determinant() {
-        float fCo00 = m11*m22 - m12*m21;
-        float fCo10 = m12*m20 - m10*m22;
-        float fCo20 = m10*m21 - m11*m20;
-        float fDet = m00*fCo00 + m01*fCo10 + m02*fCo20;
+        float fCo00 = m11 * m22 - m12 * m21;
+        float fCo10 = m12 * m20 - m10 * m22;
+        float fCo20 = m10 * m21 - m11 * m20;
+        float fDet = m00 * fCo00 + m01 * fCo10 + m02 * fCo20;
         return fDet;
     }
 
@@ -1045,7 +1081,7 @@ public final class Matrix3f implements Savable, Cloneable {
     public Matrix3f transpose() {
         return transposeLocal();
     }
-        
+
     /**
      * <code>transposeNew</code> returns a transposed version of this matrix.
      *
@@ -1055,7 +1091,7 @@ public final class Matrix3f implements Savable, Cloneable {
         Matrix3f ret = new Matrix3f(m00, m10, m20, m01, m11, m21, m02, m12, m22);
         return ret;
     }
-    
+
     /**
      * <code>toString</code> returns the string representation of this object.
      * It is in a format of a 3x3 matrix. For example, an identity matrix would
@@ -1119,7 +1155,7 @@ public final class Matrix3f implements Savable, Cloneable {
 
         return hash;
     }
-    
+
     /**
      * are these two matrices the same? they are is they both have the same mXX values.
      *
@@ -1138,17 +1174,35 @@ public final class Matrix3f implements Savable, Cloneable {
         }
 
         Matrix3f comp = (Matrix3f) o;
-        if (Float.compare(m00,comp.m00) != 0) return false;
-        if (Float.compare(m01,comp.m01) != 0) return false;
-        if (Float.compare(m02,comp.m02) != 0) return false;
+        if (Float.compare(m00, comp.m00) != 0) {
+            return false;
+        }
+        if (Float.compare(m01, comp.m01) != 0) {
+            return false;
+        }
+        if (Float.compare(m02, comp.m02) != 0) {
+            return false;
+        }
 
-        if (Float.compare(m10,comp.m10) != 0) return false;
-        if (Float.compare(m11,comp.m11) != 0) return false;
-        if (Float.compare(m12,comp.m12) != 0) return false;
+        if (Float.compare(m10, comp.m10) != 0) {
+            return false;
+        }
+        if (Float.compare(m11, comp.m11) != 0) {
+            return false;
+        }
+        if (Float.compare(m12, comp.m12) != 0) {
+            return false;
+        }
 
-        if (Float.compare(m20,comp.m20) != 0) return false;
-        if (Float.compare(m21,comp.m21) != 0) return false;
-        if (Float.compare(m22,comp.m22) != 0) return false;
+        if (Float.compare(m20, comp.m20) != 0) {
+            return false;
+        }
+        if (Float.compare(m21, comp.m21) != 0) {
+            return false;
+        }
+        if (Float.compare(m22, comp.m22) != 0) {
+            return false;
+        }
 
         return true;
     }
@@ -1178,7 +1232,7 @@ public final class Matrix3f implements Savable, Cloneable {
         m21 = cap.readFloat("m21", 0);
         m22 = cap.readFloat("m22", 1);
     }
-    
+
     /**
      * A function for creating a rotation matrix that rotates a vector called
      * "start" into another vector called "end".
@@ -1278,34 +1332,52 @@ public final class Matrix3f implements Savable, Cloneable {
      *         The scale applied to each of the X, Y and Z output values.
      */
     public void scale(Vector3f scale) {
-    	m00 *= scale.x;
-    	m10 *= scale.x;
-    	m20 *= scale.x;
-    	m01 *= scale.y;
-    	m11 *= scale.y;
-    	m21 *= scale.y;
-    	m02 *= scale.z;
-    	m12 *= scale.z;
-    	m22 *= scale.z;
+        m00 *= scale.x;
+        m10 *= scale.x;
+        m20 *= scale.x;
+        m01 *= scale.y;
+        m11 *= scale.y;
+        m21 *= scale.y;
+        m02 *= scale.z;
+        m12 *= scale.z;
+        m22 *= scale.z;
     }
 
     static boolean equalIdentity(Matrix3f mat) {
-		if (Math.abs(mat.m00 - 1) > 1e-4) return false;
-		if (Math.abs(mat.m11 - 1) > 1e-4) return false;
-		if (Math.abs(mat.m22 - 1) > 1e-4) return false;
+        if (Math.abs(mat.m00 - 1) > 1e-4) {
+            return false;
+        }
+        if (Math.abs(mat.m11 - 1) > 1e-4) {
+            return false;
+        }
+        if (Math.abs(mat.m22 - 1) > 1e-4) {
+            return false;
+        }
 
-		if (Math.abs(mat.m01) > 1e-4) return false;
-		if (Math.abs(mat.m02) > 1e-4) return false;
+        if (Math.abs(mat.m01) > 1e-4) {
+            return false;
+        }
+        if (Math.abs(mat.m02) > 1e-4) {
+            return false;
+        }
 
-		if (Math.abs(mat.m10) > 1e-4) return false;
-		if (Math.abs(mat.m12) > 1e-4) return false;
+        if (Math.abs(mat.m10) > 1e-4) {
+            return false;
+        }
+        if (Math.abs(mat.m12) > 1e-4) {
+            return false;
+        }
 
-		if (Math.abs(mat.m20) > 1e-4) return false;
-		if (Math.abs(mat.m21) > 1e-4) return false;
+        if (Math.abs(mat.m20) > 1e-4) {
+            return false;
+        }
+        if (Math.abs(mat.m21) > 1e-4) {
+            return false;
+        }
 
-		return true;
+        return true;
     }
-    
+
     @Override
     public Matrix3f clone() {
         try {

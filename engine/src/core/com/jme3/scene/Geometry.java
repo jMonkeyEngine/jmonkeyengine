@@ -29,7 +29,6 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package com.jme3.scene;
 
 import com.jme3.asset.AssetNotFoundException;
@@ -60,24 +59,19 @@ import java.util.logging.Logger;
 public class Geometry extends Spatial {
 
     private static final Logger logger = Logger.getLogger(Geometry.class.getName());
-
     protected Mesh mesh;
-
     protected transient int lodLevel = 0;
-
     protected Material material;
-
     /**
      * When true, the geometry's transform will not be applied.
      */
     protected boolean ignoreTransform = false;
-
     protected transient Matrix4f cachedWorldMat = new Matrix4f();
 
     /**
      * Serialization only. Do not use.
      */
-    public Geometry(){
+    public Geometry() {
     }
 
     /**
@@ -87,7 +81,7 @@ public class Geometry extends Spatial {
      * 
      * @param name The name of this geometry
      */
-    public Geometry(String name){
+    public Geometry(String name) {
         super(name);
     }
 
@@ -99,10 +93,11 @@ public class Geometry extends Spatial {
      * @param name The name of this geometry
      * @param mesh The mesh data for this geometry
      */
-    public Geometry(String name, Mesh mesh){
+    public Geometry(String name, Mesh mesh) {
         this(name);
-        if (mesh == null)
+        if (mesh == null) {
             throw new NullPointerException();
+        }
 
         this.mesh = mesh;
     }
@@ -132,12 +127,14 @@ public class Geometry extends Spatial {
      * @param lod The lod level to set
      */
     @Override
-    public void setLodLevel(int lod){
-        if (mesh.getNumLodLevels() == 0)
+    public void setLodLevel(int lod) {
+        if (mesh.getNumLodLevels() == 0) {
             throw new IllegalStateException("LOD levels are not set on this mesh");
+        }
 
-        if (lod < 0 || lod >= mesh.getNumLodLevels())
-            throw new IllegalArgumentException("LOD level is out of range: "+lod);
+        if (lod < 0 || lod >= mesh.getNumLodLevels()) {
+            throw new IllegalArgumentException("LOD level is out of range: " + lod);
+        }
 
         lodLevel = lod;
     }
@@ -147,7 +144,7 @@ public class Geometry extends Spatial {
      * 
      * @return the LOD level set
      */
-    public int getLodLevel(){
+    public int getLodLevel() {
         return lodLevel;
     }
 
@@ -158,7 +155,7 @@ public class Geometry extends Spatial {
      * 
      * @see Mesh#getVertexCount() 
      */
-    public int getVertexCount(){
+    public int getVertexCount() {
         return mesh.getVertexCount();
     }
 
@@ -169,7 +166,7 @@ public class Geometry extends Spatial {
      * 
      * @see Mesh#getTriangleCount() 
      */
-    public int getTriangleCount(){
+    public int getTriangleCount() {
         return mesh.getTriangleCount();
     }
 
@@ -180,9 +177,10 @@ public class Geometry extends Spatial {
      * 
      * @throws IllegalArgumentException If mesh is null
      */
-    public void setMesh(Mesh mesh){
-        if (mesh == null)
+    public void setMesh(Mesh mesh) {
+        if (mesh == null) {
             throw new IllegalArgumentException();
+        }
 
         this.mesh = mesh;
         setBoundRefresh();
@@ -195,7 +193,7 @@ public class Geometry extends Spatial {
      * 
      * @see #setMesh(com.jme3.scene.Mesh) 
      */
-    public Mesh getMesh(){
+    public Mesh getMesh() {
         return mesh;
     }
 
@@ -205,7 +203,7 @@ public class Geometry extends Spatial {
      * @param material the material to use for this geometry
      */
     @Override
-    public void setMaterial(Material material){
+    public void setMaterial(Material material) {
         this.material = material;
     }
 
@@ -216,14 +214,14 @@ public class Geometry extends Spatial {
      * 
      * @see #setMaterial(com.jme3.material.Material) 
      */
-    public Material getMaterial(){
+    public Material getMaterial() {
         return material;
     }
 
     /**
      * @return The bounding volume of the mesh, in model space.
      */
-    public BoundingVolume getModelBound(){
+    public BoundingVolume getModelBound() {
         return mesh.getBound();
     }
 
@@ -246,22 +244,23 @@ public class Geometry extends Spatial {
     @Override
     protected void updateWorldBound() {
         super.updateWorldBound();
-        if (mesh == null)
-            throw new NullPointerException("Geometry: "+getName()+" has null mesh");
+        if (mesh == null) {
+            throw new NullPointerException("Geometry: " + getName() + " has null mesh");
+        }
 
         if (mesh.getBound() != null) {
-            if (ignoreTransform){
+            if (ignoreTransform) {
                 // we do not transform the model bound by the world transform,
                 // just use the model bound as-is
                 worldBound = mesh.getBound().clone(worldBound);
-            }else{
+            } else {
                 worldBound = mesh.getBound().transform(worldTransform, worldBound);
             }
         }
     }
 
     @Override
-    protected void updateWorldTransforms(){
+    protected void updateWorldTransforms() {
         super.updateWorldTransforms();
 
         computeWorldMatrix();
@@ -274,7 +273,7 @@ public class Geometry extends Spatial {
      * Recomputes the matrix returned by {@link Geometry#getWorldMatrix() }.
      * This will require a localized transform update for this geometry.
      */
-    public void computeWorldMatrix(){
+    public void computeWorldMatrix() {
         // Force a local update of the geometry's transform
         checkDoTransformUpdate();
 
@@ -283,12 +282,12 @@ public class Geometry extends Spatial {
         cachedWorldMat.setRotationQuaternion(worldTransform.getRotation());
         cachedWorldMat.setTranslation(worldTransform.getTranslation());
 
-        assert TempVars.get().lock();
-        Matrix4f scaleMat = TempVars.get().tempMat4;
+        TempVars vars = TempVars.get();
+        Matrix4f scaleMat = vars.tempMat4;
         scaleMat.loadIdentity();
         scaleMat.scale(worldTransform.getScale());
         cachedWorldMat.multLocal(scaleMat);
-        assert TempVars.get().unlock();
+        vars.release();
     }
 
     /**
@@ -300,7 +299,7 @@ public class Geometry extends Spatial {
      * 
      * @return Matrix to transform from local space to world space
      */
-    public Matrix4f getWorldMatrix(){
+    public Matrix4f getWorldMatrix() {
         return cachedWorldMat;
     }
 
@@ -319,33 +318,33 @@ public class Geometry extends Spatial {
         updateModelBound();
     }
 
-    public int collideWith(Collidable other, CollisionResults results){
+    public int collideWith(Collidable other, CollisionResults results) {
         // Force bound to update
         checkDoBoundUpdate();
         // Update transform, and compute cached world matrix
         computeWorldMatrix();
-        
+
         assert (refreshFlags & (RF_BOUND | RF_TRANSFORM)) == 0;
 
-        if (mesh != null){
+        if (mesh != null) {
             // NOTE: BIHTree in mesh already checks collision with the
             // mesh's bound
             int prevSize = results.size();
             int added = mesh.collideWith(other, cachedWorldMat, worldBound, results);
             int newSize = results.size();
-            for (int i = prevSize; i < newSize; i++){
+            for (int i = prevSize; i < newSize; i++) {
                 results.getCollisionDirect(i).setGeometry(this);
             }
             return added;
         }
         return 0;
     }
-    
+
     @Override
     public void depthFirstTraversal(SceneGraphVisitor visitor) {
         visitor.visit(this);
     }
-    
+
     @Override
     protected void breadthFirstTraversal(SceneGraphVisitor visitor, Queue<Spatial> queue) {
     }
@@ -358,20 +357,21 @@ public class Geometry extends Spatial {
      * and normals are deep copied.
      */
     @Override
-    public Geometry clone(boolean cloneMaterial){
+    public Geometry clone(boolean cloneMaterial) {
         Geometry geomClone = (Geometry) super.clone(cloneMaterial);
         geomClone.cachedWorldMat = cachedWorldMat.clone();
-        if (material != null){
-            if (cloneMaterial)
+        if (material != null) {
+            if (cloneMaterial) {
                 geomClone.material = material.clone();
-            else
+            } else {
                 geomClone.material = material;
+            }
         }
-        
-        if (mesh != null && mesh.getBuffer(Type.BindPosePosition) != null){
+
+        if (mesh != null && mesh.getBuffer(Type.BindPosePosition) != null) {
             geomClone.mesh = mesh.cloneForAnim();
         }
-        
+
         return geomClone;
     }
 
@@ -383,7 +383,7 @@ public class Geometry extends Spatial {
      * and normals are deep copied.
      */
     @Override
-    public Geometry clone(){
+    public Geometry clone() {
         return clone(true);
     }
 
@@ -393,7 +393,7 @@ public class Geometry extends Spatial {
      * with the vertexbuffer data duplicated.
      */
     @Override
-    public Spatial deepClone(){
+    public Spatial deepClone() {
         Geometry geomClone = clone(true);
         geomClone.mesh = mesh.deepClone();
         return geomClone;
@@ -404,7 +404,7 @@ public class Geometry extends Spatial {
         super.write(ex);
         OutputCapsule oc = ex.getCapsule(this);
         oc.write(mesh, "mesh", null);
-        if (material != null){
+        if (material != null) {
             oc.write(material.getAssetName(), "materialName", null);
         }
         oc.write(material, "material", null);
@@ -419,22 +419,21 @@ public class Geometry extends Spatial {
 
         material = null;
         String matName = ic.readString("materialName", null);
-        if (matName != null){
+        if (matName != null) {
             // Material name is set,
             // Attempt to load material via J3M
             try {
                 material = im.getAssetManager().loadMaterial(matName);
-            } catch (AssetNotFoundException ex){
+            } catch (AssetNotFoundException ex) {
                 // Cannot find J3M file.
                 logger.log(Level.FINE, "Could not load J3M file {0} for Geometry.",
                         matName);
             }
         }
         // If material is NULL, try to load it from the geometry
-        if (material == null){
+        if (material == null) {
             material = (Material) ic.readSavable("material", null);
         }
         ignoreTransform = ic.readBoolean("ignoreTransform", false);
     }
-
 }

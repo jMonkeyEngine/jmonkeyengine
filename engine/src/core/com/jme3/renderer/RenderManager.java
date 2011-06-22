@@ -75,7 +75,6 @@ import java.util.logging.Logger;
 public class RenderManager {
 
     private static final Logger logger = Logger.getLogger(RenderManager.class.getName());
-    
     private Renderer renderer;
     private Timer timer;
     private ArrayList<ViewPort> preViewPorts = new ArrayList<ViewPort>();
@@ -344,7 +343,6 @@ public class RenderManager {
     public void updateUniformBindings(List<Uniform> params) {
         // assums worldMatrix is properly set.
         TempVars vars = TempVars.get();
-        assert vars.lock();
 
         Matrix4f tempMat4 = vars.tempMat4;
         Matrix3f tempMat3 = vars.tempMat3;
@@ -465,7 +463,7 @@ public class RenderManager {
             }
         }
 
-        assert vars.unlock();
+        vars.release();
     }
 
     /**
@@ -579,7 +577,7 @@ public class RenderManager {
     public void setHandleTranslucentBucket(boolean handleTranslucentBucket) {
         this.handleTranlucentBucket = handleTranslucentBucket;
     }
-    
+
     /**
      * Internal use only. Sets the world matrix to use for future
      * rendering. This has no effect unless objects are rendered manually
@@ -1167,5 +1165,4 @@ public class RenderManager {
             renderViewPort(postViewPorts.get(i), tpf);
         }
     }
-
 }

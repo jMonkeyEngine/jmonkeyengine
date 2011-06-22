@@ -98,7 +98,6 @@ public class Camera implements Savable, Cloneable {
          */
         Intersects;
     }
-    
     /**
      * LEFT_PLANE represents the left plane of the camera frustum.
      */
@@ -131,7 +130,6 @@ public class Camera implements Savable, Cloneable {
      * MAX_WORLD_PLANES holds the maximum planes allowed by the system.
      */
     private static final int MAX_WORLD_PLANES = 6;
-    
     /**
      * Camera's location
      */
@@ -164,14 +162,12 @@ public class Camera implements Savable, Cloneable {
      * Distance from camera to bottom frustum plane.
      */
     protected float frustumBottom;
-    
     //Temporary values computed in onFrustumChange that are needed if a
     //call is made to onFrameChange.
     protected float[] coeffLeft;
     protected float[] coeffRight;
     protected float[] coeffBottom;
     protected float[] coeffTop;
-    
     //view port coordinates
     /**
      * Percent value on display where horizontal viewing starts for this camera.
@@ -197,13 +193,11 @@ public class Camera implements Savable, Cloneable {
      * Array holding the planes that this camera will check for culling.
      */
     protected Plane[] worldPlane;
-    
     /**
      * A mask value set during contains() that allows fast culling of a Node's
      * children.
      */
     private int planeState;
-    
     protected int width;
     protected int height;
     protected boolean viewportChanged = true;
@@ -758,10 +752,9 @@ public class Camera implements Savable, Cloneable {
      */
     public void lookAt(Vector3f pos, Vector3f worldUpVector) {
         TempVars vars = TempVars.get();
-        assert vars.lock();
-        Vector3f newDirection = TempVars.get().vect1;
-        Vector3f newUp = TempVars.get().vect2;
-        Vector3f newLeft = TempVars.get().vect3;
+        Vector3f newDirection = vars.vect1;
+        Vector3f newUp = vars.vect2;
+        Vector3f newLeft = vars.vect3;
 
         newDirection.set(pos).subtractLocal(location).normalizeLocal();
 
@@ -783,7 +776,7 @@ public class Camera implements Savable, Cloneable {
 
         this.rotation.fromAxes(newLeft, newUp, newDirection);
         this.rotation.normalizeLocal();
-        assert vars.unlock();
+        vars.release();
 
         onFrameChange();
     }
@@ -1285,15 +1278,15 @@ public class Camera implements Savable, Cloneable {
             store = new Vector3f();
         }
 
-//        assert TempVars.get().lock();
-//        Quaternion tmp_quat = TempVars.get().quat1;
+//        TempVars vars = vars.lock();
+//        Quaternion tmp_quat = vars.quat1;
 //        tmp_quat.set( worldPosition.x, worldPosition.y, worldPosition.z, 1 );
 //        viewProjectionMatrix.mult(tmp_quat, tmp_quat);
 //        tmp_quat.multLocal( 1.0f / tmp_quat.getW() );
 //        store.x = ( ( tmp_quat.getX() + 1 ) * ( viewPortRight - viewPortLeft ) / 2 + viewPortLeft ) * getWidth();
 //        store.y = ( ( tmp_quat.getY() + 1 ) * ( viewPortTop - viewPortBottom ) / 2 + viewPortBottom ) * getHeight();
 //        store.z = ( tmp_quat.getZ() + 1 ) / 2;
-//        assert TempVars.get().unlock();
+//        vars.release();
 
         float w = viewProjectionMatrix.multProj(worldPosition, store);
         store.divideLocal(w);

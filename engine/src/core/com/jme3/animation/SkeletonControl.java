@@ -227,7 +227,7 @@ public class SkeletonControl extends AbstractControl implements Savable, Cloneab
         int idxWeights = 0;
 
         TempVars vars = TempVars.get();
-        assert vars.lock();
+
 
         float[] posBuf = vars.skinPositions;
         float[] normBuf = vars.skinNormals;
@@ -284,7 +284,7 @@ public class SkeletonControl extends AbstractControl implements Savable, Cloneab
             fnb.put(normBuf, 0, bufLength);
         }
 
-        assert vars.unlock();
+        vars.release();
 
         vb.updateData(fvb);
         nb.updateData(fnb);

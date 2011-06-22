@@ -82,7 +82,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
      * this spatial.
      */
     public enum CullHint {
-        
+
         /** 
          * Do whatever our parent does. If no parent, default to {@link #Dynamic}.
          */
@@ -340,7 +340,6 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
      */
     public void rotateUpTo(Vector3f newUp) {
         TempVars vars = TempVars.get();
-        assert vars.lock();
 
         Vector3f compVecA = vars.vect1;
         Quaternion q = vars.quat1;
@@ -360,7 +359,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
         q.fromAngleNormalAxis(angle, rotAxis);
         q.mult(rot, rot);
 
-        assert vars.unlock();
+        vars.release();
 
         setTransformRefresh();
     }
@@ -382,9 +381,9 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
         Vector3f worldTranslation = getWorldTranslation();
 
         TempVars vars = TempVars.get();
-        assert vars.lock();
+
         Vector3f compVecA = vars.vect4;
-        assert vars.unlock();
+        vars.release();
 
         compVecA.set(position).subtractLocal(worldTranslation);
         getLocalRotation().lookAt(compVecA, upVector);
@@ -448,7 +447,6 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
             refreshFlags &= ~RF_TRANSFORM;
         } else {
             TempVars vars = TempVars.get();
-            assert vars.lock();
 
             Spatial[] stack = vars.spatialStack;
             Spatial rootNode = this;
@@ -472,7 +470,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
                 i++;
             }
 
-            assert vars.unlock();
+            vars.release();
 
             for (int j = i; j >= 0; j--) {
                 rootNode = stack[j];
@@ -978,11 +976,11 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
      * @return The spatial on which this method is called, e.g <code>this</code>.
      */
     public Spatial rotate(float yaw, float roll, float pitch) {
-        assert TempVars.get().lock();
-        Quaternion q = TempVars.get().quat1;
+        TempVars vars = TempVars.get();
+        Quaternion q = vars.quat1;
         q.fromAngles(yaw, roll, pitch);
         rotate(q);
-        assert TempVars.get().unlock();
+        vars.release();
 
         return this;
     }
@@ -1268,7 +1266,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
         //When backward compatibility won't be needed anymore this can be replaced by : 
         //controls = ic.readSavableArrayList("controlsList", null));
         controls.addAll(0, ic.readSavableArrayList("controlsList", null));
-        
+
         userData = (HashMap<String, Savable>) ic.readStringSavableMap("user_data", null);
     }
 

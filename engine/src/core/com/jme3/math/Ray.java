@@ -29,7 +29,6 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package com.jme3.math;
 
 import com.jme3.bounding.BoundingVolume;
@@ -45,7 +44,6 @@ import com.jme3.export.Savable;
 import com.jme3.util.TempVars;
 import java.io.IOException;
 
-
 /**
  * <code>Ray</code> defines a line segment which has an origin and a direction.
  * That is, a point and an infinite ray is cast from this point. The ray is
@@ -57,19 +55,16 @@ import java.io.IOException;
 public final class Ray implements Savable, Cloneable, Collidable {
 
     //todo: merge with Line?
-
     /** The ray's begining point. */
     public Vector3f origin;
     /** The direction of the ray. */
     public Vector3f direction;
-
     public float limit = Float.POSITIVE_INFINITY;
-    
+
 //    protected static final Vector3f tempVa=new Vector3f();
 //    protected static final Vector3f tempVb=new Vector3f();
 //    protected static final Vector3f tempVc=new Vector3f();
 //    protected static final Vector3f tempVd=new Vector3f();
-
     /**
      * Constructor instantiates a new <code>Ray</code> object. As default, the
      * origin is (0,0,0) and the direction is (0,0,0).
@@ -99,7 +94,6 @@ public final class Ray implements Savable, Cloneable, Collidable {
 //    public boolean intersect(Triangle t) {
 //        return intersect(t.get(0), t.get(1), t.get(2));
 //    }
-
     /**
      * <code>intersect</code> determines if the Ray intersects a triangle
      * defined by the specified points.
@@ -115,7 +109,6 @@ public final class Ray implements Savable, Cloneable, Collidable {
 //    public boolean intersect(Vector3f v0,Vector3f v1,Vector3f v2){
 //        return intersectWhere(v0, v1, v2, null);
 //    }
-
     /**
      * <code>intersectWhere</code> determines if the Ray intersects a triangle. It then
      * stores the point of intersection in the given loc vector
@@ -146,8 +139,8 @@ public final class Ray implements Savable, Cloneable, Collidable {
      * @return true if the ray collides.
      */
     public boolean intersectWhere(Vector3f v0, Vector3f v1, Vector3f v2,
-                                  Vector3f loc) {
-        return intersects(v0, v1, v2, loc, false, false );
+            Vector3f loc) {
+        return intersects(v0, v1, v2, loc, false, false);
     }
 
     /**
@@ -186,8 +179,8 @@ public final class Ray implements Savable, Cloneable, Collidable {
      * @return true if the ray collides.
      */
     public boolean intersectWherePlanar(Vector3f v0, Vector3f v1, Vector3f v2,
-                                        Vector3f loc) {
-        return intersects(v0, v1, v2, loc, true, false );
+            Vector3f loc) {
+        return intersects(v0, v1, v2, loc, true, false);
     }
 
     /**
@@ -206,15 +199,14 @@ public final class Ray implements Savable, Cloneable, Collidable {
      * @param quad
      * @return true if ray intersects triangle
      */
-    private boolean intersects( Vector3f v0, Vector3f v1, Vector3f v2,
-                                Vector3f store, boolean doPlanar, boolean quad ) {
+    private boolean intersects(Vector3f v0, Vector3f v1, Vector3f v2,
+            Vector3f store, boolean doPlanar, boolean quad) {
         TempVars vars = TempVars.get();
-        assert vars.lock();
 
         Vector3f tempVa = vars.vect1,
-                 tempVb = vars.vect2,
-                 tempVc = vars.vect3,
-                 tempVd = vars.vect4;
+                tempVb = vars.vect2,
+                tempVc = vars.vect3,
+                tempVd = vars.vect4;
 
         Vector3f diff = origin.subtract(v0, tempVa);
         Vector3f edge1 = v1.subtract(v0, tempVb);
@@ -230,7 +222,7 @@ public final class Ray implements Savable, Cloneable, Collidable {
             dirDotNorm = -dirDotNorm;
         } else {
             // ray and triangle/quad are parallel
-            assert vars.unlock();
+            vars.release();
             return false;
         }
 
@@ -240,16 +232,17 @@ public final class Ray implements Savable, Cloneable, Collidable {
                     * direction.dot(edge1.crossLocal(diff));
 
             if (dirDotEdge1xDiff >= 0.0f) {
-                if ( !quad ? dirDotDiffxEdge2 + dirDotEdge1xDiff <= dirDotNorm : dirDotEdge1xDiff <= dirDotNorm ) {
+                if (!quad ? dirDotDiffxEdge2 + dirDotEdge1xDiff <= dirDotNorm : dirDotEdge1xDiff <= dirDotNorm) {
                     float diffDotNorm = -sign * diff.dot(norm);
                     if (diffDotNorm >= 0.0f) {
                         // this method always returns
-                        assert vars.unlock();
-                        
+                        vars.release();
+
                         // ray intersects triangle
                         // if storage vector is null, just return true,
-                        if (store == null)
+                        if (store == null) {
                             return true;
+                        }
 
                         // else fill in.
                         float inv = 1f / dirDotNorm;
@@ -273,11 +266,11 @@ public final class Ray implements Savable, Cloneable, Collidable {
                 }
             }
         }
-        assert vars.unlock();
+        vars.release();
         return false;
     }
 
-    public float intersects(Vector3f v0, Vector3f v1, Vector3f v2){
+    public float intersects(Vector3f v0, Vector3f v1, Vector3f v2) {
         float edge1X = v1.x - v0.x;
         float edge1Y = v1.y - v0.y;
         float edge1Z = v1.z - v0.z;
@@ -312,8 +305,8 @@ public final class Ray implements Savable, Cloneable, Collidable {
         float diffEdge2Z = ((diffX * edge2Y) - (diffY * edge2X));
 
         float dirDotDiffxEdge2 = sign * (direction.x * diffEdge2X
-                                       + direction.y * diffEdge2Y
-                                       + direction.z * diffEdge2Z);
+                + direction.y * diffEdge2Y
+                + direction.z * diffEdge2Z);
 
         if (dirDotDiffxEdge2 >= 0.0f) {
             diffEdge2X = ((edge1Y * diffZ) - (edge1Z * diffY));
@@ -321,8 +314,8 @@ public final class Ray implements Savable, Cloneable, Collidable {
             diffEdge2Z = ((edge1X * diffY) - (edge1Y * diffX));
 
             float dirDotEdge1xDiff = sign * (direction.x * diffEdge2X
-                                          +  direction.y * diffEdge2Y
-                                          +  direction.z * diffEdge2Z);
+                    + direction.y * diffEdge2Y
+                    + direction.z * diffEdge2Z);
 
             if (dirDotEdge1xDiff >= 0.0f) {
                 if (dirDotDiffxEdge2 + dirDotEdge1xDiff <= dirDotNorm) {
@@ -364,10 +357,10 @@ public final class Ray implements Savable, Cloneable, Collidable {
      * @return true if the ray collides with the quad.
      */
     public boolean intersectWherePlanarQuad(Vector3f v0, Vector3f v1, Vector3f v2,
-                                            Vector3f loc) {
-        return intersects( v0, v1, v2, loc, true, true );
+            Vector3f loc) {
+        return intersects(v0, v1, v2, loc, true, true);
     }
-    
+
     /**
      * 
      * @param p
@@ -377,57 +370,57 @@ public final class Ray implements Savable, Cloneable, Collidable {
     public boolean intersectsWherePlane(Plane p, Vector3f loc) {
         float denominator = p.getNormal().dot(direction);
 
-        if (denominator > -FastMath.FLT_EPSILON && denominator < FastMath.FLT_EPSILON)
+        if (denominator > -FastMath.FLT_EPSILON && denominator < FastMath.FLT_EPSILON) {
             return false; // coplanar
-
+        }
         float numerator = -(p.getNormal().dot(origin) - p.getConstant());
         float ratio = numerator / denominator;
 
-        if (ratio < FastMath.FLT_EPSILON)
+        if (ratio < FastMath.FLT_EPSILON) {
             return false; // intersects behind origin
-
+        }
         loc.set(direction).multLocal(ratio).addLocal(origin);
 
         return true;
     }
 
-    public int collideWith(Collidable other, CollisionResults results){
-        if (other instanceof BoundingVolume){
+    public int collideWith(Collidable other, CollisionResults results) {
+        if (other instanceof BoundingVolume) {
             BoundingVolume bv = (BoundingVolume) other;
             return bv.collideWith(this, results);
-        }else if (other instanceof AbstractTriangle){
+        } else if (other instanceof AbstractTriangle) {
             AbstractTriangle tri = (AbstractTriangle) other;
             float d = intersects(tri.get1(), tri.get2(), tri.get3());
-            if (Float.isInfinite(d) || Float.isNaN(d))
+            if (Float.isInfinite(d) || Float.isNaN(d)) {
                 return 0;
+            }
 
             Vector3f point = new Vector3f(direction).multLocal(d).addLocal(origin);
             results.addCollision(new CollisionResult(point, d));
             return 1;
-        }else{
+        } else {
             throw new UnsupportedCollisionException();
         }
     }
 
     public float distanceSquared(Vector3f point) {
         TempVars vars = TempVars.get();
-        assert vars.lock();
 
         Vector3f tempVa = vars.vect1,
-                 tempVb = vars.vect2;
+                tempVb = vars.vect2;
 
         point.subtract(origin, tempVa);
         float rayParam = direction.dot(tempVa);
-        if (rayParam > 0){
+        if (rayParam > 0) {
             origin.add(direction.mult(rayParam, tempVb), tempVb);
-        }else{
+        } else {
             tempVb.set(origin);
             rayParam = 0.0f;
         }
 
         tempVb.subtract(point, tempVa);
         float len = tempVa.lengthSquared();
-        assert vars.unlock();
+        vars.release();
         return len;
     }
 
@@ -457,7 +450,7 @@ public final class Ray implements Savable, Cloneable, Collidable {
      * 
      * @return the limit or the ray, aka the length.
      */
-    public float getLimit(){
+    public float getLimit() {
         return limit;
     }
 
@@ -466,7 +459,7 @@ public final class Ray implements Savable, Cloneable, Collidable {
      * @param limit the limit of the ray.
      * @see Ray#getLimit() 
      */
-    public void setLimit(float limit){
+    public void setLimit(float limit) {
         this.limit = limit;
     }
 
@@ -499,8 +492,8 @@ public final class Ray implements Savable, Cloneable, Collidable {
         direction.set(source.getDirection());
     }
 
-    public String toString(){
-        return getClass().getSimpleName()+" [Origin: "+origin+", Direction: "+direction+"]";
+    public String toString() {
+        return getClass().getSimpleName() + " [Origin: " + origin + ", Direction: " + direction + "]";
     }
 
     public void write(JmeExporter e) throws IOException {
@@ -511,10 +504,10 @@ public final class Ray implements Savable, Cloneable, Collidable {
 
     public void read(JmeImporter e) throws IOException {
         InputCapsule capsule = e.getCapsule(this);
-        origin = (Vector3f)capsule.readSavable("origin", Vector3f.ZERO.clone());
-        direction = (Vector3f)capsule.readSavable("direction", Vector3f.ZERO.clone());
+        origin = (Vector3f) capsule.readSavable("origin", Vector3f.ZERO.clone());
+        direction = (Vector3f) capsule.readSavable("direction", Vector3f.ZERO.clone());
     }
-    
+
     @Override
     public Ray clone() {
         try {
@@ -527,4 +520,3 @@ public final class Ray implements Savable, Cloneable, Collidable {
         }
     }
 }
-
