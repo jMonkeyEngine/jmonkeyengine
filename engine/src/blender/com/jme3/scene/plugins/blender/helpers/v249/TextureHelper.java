@@ -40,6 +40,7 @@ import java.nio.ByteBuffer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.jme3.asset.AssetNotFoundException;
 import com.jme3.asset.TextureKey;
 import com.jme3.math.FastMath;
 import com.jme3.scene.plugins.blender.data.FileBlockHeader;
@@ -1614,8 +1615,12 @@ public class TextureHelper extends AbstractBlenderHelper {
 			}
 
 			TextureKey texKey = new TextureKey(name, false);
-			Texture tex = dataRepository.getAssetManager().loadTexture(texKey);
-			image = tex.getImage();
+			try {
+				Texture tex = dataRepository.getAssetManager().loadTexture(texKey);
+				image = tex.getImage();
+			} catch (AssetNotFoundException e) {
+				LOGGER.warning("Asset nof found: " + e.getLocalizedMessage());
+			}
 		}
 
 		// 2. Try using the direct path from the blender file
