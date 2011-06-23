@@ -237,6 +237,8 @@ public class SceneApplication extends Application implements LookupProvider, Loo
                 renderManager.render(tpf);
             }
             getStateManager().postRender();
+        } catch (NullPointerException e) {
+            handleError("NullPointerException: "+e.getMessage(), e);
         } catch (Exception e) {
             handleError(e.getMessage(), e);
         } catch (Error e) {
