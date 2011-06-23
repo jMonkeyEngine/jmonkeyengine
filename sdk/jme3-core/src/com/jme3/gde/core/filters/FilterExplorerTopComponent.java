@@ -35,6 +35,7 @@ import com.jme3.gde.core.assets.FilterDataObject;
 import com.jme3.gde.core.scene.SceneApplication;
 import com.jme3.post.FilterPostProcessor;
 import java.util.concurrent.Callable;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.openide.util.NbBundle;
 import org.openide.windows.TopComponent;
@@ -175,8 +176,10 @@ public final class FilterExplorerTopComponent extends TopComponent implements Ex
                 public Object call() throws Exception {
                     if (enabled) {
                         SceneApplication.getApplication().getViewPort().addProcessor(fpp);
+                        Logger.getLogger(FilterExplorerTopComponent.class.getName()).log(Level.INFO, "Enabled post filters");
                     } else {
                         SceneApplication.getApplication().getViewPort().removeProcessor(fpp);
+                        Logger.getLogger(FilterExplorerTopComponent.class.getName()).log(Level.INFO, "Disabled post filters");
                     }
                     return null;
                 }

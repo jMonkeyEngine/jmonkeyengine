@@ -36,11 +36,7 @@ import com.jme3.gde.core.sceneexplorer.nodes.properties.ScenePropertyChangeListe
 import com.jme3.post.Filter;
 import java.io.IOException;
 import javax.swing.Action;
-import org.openide.actions.CopyAction;
-import org.openide.actions.CutAction;
 import org.openide.actions.DeleteAction;
-import org.openide.actions.PasteAction;
-import org.openide.actions.RenameAction;
 import org.openide.loaders.DataObject;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
@@ -52,6 +48,7 @@ import org.openide.util.actions.SystemAction;
  *
  * @author normenhansen
  */
+@SuppressWarnings("unchecked")
 public abstract class AbstractFilterNode extends AbstractNode implements FilterNode, ScenePropertyChangeListener {
 
     protected boolean readOnly = false;
@@ -70,7 +67,6 @@ public abstract class AbstractFilterNode extends AbstractNode implements FilterN
 
     @Override
     public Action[] getActions(boolean context) {
-//        return super.getActions(context);
         return new Action[]{
                     SystemAction.get(DeleteAction.class)
                 };
@@ -78,7 +74,8 @@ public abstract class AbstractFilterNode extends AbstractNode implements FilterN
 
     @Override
     public boolean canDestroy() {
-        return !readOnly;
+//        return !readOnly;
+        return true;
     }
 
     @Override
