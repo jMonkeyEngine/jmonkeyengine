@@ -263,8 +263,8 @@ public class ObjectHelper extends AbstractBlenderHelper {
 		
 		//reading custom properties
 		Properties properties = this.loadProperties(objectStructure, dataRepository);
-		if(properties != null && properties.getValue() != null) {
-			((Node)result).setUserData("properties", properties);
+		if(result instanceof Geometry && properties != null && properties.getValue() != null) {
+			((Geometry)result).setUserData("properties", properties);
 		}
 		
 		if(result != null) {
