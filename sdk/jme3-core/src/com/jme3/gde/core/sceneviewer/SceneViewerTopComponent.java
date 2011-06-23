@@ -31,6 +31,7 @@
  */
 package com.jme3.gde.core.sceneviewer;
 
+import com.jme3.gde.core.filters.FilterExplorerTopComponent;
 import com.jme3.gde.core.scene.SceneApplication;
 import com.jme3.system.JmeCanvasContext;
 import java.awt.Canvas;
@@ -92,6 +93,8 @@ public final class SceneViewerTopComponent extends TopComponent {
 
         jToolBar1 = new javax.swing.JToolBar();
         enableCamLight = new javax.swing.JToggleButton();
+        jToggleButton1 = new javax.swing.JToggleButton();
+        jSeparator1 = new javax.swing.JToolBar.Separator();
         enableWireframe = new javax.swing.JToggleButton();
         jPanel1 = new javax.swing.JPanel();
         enableStats = new javax.swing.JToggleButton();
@@ -114,6 +117,20 @@ public final class SceneViewerTopComponent extends TopComponent {
             }
         });
         jToolBar1.add(enableCamLight);
+
+        jToggleButton1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/jme3/gde/core/objects_082.gif"))); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(jToggleButton1, org.openide.util.NbBundle.getMessage(SceneViewerTopComponent.class, "SceneViewerTopComponent.jToggleButton1.text")); // NOI18N
+        jToggleButton1.setToolTipText(org.openide.util.NbBundle.getMessage(SceneViewerTopComponent.class, "SceneViewerTopComponent.jToggleButton1.toolTipText")); // NOI18N
+        jToggleButton1.setFocusable(false);
+        jToggleButton1.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        jToggleButton1.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        jToggleButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jToggleButton1ActionPerformed(evt);
+            }
+        });
+        jToolBar1.add(jToggleButton1);
+        jToolBar1.add(jSeparator1);
 
         enableWireframe.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/jme3/gde/core/sceneviewer/icons/box_color.gif"))); // NOI18N
         org.openide.awt.Mnemonics.setLocalizedText(enableWireframe, org.openide.util.NbBundle.getMessage(SceneViewerTopComponent.class, "SceneViewerTopComponent.enableWireframe.text")); // NOI18N
@@ -162,11 +179,18 @@ public final class SceneViewerTopComponent extends TopComponent {
     private void enableStatsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_enableStatsActionPerformed
         app.enableStats(enableStats.isSelected());
     }//GEN-LAST:event_enableStatsActionPerformed
+
+    private void jToggleButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jToggleButton1ActionPerformed
+        FilterExplorerTopComponent.findInstance().setFilterEnabled(jToggleButton1.isSelected());
+    }//GEN-LAST:event_jToggleButton1ActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JToggleButton enableCamLight;
     private javax.swing.JToggleButton enableStats;
     private javax.swing.JToggleButton enableWireframe;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JToolBar.Separator jSeparator1;
+    private javax.swing.JToggleButton jToggleButton1;
     private javax.swing.JToolBar jToolBar1;
     private javax.swing.JPanel oGLPanel;
     // End of variables declaration//GEN-END:variables

@@ -161,7 +161,12 @@ public class SceneExplorerProperty<T> extends PropertySupport.Reflection<T> {
     }
 
     protected void addUndo(final Object before, final Object after) {
-        Lookup.getDefault().lookup(SceneUndoRedoManager.class).addEdit(this, new AbstractUndoableSceneEdit() {
+        SceneUndoRedoManager undoRedo=Lookup.getDefault().lookup(SceneUndoRedoManager.class);
+        if(undoRedo==null){
+            Logger.getLogger(SceneExplorerProperty.class.getName()).log(Level.WARNING, "Cannot access SceneUndoRedoManager");
+            return;
+        }
+        undoRedo.addEdit(this, new AbstractUndoableSceneEdit() {
 
             @Override
             public void sceneUndo() {
