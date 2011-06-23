@@ -39,6 +39,7 @@ import com.jme3.gde.textureeditor.filters.GrayscaleFilter;
 import com.jme3.gde.textureeditor.filters.MirrorFilter;
 import com.jme3.gde.textureeditor.filters.ResizeFilter;
 import com.jme3.gde.textureeditor.filters.RotateLeftFilter;
+import com.jme3.gde.textureeditor.filters.SphereMappedFilter;
 import com.jme3.gde.textureeditor.tools.ColorPicker;
 import com.jme3.gde.textureeditor.tools.CropTool;
 import java.io.IOException;
@@ -169,6 +170,7 @@ public class ImageEditorComponent implements EditorToolTarget {
         scroller.setViewportView(imageContainer);
     }
 
+    @SuppressWarnings("unchecked")
     private void createToolBar() {
         final JButton zoomIn = new JButton(Icon("zoom-in-2.png"));
         final JButton zoomOut = new JButton(Icon("zoom-out-2.png"));
@@ -259,8 +261,8 @@ public class ImageEditorComponent implements EditorToolTarget {
         builder.addFileFilter(FileFilters.TGA);
         builder.addFileFilter(FileFilters.PNG);
 
-        JFileChooser fc= builder.createFileChooser();
-        fc.setFileSelectionMode(fc.SAVE_DIALOG);
+        JFileChooser fc = builder.createFileChooser();
+        fc.setFileSelectionMode(JFileChooser.SAVE_DIALOG);
         fc.setAcceptAllFileFilterUsed(false);
 
         int a = fc.showOpenDialog(COMPONENT);
@@ -275,7 +277,7 @@ public class ImageEditorComponent implements EditorToolTarget {
             } else if (name.endsWith(".bmp")) {
                 type = "bmp";
             } else if (name.endsWith(".tga")) {
-                type ="tga";
+                type = "tga";
             } else {
                 ExtensionFileFilter filter = (ExtensionFileFilter) fc.getFileFilter();
                 file = new File(file.getParentFile(), file.getName() + filter.getExtension());
@@ -351,6 +353,7 @@ public class ImageEditorComponent implements EditorToolTarget {
 
         final JMenuItem gray = filters.add("Grayscale");
         final JMenuItem bright = filters.add("Brightness");
+        final JMenuItem spheremap = filters.add("SphereMapped");
 
         ActionListener al = new ActionListener() {
 
@@ -366,11 +369,13 @@ public class ImageEditorComponent implements EditorToolTarget {
                     spawnEditor(GrayscaleFilter.create().filter(editedImage));
                 } else if (source == bright) {
                     spawnEditor(BrightFilter.create().filter(editedImage, ImageEditorComponent.this));
+                } else if (source == spheremap) {
+                    spawnEditor(SphereMappedFilter.create().filter(editedImage));
                 }
             }
         };
 
-        for (AbstractButton b : Arrays.asList(bumpSoft, bumpMedium, bumpStrong, gray, bright)) {
+        for (AbstractButton b : Arrays.asList(bumpSoft, bumpMedium, bumpStrong, gray, bright, spheremap)) {
             b.addActionListener(al);
         }
     }

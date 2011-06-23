@@ -3,10 +3,11 @@ package com.jme3.gde.textureeditor.filters;
 import java.awt.color.ColorSpace;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorConvertOp;
-import com.jme3.gde.textureeditor.ImageEditorComponent;
 
 public class BumpMapFilter implements BufferedImageFilter {
+
     private static class Vec3f {
+
         float x, y, z;
 
         void divideLocal(float d) {
@@ -29,8 +30,8 @@ public class BumpMapFilter implements BufferedImageFilter {
         BufferedImage bumpMap = new BufferedImage(sourceImage.getWidth(), sourceImage.getHeight(), BufferedImage.TYPE_INT_ARGB);
         ColorConvertOp gscale = new ColorConvertOp(ColorSpace.getInstance(ColorSpace.CS_GRAY), null);
         gscale.filter(sourceImage, heightMap);
-        for(int x = 0; x < bumpMap.getWidth(); x++) {
-            for(int y = 0; y < bumpMap.getHeight(); y++) {
+        for (int x = 0; x < bumpMap.getWidth(); x++) {
+            for (int y = 0; y < bumpMap.getHeight(); y++) {
                 bumpMap.setRGB(x, y, generateBumpPixel(heightMap, x, y, a));
             }
         }
@@ -41,13 +42,13 @@ public class BumpMapFilter implements BufferedImageFilter {
         Vec3f S = new Vec3f();
         Vec3f T = new Vec3f();
         Vec3f N = new Vec3f();
-        Vec3f ST = new Vec3f();
+
         S.x = 1;
         S.y = 0;
         S.z = a * getHeight(image, x + 1, y) - a * getHeight(image, x - 1, y);
         T.x = 0;
         T.y = 1;
-        T.z = a * getHeight(image, x, y + 1)  - a * getHeight(image, x, y - 1);
+        T.z = a * getHeight(image, x, y + 1) - a * getHeight(image, x, y - 1);
 
         float den = (float) Math.sqrt(S.z * S.z + T.z * T.z + 1);
         N.x = -S.z;
@@ -58,14 +59,14 @@ public class BumpMapFilter implements BufferedImageFilter {
     }
 
     private float getHeight(BufferedImage image, int x, int y) {
-        if(x < 0) {
+        if (x < 0) {
             x = 0;
-        } else if(x >= image.getWidth()) {
+        } else if (x >= image.getWidth()) {
             x = image.getWidth() - 1;
         }
-        if(y < 0) {
+        if (y < 0) {
             y = 0;
-        } else if(y >= image.getHeight()) {
+        } else if (y >= image.getHeight()) {
             y = image.getHeight() - 1;
         }
         return image.getRGB(x, y) & 0xff;

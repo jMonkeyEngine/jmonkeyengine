@@ -11,17 +11,18 @@ public class RotateLeftFilter implements BufferedImageFilter {
         return new RotateLeftFilter();
     }
 
-    protected RotateLeftFilter() {}
+    protected RotateLeftFilter() {
+    }
 
     public BufferedImage filter(BufferedImage source, Object... args) {
         int type = source.getType();
-        if(type == BufferedImage.TYPE_CUSTOM) {
+        if (type == BufferedImage.TYPE_CUSTOM) {
             type = BufferedImage.TYPE_INT_ARGB;
         }
 //        BufferedImage dest = new BufferedImage(source.getHeight(), source.getWidth(), type);
         AffineTransform rot = AffineTransform.getRotateInstance(
-                    Math.PI / 2, source.getWidth() / 2, 
-                    source.getHeight() / 2);
+                Math.PI / 2, source.getWidth() / 2,
+                source.getHeight() / 2);
         Point2D p0 = new Point2D.Double();
         Point2D p1 = rot.transform(p0, null);
         double dy = p1.getY();

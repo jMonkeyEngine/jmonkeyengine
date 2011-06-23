@@ -9,7 +9,8 @@ public class ResizeFilter implements BufferedImageFilter {
         return new ResizeFilter();
     }
 
-    protected ResizeFilter() {}
+    protected ResizeFilter() {
+    }
 
     public BufferedImage filter(BufferedImage source, Object... args) {
         int newWidth = (Integer) args[0];

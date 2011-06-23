@@ -16,7 +16,8 @@ public class ColorPicker extends MouseAdapter implements EditorTool {
     }
     private EditorToolTarget target;
 
-    protected ColorPicker() {}
+    protected ColorPicker() {
+    }
 
     public void install(EditorToolTarget t) {
         target = t;
@@ -36,9 +37,9 @@ public class ColorPicker extends MouseAdapter implements EditorTool {
         p.x /= target.getScaleX();
         p.y /= target.getScaleY();
         Color picked = new Color(target.getCurrentImage().getRGB(p.x, p.y));
-        if(SwingUtilities.isLeftMouseButton(e)) {
+        if (SwingUtilities.isLeftMouseButton(e)) {
             target.setForeground(picked);
-        } else if(SwingUtilities.isRightMouseButton(e)) {
+        } else if (SwingUtilities.isRightMouseButton(e)) {
             target.setBackground(picked);
         }
     }

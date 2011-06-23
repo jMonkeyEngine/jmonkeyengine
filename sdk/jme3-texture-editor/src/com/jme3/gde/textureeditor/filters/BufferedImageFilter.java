@@ -4,5 +4,5 @@ import java.awt.image.BufferedImage;
 
 public interface BufferedImageFilter {
 
-    BufferedImage filter(BufferedImage source, Object...args);
+    BufferedImage filter(BufferedImage source, Object... args);
 }

@@ -9,7 +9,9 @@ public interface EditorToolTarget {
     JComponent getImageCanvas();
 
     float getScaleX();
+
     float getScaleY();
+
     BufferedImage getCurrentImage();
 
     public void setForeground(Color picked);

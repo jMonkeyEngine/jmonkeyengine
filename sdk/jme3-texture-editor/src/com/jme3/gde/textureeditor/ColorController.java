@@ -9,7 +9,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import javax.swing.JColorChooser;
 import javax.swing.JComponent;
-import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
@@ -31,13 +30,13 @@ public class ColorController {
                 int w3 = getWidth() / 3;
                 int h3 = getHeight() / 3;
                 g.setColor(ColorController.this.getBackground());
-                g.fillRect(w3, h3, 2*w3, 2*h3);
+                g.fillRect(w3, h3, 2 * w3, 2 * h3);
                 g.setColor(Color.BLACK);
-                g.drawRect(w3, h3, 2*w3, 2*h3);
+                g.drawRect(w3, h3, 2 * w3, 2 * h3);
                 g.setColor(ColorController.this.getForeground());
-                g.fillRect(0, 0, 2*w3, 2*h3);
+                g.fillRect(0, 0, 2 * w3, 2 * h3);
                 g.setColor(Color.BLACK);
-                g.drawRect(0, 0, 2*w3, 2*h3);
+                g.drawRect(0, 0, 2 * w3, 2 * h3);
             }
         };
         display.addMouseListener(new MouseAdapter() {
@@ -46,9 +45,9 @@ public class ColorController {
             public void mouseReleased(MouseEvent e) {
                 int w3 = display.getWidth() / 3;
                 int h3 = display.getHeight() / 3;
-                if(new Rectangle(0, 0, 2*w3, 2*h3).contains(e.getPoint())) {
+                if (new Rectangle(0, 0, 2 * w3, 2 * h3).contains(e.getPoint())) {
                     chooseColor(foreground);
-                } else if(new Rectangle(w3, h3, 2*w3, 2*h3).contains(e.getPoint())) {
+                } else if (new Rectangle(w3, h3, 2 * w3, 2 * h3).contains(e.getPoint())) {
                     chooseColor(background);
                 }
             }
@@ -87,8 +86,8 @@ public class ColorController {
         String title = source == foreground ? "Foreground Color" : "Background Color";
         Frame parent = JOptionPane.getFrameForComponent(COMPONENT);
         Color choice = JColorChooser.showDialog(parent, title, initial);
-        if(choice != null) {
-            if(source == foreground) {
+        if (choice != null) {
+            if (source == foreground) {
                 setForeground(choice);
             } else {
                 setBackground(choice);

@@ -18,11 +18,12 @@ public class CropTool extends MouseInputAdapter implements EditorTool {
         return new CropTool();
     }
     private EditorToolTarget target;
-    private Stroke stroke = new BasicStroke(1, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_BEVEL, 0, new float[] { 4, 4 }, 0);
+    private Stroke stroke = new BasicStroke(1, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_BEVEL, 0, new float[]{4, 4}, 0);
     private Rectangle track;
     private Point last;
 
-    protected CropTool() {}
+    protected CropTool() {
+    }
 
     public void install(EditorToolTarget t) {
         target = t;
@@ -44,13 +45,13 @@ public class CropTool extends MouseInputAdapter implements EditorTool {
 
     @Override
     public void mouseReleased(MouseEvent e) {
-        int x = (int)(track.x / target.getScaleX());
-        int y = (int)(track.y / target.getScaleY());
-        int w = (int)(track.width / target.getScaleX());
-        int h = (int)(track.height / target.getScaleY());
+        int x = (int) (track.x / target.getScaleX());
+        int y = (int) (track.y / target.getScaleY());
+        int w = (int) (track.width / target.getScaleX());
+        int h = (int) (track.height / target.getScaleY());
         BufferedImage source = target.getCurrentImage();
         int type = source.getType();
-        if(type == BufferedImage.TYPE_CUSTOM) {
+        if (type == BufferedImage.TYPE_CUSTOM) {
             type = BufferedImage.TYPE_INT_ARGB;
         }
         BufferedImage dest = new BufferedImage(w, h, type);
@@ -73,7 +74,7 @@ public class CropTool extends MouseInputAdapter implements EditorTool {
     }
 
     public void drawTrack(Graphics2D g, int width, int height, float scaleX, float scaleY) {
-        if(track != null) {
+        if (track != null) {
             g.setPaint(Color.GREEN);
             g.setStroke(stroke);
             g.draw(track);

@@ -20,7 +20,6 @@ public class BrightFilter implements BufferedImageFilter {
     public static BrightFilter create() {
         return new BrightFilter();
     }
-
     private final int[] lookup;
 
     protected BrightFilter() {
@@ -39,7 +38,7 @@ public class BrightFilter implements BufferedImageFilter {
         slider.addChangeListener(new ChangeListener() {
 
             public void stateChanged(ChangeEvent e) {
-                if(!slider.getValueIsAdjusting()) {
+                if (!slider.getValueIsAdjusting()) {
                     label.setIcon(new ImageIcon(doFilter(sourceIcon, slider.getValue() / 100f)));
                 }
             }
@@ -49,7 +48,8 @@ public class BrightFilter implements BufferedImageFilter {
         sliderContainer.setBorder(BorderFactory.createTitledBorder("Brightness value"));
         sliderContainer.add(slider);
         JPanel labelContainer = new JPanel(new GridBagLayout());
-        GridBagConstraints lim = new GridBagConstraints(); lim.gridx = lim.gridy = 0;
+        GridBagConstraints lim = new GridBagConstraints();
+        lim.gridx = lim.gridy = 0;
         labelContainer.add(label, lim);
         labelContainer.setBorder(BorderFactory.createTitledBorder("Preview"));
         JPanel container = new JPanel(new BorderLayout());
@@ -57,7 +57,7 @@ public class BrightFilter implements BufferedImageFilter {
         container.add(sliderContainer, BorderLayout.SOUTH);
 
         int choice = JOptionPane.showConfirmDialog(parent.getComponent(), container, "Brightness Filter", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null);
-        if(choice == JOptionPane.OK_OPTION) {
+        if (choice == JOptionPane.OK_OPTION) {
             return doFilter(source, slider.getValue() / 100f);
         } else {
             return null;
