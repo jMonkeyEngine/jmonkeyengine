@@ -69,7 +69,7 @@ public class JmeLightScatteringFilter extends AbstractFilterNode {
         set.put(makeProperty(obj, float.class, "getBlurWidth", "setBlurWidth", "Blur Width"));
         set.put(makeProperty(obj, float.class, "getLightDensity", "setLightDensity", "Light Density"));
         set.put(makeProperty(obj, Vector3f.class, "getLightPosition", "setLightPosition", "Light Position"));
-        set.put(makeProperty(obj, float.class, "getNbSamples", "setNbSamples", "Sample Number"));
+        set.put(makeProperty(obj, int.class, "getNbSamples", "setNbSamples", "Sample Number"));
         sheet.put(set);
         return sheet;
 
