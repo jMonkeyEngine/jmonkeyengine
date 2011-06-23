@@ -29,10 +29,11 @@
  *  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  *  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.jme3.gde.core.filters;
+package com.jme3.gde.core.filters.impl;
 
-import com.jme3.math.ColorRGBA;
-import com.jme3.post.filters.FogFilter;
+import com.jme3.gde.core.filters.AbstractFilterNode;
+import com.jme3.gde.core.filters.FilterNode;
+import com.jme3.post.filters.BloomFilter;
 import org.openide.loaders.DataObject;
 import org.openide.nodes.Node;
 import org.openide.nodes.Sheet;
@@ -42,12 +43,12 @@ import org.openide.nodes.Sheet;
  * @author normenhansen
  */
 @org.openide.util.lookup.ServiceProvider(service = FilterNode.class)
-public class JmeFogFilter extends AbstractFilterNode {
+public class JmeBloomFilter extends AbstractFilterNode {
 
-    public JmeFogFilter() {
+    public JmeBloomFilter() {
     }
 
-    public JmeFogFilter(FogFilter filter, DataObject object, boolean readOnly) {
+    public JmeBloomFilter(BloomFilter filter, DataObject object, boolean readOnly) {
         super(filter);
         this.dataObject = object;
         this.readOnly = readOnly;
@@ -57,15 +58,17 @@ public class JmeFogFilter extends AbstractFilterNode {
     protected Sheet createSheet() {
         Sheet sheet = super.createSheet();
         Sheet.Set set = Sheet.createPropertiesSet();
-        set.setDisplayName("Fog");
+        set.setDisplayName("Bloom");
         set.setName(Node.class.getName());
-        FogFilter obj = (FogFilter) filter;
+        BloomFilter obj = (BloomFilter) filter;
         if (obj == null) {
             return sheet;
         }
-        set.put(makeProperty(obj, float.class, "getFogDistance", "setFogDistance", "Distance"));
-        set.put(makeProperty(obj, float.class, "getFogDensity", "setFogDensity", "Density"));
-        set.put(makeProperty(obj, ColorRGBA.class, "getFogColor", "setFogColor", "Color"));
+        set.put(makeProperty(obj, float.class, "getBloomIntensity", "setBloomIntensity", "Intesity"));
+        set.put(makeProperty(obj, float.class, "getBlurScale", "setBlurScale", "Blur Scale"));
+        set.put(makeProperty(obj, float.class, "getDownSamplingFactor", "setDownSamplingFactor", "Downsampling Factor"));
+        set.put(makeProperty(obj, float.class, "getExposureCutoff", "setExposureCutoff", "Exposure Cutoff"));
+        set.put(makeProperty(obj, float.class, "getExposurePower", "setExposurePower", "Exposure Power"));
         sheet.put(set);
         return sheet;
 
@@ -73,11 +76,11 @@ public class JmeFogFilter extends AbstractFilterNode {
 
     @Override
     public Class<?> getExplorerObjectClass() {
-        return FogFilter.class;
+        return BloomFilter.class;
     }
 
     @Override
     public Node[] createNodes(Object key, DataObject dataObject, boolean readOnly) {
-        return new Node[]{new JmeFogFilter((FogFilter) key, dataObject, readOnly)};
+        return new Node[]{new JmeBloomFilter((BloomFilter) key, dataObject, readOnly)};
     }
 }
