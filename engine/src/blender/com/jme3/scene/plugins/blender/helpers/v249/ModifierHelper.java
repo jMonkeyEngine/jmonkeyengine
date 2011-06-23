@@ -56,7 +56,6 @@ import com.jme3.effect.shapes.EmitterMeshVertexShape;
 import com.jme3.effect.shapes.EmitterShape;
 import com.jme3.material.Material;
 import com.jme3.math.Matrix4f;
-import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
@@ -342,7 +341,7 @@ public class ModifierHelper extends AbstractBlenderHelper {
 			Constraint[] constraints = constraintHelper.getConstraints(modifierArmatureObject);
 			HashMap<String, BoneAnimation> anims = new HashMap<String, BoneAnimation>();
 			for (int i = 0; i < animList.size(); ++i) {
-				BoneAnimation boneAnimation = this.cloneBoneAnimation(animList.get(i));
+				BoneAnimation boneAnimation = animList.get(i).clone();
 
 				// baking constraints into animations
 				if (constraints != null && constraints.length > 0) {
@@ -640,41 +639,6 @@ public class ModifierHelper extends AbstractBlenderHelper {
 			}
 		}
 		return node;
-	}
-
-	/**
-	 * This class clones the bone animation data.
-	 * @param source
-	 *        the source that is to be cloned
-	 * @return the copy of the given bone animation
-	 */
-	protected BoneAnimation cloneBoneAnimation(BoneAnimation source) {
-		BoneAnimation result = new BoneAnimation(source.getName(), source.getLength());
-
-		// copying tracks and applying constraints
-		BoneTrack[] sourceTracks = source.getTracks();
-		BoneTrack[] boneTracks = new BoneTrack[sourceTracks.length];
-		for (int i = 0; i < sourceTracks.length; ++i) {
-			int tablesLength = sourceTracks[i].getTimes().length;
-
-			Vector3f[] sourceTranslations = sourceTracks[i].getTranslations();
-			Quaternion[] sourceRotations = sourceTracks[i].getRotations();
-			Vector3f[] sourceScales = sourceTracks[i].getScales();
-
-			Vector3f[] translations = new Vector3f[tablesLength];
-			Quaternion[] rotations = new Quaternion[tablesLength];
-			Vector3f[] scales = new Vector3f[tablesLength];
-			for (int j = 0; j < tablesLength; ++j) {
-				translations[j] = sourceTranslations[j].clone();
-				rotations[j] = sourceRotations[j].clone();
-				scales[j] = sourceScales != null ? sourceScales[j].clone() : new Vector3f(1.0f, 1.0f, 1.0f);
-			}
-			// times do not change, no need to clone them
-			boneTracks[i] = new BoneTrack(sourceTracks[i].getTargetBoneIndex(), sourceTracks[i].getTimes(),
-					translations, rotations, scales);
-		}
-		result.setTracks(boneTracks);
-		return result;
 	}
 
 	/**
