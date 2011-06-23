@@ -38,9 +38,11 @@ import com.jme3.bounding.BoundingBox;
 import com.jme3.gde.core.assets.AssetDataObject;
 import com.jme3.gde.core.assets.ProjectAssetManager;
 import com.jme3.gde.core.scene.SceneApplication;
+import com.jme3.gde.core.sceneexplorer.nodes.AbstractSceneExplorerNode;
 import com.jme3.gde.core.sceneexplorer.nodes.JmeSpatial;
+import com.jme3.gde.core.undoredo.AbstractUndoableSceneEdit;
+import com.jme3.gde.core.undoredo.SceneUndoRedoManager;
 import com.jme3.material.MatParam;
-import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
@@ -50,25 +52,25 @@ import com.jme3.terrain.ProgressMonitor;
 import com.jme3.terrain.Terrain;
 import com.jme3.terrain.geomipmap.TerrainLodControl;
 import com.jme3.terrain.geomipmap.TerrainQuad;
-import com.jme3.texture.Image;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
 import com.jme3.util.SkyFactory;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
-import java.util.logging.Logger;
 import javax.imageio.ImageIO;
+import javax.swing.undo.CannotRedoException;
+import javax.swing.undo.CannotUndoException;
 import jme3tools.converters.ImageToAwt;
 import org.openide.cookies.SaveCookie;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObject;
 import org.openide.util.Exceptions;
+import org.openide.util.Lookup;
 
 /**
  * Modifies the actual terrain in the scene.
@@ -88,10 +90,6 @@ public class TerrainEditorController {
     private final int NUM_ALPHA_TEXTURES = 3;
     private final int BASE_TEXTURE_COUNT = NUM_ALPHA_TEXTURES; // add any others here, like a global specular map
     protected final int MAX_TEXTURE_LAYERS = 7-BASE_TEXTURE_COUNT; // 16 max, minus the ones we are reserving
-
-    // level terrain settings
-    private Vector3f levelTerrainDesiredHeight;
-    private float levelTerrainSnapThreshold = 0.01f;
 
     
 
@@ -133,7 +131,7 @@ public class TerrainEditorController {
         currentFileObject.setModified(state);
     }
 
-    protected Node getTerrain(Spatial root) {
+    public Node getTerrain(Spatial root) {
         if (terrainNode != null)
             return terrainNode;
 
@@ -166,7 +164,7 @@ public class TerrainEditorController {
      * @param radius of the tool, terrain in this radius will be affected
      * @param heightFactor the amount to adjust the height by
      */
-    protected void doModifyTerrainHeight(Vector3f worldLoc, float radius, float heightFactor) {
+    public void doModifyTerrainHeight(Vector3f worldLoc, float radius, float heightFactor) {
 
         Terrain terrain = (Terrain) getTerrain(null);
         if (terrain == null)
@@ -180,6 +178,9 @@ public class TerrainEditorController {
         float xStepAmount = ((Node)terrain).getLocalScale().x;
         float zStepAmount = ((Node)terrain).getLocalScale().z;
 
+        List<Vector2f> locs = new ArrayList<Vector2f>();
+        List<Float> heights = new ArrayList<Float>();
+
         for (int z=-radiusStepsZ; z<radiusStepsZ; z++) {
             for (int x=-radiusStepsZ; x<radiusStepsX; x++) {
 
@@ -191,10 +192,14 @@ public class TerrainEditorController {
                     // adjust height based on radius of the tool
                     float h = calculateHeight(radius, heightFactor, locX-worldLoc.x, locZ-worldLoc.z);
                     // increase the height
-                    terrain.adjustHeight(new Vector2f(locX, locZ), h);
+                    locs.add(new Vector2f(locX, locZ));
+                    heights.add(h);
                 }
             }
         }
+
+        // do the actual height adjustment
+        terrain.adjustHeight(locs, heights);
 
         ((Node)terrain).updateModelBound(); // or else we won't collide with it where we just edited
         
@@ -676,13 +681,14 @@ public class TerrainEditorController {
                                 final int patchSize,
                                 final int alphaTextureSize,
                                 final float[] heightmapData,
-                                final String sceneName) throws IOException
+                                final String sceneName,
+                                final JmeSpatial jmeNodeParent) throws IOException
     {
         try {
             Terrain terrain =
             SceneApplication.getApplication().enqueue(new Callable<Terrain>() {
                 public Terrain call() throws Exception {
-                    return doCreateTerrain(parent, totalSize, patchSize, alphaTextureSize, heightmapData, sceneName);
+                    return doCreateTerrain(parent, totalSize, patchSize, alphaTextureSize, heightmapData, sceneName, jmeNodeParent);
                 }
             }).get();
             return terrain;
@@ -700,7 +706,8 @@ public class TerrainEditorController {
                                     int patchSize,
                                     int alphaTextureSize,
                                     float[] heightmapData,
-                                    String sceneName) throws IOException
+                                    String sceneName,
+                                    JmeSpatial jmeNodeParent) throws IOException
     {
         AssetManager manager = SceneApplication.getApplication().getAssetManager();
 
@@ -750,18 +757,52 @@ public class TerrainEditorController {
 
         // add the lod control
         List<Camera> cameras = new ArrayList<Camera>();
-		cameras.add(SceneApplication.getApplication().getCamera());
+	cameras.add(SceneApplication.getApplication().getCamera());
         TerrainLodControl control = new TerrainLodControl(terrain, cameras);
-		//terrain.addControl(control); // removing this until we figure out a way to have it get the cameras when saved/loaded
+	//terrain.addControl(control); // removing this until we figure out a way to have it get the cameras when saved/loaded
 
         parent.attachChild(terrain);
 
         setNeedsSave(true);
 
+        addSpatialUndo(parent, terrain, jmeNodeParent);
+        
         return terrain;
     }
 
-    
+    private void addSpatialUndo(final Node undoParent, final Spatial undoSpatial, final AbstractSceneExplorerNode parentNode) {
+        //add undo
+        if (undoParent != null && undoSpatial != null) {
+            Lookup.getDefault().lookup(SceneUndoRedoManager.class).addEdit(this, new AbstractUndoableSceneEdit() {
+
+                @Override
+                public void sceneUndo() throws CannotUndoException {
+                    //undo stuff here
+                    undoSpatial.removeFromParent();
+                }
+
+                @Override
+                public void sceneRedo() throws CannotRedoException {
+                    //redo stuff here
+                    undoParent.attachChild(undoSpatial);
+                }
+
+                @Override
+                public void awtRedo() {
+                    if (parentNode != null) {
+                        parentNode.refresh(true);
+                    }
+                }
+
+                @Override
+                public void awtUndo() {
+                    if (parentNode != null) {
+                        parentNode.refresh(true);
+                    }
+                }
+            });
+        }
+    }
 
     /**
      * Save the terrain's alpha maps to disk, in the Textures/terrain-alpha/ directory
@@ -894,181 +935,7 @@ public class TerrainEditorController {
         }
         return false;
     }
-
-    /**
-     * Paint the texture at the specified location
-     * @param selectedTextureIndex the texture to paint
-     * @param markerLocation the location
-     * @param toolRadius radius of the brush tool
-     * @param toolWeight brush weight [0,1]
-     */
-    public void doPaintTexture(int selectedTextureIndex, Vector3f markerLocation, float toolRadius, float toolWeight) {
-        if (selectedTextureIndex < 0 || markerLocation == null)
-            return;
-
-        Terrain terrain = (Terrain) getTerrain(null);
-        if (terrain == null)
-            return;
-
-        
-        setNeedsSave(true);
-        
-        Texture tex = doGetAlphaTextureFromDiffuse(terrain, selectedTextureIndex);
-        Image image = tex.getImage();
-
-        Vector2f UV = terrain.getPointPercentagePosition(markerLocation.x, markerLocation.z);
-
-        // get the radius of the brush in pixel-percent
-        float brushSize = toolRadius/((TerrainQuad)terrain).getTotalSize();
-        int texIndex = selectedTextureIndex - ((selectedTextureIndex/4)*4); // selectedTextureIndex/4 is an int floor, do not simplify the equation
-        boolean erase = toolWeight<0;
-        if (erase)
-            toolWeight *= -1;
-
-        doPaintAction(texIndex, image, UV, true, brushSize, erase, toolWeight);
-
-        tex.getImage().setUpdateNeeded();
-    }
-
-    /**
-	 * Goes through each pixel in the image. At each pixel it looks to see if the UV mouse coordinate is within the
- 	 * of the brush. If it is in the brush radius, it gets the existing color from that pixel so it can add/subtract to/from it.
- 	 * Essentially it does a radius check and adds in a fade value. It does this to the color value returned by the
- 	 * first pixel color query.
-	 * Next it sets the color of that pixel. If it was within the radius, the color will change. If it was outside
-	 * the radius, then nothing will change, the color will be the same; but it will set it nonetheless. Not efficient.
-	 *
-	 * If the mouse is being dragged with the button down, then the dragged value should be set to true. This will reduce
-	 * the intensity of the brush to 10% of what it should be per spray. Otherwise it goes to 100% opacity within a few pixels.
-	 * This makes it work a little more realistically.
-	 *
-	 * @param image to manipulate
-	 * @param uv the world x,z coordinate
-	 * @param dragged true if the mouse button is down and it is being dragged, use to reduce brush intensity
-	 * @param radius in percentage so it can be translated to the image dimensions
-	 * @param erase true if the tool should remove the paint instead of add it
-	 * @param fadeFalloff the percentage of the radius when the paint begins to start fading
-	 */
-    protected void doPaintAction(int texIndex, Image image, Vector2f uv, boolean dragged, float radius, boolean erase, float fadeFalloff){
-        Vector2f texuv = new Vector2f();
-        ColorRGBA color = ColorRGBA.Black;
-        
-        float width = image.getWidth();
-        float height = image.getHeight();
-
-        int minx = (int) (uv.x*width - radius*width); // convert percents to pixels to limit how much we iterate
-        int maxx = (int) (uv.x*width + radius*width);
-        int miny = (int) (uv.y*height - radius*height);
-        int maxy = (int) (uv.y*height + radius*height);
-
-        Logger.getLogger(TerrainEditorTopComponent.class.getName()).info("Paint "+uv );
-        float radiusSquared = radius*radius;
-        float radiusFalloff = radius*fadeFalloff;
-        // go through each pixel, in the radius of the tool, in the image
-        for (int y = miny; y < maxy; y++){
-            for (int x = minx; x < maxx; x++){
-                
-                texuv.set((float)x / width, (float)y / height);// gets the position in percentage so it can compare with the mouse UV coordinate
-
-                float dist = texuv.distanceSquared(uv);
-                if (dist < radiusSquared ) { // if the pixel is within the distance of the radius, set a color (distance times intensity)
-                	manipulatePixel(image, x, y, color, false); // gets the color at that location (false means don't write to the buffer)
-
-                	// calculate the fade falloff intensity
-                	float intensity = 0.1f;
-                	if (dist > radiusFalloff) {
-                		float dr = radius - radiusFalloff; // falloff to radius length
-                		float d2 = dist - radiusFalloff; // dist minus falloff
-                		d2 = d2/dr; // dist percentage of falloff length
-                		intensity = 1-d2; // fade out more the farther away it is
-                	}
-
-                	//if (dragged)
-                	//	intensity = intensity*0.1f; // magical divide it by 10 to reduce its intensity when mouse is dragged
-
-                	if (erase) {
-                        switch (texIndex) {
-                            case 0:
-                                color.r -= intensity; break;
-                            case 1:
-                                color.g -= intensity; break;
-                            case 2:
-                                color.b -= intensity; break;
-                            case 3:
-                                color.a -= intensity; break;
-                        }
-                	} else {
-	                    switch (texIndex) {
-                            case 0:
-                                color.r += intensity; break;
-                            case 1:
-                                color.g += intensity; break;
-                            case 2:
-                                color.b += intensity; break;
-                            case 3:
-                                color.a += intensity; break;
-                        }
-                	}
-                    color.clamp();
-
-                    manipulatePixel(image, x, y, color, true); // set the new color
-                }
-
-            }
-        }
-
-        image.getData(0).rewind();
-    }
-
-    /**
-     * We are only using RGBA8 images for alpha textures right now.
-     * @param image to get/set the color on
-     * @param x location
-     * @param y location
-     * @param color color to get/set
-     * @param write to write the color or not
-     */
-    protected void manipulatePixel(Image image, int x, int y, ColorRGBA color, boolean write){
-        ByteBuffer buf = image.getData(0);
-        int width = image.getWidth();
-
-        int position = (y * width + x) * 4;
-
-        if ( position> buf.capacity()-1 || position<0 )
-            return;
-        
-        if (write) {
-            switch (image.getFormat()){
-                case RGBA8:
-                    buf.position( position );
-                    buf.put(float2byte(color.r))
-                       .put(float2byte(color.g))
-                       .put(float2byte(color.b))
-                       .put(float2byte(color.a));
-                    return;
-                default:
-                    throw new UnsupportedOperationException("Image format: "+image.getFormat());
-            }
-        } else {
-            switch (image.getFormat()){
-                case RGBA8:
-                    buf.position( position );
-                    color.set(byte2float(buf.get()), byte2float(buf.get()), byte2float(buf.get()), byte2float(buf.get()));
-                    return;
-                default:
-                    throw new UnsupportedOperationException("Image format: "+image.getFormat());
-            }
-        }
-        
-    }
-
-    private float byte2float(byte b){
-        return ((float)(b & 0xFF)) / 255f;
-    }
-
-    private byte float2byte(float f){
-        return (byte) (f * 255f);
-    }
+    
 
     /**
      * How many textures are currently being used.
@@ -1182,191 +1049,6 @@ public class TerrainEditorController {
         setNeedsSave(true);
     }
 
-    /**
-     * Level the terrain to the desired height.
-     * It will pull down or raise terrain towards the desired height, still
-     * using the radius of the tool and the weight. There are some slight rounding
-     * errors that are coorected with float epsilon testing.
-     * @param markerLocation
-     * @param heightToolRadius
-     * @param heightAmount
-     */
-    protected void doLevelTerrain(Vector3f worldLoc, float radius, float heightWeight) {
-        if (levelTerrainDesiredHeight == null)
-            return;
-
-        float desiredHeight = levelTerrainDesiredHeight.y;
-
-        Terrain terrain = (Terrain) getTerrain(null);
-        if (terrain == null)
-            return;
-
-        setNeedsSave(true);
-
-        int radiusStepsX = (int)(radius / ((Node)terrain).getLocalScale().x);
-        int radiusStepsZ = (int)(radius / ((Node)terrain).getLocalScale().z);
-
-        float xStepAmount = ((Node)terrain).getLocalScale().x;
-        float zStepAmount = ((Node)terrain).getLocalScale().z;
-
-        List<Vector2f> locs = new ArrayList<Vector2f>();
-        List<Float> heights = new ArrayList<Float>();
-
-        for (int z=-radiusStepsZ; z<radiusStepsZ; z++) {
-            for (int x=-radiusStepsZ; x<radiusStepsX; x++) {
-
-                float locX = worldLoc.x + (x*xStepAmount);
-                float locZ = worldLoc.z + (z*zStepAmount);
-                
-                // see if it is in the radius of the tool
-                if (isInRadius(locX-worldLoc.x,locZ-worldLoc.z,radius)) {
-
-                    Vector2f terrainLoc = new Vector2f(locX, locZ);
-                    // adjust height based on radius of the tool
-                    float terrainHeightAtLoc = terrain.getHeightmapHeight(terrainLoc)*terrain.getSpatial().getWorldScale().y;
-                    float radiusWeight = calculateRadiusPercent(radius, locX-worldLoc.x, locZ-worldLoc.z);
-
-                    float epsilon = 0.1f*heightWeight; // rounding error for snapping
-                    
-                    float adj = 0;
-                    if (terrainHeightAtLoc < desiredHeight)
-                        adj = 1;
-                    else if (terrainHeightAtLoc > desiredHeight)
-                        adj = -1;
-                            
-                    adj *= radiusWeight * heightWeight;
-
-                    // test if adjusting too far and then cap it
-                    if (adj > 0 && floatGreaterThan((terrainHeightAtLoc + adj), desiredHeight, epsilon))
-                        adj = desiredHeight - terrainHeightAtLoc;
-                    else if (adj < 0 && floatLessThan((terrainHeightAtLoc + adj), desiredHeight, epsilon))
-                        adj = terrainHeightAtLoc - desiredHeight;
-  
-                    if (!floatEquals(adj, 0, 0.001f)) {
-                        locs.add(terrainLoc);
-                        heights.add(adj);
-                    }
-                    
-                }
-            }
-        }
-        // do the actual height adjustment
-        terrain.adjustHeight(locs, heights);
-        
-        ((Node)terrain).updateModelBound(); // or else we won't collide with it where we just edited
-
-    }
-
-    private int compareFloat(float a, float b, float epsilon) {
-        if (floatEquals(a, b, epsilon))
-            return 0;
-        else if (floatLessThan(a, b, epsilon))
-            return -1;
-        else
-            return 1;
-    }
-
-    private boolean floatEquals(float a, float b, float epsilon) {
-        return a == b ? true : Math.abs(a - b) < epsilon;
-    }
-
-    private boolean floatLessThan(float a, float b, float epsilon) {
-        return b - a > epsilon;
-    }
-
-    private boolean floatGreaterThan(float a, float b, float epsilon) {
-        return a - b > epsilon;
-    }
-
-    protected void doSetLevelTerrainDesiredHeight(Vector3f point) {
-        this.levelTerrainDesiredHeight = point;
-    }
-
-    public Vector3f doGetLevelTerrainDesiredHeight() {
-        return levelTerrainDesiredHeight;
-    }
-
-    /**
-     * Smooth bumps in the terrain by averaging the height in the tool radius.
-     * The smoothAmount affects how many neighbour points are averaged, The smaller
-     * the value, then only the smaller bumps will disappear. A large value will
-     * smooth larger hills
-     * @param markerLocation
-     * @param heightToolRadius
-     * @param smoothAmount
-     */
-    protected void doSmoothTerrain(Vector3f worldLoc, float radius, float weight) {
-        Terrain terrain = (Terrain) getTerrain(null);
-        if (terrain == null)
-            return;
-
-        setNeedsSave(true);
-
-        int radiusStepsX = (int)(radius / ((Node)terrain).getLocalScale().x);
-        int radiusStepsZ = (int)(radius / ((Node)terrain).getLocalScale().z);
-
-        float xStepAmount = ((Node)terrain).getLocalScale().x;
-        float zStepAmount = ((Node)terrain).getLocalScale().z;
-
-        List<Vector2f> locs = new ArrayList<Vector2f>();
-        List<Float> heights = new ArrayList<Float>();
-
-        for (int z=-radiusStepsZ; z<radiusStepsZ; z++) {
-            for (int x=-radiusStepsZ; x<radiusStepsX; x++) {
-
-                float locX = worldLoc.x + (x*xStepAmount);
-                float locZ = worldLoc.z + (z*zStepAmount);
-
-                // see if it is in the radius of the tool
-                if (isInRadius(locX-worldLoc.x,locZ-worldLoc.z,radius)) {
-
-                    Vector2f terrainLoc = new Vector2f(locX, locZ);
-                    // adjust height based on radius of the tool
-                    float center = terrain.getHeightmapHeight(terrainLoc);
-                    float left = terrain.getHeightmapHeight(new Vector2f(terrainLoc.x-1, terrainLoc.y));
-                    float right = terrain.getHeightmapHeight(new Vector2f(terrainLoc.x+1, terrainLoc.y));
-                    float up = terrain.getHeightmapHeight(new Vector2f(terrainLoc.x, terrainLoc.y+1));
-                    float down = terrain.getHeightmapHeight(new Vector2f(terrainLoc.x, terrainLoc.y-1));
-                    int count = 1;
-                    float amount = center;
-                    if (left != Float.NaN) {
-                        amount += left;
-                        count++;
-                    }
-                    if (right != Float.NaN) {
-                        amount += right;
-                        count++;
-                    }
-                    if (up != Float.NaN) {
-                        amount += up;
-                        count++;
-                    }
-                    if (down != Float.NaN) {
-                        amount += down;
-                        count++;
-                    }
-
-                    amount /= count; // take average
-
-                    // weigh it
-                    float diff = amount-center;
-                    diff *= weight;
-                    amount = center+diff;
-                        
-                    locs.add(terrainLoc);
-                    heights.add(amount);
-                }
-            }
-        }
-
-        // do the actual height adjustment
-        terrain.setHeight(locs, heights);
-
-        ((Node)terrain).updateModelBound(); // or else we won't collide with it where we just edited
-
-    }
-
-
-
+    
 
 }

@@ -37,18 +37,15 @@ import com.jme3.gde.core.scene.SceneApplication;
 import com.jme3.gde.core.scene.controller.SceneToolController;
 import com.jme3.gde.core.sceneexplorer.nodes.JmeNode;
 import com.jme3.gde.core.sceneexplorer.nodes.JmeSpatial;
-import com.jme3.gde.terraineditor.TerrainEditorTopComponent.TerrainEditButton;
+import com.jme3.gde.terraineditor.tools.TerrainTool;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
-import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.shape.Sphere;
-import com.jme3.util.IntMap.Entry;
 import java.util.concurrent.Callable;
-import java.util.logging.Logger;
 
 /**
  * The controller for the terrain modification tools. It will in turn interact
@@ -61,24 +58,14 @@ import java.util.logging.Logger;
 public class TerrainToolController extends SceneToolController {
 
     private JmeSpatial jmeRootNode;
-    private TerrainEditButton currentEditButtonState = TerrainEditButton.none;
-    private Geometry marker;
-    private Geometry markerSmall;
+    private TerrainTool terrainTool;
     private TerrainEditorController editorController;
     private TerrainCameraController cameraController;
-    private float heightToolRadius;
-    private float heightAmount;
-    private float levelAmount;
-    private float smoothAmount;
-    private float paintAmount;
+    
+    private float toolRadius;
+    private float toolWeight;
     private int selectedTextureIndex = -1;
-
-    private final ColorRGBA terrainHeightColor = ColorRGBA.Green;
-    private final ColorRGBA terrainPaintColor = ColorRGBA.Yellow;
-    private final ColorRGBA terrainEraseColor = ColorRGBA.Cyan;
-    private final ColorRGBA terrainSmoothColor = ColorRGBA.Brown;
-    private final ColorRGBA terrainLevelColor = ColorRGBA.Orange;
-    private final ColorRGBA terrainLevelMarkColor = ColorRGBA.Red;
+    
 
     public TerrainToolController(Node toolsNode, AssetManager manager, JmeNode rootNode) {
         super(toolsNode, manager);
@@ -94,17 +81,19 @@ public class TerrainToolController extends SceneToolController {
     }
 
     /**
-     * assumes [0,200]
+     * @param heightToolHeight percent of the slider
      */
-    public void setHeightToolHeight(float heightToolHeight) {
-        this.heightAmount = heightToolHeight/100f;
-        this.levelAmount = heightToolHeight/200f;
-        this.smoothAmount = heightToolHeight/200f;
-        this.paintAmount = heightToolHeight/200f;
+    public void setHeightToolHeight(float weight) {
+        this.toolWeight = weight;
+        if (terrainTool != null)
+            terrainTool.weightChanged(weight);
     }
 
+    /**
+     * @param radius  percent of the slider
+     */
     public void setHeightToolRadius(float radius) {
-        this.heightToolRadius = radius;
+        this.toolRadius = radius;
         setEditToolSize(radius);
     }
 
@@ -112,72 +101,12 @@ public class TerrainToolController extends SceneToolController {
         this.selectedTextureIndex = index;
     }
 
-
-    @Override
-    protected void initTools() {
-        super.initTools();
-
-        marker = new Geometry("edit marker");
-        Mesh m = new Sphere(8, 8, 3);
-        marker.setMesh(m);
-        Material mat = new Material(manager, "Common/MatDefs/Misc/Unshaded.j3md");
-        mat.getAdditionalRenderState().setWireframe(true);
-        mat.setColor("Color", ColorRGBA.LightGray);
-        marker.setMaterial(mat);
-        marker.setLocalTranslation(0,0,0);
-
-        markerSmall = new Geometry("edit marker");
-        Mesh m2 = new Sphere(8, 8, 0.5f);
-        markerSmall.setMesh(m2);
-        Material mat2 = new Material(manager, "Common/MatDefs/Misc/Unshaded.j3md");
-        mat2.getAdditionalRenderState().setWireframe(false);
-        mat2.setColor("Color", ColorRGBA.Red);
-        markerSmall.setMaterial(mat2);
-        markerSmall.setLocalTranslation(0,0,0);
+    public void setTerrainEditButtonState(final TerrainTool tool) {
+        showEditTool(tool);
+        
     }
 
-    protected void setMarkerRadius(float radius) {
-        //((Sphere)marker.getMesh()).set;
-    }
-
-    public TerrainEditButton getCurrentEditButtonState() {
-        return currentEditButtonState;
-    }
-
-    public void setTerrainEditButtonState(final TerrainEditButton state) {
-        Logger.getLogger(this.getClass().getName()).info("Edit button state set: "+state);
-        currentEditButtonState = state;
-        if (state == TerrainEditButton.none) {
-            hideEditTool();
-        } else if (state == TerrainEditButton.raiseTerrain || state == TerrainEditButton.lowerTerrain) {
-            showEditTool(state);
-        } else if (state == TerrainEditButton.levelTerrain) {
-            showEditTool(state);
-        } else if (state == TerrainEditButton.smoothTerrain) {
-            showEditTool(state);
-        } else if (state == TerrainEditButton.paintTerrain || state == TerrainEditButton.eraseTerrain) {
-            showEditTool(state);
-        }
-    }
-
-
-    public void hideEditTool() {
-        SceneApplication.getApplication().enqueue(new Callable<Object>() {
-            
-            public Object call() throws Exception {
-                doHideEditTool();
-                return null;
-            }
-        });
-    }
-
-    private void doHideEditTool() {
-        marker.removeFromParent();
-        markerSmall.removeFromParent();
-        editorController.doSetLevelTerrainDesiredHeight(null);
-    }
-
-    public void showEditTool(final TerrainEditButton terrainEditButton) {
+    public void showEditTool(final TerrainTool terrainEditButton) {
         SceneApplication.getApplication().enqueue(new Callable<Object>() {
 
             public Object call() throws Exception {
@@ -190,25 +119,17 @@ public class TerrainToolController extends SceneToolController {
 
     /**
      * show different tool marker depending on terrainEditButton type
-     * @param state
      */
-    private void doShowEditTool(TerrainEditButton state) {
+    private void doShowEditTool(TerrainTool tool) {
+        // remove the old tool markers
+        if (terrainTool != null)
+            terrainTool.hideMarkers();
         
-        toolsNode.attachChild(marker);
-        markerSmall.removeFromParent(); // reset, turn it off
-        editorController.doSetLevelTerrainDesiredHeight(null); // disable the level marker height
-
-        if (state == TerrainEditButton.raiseTerrain || state == TerrainEditButton.lowerTerrain) {
-            marker.getMaterial().setColor("Color", terrainHeightColor);
-        } else if (state == TerrainEditButton.paintTerrain) {
-            marker.getMaterial().setColor("Color", terrainPaintColor);
-        } else if (state == TerrainEditButton.eraseTerrain) {
-            marker.getMaterial().setColor("Color", terrainEraseColor);
-        } else if (state == TerrainEditButton.levelTerrain) {
-            toolsNode.attachChild(markerSmall);
-            marker.getMaterial().setColor("Color", terrainLevelColor);
-        } else if (state == TerrainEditButton.smoothTerrain) {
-            marker.getMaterial().setColor("Color", terrainSmoothColor);
+        terrainTool = tool;
+        if (terrainTool != null) {
+            terrainTool.radiusChanged(toolRadius);
+            terrainTool.weightChanged(toolWeight);
+            terrainTool.activate(manager, toolsNode);
         }
     }
 
@@ -223,57 +144,39 @@ public class TerrainToolController extends SceneToolController {
     }
 
     private void doSetEditToolSize(float size) {
-        for (Entry e: marker.getMesh().getBuffers())
-            ((VertexBuffer)e.getValue()).resetObject();
-        ((Sphere)marker.getMesh()).updateGeometry(8, 8, size);
+        if (terrainTool != null)
+            terrainTool.radiusChanged(size);
     }
 
     public void doMoveEditTool(Vector3f pos) {
-        if (marker != null) {
-            marker.setLocalTranslation(pos);
-            //System.out.println(marker.getLocalTranslation());
+        if (terrainTool != null) {
+            terrainTool.markerMoved(pos);
         }
     }
 
     public Vector3f getMarkerLocation() {
-        if (marker != null)
-            return marker.getLocalTranslation();
-        else
-            return null;
+        if (terrainTool != null) {
+            return terrainTool.getMarkerPrimaryLocation();
+        }
+        return null;
     }
 
     public boolean isTerrainEditButtonEnabled() {
-        return getCurrentEditButtonState() != TerrainEditButton.none;
+        return terrainTool != null;
     }
 
     /**
      * Primary mouse button hit.
-     * raise/lower/paint the terrain
+     * raise/lower/paint... the terrain
      */
     public void doTerrainEditToolActivated() {
 
-        if (TerrainEditButton.raiseTerrain == getCurrentEditButtonState() ) {
-            editorController.doModifyTerrainHeight(getMarkerLocation(), heightToolRadius, heightAmount);
-        }
-        else if (TerrainEditButton.lowerTerrain == getCurrentEditButtonState() ) {
-            editorController.doModifyTerrainHeight(getMarkerLocation(), heightToolRadius, -heightAmount);
-        }
-        else if (TerrainEditButton.smoothTerrain == getCurrentEditButtonState() ) {
-            editorController.doSmoothTerrain(getMarkerLocation(), heightToolRadius, smoothAmount);
-        }
-        else if (TerrainEditButton.levelTerrain == getCurrentEditButtonState() ) {
-            if (editorController.doGetLevelTerrainDesiredHeight() == null) {
-                Vector3f point = cameraController.getTerrainCollisionPoint();
-                if (point != null)
-                     editorController.doSetLevelTerrainDesiredHeight(point);
+        if (terrainTool != null) {
+            Vector3f point = getMarkerLocation();
+            if (point != null) {
+                terrainTool.actionPrimary(point, selectedTextureIndex, jmeRootNode, editorController.getCurrentDataObject());
             }
-            editorController.doLevelTerrain(getMarkerLocation(), heightToolRadius, levelAmount);
-        }
-        else if(TerrainEditButton.paintTerrain == getCurrentEditButtonState()) {
-            editorController.doPaintTexture(selectedTextureIndex, getMarkerLocation(), heightToolRadius, paintAmount);
-        }
-        else if (TerrainEditButton.eraseTerrain == getCurrentEditButtonState() ) {
-            editorController.doPaintTexture(selectedTextureIndex, getMarkerLocation(), heightToolRadius, -paintAmount);
+            
         }
     }
 
@@ -281,14 +184,15 @@ public class TerrainToolController extends SceneToolController {
      * Alternate mouse button hit.
      */
     public void doTerrainEditToolAlternateActivated() {
-        Logger.getLogger(this.getClass().getName()).info("Alternate tool activated ");
-        if (TerrainEditButton.levelTerrain == getCurrentEditButtonState() ) {
-            
+        
+        if (terrainTool != null) {
             Vector3f point = cameraController.getTerrainCollisionPoint();
             if (point != null) {
-                editorController.doSetLevelTerrainDesiredHeight(point);
-                markerSmall.setLocalTranslation(point);
+                terrainTool.actionSecondary(point, selectedTextureIndex, jmeRootNode, editorController.getCurrentDataObject());
             }
+            
         }
+
     }
+
 }

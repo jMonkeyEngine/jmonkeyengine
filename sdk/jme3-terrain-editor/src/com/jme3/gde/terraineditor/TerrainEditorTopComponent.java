@@ -42,8 +42,17 @@ import com.jme3.gde.core.sceneexplorer.nodes.JmeSpatial;
 import com.jme3.gde.core.sceneexplorer.nodes.JmeTerrainQuad;
 import com.jme3.gde.core.sceneexplorer.nodes.NodeUtility;
 import com.jme3.gde.core.sceneexplorer.nodes.properties.TexturePropertyEditor;
+import com.jme3.gde.core.undoredo.AbstractUndoableSceneEdit;
+import com.jme3.gde.core.undoredo.SceneUndoRedoManager;
 import com.jme3.gde.core.util.DataObjectSaveNode;
 import com.jme3.gde.terraineditor.sky.SkyboxWizardAction;
+import com.jme3.gde.terraineditor.tools.EraseTerrainTool;
+import com.jme3.gde.terraineditor.tools.LevelTerrainTool;
+import com.jme3.gde.terraineditor.tools.LowerTerrainTool;
+import com.jme3.gde.terraineditor.tools.PaintTerrainTool;
+import com.jme3.gde.terraineditor.tools.RaiseTerrainTool;
+import com.jme3.gde.terraineditor.tools.SmoothTerrainTool;
+import com.jme3.gde.terraineditor.tools.TerrainTool;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
@@ -73,6 +82,8 @@ import javax.swing.filechooser.FileSystemView;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
+import javax.swing.undo.CannotRedoException;
+import javax.swing.undo.CannotUndoException;
 import jme3tools.converters.ImageToAwt;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
@@ -88,9 +99,12 @@ import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.NotifyDescriptor.Confirmation;
 import org.openide.WizardDescriptor;
+import org.openide.explorer.ExplorerManager;
+import org.openide.explorer.ExplorerUtils;
 import org.openide.nodes.NodeListener;
 import org.openide.util.Exceptions;
 import org.openide.util.HelpCtx;
+import org.openide.util.Lookup;
 import org.openide.util.Lookup.Result;
 import org.openide.util.LookupEvent;
 import org.openide.util.LookupListener;
@@ -120,14 +134,13 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
     private TerrainNodeListener terrainDeletedNodeListener;
     
 
-    public enum TerrainEditButton {none, raiseTerrain, lowerTerrain, smoothTerrain, levelTerrain, paintTerrain, eraseTerrain};
-
     private HelpCtx ctx = new HelpCtx("sdk.terrain_editor");
 
     public TerrainEditorTopComponent() {
         initComponents();
         setName(NbBundle.getMessage(TerrainEditorTopComponent.class, "CTL_TerrainEditorTopComponent"));
         setToolTipText(NbBundle.getMessage(TerrainEditorTopComponent.class, "HINT_TerrainEditorTopComponent"));
+        associateLookup(ExplorerUtils.createLookup(new ExplorerManager(), getActionMap()));
         setIcon(ImageUtilities.loadImage(ICON_PATH, true));
         result = Utilities.actionsGlobalContext().lookupResult(JmeSpatial.class);
     }
@@ -176,14 +189,10 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
     private void setHintText(String text) {
         hintTextArea.setText(text);
     }
-
-    private void setHintText(TerrainEditButton terrainEditButton) {
-        if (TerrainEditButton.none.equals(terrainEditButton) )
-            hintTextArea.setText(org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.toolHint.none"));
-        else if (TerrainEditButton.levelTerrain.equals(terrainEditButton) )
-            hintTextArea.setText(org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.toolHint.level"));
-        else if (TerrainEditButton.smoothTerrain.equals(terrainEditButton) )
-            hintTextArea.setText(org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.toolHint.smooth"));
+    
+    private void setHintText(TerrainTool tool) {
+        if (tool != null)
+            hintTextArea.setText(org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, tool.getToolHintTextKey() ));
         else
             hintTextArea.setText(org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.toolHint.default"));
     }
@@ -575,21 +584,23 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
         //toolController.setShowGrid(true);
 
         if (raiseTerrainButton.isSelected()) {
-            toolController.setTerrainEditButtonState(TerrainEditButton.raiseTerrain);
-            setHintText(TerrainEditButton.raiseTerrain);
+            RaiseTerrainTool tool = new RaiseTerrainTool();
+            toolController.setTerrainEditButtonState(tool);
+            setHintText(tool);
         } else {
-            toolController.setTerrainEditButtonState(TerrainEditButton.none);
-            setHintText(TerrainEditButton.none);
+            toolController.setTerrainEditButtonState(null);
+            setHintText((TerrainTool)null);
         }
     }//GEN-LAST:event_raiseTerrainButtonActionPerformed
 
     private void lowerTerrainButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_lowerTerrainButtonActionPerformed
         if (lowerTerrainButton.isSelected()) {
-            toolController.setTerrainEditButtonState(TerrainEditButton.lowerTerrain);
-            setHintText(TerrainEditButton.lowerTerrain);
+            LowerTerrainTool tool = new LowerTerrainTool();
+            toolController.setTerrainEditButtonState(tool);
+            setHintText(tool);
         } else {
-            toolController.setTerrainEditButtonState(TerrainEditButton.none);
-            setHintText(TerrainEditButton.none);
+            toolController.setTerrainEditButtonState(null);
+            setHintText((TerrainTool)null);
         }
     }//GEN-LAST:event_lowerTerrainButtonActionPerformed
 
@@ -603,11 +614,12 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
 
     private void paintButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_paintButtonActionPerformed
         if (paintButton.isSelected()) {
-            toolController.setTerrainEditButtonState(TerrainEditButton.paintTerrain);
-            setHintText(TerrainEditButton.paintTerrain);
+            PaintTerrainTool tool = new PaintTerrainTool();
+            toolController.setTerrainEditButtonState(tool);
+            setHintText(tool);
         } else {
-            toolController.setTerrainEditButtonState(TerrainEditButton.none);
-            setHintText(TerrainEditButton.none);
+            toolController.setTerrainEditButtonState(null);
+            setHintText((TerrainTool)null);
         }
     }//GEN-LAST:event_paintButtonActionPerformed
 
@@ -639,11 +651,12 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
 
     private void eraseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_eraseButtonActionPerformed
         if (eraseButton.isSelected()) {
-            toolController.setTerrainEditButtonState(TerrainEditButton.eraseTerrain);
-            setHintText(TerrainEditButton.eraseTerrain);
+            EraseTerrainTool tool = new EraseTerrainTool();
+            toolController.setTerrainEditButtonState(tool);
+            setHintText(tool);
         } else {
-            toolController.setTerrainEditButtonState(TerrainEditButton.none);
-            setHintText(TerrainEditButton.none);
+            toolController.setTerrainEditButtonState(null);
+            setHintText((TerrainTool)null);
         }
     }//GEN-LAST:event_eraseButtonActionPerformed
 
@@ -660,31 +673,33 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
 
     private void levelTerrainButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_levelTerrainButtonActionPerformed
         if (levelTerrainButton.isSelected()) {
-            toolController.setTerrainEditButtonState(TerrainEditButton.levelTerrain);
-            setHintText(TerrainEditButton.levelTerrain);
+            LevelTerrainTool tool = new LevelTerrainTool();
+            toolController.setTerrainEditButtonState(tool);
+            setHintText(tool);
         } else {
-            toolController.setTerrainEditButtonState(TerrainEditButton.none);
-            setHintText(TerrainEditButton.none);
+            toolController.setTerrainEditButtonState(null);
+            setHintText((TerrainTool)null);
         }
     }//GEN-LAST:event_levelTerrainButtonActionPerformed
 
     private void radiusSliderStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_radiusSliderStateChanged
         if (toolController != null)
-            toolController.setHeightToolRadius(radiusSlider.getValue());
+            toolController.setHeightToolRadius((float)radiusSlider.getValue() / (float)radiusSlider.getMaximum());
     }//GEN-LAST:event_radiusSliderStateChanged
 
     private void heightSliderStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_heightSliderStateChanged
         if (toolController != null)
-            toolController.setHeightToolHeight(heightSlider.getValue()); // should always be values upto and over 100, because it will be divided by 100
+            toolController.setHeightToolHeight((float)heightSlider.getValue() / (float)heightSlider.getMaximum());
     }//GEN-LAST:event_heightSliderStateChanged
 
     private void smoothTerrainButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_smoothTerrainButtonActionPerformed
         if (smoothTerrainButton.isSelected()) {
-            toolController.setTerrainEditButtonState(TerrainEditButton.smoothTerrain);
-            setHintText(TerrainEditButton.smoothTerrain);
+            SmoothTerrainTool tool = new SmoothTerrainTool();
+            toolController.setTerrainEditButtonState(tool);
+            setHintText(tool);
         } else {
-            toolController.setTerrainEditButtonState(TerrainEditButton.none);
-            setHintText(TerrainEditButton.none);
+            toolController.setTerrainEditButtonState(null);
+            setHintText((TerrainTool)null);
         }
     }//GEN-LAST:event_smoothTerrainButtonActionPerformed
 
@@ -790,7 +805,8 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
                                                     patchSize,
                                                     alphaTextureSize,
                                                     heightmapData,
-                                                    split2[0]);
+                                                    split2[0],
+                                                    selectedSpat);
         } catch (IOException ex) {
             Exceptions.printStackTrace(ex);
         }
@@ -808,7 +824,8 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
 
         refreshSelected();
         
-        createTerrainButton.setEnabled(false); // only let the user add one terrain
+        //createTerrainButton.setEnabled(false); // only let the user add one terrain
+        
     }
 
     public void generateSkybox(WizardDescriptor wiz) {
@@ -986,6 +1003,8 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
 
         addSaveNode(jmeNode);
         
+        SceneUndoRedoManager m = Lookup.getDefault().lookup(SceneUndoRedoManager.class);//TODO remove this line
+            
         Logger.getLogger(TerrainEditorTopComponent.class.getName()).finer("Terrain openScene "+file.getName());
         
         if (editorController != null) {
@@ -1044,14 +1063,15 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
             toolController.setCameraController(camController);
             editorController.setToolController(toolController);
 
-            toolController.setHeightToolRadius(radiusSlider.getValue());
-            toolController.setHeightToolHeight(heightSlider.getValue()); // should always be values upto and over 100, because it will be divided by 100
+            toolController.setHeightToolRadius((float)radiusSlider.getValue()/(float)radiusSlider.getMaximum());
+            toolController.setHeightToolHeight((float)heightSlider.getValue()/(float)heightSlider.getMaximum());
 
             java.awt.EventQueue.invokeLater(new Runnable() {
                 public void run() {
                     reinitTextureTable(); // update the UI
-                    if (editorController.getTerrain(null) != null)
-                        createTerrainButton.setEnabled(false); // only let the user add one terrain
+                    if (editorController.getTerrain(null) != null) {
+                        //createTerrainButton.setEnabled(false); // only let the user add one terrain
+                    }
                 }
             });
             //editorController.getAlphaSaveDataObject(this);
