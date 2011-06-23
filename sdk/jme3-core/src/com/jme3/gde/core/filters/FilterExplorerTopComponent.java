@@ -167,16 +167,16 @@ public final class FilterExplorerTopComponent extends TopComponent implements Ex
         if (added == enabled) {
             return;
         }
-        added = enabled;
         if (currentFile != null) {
+            added = enabled;
             final FilterPostProcessor fpp = this.node.getFilterPostProcessor();
             SceneApplication.getApplication().enqueue(new Callable() {
 
                 public Object call() throws Exception {
                     if (enabled) {
-                        SceneApplication.getApplication().getViewPort().removeProcessor(fpp);
-                    } else {
                         SceneApplication.getApplication().getViewPort().addProcessor(fpp);
+                    } else {
+                        SceneApplication.getApplication().getViewPort().removeProcessor(fpp);
                     }
                     return null;
                 }
