@@ -51,7 +51,20 @@ import java.util.logging.Level;
 public class FieldSerializer extends Serializer {
     private static Map<Class, SavedField[]> savedFields = new HashMap<Class, SavedField[]>();
 
+    protected void checkClass(Class clazz) {
+    
+        // See if the class has a public no-arg constructor
+        try {
+            clazz.getConstructor();
+        } catch( NoSuchMethodException e ) {
+            throw new RuntimeException( "Registration error: no-argument constructor not found on:" + clazz ); 
+        } 
+    }        
+    
     public void initialize(Class clazz) {
+
+        checkClass(clazz);   
+    
         List<Field> fields = new ArrayList<Field>();
 
         Class processingClass = clazz;
