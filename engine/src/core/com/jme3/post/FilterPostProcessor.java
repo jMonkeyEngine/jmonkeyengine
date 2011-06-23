@@ -127,6 +127,10 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
         filter.cleanup(renderer);
         updateLastFilterIndex();
     }
+    
+    public Iterator<Filter> getFilterIterator(){
+        return filters.iterator();
+    }
 
     public void initialize(RenderManager rm, ViewPort vp) {
         renderManager = rm;
