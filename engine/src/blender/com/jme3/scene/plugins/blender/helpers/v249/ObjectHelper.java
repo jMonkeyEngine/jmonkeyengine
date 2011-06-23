@@ -302,10 +302,10 @@ public class ObjectHelper extends AbstractBlenderHelper {
 		Vector3f scale = new Vector3f(size.get(0).floatValue() * scaleX, 
 									  size.get(1).floatValue() * scaleY, 
 									  size.get(2).floatValue() * scaleZ);
-		if(fixUpAxis) {
+		if(parent.isNull() && fixUpAxis) {
 			float y = translation.y;
 			translation.y = translation.z;
-			translation.z = y;
+			translation.z = -y;
 			rotation.multLocal(this.upAxisRotationQuaternion);
 		}
 		Transform t = new Transform(translation, rotation);
