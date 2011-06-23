@@ -662,7 +662,8 @@ public class ConstraintHelper extends AbstractBlenderHelper {
 				for (Structure constraint : constraints) {
 					int type = ((Number) constraint.getFieldValue("type")).intValue();
 					String constraintName = constraint.getFieldValue("name").toString();
-					Ipo ipo = constraintsIpos.get(name).get(constraintName);
+					Map<String, Ipo> ipoMap = constraintsIpos.get(name);
+					Ipo ipo = ipoMap==null ? null : ipoMap.get(constraintName);
 					if (ipo == null) {
 						float enforce = ((Number) constraint.getFieldValue("enforce")).floatValue();
 						ipo = ipoHelper.createIpo(enforce);
