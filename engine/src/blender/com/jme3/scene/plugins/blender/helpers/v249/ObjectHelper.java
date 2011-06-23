@@ -281,16 +281,20 @@ public class ObjectHelper extends AbstractBlenderHelper {
 	 */
 	@SuppressWarnings("unchecked")
 	public Transform getTransformation(Structure objectStructure) {
+		//these are transformations in global space
 		DynamicArray<Number> loc = (DynamicArray<Number>)objectStructure.getFieldValue("loc");
 		DynamicArray<Number> size = (DynamicArray<Number>)objectStructure.getFieldValue("size");
 		DynamicArray<Number> rot = (DynamicArray<Number>)objectStructure.getFieldValue("rot");
 
+		//load parent inverse matrix
 		Pointer parent = (Pointer) objectStructure.getFieldValue("parent");
 		Matrix4f parentInv = parent.isNull() ? Matrix4f.IDENTITY : this.getMatrix(objectStructure, "parentinv");
 		
+		//create the global matrix (without the scale)
 		Matrix4f globalMatrix = new Matrix4f();
 		globalMatrix.setTranslation(loc.get(0).floatValue(), loc.get(1).floatValue(), loc.get(2).floatValue());
 		globalMatrix.setRotationQuaternion(new Quaternion().fromAngles(rot.get(0).floatValue(), rot.get(1).floatValue(), rot.get(2).floatValue()));
+		//compute local matrix
 		Matrix4f localMatrix = parentInv.mult(globalMatrix);
 
 		Vector3f translation = localMatrix.toTranslationVector();
@@ -302,12 +306,16 @@ public class ObjectHelper extends AbstractBlenderHelper {
 		Vector3f scale = new Vector3f(size.get(0).floatValue() * scaleX, 
 									  size.get(1).floatValue() * scaleY, 
 									  size.get(2).floatValue() * scaleZ);
+		
+		//the root object is transformed if the Y axis is UP
 		if(parent.isNull() && fixUpAxis) {
 			float y = translation.y;
 			translation.y = translation.z;
 			translation.z = -y;
 			rotation.multLocal(this.upAxisRotationQuaternion);
 		}
+		
+		//create the result
 		Transform t = new Transform(translation, rotation);
 		t.setScale(scale);
 		return t;
