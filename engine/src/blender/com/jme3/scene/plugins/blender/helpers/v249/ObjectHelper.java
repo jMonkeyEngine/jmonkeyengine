@@ -312,7 +312,7 @@ public class ObjectHelper extends AbstractBlenderHelper {
 			float y = translation.y;
 			translation.y = translation.z;
 			translation.z = -y;
-			rotation.multLocal(this.upAxisRotationQuaternion);
+			rotation = this.upAxisRotationQuaternion.mult(rotation);
 		}
 		
 		//create the result
