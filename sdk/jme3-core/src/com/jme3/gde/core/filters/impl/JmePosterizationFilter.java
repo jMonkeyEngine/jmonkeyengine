@@ -64,7 +64,7 @@ public class JmePosterizationFilter extends AbstractFilterNode {
         if (obj == null) {
             return sheet;
         }
-        set.put(makeProperty(obj, float.class, "getGamma", "setGamme", "Gamma"));
+        set.put(makeProperty(obj, float.class, "getGamma", "setGamma", "Gamma"));
         set.put(makeProperty(obj, int.class, "getNumColors", "setNumColors", "Color Number"));
         set.put(makeProperty(obj, float.class, "getStrength", "setStrength", "Strength"));
         sheet.put(set);
