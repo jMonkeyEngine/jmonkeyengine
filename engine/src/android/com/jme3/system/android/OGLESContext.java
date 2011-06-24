@@ -75,7 +75,7 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer
     protected final AtomicBoolean created = new AtomicBoolean(false);
     protected final AtomicBoolean renderable = new AtomicBoolean(false);
     protected final AtomicBoolean needClose = new AtomicBoolean(false);
-    protected final Object createdLock = new Object();
+   
     protected final AppSettings settings = new AppSettings(true);
 
 	/* >= OpenGL ES 2.0 (Android 2.2+) */
@@ -127,7 +127,7 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer
      */
     public GLSurfaceView createView(AndroidInput view)
     {
-        return createView(view, ConfigType.FASTEST);
+        return createView(view, ConfigType.FASTEST, false);
     }
     
     /**
@@ -136,7 +136,7 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer
      * @param debugflags 0, GLSurfaceView.DEBUG_CHECK_GL_ERROR | GLSurfaceView.DEBUG_LOG_GL_CALLS
      * @return GLSurfaceView The newly created view
      */    
-    public GLSurfaceView createView(AndroidInput view, ConfigType configType)
+    public GLSurfaceView createView(AndroidInput view, ConfigType configType, boolean eglConfigVerboseLogging)
     {                    
         EGL10 egl = (EGL10) EGLContext.getEGL();
         EGLDisplay display = egl.eglGetDisplay(EGL10.EGL_DEFAULT_DISPLAY);
@@ -151,7 +151,7 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer
         this.view = view;    
 
         // Create a config chooser
-        AndroidConfigChooser configChooser = new AndroidConfigChooser(configType);
+        AndroidConfigChooser configChooser = new AndroidConfigChooser(configType, eglConfigVerboseLogging);
         // Init chooser
         if (!configChooser.findConfig(egl, display))
         {
@@ -239,18 +239,24 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer
      * De-initialize in the OpenGL thread.
      */
     protected void deinitInThread()
-    {        
-        if (renderer != null) 
-            renderer.cleanup();
-            
-        listener.destroy();
-        
-        // do android specific cleaning here
-		logger.info("Display destroyed.");		
-		renderable.set(false);
-		created.set(false);
-		renderer = null;
-		timer = null;
+    {   
+        if (renderable.get())
+        {
+            renderable.set(false);
+            if (renderer != null) 
+                renderer.cleanup();
+                
+            listener.destroy();
+                		    	
+            listener = null;
+    		renderer = null;
+    		timer = null;
+    		
+            // do android specific cleaning here
+            logger.info("Display destroyed.");      
+
+    		created.set(false);
+        }
     }
     
     protected void  applySettingsToRenderer(OGLESShaderRenderer renderer, AppSettings settings) 
@@ -441,12 +447,10 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer
     
     protected void waitFor(boolean createdVal)
     {
-        synchronized (createdLock){
-            while (created.get() != createdVal){
-                try {
-                    createdLock.wait();
-                } catch (InterruptedException ex) {
-                }
+        while (created.get() != createdVal){
+            try {
+                Thread.sleep(10);
+            } catch (InterruptedException ex) {
             }
         }
     }

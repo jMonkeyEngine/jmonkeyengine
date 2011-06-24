@@ -1,6 +1,7 @@
 package com.jme3.system;
 
 
+import android.app.Activity;
 import android.content.res.Resources;
 import com.jme3.util.AndroidLogHandler;
 import com.jme3.asset.AndroidAssetManager;
@@ -12,6 +13,7 @@ import com.jme3.audio.AudioRenderer;
 import com.jme3.audio.Environment;
 import com.jme3.audio.Listener;
 import com.jme3.audio.ListenerParam;
+import com.jme3.audio.android.AndroidAudioRenderer;
 //import com.jme3.audio.DummyAudioRenderer;
 import com.jme3.system.JmeContext.Type;
 import com.jme3.system.android.OGLESContext;
@@ -93,9 +95,11 @@ public class JmeSystem
     private static boolean initialized = false;
     private static boolean lowPermissions = false;
     private static Resources res;
+    private static Activity activity;
 
     public static void initialize(AppSettings settings)
     {
+        
         if (initialized)
             return;
 
@@ -116,7 +120,7 @@ public class JmeSystem
 
     public static String getFullName()
     {
-        return "jMonkey Engine 3 ALPHA 0.6 Android";
+        return "jMonkey Engine 3 ALPHA 0.7 Android";
     }
     
     public static void setLowPermissions(boolean lowPerm)
@@ -137,28 +141,7 @@ public class JmeSystem
 
     public static AudioRenderer newAudioRenderer(AppSettings settings) 
     {
-		return new AudioRenderer() 
-		    {
-			public void setListener(Listener listener) {}
-			public void setEnvironment(Environment env) {}
-			public void playSourceInstance(AudioNode src) {}
-			public void playSource(AudioNode src) {}
-			public void pauseSource(AudioNode src) {}
-			public void stopSource(AudioNode src) {}
-			public void deleteAudioData(AudioData ad) {}
-			public void initialize() {}
-			public void update(float tpf) {}
-			public void cleanup() {}
-			public void updateListenerParam(Listener listener,
-					ListenerParam param) {
-				// TODO Auto-generated method stub
-				
-			}
-			public void updateSourceParam(AudioNode src, AudioParam param) {
-				// TODO Auto-generated method stub
-				
-			}
-		};
+		return new AndroidAudioRenderer(activity); 
     }
 
     public static void setResources(Resources res)
@@ -170,6 +153,17 @@ public class JmeSystem
     {
         return res;
     }
+
+    public static void setActivity(Activity activity)
+    {
+        JmeSystem.activity = activity;
+    }
+
+    public static Activity getActivity()
+    {
+        return activity;
+    }    
+    
 
     public static AssetManager newAssetManager()
     {

@@ -46,6 +46,11 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
      * ConfigType.BEST is RGBA8888 or better if supported by the hardware
      */
     protected ConfigType eglConfigType = ConfigType.FASTEST;
+    
+    /**
+     * If true all valid and not valid egl configs are logged
+     */
+    protected boolean eglConfigVerboseLogging = false;
 
     /**
      * Title of the exit dialog, default is "Do you want to exit?"
@@ -68,6 +73,7 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
         super.onCreate(savedInstanceState);
 
         JmeSystem.setResources(getResources());
+        JmeSystem.setActivity(this);
 
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
@@ -88,7 +94,7 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
         app.setSettings(settings);
         app.start();    
         ctx = (OGLESContext) app.getContext();
-        view = ctx.createView(input, eglConfigType);
+        view = ctx.createView(input, eglConfigType, eglConfigVerboseLogging);
    		setContentView(view);       		
     }
 
@@ -129,8 +135,8 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
 
     @Override
     protected void onDestroy(){
-        super.onDestroy();        
-        app.stop();
+        app.stop(true);
+        super.onDestroy();                
         logger.info("onDestroy");
     }
 
@@ -138,6 +144,7 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
     {
         return app;
     }
+    
     /**
      * Called when an error has occured. This is typically
      * invoked when an uncought exception is thrown in the render thread.
@@ -186,7 +193,7 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
     {        
         if (whichButton != -2)
         {
-            app.stop();
+            app.stop(true);
             this.finish();
         }
     }

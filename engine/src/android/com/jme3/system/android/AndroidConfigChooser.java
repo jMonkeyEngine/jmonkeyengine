@@ -25,6 +25,8 @@ public class AndroidConfigChooser implements EGLConfigChooser
     protected ConfigType type;
     protected int pixelFormat;
     
+    protected boolean verbose = false;
+    
     private final static int EGL_OPENGL_ES2_BIT = 4;
 
     public enum ConfigType 
@@ -39,9 +41,10 @@ public class AndroidConfigChooser implements EGLConfigChooser
         BEST
     }
     
-    public AndroidConfigChooser(ConfigType type)
+    public AndroidConfigChooser(ConfigType type, boolean verbose)
     {
         this.type = type;
+        this.verbose = verbose;
     }
         
     /**
@@ -69,10 +72,15 @@ public class AndroidConfigChooser implements EGLConfigChooser
         //Querying actual configurations
         EGLConfig[] conf = new EGLConfig[configurations];
         egl.eglGetConfigs(display, conf, configurations, num_conf);
-   
-       
+          
         int[] value = new int[1];        
-    
+   
+        
+        if (configurations <= 0)
+        {
+            logger.severe("###ERROR### ZERO EGL Configurations found, This Is a Problem"); 
+        }
+        
         // Loop over all configs to get the best
         for(int i = 0; i < configurations; i++)
         {                    
@@ -94,27 +102,57 @@ public class AndroidConfigChooser implements EGLConfigChooser
                             bestConfig = better(bestConfig, conf[i], egl, display);
                             fastestConfig = faster(fastestConfig, conf[i], egl, display);
                             
-                            logger.info("Supported EGL Configuration #" + i );                            
-                            logEGLConfig(conf[i], display, egl);                                               
+                            if (verbose)
+                            {
+                                logger.info("** Supported EGL Configuration #" + i );                            
+                                logEGLConfig(conf[i], display, egl);
+                            }
                         }
+                        else
+                        {
+                            if (verbose)
+                            {
+                                logger.info("NOT Supported EGL Configuration #" + i + " EGL_OPENGL_ES2_BIT not set");                            
+                                logEGLConfig(conf[i], display, egl); 
+                            }
+                        }  
+                    }
+                    else
+                    {
+                        if (verbose)
+                        {
+                            logger.info("NOT Supported EGL Configuration #" + i + " EGL_DEPTH_SIZE != 16");                            
+                            logEGLConfig(conf[i], display, egl);
+                        }
+                    }
+                }
+                else
+                {
+                    if (verbose)
+                    {
+                        logger.info("NOT Supported EGL Configuration #" + i + " EGL_WINDOW_BIT not set");                            
+                        logEGLConfig(conf[i], display, egl);
                     }
                 }
             }
             else
             {
-                break;
+                logger.severe("###ERROR### EGL Configuration #" + i + " is NULL");
             }
         }
     
         
         if ((type == ConfigType.BEST) && (bestConfig != null))
         {
-            logger.info("### JME3 ### using best EGL configuration available here: ");
+            logger.info("JME3 using best EGL configuration available here: ");
             choosenConfig = bestConfig;
         }
         else
         {
-            logger.info("### JME3 ### using fastest EGL configuration available here: ");
+            if (fastestConfig != null)
+            {
+                logger.info("JME3 using fastest EGL configuration available here: ");
+            }
             choosenConfig = fastestConfig;            
         }
         
@@ -127,7 +165,7 @@ public class AndroidConfigChooser implements EGLConfigChooser
         }
         else
         {
-            logger.severe("Unable to get a valid OpenGL ES 2.0 config");
+            logger.severe("###ERROR### Unable to get a valid OpenGL ES 2.0 config, nether Fastest nor Best found! Bug. Please report this.");
             clientOpenGLESVersion = 1;
             pixelFormat = PixelFormat.UNKNOWN;
             return false;

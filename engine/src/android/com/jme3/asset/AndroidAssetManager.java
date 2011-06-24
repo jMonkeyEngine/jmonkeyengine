@@ -39,6 +39,7 @@ import java.util.logging.Logger;
 
 import com.jme3.asset.plugins.AndroidLocator;
 import com.jme3.asset.plugins.ClasspathLocator;
+import com.jme3.audio.plugins.AndroidAudioLoader;
 
 /**
  * <code>AndroidAssetManager</code> is an implementation of DesktopAssetManager for Android
@@ -72,7 +73,8 @@ public class AndroidAssetManager extends DesktopAssetManager {
     	// Set Default Android config        	       
         this.registerLocator("", AndroidLocator.class);	        
         this.registerLocator("", ClasspathLocator.class);
-        this.registerLoader(AndroidImageLoader.class, "jpg", "bmp", "gif", "png", "jpeg");        
+        this.registerLoader(AndroidImageLoader.class, "jpg", "bmp", "gif", "png", "jpeg");
+        this.registerLoader(AndroidAudioLoader.class, "ogg", "mp3");
         this.registerLoader(com.jme3.material.plugins.J3MLoader.class, "j3m");
         this.registerLoader(com.jme3.material.plugins.J3MLoader.class, "j3md");
         this.registerLoader(com.jme3.font.plugins.BitmapFontLoader.class, "fnt");
