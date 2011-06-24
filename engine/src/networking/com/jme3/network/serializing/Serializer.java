@@ -172,7 +172,7 @@ public abstract class Serializer {
 
             serializer.initialize(cls);
 
-            log.log( Level.INFO, "Registered class:{0}.", cls );
+            log.log( Level.INFO, "Registered class[" + classId + "]:{0}.", cls );
             return reg;
         }
         if (failOnMiss) {
@@ -233,12 +233,18 @@ public abstract class Serializer {
     public static SerializerRegistration registerClass(Class cls, Serializer serializer) {
         SerializerRegistration existingReg = getExactSerializerRegistration(cls);
 
-        short id = --nextId;
-        if (existingReg != null) id = existingReg.getId();
+        short id;
+        if (existingReg != null) { 
+            id = existingReg.getId();
+        } else {
+            id = --nextId;
+        }            
         SerializerRegistration reg = new SerializerRegistration(serializer, cls, id);
 
         idRegistrations.put(id, reg);
         classRegistrations.put(cls, reg);
+        
+        log.log( Level.INFO, "Registered class[" + id + "]:{0} to:" + serializer, cls );
 
         serializer.initialize(cls);
 
