@@ -29,7 +29,6 @@ import com.jme3.terrain.heightmap.HeightMapGrid;
 public class TerrainGrid extends TerrainQuad {
 
     private static final Logger log = Logger.getLogger(TerrainGrid.class.getCanonicalName());
-    
     private Vector3f currentCell;
     private int quarterSize;
     private int quadSize;
@@ -120,15 +119,15 @@ public class TerrainGrid extends TerrainQuad {
     }
 
     public void initialize(Vector3f location) {
-        if(this.material == null){
-           throw new RuntimeException("Material must be set prior to call of initialize");
+        if (this.material == null) {
+            throw new RuntimeException("Material must be set prior to call of initialize");
         }
         Vector3f camCell = this.getCell(location);
         this.updateChildrens(camCell);
         for (TerrainGridListener l : this.listeners.values()) {
             l.gridMoved(camCell);
         }
-   }
+    }
 
     @Override
     public void update(List<Vector3f> locations) {
@@ -202,7 +201,7 @@ public class TerrainGrid extends TerrainQuad {
             kym = 1;
         }
 
-        for (int i=kym; i<kyM; i++) {
+        for (int i = kym; i < kyM; i++) {
             for (int j = kxm; j < kxM; j++) {
                 cache.get(cam.add(quadIndex[i * 4 + j]));
             }
@@ -249,10 +248,11 @@ public class TerrainGrid extends TerrainQuad {
         this.updateModelBound();
 
         if (control != null) {
-            int currentCollisionGroup = control.getCollideWithGroups();
+            int collisionGroupsCollideWith = control.getCollideWithGroups();
+            int collisionGroups = control.getCollisionGroup();
             control = new RigidBodyControl(new HeightfieldCollisionShape(getHeightMap(), getLocalScale()), 0);
-            control.setCcdMotionThreshold(0.5f);
-            control.setCollisionGroup(currentCollisionGroup);
+            control.setCollideWithGroups(collisionGroupsCollideWith);
+            control.setCollisionGroup(collisionGroups);
             this.addControl(control);
             space.add(this);
         }
