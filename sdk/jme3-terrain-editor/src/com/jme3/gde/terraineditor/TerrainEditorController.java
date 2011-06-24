@@ -85,9 +85,9 @@ public class TerrainEditorController {
     private AssetDataObject currentFileObject;
 
     // texture settings
-    protected final String DEFAULT_TERRAIN_TEXTURE = "com/jme3/gde/terraineditor/dirt.jpg";
-    protected final float DEFAULT_TEXTURE_SCALE = 16.0625f;
-    private final int NUM_ALPHA_TEXTURES = 3;
+    public static final String DEFAULT_TERRAIN_TEXTURE = "com/jme3/gde/terraineditor/dirt.jpg";
+    public static final float DEFAULT_TEXTURE_SCALE = 16.0625f;
+    public static final int NUM_ALPHA_TEXTURES = 3;
     private final int BASE_TEXTURE_COUNT = NUM_ALPHA_TEXTURES; // add any others here, like a global specular map
     protected final int MAX_TEXTURE_LAYERS = 7-BASE_TEXTURE_COUNT; // 16 max, minus the ones we are reserving
 
