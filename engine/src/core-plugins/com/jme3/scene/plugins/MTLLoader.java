@@ -92,8 +92,8 @@ public class MTLLoader implements AssetLoader {
     }
     
     protected void resetMaterial(){
-        ambient.set(ColorRGBA.Black);
-        diffuse.set(ColorRGBA.Black);
+        ambient.set(ColorRGBA.DarkGray);
+        diffuse.set(ColorRGBA.LightGray);
         specular.set(ColorRGBA.Black);
         shininess = 16;
         shadeless = false;
@@ -189,6 +189,9 @@ public class MTLLoader implements AssetLoader {
             specular.set(readColor());
         }else if (cmd.equals("ns")){
             shininess = scan.nextFloat(); /* (128f / 1000f)*/
+            if (specular.equals(ColorRGBA.Black)){
+                specular.set(ColorRGBA.White);
+            }
         }else if (cmd.equals("d") || cmd.equals("tr")){
             alpha = scan.nextFloat();
             transparent = true;

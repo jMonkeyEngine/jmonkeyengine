@@ -165,6 +165,10 @@ public class TangentBinormalGenerator {
             v[i] = new Vector3f();
             t[i] = new Vector2f();
         }
+        
+        if (mesh.getBuffer(Type.Normal) == null){
+            throw new IllegalArgumentException("The given mesh has no normal data!");
+        }
 
         VertexData[] vertices;
         switch (mesh.getMode()) {
