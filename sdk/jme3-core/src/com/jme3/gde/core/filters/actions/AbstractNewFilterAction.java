@@ -31,7 +31,6 @@
  */
 package com.jme3.gde.core.filters.actions;
 
-import com.bulletphysics.collision.broadphase.Dbvt.Node;
 import com.jme3.gde.core.filters.FilterPostProcessorNode;
 import com.jme3.gde.core.scene.SceneApplication;
 import com.jme3.gde.core.undoredo.AbstractUndoableSceneEdit;
@@ -43,7 +42,6 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
-import org.openide.loaders.DataObject;
 import org.openide.util.Lookup;
 
 /**
