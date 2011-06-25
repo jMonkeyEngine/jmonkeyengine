@@ -34,6 +34,7 @@ package com.jme3.export.binary;
 
 import com.jme3.export.InputCapsule;
 import com.jme3.export.Savable;
+import com.jme3.export.SavableClassUtil;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.IntMap;
 import java.io.IOException;
@@ -258,23 +259,8 @@ final class BinaryInputCapsule implements InputCapsule {
     }
     
     public int getSavableVersion(Class<? extends Savable> desiredClass){
-        Class thisClass = savable.getClass();
-        int count = 0;
-        while (thisClass != null && thisClass != desiredClass){
-            thisClass = thisClass.getSuperclass();
-            count ++;
-        }
-        if (thisClass == null){
-            throw new IllegalArgumentException(savable.getClass().getName() + 
-                                               " does not extend " + 
-                                               desiredClass.getName() + "!");
-        }else if (count > cObj.classHierarchyVersions.length){
-            throw new IllegalArgumentException(savable.getClass().getName() + 
-                                               " cannot access version of " +
-                                               desiredClass.getName() + 
-                                               " because it doesn't implement Savable");
-        }
-        return cObj.classHierarchyVersions[count];
+        return SavableClassUtil.getSavedSavableVersion(savable, desiredClass, 
+                                            cObj.classHierarchyVersions);
     }
 
     public BitSet readBitSet(String name, BitSet defVal) throws IOException {

@@ -71,6 +71,9 @@ public class DOMInputCapsule implements InputCapsule {
     private XMLImporter importer;
     private boolean isAtRoot = true;
     private Map<String, Savable> referencedSavables = new HashMap<String, Savable>();
+    
+    private int[] classHierarchyVersions;
+    private Savable savable;
 
     public DOMInputCapsule(Document doc, XMLImporter importer) {
         this.doc = doc;
@@ -78,8 +81,13 @@ public class DOMInputCapsule implements InputCapsule {
         currentElem = doc.getDocumentElement();
     }
 
-    public int getSavableVersion(Class<? extends Savable> clazz) {
-        return 0; // TODO: figure this out ...
+    public int getSavableVersion(Class<? extends Savable> desiredClass) {
+        if (classHierarchyVersions != null){
+            return SavableClassUtil.getSavedSavableVersion(savable, desiredClass, 
+                                                        classHierarchyVersions);
+        }else{
+            return 0;
+        }
     }
     
     private static String decodeString(String s) {
@@ -978,10 +986,25 @@ public class DOMInputCapsule implements InputCapsule {
                 className = currentElem.getAttribute("class");
             }
             tmp = SavableClassUtil.fromName(className, null);
+            
+            
+            String versionsStr = currentElem.getAttribute("savable_versions");
+            if (versionsStr != null && !versionsStr.equals("")){
+                String[] versionStr = versionsStr.split(",");
+                classHierarchyVersions = new int[versionStr.length];
+                for (int i = 0; i < classHierarchyVersions.length; i++){
+                    classHierarchyVersions[i] = Integer.parseInt(versionStr[i].trim());
+                }
+            }else{
+                classHierarchyVersions = null;
+            }
+            
             String refID = currentElem.getAttribute("reference_ID");
             if (refID.length() < 1) refID = currentElem.getAttribute("id");
             if (refID.length() > 0) referencedSavables.put(refID, tmp);
             if (tmp != null) {
+                // Allows reading versions from this savable
+                savable = tmp;
                 tmp.read(importer);
                 ret = tmp;
             }

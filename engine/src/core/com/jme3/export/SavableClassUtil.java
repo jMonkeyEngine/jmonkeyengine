@@ -124,6 +124,26 @@ public class SavableClassUtil {
         }
     }
     
+    public static int getSavedSavableVersion(Object savable, Class<? extends Savable> desiredClass, int[] versions){
+        Class thisClass = savable.getClass();
+        int count = 0;
+        while (thisClass != null && thisClass != desiredClass){
+            thisClass = thisClass.getSuperclass();
+            count ++;
+        }
+        if (thisClass == null){
+            throw new IllegalArgumentException(savable.getClass().getName() + 
+                                               " does not extend " + 
+                                               desiredClass.getName() + "!");
+        }else if (count > versions.length){
+            throw new IllegalArgumentException(savable.getClass().getName() + 
+                                               " cannot access version of " +
+                                               desiredClass.getName() + 
+                                               " because it doesn't implement Savable");
+        }
+        return versions[count];
+    }
+    
     /**
      * fromName creates a new Savable from the provided class name. First registered modules
      * are checked to handle special cases, if the modules do not handle the class name, the

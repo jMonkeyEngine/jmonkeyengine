@@ -495,7 +495,7 @@ public class DOMOutputCapsule implements OutputCapsule {
                     sb.append(", ");
                 }
             }
-            el.setAttribute("savable_version", sb.toString());
+            el.setAttribute("savable_versions", sb.toString());
             
             writtenSavables.put(object, el);
             object.write(exporter);
