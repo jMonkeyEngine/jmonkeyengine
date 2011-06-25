@@ -14,7 +14,7 @@ uniform vec4 m_Color;
 
 #ifdef HAS_LIGHTMAP
     uniform sampler2D m_LightMap;
-    #ifdef SEPERATE_TEXCOORD
+    #ifdef SEPARATE_TEXCOORD
         varying vec2 texCoord2;
     #endif
 #endif

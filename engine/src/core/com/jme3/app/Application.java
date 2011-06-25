@@ -37,7 +37,6 @@ import com.jme3.input.JoyInput;
 import com.jme3.input.KeyInput;
 import com.jme3.input.MouseInput;
 import com.jme3.input.TouchInput;
-import com.jme3.system.*;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.Renderer;
@@ -47,6 +46,9 @@ import com.jme3.audio.Listener;
 import com.jme3.input.InputManager;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
+import com.jme3.system.AppSettings;
+import com.jme3.system.JmeCanvasContext;
+import com.jme3.system.JmeContext;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.concurrent.Callable;
@@ -54,6 +56,10 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import com.jme3.system.JmeContext.Type;
+import com.jme3.system.JmeSystem;
+import com.jme3.system.SystemListener;
+import com.jme3.system.Timer;
 
 /**
  * The <code>Application</code> class represents an instance of a
@@ -103,14 +109,36 @@ public class Application implements SystemListener {
     public Application(){
     }
 
+    /**
+     * Returns true if pause on lost focus is enabled, false otherwise.
+     * 
+     * @return true if pause on lost focus is enabled
+     * 
+     * @see #setPauseOnLostFocus(boolean) 
+     */
     public boolean isPauseOnLostFocus() {
         return pauseOnFocus;
     }
 
+    /**
+     * Enable or disable pause on lost focus.
+     * <p>
+     * By default, pause on lost focus is enabled.
+     * If enabled, the application will stop updating 
+     * when it loses focus or becomes inactive (e.g. alt-tab). 
+     * For online or real-time applications, this might not be preferable,
+     * so this feature should be set to disabled. For other applications,
+     * it is best to keep it on so that CPU usage is not used when
+     * not necessary. 
+     * 
+     * @param pauseOnLostFocus True to enable pause on lost focus, false
+     * otherwise.
+     */
     public void setPauseOnLostFocus(boolean pauseOnLostFocus) {
         this.pauseOnFocus = pauseOnLostFocus;
     }
 
+    @Deprecated
     public void setAssetManager(AssetManager assetManager){
         if (this.assetManager != null)
             throw new IllegalStateException("Can only set asset manager"
@@ -243,78 +271,80 @@ public class Application implements SystemListener {
     }
 
     /**
-     * @return The asset manager for this application.
+     * @return The {@link AssetManager asset manager} for this application.
      */
     public AssetManager getAssetManager(){
         return assetManager;
     }
 
     /**
-     * @return the input manager.
+     * @return the {@link InputManager input manager}.
      */
     public InputManager getInputManager(){
         return inputManager;
     }
 
     /**
-     * @return the app state manager
+     * @return the {@link AppStateManager app state manager}
      */
     public AppStateManager getStateManager() {
         return stateManager;
     }
 
     /**
-     * @return the render manager
+     * @return the {@link RenderManager render manager}
      */
     public RenderManager getRenderManager() {
         return renderManager;
     }
 
     /**
-     * @return The renderer for the application, or null if was not started yet.
+     * @return The {@link Renderer renderer} for the application
      */
     public Renderer getRenderer(){
         return renderer;
     }
 
     /**
-     * @return The audio renderer for the application, or null if was not started yet.
+     * @return The {@link AudioRenderer audio renderer} for the application
      */
     public AudioRenderer getAudioRenderer() {
         return audioRenderer;
     }
 
     /**
-     * @return The listener object for audio
+     * @return The {@link Listener listener} object for audio
      */
     public Listener getListener() {
         return listener;
     }
 
     /**
-     * @return The display context for the application, or null if was not
-     * started yet.
+     * @return The {@link JmeContext display context} for the application
      */
     public JmeContext getContext(){
         return context;
     }
 
     /**
-     * @return The camera for the application, or null if was not started yet.
+     * @return The {@link Camera camera} for the application
      */
     public Camera getCamera(){
         return cam;
     }
 
     /**
-     * Starts the application as a display.
+     * Starts the application in {@link Type#Display display} mode.
+     * 
+     * @see #start(com.jme3.system.JmeContext.Type) 
      */
     public void start(){
         start(JmeContext.Type.Display);
     }
 
     /**
-     * Starts the application. Creating a rendering context and executing
+     * Starts the application. 
+     * Creating a rendering context and executing
      * the main loop in a separate thread.
      */
     public void start(JmeContext.Type contextType){
@@ -333,6 +363,21 @@ public class Application implements SystemListener {
         context.create(false);
     }
 
+    /**
+     * Initializes the application's canvas for use.
+     * <p>
+     * After calling this method, cast the {@link #getContext() context} to 
+     * {@link JmeCanvasContext},
+     * then acquire the canvas with {@link JmeCanvasContext#getCanvas() }
+     * and attach it to an AWT/Swing Frame.
+     * The rendering thread will start when the canvas becomes visible on
+     * screen, however if you wish to start the context immediately you
+     * may call {@link #startCanvas() } to force the rendering thread
+     * to start. 
+     * 
+     * @see JmeCanvasContext
+     * @see Type#Canvas
+     */
     public void createCanvas(){
         if (context != null && context.isCreated()){
             logger.warning("createCanvas() called when application already created!");
@@ -348,30 +393,66 @@ public class Application implements SystemListener {
         context.setSystemListener(this);
     }
 
+    /**
+     * Starts the rendering thread after createCanvas() has been called.
+     * <p>
+     * Same as calling startCanvas(false)
+     * 
+     * @see #startCanvas(boolean) 
+     */
     public void startCanvas(){
         startCanvas(false);
     }
 
+    /**
+     * Starts the rendering thread after createCanvas() has been called.
+     * <p>
+     * Calling this method is optional, the canvas will start automatically
+     * when it becomes visible.
+     * 
+     * @param waitFor If true, the current thread will block until the 
+     * rendering thread is running
+     */
     public void startCanvas(boolean waitFor){
         context.create(waitFor);
     }
 
+    /**
+     * Internal use only. 
+     */
     public void reshape(int w, int h){
         renderManager.notifyReshape(w, h);
     }
 
+    /**
+     * Restarts the context, applying any changed settings.
+     * <p>
+     * Changes to the {@link AppSettings} of this Application are not 
+     * applied immediately; calling this method forces the context
+     * to restart, applying the new settings.
+     */
     public void restart(){
         context.setSettings(settings);
         context.restart();
     }
 
+    /**
+     * 
+     * Requests the context to close, shutting down the main loop
+     * and making necessary cleanup operations.
+     * 
+     * Same as calling stop(false)
+     * 
+     * @see #stop(boolean) 
+     */
     public void stop(){
         stop(false);
     }
 
     /**
-     * Requests the display to close, shutting down the main loop
-     * and making neccessary cleanup operations.
+     * Requests the context to close, shutting down the main loop
+     * and making necessary cleanup operations. 
+     * After the application has stopped, it cannot be used anymore.
      */
     public void stop(boolean waitFor){
         logger.log(Level.FINE, "Closing application: {0}", getClass().getName());
@@ -381,7 +462,7 @@ public class Application implements SystemListener {
     /**
      * Do not call manually.
      * Callback from ContextListener.
-     *
+     * <p>
      * Initializes the <code>Application</code>, by creating a display and
      * default camera. If display settings are not specified, a default
      * 640x480 display is created. Default values are used for the camera;
@@ -409,12 +490,18 @@ public class Application implements SystemListener {
         // user code here..
     }
 
+    /**
+     * Internal use only.
+     */
     public void handleError(String errMsg, Throwable t){
         logger.log(Level.SEVERE, errMsg, t);
         // user should add additional code to handle the error.
         stop(); // stop the application
     }
 
+    /**
+     * Internal use only.
+     */
     public void gainFocus(){
         if (pauseOnFocus){
             paused = false;
@@ -424,6 +511,9 @@ public class Application implements SystemListener {
         }
     }
 
+    /**
+     * Internal use only.
+     */
     public void loseFocus(){
         if (pauseOnFocus){
             paused = true;
@@ -431,6 +521,9 @@ public class Application implements SystemListener {
         }
     }
 
+    /**
+     * Internal use only.
+     */
     public void requestClose(boolean esc){
         context.destroy(false);
     }

@@ -5,6 +5,50 @@
     <import file="nbproject/build-impl.xml"/>
     <!-- <import file="nbproject/profiler-build-impl.xml"/> -->
 
+    <target depends="init" if="have.sources" name="-javadoc-build">
+        <mkdir dir="${dist.javadoc.dir}"/>
+        <javadoc additionalparam="${javadoc.additionalparam}" author="${javadoc.author}" charset="UTF-8" destdir="${dist.javadoc.dir}" docencoding="UTF-8" encoding="${javadoc.encoding.used}" failonerror="true" noindex="${javadoc.noindex}" nonavbar="${javadoc.nonavbar}" notree="${javadoc.notree}" private="${javadoc.private}" source="${javac.source}" splitindex="${javadoc.splitindex}" use="${javadoc.use}" useexternalfile="true" version="${javadoc.version}" windowtitle="${javadoc.windowtitle}">
+            <classpath>
+                <path path="${javac.classpath}"/>
+            </classpath>
+            <fileset dir="${src.core.dir}" excludes="${excludes}" includes="${includes}">
+                <filename name="**/*.java"/>
+            </fileset>
+            <fileset dir="${src.terrain.dir}" excludes="${excludes}" includes="${includes}">
+                <filename name="**/doc-files/**"/>
+            </fileset>
+            <fileset dir="${src.networking.dir}" excludes="${excludes}" includes="${includes}">
+                <filename name="**/doc-files/**"/>
+            </fileset>
+            <fileset dir="${src.desktop-fx.dir}" excludes="${excludes}" includes="${includes}">
+                <filename name="**/doc-files/**"/>
+            </fileset>
+            <fileset dir="${src.jbullet.dir}" excludes="${excludes}" includes="${includes}">
+                <filename name="**/doc-files/**"/>
+            </fileset>
+            <fileset dir="${src.niftygui.dir}" excludes="${excludes}" includes="${includes}">
+                <filename name="**/doc-files/**"/>
+            </fileset>
+            <fileset dir="${src.tools.dir}" excludes="${excludes}" includes="${includes}">
+                <filename name="**/doc-files/**"/>
+            </fileset>
+            <fileset dir="${src.xml.dir}" excludes="${excludes}" includes="${includes}">
+                <filename name="**/doc-files/**"/>
+            </fileset>
+            <fileset dir="${build.generated.sources.dir}" erroronmissingdir="false">
+                <include name="**/*.java"/>
+            </fileset>
+        </javadoc>
+        <copy todir="${dist.javadoc.dir}">
+            <fileset dir="${src.core.dir}" excludes="${excludes}" includes="${includes}">
+                <filename name="**/doc-files/**"/>
+            </fileset>
+            <fileset dir="${build.generated.sources.dir}" erroronmissingdir="false">
+                <include name="**/doc-files/**"/>
+            </fileset>
+        </copy>
+    </target>
+
     <target name="-post-compile" depends="-compile-bullet, -compile-android">
     </target>
     

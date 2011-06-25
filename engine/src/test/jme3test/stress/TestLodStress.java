@@ -33,7 +33,6 @@
 package jme3test.stress;
 
 import com.jme3.app.SimpleApplication;
-import com.jme3.input.KeyInput;
 import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
 import com.jme3.math.Quaternion;
@@ -41,32 +40,34 @@ import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.control.LodControl;
+import com.jme3.scene.shape.Sphere;
 
 public class TestLodStress extends SimpleApplication {
 
-    private boolean lod = false;
-
     public static void main(String[] args){
         TestLodStress app = new TestLodStress();
+        app.setShowSettings(false);
+        app.setPauseOnLostFocus(false);
         app.start();
     }
 
     public void simpleInitApp() {
-//        inputManager.registerKeyBinding("USELOD", KeyInput.KEY_L);
-
         DirectionalLight dl = new DirectionalLight();
         dl.setDirection(new Vector3f(-1,-1,-1).normalizeLocal());
         rootNode.addLight(dl);
 
-        Node teapotNode = (Node) assetManager.loadModel("Models/Teapot/Teapot.mesh.xml");
-        Geometry teapot = (Geometry) teapotNode.getChild(0);
+//        Node teapotNode = (Node) assetManager.loadModel("Models/Teapot/Teapot.mesh.xml");
+//        Geometry teapot = (Geometry) teapotNode.getChild(0);
+        
+        Sphere sph = new Sphere(16, 16, 4);
+        Geometry teapot = new Geometry("teapot", sph);
 
         Material mat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
         mat.setFloat("Shininess", 16f);
-        mat.setBoolean("VertexLighting", true);
+//        mat.setBoolean("VertexLighting", true);
         teapot.setMaterial(mat);
-
-        // show normals as material
+        
+       // show normals as material
         //Material mat = new Material(assetManager, "Common/MatDefs/Misc/ShowNormals.j3md");
 
         for (int y = -10; y < 10; y++){
@@ -77,9 +78,9 @@ public class TestLodStress extends SimpleApplication {
                 clonePot.setLocalTranslation(x * .5f, 0, y * .5f);
                 clonePot.setLocalScale(.15f);
                 
-                LodControl control = new LodControl();
-                clonePot.addControl(control);
-                rootNode.attachChild(clonePot);
+//                LodControl control = new LodControl();
+//                clonePot.addControl(control);
+//                rootNode.attachChild(clonePot);
             }
         }
 

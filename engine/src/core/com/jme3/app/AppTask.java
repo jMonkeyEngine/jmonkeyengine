@@ -60,6 +60,12 @@ public class AppTask<V> implements Future<V> {
     private final ReentrantLock stateLock = new ReentrantLock();
     private final Condition finishedCondition = stateLock.newCondition();
 
+    /**
+     * Create an <code>AppTask</code> that will execute the given 
+     * {@link Callable}.
+     * 
+     * @param callable The callable to be executed
+     */
     public AppTask(Callable<V> callable) {
         this.callable = callable;
     }

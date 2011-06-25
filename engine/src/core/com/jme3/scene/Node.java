@@ -592,7 +592,10 @@ public class Node extends Spatial implements Savable {
 
     @Override
     public void read(JmeImporter e) throws IOException {
-        super.read(e);
+        // XXX: Load children before loading itself!!
+        // This prevents empty children list if controls query
+        // it in Control.setSpatial().
+        
         children = e.getCapsule(this).readSavableArrayList("children", null);
 
         // go through children and set parent to this node
@@ -602,6 +605,8 @@ public class Node extends Spatial implements Savable {
                 child.parent = this;
             }
         }
+        
+        super.read(e);
     }
 
     @Override

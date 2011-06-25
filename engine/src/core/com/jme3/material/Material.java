@@ -56,7 +56,6 @@ import com.jme3.renderer.Renderer;
 import com.jme3.renderer.queue.RenderQueue.Bucket;
 import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.Geometry;
-import com.jme3.scene.Spatial;
 import com.jme3.shader.Shader;
 import com.jme3.shader.Uniform;
 import com.jme3.shader.VarType;
@@ -1009,13 +1008,42 @@ public class Material implements Cloneable, Savable, Comparable<Material> {
 
     public void read(JmeImporter im) throws IOException {
         InputCapsule ic = im.getCapsule(this);
-        String defName = ic.readString("material_def", null);
-        def = (MaterialDef) im.getAssetManager().loadAsset(new AssetKey(defName));
+        
         additionalState = (RenderState) ic.readSavable("render_state", null);
         transparent = ic.readBoolean("is_transparent", false);
 
+        // Load the material def
+        String defName = ic.readString("material_def", null);
         HashMap<String, MatParam> params = (HashMap<String, MatParam>) ic.readStringSavableMap("parameters", null);
-//        paramValues.putAll(params);
+        
+        boolean enableVcolor = false;
+        boolean separateTexCoord = false;
+        
+        if (im.getFormatVersion() == 0){
+            // Enable compatibility with old models
+            if (defName.equalsIgnoreCase("Common/MatDefs/Misc/VertexColor.j3md")){
+                // Using VertexColor, switch to Unshaded and set VertexColor=true
+                enableVcolor = true;
+                defName = "Common/MatDefs/Misc/Unshaded.j3md";
+            }else if (defName.equalsIgnoreCase("Common/MatDefs/Misc/SimpleTextured.j3md")
+                   || defName.equalsIgnoreCase("Common/MatDefs/Misc/SolidColor.j3md")){
+                // Using SimpleTextured/SolidColor, just switch to Unshaded
+                defName = "Common/MatDefs/Misc/Unshaded.j3md";
+            }else if (defName.equalsIgnoreCase("Common/MatDefs/Misc/WireColor.j3md")){
+                // Using WireColor, set wireframe renderstate = true and use Unshaded
+                additionalState.setWireframe(true);
+                defName = "Common/MatDefs/Misc/Unshaded.j3md";
+            }else if (defName.equalsIgnoreCase("Common/MatDefs/Misc/Unshaded.j3md")){
+                // Uses unshaded, ensure that the proper param is set
+                MatParam value = params.get("SeperateTexCoord");
+                if (value != null && ((Boolean)value.getValue()) == true){
+                    params.remove("SeperateTexCoord");
+                    separateTexCoord = true;
+                }
+            }
+        }
+        
+        def = (MaterialDef) im.getAssetManager().loadAsset(new AssetKey(defName));
         paramValues = new ListMap<String, MatParam>();
 
         // load the textures and update nextTexUnit
@@ -1037,5 +1065,12 @@ public class Material implements Cloneable, Savable, Comparable<Material> {
             param.setName(checkSetParam(param.getVarType(), param.getName()));
             paramValues.put(param.getName(), param);
         }
+        
+        if (enableVcolor){
+            setBoolean("VertexColor", true);
+        }
+        if (separateTexCoord){
+            setBoolean("SeparateTexCoord", true);
+        } 
     }
 }

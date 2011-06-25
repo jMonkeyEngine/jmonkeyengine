@@ -36,7 +36,6 @@ import com.jme3.app.Application;
 import com.jme3.app.SimpleApplication;
 import com.jme3.system.AppSettings;
 import com.jme3.system.JmeCanvasContext;
-import com.jme3.system.JmeSystem;
 import com.jme3.util.JmeFormatter;
 import java.awt.Canvas;
 import java.awt.event.ActionEvent;
@@ -60,7 +59,7 @@ public class TestCanvas {
     private static Canvas canvas;
     private static Application app;
     private static JFrame frame;
-    private static final String appClass = "jme3test.model.shape.TestBox";
+    private static final String appClass = "jme3test.post.TestMultiplesFilters";
 
     private static void createFrame(){
         frame = new JFrame("Test");

@@ -56,16 +56,10 @@ import java.util.WeakHashMap;
  */
 public final class BufferUtils {
 
-    ////  -- TEMP DATA OBJECTS --  ////
-//    private static final Vector2f _tempVec2 = new Vector2f();
-//    private static final Vector3f _tempVec3 = new Vector3f();
-//    private static final ColorRGBA _tempColor = new ColorRGBA();
-    ////  -- TRACKER HASH --  ////
     private static final Map<Buffer, Object> trackingHash = Collections.synchronizedMap(new WeakHashMap<Buffer, Object>());
     private static final Object ref = new Object();
-    private static final boolean trackDirectMemory = false;
+    private static final boolean trackDirectMemory = true;
 
-    ////  -- GENERIC CLONE -- ////
     /**
      * Creates a clone of the given buffer. The clone's capacity is
      * equal to the given buffer's limit.
@@ -88,8 +82,58 @@ public final class BufferUtils {
             throw new UnsupportedOperationException();
         }
     }
+    
+    private static void onBufferAllocated(Buffer buffer){
+        /*
+        StackTraceElement[] stackTrace = new Throwable().getStackTrace();
+        int initialIndex = 0;
+        
+        for (int i = 0; i < stackTrace.length; i++){
+            if (!stackTrace[i].getClassName().equals(BufferUtils.class.getName())){
+                initialIndex = i;
+                break;
+            }
+        }
+        
+        int allocated = buffer.capacity();
+        int size = 0;
+    
+        if (buffer instanceof FloatBuffer){
+            size = 4;
+        }else if (buffer instanceof ShortBuffer){
+            size = 2;
+        }else if (buffer instanceof ByteBuffer){
+            size = 1;
+        }else if (buffer instanceof IntBuffer){
+            size = 4;
+        }else if (buffer instanceof DoubleBuffer){
+            size = 8;
+        }
+        
+        allocated *= size;
+        
+        for (int i = initialIndex; i < stackTrace.length; i++){
+            StackTraceElement element = stackTrace[i];
+            if (element.getClassName().startsWith("java")){
+                break;
+            }
+            
+            try {
+                Class clazz = Class.forName(element.getClassName());
+                if (i == initialIndex){
+                    System.out.println(clazz.getSimpleName()+"."+element.getMethodName()+"():" + element.getLineNumber() + " allocated " + allocated);
+                }else{
+                    System.out.println(" at " + clazz.getSimpleName()+"."+element.getMethodName()+"()");
+                }
+            } catch (ClassNotFoundException ex) {
+            }
+        }*/
+        
+        if (trackDirectMemory){
+            trackingHash.put(buffer, ref);
+        }
+    }
 
-    ////  -- VECTOR3F METHODS -- ////
     /**
      * Generate a new FloatBuffer using the given array of Vector3f objects.
      * The FloatBuffer will be 3 * data.length long and contain the vector data
@@ -658,9 +702,7 @@ public final class BufferUtils {
     public static DoubleBuffer createDoubleBuffer(int size) {
         DoubleBuffer buf = ByteBuffer.allocateDirect(8 * size).order(ByteOrder.nativeOrder()).asDoubleBuffer();
         buf.clear();
-        if (trackDirectMemory) {
-            trackingHash.put(buf, ref);
-        }
+        onBufferAllocated(buf);
         return buf;
     }
 
@@ -723,9 +765,7 @@ public final class BufferUtils {
     public static FloatBuffer createFloatBuffer(int size) {
         FloatBuffer buf = ByteBuffer.allocateDirect(4 * size).order(ByteOrder.nativeOrder()).asFloatBuffer();
         buf.clear();
-        if (trackDirectMemory) {
-            trackingHash.put(buf, ref);
-        }
+        onBufferAllocated(buf);
         return buf;
     }
 
@@ -787,9 +827,7 @@ public final class BufferUtils {
     public static IntBuffer createIntBuffer(int size) {
         IntBuffer buf = ByteBuffer.allocateDirect(4 * size).order(ByteOrder.nativeOrder()).asIntBuffer();
         buf.clear();
-        if (trackDirectMemory) {
-            trackingHash.put(buf, ref);
-        }
+        onBufferAllocated(buf);
         return buf;
     }
 
@@ -852,9 +890,7 @@ public final class BufferUtils {
     public static ByteBuffer createByteBuffer(int size) {
         ByteBuffer buf = ByteBuffer.allocateDirect(size).order(ByteOrder.nativeOrder());
         buf.clear();
-        if (trackDirectMemory) {
-            trackingHash.put(buf, ref);
-        }
+        onBufferAllocated(buf);
         return buf;
     }
 
@@ -932,9 +968,7 @@ public final class BufferUtils {
     public static ShortBuffer createShortBuffer(int size) {
         ShortBuffer buf = ByteBuffer.allocateDirect(2 * size).order(ByteOrder.nativeOrder()).asShortBuffer();
         buf.clear();
-        if (trackDirectMemory) {
-            trackingHash.put(buf, ref);
-        }
+        onBufferAllocated(buf);
         return buf;
     }
 

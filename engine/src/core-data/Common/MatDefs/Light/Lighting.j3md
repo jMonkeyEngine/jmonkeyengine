@@ -38,16 +38,16 @@ MaterialDef Phong Lighting {
         Boolean UseVertexColor
 
         // Ambient color
-        Color Ambient
+        Color Ambient : MaterialAmbient
 
         // Diffuse color
-        Color Diffuse : Color
+        Color Diffuse : MaterialDiffuse
 
         // Specular color
-        Color Specular
+        Color Specular : MaterialSpecular
 
         // Specular power/shininess
-        Float Shininess
+        Float Shininess : MaterialShininess
 
         // Diffuse map
         Texture2D DiffuseMap

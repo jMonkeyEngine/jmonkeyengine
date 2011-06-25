@@ -32,8 +32,15 @@
 
 package jme3test.audio;
 
+import com.jme3.asset.plugins.FileLocator;
 import com.jme3.audio.AudioNode;
+import com.jme3.audio.Environment;
+import com.jme3.audio.LowPassFilter;
+import com.jme3.math.FastMath;
+import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
+import org.lwjgl.openal.AL10;
+import org.lwjgl.openal.AL11;
 
 /**
  * Test Doppler Effect
@@ -42,8 +49,15 @@ public class TestDoppler extends AudioApp {
 
     private AudioNode ufo;
 
-    private float location = 0;
-    private float rate = 1;
+    private float x = 20, z = 0;
+    
+    private float rate     = -0.05f;
+    private float xDist    = 20;
+    private float zDist    = 5;
+    
+    private float angle    = FastMath.TWO_PI;
+    
+    private LowPassFilter filter = new LowPassFilter(1, 1);
 
     public static void main(String[] args){
         TestDoppler test = new TestDoppler();
@@ -52,28 +66,50 @@ public class TestDoppler extends AudioApp {
 
     @Override
     public void initAudioApp(){
-        ufo  = new AudioNode(audioRenderer, assetManager, "Sound/Effects/Beep.ogg", false);
+        assetManager.registerLocator("C:\\", FileLocator.class);
+        
+        Quaternion q = new Quaternion();
+        q.lookAt(new Vector3f(0, 0, -1f), Vector3f.UNIT_Y);
+        listener.setRotation(q);
+        
+        audioRenderer.setEnvironment(Environment.Dungeon);
+        AL10.alDistanceModel(AL11.AL_EXPONENT_DISTANCE);
+        
+        ufo  = new AudioNode(audioRenderer, assetManager, "test.ogg", false);
         ufo.setPositional(true);
         ufo.setLooping(true);
+        ufo.setReverbEnabled(true);
+        ufo.setRefDistance(100000000);
+        ufo.setMaxDistance(100000000);
         audioRenderer.playSource(ufo);
     }
 
     @Override
     public void updateAudioApp(float tpf){
-        // move the location variable left and right
-        if (location > 10){
-            location = 10;
+        //float x  = (float) (Math.cos(angle) * xDist);
+        float dx = (float)  Math.sin(angle) * xDist; 
+        
+        //float z  = (float) (Math.sin(angle) * zDist);
+        float dz = (float)(-Math.cos(angle) * zDist);
+        
+        x += dx * tpf * 0.05f;
+        z += dz * tpf * 0.05f;
+        
+        angle += tpf * rate;
+        
+        if (angle > FastMath.TWO_PI){
+            angle = FastMath.TWO_PI;
             rate = -rate;
-            ufo.setVelocity(new Vector3f(rate*10, 0, 0));
-        }else if (location < -10){
-            location = -10;
+        }else if (angle < -0){
+            angle = -0;
             rate = -rate;
-            ufo.setVelocity(new Vector3f(rate*10, 0, 0));
-        }else{
-            location += rate * tpf * 10;
         }
-        ufo.setLocalTranslation(location, 0, 2);
+        
+        ufo.setVelocity(new Vector3f(dx, 0, dz));
+        ufo.setLocalTranslation(x, 0, z);
         ufo.updateGeometricState();
+        
+        System.out.println("LOC: " + (int)x +", " + (int)z + ", VEL: " + (int)dx + ", " + (int)dz);
     }
 
 }

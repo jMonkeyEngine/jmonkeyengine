@@ -75,7 +75,6 @@ public class TestOgreConvert extends SimpleApplication {
             AnimControl control = ogreModelReloaded.getControl(AnimControl.class);
             AnimChannel chan = control.createChannel();
             chan.setAnim("Walk");
-//            fis.close();
 
             rootNode.attachChild(ogreModelReloaded);
         } catch (IOException ex){

@@ -46,11 +46,12 @@ import java.awt.image.Raster;
 import java.awt.image.WritableRaster;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.HashMap;
+import java.util.EnumMap;
 
 public class ImageToAwt {
 
-    private static final HashMap<Format, DecodeParams> params = new HashMap<Format, DecodeParams>();
+    private static final EnumMap<Format, DecodeParams> params
+            = new EnumMap<Format, DecodeParams>(Format.class);
 
     private static class DecodeParams {
 
@@ -292,6 +293,80 @@ public class ImageToAwt {
         }
         image.setMipMapSizes(mipMapSizes);
         image.setData(BufferUtils.createByteBuffer(total));
+    }
+
+    /**
+     * Convert the image from the given format to the output format.
+     * It is assumed that both images have buffers with the appropriate
+     * number of elements and that both have the same dimensions.
+     *
+     * @param input
+     * @param output
+     */
+    public static void convert(Image input, Image output){
+        DecodeParams inParams  = params.get(input.getFormat());
+        DecodeParams outParams = params.get(output.getFormat());
+
+        if (inParams == null || outParams == null)
+            throw new UnsupportedOperationException();
+
+        int width  = input.getWidth();
+        int height = input.getHeight();
+
+        if (width != output.getWidth() || height != output.getHeight())
+            throw new IllegalArgumentException();
+
+        ByteBuffer inData = input.getData(0);
+
+        boolean inAlpha = false;
+        boolean inLum = false;
+        boolean inRGB = false;
+        if (inParams.am != 0) {
+            inAlpha = true;
+        }
+
+        if (inParams.rm != 0 && inParams.gm == 0 && inParams.bm == 0) {
+            inLum = true;
+        } else if (inParams.rm != 0 && inParams.gm != 0 && inParams.bm != 0) {
+            inRGB = true;
+        }
+
+        int expansionA = 8 - Integer.bitCount(inParams.am);
+        int expansionR = 8 - Integer.bitCount(inParams.rm);
+        int expansionG = 8 - Integer.bitCount(inParams.gm);
+        int expansionB = 8 - Integer.bitCount(inParams.bm);
+
+        int inputPixel;
+        for (int y = 0; y < height; y++){
+            for (int x = 0; x < width; x++){
+                int i = Ix(x, y, width) * inParams.bpp;
+                inputPixel = (readPixel(inData, i, inParams.bpp) & inParams.im) >> inParams.is;
+                
+                int a = (inputPixel & inParams.am) >> inParams.as;
+                int r = (inputPixel & inParams.rm) >> inParams.rs;
+                int g = (inputPixel & inParams.gm) >> inParams.gs;
+                int b = (inputPixel & inParams.bm) >> inParams.bs;
+
+                r = r & 0xff;
+                g = g & 0xff;
+                b = b & 0xff;
+                a = a & 0xff;
+
+                a = a << expansionA;
+                r = r << expansionR;
+                g = g << expansionG;
+                b = b << expansionB;
+
+                if (inLum)
+                    b = g = r;
+
+                if (!inAlpha)
+                    a = 0xff;
+
+//                int argb = (a << 24) | (r << 16) | (g << 8) | b;
+//                out.setRGB(x, y, argb);
+            }
+        }
     }
 
     public static BufferedImage convert(Image image, boolean do16bit, boolean fullalpha, int mipLevel){
