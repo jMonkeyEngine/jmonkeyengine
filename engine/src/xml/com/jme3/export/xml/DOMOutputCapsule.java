@@ -36,6 +36,7 @@ import com.jme3.export.JmeExporter;
 import com.jme3.export.OutputCapsule;
 import com.jme3.export.Savable;
 import com.jme3.export.Savable;
+import com.jme3.export.SavableClassUtil;
 import com.jme3.util.IntMap;
 import com.jme3.util.IntMap.Entry;
 import java.io.IOException;
@@ -484,6 +485,18 @@ public class DOMOutputCapsule implements OutputCapsule {
             el.setAttribute("ref", refID);
         } else {
             el = appendElement(name);
+            
+            // jME3 NEW: Append version number(s)
+            int[] versions = SavableClassUtil.getSavableVersions(object.getClass());
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < versions.length; i++){
+                sb.append(versions[i]);
+                if (i != versions.length - 1){
+                    sb.append(", ");
+                }
+            }
+            el.setAttribute("savable_version", sb.toString());
+            
             writtenSavables.put(object, el);
             object.write(exporter);
         }

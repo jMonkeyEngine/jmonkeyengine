@@ -350,19 +350,7 @@ public class BinaryExporter implements JmeExporter {
         BinaryClassObject bco = new BinaryClassObject();
         bco.alias = generateTag();
         bco.nameFields = new HashMap<String, BinaryClassField>();
-        
-        ArrayList<Integer> versionList = new ArrayList<Integer>();
-        Class superclass = clazz;
-        do {
-            versionList.add(SavableClassUtil.getSavableVersion(superclass));
-            superclass = superclass.getSuperclass();
-        } while (superclass != null && SavableClassUtil.isImplementingSavable(superclass));
-        
-        int[] versions = new int[versionList.size()];
-        for (int i = 0; i < versionList.size(); i++){
-            versions[i] = versionList.get(i);
-        }
-        bco.classHierarchyVersions = versions;
+        bco.classHierarchyVersions = SavableClassUtil.getSavableVersions(clazz);
         
         classes.put(clazz.getName(), bco);
             

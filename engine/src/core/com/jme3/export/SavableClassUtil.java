@@ -42,9 +42,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.jme3.material.MatParamTexture;
-import com.jme3.scene.Spatial;
 import java.lang.reflect.Field;
-import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -95,6 +94,21 @@ public class SavableClassUtil {
         return false;
     }
 
+    public static int[] getSavableVersions(Class<? extends Savable> clazz) throws IOException{
+        ArrayList<Integer> versionList = new ArrayList<Integer>();
+        Class superclass = clazz;
+        do {
+            versionList.add(getSavableVersion(superclass));
+            superclass = superclass.getSuperclass();
+        } while (superclass != null && SavableClassUtil.isImplementingSavable(superclass));
+        
+        int[] versions = new int[versionList.size()];
+        for (int i = 0; i < versionList.size(); i++){
+            versions[i] = versionList.get(i);
+        }
+        return versions;
+    }
+    
     public static int getSavableVersion(Class<? extends Savable> clazz) throws IOException{
         try {
             Field field = clazz.getField("SAVABLE_VERSION");

@@ -37,6 +37,8 @@ import com.jme3.asset.AssetManager;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.InputCapsule;
 import com.jme3.export.Savable;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -56,7 +58,6 @@ public class XMLImporter implements JmeImporter {
     public XMLImporter() {
     }
 
-// TODO: .......
     public int getFormatVersion() {
         return 0;
     }
@@ -75,6 +76,17 @@ public class XMLImporter implements JmeImporter {
         Savable obj = load(in);
         in.close();
         return obj;
+    }
+    
+    public Savable load(File f) throws IOException {
+        FileInputStream fis = null; 
+        try {
+            fis = new FileInputStream(f);
+            Savable sav = load(fis);
+            return sav;
+        } finally {
+            if (fis != null) fis.close();
+        }
     }
 
     public Savable load(InputStream f) throws IOException {

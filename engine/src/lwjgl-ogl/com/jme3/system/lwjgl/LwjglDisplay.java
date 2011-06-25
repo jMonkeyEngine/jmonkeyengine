@@ -32,7 +32,6 @@
 
 package com.jme3.system.lwjgl;
 
-import com.jme3.input.TouchInput;
 import com.jme3.system.JmeContext.Type;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.Display;
@@ -110,14 +109,21 @@ public class LwjglDisplay extends LwjglAbstractDisplay {
         pixelFormat = pf;
         
         Display.setTitle(settings.getTitle());
-        if (displayMode != null)
-            Display.setDisplayMode(displayMode);
+        if (displayMode != null){
+            if (settings.isFullscreen()){
+                Display.setDisplayModeAndFullscreen(displayMode);
+            }else{
+                Display.setFullscreen(false);
+                Display.setDisplayMode(displayMode);
+            }
+        }else{
+            Display.setFullscreen(settings.isFullscreen());
+        }
 
         if (settings.getIcons() != null) {
             Display.setIcon(imagesToByteBuffers(settings.getIcons()));
         }
-
-        Display.setFullscreen(settings.isFullscreen());
+        
         Display.setVSyncEnabled(settings.isVSync());
 
         if (!created.get() || pixelFormatChanged){

@@ -77,6 +77,9 @@ float lightComputeDiffuse(in vec3 norm, in vec3 lightdir, in vec3 viewdir){
 }
 
 float lightComputeSpecular(in vec3 norm, in vec3 viewdir, in vec3 lightdir, in float shiny){
+    if (shiny <= 1.0){
+        return 0.0;
+    }
     #ifdef LOW_QUALITY
        // Blinn-Phong
        // Note: preferably, H should be computed in the vertex shader
@@ -101,9 +104,6 @@ float lightComputeSpecular(in vec3 norm, in vec3 viewdir, in vec3 lightdir, in f
 vec2 computeLighting(in vec3 wvPos, in vec3 wvNorm, in vec3 wvViewDir, in vec3 wvLightDir){
    float diffuseFactor = lightComputeDiffuse(wvNorm, wvLightDir, wvViewDir);
    float specularFactor = lightComputeSpecular(wvNorm, wvViewDir, wvLightDir, m_Shininess);
-
-   // if shininess is == 0, spec == 0, if shininess > 1, spec == 1
-   specularFactor *= min(1.0, m_Shininess); 
 
    #ifdef HQ_ATTENUATION
     float att = clamp(1.0 - g_LightPosition.w * length(lightVec), 0.0, 1.0);
