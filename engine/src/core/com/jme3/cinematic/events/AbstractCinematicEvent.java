@@ -48,7 +48,7 @@ import java.util.List;
  *
  * @author Nehon
  */
-public abstract class AbstractCinematicEvent implements CinematicEvent, Savable {
+public abstract class AbstractCinematicEvent implements CinematicEvent {
 
     protected PlayState playState = PlayState.Stopped;
     protected float speed = 1;

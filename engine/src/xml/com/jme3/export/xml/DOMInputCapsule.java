@@ -34,7 +34,7 @@ package com.jme3.export.xml;
 
 import com.jme3.export.InputCapsule;
 import com.jme3.export.Savable;
-import com.jme3.export.SavableClassFinder;
+import com.jme3.export.SavableClassUtil;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.IntMap;
 import java.io.IOException;
@@ -78,6 +78,10 @@ public class DOMInputCapsule implements InputCapsule {
         currentElem = doc.getDocumentElement();
     }
 
+    public int getSavableVersion(Class<? extends Savable> clazz) {
+        return 0; // TODO: figure this out ...
+    }
+    
     private static String decodeString(String s) {
         if (s == null) {
             return null;
@@ -973,7 +977,7 @@ public class DOMInputCapsule implements InputCapsule {
             } else if (currentElem.hasAttribute("class")) {
                 className = currentElem.getAttribute("class");
             }
-            tmp = SavableClassFinder.fromName(className, null);
+            tmp = SavableClassUtil.fromName(className, null);
             String refID = currentElem.getAttribute("reference_ID");
             if (refID.length() < 1) refID = currentElem.getAttribute("id");
             if (refID.length() > 0) referencedSavables.put(refID, tmp);

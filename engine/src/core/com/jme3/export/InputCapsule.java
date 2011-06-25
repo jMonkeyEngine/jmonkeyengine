@@ -47,6 +47,8 @@ import java.util.Map;
  */
 public interface InputCapsule {
 
+    public int getSavableVersion(Class<? extends Savable> clazz);
+    
     // byte primitive
 
     public byte readByte(String name, byte defVal) throws IOException;

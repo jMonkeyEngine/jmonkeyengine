@@ -17,6 +17,7 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
+import com.jme3.scene.UserData;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.scene.control.AbstractControl;
@@ -25,14 +26,16 @@ import com.jme3.util.TempVars;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
+import java.util.ArrayList;
 
 /**
  * The Skeleton control deforms a model according to a skeleton, 
- * It handles the computation of the deformtation matrices and performs the transformations on the mesh
+ * It handles the computation of the deformation matrices and performs 
+ * the transformations on the mesh
  * 
  * @author Rémy Bouquet Based on AnimControl by Kirill Vainer
  */
-public class SkeletonControl extends AbstractControl implements Savable, Cloneable {
+public class SkeletonControl extends AbstractControl implements Cloneable {
 
     /**
      * The skeleton of the model
@@ -49,21 +52,90 @@ public class SkeletonControl extends AbstractControl implements Savable, Cloneab
     private boolean wasMeshUpdated = false;
 
     /**
-     * for serialization only
+     * Serialization only. Do not use.
      */
     public SkeletonControl() {
     }
 
     /**
-     * Creates a skeleton control 
-     * @param targets the meshes controled by the skeleton
+     * Creates a skeleton control.
+     * The list of targets will be acquired automatically when
+     * the control is attached to a node.
+     * 
      * @param skeleton the skeleton
      */
-    public SkeletonControl(Mesh[] targets, Skeleton skeleton) {
+    public SkeletonControl(Skeleton skeleton) {
+        this.skeleton = skeleton;
+    }
+    
+    /**
+     * Creates a skeleton control.
+     * 
+     * @param targets the meshes controlled by the skeleton
+     * @param skeleton the skeleton
+     */
+    @Deprecated
+    public SkeletonControl(Mesh[] targets, Skeleton skeleton){
         this.skeleton = skeleton;
         this.targets = targets;
     }
+    
+    private boolean isMeshAnimated(Mesh mesh){
+        return mesh.getBuffer(Type.BindPosePosition) != null;
+    }
 
+    private Mesh[] findTargets(Node node){
+        Mesh sharedMesh = null;
+        ArrayList<Mesh> animatedMeshes = new ArrayList<Mesh>();
+        
+        for (Spatial child : node.getChildren()){
+            if (!(child instanceof Geometry)){
+                continue; // could be an attachment node, ignore.
+            }
+            
+            Geometry geom = (Geometry) child;
+            
+            // is this geometry using a shared mesh?
+            Mesh childSharedMesh = geom.getUserData(UserData.JME_SHAREDMESH);
+            
+            if (childSharedMesh != null){
+                
+                // Don't bother with non-animated shared meshes
+                if (isMeshAnimated(childSharedMesh)){
+                    
+                    // child is using shared mesh,
+                    // so animate the shared mesh but ignore child
+                    if (sharedMesh == null){
+                        sharedMesh = childSharedMesh;
+                    }else if (sharedMesh != childSharedMesh){
+                        throw new IllegalStateException("Two conflicting shared meshes for " + node);
+                    }
+                }
+            }else{
+                Mesh mesh = geom.getMesh();
+                if (isMeshAnimated(mesh)){
+                    animatedMeshes.add(mesh);
+                }
+            }
+        }
+        
+        if (sharedMesh != null){
+            animatedMeshes.add(sharedMesh);
+        }
+        
+        return animatedMeshes.toArray(new Mesh[animatedMeshes.size()]);
+    }
+    
+    @Override
+    public void setSpatial(Spatial spatial){
+        if (spatial != null){
+            Node node = (Node) spatial;
+            targets = findTargets(node);
+        }else{
+            targets = null;
+        }
+    }
+    
     @Override
     protected void controlRender(RenderManager rm, ViewPort vp) {
         if (!wasMeshUpdated) {
@@ -87,13 +159,11 @@ public class SkeletonControl extends AbstractControl implements Savable, Cloneab
     @Override
     protected void controlUpdate(float tpf) {
         wasMeshUpdated = false;
-
     }
 
     void resetToBind() {
-        for (int i = 0; i < targets.length; i++) {
-            Mesh mesh = targets[i];
-            if (targets[i].getBuffer(Type.BindPosePosition) != null) {
+        for (Mesh mesh : targets){
+            if (isMeshAnimated(mesh)) {
                 VertexBuffer bi = mesh.getBuffer(Type.BoneIndex);
                 ByteBuffer bib = (ByteBuffer) bi.getData();
                 if (!bib.hasArray()) {
@@ -177,12 +247,12 @@ public class SkeletonControl extends AbstractControl implements Savable, Cloneab
      * sets the skeleton for this control
      * @param skeleton 
      */
-    public void setSkeleton(Skeleton skeleton) {
-        this.skeleton = skeleton;
-    }
+//    public void setSkeleton(Skeleton skeleton) {
+//        this.skeleton = skeleton;
+//    }
 
     /**
-     * retuns the targets meshes of this ocntrol
+     * returns the targets meshes of this control
      * @return 
      */
     public Mesh[] getTargets() {
@@ -193,9 +263,9 @@ public class SkeletonControl extends AbstractControl implements Savable, Cloneab
      * sets the target  meshes of this control
      * @param targets 
      */
-    public void setTargets(Mesh[] targets) {
-        this.targets = targets;
-    }
+//    public void setTargets(Mesh[] targets) {
+//        this.targets = targets;
+//    }
 
     private void softwareSkinUpdate(Mesh mesh, Matrix4f[] offsetMatrices) {
         int maxWeightsPerVert = mesh.getMaxNumWeights();

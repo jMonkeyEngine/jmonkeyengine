@@ -63,7 +63,7 @@ import java.nio.ShortBuffer;
  * </ul>
  */
 public class VertexBuffer extends GLObject implements Savable, Cloneable {
-
+  
     /**
      * Type of buffer. Specifies the actual attribute it defines.
      */

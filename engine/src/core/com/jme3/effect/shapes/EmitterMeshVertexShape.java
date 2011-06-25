@@ -1,5 +1,6 @@
 package com.jme3.effect.shapes;
 
+import com.jme3.export.InputCapsule;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -141,11 +142,18 @@ public class EmitterMeshVertexShape implements EmitterShape {
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule oc = ex.getCapsule(this);
         oc.writeSavableArrayList((ArrayList<List<Vector3f>>) vertices, "vertices", null);
+        oc.writeSavableArrayList((ArrayList<List<Vector3f>>) normals, "normals", null);
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public void read(JmeImporter im) throws IOException {
-        this.vertices = im.getCapsule(this).readSavableArrayList("vertices", null);
+        InputCapsule ic = im.getCapsule(this);
+        this.vertices = ic.readSavableArrayList("vertices", null);
+        
+        List<List<Vector3f>> tmpNormals = ic.readSavableArrayList("normals", null);
+        if (tmpNormals != null){
+            this.normals = tmpNormals;
+        }
     }
 }

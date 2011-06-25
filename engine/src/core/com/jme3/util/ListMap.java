@@ -33,9 +33,8 @@
 package com.jme3.util;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -92,35 +91,48 @@ public final class ListMap<K, V> implements Map<K, V>, Cloneable, Serializable {
 
     }
     
-    private final ArrayList<ListMapEntry<K,V>> entries;
+    private final HashMap<K, V> backingMap;
+    private ListMapEntry<K, V>[] entries;
+    
+//    private final ArrayList<ListMapEntry<K,V>> entries;
 
     public ListMap(){
-       entries = new ArrayList<ListMapEntry<K,V>>();
+        entries = new ListMapEntry[4];
+        backingMap = new HashMap<K, V>(4);
+//       entries = new ArrayList<ListMapEntry<K,V>>();
     }
 
     public ListMap(int initialCapacity){
-        entries = new ArrayList<ListMapEntry<K, V>>(initialCapacity);
+        entries = new ListMapEntry[initialCapacity];
+        backingMap = new HashMap<K, V>(initialCapacity);
+//        entries = new ArrayList<ListMapEntry<K, V>>(initialCapacity);
     }
 
     public ListMap(Map<? extends K, ? extends V> map){
-        entries = new ArrayList<ListMapEntry<K, V>>(map.size());
+        entries = new ListMapEntry[map.size()];
+        backingMap = new HashMap<K, V>(map.size());
+//        entries = new ArrayList<ListMapEntry<K, V>>(map.size());
         putAll(map);
     }
 
     public int size() {
-        return entries.size();
+//        return entries.size();
+        return backingMap.size();
     }
 
     public Entry<K, V> getEntry(int index){
-        return entries.get(index);
+//        return entries.get(index);
+        return entries[index];
     }
 
     public V getValue(int index){
-        return entries.get(index).value;
+//        return entries.get(index).value;
+        return entries[index].value;
     }
 
     public K getKey(int index){
-        return entries.get(index).key;
+//        return entries.get(index).key;
+        return entries[index].key;
     }
 
     public boolean isEmpty() {
@@ -130,93 +142,142 @@ public final class ListMap<K, V> implements Map<K, V>, Cloneable, Serializable {
     private static boolean keyEq(Object keyA, Object keyB){
         return keyA.hashCode() == keyB.hashCode() ? (keyA == keyB) || keyA.equals(keyB) : false;
     }
-
-    private static boolean valEq(Object a, Object b){
-        return a == null ? (b == null) : a.equals(b);
-    }
+//
+//    private static boolean valEq(Object a, Object b){
+//        return a == null ? (b == null) : a.equals(b);
+//    }
 
     public boolean containsKey(Object key) {
-        if (key == null)
-            throw new IllegalArgumentException();
-
-        for (int i = 0; i < entries.size(); i++){
-            ListMapEntry<K,V> entry = entries.get(i);
-            if (keyEq(entry.key, key))
-                return true;
-        }
-        return false;
+        return backingMap.containsKey( (K) key); 
+//        if (key == null)
+//            throw new IllegalArgumentException();
+//
+//        for (int i = 0; i < entries.size(); i++){
+//            ListMapEntry<K,V> entry = entries.get(i);
+//            if (keyEq(entry.key, key))
+//                return true;
+//        }
+//        return false;
     }
 
     public boolean containsValue(Object value) {
-        for (int i = 0; i < entries.size(); i++){
-            if (valEq(entries.get(i).value, value))
-                return true;
-        }
-        return false;
+        return backingMap.containsValue( (V) value); 
+//        for (int i = 0; i < entries.size(); i++){
+//            if (valEq(entries.get(i).value, value))
+//                return true;
+//        }
+//        return false;
     }
 
     public V get(Object key) {
-        if (key == null)
-            throw new IllegalArgumentException();
-
-        for (int i = 0; i < entries.size(); i++){
-            ListMapEntry<K,V> entry = entries.get(i);
-            if (keyEq(entry.key, key))
-                return entry.value;
-        }
-        return null;
+        return backingMap.get( (K) key); 
+//        if (key == null)
+//            throw new IllegalArgumentException();
+//
+//        for (int i = 0; i < entries.size(); i++){
+//            ListMapEntry<K,V> entry = entries.get(i);
+//            if (keyEq(entry.key, key))
+//                return entry.value;
+//        }
+//        return null;
     }
 
     public V put(K key, V value) {
-        if (key == null)
-            throw new IllegalArgumentException();
-
-        // check if entry exists, if yes, overwrite it with new value
-        for (int i = 0; i < entries.size(); i++){
-            ListMapEntry<K,V> entry = entries.get(i);
-            if (keyEq(entry.key, key)){
-                V prevValue = entry.value;
-                entry.value = value;
-                return prevValue;
+        if (backingMap.containsKey(key)){
+            // set the value on the entry
+            int size = size();
+            for (int i = 0; i < size; i++){
+                ListMapEntry<K, V> entry = entries[i];
+                if (keyEq(entry.key, key)){
+                    entry.value = value;
+                    break;
+                }
             }
+        }else{
+            int size = size();
+            // expand list as necessary
+            if (size == entries.length){
+                ListMapEntry<K, V>[] tmpEntries = entries;
+                entries = new ListMapEntry[size * 2];
+                System.arraycopy(tmpEntries, 0, entries, 0, size);
+            }
+            entries[size] = new ListMapEntry<K, V>(key, value);
         }
-        
-        // add a new entry
-        entries.add(new ListMapEntry<K, V>(key, value));
-        return null;
+        return backingMap.put(key, value);
+//        if (key == null)
+//            throw new IllegalArgumentException();
+//
+//        // check if entry exists, if yes, overwrite it with new value
+//        for (int i = 0; i < entries.size(); i++){
+//            ListMapEntry<K,V> entry = entries.get(i);
+//            if (keyEq(entry.key, key)){
+//                V prevValue = entry.value;
+//                entry.value = value;
+//                return prevValue;
+//            }
+//        }
+//        
+//        // add a new entry
+//        entries.add(new ListMapEntry<K, V>(key, value));
+//        return null;
     }
 
     public V remove(Object key) {
-        if (key == null)
-            throw new IllegalArgumentException();
-
-        for (int i = 0; i < entries.size(); i++){
-            ListMapEntry<K,V> entry = entries.get(i);
-            if (keyEq(entry.key, key)){
-                return entries.remove(i).value;
+        V element = backingMap.remove( (K) key);
+        if (element != null){
+            // find removed element
+            int size = size() + 1; // includes removed element
+            int removedIndex = -1;
+            for (int i = 0; i < size; i++){
+                ListMapEntry<K, V> entry = entries[i];
+                if (keyEq(entry.key, key)){
+                    removedIndex = i;
+                    break;
+                }
+            }
+            assert removedIndex >= 0;
+            
+            size --;
+            for (int i = removedIndex; i < size; i++){
+                entries[i] = entries[i+1];
             }
         }
-        return null;
+        return element;
+//        if (key == null)
+//            throw new IllegalArgumentException();
+//
+//        for (int i = 0; i < entries.size(); i++){
+//            ListMapEntry<K,V> entry = entries.get(i);
+//            if (keyEq(entry.key, key)){
+//                return entries.remove(i).value;
+//            }
+//        }
+//        return null;
     }
 
     public void putAll(Map<? extends K, ? extends V> map) {
-        if (map instanceof ListMap){
-            ListMap<K, V> listMap = (ListMap<K, V>) map;
-            ArrayList<ListMapEntry<K, V>> otherEntries = listMap.entries;
-            for (int i = 0; i < otherEntries.size(); i++){
-                ListMapEntry<K, V> entry = otherEntries.get(i);
-                put(entry.key, entry.value);
-            }
-        }else{
-            for (Map.Entry<? extends K, ? extends V> entry : map.entrySet()){
-                put(entry.getKey(), entry.getValue());
-            }
+        for (Entry<? extends K, ? extends V> entry : map.entrySet()){
+            put(entry.getKey(), entry.getValue());
         }
         
+        
+//        if (map instanceof ListMap){
+//            ListMap<K, V> listMap = (ListMap<K, V>) map;
+//            ArrayList<ListMapEntry<K, V>> otherEntries = listMap.entries;
+//            for (int i = 0; i < otherEntries.size(); i++){
+//                ListMapEntry<K, V> entry = otherEntries.get(i);
+//                put(entry.key, entry.value);
+//            }
+//        }else{
+//            for (Map.Entry<? extends K, ? extends V> entry : map.entrySet()){
+//                put(entry.getKey(), entry.getValue());
+//            }
+//        }
     }
 
     public void clear() {
-        entries.clear();
+        backingMap.clear();
+//        entries.clear();
     }
 
     @Override
@@ -227,27 +288,30 @@ public final class ListMap<K, V> implements Map<K, V>, Cloneable, Serializable {
     }
 
     public Set<K> keySet() {
-        HashSet<K> keys = new HashSet<K>();
-        for (int i = 0; i < entries.size(); i++){
-            ListMapEntry<K,V> entry = entries.get(i);
-            keys.add(entry.key);
-        }
-        return keys;
+        return backingMap.keySet();
+//        HashSet<K> keys = new HashSet<K>();
+//        for (int i = 0; i < entries.size(); i++){
+//            ListMapEntry<K,V> entry = entries.get(i);
+//            keys.add(entry.key);
+//        }
+//        return keys;
     }
 
     public Collection<V> values() {
-        ArrayList<V> values = new ArrayList<V>();
-        for (int i = 0; i < entries.size(); i++){
-            ListMapEntry<K,V> entry = entries.get(i);
-            values.add(entry.value);
-        }
-        return values;
+        return backingMap.values();
+//        ArrayList<V> values = new ArrayList<V>();
+//        for (int i = 0; i < entries.size(); i++){
+//            ListMapEntry<K,V> entry = entries.get(i);
+//            values.add(entry.value);
+//        }
+//        return values;
     }
 
     public Set<Entry<K, V>> entrySet() {
-        HashSet<Entry<K, V>> entryset = new HashSet<Entry<K, V>>();
-        entryset.addAll(entries);
-        return entryset;
+        return backingMap.entrySet();
+//        HashSet<Entry<K, V>> entryset = new HashSet<Entry<K, V>>();
+//        entryset.addAll(entries);
+//        return entryset;
     }
 
 }

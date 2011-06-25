@@ -52,11 +52,15 @@ public class XMLImporter implements JmeImporter {
 
     private AssetManager assetManager;
     private DOMInputCapsule domIn;
-    // A single-load-state base URI for texture-loading.
     
     public XMLImporter() {
     }
 
+// TODO: .......
+    public int getFormatVersion() {
+        return 0;
+    }
+    
     public AssetManager getAssetManager(){
         return assetManager;
     }
@@ -73,10 +77,7 @@ public class XMLImporter implements JmeImporter {
         return obj;
     }
 
-    synchronized public Savable load(InputStream f) throws IOException {
-        /* Leave this method synchronized.  Calling this method from more than
-         * one thread at a time for the same XMLImporter instance will clobber
-         * the XML Document instantiated here. */
+    public Savable load(InputStream f) throws IOException {
         try {
             domIn = new DOMInputCapsule(DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(f), this);
             return domIn.readSavable(null, null);

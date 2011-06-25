@@ -47,6 +47,7 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial.CullHint;
+import com.jme3.scene.UserData;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.VertexBuffer.Format;
 import com.jme3.scene.VertexBuffer.Type;
@@ -101,28 +102,30 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
     private String folderName;
     private AssetManager assetManager;
     private MaterialList materialList;
+    
+    // Data per submesh/sharedgeom
     private ShortBuffer sb;
     private IntBuffer ib;
     private FloatBuffer fb;
     private VertexBuffer vb;
     private Mesh mesh;
     private Geometry geom;
-    private Mesh sharedmesh;
-    private Geometry sharedgeom;
-    private int geomIdx = 0;
-    private int texCoordIdx = 0;
-    private static volatile int nodeIdx = 0;
-    private String ignoreUntilEnd = null;
-    private boolean bigindices = false;
-    private int vertCount;
-    private int triCount;
-    private List<Geometry> geoms = new ArrayList<Geometry>();
-    private List<Boolean> usesSharedGeom = new ArrayList<Boolean>();
-    private IntMap<List<VertexBuffer>> lodLevels = new IntMap<List<VertexBuffer>>();
-    private AnimData animData;
     private ByteBuffer indicesData;
     private FloatBuffer weightsFloatData;
-
+    private int vertCount;
+    private boolean usesSharedVerts;
+    private boolean usesBigIndices;
+    
+    // Global data
+    private Mesh sharedMesh;
+    private int meshIndex = 0;
+    private int texCoordIndex = 0;
+    private String ignoreUntilEnd = null;
+    
+    private List<Geometry> geoms = new ArrayList<Geometry>();
+    private IntMap<List<VertexBuffer>> lodLevels = new IntMap<List<VertexBuffer>>();
+    private AnimData animData;
+    
     public MeshLoader() {
         super();
     }
@@ -130,7 +133,6 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
     @Override
     public void startDocument() {
         geoms.clear();
-        usesSharedGeom.clear();
         lodLevels.clear();
 
         sb = null;
@@ -139,14 +141,12 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
         vb = null;
         mesh = null;
         geom = null;
-        sharedgeom = null;
-        sharedmesh = null;
+        sharedMesh = null;
 
+        usesSharedVerts = false;
         vertCount = 0;
-        triCount = 0;
-        geomIdx = 0;
-        texCoordIdx = 0;
-        nodeIdx = 0;
+        meshIndex = 0;
+        texCoordIndex = 0;
         ignoreUntilEnd = null;
 
         animData = null;
@@ -171,28 +171,23 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
             sb.put((short) i1).put((short) i2).put((short) i3);
         }
     }
+    
+    private boolean isUsingSharedVerts(Geometry geom){
+        return geom.getUserData(UserData.JME_SHAREDMESH) != null;
+    }
 
     private void startFaces(String count) throws SAXException {
         int numFaces = parseInt(count);
         int numIndices;
 
         if (mesh.getMode() == Mesh.Mode.Triangles) {
-            //mesh.setTriangleCount(numFaces);
             numIndices = numFaces * 3;
         } else {
             throw new SAXException("Triangle strip or fan not supported!");
         }
 
-        int numVerts;
-        if (usesSharedGeom.size() > 0 && usesSharedGeom.get(geoms.size() - 1)) {
-//            sharedgeom.getMesh().updateCounts();
-            numVerts = sharedmesh.getVertexCount();
-        } else {
-//            mesh.updateCounts();
-            numVerts = mesh.getVertexCount();
-        }
         vb = new VertexBuffer(VertexBuffer.Type.Index);
-        if (!bigindices) {
+        if (!usesBigIndices) {
             sb = BufferUtils.createShortBuffer(numIndices);
             ib = null;
             vb.setupData(Usage.Static, 3, Format.UnsignedShort, sb);
@@ -226,16 +221,11 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
         if (mat.isTransparent()) {
             geom.setQueueBucket(Bucket.Transparent);
         }
-//        else
-//            geom.setShadowMode(ShadowMode.CastAndReceive);
-
-//        if (mat.isReceivesShadows())
-
-
+        
         geom.setMaterial(mat);
     }
 
-    private void startMesh(String matName, String usesharedvertices, String use32bitIndices, String opType) throws SAXException {
+    private void startSubMesh(String matName, String usesharedvertices, String use32bitIndices, String opType) throws SAXException {
         mesh = new Mesh();
         if (opType == null || opType.equals("triangle_list")) {
             mesh.setMode(Mesh.Mode.Triangles);
@@ -245,24 +235,25 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
             mesh.setMode(Mesh.Mode.TriangleFan);
         }
 
-        bigindices = parseBool(use32bitIndices, false);
-        boolean sharedverts = parseBool(usesharedvertices, false);
-        if (sharedverts) {
-            usesSharedGeom.add(true);
+        usesBigIndices = parseBool(use32bitIndices, false);
+        usesSharedVerts = parseBool(usesharedvertices, false);
+        if (usesSharedVerts) {
             // import vertexbuffers from shared geom
-            IntMap<VertexBuffer> sharedBufs = sharedmesh.getBuffers();
+            IntMap<VertexBuffer> sharedBufs = sharedMesh.getBuffers();
             for (Entry<VertexBuffer> entry : sharedBufs) {
                 mesh.setBuffer(entry.getValue());
             }
-            // this mesh is shared!
-        } else {
-            usesSharedGeom.add(false);
         }
 
         if (meshName == null) {
-            geom = new Geometry("OgreSubmesh-" + (++geomIdx), mesh);
+            geom = new Geometry("OgreSubmesh-" + (++meshIndex), mesh);
         } else {
-            geom = new Geometry(meshName + "-geom-" + (++geomIdx), mesh);
+            geom = new Geometry(meshName + "-geom-" + (++meshIndex), mesh);
+        }
+        
+        if (usesSharedVerts){
+            // this mesh is shared!
+            geom.setUserData(UserData.JME_SHAREDMESH, sharedMesh);
         }
 
         applyMaterial(geom, matName);
@@ -270,27 +261,16 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
     }
 
     private void startSharedGeom(String vertexcount) throws SAXException {
-        sharedmesh = new Mesh();
+        sharedMesh = new Mesh();
         vertCount = parseInt(vertexcount);
-//        sharedmesh.setVertexCount(vertCount);
+        usesSharedVerts = false;
 
-        if (meshName == null) {
-            sharedgeom = new Geometry("Ogre-SharedGeom", sharedmesh);
-        } else {
-            sharedgeom = new Geometry(meshName + "-sharedgeom", sharedmesh);
-        }
-
-        sharedgeom.setCullHint(CullHint.Always);
-        geoms.add(sharedgeom);
-        usesSharedGeom.add(false); // shared geometry doesnt use shared geometry (?)
-
-        geom = sharedgeom;
-        mesh = sharedmesh;
+        geom = null;
+        mesh = sharedMesh;
     }
 
     private void startGeometry(String vertexcount) throws SAXException {
         vertCount = parseInt(vertexcount);
-//        mesh.setVertexCount(vertCount);
     }
 
     /**
@@ -298,7 +278,7 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
      * for all vertices in the buffer.
      */
     private void endBoneAssigns() {
-        if (mesh != sharedmesh && usesSharedGeom.get(geoms.size() - 1)) {
+        if (mesh != sharedMesh && isUsingSharedVerts(geom)) {
             return;
         }
 
@@ -341,7 +321,7 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
     }
 
     private void startBoneAssigns() {
-        if (mesh != sharedmesh && usesSharedGeom.get(geoms.size() - 1)) {
+        if (mesh != sharedMesh && usesSharedVerts) {
             // will use bone assignments from shared mesh (?)
             return;
         }
@@ -424,7 +404,7 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
     }
 
     private void startVertex() {
-        texCoordIdx = 0;
+        texCoordIndex = 0;
     }
 
     private void pushAttrib(Type type, Attributes attribs) throws SAXException {
@@ -450,10 +430,10 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
     }
 
     private void pushTexCoord(Attributes attribs) throws SAXException {
-        if (texCoordIdx >= 8) {
+        if (texCoordIndex >= 8) {
             return; // More than 8 not supported by ogre.
         }
-        Type type = TEXCOORD_TYPES[texCoordIdx];
+        Type type = TEXCOORD_TYPES[texCoordIndex];
 
         VertexBuffer tcvb = mesh.getBuffer(type);
         FloatBuffer buf = (FloatBuffer) tcvb.getData();
@@ -469,7 +449,7 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
             }
         }
 
-        texCoordIdx++;
+        texCoordIndex++;
     }
 
     private void pushColor(Attributes attribs) throws SAXException {
@@ -529,7 +509,6 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
     }
 
     private void startLodGenerated(String depthsqr) {
-//        dist = Float.parseFloat(depthsqr);
     }
 
     private void pushBoneAssign(String vertIndex, String boneIndex, String weight) throws SAXException {
@@ -560,10 +539,6 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
 
     private void startSkeleton(String name) {
         animData = (AnimData) assetManager.loadAsset(folderName + name + ".xml");
-        //TODO:workaround for meshxml / mesh.xml
-        if (animData == null) {
-            animData = (AnimData) assetManager.loadAsset(folderName + name + "xml");
-        }
     }
 
     private void startSubmeshName(String indexStr, String nameStr) {
@@ -620,7 +595,7 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
         } else if (qName.equals("boneassignments")) {
             startBoneAssigns();
         } else if (qName.equals("submesh")) {
-            startMesh(attribs.getValue("material"),
+            startSubMesh(attribs.getValue("material"),
                     attribs.getValue("usesharedvertices"),
                     attribs.getValue("use32bitindexes"),
                     attribs.getValue("operationtype"));
@@ -653,18 +628,18 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
             if (ignoreUntilEnd.equals(qName)) {
                 ignoreUntilEnd = null;
             }
-
             return;
         }
 
         if (qName.equals("submesh")) {
-            bigindices = false;
+            usesBigIndices = false;
             geom = null;
             mesh = null;
         } else if (qName.equals("submeshes")) {
-            // IMPORTANT: restore sharedgeoemtry, for use with shared boneweights
-            geom = sharedgeom;
-            mesh = sharedmesh;
+            // IMPORTANT: restore sharedmesh, for use with shared boneweights
+            geom = null;
+            mesh = sharedMesh;
+            usesSharedVerts = false;
         } else if (qName.equals("faces")) {
             if (ib != null) {
                 ib.flip();
@@ -711,78 +686,80 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
     }
 
     private Node compileModel() {
-        String nodeName;
-        if (meshName == null) {
-            nodeName = "OgreMesh" + (++nodeIdx);
-        } else {
-            nodeName = meshName + "-ogremesh";
+        Node model = new Node(meshName + "-ogremesh");
+        
+        for (int i = 0; i < geoms.size(); i++) {
+            Geometry g = geoms.get(i);
+            Mesh m = g.getMesh();
+            if (sharedMesh != null && isUsingSharedVerts(geom)) {
+                m.setBound(sharedMesh.getBound().clone());
+            }
+            model.attachChild(geoms.get(i));
         }
-
-        Node model = new Node(nodeName);
+        
+        // Do not attach shared geometry to the node!
+        
         if (animData != null) {
-            ArrayList<Mesh> newMeshes = new ArrayList<Mesh>(geoms.size());
-
-            // generate bind pose for mesh and add to skin-list
+            // This model uses animation
+            
+            // generate bind pose for mesh
             // ONLY if not using shared geometry
             // This includes the shared geoemtry itself actually
+            if (sharedMesh != null){
+                sharedMesh.generateBindPose(!HARDWARE_SKINNING);
+            }
+            
             for (int i = 0; i < geoms.size(); i++) {
                 Geometry g = geoms.get(i);
                 Mesh m = geoms.get(i).getMesh();
-                boolean useShared = usesSharedGeom.get(i);
-                // create bind pose
+                boolean useShared = isUsingSharedVerts(g); 
+                
+                
                 if (!useShared) {
+                    // create bind pose
                     m.generateBindPose(!HARDWARE_SKINNING);
-                    newMeshes.add(m);
-                } else {
-                    VertexBuffer bindPos = sharedmesh.getBuffer(Type.BindPosePosition);
-                    VertexBuffer bindNorm = sharedmesh.getBuffer(Type.BindPoseNormal);
-                    VertexBuffer boneIndex = sharedmesh.getBuffer(Type.BoneIndex);
-                    VertexBuffer boneWeight = sharedmesh.getBuffer(Type.BoneWeight);
-
-                    if (bindPos != null) {
-                        m.setBuffer(bindPos);
-                    }
-
-                    if (bindNorm != null) {
-                        m.setBuffer(bindNorm);
-                    }
-
-                    if (boneIndex != null) {
-                        m.setBuffer(boneIndex);
-                    }
-
-                    if (boneWeight != null) {
-                        m.setBuffer(boneWeight);
-                    }
+//                } else {
+                    // Inherit animation data from shared mesh
+//                    VertexBuffer bindPos = sharedMesh.getBuffer(Type.BindPosePosition);
+//                    VertexBuffer bindNorm = sharedMesh.getBuffer(Type.BindPoseNormal);
+//                    VertexBuffer boneIndex = sharedMesh.getBuffer(Type.BoneIndex);
+//                    VertexBuffer boneWeight = sharedMesh.getBuffer(Type.BoneWeight);
+//
+//                    if (bindPos != null) {
+//                        m.setBuffer(bindPos);
+//                    }
+//
+//                    if (bindNorm != null) {
+//                        m.setBuffer(bindNorm);
+//                    }
+//
+//                    if (boneIndex != null) {
+//                        m.setBuffer(boneIndex);
+//                    }
+//
+//                    if (boneWeight != null) {
+//                        m.setBuffer(boneWeight);
+//                    }
                 }
             }
-            Mesh[] meshes = new Mesh[newMeshes.size()];
-            for (int i = 0; i < meshes.length; i++) {
-                meshes[i] = newMeshes.get(i);
-            }
-
+            
+            // Put the animations in the AnimControl
             HashMap<String, BoneAnimation> anims = new HashMap<String, BoneAnimation>();
             ArrayList<BoneAnimation> animList = animData.anims;
             for (int i = 0; i < animList.size(); i++) {
                 BoneAnimation anim = animList.get(i);
                 anims.put(anim.getName(), anim);
             }
-
-            //AnimControl ctrl = new AnimControl(model, meshes, animData.skeleton);            
+           
             AnimControl ctrl = new AnimControl(animData.skeleton);
             ctrl.setAnimations(anims);
             model.addControl(ctrl);
-            SkeletonControl skeletonControl = new SkeletonControl(meshes, animData.skeleton);
+            
+            // Put the skeleton in the skeleton control
+            SkeletonControl skeletonControl = new SkeletonControl(animData.skeleton);
+            
+            // This will acquire the targets from the node
             model.addControl(skeletonControl);
-        }
-
-        for (int i = 0; i < geoms.size(); i++) {
-            Geometry g = geoms.get(i);
-            Mesh m = g.getMesh();
-            if (sharedmesh != null && usesSharedGeom.get(i)) {
-                m.setBound(sharedmesh.getBound().clone());
-            }
-            model.attachChild(geoms.get(i));
         }
 
         return model;

@@ -268,27 +268,27 @@ public final class BoneTrack implements Savable {
 
 
         //Backward compatibility for old j3o files generated before revision 6807
-        if (translations == null) {
-            Savable[] sav = ic.readSavableArray("translations", null);
-            if (sav != null) {
-                translations = new CompactVector3Array();
-                Vector3f[] transCopy = new Vector3f[sav.length];
-                System.arraycopy(sav, 0, transCopy, 0, sav.length);
-                translations.add(transCopy);
-                translations.freeze();
+        if (im.getFormatVersion() == 0){
+            if (translations == null) {
+                Savable[] sav = ic.readSavableArray("translations", null);
+                if (sav != null) {
+                    translations = new CompactVector3Array();
+                    Vector3f[] transCopy = new Vector3f[sav.length];
+                    System.arraycopy(sav, 0, transCopy, 0, sav.length);
+                    translations.add(transCopy);
+                    translations.freeze();
+                }
+            }
+            if (rotations == null) {
+                Savable[] sav = ic.readSavableArray("rotations", null);
+                if (sav != null) {
+                    rotations = new CompactQuaternionArray();
+                    Quaternion[] rotCopy = new Quaternion[sav.length];
+                    System.arraycopy(sav, 0, rotCopy, 0, sav.length);
+                    rotations.add(rotCopy);
+                    rotations.freeze();
+                }
             }
         }
-        if (rotations == null) {
-            Savable[] sav = ic.readSavableArray("rotations", null);
-            if (sav != null) {
-                rotations = new CompactQuaternionArray();
-                Quaternion[] rotCopy = new Quaternion[sav.length];
-                System.arraycopy(sav, 0, rotCopy, 0, sav.length);
-                rotations.add(rotCopy);
-                rotations.freeze();
-            }
-        }
-
-
     }
 }

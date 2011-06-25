@@ -41,26 +41,27 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.jme3.export.InputCapsule;
-import com.jme3.export.Savable;
 import com.jme3.material.MatParamTexture;
+import com.jme3.scene.Spatial;
+import java.lang.reflect.Field;
+import java.lang.reflect.Type;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 
 /**
- * <code>SavableClassFinder</code> is used to find classes referenced
- * by savables.
+ * <code>SavableClassUtil</code> contains various utilities to handle
+ * Savable classes. The methods are general enough to not be specific to any
+ * particular implementation.
  * Currently it will remap any classes from old paths to new paths
  * so that old J3O models can still be loaded.
  *
  * @author mpowell
  * @author Kirill Vainer
  */
-public class SavableClassFinder {
+public class SavableClassUtil {
 
     private final static HashMap<String, String> classRemappings = new HashMap<String, String>();
-
+    
     private static void addRemapping(String oldClass, Class<? extends Savable> newClass){
         classRemappings.put(oldClass, newClass.getName());
     }
@@ -83,7 +84,32 @@ public class SavableClassFinder {
             return result;
         }
     }
+    
+    public static boolean isImplementingSavable(Class clazz){
+        Class[] interfaces = clazz.getInterfaces();
+        for (Class interfaceClass : interfaces){
+            if (interfaceClass == Savable.class){
+                return true;
+            }
+        }
+        return false;
+    }
 
+    public static int getSavableVersion(Class<? extends Savable> clazz) throws IOException{
+        try {
+            Field field = clazz.getField("SAVABLE_VERSION");
+            return field.getInt(null);
+        } catch (IllegalAccessException ex) {
+            IOException ioEx = new IOException();
+            ioEx.initCause(ex);
+            throw ioEx;
+        } catch (IllegalArgumentException ex) {
+            throw ex; // can happen if SAVABLE_VERSION is not static
+        } catch (NoSuchFieldException ex) {
+            return 0; // not using versions
+        }
+    }
+    
     /**
      * fromName creates a new Savable from the provided class name. First registered modules
      * are checked to handle special cases, if the modules do not handle the class name, the
@@ -96,29 +122,29 @@ public class SavableClassFinder {
      * @throws ClassNotFoundException thrown if the class name is not in the classpath.
      * @throws IOException when loading ctor parameters fails
      */
-    public static Savable fromName(String className, InputCapsule inputCapsule) throws InstantiationException,
+    public static Savable fromName(String className) throws InstantiationException,
             IllegalAccessException, ClassNotFoundException, IOException {
 
         className = remapClass(className);
         try {
             return (Savable) Class.forName(className).newInstance();
         } catch (InstantiationException e) {
-            Logger.getLogger(SavableClassFinder.class.getName()).log(
+            Logger.getLogger(SavableClassUtil.class.getName()).log(
                     Level.SEVERE, "Could not access constructor of class ''{0}" + "''! \n"
                     + "Some types need to have the BinaryImporter set up in a special way. Please doublecheck the setup.", className);
             throw e;
         } catch (IllegalAccessException e) {
-            Logger.getLogger(SavableClassFinder.class.getName()).log(
+            Logger.getLogger(SavableClassUtil.class.getName()).log(
                     Level.SEVERE, "{0} \n"
                     + "Some types need to have the BinaryImporter set up in a special way. Please doublecheck the setup.", e.getMessage());
             throw e;
         }
     }
 
-    public static Savable fromName(String className, InputCapsule inputCapsule, List<ClassLoader> loaders) throws InstantiationException,
+    public static Savable fromName(String className, List<ClassLoader> loaders) throws InstantiationException,
             IllegalAccessException, ClassNotFoundException, IOException {
         if (loaders == null) {
-            return fromName(className, inputCapsule);
+            return fromName(className);
         }
         
         String newClassName = remapClass(className);
@@ -131,6 +157,6 @@ public class SavableClassFinder {
 
         }
 
-        return fromName(className, inputCapsule);
+        return fromName(className);
     }
 }

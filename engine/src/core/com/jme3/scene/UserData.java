@@ -53,6 +53,12 @@ public final class UserData implements Savable {
      */
     public static final String JME_PHYSICSIGNORE = "JmePhysicsIgnore";
     
+    /**
+     * For geometries using shared mesh, this will specify the shared
+     * mesh reference.
+     */
+    public static final String JME_SHAREDMESH = "JmeSharedMesh";
+    
     protected byte type;
     protected Object value;
 

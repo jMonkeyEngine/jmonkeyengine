@@ -56,7 +56,7 @@ public class DefaultParticleInfluencer implements ParticleInfluencer {
     @Override
     public void read(JmeImporter im) throws IOException {
         InputCapsule ic = im.getCapsule(this);
-        startVelocity = (Vector3f) ic.readSavable("startVelocity", Vector3f.ZERO);
+        startVelocity = (Vector3f) ic.readSavable("startVelocity", Vector3f.ZERO.clone());
         velocityVariation = ic.readFloat("variation", 0.2f);
     }
 

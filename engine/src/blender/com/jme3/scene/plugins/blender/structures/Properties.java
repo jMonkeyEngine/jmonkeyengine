@@ -6,9 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
-
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
-
 import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
@@ -158,7 +155,7 @@ public class Properties implements Cloneable, Savable {
 				break;
 			}
 			case IDP_NUMTYPES:
-				throw new NotImplementedException();
+				throw new UnsupportedOperationException();
 				// case IDP_ID://not yet implemented in blender
 				// return null;
 			default:

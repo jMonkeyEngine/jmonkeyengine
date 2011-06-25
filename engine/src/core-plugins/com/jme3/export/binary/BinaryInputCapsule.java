@@ -39,7 +39,6 @@ import com.jme3.util.IntMap;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
@@ -60,13 +59,15 @@ final class BinaryInputCapsule implements InputCapsule {
 
     protected BinaryImporter importer;
     protected BinaryClassObject cObj;
+    protected Savable savable;
     protected HashMap<Byte, Object> fieldData;
 
     protected int index = 0;
 
-    public BinaryInputCapsule(BinaryImporter importer, BinaryClassObject bco) {
+    public BinaryInputCapsule(BinaryImporter importer, Savable savable, BinaryClassObject bco) {
         this.importer = importer;
         this.cObj = bco;
+        this.savable = savable;
     }
 
     public void setContent(byte[] content, int start, int limit) {
@@ -254,6 +255,26 @@ final class BinaryInputCapsule implements InputCapsule {
                         "setContent(byte[] content)", "Exception", e);
             }
         }
+    }
+    
+    public int getSavableVersion(Class<? extends Savable> desiredClass){
+        Class thisClass = savable.getClass();
+        int count = 0;
+        while (thisClass != null && thisClass != desiredClass){
+            thisClass = thisClass.getSuperclass();
+            count ++;
+        }
+        if (thisClass == null){
+            throw new IllegalArgumentException(savable.getClass().getName() + 
+                                               " does not extend " + 
+                                               desiredClass.getName() + "!");
+        }else if (count > cObj.classHierarchyVersions.length){
+            throw new IllegalArgumentException(savable.getClass().getName() + 
+                                               " cannot access version of " +
+                                               desiredClass.getName() + 
+                                               " because it doesn't implement Savable");
+        }
+        return cObj.classHierarchyVersions[count];
     }
 
     public BitSet readBitSet(String name, BitSet defVal) throws IOException {

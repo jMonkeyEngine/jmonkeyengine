@@ -61,7 +61,7 @@ import java.util.logging.Logger;
  *
  * @author Nehon
  */
-public class Cinematic extends AbstractCinematicEvent implements Savable, AppState {
+public class Cinematic extends AbstractCinematicEvent implements AppState {
 
     private static final Logger logger = Logger.getLogger(Application.class.getName());
     private String niftyXmlPath = null;

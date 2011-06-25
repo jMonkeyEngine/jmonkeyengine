@@ -32,9 +32,11 @@
 
 package com.jme3.export.binary;
 
-import com.jme3.export.SavableClassFinder;
+import com.jme3.export.SavableClassUtil;
 import com.jme3.asset.AssetInfo;
 import com.jme3.asset.AssetManager;
+import com.jme3.export.FormatVersion;
+import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.ReadListener;
 import com.jme3.export.Savable;
@@ -57,6 +59,7 @@ import java.util.logging.Logger;
 
 /**
  * @author Joshua Slack
+ * @author Kirill Vainer - Version number, Fast buffer reading
  */
 public final class BinaryImporter implements JmeImporter {
     private static final Logger logger = Logger.getLogger(BinaryImporter.class
@@ -81,12 +84,17 @@ public final class BinaryImporter implements JmeImporter {
 
     private byte[] dataArray;
     private int aliasWidth;
+    private int formatVersion;
 
     private static final boolean fastRead = ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN;
     
     private List<ClassLoader> loaders;
 
     public BinaryImporter() {
+    }
+    
+    public int getFormatVersion(){
+        return formatVersion;
     }
     
     public static boolean canUseFastBuffers(){
@@ -139,20 +147,59 @@ public final class BinaryImporter implements JmeImporter {
     public Savable load(InputStream is, ReadListener listener, ByteArrayOutputStream baos) throws IOException {
         contentTable.clear();
         BufferedInputStream bis = new BufferedInputStream(is);
-        int numClasses = ByteUtils.readInt(bis);
+        
+        int numClasses;
+        
+        // Try to read signature
+        int maybeSignature = ByteUtils.readInt(bis);
+        if (maybeSignature == FormatVersion.SIGNATURE){
+            // this is a new version J3O file
+            formatVersion = ByteUtils.readInt(bis);
+            numClasses = ByteUtils.readInt(bis);
+            
+            // check if this binary is from the future
+            if (formatVersion > FormatVersion.VERSION){
+                throw new IOException("The binary file is of newer version than expected! " + 
+                                      formatVersion + " > " + FormatVersion.VERSION);
+            }
+        }else{
+            // this is an old version J3O file
+            // the signature was actually the class count
+            numClasses = maybeSignature;
+            
+            // 0 indicates version before we started adding
+            // version numbers
+            formatVersion = 0; 
+        }
+        
         int bytes = 4;
         aliasWidth = ((int)FastMath.log(numClasses, 256) + 1);
 
         classes.clear();
         for(int i = 0; i < numClasses; i++) {
             String alias = readString(bis, aliasWidth);
-
+            
+            // jME3 NEW: Read class version number
+            int[] classHierarchyVersions;
+            if (formatVersion >= 1){
+                int classHierarchySize = bis.read();
+                classHierarchyVersions = new int[classHierarchySize];
+                for (int j = 0; j < classHierarchySize; j++){
+                    classHierarchyVersions[j] = ByteUtils.readInt(bis);
+                }
+            }else{
+                classHierarchyVersions = new int[]{ 0 };
+            }
+            
+            // read classname and classname size
             int classLength = ByteUtils.readInt(bis);
             String className = readString(bis, classLength);
+            
             BinaryClassObject bco = new BinaryClassObject();
             bco.alias = alias.getBytes();
             bco.className = className;
-
+            bco.classHierarchyVersions = classHierarchyVersions;
+            
             int fields = ByteUtils.readInt(bis);
             bytes += (8 + aliasWidth + classLength);
 
@@ -210,9 +257,9 @@ public final class BinaryImporter implements JmeImporter {
         Savable rVal = readObject(id);
         if (debug) {
             logger.info("Importer Stats: ");
-            logger.info("Tags: "+numClasses);
-            logger.info("Objects: "+numLocs);
-            logger.info("Data Size: "+dataArray.length);
+            logger.log(Level.INFO, "Tags: {0}", numClasses);
+            logger.log(Level.INFO, "Objects: {0}", numLocs);
+            logger.log(Level.INFO, "Data Size: {0}", dataArray.length);
         }
         dataArray = null;
         return rVal;
@@ -247,7 +294,8 @@ public final class BinaryImporter implements JmeImporter {
         return rVal;
     }
 
-    public BinaryInputCapsule getCapsule(Savable id) {
+    @Override
+    public InputCapsule getCapsule(Savable id) {
         return capsuleTable.get(id);
     }
 
@@ -291,10 +339,10 @@ public final class BinaryImporter implements JmeImporter {
             int dataLength = ByteUtils.convertIntFromBytes(dataArray, loc);
             loc+=4;
 
-            BinaryInputCapsule cap = new BinaryInputCapsule(this, bco);
+            Savable out = SavableClassUtil.fromName(bco.className, loaders);
+            
+            BinaryInputCapsule cap = new BinaryInputCapsule(this, out, bco);
             cap.setContent(dataArray, loc, loc+dataLength);
-
-            Savable out = SavableClassFinder.fromName(bco.className, cap, loaders);
 
             capsuleTable.put(out, cap);
             contentTable.put(id, out);

@@ -177,8 +177,10 @@ public class TextureHelper extends AbstractBlenderHelper {
 				break;
 			case TEX_IMAGE:// (it is first because probably this will be most commonly used)
 				Pointer pImage = (Pointer) tex.getFieldValue("ima");
-				Structure image = pImage.fetchData(dataRepository.getInputStream()).get(0);
-				result = this.getTextureFromImage(image, dataRepository);
+                                if (pImage.isNotNull()){
+                                    Structure image = pImage.fetchData(dataRepository.getInputStream()).get(0);
+                                    result = this.getTextureFromImage(image, dataRepository);
+                                }
 				break;
 			case TEX_CLOUDS:
 				result = this.clouds(tex, width, height, dataRepository);
@@ -212,7 +214,7 @@ public class TextureHelper extends AbstractBlenderHelper {
 				break;
 			case TEX_PLUGIN:
 			case TEX_ENVMAP:// TODO: implement envmap texture
-				LOGGER.log(Level.WARNING, "Unsupported texture type: " + type + " for texture: " + tex.getName());
+				LOGGER.log(Level.WARNING, "Unsupported texture type: {0} for texture: {1}", new Object[]{type, tex.getName()});
 				break;
 			default:
 				throw new BlenderFileException("Unknown texture type: " + type + " for texture: " + tex.getName());

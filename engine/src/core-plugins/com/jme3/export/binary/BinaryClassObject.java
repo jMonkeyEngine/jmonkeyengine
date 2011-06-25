@@ -42,5 +42,5 @@ class BinaryClassObject {
     
     byte[] alias;
     String className;
-    
+    int[] classHierarchyVersions;
 }

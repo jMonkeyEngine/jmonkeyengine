@@ -44,7 +44,7 @@ import java.nio.IntBuffer;
 
 /**
  * implements all writeXXXXArray methods to reduce boilerplate code
- * Geomap implementations are encourged to extend this class
+ * Geomap implementations are encouraged to extend this class
  */
 public abstract class AbstractGeomap implements Geomap {
 
@@ -60,7 +60,7 @@ public abstract class AbstractGeomap implements Geomap {
 
     /*
      * (non-Javadoc)
-     * Subclasses are encourged to provide a better implementation
+     * Subclasses are encouraged to provide a better implementation
      * which directly accesses the data rather than using getHeight
      */
     public FloatBuffer writeVertexArray(FloatBuffer store, Vector3f scale, boolean center){

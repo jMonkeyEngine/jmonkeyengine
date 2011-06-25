@@ -39,7 +39,6 @@ import com.jme3.export.Savable;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Mesh;
-import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.control.AbstractControl;
 import com.jme3.scene.control.Control;
@@ -68,7 +67,7 @@ import java.util.HashMap;
  *
  * @author Kirill Vainer
  */
-public final class AnimControl extends AbstractControl implements Savable, Cloneable {
+public final class AnimControl extends AbstractControl implements Cloneable {
 
     /**
      * Skeleton object must contain corresponding data for the targets' weight buffers.
@@ -351,16 +350,17 @@ public final class AnimControl extends AbstractControl implements Savable, Clone
         skeleton = (Skeleton) in.readSavable("skeleton", null);
         animationMap = (HashMap<String, BoneAnimation>) in.readStringSavableMap("animations", null);
 
-        //changed for backward compatibility with j3o files generated before the AnimControl/SkeletonControl split
-        //if we find a target mesh array the AnimControl creates the SkeletonControl for old files and add it to the spatial.        
-        //When backward compatibility won't be needed anymore this can deleted        
-        Savable[] sav = in.readSavableArray("targets", null);
-        if (sav != null) {
-            Mesh[] tg = null;
-            tg = new Mesh[sav.length];
-            System.arraycopy(sav, 0, tg, 0, sav.length);
-            skeletonControl = new SkeletonControl(tg, skeleton);
-            spatial.addControl(skeletonControl);
+        if (im.getFormatVersion() == 0){
+            //changed for backward compatibility with j3o files generated before the AnimControl/SkeletonControl split
+            //if we find a target mesh array the AnimControl creates the SkeletonControl for old files and add it to the spatial.        
+            //When backward compatibility won't be needed anymore this can deleted        
+            Savable[] sav = in.readSavableArray("targets", null);
+            if (sav != null) {
+                Mesh[] targets = new Mesh[sav.length];
+                System.arraycopy(sav, 0, targets, 0, sav.length);
+                skeletonControl = new SkeletonControl(targets, skeleton);
+                spatial.addControl(skeletonControl);
+            }
         }
     }
 }

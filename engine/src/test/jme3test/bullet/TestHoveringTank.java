@@ -270,7 +270,7 @@ public class TestHoveringTank extends SimpleApplication implements AnalogListene
         rock.setWrap(WrapMode.Repeat);
         matRock.setTexture("DiffuseMap_2", rock);
         matRock.setFloat("DiffuseMap_2_scale", 128);
-        Texture normalMap0 = assetManager.loadTexture("Textures/Terrain/splat/grass_normal.png");
+        Texture normalMap0 = assetManager.loadTexture("Textures/Terrain/splat/grass_normal.jpg");
         normalMap0.setWrap(WrapMode.Repeat);
         Texture normalMap1 = assetManager.loadTexture("Textures/Terrain/splat/dirt_normal.png");
         normalMap1.setWrap(WrapMode.Repeat);
