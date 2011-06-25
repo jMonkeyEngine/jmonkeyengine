@@ -1562,11 +1562,11 @@ public class TextureHelper extends AbstractBlenderHelper {
 	public Texture getTextureFromImage(Structure image, DataRepository dataRepository) throws BlenderFileException {
 		Texture result = (Texture) dataRepository.getLoadedFeature(image.getOldMemoryAddress(), LoadedFeatureDataType.LOADED_FEATURE);
 		if (result == null) {
+			String texturePath = image.getFieldValue("name").toString();
 			Pointer pPackedFile = (Pointer) image.getFieldValue("packedfile");
 			if (pPackedFile.isNull()) {
 				LOGGER.info("Reading texture from file!");
-				String imagePath = image.getFieldValue("name").toString();
-				result = this.loadTextureFromFile(imagePath, dataRepository);
+				result = this.loadTextureFromFile(texturePath, dataRepository);
 			} else {
 				LOGGER.info("Packed texture. Reading directly from the blend file!");
 				Structure packedFile = pPackedFile.fetchData(dataRepository.getInputStream()).get(0);
@@ -1582,6 +1582,7 @@ public class TextureHelper extends AbstractBlenderHelper {
 				}
 			}
 			if (result != null) {
+				result.setName(texturePath);
 				result.setWrap(Texture.WrapMode.Repeat);
 				dataRepository.addLoadedFeatures(image.getOldMemoryAddress(), image.getName(), image, result);
 			}
@@ -1858,22 +1859,6 @@ public class TextureHelper extends AbstractBlenderHelper {
 		@Override
 		public Object clone() throws CloneNotSupportedException {
 			return super.clone();
-		}
-	}
-
-	public static class GeneratedTextureData {
-		public ByteBuffer	luminanceData;
-		public ByteBuffer	rgbData;
-		public Format		rgbFormat;
-		public int			width;
-		public int			height;
-
-		public GeneratedTextureData(ByteBuffer luminanceData, ByteBuffer rgbData, Format rgbFormat, int width, int height) {
-			this.luminanceData = luminanceData;
-			this.rgbData = rgbData;
-			this.rgbFormat = rgbFormat;
-			this.width = width;
-			this.height = height;
 		}
 	}
 }
