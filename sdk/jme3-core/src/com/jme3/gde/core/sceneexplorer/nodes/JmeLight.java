@@ -95,7 +95,7 @@ public class JmeLight extends AbstractSceneExplorerNode{
         }
 
         set.put(makeProperty(obj, ColorRGBA.class, "getColor", "setColor", "Color"));
-        set.put(makeProperty(obj, float.class, "getLastDistance", "setLastDistance", "Last Distance"));
+
 
         sheet.put(set);
         return sheet;
