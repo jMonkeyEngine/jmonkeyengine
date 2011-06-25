@@ -314,7 +314,7 @@ public class SceneApplication extends Application implements LookupProvider, Loo
                     return null;
                 }
                 if (request.getManager() != null) {
-                    assetManager = request.getManager().getManager();
+                    assetManager = request.getManager();
                 }
                 if (request.getRequester() instanceof SceneApplication) {
                     camController.enable();

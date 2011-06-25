@@ -1,76 +1,52 @@
-
-<h1><a>Update Loop</a></h1>
-<div>
-
-<p>
-
-Extending your application from com.jme3.app.<a href="/com/jme3/gde/core/docs/jme3/intermediate/simpleapplication.html">SimpleApplication</a> provides you with an update loop. This is where you implement your game logic (game mechanics).
-</p>
-
-<p>
-Examples: Here you remote-control NPCs (computer controlled characters), generate game events, and respond to user input.
-
-</p>
-<ol>
-<li><div> Initialization (<code>simpleInit()</code>)</div>
-</li>
-<li><div> If exit is requested, then cleanup and destroy</div>
-</li>
-<li><div> <a href="/com/jme3/gde/core/docs/jme3/advanced/input_handling.html">Input handling</a> (listeners)</div>
-</li>
-<li><div> Update game state</div>
-<ol>
-<li><div> <a href="/com/jme3/gde/core/docs/jme3/advanced/application_states.html">Application States</a> update</div>
-</li>
-<li><div> User update (<code>simpleUpdate()</code> method)</div>
-</li>
-<li><div> Entity logical update (<a href="/com/jme3/gde/core/docs/jme3/advanced/custom_controls.html">Custom Controls</a>)</div>
-</li>
-</ol>
-</li>
-<li><div> render</div>
-<ol>
-<li><div> <a href="/com/jme3/gde/core/docs/jme3/advanced/application_states.html">Application States</a> rendering</div>
-</li>
-<li><div> Scene rendering</div>
-</li>
-<li><div> User rendering (<code>simpleRender()</code> method)</div>
-</li>
-</ol>
-</li>
-<li><div> Repeat (goto 2)</div>
-</li>
-</ol>
-
-</div>
-
-<h2><a>Usage</a></h2>
-<div>
-
-<p>
-
-Use…
-</p>
-<ul>
-<li><div> <a href="/com/jme3/gde/core/docs/jme3/advanced/application_states.html">Application States</a> to implement global game mechanics <br/>
- Example: Physics, Global gameplay control</div>
-</li>
-<li><div> <a href="/com/jme3/gde/core/docs/jme3/advanced/custom_controls.html">Custom Controls</a> to implement entity behavior <br/>
- Example: Enemy AI</div>
-</li>
-<li><div> <code>simpleUpdate()</code> to implement the rest, or for testing during development.</div>
-</li>
-</ul>
-<div><span>
-	<a href="/wiki/doku.php/tag:basegame?do=showtag&amp;tag=tag%3Abasegame">basegame</a>,
-	<a href="/wiki/doku.php/tag:controller?do=showtag&amp;tag=tag%3Acontroller">controller</a>,
-	<a href="/wiki/doku.php/tag:input?do=showtag&amp;tag=tag%3Ainput">input</a>,
-	<a href="/wiki/doku.php/tag:init?do=showtag&amp;tag=tag%3Ainit">init</a>,
-	<a href="/wiki/doku.php/tag:keyinput?do=showtag&amp;tag=tag%3Akeyinput">keyinput</a>,
-	<a href="/wiki/doku.php/tag:loop?do=showtag&amp;tag=tag%3Aloop">loop</a>,
-	<a href="/wiki/doku.php/tag:states?do=showtag&amp;tag=tag%3Astates">states</a>,
-	<a href="/wiki/doku.php/tag:state?do=showtag&amp;tag=tag%3Astate">state</a>
-</span></div>
-
-</div>
+<h1><a
+name="update_loop">Update Loop</a></h1><div
+class="level1"><p> Extending your application from com.jme3.app.<a
+href="/com/jme3/gde/core/docs/jme3/intermediate/simpleapplication.html">SimpleApplication</a> provides you with an update loop. This is where you implement your game logic (game mechanics).</p><p> Examples: Here you remote-control NPCs (computer controlled characters), generate game events, and respond to user input.</p><ol><li
+class="level1"><div
+class="li"> Initialization (<code>simpleInit()</code>)</div></li><li
+class="level1"><div
+class="li"> If exit is requested, then cleanup and destroy</div></li><li
+class="level1"><div
+class="li"> <a
+href="/com/jme3/gde/core/docs/jme3/advanced/input_handling.html">Input handling</a> (listeners)</div></li><li
+class="level1"><div
+class="li"> Update game state</div><ol><li
+class="level2"><div
+class="li"> <a
+href="/com/jme3/gde/core/docs/jme3/advanced/application_states.html">Application States</a> update</div></li><li
+class="level2"><div
+class="li"> User update (<code>simpleUpdate()</code> method)</div></li><li
+class="level2"><div
+class="li"> Entity logical update (<a
+href="/com/jme3/gde/core/docs/jme3/advanced/custom_controls.html">Custom Controls</a>)</div></li></ol></li><li
+class="level1"><div
+class="li"> render</div><ol><li
+class="level2"><div
+class="li"> <a
+href="/com/jme3/gde/core/docs/jme3/advanced/application_states.html">Application States</a> rendering</div></li><li
+class="level2"><div
+class="li"> Scene rendering</div></li><li
+class="level2"><div
+class="li"> User rendering (<code>simpleRender()</code> method)</div></li></ol></li><li
+class="level1"><div
+class="li"> Repeat (goto 2)</div></li></ol></div><h2><a
+name="usage">Usage</a></h2><div
+class="level2"><p> Use…</p><ul><li
+class="level1"><div
+class="li"> <a
+href="/com/jme3/gde/core/docs/jme3/advanced/application_states.html">Application States</a> to implement global game mechanics <br/> Example: Physics, Global gameplay control</div></li><li
+class="level1"><div
+class="li"> <a
+href="/com/jme3/gde/core/docs/jme3/advanced/custom_controls.html">Custom Controls</a> to implement entity behavior <br/> Example: Enemy AI</div></li><li
+class="level1"><div
+class="li"> <code>simpleUpdate()</code> to implement the rest, or for testing during development.</div></li></ul><div
+class="tags"><span> <a
+href="/wiki/doku.php/tag:basegame?do=showtag&amp;tag=tag%3Abasegame">basegame</a>, <a
+href="/wiki/doku.php/tag:controller?do=showtag&amp;tag=tag%3Acontroller">controller</a>, <a
+href="/wiki/doku.php/tag:input?do=showtag&amp;tag=tag%3Ainput">input</a>, <a
+href="/wiki/doku.php/tag:init?do=showtag&amp;tag=tag%3Ainit">init</a>, <a
+href="/wiki/doku.php/tag:keyinput?do=showtag&amp;tag=tag%3Akeyinput">keyinput</a>, <a
+href="/wiki/doku.php/tag:loop?do=showtag&amp;tag=tag%3Aloop">loop</a>, <a
+href="/wiki/doku.php/tag:states?do=showtag&amp;tag=tag%3Astates">states</a>, <a
+href="/wiki/doku.php/tag:state?do=showtag&amp;tag=tag%3Astate">state</a> </span></div></div>
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:update_loop?do=export_xhtmlbody">view online version</a></em></p>

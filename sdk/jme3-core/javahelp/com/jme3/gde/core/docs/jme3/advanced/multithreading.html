@@ -1,105 +1,31 @@
-
-<h1><a>Multithreading Optimization</a></h1>
-<div>
-
-<p>
-
-First, make sure you know what <a href="/com/jme3/gde/core/docs/jme3/advanced/application_states.html">Application States</a> and <a href="/com/jme3/gde/core/docs/jme3/advanced/custom_controls.html">Custom Controls</a> are.
-</p>
-
-<p>
-More complex games may feature complex mathematical operations or artificially intelligent calculations (such as path finding for several NPCs). If you make many time-intensive calls on the same thread (in the update loop), they will block one another, and thus slow down the game to a degree that makes it unplayable. If your game requires long running tasks, you should run them concurrently on separate threads, which speeds up the application considerably.
-</p>
-
-<p>
-Often multithreading means having separate detached logical loops going on in parallel, which communicate about their state. (For example, one thread for AI, one Sound, one Graphics). However we recommend to use a global update loop for game logic, and do multithreading within that loop when it is appropriate. This approach scales way better to multiple cores and does not break up your code logic. 
-</p>
-
-<p>
-Effectively, each for-loop in the main update loop might be a chance for multithreading, if you can break it up into self-contained tasks.
-</p>
-
-</div>
-
-<h2><a>Java Multithreading</a></h2>
-<div>
-
-<p>
-
-The java.util.concurrent package provides a good foundation for multithreading and dividing work into tasks that can be executed concurrently (hence the name). The three basic components are the Executor, Callable Objects (the tasks), and Future Objects. You can <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://download.oracle.com/javase/tutorial/essential/concurrency/"><param name="text" value="<html><u>read about the concurrent package more here</u></html>"><param name="textColor" value="blue"></object>, I will give just a short introduction.
-
-</p>
-<ul>
-<li><div> A Callable is a class with a method call() that gets executed on a thread in the Executor. It represents one task (e.g, path finding).</div>
-</li>
-<li><div> The Executor is one central object that manages the threads that are running to execute the Callables. Every time a Callable is added to the Executor, the Executor returns a Future object for it. </div>
-</li>
-<li><div> A Future is an object that you use to check the status of an individual Callable&#039;s execution. It also gives you the return value in case one is created.</div>
-</li>
-</ul>
-
-</div>
-
-<h2><a>Multithreading in jME3</a></h2>
-<div>
-
-<p>
-
-So how do we implement multithreading in jME3?
-</p>
-
-<p>
-Let&#039;s take the example of a Control that controls an NPC Spatial. The NPC Control has to compute a lengthy pathfinding operation for each NPC. If we would execute the operations directly in the simpleUpdate() loop, it would block the game  each time a NPC wants to move from A to B. Even if we move this behaviour into the update() method of a dedicated NPC Control, we would still get annoying freeze frames, because it still runs on the same update loop thread. 
-</p>
-
-<p>
-To avoid slowdown, we decide to keep the pathfinding operations in the NPC Control, <em>but execute it on another thread</em>.
-</p>
-
-</div>
-
-<h3><a>Executor</a></h3>
-<div>
-
-<p>
-
-You create the executor object in a global AppState (or the initSimpleApp() method), in any case in a high-level place where multiple controls can access it. 
-</p>
-<pre>/* This constructor creates a new executor with a core pool size of 4. */
-ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor&#40;4&#41;;</pre>
-<p>
-Pool size means the executor will keep four threads alive at any time. Having more threads in the pool means that more tasks can run concurrently. But a bigger pool only results in a speed gain if the PC can handle it! Allocating a pool  that is uselessly large just wastes memory, so you need to find a good compromise: About the same to double the size of the number of cores in the computer makes sense. 
-</p>
-
-</div>
-
-<h3><a>Control Class Fields</a></h3>
-<div>
-
-<p>
-
-In the NPC Control, we create the individual objects that the thread manipulates. In our example case (the pathfinding control), the task is about locations and path arrays, so we need the following variables:
-</p>
-<pre>//The vector to store the desired location in:
+<h1><a
+name="multithreading_optimization">Multithreading Optimization</a></h1><div
+class="level1"><p> First, make sure you know what <a
+href="/com/jme3/gde/core/docs/jme3/advanced/application_states.html">Application States</a> and <a
+href="/com/jme3/gde/core/docs/jme3/advanced/custom_controls.html">Custom Controls</a> are.</p><p> More complex games may feature complex mathematical operations or artificially intelligent calculations (such as path finding for several NPCs). If you make many time-intensive calls on the same thread (in the update loop), they will block one another, and thus slow down the game to a degree that makes it unplayable. If your game requires long running tasks, you should run them concurrently on separate threads, which speeds up the application considerably.</p><p> Often multithreading means having separate detached logical loops going on in parallel, which communicate about their state. (For example, one thread for AI, one Sound, one Graphics). However we recommend to use a global update loop for game logic, and do multithreading within that loop when it is appropriate. This approach scales way better to multiple cores and does not break up your code logic.</p><p> Effectively, each for-loop in the main update loop might be a chance for multithreading, if you can break it up into self-contained tasks.</p></div><h2><a
+name="java_multithreading">Java Multithreading</a></h2><div
+class="level2"><p> The java.util.concurrent package provides a good foundation for multithreading and dividing work into tasks that can be executed concurrently (hence the name). The three basic components are the Executor, Callable Objects (the tasks), and Future Objects. You can <a
+href="http://download.oracle.com/javase/tutorial/essential/concurrency/">read about the concurrent package more here</a>, I will give just a short introduction.</p><ul><li
+class="level1"><div
+class="li"> A Callable is a class with a method call() that gets executed on a thread in the Executor. It represents one task (e.g, path finding).</div></li><li
+class="level1"><div
+class="li"> The Executor is one central object that manages the threads that are running to execute the Callables. Every time a Callable is added to the Executor, the Executor returns a Future object for it.</div></li><li
+class="level1"><div
+class="li"> A Future is an object that you use to check the status of an individual Callable&#039;s execution. It also gives you the return value in case one is created.</div></li></ul></div><h2><a
+name="multithreading_in_jme3">Multithreading in jME3</a></h2><div
+class="level2"><p> So how do we implement multithreading in jME3?</p><p> Let&#039;s take the example of a Control that controls an NPC Spatial. The NPC Control has to compute a lengthy pathfinding operation for each NPC. If we would execute the operations directly in the simpleUpdate() loop, it would block the game  each time a NPC wants to move from A to B. Even if we move this behaviour into the update() method of a dedicated NPC Control, we would still get annoying freeze frames, because it still runs on the same update loop thread.</p><p> To avoid slowdown, we decide to keep the pathfinding operations in the NPC Control, <em>but execute it on another thread</em>.</p></div><h3><a
+name="executor">Executor</a></h3><div
+class="level3"><p> You create the executor object in a global AppState (or the initSimpleApp() method), in any case in a high-level place where multiple controls can access it.</p><pre>/* This constructor creates a new executor with a core pool size of 4. */
+ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor&#40;4&#41;;</pre><p> Pool size means the executor will keep four threads alive at any time. Having more threads in the pool means that more tasks can run concurrently. But a bigger pool only results in a speed gain if the PC can handle it! Allocating a pool  that is uselessly large just wastes memory, so you need to find a good compromise: About the same to double the size of the number of cores in the computer makes sense.</p></div><h3><a
+name="control_class_fields">Control Class Fields</a></h3><div
+class="level3"><p> In the NPC Control, we create the individual objects that the thread manipulates. In our example case (the pathfinding control), the task is about locations and path arrays, so we need the following variables:</p><pre>//The vector to store the desired location in:
 Vector3f desiredLocation = new Vector3f&#40;&#41;;
 //The MyWayList object that contains the result waylist:
 MyWayList wayList = null;
 //The future that is used to check the execution status:
-Future future = null;</pre>
-<p>
-Here we also created the Future variable to track the state of this task.
-</p>
-
-</div>
-
-<h3><a>Control Update() Method</a></h3>
-<div>
-
-<p>
-
-Next let&#039;s look at the update() call of the Control where the time-intensive task starts. In our example, the task is the <code>findWay</code> Callable (which contains the pathfinding process). So instead of spelling out the pathfinding process  in the Control&#039;s update() loop, we start the process via <code>future = executor.submit(findWay);</code>.
-</p>
-<pre>public void update&#40;float tpf&#41; &#123;
+Future future = null;</pre><p> Here we also created the Future variable to track the state of this task.</p></div><h3><a
+name="control_update_method">Control Update() Method</a></h3><div
+class="level3"><p> Next let&#039;s look at the update() call of the Control where the time-intensive task starts. In our example, the task is the <code>findWay</code> Callable (which contains the pathfinding process). So instead of spelling out the pathfinding process  in the Control&#039;s update() loop, we start the process via <code>future = executor.submit(findWay);</code>.</p><pre>public void update&#40;float tpf&#41; &#123;
     try&#123;
         //If we have no waylist and not started a callable yet, do so!
         if&#40;wayList == null &amp;&amp; future == null&#41;&#123;
@@ -121,54 +47,20 @@ Next let&#039;s look at the update() call of the Control where the time-intensiv
                 future = null;
             &#125;
         &#125;
-    &#125; 
-    catch&#40;Exception e&#41;&#123; 
+    &#125;
+    catch&#40;Exception e&#41;&#123;
       Exceptions.printStackTrace&#40;e&#41;;
     &#125;
     if&#40;wayList != null&#41;&#123;
         //.... Success! Let's process the wayList and move the NPC...
     &#125;
-&#125;</pre>
-<p>
-Note how this logic makes its decision based on the Future object.
-</p>
-
-<p>
-Remember not to mess with the class fields after starting the thread, because they are being accessed and modified on the new thread. In more obvious terms: You cannot change the “desired location” of the NPC while the path finder is calculating a different path. You have to cancel the current Future first.
-</p>
-
-</div>
-
-<h3><a>The Callable</a></h3>
-<div>
-
-<p>
-
-The next code sample shows the Callable that is dedicated to performing the long-running task (here, wayfinding). This is the task that used to block the rest of the application, and is now executed on a thread of its own. You implement the task in the Callable always in an inner method named <code>call()</code>.
-</p>
-
-<p>
-The task code in the Callable should be self-contained! It should not write or read any data of objects that are managed by the scene graph or OpenGL thread directly. Even reading locations of Spatials can be problematic! So ideally all data that is needed for the wayfinding process should be available to the new thread when it starts already, possibly in a cloned version so no concurrent access to the data happens.
-</p>
-
-<p>
-In reality, you might need access to the game state. If you must read or write a current state from the scene graph, you must have a clone of the data in your thread. There are only two ways:
-
-</p>
-<ul>
-<li><div> Use the execution queue <code>application.enqueue()</code> to create a sub-thread that clones the info. Only disadvantage is, it may be slower. <br/>
- The example below gets the <code>Vector3f location</code> from the scene object <code>mySpatial</code> using this way.</div>
-</li>
-<li><div> Create a separate World class that allows safe access to its data via synchronized methods to access the scene graph. Alternatively it can also internally use <code>application.enqueue()</code>. <br/>
- The following example gets the object <code>Data data = myWorld.getData();</code> using this way.</div>
-</li>
-</ul>
-
-<p>
-
-These two ways are thread-safe, they don&#039;t mess up the game logic, and keep the Callable code readable.
-</p>
-<pre>// A self-contained time-intensive task:
+&#125;</pre><p> Note how this logic makes its decision based on the Future object.</p><p> Remember not to mess with the class fields after starting the thread, because they are being accessed and modified on the new thread. In more obvious terms: You cannot change the &quot;desired location&quot; of the NPC while the path finder is calculating a different path. You have to cancel the current Future first.</p></div><h3><a
+name="the_callable">The Callable</a></h3><div
+class="level3"><p> The next code sample shows the Callable that is dedicated to performing the long-running task (here, wayfinding). This is the task that used to block the rest of the application, and is now executed on a thread of its own. You implement the task in the Callable always in an inner method named <code>call()</code>.</p><p> The task code in the Callable should be self-contained! It should not write or read any data of objects that are managed by the scene graph or OpenGL thread directly. Even reading locations of Spatials can be problematic! So ideally all data that is needed for the wayfinding process should be available to the new thread when it starts already, possibly in a cloned version so no concurrent access to the data happens.</p><p> In reality, you might need access to the game state. If you must read or write a current state from the scene graph, you must have a clone of the data in your thread. There are only two ways:</p><ul><li
+class="level1"><div
+class="li"> Use the execution queue <code>application.enqueue()</code> to create a sub-thread that clones the info. Only disadvantage is, it may be slower. <br/> The example below gets the <code>Vector3f location</code> from the scene object <code>mySpatial</code> using this way.</div></li><li
+class="level1"><div
+class="li"> Create a separate World class that allows safe access to its data via synchronized methods to access the scene graph. Alternatively it can also internally use <code>application.enqueue()</code>. <br/> The following example gets the object <code>Data data = myWorld.getData();</code> using this way.</div></li></ul><p> These two ways are thread-safe, they don&#039;t mess up the game logic, and keep the Callable code readable.</p><pre>// A self-contained time-intensive task:
 private Callable&lt;MyWayList&gt; findWay = new Callable&lt;MyWayList&gt;&#40;&#41;&#123;
     public MyWayList call&#40;&#41; throws Exception &#123;
 &nbsp;
@@ -181,31 +73,20 @@ private Callable&lt;MyWayList&gt; findWay = new Callable&lt;MyWayList&gt;&#40;&#
         &#125;&#41;.get&#40;&#41;;
 &nbsp;
         // This world class allows safe access via synchronized methods
-        Data data = myWorld.getData&#40;&#41;; 
+        Data data = myWorld.getData&#40;&#41;;
 &nbsp;
         //... Now process data and find the way ...
 &nbsp;
         return wayList;
     &#125;
-&#125;;</pre>
-</div>
-
-<h2><a>Conclusion</a></h2>
-<div>
-
-<p>
-
-The cool thing about this appraoch is that every entity creates one self-contained Callable for the Executor, and they are all executed in parallel. In theory, you can have one thread per entity without changing anything else but the settings of the executor.
-
-</p>
-<div><span>
-	<a href="/wiki/doku.php/tag:loop?do=showtag&amp;tag=tag%3Aloop">loop</a>,
-	<a href="/wiki/doku.php/tag:game?do=showtag&amp;tag=tag%3Agame">game</a>,
-	<a href="/wiki/doku.php/tag:performance?do=showtag&amp;tag=tag%3Aperformance">performance</a>,
-	<a href="/wiki/doku.php/tag:state?do=showtag&amp;tag=tag%3Astate">state</a>,
-	<a href="/wiki/doku.php/tag:states?do=showtag&amp;tag=tag%3Astates">states</a>,
-	<a href="/wiki/doku.php/tag:documentation?do=showtag&amp;tag=tag%3Adocumentation">documentation</a>
-</span></div>
-
-</div>
+&#125;;</pre></div><h2><a
+name="conclusion">Conclusion</a></h2><div
+class="level2"><p> The cool thing about this appraoch is that every entity creates one self-contained Callable for the Executor, and they are all executed in parallel. In theory, you can have one thread per entity without changing anything else but the settings of the executor.</p><div
+class="tags"><span> <a
+href="/wiki/doku.php/tag:loop?do=showtag&amp;tag=tag%3Aloop">loop</a>, <a
+href="/wiki/doku.php/tag:game?do=showtag&amp;tag=tag%3Agame">game</a>, <a
+href="/wiki/doku.php/tag:performance?do=showtag&amp;tag=tag%3Aperformance">performance</a>, <a
+href="/wiki/doku.php/tag:state?do=showtag&amp;tag=tag%3Astate">state</a>, <a
+href="/wiki/doku.php/tag:states?do=showtag&amp;tag=tag%3Astates">states</a>, <a
+href="/wiki/doku.php/tag:documentation?do=showtag&amp;tag=tag%3Adocumentation">documentation</a> </span></div></div>
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:multithreading?do=export_xhtmlbody">view online version</a></em></p>

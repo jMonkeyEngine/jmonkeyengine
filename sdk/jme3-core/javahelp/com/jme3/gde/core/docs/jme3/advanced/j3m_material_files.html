@@ -1,23 +1,16 @@
-
-<h1><a>Saving and Loading Materials with .j3m Files</a></h1>
-<div>
-
-<p>
-
-In the <a href="/com/jme3/gde/core/docs/jme3/advanced/material_definitions.html">Material Definitions</a> article you learned how to configure <a href="/com/jme3/gde/core/docs/jme3/advanced/materials_overview.html">Materials</a>  programmatically in Java code. If you have certain commonly used Materials that never change, you can clean up the amount of Java code that clutters your init method, by moving material settings into .j3m files. Then later in your code, you only need to call one setter instead of several to apply the material.
-</p>
-
-</div>
-
-<h2><a>Writing the .j3m File</a></h2>
-<div>
-<ol>
-<li><div> For every Material, create a file and give it a name that describes it: e.g. <code>SimpleBump.j3m</code></div>
-</li>
-<li><div> Place the file in your project&#039;s <code>assets/Materials/</code> directory, e.g. <code>MyGame/src/assets/Materials/SimpleBump.j3m</code></div>
-</li>
-<li><div> Edit the file and add content using the following Syntax, e.g.:<pre>
-Material shiny bumpy rock : Common/MatDefs/Light/Lighting.j3md {
+<h1><a
+name="saving_and_loading_materials_with_j3m_files">Saving and Loading Materials with .j3m Files</a></h1><div
+class="level1"><p> In the <a
+href="/com/jme3/gde/core/docs/jme3/advanced/material_definitions.html">Material Definitions</a> article you learned how to configure <a
+href="/com/jme3/gde/core/docs/jme3/advanced/materials_overview.html">Materials</a> programmatically in Java code. If you have certain commonly used Materials that never change, you can clean up the amount of Java code that clutters your init method, by moving material settings into .j3m files. Then later in your code, you only need to call one setter instead of several to apply the material.</p></div><h2><a
+name="writing_the_j3m_file">Writing the .j3m File</a></h2><div
+class="level2"><ol><li
+class="level1"><div
+class="li"> For every Material, create a file and give it a name that describes it: e.g. <code>SimpleBump.j3m</code></div></li><li
+class="level1"><div
+class="li"> Place the file in your project&#039;s <code>assets/Materials/</code> directory, e.g. <code>MyGame/src/assets/Materials/SimpleBump.j3m</code></div></li><li
+class="level1"><div
+class="li"> Edit the file and add content using the following Syntax, e.g.:<pre>Material shiny bumpy rock : Common/MatDefs/Light/Lighting.j3md {
      MaterialParameters {
          Shininess: 8.0
          NormalMap: Textures/bump_rock_normal.png
@@ -26,235 +19,190 @@ Material shiny bumpy rock : Common/MatDefs/Light/Lighting.j3md {
          Diffuse  : 1.0 1.0 1.0 1.0
          Specular : 0.0 0.0 0.0 1.0
      }
-}
-</pre>
-</div>
-</li>
-</ol>
-
-<p>
-
-How to this file is structured: 
-</p>
-<ol>
-<li><div> Header</div>
-<ol>
-<li><div> <code>Material</code> is a fixed keyword, keep it.</div>
-</li>
-<li><div> <code>shiny bumpy rock</code> is a descriptive string that you can make up. Choose a name to help you remember for what you intend to use this material.</div>
-</li>
-<li><div> After the colon, specify on which <a href="/com/jme3/gde/core/docs/jme3/advanced/materials_overview.html">Material</a> definition you base this Material.</div>
-</li>
-</ol>
-</li>
-<li><div> Now look up the choosen Material Definition&#039;s parameters and their parameter types from the <a href="/com/jme3/gde/core/docs/jme3/advanced/materials_overview.html">Material</a> table. Add one line for each parameter.</div>
-<ul>
-<li><div> For example: The series of four numbers in the example above represent RGBA color values.</div>
-</li>
-</ul>
-</li>
-<li><div> Check the detailed syntax reference below if you are unsure.</div>
-</li>
-</ol>
-
-<p>
-
-<strong>Tip:</strong> In the jMonkeyPlatform, use File&gt;New File&gt;Material&gt;Empty Material File to create .j3m files.
-</p>
-
-</div>
-
-<h2><a>How to Use .j3m Materials</a></h2>
-<div>
-
-<p>
-
-This is how you use the prepared .j3m Material on a Spatial. Since you have saved the .j3m file to your project&#039;s Assets directory, the .j3m path is relative to <code>MyGame/src/assets/…</code>.
-</p>
-<pre>myGeometry.setMaterial&#40;assetManager.loadAsset&#40;&quot;Materials/SimpleBump.j3m&quot;&#41;&#41;;</pre>
-<p>
-<strong>Tip:</strong> In the jMonkeyPlatform, open Windows&gt;Palette and drag the <code>JME Material: Set J3M</code> snippet into your code.
-</p>
-
-</div>
-
-<h2><a>Syntax Reference for .j3m Files</a></h2>
-<div>
-
-</div>
-
-<h3><a>Paths</a></h3>
-<div>
-
-<p>
-
-Make sure to get the paths to the textures (.png, .jpg) and material definitions (.j3md) right. 
-
-</p>
-<ul>
-<li><div> The paths to the built-in .j3md files are relative to jME3&#039;s Core Data directory. Just copy the path stated in the <a href="/com/jme3/gde/core/docs/jme3/advanced/materials_overview.html">Material</a> table. <br/>
- <code>Common/MatDefs/Misc/Unshaded.j3md</code> is resolved to <code>jme3/src/src/core-data/Common/MatDefs/Misc/Unshaded.j3md</code>.</div>
-</li>
-<li><div> The paths to your textures are relative to your project&#039;s assets directory. <br/>
- <code>Textures/bump_rock_normal.png</code> is resolved to <code>MyGame/src/assets/Textures/bump_rock_normal.png</code></div>
-</li>
-</ul>
-
-</div>
-
-<h3><a>Data Types</a></h3>
-<div>
-
-<p>
-
-All data types (except Color) are specified in com.jme3.shader.VarType.
-“Color” is specified as Vector4 in J3MLoader.java.
-
-</p>
-<table>
-	<tr>
-		<th>Name</th><th>jME Java class</th><th>.j3m file syntax</th>
-	</tr>
-	<tr>
-		<td> Float</td><td> </td><td> a float (e.g. 0.72) , no comma or parentheses </td>
-	</tr>
-	<tr>
-		<td> Vector2</td><td> <code>com.jme3.math.Vector2f</code></td><td> Two floats, no comma or parentheses </td>
-	</tr>
-	<tr>
-		<td> Vector3 </td><td> <code>com.jme3.math.Vector3f</code> </td><td> Three floats, no comma or parentheses </td>
-	</tr>
-	<tr>
-		<td> Texture2D </td><td> <code>com.jme3.texture.Texture</code> </td><td> Path to texture in <code>assets</code> directory, no quotation marks </td>
-	</tr>
-	<tr>
-		<td> Boolean</td><td> (basic Java type) </td><td> <code>true</code> or <code>false</code> </td>
-	</tr>
-	<tr>
-		<td> Int</td><td> (basic Java type) </td><td> Integer number, no comma or parentheses </td>
-	</tr>
-	<tr>
-		<td> Color </td><td> <code>com.jme3.math.ColorRGBA</code> </td><td> Four floats, no comma or parentheses </td>
-	</tr>
-	<tr>
-		<td> Vector4</td><td>  </td><td>  </td>
-	</tr>
-	<tr>
-		<td> FloatArray</td><td> </td><td>  </td>
-	</tr>
-	<tr>
-		<td> Vector2Array</td><td> </td><td>  </td>
-	</tr>
-	<tr>
-		<td> Vector3Array</td><td> </td><td>  </td>
-	</tr>
-	<tr>
-		<td> Vector4Array</td><td> </td><td>  </td>
-	</tr>
-	<tr>
-		<td> Matrix3</td><td> </td><td>  </td>
-	</tr>
-	<tr>
-		<td> Matrix4</td><td> </td><td>  </td>
-	</tr>
-	<tr>
-		<td> Matrix3Array</td><td> </td><td>  </td>
-	</tr>
-	<tr>
-		<td> Matrix4Array</td><td> </td><td>  </td>
-	</tr>
-	<tr>
-		<td> TextureBuffer</td><td> </td><td>  </td>
-	</tr>
-	<tr>
-		<td> Texture3D</td><td> </td><td>  </td>
-	</tr>
-	<tr>
-		<td> TextureArray</td><td> </td><td>  </td>
-	</tr>
-	<tr>
-		<td> TextureCubeMap</td><td> </td><td>  </td>
-	</tr>
-</table>
-
-</div>
-
-<h3><a>Flip and Repeat Syntax</a></h3>
-<div>
-<ul>
-<li><div> A texture can be flipped using the following syntax <code>NormalMap: Flip Textures/bump_rock_normal.png</code></div>
-</li>
-<li><div> A texture can be set to repeat using the following syntax <code>NormalMap: Repeat Textures/bump_rock_normal.png</code></div>
-</li>
-<li><div> If a texture is set to both being flipped and repeated, Flip must come before Repeat</div>
-</li>
-</ul>
-
-</div>
-
-<h3><a>Syntax for Additional Render States</a></h3>
-<div>
-<ul>
-<li><div> A Boolean can be “On” or “Off”</div>
-</li>
-<li><div> Float is “123.0” etc</div>
-</li>
-<li><div> Enum - values depend on the enum</div>
-</li>
-</ul>
-<table>
-	<tr>
-		<th>Name</th><th>Type</th><th>Purpose</th>
-	</tr>
-	<tr>
-		<td>Wireframe </td><td>(Boolean)</td><td> </td>
-	</tr>
-	<tr>
-		<td>FaceCull </td><td>(Enum: FaceCullMode)</td><td> </td>
-	</tr>
-	<tr>
-		<td>DepthWrite </td><td>(Boolean)</td><td> </td>
-	</tr>
-	<tr>
-		<td>DepthTest </td><td>(Boolean)</td><td> </td>
-	</tr>
-	<tr>
-		<td>Blend </td><td>(Enum: BlendMode)</td><td> </td>
-	</tr>
-	<tr>
-		<td>AlphaTestFalloff </td><td>(Float)</td><td> </td>
-	</tr>
-	<tr>
-		<td>PolyOffset </td><td>(Float, Float)</td><td> </td>
-	</tr>
-	<tr>
-		<td>ColorWrite </td><td>(Boolean)</td>
-	</tr>
-	<tr>
-		<td>PointSprite </td><td>(Boolean)</td><td> </td>
-	</tr>
-</table>
-
-</div>
-
-<h2><a>Examples</a></h2>
-<div>
-
-</div>
-
-<h3><a>Example 1: Shiny</a></h3>
-<div>
-<pre>Spatial signpost = &#40;Spatial&#41; assetManager.loadAsset&#40;
+}</pre></div></li></ol><p> How to this file is structured:</p><ol><li
+class="level1"><div
+class="li"> Header</div><ol><li
+class="level2"><div
+class="li"> <code>Material</code> is a fixed keyword, keep it.</div></li><li
+class="level2"><div
+class="li"> <code>shiny bumpy rock</code> is a descriptive string that you can make up. Choose a name to help you remember for what you intend to use this material.</div></li><li
+class="level2"><div
+class="li"> After the colon, specify on which <a
+href="/com/jme3/gde/core/docs/jme3/advanced/materials_overview.html">Material</a> definition you base this Material.</div></li></ol></li><li
+class="level1"><div
+class="li"> Now look up the choosen Material Definition&#039;s parameters and their parameter types from the <a
+href="/com/jme3/gde/core/docs/jme3/advanced/materials_overview.html">Material</a> table. Add one line for each parameter.</div><ul><li
+class="level2"><div
+class="li"> For example: The series of four numbers in the example above represent RGBA color values.</div></li></ul></li><li
+class="level1"><div
+class="li"> Check the detailed syntax reference below if you are unsure.</div></li></ol><p> <strong>Tip:</strong> In the jMonkeyPlatform, use File&gt;New File&gt;Material&gt;Empty Material File to create .j3m files.</p></div><h2><a
+name="how_to_use_j3m_materials">How to Use .j3m Materials</a></h2><div
+class="level2"><p> This is how you use the prepared .j3m Material on a Spatial. Since you have saved the .j3m file to your project&#039;s Assets directory, the .j3m path is relative to <code>MyGame/src/assets/…</code>.</p><pre>myGeometry.setMaterial&#40;assetManager.loadAsset&#40;&quot;Materials/SimpleBump.j3m&quot;&#41;&#41;;</pre><p> <strong>Tip:</strong> In the jMonkeyPlatform, open Windows&gt;Palette and drag the <code>JME Material: Set J3M</code> snippet into your code.</p></div><h2><a
+name="syntax_reference_for_j3m_files">Syntax Reference for .j3m Files</a></h2><div
+class="level2"></div><h3><a
+name="paths">Paths</a></h3><div
+class="level3"><p> Make sure to get the paths to the textures (.png, .jpg) and material definitions (.j3md) right.</p><ul><li
+class="level1"><div
+class="li"> The paths to the built-in .j3md files are relative to jME3&#039;s Core Data directory. Just copy the path stated in the <a
+href="/com/jme3/gde/core/docs/jme3/advanced/materials_overview.html">Material</a> table. <br/> <code>Common/MatDefs/Misc/Unshaded.j3md</code> is resolved to <code>jme3/src/src/core-data/Common/MatDefs/Misc/Unshaded.j3md</code>.</div></li><li
+class="level1"><div
+class="li"> The paths to your textures are relative to your project&#039;s assets directory. <br/> <code>Textures/bump_rock_normal.png</code> is resolved to <code>MyGame/src/assets/Textures/bump_rock_normal.png</code></div></li></ul></div><h3><a
+name="data_types">Data Types</a></h3><div
+class="level3"><p> All data types (except Color) are specified in com.jme3.shader.VarType.
+&quot;Color&quot; is specified as Vector4 in J3MLoader.java.</p><div
+class="table sectionedit1"><table
+class="inline"><tr
+class="row0"><th
+class="col0">Name</th><th
+class="col1">jME Java class</th><th
+class="col2">.j3m file syntax</th></tr><tr
+class="row1"><td
+class="col0"> Float</td><td
+class="col1"></td><td
+class="col2"> a float (e.g. 0.72) , no comma or parentheses</td></tr><tr
+class="row2"><td
+class="col0"> Vector2</td><td
+class="col1"> <code>com.jme3.math.Vector2f</code></td><td
+class="col2"> Two floats, no comma or parentheses</td></tr><tr
+class="row3"><td
+class="col0"> Vector3</td><td
+class="col1"> <code>com.jme3.math.Vector3f</code></td><td
+class="col2"> Three floats, no comma or parentheses</td></tr><tr
+class="row4"><td
+class="col0"> Texture2D</td><td
+class="col1"> <code>com.jme3.texture.Texture</code></td><td
+class="col2"> Path to texture in <code>assets</code> directory, no quotation marks</td></tr><tr
+class="row5"><td
+class="col0"> Boolean</td><td
+class="col1"> (basic Java type)</td><td
+class="col2"> <code>true</code> or <code>false</code></td></tr><tr
+class="row6"><td
+class="col0"> Int</td><td
+class="col1"> (basic Java type)</td><td
+class="col2"> Integer number, no comma or parentheses</td></tr><tr
+class="row7"><td
+class="col0"> Color</td><td
+class="col1"> <code>com.jme3.math.ColorRGBA</code></td><td
+class="col2"> Four floats, no comma or parentheses</td></tr><tr
+class="row8"><td
+class="col0"> Vector4</td><td
+class="col1 leftalign"></td><td
+class="col2 leftalign"></td></tr><tr
+class="row9"><td
+class="col0"> FloatArray</td><td
+class="col1"></td><td
+class="col2 leftalign"></td></tr><tr
+class="row10"><td
+class="col0"> Vector2Array</td><td
+class="col1"></td><td
+class="col2 leftalign"></td></tr><tr
+class="row11"><td
+class="col0"> Vector3Array</td><td
+class="col1"></td><td
+class="col2 leftalign"></td></tr><tr
+class="row12"><td
+class="col0"> Vector4Array</td><td
+class="col1"></td><td
+class="col2 leftalign"></td></tr><tr
+class="row13"><td
+class="col0"> Matrix3</td><td
+class="col1"></td><td
+class="col2 leftalign"></td></tr><tr
+class="row14"><td
+class="col0"> Matrix4</td><td
+class="col1"></td><td
+class="col2 leftalign"></td></tr><tr
+class="row15"><td
+class="col0"> Matrix3Array</td><td
+class="col1"></td><td
+class="col2 leftalign"></td></tr><tr
+class="row16"><td
+class="col0"> Matrix4Array</td><td
+class="col1"></td><td
+class="col2 leftalign"></td></tr><tr
+class="row17"><td
+class="col0"> TextureBuffer</td><td
+class="col1"></td><td
+class="col2 leftalign"></td></tr><tr
+class="row18"><td
+class="col0"> Texture3D</td><td
+class="col1"></td><td
+class="col2 leftalign"></td></tr><tr
+class="row19"><td
+class="col0"> TextureArray</td><td
+class="col1"></td><td
+class="col2 leftalign"></td></tr><tr
+class="row20"><td
+class="col0"> TextureCubeMap</td><td
+class="col1"></td><td
+class="col2 leftalign"></td></tr></table></div></div><h3><a
+name="flip_and_repeat_syntax">Flip and Repeat Syntax</a></h3><div
+class="level3"><ul><li
+class="level1"><div
+class="li"> A texture can be flipped using the following syntax <code>NormalMap: Flip Textures/bump_rock_normal.png</code></div></li><li
+class="level1"><div
+class="li"> A texture can be set to repeat using the following syntax <code>NormalMap: Repeat Textures/bump_rock_normal.png</code></div></li><li
+class="level1"><div
+class="li"> If a texture is set to both being flipped and repeated, Flip must come before Repeat</div></li></ul></div><h3><a
+name="syntax_for_additional_render_states">Syntax for Additional Render States</a></h3><div
+class="level3"><ul><li
+class="level1"><div
+class="li"> A Boolean can be &quot;On&quot; or &quot;Off&quot;</div></li><li
+class="level1"><div
+class="li"> Float is &quot;123.0&quot; etc</div></li><li
+class="level1"><div
+class="li"> Enum - values depend on the enum</div></li></ul><div
+class="table sectionedit2"><table
+class="inline"><tr
+class="row0"><th
+class="col0">Name</th><th
+class="col1">Type</th><th
+class="col2">Purpose</th></tr><tr
+class="row1"><td
+class="col0">Wireframe</td><td
+class="col1">(Boolean)</td><td
+class="col2"></td></tr><tr
+class="row2"><td
+class="col0">FaceCull</td><td
+class="col1">(Enum: FaceCullMode)</td><td
+class="col2"></td></tr><tr
+class="row3"><td
+class="col0">DepthWrite</td><td
+class="col1">(Boolean)</td><td
+class="col2"></td></tr><tr
+class="row4"><td
+class="col0">DepthTest</td><td
+class="col1">(Boolean)</td><td
+class="col2"></td></tr><tr
+class="row5"><td
+class="col0">Blend</td><td
+class="col1">(Enum: BlendMode)</td><td
+class="col2"></td></tr><tr
+class="row6"><td
+class="col0">AlphaTestFalloff</td><td
+class="col1">(Float)</td><td
+class="col2"></td></tr><tr
+class="row7"><td
+class="col0">PolyOffset</td><td
+class="col1">(Float, Float)</td><td
+class="col2"></td></tr><tr
+class="row8"><td
+class="col0">ColorWrite</td><td
+class="col1">(Boolean)</td><td
+class="col2"></td></tr><tr
+class="row9"><td
+class="col0">PointSprite</td><td
+class="col1">(Boolean)</td><td
+class="col2"></td></tr></table></div></div><h2><a
+name="examples">Examples</a></h2><div
+class="level2"></div><h3><a
+name="example_1shiny">Example 1: Shiny</a></h3><div
+class="level3"><pre>Spatial signpost = &#40;Spatial&#41; assetManager.loadAsset&#40;
     new OgreMeshKey&#40;&quot;Models/Sign Post/Sign Post.mesh.xml&quot;, null&#41;&#41;;
 signpost.setMaterial&#40; &#40;Material&#41; assetManager.loadAsset&#40;
     new AssetKey&#40;&quot;Models/Sign Post/Sign Post.j3m&quot;&#41;&#41;&#41;;
 TangentBinormalGenerator.generate&#40;signpost&#41;;
-rootNode.attachChild&#40;signpost&#41;;</pre>
-<p>
-The file <code>assets/Models/Sign Post/Sign Post.j3m</code> contains:
-</p>
-<pre>
-Material Signpost : Common/MatDefs/Light/Lighting.j3md {
+rootNode.attachChild&#40;signpost&#41;;</pre><p> The file <code>assets/Models/Sign Post/Sign Post.j3m</code> contains:</p><pre>Material Signpost : Common/MatDefs/Light/Lighting.j3md {
     MaterialParameters {
          Shininess: 4.0
          DiffuseMap:  Models/Sign Post/Sign Post.jpg
@@ -265,53 +213,24 @@ Material Signpost : Common/MatDefs/Light/Lighting.j3md {
          Diffuse  : 1.0 1.0 1.0 1.0
          Specular : 1.0 1.0 1.0 1.0
     }
-}
-</pre>
-
-<p>
-The <acronym title="Joint Photographics Experts Group">JPG</acronym> files are in the same directory, <code>assets/Models/Sign Post/…</code>.
-</p>
-
-</div>
-
-<h3><a>Example 2: Repeating Texture</a></h3>
-<div>
-<pre>Material mat = assetManager.loadMaterial&#40;
+}</pre><p> The <acronym
+title="Joint Photographics Experts Group">JPG</acronym> files are in the same directory, <code>assets/Models/Sign Post/…</code>.</p></div><h3><a
+name="example_2repeating_texture">Example 2: Repeating Texture</a></h3><div
+class="level3"><pre>Material mat = assetManager.loadMaterial&#40;
     &quot;Textures/Terrain/Pond/Pond.j3m&quot;&#41;;
 mat.setColor&#40;&quot;Ambient&quot;, ColorRGBA.DarkGray&#41;;
 mat.setColor&#40;&quot;Diffuse&quot;, ColorRGBA.White&#41;;
-mat.setBoolean&#40;&quot;UseMaterialColors&quot;, true&#41;;</pre>
-<p>
-The file <code>assets/Textures/Terrain/Pond/Pond.j3m</code> contains:
-</p>
-<pre>
-Material Pong Rock : Common/MatDefs/Light/Lighting.j3md {
+mat.setBoolean&#40;&quot;UseMaterialColors&quot;, true&#41;;</pre><p> The file <code>assets/Textures/Terrain/Pond/Pond.j3m</code> contains:</p><pre>Material Pong Rock : Common/MatDefs/Light/Lighting.j3md {
      MaterialParameters {
          Shininess: 8.0
          DiffuseMap: Repeat Textures/Terrain/Pond/Pond.png
          NormalMap:  Repeat Textures/Terrain/Pond/Pond_normal.png
      }
-}
-</pre>
-
-<p>
-The <acronym title="Portable Network Graphics">PNG</acronym> files are in the same directory, <code>assets/Textures/Terrain/Pond/</code>
-</p>
-
-</div>
-
-<h3><a>Example 3: Transparent</a></h3>
-<div>
-
-<p>
-
-The file <code>assets/Models/Tree/Leaves.j3m</code> contains:
-</p>
-<pre>
-Material Leaves : Common/MatDefs/Light/Lighting.j3md {
-
+}</pre><p> The <acronym
+title="Portable Network Graphics">PNG</acronym> files are in the same directory, <code>assets/Textures/Terrain/Pond/</code></p></div><h3><a
+name="example_3transparent">Example 3: Transparent</a></h3><div
+class="level3"><p> The file <code>assets/Models/Tree/Leaves.j3m</code> contains:</p><pre>Material Leaves : Common/MatDefs/Light/Lighting.j3md {
     Transparent On
-
     MaterialParameters {
         DiffuseMap : Models/Tree/Leaves.png
         UseAlpha : true
@@ -327,12 +246,6 @@ Material Leaves : Common/MatDefs/Light/Lighting.j3md {
         AlphaTestFalloff 0.50
         FaceCull Off
     }
-}
-</pre>
-
-<p>
-The <acronym title="Portable Network Graphics">PNG</acronym> file is in the same directory, <code>assets/Models/Tree/…</code>
-</p>
-
-</div>
+}</pre><p> The <acronym
+title="Portable Network Graphics">PNG</acronym> file is in the same directory, <code>assets/Models/Tree/…</code></p></div>
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:j3m_material_files?do=export_xhtmlbody">view online version</a></em></p>

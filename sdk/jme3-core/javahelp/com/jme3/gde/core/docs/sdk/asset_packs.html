@@ -1,188 +1,61 @@
-
-<h1><a>jMonkeyPlatform AssetPacks</a></h1>
-<div>
-
-<p>
-AssetPacks are a way to package jME3 compatible assets like models, textures, sounds and whole scenes into a package that contains publisher info, license info, descriptions etc. for all of the assets. An AssetPack basically consists of an <code>assetpack.xml</code> file that describes the content and an <code>assets</code> folder that contains the content. The integrated browser in jMP allows you to add the assets of installed AssetPacks to any project you are doing. 
-</p>
-
-</div>
-
-<h2><a>The AssetPack Browser</a></h2>
-<div>
-
-<p>
-
-<img src="/wiki/lib/exe/fetch.php">
-</p>
-
-<p>
-The AssetPack browser in jMP makes browsing the installed AssetPacks easy. Browse categories, search for tags and find the right asset for your project. When you have found it, you can add it with one click to your current scene. The AssetPack manager will automagically copy all needed textures, sounds etc. to your projects assets folder.
-</p>
-
-<p>
-You can also browse a selection of online assetpacks that are available on jMonkeyEngine.org for download and install them to your jMonkeyPlatforms AssetPack browser.
-</p>
-
-<p>
-The AssetPack browser uses a predefined directory to store the AssetPacks which is also used for new AssetPack projects. You can see and change the folder path in the AssetPack preferences (jMonkeyPlatform→Settings).
-</p>
-
-</div>
-
-<h3><a>Using the browser</a></h3>
-<div>
-
-<p>
-To preview a model from the browser, right-click it and select “Preview Asset”
-</p>
-
-<p>
-To add a model from the AssetPack browser to a scene do the following:
-</p>
-<ol>
-<li><div> Create a new scene (j3o) file or use an existing one</div>
-</li>
-<li><div> Open it in the SceneComposer by right-clicking it and selecting “Edit in SceneComposer”</div>
-</li>
-<li><div> Select the root node of the scene (or another node you want to add the model to)</div>
-</li>
-<li><div> Right-click a model in the AssetBrowser and select “Add to SceneComposer”</div>
-</li>
-</ol>
-
-<p>
-The model will be added to your scene and all needed texture files will be copied to your projects assets folder.
-</p>
-
-</div>
-
-<h2><a>AssetPack Projects</a></h2>
-<div>
-
-<p>
-
-AssetPack projects are a way to create your own AssetPacks, either for personal use or for publishing. With this project type in jMonkeyPlatform you can create a library of assets on your computer that you can use in any of your projects via the AssetPack browser.
-Editing of asset and project info, adding of new assets and setting their properties, everything you need to create and publish your AssetPacks is there.
-
-</p>
-<ol>
-<li><div> Select “File → New Project”</div>
-</li>
-<li><div> Select “AssetPack Project”</div>
-</li>
-<li><div> Fill in the project info and press “finish”</div>
-</li>
-</ol>
-
-<p>
-
-You can access and change the project properties by right-clicking the project and selecting “Properties”.
-
-</p>
-
-</div>
-
-<h3><a>Adding Assets</a></h3>
-<div>
-
-<p>
-<img src="/wiki/lib/exe/fetch.php">
-</p>
-
-<p>
-To add new assets to your AssetPack do the following:
-</p>
-<ol>
-<li><div> Right-Click the “Assets” node of the AssetPack project</div>
-</li>
-<li><div> Select “Add Asset..”</div>
-</li>
-<li><div> Specify the info about your asset and press Next</div>
-</li>
-<li><div> Press the “add files” button and select all files belonging to your asset</div>
-</li>
-<li><div> Select the “main” checkbox for the main model file if your asset is a model file</div>
-</li>
-<li><div> Change the asset paths and types if needed and press “finish”</div>
-</li>
-</ol>
-
-<p>
-
-The global asset type can be “model”, “scene”, “texture”, “sound”, “shader” or “other”
-</p>
-
-<p>
-With the “model” or “scene” types, the AssetPack browser will try to load and add a model file from the selected assets when the user selects “Add to SceneComposer”. Specify the “load this model with material” flag for the model file that should be loaded via the AssetManager, you can also specify multiple mesh or scene files to be loaded. All texture and other needed files will be copied to the users project folder.
-</p>
-
-<p>
-On the “Add Files” page you define the path of the files in the AssetPack. The importer tries to generate a proper path from the info entered on the first page. Note that for j3o binary models, the texture paths have to be exactly like they were during conversion. The given paths will also be used when copying the data to the users “assets” folder.
-</p>
-
-<p>
-With the “add files” button you can open a file browser to select files from your harddisk that will be copied into the <code>assets/</code> folder of the AssetPack project. With the “add existing” button you can add a file thats already in your AssetPack assets folder to a new asset item. This way you can reuse e.g. textures for asset items or make items for an existing collection of asset files that you copied to the projects assets folder.
-</p>
-
-<p>
-<img src="/wiki/lib/exe/fetch.php">
-</p>
-
-<p>
-You can specify a specific material to be used for the single mesh/scene files, just select it in the dropdown below the mesh or scene file. If you don&#039;t select a material file here, the first found material file is used or none if none is found.
-</p>
-
-<p>
-If the material file is an Ogre material file (.material) it will be used for loading an Ogre scene or mesh file. If it is a jMonkeyEngine3 material file (.j3m), it will be applied to the mesh regardless of model type. Note that for j3o models you don&#039;t need material files as the material is stored inside the j3o file.
-</p>
-
-<p>
-In your AssetPack Project, if you right-click your asset and select “preview asset” you should be able to see your model. If you do, it should work for the user as well.
-</p>
-
-<p>
-You can change the single assets properties in the properties window after you have added them. Just select an asset and open the properties window (Windows→Properties).
-</p>
-
-<p>
-Supported formats for models are:
-</p>
-<ol>
-<li><div> OgreXML</div>
-</li>
-<li><div> Wavefront OBJ</div>
-</li>
-<li><div> jMonkeyEngine3 j3o</div>
-</li>
-</ol>
-
-</div>
-
-<h3><a>AssetPack Publishing</a></h3>
-<div>
-
-<p>
-
-<img src="/wiki/lib/exe/fetch.php">
-</p>
-
-<p>
-You can publish your AssetPacks either as a zip file or directly to jmonkeyengine.org, using your website user name and login. This means other jMonkeyPlatform users can download your AssetPacks and install them to their local database right off the AssetPack online packages browser.
-</p>
-
-<p>
-To make sure you can upload, you have to be registered on jmonkeyengine.org and have to enter your login info in the AssetPack preferences (jMonkeyPlatform→Settings).
-
-</p>
-<ol>
-<li><div> Right-Click your AssetPack project and select “Publish AssetPack..”</div>
-</li>
-<li><div> Check the description etc. settings and press “Next”</div>
-</li>
-<li><div> Select the checkbox for online and/or local publishing and press “finish”</div>
-</li>
-</ol>
-
-</div>
+<h1><a
+name="jmonkeyplatform_assetpacks">jMonkeyPlatform AssetPacks</a></h1><div
+class="level1"><p> AssetPacks are a way to package jME3 compatible assets like models, textures, sounds and whole scenes into a package that contains publisher info, license info, descriptions etc. for all of the assets. An AssetPack basically consists of an <code>assetpack.xml</code> file that describes the content and an <code>assets</code> folder that contains the content. The integrated browser in jMP allows you to add the assets of installed AssetPacks to any project you are doing.</p></div><h2><a
+name="the_assetpack_browser">The AssetPack Browser</a></h2><div
+class="level2"><p> <a
+href="/wiki/lib/exe/fetch.php?hash=1ca01e&amp;media=http%3A%2F%2Fjmonkeyengine.org%2Fwp-content%2Fuploads%2F2010%2F10%2Fassetpackbrowser-300x166.jpg"><img
+src="/wiki/lib/exe/fetch.php?hash=1ca01e&amp;media=http%3A%2F%2Fjmonkeyengine.org%2Fwp-content%2Fuploads%2F2010%2F10%2Fassetpackbrowser-300x166.jpg" class="mediaright" align="right" title="jmonkeyengine.org_wp-content_uploads_2010_10_assetpackbrowser-300x166.jpg" alt="jmonkeyengine.org_wp-content_uploads_2010_10_assetpackbrowser-300x166.jpg" /></a></p><p> The AssetPack browser in jMP makes browsing the installed AssetPacks easy. Browse categories, search for tags and find the right asset for your project. When you have found it, you can add it with one click to your current scene. The AssetPack manager will automagically copy all needed textures, sounds etc. to your projects assets folder.</p><p> You can also browse a selection of online assetpacks that are available on jMonkeyEngine.org for download and install them to your jMonkeyPlatforms AssetPack browser.</p><p> The AssetPack browser uses a predefined directory to store the AssetPacks which is also used for new AssetPack projects. You can see and change the folder path in the AssetPack preferences (jMonkeyPlatform→Settings).</p></div><h3><a
+name="using_the_browser">Using the browser</a></h3><div
+class="level3"><p> To preview a model from the browser, right-click it and select &quot;Preview Asset&quot;</p><p> To add a model from the AssetPack browser to a scene do the following:</p><ol><li
+class="level1"><div
+class="li"> Create a new scene (j3o) file or use an existing one</div></li><li
+class="level1"><div
+class="li"> Open it in the SceneComposer by right-clicking it and selecting &quot;Edit in SceneComposer&quot;</div></li><li
+class="level1"><div
+class="li"> Select the root node of the scene (or another node you want to add the model to)</div></li><li
+class="level1"><div
+class="li"> Right-click a model in the AssetBrowser and select &quot;Add to SceneComposer&quot;</div></li></ol><p> The model will be added to your scene and all needed texture files will be copied to your projects assets folder.</p></div><h2><a
+name="assetpack_projects">AssetPack Projects</a></h2><div
+class="level2"><p> AssetPack projects are a way to create your own AssetPacks, either for personal use or for publishing. With this project type in jMonkeyPlatform you can create a library of assets on your computer that you can use in any of your projects via the AssetPack browser.
+Editing of asset and project info, adding of new assets and setting their properties, everything you need to create and publish your AssetPacks is there.</p><ol><li
+class="level1"><div
+class="li"> Select &quot;File → New Project&quot;</div></li><li
+class="level1"><div
+class="li"> Select &quot;AssetPack Project&quot;</div></li><li
+class="level1"><div
+class="li"> Fill in the project info and press &quot;finish&quot;</div></li></ol><p> You can access and change the project properties by right-clicking the project and selecting &quot;Properties&quot;.</p></div><h3><a
+name="adding_assets">Adding Assets</a></h3><div
+class="level3"><p> <a
+href="/wiki/lib/exe/fetch.php?hash=2edd4a&amp;media=http%3A%2F%2Fjmonkeyengine.org%2Fwp-content%2Fuploads%2F2010%2F10%2Fassetpackimport-300x222.jpg"><img
+src="/wiki/lib/exe/fetch.php?hash=2edd4a&amp;media=http%3A%2F%2Fjmonkeyengine.org%2Fwp-content%2Fuploads%2F2010%2F10%2Fassetpackimport-300x222.jpg" class="mediaright" align="right" title="jmonkeyengine.org_wp-content_uploads_2010_10_assetpackimport-300x222.jpg" alt="jmonkeyengine.org_wp-content_uploads_2010_10_assetpackimport-300x222.jpg" /></a></p><p> To add new assets to your AssetPack do the following:</p><ol><li
+class="level1"><div
+class="li"> Right-Click the &quot;Assets&quot; node of the AssetPack project</div></li><li
+class="level1"><div
+class="li"> Select &quot;Add Asset..&quot;</div></li><li
+class="level1"><div
+class="li"> Specify the info about your asset and press Next</div></li><li
+class="level1"><div
+class="li"> Press the &quot;add files&quot; button and select all files belonging to your asset</div></li><li
+class="level1"><div
+class="li"> Select the &quot;main&quot; checkbox for the main model file if your asset is a model file</div></li><li
+class="level1"><div
+class="li"> Change the asset paths and types if needed and press &quot;finish&quot;</div></li></ol><p> The global asset type can be &quot;model&quot;, &quot;scene&quot;, &quot;texture&quot;, &quot;sound&quot;, &quot;shader&quot; or &quot;other&quot;</p><p> With the &quot;model&quot; or &quot;scene&quot; types, the AssetPack browser will try to load and add a model file from the selected assets when the user selects &quot;Add to SceneComposer&quot;. Specify the &quot;load this model with material&quot; flag for the model file that should be loaded via the AssetManager, you can also specify multiple mesh or scene files to be loaded. All texture and other needed files will be copied to the users project folder.</p><p> On the &quot;Add Files&quot; page you define the path of the files in the AssetPack. The importer tries to generate a proper path from the info entered on the first page. Note that for j3o binary models, the texture paths have to be exactly like they were during conversion. The given paths will also be used when copying the data to the users &quot;assets&quot; folder.</p><p> With the &quot;add files&quot; button you can open a file browser to select files from your harddisk that will be copied into the <code>assets/</code> folder of the AssetPack project. With the &quot;add existing&quot; button you can add a file thats already in your AssetPack assets folder to a new asset item. This way you can reuse e.g. textures for asset items or make items for an existing collection of asset files that you copied to the projects assets folder.</p><p> <a
+href="/wiki/lib/exe/fetch.php?hash=8119b0&amp;media=http%3A%2F%2Fjmonkeyengine.org%2Fwp-content%2Fuploads%2F2010%2F10%2Fassetpackimport2-300x179.jpg"><img
+src="/wiki/lib/exe/fetch.php?hash=8119b0&amp;media=http%3A%2F%2Fjmonkeyengine.org%2Fwp-content%2Fuploads%2F2010%2F10%2Fassetpackimport2-300x179.jpg" class="mediaright" align="right" title="jmonkeyengine.org_wp-content_uploads_2010_10_assetpackimport2-300x179.jpg" alt="jmonkeyengine.org_wp-content_uploads_2010_10_assetpackimport2-300x179.jpg" /></a></p><p> You can specify a specific material to be used for the single mesh/scene files, just select it in the dropdown below the mesh or scene file. If you don&#039;t select a material file here, the first found material file is used or none if none is found.</p><p> If the material file is an Ogre material file (.material) it will be used for loading an Ogre scene or mesh file. If it is a jMonkeyEngine3 material file (.j3m), it will be applied to the mesh regardless of model type. Note that for j3o models you don&#039;t need material files as the material is stored inside the j3o file.</p><p> In your AssetPack Project, if you right-click your asset and select &quot;preview asset&quot; you should be able to see your model. If you do, it should work for the user as well.</p><p> You can change the single assets properties in the properties window after you have added them. Just select an asset and open the properties window (Windows→Properties).</p><p> Supported formats for models are:</p><ol><li
+class="level1"><div
+class="li"> OgreXML</div></li><li
+class="level1"><div
+class="li"> Wavefront OBJ</div></li><li
+class="level1"><div
+class="li"> jMonkeyEngine3 j3o</div></li></ol></div><h3><a
+name="assetpack_publishing">AssetPack Publishing</a></h3><div
+class="level3"><p> <a
+href="/wiki/lib/exe/fetch.php?hash=2498cf&amp;media=http%3A%2F%2Fjmonkeyengine.org%2Fwp-content%2Fuploads%2F2010%2F10%2Fassetpackdownload-263x300.jpg"><img
+src="/wiki/lib/exe/fetch.php?hash=2498cf&amp;media=http%3A%2F%2Fjmonkeyengine.org%2Fwp-content%2Fuploads%2F2010%2F10%2Fassetpackdownload-263x300.jpg" class="mediaright" align="right" title="jmonkeyengine.org_wp-content_uploads_2010_10_assetpackdownload-263x300.jpg" alt="jmonkeyengine.org_wp-content_uploads_2010_10_assetpackdownload-263x300.jpg" /></a></p><p> You can publish your AssetPacks either as a zip file or directly to jmonkeyengine.org, using your website user name and login. This means other jMonkeyPlatform users can download your AssetPacks and install them to their local database right off the AssetPack online packages browser.</p><p> To make sure you can upload, you have to be registered on jmonkeyengine.org and have to enter your login info in the AssetPack preferences (jMonkeyPlatform→Settings).</p><ol><li
+class="level1"><div
+class="li"> Right-Click your AssetPack project and select &quot;Publish AssetPack..&quot;</div></li><li
+class="level1"><div
+class="li"> Check the description etc. settings and press &quot;Next&quot;</div></li><li
+class="level1"><div
+class="li"> Select the checkbox for online and/or local publishing and press &quot;finish&quot;</div></li></ol></div>
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/sdk:asset_packs?do=export_xhtmlbody">view online version</a></em></p>

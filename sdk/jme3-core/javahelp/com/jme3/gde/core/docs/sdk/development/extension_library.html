@@ -1,79 +1,46 @@
-
-<h1><a>Creating an extension library plugin</a></h1>
-<div>
-
-<p>
-This page describes how you can wrap any jar library into a plugin that a jMP user can download, install and then use the contained library in his own game projects.
-</p>
-
-<p>
-<br/>
-
-Creating the plugin project (in jMP):
-</p>
-<ul>
-<li><div> Create a new Module Suite (or use an existing one)</div>
-</li>
-<li><div> Open the suite, right-click the “Modules” folder and select “Add new..”</div>
-</li>
-<li><div> For “Project Name” enter an all-lowercase name without spaces like <code>my-library</code></div>
-</li>
-<li><div> Make sure the “Project Location” is inside the module suite folder and press “Next”</div>
-</li>
-<li><div> Enter the base java package for your plugin in “Code Name Base” like <code>com.mycompany.plugins.mylibrary</code></div>
-</li>
-<li><div> Enter a “Module Display Name” for your plugin like “My Library”</div>
-</li>
-<li><div> Check the “Generate <acronym title="Extensible Markup Language">XML</acronym> Layer” checkbox</div>
-</li>
-<li><div> Press Finish</div>
-</li>
-</ul>
-
-<p>
-
-Adding the library:
-</p>
-<ul>
-<li><div> Right click the Module Project and select “New→Other”</div>
-</li>
-<li><div> Under “Module Development” select the “Java SE Library Descriptor” template and press “Next”</div>
-</li>
-<li><div> If you dont have the external library registered in jMP yet, click “Manage Libraries” and do the following:</div>
-<ul>
-<li><div> Click “New Library”, enter a name for the library and press OK</div>
-</li>
-<li><div> In the “Classpath” tab, press “Add JAR/Folder” and select the jar file(s) needed for the library</div>
-</li>
-<li><div> In the “JavaDoc” tab, press “Add ZIP/Folder” and add the javadoc for the library (zipped or folder)</div>
-</li>
-<li><div> In the “Sources” tab you can add a folder or jar file containing the source files of the library if available</div>
-</li>
-<li><div> Press OK</div>
-</li>
-</ul>
-</li>
-<li><div> Select the external library from the list and press “Next”</div>
-</li>
-<li><div> Enter a name for the Library (used as filename for the description file)</div>
-</li>
-<li><div> Enter a display name for the Library (This is the name the user later sees in his library list)</div>
-</li>
-<li><div> Press OK</div>
-</li>
-</ul>
-
-<p>
-
-You will notice a new file “MyLibrary.xml” is created in the plugins base package and linked to in the layer.xml file. This is basically it, you can configure a version number, license file (should be placed in Module root folder) and more via the Module Properties.
-</p>
-
-<p>
-<br/>
-
-After you are done, you can <a href="/com/jme3/gde/core/docs/sdk/development/setup#jmp_contributions_update_center.html">contribute the plugin in the jMP contribution update center</a>.
-
-</p>
-
-</div>
+<h1><a
+name="creating_an_extension_library_plugin">Creating an extension library plugin</a></h1><div
+class="level1"><p> This page describes how you can wrap any jar library into a plugin that a jMP user can download, install and then use the contained library in his own game projects.</p><p> <br/> Creating the plugin project (in jMP):</p><ul><li
+class="level1"><div
+class="li"> Create a new Module Suite (or use an existing one)</div></li><li
+class="level1"><div
+class="li"> Open the suite, right-click the &quot;Modules&quot; folder and select &quot;Add new..&quot;</div></li><li
+class="level1"><div
+class="li"> For &quot;Project Name&quot; enter an all-lowercase name without spaces like <code>my-library</code></div></li><li
+class="level1"><div
+class="li"> Make sure the &quot;Project Location&quot; is inside the module suite folder and press &quot;Next&quot;</div></li><li
+class="level1"><div
+class="li"> Enter the base java package for your plugin in &quot;Code Name Base&quot; like <code>com.mycompany.plugins.mylibrary</code></div></li><li
+class="level1"><div
+class="li"> Enter a &quot;Module Display Name&quot; for your plugin like &quot;My Library&quot;</div></li><li
+class="level1"><div
+class="li"> Check the &quot;Generate <acronym
+title="Extensible Markup Language">XML</acronym> Layer&quot; checkbox</div></li><li
+class="level1"><div
+class="li"> Press Finish</div></li></ul><p> Adding the library:</p><ul><li
+class="level1"><div
+class="li"> Right click the Module Project and select &quot;New→Other&quot;</div></li><li
+class="level1"><div
+class="li"> Under &quot;Module Development&quot; select the &quot;Java SE Library Descriptor&quot; template and press &quot;Next&quot;</div></li><li
+class="level1"><div
+class="li"> If you dont have the external library registered in jMP yet, click &quot;Manage Libraries&quot; and do the following:</div><ul><li
+class="level2"><div
+class="li"> Click &quot;New Library&quot;, enter a name for the library and press OK</div></li><li
+class="level2"><div
+class="li"> In the &quot;Classpath&quot; tab, press &quot;Add JAR/Folder&quot; and select the jar file(s) needed for the library</div></li><li
+class="level2"><div
+class="li"> In the &quot;JavaDoc&quot; tab, press &quot;Add ZIP/Folder&quot; and add the javadoc for the library (zipped or folder)</div></li><li
+class="level2"><div
+class="li"> In the &quot;Sources&quot; tab you can add a folder or jar file containing the source files of the library if available</div></li><li
+class="level2"><div
+class="li"> Press OK</div></li></ul></li><li
+class="level1"><div
+class="li"> Select the external library from the list and press &quot;Next&quot;</div></li><li
+class="level1"><div
+class="li"> Enter a name for the Library (used as filename for the description file)</div></li><li
+class="level1"><div
+class="li"> Enter a display name for the Library (This is the name the user later sees in his library list)</div></li><li
+class="level1"><div
+class="li"> Press OK</div></li></ul><p> You will notice a new file &quot;MyLibrary.xml&quot; is created in the plugins base package and linked to in the layer.xml file. This is basically it, you can configure a version number, license file (should be placed in Module root folder) and more via the Module Properties.</p><p> <br/> After you are done, you can <a
+href="/com/jme3/gde/core/docs/sdk/development/setup#jmp_contributions_update_center.html">contribute the plugin in the jMP contribution update center</a>.</p></div>
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/sdk:development:extension_library?do=export_xhtmlbody">view online version</a></em></p>

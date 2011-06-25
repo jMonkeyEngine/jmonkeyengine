@@ -1,76 +1,50 @@
-
-<h1><a>Creating User Interfaces with Nifty GUI</a></h1>
-<div>
-
-<p>
-
-<img src="nbdocs:/com/jme3/gde/core/docs/jme3/advanced/nifty-gui.png">
-</p>
-
-<p>
-Although it is possible to embed a <a href="/com/jme3/gde/core/docs/jme3/advanced/swing_canvas.html">jME3 canvas</a> in a Swing <acronym title="Graphical User Interface">GUI</acronym> app, a 3D game typically runs full-screen, or in a window of its own. This soon raises the question of how to add a user interface: Most games respond to the escape key by displaying buttons that allow users to switch to different screens – for example to view high scores, customize settings, or load saved games. 
-</p>
-
-<p>
-This doc introduces you to <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://nifty-gui.lessvoid.com/"><param name="text" value="<html><u>Nifty GUI</u></html>"><param name="textColor" value="blue"></object>, a Java library for graphical user interfaces (GUIs). Nifty <acronym title="Graphical User Interface">GUI</acronym> (<code>de.lessvoid.nifty</code> package) is well integrated with jME3 via the <code>com.jme3.niftygui</code> package. You define the <acronym title="Graphical User Interface">GUI</acronym> layout in <acronym title="Extensible Markup Language">XML</acronym> and call it from your Java code. All the JAR libraries that you need are already included in your jME3 download, so you do not need to install anything extra (Just make sure they are on the classpath).
-</p>
-
-<p>
-<em>Typically, you lay out the Nifty <acronym title="Graphical User Interface">GUI</acronym> using <acronym title="Extensible Markup Language">XML</acronym>, but using Java will soon be a second option.</em>
-</p>
-
-</div>
-
-<h2><a>Overview</a></h2>
-<div>
-
-<p>
-
-<img src="nbdocs:/com/jme3/gde/core/docs/jme3/advanced/nifty-gui-example.png">
-</p>
-
-<p>
-There are three steps needed to add a <acronym title="Graphical User Interface">GUI</acronym> to your jME3 game:
-
-</p>
-<ol>
-<li><div> <a href="/com/jme3/gde/core/docs/jme3/advanced/nifty_gui_xml_layout.html">Lay out the GUI in XML</a></div>
-</li>
-<li><div> Integrate the <acronym title="Graphical User Interface">GUI</acronym> into the Game</div>
-<ul>
-<li><div> <a href="/com/jme3/gde/core/docs/jme3/advanced/nifty_gui_overlay.html">Overlay the User Interface Over the Screen</a>, or</div>
-</li>
-<li><div> <a href="/com/jme3/gde/core/docs/jme3/advanced/nifty_gui_projection.html">Project the User Interface Onto a Texture</a></div>
-</li>
-</ul>
-</li>
-<li><div> <a href="/com/jme3/gde/core/docs/jme3/advanced/nifty_gui_java_interaction.html">Interact with the GUI from Java</a></div>
-</li>
-</ol>
-
-</div>
-
-<h2><a>Sample Code</a></h2>
-<div>
-<ul>
-<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/niftygui/TestNiftyGui.java"><param name="text" value="<html><u>TestNiftyGui.java</u></html>"><param name="textColor" value="blue"></object></div>
-</li>
-<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/niftygui/TestNiftyToMesh.java"><param name="text" value="<html><u>TestNiftyToMesh.java</u></html>"><param name="textColor" value="blue"></object></div>
-</li>
-<li><div> You can find more sample code in the nifty-examples-1.3-SNAPSHOT.jar file.</div>
-</li>
-</ul>
-
-</div>
-
-<h2><a>Pro Tip: Use XML Schema</a></h2>
-<div>
-
-<p>
-
-If you include the following <acronym title="Extensible Markup Language">XML</acronym> schema in the first lines of your NiftyGUI <acronym title="Extensible Markup Language">XML</acronym> files, your IDE will give you helpful hints and code completion.
-</p>
-<pre><span>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
+<h1><a
+name="creating_user_interfaces_with_nifty_gui">Creating User Interfaces with Nifty GUI</a></h1><div
+class="level1"><p> <a
+href="/wiki/lib/exe/detail.php/jme3:advanced:nifty-gui.png?id=jme3%3Aadvanced%3Anifty_gui"><img
+src="nbdocs:/com/jme3/gde/core/docs/jme3/advanced/nifty-gui.png?w=310&amp;h=250" class="medialeft" align="left" alt="" width="310" height="250" /></a></p><p> Although it is possible to embed a <a
+href="/com/jme3/gde/core/docs/jme3/advanced/swing_canvas.html">jME3 canvas</a> in a Swing <acronym
+title="Graphical User Interface">GUI</acronym> app, a 3D game typically runs full-screen, or in a window of its own. This soon raises the question of how to add a user interface: Most games respond to the escape key by displaying buttons that allow users to switch to different screens – for example to view high scores, customize settings, or load saved games.</p><p> This doc introduces you to <a
+href="http://nifty-gui.lessvoid.com/">Nifty GUI</a>, a Java library for graphical user interfaces (GUIs). Nifty <acronym
+title="Graphical User Interface">GUI</acronym> (<code>de.lessvoid.nifty</code> package) is well integrated with jME3 via the <code>com.jme3.niftygui</code> package. You define the <acronym
+title="Graphical User Interface">GUI</acronym> layout in <acronym
+title="Extensible Markup Language">XML</acronym> and call it from your Java code. All the JAR libraries that you need are already included in your jME3 download, so you do not need to install anything extra (Just make sure they are on the classpath).</p><p> <em>Typically, you lay out the Nifty <acronym
+title="Graphical User Interface">GUI</acronym> using <acronym
+title="Extensible Markup Language">XML</acronym>, but using Java will soon be a second option.</em></p></div><h2><a
+name="overview">Overview</a></h2><div
+class="level2"><p> <a
+href="/wiki/lib/exe/detail.php/jme3:advanced:nifty-gui-example.png?id=jme3%3Aadvanced%3Anifty_gui"><img
+src="nbdocs:/com/jme3/gde/core/docs/jme3/advanced/nifty-gui-example.png?w=360&amp;h=203" class="mediaright" align="right" alt="" width="360" height="203" /></a></p><p> There are three steps needed to add a <acronym
+title="Graphical User Interface">GUI</acronym> to your jME3 game:</p><ol><li
+class="level1"><div
+class="li"> <a
+href="/com/jme3/gde/core/docs/jme3/advanced/nifty_gui_xml_layout.html">Lay out the GUI in XML</a></div></li><li
+class="level1"><div
+class="li"> Integrate the <acronym
+title="Graphical User Interface">GUI</acronym> into the Game</div><ul><li
+class="level2"><div
+class="li"> <a
+href="/com/jme3/gde/core/docs/jme3/advanced/nifty_gui_overlay.html">Overlay the User Interface Over the Screen</a>, or</div></li><li
+class="level2"><div
+class="li"> <a
+href="/com/jme3/gde/core/docs/jme3/advanced/nifty_gui_projection.html">Project the User Interface Onto a Texture</a></div></li></ul></li><li
+class="level1"><div
+class="li"> <a
+href="/com/jme3/gde/core/docs/jme3/advanced/nifty_gui_java_interaction.html">Interact with the GUI from Java</a></div></li></ol></div><h2><a
+name="sample_code">Sample Code</a></h2><div
+class="level2"><ul><li
+class="level1"><div
+class="li"> <a
+href="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/niftygui/TestNiftyGui.java">TestNiftyGui.java</a></div></li><li
+class="level1"><div
+class="li"> <a
+href="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/niftygui/TestNiftyToMesh.java">TestNiftyToMesh.java</a></div></li><li
+class="level1"><div
+class="li"> You can find more sample code in the nifty-examples-1.3-SNAPSHOT.jar file.</div></li></ul></div><h2><a
+name="pro_tipuse_xml_schema">Pro Tip: Use XML Schema</a></h2><div
+class="level2"><p> If you include the following <acronym
+title="Extensible Markup Language">XML</acronym> schema in the first lines of your NiftyGUI <acronym
+title="Extensible Markup Language">XML</acronym> files, your IDE will give you helpful hints and code completion.</p><pre><span>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
 <span>&lt;nifty xmlns=&quot;http://nifty-gui.sourceforge.net/nifty.xsd&quot; </span>
 <span>       xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; </span>
 <span>       xsi:schemaLocation=&quot;http://nifty-gui.sourceforge.net/nifty.xsd 
@@ -78,33 +52,26 @@ If you include the following <acronym title="Extensible Markup Language">XML</ac
 &nbsp;
      &lt;!-- Example: The IDE will now tell you that one &lt;screen&gt;&lt;/screen&gt; element is expected here, etc. --&gt;
 &nbsp;
-<span><span>&lt;/nifty&gt;</span></span></pre>
-</div>
-
-<h2><a>Nifty Documentation</a></h2>
-<div>
-
-<p>
-
-Learn more from the NiftyGUI page!
-</p>
-<ul>
-<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://sourceforge.net/apps/mediawiki/nifty-gui/index.php?title=Tutorials"><param name="text" value="<html><u>Go Through the Nifty Tutorials</u></html>"><param name="textColor" value="blue"></object></div>
-</li>
-<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://sourceforge.net/apps/mediawiki/nifty-gui/index.php?title=Reference"><param name="text" value="<html><u>Bookmark the Reference Guide</u></html>"><param name="textColor" value="blue"></object></div>
-</li>
-<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://sourceforge.net/apps/mediawiki/nifty-gui/index.php?title=Hello_World_Example"><param name="text" value="<html><u>http://sourceforge.net/apps/mediawiki/nifty-gui/index.php?title=Hello_World_Example</u></html>"><param name="textColor" value="blue"></object></div>
-</li>
-<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://sourceforge.net/apps/mediawiki/nifty-gui/index.php?title=Layout_Introduction"><param name="text" value="<html><u>http://sourceforge.net/apps/mediawiki/nifty-gui/index.php?title=Layout_Introduction</u></html>"><param name="textColor" value="blue"></object></div>
-</li>
-<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://jmonkeyengine.org/groups/gui/forum/topic/anyone-succeeded-in-changing-text-in-nifty-programatically/#post-109510"><param name="text" value="<html><u>Changing the Text in Nifty GUIs programmatically</u></html>"><param name="textColor" value="blue"></object></div>
-</li>
-</ul>
-<div><span>
-	<a href="/wiki/doku.php/tag:documentation?do=showtag&amp;tag=tag%3Adocumentation">documentation</a>,
-	<a href="/wiki/doku.php/tag:gui?do=showtag&amp;tag=tag%3Agui">gui</a>,
-	<a href="/wiki/doku.php/tag:input?do=showtag&amp;tag=tag%3Ainput">input</a>
-</span></div>
-
-</div>
+<span><span>&lt;/nifty&gt;</span></span></pre></div><h2><a
+name="nifty_documentation">Nifty Documentation</a></h2><div
+class="level2"><p> Learn more from the NiftyGUI page!</p><ul><li
+class="level1"><div
+class="li"> <a
+href="http://sourceforge.net/apps/mediawiki/nifty-gui/index.php?title=Tutorials">Go Through the Nifty Tutorials</a></div></li><li
+class="level1"><div
+class="li"> <a
+href="http://sourceforge.net/apps/mediawiki/nifty-gui/index.php?title=Reference">Bookmark the Reference Guide</a></div></li><li
+class="level1"><div
+class="li"> <a
+href="http://sourceforge.net/apps/mediawiki/nifty-gui/index.php?title=Hello_World_Example">http://sourceforge.net/apps/mediawiki/nifty-gui/index.php?title=Hello_World_Example</a></div></li><li
+class="level1"><div
+class="li"> <a
+href="http://sourceforge.net/apps/mediawiki/nifty-gui/index.php?title=Layout_Introduction">http://sourceforge.net/apps/mediawiki/nifty-gui/index.php?title=Layout_Introduction</a></div></li><li
+class="level1"><div
+class="li"> <a
+href="http://jmonkeyengine.org/groups/gui/forum/topic/anyone-succeeded-in-changing-text-in-nifty-programatically/#post-109510">Changing the Text in Nifty GUIs programmatically</a></div></li></ul><div
+class="tags"><span> <a
+href="/wiki/doku.php/tag:documentation?do=showtag&amp;tag=tag%3Adocumentation">documentation</a>, <a
+href="/wiki/doku.php/tag:gui?do=showtag&amp;tag=tag%3Agui">gui</a>, <a
+href="/wiki/doku.php/tag:input?do=showtag&amp;tag=tag%3Ainput">input</a> </span></div></div>
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:nifty_gui?do=export_xhtmlbody">view online version</a></em></p>

@@ -61,6 +61,7 @@ persistenceType = TopComponent.PERSISTENCE_ALWAYS)
 @ActionReference(path = "Menu/Window" /*, position = 333 */)
 @TopComponent.OpenActionRegistration(displayName = "#CTL_FilterExplorerAction",
 preferredID = "FilterExplorerTopComponent")
+@SuppressWarnings("unchecked")
 public final class FilterExplorerTopComponent extends TopComponent implements ExplorerManager.Provider {
 
     private static FilterExplorerTopComponent instance;

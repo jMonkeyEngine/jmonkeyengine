@@ -1,59 +1,31 @@
-
-<h1><a>Ragdoll Physics</a></h1>
-<div>
-
-<p>
-
-The jMonkeyEngine3 has built-in support for <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://jbullet.advel.cz"><param name="text" value="<html><u>jBullet physics</u></html>"><param name="textColor" value="blue"></object> via the <code>com.jme3.bullet</code> package. Physics are not only responsible for handing collisions, but they also make <a href="/com/jme3/gde/core/docs/jme3/advanced/hinges_and_joints.html">hinges and joints</a> possible. One special example of physical joints are ragdoll physics, shown here.
-</p>
-
-</div>
-
-<h2><a>Sample Code</a></h2>
-<div>
-<ul>
-<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/bullet/TestRagDoll.java"><param name="text" value="<html><u>TestRagDoll.java</u></html>"><param name="textColor" value="blue"></object> (Tip: Click to pull the ragdoll up)</div>
-</li>
-</ul>
-
-</div>
-
-<h2><a>Preparing the Physics Game</a></h2>
-<div>
-<ol>
-<li><div> Create a SimpleApplication with a <a href="/com/jme3/gde/core/docs/jme3/advanced/physics.html">BulletAppState</a> </div>
-<ul>
-<li><div> This gives us a PhysicsSpace for PhysicControls</div>
-</li>
-</ul>
-</li>
-<li><div> Add a physical floor (A box collision shape with mass zero)</div>
-</li>
-</ol>
-
-</div>
-
-<h2><a>Creating the Ragdoll</a></h2>
-<div>
-
-<p>
-
-<img src="nbdocs:/com/jme3/gde/core/docs/jme3/advanced/ragdoll.png">
-</p>
-
-<p>
-The ragdoll is a simple dummy that we build out of cylinder collision shapes. It has 11 limbs: shoulders, a body, and hips; plus 2 arms and 2 legs are made up of two limbs each. In your game, you replace the cylinders with your own limb models.
-</p>
-
-</div>
-
-<h3><a>Limbs</a></h3>
-<div>
-
-<p>
-Since we&#039;re just creating the ragdoll for this example, all the limbs have the same shape, and we can write a simple helper method to create them. The function returns a PhysicsNode with CollisionShape with the width, height, location, and rotation (vertical or horizontal) that we specify. We choose a CapsuleCollisionShape (a cylinder with rounded top and bottom) so the limbs collide smoothly against one another.
-</p>
-<pre>private Node createLimb&#40;float width, float height, Vector3f location, boolean rotate&#41; &#123;
+<h1><a
+name="ragdoll_physics">Ragdoll Physics</a></h1><div
+class="level1"><p> The jMonkeyEngine3 has built-in support for <a
+href="http://jbullet.advel.cz">jBullet physics</a> via the <code>com.jme3.bullet</code> package. Physics are not only responsible for handing collisions, but they also make <a
+href="/com/jme3/gde/core/docs/jme3/advanced/hinges_and_joints.html">hinges and joints</a> possible. One special example of physical joints are ragdoll physics, shown here.</p></div><h2><a
+name="sample_code">Sample Code</a></h2><div
+class="level2"><ul><li
+class="level1"><div
+class="li"> <a
+href="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/bullet/TestRagDoll.java">TestRagDoll.java</a> (Tip: Click to pull the ragdoll up)</div></li><li
+class="level1"><div
+class="li"> <a
+href="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/bullet/TestBoneRagdoll.java">TestBoneRagdoll.java</a> – This ragdoll replaces a rigged model of a character in the moment it is &quot;shot&quot; to simulate a collapsing person. (Also note DoF of the limbs.)</div></li></ul></div><h2><a
+name="preparing_the_physics_game">Preparing the Physics Game</a></h2><div
+class="level2"><ol><li
+class="level1"><div
+class="li"> Create a SimpleApplication with a <a
+href="/com/jme3/gde/core/docs/jme3/advanced/physics.html">BulletAppState</a></div><ul><li
+class="level2"><div
+class="li"> This gives us a PhysicsSpace for PhysicControls</div></li></ul></li><li
+class="level1"><div
+class="li"> Add a physical floor (A box collision shape with mass zero)</div></li></ol></div><h2><a
+name="creating_the_ragdoll">Creating the Ragdoll</a></h2><div
+class="level2"><p> <a
+href="/wiki/lib/exe/detail.php/jme3:advanced:ragdoll.png?id=jme3%3Aadvanced%3Aragdoll"><img
+src="nbdocs:/com/jme3/gde/core/docs/jme3/advanced/ragdoll.png?w=200&amp;h=150" class="mediaright" align="right" alt="" width="200" height="150" /></a> The ragdoll is a simple dummy that we build out of cylinder collision shapes. It has 11 limbs: shoulders, a body, and hips; plus 2 arms and 2 legs are made up of two limbs each. In your game, you replace the cylinders with your own limb models.</p></div><h3><a
+name="limbs">Limbs</a></h3><div
+class="level3"><p> Since we&#039;re just creating the ragdoll for this example, all the limbs have the same shape, and we can write a simple helper method to create them. The function returns a PhysicsNode with CollisionShape with the width, height, location, and rotation (vertical or horizontal) that we specify. We choose a CapsuleCollisionShape (a cylinder with rounded top and bottom) so the limbs collide smoothly against one another.</p><pre>private Node createLimb&#40;float width, float height, Vector3f location, boolean rotate&#41; &#123;
         int axis = rotate ? PhysicsSpace.AXIS_X : PhysicsSpace.AXIS_Y;
         CapsuleCollisionShape shape = new CapsuleCollisionShape&#40;width, height, axis&#41;;
         Node node = new Node&#40;&quot;Limb&quot;&#41;;
@@ -61,21 +33,15 @@ Since we&#039;re just creating the ragdoll for this example, all the limbs have 
         node.setLocalTranslation&#40;location&#41;;
         node.addControl&#40;rigidBodyControl&#41;;
         return node;
-&#125;</pre>
-<p>
-We use this helper method to initialize the 11 limbs. Look at the screenshot above for orientation.
-</p>
-<ul>
-<li><div> All cylinders have the same diameter, 0.2f.</div>
-</li>
-<li><div> We make the body and shoulders longer than the other limbs, 1.0f instead of 0.5f.</div>
-</li>
-<li><div> We determine the coordinates for positioning the limbs to form a person.</div>
-</li>
-<li><div> The shoulders and hips are <em>vertical</em> cylinders, this is why we set the rotation to true.</div>
-</li>
-</ul>
-<pre>Node shoulders = createLimb&#40;0.2f, 1.0f, new Vector3f&#40; 0.00f, 1.5f, 0&#41;, true&#41;;
+&#125;</pre><p> We use this helper method to initialize the 11 limbs. Look at the screenshot above for orientation.</p><ul><li
+class="level1"><div
+class="li"> All cylinders have the same diameter, 0.2f.</div></li><li
+class="level1"><div
+class="li"> We make the body and shoulders longer than the other limbs, 1.0f instead of 0.5f.</div></li><li
+class="level1"><div
+class="li"> We determine the coordinates for positioning the limbs to form a person.</div></li><li
+class="level1"><div
+class="li"> The shoulders and hips are <em>vertical</em> cylinders, this is why we set the rotation to true.</div></li></ul><pre>Node shoulders = createLimb&#40;0.2f, 1.0f, new Vector3f&#40; 0.00f, 1.5f, 0&#41;, true&#41;;
 Node     uArmL = createLimb&#40;0.2f, 0.5f, new Vector3f&#40;-0.75f, 0.8f, 0&#41;, false&#41;;
 Node     uArmR = createLimb&#40;0.2f, 0.5f, new Vector3f&#40; 0.75f, 0.8f, 0&#41;, false&#41;;
 Node     lArmL = createLimb&#40;0.2f, 0.5f, new Vector3f&#40;-0.75f,-0.2f, 0&#41;, false&#41;;
@@ -85,66 +51,34 @@ Node      hips = createLimb&#40;0.2f, 0.5f, new Vector3f&#40; 0.00f,-0.5f, 0&#41
 Node     uLegL = createLimb&#40;0.2f, 0.5f, new Vector3f&#40;-0.25f,-1.2f, 0&#41;, false&#41;;
 Node     uLegR = createLimb&#40;0.2f, 0.5f, new Vector3f&#40; 0.25f,-1.2f, 0&#41;, false&#41;;
 Node     lLegL = createLimb&#40;0.2f, 0.5f, new Vector3f&#40;-0.25f,-2.2f, 0&#41;, false&#41;;
-Node     lLegR = createLimb&#40;0.2f, 0.5f, new Vector3f&#40; 0.25f,-2.2f, 0&#41;, false&#41;;</pre>
-<p>
-We now have the outline of a person. But if we ran the application now, the individual limbs would fall down independently of one another – the ragdoll is still lacking joints.
-</p>
-
-</div>
-
-<h3><a>Joints</a></h3>
-<div>
-
-<p>
-
-As before, we write a small helper method. This time its purpose is to quickly join two limbs A and B at the connection point that we specify. 
-</p>
-<ul>
-<li><div> We convert A&#039;s and B&#039;s connectionPoint vector from world coordinate space to local coordinate space.</div>
-</li>
-<li><div> We use a ConeJoint, a special joint that approximates the degree of freedom that limbs typically have. The ConeJoint constructor requires the two nodes, and the two local pivot coordinates that we just determined.</div>
-</li>
-<li><div>  We set the joints limits to allow swinging, but not twisting.</div>
-</li>
-</ul>
-<pre>private PhysicsJoint join&#40;Node A, Node B, Vector3f connectionPoint&#41; &#123;
+Node     lLegR = createLimb&#40;0.2f, 0.5f, new Vector3f&#40; 0.25f,-2.2f, 0&#41;, false&#41;;</pre><p> We now have the outline of a person. But if we ran the application now, the individual limbs would fall down independently of one another – the ragdoll is still lacking joints.</p></div><h3><a
+name="joints">Joints</a></h3><div
+class="level3"><p> As before, we write a small helper method. This time its purpose is to quickly join two limbs A and B at the connection point that we specify.</p><ul><li
+class="level1"><div
+class="li"> We convert A&#039;s and B&#039;s connectionPoint vector from world coordinate space to local coordinate space.</div></li><li
+class="level1"><div
+class="li"> We use a ConeJoint, a special joint that approximates the degree of freedom that limbs typically have. The ConeJoint constructor requires the two nodes, and the two local pivot coordinates that we just determined.</div></li><li
+class="level1"><div
+class="li"> We set the joints limits to allow swinging, but not twisting.</div></li></ul><pre>private PhysicsJoint join&#40;Node A, Node B, Vector3f connectionPoint&#41; &#123;
         Vector3f pivotA = A.worldToLocal&#40;connectionPoint, new Vector3f&#40;&#41;&#41;;
         Vector3f pivotB = B.worldToLocal&#40;connectionPoint, new Vector3f&#40;&#41;&#41;;
         ConeJoint joint = new ConeJoint&#40;A.getControl&#40;RigidBodyControl.class&#41;,
-                                        B.getControl&#40;RigidBodyControl.class&#41;, 
+                                        B.getControl&#40;RigidBodyControl.class&#41;,
                                         pivotA, pivotB&#41;;
         joint.setLimit&#40;1f, 1f, 0&#41;;
         return joint;
-&#125;</pre>
-<p>
-We use the helper method to connect all limbs with joints where they belong, at one end of the limb. 
-</p>
-<pre>join&#40;body,  shoulders, new Vector3f&#40; 0.00f,  1.4f, 0&#41;&#41;;
+&#125;</pre><p> We use the helper method to connect all limbs with joints where they belong, at one end of the limb.</p><pre>join&#40;body,  shoulders, new Vector3f&#40; 0.00f,  1.4f, 0&#41;&#41;;
 join&#40;body,       hips, new Vector3f&#40; 0.00f, -0.5f, 0&#41;&#41;;
-&nbsp;
 join&#40;uArmL, shoulders, new Vector3f&#40;-0.75f,  1.4f, 0&#41;&#41;;
 join&#40;uArmR, shoulders, new Vector3f&#40; 0.75f,  1.4f, 0&#41;&#41;;
 join&#40;uArmL,     lArmL, new Vector3f&#40;-0.75f,  0.4f, 0&#41;&#41;;
 join&#40;uArmR,     lArmR, new Vector3f&#40; 0.75f,  0.4f, 0&#41;&#41;;
-&nbsp;
 join&#40;uLegL,      hips, new Vector3f&#40;-0.25f, -0.5f, 0&#41;&#41;;
 join&#40;uLegR,      hips, new Vector3f&#40; 0.25f, -0.5f, 0&#41;&#41;;
 join&#40;uLegL,     lLegL, new Vector3f&#40;-0.25f, -1.7f, 0&#41;&#41;;
-join&#40;uLegR,     lLegR, new Vector3f&#40; 0.25f, -1.7f, 0&#41;&#41;;</pre>
-<p>
-Now the ragdoll is connected. If we ran the app now, the doll would collapse, but the limbs would stay together.
-</p>
-
-</div>
-
-<h3><a>Attaching Everything to the Scene</a></h3>
-<div>
-
-<p>
-
-We create one (non-physical) Node named ragDoll, and attach all other nodes to it. 
-</p>
-<pre>ragDoll.attachChild&#40;shoulders&#41;;
+join&#40;uLegR,     lLegR, new Vector3f&#40; 0.25f, -1.7f, 0&#41;&#41;;</pre><p> Now the ragdoll is connected. If we ran the app now, the doll would collapse, but the limbs would stay together.</p></div><h3><a
+name="attaching_everything_to_the_scene">Attaching Everything to the Scene</a></h3><div
+class="level3"><p> We create one (non-physical) Node named ragDoll, and attach all other nodes to it.</p><pre>ragDoll.attachChild&#40;shoulders&#41;;
 ragDoll.attachChild&#40;body&#41;;
 ragDoll.attachChild&#40;hips&#41;;
 ragDoll.attachChild&#40;uArmL&#41;;
@@ -154,46 +88,15 @@ ragDoll.attachChild&#40;lArmR&#41;;
 ragDoll.attachChild&#40;uLegL&#41;;
 ragDoll.attachChild&#40;uLegR&#41;;
 ragDoll.attachChild&#40;lLegL&#41;;
-ragDoll.attachChild&#40;lLegR&#41;;</pre>
-<p>
-To use the ragdoll in a scene, we attach its main node to the rootNode, and to the PhysicsSpace.
-</p>
-<pre>rootNode.attachChild&#40;ragDoll&#41;;
-bulletAppState.getPhysicsSpace&#40;&#41;.addAll&#40;ragDoll&#41;;</pre>
-</div>
-
-<h2><a>Applying Forces</a></h2>
-<div>
-
-<p>
-
-To pull the doll up, you could add an input handler that triggers the following action: 
-</p>
-<pre>Vector3f upforce = new Vector3f&#40;0, 200, 0&#41;;
-shoulders.applyContinuousForce&#40;true, upforce&#41;;</pre>
-<p>
-We can use the action to pick the doll up and put it back on its feet, or what ever. Read more about <a href="/com/jme3/gde/core/docs/jme3/advanced/physics#forcesmoving_physical_objects.html">Forces</a> here.
-</p>
-
-</div>
-
-<h2><a>Detecting Collisions</a></h2>
-<div>
-
-<p>
-
-Read the <a href="/com/jme3/gde/core/docs/jme3/advanced/physics#responding_to_a_physicscollisionevent.html">Responding to a PhysicsCollisionEvent</a> chapter in the general physics documentation on how to detect collisions.
-</p>
-
-</div>
-
-<h2><a>Best Practices</a></h2>
-<div>
-
-<p>
-
-If you are seeing weird behaviour in a ragdoll – such as exploding into pieces and then reassembling – check your collision shapes. Verify you did not position the limbs too close to one another when assmebling the ragdoll. You typically see physical nodes being ejected when their collision shapes intersect, which puts physics in an impossible state. 
-</p>
-
-</div>
+ragDoll.attachChild&#40;lLegR&#41;;</pre><p> To use the ragdoll in a scene, we attach its main node to the rootNode, and to the PhysicsSpace.</p><pre>rootNode.attachChild&#40;ragDoll&#41;;
+bulletAppState.getPhysicsSpace&#40;&#41;.addAll&#40;ragDoll&#41;;</pre></div><h2><a
+name="applying_forces">Applying Forces</a></h2><div
+class="level2"><p> To pull the doll up, you could add an input handler that triggers the following action:</p><pre>Vector3f upforce = new Vector3f&#40;0, 200, 0&#41;;
+shoulders.applyContinuousForce&#40;true, upforce&#41;;</pre><p> We can use the action to pick the doll up and put it back on its feet, or what ever. Read more about <a
+href="/com/jme3/gde/core/docs/jme3/advanced/physics#forcesmoving_physical_objects.html">Forces</a> here.</p></div><h2><a
+name="detecting_collisions">Detecting Collisions</a></h2><div
+class="level2"><p> Read the <a
+href="/com/jme3/gde/core/docs/jme3/advanced/physics#responding_to_a_physicscollisionevent.html">Responding to a PhysicsCollisionEvent</a> chapter in the general physics documentation on how to detect collisions.</p></div><h2><a
+name="best_practices">Best Practices</a></h2><div
+class="level2"><p> If you are seeing weird behaviour in a ragdoll – such as exploding into pieces and then reassembling – check your collision shapes. Verify you did not position the limbs too close to one another when assmebling the ragdoll. You typically see physical nodes being ejected when their collision shapes intersect, which puts physics in an impossible state.</p></div>
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:ragdoll?do=export_xhtmlbody">view online version</a></em></p>

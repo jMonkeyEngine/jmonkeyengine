@@ -132,7 +132,6 @@ public class SceneRequest {
     /**
      * @return the projectassetmanager (deprecated, use lookup)
      */
-    @Deprecated
     public ProjectAssetManager getManager() {
         return manager;
     }

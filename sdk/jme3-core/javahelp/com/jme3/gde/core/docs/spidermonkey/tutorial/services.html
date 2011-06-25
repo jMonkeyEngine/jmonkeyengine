@@ -1,26 +1,11 @@
-
-<h1><a>Service system</a></h1>
-<div>
-
-<p>
-<p><div>This article covers a deprecated <acronym title="Application Programming Interface">API</acronym>! See <a href="/com/jme3/gde/core/docs/jme3/advanced/networking.html">networking</a> for current documentation.
-</div></p>
-</p>
-
-<p>
-The service system is meant to create a common way of using plugins. It is a tiny system, on Server and Client level. In this tutorial I&#039;ll tell you how to use services, and how to create your own.
-</p>
-
-</div>
-
-<h3><a>Creating services</a></h3>
-<div>
-
-<p>
-Creating services is really easy - you just have to implement the Service interface. <strong>Make sure you don&#039;t do anything time consuming</strong> since the developer may not be expecting it. Services can choose to support Server, Client, or both. To implement this, use the appropriate constructors:
-
-</p>
-<pre>public class MyExampleService implements Service &#123;
+<h1><a
+name="service_system">Service system</a></h1><div
+class="level1"><p><p><div
+class="notewarning">This article covers a deprecated <acronym
+title="Application Programming Interface">API</acronym>! See <a
+href="/com/jme3/gde/core/docs/jme3/advanced/networking.html">networking</a> for current documentation.</div></p></p><p> The service system is meant to create a common way of using plugins. It is a tiny system, on Server and Client level. In this tutorial I&#039;ll tell you how to use services, and how to create your own.</p></div><h3><a
+name="creating_services">Creating services</a></h3><div
+class="level3"><p> Creating services is really easy - you just have to implement the Service interface. <strong>Make sure you don&#039;t do anything time consuming</strong> since the developer may not be expecting it. Services can choose to support Server, Client, or both. To implement this, use the appropriate constructors:</p><pre>public class MyExampleService implements Service &#123;
    public MyExampleService&#40;Server server&#41; &#123;
       // By adding the constructor with the Server as argument, this service
       //  now supports servers.
@@ -30,24 +15,8 @@ Creating services is really easy - you just have to implement the Service interf
       // Same goes for client. I could just leave this constructor out, and
       //  SpiderMonkey would determine this service does not support client mode.
    &#125;
-&#125;</pre>
-</div>
-
-<h3><a>Using services</a></h3>
-<div>
-
-<p>
-The Server and Client class both have a method called getService(). It retrieves a service based on class name, and instantiates it if necessary. From there you can use the service.
-</p>
-
-<p>
-The Service system is not a terribly powerful system, neither does it do safety checks and service management - it just provides a way to commonly manage extensions.
-</p>
-
-<p>
-That&#039;s it! Next tutorial we&#039;re going to have a look at how to use the streaming <acronym title="Application Programming Interface">API</acronym>.
-
-</p>
-
-</div>
+&#125;</pre></div><h3><a
+name="using_services">Using services</a></h3><div
+class="level3"><p> The Server and Client class both have a method called getService(). It retrieves a service based on class name, and instantiates it if necessary. From there you can use the service.</p><p> The Service system is not a terribly powerful system, neither does it do safety checks and service management - it just provides a way to commonly manage extensions.</p><p> That&#039;s it! Next tutorial we&#039;re going to have a look at how to use the streaming <acronym
+title="Application Programming Interface">API</acronym>.</p></div>
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/spidermonkey:tutorial:services?do=export_xhtmlbody">view online version</a></em></p>

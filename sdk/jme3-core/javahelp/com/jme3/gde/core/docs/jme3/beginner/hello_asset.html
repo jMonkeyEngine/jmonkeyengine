@@ -1,31 +1,14 @@
-
-<h1><a>JME 3 Tutorial (3) - Hello Assets</a></h1>
-<div>
-
-<p>
-
-Previous: <a href="/com/jme3/gde/core/docs/jme3/beginner/hello_node.html">Hello Node</a>,
-Next: <a href="/com/jme3/gde/core/docs/jme3/beginner/hello_main_event_loop.html">Hello Update Loop</a>
-</p>
-
-<p>
-In this tutorial we will learn to load 3-D models and text into the scene graph, using the jME asset manager. You also learn how to arrive at the correct paths, and which file formats to use.
-</p>
-
-<p>
-<img src="nbdocs:/com/jme3/gde/core/docs/jme3/beginner/beginner-assets-models.png">
-</p>
-
-<p>
-<p><div>To use the example assets in a new jMonkeyPlatform project, right-click your project, select “Properties”, go to “Libraries”, press “Add Library” and add the “jme3-test-data” library.
-</div></p>
-</p>
-
-</div>
-
-<h2><a>Code Sample</a></h2>
-<div>
-<pre>package jme3test.helloworld;
+<h1><a
+name="jme_3_tutorial_3_-_hello_assets">JME 3 Tutorial (3) - Hello Assets</a></h1><div
+class="level1"><p> Previous: <a
+href="/com/jme3/gde/core/docs/jme3/beginner/hello_node.html">Hello Node</a>,
+Next: <a
+href="/com/jme3/gde/core/docs/jme3/beginner/hello_main_event_loop.html">Hello Update Loop</a></p><p> In this tutorial we will learn to load 3-D models and text into the scene graph, using the jME asset manager. You also learn how to arrive at the correct paths, and which file formats to use.</p><p> <a
+href="/wiki/lib/exe/detail.php/jme3:beginner:beginner-assets-models.png?id=jme3%3Abeginner%3Ahello_asset"><img
+src="nbdocs:/com/jme3/gde/core/docs/jme3/beginner/beginner-assets-models.png?w=320&amp;h=250" class="mediacenter" alt="" width="320" height="250" /></a></p><p><p><div
+class="notetip">To use the example assets in a new jMonkeyPlatform project, right-click your project, select &quot;Properties&quot;, go to &quot;Libraries&quot;, press &quot;Add Library&quot; and add the &quot;jme3-test-data&quot; library.</div></p></p></div><h2><a
+name="code_sample">Code Sample</a></h2><div
+class="level2"><pre>package jme3test.helloworld;
 &nbsp;
 import com.jme3.app.SimpleApplication;
 import com.jme3.font.BitmapText;
@@ -36,7 +19,7 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Box;
 &nbsp;
-<span>/** Sample 3 - how to load an OBJ model, and OgreXML model, 
+<span>/** Sample 3 - how to load an OBJ model, and OgreXML model,
  * a material/texture, or text. */</span>
 public class HelloAssets extends SimpleApplication &#123;
 &nbsp;
@@ -49,7 +32,7 @@ public class HelloAssets extends SimpleApplication &#123;
     public void simpleInitApp&#40;&#41; &#123;
 &nbsp;
         Spatial teapot = assetManager.loadModel&#40;&quot;Models/Teapot/Teapot.obj&quot;&#41;;
-        Material mat_default = new Material&#40; 
+        Material mat_default = new Material&#40;
             assetManager, &quot;Common/MatDefs/Misc/ShowNormals.j3md&quot;&#41;;
         teapot.setMaterial&#40;mat_default&#41;;
         rootNode.attachChild&#40;teapot&#41;;
@@ -57,9 +40,9 @@ public class HelloAssets extends SimpleApplication &#123;
         // Create a wall with a simple texture from test_data
         Box&#40;Vector3f.ZERO, 2.5f,2.5f,1.0f&#41;;
         Spatial wall = new Geometry&#40;&quot;Box&quot;, box &#41;;
-        Material mat_brick = new Material&#40; 
+        Material mat_brick = new Material&#40;
             assetManager, &quot;Common/MatDefs/Misc/Unshaded.j3md&quot;&#41;;
-        mat_brick.setTexture&#40;&quot;ColorMap&quot;, 
+        mat_brick.setTexture&#40;&quot;ColorMap&quot;,
             assetManager.loadTexture&#40;&quot;Textures/Terrain/BrickWall/BrickWall.jpg&quot;&#41;&#41;;
         wall.setMaterial&#40;mat_brick&#41;;
         wall.setLocalTranslation&#40;2.0f,-2.5f,0.0f&#41;;
@@ -86,26 +69,9 @@ public class HelloAssets extends SimpleApplication &#123;
         rootNode.addLight&#40;sun&#41;;
 &nbsp;
     &#125;
-&#125;</pre>
-<p>
-Build and run the code sample. You should see a green Ninja with a colorful teapot standing behind a wall. The text on the screen should say “Hello World”.
-</p>
-
-</div>
-
-<h2><a>The Asset Manager</a></h2>
-<div>
-
-<p>
-
-JME3 comes with a handy asset manager that helps you keep your assets structured. Project assets are media files such as models, materials, textures, scenes, shaders, sounds, and fonts. The asset manager maintains a root that contains the classpath, so it can load any file from the current classpath (the top level of your project directory). 
-</p>
-
-<p>
-Additionally, the assetManager can be configured to add any path to the assets root, so assets can be loaded from directories you specify. <strong>In a jMonkeyPlatform project, jME3 seaches for models in the <code>assets</code> directory of your project.</strong> This is our recommended directory structure for storing assets:
-</p>
-<pre>
-assets/Interface/
+&#125;</pre><p> Build and run the code sample. You should see a green Ninja with a colorful teapot standing behind a wall. The text on the screen should say &quot;Hello World&quot;.</p></div><h2><a
+name="the_asset_manager">The Asset Manager</a></h2><div
+class="level2"><p> JME3 comes with a handy asset manager that helps you keep your assets structured. Project assets are media files such as models, materials, textures, scenes, shaders, sounds, and fonts. The asset manager maintains a root that contains the classpath, so it can load any file from the current classpath (the top level of your project directory).</p><p> Additionally, the assetManager can be configured to add any path to the assets root, so assets can be loaded from directories you specify. <strong>In a jMonkeyPlatform project, jME3 seaches for models in the <code>assets</code> directory of your project.</strong> This is our recommended directory structure for storing assets:</p><pre>assets/Interface/
 assets/MatDefs/
 assets/Materials/
 assets/Models/
@@ -115,64 +81,31 @@ assets/Sounds/
 assets/Textures/
 build.xml
 src/...
-dist/...
-</pre>
-
-<p>
-These are just the most common examples, you can name the directories inside the assets directory how you like.
-</p>
-
-</div>
-
-<h3><a>Loading Textures</a></h3>
-<div>
-
-<p>
-
-Place the textures in a subdirectory of <code>assets/Textures/</code>. Load the texture into the material before you set the Material. The following code sample is from the <code>simpleInitApp()</code> method:
-</p>
-<pre>        // Create a wall with a simple texture from test_data
+dist/...</pre><p> These are just the most common examples, you can name the directories inside the assets directory how you like.</p></div><h3><a
+name="loading_textures">Loading Textures</a></h3><div
+class="level3"><p> Place the textures in a subdirectory of <code>assets/Textures/</code>. Load the texture into the material before you set the Material. The following code sample is from the <code>simpleInitApp()</code> method:</p><pre>        // Create a wall with a simple texture from test_data
         Box&#40;Vector3f.ZERO, 2.5f,2.5f,1.0f&#41;;
         Spatial wall = new Geometry&#40;&quot;Box&quot;, box &#41;;
-        Material mat_brick = new Material&#40; 
+        Material mat_brick = new Material&#40;
             assetManager, &quot;Common/MatDefs/Misc/Unshaded.j3md&quot;&#41;;
-        mat_brick.setTexture&#40;&quot;ColorMap&quot;, 
+        mat_brick.setTexture&#40;&quot;ColorMap&quot;,
             assetManager.loadTexture&#40;&quot;Textures/Terrain/BrickWall/BrickWall.jpg&quot;&#41;&#41;;
         wall.setMaterial&#40;mat_brick&#41;;
         wall.setLocalTranslation&#40;2.0f,-2.5f,0.0f&#41;;
-        rootNode.attachChild&#40;wall&#41;;</pre>
-<p>
-In most cases, you use default material descriptions such as “SimpleTextured.j3md”, as we do in this example. Advanced users can create <a href="/com/jme3/gde/core/docs/jme3/beginner/hello_material.html">custom Materials</a>. 
-</p>
-
-</div>
-
-<h3><a>Loading Text and Fonts</a></h3>
-<div>
-
-<p>
-
-This example displays “Hello Text” in the default font at the bottom edge of the window. You attach text to the <code>guiNode</code>, a special node for flat (orthogonal) display elements. You can clear existing text in the guiNode by detaching all its children.
-The following code sample goes into the <code>simpleInitApp()</code> method.
-</p>
-<pre>        // Display a line of text with a default font
+        rootNode.attachChild&#40;wall&#41;;</pre><p> In most cases, you use default material descriptions such as &quot;SimpleTextured.j3md&quot;, as we do in this example. Advanced users can create <a
+href="/com/jme3/gde/core/docs/jme3/beginner/hello_material.html">custom Materials</a>.</p></div><h3><a
+name="loading_text_and_fonts">Loading Text and Fonts</a></h3><div
+class="level3"><p> This example displays &quot;Hello Text&quot; in the default font at the bottom edge of the window. You attach text to the <code>guiNode</code>, a special node for flat (orthogonal) display elements. You can clear existing text in the guiNode by detaching all its children.
+The following code sample goes into the <code>simpleInitApp()</code> method.</p><pre>        // Display a line of text with a default font
         guiNode.detachAllChildren&#40;&#41;;
         guiFont = assetManager.loadFont&#40;&quot;Interface/Fonts/Default.fnt&quot;&#41;;
         BitmapText helloText = new BitmapText&#40;guiFont, false&#41;;
         helloText.setSize&#40;guiFont.getCharSet&#40;&#41;.getRenderedSize&#40;&#41;&#41;;
         helloText.setText&#40;&quot;Hello World&quot;&#41;;
         helloText.setLocalTranslation&#40;300, helloText.getLineHeight&#40;&#41;, 0&#41;;
-        guiNode.attachChild&#40;helloText&#41;;</pre>
-</div>
-
-<h3><a>Loading an Ogre XML Model</a></h3>
-<div>
-
-<p>
-
-Export your model in OgreXML format (.mesh.xml, .scene, .material, .skeleton.xml) and place it in a subdirectory of <code>assets/Models/</code>. The following code sample goes into the <code>simpleInitApp()</code> method.
-</p>
-<pre>        // Load a model from test_data (OgreXML + material + texture)
+        guiNode.attachChild&#40;helloText&#41;;</pre></div><h3><a
+name="loading_an_ogre_xml_model">Loading an Ogre XML Model</a></h3><div
+class="level3"><p> Export your model in OgreXML format (.mesh.xml, .scene, .material, .skeleton.xml) and place it in a subdirectory of <code>assets/Models/</code>. The following code sample goes into the <code>simpleInitApp()</code> method.</p><pre>        // Load a model from test_data (OgreXML + material + texture)
         Spatial ninja = assetManager.loadModel&#40;&quot;Models/Ninja/Ninja.mesh.xml&quot;&#41;;
         ninja.scale&#40;0.05f, 0.05f, 0.05f&#41;;
         ninja.rotate&#40;0.0f, -3.0f, 0.0f&#41;;
@@ -181,276 +114,166 @@ Export your model in OgreXML format (.mesh.xml, .scene, .material, .skeleton.xml
         // You must add a light to make the model visible
         DirectionalLight sun = new DirectionalLight&#40;&#41;;
         sun.setDirection&#40;new Vector3f&#40;-0.1f, -0.7f, -1.0f&#41;&#41;;
-        rootNode.addLight&#40;sun&#41;;</pre>
-<p>
-If you use the build script created by the jMonkeyPlatform then, by default, <strong>the original OgreXML files will not be included in your distributed game.</strong> You will get an error message when trying to load them. 
-</p>
-<pre>com.jme3.asset.DesktopAssetManager loadAsset
+        rootNode.addLight&#40;sun&#41;;</pre><p> If you use the build script created by the jMonkeyPlatform then, by default, <strong>the original OgreXML files will not be included in your distributed game.</strong> You will get an error message when trying to load them.</p><pre>com.jme3.asset.DesktopAssetManager loadAsset
 WARNING: Cannot locate resource: Scenes/town/main.scene
 com.jme3.app.Application handleError
 SEVERE: Uncaught exception thrown in Thread[LWJGL Renderer Thread,5,main]
-java.lang.NullPointerException
-</pre>
-
-<p>
-For the release build, you should work with .j3o files only. Use the jMonkeyPlatform&#039;s context menu action to <a href="/com/jme3/gde/core/docs/sdk/model_loader_and_viewer.html">convert OgreXML models to .j3o format</a>.
-</p>
-
-</div>
-
-<h3><a>Loading Assets From Custom Paths</a></h3>
-<div>
-
-<p>
-
-What if your game relies on user supplied model files, that will not be included in your distribution? If a file is not located in the default location, you can register a custom Locator and load it from any path. 
-</p>
-
-<p>
-Here is a usage example of a ZipLocator that is registered to a file <code>town.zip</code> in the top level of your project directory:
-</p>
-<pre>    assetManager.registerLocator&#40;&quot;town.zip&quot;, ZipLocator.class.getName&#40;&#41;&#41;;
+java.lang.NullPointerException</pre><p> For the release build, you should work with .j3o files only. Use the jMonkeyPlatform&#039;s context menu action to <a
+href="/com/jme3/gde/core/docs/sdk/model_loader_and_viewer.html">convert OgreXML models to .j3o format</a>.</p></div><h3><a
+name="loading_assets_from_custom_paths">Loading Assets From Custom Paths</a></h3><div
+class="level3"><p> What if your game relies on user supplied model files, that will not be included in your distribution? If a file is not located in the default location, you can register a custom Locator and load it from any path.</p><p> Here is a usage example of a ZipLocator that is registered to a file <code>town.zip</code> in the top level of your project directory:</p><pre>    assetManager.registerLocator&#40;&quot;town.zip&quot;, ZipLocator.class.getName&#40;&#41;&#41;;
     Spatial scene = assetManager.loadModel&#40;&quot;main.scene&quot;&#41;;
-    rootNode.attachChild&#40;scene&#41;;</pre>
-<p>
-Here is a HttpZipLocator that can download zipped models:
-</p>
-<pre>    assetManager.registerLocator&#40;&quot;http://jmonkeyengine.googlecode.com/files/wildhouse.zip&quot;, 
+    rootNode.attachChild&#40;scene&#41;;</pre><p> Here is a HttpZipLocator that can download zipped models:</p><pre>    assetManager.registerLocator&#40;&quot;http://jmonkeyengine.googlecode.com/files/wildhouse.zip&quot;,
                                  HttpZipLocator.class.getName&#40;&#41;&#41;;
     Spatial scene = assetManager.loadModel&#40;&quot;main.scene&quot;&#41;;
-    rootNode.attachChild&#40;scene&#41;;</pre>
-<p>
-JME3 offers ClasspathLocator, ZipLocator, FileLocator, HttpZipLocator, and UrlLocator (see <code>com.jme3.asset.plugins</code>). 
-</p>
-
-</div>
-
-<h2><a>Creating Models and Scenes</a></h2>
-<div>
-
-<p>
-
-To create 3D models and scenes, you need a 3D Mesh Editor such as Blender, with an OgreXML Exporter plugin. Create your models with <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://en.wikibooks.org/wiki/Blender_3D:_Noob_to_Pro/UV_Map_Basics"><param name="text" value="<html><u>UV textures</u></html>"><param name="textColor" value="blue"></object>.
-You can use the <a href="/com/jme3/gde/core/docs/sdk.html">jMonkeyPlatform</a> to <a href="/com/jme3/gde/core/docs/sdk/model_loader_and_viewer.html">load models</a> and <a href="/com/jme3/gde/core/docs/sdk/scene_composer.html">create scenes</a> from them. 
-</p>
-
-<p>
-Export your models as Ogre <acronym title="Extensible Markup Language">XML</acronym> meshes with materials. 
-</p>
-<ol>
-<li><div> Open the menu File &gt; Export &gt; OgreXML Exporter to open the exporter dialog.</div>
-</li>
-<li><div> In the Export Materials field: Give the material the same name as the model. For example, the model <code>something.mesh.xml</code> goes with <code>something.material</code>, plus (optionally) <code>something.skeleton.xml</code> and some <acronym title="Joint Photographics Experts Group">JPG</acronym> files.</div>
-</li>
-<li><div> In the Export Meshes field: Select a subdirectory of your <code>assets/Models/</code> directory. E.g. <code>assets/Models/something/</code>.</div>
-</li>
-<li><div> Activate the following exporter settings: </div>
-<ul>
-<li><div> Copy Textures: YES</div>
-</li>
-<li><div> Rendering Materials: YES</div>
-</li>
-<li><div> Flip Axis: YES</div>
-</li>
-<li><div> Require Materials: YES</div>
-</li>
-<li><div> Skeleton name follows mesh: YES</div>
-</li>
-</ul>
-</li>
-<li><div> Click export.</div>
-</li>
-</ol>
-
-<p>
-
-<strong>File Format:</strong> JME 3 can load Ogre <acronym title="Extensible Markup Language">XML</acronym> models, materials, and scenes, as well as Wavefront OBJ+MTL models. For the game release, you should optimize model loading by converting all models to JME3&#039;s .j3o format. We recommend creating your project in the <a href="/com/jme3/gde/core/docs/sdk.html">jMonkeyPlatform</a>, it contains an integrated .j3o converter. 
-
-</p>
-<ol>
-<li><div> Open your JME3 Project in the jMonkeyplatform.</div>
-</li>
-<li><div> Right-click a .mesh.xml file in the Projects (or Favorites) window, and choose “convert to JME3 binary”. </div>
-</li>
-<li><div> The .j3o file appears next to the .mesh.xml file with the same name. </div>
-</li>
-<li><div> If you use the build script generated by the jMonkeyPlatform, mesh.xml files and obj files will be excluded from the executable JAR. If you get a runtime exception, make sure you have converted all models to .j3o.</div>
-</li>
-</ol>
-
-</div>
-
-<h3><a>Loading Models and Scenes</a></h3>
-<div>
-<table>
-	<tr>
-		<th> Task? </th><th> Solution! </th>
-	</tr>
-	<tr>
-		<td> Load a model with materials </td><td> Use the asset managers <code>loadModel()</code> method and attach the Spatial to the rootNode. <pre>Spatial elephant = assetManager.loadModel&#40;&quot;Models/Elephant/Elephant.mesh.xml&quot;&#41;;
+    rootNode.attachChild&#40;scene&#41;;</pre><p> JME3 offers ClasspathLocator, ZipLocator, FileLocator, HttpZipLocator, and UrlLocator (see <code>com.jme3.asset.plugins</code>).</p></div><h2><a
+name="creating_models_and_scenes">Creating Models and Scenes</a></h2><div
+class="level2"><p> To create 3D models and scenes, you need a 3D Mesh Editor such as Blender, with an OgreXML Exporter plugin. Create your models with <a
+href="http://en.wikibooks.org/wiki/Blender_3D:_Noob_to_Pro/UV_Map_Basics">UV textures</a>.
+You can use the <a
+href="/com/jme3/gde/core/docs/sdk.html">jMonkeyPlatform</a> to <a
+href="/com/jme3/gde/core/docs/sdk/model_loader_and_viewer.html">load models</a> and <a
+href="/com/jme3/gde/core/docs/sdk/scene_composer.html">create scenes</a> from them.</p><p> Export your models as Ogre <acronym
+title="Extensible Markup Language">XML</acronym> meshes with materials.</p><ol><li
+class="level1"><div
+class="li"> Open the menu File &gt; Export &gt; OgreXML Exporter to open the exporter dialog.</div></li><li
+class="level1"><div
+class="li"> In the Export Materials field: Give the material the same name as the model. For example, the model <code>something.mesh.xml</code> goes with <code>something.material</code>, plus (optionally) <code>something.skeleton.xml</code> and some <acronym
+title="Joint Photographics Experts Group">JPG</acronym> files.</div></li><li
+class="level1"><div
+class="li"> In the Export Meshes field: Select a subdirectory of your <code>assets/Models/</code> directory. E.g. <code>assets/Models/something/</code>.</div></li><li
+class="level1"><div
+class="li"> Activate the following exporter settings:</div><ul><li
+class="level2"><div
+class="li"> Copy Textures: YES</div></li><li
+class="level2"><div
+class="li"> Rendering Materials: YES</div></li><li
+class="level2"><div
+class="li"> Flip Axis: YES</div></li><li
+class="level2"><div
+class="li"> Require Materials: YES</div></li><li
+class="level2"><div
+class="li"> Skeleton name follows mesh: YES</div></li></ul></li><li
+class="level1"><div
+class="li"> Click export.</div></li></ol><p> <strong>File Format:</strong> JME 3 can load Ogre <acronym
+title="Extensible Markup Language">XML</acronym> models, materials, and scenes, as well as Wavefront OBJ+MTL models. For the game release, you should optimize model loading by converting all models to JME3&#039;s .j3o format. We recommend creating your project in the <a
+href="/com/jme3/gde/core/docs/sdk.html">jMonkeyPlatform</a>, it contains an integrated .j3o converter.</p><ol><li
+class="level1"><div
+class="li"> Open your JME3 Project in the jMonkeyplatform.</div></li><li
+class="level1"><div
+class="li"> Right-click a .mesh.xml file in the Projects (or Favorites) window, and choose &quot;convert to JME3 binary&quot;.</div></li><li
+class="level1"><div
+class="li"> The .j3o file appears next to the .mesh.xml file with the same name.</div></li><li
+class="level1"><div
+class="li"> If you use the build script generated by the jMonkeyPlatform, mesh.xml files and obj files will be excluded from the executable JAR. If you get a runtime exception, make sure you have converted all models to .j3o.</div></li></ol></div><h3><a
+name="loading_models_and_scenes">Loading Models and Scenes</a></h3><div
+class="level3"><div
+class="table sectionedit1"><table
+class="inline"><tr
+class="row0"><th
+class="col0"> Task?</th><th
+class="col1"> Solution!</th></tr><tr
+class="row1"><td
+class="col0"> Load a model with materials</td><td
+class="col1"> Use the asset managers <code>loadModel()</code> method and attach the Spatial to the rootNode.<pre>Spatial elephant = assetManager.loadModel&#40;&quot;Models/Elephant/Elephant.mesh.xml&quot;&#41;;
 rootNode.attachChild&#40;elephant&#41;;</pre><pre>Spatial elephant = assetManager.loadModel&#40;&quot;Models/Elephant/Elephant.j3o&quot;&#41;;
-rootNode.attachChild&#40;elephant&#41;;</pre></td>
-	</tr>
-	<tr>
-		<td> Load a model without materials </td><td> If you have a model without materials, you have to add a default material to make it visible. <pre>Spatial teapot = assetManager.loadModel&#40;&quot;Models/Teapot/Teapot.obj&quot;&#41;;
+rootNode.attachChild&#40;elephant&#41;;</pre></td></tr><tr
+class="row2"><td
+class="col0"> Load a model without materials</td><td
+class="col1"> If you have a model without materials, you have to add a default material to make it visible.<pre>Spatial teapot = assetManager.loadModel&#40;&quot;Models/Teapot/Teapot.obj&quot;&#41;;
 Material mat = new Material&#40;assetManager, &quot;Common/MatDefs/Misc/ShowNormals.j3md&quot;&#41;;
 teapot.setMaterial&#40;mat&#41;;
-rootNode.attachChild&#40;teapot&#41;;</pre></td>
-	</tr>
-	<tr>
-		<td> Load a scene </td><td> You load scenes just like you load models: <pre>Spatial scene = assetManager.loadModel&#40;&quot;Scenes/house/main.scene&quot;&#41;;
-rootNode.attachChild&#40;scene&#41;;</pre></td>
-	</tr>
-</table>
-
-</div>
-
-<h3><a>Excercise - How to Load Assets</a></h3>
-<div>
-
-<p>
-
-As an exercise, let&#039;s try different ways of loading a scene. You can load a scene directly, or from a zip file: 
-
-</p>
-<ol>
-<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://jmonkeyengine.googlecode.com/svn/trunk/engine/town.zip"><param name="text" value="<html><u>Download the town.zip</u></html>"><param name="textColor" value="blue"></object> sample scene. </div>
-</li>
-<li><div> (Optional:) Unzip the town.zip to see the structure of the contained Ogre dotScene: You&#039;ll get a directory named <code>town</code>. It contains <acronym title="Extensible Markup Language">XML</acronym> and texture files, and file called main.scene. (This is just for your information, you do not need to do anything with it.)</div>
-</li>
-<li><div> Place the town.zip file in the top level directory of your JME3 project, like so: <pre>jMonkeyProjects/MyGameProject/assets/
+rootNode.attachChild&#40;teapot&#41;;</pre></td></tr><tr
+class="row3"><td
+class="col0"> Load a scene</td><td
+class="col1"> You load scenes just like you load models:<pre>Spatial scene = assetManager.loadModel&#40;&quot;Scenes/house/main.scene&quot;&#41;;
+rootNode.attachChild&#40;scene&#41;;</pre></td></tr></table></div></div><h3><a
+name="excercise_-_how_to_load_assets">Excercise - How to Load Assets</a></h3><div
+class="level3"><p> As an exercise, let&#039;s try different ways of loading a scene. You can load a scene directly, or from a zip file:</p><ol><li
+class="level1"><div
+class="li"> <a
+href="http://jmonkeyengine.googlecode.com/svn/trunk/engine/town.zip">Download the town.zip</a> sample scene.</div></li><li
+class="level1"><div
+class="li"> (Optional:) Unzip the town.zip to see the structure of the contained Ogre dotScene: You&#039;ll get a directory named <code>town</code>. It contains <acronym
+title="Extensible Markup Language">XML</acronym> and texture files, and file called main.scene. (This is just for your information, you do not need to do anything with it.)</div></li><li
+class="level1"><div
+class="li"> Place the town.zip file in the top level directory of your JME3 project, like so:<pre>jMonkeyProjects/MyGameProject/assets/
 jMonkeyProjects/MyGameProject/build.xml
 jMonkeyProjects/MyGameProject/src/
 jMonkeyProjects/MyGameProject/town.zip
-...
-</pre>
-</div>
-</li>
-</ol>
-
-<p>
-
-Use the following method to load models from a zip file:
-
-</p>
-<ol>
-<li><div> Make sure <code>town.zip</code> is in the project directory.</div>
-</li>
-<li><div> We register a zip file locator to the project directory. The loadModel() method now searches this zip directly for the files to load. <br/>
- (That is, <em>do not</em> write <code>town.zip/main.scene</code> or similar.)  </div>
-</li>
-<li><div> Add the following code under <code>simpleInitApp() {</code><pre>    assetManager.registerLocator&#40;&quot;town.zip&quot;, ZipLocator.class.getName&#40;&#41;&#41;;
+...</pre></div></li></ol><p> Use the following method to load models from a zip file:</p><ol><li
+class="level1"><div
+class="li"> Make sure <code>town.zip</code> is in the project directory.</div></li><li
+class="level1"><div
+class="li"> We register a zip file locator to the project directory. The loadModel() method now searches this zip directly for the files to load. <br/> (That is, <em>do not</em> write <code>town.zip/main.scene</code> or similar.)</div></li><li
+class="level1"><div
+class="li"> Add the following code under <code>simpleInitApp() {</code><pre>    assetManager.registerLocator&#40;&quot;town.zip&quot;, ZipLocator.class.getName&#40;&#41;&#41;;
     Spatial gameLevel = assetManager.loadModel&#40;&quot;main.scene&quot;&#41;;
     gameLevel.setLocalTranslation&#40;0, -5.2f, 0&#41;;
     gameLevel.setLocalScale&#40;2&#41;;
-    rootNode.attachChild&#40;gameLevel&#41;;</pre></div>
-</li>
-<li><div> Clean, build and run the project. You should see the Ninja+wall+teapot standing in a town. </div>
-</li>
-</ol>
-
-<p>
-
-If you register new locators, make sure you do not get any file name conflicts: Give each scene a unique name.
-</p>
-
-<p>
-Earlier in this tutorial, you loaded scenes and models from the asset directory. This is the most common way you will be loading scenes and models. Here is the typical procedure:
-
-</p>
-<ol>
-<li><div> Remove the code from the previous exercise.</div>
-</li>
-<li><div> Move the unzipped <code>town/</code> directory into the <code>assets/Scenes/</code> directory of your project.</div>
-</li>
-<li><div> Add the following code under <code>simpleInitApp() {</code> <pre>    Spatial gameLevel = assetManager.loadModel&#40;&quot;Scenes/town/main.scene&quot;&#41;;
+    rootNode.attachChild&#40;gameLevel&#41;;</pre></div></li><li
+class="level1"><div
+class="li"> Clean, build and run the project. You should see the Ninja+wall+teapot standing in a town.</div></li></ol><p> If you register new locators, make sure you do not get any file name conflicts: Give each scene a unique name.</p><p> Earlier in this tutorial, you loaded scenes and models from the asset directory. This is the most common way you will be loading scenes and models. Here is the typical procedure:</p><ol><li
+class="level1"><div
+class="li"> Remove the code from the previous exercise.</div></li><li
+class="level1"><div
+class="li"> Move the unzipped <code>town/</code> directory into the <code>assets/Scenes/</code> directory of your project.</div></li><li
+class="level1"><div
+class="li"> Add the following code under <code>simpleInitApp() {</code><pre>    Spatial gameLevel = assetManager.loadModel&#40;&quot;Scenes/town/main.scene&quot;&#41;;
     gameLevel.setLocalTranslation&#40;0, -5.2f, 0&#41;;
     gameLevel.setLocalScale&#40;2&#41;;
-    rootNode.attachChild&#40;gameLevel&#41;;</pre></div>
-</li>
-<li><div> Note that the path starts relative to the <code>assets/…</code> directory.</div>
-</li>
-<li><div> Clean, build and run the project. Again, you should see the Ninja+wall+teapot standing in a town. </div>
-</li>
-</ol>
-
-<p>
-
-Here is a third method you must know. Loading a scene/model from a .j3o file:
-
-</p>
-<ol>
-<li><div> Remove the code from the previous exercise.</div>
-</li>
-<li><div> If you haven&#039;t already, open the <a href="/com/jme3/gde/core/docs/sdk.html">jMonkeyPlatform</a> and open the project that contains the Hello Asset class.</div>
-</li>
-<li><div> In the projects window, browse to the <code>assets/Scenes/town</code> directory. </div>
-</li>
-<li><div> Right-click the <code>main.scene</code> and convert the scene to binary: The jMoneyPlatform generates a main.j3o file.</div>
-</li>
-<li><div> Add the following code under <code>simpleInitApp() {</code><pre>    Spatial gameLevel = assetManager.loadModel&#40;&quot;Scenes/town/main.j3o&quot;&#41;;
+    rootNode.attachChild&#40;gameLevel&#41;;</pre></div></li><li
+class="level1"><div
+class="li"> Note that the path starts relative to the <code>assets/…</code> directory.</div></li><li
+class="level1"><div
+class="li"> Clean, build and run the project. Again, you should see the Ninja+wall+teapot standing in a town.</div></li></ol><p> Here is a third method you must know. Loading a scene/model from a .j3o file:</p><ol><li
+class="level1"><div
+class="li"> Remove the code from the previous exercise.</div></li><li
+class="level1"><div
+class="li"> If you haven&#039;t already, open the <a
+href="/com/jme3/gde/core/docs/sdk.html">jMonkeyPlatform</a> and open the project that contains the Hello Asset class.</div></li><li
+class="level1"><div
+class="li"> In the projects window, browse to the <code>assets/Scenes/town</code> directory.</div></li><li
+class="level1"><div
+class="li"> Right-click the <code>main.scene</code> and convert the scene to binary: The jMoneyPlatform generates a main.j3o file.</div></li><li
+class="level1"><div
+class="li"> Add the following code under <code>simpleInitApp() {</code><pre>    Spatial gameLevel = assetManager.loadModel&#40;&quot;Scenes/town/main.j3o&quot;&#41;;
     gameLevel.setLocalTranslation&#40;0, -5.2f, 0&#41;;
     gameLevel.setLocalScale&#40;2&#41;;
-    rootNode.attachChild&#40;gameLevel&#41;;</pre></div>
-</li>
-<li><div> Again, note that the path starts relative to the <code>assets/…</code> directory.</div>
-</li>
-<li><div> Clean, Build and run the project. Again, you should see the Ninja+wall+teapot standing in a town. </div>
-</li>
-</ol>
-
-<p>
-
-What is the difference between loading <code>Scenes/town/main.j3o</code> and <code>Scenes/town/main.scene</code>?
-</p>
-<ul>
-<li><div> <strong>You can work with *.scene and .xml files during the development phase:</strong> When your designer pushes updated files to the asset directory, you can quickly review the latest version in your development environment. </div>
-</li>
-<li><div> <strong>Create and load *.j3o files for QA and release builds:</strong> .j3o is a binary format for jME3 applications, and .j3o files will be automatically included in the distributable JAR file. When you do QA test builds or are ready to release, use the jMonkeyPlatform to convert all .scene and .xml files to .j3o files, and load these.</div>
-</li>
-</ul>
-
-</div>
-
-<h2><a>Conclusion</a></h2>
-<div>
-
-<p>
-
-Now you know how to populate the scenegraph with static shapes and models, and how to build scenes. You have learned how to load assets using the <code>assetManager</code> and you have seen that the paths start relative to your project directory. Another important thing you have learned is to convert models to .j3o format for the JAR builds.
-</p>
-
-<p>
-Let&#039;s add some action to the scene and continue with the <a href="/com/jme3/gde/core/docs/jme3/beginner/hello_main_event_loop.html">Update Loop</a>.
-
-</p>
-<hr />
-
-<p>
-<strong>See also:</strong> 
-</p>
-<ul>
-<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="https://docs.google.com/fileview?id=0B9hhZie2D-fENDBlZDU5MzgtNzlkYi00YmQzLTliNTQtNzZhYTJhYjEzNWNk&amp;hl=en"><param name="text" value="<html><u>Exporting OgreXML scenes from Blender to jME</u></html>"><param name="textColor" value="blue"></object> </div>
-</li>
-<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://www.jmonkeyengine.com/forum/index.php?topic=14418.0"><param name="text" value="<html><u>Screenshots of a great loaded model</u></html>"><param name="textColor" value="blue"></object></div>
-</li>
-<li><div> If you want to learn how to load sounds, see <a href="/com/jme3/gde/core/docs/jme3/beginner/hello_audio.html">Hello Audio</a></div>
-</li>
-<li><div> If you want to learn more about loading textures and materials, see <a href="/com/jme3/gde/core/docs/jme3/beginner/hello_material.html">Hello Material</a></div>
-</li>
-</ul>
-<div><span>
-	<a href="/wiki/doku.php/tag:beginner?do=showtag&amp;tag=tag%3Abeginner">beginner</a>,
-	<a href="/wiki/doku.php/tag:beginner?do=showtag&amp;tag=tag%3Abeginner">beginner,</a>,
-	<a href="/wiki/doku.php/tag:intro?do=showtag&amp;tag=tag%3Aintro">intro</a>,
-	<a href="/wiki/doku.php/tag:documentation?do=showtag&amp;tag=tag%3Adocumentation">documentation</a>,
-	<a href="/wiki/doku.php/tag:lightnode?do=showtag&amp;tag=tag%3Alightnode">lightnode</a>,
-	<a href="/wiki/doku.php/tag:material?do=showtag&amp;tag=tag%3Amaterial">material</a>,
-	<a href="/wiki/doku.php/tag:model?do=showtag&amp;tag=tag%3Amodel">model</a>,
-	<a href="/wiki/doku.php/tag:node?do=showtag&amp;tag=tag%3Anode">node</a>,
-	<a href="/wiki/doku.php/tag:gui?do=showtag&amp;tag=tag%3Agui">gui</a>,
-	<a href="/wiki/doku.php/tag:texture?do=showtag&amp;tag=tag%3Atexture">texture</a>
-</span></div>
-
-</div>
+    rootNode.attachChild&#40;gameLevel&#41;;</pre></div></li><li
+class="level1"><div
+class="li"> Again, note that the path starts relative to the <code>assets/…</code> directory.</div></li><li
+class="level1"><div
+class="li"> Clean, Build and run the project. Again, you should see the Ninja+wall+teapot standing in a town.</div></li></ol><p> What is the difference between loading <code>Scenes/town/main.j3o</code> and <code>Scenes/town/main.scene</code>?</p><ul><li
+class="level1"><div
+class="li"> <strong>You can work with *.scene and .xml files during the development phase:</strong> When your designer pushes updated files to the asset directory, you can quickly review the latest version in your development environment.</div></li><li
+class="level1"><div
+class="li"> <strong>Create and load *.j3o files for QA and release builds:</strong> .j3o is a binary format for jME3 applications, and .j3o files will be automatically included in the distributable JAR file. When you do QA test builds or are ready to release, use the jMonkeyPlatform to convert all .scene and .xml files to .j3o files, and load these.</div></li></ul></div><h2><a
+name="conclusion">Conclusion</a></h2><div
+class="level2"><p> Now you know how to populate the scenegraph with static shapes and models, and how to build scenes. You have learned how to load assets using the <code>assetManager</code> and you have seen that the paths start relative to your project directory. Another important thing you have learned is to convert models to .j3o format for the JAR builds.</p><p> Let&#039;s add some action to the scene and continue with the <a
+href="/com/jme3/gde/core/docs/jme3/beginner/hello_main_event_loop.html">Update Loop</a>.</p><hr
+/><p> <strong>See also:</strong></p><ul><li
+class="level1"><div
+class="li"> <a
+href="https://docs.google.com/fileview?id=0B9hhZie2D-fENDBlZDU5MzgtNzlkYi00YmQzLTliNTQtNzZhYTJhYjEzNWNk&amp;hl=en">Exporting OgreXML scenes from Blender to jME</a></div></li><li
+class="level1"><div
+class="li"> <a
+href="http://www.jmonkeyengine.com/forum/index.php?topic=14418.0">Screenshots of a great loaded model</a></div></li><li
+class="level1"><div
+class="li"> If you want to learn how to load sounds, see <a
+href="/com/jme3/gde/core/docs/jme3/beginner/hello_audio.html">Hello Audio</a></div></li><li
+class="level1"><div
+class="li"> If you want to learn more about loading textures and materials, see <a
+href="/com/jme3/gde/core/docs/jme3/beginner/hello_material.html">Hello Material</a></div></li></ul><div
+class="tags"><span> <a
+href="/wiki/doku.php/tag:beginner?do=showtag&amp;tag=tag%3Abeginner">beginner</a>, <a
+href="/wiki/doku.php/tag:beginner?do=showtag&amp;tag=tag%3Abeginner">beginner,</a>, <a
+href="/wiki/doku.php/tag:intro?do=showtag&amp;tag=tag%3Aintro">intro</a>, <a
+href="/wiki/doku.php/tag:documentation?do=showtag&amp;tag=tag%3Adocumentation">documentation</a>, <a
+href="/wiki/doku.php/tag:lightnode?do=showtag&amp;tag=tag%3Alightnode">lightnode</a>, <a
+href="/wiki/doku.php/tag:material?do=showtag&amp;tag=tag%3Amaterial">material</a>, <a
+href="/wiki/doku.php/tag:model?do=showtag&amp;tag=tag%3Amodel">model</a>, <a
+href="/wiki/doku.php/tag:node?do=showtag&amp;tag=tag%3Anode">node</a>, <a
+href="/wiki/doku.php/tag:gui?do=showtag&amp;tag=tag%3Agui">gui</a>, <a
+href="/wiki/doku.php/tag:texture?do=showtag&amp;tag=tag%3Atexture">texture</a> </span></div></div>
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:beginner:hello_asset?do=export_xhtmlbody">view online version</a></em></p>

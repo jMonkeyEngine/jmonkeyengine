@@ -67,9 +67,9 @@ public final class OpenModel implements ActionListener {
                 ProgressHandle progressHandle = ProgressHandleFactory.createHandle("Opening Model");
                 progressHandle.start();
                 try {
-                    ((DesktopAssetManager) manager.getManager()).clearCache();
+                    manager.clearCache();
 
-                    final Spatial asset = (Spatial) context.loadAsset();
+                    final Spatial asset = context.loadAsset();
 
                     if (asset != null) {
                         Node node = null;

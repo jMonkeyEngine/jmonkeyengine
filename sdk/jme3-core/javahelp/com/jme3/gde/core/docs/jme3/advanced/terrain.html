@@ -1,115 +1,54 @@
-
-<h1><a>TerraMonkey - jME3&#039;s Terrain System</a></h1>
-<div>
-
-<p>
-
-The goal of TerraMonkey is to provide a base implementation that will be usable for 80% of people&#039;s goals, while providing tools and a good foundation for the other 20% to build off of.
-</p>
-
-</div>
-
-<h2><a>Overview</a></h2>
-<div>
-
-<p>
-
-TerraMonkey is a GeoMipMapping quad tree of terrain tiles that supports real time editing and texture splatting. That&#039;s a mouth full! Lets look at each part:
-</p>
-<ul>
-<li><div> <strong>GeoMipMapping:</strong> a method of changing the level of detail (LOD) of geometry tiles based on how far away they are from the camera. Between the edges of two tiles, it will seam those edges together so you don&#039;t get gaps or holes. For an in-depth read on how it works, here is a pdf <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://www.flipcode.com/archives/article_geomipmaps.pdf"><param name="text" value="<html><u>http://www.flipcode.com/archives/article_geomipmaps.pdf</u></html>"><param name="textColor" value="blue"></object>.</div>
-</li>
-<li><div> <strong>Quad Tree:</strong> The entire terrain structure is made up of TerrainPatches (these hold the actual meshes) as leaves in a quad tree (TerrainQuad). TerrainQuads are subdivided by 4 until they reach minimum size, then a TerrainPatch is created, and that is where the actual geometry mesh lives. This allows for fast culling of the terrain that you can&#039;t see.</div>
-</li>
-<li><div> <strong>Splatting:</strong> The ability to paint multiple textures onto your terrain. What differs here from JME2 is that this is all done in a shader, no more render passes. So it performs much faster.</div>
-</li>
-<li><div> <strong>Real-time editing:</strong> TerraMonkey will be editable in JMonkeyPlatform, and you will be able to do it in real time: raising and lowering terrain.</div>
-</li>
-</ul>
-
-</div>
-
-<h2><a>Current Features:</a></h2>
-<div>
-<ul>
-<li><div> Support for up to 3 splat textures.</div>
-</li>
-<li><div> GeoMipMapping</div>
-</li>
-<li><div> can be supplied a heightmap</div>
-</li>
-</ul>
-
-</div>
-
-<h2><a>Planned Features:</a></h2>
-<div>
-<ul>
-<li><div> jMonkeyPlatform terrain editor</div>
-</li>
-<li><div> Support for up to 16 splat textures.</div>
-</li>
-<li><div> Hydraulic erosion and procedural texture generation</div>
-</li>
-<li><div> Streaming terrain (ie. “infinite” terrain)</div>
-</li>
-<li><div> Holes: caves, cliffs</div>
-</li>
-</ul>
-
-</div>
-
-<h2><a>Geo Mip Mapping</a></h2>
-<div>
-
-<p>
-You have seen GeoMipMapping implemented in games before. This is where the farther away terrain has fewer polygons, and as you move closer, more polygons fill in. The whole terrain is divided into a grid of patches, and each one has its own LOD. The GeoMipMapping algorithm will look at each patch, and its neighbours, to determine how to render the geometry. It will seam the edges between two patches with different LOD.
-This often leads to “popping” where you see the terrain switch from one LOD to another. TerraMonkey has been designed so you can swap out different LOD calculation algorithms based on what will look best for your game.
+<h1><a
+name="terramonkey_-_jme3_s_terrain_system">TerraMonkey - jME3&#039;s Terrain System</a></h1><div
+class="level1"><p> The goal of TerraMonkey is to provide a base implementation that will be usable for 80% of people&#039;s goals, while providing tools and a good foundation for the other 20% to build off of.</p></div><h2><a
+name="overview">Overview</a></h2><div
+class="level2"><p> TerraMonkey is a GeoMipMapping quad tree of terrain tiles that supports real time editing and texture splatting. That&#039;s a mouth full! Lets look at each part:</p><ul><li
+class="level1"><div
+class="li"> <strong>GeoMipMapping:</strong> a method of changing the level of detail (LOD) of geometry tiles based on how far away they are from the camera. Between the edges of two tiles, it will seam those edges together so you don&#039;t get gaps or holes. For an in-depth read on how it works, here is a pdf <a
+href="http://www.flipcode.com/archives/article_geomipmaps.pdf">http://www.flipcode.com/archives/article_geomipmaps.pdf</a>.</div></li><li
+class="level1"><div
+class="li"> <strong>Quad Tree:</strong> The entire terrain structure is made up of TerrainPatches (these hold the actual meshes) as leaves in a quad tree (TerrainQuad). TerrainQuads are subdivided by 4 until they reach minimum size, then a TerrainPatch is created, and that is where the actual geometry mesh lives. This allows for fast culling of the terrain that you can&#039;t see.</div></li><li
+class="level1"><div
+class="li"> <strong>Splatting:</strong> The ability to paint multiple textures onto your terrain. What differs here from JME2 is that this is all done in a shader, no more render passes. So it performs much faster.</div></li><li
+class="level1"><div
+class="li"> <strong>Real-time editing:</strong> TerraMonkey will be editable in JMonkeyPlatform, and you will be able to do it in real time: raising and lowering terrain.</div></li></ul></div><h2><a
+name="current_features">Current Features:</a></h2><div
+class="level2"><ul><li
+class="level1"><div
+class="li"> Support for up to 3 splat textures.</div></li><li
+class="level1"><div
+class="li"> GeoMipMapping</div></li><li
+class="level1"><div
+class="li"> can be supplied a heightmap</div></li></ul></div><h2><a
+name="planned_features">Planned Features:</a></h2><div
+class="level2"><ul><li
+class="level1"><div
+class="li"> jMonkeyPlatform terrain editor</div></li><li
+class="level1"><div
+class="li"> Support for up to 16 splat textures.</div></li><li
+class="level1"><div
+class="li"> Hydraulic erosion and procedural texture generation</div></li><li
+class="level1"><div
+class="li"> Streaming terrain (ie. &quot;infinite&quot; terrain)</div></li><li
+class="level1"><div
+class="li"> Holes: caves, cliffs</div></li></ul></div><h2><a
+name="geo_mip_mapping">Geo Mip Mapping</a></h2><div
+class="level2"><p> You have seen GeoMipMapping implemented in games before. This is where the farther away terrain has fewer polygons, and as you move closer, more polygons fill in. The whole terrain is divided into a grid of patches, and each one has its own LOD. The GeoMipMapping algorithm will look at each patch, and its neighbours, to determine how to render the geometry. It will seam the edges between two patches with different LOD.
+This often leads to &quot;popping&quot; where you see the terrain switch from one LOD to another. TerraMonkey has been designed so you can swap out different LOD calculation algorithms based on what will look best for your game.
 You can do this with the LodCalculator interface.
 GeoMipMapping in TerraMonkey has been split into several parts: the terrain quad tree, and the LODGeomap. The geomap deals with the actual LOD and seaming algorithm. So if you want a different data structure for your terrain system, you can re-use this piece of code.
 The quad tree (TerrainQuad and TerrainPatch) provide a means to organize the LODGeomaps, notify them of their neighbour&#039;s LOD change, and to update the geometry when the LOD does change.
-To change the LOD it does this by changing the index buffer of the triangle strip, so the whole geometry doesn&#039;t have to be re-loaded onto the video card.
-</p>
-
-<p>
-If you are eager, you can read up more detail how GeoMipMapping works here: <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://www.flipcode.com/archives/article_geomipmaps.pdf"><param name="text" value="<html><u>www.flipcode.com/archives/article_geomipmaps.pdf</u></html>"><param name="textColor" value="blue"></object>
-</p>
-
-</div>
-
-<h2><a>Terrain Quad Tree</a></h2>
-<div>
-
-<p>
-TerraMonkey is a quad tree. Each node is a TerrainQuad, and each leaf is a TerrainPatch. A TerrainQuad has either 4 child TerrainQuads, or 4 child TerrainPatches. The TerrainPatch holds the actual mesh geometry. This structure is almost exactly the same as JME2&#039;s TerrainPage system. Except now each leaf has a reference to its neighbours, so it doesn&#039;t ever have to traverse the tree to get them.
-</p>
-
-</div>
-
-<h2><a>Texture Splatting</a></h2>
-<div>
-
-<p>
-
-The default material for TerraMonkey is Terrain.j3md. This material combines an alphamap with several textures to produce the final texture.
+To change the LOD it does this by changing the index buffer of the triangle strip, so the whole geometry doesn&#039;t have to be re-loaded onto the video card.</p><p> If you are eager, you can read up more detail how GeoMipMapping works here: <a
+href="http://www.flipcode.com/archives/article_geomipmaps.pdf">www.flipcode.com/archives/article_geomipmaps.pdf</a></p></div><h2><a
+name="terrain_quad_tree">Terrain Quad Tree</a></h2><div
+class="level2"><p> TerraMonkey is a quad tree. Each node is a TerrainQuad, and each leaf is a TerrainPatch. A TerrainQuad has either 4 child TerrainQuads, or 4 child TerrainPatches. The TerrainPatch holds the actual mesh geometry. This structure is almost exactly the same as JME2&#039;s TerrainPage system. Except now each leaf has a reference to its neighbours, so it doesn&#039;t ever have to traverse the tree to get them.</p></div><h2><a
+name="texture_splatting">Texture Splatting</a></h2><div
+class="level2"><p> The default material for TerraMonkey is Terrain.j3md. This material combines an alphamap with several textures to produce the final texture.
 Right now there is support for only 3 textures and an alpha map. This is in place until we finish the terrain editor in JMP, and then the texture support will be 16 textures.
-It is only 3 right now so you can hand-paint them in a drawing program, like Photoshop, setting each splat texture in either Red, Green, or Blue. The test case has an example texture to show you how this works.
-</p>
-
-<p>
-Along with getting more splat texture support, we will be adding in lighting and normal mapping support. The normal mapping isn&#039;t fully planned out yet. We need to decide how we are going to handle a normal map for each texture that is passed in. That could generate some very odd effects.
-Thoughts, ideas, and recommendations are appreciated!
-</p>
-
-</div>
-
-<h2><a>Code Sample</a></h2>
-<div>
-
-<p>
-First, we load our textures and the heightmap texture for the terrain
-</p>
-<pre>// Create material from Terrain Material Definition
+It is only 3 right now so you can hand-paint them in a drawing program, like Photoshop, setting each splat texture in either Red, Green, or Blue. The test case has an example texture to show you how this works.</p><p> Along with getting more splat texture support, we will be adding in lighting and normal mapping support. The normal mapping isn&#039;t fully planned out yet. We need to decide how we are going to handle a normal map for each texture that is passed in. That could generate some very odd effects.
+Thoughts, ideas, and recommendations are appreciated!</p></div><h2><a
+name="code_sample">Code Sample</a></h2><div
+class="level2"><p> First, we load our textures and the heightmap texture for the terrain</p><pre>// Create material from Terrain Material Definition
 matRock = new Material&#40;assetManager, &quot;Common/MatDefs/Terrain/Terrain.j3md&quot;&#41;;
 // Load alpha map (for splat textures)
 matRock.setTexture&#40;&quot;m_Alpha&quot;, assetManager.loadTexture&#40;&quot;Textures/Terrain/splat/alphamap.png&quot;&#41;&#41;;
@@ -132,27 +71,16 @@ matRock.setFloat&#40;&quot;m_Tex2Scale&quot;, 32f&#41;;
 Texture rock = assetManager.loadTexture&#40;&quot;Textures/Terrain/splat/road.jpg&quot;&#41;;
 rock.setWrap&#40;WrapMode.Repeat&#41;;
 matRock.setTexture&#40;&quot;m_Tex3&quot;, rock&#41;;
-matRock.setFloat&#40;&quot;m_Tex3Scale&quot;, 128f&#41;;</pre>
-<p>
-We create the heightmap from the <code>heightMapImage</code>.
-</p>
-<pre>AbstractHeightMap heightmap = null;
+matRock.setFloat&#40;&quot;m_Tex3Scale&quot;, 128f&#41;;</pre><p> We create the heightmap from the <code>heightMapImage</code>.</p><pre>AbstractHeightMap heightmap = null;
 heightmap = new ImageBasedHeightMap&#40;
     ImageToAwt.convert&#40;heightMapImage.getImage&#40;&#41;, false, true, 0&#41;, 1f&#41;;
-heightmap.load&#40;&#41;;</pre>
-<p>
-
-Next we create the actual terrain. 
-</p>
-<ul>
-<li><div> The terrain tiles are 65&times;65.</div>
-</li>
-<li><div> The total size of the terrain is 513&times;513, but it can easily be up to 1025&times;1025.</div>
-</li>
-<li><div> It uses the heightmap to generate the height values.</div>
-</li>
-</ul>
-<pre>terrain = new TerrainQuad&#40;&quot;terrain&quot;, 65, 513, heightmap.getHeightMap&#40;&#41;&#41;;
+heightmap.load&#40;&#41;;</pre><p> Next we create the actual terrain.</p><ul><li
+class="level1"><div
+class="li"> The terrain tiles are 65x65.</div></li><li
+class="level1"><div
+class="li"> The total size of the terrain is 513x513, but it can easily be up to 1025x1025.</div></li><li
+class="level1"><div
+class="li"> It uses the heightmap to generate the height values.</div></li></ul><pre>terrain = new TerrainQuad&#40;&quot;terrain&quot;, 65, 513, heightmap.getHeightMap&#40;&#41;&#41;;
 terrain.setMaterial&#40;matRock&#41;;
 terrain.setModelBound&#40;new BoundingBox&#40;&#41;&#41;;
 terrain.updateModelBound&#40;&#41;;
@@ -163,10 +91,5 @@ cameras.add&#40;getCamera&#40;&#41;&#41;;
 TerrainLodControl control = new TerrainLodControl&#40;terrain, cameras&#41;;
 terrain.addControl&#40;control&#41;;
 &nbsp;
-rootNode.attachChild&#40;terrain&#41;;</pre>
-<p>
-PS: As an alternative to an image-based height map, you can also generate a Hill hightmap:
-</p>
-<pre>heightmap = new HillHeightMap&#40;1025, 1000, 50, 100, &#40;byte&#41; 3&#41;;</pre>
-</div>
+rootNode.attachChild&#40;terrain&#41;;</pre><p> PS: As an alternative to an image-based height map, you can also generate a Hill hightmap:</p><pre>heightmap = new HillHeightMap&#40;1025, 1000, 50, 100, &#40;byte&#41; 3&#41;;</pre></div>
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:terrain?do=export_xhtmlbody">view online version</a></em></p>

@@ -50,7 +50,7 @@ public class OgreBinaryMeshDataObject extends SpatialAssetDataObject {
         FileLock lock = null;
         try {
             lock = getPrimaryFile().lock();
-            Spatial spatial = mgr.getManager().loadModel(assetKey);
+            Spatial spatial = mgr.loadModel(assetKey);
             savable = spatial;
             lock.releaseLock();
             File deleteFile = new File(options.getDestFile());

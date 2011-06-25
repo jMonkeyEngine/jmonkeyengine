@@ -1,69 +1,54 @@
-
-<h1><a>Integrating Nifty GUI: Overlay</a></h1>
-<div>
-<ol>
-<li><div> <a href="/com/jme3/gde/core/docs/jme3/advanced/nifty_gui_xml_layout.html">Nifty GUI XML Layout</a> </div>
-</li>
-<li><div> <strong>Nifty <acronym title="Graphical User Interface">GUI</acronym> Overlay</strong> or <a href="/com/jme3/gde/core/docs/jme3/advanced/nifty_gui_projection.html">Nifty GUI Projection</a></div>
-</li>
-<li><div> <a href="/com/jme3/gde/core/docs/jme3/advanced/nifty_gui_java_interaction.html">Interact with the GUI from Java</a></div>
-</li>
-</ol>
-
-<p>
-Define a key (for example escape) that switches the <acronym title="Graphical User Interface">GUI</acronym> on and off.
-You can either overlay the running game with the <acronym title="Graphical User Interface">GUI</acronym> (you will most likely pause the game then), or even <a href="/com/jme3/gde/core/docs/jme3/advanced/nifty_gui_projection.html">project</a> it as a texture onto a mesh texture (but then you cannot click to select).
-</p>
-
-<p>
-On this page, we look at the overlay variant (more commonly used).
-</p>
-
-<p>
-<img src="nbdocs:/com/jme3/gde/core/docs/jme3/advanced/nifty-gui-example.png">
-</p>
-
-</div>
-
-<h2><a>Sample Code</a></h2>
-<div>
-<ul>
-<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/niftygui/TestNiftyGui.java"><param name="text" value="<html><u>TestNiftyGui.java</u></html>"><param name="textColor" value="blue"></object></div>
-</li>
-</ul>
-
-</div>
-
-<h2><a>Overlaying the User Interface Over the Screen</a></h2>
-<div>
-
-<p>
-
-This code shows you how to overlay anything on the screen with the <acronym title="Graphical User Interface">GUI</acronym>. This is the most common usecase.
-</p>
-<pre>NiftyJmeDisplay niftyDisplay = new NiftyJmeDisplay&#40;
+<h1><a
+name="integrating_nifty_guioverlay">Integrating Nifty GUI: Overlay</a></h1><div
+class="level1"><ol><li
+class="level1"><div
+class="li"> <a
+href="/com/jme3/gde/core/docs/jme3/advanced/nifty_gui_xml_layout.html">Nifty GUI XML Layout</a></div></li><li
+class="level1"><div
+class="li"> <strong>Nifty <acronym
+title="Graphical User Interface">GUI</acronym> Overlay</strong> or <a
+href="/com/jme3/gde/core/docs/jme3/advanced/nifty_gui_projection.html">Nifty GUI Projection</a></div></li><li
+class="level1"><div
+class="li"> <a
+href="/com/jme3/gde/core/docs/jme3/advanced/nifty_gui_java_interaction.html">Interact with the GUI from Java</a></div></li></ol><p> Define a key (for example escape) that switches the <acronym
+title="Graphical User Interface">GUI</acronym> on and off.
+You can either overlay the running game with the <acronym
+title="Graphical User Interface">GUI</acronym> (you will most likely pause the game then), or even <a
+href="/com/jme3/gde/core/docs/jme3/advanced/nifty_gui_projection.html">project</a> it as a texture onto a mesh texture (but then you cannot click to select).
+On this page, we look at the overlay variant (more commonly used).</p><p> <a
+href="/wiki/lib/exe/detail.php/jme3:advanced:nifty-gui-example.png?id=jme3%3Aadvanced%3Anifty_gui_overlay"><img
+src="nbdocs:/com/jme3/gde/core/docs/jme3/advanced/nifty-gui-example.png?w=360&amp;h=203" class="mediacenter" alt="" width="360" height="203" /></a></p></div><h2><a
+name="sample_code">Sample Code</a></h2><div
+class="level2"><ul><li
+class="level1"><div
+class="li"> <a
+href="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/niftygui/TestNiftyGui.java">TestNiftyGui.java</a></div></li></ul></div><h2><a
+name="overlaying_the_user_interface_over_the_screen">Overlaying the User Interface Over the Screen</a></h2><div
+class="level2"><p> This code shows you how to overlay anything on the screen with the <acronym
+title="Graphical User Interface">GUI</acronym>. This is the most common usecase.</p><pre>NiftyJmeDisplay niftyDisplay = new NiftyJmeDisplay&#40;
     assetManager, inputManager, audioRenderer, guiViewPort&#41;;
+/** Create a new NiftyGUI object */
 Nifty nifty = niftyDisplay.getNifty&#40;&#41;;
-&nbsp;
-// init Nifty start screen
-nifty.fromXml&#40;&quot;Interface/helloworld.xml&quot;, &quot;start&quot;&#41;;
-&nbsp;
+/** Read your XML and initialize your custom ScreenController */
+nifty.fromXml&#40;&quot;Interface/helloworld.xml&quot;, &quot;start&quot;, new MySettingsScreen&#40;data&#41;&#41;;
 // attach the Nifty display to the gui view port as a processor
 guiViewPort.addProcessor&#40;niftyDisplay&#41;;
 // disable the fly cam
-flyCam.setDragToRotate&#40;true&#41;;</pre><hr />
-<ol>
-<li><div> <a href="/com/jme3/gde/core/docs/jme3/advanced/nifty_gui_xml_layout.html">Nifty GUI XML Layout</a> </div>
-</li>
-<li><div> <strong>Nifty <acronym title="Graphical User Interface">GUI</acronym> Overlay</strong> or <a href="/com/jme3/gde/core/docs/jme3/advanced/nifty_gui_projection.html">Nifty GUI Projection</a></div>
-</li>
-<li><div> <a href="/com/jme3/gde/core/docs/jme3/advanced/nifty_gui_java_interaction.html">Interact with the GUI from Java</a></div>
-</li>
-</ol>
-<div><span>
-	<a href="/wiki/doku.php/tag:documentation?do=showtag&amp;tag=tag%3Adocumentation">documentation</a>,
-	<a href="/wiki/doku.php/tag:gui?do=showtag&amp;tag=tag%3Agui">gui</a>
-</span></div>
-
-</div>
+flyCam.setDragToRotate&#40;true&#41;;</pre><p> The <code>MySettingsScreen</code> class is a custom de.lessvoid.nifty.screen.ScreenController in which you implement your <acronym
+title="Graphical User Interface">GUI</acronym> behaviour. The variable <code>data</code> contains an object that you use to exchange state info with the game. See <a
+href="/com/jme3/gde/core/docs/jme3/advanced/nifty_gui_java_interaction.html">Nifty GUI Java Interaction</a> for details on how we created this class.</p><hr
+/><ol><li
+class="level1"><div
+class="li"> <a
+href="/com/jme3/gde/core/docs/jme3/advanced/nifty_gui_xml_layout.html">Nifty GUI XML Layout</a></div></li><li
+class="level1"><div
+class="li"> <strong>Nifty <acronym
+title="Graphical User Interface">GUI</acronym> Overlay</strong> or <a
+href="/com/jme3/gde/core/docs/jme3/advanced/nifty_gui_projection.html">Nifty GUI Projection</a></div></li><li
+class="level1"><div
+class="li"> <a
+href="/com/jme3/gde/core/docs/jme3/advanced/nifty_gui_java_interaction.html">Interact with the GUI from Java</a></div></li></ol><div
+class="tags"><span> <a
+href="/wiki/doku.php/tag:documentation?do=showtag&amp;tag=tag%3Adocumentation">documentation</a>, <a
+href="/wiki/doku.php/tag:gui?do=showtag&amp;tag=tag%3Agui">gui</a> </span></div></div>
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:nifty_gui_overlay?do=export_xhtmlbody">view online version</a></em></p>

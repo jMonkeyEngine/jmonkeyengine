@@ -1,27 +1,15 @@
-
-<h1><a>JME 3 Tutorial (6) - Hello Materials</a></h1>
-<div>
-
-<p>
-
-Previous: <a href="/com/jme3/gde/core/docs/jme3/beginner/hello_input_system.html">Hello Input System</a>,
-Next: <a href="/com/jme3/gde/core/docs/jme3/beginner/hello_animation.html">Hello Animation</a>
-</p>
-
-<p>
-When we speak of Materials, we mean everything that influences what the surface of a 3D model looks like: The color, texture, and material (shininess, opacity/transparency). Simple coloring is covered in <a href="/com/jme3/gde/core/docs/jme3/beginner/hello_node.html">Hello Node</a>. Loading models that come with materials is covered in <a href="/com/jme3/gde/core/docs/jme3/beginner/hello_asset.html">Hello Asset</a>. Here we focus on using and creating JME3 Material Definitions. 
-</p>
-
-<p>
-<img src="nbdocs:/com/jme3/gde/core/docs/jme3/beginner/beginner-materials.png">
-</p>
-
-</div>
-
-<h2><a>Sample Code</a></h2>
-<div>
-<pre>package jme3test.helloworld;
-&nbsp;
+<h1><a
+name="jme_3_tutorial_6_-_hello_materials">JME 3 Tutorial (6) - Hello Materials</a></h1><div
+class="level1"><p> Previous: <a
+href="/com/jme3/gde/core/docs/jme3/beginner/hello_input_system.html">Hello Input System</a>,
+Next: <a
+href="/com/jme3/gde/core/docs/jme3/beginner/hello_animation.html">Hello Animation</a> When we speak of Materials, we mean everything that influences what the surface of a 3D model looks like: The color, texture, and material (shininess, opacity/transparency). Simple coloring is covered in <a
+href="/com/jme3/gde/core/docs/jme3/beginner/hello_node.html">Hello Node</a>. Loading models that come with materials is covered in <a
+href="/com/jme3/gde/core/docs/jme3/beginner/hello_asset.html">Hello Asset</a>. Here we focus on using and creating JME3 Material Definitions. <a
+href="/wiki/lib/exe/detail.php/jme3:beginner:beginner-materials.png?id=jme3%3Abeginner%3Ahello_material"><img
+src="nbdocs:/com/jme3/gde/core/docs/jme3/beginner/beginner-materials.png?w=320&amp;h=250" class="mediacenter" alt="" width="320" height="250" /></a></p></div><h2><a
+name="sample_code">Sample Code</a></h2><div
+class="level2"><pre>package jme3test.helloworld;
 import com.jme3.app.SimpleApplication;
 import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
@@ -34,21 +22,16 @@ import com.jme3.scene.shape.Sphere;
 import com.jme3.texture.Texture;
 import com.jme3.util.TangentBinormalGenerator;
 import com.jme3.renderer.queue.RenderQueue.Bucket;
-&nbsp;
-&nbsp;
 <span>/** Sample 6 - how to give an object's surface a material and texture.
  * How to make objects transparent, or let colors &quot;leak&quot; through partially
  * transparent textures. How to make bumpy and shiny surfaces.  */</span>
 public class HelloMaterial extends SimpleApplication &#123;
-&nbsp;
   public static void main&#40;String&#91;&#93; args&#41; &#123;
     HelloMaterial app = new HelloMaterial&#40;&#41;;
     app.start&#40;&#41;;
   &#125;
-&nbsp;
   @Override
   public void simpleInitApp&#40;&#41; &#123;
-&nbsp;
     /** A simple textured cube -- in good MIP map quality. */
     Box&#40;new Vector3f&#40;-3f,1.1f,0f&#41;, 1f,1f,1f&#41;;
     Geometry cube = new Geometry&#40;&quot;My Textured Box&quot;, boxshape1&#41;;
@@ -57,38 +40,35 @@ public class HelloMaterial extends SimpleApplication &#123;
     mat_stl.setTexture&#40;&quot;ColorMap&quot;, tex_ml&#41;;
     cube.setMaterial&#40;mat_stl&#41;;
     rootNode.attachChild&#40;cube&#41;;
-&nbsp;
     /** A translucent/transparent texture, similar to a window frame. */
     Box&#40;new Vector3f&#40;0f,0f,0f&#41;, 1f,1f,0.01f&#41;;
     Geometry window_frame = new Geometry&#40;&quot;window frame&quot;, boxshape3&#41;;
     Material mat_tt = new Material&#40;assetManager, &quot;Common/MatDefs/Misc/Unshaded.j3md&quot;&#41;;
-    mat_tt.setTexture&#40;&quot;ColorMap&quot;, 
+    mat_tt.setTexture&#40;&quot;ColorMap&quot;,
         assetManager.loadTexture&#40;&quot;Textures/ColoredTex/Monkey.png&quot;&#41;&#41;;
     mat_tt.getAdditionalRenderState&#40;&#41;.setBlendMode&#40;BlendMode.Alpha&#41;;
     window_frame.setMaterial&#40;mat_tt&#41;;
     /** Objects with transparency need to be in the render bucket for transparent objects: */
-    window_frame.setQueueBucket&#40;Bucket.Transparent&#41;; 
+    window_frame.setQueueBucket&#40;Bucket.Transparent&#41;;
     rootNode.attachChild&#40;window_frame&#41;;
-&nbsp;
     /** A cube with base color &quot;leaking&quot; through a partially transparent texture */
     Box&#40;new Vector3f&#40;3f,-1f,0f&#41;, 1f,1f,1f&#41;;
     Geometry cube_leak = new Geometry&#40;&quot;Leak-through color cube&quot;, boxshape4&#41;;
     Material mat_tl = new Material&#40;assetManager, &quot;Common/MatDefs/Misc/Unshaded.j3md&quot;&#41;;
-    mat_tl.setTexture&#40;&quot;ColorMap&quot;, 
+    mat_tl.setTexture&#40;&quot;ColorMap&quot;,
         assetManager.loadTexture&#40;&quot;Textures/ColoredTex/Monkey.png&quot;&#41;&#41;;
     mat_tl.setColor&#40;&quot;Color&quot;, new ColorRGBA&#40;1f,0f,1f, 1f&#41;&#41;; // purple
     cube_leak.setMaterial&#40;mat_tl&#41;;
     rootNode.attachChild&#40;cube_leak&#41;;
-&nbsp;
     /** A bumpy rock with a shiny light effect */
     Sphere rock = new Sphere&#40;32,32, 2f&#41;;
     Geometry shiny_rock = new Geometry&#40;&quot;Shiny rock&quot;, rock&#41;;
     rock.setTextureMode&#40;Sphere.TextureMode.Projected&#41;; // better quality on spheres
     TangentBinormalGenerator.generate&#40;rock&#41;;           // for lighting effect
     Material mat_lit = new Material&#40;assetManager, &quot;Common/MatDefs/Light/Lighting.j3md&quot;&#41;;
-    mat_lit.setTexture&#40;&quot;DiffuseMap&quot;, 
+    mat_lit.setTexture&#40;&quot;DiffuseMap&quot;,
         assetManager.loadTexture&#40;&quot;Textures/Terrain/Pond/Pond.png&quot;&#41;&#41;;
-    mat_lit.setTexture&#40;&quot;NormalMap&quot;, 
+    mat_lit.setTexture&#40;&quot;NormalMap&quot;,
         assetManager.loadTexture&#40;&quot;Textures/Terrain/Pond/Pond_normal.png&quot;&#41;&#41;;
     mat_lit.setFloat&#40;&quot;Shininess&quot;, 5f&#41;; // [0,128]
     shiny_rock.setMaterial&#40;mat_lit&#41;;
@@ -100,327 +80,187 @@ public class HelloMaterial extends SimpleApplication &#123;
     sun.setDirection&#40;new Vector3f&#40;1,0,-2&#41;.normalizeLocal&#40;&#41;&#41;;
     sun.setColor&#40;ColorRGBA.White&#41;;
     rootNode.addLight&#40;sun&#41;;
-&nbsp;
   &#125;
-&#125;</pre>
-<p>
-You should see 
-</p>
-<ul>
-<li><div> Left – A cube with a brown monkey texture.</div>
-</li>
-<li><div> Middle – A translucent monkey picture in front of a shiny rock.</div>
-</li>
-<li><div> Right – A cube with a purple monkey texture. </div>
-</li>
-</ul>
-
-<p>
-Move around with the WASD keys to have a closer look at the translucency, and the rock&#039;s bumpiness.
-</p>
-
-</div>
-
-<h2><a>Simple Unshaded Texture</a></h2>
-<div>
-
-<p>
-
-Typically you want to give objects in your scene textures: It can be rock, grass, brick, wood, water, metal, paper… A texture is a normal image file in <acronym title="Joint Photographics Experts Group">JPG</acronym> or <acronym title="Portable Network Graphics">PNG</acronym> format. In this example, we create a box with a simple unshaded Monkey texture as material. 
-</p>
-<pre>    /** A simple textured cube. */
+&#125;</pre><p> You should see</p><ul><li
+class="level1"><div
+class="li"> Left – A cube with a brown monkey texture.</div></li><li
+class="level1"><div
+class="li"> Middle – A translucent monkey picture in front of a shiny rock.</div></li><li
+class="level1"><div
+class="li"> Right – A cube with a purple monkey texture.</div></li></ul><p> Move around with the WASD keys to have a closer look at the translucency, and the rock&#039;s bumpiness.</p></div><h2><a
+name="simple_unshaded_texture">Simple Unshaded Texture</a></h2><div
+class="level2"><p> Typically you want to give objects in your scene textures: It can be rock, grass, brick, wood, water, metal, paper… A texture is a normal image file in <acronym
+title="Joint Photographics Experts Group">JPG</acronym> or <acronym
+title="Portable Network Graphics">PNG</acronym> format. In this example, we create a box with a simple unshaded Monkey texture as material.</p><pre>    /** A simple textured cube. */
     Box&#40;new Vector3f&#40;-3f,1.1f,0f&#41;, 1f,1f,1f&#41;;
     Geometry cube = new Geometry&#40;&quot;My Textured Box&quot;, boxshape1&#41;;
     Material mat_stl = new Material&#40;assetManager, &quot;Common/MatDefs/Misc/Unshaded.j3md&quot;&#41;;
     Texture tex_ml = assetManager.loadTexture&#40;&quot;Interface/Logo/Monkey.jpg&quot;&#41;;
     mat_stl.setTexture&#40;&quot;ColorMap&quot;, tex_ml&#41;;
     cube.setMaterial&#40;mat_stl&#41;;
-    rootNode.attachChild&#40;cube&#41;;</pre>
-<p>
-Here is what we did:
-</p>
-<ol>
-<li><div> Create a Geometry from a mesh. This geometry is a cube.</div>
-</li>
-<li><div> Create a Material based on jME3&#039;s default <code>Unshaded.j3md</code> material definition.</div>
-</li>
-<li><div> Create a texture from the <code>Monkey.jpg</code> file and load it into the material. <br/>
- The ColorMap is the material layer where textures go.</div>
-</li>
-<li><div> Apply the material to the cube and attach the cube to the rootnode.</div>
-</li>
-</ol>
-
-</div>
-
-<h2><a>Transparent Unshaded Texture</a></h2>
-<div>
-
-<p>
-
-<code>Monkey.png</code> is the same texture as <code>Monkey.jpg</code>, but with an added alpha channel. The alpha channel allows you to specify which areas of the texture you want to be translucent: Black areas remain opaque, gray areas become translucent, and white areas become transparent. In combination with setting the texture blend mode to <code>BlendMode.Alpha</code>, this results in a partially translucent/transparent texture!
-</p>
-
-<p>
-You also need to set the render bucket of the object with the translucent texture to <code>Bucket.Transparent</code>.  This ensures that the translucent object is drawn on top of objects behind it, and they show up correctly under the translucent parts.  For non-translucent objects the drawing order is not so important, because the z-buffer keeps track of whether a pixel is behind something else or not, and the color of a pixel doesn&#039;t depend on the pixels under it, so they can be drawn in any order.
-</p>
-<pre>    /** A translucent/transparent texture. */
+    rootNode.attachChild&#40;cube&#41;;</pre><p> Here is what we did:</p><ol><li
+class="level1"><div
+class="li"> Create a Geometry from a mesh. This geometry is a cube.</div></li><li
+class="level1"><div
+class="li"> Create a Material based on jME3&#039;s default <code>Unshaded.j3md</code> material definition.</div></li><li
+class="level1"><div
+class="li"> Create a texture from the <code>Monkey.jpg</code> file and load it into the material. <br/> The ColorMap is the material layer where textures go.</div></li><li
+class="level1"><div
+class="li"> Apply the material to the cube and attach the cube to the rootnode.</div></li></ol></div><h2><a
+name="transparent_unshaded_texture">Transparent Unshaded Texture</a></h2><div
+class="level2"><p> <code>Monkey.png</code> is the same texture as <code>Monkey.jpg</code>, but with an added alpha channel. The alpha channel allows you to specify which areas of the texture you want to be translucent: Black areas remain opaque, gray areas become translucent, and white areas become transparent. In combination with setting the texture blend mode to <code>BlendMode.Alpha</code>, this results in a partially translucent/transparent texture!
+You also need to set the render bucket of the object with the translucent texture to <code>Bucket.Transparent</code>.  This ensures that the translucent object is drawn on top of objects behind it, and they show up correctly under the translucent parts.  For non-translucent objects the drawing order is not so important, because the z-buffer keeps track of whether a pixel is behind something else or not, and the color of a pixel doesn&#039;t depend on the pixels under it, so they can be drawn in any order.</p><pre>    /** A translucent/transparent texture. */
     Box&#40;new Vector3f&#40;0f,0f,0f&#41;, 1f,1f,0.01f&#41;;
     Geometry seethrough = new Geometry&#40;&quot;see-through box&quot;, boxshape3&#41;;
     Material mat_tt = new Material&#40;assetManager, &quot;Common/MatDefs/Misc/Unshaded.j3md&quot;&#41;;
-    mat_tt.setTexture&#40;&quot;ColorMap&quot;, 
+    mat_tt.setTexture&#40;&quot;ColorMap&quot;,
         assetManager.loadTexture&#40;&quot;Textures/ColoredTex/Monkey.png&quot;&#41;&#41;;
     mat_tt.getAdditionalRenderState&#40;&#41;.setBlendMode&#40;BlendMode.Alpha&#41;; // activate transparency
     seethrough.setMaterial&#40;mat_tt&#41;;
-    seethrough.setQueueBucket&#40;Bucket.Transparent&#41;; 
-    rootNode.attachChild&#40;seethrough&#41;;</pre>
-<p>
-What we did it the same as before, with only one added step for the transparency.
-</p>
-<ol>
-<li><div> Create a Geometry from a mesh. This Geometry is flat upright box.</div>
-</li>
-<li><div> Create a Material based on jME3&#039;s default <code>Unshaded.j3md</code> material definition.</div>
-</li>
-<li><div> Create a texture from the <code>Monkey.png</code> file and load it into the material. <br/>
- The ColorMap is the material layer where textures go. The <acronym title="Portable Network Graphics">PNG</acronym> file must have an alpha layer.</div>
-</li>
-<li><div> Activate transparency in the material by setting the blend mode to Alpha!  </div>
-</li>
-<li><div> Apply the material to the cube.</div>
-</li>
-<li><div> Set the QueueBucket of the cube to <code>Bucket.Transparent</code> to ensure that the translucent objects is drawn after objects behind it.</div>
-</li>
-<li><div> Attach the cube to the rootnode.</div>
-</li>
-</ol>
-
-<p>
-
-<strong>Tip:</strong> Learn more about creating <acronym title="Portable Network Graphics">PNG</acronym> images with an alpha layer in the help system of your graphic editor.
-</p>
-
-</div>
-
-<h2><a>Shininess and Bumpiness</a></h2>
-<div>
-
-<p>
-
-But textures are not all. Have a look at the shiny bumpy sphere again – you cannot get such a nice material with just a texture. We will have a quick look at some advanced jme features here – lit materials:
-</p>
-
-<p>
-In a lit material, the standard texture layer is refered to as <em>Diffuse Map</em>, any material can have it. A lit material can additionally have lighting effects such as <em>Shininess</em> used together with the <em>Specular Map</em> layer, and even a realistically bumpy or cracked surface with help of the <em>Normal Map</em> layer. 
-</p>
-
-<p>
-Let&#039;s have a look at the part of the code example where you create the shiny bumpy rock.
-</p>
-<ol>
-<li><div> Create a Geometry from a mesh. This Geometrx is a normal smooth sphere. <pre>    Sphere rock = new Sphere&#40;32,32, 2f&#41;;
-    Geometry shiny_rock = new Geometry&#40;&quot;Shiny rock&quot;, rock&#41;;</pre></div>
-<ol>
-<li><div> (Only for Spheres) Change the sphere&#039;s TextureMode to make the square texture project better onto the sphere.<pre>    rock.setTextureMode&#40;Sphere.TextureMode.Projected&#41;; </pre></div>
-</li>
-<li><div> You generate TangentBinormals to enable rendering the bumpiness (stored in the NormalMap) of the texture.<pre>    TangentBinormalGenerator.generate&#40;rock&#41;;</pre></div>
-</li>
-</ol>
-</li>
-<li><div> Create a material based on the <code>Lighting.j3md</code> default material.<pre>    Material mat_lit = new Material&#40;assetManager, 
-        &quot;Common/MatDefs/Light/Lighting.j3md&quot;&#41;;</pre></div>
-<ol>
-<li><div> Set a standard rocky texture in the <code>DiffuseMap</code> layer. <br/>
- <img src="/wiki/lib/exe/fetch.php"><pre>    mat_lit.setTexture&#40;&quot;DiffuseMap&quot;, 
-        assetManager.loadTexture&#40;&quot;Textures/Terrain/Pond/Pond.png&quot;&#41;&#41;;</pre></div>
-</li>
-<li><div> Set the <code>NormalMap</code> layer that contains the bumpiness. The NormalMap was generated for this particular DiffuseMap with a special tool (e.g. Blender). <img src="/wiki/lib/exe/fetch.php"> <pre>    mat_lit.setTexture&#40;&quot;NormalMap&quot;, 
-        assetManager.loadTexture&#40;&quot;Textures/Terrain/Pond/Pond_normal.png&quot;&#41;&#41;;</pre></div>
-</li>
-<li><div> Set the material&#039;s Shininess to a value between 0 and 127.<pre>    mat_lit.setFloat&#40;&quot;Shininess&quot;, 5f&#41;; // [0,128]</pre></div>
-</li>
-</ol>
-</li>
-<li><div> Assign your newly created material to the rock.<pre>    shiny_rock.setMaterial&#40;mat_lit&#41;;</pre></div>
-</li>
-<li><div> Let&#039;s move and rotate the geometry a bit to position it better. <pre>    shiny_rock.setLocalTranslation&#40;0,2,-2&#41;; // Move it a bit
+    seethrough.setQueueBucket&#40;Bucket.Transparent&#41;;
+    rootNode.attachChild&#40;seethrough&#41;;</pre><p> What we did it the same as before, with only one added step for the transparency.</p><ol><li
+class="level1"><div
+class="li"> Create a Geometry from a mesh. This Geometry is flat upright box.</div></li><li
+class="level1"><div
+class="li"> Create a Material based on jME3&#039;s default <code>Unshaded.j3md</code> material definition.</div></li><li
+class="level1"><div
+class="li"> Create a texture from the <code>Monkey.png</code> file and load it into the material. <br/> The ColorMap is the material layer where textures go. The <acronym
+title="Portable Network Graphics">PNG</acronym> file must have an alpha layer.</div></li><li
+class="level1"><div
+class="li"> Activate transparency in the material by setting the blend mode to Alpha!</div></li><li
+class="level1"><div
+class="li"> Apply the material to the cube.</div></li><li
+class="level1"><div
+class="li"> Set the QueueBucket of the cube to <code>Bucket.Transparent</code> to ensure that the translucent objects is drawn after objects behind it.</div></li><li
+class="level1"><div
+class="li"> Attach the cube to the rootnode.</div></li></ol><p> <strong>Tip:</strong> Learn more about creating <acronym
+title="Portable Network Graphics">PNG</acronym> images with an alpha layer in the help system of your graphic editor.</p></div><h2><a
+name="shininess_and_bumpiness">Shininess and Bumpiness</a></h2><div
+class="level2"><p> But textures are not all. Have a look at the shiny bumpy sphere again – you cannot get such a nice material with just a texture. We will have a quick look at some advanced jme features here – lit materials:
+In a lit material, the standard texture layer is refered to as <em>Diffuse Map</em>, any material can have it. A lit material can additionally have lighting effects such as <em>Shininess</em> used together with the <em>Specular Map</em> layer, and even a realistically bumpy or cracked surface with help of the <em>Normal Map</em> layer.
+Let&#039;s have a look at the part of the code example where you create the shiny bumpy rock.</p><ol><li
+class="level1"><div
+class="li"> Create a Geometry from a mesh. This Geometrx is a normal smooth sphere.<pre>    Sphere rock = new Sphere&#40;32,32, 2f&#41;;
+    Geometry shiny_rock = new Geometry&#40;&quot;Shiny rock&quot;, rock&#41;;</pre></div><ol><li
+class="level2"><div
+class="li"> (Only for Spheres) Change the sphere&#039;s TextureMode to make the square texture project better onto the sphere.<pre>    rock.setTextureMode&#40;Sphere.TextureMode.Projected&#41;; </pre></div></li><li
+class="level2"><div
+class="li"> You generate TangentBinormals to enable rendering the bumpiness (stored in the NormalMap) of the texture.<pre>    TangentBinormalGenerator.generate&#40;rock&#41;;</pre></div></li></ol></li><li
+class="level1"><div
+class="li"> Create a material based on the <code>Lighting.j3md</code> default material.<pre>    Material mat_lit = new Material&#40;assetManager,
+        &quot;Common/MatDefs/Light/Lighting.j3md&quot;&#41;;</pre></div><ol><li
+class="level2"><div
+class="li"> Set a standard rocky texture in the <code>DiffuseMap</code> layer. <br/> <a
+href="/wiki/lib/exe/fetch.php?hash=4ed1d3&amp;media=http%3A%2F%2Fjmonkeyengine.googlecode.com%2Fsvn%2Ftrunk%2Fengine%2Fsrc%2Ftest-data%2FTextures%2FTerrain%2FPond%2FPond.png"><img
+src="/wiki/lib/exe/fetch.php?hash=4ed1d3&amp;w=64&amp;h=64&amp;media=http%3A%2F%2Fjmonkeyengine.googlecode.com%2Fsvn%2Ftrunk%2Fengine%2Fsrc%2Ftest-data%2FTextures%2FTerrain%2FPond%2FPond.png" class="mediaright" align="right" alt="" width="64" height="64" /></a><pre>    mat_lit.setTexture&#40;&quot;DiffuseMap&quot;,
+        assetManager.loadTexture&#40;&quot;Textures/Terrain/Pond/Pond.png&quot;&#41;&#41;;</pre></div></li><li
+class="level2"><div
+class="li"> Set the <code>NormalMap</code> layer that contains the bumpiness. The NormalMap was generated for this particular DiffuseMap with a special tool (e.g. Blender). <a
+href="/wiki/lib/exe/fetch.php?hash=b26e64&amp;media=http%3A%2F%2Fjmonkeyengine.googlecode.com%2Fsvn%2Ftrunk%2Fengine%2Fsrc%2Ftest-data%2FTextures%2FTerrain%2FPond%2FPond_normal.png"><img
+src="/wiki/lib/exe/fetch.php?hash=b26e64&amp;w=64&amp;h=64&amp;media=http%3A%2F%2Fjmonkeyengine.googlecode.com%2Fsvn%2Ftrunk%2Fengine%2Fsrc%2Ftest-data%2FTextures%2FTerrain%2FPond%2FPond_normal.png" class="mediaright" align="right" alt="" width="64" height="64" /></a><pre>    mat_lit.setTexture&#40;&quot;NormalMap&quot;,
+        assetManager.loadTexture&#40;&quot;Textures/Terrain/Pond/Pond_normal.png&quot;&#41;&#41;;</pre></div></li><li
+class="level2"><div
+class="li"> Set the material&#039;s Shininess to a value between 0 and 127.<pre>    mat_lit.setFloat&#40;&quot;Shininess&quot;, 5f&#41;; // [0,128]</pre></div></li></ol></li><li
+class="level1"><div
+class="li"> Assign your newly created material to the rock.<pre>    shiny_rock.setMaterial&#40;mat_lit&#41;;</pre></div></li><li
+class="level1"><div
+class="li"> Let&#039;s move and rotate the geometry a bit to position it better.<pre>    shiny_rock.setLocalTranslation&#40;0,2,-2&#41;; // Move it a bit
     shiny_rock.rotate&#40;1.6f, 0, 0&#41;;          // Rotate it a bit
-    rootNode.attachChild&#40;shiny_rock&#41;;</pre></div>
-</li>
-<li><div> Note that any lighting material requires a light source.</div>
-</li>
-</ol>
-
-</div>
-
-<h2><a>Default Material Definitions</a></h2>
-<div>
-
-<p>
-
-As you have seen, the following default materials can always be found in <code>jme/core-data/Common</code>. 
-
-</p>
-<table>
-	<tr>
-		<th> Default Definition                          </th><th> Usage </th><th> Parameters  </th>
-	</tr>
-	<tr>
-		<td> <code>Common/MatDefs/Misc/Unshaded.j3md</code> </td><td> Textured: Use with mat.setTexture() and TextureKey. <br/>
- Colored: Use with mat.setColor() and RGBAColor. </td><td> ColorMap : Texture. </td>
-	</tr>
-	<tr>
-		<td> <code>Common/MatDefs/Light/Lighting.j3md</code>      </td><td> Use with shiny Textures, Bump- and NormalMaps textures. <br/>
- Requires a light source. </td><td> Ambient, Diffuse, Specular : Color <br/>
- DiffuseMap, NormalMap, SpecularMap : Texture <br/>
- Shininess : Float </td>
-	</tr>
-</table>
-
-<p>
-
-In a real game, you will create your custom Materials based these existing ones – as you have just seen in the example with the shiny rock.
-</p>
-
-</div>
-
-<h2><a>Exercises</a></h2>
-<div>
-
-</div>
-
-<h3><a>Exercise 1: Custom Materials</a></h3>
-<div>
-
-<p>
-
-Look at the purple leak-through sample above again. It takes four lines to create and set the Material. 
-</p>
-<ul>
-<li><div> Note how it loads the <code>Unshaded.j3md</code> Material definition.</div>
-</li>
-<li><div> Note how it sets to <code>Color</code> parameter to purple (<code>new ColorRGBA(1f,0f,1f,1f)</code>).</div>
-</li>
-<li><div> Note how it sets the <code>ColorMap</code> to a texture path.</div>
-</li>
-</ul>
-
-<p>
-If you want to use one custom material for several models, you can store it in a .j3m file, and save a few lines of code every time. Here is an example:
-</p>
-
-<p>
-Create a file <code>assets/Materials/LeakThrough.j3m</code> with the following content:
-
-</p>
-<pre>Material Leak Through : Common/MatDefs/Misc/Unshaded.j3md {
+    rootNode.attachChild&#40;shiny_rock&#41;;</pre></div></li><li
+class="level1"><div
+class="li"> Note that any lighting material requires a light source.</div></li></ol></div><h2><a
+name="default_material_definitions">Default Material Definitions</a></h2><div
+class="level2"><p> As you have seen, the following default materials can always be found in <code>jme/core-data/Common</code>.</p><div
+class="table sectionedit1"><table
+class="inline"><tr
+class="row0"><th
+class="col0 leftalign"> Default Definition</th><th
+class="col1"> Usage</th><th
+class="col2 leftalign"> Parameters</th></tr><tr
+class="row1"><td
+class="col0"> <code>Common/MatDefs/Misc/Unshaded.j3md</code></td><td
+class="col1"> Textured: Use with mat.setTexture() and TextureKey. <br/> Colored: Use with mat.setColor() and RGBAColor.</td><td
+class="col2"> ColorMap : Texture.</td></tr><tr
+class="row2"><td
+class="col0 leftalign"> <code>Common/MatDefs/Light/Lighting.j3md</code></td><td
+class="col1"> Use with shiny Textures, Bump- and NormalMaps textures. <br/> Requires a light source.</td><td
+class="col2"> Ambient, Diffuse, Specular : Color <br/> DiffuseMap, NormalMap, SpecularMap : Texture <br/> Shininess : Float</td></tr></table></div><p> In a real game, you will create your custom Materials based these existing ones – as you have just seen in the example with the shiny rock.</p></div><h2><a
+name="exercises">Exercises</a></h2><div
+class="level2"></div><h3><a
+name="exercise_1custom_materials">Exercise 1: Custom Materials</a></h3><div
+class="level3"><p> Look at the purple leak-through sample above again. It takes four lines to create and set the Material.</p><ul><li
+class="level1"><div
+class="li"> Note how it loads the <code>Unshaded.j3md</code> Material definition.</div></li><li
+class="level1"><div
+class="li"> Note how it sets to <code>Color</code> parameter to purple (<code>new ColorRGBA(1f,0f,1f,1f)</code>).</div></li><li
+class="level1"><div
+class="li"> Note how it sets the <code>ColorMap</code> to a texture path.</div></li></ul><p> If you want to use one custom material for several models, you can store it in a .j3m file, and save a few lines of code every time. Here is an example:
+Create a file <code>assets/Materials/LeakThrough.j3m</code> with the following content:</p><pre>Material Leak Through : Common/MatDefs/Misc/Unshaded.j3md {
      MaterialParameters {
          Color : 1 0 1 1
          ColorMap : Textures/ColoredTex/Monkey.png
      }
-}</pre>
-<ul>
-<li><div> Note that <code>Material</code> is a keyword.</div>
-</li>
-<li><div> Note that <code>Leak Through</code> is a name that you can choose.</div>
-</li>
-<li><div> Note how it sets the same three properties, Color, ColorMap, and Unshaded.j3md.</div>
-</li>
-</ul>
-
-<p>
-Using this new custom material <code>LeakThrough.j3m</code> only takes one line. 
-</p>
-<ol>
-<li><div> In the code sample, comment out the three lines with <code>mat_tl</code> in them.</div>
-</li>
-<li><div> Below them, add the following line: <pre>cube_leak.setMaterial&#40;&#40;Material&#41; assetManager.loadAsset&#40; &quot;Materials/LeakThrough.j3m&quot;&#41;&#41;;</pre></div>
-</li>
-<li><div> Run the app. The result is the same. </div>
-</li>
-</ol>
-
-<p>
-
-You have replaced the three lines of an on-the-fly material definition with one line that loads a custom material from a file. This method is very handy if you use the same material often.
-</p>
-
-</div>
-
-<h3><a>Exercise 2: Bumpiness and Shininess</a></h3>
-<div>
-
-<p>
-
-Go back to the bumpy rock sample above:
-</p>
-<ol>
-<li><div> Comment out the DiffuseMap line, and run the app. (Uncomment it again.)</div>
-</li>
-<li><div> Comment out the NormalMap line, and run the app. (Uncomment it again.)</div>
-<ul>
-<li><div> Compare: Which property of the rock is lost in either case?</div>
-</li>
-</ul>
-</li>
-<li><div> Change the value of Shininess to values like 0, 63, 127. </div>
-<ul>
-<li><div> What aspect of the Shininess changes?</div>
-</li>
-</ul>
-</li>
-</ol>
-
-</div>
-
-<h2><a>Conclusion</a></h2>
-<div>
-
-<p>
-
-You have learned how to create a Material, specify its properties, and use it on a Geometry. You know how to load an image file (.png, .jpg) as texture into a material. You know to save texture files in a subfolder of your project&#039;s <code>assets/Textures/</code> directory.
-</p>
-
-<p>
-You have also learned that a material can be stored in a .j3m file. The file references a built-in Material Definition and specifies values for properties of that MaterialDefinition. You know to save your custom .j3m files in your project&#039;s <code>assets/Materials/</code> directory. 
-</p>
-
-<p>
-Now that you know how to load models and how to assign good-looking materials to them, let&#039;s have a look at how to animate models in the next chapter, <a href="/com/jme3/gde/core/docs/jme3/beginner/hello_animation.html">Hello Animation</a>.
-
-</p>
-<hr />
-
-<p>
-See also
-</p>
-<ul>
-<li><div> <a href="/com/jme3/gde/core/docs/jme3/advanced/materials_overview.html">Materials Overview</a></div>
-</li>
-<li><div> <a href="/com/jme3/gde/core/docs/jme3/jmonkeyplatform/material_editing.html">Material Editing</a></div>
-</li>
-<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://www.jmonkeyengine.com/forum/index.php?topic=14179.0"><param name="text" value="<html><u>Materials</u></html>"><param name="textColor" value="blue"></object> forum thread</div>
-</li>
-<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://jmonkeyengine.googlecode.com/files/jME3_materials.pdf"><param name="text" value="<html><u>jME3 Materials documentation</u></html>"><param name="textColor" value="blue"></object> (<acronym title="Portable Document Format">PDF</acronym>)</div>
-</li>
-<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://www.youtube.com/watch?v=Feu3-mrpolc"><param name="text" value="<html><u>Video Tutorial: Editing and Assigning Materials to Models in jMonkeyPlatform</u></html>"><param name="textColor" value="blue"></object></div>
-</li>
-<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://www.blender.org/education-help/tutorials/materials/"><param name="text" value="<html><u>Creating textures in Blender</u></html>"><param name="textColor" value="blue"></object></div>
-</li>
-<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://www.shaders.org/ifw2_textures/whatsin10.htm"><param name="text" value="<html><u>Various Material screenshots</u></html>"><param name="textColor" value="blue"></object> (Not done with JME3, this is just to show the fantastic range of Material parameters in the hands of an expert, until we have a JME3 demo for it.)</div>
-</li>
-</ul>
-<div><span>
-	<a href="/wiki/doku.php/tag:documentation?do=showtag&amp;tag=tag%3Adocumentation">documentation</a>,
-	<a href="/wiki/doku.php/tag:beginner?do=showtag&amp;tag=tag%3Abeginner">beginner,</a>,
-	<a href="/wiki/doku.php/tag:beginner?do=showtag&amp;tag=tag%3Abeginner">beginner</a>,
-	<a href="/wiki/doku.php/tag:intro?do=showtag&amp;tag=tag%3Aintro">intro</a>,
-	<a href="/wiki/doku.php/tag:model?do=showtag&amp;tag=tag%3Amodel">model</a>,
-	<a href="/wiki/doku.php/tag:material?do=showtag&amp;tag=tag%3Amaterial">material</a>,
-	<a href="/wiki/doku.php/tag:color?do=showtag&amp;tag=tag%3Acolor">color</a>,
-	<a href="/wiki/doku.php/tag:texture?do=showtag&amp;tag=tag%3Atexture">texture</a>,
-	<a href="/wiki/doku.php/tag:transparency?do=showtag&amp;tag=tag%3Atransparency">transparency</a>
-</span></div>
-
-</div>
+}</pre><ul><li
+class="level1"><div
+class="li"> Note that <code>Material</code> is a keyword.</div></li><li
+class="level1"><div
+class="li"> Note that <code>Leak Through</code> is a name that you can choose.</div></li><li
+class="level1"><div
+class="li"> Note how it sets the same three properties, Color, ColorMap, and Unshaded.j3md.</div></li></ul><p> Using this new custom material <code>LeakThrough.j3m</code> only takes one line.</p><ol><li
+class="level1"><div
+class="li"> In the code sample, comment out the three lines with <code>mat_tl</code> in them.</div></li><li
+class="level1"><div
+class="li"> Below them, add the following line:<pre>cube_leak.setMaterial&#40;&#40;Material&#41; assetManager.loadAsset&#40; &quot;Materials/LeakThrough.j3m&quot;&#41;&#41;;</pre></div></li><li
+class="level1"><div
+class="li"> Run the app. The result is the same.</div></li></ol><p> You have replaced the three lines of an on-the-fly material definition with one line that loads a custom material from a file. This method is very handy if you use the same material often.</p></div><h3><a
+name="exercise_2bumpiness_and_shininess">Exercise 2: Bumpiness and Shininess</a></h3><div
+class="level3"><p> Go back to the bumpy rock sample above:</p><ol><li
+class="level1"><div
+class="li"> Comment out the DiffuseMap line, and run the app. (Uncomment it again.)</div></li><li
+class="level1"><div
+class="li"> Comment out the NormalMap line, and run the app. (Uncomment it again.)</div><ul><li
+class="level2"><div
+class="li"> Compare: Which property of the rock is lost in either case?</div></li></ul></li><li
+class="level1"><div
+class="li"> Change the value of Shininess to values like 0, 63, 127.</div><ul><li
+class="level2"><div
+class="li"> What aspect of the Shininess changes?</div></li></ul></li></ol></div><h2><a
+name="conclusion">Conclusion</a></h2><div
+class="level2"><p> You have learned how to create a Material, specify its properties, and use it on a Geometry. You know how to load an image file (.png, .jpg) as texture into a material. You know to save texture files in a subfolder of your project&#039;s <code>assets/Textures/</code> directory.
+You have also learned that a material can be stored in a .j3m file. The file references a built-in Material Definition and specifies values for properties of that MaterialDefinition. You know to save your custom .j3m files in your project&#039;s <code>assets/Materials/</code> directory.
+Now that you know how to load models and how to assign good-looking materials to them, let&#039;s have a look at how to animate models in the next chapter, <a
+href="/com/jme3/gde/core/docs/jme3/beginner/hello_animation.html">Hello Animation</a>.</p><hr
+/><p> See also</p><ul><li
+class="level1"><div
+class="li"> <a
+href="/com/jme3/gde/core/docs/jme3/advanced/materials_overview.html">Materials Overview</a></div></li><li
+class="level1"><div
+class="li"> <a
+href="/com/jme3/gde/core/docs/sdk/material_editing.html">Material Editing</a></div></li><li
+class="level1"><div
+class="li"> <a
+href="http://www.jmonkeyengine.com/forum/index.php?topic=14179.0">Materials</a> forum thread</div></li><li
+class="level1"><div
+class="li"> <a
+href="http://jmonkeyengine.googlecode.com/files/jME3_materials.pdf">jME3 Materials documentation</a> (<acronym
+title="Portable Document Format">PDF</acronym>)</div></li><li
+class="level1"><div
+class="li"> <a
+href="http://www.youtube.com/watch?v=Feu3-mrpolc">Video Tutorial: Editing and Assigning Materials to Models in jMonkeyPlatform</a></div></li><li
+class="level1"><div
+class="li"> <a
+href="http://www.blender.org/education-help/tutorials/materials/">Creating textures in Blender</a></div></li><li
+class="level1"><div
+class="li"> <a
+href="http://www.shaders.org/ifw2_textures/whatsin10.htm">Various Material screenshots</a> (Not done with JME3, this is just to show the fantastic range of Material parameters in the hands of an expert, until we have a JME3 demo for it.)</div></li></ul><div
+class="tags"><span> <a
+href="/wiki/doku.php/tag:documentation?do=showtag&amp;tag=tag%3Adocumentation">documentation</a>, <a
+href="/wiki/doku.php/tag:beginner?do=showtag&amp;tag=tag%3Abeginner">beginner,</a>, <a
+href="/wiki/doku.php/tag:beginner?do=showtag&amp;tag=tag%3Abeginner">beginner</a>, <a
+href="/wiki/doku.php/tag:intro?do=showtag&amp;tag=tag%3Aintro">intro</a>, <a
+href="/wiki/doku.php/tag:model?do=showtag&amp;tag=tag%3Amodel">model</a>, <a
+href="/wiki/doku.php/tag:material?do=showtag&amp;tag=tag%3Amaterial">material</a>, <a
+href="/wiki/doku.php/tag:color?do=showtag&amp;tag=tag%3Acolor">color</a>, <a
+href="/wiki/doku.php/tag:texture?do=showtag&amp;tag=tag%3Atexture">texture</a>, <a
+href="/wiki/doku.php/tag:transparency?do=showtag&amp;tag=tag%3Atransparency">transparency</a> </span></div></div>
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:beginner:hello_material?do=export_xhtmlbody">view online version</a></em></p>

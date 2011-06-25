@@ -1,208 +1,178 @@
-
-<h1><a>Particle Emmitter Settings</a></h1>
-<div>
-
-<p>
-
-You cannot create a 3D model for delicate things like fire, smoke, or explosions. Particle Emitters are quite an efficient solution to create these kinds of effects: The emitter renders a series of flat orthogonal images and manipulates them in a way that creates the illusion of a anything from a delicate smoke cloud to individual flames, etc. 
-</p>
-
-<p>
-Creating an effect involves some trial and error to get the settings <em>just right</em>, and it&#039;s worth exploring the expressiveness of the options described below. <strong>Tip:</strong> Use the Scene Editor in the <a href="/com/jme3/gde/core/docs/sdk.html">jMonkeyPlatform</a> to design and preview effects.
-</p>
-
-<p>
-<img src="nbdocs:/com/jme3/gde/core/docs/jme3/advanced/explosion-5.png">  <img src="nbdocs:/com/jme3/gde/core/docs/jme3/advanced/particle.png">  <img src="nbdocs:/com/jme3/gde/core/docs/jme3/beginner/beginner-effect-fire.png"> <img src="nbdocs:/com/jme3/gde/core/docs/jme3/advanced/butterfly-particle-emitter.png">
-</p>
-
-</div>
-
-<h2><a>Create an Emitter</a></h2>
-<div>
-<ol>
-<li><div> Create one emitter for each effect: <pre>ParticleEmitter explosion = new ParticleEmitter&#40;
-&quot;My explosion effect&quot;, ParticleMesh.Type.Triangle, 30&#41;;</pre></div>
-</li>
-<li><div> Attach the emitter to the rootNode and position it in the scene: <pre>rootNode.attachChild&#40;explosion&#41;;
-explosion.setLocalTranslation&#40;bomb.getLocalTranslation&#40;&#41;&#41;;</pre></div>
-</li>
-<li><div> Trigger the effect by calling <pre>explosion.emitAllParticles&#40;&#41;</pre></div>
-</li>
-<li><div> End the effect by calling <pre>explosion.killAllParticles&#40;&#41;</pre></div>
-</li>
-</ol>
-
-<p>
-
-Choose one of the following mesh shapes
-</p>
-<ul>
-<li><div> ParticleMesh.Type.Triangle</div>
-</li>
-<li><div> ParticleMesh.Type.Point</div>
-</li>
-</ul>
-
-</div>
-
-<h2><a>Configure Parameters</a></h2>
-<div>
-
-<p>
-
-Not all of these parameters are required for all kinds of effects. If you don&#039;t specify one of them, a default value will be used. 
-
-</p>
-<table>
-	<tr>
-		<th> Parameter           </th><th> Method                </th><th> Default </th><th> Description </th>
-	</tr>
-	<tr>
-		<td> number              </td><td> <code>setNumParticles()</code> </td><td>  </td><td> The maximum number of particles visible at the same time. Specified by user in constructor. </td>
-	</tr>
-	<tr>
-		<td> emission rate       </td><td> <code>setParticlesPerSec()</code> </td><td> 20 </td><td> Density of the effect, how many new particles are emitted per second. <br/>
- Set to zero to control the start of the effect. <br/>
- Set to a number for a constantly running effect. </td>
-	</tr>
-	<tr>
-		<td> size                </td><td> <code>setStartSize()</code>, <code>setEndSize()</code> </td><td> 0.2f, 2f </td><td> Set both to same value for constant size effect. <br/>
- Set to different values for shrink/grow effect. </td>
-	</tr>
-	<tr>
-		<td> color               </td><td> <code>setStartColor()</code>, <code>setEndColor()</code> </td><td> gray, darkgray </td><td> Set both to the same color for single-colored effects (e.g. fog). <br/>
- Set both to different colors for a gradient effect (e.g. fire). </td>
-	</tr>
-	<tr>
-		<td> velocity/direction  </td><td> <code>setInitialVelocity()</code> </td><td> Vector3f(0,0,0) </td><td> A vector specifying how fast or slow particles fly, and it which direction. </td>
-	</tr>
-	<tr>
-		<td> randomness          </td><td> <code>setVelocityVariation()</code> </td><td> 0.2f </td><td> How much the direction/speed (<code>setInitialVelocity()</code>) can vary. <br/>
- 1 = Maximum variation (particles emit in random directions) <br/>
- 0 = No variation (particles fly straight with start velocity only). </td>
-	</tr>
-	<tr>
-		<td> direction           </td><td> <code>setFacingVelocity()</code> </td><td> false </td><td> true = Flying particles pitch in the direction they&#039;re flying (e.g. missiles). <br/>
- false = Particles keep flying rotated the way they started (e.g. debris). </td>
-	</tr>
-	<tr>
-		<td> direction           </td><td> <code>setRandomAngle()</code> </td><td> false </td><td> true = Flying particle should face at a random angle (e.g. explosion). <br/>
- false = Flying particle flies straight. </td>
-	</tr>
-	<tr>
-		<td> direction           </td><td> <code>setFaceNormal()</code> </td><td> Vector3f.NAN </td><td> Vector3f = Flying particles face in the given direction. <br/>
- Vector3f.NAN = Flying particles face the camera. </td>
-	</tr>
-	<tr>
-		<td> lifetime            </td><td> <code>setLowLife()</code> </td><td> 3f </td><td> Minimum time period before particles fade </td>
-	</tr>
-	<tr>
-		<td> lifetime            </td><td> <code>setHighLife()</code> </td><td> 7f </td><td> Maximum time period before particles fade </td>
-	</tr>
-	<tr>
-		<td> rotation            </td><td> <code>setRotateSpeed()</code> </td><td> 0f </td><td> 0 = Flying particles don&#039;t spin. <br/>
- &gt; 0 = How fast particle spins while flying. </td>
-	</tr>
-	<tr>
-		<td> gravity             </td><td> <code>setGravity()</code> </td><td> 0.1f </td><td> &gt;0 = Particles fall “down” (e.g. debris, sparks). <br/>
- 0.0f = Particles keep flying (e.g. flames, zero g explosion.) </td>
-	</tr>
-</table>
-
-<p>
-
-Build up you effect by specifying one parameter after the other. If you change several parameters at the same time, it&#039;s difficult to tell which of the values caused which outcome.
-</p>
-
-</div>
-
-<h2><a>Create an Effect Material</a></h2>
-<div>
-
-<p>
-
-<img src="/wiki/lib/exe/fetch.php">
-</p>
-
-<p>
-Use the common Particle.j3md Material Definition to specify the shape of the particles. The shape is only limited by the texture you provide and can be anything – debris, flames, smoke, mosquitoes, leaves, butterflies… be creative. 
-</p>
-<pre>    Material mat_flash = new Material&#40;
+<h1><a
+name="particle_emmitter_settings">Particle Emmitter Settings</a></h1><div
+class="level1"><p> You cannot create a 3D model for delicate things like fire, smoke, or explosions. Particle Emitters are quite an efficient solution to create these kinds of effects: The emitter renders a series of flat orthogonal images and manipulates them in a way that creates the illusion of a anything from a delicate smoke cloud to individual flames, etc.</p><p> Creating an effect involves some trial and error to get the settings <em>just right</em>, and it&#039;s worth exploring the expressiveness of the options described below. <strong>Tip:</strong> Use the Scene Editor in the <a
+href="/com/jme3/gde/core/docs/sdk.html">jMonkeyPlatform</a> to design and preview effects.</p><p> <a
+href="/wiki/lib/exe/detail.php/jme3:advanced:explosion-5.png?id=jme3%3Aadvanced%3Aparticle_emitters"><img
+src="nbdocs:/com/jme3/gde/core/docs/jme3/advanced/explosion-5.png?w=150&amp;h=100" class="media" alt="" width="150" height="100" /></a> <a
+href="/wiki/lib/exe/detail.php/jme3:advanced:particle.png?id=jme3%3Aadvanced%3Aparticle_emitters"><img
+src="nbdocs:/com/jme3/gde/core/docs/jme3/advanced/particle.png?w=150&amp;h=100" class="media" alt="" width="150" height="100" /></a> <a
+href="/wiki/lib/exe/detail.php/jme3:beginner:beginner-effect-fire.png?id=jme3%3Aadvanced%3Aparticle_emitters"><img
+src="nbdocs:/com/jme3/gde/core/docs/jme3/beginner/beginner-effect-fire.png?w=150&amp;h=100" class="media" alt="" width="150" height="100" /></a> <a
+href="/wiki/lib/exe/detail.php/jme3:advanced:butterfly-particle-emitter.png?id=jme3%3Aadvanced%3Aparticle_emitters"><img
+src="nbdocs:/com/jme3/gde/core/docs/jme3/advanced/butterfly-particle-emitter.png?w=150&amp;h=100" class="media" alt="" width="150" height="100" /></a></p></div><h2><a
+name="create_an_emitter">Create an Emitter</a></h2><div
+class="level2"><ol><li
+class="level1"><div
+class="li"> Create one emitter for each effect:<pre>ParticleEmitter explosion = new ParticleEmitter&#40;
+&quot;My explosion effect&quot;, ParticleMesh.Type.Triangle, 30&#41;;</pre></div></li><li
+class="level1"><div
+class="li"> Attach the emitter to the rootNode and position it in the scene:<pre>rootNode.attachChild&#40;explosion&#41;;
+explosion.setLocalTranslation&#40;bomb.getLocalTranslation&#40;&#41;&#41;;</pre></div></li><li
+class="level1"><div
+class="li"> Trigger the effect by calling<pre>explosion.emitAllParticles&#40;&#41;</pre></div></li><li
+class="level1"><div
+class="li"> End the effect by calling<pre>explosion.killAllParticles&#40;&#41;</pre></div></li></ol><p> Choose one of the following mesh shapes</p><ul><li
+class="level1"><div
+class="li"> ParticleMesh.Type.Triangle</div></li><li
+class="level1"><div
+class="li"> ParticleMesh.Type.Point</div></li></ul></div><h2><a
+name="configure_parameters">Configure Parameters</a></h2><div
+class="level2"><p> Not all of these parameters are required for all kinds of effects. If you don&#039;t specify one of them, a default value will be used.</p><div
+class="table sectionedit1"><table
+class="inline"><tr
+class="row0"><th
+class="col0 leftalign"> Parameter</th><th
+class="col1 leftalign"> Method</th><th
+class="col2"> Default</th><th
+class="col3"> Description</th></tr><tr
+class="row1"><td
+class="col0 leftalign"> number</td><td
+class="col1"> <code>setNumParticles()</code></td><td
+class="col2 leftalign"></td><td
+class="col3"> The maximum number of particles visible at the same time. Specified by user in constructor.</td></tr><tr
+class="row2"><td
+class="col0 leftalign"> emission rate</td><td
+class="col1"> <code>setParticlesPerSec()</code></td><td
+class="col2"> 20</td><td
+class="col3"> Density of the effect, how many new particles are emitted per second. <br/> Set to zero to control the start of the effect. <br/> Set to a number for a constantly running effect.</td></tr><tr
+class="row3"><td
+class="col0 leftalign"> size</td><td
+class="col1"> <code>setStartSize()</code>, <code>setEndSize()</code></td><td
+class="col2"> 0.2f, 2f</td><td
+class="col3"> Set both to same value for constant size effect. <br/> Set to different values for shrink/grow effect.</td></tr><tr
+class="row4"><td
+class="col0 leftalign"> color</td><td
+class="col1"> <code>setStartColor()</code>, <code>setEndColor()</code></td><td
+class="col2"> gray, darkgray</td><td
+class="col3"> Set both to the same color for single-colored effects (e.g. fog). <br/> Set both to different colors for a gradient effect (e.g. fire).</td></tr><tr
+class="row5"><td
+class="col0 leftalign"> velocity/direction</td><td
+class="col1"> <code>setInitialVelocity()</code></td><td
+class="col2"> Vector3f(0,0,0)</td><td
+class="col3"> A vector specifying how fast or slow particles fly, and it which direction.</td></tr><tr
+class="row6"><td
+class="col0 leftalign"> randomness</td><td
+class="col1"> <code>setVelocityVariation()</code></td><td
+class="col2"> 0.2f</td><td
+class="col3"> How much the direction/speed (<code>setInitialVelocity()</code>) can vary. <br/> 1 = Maximum variation (particles emit in random directions) <br/> 0 = No variation (particles fly straight with start velocity only).</td></tr><tr
+class="row7"><td
+class="col0 leftalign"> direction</td><td
+class="col1"> <code>setFacingVelocity()</code></td><td
+class="col2"> false</td><td
+class="col3"> true = Flying particles pitch in the direction they&#039;re flying (e.g. missiles). <br/> false = Particles keep flying rotated the way they started (e.g. debris).</td></tr><tr
+class="row8"><td
+class="col0 leftalign"> direction</td><td
+class="col1"> <code>setRandomAngle()</code></td><td
+class="col2"> false</td><td
+class="col3"> true = Flying particle should face at a random angle (e.g. explosion). <br/> false = Flying particle flies straight.</td></tr><tr
+class="row9"><td
+class="col0 leftalign"> direction</td><td
+class="col1"> <code>setFaceNormal()</code></td><td
+class="col2"> Vector3f.NAN</td><td
+class="col3"> Vector3f = Flying particles face in the given direction. <br/> Vector3f.NAN = Flying particles face the camera.</td></tr><tr
+class="row10"><td
+class="col0 leftalign"> lifetime</td><td
+class="col1"> <code>setLowLife()</code></td><td
+class="col2"> 3f</td><td
+class="col3"> Minimum time period before particles fade</td></tr><tr
+class="row11"><td
+class="col0 leftalign"> lifetime</td><td
+class="col1"> <code>setHighLife()</code></td><td
+class="col2"> 7f</td><td
+class="col3"> Maximum time period before particles fade</td></tr><tr
+class="row12"><td
+class="col0 leftalign"> rotation</td><td
+class="col1"> <code>setRotateSpeed()</code></td><td
+class="col2"> 0f</td><td
+class="col3"> 0 = Flying particles don&#039;t spin. <br/> &gt; 0 = How fast particle spins while flying.</td></tr><tr
+class="row13"><td
+class="col0 leftalign"> gravity</td><td
+class="col1"> <code>setGravity()</code></td><td
+class="col2"> 0.1f</td><td
+class="col3"> &gt;0 = Particles fall &quot;down&quot; (e.g. debris, sparks). <br/> 0.0f = Particles keep flying (e.g. flames, zero g explosion.)</td></tr></table></div><p> Build up you effect by specifying one parameter after the other. If you change several parameters at the same time, it&#039;s difficult to tell which of the values caused which outcome.</p></div><h2><a
+name="create_an_effect_material">Create an Effect Material</a></h2><div
+class="level2"><p> <a
+href="/wiki/lib/exe/fetch.php?hash=b9f99a&amp;media=http%3A%2F%2Fjmonkeyengine.googlecode.com%2Fsvn%2Ftrunk%2Fengine%2Fsrc%2Ftest-data%2FEffects%2FExplosion%2Fflash.png"><img
+src="/wiki/lib/exe/fetch.php?hash=b9f99a&amp;w=128&amp;h=128&amp;media=http%3A%2F%2Fjmonkeyengine.googlecode.com%2Fsvn%2Ftrunk%2Fengine%2Fsrc%2Ftest-data%2FEffects%2FExplosion%2Fflash.png" class="mediaright" align="right" alt="" width="128" height="128" /></a></p><p> Use the common Particle.j3md Material Definition to specify the shape of the particles. The shape is only limited by the texture you provide and can be anything – debris, flames, smoke, mosquitoes, leaves, butterflies… be creative.</p><pre>    Material mat_flash = new Material&#40;
         assetManager, &quot;Common/MatDefs/Misc/Particle.j3md&quot;&#41;;
-    mat_flash.setTexture&#40;&quot;Texture&quot;, 
+    mat_flash.setTexture&#40;&quot;Texture&quot;,
         assetManager.loadTexture&#40;&quot;Effects/Explosion/flash.png&quot;&#41;&#41;;
     flash.setMaterial&#40;debris_mat&#41;;
     flash.setImagesX&#40;2&#41;; // columns
     flash.setImagesY&#40;2&#41;; // rows
-    flash.setSelectRandomImage&#40;true&#41;;</pre>
-<p>
-The effect texture can contain Sprite animations – a series of different pictures in equally spaced rows and columns. 
-</p>
-<ul>
-<li><div> Specify the number of rows and columns</div>
-</li>
-<li><div> Specify whether you want to play the series in order or at random.</div>
-</li>
-</ul>
-
-<p>
-
-Have a look at the following default textures and you will see that you can easily create your own Sprite textures after the same fashion.
-</p>
-
-</div>
-
-<h3><a>Default Particle Textures</a></h3>
-<div>
-
-<p>
-
-The Material is used together with grayscale texture: The black parts will be transparent and the white parts will be opaque. 
-</p>
-
-<p>
-The following effect textures are available by default from <code>test-data.jar</code>. You can also load your own textures from your assets directory.
-
-</p>
-<table>
-	<tr>
-		<th> Texture Path                     </th><th> Dimension </th><th> Preview </th>
-	</tr>
-	<tr>
-		<td> Effects/Explosion/Debris.png     </td><td> 3*3  </td><td> <img src="/wiki/lib/exe/fetch.php"> </td>
-	</tr>
-	<tr>
-		<td> Effects/Explosion/flame.png      </td><td> 2*2  </td><td> <img src="/wiki/lib/exe/fetch.php"> </td>
-	</tr>
-	<tr>
-		<td> Effects/Explosion/flash.png      </td><td> 2*2  </td><td> <img src="/wiki/lib/exe/fetch.php"> </td>
-	</tr>
-	<tr>
-		<td> Effects/Explosion/roundspark.png </td><td> 1*1  </td><td> <img src="/wiki/lib/exe/fetch.php"> </td>
-	</tr>
-	<tr>
-		<td> Effects/Explosion/shockwave.png  </td><td> 1*1  </td><td> <img src="/wiki/lib/exe/fetch.php"> </td>
-	</tr>
-	<tr>
-		<td> Effects/Explosion/smoketrail.png </td><td> 1*3  </td><td> <img src="/wiki/lib/exe/fetch.php"> </td>
-	</tr>
-	<tr>
-		<td> Effects/Explosion/spark.png      </td><td> 1*1  </td><td> <img src="/wiki/lib/exe/fetch.php"> </td>
-	</tr>
-	<tr>
-		<td> Effects/Smoke/Smoke.png          </td><td> 1*15 </td><td> <img src="/wiki/lib/exe/fetch.php"> </td>
-	</tr>
-</table>
-
-<p>
-<strong>Tip:</strong> Use the <code>setStartColor()</code>/<code>setEndColor()</code> settings described above to colorize the textures.
-</p>
-
-</div>
-
-<h2><a>Usage Example</a></h2>
-<div>
-<pre>    ParticleEmitter fire = new ParticleEmitter&#40;&quot;Emitter&quot;, ParticleMesh.Type.Triangle, 30&#41;;
+    flash.setSelectRandomImage&#40;true&#41;;</pre><p> The effect texture can contain Sprite animations – a series of different pictures in equally spaced rows and columns.</p><ul><li
+class="level1"><div
+class="li"> Specify the number of rows and columns</div></li><li
+class="level1"><div
+class="li"> Specify whether you want to play the series in order or at random.</div></li></ul><p> Have a look at the following default textures and you will see that you can easily create your own Sprite textures after the same fashion.</p></div><h3><a
+name="default_particle_textures">Default Particle Textures</a></h3><div
+class="level3"><p> The Material is used together with grayscale texture: The black parts will be transparent and the white parts will be opaque.</p><p> The following effect textures are available by default from <code>test-data.jar</code>. You can also load your own textures from your assets directory.</p><div
+class="table sectionedit2"><table
+class="inline"><tr
+class="row0"><th
+class="col0 leftalign"> Texture Path</th><th
+class="col1"> Dimension</th><th
+class="col2"> Preview</th></tr><tr
+class="row1"><td
+class="col0 leftalign"> Effects/Explosion/Debris.png</td><td
+class="col1 leftalign"> 3*3</td><td
+class="col2"> <a
+href="/wiki/lib/exe/fetch.php?hash=3fc13d&amp;media=http%3A%2F%2Fjmonkeyengine.googlecode.com%2Fsvn%2Ftrunk%2Fengine%2Fsrc%2Ftest-data%2FEffects%2FExplosion%2FDebris.png"><img
+src="/wiki/lib/exe/fetch.php?hash=3fc13d&amp;w=32&amp;h=32&amp;media=http%3A%2F%2Fjmonkeyengine.googlecode.com%2Fsvn%2Ftrunk%2Fengine%2Fsrc%2Ftest-data%2FEffects%2FExplosion%2FDebris.png" class="media" alt="" width="32" height="32" /></a></td></tr><tr
+class="row2"><td
+class="col0 leftalign"> Effects/Explosion/flame.png</td><td
+class="col1 leftalign"> 2*2</td><td
+class="col2"> <a
+href="/wiki/lib/exe/fetch.php?hash=27332f&amp;media=http%3A%2F%2Fjmonkeyengine.googlecode.com%2Fsvn%2Ftrunk%2Fengine%2Fsrc%2Ftest-data%2FEffects%2FExplosion%2Fflame.png"><img
+src="/wiki/lib/exe/fetch.php?hash=27332f&amp;w=32&amp;h=32&amp;media=http%3A%2F%2Fjmonkeyengine.googlecode.com%2Fsvn%2Ftrunk%2Fengine%2Fsrc%2Ftest-data%2FEffects%2FExplosion%2Fflame.png" class="media" alt="" width="32" height="32" /></a></td></tr><tr
+class="row3"><td
+class="col0 leftalign"> Effects/Explosion/flash.png</td><td
+class="col1 leftalign"> 2*2</td><td
+class="col2"> <a
+href="/wiki/lib/exe/fetch.php?hash=b9f99a&amp;media=http%3A%2F%2Fjmonkeyengine.googlecode.com%2Fsvn%2Ftrunk%2Fengine%2Fsrc%2Ftest-data%2FEffects%2FExplosion%2Fflash.png"><img
+src="/wiki/lib/exe/fetch.php?hash=b9f99a&amp;w=32&amp;h=32&amp;media=http%3A%2F%2Fjmonkeyengine.googlecode.com%2Fsvn%2Ftrunk%2Fengine%2Fsrc%2Ftest-data%2FEffects%2FExplosion%2Fflash.png" class="media" alt="" width="32" height="32" /></a></td></tr><tr
+class="row4"><td
+class="col0"> Effects/Explosion/roundspark.png</td><td
+class="col1 leftalign"> 1*1</td><td
+class="col2"> <a
+href="/wiki/lib/exe/fetch.php?hash=467d19&amp;media=http%3A%2F%2Fjmonkeyengine.googlecode.com%2Fsvn%2Ftrunk%2Fengine%2Fsrc%2Ftest-data%2FEffects%2FExplosion%2Froundspark.png"><img
+src="/wiki/lib/exe/fetch.php?hash=467d19&amp;w=32&amp;h=32&amp;media=http%3A%2F%2Fjmonkeyengine.googlecode.com%2Fsvn%2Ftrunk%2Fengine%2Fsrc%2Ftest-data%2FEffects%2FExplosion%2Froundspark.png" class="media" alt="" width="32" height="32" /></a></td></tr><tr
+class="row5"><td
+class="col0 leftalign"> Effects/Explosion/shockwave.png</td><td
+class="col1 leftalign"> 1*1</td><td
+class="col2"> <a
+href="/wiki/lib/exe/fetch.php?hash=fc0cbc&amp;media=http%3A%2F%2Fjmonkeyengine.googlecode.com%2Fsvn%2Ftrunk%2Fengine%2Fsrc%2Ftest-data%2FEffects%2FExplosion%2Fshockwave.png"><img
+src="/wiki/lib/exe/fetch.php?hash=fc0cbc&amp;w=32&amp;h=32&amp;media=http%3A%2F%2Fjmonkeyengine.googlecode.com%2Fsvn%2Ftrunk%2Fengine%2Fsrc%2Ftest-data%2FEffects%2FExplosion%2Fshockwave.png" class="media" alt="" width="32" height="32" /></a></td></tr><tr
+class="row6"><td
+class="col0"> Effects/Explosion/smoketrail.png</td><td
+class="col1 leftalign"> 1*3</td><td
+class="col2"> <a
+href="/wiki/lib/exe/fetch.php?hash=cb2aa9&amp;media=http%3A%2F%2Fjmonkeyengine.googlecode.com%2Fsvn%2Ftrunk%2Fengine%2Fsrc%2Ftest-data%2FEffects%2FExplosion%2Fsmoketrail.png"><img
+src="/wiki/lib/exe/fetch.php?hash=cb2aa9&amp;w=32&amp;h=32&amp;media=http%3A%2F%2Fjmonkeyengine.googlecode.com%2Fsvn%2Ftrunk%2Fengine%2Fsrc%2Ftest-data%2FEffects%2FExplosion%2Fsmoketrail.png" class="media" alt="" width="32" height="32" /></a></td></tr><tr
+class="row7"><td
+class="col0 leftalign"> Effects/Explosion/spark.png</td><td
+class="col1 leftalign"> 1*1</td><td
+class="col2"> <a
+href="/wiki/lib/exe/fetch.php?hash=603e22&amp;media=http%3A%2F%2Fjmonkeyengine.googlecode.com%2Fsvn%2Ftrunk%2Fengine%2Fsrc%2Ftest-data%2FEffects%2FExplosion%2Fspark.png"><img
+src="/wiki/lib/exe/fetch.php?hash=603e22&amp;w=32&amp;h=32&amp;media=http%3A%2F%2Fjmonkeyengine.googlecode.com%2Fsvn%2Ftrunk%2Fengine%2Fsrc%2Ftest-data%2FEffects%2FExplosion%2Fspark.png" class="media" alt="" width="32" height="32" /></a></td></tr><tr
+class="row8"><td
+class="col0 leftalign"> Effects/Smoke/Smoke.png</td><td
+class="col1"> 1*15</td><td
+class="col2"> <a
+href="/wiki/lib/exe/fetch.php?hash=9adb0f&amp;media=http%3A%2F%2Fjmonkeyengine.googlecode.com%2Fsvn%2Ftrunk%2Fengine%2Fsrc%2Ftest-data%2FEffects%2FSmoke%2FSmoke.png"><img
+src="/wiki/lib/exe/fetch.php?hash=9adb0f&amp;w=96&amp;h=32&amp;media=http%3A%2F%2Fjmonkeyengine.googlecode.com%2Fsvn%2Ftrunk%2Fengine%2Fsrc%2Ftest-data%2FEffects%2FSmoke%2FSmoke.png" class="media" alt="" width="96" height="32" /></a></td></tr></table></div><p> <strong>Tip:</strong> Use the <code>setStartColor()</code>/<code>setEndColor()</code> settings described above to colorize the textures.</p></div><h2><a
+name="usage_example">Usage Example</a></h2><div
+class="level2"><pre>    ParticleEmitter fire = new ParticleEmitter&#40;&quot;Emitter&quot;, ParticleMesh.Type.Triangle, 30&#41;;
     Material mat_red = new Material&#40;assetManager, &quot;Common/MatDefs/Misc/Particle.j3md&quot;&#41;;
     mat_red.setTexture&#40;&quot;Texture&quot;, assetManager.loadTexture&#40;&quot;Effects/Explosion/flame.png&quot;&#41;&#41;;
     fire.setMaterial&#40;mat_red&#41;;
@@ -215,18 +185,9 @@ The following effect textures are available by default from <code>test-data.jar<
     fire.setGravity&#40;0&#41;;
     fire.setLowLife&#40;0.5f&#41;;
     fire.setHighLife&#40;3f&#41;;
-    fire.setVelocityVariation&#40;0.3f&#41;; 
-    rootNode.attachChild&#40;fire&#41;;</pre>
-<p>
-Browse the full source code of all <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/#svn/branches/jme3/src/test/jme3test/effect"><param name="text" value="<html><u>effect examples</u></html>"><param name="textColor" value="blue"></object> here.
-
-</p>
-<hr />
-
-<p>
-See also: <a href="/com/jme3/gde/core/docs/jme3/advanced/effects_overview.html">Effects Overview</a>
-
-</p>
-
-</div>
+    fire.setVelocityVariation&#40;0.3f&#41;;
+    rootNode.attachChild&#40;fire&#41;;</pre><p> Browse the full source code of all <a
+href="http://code.google.com/p/jmonkeyengine/source/browse/#svn/branches/jme3/src/test/jme3test/effect">effect examples</a> here.</p><hr
+/><p> See also: <a
+href="/com/jme3/gde/core/docs/jme3/advanced/effects_overview.html">Effects Overview</a></p></div>
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:particle_emitters?do=export_xhtmlbody">view online version</a></em></p>

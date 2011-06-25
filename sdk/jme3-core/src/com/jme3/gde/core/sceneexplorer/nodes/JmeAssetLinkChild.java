@@ -31,14 +31,13 @@
  */
 package com.jme3.gde.core.sceneexplorer.nodes;
 
-import com.jme3.asset.AssetKey;
 import com.jme3.asset.ModelKey;
 import com.jme3.gde.core.scene.SceneApplication;
 import com.jme3.scene.AssetLinkNode;
-import com.jme3.scene.Spatial;
 import java.io.IOException;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
+import javax.swing.Action;
 import org.openide.actions.DeleteAction;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
@@ -61,7 +60,8 @@ public class JmeAssetLinkChild extends AbstractNode {
         this.setName(key.getName());
     }
 
-    protected SystemAction[] createActions() {
+    @Override
+    public Action[] getActions(boolean context) {
         return new SystemAction[]{
                     SystemAction.get(DeleteAction.class)
                 };

@@ -25,6 +25,7 @@ import org.openide.util.ImageUtilities;
 import org.openide.util.Lookup;
 import org.openide.util.lookup.Lookups;
 
+@SuppressWarnings("unchecked")
 class CodelessProject implements Project {
 
     private final FileObject projectDir;

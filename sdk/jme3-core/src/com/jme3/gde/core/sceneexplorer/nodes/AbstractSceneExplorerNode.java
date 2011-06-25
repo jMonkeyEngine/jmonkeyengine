@@ -46,6 +46,7 @@ import org.openide.util.lookup.ProxyLookup;
  *
  * @author normenhansen
  */
+@SuppressWarnings("unchecked")
 public abstract class AbstractSceneExplorerNode extends AbstractNode implements SceneExplorerNode, ScenePropertyChangeListener {
 
     protected Children jmeChildren;

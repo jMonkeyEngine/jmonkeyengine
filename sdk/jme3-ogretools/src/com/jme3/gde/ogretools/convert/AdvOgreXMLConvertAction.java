@@ -84,8 +84,8 @@ public final class AdvOgreXMLConvertAction implements ActionListener {
 //                    lock = file.lock();
                     progressHandle.progress("Creating j3o file", 3);
                     String outputPath = file.getParent().getPath() + "/" + context.getPrimaryFile().getName() + ".j3o";
-                    ((DesktopAssetManager) manager.getManager()).clearCache();
-                    Spatial model = manager.getManager().loadModel(manager.getRelativeAssetPath(file.getPath()));
+                    manager.clearCache();
+                    Spatial model = manager.loadModel(manager.getRelativeAssetPath(file.getPath()));
                     BinaryExporter exp = BinaryExporter.getInstance();
                     exp.save(model, new File(outputPath));
                     //cleanup

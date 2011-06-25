@@ -39,6 +39,7 @@ import java.awt.Image;
 import java.io.IOException;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
+import javax.swing.Action;
 import org.openide.actions.DeleteAction;
 import org.openide.loaders.DataObject;
 import org.openide.nodes.Children;
@@ -98,7 +99,8 @@ public class JmeAnimControl extends AbstractSceneExplorerNode{
 
     }
 
-    protected SystemAction[] createActions() {
+    @Override
+    public Action[] getActions(boolean context) {
         return new SystemAction[]{
                     //                    SystemAction.get(CopyAction.class),
                     //                    SystemAction.get(CutAction.class),

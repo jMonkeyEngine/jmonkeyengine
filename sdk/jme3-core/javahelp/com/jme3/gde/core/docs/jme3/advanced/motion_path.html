@@ -1,36 +1,12 @@
-
-<h1><a>Motion path</a></h1>
-<div>
-
-<p>
-
-When creating cinematics, we need a convenient way of making objects follow a path, or making smooth camera travelings.
-That&#039;s where the MotionPath come in handy.
-</p>
-
-</div>
-
-<h2><a>Description</a></h2>
-<div>
-
-<p>
-The MotionPath is a control over a Spatial object. that means that it&#039;s able to update the Spatial position on each frame.<br/>
-
-It contains a list of way points that are positions in world space that determine the general shape of the path.<br/>
- 
-The accurate shape is computed using a linear interpolation or a <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://www.mvps.org/directx/articles/catmull/"><param name="text" value="<html><u>Catmull-Rom</u></html>"><param name="textColor" value="blue"></object> spline interpolation.
-</p>
-<ul>
-<li><div> Linear interpolation result in straight segments between the way points.</div>
-</li>
-<li><div> Catmull-Rom splines allow to create a very smooth path with few way points, ensure that the curve goes through each way point, with the possibility to adjust the tension of the curve. This is the interpolation you are going to use in most cases</div>
-</li>
-</ul>
-
-<p>
-
-more to come…
-</p>
-
-</div>
+<h1><a
+name="motion_path">Motion path</a></h1><div
+class="level1"><p> When creating cinematics, we need a convenient way of making objects follow a path, or making smooth camera travelings.
+That&#039;s where the MotionPath come in handy.</p></div><h2><a
+name="description">Description</a></h2><div
+class="level2"><p> The MotionPath is a control over a Spatial object. that means that it&#039;s able to update the Spatial position on each frame.<br/> It contains a list of way points that are positions in world space that determine the general shape of the path.<br/> The accurate shape is computed using a linear interpolation or a <a
+href="http://www.mvps.org/directx/articles/catmull/">Catmull-Rom</a> spline interpolation.</p><ul><li
+class="level1"><div
+class="li"> Linear interpolation result in straight segments between the way points.</div></li><li
+class="level1"><div
+class="li"> Catmull-Rom splines allow to create a very smooth path with few way points, ensure that the curve goes through each way point, with the possibility to adjust the tension of the curve. This is the interpolation you are going to use in most cases</div></li></ul><p> more to come…</p></div>
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:motion_path?do=export_xhtmlbody">view online version</a></em></p>

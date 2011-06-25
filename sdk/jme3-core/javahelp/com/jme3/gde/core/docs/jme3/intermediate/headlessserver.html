@@ -1,78 +1,37 @@
-
-<h1><a>jME3 Headless Server</a></h1>
-<div>
-
-<p>
-
-When adding multiplayer to your game, you may find that your server needs to know about game state (e.g. where are players, objects? Was that a direct hit? etc.) You can code all this up yourself, but there&#039;s an easier way. 
-</p>
-
-<p>
-It&#039;s very easy to change your current (client) game to function as a server as well.
-</p>
-
-</div>
-
-<h2><a>Client Code</a></h2>
-<div>
-
-<p>
-
-First, let&#039;s take a look at the default way of creating a new game (in its simplest form):
-</p>
-<pre>public static void main&#40;String&#91;&#93; args&#41; &#123;
+<h1><a
+name="jme3_headless_server">jME3 Headless Server</a></h1><div
+class="level1"><p> When adding multiplayer to your game, you may find that your server needs to know about game state (e.g. where are players, objects? Was that a direct hit? etc.) You can code all this up yourself, but there&#039;s an easier way.</p><p> It&#039;s very easy to change your current (client) game to function as a server as well.</p></div><h2><a
+name="client_code">Client Code</a></h2><div
+class="level2"><p> First, let&#039;s take a look at the default way of creating a new game (in its simplest form):</p><pre>public static void main&#40;String&#91;&#93; args&#41; &#123;
   Application app = new Main&#40;&#41;;
   app.start&#40;&#41;;
-&#125;</pre>
-</div>
-
-<h2><a>Headless Server Code</a></h2>
-<div>
-
-<p>
-
-Now, with a simple change you can start your game in Headless mode. This means that all input and audio/visual output will be ignored. That&#039;s a good thing for a server.
-</p>
-<pre>import com.jme3.system.JmeContext;
+&#125;</pre></div><h2><a
+name="headless_server_code">Headless Server Code</a></h2><div
+class="level2"><p> Now, with a simple change you can start your game in Headless mode. This means that all input and audio/visual output will be ignored. That&#039;s a good thing for a server.</p><pre>import com.jme3.system.JmeContext;
 import com.jme3.system.JmeContext.Type;
 &nbsp;
 public static void main&#40;String&#91;&#93; args&#41; &#123;
   Application app = new Main&#40;&#41;;
   app.start&#40;JmeContext.Type.Headless&#41;;
-&#125;</pre>
-<p>
-<p><div>Although all input/output is ignored, the server <em>does</em> keep game state and <em>does</em> call the <code>simpleUpdate()</code> as expected.
-</div></p>
-</p>
-
-</div>
-
-<h2><a>Next steps</a></h2>
-<div>
-
-<p>
-
-Okay, so you can now start your game in a headless &#039;server mode&#039;, where to go from here?
-
-</p>
-<ul>
-<li><div> Parse <code>String[] args</code> from the <code>main</code>-method to enable server mode on demand (e.g. start your server like <code>java -jar mygame.jar –server</code>.</div>
-</li>
-<li><div> Integrate <a href="/com/jme3/gde/core/docs/spidermonkey.html">SpiderMonkey</a>, to provide game updates to the server over a network.</div>
-</li>
-<li><div> Only execute code that&#039;s needed. (E.g. place all rendering code inside an <code>if (servermode)</code>-block) (or <code>if (!servermode)</code> for the client).</div>
-</li>
-<li><div> Add decent <a href="/com/jme3/gde/core/docs/jme3/advanced/logging.html">logging</a> so your server actually makes sense.</div>
-</li>
-</ul>
-<div><span>
-	<a href="/wiki/doku.php/tag:intermediate?do=showtag&amp;tag=tag%3Aintermediate">intermediate</a>,
-	<a href="/wiki/doku.php/tag:server?do=showtag&amp;tag=tag%3Aserver">server</a>,
-	<a href="/wiki/doku.php/tag:spidermonkey?do=showtag&amp;tag=tag%3Aspidermonkey">spidermonkey</a>,
-	<a href="/wiki/doku.php/tag:headless?do=showtag&amp;tag=tag%3Aheadless">headless</a>,
-	<a href="/wiki/doku.php/tag:network?do=showtag&amp;tag=tag%3Anetwork">network</a>,
-	<a href="/wiki/doku.php/tag:documentation?do=showtag&amp;tag=tag%3Adocumentation">documentation</a>
-</span></div>
-
-</div>
+&#125;</pre><p><p><div
+class="noteclassic">Although all input/output is ignored, the server <em>does</em> keep game state and <em>does</em> call the <code>simpleUpdate()</code> as expected.</div></p></p></div><h2><a
+name="next_steps">Next steps</a></h2><div
+class="level2"><p> Okay, so you can now start your game in a headless &#039;server mode&#039;, where to go from here?</p><ul><li
+class="level1"><div
+class="li"> Parse <code>String[] args</code> from the <code>main</code>-method to enable server mode on demand (e.g. start your server like <code>java -jar mygame.jar –server</code>.</div></li><li
+class="level1"><div
+class="li"> Integrate <a
+href="/com/jme3/gde/core/docs/spidermonkey.html">SpiderMonkey</a>, to provide game updates to the server over a network.</div></li><li
+class="level1"><div
+class="li"> Only execute code that&#039;s needed. (E.g. place all rendering code inside an <code>if (servermode)</code>-block) (or <code>if (!servermode)</code> for the client).</div></li><li
+class="level1"><div
+class="li"> Add decent <a
+href="/com/jme3/gde/core/docs/jme3/advanced/logging.html">logging</a> so your server actually makes sense.</div></li></ul><div
+class="tags"><span> <a
+href="/wiki/doku.php/tag:intermediate?do=showtag&amp;tag=tag%3Aintermediate">intermediate</a>, <a
+href="/wiki/doku.php/tag:server?do=showtag&amp;tag=tag%3Aserver">server</a>, <a
+href="/wiki/doku.php/tag:spidermonkey?do=showtag&amp;tag=tag%3Aspidermonkey">spidermonkey</a>, <a
+href="/wiki/doku.php/tag:headless?do=showtag&amp;tag=tag%3Aheadless">headless</a>, <a
+href="/wiki/doku.php/tag:network?do=showtag&amp;tag=tag%3Anetwork">network</a>, <a
+href="/wiki/doku.php/tag:documentation?do=showtag&amp;tag=tag%3Adocumentation">documentation</a> </span></div></div>
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:intermediate:headlessserver?do=export_xhtmlbody">view online version</a></em></p>

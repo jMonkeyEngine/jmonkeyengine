@@ -1,109 +1,62 @@
-
-<h1><a>Application States</a></h1>
-<div>
-
-<p>
-
-<code>com.jme3.app.state.AppState</code> is a customizable jME3 interface that allows you to control the global game logic (game mechanics). To control the behaviour of a type of Spatial, see <a href="/com/jme3/gde/core/docs/jme3/advanced/custom_controls.html">Custom Controls</a> instead – both can be used together.
-</p>
-
-<p>
-To implement game logic:
-</p>
-<ol>
-<li><div> You define a custom AppState and implement its behaviour in the AppState&#039;s update() method.</div>
-<ul>
-<li><div> You can pass arguments and manipulate everything inside the app&#039;s scope.</div>
-</li>
-</ul>
-</li>
-<li><div> Attach the AppState to your application&#039;s AppStateManager (<code>stateManager.attach(myAppState);</code>) to activate it.</div>
-</li>
-<li><div> Create one AppState for each type of game behavior. When you add several AppStates to one Application, they will be executed in the order they were added.</div>
-</li>
-</ol>
-
-</div>
-
-<h2><a>Usage Examples</a></h2>
-<div>
-
-<p>
- 
-JME3 comes with a BulletAppState that implements Physical behaviour (using the jBullet library). You, for example, could write an Artificial Intelligence AppState to control all your enemy units. Existing examples in the code base include:
-
-</p>
-<ul>
-<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/jbullet/com/jme3/bullet/"><param name="text" value="<html><u>BulletAppState</u></html>"><param name="textColor" value="blue"></object> controls physical behaviour in PhysicsControl&#039;ed Spatials.</div>
-</li>
-<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/app/state/TestAppStates.java"><param name="text" value="<html><u>TestAppStates.java</u></html>"><param name="textColor" value="blue"></object> an example of a custom AppState</div>
-<ul>
-<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/app/state/RootNodeState.java"><param name="text" value="<html><u>RootNodeState.java</u></html>"><param name="textColor" value="blue"></object></div>
-</li>
-</ul>
-</li>
-</ul>
-
-</div>
-
-<h2><a>AppState</a></h2>
-<div>
-
-<p>
-
-The AppState interface allows you to hook a continously executing piece of code into the main loop.
-
-</p>
-<table>
-	<tr>
-		<th>AppState Method</th><th>Usage</th>
-	</tr>
-	<tr>
-		<td>isActive()</td><td>Test whether AppState is enabled or disabled.</td>
-	</tr>
-	<tr>
-		<td>stateAttached(asm) <br/>
- stateDetached(asm)</td><td>The AppState knows when it is attached to, or detached from, the AppStateManager. Then it triggers these methods that you implement.</td>
-	</tr>
-	<tr>
-		<td>isInitialized()</td><td>Your implementations of this interface should return the correct respective boolean value.</td>
-	</tr>
-	<tr>
-		<td>initialize(asm,app)</td><td>The RenderThread initialized the AppState and then calls this method.</td>
-	</tr>
-	<tr>
-		<td>setActive(true) <br/>
- setActive(false)</td><td>Temporarily enables or disables an AppState.</td>
-	</tr>
-	<tr>
-		<td>update(float tpf)</td><td>Here you implement the behaviour that you want to hook into the main update loop.</td>
-	</tr>
-	<tr>
-		<td>cleanup()</td><td>Called when when the AppState is de-initialized.</td>
-	</tr>
-	<tr>
-		<td>render(RenderManager rm)</td><td>Renders the state.</td>
-	</tr>
-	<tr>
-		<td>postRender()</td><td>Called after all rendering commands are flushed.</td>
-	</tr>
-</table>
-
-</div>
-
-<h2><a>AbstractAppState</a></h2>
-<div>
-
-<p>
-
-The AbstractAppState class already implements some common methods and makes creation of custom AppStates a bit easier: isInitialized(), setActive(), isActive(), cleanUp(). Just extend it and override the remaining AppState methods.
-</p>
-
-<p>
-
-Definition:
-</p>
-<pre>public class MyAppState extends AbstractAppState &#123;
+<h1><a
+name="application_states">Application States</a></h1><div
+class="level1"><p> <code>com.jme3.app.state.AppState</code> is a customizable jME3 interface that allows you to control the global game logic (game mechanics). To control the behaviour of a type of Spatial, see <a
+href="/com/jme3/gde/core/docs/jme3/advanced/custom_controls.html">Custom Controls</a> instead – both can be used together.</p><p> To implement game logic:</p><ol><li
+class="level1"><div
+class="li"> You define a custom AppState and implement its behaviour in the AppState&#039;s update() method.</div><ul><li
+class="level2"><div
+class="li"> You can pass arguments and manipulate everything inside the app&#039;s scope.</div></li></ul></li><li
+class="level1"><div
+class="li"> Attach the AppState to your application&#039;s AppStateManager (<code>stateManager.attach(myAppState);</code>) to activate it.</div></li><li
+class="level1"><div
+class="li"> Create one AppState for each type of game behavior. When you add several AppStates to one Application, they will be executed in the order they were added.</div></li></ol></div><h2><a
+name="usage_examples">Usage Examples</a></h2><div
+class="level2"><p> JME3 comes with a BulletAppState that implements Physical behaviour (using the jBullet library). You, for example, could write an Artificial Intelligence AppState to control all your enemy units. Existing examples in the code base include:</p><ul><li
+class="level1"><div
+class="li"> <a
+href="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/jbullet/com/jme3/bullet/">BulletAppState</a> controls physical behaviour in PhysicsControl&#039;ed Spatials.</div></li><li
+class="level1"><div
+class="li"> <a
+href="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/app/state/TestAppStates.java">TestAppStates.java</a> an example of a custom AppState</div><ul><li
+class="level2"><div
+class="li"> <a
+href="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/app/state/RootNodeState.java">RootNodeState.java</a></div></li></ul></li></ul></div><h2><a
+name="appstate">AppState</a></h2><div
+class="level2"><p> The AppState interface allows you to hook a continously executing piece of code into the main loop.</p><div
+class="table sectionedit1"><table
+class="inline"><tr
+class="row0"><th
+class="col0">AppState Method</th><th
+class="col1">Usage</th></tr><tr
+class="row1"><td
+class="col0">isActive()</td><td
+class="col1">Test whether AppState is enabled or disabled.</td></tr><tr
+class="row2"><td
+class="col0">stateAttached(asm) <br/> stateDetached(asm)</td><td
+class="col1">The AppState knows when it is attached to, or detached from, the AppStateManager. Then it triggers these methods that you implement.</td></tr><tr
+class="row3"><td
+class="col0">isInitialized()</td><td
+class="col1">Your implementations of this interface should return the correct respective boolean value.</td></tr><tr
+class="row4"><td
+class="col0">initialize(asm,app)</td><td
+class="col1">The RenderThread initialized the AppState and then calls this method.</td></tr><tr
+class="row5"><td
+class="col0">setActive(true) <br/> setActive(false)</td><td
+class="col1">Temporarily enables or disables an AppState.</td></tr><tr
+class="row6"><td
+class="col0">update(float tpf)</td><td
+class="col1">Here you implement the behaviour that you want to hook into the main update loop.</td></tr><tr
+class="row7"><td
+class="col0">cleanup()</td><td
+class="col1">Called when when the AppState is de-initialized.</td></tr><tr
+class="row8"><td
+class="col0">render(RenderManager rm)</td><td
+class="col1">Renders the state.</td></tr><tr
+class="row9"><td
+class="col0">postRender()</td><td
+class="col1">Called after all rendering commands are flushed.</td></tr></table></div></div><h2><a
+name="abstractappstate">AbstractAppState</a></h2><div
+class="level2"><p> The AbstractAppState class already implements some common methods and makes creation of custom AppStates a bit easier: isInitialized(), setActive(), isActive(), cleanUp(). Just extend it and override the remaining AppState methods.</p><p> Definition:</p><pre>public class MyAppState extends AbstractAppState &#123;
     private Node x = new Node&#40;&quot;x&quot;&#41;; // some class field
 &nbsp;
     public Node getX&#40;&#41;&#123;
@@ -114,11 +67,7 @@ Definition:
     public void update&#40;float tpf&#41; &#123;
         x.doSomething&#40;&#41;;             // implement behaviour
     &#125;
-&#125;</pre>
-<p>
-Usage:
-</p>
-<pre>public class TestAppStates extends Application &#123;
+&#125;</pre><p> Usage:</p><pre>public class TestAppStates extends Application &#123;
   public static void main&#40;String&#91;&#93; args&#41;&#123;
     TestAppStates app = new TestAppStates&#40;&#41;;
     app.start&#40;&#41;;
@@ -139,73 +88,20 @@ Usage:
     stateManager.render&#40;renderManager&#41;;
     renderManager.render&#40;tpf&#41;;
   &#125;
-&#125;</pre>
-<p>
-<strong>Note:</strong> If you use the AppState together with a SimpleApplication-based class, then this <code>update()</code> loop is already set up.
-</p>
-
-</div>
-
-<h2><a>AppStateManager</a></h2>
-<div>
-
-<p>
-
-The com.jme3.app.state.AppStateManager holds the list of AppStates for an application. AppStateManager ensures that active AppStates are updated and rendered. When an AppState is attached, AppStateManager calls its stateAttached() method. When an AppState is detached, AppStateManager calls its stateDetached() method. 
-</p>
-
-<p>
-There is one AppStateManager per application. You can attach several AppStates to one AppStateManager, but the same state can only be attached once.
-
-</p>
-<table>
-	<tr>
-		<th>AppStateManager Method</th><th>Usage</th>
-	</tr>
-	<tr>
-		<td>hasState(s)</td><td>Is AppState s attached?</td>
-	</tr>
-	<tr>
-		<td>getState(Class&lt;T&gt; stateClass)</td><td>Returns the first state that is an instance of a subclass of the specified class.</td>
-	</tr>
-</table>
-
-<p>
-
-The AppStateManager&#039;s update(), render(), postRender(), and cleanUp() methods are internal, users never call them directly.
-</p>
-
-</div>
-
-<h2><a>Best Practices</a></h2>
-<div>
-
-<p>
-
-You can only change AppStates, or read and write to them, from certain places: In a Control&#039;s update() method, in an AppState&#039;s update() method, and it the SimpleApplication&#039;s simpleUpdate() loop (or the Application&#039;s update() loop). 
-</p>
-
-<p>
-To get data from the AppState <code>MyAppState</code>:
-
-</p>
-<pre>app.getState&#40;MyAppState.class&#41;.getInfoAboutSomething&#40;&#41;;</pre>
-<p>
-
-To pass new data into the AppState <code>MyAppState</code>:
-
-</p>
-<pre>app.getState&#40;MyAppState.class&#41;.setSomething&#40;blah&#41;;</pre>
-<p>
-
-To trigger a one-off method in the AppState <code>MyAppState</code>:
-
-</p>
-<pre>app.getState&#40;MyAppState.class&#41;.doSomeMoreStuff&#40;&#41;;</pre>
-<p>
-Don&#039;t mess with the AppState from other places, because from other methods you have no control over the order of updates. You don&#039;t know when (during which half-finished step of an update), your call was received.
-
-</p>
-
-</div>
+&#125;</pre><p> <strong>Note:</strong> If you use the AppState together with a SimpleApplication-based class, then this <code>update()</code> loop is already set up.</p></div><h2><a
+name="appstatemanager">AppStateManager</a></h2><div
+class="level2"><p> The com.jme3.app.state.AppStateManager holds the list of AppStates for an application. AppStateManager ensures that active AppStates are updated and rendered. When an AppState is attached, AppStateManager calls its stateAttached() method. When an AppState is detached, AppStateManager calls its stateDetached() method.</p><p> There is one AppStateManager per application. You can attach several AppStates to one AppStateManager, but the same state can only be attached once.</p><div
+class="table sectionedit2"><table
+class="inline"><tr
+class="row0"><th
+class="col0">AppStateManager Method</th><th
+class="col1">Usage</th></tr><tr
+class="row1"><td
+class="col0">hasState(s)</td><td
+class="col1">Is AppState s attached?</td></tr><tr
+class="row2"><td
+class="col0">getState(Class&lt;T&gt; stateClass)</td><td
+class="col1">Returns the first state that is an instance of a subclass of the specified class.</td></tr></table></div><p> The AppStateManager&#039;s update(), render(), postRender(), and cleanUp() methods are internal, users never call them directly.</p></div><h2><a
+name="best_practices">Best Practices</a></h2><div
+class="level2"><p> You can only change AppStates, or read and write to them, from certain places: In a Control&#039;s update() method, in an AppState&#039;s update() method, and it the SimpleApplication&#039;s simpleUpdate() loop (or the Application&#039;s update() loop).</p><p> To get data from the AppState <code>MyAppState</code>:</p><pre>app.getState&#40;MyAppState.class&#41;.getInfoAboutSomething&#40;&#41;;</pre><p> To pass new data into the AppState <code>MyAppState</code>:</p><pre>app.getState&#40;MyAppState.class&#41;.setSomething&#40;blah&#41;;</pre><p> To trigger a one-off method in the AppState <code>MyAppState</code>:</p><pre>app.getState&#40;MyAppState.class&#41;.doSomeMoreStuff&#40;&#41;;</pre><p> Don&#039;t mess with the AppState from other places, because from other methods you have no control over the order of updates. You don&#039;t know when (during which half-finished step of an update), your call was received.</p></div>
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:application_states?do=export_xhtmlbody">view online version</a></em></p>

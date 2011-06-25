@@ -91,7 +91,7 @@ public class ClipboardSpatial implements Transferable, ClipboardOwner {
         try {
             BinaryImporter importer=BinaryImporter.getInstance();
             //TODO: unsafe..
-            importer.setAssetManager(SceneApplication.getApplication().getCurrentSceneRequest().getManager().getManager());
+            importer.setAssetManager(SceneApplication.getApplication().getCurrentSceneRequest().getManager());
             return (Spatial)importer.load(data);
         } catch (IOException ex) {
             Exceptions.printStackTrace(ex);

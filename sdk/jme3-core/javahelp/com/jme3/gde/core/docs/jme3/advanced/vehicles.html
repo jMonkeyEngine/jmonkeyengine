@@ -1,198 +1,89 @@
-
-<h1><a>Controlling a Physical Vehicle</a></h1>
-<div>
-
-<p>
-
-For physical vehicles, jME&#039;s uses the jBullet ray-cast vehicle. In this vehicle implementation, the physical chassis &#039;floats&#039; along on four non-physical vertical rays. 
-</p>
-
-<p>
-Internally, each wheel casts a ray down, and using the ray&#039;s intersection point, jBullet calculates the suspension length, and the suspension force. The suspension force is applied to the chassis, keeping it from hitting the ground. The friction force is calculated for each wheel where the ray intersects with the ground. Friction is applied as a sideways and forwards force. <sup><a href="#fn__1">1)</a></sup>
-</p>
-
-<p>
-This article shows how you use this vehicle implementation in a jME3 application.
-</p>
-
-<p>
-<img src="nbdocs:/com/jme3/gde/core/docs/jme3/advanced/physics-vehicle.png">
-</p>
-
-</div>
-
-<h2><a>Sample Code</a></h2>
-<div>
-
-<p>
-
-Full code samples are here:
-
-</p>
-<ul>
-<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/bullet/TestPhysicsCar.java"><param name="text" value="<html><u>TestPhysicsCar.java</u></html>"><param name="textColor" value="blue"></object></div>
-</li>
-<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/bullet/TestFancyCar.java"><param name="text" value="<html><u>TestFancyCar.java</u></html>"><param name="textColor" value="blue"></object></div>
-</li>
-</ul>
-
-</div>
-
-<h2><a>Overview of this Physics Application</a></h2>
-<div>
-
-<p>
-
-The goal is to create a physical vehicle with wheels that can be steered and that interacts (collides with) with the floor and obstacles.
-
-</p>
-<ol>
-<li><div> Create a SimpleApplication with a <a href="/com/jme3/gde/core/docs/jme3/advanced/physics.html">BulletAppState</a> </div>
-<ul>
-<li><div> This gives us a PhysicsSpace for PhysicsNodes</div>
-</li>
-</ul>
-</li>
-<li><div> Create a VehicleControl + CompoundCollisionShape for the physical vehicle behaviour</div>
-<ol>
-<li><div> Set physical properties of the vehicle, such as suspension.</div>
-</li>
-</ol>
-</li>
-<li><div> Create a VehicleNode for the car model</div>
-<ol>
-<li><div> Create a box plus 4 cylinders as wheels (using <code>vehicle.addWheel()</code>).</div>
-</li>
-<li><div> Add the VehicleControl behaviour to the VehicleNode geometry.</div>
-</li>
-</ol>
-</li>
-<li><div> Create a RigidBodyControl and CollisionShape for the floor</div>
-</li>
-<li><div> Map key triggers and add input listeners</div>
-<ul>
-<li><div> Navigational commands Left, Right, Foward, Brake.</div>
-</li>
-</ul>
-</li>
-<li><div> Define the steering actions to be triggered by the key events.</div>
-<ul>
-<li><div> <code>vehicle.steer()</code></div>
-</li>
-<li><div> <code>vehicle.accelerate()</code></div>
-</li>
-<li><div> <code>vehicle.brake()</code></div>
-</li>
-</ul>
-</li>
-</ol>
-
-</div>
-
-<h2><a>Creating the Vehicle Chassis</a></h2>
-<div>
-
-<p>
-
-The vehicle that we create here in the <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/bullet/TestPhysicsCar.java"><param name="text" value="<html><u>TestPhysicsCar.java</u></html>"><param name="textColor" value="blue"></object> example is just a “box on wheels”, a basic vehicle shape that you can replace with a fancy car model, as demonstrated in <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/bullet/TestFancyCar.java"><param name="text" value="<html><u>TestFancyCar.java</u></html>"><param name="textColor" value="blue"></object>.
-</p>
-
-<p>
-Every physical object must have a collision shape, that we prepare first. For the vehicle, we choose a compound collision shape that is made up of a box-shaped body of the right size for the vehicle. We will add the wheels later. 
-</p>
-<pre>CompoundCollisionShape compoundShape = new CompoundCollisionShape&#40;&#41;;
-BoxCollisionShape box = new BoxCollisionShape&#40;new Vector3f&#40;1.2f, 0.5f, 2.4f&#41;&#41;;</pre>
-<p>
-<strong>Best Practice:</strong> We attach the BoxCollisionShape (the vehicle body) to the CompoundCollisionShape at a Vector of (0,1,0): This shifts the effective center of mass of the BoxCollisionShape downwards to 0,-1,0 and makes a moving vehicle more stable! 
-</p>
-<pre>compoundShape.addChildShape&#40;box, new Vector3f&#40;0, 1, 0&#41;&#41;;</pre>
-<p>
-Any kind of geometry can make up the visible part of the vehicle, here we use a wireframe box. We create a node that we use to group the geometry. 
-</p>
-<pre>        Node vehicleNode=new Node&#40;&quot;vehicleNode&quot;&#41;;
+<h1><a
+name="controlling_a_physical_vehicle">Controlling a Physical Vehicle</a></h1><div
+class="level1"><p> For physical vehicles, jME&#039;s uses the jBullet ray-cast vehicle. In this vehicle implementation, the physical chassis &#039;floats&#039; along on four non-physical vertical rays.</p><p> Internally, each wheel casts a ray down, and using the ray&#039;s intersection point, jBullet calculates the suspension length, and the suspension force. The suspension force is applied to the chassis, keeping it from hitting the ground. The friction force is calculated for each wheel where the ray intersects with the ground. Friction is applied as a sideways and forwards force. <sup><a
+href="#fn__1">1)</a></sup></p><p> This article shows how you use this vehicle implementation in a jME3 application.</p><p> <a
+href="/wiki/lib/exe/detail.php/jme3:advanced:physics-vehicle.png?id=jme3%3Aadvanced%3Avehicles"><img
+src="nbdocs:/com/jme3/gde/core/docs/jme3/advanced/physics-vehicle.png" class="mediacenter" alt="" /></a></p></div><h2><a
+name="sample_code">Sample Code</a></h2><div
+class="level2"><p> Full code samples are here:</p><ul><li
+class="level1"><div
+class="li"> <a
+href="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/bullet/TestPhysicsCar.java">TestPhysicsCar.java</a></div></li><li
+class="level1"><div
+class="li"> <a
+href="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/bullet/TestFancyCar.java">TestFancyCar.java</a></div></li></ul></div><h2><a
+name="overview_of_this_physics_application">Overview of this Physics Application</a></h2><div
+class="level2"><p> The goal is to create a physical vehicle with wheels that can be steered and that interacts (collides with) with the floor and obstacles.</p><ol><li
+class="level1"><div
+class="li"> Create a SimpleApplication with a <a
+href="/com/jme3/gde/core/docs/jme3/advanced/physics.html">BulletAppState</a></div><ul><li
+class="level2"><div
+class="li"> This gives us a PhysicsSpace for PhysicsNodes</div></li></ul></li><li
+class="level1"><div
+class="li"> Create a VehicleControl + CompoundCollisionShape for the physical vehicle behaviour</div><ol><li
+class="level2"><div
+class="li"> Set physical properties of the vehicle, such as suspension.</div></li></ol></li><li
+class="level1"><div
+class="li"> Create a VehicleNode for the car model</div><ol><li
+class="level2"><div
+class="li"> Create a box plus 4 cylinders as wheels (using <code>vehicle.addWheel()</code>).</div></li><li
+class="level2"><div
+class="li"> Add the VehicleControl behaviour to the VehicleNode geometry.</div></li></ol></li><li
+class="level1"><div
+class="li"> Create a RigidBodyControl and CollisionShape for the floor</div></li><li
+class="level1"><div
+class="li"> Map key triggers and add input listeners</div><ul><li
+class="level2"><div
+class="li"> Navigational commands Left, Right, Foward, Brake.</div></li></ul></li><li
+class="level1"><div
+class="li"> Define the steering actions to be triggered by the key events.</div><ul><li
+class="level2"><div
+class="li"> <code>vehicle.steer()</code></div></li><li
+class="level2"><div
+class="li"> <code>vehicle.accelerate()</code></div></li><li
+class="level2"><div
+class="li"> <code>vehicle.brake()</code></div></li></ul></li></ol></div><h2><a
+name="creating_the_vehicle_chassis">Creating the Vehicle Chassis</a></h2><div
+class="level2"><p> The vehicle that we create here in the <a
+href="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/bullet/TestPhysicsCar.java">TestPhysicsCar.java</a> example is just a &quot;box on wheels&quot;, a basic vehicle shape that you can replace with a fancy car model, as demonstrated in <a
+href="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/bullet/TestFancyCar.java">TestFancyCar.java</a>.</p><p> Every physical object must have a collision shape, that we prepare first. For the vehicle, we choose a compound collision shape that is made up of a box-shaped body of the right size for the vehicle. We will add the wheels later.</p><pre>CompoundCollisionShape compoundShape = new CompoundCollisionShape&#40;&#41;;
+BoxCollisionShape box = new BoxCollisionShape&#40;new Vector3f&#40;1.2f, 0.5f, 2.4f&#41;&#41;;</pre><p> <strong>Best Practice:</strong> We attach the BoxCollisionShape (the vehicle body) to the CompoundCollisionShape at a Vector of (0,1,0): This shifts the effective center of mass of the BoxCollisionShape downwards to 0,-1,0 and makes a moving vehicle more stable!</p><pre>compoundShape.addChildShape&#40;box, new Vector3f&#40;0, 1, 0&#41;&#41;;</pre><p> Any kind of geometry can make up the visible part of the vehicle, here we use a wireframe box. We create a node that we use to group the geometry.</p><pre>        Node vehicleNode=new Node&#40;&quot;vehicleNode&quot;&#41;;
         vehicle = new VehicleControl&#40;compoundShape, 400&#41;;
-        vehicleNode.addControl&#40;vehicle&#41;;</pre>
-<p>
-We initialize the Vehicle Control with the compound shape, and set its mass to a heavy value, 400f. The Vehicle Control represents the car&#039;s physical behaviour.
-</p>
-<pre>vehicle = new VehicleControl&#40;compoundShape, 400&#41;;</pre>
-<p>
-Finally we add the behaviour (VehicleControl) to the visible Geometry (node).
-</p>
-<pre>vehicleNode.addControl&#40;vehicle&#41;;</pre>
-<p>
-We configure the physical properties of the vehicle&#039;s suspension: Compresion, Damping, Stiffness, and MaxSuspenionForce. Picking workable values for the wheel suspension can be tricky – for background info have a look at these <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="https://docs.google.com/Doc?docid=0AXVUZ5xw6XpKZGNuZG56a3FfMzU0Z2NyZnF4Zmo&amp;hl=en"><param name="text" value="<html><u>Suspension Settings Tips</u></html>"><param name="textColor" value="blue"></object>. For now, let&#039;s work with the following values:
-</p>
-<pre>        float stiffness = 60.0f;//200=f1 car
+        vehicleNode.addControl&#40;vehicle&#41;;</pre><p> We initialize the Vehicle Control with the compound shape, and set its mass to a heavy value, 400f. The Vehicle Control represents the car&#039;s physical behaviour.</p><pre>vehicle = new VehicleControl&#40;compoundShape, 400&#41;;</pre><p> Finally we add the behaviour (VehicleControl) to the visible Geometry (node).</p><pre>vehicleNode.addControl&#40;vehicle&#41;;</pre><p> We configure the physical properties of the vehicle&#039;s suspension: Compresion, Damping, Stiffness, and MaxSuspenionForce. Picking workable values for the wheel suspension can be tricky – for background info have a look at these <a
+href="https://docs.google.com/Doc?docid=0AXVUZ5xw6XpKZGNuZG56a3FfMzU0Z2NyZnF4Zmo&amp;hl=en">Suspension Settings Tips</a>. For now, let&#039;s work with the following values:</p><pre>        float stiffness = 60.0f;//200=f1 car
         float compValue = .3f; //(should be lower than damp)
         float dampValue = .4f;
         vehicle.setSuspensionCompression&#40;compValue * 2.0f * FastMath.sqrt&#40;stiffness&#41;&#41;;
         vehicle.setSuspensionDamping&#40;dampValue * 2.0f * FastMath.sqrt&#40;stiffness&#41;&#41;;
         vehicle.setSuspensionStiffness&#40;stiffness&#41;;
-        vehicle.setMaxSuspensionForce&#40;10000.0f&#41;;</pre>
-<p>
-We now have a node <code>vehicleNode</code> with a visible “car” geometry, which acts like a vehicle. One thing that&#039;s missing are wheels.
-</p>
-
-</div>
-
-<h2><a>Adding the Wheels</a></h2>
-<div>
-
-<p>
-
-We create four wheel Geometries and add them to the vehicle. Our wheel geometries are simple, non-physical discs (flat Cylinders), they are just visual decorations. Note that the physical wheel behaviour (the com.jme3.bullet.objects.VehicleWheel objects) is created internally by the <code>vehicle.addWheel()</code> method. 
-</p>
-
-<p>
-The <code>addWheel()</code> method sets following properties:
-</p>
-<ul>
-<li><div> Vector3f connectionPoint – Coordinate where the suspension connects to the chassis (internally, this is where the Ray is casted downwards).</div>
-</li>
-<li><div> Vector3f direction – Wheel direction is typically a (0,-1,0) vector.</div>
-</li>
-<li><div> Vector3f axle – Axle direction is typically a (-1,0,0) vector.</div>
-</li>
-<li><div> float suspensionRestLength – Suspension rest length in world units</div>
-</li>
-<li><div> float wheelRadius – Wheel radius in world units</div>
-</li>
-<li><div> boolean isFrontWheel – Whether this wheel is one of the steering wheels. <br/>
- Front wheels are the ones that rotate visibly when the vehicle turns.</div>
-</li>
-</ul>
-
-<p>
-
-We initialize a few variables that we will reuse when we add the four wheels. yOff, etc, are the particular wheel offsets for our small vehicle model.
-</p>
-<pre>Vector3f wheelDirection = new Vector3f&#40;0, -1, 0&#41;;
+        vehicle.setMaxSuspensionForce&#40;10000.0f&#41;;</pre><p> We now have a node <code>vehicleNode</code> with a visible &quot;car&quot; geometry, which acts like a vehicle. One thing that&#039;s missing are wheels.</p></div><h2><a
+name="adding_the_wheels">Adding the Wheels</a></h2><div
+class="level2"><p> We create four wheel Geometries and add them to the vehicle. Our wheel geometries are simple, non-physical discs (flat Cylinders), they are just visual decorations. Note that the physical wheel behaviour (the com.jme3.bullet.objects.VehicleWheel objects) is created internally by the <code>vehicle.addWheel()</code> method.</p><p> The <code>addWheel()</code> method sets following properties:</p><ul><li
+class="level1"><div
+class="li"> Vector3f connectionPoint – Coordinate where the suspension connects to the chassis (internally, this is where the Ray is casted downwards).</div></li><li
+class="level1"><div
+class="li"> Vector3f direction – Wheel direction is typically a (0,-1,0) vector.</div></li><li
+class="level1"><div
+class="li"> Vector3f axle – Axle direction is typically a (-1,0,0) vector.</div></li><li
+class="level1"><div
+class="li"> float suspensionRestLength – Suspension rest length in world units</div></li><li
+class="level1"><div
+class="li"> float wheelRadius – Wheel radius in world units</div></li><li
+class="level1"><div
+class="li"> boolean isFrontWheel – Whether this wheel is one of the steering wheels. <br/> Front wheels are the ones that rotate visibly when the vehicle turns.</div></li></ul><p> We initialize a few variables that we will reuse when we add the four wheels. yOff, etc, are the particular wheel offsets for our small vehicle model.</p><pre>Vector3f wheelDirection = new Vector3f&#40;0, -1, 0&#41;;
 Vector3f wheelAxle = new Vector3f&#40;-1, 0, 0&#41;;
 float radius = 0.5f;
 float restLength = 0.3f;
 float yOff = 0.5f;
 float xOff = 1f;
-float zOff = 2f;</pre>
-<p>
-We create a Cylinder mesh shape that we use to create the four visible wheel geometries.
-</p>
-<pre>Cylinder wheelMesh = new Cylinder&#40;16, 16, radius, radius * 0.6f, true&#41;;</pre>
-<p>
-For each wheel, we create a Node and a Geometry. We attach the Cylinder Geometry to the Node. We rotate the wheel by 90° around the Y axis. We set a material to make it visible. Finally we add the wheel (plus its properties) to the vehicle.
-</p>
-<pre>Node node1 = new Node&#40;&quot;wheel 1 node&quot;&#41;;
+float zOff = 2f;</pre><p> We create a Cylinder mesh shape that we use to create the four visible wheel geometries.</p><pre>Cylinder wheelMesh = new Cylinder&#40;16, 16, radius, radius * 0.6f, true&#41;;</pre><p> For each wheel, we create a Node and a Geometry. We attach the Cylinder Geometry to the Node. We rotate the wheel by 90° around the Y axis. We set a material to make it visible. Finally we add the wheel (plus its properties) to the vehicle.</p><pre>Node node1 = new Node&#40;&quot;wheel 1 node&quot;&#41;;
 Geometry wheels1 = new Geometry&#40;&quot;wheel 1&quot;, wheelMesh&#41;;
 node1.attachChild&#40;wheels1&#41;;
 wheels1.rotate&#40;0, FastMath.HALF_PI, 0&#41;;
 wheels1.setMaterial&#40;mat&#41;;
 &nbsp;
 vehicle.addWheel&#40;node1, new Vector3f&#40;-xOff, yOff, zOff&#41;,
-                 wheelDirection, wheelAxle, restLength, radius, true&#41;;</pre>
-<p>
-The three next wheels are created in the same fashion, only the offsets are different. Remember to set the Boolean parameter correctly to indicate whether it&#039;s a front wheel.
-</p>
-<pre>...
+                 wheelDirection, wheelAxle, restLength, radius, true&#41;;</pre><p> The three next wheels are created in the same fashion, only the offsets are different. Remember to set the Boolean parameter correctly to indicate whether it&#039;s a front wheel.</p><pre>...
 vehicle.addWheel&#40;node2, new Vector3f&#40;xOff, yOff, zOff&#41;,
                 wheelDirection, wheelAxle, restLength, radius, true&#41;;
 ...
@@ -200,52 +91,22 @@ vehicle.addWheel&#40;node3, new Vector3f&#40;-xOff, yOff, -zOff&#41;,
                 wheelDirection, wheelAxle, restLength, radius, false&#41;;
 ...
 vehicle.addWheel&#40;node4, new Vector3f&#40;xOff, yOff, -zOff&#41;,
-                wheelDirection, wheelAxle, restLength, radius, false&#41;;</pre>
-<p>
-Attach the wheel Nodes to the vehicle Node to group them, so they move together.
-</p>
-<pre>vehicleNode.attachChild&#40;node1&#41;;
+                wheelDirection, wheelAxle, restLength, radius, false&#41;;</pre><p> Attach the wheel Nodes to the vehicle Node to group them, so they move together.</p><pre>vehicleNode.attachChild&#40;node1&#41;;
 vehicleNode.attachChild&#40;node2&#41;;
 vehicleNode.attachChild&#40;node3&#41;;
-vehicleNode.attachChild&#40;node4&#41;;</pre>
-<p>
-As always, attach the vehicle Node to the rootNode to make it visible, and add the Vehicle Control to the PhysicsSpace to make the car physical.
-</p>
-<pre>rootNode.attachChild&#40;vehicleNode&#41;;
-getPhysicsSpace&#40;&#41;.add&#40;vehicle&#41;;</pre>
-<p>
-Not shown here is that we also created a Material <code>mat</code>.
-</p>
-
-</div>
-
-<h2><a>Steering the Vehicle</a></h2>
-<div>
-
-<p>
-
-Not shown here is the standard way how we map the input keys to actions (see full code sample). Also refer to <a href="/com/jme3/gde/core/docs/jme3/advanced/input_handling.html">Input Handling</a>).
-</p>
-
-<p>
-In the ActionListener, we implement the actions that control the vehicle&#039;s direction and speed. For the four directions (accelerate=up, brake=down, left, right), we specify how we want the vehicle to move. 
-
-</p>
-<ul>
-<li><div> The braking action is pretty straightforward: <br/>
- <code>vehicle.brake(brakeForce)</code></div>
-</li>
-<li><div> For left and right turns, we add a constant to <code>steeringValue</code> when the key is pressed, and subtract it when the key is released. <br/>
- <code>vehicle.steer(steeringValue);</code></div>
-</li>
-<li><div> For acceleration we add a constant to <code>accelerationValue</code> when the key is pressed, and substract it when the key is released. <br/>
- <code>vehicle.accelerate(accelerationValue);</code></div>
-</li>
-<li><div> Because we can and it&#039;s fun, we also add a turbo booster that makes the vehicle jump when you press the assigned key (spacebar). <br/>
- <code>vehicle.applyImpulse(jumpForce, Vector3f.ZERO);</code></div>
-</li>
-</ul>
-<pre>public void onAction&#40;String binding, boolean value, float tpf&#41; &#123;
+vehicleNode.attachChild&#40;node4&#41;;</pre><p> As always, attach the vehicle Node to the rootNode to make it visible, and add the Vehicle Control to the PhysicsSpace to make the car physical.</p><pre>rootNode.attachChild&#40;vehicleNode&#41;;
+getPhysicsSpace&#40;&#41;.add&#40;vehicle&#41;;</pre><p> Not shown here is that we also created a Material <code>mat</code>.</p></div><h2><a
+name="steering_the_vehicle">Steering the Vehicle</a></h2><div
+class="level2"><p> Not shown here is the standard way how we map the input keys to actions (see full code sample). Also refer to <a
+href="/com/jme3/gde/core/docs/jme3/advanced/input_handling.html">Input Handling</a>).</p><p> In the ActionListener, we implement the actions that control the vehicle&#039;s direction and speed. For the four directions (accelerate=up, brake=down, left, right), we specify how we want the vehicle to move.</p><ul><li
+class="level1"><div
+class="li"> The braking action is pretty straightforward: <br/> <code>vehicle.brake(brakeForce)</code></div></li><li
+class="level1"><div
+class="li"> For left and right turns, we add a constant to <code>steeringValue</code> when the key is pressed, and subtract it when the key is released. <br/> <code>vehicle.steer(steeringValue);</code></div></li><li
+class="level1"><div
+class="li"> For acceleration we add a constant to <code>accelerationValue</code> when the key is pressed, and substract it when the key is released. <br/> <code>vehicle.accelerate(accelerationValue);</code></div></li><li
+class="level1"><div
+class="li"> Because we can and it&#039;s fun, we also add a turbo booster that makes the vehicle jump when you press the assigned key (spacebar). <br/> <code>vehicle.applyImpulse(jumpForce, Vector3f.ZERO);</code></div></li></ul><pre>public void onAction&#40;String binding, boolean value, float tpf&#41; &#123;
         if &#40;binding.equals&#40;&quot;Lefts&quot;&#41;&#41; &#123;
             if &#40;value&#41; &#123;
                 steeringValue += .5f;
@@ -288,46 +149,20 @@ In the ActionListener, we implement the actions that control the vehicle&#039;s 
             &#125; else &#123;
             &#125;
         &#125;
-    &#125;</pre>
-<p>
-For your reference, this is how we initialized the constants for this example:
-</p>
-<pre>private final float accelerationForce = 1000.0f;
+    &#125;</pre><p> For your reference, this is how we initialized the constants for this example:</p><pre>private final float accelerationForce = 1000.0f;
 private final float brakeForce = 100.0f;
 private float steeringValue = 0;
 private float accelerationValue = 0;
-private Vector3f jumpForce = new Vector3f&#40;0, 3000, 0&#41;;</pre>
-<p>
-Remember, the standard input listener code that maps the actions to keys can be found in the code samples.
-</p>
-
-</div>
-
-<h2><a>Detecting Collisions</a></h2>
-<div>
-
-<p>
-
-Read the <a href="/com/jme3/gde/core/docs/jme3/advanced/physics#responding_to_a_physicscollisionevent.html">Responding to a PhysicsCollisionEvent</a> chapter in the general physics documentation on how to detect collisions. You would do this if you want to react to collisions with custom events, such as adding points or substracting health.
-</p>
-
-</div>
-
-<h2><a>Best Practices</a></h2>
-<div>
-
-<p>
-
-This example shows a very simple but functional vehicle. For a game you would implement steering behaviour and acceleration with values that are typical for the type of vehicle that you want to simulate. Instead of a box, you load a chassis model. You can consider using an <a href="/com/jme3/gde/core/docs/jme3/advanced/input_handling.html">AnalogListener</a> to respond to key events in a more sophisticated way.
-</p>
-
-<p>
-For a more advanced example, look at <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/bullet/TestFancyCar.java"><param name="text" value="<html><u>TestFancyCar.java</u></html>"><param name="textColor" value="blue"></object>.
-</p>
-
-</div>
-<div>
-<div><sup><a href="#fnt__1">1)</a></sup> 
- <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="https://docs.google.com/Doc?docid=0AXVUZ5xw6XpKZGNuZG56a3FfMzU0Z2NyZnF4Zmo&amp;hl=en"><param name="text" value="<html><u>https://docs.google.com/Doc?docid=0AXVUZ5xw6XpKZGNuZG56a3FfMzU0Z2NyZnF4Zmo&amp;hl=en</u></html>"><param name="textColor" value="blue"></object> </div>
-</div>
+private Vector3f jumpForce = new Vector3f&#40;0, 3000, 0&#41;;</pre><p> Remember, the standard input listener code that maps the actions to keys can be found in the code samples.</p></div><h2><a
+name="detecting_collisions">Detecting Collisions</a></h2><div
+class="level2"><p> Read the <a
+href="/com/jme3/gde/core/docs/jme3/advanced/physics#responding_to_a_physicscollisionevent.html">Responding to a PhysicsCollisionEvent</a> chapter in the general physics documentation on how to detect collisions. You would do this if you want to react to collisions with custom events, such as adding points or substracting health.</p></div><h2><a
+name="best_practices">Best Practices</a></h2><div
+class="level2"><p> This example shows a very simple but functional vehicle. For a game you would implement steering behaviour and acceleration with values that are typical for the type of vehicle that you want to simulate. Instead of a box, you load a chassis model. You can consider using an <a
+href="/com/jme3/gde/core/docs/jme3/advanced/input_handling.html">AnalogListener</a> to respond to key events in a more sophisticated way.</p><p> For a more advanced example, look at <a
+href="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/bullet/TestFancyCar.java">TestFancyCar.java</a>.</p></div><div
+class="footnotes"><div
+class="fn"><sup><a
+href="#fnt__1">1)</a></sup> <a
+href="https://docs.google.com/Doc?docid=0AXVUZ5xw6XpKZGNuZG56a3FfMzU0Z2NyZnF4Zmo&amp;hl=en">https://docs.google.com/Doc?docid=0AXVUZ5xw6XpKZGNuZG56a3FfMzU0Z2NyZnF4Zmo&amp;hl=en</a></div></div>
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:vehicles?do=export_xhtmlbody">view online version</a></em></p>

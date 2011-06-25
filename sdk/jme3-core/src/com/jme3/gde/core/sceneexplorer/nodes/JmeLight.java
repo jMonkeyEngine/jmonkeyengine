@@ -39,9 +39,8 @@ import java.awt.Image;
 import java.io.IOException;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
+import javax.swing.Action;
 import org.openide.actions.DeleteAction;
-import org.openide.cookies.SaveCookie;
-import org.openide.loaders.DataObject;
 import org.openide.nodes.Children;
 import org.openide.nodes.Sheet;
 import org.openide.util.Exceptions;
@@ -102,7 +101,8 @@ public class JmeLight extends AbstractSceneExplorerNode{
 
     }
 
-    protected SystemAction[] createActions() {
+    @Override
+    public Action[] getActions(boolean context) {
         return new SystemAction[]{
                     //                    SystemAction.get(CopyAction.class),
                     //                    SystemAction.get(CutAction.class),

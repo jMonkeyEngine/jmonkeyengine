@@ -1,93 +1,36 @@
-
-<h1><a>Default Build Script</a></h1>
-<div>
-
-<p>
-
-If you use jME3 together with the jMonkeyPlatform (recommended) then you benefit from the provided build script. Every new project comes with a default Ant script. The toolbar buttons and clean/build/run actions in the jMonkeyPlatform are already pre-configured.  
-</p>
-
-</div>
-
-<h2><a>Default Targets</a></h2>
-<div>
-
-<p>
-
-The build script includes targets for the following tasks:
-
-</p>
-<ul>
-<li><div> clean – deletes the built classes and executables in the dist directory.</div>
-</li>
-<li><div> jar – compiles the classes, builds the executable JAR in the dist directory, copies libraries.</div>
-</li>
-<li><div> run – runs the executable JAR.</div>
-</li>
-<li><div> javadoc – compiles javadoc from your java files into html files.</div>
-</li>
-<li><div> debug – used by the jMonkeyPlatform Debugger plugin.</div>
-</li>
-<li><div> test – Used by the jMonkeyPlatform JUnit Test plugin.</div>
-</li>
-</ul>
-
-<p>
-
-Usage on the command line:
-
-</p>
-<pre>ant clean
+<h1><a
+name="default_build_script">Default Build Script</a></h1><div
+class="level1"><p> If you use jME3 together with the jMonkeyPlatform (recommended) then you benefit from the provided build script. Every new project comes with a default Ant script. The toolbar buttons and clean/build/run actions in the jMonkeyPlatform are already pre-configured.</p></div><h2><a
+name="default_targets">Default Targets</a></h2><div
+class="level2"><p> The build script includes targets for the following tasks:</p><ul><li
+class="level1"><div
+class="li"> clean – deletes the built classes and executables in the dist directory.</div></li><li
+class="level1"><div
+class="li"> jar – compiles the classes, builds the executable JAR in the dist directory, copies libraries.</div></li><li
+class="level1"><div
+class="li"> run – runs the executable JAR.</div></li><li
+class="level1"><div
+class="li"> javadoc – compiles javadoc from your java files into html files.</div></li><li
+class="level1"><div
+class="li"> debug – used by the jMonkeyPlatform Debugger plugin.</div></li><li
+class="level1"><div
+class="li"> test – Used by the jMonkeyPlatform JUnit Test plugin.</div></li></ul><p> Usage on the command line:</p><pre>ant clean
 ant jar
-ant run</pre>
-
-<p>
-Recommended Usage: Use the menu items or toolbar buttons in the jMonkeyPlatform to trigger clean, build, and run actions.
-</p>
-
-</div>
-
-<h2><a>Browsing the Build Script</a></h2>
-<div>
-
-<p>
-
-To see the build script and the predefined tasks 
-</p>
-<ol>
-<li><div> Open your project in the jMonkeyPlatform if it isn&#039;t already open (File &gt; Open Project…)</div>
-</li>
-<li><div> Open the Files window (Window &gt; Files)</div>
-</li>
-<li><div> Open the project node. You see <code>build.xml</code> listed.</div>
-<ol>
-<li><div> Double-click <code>build.xml</code> to see how the jme3-specify build targets were defined. You typically do not need to edit the existing ones, but you can.</div>
-</li>
-<li><div> Click the triangle next to <code>build.xml</code> to see all targets.</div>
-<ol>
-<li><div> Double-click a target in the Files window, or the Navigator, to see how the target was defined. <br/>
- You will notice that the file <code>nbproject/build-impl.xml</code> opens. It contains very generic targets that you typically will never need to edit. Note that <code>build.xml</code> includes <code>build-impl.xml</code>!</div>
-</li>
-</ol>
-</li>
-</ol>
-</li>
-</ol>
-
-</div>
-
-<h2><a>Adding Custom Targets</a></h2>
-<div>
-
-<p>
-
-The build script is a non-proprietary Apache Ant script. It will work out-of-the-box, but if necessary, you can extend and customize it. 
-</p>
-
-<p>
-Read the comments in <code>build.xml</code>, they explain how to override targets, or extend them, to customize the build process without breaking the existing functionality.
-
-</p>
-
-</div>
+ant run</pre><p> Recommended Usage: Use the menu items or toolbar buttons in the jMonkeyPlatform to trigger clean, build, and run actions.</p></div><h2><a
+name="browsing_the_build_script">Browsing the Build Script</a></h2><div
+class="level2"><p> To see the build script and the predefined tasks</p><ol><li
+class="level1"><div
+class="li"> Open your project in the jMonkeyPlatform if it isn&#039;t already open (File &gt; Open Project…)</div></li><li
+class="level1"><div
+class="li"> Open the Files window (Window &gt; Files)</div></li><li
+class="level1"><div
+class="li"> Open the project node. You see <code>build.xml</code> listed.</div><ol><li
+class="level2"><div
+class="li"> Double-click <code>build.xml</code> to see how the jme3-specify build targets were defined. You typically do not need to edit the existing ones, but you can.</div></li><li
+class="level2"><div
+class="li"> Click the triangle next to <code>build.xml</code> to see all targets.</div><ol><li
+class="level3"><div
+class="li"> Double-click a target in the Files window, or the Navigator, to see how the target was defined. <br/> You will notice that the file <code>nbproject/build-impl.xml</code> opens. It contains very generic targets that you typically will never need to edit. Note that <code>build.xml</code> includes <code>build-impl.xml</code>!</div></li></ol></li></ol></li></ol></div><h2><a
+name="adding_custom_targets">Adding Custom Targets</a></h2><div
+class="level2"><p> The build script is a non-proprietary Apache Ant script. It will work out-of-the-box, but if necessary, you can extend and customize it.</p><p> Read the comments in <code>build.xml</code>, they explain how to override targets, or extend them, to customize the build process without breaking the existing functionality.</p></div>
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/sdk:default_build_script?do=export_xhtmlbody">view online version</a></em></p>

@@ -1,62 +1,33 @@
-
-<h1><a>Shapes</a></h1>
-<div>
-
-<p>
-
-The simplest type of Meshes are jME&#039;s default Shapes. You can use Shapes to build complex Geometries. Shapes are created without using the AssetManager.
-</p>
-
-<p>
-<strong>3D shapes:</strong>
-</p>
-<ul>
-<li><div> com.jme3.scene.shape.Sphere – A ball or elipsoid.</div>
-</li>
-<li><div> com.jme3.scene.shape.Box – A cube or cuboid.</div>
-</li>
-<li><div> com.jme3.scene.shape.Cylinder – A disk or pillar.</div>
-</li>
-<li><div> com.jme3.scene.shape.Dome – Half a sphere.</div>
-</li>
-<li><div> com.jme3.scene.shape.Torus – An single-holed torus (“donut”).</div>
-</li>
-<li><div> com.jme3.scene.shape.PQTorus – A parameterized torus, also known as PQ torus. Looks like a <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://en.wikipedia.org/wiki/Torus_knot"><param name="text" value="<html><u>donut knotted into spirals</u></html>"><param name="textColor" value="blue"></object>.</div>
-</li>
-</ul>
-
-<p>
-
-<strong>Non-3D shapes:</strong>
-</p>
-<ul>
-<li><div> com.jme3.scene.shape.Quad – A flat 2D rectangle (has two sides)</div>
-</li>
-<li><div> com.jme3.scene.shape.Line – A 1D line (has a length)</div>
-</li>
-<li><div> come.jme3.math.Ray – A 1D line (has length, direction, start point, but no end)</div>
-</li>
-</ul>
-
-</div>
-
-<h2><a>Usage</a></h2>
-<div>
-
-<p>
-
-To add a shape to the scene:
-</p>
-<ol>
-<li><div> Create the base mesh shape</div>
-</li>
-<li><div> Wrap it into a Geometry</div>
-</li>
-<li><div> Attach the Geometry to the rootNode to make it visible.</div>
-</li>
-</ol>
-<pre>Sphere sphereMesh = new Sphere&#40;32, 32, 10, false, true&#41;;
+<h1><a
+name="shapes">Shapes</a></h1><div
+class="level1"><p> The simplest type of Meshes are jME&#039;s default Shapes. You can use Shapes to build complex Geometries. Shapes are created without using the AssetManager.</p><p> <strong>3D shapes:</strong></p><ul><li
+class="level1"><div
+class="li"> com.jme3.scene.shape.Sphere – A ball or elipsoid.</div></li><li
+class="level1"><div
+class="li"> com.jme3.scene.shape.Box – A cube or cuboid.</div></li><li
+class="level1"><div
+class="li"> com.jme3.scene.shape.Cylinder – A disk or pillar.</div></li><li
+class="level1"><div
+class="li"> com.jme3.scene.shape.Dome – Half a sphere.</div></li><li
+class="level1"><div
+class="li"> com.jme3.scene.shape.Torus – An single-holed torus (&quot;donut&quot;).</div></li><li
+class="level1"><div
+class="li"> com.jme3.scene.shape.PQTorus – A parameterized torus, also known as PQ torus. Looks like a <a
+href="http://en.wikipedia.org/wiki/Torus_knot">donut knotted into spirals</a>.</div></li></ul><p> <strong>Non-3D shapes:</strong></p><ul><li
+class="level1"><div
+class="li"> com.jme3.scene.shape.Quad – A flat 2D rectangle (has two sides)</div></li><li
+class="level1"><div
+class="li"> com.jme3.scene.shape.Line – A 1D line (has a length)</div></li><li
+class="level1"><div
+class="li"> come.jme3.math.Ray – A 1D line (has length, direction, start point, but no end)</div></li></ul></div><h2><a
+name="usage">Usage</a></h2><div
+class="level2"><p> To add a shape to the scene:</p><ol><li
+class="level1"><div
+class="li"> Create the base mesh shape</div></li><li
+class="level1"><div
+class="li"> Wrap it into a Geometry</div></li><li
+class="level1"><div
+class="li"> Attach the Geometry to the rootNode to make it visible.</div></li></ol><pre>Sphere sphereMesh = new Sphere&#40;32, 32, 10, false, true&#41;;
 Geometry sphere = new Geometry&#40;&quot;Sky&quot;, sphereMesh&#41;;
-rootNode.attachChild&#40;sphere&#41;;</pre>
-</div>
+rootNode.attachChild&#40;sphere&#41;;</pre></div>
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:shape?do=export_xhtmlbody">view online version</a></em></p>

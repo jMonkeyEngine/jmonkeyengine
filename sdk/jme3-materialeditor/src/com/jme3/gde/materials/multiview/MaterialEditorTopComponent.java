@@ -625,8 +625,8 @@ public final class MaterialEditorTopComponent extends CloneableTopComponent impl
         try {
             AssetKey key = new AssetKey(manager.getRelativeAssetPath(materialFileName));
             Geometry geom = new Geometry("TestSphere", sphMesh);
-            ((DesktopAssetManager) manager.getManager()).deleteFromCache(key);
-            geom.setMaterial((Material) manager.getManager().loadAsset(key));
+            manager.deleteFromCache(key);
+            geom.setMaterial((Material) manager.loadAsset(key));
             if (geom.getMaterial() != null) {
                 PreviewRequest request = new PreviewRequest(this, geom);
                 SceneApplication.getApplication().createPreview(request);

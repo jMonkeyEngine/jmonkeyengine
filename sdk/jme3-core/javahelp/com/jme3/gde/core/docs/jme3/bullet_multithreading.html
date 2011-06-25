@@ -1,41 +1,10 @@
-
-<h1><a>Multithreading Bullet Physics in jme3</a></h1>
-<div>
-
-</div>
-
-<h2><a>Introduction</a></h2>
-<div>
-
-<p>
-Since bullet is not (yet) multithreaded or GPU accelerated the jME3 implementation allows to run each physics space on a separate thread that is executed in parallel to rendering.
-</p>
-
-</div>
-
-<h2><a>How is it handled in jme3 and bullet?</a></h2>
-<div>
-
-<p>
-
-A SimpleApplication with a BulletAppState allows setting the threading type via 
-</p>
-<pre>setThreadingType(ThreadingType type);</pre>
-
-<p>
- where ThreadingType can be either SEQUENTIAL or PARALLEL.
-</p>
-
-<p>
-In the simpleInitApp() method:
-</p>
-<pre>bulletAppState = new BulletAppState&#40;&#41;;
+<h1><a
+name="multithreading_bullet_physics_in_jme3">Multithreading Bullet Physics in jme3</a></h1><div
+class="level1"></div><h2><a
+name="introduction">Introduction</a></h2><div
+class="level2"><p> Since bullet is not (yet) multithreaded or GPU accelerated the jME3 implementation allows to run each physics space on a separate thread that is executed in parallel to rendering.</p></div><h2><a
+name="how_is_it_handled_in_jme3_and_bullet">How is it handled in jme3 and bullet?</a></h2><div
+class="level2"><p> A SimpleApplication with a BulletAppState allows setting the threading type via</p><pre>setThreadingType(ThreadingType type);</pre><p> where ThreadingType can be either SEQUENTIAL or PARALLEL.</p><p> In the simpleInitApp() method:</p><pre>bulletAppState = new BulletAppState&#40;&#41;;
 bulletAppState.setThreadingType&#40;BulletAppState.ThreadingType.PARALLEL&#41;;
-stateManager.attach&#40;bulletAppState&#41;;</pre>
-<p>
-The physics update happens in parallel to rendering, after the users changes have been made in the update() call. This way the loop logic is still maintained: the user can set and change values in physics and scenegraph objects before render() and physicsUpdate() are called in parallel.
-
-</p>
-
-</div>
+stateManager.attach&#40;bulletAppState&#41;;</pre><p> The physics update happens in parallel to rendering, after the users changes have been made in the update() call. This way the loop logic is still maintained: the user can set and change values in physics and scenegraph objects before render() and physicsUpdate() are called in parallel.</p></div>
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:bullet_multithreading?do=export_xhtmlbody">view online version</a></em></p>

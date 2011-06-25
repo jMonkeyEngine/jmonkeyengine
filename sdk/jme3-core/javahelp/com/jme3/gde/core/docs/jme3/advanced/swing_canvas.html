@@ -1,164 +1,60 @@
-
-<h1><a>JME3 Canvas in a Swing GUI</a></h1>
-<div>
-
-<p>
-
-3D games are typically played full-screen, or in a window that takes over the mouse and all inputs. However it is also possible to embed a jME 3 canvas in a standard Swing application. 
-</p>
-
-<p>
-This can be useful when you create some sort of interactive 3D viewer with a user interface that is more complex than just a HUD: For instance an interactive scientific demo, a level editor, or a game character designer.
-
-</p>
-<ul>
-<li><div> Advantages: </div>
-<ul>
-<li><div> You can use Swing components (frame, panels, menus, controls) next to your jME3 game. </div>
-</li>
-<li><div> The NetBeans <acronym title="Graphical User Interface">GUI</acronym> builder is compatible with the jMonkeyEngine; you can use it it to lay out the Swing <acronym title="Graphical User Interface">GUI</acronym> frame, and then add() the jME canvas into it. Install the <acronym title="Graphical User Interface">GUI</acronym> builder via Tools → Plugins → Available Plugins.</div>
-</li>
-</ul>
-</li>
-<li><div> Disadvantages:</div>
-<ul>
-<li><div> You cannot use SimpleApplication&#039;s default mouse capturing for camera navigation, but have to come up with a custom solution.</div>
-</li>
-</ul>
-</li>
-</ul>
-
-<p>
-
-Here is the full <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/app/SwingCanvasTest.java?r=5796"><param name="text" value="<html><u>SwingCanvasTest.java</u></html>"><param name="textColor" value="blue"></object> code sample, contributed by pgi.
-</p>
-
-</div>
-
-<h2><a>Extending SimpleApplication</a></h2>
-<div>
-
-<p>
-
-You start out just the same as for any jME3 game: The base application, here SwingCanvasTest, extends <code>com.jme3.app.SimpleApplication</code>. As usual, you use <code>simpleInitApp()</code> to initialize the scene, and <code>simpleUpdate()</code> as event loop.
-</p>
-
-<p>
-The camera&#039;s default behaviour in SimpleApplication is to capture the mouse, which doesn&#039;t make sense in a Swing window. You have to deactivate and replace this behaviour by <code>flyCam.setDragToRotate(true);</code> when you initialize the application:
-</p>
-<pre>public void simpleInitApp&#40;&#41; &#123;
+<h1><a
+name="jme3_canvas_in_a_swing_gui">JME3 Canvas in a Swing GUI</a></h1><div
+class="level1"><p> 3D games are typically played full-screen, or in a window that takes over the mouse and all inputs. However it is also possible to embed a jME 3 canvas in a standard Swing application. <br/> <br/> This can be useful when you create some sort of interactive 3D viewer with a user interface that is more complex than just a HUD: For instance an interactive scientific demo, a level editor, or a game character designer. <br/> <br/></p><ul><li
+class="level1"><div
+class="li"> Advantages:</div><ul><li
+class="level2"><div
+class="li"> You can use Swing components (frame, panels, menus, controls) next to your jME3 game.</div></li><li
+class="level2"><div
+class="li"> The NetBeans <acronym
+title="Graphical User Interface">GUI</acronym> builder is compatible with the jMonkeyEngine; you can use it it to lay out the Swing <acronym
+title="Graphical User Interface">GUI</acronym> frame, and then add() the jME canvas into it. Install the <acronym
+title="Graphical User Interface">GUI</acronym> builder via Tools → Plugins → Available Plugins.</div></li></ul></li><li
+class="level1"><div
+class="li"> Disadvantages:</div><ul><li
+class="level2"><div
+class="li"> You cannot use SimpleApplication&#039;s default mouse capturing for camera navigation, but have to come up with a custom solution.</div></li></ul></li></ul><p> Here is the full <a
+href="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/awt/TestCanvas.java">TestCanvas.java</a> code sample.</p></div><h2><a
+name="extending_simpleapplication">Extending SimpleApplication</a></h2><div
+class="level2"><p> You start out just the same as for any jME3 game: The base application, here SwingCanvasTest, extends <code>com.jme3.app.SimpleApplication</code>. As usual, you use <code>simpleInitApp()</code> to initialize the scene, and <code>simpleUpdate()</code> as event loop. <br/> <br/> The camera&#039;s default behaviour in SimpleApplication is to capture the mouse, which doesn&#039;t make sense in a Swing window. You have to deactivate and replace this behaviour by <code>flyCam.setDragToRotate(true);</code> when you initialize the application:</p><pre>public void simpleInitApp&#40;&#41; &#123;
   // activate windowed input behaviour
   flyCam.setDragToRotate&#40;true&#41;;
-&nbsp;
   // Set up inputs and load your scene as usual
   ...
-&#125;</pre>
-<p>
-In short: The first thing that is different is the <code>main()</code> method. We don&#039;t call start() on the SwingCanvasTest object as usual. Instead we create a Runnable() that creates and opens a standard Swing jFrame. In the runnable, we also create our SwingCanvasTest game with special settings, create a Canvas for it, and add that to the jFrame. Then we call startCanvas().
-</p>
-
-</div>
-
-<h2><a>Main() and Runnable()</a></h2>
-<div>
-
-<p>
-
-The Swing isn&#039;t thread-save and doesn&#039;t allow us to keep the jME3 canvas up-to-date. This is why we create a runnable for the jME canvas and queue it in the AWT event thread, so it can be invoked “later” in the loop, when Swing is ready with updating its own stuff.
-</p>
-
-<p>
-In the SwingCanvasTest&#039;s main() method, create a queued runnable(). It will contain the jME canvas and the Swing frame.
-</p>
-<pre>  public static void main&#40;String&#91;&#93; args&#41; &#123;
+&#125;</pre><p> In short: The first thing that is different is the <code>main()</code> method. We don&#039;t call start() on the SwingCanvasTest object as usual. Instead we create a Runnable() that creates and opens a standard Swing jFrame. In the runnable, we also create our SwingCanvasTest game with special settings, create a Canvas for it, and add that to the jFrame. Then we call startCanvas().</p></div><h2><a
+name="main_and_runnable">Main() and Runnable()</a></h2><div
+class="level2"><p> The Swing isn&#039;t thread-safe and doesn&#039;t allow us to keep the jME3 canvas up-to-date. This is why we create a runnable for the jME canvas and queue it in the AWT event thread, so it can be invoked &quot;later&quot; in the loop, when Swing is ready with updating its own stuff. <br/> <br/> In the SwingCanvasTest&#039;s main() method, create a queued runnable(). It will contain the jME canvas and the Swing frame.</p><pre>  public static void main&#40;String&#91;&#93; args&#41; &#123;
     java.awt.Runnable&#40;&#41; &#123;
       public void run&#40;&#41; &#123;
          // ... see below ...
       &#125;
     &#125;&#41;;
-  &#125;</pre>
-</div>
-
-<h3><a>Creating the Canvas</a></h3>
-<div>
-
-<p>
-
-Here in the <code>run()</code> method, we start the jME application, create its canvas, create a Swing frame, and add everything together.
-</p>
-
-<p>
-Specify the com.jme3.system.AppSettings so jME knows the size of the Swing panel that we put it into. The application will not ask the user for display settings, you have to specify them in advance.
-</p>
-<pre>AppSettings settings = new AppSettings&#40;true&#41;;
+  &#125;</pre></div><h3><a
+name="creating_the_canvas">Creating the Canvas</a></h3><div
+class="level3"><p> Here in the <code>run()</code> method, we start the jME application, create its canvas, create a Swing frame, and add everything together. <br/> <br/> Specify the com.jme3.system.AppSettings so jME knows the size of the Swing panel that we put it into. The application will not ask the user for display settings, you have to specify them in advance.</p><pre>AppSettings settings = new AppSettings&#40;true&#41;;
 settings.setWidth&#40;640&#41;;
-settings.setHeight&#40;480&#41;;</pre>
-<p>
-We create our canvas application SwingCanvasTest, and give it the settings. We manually create a canvas for this game and configure the com.jme3.system.JmeCanvasContext. The method setSystemListener() makes sure that the listener receives events relating to context creation, update, and destroy.
-</p>
-<pre>SwingCanvasTest canvasApplication = new SwingCanvasTest&#40;&#41;;
+settings.setHeight&#40;480&#41;;</pre><p> We create our canvas application SwingCanvasTest, and give it the settings. We manually create a canvas for this game and configure the com.jme3.system.JmeCanvasContext. The method setSystemListener() makes sure that the listener receives events relating to context creation, update, and destroy.</p><pre>SwingCanvasTest canvasApplication = new SwingCanvasTest&#40;&#41;;
 canvasApplication.setSettings&#40;settings&#41;;
 canvasApplication.createCanvas&#40;&#41;; // create canvas!
 JmeCanvasContext ctx = &#40;JmeCanvasContext&#41; canvasApplication.getContext&#40;&#41;;
 ctx.setSystemListener&#40;canvasApplication&#41;;
 Dimension&#40;640, 480&#41;;
-ctx.getCanvas&#40;&#41;.setPreferredSize&#40;dim&#41;;</pre>
-<p>
-Note that we have not called start() on the application, as we would usually do in the main() method. We will call startCanvas() later instead.
-</p>
-
-</div>
-
-<h3><a>Creating the Swing Frame</a></h3>
-<div>
-
-<p>
-
-Inside the run() method, you create the Swing window as you would usually do. Create an empty jFrame and add() components to it, or create a custom jFrame object in another class file (for example, by using the NetBeans <acronym title="Graphical User Interface">GUI</acronym> builder) and create an instance of it here. 
-Which ever you do, let&#039;s call the jFrame <code>window</code>.
-</p>
-<pre>JFrame&#40;&quot;Swing Application&quot;&#41;;
-window.setDefaultCloseOperation&#40;JFrame.EXIT_ON_CLOSE&#41;;</pre>
-<p>
-We create a standard JPanel inside the JFrame. Give it any Layout you wish – here we use a simple Flow Layout. Where the code sample says “Some Swing Component”, this is where you add your buttons and controls.
-</p>
-
-<p>
-The important step is to add() the canvas component into the panel, like all the other Swing components. 
-</p>
-<pre>FlowLayout&#40;&#41;&#41;; // a panel
+ctx.getCanvas&#40;&#41;.setPreferredSize&#40;dim&#41;;</pre><p> Note that we have not called start() on the application, as we would usually do in the main() method. We will call startCanvas() later instead.</p></div><h3><a
+name="creating_the_swing_frame">Creating the Swing Frame</a></h3><div
+class="level3"><p> Inside the run() method, you create the Swing window as you would usually do. Create an empty jFrame and add() components to it, or create a custom jFrame object in another class file (for example, by using the NetBeans <acronym
+title="Graphical User Interface">GUI</acronym> builder) and create an instance of it here.
+Which ever you do, let&#039;s call the jFrame <code>window</code>.</p><pre>JFrame&#40;&quot;Swing Application&quot;&#41;;
+window.setDefaultCloseOperation&#40;FlowLayout&#40;&#41;&#41;; // a panel
 // add all your Swing components ...
-panel.add&#40;new JButton&#40;&quot;Some Swing Component&quot;&#41;&#41;; 
+panel.add&#40;new JButton&#40;&quot;Some Swing Component&quot;&#41;&#41;;
 ...
 // add the JME canvas
-panel.add&#40;ctx.getCanvas&#40;&#41;&#41;;</pre>
-<p>
-OK, the jFrame and the panel are ready. We add the panel into the jFrame, and pack everything together. Set the window&#039;s visibility to true make it appear.
-</p>
-<pre>window.add&#40;panel&#41;;
+panel.add&#40;ctx.getCanvas&#40;&#41;&#41;;</pre><p> OK, the jFrame and the panel are ready. We add the panel into the jFrame, and pack everything together. Set the window&#039;s visibility to true make it appear.</p><pre>window.add&#40;panel&#41;;
 window.pack&#40;&#41;;
-window.setVisible&#40;true&#41;;</pre>
-<p>
-Remember that we haven&#039;t called start() on the jME appliation yet? For the canvas, there is a special <code>startCanvas()</code> method that you must call now:
-</p>
-<pre>canvasApplication.startCanvas&#40;&#41;;</pre>
-<p>
-Clean, build, and run!
-</p>
-
-</div>
-
-<h2><a>Navigation</a></h2>
-<div>
-
-<p>
-
-Remember, to navigate in the scene, click and drag (!) the mouse, or press the WASD keys. Depending on your game you may even want to define custom inputs to handle navigation in this untypical environment.
-</p>
-<div><span>
-	<a href="/wiki/doku.php/tag:documentation?do=showtag&amp;tag=tag%3Adocumentation">documentation</a>,
-	<a href="/wiki/doku.php/tag:gui?do=showtag&amp;tag=tag%3Agui">gui</a>
-</span></div>
-
-</div>
+window.setVisible&#40;true&#41;;</pre><p> Remember that we haven&#039;t called start() on the jME appliation yet? For the canvas, there is a special <code>startCanvas()</code> method that you must call now:</p><pre>canvasApplication.startCanvas&#40;&#41;;</pre><p> Clean, build, and run!</p></div><h2><a
+name="navigation">Navigation</a></h2><div
+class="level2"><p> Remember, to navigate in the scene, click and drag (!) the mouse, or press the WASD keys. Depending on your game you may even want to define custom inputs to handle navigation in this untypical environment.</p><div
+class="tags"><span> <a
+href="/wiki/doku.php/tag:documentation?do=showtag&amp;tag=tag%3Adocumentation">documentation</a>, <a
+href="/wiki/doku.php/tag:gui?do=showtag&amp;tag=tag%3Agui">gui</a> </span></div></div>
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:swing_canvas?do=export_xhtmlbody">view online version</a></em></p>

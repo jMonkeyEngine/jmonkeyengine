@@ -1,25 +1,10 @@
-
-<h3><a>Terrain Collision</a></h3>
-<div>
-
-<p>
-
-<strong>*Work in progress</strong>*
-</p>
-
-<p>
-This page will extend (not the Java keyword!) the Hello_Terrain tutorial in a few small ways in order to show you a quick way to create a Collision Shape out of the map we have generated.  A Collision Shape allows a player (who is also a Collision Shape in this tutorial) to collide with the map, i.e. clip, walk on, stand on, etc. in order to create the type of world and interactivity most gamers are familiar with in FPS or MMOs.
-
-</p>
-<div><span>
-	<a href="/wiki/doku.php/tag:about?do=showtag&amp;tag=tag%3Aabout">about</a>
-</span></div>
-
-</div>
-
-<h3><a>Sample Code</a></h3>
-<div>
-<pre>package mygame;
+<h3><a
+name="terrain_collision">Terrain Collision</a></h3><div
+class="level3"><p> <strong>*Work in progress</strong>*</p><p> This page will extend (not the Java keyword!) the Hello_Terrain tutorial in a few small ways in order to show you a quick way to create a Collision Shape out of the map we have generated.  A Collision Shape allows a player (who is also a Collision Shape in this tutorial) to collide with the map, i.e. clip, walk on, stand on, etc. in order to create the type of world and interactivity most gamers are familiar with in FPS or MMOs.</p><div
+class="tags"><span> <a
+href="/wiki/doku.php/tag:about?do=showtag&amp;tag=tag%3Aabout">about</a> </span></div></div><h3><a
+name="sample_code">Sample Code</a></h3><div
+class="level3"><pre>package mygame;
 &nbsp;
 import jme3tools.converters.ImageToAwt;
 import com.jme3.app.SimpleBulletApplication;
@@ -191,112 +176,29 @@ public class Main extends SimpleBulletApplication &#123;
             &#125;
         &#125;
     &#125;;
-&#125;</pre>
-</div>
-
-<h3><a>What&#039;s Going On?</a></h3>
-<div>
-
-<p>
-To try this code, go into a New Project → JME3 → BasicGame using the default settings (if you haven&#039;t already made a default project before) the name should be BasicGame and the package would be called myGame, then just paste this over the entire preconstructed main.java text.  Then Add the jme3-test-data library which is available through your library list.  This should compile and run from there.
-</p>
-
-</div>
-
-<h3><a>Explaining the Code</a></h3>
-<div>
-
-<p>
-I will only briefly describe the sections that are covered in the original Hello_Terrain.  Most detail will be given to the additives.
-</p>
-
-<p>
-Imports are to bring in the appropriate class definitions.
-</p>
-<pre>private TerrainQuad terrain;</pre>
-<p>
-
-Holds our map.
-
-</p>
-<pre>PhysicsCharacterNode player;</pre>
-<p>
-
-Creates our character in the style of FPS that many gamers are familiar with.
-
-</p>
-<pre>Boolean left = false, right = false, up = false, down = false;</pre>
-<p>
-
-Variables for creating fluid movement.
-
-</p>
-<pre>private Vector3f walkDirection = new Vector3f&#40;&#41;;</pre>
-<p>
-
-The direction we determine from combinations of the booleans.
-</p>
-
-<p>
-
-The main function is standard.
-In simpleInit we run setupKeys() first and create the common WASD and SPACEBAR to jump.
-
-</p>
-<pre>inputManager.addListener(actionListener, new String[]{&quot;Lefts&quot;, &quot;Rights&quot;, &quot;Ups&quot;, &quot;Downs&quot;, &quot;Jumps&quot;})</pre>
-
-<p>
-
-This line indicates our actionListener function and what to do when each command (the string names) is sent.
-</p>
-
-<p>
-The onAction function basically sets the booleans true based on which directions we&#039;re pressing or makes us jump.
-The simpleUpdate function constants changed our direction based on the boolean (ie the directions) we&#039;re pressing.
-</p>
-
-<p>
-The real collisioning happens in these parts;
-
-</p>
-<pre>player = new PhysicsCharacterNode(new CapsuleCollisionShape(1.2f, 3f, 1), .05f);
+&#125;</pre></div><h3><a
+name="what_s_going_on">What&#039;s Going On?</a></h3><div
+class="level3"><p> To try this code, go into a New Project → JME3 → BasicGame using the default settings (if you haven&#039;t already made a default project before) the name should be BasicGame and the package would be called myGame, then just paste this over the entire preconstructed main.java text.  Then Add the jme3-test-data library which is available through your library list.  This should compile and run from there.</p></div><h3><a
+name="explaining_the_code">Explaining the Code</a></h3><div
+class="level3"><p> I will only briefly describe the sections that are covered in the original Hello_Terrain.  Most detail will be given to the additives.</p><p> Imports are to bring in the appropriate class definitions.</p><pre>private TerrainQuad terrain;</pre><p> Holds our map.</p><pre>PhysicsCharacterNode player;</pre><p> Creates our character in the style of FPS that many gamers are familiar with.</p><pre>Boolean left = false, right = false, up = false, down = false;</pre><p> Variables for creating fluid movement.</p><pre>private Vector3f walkDirection = new Vector3f&#40;&#41;;</pre><p> The direction we determine from combinations of the booleans.</p><p> The main function is standard.
+In simpleInit we run setupKeys() first and create the common WASD and SPACEBAR to jump.</p><pre>inputManager.addListener(actionListener, new String[]{&quot;Lefts&quot;, &quot;Rights&quot;, &quot;Ups&quot;, &quot;Downs&quot;, &quot;Jumps&quot;})</pre><p> This line indicates our actionListener function and what to do when each command (the string names) is sent.</p><p> The onAction function basically sets the booleans true based on which directions we&#039;re pressing or makes us jump.
+The simpleUpdate function constants changed our direction based on the boolean (ie the directions) we&#039;re pressing.</p><p> The real collisioning happens in these parts;</p><pre>player = new PhysicsCharacterNode(new CapsuleCollisionShape(1.2f, 3f, 1), .05f);
 rootNode.attachChild(player);
 getPhysicsSpace().add(player);
-
 HeightfieldCollisionShape sceneShape = new HeightfieldCollisionShape(heightmap.getHeightMap());
 landscape = new PhysicsNode(terrain, sceneShape, 0);
-
 landscape.setLocalTranslation(0, -100, 0);
 rootNode.attachChild(landscape);
-getPhysicsSpace().add(landscape);</pre>
-
-<p>
-The first chunk makes our player into a collision shape that&#039;s a capsule, kinda like a human right? And then attaches it to the rootNode and gets it&#039;s physics (important!).
+getPhysicsSpace().add(landscape);</pre><p> The first chunk makes our player into a collision shape that&#039;s a capsule, kinda like a human right? And then attaches it to the rootNode and gets it&#039;s physics (important!).
 The second chunk feeds the heightmap we made into a heightfield collision shape generator to create the collidable shape of the land mass.
-The third chunk sets our land and it&#039;s collision down some, attaches em to root, and gets the physics.
-</p>
-
-</div>
-
-<h3><a>Conclusion</a></h3>
-<div>
-
-<p>
-You should spawn high up in the area and fall down to the map, giving you a few seconds to survey the domain.  Then walk around and see how you like the lay of the land.
-
-</p>
-<hr />
-
-<p>
-See also:
-
-</p>
-<ul>
-<li><div> <a href="/com/jme3/gde/core/docs/jme3/beginner/hello_terrain.html">Hello Terrain</a>,</div>
-</li>
-<li><div> <a href="/com/jme3/gde/core/docs/jme3/advanced/terrain.html">Terrain</a></div>
-</li>
-</ul>
-
-</div>
+The third chunk sets our land and it&#039;s collision down some, attaches em to root, and gets the physics.</p></div><h3><a
+name="conclusion">Conclusion</a></h3><div
+class="level3"><p> You should spawn high up in the area and fall down to the map, giving you a few seconds to survey the domain.  Then walk around and see how you like the lay of the land.</p><hr
+/><p> See also:</p><ul><li
+class="level1"><div
+class="li"> <a
+href="/com/jme3/gde/core/docs/jme3/beginner/hello_terrain.html">Hello Terrain</a>,</div></li><li
+class="level1"><div
+class="li"> <a
+href="/com/jme3/gde/core/docs/jme3/advanced/terrain.html">Terrain</a></div></li></ul></div>
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:intermediate:terrain_collision?do=export_xhtmlbody">view online version</a></em></p>

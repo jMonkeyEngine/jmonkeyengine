@@ -1,267 +1,157 @@
-
-<h1><a>Animation in jME3</a></h1>
-<div>
-
-<p>
-
-In 3D games, you do not only load static 3D models, you also want to be able to trigger animations in the model from the Java code. Animated models must be created in an external mesh editor (for example, Blender). 
-</p>
-
-<p>
-What is required for the model?
-</p>
-<ol>
-<li><div> For each model, you have to define a skeleton (bones rigging). </div>
-</li>
-<li><div> For each motion, you have to specify how it distorts the model (skinning). </div>
-</li>
-<li><div> For each animation, you have to specify a series of snapshots of how the bones are positioned (keyframes).</div>
-</li>
-<li><div> One model can contain several animations. You give every animation a name when you save it in the mesh editor.</div>
-</li>
-</ol>
-
-<p>
-
-More information: <a href="/com/jme3/gde/core/docs/jme3/terminology#animation.html">Animation</a>
-</p>
-
-<p>
-What is required in your java class?
-</p>
-<ul>
-<li><div> One animation controller per animated Model</div>
-</li>
-<li><div> As many channels per controller as you need to play several animations in parallel. In simple cases one channel is enough, sometimes you need two or more per model.</div>
-</li>
-</ul>
-
-</div>
-
-<h2><a>Controlling Animations</a></h2>
-<div>
-
-</div>
-
-<h3><a>The Controller</a></h3>
-<div>
-
-<p>
-
-Create one <code>com.jme3.animation.AnimControl</code> object in your JME3 application for each animated model that you want to control. You have to register each animated model to one of these Animation Controllers. The control object gives you access to the available animation sequences in the model.  
-</p>
-<pre>  AnimControl playerControl; // you need one controller per model
+<h1><a
+name="animation_in_jme3">Animation in jME3</a></h1><div
+class="level1"><p> In 3D games, you do not only load static 3D models, you also want to be able to trigger animations in the model from the Java code. Animated models must be created in an external mesh editor (for example, Blender).</p><p> What is required for the model?</p><ol><li
+class="level1"><div
+class="li"> For each model, you have to define a skeleton (bones rigging).</div></li><li
+class="level1"><div
+class="li"> For each motion, you have to specify how it distorts the model (skinning).</div></li><li
+class="level1"><div
+class="li"> For each animation, you have to specify a series of snapshots of how the bones are positioned (keyframes).</div></li><li
+class="level1"><div
+class="li"> One model can contain several animations. You give every animation a name when you save it in the mesh editor.</div></li></ol><p> More information: <a
+href="/com/jme3/gde/core/docs/jme3/terminology#animation.html">Animation</a></p><p> What is required in your java class?</p><ul><li
+class="level1"><div
+class="li"> One animation controller per animated Model</div></li><li
+class="level1"><div
+class="li"> As many channels per controller as you need to play several animations in parallel. In simple cases one channel is enough, sometimes you need two or more per model.</div></li></ul></div><h2><a
+name="controlling_animations">Controlling Animations</a></h2><div
+class="level2"></div><h3><a
+name="the_controller">The Controller</a></h3><div
+class="level3"><p> Create one <code>com.jme3.animation.AnimControl</code> object in your JME3 application for each animated model that you want to control. You have to register each animated model to one of these Animation Controllers. The control object gives you access to the available animation sequences in the model.</p><pre>  AnimControl playerControl; // you need one controller per model
   Node player = &#40;Node&#41; assetManager.loadModel&#40;&quot;Models/Oto/Oto.mesh.xml&quot;&#41;; // load a model
   playerControl = player.getControl&#40;AnimControl.class&#41;; // get control over this model
-  playerControl.addListener&#40;this&#41;; // add listener</pre>
-</div>
-
-<h3><a>Channels</a></h3>
-<div>
-
-<p>
-
-A controller has several animation channels (<code>com.jme3.animation.AnimChannel</code>). Each channel can play one animation sequence at a time. 
-</p>
-
-<p>
-There often are situations where you want to run several animation sequences at the same time, e.g. “shooting while walking” or “boxing while jumping”. In this case, you create several channels, assign an animation to each, and play them in parallel. 
- 
-
-</p>
-<pre>  AnimChannel channel_walk = playerControl.createChannel&#40;&#41;;
+  playerControl.addListener&#40;this&#41;; // add listener</pre></div><h3><a
+name="channels">Channels</a></h3><div
+class="level3"><p> A controller has several animation channels (<code>com.jme3.animation.AnimChannel</code>). Each channel can play one animation sequence at a time.</p><p> There often are situations where you want to run several animation sequences at the same time, e.g. &quot;shooting while walking&quot; or &quot;boxing while jumping&quot;. In this case, you create several channels, assign an animation to each, and play them in parallel.</p><pre>  AnimChannel channel_walk = playerControl.createChannel&#40;&#41;;
   AnimChannel channel_jump = playerControl.createChannel&#40;&#41;;
-  ...</pre>
-<p>
-To reset a controller, call <code>control.clearChannels();</code>
-</p>
-
-</div>
-
-<h2><a>Animation Control Properties</a></h2>
-<div>
-
-<p>
-
-The following information is available for an AnimControl.
-
-</p>
-<table>
-	<tr>
-		<th>AnimControl Property</th><th>Usage</th>
-	</tr>
-	<tr>
-		<td>createChannel()</td><td>Returns a new channel, controlling all bones by default.</td>
-	</tr>
-	<tr>
-		<td>getNumChannels()</td><td>The number of channels registered to this Control.</td>
-	</tr>
-	<tr>
-		<td>getChannel(0)</td><td>Gets individual channels by index number. At most <code>getNumChannels()</code>.</td>
-	</tr>
-	<tr>
-		<td>clearChannels()</td><td>Clear all channels in this control.</td>
-	</tr>
-	<tr>
-		<td>addListener(animEventListener) <br/>
- removeListener(animEventListener) <br/>
- clearListeners() </td><td>Adds or removes listeners to receive animation related events.</td>
-	</tr>
-</table>
-<table>
-	<tr>
-		<th>AnimControl Property</th><th>Usage</th>
-	</tr>
-	<tr>
-		<td>setAnimations(aniHashMap)</td><td>Sets the animations that this AnimControl is capable of playing. The animations must be compatible with the skeleton given in the constructor.</td>
-	</tr>
-	<tr>
-		<td>addAnim(boneAnim) <br/>
- removeAnim(boneAnim)</td><td>Adds or removes an animation from this Control.</td>
-	</tr>
-	<tr>
-		<td>getAnimationNames()</td><td>A String Collection of names of all animations that this Control can play for this model.</td>
-	</tr>
-	<tr>
-		<td>getAnim(“anim”)</td><td>Retrieve an animation from the list of animations.</td>
-	</tr>
-	<tr>
-		<td>getAnimationLength(“anim”)</td><td>Returns the length of the given named animation in seconds</td>
-	</tr>
-</table>
-<table>
-	<tr>
-		<th>AnimControl Property</th><th>Usage</th>
-	</tr>
-	<tr>
-		<td>getSkeleton()</td><td>The Skeleton object controlled by this Control.</td>
-	</tr>
-	<tr>
-		<td>getTargets()</td><td>The Skin objects controlled by this Control, as Mesh array.</td>
-	</tr>
-	<tr>
-		<td>getAttachmentsNode(“bone”)</td><td>Returns the attachment node of a bone. Attach models and effects to this node to make them follow this bone&#039;s motions.</td>
-	</tr>
-</table>
-
-</div>
-
-<h2><a>Animation Channel Properties</a></h2>
-<div>
-
-<p>
-
-The following properties are set per AnimChannel.
-
-</p>
-<table>
-	<tr>
-		<th>AnimChannel Property</th><th>Usage</th>
-	</tr>
-	<tr>
-		<td>setLoopMode(LoopMode.Loop); </td><td> From now on, the animation on this channel will repeat from the beginning when it ends. </td>
-	</tr>
-	<tr>
-		<td>setLoopMode(LoopMode.DontLoop); </td><td> From now on, the animation on this channel will play once, and the freeze at the last keyframe. </td>
-	</tr>
-	<tr>
-		<td>setLoopMode(LoopMode.Cycle); </td><td> From now on, the animation on this channel will play forward, then backward, then again forward, and so on. </td>
-	</tr>
-	<tr>
-		<td>setSpeed(1f); </td><td> From now on, play this animation slower (&lt;1f) or faster (&gt;1f), or with default speed (1f). </td>
-	</tr>
-	<tr>
-		<td>setTime(1.3f); </td><td> Fast-forward or rewind to a certain moment in time of this animation. </td>
-	</tr>
-</table>
-
-<p>
-
-The following information is available for a channel.
-
-</p>
-<table>
-	<tr>
-		<th>AnimChannel Property</th><th>Usage</th>
-	</tr>
-	<tr>
-		<td>getAnimationName()</td><td>The name of the animation playing on this channel. Returns <code>null</code> when no animation is playing.</td>
-	</tr>
-	<tr>
-		<td>getLoopMode()</td><td>The current loop mode on this channel. The returned com.jme3.animation enum can be LoopMode.Loop, LoopMode.DontLoop, or LoopMode.Cycle.</td>
-	</tr>
-	<tr>
-		<td>getAnimMaxTime()</td><td>The total length of the animation on this channel. Or <code>0f</code> if nothing is playing.</td>
-	</tr>
-	<tr>
-		<td>getTime()</td><td>How long the animation on this channel has been playing. It returns <code>0f</code> if the channel has not started playing yet, or a value up to getAnimMaxTime().</td>
-	</tr>
-	<tr>
-		<td>getControl()</td><td>The AnimControl that belongs to this AnimChannel.</td>
-	</tr>
-</table>
-
-<p>
-
-Use the following methods to add or remove individual bones to an AnimChannel. This is useful when you play two animations in parallel on two channels, and each controls a subset of the bones (e.g. one the arms, and the other the legs).
-
-</p>
-<table>
-	<tr>
-		<th>AnimChannel Methods</th><th>Usage</th>
-	</tr>
-	<tr>
-		<td>addAllBones()</td><td>Add all the bones of the model&#039;s skeleton to be influenced by this animation channel. (default)</td>
-	</tr>
-	<tr>
-		<td>addBone(“bone1”) <br/>
- addBone(bone1)</td><td>Add a single bone to be influenced by this animation channel.</td>
-	</tr>
-	<tr>
-		<td>addToRootBone(“bone1”) <br/>
- addToRootBone(bone1) </td><td>Add a series of bones to be influenced by this animation channel: Add all bones, starting from the given bone, to the root bone.</td>
-	</tr>
-	<tr>
-		<td>addFromRootBone(“bone1”) <br/>
- addFromRootBone(bone1) </td><td>Add a series of bones to be influenced by this animation channel: Add all bones, starting from the given root bone, going towards the children bones.</td>
-	</tr>
-</table>
-
-</div>
-
-<h2><a>Playing Animations</a></h2>
-<div>
-
-<p>
-
-Animations are played by channel. <strong>Note:</strong> Whether the animation channel plays continuously or only once, depends on the Loop properties you have set.
-
-</p>
-<table>
-	<tr>
-		<th>Channel Method</th><th>Usage</th>
-	</tr>
-	<tr>
-		<td>channel_walk.setAnim(“Walk”,0.50f); </td><td> Start the animation named “Walk” on channel channel_walk. <br/>
- The float value specifies the time how long the animation should overlap with the previous one on this channel. If set to 0f, then no blending will occur and the new animation will be applied instantly.</td>
-	</tr>
-</table>
-
-<p>
-
-<strong>Tip:</strong> Use the AnimEventLister below to react at the end or start of an animation cycle.
-</p>
-
-</div>
-
-<h3><a>Usage Example</a></h3>
-<div>
-
-<p>
-
-In this short example, we define the space key to trigger playing the “Walk” animation on channel2.
-</p>
-<pre>  public void simpleInitApp&#40;&#41; &#123;
+  ...</pre><p> To reset a controller, call <code>control.clearChannels();</code></p></div><h2><a
+name="animation_control_properties">Animation Control Properties</a></h2><div
+class="level2"><p> The following information is available for an AnimControl.</p><div
+class="table sectionedit1"><table
+class="inline"><tr
+class="row0"><th
+class="col0">AnimControl Property</th><th
+class="col1">Usage</th></tr><tr
+class="row1"><td
+class="col0">createChannel()</td><td
+class="col1">Returns a new channel, controlling all bones by default.</td></tr><tr
+class="row2"><td
+class="col0">getNumChannels()</td><td
+class="col1">The number of channels registered to this Control.</td></tr><tr
+class="row3"><td
+class="col0">getChannel(0)</td><td
+class="col1">Gets individual channels by index number. At most <code>getNumChannels()</code>.</td></tr><tr
+class="row4"><td
+class="col0">clearChannels()</td><td
+class="col1">Clear all channels in this control.</td></tr><tr
+class="row5"><td
+class="col0">addListener(animEventListener) <br/> removeListener(animEventListener) <br/> clearListeners()</td><td
+class="col1">Adds or removes listeners to receive animation related events.</td></tr></table></div><div
+class="table sectionedit2"><table
+class="inline"><tr
+class="row0"><th
+class="col0">AnimControl Property</th><th
+class="col1">Usage</th></tr><tr
+class="row1"><td
+class="col0">setAnimations(aniHashMap)</td><td
+class="col1">Sets the animations that this AnimControl is capable of playing. The animations must be compatible with the skeleton given in the constructor.</td></tr><tr
+class="row2"><td
+class="col0">addAnim(boneAnim) <br/> removeAnim(boneAnim)</td><td
+class="col1">Adds or removes an animation from this Control.</td></tr><tr
+class="row3"><td
+class="col0">getAnimationNames()</td><td
+class="col1">A String Collection of names of all animations that this Control can play for this model.</td></tr><tr
+class="row4"><td
+class="col0">getAnim(&quot;anim&quot;)</td><td
+class="col1">Retrieve an animation from the list of animations.</td></tr><tr
+class="row5"><td
+class="col0">getAnimationLength(&quot;anim&quot;)</td><td
+class="col1">Returns the length of the given named animation in seconds</td></tr></table></div><div
+class="table sectionedit3"><table
+class="inline"><tr
+class="row0"><th
+class="col0">AnimControl Property</th><th
+class="col1">Usage</th></tr><tr
+class="row1"><td
+class="col0">getSkeleton()</td><td
+class="col1">The Skeleton object controlled by this Control.</td></tr><tr
+class="row2"><td
+class="col0">getTargets()</td><td
+class="col1">The Skin objects controlled by this Control, as Mesh array.</td></tr><tr
+class="row3"><td
+class="col0">getAttachmentsNode(&quot;bone&quot;)</td><td
+class="col1">Returns the attachment node of a bone. Attach models and effects to this node to make them follow this bone&#039;s motions.</td></tr></table></div></div><h2><a
+name="animation_channel_properties">Animation Channel Properties</a></h2><div
+class="level2"><p> The following properties are set per AnimChannel.</p><div
+class="table sectionedit4"><table
+class="inline"><tr
+class="row0"><th
+class="col0">AnimChannel Property</th><th
+class="col1">Usage</th></tr><tr
+class="row1"><td
+class="col0">setLoopMode(LoopMode.Loop);</td><td
+class="col1"> From now on, the animation on this channel will repeat from the beginning when it ends.</td></tr><tr
+class="row2"><td
+class="col0">setLoopMode(LoopMode.DontLoop);</td><td
+class="col1"> From now on, the animation on this channel will play once, and the freeze at the last keyframe.</td></tr><tr
+class="row3"><td
+class="col0">setLoopMode(LoopMode.Cycle);</td><td
+class="col1"> From now on, the animation on this channel will play forward, then backward, then again forward, and so on.</td></tr><tr
+class="row4"><td
+class="col0">setSpeed(1f);</td><td
+class="col1"> From now on, play this animation slower (&lt;1f) or faster (&gt;1f), or with default speed (1f).</td></tr><tr
+class="row5"><td
+class="col0">setTime(1.3f);</td><td
+class="col1"> Fast-forward or rewind to a certain moment in time of this animation.</td></tr></table></div><p> The following information is available for a channel.</p><div
+class="table sectionedit5"><table
+class="inline"><tr
+class="row0"><th
+class="col0">AnimChannel Property</th><th
+class="col1">Usage</th></tr><tr
+class="row1"><td
+class="col0">getAnimationName()</td><td
+class="col1">The name of the animation playing on this channel. Returns <code>null</code> when no animation is playing.</td></tr><tr
+class="row2"><td
+class="col0">getLoopMode()</td><td
+class="col1">The current loop mode on this channel. The returned com.jme3.animation enum can be LoopMode.Loop, LoopMode.DontLoop, or LoopMode.Cycle.</td></tr><tr
+class="row3"><td
+class="col0">getAnimMaxTime()</td><td
+class="col1">The total length of the animation on this channel. Or <code>0f</code> if nothing is playing.</td></tr><tr
+class="row4"><td
+class="col0">getTime()</td><td
+class="col1">How long the animation on this channel has been playing. It returns <code>0f</code> if the channel has not started playing yet, or a value up to getAnimMaxTime().</td></tr><tr
+class="row5"><td
+class="col0">getControl()</td><td
+class="col1">The AnimControl that belongs to this AnimChannel.</td></tr></table></div><p> Use the following methods to add or remove individual bones to an AnimChannel. This is useful when you play two animations in parallel on two channels, and each controls a subset of the bones (e.g. one the arms, and the other the legs).</p><div
+class="table sectionedit6"><table
+class="inline"><tr
+class="row0"><th
+class="col0">AnimChannel Methods</th><th
+class="col1">Usage</th></tr><tr
+class="row1"><td
+class="col0">addAllBones()</td><td
+class="col1">Add all the bones of the model&#039;s skeleton to be influenced by this animation channel. (default)</td></tr><tr
+class="row2"><td
+class="col0">addBone(&quot;bone1&quot;) <br/> addBone(bone1)</td><td
+class="col1">Add a single bone to be influenced by this animation channel.</td></tr><tr
+class="row3"><td
+class="col0">addToRootBone(&quot;bone1&quot;) <br/> addToRootBone(bone1)</td><td
+class="col1">Add a series of bones to be influenced by this animation channel: Add all bones, starting from the given bone, to the root bone.</td></tr><tr
+class="row4"><td
+class="col0">addFromRootBone(&quot;bone1&quot;) <br/> addFromRootBone(bone1)</td><td
+class="col1">Add a series of bones to be influenced by this animation channel: Add all bones, starting from the given root bone, going towards the children bones.</td></tr></table></div></div><h2><a
+name="playing_animations">Playing Animations</a></h2><div
+class="level2"><p> Animations are played by channel. <strong>Note:</strong> Whether the animation channel plays continuously or only once, depends on the Loop properties you have set.</p><div
+class="table sectionedit7"><table
+class="inline"><tr
+class="row0"><th
+class="col0">Channel Method</th><th
+class="col1">Usage</th></tr><tr
+class="row1"><td
+class="col0">channel_walk.setAnim(&quot;Walk&quot;,0.50f);</td><td
+class="col1"> Start the animation named &quot;Walk&quot; on channel channel_walk. <br/> The float value specifies the time how long the animation should overlap with the previous one on this channel. If set to 0f, then no blending will occur and the new animation will be applied instantly.</td></tr></table></div><p> <strong>Tip:</strong> Use the AnimEventLister below to react at the end or start of an animation cycle.</p></div><h3><a
+name="usage_example">Usage Example</a></h3><div
+class="level3"><p> In this short example, we define the space key to trigger playing the &quot;Walk&quot; animation on channel2.</p><pre>  public void simpleInitApp&#40;&#41; &#123;
     ...
     inputManager.addMapping&#40;&quot;Walk&quot;, new KeyTrigger&#40;KeyInput.KEY_SPACE&#41;&#41;;
     inputManager.addListener&#40;actionListener, &quot;Walk&quot;&#41;;
@@ -277,77 +167,36 @@ In this short example, we define the space key to trigger playing the “Walk”
         &#125;
       &#125;
     &#125;
-  &#125;;</pre>
-</div>
-
-<h2><a>Animation Event Listener</a></h2>
-<div>
-
-<p>
-
-A jME3 application that contains animations can implement the <code>com.jme3.animation.AnimEventListener</code> interface.
-</p>
-<pre>public class HelloAnimation extends SimpleApplication
-                     implements AnimEventListener &#123; ... &#125;</pre>
-<p>
-This optional Listener enables you to respond to animation start and end events, onAnimChange() and onAnimCycleDone().
-</p>
-
-</div>
-
-<h3><a>Responding to Animation End</a></h3>
-<div>
-
-<p>
-
-The onAnimCycleDone() event is invoked when an animation cycle has ended. For non-looping animations, this event is invoked when the animation is finished playing. For looping animations, this even is invoked each time the animation loop is restarted.
-</p>
-
-<p>
-You have access to the following objects:
-</p>
-<ul>
-<li><div> The controller to which the listener is assigned.</div>
-</li>
-<li><div> The animation channel being played.</div>
-</li>
-<li><div> The name of the animation that has just finished playing.</div>
-</li>
-</ul>
-<pre>  public void onAnimCycleDone&#40;AnimControl control, AnimChannel channel, String animName&#41; &#123;
+  &#125;;</pre></div><h2><a
+name="animation_event_listener">Animation Event Listener</a></h2><div
+class="level2"><p> A jME3 application that contains animations can implement the <code>com.jme3.animation.AnimEventListener</code> interface.</p><pre>public class HelloAnimation extends SimpleApplication
+                     implements AnimEventListener &#123; ... &#125;</pre><p> This optional Listener enables you to respond to animation start and end events, onAnimChange() and onAnimCycleDone().</p></div><h3><a
+name="responding_to_animation_end">Responding to Animation End</a></h3><div
+class="level3"><p> The onAnimCycleDone() event is invoked when an animation cycle has ended. For non-looping animations, this event is invoked when the animation is finished playing. For looping animations, this even is invoked each time the animation loop is restarted.</p><p> You have access to the following objects:</p><ul><li
+class="level1"><div
+class="li"> The controller to which the listener is assigned.</div></li><li
+class="level1"><div
+class="li"> The animation channel being played.</div></li><li
+class="level1"><div
+class="li"> The name of the animation that has just finished playing.</div></li></ul><pre>  public void onAnimCycleDone&#40;AnimControl control, AnimChannel channel, String animName&#41; &#123;
     // test for a condition you are interested in, e.g. ...
     if &#40;animName.equals&#40;&quot;Walk&quot;&#41;&#41; &#123;
       // respond to the event here, e.g. ...
       channel.setAnim&#40;&quot;Stand&quot;, 0.50f&#41;;
     &#125;
-  &#125;</pre>
-</div>
-
-<h3><a>Responding to Animation Start</a></h3>
-<div>
-
-<p>
-
-The onAnimChange() event is invoked every time before an animation is set by the user to be played on a given channel (<code>channel.setAnim()</code>).
-</p>
-
-<p>
-You have access to the following objects
-</p>
-<ul>
-<li><div> The controller to which the listener is assigned.</div>
-</li>
-<li><div> The animation channel being played.</div>
-</li>
-<li><div> The name of the animation that will start playing.</div>
-</li>
-</ul>
-<pre>  public void onAnimChange&#40;AnimControl control, AnimChannel channel, String animName&#41; &#123;
+  &#125;</pre></div><h3><a
+name="responding_to_animation_start">Responding to Animation Start</a></h3><div
+class="level3"><p> The onAnimChange() event is invoked every time before an animation is set by the user to be played on a given channel (<code>channel.setAnim()</code>).</p><p> You have access to the following objects</p><ul><li
+class="level1"><div
+class="li"> The controller to which the listener is assigned.</div></li><li
+class="level1"><div
+class="li"> The animation channel being played.</div></li><li
+class="level1"><div
+class="li"> The name of the animation that will start playing.</div></li></ul><pre>  public void onAnimChange&#40;AnimControl control, AnimChannel channel, String animName&#41; &#123;
     // test for a condition you are interested in, e.g. ...
     if &#40;animName.equals&#40;&quot;Walk&quot;&#41;&#41; &#123;
       // respond to the event here, e.g. ...
       channel.setAnim&#40;&quot;Reset&quot;, 0.50f&#41;;
     &#125;
-  &#125;</pre>
-</div>
+  &#125;</pre></div>
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:animation?do=export_xhtmlbody">view online version</a></em></p>

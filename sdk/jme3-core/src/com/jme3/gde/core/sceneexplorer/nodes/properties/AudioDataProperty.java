@@ -80,7 +80,7 @@ public class AudioDataProperty extends PropertySupport.ReadWrite<String> {
                     public Void call() throws Exception {
                         SceneRequest request = SceneApplication.getApplication().getCurrentSceneRequest();
                         AudioKey key = new AudioKey(val, false);
-                        AudioData localMaterial = request.getManager().getManager().loadAudio(key);
+                        AudioData localMaterial = request.getManager().loadAudio(key);
                         if (localMaterial != null) {
                             node.setAudioData(localMaterial, key);
                         }

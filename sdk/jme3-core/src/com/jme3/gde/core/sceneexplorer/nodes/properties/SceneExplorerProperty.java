@@ -33,10 +33,8 @@ package com.jme3.gde.core.sceneexplorer.nodes.properties;
 
 import com.jme3.effect.shapes.EmitterShape;
 import com.jme3.gde.core.scene.SceneApplication;
-import com.jme3.gde.core.sceneexplorer.nodes.AbstractSceneExplorerNode;
 import com.jme3.gde.core.undoredo.AbstractUndoableSceneEdit;
 import com.jme3.gde.core.undoredo.SceneUndoRedoManager;
-import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Matrix3f;
 import com.jme3.math.Quaternion;
@@ -56,6 +54,7 @@ import org.openide.util.Lookup;
  *
  * @author normenhansen
  */
+@SuppressWarnings("unchecked")
 public class SceneExplorerProperty<T> extends PropertySupport.Reflection<T> {
 
     protected LinkedList<ScenePropertyChangeListener> listeners = new LinkedList<ScenePropertyChangeListener>();

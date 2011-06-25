@@ -61,6 +61,7 @@ import org.openide.util.Exceptions;
  * @author normenhansen
  */
 @org.openide.util.lookup.ServiceProvider(service = SceneExplorerPropertyEditor.class)
+@SuppressWarnings("unchecked")
 public class MaterialPropertyEditor implements PropertyEditor, SceneExplorerPropertyEditor {
 
     private LinkedList<PropertyChangeListener> listeners = new LinkedList<PropertyChangeListener>();
@@ -135,8 +136,8 @@ public class MaterialPropertyEditor implements PropertyEditor, SceneExplorerProp
 
                 public Void call() throws Exception {
                     SceneRequest request = SceneApplication.getApplication().getCurrentSceneRequest();
-                    ((DesktopAssetManager) request.getManager().getManager()).deleteFromCache(new AssetKey(text));
-                    Material localMaterial = (Material) request.getManager().getManager().loadAsset(text);
+                    ((DesktopAssetManager) request.getManager()).deleteFromCache(new AssetKey(text));
+                    Material localMaterial = (Material) request.getManager().loadAsset(text);
                     if (localMaterial != null) {
                         material = localMaterial;
                     }
