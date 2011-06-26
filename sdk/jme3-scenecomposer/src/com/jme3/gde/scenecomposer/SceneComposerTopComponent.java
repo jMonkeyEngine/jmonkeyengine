@@ -46,6 +46,7 @@ import org.openide.util.Utilities;
  */
 @ConvertAsProperties(dtd = "-//com.jme3.gde.scenecomposer//SceneComposer//EN",
 autostore = false)
+@SuppressWarnings("unchecked")
 public final class SceneComposerTopComponent extends TopComponent implements SceneListener, LookupListener {
 
     private static SceneComposerTopComponent instance;
@@ -810,7 +811,7 @@ public final class SceneComposerTopComponent extends TopComponent implements Sce
             if (toolController != null) {
                 toolController.cleanup();
             }
-            toolController = new SceneToolController(currentRequest.getToolNode(), currentRequest.getManager().getManager());
+            toolController = new SceneToolController(currentRequest.getToolNode(), currentRequest.getManager());
             camController = new ComposerCameraController(SceneApplication.getApplication().getCamera(), request.getJmeNode());
             camController.setMaster(this);
             camController.enable();

@@ -33,6 +33,7 @@ import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.NbPreferences;
 
+@SuppressWarnings("unchecked")
 public final class PublishAssetPackAction implements Action {
 
     private final Project context;

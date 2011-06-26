@@ -698,7 +698,7 @@ public class SceneEditorController implements PropertyChangeListener, NodeListen
         final Node selected = selectedSpat.getLookup().lookup(Node.class);
         ProjectAssetManager manager = file.getLookup().lookup(ProjectAssetManager.class);
         if (manager != null) {
-            ((DesktopAssetManager) manager.getManager()).clearCache();
+            manager.clearCache();
         }
         if (selected != null) {
             setNeedsSave(true);
@@ -716,7 +716,7 @@ public class SceneEditorController implements PropertyChangeListener, NodeListen
         ProgressHandle progressHandle = ProgressHandleFactory.createHandle("Adding Model..");
         progressHandle.start();
         try {
-            Spatial linkNode = (Spatial) file.loadAsset();
+            Spatial linkNode = file.loadAsset();
             if (linkNode != null) {
                 selected.attachChild(linkNode);
                 if (location != null) {

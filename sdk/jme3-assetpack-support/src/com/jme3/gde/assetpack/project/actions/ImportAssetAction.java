@@ -24,6 +24,7 @@ import org.openide.WizardDescriptor;
 import org.openide.filesystems.FileUtil;
 import org.w3c.dom.Element;
 
+@SuppressWarnings("unchecked")
 public final class ImportAssetAction implements Action {
 
     private final AssetPackProject context;

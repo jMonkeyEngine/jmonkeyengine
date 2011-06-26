@@ -30,7 +30,7 @@ public final class LinkSceneComposer implements ActionListener {
             FileObject file = spatialAssetDataObject.getPrimaryFile();
             String assetName = manager.getRelativeAssetPath(file.getPath());
             SceneComposerTopComponent composer = SceneComposerTopComponent.findInstance();
-            composer.linkModel(manager.getManager(), assetName);
+            composer.linkModel(manager, assetName);
         }
     }
 }

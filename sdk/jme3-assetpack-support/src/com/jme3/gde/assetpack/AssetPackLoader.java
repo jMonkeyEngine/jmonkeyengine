@@ -171,19 +171,19 @@ public class AssetPackLoader {
                 String path = fileElem.getAttribute("path");
                 if ("material".equals(type) && (materialName == null || materialName.equals(path))) {
                     if (hasExtension(path, "j3m")) {
-                        mat = pm.getManager().loadMaterial(path);
+                        mat = pm.loadMaterial(path);
                     } else if (hasExtension(path, "material")) {
                         if (matList == null) {
                             Logger.getLogger(AssetPackLoader.class.getName()).log(Level.INFO, "Load Ogre Material");
                             OgreMaterialKey matKey = new OgreMaterialKey(path);
                             matKey.setMaterialExtensionSet(matExts);
-                            matList = pm.getManager().loadAsset(matKey);
+                            matList = pm.loadAsset(matKey);
                             key = new OgreMeshKey(name, matList);
                         } else {
                             Logger.getLogger(AssetPackLoader.class.getName()).log(Level.INFO, "Add Ogre Material");
                             OgreMaterialKey matKey = new OgreMaterialKey(path);
                             matKey.setMaterialExtensionSet(matExts);
-                            MaterialList newMatList = pm.getManager().loadAsset(matKey);
+                            MaterialList newMatList = pm.loadAsset(matKey);
                             matList.putAll(newMatList);
                         }
                     }
@@ -196,7 +196,7 @@ public class AssetPackLoader {
                 String path = fileElem.getAttribute("path");
                 if ("material".equals(type) && (materialName == null || materialName.equals(path))) {
                     if (hasExtension(path, "j3m")) {
-                        mat = pm.getManager().loadMaterial(path);
+                        mat = pm.loadMaterial(path);
                     }
                 }
             }
@@ -207,9 +207,9 @@ public class AssetPackLoader {
             Logger.getLogger(AddAssetAction.class.getName()).log(Level.WARNING, "j3m and ogre material defined for asset {0}.", name);
         }
         if (key != null) {
-            model = pm.getManager().loadAsset(key);
+            model = pm.loadAsset(key);
         } else {
-            model = pm.getManager().loadModel(name);
+            model = pm.loadModel(name);
         }
         if (model == null) {
             Logger.getLogger(AddAssetAction.class.getName()).log(Level.SEVERE, "Could not load model {0}!", name);

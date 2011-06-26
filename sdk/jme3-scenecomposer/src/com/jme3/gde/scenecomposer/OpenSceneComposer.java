@@ -47,7 +47,7 @@ public final class OpenSceneComposer implements ActionListener {
                         java.awt.EventQueue.invokeLater(new Runnable() {
 
                             public void run() {
-                                ((DesktopAssetManager) manager.getManager()).clearCache();
+                                manager.clearCache();
                                 SceneComposerTopComponent composer = SceneComposerTopComponent.findInstance();
                                 composer.openScene(asset, context, manager);
                             }

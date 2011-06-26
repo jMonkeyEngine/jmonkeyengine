@@ -26,6 +26,7 @@ import org.openide.WizardDescriptor;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 
+@SuppressWarnings("unchecked")
 public final class ConvertOgreBinaryMeshesAction implements Action {
 
     private final Project context;
