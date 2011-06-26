@@ -196,6 +196,36 @@ public class Properties implements Cloneable, Savable {
 	public Object getValue() {
 		return value;
 	}
+	
+	/**
+	 * This method returns the same as getValue if the current property is of
+	 * other type than IDP_GROUP and its name matches 'propertyName' param. If
+	 * this property is a group property the method tries to find subproperty
+	 * value of the given name. The first found value is returnes os <b>use this
+	 * method wisely</b>. If no property of a given name is foung - <b>null</b>
+	 * is returned.
+	 * 
+	 * @param propertyName
+	 *            the name of the property
+	 * @return found property value or <b>null</b>
+	 */
+	@SuppressWarnings("unchecked")
+	public Object findValue(String propertyName) {
+		if (name.equals(propertyName)) {
+			return value;
+		} else {
+			if (type == IDP_GROUP) {
+				List<Properties> props = (List<Properties>) value;
+				for (Properties p : props) {
+					Object v = p.findValue(propertyName);
+					if (v != null) {
+						return v;
+					}
+				}
+			}
+		}
+		return null;
+	}
 
 	@Override
 	public String toString() {
