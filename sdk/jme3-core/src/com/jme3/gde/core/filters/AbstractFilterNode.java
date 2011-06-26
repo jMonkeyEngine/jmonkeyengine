@@ -117,7 +117,7 @@ public abstract class AbstractFilterNode extends AbstractNode implements FilterN
         if (obj == null) {
             return sheet;
         }
-        set.put(makeProperty(obj, float.class, "getName", "setName", "Name"));
+        set.put(makeProperty(obj, String.class, "getName", "setName", "Name"));
         set.put(makeProperty(obj, boolean.class, "setEnabled", "isEnabled", "Enabled"));
         sheet.put(set);
         return sheet;
