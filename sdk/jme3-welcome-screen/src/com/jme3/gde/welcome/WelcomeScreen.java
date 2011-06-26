@@ -68,8 +68,8 @@ public class WelcomeScreen implements ScreenController {
                 if (request.getRequester() == WelcomeScreen.this) {
                     //FIXME: planet location dont work?
                     if (SceneApplication.getApplication().getRenderer().getCaps().contains(Caps.OpenGL21)) {
-                        planetView = new PlanetRendererState(new Planet(100f, new Vector3f(0, 0, 0)), dirLight);
-                        SceneApplication.getApplication().getStateManager().attach(planetView);
+//                        planetView = new PlanetRendererState(new Planet(100f, new Vector3f(0, 0, 0)), dirLight);
+//                        SceneApplication.getApplication().getStateManager().attach(planetView);
                     }
                     SceneApplication.getApplication().getViewPort().getScenes().get(0).addLight(dirLight);
                     SceneApplication.getApplication().getCamera().setLocation(new Vector3f(0, 0, 400));
