@@ -31,80 +31,84 @@
  */
 package jme3test.app;
 
+import com.jme3.math.Vector3f;
 import com.jme3.util.TempVars;
-import java.util.Date;
-import java.util.Iterator;
 
 public class TestTempVars {
 
-
-
+    private static final int ITERATIONS = 10000000;
+    private static final int NANOS_TO_MS = 1000000;
+    
+    private static final Vector3f sumCompute = new Vector3f();
+    
     public static void main(String[] args) {
+        long milliseconds, nanos;
         
-        Date d,d2;
-        System.err.println("NOTE: This test simulates a data corruption attempt\n"
-                + " in the engine. If assertions are enabled (-ea VM flag), the \n"
-                + "data corruption will be detected and displayed below.");
-
-        //get the vars
-        TempVars vars = TempVars.get();
+        for (int i = 0; i < 4; i++){
+            System.gc();
+        }
         
-        // do something with temporary vars
-        vars.vect1.addLocal(vars.vect2);
+//        sumCompute.set(0, 0, 0);
+//        long nanos = System.nanoTime();
+//        for (int i = 0; i < ITERATIONS; i++) {
+//            recursiveMethod(0);
+//        }
+//        long milliseconds = (System.nanoTime() - nanos) / NANOS_TO_MS;
+//        System.out.println("100 million TempVars calls with 5 recursions: " + milliseconds + " ms");
+//        System.out.println(sumCompute);
         
-        //release the vars
-        vars.release();
-
-        //Perf tests
-        
-        //100 million calls
-        d = new Date();
-        for (int i = 0; i < 100000000; i++) {
+        sumCompute.set(0, 0, 0);
+        nanos = System.nanoTime();
+        for (int i = 0; i < ITERATIONS; i++) {
             methodThatUsesTempVars();
         }
-        d2 = new Date();
-        System.out.println("100 million calls : " +(d2.getTime() - d.getTime())+" ms");
-  
-        
-        //recursive Method
-        d = new Date();
-        recursiveMethod();
-        d2 = new Date();
-       System.out.println("100 recursive calls : " +(d2.getTime() - d.getTime())+" ms");
-       
-        d = new Date();
-        for (int i = 0; i < 1000000; i++) {
-            methodThatUsesTempVarsWithNoRelease();
+        milliseconds = (System.nanoTime() - nanos) / NANOS_TO_MS;
+        System.out.println("100 million TempVars calls: " + milliseconds + " ms");
+        System.out.println(sumCompute);
+
+        sumCompute.set(0, 0, 0);
+        nanos = System.nanoTime();
+        for (int i = 0; i < ITERATIONS; i++) {
+            methodThatUsesAllocation();
         }
-        d2 = new Date();
-        System.out.println("1 million calls with no release : " +(d2.getTime() - d.getTime())+" ms");
-                
+        milliseconds = (System.nanoTime() - nanos) / NANOS_TO_MS;
+        System.out.println("100 million allocation calls: " + milliseconds + " ms");
+        System.out.println(sumCompute);
+        
+        nanos = System.nanoTime();
+        for (int i = 0; i < 10; i++){
+            System.gc();
+        }
+        milliseconds = (System.nanoTime() - nanos) / NANOS_TO_MS;
+        System.out.println("cleanup time after allocation calls: " + milliseconds + " ms");
     }
-    static int recurse = 0;
-    public static void recursiveMethod(){
-        TempVars vars = TempVars.get();
-        vars.vect1.set(123, 999, -55);
-        recurse++;
-        if(recurse<5){
-            recursiveMethod();
-        }
-        
-        vars.release();
+
+    public static void methodThatUsesAllocation(){
+        Vector3f vector = new Vector3f();
+        vector.set(0.1f, 0.2f, 0.3f);
+        sumCompute.addLocal(vector);
     }
     
+    public static void recursiveMethod(int recurse) {
+        TempVars vars = TempVars.get();
+        {
+            vars.vect1.set(0.1f, 0.2f, 0.3f);
+
+            if (recurse < 4) {
+                recursiveMethod(recurse + 1);
+            }
+
+            sumCompute.addLocal(vars.vect1);
+        }
+        vars.release();
+    }
+
     public static void methodThatUsesTempVars() {
         TempVars vars = TempVars.get();
         {
-            vars.vect1.set(123, 999, -55);
+            vars.vect1.set(0.1f, 0.2f, 0.3f);
+            sumCompute.addLocal(vars.vect1);
         }
         vars.release();
-    }
-
-    public static void methodThatUsesTempVarsWithNoRelease() {
-        TempVars vars = TempVars.get();
-        {
-            vars.vect1.set(123, 999, -55);
-        }
-     
     }
 }
