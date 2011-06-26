@@ -136,9 +136,9 @@ public class SceneExplorerProperty<T> extends PropertySupport.Reflection<T> {
             if (undo) {
                 try {
                     Object oldValue = getSuperValue();
-                    if (oldValue.getClass().getMethod("clone", null) != null) {
-                        addUndo(oldValue.getClass().getMethod("clone", null).invoke(oldValue, null), val);
-                        Logger.getLogger(SceneExplorerProperty.class.getName()).log(Level.INFO, "Add cloned undo {0}", oldValue.getClass().getMethod("clone", null).invoke(oldValue, null));
+                    if (oldValue.getClass().getMethod("clone") != null) {
+                        addUndo(oldValue.getClass().getMethod("clone").invoke(oldValue), val);
+                        Logger.getLogger(SceneExplorerProperty.class.getName()).log(Level.INFO, "Add cloned undo {0}", oldValue.getClass().getMethod("clone").invoke(oldValue));
                     }
                 } catch (Exception e) {
                     addUndo(getSuperValue(), val);

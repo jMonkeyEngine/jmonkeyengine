@@ -205,9 +205,8 @@ public class NiftyPreviewPanel extends PanelView {
                     Logger.getLogger(NiftyPreviewPanel.class.getName()).log(Level.WARNING, "No Project AssetManager found!");
                     return null;
                 }
-                AssetManager assetManager = pm.getManager();
                 AudioRenderer audioRenderer = SceneApplication.getApplication().getAudioRenderer();
-                niftyDisplay = new NiftyJmeDisplay(assetManager,
+                niftyDisplay = new NiftyJmeDisplay(pm,
                         inputHandler,
                         audioRenderer,
                         guiViewPort);
