@@ -78,11 +78,6 @@
         </folder>
     </folder>
     <folder name="Services">
-        <!--folder name="JavaHelp">
-            <file name="blender-helpset.xml" url="blender-helpset.xml">
-                <attr name="position" intvalue="3133"/>
-            </file>
-        </folder-->
         <folder name="MIMEResolver">
             <file name="BlenderResolver.xml" url="BlenderResolver.xml">
                 <attr name="displayName" bundlevalue="com.jme3.gde.blender.Bundle#Services/MIMEResolver/BlenderResolver.xml"/>
