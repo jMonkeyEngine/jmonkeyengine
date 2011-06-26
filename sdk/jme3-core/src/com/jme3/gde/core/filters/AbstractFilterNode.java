@@ -41,6 +41,7 @@ import org.openide.loaders.DataObject;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
+import org.openide.nodes.Sheet;
 import org.openide.util.Exceptions;
 import org.openide.util.actions.SystemAction;
 
@@ -106,6 +107,22 @@ public abstract class AbstractFilterNode extends AbstractNode implements FilterN
         return null;
     }
 
+    @Override
+    protected Sheet createSheet() {
+        Sheet sheet = super.createSheet();
+        Sheet.Set set = Sheet.createPropertiesSet();
+        set.setDisplayName("Filter");
+        set.setName(Node.class.getName());
+        Filter obj = filter;
+        if (obj == null) {
+            return sheet;
+        }
+        set.put(makeProperty(obj, float.class, "getName", "setName", "Name"));
+        set.put(makeProperty(obj, boolean.class, "setEnabled", "isEnabled", "Enabled"));
+        sheet.put(set);
+        return sheet;
+
+    }
     /**
      * @param saveCookie the saveCookie to set
      */
