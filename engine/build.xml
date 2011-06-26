@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project name="jME3_ordered" default="default" basedir=".">
+<project name="jMonkeyEngine3" default="default" basedir=".">
     <description>Builds, tests, and runs the project jME3_ordered.</description>
     <import file="nbproject/build-impl.xml"/>
     <!-- <import file="nbproject/profiler-build-impl.xml"/> -->

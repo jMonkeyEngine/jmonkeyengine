@@ -44,133 +44,107 @@ import com.jme3.scene.Spatial;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Temporary variables assigned to each thread. Engine classes may access
- * these temp variables with TempVars.get().
- * This returns an available instance of the TempVar class ensuring this particular instance is never used elsewhere in the mean time.
+ * these temp variables with TempVars.get(), all retrieved TempVars
+ * instances must be returned via TempVars.release().
+ * This returns an available instance of the TempVar class ensuring this 
+ * particular instance is never used elsewhere in the mean time.
  */
 public class TempVars {    
 
-    private static final Logger log = Logger.getLogger(TempVars.class.getName());
-    //default array size
-    private static final int arraySize = 30;
-    //one array per thread
-    private static final ThreadLocal<TempVars[]> varsLocal = new ThreadLocal<TempVars[]>() {
-
+    /**
+     * Allow X instances of TempVars in a single thread.
+     */
+    private static final int STACK_SIZE = 5;
+    
+    /**
+     * <code>TempVarsStack</code> contains a stack of TempVars.
+     * Every time TempVars.get() is called, a new entry is added to the stack,
+     * and the index incremented.
+     * When TempVars.release() is called, the entry is checked against
+     * the current instance and  then the index is decremented.
+     */
+    private static class TempVarsStack {
+        int index = 0;
+        TempVars[] tempVars = new TempVars[STACK_SIZE];
+    }
+    
+    /**
+     * ThreadLocal to store a TempVarsStack for each thread.
+     * This ensures each thread has a single TempVarsStack that is
+     * used only in method calls in that thread.
+     */
+    private static final ThreadLocal<TempVarsStack> varsLocal = new ThreadLocal<TempVarsStack>() {
         @Override
-        public TempVars[] initialValue() {
-            TempVars[] l = new TempVars[arraySize];
-            //the array is initialized with one instance (should be enough in most cases)
-            l[0] = new TempVars();
-            return l;
+        public TempVarsStack initialValue() {
+            return new TempVarsStack();
         }
     };
-    //the current index in the stack
-    private static int stackLevel = 0;
-    //number of instanced TempVar, just to raise a warning if too much are instanced
-    private static int instanceCount = 1;
-
+   
     /**
-     * Returns an available instance of the TempVar class
-     * Warning, you have to release the instance once used by calling the release() method
-     * @return a TempVar instance
+     * This instance of TempVars has been retrieved but not released yet.
      */
-    public static TempVars get() {
-
-        TempVars vars = null;
-        TempVars[] array = varsLocal.get();
-        //if the stack level is > 0 it means we have some instances in the array, we can return one of them
-        if (stackLevel >= 0) {
-            //getting the lastTempVar instance
-            vars = array[stackLevel];
-            //removing the reference to it in the array so if it's never released it will be garbage collected.
-            array[stackLevel] = null;
-            //decreasing the stack level since we have one less instance
-            stackLevel--;
-            
-            //In some cases (when lauching jme threads from another thread), the instance at 0 can be null
-            //so we check that to avoid NPE
-            if (vars==null){
-               vars = new TempVars();
-               //increasing the count to keep track
-               instanceCount++;          
-            }
-        } else {
-            //if the stack level is <0 it means the stack is empty, we have to create a new instance
-            //there 
-            vars = new TempVars();
-            //increasing the count to keep track
-            instanceCount++;
-            //raising a warning if the instance count is to high, because it might be due to bad usage
-            if (instanceCount == array.length) {
-                log.log(Level.WARNING, "TempVars has been requested {0} times, maybe you forgot to call release()?", instanceCount);
-            }
-        }
-        return vars;
-    }
-
+    private boolean isUsed = false;
+    
     private TempVars() {
     }
-//    private boolean locked = false;
-//    private StackTraceElement[] lockerStack;
-
-//    public final boolean lock() {
-//        if (locked) {
-//            System.err.println("INTERNAL ERROR");
-//            System.err.println("Offending trace: ");
-//
-//            StackTraceElement[] stack = new Throwable().getStackTrace();
-//            for (int i = 1; i < stack.length; i++) {
-//                System.err.println("\tat " + stack[i].toString());
-//            }
-//
-//            System.err.println("Attempted to aquire TempVars lock owned by");
-//            for (int i = 1; i < lockerStack.length; i++) {
-//                System.err.println("\tat " + lockerStack[i].toString());
-//            }
-//            System.exit(1);
-//            return false;
-//        }
-//
-//        lockerStack = new Throwable().getStackTrace();
-//        locked = true;
-//        return true;
-//    }
-//
-//    public final boolean unlock() {
-//        if (!locked) {
-//            System.err.println("INTERNAL ERROR");
-//            System.err.println("Attempted to release non-existent lock: ");
-//
-//            StackTraceElement[] stack = new Throwable().getStackTrace();
-//            for (int i = 1; i < stack.length; i++) {
-//                System.err.println("\tat " + stack[i].toString());
-//            }
-//
-//            System.exit(1);
-//            return false;
-//        }
-//
-//        lockerStack = null;
-//        locked = false;
-//        return true;
-//    }
+    
     /**
-     * Release this instance of TempVar, allowing it to be reused later.
+     * Acquire an instance of the TempVar class.
+     * You have to release the instance after use by calling the 
+     * release() method. 
+     * If more than STACK_SIZE (currently 5) instances are requested 
+     * in a single thread then an ArrayIndexOutOfBoundsException will be thrown.
+     * 
+     * @return A TempVar instance
      */
-    public final void release() {
+    public static TempVars get() {
+        TempVarsStack stack = varsLocal.get();
+        
+        TempVars instance = stack.tempVars[stack.index];
+        
+        if (instance == null){
+            // Create new
+            instance = new TempVars();
+            
+            // Put it in there
+            stack.tempVars[stack.index] = instance;
+        }
+        
+        stack.index++;
+        
+        instance.isUsed = true;
+        
+        return instance;
+    }
 
-        //we only keep as much instances as we can, 
-        //but if too much are instanced, we just don't readd them, they'll be garbage collected
-        //This can happen only in case of recursive calls that are instancing the TempVar
-        if (stackLevel < arraySize - 1) {
-            stackLevel++;
-            varsLocal.get()[stackLevel] = this;
+    /**
+     * Releases this instance of TempVars.
+     * Once released, the contents of the TempVars are undefined.
+     * The TempVars must be released in the opposite order that they are retrieved,
+     * e.g. Acquiring vars1, then acquiring vars2, vars2 MUST be released 
+     * first otherwise an exception will be thrown.
+     */
+    public void release() {
+        if (!isUsed){
+            throw new IllegalStateException("This instance of TempVars was already released!");
+        }
+        
+        isUsed = false;
+        
+        TempVarsStack stack = varsLocal.get();
+        
+        // Return it to the stack
+        stack.index--;
+        
+        // Check if it is actually there
+        if (stack.tempVars[stack.index] != this){
+            throw new IllegalStateException("An instance of TempVars has not been released in a called method!");
         }
     }
+    
     /**
      * For interfacing with OpenGL in Renderer.
      */

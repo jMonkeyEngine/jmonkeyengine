@@ -85,7 +85,7 @@ public class TestTempVars {
         TempVars vars = TempVars.get();
         vars.vect1.set(123, 999, -55);
         recurse++;
-        if(recurse<100){
+        if(recurse<5){
             recursiveMethod();
         }
         
