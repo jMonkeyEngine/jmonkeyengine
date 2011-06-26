@@ -244,6 +244,9 @@
                 <package>com.jme3.gde.core.assets.actions</package>
                 <package>com.jme3.gde.core.assets.nodes</package>
                 <package>com.jme3.gde.core.codeless</package>
+                <package>com.jme3.gde.core.filters</package>
+                <package>com.jme3.gde.core.filters.actions</package>
+                <package>com.jme3.gde.core.filters.impl</package>
                 <package>com.jme3.gde.core.j2seproject</package>
                 <package>com.jme3.gde.core.properties</package>
                 <package>com.jme3.gde.core.scene</package>
