@@ -72,11 +72,6 @@ public class JmeCrossHatchFilter extends AbstractFilterNode {
         set.put(makeProperty(obj, ColorRGBA.class, "getLineColor", "setLineColor", "Line Color"));
         set.put(makeProperty(obj, float.class, "getLineDistance", "setLineDistance", "Line Distance"));
         set.put(makeProperty(obj, float.class, "getLineThickness", "setLineThickness", "Line Thickness"));
-        set.put(makeProperty(obj, float.class, "getLuminance1", "setLuminance1", "Luminance1"));
-        set.put(makeProperty(obj, float.class, "getLuminance2", "setLuminance2", "Luminance2"));
-        set.put(makeProperty(obj, float.class, "getLuminance3", "setLuminance3", "Luminance3"));
-        set.put(makeProperty(obj, float.class, "getLuminance4", "setLuminance4", "Luminance4"));
-        set.put(makeProperty(obj, float.class, "getLuminance5", "setLuminance5", "Luminance5"));
         sheet.put(set);
         return sheet;
 
