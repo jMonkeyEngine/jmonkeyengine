@@ -38,6 +38,7 @@ import com.jme3.gde.core.undoredo.SceneUndoRedoManager;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Matrix3f;
 import com.jme3.math.Quaternion;
+import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Iterator;
@@ -76,7 +77,10 @@ public class SceneExplorerProperty<T> extends PropertySupport.Reflection<T> {
             setPropertyEditorClass(ColorRGBAPropertyEditor.class);
         } else if (valueType == EmitterShape.class) {
             setPropertyEditorClass(EmitterShapePropertyEditor.class);
+        } else if (valueType == Vector2f.class) {
+            setPropertyEditorClass(Vector2fPropertyEditor.class);
         }
+
         for (SceneExplorerPropertyEditor di : Lookup.getDefault().lookupAll(SceneExplorerPropertyEditor.class)) {
             di.setEditor(valueType, this);
         }
@@ -160,8 +164,8 @@ public class SceneExplorerProperty<T> extends PropertySupport.Reflection<T> {
     }
 
     protected void addUndo(final Object before, final Object after) {
-        SceneUndoRedoManager undoRedo=Lookup.getDefault().lookup(SceneUndoRedoManager.class);
-        if(undoRedo==null){
+        SceneUndoRedoManager undoRedo = Lookup.getDefault().lookup(SceneUndoRedoManager.class);
+        if (undoRedo == null) {
             Logger.getLogger(SceneExplorerProperty.class.getName()).log(Level.WARNING, "Cannot access SceneUndoRedoManager");
             return;
         }

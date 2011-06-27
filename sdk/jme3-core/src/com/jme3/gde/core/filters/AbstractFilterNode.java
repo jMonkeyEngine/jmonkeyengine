@@ -35,6 +35,7 @@ import com.jme3.gde.core.sceneexplorer.nodes.properties.SceneExplorerProperty;
 import com.jme3.gde.core.sceneexplorer.nodes.properties.ScenePropertyChangeListener;
 import com.jme3.post.Filter;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import javax.swing.Action;
 import org.openide.actions.DeleteAction;
 import org.openide.loaders.DataObject;
@@ -112,13 +113,12 @@ public abstract class AbstractFilterNode extends AbstractNode implements FilterN
         Sheet sheet = super.createSheet();
         Sheet.Set set = Sheet.createPropertiesSet();
         set.setDisplayName("Filter");
-        set.setName(Node.class.getName());
+        set.setName("Filter");
         Filter obj = filter;
         if (obj == null) {
             return sheet;
         }
-        set.put(makeProperty(obj, String.class, "getName", "setName", "Name"));
-        set.put(makeProperty(obj, boolean.class, "isEnabled", "setEnabled", "Enabled"));
+        createFields(Filter.class, set, obj);
         sheet.put(set);
         return sheet;
 
@@ -160,6 +160,20 @@ public abstract class AbstractFilterNode extends AbstractNode implements FilterN
             Exceptions.printStackTrace(ex);
         }
         return prop;
+    }
+    
+     protected void createFields(Class c, Sheet.Set set, Object obj) throws SecurityException {
+        for (Field field : c.getDeclaredFields()) {         
+            Filter.FilterParameter param = field.getAnnotation(Filter.FilterParameter.class);
+            if (param != null) {
+                String name = field.getName().substring(0, 1).toUpperCase() + field.getName().substring(1);
+                String getter = "get";
+                if (field.getType().equals(boolean.class)) {
+                    getter = "is";
+                }
+                set.put(makeProperty(obj, field.getType(), getter + name, "set" + name, param.name()));
+            }
+        }
     }
 
     public void propertyChange(final String name, final Object before, final Object after) {
