@@ -45,12 +45,16 @@ import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
+import com.jme3.system.JmeSystem;
 import com.jme3.util.xml.SAXUtil;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Stack;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParserFactory;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
@@ -351,7 +355,18 @@ public class SceneLoader extends DefaultHandler implements AssetLoader {
                 logger.log(Level.WARNING, "Cannot locate material file {0}", ex.getMessage());
             }
 
-            XMLReader xr = XMLReaderFactory.createXMLReader();
+            
+            // Added by larynx 25.06.2011
+            // Android needs the namespace aware flag set to true 
+            XMLReader xr;
+            if (JmeSystem.getFullName().toUpperCase().contains("ANDROID")) {
+                SAXParserFactory factory = SAXParserFactory.newInstance();
+                factory.setNamespaceAware(true);
+                xr = factory.newSAXParser().getXMLReader();                
+            } else {
+                xr = XMLReaderFactory.createXMLReader();
+            }
+            
             xr.setContentHandler(this);
             xr.setErrorHandler(this);
             InputStreamReader r = new InputStreamReader(info.openStream());
@@ -359,6 +374,10 @@ public class SceneLoader extends DefaultHandler implements AssetLoader {
             r.close();
             return root;
         }catch (SAXException ex){
+            IOException ioEx = new IOException("Error while parsing Ogre3D dotScene");
+            ioEx.initCause(ex);
+            throw ioEx;
+        } catch (ParserConfigurationException ex) {
             IOException ioEx = new IOException("Error while parsing Ogre3D dotScene");
             ioEx.initCause(ex);
             throw ioEx;

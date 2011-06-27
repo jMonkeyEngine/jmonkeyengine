@@ -40,6 +40,7 @@ import com.jme3.asset.AssetLoader;
 import com.jme3.asset.AssetManager;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
+import com.jme3.system.JmeSystem;
 import com.jme3.util.xml.SAXUtil;
 import java.io.IOException;
 import java.io.InputStream;
@@ -50,6 +51,11 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Stack;
 import java.util.logging.Logger;
+
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -252,7 +258,18 @@ public class SkeletonLoader extends DefaultHandler implements AssetLoader {
 
     public Object load(InputStream in) throws IOException {
         try {
-            XMLReader xr = XMLReaderFactory.createXMLReader();
+            
+            // Added by larynx 25.06.2011
+            // Android needs the namespace aware flag set to true 
+            XMLReader xr;
+            if (JmeSystem.getFullName().toUpperCase().contains("ANDROID")) {
+                SAXParserFactory factory = SAXParserFactory.newInstance();
+                factory.setNamespaceAware(true);
+                xr = factory.newSAXParser().getXMLReader();                
+            } else {
+                xr = XMLReaderFactory.createXMLReader();
+            }
+                                    
             xr.setContentHandler(this);
             xr.setErrorHandler(this);
             InputStreamReader r = new InputStreamReader(in);
@@ -269,7 +286,13 @@ public class SkeletonLoader extends DefaultHandler implements AssetLoader {
             ioEx.initCause(ex);
             fullReset();
             throw ioEx;
+        } catch (ParserConfigurationException ex) {
+            IOException ioEx = new IOException("Error while parsing Ogre3D dotScene");
+            ioEx.initCause(ex);
+            fullReset();
+            throw ioEx;
         }
+        
     }
 
     public Object load(AssetInfo info) throws IOException {

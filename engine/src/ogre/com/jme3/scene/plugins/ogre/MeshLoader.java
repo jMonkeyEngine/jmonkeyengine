@@ -52,6 +52,7 @@ import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.VertexBuffer.Format;
 import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.scene.VertexBuffer.Usage;
+import com.jme3.system.JmeSystem;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.IntMap;
 import com.jme3.util.IntMap.Entry;
@@ -67,6 +68,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParserFactory;
+
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -789,8 +794,18 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
                 }
 
             }
-
-            XMLReader xr = XMLReaderFactory.createXMLReader();
+            
+            // Added by larynx 25.06.2011
+            // Android needs the namespace aware flag set to true                 
+            XMLReader xr;
+            if (JmeSystem.getFullName().toUpperCase().contains("ANDROID")) {
+                SAXParserFactory factory = SAXParserFactory.newInstance();
+                factory.setNamespaceAware(true);
+                xr = factory.newSAXParser().getXMLReader();                
+            } else {
+                xr = XMLReaderFactory.createXMLReader();
+            }
+            
             xr.setContentHandler(this);
             xr.setErrorHandler(this);
             InputStreamReader r = new InputStreamReader(info.openStream());
@@ -799,6 +814,10 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
 
             return compileModel();
         } catch (SAXException ex) {
+            IOException ioEx = new IOException("Error while parsing Ogre3D mesh.xml");
+            ioEx.initCause(ex);
+            throw ioEx;
+        } catch (ParserConfigurationException ex) {
             IOException ioEx = new IOException("Error while parsing Ogre3D mesh.xml");
             ioEx.initCause(ex);
             throw ioEx;
