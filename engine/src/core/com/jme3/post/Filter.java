@@ -46,6 +46,8 @@ import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Image.Format;
 import com.jme3.texture.Texture2D;
 import java.io.IOException;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -64,10 +66,16 @@ import java.util.List;
  */
 public abstract class Filter implements Savable {
 
+    @Retention(RetentionPolicy.RUNTIME)
+    public @interface FilterParameter {
+        String name();
+    }
+    @FilterParameter (name="Name")
     private String name;
     protected Pass defaultPass;
     protected List<Pass> postRenderPasses;
     protected Material material;
+    @FilterParameter (name="Enabled")
     protected boolean enabled = true;
     protected FilterPostProcessor processor;
 

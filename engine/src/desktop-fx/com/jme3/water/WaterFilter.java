@@ -35,6 +35,8 @@ import com.jme3.asset.AssetManager;
 import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
+import com.jme3.light.DirectionalLight;
+import com.jme3.light.Light;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Matrix4f;
@@ -77,45 +79,74 @@ public class WaterFilter extends Filter {
     private float speed = 1;
     protected Ray ray = new Ray();
     private Vector3f targetLocation = new Vector3f();
-    private Vector3f lightDirection;
     private ReflectionProcessor reflectionProcessor;
     private Matrix4f biasMatrix = new Matrix4f(0.5f, 0.0f, 0.0f, 0.5f,
             0.0f, 0.5f, 0.0f, 0.5f,
             0.0f, 0.0f, 0.0f, 0.5f,
             0.0f, 0.0f, 0.0f, 1.0f);
     private Matrix4f textureProjMatrix = new Matrix4f();
-    private float waterHeight = 0.0f;
-    private float waterTransparency = 0.1f;
-    private float normalScale = 3.0f;
-    private float refractionConstant = 0.5f;
-    private float maxAmplitude = 1.5f;
-    private ColorRGBA lightColor = ColorRGBA.White;
-    private float shoreHardness = 0.1f;
-    private float foamHardness = 1.0f;
-    private float refractionStrength = 0.0f;
-    private float waveScale = 0.005f;
-    private Vector3f foamExistence = new Vector3f(0.45f, 4.35f, 1.5f);
-    private Vector3f colorExtinction = new Vector3f(5.0f, 20.0f, 30.0f);
-    private float sunScale = 3.0f;
-    private float shininess = 0.7f;
-    private ColorRGBA waterColor = new ColorRGBA(0.0078f, 0.3176f, 0.5f, 1.0f);
-    private ColorRGBA deepWaterColor = new ColorRGBA(0.0039f, 0.00196f, 0.145f, 1.0f);
-    private Vector2f windDirection = new Vector2f(0.0f, -1.0f);
-    private int reflectionMapSize = 512;
-    private boolean useRipples = true;
-    private boolean useHQShoreline = true;
-    private boolean useSpecular = true;
-    private boolean useFoam = true;
-    private boolean useCaustics = true;
-    private boolean useRefraction = true;
-    private float time = 0;
-    private float reflectionDisplace = 30;
-    private float foamIntensity = 0.5f;
     private boolean underWater;
-    private float underWaterFogDistance = 120;
-    private float causticsIntensity = 0.5f;
     private RenderManager renderManager;
     private ViewPort viewPort;
+    private float time = 0;
+    @FilterParameter(name = "Light direction")
+    private Vector3f lightDirection = new Vector3f(0, -1, 0);
+    @FilterParameter(name = "Light color")
+    private ColorRGBA lightColor = ColorRGBA.White;
+    @FilterParameter(name = "Water height")
+    private float waterHeight = 0.0f;
+    @FilterParameter(name = "Water color")
+    private ColorRGBA waterColor = new ColorRGBA(0.0078f, 0.3176f, 0.5f, 1.0f);
+    @FilterParameter(name = "Deep water color")
+    private ColorRGBA deepWaterColor = new ColorRGBA(0.0039f, 0.00196f, 0.145f, 1.0f);
+    @FilterParameter(name = "Color extinction")
+    private Vector3f colorExtinction = new Vector3f(5.0f, 20.0f, 30.0f);
+    @FilterParameter(name = "Water transparency")
+    private float waterTransparency = 0.1f;
+    @FilterParameter(name = "Max amplitude")
+    private float maxAmplitude = 1.5f;
+    @FilterParameter(name = "Shore hardness")
+    private float shoreHardness = 0.1f;
+    @FilterParameter(name = "Use Foam")
+    private boolean useFoam = true;
+    @FilterParameter(name = "Foam intensity")
+    private float foamIntensity = 0.5f;
+    @FilterParameter(name = "Foam hardness")
+    private float foamHardness = 1.0f;
+    @FilterParameter(name = "Foam existance")
+    private Vector3f foamExistence = new Vector3f(0.45f, 4.35f, 1.5f);
+    @FilterParameter(name = "Wave scale")
+    private float waveScale = 0.005f;
+    @FilterParameter(name = "Sun scale")
+    private float sunScale = 3.0f;
+    @FilterParameter(name = "Shininess")
+    private float shininess = 0.7f;
+    @FilterParameter(name = "Wind direction")
+    private Vector2f windDirection = new Vector2f(0.0f, -1.0f);
+    @FilterParameter(name = "Reflection map size")
+    private int reflectionMapSize = 512;
+    @FilterParameter(name = "Use ripples")
+    private boolean useRipples = true;
+    @FilterParameter(name = "Normals scale")
+    private float normalScale = 3.0f;
+    @FilterParameter(name = "Use HQ shorelines")
+    private boolean useHQShoreline = true;
+    @FilterParameter(name = "Use Specular")
+    private boolean useSpecular = true;
+    @FilterParameter(name = "Use refraction")
+    private boolean useRefraction = true;
+    @FilterParameter(name = "Refraction strength")
+    private float refractionStrength = 0.0f;
+    @FilterParameter(name = "Refraction constant")
+    private float refractionConstant = 0.5f;
+    @FilterParameter(name = "Refleciton displace")
+    private float reflectionDisplace = 30;
+    @FilterParameter(name = "Fog distance (underwater)")
+    private float underWaterFogDistance = 120;
+    @FilterParameter(name = "Caustics intensity (underwater)")
+    private float causticsIntensity = 0.5f;
+    @FilterParameter(name = "Use caustics (underwater)")
+    private boolean useCaustics = true;
 
     /**
      * Create a Water Filter
@@ -207,8 +238,34 @@ public class WaterFilter extends Filter {
         return material;
     }
 
+    private DirectionalLight findLight(Node node) {
+        for (Light light : node.getWorldLightList()) {
+            System.out.println(light);
+            if (light instanceof DirectionalLight) {
+                return (DirectionalLight) light;
+            }
+        }
+        for (Spatial child : node.getChildren()) {
+            if (child instanceof Node) {
+                return findLight((Node) child);
+            }
+        }
+
+        return null;
+    }
+
     @Override
     protected void initFilter(AssetManager manager, RenderManager renderManager, ViewPort vp, int w, int h) {
+
+        if (reflectionScene == null) {
+            reflectionScene = vp.getScenes().get(0);
+            DirectionalLight l = findLight((Node) reflectionScene);
+            if (l != null) {
+                lightDirection = l.getDirection();
+            }
+
+        }
+
         this.renderManager = renderManager;
         this.viewPort = vp;
         reflectionPass = new Pass();
