@@ -258,17 +258,17 @@ public class AndroidConfigChooser implements EGLConfigChooser
         int[] value = new int[1];
     
         // Choose 565 color size
-        egl.eglGetConfigAttrib(display, a, EGL10.EGL_RED_SIZE, value);
-        int redA = value[0];
+        egl.eglGetConfigAttrib(display, a, EGL10.EGL_GREEN_SIZE, value);
+        int greenA = value[0];
     
-        egl.eglGetConfigAttrib(display, b, EGL10.EGL_RED_SIZE, value);
-        int redB = value[0];
+        egl.eglGetConfigAttrib(display, b, EGL10.EGL_GREEN_SIZE, value);
+        int greenB = value[0];
     
-        if ((redA == 5) && (redB != 5))
+        if ((greenA == 6) && (greenB != 6))
             result = a;
-        else if ((redA != 5) && (redB == 5))
+        else if ((greenA != 6) && (greenB == 6))
             result = b;
-        else // red size is equal
+        else // green size is equal
         {
             // Choose lowest depth size
             egl.eglGetConfigAttrib(display, a, EGL10.EGL_DEPTH_SIZE, value);
@@ -321,6 +321,8 @@ public class AndroidConfigChooser implements EGLConfigChooser
         egl.eglGetConfigAttrib(display, conf, EGL10.EGL_RED_SIZE, value);
         if (value[0] == 8)
         {
+            result = PixelFormat.RGBA_8888;
+            /*
             egl.eglGetConfigAttrib(display, conf, EGL10.EGL_ALPHA_SIZE, value);
             if (value[0] == 8)
             {
@@ -329,8 +331,14 @@ public class AndroidConfigChooser implements EGLConfigChooser
             else
             {
                 result = PixelFormat.RGB_888;
-            }
+            }*/
         }
+        
+        if (verbose)
+        {
+            logger.info("Using PixelFormat " + result);                            
+        }
+    
         return result;                    
     }
     
