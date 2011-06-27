@@ -18,20 +18,20 @@ varying vec4 position;
 vec4 GenerateTerrainColor() {
     float height = position.y;
     vec4 p = position / m_terrainSize;
-   
+
     vec3 blend = abs( normal );
     blend = (blend -0.2) * 0.7;
     blend = normalize(max(blend, 0.00001));      // Force weights to sum to 1.0 (very important!)
     float b = (blend.x + blend.y + blend.z);
     blend /= vec3(b, b, b);
 
-    vec4 terrainColor = vec4(0, 0, 0, 1.0);
+    vec4 terrainColor = vec4(0.0, 0.0, 0.0, 1.0);
 
     float m_regionMin = 0.0;
     float m_regionMax = 0.0;
     float m_regionRange = 0.0;
     float m_regionWeight = 0.0;
-    
+
  	vec4 slopeCol1 = texture2D(m_slopeColorMap, p.yz * m_slopeTileFactor);
  	vec4 slopeCol2 = texture2D(m_slopeColorMap, p.xy * m_slopeTileFactor);
 
@@ -70,7 +70,7 @@ vec4 GenerateTerrainColor() {
     return (blend.y * terrainColor + blend.x * slopeCol1 + blend.z * slopeCol2);
 }
 
-void main() {  
+void main() {
 	vec4 color = GenerateTerrainColor();
     gl_FragColor = color;
 }
