@@ -296,7 +296,7 @@ public abstract class AndroidApplication extends Application implements DialogIn
     {        
         if (whichButton != -2)
         {
-            this.stop();
+            this.stop(true);
             activity.finish();
         }
     }

@@ -70,6 +70,7 @@ public class AndroidAssetManager extends DesktopAssetManager {
         
         System.setProperty("org.xml.sax.driver","org.xmlpull.v1.sax2.Driver");
         
+        
     	// Set Default Android config        	       
         this.registerLocator("", AndroidLocator.class);	        
         this.registerLocator("", ClasspathLocator.class);

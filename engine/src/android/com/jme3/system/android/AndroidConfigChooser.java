@@ -91,8 +91,8 @@ public class AndroidConfigChooser implements EGLConfigChooser
                 if ((value[0] & EGL10.EGL_WINDOW_BIT) != 0)
                 {                    
                     egl.eglGetConfigAttrib(display, conf[i], EGL10.EGL_DEPTH_SIZE, value);
-                    // check if conf has a depth of 16
-                    if (value[0] == 16)
+                    // check if conf has a minimum depth of 16
+                    if (value[0] >= 16)
                     {
                         egl.eglGetConfigAttrib(display, conf[i], EGL10.EGL_RENDERABLE_TYPE, value);
                         // Check if conf is OpenGL ES 2.0
@@ -121,7 +121,7 @@ public class AndroidConfigChooser implements EGLConfigChooser
                     {
                         if (verbose)
                         {
-                            logger.info("NOT Supported EGL Configuration #" + i + " EGL_DEPTH_SIZE != 16");                            
+                            logger.info("NOT Supported EGL Configuration #" + i + " EGL_DEPTH_SIZE < 16");                            
                             logEGLConfig(conf[i], display, egl);
                         }
                     }
@@ -199,30 +199,45 @@ public class AndroidConfigChooser implements EGLConfigChooser
             result = b;
         else // red size is equal
         {
-            // Choose lowest alpha size
-            egl.eglGetConfigAttrib(display, a, EGL10.EGL_ALPHA_SIZE, value);
-            int alphaA = value[0];
+            // Choose highest depth size
+            egl.eglGetConfigAttrib(display, a, EGL10.EGL_DEPTH_SIZE, value);
+            int depthA = value[0];
     
-            egl.eglGetConfigAttrib(display, b, EGL10.EGL_ALPHA_SIZE, value);
-            int alphaB = value[0];
+            egl.eglGetConfigAttrib(display, b, EGL10.EGL_DEPTH_SIZE, value);
+            int depthB = value[0];
     
-            if (alphaA < alphaB)
+            if (depthA > depthB)
                 result = a;
-            else if (alphaA > alphaB)
+            else if (depthA < depthB)
                 result = b;
-            else // alpha is equal
-            {
-                // Choose lowest stencil size
-                egl.eglGetConfigAttrib(display, a, EGL10.EGL_STENCIL_SIZE, value);
-                int stencilA = value[0];
+            else // depth is equal
+            {       
+                
+                // Choose lowest alpha size
+                egl.eglGetConfigAttrib(display, a, EGL10.EGL_ALPHA_SIZE, value);
+                int alphaA = value[0];
         
-                egl.eglGetConfigAttrib(display, b, EGL10.EGL_STENCIL_SIZE, value);
-                int stencilB = value[0];
+                egl.eglGetConfigAttrib(display, b, EGL10.EGL_ALPHA_SIZE, value);
+                int alphaB = value[0];
         
-                if (stencilA < stencilB)
+                if (alphaA < alphaB)
                     result = a;
-                else
+                else if (alphaA > alphaB)
                     result = b;
+                else // alpha is equal
+                {
+                    // Choose lowest stencil size
+                    egl.eglGetConfigAttrib(display, a, EGL10.EGL_STENCIL_SIZE, value);
+                    int stencilA = value[0];
+            
+                    egl.eglGetConfigAttrib(display, b, EGL10.EGL_STENCIL_SIZE, value);
+                    int stencilB = value[0];
+            
+                    if (stencilA < stencilB)
+                        result = a;
+                    else
+                        result = b;
+                }
             }
         }
         return result;
@@ -242,7 +257,7 @@ public class AndroidConfigChooser implements EGLConfigChooser
     
         int[] value = new int[1];
     
-        // Choose highest color size
+        // Choose 565 color size
         egl.eglGetConfigAttrib(display, a, EGL10.EGL_RED_SIZE, value);
         int redA = value[0];
     
@@ -255,30 +270,44 @@ public class AndroidConfigChooser implements EGLConfigChooser
             result = b;
         else // red size is equal
         {
-            // Choose lowest alpha size
-            egl.eglGetConfigAttrib(display, a, EGL10.EGL_ALPHA_SIZE, value);
-            int alphaA = value[0];
+            // Choose lowest depth size
+            egl.eglGetConfigAttrib(display, a, EGL10.EGL_DEPTH_SIZE, value);
+            int depthA = value[0];
     
-            egl.eglGetConfigAttrib(display, b, EGL10.EGL_ALPHA_SIZE, value);
-            int alphaB = value[0];
+            egl.eglGetConfigAttrib(display, b, EGL10.EGL_DEPTH_SIZE, value);
+            int depthB = value[0];
     
-            if (alphaA < alphaB)
+            if (depthA < depthB)
                 result = a;
-            else if (alphaA > alphaB)
+            else if (depthA > depthB)
                 result = b;
-            else // alpha is equal
-            {
-                // Choose lowest stencil size
-                egl.eglGetConfigAttrib(display, a, EGL10.EGL_STENCIL_SIZE, value);
-                int stencilA = value[0];
+            else // depth is equal
+            {                              
+                // Choose lowest alpha size
+                egl.eglGetConfigAttrib(display, a, EGL10.EGL_ALPHA_SIZE, value);
+                int alphaA = value[0];
         
-                egl.eglGetConfigAttrib(display, b, EGL10.EGL_STENCIL_SIZE, value);
-                int stencilB = value[0];
+                egl.eglGetConfigAttrib(display, b, EGL10.EGL_ALPHA_SIZE, value);
+                int alphaB = value[0];
         
-                if (stencilA < stencilB)
+                if (alphaA < alphaB)
                     result = a;
-                else
+                else if (alphaA > alphaB)
                     result = b;
+                else // alpha is equal
+                {
+                    // Choose lowest stencil size
+                    egl.eglGetConfigAttrib(display, a, EGL10.EGL_STENCIL_SIZE, value);
+                    int stencilA = value[0];
+            
+                    egl.eglGetConfigAttrib(display, b, EGL10.EGL_STENCIL_SIZE, value);
+                    int stencilB = value[0];
+            
+                    if (stencilA < stencilB)
+                        result = a;
+                    else
+                        result = b;
+                }
             }
         }
         return result;
