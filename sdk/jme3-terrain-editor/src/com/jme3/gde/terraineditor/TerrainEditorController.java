@@ -83,14 +83,15 @@ public class TerrainEditorController {
     private Node terrainNode;
     private Node rootNode;
     private AssetDataObject currentFileObject;
+    private TerrainEditorTopComponent topComponent;
 
     // texture settings
     public static final String DEFAULT_TERRAIN_TEXTURE = "com/jme3/gde/terraineditor/dirt.jpg";
     public static final float DEFAULT_TEXTURE_SCALE = 16.0625f;
     public static final int NUM_ALPHA_TEXTURES = 3;
-    private final int BASE_TEXTURE_COUNT = NUM_ALPHA_TEXTURES; // add any others here, like a global specular map
-    protected final int MAX_TEXTURE_LAYERS = 7-BASE_TEXTURE_COUNT; // 16 max, minus the ones we are reserving
-
+    protected final int MAX_DIFFUSE = 12;
+    protected final int MAX_TEXTURES = 16-NUM_ALPHA_TEXTURES; // 16 max (diffuse and normal), minus the ones we are reserving
+    
     
 
     protected SaveCookie terrainSaveCookie = new SaveCookie() {
@@ -113,6 +114,7 @@ public class TerrainEditorController {
         rootNode = this.jmeRootNode.getLookup().lookup(Node.class);
         this.currentFileObject = currentFileObject;
         this.currentFileObject.setSaveCookie(terrainSaveCookie);
+        this.topComponent = topComponent;
     }
 
     public void setToolController(TerrainToolController toolController) {
@@ -396,30 +398,6 @@ public class TerrainEditorController {
         }
         Texture tex = (Texture) matParam.getValue();
         return tex;
-    }
-
-    /**
-     * Get the diffuse texture at the specified layer.
-     * Run this on the GL thread!
-     */
-    private Texture doGetAlphaTextureFromDiffuse(Terrain terrain, int diffuseLayer) {
-        int alphaIdx = diffuseLayer/4; // 4 = rgba = 4 textures
-
-        return doGetAlphaTexture(terrain, alphaIdx);
-       /* Terrain terrain = (Terrain) getTerrain(null);
-        MatParam matParam = null;
-        //TODO: add when supported
-//        if (alphaIdx == 0)
-            matParam = terrain.getMaterial().getParam("AlphaMap");
-//        else
-//            matParam = terrain.getMaterial().getParam("AlphaMap_"+alphaIdx);
-
-        if (matParam == null || matParam.getValue() == null) {
-            return null;
-        }
-        Texture tex = (Texture) matParam.getValue();
-        return tex;
-        */
     }
 
 
@@ -736,10 +714,10 @@ public class TerrainEditorController {
             Texture tex = manager.loadAsset(new TextureKey(alphaBlendFileName, false));
             if (i == 0)
                 mat.setTexture("AlphaMap", tex);
-            /*else if (i == 1) // add these in when they are supported
+            else if (i == 1) // add these in when they are supported
                 mat.setTexture("AlphaMap_1", tex);
             else if (i == 2)
-                mat.setTexture("AlphaMap_2", tex);*/
+                mat.setTexture("AlphaMap_2", tex);
         }
         
         // give the first layer default texture
@@ -936,7 +914,61 @@ public class TerrainEditorController {
         return false;
     }
     
+    /**
+     * Enable/disable the add and remove texture buttons based
+     * on how many textures are currently being used.
+     */
+    protected void enableTextureButtons() {
+        final int numAvailable = MAX_TEXTURES-doGetNumUsedTextures();
+        final boolean add = doGetNumDiffuseTextures() < MAX_DIFFUSE && numAvailable > 0;
+        final boolean remove = doGetNumDiffuseTextures() > 1;
+        
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                topComponent.enableAddTextureButton(add);
+                topComponent.enableRemoveTextureButton(remove);
+                topComponent.updateTextureCountLabel(numAvailable);
+                topComponent.setAddNormalTextureEnabled(numAvailable>0);
+            }
+        });
+    }
+    
+    /**
+     * How many diffuse textures are being used.
+     * Blocking call on GL thread
+     */
+    protected int getNumDiffuseTextures() {
+        try {
+            Integer count =
+              SceneApplication.getApplication().enqueue(new Callable<Integer>() {
+                public Integer call() throws Exception {
+                    return doGetNumDiffuseTextures();
+                }
+            }).get();
+            return count;
+        } catch (InterruptedException ex) {
+            Exceptions.printStackTrace(ex);
+        } catch (ExecutionException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+        return -1;
+    }
+    
+    private int doGetNumDiffuseTextures() {
+        Terrain terrain = (Terrain) getTerrain(null);
+        if (terrain == null)
+            return 0;
 
+        int count = 0;
+
+        for (int i=0; i<MAX_TEXTURES; i++) {
+            Texture tex = doGetDiffuseTexture(i);
+            if (tex != null)
+                count++;
+        }
+        return count;
+    }
+    
     /**
      * How many textures are currently being used.
      * Blocking call on GL thread
@@ -965,7 +997,7 @@ public class TerrainEditorController {
 
         int count = 0;
 
-        for (int i=0; i<MAX_TEXTURE_LAYERS; i++) {
+        for (int i=0; i<MAX_TEXTURES; i++) {
             Texture tex = doGetDiffuseTexture(i);
             if (tex != null)
                 count++;

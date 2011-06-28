@@ -126,13 +126,12 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
     TerrainToolController toolController;
     TerrainEditorController editorController;
     private SceneRequest currentRequest;
-    private int currentTextureCount;
     private boolean alreadyChoosing = false; // used for texture table selection
     private CreateTerrainWizardAction terrainWizard;
     private SkyboxWizardAction skyboxWizard;
     private JmeSpatial selectedSpat;
     private TerrainNodeListener terrainDeletedNodeListener;
-    
+    private boolean availableNormalTextures;
 
     private HelpCtx ctx = new HelpCtx("sdk.terrain_editor");
 
@@ -628,13 +627,25 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
             return;
         int index = getTableModel().getRowCount(); // get the last row
         addNewTextureLayer(index);
-        if (currentTextureCount >= editorController.MAX_TEXTURE_LAYERS)
-            addTextureButton.setEnabled(false);
-        if (currentTextureCount > 0)
-            removeTextureButton.setEnabled(true);
-        remainingTexturesLabel.setText(""+(editorController.MAX_TEXTURE_LAYERS-currentTextureCount));
+        editorController.enableTextureButtons();
     }//GEN-LAST:event_addTextureButtonActionPerformed
 
+    protected void enableAddTextureButton(boolean enabled) {
+        addTextureButton.setEnabled(enabled);
+    }
+    
+    protected void enableRemoveTextureButton(boolean enabled) {
+        removeTextureButton.setEnabled(enabled);
+    }
+    
+    protected void updateTextureCountLabel(int count) {
+        remainingTexturesLabel.setText(""+count);
+    }
+    
+    protected void setAddNormalTextureEnabled(boolean enabled) {
+        availableNormalTextures = enabled;
+    }
+    
     private void removeTextureButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeTextureButtonActionPerformed
         if (editorController == null || editorController.getTerrain(null) == null)
             return;
@@ -642,11 +653,7 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
             return;
         int index = getTableModel().getRowCount() - 1; // get the last row
         removeTextureLayer(index);
-        if (currentTextureCount == 0)
-            removeTextureButton.setEnabled(false);
-        if (currentTextureCount < editorController.MAX_TEXTURE_LAYERS)
-            addTextureButton.setEnabled(true);
-        remainingTexturesLabel.setText(""+(editorController.MAX_TEXTURE_LAYERS-currentTextureCount));
+        editorController.enableTextureButtons();
     }//GEN-LAST:event_removeTextureButtonActionPerformed
 
     private void eraseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_eraseButtonActionPerformed
@@ -813,12 +820,9 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
 
         addSaveNode(selectedSpat);
         
- //       editorController.getAlphaSaveDataObject(this);
-        
         editorController.setNeedsSave(true);
 
-        currentTextureCount = editorController.getNumUsedTextures();
-        remainingTexturesLabel.setText(""+(editorController.MAX_TEXTURE_LAYERS-currentTextureCount));
+        editorController.enableTextureButtons();
 
         reinitTextureTable(); // update the UI
 
@@ -1003,7 +1007,7 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
 
         addSaveNode(jmeNode);
         
-        SceneUndoRedoManager m = Lookup.getDefault().lookup(SceneUndoRedoManager.class);//TODO remove this line
+        //SceneUndoRedoManager m = Lookup.getDefault().lookup(SceneUndoRedoManager.class);//TODO remove this line
             
         Logger.getLogger(TerrainEditorTopComponent.class.getName()).finer("Terrain openScene "+file.getName());
         
@@ -1017,6 +1021,7 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
         SceneApplication.getApplication().requestScene(request);
 
         terrainDeletedNodeListener = new TerrainNodeListener();
+        editorController.enableTextureButtons();
     }
 
     // run on GL thread
@@ -1177,8 +1182,7 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
         else
             toolController.setSelectedTextureIndex(-1);
 
-        currentTextureCount = editorController.getNumUsedTextures();
-        remainingTexturesLabel.setText(""+(editorController.MAX_TEXTURE_LAYERS-currentTextureCount));
+        editorController.enableTextureButtons();
         triPlanarCheckBox.setSelected(editorController.isTriPlanarEnabled());
     }
 
@@ -1230,7 +1234,7 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
                 removeRow(0);
 
             // fill the table with the proper data
-            for (int i=0; i<editorController.MAX_TEXTURE_LAYERS; i++) {
+            for (int i=0; i<editorController.MAX_TEXTURES; i++) {
                 if (!editorController.hasTextureAt(i))
                     continue;
                 
@@ -1268,7 +1272,7 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
             // and add it to the actual material
             setTexture(newIndex, (String)null);
             setTextureScale(newIndex, scale);
-            currentTextureCount = editorController.getNumUsedTextures();
+            editorController.enableTextureButtons();
         }
 
         protected void setTexture(final int index, final Texture texture) {
@@ -1284,13 +1288,13 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
         protected void setNormal(final int index, final String texturePath) {
             setValueAt(index, index, 2);
             editorController.setNormalMap(index, texturePath);
-            currentTextureCount = editorController.getNumUsedTextures();
+            editorController.enableTextureButtons();
         }
 
         protected void setNormal(final int index, final Texture texture) {
             setValueAt(index, index, 2);
             editorController.setNormalMap(index, texture);
-            currentTextureCount = editorController.getNumUsedTextures();
+            editorController.enableTextureButtons();
         }
 
         protected void setTextureScale(int index, float scale) {
@@ -1300,7 +1304,7 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
         protected void removeTexture(final int index) {
             removeRow(index);
             editorController.removeTextureLayer(index);
-            currentTextureCount = editorController.getNumUsedTextures();
+            editorController.enableTextureButtons();
         }
 
     }
@@ -1383,6 +1387,8 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
 
                     try {
                         Texture selectedTex = getTextureFromModel(row); // delegates to sub class
+                        if (selectedTex == null && !availableNormalTextures) // bail if we are at our texture limit
+                            return;
                         TexturePropertyEditor editor = new TexturePropertyEditor(selectedTex);
                         Component view = editor.getCustomEditor();
                         view.setVisible(true);
@@ -1464,10 +1470,6 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
         protected boolean supportsNullTexture() {
             return true;
         }
-    }
-
-    private Component getTopComponent() {
-        return this;
     }
 
 
