@@ -33,7 +33,7 @@
                     </file>
                     <file name="com-jme3-gde-ogretools-convert-AdvOgreXMLConvertAction.shadow">
                         <attr name="originalFile" stringvalue="Actions/OgreXML/com-jme3-gde-ogretools-convert-AdvOgreXMLConvertAction.instance"/>
-                        <attr name="position" intvalue="30"/>
+                        <attr name="position" intvalue="100"/>
                     </file>
                     <file name="org-openide-actions-CopyAction.shadow">
                         <attr name="originalFile" stringvalue="Actions/Edit/org-openide-actions-CopyAction.instance"/>
@@ -103,7 +103,7 @@
                 <folder name="Actions">
                     <file name="com-jme3-gde-ogretools-convert-AdvOgreXMLConvert.shadow">
                         <attr name="originalFile" stringvalue="Actions/OgreXML/com-jme3-gde-ogretools-convert-AdvOgreXMLConvertAction.instance"/>
-                        <attr name="position" intvalue="5"/>
+                        <attr name="position" intvalue="100"/>
                     </file>
                 </folder>
             </folder>

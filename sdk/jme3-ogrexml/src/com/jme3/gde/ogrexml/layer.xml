@@ -77,10 +77,6 @@
                         <attr name="originalFile" stringvalue="Actions/jMonkeyPlatform/com-jme3-gde-core-assets-actions-ConvertModel.instance"/>
                         <attr name="position" intvalue="10"/>
                     </file>
-                    <file name="com-jme3-gde-core-assets-actions-OpenModel.shadow">
-                        <attr name="originalFile" stringvalue="Actions/jMonkeyPlatform/com-jme3-gde-core-assets-actions-OpenModel.instance"/>
-                        <attr name="position" intvalue="20"/>
-                    </file>
                     <file name="org-openide-actions-CopyAction.shadow">
                         <attr name="originalFile" stringvalue="Actions/Edit/org-openide-actions-CopyAction.instance"/>
                         <attr name="position" intvalue="400"/>
