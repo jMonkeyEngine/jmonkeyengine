@@ -33,8 +33,12 @@ package com.jme3.gde.core;
 
 import com.jme3.gde.core.scene.SceneApplication;
 import java.io.File;
+import java.util.Iterator;
+import java.util.List;
 import javax.swing.JPopupMenu;
+import org.openide.filesystems.FileChooserBuilder;
 import org.openide.modules.ModuleInstall;
+import org.openide.util.NbPreferences;
 import org.openide.util.Utilities;
 
 /**
@@ -59,14 +63,30 @@ public class Installer extends ModuleInstall {
         //set default projects directory
 //        File userDir = new File(System.getProperty("user.home"));
 //        File myProjectsDir = new File(userDir, "jMonkeyProjects");
-        javax.swing.JFileChooser fr = new javax.swing.JFileChooser();
-        javax.swing.filechooser.FileSystemView fw = fr.getFileSystemView();
-        File myProjectsDir = new File(fw.getDefaultDirectory().getPath() + File.separator + "jMonkeyProjects");
 
-        if (!myProjectsDir.exists()) {
-            myProjectsDir.mkdirs();
+//        if (!myProjectsDir.exists()) {
+//            myProjectsDir.mkdirs();
+//        }
+        
+        //select project folder
+        String projectDir = NbPreferences.forModule(Installer.class).get("projects_path", null);
+        if (projectDir == null) {
+            //set extraction dir for platform natives
+            javax.swing.JFileChooser fr = new javax.swing.JFileChooser();
+            javax.swing.filechooser.FileSystemView fw = fr.getFileSystemView();
+//            File myProjectsDir = new File(fw.getDefaultDirectory().getPath() + File.separator + "jMonkeyProjects");
+            projectDir = fw.getDefaultDirectory().getAbsolutePath();
+            FileChooserBuilder builder = new FileChooserBuilder(projectDir);
+            builder.setApproveText("Set Project Folder");
+            builder.setTitle("Please select folder for storing projects");
+            builder.setDirectoriesOnly(true);
+            File file = builder.showOpenDialog();
+            if (file != null) {
+                projectDir = file.getAbsolutePath();
+                NbPreferences.forModule(Installer.class).put("projects_path", projectDir);
+            }
         }
-        System.setProperty("netbeans.projects.dir", myProjectsDir.getAbsolutePath());
+        System.setProperty("netbeans.projects.dir", projectDir);
 
         //set extraction dir for platform natives
         if (Utilities.isMac()) {
