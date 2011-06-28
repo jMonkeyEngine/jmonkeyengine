@@ -212,8 +212,7 @@ public class WaterFilter extends Filter {
     }
 
     private DirectionalLight findLight(Node node) {
-        for (Light light : node.getWorldLightList()) {
-            System.out.println(light);
+        for (Light light : node.getWorldLightList()) {    
             if (light instanceof DirectionalLight) {
                 return (DirectionalLight) light;
             }
