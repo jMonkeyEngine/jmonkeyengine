@@ -36,6 +36,7 @@ import com.jme3.gde.core.sceneexplorer.nodes.properties.ScenePropertyChangeListe
 import com.jme3.post.Filter;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import javax.swing.Action;
 import org.openide.actions.DeleteAction;
 import org.openide.loaders.DataObject;
@@ -123,6 +124,7 @@ public abstract class AbstractFilterNode extends AbstractNode implements FilterN
         return sheet;
 
     }
+
     /**
      * @param saveCookie the saveCookie to set
      */
@@ -161,18 +163,24 @@ public abstract class AbstractFilterNode extends AbstractNode implements FilterN
         }
         return prop;
     }
-    
-     protected void createFields(Class c, Sheet.Set set, Object obj) throws SecurityException {
-        for (Field field : c.getDeclaredFields()) {         
-            Filter.FilterParameter param = field.getAnnotation(Filter.FilterParameter.class);
-            if (param != null) {
-                String name = field.getName().substring(0, 1).toUpperCase() + field.getName().substring(1);
-                String getter = "get";
-                if (field.getType().equals(boolean.class)) {
-                    getter = "is";
-                }
-                set.put(makeProperty(obj, field.getType(), getter + name, "set" + name, param.name()));
+
+    protected void createFields(Class c, Sheet.Set set, Object obj) throws SecurityException {
+        for (Field field : c.getDeclaredFields()) {
+
+            String name = field.getName().substring(0, 1).toUpperCase() + field.getName().substring(1);
+            String getter = "get";
+            if (field.getType().equals(boolean.class)) {
+                getter = "is";
             }
+            try {
+                Method m=c.getMethod(getter + name, null);    
+                m=c.getMethod("set" + name, field.getType());
+            } catch (NoSuchMethodException e) {
+                continue;
+            }
+            
+            set.put(makeProperty(obj, field.getType(), getter + name, "set" + name, field.getName()));
+
         }
     }
 
