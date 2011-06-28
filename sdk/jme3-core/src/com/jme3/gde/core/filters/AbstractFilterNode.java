@@ -33,7 +33,9 @@ package com.jme3.gde.core.filters;
 
 import com.jme3.gde.core.sceneexplorer.nodes.properties.SceneExplorerProperty;
 import com.jme3.gde.core.sceneexplorer.nodes.properties.ScenePropertyChangeListener;
+import com.jme3.gde.core.util.PropertyUtils;
 import com.jme3.post.Filter;
+import java.beans.PropertyDescriptor;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -166,21 +168,10 @@ public abstract class AbstractFilterNode extends AbstractNode implements FilterN
 
     protected void createFields(Class c, Sheet.Set set, Object obj) throws SecurityException {
         for (Field field : c.getDeclaredFields()) {
-
-            String name = field.getName().substring(0, 1).toUpperCase() + field.getName().substring(1);
-            String getter = "get";
-            if (field.getType().equals(boolean.class)) {
-                getter = "is";
+            PropertyDescriptor prop=PropertyUtils.getPropertyDescriptor(c, field);
+            if(prop!=null){
+                set.put(makeProperty(obj, prop.getPropertyType() , prop.getReadMethod().getName(), prop.getWriteMethod().getName(), prop.getDisplayName()));
             }
-            try {
-                Method m=c.getMethod(getter + name, null);    
-                m=c.getMethod("set" + name, field.getType());
-            } catch (NoSuchMethodException e) {
-                continue;
-            }
-            
-            set.put(makeProperty(obj, field.getType(), getter + name, "set" + name, field.getName()));
-
         }
     }
 

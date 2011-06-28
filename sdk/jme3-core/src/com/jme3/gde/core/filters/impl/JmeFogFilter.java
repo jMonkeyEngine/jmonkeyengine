@@ -65,9 +65,10 @@ public class JmeFogFilter extends AbstractFilterNode {
         if (obj == null) {
             return sheet;
         }
-        set.put(makeProperty(obj, float.class, "getFogDistance", "setFogDistance", "Distance"));
-        set.put(makeProperty(obj, float.class, "getFogDensity", "setFogDensity", "Density"));
-        set.put(makeProperty(obj, ColorRGBA.class, "getFogColor", "setFogColor", "Color"));
+//        set.put(makeProperty(obj, float.class, "getFogDistance", "setFogDistance", "Distance"));
+//        set.put(makeProperty(obj, float.class, "getFogDensity", "setFogDensity", "Density"));
+//        set.put(makeProperty(obj, ColorRGBA.class, "getFogColor", "setFogColor", "Color"));
+         createFields(FogFilter.class, set, obj);
         sheet.put(set);
         return sheet;
 

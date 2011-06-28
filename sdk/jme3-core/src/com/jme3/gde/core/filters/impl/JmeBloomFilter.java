@@ -64,11 +64,12 @@ public class JmeBloomFilter extends AbstractFilterNode {
         if (obj == null) {
             return sheet;
         }
-        set.put(makeProperty(obj, float.class, "getBloomIntensity", "setBloomIntensity", "Intensity"));
-        set.put(makeProperty(obj, float.class, "getBlurScale", "setBlurScale", "Blur Scale"));
-        set.put(makeProperty(obj, float.class, "getDownSamplingFactor", "setDownSamplingFactor", "Downsampling Factor"));
-        set.put(makeProperty(obj, float.class, "getExposureCutOff", "setExposureCutOff", "Exposure Cutoff"));
-        set.put(makeProperty(obj, float.class, "getExposurePower", "setExposurePower", "Exposure Power"));
+//        set.put(makeProperty(obj, float.class, "getBloomIntensity", "setBloomIntensity", "Intensity"));
+//        set.put(makeProperty(obj, float.class, "getBlurScale", "setBlurScale", "Blur Scale"));
+//        set.put(makeProperty(obj, float.class, "getDownSamplingFactor", "setDownSamplingFactor", "Downsampling Factor"));
+//        set.put(makeProperty(obj, float.class, "getExposureCutOff", "setExposureCutOff", "Exposure Cutoff"));
+//        set.put(makeProperty(obj, float.class, "getExposurePower", "setExposurePower", "Exposure Power"));
+         createFields(BloomFilter.class, set, obj);
         sheet.put(set);
         return sheet;
 

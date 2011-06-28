@@ -33,23 +33,24 @@ package com.jme3.gde.core.filters.impl;
 
 import com.jme3.gde.core.filters.AbstractFilterNode;
 import com.jme3.gde.core.filters.FilterNode;
-import com.jme3.math.ColorRGBA;
-import com.jme3.post.filters.CrossHatchFilter;
+import com.jme3.post.Filter;
+import com.jme3.post.ssao.SSAOFilter;
+import com.jme3.water.WaterFilter;
 import org.openide.loaders.DataObject;
 import org.openide.nodes.Node;
 import org.openide.nodes.Sheet;
 
 /**
  *
- * @author normenhansen
+ * @author Rémy Bouquet
  */
 @org.openide.util.lookup.ServiceProvider(service = FilterNode.class)
-public class JmeCrossHatchFilter extends AbstractFilterNode {
+public class JmeSSAOFilter extends AbstractFilterNode {
 
-    public JmeCrossHatchFilter() {
+    public JmeSSAOFilter() {
     }
 
-    public JmeCrossHatchFilter(CrossHatchFilter filter, DataObject object, boolean readOnly) {
+    public JmeSSAOFilter(SSAOFilter filter, DataObject object, boolean readOnly) {
         super(filter);
         this.dataObject = object;
         this.readOnly = readOnly;
@@ -58,21 +59,18 @@ public class JmeCrossHatchFilter extends AbstractFilterNode {
     @Override
     protected Sheet createSheet() {
         Sheet sheet = super.createSheet();
+
         Sheet.Set set = Sheet.createPropertiesSet();
-        set.setDisplayName("CrossHatch");
-        set.setName(Node.class.getName());
-        CrossHatchFilter obj = (CrossHatchFilter) filter;
+        set.setDisplayName("Water");
+        set.setName("Water");
+        SSAOFilter obj = (SSAOFilter) filter;
+
         if (obj == null) {
             return sheet;
         }
-//        set.put(makeProperty(obj, float.class, "getColorInfluenceLine", "setColorInfluenceLine", "Color Influence Line"));
-//        set.put(makeProperty(obj, float.class, "getColorInfluencePaper", "setColorInfluencePaper", "Color Influence Paper"));
-//        set.put(makeProperty(obj, float.class, "getFillValue", "setFillValue", "Fill Value"));
-//        set.put(makeProperty(obj, ColorRGBA.class, "getPaperColor", "setPaperColor", "Paper Color"));
-//        set.put(makeProperty(obj, ColorRGBA.class, "getLineColor", "setLineColor", "Line Color"));
-//        set.put(makeProperty(obj, float.class, "getLineDistance", "setLineDistance", "Line Distance"));
-//        set.put(makeProperty(obj, float.class, "getLineThickness", "setLineThickness", "Line Thickness"));
-        createFields(CrossHatchFilter.class, set, obj);
+
+        createFields(SSAOFilter.class, set, obj);
+
         sheet.put(set);
         return sheet;
 
@@ -80,11 +78,11 @@ public class JmeCrossHatchFilter extends AbstractFilterNode {
 
     @Override
     public Class<?> getExplorerObjectClass() {
-        return CrossHatchFilter.class;
+        return SSAOFilter.class;
     }
 
     @Override
     public Node[] createNodes(Object key, DataObject dataObject, boolean readOnly) {
-        return new Node[]{new JmeCrossHatchFilter((CrossHatchFilter) key, dataObject, readOnly)};
+        return new Node[]{new JmeSSAOFilter((SSAOFilter) key, dataObject, readOnly)};
     }
 }

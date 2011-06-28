@@ -64,9 +64,10 @@ public class JmeDepthOfFieldFilter extends AbstractFilterNode {
         if (obj == null) {
             return sheet;
         }
-        set.put(makeProperty(obj, float.class, "getBlurScale", "setBlurScale", "Blur Scale"));
-        set.put(makeProperty(obj, float.class, "getFocusDistance", "setFocusDistance", "Focus Distance"));
-        set.put(makeProperty(obj, float.class, "getFocusRange", "setFocusRange", "Focus Range"));
+//        set.put(makeProperty(obj, float.class, "getBlurScale", "setBlurScale", "Blur Scale"));
+//        set.put(makeProperty(obj, float.class, "getFocusDistance", "setFocusDistance", "Focus Distance"));
+//        set.put(makeProperty(obj, float.class, "getFocusRange", "setFocusRange", "Focus Range"));
+         createFields(DepthOfFieldFilter.class, set, obj);
         sheet.put(set);
         return sheet;
 

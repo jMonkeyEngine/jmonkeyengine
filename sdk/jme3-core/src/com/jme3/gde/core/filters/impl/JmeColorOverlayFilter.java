@@ -65,7 +65,8 @@ public class JmeColorOverlayFilter extends AbstractFilterNode {
         if (obj == null) {
             return sheet;
         }
-        set.put(makeProperty(obj, ColorRGBA.class, "getColor", "setColor", "Color"));
+        //set.put(makeProperty(obj, ColorRGBA.class, "getColor", "setColor", "Color"));
+        createFields(ColorOverlayFilter.class, set, obj);
         sheet.put(set);
         return sheet;
 

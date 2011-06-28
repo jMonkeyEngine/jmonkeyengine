@@ -65,11 +65,13 @@ public class JmeLightScatteringFilter extends AbstractFilterNode {
         if (obj == null) {
             return sheet;
         }
-        set.put(makeProperty(obj, float.class, "getBlurStart", "setBlurStart", "Blur Start"));
-        set.put(makeProperty(obj, float.class, "getBlurWidth", "setBlurWidth", "Blur Width"));
-        set.put(makeProperty(obj, float.class, "getLightDensity", "setLightDensity", "Light Density"));
-        set.put(makeProperty(obj, Vector3f.class, "getLightPosition", "setLightPosition", "Light Position"));
-        set.put(makeProperty(obj, int.class, "getNbSamples", "setNbSamples", "Sample Number"));
+//        set.put(makeProperty(obj, float.class, "getBlurStart", "setBlurStart", "Blur Start"));
+//        set.put(makeProperty(obj, float.class, "getBlurWidth", "setBlurWidth", "Blur Width"));
+//        set.put(makeProperty(obj, float.class, "getLightDensity", "setLightDensity", "Light Density"));
+//        set.put(makeProperty(obj, Vector3f.class, "getLightPosition", "setLightPosition", "Light Position"));
+//        set.put(makeProperty(obj, int.class, "getNbSamples", "setNbSamples", "Sample Number"));
+        
+        createFields(LightScatteringFilter.class, set, obj);
         sheet.put(set);
         return sheet;
 

@@ -65,13 +65,14 @@ public class JmeCartoonEdgeFilter extends AbstractFilterNode {
         if (obj == null) {
             return sheet;
         }
-        set.put(makeProperty(obj, float.class, "getDepthSensitivity", "setDepthSensitivity", "Depth Sensitivity"));
-        set.put(makeProperty(obj, float.class, "getDepthThreshold", "setDepthThreshold", "Depth Threshold"));
-        set.put(makeProperty(obj, ColorRGBA.class, "getEdgeColor", "setEdgeColor", "Edge Color"));
-        set.put(makeProperty(obj, float.class, "getEdgeIntensity", "setEdgeIntensity", "Edge Intensity"));
-        set.put(makeProperty(obj, float.class, "getEdgeWidth", "setEdgeWidth", "Edge Width"));
-        set.put(makeProperty(obj, float.class, "getNormalSensitivity", "setNormalSensitivity", "Normal Sensitivity"));
-        set.put(makeProperty(obj, float.class, "getNormalThreshold", "setNormalThreshold", "Normal Threshold"));
+//        set.put(makeProperty(obj, float.class, "getDepthSensitivity", "setDepthSensitivity", "Depth Sensitivity"));
+//        set.put(makeProperty(obj, float.class, "getDepthThreshold", "setDepthThreshold", "Depth Threshold"));
+//        set.put(makeProperty(obj, ColorRGBA.class, "getEdgeColor", "setEdgeColor", "Edge Color"));
+//        set.put(makeProperty(obj, float.class, "getEdgeIntensity", "setEdgeIntensity", "Edge Intensity"));
+//        set.put(makeProperty(obj, float.class, "getEdgeWidth", "setEdgeWidth", "Edge Width"));
+//        set.put(makeProperty(obj, float.class, "getNormalSensitivity", "setNormalSensitivity", "Normal Sensitivity"));
+//        set.put(makeProperty(obj, float.class, "getNormalThreshold", "setNormalThreshold", "Normal Threshold"));
+        createFields(CartoonEdgeFilter.class, set, obj);
         sheet.put(set);
         return sheet;
 

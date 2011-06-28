@@ -1,22 +1,22 @@
 /*
  *  Copyright (c) 2009-2010 jMonkeyEngine
  *  All rights reserved.
- * 
+ *
  *  Redistribution and use in source and binary forms, with or without
  *  modification, are permitted provided that the following conditions are
  *  met:
- * 
+ *
  *  * Redistributions of source code must retain the above copyright
  *    notice, this list of conditions and the following disclaimer.
- * 
+ *
  *  * Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- * 
+ *
  *  * Neither the name of 'jMonkeyEngine' nor the names of its contributors
  *    may be used to endorse or promote products derived from this software
  *    without specific prior written permission.
- * 
+ *
  *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  *  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
  *  TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
@@ -29,59 +29,46 @@
  *  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  *  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.jme3.gde.core.filters.impl;
+package com.jme3.gde.core.util;
 
-import com.jme3.gde.core.filters.AbstractFilterNode;
-import com.jme3.gde.core.filters.FilterNode;
-import com.jme3.post.Filter;
-import com.jme3.water.WaterFilter;
-import org.openide.loaders.DataObject;
-import org.openide.nodes.Node;
-import org.openide.nodes.Sheet;
+import java.beans.IntrospectionException;
+import java.beans.PropertyDescriptor;
+import java.lang.reflect.Field;
 
 /**
  *
- * @author Rémy Bouquet
+ * @author Nehon
  */
-@org.openide.util.lookup.ServiceProvider(service = FilterNode.class)
-public class JmeWaterFilter extends AbstractFilterNode {
+public class PropertyUtils {
 
-    public JmeWaterFilter() {
-    }
+    public static PropertyDescriptor getPropertyDescriptor(Class c, Field field) {
+        try {
 
-    public JmeWaterFilter(WaterFilter filter, DataObject object, boolean readOnly) {
-        super(filter);
-        this.dataObject = object;
-        this.readOnly = readOnly;
-    }
 
-    @Override
-    protected Sheet createSheet() {
-        Sheet sheet = super.createSheet();
+            PropertyDescriptor prop = new PropertyDescriptor(field.getName(), c);
 
-        Sheet.Set set = Sheet.createPropertiesSet();
-        set.setDisplayName("Water");
-        set.setName("Water");
-        WaterFilter obj = (WaterFilter) filter;
+            prop.setDisplayName(splitCamelCase(field.getName()));
 
-        if (obj == null) {
-            return sheet;
+            return prop;
+        } catch (IntrospectionException ex) {
+            //System.out.println(ex.getMessage());
+            return null;
         }
-
-        createFields(WaterFilter.class, set, obj);
-
-        sheet.put(set);
-        return sheet;
-
     }
 
-    @Override
-    public Class<?> getExplorerObjectClass() {
-        return WaterFilter.class;
+    static String splitCamelCase(String s) {
+        s = capitalizeString(s);
+        return s.replaceAll(
+                String.format("%s|%s|%s",
+                "(?<=[A-Z])(?=[A-Z][a-z])",
+                "(?<=[^A-Z])(?=[A-Z])",
+                "(?<=[A-Za-z])(?=[^A-Za-z])"),
+                " ");
     }
 
-    @Override
-    public Node[] createNodes(Object key, DataObject dataObject, boolean readOnly) {
-        return new Node[]{new JmeWaterFilter((WaterFilter) key, dataObject, readOnly)};
+    public static String capitalizeString(String string) {
+        char[] chars = string.toCharArray();
+        chars[0] = Character.toUpperCase(chars[0]);
+        return String.valueOf(chars);
     }
 }
