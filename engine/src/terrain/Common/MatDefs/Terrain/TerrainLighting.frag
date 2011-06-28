@@ -38,6 +38,18 @@ varying vec4 vnLightDir;
 #ifdef DIFFUSEMAP_7
   uniform sampler2D m_DiffuseMap_7;
 #endif
+#ifdef DIFFUSEMAP_8
+  uniform sampler2D m_DiffuseMap_8;
+#endif
+#ifdef DIFFUSEMAP_9
+  uniform sampler2D m_DiffuseMap_9;
+#endif
+#ifdef DIFFUSEMAP_10
+  uniform sampler2D m_DiffuseMap_10;
+#endif
+#ifdef DIFFUSEMAP_11
+  uniform sampler2D m_DiffuseMap_11;
+#endif
 
 
 #ifdef DIFFUSEMAP_0_SCALE
@@ -63,6 +75,18 @@ varying vec4 vnLightDir;
 #endif
 #ifdef DIFFUSEMAP_7_SCALE
   uniform float m_DiffuseMap_7_scale;
+#endif
+#ifdef DIFFUSEMAP_8_SCALE
+  uniform float m_DiffuseMap_8_scale;
+#endif
+#ifdef DIFFUSEMAP_9_SCALE
+  uniform float m_DiffuseMap_9_scale;
+#endif
+#ifdef DIFFUSEMAP_10_SCALE
+  uniform float m_DiffuseMap_10_scale;
+#endif
+#ifdef DIFFUSEMAP_11_SCALE
+  uniform float m_DiffuseMap_11_scale;
 #endif
 
 
@@ -99,6 +123,18 @@ varying vec4 vnLightDir;
 #endif
 #ifdef NORMALMAP_7
   uniform sampler2D m_NormalMap_7;
+#endif
+#ifdef NORMALMAP_8
+  uniform sampler2D m_NormalMap_8;
+#endif
+#ifdef NORMALMAP_9
+  uniform sampler2D m_NormalMap_9;
+#endif
+#ifdef NORMALMAP_10
+  uniform sampler2D m_NormalMap_10;
+#endif
+#ifdef NORMALMAP_11
+  uniform sampler2D m_NormalMap_11;
 #endif
 
 
@@ -160,6 +196,9 @@ vec2 computeLighting(in vec3 wvPos, in vec3 wvNorm, in vec3 wvViewDir, in vec3 w
     #ifdef ALPHAMAP_1
       vec4 alphaBlend1   = texture2D( m_AlphaMap_1, texCoord.xy );
     #endif
+    #ifdef ALPHAMAP_2
+      vec4 alphaBlend2   = texture2D( m_AlphaMap_2, texCoord.xy );
+    #endif
 
     vec4 diffuseColor = texture2D(m_DiffuseMap, texCoord * m_DiffuseMap_0_scale);
     diffuseColor *= alphaBlend.r;
@@ -185,6 +224,24 @@ vec2 computeLighting(in vec3 wvPos, in vec3 wvNorm, in vec3 wvViewDir, in vec3 w
                     #ifdef DIFFUSEMAP_7
                       vec4 diffuseColor7 = texture2D(m_DiffuseMap_7, texCoord * m_DiffuseMap_7_scale);
                       diffuseColor = mix( diffuseColor, diffuseColor7, alphaBlend1.a );
+                      #ifdef ALPHAMAP_2
+                          #ifdef DIFFUSEMAP_8
+                            vec4 diffuseColor8 = texture2D(m_DiffuseMap_8, texCoord * m_DiffuseMap_8_scale);
+                            diffuseColor = mix( diffuseColor, diffuseColor8, alphaBlend2.r );
+                            #ifdef DIFFUSEMAP_9
+                              vec4 diffuseColor9 = texture2D(m_DiffuseMap_9, texCoord * m_DiffuseMap_9_scale);
+                              diffuseColor = mix( diffuseColor, diffuseColor9, alphaBlend2.g );
+                              #ifdef DIFFUSEMAP_10
+                                vec4 diffuseColor10 = texture2D(m_DiffuseMap_10, texCoord * m_DiffuseMap_10_scale);
+                                diffuseColor = mix( diffuseColor, diffuseColor10, alphaBlend2.b );
+                                #ifdef DIFFUSEMAP_11
+                                  vec4 diffuseColor11 = texture2D(m_DiffuseMap_11, texCoord * m_DiffuseMap_11_scale);
+                                  diffuseColor = mix( diffuseColor, diffuseColor11, alphaBlend2.a );
+                                #endif
+                              #endif
+                            #endif
+                          #endif
+                      #endif
                     #endif
                   #endif
                 #endif
@@ -205,6 +262,9 @@ vec2 computeLighting(in vec3 wvPos, in vec3 wvNorm, in vec3 wvViewDir, in vec3 w
 
     #ifdef ALPHAMAP_1
       vec4 alphaBlend1 = texture2D( m_AlphaMap_1, texCoord.xy );
+    #endif
+    #ifdef ALPHAMAP_2
+      vec4 alphaBlend2 = texture2D( m_AlphaMap_2, texCoord.xy );
     #endif
 
     #ifdef NORMALMAP
@@ -265,11 +325,45 @@ vec2 computeLighting(in vec3 wvPos, in vec3 wvNorm, in vec3 wvViewDir, in vec3 w
         #endif
 
         #ifdef NORMALMAP_7
-          normalHeight = texture2D(m_NormalMap_7, texCoord * m_DiffuseMap_67_scale);
+          normalHeight = texture2D(m_NormalMap_7, texCoord * m_DiffuseMap_7_scale);
           n = (normalHeight.xyz * vec3(2.0) - vec3(1.0));
           n.z = sqrt(1.0 - (n.x * n.x) - (n.y * n.y));
           n.y = -n.y;
           normal += n * alphaBlend1.a;
+        #endif
+    #endif
+
+    #ifdef ALPHAMAP_2
+        #ifdef NORMALMAP_8
+          normalHeight = texture2D(m_NormalMap_8, texCoord * m_DiffuseMap_8_scale);
+          n = (normalHeight.xyz * vec3(2.0) - vec3(1.0));
+          n.z = sqrt(1.0 - (n.x * n.x) - (n.y * n.y));
+          n.y = -n.y;
+          normal += n * alphaBlend2.r;
+        #endif
+
+        #ifdef NORMALMAP_9
+          normalHeight = texture2D(m_NormalMap_9, texCoord * m_DiffuseMap_9_scale);
+          n = (normalHeight.xyz * vec3(2.0) - vec3(1.0));
+          n.z = sqrt(1.0 - (n.x * n.x) - (n.y * n.y));
+          n.y = -n.y;
+          normal += n * alphaBlend2.g;
+        #endif
+
+        #ifdef NORMALMAP_10
+          normalHeight = texture2D(m_NormalMap_10, texCoord * m_DiffuseMap_10_scale);
+          n = (normalHeight.xyz * vec3(2.0) - vec3(1.0));
+          n.z = sqrt(1.0 - (n.x * n.x) - (n.y * n.y));
+          n.y = -n.y;
+          normal += n * alphaBlend2.b;
+        #endif
+
+        #ifdef NORMALMAP_11
+          normalHeight = texture2D(m_NormalMap_11, texCoord * m_DiffuseMap_11_scale);
+          n = (normalHeight.xyz * vec3(2.0) - vec3(1.0));
+          n.z = sqrt(1.0 - (n.x * n.x) - (n.y * n.y));
+          n.y = -n.y;
+          normal += n * alphaBlend2.a;
         #endif
     #endif
 
@@ -329,11 +423,30 @@ vec2 computeLighting(in vec3 wvPos, in vec3 wvNorm, in vec3 wvViewDir, in vec3 w
           // blend the results of the 3 planar projections.
           vec4 tex7 = getTriPlanarBlend(coords, blending, m_DiffuseMap_7, m_DiffuseMap_7_scale);
         #endif
+        #ifdef DIFFUSEMAP_8
+          // blend the results of the 3 planar projections.
+          vec4 tex8 = getTriPlanarBlend(coords, blending, m_DiffuseMap_8, m_DiffuseMap_8_scale);
+        #endif
+        #ifdef DIFFUSEMAP_9
+          // blend the results of the 3 planar projections.
+          vec4 tex9 = getTriPlanarBlend(coords, blending, m_DiffuseMap_9, m_DiffuseMap_9_scale);
+        #endif
+        #ifdef DIFFUSEMAP_10
+          // blend the results of the 3 planar projections.
+          vec4 tex10 = getTriPlanarBlend(coords, blending, m_DiffuseMap_10, m_DiffuseMap_10_scale);
+        #endif
+        #ifdef DIFFUSEMAP_11
+          // blend the results of the 3 planar projections.
+          vec4 tex11 = getTriPlanarBlend(coords, blending, m_DiffuseMap_11, m_DiffuseMap_11_scale);
+        #endif
 
         vec4 alphaBlend   = texture2D( m_AlphaMap, texCoord.xy );
 
         #ifdef ALPHAMAP_1
           vec4 alphaBlend1   = texture2D( m_AlphaMap_1, texCoord.xy );
+        #endif
+        #ifdef ALPHAMAP_2
+          vec4 alphaBlend2   = texture2D( m_AlphaMap_2, texCoord.xy );
         #endif
 
         vec4 diffuseColor = tex0 * alphaBlend.r;
@@ -352,6 +465,20 @@ vec2 computeLighting(in vec3 wvPos, in vec3 wvNorm, in vec3 wvViewDir, in vec3 w
                         diffuseColor = mix( diffuseColor, tex6, alphaBlend1.b );
                         #ifdef DIFFUSEMAP_7
                           diffuseColor = mix( diffuseColor, tex7, alphaBlend1.a );
+                          #ifdef ALPHAMAP_2
+                              #ifdef DIFFUSEMAP_8
+                                diffuseColor = mix( diffuseColor, tex8, alphaBlend2.r );
+                                #ifdef DIFFUSEMAP_9
+                                  diffuseColor = mix( diffuseColor, tex9, alphaBlend2.g );
+                                  #ifdef DIFFUSEMAP_10
+                                    diffuseColor = mix( diffuseColor, tex10, alphaBlend2.b );
+                                    #ifdef DIFFUSEMAP_11
+                                      diffuseColor = mix( diffuseColor, tex11, alphaBlend2.a );
+                                    #endif
+                                  #endif
+                                #endif
+                              #endif
+                          #endif
                         #endif
                       #endif
                     #endif
@@ -378,6 +505,9 @@ vec2 computeLighting(in vec3 wvPos, in vec3 wvNorm, in vec3 wvViewDir, in vec3 w
 
     #ifdef ALPHAMAP_1
       vec4 alphaBlend1 = texture2D( m_AlphaMap_1, texCoord.xy );
+    #endif
+    #ifdef ALPHAMAP_2
+      vec4 alphaBlend2 = texture2D( m_AlphaMap_2, texCoord.xy );
     #endif
 
       vec3 normal = vec3(0,0,1);
@@ -447,6 +577,40 @@ vec2 computeLighting(in vec3 wvPos, in vec3 wvNorm, in vec3 wvViewDir, in vec3 w
               n.z = sqrt(1.0 - (n.x * n.x) - (n.y * n.y));
               n.y = -n.y;
               normal += n * alphaBlend1.a;
+          #endif
+      #endif
+
+      #ifdef ALPHAMAP_2
+          #ifdef NORMALMAP_8
+              normalHeight = getTriPlanarBlend(coords, blending, m_NormalMap_8, m_DiffuseMap_8_scale);
+              n = (normalHeight.xyz * vec3(2.0) - vec3(1.0));
+              n.z = sqrt(1.0 - (n.x * n.x) - (n.y * n.y));
+              n.y = -n.y;
+              normal += n * alphaBlend2.r;
+          #endif
+
+          #ifdef NORMALMAP_9
+              normalHeight = getTriPlanarBlend(coords, blending, m_NormalMap_9, m_DiffuseMap_9_scale);
+              n = (normalHeight.xyz * vec3(2.0) - vec3(1.0));
+              n.z = sqrt(1.0 - (n.x * n.x) - (n.y * n.y));
+              n.y = -n.y;
+              normal += n * alphaBlend2.g;
+          #endif
+
+          #ifdef NORMALMAP_10
+              normalHeight = getTriPlanarBlend(coords, blending, m_NormalMap_10, m_DiffuseMap_10_scale);
+              n = (normalHeight.xyz * vec3(2.0) - vec3(1.0));
+              n.z = sqrt(1.0 - (n.x * n.x) - (n.y * n.y));
+              n.y = -n.y;
+              normal += n * alphaBlend2.b;
+          #endif
+
+          #ifdef NORMALMAP_11
+              normalHeight = getTriPlanarBlend(coords, blending, m_NormalMap_11, m_DiffuseMap_11_scale);
+              n = (normalHeight.xyz * vec3(2.0) - vec3(1.0));
+              n.z = sqrt(1.0 - (n.x * n.x) - (n.y * n.y));
+              n.y = -n.y;
+              normal += n * alphaBlend2.a;
           #endif
       #endif
 
