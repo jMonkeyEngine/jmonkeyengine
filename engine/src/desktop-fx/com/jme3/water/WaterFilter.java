@@ -35,6 +35,7 @@ import com.jme3.asset.AssetManager;
 import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
+import com.jme3.export.OutputCapsule;
 import com.jme3.light.DirectionalLight;
 import com.jme3.light.Light;
 import com.jme3.material.Material;
@@ -76,7 +77,6 @@ public class WaterFilter extends Filter {
     private Texture2D heightTexture;
     private Plane plane;
     private Camera reflectionCam;
-    private float speed = 1;
     protected Ray ray = new Ray();
     private Vector3f targetLocation = new Vector3f();
     private ReflectionProcessor reflectionProcessor;
@@ -89,8 +89,8 @@ public class WaterFilter extends Filter {
     private RenderManager renderManager;
     private ViewPort viewPort;
     private float time = 0;
-    
     //properties
+    private float speed = 1;
     private Vector3f lightDirection = new Vector3f(0, -1, 0);
     private ColorRGBA lightColor = ColorRGBA.White;
     private float waterHeight = 0.0f;
@@ -118,8 +118,8 @@ public class WaterFilter extends Filter {
     private float refractionConstant = 0.5f;
     private float reflectionDisplace = 30;
     private float underWaterFogDistance = 120;
-    private float causticsIntensity = 0.5f;
     private boolean useCaustics = true;
+    private float causticsIntensity = 0.5f;
 
     /**
      * Create a Water Filter
@@ -307,21 +307,91 @@ public class WaterFilter extends Filter {
     @Override
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
-//        OutputCapsule oc = ex.getCapsule(this);
-//        oc.write(sampleRadius, "sampleRadius", 5.1f);
-//        oc.write(intensity, "intensity", 1.5f);
-//        oc.write(scale, "scale", 0.2f);
-//        oc.write(bias, "bias", 0.1f);
+        OutputCapsule oc = ex.getCapsule(this);
+
+        oc.write(speed, "speed", 1f);
+        oc.write(lightDirection, "lightDirection", new Vector3f(0, -1, 0));
+        oc.write(lightColor, "lightColor", ColorRGBA.White);
+        oc.write(waterHeight, "waterHeight", 0.0f);
+        oc.write(waterColor, "waterColor", new ColorRGBA(0.0078f, 0.3176f, 0.5f, 1.0f));
+        oc.write(deepWaterColor, "deepWaterColor", new ColorRGBA(0.0039f, 0.00196f, 0.145f, 1.0f));
+
+        oc.write(colorExtinction, "colorExtinction", new Vector3f(5.0f, 20.0f, 30.0f));
+        oc.write(waterTransparency, "waterTransparency", 0.1f);
+        oc.write(maxAmplitude, "maxAmplitude", 1.5f);
+        oc.write(shoreHardness, "shoreHardness", 0.1f);
+        oc.write(useFoam, "useFoam", true);
+
+        oc.write(foamIntensity, "foamIntensity", 0.5f);
+        oc.write(foamHardness, "foamHardness", 1.0f);
+
+        oc.write(foamExistence, "foamExistence", new Vector3f(0.45f, 4.35f, 1.5f));
+        oc.write(waveScale, "waveScale", 0.005f);
+
+        oc.write(sunScale, "sunScale", 3.0f);
+        oc.write(shininess, "shininess", 0.7f);
+        oc.write(windDirection, "windDirection", new Vector2f(0.0f, -1.0f));
+        oc.write(reflectionMapSize, "reflectionMapSize", 512);
+        oc.write(useRipples, "useRipples", true);
+
+        oc.write(normalScale, "normalScale", 3.0f);
+        oc.write(useHQShoreline, "useHQShoreline", true);
+
+        oc.write(useSpecular, "useSpecular", true);
+
+        oc.write(useRefraction, "useRefraction", true);
+        oc.write(refractionStrength, "refractionStrength", 0.0f);
+        oc.write(refractionConstant, "refractionConstant", 0.5f);
+        oc.write(reflectionDisplace, "reflectionDisplace", 30f);
+        oc.write(underWaterFogDistance, "underWaterFogDistance", 120f);
+        oc.write(causticsIntensity, "causticsIntensity", 0.5f);
+
+        oc.write(useCaustics, "useCaustics", true);
     }
 
     @Override
     public void read(JmeImporter im) throws IOException {
         super.read(im);
         InputCapsule ic = im.getCapsule(this);
-//        sampleRadius = ic.readFloat("sampleRadius", 5.1f);
-//        intensity = ic.readFloat("intensity", 1.5f);
-//        scale = ic.readFloat("scale", 0.2f);
-//        bias = ic.readFloat("bias", 0.1f);
+        speed = ic.readFloat("speed", 1f);
+        lightDirection = (Vector3f) ic.readSavable("lightDirection", new Vector3f(0, -1, 0));
+        lightColor = (ColorRGBA) ic.readSavable("lightColor", ColorRGBA.White);
+        waterHeight = ic.readFloat("waterHeight", 0.0f);
+        waterColor = (ColorRGBA) ic.readSavable("waterColor", new ColorRGBA(0.0078f, 0.3176f, 0.5f, 1.0f));
+        deepWaterColor = (ColorRGBA) ic.readSavable("deepWaterColor", new ColorRGBA(0.0039f, 0.00196f, 0.145f, 1.0f));
+
+        colorExtinction = (Vector3f) ic.readSavable("colorExtinction", new Vector3f(5.0f, 20.0f, 30.0f));
+        waterTransparency = ic.readFloat("waterTransparency", 0.1f);
+        maxAmplitude = ic.readFloat("maxAmplitude", 1.5f);
+        shoreHardness = ic.readFloat("shoreHardness", 0.1f);
+        useFoam = ic.readBoolean("useFoam", true);
+
+        foamIntensity = ic.readFloat("foamIntensity", 0.5f);
+        foamHardness = ic.readFloat("foamHardness", 1.0f);
+
+        foamExistence = (Vector3f) ic.readSavable("foamExistence", new Vector3f(0.45f, 4.35f, 1.5f));
+        waveScale = ic.readFloat("waveScale", 0.005f);
+
+        sunScale = ic.readFloat("sunScale", 3.0f);
+        shininess = ic.readFloat("shininess", 0.7f);
+        windDirection = (Vector2f) ic.readSavable("windDirection", new Vector2f(0.0f, -1.0f));
+        reflectionMapSize = ic.readInt("reflectionMapSize", 512);
+        useRipples = ic.readBoolean("useRipples", true);
+
+        normalScale = ic.readFloat("normalScale", 3.0f);
+        useHQShoreline = ic.readBoolean("useHQShoreline", true);
+
+        useSpecular = ic.readBoolean("useSpecular", true);
+
+        useRefraction = ic.readBoolean("useRefraction", true);
+        refractionStrength = ic.readFloat("refractionStrength", 0.0f);
+        refractionConstant = ic.readFloat("refractionConstant", 0.5f);
+        reflectionDisplace = ic.readFloat("reflectionDisplace", 30f);
+        underWaterFogDistance = ic.readFloat("underWaterFogDistance", 120f);
+        causticsIntensity = ic.readFloat("causticsIntensity", 0.5f);
+
+        useCaustics = ic.readBoolean("useCaustics", true);
+
     }
 
     /**
