@@ -89,63 +89,36 @@ public class WaterFilter extends Filter {
     private RenderManager renderManager;
     private ViewPort viewPort;
     private float time = 0;
-    @FilterParameter(name = "Light direction")
+    
+    //properties
     private Vector3f lightDirection = new Vector3f(0, -1, 0);
-    @FilterParameter(name = "Light color")
     private ColorRGBA lightColor = ColorRGBA.White;
-    @FilterParameter(name = "Water height")
     private float waterHeight = 0.0f;
-    @FilterParameter(name = "Water color")
     private ColorRGBA waterColor = new ColorRGBA(0.0078f, 0.3176f, 0.5f, 1.0f);
-    @FilterParameter(name = "Deep water color")
     private ColorRGBA deepWaterColor = new ColorRGBA(0.0039f, 0.00196f, 0.145f, 1.0f);
-    @FilterParameter(name = "Color extinction")
     private Vector3f colorExtinction = new Vector3f(5.0f, 20.0f, 30.0f);
-    @FilterParameter(name = "Water transparency")
     private float waterTransparency = 0.1f;
-    @FilterParameter(name = "Max amplitude")
     private float maxAmplitude = 1.5f;
-    @FilterParameter(name = "Shore hardness")
     private float shoreHardness = 0.1f;
-    @FilterParameter(name = "Use Foam")
     private boolean useFoam = true;
-    @FilterParameter(name = "Foam intensity")
     private float foamIntensity = 0.5f;
-    @FilterParameter(name = "Foam hardness")
     private float foamHardness = 1.0f;
-    @FilterParameter(name = "Foam existance")
     private Vector3f foamExistence = new Vector3f(0.45f, 4.35f, 1.5f);
-    @FilterParameter(name = "Wave scale")
     private float waveScale = 0.005f;
-    @FilterParameter(name = "Sun scale")
     private float sunScale = 3.0f;
-    @FilterParameter(name = "Shininess")
     private float shininess = 0.7f;
-    @FilterParameter(name = "Wind direction")
     private Vector2f windDirection = new Vector2f(0.0f, -1.0f);
-    @FilterParameter(name = "Reflection map size")
     private int reflectionMapSize = 512;
-    @FilterParameter(name = "Use ripples")
     private boolean useRipples = true;
-    @FilterParameter(name = "Normals scale")
     private float normalScale = 3.0f;
-    @FilterParameter(name = "Use HQ shorelines")
     private boolean useHQShoreline = true;
-    @FilterParameter(name = "Use Specular")
     private boolean useSpecular = true;
-    @FilterParameter(name = "Use refraction")
     private boolean useRefraction = true;
-    @FilterParameter(name = "Refraction strength")
     private float refractionStrength = 0.0f;
-    @FilterParameter(name = "Refraction constant")
     private float refractionConstant = 0.5f;
-    @FilterParameter(name = "Refleciton displace")
     private float reflectionDisplace = 30;
-    @FilterParameter(name = "Fog distance (underwater)")
     private float underWaterFogDistance = 120;
-    @FilterParameter(name = "Caustics intensity (underwater)")
     private float causticsIntensity = 0.5f;
-    @FilterParameter(name = "Use caustics (underwater)")
     private boolean useCaustics = true;
 
     /**

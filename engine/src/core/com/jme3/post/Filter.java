@@ -66,16 +66,11 @@ import java.util.List;
  */
 public abstract class Filter implements Savable {
 
-    @Retention(RetentionPolicy.RUNTIME)
-    public @interface FilterParameter {
-        String name();
-    }
-    @FilterParameter (name="Name")
+   
     private String name;
     protected Pass defaultPass;
     protected List<Pass> postRenderPasses;
-    protected Material material;
-    @FilterParameter (name="Enabled")
+    protected Material material;   
     protected boolean enabled = true;
     protected FilterPostProcessor processor;
 
