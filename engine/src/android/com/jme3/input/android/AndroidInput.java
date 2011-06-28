@@ -234,6 +234,7 @@ public class AndroidInput extends GLSurfaceView implements TouchInput,
         }
         return evt;
     }
+    
     /**
      * onTouchEvent gets called from android thread on touchpad events
      */
@@ -399,8 +400,12 @@ public class AndroidInput extends GLSurfaceView implements TouchInput,
         // Send the event
         processEvent(evt);
         
-        // Handle all keys ourself
-        return true;
+        // Handle all keys ourself except Volume Up/Down
+        if ((keyCode == KeyEvent.KEYCODE_VOLUME_UP) || (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN))
+            return false;
+        else
+            return true;
+
     }
 
     @Override
@@ -416,8 +421,11 @@ public class AndroidInput extends GLSurfaceView implements TouchInput,
         // Send the event
         processEvent(evt);
         
-        // Handle all keys ourself
-        return true;
+        // Handle all keys ourself except Volume Up/Down
+        if ((keyCode == KeyEvent.KEYCODE_VOLUME_UP) || (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN))
+            return false;
+        else
+            return true;
     }
 
 

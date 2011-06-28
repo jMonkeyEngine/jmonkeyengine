@@ -53,6 +53,7 @@ import com.jme3.audio.Environment;
 import com.jme3.audio.Filter;
 import com.jme3.audio.Listener;
 
+import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
 
 
@@ -78,6 +79,10 @@ public class AndroidAudioRenderer implements AudioRenderer, SoundPool.OnLoadComp
     private SoundPool soundPool = null;
     private HashMap<AudioNode, MediaPlayer> musicPlaying = new HashMap<AudioNode, MediaPlayer>();   
 
+    private final Vector3f listenerPosition = new Vector3f();
+    // For temp use
+    private final Vector3f distanceVector = new Vector3f();
+    
     private final AudioManager manager;
     private final Context context;
     private final AssetManager am;
@@ -110,6 +115,7 @@ public class AndroidAudioRenderer implements AudioRenderer, SoundPool.OnLoadComp
     @Override
     public void updateSourceParam(AudioNode src, AudioParam param)
     {
+        logger.log(Level.INFO, "updateSourceParam " + param);
             if (audioDisabled)
                 return;
  
@@ -204,47 +210,60 @@ public class AndroidAudioRenderer implements AudioRenderer, SoundPool.OnLoadComp
     @Override
     public void updateListenerParam(Listener listener, ListenerParam param)
     {
-            if (audioDisabled)
-                return;
-            
-            switch (param){
-                case Position:
-                    Vector3f pos = listener.getLocation();
-
-                    break;
-                case Rotation:
-                    Vector3f dir = listener.getDirection();
-                    Vector3f up  = listener.getUp();
-
-                    break;
-                case Velocity:
-                    Vector3f vel = listener.getVelocity();
-
-                    break;
-                case Volume:
-                    //alListenerf(AL_GAIN, listener.getVolume());
-                    break;
-            }
-
-    }
-
-    /*
-
-    public void update(float tpf)
-    {
-        // does nothing
-    }
-
-    public void updateInThread(float tpf)
-    {
+        logger.log(Level.INFO, "updateListenerParam " + param);
         if (audioDisabled)
             return;
-        if (!audioDisabled)
-            return;
+        
+        switch (param){
+            case Position:
+                listenerPosition.set(listener.getLocation());
+
+                break;
+            case Rotation:
+                Vector3f dir = listener.getDirection();
+                Vector3f up  = listener.getUp();
+
+                break;
+            case Velocity:
+                Vector3f vel = listener.getVelocity();
+
+                break;
+            case Volume:
+                //alListenerf(AL_GAIN, listener.getVolume());
+                break;
+        }
 
     }
-    */
 
+    @Override
+    public void update(float tpf)
+    {
+        float distance;
+        float volume;
+        
+        // Loop over all mediaplayers
+        for (AudioNode src : musicPlaying.keySet())
+        {
+            MediaPlayer mp = musicPlaying.get(src);
+            {
+                // Calc the distance to the listener
+                distanceVector.set(listenerPosition);
+                distanceVector.subtractLocal(src.getLocalTranslation());
+                distance = FastMath.abs(distanceVector.length());
+                
+                if (distance < src.getRefDistance())
+                    distance = src.getRefDistance();
+                if (distance > src.getMaxDistance())
+                    distance = src.getMaxDistance();
+                volume = src.getRefDistance() / distance;
+                
+                // Left / Right channel get the same volume by now, only positional
+                mp.setVolume(volume, volume);
+            }
+        }
+    }
+
+   
     public void setListener(Listener listener) 
     {
             if (audioDisabled)
@@ -341,6 +360,7 @@ public class AndroidAudioRenderer implements AudioRenderer, SoundPool.OnLoadComp
                 mp.seekTo(0);        
                 mp.stop();
                 src.setStatus(Status.Stopped);
+                break;
             }
         }
                 
@@ -360,7 +380,9 @@ public class AndroidAudioRenderer implements AudioRenderer, SoundPool.OnLoadComp
                 
                 if (audioData.getAssetKey() instanceof AudioKey)
                 {                
-                    AudioKey assetKey = (AudioKey) audioData.getAssetKey();                     
+                    AudioKey assetKey = (AudioKey) audioData.getAssetKey();    
+                    
+                    // streaming audionodes get played using android mediaplayer, non streaming uses SoundPool
                     if (assetKey.isStream())
                     {
                         MediaPlayer mp;
@@ -381,21 +403,21 @@ public class AndroidAudioRenderer implements AudioRenderer, SoundPool.OnLoadComp
                                 AssetFileDescriptor afd = am.openFd(assetKey.getName());                                
                                 mp.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
 
-                                //mp.setAudioStreamType(AudioManager.STREAM_MUSIC);
+                                mp.setAudioStreamType(AudioManager.STREAM_MUSIC);
                                 mp.prepare();
                                 mp.setLooping(src.isLooping());
                                 mp.start();
-                                src.setStatus(Status.Playing);
                                 src.setChannel(1);
-                            } catch (IllegalArgumentException e) {
-                                // TODO Auto-generated catch block
-                                e.printStackTrace();
+                                src.setStatus(Status.Playing);                                
+                            } catch (IllegalArgumentException e) 
+                            {
+                                logger.log(Level.SEVERE, "Failed to play " + assetKey.getName(), e); 
                             } catch (IllegalStateException e) {
                                 // TODO Auto-generated catch block
-                                e.printStackTrace();
+                                logger.log(Level.SEVERE, "Failed to play " + assetKey.getName(), e); 
                             } catch (IOException e) {
                                 // TODO Auto-generated catch block
-                                e.printStackTrace();
+                                logger.log(Level.SEVERE, "Failed to play " + assetKey.getName(), e); 
                             }
                             
                         }
@@ -418,11 +440,11 @@ public class AndroidAudioRenderer implements AudioRenderer, SoundPool.OnLoadComp
                                                               
                             try 
                             {                                           
-                                soundId = soundPool.load(am.openFd(audioData.getAssetKey().getName()), 1);   
+                                soundId = soundPool.load(am.openFd(assetKey.getName()), 1);   
                             } 
                             catch (IOException e) 
                             {
-                                logger.log(Level.SEVERE, "Failed to load sound " + audioData.getAssetKey().getName(), e);
+                                logger.log(Level.SEVERE, "Failed to load sound " + assetKey.getName(), e);
                                 soundId = -1;
                             }
                             audioData.setSoundId(soundId);                                                           
@@ -431,7 +453,7 @@ public class AndroidAudioRenderer implements AudioRenderer, SoundPool.OnLoadComp
                         // Sound failed to load ?
                         if (audioData.getSoundId() <= 0)
                         {
-                            throw new IllegalArgumentException("Failed to load: " + audioData.getAssetKey().getName());
+                            throw new IllegalArgumentException("Failed to load: " + assetKey.getName());
                         }
                         else
                         {
@@ -631,12 +653,6 @@ public class AndroidAudioRenderer implements AudioRenderer, SoundPool.OnLoadComp
 
     @Override
     public void setEnvironment(Environment env) {
-        // TODO Auto-generated method stub
-        
-    }
-
-    @Override
-    public void update(float tpf) {
         // TODO Auto-generated method stub
         
     }
