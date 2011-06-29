@@ -32,7 +32,7 @@
 
 package com.jme3.gde.terraineditor.tools;
 
-import com.jme3.gde.core.scene.actions.AbstractStatefulGLToolAction;
+import com.jme3.gde.core.sceneexplorer.nodes.actions.AbstractStatefulGLToolAction;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.terrain.Terrain;
