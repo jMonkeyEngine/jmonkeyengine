@@ -34,6 +34,8 @@ package com.jme3.gde.core.filters;
 import com.jme3.gde.core.assets.FilterDataObject;
 import com.jme3.gde.core.scene.SceneApplication;
 import com.jme3.post.FilterPostProcessor;
+import com.jme3.post.SceneProcessor;
+import java.util.Iterator;
 import java.util.concurrent.Callable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -54,7 +56,7 @@ import org.openide.nodes.Node;
 @ConvertAsProperties(dtd = "-//com.jme3.gde.core.filters//FilterExplorer//EN",
 autostore = false)
 @TopComponent.Description(preferredID = "FilterExplorerTopComponent",
-iconBase="com/jme3/gde/core/objects_082.gif", 
+iconBase = "com/jme3/gde/core/objects_082.gif",
 persistenceType = TopComponent.PERSISTENCE_ALWAYS)
 @TopComponent.Registration(mode = "navigator", openAtStartup = true)
 @ActionID(category = "Window", id = "com.jme3.gde.core.filters.FilterExplorerTopComponent")
@@ -96,30 +98,18 @@ public final class FilterExplorerTopComponent extends TopComponent implements Ex
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 392, Short.MAX_VALUE)
-        );
+                jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGap(0, 392, Short.MAX_VALUE));
         jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 21, Short.MAX_VALUE)
-        );
+                jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGap(0, 21, Short.MAX_VALUE));
 
         jToolBar1.add(jPanel1);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jToolBar1, javax.swing.GroupLayout.DEFAULT_SIZE, 400, Short.MAX_VALUE)
-            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 400, Short.MAX_VALUE)
-        );
+                layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addComponent(jToolBar1, javax.swing.GroupLayout.DEFAULT_SIZE, 400, Short.MAX_VALUE).addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 400, Short.MAX_VALUE));
         layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addComponent(jToolBar1, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 267, Short.MAX_VALUE))
-        );
+                layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(layout.createSequentialGroup().addComponent(jToolBar1, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 267, Short.MAX_VALUE)));
     }// </editor-fold>//GEN-END:initComponents
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel jPanel1;
@@ -179,7 +169,14 @@ public final class FilterExplorerTopComponent extends TopComponent implements Ex
                         SceneApplication.getApplication().getViewPort().addProcessor(fpp);
                         Logger.getLogger(FilterExplorerTopComponent.class.getName()).log(Level.INFO, "Enabled post filters");
                     } else {
-                        SceneApplication.getApplication().getViewPort().removeProcessor(fpp);
+                         for (Iterator<SceneProcessor> it = SceneApplication.getApplication().getViewPort().getProcessors().iterator(); it.hasNext();) {
+                            SceneProcessor proc = it.next();
+                            if (proc instanceof FilterPostProcessor) {
+                                it.remove();
+                                proc.cleanup();
+                            }
+                        }
+                      //  SceneApplication.getApplication().getViewPort().removeProcessor(fpp);
                         Logger.getLogger(FilterExplorerTopComponent.class.getName()).log(Level.INFO, "Disabled post filters");
                     }
                     return null;
