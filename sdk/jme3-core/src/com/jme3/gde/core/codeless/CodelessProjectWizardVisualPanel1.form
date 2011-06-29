@@ -53,7 +53,7 @@
         <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
           <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
             <TitledBorder title="Information">
-              <ResourceString PropertyName="titleX" bundle="com/jme3/gde/core/codeless/wizard/Bundle.properties" key="CodelessProjectWizardVisualPanel1.jPanel1.border.title" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+              <ResourceString PropertyName="titleX" bundle="com/jme3/gde/core/codeless/Bundle.properties" key="CodelessProjectWizardVisualPanel1.jPanel1.border.title" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
             </TitledBorder>
           </Border>
         </Property>
@@ -93,28 +93,28 @@
         <Component class="javax.swing.JLabel" name="jLabel5">
           <Properties>
             <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-              <ResourceString bundle="com/jme3/gde/core/codeless/wizard/Bundle.properties" key="CodelessProjectWizardVisualPanel1.jLabel5.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+              <ResourceString bundle="com/jme3/gde/core/codeless/Bundle.properties" key="CodelessProjectWizardVisualPanel1.jLabel5.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
             </Property>
           </Properties>
         </Component>
         <Component class="javax.swing.JLabel" name="jLabel6">
           <Properties>
             <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-              <ResourceString bundle="com/jme3/gde/core/codeless/wizard/Bundle.properties" key="CodelessProjectWizardVisualPanel1.jLabel6.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+              <ResourceString bundle="com/jme3/gde/core/codeless/Bundle.properties" key="CodelessProjectWizardVisualPanel1.jLabel6.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
             </Property>
           </Properties>
         </Component>
         <Component class="javax.swing.JLabel" name="jLabel7">
           <Properties>
             <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-              <ResourceString bundle="com/jme3/gde/core/codeless/wizard/Bundle.properties" key="CodelessProjectWizardVisualPanel1.jLabel7.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+              <ResourceString bundle="com/jme3/gde/core/codeless/Bundle.properties" key="CodelessProjectWizardVisualPanel1.jLabel7.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
             </Property>
           </Properties>
         </Component>
         <Component class="javax.swing.JLabel" name="jLabel8">
           <Properties>
             <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-              <ResourceString bundle="com/jme3/gde/core/codeless/wizard/Bundle.properties" key="CodelessProjectWizardVisualPanel1.jLabel8.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+              <ResourceString bundle="com/jme3/gde/core/codeless/Bundle.properties" key="CodelessProjectWizardVisualPanel1.jLabel8.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
             </Property>
           </Properties>
         </Component>
@@ -126,7 +126,7 @@
           <Font name="Lucida Grande" size="12" style="0"/>
         </Property>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="com/jme3/gde/core/codeless/wizard/Bundle.properties" key="CodelessProjectWizardVisualPanel1.jLabel3.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+          <ResourceString bundle="com/jme3/gde/core/codeless/Bundle.properties" key="CodelessProjectWizardVisualPanel1.jLabel3.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
         </Property>
       </Properties>
     </Component>
@@ -141,7 +141,7 @@
         <Component class="javax.swing.JLabel" name="jLabel1">
           <Properties>
             <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-              <ResourceString bundle="com/jme3/gde/core/codeless/wizard/Bundle.properties" key="CodelessProjectWizardVisualPanel1.jLabel1.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+              <ResourceString bundle="com/jme3/gde/core/codeless/Bundle.properties" key="CodelessProjectWizardVisualPanel1.jLabel1.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
             </Property>
           </Properties>
         </Component>
@@ -163,14 +163,14 @@
         <Component class="javax.swing.JTextField" name="jTextField1">
           <Properties>
             <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-              <ResourceString bundle="com/jme3/gde/core/codeless/wizard/Bundle.properties" key="CodelessProjectWizardVisualPanel1.jTextField1.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+              <ResourceString bundle="com/jme3/gde/core/codeless/Bundle.properties" key="CodelessProjectWizardVisualPanel1.jTextField1.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
             </Property>
           </Properties>
         </Component>
         <Component class="javax.swing.JButton" name="jButton1">
           <Properties>
             <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-              <ResourceString bundle="com/jme3/gde/core/codeless/wizard/Bundle.properties" key="CodelessProjectWizardVisualPanel1.jButton1.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+              <ResourceString bundle="com/jme3/gde/core/codeless/Bundle.properties" key="CodelessProjectWizardVisualPanel1.jButton1.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
             </Property>
           </Properties>
           <Events>
@@ -190,7 +190,7 @@
         <Component class="javax.swing.JLabel" name="jLabel2">
           <Properties>
             <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-              <ResourceString bundle="com/jme3/gde/core/codeless/wizard/Bundle.properties" key="CodelessProjectWizardVisualPanel1.jLabel2.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+              <ResourceString bundle="com/jme3/gde/core/codeless/Bundle.properties" key="CodelessProjectWizardVisualPanel1.jLabel2.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
             </Property>
           </Properties>
         </Component>
@@ -217,14 +217,14 @@
         <Component class="javax.swing.JTextField" name="jTextField2">
           <Properties>
             <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-              <ResourceString bundle="com/jme3/gde/core/codeless/wizard/Bundle.properties" key="CodelessProjectWizardVisualPanel1.jTextField2.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+              <ResourceString bundle="com/jme3/gde/core/codeless/Bundle.properties" key="CodelessProjectWizardVisualPanel1.jTextField2.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
             </Property>
           </Properties>
         </Component>
         <Component class="javax.swing.JButton" name="jButton2">
           <Properties>
             <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-              <ResourceString bundle="com/jme3/gde/core/codeless/wizard/Bundle.properties" key="CodelessProjectWizardVisualPanel1.jButton2.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+              <ResourceString bundle="com/jme3/gde/core/codeless/Bundle.properties" key="CodelessProjectWizardVisualPanel1.jButton2.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
             </Property>
           </Properties>
           <Events>
@@ -239,7 +239,7 @@
           <Font name="Lucida Grande" size="12" style="0"/>
         </Property>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="com/jme3/gde/core/codeless/wizard/Bundle.properties" key="CodelessProjectWizardVisualPanel1.jLabel4.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+          <ResourceString bundle="com/jme3/gde/core/codeless/Bundle.properties" key="CodelessProjectWizardVisualPanel1.jLabel4.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
         </Property>
       </Properties>
     </Component>

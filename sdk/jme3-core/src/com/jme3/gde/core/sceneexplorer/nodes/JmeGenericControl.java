@@ -31,7 +31,7 @@
  */
 package com.jme3.gde.core.sceneexplorer.nodes;
 
-import com.jme3.gde.core.nodes.DynamicLookup;
+import com.jme3.gde.core.util.DynamicLookup;
 import com.jme3.gde.core.scene.SceneApplication;
 import com.jme3.gde.core.properties.SceneExplorerProperty;
 import com.jme3.gde.core.properties.ScenePropertyChangeListener;

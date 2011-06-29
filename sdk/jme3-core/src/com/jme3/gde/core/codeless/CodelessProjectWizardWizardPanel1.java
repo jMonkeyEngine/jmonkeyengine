@@ -29,28 +29,31 @@
  *  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  *  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.jme3.gde.core.codeless.wizard;
+package com.jme3.gde.core.codeless;
 
 import java.awt.Component;
+import java.awt.event.ActionListener;
+import java.io.File;
 import javax.swing.event.ChangeListener;
 import org.openide.WizardDescriptor;
+import org.openide.awt.StatusDisplayer;
 import org.openide.util.HelpCtx;
 
-public class CodelessProjectWizardWizardPanel2 implements WizardDescriptor.Panel {
+public class CodelessProjectWizardWizardPanel1 implements WizardDescriptor.Panel {
 
     /**
      * The visual component that displays this panel. If you need to access the
      * component from this class, just use getComponent().
      */
-    private Component component;
+    private CodelessProjectWizardVisualPanel1 component;
 
     // Get the visual component for the panel. In this template, the component
     // is kept separate. This can be more efficient: if the wizard is created
     // but never displayed, or not all panels are displayed, it is better to
     // create only those which really need to be visible.
-    public Component getComponent() {
+    public CodelessProjectWizardVisualPanel1 getComponent() {
         if (component == null) {
-            component = new CodelessProjectWizardVisualPanel2();
+            component = new CodelessProjectWizardVisualPanel1();
         }
         return component;
     }
@@ -63,13 +66,12 @@ public class CodelessProjectWizardWizardPanel2 implements WizardDescriptor.Panel
     }
 
     public boolean isValid() {
-        // If it is always OK to press Next or Finish, then:
-        return true;
-        // If it depends on some condition (form filled out...), then:
-        // return someCondition();
-        // and when this condition changes (last form field filled in...) then:
-        // fireChangeEvent();
-        // and uncomment the complicated stuff below.
+//        StatusDisplayer.getDefault().setStatusText("Check: "+component.getProjectPath());
+//        if (new File(component.getProjectPath()).isDirectory()
+//                && new File(component.getProjectPath()+File.separator+component.getAssetsPath()).isDirectory()) {
+            return true;
+//        }
+//        return false;
     }
 
     public final void addChangeListener(ChangeListener l) {
@@ -106,8 +108,12 @@ public class CodelessProjectWizardWizardPanel2 implements WizardDescriptor.Panel
     // WizardDescriptor.getProperty & putProperty to store information entered
     // by the user.
     public void readSettings(Object settings) {
+        ActionListener listener=((WizardDescriptor)settings).getButtonListener();
+        getComponent().setListener(listener);
     }
 
     public void storeSettings(Object settings) {
+        ((WizardDescriptor) settings).putProperty("PROJECT_FOLDER", component.getProjectPath());
+        ((WizardDescriptor) settings).putProperty("ASSETS_FOLDER", component.getAssetsPath());
     }
 }

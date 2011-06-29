@@ -30,7 +30,7 @@
  *  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.jme3.gde.core.nodes;
+package com.jme3.gde.core.util;
 
 import org.openide.util.lookup.AbstractLookup;
 import org.openide.util.lookup.InstanceContent;

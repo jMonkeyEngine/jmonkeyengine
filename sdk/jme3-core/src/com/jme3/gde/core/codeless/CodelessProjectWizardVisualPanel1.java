@@ -29,7 +29,7 @@
  *  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  *  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.jme3.gde.core.codeless.wizard;
+package com.jme3.gde.core.codeless;
 
 import java.awt.event.ActionListener;
 import java.io.File;
