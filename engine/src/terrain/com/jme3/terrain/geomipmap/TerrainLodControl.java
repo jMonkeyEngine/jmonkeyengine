@@ -41,6 +41,7 @@ import java.util.List;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
+import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.control.AbstractControl;
 import com.jme3.scene.control.Control;
@@ -61,22 +62,27 @@ import java.util.ArrayList;
  */
 public class TerrainLodControl extends AbstractControl {
 
-    private TerrainQuad terrain;
+    private Terrain terrain;
     private List<Camera> cameras;
     private List<Vector3f> cameraLocations = new ArrayList<Vector3f>();
 
     public TerrainLodControl() {
     }
 
+    public TerrainLodControl(Terrain terrain, Camera camera) {
+        List<Camera> cams = new ArrayList<Camera>();
+        cams.add(camera);
+        this.terrain = terrain;
+        this.cameras = cams;
+    }
+    
     /**
      * Only uses the first camera right now.
      * @param terrain to act upon (must be a Spatial)
      * @param cameras one or more cameras to reference for LOD calc
      */
     public TerrainLodControl(Terrain terrain, List<Camera> cameras) {
-        if (terrain instanceof TerrainQuad) {
-            this.terrain = (TerrainQuad) terrain;
-        }
+        this.terrain = terrain;
         this.cameras = cameras;
     }
 
@@ -107,11 +113,17 @@ public class TerrainLodControl extends AbstractControl {
                     cameraClone.add(c);
                 }
             }
-            return new TerrainLodControl((TerrainQuad) spatial, cameraClone);
+            return new TerrainLodControl((Terrain) spatial, cameraClone);
         }
         return null;
     }
 
+    public void setCamera(Camera camera) {
+        List<Camera> cams = new ArrayList<Camera>();
+        cams.add(camera);
+        setCameras(cams);
+    }
+    
     public void setCameras(List<Camera> cameras) {
         this.cameras = cameras;
         cameraLocations.clear();
@@ -123,12 +135,12 @@ public class TerrainLodControl extends AbstractControl {
     @Override
     public void setSpatial(Spatial spatial) {
         super.setSpatial(spatial);
-        if (spatial instanceof TerrainQuad) {
-            this.terrain = (TerrainQuad) spatial;
+        if (spatial instanceof Terrain) {
+            this.terrain = (Terrain) spatial;
         }
     }
 
-    public void setTerrain(TerrainQuad terrain) {
+    public void setTerrain(Terrain terrain) {
         this.terrain = terrain;
     }
 
@@ -136,13 +148,13 @@ public class TerrainLodControl extends AbstractControl {
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
         OutputCapsule oc = ex.getCapsule(this);
-        oc.write(terrain, "terrain", null);
+        oc.write((Node)terrain, "terrain", null);
     }
 
     @Override
     public void read(JmeImporter im) throws IOException {
         super.read(im);
         InputCapsule ic = im.getCapsule(this);
-        terrain = (TerrainQuad) ic.readSavable("terrain", null);
+        terrain = (Terrain) ic.readSavable("terrain", null);
     }
 }

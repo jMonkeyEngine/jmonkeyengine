@@ -34,7 +34,6 @@ package com.jme3.terrain;
 import com.jme3.material.Material;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
-import com.jme3.scene.Spatial;
 import java.util.List;
 
 /**
@@ -107,20 +106,7 @@ public interface Terrain {
      * Infinite or "paged" terrains will not be able to support this, so use with caution.
      */
     public float[] getHeightMap();
-
-    /**
-     * Tell the terrain system to use/not use Level of Detail algorithms.
-     * This is allowed to be ignored if a particular implementation cannot support it.
-     */
-    public void useLOD(boolean useLod);
-
-    /**
-     * Check if the terrain is using LOD techniques.
-     * If a terrain system only supports enabled LOD, then this
-     * should always return true.
-     */
-    public boolean isUsingLOD();
-
+    
     /**
      * This is calculated by the specific LOD algorithm.
      * A value of one means that the terrain is showing full detail.
@@ -130,24 +116,19 @@ public interface Terrain {
     public int getMaxLod();
 
     /**
-     * Called in the update (pre or post, up to you) method of your game.
+     * Called by an LodControl.
      * Calculates the level of detail of the terrain and adjusts its geometry.
      * This is where the Terrain's LOD algorithm will change the detail of
      * the terrain based on how far away this position is from the particular
      * terrain patch.
-     * @param location often the Camera's location
+     * @param location: the Camera's location. A list of one camera location is normal 
+     *  if you just have one camera in your scene.
      */
     public void update(List<Vector3f> location);
 
     /**
-     * Get the spatial instance of this Terrain. Right now just used in the 
-     * terrain editor in JMP.
-     */
-    public Spatial getSpatial();
-
-    /**
      * Lock or unlock the meshes of this terrain.
-     * Locked meshes are uneditable but have better performance.
+     * Locked meshes are un-editable but have better performance.
      * This should call the underlying getMesh().setStatic()/setDynamic() methods.
      * @param locked or unlocked
      */
@@ -169,17 +150,15 @@ public interface Terrain {
     public Material getMaterial();
 
     /**
-     * Calculates the percentage along the terrain (in X-Z plane) that the
-     * supplied point (worldX,worldY) is, starting from the x=0, z=0 world
-     * position of the terrain.
-     * This method must take into account local translations and scale of the terrain.
-     * Used for painting onto an alpha image for texture splatting.
+     * Used for painting to get the number of vertices along the edge of the
+     * terrain.
+     * This is an un-scaled size, and should represent the vertex count (ie. the
+     * texture coord count) along an edge of a square terrain.
      * 
-     * @param worldX world position on X axis
-     * @param worldY world position on Z axis
-     * @return a point (U,V in the range [0,1] )
+     * In the standard TerrainQuad default implementation, this will return
+     * the "totalSize" of the terrain (512 or so).
      */
-    public Vector2f getPointPercentagePosition(float worldX, float worldY);
+    public int getTerrainSize();
 
     /**
      * Get the scale of the texture coordinates. Normally if the texture is

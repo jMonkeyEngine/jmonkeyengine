@@ -67,7 +67,6 @@ import com.jme3.util.TangentBinormalGenerator;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
 
 /**
  * A terrain quad is a node in the quad tree of the terrain system.
@@ -99,7 +98,6 @@ public class TerrainQuad extends Node implements Terrain {
 
     protected List<Vector3f> lastCameraLocations; // used for LOD calc
     private boolean lodCalcRunning = false;
-    private boolean usingLOD = true;
     private int maxLod = -1;
     private HashMap<String,UpdatedTerrainPatch> updatedPatches;
     private final Object updatePatchesLock = new Object();
@@ -274,10 +272,6 @@ public class TerrainQuad extends Node implements Terrain {
             return 0;
     }
 
-    public Spatial getSpatial() {
-        return this;
-    }
-
     public void generateEntropy(ProgressMonitor progressMonitor) {
         // only check this on the root quad
         if (isRootQuad())
@@ -312,11 +306,11 @@ public class TerrainQuad extends Node implements Terrain {
     public Material getMaterial() {
         // get the material from one of the children. They all share the same material
         if (children != null) {
-			for (int i = children.size(); --i >= 0;) {
-				Spatial child = children.get(i);
-				if (child instanceof TerrainQuad) {
-					return ((TerrainQuad)child).getMaterial();
-				} else if (child instanceof TerrainPatch) {
+            for (int i = children.size(); --i >= 0;) {
+                Spatial child = children.get(i);
+                if (child instanceof TerrainQuad) {
+                    return ((TerrainQuad)child).getMaterial();
+                } else if (child instanceof TerrainPatch) {
                     return ((TerrainPatch)child).getMaterial();
                 }
             }
@@ -383,12 +377,11 @@ public class TerrainQuad extends Node implements Terrain {
      */
     private void updateQuadLODs() {
         synchronized (updatePatchesLock) {
-            //if (true)
-            //	return;
+            
             if (updatedPatches == null || updatedPatches.isEmpty())
                 return;
 
-            //TODO do the actual geometry update here
+            // do the actual geometry update here
             for (UpdatedTerrainPatch utp : updatedPatches.values()) {
                 utp.updateAll();
             }
@@ -582,7 +575,7 @@ public class TerrainQuad extends Node implements Terrain {
         offsetAmount += quarterSize;
 
         if (lodCalculatorFactory == null)
-                lodCalculatorFactory = new LodDistanceCalculatorFactory(); // set a default one
+            lodCalculatorFactory = new LodDistanceCalculatorFactory(); // set a default one
 
         // 1 upper left
         float[] heightBlock1 = createHeightSubBlock(heightMap, 0, 0, split);
@@ -690,7 +683,7 @@ public class TerrainQuad extends Node implements Terrain {
         int split = (size + 1) >> 1;
 
         if (lodCalculatorFactory == null)
-                lodCalculatorFactory = new LodDistanceCalculatorFactory(); // set a default one
+            lodCalculatorFactory = new LodDistanceCalculatorFactory(); // set a default one
 
         offsetAmount += quarterSize;
 
@@ -1104,13 +1097,9 @@ public class TerrainQuad extends Node implements Terrain {
         return (x >= 0 && x <= totalSize && z >= 0 && z <= totalSize);
     }
 
-    public Vector2f getPointPercentagePosition(float worldX, float worldY) {
-        Vector2f uv = new Vector2f(worldX,worldY);
-        uv.subtractLocal(getLocalTranslation().x, getLocalTranslation().z); // center it on 0,0
-        uv.addLocal(totalSize/2, totalSize/2); // shift the bottom left corner up to 0,0
-        uv.divideLocal(totalSize); // get the location as a percentage
-
-        return uv;
+    
+    public int getTerrainSize() {
+        return totalSize;
     }
 
 
@@ -1510,10 +1499,6 @@ public class TerrainQuad extends Node implements Terrain {
         quadrant = c.readInt("quadrant", 0);
         totalSize = c.readInt("totalSize", 0);
         lodCalculatorFactory = (LodCalculatorFactory) c.readSavable("lodCalculatorFactory", null);
-
-        // the terrain is re-built on load, so we need to run this once
-        //affectedAreaBBox = new BoundingBox(new Vector3f(0,0,0), size, Float.MAX_VALUE, size);
-        //updateNormals();
     }
 
     @Override
@@ -1564,14 +1549,6 @@ public class TerrainQuad extends Node implements Terrain {
         return maxLod;
     }
 
-    public void useLOD(boolean useLod) {
-        usingLOD = useLod;
-    }
-
-    public boolean isUsingLOD() {
-        return usingLOD;
-}
-
     public int getPatchSize() {
         return patchSize;
     }
@@ -1582,9 +1559,6 @@ public class TerrainQuad extends Node implements Terrain {
 
 
     public float[] getHeightMap() {
-
-        //if (true)
-        //    return heightMap;
 
         float[] hm = null;
         int length = ((size-1)/2)+1;

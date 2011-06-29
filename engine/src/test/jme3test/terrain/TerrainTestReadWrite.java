@@ -33,6 +33,7 @@ package jme3test.terrain;
 
 import com.jme3.app.SimpleApplication;
 import com.jme3.bounding.BoundingBox;
+import com.jme3.export.Savable;
 import com.jme3.export.binary.BinaryExporter;
 import com.jme3.export.binary.BinaryImporter;
 import com.jme3.font.BitmapText;
@@ -44,6 +45,8 @@ import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
+import com.jme3.scene.Node;
+import com.jme3.terrain.Terrain;
 import com.jme3.terrain.geomipmap.TerrainLodControl;
 import com.jme3.terrain.geomipmap.TerrainQuad;
 import com.jme3.terrain.heightmap.AbstractHeightMap;
@@ -69,7 +72,7 @@ import jme3tools.converters.ImageToAwt;
  */
 public class TerrainTestReadWrite extends SimpleApplication {
 
-    private TerrainQuad terrain;
+    private Terrain terrain;
     protected BitmapText hintText;
     private float grassScale = 64;
     private float dirtScale = 16;
@@ -147,8 +150,6 @@ public class TerrainTestReadWrite extends SimpleApplication {
         // CREATE HEIGHTMAP
         AbstractHeightMap heightmap = null;
         try {
-            //heightmap = new HillHeightMap(1025, 1000, 50, 100, (byte) 3);
-
             heightmap = new ImageBasedHeightMap(ImageToAwt.convert(heightMapImage.getImage(), false, true, 0), 1f);
             heightmap.load();
 
@@ -160,15 +161,17 @@ public class TerrainTestReadWrite extends SimpleApplication {
             loadTerrain();
         } else {
             // create the terrain as normal, and give it a control for LOD management
-            terrain = new TerrainQuad("terrain", 65, 513, heightmap.getHeightMap());//, new LodPerspectiveCalculatorFactory(getCamera(), 4)); // add this in to see it use entropy for LOD calculations
+            TerrainQuad terrainQuad = new TerrainQuad("terrain", 65, 129, heightmap.getHeightMap());//, new LodPerspectiveCalculatorFactory(getCamera(), 4)); // add this in to see it use entropy for LOD calculations
             List<Camera> cameras = new ArrayList<Camera>();
             cameras.add(getCamera());
-            TerrainLodControl control = new TerrainLodControl(terrain, cameras);
-            terrain.addControl(control);
-            terrain.setMaterial(matTerrain);
-            terrain.setLocalTranslation(0, -100, 0);
-            terrain.setLocalScale(2f, 1f, 2f);
-            rootNode.attachChild(terrain);
+            TerrainLodControl control = new TerrainLodControl(terrainQuad, cameras);
+            terrainQuad.addControl(control);
+            terrainQuad.setMaterial(matTerrain);
+            terrainQuad.setLocalTranslation(0, -100, 0);
+            terrainQuad.setLocalScale(4f, 0.25f, 4f);
+            rootNode.attachChild(terrainQuad);
+            
+            this.terrain = terrainQuad;
         }
 
         DirectionalLight light = new DirectionalLight();
@@ -211,7 +214,7 @@ public class TerrainTestReadWrite extends SimpleApplication {
                     fos = new FileOutputStream(new File("terrainsave.jme"));
 
                     // we just use the exporter and pass in the terrain
-                    BinaryExporter.getInstance().save(terrain, new BufferedOutputStream(fos));
+                    BinaryExporter.getInstance().save((Savable)terrain, new BufferedOutputStream(fos));
 
                     fos.flush();
                     float duration = (System.currentTimeMillis() - start) / 1000.0f;
@@ -237,29 +240,28 @@ public class TerrainTestReadWrite extends SimpleApplication {
             long start = System.currentTimeMillis();
             // remove the existing terrain and detach it from the root node.
             if (terrain != null) {
-                terrain.removeFromParent();
-                terrain.removeControl(TerrainLodControl.class);
-                terrain.detachAllChildren();
+                Node existingTerrain = (Node)terrain;
+                existingTerrain.removeFromParent();
+                existingTerrain.removeControl(TerrainLodControl.class);
+                existingTerrain.detachAllChildren();
                 terrain = null;
             }
 
             // import the saved terrain, and attach it back to the root node
-            fis = new FileInputStream(new File("terrainsave.jme"));
+            File f = new File("terrainsave.jme");
+            fis = new FileInputStream(f);
             BinaryImporter imp = BinaryImporter.getInstance();
             imp.setAssetManager(assetManager);
             terrain = (TerrainQuad) imp.load(new BufferedInputStream(fis));
-            rootNode.attachChild(terrain);
+            rootNode.attachChild((Node)terrain);
 
             float duration = (System.currentTimeMillis() - start) / 1000.0f;
             System.out.println("Load took " + duration + " seconds");
 
-            // now we have to add back the cameras to the LOD control, since we didn't want to duplicate them on save
-            List<Camera> cameras = new ArrayList<Camera>();
-            cameras.add(getCamera());
-            TerrainLodControl lodControl = terrain.getControl(TerrainLodControl.class);
-            if (lodControl != null) {
-                lodControl.setCameras(cameras);
-            }
+            // now we have to add back the camera to the LOD control
+            TerrainLodControl lodControl = ((Node)terrain).getControl(TerrainLodControl.class);
+            if (lodControl != null)
+                lodControl.setCamera(getCamera());
 
         } catch (IOException ex) {
             Logger.getLogger(TerrainTestReadWrite.class.getName()).log(Level.SEVERE, null, ex);
@@ -286,10 +288,10 @@ public class TerrainTestReadWrite extends SimpleApplication {
         public void onAction(String name, boolean pressed, float tpf) {
             if (name.equals("clone") && !pressed) {
 
-                TerrainQuad clone = terrain.clone();
-                terrain.removeFromParent();
+                Terrain clone = (Terrain) ((Node)terrain).clone();
+                ((Node)terrain).removeFromParent();
                 terrain = clone;
-                getRootNode().attachChild(terrain);
+                getRootNode().attachChild((Node)terrain);
             }
         }
     };
