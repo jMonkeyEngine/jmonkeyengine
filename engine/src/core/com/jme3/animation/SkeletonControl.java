@@ -128,6 +128,7 @@ public class SkeletonControl extends AbstractControl implements Cloneable {
     
     @Override
     public void setSpatial(Spatial spatial){
+        super.setSpatial(spatial);
         if (spatial != null){
             Node node = (Node) spatial;
             targets = findTargets(node);
