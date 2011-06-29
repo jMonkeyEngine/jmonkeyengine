@@ -7,8 +7,11 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
+import android.view.SurfaceView;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.TextView;
 
 import com.jme3.app.Application;
 import com.jme3.input.TouchInput;
@@ -83,26 +86,34 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
         AndroidInput input = new AndroidInput(this);
                 
         // Create application instance
-        try{
+        try
+        {
+            app = null;
+            view = null;
+            
             @SuppressWarnings("unchecked")
             Class<? extends Application> clazz = (Class<? extends Application>) Class.forName(appClass);
             app = clazz.newInstance();
-        }catch (Exception ex){
-            handleError("Class " + appClass + " init failed", ex);
+            
+            app.setSettings(settings);
+            app.start();    
+            ctx = (OGLESContext) app.getContext();
+            view = ctx.createView(input, eglConfigType, eglConfigVerboseLogging);
+            setContentView(view);               
         }
-
-        app.setSettings(settings);
-        app.start();    
-        ctx = (OGLESContext) app.getContext();
-        view = ctx.createView(input, eglConfigType, eglConfigVerboseLogging);
-   		setContentView(view);       		
+        catch (Exception ex)
+        {
+            handleError("Class " + appClass + " init failed", ex);
+            setContentView(new TextView(this));
+        }
     }
 
 
     @Override
     protected void onRestart(){
         super.onRestart(); 
-        app.restart();
+        if (app != null)
+            app.restart();
         logger.info("onRestart");
     }
     
@@ -116,14 +127,16 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
     @Override
     protected void onResume() {
         super.onResume();
-        view.onResume();
+        if (view != null)
+            view.onResume();
         logger.info("onResume");
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        view.onPause();
+        if (view != null)
+            view.onPause();
         logger.info("onPause");
     }
     
@@ -135,7 +148,8 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
 
     @Override
     protected void onDestroy(){
-        app.stop(true);
+        if (app != null)
+            app.stop(true);
         super.onDestroy();                
         logger.info("onDestroy");
     }
@@ -193,7 +207,8 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
     {        
         if (whichButton != -2)
         {
-            app.stop(true);
+            if (app != null)
+                app.stop(true);
             this.finish();
         }
     }
