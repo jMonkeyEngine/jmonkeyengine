@@ -124,7 +124,6 @@ public class TerrainGridTest extends SimpleApplication {
         BulletAppState bulletAppState = new BulletAppState();
         stateManager.attach(bulletAppState);
 
-
         this.getCamera().setLocation(new Vector3f(0, 256, 0));
 
         this.viewPort.setBackgroundColor(new ColorRGBA(0.7f, 0.8f, 1f, 1f));

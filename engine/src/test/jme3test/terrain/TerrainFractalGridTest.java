@@ -91,7 +91,6 @@ public class TerrainFractalGridTest extends SimpleApplication {
         this.mat_terrain.setTexture("region3ColorMap", rock);
         this.mat_terrain.setVector3("region3", new Vector3f(198, 260, this.rockScale));
 
-        // ROCK texture
         this.mat_terrain.setTexture("region4ColorMap", rock);
         this.mat_terrain.setVector3("region4", new Vector3f(198, 260, this.rockScale));
 
