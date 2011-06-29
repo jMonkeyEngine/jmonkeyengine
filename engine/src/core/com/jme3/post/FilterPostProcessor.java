@@ -481,6 +481,10 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
         InputCapsule ic = im.getCapsule(this);
         numSamples = ic.readInt("numSamples", 0);
         filters = ic.readSavableArrayList("filters", null);
+        for (Filter filter : filters) {           
+            filter.setProcessor(this);
+            setFilterState(filter, filter.isEnabled());
+        }
         assetManager = im.getAssetManager();
     }
 
