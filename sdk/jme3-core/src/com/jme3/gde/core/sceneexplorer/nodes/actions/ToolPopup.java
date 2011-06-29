@@ -29,51 +29,43 @@
  *  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  *  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.jme3.gde.core.properties;
+package com.jme3.gde.core.sceneexplorer.nodes.actions;
+
+import com.jme3.gde.core.sceneexplorer.nodes.AbstractSceneExplorerNode;
+import com.jme3.scene.Spatial;
+import java.awt.event.ActionEvent;
+import javax.swing.AbstractAction;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
+import org.openide.loaders.DataObject;
+import org.openide.util.Lookup;
+import org.openide.util.actions.Presenter;
 
 /**
  *
  * @author normenhansen
  */
-import java.util.ResourceBundle;
-import javax.swing.JComponent;
-import org.netbeans.api.project.Project;
-import org.netbeans.spi.project.ui.support.ProjectCustomizer;
-import org.netbeans.spi.project.ui.support.ProjectCustomizer.Category;
-import org.openide.util.Lookup;
-import org.openide.util.NbBundle;
+public class ToolPopup extends AbstractAction implements Presenter.Popup {
 
-public class AssetsPropertiesPanelProvider implements ProjectCustomizer.CompositeCategoryProvider {
+    protected AbstractSceneExplorerNode exNode;
+    protected DataObject dataObject;
 
-    @ProjectCustomizer.CompositeCategoryProvider.Registration(projectType = "org-netbeans-modules-java-j2seproject", category="BuildCategory", position = 90)
-    public static AssetsPropertiesPanelProvider createAssetsPanel() {
-        return new AssetsPropertiesPanelProvider();
-    }
-    private Project project;
-
-    private AssetsPropertiesPanelProvider() {
+    public ToolPopup(AbstractSceneExplorerNode node) {
+        this.exNode = node;
+        this.dataObject = node.getLookup().lookup(DataObject.class);
     }
 
-    @Override
-    public Category createCategory(Lookup lkp) {
-        ResourceBundle bundle = NbBundle.getBundle(AssetsPropertiesPanelProvider.class);
-        ProjectCustomizer.Category toReturn = null;
-        project = lkp.lookup(Project.class);
-        if (project == null) {
-            return toReturn;
+    public void actionPerformed(ActionEvent e) {
+    }
+
+    public JMenuItem getPopupPresenter() {
+        JMenu result = new JMenu("Tools..");
+        for (ToolAction di : Lookup.getDefault().lookupAll(ToolAction.class)) {
+            if(di.getNodeClass().isAssignableFrom(exNode.getClass())){
+                result.add(new JMenuItem(di.getAction(exNode, dataObject)));
+            }
         }
-        toReturn = ProjectCustomizer.Category.create(
-                "assets",
-                bundle.getString("LBL_Config_assets"),
-                null);
-        return toReturn;
+        return result;
     }
 
-    @Override
-    public JComponent createComponent(Category category, Lookup lkp) {
-        String nm = category.getName();
-        AssetsPropertiesPanel panel = new AssetsPropertiesPanel(project);
-        category.setStoreListener(panel);
-        return panel;
-    }
 }

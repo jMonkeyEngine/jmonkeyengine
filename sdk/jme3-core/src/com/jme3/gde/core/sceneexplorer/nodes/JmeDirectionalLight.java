@@ -32,6 +32,7 @@
 
 package com.jme3.gde.core.sceneexplorer.nodes;
 
+import com.jme3.gde.core.sceneexplorer.nodes.SceneExplorerNode;
 import com.jme3.light.DirectionalLight;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Spatial;

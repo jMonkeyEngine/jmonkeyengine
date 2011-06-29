@@ -61,17 +61,17 @@ import org.openide.util.Lookup;
  *
  * @author normenhansen
  */
-public class SceneExplorerChildren extends Children.Keys<Object> {
+public class JmeSpatialChildren extends Children.Keys<Object> {
 
     protected Spatial spatial;
     protected boolean readOnly = true;
     protected HashMap<Object, Node> map = new HashMap<Object, Node>();
     private DataObject dataObject;
 
-    public SceneExplorerChildren() {
+    public JmeSpatialChildren() {
     }
 
-    public SceneExplorerChildren(Spatial spatial) {
+    public JmeSpatialChildren(Spatial spatial) {
         this.spatial = spatial;
     }
 
@@ -143,7 +143,7 @@ public class SceneExplorerChildren extends Children.Keys<Object> {
 
         //TODO: go down in class hierarchy if class was not found, for now old checks are fallback
         if (key instanceof Spatial) {
-            SceneExplorerChildren children = new SceneExplorerChildren((Spatial) key);
+            JmeSpatialChildren children = new JmeSpatialChildren((Spatial) key);
             children.setReadOnly(readOnly);
             children.setDataObject(dataObject);
             if (key instanceof com.jme3.audio.AudioNode) {

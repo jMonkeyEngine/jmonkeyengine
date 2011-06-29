@@ -30,64 +30,27 @@
  *  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.jme3.gde.core.sceneexplorer.nodes;
+package com.jme3.gde.core.nodes;
 
-import com.jme3.gde.core.sceneexplorer.nodes.SceneExplorerNode;
-import com.jme3.light.PointLight;
-import com.jme3.math.Vector3f;
-import com.jme3.scene.Spatial;
-import org.openide.cookies.SaveCookie;
-import org.openide.loaders.DataObject;
-import org.openide.nodes.Sheet;
+import org.openide.util.lookup.AbstractLookup;
+import org.openide.util.lookup.InstanceContent;
 
 /**
  *
  * @author normenhansen
  */
-@org.openide.util.lookup.ServiceProvider(service=SceneExplorerNode.class)
-public class JmePointLight extends JmeLight{
-    PointLight pointLight;
+public class DynamicLookup extends AbstractLookup{
+    private static final long serialVersionUID = 1212314412L;
+    private InstanceContent instanceContent;
 
-    public JmePointLight() {
+    public DynamicLookup(InstanceContent instanceContent) {
+        super(instanceContent);
+        this.instanceContent = instanceContent;
+        instanceContent.add(this);
     }
 
-    public JmePointLight(Spatial spatial, PointLight pointLight) {
-        super(spatial, pointLight);
-        this.pointLight = pointLight;
-        lookupContents.add(pointLight);
-        setName("PointLight");
-    }
-
-    @Override
-    protected Sheet createSheet() {
-        //TODO: multithreading..
-        Sheet sheet = super.createSheet();
-        Sheet.Set set = Sheet.createPropertiesSet();
-        set.setDisplayName("PointLight");
-        set.setName(PointLight.class.getName());
-        PointLight obj = pointLight;//getLookup().lookup(Spatial.class);
-        if (obj == null) {
-            return sheet;
-        }
-
-        set.put(makeProperty(obj, Vector3f.class, "getPosition", "setPosition", "Position"));
-        set.put(makeProperty(obj, float.class, "getRadius", "setRadius", "Radius"));
-
-        sheet.put(set);
-        return sheet;
-
-    }
-
-    public Class getExplorerObjectClass() {
-        return PointLight.class;
-    }
-
-    public Class getExplorerNodeClass() {
-        return JmePointLight.class;
-    }
-
-    public org.openide.nodes.Node[] createNodes(Object key, DataObject key2, SaveCookie cookie) {
-        return null;
+    public InstanceContent getInstanceContent() {
+        return instanceContent;
     }
 
 }

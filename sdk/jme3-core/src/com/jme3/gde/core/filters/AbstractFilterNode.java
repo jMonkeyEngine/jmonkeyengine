@@ -31,8 +31,8 @@
  */
 package com.jme3.gde.core.filters;
 
-import com.jme3.gde.core.sceneexplorer.nodes.properties.SceneExplorerProperty;
-import com.jme3.gde.core.sceneexplorer.nodes.properties.ScenePropertyChangeListener;
+import com.jme3.gde.core.properties.SceneExplorerProperty;
+import com.jme3.gde.core.properties.ScenePropertyChangeListener;
 import com.jme3.gde.core.util.PropertyUtils;
 import com.jme3.post.Filter;
 import java.beans.PropertyDescriptor;

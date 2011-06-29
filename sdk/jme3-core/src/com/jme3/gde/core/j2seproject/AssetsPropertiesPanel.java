@@ -35,7 +35,7 @@
  *
  * Created on 25.04.2010, 00:25:08
  */
-package com.jme3.gde.core.properties;
+package com.jme3.gde.core.j2seproject;
 
 import com.jme3.gde.core.assets.AssetsLookupProvider;
 import java.awt.event.ActionEvent;

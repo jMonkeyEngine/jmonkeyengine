@@ -31,17 +31,32 @@
  */
 package com.jme3.gde.core.sceneexplorer.nodes;
 
+import com.jme3.asset.ModelKey;
+import com.jme3.gde.core.scene.SceneApplication;
+import com.jme3.gde.core.sceneexplorer.nodes.SceneExplorerNode;
 import com.jme3.scene.AssetLinkNode;
 import java.awt.Image;
+import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import javax.swing.Action;
+import org.openide.actions.DeleteAction;
 import org.openide.loaders.DataObject;
+import org.openide.nodes.AbstractNode;
+import org.openide.nodes.Children;
+import org.openide.nodes.Node;
 import org.openide.nodes.Sheet;
+import org.openide.util.Exceptions;
 import org.openide.util.ImageUtilities;
+import org.openide.util.actions.SystemAction;
 
 /**
  *
  * @author normenhansen
  */
-@org.openide.util.lookup.ServiceProvider(service=SceneExplorerNode.class)
+@org.openide.util.lookup.ServiceProvider(service = SceneExplorerNode.class)
 public class JmeAssetLinkNode extends JmeNode {
 
     private static Image smallImage =
@@ -51,7 +66,7 @@ public class JmeAssetLinkNode extends JmeNode {
     public JmeAssetLinkNode() {
     }
 
-    public JmeAssetLinkNode(AssetLinkNode spatial, SceneExplorerChildren children) {
+    public JmeAssetLinkNode(AssetLinkNode spatial, JmeSpatialChildren children) {
         super(spatial, new AssetLinkChildren(spatial));
         getLookupContents().add(spatial);
         this.geom = spatial;
@@ -93,9 +108,108 @@ public class JmeAssetLinkNode extends JmeNode {
     }
 
     public org.openide.nodes.Node[] createNodes(Object key, DataObject key2, boolean cookie) {
-        SceneExplorerChildren children=new SceneExplorerChildren((com.jme3.scene.Spatial)key);
+        JmeSpatialChildren children = new JmeSpatialChildren((com.jme3.scene.Spatial) key);
         children.setReadOnly(cookie);
         children.setDataObject(key2);
         return new org.openide.nodes.Node[]{new JmeAssetLinkNode((AssetLinkNode) key, children).setReadOnly(cookie)};
+    }
+
+    public static class AssetLinkChildren extends JmeSpatialChildren {
+
+        public AssetLinkChildren(AssetLinkNode spatial) {
+            super(spatial);
+        }
+
+        public void refreshChildren(boolean immediate) {
+            setKeys(createKeys());
+            refresh();
+        }
+
+        protected List<Object> createKeys() {
+            try {
+                return SceneApplication.getApplication().enqueue(new Callable<List<Object>>() {
+
+                    public List<Object> call() throws Exception {
+                        List<Object> keys = new LinkedList<Object>();
+                        if (spatial instanceof AssetLinkNode) {
+                            keys.addAll(((AssetLinkNode) spatial).getAssetLoaderKeys());
+                            return keys;
+                        }
+                        return keys;
+                    }
+                }).get();
+            } catch (InterruptedException ex) {
+                Exceptions.printStackTrace(ex);
+            } catch (ExecutionException ex) {
+                Exceptions.printStackTrace(ex);
+            }
+            return null;
+        }
+
+        public void setReadOnly(boolean cookie) {
+            this.readOnly = cookie;
+        }
+
+        @Override
+        protected void addNotify() {
+            super.addNotify();
+            setKeys(createKeys());
+        }
+
+        @Override
+        protected Node[] createNodes(Object key) {
+            if (key instanceof ModelKey) {
+                ModelKey assetKey = (ModelKey) key;
+                return new Node[]{new JmeAssetLinkChild(assetKey, (AssetLinkNode) spatial)};
+            }
+            return null;
+        }
+    }
+
+    public static class JmeAssetLinkChild extends AbstractNode {
+
+        private ModelKey key;
+        private AssetLinkNode linkNode;
+
+        public JmeAssetLinkChild(ModelKey key, AssetLinkNode linkNode) {
+            super(Children.LEAF);
+            this.key = key;
+            this.linkNode = linkNode;
+            this.setName(key.getName());
+        }
+
+        @Override
+        public Action[] getActions(boolean context) {
+            return new SystemAction[]{
+                        SystemAction.get(DeleteAction.class)
+                    };
+        }
+
+        @Override
+        public boolean canDestroy() {
+            return true;
+        }
+
+        @Override
+        public void destroy() throws IOException {
+            super.destroy();
+            try {
+                SceneApplication.getApplication().enqueue(new Callable<Void>() {
+
+                    public Void call() throws Exception {
+                        linkNode.detachLinkedChild(key);
+                        return null;
+                    }
+                }).get();
+                JmeSpatial node = ((JmeSpatial) getParentNode());
+                if (node != null) {
+                    node.refresh(false);
+                }
+            } catch (InterruptedException ex) {
+                Exceptions.printStackTrace(ex);
+            } catch (ExecutionException ex) {
+                Exceptions.printStackTrace(ex);
+            }
+        }
     }
 }

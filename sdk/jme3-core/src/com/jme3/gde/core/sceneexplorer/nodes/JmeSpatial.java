@@ -34,11 +34,14 @@ package com.jme3.gde.core.sceneexplorer.nodes;
 import com.jme3.bounding.BoundingVolume;
 import com.jme3.export.binary.BinaryExporter;
 import com.jme3.gde.core.scene.SceneApplication;
-import com.jme3.gde.core.sceneexplorer.nodes.actions.AddControlAction;
-import com.jme3.gde.core.sceneexplorer.nodes.actions.AddLightAction;
+import com.jme3.gde.core.sceneexplorer.nodes.AbstractSceneExplorerNode;
+import com.jme3.gde.core.sceneexplorer.nodes.ClipboardSpatial;
+import com.jme3.gde.core.sceneexplorer.nodes.SceneExplorerNode;
+import com.jme3.gde.core.sceneexplorer.nodes.actions.NewControlPopup;
+import com.jme3.gde.core.sceneexplorer.nodes.actions.NewLightPopup;
 import com.jme3.gde.core.sceneexplorer.nodes.actions.AddUserDataAction;
-import com.jme3.gde.core.sceneexplorer.nodes.actions.UseToolAction;
-import com.jme3.gde.core.sceneexplorer.nodes.properties.UserDataProperty;
+import com.jme3.gde.core.sceneexplorer.nodes.actions.ToolPopup;
+import com.jme3.gde.core.properties.UserDataProperty;
 import com.jme3.light.LightList;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
@@ -81,7 +84,7 @@ public class JmeSpatial extends AbstractSceneExplorerNode {
     public JmeSpatial() {
     }
 
-    public JmeSpatial(Spatial spatial, SceneExplorerChildren factory) {
+    public JmeSpatial(Spatial spatial, JmeSpatialChildren factory) {
         super(factory);
         this.jmeChildren = factory;
         this.spatial = spatial;
@@ -125,15 +128,15 @@ public class JmeSpatial extends AbstractSceneExplorerNode {
     @Override
     public Action[] getActions(boolean context) {
 //        return super.getActions(context);
-        if (((SceneExplorerChildren) jmeChildren).readOnly) {
+        if (((JmeSpatialChildren) jmeChildren).readOnly) {
             return new Action[]{
                         SystemAction.get(CopyAction.class),};
         } else {
             return new Action[]{
-                        new AddControlAction(this),
-                        new AddLightAction(this),
+                        new NewControlPopup(this),
+                        new NewLightPopup(this),
                         Actions.alwaysEnabled(new AddUserDataAction(this), "Add User Data", "", false),
-                        new UseToolAction(this),
+                        new ToolPopup(this),
                         SystemAction.get(RenameAction.class),
                         SystemAction.get(CopyAction.class),
                         SystemAction.get(CutAction.class),
@@ -145,22 +148,22 @@ public class JmeSpatial extends AbstractSceneExplorerNode {
 
     @Override
     public boolean canCopy() {
-        return !((SceneExplorerChildren) jmeChildren).readOnly;
+        return !((JmeSpatialChildren) jmeChildren).readOnly;
     }
 
     @Override
     public boolean canCut() {
-        return !((SceneExplorerChildren) jmeChildren).readOnly;
+        return !((JmeSpatialChildren) jmeChildren).readOnly;
     }
 
     @Override
     public boolean canDestroy() {
-        return !((SceneExplorerChildren) jmeChildren).readOnly;
+        return !((JmeSpatialChildren) jmeChildren).readOnly;
     }
 
     @Override
     public boolean canRename() {
-        return !((SceneExplorerChildren) jmeChildren).readOnly;
+        return !((JmeSpatialChildren) jmeChildren).readOnly;
     }
 
     @Override
@@ -347,7 +350,7 @@ public class JmeSpatial extends AbstractSceneExplorerNode {
     }
 
     public Node[] createNodes(Object key, DataObject key2, boolean cookie) {
-        SceneExplorerChildren children = new SceneExplorerChildren((com.jme3.scene.Spatial) key);
+        JmeSpatialChildren children = new JmeSpatialChildren((com.jme3.scene.Spatial) key);
         children.setReadOnly(cookie);
         children.setDataObject(key2);
         return new Node[]{new JmeSpatial((Spatial) key, children).setReadOnly(cookie)};

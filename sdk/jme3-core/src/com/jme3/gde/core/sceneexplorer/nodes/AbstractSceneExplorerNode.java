@@ -31,12 +31,17 @@
  */
 package com.jme3.gde.core.sceneexplorer.nodes;
 
-import com.jme3.gde.core.sceneexplorer.nodes.properties.SceneExplorerProperty;
-import com.jme3.gde.core.sceneexplorer.nodes.properties.ScenePropertyChangeListener;
+import com.jme3.gde.core.nodes.DynamicLookup;
+import com.jme3.gde.core.properties.SceneExplorerProperty;
+import com.jme3.gde.core.properties.ScenePropertyChangeListener;
+import com.jme3.gde.core.util.PropertyUtils;
+import java.beans.PropertyDescriptor;
+import java.lang.reflect.Field;
 import org.openide.loaders.DataObject;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
+import org.openide.nodes.Sheet;
 import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
 import org.openide.util.lookup.InstanceContent;
@@ -55,33 +60,33 @@ public abstract class AbstractSceneExplorerNode extends AbstractNode implements 
     protected DataObject dataObject;
 
     public AbstractSceneExplorerNode() {
-        super(Children.LEAF, new SceneExplorerLookup(new InstanceContent()));
-        lookupContents = ((SceneExplorerLookup) getLookup()).getInstanceContent();
+        super(Children.LEAF, new DynamicLookup(new InstanceContent()));
+        lookupContents = ((DynamicLookup) getLookup()).getInstanceContent();
     }
 
     public AbstractSceneExplorerNode(Children children, DataObject dataObject) {
-        super(children, new ProxyLookup(dataObject.getLookup(), new SceneExplorerLookup(new InstanceContent())));
+        super(children, new ProxyLookup(dataObject.getLookup(), new DynamicLookup(new InstanceContent())));
         this.dataObject = dataObject;
-        lookupContents = getLookup().lookup(SceneExplorerLookup.class).getInstanceContent();
+        lookupContents = getLookup().lookup(DynamicLookup.class).getInstanceContent();
     }
 
     public AbstractSceneExplorerNode(DataObject dataObject) {
-        super(Children.LEAF, new ProxyLookup(dataObject != null ? dataObject.getLookup() : Lookup.EMPTY, new SceneExplorerLookup(new InstanceContent())));
+        super(Children.LEAF, new ProxyLookup(dataObject != null ? dataObject.getLookup() : Lookup.EMPTY, new DynamicLookup(new InstanceContent())));
         this.dataObject = dataObject;
-        lookupContents = getLookup().lookup(SceneExplorerLookup.class).getInstanceContent();
+        lookupContents = getLookup().lookup(DynamicLookup.class).getInstanceContent();
     }
 
     public AbstractSceneExplorerNode(Children children) {
         //TODO: OMG!
-        super(children, children instanceof SceneExplorerChildren
-                ? (((SceneExplorerChildren) children).getDataObject() != null
-                ? new ProxyLookup(((SceneExplorerChildren) children).getDataObject().getLookup(), new SceneExplorerLookup(new InstanceContent()))
-                : new SceneExplorerLookup(new InstanceContent()))
-                : new SceneExplorerLookup(new InstanceContent()));
+        super(children, children instanceof JmeSpatialChildren
+                ? (((JmeSpatialChildren) children).getDataObject() != null
+                ? new ProxyLookup(((JmeSpatialChildren) children).getDataObject().getLookup(), new DynamicLookup(new InstanceContent()))
+                : new DynamicLookup(new InstanceContent()))
+                : new DynamicLookup(new InstanceContent()));
         this.jmeChildren = children;
-        lookupContents = getLookup().lookup(SceneExplorerLookup.class).getInstanceContent();
-        if (children instanceof SceneExplorerChildren) {
-            this.dataObject = ((SceneExplorerChildren) children).getDataObject();
+        lookupContents = getLookup().lookup(DynamicLookup.class).getInstanceContent();
+        if (children instanceof JmeSpatialChildren) {
+            this.dataObject = ((JmeSpatialChildren) children).getDataObject();
         }
     }
 
@@ -125,8 +130,8 @@ public abstract class AbstractSceneExplorerNode extends AbstractNode implements 
 
     //TODO: refresh does not work
     public void refresh(boolean immediate) {
-        if (jmeChildren instanceof SceneExplorerChildren) {
-            ((SceneExplorerChildren) jmeChildren).refreshChildren(immediate);
+        if (jmeChildren instanceof JmeSpatialChildren) {
+            ((JmeSpatialChildren) jmeChildren).refreshChildren(immediate);
         }
     }
 
@@ -159,6 +164,15 @@ public abstract class AbstractSceneExplorerNode extends AbstractNode implements 
             Exceptions.printStackTrace(ex);
         }
         return prop;
+    }
+
+    protected void createFields(Class c, Sheet.Set set, Object obj) throws SecurityException {
+        for (Field field : c.getDeclaredFields()) {
+            PropertyDescriptor prop = PropertyUtils.getPropertyDescriptor(c, field);
+            if (prop != null) {
+                set.put(makeProperty(obj, prop.getPropertyType(), prop.getReadMethod().getName(), prop.getWriteMethod().getName(), prop.getDisplayName()));
+            }
+        }
     }
 
     public void propertyChange(final String name, final Object before, final Object after) {

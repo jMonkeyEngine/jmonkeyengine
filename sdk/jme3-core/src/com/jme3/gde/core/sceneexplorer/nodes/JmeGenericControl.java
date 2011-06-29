@@ -31,9 +31,10 @@
  */
 package com.jme3.gde.core.sceneexplorer.nodes;
 
+import com.jme3.gde.core.nodes.DynamicLookup;
 import com.jme3.gde.core.scene.SceneApplication;
-import com.jme3.gde.core.sceneexplorer.nodes.properties.SceneExplorerProperty;
-import com.jme3.gde.core.sceneexplorer.nodes.properties.ScenePropertyChangeListener;
+import com.jme3.gde.core.properties.SceneExplorerProperty;
+import com.jme3.gde.core.properties.ScenePropertyChangeListener;
 import com.jme3.gde.core.util.PropertyUtils;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.control.Control;
@@ -69,8 +70,8 @@ public class JmeGenericControl extends AbstractNode implements ScenePropertyChan
 
     public JmeGenericControl(Control control, DataObject dataObject) {
         //TODO: lookup content! (control etc)
-        super(Children.LEAF, new ProxyLookup(dataObject.getLookup(), new SceneExplorerLookup(new InstanceContent())));
-        lookupContents = getLookup().lookup(SceneExplorerLookup.class).getInstanceContent();
+        super(Children.LEAF, new ProxyLookup(dataObject.getLookup(), new DynamicLookup(new InstanceContent())));
+        lookupContents = getLookup().lookup(DynamicLookup.class).getInstanceContent();
         this.control = control;
         this.dobject = dataObject;
         lookupContents.add(this);

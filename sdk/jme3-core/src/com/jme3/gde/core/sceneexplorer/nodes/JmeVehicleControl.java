@@ -33,18 +33,24 @@ package com.jme3.gde.core.sceneexplorer.nodes;
 
 import com.jme3.bullet.collision.shapes.CollisionShape;
 import com.jme3.bullet.control.VehicleControl;
+import com.jme3.bullet.objects.VehicleWheel;
 import com.jme3.gde.core.scene.SceneApplication;
+import com.jme3.gde.core.sceneexplorer.nodes.AbstractSceneExplorerNode;
+import com.jme3.gde.core.sceneexplorer.nodes.SceneExplorerNode;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Spatial;
 import java.awt.Image;
 import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import javax.swing.Action;
 import org.openide.actions.DeleteAction;
 import org.openide.loaders.DataObject;
 import org.openide.nodes.Children;
+import org.openide.nodes.Node;
 import org.openide.nodes.Sheet;
 import org.openide.util.Exceptions;
 import org.openide.util.ImageUtilities;
@@ -54,7 +60,7 @@ import org.openide.util.actions.SystemAction;
  *
  * @author normenhansen
  */
-@org.openide.util.lookup.ServiceProvider(service=SceneExplorerNode.class)
+@org.openide.util.lookup.ServiceProvider(service = SceneExplorerNode.class)
 public class JmeVehicleControl extends AbstractSceneExplorerNode {
 
     private static Image smallImage =
@@ -100,7 +106,7 @@ public class JmeVehicleControl extends AbstractSceneExplorerNode {
     @Override
     public void destroy() throws IOException {
         super.destroy();
-        final Spatial spat=getParentNode().getLookup().lookup(Spatial.class);
+        final Spatial spat = getParentNode().getLookup().lookup(Spatial.class);
         try {
             SceneApplication.getApplication().enqueue(new Callable<Void>() {
 
@@ -109,7 +115,7 @@ public class JmeVehicleControl extends AbstractSceneExplorerNode {
                     return null;
                 }
             }).get();
-            ((AbstractSceneExplorerNode)getParentNode()).refresh(true);
+            ((AbstractSceneExplorerNode) getParentNode()).refresh(true);
         } catch (InterruptedException ex) {
             Exceptions.printStackTrace(ex);
         } catch (ExecutionException ex) {
@@ -171,5 +177,58 @@ public class JmeVehicleControl extends AbstractSceneExplorerNode {
         children.setReadOnly(cookie);
         children.setDataObject(key2);
         return new org.openide.nodes.Node[]{new JmeVehicleControl((VehicleControl) key, children).setReadOnly(cookie)};
+    }
+
+    public static class PhysicsVehicleChildren extends JmeSpatialChildren {
+
+        VehicleControl control;
+
+        public PhysicsVehicleChildren(VehicleControl control) {
+            this.control = control;
+        }
+
+        public void refreshChildren(boolean immediate) {
+            setKeys(createKeys());
+            refresh();
+        }
+
+        protected List<Object> createKeys() {
+            try {
+                return SceneApplication.getApplication().enqueue(new Callable<List<Object>>() {
+
+                    public List<Object> call() throws Exception {
+                        List<Object> keys = new LinkedList<Object>();
+                        for (int i = 0; i < control.getNumWheels(); i++) {
+                            keys.add(control.getWheel(i));
+                        }
+                        return keys;
+                    }
+                }).get();
+            } catch (InterruptedException ex) {
+                Exceptions.printStackTrace(ex);
+            } catch (ExecutionException ex) {
+                Exceptions.printStackTrace(ex);
+            }
+            return null;
+        }
+
+        public void setReadOnly(boolean cookie) {
+            this.readOnly = cookie;
+        }
+
+        @Override
+        protected void addNotify() {
+            super.addNotify();
+            setKeys(createKeys());
+        }
+
+        @Override
+        protected Node[] createNodes(Object key) {
+            if (key instanceof VehicleWheel) {
+                VehicleWheel assetKey = (VehicleWheel) key;
+                return new Node[]{new JmeVehicleWheel(control, assetKey)};
+            }
+            return null;
+        }
     }
 }

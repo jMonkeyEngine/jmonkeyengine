@@ -29,43 +29,13 @@
  *  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  *  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.jme3.gde.core.sceneexplorer.nodes.actions;
 
-import com.jme3.gde.core.sceneexplorer.nodes.AbstractSceneExplorerNode;
-import com.jme3.scene.Spatial;
-import java.awt.event.ActionEvent;
-import javax.swing.AbstractAction;
-import javax.swing.JMenu;
-import javax.swing.JMenuItem;
-import org.openide.loaders.DataObject;
-import org.openide.util.Lookup;
-import org.openide.util.actions.Presenter;
+package com.jme3.gde.core.properties;
 
 /**
  *
  * @author normenhansen
  */
-public class UseToolAction extends AbstractAction implements Presenter.Popup {
-
-    protected AbstractSceneExplorerNode exNode;
-    protected DataObject dataObject;
-
-    public UseToolAction(AbstractSceneExplorerNode node) {
-        this.exNode = node;
-        this.dataObject = node.getLookup().lookup(DataObject.class);
-    }
-
-    public void actionPerformed(ActionEvent e) {
-    }
-
-    public JMenuItem getPopupPresenter() {
-        JMenu result = new JMenu("Tools..");
-        for (ToolAction di : Lookup.getDefault().lookupAll(ToolAction.class)) {
-            if(di.getNodeClass().isAssignableFrom(exNode.getClass())){
-                result.add(new JMenuItem(di.getAction(exNode, dataObject)));
-            }
-        }
-        return result;
-    }
-
+public interface ScenePropertyChangeListener {
+    public void propertyChange(String property, Object oldValue, Object newValue);
 }

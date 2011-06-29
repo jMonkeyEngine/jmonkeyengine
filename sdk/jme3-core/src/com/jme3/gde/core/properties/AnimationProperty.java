@@ -29,45 +29,53 @@
  *  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  *  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.jme3.gde.core.sceneexplorer.nodes;
+package com.jme3.gde.core.properties;
 
-import com.jme3.bullet.control.VehicleControl;
-import com.jme3.bullet.objects.VehicleWheel;
+import com.jme3.animation.AnimControl;
 import com.jme3.gde.core.scene.SceneApplication;
-import java.util.LinkedList;
-import java.util.List;
+import java.beans.PropertyEditor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
-import org.openide.nodes.Node;
+import org.openide.nodes.PropertySupport;
 import org.openide.util.Exceptions;
 
 /**
  *
  * @author normenhansen
  */
-public class PhysicsVehicleChildren extends SceneExplorerChildren {
+public class AnimationProperty extends PropertySupport.ReadWrite<String> {
 
-    VehicleControl control;
+    private AnimControl control;
+    private String anim = "null";
 
-    public PhysicsVehicleChildren(VehicleControl control) {
-        this.control = control;
+    public AnimationProperty(AnimControl node) {
+        super("Animation Control", String.class, "Animation Control", "");
+        this.control = node;
     }
 
-    public void refreshChildren(boolean immediate) {
-        setKeys(createKeys());
-        refresh();
+    @Override
+    public String getValue() throws IllegalAccessException, InvocationTargetException {
+        return anim;
     }
 
-    protected List<Object> createKeys() {
+    @Override
+    public void setValue(final String val) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+        if (control == null) {
+            return;
+        }
         try {
-            return SceneApplication.getApplication().enqueue(new Callable<List<Object>>() {
+            SceneApplication.getApplication().enqueue(new Callable<Void>() {
 
-                public List<Object> call() throws Exception {
-                    List<Object> keys = new LinkedList<Object>();
-                    for (int i = 0; i < control.getNumWheels(); i++) {
-                        keys.add(control.getWheel(i));
+                public Void call() throws Exception {
+                    if ("null".equals(val)) {
+                        control.clearChannels();
+                        return null;
                     }
-                    return keys;
+                    anim = val;
+                    control.clearChannels();
+                    control.createChannel().setAnim(val);
+                    return null;
                 }
             }).get();
         } catch (InterruptedException ex) {
@@ -75,25 +83,10 @@ public class PhysicsVehicleChildren extends SceneExplorerChildren {
         } catch (ExecutionException ex) {
             Exceptions.printStackTrace(ex);
         }
-        return null;
-    }
-
-    public void setReadOnly(boolean cookie) {
-        this.readOnly = cookie;
     }
 
     @Override
-    protected void addNotify() {
-        super.addNotify();
-        setKeys(createKeys());
-    }
-
-    @Override
-    protected Node[] createNodes(Object key) {
-        if (key instanceof VehicleWheel) {
-            VehicleWheel assetKey = (VehicleWheel) key;
-            return new Node[]{new JmeVehicleWheel(control, assetKey)};
-        }
-        return null;
+    public PropertyEditor getPropertyEditor() {
+        return new AnimationPropertyEditor(control);
     }
 }

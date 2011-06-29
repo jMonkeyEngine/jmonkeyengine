@@ -41,7 +41,7 @@ import com.jme3.gde.core.sceneexplorer.nodes.JmeNode;
 import com.jme3.gde.core.sceneexplorer.nodes.JmeSpatial;
 import com.jme3.gde.core.sceneexplorer.nodes.JmeTerrainQuad;
 import com.jme3.gde.core.sceneexplorer.nodes.NodeUtility;
-import com.jme3.gde.core.sceneexplorer.nodes.properties.TexturePropertyEditor;
+import com.jme3.gde.core.properties.TexturePropertyEditor;
 import com.jme3.gde.core.undoredo.AbstractUndoableSceneEdit;
 import com.jme3.gde.core.undoredo.SceneUndoRedoManager;
 import com.jme3.gde.core.util.DataObjectSaveNode;

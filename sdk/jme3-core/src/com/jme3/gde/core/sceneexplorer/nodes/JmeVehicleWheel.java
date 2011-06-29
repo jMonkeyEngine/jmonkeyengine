@@ -34,6 +34,8 @@ package com.jme3.gde.core.sceneexplorer.nodes;
 import com.jme3.bullet.control.VehicleControl;
 import com.jme3.bullet.objects.VehicleWheel;
 import com.jme3.gde.core.scene.SceneApplication;
+import com.jme3.gde.core.sceneexplorer.nodes.AbstractSceneExplorerNode;
+import com.jme3.gde.core.sceneexplorer.nodes.SceneExplorerNode;
 import com.jme3.light.Light;
 import com.jme3.math.Vector3f;
 import java.awt.Image;

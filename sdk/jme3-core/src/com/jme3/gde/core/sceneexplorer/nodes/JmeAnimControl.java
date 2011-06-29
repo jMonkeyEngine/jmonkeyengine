@@ -33,7 +33,9 @@ package com.jme3.gde.core.sceneexplorer.nodes;
 
 import com.jme3.animation.AnimControl;
 import com.jme3.gde.core.scene.SceneApplication;
-import com.jme3.gde.core.sceneexplorer.nodes.properties.AnimationProperty;
+import com.jme3.gde.core.sceneexplorer.nodes.AbstractSceneExplorerNode;
+import com.jme3.gde.core.sceneexplorer.nodes.SceneExplorerNode;
+import com.jme3.gde.core.properties.AnimationProperty;
 import com.jme3.scene.Spatial;
 import java.awt.Image;
 import java.io.IOException;

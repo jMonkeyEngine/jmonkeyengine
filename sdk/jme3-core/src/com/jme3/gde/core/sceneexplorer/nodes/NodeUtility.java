@@ -41,21 +41,21 @@ import org.openide.loaders.DataObject;
 public class NodeUtility {
 
     public static JmeNode createNode(Node node) {
-        SceneExplorerChildren factory = new SceneExplorerChildren(node);
+        JmeSpatialChildren factory = new JmeSpatialChildren(node);
         factory.setReadOnly(true);
         JmeNode jmeNode = new JmeNode(node, factory);
         return jmeNode;
     }
 
     public static JmeNode createNode(Node node, boolean readOnly) {
-        SceneExplorerChildren factory = new SceneExplorerChildren(node);
+        JmeSpatialChildren factory = new JmeSpatialChildren(node);
         factory.setReadOnly(readOnly);
         JmeNode jmeNode = new JmeNode(node, factory);
         return jmeNode;
     }
 
     public static JmeNode createNode(Node node, DataObject dataObject) {
-        SceneExplorerChildren factory = new SceneExplorerChildren(node);
+        JmeSpatialChildren factory = new JmeSpatialChildren(node);
         factory.setDataObject(dataObject);
         factory.setReadOnly(true);
         JmeNode jmeNode = new JmeNode(node, factory);
@@ -63,7 +63,7 @@ public class NodeUtility {
     }
 
     public static JmeNode createNode(Node node, DataObject dataObject, boolean readOnly) {
-        SceneExplorerChildren factory = new SceneExplorerChildren(node);
+        JmeSpatialChildren factory = new JmeSpatialChildren(node);
         factory.setDataObject(dataObject);
         factory.setReadOnly(readOnly);
         JmeNode jmeNode = new JmeNode(node, factory);

@@ -32,11 +32,13 @@
 package com.jme3.gde.core.sceneexplorer.nodes;
 
 import com.jme3.gde.core.scene.SceneApplication;
-import com.jme3.gde.core.sceneexplorer.nodes.actions.AddControlAction;
-import com.jme3.gde.core.sceneexplorer.nodes.actions.AddLightAction;
-import com.jme3.gde.core.sceneexplorer.nodes.actions.AddSpatialAction;
+import com.jme3.gde.core.sceneexplorer.nodes.ClipboardSpatial;
+import com.jme3.gde.core.sceneexplorer.nodes.SceneExplorerNode;
+import com.jme3.gde.core.sceneexplorer.nodes.actions.NewControlPopup;
+import com.jme3.gde.core.sceneexplorer.nodes.actions.NewLightPopup;
+import com.jme3.gde.core.sceneexplorer.nodes.actions.NewSpatialPopup;
 import com.jme3.gde.core.sceneexplorer.nodes.actions.AddUserDataAction;
-import com.jme3.gde.core.sceneexplorer.nodes.actions.UseToolAction;
+import com.jme3.gde.core.sceneexplorer.nodes.actions.ToolPopup;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import java.awt.Image;
@@ -74,7 +76,7 @@ public class JmeNode extends JmeSpatial {
     public JmeNode() {
     }
 
-    public JmeNode(Node spatial, SceneExplorerChildren children) {
+    public JmeNode(Node spatial, JmeSpatialChildren children) {
         super(spatial, children);
         getLookupContents().add(spatial);
         this.node = spatial;
@@ -158,16 +160,16 @@ public class JmeNode extends JmeSpatial {
     @Override
     public Action[] getActions(boolean context) {
 //        return super.getActions(context);
-        if (((SceneExplorerChildren) jmeChildren).readOnly) {
+        if (((JmeSpatialChildren) jmeChildren).readOnly) {
             return new Action[]{
                         SystemAction.get(CopyAction.class),};
         } else {
             return new Action[]{
-                        new AddSpatialAction(this),
-                        new AddControlAction(this),
-                        new AddLightAction(this),
+                        new NewSpatialPopup(this),
+                        new NewControlPopup(this),
+                        new NewLightPopup(this),
                         Actions.alwaysEnabled(new AddUserDataAction(this), "Add User Data", "", false),
-                        new UseToolAction(this),
+                        new ToolPopup(this),
                         SystemAction.get(RenameAction.class),
                         SystemAction.get(CopyAction.class),
                         SystemAction.get(CutAction.class),
@@ -186,7 +188,7 @@ public class JmeNode extends JmeSpatial {
     }
 
     public org.openide.nodes.Node[] createNodes(Object key, DataObject key2, boolean cookie) {
-        SceneExplorerChildren children = new SceneExplorerChildren((com.jme3.scene.Spatial) key);
+        JmeSpatialChildren children = new JmeSpatialChildren((com.jme3.scene.Spatial) key);
         children.setReadOnly(cookie);
         children.setDataObject(key2);
         return new org.openide.nodes.Node[]{new JmeNode((Node) key, children).setReadOnly(cookie)};

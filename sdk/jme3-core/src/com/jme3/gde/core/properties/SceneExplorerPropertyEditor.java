@@ -30,27 +30,12 @@
  *  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.jme3.gde.core.sceneexplorer.nodes;
-
-import org.openide.util.lookup.AbstractLookup;
-import org.openide.util.lookup.InstanceContent;
+package com.jme3.gde.core.properties;
 
 /**
  *
  * @author normenhansen
  */
-public class SceneExplorerLookup extends AbstractLookup{
-    private static final long serialVersionUID = 1212314412L;
-    private InstanceContent instanceContent;
-
-    public SceneExplorerLookup(InstanceContent instanceContent) {
-        super(instanceContent);
-        this.instanceContent = instanceContent;
-        instanceContent.add(this);
-    }
-
-    public InstanceContent getInstanceContent() {
-        return instanceContent;
-    }
-
+public interface SceneExplorerPropertyEditor {
+    public void setEditor(Class valueType, SceneExplorerProperty prop);
 }

@@ -31,7 +31,7 @@
  */
 package com.jme3.gde.terraineditor.sky;
 
-import com.jme3.gde.core.sceneexplorer.nodes.properties.TexturePropertyEditor;
+import com.jme3.gde.core.properties.TexturePropertyEditor;
 import com.jme3.texture.Texture;
 import java.awt.Component;
 import javax.swing.Icon;

@@ -34,6 +34,8 @@ package com.jme3.gde.core.sceneexplorer.nodes;
 import com.jme3.bullet.collision.shapes.CollisionShape;
 import com.jme3.bullet.control.GhostControl;
 import com.jme3.gde.core.scene.SceneApplication;
+import com.jme3.gde.core.sceneexplorer.nodes.AbstractSceneExplorerNode;
+import com.jme3.gde.core.sceneexplorer.nodes.SceneExplorerNode;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Spatial;

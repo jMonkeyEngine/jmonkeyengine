@@ -58,13 +58,13 @@ import org.openide.util.actions.Presenter;
  *
  * @author normenhansen
  */
-public class AddSpatialAction extends AbstractAction implements Presenter.Popup {
+public class NewSpatialPopup extends AbstractAction implements Presenter.Popup {
 
     protected JmeNode jmeNode;
     protected Node node;
     protected DataObject dataObject;
 
-    public AddSpatialAction(JmeNode node) {
+    public NewSpatialPopup(JmeNode node) {
         this.jmeNode = node;
         this.node = node.getLookup().lookup(Node.class);
         this.dataObject = node.getLookup().lookup(DataObject.class);

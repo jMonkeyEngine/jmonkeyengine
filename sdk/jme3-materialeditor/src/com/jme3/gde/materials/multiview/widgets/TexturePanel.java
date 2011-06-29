@@ -11,7 +11,7 @@
 package com.jme3.gde.materials.multiview.widgets;
 
 import com.jme3.gde.core.assets.ProjectAssetManager;
-import com.jme3.gde.core.sceneexplorer.nodes.properties.TexturePropertyEditor;
+import com.jme3.gde.core.properties.TexturePropertyEditor;
 import com.jme3.gde.materials.MaterialProperty;
 import java.awt.Component;
 

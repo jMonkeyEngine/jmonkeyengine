@@ -29,43 +29,51 @@
  *  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  *  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.jme3.gde.core.sceneexplorer.nodes.actions;
-
-import com.jme3.gde.core.sceneexplorer.nodes.JmeSpatial;
-import com.jme3.scene.Node;
-import java.awt.event.ActionEvent;
-import javax.swing.AbstractAction;
-import javax.swing.JMenu;
-import javax.swing.JMenuItem;
-import org.openide.loaders.DataObject;
-import org.openide.util.Lookup;
-import org.openide.util.actions.Presenter;
+package com.jme3.gde.core.j2seproject;
 
 /**
  *
  * @author normenhansen
  */
-public class AddControlAction extends AbstractAction implements Presenter.Popup {
+import java.util.ResourceBundle;
+import javax.swing.JComponent;
+import org.netbeans.api.project.Project;
+import org.netbeans.spi.project.ui.support.ProjectCustomizer;
+import org.netbeans.spi.project.ui.support.ProjectCustomizer.Category;
+import org.openide.util.Lookup;
+import org.openide.util.NbBundle;
 
-    protected JmeSpatial jmeSpatial;
-    protected Node node;
-    protected DataObject dataObject;
+public class AssetsPropertiesPanelProvider implements ProjectCustomizer.CompositeCategoryProvider {
 
-    public AddControlAction(JmeSpatial node) {
-        this.jmeSpatial = node;
-        this.node = node.getLookup().lookup(Node.class);
-        this.dataObject = node.getLookup().lookup(DataObject.class);
+    @ProjectCustomizer.CompositeCategoryProvider.Registration(projectType = "org-netbeans-modules-java-j2seproject", category="BuildCategory", position = 90)
+    public static AssetsPropertiesPanelProvider createAssetsPanel() {
+        return new AssetsPropertiesPanelProvider();
+    }
+    private Project project;
+
+    private AssetsPropertiesPanelProvider() {
     }
 
-    public void actionPerformed(ActionEvent e) {
-    }
-
-    public JMenuItem getPopupPresenter() {
-        JMenu result = new JMenu("Add Control..");
-        for (NewControlAction di : Lookup.getDefault().lookupAll(NewControlAction.class)) {
-            result.add(new JMenuItem(di.getAction(jmeSpatial, dataObject)));
+    @Override
+    public Category createCategory(Lookup lkp) {
+        ResourceBundle bundle = NbBundle.getBundle(AssetsPropertiesPanelProvider.class);
+        ProjectCustomizer.Category toReturn = null;
+        project = lkp.lookup(Project.class);
+        if (project == null) {
+            return toReturn;
         }
-        return result;
+        toReturn = ProjectCustomizer.Category.create(
+                "assets",
+                bundle.getString("LBL_Config_assets"),
+                null);
+        return toReturn;
     }
 
+    @Override
+    public JComponent createComponent(Category category, Lookup lkp) {
+        String nm = category.getName();
+        AssetsPropertiesPanel panel = new AssetsPropertiesPanel(project);
+        category.setStoreListener(panel);
+        return panel;
+    }
 }

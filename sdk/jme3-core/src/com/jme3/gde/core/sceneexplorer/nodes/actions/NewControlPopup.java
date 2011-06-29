@@ -29,65 +29,43 @@
  *  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  *  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+package com.jme3.gde.core.sceneexplorer.nodes.actions;
 
-package com.jme3.gde.core.sceneexplorer.nodes;
-
-import com.jme3.gde.core.sceneexplorer.nodes.SceneExplorerNode;
-import com.jme3.light.PointLight;
-import com.jme3.math.Vector3f;
-import com.jme3.scene.Spatial;
-import org.openide.cookies.SaveCookie;
+import com.jme3.gde.core.sceneexplorer.nodes.JmeSpatial;
+import com.jme3.scene.Node;
+import java.awt.event.ActionEvent;
+import javax.swing.AbstractAction;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
 import org.openide.loaders.DataObject;
-import org.openide.nodes.Sheet;
+import org.openide.util.Lookup;
+import org.openide.util.actions.Presenter;
 
 /**
  *
  * @author normenhansen
  */
-@org.openide.util.lookup.ServiceProvider(service=SceneExplorerNode.class)
-public class JmePointLight extends JmeLight{
-    PointLight pointLight;
+public class NewControlPopup extends AbstractAction implements Presenter.Popup {
 
-    public JmePointLight() {
+    protected JmeSpatial jmeSpatial;
+    protected Node node;
+    protected DataObject dataObject;
+
+    public NewControlPopup(JmeSpatial node) {
+        this.jmeSpatial = node;
+        this.node = node.getLookup().lookup(Node.class);
+        this.dataObject = node.getLookup().lookup(DataObject.class);
     }
 
-    public JmePointLight(Spatial spatial, PointLight pointLight) {
-        super(spatial, pointLight);
-        this.pointLight = pointLight;
-        lookupContents.add(pointLight);
-        setName("PointLight");
+    public void actionPerformed(ActionEvent e) {
     }
 
-    @Override
-    protected Sheet createSheet() {
-        //TODO: multithreading..
-        Sheet sheet = super.createSheet();
-        Sheet.Set set = Sheet.createPropertiesSet();
-        set.setDisplayName("PointLight");
-        set.setName(PointLight.class.getName());
-        PointLight obj = pointLight;//getLookup().lookup(Spatial.class);
-        if (obj == null) {
-            return sheet;
+    public JMenuItem getPopupPresenter() {
+        JMenu result = new JMenu("Add Control..");
+        for (NewControlAction di : Lookup.getDefault().lookupAll(NewControlAction.class)) {
+            result.add(new JMenuItem(di.getAction(jmeSpatial, dataObject)));
         }
-
-        set.put(makeProperty(obj, Vector3f.class, "getPosition", "setPosition", "Position"));
-        set.put(makeProperty(obj, float.class, "getRadius", "setRadius", "Radius"));
-
-        sheet.put(set);
-        return sheet;
-
-    }
-
-    public Class getExplorerObjectClass() {
-        return PointLight.class;
-    }
-
-    public Class getExplorerNodeClass() {
-        return JmePointLight.class;
-    }
-
-    public org.openide.nodes.Node[] createNodes(Object key, DataObject key2, SaveCookie cookie) {
-        return null;
+        return result;
     }
 
 }

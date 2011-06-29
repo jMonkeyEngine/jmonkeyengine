@@ -33,6 +33,7 @@ package com.jme3.gde.core.sceneexplorer.nodes;
 
 import com.jme3.effect.shapes.EmitterShape;
 import com.jme3.effect.ParticleEmitter;
+import com.jme3.gde.core.sceneexplorer.nodes.SceneExplorerNode;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import java.awt.Image;
@@ -55,7 +56,7 @@ public class JmeParticleEmitter extends JmeGeometry{
             ImageUtilities.loadImage("com/jme3/gde/core/sceneexplorer/nodes/icons/particleemitter.gif");
     private ParticleEmitter geom;
 
-    public JmeParticleEmitter(ParticleEmitter spatial, SceneExplorerChildren children) {
+    public JmeParticleEmitter(ParticleEmitter spatial, JmeSpatialChildren children) {
         super(spatial, children);
         getLookupContents().add(spatial);
         this.geom = spatial;
@@ -83,27 +84,28 @@ public class JmeParticleEmitter extends JmeGeometry{
             return sheet;
         }
 
-        set.put(makeProperty(obj, boolean.class, "isEnabled", "setEnabled", "Enabled"));
-        set.put(makeProperty(obj, EmitterShape.class, "getShape", "setShape", "Emitter Shape"));
-        set.put(makeProperty(obj, int.class, "getNumVisibleParticles", "setNumParticles", "Num Particles"));
-        set.put(makeProperty(obj, float.class, "getParticlesPerSec", "setParticlesPerSec", "Particles Per Sec"));
-        set.put(makeProperty(obj, ColorRGBA.class, "getStartColor", "setStartColor", "Start Color"));
-        set.put(makeProperty(obj, ColorRGBA.class, "getEndColor", "setEndColor", "End Color"));
-        set.put(makeProperty(obj, float.class, "getStartSize", "setStartSize", "Start Size"));
-        set.put(makeProperty(obj, float.class, "getEndSize", "setEndSize", "End Size"));
-        set.put(makeProperty(obj, float.class, "getHighLife", "setHighLife", "High Life"));
-        set.put(makeProperty(obj, float.class, "getLowLife", "setLowLife", "Low Life"));
-        set.put(makeProperty(obj, float.class, "getGravity", "setGravity", "Gravity"));
-        set.put(makeProperty(obj, Vector3f.class, "getInitialVelocity", "setInitialVelocity", "Initial Velocity"));
-        set.put(makeProperty(obj, Vector3f.class, "getFaceNormal", "setFaceNormal", "Face Normal"));
-        set.put(makeProperty(obj, float.class, "getVelocityVariation", "setVelocityVariation", "Velocity Variation"));
-        set.put(makeProperty(obj, boolean.class, "isFacingVelocity", "setFacingVelocity", "Facing Velocity"));
-        set.put(makeProperty(obj, boolean.class, "isRandomAngle", "setRandomAngle", "Random Angle"));
-        set.put(makeProperty(obj, boolean.class, "isInWorldSpace", "setInWorldSpace", "World Space"));
-        set.put(makeProperty(obj, float.class, "getRotateSpeed", "setRotateSpeed", "Rotate Speed"));
-        set.put(makeProperty(obj, boolean.class, "isSelectRandomImage", "setSelectRandomImage", "Select Random Image"));
-        set.put(makeProperty(obj, int.class, "getImagesX", "setImagesX", "Images X"));
-        set.put(makeProperty(obj, int.class, "getImagesY", "setImagesY", "Images Y"));
+        createFields(geom.getClass(), set, obj);
+//        set.put(makeProperty(obj, boolean.class, "isEnabled", "setEnabled", "Enabled"));
+//        set.put(makeProperty(obj, EmitterShape.class, "getShape", "setShape", "Emitter Shape"));
+//        set.put(makeProperty(obj, int.class, "getNumVisibleParticles", "setNumParticles", "Num Particles"));
+//        set.put(makeProperty(obj, float.class, "getParticlesPerSec", "setParticlesPerSec", "Particles Per Sec"));
+//        set.put(makeProperty(obj, ColorRGBA.class, "getStartColor", "setStartColor", "Start Color"));
+//        set.put(makeProperty(obj, ColorRGBA.class, "getEndColor", "setEndColor", "End Color"));
+//        set.put(makeProperty(obj, float.class, "getStartSize", "setStartSize", "Start Size"));
+//        set.put(makeProperty(obj, float.class, "getEndSize", "setEndSize", "End Size"));
+//        set.put(makeProperty(obj, float.class, "getHighLife", "setHighLife", "High Life"));
+//        set.put(makeProperty(obj, float.class, "getLowLife", "setLowLife", "Low Life"));
+//        set.put(makeProperty(obj, float.class, "getGravity", "setGravity", "Gravity"));
+//        set.put(makeProperty(obj, Vector3f.class, "getInitialVelocity", "setInitialVelocity", "Initial Velocity"));
+//        set.put(makeProperty(obj, Vector3f.class, "getFaceNormal", "setFaceNormal", "Face Normal"));
+//        set.put(makeProperty(obj, float.class, "getVelocityVariation", "setVelocityVariation", "Velocity Variation"));
+//        set.put(makeProperty(obj, boolean.class, "isFacingVelocity", "setFacingVelocity", "Facing Velocity"));
+//        set.put(makeProperty(obj, boolean.class, "isRandomAngle", "setRandomAngle", "Random Angle"));
+//        set.put(makeProperty(obj, boolean.class, "isInWorldSpace", "setInWorldSpace", "World Space"));
+//        set.put(makeProperty(obj, float.class, "getRotateSpeed", "setRotateSpeed", "Rotate Speed"));
+//        set.put(makeProperty(obj, boolean.class, "isSelectRandomImage", "setSelectRandomImage", "Select Random Image"));
+//        set.put(makeProperty(obj, int.class, "getImagesX", "setImagesX", "Images X"));
+//        set.put(makeProperty(obj, int.class, "getImagesY", "setImagesY", "Images Y"));
 
 //        set.put(makeProperty(obj, EmitterShape.class, "getShape", "setShape", "shape"));
 
@@ -123,7 +125,7 @@ public class JmeParticleEmitter extends JmeGeometry{
     }
 
     public Node[] createNodes(Object key, DataObject key2, boolean cookie) {
-        SceneExplorerChildren children=new SceneExplorerChildren((com.jme3.scene.Spatial)key);
+        JmeSpatialChildren children=new JmeSpatialChildren((com.jme3.scene.Spatial)key);
         children.setReadOnly(cookie);
         children.setDataObject(key2);
         return new Node[]{new JmeParticleEmitter((ParticleEmitter) key, children).setReadOnly(cookie)};
