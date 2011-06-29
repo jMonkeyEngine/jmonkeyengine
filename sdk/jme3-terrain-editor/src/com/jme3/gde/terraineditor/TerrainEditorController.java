@@ -689,7 +689,7 @@ public class TerrainEditorController {
     {
         AssetManager manager = SceneApplication.getApplication().getAssetManager();
 
-        TerrainQuad terrain = new TerrainQuad("terrain-"+sceneName, patchSize, totalSize, heightmapData); //TODO make this pluggable for different Terrain implementations
+        Terrain terrain = new TerrainQuad("terrain-"+sceneName, patchSize, totalSize, heightmapData); //TODO make this pluggable for different Terrain implementations
         com.jme3.material.Material mat = new com.jme3.material.Material(manager, "Common/MatDefs/Terrain/TerrainLighting.j3md");
 
         String assetFolder = "";
@@ -708,7 +708,7 @@ public class TerrainEditorController {
             File alphaFolder = new File(assetFolder+"/Textures/terrain-alpha/");
             if (!alphaFolder.exists())
                 alphaFolder.mkdir();
-            String alphaBlendFileName = "/Textures/terrain-alpha/"+sceneName+"-"+terrain.getName()+"-alphablend"+i+".png";
+            String alphaBlendFileName = "/Textures/terrain-alpha/"+sceneName+"-"+((Node)terrain).getName()+"-alphablend"+i+".png";
             File alphaImageFile = new File(assetFolder+alphaBlendFileName);
             ImageIO.write(alphaBlend, "png", alphaImageFile);
             Texture tex = manager.loadAsset(new TextureKey(alphaBlendFileName, false));
@@ -727,23 +727,21 @@ public class TerrainEditorController {
         mat.setFloat("DiffuseMap_0_scale", DEFAULT_TEXTURE_SCALE);
         mat.setBoolean("WardIso", true);
 
-        terrain.setMaterial(mat);
-        terrain.setModelBound(new BoundingBox());
-        terrain.updateModelBound();
-        terrain.setLocalTranslation(0, 0, 0);
-        terrain.setLocalScale(1f, 1f, 1f);
+        ((Node)terrain).setMaterial(mat);
+        ((Node)terrain).setModelBound(new BoundingBox());
+        ((Node)terrain).updateModelBound();
+        ((Node)terrain).setLocalTranslation(0, 0, 0);
+        ((Node)terrain).setLocalScale(4f, 1f, 4f);
 
         // add the lod control
-        List<Camera> cameras = new ArrayList<Camera>();
-	cameras.add(SceneApplication.getApplication().getCamera());
-        TerrainLodControl control = new TerrainLodControl(terrain, cameras);
-	//terrain.addControl(control); // removing this until we figure out a way to have it get the cameras when saved/loaded
+        TerrainLodControl control = new TerrainLodControl(terrain, SceneApplication.getApplication().getCamera());
+	((Node)terrain).addControl(control);
 
-        parent.attachChild(terrain);
+        parent.attachChild((Node)terrain);
 
         setNeedsSave(true);
 
-        addSpatialUndo(parent, terrain, jmeNodeParent);
+        addSpatialUndo(parent, (Node)terrain, jmeNodeParent);
         
         return terrain;
     }
@@ -1079,6 +1077,24 @@ public class TerrainEditorController {
         }
 
         setNeedsSave(true);
+    }
+
+    /**
+     * Re-attach the camera to the LOD control.
+     * Called when the scene is opened and will only
+     * update the control if there is already a terrain present in
+     * the scene.
+     */
+    protected void enableLodControl() {
+        Terrain terrain = (Terrain) getTerrain(null);
+        if (terrain == null)
+            return;
+        
+        TerrainQuad t = (TerrainQuad)terrain;
+        TerrainLodControl control = t.getControl(TerrainLodControl.class);
+        if (control != null) {
+            control.setCamera(SceneApplication.getApplication().getCamera());
+        }
     }
 
     

@@ -109,7 +109,7 @@ public class LevelTerrainToolAction extends AbstractTerrainToolAction {
 
                     Vector2f terrainLoc = new Vector2f(locX, locZ);
                     // adjust height based on radius of the tool
-                    float terrainHeightAtLoc = terrain.getHeightmapHeight(terrainLoc)*terrain.getSpatial().getWorldScale().y;
+                    float terrainHeightAtLoc = terrain.getHeightmapHeight(terrainLoc)*((Node)terrain).getWorldScale().y;
                     float radiusWeight = ToolUtils.calculateRadiusPercent(radius, locX-worldLoc.x, locZ-worldLoc.z);
 
                     float epsilon = 0.1f*height; // rounding error for snapping

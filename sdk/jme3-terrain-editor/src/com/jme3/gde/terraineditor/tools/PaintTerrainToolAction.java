@@ -87,10 +87,10 @@ public class PaintTerrainToolAction extends AbstractTerrainToolAction {
         Texture tex = getAlphaTexture(terrain, alphaIdx);
         Image image = tex.getImage();
 
-        Vector2f UV = terrain.getPointPercentagePosition(markerLocation.x, markerLocation.z);
+        Vector2f UV = getPointPercentagePosition(terrain, markerLocation);
 
         // get the radius of the brush in pixel-percent
-        float brushSize = toolRadius/((TerrainQuad)terrain).getTotalSize();
+        float brushSize = toolRadius/(terrain.getTerrainSize()*((Node)terrain).getLocalScale().x);
         int texIndex = selectedTextureIndex - ((selectedTextureIndex/4)*4); // selectedTextureIndex/4 is an int floor, do not simplify the equation
         boolean erase = toolWeight<0;
         if (erase)
@@ -99,6 +99,18 @@ public class PaintTerrainToolAction extends AbstractTerrainToolAction {
         doPaintAction(texIndex, image, UV, true, brushSize, erase, toolWeight);
 
         tex.getImage().setUpdateNeeded();
+    }
+    
+    public Vector2f getPointPercentagePosition(Terrain terrain, Vector3f worldLoc) {
+        Vector2f uv = new Vector2f(worldLoc.x,worldLoc.z);
+        float scale = ((Node)terrain).getLocalScale().x;
+        
+        uv.subtractLocal(((Node)terrain).getLocalTranslation().x*scale, ((Node)terrain).getLocalTranslation().z*scale); // center it on 0,0
+        float scaledSize = terrain.getTerrainSize()*scale;
+        uv.addLocal(scaledSize/2, scaledSize/2); // shift the bottom left corner up to 0,0
+        uv.divideLocal(scaledSize); // get the location as a percentage
+
+        return uv;
     }
     
     private Texture getAlphaTexture(Terrain terrain, int alphaLayer) {

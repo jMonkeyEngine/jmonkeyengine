@@ -1022,6 +1022,8 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
 
         terrainDeletedNodeListener = new TerrainNodeListener();
         editorController.enableTextureButtons();
+        
+        editorController.enableLodControl();
     }
 
     // run on GL thread
