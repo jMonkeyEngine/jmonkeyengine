@@ -5,50 +5,6 @@
     <import file="nbproject/build-impl.xml"/>
     <!-- <import file="nbproject/profiler-build-impl.xml"/> -->
 
-    <target depends="init" if="have.sources" name="-javadoc-build">
-        <mkdir dir="${dist.javadoc.dir}"/>
-        <javadoc additionalparam="${javadoc.additionalparam}" author="${javadoc.author}" charset="UTF-8" destdir="${dist.javadoc.dir}" docencoding="UTF-8" encoding="${javadoc.encoding.used}" failonerror="true" noindex="${javadoc.noindex}" nonavbar="${javadoc.nonavbar}" notree="${javadoc.notree}" private="${javadoc.private}" source="${javac.source}" splitindex="${javadoc.splitindex}" use="${javadoc.use}" useexternalfile="true" version="${javadoc.version}" windowtitle="${javadoc.windowtitle}">
-            <classpath>
-                <path path="${javac.classpath}"/>
-            </classpath>
-            <fileset dir="${src.core.dir}" excludes="${excludes}" includes="${includes}">
-                <filename name="**/*.java"/>
-            </fileset>
-            <fileset dir="${src.terrain.dir}" excludes="${excludes}" includes="${includes}">
-                <filename name="**/doc-files/**"/>
-            </fileset>
-            <fileset dir="${src.networking.dir}" excludes="${excludes}" includes="${includes}">
-                <filename name="**/doc-files/**"/>
-            </fileset>
-            <fileset dir="${src.desktop-fx.dir}" excludes="${excludes}" includes="${includes}">
-                <filename name="**/doc-files/**"/>
-            </fileset>
-            <fileset dir="${src.jbullet.dir}" excludes="${excludes}" includes="${includes}">
-                <filename name="**/doc-files/**"/>
-            </fileset>
-            <fileset dir="${src.niftygui.dir}" excludes="${excludes}" includes="${includes}">
-                <filename name="**/doc-files/**"/>
-            </fileset>
-            <fileset dir="${src.tools.dir}" excludes="${excludes}" includes="${includes}">
-                <filename name="**/doc-files/**"/>
-            </fileset>
-            <fileset dir="${src.xml.dir}" excludes="${excludes}" includes="${includes}">
-                <filename name="**/doc-files/**"/>
-            </fileset>
-            <fileset dir="${build.generated.sources.dir}" erroronmissingdir="false">
-                <include name="**/*.java"/>
-            </fileset>
-        </javadoc>
-        <copy todir="${dist.javadoc.dir}">
-            <fileset dir="${src.core.dir}" excludes="${excludes}" includes="${includes}">
-                <filename name="**/doc-files/**"/>
-            </fileset>
-            <fileset dir="${build.generated.sources.dir}" erroronmissingdir="false">
-                <include name="**/doc-files/**"/>
-            </fileset>
-        </copy>
-    </target>
-
     <target name="-post-compile" depends="-compile-bullet, -compile-android">
     </target>
     
@@ -64,6 +20,24 @@
         <mkdir dir="build/bullet"/>
         <javac classpath="${javac.classpath}${path.separator}${build.classes.dir}" destdir="build/bullet" srcdir="src/bullet"/>
         <jar jarfile="build/jME3-bullet.jar" basedir="build/bullet/" compress="true"/>
+    </target>
+    
+    <!-- compiles the android jar for jME3 -->
+    <target name="-compile-android" description="builds the jMonkeyEngine3 distribution for android">
+        <echo message="Compiling Android jMonkeyEngin3.jar"/>
+        <path id="android-classpath">
+            <pathelement path="lib/android/android.jar"/>
+            <pathelement path="build/classes"/>
+        </path>
+        <mkdir dir="build/android"/>
+        <javac  target="1.6"
+                encoding="UTF-8"
+                debug="true"
+                deprecation="on"
+                srcdir="src/android"
+                destdir="build/android"
+                classpathref="android-classpath"
+                excludes="**/OGLESRenderer.java,**/TestsActivity.java,**/AboutActivity.java"/>
     </target>
     
     <!--this target creates the separate jar files for jme3 and modifies the classpath to include them-->
@@ -101,25 +75,7 @@
         </pathconvert>
     </target>
     
-    <!-- compiles the android jar for jME3 -->
-    <target name="-compile-android" description="builds the jMonkeyEngine3 distribution for android">
-        <echo message="Compiling Android jMonkeyEngin3.jar"/>
-        <path id="android-classpath">
-            <pathelement path="lib/android/android.jar"/>
-            <pathelement path="build/classes"/>
-        </path>
-        <mkdir dir="build/android"/>
-        <javac  target="1.6"
-                encoding="UTF-8"
-                debug="true"
-                deprecation="on"
-                srcdir="src/android"
-                destdir="build/android"
-                classpathref="android-classpath"
-                excludes="**/OGLESRenderer.java,**/TestsActivity.java,**/AboutActivity.java"/>
-    </target>
-    
-    <!--separates and packs the o ptional packages-->
+    <!--separates and packs the optional packages-->
     <target name="-create-optional-packages">
         <echo message="Creating optional packages"/>
         <!--native bullet-->
@@ -190,6 +146,71 @@
         </zip>
     </target>
 
+    <!-- overrides javadoc generation to only include relevant classes -->
+    <target depends="init" if="have.sources" name="-javadoc-build">
+        <mkdir dir="${dist.javadoc.dir}"/>
+        <javadoc additionalparam="${javadoc.additionalparam}" author="${javadoc.author}" charset="UTF-8" destdir="${dist.javadoc.dir}" docencoding="UTF-8" encoding="${javadoc.encoding.used}" failonerror="true" noindex="${javadoc.noindex}" nonavbar="${javadoc.nonavbar}" notree="${javadoc.notree}" private="${javadoc.private}" source="${javac.source}" splitindex="${javadoc.splitindex}" use="${javadoc.use}" useexternalfile="true" version="${javadoc.version}" windowtitle="${javadoc.windowtitle}">
+            <classpath>
+                <path path="${javac.classpath}"/>
+            </classpath>
+            <fileset dir="${src.core.dir}" excludes="${excludes}" includes="${includes}">
+                <filename name="**/*.java"/>
+            </fileset>
+            <fileset dir="${src.terrain.dir}" excludes="${excludes}" includes="${includes}">
+                <filename name="**/*.java"/>
+            </fileset>
+            <fileset dir="${src.networking.dir}" excludes="${excludes}" includes="${includes}">
+                <filename name="**/*.java"/>
+            </fileset>
+            <fileset dir="${src.desktop-fx.dir}" excludes="${excludes}" includes="${includes}">
+                <filename name="**/*.java"/>
+            </fileset>
+            <fileset dir="${src.jbullet.dir}" excludes="${excludes}" includes="${includes}">
+                <filename name="**/*.java"/>
+            </fileset>
+            <fileset dir="${src.niftygui.dir}" excludes="${excludes}" includes="${includes}">
+                <filename name="**/*.java"/>
+            </fileset>
+            <fileset dir="${src.tools.dir}" excludes="${excludes}" includes="${includes}">
+                <filename name="**/*.java"/>
+            </fileset>
+            <fileset dir="${src.xml.dir}" excludes="${excludes}" includes="${includes}">
+                <filename name="**/*.java"/>
+            </fileset>
+            <fileset dir="${build.generated.sources.dir}" erroronmissingdir="false">
+                <filename name="**/*.java"/>
+            </fileset>
+        </javadoc>
+        <copy todir="${dist.javadoc.dir}">
+            <fileset dir="${src.core.dir}" excludes="${excludes}" includes="${includes}">
+                <filename name="**/doc-files/**"/>
+            </fileset>
+            <fileset dir="${src.terrain.dir}" excludes="${excludes}" includes="${includes}">
+                <filename name="**/doc-files/**"/>
+            </fileset>
+            <fileset dir="${src.networking.dir}" excludes="${excludes}" includes="${includes}">
+                <filename name="**/doc-files/**"/>
+            </fileset>
+            <fileset dir="${src.desktop-fx.dir}" excludes="${excludes}" includes="${includes}">
+                <filename name="**/doc-files/**"/>
+            </fileset>
+            <fileset dir="${src.jbullet.dir}" excludes="${excludes}" includes="${includes}">
+                <filename name="**/doc-files/**"/>
+            </fileset>
+            <fileset dir="${src.niftygui.dir}" excludes="${excludes}" includes="${includes}">
+                <filename name="**/doc-files/**"/>
+            </fileset>
+            <fileset dir="${src.tools.dir}" excludes="${excludes}" includes="${includes}">
+                <filename name="**/doc-files/**"/>
+            </fileset>
+            <fileset dir="${src.xml.dir}" excludes="${excludes}" includes="${includes}">
+                <filename name="**/doc-files/**"/>
+            </fileset>
+            <fileset dir="${build.generated.sources.dir}" erroronmissingdir="false">
+                <include name="**/doc-files/**"/>
+            </fileset>
+        </copy>
+    </target>
 
     <!--
        ****************************************************************
