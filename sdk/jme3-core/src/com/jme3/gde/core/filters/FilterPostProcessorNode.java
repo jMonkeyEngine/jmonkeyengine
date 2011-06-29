@@ -31,6 +31,7 @@
  */
 package com.jme3.gde.core.filters;
 
+import com.jme3.gde.core.filters.actions.NewFilterPopup;
 import com.jme3.gde.core.assets.FilterDataObject;
 import com.jme3.gde.core.scene.SceneApplication;
 import com.jme3.post.Filter;
@@ -131,7 +132,7 @@ public class FilterPostProcessorNode extends AbstractNode {
     public Action[] getActions(boolean context) {
 //        return super.getActions(context);
         return new Action[]{
-                    new AddFilterAction(this)
+                    new NewFilterPopup(this)
                 };
     }
 

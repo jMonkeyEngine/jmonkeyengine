@@ -29,8 +29,9 @@
  *  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  *  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.jme3.gde.core.filters;
+package com.jme3.gde.core.filters.actions;
 
+import com.jme3.gde.core.filters.FilterPostProcessorNode;
 import com.jme3.gde.core.filters.actions.NewFilterAction;
 import com.jme3.gde.core.undoredo.AbstractUndoableSceneEdit;
 import com.jme3.gde.core.undoredo.SceneUndoRedoManager;
@@ -49,11 +50,11 @@ import org.openide.util.actions.Presenter;
  *
  * @author normenhansen
  */
-public class AddFilterAction extends AbstractAction implements Presenter.Popup {
+public class NewFilterPopup extends AbstractAction implements Presenter.Popup {
 
     protected FilterPostProcessorNode filterNode;
 
-    public AddFilterAction(FilterPostProcessorNode node) {
+    public NewFilterPopup(FilterPostProcessorNode node) {
         this.filterNode = node;
     }
 
