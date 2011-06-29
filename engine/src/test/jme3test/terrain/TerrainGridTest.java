@@ -96,6 +96,9 @@ public class TerrainGridTest extends SimpleApplication {
         this.mat_terrain.setTexture("region3ColorMap", rock);
         this.mat_terrain.setVector3("region3", new Vector3f(198, 260, this.rockScale));
 
+        this.mat_terrain.setTexture("region4ColorMap", rock);
+        this.mat_terrain.setVector3("region4", new Vector3f(198, 260, this.rockScale));
+
         this.mat_terrain.setTexture("slopeColorMap", rock);
         this.mat_terrain.setFloat("slopeTileFactor", 32);
 
