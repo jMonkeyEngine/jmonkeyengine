@@ -117,9 +117,9 @@ public class RawArrayHeightMap extends AbstractHeightMap implements Savable
     public void read( JmeImporter im ) throws IOException
     {
         InputCapsule ic = im.getCapsule( this );
-        ic.readInt( "size", 0 );
-        ic.readFloat( "heightScale", 1.0f );
-        ic.readFloat( "filter", 0.5f );
-        ic.readFloatArray( "heightData", null );
+        size = ic.readInt( "size", 0 );
+        heightScale = ic.readFloat( "heightScale", 1.0f );
+        filter = ic.readFloat( "filter", 0.5f );
+        heightData = ic.readFloatArray( "heightData", null );
     }
 }
