@@ -5,6 +5,7 @@ import java.util.logging.Logger;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.pm.ActivityInfo;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.view.SurfaceView;
@@ -64,10 +65,24 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
      */
     protected String exitDialogMessage = "Use your home key to bring this app into the background or exit to terminate it.";
 
+    /**
+     * Set the screen orientation, default is SENSOR
+     * ActivityInfo.SCREEN_ORIENTATION_* constants
+     * package android.content.pm.ActivityInfo
+     *  
+     *   SCREEN_ORIENTATION_UNSPECIFIED
+     *   SCREEN_ORIENTATION_LANDSCAPE
+     *   SCREEN_ORIENTATION_PORTRAIT
+     *   SCREEN_ORIENTATION_USER
+     *   SCREEN_ORIENTATION_BEHIND
+     *   SCREEN_ORIENTATION_SENSOR (default)
+     *   SCREEN_ORIENTATION_NOSENSOR
+     */
+    protected int screenOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR;
           
     protected OGLESContext ctx;
     protected GLSurfaceView view;
-    
+    protected boolean isGLThreadPaused = true;
     final private String ESCAPE_EVENT = "TouchEscape"; 
 
     @Override
@@ -81,7 +96,9 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
         WindowManager.LayoutParams.FLAG_FULLSCREEN);
-
+        
+        setRequestedOrientation(screenOrientation);
+                     
         AppSettings settings = new AppSettings(true);
         AndroidInput input = new AndroidInput(this);
                 
@@ -110,7 +127,8 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
 
 
     @Override
-    protected void onRestart(){
+    protected void onRestart()
+    {
         super.onRestart(); 
         if (app != null)
             app.restart();
@@ -119,37 +137,44 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
     
 
     @Override
-    protected void onStart(){
+    protected void onStart()
+    {
         super.onStart();
         logger.info("onStart");
     }
     
     @Override
-    protected void onResume() {
+    protected void onResume() 
+    {
         super.onResume();
         if (view != null)
             view.onResume();
+        isGLThreadPaused = false;
         logger.info("onResume");
     }
 
     @Override
-    protected void onPause() {
+    protected void onPause() 
+    {
         super.onPause();
         if (view != null)
             view.onPause();
+        isGLThreadPaused = true;
         logger.info("onPause");
     }
     
     @Override
-    protected void onStop(){
+    protected void onStop()
+    {
         super.onStop();
         logger.info("onStop");
     }
 
     @Override
-    protected void onDestroy(){
+    protected void onDestroy()
+    {
         if (app != null)
-            app.stop(true);
+            app.stop(! isGLThreadPaused);
         super.onDestroy();                
         logger.info("onDestroy");
     }
