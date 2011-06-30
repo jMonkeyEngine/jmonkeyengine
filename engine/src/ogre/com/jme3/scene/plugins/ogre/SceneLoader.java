@@ -32,9 +32,9 @@
 
 package com.jme3.scene.plugins.ogre;
 
+import com.jme3.scene.plugins.ogre.matext.OgreMaterialKey;
 import com.jme3.material.MaterialList;
 import com.jme3.asset.AssetInfo;
-import com.jme3.asset.AssetKey;
 import com.jme3.asset.AssetLoader;
 import com.jme3.asset.AssetManager;
 import com.jme3.asset.AssetNotFoundException;
@@ -215,7 +215,7 @@ public class SceneLoader extends DefaultHandler implements AssetLoader {
             assert elementStack.peek().equals("item");
             String matFile = folderName+attribs.getValue("name");
             try {
-                materialList = (MaterialList) assetManager.loadAsset(matFile);
+                materialList = (MaterialList) assetManager.loadAsset(new OgreMaterialKey(matFile));
             } catch (AssetNotFoundException ex){
                 materialList = null;
                 logger.log(Level.WARNING, "Cannot locate material file: {0}", matFile);
@@ -350,7 +350,7 @@ public class SceneLoader extends DefaultHandler implements AssetLoader {
 
             try {
                 materialList = (MaterialList) 
-                      assetManager.loadAsset(new AssetKey(sceneName+".material"));
+                      assetManager.loadAsset(new OgreMaterialKey(sceneName+".material"));
             } catch (AssetNotFoundException ex){
                 logger.log(Level.WARNING, "Cannot locate material file {0}", ex.getMessage());
             }

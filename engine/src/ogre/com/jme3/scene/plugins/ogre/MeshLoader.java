@@ -31,6 +31,7 @@
  */
 package com.jme3.scene.plugins.ogre;
 
+import com.jme3.scene.plugins.ogre.matext.OgreMaterialKey;
 import com.jme3.animation.AnimControl;
 import com.jme3.animation.BoneAnimation;
 import com.jme3.animation.SkeletonControl;
@@ -46,7 +47,6 @@ import com.jme3.renderer.queue.RenderQueue.Bucket;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
-import com.jme3.scene.Spatial.CullHint;
 import com.jme3.scene.UserData;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.VertexBuffer.Format;
@@ -788,7 +788,7 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
                 materialList = meshKey.getMaterialList();
             } else {
                 try {
-                    materialList = (MaterialList) assetManager.loadAsset(folderName + meshName + ".material");
+                    materialList = (MaterialList) assetManager.loadAsset(new OgreMaterialKey(folderName + meshName + ".material"));
                 } catch (AssetNotFoundException e) {
                     logger.log(Level.WARNING, "Cannot locate {0}{1}.material for model {2}{3}.{4}", new Object[]{folderName, meshName, folderName, meshName, ext});
                 }
