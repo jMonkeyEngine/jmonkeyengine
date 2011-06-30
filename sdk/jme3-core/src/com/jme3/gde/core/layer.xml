@@ -5,9 +5,9 @@
         <folder name="CodelessProjects">
             <file name="com-jme3-gde-core-codeless-wizard-CodelessProjectWizardAction.instance">
                 <attr name="delegate" methodvalue="org.openide.awt.Actions.inject"/>
-                <attr name="displayName" bundlevalue="com.jme3.gde.core.codeless.wizard.Bundle#CTL_Codeless_Project"/>
+                <attr name="displayName" bundlevalue="com.jme3.gde.core.codeless.Bundle#CTL_Codeless_Project"/>
                 <attr name="iconBase" stringvalue="com/jme3/gde/core/assets/actions/jme-logo.png"/>
-                <attr name="injectable" stringvalue="com.jme3.gde.core.codeless.wizard.CodelessProjectWizardAction"/>
+                <attr name="injectable" stringvalue="com.jme3.gde.core.codeless.CodelessProjectWizardAction"/>
                 <attr name="noIconInMenu" boolvalue="false"/>
             </file>
         </folder>
