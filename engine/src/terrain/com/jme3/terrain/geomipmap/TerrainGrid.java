@@ -22,6 +22,7 @@ import com.jme3.math.Vector3f;
 import com.jme3.terrain.geomipmap.lodcalc.LodCalculatorFactory;
 import com.jme3.terrain.geomipmap.lodcalc.LodDistanceCalculatorFactory;
 import com.jme3.terrain.heightmap.HeightMapGrid;
+import com.jme3.terrain.heightmap.RawHeightMap;
 
 /**
  * @author Anthyon
@@ -38,6 +39,8 @@ public class TerrainGrid extends TerrainQuad {
     private Map<String, TerrainGridListener> listeners = new HashMap<String, TerrainGridListener>();
     private Material material;
     private LRUCache<Vector3f, TerrainQuad> cache = new LRUCache<Vector3f, TerrainQuad>(16);
+    private RigidBodyControl[] quadControls;
+    private PhysicsSpace space;
 
     private class UpdateQuadCache implements Runnable {
 
@@ -154,25 +157,52 @@ public class TerrainGrid extends TerrainQuad {
 
     protected void removeQuad(int idx) {
         if (this.getQuad(idx) != null) {
+            if (quadControls != null) {
+                this.getQuad(idx).removeControl(RigidBodyControl.class);
+            }
             this.detachChild(this.getQuad(idx));
         }
     }
 
-    protected void moveQuad(int from, int to) {
-        this.removeQuad(to);
-        TerrainQuad fq = this.getQuad(from);
-        fq.setQuadrant((short) to);
-        fq.setLocalTranslation(this.quadOrigins[to - 1]);
-    }
-
-    protected void attachQuadAt(TerrainQuad q, int quadrant) {
+    protected void attachQuadAt(TerrainQuad q, int quadrant, Vector3f cam) {
         //q.setMaterial(this.material);
-        q.setLocalTranslation(quadOrigins[quadrant - 1]);
+        //q.setLocalTranslation(quadOrigins[quadrant - 1]);
         q.setQuadrant((short) quadrant);
         this.attachChild(q);
+
+        q.setLocalTranslation(cam.mult(this.quadSize).add(quadOrigins[quadrant-1]));
+
+        if (quadControls != null) {
+            quadControls[quadrant - 1].setEnabled(false);
+            quadControls[quadrant - 1].setCollisionShape(new HeightfieldCollisionShape(q.getHeightMap(), getLocalScale()));
+            q.addControl(quadControls[quadrant - 1]);
+            space.addAll(q);
+            quadControls[quadrant - 1].setEnabled(true);
+            //quadControls[quadrant - 1].setPhysicsLocation(cam.add(this.quadOrigins[quadrant - 1]));
+        } else {
+        }
     }
 
     private void updateChildrens(Vector3f cam) {
+        RigidBodyControl control = getControl(RigidBodyControl.class);
+        if (control != null) {
+            this.space = control.getPhysicsSpace();
+            space.remove(this);
+            this.removeControl(control);
+            this.quadControls = new RigidBodyControl[4];
+
+            for (int i = 0; i < 4; i++) {
+                int collisionGroupsCollideWith = control.getCollideWithGroups();
+                int collisionGroups = control.getCollisionGroup();
+                quadControls[i] = new RigidBodyControl(new HeightfieldCollisionShape(new float[quadSize * quadSize], getLocalScale()), 0);
+                quadControls[i].setCollideWithGroups(collisionGroupsCollideWith);
+                quadControls[i].setCollisionGroup(collisionGroups);
+                //quadControls[i].setPhysicsSpace(space);
+                //this.addControl(quadControls[i]);
+                //space.add(quadControls[i]);
+            }
+        }
+
         TerrainQuad q1 = cache.get(cam.add(quadIndex[5]));
         TerrainQuad q2 = cache.get(cam.add(quadIndex[6]));
         TerrainQuad q3 = cache.get(cam.add(quadIndex[9]));
@@ -225,37 +255,19 @@ public class TerrainGrid extends TerrainQuad {
 
         executor.execute(new UpdateQuadCache(cam));
 
-        RigidBodyControl control = getControl(RigidBodyControl.class);
-        PhysicsSpace space = null;
-        if (control != null) {
-            space = control.getPhysicsSpace();
-            space.remove(this);
-            this.removeControl(control);
-        }
 
         this.removeQuad(1);
         this.removeQuad(2);
         this.removeQuad(3);
         this.removeQuad(4);
 
-        attachQuadAt(q1, 1);
-        attachQuadAt(q2, 2);
-        attachQuadAt(q3, 3);
-        attachQuadAt(q4, 4);
+        attachQuadAt(q1, 1, cam);
+        attachQuadAt(q2, 2, cam);
+        attachQuadAt(q3, 3, cam);
+        attachQuadAt(q4, 4, cam);
 
         this.currentCell = cam;
-        this.setLocalTranslation(cam.mult(this.getLocalScale().mult(this.quadSize-1)));
         this.updateModelBound();
-
-        if (control != null) {
-            int collisionGroupsCollideWith = control.getCollideWithGroups();
-            int collisionGroups = control.getCollisionGroup();
-            control = new RigidBodyControl(new HeightfieldCollisionShape(getHeightMap(), getLocalScale()), 0);
-            control.setCollideWithGroups(collisionGroupsCollideWith);
-            control.setCollisionGroup(collisionGroups);
-            this.addControl(control);
-            space.add(this);
-        }
     }
 
     public void addListener(String id, TerrainGridListener listener) {
