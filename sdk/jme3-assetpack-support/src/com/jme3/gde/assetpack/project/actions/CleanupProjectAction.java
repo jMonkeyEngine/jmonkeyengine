@@ -39,6 +39,7 @@ public final class CleanupProjectAction implements Action {
                 if ("png".equalsIgnoreCase(fileObject.getExt())
                         || "jpg".equalsIgnoreCase(fileObject.getExt())
                         || "dds".equalsIgnoreCase(fileObject.getExt())
+                        || "dae".equalsIgnoreCase(fileObject.getExt())
                         || "bmp".equalsIgnoreCase(fileObject.getExt())) {
                     for (String path : paths) {
                         if (fileObject.getPath().endsWith(path)) {

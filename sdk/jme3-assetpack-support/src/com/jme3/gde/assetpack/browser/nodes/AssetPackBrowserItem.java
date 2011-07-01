@@ -5,6 +5,7 @@
 package com.jme3.gde.assetpack.browser.nodes;
 
 import com.jme3.gde.assetpack.actions.AddAssetAction;
+import com.jme3.gde.assetpack.actions.AddToProjectAction;
 import com.jme3.gde.assetpack.actions.PreviewAssetAction;
 import com.jme3.gde.assetpack.browser.AssetPackLibrary;
 import com.jme3.gde.assetpack.browser.properties.ElementAttributeProperty;
@@ -45,11 +46,13 @@ public class AssetPackBrowserItem extends AbstractNode {
     private Project project;
     private PreviewAssetAction previewAction;
     private AddAssetAction addAction;
+    private AddToProjectAction addProjectAction;
 
     public AssetPackBrowserItem(Element item, Project proj) {
         super(Children.LEAF, proj != null ? Lookups.fixed(item, proj, proj.getLookup().lookup(ProjectAssetManager.class)) : Lookups.fixed(item));
         addAction = new AddAssetAction(this);
         previewAction = new PreviewAssetAction(this);
+        addProjectAction = new AddToProjectAction(this);
         this.item = item;
         this.project = proj;
         setName(item.getAttribute("name"));
@@ -75,6 +78,7 @@ public class AssetPackBrowserItem extends AbstractNode {
     public Action[] getActions(boolean context) {
         if (project.getLookup().lookup(AssetPackLibrary.class) != null) {
             return new Action[]{
+                        addProjectAction,
                         addAction,
                         previewAction
                     };
@@ -88,7 +92,7 @@ public class AssetPackBrowserItem extends AbstractNode {
 //        if (project.getLookup().lookup(AssetPackLibrary.class) != null) {
 //            return addAction;
 //        } else {
-            return previewAction;
+        return previewAction;
 //        }
     }
 

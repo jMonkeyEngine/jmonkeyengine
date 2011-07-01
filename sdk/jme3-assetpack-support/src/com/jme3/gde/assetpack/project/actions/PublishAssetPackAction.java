@@ -76,6 +76,7 @@ public final class PublishAssetPackAction implements Action {
         try {
             String outFilename = context.getProjectDirectory().getPath() + "/" + wiz.getProperty("filename");
             ZipOutputStream out = new ZipOutputStream(new FileOutputStream(new File(outFilename)));
+            out.setLevel(9);
             zipDir(((AssetPackProject) context).getProjectDirectory(), out, (String) wiz.getProperty("filename"));
             out.close();
         } catch (IOException e) {
