@@ -83,7 +83,8 @@ public abstract class AbstractStatefulGLToolAction {
                 }
 
             };
-            manager.addEdit(this, undoer);
+            if (manager != null) // this is a temporary check, it should never be null but occasionally is
+                manager.addEdit(this, undoer);
             setModified(rootNode, dataObject);
         }
 

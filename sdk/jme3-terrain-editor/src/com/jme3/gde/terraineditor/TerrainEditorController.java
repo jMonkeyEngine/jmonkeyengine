@@ -364,24 +364,6 @@ public class TerrainEditorController {
         return tex;
     }
 
-    private Texture getAlphaTexture(final int layer) {
-        try {
-            Texture tex =
-                SceneApplication.getApplication().enqueue(new Callable<Texture>() {
-                    public Texture call() throws Exception {
-                        Terrain terrain = (Terrain) getTerrain(null);
-                        return doGetAlphaTexture(terrain, layer);
-                    }
-                }).get();
-                return tex;
-        } catch (InterruptedException ex) {
-            Exceptions.printStackTrace(ex);
-        } catch (ExecutionException ex) {
-            Exceptions.printStackTrace(ex);
-        }
-        return null;
-    }
-
     private Texture doGetAlphaTexture(Terrain terrain, int alphaLayer) {
         if (terrain == null)
             return null;
@@ -501,25 +483,7 @@ public class TerrainEditorController {
         setNeedsSave(true);
     }
 
-    /**
-     * Remove the normal map at the specified layer.
-     * @param layer
-     */
-    public void removeNormalMap(final int layer) {
-        try {
-            SceneApplication.getApplication().enqueue(new Callable() {
-                public Object call() throws Exception {
-                    doRemoveNormalMap(layer);
-                    return null;
-                }
-            }).get();
-        } catch (InterruptedException ex) {
-            Exceptions.printStackTrace(ex);
-        } catch (ExecutionException ex) {
-            Exceptions.printStackTrace(ex);
-        }
-    }
-
+    
     private void doRemoveNormalMap(int layer) {
         Terrain terrain = (Terrain) getTerrain(null);
         if (terrain == null)
@@ -601,17 +565,16 @@ public class TerrainEditorController {
                 terrain.getMaterial().clearParam("NormalMap");
             else
                 terrain.getMaterial().clearParam("NormalMap_"+layer);
-            return;
+        } else {
+            Texture tex = SceneApplication.getApplication().getAssetManager().loadTexture(texturePath);
+            tex.setWrap(WrapMode.Repeat);
+
+            if (layer == 0)
+                terrain.getMaterial().setTexture("NormalMap", tex);
+            else
+                terrain.getMaterial().setTexture("NormalMap_"+layer, tex);
         }
-
-        Texture tex = SceneApplication.getApplication().getAssetManager().loadTexture(texturePath);
-        tex.setWrap(WrapMode.Repeat);
-        
-        if (layer == 0)
-            terrain.getMaterial().setTexture("NormalMap", tex);
-        else
-            terrain.getMaterial().setTexture("NormalMap_"+layer, tex);
-
+        enableTextureButtons();
         setNeedsSave(true);
     }
 
@@ -793,25 +756,23 @@ public class TerrainEditorController {
         if (assetFolder == null)
             throw new IllegalStateException("AssetManager was not a ProjectAssetManager. Could not locate image save directories.");
 
-        Texture alpha = doGetAlphaTexture(terrain, 0);
-        BufferedImage bi = ImageToAwt.convert(alpha.getImage(), false, true, 0);
-        File imageFile = new File(assetFolder+alpha.getKey().getName());
+        Texture alpha1 = doGetAlphaTexture(terrain, 0);
+        BufferedImage bi1 = ImageToAwt.convert(alpha1.getImage(), false, true, 0);
+        File imageFile1 = new File(assetFolder+alpha1.getKey().getName());
+        Texture alpha2 = doGetAlphaTexture(terrain, 1);
+        BufferedImage bi2 = ImageToAwt.convert(alpha2.getImage(), false, true, 0);
+        File imageFile2 = new File(assetFolder+alpha2.getKey().getName());
+        Texture alpha3 = doGetAlphaTexture(terrain, 2);
+        BufferedImage bi3 = ImageToAwt.convert(alpha3.getImage(), false, true, 0);
+        File imageFile3 = new File(assetFolder+alpha3.getKey().getName());
         try {
-            ImageIO.write(bi, "png", imageFile);
+            ImageIO.write(bi1, "png", imageFile1);
+            ImageIO.write(bi2, "png", imageFile2);
+            ImageIO.write(bi3, "png", imageFile3);
         } catch (IOException ex) {
             Exceptions.printStackTrace(ex);
         }
         
-        /*alpha = doGetAlphaTexture(1);
-        bi = ImageToAwt.convert(alpha.getImage(), false, true, 0);
-        imageFile = new File(alpha.getKey().getName());
-        ImageIO.write(bi, "png", imageFile);
-
-        alpha = doGetAlphaTexture(2);
-        bi = ImageToAwt.convert(alpha.getImage(), false, true, 0);
-        imageFile = new File(alpha.getKey().getName());
-        ImageIO.write(bi, "png", imageFile);
-        */
     }
 
     /**
@@ -917,18 +878,24 @@ public class TerrainEditorController {
      * on how many textures are currently being used.
      */
     protected void enableTextureButtons() {
-        final int numAvailable = MAX_TEXTURES-doGetNumUsedTextures();
-        final boolean add = doGetNumDiffuseTextures() < MAX_DIFFUSE && numAvailable > 0;
-        final boolean remove = doGetNumDiffuseTextures() > 1;
-        
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                topComponent.enableAddTextureButton(add);
-                topComponent.enableRemoveTextureButton(remove);
-                topComponent.updateTextureCountLabel(numAvailable);
-                topComponent.setAddNormalTextureEnabled(numAvailable>0);
+        SceneApplication.getApplication().enqueue(new Callable<Object>() {
+            public Object call() throws Exception {
+                final int numAvailable = MAX_TEXTURES-doGetNumUsedTextures();
+                final boolean add = doGetNumDiffuseTextures() < MAX_DIFFUSE && numAvailable > 0;
+                final boolean remove = doGetNumDiffuseTextures() > 1;
+
+                java.awt.EventQueue.invokeLater(new Runnable() {
+                    public void run() {
+                        topComponent.enableAddTextureButton(add);
+                        topComponent.enableRemoveTextureButton(remove);
+                        topComponent.updateTextureCountLabel(numAvailable);
+                        topComponent.setAddNormalTextureEnabled(numAvailable>0);
+                    }
+                });
+                return null;
             }
         });
+        
     }
     
     /**
