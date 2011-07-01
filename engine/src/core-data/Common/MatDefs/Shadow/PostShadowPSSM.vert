@@ -1,8 +1,3 @@
-///////////
-
-
-
-
 uniform mat4 m_LightViewProjectionMatrix0;
 uniform mat4 m_LightViewProjectionMatrix1;
 uniform mat4 m_LightViewProjectionMatrix2;
@@ -11,14 +6,14 @@ uniform mat4 m_LightViewProjectionMatrix3;
 uniform mat4 g_WorldViewProjectionMatrix;
 uniform mat4 g_WorldMatrix;
 
-out vec4 projCoord0;
-out vec4 projCoord1;
-out vec4 projCoord2;
-out vec4 projCoord3;
+varying vec4 projCoord0;
+varying vec4 projCoord1;
+varying vec4 projCoord2;
+varying vec4 projCoord3;
 
-out float shadowPosition;
+varying float shadowPosition;
 
-in vec3 inPosition;
+attribute vec3 inPosition;
 
 const mat4 biasMat = mat4(0.5, 0.0, 0.0, 0.0,
                           0.0, 0.5, 0.0, 0.0,
