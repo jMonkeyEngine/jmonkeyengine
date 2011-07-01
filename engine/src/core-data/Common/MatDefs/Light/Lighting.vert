@@ -99,6 +99,9 @@ void lightComputeDir(in vec3 worldPos, in vec4 color, in vec4 position, out vec4
   }
 
   float lightComputeSpecular(in vec3 norm, in vec3 viewdir, in vec3 lightdir, in float shiny){
+      if (shiny <= 1.0){
+          return 0.0;
+      }
       #ifndef LOW_QUALITY
         vec3 H = (viewdir + lightdir) * vec3(0.5);
         return pow(max(dot(H, norm), 0.0), shiny);

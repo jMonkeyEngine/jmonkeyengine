@@ -125,6 +125,12 @@ public class LwjglDisplay extends LwjglAbstractDisplay {
         }
         
         Display.setVSyncEnabled(settings.isVSync());
+        
+        if (created.get()){
+            Display.releaseContext();
+            Display.makeCurrent();
+            Display.update();
+        }
 
         if (!created.get() || pixelFormatChanged){
             ContextAttribs attr = createContextAttribs();
