@@ -13,9 +13,9 @@ MaterialDef Sky Plane {
         }
 
         WorldParameters {
-            NormalMatrix
             ViewMatrix
             ProjectionMatrix
+            WorldMatrix
         }
 
         Defines {

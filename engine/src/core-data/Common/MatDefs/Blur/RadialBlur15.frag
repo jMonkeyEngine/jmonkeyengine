@@ -4,7 +4,9 @@ uniform COLORTEXTURE m_Texture;
 uniform float m_SampleDist;
 uniform float m_SampleStrength;
 uniform float m_Samples[10];
+
 in vec2 texCoord;
+out vec4 outFragColor;
 
 void main(void)
 {
@@ -43,6 +45,6 @@ void main(void)
     t = clamp( t ,0.0,1.0); //0 &lt;= t &lt;= 1
 
     //Blend the original color with the averaged pixels
-    gl_FragColor =mix( colorRes, sum, t );
+    outFragColor =mix( colorRes, sum, t );
      
 }

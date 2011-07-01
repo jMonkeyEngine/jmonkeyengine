@@ -14,7 +14,7 @@ uniform float m_Scale;
 uniform float m_Bias;
 uniform vec2[4] m_Samples;
 
-varying vec2 texCoord;
+in vec2 texCoord;
 
 float depthv;
 

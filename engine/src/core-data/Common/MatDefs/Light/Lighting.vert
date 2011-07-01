@@ -16,6 +16,10 @@ uniform vec4 g_LightPosition;
 uniform vec4 g_AmbientLightColor;
 
 varying vec2 texCoord;
+#ifdef SEPARATE_TEXCOORD
+  varying vec2 texCoord2;
+  attribute vec2 inTexCoord2;
+#endif
 
 varying vec4 AmbientSum;
 varying vec4 DiffuseSum;
@@ -118,6 +122,9 @@ void main(){
    vec4 pos = vec4(inPosition, 1.0);
    gl_Position = g_WorldViewProjectionMatrix * pos;
    texCoord = inTexCoord;
+   #ifdef SEPARATE_TEXCOORD
+      texCoord2 = inTexCoord2;
+   #endif
 
    vec3 wvPosition = (g_WorldViewMatrix * pos).xyz;
    vec3 wvNormal  = normalize(g_NormalMatrix * inNormal);

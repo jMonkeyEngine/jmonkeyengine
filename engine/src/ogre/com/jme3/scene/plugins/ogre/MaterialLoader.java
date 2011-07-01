@@ -63,7 +63,7 @@ public class MaterialLoader implements AssetLoader {
     private String folderName;
     private AssetManager assetManager;
     private Scanner scan;
-    private ColorRGBA ambient, diffuse, specular;
+    private ColorRGBA ambient, diffuse, specular, emissive;
     private Texture texture;
     private String texName;
     private String matName;
@@ -72,6 +72,7 @@ public class MaterialLoader implements AssetLoader {
     private boolean blend = false;
     private boolean twoSide = false;
     private boolean noLight = false;
+    private boolean readTexUnit = false;
 
     private String readString(String end){
         scan.useDelimiter(end);
@@ -191,7 +192,7 @@ public class MaterialLoader implements AssetLoader {
         }
     }
 
-    private void readTextureUnit(){
+    private void readTextureUnit(boolean skipIt){
         // name is optional
         if (!scan.hasNext("\\{")){
             texName = readString("\\{");
@@ -200,10 +201,16 @@ public class MaterialLoader implements AssetLoader {
         }
         scan.next(); // skip "{"
 
-        texture = new Texture2D();
+        if (!skipIt){
+            texture = new Texture2D();
+        }
 
         while (!scan.hasNext("\\}")){
-            readTextureUnitStatement();
+            if (skipIt){
+                readString("\n");
+            }else{
+                readTextureUnitStatement();
+            }
         }
         scan.next(); // skip "}"
     }
@@ -231,6 +238,8 @@ public class MaterialLoader implements AssetLoader {
             }else{
                ambient = readColor();
             }
+        }else if (keyword.equals("emissive")){
+            emissive = readColor();
         }else if (keyword.equals("specular")){
             specular = new ColorRGBA();
             specular.r = scan.nextFloat();
@@ -247,7 +256,11 @@ public class MaterialLoader implements AssetLoader {
                 shinines = unknown;
             }
         }else if (keyword.equals("texture_unit")){
-            readTextureUnit();
+            readTextureUnit(readTexUnit);
+            // After reading the first texunit, ignore the rest
+            if (!readTexUnit) {
+                readTexUnit = true;
+            }
         }else if (keyword.equals("scene_blend")){
             if (scan.hasNextInt()){
                 readString("\n"); // blender2ogre workaround
@@ -292,6 +305,10 @@ public class MaterialLoader implements AssetLoader {
             name = readString("\\{");
         }
         scan.next(); // skip "{"
+        
+        // Has not yet read a tex unit for this pass
+        readTexUnit = false;
+        
         while (!scan.hasNext("\\}")){
             readPassStatement();
         }
@@ -370,11 +387,12 @@ public class MaterialLoader implements AssetLoader {
         }
 
         if (!noLight){
-            if (shinines > 0f)
+            if (shinines > 0f) {
                 mat.setFloat("Shininess", shinines);
-            else
+            } else {
                 mat.setFloat("Shininess", 16f); // set shininess to some value anyway..
-
+            }
+            
             if (vcolor)
                 mat.setBoolean("UseVertexColor", true);
 
@@ -399,15 +417,25 @@ public class MaterialLoader implements AssetLoader {
             }else{
                 mat.setColor("Specular", ColorRGBA.Black);
             }
+            
+            if (emissive != null){
+                mat.setColor("GlowColor", emissive);
+            }
         }else{
-            if (vcolor)
+            if (vcolor) {
                 mat.setBoolean("VertexColor", true);
+            }
 
-            if (texture != null)
+            if (texture != null) {
                 mat.setTexture("ColorMap", texture);
+            }
 
             if(diffuse != null){
                 mat.setColor("Color", diffuse);
+            }
+            
+            if (emissive != null){
+                mat.setColor("GlowColor", emissive);
             }
         }
 

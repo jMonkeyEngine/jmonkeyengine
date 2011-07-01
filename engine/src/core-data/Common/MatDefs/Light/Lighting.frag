@@ -3,6 +3,9 @@
 //#define HQ_ATTENUATION
 
 varying vec2 texCoord;
+#ifdef SEPARATE_TEXCOORD
+  varying vec2 texCoord2;
+#endif
 
 varying vec4 AmbientSum;
 varying vec4 DiffuseSum;
@@ -24,6 +27,10 @@ varying vec4 SpecularSum;
 
 #ifdef PARALLAXMAP
   uniform sampler2D m_ParallaxMap;
+#endif
+
+#ifdef LIGHTMAP
+  uniform sampler2D m_LightMap;
 #endif
   
 #ifdef NORMALMAP
@@ -168,6 +175,17 @@ void main(){
       vec4 specularColor = texture2D(m_SpecularMap, newTexCoord);
     #else
       vec4 specularColor = vec4(1.0);
+    #endif
+
+    #ifdef LIGHTMAP
+       vec3 lightMapColor;
+       #ifdef SEPARATE_TEXCOORD
+          lightMapColor = texture2D(m_LightMap, texCoord2).rgb;
+       #else
+          lightMapColor = texture2D(m_LightMap, texCoord).rgb;
+       #endif
+       specularColor.rgb *= lightMapColor;
+       diffuseColor.rgb  *= lightMapColor;
     #endif
 
     #ifdef VERTEX_LIGHTING

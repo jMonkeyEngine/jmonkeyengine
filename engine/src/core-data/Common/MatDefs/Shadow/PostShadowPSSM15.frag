@@ -1,4 +1,4 @@
-#extension GL_ARB_texture_gather : enable
+﻿#extension GL_ARB_texture_gather : enable
 #extension GL_ARB_gpu_shader5 : enable
 
 #ifdef HARDWARE_SHADOWS

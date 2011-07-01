@@ -58,6 +58,7 @@ import com.jme3.shader.VarType;
 import com.jme3.texture.Image;
 import com.jme3.texture.Image.Format;
 import com.jme3.texture.Texture;
+import com.jme3.texture.Texture.MinFilter;
 import com.jme3.texture.Texture.WrapMode;
 import com.jme3.util.BufferUtils;
 
@@ -199,6 +200,7 @@ public class MaterialHelper extends AbstractBlenderHelper {
 		result.getAdditionalRenderState().setFaceCullMode(faceCullMode);
 
 		if (transparent) {
+            result.setTransparent(true);
 			result.getAdditionalRenderState().setBlendMode(BlendMode.Alpha);
 		}
 
@@ -249,9 +251,16 @@ public class MaterialHelper extends AbstractBlenderHelper {
 							Pointer pTex = (Pointer) textureLink.getFieldValue("tex");
 							Structure tex = pTex.fetchData(dataRepository.getInputStream()).get(0);
 							Texture texture = textureHelper.getTexture(tex, dataRepository);
+                                                        
+                            // NOTE: Enable mipmaps FOR ALL TEXTURES EVER
+                            texture.setMinFilter(MinFilter.Trilinear);
+                                                        
 							if (texture != null) {
 								if ((mapto & 0x01) != 0) {// Col
-									result.setBoolean("UseMaterialColors", Boolean.FALSE);
+                                    // Map to COLOR channel or DIFFUSE
+                                    // Set diffuse to white so it doesn't get multiplied by texture
+                                    result.setColor("Diffuse", ColorRGBA.White);
+									//result.setBoolean("UseMaterialColors", Boolean.FALSE);
 									// blending the texture with material color and texture's defined color
 									int blendType = ((Number) textureLink.getFieldValue("blendtype")).intValue();
 									float[] color = new float[] { ((Number) textureLink.getFieldValue("r")).floatValue(), ((Number) textureLink.getFieldValue("g")).floatValue(), ((Number) textureLink.getFieldValue("b")).floatValue() };
@@ -271,6 +280,7 @@ public class MaterialHelper extends AbstractBlenderHelper {
 									}
 								}
 								if ((mapto & 0x04) != 0) {// Spec
+                                    // Map to SPECULAR 
 									result.setTexture(TEXTURE_TYPE_SPECULAR, texture);
 								}
 								if ((mapto & 0x40) != 0) {// Emit

@@ -70,6 +70,12 @@ MaterialDef Phong Lighting {
         // Texture of the glowing parts of the material
         Texture2D GlowMap
 
+        // Set to Use Lightmap
+        Texture2D LightMap
+
+        // Set to use TexCoord2 for the lightmap sampling
+        Boolean SeparateTexCoord
+
         // The glow color of the object
         Color GlowColor
 
@@ -120,6 +126,8 @@ MaterialDef Phong Lighting {
             PARALLAXMAP : ParallaxMap
             ALPHAMAP : AlphaMap
             COLORRAMP : ColorRamp
+            LIGHTMAP : LightMap
+            SEPARATE_TEXCOORD : SeparateTexCoord
 
             USE_REFLECTION : EnvMap
             SPHERE_MAP : SphereMap

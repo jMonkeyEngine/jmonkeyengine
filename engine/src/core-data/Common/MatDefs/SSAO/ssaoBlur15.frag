@@ -10,7 +10,7 @@ uniform float m_XScale;
 uniform float m_YScale;
 uniform vec2 m_FrustumNearFar;
 
-varying vec2 texCoord;
+in vec2 texCoord;
 
 vec4 getResult(vec4 color){
  

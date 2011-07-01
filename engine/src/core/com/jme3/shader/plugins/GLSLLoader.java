@@ -146,11 +146,11 @@ public class GLSLLoader implements AssetLoader {
 
     private DependencyNode nextIndependentNode(List<DependencyNode> checkedNodes){
         Collection<DependencyNode> allNodes = dependCache.values();
-        if (allNodes == null || allNodes.size() == 0)
+        if (allNodes == null || allNodes.isEmpty())
             return null;
         
         for (DependencyNode node : allNodes){
-            if (node.dependsOn.size() == 0){
+            if (node.dependsOn.isEmpty()){
                 return node;
             }
         }

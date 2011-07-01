@@ -45,6 +45,7 @@ import com.jme3.material.Material;
 import com.jme3.math.FastMath;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
+import com.jme3.renderer.queue.RenderQueue.Bucket;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.VertexBuffer;
@@ -365,6 +366,9 @@ public class MeshHelper extends AbstractBlenderHelper {
 					material = nonTexturedMaterials[materialNumber];
 				}
 				geometry.setMaterial(material);
+                if (material.isTransparent()){
+                    geometry.setQueueBucket(Bucket.Transparent);
+                }
 			} else {
 				geometry.setMaterial(dataRepository.getDefaultMaterial());
 			}

@@ -261,15 +261,13 @@ public class SkeletonLoader extends DefaultHandler implements AssetLoader {
             
             // Added by larynx 25.06.2011
             // Android needs the namespace aware flag set to true 
-            XMLReader xr;
-            if (JmeSystem.getFullName().toUpperCase().contains("ANDROID")) {
-                SAXParserFactory factory = SAXParserFactory.newInstance();
-                factory.setNamespaceAware(true);
-                xr = factory.newSAXParser().getXMLReader();                
-            } else {
-                xr = XMLReaderFactory.createXMLReader();
-            }
-                                    
+            // Kirill 30.06.2011
+            // Now, hack is applied for both desktop and android to avoid
+            // checking with JmeSystem.
+            SAXParserFactory factory = SAXParserFactory.newInstance();
+            factory.setNamespaceAware(true);
+            XMLReader xr = factory.newSAXParser().getXMLReader();  
+                         
             xr.setContentHandler(this);
             xr.setErrorHandler(this);
             InputStreamReader r = new InputStreamReader(in);

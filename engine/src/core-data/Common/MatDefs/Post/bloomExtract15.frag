@@ -6,18 +6,17 @@ uniform float m_ExposurePow;
 uniform float m_ExposureCutoff;
 
 in vec2 texCoord;
+out vec4 outFragColor;
 
 #ifdef HAS_GLOWMAP
   uniform sampler2D m_GlowMap;
 #endif
 
 void main(){
-   vec4 color;
+   vec4 color = vec4(0.0);
    #ifdef DO_EXTRACT
      color = getColor(m_Texture, texCoord);
-     if ( (color.r + color.g + color.b) / 3.0 < m_ExposureCutoff ) {
-         color = vec4(0.0);
-      }else{
+     if ( (color.r + color.g + color.b) / 3.0 >= m_ExposureCutoff ) {
          color = pow(color, vec4(m_ExposurePow));
       }
    #endif
@@ -28,5 +27,5 @@ void main(){
         color += glowColor;
    #endif
    
-   gl_FragColor = color;
+   outFragColor = color;
 }

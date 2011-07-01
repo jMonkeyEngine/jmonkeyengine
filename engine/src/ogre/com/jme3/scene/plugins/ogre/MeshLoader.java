@@ -269,7 +269,7 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
         sharedMesh = new Mesh();
         vertCount = parseInt(vertexcount);
         usesSharedVerts = false;
-
+ 
         geom = null;
         mesh = sharedMesh;
     }
@@ -586,7 +586,6 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
             if (count == null) {
                 count = attribs.getValue("count");
             }
-
             startGeometry(count);
         } else if (qName.equals("vertexbuffer")) {
             startVertexBuffer(attribs);
@@ -617,6 +616,8 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
             // ok
         } else if (qName.equals("skeletonlink")) {
             startSkeleton(attribs.getValue("name"));
+        } else if (qName.equals("submeshnames")) {
+            // ok
         } else if (qName.equals("submeshname")) {
             startSubmeshName(attribs.getValue("index"), attribs.getValue("name"));
         } else if (qName.equals("mesh")) {
@@ -696,7 +697,7 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
         for (int i = 0; i < geoms.size(); i++) {
             Geometry g = geoms.get(i);
             Mesh m = g.getMesh();
-            if (sharedMesh != null && isUsingSharedVerts(geom)) {
+            if (sharedMesh != null && isUsingSharedVerts(g)) {
                 m.setBound(sharedMesh.getBound().clone());
             }
             model.attachChild(geoms.get(i));
@@ -797,14 +798,12 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
             
             // Added by larynx 25.06.2011
             // Android needs the namespace aware flag set to true                 
-            XMLReader xr;
-            if (JmeSystem.getFullName().toUpperCase().contains("ANDROID")) {
-                SAXParserFactory factory = SAXParserFactory.newInstance();
-                factory.setNamespaceAware(true);
-                xr = factory.newSAXParser().getXMLReader();                
-            } else {
-                xr = XMLReaderFactory.createXMLReader();
-            }
+            // Kirill 30.06.2011
+            // Now, hack is applied for both desktop and android to avoid
+            // checking with JmeSystem.
+            SAXParserFactory factory = SAXParserFactory.newInstance();
+            factory.setNamespaceAware(true);
+            XMLReader xr = factory.newSAXParser().getXMLReader();  
             
             xr.setContentHandler(this);
             xr.setErrorHandler(this);

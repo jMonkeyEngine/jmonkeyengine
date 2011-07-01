@@ -1,6 +1,5 @@
 uniform mat4 g_ViewMatrix;
 uniform mat4 g_ProjectionMatrix;
-uniform mat3 g_NormalMatrix;
 
 uniform vec3 m_NormalScale;
 
@@ -20,5 +19,6 @@ void main(){
     pos.w = 1.0;
     gl_Position = g_ProjectionMatrix * pos;
 
-    direction = normalize(inNormal * m_NormalScale);
+    vec4 normal = vec4(inNormal * m_NormalScale, 0.0);
+    direction = normalize( (g_WorldMatrix * normal).xyz );
 }

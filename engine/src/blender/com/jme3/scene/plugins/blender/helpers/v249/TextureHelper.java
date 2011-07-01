@@ -1033,9 +1033,9 @@ public class TextureHelper extends AbstractBlenderHelper {
 		data.rewind();
 		int width = texture.getImage().getWidth();
 		int height = texture.getImage().getHeight();
-		ByteBuffer newData = BufferUtils.createByteBuffer(width * height * 3);
+		ByteBuffer newData = BufferUtils.createByteBuffer(width * height * 4);
 
-		float[] resultPixel = new float[3];
+		float[] resultPixel = new float[4];
 		int dataIndex = 0;
 		while (data.hasRemaining()) {
 			float tin = this.setupMaterialColor(data, format, neg, materialColorClone);
@@ -1043,8 +1043,9 @@ public class TextureHelper extends AbstractBlenderHelper {
 			newData.put(dataIndex++, (byte) (resultPixel[0] * 255.0f));
 			newData.put(dataIndex++, (byte) (resultPixel[1] * 255.0f));
 			newData.put(dataIndex++, (byte) (resultPixel[2] * 255.0f));
+                        newData.put(dataIndex++, (byte) (1.0 * 255.0f));
 		}
-		return new Texture2D(new Image(Format.RGB8, width, height, newData));
+		return new Texture2D(new Image(Format.RGBA8, width, height, newData));
 	}
 
 	/**
@@ -1144,7 +1145,7 @@ public class TextureHelper extends AbstractBlenderHelper {
 			case RGBA16:
 			case RGBA16F:
 			case RGBA32F:
-				LOGGER.warning("Image type not yet supported for blending: " + imageFormat);
+				LOGGER.log(Level.WARNING, "Image type not yet supported for blending: {0}", imageFormat);
 				break;
 			default:
 				throw new IllegalStateException("Unknown image format type: " + imageFormat);
