@@ -648,7 +648,7 @@ void main(){
     //---------------------
     // normal calculations
     //---------------------
-    #if defined(NORMALMAP) || defined(NORMALMAP_1) || defined(NORMALMAP_2) || defined(NORMALMAP_3)
+    #if defined(NORMALMAP) || defined(NORMALMAP_1) || defined(NORMALMAP_2) || defined(NORMALMAP_3) || defined(NORMALMAP_4) || defined(NORMALMAP_5) || defined(NORMALMAP_6) || defined(NORMALMAP_7) || defined(NORMALMAP_8) || defined(NORMALMAP_9) || defined(NORMALMAP_10) || defined(NORMALMAP_11)
       #ifdef TRI_PLANAR_MAPPING
         vec3 normal = calculateNormalTriPlanar(wNormal, wVertex, texCoord);
       #else
