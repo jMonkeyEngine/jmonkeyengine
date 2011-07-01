@@ -33,6 +33,7 @@
 package com.jme3.scene.plugins.ogre.matext;
 
 import com.jme3.asset.AssetManager;
+import com.jme3.asset.TextureKey;
 import com.jme3.material.Material;
 import com.jme3.material.MaterialList;
 import com.jme3.scene.plugins.ogre.MaterialLoader;
@@ -73,7 +74,8 @@ public class MaterialExtensionLoader {
 
             String jmeParamName = matExt.getTextureMapping(aliasName);
 
-            Texture tex = assetManager.loadTexture(texturePath);
+            TextureKey key = new TextureKey(texturePath, false);
+            Texture tex = assetManager.loadTexture(key);
             if (tex == null)
                 throw new IOException("Cannot load texture: " + texturePath);
 
