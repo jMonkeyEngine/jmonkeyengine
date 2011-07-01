@@ -4,6 +4,7 @@
  */
 package com.jme3.gde.assetpack.actions;
 
+import com.jme3.gde.assetpack.AssetConfiguration;
 import com.jme3.gde.assetpack.AssetPackLoader;
 import com.jme3.gde.core.assets.ProjectAssetManager;
 import com.jme3.gde.core.scene.SceneApplication;
@@ -36,7 +37,7 @@ public final class PreviewAssetAction implements Action {
         Element assetElement = context.getLookup().lookup(Element.class);
         com.jme3.scene.Node node = new com.jme3.scene.Node("PreviewRootNode");
         Spatial model = null;
-        model = AssetPackLoader.loadAssetPackModel(assetElement, pm);
+        model = AssetPackLoader.loadAssetPackModel(pm, new AssetConfiguration(assetElement));
         node.attachChild(model);
         JmeNode jmeNode = NodeUtility.createNode(node);
         SceneApplication app = SceneApplication.getApplication();

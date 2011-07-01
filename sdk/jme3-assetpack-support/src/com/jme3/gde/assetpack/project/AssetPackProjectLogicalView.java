@@ -2,7 +2,9 @@ package com.jme3.gde.assetpack.project;
 
 import com.jme3.gde.assetpack.project.actions.PublishAssetPackAction;
 import com.jme3.gde.assetpack.browser.nodes.AssetPackBrowserFolder;
+import com.jme3.gde.assetpack.project.actions.CleanupProjectAction;
 import com.jme3.gde.assetpack.project.actions.ConvertOgreBinaryMeshesAction;
+import com.jme3.gde.assetpack.project.actions.ImportWorldForgeAction;
 import java.awt.Image;
 import java.util.LinkedList;
 import java.util.List;
@@ -57,14 +59,16 @@ class AssetPackProjectLogicalView implements LogicalViewProvider {
 
         @Override
         public Action[] getActions(boolean arg0) {
-            Action[] nodeActions = new Action[8];
+            Action[] nodeActions = new Action[9];
             nodeActions[0] = new PublishAssetPackAction(project);
             nodeActions[1] = new ConvertOgreBinaryMeshesAction(project);
-            nodeActions[2] = CommonProjectActions.copyProjectAction();
-            nodeActions[3] = CommonProjectActions.deleteProjectAction();
-            nodeActions[5] = CommonProjectActions.setAsMainProjectAction();
-            nodeActions[6] = CommonProjectActions.closeProjectAction();
-            nodeActions[7] = CommonProjectActions.customizeProjectAction();
+            nodeActions[2] = new ImportWorldForgeAction(project);
+            nodeActions[3] = new CleanupProjectAction(project);
+            nodeActions[4] = CommonProjectActions.copyProjectAction();
+            nodeActions[5] = CommonProjectActions.deleteProjectAction();
+            nodeActions[6] = CommonProjectActions.setAsMainProjectAction();
+            nodeActions[7] = CommonProjectActions.closeProjectAction();
+            nodeActions[8] = CommonProjectActions.customizeProjectAction();
             return nodeActions;
         }
 

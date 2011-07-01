@@ -28,7 +28,7 @@ public class OgreBinaryMeshDataObject extends SpatialAssetDataObject {
     @Override
     public Spatial loadAsset() {
         ProgressHandle handle = ProgressHandleFactory.createHandle("Converting OgreBinary");
-        handle.start(4);
+        handle.start();
         //mesh
         OgreXMLConvertOptions options = new OgreXMLConvertOptions(getPrimaryFile().getPath());
         options.setBinaryFile(true);
@@ -41,7 +41,7 @@ public class OgreBinaryMeshDataObject extends SpatialAssetDataObject {
             OgreXMLConvert conv2 = new OgreXMLConvert();
             conv2.doConvert(options2, handle);
         }
-        handle.progress(3);
+        handle.progress("Convert Model");
         ProjectAssetManager mgr = getLookup().lookup(ProjectAssetManager.class);
         if (mgr == null) {
             return null;

@@ -180,7 +180,7 @@ public class JmeSpatialChildren extends Children.Keys<Object> {
         } else if (key instanceof MeshGeometryPair) {
             MeshGeometryPair pair = (MeshGeometryPair) key;
             return new Node[]{new JmeMesh(pair.getGeometry(), pair.getMesh()).setReadOnly(readOnly)};
-        } else if (key instanceof Control) {
+        } else if (key instanceof Control && dataObject != null) {
             return new Node[]{new JmeGenericControl((Control) key, dataObject)};
         }
         return new Node[]{Node.EMPTY};

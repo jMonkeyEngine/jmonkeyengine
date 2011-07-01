@@ -43,6 +43,11 @@ public class DynamicLookup extends AbstractLookup{
     private static final long serialVersionUID = 1212314412L;
     private InstanceContent instanceContent;
 
+    public DynamicLookup() {
+        this.instanceContent = new InstanceContent();
+        instanceContent.add(this);
+    }
+
     public DynamicLookup(InstanceContent instanceContent) {
         super(instanceContent);
         this.instanceContent = instanceContent;

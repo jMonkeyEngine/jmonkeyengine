@@ -37,7 +37,7 @@ public class OgreXMLConvert {
         String[] cmdOptions = getCommandString(options);
         Process proc = null;
         if (!options.isBinaryFile()) {
-            handle.progress("Optimizing Mesh / Creating LOD meshes", 1);
+            handle.progress("Optimizing Mesh / Creating LOD meshes");
             //convert to binary + modify
             try {
                 proc = Runtime.getRuntime().exec(cmdOptions);
@@ -61,7 +61,7 @@ public class OgreXMLConvert {
                 return false;
             }
         }
-        handle.progress("Converting Binary Mesh", 2);
+        handle.progress("Converting Binary Mesh");
         //convert back to xml
         cmdOptions = getBackCommandString(options);
         try {

@@ -51,7 +51,7 @@ public final class AdvOgreXMLConvertAction implements ActionListener {
 
             public void run() {
                 ProgressHandle progressHandle = ProgressHandleFactory.createHandle("Converting OgreXML");
-                progressHandle.start(4);
+                progressHandle.start();
 
                 OgreXMLConvert converter = new OgreXMLConvert();
                 if (!converter.doConvert(options, progressHandle)) {
@@ -82,7 +82,7 @@ public final class AdvOgreXMLConvertAction implements ActionListener {
 //                FileLock lock = null;
                 try {
 //                    lock = file.lock();
-                    progressHandle.progress("Creating j3o file", 3);
+                    progressHandle.progress("Creating j3o file");
                     String outputPath = file.getParent().getPath() + "/" + context.getPrimaryFile().getName() + ".j3o";
                     manager.clearCache();
                     Spatial model = manager.loadModel(manager.getRelativeAssetPath(file.getPath()));
