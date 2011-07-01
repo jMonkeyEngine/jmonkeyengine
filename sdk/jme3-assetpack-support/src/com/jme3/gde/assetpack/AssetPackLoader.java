@@ -315,6 +315,7 @@ public class AssetPackLoader {
         NodeList list = assetElement.getElementsByTagName("file");
         ProjectAssetManager proman = null;
         try {
+            //TODO:not good
             proman = SceneApplication.getApplication().getCurrentSceneRequest().getManager();
             if (proman == null) {
                 Logger.getLogger(AssetPackLoader.class.getName()).log(Level.SEVERE, "Could not get project asset manager!");
@@ -350,6 +351,7 @@ public class AssetPackLoader {
         NodeList fileNodeList = assetElement.getElementsByTagName("file");
         ProjectAssetManager currentProjectAssetManager = null;
         try {
+            //TODO:not good
             currentProjectAssetManager = SceneApplication.getApplication().getCurrentSceneRequest().getManager();
             if (currentProjectAssetManager == null) {
                 Logger.getLogger(AssetPackLoader.class.getName()).log(Level.SEVERE, "Could not get project asset manager!");
@@ -392,6 +394,7 @@ public class AssetPackLoader {
     private static void addVariationFiles(NodeList fileNodeList, ProjectAssetManager pm) {
         ProjectAssetManager currentProjectAssetManager = null;
         try {
+            //TODO:not good
             currentProjectAssetManager = SceneApplication.getApplication().getCurrentSceneRequest().getManager();
             if (currentProjectAssetManager == null) {
                 Logger.getLogger(AssetPackLoader.class.getName()).log(Level.SEVERE, "Could not get project asset manager!");

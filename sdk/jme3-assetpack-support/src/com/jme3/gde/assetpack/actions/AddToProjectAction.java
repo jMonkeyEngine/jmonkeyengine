@@ -4,10 +4,12 @@
  */
 package com.jme3.gde.assetpack.actions;
 
+import com.jme3.asset.AssetManager;
 import com.jme3.export.binary.BinaryExporter;
 import com.jme3.gde.assetpack.AssetConfiguration;
 import com.jme3.gde.assetpack.AssetPackLoader;
 import com.jme3.gde.core.assets.ProjectAssetManager;
+import com.jme3.gde.core.scene.SceneApplication;
 import com.jme3.scene.Spatial;
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeListener;
@@ -43,19 +45,22 @@ public final class AddToProjectAction implements Action {
                 AssetConfiguration conf = new AssetConfiguration(assetElement);
                 Spatial model = AssetPackLoader.loadAssetPackModel(pm, conf);
                 if (model != null) {
-                    FileObject modelFolder = pm.getAssetFolder().getFileObject("Models");
-                    if (modelFolder == null) {
-                        modelFolder = pm.getAssetFolder().createFolder("Models");
-                    }
-                    if (modelFolder.isFolder()) {
-                        AssetPackLoader.addModelFiles(pm, conf);
-                        SceneComposerTopComponent.findInstance().addModel(model);
-                        OutputStream out = modelFolder.createAndOpen(conf.getAssetElement().getAttribute("name") + ".j3o");
-                        BinaryExporter.getInstance().save(model, out);
-                        out.close();
-                        modelFolder.refresh();
-                    } else {
-                        Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "Cannot copy, file 'Models' exists");
+                    ProjectAssetManager mgr = SceneApplication.getApplication().getCurrentSceneRequest().getManager();
+                    if (mgr != null) {
+                        FileObject modelFolder = mgr.getAssetFolder().getFileObject("Models");
+                        if (modelFolder == null) {
+                            modelFolder = mgr.getAssetFolder().createFolder("Models");
+                        }
+                        if (modelFolder.isFolder()) {
+                            AssetPackLoader.addModelFiles(pm, conf);
+                            SceneComposerTopComponent.findInstance().addModel(model);
+                            OutputStream out = modelFolder.createAndOpen(conf.getAssetElement().getAttribute("name") + ".j3o");
+                            BinaryExporter.getInstance().save(model, out);
+                            out.close();
+                            modelFolder.refresh();
+                        } else {
+                            Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "Cannot copy, file 'Models' exists");
+                        }
                     }
                 } else {
                     Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "Error loading model");
@@ -71,7 +76,7 @@ public final class AddToProjectAction implements Action {
 
     public Object getValue(String key) {
         if (key.equals(NAME)) {
-            return "Add to SceneComposer..";
+            return "Add to Project..";
         }
         return null;
     }
