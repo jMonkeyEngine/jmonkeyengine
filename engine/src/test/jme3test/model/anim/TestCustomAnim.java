@@ -120,7 +120,7 @@ public class TestCustomAnim extends SimpleApplication {
         model.attachChild(geom);
 
         // Create skeleton control
-        SkeletonControl skeletonControl = new SkeletonControl(new Mesh[]{ box }, skeleton);
+        SkeletonControl skeletonControl = new SkeletonControl(skeleton);
         model.addControl(skeletonControl);
 
         rootNode.attachChild(model);

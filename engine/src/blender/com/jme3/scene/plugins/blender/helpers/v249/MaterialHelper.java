@@ -252,10 +252,12 @@ public class MaterialHelper extends AbstractBlenderHelper {
 							Structure tex = pTex.fetchData(dataRepository.getInputStream()).get(0);
 							Texture texture = textureHelper.getTexture(tex, dataRepository);
                                                         
-                            // NOTE: Enable mipmaps FOR ALL TEXTURES EVER
-                            texture.setMinFilter(MinFilter.Trilinear);
+                                                        
                                                         
 							if (texture != null) {
+                                                            // NOTE: Enable mipmaps FOR ALL TEXTURES EVER
+                                                            texture.setMinFilter(MinFilter.Trilinear);
+                                                            
 								if ((mapto & 0x01) != 0) {// Col
                                     // Map to COLOR channel or DIFFUSE
                                     // Set diffuse to white so it doesn't get multiplied by texture
