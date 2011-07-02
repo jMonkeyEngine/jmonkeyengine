@@ -45,10 +45,12 @@ import java.util.concurrent.ExecutionException;
 import javax.swing.Action;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
+import org.openide.nodes.Index;
 import org.openide.nodes.Node;
 import org.openide.util.Exceptions;
 import org.openide.util.ImageUtilities;
 import org.openide.util.Lookup;
+import org.openide.util.lookup.Lookups;
 
 /**
  *
@@ -61,11 +63,16 @@ public class FilterPostProcessorNode extends AbstractNode {
             ImageUtilities.loadImage("com/jme3/gde/core/filters/icons/eye.gif");
     private FilterPostProcessor fpp;
 
-    public FilterPostProcessorNode(FilterDataObject dataObject) {
-        super(new FilterChildren(dataObject));
+    public FilterPostProcessorNode(FilterDataObject dataObject) {        
+        super(new FilterChildren(dataObject),Lookups.singleton(new FilterIndexSupport()));
+      
+         //Lookups.singleton(new FilterIndexSupport((FilterChildren)this.getChildren()));
         this.dataObject = dataObject;
-        setName(dataObject.getName());
+        setName(dataObject.getName());        
+        getLookup().lookup(FilterIndexSupport.class).setFilterPostProcessorNode(this);
         ((FilterChildren) getChildren()).setFilterPostProcessorNode(this);
+
+
     }
 
     @Override
@@ -159,7 +166,11 @@ public class FilterPostProcessorNode extends AbstractNode {
         protected void doRefresh() {
             refresh();
         }
-
+        
+        protected void reorderNotify() {          
+            setKeys(createKeys());
+        }
+        
         protected List<Object> createKeys() {
             try {
                 return SceneApplication.getApplication().enqueue(new Callable<List<Object>>() {
@@ -194,5 +205,7 @@ public class FilterPostProcessorNode extends AbstractNode {
             }
             return new Node[]{};
         }
+  
     }
+
 }

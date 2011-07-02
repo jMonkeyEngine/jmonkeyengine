@@ -39,10 +39,13 @@ import java.util.Iterator;
 import java.util.concurrent.Callable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.ActionMap;
 import org.openide.util.NbBundle;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
 import org.netbeans.api.settings.ConvertAsProperties;
+import org.openide.actions.MoveDownAction;
+import org.openide.actions.MoveUpAction;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.explorer.ExplorerManager;
@@ -77,8 +80,15 @@ public final class FilterExplorerTopComponent extends TopComponent implements Ex
         initComponents();
         setName(NbBundle.getMessage(FilterExplorerTopComponent.class, "CTL_FilterExplorerTopComponent"));
         setToolTipText(NbBundle.getMessage(FilterExplorerTopComponent.class, "HINT_FilterExplorerTopComponent"));
-        associateLookup(ExplorerUtils.createLookup(explorerManager, getActionMap()));
+        ActionMap map=getActionMap();
+        map.put("delete", ExplorerUtils.actionDelete(explorerManager, true));  
+        map.put("moveup", new MoveUpAction());  
+        map.put("movedown", new MoveDownAction());  
+        associateLookup(ExplorerUtils.createLookup(explorerManager, map));
+      
     }
+    
+    
 
     /** This method is called from within the constructor to
      * initialize the form.
@@ -142,7 +152,7 @@ public final class FilterExplorerTopComponent extends TopComponent implements Ex
     }
 
     public void loadFile(FilterDataObject object) {
-        explorerManager.setRootContext(object.getLookup().lookup(FilterPostProcessorNode.class));
+        explorerManager.setRootContext(object.getLookup().lookup(FilterPostProcessorNode.class));        
         node = object.getLookup().lookup(FilterPostProcessorNode.class);
         setActivatedNodes(new Node[]{object.getNodeDelegate()});
         open();

@@ -43,7 +43,8 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import javax.swing.Action;
 import org.openide.actions.DeleteAction;
-import org.openide.actions.RenameAction;
+import org.openide.actions.MoveDownAction;
+import org.openide.actions.MoveUpAction;
 import org.openide.awt.Actions;
 import org.openide.loaders.DataObject;
 import org.openide.nodes.AbstractNode;
@@ -106,9 +107,12 @@ public abstract class AbstractFilterNode extends AbstractNode implements FilterN
     @Override
     public Action[] getActions(boolean context) {
         return new Action[]{
-                    SystemAction.get(RenameAction.class),
-                    Actions.alwaysEnabled(SystemAction.get(DeleteAction.class), "Delete", "", false),
-                    Actions.alwaysEnabled(new EnableFiterAction(this), "Toggle enabled", "", false)
+                    Actions.alwaysEnabled(new EnableFiterAction(this), "Toggle enabled", "", false),
+                    SystemAction.get(MoveUpAction.class),
+                    SystemAction.get(MoveDownAction.class),
+                    null,
+                    SystemAction.get(DeleteAction.class),
+                    
                 };
     }
 
@@ -217,7 +221,7 @@ public abstract class AbstractFilterNode extends AbstractNode implements FilterN
 
     public void propertyChange(final String name, final Object before, final Object after) {
         if (name.equals("Enabled")) {
-            toggleIcon((Boolean)after);
+            toggleIcon((Boolean) after);
         }
         fireSave(true);
         firePropertyChange(name, before, after);
