@@ -4,7 +4,6 @@
  */
 package com.jme3.gde.assetpack.actions;
 
-import com.jme3.asset.AssetManager;
 import com.jme3.export.binary.BinaryExporter;
 import com.jme3.gde.assetpack.AssetConfiguration;
 import com.jme3.gde.assetpack.AssetPackLoader;
@@ -22,7 +21,11 @@ import org.openide.util.Exceptions;
 import org.w3c.dom.Element;
 import com.jme3.gde.scenecomposer.SceneComposerTopComponent;
 import java.io.OutputStream;
+import org.openide.DialogDisplayer;
+import org.openide.NotifyDescriptor;
+import org.openide.NotifyDescriptor.Message;
 import org.openide.filesystems.FileObject;
+import uk.co.mandolane.midi.e;
 
 public final class AddToProjectAction implements Action {
 
@@ -61,6 +64,14 @@ public final class AddToProjectAction implements Action {
                         } else {
                             Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "Cannot copy, file 'Models' exists");
                         }
+                    } else{
+                        Message msg = new NotifyDescriptor.Message(
+                                "Please open a model from the destination\n"
+                                + "project in the SceneExplorer\n"
+                                + "to define the project.\n"
+                                + "(temp. workaround)",
+                                NotifyDescriptor.ERROR_MESSAGE);
+                        DialogDisplayer.getDefault().notifyLater(msg);
                     }
                 } else {
                     Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "Error loading model");
