@@ -310,14 +310,11 @@ public class AssetPackLoader {
         return description;
     }
 
-    public static void addAllFiles(ProjectAssetManager pm, AssetConfiguration config) {
+    public static void addAllFiles(ProjectAssetManager source, ProjectAssetManager dest, AssetConfiguration config) {
         Element assetElement = config.getAssetElement();
         NodeList list = assetElement.getElementsByTagName("file");
-        ProjectAssetManager proman = null;
         try {
-            //TODO:not good
-            proman = SceneApplication.getApplication().getCurrentSceneRequest().getManager();
-            if (proman == null) {
+            if (dest == null) {
                 Logger.getLogger(AssetPackLoader.class.getName()).log(Level.SEVERE, "Could not get project asset manager!");
                 return;
             }
@@ -328,13 +325,13 @@ public class AssetPackLoader {
         for (int i = 0; i < list.getLength(); i++) {
             Element fileElem = (Element) list.item(i);
             try {
-                String src = pm.getAbsoluteAssetPath(fileElem.getAttribute("path"));
+                String src = source.getAbsoluteAssetPath(fileElem.getAttribute("path"));
                 if (src == null) {
                     Logger.getLogger(AssetPackLoader.class.getName()).log(Level.SEVERE, "Could not find texture with manager!");
                     return;
                 }
                 FileObject srcFile = FileUtil.toFileObject(new File(src));
-                String destName = proman.getAssetFolderName() + "/" + fileElem.getAttribute("path");
+                String destName = dest.getAssetFolderName() + "/" + fileElem.getAttribute("path");
                 String destFolder = destName.replace("\\", "/");
                 destFolder = destFolder.substring(0, destFolder.lastIndexOf("/"));
                 FileObject folder = FileUtil.createFolder(new File(destFolder));
@@ -346,14 +343,11 @@ public class AssetPackLoader {
         return;
     }
 
-    public static void addModelFiles(ProjectAssetManager pm, AssetConfiguration config) {
+    public static void addModelFiles(ProjectAssetManager source, ProjectAssetManager dest, AssetConfiguration config) {
         Element assetElement = config.getAssetElement();
         NodeList fileNodeList = assetElement.getElementsByTagName("file");
-        ProjectAssetManager currentProjectAssetManager = null;
         try {
-            //TODO:not good
-            currentProjectAssetManager = SceneApplication.getApplication().getCurrentSceneRequest().getManager();
-            if (currentProjectAssetManager == null) {
+            if (dest == null) {
                 Logger.getLogger(AssetPackLoader.class.getName()).log(Level.SEVERE, "Could not get project asset manager!");
                 return;
             }
@@ -366,13 +360,13 @@ public class AssetPackLoader {
             String type = fileElem.getAttribute("type");
             if ("texture".equals(type) || "sound".equals(type) || "materialdef".equals(type) || "shader".equals(type) || "other".equals(type)) {
                 try {
-                    String src = pm.getAbsoluteAssetPath(fileElem.getAttribute("path"));
+                    String src = source.getAbsoluteAssetPath(fileElem.getAttribute("path"));
                     if (src == null) {
                         Logger.getLogger(AssetPackLoader.class.getName()).log(Level.SEVERE, "Could not find texture with manager!");
                         return;
                     }
                     FileObject srcFile = FileUtil.toFileObject(new File(src));
-                    String destName = currentProjectAssetManager.getAssetFolderName() + "/" + fileElem.getAttribute("path");
+                    String destName = dest.getAssetFolderName() + "/" + fileElem.getAttribute("path");
                     String destFolder = destName.replace("\\", "/");
                     destFolder = destFolder.substring(0, destFolder.lastIndexOf("/"));
                     FileObject folder = FileUtil.createFolder(new File(destFolder));
@@ -385,17 +379,14 @@ public class AssetPackLoader {
         List<NodeList> varAssets = config.getVariationAssets();
         if (varAssets != null) {
             for (NodeList nodeList : varAssets) {
-                addVariationFiles(nodeList, pm);
+                addVariationFiles(nodeList, source, dest);
             }
         }
         return;
     }
 
-    private static void addVariationFiles(NodeList fileNodeList, ProjectAssetManager pm) {
-        ProjectAssetManager currentProjectAssetManager = null;
+    private static void addVariationFiles(NodeList fileNodeList, ProjectAssetManager pm, ProjectAssetManager currentProjectAssetManager) {
         try {
-            //TODO:not good
-            currentProjectAssetManager = SceneApplication.getApplication().getCurrentSceneRequest().getManager();
             if (currentProjectAssetManager == null) {
                 Logger.getLogger(AssetPackLoader.class.getName()).log(Level.SEVERE, "Could not get project asset manager!");
                 return;

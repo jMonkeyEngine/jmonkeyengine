@@ -8,7 +8,6 @@ import com.jme3.export.binary.BinaryExporter;
 import com.jme3.gde.assetpack.AssetConfiguration;
 import com.jme3.gde.assetpack.AssetPackLoader;
 import com.jme3.gde.core.assets.ProjectAssetManager;
-import com.jme3.gde.core.scene.SceneApplication;
 import com.jme3.scene.Spatial;
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeListener;
@@ -47,14 +46,14 @@ public final class AddToProjectAction implements Action {
                 AssetConfiguration conf = new AssetConfiguration(assetElement);
                 Spatial model = AssetPackLoader.loadAssetPackModel(pm, conf);
                 if (model != null) {
-                    ProjectAssetManager mgr = SceneApplication.getApplication().getCurrentSceneRequest().getManager();
+                    ProjectAssetManager mgr = ProjectSelection.getProjectAssetManager();
                     if (mgr != null && mgr != pm) {
                         FileObject modelFolder = mgr.getAssetFolder().getFileObject("Models");
                         if (modelFolder == null) {
                             modelFolder = mgr.getAssetFolder().createFolder("Models");
                         }
                         if (modelFolder.isFolder()) {
-                            AssetPackLoader.addModelFiles(pm, conf);
+                            AssetPackLoader.addModelFiles(pm, mgr, conf);
                             SceneComposerTopComponent.findInstance().addModel(model);
                             OutputStream out = modelFolder.createAndOpen(conf.getAssetElement().getAttribute("name") + ".j3o");
                             BinaryExporter.getInstance().save(model, out);
@@ -77,7 +76,8 @@ public final class AddToProjectAction implements Action {
                 }
             } else {
                 AssetConfiguration conf = new AssetConfiguration(assetElement);
-                AssetPackLoader.addAllFiles(pm, conf);
+                ProjectAssetManager mgr = ProjectSelection.getProjectAssetManager();
+                AssetPackLoader.addAllFiles(pm, mgr, conf);
             }
         } catch (IOException ex) {
             Exceptions.printStackTrace(ex);

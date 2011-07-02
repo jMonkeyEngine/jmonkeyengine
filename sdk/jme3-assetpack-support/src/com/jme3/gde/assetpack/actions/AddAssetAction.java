@@ -7,6 +7,7 @@ package com.jme3.gde.assetpack.actions;
 import com.jme3.gde.assetpack.AssetConfiguration;
 import com.jme3.gde.assetpack.AssetPackLoader;
 import com.jme3.gde.core.assets.ProjectAssetManager;
+import com.jme3.gde.core.scene.SceneApplication;
 import com.jme3.scene.Spatial;
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeListener;
@@ -40,13 +41,13 @@ public final class AddAssetAction implements Action {
             Spatial model = AssetPackLoader.loadAssetPackModel(pm, conf);
             if (model != null) {
                 SceneComposerTopComponent.findInstance().addModel(model);
-                AssetPackLoader.addModelFiles(pm, conf);
+                AssetPackLoader.addModelFiles(pm, SceneApplication.getApplication().getCurrentSceneRequest().getManager(),conf);
             } else {
                 Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "Error loading model");
             }
         } else {
             AssetConfiguration conf = new AssetConfiguration(assetElement);
-            AssetPackLoader.addAllFiles(pm, conf);
+            AssetPackLoader.addAllFiles(pm, SceneApplication.getApplication().getCurrentSceneRequest().getManager(), conf);
         }
     }
 
