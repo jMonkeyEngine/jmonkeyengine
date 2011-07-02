@@ -25,7 +25,6 @@ import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.NotifyDescriptor.Message;
 import org.openide.filesystems.FileObject;
-import uk.co.mandolane.midi.e;
 
 public final class AddToProjectAction implements Action {
 
