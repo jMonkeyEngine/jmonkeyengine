@@ -31,22 +31,27 @@
  */
 package com.jme3.gde.core.filters;
 
+import com.jme3.gde.core.filters.actions.EnableFiterAction;
 import com.jme3.gde.core.properties.SceneExplorerProperty;
 import com.jme3.gde.core.properties.ScenePropertyChangeListener;
 import com.jme3.gde.core.util.PropertyUtils;
 import com.jme3.post.Filter;
+
+import java.awt.Image;
 import java.beans.PropertyDescriptor;
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import javax.swing.Action;
 import org.openide.actions.DeleteAction;
+import org.openide.actions.RenameAction;
+import org.openide.awt.Actions;
 import org.openide.loaders.DataObject;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
 import org.openide.nodes.Sheet;
 import org.openide.util.Exceptions;
+import org.openide.util.ImageUtilities;
 import org.openide.util.actions.SystemAction;
 
 /**
@@ -59,6 +64,31 @@ public abstract class AbstractFilterNode extends AbstractNode implements FilterN
     protected boolean readOnly = false;
     protected DataObject dataObject;
     protected Filter filter;
+    private static Image icon;
+    private static final String ICON_ENABLED = "com/jme3/gde/core/filters/icons/eye.gif";
+    private static final String ICON_DISABLED = "com/jme3/gde/core/filters/icons/crossedEye.gif";
+
+    @Override
+    public Image getIcon(int type) {
+        return icon;
+
+    }
+
+    @Override
+    public Image getOpenedIcon(int type) {
+        return icon;
+    }
+
+    public void toggleIcon(boolean enabled) {
+        if (enabled) {
+            icon = ImageUtilities.loadImage(ICON_ENABLED);
+
+        } else {
+            icon = ImageUtilities.loadImage(ICON_DISABLED);
+
+        }
+        fireIconChange();
+    }
 
     public AbstractFilterNode() {
         super(Children.LEAF);
@@ -68,18 +98,27 @@ public abstract class AbstractFilterNode extends AbstractNode implements FilterN
         super(Children.LEAF);
         this.filter = filter;
         setName(filter.getName());
+        icon = ImageUtilities.loadImage(ICON_ENABLED);
+        setIconBaseWithExtension(ICON_ENABLED);
+
     }
 
     @Override
     public Action[] getActions(boolean context) {
         return new Action[]{
-                    SystemAction.get(DeleteAction.class)
+                    SystemAction.get(RenameAction.class),
+                    Actions.alwaysEnabled(SystemAction.get(DeleteAction.class), "Delete", "", false),
+                    Actions.alwaysEnabled(new EnableFiterAction(this), "Toggle enabled", "", false)
                 };
     }
 
     @Override
+    public Action getPreferredAction() {
+        return Actions.alwaysEnabled(new EnableFiterAction(this), "Toggle enabled", "", false);
+    }
+
+    @Override
     public boolean canDestroy() {
-//        return !readOnly;
         return true;
     }
 
@@ -88,6 +127,7 @@ public abstract class AbstractFilterNode extends AbstractNode implements FilterN
         super.destroy();
         FilterPostProcessorNode nod = (FilterPostProcessorNode) getParentNode();
         nod.removeFilter(filter);
+        fireSave(true);
     }
 
     protected void fireSave(boolean modified) {
@@ -168,16 +208,23 @@ public abstract class AbstractFilterNode extends AbstractNode implements FilterN
 
     protected void createFields(Class c, Sheet.Set set, Object obj) throws SecurityException {
         for (Field field : c.getDeclaredFields()) {
-            PropertyDescriptor prop=PropertyUtils.getPropertyDescriptor(c, field);
-            if(prop!=null){
-                set.put(makeProperty(obj, prop.getPropertyType() , prop.getReadMethod().getName(), prop.getWriteMethod().getName(), prop.getDisplayName()));
+            PropertyDescriptor prop = PropertyUtils.getPropertyDescriptor(c, field);
+            if (prop != null) {
+                set.put(makeProperty(obj, prop.getPropertyType(), prop.getReadMethod().getName(), prop.getWriteMethod().getName(), prop.getDisplayName()));
             }
         }
     }
 
     public void propertyChange(final String name, final Object before, final Object after) {
+        if (name.equals("Enabled")) {
+            toggleIcon((Boolean)after);
+        }
         fireSave(true);
         firePropertyChange(name, before, after);
+    }
+
+    public Filter getFilter() {
+        return filter;
     }
 
     public abstract Class<?> getExplorerObjectClass();

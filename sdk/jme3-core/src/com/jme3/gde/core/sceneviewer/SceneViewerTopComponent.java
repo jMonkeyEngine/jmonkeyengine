@@ -118,7 +118,7 @@ public final class SceneViewerTopComponent extends TopComponent {
         });
         jToolBar1.add(enableCamLight);
 
-        jToggleButton1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/jme3/gde/core/objects_082.gif"))); // NOI18N
+        jToggleButton1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/jme3/gde/core/filters/icons/eye.gif"))); // NOI18N
         org.openide.awt.Mnemonics.setLocalizedText(jToggleButton1, org.openide.util.NbBundle.getMessage(SceneViewerTopComponent.class, "SceneViewerTopComponent.jToggleButton1.text")); // NOI18N
         jToggleButton1.setToolTipText(org.openide.util.NbBundle.getMessage(SceneViewerTopComponent.class, "SceneViewerTopComponent.jToggleButton1.toolTipText")); // NOI18N
         jToggleButton1.setFocusable(false);

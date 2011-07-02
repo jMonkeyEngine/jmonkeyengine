@@ -188,7 +188,7 @@
                 </folder>
                 <folder name="Factories">
                     <file name="FilterPostProcessorDataLoader.instance">
-                        <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/com/jme3/gde/core/objects_082.gif"/>
+                        <attr name="SystemFileSystem.icon" urlvalue="nbresloc:com/jme3/gde/core/filters/icons/eye.gif"/>
                         <attr name="dataObjectClass" stringvalue="com.jme3.gde.core.assets.FilterDataObject"/>
                         <attr name="instanceCreate" methodvalue="org.openide.loaders.DataLoaderPool.factory"/>
                         <attr name="mimeType" stringvalue="application/jme3filterpostprocessor"/>

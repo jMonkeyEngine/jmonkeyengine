@@ -58,7 +58,7 @@ public class FilterPostProcessorNode extends AbstractNode {
 
     private FilterDataObject dataObject;
     private static Image smallImage =
-            ImageUtilities.loadImage("com/jme3/gde/core/objects_082.gif");
+            ImageUtilities.loadImage("com/jme3/gde/core/filters/icons/eye.gif");
     private FilterPostProcessor fpp;
 
     public FilterPostProcessorNode(FilterDataObject dataObject) {
