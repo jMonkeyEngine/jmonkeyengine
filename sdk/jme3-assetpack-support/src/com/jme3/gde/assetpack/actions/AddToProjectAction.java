@@ -49,7 +49,7 @@ public final class AddToProjectAction implements Action {
                 Spatial model = AssetPackLoader.loadAssetPackModel(pm, conf);
                 if (model != null) {
                     ProjectAssetManager mgr = SceneApplication.getApplication().getCurrentSceneRequest().getManager();
-                    if (mgr != null) {
+                    if (mgr != null && mgr != pm) {
                         FileObject modelFolder = mgr.getAssetFolder().getFileObject("Models");
                         if (modelFolder == null) {
                             modelFolder = mgr.getAssetFolder().createFolder("Models");
@@ -64,7 +64,7 @@ public final class AddToProjectAction implements Action {
                         } else {
                             Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "Cannot copy, file 'Models' exists");
                         }
-                    } else{
+                    } else {
                         Message msg = new NotifyDescriptor.Message(
                                 "Please open a model from the destination\n"
                                 + "project in the SceneExplorer\n"
