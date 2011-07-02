@@ -38,6 +38,7 @@ import com.jme3.material.Material;
 import com.jme3.material.MaterialList;
 import com.jme3.scene.plugins.ogre.MaterialLoader;
 import com.jme3.texture.Texture;
+import com.jme3.texture.Texture.WrapMode;
 import java.io.IOException;
 import java.util.Scanner;
 import java.util.logging.Level;
@@ -75,7 +76,11 @@ public class MaterialExtensionLoader {
             String jmeParamName = matExt.getTextureMapping(aliasName);
 
             TextureKey key = new TextureKey(texturePath, false);
+            key.setGenerateMips(true);
+            key.setAsCube(false);
             Texture tex = assetManager.loadTexture(key);
+            // XXX: Is this really neccessary?
+            tex.setWrap(WrapMode.Repeat);
             if (tex == null)
                 throw new IOException("Cannot load texture: " + texturePath);
 
