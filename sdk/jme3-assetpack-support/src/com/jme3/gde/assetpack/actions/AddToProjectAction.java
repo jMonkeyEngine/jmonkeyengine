@@ -54,7 +54,6 @@ public final class AddToProjectAction implements Action {
                         }
                         if (modelFolder.isFolder()) {
                             AssetPackLoader.addModelFiles(pm, mgr, conf);
-                            SceneComposerTopComponent.findInstance().addModel(model);
                             OutputStream out = modelFolder.createAndOpen(conf.getAssetElement().getAttribute("name") + ".j3o");
                             BinaryExporter.getInstance().save(model, out);
                             out.close();
