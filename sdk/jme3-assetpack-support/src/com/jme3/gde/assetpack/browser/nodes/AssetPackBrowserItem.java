@@ -4,6 +4,7 @@
  */
 package com.jme3.gde.assetpack.browser.nodes;
 
+import com.jme3.gde.assetpack.XmlHelper;
 import com.jme3.gde.assetpack.actions.AddAssetAction;
 import com.jme3.gde.assetpack.actions.AddToProjectAction;
 import com.jme3.gde.assetpack.actions.PreviewAssetAction;
@@ -104,7 +105,12 @@ public class AssetPackBrowserItem extends AbstractNode {
         set.put(new ElementNodeTextProperty(project, item, "description"));
         set.put(new ElementAttributeProperty(project, item, "categories"));
         set.put(new ElementAttributeProperty(project, item, "tags"));
-        set.put(new ElementNodeTextProperty(project, item, "license"));
+        Element elem = XmlHelper.findChildElement(item, "license");
+        if ((project.getLookup().lookup(AssetPackLibrary.class) != null) && (elem == null || elem.getTextContent().trim().length() <= 0)) {
+            set.put(new ElementNodeTextProperty(project, (Element) item.getParentNode().getParentNode(), "license"));
+        } else {
+            set.put(new ElementNodeTextProperty(project, item, "license"));
+        }
         set.put(new ElementAttributeProperty(project, item, "type", ASSET_TYPES));
 //        set.put(new ElementAttributeProperty(project, item, "format", ASSET_FORMATS));
         sheet.put(set);
