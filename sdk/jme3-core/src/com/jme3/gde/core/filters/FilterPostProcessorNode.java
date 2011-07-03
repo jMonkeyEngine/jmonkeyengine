@@ -37,6 +37,8 @@ import com.jme3.gde.core.scene.SceneApplication;
 import com.jme3.post.Filter;
 import com.jme3.post.FilterPostProcessor;
 import java.awt.Image;
+import java.awt.datatransfer.Transferable;
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -45,11 +47,12 @@ import java.util.concurrent.ExecutionException;
 import javax.swing.Action;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
-import org.openide.nodes.Index;
 import org.openide.nodes.Node;
+import org.openide.nodes.NodeTransfer;
 import org.openide.util.Exceptions;
 import org.openide.util.ImageUtilities;
 import org.openide.util.Lookup;
+import org.openide.util.datatransfer.PasteType;
 import org.openide.util.lookup.Lookups;
 
 /**
@@ -63,14 +66,15 @@ public class FilterPostProcessorNode extends AbstractNode {
             ImageUtilities.loadImage("com/jme3/gde/core/filters/icons/eye.gif");
     private FilterPostProcessor fpp;
 
-    public FilterPostProcessorNode(FilterDataObject dataObject) {        
-        super(new FilterChildren(dataObject),Lookups.singleton(new FilterIndexSupport()));
-      
-         //Lookups.singleton(new FilterIndexSupport((FilterChildren)this.getChildren()));
+    public FilterPostProcessorNode(FilterDataObject dataObject) {
+        super(new FilterChildren(dataObject), Lookups.singleton(new FilterIndexSupport()));
+
+        //Lookups.singleton(new FilterIndexSupport((FilterChildren)this.getChildren()));
         this.dataObject = dataObject;
-        setName(dataObject.getName());        
+        setName(dataObject.getName());
         getLookup().lookup(FilterIndexSupport.class).setFilterPostProcessorNode(this);
         ((FilterChildren) getChildren()).setFilterPostProcessorNode(this);
+
 
 
     }
@@ -90,6 +94,28 @@ public class FilterPostProcessorNode extends AbstractNode {
             this.fpp = dataObject.loadAsset();
         }
         return fpp;
+    }
+
+    //this allow the reordering on drop of a Node
+    @Override
+    public PasteType getDropType(Transferable t, int action, final int index) {
+
+        final Node node = NodeTransfer.node(t, action);
+        return new PasteType() {
+
+            @Override
+            public Transferable paste() throws IOException {
+                FilterIndexSupport indexSupport = getLookup().lookup(FilterIndexSupport.class);
+                int nodeIndex = indexSupport.indexOf(node);
+                if (nodeIndex < index) {
+                    indexSupport.move(index - 1, nodeIndex);
+                } else {
+                    indexSupport.move(index, nodeIndex);
+                }
+
+                return null;
+            }
+        };
     }
 
     public void refresh() {
@@ -166,11 +192,11 @@ public class FilterPostProcessorNode extends AbstractNode {
         protected void doRefresh() {
             refresh();
         }
-        
-        protected void reorderNotify() {          
+
+        protected void reorderNotify() {
             setKeys(createKeys());
         }
-        
+
         protected List<Object> createKeys() {
             try {
                 return SceneApplication.getApplication().enqueue(new Callable<List<Object>>() {
@@ -205,7 +231,5 @@ public class FilterPostProcessorNode extends AbstractNode {
             }
             return new Node[]{};
         }
-  
     }
-
 }

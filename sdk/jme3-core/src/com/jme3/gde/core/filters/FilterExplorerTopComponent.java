@@ -80,15 +80,13 @@ public final class FilterExplorerTopComponent extends TopComponent implements Ex
         initComponents();
         setName(NbBundle.getMessage(FilterExplorerTopComponent.class, "CTL_FilterExplorerTopComponent"));
         setToolTipText(NbBundle.getMessage(FilterExplorerTopComponent.class, "HINT_FilterExplorerTopComponent"));
-        ActionMap map=getActionMap();
-        map.put("delete", ExplorerUtils.actionDelete(explorerManager, true));  
-        map.put("moveup", new MoveUpAction());  
-        map.put("movedown", new MoveDownAction());  
+        ActionMap map = getActionMap();
+        map.put("delete", ExplorerUtils.actionDelete(explorerManager, true));
+        map.put("moveup", new MoveUpAction());
+        map.put("movedown", new MoveDownAction());
         associateLookup(ExplorerUtils.createLookup(explorerManager, map));
-      
+
     }
-    
-    
 
     /** This method is called from within the constructor to
      * initialize the form.
@@ -152,7 +150,7 @@ public final class FilterExplorerTopComponent extends TopComponent implements Ex
     }
 
     public void loadFile(FilterDataObject object) {
-        explorerManager.setRootContext(object.getLookup().lookup(FilterPostProcessorNode.class));        
+        explorerManager.setRootContext(object.getLookup().lookup(FilterPostProcessorNode.class));
         node = object.getLookup().lookup(FilterPostProcessorNode.class);
         setActivatedNodes(new Node[]{object.getNodeDelegate()});
         open();
@@ -179,14 +177,14 @@ public final class FilterExplorerTopComponent extends TopComponent implements Ex
                         SceneApplication.getApplication().getViewPort().addProcessor(fpp);
                         Logger.getLogger(FilterExplorerTopComponent.class.getName()).log(Level.INFO, "Enabled post filters");
                     } else {
-                         for (Iterator<SceneProcessor> it = SceneApplication.getApplication().getViewPort().getProcessors().iterator(); it.hasNext();) {
+                        for (Iterator<SceneProcessor> it = SceneApplication.getApplication().getViewPort().getProcessors().iterator(); it.hasNext();) {
                             SceneProcessor proc = it.next();
                             if (proc instanceof FilterPostProcessor) {
                                 it.remove();
                                 proc.cleanup();
                             }
                         }
-                      //  SceneApplication.getApplication().getViewPort().removeProcessor(fpp);
+                        //  SceneApplication.getApplication().getViewPort().removeProcessor(fpp);
                         Logger.getLogger(FilterExplorerTopComponent.class.getName()).log(Level.INFO, "Disabled post filters");
                     }
                     return null;

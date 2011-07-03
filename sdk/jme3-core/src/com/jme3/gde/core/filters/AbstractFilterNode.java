@@ -115,7 +115,7 @@ public abstract class AbstractFilterNode extends AbstractNode implements FilterN
                     
                 };
     }
-
+    
     @Override
     public Action getPreferredAction() {
         return Actions.alwaysEnabled(new EnableFiterAction(this), "Toggle enabled", "", false);
@@ -171,7 +171,7 @@ public abstract class AbstractFilterNode extends AbstractNode implements FilterN
 
     }
 
-    /**
+      /**
      * @param saveCookie the saveCookie to set
      */
     public AbstractFilterNode setReadOnly(boolean readOnly) {

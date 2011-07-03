@@ -20,8 +20,6 @@ public class FilterIndexSupport extends Index.Support {
     FilterChildren children;
 
     public FilterIndexSupport() {
-        
-
     }
 
     @Override
@@ -41,15 +39,14 @@ public class FilterIndexSupport extends Index.Support {
     public void setFilterPostProcessorNode(FilterPostProcessorNode fppNode) {
         this.fppNode = fppNode;
     }
-    
 
     @Override
     public void reorder(final int[] perm) {
-        
-          SceneApplication.getApplication().enqueue(new Callable<Object>() {
+
+        SceneApplication.getApplication().enqueue(new Callable<Object>() {
 
             public Object call() throws Exception {
-                List<Filter> filters=new ArrayList<Filter>();
+                List<Filter> filters = new ArrayList<Filter>();
                 for (Iterator<Filter> it = fppNode.getFilterPostProcessor().getFilterIterator(); it.hasNext();) {
                     Filter f = it.next();
                     filters.add(f);
