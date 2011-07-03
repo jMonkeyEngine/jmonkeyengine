@@ -68,6 +68,7 @@ public abstract class SimpleApplication extends Application {
     public static final String INPUT_MAPPING_EXIT = "SIMPLEAPP_Exit";
     public static final String INPUT_MAPPING_CAMERA_POS = "SIMPLEAPP_CameraPos";
     public static final String INPUT_MAPPING_MEMORY = "SIMPLEAPP_Memory";
+    public static final String INPUT_MAPPING_HIDE_STATS = "SIMPLEAPP_HideStats";
                                                                          
     protected Node rootNode = new Node("Root Node");
     protected Node guiNode = new Node("Gui Node");
@@ -79,7 +80,7 @@ public abstract class SimpleApplication extends Application {
     protected boolean showSettings = true;
     private  boolean showFps = true;
     private AppActionListener actionListener = new AppActionListener();
-
+    
     private class AppActionListener implements ActionListener {
 
         public void onAction(String name, boolean value, float tpf) {
@@ -100,6 +101,10 @@ public abstract class SimpleApplication extends Application {
                 }
             } else if (name.equals(INPUT_MAPPING_MEMORY)) {
                 BufferUtils.printCurrentDirectMemory(null);
+            }else if (name.equals(INPUT_MAPPING_HIDE_STATS)){
+                boolean show = showFps;
+                setDisplayFps(!show);
+                setDisplayStatView(!show);
             }
         }
     }
@@ -215,8 +220,10 @@ public abstract class SimpleApplication extends Application {
 
             inputManager.addMapping(INPUT_MAPPING_CAMERA_POS, new KeyTrigger(KeyInput.KEY_C));
             inputManager.addMapping(INPUT_MAPPING_MEMORY, new KeyTrigger(KeyInput.KEY_M));
+            inputManager.addMapping(INPUT_MAPPING_HIDE_STATS, new KeyTrigger(KeyInput.KEY_F5));
             inputManager.addListener(actionListener, INPUT_MAPPING_EXIT,
-                    INPUT_MAPPING_CAMERA_POS, INPUT_MAPPING_MEMORY);
+                    INPUT_MAPPING_CAMERA_POS, INPUT_MAPPING_MEMORY, INPUT_MAPPING_HIDE_STATS);
+            
         }
 
         // call user code

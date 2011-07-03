@@ -80,9 +80,6 @@ public class BillboardControl extends AbstractControl {
         AxialZ;
     }
 
- 
-
-
     public BillboardControl() {
         super();
         orient = new Matrix3f();
@@ -106,6 +103,18 @@ public class BillboardControl extends AbstractControl {
     protected void controlRender(RenderManager rm, ViewPort vp) {
         Camera cam = vp.getCamera();
         rotateBillboard(cam);
+    }
+    
+    private void fixRefreshFlags(){
+        // force transforms to update below this node
+        spatial.updateGeometricState();
+        
+        // force world bound to update
+        Spatial rootNode = spatial;
+        while (rootNode.getParent() != null){
+            rootNode = rootNode.getParent();
+        }
+        rootNode.getWorldBound(); 
     }
 
     /**
@@ -168,7 +177,7 @@ public class BillboardControl extends AbstractControl {
         // The billboard must be oriented to face the camera before it is
         // transformed into the world.
         spatial.setLocalRotation(orient);
-        spatial.updateGeometricState();
+        fixRefreshFlags();
     }
 
     /**
@@ -188,10 +197,10 @@ public class BillboardControl extends AbstractControl {
         Quaternion rot=new Quaternion().fromRotationMatrix(orient);
         if ( parent != null ) {
             rot =  parent.getWorldRotation().inverse().multLocal(rot);
-            rot.normalize();
+            rot.normalizeLocal();
         }
         spatial.setLocalRotation(rot);
-        spatial.updateGeometricState();
+        fixRefreshFlags();
     }
 
     /**
@@ -256,7 +265,7 @@ public class BillboardControl extends AbstractControl {
         // The billboard must be oriented to face the camera before it is
         // transformed into the world.
         spatial.setLocalRotation(orient);
-        spatial.updateGeometricState();
+        fixRefreshFlags();
     }
 
     /**
