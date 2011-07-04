@@ -31,10 +31,9 @@
  */
 package com.jme3.terrain.geomipmap;
 
-import com.jme3.export.InputCapsule;
+import com.jme3.terrain.GeoMapNew;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
-import com.jme3.export.OutputCapsule;
 import com.jme3.math.FastMath;
 import com.jme3.math.Triangle;
 import java.nio.BufferOverflowException;
@@ -64,7 +63,7 @@ import java.io.IOException;
  *
  * @author Brent Owens
  */
-public class LODGeomap extends BufferGeomap {
+public class LODGeomap extends GeoMapNew {
 
     public LODGeomap() {
     }
