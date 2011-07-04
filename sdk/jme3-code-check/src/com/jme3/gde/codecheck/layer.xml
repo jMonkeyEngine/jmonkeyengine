@@ -8,6 +8,7 @@
                     <file name="com-jme3-gde-codecheck-hints-UpdateHint.instance"/>
                     <file name="com-jme3-gde-codecheck-hints-ReadOnlyPrimitiveHint.instance"/>
                     <file name="com-jme3-gde-codecheck-hints-InternalMethodHint.instance"/>
+                    <file name="com-jme3-gde-codecheck-hints-TempVarsHint.instance"/>
                 </folder>
             </folder>
         </folder>
