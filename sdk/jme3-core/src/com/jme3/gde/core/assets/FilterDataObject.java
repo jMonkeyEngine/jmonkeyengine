@@ -48,7 +48,6 @@ public class FilterDataObject extends AssetDataObject {
         super(pf, loader);
         getLookupContents().add(new FilterPostProcessorNode(this));
         saveExtension = "j3f";
-        getLookup().lookup(AssetData.class).setExtension("j3f");
     }
 
     @Override
