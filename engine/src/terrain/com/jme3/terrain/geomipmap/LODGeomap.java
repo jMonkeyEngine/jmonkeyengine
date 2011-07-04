@@ -31,7 +31,7 @@
  */
 package com.jme3.terrain.geomipmap;
 
-import com.jme3.terrain.GeoMapNew;
+import com.jme3.terrain.GeoMap;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.math.FastMath;
@@ -46,7 +46,6 @@ import com.jme3.math.Vector3f;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Mesh.Mode;
 import com.jme3.scene.VertexBuffer.Type;
-import com.jme3.terrain.BufferGeomap;
 import com.jme3.util.BufferUtils;
 import java.io.IOException;
 
@@ -63,7 +62,7 @@ import java.io.IOException;
  *
  * @author Brent Owens
  */
-public class LODGeomap extends GeoMapNew {
+public class LODGeomap extends GeoMap {
 
     public LODGeomap() {
     }

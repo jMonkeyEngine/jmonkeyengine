@@ -51,15 +51,15 @@ import java.nio.IntBuffer;
 /**
  * Constructs heightfields to be used in Terrain.
  */
-public class GeoMapNew implements Savable {
+public class GeoMap implements Savable {
     
     protected FloatBuffer hdata;
     protected ByteBuffer ndata;
     protected int width, height, maxval;
     
-    public GeoMapNew() {}
+    public GeoMap() {}
     
-    public GeoMapNew(FloatBuffer heightData, ByteBuffer normalData, int width, int height, int maxval){
+    public GeoMap(FloatBuffer heightData, ByteBuffer normalData, int width, int height, int maxval){
         this.hdata = heightData;
         this.ndata = normalData;
         this.width = width;
@@ -67,7 +67,7 @@ public class GeoMapNew implements Savable {
         this.maxval = maxval;
     }
 
-    public GeoMapNew(int width, int height, int maxval) {
+    public GeoMap(int width, int height, int maxval) {
         this(ByteBuffer.allocateDirect(width*height*4).asFloatBuffer(),null,width,height,maxval);
     }
 
@@ -186,7 +186,7 @@ public class GeoMapNew implements Savable {
     /**
      * Copies a section of this geomap as a new geomap
      */
-    public Geomap copySubGeomap(int x, int y, int w, int h){
+    public GeoMap copySubGeomap(int x, int y, int w, int h){
         FloatBuffer nhdata = ByteBuffer.allocateDirect(w*h*4).asFloatBuffer();
         hdata.position(y*width+x);
         for (int cy = 0; cy < height; cy++){
@@ -210,7 +210,7 @@ public class GeoMapNew implements Savable {
             nndata.flip();
         }
 
-        return new BufferGeomap(nhdata,nndata,w,h,maxval);
+        return new GeoMap(nhdata,nndata,w,h,maxval);
     }
 
     /**
