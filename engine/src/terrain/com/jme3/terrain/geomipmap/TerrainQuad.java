@@ -105,16 +105,18 @@ public class TerrainQuad extends Node implements Terrain {
 
     private TerrainPicker picker;
 
+    protected ExecutorService executor;
 
-    protected ExecutorService executor = Executors.newSingleThreadExecutor(new ThreadFactory() {
-        public Thread newThread(Runnable r) {
-            Thread th = new Thread(r);
-            th.setName("jME Terrain Thread");
-            th.setDaemon(true);
-            return th;
-        }
-    });
-
+    protected ExecutorService createExecutorService() {
+        return Executors.newSingleThreadExecutor(new ThreadFactory() {
+            public Thread newThread(Runnable r) {
+                Thread th = new Thread(r);
+                th.setName("jME Terrain Thread");
+                th.setDaemon(true);
+                return th;
+            }
+        });
+    }
 
     public TerrainQuad() {
         super("Terrain");
@@ -229,6 +231,9 @@ public class TerrainQuad extends Node implements Terrain {
             return; // we just want the root quad to perform this.
         }
 
+        if (executor == null)
+            executor = createExecutorService();
+        
         UpdateLOD updateLodThread = new UpdateLOD(locations);
         executor.execute(updateLodThread);
     }
