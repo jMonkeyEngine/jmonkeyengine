@@ -360,6 +360,18 @@ public class AppSettings extends HashMap<String, Object> {
     public void setVSync(boolean value) {
         putBoolean("VSync", value);
     }
+    
+    /**
+     * Enable 3D stereo.
+     * <p>This feature requires hardware support from the GPU driver. 
+     * See: http://en.wikipedia.org/wiki/Quad_buffering<br>
+     * Once enabled, filters or scene processors that handle 3D stereo rendering
+     * could use this feature to render using hardware 3D stereo.</p>
+     * (Default: false)
+     */
+    public void setStereo3D(boolean value){
+        putBoolean("Stereo3D", value);
+    }
 
     /**
      * Sets the application icons to be used, with the most preferred first.
@@ -437,6 +449,10 @@ public class AppSettings extends HashMap<String, Object> {
 
     public String getAudioRenderer() {
         return getString("AudioRenderer");
+    }
+    
+    public boolean useStereo3D(){
+        return getBoolean("Stereo3D");  
     }
 
     public Object[] getIcons() {
