@@ -184,7 +184,7 @@ public abstract class AbstractHeightMap implements HeightMap {
 
         low = getScaledHeightAtPoint((int) x, (int) z);
 
-        if (x + 1 > size) {
+        if (x + 1 >= size) {
             return low;
         }
 
@@ -193,7 +193,7 @@ public abstract class AbstractHeightMap implements HeightMap {
         interpolation = x - (int) x;
         intX = ((highX - low) * interpolation) + low;
 
-        if (z + 1 > size) {
+        if (z + 1 >= size) {
             return low;
         }
 
