@@ -56,6 +56,9 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
      */
     protected boolean eglConfigVerboseLogging = false;
 
+    protected boolean mouseEventsEnabled = true;
+    protected boolean mouseEventsInvertY = true;
+        
     /**
      * Title of the exit dialog, default is "Do you want to exit?"
      */
@@ -101,7 +104,10 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
                      
         AppSettings settings = new AppSettings(true);
         AndroidInput input = new AndroidInput(this);
-                
+        
+        input.setMouseEventsInvertY(mouseEventsInvertY);
+        input.setMouseEventsEnabled(mouseEventsEnabled);
+        
         // Create application instance
         try
         {

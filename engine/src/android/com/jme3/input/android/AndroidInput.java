@@ -27,26 +27,33 @@ import com.jme3.util.RingBuffer;
  */
 public class AndroidInput extends GLSurfaceView implements TouchInput, 
                                                            GestureDetector.OnGestureListener, ScaleGestureDetector.OnScaleGestureListener
-{
-    private final static Logger logger = Logger.getLogger(AndroidInput.class.getName());
-    private boolean isInitialized = false;
-    private RawInputListener listener = null;
-    
+{    
     final private static int MAX_EVENTS = 1024;
+     
+    // Custom settings
+    public boolean mouseEventsEnabled = true;
+    public boolean mouseEventsInvertY = false;
     
+    public boolean keyboardEventsEnabled = false;
+    
+    public boolean dontSendHistory = false;
+
+    
+    // Used to transfer events from android thread to GLThread
     final private RingBuffer<TouchEvent> eventQueue = new RingBuffer<TouchEvent>(MAX_EVENTS);
     final private RingBuffer<TouchEvent> eventPoolUnConsumed = new RingBuffer<TouchEvent>(MAX_EVENTS);
     final private RingBuffer<TouchEvent> eventPool = new RingBuffer<TouchEvent>(MAX_EVENTS);
     final private HashMap<Integer, Vector2f> lastPositions = new HashMap<Integer, Vector2f>();
-     
-    public boolean fireMouseEvents = true;
-    public boolean fireKeyboardEvents = false;
-    public boolean dontSendHistory = false;
 
+    // Internal
     private ScaleGestureDetector scaledetector;
     private GestureDetector detector;
     private int lastX;
     private int lastY;
+
+    private final static Logger logger = Logger.getLogger(AndroidInput.class.getName());
+    private boolean isInitialized = false;
+    private RawInputListener listener = null;
 
    
     private static final int[] ANDROID_TO_JME = {
@@ -173,8 +180,8 @@ public class AndroidInput extends GLSurfaceView implements TouchInput,
 
     /**
      * Fetches a touch event from the reuse pool
-     * @param wait
-     * @return
+     * @param wait if true waits for a reusable event to get available/released by an other thread, if false returns a new one if needed
+     * @return a usable TouchEvent
      */
     private TouchEvent getNextFreeTouchEvent(boolean wait)
     {
@@ -486,6 +493,7 @@ public class AndroidInput extends GLSurfaceView implements TouchInput,
 		}
 	}
 
+	//  ---------------  INSIDE GLThread  --------------- 
 	@Override
     public void update() 
     {
@@ -511,14 +519,18 @@ public class AndroidInput extends GLSurfaceView implements TouchInput,
 	            {
 	                listener.onTouchEvent(event);
 
-                    if (fireMouseEvents)
+                    if (mouseEventsEnabled)
                     {
     	                newX = this.getWidth() - (int) event.getX();
-    	                newY = this.getHeight() - (int) event.getY();
+    	                if (mouseEventsInvertY)
+    	                	newY = this.getHeight() - (int) event.getY();
+    	                else
+    	                	newY = (int) event.getY();
+    	                
     	                switch (event.getType())
     	                {
     	                    case DOWN:    	                  
-         	                    // Handle mouse events 
+         	                    // Handle mouse down event 
         	                    btn = new MouseButtonEvent(0, true, newX, newY);
         	                    btn.setTime(event.getTime());
         	                    listener.onMouseButtonEvent(btn);
@@ -528,7 +540,7 @@ public class AndroidInput extends GLSurfaceView implements TouchInput,
         	                    break;
         	                    
     	                    case UP:
-    	                        // Handle mouse events 
+    	                        // Handle mouse up event 
     	                        btn = new MouseButtonEvent(0, false, newX, newY);
     	                        btn.setTime(event.getTime());
     	                        listener.onMouseButtonEvent(btn);
@@ -576,8 +588,9 @@ public class AndroidInput extends GLSurfaceView implements TouchInput,
 
 	    }
 	}
-    
-    // --------------- Gesture detected callback events ----------------------------------
+	//  --------------- ENDOF INSIDE GLThread  --------------- 
+	
+    // --------------- Gesture detected callback events  --------------- 
     
     public boolean onDown(MotionEvent event)
     {
@@ -694,18 +707,35 @@ public class AndroidInput extends GLSurfaceView implements TouchInput,
     @Override
     public void setSimulateMouse(boolean simulate) 
     {
-        fireMouseEvents = simulate;       
+    	mouseEventsEnabled = simulate;       
     }
-
     @Override
     public void setSimulateKeyboard(boolean simulate) 
     {
-        fireKeyboardEvents = simulate;        
+    	keyboardEventsEnabled = simulate;        
     }
     @Override
     public void setOmitHistoricEvents(boolean dontSendHistory)
     {
         this.dontSendHistory = dontSendHistory;
     }
+
+    // TODO: move to TouchInput
+	public boolean isMouseEventsEnabled() {
+		return mouseEventsEnabled;
+	}
+
+	public void setMouseEventsEnabled(boolean mouseEventsEnabled) {
+		this.mouseEventsEnabled = mouseEventsEnabled;
+	}
+
+	public boolean isMouseEventsInvertY() {
+		return mouseEventsInvertY;
+	}
+
+	public void setMouseEventsInvertY(boolean mouseEventsInvertY) {
+		this.mouseEventsInvertY = mouseEventsInvertY;
+	}
+    
 
 }
