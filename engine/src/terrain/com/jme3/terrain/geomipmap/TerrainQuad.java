@@ -138,7 +138,7 @@ public class TerrainQuad extends Node implements Terrain {
     }
 
     protected TerrainQuad(String name, int patchSize, int size,
-                            Vector3f stepScale, float[] heightMap, int totalSize,
+                            Vector3f scale, float[] heightMap, int totalSize,
                             Vector2f offset, float offsetAmount,
                             LodCalculatorFactory lodCalculatorFactory)
     {
@@ -155,7 +155,7 @@ public class TerrainQuad extends Node implements Terrain {
         this.totalSize = totalSize;
         this.size = size;
         this.patchSize = patchSize;
-        this.stepScale = stepScale;
+        this.stepScale = scale;
         this.lodCalculatorFactory = lodCalculatorFactory;
         split(patchSize, heightMap);
     }
@@ -549,9 +549,9 @@ public class TerrainQuad extends Node implements Terrain {
 
     /**
      * <code>split</code> divides the heightmap data for four children. The
-     * children are either pages or blocks. This is dependent on the size of the
+     * children are either quads or patches. This is dependent on the size of the
      * children. If the child's size is less than or equal to the set block
-     * size, then blocks are created, otherwise, pages are created.
+     * size, then patches are created, otherwise, quads are created.
      *
      * @param blockSize
      *			the blocks size to test against.
@@ -568,10 +568,20 @@ public class TerrainQuad extends Node implements Terrain {
     }
 
     /**
-     * <code>createQuadPage</code> generates four new pages from this page.
+     * Quadrants, world coordinates, and heightmap coordinates (Y-up):
+     *         x
+     *         | u
+     *        2|4 v
+     *  -z ----+---- z
+     *     -v 1|3
+     *      -u |
+     *        -x
+     * <code>createQuad</code> generates four new quads from this quad.
+     * The heightmap's top left (0,0) coordinate is at the bottom, -x,-z
+     * coordinate of the terrain, so it grows in the positive x.z direction.
      */
     protected void createQuad(int blockSize, float[] heightMap) {
-        // create 4 terrain pages
+        // create 4 terrain quads
         int quarterSize = size >> 2;
 
         int split = (size + 1) >> 1;
@@ -582,7 +592,7 @@ public class TerrainQuad extends Node implements Terrain {
         if (lodCalculatorFactory == null)
             lodCalculatorFactory = new LodDistanceCalculatorFactory(); // set a default one
 
-        // 1 upper left
+        // 1 upper left of heightmap, lower left quad
         float[] heightBlock1 = createHeightSubBlock(heightMap, 0, 0, split);
 
         Vector3f origin1 = new Vector3f(-quarterSize * stepScale.x, 0,
@@ -593,14 +603,14 @@ public class TerrainQuad extends Node implements Terrain {
         tempOffset.x += origin1.x;
         tempOffset.y += origin1.z;
 
-        TerrainQuad page1 = new TerrainQuad(getName() + "Quad1", blockSize,
+        TerrainQuad quad1 = new TerrainQuad(getName() + "Quad1", blockSize,
                         split, stepScale, heightBlock1, totalSize, tempOffset,
                         offsetAmount, lodCalculatorFactory);
-        page1.setLocalTranslation(origin1);
-        page1.quadrant = 1;
-        this.attachChild(page1);
+        quad1.setLocalTranslation(origin1);
+        quad1.quadrant = 1;
+        this.attachChild(quad1);
 
-        // 2 lower left
+        // 2 lower left of heightmap, upper left quad
         float[] heightBlock2 = createHeightSubBlock(heightMap, 0, split - 1,
                         split);
 
@@ -613,14 +623,14 @@ public class TerrainQuad extends Node implements Terrain {
         tempOffset.x += origin2.x;
         tempOffset.y += origin2.z;
 
-        TerrainQuad page2 = new TerrainQuad(getName() + "Quad2", blockSize,
+        TerrainQuad quad2 = new TerrainQuad(getName() + "Quad2", blockSize,
                         split, stepScale, heightBlock2, totalSize, tempOffset,
                         offsetAmount, lodCalculatorFactory);
-        page2.setLocalTranslation(origin2);
-        page2.quadrant = 2;
-        this.attachChild(page2);
+        quad2.setLocalTranslation(origin2);
+        quad2.quadrant = 2;
+        this.attachChild(quad2);
 
-        // 3 upper right
+        // 3 upper right of heightmap, lower right quad
         float[] heightBlock3 = createHeightSubBlock(heightMap, split - 1, 0,
                         split);
 
@@ -633,14 +643,14 @@ public class TerrainQuad extends Node implements Terrain {
         tempOffset.x += origin3.x;
         tempOffset.y += origin3.z;
 
-        TerrainQuad page3 = new TerrainQuad(getName() + "Quad3", blockSize,
+        TerrainQuad quad3 = new TerrainQuad(getName() + "Quad3", blockSize,
                         split, stepScale, heightBlock3, totalSize, tempOffset,
                         offsetAmount, lodCalculatorFactory);
-        page3.setLocalTranslation(origin3);
-        page3.quadrant = 3;
-        this.attachChild(page3);
-        // //
-        // 4 lower right
+        quad3.setLocalTranslation(origin3);
+        quad3.quadrant = 3;
+        this.attachChild(quad3);
+        
+        // 4 lower right of heightmap, upper right quad
         float[] heightBlock4 = createHeightSubBlock(heightMap, split - 1,
                         split - 1, split);
 
@@ -653,12 +663,12 @@ public class TerrainQuad extends Node implements Terrain {
         tempOffset.x += origin4.x;
         tempOffset.y += origin4.z;
 
-        TerrainQuad page4 = new TerrainQuad(getName() + "Quad4", blockSize,
+        TerrainQuad quad4 = new TerrainQuad(getName() + "Quad4", blockSize,
                         split, stepScale, heightBlock4, totalSize, tempOffset,
                         offsetAmount, lodCalculatorFactory);
-        page4.setLocalTranslation(origin4);
-        page4.quadrant = 4;
-        this.attachChild(page4);
+        quad4.setLocalTranslation(origin4);
+        quad4.quadrant = 4;
+        this.attachChild(quad4);
 
     }
 
@@ -679,10 +689,10 @@ public class TerrainQuad extends Node implements Terrain {
     }
 
     /**
-     * <code>createQuadBlock</code> creates four child blocks from this page.
+     * <code>createQuadPatch</code> creates four child patches from this quad.
      */
     protected void createQuadPatch(float[] heightMap) {
-        // create 4 terrain blocks
+        // create 4 terrain patches
         int quarterSize = size >> 2;
         int halfSize = size >> 1;
         int split = (size + 1) >> 1;
@@ -1183,12 +1193,12 @@ public class TerrainQuad extends Node implements Terrain {
         else if (tp.getQuadrant() == 2)
             return getPatch(4);
         else if (tp.getQuadrant() == 3) {
-            // find the page to the right and ask it for child 1.
+            // find the patch to the right and ask it for child 1.
             TerrainQuad quad = findRightQuad();
             if (quad != null)
                 return quad.getPatch(1);
         } else if (tp.getQuadrant() == 4) {
-            // find the page to the right and ask it for child 2.
+            // find the patch to the right and ask it for child 2.
             TerrainQuad quad = findRightQuad();
             if (quad != null)
                 return quad.getPatch(2);
@@ -1203,7 +1213,7 @@ public class TerrainQuad extends Node implements Terrain {
         else if (tp.getQuadrant() == 3)
             return getPatch(4);
         else if (tp.getQuadrant() == 2) {
-            // find the page below and ask it for child 1.
+            // find the patch below and ask it for child 1.
             TerrainQuad quad = findDownQuad();
             if (quad != null)
                 return quad.getPatch(1);
@@ -1223,7 +1233,7 @@ public class TerrainQuad extends Node implements Terrain {
         else if (tp.getQuadrant() == 4)
             return getPatch(3);
         else if (tp.getQuadrant() == 1) {
-            // find the page above and ask it for child 2.
+            // find the patch above and ask it for child 2.
             TerrainQuad quad = findTopQuad();
             if (quad != null)
                 return quad.getPatch(2);
@@ -1242,7 +1252,7 @@ public class TerrainQuad extends Node implements Terrain {
         else if (tp.getQuadrant() == 4)
             return getPatch(2);
         else if (tp.getQuadrant() == 1) {
-            // find the page above and ask it for child 2.
+            // find the patch above and ask it for child 2.
             TerrainQuad quad = findLeftQuad();
             if (quad != null)
                 return quad.getPatch(3);
@@ -1303,7 +1313,7 @@ public class TerrainQuad extends Node implements Terrain {
 
     protected TerrainQuad findTopQuad() {
         if (getParent() == null || !(getParent() instanceof TerrainQuad))
-                return null;
+            return null;
 
         TerrainQuad pQuad = (TerrainQuad) getParent();
 
@@ -1326,7 +1336,7 @@ public class TerrainQuad extends Node implements Terrain {
 
     protected TerrainQuad findLeftQuad() {
         if (getParent() == null || !(getParent() instanceof TerrainQuad))
-                return null;
+            return null;
 
         TerrainQuad pQuad = (TerrainQuad) getParent();
 
