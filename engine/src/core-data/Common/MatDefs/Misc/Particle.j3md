@@ -82,6 +82,8 @@ MaterialDef Point Sprite {
 
         RenderState {
             PointSprite On
+            Blend AlphaAdditive
+            DepthWrite Off
         }
     }
 }

@@ -168,6 +168,11 @@ public class ParticleEmitter extends Geometry {
         meshType = type;
 
         this.setNumParticles(numParticles);
+        
+        // Must create clone of shape/influencer so that a reference to a static is 
+        // not maintained
+        shape = shape.deepClone();
+        particleInfluencer = particleInfluencer.clone();
 
         controls.add(control);
 
@@ -836,7 +841,6 @@ public class ParticleEmitter extends Geometry {
 
         TempVars vars = TempVars.get();
 
-
         BoundingBox bbox = (BoundingBox) this.getMesh().getBound();
 
         Vector3f min = vars.vect1;
@@ -852,9 +856,7 @@ public class ParticleEmitter extends Geometry {
             max.set(Vector3f.NEGATIVE_INFINITY);
         }
 
-        while (this.emitParticle(min, max)) {
-            ;
-        }
+        while (emitParticle(min, max));
 
         bbox.setMinMax(min, max);
         this.setBoundRefresh();
@@ -1080,6 +1082,12 @@ public class ParticleEmitter extends Geometry {
         super.read(im);
         InputCapsule ic = im.getCapsule(this);
         shape = (EmitterShape) ic.readSavable("shape", DEFAULT_SHAPE);
+        
+        if (shape == DEFAULT_SHAPE){
+            // Prevent reference to static
+            shape = shape.deepClone();
+        }
+        
         meshType = ic.readEnum("meshType", ParticleMesh.Type.class, ParticleMesh.Type.Triangle);
         int numParticles = ic.readInt("numParticles", 0);
         this.setNumParticles(numParticles);
@@ -1117,6 +1125,9 @@ public class ParticleEmitter extends Geometry {
         particleMesh.initParticleData(this, particles.length);
 
         particleInfluencer = (ParticleInfluencer) ic.readSavable("influencer", DEFAULT_INFLUENCER);
+        if (particleInfluencer == DEFAULT_INFLUENCER){
+            particleInfluencer = particleInfluencer.clone();
+        }
 
         if (im.getFormatVersion() == 0){
             // compatibility before the control inside particle emitter

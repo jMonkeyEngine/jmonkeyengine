@@ -75,8 +75,8 @@ public class TestExplosionEffect extends SimpleApplication {
         flame.setGravity(0, -5, 0);
         flame.setLowLife(.4f);
         flame.setHighLife(.5f);
-        flame.setInitialVelocity(new Vector3f(0, 7, 0));
-        flame.setVelocityVariation(1f);
+        flame.getParticleInfluencer().setInitialVelocity(new Vector3f(0, 7, 0));
+        flame.getParticleInfluencer().setVelocityVariation(1f);
         flame.setImagesX(2);
         flame.setImagesY(2);
         Material mat = new Material(assetManager, "Common/MatDefs/Misc/Particle.j3md");
@@ -137,15 +137,13 @@ public class TestExplosionEffect extends SimpleApplication {
         spark.setEndColor(new ColorRGBA(1f, 0.8f, 0.36f, 0f));
         spark.setStartSize(.5f);
         spark.setEndSize(.5f);
-
-//        spark.setShape(new EmitterSphereShape(Vector3f.ZERO, .05f));
         spark.setFacingVelocity(true);
         spark.setParticlesPerSec(0);
         spark.setGravity(0, 5, 0);
         spark.setLowLife(1.1f);
         spark.setHighLife(1.5f);
-        spark.setInitialVelocity(new Vector3f(0, 20, 0));
-        spark.setVelocityVariation(1);
+        spark.getParticleInfluencer().setInitialVelocity(new Vector3f(0, 20, 0));
+        spark.getParticleInfluencer().setVelocityVariation(1);
         spark.setImagesX(1);
         spark.setImagesY(1);
         Material mat = new Material(assetManager, "Common/MatDefs/Misc/Particle.j3md");

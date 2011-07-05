@@ -50,7 +50,7 @@ public class EmptyParticleInfluencer implements ParticleInfluencer {
         try {
             return (ParticleInfluencer) super.clone();
         } catch (CloneNotSupportedException e) {
-            return new EmptyParticleInfluencer();
+            throw new AssertionError();
         }
     }
 }

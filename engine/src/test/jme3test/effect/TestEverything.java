@@ -54,6 +54,7 @@ import com.jme3.shadow.BasicShadowRenderer;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
 import com.jme3.util.SkyFactory;
+import com.jme3.util.TangentBinormalGenerator;
 
 public class TestEverything extends SimpleApplication {
 
@@ -127,11 +128,13 @@ public class TestEverything extends SimpleApplication {
     }
 
     public void setupFloor(){
-        Material mat = assetManager.loadMaterial("Textures/Terrain/BrickWall/BrickWall.j3m");
+        Material mat = assetManager.loadMaterial("Textures/Terrain/Cobblestone/Cobblestone.j3m");
         mat.getTextureParam("DiffuseMap").getTextureValue().setWrap(WrapMode.Repeat);
         mat.getTextureParam("NormalMap").getTextureValue().setWrap(WrapMode.Repeat);
         mat.getTextureParam("ParallaxMap").getTextureValue().setWrap(WrapMode.Repeat);
+        
         Box floor = new Box(Vector3f.ZERO, 50, 1f, 50);
+        TangentBinormalGenerator.generate(floor);
         floor.scaleTextureCoordinates(new Vector2f(5, 5));
         Geometry floorGeom = new Geometry("Floor", floor);
         floorGeom.setMaterial(mat);

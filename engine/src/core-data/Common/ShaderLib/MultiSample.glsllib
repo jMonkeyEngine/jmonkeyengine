@@ -37,7 +37,16 @@ vec4 getColor(in sampler2D tex, in vec2 texC){
 }
 
 vec4 getColor(in sampler2DMS tex, in vec2 texC){
-      return textureFetch(tex,texC,m_NumSamples);
+      return textureFetch(tex, texC, m_NumSamples);
+}
+
+vec4 getColorSingle(in sampler2D tex, in vec2 texC){
+    return texture2D(tex, texC);
+}
+
+vec4 getColorSingle(in sampler2DMS tex, in vec2 texC){
+    ivec2 iTexC = ivec2(texC * textureSize(tex));
+    return texelFetch(tex, iTexC, 0);
 }
 
 vec4 getDepth(in sampler2D tex,in vec2 texC){

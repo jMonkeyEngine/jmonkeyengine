@@ -63,9 +63,11 @@ public class DefaultParticleInfluencer implements ParticleInfluencer {
     @Override
     public ParticleInfluencer clone() {
         try {
-            return (ParticleInfluencer) super.clone();
+            DefaultParticleInfluencer clone = (DefaultParticleInfluencer) super.clone();
+            clone.startVelocity = startVelocity.clone();
+            return clone;
         } catch (CloneNotSupportedException e) {
-            return null;
+            throw new AssertionError();
         }
     }
 

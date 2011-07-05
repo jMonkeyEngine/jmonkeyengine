@@ -15,10 +15,12 @@ out vec4 outFragColor;
 void main(){
    vec4 color = vec4(0.0);
    #ifdef DO_EXTRACT
-     color = getColor(m_Texture, texCoord);
+     color = getColorSingle(m_Texture, texCoord);
      if ( (color.r + color.g + color.b) / 3.0 >= m_ExposureCutoff ) {
          color = pow(color, vec4(m_ExposurePow));
-      }
+     }else{
+         color = vec4(0.0);
+     }
    #endif
 
    #ifdef HAS_GLOWMAP

@@ -34,17 +34,19 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
 
     @Override
     public void initialize(AppStateManager stateManager, Application app) {
+        if (!super.isInitialized()){
+            InputManager inputManager = app.getInputManager();
+            inputManager.addMapping("ScreenShot", new KeyTrigger(KeyInput.KEY_SYSRQ));
+            inputManager.addListener(this, "ScreenShot");
+
+            List<ViewPort> vps = app.getRenderManager().getPostViews();
+            ViewPort last = vps.get(vps.size()-1);
+            last.addProcessor(this);
+
+            appName = app.getClass().getSimpleName();
+        }
+        
         super.initialize(stateManager, app);
-
-        InputManager inputManager = app.getInputManager();
-        inputManager.addMapping("ScreenShot", new KeyTrigger(KeyInput.KEY_SYSRQ));
-        inputManager.addListener(this, "ScreenShot");
-
-        List<ViewPort> vps = app.getRenderManager().getPostViews();
-        ViewPort last = vps.get(vps.size()-1);
-        last.addProcessor(this);
-
-        appName = app.getClass().getSimpleName();
     }
 
     public void onAction(String name, boolean value, float tpf) {

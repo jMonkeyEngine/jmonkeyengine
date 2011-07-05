@@ -177,9 +177,10 @@ public class ParticleTriMesh extends ParticleMesh {
             }
             
             if (facingVelocity){
-                left.set(p.velocity).normalizeLocal().multLocal(p.size);
+                left.set(p.velocity).normalizeLocal();
                 camDir.cross(left, up);
                 up.multLocal(p.size);
+                left.multLocal(p.size);
             }else if (faceNormal != null){
                 up.set(faceNormal).crossLocal(Vector3f.UNIT_X);
                 faceNormal.cross(up, left);
