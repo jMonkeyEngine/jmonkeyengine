@@ -239,6 +239,8 @@ public class TerrainGrid extends TerrainQuad {
 
         if (q1 == null || q2 == null || q3 == null || q4 == null) {
             try {
+                if (executor == null)
+                    executor = createExecutorService();
                 executor.submit(new UpdateQuadCache(cam, true)).get();
                 q1 = cache.get(cam.add(quadIndex[5]));
                 q2 = cache.get(cam.add(quadIndex[6]));
