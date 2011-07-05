@@ -32,7 +32,6 @@
 package jme3test.terrain;
 
 import com.jme3.app.SimpleApplication;
-import com.jme3.bounding.BoundingBox;
 import com.jme3.export.Savable;
 import com.jme3.export.binary.BinaryExporter;
 import com.jme3.export.binary.BinaryImporter;
@@ -44,7 +43,6 @@ import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
-import com.jme3.renderer.Camera;
 import com.jme3.scene.Node;
 import com.jme3.terrain.Terrain;
 import com.jme3.terrain.geomipmap.TerrainLodControl;
@@ -59,8 +57,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import jme3tools.converters.ImageToAwt;
@@ -162,9 +158,7 @@ public class TerrainTestReadWrite extends SimpleApplication {
         } else {
             // create the terrain as normal, and give it a control for LOD management
             TerrainQuad terrainQuad = new TerrainQuad("terrain", 65, 129, heightmap.getHeightMap());//, new LodPerspectiveCalculatorFactory(getCamera(), 4)); // add this in to see it use entropy for LOD calculations
-            List<Camera> cameras = new ArrayList<Camera>();
-            cameras.add(getCamera());
-            TerrainLodControl control = new TerrainLodControl(terrainQuad, cameras);
+            TerrainLodControl control = new TerrainLodControl(terrainQuad, getCamera());
             terrainQuad.addControl(control);
             terrainQuad.setMaterial(matTerrain);
             terrainQuad.setLocalTranslation(0, -100, 0);

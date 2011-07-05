@@ -1,7 +1,5 @@
 package jme3test.terrain;
 
-import java.util.ArrayList;
-import java.util.List;
 
 import com.jme3.app.SimpleApplication;
 import com.jme3.app.state.ScreenshotAppState;
@@ -18,24 +16,13 @@ import com.jme3.input.controls.KeyTrigger;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
-import com.jme3.renderer.Camera;
 import com.jme3.terrain.geomipmap.TerrainGrid;
 import com.jme3.terrain.geomipmap.TerrainLodControl;
-import com.jme3.terrain.geomipmap.TerrainQuad;
-import com.jme3.terrain.heightmap.FractalHeightMapGrid;
 import com.jme3.terrain.heightmap.ImageBasedHeightMapGrid;
 import com.jme3.terrain.heightmap.Namer;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
 import java.io.File;
-import org.novyon.noise.ShaderUtils;
-import org.novyon.noise.basis.FilteredBasis;
-import org.novyon.noise.filter.IterativeFilter;
-import org.novyon.noise.filter.OptimizedErode;
-import org.novyon.noise.filter.PerturbFilter;
-import org.novyon.noise.filter.SmoothFilter;
-import org.novyon.noise.fractal.FractalSum;
-import org.novyon.noise.modulator.NoiseModulator;
 
 public class TerrainGridTest extends SimpleApplication {
 
@@ -116,9 +103,7 @@ public class TerrainGridTest extends SimpleApplication {
         this.terrain.initialize(Vector3f.ZERO);
         this.rootNode.attachChild(this.terrain);
 
-        List<Camera> cameras = new ArrayList<Camera>();
-        cameras.add(this.getCamera());
-        TerrainLodControl control = new TerrainLodControl(this.terrain, cameras);
+        TerrainLodControl control = new TerrainLodControl(this.terrain, getCamera());
         this.terrain.addControl(control);
 
         BulletAppState bulletAppState = new BulletAppState();
