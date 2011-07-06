@@ -47,12 +47,22 @@ import com.jme3.math.ColorRGBA;
 import com.jme3.math.Ray;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
+import com.jme3.terrain.geomipmap.TerrainGrid;
 import com.jme3.terrain.geomipmap.TerrainLodControl;
 import com.jme3.terrain.geomipmap.TerrainQuad;
+import com.jme3.terrain.heightmap.FractalHeightMapGrid;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
 import java.util.ArrayList;
 import java.util.List;
+import org.novyon.noise.ShaderUtils;
+import org.novyon.noise.basis.FilteredBasis;
+import org.novyon.noise.filter.IterativeFilter;
+import org.novyon.noise.filter.OptimizedErode;
+import org.novyon.noise.filter.PerturbFilter;
+import org.novyon.noise.filter.SmoothFilter;
+import org.novyon.noise.fractal.FractalSum;
+import org.novyon.noise.modulator.NoiseModulator;
 
 /**
  *
@@ -82,15 +92,15 @@ public class TerrainTestModifyHeight extends SimpleApplication {
 
     @Override
     public void simpleUpdate(float tpf){
-        updateHintText();
+        Vector3f intersection = getWorldIntersection();
+        updateHintText(intersection);
         
         if (raiseTerrain){
-            Vector3f intersection = getWorldIntersection();
+            
             if (intersection != null) {
                 adjustHeight(intersection, 64, tpf * 60);
             }
         }else if (lowerTerrain){
-            Vector3f intersection = getWorldIntersection();
             if (intersection != null) {
                 adjustHeight(intersection, 64, -tpf * 60);
             }
@@ -103,47 +113,13 @@ public class TerrainTestModifyHeight extends SimpleApplication {
         initCrossHairs();
         setupKeys();
 
-        // First, we load up our textures and the heightmap texture for the terrain
-
-        // TERRAIN TEXTURE material
-        matTerrain = new Material(assetManager, "Common/MatDefs/Terrain/TerrainLighting.j3md");
-        matTerrain.setBoolean("useTriPlanarMapping", false);
-        matTerrain.setBoolean("WardIso", true);
-
-        // ALPHA map (for splat textures)
-        matTerrain.setTexture("AlphaMap", assetManager.loadTexture("Textures/Terrain/splat/alphamap.png"));
-
-        // GRASS texture
-        Texture grass = assetManager.loadTexture("Textures/Terrain/splat/grass.jpg");
-        grass.setWrap(WrapMode.Repeat);
-        matTerrain.setTexture("DiffuseMap", grass);
-        matTerrain.setFloat("DiffuseMap_0_scale", grassScale);
-
-        // DIRT texture
-        Texture dirt = assetManager.loadTexture("Textures/Terrain/splat/dirt.jpg");
-        dirt.setWrap(WrapMode.Repeat);
-        matTerrain.setTexture("DiffuseMap_1", dirt);
-        matTerrain.setFloat("DiffuseMap_1_scale", dirtScale);
-
-        // ROCK texture
-        Texture rock = assetManager.loadTexture("Textures/Terrain/splat/road.jpg");
-        rock.setWrap(WrapMode.Repeat);
-        matTerrain.setTexture("DiffuseMap_2", rock);
-        matTerrain.setFloat("DiffuseMap_2_scale", rockScale);
-
         // WIREFRAME material
         matWire = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         matWire.getAdditionalRenderState().setWireframe(true);
         matWire.setColor("Color", ColorRGBA.Green);
-
-        // CREATE THE TERRAIN
-        terrain = new TerrainQuad("terrain", 65, 513, null);
-        TerrainLodControl control = new TerrainLodControl(terrain, getCamera());
-        terrain.addControl(control);
-        terrain.setMaterial(matTerrain);
-        terrain.setLocalTranslation(0, -100, 0);
-        terrain.setLocalScale(2f, 1f, 2f);
-        rootNode.attachChild(terrain);
+        
+        //createTerrain();
+        createTerrainGrid();
 
         DirectionalLight light = new DirectionalLight();
         light.setDirection((new Vector3f(-0.5f, -1f, -0.5f)).normalize());
@@ -153,7 +129,7 @@ public class TerrainTestModifyHeight extends SimpleApplication {
         ambLight.setColor(new ColorRGBA(1f, 1f, 0.8f, 0.2f));
         rootNode.addLight(ambLight);
 
-        cam.setLocation(new Vector3f(0, 10, -10));
+        cam.setLocation(new Vector3f(0, 256, 0));
         cam.lookAtDirection(new Vector3f(0, -1.5f, -1).normalizeLocal(), Vector3f.UNIT_Y);
     }
 
@@ -164,11 +140,14 @@ public class TerrainTestModifyHeight extends SimpleApplication {
         guiNode.attachChild(hintText);
     }
 
-    public void updateHintText() {
+    public void updateHintText(Vector3f target) {
         int x = (int) getCamera().getLocation().x;
         int y = (int) getCamera().getLocation().y;
         int z = (int) getCamera().getLocation().z;
-        hintText.setText("Press left mouse button to raise terrain, press right mouse button to lower terrain.  " + x + "," + y + "," + z);
+        String targetText = "";
+        if (target!= null)
+            targetText = "  intersect: "+target.toString();
+        hintText.setText("Press left mouse button to raise terrain, press right mouse button to lower terrain.  " + x + "," + y + "," + z+targetText);
     }
 
     protected void initCrossHairs() {
@@ -271,5 +250,133 @@ public class TerrainTestModifyHeight extends SimpleApplication {
             return hit.getContactPoint();
         }
         return null;
+    }
+    
+    private void createTerrain() {
+        // First, we load up our textures and the heightmap texture for the terrain
+
+        // TERRAIN TEXTURE material
+        matTerrain = new Material(assetManager, "Common/MatDefs/Terrain/TerrainLighting.j3md");
+        matTerrain.setBoolean("useTriPlanarMapping", false);
+        matTerrain.setBoolean("WardIso", true);
+
+        // ALPHA map (for splat textures)
+        matTerrain.setTexture("AlphaMap", assetManager.loadTexture("Textures/Terrain/splat/alphamap.png"));
+
+        // GRASS texture
+        Texture grass = assetManager.loadTexture("Textures/Terrain/splat/grass.jpg");
+        grass.setWrap(WrapMode.Repeat);
+        matTerrain.setTexture("DiffuseMap", grass);
+        matTerrain.setFloat("DiffuseMap_0_scale", grassScale);
+
+        // DIRT texture
+        Texture dirt = assetManager.loadTexture("Textures/Terrain/splat/dirt.jpg");
+        dirt.setWrap(WrapMode.Repeat);
+        matTerrain.setTexture("DiffuseMap_1", dirt);
+        matTerrain.setFloat("DiffuseMap_1_scale", dirtScale);
+
+        // ROCK texture
+        Texture rock = assetManager.loadTexture("Textures/Terrain/splat/road.jpg");
+        rock.setWrap(WrapMode.Repeat);
+        matTerrain.setTexture("DiffuseMap_2", rock);
+        matTerrain.setFloat("DiffuseMap_2_scale", rockScale);
+
+        // CREATE THE TERRAIN
+        terrain = new TerrainQuad("terrain", 65, 513, null);
+        TerrainLodControl control = new TerrainLodControl(terrain, getCamera());
+        terrain.addControl(control);
+        terrain.setMaterial(matTerrain);
+        terrain.setLocalTranslation(0, -100, 0);
+        terrain.setLocalScale(2f, 1f, 2f);
+        rootNode.attachChild(terrain);
+    }
+
+    private void createTerrainGrid() {
+        
+        // TERRAIN TEXTURE material
+        matTerrain = new Material(this.assetManager, "Common/MatDefs/Terrain/HeightBasedTerrain.j3md");
+
+        // Parameters to material:
+        // regionXColorMap: X = 1..4 the texture that should be appliad to state X
+        // regionX: a Vector3f containing the following information:
+        //      regionX.x: the start height of the region
+        //      regionX.y: the end height of the region
+        //      regionX.z: the texture scale for the region
+        //  it might not be the most elegant way for storing these 3 values, but it packs the data nicely :)
+        // slopeColorMap: the texture to be used for cliffs, and steep mountain sites
+        // slopeTileFactor: the texture scale for slopes
+        // terrainSize: the total size of the terrain (used for scaling the texture)
+        // GRASS texture
+        Texture grass = assetManager.loadTexture("Textures/Terrain/splat/grass.jpg");
+        grass.setWrap(WrapMode.Repeat);
+        matTerrain.setTexture("region1ColorMap", grass);
+        matTerrain.setVector3("region1", new Vector3f(88, 200, this.grassScale));
+
+        // DIRT texture
+        Texture dirt = assetManager.loadTexture("Textures/Terrain/splat/dirt.jpg");
+        dirt.setWrap(WrapMode.Repeat);
+        matTerrain.setTexture("region2ColorMap", dirt);
+        matTerrain.setVector3("region2", new Vector3f(0, 90, this.dirtScale));
+
+        // ROCK texture
+        Texture rock = assetManager.loadTexture("Textures/Terrain/Rock2/rock.jpg");
+        rock.setWrap(WrapMode.Repeat);
+        matTerrain.setTexture("region3ColorMap", rock);
+        matTerrain.setVector3("region3", new Vector3f(198, 260, this.rockScale));
+
+        matTerrain.setTexture("region4ColorMap", rock);
+        matTerrain.setVector3("region4", new Vector3f(198, 260, this.rockScale));
+
+        matTerrain.setTexture("slopeColorMap", rock);
+        matTerrain.setFloat("slopeTileFactor", 32);
+
+        matTerrain.setFloat("terrainSize", 513);
+
+        FractalSum base = new FractalSum();
+        base.setRoughness(0.7f);
+        base.setFrequency(1.0f);
+        base.setAmplitude(1.0f);
+        base.setLacunarity(2.12f);
+        base.setOctaves(8);
+        base.setScale(0.02125f);
+        base.addModulator(new NoiseModulator() {
+            @Override
+            public float value(float... in) {
+                return ShaderUtils.clamp(in[0] * 0.5f + 0.5f, 0, 1);
+            }
+        });
+
+        FilteredBasis ground = new FilteredBasis(base);
+
+        PerturbFilter perturb = new PerturbFilter();
+        perturb.setMagnitude(0.119f);
+
+        OptimizedErode therm = new OptimizedErode();
+        therm.setRadius(5);
+        therm.setTalus(0.011f);
+
+        SmoothFilter smooth = new SmoothFilter();
+        smooth.setRadius(1);
+        smooth.setEffect(0.7f);
+
+        IterativeFilter iterate = new IterativeFilter();
+        iterate.addPreFilter(perturb);
+        iterate.addPostFilter(smooth);
+        iterate.setFilter(therm);
+        iterate.setIterations(1);
+
+        ground.addPreFilter(iterate);
+
+        this.terrain = new TerrainGrid("terrain", 65, 257, new FractalHeightMapGrid(ground, null, 256f));
+
+
+        terrain.setMaterial(matWire);
+        terrain.setLocalTranslation(0, 0, 0);
+        terrain.setLocalScale(2f, 1f, 2f);
+        ((TerrainGrid)terrain).initialize(Vector3f.ZERO);
+        rootNode.attachChild(this.terrain);
+
+        TerrainLodControl control = new TerrainLodControl(this.terrain, getCamera());
+        this.terrain.addControl(control);
     }
 }

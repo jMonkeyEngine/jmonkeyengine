@@ -32,6 +32,8 @@
 
 package com.jme3.terrain.geomipmap;
 
+import com.jme3.scene.control.UpdateControl;
+import com.jme3.app.AppTask;
 import com.jme3.material.Material;
 import java.io.IOException;
 import java.util.HashMap;
@@ -67,6 +69,9 @@ import com.jme3.util.TangentBinormalGenerator;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.Future;
 
 /**
  * A terrain quad is a node in the quad tree of the terrain system.
@@ -94,8 +99,7 @@ public class TerrainQuad extends Node implements Terrain {
     protected int quadrant = 1; // 1=upper left, 2=lower left, 3=upper right, 4=lower right
 
     protected LodCalculatorFactory lodCalculatorFactory;
-
-
+    
     protected List<Vector3f> lastCameraLocations; // used for LOD calc
     private boolean lodCalcRunning = false;
     private int maxLod = -1;
@@ -129,12 +133,17 @@ public class TerrainQuad extends Node implements Terrain {
     public TerrainQuad(String name, int patchSize, int totalSize, float[] heightMap, LodCalculatorFactory lodCalculatorFactory) {
         this(name, patchSize, totalSize, Vector3f.UNIT_XYZ, heightMap, lodCalculatorFactory);
     }
-
-    public TerrainQuad(String name, int patchSize, int size, Vector3f scale, float[] heightMap, LodCalculatorFactory lodCalculatorFactory) {
-        this(name, patchSize, size, scale, heightMap, size, new Vector2f(), 0, lodCalculatorFactory);
+    
+    public TerrainQuad(String name, int patchSize, int size, int totalSize, float[] heightMap, LodCalculatorFactory lodCalculatorFactory) {
+        this(name, patchSize, size, Vector3f.UNIT_XYZ, heightMap, totalSize, new Vector2f(), 0, lodCalculatorFactory);
         affectedAreaBBox = new BoundingBox(new Vector3f(0,0,0), size, Float.MAX_VALUE, size);
         fixNormalEdges(affectedAreaBBox);
         addControl(new NormalRecalcControl(this));
+    }
+
+    public TerrainQuad(String name, int patchSize, int size, Vector3f scale, float[] heightMap, LodCalculatorFactory lodCalculatorFactory) {
+        this(name, patchSize, size, scale, heightMap, size, new Vector2f(), 0, lodCalculatorFactory);
+        
     }
 
     protected TerrainQuad(String name, int patchSize, int size,
@@ -1580,7 +1589,7 @@ public class TerrainQuad extends Node implements Terrain {
         int area = size*size;
         hm = new float[area];
 
-        if (getChildren() != null) {
+        if (getChildren() != null && !getChildren().isEmpty()) {
             float[] ul=null, ur=null, bl=null, br=null;
             // get the child heightmaps
             if (getChild(0) instanceof TerrainPatch) {
