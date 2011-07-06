@@ -40,7 +40,6 @@ import com.jme3.export.InputCapsule;
 import com.jme3.export.OutputCapsule;
 import com.jme3.export.Savable;
 import com.jme3.material.Material;
-import com.jme3.material.RenderState;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.Caps;
 import com.jme3.renderer.RenderManager;
@@ -140,7 +139,6 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
 
         Camera cam = vp.getCamera();
 
-
         //save view port diensions
         left = cam.getViewPortLeft();
         right = cam.getViewPortRight();
@@ -150,7 +148,6 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
         originalHeight = cam.getHeight();
         //first call to reshape
         reshape(vp, cam.getWidth(), cam.getHeight());
-
     }
 
     /**

@@ -1,4 +1,5 @@
-﻿#extension GL_ARB_texture_gather : enable
+// Because gpu_shader5 is actually where those
+// gather functions are declared to work on shadowmaps
 #extension GL_ARB_gpu_shader5 : enable
 
 #ifdef HARDWARE_SHADOWS
@@ -82,7 +83,7 @@ float Shadow_DoBilinear_2x2(in SHADOWMAP tex, in vec4 projCoord){
         return 1.0;
 
     ivec2 texSize = textureSize(tex, 0);
-    #ifdef GL_ARB_texture_gather
+    #ifdef GL_ARB_gpu_shader5
         vec4 coord = vec4(projCoord.xyz / projCoord.w,0.0);
         vec4 gather = SHADOWGATHER(tex, coord);
     #else
