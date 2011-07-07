@@ -211,7 +211,7 @@ public class TerrainGrid extends TerrainQuad {
     }
 
     public Vector3f getCell(Vector3f location) {
-        final Vector3f v = location.clone().divideLocal(this.getLocalScale().mult(this.quadSize)).add(0.5f, 0, 0.5f);
+        final Vector3f v = location.clone().divideLocal(this.getLocalScale().mult(this.quadSize-1)).add(0.5f, 0, 0.5f);
         return new Vector3f(FastMath.floor(v.x), 0, FastMath.floor(v.z));
     }
 
