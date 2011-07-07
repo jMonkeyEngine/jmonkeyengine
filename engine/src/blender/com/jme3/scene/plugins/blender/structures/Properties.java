@@ -315,7 +315,7 @@ public class Properties implements Cloneable, Savable {
 	}
 
 	@Override
-	@SuppressWarnings("rawtypes")
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void write(JmeExporter ex) throws IOException {
 		OutputCapsule oc = ex.getCapsule(this);
 		oc.write(name, "name", DEFAULT_NAME);
@@ -347,7 +347,7 @@ public class Properties implements Cloneable, Savable {
 						LOGGER.warning("Cannot save the property's value! Invalid array subtype! Property: name: " + name + "; subtype: " + subType);
 				}
 			case IDP_GROUP:
-				oc.write((Properties) value, "value", null);
+				oc.writeSavableArrayList((ArrayList<Properties>) value, "value", null);
 				break;
 			case IDP_DOUBLE:
 				oc.write((Double) value, "value", 0);
