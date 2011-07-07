@@ -22,6 +22,7 @@ import com.jme3.renderer.Camera;
 import com.jme3.terrain.geomipmap.TerrainGrid;
 import com.jme3.terrain.geomipmap.TerrainGridListener;
 import com.jme3.terrain.geomipmap.TerrainLodControl;
+import com.jme3.terrain.geomipmap.TerrainQuad;
 import com.jme3.terrain.heightmap.ImageBasedHeightMapGrid;
 import com.jme3.terrain.heightmap.Namer;
 import com.jme3.texture.Texture;
@@ -65,7 +66,7 @@ public class TerrainGridAlphaMapTest extends SimpleApplication {
         }else{
             assetManager.registerLocator("mountains.zip", ZipLocator.class);
         }
-        
+
         this.flyCam.setMoveSpeed(100f);
         ScreenshotAppState state = new ScreenshotAppState();
         this.stateManager.attach(state);
@@ -140,22 +141,8 @@ public class TerrainGridAlphaMapTest extends SimpleApplication {
         }));
         this.terrain.setMaterial(this.matRock);
 
-        this.terrain.addListener("alphaListener", new TerrainGridListener() {
-
-            public void gridMoved(Vector3f newCenter) {
-            }
-
-            public Material tileLoaded(Material material, Vector3f cell) {
-                int x = (int)Math.abs(512 * (cell.x % 2));
-                int z = (int)Math.abs(512 * (cell.z % 2));
-                material.setTexture("Alpha", assetManager.loadTexture("Scenes/TerrainAlphaTest/alphamap_" + x + "_" + z + ".png"));
-                return material;
-            }
-        });
-
         this.terrain.setLocalTranslation(0, 0, 0);
         this.terrain.setLocalScale(2f, 1f, 2f);
-        this.terrain.initialize(Vector3f.ZERO);
         this.rootNode.attachChild(this.terrain);
 
         List<Camera> cameras = new ArrayList<Camera>();
@@ -163,7 +150,7 @@ public class TerrainGridAlphaMapTest extends SimpleApplication {
         TerrainLodControl control = new TerrainLodControl(this.terrain, cameras);
         this.terrain.addControl(control);
 
-        BulletAppState bulletAppState = new BulletAppState();
+        final BulletAppState bulletAppState = new BulletAppState();
         stateManager.attach(bulletAppState);
 
 
@@ -172,19 +159,38 @@ public class TerrainGridAlphaMapTest extends SimpleApplication {
         this.viewPort.setBackgroundColor(new ColorRGBA(0.7f, 0.8f, 1f, 1f));
 
         if (usePhysics) {
-            RigidBodyControl body = new RigidBodyControl(new HeightfieldCollisionShape(terrain.getHeightMap(), terrain.getLocalScale()), 0);
-            terrain.addControl(body);
-            bulletAppState.getPhysicsSpace().add(terrain);
             CapsuleCollisionShape capsuleShape = new CapsuleCollisionShape(0.5f, 1.8f, 1);
-            this.player3 = new CharacterControl(capsuleShape, 0.5f);
-            this.player3.setJumpSpeed(20);
-            this.player3.setFallSpeed(30);
-            this.player3.setGravity(30);
+            player3 = new CharacterControl(capsuleShape, 0.5f);
+            player3.setJumpSpeed(20);
+            player3.setFallSpeed(10);
+            player3.setGravity(10);
 
-            this.player3.setPhysicsLocation(new Vector3f(0, 256, 0));
+            player3.setPhysicsLocation(new Vector3f(cam.getLocation().x, 256, cam.getLocation().z));
 
-            bulletAppState.getPhysicsSpace().add(this.player3);
+            bulletAppState.getPhysicsSpace().add(player3);
+
+            terrain.addListener("physicsStartListener", new TerrainGridListener() {
+
+                public void gridMoved(Vector3f newCenter) {
+                }
+
+                public Material tileLoaded(Material material, Vector3f cell) {
+                    return material;
+                }
+
+                public void tileAttached(Vector3f cell, TerrainQuad quad) {
+                    quad.addControl(new RigidBodyControl(new HeightfieldCollisionShape(quad.getHeightMap(), terrain.getLocalScale()), 0));
+                    bulletAppState.getPhysicsSpace().add(quad);
+                }
+
+                public void tileDetached(Vector3f cell, TerrainQuad quad) {
+                    bulletAppState.getPhysicsSpace().remove(quad);
+                    quad.removeControl(RigidBodyControl.class);
+                }
+
+            });
         }
+        this.terrain.initialize(cam.getLocation());
         this.initKeys();
     }
 

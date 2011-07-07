@@ -18,6 +18,7 @@ import com.jme3.math.Vector3f;
 import com.jme3.terrain.geomipmap.TerrainGrid;
 import com.jme3.terrain.geomipmap.TerrainGridListener;
 import com.jme3.terrain.geomipmap.TerrainLodControl;
+import com.jme3.terrain.geomipmap.TerrainQuad;
 import com.jme3.terrain.heightmap.ImageBasedHeightMapGrid;
 import com.jme3.terrain.heightmap.Namer;
 import com.jme3.texture.Texture;
@@ -115,28 +116,35 @@ public class TerrainGridTest extends SimpleApplication {
         this.viewPort.setBackgroundColor(new ColorRGBA(0.7f, 0.8f, 1f, 1f));
 
         if (usePhysics) {
+            CapsuleCollisionShape capsuleShape = new CapsuleCollisionShape(0.5f, 1.8f, 1);
+            player3 = new CharacterControl(capsuleShape, 0.5f);
+            player3.setJumpSpeed(20);
+            player3.setFallSpeed(10);
+            player3.setGravity(10);
+
+            player3.setPhysicsLocation(new Vector3f(cam.getLocation().x, 256, cam.getLocation().z));
+
+            bulletAppState.getPhysicsSpace().add(player3);
+
             terrain.addListener("physicsStartListener", new TerrainGridListener() {
 
                 public void gridMoved(Vector3f newCenter) {
-                    terrain.removeListener("physicsStartListener");
-                    RigidBodyControl body = new RigidBodyControl(new HeightfieldCollisionShape(terrain.getHeightMap(), terrain.getLocalScale()), 0);
-                    terrain.addControl(body);
-                    bulletAppState.getPhysicsSpace().add(terrain);
-                    CapsuleCollisionShape capsuleShape = new CapsuleCollisionShape(0.5f, 1.8f, 1);
-                    player3 = new CharacterControl(capsuleShape, 0.5f);
-                    player3.setJumpSpeed(20);
-                    player3.setFallSpeed(30);
-                    player3.setGravity(30);
-
-                    player3.setPhysicsLocation(new Vector3f(cam.getLocation().x, 256, cam.getLocation().z));
-
-                    bulletAppState.getPhysicsSpace().add(player3);
-                    physicsAdded = true;
                 }
 
                 public Material tileLoaded(Material material, Vector3f cell) {
                     return material;
                 }
+
+                public void tileAttached(Vector3f cell, TerrainQuad quad) {
+                    quad.addControl(new RigidBodyControl(new HeightfieldCollisionShape(quad.getHeightMap(), terrain.getLocalScale()), 0));
+                    bulletAppState.getPhysicsSpace().add(quad);
+                }
+
+                public void tileDetached(Vector3f cell, TerrainQuad quad) {
+                    bulletAppState.getPhysicsSpace().remove(quad);
+                    quad.removeControl(RigidBodyControl.class);
+                }
+
             });
         }
         this.terrain.initialize(cam.getLocation());
@@ -213,7 +221,7 @@ public class TerrainGridTest extends SimpleApplication {
             this.walkDirection.addLocal(camDir.negate());
         }
 
-        if (usePhysics && physicsAdded) {
+        if (usePhysics) {
             this.player3.setWalkDirection(this.walkDirection);
             this.cam.setLocation(this.player3.getPhysicsLocation());
         }

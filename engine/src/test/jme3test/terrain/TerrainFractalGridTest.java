@@ -1,5 +1,6 @@
 package jme3test.terrain;
 
+import com.jme3.terrain.geomipmap.TerrainQuad;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -77,13 +78,13 @@ public class TerrainFractalGridTest extends SimpleApplication {
         Texture grass = this.assetManager.loadTexture("Textures/Terrain/splat/grass.jpg");
         grass.setWrap(WrapMode.Repeat);
         this.mat_terrain.setTexture("region1ColorMap", grass);
-        this.mat_terrain.setVector3("region1", new Vector3f(88, 200, this.grassScale));
+        this.mat_terrain.setVector3("region1", new Vector3f(15, 200, this.grassScale));
 
         // DIRT texture
         Texture dirt = this.assetManager.loadTexture("Textures/Terrain/splat/dirt.jpg");
         dirt.setWrap(WrapMode.Repeat);
         this.mat_terrain.setTexture("region2ColorMap", dirt);
-        this.mat_terrain.setVector3("region2", new Vector3f(0, 90, this.dirtScale));
+        this.mat_terrain.setVector3("region2", new Vector3f(0, 20, this.dirtScale));
 
         // ROCK texture
         Texture rock = this.assetManager.loadTexture("Textures/Terrain/Rock2/rock.jpg");
@@ -156,28 +157,35 @@ public class TerrainFractalGridTest extends SimpleApplication {
         this.viewPort.setBackgroundColor(new ColorRGBA(0.7f, 0.8f, 1f, 1f));
 
         if (usePhysics) {
+            CapsuleCollisionShape capsuleShape = new CapsuleCollisionShape(0.5f, 1.8f, 1);
+            player3 = new CharacterControl(capsuleShape, 0.5f);
+            player3.setJumpSpeed(20);
+            player3.setFallSpeed(10);
+            player3.setGravity(10);
+
+            player3.setPhysicsLocation(new Vector3f(cam.getLocation().x, 256, cam.getLocation().z));
+
+            bulletAppState.getPhysicsSpace().add(player3);
+
             terrain.addListener("physicsStartListener", new TerrainGridListener() {
 
                 public void gridMoved(Vector3f newCenter) {
-                    terrain.removeListener("physicsStartListener");
-                    RigidBodyControl body = new RigidBodyControl(new HeightfieldCollisionShape(terrain.getHeightMap(), terrain.getLocalScale()), 0);
-                    terrain.addControl(body);
-                    bulletAppState.getPhysicsSpace().add(terrain);
-                    CapsuleCollisionShape capsuleShape = new CapsuleCollisionShape(0.5f, 1.8f, 1);
-                    player3 = new CharacterControl(capsuleShape, 0.5f);
-                    player3.setJumpSpeed(20);
-                    player3.setFallSpeed(10);
-                    player3.setGravity(10);
-
-                    player3.setPhysicsLocation(new Vector3f(cam.getLocation().x, 256, cam.getLocation().z));
-
-                    bulletAppState.getPhysicsSpace().add(player3);
-                    physicsAdded = true;
                 }
 
                 public Material tileLoaded(Material material, Vector3f cell) {
                     return material;
                 }
+
+                public void tileAttached(Vector3f cell, TerrainQuad quad) {
+                    quad.addControl(new RigidBodyControl(new HeightfieldCollisionShape(quad.getHeightMap(), terrain.getLocalScale()), 0));
+                    bulletAppState.getPhysicsSpace().add(quad);
+                }
+
+                public void tileDetached(Vector3f cell, TerrainQuad quad) {
+                    bulletAppState.getPhysicsSpace().remove(quad);
+                    quad.removeControl(RigidBodyControl.class);
+                }
+
             });
         }
         this.terrain.initialize(cam.getLocation());
@@ -254,7 +262,7 @@ public class TerrainFractalGridTest extends SimpleApplication {
                 this.walkDirection.addLocal(camDir.negate());
             }
 
-        if (usePhysics && physicsAdded) {
+        if (usePhysics) {
             this.player3.setWalkDirection(this.walkDirection);
             this.cam.setLocation(this.player3.getPhysicsLocation());
         }
