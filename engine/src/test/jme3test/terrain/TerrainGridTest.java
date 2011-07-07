@@ -1,6 +1,5 @@
 package jme3test.terrain;
 
-
 import com.jme3.app.SimpleApplication;
 import com.jme3.app.state.ScreenshotAppState;
 import com.jme3.asset.plugins.HttpZipLocator;
@@ -17,6 +16,7 @@ import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.terrain.geomipmap.TerrainGrid;
+import com.jme3.terrain.geomipmap.TerrainGridListener;
 import com.jme3.terrain.geomipmap.TerrainLodControl;
 import com.jme3.terrain.heightmap.ImageBasedHeightMapGrid;
 import com.jme3.terrain.heightmap.Namer;
@@ -32,6 +32,7 @@ public class TerrainGridTest extends SimpleApplication {
     private float dirtScale = 16;
     private float rockScale = 128;
     private boolean usePhysics = true;
+    private boolean physicsAdded = false;
 
     public static void main(final String[] args) {
         TerrainGridTest app = new TerrainGridTest();
@@ -44,7 +45,7 @@ public class TerrainGridTest extends SimpleApplication {
         File file = new File("mountains.zip");
         if (!file.exists()) {
             assetManager.registerLocator("http://jmonkeyengine.googlecode.com/files/mountains.zip", HttpZipLocator.class);
-        }else{
+        } else {
             assetManager.registerLocator("mountains.zip", ZipLocator.class);
         }
 
@@ -89,24 +90,24 @@ public class TerrainGridTest extends SimpleApplication {
         this.mat_terrain.setTexture("slopeColorMap", rock);
         this.mat_terrain.setFloat("slopeTileFactor", 32);
 
-        this.mat_terrain.setFloat("terrainSize", 513);
+        this.mat_terrain.setFloat("terrainSize", 129);
 
-        this.terrain = new TerrainGrid("terrain", 65, 1025, new ImageBasedHeightMapGrid(assetManager, new Namer() {
+        this.terrain = new TerrainGrid("terrain", 65, 257, new ImageBasedHeightMapGrid(assetManager, new Namer() {
+
             public String getName(int x, int y) {
-                return "Scenes/TerrainMountains/mountains_" + (x * 512) + "_" + (y * 512) + ".png";
+                return "Scenes/TerrainMountains/terrain_" + x + "_" + y + ".png";
             }
         }));
 
         this.terrain.setMaterial(this.mat_terrain);
         this.terrain.setLocalTranslation(0, 0, 0);
         this.terrain.setLocalScale(2f, 1f, 2f);
-        this.terrain.initialize(Vector3f.ZERO);
         this.rootNode.attachChild(this.terrain);
 
         TerrainLodControl control = new TerrainLodControl(this.terrain, getCamera());
         this.terrain.addControl(control);
 
-        BulletAppState bulletAppState = new BulletAppState();
+        final BulletAppState bulletAppState = new BulletAppState();
         stateManager.attach(bulletAppState);
 
         this.getCamera().setLocation(new Vector3f(0, 256, 0));
@@ -114,19 +115,31 @@ public class TerrainGridTest extends SimpleApplication {
         this.viewPort.setBackgroundColor(new ColorRGBA(0.7f, 0.8f, 1f, 1f));
 
         if (usePhysics) {
-            RigidBodyControl body = new RigidBodyControl(new HeightfieldCollisionShape(terrain.getHeightMap(), terrain.getLocalScale()), 0);
-            terrain.addControl(body);
-            bulletAppState.getPhysicsSpace().add(terrain);
-            CapsuleCollisionShape capsuleShape = new CapsuleCollisionShape(0.5f, 1.8f, 1);
-            this.player3 = new CharacterControl(capsuleShape, 0.5f);
-            this.player3.setJumpSpeed(20);
-            this.player3.setFallSpeed(30);
-            this.player3.setGravity(30);
+            terrain.addListener("physicsStartListener", new TerrainGridListener() {
 
-            this.player3.setPhysicsLocation(new Vector3f(0, 256, 0));
+                public void gridMoved(Vector3f newCenter) {
+                    terrain.removeListener("physicsStartListener");
+                    RigidBodyControl body = new RigidBodyControl(new HeightfieldCollisionShape(terrain.getHeightMap(), terrain.getLocalScale()), 0);
+                    terrain.addControl(body);
+                    bulletAppState.getPhysicsSpace().add(terrain);
+                    CapsuleCollisionShape capsuleShape = new CapsuleCollisionShape(0.5f, 1.8f, 1);
+                    player3 = new CharacterControl(capsuleShape, 0.5f);
+                    player3.setJumpSpeed(20);
+                    player3.setFallSpeed(30);
+                    player3.setGravity(30);
 
-            bulletAppState.getPhysicsSpace().add(this.player3);
+                    player3.setPhysicsLocation(new Vector3f(cam.getLocation().x, 256, cam.getLocation().z));
+
+                    bulletAppState.getPhysicsSpace().add(player3);
+                    physicsAdded = true;
+                }
+
+                public Material tileLoaded(Material material, Vector3f cell) {
+                    return material;
+                }
+            });
         }
+        this.terrain.initialize(cam.getLocation());
         this.initKeys();
     }
 
@@ -143,7 +156,6 @@ public class TerrainGridTest extends SimpleApplication {
         this.inputManager.addListener(this.actionListener, "Downs");
         this.inputManager.addListener(this.actionListener, "Jumps");
     }
-
     private boolean left;
     private boolean right;
     private boolean up;
@@ -201,7 +213,7 @@ public class TerrainGridTest extends SimpleApplication {
             this.walkDirection.addLocal(camDir.negate());
         }
 
-        if (usePhysics) {
+        if (usePhysics && physicsAdded) {
             this.player3.setWalkDirection(this.walkDirection);
             this.cam.setLocation(this.player3.getPhysicsLocation());
         }

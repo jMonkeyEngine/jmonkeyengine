@@ -81,7 +81,7 @@ public class TerrainGrid extends TerrainQuad {
         }
 
         public void run() {
-            
+
             for (int i = 0; i < 4; i++) {
                 for (int j = 0; j < 4; j++) {
                     int quadIdx = i * 4 + j;
@@ -99,13 +99,14 @@ public class TerrainGrid extends TerrainQuad {
                         log.log(Level.FINE, "Loaded TerrainQuad {0}", q.getName());
                     }
                     cache.put(temp, q);
-                    
+
                     if (isCenter(quadIdx)) {
                         // if it should be attached as a child right now, attach it
                         final int quadrant = getQuadrant(quadIdx);
                         final TerrainQuad newQuad = q;
                         // back on the OpenGL thread:
                         getControl(UpdateControl.class).enqueue(new Callable() {
+
                             public Object call() throws Exception {
                                 attachQuadAt(newQuad, quadrant, temp);
                                 return null;
@@ -117,20 +118,21 @@ public class TerrainGrid extends TerrainQuad {
 
         }
     }
-    
+
     private boolean isCenter(int quadIndex) {
         return quadIndex == 9 || quadIndex == 5 || quadIndex == 10 || quadIndex == 6;
     }
-    
+
     private int getQuadrant(int quadIndex) {
-        if (quadIndex == 9)
+        if (quadIndex == 9) {
             return 1;
-        else if (quadIndex == 5)
+        } else if (quadIndex == 5) {
             return 2;
-        else if (quadIndex == 10)
+        } else if (quadIndex == 10) {
             return 3;
-        else if (quadIndex == 6)
+        } else if (quadIndex == 6) {
             return 4;
+        }
         return 0; // error
     }
 
@@ -161,7 +163,7 @@ public class TerrainGrid extends TerrainQuad {
             new Vector3f(-1, 0, 1), new Vector3f(0, 0, 1), new Vector3f(1, 0, 1), new Vector3f(2, 0, 1),
             new Vector3f(-1, 0, 0), new Vector3f(0, 0, 0), new Vector3f(1, 0, 0), new Vector3f(2, 0, 0),
             new Vector3f(-1, 0, -1), new Vector3f(0, 0, -1), new Vector3f(1, 0, -1), new Vector3f(-2, 0, -1)};
-        
+
         addControl(new UpdateControl());
     }
 
@@ -190,6 +192,7 @@ public class TerrainGrid extends TerrainQuad {
         for (TerrainGridListener l : this.listeners.values()) {
             l.gridMoved(camCell);
         }
+        updatePhysics();
     }
 
     @Override
@@ -205,6 +208,7 @@ public class TerrainGrid extends TerrainQuad {
             for (TerrainGridListener l : this.listeners.values()) {
                 l.gridMoved(camCell);
             }
+            updatePhysics();
         }
 
         super.update(locations);
@@ -234,8 +238,8 @@ public class TerrainGrid extends TerrainQuad {
         q.setQuadrant((short) quadrant);
         this.attachChild(q);
 
-        Vector3f loc = cam.mult(this.quadSize-1).subtract(quarterSize, 0, quarterSize);// quadrant location handled TerrainQuad automatically now
-        q.setLocalTranslation(loc );
+        Vector3f loc = cam.mult(this.quadSize - 1).subtract(quarterSize, 0, quarterSize);// quadrant location handled TerrainQuad automatically now
+        q.setLocalTranslation(loc);
 
         if (quadControls != null) {
             quadControls[quadrant - 1].setEnabled(false);
@@ -246,11 +250,11 @@ public class TerrainGrid extends TerrainQuad {
             //quadControls[quadrant - 1].setPhysicsLocation(cam.add(this.quadOrigins[quadrant - 1]));
         } else {
         }
-        
+
         updateModelBound();
     }
 
-    private void updateChildrens(Vector3f cam) {
+    public void updatePhysics() {
         RigidBodyControl control = getControl(RigidBodyControl.class);
         if (control != null) {
             this.space = control.getPhysicsSpace();
@@ -261,22 +265,29 @@ public class TerrainGrid extends TerrainQuad {
             for (int i = 0; i < 4; i++) {
                 int collisionGroupsCollideWith = control.getCollideWithGroups();
                 int collisionGroups = control.getCollisionGroup();
-                quadControls[i] = new RigidBodyControl(new HeightfieldCollisionShape(new float[quadSize * quadSize], getLocalScale()), 0);
+                TerrainQuad q = getQuad(i + 1);
+                quadControls[i] = new RigidBodyControl(new HeightfieldCollisionShape(q == null ? new float[quadSize * quadSize] : q.getHeightMap(), getLocalScale()), 0);
                 quadControls[i].setCollideWithGroups(collisionGroupsCollideWith);
                 quadControls[i].setCollisionGroup(collisionGroups);
                 //quadControls[i].setPhysicsSpace(space);
                 //this.addControl(quadControls[i]);
-                //space.add(quadControls[i]);
+                if (q != null) {
+                    getQuad(i + 1).addControl(quadControls[i]);
+                    space.add(quadControls[i]);
+                }
             }
         }
+    }
 
+    private void updateChildrens(Vector3f cam) {
         //TerrainQuad q1 = cache.get(cam.add(quadIndex[9]));
         //TerrainQuad q2 = cache.get(cam.add(quadIndex[5]));
         //TerrainQuad q3 = cache.get(cam.add(quadIndex[10]));
         //TerrainQuad q4 = cache.get(cam.add(quadIndex[6]));
 
         // ---------------------------------------------------
-        // what does this block do?
+        // LRU cache is used, so elements that need to remain
+        // should be touched.
         // ---------------------------------------------------
         int dx = 0;
         int dy = 0;
@@ -308,26 +319,27 @@ public class TerrainGrid extends TerrainQuad {
         }
         // ---------------------------------------------------
         // ---------------------------------------------------
-        
-        if (executor == null)
+
+        if (executor == null) {
             executor = createExecutorService();
+        }
 
         executor.submit(new UpdateQuadCache(cam));
-        
-/*        if (q1 == null || q2 == null || q3 == null || q4 == null) {
-            try {
-                executor.submit(new UpdateQuadCache(cam, true)).get(); // BLOCKING
-                q1 = cache.get(cam.add(quadIndex[9]));
-                q2 = cache.get(cam.add(quadIndex[5]));
-                q3 = cache.get(cam.add(quadIndex[10]));
-                q4 = cache.get(cam.add(quadIndex[6]));
-            } catch (InterruptedException ex) {
-                Logger.getLogger(TerrainGrid.class.getName()).log(Level.SEVERE, null, ex);
-                return;
-            } catch (ExecutionException ex) {
-                Logger.getLogger(TerrainGrid.class.getName()).log(Level.SEVERE, null, ex);
-                return;
-            }
+
+        /*        if (q1 == null || q2 == null || q3 == null || q4 == null) {
+        try {
+        executor.submit(new UpdateQuadCache(cam, true)).get(); // BLOCKING
+        q1 = cache.get(cam.add(quadIndex[9]));
+        q2 = cache.get(cam.add(quadIndex[5]));
+        q3 = cache.get(cam.add(quadIndex[10]));
+        q4 = cache.get(cam.add(quadIndex[6]));
+        } catch (InterruptedException ex) {
+        Logger.getLogger(TerrainGrid.class.getName()).log(Level.SEVERE, null, ex);
+        return;
+        } catch (ExecutionException ex) {
+        Logger.getLogger(TerrainGrid.class.getName()).log(Level.SEVERE, null, ex);
+        return;
+        }
         }
 
         executor.execute(new UpdateQuadCache(cam));
@@ -342,11 +354,11 @@ public class TerrainGrid extends TerrainQuad {
         attachQuadAt(q2, 2, cam); // quadIndex[5]
         attachQuadAt(q3, 3, cam); // quadIndex[10]
         attachQuadAt(q4, 4, cam); // quadIndex[6]
-*/
+         */
         this.currentCell = cam;
 //        this.updateModelBound();
     }
-    
+
     public void addListener(String id, TerrainGridListener listener) {
         this.listeners.put(id, listener);
     }
@@ -368,15 +380,54 @@ public class TerrainGrid extends TerrainQuad {
     public void setQuadSize(int quadSize) {
         this.quadSize = quadSize;
     }
-    
+
     @Override
     public void adjustHeight(List<Vector2f> xz, List<Float> height) {
-        Vector3f currentGridLocation = getCurrentCell().mult( getLocalScale() ).multLocal( quadSize-1 );
-        for ( Vector2f vect : xz )
-        {
+        Vector3f currentGridLocation = getCurrentCell().mult(getLocalScale()).multLocal(quadSize - 1);
+        for (Vector2f vect : xz) {
             vect.x -= currentGridLocation.x;
             vect.y -= currentGridLocation.z;
         }
-        super.adjustHeight( xz, height );
+        super.adjustHeight(xz, height);
+    }
+
+    @Override
+    protected TerrainQuad findDownQuad() {
+        if (quadrant == 1) {
+            return cache.get(currentCell.add(quadIndex[13]));
+        } else if (quadrant == 3) {
+            return cache.get(currentCell.add(quadIndex[14]));
+        }
+        return null;
+    }
+
+    @Override
+    protected TerrainQuad findLeftQuad() {
+        if (quadrant == 1) {
+            return cache.get(currentCell.add(quadIndex[8]));
+        } else if (quadrant == 2) {
+            return cache.get(currentCell.add(quadIndex[4]));
+        }
+        return null;
+    }
+
+    @Override
+    protected TerrainQuad findRightQuad() {
+        if (quadrant == 3) {
+            return cache.get(currentCell.add(quadIndex[11]));
+        } else if (quadrant == 4) {
+            return cache.get(currentCell.add(quadIndex[7]));
+        }
+        return null;
+    }
+
+    @Override
+    protected TerrainQuad findTopQuad() {
+        if (quadrant == 2) {
+            return cache.get(currentCell.add(quadIndex[1]));
+        } else if (quadrant == 4) {
+            return cache.get(currentCell.add(quadIndex[2]));
+        }
+        return null;
     }
 }
