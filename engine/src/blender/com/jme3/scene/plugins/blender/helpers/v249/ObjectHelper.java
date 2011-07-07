@@ -51,6 +51,7 @@ import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
+import com.jme3.scene.Spatial;
 import com.jme3.scene.Spatial.CullHint;
 import com.jme3.scene.plugins.blender.data.FileBlockHeader;
 import com.jme3.scene.plugins.blender.data.Structure;
@@ -263,8 +264,8 @@ public class ObjectHelper extends AbstractBlenderHelper {
 		
 		//reading custom properties
 		Properties properties = this.loadProperties(objectStructure, dataRepository);
-		if(result instanceof Geometry && properties != null && properties.getValue() != null) {
-			((Geometry)result).setUserData("properties", properties);
+		if(result instanceof Spatial && properties != null && properties.getValue() != null) {
+			((Spatial)result).setUserData("properties", properties);
 		}
 		
 		if(result != null) {
