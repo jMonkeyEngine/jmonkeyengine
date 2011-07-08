@@ -165,6 +165,13 @@ public class ImageBasedHeightMap extends AbstractHeightMap {
         return load(false, false);
     }
 
+    /**
+     * Get the grayscale value, or override in your own sub-classes
+     */
+    protected float calculateHeight(float red, float green, float blue) {
+        return (float) ((0.299 * red + 0.587 * green + 0.114 * blue) * dampen);
+    }
+    
     public boolean load(boolean flipX, boolean flipY) {
 
         // FUTURE: Rescale image if not square?
@@ -220,9 +227,7 @@ public class ImageBasedHeightMap extends AbstractHeightMap {
                                 : (256 + (data[baseIndex + 1]));
                         float red = data[baseIndex + 2] >= 0 ? data[baseIndex + 2]
                                 : (256 + (data[baseIndex + 2]));
-                        float grayscale = (float) ((0.299 * red + 0.587 * green + 0.114 * blue) * dampen);
-                        heightData[index++] = grayscale;
-                        //heightData[index++] = calculateHeight(red,green,blue);
+                        heightData[index++] = calculateHeight(red,green,blue);
                     }
                 } else {
                     for (int w = 0; w < imageWidth; ++w) {
@@ -234,9 +239,7 @@ public class ImageBasedHeightMap extends AbstractHeightMap {
                                 : (256 + (data[baseIndex + 1]));
                         float red = data[baseIndex + 2] >= 0 ? data[baseIndex + 2]
                                 : (256 + (data[baseIndex + 2]));
-                        float grayscale = (float) ((0.299 * red + 0.587 * green + 0.114 * blue) * dampen);
-                        heightData[index++] = grayscale;
-                        //heightData[index++] = calculateHeight(red,green,blue);
+                        heightData[index++] = calculateHeight(red,green,blue);
 
                     }
                 }
@@ -253,9 +256,7 @@ public class ImageBasedHeightMap extends AbstractHeightMap {
                                 : (256 + (data[baseIndex + 1]));
                         float red = data[baseIndex + 2] >= 0 ? data[baseIndex + 2]
                                 : (256 + (data[baseIndex + 2]));
-                        float grayscale = (float) ((0.299 * red + 0.587 * green + 0.114 * blue) * dampen);
-                        heightData[index++] = grayscale;
-                        //heightData[index++] = calculateHeight(red,green,blue);
+                        heightData[index++] = calculateHeight(red,green,blue);
                     }
                 } else {
                     for (int w = 0; w < imageWidth; ++w) {
@@ -267,9 +268,7 @@ public class ImageBasedHeightMap extends AbstractHeightMap {
                                 : (256 + (data[baseIndex + 1]));
                         float red = data[baseIndex + 2] >= 0 ? data[baseIndex + 2]
                                 : (256 + (data[baseIndex + 2]));
-                        float grayscale = (float) ((0.299 * red + 0.587 * green + 0.114 * blue) * dampen);
-                        heightData[index++] = grayscale;
-                        //heightData[index++] = calculateHeight(red,green,blue);
+                        heightData[index++] = calculateHeight(red,green,blue);
                     }
                 }
             }
