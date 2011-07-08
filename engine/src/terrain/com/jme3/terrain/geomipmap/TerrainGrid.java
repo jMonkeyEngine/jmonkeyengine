@@ -56,22 +56,21 @@ import java.util.concurrent.Callable;
  */
 public class TerrainGrid extends TerrainQuad {
 
-    private static final Logger log = Logger.getLogger(TerrainGrid.class.getCanonicalName());
-    private Vector3f currentCell;
-    private int quarterSize;
-    private int quadSize;
-    private HeightMapGrid heightMapGrid;
-    //private Vector3f[] quadOrigins;
-    private Vector3f[] quadIndex;
-    private Map<String, TerrainGridListener> listeners = new HashMap<String, TerrainGridListener>();
-    private Material material;
-    private LRUCache<Vector3f, TerrainQuad> cache = new LRUCache<Vector3f, TerrainQuad>(16);
-    private RigidBodyControl[] quadControls;
-    private PhysicsSpace space;
+    protected static final Logger log = Logger.getLogger(TerrainGrid.class.getCanonicalName());
+    protected Vector3f currentCell;
+    protected int quarterSize;
+    protected int quadSize;
+    protected HeightMapGrid heightMapGrid;
+    protected Vector3f[] quadIndex;
+    protected Map<String, TerrainGridListener> listeners = new HashMap<String, TerrainGridListener>();
+    protected Material material;
+    protected LRUCache<Vector3f, TerrainQuad> cache = new LRUCache<Vector3f, TerrainQuad>(16);
+    protected RigidBodyControl[] quadControls;
+    protected PhysicsSpace space;
 
-    private class UpdateQuadCache implements Runnable {
+    protected class UpdateQuadCache implements Runnable {
 
-        private final Vector3f location;
+        protected final Vector3f location;
 
         public UpdateQuadCache(Vector3f location) {
             this.location = location;
@@ -116,11 +115,11 @@ public class TerrainGrid extends TerrainQuad {
         }
     }
 
-    private boolean isCenter(int quadIndex) {
+    protected boolean isCenter(int quadIndex) {
         return quadIndex == 9 || quadIndex == 5 || quadIndex == 10 || quadIndex == 6;
     }
 
-    private int getQuadrant(int quadIndex) {
+    protected int getQuadrant(int quadIndex) {
         if (quadIndex == 9) {
             return 1;
         } else if (quadIndex == 5) {
@@ -242,7 +241,7 @@ public class TerrainGrid extends TerrainQuad {
         updateModelBound();
     }
 
-    private void updateChildrens(Vector3f cam) {
+    protected void updateChildrens(Vector3f cam) {
         // ---------------------------------------------------
         // LRU cache is used, so elements that need to remain
         // should be touched.
