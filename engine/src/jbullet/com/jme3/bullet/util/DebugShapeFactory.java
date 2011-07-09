@@ -45,6 +45,7 @@ import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.VertexBuffer.Type;
+import com.jme3.util.BufferUtils;
 import com.jme3.util.TempVars;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -176,8 +177,7 @@ public class DebugShapeFactory {
 
         // The number of bytes needed is: (floats in a vertex) * (vertices in a triangle) * (# of triangles) * (size of float in bytes)
         final int numberOfFloats = 3 * 3 * numberOfTriangles;
-        final int byteBufferSize = numberOfFloats * Float.SIZE;
-        FloatBuffer vertices = ByteBuffer.allocateDirect(byteBufferSize).order(ByteOrder.nativeOrder()).asFloatBuffer();
+        FloatBuffer vertices = BufferUtils.createFloatBuffer(numberOfFloats); 
 
         // Force the limit, set the cap - most number of floats we will use the buffer for
         vertices.limit(numberOfFloats);
@@ -235,8 +235,7 @@ class BufferedTriangleCallback extends TriangleCallback {
     public FloatBuffer getVertices() {
         // There are 3 floats needed for each vertex (x,y,z)
         final int numberOfFloats = vertices.size() * 3;
-        final int byteBufferSize = numberOfFloats * Float.SIZE;
-        FloatBuffer verticesBuffer = ByteBuffer.allocateDirect(byteBufferSize).order(ByteOrder.nativeOrder()).asFloatBuffer();
+        FloatBuffer verticesBuffer = BufferUtils.createFloatBuffer(numberOfFloats); 
 
         // Force the limit, set the cap - most number of floats we will use the buffer for
         verticesBuffer.limit(numberOfFloats);

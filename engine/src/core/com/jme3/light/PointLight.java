@@ -61,6 +61,7 @@ public class PointLight extends Light {
         if (owner.getWorldBound() != null){
             BoundingVolume bv = owner.getWorldBound();
             lastDistance = bv.distanceSquaredTo(position);
+            System.out.println(lastDistance + ", " + owner);
         }else{
             lastDistance = owner.getWorldTranslation().distanceSquared(position);
         }

@@ -77,7 +77,7 @@ public class LwjglAudioRenderer implements AudioRenderer, Runnable {
     private final static int MAX_NUM_CHANNELS = 64;
     private IntBuffer ib = BufferUtils.createIntBuffer(1);
     private final FloatBuffer fb = BufferUtils.createVector3Buffer(2);
-    private final ByteBuffer nativeBuf = ByteBuffer.allocateDirect(BUFFER_SIZE);
+    private final ByteBuffer nativeBuf = BufferUtils.createByteBuffer(BUFFER_SIZE);
     private final byte[] arrayBuf = new byte[BUFFER_SIZE];
 
     private int[] channels;
@@ -100,7 +100,6 @@ public class LwjglAudioRenderer implements AudioRenderer, Runnable {
     private final AtomicBoolean threadLock = new AtomicBoolean(false);
 
     public LwjglAudioRenderer(){
-        nativeBuf.order(ByteOrder.nativeOrder());
     }
 
     public void initialize(){

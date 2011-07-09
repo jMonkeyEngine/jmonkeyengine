@@ -68,7 +68,7 @@ public class GeoMap implements Savable {
     }
 
     public GeoMap(int width, int height, int maxval) {
-        this(ByteBuffer.allocateDirect(width*height*4).asFloatBuffer(),null,width,height,maxval);
+        this(BufferUtils.createFloatBuffer(width*height), null, width,height,maxval);
     }
 
     public FloatBuffer getHeightData(){
@@ -187,7 +187,7 @@ public class GeoMap implements Savable {
      * Copies a section of this geomap as a new geomap
      */
     public GeoMap copySubGeomap(int x, int y, int w, int h){
-        FloatBuffer nhdata = ByteBuffer.allocateDirect(w*h*4).asFloatBuffer();
+        FloatBuffer nhdata = BufferUtils.createFloatBuffer(w * h);
         hdata.position(y*width+x);
         for (int cy = 0; cy < height; cy++){
             hdata.limit(hdata.position()+w);
@@ -199,7 +199,7 @@ public class GeoMap implements Savable {
 
         ByteBuffer nndata = null;
         if (ndata!=null){
-            nndata = ByteBuffer.allocateDirect(w*h*3);
+            nndata = BufferUtils.createByteBuffer(w*h*3);
             ndata.position( (y*width+x)*3 );
             for (int cy = 0; cy < height; cy++){
                 ndata.limit(ndata.position()+w*3);
