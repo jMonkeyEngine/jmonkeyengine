@@ -1,6 +1,6 @@
 #import "Common/ShaderLib/Optics.glsllib"
 
-uniform ENVMAP m_Texture2;
+uniform ENVMAP m_Texture;
 
 varying vec3 direction;
 

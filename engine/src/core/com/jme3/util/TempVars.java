@@ -82,13 +82,6 @@ public class TempVars {
             return new TempVarsStack();
         }
     };
-    
-    private static final ThreadLocal<TempVars> tempVars = new ThreadLocal<TempVars>(){
-        @Override
-        public TempVars initialValue() {
-            return new TempVars();
-        }
-    };
    
     /**
      * This instance of TempVars has been retrieved but not released yet.
@@ -96,13 +89,6 @@ public class TempVars {
     private boolean isUsed = false;
     
     private TempVars() {
-    }
-    
-    public static TempVars get(){
-        return tempVars.get();
-    }
-    
-    public void release(){
     }
     
     /**
@@ -114,7 +100,6 @@ public class TempVars {
      * 
      * @return A TempVar instance
      */
-    /*
     public static TempVars get() {
         TempVarsStack stack = varsLocal.get();
         
@@ -134,7 +119,6 @@ public class TempVars {
         
         return instance;
     }
-    */
 
     /**
      * Releases this instance of TempVars.
@@ -143,7 +127,6 @@ public class TempVars {
      * e.g. Acquiring vars1, then acquiring vars2, vars2 MUST be released 
      * first otherwise an exception will be thrown.
      */
-    /*
     public void release() {
         if (!isUsed){
             throw new IllegalStateException("This instance of TempVars was already released!");
@@ -160,7 +143,7 @@ public class TempVars {
         if (stack.tempVars[stack.index] != this){
             throw new IllegalStateException("An instance of TempVars has not been released in a called method!");
         }
-    }*/
+    }
     
     /**
      * For interfacing with OpenGL in Renderer.
