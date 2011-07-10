@@ -11,7 +11,6 @@ import com.jme3.export.OutputCapsule;
 import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Mesh;
-import com.jme3.util.BufferUtils;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -95,7 +94,7 @@ public class HeightfieldCollisionShape extends CollisionShape {
     }
 
     protected void createShape() {
-        bbuf = BufferUtils.createByteBuffer(heightfieldData.length * 4); 
+        bbuf = ByteBuffer.allocateDirect(heightfieldData.length * 4).order(ByteOrder.nativeOrder());
 //        fbuf = bbuf.asFloatBuffer();//FloatBuffer.wrap(heightfieldData);
 //        fbuf.rewind();
 //        fbuf.put(heightfieldData);

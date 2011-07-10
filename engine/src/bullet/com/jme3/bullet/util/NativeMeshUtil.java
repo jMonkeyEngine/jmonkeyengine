@@ -34,8 +34,8 @@ package com.jme3.bullet.util;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.scene.mesh.IndexBuffer;
-import com.jme3.util.BufferUtils;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 
 /**
@@ -45,8 +45,8 @@ import java.nio.FloatBuffer;
 public class NativeMeshUtil {
     
     public static long getTriangleIndexVertexArray(Mesh mesh){
-        ByteBuffer triangleIndexBase = BufferUtils.createByteBuffer(mesh.getTriangleCount() * 3 * 4);
-        ByteBuffer vertexBase = BufferUtils.createByteBuffer(mesh.getVertexCount() * 3 * 4);
+        ByteBuffer triangleIndexBase = ByteBuffer.allocateDirect(mesh.getTriangleCount() * 3 * 4).order(ByteOrder.nativeOrder());
+        ByteBuffer vertexBase = ByteBuffer.allocateDirect(mesh.getVertexCount() * 3 * 4).order(ByteOrder.nativeOrder());
         int numVertices = mesh.getVertexCount();
         int vertexStride = 12; //3 verts * 4 bytes per.
         int numTriangles = mesh.getTriangleCount();

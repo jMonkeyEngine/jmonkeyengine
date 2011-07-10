@@ -39,7 +39,6 @@ import com.jme3.export.InputCapsule;
 import com.jme3.export.OutputCapsule;
 import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.scene.mesh.IndexBuffer;
-import com.jme3.util.BufferUtils;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -69,8 +68,8 @@ public class MeshCollisionShape extends CollisionShape {
     }
 
     private void createCollisionMesh(Mesh mesh) {
-        triangleIndexBase = BufferUtils.createByteBuffer(mesh.getTriangleCount() * 3 * 4);
-        vertexBase = BufferUtils.createByteBuffer(mesh.getVertexCount() * 3 * 4);
+        triangleIndexBase = ByteBuffer.allocateDirect(mesh.getTriangleCount() * 3 * 4).order(ByteOrder.nativeOrder());
+        vertexBase = ByteBuffer.allocateDirect(mesh.getVertexCount() * 3 * 4).order(ByteOrder.nativeOrder());
         numVertices = mesh.getVertexCount();
         vertexStride = 12; //3 verts * 4 bytes per.
         numTriangles = mesh.getTriangleCount();
