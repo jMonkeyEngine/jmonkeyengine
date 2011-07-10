@@ -85,7 +85,7 @@ public final class TGALoader implements AssetLoader {
         boolean flip = ((TextureKey)info.getKey()).isFlipY();
         InputStream in = info.openStream();
         Image img = load(in, flip);
-//        in.close();
+        in.close();
         return img;
     }
 
@@ -189,7 +189,7 @@ public final class TGALoader implements AssetLoader {
         
         
         // Allocate image data array
-        Format format = null;
+        Format format;
         byte[] rawData = null;
         int dl;
         if (pixelDepth == 32) {
@@ -442,6 +442,8 @@ public final class TGALoader implements AssetLoader {
             }
 
             format = dl == 4 ? Format.RGBA8 : Format.RGB8;
+        } else {
+            throw new IOException("Grayscale TGA not supported");
         }
         
         
