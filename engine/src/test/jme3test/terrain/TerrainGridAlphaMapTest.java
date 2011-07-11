@@ -15,14 +15,18 @@ import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
+import com.jme3.light.AmbientLight;
+import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
+import com.jme3.shader.VarType;
 import com.jme3.terrain.geomipmap.TerrainGrid;
 import com.jme3.terrain.geomipmap.TerrainGridListener;
 import com.jme3.terrain.geomipmap.TerrainLodControl;
 import com.jme3.terrain.geomipmap.TerrainQuad;
+import com.jme3.terrain.heightmap.FractalHeightMapGrid;
 import com.jme3.terrain.heightmap.ImageBasedHeightMapGrid;
 import com.jme3.terrain.heightmap.Namer;
 import com.jme3.texture.Texture;
@@ -60,10 +64,19 @@ public class TerrainGridAlphaMapTest extends SimpleApplication {
 
     @Override
     public void simpleInitApp() {
+        DirectionalLight sun = new DirectionalLight();
+        sun.setColor(ColorRGBA.White);
+        sun.setDirection(new Vector3f(-1, -1, -1).normalizeLocal());
+        rootNode.addLight(sun);
+
+        AmbientLight al = new AmbientLight();
+        al.setColor(ColorRGBA.White.mult(1.3f));
+        rootNode.addLight(al);
+
         File file = new File("mountains.zip");
         if (!file.exists()) {
             assetManager.registerLocator("http://jmonkeyengine.googlecode.com/files/mountains.zip", HttpZipLocator.class);
-        }else{
+        } else {
             assetManager.registerLocator("mountains.zip", ZipLocator.class);
         }
 
@@ -72,26 +85,26 @@ public class TerrainGridAlphaMapTest extends SimpleApplication {
         this.stateManager.attach(state);
 
         // TERRAIN TEXTURE material
-        matRock = new Material(assetManager, "Common/MatDefs/Terrain/Terrain.j3md");
+        matRock = new Material(assetManager, "Common/MatDefs/Terrain/TerrainLighting.j3md");
         matRock.setBoolean("useTriPlanarMapping", false);
 
         // GRASS texture
         Texture grass = assetManager.loadTexture("Textures/Terrain/splat/grass.jpg");
         grass.setWrap(WrapMode.Repeat);
-        matRock.setTexture("Tex1", grass);
-        matRock.setFloat("Tex1Scale", grassScale);
+        matRock.setTexture("DiffuseMap", grass);
+        matRock.setFloat("DiffuseMap_0_scale", grassScale);
 
         // DIRT texture
         Texture dirt = assetManager.loadTexture("Textures/Terrain/splat/dirt.jpg");
         dirt.setWrap(WrapMode.Repeat);
-        matRock.setTexture("Tex2", dirt);
-        matRock.setFloat("Tex2Scale", dirtScale);
+        matRock.setTexture("DiffuseMap_1", dirt);
+        matRock.setFloat("DiffuseMap_1_scale", dirtScale);
 
         // ROCK texture
         Texture rock = assetManager.loadTexture("Textures/Terrain/splat/road.jpg");
         rock.setWrap(WrapMode.Repeat);
-        matRock.setTexture("Tex3", rock);
-        matRock.setFloat("Tex3Scale", rockScale);
+        matRock.setTexture("DiffuseMap_2", rock);
+        matRock.setFloat("DiffuseMap_2_scale", rockScale);
 
         // WIREFRAME material
         matWire = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
@@ -134,11 +147,7 @@ public class TerrainGridAlphaMapTest extends SimpleApplication {
 
         ground.addPreFilter(this.iterate);
 
-        this.terrain = new TerrainGrid("terrain", 65, 1025, new ImageBasedHeightMapGrid(assetManager, new Namer() {
-            public String getName(int x, int y) {
-                return "Scenes/TerrainAlphaTest/terrain_" + x + "_" + y + ".png";
-            }
-        }));
+        this.terrain = new TerrainGrid("terrain", 33, 257, new FractalHeightMapGrid(ground, null, 256));
         this.terrain.setMaterial(this.matRock);
 
         this.terrain.setLocalTranslation(0, 0, 0);
@@ -169,27 +178,32 @@ public class TerrainGridAlphaMapTest extends SimpleApplication {
 
             bulletAppState.getPhysicsSpace().add(player3);
 
-            terrain.addListener("physicsStartListener", new TerrainGridListener() {
+        }
+        terrain.addListener("physicsStartListener", new TerrainGridListener() {
 
-                public void gridMoved(Vector3f newCenter) {
-                }
+            public void gridMoved(Vector3f newCenter) {
+            }
 
-                public Material tileLoaded(Material material, Vector3f cell) {
-                    return material;
-                }
+            public Material tileLoaded(Material material, Vector3f cell) {
+                return material;
+            }
 
-                public void tileAttached(Vector3f cell, TerrainQuad quad) {
+            public void tileAttached(Vector3f cell, TerrainQuad quad) {
+                Texture alpha = assetManager.loadTexture("Scenes/TerrainAlphaTest/alphamap_" + Math.abs((int) (cell.x % 2)) * 512 + "_" + Math.abs((int) (cell.y % 2) * 512) + ".png");
+                quad.getMaterial().setTexture("AlphaMap", alpha);
+                if (usePhysics) {
                     quad.addControl(new RigidBodyControl(new HeightfieldCollisionShape(quad.getHeightMap(), terrain.getLocalScale()), 0));
                     bulletAppState.getPhysicsSpace().add(quad);
                 }
+            }
 
-                public void tileDetached(Vector3f cell, TerrainQuad quad) {
+            public void tileDetached(Vector3f cell, TerrainQuad quad) {
+                if (usePhysics) {
                     bulletAppState.getPhysicsSpace().remove(quad);
                     quad.removeControl(RigidBodyControl.class);
                 }
-
-            });
-        }
+            }
+        });
         this.terrain.initialize(cam.getLocation());
         this.initKeys();
     }
@@ -207,7 +221,6 @@ public class TerrainGridAlphaMapTest extends SimpleApplication {
         this.inputManager.addListener(this.actionListener, "Downs");
         this.inputManager.addListener(this.actionListener, "Jumps");
     }
-
     private boolean left;
     private boolean right;
     private boolean up;

@@ -41,7 +41,7 @@ public class TerrainFractalGridTest extends SimpleApplication {
     private float grassScale = 64;
     private float dirtScale = 16;
     private float rockScale = 128;
-    private boolean usePhysics = true;
+    private boolean usePhysics = false;
     private boolean physicsAdded = false;
 
     public static void main(final String[] args) {
@@ -136,7 +136,7 @@ public class TerrainFractalGridTest extends SimpleApplication {
 
         ground.addPreFilter(this.iterate);
 
-        this.terrain = new TerrainGrid("terrain", 65, 257, new FractalHeightMapGrid(ground, null, 256f));
+        this.terrain = new TerrainGrid("terrain", 33, 129, new FractalHeightMapGrid(ground, null, 256f));
 
         this.terrain.setMaterial(this.mat_terrain);
         this.terrain.setLocalTranslation(0, 0, 0);

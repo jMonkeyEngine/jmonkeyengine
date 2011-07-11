@@ -87,11 +87,7 @@ public class TerrainGrid extends TerrainQuad {
                         // create the new Quad since it doesn't exist
                         HeightMap heightMapAt = heightMapGrid.getHeightMapAt(temp);
                         q = new TerrainQuad(getName() + "Quad" + temp, patchSize, quadSize, totalSize, heightMapAt == null ? null : heightMapAt.getHeightMap(), lodCalculatorFactory);
-                        Material mat = material.clone();
-                        for (TerrainGridListener l : listeners.values()) {
-                            mat = l.tileLoaded(mat, temp);
-                        }
-                        q.setMaterial(mat);
+                        q.setMaterial(material.clone());
                         log.log(Level.FINE, "Loaded TerrainQuad {0}", q.getName());
                     }
                     cache.put(temp, q);

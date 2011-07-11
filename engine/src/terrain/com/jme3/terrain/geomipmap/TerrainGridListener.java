@@ -42,8 +42,6 @@ public interface TerrainGridListener {
 
     public void gridMoved(Vector3f newCenter);
 
-    public Material tileLoaded(Material material, Vector3f cell);
-
     public void tileAttached( Vector3f cell, TerrainQuad quad );
 
     public void tileDetached( Vector3f cell, TerrainQuad quad );
