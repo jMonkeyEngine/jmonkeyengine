@@ -32,7 +32,8 @@ public class AndroidInput extends GLSurfaceView implements TouchInput,
      
     // Custom settings
     public boolean mouseEventsEnabled = true;
-    public boolean mouseEventsInvertY = false;
+    public boolean mouseEventsInvertX = false;
+    public boolean mouseEventsInvertY = false;    
     
     public boolean keyboardEventsEnabled = false;
     
@@ -521,7 +522,11 @@ public class AndroidInput extends GLSurfaceView implements TouchInput,
 
                     if (mouseEventsEnabled)
                     {
-    	                newX = this.getWidth() - (int) event.getX();
+    	                if (mouseEventsInvertX)
+    	                    newX = this.getWidth() - (int) event.getX();
+    	                else
+    	                    newX = (int) event.getX();
+    	                
     	                if (mouseEventsInvertY)
     	                	newY = this.getHeight() - (int) event.getY();
     	                else
@@ -565,7 +570,9 @@ public class AndroidInput extends GLSurfaceView implements TouchInput,
     	                        lastX = newX;
     	                        lastY = newY;
     	                        break;
-            	        }	                
+            	        }
+    	                
+
                     }
 	            }
 	            
@@ -737,5 +744,12 @@ public class AndroidInput extends GLSurfaceView implements TouchInput,
 		this.mouseEventsInvertY = mouseEventsInvertY;
 	}
     
+	public boolean isMouseEventsInvertX() {
+	    return mouseEventsInvertX;
+	}
+
+	public void setMouseEventsInvertX(boolean mouseEventsInvertX) {
+	    this.mouseEventsInvertX = mouseEventsInvertX;
+	}
 
 }

@@ -8,6 +8,7 @@ import android.content.DialogInterface;
 import android.content.pm.ActivityInfo;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
+import android.view.Display;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.Window;
@@ -56,7 +57,17 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
      */
     protected boolean eglConfigVerboseLogging = false;
 
-    protected boolean mouseEventsEnabled = true;
+    /**
+     * If true MouseEvents are generated from TouchEvents
+     */
+    protected boolean mouseEventsEnabled = true;    
+    /**
+     * Flip X axis
+     */
+    protected boolean mouseEventsInvertX = true;
+    /**
+     * Flip Y axis
+     */
     protected boolean mouseEventsInvertY = true;
         
     /**
@@ -101,13 +112,16 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
         WindowManager.LayoutParams.FLAG_FULLSCREEN);
         
         setRequestedOrientation(screenOrientation);
-                     
-        AppSettings settings = new AppSettings(true);
-        AndroidInput input = new AndroidInput(this);
         
+        // Create Settings
+        AppSettings settings = new AppSettings(true);
+                        
+        // Create the input class
+        AndroidInput input = new AndroidInput(this);        
+        input.setMouseEventsInvertX(mouseEventsInvertX);
         input.setMouseEventsInvertY(mouseEventsInvertY);
         input.setMouseEventsEnabled(mouseEventsEnabled);
-        
+                
         // Create application instance
         try
         {
@@ -122,13 +136,24 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
             app.start();    
             ctx = (OGLESContext) app.getContext();
             view = ctx.createView(input, eglConfigType, eglConfigVerboseLogging);
-            setContentView(view);               
+            setContentView(view);     
+            
+            // Set the screen reolution
+            WindowManager wind = this.getWindowManager();
+            Display disp = wind.getDefaultDisplay();
+            ctx.getSettings().setResolution(disp.getWidth(), disp.getHeight());
+            
+            AppSettings s = ctx.getSettings();            
+            logger.info("Settings: Width " + s.getWidth() + " Height " + s.getHeight());
+            
+            
         }
         catch (Exception ex)
         {
             handleError("Class " + appClass + " init failed", ex);
             setContentView(new TextView(this));
         }
+        
     }
 
 

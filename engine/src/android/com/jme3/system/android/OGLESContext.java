@@ -179,9 +179,33 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer
         return view;
     }
     
-
+    // renderer:initialize
+    @Override
+    public void onSurfaceCreated(GL10 gl, EGLConfig cfg) 
+    {
+        
+        if (created.get() && renderer != null)
+        {
+            renderer.resetGLObjects();
+        }
+        else
+        {
+            if (!created.get())
+            {
+                logger.info("GL Surface created");
+                initInThread();
+            }
+            else
+            {
+                logger.warning("GL Surface already created");
+            }
+        }
+    }
+    
     protected void initInThread()
     {
+        created.set(true);   
+        
         logger.info("OGLESContext create");
         logger.info("Running on thread: "+Thread.currentThread().getName());
 
@@ -230,9 +254,9 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer
                 app.getInputManager().addListener((AndroidHarness)ctx, new String[]{ESCAPE_EVENT});
             }
         }
-        
-        created.set(true);        
+                     
         needClose.set(false);    
+        renderable.set(true);
     }
 
     /**
@@ -242,7 +266,7 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer
     {   
         if (renderable.get())
         {
-            renderable.set(false);
+            created.set(false);
             if (renderer != null) 
                 renderer.cleanup();
                 
@@ -253,9 +277,9 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer
     		timer = null;
     		
             // do android specific cleaning here
-            logger.info("Display destroyed.");      
-
-    		created.set(false);
+            logger.info("Display destroyed.");
+            
+            renderable.set(false);
         }
     }
     
@@ -267,10 +291,11 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer
         renderer.setVerboseLogging(settings.getBoolean("VERBOSE_LOGGING"));
     }
     
-    protected void applySettings(AppSettings setting)
+    protected void applySettings(AppSettings settings)
     {
+        setSettings(settings);
         if (renderer != null)
-            applySettingsToRenderer(renderer, settings);        
+            applySettingsToRenderer(renderer, this.settings);        
     }
 
     @Override
@@ -336,22 +361,7 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer
         this.autoFlush = enabled;
     }
 
-    // renderer:initialize
-    @Override
-    public void onSurfaceCreated(GL10 gl, EGLConfig cfg) 
-    {
-        
-        if (created.get() && renderer != null)
-        {
-            renderer.resetGLObjects();
-        }
-        else
-        {
-            logger.info("GL Surface created");
-            initInThread();
-            renderable.set(true);
-        }
-    }
+
 
     // SystemListener:reshape
     @Override
@@ -447,7 +457,7 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer
     
     protected void waitFor(boolean createdVal)
     {
-        while (created.get() != createdVal){
+        while (renderable.get() != createdVal){
             try {
                 Thread.sleep(10);
             } catch (InterruptedException ex) {
