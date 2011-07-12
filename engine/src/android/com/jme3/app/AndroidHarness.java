@@ -95,7 +95,7 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
     protected int screenOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR;
           
     protected OGLESContext ctx;
-    protected GLSurfaceView view;
+    protected GLSurfaceView view = null;
     protected boolean isGLThreadPaused = true;
     final private String ESCAPE_EVENT = "TouchEscape"; 
 
@@ -124,13 +124,13 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
                 
         // Create application instance
         try
-        {
-            app = null;
-            view = null;
-            
-            @SuppressWarnings("unchecked")
-            Class<? extends Application> clazz = (Class<? extends Application>) Class.forName(appClass);
-            app = clazz.newInstance();
+        {            
+            if (app == null)
+            {            
+                @SuppressWarnings("unchecked")
+                Class<? extends Application> clazz = (Class<? extends Application>) Class.forName(appClass);
+                app = clazz.newInstance();
+            }
             
             app.setSettings(settings);
             app.start();    
