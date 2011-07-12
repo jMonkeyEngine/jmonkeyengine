@@ -312,16 +312,16 @@ public class DefaultServer implements Server
         if( addedConnection != null ) {       
             log.log( Level.INFO, "Client registered:{0}.", addedConnection );
             
-            // Now we can notify the listeners about the
-            // new connection.
-            fireConnectionAdded( addedConnection );
-                                                    
             // Send the ID back to the client letting it know it's
             // fully connected.
             m = new ClientRegistrationMessage();
             m.setId( addedConnection.getId() );
             m.setReliable(true);
             addedConnection.send(m);
+            
+            // Now we can notify the listeners about the
+            // new connection.
+            fireConnectionAdded( addedConnection );                                                   
         }            
     }
 
