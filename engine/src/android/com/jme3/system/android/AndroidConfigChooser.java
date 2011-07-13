@@ -36,9 +36,15 @@ public class AndroidConfigChooser implements EGLConfigChooser
          */
         FASTEST,
         /**
-         * RGB???, 0 alpha, 16 depth, 0 stencil
+         * RGB???, 0 alpha, >=16 depth, 0 stencil
          */
-        BEST
+        BEST,
+        /**
+         * Turn off config chooser and use hardcoded
+         * setEGLContextClientVersion(2);
+         * setEGLConfigChooser(5, 6, 5, 0, 16, 0);
+         */
+        LEGACY
     }
     
     public AndroidConfigChooser(ConfigType type, boolean verbose)

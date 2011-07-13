@@ -131,51 +131,69 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer
     }
     
     /**
-     * <code>createView</code> 
+     * <code>createView</code> initializes the GLSurfaceView
      * @param view The Android input which will be used as the GLSurfaceView for this context
-     * @param debugflags 0, GLSurfaceView.DEBUG_CHECK_GL_ERROR | GLSurfaceView.DEBUG_LOG_GL_CALLS
+     * @param configType ConfigType.FASTEST (Default) | ConfigType.LEGACY | ConfigType.BEST 
+     * @param eglConfigVerboseLogging if true show all found configs
      * @return GLSurfaceView The newly created view
      */    
     public GLSurfaceView createView(AndroidInput view, ConfigType configType, boolean eglConfigVerboseLogging)
     {                    
-        EGL10 egl = (EGL10) EGLContext.getEGL();
-        EGLDisplay display = egl.eglGetDisplay(EGL10.EGL_DEFAULT_DISPLAY);
-                       
-        int[] version = new int[2];
-        if (egl.eglInitialize(display, version) == true)
-        {
-            logger.info("Display EGL Version: " + version[0] + "." + version[1]);
-        }
-        
         // Start to set up the view
         this.view = view;    
 
-        // Create a config chooser
-        AndroidConfigChooser configChooser = new AndroidConfigChooser(configType, eglConfigVerboseLogging);
-        // Init chooser
-        if (!configChooser.findConfig(egl, display))
+        if (configType == ConfigType.LEGACY)
         {
-            logger.severe("Unable to find suitable EGL config");
+            // Hardcoded egl setup
+            clientOpenGLESVersion = 2;            
+            view.setEGLContextClientVersion(2);
+            //RGB565, Depth16
+            view.setEGLConfigChooser(5, 6, 5, 0, 16, 0);
+            logger.info("ConfigType.LEGACY using RGB565");
         }
-                
-        clientOpenGLESVersion = configChooser.getClientOpenGLESVersion();
-        if (clientOpenGLESVersion < 2)
+        else
         {
-            logger.severe("OpenGL ES 2.0 is not supported on this device");
-        }                
+            EGL10 egl = (EGL10) EGLContext.getEGL();
+            EGLDisplay display = egl.eglGetDisplay(EGL10.EGL_DEFAULT_DISPLAY);
+                           
+            int[] version = new int[2];
+            if (egl.eglInitialize(display, version) == true)
+            {
+                logger.info("Display EGL Version: " + version[0] + "." + version[1]);
+            }
+                            
+            // Create a config chooser
+            AndroidConfigChooser configChooser = new AndroidConfigChooser(configType, eglConfigVerboseLogging);
+            // Init chooser
+            if (!configChooser.findConfig(egl, display))
+            {
+                logger.severe("Unable to find suitable EGL config");
+            }
+                    
+            clientOpenGLESVersion = configChooser.getClientOpenGLESVersion();
+            if (clientOpenGLESVersion < 2)
+            {
+                logger.severe("OpenGL ES 2.0 is not supported on this device");
+            }   
+            
+            if (display != null)
+                egl.eglTerminate(display);
+
+            
+            /*
+             * Requesting client version from GLSurfaceView which is extended by
+             * AndroidInput.        
+             */     
+            view.setEGLContextClientVersion(clientOpenGLESVersion);
+            view.setEGLConfigChooser(configChooser);
+            view.getHolder().setFormat(configChooser.getPixelFormat());            
+        }
         
-        /*
-         * Requesting client version from GLSurfaceView which is extended by
-         * AndroidInput.        
-         */     
-        view.setEGLContextClientVersion(clientOpenGLESVersion);
-        view.setEGLConfigChooser(configChooser);
         view.setFocusableInTouchMode(true);
         view.setFocusable(true);
-        view.setZOrderOnTop(true);
-        view.getHolder().setType(SurfaceHolder.SURFACE_TYPE_GPU);
-        view.getHolder().setFormat(configChooser.getPixelFormat());
+        view.getHolder().setType(SurfaceHolder.SURFACE_TYPE_GPU);            
         view.setRenderer(this);
+
         return view;
     }
     
