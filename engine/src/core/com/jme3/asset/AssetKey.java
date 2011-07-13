@@ -61,10 +61,10 @@ public class AssetKey<T> implements Savable {
     protected static String getExtension(String name){
         int idx = name.lastIndexOf('.');
         //workaround for filenames ending with xml and another dot ending before that (my.mesh.xml)
-        if(name.toLowerCase().indexOf(".xml")==name.length()-4){
+        if (name.toLowerCase().endsWith(".xml")) {
             idx = name.substring(0, idx).lastIndexOf('.');
-            if(idx==-1){
-                idx=name.lastIndexOf('.');
+            if (idx == -1) {
+                idx = name.lastIndexOf('.');
             }
         }
         if (idx <= 0 || idx == name.length() - 1)

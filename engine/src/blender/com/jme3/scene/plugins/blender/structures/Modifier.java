@@ -7,16 +7,26 @@ package com.jme3.scene.plugins.blender.structures;
  * @author Marcin Roguski (Kaelthas)
  */
 public class Modifier {
+
     public static final String ARRAY_MODIFIER_DATA = "ArrayModifierData";
     public static final String ARMATURE_MODIFIER_DATA = "ArmatureModifierData";
     public static final String PARTICLE_MODIFIER_DATA = "ParticleSystemModifierData";
     public static final String MIRROR_MODIFIER_DATA = "MirrorModifierData";
+    public static final String OBJECT_ANIMATION_MODIFIER_DATA = "ObjectAnimationModifierData";
     
-    /** Blender's type of modifier. */
+    /** 
+     * Blender's type of modifier. 
+     */
     private String type;
-    /** JME modifier representation object. */
+    
+    /** 
+     * JME modifier representation object. 
+     */
     private Object jmeModifierRepresentation;
-    /** Various additional data used by modifiers.*/
+    
+    /** 
+     * Various additional data used by modifiers.
+     */
     private Object additionalData;
 
     /**
