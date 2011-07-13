@@ -39,6 +39,7 @@ import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.Savable;
 import com.jme3.material.Material;
+import com.jme3.util.SafeArrayList;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -65,7 +66,7 @@ public class Node extends Spatial implements Savable {
     /** 
      * This node's children.
      */
-    protected ArrayList<Spatial> children = new ArrayList<Spatial>(1);
+    protected SafeArrayList<Spatial> children = new SafeArrayList<Spatial>(Spatial.class);
 
     /**
      * Serialization only. Do not use.
@@ -99,7 +100,7 @@ public class Node extends Spatial implements Savable {
     @Override
     protected void setTransformRefresh(){
         super.setTransformRefresh();
-        for (Spatial child : children){
+        for (Spatial child : children.getArray()){
             if ((child.refreshFlags & RF_TRANSFORM) != 0)
                 continue;
 
@@ -110,7 +111,7 @@ public class Node extends Spatial implements Savable {
     @Override
     protected void setLightListRefresh(){
         super.setLightListRefresh();
-        for (Spatial child : children){
+        for (Spatial child : children.getArray()){
             if ((child.refreshFlags & RF_LIGHTLIST) != 0)
                 continue;
 
@@ -121,11 +122,11 @@ public class Node extends Spatial implements Savable {
     @Override
     protected void updateWorldBound(){
         super.updateWorldBound();
+        
         // for a node, the world bound is a combination of all it's children
         // bounds
         BoundingVolume resultBound = null;
-        for (int i = 0, cSize = children.size(); i < cSize; i++) {
-            Spatial child = children.get(i);
+        for (Spatial child : children.getArray()) {
             // child bound is assumed to be updated
             assert (child.refreshFlags & RF_BOUND) == 0;
             if (resultBound != null) {
@@ -145,11 +146,11 @@ public class Node extends Spatial implements Savable {
     public void updateLogicalState(float tpf){
         super.updateLogicalState(tpf);
 
-        // FIXME: Iterating through the children list backwards
-        // to avoid IndexOutOfBoundsException. This is sometimes unreliable,
-        // a more robust solution is needed.
-        for (int i = children.size()-1; i >= 0; i--){
-            Spatial child = children.get(i);
+        if (children.isEmpty()) {
+            return;
+        }
+        
+        for (Spatial child : children.getArray()) {
             child.updateLogicalState(tpf);
         }
     }
@@ -166,15 +167,16 @@ public class Node extends Spatial implements Savable {
             updateWorldTransforms();
         }
 
-        // the important part- make sure child geometric state is refreshed
-        // first before updating own world bound. This saves
-        // a round-trip later on.
-        // NOTE 9/19/09
-        // Although it does save a round trip,
-        for (int i = 0, cSize = children.size(); i < cSize; i++) {
-            Spatial child = children.get(i);
-            child.updateGeometricState();
-        }
+        if (!children.isEmpty()) {
+            // the important part- make sure child geometric state is refreshed
+            // first before updating own world bound. This saves
+            // a round-trip later on.
+            // NOTE 9/19/09
+            // Although it does save a round trip,
+            for (Spatial child : children.getArray()) {
+                child.updateGeometricState();
+            }
+        }            
 
         if ((refreshFlags & RF_BOUND) != 0){
             updateWorldBound();
@@ -428,8 +430,7 @@ public class Node extends Spatial implements Savable {
         if (name == null) 
             return null;
 
-        for (int x = 0, cSize = getQuantity(); x < cSize; x++) {
-            Spatial child = children.get(x);
+        for (Spatial child : children.getArray()) {
             if (name.equals(child.getName())) {
                 return child;
             } else if(child instanceof Node) {
@@ -454,8 +455,7 @@ public class Node extends Spatial implements Savable {
         if (children.contains(spat))
             return true;
 
-        for (int i = 0, max = getQuantity(); i < max; i++) {
-            Spatial child =  children.get(i);
+        for (Spatial child : children.getArray()) {
             if (child instanceof Node && ((Node) child).hasChild(spat))
                 return true;
         }
@@ -483,14 +483,14 @@ public class Node extends Spatial implements Savable {
     @Override
     public void setLodLevel(int lod){
         super.setLodLevel(lod);
-        for (int i = 0; i < children.size(); i++){
-            children.get(i).setLodLevel(lod);
+        for (Spatial child : children.getArray()) {
+            child.setLodLevel(lod);
         }
     }
 
     public int collideWith(Collidable other, CollisionResults results){
         int total = 0;
-        for (Spatial child : children){
+        for (Spatial child : children.getArray()){
             total += child.collideWith(other, results);
         }
         return total;
@@ -575,7 +575,7 @@ public class Node extends Spatial implements Savable {
     @Override
     public Spatial deepClone(){
         Node nodeClone = (Node) super.clone();
-        nodeClone.children = new ArrayList<Spatial>();
+        nodeClone.children = new SafeArrayList<Spatial>(Spatial.class);
         for (Spatial child : children){
             Spatial childClone = child.deepClone();
             childClone.parent = nodeClone;
@@ -587,7 +587,7 @@ public class Node extends Spatial implements Savable {
     @Override
     public void write(JmeExporter e) throws IOException {
         super.write(e);
-        e.getCapsule(this).writeSavableArrayList(children, "children", null);
+        e.getCapsule(this).writeSavableArrayList(new ArrayList(children), "children", null);
     }
 
     @Override
@@ -596,12 +596,12 @@ public class Node extends Spatial implements Savable {
         // This prevents empty children list if controls query
         // it in Control.setSpatial().
         
-        children = e.getCapsule(this).readSavableArrayList("children", null);
+        children = new SafeArrayList( Spatial.class, 
+                                      e.getCapsule(this).readSavableArrayList("children", null) );
 
         // go through children and set parent to this node
         if (children != null) {
-            for (int x = 0, cSize = children.size(); x < cSize; x++) {
-                Spatial child = children.get(x);
+            for (Spatial child : children.getArray()) {
                 child.parent = this;
             }
         }
@@ -612,8 +612,8 @@ public class Node extends Spatial implements Savable {
     @Override
     public void setModelBound(BoundingVolume modelBound) {
         if(children != null) {
-            for(int i = 0, max = children.size(); i < max; i++) {
-                children.get(i).setModelBound(modelBound != null ? modelBound.clone(null) : null);
+            for (Spatial child : children.getArray()) {
+                child.setModelBound(modelBound != null ? modelBound.clone(null) : null);
             }
         }
     }
@@ -621,16 +621,16 @@ public class Node extends Spatial implements Savable {
     @Override
     public void updateModelBound() {
         if(children != null) {
-            for(int i = 0, max = children.size(); i < max; i++) {
-                children.get(i).updateModelBound();
+            for (Spatial child : children.getArray()) {
+                child.updateModelBound();
             }
         }
     }
     
     @Override
     public void depthFirstTraversal(SceneGraphVisitor visitor) {
-        for(int i = 0, max = children.size(); i < max; i++) {
-            children.get(i).depthFirstTraversal(visitor);
+        for (Spatial child : children.getArray()) {
+            child.depthFirstTraversal(visitor);
         }
         visitor.visit(this);
     }

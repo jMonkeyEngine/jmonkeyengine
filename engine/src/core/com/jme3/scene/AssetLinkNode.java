@@ -40,6 +40,7 @@ import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
 import com.jme3.export.binary.BinaryImporter;
+import com.jme3.util.SafeArrayList;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -177,8 +178,8 @@ public class AssetLinkNode extends Node {
 
     @Override
     public void write(JmeExporter e) throws IOException {
-        ArrayList<Spatial> childs = children;
-        children = new ArrayList<Spatial>();
+        SafeArrayList<Spatial> childs = children;
+        children = new SafeArrayList<Spatial>(Spatial.class);
         super.write(e);
         OutputCapsule capsule = e.getCapsule(this);
         capsule.writeSavableArrayList(assetLoaderKeys, "assetLoaderKeyList", null);

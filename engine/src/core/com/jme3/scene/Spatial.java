@@ -53,6 +53,7 @@ import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.renderer.queue.RenderQueue.Bucket;
 import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.control.Control;
+import com.jme3.util.SafeArrayList;
 import com.jme3.util.TempVars;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -131,7 +132,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
     public transient float queueDistance = Float.NEGATIVE_INFINITY;
     protected Transform localTransform;
     protected Transform worldTransform;
-    protected ArrayList<Control> controls = new ArrayList<Control>(1);
+    protected SafeArrayList<Control> controls = new SafeArrayList<Control>(Control.class);
     protected HashMap<String, Savable> userData = null;
     /** 
      * Spatial's parent, or null if it has none.
@@ -512,8 +513,8 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
             return;
         }
 
-        for (int i = 0; i < controls.size(); i++) {
-            controls.get(i).update(tpf);
+        for (Control c : controls.getArray()) {
+            c.update(tpf);
         }
     }
 
@@ -532,8 +533,8 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
             return;
         }
 
-        for (int i = 0; i < controls.size(); i++) {
-            controls.get(i).render(rm, vp);
+        for (Control c : controls.getArray() ) {
+            c.render(rm, vp);
         }
     }
 
@@ -590,9 +591,9 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
      * @see Spatial#addControl(com.jme3.scene.control.Control) 
      */
     public <T extends Control> T getControl(Class<T> controlType) {
-        for (int i = 0; i < controls.size(); i++) {
-            if (controlType.isAssignableFrom(controls.get(i).getClass())) {
-                return (T) controls.get(i);
+        for (Control c : controls.getArray()) {
+            if (controlType.isAssignableFrom(c.getClass())) {
+                return (T)c;
             }
         }
         return null;
@@ -1114,7 +1115,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
             if (clone instanceof Node) {
                 Node node = (Node) this;
                 Node nodeClone = (Node) clone;
-                nodeClone.children = new ArrayList<Spatial>();
+                nodeClone.children = new SafeArrayList<Spatial>(Spatial.class);
                 for (Spatial child : node.children) {
                     Spatial childClone = child.clone(cloneMaterial);
                     childClone.parent = nodeClone;
@@ -1127,7 +1128,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
             clone.setTransformRefresh();
             clone.setLightListRefresh();
 
-            clone.controls = new ArrayList<Control>();
+            clone.controls = new SafeArrayList<Control>(Control.class);
             for (int i = 0; i < controls.size(); i++) {
                 clone.controls.add(controls.get(i).cloneForSpatial(clone));
             }
@@ -1240,7 +1241,9 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
         capsule.write(shadowMode, "shadow_mode", ShadowMode.Inherit);
         capsule.write(localTransform, "transform", Transform.IDENTITY);
         capsule.write(localLights, "lights", null);
-        capsule.writeSavableArrayList(controls, "controlsList", null);
+        
+        // Shallow clone the controls array to convert its type.
+        capsule.writeSavableArrayList( new ArrayList(controls), "controlsList", null);
         capsule.writeStringSavableMap(userData, "user_data", null);
     }
 
