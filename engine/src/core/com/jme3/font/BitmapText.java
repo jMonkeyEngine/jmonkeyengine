@@ -133,7 +133,7 @@ public class BitmapText extends Node {
      * @return color of the text
      */
     public ColorRGBA getColor() {
-        return block.getColor();
+        return letters.getBaseColor();
     }
 
     /**

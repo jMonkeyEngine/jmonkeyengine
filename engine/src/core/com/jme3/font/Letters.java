@@ -311,6 +311,10 @@ class Letters {
         setColor( 0, block.getText().length(), color );
     }
 
+    ColorRGBA getBaseColor() {
+        return baseColor;
+    }
+
     /**
      * @param start start index to set style. inclusive.
      * @param end   end index to set style. EXCLUSIVE.
