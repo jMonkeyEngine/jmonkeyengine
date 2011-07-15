@@ -143,10 +143,10 @@ vec4 underWater(int sampleNum){
     eyeVecNorm = normalize(m_CameraPosition - surfacePoint);
 
     // Find normal of water surface
-    float normal1 = textureOffset(m_HeightMap, texC, ivec2(-1,  0)).r;
-    float normal2 = textureOffset(m_HeightMap, texC, ivec2( 1,  0)).r;
-    float normal3 = textureOffset(m_HeightMap, texC, ivec2( 0, -1)).r;
-    float normal4 = textureOffset(m_HeightMap, texC, ivec2( 0,  1)).r;
+    float normal1 = textureOffset(m_HeightMap, texC, ivec2(-1.0,  0.0)).r;
+    float normal2 = textureOffset(m_HeightMap, texC, ivec2( 1.0,  0.0)).r;
+    float normal3 = textureOffset(m_HeightMap, texC, ivec2( 0.0, -1.0)).r;
+    float normal4 = textureOffset(m_HeightMap, texC, ivec2( 0.0,  1.0)).r;
 
     vec3 myNormal = normalize(vec3((normal1 - normal2) * m_MaxAmplitude,m_NormalScale,(normal3 - normal4) * m_MaxAmplitude));
     vec3 normal = myNormal*-1.0;
@@ -196,7 +196,7 @@ vec4 underWater(int sampleNum){
                 specular=specular * m_LightColor.rgb * 100.0;
             }
         #endif
-        float fogIntensity= 8 * m_WaterTransparency;
+        float fogIntensity= 8.0 * m_WaterTransparency;
         fogFactor = exp2( -fogIntensity * fogIntensity * cameraDepth * 0.03 * LOG2 );
         fogFactor = clamp(fogFactor, 0.0, 1.0);        
         color =mix(m_DeepWaterColor.rgb,refraction,fogFactor);   
@@ -288,10 +288,10 @@ vec4 main_multiSample(int sampleNum){
     eyeVecNorm = normalize(m_CameraPosition - surfacePoint);
 
     // Find normal of water surface
-    float normal1 = textureOffset(m_HeightMap, texC, ivec2(-1,  0)).r;
-    float normal2 = textureOffset(m_HeightMap, texC, ivec2( 1,  0)).r;
-    float normal3 = textureOffset(m_HeightMap, texC, ivec2( 0, -1)).r;
-    float normal4 = textureOffset(m_HeightMap, texC, ivec2( 0,  1)).r;
+    float normal1 = textureOffset(m_HeightMap, texC, ivec2(-1.0,  0.0)).r;
+    float normal2 = textureOffset(m_HeightMap, texC, ivec2( 1.0,  0.0)).r;
+    float normal3 = textureOffset(m_HeightMap, texC, ivec2( 0.0, -1.0)).r;
+    float normal4 = textureOffset(m_HeightMap, texC, ivec2( 0.0,  1.0)).r;
 
     vec3 myNormal = normalize(vec3((normal1 - normal2) * m_MaxAmplitude,m_NormalScale,(normal3 - normal4) * m_MaxAmplitude));
     vec3 normal = vec3(0.0);
@@ -412,7 +412,7 @@ void main(){
         for (int i = 0; i < m_NumSamples; i++){
             color += main_multiSample(i);
         }
-        gl_FragColor = color / m_NumSamples;
+        outFragColor = color / m_NumSamples;
     #else
         outFragColor = main_multiSample(0);
     #endif

@@ -194,7 +194,7 @@ vec4 underWater(){
                 specular=specular * m_LightColor.rgb * 100.0;
             }
         #endif
-        float fogIntensity= 8 * m_WaterTransparency;
+        float fogIntensity= 8.0 * m_WaterTransparency;
         fogFactor = exp2( -fogIntensity * fogIntensity * cameraDepth * 0.03 * LOG2 );
         fogFactor = clamp(fogFactor, 0.0, 1.0);        
         color =mix(m_DeepWaterColor.rgb,refraction,fogFactor);   
