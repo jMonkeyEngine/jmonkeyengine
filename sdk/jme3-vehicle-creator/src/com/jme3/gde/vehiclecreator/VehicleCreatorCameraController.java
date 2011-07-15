@@ -57,7 +57,7 @@ public class VehicleCreatorCameraController extends AbstractCameraController {
     }
 
     @Override
-    protected void checkClick(int button) {
+    protected void checkClick(int button, boolean pressed) {
     }
 
     /**

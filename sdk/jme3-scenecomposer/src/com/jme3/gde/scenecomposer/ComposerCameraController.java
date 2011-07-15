@@ -36,6 +36,8 @@ import com.jme3.collision.CollisionResults;
 import com.jme3.gde.core.scene.SceneApplication;
 import com.jme3.gde.core.scene.controller.AbstractCameraController;
 import com.jme3.gde.core.sceneexplorer.nodes.JmeNode;
+import com.jme3.input.KeyInput;
+import com.jme3.input.event.KeyInputEvent;
 import com.jme3.math.Ray;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
@@ -50,6 +52,8 @@ public class ComposerCameraController extends AbstractCameraController {
 
     private Node rootNode;
     private JmeNode jmeRootNode;
+    private SceneComposerToolController toolController;
+    private boolean forceCameraControls = false; // when user holds shift, this is true
 
     public ComposerCameraController(Camera cam, JmeNode rootNode) {
         super(cam, SceneApplication.getApplication().getInputManager());
@@ -57,49 +61,114 @@ public class ComposerCameraController extends AbstractCameraController {
         this.rootNode = rootNode.getLookup().lookup(Node.class);
     }
 
-    public void checkClick(int button) {
-        if (button == 0) {
-            CollisionResults results = new CollisionResults();
-            Ray ray = new Ray();
-            Vector3f pos = cam.getWorldCoordinates(new Vector2f(mouseX, mouseY), 0).clone();
-            Vector3f dir = cam.getWorldCoordinates(new Vector2f(mouseX, mouseY), 0.3f).clone();
-            dir.subtractLocal(pos).normalizeLocal();
-            ray.setOrigin(pos);
-            ray.setDirection(dir);
-            rootNode.collideWith(ray, results);
-            if (results == null) {
-                return;
-            }
-            final CollisionResult result = results.getClosestCollision();
-            java.awt.EventQueue.invokeLater(new Runnable() {
+    private boolean isEditButtonEnabled() {
+        return toolController.isEditToolEnabled();
+    }
 
-                public void run() {
-                    if (result != null && result.getGeometry() != null) {
-                        SceneApplication.getApplication().setCurrentFileNode(jmeRootNode.getChild(result.getGeometry()));
-                    } else {
-                        SceneApplication.getApplication().setCurrentFileNode(jmeRootNode);
-                    }
-                }
-            });
-            checkClick = false;
-        }
-        if (button == 1) {
-            CollisionResults results = new CollisionResults();
-            Ray ray = new Ray();
-            Vector3f pos = cam.getWorldCoordinates(new Vector2f(mouseX, mouseY), 0).clone();
-            Vector3f dir = cam.getWorldCoordinates(new Vector2f(mouseX, mouseY), 0.3f).clone();
-            dir.subtractLocal(pos).normalizeLocal();
-            ray.setOrigin(pos);
-            ray.setDirection(dir);
-            rootNode.collideWith(ray, results);
-            if (results == null) {
-                return;
+    public void setToolController(SceneComposerToolController toolController) {
+        this.toolController = toolController;
+    }
+    
+    public boolean isToolUsesCameraControls() {
+        return !toolController.isOverrideCameraControl();
+    }
+    
+    public Camera getCamera() {
+        return cam;
+    }
+    
+    @Override
+    public void onKeyEvent(KeyInputEvent kie) {
+        if (kie.isPressed()) {
+            if ( KeyInput.KEY_LSHIFT == kie.getKeyCode() ) {
+                forceCameraControls = true;
             }
-            CollisionResult result = results.getClosestCollision();
-            if (result != null) {
-                ((SceneComposerTopComponent) master).doMoveCursor(result.getContactPoint());//getGeometry().getWorldTranslation().add(result.getGeometry().getWorldRotation().mult(result.getContactPoint())));
+        } else if (kie.isReleased()){
+            if ( KeyInput.KEY_LSHIFT == kie.getKeyCode() ) {
+                forceCameraControls = false;
             }
-            checkClickR = false;
         }
     }
+    
+    @Override
+    public void checkClick(int button, boolean pressed) {
+        if (button == 0) {
+            if (isEditButtonEnabled() && !forceCameraControls) {
+                toolController.doEditToolActivatedPrimary(new Vector2f(mouseX,mouseY), pressed, cam);
+            }
+        }
+        if (button == 1) {
+            if (isEditButtonEnabled() && !forceCameraControls) {
+                toolController.doEditToolActivatedSecondary(new Vector2f(mouseX,mouseY), pressed, cam);
+            }
+        }
+    }
+    
+    @Override
+    protected void checkDragged(int button, boolean pressed) {
+        if (button == 0)
+            toolController.doEditToolDraggedPrimary(new Vector2f(mouseX, mouseY), pressed, cam);
+        else if (button == 1)
+            toolController.doEditToolDraggedSecondary(new Vector2f(mouseX, mouseY), pressed, cam);
+    }
+    
+    @Override
+    protected void checkMoved() {
+        toolController.doEditToolMoved(new Vector2f(mouseX, mouseY), cam);
+    }
+    
+    @Override
+    public void onAnalog(String string, float f1, float f) {
+        if ("MouseAxisX".equals(string)) {
+            moved = true;
+            movedR = true;
+            if (isToolUsesCameraControls() || forceCameraControls) {
+                if (buttonDownL) {
+                    rotateCamera(Vector3f.UNIT_Y, -f1 * 2.5f);
+                }
+                if (buttonDownR) {
+                    panCamera(f1 * 2.5f, 0);
+                }
+            }
+        } else if ("MouseAxisY".equals(string)) {
+            moved = true;
+            movedR = true;
+            if (isToolUsesCameraControls() || forceCameraControls) {
+                if (buttonDownL) {
+                    rotateCamera(cam.getLeft(), -f1 * 2.5f);
+                }
+                if (buttonDownR) {
+                    panCamera(0, -f1 * 2.5f);
+                }
+            }
+        } else if ("MouseAxisX-".equals(string)) {
+            moved = true;
+            movedR = true;
+            if (isToolUsesCameraControls() || forceCameraControls) {
+                if (buttonDownL) {
+                    rotateCamera(Vector3f.UNIT_Y, f1 * 2.5f);
+                }
+                if (buttonDownR) {
+                    panCamera(-f1 * 2.5f, 0);
+                }
+            }
+        } else if ("MouseAxisY-".equals(string)) {
+            moved = true;
+            movedR = true;
+            if (isToolUsesCameraControls() || forceCameraControls) {
+                if (buttonDownL) {
+                    rotateCamera(cam.getLeft(), f1 * 2.5f);
+                }
+                if (buttonDownR) {
+                    panCamera(0, f1 * 2.5f);
+                }
+            }
+        } else if ("MouseWheel".equals(string)) {
+            zoomCamera(.1f);
+        } else if ("MouseWheel-".equals(string)) {
+            zoomCamera(-.1f);
+        }
+    }
+    
+   
 }

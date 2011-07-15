@@ -32,13 +32,10 @@
 package com.jme3.gde.terraineditor;
 
 import com.jme3.app.Application;
-import com.jme3.app.state.AppStateManager;
 import com.jme3.collision.CollisionResult;
 import com.jme3.collision.CollisionResults;
 import com.jme3.gde.core.scene.SceneApplication;
 import com.jme3.gde.core.scene.controller.AbstractCameraController;
-import com.jme3.gde.core.sceneexplorer.nodes.JmeNode;
-import com.jme3.input.InputManager;
 import com.jme3.input.KeyInput;
 import com.jme3.input.event.KeyInputEvent;
 import com.jme3.input.event.MouseMotionEvent;
@@ -46,7 +43,6 @@ import com.jme3.math.Ray;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
-import java.util.logging.Logger;
 
 
 /**
@@ -177,7 +173,7 @@ public class TerrainCameraController extends AbstractCameraController {
     }
 
     @Override
-    protected void checkClick(int button) {
+    protected void checkClick(int button, boolean pressed) {
         if (button == 0) {
             if (isTerrainEditButtonEnabled() && !forceCameraControls) {
                 if (leftMouse)

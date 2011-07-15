@@ -51,6 +51,7 @@ import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.RenderManager;
 import java.util.concurrent.Callable;
+import java.util.logging.Logger;
 
 /**
  *
@@ -70,8 +71,16 @@ public abstract class AbstractCameraController extends AbstractAppState implemen
     protected Object master;
     protected boolean moved = false;
     protected boolean movedR = false;
-    protected boolean checkClick = false;
+    protected boolean buttonDownL = false;
+    protected boolean buttonDownR = false;
+    protected boolean checkClickL = false;
     protected boolean checkClickR = false;
+    protected boolean checkReleaseL = false;
+    protected boolean checkReleaseR = false;
+    protected boolean checkDragged = false;
+    protected boolean checkDraggedR = false;
+    protected boolean checkReleaseLeft = false;
+    protected boolean checkReleaseRight = false;
 
     public AbstractCameraController(Camera cam, InputManager inputManager) {
         this.cam = cam;
@@ -151,15 +160,22 @@ public abstract class AbstractCameraController extends AbstractAppState implemen
         cam.setLocation(loc);
     }
 
-    public void onAction(String string, boolean bln, float f) {
+    /*public void onAction(String string, boolean bln, float f) {
         if ("MouseButtonLeft".equals(string)) {
             if (bln) {
                 leftMouse = true;
                 moved = false;
             } else {
+                if (leftMouse)
+                    checkReleaseLeft = true;
                 leftMouse = false;
                 if (!moved) {
-                    checkClick = true;
+                    if (checkClick == false)
+                        checkClick = true;
+                    checkDragged = false;
+                } else {
+                    checkDragged = true;
+                    checkClick = false;
                 }
             }
         }
@@ -168,55 +184,93 @@ public abstract class AbstractCameraController extends AbstractAppState implemen
                 rightMouse = true;
                 movedR = false;
             } else {
+                if (rightMouse)
+                    checkReleaseRight = true;
                 rightMouse = false;
                 if (!movedR) {
-                    checkClickR = true;
+                    if (checkClickR == false)
+                        checkClickR = true;
+                    checkDraggedR = false;
+                } else {
+                    checkDraggedR = true;
+                    checkClickR = false;
                 }
             }
         }
-    }
+    }*/
 
     public void onAnalog(String string, float f1, float f) {
         if ("MouseAxisX".equals(string)) {
             moved = true;
             movedR = true;
-            if (leftMouse) {
+            if (buttonDownL) {
                 rotateCamera(Vector3f.UNIT_Y, -f1 * 2.5f);
             }
-            if (rightMouse) {
+            if (buttonDownR) {
                 panCamera(f1 * 2.5f, 0);
             }
         } else if ("MouseAxisY".equals(string)) {
             moved = true;
             movedR = true;
-            if (leftMouse) {
+            if (buttonDownL) {
                 rotateCamera(cam.getLeft(), -f1 * 2.5f);
             }
-            if (rightMouse) {
+            if (buttonDownR) {
                 panCamera(0, -f1 * 2.5f);
             }
         } else if ("MouseAxisX-".equals(string)) {
             moved = true;
             movedR = true;
-            if (leftMouse) {
+            if (buttonDownL) {
                 rotateCamera(Vector3f.UNIT_Y, f1 * 2.5f);
             }
-            if (rightMouse) {
+            if (buttonDownR) {
                 panCamera(-f1 * 2.5f, 0);
             }
         } else if ("MouseAxisY-".equals(string)) {
             moved = true;
             movedR = true;
-            if (leftMouse) {
+            if (buttonDownL) {
                 rotateCamera(cam.getLeft(), f1 * 2.5f);
             }
-            if (rightMouse) {
+            if (buttonDownR) {
                 panCamera(0, f1 * 2.5f);
             }
         } else if ("MouseWheel".equals(string)) {
             zoomCamera(.1f);
         } else if ("MouseWheel-".equals(string)) {
             zoomCamera(-.1f);
+        }
+    }
+    
+    public void onAction(String string, boolean pressed, float f) {
+        if ("MouseButtonLeft".equals(string)) {
+            if (pressed) {
+                if (!buttonDownL) { // mouse clicked
+                    checkClickL = true;
+                    checkReleaseL = false;
+                }
+            } else {
+                if (buttonDownL) { // mouse released
+                    checkReleaseL = true;
+                    checkClickL = false;
+                }
+            }
+            buttonDownL = pressed;
+        }
+        if ("MouseButtonRight".equals(string)) {
+            if (pressed) {
+                if (!buttonDownR) { // mouse clicked
+                    checkClickR = true;
+                    checkReleaseR = false;
+                }
+            } else {
+                if (buttonDownR) { // mouse released
+                    checkReleaseR = true;
+                    checkClickR = false;
+                }
+            }
+            buttonDownR = pressed;
         }
     }
 
@@ -242,39 +296,129 @@ public abstract class AbstractCameraController extends AbstractAppState implemen
 
     /**APPSTATE**/
     private boolean appInit = false;
+    
+    @Override
     public void initialize(AppStateManager asm, Application aplctn) {
         appInit = true;
     }
 
+    @Override
     public boolean isInitialized() {
         return appInit;
     }
 
+    @Override
     public void stateAttached(AppStateManager asm) {
     }
 
+    @Override
     public void stateDetached(AppStateManager asm) {
     }
 
+    @Override
     public void update(float f) {
-        if (checkClick) {
-            checkClick(0);
-            checkClick = false;
+        if (moved) {
+            // moved, check for drags
+            if (checkReleaseL || checkReleaseR) {
+                // drag released
+                if (checkReleaseL)
+                    checkDragged(0, false);
+                if (checkReleaseR)
+                    checkDragged(1, false);
+                checkReleaseL = false;
+                checkReleaseR = false;
+            } else {
+                if (buttonDownL)
+                    checkDragged(0, true);
+                else if (buttonDownR)
+                    checkDragged(1, true);
+                else
+                    checkMoved(); // no dragging, just moved
+            }
+            
+            moved = false;
+        } else {
+            // not moved, check for just clicks
+            if (checkClickL) {
+                checkClick(0, true);
+                checkClickL = false;
+            }
+            if (checkReleaseL) {
+                checkClick(0, false);
+                checkReleaseL = false;
+            }
+            if (checkClickR) {
+                checkClick(1, true);
+                checkClickR = false;
+            }
+            if (checkReleaseR) {
+                checkClick(1, false);
+                checkReleaseR = false;
+            }
         }
-        if (checkClickR) {
-            checkClick(1);
-            checkClickR = false;
-        }
+        
+        /*if (checkDragged || checkDraggedR) {
+            if (checkDragged) {
+                checkDragged(0);
+                checkReleaseLeft = false;
+                checkDragged = false;
+                checkClick = false;
+                checkClickR = false;
+            }
+            if (checkDraggedR) {
+                checkDragged(1);
+                checkReleaseRight = false;
+                checkDraggedR = false;
+                checkClick = false;
+                checkClickR = false;
+            }
+        } else {
+            if (checkClick) {
+                checkClick(0, checkReleaseLeft);
+                checkReleaseLeft = false;
+                checkClick = false;
+                checkDragged = false;
+                checkDraggedR = false;
+            }
+            if (checkClickR) {
+                checkClick(1, checkReleaseRight);
+                checkReleaseRight = false;
+                checkClickR = false;
+                checkDragged = false;
+                checkDraggedR = false;
+            }
+        }*/
     }
 
-    protected abstract void checkClick(int button);
+    /**
+     * mouse clicked, not dragged
+     * @param pressed true if pressed, false if released
+     */
+    protected abstract void checkClick(int button, boolean pressed);
+    
+    /**
+     * Mouse dragged while button is depressed
+     */
+    protected void checkDragged(int button, boolean pressed) {
+        // override in sub classes
+    }
+    
+    /**
+     * The mouse moved, no dragging or buttons pressed
+     */
+    protected void checkMoved() {
+        // override in subclasses
+    }
 
+    @Override
     public void render(RenderManager rm) {
     }
 
+    @Override
     public void postRender() {
     }
 
+    @Override
     public void cleanup() {
     }
 

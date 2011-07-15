@@ -12,15 +12,17 @@ import com.jme3.gde.core.scene.PreviewRequest;
 import com.jme3.gde.core.scene.SceneApplication;
 import com.jme3.gde.core.scene.SceneListener;
 import com.jme3.gde.core.scene.SceneRequest;
-import com.jme3.gde.core.scene.controller.SceneToolController;
 import com.jme3.gde.core.sceneexplorer.nodes.JmeNode;
 import com.jme3.gde.core.sceneexplorer.nodes.JmeSpatial;
 import com.jme3.gde.core.sceneexplorer.nodes.NodeUtility;
+import com.jme3.gde.scenecomposer.tools.MoveTool;
+import com.jme3.gde.scenecomposer.tools.SelectTool;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import java.util.Collection;
 import java.util.logging.Logger;
+import javax.swing.ButtonGroup;
 import javax.swing.border.TitledBorder;
 import org.openide.util.Lookup.Result;
 import org.openide.util.LookupEvent;
@@ -55,7 +57,7 @@ public final class SceneComposerTopComponent extends TopComponent implements Sce
     private static final String PREFERRED_ID = "SceneComposerTopComponent";
     private final Result<JmeSpatial> result;
     ComposerCameraController camController;
-    SceneToolController toolController;
+    SceneComposerToolController toolController;
     SceneEditorController editorController;
 //    private SaveCookie saveCookie = new SaveCookieImpl();
     private SceneRequest currentRequest;
@@ -77,6 +79,7 @@ public final class SceneComposerTopComponent extends TopComponent implements Sce
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        spatialModButtonGroup = new ButtonGroup();
         sceneInfoPanel = new javax.swing.JPanel();
         sceneInfoLabel1 = new javax.swing.JLabel();
         sceneInfoLabel2 = new javax.swing.JLabel();
@@ -84,6 +87,11 @@ public final class SceneComposerTopComponent extends TopComponent implements Sce
         jScrollPane1 = new javax.swing.JScrollPane();
         jList1 = new javax.swing.JList();
         jToolBar1 = new javax.swing.JToolBar();
+        selectButton = new javax.swing.JToggleButton();
+        moveButton = new javax.swing.JToggleButton();
+        rotateButton = new javax.swing.JToggleButton();
+        scaleButton = new javax.swing.JToggleButton();
+        jSeparator5 = new javax.swing.JToolBar.Separator();
         addObjectButton = new javax.swing.JButton();
         addCursorButton = new javax.swing.JButton();
         moveToCursorButton = new javax.swing.JButton();
@@ -134,7 +142,7 @@ public final class SceneComposerTopComponent extends TopComponent implements Sce
                 .addComponent(sceneInfoLabel1)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(sceneInfoLabel2)
-                .addContainerGap(93, Short.MAX_VALUE))
+                .addContainerGap(105, Short.MAX_VALUE))
         );
 
         palettePanel.setBackground(new java.awt.Color(204, 204, 204));
@@ -150,12 +158,62 @@ public final class SceneComposerTopComponent extends TopComponent implements Sce
         );
         palettePanelLayout.setVerticalGroup(
             palettePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 133, Short.MAX_VALUE)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 139, Short.MAX_VALUE)
         );
 
         jToolBar1.setBackground(new java.awt.Color(204, 204, 204));
         jToolBar1.setFloatable(false);
         jToolBar1.setRollover(true);
+
+        spatialModButtonGroup.add(selectButton);
+        selectButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/jme3/gde/scenecomposer/icon_select.png"))); // NOI18N
+        selectButton.setSelected(true);
+        org.openide.awt.Mnemonics.setLocalizedText(selectButton, org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.selectButton.text")); // NOI18N
+        selectButton.setToolTipText(org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.selectButton.toolTipText")); // NOI18N
+        selectButton.setFocusable(false);
+        selectButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        selectButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        selectButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                selectButtonActionPerformed(evt);
+            }
+        });
+        jToolBar1.add(selectButton);
+
+        spatialModButtonGroup.add(moveButton);
+        moveButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/jme3/gde/scenecomposer/icon_arrow_out.png"))); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(moveButton, org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.moveButton.text")); // NOI18N
+        moveButton.setToolTipText(org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.moveButton.toolTipText")); // NOI18N
+        moveButton.setFocusable(false);
+        moveButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        moveButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        moveButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                moveButtonActionPerformed(evt);
+            }
+        });
+        jToolBar1.add(moveButton);
+
+        spatialModButtonGroup.add(rotateButton);
+        rotateButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/jme3/gde/scenecomposer/icon_arrow_rotate_clockwise.png"))); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(rotateButton, org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.rotateButton.text")); // NOI18N
+        rotateButton.setToolTipText(org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.rotateButton.toolTipText")); // NOI18N
+        rotateButton.setEnabled(false);
+        rotateButton.setFocusable(false);
+        rotateButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        rotateButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        jToolBar1.add(rotateButton);
+
+        spatialModButtonGroup.add(scaleButton);
+        scaleButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/jme3/gde/scenecomposer/icon_arrow_inout.png"))); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(scaleButton, org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.scaleButton.text")); // NOI18N
+        scaleButton.setToolTipText(org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.scaleButton.toolTipText")); // NOI18N
+        scaleButton.setEnabled(false);
+        scaleButton.setFocusable(false);
+        scaleButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        scaleButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        jToolBar1.add(scaleButton);
+        jToolBar1.add(jSeparator5);
 
         addObjectButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/jme3/gde/scenecomposer/add.gif"))); // NOI18N
         org.openide.awt.Mnemonics.setLocalizedText(addObjectButton, org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.addObjectButton.text")); // NOI18N
@@ -274,11 +332,11 @@ public final class SceneComposerTopComponent extends TopComponent implements Sce
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 190, Short.MAX_VALUE)
+            .addGap(0, 211, Short.MAX_VALUE)
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 21, Short.MAX_VALUE)
+            .addGap(0, 23, Short.MAX_VALUE)
         );
 
         jToolBar1.add(jPanel3);
@@ -357,7 +415,7 @@ public final class SceneComposerTopComponent extends TopComponent implements Sce
                 .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(sceneInfoPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addComponent(jToolBar1, javax.swing.GroupLayout.DEFAULT_SIZE, 696, Short.MAX_VALUE)
+            .addComponent(jToolBar1, javax.swing.GroupLayout.DEFAULT_SIZE, 708, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -400,6 +458,7 @@ public final class SceneComposerTopComponent extends TopComponent implements Sce
     private void moveToCursorButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_moveToCursorButtonActionPerformed
         if (editorController != null) {
             editorController.moveSelectedSpatial(toolController.getCursorLocation());
+            toolController.selectedSpatialTransformed();
         }
     }//GEN-LAST:event_moveToCursorButtonActionPerformed
 
@@ -442,6 +501,17 @@ public final class SceneComposerTopComponent extends TopComponent implements Sce
         }
 
     }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void selectButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_selectButtonActionPerformed
+        SelectTool tool = new SelectTool();
+        toolController.showEditTool(tool);
+    }//GEN-LAST:event_selectButtonActionPerformed
+
+    private void moveButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_moveButtonActionPerformed
+        MoveTool tool = new MoveTool();
+        toolController.showEditTool(tool);
+    }//GEN-LAST:event_moveButtonActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton addCursorButton;
     private javax.swing.JButton addObjectButton;
@@ -464,19 +534,25 @@ public final class SceneComposerTopComponent extends TopComponent implements Sce
     private javax.swing.JToolBar.Separator jSeparator2;
     private javax.swing.JToolBar.Separator jSeparator3;
     private javax.swing.JToolBar.Separator jSeparator4;
+    private javax.swing.JToolBar.Separator jSeparator5;
     private javax.swing.JTextField jTextField1;
     private javax.swing.JToolBar jToolBar1;
     private javax.swing.JToolBar jToolBar2;
     private javax.swing.JToolBar jToolBar3;
+    private javax.swing.JToggleButton moveButton;
     private javax.swing.JButton moveToCursorButton;
     private javax.swing.JPanel palettePanel;
     private javax.swing.JSpinner radiusSpinner;
     private javax.swing.JButton resetCursorButton;
+    private javax.swing.JToggleButton rotateButton;
+    private javax.swing.JToggleButton scaleButton;
     private javax.swing.JLabel sceneInfoLabel1;
     private javax.swing.JLabel sceneInfoLabel2;
     private javax.swing.JPanel sceneInfoPanel;
+    private javax.swing.JToggleButton selectButton;
     private javax.swing.JToggleButton showGridToggleButton;
     private javax.swing.JToggleButton showSelectionToggleButton;
+    private javax.swing.ButtonGroup spatialModButtonGroup;
     // End of variables declaration//GEN-END:variables
 
     /**
@@ -811,10 +887,16 @@ public final class SceneComposerTopComponent extends TopComponent implements Sce
             if (toolController != null) {
                 toolController.cleanup();
             }
-            toolController = new SceneToolController(currentRequest.getToolNode(), currentRequest.getManager());
+            toolController = new SceneComposerToolController(currentRequest.getToolNode(), currentRequest.getManager(), request.getJmeNode());
             camController = new ComposerCameraController(SceneApplication.getApplication().getCamera(), request.getJmeNode());
+            toolController.setEditorController(editorController);
+            camController.setToolController(toolController);
             camController.setMaster(this);
             camController.enable();
+            
+            toolController.setCameraController(camController);
+            SelectTool tool = new SelectTool();
+            toolController.showEditTool(tool);
         }/* else {
         SceneApplication.getApplication().removeSceneListener(this);
         currentRequest = null;

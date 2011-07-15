@@ -61,33 +61,34 @@ public class SceneToolController implements AppState {
     }
 
     protected void initTools() {
-        Material redMat = new Material(manager, "Common/MatDefs/Misc/Unshaded.j3md");
-        redMat.getAdditionalRenderState().setWireframe(true);
-        redMat.setColor("Color", ColorRGBA.Red);
+        //Material redMat = new Material(manager, "Common/MatDefs/Misc/Unshaded.j3md");
+        //redMat.getAdditionalRenderState().setWireframe(true);
+        //redMat.setColor("Color", ColorRGBA.Red);
         Material greenMat = new Material(manager, "Common/MatDefs/Misc/Unshaded.j3md");
         greenMat.getAdditionalRenderState().setWireframe(true);
         greenMat.setColor("Color", ColorRGBA.Green);
-        Material blueMat = new Material(manager, "Common/MatDefs/Misc/Unshaded.j3md");
-        blueMat.getAdditionalRenderState().setWireframe(true);
-        blueMat.setColor("Color", ColorRGBA.Blue);
+        //Material blueMat = new Material(manager, "Common/MatDefs/Misc/Unshaded.j3md");
+        //blueMat.getAdditionalRenderState().setWireframe(true);
+        //blueMat.setColor("Color", ColorRGBA.Blue);
         Material grayMat = new Material(manager, "Common/MatDefs/Misc/Unshaded.j3md");
         grayMat.getAdditionalRenderState().setWireframe(true);
         grayMat.setColor("Color", ColorRGBA.Gray);
-
+        
         //cursor
         if (cursor == null) {
             cursor = new Node();
         }
         cursor.detachAllChildren();
-        Geometry cursorArrowX = new Geometry("cursorArrowX", new Arrow(Vector3f.UNIT_X));
-        Geometry cursorArrowY = new Geometry("cursorArrowY", new Arrow(Vector3f.UNIT_Y));
-        Geometry cursorArrowZ = new Geometry("cursorArrowZ", new Arrow(Vector3f.UNIT_Z));
-        cursorArrowX.setMaterial(redMat);
+        //Geometry cursorArrowX = new Geometry("cursorArrowX", new Arrow(Vector3f.UNIT_X));
+        Geometry cursorArrowY = new Geometry("cursorArrowY", new Arrow(new Vector3f(0,-1,0)));
+        cursorArrowY.setLocalTranslation(0, 1, 0);
+        //Geometry cursorArrowZ = new Geometry("cursorArrowZ", new Arrow(Vector3f.UNIT_Z));
+        //cursorArrowX.setMaterial(redMat);
         cursorArrowY.setMaterial(greenMat);
-        cursorArrowZ.setMaterial(blueMat);
-        cursor.attachChild(cursorArrowX);
+        //cursorArrowZ.setMaterial(blueMat);
+        //cursor.attachChild(cursorArrowX);
         cursor.attachChild(cursorArrowY);
-        cursor.attachChild(cursorArrowZ);
+        //cursor.attachChild(cursorArrowZ);
         toolsNode.attachChild(cursor);
 
         //grid
