@@ -223,6 +223,9 @@ public abstract class AbstractFilterNode extends AbstractNode implements FilterN
         if (name.equals("Enabled")) {
             toggleIcon((Boolean) after);
         }
+        if (name.equals("Name")) {
+            setName((String)after);
+        }
         fireSave(true);
         firePropertyChange(name, before, after);
     }
