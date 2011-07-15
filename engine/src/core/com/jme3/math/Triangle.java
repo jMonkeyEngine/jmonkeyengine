@@ -44,7 +44,9 @@ import java.io.IOException;
  * @author Mark Powell
  * @author Joshua Slack
  */
-public class Triangle extends AbstractTriangle implements Savable {
+public class Triangle extends AbstractTriangle implements Savable, java.io.Serializable {
+
+    static final long serialVersionUID = 1;
 
     private Vector3f pointa = new Vector3f();
     private Vector3f pointb = new Vector3f();

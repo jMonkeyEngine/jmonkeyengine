@@ -35,7 +35,10 @@ package com.jme3.math;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class Eigen3f {
+public class Eigen3f implements java.io.Serializable {
+
+    static final long serialVersionUID = 1;
+    
     private static final Logger logger = Logger.getLogger(Eigen3f.class
             .getName());
 

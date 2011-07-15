@@ -48,7 +48,9 @@ import java.nio.FloatBuffer;
  * @author Mark Powell
  * @author Joshua Slack
  */
-public class Line implements Savable, Cloneable {
+public class Line implements Savable, Cloneable, java.io.Serializable {
+
+    static final long serialVersionUID = 1;
 
     private Vector3f origin;
     private Vector3f direction;

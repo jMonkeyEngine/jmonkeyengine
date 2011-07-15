@@ -56,7 +56,9 @@ import java.util.logging.Logger;
  * @author Mark Powell
  * @author Joshua Slack
  */
-public final class Quaternion implements Savable, Cloneable {
+public final class Quaternion implements Savable, Cloneable, java.io.Serializable {
+
+    static final long serialVersionUID = 1;
 
     private static final Logger logger = Logger.getLogger(Quaternion.class.getName());
     /**

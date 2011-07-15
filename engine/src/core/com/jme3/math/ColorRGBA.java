@@ -54,7 +54,9 @@ import java.io.IOException;
  * @author Mark Powell
  * @version $Id: ColorRGBA.java,v 1.29 2007/09/09 18:25:14 irrisor Exp $
  */
-public final class ColorRGBA implements Savable, Cloneable {
+public final class ColorRGBA implements Savable, Cloneable, java.io.Serializable {
+
+    static final long serialVersionUID = 1;
     
     /**
      * the color black (0,0,0).

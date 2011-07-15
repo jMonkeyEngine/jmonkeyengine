@@ -46,7 +46,9 @@ import java.io.IOException;
  * @author Jack Lindamood
  * @author Joshua Slack
  */
-public final class Transform implements Savable, Cloneable {
+public final class Transform implements Savable, Cloneable, java.io.Serializable {
+
+    static final long serialVersionUID = 1;
 
     public static final Transform IDENTITY = new Transform();
 

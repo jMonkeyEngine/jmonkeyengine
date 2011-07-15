@@ -50,7 +50,9 @@ import java.io.IOException;
  * @author Joshua Slack
  */
 
-public final class Rectangle implements Savable, Cloneable {
+public final class Rectangle implements Savable, Cloneable, java.io.Serializable {
+
+    static final long serialVersionUID = 1;
 
     private Vector3f a, b, c;
 

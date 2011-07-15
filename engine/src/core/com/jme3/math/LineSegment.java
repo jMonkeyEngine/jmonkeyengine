@@ -53,7 +53,9 @@ import java.io.IOException;
  * @author Mark Powell
  * @author Joshua Slack
  */
-public class LineSegment implements Cloneable, Savable {
+public class LineSegment implements Cloneable, Savable, java.io.Serializable {
+
+    static final long serialVersionUID = 1;
 
     private Vector3f origin;
     private Vector3f direction;

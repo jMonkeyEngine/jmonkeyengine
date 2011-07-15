@@ -57,7 +57,9 @@ import java.util.logging.Logger;
  * @author Mark Powell
  * @author Joshua Slack
  */
-public final class Matrix4f implements Savable, Cloneable {
+public final class Matrix4f implements Savable, Cloneable, java.io.Serializable {
+
+    static final long serialVersionUID = 1;
 
     private static final Logger logger = Logger.getLogger(Matrix4f.class.getName());
     public float m00, m01, m02, m03;

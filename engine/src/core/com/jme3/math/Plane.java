@@ -49,7 +49,9 @@ import java.util.logging.Logger;
  * @author Mark Powell
  * @author Joshua Slack
  */
-public class Plane implements Savable, Cloneable {
+public class Plane implements Savable, Cloneable, java.io.Serializable {
+
+    static final long serialVersionUID = 1;
 
     private static final Logger logger = Logger
             .getLogger(Plane.class.getName());
