@@ -1031,7 +1031,7 @@ public class Material implements Cloneable, Savable, Comparable<Material> {
                 defName = "Common/MatDefs/Misc/Unshaded.j3md";
             }else if (defName.equalsIgnoreCase("Common/MatDefs/Misc/WireColor.j3md")){
                 // Using WireColor, set wireframe renderstate = true and use Unshaded
-                additionalState.setWireframe(true);
+                getAdditionalRenderState().setWireframe(true);
                 defName = "Common/MatDefs/Misc/Unshaded.j3md";
             }else if (defName.equalsIgnoreCase("Common/MatDefs/Misc/Unshaded.j3md")){
                 // Uses unshaded, ensure that the proper param is set
