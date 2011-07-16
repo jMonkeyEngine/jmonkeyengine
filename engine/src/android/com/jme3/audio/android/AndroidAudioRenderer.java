@@ -115,7 +115,8 @@ public class AndroidAudioRenderer implements AudioRenderer, SoundPool.OnLoadComp
     @Override
     public void updateSourceParam(AudioNode src, AudioParam param)
     {
-        logger.log(Level.INFO, "updateSourceParam " + param);
+        //logger.log(Level.INFO, "updateSourceParam " + param);
+        
             if (audioDisabled)
                 return;
  
@@ -210,7 +211,7 @@ public class AndroidAudioRenderer implements AudioRenderer, SoundPool.OnLoadComp
     @Override
     public void updateListenerParam(Listener listener, ListenerParam param)
     {
-        logger.log(Level.INFO, "updateListenerParam " + param);
+        //logger.log(Level.INFO, "updateListenerParam " + param);
         if (audioDisabled)
             return;
         
@@ -244,6 +245,7 @@ public class AndroidAudioRenderer implements AudioRenderer, SoundPool.OnLoadComp
         // Loop over all mediaplayers
         for (AudioNode src : musicPlaying.keySet())
         {
+            
             MediaPlayer mp = musicPlaying.get(src);
             {
                 // Calc the distance to the listener
@@ -254,11 +256,20 @@ public class AndroidAudioRenderer implements AudioRenderer, SoundPool.OnLoadComp
                 if (distance < src.getRefDistance())
                     distance = src.getRefDistance();
                 if (distance > src.getMaxDistance())
-                    distance = src.getMaxDistance();
+                    distance = src.getMaxDistance();                               
                 volume = src.getRefDistance() / distance;
                 
-                // Left / Right channel get the same volume by now, only positional
-                mp.setVolume(volume, volume);
+                AndroidAudioData audioData = (AndroidAudioData)src.getAudioData();
+                
+                if (FastMath.abs(audioData.getCurrentVolume() - volume) > FastMath.FLT_EPSILON)
+                {
+                    // Left / Right channel get the same volume by now, only positional
+                    mp.setVolume(volume, volume);
+                    
+                    audioData.setCurrentVolume(volume);
+                }
+                
+                
             }
         }
     }

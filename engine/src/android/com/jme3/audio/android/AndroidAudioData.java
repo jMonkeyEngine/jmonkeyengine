@@ -8,6 +8,7 @@ public class AndroidAudioData extends AudioData
 {
     protected AssetKey assetKey;
     protected int soundId = 0;
+    protected float currentVolume = 0f;
     
     public AssetKey getAssetKey() {
         return assetKey;
@@ -45,8 +46,15 @@ public class AndroidAudioData extends AudioData
 
     @Override
     public void deleteObject(AudioRenderer r) {
-        // TODO Auto-generated method stub
-        
+        r.deleteAudioData(this);        
+    }
+
+    public float getCurrentVolume() {
+        return currentVolume;
+    }
+
+    public void setCurrentVolume(float currentVolume) {
+        this.currentVolume = currentVolume;
     }
     
     
