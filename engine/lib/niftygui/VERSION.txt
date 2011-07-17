@@ -1,0 +1,8 @@
+Last Updated 6/30/2011
+
+Component		Version
+---------------------------------------------------------------------
+nifty			nifty-1.3
+nifty-default-controls	nifty-default-controls-1.3
+nifty-style-black	nifty-style-black-1.3
+nifty-examples		nifty-examples-1.3
