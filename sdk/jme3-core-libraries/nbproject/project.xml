@@ -51,6 +51,8 @@
                 <package>de.lessvoid.nifty.controls.listbox.builder</package>
                 <package>de.lessvoid.nifty.controls.menu</package>
                 <package>de.lessvoid.nifty.controls.nullobjects</package>
+                <package>de.lessvoid.nifty.controls.radiobutton</package>
+                <package>de.lessvoid.nifty.controls.radiobutton.builder</package>
                 <package>de.lessvoid.nifty.controls.scrollbar</package>
                 <package>de.lessvoid.nifty.controls.scrollbar.builder</package>
                 <package>de.lessvoid.nifty.controls.scrollpanel</package>
@@ -148,6 +150,10 @@
                 <binary-origin>release/modules/ext/jinput.jar</binary-origin>
             </class-path-extension>
             <class-path-extension>
+                <runtime-relative-path>ext/nifty-default-controls-1.3.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/nifty-default-controls-1.3.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
                 <runtime-relative-path>ext/stack-alloc.jar</runtime-relative-path>
                 <binary-origin>release/modules/ext/stack-alloc.jar</binary-origin>
             </class-path-extension>
@@ -156,12 +162,12 @@
                 <binary-origin>release/modules/ext/noise-0.0.1-SNAPSHOT.jar</binary-origin>
             </class-path-extension>
             <class-path-extension>
-                <runtime-relative-path>ext/nifty-default-controls-1.3-SNAPSHOT.jar</runtime-relative-path>
-                <binary-origin>release/modules/ext/nifty-default-controls-1.3-SNAPSHOT.jar</binary-origin>
+                <runtime-relative-path>ext/nifty-style-black-1.3.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/nifty-style-black-1.3.jar</binary-origin>
             </class-path-extension>
             <class-path-extension>
-                <runtime-relative-path>ext/nifty-style-black-1.3-SNAPSHOT.jar</runtime-relative-path>
-                <binary-origin>release/modules/ext/nifty-style-black-1.3-SNAPSHOT.jar</binary-origin>
+                <runtime-relative-path>ext/nifty-1.3.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/nifty-1.3.jar</binary-origin>
             </class-path-extension>
             <class-path-extension>
                 <runtime-relative-path>ext/xmlpull-xpp3-1.1.4c.jar</runtime-relative-path>
@@ -174,10 +180,6 @@
             <class-path-extension>
                 <runtime-relative-path>ext/vecmath.jar</runtime-relative-path>
                 <binary-origin>release/modules/ext/vecmath.jar</binary-origin>
-            </class-path-extension>
-            <class-path-extension>
-                <runtime-relative-path>ext/nifty-1.3-SNAPSHOT.jar</runtime-relative-path>
-                <binary-origin>release/modules/ext/nifty-1.3-SNAPSHOT.jar</binary-origin>
             </class-path-extension>
             <class-path-extension>
                 <runtime-relative-path>ext/jbullet.jar</runtime-relative-path>
