@@ -40,7 +40,6 @@ import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -134,8 +133,5 @@ public class ClasspathLocator implements AssetLocator {
         }catch (IOException ex){
             throw new AssetLoadException("Failed to read URL " + url, ex);
         }
-        
     }
-
-
 }

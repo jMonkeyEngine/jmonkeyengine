@@ -34,11 +34,14 @@ package com.jme3.asset.plugins;
 
 import com.jme3.asset.AssetInfo;
 import com.jme3.asset.AssetKey;
+import com.jme3.asset.AssetLoadException;
 import com.jme3.asset.AssetLocator;
 import com.jme3.asset.AssetManager;
+import com.jme3.asset.AssetNotFoundException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 
 /**
@@ -82,6 +85,19 @@ public class FileLocator implements AssetLocator {
         String name = key.getName();
         File file = new File(root, name);
         if (file.exists() && file.isFile()){
+            try {
+                // Now, check asset name requirements
+                String canonical = file.getCanonicalPath();
+                String absolute = file.getAbsolutePath();
+                if (!canonical.endsWith(absolute)){
+                    throw new AssetNotFoundException("Asset name doesn't match requirements.\n"+
+                                                     "\"" + canonical + "\" doesn't match \"" + absolute + "\"");
+                }
+            } catch (IOException ex) {
+                throw new AssetLoadException("Failed to get file canonical path " + file, ex);
+            }
+            
+            
             return new AssetInfoFile(manager, key, file);
         }else{
             return null;
