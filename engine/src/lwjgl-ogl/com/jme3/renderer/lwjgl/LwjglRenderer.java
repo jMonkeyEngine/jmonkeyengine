@@ -531,13 +531,28 @@ public class LwjglRenderer implements Renderer {
         }
 
         if (state.isPointSprite() && !context.pointSprite) {
-            glEnable(GL_POINT_SPRITE);
-            glTexEnvi(GL_POINT_SPRITE, GL_COORD_REPLACE, GL_TRUE);
-            glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
+            // Only enable/disable sprite 
+            if (context.boundTextures[0] != null){
+                if (context.boundTextureUnit != 0){
+                    glActiveTexture(GL_TEXTURE0);
+                    context.boundTextureUnit = 0;
+                }
+                glEnable(GL_POINT_SPRITE);
+                glTexEnvi(GL_POINT_SPRITE, GL_COORD_REPLACE, GL_TRUE);
+                glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
+            }
             context.pointSprite = true;
         } else if (!state.isPointSprite() && context.pointSprite) {
-            glDisable(GL_POINT_SPRITE);
-            context.pointSprite = false;
+            if (context.boundTextures[0] != null){
+                if (context.boundTextureUnit != 0){
+                    glActiveTexture(GL_TEXTURE0);
+                    context.boundTextureUnit = 0;
+                }
+                glDisable(GL_POINT_SPRITE);
+                glTexEnvi(GL_POINT_SPRITE, GL_COORD_REPLACE, GL_FALSE);
+                glDisable(GL_VERTEX_PROGRAM_POINT_SIZE);
+                context.pointSprite = false;
+            }
         }
 
         if (state.isPolyOffset()) {
