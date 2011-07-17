@@ -59,8 +59,6 @@ import java.io.IOException;
  */
 public class AudioNode extends Node {
 
-    protected AudioRenderer renderer;
-
     protected boolean loop = false;
     protected float volume = 1;
     protected float pitch = 1;
@@ -105,7 +103,7 @@ public class AudioNode extends Node {
     }
 
     /**
-     * Serialization only. Do not use.
+     * Creates a new <code>AudioNode</code> without any audio data set.
      */
     public AudioNode() {
     }
@@ -114,12 +112,10 @@ public class AudioNode extends Node {
      * Creates a new <code>AudioNode</code> without any audio data set.
      * 
      * @param audioRenderer The audio renderer to use for playing. Cannot be null.
+     *
+     * @deprecated AudioRenderer parameter is ignored.
      */
     public AudioNode(AudioRenderer audioRenderer) {
-        if (audioRenderer == null)
-            throw new IllegalArgumentException("audioRenderer cannot be null");
-        
-        this.renderer = audioRenderer;
     }
 
     /**
@@ -128,9 +124,20 @@ public class AudioNode extends Node {
      * @param audioRenderer The audio renderer to use for playing. Cannot be null.
      * @param audioData The audio data contains the audio track to play.
      * @param key The audio key that was used to load the AudioData
+     *
+     * @deprecated AudioRenderer parameter is ignored.
      */
     public AudioNode(AudioRenderer audioRenderer, AudioData audioData, AudioKey key) {
-        this(audioRenderer);
+        setAudioData(audioData, key);
+    }
+
+    /**
+     * Creates a new <code>AudioNode</code> with the given data and key.
+     * 
+     * @param audioData The audio data contains the audio track to play.
+     * @param key The audio key that was used to load the AudioData
+     */
+    public AudioNode(AudioData audioData, AudioKey key) {
         setAudioData(audioData, key);
     }
 
@@ -146,9 +153,27 @@ public class AudioNode extends Node {
      * the stream cache is used. When enabled, the audio stream will
      * be read entirely but not decoded, allowing features such as 
      * seeking, looping and determining duration.
+     *
+     * @deprecated AudioRenderer parameter is ignored.
      */
     public AudioNode(AudioRenderer audioRenderer, AssetManager assetManager, String name, boolean stream, boolean streamCache) {
-        this(audioRenderer);
+        this.key = new AudioKey(name, stream, streamCache);
+        this.data = (AudioData) assetManager.loadAsset(key);
+    }
+
+    /**
+     * Creates a new <code>AudioNode</code> with the given audio file.
+     * 
+     * @param assetManager The asset manager to use to load the audio file
+     * @param name The filename of the audio file
+     * @param stream If true, the audio will be streamed gradually from disk, 
+     *               otherwise, it will be buffered.
+     * @param streamCache If stream is also true, then this specifies if
+     * the stream cache is used. When enabled, the audio stream will
+     * be read entirely but not decoded, allowing features such as 
+     * seeking, looping and determining duration.
+     */
+    public AudioNode(AssetManager assetManager, String name, boolean stream, boolean streamCache) {
         this.key = new AudioKey(name, stream, streamCache);
         this.data = (AudioData) assetManager.loadAsset(key);
     }
@@ -161,9 +186,25 @@ public class AudioNode extends Node {
      * @param name The filename of the audio file
      * @param stream If true, the audio will be streamed gradually from disk, 
      *               otherwise, it will be buffered.
+     *
+     * @deprecated AudioRenderer parameter is ignored.
      */
     public AudioNode(AudioRenderer audioRenderer, AssetManager assetManager, String name, boolean stream) {
         this(audioRenderer, assetManager, name, stream, false);
+    }
+
+    /**
+     * Creates a new <code>AudioNode</code> with the given audio file.
+     * 
+     * @param assetManager The asset manager to use to load the audio file
+     * @param name The filename of the audio file
+     * @param stream If true, the audio will be streamed gradually from disk, 
+     *               otherwise, it will be buffered.
+     *
+     * @deprecated AudioRenderer parameter is ignored.
+     */
+    public AudioNode(AssetManager assetManager, String name, boolean stream) {
+        this(assetManager, name, stream, false);
     }
 
     /**
@@ -174,14 +215,31 @@ public class AudioNode extends Node {
      * @param name The filename of the audio file
      */
     public AudioNode(AudioRenderer audioRenderer, AssetManager assetManager, String name) {
-        this(audioRenderer, assetManager, name, false);
+        this(assetManager, name, false);
+    }
+    
+    /**
+     * Creates a new <code>AudioNode</code> with the given audio file.
+     * 
+     * @param assetManager The asset manager to use to load the audio file
+     * @param name The filename of the audio file
+     */
+    public AudioNode(AssetManager assetManager, String name) {
+        this(assetManager, name, false);
+    }
+    
+    protected AudioRenderer getRenderer() {
+        AudioRenderer result = AudioContext.getAudioRenderer();
+        if( result == null )
+            throw new IllegalStateException( "No audio renderer available, make sure call is being performed on render thread." );
+        return result;            
     }
     
     /**
      * Start playing the audio.
      */
     public void play(){
-        renderer.playSource(this);
+        getRenderer().playSource(this);
     }
 
     /**
@@ -191,14 +249,14 @@ public class AudioNode extends Node {
      * instances already playing.
      */
     public void playInstance(){
-        renderer.playSourceInstance(this);
+        getRenderer().playSourceInstance(this);
     }
     
     /**
      * Stop playing the audio that was started with {@link AudioNode#play() }.
      */
     public void stop(){
-        renderer.stopSource(this);
+        getRenderer().stopSource(this);
     }
     
     /**
@@ -242,7 +300,7 @@ public class AudioNode extends Node {
     public void setDryFilter(Filter dryFilter) {
         this.dryFilter = dryFilter;
         if (channel >= 0)
-            renderer.updateSourceParam(this, AudioParam.DryFilter);
+            getRenderer().updateSourceParam(this, AudioParam.DryFilter);
     }
 
     /**
@@ -304,7 +362,7 @@ public class AudioNode extends Node {
     public void setLooping(boolean loop) {
         this.loop = loop;
         if (channel >= 0)
-            renderer.updateSourceParam(this, AudioParam.Looping);
+            getRenderer().updateSourceParam(this, AudioParam.Looping);
     }
 
     /**
@@ -330,7 +388,7 @@ public class AudioNode extends Node {
 
         this.pitch = pitch;
         if (channel >= 0)
-            renderer.updateSourceParam(this, AudioParam.Pitch);
+            getRenderer().updateSourceParam(this, AudioParam.Pitch);
     }
 
     /**
@@ -357,7 +415,7 @@ public class AudioNode extends Node {
 
         this.volume = volume;
         if (channel >= 0)
-            renderer.updateSourceParam(this, AudioParam.Volume);
+            getRenderer().updateSourceParam(this, AudioParam.Volume);
     }
 
     /**
@@ -400,7 +458,7 @@ public class AudioNode extends Node {
     public void setVelocity(Vector3f velocity) {
         this.velocity.set(velocity);
         if (channel >= 0)
-            renderer.updateSourceParam(this, AudioParam.Velocity);
+            getRenderer().updateSourceParam(this, AudioParam.Velocity);
     }
 
     /**
@@ -425,7 +483,7 @@ public class AudioNode extends Node {
     public void setReverbEnabled(boolean reverbEnabled) {
         this.reverbEnabled = reverbEnabled;
         if (channel >= 0)
-            renderer.updateSourceParam(this, AudioParam.ReverbEnabled);
+            getRenderer().updateSourceParam(this, AudioParam.ReverbEnabled);
     }
 
     /**
@@ -450,7 +508,7 @@ public class AudioNode extends Node {
     public void setReverbFilter(Filter reverbFilter) {
         this.reverbFilter = reverbFilter;
         if (channel >= 0)
-            renderer.updateSourceParam(this, AudioParam.ReverbFilter);
+            getRenderer().updateSourceParam(this, AudioParam.ReverbFilter);
     }
 
     /**
@@ -484,7 +542,7 @@ public class AudioNode extends Node {
 
         this.maxDistance = maxDistance;
         if (channel >= 0)
-            renderer.updateSourceParam(this, AudioParam.MaxDistance);
+            getRenderer().updateSourceParam(this, AudioParam.MaxDistance);
     }
 
     /**
@@ -513,7 +571,7 @@ public class AudioNode extends Node {
 
         this.refDistance = refDistance;
         if (channel >= 0)
-            renderer.updateSourceParam(this, AudioParam.RefDistance);
+            getRenderer().updateSourceParam(this, AudioParam.RefDistance);
     }
 
     /**
@@ -538,7 +596,7 @@ public class AudioNode extends Node {
     public void setDirectional(boolean directional) {
         this.directional = directional;
         if (channel >= 0)
-            renderer.updateSourceParam(this, AudioParam.IsDirectional);
+            getRenderer().updateSourceParam(this, AudioParam.IsDirectional);
     }
 
     /**
@@ -560,7 +618,7 @@ public class AudioNode extends Node {
     public void setDirection(Vector3f direction) {
         this.direction = direction;
         if (channel >= 0)
-            renderer.updateSourceParam(this, AudioParam.Direction);
+            getRenderer().updateSourceParam(this, AudioParam.Direction);
     }
 
     /**
@@ -581,7 +639,7 @@ public class AudioNode extends Node {
     public void setInnerAngle(float innerAngle) {
         this.innerAngle = innerAngle;
         if (channel >= 0)
-            renderer.updateSourceParam(this, AudioParam.InnerAngle);
+            getRenderer().updateSourceParam(this, AudioParam.InnerAngle);
     }
 
     /**
@@ -602,7 +660,7 @@ public class AudioNode extends Node {
     public void setOuterAngle(float outerAngle) {
         this.outerAngle = outerAngle;
         if (channel >= 0)
-            renderer.updateSourceParam(this, AudioParam.OuterAngle);
+            getRenderer().updateSourceParam(this, AudioParam.OuterAngle);
     }
 
     /**
@@ -625,7 +683,7 @@ public class AudioNode extends Node {
     public void setPositional(boolean positional) {
         this.positional = positional;
         if (channel >= 0)
-            renderer.updateSourceParam(this, AudioParam.IsPositional);
+            getRenderer().updateSourceParam(this, AudioParam.IsPositional);
     }
 
     @Override
@@ -638,7 +696,7 @@ public class AudioNode extends Node {
         super.updateGeometricState();
 
         if (updatePos && channel >= 0)
-            renderer.updateSourceParam(this, AudioParam.Position);
+            getRenderer().updateSourceParam(this, AudioParam.Position);
     }
 
     @Override

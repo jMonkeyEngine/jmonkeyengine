@@ -41,6 +41,7 @@ import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.Renderer;
 import com.jme3.asset.AssetManager;
+import com.jme3.audio.AudioContext;
 import com.jme3.audio.AudioRenderer;
 import com.jme3.audio.Listener;
 import com.jme3.input.InputManager;
@@ -543,6 +544,10 @@ public class Application implements SystemListener {
      * Callback from ContextListener.
      */
     public void update(){
+    
+        // Make sure the audio renderer is available to callables
+        AudioContext.setAudioRenderer(audioRenderer);
+        
         AppTask<?> task = taskQueue.poll();
         toploop: do {
             if (task == null) break;
