@@ -66,8 +66,8 @@ public class AudioNode extends Node {
     protected Filter dryFilter;
     protected AudioKey key;
     protected transient AudioData data = null;
-    protected transient Status status = Status.Stopped;
-    protected transient int channel = -1;
+    protected transient volatile Status status = Status.Stopped;
+    protected transient volatile int channel = -1;
     protected Vector3f velocity = new Vector3f();
     protected boolean reverbEnabled = true;
     protected float maxDistance = 200; // 200 meters
@@ -262,7 +262,7 @@ public class AudioNode extends Node {
     /**
      * Do not use.
      */
-    public void setChannel(int channel) {
+    public final void setChannel(int channel) {
         if (status != Status.Stopped) {
             throw new IllegalStateException("Can only set source id when stopped");
         }
@@ -341,7 +341,7 @@ public class AudioNode extends Node {
     /**
      * Do not use.
      */
-    public void setStatus(Status status) {
+    public final void setStatus(Status status) {
         this.status = status;
     }
 
