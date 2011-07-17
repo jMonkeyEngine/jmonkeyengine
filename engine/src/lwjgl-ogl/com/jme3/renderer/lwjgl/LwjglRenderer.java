@@ -538,7 +538,6 @@ public class LwjglRenderer implements Renderer {
                     context.boundTextureUnit = 0;
                 }
                 glEnable(GL_POINT_SPRITE);
-                glTexEnvi(GL_POINT_SPRITE, GL_COORD_REPLACE, GL_TRUE);
                 glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
             }
             context.pointSprite = true;
@@ -549,7 +548,6 @@ public class LwjglRenderer implements Renderer {
                     context.boundTextureUnit = 0;
                 }
                 glDisable(GL_POINT_SPRITE);
-                glTexEnvi(GL_POINT_SPRITE, GL_COORD_REPLACE, GL_FALSE);
                 glDisable(GL_VERTEX_PROGRAM_POINT_SIZE);
                 context.pointSprite = false;
             }
