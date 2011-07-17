@@ -1,40 +1,39 @@
 /*
- * Copyright (c) 2009-2010 jMonkeyEngine
- * All rights reserved.
- *
+ * Copyright (c) 2009-2010 jMonkeyEngine All rights reserved. <p/>
  * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are
- * met:
- *
- * * Redistributions of source code must retain the above copyright
- *   notice, this list of conditions and the following disclaimer.
- *
- * * Redistributions in binary form must reproduce the above copyright
- *   notice, this list of conditions and the following disclaimer in the
- *   documentation and/or other materials provided with the distribution.
- *
- * * Neither the name of 'jMonkeyEngine' nor the names of its contributors
- *   may be used to endorse or promote products derived from this software
- *   without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
- * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
- * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * modification, are permitted provided that the following conditions are met:
+ * 
+ * * Redistributions of source code must retain the above copyright notice,
+ * this list of conditions and the following disclaimer. <p/> * Redistributions
+ * in binary form must reproduce the above copyright notice, this list of
+ * conditions and the following disclaimer in the documentation and/or other
+ * materials provided with the distribution. <p/> * Neither the name of
+ * 'jMonkeyEngine' nor the names of its contributors may be used to endorse or
+ * promote products derived from this software without specific prior written
+ * permission. <p/> THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND
+ * CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT
+ * NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
+ * PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
  * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
  * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
- * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
- * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
- * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 package com.jme3.gde.core.sceneviewer;
 
 import com.jme3.gde.core.filters.FilterExplorerTopComponent;
 import com.jme3.gde.core.scene.SceneApplication;
+import com.jme3.gde.core.sceneviewer.actions.ToggleOrthoPerspAction;
 import com.jme3.system.JmeCanvasContext;
 import java.awt.Canvas;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.util.logging.Logger;
 import org.openide.util.NbBundle;
 import org.openide.windows.TopComponent;
@@ -48,6 +47,7 @@ import org.openide.awt.UndoRedo;
 import org.openide.util.Exceptions;
 import org.openide.util.HelpCtx;
 import org.openide.util.Lookup;
+import org.openide.util.lookup.Lookups;
 
 /**
  * Top component which displays something.
@@ -57,16 +57,21 @@ autostore = false)
 public final class SceneViewerTopComponent extends TopComponent {
 
     private static SceneViewerTopComponent instance;
-    /** path to the icon used by the component and its open action */
+    /**
+     * path to the icon used by the component and its open action
+     */
     static final String ICON_PATH = "com/jme3/gde/core/sceneviewer/jme-logo.png";
     private static final String PREFERRED_ID = "SceneViewerTopComponent";
     private SceneApplication app;
     private HelpCtx helpContext = new HelpCtx("com.jme3.gde.core.sceneviewer");
     private Canvas oglCanvas;
+    //toolbar actions
+    private ToggleOrthoPerspAction toggleOrthoPerspAction;
 
     public SceneViewerTopComponent() {
         initComponents();
         oGLPanel.setMinimumSize(new java.awt.Dimension(10, 10));
+        setFocusable(true);
         setName(NbBundle.getMessage(SceneViewerTopComponent.class, "CTL_SceneViewerTopComponent"));
         setToolTipText(NbBundle.getMessage(SceneViewerTopComponent.class, "HINT_SceneViewerTopComponent"));
         setIcon(ImageUtilities.loadImage(ICON_PATH, true));
@@ -74,6 +79,7 @@ public final class SceneViewerTopComponent extends TopComponent {
             app = SceneApplication.getApplication();
             oglCanvas = ((JmeCanvasContext) app.getContext()).getCanvas();
             oGLPanel.add(oglCanvas);
+            toggleOrthoPerspAction = new ToggleOrthoPerspAction();
         } catch (Exception e) {
             Exceptions.printStackTrace(e);
             showOpenGLError(e.toString());
@@ -81,6 +87,21 @@ public final class SceneViewerTopComponent extends TopComponent {
             Exceptions.printStackTrace(err);
             showOpenGLError(err.toString());
         }
+
+        //We add a mouse wheel listener to the top conmponent in order to correctly dispatch the event ot the cam controller
+        //the oGLPanel may naver have the focus.
+        addMouseWheelListener(new MouseWheelListener() {
+
+            public void mouseWheelMoved(MouseWheelEvent e) {
+                String action = "MouseWheel-";
+                if (e.getWheelRotation() < 0) {
+                    action = "MouseWheel";
+                }
+                app.getCamController().onAnalog(action, e.getWheelRotation(), 0);
+            }
+        });
+        
+       
     }
 
     /** This method is called from within the constructor to
@@ -96,6 +117,8 @@ public final class SceneViewerTopComponent extends TopComponent {
         jToggleButton1 = new javax.swing.JToggleButton();
         jSeparator1 = new javax.swing.JToolBar.Separator();
         enableWireframe = new javax.swing.JToggleButton();
+        jSeparator2 = new javax.swing.JToolBar.Separator();
+        enableOrtho = new javax.swing.JToggleButton();
         jPanel1 = new javax.swing.JPanel();
         enableStats = new javax.swing.JToggleButton();
         oGLPanel = new javax.swing.JPanel();
@@ -145,6 +168,27 @@ public final class SceneViewerTopComponent extends TopComponent {
             }
         });
         jToolBar1.add(enableWireframe);
+        jToolBar1.add(jSeparator2);
+
+        enableOrtho.setFont(new java.awt.Font("Tahoma", 0, 8)); // NOI18N
+        enableOrtho.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/jme3/gde/core/sceneviewer/icons/persp.png"))); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(enableOrtho, org.openide.util.NbBundle.getMessage(SceneViewerTopComponent.class, "SceneViewerTopComponent.enableOrtho.text")); // NOI18N
+        enableOrtho.setToolTipText(org.openide.util.NbBundle.getMessage(SceneViewerTopComponent.class, "SceneViewerTopComponent.enableOrtho.toolTipText")); // NOI18N
+        enableOrtho.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        enableOrtho.setFocusable(false);
+        enableOrtho.setHorizontalTextPosition(javax.swing.SwingConstants.RIGHT);
+        enableOrtho.setMaximumSize(new java.awt.Dimension(27, 23));
+        enableOrtho.setMinimumSize(new java.awt.Dimension(27, 23));
+        enableOrtho.setPreferredSize(new java.awt.Dimension(50, 23));
+        enableOrtho.setSelectedIcon(new javax.swing.ImageIcon(getClass().getResource("/com/jme3/gde/core/sceneviewer/icons/ortho.png"))); // NOI18N
+        enableOrtho.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                enableOrthoActionPerformed(evt);
+            }
+        });
+        jToolBar1.add(enableOrtho);
+        enableOrtho.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getMessage(SceneViewerTopComponent.class, "SceneViewerTopComponent.jToggleButton2.AccessibleContext.accessibleName")); // NOI18N
+
         jToolBar1.add(jPanel1);
 
         enableStats.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/jme3/gde/core/sceneviewer/icons/65.png"))); // NOI18N
@@ -163,7 +207,6 @@ public final class SceneViewerTopComponent extends TopComponent {
         add(jToolBar1, java.awt.BorderLayout.NORTH);
 
         oGLPanel.setPreferredSize(new java.awt.Dimension(100, 100));
-        oGLPanel.setSize(new java.awt.Dimension(100, 100));
         oGLPanel.setLayout(new java.awt.GridLayout(1, 0));
         add(oGLPanel, java.awt.BorderLayout.CENTER);
     }// </editor-fold>//GEN-END:initComponents
@@ -184,16 +227,26 @@ public final class SceneViewerTopComponent extends TopComponent {
         FilterExplorerTopComponent.findInstance().setFilterEnabled(jToggleButton1.isSelected());
     }//GEN-LAST:event_jToggleButton1ActionPerformed
 
+private void enableOrthoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_enableOrthoActionPerformed
+    toggleOrthoPerspAction.actionPerformed(evt);
+}//GEN-LAST:event_enableOrthoActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JToggleButton enableCamLight;
+    private javax.swing.JToggleButton enableOrtho;
     private javax.swing.JToggleButton enableStats;
     private javax.swing.JToggleButton enableWireframe;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JToolBar.Separator jSeparator1;
+    private javax.swing.JToolBar.Separator jSeparator2;
     private javax.swing.JToggleButton jToggleButton1;
     private javax.swing.JToolBar jToolBar1;
     private javax.swing.JPanel oGLPanel;
     // End of variables declaration//GEN-END:variables
+
+    public void toggleOrthoModeButton(boolean enabled) {
+        enableOrtho.setText(NbBundle.getMessage(SceneViewerTopComponent.class, "SceneViewerTopComponent.enableOrtho.text" + (enabled ? "O" : "")));
+        enableOrtho.setSelected(enabled);
+    }
 
     /**
      * Gets default instance. Do not use directly: reserved for *.settings files only,
