@@ -1447,7 +1447,11 @@ public class LwjglRenderer implements Renderer {
                 if (tex != null
                         && tex.getMinFilter().usesMipMapLevels()) {
                     setTexture(0, rb.getTexture());
-                    glGenerateMipmapEXT(convertTextureType(tex.getType(), tex.getImage().getMultiSamples()));
+                    
+                    int textureType = convertTextureType(tex.getType(), tex.getImage().getMultiSamples());
+                    glEnable(textureType);
+                    glGenerateMipmapEXT(textureType);
+                    glDisable(textureType);
                 }
             }
         }
@@ -1811,7 +1815,10 @@ public class LwjglRenderer implements Renderer {
 
         if (GLContext.getCapabilities().OpenGL30) {
             if (!img.hasMipmaps() && mips && img.getData() != null) {
+                // XXX: Required for ATI
+                glEnable(target);
                 glGenerateMipmapEXT(target);
+                glDisable(target);
             }
         }
 
