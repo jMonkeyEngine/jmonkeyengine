@@ -40,6 +40,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -52,7 +53,7 @@ public class Natives {
     private static final Logger logger = Logger.getLogger(Natives.class.getName());
     private static final byte[] buf = new byte[1024];
     private static File workingDir = new File("").getAbsoluteFile();
-
+ 
     public static void setExtractionDir(String name) {
         workingDir = new File(name).getAbsoluteFile();
     }
@@ -69,16 +70,31 @@ public class Natives {
         String fullname = System.mapLibraryName(name);
 
         String path = "native/" + sysName + "/" + fullname;
-        InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream(path);
-        //InputStream in = Natives.class.getResourceAsStream();
-        if (in == null) {
+        URL url = Thread.currentThread().getContextClassLoader().getResource(path);
+        
+        if (url == null) {
             if (!warning) {
                 logger.log(Level.WARNING, "Cannot locate native library: {0}/{1}",
                         new String[]{sysName, fullname});
             }
             return;
         }
+        
+        URLConnection conn = url.openConnection();
+        InputStream in = conn.getInputStream();
         File targetFile = new File(workingDir, fullname);
+        if (targetFile.exists()){
+            // OK, compare last modified date of this file to 
+            // file in jar
+            long targetLastModified = targetFile.lastModified();
+            long sourceLastModified = conn.getLastModified();
+            
+            // Allow ~1 second range for OSes that only support low precision
+            if (targetLastModified + 1000 > sourceLastModified){
+                logger.log(Level.FINE, "Not copying library {0}. Latest already extracted.", fullname);
+                return;
+            }
+        }
         try {
             OutputStream out = new FileOutputStream(targetFile);
             int len;
@@ -87,6 +103,11 @@ public class Natives {
             }
             in.close();
             out.close();
+            
+            // NOTE: On OSes that support "Date Created" property, 
+            // this will cause the last modified date to be lower than
+            // date created which makes no sense
+            targetFile.setLastModified(conn.getLastModified());
         } catch (FileNotFoundException ex) {
             if (ex.getMessage().contains("used by another process")) {
                 return;
