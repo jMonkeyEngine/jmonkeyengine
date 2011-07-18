@@ -83,19 +83,21 @@ public class Natives {
         URLConnection conn = url.openConnection();
         InputStream in = conn.getInputStream();
         File targetFile = new File(workingDir, fullname);
-        if (targetFile.exists()){
-            // OK, compare last modified date of this file to 
-            // file in jar
-            long targetLastModified = targetFile.lastModified();
-            long sourceLastModified = conn.getLastModified();
-            
-            // Allow ~1 second range for OSes that only support low precision
-            if (targetLastModified + 1000 > sourceLastModified){
-                logger.log(Level.FINE, "Not copying library {0}. Latest already extracted.", fullname);
-                return;
-            }
-        }
+        
         try {
+            if (targetFile.exists()){
+                // OK, compare last modified date of this file to 
+                // file in jar
+                long targetLastModified = targetFile.lastModified();
+                long sourceLastModified = conn.getLastModified();
+
+                // Allow ~1 second range for OSes that only support low precision
+                if (targetLastModified + 1000 > sourceLastModified){
+                    logger.log(Level.FINE, "Not copying library {0}. Latest already extracted.", fullname);
+                    return;
+                }
+            }
+            
             OutputStream out = new FileOutputStream(targetFile);
             int len;
             while ((len = in.read(buf)) > 0) {
