@@ -2364,6 +2364,20 @@ public class LwjglRenderer implements Renderer {
         if (mesh.getVertexCount() == 0) {
             return;
         }
+        
+        if (context.pointSprite && mesh.getMode() != Mode.Points){
+            // XXX: Hack, disable point sprite mode if mesh not in point mode
+            if (context.boundTextures[0] != null){
+                if (context.boundTextureUnit != 0){
+                    glActiveTexture(GL_TEXTURE0);
+                    context.boundTextureUnit = 0;
+                }
+                glDisable(GL_POINT_SPRITE);
+                glDisable(GL_VERTEX_PROGRAM_POINT_SIZE);
+                context.pointSprite = false;
+            }
+        }
+        
         if (context.pointSize != mesh.getPointSize()) {
             glPointSize(mesh.getPointSize());
             context.pointSize = mesh.getPointSize();
