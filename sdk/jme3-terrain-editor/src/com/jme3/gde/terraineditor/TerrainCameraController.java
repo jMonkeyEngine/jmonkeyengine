@@ -57,6 +57,7 @@ public class TerrainCameraController extends AbstractCameraController {
     private TerrainToolController toolController;
     private TerrainEditorController editorController;
     private boolean forceCameraControls = false; // when user holds shift, this is true
+    private boolean useCameraControls = true; // based on what a tool specifies
 
     private boolean terrainEditToolActivated = false;
     protected Application app;
@@ -101,60 +102,44 @@ public class TerrainCameraController extends AbstractCameraController {
         if ("MouseAxisX".equals(string)) {
             moved = true;
             movedR = true;
-            if (isTerrainEditButtonEnabled() && !forceCameraControls) {
-                if (leftMouse)
-                    terrainEditToolActivated = true;
-            }
-            else {
-                if (leftMouse) {
+            if (useCameraControls || forceCameraControls) {
+                if (buttonDownL) {
                     rotateCamera(Vector3f.UNIT_Y, -f1 * 2.5f);
                 }
-                if (rightMouse) {
+                if (buttonDownR) {
                     panCamera(f1 * 2.5f, 0);
                 }
             }
         } else if ("MouseAxisY".equals(string)) {
             moved = true;
             movedR = true;
-            if (isTerrainEditButtonEnabled() && !forceCameraControls) {
-                if (leftMouse)
-                    terrainEditToolActivated = true;
-            }
-            else {
-                if (leftMouse) {
+            if (useCameraControls || forceCameraControls) {
+                if (buttonDownL) {
                     rotateCamera(cam.getLeft(), -f1 * 2.5f);
                 }
-                if (rightMouse) {
+                if (buttonDownR) {
                     panCamera(0, -f1 * 2.5f);
                 }
             }
         } else if ("MouseAxisX-".equals(string)) {
             moved = true;
             movedR = true;
-            if (isTerrainEditButtonEnabled() && !forceCameraControls) {
-                if (leftMouse)
-                    terrainEditToolActivated = true;
-            }
-            else {
-                if (leftMouse) {
+            if (useCameraControls || forceCameraControls) {
+                if (buttonDownL) {
                     rotateCamera(Vector3f.UNIT_Y, f1 * 2.5f);
                 }
-                if (rightMouse) {
+                if (buttonDownR) {
                     panCamera(-f1 * 2.5f, 0);
                 }
             }
         } else if ("MouseAxisY-".equals(string)) {
             moved = true;
             movedR = true;
-            if (isTerrainEditButtonEnabled() && !forceCameraControls) {
-                if (leftMouse)
-                    terrainEditToolActivated = true;
-            }
-            else {
-                if (leftMouse) {
+            if (useCameraControls || forceCameraControls) {
+                if (buttonDownL) {
                     rotateCamera(cam.getLeft(), f1 * 2.5f);
                 }
-                if (rightMouse) {
+                if (buttonDownR) {
                     panCamera(0, f1 * 2.5f);
                 }
             }
@@ -174,7 +159,7 @@ public class TerrainCameraController extends AbstractCameraController {
 
     @Override
     protected void checkClick(int button, boolean pressed) {
-        if (button == 0) {
+        /*if (button == 0) {
             if (isTerrainEditButtonEnabled() && !forceCameraControls) {
                 if (leftMouse)
                     terrainEditToolActivated = true;
@@ -184,7 +169,23 @@ public class TerrainCameraController extends AbstractCameraController {
             if (isTerrainEditButtonEnabled() && !forceCameraControls) {
                 toolController.doTerrainEditToolAlternateActivated();
             }
+        }*/
+        
+        if (button == 1) {
+            if (isTerrainEditButtonEnabled() && !forceCameraControls) {
+                toolController.doTerrainEditToolAlternateActivated();
+            }
         }
+    }
+    
+    @Override
+    protected void checkDragged(int button, boolean pressed) {
+        terrainEditToolActivated = true;
+    }
+    
+    @Override
+    protected void checkMoved() {
+        
     }
 
     /**
@@ -221,6 +222,7 @@ public class TerrainCameraController extends AbstractCameraController {
         }
     }
 
+    
     /**
      * Find where on the terrain the mouse intersects.
      */
@@ -244,6 +246,10 @@ public class TerrainCameraController extends AbstractCameraController {
         if (result == null)
             return null;
         return result.getContactPoint();
+    }
+
+    public void setUseCameraControls(boolean useCameraControls) {
+        this.useCameraControls = useCameraControls;
     }
 
     

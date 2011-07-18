@@ -27,7 +27,6 @@ package com.jme3.gde.scenecomposer;
 import com.jme3.gde.core.scene.SceneApplication;
 import com.jme3.gde.core.scene.controller.AbstractCameraController;
 import com.jme3.gde.core.sceneexplorer.nodes.JmeNode;
-import com.jme3.gde.core.sceneviewer.SceneViewerTopComponent;
 import com.jme3.input.KeyInput;
 import com.jme3.input.event.KeyInputEvent;
 import com.jme3.math.Vector2f;

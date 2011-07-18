@@ -125,7 +125,9 @@ public class TerrainToolController extends SceneToolController {
             terrainTool.radiusChanged(toolRadius);
             terrainTool.weightChanged(toolWeight);
             terrainTool.activate(manager, toolsNode);
-        }
+            cameraController.setUseCameraControls(false);
+        } else
+            cameraController.setUseCameraControls(true);
     }
 
     public void setEditToolSize(final float size) {
