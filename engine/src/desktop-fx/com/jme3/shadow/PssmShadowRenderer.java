@@ -1,33 +1,31 @@
 /*
- * Copyright (c) 2009-2010 jMonkeyEngine
- * All rights reserved.
- *
+ * Copyright (c) 2009-2010 jMonkeyEngine All rights reserved.
+ * <p/>
  * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are
- * met:
- *
- * * Redistributions of source code must retain the above copyright
- *   notice, this list of conditions and the following disclaimer.
- *
+ * modification, are permitted provided that the following conditions are met:
+ * 
+ * * Redistributions of source code must retain the above copyright notice,
+ * this list of conditions and the following disclaimer.
+ * <p/>
  * * Redistributions in binary form must reproduce the above copyright
- *   notice, this list of conditions and the following disclaimer in the
- *   documentation and/or other materials provided with the distribution.
- *
+ * notice, this list of conditions and the following disclaimer in the
+ * documentation and/or other materials provided with the distribution.
+ * <p/>
  * * Neither the name of 'jMonkeyEngine' nor the names of its contributors
- *   may be used to endorse or promote products derived from this software
- *   without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
- * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
- * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
- * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
- * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
- * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
- * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * may be used to endorse or promote products derived from this software
+ * without specific prior written permission.
+ * <p/>
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
  */
 package com.jme3.shadow;
 
@@ -58,11 +56,13 @@ import com.jme3.ui.Picture;
 
 /**
  * PssmShadow renderer use Parrallel Split Shadow Mapping technique (pssm)<br>
- * It splits the view frustum in several parts and compute a shadow map for each one.<br>
- * splits are distributed so that the closer they are from the camera, the smaller they are to maximize the resolution used of the shadow map.<br>
- * This result in a better quality shadow than standard shadow mapping.<br>
- * for more informations on this read this http://http.developer.nvidia.com/GPUGems3/gpugems3_ch10.html<br>
- * 
+ * It splits the view frustum in several parts and compute a shadow map for each
+ * one.<br> splits are distributed so that the closer they are from the camera,
+ * the smaller they are to maximize the resolution used of the shadow map.<br>
+ * This result in a better quality shadow than standard shadow mapping.<br> for
+ * more informations on this read this
+ * http://http.developer.nvidia.com/GPUGems3/gpugems3_ch10.html<br>
+ * <p/>
  * @author Rémy Bouquet aka Nehon
  */
 public class PssmShadowRenderer implements SceneProcessor {
@@ -139,6 +139,7 @@ public class PssmShadowRenderer implements SceneProcessor {
     private CompareMode compareMode;
     private Picture[] dispPic;
     private Vector3f[] points = new Vector3f[8];
+    private boolean flushQueues = true;
 
     /**
      * Create a PSSM Shadow Renderer 
@@ -382,7 +383,9 @@ public class PssmShadowRenderer implements SceneProcessor {
             // render shadow casters to shadow map
             viewPort.getQueue().renderShadowQueue(splitOccluders, renderManager, shadowCam, true);
         }
-        occluders.clear();
+        if (flushQueues) {
+            occluders.clear();
+        }
         //restore setting for future rendering
         r.setFrameBuffer(viewPort.getOutputFrameBuffer());
         renderManager.setForcedMaterial(null);
@@ -390,7 +393,7 @@ public class PssmShadowRenderer implements SceneProcessor {
         renderManager.setCamera(viewCam, false);
 
     }
-
+  
     //debug only : displays depth shadow maps
     private void displayShadowMap(Renderer r) {
         Camera cam = viewPort.getCamera();
@@ -421,7 +424,9 @@ public class PssmShadowRenderer implements SceneProcessor {
                 postshadowMat.setMatrix4("LightViewProjectionMatrix" + i, lightViewProjectionsMatrices[i]);
             }
             renderManager.setForcedMaterial(postshadowMat);
-            viewPort.getQueue().renderShadowQueue(ShadowMode.Receive, renderManager, cam, true);
+           
+            viewPort.getQueue().renderShadowQueue(ShadowMode.Receive, renderManager, cam, flushQueues);
+           
             renderManager.setForcedMaterial(null);
             renderManager.setCamera(cam, false);
 
@@ -443,7 +448,7 @@ public class PssmShadowRenderer implements SceneProcessor {
     /**
      * returns the labda parameter<br>
      * see {@link setLambda(float lambda)}
-     * @return 
+     * @return lambda
      */
     public float getLambda() {
         return lambda;
@@ -464,7 +469,7 @@ public class PssmShadowRenderer implements SceneProcessor {
     /**
      * How far the shadows are rendered in the view
      * see {@link setShadowZExtend(float zFar)}
-     * @return 
+     * @return shadowZExtend
      */
     public float getShadowZExtend() {
         return zFarOverride;
@@ -482,7 +487,7 @@ public class PssmShadowRenderer implements SceneProcessor {
     /**
      * returns the shdaow intensity<br>
      * see {@link setShadowIntensity(float shadowIntensity)}
-     * @return 
+     * @return shadowIntensity
      */
     public float getShadowIntensity() {
         return shadowIntensity;
@@ -503,19 +508,36 @@ public class PssmShadowRenderer implements SceneProcessor {
     /**
      * returns the edges thickness <br>
      * see {@link setEdgesThickness(int edgesThickness)}
-     * @return 
+     * @return edgesThickness
      */
     public int getEdgesThickness() {
         return (int) (edgesThickness * 10);
     }
 
     /**
-     * Stes the shadow edges thickness. default is 1, setting it to lower values can help to reduce the jagged effect of the shadow edges
+     * Sets the shadow edges thickness. default is 1, setting it to lower values can help to reduce the jagged effect of the shadow edges
      * @param edgesThickness 
      */
     public void setEdgesThickness(int edgesThickness) {
         this.edgesThickness = Math.max(1, Math.min(edgesThickness, 10));
         this.edgesThickness *= 0.1f;
         postshadowMat.setFloat("PCFEdge", edgesThickness);
+    }
+    
+    /**
+     * returns true if the PssmRenderer flushed the shadow queues
+     * @return flushQueues
+     */
+    public boolean isFlushQueues() {
+        return flushQueues;
+    }
+
+    /**
+     * Set this to false if you want to use several PssmRederers to have multiple shadows cast by multiple light sources.
+     * Make sure the last PssmRenderer in the stack DO flush the queues, but not the others
+     * @param flushQueues 
+     */
+    public void setFlushQueues(boolean flushQueues) {
+        this.flushQueues = flushQueues;
     }
 }
