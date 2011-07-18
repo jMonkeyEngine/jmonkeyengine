@@ -41,7 +41,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import jme3test.blender.config.ConfigDialog;
-import jme3test.blender.config.ConfigExecutable;
+import jme3test.blender.config.ConfigDialog.BlenderKeyConfiguration;
 import jme3test.blender.scene.Pivot;
 
 import com.jme3.animation.AnimControl;
@@ -90,13 +90,9 @@ public class ManualBlenderTester extends SimpleApplication {
         }
         final boolean debugMode = debug;
         //running the application
-        new ConfigDialog("./src/test-data/Blender", new ConfigExecutable() {
-
-            @Override
-            public void execute(ModelKey modelKey, Level logLevel) {
-                new ManualBlenderTester(modelKey, logLevel, debugMode).start();
-            }
-        });
+        ConfigDialog configDialog = new ConfigDialog("./src/test-data/Blender");
+        BlenderKeyConfiguration bkk = configDialog.getBlenderKeyConfiguration();
+        new ManualBlenderTester(bkk, debugMode).start();
     }
 
     /**
@@ -106,10 +102,10 @@ public class ManualBlenderTester extends SimpleApplication {
      * @param debug variable that indicates if the application runs in debug mode
      * (this is required on linux to show release the mouse to be used in debug mode)
      */
-    public ManualBlenderTester(ModelKey modelKey, Level logLevel, boolean debug) {
+    public ManualBlenderTester(BlenderKeyConfiguration bkc, boolean debug) {
         this.debug = debug;
-        Logger.getLogger("com.jme3").setLevel(logLevel);
-        this.modelKey = modelKey;
+        Logger.getLogger("com.jme3").setLevel(bkc.getLogLevel());
+        this.modelKey = bkc.getKeyToUse();
         this.showSettings = false;
     }
 
@@ -141,15 +137,17 @@ public class ManualBlenderTester extends SimpleApplication {
         };
         rootNode.attachChild(new Pivot(assetManager));
         if (modelKey instanceof BlenderKey) {
-            Node blenderModel = this.testBlenderLoader(ai);
+            this.testBlenderLoader(ai);
             Map<String, Map<String, int[]>> animations = ((BlenderKey) modelKey).getAnimations();
             //setting the first animation as active
             if (((BlenderKey) modelKey).getAnimations() != null) {
                 for (Entry<String, Map<String, int[]>> animEntry : animations.entrySet()) {
                     for (Entry<String, int[]> anim : animEntry.getValue().entrySet()) {
-                        Spatial animatedSpatial = this.findNode(blenderModel, animEntry.getKey());
-                        animatedSpatial.getControl(AnimControl.class).createChannel().setAnim(anim.getKey());
-                        break;
+                        Spatial animatedSpatial = this.findNode(this.rootNode, animEntry.getKey());
+                        if(animatedSpatial != null) {
+                        	animatedSpatial.getControl(AnimControl.class).createChannel().setAnim(anim.getKey());
+                        	break;
+                        }
                     }
                     break;
                 }

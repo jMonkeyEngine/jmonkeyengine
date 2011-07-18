@@ -3,6 +3,7 @@ package jme3test.blender.config;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.FlowLayout;
+import java.awt.Frame;
 import java.awt.Insets;
 import java.awt.Label;
 import java.awt.event.ActionEvent;
@@ -22,7 +23,7 @@ import javax.swing.DefaultListSelectionModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
-import javax.swing.JFrame;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
@@ -44,7 +45,7 @@ import javax.swing.table.TableCellEditor;
  * It is made so to easier maintain the dialog window.
  * @author Marcin Roguski (Kaelthas)
  */
-public abstract class AbstractConfigDialog extends JFrame {
+public abstract class AbstractConfigDialog extends JDialog {
 
     private static final long serialVersionUID = -3677493125861310310L;
     private static final Logger LOGGER = Logger.getLogger(AbstractConfigDialog.class.getName());
@@ -62,6 +63,7 @@ public abstract class AbstractConfigDialog extends JFrame {
      * Cionstructor initializes the gui.
      */
     public AbstractConfigDialog() {
+    	super((Frame)null, true);
         this.init();
     }
 
@@ -81,15 +83,14 @@ public abstract class AbstractConfigDialog extends JFrame {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
         this.setLayout(new BorderLayout());
+        this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        this.setLocationRelativeTo(null);
 
         this.add(this.prepareBlenderFilesAndLogLevelPanel(), BorderLayout.WEST);
         this.add(this.prepareFilePropertiesPanel(), BorderLayout.CENTER);
         this.add(this.prepareButtonsPanel(), BorderLayout.SOUTH);
 
         this.pack();
-        this.setLocationRelativeTo(null);
-        this.setVisible(true);
-        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
 
     /**
@@ -251,6 +252,7 @@ public abstract class AbstractConfigDialog extends JFrame {
          */
         public static synchronized void setSelectedLevel(Level level) {
             radioButtons.get(level).setSelected(true);
+            selectedLevel = level;
         }
     }
 
