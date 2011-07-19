@@ -232,6 +232,7 @@ public class ModifierHelper extends AbstractBlenderHelper {
                     Structure armatureObject = (Structure) dataRepository.getLoadedFeature(pArmatureObject.getOldMemoryAddress(), LoadedFeatureDataType.LOADED_STRUCTURE);
                     if (armatureObject == null) {// we check this first not to fetch the structure unnecessary
                         armatureObject = pArmatureObject.fetchData(dataRepository.getInputStream()).get(0);
+                        objectHelper.toObject(armatureObject, dataRepository);
                     }
                     modifierAdditionalData = armatureObject.getOldMemoryAddress();
                     ArmatureHelper armatureHelper = dataRepository.getHelper(ArmatureHelper.class);
