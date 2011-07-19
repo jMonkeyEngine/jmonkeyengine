@@ -1036,6 +1036,11 @@ public class TerrainPatch extends Geometry {
 
     @Override
     public void write(JmeExporter ex) throws IOException {
+        // the mesh is removed, and reloaded when read() is called
+        // this reduces the save size to 10% by not saving the mesh
+        Mesh temp = getMesh();
+        mesh = null;
+        
         super.write(ex);
         OutputCapsule oc = ex.getCapsule(this);
         oc.write(size, "size", 16);
@@ -1048,6 +1053,8 @@ public class TerrainPatch extends Geometry {
         oc.write(lodCalculatorFactory, "lodCalculatorFactory", null);
         oc.write(lodEntropy, "lodEntropy", null);
         oc.write(geomap, "geomap", null);
+        
+        setMesh(temp);
     }
 
     @Override
@@ -1065,6 +1072,10 @@ public class TerrainPatch extends Geometry {
         lodCalculatorFactory = (LodCalculatorFactory) ic.readSavable("lodCalculatorFactory", null);
         lodEntropy = ic.readFloatArray("lodEntropy", null);
         geomap = (LODGeomap) ic.readSavable("geomap", null);
+        
+        Mesh regen = geomap.createMesh(stepScale, new Vector2f(1,1), offset, offsetAmount, totalSize, false);
+        setMesh(regen);
+        TangentBinormalGenerator.generate(this); // note that this will be removed
     }
 
     @Override

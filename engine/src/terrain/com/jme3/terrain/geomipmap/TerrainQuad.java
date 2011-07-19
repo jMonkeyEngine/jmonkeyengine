@@ -1520,6 +1520,12 @@ public class TerrainQuad extends Node implements Terrain {
         quadrant = c.readInt("quadrant", 0);
         totalSize = c.readInt("totalSize", 0);
         lodCalculatorFactory = (LodCalculatorFactory) c.readSavable("lodCalculatorFactory", null);
+        
+        if ( !(getParent() instanceof TerrainQuad) ) {
+            BoundingBox all = new BoundingBox(getWorldTranslation(), totalSize, totalSize, totalSize);
+            affectedAreaBBox = all;
+            updateNormals();
+        }
     }
 
     @Override
