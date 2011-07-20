@@ -84,7 +84,7 @@ public abstract class AbstractConfigDialog extends JDialog {
         }
         this.setLayout(new BorderLayout());
         this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-        this.setLocationRelativeTo(null);
+        this.setLocationByPlatform(true);
 
         this.add(this.prepareBlenderFilesAndLogLevelPanel(), BorderLayout.WEST);
         this.add(this.prepareFilePropertiesPanel(), BorderLayout.CENTER);
@@ -157,12 +157,7 @@ public abstract class AbstractConfigDialog extends JDialog {
         jPanelAnimations.setLayout(new BorderLayout());
         jPanelAnimations.add(new JLabel("Animations"), BorderLayout.NORTH);
 
-        jTableAnimations = new JTable();
-        jTableAnimations.setSelectionMode(DefaultListSelectionModel.SINGLE_SELECTION);
-        jTableAnimations.setModel(new DefaultTableModel(new Object[]{"Object", "Name", "Start frame", "Stop frame"}, 0));
-        for (int i = 0; i < jTableAnimations.getColumnModel().getColumnCount(); ++i) {
-            jTableAnimations.getColumnModel().getColumn(i).setCellEditor(new BlenderTableCellEditor());
-        }
+        jTableAnimations = new AnimationsTable();
         JScrollPane jScrollPaneAnimations = new JScrollPane(jTableAnimations);
         jTableAnimations.setFillsViewportHeight(true);
 

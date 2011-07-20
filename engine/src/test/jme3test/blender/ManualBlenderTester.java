@@ -40,8 +40,8 @@ import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import jme3test.blender.config.BlenderKeyConfiguration;
 import jme3test.blender.config.ConfigDialog;
-import jme3test.blender.config.ConfigDialog.BlenderKeyConfiguration;
 import jme3test.blender.scene.Pivot;
 
 import com.jme3.animation.AnimControl;
@@ -92,7 +92,9 @@ public class ManualBlenderTester extends SimpleApplication {
         //running the application
         ConfigDialog configDialog = new ConfigDialog("./src/test-data/Blender");
         BlenderKeyConfiguration bkk = configDialog.getBlenderKeyConfiguration();
-        new ManualBlenderTester(bkk, debugMode).start();
+        if(bkk != null) {
+        	new ManualBlenderTester(bkk, debugMode).start();
+        }
     }
 
     /**

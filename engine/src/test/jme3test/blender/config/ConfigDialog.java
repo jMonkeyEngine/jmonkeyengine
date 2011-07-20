@@ -10,7 +10,9 @@ import java.io.FileFilter;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.logging.Level;
@@ -26,11 +28,7 @@ import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
 
 import com.jme3.asset.BlenderKey;
-import com.jme3.asset.ModelKey;
-import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
-import com.jme3.export.JmeImporter;
-import com.jme3.export.OutputCapsule;
 import com.jme3.export.Savable;
 import com.jme3.export.binary.BinaryExporter;
 import com.jme3.export.binary.BinaryImporter;
@@ -159,6 +157,26 @@ public class ConfigDialog extends AbstractConfigDialog {
         
         //enlisting the files in the list
         this.reloadFilesList();
+        
+        //apply animations selection
+        DefaultTableModel model = (DefaultTableModel) jTableAnimations.getModel();
+        BlenderKey blenderKey = blenderKeyConfiguration.lastUsedKey.get(blenderKeyConfiguration.lastVersionUsed);
+        if(blenderKey != null) {
+	        String blenderKeyName = blenderKey.getName();
+	        List<String[]> selectedAnimations = blenderKeyConfiguration.selectedAnimations.get(blenderKeyName);
+	        if(selectedAnimations != null) {
+		        for(String[] selectedAnimation : selectedAnimations) {
+		        	for(int i=0;i<model.getRowCount();++i) {
+		        		String objectName = (String) model.getValueAt(i, 1);
+		        		String animationName = (String) model.getValueAt(i, 2);
+		        		if(selectedAnimation[0].equals(objectName) && selectedAnimation[1].equals(animationName)) {
+		        			model.setValueAt(Boolean.TRUE, i, 0);
+		        			break;
+		        		}
+		        	}
+		        }
+	        }
+        }
     }
     
     /**
@@ -227,7 +245,7 @@ public class ConfigDialog extends AbstractConfigDialog {
             for (Entry<String, Map<String, int[]>> animationEntry : animations.entrySet()) {
                 for (Entry<String, int[]> animDataEntry : animationEntry.getValue().entrySet()) {
                     int[] frames = animDataEntry.getValue();
-                    animationsModel.addRow(new Object[]{animationEntry.getKey(), animDataEntry.getKey(),
+                    animationsModel.addRow(new Object[]{Boolean.FALSE, animationEntry.getKey(), animDataEntry.getKey(),
                                 Integer.valueOf(frames[0]), Integer.valueOf(frames[1])});
                 }
             }
@@ -243,6 +261,7 @@ public class ConfigDialog extends AbstractConfigDialog {
      * @param configuration the blender config to store
      */
     private void storeConfig(BlenderKeyConfiguration configuration) {
+    	configuration.selectedAnimations.clear();
     	BlenderKey blenderKey = configuration.lastUsedKey.get(configuration.lastVersionUsed);
         if (blenderKey != null) {//reading animations
             DefaultTableModel animationsTableModel = (DefaultTableModel) jTableAnimations.getModel();
@@ -250,15 +269,23 @@ public class ConfigDialog extends AbstractConfigDialog {
             	blenderKey.getAnimations().clear();
             }
             int animCounter = 0;
+            List<String[]> selectedAnimations = new ArrayList<String[]>();
             for (int i = 0; i < animationsTableModel.getRowCount(); ++i) {
-                String objectName = (String) animationsTableModel.getValueAt(i, 0);
-                String animName = (String) animationsTableModel.getValueAt(i, 1);
-                Number startFrame = (Number) animationsTableModel.getValueAt(i, 2);
-                Number stopFrame = (Number) animationsTableModel.getValueAt(i, 3);
+            	Boolean isSelected = (Boolean) animationsTableModel.getValueAt(i, 0);
+                String objectName = (String) animationsTableModel.getValueAt(i, 1);
+                String animName = (String) animationsTableModel.getValueAt(i, 2);
+                Number startFrame = (Number) animationsTableModel.getValueAt(i, 3);
+                Number stopFrame = (Number) animationsTableModel.getValueAt(i, 4);
                 if (objectName != null && animName != null && startFrame.intValue() <= stopFrame.intValue()) {
                 	blenderKey.addAnimation(objectName, animName, startFrame.intValue(), stopFrame.intValue());
                     ++animCounter;
                 }
+                if(isSelected) {
+                	selectedAnimations.add(new String[] {objectName, animName});
+                }
+            }
+            if(selectedAnimations.size() > 0) {
+            	configuration.selectedAnimations.put(blenderKey.getName(), selectedAnimations);
             }
             if (animCounter < animationsTableModel.getRowCount()) {
                 JOptionPane.showMessageDialog(ConfigDialog.this, "Some animations had errors!\nThey had not been added!",
@@ -365,7 +392,7 @@ public class ConfigDialog extends AbstractConfigDialog {
 
             @Override
             public void actionPerformed(ActionEvent evt) {
-                ((DefaultTableModel) jTableAnimations.getModel()).addRow(new Object[]{"", "", Integer.valueOf(-1), Integer.valueOf(-1)});
+                ((DefaultTableModel) jTableAnimations.getModel()).addRow(new Object[]{Boolean.FALSE, "", "", Integer.valueOf(1), Integer.valueOf(25)});
             }
         });
         jButtonRemoveAnimation.addActionListener(new ActionListener() {
@@ -390,95 +417,10 @@ public class ConfigDialog extends AbstractConfigDialog {
 
             @Override
             public void actionPerformed(ActionEvent evt) {
+            	ConfigDialog.this.storeConfig(blenderKeyConfiguration);
+            	blenderKeyConfiguration = null;
                 ConfigDialog.this.dispose();
             }
         });
-    }
-
-    /**
-     * This class holds the configuration for all the files.
-     * It can be saved and loaded using jme mechanisms.
-     * @author Marcin Roguski (Kaelthas)
-     */
-    public static class BlenderKeyConfiguration implements Savable {
-    	/**
-    	 * The key is a directory of blender_version_folder.
-    	 * The value is the map between the blender file name and its blender key.
-    	 */
-        private Map<String, Map<String, BlenderKey>> blenderKeys;
-        /** The last version of blender opened. */
-        private String lastVersionUsed;
-        /** The last used blender key for each blender version. */
-        private Map<String, BlenderKey> lastUsedKey;
-        /** Last used log level. */
-        private Level logLevel;
-        /** This variable tells if the model or blender loader is used. */
-        private boolean useModelKey;
-        
-        /**
-         * Constructor that creates new empty configuration for every blender file.
-         * Also used for jme serialization.
-         */
-        public BlenderKeyConfiguration() {
-        	blenderKeys = new HashMap<String, Map<String, BlenderKey>>();
-        	lastUsedKey = new HashMap<String, BlenderKey>();
-        	logLevel = Level.INFO;
-		}
-
-        /**
-         * This method returns the name of the last used asset folder.
-         * @return the name of the last used asset folder
-         */
-        public String getLastVersionUsed() {
-			return lastVersionUsed;
-		}
-        
-        /**
-         * This method returns the log level of jme app.
-         * @return the log level of jme app
-         */
-        public Level getLogLevel() {
-			return logLevel;
-		}
-        
-        /**
-         * This method returns the key that will be used during the test.
-         * @return the key that will be used during the test
-         */
-        public ModelKey getKeyToUse() {
-            return useModelKey ? new ModelKey(lastUsedKey.get(lastVersionUsed).getName()) : lastUsedKey.get(lastVersionUsed);
-        }
-
-        @Override
-        public void write(JmeExporter ex) throws IOException {
-            OutputCapsule oc = ex.getCapsule(this);
-            oc.write(blenderKeys.size(), "versions-count", 0);
-            int i=0;
-            for(Entry<String, Map<String, BlenderKey>> entry : blenderKeys.entrySet()) {
-            	oc.write(entry.getKey(), "key" + i, null);
-            	oc.writeStringSavableMap(entry.getValue(), "value" + i++, null);
-            }
-            oc.writeStringSavableMap(lastUsedKey, "last-key", null);
-            oc.write(useModelKey, "use-model-key", false);
-            oc.write(logLevel == null ? null : logLevel.getName(), "log-level", Level.INFO.getName());
-            oc.write(lastVersionUsed, "versionUsed", null);
-        }
-
-        @Override
-        @SuppressWarnings("unchecked")
-        public void read(JmeImporter im) throws IOException {
-            InputCapsule ic = im.getCapsule(this);
-            int versionsCount = ic.readInt("versions-count", 0);
-            for(int i=0;i<versionsCount;++i) {
-            	String versionName = ic.readString("key" + i, null);
-            	Map<String, BlenderKey> versionBlenderFiles = (Map<String, BlenderKey>) ic.readStringSavableMap("value" + i, null);
-            	blenderKeys.put(versionName, versionBlenderFiles);
-            }
-            lastUsedKey = (Map<String, BlenderKey>) ic.readStringSavableMap("last-key", null);
-            useModelKey = ic.readBoolean("use-model-key", false);
-            String logLevelName = ic.readString("log-level", Level.INFO.getName());
-            logLevel = logLevelName == null ? Level.INFO : Level.parse(logLevelName);
-            lastVersionUsed = ic.readString("versionUsed", null);
-        }
     }
 }
