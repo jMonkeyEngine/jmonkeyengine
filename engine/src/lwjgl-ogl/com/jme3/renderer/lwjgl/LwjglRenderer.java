@@ -955,6 +955,8 @@ public class LwjglRenderer implements Renderer {
             }
 
             source.setId(id);
+        }else{
+            throw new RendererException("Cannot recompile shader source");
         }
 
         // upload shader source
@@ -1034,7 +1036,10 @@ public class LwjglRenderer implements Renderer {
             glDeleteShader(id);
         } else {
             // register for cleanup since the ID is usable
-            objManager.registerForCleanup(source);
+            // NOTE: From now on cleanup is handled
+            // by the parent shader object so no need
+            // to register.
+            //objManager.registerForCleanup(source);
         }
     }
 
@@ -1188,13 +1193,14 @@ public class LwjglRenderer implements Renderer {
             logger.warning("Shader is not uploaded to GPU, cannot delete.");
             return;
         }
+        
         for (ShaderSource source : shader.getSources()) {
             if (source.getId() != -1) {
                 glDetachShader(shader.getId(), source.getId());
-                // the next part is done by the GLObjectManager automatically
-//                glDeleteShader(source.getId());
+                deleteShaderSource(source);
             }
         }
+        
         // kill all references so sources can be collected
         // if needed.
         shader.resetSources();

@@ -98,7 +98,7 @@ public final class Shader extends GLObject implements Savable {
      * Shader source describes a shader object in OpenGL. Each shader source
      * is assigned a certain pipeline which it controls (described by it's type).
      */
-    public class ShaderSource extends GLObject implements Savable {
+    public static class ShaderSource extends GLObject implements Savable {
 
         ShaderType shaderType;
 
@@ -236,11 +236,13 @@ public final class Shader extends GLObject implements Savable {
     protected Shader(Shader s){
         super(Type.Shader, s.id);
         shaderList = new ArrayList<ShaderSource>();
-//        uniforms = new HashMap<String, Uniform>();
-        uniforms = new ListMap<String, Uniform>();
-        attribs = new IntMap<Attribute>();
+        //uniforms = new ListMap<String, Uniform>();
+        //attribs = new IntMap<Attribute>();
+        
+        // NOTE: Because ShaderSources are registered separately with
+        // the GLObjectManager
         for (ShaderSource source : s.shaderList){
-            addSource((ShaderSource) source.createDestructableClone());
+            shaderList.add( (ShaderSource)source.createDestructableClone() );
         }
     }
 
@@ -315,7 +317,7 @@ public final class Shader extends GLObject implements Savable {
      * Adds an existing shader source to this shader.
      * @param source
      */
-    public void addSource(ShaderSource source){
+    private void addSource(ShaderSource source){
         shaderList.add(source);
         setUpdateNeeded();
     }
