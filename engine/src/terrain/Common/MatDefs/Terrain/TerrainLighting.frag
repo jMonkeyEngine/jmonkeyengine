@@ -12,6 +12,8 @@ varying vec3 vnPosition;
 varying vec3 vViewDir;
 varying vec4 vLightDir;
 varying vec4 vnLightDir;
+varying vec4 lightVec;
+varying vec4 spotVec;
 
 
 #ifdef DIFFUSEMAP
@@ -644,6 +646,20 @@ void main(){
       vec4 diffuseColor = vec4(1.0);
     #endif
 
+        float spotFallOff = 1.0;
+        if(spotVec.w!=0){
+              vec3 L=normalize(lightVec.xyz);
+              vec3 spotdir = normalize(spotVec.xyz);
+              float curAngleCos = dot(-L, spotdir);             
+              float innerAngleCos = spotVec.w;
+              float outerAngleCos = lightVec.w;
+              float innerMinusOuter = innerAngleCos - outerAngleCos;
+              spotFallOff = clamp((curAngleCos - outerAngleCos) / innerMinusOuter, 0.0, 1.0);
+              if(spotFallOff<=0.0){
+                  gl_FragColor =  AmbientSum * diffuseColor;
+                  return;
+              }
+        }
     
     //---------------------
     // normal calculations
@@ -665,7 +681,7 @@ void main(){
     vec4 lightDir = vLightDir;
     lightDir.xyz = normalize(lightDir.xyz);
 
-    vec2 light = computeLighting(vPosition, normal, vViewDir.xyz, lightDir.xyz);
+    vec2 light = computeLighting(vPosition, normal, vViewDir.xyz, lightDir.xyz)*spotFallOff;
 
     vec4 specularColor = vec4(1.0);
 

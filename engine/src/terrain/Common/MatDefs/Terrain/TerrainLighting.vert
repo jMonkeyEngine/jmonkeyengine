@@ -5,6 +5,7 @@ uniform mat4 g_ViewMatrix;
 
 uniform vec4 g_LightColor;
 uniform vec4 g_LightPosition;
+uniform vec4 g_LightDirection;
 uniform vec4 g_AmbientLightColor;
 
 uniform float m_Shininess;
@@ -23,6 +24,9 @@ varying vec3 vnViewDir;
 varying vec4 vLightDir;
 varying vec4 vnLightDir;
 
+varying vec4 lightVec;
+varying vec4 spotVec;
+
 varying vec4 AmbientSum;
 varying vec4 DiffuseSum;
 varying vec4 SpecularSum;
@@ -38,7 +42,7 @@ varying vec4 SpecularSum;
 void lightComputeDir(in vec3 worldPos, in vec4 color, in vec4 position, out vec4 lightDir){
     float posLight = step(0.5, color.w);
     vec3 tempVec = position.xyz * sign(posLight - 0.5) - (worldPos * posLight);
-
+    lightVec.xyz = tempVec;  
     float dist = length(tempVec);
     lightDir.w = clamp(1.0 - position.w * dist * posLight, 0.0, 1.0);
     lightDir.xyz = tempVec / vec3(dist);
@@ -54,7 +58,7 @@ void main(){
     vec3 wvNormal  = normalize(g_NormalMatrix * inNormal);
     vec3 viewDir = normalize(-wvPosition);
 
-    vec4 wvLightPos = (g_ViewMatrix * vec4(g_LightPosition.xyz, g_LightColor.w));
+    vec4 wvLightPos = (g_ViewMatrix * vec4(g_LightPosition.xyz,clamp(g_LightColor.w,0.0,1.0)));
     wvLightPos.w = g_LightPosition.w;
     vec4 lightColor = g_LightColor;
 
@@ -84,6 +88,11 @@ void main(){
     lightComputeDir(wvPosition, lightColor, wvLightPos, vLightDir);
 
     #endif
+   
+      //computing spot direction in view space and unpacking spotlight cos
+   spotVec=(g_ViewMatrix *vec4(g_LightDirection.xyz,0.0) );
+   spotVec.w=floor(g_LightDirection.w)*0.001;
+   lightVec.w = fract(g_LightDirection.w);
 
     AmbientSum  = vec4(0.2, 0.2, 0.2, 1.0) * g_AmbientLightColor; // Default: ambient color is dark gray
     DiffuseSum  = lightColor;

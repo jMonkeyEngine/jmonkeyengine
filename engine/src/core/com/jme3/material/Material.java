@@ -1,33 +1,31 @@
 /*
- * Copyright (c) 2009-2010 jMonkeyEngine
- * All rights reserved.
- *
+ * Copyright (c) 2009-2010 jMonkeyEngine All rights reserved.
+ * <p/>
  * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are
- * met:
- *
- * * Redistributions of source code must retain the above copyright
- *   notice, this list of conditions and the following disclaimer.
- *
+ * modification, are permitted provided that the following conditions are met:
+ * 
+ * * Redistributions of source code must retain the above copyright notice,
+ * this list of conditions and the following disclaimer.
+ * <p/>
  * * Redistributions in binary form must reproduce the above copyright
- *   notice, this list of conditions and the following disclaimer in the
- *   documentation and/or other materials provided with the distribution.
- *
+ * notice, this list of conditions and the following disclaimer in the
+ * documentation and/or other materials provided with the distribution.
+ * <p/>
  * * Neither the name of 'jMonkeyEngine' nor the names of its contributors
- *   may be used to endorse or promote products derived from this software
- *   without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
- * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
- * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
- * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
- * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
- * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
- * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * may be used to endorse or promote products derived from this software
+ * without specific prior written permission.
+ * <p/>
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
  */
 package com.jme3.material;
 
@@ -46,7 +44,9 @@ import com.jme3.light.DirectionalLight;
 import com.jme3.light.Light;
 import com.jme3.light.LightList;
 import com.jme3.light.PointLight;
+import com.jme3.light.SpotLight;
 import com.jme3.material.TechniqueDef.LightMode;
+import com.jme3.math.FastMath;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.math.Vector4f;
@@ -72,12 +72,15 @@ import java.util.logging.Logger;
 
 /**
  * <code>Material</code> describes the rendering style for a given 
- * {@link Geometry}. 
- * 
- * <p>A material is essentially a list of {@link MatParam parameters}, those parameters
- * map to uniforms which are defined in a shader. 
- * Setting the parameters can modify the behavior of a shader.
- * 
+ * {
+ * <p/>
+ * @link Geometry}. 
+ * <p/>
+ * <p>A material is essentially a list of {
+ * @link MatParam parameters}, those parameters map to uniforms which are
+ * defined in a shader.  Setting the parameters can modify the behavior of a
+ * shader.
+ * <p/>
  * @author Kirill Vainer
  */
 public class Material implements Cloneable, Savable, Comparable<Material> {
@@ -96,7 +99,6 @@ public class Material implements Cloneable, Savable, Comparable<Material> {
         additiveLight.setBlendMode(RenderState.BlendMode.AlphaAdditive);
         additiveLight.setDepthWrite(false);
     }
-
     private String assetName;
     private MaterialDef def;
     private ListMap<String, MatParam> paramValues = new ListMap<String, MatParam>();
@@ -198,7 +200,7 @@ public class Material implements Cloneable, Savable, Comparable<Material> {
     public Material clone() {
         try {
             Material mat = (Material) super.clone();
-            
+
             if (additionalState != null) {
                 mat.additionalState = additionalState.clone();
             }
@@ -355,7 +357,7 @@ public class Material implements Cloneable, Savable, Comparable<Material> {
     private String checkSetParam(VarType type, String name) {
         MatParam paramDef = def.getMaterialParam(name);
         String newName = name;
-       
+
         if (paramDef == null && name.startsWith("m_")) {
             newName = name.substring(2);
             paramDef = def.getMaterialParam(newName);
@@ -364,7 +366,7 @@ public class Material implements Cloneable, Savable, Comparable<Material> {
             } else {
                 logger.log(Level.WARNING, "Material parameter {0} uses a deprecated naming convention use {1} instead ", new Object[]{name, newName});
             }
-        }else if (paramDef == null){
+        } else if (paramDef == null) {
             throw new IllegalArgumentException("Material parameter is not defined: " + name);
         }
 
@@ -373,7 +375,7 @@ public class Material implements Cloneable, Savable, Comparable<Material> {
                     + "type {1} doesn't match definition type {2}",
                     name, type.name(), paramDef.getVarType());
         }
-        
+
         return newName;
     }
 
@@ -404,9 +406,9 @@ public class Material implements Cloneable, Savable, Comparable<Material> {
      * @param name the name of the parameter to clear
      */
     public void clearParam(String name) {
-       //On removal, we don't check if the param exists in the paramDef, and just go on with the process.
-       // name = checkSetParam(null, name);
- 
+        //On removal, we don't check if the param exists in the paramDef, and just go on with the process.
+        // name = checkSetParam(null, name);
+
         MatParam matParam = getParam(name);
         if (matParam != null) {
             paramValues.remove(name);
@@ -435,9 +437,10 @@ public class Material implements Cloneable, Savable, Comparable<Material> {
         name = checkSetParam(null, name);
 
         MatParamTexture val = getTextureParam(name);
-        if (val == null)
+        if (val == null) {
             throw new IllegalArgumentException("The given texture parameter is not set.");
-        
+        }
+
         int texUnit = val.getUnit();
         paramValues.remove(name);
         nextTexUnit--;
@@ -478,7 +481,7 @@ public class Material implements Cloneable, Savable, Comparable<Material> {
         if (technique != null) {
             technique.notifySetParam(name, type, nextTexUnit - 1);
         }
-        
+
         // need to recompute sort ID
         sortingId = -1;
     }
@@ -492,7 +495,7 @@ public class Material implements Cloneable, Savable, Comparable<Material> {
      */
     public void setTexture(String name, Texture value) {
         if (value == null) {
-             // clear it
+            // clear it
             clearTextureParam(name);
             return;
         }
@@ -625,21 +628,23 @@ public class Material implements Cloneable, Savable, Comparable<Material> {
      * </p>
      */
     protected void updateLightListUniforms(Shader shader, Geometry g, int numLights) {
-        if (numLights == 0){ // this shader does not do lighting, ignore.
+        if (numLights == 0) { // this shader does not do lighting, ignore.
             return;
         }
 
         LightList lightList = g.getWorldLightList();
         Uniform lightColor = shader.getUniform("g_LightColor");
         Uniform lightPos = shader.getUniform("g_LightPosition");
+        Uniform lightDir = shader.getUniform("g_LightDirection");
         lightColor.setVector4Length(numLights);
-        lightPos.setVector4Length(numLights);
+        lightPos.setVector4Length(numLights);        
+        lightDir.setVector4Length(numLights);
 
         Uniform ambientColor = shader.getUniform("g_AmbientLightColor");
         ambientColor.setValue(VarType.Vector4, getAmbientColor(lightList));
-        
+
         int lightIndex = 0;
-        
+
         for (int i = 0; i < numLights; i++) {
             if (lightList.size() <= i) {
                 lightColor.setVector4InArray(0f, 0f, 0f, 0f, lightIndex);
@@ -662,11 +667,18 @@ public class Material implements Cloneable, Savable, Comparable<Material> {
                     case Point:
                         PointLight pl = (PointLight) l;
                         Vector3f pos = pl.getPosition();
-                        float invRadius = pl.getRadius();
-                        if (invRadius != 0) {
-                            invRadius = 1f / invRadius;
-                        }
+                        float invRadius = pl.getInvRadius();                        
                         lightPos.setVector4InArray(pos.getX(), pos.getY(), pos.getZ(), invRadius, lightIndex);
+                        break;
+                    case Spot:
+                        SpotLight sl = (SpotLight) l;
+                        Vector3f pos2 = sl.getPosition();
+                        Vector3f dir2 = sl.getDirection();
+                        float invRange = sl.getInvSpotRange();                
+                        float spotAngleCos = sl.getPackedAngleCos();  
+                       
+                        lightPos.setVector4InArray(pos2.getX(), pos2.getY(), pos2.getZ(), invRange, lightIndex);
+                        lightDir.setVector4InArray(dir2.getX(), dir2.getY(), dir2.getZ(), spotAngleCos, lightIndex);
                         break;
                     case Ambient:
                         // skip this light. Does not increase lightIndex
@@ -675,20 +687,21 @@ public class Material implements Cloneable, Savable, Comparable<Material> {
                         throw new UnsupportedOperationException("Unknown type of light: " + l.getType());
                 }
             }
-            
+
             lightIndex++;
         }
-        
-        while (lightIndex < numLights){
+
+        while (lightIndex < numLights) {
             lightColor.setVector4InArray(0f, 0f, 0f, 0f, lightIndex);
             lightPos.setVector4InArray(0f, 0f, 0f, 0f, lightIndex);
-            
+
             lightIndex++;
         }
     }
 
     protected void renderMultipassLighting(Shader shader, Geometry g, Renderer r) {
         LightList lightList = g.getWorldLightList();
+        Uniform lightDir = shader.getUniform("g_LightDirection");
         Uniform lightColor = shader.getUniform("g_LightColor");
         Uniform lightPos = shader.getUniform("g_LightPosition");
         Uniform ambientColor = shader.getUniform("g_AmbientLightColor");
@@ -740,10 +753,7 @@ public class Material implements Cloneable, Savable, Comparable<Material> {
                 case Point:
                     PointLight pl = (PointLight) l;
                     Vector3f pos = pl.getPosition();
-                    float invRadius = pl.getRadius();
-                    if (invRadius != 0) {
-                        invRadius = 1f / invRadius;
-                    }
+                    float invRadius = pl.getInvRadius();     
                     Quaternion q2;
                     if (lightPos.getValue() != null) {
                         q2 = (Quaternion) lightPos.getValue();
@@ -752,6 +762,31 @@ public class Material implements Cloneable, Savable, Comparable<Material> {
                     }
                     q2.set(pos.getX(), pos.getY(), pos.getZ(), invRadius);
                     lightPos.setValue(VarType.Vector4, q2);
+                    break;
+                case Spot:                    
+                    SpotLight sl = (SpotLight) l;
+                    Vector3f pos2 = sl.getPosition();
+                    Vector3f dir2 = sl.getDirection();
+                    float invRange = sl.getInvSpotRange();                
+                    float spotAngleCos = sl.getPackedAngleCos();                  
+
+                    Quaternion q3,q4;
+                    if (lightPos.getValue() != null) {
+                        q3 = (Quaternion) lightPos.getValue();
+                    } else {
+                        q3 = new Quaternion();
+                    }
+                    q3.set(pos2.getX(), pos2.getY(), pos2.getZ(), invRange);                   
+                    lightPos.setValue(VarType.Vector4, q3);               
+                     
+                    if (lightDir.getValue() != null) {                       
+                        q4 = (Quaternion) lightDir.getValue();
+                    } else {
+                        q4 = new Quaternion();
+                    }
+                    q4.set(dir2.getX(), dir2.getY(), dir2.getZ(), spotAngleCos);                 
+                    lightDir.setValue(VarType.Vector4, q4);
+                    
                     break;
                 default:
                     throw new UnsupportedOperationException("Unknown type of light: " + l.getType());
@@ -1008,41 +1043,41 @@ public class Material implements Cloneable, Savable, Comparable<Material> {
 
     public void read(JmeImporter im) throws IOException {
         InputCapsule ic = im.getCapsule(this);
-        
+
         additionalState = (RenderState) ic.readSavable("render_state", null);
         transparent = ic.readBoolean("is_transparent", false);
 
         // Load the material def
         String defName = ic.readString("material_def", null);
         HashMap<String, MatParam> params = (HashMap<String, MatParam>) ic.readStringSavableMap("parameters", null);
-        
+
         boolean enableVcolor = false;
         boolean separateTexCoord = false;
-        
-        if (im.getFormatVersion() == 0){
+
+        if (im.getFormatVersion() == 0) {
             // Enable compatibility with old models
-            if (defName.equalsIgnoreCase("Common/MatDefs/Misc/VertexColor.j3md")){
+            if (defName.equalsIgnoreCase("Common/MatDefs/Misc/VertexColor.j3md")) {
                 // Using VertexColor, switch to Unshaded and set VertexColor=true
                 enableVcolor = true;
                 defName = "Common/MatDefs/Misc/Unshaded.j3md";
-            }else if (defName.equalsIgnoreCase("Common/MatDefs/Misc/SimpleTextured.j3md")
-                   || defName.equalsIgnoreCase("Common/MatDefs/Misc/SolidColor.j3md")){
+            } else if (defName.equalsIgnoreCase("Common/MatDefs/Misc/SimpleTextured.j3md")
+                    || defName.equalsIgnoreCase("Common/MatDefs/Misc/SolidColor.j3md")) {
                 // Using SimpleTextured/SolidColor, just switch to Unshaded
                 defName = "Common/MatDefs/Misc/Unshaded.j3md";
-            }else if (defName.equalsIgnoreCase("Common/MatDefs/Misc/WireColor.j3md")){
+            } else if (defName.equalsIgnoreCase("Common/MatDefs/Misc/WireColor.j3md")) {
                 // Using WireColor, set wireframe renderstate = true and use Unshaded
                 getAdditionalRenderState().setWireframe(true);
                 defName = "Common/MatDefs/Misc/Unshaded.j3md";
-            }else if (defName.equalsIgnoreCase("Common/MatDefs/Misc/Unshaded.j3md")){
+            } else if (defName.equalsIgnoreCase("Common/MatDefs/Misc/Unshaded.j3md")) {
                 // Uses unshaded, ensure that the proper param is set
                 MatParam value = params.get("SeperateTexCoord");
-                if (value != null && ((Boolean)value.getValue()) == true){
+                if (value != null && ((Boolean) value.getValue()) == true) {
                     params.remove("SeperateTexCoord");
                     separateTexCoord = true;
                 }
             }
         }
-        
+
         def = (MaterialDef) im.getAssetManager().loadAsset(new AssetKey(defName));
         paramValues = new ListMap<String, MatParam>();
 
@@ -1065,12 +1100,12 @@ public class Material implements Cloneable, Savable, Comparable<Material> {
             param.setName(checkSetParam(param.getVarType(), param.getName()));
             paramValues.put(param.getName(), param);
         }
-        
-        if (enableVcolor){
+
+        if (enableVcolor) {
             setBoolean("VertexColor", true);
         }
-        if (separateTexCoord){
+        if (separateTexCoord) {
             setBoolean("SeparateTexCoord", true);
-        } 
+        }
     }
 }

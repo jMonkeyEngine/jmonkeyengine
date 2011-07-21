@@ -13,6 +13,7 @@ uniform float m_Shininess;
 
 uniform vec4 g_LightColor;
 uniform vec4 g_LightPosition;
+uniform vec4 g_LightDirection;
 uniform vec4 g_AmbientLightColor;
 
 varying vec2 texCoord;
@@ -29,9 +30,8 @@ attribute vec3 inPosition;
 attribute vec2 inTexCoord;
 attribute vec3 inNormal;
 
-#ifdef HQ_ATTENUATION
-  varying vec3 lightVec;
-#endif
+varying vec4 lightVec;
+varying vec4 spotVec;
 
 #ifdef VERTEX_COLOR
   attribute vec4 inColor;
@@ -45,7 +45,7 @@ attribute vec3 inNormal;
   #endif
   varying vec3 vPosition;
   varying vec3 vViewDir;
-  varying vec4 vLightDir;
+  varying vec4 vLightDir;  
 #endif
 
 #ifdef USE_REFLECTION
@@ -81,13 +81,11 @@ attribute vec3 inNormal;
 void lightComputeDir(in vec3 worldPos, in vec4 color, in vec4 position, out vec4 lightDir){
     float posLight = step(0.5, color.w);
     vec3 tempVec = position.xyz * sign(posLight - 0.5) - (worldPos * posLight);
+    lightVec.xyz = tempVec;  
     #ifdef ATTENUATION
      float dist = length(tempVec);
      lightDir.w = clamp(1.0 - position.w * dist * posLight, 0.0, 1.0);
      lightDir.xyz = tempVec / vec3(dist);
-     #ifdef HQ_ATTENUATION
-       lightVec = tempVec;
-     #endif
     #else
      lightDir = vec4(normalize(tempVec), 1.0);
     #endif
@@ -113,11 +111,20 @@ void lightComputeDir(in vec3 worldPos, in vec4 color, in vec4 position, out vec4
 vec2 computeLighting(in vec3 wvPos, in vec3 wvNorm, in vec3 wvViewDir, in vec4 wvLightPos){
      vec4 lightDir;
      lightComputeDir(wvPos, g_LightColor, wvLightPos, lightDir);
-
+     float spotFallOff = 1.0;
+     if(spotVec.w!=0){
+          vec3 L=normalize(lightVec.xyz);
+          vec3 spotdir = normalize(spotVec.xyz);
+          float curAngleCos = dot(-L, spotdir);             
+          float innerAngleCos = spotVec.w;
+          float outerAngleCos = lightVec.w;
+          float innerMinusOuter = innerAngleCos - outerAngleCos;
+          spotFallOff = clamp((curAngleCos - outerAngleCos) / innerMinusOuter, 0.0, 1.0);
+     }
      float diffuseFactor = lightComputeDiffuse(wvNorm, lightDir.xyz);
      float specularFactor = lightComputeSpecular(wvNorm, wvViewDir, lightDir.xyz, m_Shininess);
      //specularFactor *= step(0.01, diffuseFactor);
-     return vec2(diffuseFactor, specularFactor) * vec2(lightDir.w);
+     return vec2(diffuseFactor, specularFactor) * vec2(lightDir.w)*spotFallOff;
   }
 #endif
 
@@ -132,13 +139,13 @@ void main(){
    vec3 wvPosition = (g_WorldViewMatrix * pos).xyz;
    vec3 wvNormal  = normalize(g_NormalMatrix * inNormal);
    vec3 viewDir = normalize(-wvPosition);
-
+  
        //vec4 lightColor = g_LightColor[gl_InstanceID];
        //vec4 lightPos   = g_LightPosition[gl_InstanceID];
        //vec4 wvLightPos = (g_ViewMatrix * vec4(lightPos.xyz, lightColor.w));
        //wvLightPos.w = lightPos.w;
 
-   vec4 wvLightPos = (g_ViewMatrix * vec4(g_LightPosition.xyz, g_LightColor.w));
+   vec4 wvLightPos = (g_ViewMatrix * vec4(g_LightPosition.xyz,clamp(g_LightColor.w,0.0,1.0)));
    wvLightPos.w = g_LightPosition.w;
    vec4 lightColor = g_LightColor;
 
@@ -165,6 +172,11 @@ void main(){
         vNormal = -cross(cross(vLightDir.xyz, vNormal), vNormal);
      #endif
    #endif
+
+   //computing spot direction in view space and unpacking spotlight cos
+   spotVec=(g_ViewMatrix *vec4(g_LightDirection.xyz,0.0) );
+   spotVec.w=floor(g_LightDirection.w)*0.001;
+   lightVec.w = fract(g_LightDirection.w);
 
    lightColor.w = 1.0;
    #ifdef MATERIAL_COLORS

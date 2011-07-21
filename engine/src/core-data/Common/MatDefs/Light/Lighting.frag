@@ -52,8 +52,9 @@ uniform float m_Shininess;
 
 #ifdef HQ_ATTENUATION
 uniform vec4 g_LightPosition;
-varying vec3 lightVec;
 #endif
+varying vec4 lightVec;
+varying vec4 spotVec;
 
 #ifdef USE_REFLECTION 
     uniform float m_ReflectionPower;
@@ -124,7 +125,7 @@ vec2 computeLighting(in vec3 wvPos, in vec3 wvNorm, in vec3 wvViewDir, in vec3 w
 
 void main(){
     vec2 newTexCoord;
- 
+     
     #if defined(PARALLAXMAP) || defined(NORMALMAP_PARALLAX)
        float h;
        #ifdef PARALLAXMAP
@@ -146,6 +147,23 @@ void main(){
     #else
       vec4 diffuseColor = vec4(1.0);
     #endif
+    #ifndef VERTEX_LIGHTING
+        float spotFallOff = 1.0;
+        if(spotVec.w!=0){
+              vec3 L=normalize(lightVec.xyz);
+              vec3 spotdir = normalize(spotVec.xyz);
+              float curAngleCos = dot(-L, spotdir);             
+              float innerAngleCos = spotVec.w;
+              float outerAngleCos = lightVec.w;
+              float innerMinusOuter = innerAngleCos - outerAngleCos;
+              spotFallOff = clamp((curAngleCos - outerAngleCos) / innerMinusOuter, 0.0, 1.0);
+              if(spotFallOff<=0.0){
+                  gl_FragColor =  AmbientSum * diffuseColor;
+                  return;
+              }
+        }
+     #endif
+ 
     float alpha = DiffuseSum.a * diffuseColor.a;
     #ifdef ALPHAMAP
        alpha = alpha * texture2D(m_AlphaMap, newTexCoord).r;
@@ -202,7 +220,7 @@ void main(){
        vec4 lightDir = vLightDir;
        lightDir.xyz = normalize(lightDir.xyz);
 
-       vec2 light = computeLighting(vPosition, normal, vViewDir.xyz, lightDir.xyz);
+       vec2   light = computeLighting(vPosition, normal, vViewDir.xyz, lightDir.xyz) * spotFallOff;
        #ifdef COLORRAMP
            diffuseColor.rgb  *= texture2D(m_ColorRamp, vec2(light.x, 0.0)).rgb;
            specularColor.rgb *= texture2D(m_ColorRamp, vec2(light.y, 0.0)).rgb;

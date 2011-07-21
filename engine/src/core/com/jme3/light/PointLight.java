@@ -29,7 +29,6 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package com.jme3.light;
 
 import com.jme3.bounding.BoundingVolume;
@@ -55,13 +54,14 @@ public class PointLight extends Light {
 
     protected Vector3f position = new Vector3f();
     protected float radius = 0;
+    protected float invRadius = 0;
 
     @Override
     public void computeLastDistance(Spatial owner) {
-        if (owner.getWorldBound() != null){
+        if (owner.getWorldBound() != null) {
             BoundingVolume bv = owner.getWorldBound();
             lastDistance = bv.distanceSquaredTo(position);
-        }else{
+        } else {
             lastDistance = owner.getWorldTranslation().distanceSquared(position);
         }
     }
@@ -82,7 +82,7 @@ public class PointLight extends Light {
      * 
      * @param position the world space position of the light.
      */
-    public void setPosition(Vector3f position){
+    public void setPosition(Vector3f position) {
         this.position.set(position);
     }
 
@@ -92,7 +92,7 @@ public class PointLight extends Light {
      * 
      * @return the radius of the light
      */
-    public float getRadius(){
+    public float getRadius() {
         return radius;
     }
 
@@ -109,11 +109,24 @@ public class PointLight extends Light {
      * 
      * @throws IllegalArgumentException If radius is negative
      */
-    public void setRadius(float radius){
+    public void setRadius(float radius) {
         if (radius < 0) {
             throw new IllegalArgumentException("Light radius cannot be negative");
         }
         this.radius = radius;
+        if(radius!=0){
+            this.invRadius = 1 / radius;
+        }else{
+            this.invRadius = 0;
+        }
+    }
+
+    /**
+     * for internal use only
+     * @return the inverse of the radius
+     */
+    public float getInvRadius() {
+        return invRadius;
     }
 
     @Override
@@ -135,6 +148,10 @@ public class PointLight extends Light {
         InputCapsule ic = im.getCapsule(this);
         position = (Vector3f) ic.readSavable("position", null);
         radius = ic.readFloat("radius", 0f);
+        if(radius!=0){
+            this.invRadius = 1 / radius;
+        }else{
+            this.invRadius = 0;
+        }
     }
-
 }
