@@ -59,6 +59,8 @@ public class AndroidConfigChooser implements EGLConfigChooser
     @Override
     public EGLConfig chooseConfig(EGL10 egl, EGLDisplay display)
     {
+        logger.info("GLSurfaceView asks for egl config, returning: ");
+        logEGLConfig(choosenConfig, display, egl);
         return choosenConfig;
     }
     
@@ -164,6 +166,7 @@ public class AndroidConfigChooser implements EGLConfigChooser
         
         if (choosenConfig != null)
         {
+            logger.info("JME3 using choosen config: "); 
             logEGLConfig(choosenConfig, display, egl);               
             pixelFormat = getPixelFormat(choosenConfig, display, egl);
             clientOpenGLESVersion = getOpenGLVersion(choosenConfig, display, egl);
@@ -369,7 +372,7 @@ public class AndroidConfigChooser implements EGLConfigChooser
      * @param display
      * @param egl
      */
-    private void logEGLConfig(EGLConfig conf, EGLDisplay display, EGL10 egl)
+    public void logEGLConfig(EGLConfig conf, EGLDisplay display, EGL10 egl)
     {
         int[] value = new int[1];
 

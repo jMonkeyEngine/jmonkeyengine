@@ -210,7 +210,7 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer
         {
             if (!created.get())
             {
-                logger.info("GL Surface created");
+                logger.info("GL Surface created, doing JME3 init");                
                 initInThread();
             }
             else
@@ -385,6 +385,7 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer
     @Override
     public void onSurfaceChanged(GL10 gl, int width, int height) 
     {
+        logger.info("GL Surface changed, width: " + width + " height: " + height);
         settings.setResolution(width, height);
         listener.reshape(width, height);
     }
