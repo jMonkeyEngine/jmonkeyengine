@@ -61,6 +61,7 @@ import com.jme3.shader.Uniform;
 import com.jme3.shader.VarType;
 import com.jme3.texture.Texture;
 import com.jme3.util.ListMap;
+import com.jme3.util.TempVars;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.EnumSet;
@@ -698,9 +699,6 @@ public class Material implements Cloneable, Savable, Comparable<Material> {
             lightIndex++;
         }
     }
-    Quaternion tmpLightDirection = new Quaternion();
-    Quaternion tmpLightPosition = new Quaternion();
-    ColorRGBA tmpLightColor = new ColorRGBA();
 
     protected void renderMultipassLighting(Shader shader, Geometry g, Renderer r) {
         LightList lightList = g.getWorldLightList();
@@ -728,6 +726,11 @@ public class Material implements Cloneable, Savable, Comparable<Material> {
                 r.applyRenderState(additiveLight);
                 isSecondLight = false;
             }
+
+            TempVars vars = TempVars.get();
+            Quaternion tmpLightDirection = vars.quat1;
+            Quaternion tmpLightPosition = vars.quat2;
+            ColorRGBA tmpLightColor = vars.color;
 
             ColorRGBA color = l.getColor();
             tmpLightColor.set(color);
@@ -767,7 +770,7 @@ public class Material implements Cloneable, Savable, Comparable<Material> {
                 default:
                     throw new UnsupportedOperationException("Unknown type of light: " + l.getType());
             }
-
+            vars.release();
             r.setShader(shader);
             r.renderMesh(g.getMesh(), g.getLodLevel(), 1);
         }

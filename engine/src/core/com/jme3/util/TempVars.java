@@ -32,6 +32,7 @@
 package com.jme3.util;
 
 import com.jme3.collision.bih.BIHNode.BIHStackData;
+import com.jme3.math.ColorRGBA;
 import com.jme3.math.Eigen3f;
 import com.jme3.math.Matrix4f;
 import com.jme3.math.Matrix3f;
@@ -160,6 +161,11 @@ public class TempVars {
      * Fetching triangle from mesh
      */
     public final Triangle triangle = new Triangle();
+    
+    /**
+     * Color
+     */
+    public final ColorRGBA color = new ColorRGBA();
     /**
      * General vectors.
      */
