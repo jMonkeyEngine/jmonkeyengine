@@ -25,6 +25,7 @@ import com.jme3.light.AmbientLight;
 import com.jme3.light.DirectionalLight;
 import com.jme3.light.Light;
 import com.jme3.light.PointLight;
+import com.jme3.light.SpotLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Quaternion;
@@ -204,6 +205,18 @@ public class SceneEditorController implements PropertyChangeListener, NodeListen
                 refreshSelected();
                 undoLight = light;
                 undoParent = ((Node) selected);
+            } else if ("Spot Light".equals(name)) {
+                SpotLight light = new SpotLight();
+                if (point != null) {
+                    Vector3f localVec = new Vector3f();
+                    selected.worldToLocal(point, localVec);
+                    light.setPosition(localVec);
+                }
+                light.setColor(ColorRGBA.White);
+                ((Node) selected).addLight(light);
+                refreshSelected();
+                undoLight = light;
+                undoParent = ((Node) selected);
             } else if ("Directional Light".equals(name)) {
                 DirectionalLight dl = new DirectionalLight();
                 dl.setDirection(new Vector3f(-1, -1, -1).normalizeLocal());
@@ -231,7 +244,19 @@ public class SceneEditorController implements PropertyChangeListener, NodeListen
                 selected.addLight(light);
                 refreshSelected();
                 undoLight = light;
-                undoParent = ((Node) selected);
+                undoSpatial = ((Geometry) selected);
+            } else if ("Spot Light".equals(name)) {
+                SpotLight light = new SpotLight();
+                if (point != null) {
+                    Vector3f localVec = new Vector3f();
+                    selected.worldToLocal(point, localVec);
+                    light.setPosition(localVec);
+                }
+                light.setColor(ColorRGBA.White);
+                selected.addLight(light);
+                refreshSelected();
+                undoLight = light;
+                undoSpatial = ((Geometry) selected);
             } else if ("Directional Light".equals(name)) {
                 DirectionalLight dl = new DirectionalLight();
                 dl.setDirection(new Vector3f(-1, -1, -1).normalizeLocal());
@@ -239,14 +264,14 @@ public class SceneEditorController implements PropertyChangeListener, NodeListen
                 selected.addLight(dl);
                 refreshSelected();
                 undoLight = dl;
-                undoParent = ((Node) selected);
+                undoSpatial = ((Geometry) selected);
             } else if ("Ambient Light".equals(name)) {
                 AmbientLight dl = new AmbientLight();
                 dl.setColor(ColorRGBA.White);
                 selected.addLight(dl);
                 refreshSelected();
                 undoLight = dl;
-                undoParent = ((Node) selected);
+                undoSpatial = ((Geometry) selected);
             }
         }
         AbstractSceneExplorerNode selectedSpat = this.selectedSpat;
@@ -453,9 +478,9 @@ public class SceneEditorController implements PropertyChangeListener, NodeListen
     }
 
     public void doRotateSpatial(Spatial selected, Quaternion rotation) {
-        Quaternion before=new Quaternion(selected.getLocalRotation());
+        Quaternion before = new Quaternion(selected.getLocalRotation());
         selected.rotate(rotation);
-        Quaternion after=new Quaternion(selected.getLocalRotation());
+        Quaternion after = new Quaternion(selected.getLocalRotation());
         rotateUndo(selected, before, after, selectedSpat);
     }
 
@@ -925,5 +950,4 @@ public class SceneEditorController implements PropertyChangeListener, NodeListen
             selectedSpat.removePropertyChangeListener(this);
         }
     }
-
 }

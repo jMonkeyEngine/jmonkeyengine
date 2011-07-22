@@ -215,6 +215,7 @@ public final class SceneComposerTopComponent extends TopComponent implements Sce
         jToolBar1.add(scaleButton);
         jToolBar1.add(jSeparator5);
 
+        addObjectButton.setBackground(new java.awt.Color(204, 204, 204));
         addObjectButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/jme3/gde/scenecomposer/add.gif"))); // NOI18N
         org.openide.awt.Mnemonics.setLocalizedText(addObjectButton, org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.addObjectButton.text")); // NOI18N
         addObjectButton.setToolTipText(org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.addObjectButton.toolTipText")); // NOI18N
@@ -226,6 +227,7 @@ public final class SceneComposerTopComponent extends TopComponent implements Sce
         });
         jToolBar1.add(addObjectButton);
 
+        addCursorButton.setBackground(new java.awt.Color(204, 204, 204));
         addCursorButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/jme3/gde/scenecomposer/add.gif"))); // NOI18N
         org.openide.awt.Mnemonics.setLocalizedText(addCursorButton, org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.addCursorButton.text")); // NOI18N
         addCursorButton.setToolTipText(org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.addCursorButton.toolTipText")); // NOI18N
@@ -237,6 +239,7 @@ public final class SceneComposerTopComponent extends TopComponent implements Sce
         });
         jToolBar1.add(addCursorButton);
 
+        moveToCursorButton.setBackground(new java.awt.Color(204, 204, 204));
         moveToCursorButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/jme3/gde/scenecomposer/move.gif"))); // NOI18N
         org.openide.awt.Mnemonics.setLocalizedText(moveToCursorButton, org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.moveToCursorButton.text")); // NOI18N
         moveToCursorButton.setToolTipText(org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.moveToCursorButton.toolTipText")); // NOI18N
@@ -284,6 +287,7 @@ public final class SceneComposerTopComponent extends TopComponent implements Sce
         org.openide.awt.Mnemonics.setLocalizedText(jLabel1, org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.jLabel1.text")); // NOI18N
         jToolBar1.add(jLabel1);
 
+        resetCursorButton.setBackground(new java.awt.Color(204, 204, 204));
         org.openide.awt.Mnemonics.setLocalizedText(resetCursorButton, org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.resetCursorButton.text")); // NOI18N
         resetCursorButton.setToolTipText(org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.resetCursorButton.toolTipText")); // NOI18N
         resetCursorButton.setFocusable(false);
@@ -296,6 +300,7 @@ public final class SceneComposerTopComponent extends TopComponent implements Sce
         });
         jToolBar1.add(resetCursorButton);
 
+        cursorToSelectionButton.setBackground(new java.awt.Color(204, 204, 204));
         org.openide.awt.Mnemonics.setLocalizedText(cursorToSelectionButton, org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.cursorToSelectionButton.text")); // NOI18N
         cursorToSelectionButton.setToolTipText(org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.cursorToSelectionButton.toolTipText")); // NOI18N
         cursorToSelectionButton.setFocusable(false);
@@ -313,6 +318,7 @@ public final class SceneComposerTopComponent extends TopComponent implements Sce
         org.openide.awt.Mnemonics.setLocalizedText(jLabel2, org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.jLabel2.text")); // NOI18N
         jToolBar1.add(jLabel2);
 
+        camToCursorSelectionButton.setBackground(new java.awt.Color(204, 204, 204));
         org.openide.awt.Mnemonics.setLocalizedText(camToCursorSelectionButton, org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.camToCursorSelectionButton.text")); // NOI18N
         camToCursorSelectionButton.setToolTipText(org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.camToCursorSelectionButton.toolTipText")); // NOI18N
         camToCursorSelectionButton.setFocusable(false);
@@ -348,6 +354,7 @@ public final class SceneComposerTopComponent extends TopComponent implements Sce
         jToolBar2.setFloatable(false);
         jToolBar2.setRollover(true);
 
+        createPhysicsMeshButton.setBackground(new java.awt.Color(204, 204, 204));
         org.openide.awt.Mnemonics.setLocalizedText(createPhysicsMeshButton, org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.createPhysicsMeshButton.text")); // NOI18N
         createPhysicsMeshButton.setToolTipText(org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.createPhysicsMeshButton.toolTipText")); // NOI18N
         createPhysicsMeshButton.addActionListener(new java.awt.event.ActionListener() {
@@ -357,6 +364,7 @@ public final class SceneComposerTopComponent extends TopComponent implements Sce
         });
         jToolBar2.add(createPhysicsMeshButton);
 
+        jCheckBox1.setBackground(new java.awt.Color(204, 204, 204));
         org.openide.awt.Mnemonics.setLocalizedText(jCheckBox1, org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.jCheckBox1.text")); // NOI18N
         jToolBar2.add(jCheckBox1);
 
@@ -370,6 +378,7 @@ public final class SceneComposerTopComponent extends TopComponent implements Sce
         jToolBar3.setFloatable(false);
         jToolBar3.setRollover(true);
 
+        jButton1.setBackground(new java.awt.Color(204, 204, 204));
         org.openide.awt.Mnemonics.setLocalizedText(jButton1, org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.jButton1.text")); // NOI18N
         jButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -378,6 +387,7 @@ public final class SceneComposerTopComponent extends TopComponent implements Sce
         });
         jToolBar3.add(jButton1);
 
+        fixedCheckBox.setBackground(new java.awt.Color(204, 204, 204));
         fixedCheckBox.setSelected(true);
         org.openide.awt.Mnemonics.setLocalizedText(fixedCheckBox, org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.fixedCheckBox.text")); // NOI18N
         fixedCheckBox.setEnabled(false);
@@ -511,7 +521,6 @@ public final class SceneComposerTopComponent extends TopComponent implements Sce
         MoveTool tool = new MoveTool();
         toolController.showEditTool(tool);
     }//GEN-LAST:event_moveButtonActionPerformed
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton addCursorButton;
     private javax.swing.JButton addObjectButton;
@@ -680,9 +689,9 @@ public final class SceneComposerTopComponent extends TopComponent implements Sce
                 if (node == null) {
                     jList1.setListData(new String[]{});
                 } else if (node) {
-                    jList1.setListData(new String[]{"Node", "Particle Emitter", "Audio Node", "Picture", "Point Light", "Directional Light", "Ambient Light"});
+                    jList1.setListData(new String[]{"Node", "Particle Emitter", "Audio Node", "Picture", "Point Light" ,"Spot Light", "Directional Light", "Ambient Light"});
                 } else {
-                    jList1.setListData(new String[]{"Point Light", "Directional Light", "Ambient Light"});
+                    jList1.setListData(new String[]{"Point Light", "Spot Light", "Directional Light", "Ambient Light"});
                 }
             }
         });
@@ -893,30 +902,30 @@ public final class SceneComposerTopComponent extends TopComponent implements Sce
             camController.setToolController(toolController);
             camController.setMaster(this);
             camController.enable();
-            
+
             toolController.setCameraController(camController);
             SelectTool tool = new SelectTool();
             toolController.showEditTool(tool);
         }/* else {
-        SceneApplication.getApplication().removeSceneListener(this);
-        currentRequest = null;
-        setSceneInfo(null, false);
-        cleanupControllers();
-        }*/
+         SceneApplication.getApplication().removeSceneListener(this);
+         currentRequest = null;
+         setSceneInfo(null, false);
+         cleanupControllers();
+         }*/
     }
 
     public boolean sceneClose(SceneRequest request) {
         if (request.equals(currentRequest)) {
 //            if (checkSaved()) {
-                SceneApplication.getApplication().removeSceneListener(this);
-                currentRequest = null;
-                setSceneInfo(null, null, false);
-                java.awt.EventQueue.invokeLater(new Runnable() {
+            SceneApplication.getApplication().removeSceneListener(this);
+            currentRequest = null;
+            setSceneInfo(null, null, false);
+            java.awt.EventQueue.invokeLater(new Runnable() {
 
-                    public void run() {
-                        cleanupControllers();
-                    }
-                });
+                public void run() {
+                    cleanupControllers();
+                }
+            });
 //            } else {
 //                return false;
 //            }
