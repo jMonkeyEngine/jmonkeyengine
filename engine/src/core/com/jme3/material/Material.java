@@ -637,7 +637,7 @@ public class Material implements Cloneable, Savable, Comparable<Material> {
         Uniform lightPos = shader.getUniform("g_LightPosition");
         Uniform lightDir = shader.getUniform("g_LightDirection");
         lightColor.setVector4Length(numLights);
-        lightPos.setVector4Length(numLights);        
+        lightPos.setVector4Length(numLights);
         lightDir.setVector4Length(numLights);
 
         Uniform ambientColor = shader.getUniform("g_AmbientLightColor");
@@ -667,16 +667,16 @@ public class Material implements Cloneable, Savable, Comparable<Material> {
                     case Point:
                         PointLight pl = (PointLight) l;
                         Vector3f pos = pl.getPosition();
-                        float invRadius = pl.getInvRadius();                        
+                        float invRadius = pl.getInvRadius();
                         lightPos.setVector4InArray(pos.getX(), pos.getY(), pos.getZ(), invRadius, lightIndex);
                         break;
                     case Spot:
                         SpotLight sl = (SpotLight) l;
                         Vector3f pos2 = sl.getPosition();
                         Vector3f dir2 = sl.getDirection();
-                        float invRange = sl.getInvSpotRange();                
-                        float spotAngleCos = sl.getPackedAngleCos();  
-                       
+                        float invRange = sl.getInvSpotRange();
+                        float spotAngleCos = sl.getPackedAngleCos();
+
                         lightPos.setVector4InArray(pos2.getX(), pos2.getY(), pos2.getZ(), invRange, lightIndex);
                         lightDir.setVector4InArray(dir2.getX(), dir2.getY(), dir2.getZ(), spotAngleCos, lightIndex);
                         break;
@@ -698,6 +698,9 @@ public class Material implements Cloneable, Savable, Comparable<Material> {
             lightIndex++;
         }
     }
+    Quaternion tmpLightDirection = new Quaternion();
+    Quaternion tmpLightPosition = new Quaternion();
+    ColorRGBA tmpLightColor = new ColorRGBA();
 
     protected void renderMultipassLighting(Shader shader, Geometry g, Renderer r) {
         LightList lightList = g.getWorldLightList();
@@ -727,66 +730,39 @@ public class Material implements Cloneable, Savable, Comparable<Material> {
             }
 
             ColorRGBA color = l.getColor();
-            ColorRGBA color2;
-            if (lightColor.getValue() != null) {
-                color2 = (ColorRGBA) lightColor.getValue();
-            } else {
-                color2 = new ColorRGBA();
-            }
-            color2.set(color);
-            color2.a = l.getType().getId();
-            lightColor.setValue(VarType.Vector4, color2);
+            tmpLightColor.set(color);
+            tmpLightColor.a = l.getType().getId();
+            lightColor.setValue(VarType.Vector4, tmpLightColor);
 
             switch (l.getType()) {
                 case Directional:
                     DirectionalLight dl = (DirectionalLight) l;
                     Vector3f dir = dl.getDirection();
-                    Quaternion q1;
-                    if (lightPos.getValue() != null) {
-                        q1 = (Quaternion) lightPos.getValue();
-                    } else {
-                        q1 = new Quaternion();
-                    }
-                    q1.set(dir.getX(), dir.getY(), dir.getZ(), -1);
-                    lightPos.setValue(VarType.Vector4, q1);
+
+                    tmpLightPosition.set(dir.getX(), dir.getY(), dir.getZ(), -1);
+                    lightPos.setValue(VarType.Vector4, tmpLightPosition);
                     break;
                 case Point:
                     PointLight pl = (PointLight) l;
                     Vector3f pos = pl.getPosition();
-                    float invRadius = pl.getInvRadius();     
-                    Quaternion q2;
-                    if (lightPos.getValue() != null) {
-                        q2 = (Quaternion) lightPos.getValue();
-                    } else {
-                        q2 = new Quaternion();
-                    }
-                    q2.set(pos.getX(), pos.getY(), pos.getZ(), invRadius);
-                    lightPos.setValue(VarType.Vector4, q2);
+                    float invRadius = pl.getInvRadius();
+
+                    tmpLightPosition.set(pos.getX(), pos.getY(), pos.getZ(), invRadius);
+                    lightPos.setValue(VarType.Vector4, tmpLightPosition);
                     break;
-                case Spot:                    
+                case Spot:
                     SpotLight sl = (SpotLight) l;
                     Vector3f pos2 = sl.getPosition();
                     Vector3f dir2 = sl.getDirection();
-                    float invRange = sl.getInvSpotRange();                
-                    float spotAngleCos = sl.getPackedAngleCos();                  
+                    float invRange = sl.getInvSpotRange();
+                    float spotAngleCos = sl.getPackedAngleCos();
 
-                    Quaternion q3,q4;
-                    if (lightPos.getValue() != null) {
-                        q3 = (Quaternion) lightPos.getValue();
-                    } else {
-                        q3 = new Quaternion();
-                    }
-                    q3.set(pos2.getX(), pos2.getY(), pos2.getZ(), invRange);                   
-                    lightPos.setValue(VarType.Vector4, q3);               
-                     
-                    if (lightDir.getValue() != null) {                       
-                        q4 = (Quaternion) lightDir.getValue();
-                    } else {
-                        q4 = new Quaternion();
-                    }
-                    q4.set(dir2.getX(), dir2.getY(), dir2.getZ(), spotAngleCos);                 
-                    lightDir.setValue(VarType.Vector4, q4);
-                    
+                    tmpLightPosition.set(pos2.getX(), pos2.getY(), pos2.getZ(), invRange);
+                    lightPos.setValue(VarType.Vector4, tmpLightPosition);
+
+                    tmpLightDirection.set(dir2.getX(), dir2.getY(), dir2.getZ(), spotAngleCos);
+                    lightDir.setValue(VarType.Vector4, tmpLightDirection);
+
                     break;
                 default:
                     throw new UnsupportedOperationException("Unknown type of light: " + l.getType());
