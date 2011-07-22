@@ -1,7 +1,9 @@
 package com.jme3.app;
 
+import java.util.logging.Handler;
 import java.util.logging.Logger;
-
+import java.util.logging.SimpleFormatter;
+import com.jme3.util.JmeFormatter;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -103,6 +105,23 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
     public void onCreate(Bundle savedInstanceState) 
     {
         super.onCreate(savedInstanceState);
+        
+        Logger log = logger;
+        boolean bIsLogFormatSet = false;
+        do
+        {
+            if (log.getHandlers().length == 0)
+            {
+                log = logger.getParent();
+                if (log != null)
+                    for (Handler h : log.getHandlers())
+                    {
+                        //h.setFormatter(new SimpleFormatter());
+                        h.setFormatter(new JmeFormatter());
+                        bIsLogFormatSet = true;
+                    }
+            }
+        } while (log != null && !bIsLogFormatSet);
 
         JmeSystem.setResources(getResources());
         JmeSystem.setActivity(this);

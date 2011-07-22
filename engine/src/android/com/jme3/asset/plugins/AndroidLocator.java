@@ -67,7 +67,7 @@ public class AndroidLocator implements AssetLocator {
         } 
         catch (IOException ex) 
         {
-            logger.log(Level.WARNING, "Failed to locate {0} ", sAssetPath);
+            //logger.log(Level.WARNING, "Failed to locate {0} ", sAssetPath);
         }
         return null;
     }
