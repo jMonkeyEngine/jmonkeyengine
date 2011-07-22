@@ -58,7 +58,26 @@ public final class BufferUtils {
 
     private static final Map<Buffer, Object> trackingHash = Collections.synchronizedMap(new WeakHashMap<Buffer, Object>());
     private static final Object ref = new Object();
-    private static final boolean trackDirectMemory = true;
+    
+    // Note: a WeakHashMap is really bad here since the hashCode() and
+    //       equals() behavior of buffers will vary based on their contents.
+    //       As it stands, put()'ing an empty buffer will wipe out the last
+    //       empty buffer with the same size.  So any tracked memory calculations
+    //       could be lying.
+    //       Besides, the hashmap behavior isn't even being used here and
+    //       yet the expense is still incurred.  For example, a newly allocated
+    //       10,000 byte buffer will iterate through the whole buffer of 0's
+    //       to calculate the hashCode and then potentially do it again to
+    //       calculate the equals()... which by the way is guaranteed for
+    //       every empty buffer of an existing size since they will always produce 
+    //       the same hashCode().
+    //       It would be better to just keep a straight list of weak references
+    //       and clean out the dead every time a new buffer is allocated.
+    //       WeakHashMap is doing that anyway... to there is no extra expense 
+    //       incurred.
+    //       Recommend a ConcurrentLinkedQueue of WeakReferences since it
+    //       supports the threading semantics required with little extra overhead. 
+    private static final boolean trackDirectMemory = false;
 
     /**
      * Creates a clone of the given buffer. The clone's capacity is
