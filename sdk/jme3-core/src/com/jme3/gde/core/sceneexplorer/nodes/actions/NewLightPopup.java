@@ -39,6 +39,7 @@ import com.jme3.light.AmbientLight;
 import com.jme3.light.DirectionalLight;
 import com.jme3.light.Light;
 import com.jme3.light.PointLight;
+import com.jme3.light.SpotLight;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Spatial;
@@ -77,6 +78,8 @@ public class NewLightPopup extends AbstractAction implements Presenter.Popup {
         result.add(new JMenuItem(new AddAmbientAction()));
         result.add(new JMenuItem(new AddDirectionalAction()));
         result.add(new JMenuItem(new AddPointAction()));
+        result.add(new JMenuItem(new AddSpotAction()));
+        
         return result;
     }
 
@@ -135,6 +138,28 @@ public class NewLightPopup extends AbstractAction implements Presenter.Popup {
                 public Void call() throws Exception {
                     PointLight light = new PointLight();
                     light.setColor(ColorRGBA.White);
+                     node.addLight(light);
+                    addLightUndo(node, light);
+                    setModified();
+                    return null;
+                }
+            });
+        }
+    }
+    
+      private class AddSpotAction extends AbstractAction {
+
+        public AddSpotAction() {
+            putValue(NAME, "Spot Light");
+        }
+
+        public void actionPerformed(ActionEvent e) {
+            SceneApplication.getApplication().enqueue(new Callable<Void>() {
+
+                public Void call() throws Exception {
+                    SpotLight light = new SpotLight();
+                    light.setColor(ColorRGBA.White);
+                     node.addLight(light);
                     addLightUndo(node, light);
                     setModified();
                     return null;

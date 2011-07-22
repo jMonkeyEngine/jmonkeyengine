@@ -39,6 +39,7 @@ import com.jme3.light.DirectionalLight;
 import com.jme3.light.Light;
 import com.jme3.light.LightList;
 import com.jme3.light.PointLight;
+import com.jme3.light.SpotLight;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Spatial;
@@ -169,6 +170,9 @@ public class JmeSpatialChildren extends Children.Keys<Object> {
             LightSpatialPair pair = (LightSpatialPair) key;
             if (pair.getLight() instanceof PointLight) {
                 return new Node[]{new JmePointLight(pair.getSpatial(), (PointLight) pair.getLight()).setReadOnly(readOnly)};
+            }
+            if (pair.getLight() instanceof SpotLight) {
+                return new Node[]{new JmeSpotLight(pair.getSpatial(), (SpotLight) pair.getLight()).setReadOnly(readOnly)};
             }
             if (pair.getLight() instanceof DirectionalLight) {
                 return new Node[]{new JmeDirectionalLight(pair.getSpatial(), (DirectionalLight) pair.getLight()).setReadOnly(readOnly)};

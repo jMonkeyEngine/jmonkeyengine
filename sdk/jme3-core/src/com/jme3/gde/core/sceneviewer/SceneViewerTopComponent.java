@@ -26,15 +26,14 @@ package com.jme3.gde.core.sceneviewer;
 
 import com.jme3.gde.core.filters.FilterExplorerTopComponent;
 import com.jme3.gde.core.scene.SceneApplication;
+import com.jme3.gde.core.scene.controller.toolbars.CameraToolbar;
 import com.jme3.gde.core.sceneviewer.actions.ToggleOrthoPerspAction;
 import com.jme3.system.JmeCanvasContext;
 import java.awt.Canvas;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.util.logging.Logger;
+import javax.swing.JToolBar;
 import org.openide.util.NbBundle;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
@@ -47,7 +46,6 @@ import org.openide.awt.UndoRedo;
 import org.openide.util.Exceptions;
 import org.openide.util.HelpCtx;
 import org.openide.util.Lookup;
-import org.openide.util.lookup.Lookups;
 
 /**
  * Top component which displays something.
@@ -65,8 +63,7 @@ public final class SceneViewerTopComponent extends TopComponent {
     private SceneApplication app;
     private HelpCtx helpContext = new HelpCtx("com.jme3.gde.core.sceneviewer");
     private Canvas oglCanvas;
-    //toolbar actions
-    private ToggleOrthoPerspAction toggleOrthoPerspAction;
+  
 
     public SceneViewerTopComponent() {
         initComponents();
@@ -74,12 +71,12 @@ public final class SceneViewerTopComponent extends TopComponent {
         setFocusable(true);
         setName(NbBundle.getMessage(SceneViewerTopComponent.class, "CTL_SceneViewerTopComponent"));
         setToolTipText(NbBundle.getMessage(SceneViewerTopComponent.class, "HINT_SceneViewerTopComponent"));
-        setIcon(ImageUtilities.loadImage(ICON_PATH, true));
+        setIcon(ImageUtilities.loadImage(ICON_PATH, true));        
         try {
             app = SceneApplication.getApplication();
             oglCanvas = ((JmeCanvasContext) app.getContext()).getCanvas();
             oGLPanel.add(oglCanvas);
-            toggleOrthoPerspAction = new ToggleOrthoPerspAction();
+        
         } catch (Exception e) {
             Exceptions.printStackTrace(e);
             showOpenGLError(e.toString());
@@ -117,8 +114,6 @@ public final class SceneViewerTopComponent extends TopComponent {
         jToggleButton1 = new javax.swing.JToggleButton();
         jSeparator1 = new javax.swing.JToolBar.Separator();
         enableWireframe = new javax.swing.JToggleButton();
-        jSeparator2 = new javax.swing.JToolBar.Separator();
-        enableOrtho = new javax.swing.JToggleButton();
         jPanel1 = new javax.swing.JPanel();
         enableStats = new javax.swing.JToggleButton();
         oGLPanel = new javax.swing.JPanel();
@@ -168,27 +163,6 @@ public final class SceneViewerTopComponent extends TopComponent {
             }
         });
         jToolBar1.add(enableWireframe);
-        jToolBar1.add(jSeparator2);
-
-        enableOrtho.setFont(new java.awt.Font("Tahoma", 0, 8)); // NOI18N
-        enableOrtho.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/jme3/gde/core/sceneviewer/icons/persp.png"))); // NOI18N
-        org.openide.awt.Mnemonics.setLocalizedText(enableOrtho, org.openide.util.NbBundle.getMessage(SceneViewerTopComponent.class, "SceneViewerTopComponent.enableOrtho.text")); // NOI18N
-        enableOrtho.setToolTipText(org.openide.util.NbBundle.getMessage(SceneViewerTopComponent.class, "SceneViewerTopComponent.enableOrtho.toolTipText")); // NOI18N
-        enableOrtho.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
-        enableOrtho.setFocusable(false);
-        enableOrtho.setHorizontalTextPosition(javax.swing.SwingConstants.RIGHT);
-        enableOrtho.setMaximumSize(new java.awt.Dimension(27, 23));
-        enableOrtho.setMinimumSize(new java.awt.Dimension(27, 23));
-        enableOrtho.setPreferredSize(new java.awt.Dimension(50, 23));
-        enableOrtho.setSelectedIcon(new javax.swing.ImageIcon(getClass().getResource("/com/jme3/gde/core/sceneviewer/icons/ortho.png"))); // NOI18N
-        enableOrtho.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                enableOrthoActionPerformed(evt);
-            }
-        });
-        jToolBar1.add(enableOrtho);
-        enableOrtho.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getMessage(SceneViewerTopComponent.class, "SceneViewerTopComponent.jToggleButton2.AccessibleContext.accessibleName")); // NOI18N
-
         jToolBar1.add(jPanel1);
 
         enableStats.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/jme3/gde/core/sceneviewer/icons/65.png"))); // NOI18N
@@ -227,27 +201,18 @@ public final class SceneViewerTopComponent extends TopComponent {
         FilterExplorerTopComponent.findInstance().setFilterEnabled(jToggleButton1.isSelected());
     }//GEN-LAST:event_jToggleButton1ActionPerformed
 
-private void enableOrthoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_enableOrthoActionPerformed
-    toggleOrthoPerspAction.actionPerformed(evt);
-}//GEN-LAST:event_enableOrthoActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JToggleButton enableCamLight;
-    private javax.swing.JToggleButton enableOrtho;
     private javax.swing.JToggleButton enableStats;
     private javax.swing.JToggleButton enableWireframe;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JToolBar.Separator jSeparator1;
-    private javax.swing.JToolBar.Separator jSeparator2;
     private javax.swing.JToggleButton jToggleButton1;
     private javax.swing.JToolBar jToolBar1;
     private javax.swing.JPanel oGLPanel;
     // End of variables declaration//GEN-END:variables
 
-    public void toggleOrthoModeButton(boolean enabled) {
-        enableOrtho.setText(NbBundle.getMessage(SceneViewerTopComponent.class, "SceneViewerTopComponent.enableOrtho.text" + (enabled ? "O" : "")));
-        enableOrtho.setSelected(enabled);
-    }
-
+   
     /**
      * Gets default instance. Do not use directly: reserved for *.settings files only,
      * i.e. deserialization routines; otherwise you could get a non-deserialized instance.
@@ -358,5 +323,9 @@ private void enableOrthoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
     @Override
     public UndoRedo getUndoRedo() {
         return Lookup.getDefault().lookup(UndoRedo.class);
+    }
+    
+    public void addAdditionnalToolbar(JToolBar tb){
+        jToolBar1.add(tb,4);
     }
 }
