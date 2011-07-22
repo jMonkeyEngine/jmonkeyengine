@@ -28,6 +28,7 @@ import com.jme3.app.Application;
 import com.jme3.app.state.AbstractAppState;
 import com.jme3.app.state.AppStateManager;
 import com.jme3.gde.core.scene.SceneApplication;
+import com.jme3.gde.core.scene.controller.toolbars.CameraToolbar;
 import com.jme3.gde.core.sceneviewer.SceneViewerTopComponent;
 import com.jme3.input.InputManager;
 import com.jme3.input.RawInputListener;
@@ -79,10 +80,24 @@ public abstract class AbstractCameraController extends AbstractAppState implemen
     protected boolean checkDraggedR = false;
     protected boolean checkReleaseLeft = false;
     protected boolean checkReleaseRight = false;
+    protected CameraToolbar camToolbar = new CameraToolbar();
 
     public AbstractCameraController(Camera cam, InputManager inputManager) {
         this.cam = cam;
         this.inputManager = inputManager;
+
+        java.awt.EventQueue.invokeLater(new Runnable() {
+
+            public void run() {
+
+                SceneViewerTopComponent svtc = SceneViewerTopComponent.findInstance();
+                if (svtc != null) {
+                    svtc.addAdditionnalToolbar(camToolbar);
+                }
+
+            }
+        });
+
     }
 
     public void setMaster(Object component) {
@@ -166,21 +181,19 @@ public abstract class AbstractCameraController extends AbstractAppState implemen
 
     }
 
-    public boolean toggleOrthoPerspMode() {
+    public void toggleOrthoPerspMode() {
         try {
-            return SceneApplication.getApplication().enqueue(new Callable<Boolean>() {
+            camToolbar.toggleOrthoMode(SceneApplication.getApplication().enqueue(new Callable<Boolean>() {
 
                 public Boolean call() throws Exception {
                     return doToggleOrthoPerspMode();
                 }
-            }).get();
+            }).get());
         } catch (InterruptedException ex) {
             Exceptions.printStackTrace(ex);
         } catch (ExecutionException ex) {
             Exceptions.printStackTrace(ex);
         }
-        return false;
-
     }
 
     protected boolean doToggleOrthoPerspMode() {

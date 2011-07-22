@@ -324,8 +324,10 @@ public final class SceneViewerTopComponent extends TopComponent {
     public UndoRedo getUndoRedo() {
         return Lookup.getDefault().lookup(UndoRedo.class);
     }
+
     
     public void addAdditionnalToolbar(JToolBar tb){
-        jToolBar1.add(tb,4);
+     //   jToolBar1.add(tb,4);
     }
+
 }

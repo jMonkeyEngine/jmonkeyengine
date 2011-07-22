@@ -470,10 +470,6 @@ public class SceneApplication extends Application implements LookupProvider, Loo
         });
     }
 
-    public boolean toggleOrthoPerspMode() {
-        return camController.toggleOrthoPerspMode();
-    }
-
     public void enableWireFrame(final boolean selected) {
         enqueue(new Callable() {
 

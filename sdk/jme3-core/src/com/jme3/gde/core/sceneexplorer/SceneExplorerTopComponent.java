@@ -95,7 +95,7 @@ public final class SceneExplorerTopComponent extends TopComponent implements Exp
         CopyAction copy = SystemAction.get(CopyAction.class);
         getActionMap().put(copy.getActionMapKey(), ExplorerUtils.actionCopy(explorerManager));
         PasteAction paste = SystemAction.get(PasteAction.class);
-        getActionMap().put(paste.getActionMapKey(), ExplorerUtils.actionPaste(explorerManager));
+        getActionMap().put(paste.getActionMapKey(), ExplorerUtils.actionPaste(explorerManager));         
         DeleteAction delete = SystemAction.get(DeleteAction.class);
         getActionMap().put(delete.getActionMapKey(), ExplorerUtils.actionDelete(explorerManager, true));
     }
