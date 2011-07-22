@@ -73,7 +73,7 @@ public final class BufferUtils {
     //       the same hashCode().
     //       It would be better to just keep a straight list of weak references
     //       and clean out the dead every time a new buffer is allocated.
-    //       WeakHashMap is doing that anyway... to there is no extra expense 
+    //       WeakHashMap is doing that anyway... so there is no extra expense 
     //       incurred.
     //       Recommend a ConcurrentLinkedQueue of WeakReferences since it
     //       supports the threading semantics required with little extra overhead. 
