@@ -647,7 +647,7 @@ void main(){
     #endif
 
         float spotFallOff = 1.0;
-        if(spotVec.w!=0){
+        if(spotVec.w!=0.0){
               vec3 L=normalize(lightVec.xyz);
               vec3 spotdir = normalize(spotVec.xyz);
               float curAngleCos = dot(-L, spotdir);             

@@ -112,7 +112,7 @@ vec2 computeLighting(in vec3 wvPos, in vec3 wvNorm, in vec3 wvViewDir, in vec4 w
      vec4 lightDir;
      lightComputeDir(wvPos, g_LightColor, wvLightPos, lightDir);
      float spotFallOff = 1.0;
-     if(spotVec.w!=0){
+     if(spotVec.w!=0.0){
           vec3 L=normalize(lightVec.xyz);
           vec3 spotdir = normalize(spotVec.xyz);
           float curAngleCos = dot(-L, spotdir);             
