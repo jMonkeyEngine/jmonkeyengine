@@ -47,14 +47,16 @@ varying vec4 SpecularSum;
   uniform sampler2D m_ColorRamp;
 #endif
 uniform float m_AlphaDiscardThreshold;
+
+varying vec4 lightVec;
+varying vec4 spotVec;
+
 #ifndef VERTEX_LIGHTING
 uniform float m_Shininess;
 
 #ifdef HQ_ATTENUATION
 uniform vec4 g_LightPosition;
 #endif
-varying vec4 lightVec;
-varying vec4 spotVec;
 
 #ifdef USE_REFLECTION 
     uniform float m_ReflectionPower;
