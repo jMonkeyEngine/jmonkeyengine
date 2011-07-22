@@ -36,8 +36,6 @@ varying vec4 SpecularSum;
   varying vec3 wNormal;
 #endif
 
-
-
 // JME3 lights in world space
 void lightComputeDir(in vec3 worldPos, in vec4 color, in vec4 position, out vec4 lightDir){
     float posLight = step(0.5, color.w);
@@ -52,7 +50,11 @@ void lightComputeDir(in vec3 worldPos, in vec4 color, in vec4 position, out vec4
 void main(){
     vec4 pos = vec4(inPosition, 1.0);
     gl_Position = g_WorldViewProjectionMatrix * pos;
+    #ifdef TERRAIN_GRID
+    texCoord = inTexCoord * 2.0;
+    #else
     texCoord = inTexCoord;
+    #endif
 
     vec3 wvPosition = (g_WorldViewMatrix * pos).xyz;
     vec3 wvNormal  = normalize(g_NormalMatrix * inNormal);

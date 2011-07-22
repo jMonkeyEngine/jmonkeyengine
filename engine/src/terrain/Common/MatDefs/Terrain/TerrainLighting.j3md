@@ -8,6 +8,9 @@ MaterialDef Terrain Lighting {
         // Use ward specular instead of phong
         Boolean WardIso
 
+        // Are we rendering TerrainGrid
+        Boolean isTerrainGrid
+
         // Ambient color
         Color Ambient
 
@@ -113,6 +116,7 @@ MaterialDef Terrain Lighting {
 
         Defines {
             TRI_PLANAR_MAPPING : useTriPlanarMapping
+            TERRAIN_GRID : isTerrainGrid
             WARDISO   : WardIso
 
             DIFFUSEMAP : DiffuseMap

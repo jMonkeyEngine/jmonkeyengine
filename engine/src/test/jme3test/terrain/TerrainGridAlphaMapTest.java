@@ -87,6 +87,7 @@ public class TerrainGridAlphaMapTest extends SimpleApplication {
         // TERRAIN TEXTURE material
         matRock = new Material(assetManager, "Common/MatDefs/Terrain/TerrainLighting.j3md");
         matRock.setBoolean("useTriPlanarMapping", false);
+        matRock.setBoolean("isTerrainGrid", true);
 
         // GRASS texture
         Texture grass = assetManager.loadTexture("Textures/Terrain/splat/grass.jpg");
@@ -189,7 +190,7 @@ public class TerrainGridAlphaMapTest extends SimpleApplication {
             }
 
             public void tileAttached(Vector3f cell, TerrainQuad quad) {
-                Texture alpha = assetManager.loadTexture("Scenes/TerrainAlphaTest/alphamap_" + Math.abs((int) (cell.x % 2)) * 512 + "_" + Math.abs((int) (cell.y % 2) * 512) + ".png");
+                Texture alpha = assetManager.loadTexture("Scenes/TerrainAlphaTest/alphamap_" + Math.abs((int) (cell.x % 2)) * 512 + "_" + Math.abs((int) (cell.z % 2) * 512) + ".png");
                 quad.getMaterial().setTexture("AlphaMap", alpha);
                 if (usePhysics) {
                     quad.addControl(new RigidBodyControl(new HeightfieldCollisionShape(quad.getHeightMap(), terrain.getLocalScale()), 0));
