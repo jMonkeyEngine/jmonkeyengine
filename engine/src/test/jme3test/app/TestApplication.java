@@ -70,15 +70,6 @@ public class TestApplication {
         Thread.sleep(3000);
         System.out.println("Destroying offscreen buffer");
         app.stop();
-
-        System.out.println("Creating JOGL application..");
-        settings = new AppSettings(true);
-        settings.setRenderer(AppSettings.JOGL);
-        app = new Application();
-        app.setSettings(settings);
-        app.start();
-        Thread.sleep(5000);
-        app.stop();
     }
 
 }

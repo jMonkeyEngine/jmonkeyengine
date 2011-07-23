@@ -29,6 +29,7 @@
  */
 package com.jme3.material;
 
+import com.jme3.asset.Asset;
 import com.jme3.asset.AssetKey;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Matrix4f;
@@ -73,10 +74,7 @@ import java.util.logging.Logger;
 
 /**
  * <code>Material</code> describes the rendering style for a given 
- * {
- * <p/>
- * @link Geometry}. 
- * <p/>
+ * {@link Geometry}. 
  * <p>A material is essentially a list of {
  * @link MatParam parameters}, those parameters map to uniforms which are
  * defined in a shader.  Setting the parameters can modify the behavior of a
@@ -84,7 +82,7 @@ import java.util.logging.Logger;
  * <p/>
  * @author Kirill Vainer
  */
-public class Material implements Cloneable, Savable, Comparable<Material> {
+public class Material implements Asset, Cloneable, Savable, Comparable<Material> {
 
     private static final Logger logger = Logger.getLogger(Material.class.getName());
     private static final RenderState additiveLight = new RenderState();
@@ -100,7 +98,8 @@ public class Material implements Cloneable, Savable, Comparable<Material> {
         additiveLight.setBlendMode(RenderState.BlendMode.AlphaAdditive);
         additiveLight.setDepthWrite(false);
     }
-    private String assetName;
+    
+    private AssetKey key;
     private MaterialDef def;
     private ListMap<String, MatParam> paramValues = new ListMap<String, MatParam>();
     private Technique technique;
@@ -139,18 +138,17 @@ public class Material implements Cloneable, Savable, Comparable<Material> {
      * @return Asset key name of the j3m file 
      */
     public String getAssetName() {
-        return assetName;
+        return key != null ? key.getName() : null;
     }
 
-    /**
-     * Set the asset key name. This is used internally by the j3m material loader.
-     * 
-     * @param assetName the asset key name
-     */
-    public void setAssetName(String assetName) {
-        this.assetName = assetName;
+    public void setKey(AssetKey key){
+        this.key = key;
     }
-
+    
+    public AssetKey getKey(){
+        return key;
+    }
+    
     /**
      * Returns the sorting ID or sorting index for this material. 
      * 

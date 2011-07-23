@@ -47,7 +47,6 @@ import com.jme3.audio.LowPassFilter;
 import com.jme3.math.Vector3f;
 import com.jme3.util.BufferUtils;
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
@@ -237,6 +236,13 @@ public class LwjglAudioRenderer implements AudioRenderer, Runnable {
             return;
         }
 
+        // stop any playing channels
+        for (int i = 0; i < chanSrcs.length; i++){
+            if (chanSrcs[i] != null){
+                clearChannel(i);
+            }
+        }
+        
         // delete channel-based sources
         ib.clear();
         ib.put(channels);
@@ -253,7 +259,8 @@ public class LwjglAudioRenderer implements AudioRenderer, Runnable {
             EFX10.alDeleteAuxiliaryEffectSlots(ib);
         }
 
-        // XXX: Delete other buffers/sources
+        // TODO: Cleanup buffers allocated for audio buffers and streams
+        
         AL.destroy();
     }
 
@@ -930,7 +937,6 @@ public class LwjglAudioRenderer implements AudioRenderer, Runnable {
                 freeChannel(chan);
                 
                 if (src.getAudioData() instanceof AudioStream) {
-                    
                     AudioStream stream = (AudioStream)src.getAudioData();
                     if (stream.isOpen()) {
                         stream.close();

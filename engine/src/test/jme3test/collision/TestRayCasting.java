@@ -57,7 +57,7 @@ public class TestRayCasting extends SimpleApplication {
 //        flyCam.setEnabled(false);
 
         // load material
-        Material mat = (Material) assetManager.loadAsset(new AssetKey("Interface/Logo/Logo.j3m"));
+        Material mat = (Material) assetManager.loadMaterial("Interface/Logo/Logo.j3m");
 
         Mesh q = new Mesh();
         q.setBuffer(Type.Position, 3, new float[]

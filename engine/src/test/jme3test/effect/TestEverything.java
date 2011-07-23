@@ -128,7 +128,7 @@ public class TestEverything extends SimpleApplication {
     }
 
     public void setupFloor(){
-        Material mat = assetManager.loadMaterial("Textures/Terrain/Cobblestone/Cobblestone.j3m");
+        Material mat = assetManager.loadMaterial("Textures/Terrain/BrickWall/BrickWall.j3m");
         mat.getTextureParam("DiffuseMap").getTextureValue().setWrap(WrapMode.Repeat);
         mat.getTextureParam("NormalMap").getTextureValue().setWrap(WrapMode.Repeat);
         mat.getTextureParam("ParallaxMap").getTextureValue().setWrap(WrapMode.Repeat);

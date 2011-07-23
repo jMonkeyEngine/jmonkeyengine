@@ -35,6 +35,7 @@ package jme3test.audio;
 import com.jme3.audio.AudioRenderer;
 import com.jme3.asset.AssetManager;
 import com.jme3.asset.DesktopAssetManager;
+import com.jme3.audio.AudioContext;
 import com.jme3.audio.Listener;
 import com.jme3.system.AppSettings;
 import com.jme3.system.JmeSystem;
@@ -60,6 +61,7 @@ public class AudioApp {
     }
 
     public void initAudioApp(){
+        AudioContext.setAudioRenderer(audioRenderer);
     }
 
     public void updateAudioApp(float tpf){

@@ -49,7 +49,7 @@ public class TestMusicStreaming extends AudioApp {
     @Override
     public void initAudioApp(){
         assetManager.registerLocator("http://www.vorbis.com/music/", UrlLocator.class);
-        AudioNode src = new AudioNode(audioRenderer, assetManager, "Lumme-Badloop.ogg", true);
+        AudioNode src = new AudioNode(assetManager, "Lumme-Badloop.ogg", true);
         audioRenderer.playSource(src);
     }
 }

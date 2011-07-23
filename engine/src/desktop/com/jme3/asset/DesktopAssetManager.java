@@ -291,7 +291,7 @@ public class DesktopAssetManager implements AssetManager {
     }
 
     public Material loadMaterial(String name){
-        return (Material) loadAsset(new AssetKey(name));
+        return (Material) loadAsset(new MaterialKey(name));
     }
 
     /**

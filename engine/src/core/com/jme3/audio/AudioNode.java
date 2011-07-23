@@ -200,8 +200,6 @@ public class AudioNode extends Node {
      * @param name The filename of the audio file
      * @param stream If true, the audio will be streamed gradually from disk, 
      *               otherwise, it will be buffered.
-     *
-     * @deprecated AudioRenderer parameter is ignored.
      */
     public AudioNode(AssetManager assetManager, String name, boolean stream) {
         this(assetManager, name, stream, false);
@@ -213,6 +211,8 @@ public class AudioNode extends Node {
      * @param audioRenderer The audio renderer to use for playing. Cannot be null.
      * @param assetManager The asset manager to use to load the audio file
      * @param name The filename of the audio file
+     * 
+     * @deprecated AudioRenderer parameter is ignored.
      */
     public AudioNode(AudioRenderer audioRenderer, AssetManager assetManager, String name) {
         this(assetManager, name, false);

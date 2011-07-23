@@ -75,7 +75,8 @@ public class ParticleEmitter extends Geometry {
 
     private static final EmitterShape DEFAULT_SHAPE = new EmitterPointShape(Vector3f.ZERO);
     private static final ParticleInfluencer DEFAULT_INFLUENCER = new DefaultParticleInfluencer();
-    private ParticleEmitterControl control = new ParticleEmitterControl(this);
+    
+    private ParticleEmitterControl control;
     private EmitterShape shape = DEFAULT_SHAPE;
     private ParticleMesh particleMesh;
     private ParticleInfluencer particleInfluencer = DEFAULT_INFLUENCER;
@@ -106,9 +107,12 @@ public class ParticleEmitter extends Geometry {
     //variable that helps with computations
     private transient Vector3f temp = new Vector3f();
 
-    private static class ParticleEmitterControl implements Control {
+    public static class ParticleEmitterControl implements Control {
 
-        private ParticleEmitter parentEmitter;
+        ParticleEmitter parentEmitter;
+        
+        public ParticleEmitterControl(){
+        }
         
         public ParticleEmitterControl(ParticleEmitter parentEmitter){
             this.parentEmitter = parentEmitter;
@@ -118,7 +122,7 @@ public class ParticleEmitter extends Geometry {
             return this; // WARNING: Sets wrong control on spatial. Will be
                          // fixed automatically by ParticleEmitter.clone() method.
         }
-
+        
         public void setSpatial(Spatial spatial) {
         }
 
@@ -139,11 +143,9 @@ public class ParticleEmitter extends Geometry {
         }
 
         public void write(JmeExporter ex) throws IOException {
-            // the data is not written here
         }
 
         public void read(JmeImporter im) throws IOException {
-            // the data is not written here
         }
     }
 
@@ -206,6 +208,7 @@ public class ParticleEmitter extends Geometry {
         shape = shape.deepClone();
         particleInfluencer = particleInfluencer.clone();
 
+        control = new ParticleEmitterControl(this);
         controls.add(control);
 
         switch (meshType) {
@@ -1155,12 +1158,13 @@ public class ParticleEmitter extends Geometry {
                 throw new IllegalStateException("Unrecognized particle type: " + meshType);
         }
         particleMesh.initParticleData(this, particles.length);
+        particleMesh.setImagesXY(imagesX, imagesY);
 
         particleInfluencer = (ParticleInfluencer) ic.readSavable("influencer", DEFAULT_INFLUENCER);
         if (particleInfluencer == DEFAULT_INFLUENCER){
             particleInfluencer = particleInfluencer.clone();
         }
-
+  
         if (im.getFormatVersion() == 0){
             // compatibility before the control inside particle emitter
             // was changed:
@@ -1170,7 +1174,7 @@ public class ParticleEmitter extends Geometry {
                 if (obj instanceof ParticleEmitter){
                     controls.remove(i);
                     // now add the proper one in
-                    controls.add(control);
+                    controls.add(new ParticleEmitterControl(this));
                     break;
                 }
             }
@@ -1180,6 +1184,11 @@ public class ParticleEmitter extends Geometry {
                 gravity = new Vector3f();
                 gravity.y = ic.readFloat("gravity", 0);
             }
+        }else{
+            // since the parentEmitter is not loaded, it must be 
+            // loaded separately
+            control = getControl(ParticleEmitterControl.class);
+            control.parentEmitter = this;
         }
     }
 }

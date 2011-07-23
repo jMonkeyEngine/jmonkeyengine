@@ -215,7 +215,7 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
             }
             if (mat == null) {
                 logger.log(Level.WARNING, "Material {0} not found. Applying default material", matName);
-                mat = (Material) assetManager.loadAsset(new AssetKey("Common/Materials/RedColor.j3m"));
+                mat = (Material) assetManager.loadMaterial("Common/Materials/RedColor.j3m");
             }
         }
 

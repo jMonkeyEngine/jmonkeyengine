@@ -41,6 +41,7 @@ import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.asset.AssetLoader;
 import com.jme3.asset.AssetManager;
+import com.jme3.asset.MaterialKey;
 import com.jme3.asset.TextureKey;
 import com.jme3.material.RenderState.BlendMode;
 import com.jme3.material.RenderState.FaceCullMode;
@@ -63,7 +64,7 @@ public class J3MLoader implements AssetLoader {
 
     private AssetManager owner;
     private Scanner scan;
-    private String fileName;
+    private AssetKey key;
 
     private MaterialDef materialDef;
     private Material material;
@@ -538,14 +539,15 @@ public class J3MLoader implements AssetLoader {
                 throw new IOException("Extended material "+extendedMat+" cannot be found.");
 
             material = new Material(def);
-            material.setAssetName(fileName);
+            material.setKey(key);
+//            material.setAssetName(fileName);
         }else if (scan.hasNext("\\{")){
             if (extending){
                 throw new IOException("Expected ':', got '{'");
             }
             materialDef = new MaterialDef(owner, name);
             // NOTE: pass file name for defs so they can be loaded later
-            materialDef.setAssetName(fileName);
+            materialDef.setAssetName(key.getName());
         }
         scan.next(); // skip {
 
@@ -590,7 +592,7 @@ public class J3MLoader implements AssetLoader {
         try {
             scan = new Scanner(in);
             scan.useLocale(Locale.US);
-            this.fileName = info.getKey().getName();
+            key = info.getKey();
             loadFromScanner();
         } finally {
             if (in != null)
@@ -598,6 +600,9 @@ public class J3MLoader implements AssetLoader {
         }
         
         if (material != null){
+            if (!(info.getKey() instanceof MaterialKey)){
+                throw new IOException("Material instances must be loaded via MaterialKey");
+            }
             // material implementation
             return material;
         }else{

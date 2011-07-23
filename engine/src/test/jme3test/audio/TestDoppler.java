@@ -66,8 +66,6 @@ public class TestDoppler extends AudioApp {
 
     @Override
     public void initAudioApp(){
-        assetManager.registerLocator("C:\\", FileLocator.class);
-        
         Quaternion q = new Quaternion();
         q.lookAt(new Vector3f(0, 0, -1f), Vector3f.UNIT_Y);
         listener.setRotation(q);
@@ -75,7 +73,7 @@ public class TestDoppler extends AudioApp {
         audioRenderer.setEnvironment(Environment.Dungeon);
         AL10.alDistanceModel(AL11.AL_EXPONENT_DISTANCE);
         
-        ufo  = new AudioNode(audioRenderer, assetManager, "test.ogg", false);
+        ufo  = new AudioNode(assetManager, "Sound/Effects/Beep.ogg", false);
         ufo.setPositional(true);
         ufo.setLooping(true);
         ufo.setReverbEnabled(true);
