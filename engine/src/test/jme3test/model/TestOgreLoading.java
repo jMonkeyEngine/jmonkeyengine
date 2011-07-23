@@ -29,13 +29,11 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package jme3test.model;
 
 import com.jme3.app.SimpleApplication;
 import com.jme3.light.PointLight;
 import com.jme3.light.DirectionalLight;
-import com.jme3.material.Material;
 import com.jme3.math.Vector3f;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
@@ -43,8 +41,7 @@ import com.jme3.scene.Spatial;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Sphere;
 
-public class TestOgreLoading extends SimpleApplication
-{
+public class TestOgreLoading extends SimpleApplication {
 
     float angle1;
     float angle2;
@@ -53,15 +50,12 @@ public class TestOgreLoading extends SimpleApplication
     Spatial lightMdl;
     Spatial lightMd2;
 
-
-    public static void main(String[] args)
-    {
+    public static void main(String[] args) {
         TestOgreLoading app = new TestOgreLoading();
         app.start();
     }
 
-    public void simpleInitApp()
-    {
+    public void simpleInitApp() {
 //        PointLight pl = new PointLight();
 //        pl.setPosition(new Vector3f(10, 10, -10));
 //        rootNode.addLight(pl);
@@ -75,11 +69,11 @@ public class TestOgreLoading extends SimpleApplication
 
 
         lightMdl = new Geometry("Light", new Sphere(10, 10, 0.1f));
-        lightMdl.setMaterial( (Material) assetManager.loadAsset("Common/Materials/RedColor.j3m"));
+        lightMdl.setMaterial(assetManager.loadMaterial("Common/Materials/RedColor.j3m"));
         rootNode.attachChild(lightMdl);
 
         lightMd2 = new Geometry("Light", new Sphere(10, 10, 0.1f));
-        lightMd2.setMaterial( (Material) assetManager.loadAsset("Common/Materials/WhiteColor.j3m"));
+        lightMd2.setMaterial(assetManager.loadMaterial("Common/Materials/WhiteColor.j3m"));
         rootNode.attachChild(lightMd2);
 
 
@@ -97,14 +91,12 @@ public class TestOgreLoading extends SimpleApplication
         // create the geometry and attach it
         Spatial elephant = (Spatial) assetManager.loadModel("Models/Elephant/Elephant.mesh.xml");
         float scale = 0.05f;
-        elephant.scale(scale,scale,scale);
+        elephant.scale(scale, scale, scale);
         rootNode.attachChild(elephant);
     }
 
-
     @Override
-    public void simpleUpdate(float tpf)
-    {
+    public void simpleUpdate(float tpf) {
         angle1 += tpf * 0.25f;
         angle1 %= FastMath.TWO_PI;
 

@@ -63,7 +63,7 @@ public class TestMonkeyHead extends SimpleApplication {
         rootNode.attachChild(bumpy);
 
         lightMdl = new Geometry("Light", new Sphere(10, 10, 0.1f));
-        lightMdl.setMaterial( (Material) assetManager.loadAsset(new AssetKey("Common/Materials/RedColor.j3m")));
+        lightMdl.setMaterial(assetManager.loadMaterial("Common/Materials/RedColor.j3m"));
         rootNode.attachChild(lightMdl);
 
         // flourescent main light

@@ -60,12 +60,12 @@ public class TestBumpModel extends SimpleApplication {
     @Override
     public void simpleInitApp() {
         Spatial signpost = (Spatial) assetManager.loadAsset(new OgreMeshKey("Models/Sign Post/Sign Post.mesh.xml", null));
-        signpost.setMaterial( (Material) assetManager.loadAsset(new AssetKey("Models/Sign Post/Sign Post.j3m")));
+        signpost.setMaterial( (Material) assetManager.loadMaterial("Models/Sign Post/Sign Post.j3m"));
         TangentBinormalGenerator.generate(signpost);
         rootNode.attachChild(signpost);
 
         lightMdl = new Geometry("Light", new Sphere(10, 10, 0.1f));
-        lightMdl.setMaterial( (Material) assetManager.loadAsset(new AssetKey("Common/Materials/RedColor.j3m")));
+        lightMdl.setMaterial( (Material) assetManager.loadMaterial("Common/Materials/RedColor.j3m"));
         rootNode.attachChild(lightMdl);
 
         // flourescent main light

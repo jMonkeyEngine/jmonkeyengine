@@ -56,15 +56,15 @@ public class TestLodStress extends SimpleApplication {
         dl.setDirection(new Vector3f(-1,-1,-1).normalizeLocal());
         rootNode.addLight(dl);
 
-//        Node teapotNode = (Node) assetManager.loadModel("Models/Teapot/Teapot.mesh.xml");
-//        Geometry teapot = (Geometry) teapotNode.getChild(0);
+        Node teapotNode = (Node) assetManager.loadModel("Models/Teapot/Teapot.mesh.xml");
+        Geometry teapot = (Geometry) teapotNode.getChild(0);
         
-        Sphere sph = new Sphere(16, 16, 4);
-        Geometry teapot = new Geometry("teapot", sph);
+//        Sphere sph = new Sphere(16, 16, 4);
+//        Geometry teapot = new Geometry("teapot", sph);
 
         Material mat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
         mat.setFloat("Shininess", 16f);
-//        mat.setBoolean("VertexLighting", true);
+        mat.setBoolean("VertexLighting", true);
         teapot.setMaterial(mat);
         
        // show normals as material
@@ -78,9 +78,9 @@ public class TestLodStress extends SimpleApplication {
                 clonePot.setLocalTranslation(x * .5f, 0, y * .5f);
                 clonePot.setLocalScale(.15f);
                 
-//                LodControl control = new LodControl();
-//                clonePot.addControl(control);
-//                rootNode.attachChild(clonePot);
+                LodControl control = new LodControl();
+                clonePot.addControl(control);
+                rootNode.attachChild(clonePot);
             }
         }
 

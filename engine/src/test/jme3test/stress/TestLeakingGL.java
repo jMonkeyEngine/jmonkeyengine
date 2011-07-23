@@ -66,7 +66,7 @@ public class TestLeakingGL extends SimpleApplication {
 
         // this will make sure all spheres are rendered always
         rootNode.setCullHint(CullHint.Never);
-        solidColor = (Material) assetManager.loadAsset("Common/Materials/RedColor.j3m");
+        solidColor = assetManager.loadMaterial("Common/Materials/RedColor.j3m");
         cam.setLocation(new Vector3f(0, 5, 0));
         cam.lookAt(Vector3f.ZERO, Vector3f.UNIT_Y);
 
