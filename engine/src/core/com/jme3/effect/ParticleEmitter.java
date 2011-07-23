@@ -75,7 +75,7 @@ public class ParticleEmitter extends Geometry {
 
     private static final EmitterShape DEFAULT_SHAPE = new EmitterPointShape(Vector3f.ZERO);
     private static final ParticleInfluencer DEFAULT_INFLUENCER = new DefaultParticleInfluencer();
-    private ParticleEmitterControl control = new ParticleEmitterControl();
+    private ParticleEmitterControl control = new ParticleEmitterControl(this);
     private EmitterShape shape = DEFAULT_SHAPE;
     private ParticleMesh particleMesh;
     private ParticleInfluencer particleInfluencer = DEFAULT_INFLUENCER;
@@ -106,29 +106,36 @@ public class ParticleEmitter extends Geometry {
     //variable that helps with computations
     private transient Vector3f temp = new Vector3f();
 
-    private class ParticleEmitterControl implements Control {
+    private static class ParticleEmitterControl implements Control {
 
+        private ParticleEmitter parentEmitter;
+        
+        public ParticleEmitterControl(ParticleEmitter parentEmitter){
+            this.parentEmitter = parentEmitter;
+        }
+        
         public Control cloneForSpatial(Spatial spatial) {
-            return ((ParticleEmitter) spatial).control;
+            return this; // WARNING: Sets wrong control on spatial. Will be
+                         // fixed automatically by ParticleEmitter.clone() method.
         }
 
         public void setSpatial(Spatial spatial) {
         }
 
         public void setEnabled(boolean enabled) {
-            ParticleEmitter.this.setEnabled(enabled);
+            parentEmitter.setEnabled(enabled);
         }
 
         public boolean isEnabled() {
-            return ParticleEmitter.this.isEnabled();
+            return parentEmitter.isEnabled();
         }
 
         public void update(float tpf) {
-            updateFromControl(tpf);
+            parentEmitter.updateFromControl(tpf);
         }
 
         public void render(RenderManager rm, ViewPort vp) {
-            renderFromControl(rm, vp);
+            parentEmitter.renderFromControl(rm, vp);
         }
 
         public void write(JmeExporter ex) throws IOException {
@@ -144,12 +151,37 @@ public class ParticleEmitter extends Geometry {
     public ParticleEmitter clone() {
         ParticleEmitter clone = (ParticleEmitter) super.clone();
         clone.shape = shape.deepClone();
+        
+        // Reinitialize particle list
         clone.setNumParticles(particles.length);
+        
         clone.faceNormal = faceNormal.clone();
         clone.startColor = startColor.clone();
         clone.endColor = endColor.clone();
         clone.particleInfluencer = particleInfluencer.clone();
-        clone.controls.add(clone.control);
+        
+        // remove wrong control
+        clone.controls.remove(control);
+        
+        // put correct control
+        clone.controls.add(new ParticleEmitterControl(clone));
+        
+        // Reinitialize particle mesh
+        switch (meshType) {
+            case Point:
+                clone.particleMesh = new ParticlePointMesh();
+                clone.setMesh(clone.particleMesh);
+                break;
+            case Triangle:
+                clone.particleMesh = new ParticleTriMesh();
+                clone.setMesh(clone.particleMesh);
+                break;
+            default:
+                throw new IllegalStateException("Unrecognized particle type: " + meshType);
+        }
+        clone.particleMesh.initParticleData(clone, clone.particles.length);
+        clone.particleMesh.setImagesXY(clone.imagesX, clone.imagesY);
+        
         return clone;
     }
 

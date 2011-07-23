@@ -49,6 +49,11 @@ public class ModelKey extends AssetKey<Spatial> {
     }
 
     @Override
+    public boolean useSmartCache(){
+        return true;
+    }
+    
+    @Override
     public Object createClonedInstance(Object asset){
         Spatial model = (Spatial) asset;
         return model.clone();

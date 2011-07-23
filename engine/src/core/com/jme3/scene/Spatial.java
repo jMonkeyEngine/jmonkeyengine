@@ -31,6 +31,8 @@
  */
 package com.jme3.scene;
 
+import com.jme3.asset.Asset;
+import com.jme3.asset.AssetKey;
 import com.jme3.bounding.BoundingVolume;
 import com.jme3.collision.Collidable;
 import com.jme3.export.JmeExporter;
@@ -74,7 +76,7 @@ import java.util.logging.Logger;
  * @author Joshua Slack
  * @version $Revision: 4075 $, $Data$
  */
-public abstract class Spatial implements Savable, Cloneable, Collidable {
+public abstract class Spatial implements Savable, Cloneable, Collidable, Asset {
 
     private static final Logger logger = Logger.getLogger(Spatial.class.getName());
 
@@ -111,20 +113,25 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
     protected static final int RF_TRANSFORM = 0x01, // need light resort + combine transforms
             RF_BOUND = 0x02,
             RF_LIGHTLIST = 0x04; // changes in light lists
+    
     protected CullHint cullHint = CullHint.Inherit;
+    
     /** 
      * Spatial's bounding volume relative to the world.
      */
     protected BoundingVolume worldBound;
+    
     /**
      * LightList
      */
     protected LightList localLights;
     protected transient LightList worldLights;
+    
     /** 
      * This spatial's name.
      */
     protected String name;
+    
     // scale values
     protected transient Camera.FrustumIntersect frustrumIntersects = Camera.FrustumIntersect.Intersects;
     protected RenderQueue.Bucket queueBucket = RenderQueue.Bucket.Inherit;
@@ -134,6 +141,14 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
     protected Transform worldTransform;
     protected SafeArrayList<Control> controls = new SafeArrayList<Control>(Control.class);
     protected HashMap<String, Savable> userData = null;
+    
+    /**
+     * Used for smart asset caching
+     * 
+     * @see AssetKey#useSmartCache() 
+     */
+    protected AssetKey key; 
+    
     /** 
      * Spatial's parent, or null if it has none.
      */
@@ -170,6 +185,14 @@ public abstract class Spatial implements Savable, Cloneable, Collidable {
         this.name = name;
     }
 
+    public void setKey(AssetKey key){
+        this.key = key;
+    }
+    
+    public AssetKey getKey(){
+        return key;
+    }
+    
     /**
      * Indicate that the transform of this spatial has changed and that
      * a refresh is required.
