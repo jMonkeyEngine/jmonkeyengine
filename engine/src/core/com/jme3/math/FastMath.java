@@ -399,7 +399,7 @@ final public class FastMath {
     /**
      * Returns the arc tangent of an angle given in radians.<br>
      * @param fValue The angle, in radians.
-     * @return fValue's asin
+     * @return fValue's atan
      * @see java.lang.Math#atan(double)
      */
     public static float atan(float fValue) {
