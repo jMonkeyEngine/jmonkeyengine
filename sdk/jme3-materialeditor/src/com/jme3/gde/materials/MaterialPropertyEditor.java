@@ -41,6 +41,7 @@ import com.jme3.gde.core.sceneexplorer.nodes.AbstractSceneExplorerNode;
 import com.jme3.gde.core.properties.SceneExplorerProperty;
 import com.jme3.gde.core.properties.SceneExplorerPropertyEditor;
 import com.jme3.material.Material;
+import com.jme3.asset.MaterialKey;
 import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.Rectangle;
@@ -116,7 +117,7 @@ public class MaterialPropertyEditor implements PropertyEditor, SceneExplorerProp
                 }
                 newFile = currentFolder.createData(currentFile.getName() + "_" + i, "j3m");
                 EditableMaterialFile properties = new EditableMaterialFile(newFile, pm);
-                material.setAssetName(pm.getRelativeAssetPath(newFile.getPath()));
+                material.setKey(new MaterialKey(pm.getRelativeAssetPath(newFile.getPath())));
                 properties.setAsMaterial(material);
                 currentFolder.refresh();
                 applyMaterial(material.getAssetName());
