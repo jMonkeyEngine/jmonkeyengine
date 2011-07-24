@@ -42,17 +42,87 @@ import java.util.Properties;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
+/**
+ * <code>AppSettings</code> provides a store of configuration
+ * to be used by the application. 
+ * <p>
+ * By default only the {@link JmeContext context} uses the configuration,
+ * however the user may set and retrieve the settings as well. 
+ * 
+ * @author Kirill Vainer
+ */
 public class AppSettings extends HashMap<String, Object> {
 
     private static final AppSettings defaults = new AppSettings(false);
-    public static final String LWJGL_OPENGL1 = "LWJGL-OPENGL1",
-                               LWJGL_OPENGL2 = "LWJGL-OpenGL2",
-                               LWJGL_OPENGL3 = "LWJGL-OpenGL3",
-                               LWJGL_OPENGL_ANY = "LWJGL-OpenGL-Any",
-                               JOGL = "JOGL",
-                               NULL = "NULL";
+    
+    /**
+     * Use LWJGL as the display system and force using the OpenGL1.1 renderer.
+     * 
+     * @see AppSettings#setRenderer(java.lang.String) 
+     */
+    public static final String LWJGL_OPENGL1 = "LWJGL-OPENGL1";
+    
+    /**
+     * Use LWJGL as the display system and force using the OpenGL2.0 renderer.
+     * <p>
+     * If the underlying system does not support OpenGL2.0, then the context
+     * initialization will throw an exception.
+     * 
+     * @see AppSettings#setRenderer(java.lang.String) 
+     */
+    public static final String LWJGL_OPENGL2 = "LWJGL-OpenGL2";
+    
+    /**
+     * Use LWJGL as the display system and force using the core OpenGL3.3 renderer.
+     * <p>
+     * If the underlying system does not support OpenGL3.3, then the context
+     * initialization will throw an exception. Note that currently jMonkeyEngine
+     * does not have any shaders that support OpenGL3.3 therefore this 
+     * option is not useful.
+     * 
+     * 
+     * @see AppSettings#setRenderer(java.lang.String) 
+     */
+    public static final String LWJGL_OPENGL3 = "LWJGL-OpenGL3";
+    
+    /**
+     * Use LWJGL as the display system and allow the context 
+     * to choose an appropriate renderer based on system capabilities.
+     * <p>
+     * If the GPU supports OpenGL2 or later, then the OpenGL2.0 renderer will
+     * be used, otherwise, the OpenGL1.1 renderer is used.
+     * 
+     * @see AppSettings#setRenderer(java.lang.String) 
+     */
+    public static final String LWJGL_OPENGL_ANY = "LWJGL-OpenGL-Any";
+    
+    /**
+     * The JOGL renderer is no longer supported by jME.
+     * 
+     * @deprecated Use the LWJGL renderer instead.
+     * 
+     * @see AppSettings#setRenderer(java.lang.String) 
+     */
+    @Deprecated
+    public static final String JOGL = "JOGL";
+    
+    /**
+     * The "NULL" option is no longer supported
+     * 
+     * @deprecated Specify the "null" value instead
+     * 
+     * @see AppSettings#setRenderer(java.lang.String) 
+     * @see AppSettings#setAudioRenderer(java.lang.String) 
+     */
+    @Deprecated
+    public static final String NULL = "NULL";
+    
+    /**
+     * Use the LWJGL OpenAL based renderer for audio capabilities.
+     * 
+     * @see AppSettings#setAudioRenderer(java.lang.String) 
+     */
     public static final String LWJGL_OPENAL = "LWJGL";
-    private String settingsDialogImage = "/com/jme3/app/Monkey.png";
 
     static {
         defaults.put("Width", 640);
@@ -70,18 +140,19 @@ public class AppSettings extends HashMap<String, Object> {
         defaults.put("UseInput", true);
         defaults.put("VSync", false);
         defaults.put("FrameRate", -1);
+        defaults.put("SettingsDialogImage", "/com/jme3/app/Monkey.png");
       //  defaults.put("Icons", null);
-
-        // disable these settings to benchmark speed
-//        defaults.put("VSync", true);
-//        defaults.put("FrameRate", 60);
     }
 
     /**
-     * Create Application settings
-     * use loadDefault=true, to load jME default values.
-     * use false if you want to change some settings but you would like the application to remind other settings from previous launches
-     * @param loadDefaults
+     * Create a new instance of <code>AppSettings</code>.
+     * <p>
+     * If <code>loadDefaults</code> is true, then the default settings
+     * will be set on the AppSettings. 
+     * Use false if you want to change some settings but you would like the
+     * application to load settings from previous launches.
+     * 
+     * @param loadDefaults If default settings are to be loaded.
      */
     public AppSettings(boolean loadDefaults) {
         if (loadDefaults) {
@@ -89,10 +160,25 @@ public class AppSettings extends HashMap<String, Object> {
         }
     }
 
+    /**
+     * Copies all settings from <code>other</code> to <code>this</code>
+     * AppSettings. 
+     * <p>
+     * Any settings that are specified in other will overwrite settings
+     * set on this AppSettings.
+     *  
+     * @param other The AppSettings to copy the settings from
+     */
     public void copyFrom(AppSettings other) {
         this.putAll(other);
     }
 
+    /**
+     * Same as {@link #copyFrom(com.jme3.system.AppSettings) }, except
+     * doesn't overwrite settings that are already set.
+     * 
+     * @param other  The AppSettings to merge the settings from
+     */
     public void mergeFrom(AppSettings other) {
         for (String key : other.keySet()) {
             if (get(key) == null) {
@@ -101,6 +187,14 @@ public class AppSettings extends HashMap<String, Object> {
         }
     }
 
+    /**
+     * Loads the settings from the given properties input stream.
+     * 
+     * @param in The InputStream to load from
+     * @throws IOException If an IOException occurs
+     * 
+     * @see #save(java.io.OutputStream) 
+     */
     public void load(InputStream in) throws IOException {
         Properties props = new Properties();
         props.load(in);
@@ -125,6 +219,14 @@ public class AppSettings extends HashMap<String, Object> {
         }
     }
 
+    /**
+     * Saves all settings to the given properties output stream.
+     * 
+     * @param out The OutputStream to write to
+     * @throws IOException If an IOException occurs
+     * 
+     * @see #load(java.io.InputStream) 
+     */
     public void save(OutputStream out) throws IOException {
         Properties props = new Properties();
         for (Map.Entry<String, Object> entry : entrySet()) {
@@ -144,6 +246,14 @@ public class AppSettings extends HashMap<String, Object> {
         props.store(out, "jME3 AppSettings");
     }
 
+    /**
+     * Loads settings previously saved in the Java preferences.
+     * 
+     * @param preferencesKey The preferencesKey previously used to save the settings.
+     * @throws BackingStoreException If an exception occurs with the preferences
+     * 
+     * @see #save(java.lang.String) 
+     */
     public void load(String preferencesKey) throws BackingStoreException {
         Preferences prefs = Preferences.userRoot().node(preferencesKey);
         String[] keys = prefs.keys();
@@ -161,6 +271,18 @@ public class AppSettings extends HashMap<String, Object> {
         }
     }
 
+    /**
+     * Saves settings into the Java preferences.
+     * <p>
+     * On the Windows operating system, the preferences are saved in the registry
+     * at the following key:<br>
+     * <code>HKEY_CURRENT_USER\Software\JavaSoft\Prefs\[preferencesKey]</code>
+     * 
+     * @param preferencesKey The preferences key to save at. Generally the 
+     * application's unique name. 
+     * 
+     * @throws BackingStoreException If an exception occurs with the preferences
+     */
     public void save(String preferencesKey) throws BackingStoreException {
         Preferences prefs = Preferences.userRoot().node(preferencesKey);
         for (String key : keySet()) {         
@@ -168,6 +290,11 @@ public class AppSettings extends HashMap<String, Object> {
         }
     }
 
+    /**
+     * Get an integer from the settings.
+     * <p>
+     * If the key is not set, then 0 is returned.
+     */
     public int getInteger(String key) {
         Integer i = (Integer) get(key);
         if (i == null) {
@@ -177,6 +304,11 @@ public class AppSettings extends HashMap<String, Object> {
         return i.intValue();
     }
 
+    /**
+     * Get a boolean from the settings.
+     * <p>
+     * If the key is not set, then false is returned.
+     */
     public boolean getBoolean(String key) {
         Boolean b = (Boolean) get(key);
         if (b == null) {
@@ -186,6 +318,11 @@ public class AppSettings extends HashMap<String, Object> {
         return b.booleanValue();
     }
 
+    /**
+     * Get a string from the settings.
+     * <p>
+     * If the key is not set, then null is returned.
+     */
     public String getString(String key) {
         String s = (String) get(key);
         if (s == null) {
@@ -195,14 +332,23 @@ public class AppSettings extends HashMap<String, Object> {
         return s;
     }
 
+    /**
+     * Set an integer on the settings.
+     */
     public void putInteger(String key, int value) {
         put(key, Integer.valueOf(value));
     }
 
+    /**
+     * Set a boolean on the settings.
+     */
     public void putBoolean(String key, boolean value) {
         put(key, Boolean.valueOf(value));
     }
 
+    /**
+     * Set a string on the settings.
+     */
     public void putString(String key, String value) {
         put(key, value);
     }
@@ -313,6 +459,36 @@ public class AppSettings extends HashMap<String, Object> {
     }
 
     /**
+     * Sets the number of depth bits to use.
+     * <p>
+     * The number of depth bits specifies the precision of the depth buffer.
+     * To increase precision, specify 32 bits. To decrease precision, specify
+     * 16 bits. On some platforms 24 bits might not be supported, in that case,
+     * specify 16 bits.<p>
+     * (Default: 24)
+     * 
+     * @param value The depth bits
+     */
+    public void setDepthBits(int value){
+        putInteger("DepthBits", value);
+    }
+    
+    /**
+     * Set the number of stencil bits.
+     * <p>
+     * This value is only relevant when the stencil buffer is being used.
+     * Specify 8 to indicate an 8-bit stencil buffer, specify 0 to disable
+     * the stencil buffer.
+     * </p>
+     * (Default: 0)
+     * 
+     * @param value Number of stencil bits
+     */
+    public void setStencilBits(int value){
+        putInteger("StencilBits", value);
+    }
+    
+    /**
      * Set the bits per pixel for the display. Appropriate
      * values are 16 for RGB565 color format, or 24 for RGB8 color format.
      * 
@@ -390,80 +566,162 @@ public class AppSettings extends HashMap<String, Object> {
     public void setIcons(Object[] value) {
         put("Icons", value);
     }
+    
+    /**
+     * Sets the path of the settings dialog image to use.
+     * <p>
+     * The image will be displayed in the settings dialog when the 
+     * application is started.
+     * </p>
+     * (Default: /com/jme3/app/Monkey.png)
+     * 
+     * @param path The path to the image in the classpath. 
+     */
+    public void setSettingsDialogImage(String path) {
+        putString("SettingsDialogImage", path);
+    }
 
+    /**
+     * Get the framerate.
+     * @see #setFrameRate(int) 
+     */
     public int getFrameRate() {
         return getInteger("FrameRate");
     }
 
+    /**
+     * Get the use input state.
+     * @see #setUseInput(boolean) 
+     */
     public boolean useInput() {
         return getBoolean("UseInput");
     }
 
+    /**
+     * Get the renderer
+     * @see #setRenderer(java.lang.String) 
+     */
     public String getRenderer() {
         return getString("Renderer");
     }
 
+    /**
+     * Get the width
+     * @see #setWidth(int) 
+     */
     public int getWidth() {
         return getInteger("Width");
     }
 
+    /**
+     * Get the height
+     * @see #setHeight(int) 
+     */
     public int getHeight() {
         return getInteger("Height");
     }
 
+    /**
+     * Get the bits per pixel
+     * @see #setBitsPerPixel(int) 
+     */
     public int getBitsPerPixel() {
         return getInteger("BitsPerPixel");
     }
 
+    /**
+     * Get the frequency
+     * @see #setFrequency(int) 
+     */
     public int getFrequency() {
         return getInteger("Frequency");
     }
 
+    /**
+     * Get the number of depth bits
+     * @see #setDepthBits(int)
+     */
     public int getDepthBits() {
         return getInteger("DepthBits");
     }
 
+    /**
+     * Get the number of stencil bits
+     * @see #setStencilBits(int) 
+     */
     public int getStencilBits() {
         return getInteger("StencilBits");
     }
 
+    /**
+     * Get the number of samples
+     * @see #setSamples(int) 
+     */
     public int getSamples() {
         return getInteger("Samples");
     }
 
+    /**
+     * Get the application title
+     * @see #setTitle(java.lang.String) 
+     */
     public String getTitle() {
         return getString("Title");
     }
 
+    /**
+     * Get the vsync state
+     * @see #setVSync(boolean) 
+     */
     public boolean isVSync() {
         return getBoolean("VSync");
     }
 
+    /**
+     * Get the fullscreen state
+     * @see #setFullscreen(boolean) 
+     */
     public boolean isFullscreen() {
         return getBoolean("Fullscreen");
     }
 
+    /**
+     * Get the use joysticks state
+     * @see #setUseJoysticks(boolean) 
+     */
     public boolean useJoysticks() {
         return !getBoolean("DisableJoysticks");
     }
 
+    /**
+     * Get the audio renderer
+     * @see #setAudioRenderer(java.lang.String) 
+     */
     public String getAudioRenderer() {
         return getString("AudioRenderer");
     }
     
+    /**
+     * Get the stereo 3D state
+     * @see #setStereo3D(boolean) 
+     */
     public boolean useStereo3D(){
         return getBoolean("Stereo3D");  
     }
 
+    /**
+     * Get the icon array
+     * @see #setIcons(java.lang.Object[]) 
+     */
     public Object[] getIcons() {
         return (Object[]) get("Icons");
     }
-
-    public void setSettingsDialogImage(String path) {
-        settingsDialogImage = path;
-    }
-
+    
+    /**
+     * Get the settings dialog image
+     * @see #setSettingsDialogImage(java.lang.String) 
+     */
     public String getSettingsDialogImage() {
-        return settingsDialogImage;
+        return getString("SettingsDialogImage");
     }
 }

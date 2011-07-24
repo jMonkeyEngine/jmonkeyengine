@@ -34,8 +34,12 @@ package com.jme3.util;
 
 import com.jme3.util.IntMap.Entry;
 import java.util.Iterator;
+import java.util.Map;
 
 /**
+ * Similar to a {@link Map} except that ints are used as keys.
+ * @see Map
+ * 
  * Taken from http://code.google.com/p/skorpios/
  * 
  * @author Nate 
@@ -276,10 +280,12 @@ public final class IntMap<T> implements Iterable<Entry<T>>, Cloneable {
             return value;
         }
 
+        @Override
         public String toString(){
             return key + " => " + value;
         }
 
+        @Override
         public Entry<T> clone(){
             try{
                 Entry<T> clone = (Entry<T>) super.clone();

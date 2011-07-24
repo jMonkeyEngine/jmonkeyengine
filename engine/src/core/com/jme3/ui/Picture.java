@@ -129,7 +129,7 @@ public class Picture extends Geometry {
      * @param imgName The image name.
      * @param useAlpha If true, the picture will appear transparent and allow
      * objects behind it to appear through. If false, the transparent
-     * portions will be black.
+     * portions will be the image's color at that pixel.
      */
     public void setImage(AssetManager assetManager, String imgName, boolean useAlpha){
         TextureKey key = new TextureKey(imgName, true);
@@ -144,7 +144,7 @@ public class Picture extends Geometry {
      * @param tex The texture
      * @param useAlpha If true, the picture will appear transparent and allow
      * objects behind it to appear through. If false, the transparent
-     * portions will be black.
+     * portions will be the image's color at that pixel.
      */
     public void setTexture(AssetManager assetManager, Texture2D tex, boolean useAlpha){
         if (getMaterial() == null){

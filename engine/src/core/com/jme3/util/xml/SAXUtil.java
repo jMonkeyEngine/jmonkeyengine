@@ -42,6 +42,15 @@ import org.xml.sax.SAXException;
  */
 public final class SAXUtil {
 
+    /**
+     * Parses an integer from a string, if the string is null returns
+     * def.
+     * 
+     * @param i
+     * @param def
+     * @return
+     * @throws SAXException 
+     */
     public static int parseInt(String i, int def) throws SAXException{
         if (i == null)
             return def;
