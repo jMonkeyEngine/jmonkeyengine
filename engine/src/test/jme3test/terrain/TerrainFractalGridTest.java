@@ -42,7 +42,6 @@ public class TerrainFractalGridTest extends SimpleApplication {
     private float dirtScale = 16;
     private float rockScale = 128;
     private boolean usePhysics = false;
-    private boolean physicsAdded = false;
 
     public static void main(final String[] args) {
         TerrainFractalGridTest app = new TerrainFractalGridTest();
@@ -163,7 +162,7 @@ public class TerrainFractalGridTest extends SimpleApplication {
             player3.setFallSpeed(10);
             player3.setGravity(10);
 
-            player3.setPhysicsLocation(new Vector3f(cam.getLocation().x, 256, cam.getLocation().z));
+            player3.setPhysicsLocation(new Vector3f(cam.getLocation().x, 512, cam.getLocation().z));
 
             bulletAppState.getPhysicsSpace().add(player3);
 
@@ -238,7 +237,9 @@ public class TerrainFractalGridTest extends SimpleApplication {
                     TerrainFractalGridTest.this.down = false;
                 }
             } else if (name.equals("Jumps")) {
-                TerrainFractalGridTest.this.player3.jump();
+                if (usePhysics) {
+                    TerrainFractalGridTest.this.player3.jump();
+                }
             }
         }
     };
