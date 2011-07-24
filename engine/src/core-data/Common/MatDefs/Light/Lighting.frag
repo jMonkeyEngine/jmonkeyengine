@@ -7,14 +7,16 @@ varying vec2 texCoord;
   varying vec2 texCoord2;
 #endif
 
-varying vec4 AmbientSum;
+varying vec3 AmbientSum;
 varying vec4 DiffuseSum;
-varying vec4 SpecularSum;
+varying vec3 SpecularSum;
 
 #ifndef VERTEX_LIGHTING
   varying vec3 vPosition;
   varying vec3 vViewDir;
   varying vec4 vLightDir;
+#else
+  varying vec2 vertexLightValues;
 #endif
 
 #ifdef DIFFUSEMAP
@@ -128,7 +130,7 @@ vec2 computeLighting(in vec3 wvPos, in vec3 wvNorm, in vec3 wvViewDir, in vec3 w
 void main(){
     vec2 newTexCoord;
      
-    #if defined(PARALLAXMAP) || defined(NORMALMAP_PARALLAX)
+    #if (defined(PARALLAXMAP) || defined(NORMALMAP_PARALLAX)) && !defined(VERTEX_LIGHTING)
        float h;
        #ifdef PARALLAXMAP
           h = texture2D(m_ParallaxMap, texCoord).r;
@@ -149,23 +151,7 @@ void main(){
     #else
       vec4 diffuseColor = vec4(1.0);
     #endif
-    #ifndef VERTEX_LIGHTING
-        float spotFallOff = 1.0;
-        if(spotVec.w!=0.0){
-              vec3 L=normalize(lightVec.xyz);
-              vec3 spotdir = normalize(spotVec.xyz);
-              float curAngleCos = dot(-L, spotdir);             
-              float innerAngleCos = spotVec.w;
-              float outerAngleCos = lightVec.w;
-              float innerMinusOuter = innerAngleCos - outerAngleCos;
-              spotFallOff = clamp((curAngleCos - outerAngleCos) / innerMinusOuter, 0.0, 1.0);
-              if(spotFallOff<=0.0){
-                  gl_FragColor =  AmbientSum * diffuseColor;
-                  return;
-              }
-        }
-     #endif
- 
+
     float alpha = DiffuseSum.a * diffuseColor.a;
     #ifdef ALPHAMAP
        alpha = alpha * texture2D(m_AlphaMap, newTexCoord).r;
@@ -174,6 +160,24 @@ void main(){
         discard;
     }
 
+    #ifndef VERTEX_LIGHTING
+        float spotFallOff = 1.0;
+        if(spotVec.w != 0.0){
+              vec3 L       = normalize(lightVec.xyz);
+              vec3 spotdir = normalize(spotVec.xyz);
+              float curAngleCos = dot(-L, spotdir);             
+              float innerAngleCos = spotVec.w;
+              float outerAngleCos = lightVec.w;
+              float innerMinusOuter = innerAngleCos - outerAngleCos;
+              spotFallOff = clamp((curAngleCos - outerAngleCos) / innerMinusOuter, 0.0, 1.0);
+              if(spotFallOff <= 0.0){
+                  gl_FragColor.rgb = AmbientSum * diffuseColor.rgb;
+                  gl_FragColor.a   = alpha;
+                  return;
+              }
+        }
+     #endif
+ 
     // ***********************
     // Read from textures
     // ***********************
@@ -209,15 +213,14 @@ void main(){
     #endif
 
     #ifdef VERTEX_LIGHTING
-       vec2 light = vec2(AmbientSum.a, SpecularSum.a);
        #ifdef COLORRAMP
-           light.x = texture2D(m_ColorRamp, vec2(light.x, 0.0)).r;
-           light.y = texture2D(m_ColorRamp, vec2(light.y, 0.0)).r;
+           light.x = texture2D(m_ColorRamp, vec2(vertexLightValues.x, 0.0)).r;
+           light.y = texture2D(m_ColorRamp, vec2(vertexLightValues.y, 0.0)).r;
        #endif
 
-       gl_FragColor =  AmbientSum * diffuseColor + 
-                       DiffuseSum * diffuseColor  * light.x +
-                       SpecularSum * specularColor * light.y;
+       gl_FragColor.rgb =  AmbientSum     * diffuseColor.rgb + 
+                           DiffuseSum.rgb * diffuseColor.rgb  * vec3(vertexLightValues.x) +
+                           SpecularSum    * specularColor.rgb * vec3(vertexLightValues.y);
     #else
        vec4 lightDir = vLightDir;
        lightDir.xyz = normalize(lightDir.xyz);
@@ -229,7 +232,7 @@ void main(){
        #endif
 
        // Workaround, since it is not possible to modify varying variables
-       vec4 SpecularSum2 = SpecularSum;
+       vec4 SpecularSum2 = vec4(SpecularSum, 1.0);
        #ifdef USE_REFLECTION
             vec4 refColor = Optics_GetEnvColor(m_EnvMap, refVec.xyz);
 
@@ -241,9 +244,9 @@ void main(){
             light.y = 1.0;
        #endif
 
-       gl_FragColor =  AmbientSum * diffuseColor +
-                       DiffuseSum * diffuseColor  * light.x +
-                       SpecularSum2 * specularColor * light.y;
+       gl_FragColor.rgb =  AmbientSum       * diffuseColor.rgb  +
+                           DiffuseSum.rgb   * diffuseColor.rgb  * vec3(light.x) +
+                           SpecularSum2.rgb * specularColor.rgb * vec3(light.y);
     #endif
     gl_FragColor.a = alpha;
 }

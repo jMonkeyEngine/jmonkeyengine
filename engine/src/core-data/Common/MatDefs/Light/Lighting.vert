@@ -22,9 +22,9 @@ varying vec2 texCoord;
   attribute vec2 inTexCoord2;
 #endif
 
-varying vec4 AmbientSum;
+varying vec3 AmbientSum;
 varying vec4 DiffuseSum;
-varying vec4 SpecularSum;
+varying vec3 SpecularSum;
 
 attribute vec3 inPosition;
 attribute vec2 inTexCoord;
@@ -45,7 +45,9 @@ varying vec4 spotVec;
   #endif
   varying vec3 vPosition;
   varying vec3 vViewDir;
-  varying vec4 vLightDir;  
+  varying vec4 vLightDir;
+#else
+  varying vec2 vertexLightValues;
 #endif
 
 #ifdef USE_REFLECTION
@@ -112,7 +114,7 @@ vec2 computeLighting(in vec3 wvPos, in vec3 wvNorm, in vec3 wvViewDir, in vec4 w
      vec4 lightDir;
      lightComputeDir(wvPos, g_LightColor, wvLightPos, lightDir);
      float spotFallOff = 1.0;
-     if(spotVec.w!=0.0){
+     if(spotVec.w != 0.0){
           vec3 L=normalize(lightVec.xyz);
           vec3 spotdir = normalize(spotVec.xyz);
           float curAngleCos = dot(-L, spotdir);             
@@ -174,31 +176,28 @@ void main(){
    #endif
 
    //computing spot direction in view space and unpacking spotlight cos
-   spotVec=(g_ViewMatrix *vec4(g_LightDirection.xyz,0.0) );
-   spotVec.w=floor(g_LightDirection.w)*0.001;
+   spotVec = (g_ViewMatrix * vec4(g_LightDirection.xyz, 0.0) );
+   spotVec.w  = floor(g_LightDirection.w) * 0.001;
    lightVec.w = fract(g_LightDirection.w);
 
    lightColor.w = 1.0;
    #ifdef MATERIAL_COLORS
-      AmbientSum  = m_Ambient  * g_AmbientLightColor;
-      DiffuseSum  = m_Diffuse  * lightColor;
-      SpecularSum = m_Specular * lightColor;
+      AmbientSum  = (m_Ambient  * g_AmbientLightColor).rgb;
+      DiffuseSum  =  m_Diffuse  * lightColor;
+      SpecularSum = (m_Specular * lightColor).rgb;
     #else
-      AmbientSum  = vec4(0.2, 0.2, 0.2, 1.0) * g_AmbientLightColor; // Default: ambient color is dark gray
+      AmbientSum  = vec3(0.2, 0.2, 0.2) * g_AmbientLightColor.rgb; // Default: ambient color is dark gray
       DiffuseSum  = lightColor;
-      SpecularSum = lightColor;
+      SpecularSum = lightColor.rgb;
     #endif
 
     #ifdef VERTEX_COLOR
-      AmbientSum *= inColor;
+      AmbientSum *= inColor.rgb;
       DiffuseSum *= inColor;
     #endif
 
     #ifdef VERTEX_LIGHTING
-       vec2 light = computeLighting(wvPosition, wvNormal, viewDir, wvLightPos);
-
-       AmbientSum.a  = light.x;
-       SpecularSum.a = light.y;
+       vertexLightValues = computeLighting(wvPosition, wvNormal, viewDir, wvLightPos);
     #endif
 
     #ifdef USE_REFLECTION
