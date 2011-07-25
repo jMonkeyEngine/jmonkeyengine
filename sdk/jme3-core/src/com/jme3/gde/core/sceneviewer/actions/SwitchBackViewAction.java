@@ -1,4 +1,3 @@
- 
 package com.jme3.gde.core.sceneviewer.actions;
 
 import com.jme3.gde.core.scene.SceneApplication;
@@ -13,20 +12,20 @@ import org.openide.awt.ActionID;
 import org.openide.util.NbBundle.Messages;
 
 @ActionID(category = "SceneComposer",
-id = "com.jme3.gde.core.sceneviewer.actions.SwitchFrontViewAction")
-@ActionRegistration(displayName = "#CTL_SwitchFrontViewAction")
+id = "com.jme3.gde.core.sceneviewer.actions.SwitchBackViewAction")
+@ActionRegistration(displayName = "#CTL_SwitchBackViewAction")
 @ActionReferences({
-    @ActionReference(path = "Shortcuts", name = "NUMPAD1")
+    @ActionReference(path = "Shortcuts", name = "END")
 })
-@Messages("CTL_SwitchFrontViewAction=Switch to front view")
-public final class SwitchFrontViewAction implements ActionListener {
+@Messages("CTL_SwitchBackViewAction=Switch to back view")
+public final class SwitchBackViewAction implements ActionListener {
 
     public void actionPerformed(ActionEvent e) {
-           SceneViewerTopComponent svtc = SceneViewerTopComponent.findInstance();
+        SceneViewerTopComponent svtc = SceneViewerTopComponent.findInstance();
 
         if (svtc.hasFocus()) {
 
-            SceneApplication.getApplication().getActiveCamController().switchToView(View.Front);
+            SceneApplication.getApplication().getActiveCamController().switchToView(View.Back);
         }
     }
 }

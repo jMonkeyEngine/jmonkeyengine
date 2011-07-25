@@ -1,6 +1,7 @@
 package com.jme3.gde.core.sceneviewer.actions;
 
 import com.jme3.gde.core.scene.SceneApplication;
+import com.jme3.gde.core.scene.SceneRequest;
 import com.jme3.gde.core.sceneviewer.SceneViewerTopComponent;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -27,7 +28,7 @@ public final class ToggleOrthoPerspAction implements ActionListener {
 
         SceneViewerTopComponent svtc = SceneViewerTopComponent.findInstance();
         if (svtc.hasFocus()) {
-            SceneApplication.getApplication().getCamController().toggleOrthoPerspMode();
+            SceneApplication.getApplication().getActiveCamController().toggleOrthoPerspMode();
         }
 
     }

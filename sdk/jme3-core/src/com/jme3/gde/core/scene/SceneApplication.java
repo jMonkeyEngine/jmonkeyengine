@@ -28,6 +28,7 @@ import com.jme3.app.Application;
 import com.jme3.app.StatsView;
 import com.jme3.font.BitmapFont;
 import com.jme3.font.BitmapText;
+import com.jme3.gde.core.scene.controller.AbstractCameraController;
 import com.jme3.gde.core.sceneexplorer.nodes.JmeSpatial;
 import com.jme3.gde.core.scene.processors.WireProcessor;
 import com.jme3.gde.core.sceneviewer.SceneViewerTopComponent;
@@ -89,6 +90,7 @@ public class SceneApplication extends Application implements LookupProvider, Loo
     private Node statsGuiNode = new Node("Stats Gui Node");
     protected Node toolsNode = new Node("Tools Node");
     private SceneCameraController camController;
+    private AbstractCameraController activeCamController=null;
     //preview variables
     protected float secondCounter = 0.0f;
     protected BitmapText fpsText;
@@ -134,7 +136,8 @@ public class SceneApplication extends Application implements LookupProvider, Loo
         }
     }
 
-    public SceneCameraController getCamController() {
+    public SceneCameraController getActiveCameraController() {
+        stateManager.getState(null);
         return camController;
     }
     
@@ -532,4 +535,14 @@ public class SceneApplication extends Application implements LookupProvider, Loo
     public ProgressHandle getProgressHandle() {
         return progressHandle;
     }
+
+    public AbstractCameraController getActiveCamController() {
+        return activeCamController;
+    }
+
+    public void setActiveCamController(AbstractCameraController activeCamController) {
+        this.activeCamController = activeCamController;
+    }
+    
+    
 }

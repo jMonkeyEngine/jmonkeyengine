@@ -4,7 +4,15 @@
  */
 package com.jme3.gde.core.scene.controller.toolbars;
 
+import com.jme3.gde.core.sceneviewer.SceneViewerTopComponent;
+import com.jme3.gde.core.sceneviewer.actions.SwitchBackViewAction;
+import com.jme3.gde.core.sceneviewer.actions.SwitchBottomViewAction;
+import com.jme3.gde.core.sceneviewer.actions.SwitchFrontViewAction;
+import com.jme3.gde.core.sceneviewer.actions.SwitchLeftViewAction;
+import com.jme3.gde.core.sceneviewer.actions.SwitchRightViewAction;
+import com.jme3.gde.core.sceneviewer.actions.SwitchTopViewAction;
 import com.jme3.gde.core.sceneviewer.actions.ToggleOrthoPerspAction;
+import com.jme3.gde.core.util.CameraUtil.View;
 import javax.swing.ImageIcon;
 import org.openide.util.NbBundle;
 
@@ -14,16 +22,37 @@ import org.openide.util.NbBundle;
  */
 public class CameraToolbar extends javax.swing.JToolBar {
 
+    protected boolean isUserView = true;
+    private static CameraToolbar instance;
     ImageIcon userIcon = new ImageIcon(getClass().getResource("/com/jme3/gde/core/scene/controller/toolbars/user.png"));
     //toolbar actions
     private ToggleOrthoPerspAction toggleOrthoPerspAction;
+    private SwitchFrontViewAction switchFrontViewAction;
+    private SwitchLeftViewAction switchLeftViewAction;
+    private SwitchRightViewAction switchRightViewAction;
+    private SwitchTopViewAction switchTopViewAction;
+    private SwitchBackViewAction switchBackViewAction;
+    private SwitchBottomViewAction switchBottomViewAction;
 
     /**
      * Creates new form NewJPanel
      */
-    public CameraToolbar() {
+    protected CameraToolbar() {
         toggleOrthoPerspAction = new ToggleOrthoPerspAction();
+        switchFrontViewAction = new SwitchFrontViewAction();
+        switchLeftViewAction = new SwitchLeftViewAction();
+        switchBackViewAction = new SwitchBackViewAction();
+        switchBottomViewAction = new SwitchBottomViewAction();
+        switchTopViewAction = new SwitchTopViewAction();
+        switchRightViewAction = new SwitchRightViewAction();
         initComponents();
+    }
+
+    public static CameraToolbar getInstance() {
+        if (instance == null) {
+            instance = new CameraToolbar();
+        }
+        return instance;
     }
 
     /** This method is called from within the constructor to
@@ -152,27 +181,70 @@ private void viewButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FI
 }//GEN-LAST:event_viewButtonActionPerformed
 
 private void frontMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_frontMenuItemActionPerformed
-    toggleFrontView();
+    SceneViewerTopComponent.findInstance().requestActive();
+    final java.awt.event.ActionEvent e = evt;
+    java.awt.EventQueue.invokeLater(new Runnable() {
+
+        public void run() {
+            switchFrontViewAction.actionPerformed(e);
+        }
+    });
+
 }//GEN-LAST:event_frontMenuItemActionPerformed
 
 private void leftMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_leftMenuItemActionPerformed
-    toggleLeftView();
+    SceneViewerTopComponent.findInstance().requestActive();
+    final java.awt.event.ActionEvent e = evt;
+    java.awt.EventQueue.invokeLater(new Runnable() {
+
+        public void run() {
+            switchLeftViewAction.actionPerformed(e);
+        }
+    });
 }//GEN-LAST:event_leftMenuItemActionPerformed
 
 private void rightMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rightMenuItemActionPerformed
-    toggleRightView();
+    SceneViewerTopComponent.findInstance().requestActive();
+    final java.awt.event.ActionEvent e = evt;
+    java.awt.EventQueue.invokeLater(new Runnable() {
+
+        public void run() {
+            switchRightViewAction.actionPerformed(e);
+        }
+    });
 }//GEN-LAST:event_rightMenuItemActionPerformed
 
 private void topMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_topMenuItemActionPerformed
-    toggleTopView();
+    SceneViewerTopComponent.findInstance().requestActive();
+    final java.awt.event.ActionEvent e = evt;
+    java.awt.EventQueue.invokeLater(new Runnable() {
+
+        public void run() {
+            switchTopViewAction.actionPerformed(e);
+        }
+    });
 }//GEN-LAST:event_topMenuItemActionPerformed
 
 private void backMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_backMenuItemActionPerformed
-    toggleBackView();
+    SceneViewerTopComponent.findInstance().requestActive();
+    final java.awt.event.ActionEvent e = evt;
+    java.awt.EventQueue.invokeLater(new Runnable() {
+
+        public void run() {
+            switchBackViewAction.actionPerformed(e);
+        }
+    });
 }//GEN-LAST:event_backMenuItemActionPerformed
 
 private void bottomMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bottomMenuItemActionPerformed
-    toggleBottomView();
+    SceneViewerTopComponent.findInstance().requestActive();
+    final java.awt.event.ActionEvent e = evt;
+    java.awt.EventQueue.invokeLater(new Runnable() {
+
+        public void run() {
+            switchBottomViewAction.actionPerformed(e);
+        }
+    });
 }//GEN-LAST:event_bottomMenuItemActionPerformed
 
 private void enableOrthoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_enableOrthoActionPerformed
@@ -190,39 +262,47 @@ private void enableOrthoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
     private javax.swing.JPopupMenu viewMenu;
     // End of variables declaration//GEN-END:variables
 
-    public void toggleFrontView() {
-        viewButton.setIcon(frontMenuItem.getIcon());
-        viewButton.setText(frontMenuItem.getText());
-    }
+    public void switchToView(View view) {
 
-    public void toggleUserView() {
-        viewButton.setIcon(userIcon);
-        viewButton.setText(NbBundle.getMessage(CameraToolbar.class, "CameraToolbar.viewButton.label"));
-    }
-
-    public void toggleLeftView() {
-        viewButton.setIcon(leftMenuItem.getIcon());
-        viewButton.setText(leftMenuItem.getText());
-    }
-
-    public void toggleRightView() {
-        viewButton.setIcon(rightMenuItem.getIcon());
-        viewButton.setText(rightMenuItem.getText());
-    }
-
-    public void toggleBackView() {
-        viewButton.setIcon(backMenuItem.getIcon());
-        viewButton.setText(backMenuItem.getText());
-    }
-
-    public void toggleTopView() {
-        viewButton.setIcon(topMenuItem.getIcon());
-        viewButton.setText(topMenuItem.getText());
-    }
-
-    public void toggleBottomView() {
-        viewButton.setIcon(bottomMenuItem.getIcon());
-        viewButton.setText(bottomMenuItem.getText());
+        switch (view) {
+            case Front:
+                viewButton.setIcon(frontMenuItem.getIcon());
+                viewButton.setText(frontMenuItem.getText());
+                isUserView = false;
+                break;
+            case Left:
+                viewButton.setIcon(leftMenuItem.getIcon());
+                viewButton.setText(leftMenuItem.getText());
+                isUserView = false;
+                break;
+            case Right:
+                viewButton.setIcon(rightMenuItem.getIcon());
+                viewButton.setText(rightMenuItem.getText());
+                isUserView = false;
+                break;
+            case Back:
+                viewButton.setIcon(backMenuItem.getIcon());
+                viewButton.setText(backMenuItem.getText());
+                isUserView = false;
+                break;
+            case Top:
+                viewButton.setIcon(topMenuItem.getIcon());
+                viewButton.setText(topMenuItem.getText());
+                isUserView = false;
+                break;
+            case Bottom:
+                viewButton.setIcon(bottomMenuItem.getIcon());
+                viewButton.setText(bottomMenuItem.getText());
+                isUserView = false;
+                break;
+            case User:
+            default:
+                if (!isUserView) {
+                    viewButton.setIcon(userIcon);
+                    viewButton.setText(NbBundle.getMessage(CameraToolbar.class, "CameraToolbar.viewButton.label"));
+                    isUserView = true;
+                }
+        }
     }
 
     public void toggleOrthoMode(boolean enabled) {

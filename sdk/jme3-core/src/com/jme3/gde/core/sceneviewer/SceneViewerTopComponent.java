@@ -94,7 +94,7 @@ public final class SceneViewerTopComponent extends TopComponent {
                 if (e.getWheelRotation() < 0) {
                     action = "MouseWheel";
                 }
-                app.getCamController().onAnalog(action, e.getWheelRotation(), 0);
+                app.getActiveCamController().onAnalog(action, e.getWheelRotation(), 0);
             }
         });
         
@@ -327,7 +327,10 @@ public final class SceneViewerTopComponent extends TopComponent {
 
     
     public void addAdditionnalToolbar(JToolBar tb){
-     //   jToolBar1.add(tb,4);
+        jToolBar1.add(tb,4);
     }
 
+    public void removeAdditionnalToolbar(JToolBar tb){
+        jToolBar1.remove(tb);
+    }
 }

@@ -16,8 +16,11 @@
             <file name="com-jme3-gde-core-sceneviewer-actions-SwitchFrontViewAction.instance">
                 <attr name="iconBase" stringvalue="com/jme3/gde/core/sceneviewer/actions/32_bit.png"/>
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="noIconInMenu" boolvalue="false"/>
             </file>
+            <file name="com-jme3-gde-core-sceneviewer-actions-SwitchFrontViewAction.instance"/>
+            <file name="com-jme3-gde-core-sceneviewer-actions-SwitchToFrontViewAction.instance_hidden"/>
         </folder>
         <folder name="jMonkeyPlatform">
             <file name="com-jme3-gde-core-assets-actions-OpenModel.instance">

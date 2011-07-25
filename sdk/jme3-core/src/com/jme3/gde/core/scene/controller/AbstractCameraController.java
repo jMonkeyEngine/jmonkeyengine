@@ -30,6 +30,7 @@ import com.jme3.app.state.AppStateManager;
 import com.jme3.gde.core.scene.SceneApplication;
 import com.jme3.gde.core.scene.controller.toolbars.CameraToolbar;
 import com.jme3.gde.core.sceneviewer.SceneViewerTopComponent;
+import com.jme3.gde.core.util.CameraUtil.View;
 import com.jme3.input.InputManager;
 import com.jme3.input.RawInputListener;
 import com.jme3.input.controls.ActionListener;
@@ -80,23 +81,10 @@ public abstract class AbstractCameraController extends AbstractAppState implemen
     protected boolean checkDraggedR = false;
     protected boolean checkReleaseLeft = false;
     protected boolean checkReleaseRight = false;
-    protected CameraToolbar camToolbar = new CameraToolbar();
 
     public AbstractCameraController(Camera cam, InputManager inputManager) {
         this.cam = cam;
         this.inputManager = inputManager;
-
-        java.awt.EventQueue.invokeLater(new Runnable() {
-
-            public void run() {
-
-                SceneViewerTopComponent svtc = SceneViewerTopComponent.findInstance();
-                if (svtc != null) {
-                    svtc.addAdditionnalToolbar(camToolbar);
-                }
-
-            }
-        });
 
     }
 
@@ -108,12 +96,35 @@ public abstract class AbstractCameraController extends AbstractAppState implemen
         inputManager.addRawInputListener(this);
         inputManager.addListener(this, "MouseAxisX", "MouseAxisY", "MouseAxisX-", "MouseAxisY-", "MouseWheel", "MouseWheel-", "MouseButtonLeft", "MouseButtonMiddle", "MouseButtonRight");
         SceneApplication.getApplication().getStateManager().attach(this);
+        SceneApplication.getApplication().setActiveCamController(this);
+        java.awt.EventQueue.invokeLater(new Runnable() {
+
+            public void run() {
+
+                SceneViewerTopComponent svtc = SceneViewerTopComponent.findInstance();
+                if (svtc != null) {
+                    svtc.addAdditionnalToolbar(CameraToolbar.getInstance());
+                }
+
+            }
+        });
     }
 
     public void disable() {
         inputManager.removeRawInputListener(this);
         inputManager.removeListener(this);
         SceneApplication.getApplication().getStateManager().detach(this);
+        java.awt.EventQueue.invokeLater(new Runnable() {
+
+            public void run() {
+
+                SceneViewerTopComponent svtc = SceneViewerTopComponent.findInstance();
+                if (svtc != null) {
+                    svtc.removeAdditionnalToolbar(CameraToolbar.getInstance());
+                }
+
+            }
+        });
     }
 
     public void setCamFocus(final Vector3f focus) {
@@ -149,6 +160,17 @@ public abstract class AbstractCameraController extends AbstractAppState implemen
 
         Quaternion curRot = cam.getRotation().clone();
         cam.setRotation(rot.mult(curRot));
+         java.awt.EventQueue.invokeLater(new Runnable() {
+
+            public void run() {
+
+                SceneViewerTopComponent svtc = SceneViewerTopComponent.findInstance();
+                if (svtc != null) {
+                    CameraToolbar.getInstance().switchToView(View.User);
+                }
+
+            }
+        });
     }
 
     protected void panCamera(float left, float up) {
@@ -183,7 +205,7 @@ public abstract class AbstractCameraController extends AbstractAppState implemen
 
     public void toggleOrthoPerspMode() {
         try {
-            camToolbar.toggleOrthoMode(SceneApplication.getApplication().enqueue(new Callable<Boolean>() {
+            CameraToolbar.getInstance().toggleOrthoMode(SceneApplication.getApplication().enqueue(new Callable<Boolean>() {
 
                 public Boolean call() throws Exception {
                     return doToggleOrthoPerspMode();
@@ -194,6 +216,47 @@ public abstract class AbstractCameraController extends AbstractAppState implemen
         } catch (ExecutionException ex) {
             Exceptions.printStackTrace(ex);
         }
+    }
+
+    public void switchToView(final View view) {
+        SceneApplication.getApplication().enqueue(new Callable<Object>() {
+
+            public Object call() throws Exception {
+                float dist = cam.getLocation().distance(focus);
+                switch (view) {
+                    case Front:
+                        cam.setLocation(new Vector3f(focus.x, focus.y, focus.z+dist));
+                        cam.lookAt(focus, Vector3f.UNIT_Y);
+                        break;
+                    case Left:
+                        cam.setLocation(new Vector3f(focus.x+dist, focus.y, focus.z));
+                        cam.lookAt(focus, Vector3f.UNIT_Y);                        
+                        break;
+                    case Right:
+                        cam.setLocation(new Vector3f(focus.x-dist, focus.y, focus.z));
+                        cam.lookAt(focus, Vector3f.UNIT_Y);
+                        break;
+                    case Back:
+                        cam.setLocation(new Vector3f(focus.x, focus.y, focus.z-dist));
+                        cam.lookAt(focus, Vector3f.UNIT_Y);
+                        break;
+                    case Top:                    
+                        cam.setLocation(new Vector3f(focus.x, focus.y+dist, focus.z));
+                        cam.lookAt(focus, Vector3f.UNIT_Z.mult(-1));
+                        
+                        break;
+                    case Bottom:
+                        cam.setLocation(new Vector3f(focus.x, focus.y-dist, focus.z));
+                        cam.lookAt(focus, Vector3f.UNIT_Z);
+                        break;
+                    case User:
+                    default:                      
+                }
+                return null;
+            }
+        });
+        CameraToolbar.getInstance().switchToView(view);
+
     }
 
     protected boolean doToggleOrthoPerspMode() {
@@ -214,50 +277,8 @@ public abstract class AbstractCameraController extends AbstractAppState implemen
             cam.setFrustumPerspective(45f, aspect, 1, 1000);
             return false;
         }
-
-
-
-
     }
 
-    /*public void onAction(String string, boolean bln, float f) {
-        if ("MouseButtonLeft".equals(string)) {
-            if (bln) {
-                leftMouse = true;
-                moved = false;
-            } else {
-                if (leftMouse)
-                    checkReleaseLeft = true;
-                leftMouse = false;
-                if (!moved) {
-                    if (checkClick == false)
-                        checkClick = true;
-                    checkDragged = false;
-                } else {
-                    checkDragged = true;
-                    checkClick = false;
-                }
-            }
-        }
-        if ("MouseButtonRight".equals(string)) {
-            if (bln) {
-                rightMouse = true;
-                movedR = false;
-            } else {
-                if (rightMouse)
-                    checkReleaseRight = true;
-                rightMouse = false;
-                if (!movedR) {
-                    if (checkClickR == false)
-                        checkClickR = true;
-                    checkDraggedR = false;
-                } else {
-                    checkDraggedR = true;
-                    checkClickR = false;
-                }
-            }
-        }
-    }*/
     public void onAnalog(String string, float f1, float f) {
         if ("MouseAxisX".equals(string)) {
             moved = true;
