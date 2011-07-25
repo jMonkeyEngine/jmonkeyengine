@@ -252,11 +252,9 @@ public class MaterialHelper extends AbstractBlenderHelper {
 							Structure tex = pTex.fetchData(dataRepository.getInputStream()).get(0);
 							Texture texture = textureHelper.getTexture(tex, dataRepository);
                                                         
-                                                        
-                                                        
 							if (texture != null) {
-                                                            // NOTE: Enable mipmaps FOR ALL TEXTURES EVER
-                                                            texture.setMinFilter(MinFilter.Trilinear);
+                                // NOTE: Enable mipmaps FOR ALL TEXTURES EVER
+                                texture.setMinFilter(MinFilter.Trilinear);
                                                             
 								if ((mapto & 0x01) != 0) {// Col
                                     // Map to COLOR channel or DIFFUSE
@@ -276,7 +274,8 @@ public class MaterialHelper extends AbstractBlenderHelper {
 									}
 								}
 								if ((mapto & 0x02) != 0) {// Nor
-									result.setTexture(TEXTURE_TYPE_NORMAL, texture);
+									Texture normalMapTexture = textureHelper.convertToNormalMapTexture(texture, ((Number)tex.getFieldValue("norfac")).floatValue());
+									result.setTexture(TEXTURE_TYPE_NORMAL, normalMapTexture);
 									if (vertexColor) {
 										result.setBoolean(shadeless ? "VertexColor" : "UseVertexColor", false);
 									}

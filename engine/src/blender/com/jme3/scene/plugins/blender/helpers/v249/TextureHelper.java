@@ -31,6 +31,9 @@
  */
 package com.jme3.scene.plugins.blender.helpers.v249;
 
+import java.awt.color.ColorSpace;
+import java.awt.image.BufferedImage;
+import java.awt.image.ColorConvertOp;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -40,10 +43,13 @@ import java.nio.ByteBuffer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import jme3tools.converters.ImageToAwt;
+
 import com.jme3.asset.AssetNotFoundException;
 import com.jme3.asset.TextureKey;
 import com.jme3.asset.BlenderKey.FeaturesToLoad;
 import com.jme3.math.FastMath;
+import com.jme3.math.Vector3f;
 import com.jme3.scene.plugins.blender.data.FileBlockHeader;
 import com.jme3.scene.plugins.blender.data.Structure;
 import com.jme3.scene.plugins.blender.exception.BlenderFileException;
@@ -174,14 +180,12 @@ public class TextureHelper extends AbstractBlenderHelper {
 		int height = dataRepository.getBlenderKey().getGeneratedTextureHeight();
 
 		switch (type) {
-			case TEX_NONE:// No texture, do nothing
-				break;
 			case TEX_IMAGE:// (it is first because probably this will be most commonly used)
 				Pointer pImage = (Pointer) tex.getFieldValue("ima");
-                                if (pImage.isNotNull()){
-                                    Structure image = pImage.fetchData(dataRepository.getInputStream()).get(0);
-                                    result = this.getTextureFromImage(image, dataRepository);
-                                }
+                if (pImage.isNotNull()){
+                    Structure image = pImage.fetchData(dataRepository.getInputStream()).get(0);
+                    result = this.getTextureFromImage(image, dataRepository);
+                }
 				break;
 			case TEX_CLOUDS:
 				result = this.clouds(tex, width, height, dataRepository);
@@ -212,6 +216,8 @@ public class TextureHelper extends AbstractBlenderHelper {
 				break;
 			case TEX_DISTNOISE:
 				result = this.distnoise(tex, width, height, dataRepository);
+				break;
+			case TEX_NONE:// No texture, do nothing
 				break;
 			case TEX_PLUGIN:
 			case TEX_ENVMAP:// TODO: implement envmap texture
@@ -1550,6 +1556,90 @@ public class TextureHelper extends AbstractBlenderHelper {
 		}
 	}
 
+	/**
+	 * This method converts the given texture into normal-map texture.
+	 * @param source
+	 *        the source texture
+	 * @param strengthFactor
+	 *        the normal strength factor
+	 * @return normal-map texture
+	 */
+	public Texture convertToNormalMapTexture(Texture source, float strengthFactor) {
+		Image image = source.getImage();
+		BufferedImage sourceImage = ImageToAwt.convert(image, false, false, 0);
+		BufferedImage heightMap = new BufferedImage(sourceImage.getWidth(), sourceImage.getHeight(), BufferedImage.TYPE_INT_ARGB);
+		BufferedImage bumpMap = new BufferedImage(sourceImage.getWidth(), sourceImage.getHeight(), BufferedImage.TYPE_INT_ARGB);
+		ColorConvertOp gscale = new ColorConvertOp(ColorSpace.getInstance(ColorSpace.CS_GRAY), null);
+		gscale.filter(sourceImage, heightMap);
+
+		Vector3f S = new Vector3f();
+		Vector3f T = new Vector3f();
+		Vector3f N = new Vector3f();
+
+		for (int x = 0; x < bumpMap.getWidth(); ++x) {
+			for (int y = 0; y < bumpMap.getHeight(); ++y) {
+				// generating bump pixel
+				S.x = 1;
+				S.y = 0;
+				S.z = strengthFactor * this.getHeight(heightMap, x + 1, y) - strengthFactor * this.getHeight(heightMap, x - 1, y);
+				T.x = 0;
+				T.y = 1;
+				T.z = strengthFactor * this.getHeight(heightMap, x, y + 1) - strengthFactor * this.getHeight(heightMap, x, y - 1);
+
+				float den = (float) Math.sqrt(S.z * S.z + T.z * T.z + 1);
+				N.x = -S.z;
+				N.y = -T.z;
+				N.z = 1;
+				N.divideLocal(den);
+
+				// setting thge pixel in the result image
+				bumpMap.setRGB(x, y, this.vectorToColor(N.x, N.y, N.z));
+			}
+		}
+		ByteBuffer byteBuffer = BufferUtils.createByteBuffer(image.getWidth() * image.getHeight() * 3);
+		ImageToAwt.convert(bumpMap, Format.RGB8, byteBuffer);
+		return new Texture2D(new Image(Format.RGB8, image.getWidth(), image.getHeight(), byteBuffer));
+	}
+
+	/**
+	 * This method returns the height represented by the specified pixel in the given texture.
+	 * The given texture should be a height-map.
+	 * @param image
+	 *        the height-map texture
+	 * @param x
+	 *        pixel's X coordinate
+	 * @param y
+	 *        pixel's Y coordinate
+	 * @return height reprezented by the given texture in the specified location
+	 */
+	protected int getHeight(BufferedImage image, int x, int y) {
+		if (x < 0) {
+			x = 0;
+		} else if (x >= image.getWidth()) {
+			x = image.getWidth() - 1;
+		}
+		if (y < 0) {
+			y = 0;
+		} else if (y >= image.getHeight()) {
+			y = image.getHeight() - 1;
+		}
+		return image.getRGB(x, y) & 0xff;
+	}
+    
+	/**
+	 * This method transforms given vector's coordinates into ARGB color (A is always = 255).
+	 * @param x X factor of the vector
+	 * @param y Y factor of the vector
+	 * @param z Z factor of the vector
+	 * @return color representation of the given vector
+	 */
+    protected int vectorToColor(float x, float y, float z) {
+        int r = Math.round(255 * (x + 1f) / 2f);
+        int g = Math.round(255 * (y + 1f) / 2f);
+        int b = Math.round(255 * (z + 1f) / 2f);
+        return (255 << 24) + (r << 16) + (g << 8) + b;
+    }
+	
 	/**
 	 * This class returns a texture read from the file or from packed blender data.
 	 * 
