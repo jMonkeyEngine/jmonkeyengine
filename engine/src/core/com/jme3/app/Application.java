@@ -158,7 +158,7 @@ public class Application implements SystemListener {
                 } catch (MalformedURLException ex) {
                 }
                 if (url == null) {
-                    url = Application.class.getResource(assetCfg);
+                    url = Application.class.getClassLoader().getResource(assetCfg);
                     if (url == null) {
                         logger.log(Level.SEVERE, "Unable to access AssetConfigURL in asset config:{0}", assetCfg);
                         return;

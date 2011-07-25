@@ -34,12 +34,12 @@ package com.jme3.asset.plugins;
 
 import com.jme3.asset.AssetInfo;
 import com.jme3.asset.AssetKey;
+import com.jme3.asset.AssetLoadException;
 import com.jme3.asset.AssetLocator;
 import com.jme3.asset.AssetManager;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -66,9 +66,8 @@ public class ZipLocator implements AssetLocator {
             try{
                 return zipfile.getInputStream(entry);
             }catch (IOException ex){
-                logger.log(Level.WARNING, "Failed to load zip entry: "+entry, ex);
+                throw new AssetLoadException("Failed to load zip entry: "+entry, ex);
             }
-            return null;
         }
     }
 
@@ -76,7 +75,7 @@ public class ZipLocator implements AssetLocator {
         try{
             zipfile = new ZipFile(new File(rootPath), ZipFile.OPEN_READ);
         }catch (IOException ex){
-            logger.log(Level.WARNING, "Failed to open zip file: "+rootPath, ex);
+            throw new AssetLoadException("Failed to open zip file: " + rootPath, ex);
         }
     }
 
