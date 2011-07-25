@@ -742,6 +742,8 @@ public class Material implements Asset, Cloneable, Savable, Comparable<Material>
 
                     tmpLightPosition.set(dir.getX(), dir.getY(), dir.getZ(), -1);
                     lightPos.setValue(VarType.Vector4, tmpLightPosition);
+                    tmpLightDirection.set(0,0,0,0);
+                    lightDir.setValue(VarType.Vector4, tmpLightDirection);
                     break;
                 case Point:
                     PointLight pl = (PointLight) l;
@@ -750,6 +752,8 @@ public class Material implements Asset, Cloneable, Savable, Comparable<Material>
 
                     tmpLightPosition.set(pos.getX(), pos.getY(), pos.getZ(), invRadius);
                     lightPos.setValue(VarType.Vector4, tmpLightPosition);
+                    tmpLightDirection.set(0,0,0,0);
+                    lightDir.setValue(VarType.Vector4, tmpLightDirection);
                     break;
                 case Spot:
                     SpotLight sl = (SpotLight) l;
