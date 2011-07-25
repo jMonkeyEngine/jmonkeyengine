@@ -32,74 +32,140 @@
 
 package jme3test.asset;
 
+import com.jme3.asset.Asset;
 import com.jme3.asset.AssetCache;
 import com.jme3.asset.AssetKey;
+import java.util.ArrayList;
+import java.util.List;
 
 public class TestAssetCache {
-
-    private static class MyAsset {
-        
-        private String name;
-        private byte[] bytes = new byte[100];
-
-        public MyAsset(String name) {
-            this.name = name;
-        }
-
-        public String getName() {
-            return name;
-        }
-        
-    } 
     
-//    private static final long memoryUsage(){
-//        return Runtime.getRuntime().
-//    }
-//
-    public static void main(String[] args){
-        AssetCache cache = new AssetCache();
+    /**
+     * Keep references to loaded assets
+     */
+    private final static boolean KEEP_REFERENCES = false;
+    
+    /**
+     * Enable smart cache use
+     */
+    private final static boolean USE_SMART_CACHE = true;
+    
+    /**
+     * Enable cloneable asset use
+     */
+    private final static boolean CLONEABLE_ASSET = true;
 
-        System.gc();
-        System.gc();
-        System.gc();
-        System.gc();
+    private static int counter = 0;
+    
+    private static class DummyData implements Asset {
 
-        long startMem = Runtime.getRuntime().freeMemory();
+        private AssetKey key;
+        private byte[] data = new byte[10000];
 
-        for (int i = 0; i < 10000; i++){
-            MyAsset asset = new MyAsset("asset"+i);
-            AssetKey key = new AssetKey(asset.getName());
+        public byte[] getData(){
+            return data;
+        }
+        
+        public AssetKey getKey() {
+            return key;
         }
 
-        long endMem = Runtime.getRuntime().freeMemory();
-        System.out.println("No cache    diff:\t"+(startMem-endMem));
-
-        System.gc();
-        System.gc();
-        System.gc();
-        System.gc();
-
-        endMem = Runtime.getRuntime().freeMemory();
-        System.out.println("No cache gc diff:\t"+(startMem-endMem));
-        startMem = endMem;
-
-        for (int i = 0; i < 10000; i++){
-            MyAsset asset = new MyAsset("asset"+i);
-            AssetKey key = new AssetKey(asset.getName());
-            cache.addToCache(key, asset);
+        public void setKey(AssetKey key) {
+            this.key = key;
         }
-
-        endMem = Runtime.getRuntime().freeMemory();
-        System.out.println("Cache       diff:\t"+(startMem-endMem));
-
-        System.gc();
-        System.gc();
-        System.gc();
-        System.gc();
-
-        endMem = Runtime.getRuntime().freeMemory();
-        System.out.println("Cache gc    diff:\t"+(startMem-endMem));
-//        System.out.println("Estimated usage: "+)
     }
-
+    
+    private static class SmartKey extends AssetKey {
+        
+        public SmartKey(){
+            super(".");
+            counter++;
+        }
+        
+        @Override
+        public int hashCode(){
+            return 0;
+        }
+        
+        @Override
+        public boolean equals(Object other){
+            return false;
+        }
+        
+        @Override
+        public boolean useSmartCache(){
+            return true;
+        }
+        
+        @Override
+        public Object createClonedInstance(Object asset){
+            DummyData data = new DummyData();
+            return data;
+        }
+    }
+    
+    private static class DumbKey extends AssetKey {
+        
+        public DumbKey(){
+            super(".");
+            counter++;
+        }
+        
+        @Override
+        public int hashCode(){
+            return 0;
+        }
+        
+        @Override
+        public boolean equals(Object other){
+            return false;
+        }
+        
+        @Override
+        public Object createClonedInstance(Object asset){
+            if (CLONEABLE_ASSET){
+                DummyData data = new DummyData();
+                return data;
+            }else{
+                return asset;
+            }
+        }
+    }
+    
+    public static void main(String[] args){
+        List<Object> refs = new ArrayList<Object>(5000);
+        
+        AssetCache cache = new AssetCache();
+        
+        System.gc();
+        System.gc();
+        System.gc();
+        System.gc();
+        
+        long memory = Runtime.getRuntime().freeMemory();
+        
+        while (true){
+            AssetKey key;
+            
+            if (USE_SMART_CACHE){
+                key = new SmartKey();
+            }else{
+                key = new DumbKey();
+            }
+            
+            DummyData data = new DummyData();
+            cache.addToCache(key, data);
+            
+            if (KEEP_REFERENCES){
+                refs.add(data);
+            }
+            
+            if ((counter % 100) == 0){
+                long newMem = Runtime.getRuntime().freeMemory();
+                System.out.println("Allocated objects: " + counter);
+                System.out.println("Allocated memory: " + ((memory - newMem)/1024) + "K" );
+                memory = newMem;
+            }
+        }
+    }
 }

@@ -84,12 +84,12 @@ public class AssetCache {
      * <font color="red">Thread-safe.</font>
      */
     public boolean deleteFromCache(AssetKey key){
-        if (key.useSmartCache()){
-            throw new UnsupportedOperationException("You cannot delete from the smart cache");
-        }
-
         synchronized (regularCache){
-            return regularCache.remove(key) != null;
+            if (key.useSmartCache()){
+                return smartCache.remove(key) != null;
+            }else{
+                return regularCache.remove(key) != null;
+            }
         }
     }
 
@@ -125,6 +125,7 @@ public class AssetCache {
     public void deleteAllAssets(){
         synchronized (regularCache){
             regularCache.clear();
+            smartCache.clear();
         }
     }
 }
