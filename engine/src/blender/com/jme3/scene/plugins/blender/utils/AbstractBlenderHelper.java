@@ -127,4 +127,15 @@ public abstract class AbstractBlenderHelper {
 		}
 		return properties;
 	}
+	
+	/**
+	 * This method analyzes the given structure and the data contained within
+	 * data repository and decides if the feature should be loaded.
+	 * @param structure
+	 *        structure to be analyzed
+	 * @param dataRepository
+	 *        the data repository
+	 * @return <b>true</b> if the feature should be loaded and false otherwise
+	 */
+	public abstract boolean shouldBeLoaded(Structure structure, DataRepository dataRepository);
 }

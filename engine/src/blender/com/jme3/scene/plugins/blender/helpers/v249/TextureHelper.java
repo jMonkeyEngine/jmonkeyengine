@@ -42,6 +42,7 @@ import java.util.logging.Logger;
 
 import com.jme3.asset.AssetNotFoundException;
 import com.jme3.asset.TextureKey;
+import com.jme3.asset.BlenderKey.FeaturesToLoad;
 import com.jme3.math.FastMath;
 import com.jme3.scene.plugins.blender.data.FileBlockHeader;
 import com.jme3.scene.plugins.blender.data.Structure;
@@ -1778,6 +1779,11 @@ public class TextureHelper extends AbstractBlenderHelper {
 			}
 			return result;
 		}
+	}
+	
+	@Override
+	public boolean shouldBeLoaded(Structure structure, DataRepository dataRepository) {
+		return (dataRepository.getBlenderKey().getFeaturesToLoad() & FeaturesToLoad.TEXTURES) != 0;
 	}
 
 	/**

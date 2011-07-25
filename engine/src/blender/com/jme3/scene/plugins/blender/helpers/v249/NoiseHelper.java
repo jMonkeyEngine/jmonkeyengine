@@ -1529,6 +1529,11 @@ public class NoiseHelper extends AbstractBlenderHelper {
             return rx * q[0] + ry * q[1] + rz * q[2];
         }
     }
+    
+    @Override
+    public boolean shouldBeLoaded(Structure structure, DataRepository dataRepository) {
+    	return true;
+    }
 
     /**
      * This interface is used for distance calculation classes. Distance metrics for voronoi. e parameter only used in

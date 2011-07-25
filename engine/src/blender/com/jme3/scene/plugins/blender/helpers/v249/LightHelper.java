@@ -34,6 +34,7 @@ package com.jme3.scene.plugins.blender.helpers.v249;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.jme3.asset.BlenderKey.FeaturesToLoad;
 import com.jme3.light.DirectionalLight;
 import com.jme3.light.Light;
 import com.jme3.light.PointLight;
@@ -96,5 +97,10 @@ public class LightHelper extends AbstractBlenderHelper {
             result.setColor(new ColorRGBA(r, g, b, 0.0f));//TODO: 0 czy 1 ???
         }
         return result;
+    }
+    
+    @Override
+    public boolean shouldBeLoaded(Structure structure, DataRepository dataRepository) {
+    	return (dataRepository.getBlenderKey().getFeaturesToLoad() & FeaturesToLoad.LIGHTS) != 0;
     }
 }

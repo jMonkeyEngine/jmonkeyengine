@@ -139,20 +139,21 @@ public abstract class AbstractInfluenceFunction {
      * @throws BlenderFileException this exception is thrown if the blend file is somehow corrupted
      */
     protected Object getTarget(Constraint constraint, LoadedFeatureDataType loadedFeatureDataType) throws BlenderFileException {
-    	//TODO: load the feature through objectHelper, this way we are certain the object loads and has
+    	//load the feature through objectHelper, this way we are certain the object loads and has
     	//his own constraints applied to traces
     	ObjectHelper objectHelper = dataRepository.getHelper(ObjectHelper.class);
-    	//subtarget goes first
+    	//always load the target first
+    	Long targetOMA = ((Pointer) constraint.getData().getFieldValue("tar")).getOldMemoryAddress();
+        Structure objectStructure = dataRepository.getFileBlock(targetOMA).getStructure(dataRepository);
+        Object result = objectHelper.toObject(objectStructure, dataRepository);
+    	
+    	//subtarget should be loaded alogn with target
     	Object subtarget = constraint.getData().getFieldValue("subtarget");
     	String subtargetName = subtarget==null ? null : subtarget.toString();
         if (subtargetName!=null && subtargetName.length() > 0) {
-        	//TODO: what if it is not yet loaded ???
-            return dataRepository.getLoadedFeature(subtargetName, loadedFeatureDataType);
+            result = dataRepository.getLoadedFeature(subtargetName, loadedFeatureDataType);
         }
-        //and now use the target
-        Long targetOMA = ((Pointer) constraint.getData().getFieldValue("target")).getOldMemoryAddress();
-        Structure objectStructure = dataRepository.getFileBlock(targetOMA).getStructure(dataRepository);
-        return objectHelper.toObject(objectStructure, dataRepository);
+        return result;
     }
 
     /**

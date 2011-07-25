@@ -599,4 +599,9 @@ public class CurvesHelper extends AbstractBlenderHelper {
             return new Vector3f(locArray.get(0).floatValue(), locArray.get(2).floatValue(), locArray.get(1).floatValue());
         }
     }
+    
+    @Override
+    public boolean shouldBeLoaded(Structure structure, DataRepository dataRepository) {
+    	return true;
+    }
 }

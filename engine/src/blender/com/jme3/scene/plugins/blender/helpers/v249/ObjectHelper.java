@@ -31,10 +31,13 @@
  */
 package com.jme3.scene.plugins.blender.helpers.v249;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.jme3.asset.BlenderKey.FeaturesToLoad;
 import com.jme3.light.DirectionalLight;
 import com.jme3.light.Light;
 import com.jme3.light.PointLight;
@@ -76,6 +79,16 @@ public class ObjectHelper extends AbstractBlenderHelper {
 	protected static final int		OBJECT_TYPE_WAVE			= 21;
 	protected static final int		OBJECT_TYPE_LATTICE			= 22;
 	protected static final int		OBJECT_TYPE_ARMATURE		= 25;
+	
+	/**
+	 * This collection contains types of features that are not visible to the user.
+	 * These will be loaded regardless the layer they reside in.
+	 */
+	protected static final Collection<Integer> invisibleTypes = new ArrayList<Integer>();
+	static {
+		invisibleTypes.add(OBJECT_TYPE_EMPTY);
+		invisibleTypes.add(OBJECT_TYPE_ARMATURE);
+	}
 	
 	/** This variable indicates if the Y asxis is the UP axis or not. */
 	protected boolean						fixUpAxis;
@@ -149,7 +162,7 @@ public class ObjectHelper extends AbstractBlenderHelper {
 			parent = this.toObject(parentStructure, dataRepository);
 		}
 
-		Transform t = objectHelper.getTransformation(objectStructure);
+		Transform t = objectHelper.getTransformation(objectStructure, dataRepository);
 		
 		try {
 			switch(type) {
@@ -268,15 +281,23 @@ public class ObjectHelper extends AbstractBlenderHelper {
 	 * @return objects transformation relative to its parent
 	 */
 	@SuppressWarnings("unchecked")
-	public Transform getTransformation(Structure objectStructure) {
+	public Transform getTransformation(Structure objectStructure, DataRepository dataRepository) {
 		//these are transformations in global space
 		DynamicArray<Number> loc = (DynamicArray<Number>)objectStructure.getFieldValue("loc");
 		DynamicArray<Number> size = (DynamicArray<Number>)objectStructure.getFieldValue("size");
 		DynamicArray<Number> rot = (DynamicArray<Number>)objectStructure.getFieldValue("rot");
 
 		//load parent inverse matrix
-		Pointer parent = (Pointer) objectStructure.getFieldValue("parent");
-		Matrix4f parentInv = parent.isNull() ? Matrix4f.IDENTITY : this.getMatrix(objectStructure, "parentinv");
+		Pointer pParent = (Pointer) objectStructure.getFieldValue("parent");
+		Structure parent = null;
+		if(pParent.isNotNull()) {
+			try {
+				parent = pParent.fetchData(dataRepository.getInputStream()).get(0);
+			} catch (BlenderFileException e) {
+				LOGGER.log(Level.WARNING, "Cannot fetch parent for object! Reason: {0}", e.getLocalizedMessage());
+			}
+		}
+		Matrix4f parentInv = pParent.isNull() ? Matrix4f.IDENTITY : this.getMatrix(objectStructure, "parentinv");
 		
 		//create the global matrix (without the scale)
 		Matrix4f globalMatrix = new Matrix4f();
@@ -296,7 +317,7 @@ public class ObjectHelper extends AbstractBlenderHelper {
 									  size.get(2).floatValue() * scaleZ);
 		
 		//the root object is transformed if the Y axis is UP
-		if(parent.isNull() && fixUpAxis) {
+		if(fixUpAxis && (pParent.isNull() || (parent!=null && !this.shouldBeLoaded(parent, dataRepository)))) {
 			float y = translation.y;
 			translation.y = translation.z;
 			translation.z = -y;
@@ -342,5 +363,12 @@ public class ObjectHelper extends AbstractBlenderHelper {
 	@Override
 	public void clearState() {
 		fixUpAxis = false;
+	}
+	
+	@Override
+	public boolean shouldBeLoaded(Structure structure, DataRepository dataRepository) {
+		int lay = ((Number) structure.getFieldValue("lay")).intValue();
+        return ((lay & dataRepository.getBlenderKey().getLayersToLoad()) != 0
+                && (dataRepository.getBlenderKey().getFeaturesToLoad() & FeaturesToLoad.OBJECTS) != 0);
 	}
 }

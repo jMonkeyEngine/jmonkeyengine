@@ -352,7 +352,7 @@ public class ModifierHelper extends AbstractBlenderHelper {
 
             //preparing the object's bone
             ObjectHelper objectHelper = dataRepository.getHelper(ObjectHelper.class);
-            Transform t = objectHelper.getTransformation(objectStructure);
+            Transform t = objectHelper.getTransformation(objectStructure, dataRepository);
             Bone bone = new Bone(null);
             bone.setBindTransforms(t.getTranslation(), t.getRotation(), t.getScale());
 
@@ -545,7 +545,7 @@ public class ModifierHelper extends AbstractBlenderHelper {
             ObjectHelper objectHelper = dataRepository.getHelper(ObjectHelper.class);
             try {// we take the structure in case the object was not yet loaded
                 Structure offsetStructure = offsetObjectBlock.getStructure(dataRepository);
-                Vector3f translation = objectHelper.getTransformation(offsetStructure).getTranslation();
+                Vector3f translation = objectHelper.getTransformation(offsetStructure, dataRepository).getTranslation();
                 objectOffset[0] = translation.x;
                 objectOffset[1] = translation.y;
                 objectOffset[2] = translation.z;
@@ -753,5 +753,10 @@ public class ModifierHelper extends AbstractBlenderHelper {
             bones.add(s2.getBone(i));
         }
         return new Skeleton(bones.toArray(new Bone[bones.size()]));
+    }
+    
+    @Override
+    public boolean shouldBeLoaded(Structure structure, DataRepository dataRepository) {
+    	return true;
     }
 }

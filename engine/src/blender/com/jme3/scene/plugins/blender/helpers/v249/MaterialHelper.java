@@ -685,6 +685,11 @@ public class MaterialHelper extends AbstractBlenderHelper {
 		}
 	}
 
+	@Override
+	public boolean shouldBeLoaded(Structure structure, DataRepository dataRepository) {
+		return (dataRepository.getBlenderKey().getFeaturesToLoad() & FeaturesToLoad.MATERIALS) != 0;
+	}
+	
 	/**
 	 * An interface used in calculating alpha mask during particles' texture calculations.
 	 * @author Marcin Roguski (Kaelthas)

@@ -32,7 +32,6 @@
 package com.jme3.scene.plugins.blender.utils;
 
 import java.util.List;
-import java.util.logging.Logger;
 
 import com.jme3.asset.BlenderKey.FeaturesToLoad;
 import com.jme3.asset.BlenderKey.WorldData;
@@ -57,7 +56,6 @@ import com.jme3.scene.plugins.blender.helpers.ObjectHelper;
  */
 public class JmeConverter implements BlenderConverter<Node, Camera, Light, Object, List<Geometry>, Material> {
 
-    private static final Logger LOGGER = Logger.getLogger(JmeConverter.class.getName());
     private final DataRepository dataRepository;
 
     /**
@@ -104,46 +102,47 @@ public class JmeConverter implements BlenderConverter<Node, Camera, Light, Objec
 
     @Override
     public Camera toCamera(Structure structure) throws BlenderFileException {
-        if ((dataRepository.getBlenderKey().getFeaturesToLoad() & FeaturesToLoad.CAMERAS) == 0) {
-            return null;
+    	CameraHelper cameraHelper = dataRepository.getHelper(CameraHelper.class);
+        if (cameraHelper.shouldBeLoaded(structure, dataRepository)) {
+        	return cameraHelper.toCamera(structure);
         }
-        CameraHelper cameraHelper = dataRepository.getHelper(CameraHelper.class);
-        return cameraHelper.toCamera(structure);
+        return null;
     }
 
     @Override
     public Light toLight(Structure structure) throws BlenderFileException {
-        if ((dataRepository.getBlenderKey().getFeaturesToLoad() & FeaturesToLoad.LIGHTS) == 0) {
-            return null;
+    	LightHelper lightHelper = dataRepository.getHelper(LightHelper.class);
+        if (lightHelper.shouldBeLoaded(structure, dataRepository)) {
+            return lightHelper.toLight(structure, dataRepository);
         }
-        LightHelper lightHelper = dataRepository.getHelper(LightHelper.class);
-        return lightHelper.toLight(structure, dataRepository);
+        return null;
     }
 
     @Override
     public Object toObject(Structure structure) throws BlenderFileException {
-        int lay = ((Number) structure.getFieldValue("lay")).intValue();
-        if ((lay & dataRepository.getBlenderKey().getLayersToLoad()) == 0
-                || (dataRepository.getBlenderKey().getFeaturesToLoad() & FeaturesToLoad.OBJECTS) == 0) {
-            return null;
-        }
         ObjectHelper objectHelper = dataRepository.getHelper(ObjectHelper.class);
-        return objectHelper.toObject(structure, dataRepository);
+        if(objectHelper.shouldBeLoaded(structure, dataRepository)) {
+        	return objectHelper.toObject(structure, dataRepository);
+        }
+        return null;
     }
 
     @Override
     public List<Geometry> toMesh(Structure structure) throws BlenderFileException {
         MeshHelper meshHelper = dataRepository.getHelper(MeshHelper.class);
-        return meshHelper.toMesh(structure, dataRepository);
+        if(meshHelper.shouldBeLoaded(structure, dataRepository)) {
+        	return meshHelper.toMesh(structure, dataRepository);
+        }
+        return null;
     }
 
     @Override
     public Material toMaterial(Structure structure) throws BlenderFileException {
-        if ((dataRepository.getBlenderKey().getFeaturesToLoad() & FeaturesToLoad.MATERIALS) == 0) {
-            return null;
+    	MaterialHelper materialHelper = dataRepository.getHelper(MaterialHelper.class);
+        if (materialHelper.shouldBeLoaded(structure, dataRepository)) {
+            return materialHelper.toMaterial(structure, dataRepository);
         }
-        MaterialHelper materialHelper = dataRepository.getHelper(MaterialHelper.class);
-        return materialHelper.toMaterial(structure, dataRepository);
+        return null;
     }
 
     /**

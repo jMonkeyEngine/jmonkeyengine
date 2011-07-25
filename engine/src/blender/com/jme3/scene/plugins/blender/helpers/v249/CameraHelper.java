@@ -3,10 +3,12 @@ package com.jme3.scene.plugins.blender.helpers.v249;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.jme3.asset.BlenderKey.FeaturesToLoad;
 import com.jme3.renderer.Camera;
 import com.jme3.scene.plugins.blender.data.Structure;
 import com.jme3.scene.plugins.blender.exception.BlenderFileException;
 import com.jme3.scene.plugins.blender.utils.AbstractBlenderHelper;
+import com.jme3.scene.plugins.blender.utils.DataRepository;
 
 /**
  * A class that is used in light calculations.
@@ -54,5 +56,10 @@ public class CameraHelper extends AbstractBlenderHelper {
         }
         result.setFrustumPerspective(angle, aspect, clipsta, clipend);
         return result;
+    }
+    
+    @Override
+    public boolean shouldBeLoaded(Structure structure, DataRepository dataRepository) {
+    	return (dataRepository.getBlenderKey().getFeaturesToLoad() & FeaturesToLoad.CAMERAS) != 0;
     }
 }

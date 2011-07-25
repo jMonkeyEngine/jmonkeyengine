@@ -2,6 +2,7 @@ package com.jme3.scene.plugins.blender.helpers.v249;
 
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +14,7 @@ import com.jme3.animation.BoneTrack;
 import com.jme3.animation.Skeleton;
 import com.jme3.math.FastMath;
 import com.jme3.math.Quaternion;
+import com.jme3.math.Transform;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
@@ -22,6 +24,7 @@ import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.scene.plugins.blender.data.Structure;
 import com.jme3.scene.plugins.blender.exception.BlenderFileException;
 import com.jme3.scene.plugins.blender.structures.AbstractInfluenceFunction;
+import com.jme3.scene.plugins.blender.structures.CalculationBone;
 import com.jme3.scene.plugins.blender.structures.Constraint;
 import com.jme3.scene.plugins.blender.structures.Constraint.Space;
 import com.jme3.scene.plugins.blender.structures.ConstraintType;
@@ -146,70 +149,89 @@ public class ConstraintHelper extends AbstractBlenderHelper {
 
 				@Override
 				public void affectAnimation(Skeleton skeleton, BoneAnimation boneAnimation, Constraint constraint) {
-					Structure constraintStructure = constraint.getData();
-					this.validateConstraintType(constraintStructure);
-					/*Long boneOMA = constraint.getBoneOMA();
-                    //IK solver is only attached to bones
-                    Bone ownerBone = (Bone)dataRepository.getLoadedFeature(boneOMA, LoadedFeatureDataType.LOADED_FEATURE);
+					try {
+						Structure constraintStructure = constraint.getData();
+						this.validateConstraintType(constraintStructure);
+						Long boneOMA = constraint.getBoneOMA();
+						// IK solver is only attached to bones
+						Bone ownerBone = (Bone) dataRepository.getLoadedFeature(boneOMA, LoadedFeatureDataType.LOADED_FEATURE);
 
-                    //get the target point
-                    Object targetObject = this.getTarget(constraint, LoadedFeatureDataType.LOADED_FEATURE);
-                    Vector3f pt = null;//Point Target
-                    if(targetObject instanceof Bone) {
-                    pt = ((Bone)targetObject).getModelSpacePosition();
-                    } else if(targetObject instanceof Node) {
-                    pt = ((Node)targetObject).getWorldTranslation();
-                    } else if(targetObject instanceof Skeleton) {
-                    Structure armatureNodeStructure = (Structure)this.getTarget(constraint, LoadedFeatureDataType.LOADED_STRUCTURE);
-                    ObjectHelper objectHelper = dataRepository.getHelper(ObjectHelper.class);
-                    Transform transform = objectHelper.getTransformation(armatureNodeStructure);
-                    pt = transform.getTranslation();
-                    } else {
-                    throw new IllegalStateException("Unknown target object type! Should be Node, Bone or Skeleton and there is: " + targetObject.getClass().getName());
-                    }
-                    //preparing data
-                    int maxIterations = ((Number)constraintStructure.getFieldValue("iterations")).intValue();
-                    CalculationBone[] bones = this.getBonesToCalculate(ownerBone, skeleton, boneAnimation);
-                    for(int i=0;i<bones.length;++i) {
-                    System.out.println(Arrays.toString(bones[i].track.getTranslations()));
-                    System.out.println(Arrays.toString(bones[i].track.getRotations()));
-                    System.out.println("===============================");
-                    }
-                    Quaternion rotation = new Quaternion();
-                    int maxFrames = bones[0].track.getTimes().length;//all tracks should have the same amount of frames
+						// get the target point
+						Object targetObject = this.getTarget(constraint, LoadedFeatureDataType.LOADED_FEATURE);
+						Vector3f pt = null;// Point Target
+						if (targetObject instanceof Bone) {
+							pt = ((Bone) targetObject).getModelSpacePosition();
+						} else if (targetObject instanceof Node) {
+							pt = ((Node) targetObject).getWorldTranslation();
+						} else if (targetObject instanceof Skeleton) {
+							Structure armatureNodeStructure = (Structure) this.getTarget(constraint, LoadedFeatureDataType.LOADED_STRUCTURE);
+							ObjectHelper objectHelper = dataRepository.getHelper(ObjectHelper.class);
+							Transform transform = objectHelper.getTransformation(armatureNodeStructure, dataRepository);
+							pt = transform.getTranslation();
+						} else {
+							throw new IllegalStateException(
+									"Unknown target object type! Should be Node, Bone or Skeleton and there is: "
+									+ targetObject.getClass().getName());
+						}
+						
+						//fetching the owner's bone track
+//						BoneTrack ownerBoneTrack = null;
+//						int boneIndex = skeleton.getBoneIndex(ownerBone);
+//						for (int i = 0; i < boneAnimation.getTracks().length; ++i) {
+//							if (boneAnimation.getTracks()[i].getTargetBoneIndex() == boneIndex) {
+//								ownerBoneTrack = boneAnimation.getTracks()[i];
+//								break;
+//							}
+//						}
+//						int ownerBoneFramesCount = ownerBoneTrack==null ? 0 : ownerBoneTrack.getTimes().length;
+						
+						// preparing data
+						int maxIterations = ((Number) constraintStructure.getFieldValue("iterations")).intValue();
+						CalculationBone[] bones = this.getBonesToCalculate(ownerBone, skeleton, boneAnimation);
+//						for (int i = 0; i < bones.length; ++i) {
+//							System.out.println(Arrays.toString(bones[i].track.getTranslations()));
+//							System.out.println(Arrays.toString(bones[i].track.getRotations()));
+//							System.out.println("===============================");
+//						}
+						Quaternion rotation = new Quaternion();
+						//all tracks should have the same amount of frames
+						int framesCount = bones[0].getBoneFramesCount();
+						assert framesCount >=1;
+						for (int frame = 0; frame < framesCount; ++frame) {
+							float error = IK_SOLVER_ERROR;
+							int iteration = 0;
+							while (error >= IK_SOLVER_ERROR && iteration <= maxIterations) {
+								// rotating the bones
+								for (int i = 0; i < bones.length - 1; ++i) {
+									Vector3f pe = bones[i].getEndPoint();
+									Vector3f pc = bones[i + 1].getWorldTranslation().clone();
 
-                    for(int frame = 0; frame < maxFrames; ++frame) {
-                    float error = IK_SOLVER_ERROR;
-                    int iteration = 0;
-                    while(error >= IK_SOLVER_ERROR && iteration <= maxIterations) {
-                    //rotating the bones
-                    for(int i = 0; i < bones.length - 1; ++i) {
-                    Vector3f pe = bones[i].getEndPoint();
-                    Vector3f pc = bones[i + 1].getWorldTranslation().clone();
+									Vector3f peSUBpc = pe.subtract(pc).normalizeLocal();
+									Vector3f ptSUBpc = pt.subtract(pc).normalizeLocal();
 
-                    Vector3f peSUBpc = pe.subtract(pc).normalizeLocal();
-                    Vector3f ptSUBpc = pt.subtract(pc).normalizeLocal();
+									float theta = FastMath.acos(peSUBpc.dot(ptSUBpc));
+									Vector3f direction = peSUBpc.cross(ptSUBpc).normalizeLocal();
+									bones[i].rotate(rotation.fromAngleAxis(theta, direction), frame);
+								}
+								error = pt.subtract(bones[0].getEndPoint()).length();
+								++iteration;
+							}
+							System.out.println("error = " + error + "   iterations = " + iteration);
+						}
 
-                    float theta = FastMath.acos(peSUBpc.dot(ptSUBpc));
-                    Vector3f direction = peSUBpc.cross(ptSUBpc).normalizeLocal();
-                    bones[i].rotate(rotation.fromAngleAxis(theta, direction), frame);
-                    }
-                    error = pt.subtract(bones[0].getEndPoint()).length();
-                    ++iteration;
-                    }
-                    System.out.println("error = " + error + "   iterations = " + iteration);
-                    }
+						for (CalculationBone bone : bones) {
+							bone.applyCalculatedTracks();
+						}
 
-                    for(CalculationBone bone : bones) {
-                    bone.applyCalculatedTracks();
-                    }
-
-                    System.out.println("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&");
-                    for(int i=0;i<bones.length;++i) {
-                    System.out.println(Arrays.toString(bones[i].track.getTranslations()));
-                    System.out.println(Arrays.toString(bones[i].track.getRotations()));
-                    System.out.println("===============================");
-                    }*/
+//						System.out.println("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&");
+//						for (int i = 0; i < bones.length; ++i) {
+//							System.out.println(Arrays.toString(bones[i].track.getTranslations()));
+//							System.out.println(Arrays.toString(bones[i].track.getRotations()));
+//							System.out.println("===============================");
+//						}
+					} catch(BlenderFileException e) {
+						LOGGER.severe(e.getLocalizedMessage());
+					}
 				}
 
 				/**
@@ -226,13 +248,14 @@ public class ConstraintHelper extends AbstractBlenderHelper {
 					List<CalculationBone> bonesList = new ArrayList<CalculationBone>();
 					Bone currentBone = bone;
 					do {
-						int boneIndex = skeleton.getBoneIndex(currentBone);
-						for (int i = 0; i < boneAnimation.getTracks().length; ++i) {
-							if (boneAnimation.getTracks()[i].getTargetBoneIndex() == boneIndex) {
-								bonesList.add(new CalculationBone(currentBone, boneAnimation.getTracks()[i]));
-								break;
-							}
-						}
+						bonesList.add(new CalculationBone(currentBone, 1));
+//						int boneIndex = skeleton.getBoneIndex(currentBone);
+//						for (int i = 0; i < boneAnimation.getTracks().length; ++i) {
+//							if (boneAnimation.getTracks()[i].getTargetBoneIndex() == boneIndex) {
+//								bonesList.add(new CalculationBone(currentBone, boneAnimation.getTracks()[i]));
+//								break;
+//							}
+//						}
 						currentBone = currentBone.getParent();
 					} while (currentBone != null);
 					//attaching children
@@ -725,101 +748,9 @@ public class ConstraintHelper extends AbstractBlenderHelper {
 	public void clearState() {
 		constraints.clear();
 	}
-
-	/**
-	 * The purpose of this class is to imitate bone's movement when calculating inverse kinematics.
-	 * @author Marcin Roguski
-	 */
-	private static class CalculationBone extends Node {
-
-		/** The name of the bone. Only to be used in toString method. */
-		private String boneName;
-		/** The bone's tracks. Will be altered at the end of calculation process. */
-		private BoneTrack track;
-		/** The starting position of the bone. */
-		private Vector3f startTranslation;
-		/** The starting rotation of the bone. */
-		private Quaternion startRotation;
-		/** The starting scale of the bone. */
-		private Vector3f startScale;
-		private Vector3f[] translations;
-		private Quaternion[] rotations;
-		private Vector3f[] scales;
-
-		/**
-		 * Constructor. Stores the track, starting transformation and sets the transformation to the starting positions.
-		 * @param bone
-		 *        the bone this class will imitate
-		 * @param track
-		 *        the bone's tracks
-		 */
-		public CalculationBone(Bone bone, BoneTrack track) {
-			this.boneName = bone.getName();
-			this.track = track;
-			this.startRotation = bone.getModelSpaceRotation().clone();
-			this.startTranslation = bone.getModelSpacePosition().clone();
-			this.startScale = bone.getModelSpaceScale().clone();
-			this.translations = track.getTranslations();
-			this.rotations = track.getRotations();
-			this.scales = track.getScales();
-			this.reset();
-		}
-
-		/**
-		 * This method returns the end point of the bone. If the bone has parent it is calculated from the start point
-		 * of parent to the start point of this bone. If the bone doesn't have a parent the end location is considered
-		 * to be 1 point up along Y axis (scale is applied if set to != 1.0);
-		 * @return the end point of this bone
-		 */
-		//TODO: set to Z axis if user defined it this way
-		public Vector3f getEndPoint() {
-			if (this.getParent() == null) {
-				return new Vector3f(0, this.getLocalScale().y, 0);
-			} else {
-				Node parent = this.getParent();
-				return parent.getWorldTranslation().subtract(this.getWorldTranslation()).multLocal(this.getWorldScale());
-			}
-		}
-
-		/**
-		 * This method resets the calculation bone to the starting position.
-		 */
-		public void reset() {
-			this.setLocalTranslation(startTranslation);
-			this.setLocalRotation(startRotation);
-			this.setLocalScale(startScale);
-		}
-
-		@Override
-		public int attachChild(Spatial child) {
-			if (this.getChildren() != null && this.getChildren().size() > 1) {
-				throw new IllegalStateException(this.getClass().getName() + " class instance can only have one child!");
-			}
-			return super.attachChild(child);
-		}
-
-		public Spatial rotate(Quaternion rot, int frame) {
-			Spatial spatial = super.rotate(rot);
-			this.updateWorldTransforms();
-			if (this.getChildren() != null && this.getChildren().size() > 0) {
-				CalculationBone child = (CalculationBone) this.getChild(0);
-				child.updateWorldTransforms();
-			}
-			rotations[frame].set(this.getLocalRotation());
-			translations[frame].set(this.getLocalTranslation());
-			if (scales != null) {
-				scales[frame].set(this.getLocalScale());
-			}
-			return spatial;
-		}
-
-		public void applyCalculatedTracks() {
-			track.setKeyframes(track.getTimes(), translations, rotations);//TODO:scales
-		}
-
-		@Override
-		public String toString() {
-			return boneName + ": " + this.getLocalRotation() + " " + this.getLocalTranslation();
-		}
+	
+	@Override
+	public boolean shouldBeLoaded(Structure structure, DataRepository dataRepository) {
+		return true;
 	}
 }

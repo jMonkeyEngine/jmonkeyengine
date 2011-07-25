@@ -605,4 +605,9 @@ public class MeshHelper extends AbstractBlenderHelper {
 		// mesh.setMaxNumWeights(maxWeightsPerVert);
 		return maxWeightsPerVert;
 	}
+	
+	@Override
+	public boolean shouldBeLoaded(Structure structure, DataRepository dataRepository) {
+		return true;
+	}
 }

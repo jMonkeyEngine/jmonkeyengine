@@ -267,9 +267,9 @@ public class ArmatureHelper extends AbstractBlenderHelper {
     }
 
     /**
-     * This method returns bone transformation data for the bone of a given name.
-     * @param boneName
-     *        the name of the bone
+     * This method returns bone transformation data for the bone of a given index.
+     * @param index
+     *        the index of the bone
      * @return bone's transformation data
      */
     public BoneTransformationData getBoneTransformationDataRoot(int index) {
@@ -367,5 +367,10 @@ public class ArmatureHelper extends AbstractBlenderHelper {
     public void clearState() {
         bonesMap.clear();
         boneDataRoots.clear();
+    }
+    
+    @Override
+    public boolean shouldBeLoaded(Structure structure, DataRepository dataRepository) {
+    	return true;
     }
 }
