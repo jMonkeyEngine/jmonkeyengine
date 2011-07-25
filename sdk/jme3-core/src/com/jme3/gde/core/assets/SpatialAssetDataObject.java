@@ -77,7 +77,7 @@ public class SpatialAssetDataObject extends AssetDataObject {
         FileLock lock = null;
         try {
             lock = getPrimaryFile().lock();
-            mgr.deleteFromCache(new ModelKey(assetKey));
+           //mgr.deleteFromCache(new ModelKey(assetKey));
             Spatial spatial = mgr.loadModel(assetKey);
             savable = spatial;
             lock.releaseLock();
