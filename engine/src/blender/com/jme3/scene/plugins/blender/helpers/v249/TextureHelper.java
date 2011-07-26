@@ -34,6 +34,7 @@ package com.jme3.scene.plugins.blender.helpers.v249;
 import java.awt.color.ColorSpace;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorConvertOp;
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -1694,7 +1695,7 @@ public class TextureHelper extends AbstractBlenderHelper {
 	protected Texture loadTextureFromFile(String name, DataRepository dataRepository) {
 		Image image = null;
 		ImageLoader imageLoader = new ImageLoader();
-		FileInputStream fis = null;
+		BufferedInputStream bis = null;
 		ImageType[] imageTypes = ImageType.values();
 		// TODO: would be nice to have the model asset key here to getthe models older in the assetmanager
 
@@ -1725,14 +1726,15 @@ public class TextureHelper extends AbstractBlenderHelper {
 				LOGGER.log(Level.INFO, "Trying with: {0}", name);
 				try {
 					for (int i = 0; i < imageTypes.length && image == null; ++i) {
-						fis = new FileInputStream(textureFile);
-						image = imageLoader.loadImage(fis, imageTypes[i], false);
+						FileInputStream fis = new FileInputStream(textureFile);
+						bis = new BufferedInputStream(fis);
+						image = imageLoader.loadImage(bis, imageTypes[i], false);
 						this.closeStream(fis);
 					}
 				} catch (FileNotFoundException e) {
 					assert false : e;// this should NEVER happen
 				} finally {
-					this.closeStream(fis);
+					this.closeStream(bis);
 				}
 			}
 		}
@@ -1749,13 +1751,14 @@ public class TextureHelper extends AbstractBlenderHelper {
 					LOGGER.info("Trying with: " + texName);
 					try {
 						for (int i = 0; i < imageTypes.length && image == null; ++i) {
-							fis = new FileInputStream(textureFile);
-							image = imageLoader.loadImage(fis, imageTypes[i], false);
+							FileInputStream fis = new FileInputStream(textureFile);
+							bis = new BufferedInputStream(fis);
+							image = imageLoader.loadImage(bis, imageTypes[i], false);
 						}
 					} catch (FileNotFoundException e) {
 						assert false : e;// this should NEVER happen
 					} finally {
-						this.closeStream(fis);
+						this.closeStream(bis);
 					}
 				}
 				if (idx > 1) {
