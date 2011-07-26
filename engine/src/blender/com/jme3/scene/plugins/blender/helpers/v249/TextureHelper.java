@@ -1715,7 +1715,7 @@ public class TextureHelper extends AbstractBlenderHelper {
 				Texture tex = dataRepository.getAssetManager().loadTexture(texKey);
 				image = tex.getImage();
 			} catch (AssetNotFoundException e) {
-				LOGGER.warning("Asset nof found: " + e.getLocalizedMessage());
+				LOGGER.warning("Asset not found: " + e.getLocalizedMessage());
 			}
 		}
 
