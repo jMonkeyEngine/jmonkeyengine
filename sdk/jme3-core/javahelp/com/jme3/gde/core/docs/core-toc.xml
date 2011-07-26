@@ -36,7 +36,7 @@
         <tocitem text="About jMonkeyPlatform" target="com.jme3.gde.core.about"/>
         <tocitem text="Introduction">
             <tocitem text="Creating a Project" target="sdk.project_creation"/>
-            <tocitem text="The SceneViewer" target="com.jme3.gde.core.sceneviewer"/>
+            <tocitem text="The OpenGL Window" target="com.jme3.gde.core.sceneviewer"/>
             <tocitem text="The SceneExplorer" target="sdk.scene_explorer"/>
         </tocitem>
         <tocitem text="Working with Models and Scenes">

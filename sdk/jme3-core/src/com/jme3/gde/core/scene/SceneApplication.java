@@ -362,7 +362,7 @@ public class SceneApplication extends Application implements LookupProvider, Loo
                         }
                         currentSceneRequest = null;
                         setCurrentFileNode(null);
-                        setWindowTitle("SceneViewer");
+                        setWindowTitle("OpenGL Window");
                     }
                 }
                 return null;
