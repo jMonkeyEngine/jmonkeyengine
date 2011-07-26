@@ -274,7 +274,7 @@ public class MaterialHelper extends AbstractBlenderHelper {
 									}
 								}
 								if ((mapto & 0x02) != 0) {// Nor
-									Texture normalMapTexture = textureHelper.convertToNormalMapTexture(texture, ((Number)tex.getFieldValue("norfac")).floatValue());
+									Texture normalMapTexture = textureHelper.convertToNormalMapTexture(texture, ((Number)textureLink.getFieldValue("norfac")).floatValue());
 									result.setTexture(TEXTURE_TYPE_NORMAL, normalMapTexture);
 									if (vertexColor) {
 										result.setBoolean(shadeless ? "VertexColor" : "UseVertexColor", false);
