@@ -49,4 +49,9 @@ public class SceneCameraController extends AbstractCameraController {
     protected void checkClick(int button, boolean pressed) {
     }
 
+    @Override
+    public boolean useCameraControls() {
+        return true;
+    }
+
 }

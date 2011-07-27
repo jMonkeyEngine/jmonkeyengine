@@ -25,7 +25,7 @@ public final class SwitchTopViewAction implements ActionListener {
 
         if (svtc.hasFocus()) {
 
-            SceneApplication.getApplication().getActiveCamController().switchToView(View.Top);
+            SceneApplication.getApplication().getActiveCameraController().switchToView(View.Top);
         }
     }
 }

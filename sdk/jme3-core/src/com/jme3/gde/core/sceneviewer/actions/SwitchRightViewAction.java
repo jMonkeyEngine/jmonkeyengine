@@ -25,7 +25,7 @@ public final class SwitchRightViewAction implements ActionListener {
 
         if (svtc.hasFocus()) {
 
-            SceneApplication.getApplication().getActiveCamController().switchToView(View.Right);
+            SceneApplication.getApplication().getActiveCameraController().switchToView(View.Right);
         }
     }
 }

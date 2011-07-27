@@ -25,7 +25,7 @@ public final class SwitchBottomViewAction implements ActionListener {
 
         if (svtc.hasFocus()) {
 
-            SceneApplication.getApplication().getActiveCamController().switchToView(View.Bottom);
+            SceneApplication.getApplication().getActiveCameraController().switchToView(View.Bottom);
         }
     }
 }

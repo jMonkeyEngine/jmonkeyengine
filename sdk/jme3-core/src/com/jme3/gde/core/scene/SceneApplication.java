@@ -136,11 +136,7 @@ public class SceneApplication extends Application implements LookupProvider, Loo
         }
     }
 
-    public SceneCameraController getActiveCameraController() {
-        stateManager.getState(null);
-        return camController;
-    }
-    
+
     
 
     private void loadFPSText() {
@@ -385,8 +381,8 @@ public class SceneApplication extends Application implements LookupProvider, Loo
         }
         toolsNode.detachAllChildren();
         rootNode.detachAllChildren();
-        setHelpContext(null);
-        resetCam();
+        setHelpContext(null);        
+       // resetCam();
         currentSceneRequest = null;
         lastError = "";
         java.awt.EventQueue.invokeLater(new Runnable() {
@@ -536,11 +532,11 @@ public class SceneApplication extends Application implements LookupProvider, Loo
         return progressHandle;
     }
 
-    public AbstractCameraController getActiveCamController() {
+    public AbstractCameraController getActiveCameraController() {
         return activeCamController;
     }
 
-    public void setActiveCamController(AbstractCameraController activeCamController) {
+    public void setActiveCameraController(AbstractCameraController activeCamController) {
         this.activeCamController = activeCamController;
     }
     

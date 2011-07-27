@@ -25,7 +25,7 @@ public final class SwitchBackViewAction implements ActionListener {
 
         if (svtc.hasFocus()) {
 
-            SceneApplication.getApplication().getActiveCamController().switchToView(View.Back);
+            SceneApplication.getApplication().getActiveCameraController().switchToView(View.Back);
         }
     }
 }

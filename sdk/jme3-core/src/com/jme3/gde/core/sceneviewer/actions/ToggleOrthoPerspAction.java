@@ -28,7 +28,7 @@ public final class ToggleOrthoPerspAction implements ActionListener {
 
         SceneViewerTopComponent svtc = SceneViewerTopComponent.findInstance();
         if (svtc.hasFocus()) {
-            SceneApplication.getApplication().getActiveCamController().toggleOrthoPerspMode();
+            SceneApplication.getApplication().getActiveCameraController().toggleOrthoPerspMode();
         }
 
     }

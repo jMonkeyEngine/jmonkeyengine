@@ -177,7 +177,7 @@ public class CameraToolbar extends javax.swing.JToolBar {
     }// </editor-fold>//GEN-END:initComponents
 
 private void viewButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_viewButtonActionPerformed
-    viewMenu.show(viewButton, viewButton.getX(), viewButton.getY() + viewButton.getHeight());
+    viewMenu.show(viewButton, 0,- viewMenu.getHeight());
 }//GEN-LAST:event_viewButtonActionPerformed
 
 private void frontMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_frontMenuItemActionPerformed

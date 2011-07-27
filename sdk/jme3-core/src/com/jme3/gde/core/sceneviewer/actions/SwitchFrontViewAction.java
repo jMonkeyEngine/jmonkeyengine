@@ -26,7 +26,7 @@ public final class SwitchFrontViewAction implements ActionListener {
 
         if (svtc.hasFocus()) {
 
-            SceneApplication.getApplication().getActiveCamController().switchToView(View.Front);
+            SceneApplication.getApplication().getActiveCameraController().switchToView(View.Front);
         }
     }
 }

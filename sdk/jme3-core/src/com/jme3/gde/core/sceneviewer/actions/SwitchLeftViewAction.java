@@ -25,7 +25,7 @@ public final class SwitchLeftViewAction implements ActionListener {
 
         if (svtc.hasFocus()) {
 
-            SceneApplication.getApplication().getActiveCamController().switchToView(View.Left);
+            SceneApplication.getApplication().getActiveCameraController().switchToView(View.Left);
         }
     }
 }

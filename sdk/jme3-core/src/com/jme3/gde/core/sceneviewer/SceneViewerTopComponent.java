@@ -28,8 +28,12 @@ import com.jme3.gde.core.filters.FilterExplorerTopComponent;
 import com.jme3.gde.core.scene.SceneApplication;
 import com.jme3.gde.core.scene.controller.toolbars.CameraToolbar;
 import com.jme3.gde.core.sceneviewer.actions.ToggleOrthoPerspAction;
+import com.jme3.input.awt.AwtKeyInput;
+import com.jme3.input.event.KeyInputEvent;
 import com.jme3.system.JmeCanvasContext;
 import java.awt.Canvas;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.util.logging.Logger;
@@ -63,7 +67,6 @@ public final class SceneViewerTopComponent extends TopComponent {
     private SceneApplication app;
     private HelpCtx helpContext = new HelpCtx("com.jme3.gde.core.sceneviewer");
     private Canvas oglCanvas;
-  
 
     public SceneViewerTopComponent() {
         initComponents();
@@ -71,12 +74,12 @@ public final class SceneViewerTopComponent extends TopComponent {
         setFocusable(true);
         setName(NbBundle.getMessage(SceneViewerTopComponent.class, "CTL_SceneViewerTopComponent"));
         setToolTipText(NbBundle.getMessage(SceneViewerTopComponent.class, "HINT_SceneViewerTopComponent"));
-        setIcon(ImageUtilities.loadImage(ICON_PATH, true));        
+        setIcon(ImageUtilities.loadImage(ICON_PATH, true));
         try {
             app = SceneApplication.getApplication();
             oglCanvas = ((JmeCanvasContext) app.getContext()).getCanvas();
             oGLPanel.add(oglCanvas);
-        
+
         } catch (Exception e) {
             Exceptions.printStackTrace(e);
             showOpenGLError(e.toString());
@@ -94,11 +97,30 @@ public final class SceneViewerTopComponent extends TopComponent {
                 if (e.getWheelRotation() < 0) {
                     action = "MouseWheel";
                 }
-                app.getActiveCamController().onAnalog(action, e.getWheelRotation(), 0);
+                app.getActiveCameraController().onAnalog(action, e.getWheelRotation(), 0);
             }
         });
-        
-       
+        addKeyListener(new KeyListener() {
+
+            public void keyTyped(KeyEvent evt) {                
+            }
+
+            public void keyPressed(KeyEvent evt) {
+                int code = AwtKeyInput.convertAwtKey(evt.getKeyCode());
+                KeyInputEvent keyEvent = new KeyInputEvent(code, evt.getKeyChar(), true, false);
+                keyEvent.setTime(evt.getWhen());                
+                app.getActiveCameraController().onKeyEvent(keyEvent);
+            }
+
+            public void keyReleased(KeyEvent evt) {
+                int code = AwtKeyInput.convertAwtKey(evt.getKeyCode());
+                KeyInputEvent keyEvent = new KeyInputEvent(code, evt.getKeyChar(), false, false);
+                keyEvent.setTime(evt.getWhen());
+                
+                app.getActiveCameraController().onKeyEvent(keyEvent);
+            }
+        });
+
     }
 
     /** This method is called from within the constructor to
@@ -200,7 +222,6 @@ public final class SceneViewerTopComponent extends TopComponent {
     private void jToggleButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jToggleButton1ActionPerformed
         FilterExplorerTopComponent.findInstance().setFilterEnabled(jToggleButton1.isSelected());
     }//GEN-LAST:event_jToggleButton1ActionPerformed
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JToggleButton enableCamLight;
     private javax.swing.JToggleButton enableStats;
@@ -212,7 +233,6 @@ public final class SceneViewerTopComponent extends TopComponent {
     private javax.swing.JPanel oGLPanel;
     // End of variables declaration//GEN-END:variables
 
-   
     /**
      * Gets default instance. Do not use directly: reserved for *.settings files only,
      * i.e. deserialization routines; otherwise you could get a non-deserialized instance.
@@ -323,14 +343,5 @@ public final class SceneViewerTopComponent extends TopComponent {
     @Override
     public UndoRedo getUndoRedo() {
         return Lookup.getDefault().lookup(UndoRedo.class);
-    }
-
-    
-    public void addAdditionnalToolbar(JToolBar tb){
-        jToolBar1.add(tb,4);
-    }
-
-    public void removeAdditionnalToolbar(JToolBar tb){
-        jToolBar1.remove(tb);
     }
 }
