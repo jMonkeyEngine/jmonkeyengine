@@ -113,55 +113,7 @@ public class ComposerCameraController extends AbstractCameraController {
     }
 
     @Override
-    public void onAnalog(String string, float f1, float f) {
-        if ("MouseAxisX".equals(string)) {
-            moved = true;
-            movedR = true;
-            if (isToolUsesCameraControls() || forceCameraControls) {
-                if (buttonDownL) {
-                    rotateCamera(Vector3f.UNIT_Y, -f1 * 2.5f);
-                }
-                if (buttonDownR) {
-                    panCamera(f1 * 2.5f, 0);
-                }
-            }
-        } else if ("MouseAxisY".equals(string)) {
-            moved = true;
-            movedR = true;
-            if (isToolUsesCameraControls() || forceCameraControls) {
-                if (buttonDownL) {
-                    rotateCamera(cam.getLeft(), -f1 * 2.5f);
-                }
-                if (buttonDownR) {
-                    panCamera(0, -f1 * 2.5f);
-                }
-            }
-        } else if ("MouseAxisX-".equals(string)) {
-            moved = true;
-            movedR = true;
-            if (isToolUsesCameraControls() || forceCameraControls) {
-                if (buttonDownL) {
-                    rotateCamera(Vector3f.UNIT_Y, f1 * 2.5f);
-                }
-                if (buttonDownR) {
-                    panCamera(-f1 * 2.5f, 0);
-                }
-            }
-        } else if ("MouseAxisY-".equals(string)) {
-            moved = true;
-            movedR = true;
-            if (isToolUsesCameraControls() || forceCameraControls) {
-                if (buttonDownL) {
-                    rotateCamera(cam.getLeft(), f1 * 2.5f);
-                }
-                if (buttonDownR) {
-                    panCamera(0, f1 * 2.5f);
-                }
-            }
-        } else if ("MouseWheel".equals(string)) {
-            zoomCamera(.1f);
-        } else if ("MouseWheel-".equals(string)) {
-            zoomCamera(-.1f);
-        }
+    public boolean useCameraControls() {
+        return isToolUsesCameraControls() || forceCameraControls;
     }
 }
