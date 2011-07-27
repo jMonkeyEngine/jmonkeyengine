@@ -124,7 +124,6 @@ public class JmeSpatial extends AbstractSceneExplorerNode {
 //                    SystemAction.get(DeleteAction.class)
 //                };
 //    }
-
     @Override
     public Action[] getActions(boolean context) {
 //        return super.getActions(context);
@@ -196,10 +195,11 @@ public class JmeSpatial extends AbstractSceneExplorerNode {
                     return null;
                 }
             }).get();
-            //TODO: not a good cast
-            JmeNode node = ((JmeNode) getParentNode());
-            if (node != null) {
-                node.refresh(false);
+            if (getParentNode() instanceof JmeNode) {
+                JmeNode node = ((JmeNode) getParentNode());
+                if (node != null) {
+                    node.refresh(false);
+                }
             }
         } catch (InterruptedException ex) {
             Exceptions.printStackTrace(ex);

@@ -53,8 +53,8 @@ import org.openide.util.actions.SystemAction;
  *
  * @author normenhansen
  */
-@org.openide.util.lookup.ServiceProvider(service=SceneExplorerNode.class)
-public class JmeLight extends AbstractSceneExplorerNode{
+@org.openide.util.lookup.ServiceProvider(service = SceneExplorerNode.class)
+public class JmeLight extends AbstractSceneExplorerNode {
 
     private Spatial spatial;
     private Light light;
@@ -127,7 +127,13 @@ public class JmeLight extends AbstractSceneExplorerNode{
                     spatial.removeLight(light);
                     return null;
                 }
-            }).get();
+            }).get();            
+            if (getParentNode() instanceof JmeNode) {
+                JmeNode node = ((JmeNode) getParentNode());
+                if (node != null) {
+                    node.refresh(false);
+                }
+            }
         } catch (InterruptedException ex) {
             Exceptions.printStackTrace(ex);
         } catch (ExecutionException ex) {
@@ -142,5 +148,4 @@ public class JmeLight extends AbstractSceneExplorerNode{
     public Class getExplorerNodeClass() {
         return JmeLight.class;
     }
-
 }
