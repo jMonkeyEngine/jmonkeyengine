@@ -66,4 +66,9 @@ public class VehicleCreatorCameraController extends AbstractCameraController {
     public void setVehicle(Spatial vehicle) {
         this.vehicle = vehicle;
     }
+
+    @Override
+    public boolean useCameraControls() {
+        return true;
+    }
 }
