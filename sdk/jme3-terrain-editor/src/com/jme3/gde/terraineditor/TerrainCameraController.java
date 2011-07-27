@@ -44,7 +44,6 @@ import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
 
-
 /**
  * Runs in the JME thread, not awt thread.
  * Listens to mouse/camera input and relays the movements
@@ -58,7 +57,6 @@ public class TerrainCameraController extends AbstractCameraController {
     private TerrainEditorController editorController;
     private boolean forceCameraControls = false; // when user holds shift, this is true
     private boolean useCameraControls = true; // based on what a tool specifies
-
     private boolean terrainEditToolActivated = false;
     protected Application app;
     private float toolModifyRate = 0.05f; // how frequently (in seconds) it should update to throttle down the tool effect
@@ -77,115 +75,65 @@ public class TerrainCameraController extends AbstractCameraController {
         this.editorController = editorController;
     }
 
-    
     @Override
     public void onMouseMotionEvent(MouseMotionEvent mme) {
         super.onMouseMotionEvent(mme);
 
 
         // if one of the terrain edit buttons is not enabled, return
-        if (!isTerrainEditButtonEnabled())
+        if (!isTerrainEditButtonEnabled()) {
             return;
+        }
 
         // move the marker
         Vector3f pos = getTerrainCollisionPoint();
-        if (pos != null)
+        if (pos != null) {
             toolController.doMoveEditTool(pos);
+        }
     }
-    
+
     private boolean isTerrainEditButtonEnabled() {
         return toolController.isTerrainEditButtonEnabled();
     }
 
     @Override
-    public void onAnalog(String string, float f1, float f) {
-        if ("MouseAxisX".equals(string)) {
-            moved = true;
-            movedR = true;
-            if (useCameraControls || forceCameraControls) {
-                if (buttonDownL) {
-                    rotateCamera(Vector3f.UNIT_Y, -f1 * 2.5f);
-                }
-                if (buttonDownR) {
-                    panCamera(f1 * 2.5f, 0);
-                }
-            }
-        } else if ("MouseAxisY".equals(string)) {
-            moved = true;
-            movedR = true;
-            if (useCameraControls || forceCameraControls) {
-                if (buttonDownL) {
-                    rotateCamera(cam.getLeft(), -f1 * 2.5f);
-                }
-                if (buttonDownR) {
-                    panCamera(0, -f1 * 2.5f);
-                }
-            }
-        } else if ("MouseAxisX-".equals(string)) {
-            moved = true;
-            movedR = true;
-            if (useCameraControls || forceCameraControls) {
-                if (buttonDownL) {
-                    rotateCamera(Vector3f.UNIT_Y, f1 * 2.5f);
-                }
-                if (buttonDownR) {
-                    panCamera(-f1 * 2.5f, 0);
-                }
-            }
-        } else if ("MouseAxisY-".equals(string)) {
-            moved = true;
-            movedR = true;
-            if (useCameraControls || forceCameraControls) {
-                if (buttonDownL) {
-                    rotateCamera(cam.getLeft(), f1 * 2.5f);
-                }
-                if (buttonDownR) {
-                    panCamera(0, f1 * 2.5f);
-                }
-            }
-        } else if ("MouseWheel".equals(string)) {
-            zoomCamera(.1f);
-        } else if ("MouseWheel-".equals(string)) {
-            zoomCamera(-.1f);
-        }
-    }
-
-    @Override
     public void update(float f) {
         super.update(f);
-        
+
         doTerrainUpdates(f);
     }
 
     @Override
     protected void checkClick(int button, boolean pressed) {
-        /*if (button == 0) {
+        
+         /*if (button == 0) {
             if (isTerrainEditButtonEnabled() && !forceCameraControls) {
-                if (leftMouse)
-                    terrainEditToolActivated = true;
+                terrainEditToolActivated = true;
             }
         }
-        if (button == 1) {
-            if (isTerrainEditButtonEnabled() && !forceCameraControls) {
-                toolController.doTerrainEditToolAlternateActivated();
-            }
-        }*/
-        
+       
+         if (button == 1) {
+         if (isTerrainEditButtonEnabled() && !forceCameraControls) {
+         toolController.doTerrainEditToolAlternateActivated();
+         }
+         }*/
+
         if (button == 1) {
             if (isTerrainEditButtonEnabled() && !forceCameraControls) {
                 toolController.doTerrainEditToolAlternateActivated();
             }
         }
     }
-    
+
     @Override
     protected void checkDragged(int button, boolean pressed) {
-        terrainEditToolActivated = true;
+        if (button == 0  && !forceCameraControls) {
+            terrainEditToolActivated = true;
+        }
     }
-    
+
     @Override
     protected void checkMoved() {
-        
     }
 
     /**
@@ -197,12 +145,13 @@ public class TerrainCameraController extends AbstractCameraController {
 
         if (terrainEditToolActivated) {
             lastModifyTime += dt;
-            
+
             if (lastModifyTime >= toolModifyRate) {
-                
+
                 lastModifyTime = 0;
-                if (terrainEditToolActivated)
+                if (terrainEditToolActivated) {
                     toolController.doTerrainEditToolActivated();
+                }
                 terrainEditToolActivated = false;
                 lastModifyTime = app.getContext().getTimer().getTime();
             }
@@ -211,25 +160,26 @@ public class TerrainCameraController extends AbstractCameraController {
 
     @Override
     public void onKeyEvent(KeyInputEvent kie) {
+        super.onKeyEvent(kie);
         if (kie.isPressed()) {
-            if ( KeyInput.KEY_LSHIFT == kie.getKeyCode() ) {
+            if (KeyInput.KEY_LSHIFT == kie.getKeyCode()) {
                 forceCameraControls = true;
             }
-        } else if (kie.isReleased()){
-            if ( KeyInput.KEY_LSHIFT == kie.getKeyCode() ) {
+        } else if (kie.isReleased()) {
+            if (KeyInput.KEY_LSHIFT == kie.getKeyCode()) {
                 forceCameraControls = false;
             }
         }
     }
 
-    
     /**
      * Find where on the terrain the mouse intersects.
      */
     protected Vector3f getTerrainCollisionPoint() {
 
-        if (editorController.getTerrain(null) == null)
+        if (editorController.getTerrain(null) == null) {
             return null;
+        }
 
         CollisionResults results = new CollisionResults();
         Ray ray = new Ray();
@@ -243,8 +193,9 @@ public class TerrainCameraController extends AbstractCameraController {
             return null;
         }
         final CollisionResult result = results.getClosestCollision();
-        if (result == null)
+        if (result == null) {
             return null;
+        }
         return result.getContactPoint();
     }
 
@@ -252,7 +203,8 @@ public class TerrainCameraController extends AbstractCameraController {
         this.useCameraControls = useCameraControls;
     }
 
-    
-    
-
+    @Override
+    public boolean useCameraControls() {
+        return useCameraControls || forceCameraControls;
+    }
 }
