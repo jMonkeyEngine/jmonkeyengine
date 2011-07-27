@@ -40,6 +40,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.jme3.asset.BlenderKey.FeaturesToLoad;
+import com.jme3.asset.GeneratedTextureKey;
 import com.jme3.material.MatParam;
 import com.jme3.material.MatParamTexture;
 import com.jme3.material.Material;
@@ -274,7 +275,12 @@ public class MaterialHelper extends AbstractBlenderHelper {
 									}
 								}
 								if ((mapto & 0x02) != 0) {// Nor
-									Texture normalMapTexture = textureHelper.convertToNormalMapTexture(texture, ((Number)textureLink.getFieldValue("norfac")).floatValue());
+									Texture normalMapTexture;
+									if(texture.getKey() instanceof GeneratedTextureKey) {
+										normalMapTexture = textureHelper.convertToNormalMapTexture(texture, ((Number)textureLink.getFieldValue("norfac")).floatValue());
+									} else {
+										normalMapTexture = texture;
+									}
 									result.setTexture(TEXTURE_TYPE_NORMAL, normalMapTexture);
 									if (vertexColor) {
 										result.setBoolean(shadeless ? "VertexColor" : "UseVertexColor", false);

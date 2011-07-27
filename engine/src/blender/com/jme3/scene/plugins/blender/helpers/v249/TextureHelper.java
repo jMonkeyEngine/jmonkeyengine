@@ -47,8 +47,9 @@ import java.util.logging.Logger;
 import jme3tools.converters.ImageToAwt;
 
 import com.jme3.asset.AssetNotFoundException;
-import com.jme3.asset.TextureKey;
 import com.jme3.asset.BlenderKey.FeaturesToLoad;
+import com.jme3.asset.GeneratedTextureKey;
+import com.jme3.asset.TextureKey;
 import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.plugins.blender.data.FileBlockHeader;
@@ -230,6 +231,9 @@ public class TextureHelper extends AbstractBlenderHelper {
 		if (result != null) {
 			result.setName(tex.getName());
 			result.setWrap(WrapMode.Repeat);
+			if(type != TEX_IMAGE) {//only generated textures should have this key
+				result.setKey(new GeneratedTextureKey(tex.getName()));
+			}
 		}
 		return result;
 	}
