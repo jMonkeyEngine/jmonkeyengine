@@ -137,7 +137,7 @@ public class MaterialPropertyEditor implements PropertyEditor, SceneExplorerProp
 
                 public Void call() throws Exception {
                     SceneRequest request = SceneApplication.getApplication().getCurrentSceneRequest();
-                    ((DesktopAssetManager) request.getManager()).deleteFromCache(new AssetKey(text));
+                    ((DesktopAssetManager) request.getManager()).deleteFromCache(new MaterialKey(text));
                     Material localMaterial = (Material) request.getManager().loadMaterial(text);
                     if (localMaterial != null) {
                         material = localMaterial;
