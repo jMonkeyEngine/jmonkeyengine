@@ -46,7 +46,7 @@ public class TextPanel extends MaterialPropertyWidget {
         jToolBar1.setRollover(true);
 
         jLabel1.setText(org.openide.util.NbBundle.getMessage(TextPanel.class, "TextPanel.jLabel1.text")); // NOI18N
-        jLabel1.setPreferredSize(new java.awt.Dimension(100, 0));
+        jLabel1.setPreferredSize(new java.awt.Dimension(100, 16));
         jToolBar1.add(jLabel1);
 
         jPanel1.setBackground(new java.awt.Color(204, 204, 204));

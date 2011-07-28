@@ -92,7 +92,7 @@ public class TexturePanel extends MaterialPropertyWidget {
         jToolBar1.setPreferredSize(new java.awt.Dimension(212, 32));
 
         jLabel1.setText(org.openide.util.NbBundle.getMessage(TexturePanel.class, "TexturePanel.jLabel1.text")); // NOI18N
-        jLabel1.setPreferredSize(new java.awt.Dimension(100, 0));
+        jLabel1.setPreferredSize(new java.awt.Dimension(100, 16));
         jToolBar1.add(jLabel1);
 
         jPanel1.setBackground(new java.awt.Color(204, 204, 204));
@@ -111,7 +111,7 @@ public class TexturePanel extends MaterialPropertyWidget {
 
         jToolBar1.add(jPanel1);
 
-        jLabel2.setFont(new java.awt.Font("Courier", 0, 13)); // NOI18N
+        jLabel2.setFont(new java.awt.Font("Courier", 0, 13));
         jLabel2.setText(org.openide.util.NbBundle.getMessage(TexturePanel.class, "TexturePanel.jLabel2.text")); // NOI18N
         jLabel2.setMaximumSize(new java.awt.Dimension(200, 30));
         jLabel2.setPreferredSize(new java.awt.Dimension(200, 14));
@@ -128,7 +128,7 @@ public class TexturePanel extends MaterialPropertyWidget {
         });
         jToolBar1.add(jButton1);
 
-        jCheckBox1.setFont(new java.awt.Font("Lucida Grande", 0, 10)); // NOI18N
+        jCheckBox1.setFont(new java.awt.Font("Lucida Grande", 0, 10));
         jCheckBox1.setText(org.openide.util.NbBundle.getMessage(TexturePanel.class, "TexturePanel.jCheckBox1.text")); // NOI18N
         jCheckBox1.setFocusable(false);
         jCheckBox1.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
@@ -139,7 +139,7 @@ public class TexturePanel extends MaterialPropertyWidget {
         });
         jToolBar1.add(jCheckBox1);
 
-        jCheckBox2.setFont(new java.awt.Font("Lucida Grande", 0, 10)); // NOI18N
+        jCheckBox2.setFont(new java.awt.Font("Lucida Grande", 0, 10));
         jCheckBox2.setText(org.openide.util.NbBundle.getMessage(TexturePanel.class, "TexturePanel.jCheckBox2.text")); // NOI18N
         jCheckBox2.setFocusable(false);
         jCheckBox2.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
