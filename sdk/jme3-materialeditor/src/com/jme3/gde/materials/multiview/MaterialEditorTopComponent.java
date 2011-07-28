@@ -4,8 +4,7 @@
  */
 package com.jme3.gde.materials.multiview;
 
-import com.jme3.asset.AssetKey;
-import com.jme3.asset.DesktopAssetManager;
+import com.jme3.asset.MaterialKey;
 import com.jme3.gde.core.assets.AssetDataObject;
 import com.jme3.gde.core.assets.ProjectAssetManager;
 import com.jme3.gde.core.scene.PreviewRequest;
@@ -24,7 +23,6 @@ import com.jme3.util.TangentBinormalGenerator;
 import java.awt.Component;
 import java.io.File;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -41,7 +39,6 @@ import org.openide.windows.WindowManager;
 //import org.openide.util.ImageUtilities;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.cookies.SaveCookie;
-import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
 import org.openide.nodes.Node;
@@ -623,7 +620,7 @@ public final class MaterialEditorTopComponent extends CloneableTopComponent impl
     @SuppressWarnings("unchecked")
     private void showMaterial() {
         try {
-            AssetKey key = new AssetKey(manager.getRelativeAssetPath(materialFileName));
+            MaterialKey key = new MaterialKey(manager.getRelativeAssetPath(materialFileName));
             Geometry geom = new Geometry("TestSphere", sphMesh);
             manager.deleteFromCache(key);
             geom.setMaterial((Material) manager.loadAsset(key));
