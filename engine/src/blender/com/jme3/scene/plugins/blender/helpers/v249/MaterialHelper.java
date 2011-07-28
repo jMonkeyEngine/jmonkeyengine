@@ -410,6 +410,37 @@ public class MaterialHelper extends AbstractBlenderHelper {
 		}
 		return result;
 	}
+	
+	/**
+	 * This method indicates if the material has any kind of texture.
+	 * 
+	 * @param material
+	 *        the material
+	 * @return <b>true</b> if the texture exists in the material and <B>false</b> otherwise
+	 */
+	public boolean hasTexture(Material material) {
+		if (material != null) {
+			if(material.getTextureParam(TEXTURE_TYPE_ALPHA) != null) {
+				return true;
+			}
+			if(material.getTextureParam(TEXTURE_TYPE_COLOR) != null) {
+				return true;
+			}
+			if(material.getTextureParam(TEXTURE_TYPE_DIFFUSE) != null) {
+				return true;
+			}
+			if(material.getTextureParam(TEXTURE_TYPE_GLOW) != null) {
+				return true;
+			}
+			if(material.getTextureParam(TEXTURE_TYPE_NORMAL) != null) {
+				return true;
+			}
+			if(material.getTextureParam(TEXTURE_TYPE_SPECULAR) != null) {
+				return true;
+			}
+		}
+		return false;
+	}
 
 	/**
 	 * This method indicates if the material has a texture of a specified type.
@@ -426,7 +457,7 @@ public class MaterialHelper extends AbstractBlenderHelper {
 		}
 		return false;
 	}
-
+	
 	/**
 	 * This method returns the diffuse color
 	 * 
