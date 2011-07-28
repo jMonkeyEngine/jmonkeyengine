@@ -45,12 +45,11 @@ public class IntPanel extends MaterialPropertyWidget {
 
         jLabel1.setText(org.openide.util.NbBundle.getMessage(IntPanel.class, "IntPanel.jLabel1.text")); // NOI18N
         jLabel1.setMaximumSize(new java.awt.Dimension(100, 16));
-        jLabel1.setPreferredSize(new java.awt.Dimension(100, 0));
+        jLabel1.setPreferredSize(new java.awt.Dimension(100, 16));
         jToolBar1.add(jLabel1);
 
         jPanel1.setBackground(new java.awt.Color(204, 204, 204));
         jPanel1.setPreferredSize(new java.awt.Dimension(100, 0));
-        jPanel1.setSize(new java.awt.Dimension(0, 0));
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -77,7 +76,7 @@ public class IntPanel extends MaterialPropertyWidget {
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jToolBar1, javax.swing.GroupLayout.PREFERRED_SIZE, 129, Short.MAX_VALUE)
+            .addComponent(jToolBar1, javax.swing.GroupLayout.DEFAULT_SIZE, 129, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)

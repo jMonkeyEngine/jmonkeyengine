@@ -45,7 +45,7 @@ public class FloatPanel extends MaterialPropertyWidget {
 
         jLabel1.setText(org.openide.util.NbBundle.getMessage(FloatPanel.class, "FloatPanel.jLabel1.text")); // NOI18N
         jLabel1.setMaximumSize(new java.awt.Dimension(100, 16));
-        jLabel1.setPreferredSize(new java.awt.Dimension(100, 0));
+        jLabel1.setPreferredSize(new java.awt.Dimension(100, 16));
         jToolBar1.add(jLabel1);
 
         jPanel1.setBackground(new java.awt.Color(204, 204, 204));
@@ -76,7 +76,7 @@ public class FloatPanel extends MaterialPropertyWidget {
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jToolBar1, javax.swing.GroupLayout.PREFERRED_SIZE, 168, Short.MAX_VALUE)
+            .addComponent(jToolBar1, javax.swing.GroupLayout.DEFAULT_SIZE, 168, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
