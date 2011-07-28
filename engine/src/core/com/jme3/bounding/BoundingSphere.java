@@ -768,6 +768,7 @@ public class BoundingSphere extends BoundingVolume {
 
             CollisionResult result = new CollisionResult(point, distance);
             results.addCollision(result);
+            vars.release();
             return 1;
         }
 
