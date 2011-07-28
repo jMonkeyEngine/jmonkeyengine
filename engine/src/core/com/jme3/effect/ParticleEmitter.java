@@ -75,7 +75,6 @@ public class ParticleEmitter extends Geometry {
 
     private static final EmitterShape DEFAULT_SHAPE = new EmitterPointShape(Vector3f.ZERO);
     private static final ParticleInfluencer DEFAULT_INFLUENCER = new DefaultParticleInfluencer();
-    
     private ParticleEmitterControl control;
     private EmitterShape shape = DEFAULT_SHAPE;
     private ParticleMesh particleMesh;
@@ -110,19 +109,19 @@ public class ParticleEmitter extends Geometry {
     public static class ParticleEmitterControl implements Control {
 
         ParticleEmitter parentEmitter;
-        
-        public ParticleEmitterControl(){
+
+        public ParticleEmitterControl() {
         }
-        
-        public ParticleEmitterControl(ParticleEmitter parentEmitter){
+
+        public ParticleEmitterControl(ParticleEmitter parentEmitter) {
             this.parentEmitter = parentEmitter;
         }
-        
+
         public Control cloneForSpatial(Spatial spatial) {
             return this; // WARNING: Sets wrong control on spatial. Will be
-                         // fixed automatically by ParticleEmitter.clone() method.
+            // fixed automatically by ParticleEmitter.clone() method.
         }
-        
+
         public void setSpatial(Spatial spatial) {
         }
 
@@ -153,21 +152,21 @@ public class ParticleEmitter extends Geometry {
     public ParticleEmitter clone() {
         ParticleEmitter clone = (ParticleEmitter) super.clone();
         clone.shape = shape.deepClone();
-        
+
         // Reinitialize particle list
         clone.setNumParticles(particles.length);
-        
+
         clone.faceNormal = faceNormal.clone();
         clone.startColor = startColor.clone();
         clone.endColor = endColor.clone();
         clone.particleInfluencer = particleInfluencer.clone();
-        
+
         // remove wrong control
         clone.controls.remove(control);
-        
+
         // put correct control
         clone.controls.add(new ParticleEmitterControl(clone));
-        
+
         // Reinitialize particle mesh
         switch (meshType) {
             case Point:
@@ -183,7 +182,7 @@ public class ParticleEmitter extends Geometry {
         }
         clone.particleMesh.initParticleData(clone, clone.particles.length);
         clone.particleMesh.setImagesXY(clone.imagesX, clone.imagesY);
-        
+
         return clone;
     }
 
@@ -201,8 +200,8 @@ public class ParticleEmitter extends Geometry {
 
         meshType = type;
 
-        this.setNumParticles(numParticles);
-        
+
+
         // Must create clone of shape/influencer so that a reference to a static is 
         // not maintained
         shape = shape.deepClone();
@@ -223,7 +222,8 @@ public class ParticleEmitter extends Geometry {
             default:
                 throw new IllegalStateException("Unrecognized particle type: " + meshType);
         }
-        particleMesh.initParticleData(this, particles.length);
+        this.setNumParticles(numParticles);
+//        particleMesh.initParticleData(this, particles.length);
     }
 
     /**
@@ -330,8 +330,15 @@ public class ParticleEmitter extends Geometry {
         for (int i = 0; i < numParticles; i++) {
             particles[i] = new Particle();
         }
+        //We have to reinit the mesh's buffers with the new size
+        particleMesh.initParticleData(this, particles.length);        
+        particleMesh.setImagesXY(this.imagesX, this.imagesY);
         firstUnUsed = 0;
         lastUsed = -1;
+    }
+
+    public int getMaxNumParticles() {
+        return particles.length;
     }
 
     /**
@@ -1117,12 +1124,12 @@ public class ParticleEmitter extends Geometry {
         super.read(im);
         InputCapsule ic = im.getCapsule(this);
         shape = (EmitterShape) ic.readSavable("shape", DEFAULT_SHAPE);
-        
-        if (shape == DEFAULT_SHAPE){
+
+        if (shape == DEFAULT_SHAPE) {
             // Prevent reference to static
             shape = shape.deepClone();
         }
-        
+
         meshType = ic.readEnum("meshType", ParticleMesh.Type.class, ParticleMesh.Type.Triangle);
         int numParticles = ic.readInt("numParticles", 0);
         this.setNumParticles(numParticles);
@@ -1161,17 +1168,17 @@ public class ParticleEmitter extends Geometry {
         particleMesh.setImagesXY(imagesX, imagesY);
 
         particleInfluencer = (ParticleInfluencer) ic.readSavable("influencer", DEFAULT_INFLUENCER);
-        if (particleInfluencer == DEFAULT_INFLUENCER){
+        if (particleInfluencer == DEFAULT_INFLUENCER) {
             particleInfluencer = particleInfluencer.clone();
         }
-  
-        if (im.getFormatVersion() == 0){
+
+        if (im.getFormatVersion() == 0) {
             // compatibility before the control inside particle emitter
             // was changed:
             // find it in the controls and take it out, then add the proper one in
-            for (int i = 0; i < controls.size(); i++){
+            for (int i = 0; i < controls.size(); i++) {
                 Object obj = controls.get(i);
-                if (obj instanceof ParticleEmitter){
+                if (obj instanceof ParticleEmitter) {
                     controls.remove(i);
                     // now add the proper one in
                     controls.add(new ParticleEmitterControl(this));
@@ -1180,11 +1187,11 @@ public class ParticleEmitter extends Geometry {
             }
 
             // compatability before gravity was not a vector but a float
-            if (gravity == null){
+            if (gravity == null) {
                 gravity = new Vector3f();
                 gravity.y = ic.readFloat("gravity", 0);
             }
-        }else{
+        } else {
             // since the parentEmitter is not loaded, it must be 
             // loaded separately
             control = getControl(ParticleEmitterControl.class);

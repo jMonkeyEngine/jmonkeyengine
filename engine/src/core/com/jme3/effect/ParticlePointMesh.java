@@ -64,26 +64,51 @@ public class ParticlePointMesh extends ParticleMesh {
         FloatBuffer pb = BufferUtils.createVector3Buffer(numParticles);
         VertexBuffer pvb = new VertexBuffer(VertexBuffer.Type.Position);
         pvb.setupData(Usage.Stream, 3, Format.Float, pb);
-        setBuffer(pvb);
+         
+        //if the buffer is already set only update the data
+        VertexBuffer buf = getBuffer(VertexBuffer.Type.Position);
+        if (buf != null) {
+            buf.updateData(pb);
+        } else {
+            setBuffer(pvb);
+        }
 
         // set colors
         ByteBuffer cb = BufferUtils.createByteBuffer(numParticles * 4);
         VertexBuffer cvb = new VertexBuffer(VertexBuffer.Type.Color);
         cvb.setupData(Usage.Stream, 4, Format.UnsignedByte, cb);
         cvb.setNormalized(true);
-        setBuffer(cvb);
+        
+        buf = getBuffer(VertexBuffer.Type.Color);
+        if (buf != null) {
+            buf.updateData(cb);
+        } else {
+            setBuffer(cvb);
+        }
 
         // set sizes
         FloatBuffer sb = BufferUtils.createFloatBuffer(numParticles);
         VertexBuffer svb = new VertexBuffer(VertexBuffer.Type.Size);
         svb.setupData(Usage.Stream, 1, Format.Float, sb);
-        setBuffer(svb);
+                
+        buf = getBuffer(VertexBuffer.Type.Size);
+        if (buf != null) {
+            buf.updateData(sb);
+        } else {
+            setBuffer(svb);
+        }
 
         // set UV-scale
         FloatBuffer tb = BufferUtils.createFloatBuffer(numParticles*4);
         VertexBuffer tvb = new VertexBuffer(VertexBuffer.Type.TexCoord);
         tvb.setupData(Usage.Stream, 4, Format.Float, tb);
-        setBuffer(tvb);
+        
+        buf = getBuffer(VertexBuffer.Type.TexCoord);
+        if (buf != null) {
+            buf.updateData(tb);
+        } else {
+            setBuffer(tvb);
+        }
     }
 
     @Override

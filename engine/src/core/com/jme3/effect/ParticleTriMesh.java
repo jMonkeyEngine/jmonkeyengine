@@ -66,14 +66,27 @@ public class ParticleTriMesh extends ParticleMesh {
         FloatBuffer pb = BufferUtils.createVector3Buffer(numParticles * 4);
         VertexBuffer pvb = new VertexBuffer(VertexBuffer.Type.Position);
         pvb.setupData(Usage.Stream, 3, Format.Float, pb);
-        setBuffer(pvb);
-
+        
+        //if the buffer is already set only update the data
+        VertexBuffer buf = getBuffer(VertexBuffer.Type.Position);
+        if (buf != null) {
+            buf.updateData(pb);
+        } else {
+            setBuffer(pvb);
+        }
+        
         // set colors
         ByteBuffer cb = BufferUtils.createByteBuffer(numParticles * 4 * 4);
         VertexBuffer cvb = new VertexBuffer(VertexBuffer.Type.Color);
         cvb.setupData(Usage.Stream, 4, Format.UnsignedByte, cb);
         cvb.setNormalized(true);
-        setBuffer(cvb);
+        
+        buf = getBuffer(VertexBuffer.Type.Color);
+        if (buf != null) {
+            buf.updateData(cb);
+        } else {
+            setBuffer(cvb);
+        }
 
         // set texcoords
         VertexBuffer tvb = new VertexBuffer(VertexBuffer.Type.TexCoord);
@@ -89,7 +102,12 @@ public class ParticleTriMesh extends ParticleMesh {
         tb.flip();
         tvb.setupData(Usage.Static, 2, Format.Float, tb);
         
-        setBuffer(tvb);
+        buf = getBuffer(VertexBuffer.Type.TexCoord);
+        if (buf != null) {
+            buf.updateData(tb);
+        } else {
+            setBuffer(tvb);
+        }
 
         // set indices
         ShortBuffer ib = BufferUtils.createShortBuffer(numParticles * 6);
@@ -110,9 +128,16 @@ public class ParticleTriMesh extends ParticleMesh {
         
         VertexBuffer ivb = new VertexBuffer(VertexBuffer.Type.Index);
         ivb.setupData(Usage.Static, 3, Format.UnsignedShort, ib);
-        setBuffer(ivb);
+        
+        buf = getBuffer(VertexBuffer.Type.Index);
+        if (buf != null) {
+            buf.updateData(ib);
+        } else {
+            setBuffer(ivb);
+        }
+        
     }
-
+    
     @Override
     public void setImagesXY(int imagesX, int imagesY) {
         this.imagesX = imagesX;
