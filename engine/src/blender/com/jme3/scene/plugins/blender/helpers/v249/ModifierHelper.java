@@ -699,7 +699,7 @@ public class ModifierHelper extends AbstractBlenderHelper {
 
                             //modifying clone indexes
                             int vertexIndex = (i - mirrorIndex) / 3;
-                            if (vertexIndex % 3 == 0) {
+                            if (vertexIndex % 3 == 0 && vertexIndex<cloneIndexes.limit()) {
                                 int index = cloneIndexes.get(vertexIndex + 2);
                                 cloneIndexes.put(vertexIndex + 2, cloneIndexes.get(vertexIndex + 1));
                                 cloneIndexes.put(vertexIndex + 1, index);
