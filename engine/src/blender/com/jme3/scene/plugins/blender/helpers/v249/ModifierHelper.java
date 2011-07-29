@@ -32,7 +32,7 @@
 package com.jme3.scene.plugins.blender.helpers.v249;
 
 import java.nio.FloatBuffer;
-import java.nio.ShortBuffer;
+import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -678,7 +678,7 @@ public class ModifierHelper extends AbstractBlenderHelper {
                         FloatBuffer cloneBindPosePosition = clone.getFloatBuffer(Type.BindPosePosition);
                         FloatBuffer cloneNormals = clone.getFloatBuffer(Type.Normal);
                         FloatBuffer cloneBindPoseNormals = clone.getFloatBuffer(Type.BindPoseNormal);
-                        ShortBuffer cloneIndexes = (ShortBuffer) clone.getBuffer(Type.Index).getData();
+                        IntBuffer cloneIndexes = (IntBuffer) clone.getBuffer(Type.Index).getData();
 
                         // modyfying data
                         for (int i = mirrorIndex; i < clonePosition.limit(); i += 3) {
@@ -700,7 +700,7 @@ public class ModifierHelper extends AbstractBlenderHelper {
                             //modifying clone indexes
                             int vertexIndex = (i - mirrorIndex) / 3;
                             if (vertexIndex % 3 == 0) {
-                                short index = cloneIndexes.get(vertexIndex + 2);
+                                int index = cloneIndexes.get(vertexIndex + 2);
                                 cloneIndexes.put(vertexIndex + 2, cloneIndexes.get(vertexIndex + 1));
                                 cloneIndexes.put(vertexIndex + 1, index);
                             }
