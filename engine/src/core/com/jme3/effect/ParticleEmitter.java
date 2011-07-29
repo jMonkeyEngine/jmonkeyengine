@@ -150,7 +150,12 @@ public class ParticleEmitter extends Geometry {
 
     @Override
     public ParticleEmitter clone() {
-        ParticleEmitter clone = (ParticleEmitter) super.clone();
+        return clone(true);
+    }
+
+    @Override
+    public ParticleEmitter clone(boolean cloneMaterial) {
+        ParticleEmitter clone = (ParticleEmitter) super.clone(cloneMaterial);
         clone.shape = shape.deepClone();
 
         // Reinitialize particle list
@@ -331,7 +336,7 @@ public class ParticleEmitter extends Geometry {
             particles[i] = new Particle();
         }
         //We have to reinit the mesh's buffers with the new size
-        particleMesh.initParticleData(this, particles.length);        
+        particleMesh.initParticleData(this, particles.length);
         particleMesh.setImagesXY(this.imagesX, this.imagesY);
         firstUnUsed = 0;
         lastUsed = -1;
@@ -1132,7 +1137,7 @@ public class ParticleEmitter extends Geometry {
 
         meshType = ic.readEnum("meshType", ParticleMesh.Type.class, ParticleMesh.Type.Triangle);
         int numParticles = ic.readInt("numParticles", 0);
-      
+
 
         enabled = ic.readBoolean("enabled", true);
         particlesPerSec = ic.readFloat("particlesPerSec", 0);
@@ -1147,6 +1152,7 @@ public class ParticleEmitter extends Geometry {
         startSize = ic.readFloat("startSize", 0);
         endSize = ic.readFloat("endSize", 0);
         worldSpace = ic.readBoolean("worldSpace", false);
+        this.setIgnoreTransform(worldSpace);
         facingVelocity = ic.readBoolean("facingVelocity", false);
         selectRandomImage = ic.readBoolean("selectRandomImage", false);
         randomAngle = ic.readBoolean("randomAngle", false);
@@ -1197,6 +1203,7 @@ public class ParticleEmitter extends Geometry {
             // loaded separately
             control = getControl(ParticleEmitterControl.class);
             control.parentEmitter = this;
+
         }
     }
 }
