@@ -236,9 +236,10 @@ public class MaterialHelper extends AbstractBlenderHelper {
 		if ((dataRepository.getBlenderKey().getFeaturesToLoad() & FeaturesToLoad.TEXTURES) != 0) {
 			TextureHelper textureHelper = dataRepository.getHelper(TextureHelper.class);
 			DynamicArray<Pointer> mtexs = (DynamicArray<Pointer>) structure.getFieldValue("mtex");
+			int separatedTextures = ((Number)structure.getFieldValue("septex")).intValue();
 			for (int i = 0; i < mtexs.getTotalSize(); ++i) {
 				Pointer p = mtexs.get(i);
-				if (p.isNotNull()) {
+				if (p.isNotNull() && (separatedTextures & (1 << i)) == 0) {
 					List<Structure> mtex = p.fetchData(dataRepository.getInputStream());
 					if (mtex.size() == 1) {
 						Structure textureLink = mtex.get(0);
