@@ -1132,7 +1132,7 @@ public class ParticleEmitter extends Geometry {
 
         meshType = ic.readEnum("meshType", ParticleMesh.Type.class, ParticleMesh.Type.Triangle);
         int numParticles = ic.readInt("numParticles", 0);
-        this.setNumParticles(numParticles);
+      
 
         enabled = ic.readBoolean("enabled", true);
         particlesPerSec = ic.readFloat("particlesPerSec", 0);
@@ -1164,8 +1164,9 @@ public class ParticleEmitter extends Geometry {
             default:
                 throw new IllegalStateException("Unrecognized particle type: " + meshType);
         }
-        particleMesh.initParticleData(this, particles.length);
-        particleMesh.setImagesXY(imagesX, imagesY);
+        this.setNumParticles(numParticles);
+//        particleMesh.initParticleData(this, particles.length);
+//        particleMesh.setImagesXY(imagesX, imagesY);
 
         particleInfluencer = (ParticleInfluencer) ic.readSavable("influencer", DEFAULT_INFLUENCER);
         if (particleInfluencer == DEFAULT_INFLUENCER) {
