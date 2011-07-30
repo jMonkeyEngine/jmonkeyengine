@@ -1,0 +1,429 @@
+/*
+ * Copyright (c) 2009-2010 jMonkeyEngine
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ * * Redistributions of source code must retain the above copyright
+ *   notice, this list of conditions and the following disclaimer.
+ *
+ * * Redistributions in binary form must reproduce the above copyright
+ *   notice, this list of conditions and the following disclaimer in the
+ *   documentation and/or other materials provided with the distribution.
+ *
+ * * Neither the name of 'jMonkeyEngine' nor the names of its contributors
+ *   may be used to endorse or promote products derived from this software
+ *   without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+ * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+package com.jme3.scene.plugins.blender;
+
+import java.util.ArrayList;
+import java.util.EmptyStackException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Stack;
+
+import com.jme3.asset.AssetManager;
+import com.jme3.asset.BlenderKey;
+import com.jme3.material.Material;
+import com.jme3.math.ColorRGBA;
+import com.jme3.scene.plugins.blender.animations.Ipo;
+import com.jme3.scene.plugins.blender.constraints.Constraint;
+import com.jme3.scene.plugins.blender.file.BlenderInputStream;
+import com.jme3.scene.plugins.blender.file.DnaBlockData;
+import com.jme3.scene.plugins.blender.file.FileBlockHeader;
+import com.jme3.scene.plugins.blender.file.Structure;
+import com.jme3.scene.plugins.blender.modifiers.Modifier;
+
+/**
+ * The class that stores temporary data and manages it during loading the belnd file. This class is intended to be used
+ * in a single loading thread. It holds the state of loading operations.
+ * @author Marcin Roguski
+ */
+public class DataRepository {
+
+    /** The blender key. */
+    private BlenderKey blenderKey;
+    /** The header of the file block. */
+    private DnaBlockData dnaBlockData;
+    /** The input stream of the blend file. */
+    private BlenderInputStream inputStream;
+    /** The asset manager. */
+    private AssetManager assetManager;
+    /** A map containing the file block headers. The key is the old pointer address. */
+    private Map<Long, FileBlockHeader> fileBlockHeadersByOma = new HashMap<Long, FileBlockHeader>();
+    /** A map containing the file block headers. The key is the block code. */
+    private Map<Integer, List<FileBlockHeader>> fileBlockHeadersByCode = new HashMap<Integer, List<FileBlockHeader>>();
+    /**
+     * This map stores the loaded features by their old memory address. The first object in the value table is the
+     * loaded structure and the second - the structure already converted into proper data.
+     */
+    private Map<Long, Object[]> loadedFeatures = new HashMap<Long, Object[]>();
+    /**
+     * This map stores the loaded features by their name. Only features with ID structure can be stored here.
+     * The first object in the value table is the
+     * loaded structure and the second - the structure already converted into proper data.
+     */
+    private Map<String, Object[]> loadedFeaturesByName = new HashMap<String, Object[]>();
+    /** A stack that hold the parent structure of currently loaded feature. */
+    private Stack<Structure> parentStack = new Stack<Structure>();
+    /** A map storing loaded ipos. The key is the ipo's owner old memory address and the value is the ipo. */
+    private Map<Long, Ipo> loadedIpos = new HashMap<Long, Ipo>();
+    /** A list of modifiers for the specified object. */
+    protected Map<Long, List<Modifier>> modifiers = new HashMap<Long, List<Modifier>>();
+    /** A list of constraints for the specified object. */
+    protected Map<Long, List<Constraint>> constraints = new HashMap<Long, List<Constraint>>();
+    /** A map og helpers that perform loading. */
+    private Map<String, AbstractBlenderHelper> helpers = new HashMap<String, AbstractBlenderHelper>();
+
+    /**
+     * This method sets the blender key.
+     * @param blenderKey
+     * 		  the blender key
+     */
+    public void setBlenderKey(BlenderKey blenderKey) {
+        this.blenderKey = blenderKey;
+    }
+
+    /**
+     * This method returns the blender key.
+     * @return the blender key
+     */
+    public BlenderKey getBlenderKey() {
+        return blenderKey;
+    }
+
+    /**
+     * This method sets the dna block data.
+     * @param dnaBlockData
+     *        the dna block data
+     */
+    public void setBlockData(DnaBlockData dnaBlockData) {
+        this.dnaBlockData = dnaBlockData;
+    }
+
+    /**
+     * This method returns the dna block data.
+     * @return the dna block data
+     */
+    public DnaBlockData getDnaBlockData() {
+        return dnaBlockData;
+    }
+
+    /**
+     * This method returns the asset manager.
+     * @return the asset manager
+     */
+    public AssetManager getAssetManager() {
+        return assetManager;
+    }
+
+    /**
+     * This method sets the asset manager.
+     * @param assetManager
+     *        the asset manager
+     */
+    public void setAssetManager(AssetManager assetManager) {
+        this.assetManager = assetManager;
+    }
+
+    /**
+     * This method returns the input stream of the blend file.
+     * @return the input stream of the blend file
+     */
+    public BlenderInputStream getInputStream() {
+        return inputStream;
+    }
+
+    /**
+     * This method sets the input stream of the blend file.
+     * @param inputStream
+     *        the input stream of the blend file
+     */
+    public void setInputStream(BlenderInputStream inputStream) {
+        this.inputStream = inputStream;
+    }
+
+    /**
+     * This method adds a file block header to the map. Its old memory address is the key.
+     * @param oldMemoryAddress
+     *        the address of the block header
+     * @param fileBlockHeader
+     *        the block header to store
+     */
+    public void addFileBlockHeader(Long oldMemoryAddress, FileBlockHeader fileBlockHeader) {
+        fileBlockHeadersByOma.put(oldMemoryAddress, fileBlockHeader);
+        List<FileBlockHeader> headers = fileBlockHeadersByCode.get(Integer.valueOf(fileBlockHeader.getCode()));
+        if (headers == null) {
+            headers = new ArrayList<FileBlockHeader>();
+            fileBlockHeadersByCode.put(Integer.valueOf(fileBlockHeader.getCode()), headers);
+        }
+        headers.add(fileBlockHeader);
+    }
+
+    /**
+     * This method returns the block header of a given memory address. If the header is not present then null is
+     * returned.
+     * @param oldMemoryAddress
+     *        the address of the block header
+     * @return loaded header or null if it was not yet loaded
+     */
+    public FileBlockHeader getFileBlock(Long oldMemoryAddress) {
+        return fileBlockHeadersByOma.get(oldMemoryAddress);
+    }
+
+    /**
+     * This method returns a list of file blocks' headers of a specified code.
+     * @param code
+     *        the code of file blocks
+     * @return a list of file blocks' headers of a specified code
+     */
+    public List<FileBlockHeader> getFileBlocks(Integer code) {
+        return fileBlockHeadersByCode.get(code);
+    }
+
+    /**
+     * This method clears the saved block headers stored in the features map.
+     */
+    public void clearFileBlocks() {
+        fileBlockHeadersByOma.clear();
+        fileBlockHeadersByCode.clear();
+    }
+
+    /**
+     * This method adds a helper instance to the helpers' map.
+     * @param <T>
+     *        the type of the helper
+     * @param clazz
+     *        helper's class definition
+     * @param helper
+     *        the helper instance
+     */
+    public <T> void putHelper(Class<T> clazz, AbstractBlenderHelper helper) {
+        helpers.put(clazz.getSimpleName(), helper);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> T getHelper(Class<?> clazz) {
+        return (T) helpers.get(clazz.getSimpleName());
+    }
+
+    /**
+     * This method adds a loaded feature to the map. The key is its unique old memory address.
+     * @param oldMemoryAddress
+     *        the address of the feature
+     * @param featureName the name of the feature
+     * @param structure
+     *        the filled structure of the feature
+     * @param feature
+     *        the feature we want to store
+     */
+    public void addLoadedFeatures(Long oldMemoryAddress, String featureName, Structure structure, Object feature) {
+        if (oldMemoryAddress == null || structure == null || feature == null) {
+            throw new IllegalArgumentException("One of the given arguments is null!");
+        }
+        Object[] storedData = new Object[]{structure, feature};
+        loadedFeatures.put(oldMemoryAddress, storedData);
+        if (featureName != null) {
+            loadedFeaturesByName.put(featureName, storedData);
+        }
+    }
+
+    /**
+     * This method returns the feature of a given memory address. If the feature is not yet loaded then null is
+     * returned.
+     * @param oldMemoryAddress
+     *        the address of the feature
+     * @param loadedFeatureDataType
+     *        the type of data we want to retreive it can be either filled structure or already converted feature
+     * @return loaded feature or null if it was not yet loaded
+     */
+    public Object getLoadedFeature(Long oldMemoryAddress, LoadedFeatureDataType loadedFeatureDataType) {
+        Object[] result = loadedFeatures.get(oldMemoryAddress);
+        if (result != null) {
+            return result[loadedFeatureDataType.getIndex()];
+        }
+        return null;
+    }
+
+    /**
+     * This method returns the feature of a given name. If the feature is not yet loaded then null is
+     * returned.
+     * @param featureName
+     *        the name of the feature
+     * @param loadedFeatureDataType
+     *        the type of data we want to retreive it can be either filled structure or already converted feature
+     * @return loaded feature or null if it was not yet loaded
+     */
+    public Object getLoadedFeature(String featureName, LoadedFeatureDataType loadedFeatureDataType) {
+        Object[] result = loadedFeaturesByName.get(featureName);
+        if (result != null) {
+            return result[loadedFeatureDataType.getIndex()];
+        }
+        return null;
+    }
+
+    /**
+     * This method clears the saved features stored in the features map.
+     */
+    public void clearLoadedFeatures() {
+        loadedFeatures.clear();
+    }
+
+    /**
+     * This method adds the structure to the parent stack.
+     * @param parent
+     *        the structure to be added to the stack
+     */
+    public void pushParent(Structure parent) {
+        parentStack.push(parent);
+    }
+
+    /**
+     * This method removes the structure from the top of the parent's stack.
+     * @return the structure that was removed from the stack
+     */
+    public Structure popParent() {
+        try {
+            return parentStack.pop();
+        } catch (EmptyStackException e) {
+            return null;
+        }
+    }
+
+    /**
+     * This method retreives the structure at the top of the parent's stack but does not remove it.
+     * @return the structure from the top of the stack
+     */
+    public Structure peekParent() {
+        try {
+            return parentStack.peek();
+        } catch (EmptyStackException e) {
+            return null;
+        }
+    }
+
+    public void addIpo(Long ownerOMA, Ipo ipo) {
+        loadedIpos.put(ownerOMA, ipo);
+    }
+
+    public Ipo removeIpo(Long ownerOma) {
+        return loadedIpos.remove(ownerOma);
+    }
+
+    public Ipo getIpo(Long ownerOMA) {
+        return loadedIpos.get(ownerOMA);
+    }
+
+    /**
+     * This method adds a new modifier to the list.
+     * @param ownerOMA
+     *        the owner's old memory address
+     * @param modifier
+     * 		  the object's modifier
+     */
+    public void addModifier(Long ownerOMA, Modifier modifier) {
+        List<Modifier> objectModifiers = this.modifiers.get(ownerOMA);
+        if (objectModifiers == null) {
+            objectModifiers = new ArrayList<Modifier>();
+            this.modifiers.put(ownerOMA, objectModifiers);
+        }
+        objectModifiers.add(modifier);
+    }
+
+    /**
+     * This method returns modifiers for the object specified by its old memory address and the modifier type. If no
+     * modifiers are found - empty list is returned. If the type is null - all modifiers for the object are returned.
+     * @param objectOMA
+     *        object's old memory address
+     * @param type
+     *        the type of the modifier
+     * @return the list of object's modifiers
+     */
+    public List<Modifier> getModifiers(Long objectOMA, String type) {
+        List<Modifier> result = new ArrayList<Modifier>();
+        List<Modifier> readModifiers = modifiers.get(objectOMA);
+        if (readModifiers != null && readModifiers.size() > 0) {
+            for (Modifier modifier : readModifiers) {
+                if (type == null || type.isEmpty() || modifier.getType().equals(type)) {
+                    result.add(modifier);
+                }
+            }
+        }
+        return result;
+    }
+    
+    /**
+     * This method adds a new modifier to the list.
+     * @param ownerOMA
+     *        the owner's old memory address
+     * @param constraints
+     * 		  the object's constraints
+     */
+    public void addConstraints(Long ownerOMA, List<Constraint> constraints) {
+        List<Constraint> objectConstraints = this.constraints.get(ownerOMA);
+        if (objectConstraints == null) {
+            objectConstraints = new ArrayList<Constraint>();
+            this.constraints.put(ownerOMA, objectConstraints);
+        }
+        objectConstraints.addAll(constraints);
+    }
+
+    /**
+     * This method returns constraints for the object specified by its old memory address. If no
+     * modifiers are found - <b>null</b> is returned.
+     * @param objectOMA
+     *        object's old memory address
+     * @return the list of object's modifiers or null
+     */
+    public List<Constraint> getConstraints(Long objectOMA) {
+    	return constraints.get(objectOMA);
+    }
+
+    /**
+     * This metod returns the default material.
+     * @return the default material
+     */
+    public synchronized Material getDefaultMaterial() {
+        if (blenderKey.getDefaultMaterial() == null) {
+            Material defaultMaterial = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+            defaultMaterial.setColor("Color", ColorRGBA.DarkGray);
+            blenderKey.setDefaultMaterial(defaultMaterial);
+        }
+        return blenderKey.getDefaultMaterial();
+    }
+
+    /**
+     * This enum defines what loaded data type user wants to retreive. It can be either filled structure or already
+     * converted data.
+     * @author Marcin Roguski
+     */
+    public static enum LoadedFeatureDataType {
+
+        LOADED_STRUCTURE(0), LOADED_FEATURE(1);
+        private int index;
+
+        private LoadedFeatureDataType(int index) {
+            this.index = index;
+        }
+
+        public int getIndex() {
+            return index;
+        }
+    }
+}

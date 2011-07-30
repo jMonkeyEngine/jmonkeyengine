@@ -47,25 +47,22 @@ import com.jme3.asset.ModelKey;
 import com.jme3.light.Light;
 import com.jme3.renderer.Camera;
 import com.jme3.scene.Node;
-import com.jme3.scene.plugins.blender.data.FileBlockHeader;
-import com.jme3.scene.plugins.blender.data.Structure;
-import com.jme3.scene.plugins.blender.exception.BlenderFileException;
-import com.jme3.scene.plugins.blender.helpers.ArmatureHelper;
-import com.jme3.scene.plugins.blender.helpers.CameraHelper;
-import com.jme3.scene.plugins.blender.helpers.ConstraintHelper;
-import com.jme3.scene.plugins.blender.helpers.CurvesHelper;
-import com.jme3.scene.plugins.blender.helpers.IpoHelper;
-import com.jme3.scene.plugins.blender.helpers.LightHelper;
-import com.jme3.scene.plugins.blender.helpers.MaterialHelper;
-import com.jme3.scene.plugins.blender.helpers.MeshHelper;
-import com.jme3.scene.plugins.blender.helpers.ModifierHelper;
-import com.jme3.scene.plugins.blender.helpers.NoiseHelper;
-import com.jme3.scene.plugins.blender.helpers.ObjectHelper;
-import com.jme3.scene.plugins.blender.helpers.ParticlesHelper;
-import com.jme3.scene.plugins.blender.helpers.TextureHelper;
-import com.jme3.scene.plugins.blender.utils.BlenderInputStream;
-import com.jme3.scene.plugins.blender.utils.DataRepository;
-import com.jme3.scene.plugins.blender.utils.JmeConverter;
+import com.jme3.scene.plugins.blender.animations.ArmatureHelper;
+import com.jme3.scene.plugins.blender.animations.IpoHelper;
+import com.jme3.scene.plugins.blender.cameras.CameraHelper;
+import com.jme3.scene.plugins.blender.constraints.ConstraintHelper;
+import com.jme3.scene.plugins.blender.curves.CurvesHelper;
+import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
+import com.jme3.scene.plugins.blender.file.BlenderInputStream;
+import com.jme3.scene.plugins.blender.file.FileBlockHeader;
+import com.jme3.scene.plugins.blender.file.Structure;
+import com.jme3.scene.plugins.blender.lights.LightHelper;
+import com.jme3.scene.plugins.blender.materials.MaterialHelper;
+import com.jme3.scene.plugins.blender.meshes.MeshHelper;
+import com.jme3.scene.plugins.blender.modifiers.ModifierHelper;
+import com.jme3.scene.plugins.blender.objects.ObjectHelper;
+import com.jme3.scene.plugins.blender.particles.ParticlesHelper;
+import com.jme3.scene.plugins.blender.textures.TextureHelper;
 
 /**
  * This is the main loading class. Have in notice that asset manager needs to have loaders for resources like textures.
@@ -111,7 +108,6 @@ public class BlenderLoader implements AssetLoader {
             dataRepository.putHelper(MaterialHelper.class, new MaterialHelper(inputStream.getVersionNumber()));
             dataRepository.putHelper(ConstraintHelper.class, new ConstraintHelper(inputStream.getVersionNumber(), dataRepository));
             dataRepository.putHelper(IpoHelper.class, new IpoHelper(inputStream.getVersionNumber()));
-            dataRepository.putHelper(NoiseHelper.class, new NoiseHelper(inputStream.getVersionNumber()));
             dataRepository.putHelper(ParticlesHelper.class, new ParticlesHelper(inputStream.getVersionNumber()));
 
             //setting additional data to helpers
