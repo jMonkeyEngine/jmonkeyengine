@@ -41,6 +41,8 @@ import org.openide.loaders.DataObject;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
+import org.openide.nodes.NodeAdapter;
+import org.openide.nodes.NodeListener;
 import org.openide.nodes.Sheet;
 import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
@@ -67,7 +69,7 @@ public abstract class AbstractSceneExplorerNode extends AbstractNode implements 
     public AbstractSceneExplorerNode(Children children, DataObject dataObject) {
         super(children, new ProxyLookup(dataObject.getLookup(), new DynamicLookup(new InstanceContent())));
         this.dataObject = dataObject;
-        lookupContents = getLookup().lookup(DynamicLookup.class).getInstanceContent();
+        lookupContents = getLookup().lookup(DynamicLookup.class).getInstanceContent();        
     }
 
     public AbstractSceneExplorerNode(DataObject dataObject) {
@@ -165,6 +167,23 @@ public abstract class AbstractSceneExplorerNode extends AbstractNode implements 
         }
         return prop;
     }
+    
+     protected Property makeEmbedProperty(Object obj,Class objectClass, Class returntype, String method, String setter, String name) {
+        Property prop = null;
+        try {
+            if (readOnly) {
+                prop = new SceneExplorerProperty(objectClass.cast(obj), returntype, method, null);
+            } else {
+                prop = new SceneExplorerProperty(objectClass.cast(obj), returntype, method, setter, this);
+            }
+            prop.setName(name);
+
+        } catch (NoSuchMethodException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+        return prop;
+    }
+
 
     protected void createFields(Class c, Sheet.Set set, Object obj) throws SecurityException {
         for (Field field : c.getDeclaredFields()) {
@@ -189,4 +208,5 @@ public abstract class AbstractSceneExplorerNode extends AbstractNode implements 
     public Node[] createNodes(Object key, DataObject dataObject, boolean readOnly) {
         return new Node[]{Node.EMPTY};
     }
+    
 }

@@ -33,12 +33,16 @@ package com.jme3.gde.core.sceneexplorer.nodes;
 
 import com.jme3.effect.shapes.EmitterShape;
 import com.jme3.effect.ParticleEmitter;
-import com.jme3.gde.core.sceneexplorer.nodes.SceneExplorerNode;
+import com.jme3.effect.ParticleMesh;
+import com.jme3.effect.influencers.ParticleInfluencer;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import java.awt.Image;
+import java.beans.PropertyEditor;
+import java.lang.reflect.InvocationTargetException;
 import org.openide.loaders.DataObject;
 import org.openide.nodes.Node;
+import org.openide.nodes.PropertySupport;
 import org.openide.nodes.Sheet;
 import org.openide.util.ImageUtilities;
 
@@ -46,12 +50,11 @@ import org.openide.util.ImageUtilities;
  *
  * @author normenhansen
  */
-@org.openide.util.lookup.ServiceProvider(service=SceneExplorerNode.class)
-public class JmeParticleEmitter extends JmeGeometry{
+@org.openide.util.lookup.ServiceProvider(service = SceneExplorerNode.class)
+public class JmeParticleEmitter extends JmeGeometry {
 
     public JmeParticleEmitter() {
     }
-
     private static Image smallImage =
             ImageUtilities.loadImage("com/jme3/gde/core/sceneexplorer/nodes/icons/particleemitter.gif");
     private ParticleEmitter geom;
@@ -84,51 +87,89 @@ public class JmeParticleEmitter extends JmeGeometry{
             return sheet;
         }
 
-        createFields(geom.getClass(), set, obj);
-//        set.put(makeProperty(obj, boolean.class, "isEnabled", "setEnabled", "Enabled"));
-//        set.put(makeProperty(obj, EmitterShape.class, "getShape", "setShape", "Emitter Shape"));
-//        set.put(makeProperty(obj, int.class, "getNumVisibleParticles", "setNumParticles", "Num Particles"));
-//        set.put(makeProperty(obj, float.class, "getParticlesPerSec", "setParticlesPerSec", "Particles Per Sec"));
-//        set.put(makeProperty(obj, ColorRGBA.class, "getStartColor", "setStartColor", "Start Color"));
-//        set.put(makeProperty(obj, ColorRGBA.class, "getEndColor", "setEndColor", "End Color"));
-//        set.put(makeProperty(obj, float.class, "getStartSize", "setStartSize", "Start Size"));
-//        set.put(makeProperty(obj, float.class, "getEndSize", "setEndSize", "End Size"));
-//        set.put(makeProperty(obj, float.class, "getHighLife", "setHighLife", "High Life"));
-//        set.put(makeProperty(obj, float.class, "getLowLife", "setLowLife", "Low Life"));
-//        set.put(makeProperty(obj, float.class, "getGravity", "setGravity", "Gravity"));
-//        set.put(makeProperty(obj, Vector3f.class, "getInitialVelocity", "setInitialVelocity", "Initial Velocity"));
-//        set.put(makeProperty(obj, Vector3f.class, "getFaceNormal", "setFaceNormal", "Face Normal"));
-//        set.put(makeProperty(obj, float.class, "getVelocityVariation", "setVelocityVariation", "Velocity Variation"));
-//        set.put(makeProperty(obj, boolean.class, "isFacingVelocity", "setFacingVelocity", "Facing Velocity"));
-//        set.put(makeProperty(obj, boolean.class, "isRandomAngle", "setRandomAngle", "Random Angle"));
-//        set.put(makeProperty(obj, boolean.class, "isInWorldSpace", "setInWorldSpace", "World Space"));
-//        set.put(makeProperty(obj, float.class, "getRotateSpeed", "setRotateSpeed", "Rotate Speed"));
-//        set.put(makeProperty(obj, boolean.class, "isSelectRandomImage", "setSelectRandomImage", "Select Random Image"));
-//        set.put(makeProperty(obj, int.class, "getImagesX", "setImagesX", "Images X"));
-//        set.put(makeProperty(obj, int.class, "getImagesY", "setImagesY", "Images Y"));
 
-//        set.put(makeProperty(obj, EmitterShape.class, "getShape", "setShape", "shape"));
-
-
-
+        set.put(createButtonProperty());
+        set.put(makeProperty(obj, boolean.class, "isEnabled", "setEnabled", "Enabled"));
+        set.put(makeProperty(obj, ParticleMesh.Type.class, "getMeshType", "setMeshType", "Mesh Type"));
+        set.put(makeProperty(obj, EmitterShape.class, "getShape", "setShape", "Emitter Shape"));
+        set.put(makeProperty(obj, int.class, "getMaxNumParticles", "setNumParticles", "Num Particles"));
+        set.put(makeProperty(obj, float.class, "getParticlesPerSec", "setParticlesPerSec", "Particles Per Sec"));
+        set.put(makeProperty(obj, ColorRGBA.class, "getStartColor", "setStartColor", "Start Color"));
+        set.put(makeProperty(obj, ColorRGBA.class, "getEndColor", "setEndColor", "End Color"));
+        set.put(makeProperty(obj, float.class, "getStartSize", "setStartSize", "Start Size"));
+        set.put(makeProperty(obj, float.class, "getEndSize", "setEndSize", "End Size"));
+        set.put(makeProperty(obj, float.class, "getHighLife", "setHighLife", "High Life"));
+        set.put(makeProperty(obj, float.class, "getLowLife", "setLowLife", "Low Life"));
+        set.put(makeProperty(obj, Vector3f.class, "getGravity", "setGravity", "Gravity"));
+        set.put(makeEmbedProperty(obj.getParticleInfluencer(), ParticleInfluencer.class, Vector3f.class, "getInitialVelocity", "setInitialVelocity", "Initial Velocity"));
+        set.put(makeEmbedProperty(obj.getParticleInfluencer(), ParticleInfluencer.class, float.class, "getVelocityVariation", "setVelocityVariation", "Velocity Variation"));
+        set.put(makeProperty(obj, Vector3f.class, "getFaceNormal", "setFaceNormal", "Face Normal"));
+        set.put(makeProperty(obj, boolean.class, "isFacingVelocity", "setFacingVelocity", "Facing Velocity"));
+        set.put(makeProperty(obj, boolean.class, "isRandomAngle", "setRandomAngle", "Random Angle"));
+        set.put(makeProperty(obj, boolean.class, "isInWorldSpace", "setInWorldSpace", "World Space"));
+        set.put(makeProperty(obj, float.class, "getRotateSpeed", "setRotateSpeed", "Rotate Speed"));
+        set.put(makeProperty(obj, boolean.class, "isSelectRandomImage", "setSelectRandomImage", "Select Random Image"));
+        set.put(makeProperty(obj, int.class, "getImagesX", "setImagesX", "Images X"));
+        set.put(makeProperty(obj, int.class, "getImagesY", "setImagesY", "Images Y"));
         sheet.put(set);
+
         return sheet;
 
     }
 
+    @Override
+    public void propertyChange(String name, Object before, Object after) {
+        if (!name.equals("Emitt all particles")) {
+            fireSave(true);
+            firePropertyChange(name, before, after);
+        }
+
+    }
+
+    @Override
     public Class getExplorerObjectClass() {
         return ParticleEmitter.class;
     }
 
+    @Override
     public Class getExplorerNodeClass() {
         return JmeParticleEmitter.class;
     }
 
+    @Override
     public Node[] createNodes(Object key, DataObject key2, boolean cookie) {
-        JmeSpatialChildren children=new JmeSpatialChildren((com.jme3.scene.Spatial)key);
+        JmeSpatialChildren children = new JmeSpatialChildren((com.jme3.scene.Spatial) key);
         children.setReadOnly(cookie);
         children.setDataObject(key2);
         return new Node[]{new JmeParticleEmitter((ParticleEmitter) key, children).setReadOnly(cookie)};
     }
 
+    public ParticleEmitter getEmitter() {
+        return geom;
+    }
+
+    private Property createButtonProperty() {
+        return new PropertySupport.ReadWrite("emitt", Object.class, "Emitt all particles", "Click here to emitt all particles of this emitter ") {
+
+            JmeParticleEmitterButtonProperty pe;
+
+            @Override
+            public Object getValue() throws IllegalAccessException, InvocationTargetException {
+                return "";
+            }
+
+            @Override
+            public PropertyEditor getPropertyEditor() {
+                if (pe == null) {
+                    pe = new JmeParticleEmitterButtonProperty(JmeParticleEmitter.this);
+                    pe.attachEnv(pe.env);
+                }
+                return pe;
+            }
+
+            @Override
+            public void setValue(Object t) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+            }
+        };
+    }
 }
