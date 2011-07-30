@@ -38,7 +38,7 @@ public class JmeParticleEmitterButtonProperty extends PropertyEditorSupport impl
 
     public InplaceEditor getInplaceEditor() {
         if (ed == null) {
-            ed = new ButtonInplaceEditor("Emitt!");
+            ed = new ButtonInplaceEditor("Emit!");
             ed.addActionListener(new ActionListener() {
 
                 public void actionPerformed(ActionEvent e) {

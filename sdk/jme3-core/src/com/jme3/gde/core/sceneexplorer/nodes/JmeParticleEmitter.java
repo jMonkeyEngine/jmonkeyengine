@@ -119,7 +119,7 @@ public class JmeParticleEmitter extends JmeGeometry {
 
     @Override
     public void propertyChange(String name, Object before, Object after) {
-        if (!name.equals("Emitt all particles")) {
+        if (!name.equals("Emit all particles")) {
             fireSave(true);
             firePropertyChange(name, before, after);
         }
@@ -149,7 +149,7 @@ public class JmeParticleEmitter extends JmeGeometry {
     }
 
     private Property createButtonProperty() {
-        return new PropertySupport.ReadWrite("emitt", Object.class, "Emitt all particles", "Click here to emitt all particles of this emitter ") {
+        return new PropertySupport.ReadWrite("emit", Object.class, "Emit all particles", "Click here to emit all particles of this emitter ") {
 
             JmeParticleEmitterButtonProperty pe;
 
