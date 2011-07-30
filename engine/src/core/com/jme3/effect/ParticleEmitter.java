@@ -275,17 +275,20 @@ public class ParticleEmitter extends Geometry {
     /**
      * Returns the mesh type used by the particle emitter.
      * 
-     * <p>This value is set in the constructor and cannot be modified
-     * afterwards.
      * 
      * @return the mesh type used by the particle emitter.
      * 
+     * @see #setMeshType(com.jme3.effect.ParticleMesh.Type)
      * @see ParticleEmitter#ParticleEmitter(java.lang.String, com.jme3.effect.ParticleMesh.Type, int) 
      */
     public ParticleMesh.Type getMeshType() {
         return meshType;
     }
 
+    /**
+     * Sets the type of mesh used by the particle emitter.
+     * @param meshType The mesh type to use
+     */
     public void setMeshType(ParticleMesh.Type meshType) {
         this.meshType = meshType;
         switch (meshType) {
