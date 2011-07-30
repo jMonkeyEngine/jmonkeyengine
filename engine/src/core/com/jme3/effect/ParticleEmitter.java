@@ -73,6 +73,7 @@ import java.io.IOException;
  */
 public class ParticleEmitter extends Geometry {
 
+    private boolean enabled = true;
     private static final EmitterShape DEFAULT_SHAPE = new EmitterPointShape(Vector3f.ZERO);
     private static final ParticleInfluencer DEFAULT_INFLUENCER = new DefaultParticleInfluencer();
     private ParticleEmitterControl control;
@@ -97,7 +98,7 @@ public class ParticleEmitter extends Geometry {
     private Vector3f faceNormal = new Vector3f(Vector3f.NAN);
     private int imagesX = 1;
     private int imagesY = 1;
-    private boolean enabled = true;
+   
     private ColorRGBA startColor = new ColorRGBA(0.4f, 0.4f, 0.4f, 0.5f);
     private ColorRGBA endColor = new ColorRGBA(0.1f, 0.1f, 0.1f, 0.0f);
     private float startSize = 0.2f;
@@ -283,6 +284,23 @@ public class ParticleEmitter extends Geometry {
      */
     public ParticleMesh.Type getMeshType() {
         return meshType;
+    }
+
+    public void setMeshType(ParticleMesh.Type meshType) {
+        this.meshType = meshType;
+        switch (meshType) {
+            case Point:
+                particleMesh = new ParticlePointMesh();
+                this.setMesh(particleMesh);
+                break;
+            case Triangle:
+                particleMesh = new ParticleTriMesh();
+                this.setMesh(particleMesh);
+                break;
+            default:
+                throw new IllegalStateException("Unrecognized particle type: " + meshType);
+        }
+        this.setNumParticles(particles.length);
     }
 
     /**
