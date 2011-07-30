@@ -33,6 +33,7 @@ package com.jme3.gde.core.properties;
 
 import Model.DDSImageFile;
 import com.jme3.gde.core.assets.ProjectAssetManager;
+import com.jme3.gde.core.util.TreeUtil;
 import com.jme3.texture.Texture;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -41,6 +42,13 @@ import java.util.logging.Logger;
 import javax.swing.DefaultListSelectionModel;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
+import javax.swing.text.Position.Bias;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreeNode;
+import javax.swing.tree.TreePath;
+import javax.swing.tree.TreeSelectionModel;
 import jme3tools.converters.ImageToAwt;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.Exceptions;
@@ -55,19 +63,18 @@ import org.openide.util.ImageUtilities;
  * 
  * @author bowens
  */
-public class TextureBrowser extends javax.swing.JDialog {
+public class TextureBrowser extends javax.swing.JDialog implements TreeSelectionListener {
 
     private ProjectAssetManager assetManager;
     private TexturePropertyEditor editor;
 
-    
     public TextureBrowser(java.awt.Frame parent, boolean modal, ProjectAssetManager assetManager, TexturePropertyEditor editor) {
         super(parent, modal);
         this.assetManager = assetManager;
         this.editor = editor;
         initComponents();
         loadAvailableTextures();
-        setSelectedTexture((Texture)editor.getValue());
+        setSelectedTexture((Texture) editor.getValue());
         setLocationRelativeTo(null);
     }
 
@@ -80,16 +87,43 @@ public class TextureBrowser extends javax.swing.JDialog {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        cancelButton = new javax.swing.JButton();
-        okButton = new javax.swing.JButton();
-        jPanel1 = new javax.swing.JPanel();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        textureList = new javax.swing.JList();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        jTree1 = new javax.swing.JTree();
+        jPanel2 = new javax.swing.JPanel();
         jScrollPane2 = new javax.swing.JScrollPane();
         imagePreviewLabel = new javax.swing.JLabel();
+        infoLabel = new javax.swing.JLabel();
+        jPanel3 = new javax.swing.JPanel();
+        cancelButton = new javax.swing.JButton();
+        okButton = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle(org.openide.util.NbBundle.getMessage(TextureBrowser.class, "TextureBrowser.title")); // NOI18N
+
+        jScrollPane3.setViewportView(jTree1);
+
+        imagePreviewLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        imagePreviewLabel.setText(org.openide.util.NbBundle.getMessage(TextureBrowser.class, "TextureBrowser.imagePreviewLabel.text")); // NOI18N
+        jScrollPane2.setViewportView(imagePreviewLabel);
+
+        infoLabel.setForeground(new java.awt.Color(153, 153, 153));
+        infoLabel.setText(org.openide.util.NbBundle.getMessage(TextureBrowser.class, "TextureBrowser.infoLabel.text")); // NOI18N
+        infoLabel.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(153, 153, 153)));
+
+        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
+        jPanel2.setLayout(jPanel2Layout);
+        jPanel2Layout.setHorizontalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(infoLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 488, Short.MAX_VALUE)
+            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 488, Short.MAX_VALUE)
+        );
+        jPanel2Layout.setVerticalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 412, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(infoLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 19, javax.swing.GroupLayout.PREFERRED_SIZE))
+        );
 
         cancelButton.setText(org.openide.util.NbBundle.getMessage(TextureBrowser.class, "TextureBrowser.cancelButton.text")); // NOI18N
         cancelButton.addActionListener(new java.awt.event.ActionListener() {
@@ -105,53 +139,44 @@ public class TextureBrowser extends javax.swing.JDialog {
             }
         });
 
-        textureList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
-        textureList.setSelectionModel(new ToggleSelectionModel());
-        textureList.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
-            public void valueChanged(javax.swing.event.ListSelectionEvent evt) {
-                textureListValueChanged(evt);
-            }
-        });
-        jScrollPane1.setViewportView(textureList);
-
-        imagePreviewLabel.setText(org.openide.util.NbBundle.getMessage(TextureBrowser.class, "TextureBrowser.imagePreviewLabel.text")); // NOI18N
-        jScrollPane2.setViewportView(imagePreviewLabel);
-
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 264, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 267, Short.MAX_VALUE))
+        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
+        jPanel3.setLayout(jPanel3Layout);
+        jPanel3Layout.setHorizontalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(cancelButton)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 358, Short.MAX_VALUE)
+                .addComponent(okButton)
+                .addContainerGap())
         );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 299, Short.MAX_VALUE)
-            .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 299, Short.MAX_VALUE)
+        jPanel3Layout.setVerticalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(cancelButton)
+                    .addComponent(okButton))
+                .addContainerGap(11, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(357, Short.MAX_VALUE)
-                .addComponent(cancelButton)
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 284, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(okButton)
-                .addGap(17, 17, 17))
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(okButton)
-                    .addComponent(cancelButton)))
+                .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 477, Short.MAX_VALUE)
         );
 
         pack();
@@ -166,14 +191,13 @@ public class TextureBrowser extends javax.swing.JDialog {
         dispose();
     }//GEN-LAST:event_cancelButtonActionPerformed
 
-    private void textureListValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_textureListValueChanged
-        selectionChanged();
-    }//GEN-LAST:event_textureListValueChanged
-
     private void setTexture() {
-        if (textureList.getSelectedIndex() > -1) {
-            textureList.getSelectedValue();
-            String selected = (String) textureList.getSelectedValue();
+        DefaultMutableTreeNode node = (DefaultMutableTreeNode) jTree1.getLastSelectedPathComponent();
+
+        //Object nodeInfo = node.getUserObject();
+        if (node != null && node.isLeaf()) {
+            String selected = TreeUtil.getPath(node.getUserObjectPath());
+            selected = selected.substring(0, selected.lastIndexOf("/"));
             Texture tex = assetManager.loadTexture(selected);
             editor.setValue(tex);
             editor.setAsText(selected);
@@ -181,33 +205,99 @@ public class TextureBrowser extends javax.swing.JDialog {
             editor.setValue(null);
             editor.setAsText(null);
         }
+//        if (textureList.getSelectedIndex() > -1) {
+//            textureList.getSelectedValue();
+//            String selected = (String) textureList.getSelectedValue();
+//            Texture tex = assetManager.loadTexture(selected);
+//            editor.setValue(tex);
+//            editor.setAsText(selected);
+//        } else {
+//            editor.setValue(null);
+//            editor.setAsText(null);
+//        }
     }
-    
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton cancelButton;
     private javax.swing.JLabel imagePreviewLabel;
-    private javax.swing.JPanel jPanel1;
-    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JLabel infoLabel;
+    private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
     private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JTree jTree1;
     private javax.swing.JButton okButton;
-    private javax.swing.JList textureList;
     // End of variables declaration//GEN-END:variables
 
     private void loadAvailableTextures() {
-        if (assetManager == null)
+        if (assetManager == null) {
             return;
+        }
 
-        textureList.setListData(assetManager.getTextures());
-        
+        String[] leaves = assetManager.getTextures();
+        //   textureList.setListData(leaves);
+        TreeUtil.createTree(jTree1, leaves);
+        TreeUtil.expandTree(jTree1, (TreeNode) jTree1.getModel().getRoot(), 1);
+        jTree1.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+        jTree1.addTreeSelectionListener(this);
     }
 
-    private void selectionChanged() {
-        if (textureList.getSelectedIndex() > -1) {
-            String selected = (String) textureList.getSelectedValue();
+//    private void selectionChanged() {
+//        if (textureList.getSelectedIndex() > -1) {
+//            String selected = (String) textureList.getSelectedValue();
+//            Texture tex = assetManager.loadTexture(selected);
+//            Icon newicon = null;
+//            if (selected.endsWith(".dds") || selected.endsWith(".DDS")) {
+//                try {
+//                    File file = FileUtil.toFile(assetManager.getAssetFolder().getFileObject(selected));
+//                    DDSImageFile ddsImageFile = new DDSImageFile(file);
+//                    BufferedImage bufferedImage = ddsImageFile.getData();
+//                    newicon = new ImageIcon(bufferedImage);
+//                } catch (IOException ex) {
+//                    Exceptions.printStackTrace(ex);
+//                }
+//            } else {
+//                newicon = ImageUtilities.image2Icon(ImageToAwt.convert(tex.getImage(), false, true, 0));
+//            }
+//            imagePreviewLabel.setIcon(newicon);
+//        } else {
+//            imagePreviewLabel.setIcon(null);
+//        }
+//    }
+    private void setSelectedTexture(Texture texture) {
+        if (texture != null) {
+            Logger.getLogger(TextureBrowser.class.getName()).finer("Looking for Texture: " + texture.getName());
+            System.out.println("texture : " + texture.getName());
+            String[] path = ("/" + texture.getName()).split("/");
+            TreePath parent = new TreePath((TreeNode) jTree1.getModel().getRoot());
+            jTree1.expandPath(TreeUtil.buildTreePath(jTree1, parent, path, 0, true));
+            jTree1.getSelectionModel().setSelectionPath(TreeUtil.buildTreePath(jTree1, parent, path, 0, false));
+
+
+//            for (int i = 0; i < textureList.getModel().getSize(); i++) {
+//                Logger.getLogger(TextureBrowser.class.getName()).finer("Texture name: " + textureList.getModel().getElementAt(i));
+//                if (textureList.getModel().getElementAt(i).equals(texture.getName())) {
+//                    textureList.setSelectedIndex(i);
+//                    break;
+//                }
+//            }
+        }
+    }
+
+    public void valueChanged(TreeSelectionEvent e) {
+        DefaultMutableTreeNode node = (DefaultMutableTreeNode) jTree1.getLastSelectedPathComponent();
+
+        if (node == null) //Nothing is selected.	
+        {
+            return;
+        }
+
+        //Object nodeInfo = node.getUserObject();
+        if (node.isLeaf()) {
+            String selected = TreeUtil.getPath(node.getUserObjectPath());
+            selected = selected.substring(0, selected.lastIndexOf("/"));
             Texture tex = assetManager.loadTexture(selected);
             Icon newicon = null;
-            if(selected.endsWith(".dds")||selected.endsWith(".DDS")){
+            if (selected.endsWith(".dds") || selected.endsWith(".DDS")) {
                 try {
                     File file = FileUtil.toFile(assetManager.getAssetFolder().getFileObject(selected));
                     DDSImageFile ddsImageFile = new DDSImageFile(file);
@@ -216,38 +306,28 @@ public class TextureBrowser extends javax.swing.JDialog {
                 } catch (IOException ex) {
                     Exceptions.printStackTrace(ex);
                 }
-            }else{
-                 newicon = ImageUtilities.image2Icon(ImageToAwt.convert(tex.getImage(), false, true, 0));
+            } else {
+                newicon = ImageUtilities.image2Icon(ImageToAwt.convert(tex.getImage(), false, true, 0));
             }
             imagePreviewLabel.setIcon(newicon);
+            infoLabel.setText(" "+node.getUserObject() + "    w : " + newicon.getIconWidth() + "    h : " + newicon.getIconHeight());
         } else {
             imagePreviewLabel.setIcon(null);
-        }
-    }
+            infoLabel.setText("");
 
-    private void setSelectedTexture(Texture texture) {
-        if (texture != null) {
-            Logger.getLogger(TextureBrowser.class.getName()).finer("Looking for Texture: "+texture.getName());
-            for (int i=0; i<textureList.getModel().getSize(); i++) {
-                Logger.getLogger(TextureBrowser.class.getName()).finer("Texture name: "+textureList.getModel().getElementAt(i));
-                if (textureList.getModel().getElementAt(i).equals(texture.getName()) ) {
-                    textureList.setSelectedIndex(i);
-                    break;
-                }
-            }
         }
-    }
 
+    }
 
     class ToggleSelectionModel extends DefaultListSelectionModel {
+
         boolean gestureStarted = false;
 
         @Override
         public void setSelectionInterval(int index0, int index1) {
             if (isSelectedIndex(index0) && !gestureStarted) {
                 super.removeSelectionInterval(index0, index1);
-            }
-            else {
+            } else {
                 super.setSelectionInterval(index0, index1);
             }
             gestureStarted = true;
@@ -260,5 +340,4 @@ public class TextureBrowser extends javax.swing.JDialog {
             }
         }
     }
-
 }
