@@ -184,6 +184,9 @@ public class BlenderKey extends ModelKey {
 
     /**
      * This method returns the animations map.
+     * The key is the animated spatial name. The value is a map where the key
+     * is the animation name and the value is 2-element array of int that has
+     * start and stop frame of the animation.
      * @return the animations map
      */
     public Map<String, Map<String, int[]>> getAnimations() {
