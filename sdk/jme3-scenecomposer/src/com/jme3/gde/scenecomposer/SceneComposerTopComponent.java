@@ -5,6 +5,7 @@
 package com.jme3.gde.scenecomposer;
 
 import com.jme3.asset.AssetManager;
+import com.jme3.effect.ParticleEmitter;
 import com.jme3.gde.core.assets.AssetDataObject;
 import com.jme3.gde.core.assets.ProjectAssetManager;
 import com.jme3.gde.core.assets.SpatialAssetDataObject;
@@ -21,6 +22,7 @@ import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import java.util.Collection;
+import java.util.concurrent.Callable;
 import java.util.logging.Logger;
 import javax.swing.ButtonGroup;
 import javax.swing.border.TitledBorder;
@@ -119,6 +121,9 @@ public final class SceneComposerTopComponent extends TopComponent implements Sce
         fixedCheckBox = new javax.swing.JCheckBox();
         radiusSpinner = new javax.swing.JSpinner();
         heightSpinner = new javax.swing.JSpinner();
+        jSeparator6 = new javax.swing.JSeparator();
+        jLabel5 = new javax.swing.JLabel();
+        emitButton = new javax.swing.JButton();
 
         setBackground(new java.awt.Color(204, 204, 204));
 
@@ -133,8 +138,8 @@ public final class SceneComposerTopComponent extends TopComponent implements Sce
         sceneInfoPanel.setLayout(sceneInfoPanelLayout);
         sceneInfoPanelLayout.setHorizontalGroup(
             sceneInfoPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(sceneInfoLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, 133, Short.MAX_VALUE)
-            .addComponent(sceneInfoLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, 133, Short.MAX_VALUE)
+            .addComponent(sceneInfoLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, 126, Short.MAX_VALUE)
+            .addComponent(sceneInfoLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, 126, Short.MAX_VALUE)
         );
         sceneInfoPanelLayout.setVerticalGroup(
             sceneInfoPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -399,12 +404,32 @@ public final class SceneComposerTopComponent extends TopComponent implements Sce
         heightSpinner.setModel(new javax.swing.SpinnerNumberModel(Float.valueOf(1.8f), null, null, Float.valueOf(0.1f)));
         jToolBar3.add(heightSpinner);
 
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel5, org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.jLabel5.text")); // NOI18N
+
+        org.openide.awt.Mnemonics.setLocalizedText(emitButton, org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.emitButton.text")); // NOI18N
+        emitButton.setToolTipText(org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.emitButton.toolTipText")); // NOI18N
+        emitButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                emitButtonActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
         jPanel4.setLayout(jPanel4Layout);
         jPanel4Layout.setHorizontalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jToolBar2, javax.swing.GroupLayout.DEFAULT_SIZE, 316, Short.MAX_VALUE)
-            .addComponent(jToolBar3, javax.swing.GroupLayout.DEFAULT_SIZE, 316, Short.MAX_VALUE)
+            .addComponent(jToolBar2, javax.swing.GroupLayout.DEFAULT_SIZE, 323, Short.MAX_VALUE)
+            .addComponent(jToolBar3, javax.swing.GroupLayout.DEFAULT_SIZE, 323, Short.MAX_VALUE)
+            .addGroup(jPanel4Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel4Layout.createSequentialGroup()
+                        .addGap(10, 10, 10)
+                        .addComponent(jLabel5)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(emitButton, javax.swing.GroupLayout.DEFAULT_SIZE, 248, Short.MAX_VALUE))
+                    .addComponent(jSeparator6, javax.swing.GroupLayout.DEFAULT_SIZE, 303, Short.MAX_VALUE))
+                .addContainerGap())
         );
         jPanel4Layout.setVerticalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -412,7 +437,13 @@ public final class SceneComposerTopComponent extends TopComponent implements Sce
                 .addComponent(jToolBar2, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jToolBar3, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(83, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jSeparator6, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel5)
+                    .addComponent(emitButton))
+                .addContainerGap(38, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
@@ -521,12 +552,24 @@ public final class SceneComposerTopComponent extends TopComponent implements Sce
         MoveTool tool = new MoveTool();
         toolController.showEditTool(tool);
     }//GEN-LAST:event_moveButtonActionPerformed
+
+private void emitButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_emitButtonActionPerformed
+    SceneApplication.getApplication().enqueue(new Callable<Object>() {
+
+        public Object call() throws Exception {
+            emit(editorController.getSelectedSpat().getLookup().lookup(Spatial.class));
+            return null;
+        }
+    });
+
+}//GEN-LAST:event_emitButtonActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton addCursorButton;
     private javax.swing.JButton addObjectButton;
     private javax.swing.JButton camToCursorSelectionButton;
     private javax.swing.JButton createPhysicsMeshButton;
     private javax.swing.JButton cursorToSelectionButton;
+    private javax.swing.JButton emitButton;
     private javax.swing.JCheckBox fixedCheckBox;
     private javax.swing.JSpinner heightSpinner;
     private javax.swing.JButton jButton1;
@@ -535,6 +578,7 @@ public final class SceneComposerTopComponent extends TopComponent implements Sce
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
     private javax.swing.JList jList1;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
@@ -544,6 +588,7 @@ public final class SceneComposerTopComponent extends TopComponent implements Sce
     private javax.swing.JToolBar.Separator jSeparator3;
     private javax.swing.JToolBar.Separator jSeparator4;
     private javax.swing.JToolBar.Separator jSeparator5;
+    private javax.swing.JSeparator jSeparator6;
     private javax.swing.JTextField jTextField1;
     private javax.swing.JToolBar jToolBar1;
     private javax.swing.JToolBar jToolBar2;
@@ -563,6 +608,19 @@ public final class SceneComposerTopComponent extends TopComponent implements Sce
     private javax.swing.JToggleButton showSelectionToggleButton;
     private javax.swing.ButtonGroup spatialModButtonGroup;
     // End of variables declaration//GEN-END:variables
+
+    private void emit(Spatial root) {
+        if (root instanceof ParticleEmitter) {
+            ((ParticleEmitter) root).killAllParticles();
+            ((ParticleEmitter) root).emitAllParticles();
+        } else if (root instanceof Node) {
+            Node n = (Node) root;
+            for (Spatial child : n.getChildren()) {
+                emit(child);
+            }
+        }
+
+    }
 
     /**
      * Gets default instance. Do not use directly: reserved for *.settings files only,
@@ -689,7 +747,7 @@ public final class SceneComposerTopComponent extends TopComponent implements Sce
                 if (node == null) {
                     jList1.setListData(new String[]{});
                 } else if (node) {
-                    jList1.setListData(new String[]{"Node", "Particle Emitter", "Audio Node", "Picture", "Point Light" ,"Spot Light", "Directional Light", "Ambient Light"});
+                    jList1.setListData(new String[]{"Node", "Particle Emitter", "Audio Node", "Picture", "Point Light", "Spot Light", "Directional Light", "Ambient Light"});
                 } else {
                     jList1.setListData(new String[]{"Point Light", "Spot Light", "Directional Light", "Ambient Light"});
                 }
@@ -808,6 +866,7 @@ public final class SceneComposerTopComponent extends TopComponent implements Sce
     }
 
     private void selectSpatial(JmeSpatial spatial) {
+
         if (spatial == null) {
             setSelectedObjectText(null);
             setSelectionData(null);
