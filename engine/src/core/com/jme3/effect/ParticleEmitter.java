@@ -1138,6 +1138,7 @@ public class ParticleEmitter extends Geometry {
         oc.write(endSize, "endSize", 0);
         oc.write(worldSpace, "worldSpace", false);
         oc.write(facingVelocity, "facingVelocity", false);
+        oc.write(faceNormal, "faceNormal", new Vector3f(Vector3f.NAN));
         oc.write(selectRandomImage, "selectRandomImage", false);
         oc.write(randomAngle, "randomAngle", false);
         oc.write(rotateSpeed, "rotateSpeed", 0);
@@ -1175,6 +1176,7 @@ public class ParticleEmitter extends Geometry {
         worldSpace = ic.readBoolean("worldSpace", false);
         this.setIgnoreTransform(worldSpace);
         facingVelocity = ic.readBoolean("facingVelocity", false);
+        faceNormal = (Vector3f)ic.readSavable("faceNormal", new Vector3f(Vector3f.NAN));
         selectRandomImage = ic.readBoolean("selectRandomImage", false);
         randomAngle = ic.readBoolean("randomAngle", false);
         rotateSpeed = ic.readFloat("rotateSpeed", 0);
