@@ -90,7 +90,7 @@ public class ParticleEmitter extends Geometry {
     private boolean selectRandomImage;
     private boolean facingVelocity;
     private float particlesPerSec = 20;
-    private float emitCarry;
+    private float timeDifference = 0;
     private float lowLife = 3f;
     private float highLife = 7f;
     private Vector3f gravity = new Vector3f(0.0f, 0.1f, 0.0f);
@@ -205,8 +205,6 @@ public class ParticleEmitter extends Geometry {
         this.setQueueBucket(Bucket.Transparent);
 
         meshType = type;
-
-
 
         // Must create clone of shape/influencer so that a reference to a static is 
         // not maintained
@@ -859,13 +857,13 @@ public class ParticleEmitter extends Geometry {
 //        assert !unusedIndices.contains(index);
 //        unusedIndices.add(index);
 //    }
-    private boolean emitParticle(Vector3f min, Vector3f max) {
+    private Particle emitParticle(Vector3f min, Vector3f max) {
 //        int idx = newIndex();
 //        if (idx == -1)
 //            return false;
         int idx = lastUsed + 1;
         if (idx >= particles.length) {
-            return false;
+            return null;
         }
 
         Particle p = particles[idx];
@@ -896,7 +894,7 @@ public class ParticleEmitter extends Geometry {
 
         ++lastUsed;
         firstUnUsed = idx + 1;
-        return true;
+        return p;
     }
 
     /**
@@ -924,7 +922,7 @@ public class ParticleEmitter extends Geometry {
             max.set(Vector3f.NEGATIVE_INFINITY);
         }
 
-        while (emitParticle(min, max));
+        while (emitParticle(min, max) != null);
 
         bbox.setMinMax(min, max);
         this.setBoundRefresh();
@@ -971,12 +969,36 @@ public class ParticleEmitter extends Geometry {
         particles[idx2] = p1;
     }
 
+    private void updateParticle(Particle p, float tpf, Vector3f min, Vector3f max){
+        // applying gravity
+        p.velocity.x -= gravity.x * tpf;
+        p.velocity.y -= gravity.y * tpf;
+        p.velocity.z -= gravity.z * tpf;
+        temp.set(p.velocity).multLocal(tpf);
+        p.position.addLocal(temp);
+
+        // affecting color, size and angle
+        float b = (p.startlife - p.life) / p.startlife;
+        p.color.interpolate(startColor, endColor, b);
+        p.size = FastMath.interpolateLinear(b, startSize, endSize);
+        p.angle += p.rotateSpeed * tpf;
+
+        // Computing bounding volume
+        temp.set(p.position).addLocal(p.size, p.size, p.size);
+        max.maxLocal(temp);
+        temp.set(p.position).subtractLocal(p.size, p.size, p.size);
+        min.minLocal(temp);
+
+        if (!selectRandomImage) {
+            p.imageIndex = (int) (b * imagesX * imagesY);
+        }
+    }
+    
     private void updateParticleState(float tpf) {
         // Force world transform to update
         this.getWorldTransform();
 
         TempVars vars = TempVars.get();
-
 
         Vector3f min = vars.vect1.set(Vector3f.POSITIVE_INFINITY);
         Vector3f max = vars.vect2.set(Vector3f.NEGATIVE_INFINITY);
@@ -994,31 +1016,7 @@ public class ParticleEmitter extends Geometry {
                 continue;
             }
 
-            // position += velocity * tpf
-            //p.distToCam = -1;
-
-            // applying gravity
-            p.velocity.x -= gravity.x * tpf;
-            p.velocity.y -= gravity.y * tpf;
-            p.velocity.z -= gravity.z * tpf;
-            temp.set(p.velocity).multLocal(tpf);
-            p.position.addLocal(temp);
-
-            // affecting color, size and angle
-            float b = (p.startlife - p.life) / p.startlife;
-            p.color.interpolate(startColor, endColor, b);
-            p.size = FastMath.interpolateLinear(b, startSize, endSize);
-            p.angle += p.rotateSpeed * tpf;
-
-            // Computing bounding volume
-            temp.set(p.position).addLocal(p.size, p.size, p.size);
-            max.maxLocal(temp);
-            temp.set(p.position).subtractLocal(p.size, p.size, p.size);
-            min.minLocal(temp);
-
-            if (!selectRandomImage) {
-                p.imageIndex = (int) (b * imagesX * imagesY);
-            }
+            updateParticle(p, tpf, min, max);
 
             if (firstUnUsed < i) {
                 this.swap(firstUnUsed, i);
@@ -1028,19 +1026,23 @@ public class ParticleEmitter extends Geometry {
                 firstUnUsed++;
             }
         }
-
-        float particlesToEmitF = particlesPerSec * tpf;
-        int particlesToEmit = (int) particlesToEmitF;
-        emitCarry += particlesToEmitF - particlesToEmit;
-
-        while (emitCarry > 1f) {
-            ++particlesToEmit;
-            emitCarry -= 1f;
+        
+        // Spawns particles within the tpf timeslot with proper age
+        float interval = 1f / particlesPerSec;
+        tpf += timeDifference;
+        while (tpf > interval){
+            tpf -= interval;
+            Particle p = emitParticle(min, max);
+            if (p != null){
+                p.life -= tpf;
+                if (p.life <= 0){
+                    freeParticle(lastUsed);
+                }else{
+                    updateParticle(p, tpf, min, max);
+                }
+            }
         }
-
-        for (int i = 0; i < particlesToEmit; ++i) {
-            this.emitParticle(min, max);
-        }
+        timeDifference = tpf;
 
         BoundingBox bbox = (BoundingBox) this.getMesh().getBound();
         bbox.setMinMax(min, max);
