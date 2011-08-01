@@ -131,10 +131,15 @@ public class EditableMaterialFile {
                         String name = lines[0].trim();
                         prop.setName(name);
                         if (additionalRenderStates.get(name) != null) {
+
                             prop.setType(additionalRenderStates.get(name).getType());
                             if (lines.length > 1) {
-                                prop.setValue(lines[lines.length - 1].trim());
-                            }
+                                String value = "";
+                                for (int i = 1; i < lines.length; i++) {
+                                    value += " " + lines[i];
+                                }
+                                prop.setValue(value.trim());
+                            }                           
                             additionalRenderStates.put(prop.getName(), prop);
                         }
                     }
@@ -467,7 +472,7 @@ public class EditableMaterialFile {
         setMatDefName(mat.getMaterialDef().getAssetName());
         createBaseMaterialFile();
         materialParameters.clear();
-        Collection<MatParam> params=mat.getParams();
+        Collection<MatParam> params = mat.getParams();
         for (Iterator<MatParam> it = params.iterator(); it.hasNext();) {
             MatParam matParam = it.next();
             materialParameters.put(matParam.getName(), new MaterialProperty(matParam));

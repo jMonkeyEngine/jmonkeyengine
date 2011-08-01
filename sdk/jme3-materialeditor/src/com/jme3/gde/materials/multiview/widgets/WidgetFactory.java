@@ -16,7 +16,7 @@ import com.jme3.material.RenderState.FaceCullMode;
  */
 public class WidgetFactory {
 
-    public static MaterialPropertyWidget getWidget(MaterialProperty prop, ProjectAssetManager manager){
+    public static MaterialPropertyWidget getWidget(MaterialProperty prop, ProjectAssetManager manager){      
         MaterialPropertyWidget widget;
         if("Texture2D".equals(prop.getType())){
             widget=new TexturePanel(manager);
@@ -68,7 +68,7 @@ public class WidgetFactory {
             widget.setProperty(prop);
             return widget;
         }
-        widget = new TextPanel();
+        widget = new TextPanel();      
         widget.setProperty(prop);
         return widget;
     }
