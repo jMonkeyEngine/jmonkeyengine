@@ -126,14 +126,14 @@ public class OffScenePanel extends javax.swing.JPanel implements SceneProcessor 
     }
 
     public void startPreview() {
-        java.awt.EventQueue.invokeLater(new Runnable() {
-
-            public void run() {
-                if(!SceneViewerTopComponent.findInstance().isOpened()){
-                    SceneViewerTopComponent.findInstance().open();
-                }
-            }
-        });
+//        java.awt.EventQueue.invokeLater(new Runnable() {
+//
+//            public void run() {
+//                if(!SceneViewerTopComponent.findInstance().isOpened()){
+//                    SceneViewerTopComponent.findInstance().open();
+//                }
+//            }
+//        });
         SceneApplication.getApplication().enqueue(new Callable<Object>() {
 
             public Object call() throws Exception {
