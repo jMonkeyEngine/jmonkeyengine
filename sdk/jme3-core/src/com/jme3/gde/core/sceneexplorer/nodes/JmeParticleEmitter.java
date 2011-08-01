@@ -149,7 +149,7 @@ public class JmeParticleEmitter extends JmeGeometry {
     }
 
     private Property createButtonProperty() {
-        return new PropertySupport.ReadWrite("emit", Object.class, "Emit all particles", "Click here to emit all particles of this emitter ") {
+        return new PropertySupport.ReadWrite<Object>("emit", Object.class, "Emit all particles", "Click here to emit all particles of this emitter ") {
 
             JmeParticleEmitterButtonProperty pe;
 

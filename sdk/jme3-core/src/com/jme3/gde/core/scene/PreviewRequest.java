@@ -29,9 +29,11 @@
  *  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  *  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package com.jme3.gde.core.scene;
 
+import com.jme3.math.Quaternion;
+import com.jme3.math.Vector3f;
+import com.jme3.renderer.Camera;
 import com.jme3.scene.Spatial;
 import java.awt.image.BufferedImage;
 
@@ -40,13 +42,16 @@ import java.awt.image.BufferedImage;
  * @author normenhansen
  */
 public class PreviewRequest {
+
     private Object requester;
     private Spatial spatial;
     private BufferedImage image;
+    private CameraRequest cameraRequest;
 
     public PreviewRequest(Object requester, Spatial spatial) {
         this.requester = requester;
         this.spatial = spatial;
+        cameraRequest = new CameraRequest();
     }
 
     /**
@@ -77,4 +82,28 @@ public class PreviewRequest {
         this.image = image;
     }
 
+    public CameraRequest getCameraRequest() {
+        return cameraRequest;
+    }
+
+    public class CameraRequest {
+
+        Vector3f location = null;
+        Quaternion rotation = null;
+        Vector3f lookAt = null;
+        Vector3f up = null;
+
+        public void setLocation(Vector3f location) {
+            this.location = location;
+        }
+
+        public void setLookAt(Vector3f lookAt, Vector3f up) {
+            this.lookAt = lookAt;
+            this.up = up;
+        }
+
+        public void setRotation(Quaternion rotation) {
+            this.rotation = rotation;
+        }
+    }
 }

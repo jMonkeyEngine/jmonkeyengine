@@ -55,7 +55,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  * @author normenhansen
  */
 public class ScenePreviewProcessor implements SceneProcessor {
-
+    
     private static final int width = 120, height = 120;
     private final ByteBuffer cpuBuf = BufferUtils.createByteBuffer(width * height * 4);
     private final byte[] cpuArray = new byte[width * height * 4];
@@ -67,16 +67,17 @@ public class ScenePreviewProcessor implements SceneProcessor {
     private ConcurrentLinkedQueue<PreviewRequest> previewQueue = new ConcurrentLinkedQueue<PreviewRequest>();
     private PreviewRequest currentPreviewRequest;
     private RenderManager rm;
-
+    private PointLight light;
+    
     public void addRequest(PreviewRequest request) {
         previewQueue.add(request);
     }
-
+    
     private void update(float tpf) {
         previewNode.updateLogicalState(tpf);
         previewNode.updateGeometricState();
     }
-
+    
     public void setupPreviewView() {
         offCamera = new Camera(width, height);
 
@@ -103,7 +104,7 @@ public class ScenePreviewProcessor implements SceneProcessor {
         offView.setOutputFrameBuffer(offBuffer);
 
         // setup framebuffer's scene
-        PointLight light = new PointLight();
+        light = new PointLight();
         light.setPosition(offCamera.getLocation());
         light.setColor(ColorRGBA.White);
         previewNode.addLight(light);
@@ -111,29 +112,39 @@ public class ScenePreviewProcessor implements SceneProcessor {
         // attach the scene to the viewport to be rendered
         offView.attachScene(previewNode);
     }
-
+    
     public void initialize(RenderManager rm, ViewPort vp) {
         this.rm = rm;
     }
-
+    
     public void reshape(ViewPort vp, int i, int i1) {
     }
-
+    
     public boolean isInitialized() {
         return true;
     }
-
+    
     public void preFrame(float f) {
         currentPreviewRequest = previewQueue.poll();
         if (currentPreviewRequest != null) {
             previewNode.attachChild(currentPreviewRequest.getSpatial());
+            if (currentPreviewRequest.getCameraRequest().location != null) {
+                offCamera.setLocation(currentPreviewRequest.getCameraRequest().location);
+                light.setPosition(currentPreviewRequest.getCameraRequest().location);
+            }
+            if (currentPreviewRequest.getCameraRequest().rotation != null) {
+                offCamera.setRotation(currentPreviewRequest.getCameraRequest().rotation);
+            }
+            if (currentPreviewRequest.getCameraRequest().lookAt != null) {
+                offCamera.lookAt(currentPreviewRequest.getCameraRequest().lookAt, currentPreviewRequest.getCameraRequest().up);
+            }
         }
         update(f);
     }
-
+    
     public void postQueue(RenderQueue rq) {
     }
-
+    
     public void postFrame(FrameBuffer fb) {
         if (currentPreviewRequest != null) {
             cpuBuf.clear();
@@ -150,26 +161,26 @@ public class ScenePreviewProcessor implements SceneProcessor {
                 byte g = cpuArray[i + 1];
                 byte r = cpuArray[i + 2];
                 byte a = cpuArray[i + 3];
-
+                
                 cpuArray[i + 0] = a;
                 cpuArray[i + 1] = b;
                 cpuArray[i + 2] = g;
                 cpuArray[i + 3] = r;
             }
-
+            
             BufferedImage image = new BufferedImage(width, height,
                     BufferedImage.TYPE_4BYTE_ABGR);
             WritableRaster wr = image.getRaster();
             DataBufferByte db = (DataBufferByte) wr.getDataBuffer();
             System.arraycopy(cpuArray, 0, db.getData(), 0, cpuArray.length);
-
+            
             currentPreviewRequest.setImage(image);
             previewNode.detachAllChildren();
             SceneApplication.getApplication().notifySceneListeners(currentPreviewRequest);
             currentPreviewRequest = null;
         }
     }
-
+    
     public void cleanup() {
     }
 }

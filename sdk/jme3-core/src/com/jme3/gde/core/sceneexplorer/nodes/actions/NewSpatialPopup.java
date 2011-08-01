@@ -116,10 +116,10 @@ public class NewSpatialPopup extends AbstractAction implements Presenter.Popup {
                 public Void call() throws Exception {
                     ParticleEmitter emit = new ParticleEmitter("Emitter", ParticleMesh.Type.Triangle, 200);
                     emit.setShape(new EmitterSphereShape(Vector3f.ZERO, 1f));
-                    emit.setGravity(0);
+                    emit.setGravity(new Vector3f(0, 0, 0));
                     emit.setLowLife(5);
                     emit.setHighLife(10);
-                    emit.setInitialVelocity(new Vector3f(0, 0, 0));
+                    emit.getParticleInfluencer().setInitialVelocity(new Vector3f(0, 0, 0));
                     emit.setImagesX(15);
                     Material mat = new Material(SceneApplication.getApplication().getAssetManager(), "Common/MatDefs/Misc/Particle.j3md");
                     emit.setMaterial(mat);

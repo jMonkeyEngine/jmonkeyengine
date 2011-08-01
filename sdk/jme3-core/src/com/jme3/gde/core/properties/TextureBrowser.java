@@ -44,7 +44,6 @@ import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
-import javax.swing.text.Position.Bias;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
@@ -75,7 +74,7 @@ public class TextureBrowser extends javax.swing.JDialog implements TreeSelection
         initComponents();
         loadAvailableTextures();
         setSelectedTexture((Texture) editor.getValue());
-        setLocationRelativeTo(null);
+        setLocationRelativeTo(null); 
     }
 
     /** This method is called from within the constructor to
@@ -266,7 +265,6 @@ public class TextureBrowser extends javax.swing.JDialog implements TreeSelection
     private void setSelectedTexture(Texture texture) {
         if (texture != null) {
             Logger.getLogger(TextureBrowser.class.getName()).finer("Looking for Texture: " + texture.getName());
-            System.out.println("texture : " + texture.getName());
             String[] path = ("/" + texture.getName()).split("/");
             TreePath parent = new TreePath((TreeNode) jTree1.getModel().getRoot());
             jTree1.expandPath(TreeUtil.buildTreePath(jTree1, parent, path, 0, true));
