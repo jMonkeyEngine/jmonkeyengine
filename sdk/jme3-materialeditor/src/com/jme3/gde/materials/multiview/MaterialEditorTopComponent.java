@@ -4,22 +4,13 @@
  */
 package com.jme3.gde.materials.multiview;
 
-import com.jme3.asset.MaterialKey;
 import com.jme3.gde.core.assets.AssetDataObject;
 import com.jme3.gde.core.assets.ProjectAssetManager;
-import com.jme3.gde.core.scene.PreviewRequest;
-import com.jme3.gde.core.scene.SceneApplication;
-import com.jme3.gde.core.scene.SceneListener;
-import com.jme3.gde.core.scene.SceneRequest;
 import com.jme3.gde.materials.EditableMaterialFile;
 import com.jme3.gde.materials.MaterialProperty;
 import com.jme3.gde.materials.multiview.widgets.MaterialPropertyWidget;
 import com.jme3.gde.materials.multiview.widgets.MaterialWidgetListener;
 import com.jme3.gde.materials.multiview.widgets.WidgetFactory;
-import com.jme3.material.Material;
-import com.jme3.scene.Geometry;
-import com.jme3.scene.shape.Sphere;
-import com.jme3.util.TangentBinormalGenerator;
 import java.awt.Component;
 import java.io.File;
 import java.io.IOException;
@@ -28,7 +19,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.logging.Logger;
-import javax.swing.ImageIcon;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import org.openide.loaders.DataObjectNotFoundException;
@@ -52,7 +42,7 @@ import org.openide.windows.CloneableTopComponent;
  */
 @ConvertAsProperties(dtd = "-//com.jme3.gde.materials.multiview//MaterialEditor//EN",
 autostore = false)
-public final class MaterialEditorTopComponent extends CloneableTopComponent implements SceneListener, MaterialWidgetListener {
+public final class MaterialEditorTopComponent extends CloneableTopComponent implements MaterialWidgetListener {
 
     private static MaterialEditorTopComponent instance;
     /** path to the icon used by the component and its open action */
@@ -65,7 +55,6 @@ public final class MaterialEditorTopComponent extends CloneableTopComponent impl
     private EditableMaterialFile materialFile;
     private String materialFileName;
     private ProjectAssetManager manager;
-    private Sphere sphMesh;
     private SaveCookie saveCookie = new SaveCookieImpl();
     private boolean saveImmediate = true;
     private boolean updateProperties = false;
@@ -96,14 +85,8 @@ public final class MaterialEditorTopComponent extends CloneableTopComponent impl
         }
         jTextArea1.getDocument().addDocumentListener(new DocumentChangeListener());
 
-        SceneApplication.getApplication().addSceneListener(this);
-
-        sphMesh = new Sphere(32, 32, 2.5f);
-        sphMesh.setTextureMode(Sphere.TextureMode.Projected);
-        sphMesh.updateGeometry(32, 32, 2.5f, false, false);
-        TangentBinormalGenerator.generate(sphMesh);
         updateProperties();
-        showMaterial();
+        materialPreviewWidget1.showMaterial(manager, materialFileName);
     }
 
     /** This method is called from within the constructor to
@@ -117,8 +100,6 @@ public final class MaterialEditorTopComponent extends CloneableTopComponent impl
         jPanel2 = new javax.swing.JPanel();
         jTabbedPane1 = new javax.swing.JTabbedPane();
         jPanel4 = new javax.swing.JPanel();
-        jToolBar1 = new javax.swing.JToolBar();
-        jLabel2 = new javax.swing.JLabel();
         jTabbedPane2 = new javax.swing.JTabbedPane();
         jScrollPane3 = new javax.swing.JScrollPane();
         texturePanel = new javax.swing.JPanel();
@@ -136,6 +117,7 @@ public final class MaterialEditorTopComponent extends CloneableTopComponent impl
         jPanel1 = new javax.swing.JPanel();
         jTextField1 = new javax.swing.JTextField();
         jCheckBox1 = new javax.swing.JCheckBox();
+        materialPreviewWidget1 = new com.jme3.gde.materials.multiview.widgets.MaterialPreviewWidget();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTextArea1 = new javax.swing.JTextArea();
 
@@ -158,20 +140,6 @@ public final class MaterialEditorTopComponent extends CloneableTopComponent impl
 
         jPanel4.setBackground(new java.awt.Color(204, 204, 204));
         jPanel4.setPreferredSize(new java.awt.Dimension(0, 0));
-
-        jToolBar1.setFloatable(false);
-        jToolBar1.setRollover(true);
-        jToolBar1.setToolTipText(org.openide.util.NbBundle.getMessage(MaterialEditorTopComponent.class, "MaterialEditorTopComponent.jToolBar1.toolTipText")); // NOI18N
-        jToolBar1.setPreferredSize(new java.awt.Dimension(120, 120));
-
-        org.openide.awt.Mnemonics.setLocalizedText(jLabel2, org.openide.util.NbBundle.getMessage(MaterialEditorTopComponent.class, "MaterialEditorTopComponent.jLabel2.text")); // NOI18N
-        jLabel2.setPreferredSize(new java.awt.Dimension(120, 120));
-        jLabel2.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseReleased(java.awt.event.MouseEvent evt) {
-                reloadPreview(evt);
-            }
-        });
-        jToolBar1.add(jLabel2);
 
         jScrollPane3.setBackground(new java.awt.Color(204, 204, 204));
         jScrollPane3.setBorder(null);
@@ -215,11 +183,11 @@ public final class MaterialEditorTopComponent extends CloneableTopComponent impl
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 0, Short.MAX_VALUE)
+            .addGap(0, 276, Short.MAX_VALUE)
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 21, Short.MAX_VALUE)
+            .addGap(0, 23, Short.MAX_VALUE)
         );
 
         jToolBar2.add(jPanel3);
@@ -251,7 +219,7 @@ public final class MaterialEditorTopComponent extends CloneableTopComponent impl
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 21, Short.MAX_VALUE)
+            .addGap(0, 23, Short.MAX_VALUE)
         );
 
         jToolBar3.add(jPanel1);
@@ -276,35 +244,36 @@ public final class MaterialEditorTopComponent extends CloneableTopComponent impl
         jPanel4.setLayout(jPanel4Layout);
         jPanel4Layout.setHorizontalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel4Layout.createSequentialGroup()
-                .addComponent(jToolBar1, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel4Layout.createSequentialGroup()
+                .addComponent(materialPreviewWidget1, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(32, 32, 32)
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jCheckBox1, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jToolBar3, javax.swing.GroupLayout.DEFAULT_SIZE, 452, Short.MAX_VALUE)
-                    .addComponent(jToolBar2, javax.swing.GroupLayout.DEFAULT_SIZE, 452, Short.MAX_VALUE)))
+                    .addGroup(jPanel4Layout.createSequentialGroup()
+                        .addGap(438, 438, 438)
+                        .addComponent(jCheckBox1))
+                    .addComponent(jToolBar3, javax.swing.GroupLayout.DEFAULT_SIZE, 612, Short.MAX_VALUE)
+                    .addComponent(jToolBar2, javax.swing.GroupLayout.DEFAULT_SIZE, 612, Short.MAX_VALUE)))
             .addGroup(jPanel4Layout.createSequentialGroup()
                 .addComponent(jTabbedPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 223, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jTabbedPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 349, Short.MAX_VALUE))
+                .addComponent(jTabbedPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 535, Short.MAX_VALUE))
         );
         jPanel4Layout.setVerticalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel4Layout.createSequentialGroup()
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel4Layout.createSequentialGroup()
+                    .addGroup(jPanel4Layout.createSequentialGroup()
                         .addContainerGap()
                         .addComponent(jToolBar3, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jToolBar2, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
-                        .addComponent(jCheckBox1)
-                        .addGap(3, 3, 3))
-                    .addComponent(jToolBar1, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(3, 3, 3)
-                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jTabbedPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 297, Short.MAX_VALUE)
-                    .addComponent(jTabbedPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 297, Short.MAX_VALUE)))
+                        .addGap(23, 23, 23)
+                        .addComponent(jCheckBox1))
+                    .addComponent(materialPreviewWidget1, javax.swing.GroupLayout.PREFERRED_SIZE, 152, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jTabbedPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 338, Short.MAX_VALUE)
+                    .addComponent(jTabbedPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 338, Short.MAX_VALUE)))
         );
 
         jTabbedPane1.addTab(org.openide.util.NbBundle.getMessage(MaterialEditorTopComponent.class, "MaterialEditorTopComponent.jPanel4.TabConstraints.tabTitle"), jPanel4); // NOI18N
@@ -319,11 +288,11 @@ public final class MaterialEditorTopComponent extends CloneableTopComponent impl
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jTabbedPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 593, Short.MAX_VALUE)
+            .addComponent(jTabbedPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 769, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jTabbedPane1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 466, Short.MAX_VALUE)
+            .addComponent(jTabbedPane1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 524, Short.MAX_VALUE)
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -335,10 +304,6 @@ public final class MaterialEditorTopComponent extends CloneableTopComponent impl
             jTextArea1.setText(string);
         }
     }//GEN-LAST:event_jComboBox1ActionPerformed
-
-    private void reloadPreview(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_reloadPreview
-        showMaterial();
-    }//GEN-LAST:event_reloadPreview
 
     private void jTextField1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField1ActionPerformed
         if (materialFile != null) {
@@ -355,7 +320,6 @@ public final class MaterialEditorTopComponent extends CloneableTopComponent impl
     private javax.swing.JCheckBox jCheckBox1;
     private javax.swing.JComboBox jComboBox1;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
@@ -370,9 +334,9 @@ public final class MaterialEditorTopComponent extends CloneableTopComponent impl
     private javax.swing.JTabbedPane jTabbedPane3;
     private javax.swing.JTextArea jTextArea1;
     private javax.swing.JTextField jTextField1;
-    private javax.swing.JToolBar jToolBar1;
     private javax.swing.JToolBar jToolBar2;
     private javax.swing.JToolBar jToolBar3;
+    private com.jme3.gde.materials.multiview.widgets.MaterialPreviewWidget materialPreviewWidget1;
     private javax.swing.JPanel optionsPanel;
     private javax.swing.JPanel statesPanel;
     private javax.swing.JPanel texturePanel;
@@ -429,7 +393,7 @@ public final class MaterialEditorTopComponent extends CloneableTopComponent impl
 
     @Override
     public void componentClosed() {
-        SceneApplication.getApplication().removeSceneListener(this);
+        materialPreviewWidget1.cleanUp();
     }
 
     void writeProperties(java.util.Properties p) {
@@ -507,7 +471,7 @@ public final class MaterialEditorTopComponent extends CloneableTopComponent impl
             String text = jTextArea1.getText();
             materialFile.setAsText(text);
             dataObject.setModified(false);
-            showMaterial();
+            materialPreviewWidget1.showMaterial(manager, materialFileName);
         }
     }
 
@@ -614,40 +578,6 @@ public final class MaterialEditorTopComponent extends CloneableTopComponent impl
             MaterialPropertyWidget widget = WidgetFactory.getWidget(entry.getValue(), manager);
             widget.registerChangeListener(this);
             statesPanel.add(widget);
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    private void showMaterial() {
-        try {
-            MaterialKey key = new MaterialKey(manager.getRelativeAssetPath(materialFileName));
-            Geometry geom = new Geometry("TestSphere", sphMesh);
-            manager.deleteFromCache(key);
-            geom.setMaterial((Material) manager.loadAsset(key));
-            if (geom.getMaterial() != null) {
-                PreviewRequest request = new PreviewRequest(this, geom);
-                SceneApplication.getApplication().createPreview(request);
-            }
-        } catch (Exception e) {
-        }
-    }
-
-    public void sceneRequested(SceneRequest request) {
-    }
-
-    public boolean sceneClose(SceneRequest request) {
-        return true;
-    }
-
-    public void previewRequested(PreviewRequest request) {
-        if (request.getRequester() == this) {
-            final ImageIcon icon = new ImageIcon(request.getImage());
-            java.awt.EventQueue.invokeLater(new Runnable() {
-
-                public void run() {
-                    jLabel2.setIcon(icon);
-                }
-            });
         }
     }
 

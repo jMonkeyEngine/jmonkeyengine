@@ -125,7 +125,7 @@ public class MaterialPropertyEditor implements PropertyEditor, SceneExplorerProp
                 Exceptions.printStackTrace(ex);
                 return;
             }
-        }else{
+        } else {
             applyMaterial(text);
         }
     }
@@ -138,7 +138,7 @@ public class MaterialPropertyEditor implements PropertyEditor, SceneExplorerProp
                 public Void call() throws Exception {
                     SceneRequest request = SceneApplication.getApplication().getCurrentSceneRequest();
                     ((DesktopAssetManager) request.getManager()).deleteFromCache(new MaterialKey(text));
-                    Material localMaterial = (Material) request.getManager().loadMaterial(text);
+                    Material localMaterial = request.getManager().loadMaterial(text);
                     if (localMaterial != null) {
                         material = localMaterial;
                     }
@@ -173,11 +173,19 @@ public class MaterialPropertyEditor implements PropertyEditor, SceneExplorerProp
     }
 
     public Component getCustomEditor() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        ProjectAssetManager currentProjectAssetManager = null;
+
+        if (currentProjectAssetManager == null) {
+            currentProjectAssetManager = (ProjectAssetManager) SceneApplication.getApplication().getAssetManager();
+        }
+        MaterialBrowser materialBrowser = new MaterialBrowser(null, true, currentProjectAssetManager, this);
+        return materialBrowser;
+
+
     }
 
     public boolean supportsCustomEditor() {
-        return false;
+        return true;
     }
 
     public void addPropertyChangeListener(PropertyChangeListener listener) {
