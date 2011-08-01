@@ -42,7 +42,7 @@
               <EmptySpace max="-2" attributes="0"/>
               <Component id="jPanel3" min="-2" max="-2" attributes="0"/>
           </Group>
-          <Component id="jScrollPane3" alignment="0" pref="477" max="32767" attributes="0"/>
+          <Component id="jScrollPane3" alignment="0" pref="485" max="32767" attributes="0"/>
       </Group>
     </DimensionLayout>
   </Layout>
@@ -63,8 +63,8 @@
       <Layout>
         <DimensionLayout dim="0">
           <Group type="103" groupAlignment="0" attributes="0">
-              <Component id="infoLabel" alignment="0" pref="488" max="32767" attributes="1"/>
-              <Component id="jScrollPane2" alignment="0" pref="488" max="32767" attributes="1"/>
+              <Component id="infoLabel" alignment="0" pref="553" max="32767" attributes="1"/>
+              <Component id="jScrollPane2" alignment="0" pref="553" max="32767" attributes="1"/>
           </Group>
         </DimensionLayout>
         <DimensionLayout dim="1">
@@ -132,7 +132,7 @@
                       <Component id="cancelButton" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="okButton" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <EmptySpace pref="11" max="32767" attributes="0"/>
+                  <EmptySpace max="32767" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>

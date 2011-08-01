@@ -35,6 +35,8 @@ import Model.DDSImageFile;
 import com.jme3.gde.core.assets.ProjectAssetManager;
 import com.jme3.gde.core.util.TreeUtil;
 import com.jme3.texture.Texture;
+import java.awt.Color;
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -74,7 +76,7 @@ public class TextureBrowser extends javax.swing.JDialog implements TreeSelection
         initComponents();
         loadAvailableTextures();
         setSelectedTexture((Texture) editor.getValue());
-        setLocationRelativeTo(null); 
+        setLocationRelativeTo(null);
     }
 
     /** This method is called from within the constructor to
@@ -303,12 +305,17 @@ public class TextureBrowser extends javax.swing.JDialog implements TreeSelection
                     newicon = new ImageIcon(bufferedImage);
                 } catch (IOException ex) {
                     Exceptions.printStackTrace(ex);
+                    BufferedImage img = new BufferedImage(320, 240, BufferedImage.TYPE_INT_ARGB);
+                    Graphics2D g2d = (Graphics2D) img.getGraphics();
+                    g2d.setColor(Color.white);
+                    g2d.drawString("Cannot display image", 15, 15);
+                    newicon = new ImageIcon(img);
                 }
             } else {
                 newicon = ImageUtilities.image2Icon(ImageToAwt.convert(tex.getImage(), false, true, 0));
             }
             imagePreviewLabel.setIcon(newicon);
-            infoLabel.setText(" "+node.getUserObject() + "    w : " + newicon.getIconWidth() + "    h : " + newicon.getIconHeight());
+            infoLabel.setText(" " + node.getUserObject() + "    w : " + newicon.getIconWidth() + "    h : " + newicon.getIconHeight());
         } else {
             imagePreviewLabel.setIcon(null);
             infoLabel.setText("");
