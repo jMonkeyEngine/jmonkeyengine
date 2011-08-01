@@ -46,6 +46,8 @@ public class TextPanel extends MaterialPropertyWidget {
         jToolBar1.setRollover(true);
 
         jLabel1.setText(org.openide.util.NbBundle.getMessage(TextPanel.class, "TextPanel.jLabel1.text")); // NOI18N
+        jLabel1.setMaximumSize(new java.awt.Dimension(60, 14));
+        jLabel1.setMinimumSize(new java.awt.Dimension(60, 14));
         jLabel1.setPreferredSize(new java.awt.Dimension(100, 16));
         jToolBar1.add(jLabel1);
 
@@ -56,7 +58,7 @@ public class TextPanel extends MaterialPropertyWidget {
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 4, Short.MAX_VALUE)
+            .addGap(0, 336, Short.MAX_VALUE)
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -73,13 +75,23 @@ public class TextPanel extends MaterialPropertyWidget {
                 textChanged(evt);
             }
         });
+        jTextField1.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                jTextField1FocusLost(evt);
+            }
+        });
+        jTextField1.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                jTextField1KeyTyped(evt);
+            }
+        });
         jToolBar1.add(jTextField1);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jToolBar1, javax.swing.GroupLayout.DEFAULT_SIZE, 185, Short.MAX_VALUE)
+            .addComponent(jToolBar1, javax.swing.GroupLayout.DEFAULT_SIZE, 638, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -88,9 +100,18 @@ public class TextPanel extends MaterialPropertyWidget {
     }// </editor-fold>//GEN-END:initComponents
 
     private void textChanged(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_textChanged
-        property.setValue(jTextField1.getText());
+        property.setValue(jTextField1.getText());     
         fireChanged();
     }//GEN-LAST:event_textChanged
+
+private void jTextField1KeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextField1KeyTyped
+// TODO add your handling code here:
+}//GEN-LAST:event_jTextField1KeyTyped
+
+private void jTextField1FocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_jTextField1FocusLost
+        property.setValue(jTextField1.getText());
+        fireChanged();
+}//GEN-LAST:event_jTextField1FocusLost
 
     @Override
     protected void readProperty() {
@@ -99,7 +120,8 @@ public class TextPanel extends MaterialPropertyWidget {
             public void run() {
                 jLabel1.setToolTipText(property.getName() + " (" + property.getType() + ")");
                 jLabel1.setText(property.getName() + " (" + property.getType() + ")");
-                jTextField1.setText(property.getValue());
+                 
+                jTextField1.setText(property.getValue());               
             }
         });
     }
