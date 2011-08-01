@@ -177,7 +177,7 @@ public class CameraToolbar extends javax.swing.JToolBar {
     }// </editor-fold>//GEN-END:initComponents
 
 private void viewButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_viewButtonActionPerformed
-    viewMenu.show(viewButton, 0,- viewMenu.getHeight());
+    viewMenu.show(viewButton, 0, -viewMenu.getHeight());
 }//GEN-LAST:event_viewButtonActionPerformed
 
 private void frontMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_frontMenuItemActionPerformed
@@ -248,7 +248,15 @@ private void bottomMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GE
 }//GEN-LAST:event_bottomMenuItemActionPerformed
 
 private void enableOrthoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_enableOrthoActionPerformed
-    toggleOrthoPerspAction.actionPerformed(evt);
+    SceneViewerTopComponent.findInstance().requestActive();
+    final java.awt.event.ActionEvent e = evt;
+    java.awt.EventQueue.invokeLater(new Runnable() {
+
+        public void run() {
+            toggleOrthoPerspAction.actionPerformed(e);
+        }
+    });
+
 }//GEN-LAST:event_enableOrthoActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JMenuItem backMenuItem;
