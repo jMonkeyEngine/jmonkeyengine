@@ -44,7 +44,9 @@ import java.awt.Color;
  * @author normenhansen
  */
 public class ColorRGBADialog extends javax.swing.JDialog {
-    private String color;
+
+    private String strColor;
+    private Color color;
 
     /** Creates new form ColorRGBADialog */
     public ColorRGBADialog(java.awt.Frame parent, boolean modal) {
@@ -54,11 +56,12 @@ public class ColorRGBADialog extends javax.swing.JDialog {
     }
 
     private void convertColor() {
-        Color cColor = jColorChooser1.getColor();
+
         float[] floats = new float[4];
-        cColor.getComponents(floats);
-        String str=new String(floats[0]+" "+ floats[1]+" "+ floats[2]+" "+ ((float)alphaSlider.getValue())/100.0f);
-        color=str;
+        jColorChooser1.getColor().getComponents(floats);
+        color = new Color(floats[0], floats[1], floats[2], ((float) alphaSlider.getValue()) / 100.0f);
+        String str = new String(floats[0] + " " + floats[1] + " " + floats[2] + " " + ((float) alphaSlider.getValue()) / 100.0f);
+        strColor = str;
     }
 
     /** This method is called from within the constructor to
@@ -149,11 +152,22 @@ public class ColorRGBADialog extends javax.swing.JDialog {
     /**
      * @return the color
      */
-    public String getColor() {
+    public String getColorAsText() {
+        return strColor;
+    }
+
+    public void setColorAsText(String color) {
+        this.strColor = color;
+    }
+
+    public Color getColor() {
         return color;
     }
 
-    public void setColor(String color){
-        this.color=color;
+    public void setColor(Color color) {
+        this.color = color;
+        jColorChooser1.setColor(color);        
+        alphaSlider.setValue((int) ((float) (color.getAlpha() / 255f) * 100));
+
     }
 }
