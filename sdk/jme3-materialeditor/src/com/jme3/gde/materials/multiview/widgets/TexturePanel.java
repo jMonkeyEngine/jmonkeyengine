@@ -13,7 +13,13 @@ package com.jme3.gde.materials.multiview.widgets;
 import com.jme3.gde.core.assets.ProjectAssetManager;
 import com.jme3.gde.core.properties.TexturePropertyEditor;
 import com.jme3.gde.materials.MaterialProperty;
+import com.jme3.texture.Texture;
 import java.awt.Component;
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
+import javax.swing.Icon;
+import jme3tools.converters.ImageToAwt;
+import org.openide.util.ImageUtilities;
 
 /**
  *
@@ -32,6 +38,19 @@ public class TexturePanel extends MaterialPropertyWidget {
         this.manager = manager;
         editor = new TexturePropertyEditor(manager);
         initComponents();
+    }
+
+    private void displayPreview() {
+        if (!"".equals(textureName)) {
+            Texture tex = manager.loadTexture(textureName);
+            Icon newicon = null;
+            if (textureName.endsWith(".dds") || textureName.endsWith(".DDS")) {
+                texturePreview.setIcon(null);
+            } else {
+                newicon = ImageUtilities.image2Icon(resizeImage(ImageToAwt.convert(tex.getImage(), false, true, 0)));
+            }
+            texturePreview.setIcon(newicon);
+        }
     }
 
     private String getName(String path) {
@@ -57,12 +76,28 @@ public class TexturePanel extends MaterialPropertyWidget {
             jLabel2.setToolTipText("Repeat " + textureName);
         } else {
             property.setValue(textureName);
+            jLabel2.setToolTipText(textureName);
         }
     }
 
-    private String getTextureName(String string) {
-        string = string.replaceFirst("Flip ", "");
-        return string.replaceFirst("Repeat ", "");
+  
+
+    private static BufferedImage resizeImage(BufferedImage originalImage) {
+        int type = originalImage.getType() == 0 ? BufferedImage.TYPE_INT_ARGB : originalImage.getType();
+        float ratio = (float) originalImage.getWidth() / (float) originalImage.getHeight();
+        int width = 80;
+        int height = 25;
+        if (ratio <= 1) {
+            height = (int) ((float) width * ratio);
+        } else {
+            width = (int) ((float) height * (float) ratio);
+        }
+        BufferedImage resizedImage = new BufferedImage(width, height, type);
+        Graphics2D g = resizedImage.createGraphics();
+        g.drawImage(originalImage, 0, 0, width, height, null);
+        g.dispose();
+
+        return resizedImage;
     }
 
     /** This method is called from within the constructor to
@@ -74,26 +109,22 @@ public class TexturePanel extends MaterialPropertyWidget {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jToolBar1 = new javax.swing.JToolBar();
         jLabel1 = new javax.swing.JLabel();
         jPanel1 = new javax.swing.JPanel();
-        jLabel2 = new javax.swing.JLabel();
         jButton1 = new javax.swing.JButton();
         jCheckBox1 = new javax.swing.JCheckBox();
         jCheckBox2 = new javax.swing.JCheckBox();
         jButton2 = new javax.swing.JButton();
+        jLabel2 = new javax.swing.JLabel();
+        jSeparator1 = new javax.swing.JSeparator();
+        texturePreview = new javax.swing.JLabel();
 
         setBackground(new java.awt.Color(204, 204, 204));
-
-        jToolBar1.setBackground(new java.awt.Color(204, 204, 204));
-        jToolBar1.setFloatable(false);
-        jToolBar1.setRollover(true);
-        jToolBar1.setMinimumSize(new java.awt.Dimension(212, 32));
-        jToolBar1.setPreferredSize(new java.awt.Dimension(212, 32));
+        setMaximumSize(new java.awt.Dimension(32767, 45));
+        setPreferredSize(new java.awt.Dimension(467, 45));
 
         jLabel1.setText(org.openide.util.NbBundle.getMessage(TexturePanel.class, "TexturePanel.jLabel1.text")); // NOI18N
         jLabel1.setPreferredSize(new java.awt.Dimension(100, 16));
-        jToolBar1.add(jLabel1);
 
         jPanel1.setBackground(new java.awt.Color(204, 204, 204));
         jPanel1.setPreferredSize(new java.awt.Dimension(10, 0));
@@ -102,32 +133,27 @@ public class TexturePanel extends MaterialPropertyWidget {
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 1, Short.MAX_VALUE)
+            .addGap(0, 10, Short.MAX_VALUE)
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 28, Short.MAX_VALUE)
+            .addGap(0, 0, Short.MAX_VALUE)
         );
 
-        jToolBar1.add(jPanel1);
-
-        jLabel2.setFont(new java.awt.Font("Courier", 0, 13));
-        jLabel2.setText(org.openide.util.NbBundle.getMessage(TexturePanel.class, "TexturePanel.jLabel2.text")); // NOI18N
-        jLabel2.setMaximumSize(new java.awt.Dimension(200, 30));
-        jLabel2.setPreferredSize(new java.awt.Dimension(200, 14));
-        jToolBar1.add(jLabel2);
-
+        jButton1.setBackground(new java.awt.Color(204, 204, 204));
+        jButton1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/jme3/gde/materials/multiview/widgets/icons/picture_add.png"))); // NOI18N
         jButton1.setText(org.openide.util.NbBundle.getMessage(TexturePanel.class, "TexturePanel.jButton1.text")); // NOI18N
         jButton1.setFocusable(false);
-        jButton1.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        jButton1.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        jButton1.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        jButton1.setIconTextGap(2);
+        jButton1.setMargin(new java.awt.Insets(2, 5, 2, 5));
         jButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton1ActionPerformed(evt);
             }
         });
-        jToolBar1.add(jButton1);
 
+        jCheckBox1.setBackground(new java.awt.Color(204, 204, 204));
         jCheckBox1.setFont(new java.awt.Font("Lucida Grande", 0, 10));
         jCheckBox1.setText(org.openide.util.NbBundle.getMessage(TexturePanel.class, "TexturePanel.jCheckBox1.text")); // NOI18N
         jCheckBox1.setFocusable(false);
@@ -137,8 +163,8 @@ public class TexturePanel extends MaterialPropertyWidget {
                 jCheckBox1ActionPerformed(evt);
             }
         });
-        jToolBar1.add(jCheckBox1);
 
+        jCheckBox2.setBackground(new java.awt.Color(204, 204, 204));
         jCheckBox2.setFont(new java.awt.Font("Lucida Grande", 0, 10));
         jCheckBox2.setText(org.openide.util.NbBundle.getMessage(TexturePanel.class, "TexturePanel.jCheckBox2.text")); // NOI18N
         jCheckBox2.setFocusable(false);
@@ -148,9 +174,11 @@ public class TexturePanel extends MaterialPropertyWidget {
                 jCheckBox2ActionPerformed(evt);
             }
         });
-        jToolBar1.add(jCheckBox2);
 
+        jButton2.setBackground(new java.awt.Color(204, 204, 204));
+        jButton2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/jme3/gde/materials/multiview/widgets/icons/picture_delete.png"))); // NOI18N
         jButton2.setText(org.openide.util.NbBundle.getMessage(TexturePanel.class, "TexturePanel.jButton2.text")); // NOI18N
+        jButton2.setToolTipText(org.openide.util.NbBundle.getMessage(TexturePanel.class, "TexturePanel.jButton2.toolTipText")); // NOI18N
         jButton2.setFocusable(false);
         jButton2.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         jButton2.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
@@ -159,17 +187,68 @@ public class TexturePanel extends MaterialPropertyWidget {
                 jButton2ActionPerformed(evt);
             }
         });
-        jToolBar1.add(jButton2);
+
+        jLabel2.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
+        jLabel2.setText(org.openide.util.NbBundle.getMessage(TexturePanel.class, "TexturePanel.jLabel2.text")); // NOI18N
+
+        texturePreview.setText(org.openide.util.NbBundle.getMessage(TexturePanel.class, "TexturePanel.texturePreview.text")); // NOI18N
+        texturePreview.setVerticalAlignment(javax.swing.SwingConstants.TOP);
+        texturePreview.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(153, 153, 153)));
+        texturePreview.setFocusable(false);
+        texturePreview.setIconTextGap(0);
+        texturePreview.setMaximumSize(new java.awt.Dimension(75, 25));
+        texturePreview.setMinimumSize(new java.awt.Dimension(75, 25));
+        texturePreview.setPreferredSize(new java.awt.Dimension(75, 25));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jToolBar1, javax.swing.GroupLayout.DEFAULT_SIZE, 261, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jSeparator1, javax.swing.GroupLayout.DEFAULT_SIZE, 559, Short.MAX_VALUE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, 192, Short.MAX_VALUE)
+                        .addGap(2, 2, 2)
+                        .addComponent(texturePreview, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jButton1)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jCheckBox2)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jCheckBox1)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap())
+            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(layout.createSequentialGroup()
+                    .addGap(0, 280, Short.MAX_VALUE)
+                    .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGap(0, 279, Short.MAX_VALUE)))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jToolBar1, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, 25, Short.MAX_VALUE)
+                    .addComponent(jLabel1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 25, Short.MAX_VALUE)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addComponent(jButton2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jCheckBox2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jCheckBox1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(texturePreview, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 12, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(85, 85, 85))
+            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(layout.createSequentialGroup()
+                    .addGap(0, 41, Short.MAX_VALUE)
+                    .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGap(0, 24, Short.MAX_VALUE)))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -178,7 +257,8 @@ public class TexturePanel extends MaterialPropertyWidget {
         view.setVisible(true);
         if (editor.getValue() != null) {
             textureName = editor.getAsText();
-            jLabel2.setText(getName(textureName));
+            displayPreview();
+            jLabel2.setText(getName(textureName));            
             updateFlipRepeat();
             fireChanged();
         }
@@ -186,6 +266,7 @@ public class TexturePanel extends MaterialPropertyWidget {
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         textureName = "";
+        texturePreview.setIcon(null);
         jLabel2.setText("");
         jLabel2.setToolTipText("");
         property.setValue("");
@@ -230,6 +311,7 @@ public class TexturePanel extends MaterialPropertyWidget {
                 }
                 jLabel1.setText(property.getName());
                 jLabel1.setToolTipText(property.getName());
+                displayPreview();
                 jLabel2.setText(getName(textureName));
                 jLabel2.setToolTipText(property.getValue());
                 MaterialProperty prop = property;
@@ -248,6 +330,7 @@ public class TexturePanel extends MaterialPropertyWidget {
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JPanel jPanel1;
-    private javax.swing.JToolBar jToolBar1;
+    private javax.swing.JSeparator jSeparator1;
+    private javax.swing.JLabel texturePreview;
     // End of variables declaration//GEN-END:variables
 }

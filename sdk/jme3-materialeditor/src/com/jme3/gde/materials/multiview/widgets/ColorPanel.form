@@ -29,13 +29,13 @@
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" alignment="1" attributes="0">
               <Group type="103" groupAlignment="1" attributes="0">
-                  <Component id="jSeparator1" alignment="1" pref="415" max="32767" attributes="0"/>
+                  <Component id="jSeparator1" alignment="1" pref="420" max="32767" attributes="0"/>
                   <Group type="102" alignment="1" attributes="0">
-                      <Component id="jLabel1" pref="65" max="32767" attributes="0"/>
+                      <Component id="jLabel1" pref="70" max="32767" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="jPanel2" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jButton1" min="-2" pref="33" max="-2" attributes="0"/>
+                      <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                      <Component id="jButton1" min="-2" pref="29" max="-2" attributes="0"/>
                   </Group>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
@@ -45,13 +45,13 @@
     <DimensionLayout dim="1">
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" alignment="0" attributes="0">
-              <Group type="103" groupAlignment="1" max="-2" attributes="0">
+              <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                  <Component id="jButton1" max="32767" attributes="1"/>
                   <Component id="jLabel1" alignment="0" max="32767" attributes="1"/>
-                  <Component id="jButton1" alignment="0" max="32767" attributes="1"/>
                   <Component id="jPanel2" alignment="0" max="32767" attributes="1"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
-              <Component id="jSeparator1" min="-2" pref="4" max="-2" attributes="0"/>
+              <Component id="jSeparator1" pref="9" max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -103,7 +103,6 @@
           <Group type="103" groupAlignment="0" attributes="0">
               <Component id="gLabel" alignment="0" pref="20" max="32767" attributes="1"/>
               <Component id="bLabel" alignment="0" pref="20" max="32767" attributes="1"/>
-              <Component id="aLabel" alignment="0" pref="20" max="32767" attributes="1"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="jLabel3" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel4" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -112,6 +111,7 @@
                   <Component id="rLabel" alignment="3" pref="20" max="32767" attributes="1"/>
               </Group>
               <Component id="colorPreview" alignment="0" pref="20" max="32767" attributes="1"/>
+              <Component id="aLabel" alignment="0" pref="20" max="32767" attributes="1"/>
           </Group>
         </DimensionLayout>
       </Layout>
@@ -257,6 +257,9 @@
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="cc" green="cc" red="cc" type="rgb"/>
+        </Property>
+        <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
+          <Image iconType="3" name="/com/jme3/gde/materials/multiview/widgets/icons/color_wheel.png"/>
         </Property>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
           <ResourceString bundle="com/jme3/gde/materials/multiview/widgets/Bundle.properties" key="ColorPanel.jButton1.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
