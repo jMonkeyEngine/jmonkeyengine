@@ -165,10 +165,12 @@ public class ColorRGBADialog extends javax.swing.JDialog {
     }
 
     public void setColor(Color color) {
-        this.color = color;
-        jColorChooser1.setColor(color);
-        
-        alphaSlider.setValue((int) ((float) (color.getAlpha() / 255f) * 100));
+        if (color != null) {
+            this.color = color;
+            jColorChooser1.setColor(color);
+
+            alphaSlider.setValue((int) ((float) (color.getAlpha() / 255f) * 100));
+        }
 
     }
 }
