@@ -41,6 +41,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -56,7 +58,6 @@ import com.jme3.scene.plugins.blender.AbstractBlenderHelper;
 import com.jme3.scene.plugins.blender.DataRepository;
 import com.jme3.scene.plugins.blender.DataRepository.LoadedFeatureDataType;
 import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
-import com.jme3.scene.plugins.blender.file.BlenderInputStream;
 import com.jme3.scene.plugins.blender.file.DynamicArray;
 import com.jme3.scene.plugins.blender.file.FileBlockHeader;
 import com.jme3.scene.plugins.blender.file.Pointer;
@@ -67,9 +68,6 @@ import com.jme3.texture.Image.Format;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
 import com.jme3.texture.Texture2D;
-import com.jme3.texture.plugins.AWTLoader;
-import com.jme3.texture.plugins.DDSLoader;
-import com.jme3.texture.plugins.TGALoader;
 import com.jme3.util.BufferUtils;
 
 /**
@@ -79,7 +77,7 @@ import com.jme3.util.BufferUtils;
  */
 public class TextureHelper extends AbstractBlenderHelper {
 	private static final Logger	LOGGER				= Logger.getLogger(TextureHelper.class.getName());
-
+	
 	// texture types
 	public static final int		TEX_NONE			= 0;
 	public static final int		TEX_CLOUDS			= 1;
@@ -151,18 +149,29 @@ public class TextureHelper extends AbstractBlenderHelper {
 	public static final int		MA_RAMP_VAL			= 14;
 	public static final int		MA_RAMP_COLOR		= 15;
 
-	protected NoiseGenerator noiseHelper;
+	protected NoiseGenerator noiseGenerator;
+	private Map<Integer, TextureGenerator> textureGenerators = new HashMap<Integer, TextureGenerator>();
 	
 	/**
-	 * This constructor parses the given blender version and stores the result. Some functionalities may differ in different blender
-	 * versions.
+	 * This constructor parses the given blender version and stores the result.
+	 * It creates noise generator and texture generators.
 	 * 
 	 * @param blenderVersion
 	 *        the version read from the blend file
 	 */
 	public TextureHelper(String blenderVersion) {
 		super(blenderVersion);
-		noiseHelper = new NoiseGenerator(blenderVersion);
+		noiseGenerator = new NoiseGenerator(blenderVersion);
+		textureGenerators.put(Integer.valueOf(TEX_BLEND), new TextureGeneratorBlend(noiseGenerator));
+		textureGenerators.put(Integer.valueOf(TEX_CLOUDS), new TextureGeneratorClouds(noiseGenerator));
+		textureGenerators.put(Integer.valueOf(TEX_DISTNOISE), new TextureGeneratorDistnoise(noiseGenerator));
+		textureGenerators.put(Integer.valueOf(TEX_MAGIC), new TextureGeneratorMagic(noiseGenerator));
+		textureGenerators.put(Integer.valueOf(TEX_MARBLE), new TextureGeneratorMarble(noiseGenerator));
+		textureGenerators.put(Integer.valueOf(TEX_MUSGRAVE), new TextureGeneratorMusgrave(noiseGenerator));
+		textureGenerators.put(Integer.valueOf(TEX_NOISE), new TextureGeneratorNoise(noiseGenerator));
+		textureGenerators.put(Integer.valueOf(TEX_STUCCI), new TextureGeneratorStucci(noiseGenerator));
+		textureGenerators.put(Integer.valueOf(TEX_VORONOI), new TextureGeneratorVoronoi(noiseGenerator));
+		textureGenerators.put(Integer.valueOf(TEX_WOOD), new TextureGeneratorWood(noiseGenerator));
 	}
 
 	/**
@@ -195,34 +204,17 @@ public class TextureHelper extends AbstractBlenderHelper {
                 }
 				break;
 			case TEX_CLOUDS:
-				result = this.clouds(tex, width, height, dataRepository);
-				break;
 			case TEX_WOOD:
-				result = this.wood(tex, width, height, dataRepository);
-				break;
 			case TEX_MARBLE:
-				result = this.marble(tex, width, height, dataRepository);
-				break;
 			case TEX_MAGIC:
-				result = this.magic(tex, width, height, dataRepository);
-				break;
 			case TEX_BLEND:
-				result = this.blend(tex, width, height, dataRepository);
-				break;
 			case TEX_STUCCI:
-				result = this.stucci(tex, width, height, dataRepository);
-				break;
 			case TEX_NOISE:
-				result = this.texnoise(tex, width, height, dataRepository);
-				break;
 			case TEX_MUSGRAVE:
-				result = this.musgrave(tex, width, height, dataRepository);
-				break;
 			case TEX_VORONOI:
-				result = this.voronoi(tex, width, height, dataRepository);
-				break;
 			case TEX_DISTNOISE:
-				result = this.distnoise(tex, width, height, dataRepository);
+				TextureGenerator textureGenerator = textureGenerators.get(Integer.valueOf(type));
+				result = textureGenerator.generate(tex, width, height, dataRepository);
 				break;
 			case TEX_NONE:// No texture, do nothing
 				break;
@@ -244,778 +236,6 @@ public class TextureHelper extends AbstractBlenderHelper {
 			result.setWrap(WrapMode.Repeat);
 			if(type != TEX_IMAGE) {//only generated textures should have this key
 				result.setKey(new GeneratedTextureKey(tex.getName()));
-			}
-		}
-		return result;
-	}
-
-	/**
-	 * This method generates the clouds texture. The result is one pixel.
-	 * 
-	 * @param tex
-	 *        the texture structure
-	 * @param width
-	 *        the width of texture (in pixels)
-	 * @param height
-	 *        the height of texture (in pixels)
-	 * @param dataRepository
-	 *        the data repository
-	 * @return generated texture
-	 */
-	protected Texture clouds(Structure tex, int width, int height, DataRepository dataRepository) {
-		// preparing the proper data
-		float wDelta = 1.0f / width, hDelta = 1.0f / height;
-		float[] texvec = new float[] { 0, 0, 0 };
-		TexResult texres = new TexResult();
-
-		// reading the data from the texture structure
-		float noisesize = ((Number) tex.getFieldValue("noisesize")).floatValue();
-		int noiseDepth = ((Number) tex.getFieldValue("noisedepth")).intValue();
-		int noiseBasis = ((Number) tex.getFieldValue("noisebasis")).intValue();
-		int noiseType = ((Number) tex.getFieldValue("noisetype")).intValue();
-		float contrast = ((Number) tex.getFieldValue("contrast")).floatValue();
-		float bright = ((Number) tex.getFieldValue("bright")).floatValue();
-		boolean isHard = noiseType != NoiseGenerator.TEX_NOISESOFT;
-		int sType = ((Number) tex.getFieldValue("stype")).intValue();
-		int halfW = width, halfH = height;
-		width <<= 1;
-		height <<= 1;
-		ColorBand colorBand = this.readColorband(tex, dataRepository);
-		Format format = sType == NoiseGenerator.TEX_COLOR || colorBand != null ? Format.RGB8 : Format.Luminance8;
-		int bytesPerPixel = sType == NoiseGenerator.TEX_COLOR || colorBand != null ? 3 : 1;
-
-		ByteBuffer data = BufferUtils.createByteBuffer(width * height * bytesPerPixel);
-		for (int i = -halfW; i < halfW; ++i) {
-			texvec[0] = wDelta * i;// x
-			for (int j = -halfH; j < halfH; ++j) {
-				texvec[1] = hDelta * j;// y (z is always = 0)
-
-				texres.tin = noiseHelper.bliGTurbulence(noisesize, texvec[0], texvec[1], texvec[2], noiseDepth, isHard, noiseBasis);
-				if (colorBand != null) {
-					noiseHelper.doColorband(colorBand, texres, dataRepository);
-					if (texres.nor != null) {
-						float nabla = ((Number) tex.getFieldValue("nabla")).floatValue();
-						// calculate bumpnormal
-						texres.nor[0] = noiseHelper.bliGTurbulence(noisesize, texvec[0] + nabla, texvec[1], texvec[2], noiseDepth, isHard, noiseBasis);
-						texres.nor[1] = noiseHelper.bliGTurbulence(noisesize, texvec[0], texvec[1] + nabla, texvec[2], noiseDepth, isHard, noiseBasis);
-						texres.nor[2] = noiseHelper.bliGTurbulence(noisesize, texvec[0], texvec[1], texvec[2] + nabla, noiseDepth, isHard, noiseBasis);
-						noiseHelper.texNormalDerivate(colorBand, texres, dataRepository);
-					}
-					noiseHelper.brightnesAndContrastRGB(tex, texres);
-					data.put((byte) (texres.tr * 255.0f));
-					data.put((byte) (texres.tg * 255.0f));
-					data.put((byte) (texres.tb * 255.0f));
-				} else if (sType == NoiseGenerator.TEX_COLOR) {
-					// in this case, int. value should really be computed from color,
-					// and bumpnormal from that, would be too slow, looks ok as is
-					texres.tr = texres.tin;
-					texres.tg = noiseHelper.bliGTurbulence(noisesize, texvec[1], texvec[0], texvec[2], noiseDepth, isHard, noiseBasis);
-					texres.tb = noiseHelper.bliGTurbulence(noisesize, texvec[1], texvec[2], texvec[0], noiseDepth, isHard, noiseBasis);
-					noiseHelper.brightnesAndContrastRGB(tex, texres);
-					data.put((byte) (texres.tr * 255.0f));
-					data.put((byte) (texres.tg * 255.0f));
-					data.put((byte) (texres.tb * 255.0f));
-				} else {
-					noiseHelper.brightnesAndContrast(texres, contrast, bright);
-					data.put((byte) (texres.tin * 255));
-				}
-			}
-		}
-		return new Texture2D(new Image(format, width, height, data));
-	}
-
-	/**
-	 * This method generates the wood texture.
-	 * 
-	 * @param tex
-	 *        the texture structure
-	 * @param width
-	 *        the width of the texture
-	 * @param height
-	 *        the height of the texture
-	 * @param dataRepository
-	 *        the data repository
-	 * @return the generated texture
-	 */
-	protected Texture wood(Structure tex, int width, int height, DataRepository dataRepository) {
-		// preparing the proper data
-		float contrast = ((Number) tex.getFieldValue("contrast")).floatValue();
-		float bright = ((Number) tex.getFieldValue("bright")).floatValue();
-		float nabla = ((Number) tex.getFieldValue("nabla")).floatValue();
-		float wDelta = 1.0f / width, hDelta = 1.0f / height;
-		float[] texvec = new float[] { 0, 0, 0 };
-		TexResult texres = new TexResult();
-		int halfW = width;
-		int halfH = height;
-		width <<= 1;
-		height <<= 1;
-		ColorBand colorBand = this.readColorband(tex, dataRepository);
-		Format format = colorBand != null ? Format.RGB8 : Format.Luminance8;
-		int bytesPerPixel = colorBand != null ? 3 : 1;
-
-		ByteBuffer data = BufferUtils.createByteBuffer(width * height * bytesPerPixel);
-		for (int i = -halfW; i < halfW; ++i) {
-			texvec[0] = wDelta * i;
-			for (int j = -halfH; j < halfH; ++j) {
-				texvec[1] = hDelta * j;
-				texres.tin = noiseHelper.woodInt(tex, texvec[0], texvec[1], texvec[2], dataRepository);
-				if (colorBand != null) {
-					noiseHelper.doColorband(colorBand, texres, dataRepository);
-					if (texres.nor != null) {// calculate bumpnormal
-						texres.nor[0] = noiseHelper.woodInt(tex, texvec[0] + nabla, texvec[1], texvec[2], dataRepository);
-						texres.nor[1] = noiseHelper.woodInt(tex, texvec[0], texvec[1] + nabla, texvec[2], dataRepository);
-						texres.nor[2] = noiseHelper.woodInt(tex, texvec[0], texvec[1], texvec[2] + nabla, dataRepository);
-						noiseHelper.texNormalDerivate(colorBand, texres, dataRepository);
-					}
-					noiseHelper.brightnesAndContrastRGB(tex, texres);
-					data.put((byte) (texres.tr * 255.0f));
-					data.put((byte) (texres.tg * 255.0f));
-					data.put((byte) (texres.tb * 255.0f));
-				} else {
-					noiseHelper.brightnesAndContrast(texres, contrast, bright);
-					data.put((byte) (texres.tin * 255));
-				}
-			}
-		}
-		return new Texture2D(new Image(format, width, height, data));
-	}
-
-	/**
-	 * This method generates the marble texture.
-	 * 
-	 * @param tex
-	 *        the texture structure
-	 * @param width
-	 *        the width of the texture
-	 * @param height
-	 *        the height of the texture
-	 * @param dataRepository
-	 *        the data repository
-	 * @return the generated texture
-	 */
-	protected Texture marble(Structure tex, int width, int height, DataRepository dataRepository) {
-		// preparing the proper data
-		float contrast = ((Number) tex.getFieldValue("contrast")).floatValue();
-		float bright = ((Number) tex.getFieldValue("bright")).floatValue();
-		float nabla = ((Number) tex.getFieldValue("nabla")).floatValue();
-		float wDelta = 1.0f / width, hDelta = 1.0f / height;
-		float[] texvec = new float[] { 0, 0, 0 };
-		TexResult texres = new TexResult();
-		int halfW = width, halfH = height;
-		width <<= 1;
-		height <<= 1;
-		ColorBand colorBand = this.readColorband(tex, dataRepository);
-		Format format = colorBand != null ? Format.RGB8 : Format.Luminance8;
-		int bytesPerPixel = colorBand != null ? 3 : 1;
-
-		ByteBuffer data = BufferUtils.createByteBuffer(width * height * bytesPerPixel);
-		for (int i = -halfW; i < halfW; ++i) {
-			texvec[0] = wDelta * i;
-			for (int j = -halfH; j < halfH; ++j) {
-				texvec[1] = hDelta * j;
-				texres.tin = noiseHelper.marbleInt(tex, texvec[0], texvec[1], texvec[2], dataRepository);
-				if (colorBand != null) {
-					noiseHelper.doColorband(colorBand, texres, dataRepository);
-					if (texres.nor != null) {// calculate bumpnormal
-						texres.nor[0] = noiseHelper.marbleInt(tex, texvec[0] + nabla, texvec[1], texvec[2], dataRepository);
-						texres.nor[1] = noiseHelper.marbleInt(tex, texvec[0], texvec[1] + nabla, texvec[2], dataRepository);
-						texres.nor[2] = noiseHelper.marbleInt(tex, texvec[0], texvec[1], texvec[2] + nabla, dataRepository);
-						noiseHelper.texNormalDerivate(colorBand, texres, dataRepository);
-					}
-
-					noiseHelper.brightnesAndContrastRGB(tex, texres);
-					data.put((byte) (texres.tr * 255.0f));
-					data.put((byte) (texres.tg * 255.0f));
-					data.put((byte) (texres.tb * 255.0f));
-				} else {
-					noiseHelper.brightnesAndContrast(texres, contrast, bright);
-					data.put((byte) (texres.tin * 255.0f));
-				}
-			}
-		}
-		return new Texture2D(new Image(format, width, height, data));
-	}
-
-	/**
-	 * This method generates the magic texture.
-	 * 
-	 * @param tex
-	 *        the texture structure
-	 * @param width
-	 *        the width of the texture
-	 * @param height
-	 *        the height of the texture
-	 * @param dataRepository
-	 *        the data repository
-	 * @return the generated texture
-	 */
-	protected Texture magic(Structure tex, int width, int height, DataRepository dataRepository) {
-		float x, y, z, turb;
-		int noisedepth = ((Number) tex.getFieldValue("noisedepth")).intValue();
-		float turbul = ((Number) tex.getFieldValue("turbul")).floatValue() / 5.0f;
-		float[] texvec = new float[] { 0, 0, 0 };
-		TexResult texres = new TexResult();
-		float wDelta = 1.0f / width, hDelta = 1.0f / height;
-		int halfW = width, halfH = height;
-		width <<= 1;
-		height <<= 1;
-		ColorBand colorBand = this.readColorband(tex, dataRepository);
-
-		ByteBuffer data = BufferUtils.createByteBuffer(width * height * 4);
-		for (int i = -halfW; i < halfW; ++i) {
-			texvec[0] = wDelta * i;
-			for (int j = -halfH; j < halfH; ++j) {
-				turb = turbul;
-				texvec[1] = hDelta * j;
-				x = (float) Math.sin((texvec[0] + texvec[1]) * 5.0f);// in blender: Math.sin((texvec[0] + texvec[1] + texvec[2]) * 5.0f);
-				y = (float) Math.cos((-texvec[0] + texvec[1]) * 5.0f);// in blender: Math.cos((-texvec[0] + texvec[1] - texvec[2]) * 5.0f);
-				z = -(float) Math.cos((-texvec[0] - texvec[1]) * 5.0f);// in blender: Math.cos((-texvec[0] - texvec[1] + texvec[2]) * 5.0f);
-
-				if (colorBand != null) {
-					texres.tin = 0.3333f * (x + y + z);
-					noiseHelper.doColorband(colorBand, texres, dataRepository);
-				} else {
-					if (noisedepth > 0) {
-						x *= turb;
-						y *= turb;
-						z *= turb;
-						y = -(float) Math.cos(x - y + z) * turb;
-						if (noisedepth > 1) {
-							x = (float) Math.cos(x - y - z) * turb;
-							if (noisedepth > 2) {
-								z = (float) Math.sin(-x - y - z) * turb;
-								if (noisedepth > 3) {
-									x = -(float) Math.cos(-x + y - z) * turb;
-									if (noisedepth > 4) {
-										y = -(float) Math.sin(-x + y + z) * turb;
-										if (noisedepth > 5) {
-											y = -(float) Math.cos(-x + y + z) * turb;
-											if (noisedepth > 6) {
-												x = (float) Math.cos(x + y + z) * turb;
-												if (noisedepth > 7) {
-													z = (float) Math.sin(x + y - z) * turb;
-													if (noisedepth > 8) {
-														x = -(float) Math.cos(-x - y + z) * turb;
-														if (noisedepth > 9) {
-															y = -(float) Math.sin(x - y + z) * turb;
-														}
-													}
-												}
-											}
-										}
-									}
-								}
-							}
-						}
-					}
-
-					if (turb != 0.0f) {
-						turb *= 2.0f;
-						x /= turb;
-						y /= turb;
-						z /= turb;
-					}
-					texres.tr = 0.5f - x;
-					texres.tg = 0.5f - y;
-					texres.tb = 0.5f - z;
-				}
-				noiseHelper.brightnesAndContrastRGB(tex, texres);
-				data.put((byte) (texres.tin * 255));
-				data.put((byte) (texres.tb * 255));
-				data.put((byte) (texres.tg * 255));
-				data.put((byte) (texres.tr * 255));
-			}
-		}
-		return new Texture2D(new Image(Format.ABGR8, width, height, data));
-	}
-
-	/**
-	 * This method generates the blend texture.
-	 * 
-	 * @param tex
-	 *        the texture structure
-	 * @param width
-	 *        the width of the texture
-	 * @param height
-	 *        the height of the texture
-	 * @param dataRepository
-	 *        the data repository
-	 * @return the generated texture
-	 */
-	protected Texture blend(Structure tex, int width, int height, DataRepository dataRepository) {
-		int flag = ((Number) tex.getFieldValue("flag")).intValue();
-		int stype = ((Number) tex.getFieldValue("stype")).intValue();
-		float contrast = ((Number) tex.getFieldValue("contrast")).floatValue();
-		float brightness = ((Number) tex.getFieldValue("bright")).floatValue();
-		float wDelta = 1.0f / width, hDelta = 1.0f / height, x, y, t;
-		float[] texvec = new float[] { 0, 0, 0 };
-		TexResult texres = new TexResult();
-		int halfW = width, halfH = height;
-		width <<= 1;
-		height <<= 1;
-		ColorBand colorBand = this.readColorband(tex, dataRepository);
-		Format format = colorBand != null ? Format.RGB8 : Format.Luminance8;
-		int bytesPerPixel = colorBand != null ? 3 : 1;
-
-		ByteBuffer data = BufferUtils.createByteBuffer(width * height * bytesPerPixel);
-		for (int i = -halfW; i < halfW; ++i) {
-			texvec[0] = wDelta * i;
-			for (int j = -halfH; j < halfH; ++j) {
-				texvec[1] = hDelta * j;
-				if ((flag & NoiseGenerator.TEX_FLIPBLEND) != 0) {
-					x = texvec[1];
-					y = texvec[0];
-				} else {
-					x = texvec[0];
-					y = texvec[1];
-				}
-
-				if (stype == NoiseGenerator.TEX_LIN) { /* lin */
-					texres.tin = (1.0f + x) / 2.0f;
-				} else if (stype == NoiseGenerator.TEX_QUAD) { /* quad */
-					texres.tin = (1.0f + x) / 2.0f;
-					if (texres.tin < 0.0f) {
-						texres.tin = 0.0f;
-					} else {
-						texres.tin *= texres.tin;
-					}
-				} else if (stype == NoiseGenerator.TEX_EASE) { /* ease */
-					texres.tin = (1.0f + x) / 2.0f;
-					if (texres.tin <= 0.0f) {
-						texres.tin = 0.0f;
-					} else if (texres.tin >= 1.0f) {
-						texres.tin = 1.0f;
-					} else {
-						t = texres.tin * texres.tin;
-						texres.tin = 3.0f * t - 2.0f * t * texres.tin;
-					}
-				} else if (stype == NoiseGenerator.TEX_DIAG) { /* diag */
-					texres.tin = (2.0f + x + y) / 4.0f;
-				} else if (stype == NoiseGenerator.TEX_RAD) { /* radial */
-					texres.tin = (float) Math.atan2(y, x) / FastMath.TWO_PI + 0.5f;
-				} else { /* sphere TEX_SPHERE */
-					texres.tin = 1.0f - (float) Math.sqrt(x * x + y * y + texvec[2] * texvec[2]);
-					if (texres.tin < 0.0f) {
-						texres.tin = 0.0f;
-					}
-					if (stype == NoiseGenerator.TEX_HALO) {
-						texres.tin *= texres.tin;
-					} /* halo */
-				}
-				if (colorBand != null) {
-					noiseHelper.doColorband(colorBand, texres, dataRepository);
-					noiseHelper.brightnesAndContrastRGB(tex, texres);
-					data.put((byte) (texres.tr * 255.0f));
-					data.put((byte) (texres.tg * 255.0f));
-					data.put((byte) (texres.tb * 255.0f));
-				} else {
-					noiseHelper.brightnesAndContrast(texres, contrast, brightness);
-					data.put((byte) (texres.tin * 255.0f));
-				}
-			}
-		}
-		return new Texture2D(new Image(format, width, height, data));
-	}
-
-	/**
-	 * This method generates the stucci texture.
-	 * 
-	 * @param tex
-	 *        the texture structure
-	 * @param width
-	 *        the width of the texture
-	 * @param height
-	 *        the height of the texture
-	 * @param dataRepository
-	 *        the data repository
-	 * @return the generated texture
-	 */
-	protected Texture stucci(Structure tex, int width, int height, DataRepository dataRepository) {
-		float noisesize = ((Number) tex.getFieldValue("noisesize")).floatValue();
-		int noisebasis = ((Number) tex.getFieldValue("noisebasis")).intValue();
-		int noisetype = ((Number) tex.getFieldValue("noisetype")).intValue();
-		float turbul = ((Number) tex.getFieldValue("turbul")).floatValue();
-		boolean isHard = noisetype != NoiseGenerator.TEX_NOISESOFT;
-		int stype = ((Number) tex.getFieldValue("stype")).intValue();
-
-		float[] texvec = new float[] { 0, 0, 0 };
-		TexResult texres = new TexResult();
-		float wDelta = 1.0f / width, hDelta = 1.0f / height, b2, ofs;
-		int halfW = width, halfH = height;
-		width <<= 1;
-		height <<= 1;
-		ColorBand colorBand = this.readColorband(tex, dataRepository);
-		Format format = colorBand != null ? Format.RGB8 : Format.Luminance8;
-		int bytesPerPixel = colorBand != null ? 3 : 1;
-
-		ByteBuffer data = BufferUtils.createByteBuffer(width * height * bytesPerPixel);
-		for (int i = -halfW; i < halfW; ++i) {
-			texvec[0] = wDelta * i;// x
-			for (int j = -halfH; j < halfH; ++j) {
-				texvec[1] = hDelta * j;// y (z is always = 0)
-				b2 = noiseHelper.bliGNoise(noisesize, texvec[0], texvec[1], texvec[2], isHard, noisebasis);
-
-				ofs = turbul / 200.0f;
-
-				if (stype != 0) {
-					ofs *= b2 * b2;
-				}
-
-				texres.tin = noiseHelper.bliGNoise(noisesize, texvec[0], texvec[1], texvec[2] + ofs, isHard, noisebasis);// ==nor[2]
-				if (colorBand != null) {
-					noiseHelper.doColorband(colorBand, texres, dataRepository);
-					if (texres.nor != null) {
-						texres.nor[0] = noiseHelper.bliGNoise(noisesize, texvec[0] + ofs, texvec[1], texvec[2], isHard, noisebasis);
-						texres.nor[1] = noiseHelper.bliGNoise(noisesize, texvec[0], texvec[1] + ofs, texvec[2], isHard, noisebasis);
-						texres.nor[2] = texres.tin;
-						noiseHelper.texNormalDerivate(colorBand, texres, dataRepository);
-
-						if (stype == NoiseGenerator.TEX_WALLOUT) {
-							texres.nor[0] = -texres.nor[0];
-							texres.nor[1] = -texres.nor[1];
-							texres.nor[2] = -texres.nor[2];
-						}
-					}
-				}
-
-				if (stype == NoiseGenerator.TEX_WALLOUT) {
-					texres.tin = 1.0f - texres.tin;
-				}
-				if (texres.tin < 0.0f) {
-					texres.tin = 0.0f;
-				}
-				if (colorBand != null) {
-					data.put((byte) (texres.tr * 255.0f));
-					data.put((byte) (texres.tg * 255.0f));
-					data.put((byte) (texres.tb * 255.0f));
-				} else {
-					data.put((byte) (texres.tin * 255.0f));
-				}
-			}
-		}
-		return new Texture2D(new Image(format, width, height, data));
-	}
-
-	/**
-	 * This method generates the noise texture.
-	 * 
-	 * @param tex
-	 *        the texture structure
-	 * @param width
-	 *        the width of the texture
-	 * @param height
-	 *        the height of the texture
-	 * @param dataRepository
-	 *        the data repository
-	 * @return the generated texture
-	 */
-	// TODO: correct this one, so it looks more like the texture generated by blender
-	protected Texture texnoise(Structure tex, int width, int height, DataRepository dataRepository) {
-		float div = 3.0f;
-		int val, ran, loop;
-		int noisedepth = ((Number) tex.getFieldValue("noisedepth")).intValue();
-		float contrast = ((Number) tex.getFieldValue("contrast")).floatValue();
-		float brightness = ((Number) tex.getFieldValue("bright")).floatValue();
-		TexResult texres = new TexResult();
-		int halfW = width, halfH = height;
-		width <<= 1;
-		height <<= 1;
-		ColorBand colorBand = this.readColorband(tex, dataRepository);
-		Format format = colorBand != null ? Format.RGB8 : Format.Luminance8;
-		int bytesPerPixel = colorBand != null ? 3 : 1;
-
-		ByteBuffer data = BufferUtils.createByteBuffer(width * height * bytesPerPixel);
-		for (int i = -halfW; i < halfW; ++i) {
-			for (int j = -halfH; j < halfH; ++j) {
-				ran = FastMath.rand.nextInt();// BLI_rand();
-				val = ran & 3;
-
-				loop = noisedepth;
-				while (loop-- != 0) {
-					ran = ran >> 2;
-					val *= ran & 3;
-					div *= 3.0f;
-				}
-				texres.tin = val;// / div;
-				if (colorBand != null) {
-					noiseHelper.doColorband(colorBand, texres, dataRepository);
-					noiseHelper.brightnesAndContrastRGB(tex, texres);
-					data.put((byte) (texres.tr * 255.0f));
-					data.put((byte) (texres.tg * 255.0f));
-					data.put((byte) (texres.tb * 255.0f));
-				} else {
-					noiseHelper.brightnesAndContrast(texres, contrast, brightness);
-					data.put((byte) (texres.tin * 255.0f));
-				}
-			}
-		}
-		return new Texture2D(new Image(format, width, height, data));
-	}
-
-	/**
-	 * This method generates the musgrave texture.
-	 * 
-	 * @param tex
-	 *        the texture structure
-	 * @param width
-	 *        the width of the texture
-	 * @param height
-	 *        the height of the texture
-	 * @param dataRepository
-	 *        the data repository
-	 * @return the generated texture
-	 */
-	protected Texture musgrave(Structure tex, int width, int height, DataRepository dataRepository) {
-		int stype = ((Number) tex.getFieldValue("stype")).intValue();
-		float noisesize = ((Number) tex.getFieldValue("noisesize")).floatValue();
-		TexResult texres = new TexResult();
-		float[] texvec = new float[] { 0, 0, 0 };
-		float wDelta = 1.0f / width, hDelta = 1.0f / height;
-		int halfW = width, halfH = height;
-		width <<= 1;
-		height <<= 1;
-		ColorBand colorBand = this.readColorband(tex, dataRepository);
-		Format format = colorBand != null ? Format.RGB8 : Format.Luminance8;
-		int bytesPerPixel = colorBand != null ? 3 : 1;
-
-		ByteBuffer data = BufferUtils.createByteBuffer(width * height * bytesPerPixel);
-		for (int i = -halfW; i < halfW; ++i) {
-			texvec[0] = wDelta * i / noisesize;
-			for (int j = -halfH; j < halfH; ++j) {
-				texvec[1] = hDelta * j / noisesize;
-				switch (stype) {
-					case NoiseGenerator.TEX_MFRACTAL:
-					case NoiseGenerator.TEX_FBM:
-						noiseHelper.mgMFractalOrfBmTex(tex, texvec, colorBand, texres, dataRepository);
-						break;
-					case NoiseGenerator.TEX_RIDGEDMF:
-					case NoiseGenerator.TEX_HYBRIDMF:
-						noiseHelper.mgRidgedOrHybridMFTex(tex, texvec, colorBand, texres, dataRepository);
-						break;
-					case NoiseGenerator.TEX_HTERRAIN:
-						noiseHelper.mgHTerrainTex(tex, texvec, colorBand, texres, dataRepository);
-						break;
-					default:
-						throw new IllegalStateException("Unknown type of musgrave texture: " + stype);
-				}
-				if (colorBand != null) {
-					noiseHelper.doColorband(colorBand, texres, dataRepository);
-					data.put((byte) (texres.tr * 255.0f));
-					data.put((byte) (texres.tg * 255.0f));
-					data.put((byte) (texres.tb * 255.0f));
-				} else {
-					data.put((byte) (texres.tin * 255.0f));
-				}
-			}
-		}
-		return new Texture2D(new Image(format, width, height, data));
-	}
-
-	/**
-	 * This method generates the voronoi texture.
-	 * 
-	 * @param tex
-	 *        the texture structure
-	 * @param width
-	 *        the width of the texture
-	 * @param height
-	 *        the height of the texture
-	 * @param dataRepository
-	 *        the data repository
-	 * @return the generated texture
-	 */
-	protected Texture voronoi(Structure tex, int width, int height, DataRepository dataRepository) {
-		float vn_w1 = ((Number) tex.getFieldValue("vn_w1")).floatValue();
-		float vn_w2 = ((Number) tex.getFieldValue("vn_w2")).floatValue();
-		float vn_w3 = ((Number) tex.getFieldValue("vn_w3")).floatValue();
-		float vn_w4 = ((Number) tex.getFieldValue("vn_w4")).floatValue();
-		float noisesize = ((Number) tex.getFieldValue("noisesize")).floatValue();
-		float nabla = ((Number) tex.getFieldValue("nabla")).floatValue();
-		float ns_outscale = ((Number) tex.getFieldValue("ns_outscale")).floatValue();
-		float vn_mexp = ((Number) tex.getFieldValue("vn_mexp")).floatValue();
-		int vn_distm = ((Number) tex.getFieldValue("vn_distm")).intValue();
-		int vn_coltype = ((Number) tex.getFieldValue("vn_coltype")).intValue();
-		float contrast = ((Number) tex.getFieldValue("contrast")).floatValue();
-		float brightness = ((Number) tex.getFieldValue("bright")).floatValue();
-
-		TexResult texres = new TexResult();
-		float[] texvec = new float[] { 0, 0, 0 };
-		float wDelta = 1.0f / width, hDelta = 1.0f / height;
-		int halfW = width, halfH = height;
-		width <<= 1;
-		height <<= 1;
-		ColorBand colorBand = this.readColorband(tex, dataRepository);
-		Format format = vn_coltype != 0 || colorBand != null ? Format.RGB8 : Format.Luminance8;
-		int bytesPerPixel = vn_coltype != 0 || colorBand != null ? 3 : 1;
-
-		float[] da = new float[4], pa = new float[12]; /* distance and point coordinate arrays of 4 nearest neighbours */
-		float[] ca = vn_coltype != 0 ? new float[3] : null; // cell color
-		float aw1 = FastMath.abs(vn_w1);
-		float aw2 = FastMath.abs(vn_w2);
-		float aw3 = FastMath.abs(vn_w3);
-		float aw4 = FastMath.abs(vn_w4);
-		float sc = aw1 + aw2 + aw3 + aw4;
-		if (sc != 0.f) {
-			sc = ns_outscale / sc;
-		}
-
-		ByteBuffer data = BufferUtils.createByteBuffer(width * height * bytesPerPixel);
-		for (int i = -halfW; i < halfW; ++i) {
-			texvec[0] = wDelta * i / noisesize;
-			for (int j = -halfH; j < halfH; ++j) {
-				texvec[1] = hDelta * j / noisesize;
-
-				noiseHelper.voronoi(texvec[0], texvec[1], texvec[2], da, pa, vn_mexp, vn_distm);
-				texres.tin = sc * FastMath.abs(vn_w1 * da[0] + vn_w2 * da[1] + vn_w3 * da[2] + vn_w4 * da[3]);
-				if (vn_coltype != 0) {
-					noiseHelper.cellNoiseV(pa[0], pa[1], pa[2], ca);
-					texres.tr = aw1 * ca[0];
-					texres.tg = aw1 * ca[1];
-					texres.tb = aw1 * ca[2];
-					noiseHelper.cellNoiseV(pa[3], pa[4], pa[5], ca);
-					texres.tr += aw2 * ca[0];
-					texres.tg += aw2 * ca[1];
-					texres.tb += aw2 * ca[2];
-					noiseHelper.cellNoiseV(pa[6], pa[7], pa[8], ca);
-					texres.tr += aw3 * ca[0];
-					texres.tg += aw3 * ca[1];
-					texres.tb += aw3 * ca[2];
-					noiseHelper.cellNoiseV(pa[9], pa[10], pa[11], ca);
-					texres.tr += aw4 * ca[0];
-					texres.tg += aw4 * ca[1];
-					texres.tb += aw4 * ca[2];
-					if (vn_coltype >= 2) {
-						float t1 = (da[1] - da[0]) * 10.0f;
-						if (t1 > 1) {
-							t1 = 1.0f;
-						}
-						if (vn_coltype == 3) {
-							t1 *= texres.tin;
-						} else {
-							t1 *= sc;
-						}
-						texres.tr *= t1;
-						texres.tg *= t1;
-						texres.tb *= t1;
-					} else {
-						texres.tr *= sc;
-						texres.tg *= sc;
-						texres.tb *= sc;
-					}
-				}
-				if (colorBand != null) {
-					noiseHelper.doColorband(colorBand, texres, dataRepository);
-					if (texres.nor != null) {
-						float offs = nabla / noisesize; // also scaling of texvec
-						// calculate bumpnormal
-						noiseHelper.voronoi(texvec[0] + offs, texvec[1], texvec[2], da, pa, vn_mexp, vn_distm);
-						texres.nor[0] = sc * FastMath.abs(vn_w1 * da[0] + vn_w2 * da[1] + vn_w3 * da[2] + vn_w4 * da[3]);
-						noiseHelper.voronoi(texvec[0], texvec[1] + offs, texvec[2], da, pa, vn_mexp, vn_distm);
-						texres.nor[1] = sc * FastMath.abs(vn_w1 * da[0] + vn_w2 * da[1] + vn_w3 * da[2] + vn_w4 * da[3]);
-						noiseHelper.voronoi(texvec[0], texvec[1], texvec[2] + offs, da, pa, vn_mexp, vn_distm);
-						texres.nor[2] = sc * FastMath.abs(vn_w1 * da[0] + vn_w2 * da[1] + vn_w3 * da[2] + vn_w4 * da[3]);
-						noiseHelper.texNormalDerivate(colorBand, texres, dataRepository);
-					}
-				}
-
-				if (vn_coltype != 0 || colorBand != null) {
-					noiseHelper.brightnesAndContrastRGB(tex, texres);
-					data.put((byte) (texres.tr * 255.0f));// tin or tr??
-					data.put((byte) (texres.tg * 255.0f));
-					data.put((byte) (texres.tb * 255.0f));
-				} else {
-					noiseHelper.brightnesAndContrast(texres, contrast, brightness);
-					data.put((byte) (texres.tin * 255.0f));
-				}
-			}
-		}
-		return new Texture2D(new Image(format, width, height, data));
-	}
-
-	/**
-	 * This method generates the distorted noise texture.
-	 * 
-	 * @param tex
-	 *        the texture structure
-	 * @param width
-	 *        the width of the texture
-	 * @param height
-	 *        the height of the texture
-	 * @param dataRepository
-	 *        the data repository
-	 * @return the generated texture
-	 */
-	protected Texture distnoise(Structure tex, int width, int height, DataRepository dataRepository) {
-		float noisesize = ((Number) tex.getFieldValue("noisesize")).floatValue();
-		float nabla = ((Number) tex.getFieldValue("nabla")).floatValue();
-		float distAmount = ((Number) tex.getFieldValue("dist_amount")).floatValue();
-		int noisebasis = ((Number) tex.getFieldValue("noisebasis")).intValue();
-		int noisebasis2 = ((Number) tex.getFieldValue("noisebasis2")).intValue();
-		float contrast = ((Number) tex.getFieldValue("contrast")).floatValue();
-		float brightness = ((Number) tex.getFieldValue("bright")).floatValue();
-
-		TexResult texres = new TexResult();
-		float[] texvec = new float[] { 0, 0, 0 };
-		float wDelta = 1.0f / width, hDelta = 1.0f / height;
-		int halfW = width, halfH = height;
-		width <<= 1;
-		height <<= 1;
-		ColorBand colorBand = this.readColorband(tex, dataRepository);
-		Format format = colorBand != null ? Format.RGB8 : Format.Luminance8;
-		int bytesPerPixel = colorBand != null ? 3 : 1;
-
-		ByteBuffer data = BufferUtils.createByteBuffer(width * height * bytesPerPixel);
-		for (int i = -halfW; i < halfW; ++i) {
-			texvec[0] = wDelta * i / noisesize;
-			for (int j = -halfH; j < halfH; ++j) {
-				texvec[1] = hDelta * j / noisesize;
-
-				texres.tin = noiseHelper.mgVLNoise(texvec[0], texvec[1], texvec[2], distAmount, noisebasis, noisebasis2);
-				if (colorBand != null) {
-					noiseHelper.doColorband(colorBand, texres, dataRepository);
-					if (texres.nor != null) {
-						float offs = nabla / noisesize; // also scaling of texvec
-						/* calculate bumpnormal */
-						texres.nor[0] = noiseHelper.mgVLNoise(texvec[0] + offs, texvec[1], texvec[2], distAmount, noisebasis, noisebasis2);
-						texres.nor[1] = noiseHelper.mgVLNoise(texvec[0], texvec[1] + offs, texvec[2], distAmount, noisebasis, noisebasis2);
-						texres.nor[2] = noiseHelper.mgVLNoise(texvec[0], texvec[1], texvec[2] + offs, distAmount, noisebasis, noisebasis2);
-						noiseHelper.texNormalDerivate(colorBand, texres, dataRepository);
-					}
-
-					noiseHelper.brightnesAndContrastRGB(tex, texres);
-					data.put((byte) (texres.tr * 255.0f));
-					data.put((byte) (texres.tg * 255.0f));
-					data.put((byte) (texres.tb * 255.0f));
-				} else {
-					noiseHelper.brightnesAndContrast(texres, contrast, brightness);
-					data.put((byte) (texres.tin * 255.0f));
-				}
-			}
-		}
-		return new Texture2D(new Image(format, width, height, data));
-	}
-
-	/**
-	 * This method reads the colorband data from the given texture structure.
-	 * 
-	 * @param tex
-	 *        the texture structure
-	 * @param dataRepository
-	 *        the data repository
-	 * @return read colorband or null if not present
-	 */
-	protected ColorBand readColorband(Structure tex, DataRepository dataRepository) {
-		ColorBand result = null;
-		int flag = ((Number) tex.getFieldValue("flag")).intValue();
-		if ((flag & NoiseGenerator.TEX_COLORBAND) != 0) {
-			Pointer pColorband = (Pointer) tex.getFieldValue("coba");
-			Structure colorbandStructure;
-			try {
-				colorbandStructure = pColorband.fetchData(dataRepository.getInputStream()).get(0);
-				result = new ColorBand(colorbandStructure);
-			} catch (BlenderFileException e) {
-				LOGGER.warning("Cannot fetch the colorband structure. The reason: " + e.getLocalizedMessage());
-				// TODO: throw an exception here ???
 			}
 		}
 		return result;
@@ -1189,7 +409,7 @@ public class TextureHelper extends AbstractBlenderHelper {
 	 * @param dataRepository
 	 *        the data repository
 	 */
-	public void blendPixel(float[] result, float[] materialColor, float[] color, float textureIntensity, float textureFactor, int blendtype, DataRepository dataRepository) {
+	protected void blendPixel(float[] result, float[] materialColor, float[] color, float textureIntensity, float textureFactor, int blendtype, DataRepository dataRepository) {
 		float facm, col;
 
 		switch (blendtype) {
@@ -1325,7 +545,7 @@ public class TextureHelper extends AbstractBlenderHelper {
 	 * @param dataRepository
 	 *        the data repository
 	 */
-	public void rampBlend(int type, float[] rgb, float fac, float[] col, DataRepository dataRepository) {
+	protected void rampBlend(int type, float[] rgb, float fac, float[] col, DataRepository dataRepository) {
 		float tmp, facm = 1.0f - fac;
 		MaterialHelper materialHelper = dataRepository.getHelper(MaterialHelper.class);
 
@@ -1790,92 +1010,6 @@ public class TextureHelper extends AbstractBlenderHelper {
 			} catch (IOException e) {
 				LOGGER.log(Level.SEVERE, e.getLocalizedMessage(), e);
 			}
-		}
-	}
-
-	/**
-	 * An image loader class. It uses three loaders (AWTLoader, TGALoader and DDSLoader) in an attempt to load the image from the given
-	 * input stream.
-	 * 
-	 * @author Marcin Roguski (Kaelthas)
-	 */
-	protected static class ImageLoader extends AWTLoader {
-		private static final Logger	LOGGER		= Logger.getLogger(ImageLoader.class.getName());
-
-		protected DDSLoader			ddsLoader	= new DDSLoader();									// DirectX image loader
-
-		/**
-		 * This method loads the image from the blender file itself. It tries each loader to load the image.
-		 * 
-		 * @param inputStream
-		 *        blender input stream
-		 * @param startPosition
-		 *        position in the stream where the image data starts
-		 * @param flipY
-		 *        if the image should be flipped (does not work with DirectX image)
-		 * @return loaded image or null if it could not be loaded
-		 */
-		public Image loadImage(BlenderInputStream inputStream, int startPosition, boolean flipY) {
-			// loading using AWT loader
-			inputStream.setPosition(startPosition);
-			Image result = this.loadImage(inputStream, ImageType.AWT, flipY);
-			// loading using TGA loader
-			if (result == null) {
-				inputStream.setPosition(startPosition);
-				result = this.loadImage(inputStream, ImageType.TGA, flipY);
-			}
-			// loading using DDS loader
-			if (result == null) {
-				inputStream.setPosition(startPosition);
-				result = this.loadImage(inputStream, ImageType.DDS, flipY);
-			}
-
-			if (result == null) {
-				LOGGER.warning("Image could not be loaded by none of available loaders!");
-			}
-
-			return result;
-		}
-
-		/**
-		 * This method loads an image of a specified type from the given input stream.
-		 * 
-		 * @param inputStream
-		 *        the input stream we read the image from
-		 * @param imageType
-		 *        the type of the image {@link ImageType}
-		 * @param flipY
-		 *        if the image should be flipped (does not work with DirectX image)
-		 * @return loaded image or null if it could not be loaded
-		 */
-		public Image loadImage(InputStream inputStream, ImageType imageType, boolean flipY) {
-			Image result = null;
-			switch (imageType) {
-				case AWT:
-					try {
-						result = this.load(inputStream, flipY);
-					} catch (Exception e) {
-						LOGGER.info("Unable to load image using AWT loader!");
-					}
-					break;
-				case DDS:
-					try {
-						result = ddsLoader.load(inputStream);
-					} catch (Exception e) {
-						LOGGER.info("Unable to load image using DDS loader!");
-					}
-					break;
-				case TGA:
-					try {
-						result = TGALoader.load(inputStream, flipY);
-					} catch (Exception e) {
-						LOGGER.info("Unable to load image using TGA loader!");
-					}
-					break;
-				default:
-					throw new IllegalStateException("Unknown image type: " + imageType);
-			}
-			return result;
 		}
 	}
 	

@@ -57,20 +57,20 @@ import com.jme3.scene.plugins.blender.textures.TextureHelper.TexResult;
 
     private static final Logger LOGGER = Logger.getLogger(NoiseGenerator.class.getName());
 
-    /* return value */
+    // return value
     protected static final int TEX_INT = 0;
     protected static final int TEX_RGB = 1;
     protected static final int TEX_NOR = 2;
 
-    /* noisetype */
+    // noisetype
     protected static final int TEX_NOISESOFT = 0;
     protected static final int TEX_NOISEPERL = 1;
 
-    /* tex->stype in texture.c - cloud types */
+    // tex->stype
     protected static final int TEX_DEFAULT = 0;
     protected static final int TEX_COLOR = 1;
 
-    /* flag */
+    // flag
     protected static final int TEX_COLORBAND = 1;
     protected static final int TEX_FLIPBLEND = 2;
     protected static final int TEX_NEGALPHA = 4;
@@ -82,23 +82,23 @@ import com.jme3.scene.plugins.blender.textures.TextureHelper.TexResult;
     protected static final int TEX_REPEAT_YMIR = 256;
     protected static final int TEX_FLAG_MASK = TEX_COLORBAND | TEX_FLIPBLEND | TEX_NEGALPHA | TEX_CHECKER_ODD | TEX_CHECKER_EVEN | TEX_PRV_ALPHA | TEX_PRV_NOR | TEX_REPEAT_XMIR | TEX_REPEAT_YMIR;
 
-    /* tex->noisebasis2 in texture.c - wood waveforms */
+    // tex->noisebasis2
     protected static final int TEX_SIN = 0;
     protected static final int TEX_SAW = 1;
     protected static final int TEX_TRI = 2;
 
-    /* tex->stype in texture.c - marble types */
+    // tex->stype
     protected static final int TEX_SOFT = 0;
     protected static final int TEX_SHARP = 1;
     protected static final int TEX_SHARPER = 2;
 
-    /* tex->stype in texture.c - wood types */
+    // tex->stype
     protected static final int TEX_BAND = 0;
     protected static final int TEX_RING = 1;
     protected static final int TEX_BANDNOISE = 2;
     protected static final int TEX_RINGNOISE = 3;
 
-    /* tex->stype in texture.c - blend types */
+    // tex->stype
     protected static final int TEX_LIN = 0;
     protected static final int TEX_QUAD = 1;
     protected static final int TEX_EASE = 2;
@@ -107,24 +107,24 @@ import com.jme3.scene.plugins.blender.textures.TextureHelper.TexResult;
     protected static final int TEX_HALO = 5;
     protected static final int TEX_RAD = 6;
 
-    /* tex->stype in texture.c - stucci types */
+    // tex->stype
     protected static final int TEX_PLASTIC = 0;
     protected static final int TEX_WALLIN = 1;
     protected static final int TEX_WALLOUT = 2;
 
-    /* musgrave stype */
+    // musgrave stype
     protected static final int TEX_MFRACTAL = 0;
     protected static final int TEX_RIDGEDMF = 1;
     protected static final int TEX_HYBRIDMF = 2;
     protected static final int TEX_FBM = 3;
     protected static final int TEX_HTERRAIN = 4;
 
-    /* keyblock->type */
+    // keyblock->type
     protected static final int KEY_LINEAR = 0;
     protected static final int KEY_CARDINAL = 1;
     protected static final int KEY_BSPLINE = 2;
 
-    /* CONSTANTS (read from file) */
+    // CONSTANTS (read from file)
     protected static float[] hashpntf;
     protected static short[] hash;
     protected static float[] hashvectf;
@@ -1288,10 +1288,7 @@ import com.jme3.scene.plugins.blender.textures.TextureHelper.TexResult;
             }
         }
 
-        // #define HASHVEC(x,y,z) hashvectf+3*hash[ (hash[ (hash[(z) & 255]+(y)) & 255]+(x)) & 255]
-
-        /* needed for voronoi */
-        // #define HASHPNT(x,y,z) hashpntf+3*hash[ (hash[ (hash[(z) & 255]+(y)) & 255]+(x)) & 255]
+        // needed for voronoi
         protected static float[] hashPoint(int x, int y, int z) {
             float[] result = new float[3];
             result[0] = hashpntf[3 * hash[hash[hash[z & 255] + y & 255] + x & 255]];
@@ -1300,31 +1297,23 @@ import com.jme3.scene.plugins.blender.textures.TextureHelper.TexResult;
             return result;
         }
 
-        // #define setup(i,b0,b1,r0,r1) \
-        // t = vec[i] + 10000.; \
-        // b0 = ((int)t) & 255; \
-        // b1 = (b0+1) & 255; \
-        // r0 = t - (int)t; \
-        // r1 = r0 - 1.;
-        // vec[3]
         public float noise3Perlin(float[] vec) {
             int bx0, bx1, by0, by1, bz0, bz1, b00, b10, b01, b11;
             float rx0, rx1, ry0, ry1, rz0, rz1, sx, sy, sz, a, b, c, d, t, u, v;
             int i, j;
 
-            // setup(0, bx0,bx1, rx0,rx1);
             t = vec[0] + 10000.0f;
             bx0 = (int) t & 255;
             bx1 = bx0 + 1 & 255;
             rx0 = t - (int) t;
             rx1 = rx0 - 1.0f;
-            // setup(1, by0,by1, ry0,ry1);
+            
             t = vec[0] + 10000.0f;
             by0 = (int) t & 255;
             by1 = by0 + 1 & 255;
             ry0 = t - (int) t;
             ry1 = ry0 - 1.0f;
-            // setup(2, bz0,bz1, rz0,rz1);
+            
             t = vec[0] + 10000.0f;
             bz0 = (int) t & 255;
             bz1 = bz0 + 1 & 255;
@@ -1339,7 +1328,7 @@ import com.jme3.scene.plugins.blender.textures.TextureHelper.TexResult;
             b01 = p[i + by1];
             b11 = p[j + by1];
 
-            /* lerp moved to improved perlin above */
+            // lerp moved to improved perlin above
 
             sx = this.surve(rx0);
             sy = this.surve(ry0);
@@ -1358,7 +1347,7 @@ import com.jme3.scene.plugins.blender.textures.TextureHelper.TexResult;
             v = this.at(rx1, ry1, rz0, q);
             b = this.lerp(sx, u, v);
 
-            c = this.lerp(sy, a, b); /* interpolate in y at lo x */
+            c = this.lerp(sy, a, b); // interpolate in y at lo x
 
             q = g[b00 + bz1];
             u = this.at(rx0, ry0, rz1, q);
@@ -1372,31 +1361,32 @@ import com.jme3.scene.plugins.blender.textures.TextureHelper.TexResult;
             v = this.at(rx1, ry1, rz1, q);
             b = this.lerp(sx, u, v);
 
-            d = this.lerp(sy, a, b); /* interpolate in y at hi x */
+            d = this.lerp(sy, a, b); // interpolate in y at hi x
 
-            return 1.5f * this.lerp(sz, c, d); /* interpolate in z */
+            return 1.5f * this.lerp(sz, c, d); // interpolate in z
         }
 
         public float orgBlenderNoise(float x, float y, float z) {
-            float cn1, cn2, cn3, cn4, cn5, cn6, i;
-            float ox, oy, oz, jx, jy, jz;
             float n = 0.5f;
-            int ix, iy, iz, b00, b01, b10, b11, b20, b21;
 
-            ox = x - (ix = (int) Math.floor(x));
-            oy = y - (iy = (int) Math.floor(y));
-            oz = z - (iz = (int) Math.floor(z));
+            int ix = (int) Math.floor(x);
+            int iy = (int) Math.floor(y);
+            int iz = (int) Math.floor(z);
+            
+            float ox = x - ix;
+            float oy = y - iy;
+            float oz = z - iz;
 
-            jx = ox - 1;
-            jy = oy - 1;
-            jz = oz - 1;
+            float jx = ox - 1;
+            float jy = oy - 1;
+            float jz = oz - 1;
 
-            cn1 = ox * ox;
-            cn2 = oy * oy;
-            cn3 = oz * oz;
-            cn4 = jx * jx;
-            cn5 = jy * jy;
-            cn6 = jz * jz;
+            float cn1 = ox * ox;
+            float cn2 = oy * oy;
+            float cn3 = oz * oz;
+            float cn4 = jx * jx;
+            float cn5 = jy * jy;
+            float cn6 = jz * jz;
 
             cn1 = 1.0f - 3.0f * cn1 + 2.0f * cn1 * ox;
             cn2 = 1.0f - 3.0f * cn2 + 2.0f * cn2 * oy;
@@ -1405,43 +1395,43 @@ import com.jme3.scene.plugins.blender.textures.TextureHelper.TexResult;
             cn5 = 1.0f - 3.0f * cn5 - 2.0f * cn5 * jy;
             cn6 = 1.0f - 3.0f * cn6 - 2.0f * cn6 * jz;
 
-            b00 = hash[hash[ix & 255] + (iy & 255)];
-            b10 = hash[hash[ix + 1 & 255] + (iy & 255)];
-            b01 = hash[hash[ix & 255] + (iy + 1 & 255)];
-            b11 = hash[hash[ix + 1 & 255] + (iy + 1 & 255)];
+            int b00 = hash[hash[ix & 255] + (iy & 255)];
+            int b10 = hash[hash[ix + 1 & 255] + (iy & 255)];
+            int b01 = hash[hash[ix & 255] + (iy + 1 & 255)];
+            int b11 = hash[hash[ix + 1 & 255] + (iy + 1 & 255)];
 
-            b20 = iz & 255;
-            b21 = iz + 1 & 255;
+            int b20 = iz & 255;
+            int b21 = iz + 1 & 255;
 
-            /* 0 */
-            i = cn1 * cn2 * cn3;
+            // 0
+            float i = cn1 * cn2 * cn3;
             int hIndex = 3 * hash[b20 + b00];
             n += i * (hashvectf[hIndex] * ox + hashvectf[hIndex + 1] * oy + hashvectf[hIndex + 2] * oz);
-            /* 1 */
+            // 1
             i = cn1 * cn2 * cn6;
             hIndex = 3 * hash[b21 + b00];
             n += i * (hashvectf[hIndex] * ox + hashvectf[hIndex + 1] * oy + hashvectf[hIndex + 2] * jz);
-            /* 2 */
+            // 2
             i = cn1 * cn5 * cn3;
             hIndex = 3 * hash[b20 + b01];
             n += i * (hashvectf[hIndex] * ox + hashvectf[hIndex + 1] * jy + hashvectf[hIndex + 2] * oz);
-            /* 3 */
+            // 3
             i = cn1 * cn5 * cn6;
             hIndex = 3 * hash[b21 + b01];
             n += i * (hashvectf[hIndex] * ox + hashvectf[hIndex + 1] * jy + hashvectf[hIndex + 2] * jz);
-            /* 4 */
+            // 4
             i = cn4 * cn2 * cn3;
             hIndex = 3 * hash[b20 + b10];
             n += i * (hashvectf[hIndex] * jx + hashvectf[hIndex + 1] * oy + hashvectf[hIndex + 2] * oz);
-            /* 5 */
+            // 5
             i = cn4 * cn2 * cn6;
             hIndex = 3 * hash[b21 + b10];
             n += i * (hashvectf[hIndex] * jx + hashvectf[hIndex + 1] * oy + hashvectf[hIndex + 2] * jz);
-            /* 6 */
+            // 6
             i = cn4 * cn5 * cn3;
             hIndex = 3 * hash[b20 + b11];
             n += i * (hashvectf[hIndex] * jx + hashvectf[hIndex + 1] * jy + hashvectf[hIndex + 2] * oz);
-            /* 7 */
+            // 7
             i = cn4 * cn5 * cn6;
             hIndex = 3 * hash[b21 + b11];
             n += i * (hashvectf[hIndex] * jx + hashvectf[hIndex + 1] * jy + hashvectf[hIndex + 2] * jz);
@@ -1454,7 +1444,7 @@ import com.jme3.scene.plugins.blender.textures.TextureHelper.TexResult;
             return n;
         }
 
-        /* instead of adding another permutation array, just use hash table defined above */
+        // instead of adding another permutation array, just use hash table defined above
         public float newPerlin(float x, float y, float z) {
             int A, AA, AB, B, BA, BB;
             float u = (float) Math.floor(x), v = (float) Math.floor(y), w = (float) Math.floor(z);
