@@ -128,7 +128,7 @@ public class CameraToolbar extends javax.swing.JToolBar {
         });
         viewMenu.add(bottomMenuItem);
 
-        viewButton.setFont(new java.awt.Font("Tahoma", 0, 8)); // NOI18N
+        viewButton.setFont(new java.awt.Font("Tahoma", 0, 8));
         viewButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/jme3/gde/core/scene/controller/toolbars/user.png"))); // NOI18N
         viewButton.setText(org.openide.util.NbBundle.getMessage(CameraToolbar.class, "CameraToolbar.viewButton.text")); // NOI18N
         viewButton.setFocusable(false);
@@ -141,7 +141,7 @@ public class CameraToolbar extends javax.swing.JToolBar {
             }
         });
 
-        enableOrtho.setFont(new java.awt.Font("Tahoma", 0, 8)); // NOI18N
+        enableOrtho.setFont(new java.awt.Font("Tahoma", 0, 8));
         enableOrtho.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/jme3/gde/core/sceneviewer/icons/persp.png"))); // NOI18N
         enableOrtho.setText(org.openide.util.NbBundle.getMessage(CameraToolbar.class, "CameraToolbar.enableOrtho.text")); // NOI18N
         enableOrtho.setToolTipText(org.openide.util.NbBundle.getMessage(CameraToolbar.class, "CameraToolbar.enableOrtho.toolTipText")); // NOI18N
@@ -159,20 +159,20 @@ public class CameraToolbar extends javax.swing.JToolBar {
             }
         });
 
-        org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
-                .add(viewButton)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(enableOrtho, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(viewButton)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(enableOrtho, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(96, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(viewButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 23, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-            .add(enableOrtho, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(viewButton, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addComponent(enableOrtho, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
         );
     }// </editor-fold>//GEN-END:initComponents
 
