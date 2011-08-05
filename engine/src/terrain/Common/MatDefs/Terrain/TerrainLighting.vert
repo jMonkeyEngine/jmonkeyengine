@@ -5,7 +5,6 @@ uniform mat4 g_ViewMatrix;
 
 uniform vec4 g_LightColor;
 uniform vec4 g_LightPosition;
-uniform vec4 g_LightDirection;
 uniform vec4 g_AmbientLightColor;
 
 uniform float m_Shininess;
@@ -24,8 +23,7 @@ varying vec3 vnViewDir;
 varying vec4 vLightDir;
 varying vec4 vnLightDir;
 
-varying vec4 lightVec;
-varying vec4 spotVec;
+varying vec3 lightVec;
 
 varying vec4 AmbientSum;
 varying vec4 DiffuseSum;
@@ -92,9 +90,9 @@ void main(){
     #endif
    
       //computing spot direction in view space and unpacking spotlight cos
-   spotVec=(g_ViewMatrix *vec4(g_LightDirection.xyz,0.0) );
-   spotVec.w=floor(g_LightDirection.w)*0.001;
-   lightVec.w = fract(g_LightDirection.w);
+  // spotVec=(g_ViewMatrix *vec4(g_LightDirection.xyz,0.0) );
+  // spotVec.w=floor(g_LightDirection.w)*0.001;
+  // lightVec.w = fract(g_LightDirection.w);
 
     AmbientSum  = vec4(0.2, 0.2, 0.2, 1.0) * g_AmbientLightColor; // Default: ambient color is dark gray
     DiffuseSum  = lightColor;

@@ -1,5 +1,6 @@
 
 uniform float m_Shininess;
+uniform vec4 g_LightDirection;
 
 varying vec4 AmbientSum;
 varying vec4 DiffuseSum;
@@ -12,8 +13,7 @@ varying vec3 vnPosition;
 varying vec3 vViewDir;
 varying vec4 vLightDir;
 varying vec4 vnLightDir;
-varying vec4 lightVec;
-varying vec4 spotVec;
+varying vec3 lightVec;
 
 
 #ifdef DIFFUSEMAP
@@ -647,12 +647,12 @@ void main(){
     #endif
 
         float spotFallOff = 1.0;
-        if(spotVec.w!=0.0){
+        if(g_LightDirection.w!=0.0){
               vec3 L=normalize(lightVec.xyz);
-              vec3 spotdir = normalize(spotVec.xyz);
+              vec3 spotdir = normalize(g_LightDirection.xyz);
               float curAngleCos = dot(-L, spotdir);             
-              float innerAngleCos = spotVec.w;
-              float outerAngleCos = lightVec.w;
+              float innerAngleCos = floor(g_LightDirection.w) * 0.001;
+              float outerAngleCos = fract(g_LightDirection.w);
               float innerMinusOuter = innerAngleCos - outerAngleCos;
               spotFallOff = clamp((curAngleCos - outerAngleCos) / innerMinusOuter, 0.0, 1.0);
               if(spotFallOff<=0.0){
