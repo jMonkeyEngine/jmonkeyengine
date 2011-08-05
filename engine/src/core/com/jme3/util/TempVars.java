@@ -41,6 +41,7 @@ import com.jme3.math.Quaternion;
 import com.jme3.math.Triangle;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
+import com.jme3.math.Vector4f;
 import com.jme3.scene.Spatial;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
@@ -53,13 +54,13 @@ import java.util.ArrayList;
  * This returns an available instance of the TempVar class ensuring this 
  * particular instance is never used elsewhere in the mean time.
  */
-public class TempVars {    
+public class TempVars {
 
     /**
      * Allow X instances of TempVars in a single thread.
      */
     private static final int STACK_SIZE = 5;
-    
+
     /**
      * <code>TempVarsStack</code> contains a stack of TempVars.
      * Every time TempVars.get() is called, a new entry is added to the stack,
@@ -68,30 +69,30 @@ public class TempVars {
      * the current instance and  then the index is decremented.
      */
     private static class TempVarsStack {
+
         int index = 0;
         TempVars[] tempVars = new TempVars[STACK_SIZE];
     }
-    
     /**
      * ThreadLocal to store a TempVarsStack for each thread.
      * This ensures each thread has a single TempVarsStack that is
      * used only in method calls in that thread.
      */
     private static final ThreadLocal<TempVarsStack> varsLocal = new ThreadLocal<TempVarsStack>() {
+
         @Override
         public TempVarsStack initialValue() {
             return new TempVarsStack();
         }
     };
-   
     /**
      * This instance of TempVars has been retrieved but not released yet.
      */
     private boolean isUsed = false;
-    
+
     private TempVars() {
     }
-    
+
     /**
      * Acquire an instance of the TempVar class.
      * You have to release the instance after use by calling the 
@@ -103,21 +104,21 @@ public class TempVars {
      */
     public static TempVars get() {
         TempVarsStack stack = varsLocal.get();
-        
+
         TempVars instance = stack.tempVars[stack.index];
-        
-        if (instance == null){
+
+        if (instance == null) {
             // Create new
             instance = new TempVars();
-            
+
             // Put it in there
             stack.tempVars[stack.index] = instance;
         }
-        
+
         stack.index++;
-        
+
         instance.isUsed = true;
-        
+
         return instance;
     }
 
@@ -129,23 +130,22 @@ public class TempVars {
      * first otherwise an exception will be thrown.
      */
     public void release() {
-        if (!isUsed){
+        if (!isUsed) {
             throw new IllegalStateException("This instance of TempVars was already released!");
         }
-        
+
         isUsed = false;
-        
+
         TempVarsStack stack = varsLocal.get();
-        
+
         // Return it to the stack
         stack.index--;
-        
+
         // Check if it is actually there
-        if (stack.tempVars[stack.index] != this){
+        if (stack.tempVars[stack.index] != this) {
             throw new IllegalStateException("An instance of TempVars has not been released in a called method!");
         }
     }
-    
     /**
      * For interfacing with OpenGL in Renderer.
      */
@@ -161,7 +161,6 @@ public class TempVars {
      * Fetching triangle from mesh
      */
     public final Triangle triangle = new Triangle();
-    
     /**
      * Color
      */
@@ -180,6 +179,7 @@ public class TempVars {
     public final Vector3f vect8 = new Vector3f();
     public final Vector3f vect9 = new Vector3f();
     public final Vector3f vect10 = new Vector3f();
+    public final Vector4f vect4f = new Vector4f();
     public final Vector3f[] tri = {new Vector3f(),
         new Vector3f(),
         new Vector3f()};

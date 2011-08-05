@@ -13,7 +13,7 @@ uniform float m_Shininess;
 
 uniform vec4 g_LightColor;
 uniform vec4 g_LightPosition;
-uniform vec4 g_LightDirection;
+//uniform vec4 g_LightDirection;
 uniform vec4 g_AmbientLightColor;
 
 varying vec2 texCoord;
@@ -30,8 +30,8 @@ attribute vec3 inPosition;
 attribute vec2 inTexCoord;
 attribute vec3 inNormal;
 
-varying vec4 lightVec;
-varying vec4 spotVec;
+varying vec3 lightVec;
+//varying vec4 spotVec;
 
 #ifdef VERTEX_COLOR
   attribute vec4 inColor;
@@ -83,7 +83,7 @@ varying vec4 spotVec;
 void lightComputeDir(in vec3 worldPos, in vec4 color, in vec4 position, out vec4 lightDir){
     float posLight = step(0.5, color.w);
     vec3 tempVec = position.xyz * sign(posLight - 0.5) - (worldPos * posLight);
-    lightVec.xyz = tempVec;  
+    lightVec = tempVec;  
     #ifdef ATTENUATION
      float dist = length(tempVec);
      lightDir.w = clamp(1.0 - position.w * dist * posLight, 0.0, 1.0);
@@ -176,9 +176,9 @@ void main(){
    #endif
 
    //computing spot direction in view space and unpacking spotlight cos
-   spotVec = (g_ViewMatrix * vec4(g_LightDirection.xyz, 0.0) );
-   spotVec.w  = floor(g_LightDirection.w) * 0.001;
-   lightVec.w = fract(g_LightDirection.w);
+//   spotVec = (g_ViewMatrix * vec4(g_LightDirection.xyz, 0.0) );
+//   spotVec.w  = floor(g_LightDirection.w) * 0.001;
+//   lightVec.w = fract(g_LightDirection.w);
 
    lightColor.w = 1.0;
    #ifdef MATERIAL_COLORS

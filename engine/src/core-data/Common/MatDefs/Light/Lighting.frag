@@ -2,6 +2,7 @@
 #define ATTENUATION
 //#define HQ_ATTENUATION
 
+uniform vec4 g_LightDirection;
 varying vec2 texCoord;
 #ifdef SEPARATE_TEXCOORD
   varying vec2 texCoord2;
@@ -50,8 +51,7 @@ varying vec3 SpecularSum;
 #endif
 uniform float m_AlphaDiscardThreshold;
 
-varying vec4 lightVec;
-varying vec4 spotVec;
+varying vec3 lightVec;
 
 #ifndef VERTEX_LIGHTING
 uniform float m_Shininess;
@@ -162,12 +162,12 @@ void main(){
 
     #ifndef VERTEX_LIGHTING
         float spotFallOff = 1.0;
-        if(spotVec.w != 0.0){
+        if(g_LightDirection.w != 0.0){
               vec3 L       = normalize(lightVec.xyz);
-              vec3 spotdir = normalize(spotVec.xyz);
+              vec3 spotdir = normalize(g_LightDirection.xyz);
               float curAngleCos = dot(-L, spotdir);             
-              float innerAngleCos = spotVec.w;
-              float outerAngleCos = lightVec.w;
+              float innerAngleCos = floor(g_LightDirection.w) * 0.001;
+              float outerAngleCos = fract(g_LightDirection.w);
               float innerMinusOuter = innerAngleCos - outerAngleCos;
               spotFallOff = clamp((curAngleCos - outerAngleCos) / innerMinusOuter, 0.0, 1.0);
               if(spotFallOff <= 0.0){

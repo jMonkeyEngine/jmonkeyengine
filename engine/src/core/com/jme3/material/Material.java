@@ -47,7 +47,6 @@ import com.jme3.light.LightList;
 import com.jme3.light.PointLight;
 import com.jme3.light.SpotLight;
 import com.jme3.material.TechniqueDef.LightMode;
-import com.jme3.math.FastMath;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.math.Vector4f;
@@ -98,7 +97,6 @@ public class Material implements Asset, Cloneable, Savable, Comparable<Material>
         additiveLight.setBlendMode(RenderState.BlendMode.AlphaAdditive);
         additiveLight.setDepthWrite(false);
     }
-    
     private AssetKey key;
     private MaterialDef def;
     private ListMap<String, MatParam> paramValues = new ListMap<String, MatParam>();
@@ -141,14 +139,14 @@ public class Material implements Asset, Cloneable, Savable, Comparable<Material>
         return key != null ? key.getName() : null;
     }
 
-    public void setKey(AssetKey key){
+    public void setKey(AssetKey key) {
         this.key = key;
     }
-    
-    public AssetKey getKey(){
+
+    public AssetKey getKey() {
         return key;
     }
-    
+
     /**
      * Returns the sorting ID or sorting index for this material. 
      * 
@@ -698,7 +696,9 @@ public class Material implements Asset, Cloneable, Savable, Comparable<Material>
         }
     }
 
-    protected void renderMultipassLighting(Shader shader, Geometry g, Renderer r) {
+    protected void renderMultipassLighting(Shader shader, Geometry g, RenderManager rm) {
+
+        Renderer r = rm.getRenderer();
         LightList lightList = g.getWorldLightList();
         Uniform lightDir = shader.getUniform("g_LightDirection");
         Uniform lightColor = shader.getUniform("g_LightColor");
@@ -729,6 +729,7 @@ public class Material implements Asset, Cloneable, Savable, Comparable<Material>
             Quaternion tmpLightDirection = vars.quat1;
             Quaternion tmpLightPosition = vars.quat2;
             ColorRGBA tmpLightColor = vars.color;
+            Vector4f tmpVec = vars.vect4f;
 
             ColorRGBA color = l.getColor();
             tmpLightColor.set(color);
@@ -742,7 +743,7 @@ public class Material implements Asset, Cloneable, Savable, Comparable<Material>
 
                     tmpLightPosition.set(dir.getX(), dir.getY(), dir.getZ(), -1);
                     lightPos.setValue(VarType.Vector4, tmpLightPosition);
-                    tmpLightDirection.set(0,0,0,0);
+                    tmpLightDirection.set(0, 0, 0, 0);
                     lightDir.setValue(VarType.Vector4, tmpLightDirection);
                     break;
                 case Point:
@@ -752,7 +753,7 @@ public class Material implements Asset, Cloneable, Savable, Comparable<Material>
 
                     tmpLightPosition.set(pos.getX(), pos.getY(), pos.getZ(), invRadius);
                     lightPos.setValue(VarType.Vector4, tmpLightPosition);
-                    tmpLightDirection.set(0,0,0,0);
+                    tmpLightDirection.set(0, 0, 0, 0);
                     lightDir.setValue(VarType.Vector4, tmpLightDirection);
                     break;
                 case Spot:
@@ -765,7 +766,13 @@ public class Material implements Asset, Cloneable, Savable, Comparable<Material>
                     tmpLightPosition.set(pos2.getX(), pos2.getY(), pos2.getZ(), invRange);
                     lightPos.setValue(VarType.Vector4, tmpLightPosition);
 
-                    tmpLightDirection.set(dir2.getX(), dir2.getY(), dir2.getZ(), spotAngleCos);
+                    //We transform the spot directoin in view space here to save 5 varying later in the lighting shader
+                    //one vec4 less and a vec4 that becomes a vec3
+                    //the downside is that spotAngleCos decoding happen now in the frag shader.
+                    tmpVec.set(dir2.getX(), dir2.getY(), dir2.getZ(),0);
+                    rm.getCurrentCamera().getViewMatrix().mult(tmpVec, tmpVec);
+                    tmpLightDirection.set(tmpVec.getX(), tmpVec.getY(), tmpVec.getZ(), spotAngleCos);
+
                     lightDir.setValue(VarType.Vector4, tmpLightDirection);
 
                     break;
@@ -951,6 +958,7 @@ public class Material implements Asset, Cloneable, Savable, Comparable<Material>
         autoSelectTechnique(rm);
 
         Renderer r = rm.getRenderer();
+
         TechniqueDef techDef = technique.getDef();
 
         if (techDef.getLightMode() == LightMode.MultiPass
@@ -999,7 +1007,7 @@ public class Material implements Asset, Cloneable, Savable, Comparable<Material>
             case MultiPass:
                 // NOTE: Special case!
                 resetUniformsNotSetByCurrent(shader);
-                renderMultipassLighting(shader, geom, r);
+                renderMultipassLighting(shader, geom, rm);
                 // very important, notice the return statement!
                 return;
         }
