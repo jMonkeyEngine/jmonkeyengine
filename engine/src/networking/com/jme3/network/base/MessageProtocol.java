@@ -58,6 +58,7 @@ public class MessageProtocol
     private LinkedList<Message> messages = new LinkedList<Message>();
     private ByteBuffer current;
     private int size;
+    private Byte carry;
  
     /**
      *  Converts a message to a ByteBuffer using the Serializer
@@ -108,15 +109,39 @@ public class MessageProtocol
         // push the data from the buffer into as
         // many messages as we can
         while( buffer.remaining() > 0 ) {
-                
+
             if( current == null ) {
-                // We are not currently reading an object so
-                // grab the size.
-                // Note: this is somewhat limiting... int would
-                // be better.
-                size = buffer.getShort();
+
+                // If we have a left over carry then we need to
+                // do manual processing to get the short value
+                if( carry != null ) {
+                    byte high = carry;
+                    byte low = buffer.get();
+                    
+                    size = (high & 0xff) << 8 | (low & 0xff);
+                    carry = null;
+                }
+                else if( buffer.remaining() < 2 ) {
+                    // It's possible that the supplied buffer only has one
+                    // byte in it... and in that case we will get an underflow
+                    // when attempting to read the short below.
+                    
+                    // It has to be 1 or we'd never get here... but one
+                    // isn't enough so we stash it away.
+                    carry = buffer.get();
+                    break;
+                } else {
+                    // We are not currently reading an object so
+                    // grab the size.
+                    // Note: this is somewhat limiting... int would
+                    // be better.
+                    size = buffer.getShort();
+                }               
+ 
+                // Allocate the buffer into which we'll feed the
+                // data as we get it               
                 current = ByteBuffer.allocate(size);
-            }
+            } 
 
             if( current.remaining() <= buffer.remaining() ) {
                 // We have at least one complete object so
