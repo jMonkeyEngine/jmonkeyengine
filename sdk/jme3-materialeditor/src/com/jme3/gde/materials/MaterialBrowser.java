@@ -13,6 +13,7 @@ package com.jme3.gde.materials;
 import com.jme3.gde.core.assets.ProjectAssetManager;
 import com.jme3.gde.core.util.TreeUtil;
 import com.jme3.material.Material;
+import java.awt.event.MouseEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.io.FileReader;
@@ -55,7 +56,7 @@ public class MaterialBrowser extends javax.swing.JDialog implements TreeSelectio
         jTree1.addTreeSelectionListener(this);
     }
 
-    private void setMaterial() {
+    private boolean setMaterial() {
         DefaultMutableTreeNode node = (DefaultMutableTreeNode) jTree1.getLastSelectedPathComponent();
 
         if (node != null && node.isLeaf()) {
@@ -64,10 +65,10 @@ public class MaterialBrowser extends javax.swing.JDialog implements TreeSelectio
             Material mat = assetManager.loadMaterial(selected);
             editor.setValue(mat);
             editor.setAsText(selected);
-        } else {
-            editor.setValue(null);
-            editor.setAsText(null);
+            return true;
         }
+
+        return false;
 
     }
 
@@ -136,6 +137,11 @@ public class MaterialBrowser extends javax.swing.JDialog implements TreeSelectio
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle(org.openide.util.NbBundle.getMessage(MaterialBrowser.class, "MaterialBrowser.title")); // NOI18N
 
+        jTree1.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jTree1MouseClicked(evt);
+            }
+        });
         jScrollPane1.setViewportView(jTree1);
 
         jPanel1.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(153, 153, 153)));
@@ -218,15 +224,25 @@ public class MaterialBrowser extends javax.swing.JDialog implements TreeSelectio
     }// </editor-fold>//GEN-END:initComponents
 
 private void okButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_okButtonActionPerformed
-    setMaterial();
-    dispose();
-    materialPreviewWidget1.cleanUp();
+    if (setMaterial()) {
+        dispose();
+        materialPreviewWidget1.cleanUp();
+    }
+
 }//GEN-LAST:event_okButtonActionPerformed
 
 private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButtonActionPerformed
     dispose();
     materialPreviewWidget1.cleanUp();
 }//GEN-LAST:event_cancelButtonActionPerformed
+
+private void jTree1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTree1MouseClicked
+    if (evt.getButton() == MouseEvent.BUTTON1 && evt.getClickCount() == 2) {
+        if (setMaterial()) {
+            dispose();
+        }
+    }
+}//GEN-LAST:event_jTree1MouseClicked
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton cancelButton;
     private javax.swing.JPanel jPanel1;
