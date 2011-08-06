@@ -2,7 +2,7 @@
 #define ATTENUATION
 //#define HQ_ATTENUATION
 
-uniform vec4 g_LightDirection;
+
 varying vec2 texCoord;
 #ifdef SEPARATE_TEXCOORD
   varying vec2 texCoord2;
@@ -13,9 +13,11 @@ varying vec4 DiffuseSum;
 varying vec3 SpecularSum;
 
 #ifndef VERTEX_LIGHTING
+  uniform vec4 g_LightDirection;
   varying vec3 vPosition;
   varying vec3 vViewDir;
   varying vec4 vLightDir;
+  varying vec3 lightVec;
 #else
   varying vec2 vertexLightValues;
 #endif
@@ -51,7 +53,7 @@ varying vec3 SpecularSum;
 #endif
 uniform float m_AlphaDiscardThreshold;
 
-varying vec3 lightVec;
+
 
 #ifndef VERTEX_LIGHTING
 uniform float m_Shininess;

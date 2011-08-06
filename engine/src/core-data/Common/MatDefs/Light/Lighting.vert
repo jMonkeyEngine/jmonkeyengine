@@ -13,7 +13,6 @@ uniform float m_Shininess;
 
 uniform vec4 g_LightColor;
 uniform vec4 g_LightPosition;
-//uniform vec4 g_LightDirection;
 uniform vec4 g_AmbientLightColor;
 
 varying vec2 texCoord;
@@ -48,6 +47,7 @@ varying vec3 lightVec;
   varying vec4 vLightDir;
 #else
   varying vec2 vertexLightValues;
+  uniform vec4 g_LightDirection;
 #endif
 
 #ifdef USE_REFLECTION
@@ -114,12 +114,12 @@ vec2 computeLighting(in vec3 wvPos, in vec3 wvNorm, in vec3 wvViewDir, in vec4 w
      vec4 lightDir;
      lightComputeDir(wvPos, g_LightColor, wvLightPos, lightDir);
      float spotFallOff = 1.0;
-     if(spotVec.w != 0.0){
+     if(g_LightDirection.w != 0.0){
           vec3 L=normalize(lightVec.xyz);
-          vec3 spotdir = normalize(spotVec.xyz);
-          float curAngleCos = dot(-L, spotdir);             
-          float innerAngleCos = spotVec.w;
-          float outerAngleCos = lightVec.w;
+          vec3 spotdir = normalize(g_LightDirection.xyz);
+          float curAngleCos = dot(-L, spotdir);    
+          float innerAngleCos = floor(g_LightDirection.w) * 0.001;
+          float outerAngleCos = fract(g_LightDirection.w);
           float innerMinusOuter = innerAngleCos - outerAngleCos;
           spotFallOff = clamp((curAngleCos - outerAngleCos) / innerMinusOuter, 0.0, 1.0);
      }
