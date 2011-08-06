@@ -44,6 +44,7 @@ import com.jme3.export.OutputCapsule;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Matrix3f;
+import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.RenderManager;
@@ -878,7 +879,9 @@ public class ParticleEmitter extends Geometry {
         //shape.getRandomPoint(p.position);
         particleInfluencer.influenceParticle(p, shape);
         if (worldSpace) {
-            p.position.addLocal(worldTransform.getTranslation());
+            worldTransform.transformVector(p.position, p.position);
+            worldTransform.getRotation().mult(p.velocity, p.velocity);
+            // TODO: Make scale relevant somehow??
         }
         if (randomAngle) {
             p.angle = FastMath.nextRandomFloat() * FastMath.TWO_PI;

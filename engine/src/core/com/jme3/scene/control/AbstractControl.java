@@ -60,6 +60,10 @@ public abstract class AbstractControl implements Control {
         }   
         this.spatial = spatial;
     }
+    
+    public Spatial getSpatial(){
+        return spatial;
+    }
 
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
