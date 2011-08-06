@@ -55,6 +55,9 @@
       <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
       <SubComponents>
         <Component class="javax.swing.JTree" name="jTree1">
+          <Events>
+            <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="jTree1MouseClicked"/>
+          </Events>
         </Component>
       </SubComponents>
     </Container>
@@ -70,7 +73,7 @@
         <DimensionLayout dim="1">
           <Group type="103" groupAlignment="0" attributes="0">
               <Group type="102" alignment="1" attributes="0">
-                  <Component id="jScrollPane2" pref="412" max="32767" attributes="1"/>
+                  <Component id="jScrollPane2" pref="420" max="32767" attributes="1"/>
                   <EmptySpace max="-2" attributes="0"/>
                   <Component id="infoLabel" min="-2" pref="19" max="-2" attributes="0"/>
               </Group>
@@ -119,7 +122,7 @@
               <Group type="102" alignment="0" attributes="0">
                   <EmptySpace max="-2" attributes="0"/>
                   <Component id="cancelButton" min="-2" max="-2" attributes="0"/>
-                  <EmptySpace pref="358" max="32767" attributes="0"/>
+                  <EmptySpace pref="423" max="32767" attributes="0"/>
                   <Component id="okButton" min="-2" max="-2" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
               </Group>
