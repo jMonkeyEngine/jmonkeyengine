@@ -4,20 +4,28 @@
  */
 package com.jme3.gde.materials.multiview;
 
+import com.jme3.asset.MaterialKey;
 import com.jme3.gde.core.assets.AssetDataObject;
 import com.jme3.gde.core.assets.ProjectAssetManager;
+import com.jme3.gde.core.sceneexplorer.SceneExplorerTopComponent;
 import com.jme3.gde.materials.EditableMaterialFile;
 import com.jme3.gde.materials.MaterialProperty;
+import com.jme3.gde.core.sceneexplorer.MaterialChangeListener;
+import com.jme3.gde.core.sceneexplorer.MaterialChangeProvider;
+import com.jme3.gde.core.sceneviewer.SceneViewerTopComponent;
 import com.jme3.gde.materials.multiview.widgets.MaterialPropertyWidget;
 import com.jme3.gde.materials.multiview.widgets.MaterialWidgetListener;
 import com.jme3.gde.materials.multiview.widgets.WidgetFactory;
+import com.jme3.material.Material;
 import java.awt.Component;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.logging.Logger;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -36,13 +44,14 @@ import org.openide.util.HelpCtx;
 import org.openide.util.Lookup;
 import org.openide.util.lookup.InstanceContent;
 import org.openide.windows.CloneableTopComponent;
+import org.openide.windows.Mode;
 
 /**
  * Top component which displays something.
  */
 @ConvertAsProperties(dtd = "-//com.jme3.gde.materials.multiview//MaterialEditor//EN",
 autostore = false)
-public final class MaterialEditorTopComponent extends CloneableTopComponent implements MaterialWidgetListener {
+public final class MaterialEditorTopComponent extends CloneableTopComponent implements MaterialWidgetListener, MaterialChangeProvider {
 
     private static MaterialEditorTopComponent instance;
     /** path to the icon used by the component and its open action */
@@ -54,10 +63,12 @@ public final class MaterialEditorTopComponent extends CloneableTopComponent impl
     private DataObject dataObject;
     private EditableMaterialFile materialFile;
     private String materialFileName;
+    private String relativeMaterialFileName;
     private ProjectAssetManager manager;
     private SaveCookie saveCookie = new SaveCookieImpl();
     private boolean saveImmediate = true;
     private boolean updateProperties = false;
+    private List<MaterialChangeListener> materialListeners = new ArrayList<MaterialChangeListener>();
 
     public MaterialEditorTopComponent() {
     }
@@ -66,6 +77,7 @@ public final class MaterialEditorTopComponent extends CloneableTopComponent impl
         this.dataObject = dataObject;
         materialFileName = dataObject.getPrimaryFile().getPath();
         initWindow();
+
     }
 
     private void initWindow() {
@@ -87,7 +99,16 @@ public final class MaterialEditorTopComponent extends CloneableTopComponent impl
 
         updateProperties();
         materialPreviewWidget1.showMaterial(manager, materialFileName);
+
+        relativeMaterialFileName = manager.getRelativeAssetPath(materialFileName);
+        for (Iterator it = WindowManager.getDefault().getModes().iterator(); it.hasNext();) {
+            Mode mode = (Mode) it.next();
+            System.out.println(mode.getName());
+        }
+
+
     }
+
 
     /** This method is called from within the constructor to
      * initialize the form.
@@ -316,6 +337,7 @@ public final class MaterialEditorTopComponent extends CloneableTopComponent impl
     private void jCheckBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBox1ActionPerformed
         saveImmediate = jCheckBox1.isSelected();
     }//GEN-LAST:event_jCheckBox1ActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JCheckBox jCheckBox1;
     private javax.swing.JComboBox jComboBox1;
@@ -388,12 +410,14 @@ public final class MaterialEditorTopComponent extends CloneableTopComponent impl
 
     @Override
     public void componentOpened() {
-        // TODO add custom code on component opening
+        SceneExplorerTopComponent.getDefault().addMaterialChangeProvider(this);
     }
 
     @Override
     public void componentClosed() {
         materialPreviewWidget1.cleanUp();
+        clearMaterialChangeListeners();
+        SceneExplorerTopComponent.getDefault().removeMaterialChangeProvider(this);
     }
 
     void writeProperties(java.util.Properties p) {
@@ -427,6 +451,27 @@ public final class MaterialEditorTopComponent extends CloneableTopComponent impl
     @Override
     protected String preferredID() {
         return PREFERRED_ID;
+    }
+
+    public String getKey() {
+        return relativeMaterialFileName;
+    }
+
+    public void addMaterialChangeListener(MaterialChangeListener listener) {
+        materialListeners.add(listener);
+    }
+
+    public void removeMaterialChangeListener(MaterialChangeListener listener) {
+        materialListeners.remove(listener);
+    }
+
+    public void clearMaterialChangeListeners() {
+        materialListeners.clear();
+
+    }
+
+    public void addAllMaterialChangeListener(List<MaterialChangeListener> listeners) {
+        materialListeners.addAll(listeners);
     }
 
     private class DocumentChangeListener implements DocumentListener {
@@ -584,5 +629,17 @@ public final class MaterialEditorTopComponent extends CloneableTopComponent impl
     public void propertyChanged(MaterialProperty property) {
         String string = materialFile.getUpdatedContent();
         jTextArea1.setText(string);
+        try {
+            MaterialKey key = new MaterialKey(manager.getRelativeAssetPath(materialFileName));
+            manager.deleteFromCache(key);
+            Material material = (Material) manager.loadAsset(key);
+            if (material != null) {
+                for (MaterialChangeListener listener : materialListeners) {
+                    listener.setMaterial(material);
+                }
+            }
+        } catch (Exception e) {
+        }
+
     }
 }

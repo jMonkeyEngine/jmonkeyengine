@@ -31,7 +31,6 @@
  */
 package com.jme3.gde.materials;
 
-import com.jme3.asset.AssetKey;
 import com.jme3.asset.DesktopAssetManager;
 import com.jme3.gde.core.assets.ProjectAssetManager;
 import com.jme3.gde.core.scene.SceneApplication;
@@ -48,7 +47,6 @@ import java.awt.Rectangle;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyEditor;
-import java.io.IOException;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.concurrent.Callable;
@@ -99,29 +97,33 @@ public class MaterialPropertyEditor implements PropertyEditor, SceneExplorerProp
     }
 
     public void setAsText(final String text) throws IllegalArgumentException {
-        if ("create j3m file".equals(text)) {
-            AbstractSceneExplorerNode geom = SceneExplorerTopComponent.findInstance().getLastSelected();
-            assert (geom != null);
-            ProjectAssetManager pm = geom.getLookup().lookup(ProjectAssetManager.class);
-            assert (pm != null);
-            DataObject obj = geom.getLookup().lookup(DataObject.class);
-            assert (obj != null);
-            FileObject currentFile = obj.getPrimaryFile();
-            FileObject currentFolder = currentFile.getParent();
+        if ("create j3m file".equals(text)) {            
             try {
+                AbstractSceneExplorerNode geom = SceneExplorerTopComponent.findInstance().getLastSelected();
+                assert (geom != null);
+                ProjectAssetManager pm = geom.getLookup().lookup(ProjectAssetManager.class);
+                assert (pm != null);
+                DataObject obj = geom.getLookup().lookup(DataObject.class);
+                assert (obj != null);
+                FileObject currentFile = obj.getPrimaryFile();
+                FileObject currentFolder = currentFile.getParent();
+
                 int i = 0;
-                FileObject newFile = currentFolder.getFileObject(currentFile.getName(), "j3m");
+                String newFileName = currentFile.getName() + "-" + geom.getName();
+                FileObject newFile = currentFolder.getFileObject(newFileName, "j3m");
                 while (newFile != null) {
                     i++;
-                    newFile = currentFolder.getFileObject(currentFile.getName() + "-" + i, "j3m");
+                    newFileName = currentFile.getName() + "-" + geom.getName() + "-" + i;
+                    newFile = currentFolder.getFileObject(newFileName, "j3m");
                 }
-                newFile = currentFolder.createData(currentFile.getName() + "-" + i, "j3m");
+                newFile = currentFolder.createData(newFileName, "j3m");
                 EditableMaterialFile properties = new EditableMaterialFile(newFile, pm);
                 material.setKey(new MaterialKey(pm.getRelativeAssetPath(newFile.getPath())));
                 properties.setAsMaterial(material);
                 currentFolder.refresh();
                 applyMaterial(material.getAssetName());
-            } catch (IOException ex) {
+            } catch (Exception ex) {
+
                 Exceptions.printStackTrace(ex);
                 return;
             }
@@ -200,7 +202,7 @@ public class MaterialPropertyEditor implements PropertyEditor, SceneExplorerProp
         for (Iterator<PropertyChangeListener> it = listeners.iterator(); it.hasNext();) {
             PropertyChangeListener propertyChangeListener = it.next();
             //TODO: check what the "programmatic name" is supposed to be here.. for now its Quaternion
-            propertyChangeListener.propertyChange(new PropertyChangeEvent(this, null, before, after));
+            propertyChangeListener.propertyChange(new PropertyChangeEvent(this, "Material", before, after));
         }
     }
 
