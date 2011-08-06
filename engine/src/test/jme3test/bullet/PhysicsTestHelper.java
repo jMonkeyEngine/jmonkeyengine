@@ -17,6 +17,7 @@ import com.jme3.input.controls.MouseButtonTrigger;
 import com.jme3.light.AmbientLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
+import com.jme3.math.Vector3f;
 import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
@@ -76,6 +77,49 @@ public class PhysicsTestHelper {
         sphereGeometry.addControl(new RigidBodyControl(new MeshCollisionShape(sphere), 0));
         rootNode.attachChild(sphereGeometry);
         space.add(sphereGeometry);
+
+    }
+    
+    public static void createPhysicsTestWorldSoccer(Node rootNode, AssetManager assetManager, PhysicsSpace space) {
+        AmbientLight light = new AmbientLight();
+        light.setColor(ColorRGBA.LightGray);
+        rootNode.addLight(light);
+
+        Material material = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        material.setTexture("ColorMap", assetManager.loadTexture("Interface/Logo/Monkey.jpg"));
+
+        Box floorBox = new Box(140, 0.25f, 140);
+        Geometry floorGeometry = new Geometry("Floor", floorBox);
+        floorGeometry.setMaterial(material);
+        floorGeometry.setLocalTranslation(0, -0.25f, 0);
+//        Plane plane = new Plane();
+//        plane.setOriginNormal(new Vector3f(0, 0.25f, 0), Vector3f.UNIT_Y);
+//        floorGeometry.addControl(new RigidBodyControl(new PlaneCollisionShape(plane), 0));
+        floorGeometry.addControl(new RigidBodyControl(0));
+        rootNode.attachChild(floorGeometry);
+        space.add(floorGeometry);
+
+        //movable spheres
+        for (int i = 0; i < 5; i++) {
+            Sphere sphere = new Sphere(16, 16, .5f);
+            Geometry ballGeometry = new Geometry("Soccer ball", sphere);
+            ballGeometry.setMaterial(material);
+            ballGeometry.setLocalTranslation(i, 2, -3);
+            //RigidBodyControl automatically uses Sphere collision shapes when attached to single geometry with sphere mesh
+            ballGeometry.addControl(new RigidBodyControl(.001f));
+            ballGeometry.getControl(RigidBodyControl.class).setRestitution(1);
+            rootNode.attachChild(ballGeometry);
+            space.add(ballGeometry);
+        }
+
+        //immovable Box with mesh collision shape
+        Box box = new Box(1, 1, 1);
+        Geometry boxGeometry = new Geometry("Box", box);
+        boxGeometry.setMaterial(material);
+        boxGeometry.setLocalTranslation(4, 1, 2);
+        boxGeometry.addControl(new RigidBodyControl(new MeshCollisionShape(box), 0));
+        rootNode.attachChild(boxGeometry);
+        space.add(boxGeometry);
 
     }
 

@@ -37,7 +37,6 @@ import com.jme3.animation.AnimEventListener;
 import com.jme3.animation.LoopMode;
 import com.jme3.bullet.BulletAppState;
 import com.jme3.app.SimpleApplication;
-import com.jme3.bounding.BoundingBox;
 import com.jme3.bullet.PhysicsSpace;
 import com.jme3.bullet.collision.PhysicsCollisionEvent;
 import com.jme3.bullet.collision.PhysicsCollisionListener;
@@ -56,8 +55,6 @@ import com.jme3.input.controls.KeyTrigger;
 import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
-import com.jme3.math.FastMath;
-import com.jme3.math.Quaternion;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.post.FilterPostProcessor;
@@ -82,7 +79,7 @@ import java.util.List;
 import jme3tools.converters.ImageToAwt;
 
 /**
- *
+ * A walking animated character followed by a 3rd person camera on a terrain with LOD.
  * @author normenhansen
  */
 public class TestWalkingChar extends SimpleApplication implements ActionListener, PhysicsCollisionListener, AnimEventListener {
@@ -296,12 +293,12 @@ public class TestWalkingChar extends SimpleApplication implements ActionListener
     }
 
     private void createCharacter() {
-        CapsuleCollisionShape capsule = new CapsuleCollisionShape(1.5f, 2f);
+        CapsuleCollisionShape capsule = new CapsuleCollisionShape(3f, 4f);
         character = new CharacterControl(capsule, 0.01f);
         model = (Node) assetManager.loadModel("Models/Oto/Oto.mesh.xml");
-        model.setLocalScale(0.5f);
+        //model.setLocalScale(0.5f);
         model.addControl(character);
-        character.setPhysicsLocation(new Vector3f(-140, 10, -10));
+        character.setPhysicsLocation(new Vector3f(-140, 15, -10));
         rootNode.attachChild(model);
         getPhysicsSpace().add(character);
     }
@@ -323,8 +320,8 @@ public class TestWalkingChar extends SimpleApplication implements ActionListener
 
     @Override
     public void simpleUpdate(float tpf) {
-        Vector3f camDir = cam.getDirection().clone().multLocal(0.2f);
-        Vector3f camLeft = cam.getLeft().clone().multLocal(0.2f);
+        Vector3f camDir = cam.getDirection().clone().multLocal(0.1f);
+        Vector3f camLeft = cam.getLeft().clone().multLocal(0.1f);
         camDir.y = 0;
         camLeft.y = 0;
         walkDirection.set(0, 0, 0);
