@@ -37,8 +37,13 @@ import com.jme3.gde.core.scene.SceneListener;
 import com.jme3.gde.core.scene.SceneRequest;
 import com.jme3.gde.core.sceneexplorer.nodes.AbstractSceneExplorerNode;
 import com.jme3.gde.core.sceneexplorer.nodes.JmeNode;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.openide.util.Lookup.Result;
 import org.openide.util.NbBundle;
@@ -77,6 +82,8 @@ public final class SceneExplorerTopComponent extends TopComponent implements Exp
     private final Result<AbstractSceneExplorerNode> nodeSelectionResult;
     private AbstractSceneExplorerNode selectedSpatial;
     private AbstractSceneExplorerNode lastSelected;
+    private Map<String, MaterialChangeProvider> materialChangeProviders = new HashMap<String, MaterialChangeProvider>();
+    private Map<String, List<MaterialChangeListener>> materialChangeListeners = new HashMap<String, List<MaterialChangeListener>>();
 
     public SceneExplorerTopComponent() {
         initComponents();
@@ -95,7 +102,7 @@ public final class SceneExplorerTopComponent extends TopComponent implements Exp
         CopyAction copy = SystemAction.get(CopyAction.class);
         getActionMap().put(copy.getActionMapKey(), ExplorerUtils.actionCopy(explorerManager));
         PasteAction paste = SystemAction.get(PasteAction.class);
-        getActionMap().put(paste.getActionMapKey(), ExplorerUtils.actionPaste(explorerManager));         
+        getActionMap().put(paste.getActionMapKey(), ExplorerUtils.actionPaste(explorerManager));
         DeleteAction delete = SystemAction.get(DeleteAction.class);
         getActionMap().put(delete.getActionMapKey(), ExplorerUtils.actionDelete(explorerManager, true));
     }
@@ -238,7 +245,6 @@ public final class SceneExplorerTopComponent extends TopComponent implements Exp
     public UndoRedo getUndoRedo() {
         return Lookup.getDefault().lookup(UndoRedo.class);
     }
-
     private transient ExplorerManager explorerManager = new ExplorerManager();
 
     public ExplorerManager getExplorerManager() {
@@ -261,6 +267,10 @@ public final class SceneExplorerTopComponent extends TopComponent implements Exp
     public void sceneRequested(SceneRequest request) {
         this.request = request;
         JmeNode node = request.getJmeNode();
+        for (Iterator it = materialChangeProviders.values().iterator(); it.hasNext();) {
+            MaterialChangeProvider provider = (MaterialChangeProvider) it.next();
+            provider.clearMaterialChangeListeners();
+        }
         if (node != null) {
             explorerManager.setRootContext(node);
             explorerManager.getRootContext().setDisplayName(node.getName());
@@ -281,5 +291,83 @@ public final class SceneExplorerTopComponent extends TopComponent implements Exp
      */
     public AbstractSceneExplorerNode getLastSelected() {
         return lastSelected;
+    }
+
+    public void addMaterialChangeProvider(MaterialChangeProvider provider) {
+        Logger.getLogger(SceneExplorerTopComponent.class.getName()).log(Level.INFO, "New materail provider registered for: {0}", provider.getKey());
+        materialChangeProviders.put(provider.getKey(), provider);
+        List<MaterialChangeListener> listeners = materialChangeListeners.get(provider.getKey());
+        if (listeners == null) {
+            return;
+        }
+        provider.addAllMaterialChangeListener(listeners);
+    }
+
+    public void removeMaterialChangeProvider(MaterialChangeProvider provider) {
+        Logger.getLogger(SceneExplorerTopComponent.class.getName()).log(Level.INFO, "Removing material provider for :  {0}", provider.getKey());
+        System.out.println("Removing provider : " + provider.getKey());
+        materialChangeProviders.remove(provider.getKey());
+    }
+
+    public void addMaterialChangeListener(MaterialChangeListener listener) {
+
+        if (listener.getKey() != null) {
+             Logger.getLogger(SceneExplorerTopComponent.class.getName()).log(Level.INFO, "New material listener for : {0}", listener.getKey());
+            List<MaterialChangeListener> listeners = materialChangeListeners.get(listener.getKey());
+            if (listeners == null) {
+                listeners = new ArrayList<MaterialChangeListener>();
+                materialChangeListeners.put(listener.getKey(), listeners);
+            }
+            listeners.add(listener);
+
+            MaterialChangeProvider provider = materialChangeProviders.get(listener.getKey());
+            if (provider != null) {
+                provider.addMaterialChangeListener(listener);
+            }
+        }
+    }
+
+    public void removeMaterialChangeListener(MaterialChangeListener listener) {
+        Logger.getLogger(SceneExplorerTopComponent.class.getName()).log(Level.INFO, "Removing material listener for: {0}", listener.getKey());
+        List<MaterialChangeListener> listeners = materialChangeListeners.get(listener.getKey());
+        if (listeners == null) {
+            return;
+        }
+        listeners.remove(listener);
+
+        MaterialChangeProvider provider = materialChangeProviders.get(listener.getKey());
+        if (provider != null) {
+            provider.removeMaterialChangeListener(listener);
+        }
+    }
+
+    public void swapMaterialChangeListener(MaterialChangeListener listener, String oldKey, String newKey) {
+        Logger.getLogger(SceneExplorerTopComponent.class.getName()).log(Level.INFO, "Swaping material listeners : {0} -> {1}", new Object[]{oldKey, newKey});
+        if (oldKey != null) {
+            List<MaterialChangeListener> listeners = materialChangeListeners.get(oldKey);
+            if (listeners != null) {
+                listeners.remove(listener);
+            }
+
+            MaterialChangeProvider provider = materialChangeProviders.get(oldKey);
+            if (provider != null) {
+                provider.removeMaterialChangeListener(listener);
+            }
+        }
+
+        if (newKey != null) {
+            //  assert newKey.equals(listener.getKey());
+             List<MaterialChangeListener> listeners = materialChangeListeners.get(newKey);
+            if (listeners == null) {
+                listeners = new ArrayList<MaterialChangeListener>();
+                materialChangeListeners.put(newKey, listeners);
+            }
+            listeners.add(listener);
+
+            MaterialChangeProvider provider = materialChangeProviders.get(newKey);
+            if (provider != null) {
+                provider.addMaterialChangeListener(listener);
+            }
+        }
     }
 }

@@ -102,22 +102,25 @@ public final class SceneViewerTopComponent extends TopComponent {
         });
         addKeyListener(new KeyListener() {
 
-            public void keyTyped(KeyEvent evt) {                
+            public void keyTyped(KeyEvent evt) {
             }
 
             public void keyPressed(KeyEvent evt) {
                 int code = AwtKeyInput.convertAwtKey(evt.getKeyCode());
                 KeyInputEvent keyEvent = new KeyInputEvent(code, evt.getKeyChar(), true, false);
-                keyEvent.setTime(evt.getWhen());                
-                app.getActiveCameraController().onKeyEvent(keyEvent);
+                keyEvent.setTime(evt.getWhen());
+                if (app.getActiveCameraController() != null) {
+                    app.getActiveCameraController().onKeyEvent(keyEvent);
+                }
             }
 
             public void keyReleased(KeyEvent evt) {
                 int code = AwtKeyInput.convertAwtKey(evt.getKeyCode());
                 KeyInputEvent keyEvent = new KeyInputEvent(code, evt.getKeyChar(), false, false);
                 keyEvent.setTime(evt.getWhen());
-                
-                app.getActiveCameraController().onKeyEvent(keyEvent);
+                if (app.getActiveCameraController() != null) {
+                    app.getActiveCameraController().onKeyEvent(keyEvent);
+                }
             }
         });
 

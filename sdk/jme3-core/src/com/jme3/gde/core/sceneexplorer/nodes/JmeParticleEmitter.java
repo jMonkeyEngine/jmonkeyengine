@@ -119,6 +119,7 @@ public class JmeParticleEmitter extends JmeGeometry {
 
     @Override
     public void propertyChange(String name, Object before, Object after) {
+        super.propertyChange(name, before, after);
         if (!name.equals("Emit all particles")) {
             fireSave(true);
             firePropertyChange(name, before, after);

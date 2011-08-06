@@ -31,11 +31,16 @@
  */
 package com.jme3.gde.core.sceneexplorer.nodes;
 
+import com.jme3.gde.core.scene.SceneApplication;
+import com.jme3.gde.core.sceneexplorer.SceneExplorerTopComponent;
 import com.jme3.gde.core.sceneexplorer.nodes.SceneExplorerNode;
+import com.jme3.gde.core.sceneexplorer.MaterialChangeListener;
 import com.jme3.material.Material;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import java.awt.Image;
+import java.io.IOException;
+import java.util.concurrent.Callable;
 import org.openide.loaders.DataObject;
 import org.openide.nodes.Sheet;
 import org.openide.util.ImageUtilities;
@@ -44,8 +49,8 @@ import org.openide.util.ImageUtilities;
  *
  * @author normenhansen
  */
-@org.openide.util.lookup.ServiceProvider(service=SceneExplorerNode.class)
-public class JmeGeometry extends JmeSpatial {
+@org.openide.util.lookup.ServiceProvider(service = SceneExplorerNode.class)
+public class JmeGeometry extends JmeSpatial implements MaterialChangeListener {
 
     private static Image smallImage =
             ImageUtilities.loadImage("com/jme3/gde/core/sceneexplorer/nodes/icons/geometry.gif");
@@ -58,6 +63,18 @@ public class JmeGeometry extends JmeSpatial {
         super(spatial, children);
         getLookupContents().add(spatial);
         this.geom = spatial;
+        java.awt.EventQueue.invokeLater(new Runnable() {
+
+            public void run() {
+                try {
+                    SceneExplorerTopComponent.findInstance().addMaterialChangeListener(JmeGeometry.this);
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
         setName(spatial.getName());
     }
 
@@ -69,6 +86,23 @@ public class JmeGeometry extends JmeSpatial {
     @Override
     public Image getOpenedIcon(int type) {
         return smallImage;
+    }
+
+    @Override
+    public void destroy() throws IOException {
+        super.destroy();
+        java.awt.EventQueue.invokeLater(new Runnable() {
+
+            public void run() {
+                try {
+                    SceneExplorerTopComponent.findInstance().removeMaterialChangeListener(JmeGeometry.this);
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
     }
 
     @Override
@@ -92,18 +126,62 @@ public class JmeGeometry extends JmeSpatial {
 
     }
 
+    @Override
     public Class getExplorerObjectClass() {
         return Geometry.class;
     }
 
+    @Override
     public Class getExplorerNodeClass() {
         return JmeGeometry.class;
     }
 
+    @Override
     public org.openide.nodes.Node[] createNodes(Object key, DataObject key2, boolean cookie) {
-        JmeSpatialChildren children=new JmeSpatialChildren((com.jme3.scene.Spatial)key);
+        JmeSpatialChildren children = new JmeSpatialChildren((com.jme3.scene.Spatial) key);
         children.setReadOnly(cookie);
         children.setDataObject(key2);
         return new org.openide.nodes.Node[]{new JmeGeometry((Geometry) key, children).setReadOnly(cookie)};
+    }
+
+    @Override
+    public void propertyChange(String name, final Object before, final Object after) {
+        super.propertyChange(name, before, after);
+          System.out.println(name);
+        if (name.equals("Material")) {
+            System.out.println(before.toString()+" "+after.toString());
+            java.awt.EventQueue.invokeLater(new Runnable() {
+
+                public void run() {
+                    try {
+                        SceneExplorerTopComponent.findInstance().swapMaterialChangeListener(JmeGeometry.this, ((Material) before).getAssetName(), ((Material) after).getAssetName());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+
+
+        }
+    }
+
+    public void setMaterial(final Material material) {
+        if (material.getAssetName().equals(getKey())) {
+            SceneApplication.getApplication().enqueue(new Callable<Object>() {
+
+                public Object call() throws Exception {
+                    geom.setMaterial(material);
+                    return null;
+                }
+            });
+        }
+    }
+
+    public Geometry getGeometry() {
+        return geom;
+    }
+
+    public String getKey() {
+        return geom.getMaterial().getAssetName();
     }
 }
