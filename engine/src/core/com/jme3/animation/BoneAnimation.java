@@ -113,6 +113,9 @@ public final class BoneAnimation implements Animation, Savable, Cloneable {
         BitSet affectedBones = channel.getAffectedBones();
         Skeleton skeleton = control.getSkeleton();
         
+        if (tracks == null)
+            return;
+        
         for (int i = 0; i < tracks.length; i++) {
             if (affectedBones == null
                     || affectedBones.get(tracks[i].getTargetBoneIndex())) {

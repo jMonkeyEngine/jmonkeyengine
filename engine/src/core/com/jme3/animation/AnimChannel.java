@@ -344,10 +344,11 @@ public final class AnimChannel {
         time += tpf * speed;
 
         if (animation.getLength() > 0){
-            if (time >= animation.getLength())
+            if (time >= animation.getLength()) {
                 control.notifyAnimCycleDone(this, animation.getName());
-            else if (time < 0)
+            } else if (time < 0) {
                 control.notifyAnimCycleDone(this, animation.getName());
+            } 
         }
 
         time = clampWrapTime(time, animation.getLength(), loopMode);

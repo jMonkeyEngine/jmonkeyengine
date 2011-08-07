@@ -56,10 +56,15 @@ public class FileLocator implements AssetLocator {
     public void setRootPath(String rootPath) {
         if (rootPath == null)
             throw new NullPointerException();
-
-        root = new File(rootPath);
-        if (!root.isDirectory())
-            throw new IllegalArgumentException("Given root path \"" + root + "\" not a directory");
+        
+        try {
+            root = new File(rootPath).getCanonicalFile();
+            if (!root.isDirectory()){
+                throw new IllegalArgumentException("Given root path \"" + root + "\" not a directory");
+            }
+        } catch (IOException ex) {
+            throw new AssetLoadException("Root path is invalid", ex);
+        }
     }
 
     private static class AssetInfoFile extends AssetInfo {
@@ -76,7 +81,9 @@ public class FileLocator implements AssetLocator {
             try{
                 return new FileInputStream(file);
             }catch (FileNotFoundException ex){
-                return null;
+                // NOTE: Can still happen even if file.exists() is true, e.g.
+                // permissions issue and similar
+                throw new AssetLoadException("Failed to open file: " + file, ex);
             }
         }
     }
@@ -96,7 +103,6 @@ public class FileLocator implements AssetLocator {
             } catch (IOException ex) {
                 throw new AssetLoadException("Failed to get file canonical path " + file, ex);
             }
-            
             
             return new AssetInfoFile(manager, key, file);
         }else{
