@@ -45,7 +45,6 @@ import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
-import com.jme3.system.JmeSystem;
 import com.jme3.util.xml.SAXUtil;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -62,7 +61,6 @@ import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
 
-import org.xml.sax.helpers.XMLReaderFactory;
 import static com.jme3.util.xml.SAXUtil.*;
 
 public class SceneLoader extends DefaultHandler implements AssetLoader {
@@ -91,6 +89,19 @@ public class SceneLoader extends DefaultHandler implements AssetLoader {
 
     @Override
     public void endDocument() {
+    }
+    
+    private void reset(){
+        elementStack.clear();
+        nodeIdx = 0;
+        
+        // NOTE: Setting some of those to null is only needed
+        // if the parsed file had an error e.g. startElement was called
+        // but not endElement
+        root = null;
+        node = null;
+        entityNode = null;
+        light = null;
     }
 
     private Quaternion parseQuat(Attributes attribs) throws SAXException{
@@ -353,8 +364,10 @@ public class SceneLoader extends DefaultHandler implements AssetLoader {
                       assetManager.loadAsset(new OgreMaterialKey(sceneName+".material"));
             } catch (AssetNotFoundException ex){
                 logger.log(Level.WARNING, "Cannot locate material file {0}", ex.getMessage());
+                materialList = null;
             }
 
+            reset();
             
             // Added by larynx 25.06.2011
             // Android needs the namespace aware flag set to true 
