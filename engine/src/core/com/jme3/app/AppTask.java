@@ -71,7 +71,6 @@ public class AppTask<V> implements Future<V> {
     }
 
     public boolean cancel(boolean mayInterruptIfRunning) {
-        // TODO mayInterruptIfRunning was ignored in previous code, should this param be removed?
         stateLock.lock();
         try {
             if (result != null) {

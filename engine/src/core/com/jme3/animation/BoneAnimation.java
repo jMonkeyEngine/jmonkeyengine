@@ -48,7 +48,7 @@ import java.util.BitSet;
  * 
  * @author Kirill Vainer
  */
-public final class BoneAnimation implements Savable, Cloneable {
+public final class BoneAnimation implements Animation, Savable, Cloneable {
 
     private String name;
     private float length;
@@ -109,11 +109,14 @@ public final class BoneAnimation implements Savable, Cloneable {
         return tracks;
     }
 
-    void setTime(float time, Skeleton skeleton, float weight, BitSet affectedBones) {
+    public void setTime(float time, float blendAmount, AnimControl control, AnimChannel channel){
+        BitSet affectedBones = channel.getAffectedBones();
+        Skeleton skeleton = control.getSkeleton();
+        
         for (int i = 0; i < tracks.length; i++) {
             if (affectedBones == null
                     || affectedBones.get(tracks[i].getTargetBoneIndex())) {
-                tracks[i].setTime(time, skeleton, weight);
+                tracks[i].setTime(time, skeleton, blendAmount);
             }
         }
     }
@@ -129,7 +132,7 @@ public final class BoneAnimation implements Savable, Cloneable {
         try {
             result = (BoneAnimation) super.clone();
         } catch (CloneNotSupportedException e) {
-            result = new BoneAnimation(name, length);
+            throw new AssertionError();
         }
         if (result.tracks == null) {
             result.tracks = new BoneTrack[tracks.length];

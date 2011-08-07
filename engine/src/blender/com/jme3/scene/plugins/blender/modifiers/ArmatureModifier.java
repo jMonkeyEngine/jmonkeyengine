@@ -7,6 +7,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import com.jme3.animation.AnimControl;
+import com.jme3.animation.Animation;
 import com.jme3.animation.Bone;
 import com.jme3.animation.BoneAnimation;
 import com.jme3.animation.BoneTrack;
@@ -86,7 +87,7 @@ import com.jme3.scene.plugins.ogre.AnimData;
 			String objectName = objectStructure.getName();
 			Set<String> animationNames = dataRepository.getBlenderKey().getAnimationNames(objectName);
 			if (animationNames != null && animationNames.size() > 0) {
-				ArrayList<BoneAnimation> animations = new ArrayList<BoneAnimation>();
+				ArrayList<Animation> animations = new ArrayList<Animation>();
 				List<FileBlockHeader> actionHeaders = dataRepository.getFileBlocks(Integer.valueOf(FileBlockHeader.BLOCK_AC00));
 				for (FileBlockHeader header : actionHeaders) {
 					Structure actionStructure = header.getStructure(dataRepository);
@@ -112,13 +113,13 @@ import com.jme3.scene.plugins.ogre.AnimData;
 			return node;
 		}
 		AnimData ad = (AnimData) jmeModifierRepresentation;
-		ArrayList<BoneAnimation> animList = ad.anims;
+		ArrayList<Animation> animList = ad.anims;
 		Long modifierArmatureObject = (Long) additionalData;
 		if (animList != null && animList.size() > 0) {
 			List<Constraint> constraints = dataRepository.getConstraints(modifierArmatureObject);
-			HashMap<String, BoneAnimation> anims = new HashMap<String, BoneAnimation>();
+			HashMap<String, Animation> anims = new HashMap<String, Animation>();
 			for (int i = 0; i < animList.size(); ++i) {
-				BoneAnimation boneAnimation = animList.get(i).clone();
+				BoneAnimation boneAnimation = (BoneAnimation) animList.get(i).clone();
 
 				// baking constraints into animations
 				if (constraints != null && constraints.size() > 0) {
@@ -156,13 +157,13 @@ import com.jme3.scene.plugins.ogre.AnimData;
 				Skeleton skeleton = this.merge(controlSkeleton, ad.skeleton);
 
 				// merging animations
-				HashMap<String, BoneAnimation> animations = new HashMap<String, BoneAnimation>();
+				HashMap<String, Animation> animations = new HashMap<String, Animation>();
 				for (String animationName : control.getAnimationNames()) {
 					animations.put(animationName,
 							control.getAnim(animationName));
 				}
-				for (Entry<String, BoneAnimation> animEntry : anims.entrySet()) {
-					BoneAnimation ba = animEntry.getValue();
+				for (Entry<String, Animation> animEntry : anims.entrySet()) {
+					BoneAnimation ba = (BoneAnimation) animEntry.getValue();
 					for (int i = 0; i < ba.getTracks().length; ++i) {
 						BoneTrack bt = ba.getTracks()[i];
 						int newBoneIndex = bt.getTargetBoneIndex()

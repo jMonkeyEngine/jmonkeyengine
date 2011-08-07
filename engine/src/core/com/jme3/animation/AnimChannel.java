@@ -55,8 +55,8 @@ public final class AnimChannel {
 //    private ArrayList<Integer> affectedBones;
     private BitSet affectedBones;
 
-    private BoneAnimation animation;
-    private BoneAnimation blendFrom;
+    private Animation animation;
+    private Animation blendFrom;
     private float time;
     private float speed;
     private float timeBlendFrom;
@@ -64,11 +64,13 @@ public final class AnimChannel {
 
     private LoopMode loopMode, loopModeBlendFrom;
     
-
     private float blendAmount = 1f;
     private float blendRate   = 0;
 
     private static float clampWrapTime(float t, float max, LoopMode loopMode){
+        if (max == Float.POSITIVE_INFINITY)
+            return t;
+        
         if (t < 0f){
             //float tMod = -(-t % max);
             switch (loopMode){
@@ -208,7 +210,7 @@ public final class AnimChannel {
         if (blendTime < 0f)
             throw new IllegalArgumentException("blendTime cannot be less than zero");
 
-        BoneAnimation anim = control.animationMap.get(name);
+        Animation anim = control.animationMap.get(name);
         if (anim == null)
             throw new IllegalArgumentException("Cannot find animation named: '"+name+"'");
 
@@ -310,9 +312,8 @@ public final class AnimChannel {
         }
     }
 
-    void reset(){
-        animation = null;
-        blendFrom = null;
+    BitSet getAffectedBones(){
+        return affectedBones;
     }
 
     void update(float tpf) {
@@ -320,7 +321,8 @@ public final class AnimChannel {
             return;
 
         if (blendFrom != null){
-            blendFrom.setTime(timeBlendFrom, control.skeleton, 1f - blendAmount, affectedBones);
+            blendFrom.setTime(timeBlendFrom, 1f - blendAmount, control, this);
+            //blendFrom.setTime(timeBlendFrom, control.skeleton, 1f - blendAmount, affectedBones);
             timeBlendFrom += tpf * speedBlendFrom;
             timeBlendFrom = clampWrapTime(timeBlendFrom,
                                           blendFrom.getLength(),
@@ -337,7 +339,8 @@ public final class AnimChannel {
             }
         }
 
-        animation.setTime(time, control.skeleton, blendAmount, affectedBones);
+        animation.setTime(time, blendAmount, control, this);
+        //animation.setTime(time, control.skeleton, blendAmount, affectedBones);
         time += tpf * speed;
 
         if (animation.getLength() > 0){

@@ -31,6 +31,7 @@
  */
 package com.jme3.scene.plugins.ogre;
 
+import com.jme3.animation.Animation;
 import com.jme3.scene.plugins.ogre.matext.OgreMaterialKey;
 import com.jme3.animation.AnimControl;
 import com.jme3.animation.BoneAnimation;
@@ -750,10 +751,10 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
             }
             
             // Put the animations in the AnimControl
-            HashMap<String, BoneAnimation> anims = new HashMap<String, BoneAnimation>();
-            ArrayList<BoneAnimation> animList = animData.anims;
+            HashMap<String, Animation> anims = new HashMap<String, Animation>();
+            ArrayList<Animation> animList = animData.anims;
             for (int i = 0; i < animList.size(); i++) {
-                BoneAnimation anim = animList.get(i);
+                Animation anim = animList.get(i);
                 anims.put(anim.getName(), anim);
             }
            

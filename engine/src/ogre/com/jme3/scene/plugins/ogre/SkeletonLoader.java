@@ -31,6 +31,7 @@
  */
 package com.jme3.scene.plugins.ogre;
 
+import com.jme3.animation.Animation;
 import com.jme3.animation.Bone;
 import com.jme3.animation.BoneAnimation;
 import com.jme3.animation.BoneTrack;
@@ -73,7 +74,7 @@ public class SkeletonLoader extends DefaultHandler implements AssetLoader {
     private BoneTrack track;
     private ArrayList<BoneTrack> tracks = new ArrayList<BoneTrack>();
     private BoneAnimation animation;
-    private ArrayList<BoneAnimation> animations;
+    private ArrayList<Animation> animations;
     private Bone bone;
     private Skeleton skeleton;
     private ArrayList<Float> times = new ArrayList<Float>();
@@ -136,7 +137,7 @@ public class SkeletonLoader extends DefaultHandler implements AssetLoader {
             assert elementStack.peek().equals("skeleton");
         } else if (qName.equals("animations")) {
             assert elementStack.peek().equals("skeleton");
-            animations = new ArrayList<BoneAnimation>();
+            animations = new ArrayList<Animation>();
         } else if (qName.equals("bones")) {
             assert elementStack.peek().equals("skeleton");
         } else if (qName.equals("skeleton")) {
@@ -273,7 +274,7 @@ public class SkeletonLoader extends DefaultHandler implements AssetLoader {
             InputStreamReader r = new InputStreamReader(in);
             xr.parse(new InputSource(r));
             if (animations == null) {
-                animations = new ArrayList<BoneAnimation>();
+                animations = new ArrayList<Animation>();
             }
             AnimData data = new AnimData(skeleton, animations);
             skeleton = null;

@@ -41,7 +41,6 @@ import de.lessvoid.nifty.spi.sound.SoundHandle;
 public class SoundHandleJme implements SoundHandle {
 
     private AudioNode node;
-    private AudioRenderer ar;
     private AssetManager am;
     private String fileName;
     private float volume = 1;
@@ -50,7 +49,6 @@ public class SoundHandleJme implements SoundHandle {
         if (ar == null || node == null)
             throw new NullPointerException();
 
-        this.ar = ar;
         this.node = node;
     }
 
@@ -64,7 +62,6 @@ public class SoundHandleJme implements SoundHandle {
         if (ar == null || am == null)
             throw new NullPointerException();
 
-        this.ar = ar;
         this.am = am;
         if (fileName == null)
             throw new NullPointerException();
@@ -75,21 +72,21 @@ public class SoundHandleJme implements SoundHandle {
     public void play() {
         if (fileName != null){
             if (node != null){
-                ar.stopSource(node);
+                node.stop();
             }
 
-            node = new AudioNode(ar, am, fileName, true);
+            node = new AudioNode(am, fileName, true);
             node.setPositional(false);
             node.setVolume(volume);
-            ar.playSource(node);
+            node.play();
         }else{
-            ar.playSourceInstance(node);
+            node.playInstance();
         }
     }
 
     public void stop() {
-        if (fileName != null){
-            ar.stopSource(node);
+        if (node != null){
+            node.stop();
             node = null;
         }
     }

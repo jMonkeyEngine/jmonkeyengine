@@ -39,8 +39,10 @@ import com.jme3.export.OutputCapsule;
 import com.jme3.export.Savable;
 import com.jme3.scene.Mesh;
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-public class MeshAnimation implements Savable {
+public class MeshAnimation implements Animation, Savable {
 
     private String name;
     private float length;
@@ -73,6 +75,10 @@ public class MeshAnimation implements Savable {
         }
     }
 
+    @Override
+    public void setTime(float time, float blendAmount, AnimControl control, AnimChannel channel) {
+        // TODO: ...
+    }
 
     public void write(JmeExporter e) throws IOException {
         OutputCapsule out = e.getCapsule(this);
@@ -88,5 +94,16 @@ public class MeshAnimation implements Savable {
         length = in.readFloat("length", -1f);
         tracks = (Track[]) in.readSavableArray("tracks", null);
     }
+
+    @Override
+    public Animation clone() {
+        try {
+            return (Animation) super.clone();
+        } catch (CloneNotSupportedException ex) {
+            throw new AssertionError();
+        }
+    }
+
+    
 
 }

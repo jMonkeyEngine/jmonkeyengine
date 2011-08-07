@@ -1,5 +1,6 @@
 package com.jme3.scene.plugins.blender.modifiers;
 
+import com.jme3.animation.Animation;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -96,7 +97,7 @@ import com.jme3.scene.plugins.ogre.AnimData;
 			BoneAnimation boneAnimation = new BoneAnimation(
 					objectAnimationName, stop - start);
 			boneAnimation.setTracks(tracks);
-			ArrayList<BoneAnimation> animations = new ArrayList<BoneAnimation>(
+			ArrayList<Animation> animations = new ArrayList<Animation>(
 					1);
 			animations.add(boneAnimation);
 

@@ -32,16 +32,16 @@
 
 package com.jme3.scene.plugins.ogre;
 
-import com.jme3.animation.BoneAnimation;
+import com.jme3.animation.Animation;
 import com.jme3.animation.Skeleton;
 import java.util.ArrayList;
 
 public class AnimData {
 
     public final Skeleton skeleton;
-    public final ArrayList<BoneAnimation> anims;
+    public final ArrayList<Animation> anims;
 
-    public AnimData(Skeleton skeleton, ArrayList<BoneAnimation> anims) {
+    public AnimData(Skeleton skeleton, ArrayList<Animation> anims) {
         this.skeleton = skeleton;
         this.anims = anims;
     }

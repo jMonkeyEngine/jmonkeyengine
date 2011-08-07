@@ -81,7 +81,7 @@ public final class AnimControl extends AbstractControl implements Cloneable {
     /**
      * List of animations
      */
-    HashMap<String, BoneAnimation> animationMap;
+    HashMap<String, Animation> animationMap;
 
     /**
      * Animation channels
@@ -101,8 +101,8 @@ public final class AnimControl extends AbstractControl implements Cloneable {
      * @param skeleton The skeleton to animate
      */
     public AnimControl(Skeleton skeleton) {
-        if (skeleton == null)
-            throw new IllegalArgumentException("skeleton cannot be null");
+        //if (skeleton == null)
+        //    throw new IllegalArgumentException("skeleton cannot be null");
 
         this.skeleton = skeleton;
         reset();
@@ -121,10 +121,14 @@ public final class AnimControl extends AbstractControl implements Cloneable {
         try {
             AnimControl clone = (AnimControl) super.clone();
             clone.spatial = spatial;
-            clone.skeleton = new Skeleton(skeleton);
+            if (skeleton != null){
+                clone.skeleton = new Skeleton(skeleton);
+            }
             clone.channels = new ArrayList<AnimChannel>();
+            
             // animationMap is reference-copied, animation data should be shared
             // to reduce memory usage.
+            
             return clone;
         } catch (CloneNotSupportedException ex) {
             throw new AssertionError();
@@ -136,7 +140,7 @@ public final class AnimControl extends AbstractControl implements Cloneable {
      * will be capable of playing. The animations should be compatible
      * with the skeleton given in the constructor.
      */
-    public void setAnimations(HashMap<String, BoneAnimation> animations) {
+    public void setAnimations(HashMap<String, Animation> animations) {
         animationMap = animations;
     }
 
@@ -146,7 +150,7 @@ public final class AnimControl extends AbstractControl implements Cloneable {
      * @return The animation corresponding to the given name, or null, if no
      * such named animation exists.
      */
-    public BoneAnimation getAnim(String name) {
+    public Animation getAnim(String name) {
         return animationMap.get(name);
     }
 
@@ -155,7 +159,7 @@ public final class AnimControl extends AbstractControl implements Cloneable {
      * <code>AnimControl</code>.
      * @param anim The animation to add.
      */
-    public void addAnim(BoneAnimation anim) {
+    public void addAnim(Animation anim) {
         animationMap.put(anim.getName(), anim);
     }
 
@@ -163,7 +167,7 @@ public final class AnimControl extends AbstractControl implements Cloneable {
      * Remove an animation so that it is no longer available for playing.
      * @param anim The animation to remove.
      */
-    public void removeAnim(BoneAnimation anim) {
+    public void removeAnim(Animation anim) {
         if (!animationMap.containsKey(anim.getName())) {
             throw new IllegalArgumentException("Given animation does not exist "
                     + "in this AnimControl");
@@ -305,7 +309,7 @@ public final class AnimControl extends AbstractControl implements Cloneable {
      * @return The length of time, in seconds, of the named animation.
      */
     public float getAnimationLength(String name) {
-        BoneAnimation a = animationMap.get(name);
+        Animation a = animationMap.get(name);
         if (a == null) {
             throw new IllegalArgumentException("The animation " + name
                     + " does not exist in this AnimControl");
@@ -319,13 +323,17 @@ public final class AnimControl extends AbstractControl implements Cloneable {
      */
     @Override
     protected void controlUpdate(float tpf) {
-        skeleton.reset(); // reset skeleton to bind pose
+        if (skeleton != null){
+            skeleton.reset(); // reset skeleton to bind pose
+        }
 
         for (int i = 0; i < channels.size(); i++) {
             channels.get(i).update(tpf);
         }
 
-        skeleton.updateWorldVectors();
+        if (skeleton != null){
+            skeleton.updateWorldVectors();
+        }
     }
 
     /**
@@ -348,7 +356,7 @@ public final class AnimControl extends AbstractControl implements Cloneable {
         super.read(im);
         InputCapsule in = im.getCapsule(this);
         skeleton = (Skeleton) in.readSavable("skeleton", null);
-        animationMap = (HashMap<String, BoneAnimation>) in.readStringSavableMap("animations", null);
+        animationMap = (HashMap<String, Animation>) in.readStringSavableMap("animations", null);
 
         if (im.getFormatVersion() == 0){
             //changed for backward compatibility with j3o files generated before the AnimControl/SkeletonControl split

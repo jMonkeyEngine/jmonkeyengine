@@ -3,7 +3,6 @@ package com.jme3.scene.mesh;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Mesh.Mode;
 import com.jme3.scene.VertexBuffer.Type;
-import com.jme3.util.BufferUtils;
 import java.nio.Buffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;

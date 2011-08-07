@@ -196,6 +196,9 @@ public class TestChooser extends JDialog {
             } catch (NoSuchMethodException e) {
                 // class does not have a main method
                 return null;
+            } catch (UnsupportedClassVersionError e){
+                // unsupported version
+                return null;
             }
         }
         return null;

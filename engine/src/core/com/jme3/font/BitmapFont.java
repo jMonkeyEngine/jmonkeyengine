@@ -33,7 +33,6 @@
 package com.jme3.font;
 
 import java.io.IOException;
-import java.util.Arrays;
 
 import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
@@ -48,11 +47,49 @@ import com.jme3.material.Material;
  */
 public class BitmapFont implements Savable {
 
+    /**
+     * Specifies horizontal alignment for text.
+     * 
+     * @see BitmapText#setAlignment(com.jme3.font.BitmapFont.Align) 
+     */
     public enum Align {
-        Left, Center, Right
+        
+        /**
+         * Align text on the left of the text block
+         */
+        Left, 
+        
+        /**
+         * Align text in the center of the text block
+         */
+        Center, 
+        
+        /**
+         * Align text on the right of the text block
+         */
+        Right
     }
+    
+    /**
+     * Specifies vertical alignment for text.
+     * 
+     * @see BitmapText#setVerticalAlignment(com.jme3.font.BitmapFont.VAlign) 
+     */
     public enum VAlign {
-        Top, Center, Bottom
+        /**
+         * Align text on the top of the text block
+         */
+        Top, 
+        
+        /**
+         * Align text in the center of the text block
+         */
+        Center, 
+        
+        /**
+         * Align text at the bottom of the text block
+         */
+        Bottom
     }
 
     private BitmapCharacterSet charSet;
