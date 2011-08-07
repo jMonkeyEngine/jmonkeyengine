@@ -155,6 +155,61 @@ final public class FastMath {
         return interpolateLinear(scale, startValue, endValue, null);
     }
 
+    /**
+     * Linear extrapolation from startValue to endValue by the given scale.
+     * if scale is between 0 and 1 this method returns the same result as interpolateLinear
+     * if the scale is over 1 the value is linearly extrapolated.
+     * Note that the end value is the value for a scale of 1.
+     * @param scale the scale for extrapolation
+     * @param startValue the starting value (scale = 0)
+     * @param endValue the end value (scale = 1)
+     * @return an extrapolation for the given parameters
+     */
+    public static float extrapolateLinear(float scale, float startValue, float endValue) {
+        if (scale <= 0f) {
+            return startValue;
+        }
+        return ((1f - scale) * startValue) + (scale * endValue);
+    }
+
+    /**
+     * Linear extrapolation from startValue to endValue by the given scale.
+     * if scale is between 0 and 1 this method returns the same result as interpolateLinear
+     * if the scale is over 1 the value is linearly extrapolated.
+     * Note that the end value is the value for a scale of 1. 
+     * @param scale the scale for extrapolation
+     * @param startValue the starting value (scale = 0)
+     * @param endValue the end value (scale = 1)
+     * @param store an initialized vector to store the return value
+     * @return an extrapolation for the given parameters
+     */
+    public static Vector3f extrapolateLinear(float scale, Vector3f startValue, Vector3f endValue, Vector3f store) {
+        if (store == null) {
+            store = new Vector3f();
+        }
+        if (scale <= 1f) {
+            return interpolateLinear(scale, startValue, endValue, store);
+        }
+        store.x = extrapolateLinear(scale, startValue.x, endValue.x);
+        store.y = extrapolateLinear(scale, startValue.y, endValue.y);
+        store.z = extrapolateLinear(scale, startValue.z, endValue.z);
+        return store;
+    }
+
+    /**
+     * Linear extrapolation from startValue to endValue by the given scale.
+     * if scale is between 0 and 1 this method returns the same result as interpolateLinear
+     * if the scale is over 1 the value is linearly extrapolated.
+     * Note that the end value is the value for a scale of 1.
+     * @param scale the scale for extrapolation
+     * @param startValue the starting value (scale = 0)
+     * @param endValue the end value (scale = 1)
+     * @return an extrapolation for the given parameters
+     */
+    public static Vector3f extrapolateLinear(float scale, Vector3f startValue, Vector3f endValue) {
+        return extrapolateLinear(scale, startValue, endValue, null);
+    }
+
     /**Interpolate a spline between at least 4 control points following the Catmull-Rom equation.
      * here is the interpolation matrix
      * m = [ 0.0  1.0  0.0   0.0 ]
@@ -244,13 +299,13 @@ final public class FastMath {
      * @return Bezier interpolation
      */
     public static float interpolateBezier(float u, float p0, float p1, float p2, float p3) {
-    	float oneMinusU = 1.0f - u;
-		float oneMinusU2 = oneMinusU * oneMinusU;
-		float u2 = u * u;
-		return p0 * oneMinusU2 * oneMinusU + 
-			   3.0f * p1 * u * oneMinusU2 + 
-			   3.0f * p2 * u2 * oneMinusU + 
-			   p3 * u2 * u;
+        float oneMinusU = 1.0f - u;
+        float oneMinusU2 = oneMinusU * oneMinusU;
+        float u2 = u * u;
+        return p0 * oneMinusU2 * oneMinusU
+                + 3.0f * p1 * u * oneMinusU2
+                + 3.0f * p2 * u2 * oneMinusU
+                + p3 * u2 * u;
     }
 
     /**Interpolate a spline between at least 4 control points following the Bezier equation.
@@ -297,7 +352,7 @@ final public class FastMath {
     public static Vector3f interpolateBezier(float u, Vector3f p0, Vector3f p1, Vector3f p2, Vector3f p3) {
         return interpolateBezier(u, p0, p1, p2, p3, null);
     }
-    
+
     /**
      * Compute the lenght on a catmull rom spline between control point 1 and 2
      * @param p0 control point 0
@@ -345,11 +400,11 @@ final public class FastMath {
     public static float getBezierP1toP2Length(Vector3f p0, Vector3f p1, Vector3f p2, Vector3f p3) {
         float delta = 0.02f, t = 0.0f, result = 0.0f;
         Vector3f v1 = p0.clone(), v2 = new Vector3f();
-        while(t<=1.0f) {
-        	FastMath.interpolateBezier(t, p0, p1, p2, p3, v2);
-        	result += v1.subtractLocal(v2).length();
-        	v1.set(v2);
-        	t += delta;
+        while (t <= 1.0f) {
+            FastMath.interpolateBezier(t, p0, p1, p2, p3, v2);
+            result += v1.subtractLocal(v2).length();
+            v1.set(v2);
+            t += delta;
         }
         return result;
     }
@@ -684,7 +739,7 @@ final public class FastMath {
         }
         return val3;
     }
-    
+
     /**
      * A method that computes normal for a triangle defined by three vertices.
      * @param v1 first vertex
@@ -693,9 +748,9 @@ final public class FastMath {
      * @return a normal for the face
      */
     public static Vector3f computeNormal(Vector3f v1, Vector3f v2, Vector3f v3) {
-    	Vector3f a1 = v1.subtract(v2);
-		Vector3f a2 = v3.subtract(v2);
-		return a2.crossLocal(a1).normalizeLocal();
+        Vector3f a1 = v1.subtract(v2);
+        Vector3f a2 = v3.subtract(v2);
+        return a2.crossLocal(a1).normalizeLocal();
     }
 
     /**
