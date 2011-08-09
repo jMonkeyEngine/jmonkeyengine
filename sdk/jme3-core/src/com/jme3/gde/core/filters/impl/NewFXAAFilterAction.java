@@ -31,58 +31,24 @@
  */
 package com.jme3.gde.core.filters.impl;
 
-import com.jme3.gde.core.filters.AbstractFilterNode;
-import com.jme3.gde.core.filters.FilterNode;
+import com.jme3.gde.core.filters.actions.AbstractNewFilterAction;
+import com.jme3.gde.core.filters.actions.NewFilterAction;
 import com.jme3.post.Filter;
-import com.jme3.post.ssao.SSAOFilter;
-import com.jme3.water.WaterFilter;
-import org.openide.loaders.DataObject;
-import org.openide.nodes.Node;
-import org.openide.nodes.Sheet;
+import com.jme3.post.filters.FXAAFilter;
 
 /**
  *
- * @author Rémy Bouquet
+ * @author normenhansen
  */
-@org.openide.util.lookup.ServiceProvider(service = FilterNode.class)
-public class JmeSSAOFilter extends AbstractFilterNode {
+@org.openide.util.lookup.ServiceProvider(service = NewFilterAction.class)
+public class NewFXAAFilterAction extends AbstractNewFilterAction {
 
-    public JmeSSAOFilter() {
-    }
-
-    public JmeSSAOFilter(SSAOFilter filter, DataObject object, boolean readOnly) {
-        super(filter);
-        this.dataObject = object;
-        this.readOnly = readOnly;
+    public NewFXAAFilterAction() {
+        name = "FXAA";
     }
 
     @Override
-    protected Sheet createSheet() {
-        Sheet sheet = super.createSheet();
-
-        Sheet.Set set = Sheet.createPropertiesSet();
-        set.setDisplayName("SSAO");
-        set.setName("SSAO");
-        SSAOFilter obj = (SSAOFilter) filter;
-
-        if (obj == null) {
-            return sheet;
-        }
-
-        createFields(SSAOFilter.class, set, obj);
-
-        sheet.put(set);
-        return sheet;
-
-    }
-
-    @Override
-    public Class<?> getExplorerObjectClass() {
-        return SSAOFilter.class;
-    }
-
-    @Override
-    public Node[] createNodes(Object key, DataObject dataObject, boolean readOnly) {
-        return new Node[]{new JmeSSAOFilter((SSAOFilter) key, dataObject, readOnly)};
+    protected Filter doCreateFilter() {
+        return new FXAAFilter();
     }
 }

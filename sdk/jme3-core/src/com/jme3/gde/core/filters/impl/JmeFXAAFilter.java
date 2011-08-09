@@ -33,9 +33,8 @@ package com.jme3.gde.core.filters.impl;
 
 import com.jme3.gde.core.filters.AbstractFilterNode;
 import com.jme3.gde.core.filters.FilterNode;
-import com.jme3.post.Filter;
+import com.jme3.post.filters.FXAAFilter;
 import com.jme3.post.ssao.SSAOFilter;
-import com.jme3.water.WaterFilter;
 import org.openide.loaders.DataObject;
 import org.openide.nodes.Node;
 import org.openide.nodes.Sheet;
@@ -45,12 +44,12 @@ import org.openide.nodes.Sheet;
  * @author Rémy Bouquet
  */
 @org.openide.util.lookup.ServiceProvider(service = FilterNode.class)
-public class JmeSSAOFilter extends AbstractFilterNode {
+public class JmeFXAAFilter extends AbstractFilterNode {
 
-    public JmeSSAOFilter() {
+    public JmeFXAAFilter() {
     }
 
-    public JmeSSAOFilter(SSAOFilter filter, DataObject object, boolean readOnly) {
+    public JmeFXAAFilter(FXAAFilter filter, DataObject object, boolean readOnly) {
         super(filter);
         this.dataObject = object;
         this.readOnly = readOnly;
@@ -61,15 +60,15 @@ public class JmeSSAOFilter extends AbstractFilterNode {
         Sheet sheet = super.createSheet();
 
         Sheet.Set set = Sheet.createPropertiesSet();
-        set.setDisplayName("SSAO");
-        set.setName("SSAO");
-        SSAOFilter obj = (SSAOFilter) filter;
+        set.setDisplayName("FXAA");
+        set.setName("FXAA");
+        FXAAFilter obj = (FXAAFilter) filter;
 
         if (obj == null) {
             return sheet;
         }
 
-        createFields(SSAOFilter.class, set, obj);
+        createFields(FXAAFilter.class, set, obj);
 
         sheet.put(set);
         return sheet;
@@ -78,11 +77,11 @@ public class JmeSSAOFilter extends AbstractFilterNode {
 
     @Override
     public Class<?> getExplorerObjectClass() {
-        return SSAOFilter.class;
+        return FXAAFilter.class;
     }
 
     @Override
     public Node[] createNodes(Object key, DataObject dataObject, boolean readOnly) {
-        return new Node[]{new JmeSSAOFilter((SSAOFilter) key, dataObject, readOnly)};
+        return new Node[]{new JmeFXAAFilter((FXAAFilter) key, dataObject, readOnly)};
     }
 }
