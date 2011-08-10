@@ -263,6 +263,7 @@ public final class SceneComposerTopComponent extends TopComponent implements Sce
         org.openide.awt.Mnemonics.setLocalizedText(jLabel3, org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.jLabel3.text")); // NOI18N
         jToolBar1.add(jLabel3);
 
+        showSelectionToggleButton.setSelected(true);
         org.openide.awt.Mnemonics.setLocalizedText(showSelectionToggleButton, org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.showSelectionToggleButton.text")); // NOI18N
         showSelectionToggleButton.setToolTipText(org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.showSelectionToggleButton.toolTipText")); // NOI18N
         showSelectionToggleButton.setFocusable(false);
@@ -956,6 +957,7 @@ private void emitButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FI
                 toolController.cleanup();
             }
             toolController = new SceneComposerToolController(currentRequest.getToolNode(), currentRequest.getManager(), request.getJmeNode());
+
             camController = new ComposerCameraController(SceneApplication.getApplication().getCamera(), request.getJmeNode());
             toolController.setEditorController(editorController);
             camController.setToolController(toolController);
@@ -965,6 +967,7 @@ private void emitButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FI
             toolController.setCameraController(camController);
             SelectTool tool = new SelectTool();
             toolController.showEditTool(tool);
+            toolController.setShowSelection(true);
         }/* else {
          SceneApplication.getApplication().removeSceneListener(this);
          currentRequest = null;

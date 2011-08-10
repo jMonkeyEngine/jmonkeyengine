@@ -5,6 +5,7 @@
 package com.jme3.gde.scenecomposer.tools;
 
 import com.jme3.gde.core.scene.SceneApplication;
+import com.jme3.gde.core.sceneexplorer.SceneExplorerTopComponent;
 import com.jme3.gde.core.sceneexplorer.nodes.JmeNode;
 import com.jme3.gde.scenecomposer.SceneEditTool;
 import com.jme3.math.Vector2f;
@@ -31,16 +32,19 @@ public class SelectTool extends SceneEditTool {
 
                 public void run() {
                     if (result != null) {
+//                        System.out.println(rootNode.getChild(result).getName());
+//                        SceneExplorerTopComponent.findInstance().setActivatedNodes(new org.openide.nodes.Node[]{rootNode.getChild(result)});
                         SceneApplication.getApplication().setCurrentFileNode(rootNode.getChild(result));
+
                     } else {
+                       // SceneExplorerTopComponent.findInstance().setActivatedNodes(new org.openide.nodes.Node[]{rootNode});
                         SceneApplication.getApplication().setCurrentFileNode(rootNode);
                     }
                 }
             });
 
             if (result != null) {
-                replaceSelectionShape(result);
-                updateToolsTransformation(selectedSpatial);
+                updateToolsTransformation();
             }
         }
 

@@ -4,8 +4,10 @@
  */
 package com.jme3.gde.scenecomposer.tools;
 
+import com.jme3.asset.AssetManager;
 import com.jme3.gde.core.sceneexplorer.nodes.JmeNode;
 import com.jme3.gde.core.undoredo.AbstractUndoableSceneEdit;
+import com.jme3.gde.scenecomposer.SceneComposerToolController;
 import com.jme3.gde.scenecomposer.SceneEditTool;
 import com.jme3.material.Material;
 import com.jme3.math.FastMath;
@@ -42,7 +44,7 @@ public class MoveTool extends SceneEditTool {
     
     
     public MoveTool() {
-        axisPickType = AxisMarkerPickType.planeOnly;
+        axisPickType = AxisMarkerPickType.axisAndPlane;
         setOverrideCameraControl(true);
         
         float size = 1000;
@@ -50,8 +52,18 @@ public class MoveTool extends SceneEditTool {
         g.setLocalTranslation(-size/2, -size/2, 0);
         plane = new Node();
         plane.attachChild(g);
+        
+        
     }
 
+    @Override
+    public void activate(AssetManager manager, Node toolNode, Node onTopToolNode, Spatial selectedSpatial, SceneComposerToolController toolController) {
+        super.activate(manager, toolNode, onTopToolNode, selectedSpatial, toolController);
+        displayPlanes();
+    }
+
+    
+    
     
     
     @Override
@@ -61,7 +73,7 @@ public class MoveTool extends SceneEditTool {
             pickedPlane = null; // mouse released, reset selection
             offset = null;
             if (wasDragging) {
-                actionPerformed(new MoveUndo(selectedSpatial, startLoc, lastLoc));
+                actionPerformed(new MoveUndo(toolController.getSelectedSpatial(), startLoc, lastLoc));
                 wasDragging = false;
             }
         }
@@ -90,19 +102,19 @@ public class MoveTool extends SceneEditTool {
             pickedPlane = null; // mouse released, reset selection
             offset = null;
             if (wasDragging) {
-                actionPerformed(new MoveUndo(selectedSpatial, startLoc, lastLoc));
+                actionPerformed(new MoveUndo(toolController.getSelectedSpatial(), startLoc, lastLoc));
                 wasDragging = false;
             }
             return;
         }
         
-        if (selectedSpatial == null)
+        if (toolController.getSelectedSpatial() == null)
             return;
         if (pickedPlane == null) {
             pickedPlane = pickAxisMarker(camera, screenCoord, axisPickType);
             if (pickedPlane == null)
                 return;
-            startLoc = selectedSpatial.getLocalTranslation().clone();
+            startLoc = toolController.getSelectedSpatial().getLocalTranslation().clone();
             
             if (pickedPlane.equals(new Vector3f(1,1,0)))
                 plane.setLocalRotation(XY);
@@ -122,8 +134,8 @@ public class MoveTool extends SceneEditTool {
 
         Vector3f newPos = planeHit.subtract(offset);
         lastLoc = newPos;
-        selectedSpatial.setLocalTranslation(newPos);
-        updateToolsTransformation(selectedSpatial);
+        toolController.getSelectedSpatial().setLocalTranslation(newPos);
+        updateToolsTransformation();
         
         wasDragging = true;
     }
