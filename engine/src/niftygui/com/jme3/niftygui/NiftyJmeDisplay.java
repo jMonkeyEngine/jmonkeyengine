@@ -75,7 +75,7 @@ public class NiftyJmeDisplay implements SceneProcessor {
             if (info != null){
                 return info.openStream();
             }else{
-                throw new AssetNotFoundException(path);
+                return null;
             }
         }
 
