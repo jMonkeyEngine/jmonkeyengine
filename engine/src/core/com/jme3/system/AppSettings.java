@@ -51,7 +51,7 @@ import java.util.prefs.Preferences;
  * 
  * @author Kirill Vainer
  */
-public class AppSettings extends HashMap<String, Object> {
+public final class AppSettings extends HashMap<String, Object> {
 
     private static final AppSettings defaults = new AppSettings(false);
     
