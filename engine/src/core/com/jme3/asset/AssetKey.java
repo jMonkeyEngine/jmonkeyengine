@@ -38,6 +38,9 @@ import com.jme3.export.InputCapsule;
 import com.jme3.export.OutputCapsule;
 import com.jme3.export.Savable;
 import java.io.IOException;
+import java.util.LinkedList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * <code>AssetKey</code> is a key that is used to
@@ -51,8 +54,8 @@ public class AssetKey<T> implements Savable {
     protected transient String extension;
 
     public AssetKey(String name){
-        this.name = name;
-        this.extension = getExtension(name);
+        this.name = reducePath(name);
+        this.extension = getExtension(this.name);
     }
 
     public AssetKey(){
@@ -138,6 +141,42 @@ public class AssetKey<T> implements Savable {
         return false;
     }
     
+    /**
+     * Removes all relative elements of a path (A/B/../C.png and A/./C.png).
+     * @param path The path containing relative elements
+     * @return A path without relative elements
+     */
+    public static String reducePath(String path) {
+        if (path == null || path.indexOf("./") == -1) {
+            return path;
+        }
+        String[] parts = path.split("/");
+        LinkedList<String> list = new LinkedList<String>();
+        for (int i = 0; i < parts.length; i++) {
+            String string = parts[i];
+            if (string.length() == 0 || string.equals(".")) {
+                //do nothing
+            } else if (string.equals("..")) {
+                if (list.size() > 0) {
+                    list.removeLast();
+                } else {
+                    throw new IllegalStateException("Relative path is outside assetmanager root!");
+                }
+            } else {
+                list.add(string);
+            }
+        }
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < list.size(); i++) {
+            String string = list.get(i);
+            if (i != 0) {
+                builder.append("/");
+            }
+            builder.append(string);
+        }
+        return builder.toString();
+    }
+    
     @Override
     public boolean equals(Object other){
         if (!(other instanceof AssetKey)){
@@ -163,7 +202,7 @@ public class AssetKey<T> implements Savable {
 
     public void read(JmeImporter im) throws IOException {
         InputCapsule ic = im.getCapsule(this);
-        name = ic.readString("name", null);
+        name = reducePath(ic.readString("name", null));
         extension = getExtension(name);
     }
 
