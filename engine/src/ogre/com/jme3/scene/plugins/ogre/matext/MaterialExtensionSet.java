@@ -32,7 +32,9 @@
 
 package com.jme3.scene.plugins.ogre.matext;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * <code>MaterialExtensionSet</code> is simply a container for several
@@ -42,6 +44,7 @@ import java.util.HashMap;
 public class MaterialExtensionSet {
     private HashMap<String, MaterialExtension> extensions
             = new HashMap<String, MaterialExtension>();
+    private HashMap<String, List<String>> nameMappings = new HashMap<String, List<String>>();
 
     /**
      * Adds a new material extension to the set of extensions.
@@ -60,5 +63,23 @@ public class MaterialExtensionSet {
      */
     public MaterialExtension getMaterialExtension(String baseMatName){
         return extensions.get(baseMatName);
+    }
+    
+    /**
+     * Adds an alternative name for a material
+     * @param name The material name to be found in a .mesh.xml file
+     * @param alias The material name to be found in a .material file
+     */
+    public void setNameMapping(String name, String alias){
+        List<String> list = nameMappings.get(name);
+        if(list==null){
+            list = new ArrayList<String>();
+            nameMappings.put(name, list);
+        }
+        list.add(alias);
+    }
+    
+    public List<String> getNameMappings(String name){
+        return nameMappings.get(name);
     }
 }

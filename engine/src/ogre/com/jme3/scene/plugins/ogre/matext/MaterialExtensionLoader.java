@@ -40,6 +40,7 @@ import com.jme3.scene.plugins.ogre.MaterialLoader;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
 import java.io.IOException;
+import java.util.List;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -79,10 +80,9 @@ public class MaterialExtensionLoader {
             key.setGenerateMips(true);
             key.setAsCube(false);
             Texture tex = assetManager.loadTexture(key);
-            // XXX: Is this really neccessary?
-            tex.setWrap(WrapMode.Repeat);
             if (tex == null)
                 throw new IOException("Cannot load texture: " + texturePath);
+            tex.setWrap(WrapMode.Repeat);
 
             material.setTexture(jmeParamName, tex);
 
@@ -140,6 +140,12 @@ public class MaterialExtensionLoader {
 
             Material material = readExtendingMaterial();
             list.put(matName, material);
+            List<String> matAliases = matExts.getNameMappings(matName);
+            if(matAliases != null){
+                for (String string : matAliases) {
+                    list.put(string, material);
+                }
+            }
         }
 
         return list;
