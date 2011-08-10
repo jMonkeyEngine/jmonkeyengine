@@ -17,9 +17,11 @@ import com.jme3.bullet.control.GhostControl;
 import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.bullet.control.VehicleControl;
 import com.jme3.bullet.util.DebugShapeFactory;
+import com.jme3.effect.ParticleEmitter;
 import com.jme3.gde.core.scene.SceneApplication;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
+import com.jme3.math.Transform;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.RenderManager;
 import com.jme3.scene.Geometry;
@@ -29,6 +31,8 @@ import com.jme3.scene.Spatial;
 import com.jme3.scene.debug.Arrow;
 import com.jme3.scene.debug.Grid;
 import com.jme3.scene.debug.WireBox;
+import com.jme3.scene.shape.Box;
+import com.jme3.util.TempVars;
 import java.util.concurrent.Callable;
 
 /**
@@ -46,6 +50,8 @@ public class SceneToolController implements AppState {
     protected Spatial selected;
     protected Spatial selectionShape;
     protected AssetManager manager;
+    protected Material blueMat;
+    protected Vector3f selctionShapeOffset = new Vector3f(0, 0, 0);
 
     public SceneToolController(AssetManager manager) {
         this.toolsNode = new Node("ToolsNode");
@@ -61,6 +67,8 @@ public class SceneToolController implements AppState {
     }
 
     protected void initTools() {
+
+        blueMat = createBlueMat();
         //Material redMat = new Material(manager, "Common/MatDefs/Misc/Unshaded.j3md");
         //redMat.getAdditionalRenderState().setWireframe(true);
         //redMat.setColor("Color", ColorRGBA.Red);
@@ -73,14 +81,14 @@ public class SceneToolController implements AppState {
         Material grayMat = new Material(manager, "Common/MatDefs/Misc/Unshaded.j3md");
         grayMat.getAdditionalRenderState().setWireframe(true);
         grayMat.setColor("Color", ColorRGBA.Gray);
-        
+
         //cursor
         if (cursor == null) {
             cursor = new Node();
         }
         cursor.detachAllChildren();
         //Geometry cursorArrowX = new Geometry("cursorArrowX", new Arrow(Vector3f.UNIT_X));
-        Geometry cursorArrowY = new Geometry("cursorArrowY", new Arrow(new Vector3f(0,-1,0)));
+        Geometry cursorArrowY = new Geometry("cursorArrowY", new Arrow(new Vector3f(0, -1, 0)));
         cursorArrowY.setLocalTranslation(0, 1, 0);
         //Geometry cursorArrowZ = new Geometry("cursorArrowZ", new Arrow(Vector3f.UNIT_Z));
         //cursorArrowX.setMaterial(redMat);
@@ -162,7 +170,11 @@ public class SceneToolController implements AppState {
             selectionShape.removeFromParent();
             selectionShape = null;
         }
-        if (spat instanceof Geometry) {
+        selctionShapeOffset.set(Vector3f.ZERO);
+        if (spat instanceof ParticleEmitter) {
+            attachBoxSelection(spat);
+
+        } else if (spat instanceof Geometry) {
             attachGeometrySelection((Geometry) spat);
         } else if (spat.getControl(PhysicsControl.class) != null) {
             attachPhysicsSelection(spat);
@@ -171,38 +183,57 @@ public class SceneToolController implements AppState {
         }
     }
 
+//    protected void attachParticleEmitterSelection(ParticleEmitter pe) {
+//        Mesh mesh = pe.getMesh();
+//        if (mesh == null) {
+//            return;
+//        }
+//        Material mat = new Material(SceneApplication.getApplication().getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
+//        mat.getAdditionalRenderState().setWireframe(true);
+//        mat.setColor("Color", ColorRGBA.Blue);
+//        pe.getWorldBound().
+//        Geometry selectionGeometry = new Geometry("selection_geometry_sceneviewer", mesh);
+//        selectionGeometry.setMaterial(mat);
+//        selectionGeometry.setLocalTransform(pe.getWorldTransform());
+//        toolsNode.attachChild(selectionGeometry);
+//        selectionShape = selectionGeometry;
+//    }
     protected void attachGeometrySelection(Geometry geom) {
         Mesh mesh = geom.getMesh();
         if (mesh == null) {
             return;
         }
-        Material mat = new Material(SceneApplication.getApplication().getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
-        mat.getAdditionalRenderState().setWireframe(true);
-        mat.setColor("Color", ColorRGBA.Blue);
         Geometry selectionGeometry = new Geometry("selection_geometry_sceneviewer", mesh);
-        selectionGeometry.setMaterial(mat);
+        selectionGeometry.setMaterial(blueMat);
         selectionGeometry.setLocalTransform(geom.getWorldTransform());
         toolsNode.attachChild(selectionGeometry);
         selectionShape = selectionGeometry;
     }
 
     protected void attachBoxSelection(Spatial geom) {
-        Material mat = new Material(SceneApplication.getApplication().getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
-        mat.getAdditionalRenderState().setWireframe(true);
-        mat.setColor("Color", ColorRGBA.Blue);
         BoundingVolume bound = geom.getWorldBound();
         if (bound instanceof BoundingBox) {
             BoundingBox bbox = (BoundingBox) bound;
             Vector3f extent = new Vector3f();
             bbox.getExtent(extent);
-            WireBox wireBox=new WireBox();
+            WireBox wireBox = new WireBox();
             wireBox.fromBoundingBox(bbox);
+            selctionShapeOffset.set(bbox.getCenter()).subtractLocal(geom.getWorldTranslation());
             Geometry selectionGeometry = new Geometry("selection_geometry_sceneviewer", wireBox);
-            selectionGeometry.setMaterial(mat);
+            selectionGeometry.setMaterial(blueMat);
             selectionGeometry.setLocalTransform(geom.getWorldTransform());
+            selectionGeometry.setLocalTranslation(bbox.getCenter());
             toolsNode.attachChild(selectionGeometry);
             selectionShape = selectionGeometry;
+
         }
+    }
+
+    private Material createBlueMat() {
+        Material mat = new Material(SceneApplication.getApplication().getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
+        mat.getAdditionalRenderState().setWireframe(true);
+        mat.setColor("Color", ColorRGBA.Blue);
+        return mat;
     }
 
     protected void attachPhysicsSelection(Spatial geom) {
@@ -219,12 +250,9 @@ public class SceneToolController implements AppState {
         if (control == null) {
             return;
         }
-        Material mat = new Material(SceneApplication.getApplication().getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
-        mat.getAdditionalRenderState().setWireframe(true);
-        mat.setColor("Color", ColorRGBA.Blue);
         Spatial selectionGeometry = DebugShapeFactory.getDebugShape(control.getCollisionShape());
         if (selectionGeometry != null) {
-            selectionGeometry.setMaterial(mat);
+            selectionGeometry.setMaterial(blueMat);
             selectionGeometry.setLocalTransform(geom.getWorldTransform());
             toolsNode.attachChild(selectionGeometry);
             selectionShape = selectionGeometry;
@@ -325,8 +353,13 @@ public class SceneToolController implements AppState {
         if (selected == null || selectionShape == null) {
             return;
         }
-        selectionShape.setLocalTranslation(selected.getWorldTranslation());
+        TempVars vars = TempVars.get();
+        vars.vect1.set(selctionShapeOffset);
+        selectionShape.setLocalTranslation(vars.vect1.addLocal(selected.getWorldTranslation()));
+        vars.release();
         selectionShape.setLocalRotation(selected.getWorldRotation());
+        selectionShape.setLocalScale(selected.getWorldScale());
+
     }
 
     public void render(RenderManager rm) {
@@ -335,5 +368,13 @@ public class SceneToolController implements AppState {
 
     public void postRender() {
 //        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public Spatial getSelectedSpatial() {
+        return selected;
+    }
+
+    public Spatial getSelectionShape() {
+        return selectionShape;
     }
 }
