@@ -15,6 +15,7 @@ import org.openide.windows.WindowManager;
 import org.openide.util.ImageUtilities;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.filesystems.FileObject;
+import org.openide.util.lookup.AbstractLookup;
 
 /**
  * Top component which displays something.
@@ -35,6 +36,9 @@ public final class ImageEditorTopComponent extends TopComponent {
         setToolTipText(NbBundle.getMessage(ImageEditorTopComponent.class, "HINT_ImageEditorTopComponent"));
         setIcon(ImageUtilities.loadImage(ICON_PATH, true));
         add(EDITOR.getComponent());
+
+        //Add the dynamic object to the TopComponent Lookup:
+        associateLookup(new AbstractLookup(EDITOR.getContent()));
     }
 
     /** This method is called from within the constructor to

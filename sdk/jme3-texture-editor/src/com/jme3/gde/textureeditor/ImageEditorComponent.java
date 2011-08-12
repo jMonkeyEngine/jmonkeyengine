@@ -47,14 +47,17 @@ import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.NotifyDescriptor.Confirmation;
 import org.openide.NotifyDescriptor.Message;
+import org.openide.awt.UndoRedo;
 import org.openide.cookies.SaveCookie;
 import org.openide.filesystems.FileChooserBuilder;
 import org.openide.filesystems.FileObject;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
+import org.openide.util.lookup.InstanceContent;
 
 public class ImageEditorComponent implements EditorToolTarget {
+    
 
     private static ImageIcon Icon(String name) {
         return new ImageIcon(ImageEditorComponent.class.getResource("/com/jme3/gde/textureeditor/resources/" + name));
@@ -84,6 +87,7 @@ public class ImageEditorComponent implements EditorToolTarget {
     private EditorTool currentTool;
     private SaveNode saveNode = new SaveNode();
     private boolean newFile = false;
+    private final InstanceContent content;
 
     private void doPaint(Graphics2D g) {
         if (editedImage != null) {
@@ -92,6 +96,7 @@ public class ImageEditorComponent implements EditorToolTarget {
         if (currentTool != null) {
             currentTool.drawTrack(g, imageScreen.getWidth(), imageScreen.getHeight(), scaleX, scaleY);
         }
+      
     }
 
     public ImageEditorComponent() {
@@ -108,6 +113,13 @@ public class ImageEditorComponent implements EditorToolTarget {
         COMPONENT.add(scroller);
         COMPONENT.add(topContainer, BorderLayout.NORTH);
         COMPONENT.add(bottomBar, BorderLayout.SOUTH);
+        //Create a new instance of our dynamic object:
+        content = new InstanceContent();
+
+    }
+
+    public InstanceContent getContent() {
+        return content;
     }
 
     public void setCurrentTool(EditorTool t) {
@@ -229,6 +241,7 @@ public class ImageEditorComponent implements EditorToolTarget {
                 } else if (source == imageCrop) {
                     setCurrentTool(CropTool.create());
                 }
+               
             }
         };
         for (AbstractButton b : Arrays.asList(zoomIn, zoomOut, resize, /*save, saveAs,*/
@@ -253,6 +266,7 @@ public class ImageEditorComponent implements EditorToolTarget {
                 Exceptions.printStackTrace(ex);
             }
         }
+       
     }
 
     private void requestFileAndSave() {
@@ -303,6 +317,7 @@ public class ImageEditorComponent implements EditorToolTarget {
                 Exceptions.printStackTrace(ex);
             }
         }
+       
     }
 
     private void querySizeAndResize() {
@@ -372,6 +387,7 @@ public class ImageEditorComponent implements EditorToolTarget {
                 } else if (source == spheremap) {
                     spawnEditor(SphereMappedFilter.create().filter(editedImage));
                 }
+
             }
         };
 
@@ -435,9 +451,9 @@ public class ImageEditorComponent implements EditorToolTarget {
 
         public void fire(boolean modified) {
             if (modified) {
-                getCookieSet().assign(SaveCookie.class, impl);
+                content.add(impl);
             } else {
-                getCookieSet().assign(SaveCookie.class);
+                content.remove(impl);
             }
         }
 
