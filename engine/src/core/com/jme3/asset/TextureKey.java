@@ -29,7 +29,6 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package com.jme3.asset;
 
 import com.jme3.export.JmeExporter;
@@ -39,6 +38,7 @@ import com.jme3.export.OutputCapsule;
 import com.jme3.texture.Image;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture2D;
+import com.jme3.texture.Texture3D;
 import com.jme3.texture.TextureCubeMap;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -48,23 +48,24 @@ public class TextureKey extends AssetKey<Texture> {
     private boolean generateMips;
     private boolean flipY;
     private boolean asCube;
+    private boolean asTexture3D;
     private int anisotropy;
 
-    public TextureKey(String name, boolean flipY){
+    public TextureKey(String name, boolean flipY) {
         super(name);
         this.flipY = flipY;
     }
 
-    public TextureKey(String name){
+    public TextureKey(String name) {
         super(name);
         this.flipY = true;
     }
 
-    public TextureKey(){
+    public TextureKey() {
     }
 
     @Override
-    public String toString(){
+    public String toString() {
         return name + (flipY ? " (Flipped)" : "") + (asCube ? " (Cube)" : "") + (generateMips ? " (Mipmaped)" : "");
     }
 
@@ -73,39 +74,43 @@ public class TextureKey extends AssetKey<Texture> {
      * @return true to enable smart cache
      */
     @Override
-    public boolean useSmartCache(){
+    public boolean useSmartCache() {
         return true;
     }
 
     @Override
-    public Object createClonedInstance(Object asset){
+    public Object createClonedInstance(Object asset) {
         Texture tex = (Texture) asset;
         return tex.createSimpleClone();
     }
 
     @Override
-    public Object postProcess(Object asset){
+    public Object postProcess(Object asset) {
         Image img = (Image) asset;
-        if (img == null)
+        if (img == null) {
             return null;
+        }
 
         Texture tex;
-        if (isAsCube()){
-            if (isFlipY()){
+        if (isAsCube()) {
+            if (isFlipY()) {
                 // also flip -y and +y image in cubemap
                 ByteBuffer pos_y = img.getData(2);
                 img.setData(2, img.getData(3));
                 img.setData(3, pos_y);
             }
             tex = new TextureCubeMap();
-        }else{
+        } else if (isAsTexture3D()) {
+            tex = new Texture3D();
+        } else {
             tex = new Texture2D();
         }
 
         // enable mipmaps if image has them
         // or generate them if requested by user
-        if (img.hasMipmaps() || isGenerateMips())
+        if (img.hasMipmaps() || isGenerateMips()) {
             tex.setMinFilter(Texture.MinFilter.Trilinear);
+        }
 
         tex.setAnisotropicFilter(getAnisotropy());
         tex.setName(getName());
@@ -141,15 +146,23 @@ public class TextureKey extends AssetKey<Texture> {
         this.generateMips = generateMips;
     }
 
-    @Override
-    public boolean equals(Object other){
-        if (!(other instanceof TextureKey)){
-            return false;
-        }
-        return super.equals(other) && isFlipY() == ((TextureKey)other).isFlipY();
+    public boolean isAsTexture3D() {
+        return asTexture3D;
     }
 
-    public void write(JmeExporter ex) throws IOException{
+    public void setAsTexture3D(boolean asTexture3D) {
+        this.asTexture3D = asTexture3D;
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (!(other instanceof TextureKey)) {
+            return false;
+        }
+        return super.equals(other) && isFlipY() == ((TextureKey) other).isFlipY();
+    }
+
+    public void write(JmeExporter ex) throws IOException {
         super.write(ex);
         OutputCapsule oc = ex.getCapsule(this);
         oc.write(flipY, "flip_y", false);
@@ -159,7 +172,7 @@ public class TextureKey extends AssetKey<Texture> {
     }
 
     @Override
-    public void read(JmeImporter im) throws IOException{
+    public void read(JmeImporter im) throws IOException {
         super.read(im);
         InputCapsule ic = im.getCapsule(this);
         flipY = ic.readBoolean("flip_y", false);

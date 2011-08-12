@@ -368,9 +368,8 @@ public class Material implements Asset, Cloneable, Savable, Comparable<Material>
         }
 
         if (type != null && paramDef.getVarType() != type) {
-            logger.logp(Level.WARNING, "Material parameter being set: {0} with "
-                    + "type {1} doesn't match definition type {2}",
-                    name, type.name(), paramDef.getVarType());
+            logger.log(Level.WARNING, "Material parameter being set: {0} with "
+                    + "type {1} doesn't match definition type {2}", new Object[]{name, type.name(), paramDef.getVarType()} );
         }
 
         return newName;
@@ -497,7 +496,7 @@ public class Material implements Asset, Cloneable, Savable, Comparable<Material>
             return;
         }
 
-        VarType paramType = null;
+        VarType paramType = null;        
         switch (value.getType()) {
             case TwoDimensional:
                 paramType = VarType.Texture2D;
