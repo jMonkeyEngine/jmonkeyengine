@@ -127,7 +127,10 @@ public class MeshHelper extends AbstractBlenderHelper {
 		// the following map sorts faces by material number (because in jme Mesh can have only one material)
 		Map<Integer, List<Integer>> meshesMap = new HashMap<Integer, List<Integer>>();
 		Pointer pMFace = (Pointer) structure.getFieldValue("mface");
-		List<Structure> mFaces = pMFace.fetchData(dataRepository.getInputStream());
+                List<Structure> mFaces = null;
+                if (pMFace.isNotNull()){
+                    mFaces = pMFace.fetchData(dataRepository.getInputStream());
+                }
 
 		Pointer pMTFace = (Pointer) structure.getFieldValue("mtface");
 		List<Vector2f> uvCoordinates = null;
@@ -153,6 +156,9 @@ public class MeshHelper extends AbstractBlenderHelper {
 		// positions (it simply tells which vertex is referenced where in the result list)
 		Map<Integer, List<Integer>> vertexReferenceMap = new HashMap<Integer, List<Integer>>(verticesAmount);
 		int vertexColorIndex = 0;
+                if (mFaces == null){
+                    return null;
+                }
 		for (int i = 0; i < mFaces.size(); ++i) {
 			Structure mFace = mFaces.get(i);
 			boolean smooth = (((Number) mFace.getFieldValue("flag")).byteValue() & 0x01) != 0x00;
@@ -544,6 +550,9 @@ public class MeshHelper extends AbstractBlenderHelper {
 	public Vector3f[] getVertices(Structure meshStructure, DataRepository dataRepository) throws BlenderFileException {
 		int verticesAmount = ((Number) meshStructure.getFieldValue("totvert")).intValue();
 		Vector3f[] vertices = new Vector3f[verticesAmount];
+                if (verticesAmount == 0)
+                    return vertices;
+                
 		Pointer pMVert = (Pointer) meshStructure.getFieldValue("mvert");
 		List<Structure> mVerts = pMVert.fetchData(dataRepository.getInputStream());
 		for (int i = 0; i < verticesAmount; ++i) {

@@ -184,9 +184,11 @@ public class ObjectHelper extends AbstractBlenderHelper {
 					Pointer pMesh = (Pointer)objectStructure.getFieldValue("data");
 					List<Structure> meshesArray = pMesh.fetchData(dataRepository.getInputStream());
 					List<Geometry> geometries = meshHelper.toMesh(meshesArray.get(0), dataRepository);
-					for(Geometry geometry : geometries) {
-						node.attachChild(geometry);
-					}
+					if (geometries != null){
+                                            for(Geometry geometry : geometries) {
+                                                    node.attachChild(geometry);
+                                            }
+                                        }
 					node.setLocalTransform(t);
 
 					//reading and applying all modifiers

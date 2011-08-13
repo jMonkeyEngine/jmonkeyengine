@@ -935,12 +935,12 @@ public class TextureHelper extends AbstractBlenderHelper {
 				name = name.substring(1);
 			}
 
-			TextureKey texKey = new TextureKey(name, false);
+			TextureKey texKey = new TextureKey(name, true);
 			try {
 				Texture tex = dataRepository.getAssetManager().loadTexture(texKey);
 				image = tex.getImage();
 			} catch (AssetNotFoundException e) {
-				LOGGER.warning("Asset not found: " + e.getLocalizedMessage());
+				LOGGER.log(Level.WARNING, "Asset not found: {0}", e.getLocalizedMessage());
 			}
 		}
 

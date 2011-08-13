@@ -190,32 +190,40 @@ public class MaterialHelper extends AbstractBlenderHelper {
 
 		int mode = ((Number) structure.getFieldValue("mode")).intValue();
 		boolean shadeless = (mode & 0x4) != 0;
-		boolean vertexColor = (mode & 0x16) != 0;
-		boolean transparent = (mode & 0x64) != 0;
-
+		boolean vertexColor = (mode & 0x80) != 0;
+		boolean transparent = (mode & 0x10000) != 0;
+                boolean vtangent = (mode & 0x4000000) != 0; // NOTE: Requires tangents
+                
 		if (shadeless) {
 			result = new Material(dataRepository.getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
 		} else {
 			result = new Material(dataRepository.getAssetManager(), "Common/MatDefs/Light/Lighting.j3md");
 		}
 
+                //System.out.println("Mode: \n" +
+                //                   "Shadeless: " + shadeless + "\n" +
+                //                   "VColor: " + vertexColor + "\n" +
+                //                   "ZTrans: " + transparent + "\n" + 
+                //                   "VTangent: " + vtangent);
+                
 		result.getAdditionalRenderState().setFaceCullMode(faceCullMode);
 
 		if (transparent) {
-            result.setTransparent(true);
+                        result.setTransparent(true);
 			result.getAdditionalRenderState().setBlendMode(BlendMode.Alpha);
-		}
+                }
 
 		String name = structure.getName();
 		LOGGER.log(Level.INFO, "Material's name: {0}", name);
 		if (vertexColor) {
 			result.setBoolean(shadeless ? "VertexColor" : "UseVertexColor", true);
 		}
-
+                
 		MaterialHelper materialHelper = dataRepository.getHelper(MaterialHelper.class);
 		ColorRGBA diffuseColor = null;
 		if (shadeless) {
 			// color of shadeless? doesn't seem to work in blender ..
+                        diffuseColor = ColorRGBA.White.clone();
 		} else {
 			result.setBoolean("UseMaterialColors", Boolean.TRUE);
 
@@ -223,6 +231,9 @@ public class MaterialHelper extends AbstractBlenderHelper {
 			DiffuseShader diffuseShader = materialHelper.getDiffuseShader(structure);
 			result.setBoolean("Minnaert", diffuseShader == DiffuseShader.MINNAERT);
 			diffuseColor = materialHelper.getDiffuseColor(structure, diffuseShader);
+                        if (!transparent){
+                            diffuseColor.a = 1;
+                        }
 			result.setColor("Diffuse", diffuseColor);
 
 			SpecularShader specularShader = materialHelper.getSpecularShader(structure);
@@ -231,6 +242,8 @@ public class MaterialHelper extends AbstractBlenderHelper {
 
 			result.setColor("Ambient", materialHelper.getAmbientColor(structure));
 			result.setFloat("Shininess", materialHelper.getShininess(structure));
+                        
+                        
 		}
 
 		// texture
@@ -262,40 +275,43 @@ public class MaterialHelper extends AbstractBlenderHelper {
 								if ((mapto & 0x01) != 0) {// Col
                                     // Map to COLOR channel or DIFFUSE
                                     // Set diffuse to white so it doesn't get multiplied by texture
-                                    result.setColor("Diffuse", ColorRGBA.White);
+                                    diffuseColor.r = diffuseColor.g = diffuseColor.b = 1.0f;
+                                    result.setColor(shadeless ? "Color" : "Diffuse", diffuseColor);
 									//result.setBoolean("UseMaterialColors", Boolean.FALSE);
 									// blending the texture with material color and texture's defined color
 									int blendType = ((Number) textureLink.getFieldValue("blendtype")).intValue();
 									float[] color = new float[] { ((Number) textureLink.getFieldValue("r")).floatValue(), ((Number) textureLink.getFieldValue("g")).floatValue(), ((Number) textureLink.getFieldValue("b")).floatValue() };
 									float colfac = ((Number) textureLink.getFieldValue("colfac")).floatValue();
 									texture = textureHelper.blendTexture(diffuseColor.getColorArray(), texture, color, colfac, blendType, negateTexture, dataRepository);
-									texture.setWrap(WrapMode.Repeat);
+                                                                        texture.setMinFilter(MinFilter.Trilinear);
+                                                                        texture.setWrap(WrapMode.Repeat);
 									if (shadeless) {
 										result.setTexture(TEXTURE_TYPE_COLOR, texture);
 									} else {
 										result.setTexture(TEXTURE_TYPE_DIFFUSE, texture);
 									}
 								}
-								if ((mapto & 0x02) != 0) {// Nor
+								if ((mapto & 0x02) != 0 && !shadeless) {// Nor
 									Texture normalMapTexture;
 									if(texture.getKey() instanceof GeneratedTextureKey) {
 										normalMapTexture = textureHelper.convertToNormalMapTexture(texture, ((Number)textureLink.getFieldValue("norfac")).floatValue());
-									} else {
+                                                                                normalMapTexture.setMinFilter(MinFilter.Trilinear);
+                                                                        } else {
 										normalMapTexture = texture;
 									}
-									result.setTexture(TEXTURE_TYPE_NORMAL, normalMapTexture);
+                                                                        result.setTexture(TEXTURE_TYPE_NORMAL, normalMapTexture);
 									if (vertexColor) {
 										result.setBoolean(shadeless ? "VertexColor" : "UseVertexColor", false);
 									}
 								}
-								if ((mapto & 0x04) != 0) {// Spec
+								if ((mapto & 0x04) != 0 && !shadeless) {// Spec
                                     // Map to SPECULAR 
 									result.setTexture(TEXTURE_TYPE_SPECULAR, texture);
 								}
 								if ((mapto & 0x40) != 0) {// Emit
 									result.setTexture(TEXTURE_TYPE_GLOW, texture);
 								}
-								if ((mapto & 0x80) != 0) {// Alpha
+								if ((mapto & 0x80) != 0 && !shadeless) {// Alpha
 									result.setTexture(TEXTURE_TYPE_ALPHA, texture);
 								}
 							} else {
