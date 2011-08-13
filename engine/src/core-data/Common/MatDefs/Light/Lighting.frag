@@ -125,6 +125,8 @@ vec2 computeLighting(in vec3 wvPos, in vec3 wvNorm, in vec3 wvViewDir, in vec3 w
     float att = vLightDir.w;
    #endif
 
+   specularFactor *= diffuseFactor;
+
    return vec2(diffuseFactor, specularFactor) * vec2(att);
 }
 #endif
@@ -143,7 +145,7 @@ void main(){
        float heightBias = heightScale * -0.5;
        vec3 normView = normalize(vViewDir);
        h = (h * heightScale + heightBias) * normView.z;
-       newTexCoord = texCoord + (h * -normView.xy);
+       newTexCoord = texCoord + (h * normView.xy);
     #else
        newTexCoord = texCoord;
     #endif
