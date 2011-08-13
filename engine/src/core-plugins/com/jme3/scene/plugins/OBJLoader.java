@@ -49,6 +49,7 @@ import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.scene.mesh.IndexBuffer;
 import com.jme3.scene.mesh.IndexIntBuffer;
 import com.jme3.scene.mesh.IndexShortBuffer;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.FloatBuffer;
@@ -61,7 +62,6 @@ import java.util.Map.Entry;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.regex.Pattern;
 
 /**
  * Reads OBJ format models.
@@ -321,6 +321,8 @@ public final class OBJLoader implements AssetLoader {
         if (!name.toLowerCase().endsWith(".mtl"))
             throw new IOException("Expected .mtl file! Got: " + name);
 
+        // NOTE: Cut off any relative/absolute paths
+        name = new File(name).getName();
         matList = (MaterialList) assetManager.loadAsset(key.getFolder() + name);
 
         if (matList != null){
@@ -373,7 +375,7 @@ public final class OBJLoader implements AssetLoader {
             nextStatement();
         }else{
             // skip entire command until next line
-            System.out.println("Unknown statement in OBJ! "+cmd);
+            logger.log(Level.WARNING, "Unknown statement in OBJ! {0}", cmd);
             nextStatement();
         }     
 

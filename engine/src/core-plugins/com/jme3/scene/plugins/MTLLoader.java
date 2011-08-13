@@ -47,9 +47,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Locale;
 import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class MTLLoader implements AssetLoader {
 
+    private static final Logger logger = Logger.getLogger(MTLLoader.class.getName());
+    
     protected Scanner scan;
     protected MaterialList matList;
     //protected Material material;
@@ -242,7 +246,7 @@ public class MTLLoader implements AssetLoader {
             // Ke: emission color
             skipLine();
         }else{
-            System.out.println("Unknown statement in MTL! "+cmd);
+            logger.log(Level.WARNING, "Unknown statement in MTL! {0}", cmd);
             skipLine();
         }
         

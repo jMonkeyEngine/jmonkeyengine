@@ -207,6 +207,10 @@ public class MatParam implements Savable, Cloneable {
             case TextureCubeMap:
                 Texture texVal = (Texture) value;
                 TextureKey texKey = (TextureKey) texVal.getKey();
+                if (texKey == null){
+                    throw new UnsupportedOperationException("The specified MatParam cannot be represented in J3M");
+                }
+                
                 String ret = "";
                 if (texKey.isFlipY()) {
                     ret += "Flip ";
