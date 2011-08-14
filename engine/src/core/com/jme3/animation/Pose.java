@@ -43,7 +43,7 @@ import java.io.IOException;
 import java.nio.FloatBuffer;
 
 /**
- * A pose is a list of offsets that say where a mesh verticles should be for this pose.
+ * A pose is a list of offsets that say where a mesh vertices should be for this pose.
  */
 public final class Pose implements Savable {
 
@@ -71,7 +71,7 @@ public final class Pose implements Savable {
     /**
      * Applies the offsets of this pose to the vertex buffer given by the blend factor.
      *
-     * @param blend Blend factor, 0 = no change to vert buf, 1 = apply full offsets
+     * @param blend Blend factor, 0 = no change to vertex buffer, 1 = apply full offsets
      * @param vertbuf Vertex buffer to apply this pose to
      */
     public void apply(float blend, FloatBuffer vertbuf){
@@ -81,13 +81,13 @@ public final class Pose implements Savable {
 
             tempVec.set(offset).multLocal(blend);
 
-            // aquire vert
+            // acquire vertex
             BufferUtils.populateFromBuffer(tempVec2, vertbuf, vertIndex);
 
             // add offset multiplied by factor
             tempVec2.addLocal(tempVec);
 
-            // write modified vert
+            // write modified vertex
             BufferUtils.setInBuffer(tempVec2, vertbuf, vertIndex);
         }
     }

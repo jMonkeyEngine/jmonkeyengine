@@ -77,7 +77,7 @@ public final class BoneTrack implements Savable {
      * @param targetBoneIndex the bone index
      * @param times a float array with the time of each frame
      * @param translations the translation of the bone for each frame
-     * @param rotations the rontation of the bone for each frame
+     * @param rotations the rotation of the bone for each frame
      */
     public BoneTrack(int targetBoneIndex, float[] times, Vector3f[] translations, Quaternion[] rotations) {
         this.targetBoneIndex = targetBoneIndex;
@@ -89,7 +89,7 @@ public final class BoneTrack implements Savable {
      * @param targetBoneIndex the bone index
      * @param times a float array with the time of each frame
      * @param translations the translation of the bone for each frame
-     * @param rotations the rontation of the bone for each frame
+     * @param rotations the rotation of the bone for each frame
      * @param scales the scale of the bone for each frame
      */
     public BoneTrack(int targetBoneIndex, float[] times, Vector3f[] translations, Quaternion[] rotations, Vector3f[] scales) {
@@ -149,7 +149,7 @@ public final class BoneTrack implements Savable {
      * Set the translations and rotations for this bone track
      * @param times a float array with the time of each frame
      * @param translations the translation of the bone for each frame
-     * @param rotations the rontation of the bone for each frame
+     * @param rotations the rotation of the bone for each frame
      */
     public void setKeyframes(float[] times, Vector3f[] translations, Quaternion[] rotations) {
         if (times.length == 0) {
@@ -171,7 +171,7 @@ public final class BoneTrack implements Savable {
      *  Set the translations, rotations and scales for this bone track
      * @param times a float array with the time of each frame
      * @param translations the translation of the bone for each frame
-     * @param rotations the rontation of the bone for each frame
+     * @param rotations the rotation of the bone for each frame
      * @param scales the scale of the bone for each frame
      */
     public void setKeyframes(float[] times, Vector3f[] translations, Quaternion[] rotations, Vector3f[] scales) {

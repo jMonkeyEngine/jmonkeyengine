@@ -175,7 +175,7 @@ public final class AnimChannel {
 
     /**
      * @param time Set the time of the currently playing animation, the time
-     * is clamped from 0 to getAnimMaxTime().
+     * is clamped from 0 to {@link #getAnimMaxTime()}. 
      */
     public void setTime(float time) {
         this.time = FastMath.clamp(time, 0, getAnimMaxTime());
@@ -235,7 +235,7 @@ public final class AnimChannel {
     /**
      * Set the current animation that is played by this AnimChannel.
      * <p>
-     * See {@link #setAnim(java.lang.String, float) }.
+     * See {@link #setAnim(java.lang.String, float)}.
      * The blendTime argument by default is 150 milliseconds.
      * 
      * @param name The name of the animation to play

@@ -41,20 +41,20 @@ import com.jme3.export.Savable;
 import com.jme3.math.Quaternion;
 
 /**
- * Serialize and compress Quaternion[] by indexing same values
+ * Serialize and compress {@link Quaternion}[] by indexing same values
  * It is converted to float[]
  * @author Lim, YongHoon
  */
 public class CompactQuaternionArray extends CompactArray<Quaternion> implements Savable {
 
     /**
-     * creates a compact quaternion array
+     * creates a compact Quaternion array
      */
     public CompactQuaternionArray() {
     }
 
     /**
-     * creates a compact quaternion array
+     * creates a compact Quaternion array
      * @param dataArray the data array
      * @param index  the indices array
      */
