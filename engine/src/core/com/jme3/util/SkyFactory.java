@@ -2,6 +2,7 @@ package com.jme3.util;
 
 import com.jme3.asset.AssetManager;
 import com.jme3.asset.TextureKey;
+import com.jme3.bounding.BoundingSphere;
 import com.jme3.material.Material;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.queue.RenderQueue.Bucket;
@@ -18,9 +19,13 @@ public class SkyFactory {
     private static final Sphere sphereMesh = new Sphere(10, 10, 10, false, true);
 
     public static Spatial createSky(AssetManager assetManager, Texture texture, Vector3f normalScale, boolean sphereMap){
+        if (texture == null)
+            throw new IllegalArgumentException("texture cannot be null");
+        
         Geometry sky = new Geometry("Sky", sphereMesh);
         sky.setQueueBucket(Bucket.Sky);
         sky.setCullHint(Spatial.CullHint.Never);
+        sky.setModelBound(new BoundingSphere(Float.POSITIVE_INFINITY, Vector3f.ZERO));
 
         Material skyMat = new Material(assetManager, "Common/MatDefs/Misc/Sky.j3md");
         
@@ -72,6 +77,7 @@ public class SkyFactory {
         Geometry sky = new Geometry("Sky", sphereMesh);
         sky.setQueueBucket(Bucket.Sky);
         sky.setCullHint(Spatial.CullHint.Never);
+        sky.setModelBound(new BoundingSphere(Float.POSITIVE_INFINITY, Vector3f.ZERO));
 
         Image westImg  = west.getImage();
         Image eastImg  = east.getImage();

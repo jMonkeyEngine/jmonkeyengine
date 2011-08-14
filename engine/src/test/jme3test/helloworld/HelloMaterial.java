@@ -93,7 +93,7 @@ public class HelloMaterial extends SimpleApplication {
     rock.setTextureMode(Sphere.TextureMode.Projected); // better quality on spheres
     TangentBinormalGenerator.generate(rock);           // for lighting effect
     Material mat_lit = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
-    mat_lit.setTexture("DiffuseMap", assetManager.loadTexture("Textures/Terrain/Pond/Pond.png"));
+    mat_lit.setTexture("DiffuseMap", assetManager.loadTexture("Textures/Terrain/Pond/Pond.jpg"));
     mat_lit.setTexture("NormalMap", assetManager.loadTexture("Textures/Terrain/Pond/Pond_normal.png"));
     mat_lit.setFloat("Shininess", 5f); // [0,128]
     shiny_rock.setMaterial(mat_lit);

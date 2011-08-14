@@ -131,7 +131,7 @@ public class TerrainTestAdvanced extends SimpleApplication {
         matTerrain.setFloat("DiffuseMap_3_scale", rockScale);
 
         // RIVER ROCK texture
-        Texture riverRock = assetManager.loadTexture("Textures/Terrain/Pond/Pond.png");
+        Texture riverRock = assetManager.loadTexture("Textures/Terrain/Pond/Pond.jpg");
         riverRock.setWrap(WrapMode.Repeat);
         matTerrain.setTexture("DiffuseMap_4", riverRock);
         matTerrain.setFloat("DiffuseMap_4_scale", rockScale);

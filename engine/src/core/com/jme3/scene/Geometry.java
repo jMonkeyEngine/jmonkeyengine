@@ -315,7 +315,12 @@ public class Geometry extends Spatial {
     public void setModelBound(BoundingVolume modelBound) {
         this.worldBound = null;
         mesh.setBound(modelBound);
-        updateModelBound();
+        setBoundRefresh();
+        
+        // NOTE: Calling updateModelBound() would cause the mesh
+        // to recompute the bound based on the geometry thus making
+        // this call useless!
+        //updateModelBound();
     }
 
     public int collideWith(Collidable other, CollisionResults results) {

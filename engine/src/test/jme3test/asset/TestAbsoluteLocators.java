@@ -54,7 +54,7 @@ public class TestAbsoluteLocators {
         AudioData audio = am.loadAudio("Sound/Effects/Gun.wav");
 
         // find a texture
-        Texture tex = am.loadTexture("Textures/Terrain/Pond/Pond.png");
+        Texture tex = am.loadTexture("Textures/Terrain/Pond/Pond.jpg");
 
         if (audio == null)
             throw new RuntimeException("Cannot find audio!");
@@ -64,7 +64,7 @@ public class TestAbsoluteLocators {
         if (tex == null)
             throw new RuntimeException("Cannot find texture!");
         else
-            System.out.println("Texture loaded from Textures/Terrain/Pond/Pond.png");
+            System.out.println("Texture loaded from Textures/Terrain/Pond/Pond.jpg");
 
         System.out.println("Success!");
     }

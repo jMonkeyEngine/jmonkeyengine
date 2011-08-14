@@ -173,11 +173,15 @@ void main(){
               float innerAngleCos = floor(g_LightDirection.w) * 0.001;
               float outerAngleCos = fract(g_LightDirection.w);
               float innerMinusOuter = innerAngleCos - outerAngleCos;
-              spotFallOff = clamp((curAngleCos - outerAngleCos) / innerMinusOuter, 0.0, 1.0);
+
+              spotFallOff = (curAngleCos - outerAngleCos) / innerMinusOuter;
+
               if(spotFallOff <= 0.0){
                   gl_FragColor.rgb = AmbientSum * diffuseColor.rgb;
                   gl_FragColor.a   = alpha;
                   return;
+              }else{
+                  spotFallOff = clamp(spotFallOff, 0.0, 1.0);
               }
         }
      #endif
@@ -191,7 +195,7 @@ void main(){
       #ifdef LATC
         normal.z = sqrt(1.0 - (normal.x * normal.x) - (normal.y * normal.y));
       #endif
-      normal.y = -normal.y;
+      //normal.y = -normal.y;
     #elif !defined(VERTEX_LIGHTING)
       vec3 normal = vNormal;
       #if !defined(LOW_QUALITY) && !defined(V_TANGENT)

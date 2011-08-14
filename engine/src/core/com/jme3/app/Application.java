@@ -210,6 +210,7 @@ public class Application implements SystemListener {
         if (settings.getAudioRenderer() != null){
             audioRenderer = JmeSystem.newAudioRenderer(settings);
             audioRenderer.initialize();
+            AudioContext.setAudioRenderer(audioRenderer);
 
             listener = new Listener();
             audioRenderer.setListener(listener);
@@ -544,7 +545,6 @@ public class Application implements SystemListener {
      * Callback from ContextListener.
      */
     public void update(){
-    
         // Make sure the audio renderer is available to callables
         AudioContext.setAudioRenderer(audioRenderer);
         

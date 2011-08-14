@@ -439,6 +439,10 @@ public class ImageToAwt {
         int expansionG = 8 - Integer.bitCount(p.gm);
         int expansionB = 8 - Integer.bitCount(p.bm);
         
+        if (expansionR < 0){
+            expansionR = 0;
+        }
+        
         int mipPos = 0;
         for (int i = 0; i < mipLevel; i++){
             mipPos += image.getMipMapSizes()[i];
