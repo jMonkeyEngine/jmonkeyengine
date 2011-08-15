@@ -31,16 +31,22 @@
  */
 package com.jme3.gde.core.properties;
 
-import Model.DDSImageFile;
+import com.jme3.asset.TextureKey;
 import com.jme3.gde.core.assets.ProjectAssetManager;
+import com.jme3.gde.core.scene.PreviewRequest;
+import com.jme3.gde.core.scene.SceneApplication;
+import com.jme3.gde.core.scene.SceneListener;
+import com.jme3.gde.core.scene.SceneRequest;
 import com.jme3.gde.core.util.TreeUtil;
+import com.jme3.material.Material;
+import com.jme3.math.Vector2f;
+import com.jme3.math.Vector3f;
+import com.jme3.scene.Geometry;
+import com.jme3.scene.Spatial;
+import com.jme3.scene.shape.Quad;
 import com.jme3.texture.Texture;
-import java.awt.Color;
-import java.awt.Graphics2D;
+import com.jme3.util.SkyFactory;
 import java.awt.event.MouseEvent;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
 import java.util.logging.Logger;
 import javax.swing.DefaultListSelectionModel;
 import javax.swing.Icon;
@@ -52,8 +58,6 @@ import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 import jme3tools.converters.ImageToAwt;
-import org.openide.filesystems.FileUtil;
-import org.openide.util.Exceptions;
 import org.openide.util.ImageUtilities;
 
 /**
@@ -65,11 +69,16 @@ import org.openide.util.ImageUtilities;
  * 
  * @author bowens
  */
-public class TextureBrowser extends javax.swing.JDialog implements TreeSelectionListener {
+public class TextureBrowser extends javax.swing.JDialog implements TreeSelectionListener, SceneListener {
 
     private ProjectAssetManager assetManager;
     private TexturePropertyEditor editor;
+    private Geometry quad;    
+    private Geometry quad3D;
+    private Material material;
+    private Material material3D;
 
+    
     public TextureBrowser(java.awt.Frame parent, boolean modal, ProjectAssetManager assetManager, TexturePropertyEditor editor) {
         super(parent, modal);
         this.assetManager = assetManager;
@@ -78,6 +87,22 @@ public class TextureBrowser extends javax.swing.JDialog implements TreeSelection
         loadAvailableTextures();
         setSelectedTexture((Texture) editor.getValue());
         setLocationRelativeTo(null);
+
+        Quad quadMesh = new Quad(4.5f, 4.5f);
+        Quad quadMesh3D = new Quad(4.5f, 4.5f);
+        quadMesh3D.scaleTextureCoordinates(new Vector2f(4, 4));
+        quad = new Geometry("previewQuad", quadMesh);        
+        quad.setLocalTranslation(new Vector3f(-2.25f, -2.25f, 0));
+        quad3D = new Geometry("previewQuad", quadMesh3D);          
+        quad3D.setLocalTranslation(new Vector3f(-2.25f, -2.25f, 0));
+        material3D = new Material(assetManager, "com/jme3/gde/core/properties/preview/tex3DThumb.j3md");
+        material3D.setFloat("InvDepth", 1f / 16f);
+        material3D.setInt("Rows", 4);
+        material = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+
+        //quad.setMaterial(material);
+        SceneApplication.getApplication().addSceneListener(this);
+
     }
 
     /** This method is called from within the constructor to
@@ -127,7 +152,7 @@ public class TextureBrowser extends javax.swing.JDialog implements TreeSelection
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 420, Short.MAX_VALUE)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 461, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(infoLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 19, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
@@ -183,7 +208,7 @@ public class TextureBrowser extends javax.swing.JDialog implements TreeSelection
                 .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-            .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 485, Short.MAX_VALUE)
+            .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 526, Short.MAX_VALUE)
         );
 
         pack();
@@ -311,33 +336,68 @@ private void jTree1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:even
         if (node.isLeaf()) {
             String selected = TreeUtil.getPath(node.getUserObjectPath());
             selected = selected.substring(0, selected.lastIndexOf("/"));
-            Texture tex = assetManager.loadTexture(selected);
             Icon newicon = null;
             if (selected.endsWith(".dds") || selected.endsWith(".DDS")) {
-                try {
-                    File file = FileUtil.toFile(assetManager.getAssetFolder().getFileObject(selected));
-                    DDSImageFile ddsImageFile = new DDSImageFile(file);
-                    BufferedImage bufferedImage = ddsImageFile.getData();
-                    newicon = new ImageIcon(bufferedImage);
-                } catch (IOException ex) {
-                    Exceptions.printStackTrace(ex);
-                    BufferedImage img = new BufferedImage(320, 240, BufferedImage.TYPE_INT_ARGB);
-                    Graphics2D g2d = (Graphics2D) img.getGraphics();
-                    g2d.setColor(Color.white);
-                    g2d.drawString("Cannot display image", 15, 15);
-                    newicon = new ImageIcon(img);
+                TextureKey key = new TextureKey(selected);
+                assetManager.deleteFromCache(key);
+                Texture t = assetManager.loadTexture(key);
+                Spatial geom = quad;                              
+                if (key.getTextureTypeHint() == Texture.Type.TwoDimensional) {
+                    material.setTexture("ColorMap", t);               
+                    geom.setMaterial(material);
+                    infoLabel.setText(" " + node.getUserObject() + "    w : " + t.getImage().getWidth() + "    h : " + t.getImage().getHeight());
+                } else if (key.getTextureTypeHint() == Texture.Type.ThreeDimensional) {
+                    geom = quad3D;
+                    assetManager.deleteFromCache(key);
+                    key.setAsTexture3D(true);
+                    t = assetManager.loadTexture(key);                    
+                    material3D.setTexture("Texture", t);                    
+                    geom.setMaterial(material3D);
+                    infoLabel.setText(" " + node.getUserObject() + " (Texture3D)    w : " + t.getImage().getWidth() + "    h : " + t.getImage().getHeight()+ "    d : " + t.getImage().getDepth());
+                } else if (key.getTextureTypeHint() == Texture.Type.CubeMap) {
+                    assetManager.deleteFromCache(key);
+                    geom = SkyFactory.createSky(assetManager, selected, false);
+                    infoLabel.setText(" " + node.getUserObject() + " (CubeMap)    w : " + t.getImage().getWidth() + "    h : " + t.getImage().getHeight());
                 }
+
+                PreviewRequest request = new PreviewRequest(this, geom, 450, 450);
+                request.getCameraRequest().setLocation(new Vector3f(0, 0, 5.3f));
+                request.getCameraRequest().setLookAt(new Vector3f(0, 0, 0), Vector3f.UNIT_Y.mult(-1));
+                SceneApplication.getApplication().createPreview(request);
+
+
             } else {
+                Texture tex = assetManager.loadTexture(selected);
                 newicon = ImageUtilities.image2Icon(ImageToAwt.convert(tex.getImage(), false, true, 0));
+                imagePreviewLabel.setIcon(newicon);
+                infoLabel.setText(" " + node.getUserObject() + "    w : " + newicon.getIconWidth() + "    h : " + newicon.getIconHeight());
             }
-            imagePreviewLabel.setIcon(newicon);
-            infoLabel.setText(" " + node.getUserObject() + "    w : " + newicon.getIconWidth() + "    h : " + newicon.getIconHeight());
+
         } else {
             imagePreviewLabel.setIcon(null);
             infoLabel.setText("");
 
         }
 
+    }
+
+    public void sceneRequested(SceneRequest request) {
+    }
+
+    public boolean sceneClose(SceneRequest request) {
+        return true;
+    }
+
+    public void previewRequested(PreviewRequest request) {
+        if (request.getRequester() == this) {
+            final ImageIcon icon = new ImageIcon(request.getImage());
+            java.awt.EventQueue.invokeLater(new Runnable() {
+
+                public void run() {
+                    imagePreviewLabel.setIcon(icon);
+                }
+            });
+        }
     }
 
     class ToggleSelectionModel extends DefaultListSelectionModel {

@@ -33,7 +33,6 @@ package com.jme3.gde.core.scene;
 
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
-import com.jme3.renderer.Camera;
 import com.jme3.scene.Spatial;
 import java.awt.image.BufferedImage;
 
@@ -49,9 +48,15 @@ public class PreviewRequest {
     private CameraRequest cameraRequest;
 
     public PreviewRequest(Object requester, Spatial spatial) {
+        this(requester, spatial, 120, 120);
+    }
+
+    public PreviewRequest(Object requester, Spatial spatial, int width, int height) {
         this.requester = requester;
         this.spatial = spatial;
         cameraRequest = new CameraRequest();
+        cameraRequest.width = width;
+        cameraRequest.height = height;
     }
 
     /**
@@ -92,6 +97,7 @@ public class PreviewRequest {
         Quaternion rotation = null;
         Vector3f lookAt = null;
         Vector3f up = null;
+        int width, height;
 
         public void setLocation(Vector3f location) {
             this.location = location;
@@ -105,5 +111,22 @@ public class PreviewRequest {
         public void setRotation(Quaternion rotation) {
             this.rotation = rotation;
         }
+
+        public int getWidth() {
+            return width;
+        }
+
+        public void setWidth(int width) {
+            this.width = width;
+        }
+
+        public int getHeight() {
+            return height;
+        }
+
+        public void setHeight(int height) {
+            this.height = height;
+        }
+        
     }
 }
