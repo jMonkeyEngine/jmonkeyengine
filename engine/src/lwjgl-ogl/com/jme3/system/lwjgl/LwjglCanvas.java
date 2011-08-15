@@ -286,8 +286,11 @@ public class LwjglCanvas extends LwjglAbstractDisplay implements JmeCanvasContex
                 // NOTE: On Windows XP, not calling setParent(null)
                 // freezes the application.
                 // On Mac it freezes the application.
+                // On Linux it fixes a crash with X Window System.
                 if (JmeSystem.getPlatform() == Platform.Windows32
-                 || JmeSystem.getPlatform() == Platform.Windows64){
+                 || JmeSystem.getPlatform() == Platform.Windows64
+                 || JmeSystem.getPlatform() == Platform.Linux32
+                 || JmeSystem.getPlatform() == Platform.Linux64){
                     Display.setParent(null);
                 }
             } catch (LWJGLException ex) {
