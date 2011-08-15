@@ -37,6 +37,7 @@ import com.jme3.export.InputCapsule;
 import com.jme3.export.OutputCapsule;
 import com.jme3.texture.Image;
 import com.jme3.texture.Texture;
+import com.jme3.texture.Texture.Type;
 import com.jme3.texture.Texture2D;
 import com.jme3.texture.Texture3D;
 import com.jme3.texture.TextureCubeMap;
@@ -50,6 +51,7 @@ public class TextureKey extends AssetKey<Texture> {
     private boolean asCube;
     private boolean asTexture3D;
     private int anisotropy;
+    private Texture.Type textureTypeHint=Texture.Type.TwoDimensional;
 
     public TextureKey(String name, boolean flipY) {
         super(name);
@@ -161,6 +163,15 @@ public class TextureKey extends AssetKey<Texture> {
         }
         return super.equals(other) && isFlipY() == ((TextureKey) other).isFlipY();
     }
+
+    public Type getTextureTypeHint() {
+        return textureTypeHint;
+    }
+
+    public void setTextureTypeHint(Type textureTypeHint) {
+        this.textureTypeHint = textureTypeHint;
+    }   
+    
 
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
