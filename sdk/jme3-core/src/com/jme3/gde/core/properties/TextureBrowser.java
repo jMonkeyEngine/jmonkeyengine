@@ -33,6 +33,7 @@ package com.jme3.gde.core.properties;
 
 import com.jme3.asset.TextureKey;
 import com.jme3.gde.core.assets.ProjectAssetManager;
+import com.jme3.gde.core.properties.preview.DDSPreview;
 import com.jme3.gde.core.scene.PreviewRequest;
 import com.jme3.gde.core.scene.SceneApplication;
 import com.jme3.gde.core.scene.SceneListener;
@@ -47,6 +48,8 @@ import com.jme3.scene.shape.Quad;
 import com.jme3.texture.Texture;
 import com.jme3.util.SkyFactory;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.util.logging.Logger;
 import javax.swing.DefaultListSelectionModel;
 import javax.swing.Icon;
@@ -69,16 +72,12 @@ import org.openide.util.ImageUtilities;
  * 
  * @author bowens
  */
-public class TextureBrowser extends javax.swing.JDialog implements TreeSelectionListener, SceneListener {
+public class TextureBrowser extends javax.swing.JDialog implements TreeSelectionListener, WindowListener {
 
     private ProjectAssetManager assetManager;
     private TexturePropertyEditor editor;
-    private Geometry quad;    
-    private Geometry quad3D;
-    private Material material;
-    private Material material3D;
+    private DDSPreview ddsPreview;
 
-    
     public TextureBrowser(java.awt.Frame parent, boolean modal, ProjectAssetManager assetManager, TexturePropertyEditor editor) {
         super(parent, modal);
         this.assetManager = assetManager;
@@ -88,20 +87,7 @@ public class TextureBrowser extends javax.swing.JDialog implements TreeSelection
         setSelectedTexture((Texture) editor.getValue());
         setLocationRelativeTo(null);
 
-        Quad quadMesh = new Quad(4.5f, 4.5f);
-        Quad quadMesh3D = new Quad(4.5f, 4.5f);
-        quadMesh3D.scaleTextureCoordinates(new Vector2f(4, 4));
-        quad = new Geometry("previewQuad", quadMesh);        
-        quad.setLocalTranslation(new Vector3f(-2.25f, -2.25f, 0));
-        quad3D = new Geometry("previewQuad", quadMesh3D);          
-        quad3D.setLocalTranslation(new Vector3f(-2.25f, -2.25f, 0));
-        material3D = new Material(assetManager, "com/jme3/gde/core/properties/preview/tex3DThumb.j3md");
-        material3D.setFloat("InvDepth", 1f / 16f);
-        material3D.setInt("Rows", 4);
-        material = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
 
-        //quad.setMaterial(material);
-        SceneApplication.getApplication().addSceneListener(this);
 
     }
 
@@ -245,18 +231,6 @@ private void jTree1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:even
             return true;
         }
         return false;
-
-
-//        if (textureList.getSelectedIndex() > -1) {
-//            textureList.getSelectedValue();
-//            String selected = (String) textureList.getSelectedValue();
-//            Texture tex = assetManager.loadTexture(selected);
-//            editor.setValue(tex);
-//            editor.setAsText(selected);
-//        } else {
-//            editor.setValue(null);
-//            editor.setAsText(null);
-//        }
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton cancelButton;
@@ -276,35 +250,12 @@ private void jTree1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:even
         }
 
         String[] leaves = assetManager.getTextures();
-        //   textureList.setListData(leaves);
         TreeUtil.createTree(jTree1, leaves);
         TreeUtil.expandTree(jTree1, (TreeNode) jTree1.getModel().getRoot(), 1);
         jTree1.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
         jTree1.addTreeSelectionListener(this);
     }
 
-//    private void selectionChanged() {
-//        if (textureList.getSelectedIndex() > -1) {
-//            String selected = (String) textureList.getSelectedValue();
-//            Texture tex = assetManager.loadTexture(selected);
-//            Icon newicon = null;
-//            if (selected.endsWith(".dds") || selected.endsWith(".DDS")) {
-//                try {
-//                    File file = FileUtil.toFile(assetManager.getAssetFolder().getFileObject(selected));
-//                    DDSImageFile ddsImageFile = new DDSImageFile(file);
-//                    BufferedImage bufferedImage = ddsImageFile.getData();
-//                    newicon = new ImageIcon(bufferedImage);
-//                } catch (IOException ex) {
-//                    Exceptions.printStackTrace(ex);
-//                }
-//            } else {
-//                newicon = ImageUtilities.image2Icon(ImageToAwt.convert(tex.getImage(), false, true, 0));
-//            }
-//            imagePreviewLabel.setIcon(newicon);
-//        } else {
-//            imagePreviewLabel.setIcon(null);
-//        }
-//    }
     private void setSelectedTexture(Texture texture) {
         if (texture != null) {
             Logger.getLogger(TextureBrowser.class.getName()).finer("Looking for Texture: " + texture.getName());
@@ -313,14 +264,6 @@ private void jTree1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:even
             jTree1.expandPath(TreeUtil.buildTreePath(jTree1, parent, path, 0, true));
             jTree1.getSelectionModel().setSelectionPath(TreeUtil.buildTreePath(jTree1, parent, path, 0, false));
 
-
-//            for (int i = 0; i < textureList.getModel().getSize(); i++) {
-//                Logger.getLogger(TextureBrowser.class.getName()).finer("Texture name: " + textureList.getModel().getElementAt(i));
-//                if (textureList.getModel().getElementAt(i).equals(texture.getName())) {
-//                    textureList.setSelectedIndex(i);
-//                    break;
-//                }
-//            }
         }
     }
 
@@ -338,33 +281,10 @@ private void jTree1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:even
             selected = selected.substring(0, selected.lastIndexOf("/"));
             Icon newicon = null;
             if (selected.endsWith(".dds") || selected.endsWith(".DDS")) {
-                TextureKey key = new TextureKey(selected);
-                assetManager.deleteFromCache(key);
-                Texture t = assetManager.loadTexture(key);
-                Spatial geom = quad;                              
-                if (key.getTextureTypeHint() == Texture.Type.TwoDimensional) {
-                    material.setTexture("ColorMap", t);               
-                    geom.setMaterial(material);
-                    infoLabel.setText(" " + node.getUserObject() + "    w : " + t.getImage().getWidth() + "    h : " + t.getImage().getHeight());
-                } else if (key.getTextureTypeHint() == Texture.Type.ThreeDimensional) {
-                    geom = quad3D;
-                    assetManager.deleteFromCache(key);
-                    key.setAsTexture3D(true);
-                    t = assetManager.loadTexture(key);                    
-                    material3D.setTexture("Texture", t);                    
-                    geom.setMaterial(material3D);
-                    infoLabel.setText(" " + node.getUserObject() + " (Texture3D)    w : " + t.getImage().getWidth() + "    h : " + t.getImage().getHeight()+ "    d : " + t.getImage().getDepth());
-                } else if (key.getTextureTypeHint() == Texture.Type.CubeMap) {
-                    assetManager.deleteFromCache(key);
-                    geom = SkyFactory.createSky(assetManager, selected, false);
-                    infoLabel.setText(" " + node.getUserObject() + " (CubeMap)    w : " + t.getImage().getWidth() + "    h : " + t.getImage().getHeight());
+                if (ddsPreview == null) {
+                    ddsPreview = new DDSPreview(assetManager);
                 }
-
-                PreviewRequest request = new PreviewRequest(this, geom, 450, 450);
-                request.getCameraRequest().setLocation(new Vector3f(0, 0, 5.3f));
-                request.getCameraRequest().setLookAt(new Vector3f(0, 0, 0), Vector3f.UNIT_Y.mult(-1));
-                SceneApplication.getApplication().createPreview(request);
-
+                ddsPreview.requestPreview(selected, (String) node.getUserObject(), 450, 450, imagePreviewLabel, infoLabel);
 
             } else {
                 Texture tex = assetManager.loadTexture(selected);
@@ -381,23 +301,28 @@ private void jTree1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:even
 
     }
 
-    public void sceneRequested(SceneRequest request) {
+    public void windowOpened(WindowEvent e) {
     }
 
-    public boolean sceneClose(SceneRequest request) {
-        return true;
-    }
-
-    public void previewRequested(PreviewRequest request) {
-        if (request.getRequester() == this) {
-            final ImageIcon icon = new ImageIcon(request.getImage());
-            java.awt.EventQueue.invokeLater(new Runnable() {
-
-                public void run() {
-                    imagePreviewLabel.setIcon(icon);
-                }
-            });
+    public void windowClosing(WindowEvent e) {
+        if (ddsPreview != null) {
+            ddsPreview.cleanUp();
         }
+    }
+
+    public void windowClosed(WindowEvent e) {
+    }
+
+    public void windowIconified(WindowEvent e) {
+    }
+
+    public void windowDeiconified(WindowEvent e) {
+    }
+
+    public void windowActivated(WindowEvent e) {
+    }
+
+    public void windowDeactivated(WindowEvent e) {
     }
 
     class ToggleSelectionModel extends DefaultListSelectionModel {
