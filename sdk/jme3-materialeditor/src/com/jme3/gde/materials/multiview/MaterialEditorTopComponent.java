@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.logging.Logger;
+import javax.swing.JComponent;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import org.openide.loaders.DataObjectNotFoundException;
@@ -101,14 +102,9 @@ public final class MaterialEditorTopComponent extends CloneableTopComponent impl
         materialPreviewWidget1.showMaterial(manager, materialFileName);
 
         relativeMaterialFileName = manager.getRelativeAssetPath(materialFileName);
-        for (Iterator it = WindowManager.getDefault().getModes().iterator(); it.hasNext();) {
-            Mode mode = (Mode) it.next();
-            System.out.println(mode.getName());
-        }
 
 
     }
-
 
     /** This method is called from within the constructor to
      * initialize the form.
@@ -337,7 +333,6 @@ public final class MaterialEditorTopComponent extends CloneableTopComponent impl
     private void jCheckBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBox1ActionPerformed
         saveImmediate = jCheckBox1.isSelected();
     }//GEN-LAST:event_jCheckBox1ActionPerformed
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JCheckBox jCheckBox1;
     private javax.swing.JComboBox jComboBox1;
@@ -416,8 +411,16 @@ public final class MaterialEditorTopComponent extends CloneableTopComponent impl
     @Override
     public void componentClosed() {
         materialPreviewWidget1.cleanUp();
+        for (int i = 0; i < texturePanel.getComponentCount(); i++) {
+            Component c = texturePanel.getComponent(i);
+            if (c instanceof MaterialPropertyWidget) {
+                ((MaterialPropertyWidget) c).cleanUp();
+            }
+        }
+
         clearMaterialChangeListeners();
         SceneExplorerTopComponent.getDefault().removeMaterialChangeProvider(this);
+
     }
 
     void writeProperties(java.util.Properties p) {
@@ -568,7 +571,7 @@ public final class MaterialEditorTopComponent extends CloneableTopComponent impl
             widget.registerChangeListener(this);
             if ("Boolean".equals(entry.getValue().getType())) {
                 optionList.add(widget);
-            } else if ("Texture2D".equals(entry.getValue().getType())) {
+            } else if (entry.getValue().getType().indexOf("Texture") >= 0) {
                 textureList.add(widget);
             } else if ("Color".equals(entry.getValue().getType())) {
                 colorList.add(widget);

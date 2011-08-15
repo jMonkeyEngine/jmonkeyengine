@@ -41,5 +41,9 @@ public abstract class MaterialPropertyWidget extends JPanel{
     }
 
     protected abstract void readProperty();
+    
+    public void cleanUp(){
+        
+    }
 
 }

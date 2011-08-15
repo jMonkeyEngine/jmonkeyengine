@@ -18,7 +18,7 @@ public class WidgetFactory {
 
     public static MaterialPropertyWidget getWidget(MaterialProperty prop, ProjectAssetManager manager){      
         MaterialPropertyWidget widget;
-        if("Texture2D".equals(prop.getType())){
+        if(prop.getType().indexOf("Texture")>=0){
             widget=new TexturePanel(manager);
             widget.setProperty(prop);
             return widget;

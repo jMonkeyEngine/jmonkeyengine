@@ -12,6 +12,7 @@ package com.jme3.gde.materials.multiview.widgets;
 
 import com.jme3.gde.core.assets.ProjectAssetManager;
 import com.jme3.gde.core.properties.TexturePropertyEditor;
+import com.jme3.gde.core.properties.preview.DDSPreview;
 import com.jme3.gde.materials.MaterialProperty;
 import com.jme3.texture.Texture;
 import java.awt.Component;
@@ -32,6 +33,7 @@ public class TexturePanel extends MaterialPropertyWidget {
     private boolean flip = false;
     private boolean repeat = false;
     private String textureName = null;
+    private DDSPreview ddsPreview;
 
     /** Creates new form SelectionPanel */
     public TexturePanel(ProjectAssetManager manager) {
@@ -45,7 +47,10 @@ public class TexturePanel extends MaterialPropertyWidget {
             Texture tex = manager.loadTexture(textureName);
             Icon newicon = null;
             if (textureName.endsWith(".dds") || textureName.endsWith(".DDS")) {
-                texturePreview.setIcon(null);
+                if (ddsPreview == null) {
+                    ddsPreview = new DDSPreview(manager);
+                }
+                ddsPreview.requestPreview(textureName, "", 80, 80, texturePreview, null);
             } else {
                 newicon = ImageUtilities.image2Icon(resizeImage(ImageToAwt.convert(tex.getImage(), false, true, 0)));
             }
@@ -79,8 +84,6 @@ public class TexturePanel extends MaterialPropertyWidget {
             texturePreview.setToolTipText(textureName);
         }
     }
-
-  
 
     private static BufferedImage resizeImage(BufferedImage originalImage) {
         int type = originalImage.getType() == 0 ? BufferedImage.TYPE_INT_ARGB : originalImage.getType();
@@ -251,7 +254,7 @@ public class TexturePanel extends MaterialPropertyWidget {
         view.setVisible(true);
         if (editor.getValue() != null) {
             textureName = editor.getAsText();
-            displayPreview();           
+            displayPreview();
             updateFlipRepeat();
             fireChanged();
         }
@@ -259,7 +262,7 @@ public class TexturePanel extends MaterialPropertyWidget {
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         textureName = "";
-        texturePreview.setIcon(null);       
+        texturePreview.setIcon(null);
         texturePreview.setToolTipText("");
         property.setValue("");
         fireChanged();
@@ -303,7 +306,7 @@ public class TexturePanel extends MaterialPropertyWidget {
                 }
                 jLabel1.setText(property.getName());
                 jLabel1.setToolTipText(property.getName());
-                displayPreview();               
+                displayPreview();
                 texturePreview.setToolTipText(property.getValue());
                 MaterialProperty prop = property;
                 property = null;
@@ -312,6 +315,13 @@ public class TexturePanel extends MaterialPropertyWidget {
                 property = prop;
             }
         });
+    }
+
+    @Override
+    public void cleanUp() {
+        if (ddsPreview != null) {
+            ddsPreview.cleanUp();
+        }
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
