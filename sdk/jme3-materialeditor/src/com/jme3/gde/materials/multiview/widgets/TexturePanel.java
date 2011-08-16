@@ -46,7 +46,7 @@ public class TexturePanel extends MaterialPropertyWidget {
         if (!"".equals(textureName)) {
             Texture tex = manager.loadTexture(textureName);
             Icon newicon = null;
-            if (textureName.endsWith(".dds") || textureName.endsWith(".DDS")) {
+            if (textureName.toLowerCase().endsWith(".dds")) {
                 if (ddsPreview == null) {
                     ddsPreview = new DDSPreview(manager);
                 }
