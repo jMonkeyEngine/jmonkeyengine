@@ -16,11 +16,14 @@ import com.jme3.texture.TextureCubeMap;
 
 public class SkyFactory {
 
-    private static final Sphere sphereMesh = new Sphere(10, 10, 10, false, true);
-
-    public static Spatial createSky(AssetManager assetManager, Texture texture, Vector3f normalScale, boolean sphereMap){
+    
+   public static Spatial createSky(AssetManager assetManager, Texture texture, Vector3f normalScale, boolean sphereMap){
+       return createSky(assetManager, texture, normalScale, sphereMap, 10);
+   }
+    public static Spatial createSky(AssetManager assetManager, Texture texture, Vector3f normalScale, boolean sphereMap, int sphereRadius){
         if (texture == null)
             throw new IllegalArgumentException("texture cannot be null");
+        final Sphere sphereMesh = new Sphere(10, 10, sphereRadius, false, true);
         
         Geometry sky = new Geometry("Sky", sphereMesh);
         sky.setQueueBucket(Bucket.Sky);
@@ -74,6 +77,11 @@ public class SkyFactory {
     }
 
     public static Spatial createSky(AssetManager assetManager, Texture west, Texture east, Texture north, Texture south, Texture up, Texture down, Vector3f normalScale){
+         return createSky(assetManager, west, east, north, south, up, down, normalScale, 10);
+    }
+    
+    public static Spatial createSky(AssetManager assetManager, Texture west, Texture east, Texture north, Texture south, Texture up, Texture down, Vector3f normalScale, int sphereRadius){
+        final Sphere sphereMesh = new Sphere(10, 10, sphereRadius, false, true);
         Geometry sky = new Geometry("Sky", sphereMesh);
         sky.setQueueBucket(Bucket.Sky);
         sky.setCullHint(Spatial.CullHint.Never);
