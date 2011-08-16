@@ -926,68 +926,69 @@ is divided into following sections:
             <classpath>
                 <path path="${javac.classpath}"/>
             </classpath>
-            <fileset dir="${src.core.dir}" excludes="${excludes}" includes="${includes}">
+            <fileset dir="${src.core.dir}" excludes="*.java,${excludes}" includes="${includes}">
                 <filename name="**/*.java"/>
             </fileset>
-            <fileset dir="${src.core-data.dir}" excludes="${excludes}" includes="${includes}">
+            <fileset dir="${src.core-data.dir}" excludes="*.java,${excludes}" includes="${includes}">
                 <filename name="**/*.java"/>
             </fileset>
-            <fileset dir="${src.core-plugins.dir}" excludes="${excludes}" includes="${includes}">
+            <fileset dir="${src.core-plugins.dir}" excludes="*.java,${excludes}" includes="${includes}">
                 <filename name="**/*.java"/>
             </fileset>
-            <fileset dir="${src.terrain.dir}" excludes="${excludes}" includes="${includes}">
+            <fileset dir="${src.terrain.dir}" excludes="*.java,${excludes}" includes="${includes}">
                 <filename name="**/*.java"/>
             </fileset>
-            <fileset dir="${src.networking.dir}" excludes="${excludes}" includes="${includes}">
+            <fileset dir="${src.networking.dir}" excludes="*.java,${excludes}" includes="${includes}">
                 <filename name="**/*.java"/>
             </fileset>
-            <fileset dir="${src.desktop.dir}" excludes="${excludes}" includes="${includes}">
+            <fileset dir="${src.desktop.dir}" excludes="*.java,${excludes}" includes="${includes}">
                 <filename name="**/*.java"/>
             </fileset>
-            <fileset dir="${src.desktop-fx.dir}" excludes="${excludes}" includes="${includes}">
+            <fileset dir="${src.desktop-fx.dir}" excludes="*.java,${excludes}" includes="${includes}">
                 <filename name="**/*.java"/>
             </fileset>
-            <fileset dir="${src.games.dir}" excludes="${excludes}" includes="${includes}">
+            <fileset dir="${src.games.dir}" excludes="*.java,${excludes}" includes="${includes}">
                 <filename name="**/*.java"/>
             </fileset>
-            <fileset dir="${src.jbullet.dir}" excludes="${excludes}" includes="${includes}">
+            <fileset dir="${src.jbullet.dir}" excludes="*.java,${excludes}" includes="${includes}">
                 <filename name="**/*.java"/>
             </fileset>
-            <fileset dir="${src.niftygui.dir}" excludes="${excludes}" includes="${includes}">
+            <fileset dir="${src.niftygui.dir}" excludes="*.java,${excludes}" includes="${includes}">
                 <filename name="**/*.java"/>
             </fileset>
-            <fileset dir="${src.jogg.dir}" excludes="${excludes}" includes="${includes}">
+            <fileset dir="${src.jogg.dir}" excludes="*.java,${excludes}" includes="${includes}">
                 <filename name="**/*.java"/>
             </fileset>
-            <fileset dir="${src.lwjgl-oal.dir}" excludes="${excludes}" includes="${includes}">
+            <fileset dir="${src.lwjgl-oal.dir}" excludes="*.java,${excludes}" includes="${includes}">
                 <filename name="**/*.java"/>
             </fileset>
-            <fileset dir="${src.lwjgl-ogl.dir}" excludes="${excludes}" includes="${includes}">
+            <fileset dir="${src.lwjgl-ogl.dir}" excludes="*.java,${excludes}" includes="${includes}">
                 <filename name="**/*.java"/>
             </fileset>
-            <fileset dir="${src.ogre.dir}" excludes="${excludes}" includes="${includes}">
+            <fileset dir="${src.ogre.dir}" excludes="*.java,${excludes}" includes="${includes}">
                 <filename name="**/*.java"/>
             </fileset>
-            <fileset dir="${src.blender.dir}" excludes="${excludes}" includes="${includes}">
+            <fileset dir="${src.blender.dir}" excludes="*.java,${excludes}" includes="${includes}">
                 <filename name="**/*.java"/>
             </fileset>
-            <fileset dir="${src.pack.dir}" excludes="${excludes}" includes="${includes}">
+            <fileset dir="${src.pack.dir}" excludes="*.java,${excludes}" includes="${includes}">
                 <filename name="**/*.java"/>
             </fileset>
-            <fileset dir="${src.jheora.dir}" excludes="${excludes}" includes="${includes}">
+            <fileset dir="${src.jheora.dir}" excludes="*.java,${excludes}" includes="${includes}">
                 <filename name="**/*.java"/>
             </fileset>
-            <fileset dir="${src.test.dir}" excludes="${excludes}" includes="${includes}">
+            <fileset dir="${src.test.dir}" excludes="*.java,${excludes}" includes="${includes}">
                 <filename name="**/*.java"/>
             </fileset>
-            <fileset dir="${src.tools.dir}" excludes="${excludes}" includes="${includes}">
+            <fileset dir="${src.tools.dir}" excludes="*.java,${excludes}" includes="${includes}">
                 <filename name="**/*.java"/>
             </fileset>
-            <fileset dir="${src.xml.dir}" excludes="${excludes}" includes="${includes}">
+            <fileset dir="${src.xml.dir}" excludes="*.java,${excludes}" includes="${includes}">
                 <filename name="**/*.java"/>
             </fileset>
             <fileset dir="${build.generated.sources.dir}" erroronmissingdir="false">
                 <include name="**/*.java"/>
+                <exclude name="*.java"/>
             </fileset>
         </javadoc>
         <copy todir="${dist.javadoc.dir}">

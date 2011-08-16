@@ -629,7 +629,9 @@ public class TerrainEditorController {
             Terrain terrain =
             SceneApplication.getApplication().enqueue(new Callable<Terrain>() {
                 public Terrain call() throws Exception {
-                    return doCreateTerrain(parent, totalSize, patchSize, alphaTextureSize, heightmapData, sceneName, jmeNodeParent);
+                    //return doCreateTerrain(parent, totalSize, patchSize, alphaTextureSize, heightmapData, sceneName, jmeNodeParent);
+                    AddTerrainAction a = new AddTerrainAction();
+                    return (Terrain) a.doCreateTerrain(parent, totalSize, patchSize, alphaTextureSize, heightmapData, sceneName, jmeRootNode);
                 }
             }).get();
             return terrain;
@@ -638,11 +640,11 @@ public class TerrainEditorController {
         } catch (ExecutionException ex) {
             Exceptions.printStackTrace(ex);
         }
-        //doCreateTerrain(totalSize, patchSize, alphaTextureSize, heightmapData, sceneName, defaultTextureScale);
+        
         return null; // if failed
     }
 
-    private Terrain doCreateTerrain(Node parent,
+    /*private Terrain doCreateTerrain(Node parent,
                                     int totalSize,
                                     int patchSize,
                                     int alphaTextureSize,
@@ -677,7 +679,7 @@ public class TerrainEditorController {
             Texture tex = manager.loadAsset(new TextureKey(alphaBlendFileName, false));
             if (i == 0)
                 mat.setTexture("AlphaMap", tex);
-            else if (i == 1) // add these in when they are supported
+            else if (i == 1)
                 mat.setTexture("AlphaMap_1", tex);
             else if (i == 2)
                 mat.setTexture("AlphaMap_2", tex);
@@ -707,7 +709,7 @@ public class TerrainEditorController {
         addSpatialUndo(parent, (Node)terrain, jmeNodeParent);
         
         return terrain;
-    }
+    }*/
 
     private void addSpatialUndo(final Node undoParent, final Spatial undoSpatial, final AbstractSceneExplorerNode parentNode) {
         //add undo

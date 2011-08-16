@@ -13,6 +13,7 @@ import com.jme3.gde.core.sceneexplorer.nodes.actions.NewSpatialAction;
 import com.jme3.renderer.Camera;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
+import com.jme3.terrain.Terrain;
 import com.jme3.terrain.geomipmap.TerrainLodControl;
 import com.jme3.terrain.geomipmap.TerrainQuad;
 import com.jme3.terrain.heightmap.AbstractHeightMap;
@@ -73,11 +74,11 @@ public class AddTerrainAction extends AbstractNewSpatialWizardAction {
         }
         return null;
     }
-
+    
     protected Spatial generateTerrain(Node parent, final WizardDescriptor wizardDescriptor) throws IOException {
         org.openide.nodes.Node selectedNode = (org.openide.nodes.Node) wizardDescriptor.getProperty("main_node");
         final Spatial spatial = selectedNode.getLookup().lookup(Spatial.class);
-        final ProjectAssetManager manager = selectedNode.getLookup().lookup(ProjectAssetManager.class);
+        
 
         String sceneName = selectedNode.getLookup().lookup(DataObject.class).getName();
 
@@ -92,45 +93,51 @@ public class AddTerrainAction extends AbstractNewSpatialWizardAction {
             heightmapData = heightmap.getHeightMap();
         }
 
-        // eg. Scenes/newScene1.j3o
-        TerrainQuad terrain = null;
-
-        terrain = new TerrainQuad("terrain-" + sceneName, patchSize, totalSize, heightmapData); //TODO make this pluggable for different Terrain implementations
+        return doCreateTerrain(parent, totalSize, patchSize, alphaTextureSize, heightmapData, sceneName, selectedNode);
+    }
+    
+    
+    protected Spatial doCreateTerrain(Node parent,
+                                    int totalSize,
+                                    int patchSize,
+                                    int alphaTextureSize,
+                                    float[] heightmapData,
+                                    String sceneName,
+                                    org.openide.nodes.Node selectedNode) throws IOException
+    {
+        final ProjectAssetManager manager = selectedNode.getLookup().lookup(ProjectAssetManager.class);
+        
+        Terrain terrain = new TerrainQuad("terrain-"+sceneName, patchSize, totalSize, heightmapData); //TODO make this pluggable for different Terrain implementations
         com.jme3.material.Material mat = new com.jme3.material.Material(manager, "Common/MatDefs/Terrain/TerrainLighting.j3md");
 
         String assetFolder = "";
-        if (manager != null && manager instanceof ProjectAssetManager) {
-            assetFolder = ((ProjectAssetManager) manager).getAssetFolderName();
-        }
+        if (manager != null && manager instanceof ProjectAssetManager)
+            assetFolder = ((ProjectAssetManager)manager).getAssetFolderName();
 
         // write out 3 alpha blend images
-        for (int i = 0; i < TerrainEditorController.NUM_ALPHA_TEXTURES; i++) {
+        for (int i=0; i<TerrainEditorController.NUM_ALPHA_TEXTURES; i++) {
             BufferedImage alphaBlend = new BufferedImage(alphaTextureSize, alphaTextureSize, BufferedImage.TYPE_INT_ARGB);
             if (i == 0) {
                 // the first alpha level should be opaque so we see the first texture over the whole terrain
-                for (int h = 0; h < alphaTextureSize; h++) {
-                    for (int w = 0; w < alphaTextureSize; w++) {
+                for (int h=0; h<alphaTextureSize; h++)
+                    for (int w=0; w<alphaTextureSize; w++)
                         alphaBlend.setRGB(w, h, 0x00FF0000);//argb
-                    }
-                }
             }
-            File alphaFolder = new File(assetFolder + "/Textures/terrain-alpha/");
-            if (!alphaFolder.exists()) {
+            File alphaFolder = new File(assetFolder+"/Textures/terrain-alpha/");
+            if (!alphaFolder.exists())
                 alphaFolder.mkdir();
-            }
-            String alphaBlendFileName = "/Textures/terrain-alpha/" + sceneName + "-" + terrain.getName() + "-alphablend" + i + ".png";
-            File alphaImageFile = new File(assetFolder + alphaBlendFileName);
+            String alphaBlendFileName = "/Textures/terrain-alpha/"+sceneName+"-"+((Node)terrain).getName()+"-alphablend"+i+".png";
+            File alphaImageFile = new File(assetFolder+alphaBlendFileName);
             ImageIO.write(alphaBlend, "png", alphaImageFile);
             Texture tex = manager.loadAsset(new TextureKey(alphaBlendFileName, false));
-            if (i == 0) {
+            if (i == 0)
                 mat.setTexture("AlphaMap", tex);
-            }
-            /*else if (i == 1) // add these in when they are supported
-            mat.setTexture("AlphaMap_1", tex);
+            else if (i == 1)
+                mat.setTexture("AlphaMap_1", tex);
             else if (i == 2)
-            mat.setTexture("AlphaMap_2", tex);*/
+                mat.setTexture("AlphaMap_2", tex);
         }
-
+        
         // give the first layer default texture
         Texture defaultTexture = manager.loadTexture(TerrainEditorController.DEFAULT_TERRAIN_TEXTURE);
         defaultTexture.setWrap(WrapMode.Repeat);
@@ -138,21 +145,22 @@ public class AddTerrainAction extends AbstractNewSpatialWizardAction {
         mat.setFloat("DiffuseMap_0_scale", TerrainEditorController.DEFAULT_TEXTURE_SCALE);
         mat.setBoolean("WardIso", true);
 
-        terrain.setMaterial(mat);
-        terrain.setModelBound(new BoundingBox());
-        terrain.updateModelBound();
-        terrain.setLocalTranslation(0, 0, 0);
-        terrain.setLocalScale(1f, 1f, 1f);
+        ((Node)terrain).setMaterial(mat);
+        ((Node)terrain).setModelBound(new BoundingBox());
+        ((Node)terrain).updateModelBound();
+        ((Node)terrain).setLocalTranslation(0, 0, 0);
+        ((Node)terrain).setLocalScale(4f, 1f, 4f);
 
         // add the lod control
-        List<Camera> cameras = new ArrayList<Camera>();
-        cameras.add(SceneApplication.getApplication().getCamera());
-        TerrainLodControl control = new TerrainLodControl(terrain, cameras);
-        //terrain.addControl(control); // removing this until we figure out a way to have it get the cameras when saved/loaded
+        TerrainLodControl control = new TerrainLodControl(terrain, SceneApplication.getApplication().getCamera());
+	((Node)terrain).addControl(control);
 
-        return terrain;
-        //createTerrainButton.setEnabled(false); // only let the user add one terrain
+        parent.attachChild((Node)terrain);
 
+        //setNeedsSave(true);
+        //addSpatialUndo(parent, (Node)terrain, jmeNodeParent);
+        
+        return (Spatial)terrain;
     }
 
     /**
