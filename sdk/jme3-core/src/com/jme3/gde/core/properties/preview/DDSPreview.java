@@ -46,6 +46,8 @@ import com.jme3.scene.shape.Quad;
 import com.jme3.texture.Texture;
 import com.jme3.util.SkyFactory;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 
 /**
@@ -55,7 +57,7 @@ import javax.swing.JLabel;
 public class DDSPreview implements SceneListener {
 
     private ProjectAssetManager assetManager;
-    private JLabel picPreview;
+    private JComponent picPreview;
     private Geometry quad;
     private Geometry quad3D;
     private Material material;
@@ -78,7 +80,7 @@ public class DDSPreview implements SceneListener {
         SceneApplication.getApplication().addSceneListener(this);
     }
 
-    public void requestPreview(String textureName, String displayName, int width, int height, JLabel picLabel, JLabel infoLabel) {
+    public void requestPreview(String textureName, String displayName, int width, int height, JComponent picLabel, JLabel infoLabel) {
         TextureKey key = new TextureKey(textureName);
         picPreview = picLabel;
         assetManager.deleteFromCache(key);
@@ -131,7 +133,12 @@ public class DDSPreview implements SceneListener {
             java.awt.EventQueue.invokeLater(new Runnable() {
 
                 public void run() {
-                    picPreview.setIcon(icon);
+                    if (picPreview instanceof JLabel) {
+                        ((JLabel) picPreview).setIcon(icon);
+                    }
+                    if (picPreview instanceof JButton) {
+                        ((JButton) picPreview).setIcon(icon);
+                    }
                 }
             });
         }
