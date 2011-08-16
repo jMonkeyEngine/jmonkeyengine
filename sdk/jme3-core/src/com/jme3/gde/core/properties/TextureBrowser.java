@@ -280,7 +280,7 @@ private void jTree1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:even
             String selected = TreeUtil.getPath(node.getUserObjectPath());
             selected = selected.substring(0, selected.lastIndexOf("/"));
             Icon newicon = null;
-            if (selected.endsWith(".dds") || selected.endsWith(".DDS")) {
+            if (selected.toLowerCase().endsWith(".dds")) {
                 if (ddsPreview == null) {
                     ddsPreview = new DDSPreview(assetManager);
                 }
