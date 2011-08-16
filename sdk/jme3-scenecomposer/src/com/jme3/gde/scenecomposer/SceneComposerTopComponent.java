@@ -777,7 +777,7 @@ private void emitButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FI
                     result.removeLookupListener(inst);
                     addObjectButton.setEnabled(false);
                     addCursorButton.setEnabled(false);
-                    showSelectionToggleButton.setSelected(false);
+                    showSelectionToggleButton.setSelected(true);
                     showGridToggleButton.setSelected(false);
                     sceneInfoLabel1.setText("");
                     sceneInfoLabel2.setText("");
@@ -785,7 +785,7 @@ private void emitButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FI
                     sceneInfoLabel2.setToolTipText("");
                     close();
                 } else {
-                    showSelectionToggleButton.setSelected(false);
+                    showSelectionToggleButton.setSelected(true);
                     showGridToggleButton.setSelected(false);
                     //TODO: threading
                     if (file != null) {
