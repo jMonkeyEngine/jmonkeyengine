@@ -425,7 +425,7 @@ public final class SkyboxVisualPanel2 extends JPanel {
             Texture tex = (Texture) editorSouth.getValue();
             String selected = tex.getKey().getName();
 
-            if (selected.endsWith(".dds") || selected.endsWith(".DDS")) {
+            if (selected.toLowerCase().endsWith(".dds")) {
                 if (ddsPreview == null) {
                     ddsPreview = new DDSPreview((ProjectAssetManager) SceneApplication.getApplication().getAssetManager());
                 }
@@ -445,7 +445,7 @@ public final class SkyboxVisualPanel2 extends JPanel {
             Texture tex = (Texture) editorNorth.getValue();
             String selected = tex.getKey().getName();
 
-            if (selected.endsWith(".dds") || selected.endsWith(".DDS")) {
+            if (selected.toLowerCase().endsWith(".dds")) {
                 if (ddsPreview == null) {
                     ddsPreview = new DDSPreview((ProjectAssetManager) SceneApplication.getApplication().getAssetManager());
                 }
@@ -465,7 +465,7 @@ public final class SkyboxVisualPanel2 extends JPanel {
             Texture tex = (Texture) editorEast.getValue();
             String selected = tex.getKey().getName();
 
-            if (selected.endsWith(".dds") || selected.endsWith(".DDS")) {
+            if (selected.toLowerCase().endsWith(".dds")) {
                 if (ddsPreview == null) {
                     ddsPreview = new DDSPreview((ProjectAssetManager) SceneApplication.getApplication().getAssetManager());
                 }
@@ -485,7 +485,7 @@ public final class SkyboxVisualPanel2 extends JPanel {
             Texture tex = (Texture) editorWest.getValue();
             String selected = tex.getKey().getName();
 
-            if (selected.endsWith(".dds") || selected.endsWith(".DDS")) {
+            if (selected.toLowerCase().endsWith(".dds")) {
                 if (ddsPreview == null) {
                     ddsPreview = new DDSPreview((ProjectAssetManager) SceneApplication.getApplication().getAssetManager());
                 }
@@ -505,7 +505,7 @@ public final class SkyboxVisualPanel2 extends JPanel {
             Texture tex = (Texture) editorTop.getValue();
             String selected = tex.getKey().getName();
 
-            if (selected.endsWith(".dds") || selected.endsWith(".DDS")) {
+            if (selected.toLowerCase().endsWith(".dds")) {
                 if (ddsPreview == null) {
                     ddsPreview = new DDSPreview((ProjectAssetManager) SceneApplication.getApplication().getAssetManager());
                 }
@@ -525,7 +525,7 @@ public final class SkyboxVisualPanel2 extends JPanel {
             Texture tex = (Texture) editorBottom.getValue();
             String selected = tex.getKey().getName();
 
-            if (selected.endsWith(".dds") || selected.endsWith(".DDS")) {
+            if (selected.toLowerCase().endsWith(".dds")) {
                 if (ddsPreview == null) {
                     ddsPreview = new DDSPreview((ProjectAssetManager) SceneApplication.getApplication().getAssetManager());
                 }
@@ -545,7 +545,7 @@ public final class SkyboxVisualPanel2 extends JPanel {
             Texture tex = (Texture) editorSingle.getValue();
             String selected = tex.getKey().getName();
 
-            if (selected.endsWith(".dds") || selected.endsWith(".DDS")) {
+            if (selected.toLowerCase().endsWith(".dds")) {
                 if (ddsPreview == null) {
                     ddsPreview = new DDSPreview((ProjectAssetManager) SceneApplication.getApplication().getAssetManager());
                 }

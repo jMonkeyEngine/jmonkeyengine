@@ -1394,7 +1394,7 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
                     if (tex != null) {
                         String selected = tex.getKey().getName();
 
-                        if (selected.endsWith(".dds") || selected.endsWith(".DDS")) {
+                        if (selected.toLowerCase().endsWith(".dds")) {
                             if (ddsPreview == null) {
                                 ddsPreview = new DDSPreview((ProjectAssetManager) SceneApplication.getApplication().getAssetManager());
                             }
@@ -1431,7 +1431,7 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
                             if (editor.getValue() != null) {
                                 String selected = tex.getKey().getName();
 
-                                if (selected.endsWith(".dds") || selected.endsWith(".DDS")) {
+                                if (selected.toLowerCase().endsWith(".dds")) {
                                     if (ddsPreview == null) {
                                         ddsPreview = new DDSPreview((ProjectAssetManager) SceneApplication.getApplication().getAssetManager());
                                     }
