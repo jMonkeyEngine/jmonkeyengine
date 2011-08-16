@@ -31,7 +31,10 @@
  */
 package com.jme3.gde.terraineditor.sky;
 
+import com.jme3.gde.core.assets.ProjectAssetManager;
 import com.jme3.gde.core.properties.TexturePropertyEditor;
+import com.jme3.gde.core.properties.preview.DDSPreview;
+import com.jme3.gde.core.scene.SceneApplication;
 import com.jme3.texture.Texture;
 import java.awt.Component;
 import javax.swing.Icon;
@@ -42,6 +45,8 @@ import jme3tools.converters.ImageToAwt;
 import org.openide.util.ImageUtilities;
 
 public final class SkyboxVisualPanel2 extends JPanel {
+
+    private DDSPreview ddsPreview;
 
     /** Creates new form SkyboxVisualPanel2 */
     public SkyboxVisualPanel2() {
@@ -60,7 +65,6 @@ public final class SkyboxVisualPanel2 extends JPanel {
     public JPanel getSingleTexturePanel() {
         return singleTexturePanel;
     }
-
     TexturePropertyEditor editorNorth = new TexturePropertyEditor();
     TexturePropertyEditor editorSouth = new TexturePropertyEditor();
     TexturePropertyEditor editorEast = new TexturePropertyEditor();
@@ -96,7 +100,6 @@ public final class SkyboxVisualPanel2 extends JPanel {
     public TexturePropertyEditor getEditorWest() {
         return editorWest;
     }
-
 
     /** This method is called from within the constructor to
      * initialize the form.
@@ -419,9 +422,19 @@ public final class SkyboxVisualPanel2 extends JPanel {
         Component view = editorSouth.getCustomEditor();
         view.setVisible(true);
         if (editorSouth.getValue() != null) {
-            Texture tex = (Texture)editorSouth.getValue();
-            Icon newicon = ImageUtilities.image2Icon(ImageToAwt.convert(tex.getImage(), false, true, 0));
-            southPic.setIcon(newicon);
+            Texture tex = (Texture) editorSouth.getValue();
+            String selected = tex.getKey().getName();
+
+            if (selected.endsWith(".dds") || selected.endsWith(".DDS")) {
+                if (ddsPreview == null) {
+                    ddsPreview = new DDSPreview((ProjectAssetManager) SceneApplication.getApplication().getAssetManager());
+                }
+                ddsPreview.requestPreview(selected, "", 80, 80, southPic, null);
+
+            } else {
+                Icon newicon = ImageUtilities.image2Icon(ImageToAwt.convert(tex.getImage(), false, true, 0));
+                southPic.setIcon(newicon);
+            }
         }
     }//GEN-LAST:event_multipleTexSouthLoadButtonActionPerformed
 
@@ -429,9 +442,19 @@ public final class SkyboxVisualPanel2 extends JPanel {
         Component view = editorNorth.getCustomEditor();
         view.setVisible(true);
         if (editorNorth.getValue() != null) {
-            Texture tex = (Texture)editorNorth.getValue();
-            Icon newicon = ImageUtilities.image2Icon(ImageToAwt.convert(tex.getImage(), false, true, 0));
-            northPic.setIcon(newicon);
+            Texture tex = (Texture) editorNorth.getValue();
+            String selected = tex.getKey().getName();
+
+            if (selected.endsWith(".dds") || selected.endsWith(".DDS")) {
+                if (ddsPreview == null) {
+                    ddsPreview = new DDSPreview((ProjectAssetManager) SceneApplication.getApplication().getAssetManager());
+                }
+                ddsPreview.requestPreview(selected, "", 80, 80, northPic, null);
+
+            } else {
+                Icon newicon = ImageUtilities.image2Icon(ImageToAwt.convert(tex.getImage(), false, true, 0));
+                northPic.setIcon(newicon);
+            }
         }
     }//GEN-LAST:event_multipleTexNorthLoadButtonActionPerformed
 
@@ -439,9 +462,19 @@ public final class SkyboxVisualPanel2 extends JPanel {
         Component view = editorEast.getCustomEditor();
         view.setVisible(true);
         if (editorEast.getValue() != null) {
-            Texture tex = (Texture)editorEast.getValue();
-            Icon newicon = ImageUtilities.image2Icon(ImageToAwt.convert(tex.getImage(), false, true, 0));
-            eastPic.setIcon(newicon);
+            Texture tex = (Texture) editorEast.getValue();
+            String selected = tex.getKey().getName();
+
+            if (selected.endsWith(".dds") || selected.endsWith(".DDS")) {
+                if (ddsPreview == null) {
+                    ddsPreview = new DDSPreview((ProjectAssetManager) SceneApplication.getApplication().getAssetManager());
+                }
+                ddsPreview.requestPreview(selected, "", 80, 80, eastPic, null);
+
+            } else {
+                Icon newicon = ImageUtilities.image2Icon(ImageToAwt.convert(tex.getImage(), false, true, 0));
+                eastPic.setIcon(newicon);
+            }
         }
     }//GEN-LAST:event_multipleTexEastLoadButtonActionPerformed
 
@@ -449,9 +482,19 @@ public final class SkyboxVisualPanel2 extends JPanel {
         Component view = editorWest.getCustomEditor();
         view.setVisible(true);
         if (editorWest.getValue() != null) {
-            Texture tex = (Texture)editorWest.getValue();
-            Icon newicon = ImageUtilities.image2Icon(ImageToAwt.convert(tex.getImage(), false, true, 0));
-            westPic.setIcon(newicon);
+            Texture tex = (Texture) editorWest.getValue();
+            String selected = tex.getKey().getName();
+
+            if (selected.endsWith(".dds") || selected.endsWith(".DDS")) {
+                if (ddsPreview == null) {
+                    ddsPreview = new DDSPreview((ProjectAssetManager) SceneApplication.getApplication().getAssetManager());
+                }
+                ddsPreview.requestPreview(selected, "", 80, 80, westPic, null);
+
+            } else {
+                Icon newicon = ImageUtilities.image2Icon(ImageToAwt.convert(tex.getImage(), false, true, 0));
+                westPic.setIcon(newicon);
+            }
         }
     }//GEN-LAST:event_multipleTexWestLoadButtonActionPerformed
 
@@ -459,9 +502,19 @@ public final class SkyboxVisualPanel2 extends JPanel {
         Component view = editorTop.getCustomEditor();
         view.setVisible(true);
         if (editorTop.getValue() != null) {
-            Texture tex = (Texture)editorTop.getValue();
-            Icon newicon = ImageUtilities.image2Icon(ImageToAwt.convert(tex.getImage(), false, true, 0));
-            topPic.setIcon(newicon);
+            Texture tex = (Texture) editorTop.getValue();
+            String selected = tex.getKey().getName();
+
+            if (selected.endsWith(".dds") || selected.endsWith(".DDS")) {
+                if (ddsPreview == null) {
+                    ddsPreview = new DDSPreview((ProjectAssetManager) SceneApplication.getApplication().getAssetManager());
+                }
+                ddsPreview.requestPreview(selected, "", 80, 80, topPic, null);
+
+            } else {
+                Icon newicon = ImageUtilities.image2Icon(ImageToAwt.convert(tex.getImage(), false, true, 0));
+                topPic.setIcon(newicon);
+            }
         }
     }//GEN-LAST:event_multipleTexTopLoadButtonActionPerformed
 
@@ -469,9 +522,19 @@ public final class SkyboxVisualPanel2 extends JPanel {
         Component view = editorBottom.getCustomEditor();
         view.setVisible(true);
         if (editorBottom.getValue() != null) {
-            Texture tex = (Texture)editorBottom.getValue();
-            Icon newicon = ImageUtilities.image2Icon(ImageToAwt.convert(tex.getImage(), false, true, 0));
-            bottomPic.setIcon(newicon);
+            Texture tex = (Texture) editorBottom.getValue();
+            String selected = tex.getKey().getName();
+
+            if (selected.endsWith(".dds") || selected.endsWith(".DDS")) {
+                if (ddsPreview == null) {
+                    ddsPreview = new DDSPreview((ProjectAssetManager) SceneApplication.getApplication().getAssetManager());
+                }
+                ddsPreview.requestPreview(selected, "", 80, 80, bottomPic, null);
+
+            } else {
+                Icon newicon = ImageUtilities.image2Icon(ImageToAwt.convert(tex.getImage(), false, true, 0));
+                bottomPic.setIcon(newicon);
+            }
         }
     }//GEN-LAST:event_multipleTexBottomLoadButtonActionPerformed
 
@@ -479,12 +542,22 @@ public final class SkyboxVisualPanel2 extends JPanel {
         Component view = editorSingle.getCustomEditor();
         view.setVisible(true);
         if (editorSingle.getValue() != null) {
-            Texture tex = (Texture)editorSingle.getValue();
-            Icon newicon = ImageUtilities.image2Icon(ImageToAwt.convert(tex.getImage(), false, true, 0));
-            singlePic.setIcon(newicon);
+            Texture tex = (Texture) editorSingle.getValue();
+            String selected = tex.getKey().getName();
+
+            if (selected.endsWith(".dds") || selected.endsWith(".DDS")) {
+                if (ddsPreview == null) {
+                    ddsPreview = new DDSPreview((ProjectAssetManager) SceneApplication.getApplication().getAssetManager());
+                }
+                ddsPreview.requestPreview(selected, "", 80, 80, singlePic, null);
+
+            } else {
+
+                Icon newicon = ImageUtilities.image2Icon(ImageToAwt.convert(tex.getImage(), false, true, 0));
+                singlePic.setIcon(newicon);
+            }
         }
     }//GEN-LAST:event_singleTexLoadButtonActionPerformed
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel bottomPic;
     private javax.swing.JLabel eastPic;
@@ -548,6 +621,4 @@ public final class SkyboxVisualPanel2 extends JPanel {
     public JCheckBox getSpheremapCheckBox() {
         return spheremapCheckBox;
     }
-
-    
 }
