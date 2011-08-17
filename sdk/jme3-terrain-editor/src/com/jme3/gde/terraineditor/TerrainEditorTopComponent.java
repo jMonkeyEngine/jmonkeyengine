@@ -43,6 +43,7 @@ import com.jme3.gde.core.sceneexplorer.nodes.JmeTerrainQuad;
 import com.jme3.gde.core.sceneexplorer.nodes.NodeUtility;
 import com.jme3.gde.core.properties.TexturePropertyEditor;
 import com.jme3.gde.core.properties.preview.DDSPreview;
+import com.jme3.gde.core.sceneviewer.SceneViewerTopComponent;
 import com.jme3.gde.core.util.DataObjectSaveNode;
 import com.jme3.gde.core.util.ToggleButtonGroup;
 import com.jme3.gde.terraineditor.sky.SkyboxWizardAction;
@@ -940,6 +941,11 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
 
     }
 
+    @Override
+    protected void componentActivated() {
+        SceneViewerTopComponent.findInstance().requestVisible();
+    }
+    
     void writeProperties(java.util.Properties p) {
         // better to version settings since initial version as advocated at
         // http://wiki.apidesign.org/wiki/PropertyFiles

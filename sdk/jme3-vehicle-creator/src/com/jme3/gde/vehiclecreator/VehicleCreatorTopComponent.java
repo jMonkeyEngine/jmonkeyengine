@@ -799,6 +799,11 @@ public final class VehicleCreatorTopComponent extends TopComponent implements Sc
         }
     }
 
+    @Override
+    protected void componentActivated() {
+        SceneViewerTopComponent.findInstance().requestVisible();
+    }
+    
     void writeProperties(java.util.Properties p) {
         // better to version settings since initial version as advocated at
         // http://wiki.apidesign.org/wiki/PropertyFiles

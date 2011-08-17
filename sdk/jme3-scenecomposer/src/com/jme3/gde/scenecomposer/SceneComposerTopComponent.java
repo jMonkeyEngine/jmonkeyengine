@@ -16,6 +16,7 @@ import com.jme3.gde.core.scene.SceneRequest;
 import com.jme3.gde.core.sceneexplorer.nodes.JmeNode;
 import com.jme3.gde.core.sceneexplorer.nodes.JmeSpatial;
 import com.jme3.gde.core.sceneexplorer.nodes.NodeUtility;
+import com.jme3.gde.core.sceneviewer.SceneViewerTopComponent;
 import com.jme3.gde.scenecomposer.tools.MoveTool;
 import com.jme3.gde.scenecomposer.tools.SelectTool;
 import com.jme3.math.Vector3f;
@@ -629,6 +630,11 @@ private void emitButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FI
         }
     }
 
+    @Override
+    protected void componentActivated() {
+        SceneViewerTopComponent.findInstance().requestVisible();
+    }
+    
     void writeProperties(java.util.Properties p) {
         // better to version settings since initial version as advocated at
         // http://wiki.apidesign.org/wiki/PropertyFiles
