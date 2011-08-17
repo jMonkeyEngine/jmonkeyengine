@@ -269,8 +269,7 @@ public class LwjglCanvas extends LwjglAbstractDisplay implements JmeCanvasContex
                 pbuffer.destroy();
             }
             // Let the implementation choose an appropriate pixel format.
-            pbuffer = new Pbuffer(1, 1, new PixelFormat(0, 0, 0, 0, 0), null);
-            //pbuffer = new Pbuffer(1, 1, acquirePixelFormat(), null);
+            pbuffer = new Pbuffer(1, 1, acquirePixelFormat(), null);
             logger.log(Level.INFO, "OGL: Pbuffer has been created");
         }
     }
