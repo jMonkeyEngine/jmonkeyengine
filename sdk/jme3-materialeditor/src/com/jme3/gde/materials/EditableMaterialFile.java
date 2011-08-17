@@ -427,7 +427,10 @@ public class EditableMaterialFile {
      */
     private String trimName(String line) {
         line = trimLine(line);
-        int idx = line.indexOf(":");
+        int idx = line.indexOf("(");
+        if(idx == -1){
+            idx = line.indexOf(":");
+        }
         if (idx != -1) {
             line = line.substring(0, idx);
         }
