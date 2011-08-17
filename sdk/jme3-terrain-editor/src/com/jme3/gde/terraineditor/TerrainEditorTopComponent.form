@@ -13,7 +13,7 @@
           <ResourceString bundle="com/jme3/gde/terraineditor/Bundle.properties" key="TerrainEditorTopComponent.textureFileChooser.approveButtonText_1" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
         </Property>
         <Property name="currentDirectory" type="java.io.File" editor="org.netbeans.beaninfo.editors.FileEditor">
-          <SerializedValue value="-84,-19,0,5,115,114,0,12,106,97,118,97,46,105,111,46,70,105,108,101,4,45,-92,69,14,13,-28,-1,3,0,1,76,0,4,112,97,116,104,116,0,18,76,106,97,118,97,47,108,97,110,103,47,83,116,114,105,110,103,59,120,112,116,0,16,92,65,115,115,101,116,115,92,84,101,120,116,117,114,101,115,119,2,0,92,120"/>
+          <SerializedValue value="-84,-19,0,5,115,114,0,12,106,97,118,97,46,105,111,46,70,105,108,101,4,45,-92,69,14,13,-28,-1,3,0,1,76,0,4,112,97,116,104,116,0,18,76,106,97,118,97,47,108,97,110,103,47,83,116,114,105,110,103,59,120,112,116,0,16,47,65,115,115,101,116,115,47,84,101,120,116,117,114,101,115,119,2,0,47,120"/>
         </Property>
         <Property name="dialogTitle" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
           <ResourceString bundle="com/jme3/gde/terraineditor/Bundle.properties" key="TerrainEditorTopComponent.textureFileChooser.dialogTitle_1" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
@@ -55,15 +55,15 @@
         <DimensionLayout dim="0">
           <Group type="103" groupAlignment="0" attributes="0">
               <Group type="102" attributes="0">
-                  <Component id="toolSettingsPanel" min="-2" max="-2" attributes="0"/>
+                  <Component id="toolSettingsPanel" min="-2" pref="170" max="-2" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
-                  <Component id="paintingPanel" min="-2" max="-2" attributes="0"/>
+                  <Component id="paintingPanel" max="32767" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
                   <Component id="terrainOpsPanel" min="-2" max="-2" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
                   <Component id="hintPanel" max="32767" attributes="0"/>
               </Group>
-              <Component id="jToolBar1" alignment="0" pref="1261" max="32767" attributes="0"/>
+              <Component id="jToolBar1" alignment="0" pref="891" max="32767" attributes="0"/>
           </Group>
         </DimensionLayout>
         <DimensionLayout dim="1">
@@ -71,11 +71,11 @@
               <Group type="102" alignment="1" attributes="0">
                   <Component id="jToolBar1" min="-2" pref="27" max="-2" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
-                  <Group type="103" groupAlignment="0" attributes="0">
+                  <Group type="103" groupAlignment="1" attributes="0">
+                      <Component id="toolSettingsPanel" pref="186" max="32767" attributes="1"/>
+                      <Component id="paintingPanel" max="32767" attributes="1"/>
                       <Component id="hintPanel" alignment="1" max="32767" attributes="1"/>
                       <Component id="terrainOpsPanel" alignment="1" max="32767" attributes="1"/>
-                      <Component id="paintingPanel" alignment="1" max="32767" attributes="1"/>
-                      <Component id="toolSettingsPanel" alignment="1" max="32767" attributes="1"/>
                   </Group>
               </Group>
           </Group>
@@ -96,12 +96,12 @@
           <Layout>
             <DimensionLayout dim="0">
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="jScrollPane1" alignment="0" pref="283" max="32767" attributes="0"/>
+                  <Component id="jScrollPane1" alignment="0" pref="139" max="32767" attributes="0"/>
               </Group>
             </DimensionLayout>
             <DimensionLayout dim="1">
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="jScrollPane1" alignment="0" pref="151" max="32767" attributes="0"/>
+                  <Component id="jScrollPane1" alignment="0" pref="158" max="32767" attributes="0"/>
               </Group>
             </DimensionLayout>
           </Layout>
@@ -140,39 +140,8 @@
             </Property>
           </Properties>
 
-          <Layout>
-            <DimensionLayout dim="0">
-              <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" alignment="0" attributes="0">
-                      <Group type="103" groupAlignment="1" attributes="0">
-                          <Component id="radiusLabel" min="-2" max="-2" attributes="0"/>
-                          <Component id="heightLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                      </Group>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                          <Component id="heightSlider" min="0" pref="0" max="32767" attributes="1"/>
-                          <Component id="radiusSlider" alignment="0" min="-2" pref="151" max="-2" attributes="1"/>
-                      </Group>
-                      <EmptySpace pref="46" max="32767" attributes="0"/>
-                  </Group>
-              </Group>
-            </DimensionLayout>
-            <DimensionLayout dim="1">
-              <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" alignment="0" attributes="0">
-                      <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="radiusSlider" min="-2" pref="23" max="-2" attributes="0"/>
-                          <Component id="radiusLabel" min="-2" max="-2" attributes="0"/>
-                      </Group>
-                      <EmptySpace min="-2" pref="21" max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="heightLabel" min="-2" max="-2" attributes="0"/>
-                          <Component id="heightSlider" min="-2" max="-2" attributes="0"/>
-                      </Group>
-                      <EmptySpace pref="76" max="32767" attributes="0"/>
-                  </Group>
-              </Group>
-            </DimensionLayout>
+          <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBoxLayout">
+            <Property name="axis" type="int" value="3"/>
           </Layout>
           <SubComponents>
             <Component class="javax.swing.JLabel" name="radiusLabel">
@@ -198,6 +167,13 @@
                 <EventHandler event="stateChanged" listener="javax.swing.event.ChangeListener" parameters="javax.swing.event.ChangeEvent" handler="radiusSliderStateChanged"/>
               </Events>
             </Component>
+            <Component class="javax.swing.JLabel" name="heightLabel">
+              <Properties>
+                <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+                  <ResourceString bundle="com/jme3/gde/terraineditor/Bundle.properties" key="TerrainEditorTopComponent.heightLabel.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+                </Property>
+              </Properties>
+            </Component>
             <Component class="javax.swing.JSlider" name="heightSlider">
               <Properties>
                 <Property name="majorTickSpacing" type="int" value="20"/>
@@ -207,13 +183,6 @@
               <Events>
                 <EventHandler event="stateChanged" listener="javax.swing.event.ChangeListener" parameters="javax.swing.event.ChangeEvent" handler="heightSliderStateChanged"/>
               </Events>
-            </Component>
-            <Component class="javax.swing.JLabel" name="heightLabel">
-              <Properties>
-                <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-                  <ResourceString bundle="com/jme3/gde/terraineditor/Bundle.properties" key="TerrainEditorTopComponent.heightLabel.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
-                </Property>
-              </Properties>
             </Component>
           </SubComponents>
         </Container>
@@ -234,7 +203,7 @@
                   <Group type="102" attributes="0">
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Group type="102" alignment="1" attributes="0">
-                              <Component id="jScrollPane2" pref="425" max="32767" attributes="0"/>
+                              <Component id="jScrollPane2" pref="291" max="32767" attributes="0"/>
                               <EmptySpace type="unrelated" max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="1" max="-2" attributes="0">
                                   <Component id="removeTextureButton" min="0" pref="0" max="32767" attributes="1"/>
@@ -245,7 +214,7 @@
                               <Component id="remainingTexTitleLabel" min="-2" max="-2" attributes="0"/>
                               <EmptySpace type="unrelated" max="-2" attributes="0"/>
                               <Component id="remainingTexturesLabel" min="-2" pref="24" max="-2" attributes="0"/>
-                              <EmptySpace pref="228" max="32767" attributes="0"/>
+                              <EmptySpace pref="19" max="32767" attributes="0"/>
                               <Component id="triPlanarCheckBox" min="-2" max="-2" attributes="0"/>
                           </Group>
                       </Group>
@@ -262,7 +231,7 @@
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="removeTextureButton" min="-2" max="-2" attributes="0"/>
                           </Group>
-                          <Component id="jScrollPane2" pref="126" max="32767" attributes="0"/>
+                          <Component id="jScrollPane2" pref="131" max="32767" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
@@ -395,7 +364,7 @@
                       <Component id="genEntropiesButton" min="-2" max="-2" attributes="1"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="jButton1" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace pref="99" max="32767" attributes="0"/>
+                      <EmptySpace pref="96" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
