@@ -266,15 +266,20 @@ public final class SceneExplorerTopComponent extends TopComponent implements Exp
 
     public void sceneRequested(SceneRequest request) {
         this.request = request;
-        JmeNode node = request.getJmeNode();
+        final JmeNode node = request.getJmeNode();
         for (Iterator it = materialChangeProviders.values().iterator(); it.hasNext();) {
             MaterialChangeProvider provider = (MaterialChangeProvider) it.next();
             provider.clearMaterialChangeListeners();
         }
         if (node != null) {
-            explorerManager.setRootContext(node);
-            explorerManager.getRootContext().setDisplayName(node.getName());
-            requestVisible();
+            java.awt.EventQueue.invokeLater(new Runnable() {
+
+                public void run() {
+                    explorerManager.setRootContext(node);
+                    explorerManager.getRootContext().setDisplayName(node.getName());
+                    requestVisible();
+                }
+            });
         }
     }
 
