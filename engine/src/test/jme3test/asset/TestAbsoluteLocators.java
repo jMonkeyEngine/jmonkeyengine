@@ -44,7 +44,7 @@ public class TestAbsoluteLocators {
     public static void main(String[] args){
         AssetManager am = new DesktopAssetManager();
 
-        am.registerLoader(AWTLoader.class.getName(), "png");
+        am.registerLoader(AWTLoader.class.getName(), "jpg");
         am.registerLoader(WAVLoader.class.getName(), "wav");
 
         // register absolute locator

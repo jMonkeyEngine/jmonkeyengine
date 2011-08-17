@@ -3,7 +3,7 @@ MaterialDef Unshaded {
     MaterialParameters {
         Texture2D ColorMap
         Texture2D LightMap
-        Color Color : Color
+        Color Color ( Color )
         Boolean VertexColor
         Boolean SeparateTexCoord
 

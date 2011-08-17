@@ -143,7 +143,7 @@ public class DesktopAssetManager implements AssetManager {
         }
     }
     
-    public void unregisterLocator(String rootPath, Class<?> clazz){
+    public void unregisterLocator(String rootPath, Class<? extends AssetLocator> clazz){
         handler.removeLocator(clazz, rootPath);
         if (logger.isLoggable(Level.FINER)){
             logger.log(Level.FINER, "Unregistered locator: {0}",

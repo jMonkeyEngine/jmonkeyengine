@@ -35,6 +35,7 @@ package com.jme3.material;
 import com.jme3.asset.AssetManager;
 import com.jme3.shader.VarType;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -137,6 +138,19 @@ public class MaterialDef {
      */
     public MatParam getMaterialParam(String name){
         return matParams.get(name);
+    }
+    
+    /**
+     * Returns a collection of all material parameters declared in this
+     * material definition.
+     * <p>
+     * Modifying the material parameters or the collection will lead
+     * to undefined results.
+     * 
+     * @return All material parameters declared in this definition.
+     */
+    public Collection<MatParam> getMaterialParams(){
+        return matParams.values();
     }
 
     /**

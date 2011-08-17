@@ -47,7 +47,6 @@ import com.jme3.material.RenderState.BlendMode;
 import com.jme3.material.RenderState.FaceCullMode;
 import com.jme3.material.TechniqueDef.LightMode;
 import com.jme3.material.TechniqueDef.ShadowMode;
-import com.jme3.shader.Shader.ShaderType;
 import com.jme3.shader.VarType;
 import com.jme3.texture.Image;
 import com.jme3.texture.Image.Format;
@@ -57,13 +56,13 @@ import com.jme3.util.BufferUtils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
-import java.util.Locale;
-import java.util.Scanner;
+import java.util.List;
+import com.jme3.util.blockparser.BlockLanguageParser;
+import com.jme3.util.blockparser.Statement;
 
 public class J3MLoader implements AssetLoader {
 
     private AssetManager owner;
-    private Scanner scan;
     private AssetKey key;
 
     private MaterialDef materialDef;
@@ -74,6 +73,8 @@ public class J3MLoader implements AssetLoader {
     private String shaderLang;
     private String vertName;
     private String fragName;
+    
+    private static final String whitespacePattern = "\\p{javaWhitespace}+";
 
     public J3MLoader(){
     }
@@ -84,29 +85,6 @@ public class J3MLoader implements AssetLoader {
 
         if (!expected.equals(got))
             throw new IOException("Expected '"+expected+"', got '"+got+"'!");
-    }
-
-    private void nextStatement(){
-        while (true){
-            if (scan.hasNext("\\}")){
-                break;
-            }else if (scan.hasNext("[\n;]")){
-                scan.next();
-            }else if (scan.hasNext("//")){
-                scan.useDelimiter("\n");
-                scan.next();
-                scan.useDelimiter("\\p{javaWhitespace}+");
-            }else{
-                break;
-            }
-        }
-    }
-
-    private String readString(String end){
-        scan.useDelimiter(end);
-        String str = scan.next();
-        scan.useDelimiter("\\p{javaWhitespace}+");
-        return str.trim();
     }
 
     private Image createColorTexture(ColorRGBA color){
@@ -128,75 +106,49 @@ public class J3MLoader implements AssetLoader {
         }
     }
 
-    private void readShaderStatement(ShaderType type) throws IOException {
-        String lang = readString(":");
-
-        String word = scan.next();
-        throwIfNequal(":", word);
-
-        word = readString("[\n;(\\})]"); // new line, semicolon, comment or brace will end a statement
-        // locate source code
-
-        if (type == ShaderType.Vertex)
-            vertName = word;
-        else if (type == ShaderType.Fragment)
-            fragName = word;
-
-        shaderLang = lang;
+    // <TYPE> <LANG> : <SOURCE>
+    private void readShaderStatement(String statement) throws IOException {
+        String[] split = statement.split(":");
+        if (split.length != 2){
+            throw new IOException("Shader statement syntax incorrect" + statement);
+        }
+        String[] typeAndLang = split[0].split(whitespacePattern);
+        if (typeAndLang.length != 2){
+            throw new IOException("Shader statement syntax incorrect: " + statement);
+        }
+        shaderLang = typeAndLang[1];
+        if (typeAndLang[0].equals("VertexShader")){
+            vertName = split[1].trim();
+        }else if (typeAndLang[0].equals("FragmentShader")){
+            fragName = split[1].trim();
+        }
+        
     }
 
-    private void readLightMode(){
-        String mode = readString("[\n;(\\})]");
-        LightMode lm = LightMode.valueOf(mode);
+    // LightMode <MODE>
+    private void readLightMode(String statement) throws IOException{
+        String[] split = statement.split(whitespacePattern);
+        if (split.length != 2){
+            throw new IOException("LightMode statement syntax incorrect");
+        }
+        LightMode lm = LightMode.valueOf(split[1]);
         technique.setLightMode(lm);
     }
 
-    private void readShadowMode(){
-        String mode = readString("[\n;(\\})]");
-        ShadowMode sm = ShadowMode.valueOf(mode);
+    // ShadowMode <MODE>
+    private void readShadowMode(String statement) throws IOException{
+        String[] split = statement.split(whitespacePattern);
+        if (split.length != 2){
+            throw new IOException("ShadowMode statement syntax incorrect");
+        }
+        ShadowMode sm = ShadowMode.valueOf(split[1]);
         technique.setShadowMode(sm);
     }
 
-    private void readParam() throws IOException{
-        String word = scan.next();
-        VarType type;
-        if (word.equals("Color")){
-            type = VarType.Vector4;
-        }else{
-            type = VarType.valueOf(word);
-        }
-        
-        word = readString("[\n;(//)(\\})]");
-        FixedFuncBinding ffBinding = null;
-        if (word.contains(":")){
-            // contains fixed func binding
-            String[] split = word.split(":");
-            word = split[0].trim();
-
-            try {
-                ffBinding = FixedFuncBinding.valueOf(split[1].trim());
-            } catch (IllegalArgumentException ex){
-                throw new IOException("FixedFuncBinding '" +
-                                      split[1] + "' does not exist!");
-            }
-        }
-        // TODO: add support for default vals
-        materialDef.addMaterialParam(type, word, null, ffBinding);
-    }
-
-    private void readValueParam() throws IOException{
-        String name = readString(":");
-        throwIfNequal(":", scan.next());
-
-        // parse value
-        MatParam p = material.getMaterialDef().getMaterialParam(name);
-        if (p == null)
-            throw new IOException("The material parameter: "+name+" is undefined.");
-
-        VarType type = p.getVarType();
+    private Object readValue(VarType type, String value) throws IOException{
         if (type.isTextureType()){
 //            String texturePath = readString("[\n;(//)(\\})]");
-            String texturePath = readString("[\n;(\\})]");
+            String texturePath = value.trim();
             boolean flipY = false;
             boolean repeat = false;
             if (texturePath.startsWith("Flip Repeat ")){
@@ -219,98 +171,147 @@ public class J3MLoader implements AssetLoader {
             if (tex != null){
                 if (repeat)
                     tex.setWrap(WrapMode.Repeat);
-
-                material.setTextureParam(name, type, tex);
             }
+            return tex;
         }else{
+            String[] split = value.trim().split(whitespacePattern);
             switch (type){
                 case Float:
-                    material.setParam(name, type, scan.nextFloat());
-                    break;
+                    if (split.length != 1){
+                        throw new IOException("Float value parameter must have 1 entry: " + value);
+                    }
+                    return Float.parseFloat(split[0]);
                 case Vector2:
-                    material.setParam(name, type, new Vector2f(scan.nextFloat(),
-                                                               scan.nextFloat()));
-                    break;
+                    if (split.length != 2){
+                        throw new IOException("Vector2 value parameter must have 2 entries: " + value);
+                    }
+                    return new Vector2f(Float.parseFloat(split[0]),
+                                                               Float.parseFloat(split[1]));
                 case Vector3:
-                    material.setParam(name, type, new Vector3f(scan.nextFloat(),
-                                                               scan.nextFloat(),
-                                                               scan.nextFloat()));
-                    break;
+                    if (split.length != 3){
+                        throw new IOException("Vector3 value parameter must have 3 entries: " + value);
+                    }
+                    return new Vector3f(Float.parseFloat(split[0]),
+                                                               Float.parseFloat(split[1]),
+                                                               Float.parseFloat(split[2]));
                 case Vector4:
-                    material.setParam(name, type, new ColorRGBA(scan.nextFloat(),
-                                                                scan.nextFloat(),
-                                                                scan.nextFloat(),
-                                                                scan.nextFloat()));
-                    break;
+                    if (split.length != 4){
+                        throw new IOException("Vector4 value parameter must have 4 entries: " + value);
+                    }
+                    return new ColorRGBA(Float.parseFloat(split[0]),
+                                                                Float.parseFloat(split[1]),
+                                                                Float.parseFloat(split[2]),
+                                                                Float.parseFloat(split[3]));
                 case Int:
-                    material.setParam(name, type, scan.nextInt());
-                    break;
+                    if (split.length != 1){
+                        throw new IOException("Int value parameter must have 1 entry: " + value);
+                    }
+                    return Integer.parseInt(split[0]);
                 case Boolean:
-                    material.setParam(name, type, scan.nextBoolean());
-                    break;
+                    if (split.length != 1){
+                        throw new IOException("Boolean value parameter must have 1 entry: " + value);
+                    }
+                    return Boolean.parseBoolean(split[0]);
                 default:
                     throw new UnsupportedOperationException("Unknown type: "+type);
             }
         }
     }
-
-    private void readMaterialParams() throws IOException{
-        nextStatement();
-
-        String word = scan.next();
-        throwIfNequal("{", word);
-
-        nextStatement();
-
-        while (true){
-            if (scan.hasNext("\\}")){
-                scan.next();
-                break;
+    
+    // <TYPE> <NAME> [ "(" <FFBINDING> ")" ] [ ":" <DEFAULTVAL> ]
+    private void readParam(String statement) throws IOException{
+        String name;
+        String defaultVal = null;
+        FixedFuncBinding ffBinding = null;
+        
+        String[] split = statement.split(":");
+        
+        // Parse default val
+        if (split.length == 1){
+            // Doesn't contain default value
+        }else{
+            if (split.length != 2){
+                throw new IOException("Parameter statement syntax incorrect");
             }
+            statement = split[0].trim();
+            defaultVal = split[1].trim();
+        }
+        
+        // Parse ffbinding
+        int startParen = statement.indexOf("(");
+        if (startParen != -1){
+            // get content inside parentheses
+            int endParen = statement.indexOf(")", startParen);
+            String bindingStr = statement.substring(startParen+1, endParen).trim();
+            try {
+                ffBinding = FixedFuncBinding.valueOf(bindingStr);
+            } catch (IllegalArgumentException ex){
+                throw new IOException("FixedFuncBinding '" +
+                                      split[1] + "' does not exist!");
+            }
+            statement = statement.substring(0, startParen);
+        }
+        
+        // Parse type + name
+        split = statement.split(whitespacePattern);
+        if (split.length != 2){
+            throw new IOException("Parameter statement syntax incorrect");
+        }
+        
+        VarType type;
+        if (split[0].equals("Color")){
+            type = VarType.Vector4;
+        }else{
+            type = VarType.valueOf(split[0]);
+        }
+        
+        name = split[1];
+        
+        Object defaultValObj = null;
+        if (defaultVal != null){ 
+            readValue(type, defaultVal);
+        }
+        
+        materialDef.addMaterialParam(type, name, defaultValObj, ffBinding);
+    }
 
-            readParam();
-            nextStatement();
+    private void readValueParam(String statement) throws IOException{
+        // Use limit=1 incase filename contains colons
+        String[] split = statement.split(":", 2);
+        if (split.length != 2){
+            throw new IOException("Value parameter statement syntax incorrect");
+        }
+        String name = split[0].trim();
+
+        // parse value
+        MatParam p = material.getMaterialDef().getMaterialParam(name);
+        if (p == null){
+            throw new IOException("The material parameter: "+name+" is undefined.");
+        }
+
+        Object valueObj = readValue(p.getVarType(), split[1]);
+        if (p.getVarType().isTextureType()){
+            material.setTextureParam(name, p.getVarType(), (Texture) valueObj);
+        }else{
+            material.setParam(name, p.getVarType(), valueObj);
         }
     }
 
-    private void readExtendingMaterialParams() throws IOException{
-        nextStatement();
-
-        String word = scan.next();
-        throwIfNequal("{", word);
-
-        nextStatement();
-
-        while (true){
-            if (scan.hasNext("\\}")){
-                scan.next();
-                break;
-            }
-
-            readValueParam();
-            nextStatement();
+    private void readMaterialParams(List<Statement> paramsList) throws IOException{
+        for (Statement statement : paramsList){
+            readParam(statement.getLine());
         }
     }
 
-    private void readWorldParams() throws IOException{
-        nextStatement();
+    private void readExtendingMaterialParams(List<Statement> paramsList) throws IOException{
+        for (Statement statement : paramsList){
+            readValueParam(statement.getLine());
+        }
+    }
 
-        String word = scan.next();
-        throwIfNequal("{", word);
-
-        nextStatement();
-
-        while (true){
-            if (scan.hasNext("\\}")){
-                scan.next();
-                break;
-            }
-
-            word = readString("[\n;(//)(\\})]");
-            if (word != null && !word.equals("")){
-                technique.addWorldParam(word);
-            }
-            nextStatement();
+    private void readWorldParams(List<Statement> worldParams) throws IOException{
+        for (Statement statement : worldParams){
+            technique.addWorldParam(statement.getLine());
         }
     }
 
@@ -318,174 +319,111 @@ public class J3MLoader implements AssetLoader {
         return word != null && word.equals("On");
     }
 
-    private void readRenderStateStatement() throws IOException{
-        String word = scan.next();
-        if (word.equals("Wireframe")){
-            renderState.setWireframe(parseBoolean(scan.next()));
-        }else if (word.equals("FaceCull")){
-            renderState.setFaceCullMode(FaceCullMode.valueOf(scan.next()));
-        }else if (word.equals("DepthWrite")){
-            renderState.setDepthWrite(parseBoolean(scan.next()));
-        }else if (word.equals("DepthTest")){
-            renderState.setDepthTest(parseBoolean(scan.next()));
-        }else if (word.equals("Blend")){
-            renderState.setBlendMode(BlendMode.valueOf(scan.next()));
-        }else if (word.equals("AlphaTestFalloff")){
+    private void readRenderStateStatement(String statement) throws IOException{
+        String[] split = statement.split(whitespacePattern);
+        if (split[0].equals("Wireframe")){
+            renderState.setWireframe(parseBoolean(split[1]));
+        }else if (split[0].equals("FaceCull")){
+            renderState.setFaceCullMode(FaceCullMode.valueOf(split[1]));
+        }else if (split[0].equals("DepthWrite")){
+            renderState.setDepthWrite(parseBoolean(split[1]));
+        }else if (split[0].equals("DepthTest")){
+            renderState.setDepthTest(parseBoolean(split[1]));
+        }else if (split[0].equals("Blend")){
+            renderState.setBlendMode(BlendMode.valueOf(split[1]));
+        }else if (split[0].equals("AlphaTestFalloff")){
             renderState.setAlphaTest(true);
-            renderState.setAlphaFallOff(scan.nextFloat());
-        }else if (word.equals("PolyOffset")){
-            float factor = scan.nextFloat();
-            float units = scan.nextFloat();
+            renderState.setAlphaFallOff(Float.parseFloat(split[1]));
+        }else if (split[0].equals("PolyOffset")){
+            float factor = Float.parseFloat(split[1]);
+            float units = Float.parseFloat(split[2]);
             renderState.setPolyOffset(factor, units);
-        }else if (word.equals("ColorWrite")){
-            renderState.setColorWrite(parseBoolean(scan.next()));
-        }else if (word.equals("PointSprite")){
-            renderState.setPointSprite(parseBoolean(scan.next()));
+        }else if (split[0].equals("ColorWrite")){
+            renderState.setColorWrite(parseBoolean(split[1]));
+        }else if (split[0].equals("PointSprite")){
+            renderState.setPointSprite(parseBoolean(split[1]));
         }else{
-            throwIfNequal(null, word);
+            throwIfNequal(null, split[0]);
         }
     }
 
-    private void readAdditionalRenderState() throws IOException{
-        nextStatement();
-
-        String word = scan.next();
-        throwIfNequal("{", word);
-
-        nextStatement();
-
+    private void readAdditionalRenderState(List<Statement> renderStates) throws IOException{
         renderState = material.getAdditionalRenderState();
-
-        while (true){
-            if (scan.hasNext("\\}")){
-                scan.next();
-                break;
-            }
-
-            readRenderStateStatement();
-            nextStatement();
+        for (Statement statement : renderStates){
+            readRenderStateStatement(statement.getLine());
         }
-
         renderState = null;
     }
 
-    private void readRenderState() throws IOException{
-        nextStatement();
-
-        String word = scan.next();
-        throwIfNequal("{", word);
-
-        nextStatement();
-
+    private void readRenderState(List<Statement> renderStates) throws IOException{
         renderState = new RenderState();
-
-        while (true){
-            if (scan.hasNext("\\}")){
-                scan.next();
-                break;
-            }
-
-            readRenderStateStatement();
-            nextStatement();
+        for (Statement statement : renderStates){
+            readRenderStateStatement(statement.getLine());
         }
-        
         technique.setRenderState(renderState);
         renderState = null;
     }
     
-    private void readDefine(){
-        // stops at either next statement or colon
-        // ways to end a statement:
-        /*
-        Block {
-            Statement<new line>
-            Statement;
-            Statement //comment
-            Statement }
-        */
-        String defineName = readString("[\n;:(//)(\\})]");
-        if (defineName.equals(""))
-            return;
-
-        String matParamName = null;
-        if (scan.hasNext(":")){
-            scan.next();
-            // this time without colon
-            matParamName = readString("[\n;(//)(\\})]");
-            // add define <-> param mapping
-            technique.addShaderParamDefine(matParamName, defineName);
-        }else{
+    // <DEFINENAME> [ ":" <PARAMNAME> ]
+    private void readDefine(String statement) throws IOException{
+        String[] split = statement.split(":");
+        if (split.length == 1){
             // add preset define
-            technique.addShaderPresetDefine(defineName, VarType.Boolean, true);
-        }
-    }
-
-    private void readDefines() throws IOException{
-        nextStatement();
-
-        String word = scan.next();
-        throwIfNequal("{", word);
-
-        nextStatement();
-
-        while (true){
-            if (scan.hasNext("\\}")){
-                scan.next();
-                break;
-            }
-
-            readDefine();
-            nextStatement();
-        }
-
-    }
-
-    private void readTechniqueStatement() throws IOException{
-        String word = scan.next();
-        if (word.equals("VertexShader")){
-            readShaderStatement(ShaderType.Vertex);
-        }else if (word.equals("FragmentShader")){
-            readShaderStatement(ShaderType.Fragment);
-        }else if (word.equals("LightMode")){
-            readLightMode();
-        }else if (word.equals("ShadowMode")){
-            readShadowMode();
-        }else if (word.equals("WorldParameters")){
-            readWorldParams();
-        }else if (word.equals("RenderState")){
-            readRenderState();
-        }else if (word.equals("Defines")){
-            readDefines();
+            technique.addShaderPresetDefine(split[0].trim(), VarType.Boolean, true);
+        }else if (split.length == 2){
+            technique.addShaderParamDefine(split[1].trim(), split[0].trim());
         }else{
-            throwIfNequal(null, word);
+            throw new IOException("Define syntax incorrect");
         }
-        nextStatement();
     }
 
-    private void readTransparentStatement() throws IOException{
-        String on = readString("[\n;(\\})]");
-        material.setTransparent(parseBoolean(on));
+    private void readDefines(List<Statement> defineList) throws IOException{
+        for (Statement statement : defineList){
+            readDefine(statement.getLine());
+        }
+
     }
 
-    private void readTechnique() throws IOException{
-        String name = null;
-        if (!scan.hasNext("\\{")){
-            name = scan.next();
+    private void readTechniqueStatement(Statement statement) throws IOException{
+        String[] split = statement.getLine().split("[ \\{]");
+        if (split[0].equals("VertexShader") ||
+            split[0].equals("FragmentShader")){
+            readShaderStatement(statement.getLine());
+        }else if (split[0].equals("LightMode")){
+            readLightMode(statement.getLine());
+        }else if (split[0].equals("ShadowMode")){
+            readShadowMode(statement.getLine());
+        }else if (split[0].equals("WorldParameters")){
+            readWorldParams(statement.getContents());
+        }else if (split[0].equals("RenderState")){
+            readRenderState(statement.getContents());
+        }else if (split[0].equals("Defines")){
+            readDefines(statement.getContents());
+        }else{
+            throwIfNequal(null, split[0]);
         }
-        technique = new TechniqueDef(name);
+    }
 
-        String word = scan.next();
-        throwIfNequal("{", word);
+    private void readTransparentStatement(String statement) throws IOException{
+        String[] split = statement.split(whitespacePattern);
+        if (split.length != 2){
+            throw new IOException("Transparent statement syntax incorrect");
+        }
+        material.setTransparent(parseBoolean(split[1]));
+    }
 
-        nextStatement();
-
-        while (true){
-            if (scan.hasNext("\\}")){
-                scan.next();
-                break;
-            }
-
-            readTechniqueStatement();
+    private void readTechnique(Statement techStat) throws IOException{
+        String[] split = techStat.getLine().split(whitespacePattern);
+        if (split.length == 1){
+            technique = new TechniqueDef(null);
+        }else if (split.length == 2){
+            technique = new TechniqueDef(split[1]);
+        }else{
+            throw new IOException("Technique statement syntax incorrect");
+        }
+        
+        for (Statement statement : techStat.getContents()){
+            readTechniqueStatement(statement);
         }
 
         if (vertName != null && fragName != null){
@@ -499,40 +437,44 @@ public class J3MLoader implements AssetLoader {
         shaderLang = null;
     }
 
-    private void loadFromScanner() throws IOException{
-        nextStatement();
-
+    private void loadFromRoot(List<Statement> roots) throws IOException{
+        if (roots.size() == 2){
+            Statement exception = roots.get(0);
+            String line = exception.getLine();
+            if (line.startsWith("Exception")){
+                throw new AssetLoadException(line.substring("Exception ".length()));
+            }else{
+                throw new IOException("In multiroot material, expected first statement to be 'Exception'");
+            }
+        }else if (roots.size() != 1){
+            throw new IOException("Too many roots in J3M/J3MD file");
+        }
+        
         boolean extending = false;
-        String name = null;
-        String word = scan.next();
-        if (word.equals("Material")){
-            extending = true;
-        }else if (word.equals("MaterialDef")){
+        Statement materialStat = roots.get(0);
+        String materialName = materialStat.getLine();
+        if (materialName.startsWith("MaterialDef")){
+            materialName = materialName.substring("MaterialDef ".length()).trim();
             extending = false;
-        }else if (word.equals("Exception")){
-            String exception = scan.nextLine();
-            throw new AssetLoadException(exception);
+        }else if (materialName.startsWith("Material")){
+            materialName = materialName.substring("Material ".length()).trim();
+            extending = true;
         }else{
             throw new IOException("Specified file is not a Material file");
         }
-
-        nextStatement();
-
-        word = readString("[(\\{)(//)\n:]");
-        if (word == null || word.equals(""))
+        
+        String[] split = materialName.split(":", 2);
+        
+        if (materialName.equals("")){
             throw new IOException("Material name cannot be empty");
+        }
 
-        name = word;
-
-        nextStatement();
-
-        if (scan.hasNext(":")){
+        if (split.length == 2){
             if (!extending){
                 throw new IOException("Must use 'Material' when extending.");
             }
 
-            scan.next(); // skip colon
-            String extendedMat = readString("\\{");
+            String extendedMat = split[1].trim();
 
             MaterialDef def = (MaterialDef) owner.loadAsset(new AssetKey(extendedMat));
             if (def == null)
@@ -541,45 +483,35 @@ public class J3MLoader implements AssetLoader {
             material = new Material(def);
             material.setKey(key);
 //            material.setAssetName(fileName);
-        }else if (scan.hasNext("\\{")){
+        }else if (split.length == 1){
             if (extending){
                 throw new IOException("Expected ':', got '{'");
             }
-            materialDef = new MaterialDef(owner, name);
+            materialDef = new MaterialDef(owner, materialName);
             // NOTE: pass file name for defs so they can be loaded later
             materialDef.setAssetName(key.getName());
+        }else{
+            throw new IOException("Cannot use colon in material name/path");
         }
-        scan.next(); // skip {
-
-        nextStatement();
-
-        while (true){
-            if (scan.hasNext("\\}")){
-                scan.next();
-                break;
-            }
-
-            word = scan.next();
+        
+        for (Statement statement : materialStat.getContents()){
+            split = statement.getLine().split("[ \\{]");
+            String statType = split[0];
             if (extending){
-                if (word.equals("MaterialParameters")){
-                    readExtendingMaterialParams();
-                    nextStatement();
-                }else if (word.equals("AdditionalRenderState")){
-                    readAdditionalRenderState();
-                    nextStatement();
-                }else if (word.equals("Transparent")){
-                    readTransparentStatement();
-                    nextStatement();
+                if (statType.equals("MaterialParameters")){
+                    readExtendingMaterialParams(statement.getContents());
+                }else if (statType.equals("AdditionalRenderState")){
+                    readAdditionalRenderState(statement.getContents());
+                }else if (statType.equals("Transparent")){
+                    readTransparentStatement(statement.getLine());
                 }
             }else{
-                if (word.equals("Technique")){
-                    readTechnique();
-                    nextStatement();
-                }else if (word.equals("MaterialParameters")){
-                    readMaterialParams();
-                    nextStatement();
+                if (statType.equals("Technique")){
+                    readTechnique(statement);
+                }else if (statType.equals("MaterialParameters")){
+                    readMaterialParams(statement.getContents());
                 }else{
-                    throw new IOException("Expected material statement, got '"+scan.next()+"'");
+                    throw new IOException("Expected material statement, got '"+statType+"'");
                 }
             }
         }
@@ -590,10 +522,8 @@ public class J3MLoader implements AssetLoader {
 
         InputStream in = info.openStream();
         try {
-            scan = new Scanner(in);
-            scan.useLocale(Locale.US);
             key = info.getKey();
-            loadFromScanner();
+            loadFromRoot(BlockLanguageParser.parse(in));
         } finally {
             if (in != null)
                 in.close();

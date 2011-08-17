@@ -3,7 +3,7 @@ MaterialDef Default GUI {
     MaterialParameters {
         Texture2D Texture
         Boolean UseTex
-        Vector4 Color : Color
+        Vector4 Color (Color)
     }
 
     Technique {

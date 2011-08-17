@@ -53,8 +53,6 @@ import com.jme3.math.Vector4f;
 import com.jme3.renderer.Caps;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.Renderer;
-import com.jme3.renderer.queue.RenderQueue.Bucket;
-import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.Geometry;
 import com.jme3.shader.Shader;
 import com.jme3.shader.Uniform;
@@ -115,6 +113,13 @@ public class Material implements Asset, Cloneable, Savable, Comparable<Material>
             throw new NullPointerException("Material definition cannot be null");
         }
         this.def = def;
+        
+        // Load default values from definition (if any)
+        for (MatParam param : def.getMaterialParams()){
+            if (param.getValue() != null){
+                setParam(param.getName(), param.getVarType(), param.getValue());
+            }
+        }
     }
 
     public Material(AssetManager contentMan, String defName) {

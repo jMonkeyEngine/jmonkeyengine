@@ -128,7 +128,8 @@ public class MatParam implements Savable, Cloneable {
      * Returns the value of this material parameter.
      * <p>
      * Material parameters that are used for material definitions
-     * will not have a value.
+     * will not have a value, unless there's a default value declared
+     * in the definition.
      * 
      * @return the value of this material parameter.
      */

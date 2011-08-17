@@ -2,7 +2,6 @@
 #define ATTENUATION
 //#define HQ_ATTENUATION
 
-
 varying vec2 texCoord;
 #ifdef SEPARATE_TEXCOORD
   varying vec2 texCoord2;
@@ -51,9 +50,8 @@ varying vec3 SpecularSum;
 #ifdef COLORRAMP
   uniform sampler2D m_ColorRamp;
 #endif
+
 uniform float m_AlphaDiscardThreshold;
-
-
 
 #ifndef VERTEX_LIGHTING
 uniform float m_Shininess;

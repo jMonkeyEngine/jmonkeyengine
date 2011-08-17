@@ -654,10 +654,14 @@ void main(){
               float innerAngleCos = floor(g_LightDirection.w) * 0.001;
               float outerAngleCos = fract(g_LightDirection.w);
               float innerMinusOuter = innerAngleCos - outerAngleCos;
-              spotFallOff = clamp((curAngleCos - outerAngleCos) / innerMinusOuter, 0.0, 1.0);
-              if(spotFallOff<=0.0){
-                  gl_FragColor =  AmbientSum * diffuseColor;
+
+              spotFallOff = (curAngleCos - outerAngleCos) / innerMinusOuter;
+
+              if(spotFallOff <= 0.0){
+                  gl_FragColor.rgb = AmbientSum * diffuseColor;
                   return;
+              }else{
+                  spotFallOff = clamp(spotFallOff, 0.0, 1.0);
               }
         }
     

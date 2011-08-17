@@ -2,7 +2,7 @@ MaterialDef Default GUI {
 
     MaterialParameters {
         Texture2D Texture
-        Color Color : Color
+        Color Color ( Color )
         Boolean VertexColor
     }
 

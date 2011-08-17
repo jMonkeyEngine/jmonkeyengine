@@ -79,6 +79,8 @@ public interface AssetManager {
      * they were registered, to locate the asset by the {@link AssetKey}.
      * Once an {@link AssetLocator} returns a non-null AssetInfo, it is sent
      * to the {@link AssetLoader} to load the asset.
+     * Once a locator is registered, it can be removed via
+     * {@link #unregisterLocator(java.lang.String, java.lang.Class) }.
      *
      * @param rootPath Specifies the root path from which to locate assets
      * for the given {@link AssetLocator}. The purpose of this parameter
@@ -87,9 +89,20 @@ public interface AssetManager {
      *
      * @see AssetLocator#setRootPath(java.lang.String)
      * @see AssetLocator#locate(com.jme3.asset.AssetManager, com.jme3.asset.AssetKey) 
+     * @see #unregisterLocator(java.lang.String, java.lang.Class) 
      */
     public void registerLocator(String rootPath, Class<? extends AssetLocator> locatorClass);
 
+    /**
+     * Unregisters the given locator class. This essentially undoes the operation
+     * done by {@link #registerLocator(java.lang.String, java.lang.Class) }.
+     * 
+     * @param rootPath Should be the same as the root path specified in {@link
+     * #registerLocator(java.lang.String, java.lang.Class) }.
+     * @param locatorClass The locator class to unregister
+     */
+    public void unregisterLocator(String rootPath, Class<? extends AssetLocator> locatorClass);
+    
     /**
      * Set an {@link AssetEventListener} to receive events from this
      * <code>AssetManager</code>. There can only be one {@link  AssetEventListener}
