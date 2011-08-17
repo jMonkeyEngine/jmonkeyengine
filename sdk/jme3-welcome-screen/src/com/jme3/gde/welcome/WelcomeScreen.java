@@ -4,8 +4,8 @@
  */
 package com.jme3.gde.welcome;
 
-import atmosphere.Planet;
-import atmosphere.PlanetRendererState;
+//import atmosphere.Planet;
+//import atmosphere.PlanetRendererState;
 import com.jme3.gde.core.assets.ProjectAssetManager;
 import com.jme3.gde.core.scene.PreviewRequest;
 import com.jme3.gde.core.scene.SceneApplication;
@@ -45,7 +45,7 @@ import org.openide.util.NbPreferences;
  */
 public class WelcomeScreen implements ScreenController {
 
-    PlanetRendererState planetView;
+//    PlanetRendererState planetView;
     SceneRequest request;
     NiftyJmeDisplay niftyDisplay;
     Nifty nifty;
@@ -96,9 +96,9 @@ public class WelcomeScreen implements ScreenController {
                 skyBox.removeFromParent();
                 SceneApplication.getApplication().getGuiViewPort().removeProcessor(niftyDisplay);
                 nifty.exit();
-                if (planetView != null) {
-                    SceneApplication.getApplication().getStateManager().detach(planetView);
-                }
+//                if (planetView != null) {
+//                    SceneApplication.getApplication().getStateManager().detach(planetView);
+//                }
                 SceneApplication.getApplication().removeSceneListener(this);
                 return true;
             }
