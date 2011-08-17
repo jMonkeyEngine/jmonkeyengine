@@ -126,8 +126,8 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
         filter.cleanup(renderer);
         updateLastFilterIndex();
     }
-    
-    public Iterator<Filter> getFilterIterator(){
+
+    public Iterator<Filter> getFilterIterator() {
         return filters.iterator();
     }
 
@@ -289,10 +289,13 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
         } else if (renderFrameBufferMS != null) {
             sceneBuffer = renderFrameBufferMS;
         }
-        renderFilterChain(renderer, sceneBuffer);
-        renderManager.setCamera(viewPort.getCamera(), false);
-
+        renderFilterChain(renderer, sceneBuffer);        
         renderer.setFrameBuffer(outputBuffer);
+        
+        //viewport can be null if no filters are enabled
+        if (viewPort != null) {
+            renderManager.setCamera(viewPort.getCamera(), false);
+        }
 
     }
 
@@ -361,7 +364,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
             //reseting the viewport camera viewport to its initial value
             viewPort.getCamera().resize(originalWidth, originalHeight, true);
             viewPort.getCamera().setViewPort(left, right, bottom, top);
-            viewPort.setOutputFrameBuffer(outputBuffer);
+            viewPort.setOutputFrameBuffer(outputBuffer);          
             viewPort = null;
         }
 
@@ -478,7 +481,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
         InputCapsule ic = im.getCapsule(this);
         numSamples = ic.readInt("numSamples", 0);
         filters = ic.readSavableArrayList("filters", null);
-        for (Filter filter : filters) {           
+        for (Filter filter : filters) {
             filter.setProcessor(this);
             setFilterState(filter, filter.isEnabled());
         }

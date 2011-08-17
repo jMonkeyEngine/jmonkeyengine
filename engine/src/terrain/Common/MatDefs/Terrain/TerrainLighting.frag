@@ -658,7 +658,7 @@ void main(){
               spotFallOff = (curAngleCos - outerAngleCos) / innerMinusOuter;
 
               if(spotFallOff <= 0.0){
-                  gl_FragColor.rgb = AmbientSum * diffuseColor;
+                  gl_FragColor = AmbientSum * diffuseColor;
                   return;
               }else{
                   spotFallOff = clamp(spotFallOff, 0.0, 1.0);
