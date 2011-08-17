@@ -39,7 +39,6 @@ import com.jme3.input.controls.MouseAxisTrigger;
 import com.jme3.input.controls.MouseButtonTrigger;
 import com.jme3.light.PointLight;
 import com.jme3.math.ColorRGBA;
-import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
@@ -90,7 +89,7 @@ public class SceneApplication extends Application implements LookupProvider, Loo
     private Node statsGuiNode = new Node("Stats Gui Node");
     protected Node toolsNode = new Node("Tools Node");
     private SceneCameraController camController;
-    private AbstractCameraController activeCamController=null;
+    private AbstractCameraController activeCamController = null;
     //preview variables
     protected float secondCounter = 0.0f;
     protected BitmapText fpsText;
@@ -135,9 +134,6 @@ public class SceneApplication extends Application implements LookupProvider, Loo
             Exceptions.printStackTrace(e);
         }
     }
-
-
-    
 
     private void loadFPSText() {
         BitmapFont font = assetManager.loadFont("Interface/Fonts/Default.fnt");
@@ -324,6 +320,8 @@ public class SceneApplication extends Application implements LookupProvider, Loo
                 currentSceneRequest = request;
                 if (request.getDataObject() != null) {
                     setCurrentFileNode(request.getDataObject().getNodeDelegate());
+                } else {
+                    setCurrentFileNode(null);
                 }
                 setHelpContext(request.getHelpCtx());
                 getCurrentSceneRequest().setDisplayed(true);
@@ -381,8 +379,8 @@ public class SceneApplication extends Application implements LookupProvider, Loo
         }
         toolsNode.detachAllChildren();
         rootNode.detachAllChildren();
-        setHelpContext(null);        
-       // resetCam();
+        setHelpContext(null);
+        // resetCam();
         currentSceneRequest = null;
         lastError = "";
         java.awt.EventQueue.invokeLater(new Runnable() {
@@ -421,7 +419,7 @@ public class SceneApplication extends Application implements LookupProvider, Loo
                 } else {
                     SceneViewerTopComponent.findInstance().setActivatedNodes(new org.openide.nodes.Node[]{node});
                     SceneViewerTopComponent.findInstance().open();
-                    SceneViewerTopComponent.findInstance().requestActive();
+                    SceneViewerTopComponent.findInstance().requestVisible();
                 }
             }
         });
@@ -539,6 +537,4 @@ public class SceneApplication extends Application implements LookupProvider, Loo
     public void setActiveCameraController(AbstractCameraController activeCamController) {
         this.activeCamController = activeCamController;
     }
-    
-    
 }
