@@ -212,7 +212,7 @@ public final class SceneExplorerTopComponent extends TopComponent implements Exp
 
     @Override
     public void componentClosed() {
-        SceneApplication.getApplication().addSceneListener(this);
+        SceneApplication.getApplication().removeSceneListener(this);
         // TODO add custom code on component closing
     }
 
@@ -274,6 +274,7 @@ public final class SceneExplorerTopComponent extends TopComponent implements Exp
         if (node != null) {
             explorerManager.setRootContext(node);
             explorerManager.getRootContext().setDisplayName(node.getName());
+            requestVisible();
         }
     }
 

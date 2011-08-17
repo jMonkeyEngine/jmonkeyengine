@@ -161,6 +161,7 @@ public final class FilterExplorerTopComponent extends TopComponent implements Ex
         if (added) {
             setFilterEnabled(true);
         }
+        requestVisible();
     }
 
     public synchronized void setFilterEnabled(final boolean enabled) {
