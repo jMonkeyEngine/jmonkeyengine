@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.imageio.ImageIO;
 import javax.swing.JComponent;
+import jme3tools.converters.ImageToAwt;
 import org.openide.DialogDisplayer;
 import org.openide.WizardDescriptor;
 import org.openide.loaders.DataObject;
@@ -138,10 +139,19 @@ public class AddTerrainAction extends AbstractNewSpatialWizardAction {
                 mat.setTexture("AlphaMap_2", tex);
         }
         
-        // give the first layer default texture
         Texture defaultTexture = manager.loadTexture(TerrainEditorController.DEFAULT_TERRAIN_TEXTURE);
-        defaultTexture.setWrap(WrapMode.Repeat);
-        mat.setTexture("DiffuseMap", defaultTexture);
+        
+        // copy the default texture to the assets folder if it doesn't exist there yet
+        String dirtTextureName = "/Textures/dirt.jpg";
+        File dirtTextureFile = new File(assetFolder+dirtTextureName);
+        if (!dirtTextureFile.exists()) {
+            BufferedImage bi = ImageToAwt.convert(defaultTexture.getImage(), false, true, 0);
+            ImageIO.write(bi, "jpg", dirtTextureFile);
+        }
+        // give the first layer default texture
+        Texture dirtTexture = manager.loadTexture(dirtTextureName);
+        dirtTexture.setWrap(WrapMode.Repeat);
+        mat.setTexture("DiffuseMap", dirtTexture);
         mat.setFloat("DiffuseMap_0_scale", TerrainEditorController.DEFAULT_TEXTURE_SCALE);
         mat.setBoolean("WardIso", true);
 
