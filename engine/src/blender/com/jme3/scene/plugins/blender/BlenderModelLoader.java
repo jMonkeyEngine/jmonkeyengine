@@ -33,7 +33,6 @@ package com.jme3.scene.plugins.blender;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -134,13 +133,16 @@ public class BlenderModelLoader implements AssetLoader {
                     }
                 }
             }
-            inputStream.close();
+            try {
+            	inputStream.close();
+            } catch(IOException e) {
+            	LOGGER.warning(e.getLocalizedMessage());
+            }
             List<Node> objects = loadingResults.getObjects();
             if (objects.size() > 0) {
                 Node modelNode = new Node(blenderKey.getName());
-                for (Iterator<Node> it = objects.iterator(); it.hasNext();) {
-                    Node node = it.next();
-                    modelNode.attachChild(node);
+                for(Node object : objects) {
+                	modelNode.attachChild(object);
                 }
                 return modelNode;
             } else if (objects.size() == 1) {
