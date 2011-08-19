@@ -44,10 +44,8 @@ import com.jme3.asset.BlenderKey.FeaturesToLoad;
 import com.jme3.bounding.BoundingBox;
 import com.jme3.bounding.BoundingSphere;
 import com.jme3.bounding.BoundingVolume;
-import com.jme3.collision.CollisionResults;
 import com.jme3.material.Material;
 import com.jme3.math.FastMath;
-import com.jme3.math.Ray;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.queue.RenderQueue.Bucket;
@@ -68,6 +66,7 @@ import com.jme3.scene.plugins.blender.file.Structure;
 import com.jme3.scene.plugins.blender.materials.MaterialHelper;
 import com.jme3.scene.plugins.blender.objects.Properties;
 import com.jme3.scene.plugins.blender.textures.TextureHelper;
+import com.jme3.scene.plugins.blender.textures.UVCoordinatesGenerator;
 import com.jme3.texture.Texture;
 import com.jme3.util.BufferUtils;
 
@@ -127,10 +126,13 @@ public class MeshHelper extends AbstractBlenderHelper {
 		// the following map sorts faces by material number (because in jme Mesh can have only one material)
 		Map<Integer, List<Integer>> meshesMap = new HashMap<Integer, List<Integer>>();
 		Pointer pMFace = (Pointer) structure.getFieldValue("mface");
-                List<Structure> mFaces = null;
-                if (pMFace.isNotNull()){
-                    mFaces = pMFace.fetchData(dataRepository.getInputStream());
-                }
+        List<Structure> mFaces = null;
+        if (pMFace.isNotNull()){
+            mFaces = pMFace.fetchData(dataRepository.getInputStream());
+            if(mFaces==null || mFaces.size()==0) {
+            	return new ArrayList<Geometry>(0);
+            }
+        }
 
 		Pointer pMTFace = (Pointer) structure.getFieldValue("mtface");
 		List<Vector2f> uvCoordinates = null;
@@ -142,7 +144,7 @@ public class MeshHelper extends AbstractBlenderHelper {
 			if (mtFaces.size() != facesAmount) {
 				throw new BlenderFileException("The amount of faces uv coordinates is not equal to faces amount!");
 			}
-			uvCoordinates = new ArrayList<Vector2f>();// TODO: calculate the amount of coordinates if possible
+			uvCoordinates = new ArrayList<Vector2f>();
 		}
 
 		// normalMap merges normals of faces that will be rendered smooth
@@ -156,9 +158,6 @@ public class MeshHelper extends AbstractBlenderHelper {
 		// positions (it simply tells which vertex is referenced where in the result list)
 		Map<Integer, List<Integer>> vertexReferenceMap = new HashMap<Integer, List<Integer>>(verticesAmount);
 		int vertexColorIndex = 0;
-                if (mFaces == null){
-                    return null;
-                }
 		for (int i = 0; i < mFaces.size(); ++i) {
 			Structure mFace = mFaces.get(i);
 			boolean smooth = (((Number) mFace.getFieldValue("flag")).byteValue() & 0x01) != 0x00;
@@ -392,54 +391,9 @@ public class MeshHelper extends AbstractBlenderHelper {
 			for(Geometry geom : geometries) {
 				geom.getMesh().setBuffer(uvCoordsBuffer);
 			}
-		} else {
-			Vector2f[] uvTable = new Vector2f[vertexList.size()];
-			Ray ray = new Ray();
-			CollisionResults cr = new CollisionResults();
-			Vector3f yVec = new Vector3f();
-			Vector3f zVec = new Vector3f();
-			for(Geometry geom : geometries) {
-				if(materialHelper.hasTexture(geom.getMaterial())) {//generate only when material has a texture
-					geom.getMesh().updateBound();
-					BoundingSphere bs = this.getBoundingSphere(geom.getMesh());
-					float r2 = bs.getRadius() * bs.getRadius();
-					yVec.set(0, -bs.getRadius(), 0);
-					zVec.set(0, 0, -bs.getRadius());
-					Vector3f center = bs.getCenter();
-					ray.setOrigin(center);
-					//we cast each vertex of the current mesh on the bounding box to determine the UV-coordinates
-					for(int i=0;i<geom.getMesh().getIndexBuffer().size();++i) {
-						int index = geom.getMesh().getIndexBuffer().get(i);
-						
-						ray.setOrigin(vertexList.get(index));
-						ray.setDirection(normalList.get(index));
-						
-						//finding collision point
-						cr.clear();
-						bs.collideWith(ray, cr);//there is ALWAYS one collision
-						Vector3f p = cr.getCollision(0).getContactPoint();
-						p.subtractLocal(center);
-						//arcLength = FastMath.acos(p.dot(yVec)/(p.length * yVec.length)) * r    <- an arc length on the sphere (from top to the point on the sphere)
-						//but yVec.length == r and p.length == r    so: arcLength = FastMath.acos(p.dot(yVec)/r^2)/r
-						//U coordinate is as follows: u = arcLength / PI*r
-						//so to compute it faster we just write: u = FastMath.acos(p.dot(yVec)/r^2) / PI;
-						float u = FastMath.acos(p.dot(yVec)/r2) / FastMath.PI;
-						//we use similiar method to compute v
-						//the only difference is that we need to cast the p vector on ZX plane
-						//and use its length instead of r
-						p.y = 0;
-						float v = FastMath.acos(p.dot(zVec)/(bs.getRadius()*p.length())) / FastMath.PI;
-						uvTable[index] = new Vector2f(u, v);
-					}
-				}
-			}
-			
-			//creating and applying the buffer
-			uvCoordsBuffer = new VertexBuffer(Type.TexCoord);
-			uvCoordsBuffer.setupData(Usage.Static, 2, Format.Float, BufferUtils.createFloatBuffer(uvTable));
-			for(Geometry geom : geometries) {
-				geom.getMesh().setBuffer(uvCoordsBuffer);
-			}
+		} else {//TODO: get the proper texture coordinates type
+			UVCoordinatesGenerator.generateUVCoordinates(UVCoordinatesGenerator.TEXCO_ORCO, 
+					com.jme3.texture.Texture.Type.ThreeDimensional, geometries);
 		}
 		
 		dataRepository.addLoadedFeatures(structure.getOldMemoryAddress(), structure.getName(), structure, geometries);
@@ -550,8 +504,9 @@ public class MeshHelper extends AbstractBlenderHelper {
 	public Vector3f[] getVertices(Structure meshStructure, DataRepository dataRepository) throws BlenderFileException {
 		int verticesAmount = ((Number) meshStructure.getFieldValue("totvert")).intValue();
 		Vector3f[] vertices = new Vector3f[verticesAmount];
-                if (verticesAmount == 0)
-                    return vertices;
+                if (verticesAmount == 0) {
+					return vertices;
+				}
                 
 		Pointer pMVert = (Pointer) meshStructure.getFieldValue("mvert");
 		List<Structure> mVerts = pMVert.fetchData(dataRepository.getInputStream());

@@ -41,6 +41,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -68,6 +69,7 @@ import com.jme3.texture.Image.Format;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
 import com.jme3.texture.Texture2D;
+import com.jme3.texture.Texture3D;
 import com.jme3.util.BufferUtils;
 
 /**
@@ -194,7 +196,8 @@ public class TextureHelper extends AbstractBlenderHelper {
 		int type = ((Number) tex.getFieldValue("type")).intValue();
 		int width = dataRepository.getBlenderKey().getGeneratedTextureWidth();
 		int height = dataRepository.getBlenderKey().getGeneratedTextureHeight();
-
+		int depth = dataRepository.getBlenderKey().getGeneratedTextureDepth();
+		
 		switch (type) {
 			case TEX_IMAGE:// (it is first because probably this will be most commonly used)
 				Pointer pImage = (Pointer) tex.getFieldValue("ima");
@@ -214,7 +217,7 @@ public class TextureHelper extends AbstractBlenderHelper {
 			case TEX_VORONOI:
 			case TEX_DISTNOISE:
 				TextureGenerator textureGenerator = textureGenerators.get(Integer.valueOf(type));
-				result = textureGenerator.generate(tex, width, height, dataRepository);
+				result = textureGenerator.generate(tex, width, height, depth, dataRepository);
 				break;
 			case TEX_NONE:// No texture, do nothing
 				break;
@@ -266,7 +269,11 @@ public class TextureHelper extends AbstractBlenderHelper {
 		data.rewind();
 		int width = texture.getImage().getWidth();
 		int height = texture.getImage().getHeight();
-		ByteBuffer newData = BufferUtils.createByteBuffer(width * height * 4);
+		int depth = texture.getImage().getDepth();
+		if(depth==0) {
+			depth = 1;
+		}
+		ByteBuffer newData = BufferUtils.createByteBuffer(width * height * depth * 4);
 
 		float[] resultPixel = new float[4];
 		int dataIndex = 0;
@@ -276,9 +283,15 @@ public class TextureHelper extends AbstractBlenderHelper {
 			newData.put(dataIndex++, (byte) (resultPixel[0] * 255.0f));
 			newData.put(dataIndex++, (byte) (resultPixel[1] * 255.0f));
 			newData.put(dataIndex++, (byte) (resultPixel[2] * 255.0f));
-                        newData.put(dataIndex++, (byte) (1.0 * 255.0f));
+            newData.put(dataIndex++, (byte) 255.0f);//1.0f * 255.0f
 		}
-		return new Texture2D(new Image(Format.RGBA8, width, height, newData));
+		if(texture.getType()==Texture.Type.TwoDimensional) {
+			return new Texture2D(new Image(Format.RGBA8, width, height, newData));
+		} else {
+			ArrayList<ByteBuffer> dataArray = new ArrayList<ByteBuffer>(1);
+			dataArray.add(newData);
+			return new Texture3D(new Image(Format.RGBA8, width, height, depth, dataArray));
+		}
 	}
 
 	/**

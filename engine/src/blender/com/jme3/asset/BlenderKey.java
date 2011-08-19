@@ -78,10 +78,12 @@ public class BlenderKey extends ModelKey {
      * between the frames.
      */
     protected int fps = DEFAULT_FPS;
-    /** Width of generated textures (in pixels). Blender uses 140x140 by default. */
-    protected int generatedTextureWidth = 140;
-    /** Height of generated textures (in pixels). Blender uses 140x140 by default. */
-    protected int generatedTextureHeight = 140;
+    /** Width of generated textures (in pixels). */
+    protected int generatedTextureWidth = 20;
+    /** Height of generated textures (in pixels). */
+    protected int generatedTextureHeight = 20;
+    /** Depth of generated textures (in pixels). */
+    protected int generatedTextureDepth = 20;
     /**
      * This variable is a bitwise flag of FeatureToLoad interface values; By default everything is being loaded.
      */
@@ -228,7 +230,7 @@ public class BlenderKey extends ModelKey {
     }
 
     /**
-     * This method sets the height of generated texture (in pixels). By default the value is 140 px.
+     * This method sets the height of generated texture (in pixels). By default the value is 20 px.
      * @param generatedTextureHeight
      *        the height of generated texture
      */
@@ -237,11 +239,19 @@ public class BlenderKey extends ModelKey {
     }
 
     /**
-     * This method returns the height of generated texture (in pixels). By default the value is 140 px.
+     * This method returns the height of generated texture (in pixels). By default the value is 20 px.
      * @return the height of generated texture
      */
     public int getGeneratedTextureHeight() {
         return generatedTextureHeight;
+    }
+    
+    /**
+     * This method returns the depth of generated texture (in pixels). By default the value is 20 px.
+     * @return the depth of generated texture
+     */
+    public int getGeneratedTextureDepth() {
+        return generatedTextureDepth;
     }
 
     /**

@@ -14,14 +14,14 @@ import com.jme3.texture.Texture;
  * @author Marcin Roguski (Kaelthas)
  */
 /* package */abstract class TextureGenerator {
-	private static final Logger LOGGER = Logger.getLogger(TextureGenerator.class.getName());
-	
-	protected NoiseGenerator noiseGenerator;
-	
+	private static final Logger	LOGGER	= Logger.getLogger(TextureGenerator.class.getName());
+
+	protected NoiseGenerator	noiseGenerator;
+
 	public TextureGenerator(NoiseGenerator noiseGenerator) {
 		this.noiseGenerator = noiseGenerator;
 	}
-	
+
 	/**
 	 * This method generates the texture.
 	 * @param tex
@@ -30,12 +30,14 @@ import com.jme3.texture.Texture;
 	 *        the width of the result texture
 	 * @param height
 	 *        the height of the result texture
+	 * @param depth
+	 *        the depth of the texture
 	 * @param dataRepository
 	 *        the data repository
 	 * @return newly generated texture
 	 */
-	protected abstract Texture generate(Structure tex, int width, int height, DataRepository dataRepository);
-	
+	protected abstract Texture generate(Structure tex, int width, int height, int depth, DataRepository dataRepository);
+
 	/**
 	 * This method reads the colorband data from the given texture structure.
 	 * 
