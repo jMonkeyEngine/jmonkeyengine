@@ -1,3 +1,4 @@
+#import "Common/ShaderLib/Parallax.glsllib"
 #import "Common/ShaderLib/Optics.glsllib"
 #define ATTENUATION
 //#define HQ_ATTENUATION
@@ -30,7 +31,10 @@ varying vec3 SpecularSum;
 #endif
 
 #ifdef PARALLAXMAP
-  uniform sampler2D m_ParallaxMap;
+  uniform sampler2D m_ParallaxMap;  
+#endif
+#if (defined(PARALLAXMAP) || (defined(NORMALMAP_PARALLAX) && defined(NORMALMAP))) && !defined(VERTEX_LIGHTING) 
+    uniform float m_ParallaxHeight;
 #endif
 
 #ifdef LIGHTMAP
@@ -38,7 +42,7 @@ varying vec3 SpecularSum;
 #endif
   
 #ifdef NORMALMAP
-  uniform sampler2D m_NormalMap;
+  uniform sampler2D m_NormalMap;   
 #else
   varying vec3 vNormal;
 #endif
@@ -132,20 +136,27 @@ vec2 computeLighting(in vec3 wvPos, in vec3 wvNorm, in vec3 wvViewDir, in vec3 w
 void main(){
     vec2 newTexCoord;
      
-    #if (defined(PARALLAXMAP) || defined(NORMALMAP_PARALLAX)) && !defined(VERTEX_LIGHTING)
-       float h;
-       #ifdef PARALLAXMAP
-          h = texture2D(m_ParallaxMap, texCoord).r;
+    #if (defined(PARALLAXMAP) || (defined(NORMALMAP_PARALLAX) && defined(NORMALMAP))) && !defined(VERTEX_LIGHTING) 
+     
+       #ifdef STEEP_PARALLAX
+           #ifdef NORMALMAP_PARALLAX
+               //parallax map is stored in the alpha channel of the normal map         
+               newTexCoord = steepParallaxOffset(m_NormalMap, vViewDir, texCoord, m_ParallaxHeight);
+           #else
+               //parallax map is a texture
+               newTexCoord = steepParallaxOffset(m_ParallaxMap, vViewDir, texCoord, m_ParallaxHeight);         
+           #endif
        #else
-          h = texture2D(m_NormalMap, texCoord).a;
+           #ifdef NORMALMAP_PARALLAX
+               //parallax map is stored in the alpha channel of the normal map         
+               newTexCoord = classicParallaxOffset(m_NormalMap, vViewDir, texCoord, m_ParallaxHeight);
+           #else
+               //parallax map is a texture
+               newTexCoord = classicParallaxOffset(m_ParallaxMap, vViewDir, texCoord, m_ParallaxHeight);
+           #endif
        #endif
-       float heightScale = 0.05;
-       float heightBias = heightScale * -0.5;
-       vec3 normView = normalize(vViewDir);
-       h = (h * heightScale + heightBias) * normView.z;
-       newTexCoord = texCoord + (h * normView.xy);
     #else
-       newTexCoord = texCoord;
+       newTexCoord = texCoord;    
     #endif
     
    #ifdef DIFFUSEMAP

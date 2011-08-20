@@ -61,6 +61,15 @@ MaterialDef Phong Lighting {
         // Parallax/height map
         Texture2D ParallaxMap
 
+        //Set to true is parallax map is stored in the alpha channel of the normal map
+        Boolean PackedNormalParallax   
+
+        //Sets the relief height for parallax mapping
+        Float ParallaxHeight : 0.05       
+
+        //Set to true to activate Steep Parallax mapping
+        Boolean SteepParallax
+
         // Texture that specifies alpha values
         Texture2D AlphaMap
 
@@ -124,6 +133,8 @@ MaterialDef Phong Lighting {
             NORMALMAP : NormalMap
             SPECULARMAP : SpecularMap
             PARALLAXMAP : ParallaxMap
+            NORMALMAP_PARALLAX : PackedNormalParallax
+            STEEP_PARALLAX : SteepParallax
             ALPHAMAP : AlphaMap
             COLORRAMP : ColorRamp
             LIGHTMAP : LightMap
