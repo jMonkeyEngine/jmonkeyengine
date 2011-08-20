@@ -180,7 +180,7 @@ public class J3MLoader implements AssetLoader {
                     if (split.length != 1){
                         throw new IOException("Float value parameter must have 1 entry: " + value);
                     }
-                    return Float.parseFloat(split[0]);
+                     return Float.parseFloat(split[0]);
                 case Vector2:
                     if (split.length != 2){
                         throw new IOException("Vector2 value parameter must have 2 entries: " + value);
@@ -234,7 +234,7 @@ public class J3MLoader implements AssetLoader {
                 throw new IOException("Parameter statement syntax incorrect");
             }
             statement = split[0].trim();
-            defaultVal = split[1].trim();
+            defaultVal = split[1].trim();           
         }
         
         // Parse ffbinding
@@ -269,7 +269,7 @@ public class J3MLoader implements AssetLoader {
         
         Object defaultValObj = null;
         if (defaultVal != null){ 
-            readValue(type, defaultVal);
+            defaultValObj = readValue(type, defaultVal);
         }
         
         materialDef.addMaterialParam(type, name, defaultValObj, ffBinding);
