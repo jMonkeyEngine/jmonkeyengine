@@ -32,95 +32,30 @@
 package com.jme3.scene.plugins.blender;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.jme3.asset.AssetInfo;
-import com.jme3.asset.AssetLoader;
-import com.jme3.asset.BlenderKey;
 import com.jme3.asset.BlenderKey.LoadingResults;
-import com.jme3.asset.ModelKey;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
-import com.jme3.scene.plugins.blender.animations.ArmatureHelper;
-import com.jme3.scene.plugins.blender.animations.IpoHelper;
-import com.jme3.scene.plugins.blender.cameras.CameraHelper;
-import com.jme3.scene.plugins.blender.constraints.ConstraintHelper;
-import com.jme3.scene.plugins.blender.curves.CurvesHelper;
 import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
-import com.jme3.scene.plugins.blender.file.BlenderInputStream;
 import com.jme3.scene.plugins.blender.file.FileBlockHeader;
-import com.jme3.scene.plugins.blender.lights.LightHelper;
-import com.jme3.scene.plugins.blender.materials.MaterialHelper;
-import com.jme3.scene.plugins.blender.meshes.MeshHelper;
-import com.jme3.scene.plugins.blender.modifiers.ModifierHelper;
-import com.jme3.scene.plugins.blender.objects.ObjectHelper;
-import com.jme3.scene.plugins.blender.particles.ParticlesHelper;
-import com.jme3.scene.plugins.blender.textures.TextureHelper;
 
 /**
  * This is the main loading class. Have in notice that asset manager needs to have loaders for resources like textures.
  * @author Marcin Roguski
  */
-public class BlenderModelLoader implements AssetLoader {
+public class BlenderModelLoader extends BlenderLoader {
 
     private static final Logger LOGGER = Logger.getLogger(BlenderModelLoader.class.getName());
 
     @Override
     public Spatial load(AssetInfo assetInfo) throws IOException {
         try {
-            //registering loaders
-            ModelKey modelKey = (ModelKey) assetInfo.getKey();
-            BlenderKey blenderKey;
-            if (modelKey instanceof BlenderKey) {
-                blenderKey = (BlenderKey) modelKey;
-            } else {
-                blenderKey = new BlenderKey(modelKey.getName());
-                blenderKey.setAssetRootPath(modelKey.getFolder());
-            }
-
-            //opening stream
-            BlenderInputStream inputStream = new BlenderInputStream(assetInfo.openStream(), assetInfo.getManager());
-            List<FileBlockHeader> blocks = new ArrayList<FileBlockHeader>();
-            FileBlockHeader fileBlock;
-            DataRepository dataRepository = new DataRepository();
-            dataRepository.setAssetManager(assetInfo.getManager());
-            dataRepository.setInputStream(inputStream);
-            dataRepository.setBlenderKey(blenderKey);
-            dataRepository.putHelper(ArmatureHelper.class, new ArmatureHelper(inputStream.getVersionNumber()));
-            dataRepository.putHelper(TextureHelper.class, new TextureHelper(inputStream.getVersionNumber()));
-            dataRepository.putHelper(MeshHelper.class, new MeshHelper(inputStream.getVersionNumber()));
-            dataRepository.putHelper(ObjectHelper.class, new ObjectHelper(inputStream.getVersionNumber()));
-            dataRepository.putHelper(CurvesHelper.class, new CurvesHelper(inputStream.getVersionNumber()));
-            dataRepository.putHelper(LightHelper.class, new LightHelper(inputStream.getVersionNumber()));
-            dataRepository.putHelper(CameraHelper.class, new CameraHelper(inputStream.getVersionNumber()));
-            dataRepository.putHelper(ModifierHelper.class, new ModifierHelper(inputStream.getVersionNumber()));
-            dataRepository.putHelper(MaterialHelper.class, new MaterialHelper(inputStream.getVersionNumber()));
-            dataRepository.putHelper(ConstraintHelper.class, new ConstraintHelper(inputStream.getVersionNumber(), dataRepository));
-            dataRepository.putHelper(IpoHelper.class, new IpoHelper(inputStream.getVersionNumber()));
-            dataRepository.putHelper(ParticlesHelper.class, new ParticlesHelper(inputStream.getVersionNumber()));
-
-            //setting additional data to helpers
-            if (blenderKey.isFixUpAxis()) {
-                ObjectHelper objectHelper = dataRepository.getHelper(ObjectHelper.class);
-                objectHelper.setyIsUpAxis(true);
-                CurvesHelper curvesHelper = dataRepository.getHelper(CurvesHelper.class);
-                curvesHelper.setyIsUpAxis(true);
-            }
-            MaterialHelper materialHelper = dataRepository.getHelper(MaterialHelper.class);
-            materialHelper.setFaceCullMode(blenderKey.getFaceCullMode());
-
-            //reading the blocks (dna block is automatically saved in the data repository when found)//TODO: zmienić to
-            do {
-                fileBlock = new FileBlockHeader(inputStream, dataRepository);
-                if (!fileBlock.isDnaBlock()) {
-                    blocks.add(fileBlock);
-                }
-            } while (!fileBlock.isLastBlock());
-
-            JmeConverter converter = new JmeConverter(dataRepository);
+            this.setup(assetInfo);
+            
             LoadingResults loadingResults = blenderKey.prepareLoadingResults();
             for (FileBlockHeader block : blocks) {
                 if (block.getCode() == FileBlockHeader.BLOCK_OB00) {

@@ -54,109 +54,137 @@ import com.jme3.scene.plugins.blender.objects.ObjectHelper;
  * This class converts blender file blocks into jMonkeyEngine data structures.
  * @author Marcin Roguski
  */
-/*package*/ class JmeConverter {
+/* package */class JmeConverter {
 
-    private final DataRepository dataRepository;
+	private final DataRepository	dataRepository;
 
-    /**
-     * Constructor. Creates the loader and checks if the given data is correct.
-     * @param dataRepository
-     *        the data repository; it should have the following field set: - asset manager - blender key - dna block
-     *        data - blender input stream Otherwise IllegalArgumentException will be thrown.
-     * @param featuresToLoad
-     *        bitwise flag describing what features are to be loaded
-     * @see FeaturesToLoad FeaturesToLoad
-     */
-    public JmeConverter(DataRepository dataRepository) {
-        //validating the given data first
-        if (dataRepository.getAssetManager() == null) {
-            throw new IllegalArgumentException("Cannot find asset manager!");
-        }
-        if (dataRepository.getBlenderKey() == null) {
-            throw new IllegalArgumentException("Cannot find blender key!");
-        }
-        if (dataRepository.getDnaBlockData() == null) {
-            throw new IllegalArgumentException("Cannot find dna block!");
-        }
-        if (dataRepository.getInputStream() == null) {
-            throw new IllegalArgumentException("Cannot find blender file stream!");
-        }
-        this.dataRepository = dataRepository;
-    }
+	/**
+	 * Constructor. Creates the loader and checks if the given data is correct.
+	 * @param dataRepository
+	 *        the data repository; it should have the following field set: - asset manager - blender key - dna block
+	 *        data - blender input stream Otherwise IllegalArgumentException will be thrown.
+	 * @param featuresToLoad
+	 *        bitwise flag describing what features are to be loaded
+	 * @see FeaturesToLoad FeaturesToLoad
+	 */
+	public JmeConverter(DataRepository dataRepository) {
+		// validating the given data first
+		if (dataRepository.getAssetManager() == null) {
+			throw new IllegalArgumentException("Cannot find asset manager!");
+		}
+		if (dataRepository.getBlenderKey() == null) {
+			throw new IllegalArgumentException("Cannot find blender key!");
+		}
+		if (dataRepository.getDnaBlockData() == null) {
+			throw new IllegalArgumentException("Cannot find dna block!");
+		}
+		if (dataRepository.getInputStream() == null) {
+			throw new IllegalArgumentException("Cannot find blender file stream!");
+		}
+		this.dataRepository = dataRepository;
+	}
 
-    public Node toScene(Structure structure) {//TODO: poprawny import sceny
-        if ((dataRepository.getBlenderKey().getFeaturesToLoad() & FeaturesToLoad.SCENES) == 0) {
-            return null;
-        }
-        Structure id = (Structure) structure.getFieldValue("id");
-        String sceneName = id.getFieldValue("name").toString();
+	/**
+	 * This method converts the given structure to a scene node.
+	 * @param structure
+	 *        structure of a scene
+	 * @return scene's node
+	 */
+	public Node toScene(Structure structure) {// TODO: import the scene
+		if ((dataRepository.getBlenderKey().getFeaturesToLoad() & FeaturesToLoad.SCENES) == 0) {
+			return null;
+		}
+		return new Node(structure.getName());
+	}
 
-        //veryfying layers to be loaded
-        if (dataRepository.getBlenderKey().getLayersToLoad() < 0) {
-            int lay = ((Number) structure.getFieldValue("lay")).intValue();
-            dataRepository.getBlenderKey().setLayersToLoad(lay);//load only current layer
-        }
-        return new Node(sceneName);
-    }
+	/**
+	 * This method converts the given structure to a camera.
+	 * @param structure
+	 *        structure of a camera
+	 * @return camera's node
+	 */
+	public Camera toCamera(Structure structure) throws BlenderFileException {
+		CameraHelper cameraHelper = dataRepository.getHelper(CameraHelper.class);
+		if (cameraHelper.shouldBeLoaded(structure, dataRepository)) {
+			return cameraHelper.toCamera(structure);
+		}
+		return null;
+	}
 
-    public Camera toCamera(Structure structure) throws BlenderFileException {
-    	CameraHelper cameraHelper = dataRepository.getHelper(CameraHelper.class);
-        if (cameraHelper.shouldBeLoaded(structure, dataRepository)) {
-        	return cameraHelper.toCamera(structure);
-        }
-        return null;
-    }
+	/**
+	 * This method converts the given structure to a light.
+	 * @param structure
+	 *        structure of a light
+	 * @return light's node
+	 */
+	public Light toLight(Structure structure) throws BlenderFileException {
+		LightHelper lightHelper = dataRepository.getHelper(LightHelper.class);
+		if (lightHelper.shouldBeLoaded(structure, dataRepository)) {
+			return lightHelper.toLight(structure, dataRepository);
+		}
+		return null;
+	}
 
-    public Light toLight(Structure structure) throws BlenderFileException {
-    	LightHelper lightHelper = dataRepository.getHelper(LightHelper.class);
-        if (lightHelper.shouldBeLoaded(structure, dataRepository)) {
-            return lightHelper.toLight(structure, dataRepository);
-        }
-        return null;
-    }
+	/**
+	 * This method converts the given structure to a node.
+	 * @param structure
+	 *        structure of an object
+	 * @return object's node
+	 */
+	public Object toObject(Structure structure) throws BlenderFileException {
+		ObjectHelper objectHelper = dataRepository.getHelper(ObjectHelper.class);
+		if (objectHelper.shouldBeLoaded(structure, dataRepository)) {
+			return objectHelper.toObject(structure, dataRepository);
+		}
+		return null;
+	}
 
-    public Object toObject(Structure structure) throws BlenderFileException {
-        ObjectHelper objectHelper = dataRepository.getHelper(ObjectHelper.class);
-        if(objectHelper.shouldBeLoaded(structure, dataRepository)) {
-        	return objectHelper.toObject(structure, dataRepository);
-        }
-        return null;
-    }
+	/**
+	 * This method converts the given structure to a list of geometries.
+	 * @param structure
+	 *        structure of a mesh
+	 * @return list of geometries
+	 */
+	public List<Geometry> toMesh(Structure structure) throws BlenderFileException {
+		MeshHelper meshHelper = dataRepository.getHelper(MeshHelper.class);
+		if (meshHelper.shouldBeLoaded(structure, dataRepository)) {
+			return meshHelper.toMesh(structure, dataRepository);
+		}
+		return null;
+	}
 
-    public List<Geometry> toMesh(Structure structure) throws BlenderFileException {
-        MeshHelper meshHelper = dataRepository.getHelper(MeshHelper.class);
-        if(meshHelper.shouldBeLoaded(structure, dataRepository)) {
-        	return meshHelper.toMesh(structure, dataRepository);
-        }
-        return null;
-    }
+	/**
+	 * This method converts the given structure to a material.
+	 * @param structure
+	 *        structure of a material
+	 * @return material's node
+	 */
+	public Material toMaterial(Structure structure) throws BlenderFileException {
+		MaterialHelper materialHelper = dataRepository.getHelper(MaterialHelper.class);
+		if (materialHelper.shouldBeLoaded(structure, dataRepository)) {
+			return materialHelper.toMaterial(structure, dataRepository);
+		}
+		return null;
+	}
 
-    public Material toMaterial(Structure structure) throws BlenderFileException {
-    	MaterialHelper materialHelper = dataRepository.getHelper(MaterialHelper.class);
-        if (materialHelper.shouldBeLoaded(structure, dataRepository)) {
-            return materialHelper.toMaterial(structure, dataRepository);
-        }
-        return null;
-    }
+	/**
+	 * This method returns the data read from the WORLD file block. The block contains data that can be stored as
+	 * separate jme features and therefore cannot be returned as a single jME scene feature.
+	 * @param structure
+	 *        the structure with WORLD block data
+	 * @return data read from the WORLD block that can be added to the scene
+	 */
+	public WorldData toWorldData(Structure structure) {
+		WorldData result = new WorldData();
 
-    /**
-     * This method returns the data read from the WORLD file block. The block contains data that can be stored as
-     * separate jme features and therefore cannot be returned as a single jME scene feature.
-     * @param structure
-     *        the structure with WORLD block data
-     * @return data read from the WORLD block that can be added to the scene
-     */
-    public WorldData toWorldData(Structure structure) {
-        WorldData result = new WorldData();
+		// reading ambient light
+		AmbientLight ambientLight = new AmbientLight();
+		float ambr = ((Number) structure.getFieldValue("ambr")).floatValue();
+		float ambg = ((Number) structure.getFieldValue("ambg")).floatValue();
+		float ambb = ((Number) structure.getFieldValue("ambb")).floatValue();
+		ambientLight.setColor(new ColorRGBA(ambr, ambg, ambb, 0.0f));
+		result.setAmbientLight(ambientLight);
 
-        //reading ambient light
-        AmbientLight ambientLight = new AmbientLight();
-        float ambr = ((Number) structure.getFieldValue("ambr")).floatValue();
-        float ambg = ((Number) structure.getFieldValue("ambg")).floatValue();
-        float ambb = ((Number) structure.getFieldValue("ambb")).floatValue();
-        ambientLight.setColor(new ColorRGBA(ambr, ambg, ambb, 0.0f));
-        result.setAmbientLight(ambientLight);
-
-        return result;
-    }
+		return result;
+	}
 }

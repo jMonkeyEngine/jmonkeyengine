@@ -187,7 +187,7 @@ public class ManualBlenderTester extends SimpleApplication {
         Node blenderModel = null;
         BlenderLoader blenderLoader = new BlenderLoader();
         try {
-            LoadingResults loadingResults = blenderLoader.load(assetInfo);
+            LoadingResults loadingResults = (LoadingResults) blenderLoader.load(assetInfo);
             for (Node object : loadingResults.getObjects()) {
                 this.rootNode.attachChild(object);
                 blenderModel = object;
