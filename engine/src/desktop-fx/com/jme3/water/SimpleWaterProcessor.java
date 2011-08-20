@@ -267,7 +267,7 @@ public class SimpleWaterProcessor implements SceneProcessor {
     }
 
     protected void loadTextures(AssetManager manager) {
-        normalTexture = (Texture2D) manager.loadTexture("Common/MatDefs/Water/Textures/gradient_map.jpg");
+        normalTexture = (Texture2D) manager.loadTexture("Common/MatDefs/Water/Textures/water_normalmap.dds");
         dudvTexture = (Texture2D) manager.loadTexture("Common/MatDefs/Water/Textures/dudv_map.jpg");
         normalTexture.setWrap(WrapMode.Repeat);
         dudvTexture.setWrap(WrapMode.Repeat);
