@@ -70,15 +70,14 @@ public class Dome extends Mesh {
     }
 
     /**
-     * Constructs a dome with center at the origin. For details, see the other
-     * constructor.
-     * 
-     * @param name
-     *            Name of dome.
+     * Constructs a dome for use as a SkyDome. The SkyDome is centered at the origin 
+     * and only visible from the inside. 
      * @param planes
-     *            The number of planes along the Z-axis.
+     *            The number of planes along the Z-axis. Must be >= 2.
+     *            Influences how round the arch of the dome is.
      * @param radialSamples
-     *            The samples along the radial.
+     *            The number of samples along the radial.
+     *            Influences how round the base of the dome is.
      * @param radius
      *            Radius of the dome.
      * @see #Dome(java.lang.String, com.jme.math.Vector3f, int, int, float)
@@ -88,17 +87,19 @@ public class Dome extends Mesh {
     }
 
     /**
-     * Constructs a dome. All geometry data buffers are updated automatically.
-     * Both planes and radialSamples increase the quality of the generated dome.
+     * Constructs a dome visible from the inside, e.g. for use as a SkyDome. 
+     * All geometry data buffers are updated automatically. <br>
+     * For a cone, set planes=2. For a pyramid, set radialSamples=4 and planes=2.
+     * Increasing planes and radialSamples increase the quality of the dome.
      * 
-     * @param name
-     *            Name of the dome.
      * @param center
      *            Center of the dome.
      * @param planes
-     *            The number of planes along the Z-axis.
+     *            The number of planes along the Z-axis. Must be >= 2.
+     *            Influences how round the arch of the dome is.
      * @param radialSamples
-     *            The number of samples along the radial.
+     *            The number of samples along the radial. 
+     *            Influences how round the base of the dome is.
      * @param radius
      *            The radius of the dome.
      */
@@ -109,25 +110,30 @@ public class Dome extends Mesh {
     }
 
     /**
-     * Constructs a dome. All geometry data buffers are updated automatically.
-     * Both planes and radialSamples increase the quality of the generated dome.
+     * Constructs a dome. Use this constructor for half-sphere, pyramids, or cones. 
+     * All geometry data buffers are updated automatically. <br>
+     * For a cone, set planes=2. For a pyramid, set radialSamples=4 and planes=2.
+     * Setting higher values for planes and radialSamples increases 
+     * the quality of the half-sphere.
      * 
      * @param center
      *            Center of the dome.
      * @param planes
-     *            The number of planes along the Z-axis.
+     *            The number of planes along the Z-axis. Must be >= 2.
+     *            Influences how round the arch of the dome is.
      * @param radialSamples
      *            The number of samples along the radial.
+     *            Influences how round the base of the dome is.
      * @param radius
      *            The radius of the dome.
-     * @param outsideView
-     *            If true, the triangles will be connected for a view outside of
-     *            the dome.
+     * @param insideView
+     *            If true, the dome is only visible from the inside, like a SkyDome.
+     *            If false, the dome is only visible from the outside.
      */
     public Dome(Vector3f center, int planes, int radialSamples,
-            float radius, boolean outsideView) {
+            float radius, boolean insideView) {
         super();
-        updateGeometry(center, planes, radialSamples, radius, outsideView);
+        updateGeometry(center, planes, radialSamples, radius, insideView);
     }
 
     public Vector3f getCenter() {
