@@ -61,7 +61,7 @@ public class Dome extends Mesh {
     private float radius;
     /** The center of the dome */
     private Vector3f center;
-    private boolean outsideView = true;
+    private boolean insideView = true;
 
     /**
      * Serialization only. Do not use.
@@ -164,8 +164,8 @@ public class Dome extends Mesh {
     /**
      * Are the triangles connected in such a way as to present a view out from the dome or not.
      */
-    public boolean isOutsideView() {
-        return outsideView;
+    public boolean isInsideView() {
+        return insideView;
     }
 
     /**
@@ -175,11 +175,11 @@ public class Dome extends Mesh {
      * @param planes the number of planes along the Z-axis.
      * @param radialSamples the new number of radial samples of the dome.
      * @param radius the new radius of the dome.
-     * @param outsideView should the dome be set up to be viewed from the inside looking out.
+     * @param insideView should the dome be set up to be viewed from the inside looking out.
      */
     public void updateGeometry(Vector3f center, int planes,
-            int radialSamples, float radius, boolean outsideView) {
-        this.outsideView = outsideView;
+            int radialSamples, float radius, boolean insideView) {
+        this.insideView = insideView;
         this.center = center != null ? center : new Vector3f(0, 0, 0);
         this.planes = planes;
         this.radialSamples = radialSamples;
@@ -250,7 +250,7 @@ public class Dome extends Mesh {
                 BufferUtils.populateFromBuffer(tempVa, vb, i);
                 kNormal = tempVa.subtractLocal(center);
                 kNormal.normalizeLocal();
-                if (outsideView) {
+                if (insideView) {
                     nb.put(kNormal.x).put(kNormal.y).put(kNormal.z);
                 } else {
                     nb.put(-kNormal.x).put(-kNormal.y).put(-kNormal.z);
@@ -267,7 +267,7 @@ public class Dome extends Mesh {
 
         // pole
         vb.put(center.x).put(center.y + radius).put(center.z);
-        nb.put(0).put(outsideView ? 1 : -1).put(0);
+        nb.put(0).put(insideView ? 1 : -1).put(0);
         tb.put(0.5f).put(1.0f);
 
         // allocate connectivity
