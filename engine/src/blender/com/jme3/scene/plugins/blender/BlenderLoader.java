@@ -153,7 +153,7 @@ public class BlenderLoader implements AssetLoader {
                         }
                         break;
                     case FileBlockHeader.BLOCK_MA00://Material
-                        if ((blenderKey.getFeaturesToLoad() & FeaturesToLoad.MATERIALS) != 0) {
+                        if (blenderKey.isLoadUnlinkedAssets() && (blenderKey.getFeaturesToLoad() & FeaturesToLoad.MATERIALS) != 0) {
                             loadingResults.addMaterial(converter.toMaterial(block.getStructure(dataRepository)));
                         }
                         break;
@@ -163,7 +163,7 @@ public class BlenderLoader implements AssetLoader {
                         }
                         break;
                     case FileBlockHeader.BLOCK_WO00://World
-                        if (worldData == null) {//onlu one world data is used
+                        if (blenderKey.isLoadUnlinkedAssets() && worldData == null) {//onlu one world data is used
                             Structure worldStructure = block.getStructure(dataRepository);
                             String worldName = worldStructure.getName();
                             if (blenderKey.getUsedWorld() == null || blenderKey.getUsedWorld().equals(worldName)) {
