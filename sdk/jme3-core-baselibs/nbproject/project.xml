@@ -90,12 +90,19 @@
                 <package>com.jme3.scene.mesh</package>
                 <package>com.jme3.scene.plugins</package>
                 <package>com.jme3.scene.plugins.blender</package>
-                <package>com.jme3.scene.plugins.blender.data</package>
-                <package>com.jme3.scene.plugins.blender.exception</package>
-                <package>com.jme3.scene.plugins.blender.helpers</package>
-                <package>com.jme3.scene.plugins.blender.helpers.v249</package>
-                <package>com.jme3.scene.plugins.blender.structures</package>
-                <package>com.jme3.scene.plugins.blender.utils</package>
+                <package>com.jme3.scene.plugins.blender.animations</package>
+                <package>com.jme3.scene.plugins.blender.cameras</package>
+                <package>com.jme3.scene.plugins.blender.constraints</package>
+                <package>com.jme3.scene.plugins.blender.curves</package>
+                <package>com.jme3.scene.plugins.blender.exceptions</package>
+                <package>com.jme3.scene.plugins.blender.file</package>
+                <package>com.jme3.scene.plugins.blender.lights</package>
+                <package>com.jme3.scene.plugins.blender.materials</package>
+                <package>com.jme3.scene.plugins.blender.meshes</package>
+                <package>com.jme3.scene.plugins.blender.modifiers</package>
+                <package>com.jme3.scene.plugins.blender.objects</package>
+                <package>com.jme3.scene.plugins.blender.particles</package>
+                <package>com.jme3.scene.plugins.blender.textures</package>
                 <package>com.jme3.scene.plugins.ogre</package>
                 <package>com.jme3.scene.plugins.ogre.matext</package>
                 <package>com.jme3.scene.shape</package>
@@ -114,6 +121,7 @@
                 <package>com.jme3.texture.plugins</package>
                 <package>com.jme3.ui</package>
                 <package>com.jme3.util</package>
+                <package>com.jme3.util.blockparser</package>
                 <package>com.jme3.util.xml</package>
                 <package>com.jme3.video</package>
                 <package>com.jme3.video.plugins.jheora</package>
