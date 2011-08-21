@@ -38,6 +38,7 @@
         <copy file="${harness.dir}/etc/app.conf" tofile="build/launcher/etc/${app.name}.conf">
             <filterchain>
                 <replacestring from="$${branding.token}" to="${branding.token}"/>
+                <replacestring from="$${APPNAME}/dev" to="$${APPNAME}/${app.version}"/>
                 <replacestring from="-J-Xmx64m" to="${run.args.extra}"/>
             </filterchain>
         </copy>
