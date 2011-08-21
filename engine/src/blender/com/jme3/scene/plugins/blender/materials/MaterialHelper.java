@@ -178,6 +178,16 @@ public class MaterialHelper extends AbstractBlenderHelper {
 		this.faceCullMode = faceCullMode;
 	}
 
+	/**
+	 * This method converts the material structure to jme Material.
+	 * @param structure
+	 *        structure with material data
+	 * @param dataRepository
+	 *        the data repository
+	 * @return jme material
+	 * @throws BlenderFileException
+	 *         an exception is throw when problems with blend file occur
+	 */
 	public Material toMaterial(Structure structure, DataRepository dataRepository) throws BlenderFileException {
 		LOGGER.log(Level.INFO, "Loading material.");
 		if (structure == null) {
@@ -216,7 +226,7 @@ public class MaterialHelper extends AbstractBlenderHelper {
 
 						// NOTE: Enable mipmaps FOR ALL TEXTURES EVER
 						texture.setMinFilter(MinFilter.Trilinear);
-//TODO: textures merging
+
 						if ((mapto & 0x01) != 0) {// Col
 							// Map to COLOR channel or DIFFUSE
 							// Set diffuse to white so it doesn't get multiplied by texture
@@ -228,7 +238,7 @@ public class MaterialHelper extends AbstractBlenderHelper {
 							float colfac = ((Number) mtex.getFieldValue("colfac")).floatValue();
 							texture = textureHelper.blendTexture(new float[] {1, 1, 1}, texture, color, colfac, blendType, negateTexture, dataRepository);
 							texture.setWrap(WrapMode.Repeat);
-							
+							//TODO: textures merging
 							if (materialContext.shadeless) {
 								texturesMap.put(firstTextureType==Type.ThreeDimensional ? TEXTURE_TYPE_3D : TEXTURE_TYPE_COLOR, texture);
 							} else {
@@ -316,6 +326,7 @@ public class MaterialHelper extends AbstractBlenderHelper {
 			result.getAdditionalRenderState().setBlendMode(BlendMode.Alpha);
 		}
 		
+		dataRepository.setMaterialContext(result, materialContext);
 		dataRepository.addLoadedFeatures(structure.getOldMemoryAddress(), structure.getName(), structure, result);
 		return result;
 	}

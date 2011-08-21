@@ -38,6 +38,7 @@ import java.util.logging.Logger;
 import com.jme3.bounding.BoundingBox;
 import com.jme3.bounding.BoundingSphere;
 import com.jme3.bounding.BoundingVolume;
+import com.jme3.math.Triangle;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
@@ -45,7 +46,6 @@ import com.jme3.scene.Mesh;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.VertexBuffer.Format;
 import com.jme3.scene.VertexBuffer.Usage;
-import com.jme3.texture.Texture.Type;
 import com.jme3.util.BufferUtils;
 
 /**
@@ -55,6 +55,7 @@ import com.jme3.util.BufferUtils;
 public class UVCoordinatesGenerator {
 	private static final Logger	LOGGER						= Logger.getLogger(UVCoordinatesGenerator.class.getName());
 
+	// texture UV coordinates types
 	public static final int		TEXCO_ORCO					= 1;
 	public static final int		TEXCO_REFL					= 2;
 	public static final int		TEXCO_NORM					= 4;
@@ -70,49 +71,61 @@ public class UVCoordinatesGenerator {
 	public static final int		TEXCO_TANGENT				= 4096;
 	// still stored in vertex->accum, 1 D
 	public static final int		TEXCO_PARTICLE_OR_STRAND	= 8192;													// strand is used
-																														// for normal
-																														// materials,
-																														// particle for halo
-																														// materials
 	public static final int		TEXCO_STRESS				= 16384;
 	public static final int		TEXCO_SPEED					= 32768;
 
-	/**
-	 * This method generates UV coordinates for the given geometries.
-	 * @param texco
-	 *        texture coordinates type
-	 * @param textureType
-	 *        the type of the texture (only 2D and 3D)
-	 * @param geometries
-	 *        a list of geometries that will have coordinates applied
-	 */
-	public static void generateUVCoordinates(int texco, Type textureType, List<Geometry> geometries) {
-		for (Geometry geometry : geometries) {
-			UVCoordinatesGenerator.generateUVCoordinates(texco, textureType, geometry.getMesh());
-		}
-	}
+	// 2D texture mapping (projection)
+	public static final int		PROJECTION_FLAT				= 0;
+	public static final int		PROJECTION_CUBE				= 1;
+	public static final int		PROJECTION_TUBE				= 2;
+	public static final int		PROJECTION_SPHERE			= 3;
 
 	/**
 	 * This method generates UV coordinates for the given mesh.
+	 * IMPORTANT! This method assumes that all geometries represent one node.
+	 * Each containing mesh with separate material.
+	 * So all meshes have the same reference to vertex table which stores all their vertices.
 	 * @param texco
 	 *        texture coordinates type
-	 * @param textureType
-	 *        the type of the texture (only 2D and 3D)
-	 * @param mesh
-	 *        a mesh that will have coordinates applied
+	 * @param projection
+	 *        the projection type for 2D textures
+	 * @param textureDimension
+	 *        the dimension of the texture (only 2D and 3D)
+	 * @param geometries
+	 *        a list of geometries the UV coordinates will be applied to
 	 */
-	public static void generateUVCoordinates(int texco, Type textureType, Mesh mesh) {
-		VertexBuffer result = null;
+	public static void generateUVCoordinates(int texco, int projection, int textureDimension, List<Geometry> geometries) {
+		if (textureDimension != 2 && textureDimension != 3) {
+			throw new IllegalStateException("Unsupported texture dimension: " + textureDimension);
+		}
+
+		VertexBuffer result = new VertexBuffer(VertexBuffer.Type.TexCoord);
+		Mesh mesh = geometries.get(0).getMesh();
+		BoundingBox bb = UVCoordinatesGenerator.getBoundingBox(geometries);
+
 		switch (texco) {
 			case TEXCO_ORCO:
-				if (textureType == Type.TwoDimensional) {
-
-				} else if (textureType == Type.ThreeDimensional) {
-					BoundingBox bb = UVCoordinatesGenerator.getBoundingBox(mesh);
-
-					result = new VertexBuffer(com.jme3.scene.VertexBuffer.Type.TexCoord);
-					FloatBuffer positions = mesh.getFloatBuffer(com.jme3.scene.VertexBuffer.Type.Position);
-					float[] uvCoordinates = BufferUtils.getFloatArray(positions);
+				float[] uvCoordinates = null;
+				if (textureDimension == 2) {
+					switch (projection) {
+						case PROJECTION_FLAT:
+							uvCoordinates = UVCoordinatesGenerator.flatProjection(mesh, bb);
+							break;
+						case PROJECTION_CUBE:
+							uvCoordinates = UVCoordinatesGenerator.cubeProjection(mesh, bb);
+							break;
+						case PROJECTION_TUBE:
+							uvCoordinates = UVCoordinatesGenerator.tubeProjection(mesh, bb);
+							break;
+						case PROJECTION_SPHERE:
+							uvCoordinates = UVCoordinatesGenerator.sphereProjection(mesh, bb);
+							break;
+						default:
+							throw new IllegalStateException("Unknown projection type: " + projection);
+					}
+				} else {
+					FloatBuffer positions = mesh.getFloatBuffer(VertexBuffer.Type.Position);
+					uvCoordinates = BufferUtils.getFloatArray(positions);
 					Vector3f min = bb.getMin(null);
 					float[] ext = new float[] { bb.getXExtent() * 2, bb.getYExtent() * 2, bb.getZExtent() * 2 };
 
@@ -122,10 +135,22 @@ public class UVCoordinatesGenerator {
 						uvCoordinates[i + 1] = (uvCoordinates[i + 1] - min.y) / ext[1];
 						uvCoordinates[i + 2] = (uvCoordinates[i + 2] - min.z) / ext[2];
 					}
-
-					result.setupData(Usage.Static, 3, Format.Float, BufferUtils.createFloatBuffer(uvCoordinates));
+					result.setupData(Usage.Static, textureDimension, Format.Float, BufferUtils.createFloatBuffer(uvCoordinates));
+				}
+				result.setupData(Usage.Static, textureDimension, Format.Float, BufferUtils.createFloatBuffer(uvCoordinates));
+				break;
+			case TEXCO_UV:
+				if (textureDimension == 2) {
+					FloatBuffer uvCoordinatesBuffer = BufferUtils.createFloatBuffer(mesh.getVertexCount() << 1);
+					Vector2f[] data = new Vector2f[] { new Vector2f(0, 1), new Vector2f(0, 0), new Vector2f(1, 0) };
+					for (int i = 0; i < mesh.getVertexCount(); ++i) {
+						Vector2f uv = data[i % 3];
+						uvCoordinatesBuffer.put(uv.x);
+						uvCoordinatesBuffer.put(uv.y);
+					}
+					result.setupData(Usage.Static, textureDimension, Format.Float, uvCoordinatesBuffer);
 				} else {
-					throw new IllegalStateException("Unsupported texture type: " + textureType);
+
 				}
 				break;
 			case TEXCO_GLOB:
@@ -133,8 +158,6 @@ public class UVCoordinatesGenerator {
 				break;
 			case TEXCO_TANGENT:
 
-				break;
-			case TEXCO_UV:
 				break;
 			case TEXCO_STRESS:
 
@@ -157,38 +180,110 @@ public class UVCoordinatesGenerator {
 				throw new IllegalStateException("Unknown texture coordinates value: " + texco);
 		}
 
-		mesh.clearBuffer(VertexBuffer.Type.TexCoord);// in case there are coordinates already set
-		mesh.setBuffer(result);
+		// each mesh will have the same coordinates
+		for (Geometry geometry : geometries) {
+			mesh = geometry.getMesh();
+			mesh.clearBuffer(VertexBuffer.Type.TexCoord);// in case there are coordinates already set
+			mesh.setBuffer(result);
+		}
 	}
 
 	/**
 	 * Flat projection for 2D textures.
 	 * @param mesh
 	 *        mesh that is to be projected
+	 * @param bb
+	 *        the bounding box for projecting
 	 * @return UV coordinates after the projection
 	 */
-	public Vector2f[] flatProjection(Mesh mesh) {
-		return null;// TODO: implement
+	private static float[] flatProjection(Mesh mesh, BoundingBox bb) {
+		if (bb == null) {
+			bb = UVCoordinatesGenerator.getBoundingBox(mesh);
+		}
+		Vector3f min = bb.getMin(null);
+		float[] ext = new float[] { bb.getXExtent() * 2.0f, bb.getYExtent() * 2.0f };
+		FloatBuffer positions = mesh.getFloatBuffer(com.jme3.scene.VertexBuffer.Type.Position);
+		float[] uvCoordinates = new float[positions.limit() / 3 * 2];
+		for (int i = 0, j = 0; i < positions.limit(); i += 3, j += 2) {
+			uvCoordinates[j] = (positions.get(i) - min.x) / ext[0];
+			uvCoordinates[j + 1] = (positions.get(i + 1) - min.y) / ext[1];
+			// skip the Z-coordinate
+		}
+		return uvCoordinates;
 	}
 
 	/**
 	 * Cube projection for 2D textures.
 	 * @param mesh
 	 *        mesh that is to be projected
+	 * @param bb
+	 *        the bounding box for projecting
 	 * @return UV coordinates after the projection
 	 */
-	public Vector2f[] cubeProjection(Mesh mesh) {
-		return null;// TODO: implement
+	private static float[] cubeProjection(Mesh mesh, BoundingBox bb) {
+		Triangle triangle = new Triangle();
+		Vector3f x = new Vector3f(1, 0, 0);
+		Vector3f y = new Vector3f(0, 1, 0);
+		Vector3f z = new Vector3f(0, 0, 1);
+		Vector3f min = bb.getMin(null);
+		float[] ext = new float[] { bb.getXExtent() * 2.0f, bb.getYExtent() * 2.0f, bb.getZExtent() * 2.0f };
+
+		float[] uvCoordinates = new float[mesh.getTriangleCount() * 6];// 6 == 3 * 2
+		float borderAngle = (float)Math.sqrt(2.0f)/2.0f;
+		for (int i = 0, pointIndex = 0; i < mesh.getTriangleCount(); ++i) {
+			mesh.getTriangle(i, triangle);
+			Vector3f n = triangle.getNormal();
+			float dotNX = Math.abs(n.dot(x));
+			float dorNY = Math.abs(n.dot(y));
+			float dotNZ = Math.abs(n.dot(z));
+			if (dotNX > borderAngle) {
+				if (dotNZ < borderAngle) {// discard X-coordinate
+					uvCoordinates[pointIndex++] = (triangle.get1().y - min.y) / ext[1];
+					uvCoordinates[pointIndex++] = (triangle.get1().z - min.z) / ext[2];
+					uvCoordinates[pointIndex++] = (triangle.get2().y - min.y) / ext[1];
+					uvCoordinates[pointIndex++] = (triangle.get2().z - min.z) / ext[2];
+					uvCoordinates[pointIndex++] = (triangle.get3().y - min.y) / ext[1];
+					uvCoordinates[pointIndex++] = (triangle.get3().z - min.z) / ext[2];
+				} else {// discard Z-coordinate
+					uvCoordinates[pointIndex++] = (triangle.get1().x - min.x) / ext[0];
+					uvCoordinates[pointIndex++] = (triangle.get1().y - min.y) / ext[1];
+					uvCoordinates[pointIndex++] = (triangle.get2().x - min.x) / ext[0];
+					uvCoordinates[pointIndex++] = (triangle.get2().y - min.y) / ext[1];
+					uvCoordinates[pointIndex++] = (triangle.get3().x - min.x) / ext[0];
+					uvCoordinates[pointIndex++] = (triangle.get3().y - min.y) / ext[1];
+				}
+			} else {
+				if (dorNY > borderAngle) {// discard Y-coordinate
+					uvCoordinates[pointIndex++] = (triangle.get1().x - min.x) / ext[0];
+					uvCoordinates[pointIndex++] = (triangle.get1().z - min.z) / ext[2];
+					uvCoordinates[pointIndex++] = (triangle.get2().x - min.x) / ext[0];
+					uvCoordinates[pointIndex++] = (triangle.get2().z - min.z) / ext[2];
+					uvCoordinates[pointIndex++] = (triangle.get3().x - min.x) / ext[0];
+					uvCoordinates[pointIndex++] = (triangle.get3().z - min.z) / ext[2];
+				} else {// discard Z-coordinate
+					uvCoordinates[pointIndex++] = (triangle.get1().x - min.x) / ext[0];
+					uvCoordinates[pointIndex++] = (triangle.get1().y - min.y) / ext[1];
+					uvCoordinates[pointIndex++] = (triangle.get2().x - min.x) / ext[0];
+					uvCoordinates[pointIndex++] = (triangle.get2().y - min.y) / ext[1];
+					uvCoordinates[pointIndex++] = (triangle.get3().x - min.x) / ext[0];
+					uvCoordinates[pointIndex++] = (triangle.get3().y - min.y) / ext[1];
+				}
+			}
+			triangle.setNormal(null);//clear the previous normal vector
+		}
+		return uvCoordinates;
 	}
 
 	/**
 	 * Tube projection for 2D textures.
 	 * @param mesh
 	 *        mesh that is to be projected
+	 * @param bb
+	 *        the bounding box for projecting
 	 * @return UV coordinates after the projection
 	 */
 
-	public Vector2f[] tubeProjection(Mesh mesh) {
+	private static float[] tubeProjection(Mesh mesh, BoundingBox bb) {
 		return null;// TODO: implement
 	}
 
@@ -196,9 +291,11 @@ public class UVCoordinatesGenerator {
 	 * Sphere projection for 2D textures.
 	 * @param mesh
 	 *        mesh that is to be projected
+	 * @param bb
+	 *        the bounding box for projecting
 	 * @return UV coordinates after the projection
 	 */
-	public Vector2f[] sphereProjection(Mesh mesh) {
+	private static float[] sphereProjection(Mesh mesh, BoundingBox bb) {
 		return null;// TODO: implement
 		// Vector2f[] uvTable = new Vector2f[vertexList.size()];
 		// Ray ray = new Ray();

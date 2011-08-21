@@ -63,6 +63,7 @@ import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
 import com.jme3.scene.plugins.blender.file.DynamicArray;
 import com.jme3.scene.plugins.blender.file.Pointer;
 import com.jme3.scene.plugins.blender.file.Structure;
+import com.jme3.scene.plugins.blender.materials.MaterialContext;
 import com.jme3.scene.plugins.blender.materials.MaterialHelper;
 import com.jme3.scene.plugins.blender.objects.Properties;
 import com.jme3.scene.plugins.blender.textures.TextureHelper;
@@ -391,9 +392,24 @@ public class MeshHelper extends AbstractBlenderHelper {
 			for(Geometry geom : geometries) {
 				geom.getMesh().setBuffer(uvCoordsBuffer);
 			}
-		} else {//TODO: get the proper texture coordinates type
-			UVCoordinatesGenerator.generateUVCoordinates(UVCoordinatesGenerator.TEXCO_ORCO, 
-					com.jme3.texture.Texture.Type.ThreeDimensional, geometries);
+		} else {
+			Map<Material, List<Geometry>> materialMap = new HashMap<Material, List<Geometry>>();
+			for(Geometry geom : geometries) {
+				Material material = geom.getMaterial();
+				List<Geometry> geomsWithCommonMaterial = materialMap.get(material);
+				if(geomsWithCommonMaterial==null) {
+					geomsWithCommonMaterial = new ArrayList<Geometry>();
+					materialMap.put(material, geomsWithCommonMaterial);
+				}
+				geomsWithCommonMaterial.add(geom);
+				
+			}
+			for(Entry<Material, List<Geometry>> entry : materialMap.entrySet()) {
+				MaterialContext materialContext = dataRepository.getMaterialContext(entry.getKey());
+				UVCoordinatesGenerator.generateUVCoordinates(materialContext.getUvCoordinatesType(), 
+						materialContext.getProjectionType(),
+						materialContext.getTextureDimension(), entry.getValue());
+			}
 		}
 		
 		dataRepository.addLoadedFeatures(structure.getOldMemoryAddress(), structure.getName(), structure, geometries);

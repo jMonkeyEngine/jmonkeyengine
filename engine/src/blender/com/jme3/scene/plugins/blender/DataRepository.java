@@ -48,6 +48,7 @@ import com.jme3.scene.plugins.blender.file.BlenderInputStream;
 import com.jme3.scene.plugins.blender.file.DnaBlockData;
 import com.jme3.scene.plugins.blender.file.FileBlockHeader;
 import com.jme3.scene.plugins.blender.file.Structure;
+import com.jme3.scene.plugins.blender.materials.MaterialContext;
 import com.jme3.scene.plugins.blender.modifiers.Modifier;
 
 /**
@@ -88,6 +89,8 @@ public class DataRepository {
     protected Map<Long, List<Modifier>> modifiers = new HashMap<Long, List<Modifier>>();
     /** A list of constraints for the specified object. */
     protected Map<Long, List<Constraint>> constraints = new HashMap<Long, List<Constraint>>();
+    /** A map of material contexts. */
+    protected Map<Material, MaterialContext> materialContexts = new HashMap<Material, MaterialContext>();
     /** A map og helpers that perform loading. */
     private Map<String, AbstractBlenderHelper> helpers = new HashMap<String, AbstractBlenderHelper>();
 
@@ -394,6 +397,29 @@ public class DataRepository {
     public List<Constraint> getConstraints(Long objectOMA) {
     	return constraints.get(objectOMA);
     }
+    
+	/**
+	 * This method sets the material context for the given material.
+	 * If the context is already set it will be replaced.
+	 * @param material
+	 *        the material
+	 * @param materialContext
+	 *        the material's context
+	 */
+	public void setMaterialContext(Material material, MaterialContext materialContext) {
+		this.materialContexts.put(material, materialContext);
+	}
+
+	/**
+	 * This method returns the material context for the given material.
+	 * If no context exists then <b>null</b> is returned.
+	 * @param material
+	 *        the material
+	 * @return material's context
+	 */
+	public MaterialContext getMaterialContext(Material material) {
+		return materialContexts.get(material);
+	}
 
     /**
      * This metod returns the default material.

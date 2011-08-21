@@ -13,23 +13,25 @@ import com.jme3.scene.plugins.blender.file.Structure;
 import com.jme3.scene.plugins.blender.textures.TextureHelper;
 import com.jme3.texture.Texture.Type;
 
-/*package*/final class MaterialContext {
+public final class MaterialContext {
 	private static final Logger LOGGER = Logger.getLogger(MaterialContext.class.getName());
 	
-	public final String name;
-	public final List<Structure> mTexs;
-	public final List<Structure> textures;
-	public final int texturesCount;
-	public final Type textureType;
-	public final int textureCoordinatesType;
+	/*package*/ final String name;
+	/*package*/ final List<Structure> mTexs;
+	/*package*/ final List<Structure> textures;
+	/*package*/ final int texturesCount;
+	/*package*/ final Type textureType;
 	
-	public final boolean shadeless;
-	public final boolean vertexColor;
-	public final boolean transparent;
-	public final boolean vtangent;
+	/*package*/ final boolean shadeless;
+	/*package*/ final boolean vertexColor;
+	/*package*/ final boolean transparent;
+	/*package*/ final boolean vtangent;
+	
+	/*package*/ int uvCoordinatesType = -1;
+	/*package*/ int projectionType;
 	
 	@SuppressWarnings("unchecked")
-	public MaterialContext(Structure structure, DataRepository dataRepository) throws BlenderFileException {
+	/*package*/ MaterialContext(Structure structure, DataRepository dataRepository) throws BlenderFileException {
 		name = structure.getName();
 		
 		int mode = ((Number) structure.getFieldValue("mode")).intValue();
@@ -43,16 +45,16 @@ import com.jme3.texture.Texture.Type;
 		DynamicArray<Pointer> mtexsArray = (DynamicArray<Pointer>) structure.getFieldValue("mtex");
 		int separatedTextures = ((Number) structure.getFieldValue("septex")).intValue();
 		Type firstTextureType = null;
-		int texco = -1;
 		for (int i = 0; i < mtexsArray.getTotalSize(); ++i) {
 			Pointer p = mtexsArray.get(i);
 			if (p.isNotNull() && (separatedTextures & 1 << i) == 0) {
 				Structure mtex = p.fetchData(dataRepository.getInputStream()).get(0);
 				
 				//the first texture determines the texture coordinates type
-				if(texco == -1) {
-					texco = ((Number) mtex.getFieldValue("texco")).intValue();
-				} else if(texco != ((Number) mtex.getFieldValue("texco")).intValue()) {
+				if(uvCoordinatesType == -1) {
+					uvCoordinatesType = ((Number) mtex.getFieldValue("texco")).intValue();
+					projectionType = ((Number) mtex.getFieldValue("mapping")).intValue();
+				} else if(uvCoordinatesType != ((Number) mtex.getFieldValue("texco")).intValue()) {
 					LOGGER.log(Level.WARNING, "The texture with index: {0} has different UV coordinates type than the first texture! This texture will NOT be loaded!", i+1);
 					continue;
 				}
@@ -79,10 +81,39 @@ import com.jme3.texture.Texture.Type;
 		}
 		
 		this.texturesCount = mTexs.size();
-		this.textureCoordinatesType = texco;
 		this.textureType = firstTextureType;
 	}
 	
+	/**
+	 * This method returns the current material's texture UV coordinates type.
+	 * @return uv coordinates type
+	 */
+	public int getUvCoordinatesType() {
+		return uvCoordinatesType;
+	}
+	
+	/**
+	 * This method returns the proper projection type for the material's texture.
+	 * This applies only to 2D textures.
+	 * @return texture's projection type
+	 */
+	public int getProjectionType() {
+		return projectionType;
+	}
+
+	/**
+	 * This method returns current material's texture dimension.
+	 * @return the material's texture dimension
+	 */
+	public int getTextureDimension() {
+		return this.textureType == Type.TwoDimensional ? 2 : 3;
+	}
+	
+	/**
+	 * This method determines the type of the texture.
+	 * @param texType texture type (from blender)
+	 * @return texture type (used by jme)
+	 */
 	private Type getType(int texType) {
 		switch (texType) {
 			case TextureHelper.TEX_IMAGE:// (it is first because probably this will be most commonly used)
