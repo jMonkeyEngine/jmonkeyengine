@@ -33,13 +33,10 @@ package com.jme3.gde.core;
 
 import com.jme3.gde.core.scene.SceneApplication;
 import java.io.File;
-import java.util.Iterator;
-import java.util.List;
 import javax.swing.JPopupMenu;
 import org.openide.filesystems.FileChooserBuilder;
 import org.openide.modules.ModuleInstall;
 import org.openide.util.NbPreferences;
-import org.openide.util.Utilities;
 
 /**
  * Manages a module's lifecycle. Remember that an installer is optional and
@@ -63,11 +60,10 @@ public class Installer extends ModuleInstall {
         //set default projects directory
 //        File userDir = new File(System.getProperty("user.home"));
 //        File myProjectsDir = new File(userDir, "jMonkeyProjects");
-
 //        if (!myProjectsDir.exists()) {
 //            myProjectsDir.mkdirs();
 //        }
-        
+
         //select project folder
         String projectDir = NbPreferences.forModule(Installer.class).get("projects_path", null);
         if (projectDir == null) {
@@ -86,20 +82,26 @@ public class Installer extends ModuleInstall {
                 NbPreferences.forModule(Installer.class).put("projects_path", projectDir);
             }
         }
-        System.setProperty("netbeans.projects.dir", projectDir);
 
         //set extraction dir for platform natives
-        if (Utilities.isMac()) {
-            String jmpDir = System.getProperty("user.home") + "/Library/Application Support/jmonkeyplatform/";
-            File file = new File(jmpDir);
+        String jmpDir = System.getProperty("netbeans.user");
+        File file = new File(jmpDir);
+        if (!file.exists()) {
             file.mkdirs();
-            com.jme3.system.Natives.setExtractionDir(jmpDir);
-        } else {
-            String jmpDir = System.getProperty("user.home") + File.separator + ".jmonkeyplatform" + File.separator;
-            File file = new File(jmpDir);
-            file.mkdirs();
-            com.jme3.system.Natives.setExtractionDir(jmpDir);
         }
+        com.jme3.system.Natives.setExtractionDir(jmpDir);
+
+//        if (Utilities.isMac()) {
+//            String jmpDir = System.getProperty("user.home") + "/Library/Application Support/jmonkeyplatform/";
+//            File file = new File(jmpDir);
+//            file.mkdirs();
+//            com.jme3.system.Natives.setExtractionDir(jmpDir);
+//        } else {
+//            String jmpDir = System.getProperty("user.home") + File.separator + ".jmonkeyplatform" + File.separator;
+//            File file = new File(jmpDir);
+//            file.mkdirs();
+//            com.jme3.system.Natives.setExtractionDir(jmpDir);
+//        }
 
         //avoid problems with lightweight popups
         JPopupMenu.setDefaultLightWeightPopupEnabled(false);
