@@ -67,6 +67,8 @@ import com.jme3.util.TangentBinormalGenerator;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * A terrain quad is a node in the quad tree of the terrain system.
@@ -103,6 +105,7 @@ public class TerrainQuad extends Node implements Terrain {
     private BoundingBox affectedAreaBBox; // only set in the root quad
 
     private TerrainPicker picker;
+    private Vector3f lastScale = Vector3f.UNIT_XYZ;
 
     protected ExecutorService executor;
 
@@ -151,6 +154,9 @@ public class TerrainQuad extends Node implements Terrain {
         super(name);
         if (!FastMath.isPowerOfTwo(size - 1)) {
             throw new RuntimeException("size given: " + size + "  Terrain quad sizes may only be (2^N + 1)");
+        }
+        if (FastMath.sqrt(heightMap.length) > size) {
+            Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "Heightmap size is larger than the terrain size. Make sure your heightmap image is the same size as the terrain!");
         }
 
         if (heightMap == null)
@@ -728,7 +734,7 @@ public class TerrainQuad extends Node implements Terrain {
         patch1.setModelBound(new BoundingBox());
         patch1.updateModelBound();
         patch1.setLodCalculator(lodCalculatorFactory);
-        TangentBinormalGenerator.generate(patch1);
+        //TangentBinormalGenerator.generate(patch1);
 
         // 2 lower left
         float[] heightBlock2 = createHeightSubBlock(heightMap, 0, split - 1,
@@ -750,7 +756,7 @@ public class TerrainQuad extends Node implements Terrain {
         patch2.setModelBound(new BoundingBox());
         patch2.updateModelBound();
         patch2.setLodCalculator(lodCalculatorFactory);
-        TangentBinormalGenerator.generate(patch2);
+        //TangentBinormalGenerator.generate(patch2);
 
         // 3 upper right
         float[] heightBlock3 = createHeightSubBlock(heightMap, split - 1, 0,
@@ -772,7 +778,7 @@ public class TerrainQuad extends Node implements Terrain {
         patch3.setModelBound(new BoundingBox());
         patch3.updateModelBound();
         patch3.setLodCalculator(lodCalculatorFactory);
-        TangentBinormalGenerator.generate(patch3);
+        //TangentBinormalGenerator.generate(patch3);
 
         // 4 lower right
         float[] heightBlock4 = createHeightSubBlock(heightMap, split - 1,
@@ -794,7 +800,7 @@ public class TerrainQuad extends Node implements Terrain {
         patch4.setModelBound(new BoundingBox());
         patch4.updateModelBound();
         patch4.setLodCalculator(lodCalculatorFactory);
-        TangentBinormalGenerator.generate(patch4);
+        //TangentBinormalGenerator.generate(patch4);
     }
 
     public float[] createHeightSubBlock(float[] heightMap, int x,
@@ -870,7 +876,13 @@ public class TerrainQuad extends Node implements Terrain {
     }
 
     protected boolean needToRecalculateNormals() {
-        return affectedAreaBBox != null;
+        if (affectedAreaBBox != null)
+            return true;
+        if (!lastScale.equals(getWorldScale())) {
+            lastScale = getWorldScale();
+            return true;
+        }
+        return false;
     }
 
     public float getHeightmapHeight(Vector2f xz) {

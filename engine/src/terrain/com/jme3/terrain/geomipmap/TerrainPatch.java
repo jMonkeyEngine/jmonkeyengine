@@ -331,8 +331,11 @@ public class TerrainPatch extends Geometry {
      * recalculate all of this normal vectors in this terrain patch
      */
     protected void updateNormals() {
-        FloatBuffer newNormalBuffer = geomap.writeNormalArray(null, stepScale);
+        TangentBinormalGenerator.generate(this);
+        FloatBuffer newNormalBuffer = geomap.writeNormalArray(null, getWorldScale());
         getMesh().getBuffer(Type.Normal).updateData(newNormalBuffer);
+        FloatBuffer newTangentBuffer = geomap.writeTangentArray(null, getWorldScale());
+        getMesh().getBuffer(Type.Tangent).updateData(newTangentBuffer);
     }
 
     /**
@@ -683,6 +686,7 @@ public class TerrainPatch extends Geometry {
             Vector3f normal,
             Vector3f tangent)
     {
+        Vector3f scale = getWorldScale();
         v[0] = topPoint;
         v[1] = rootPoint;
         v[2] = leftPoint;
@@ -693,7 +697,7 @@ public class TerrainPatch extends Geometry {
         Vector3f t1 = Vector3f.ZERO;
         if (topPoint != null && leftPoint != null) {
             TriangleData td1 = TangentBinormalGenerator.processTriangle(indexes, v, t);
-            n1 = getNormal(topPoint, rootPoint, leftPoint);
+            n1 = getNormal(topPoint.mult(scale), rootPoint.mult(scale), leftPoint.mult(scale));
             t1 = td1.tangent;
         }
         v[0] = leftPoint;
@@ -706,7 +710,7 @@ public class TerrainPatch extends Geometry {
         Vector3f t2 = Vector3f.ZERO;
         if (leftPoint != null && bottomPoint != null) {
             TriangleData td2 = TangentBinormalGenerator.processTriangle(indexes, v, t);
-            n2 = getNormal(leftPoint, rootPoint, bottomPoint);
+            n2 = getNormal(leftPoint.mult(scale), rootPoint.mult(scale), bottomPoint.mult(scale));
             t2 = td2.tangent;
         }
         v[0] = bottomPoint;
@@ -719,7 +723,7 @@ public class TerrainPatch extends Geometry {
         Vector3f t3 = Vector3f.ZERO;
         if (rightPoint != null && bottomPoint != null) {
             TriangleData td3 = TangentBinormalGenerator.processTriangle(indexes, v, t);
-            n3 = getNormal(bottomPoint, rootPoint, rightPoint);
+            n3 = getNormal(bottomPoint.mult(scale), rootPoint.mult(scale), rightPoint.mult(scale));
             t3 = td3.tangent;
         }
         v[0] = rightPoint;
@@ -732,7 +736,7 @@ public class TerrainPatch extends Geometry {
         Vector3f t4 = Vector3f.ZERO;
         if (rightPoint != null && topPoint != null) {
             TriangleData td4 = TangentBinormalGenerator.processTriangle(indexes, v, t);
-            n4 = getNormal(rightPoint, rootPoint, topPoint);
+            n4 = getNormal(rightPoint.mult(scale), rootPoint.mult(scale), topPoint.mult(scale));
             t4 = td4.tangent;
         }
 
