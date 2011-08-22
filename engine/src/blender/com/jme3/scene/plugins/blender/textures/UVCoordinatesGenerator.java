@@ -114,8 +114,8 @@ public class UVCoordinatesGenerator {
 							uvCoordinates = UVProjectionGenerator.cubeProjection(mesh, bb);
 							break;
 						case PROJECTION_TUBE:
-							// TODO: implement
-							// uvCoordinates = UVProjectionGenerator.tubeProjection(mesh, bb);
+							 BoundingTube bt = UVCoordinatesGenerator.getBoundingTube(mesh);
+							 uvCoordinates = UVProjectionGenerator.tubeProjection(mesh, bt);
 							break;
 						case PROJECTION_SPHERE:
 							uvCoordinates = UVProjectionGenerator.sphereProjection(mesh, bb);
@@ -289,11 +289,11 @@ public class UVCoordinatesGenerator {
 			maxx = x > maxx ? x : maxx;
 			minx = x < minx ? x : minx;
 			maxy = y > maxy ? y : maxy;
-			miny = x < miny ? y : miny;
-			maxz = x > maxz ? z : maxz;
-			minz = x < minz ? z : minz;
+			miny = y < miny ? y : miny;
+			maxz = z > maxz ? z : maxz;
+			minz = z < minz ? z : minz;
 		}
-		center.divideLocal(limit);
+		center.divideLocal(limit/3);
 
 		float radius = Math.max(maxx - minx, maxy - miny) * 0.5f;
 		return new BoundingTube(radius, maxz - minz, center);
