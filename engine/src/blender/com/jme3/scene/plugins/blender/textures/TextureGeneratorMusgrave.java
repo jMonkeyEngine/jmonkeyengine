@@ -79,7 +79,7 @@ public class TextureGeneratorMusgrave extends TextureGenerator {
 			for (int j = -halfH; j < halfH; ++j) {
 				texvec[1] = hDelta * j / noisesize;
 				for (int k = -halfD; k < halfD; ++k) {
-					texvec[2] = dDelta * k;
+					texvec[2] = dDelta * k / noisesize;
 					switch (stype) {
 						case NoiseGenerator.TEX_MFRACTAL:
 						case NoiseGenerator.TEX_FBM:
