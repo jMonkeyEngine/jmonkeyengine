@@ -454,8 +454,7 @@ public abstract class AbstractHeightMap implements HeightMap {
         }
         if (radius == 0)
             radius = 1;
-        //int[] dxs = new int[]{-1, 0, 1, 1, 1, 0, -1, -1};
-        //int[] dys = new int[]{-1, -1, -1, 0, 1, 1, 1, 0};
+        
         for (int x = 0; x < size; x++) {
             for (int y = 0; y < size; y++) {
                 int neighNumber = 0;
@@ -472,18 +471,6 @@ public abstract class AbstractHeightMap implements HeightMap {
                         neighAverage += heightData[(x+rx) + (y+ry) * size];
                     }
                 }
-                /*for (int d = 0; d < 8; d++) {
-                    int i = x + dxs[d];
-                    int j = y + dys[d];
-                    if (i < 0 || i >= size) {
-                        continue;
-                    }
-                    if (j < 0 || j >= size) {
-                        continue;
-                    }
-                    neighNumber++;
-                    neighAverage += heightData[i + j * size];
-                }*/
 
                 neighAverage /= neighNumber;
                 float cp = 1 - np;
