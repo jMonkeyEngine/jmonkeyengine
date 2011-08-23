@@ -331,11 +331,10 @@ public class TerrainPatch extends Geometry {
      * recalculate all of this normal vectors in this terrain patch
      */
     protected void updateNormals() {
-        TangentBinormalGenerator.generate(this);
         FloatBuffer newNormalBuffer = geomap.writeNormalArray(null, getWorldScale());
         getMesh().getBuffer(Type.Normal).updateData(newNormalBuffer);
-        FloatBuffer newTangentBuffer = geomap.writeTangentArray(null, getWorldScale());
-        getMesh().getBuffer(Type.Tangent).updateData(newTangentBuffer);
+        //FloatBuffer newTangentBuffer = geomap.writeTangentArray(null, getWorldScale());
+        //getMesh().getBuffer(Type.Tangent).updateData(newTangentBuffer);
     }
 
     /**
@@ -686,7 +685,7 @@ public class TerrainPatch extends Geometry {
             Vector3f normal,
             Vector3f tangent)
     {
-        Vector3f scale = getWorldScale();
+        Vector3f scale = Vector3f.UNIT_XYZ;//getWorldScale();
         v[0] = topPoint;
         v[1] = rootPoint;
         v[2] = leftPoint;
@@ -742,6 +741,9 @@ public class TerrainPatch extends Geometry {
 
         normal.set(n1.add(n2).add(n3).add(n4).normalizeLocal());
         tangent.set(t1.add(t2).add(t3).add(t4)).normalizeLocal();
+        /*if (rightPoint != null) {
+            tangent.set(rootPoint.mult(scale).subtract(rightPoint.mult(scale)));
+        }*/
     }
 
     private Vector3f getNormal(Vector3f firstPoint, Vector3f rootPoint, Vector3f secondPoint) {
