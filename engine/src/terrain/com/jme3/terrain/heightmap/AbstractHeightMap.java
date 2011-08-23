@@ -435,16 +435,44 @@ public abstract class AbstractHeightMap implements HeightMap {
      *          Value of 1 will ignore the node old height.
      */
     public void smooth(float np) {
+        smooth(np, 1);
+    }
+    
+    /**
+     * Smooth the terrain. For each node, its X(determined by radius) neighbors heights
+     * are averaged and will participate in the  node new height
+     * by a factor <code>np</code> between 0 and 1
+     *
+     * @param np
+     *          The factor to what extend the neighbors average has an influence.
+     *          Value of 0 will ignore neighbors (no smoothing)
+     *          Value of 1 will ignore the node old height.
+     */
+    public void smooth(float np, int radius) {
         if (np < 0 || np > 1) {
             return;
         }
-        int[] dxs = new int[]{-1, 0, 1, 1, 1, 0, -1, -1};
-        int[] dys = new int[]{-1, -1, -1, 0, 1, 1, 1, 0};
+        if (radius == 0)
+            radius = 1;
+        //int[] dxs = new int[]{-1, 0, 1, 1, 1, 0, -1, -1};
+        //int[] dys = new int[]{-1, -1, -1, 0, 1, 1, 1, 0};
         for (int x = 0; x < size; x++) {
             for (int y = 0; y < size; y++) {
                 int neighNumber = 0;
                 float neighAverage = 0;
-                for (int d = 0; d < 8; d++) {
+                for (int rx = -radius; rx <= radius; rx++) {
+                    for (int ry = -radius; ry <= radius; ry++) {
+                        if (x+rx < 0 || x+rx >= size) {
+                        continue;
+                        }
+                        if (y+ry < 0 || y+ry >= size) {
+                            continue;
+                        }
+                        neighNumber++;
+                        neighAverage += heightData[(x+rx) + (y+ry) * size];
+                    }
+                }
+                /*for (int d = 0; d < 8; d++) {
                     int i = x + dxs[d];
                     int j = y + dys[d];
                     if (i < 0 || i >= size) {
@@ -455,7 +483,7 @@ public abstract class AbstractHeightMap implements HeightMap {
                     }
                     neighNumber++;
                     neighAverage += heightData[i + j * size];
-                }
+                }*/
 
                 neighAverage /= neighNumber;
                 float cp = 1 - np;
