@@ -31,29 +31,16 @@
  */
 package com.jme3.gde.core.properties;
 
-import com.jme3.asset.TextureKey;
 import com.jme3.gde.core.assets.ProjectAssetManager;
 import com.jme3.gde.core.properties.preview.DDSPreview;
-import com.jme3.gde.core.scene.PreviewRequest;
-import com.jme3.gde.core.scene.SceneApplication;
-import com.jme3.gde.core.scene.SceneListener;
-import com.jme3.gde.core.scene.SceneRequest;
 import com.jme3.gde.core.util.TreeUtil;
-import com.jme3.material.Material;
-import com.jme3.math.Vector2f;
-import com.jme3.math.Vector3f;
-import com.jme3.scene.Geometry;
-import com.jme3.scene.Spatial;
-import com.jme3.scene.shape.Quad;
 import com.jme3.texture.Texture;
-import com.jme3.util.SkyFactory;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.util.logging.Logger;
 import javax.swing.DefaultListSelectionModel;
 import javax.swing.Icon;
-import javax.swing.ImageIcon;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -109,6 +96,7 @@ public class TextureBrowser extends javax.swing.JDialog implements TreeSelection
         jPanel3 = new javax.swing.JPanel();
         cancelButton = new javax.swing.JButton();
         okButton = new javax.swing.JButton();
+        noTexturebutton = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle(org.openide.util.NbBundle.getMessage(TextureBrowser.class, "TextureBrowser.title")); // NOI18N
@@ -157,6 +145,13 @@ public class TextureBrowser extends javax.swing.JDialog implements TreeSelection
             }
         });
 
+        noTexturebutton.setText(org.openide.util.NbBundle.getMessage(TextureBrowser.class, "TextureBrowser.noTexturebutton.text")); // NOI18N
+        noTexturebutton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                noTexturebuttonActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
@@ -164,7 +159,9 @@ public class TextureBrowser extends javax.swing.JDialog implements TreeSelection
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(cancelButton)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 423, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 330, Short.MAX_VALUE)
+                .addComponent(noTexturebutton)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(okButton)
                 .addContainerGap())
         );
@@ -173,7 +170,8 @@ public class TextureBrowser extends javax.swing.JDialog implements TreeSelection
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(cancelButton)
-                    .addComponent(okButton))
+                    .addComponent(okButton)
+                    .addComponent(noTexturebutton))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -218,6 +216,12 @@ private void jTree1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:even
     }
 }//GEN-LAST:event_jTree1MouseClicked
 
+private void noTexturebuttonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_noTexturebuttonActionPerformed
+    editor.setValue(null);
+    editor.setAsText(null);
+    dispose();
+}//GEN-LAST:event_noTexturebuttonActionPerformed
+
     private boolean setTexture() {
         DefaultMutableTreeNode node = (DefaultMutableTreeNode) jTree1.getLastSelectedPathComponent();
 
@@ -241,6 +245,7 @@ private void jTree1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:even
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JTree jTree1;
+    private javax.swing.JButton noTexturebutton;
     private javax.swing.JButton okButton;
     // End of variables declaration//GEN-END:variables
 
