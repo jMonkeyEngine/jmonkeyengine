@@ -102,14 +102,14 @@ public class PaintTerrainToolAction extends AbstractTerrainToolAction {
     }
     
     public Vector2f getPointPercentagePosition(Terrain terrain, Vector3f worldLoc) {
-        Vector2f uv = new Vector2f(worldLoc.x,worldLoc.z);
+        Vector2f uv = new Vector2f(worldLoc.x,-worldLoc.z);
         float scale = ((Node)terrain).getLocalScale().x;
         
         uv.subtractLocal(((Node)terrain).getLocalTranslation().x*scale, ((Node)terrain).getLocalTranslation().z*scale); // center it on 0,0
         float scaledSize = terrain.getTerrainSize()*scale;
         uv.addLocal(scaledSize/2, scaledSize/2); // shift the bottom left corner up to 0,0
         uv.divideLocal(scaledSize); // get the location as a percentage
-
+        
         return uv;
     }
     
@@ -157,10 +157,10 @@ public class PaintTerrainToolAction extends AbstractTerrainToolAction {
         float width = image.getWidth();
         float height = image.getHeight();
 
-        int minx = (int) (uv.x*width - radius*width); // convert percents to pixels to limit how much we iterate
-        int maxx = (int) (uv.x*width + radius*width);
-        int miny = (int) (uv.y*height - radius*height);
-        int maxy = (int) (uv.y*height + radius*height);
+        int minx = (int) Math.max(0, (uv.x*width - radius*width)); // convert percents to pixels to limit how much we iterate
+        int maxx = (int) Math.min(width,(uv.x*width + radius*width));
+        int miny = (int) Math.max(0,(uv.y*height - radius*height));
+        int maxy = (int) Math.min(height,(uv.y*height + radius*height));
 
         float radiusSquared = radius*radius;
         float radiusFalloff = radius*fadeFalloff;
