@@ -62,7 +62,6 @@ import com.jme3.terrain.geomipmap.lodcalc.LodCalculatorFactory;
 import com.jme3.terrain.geomipmap.lodcalc.util.EntropyComputeUtil;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.TangentBinormalGenerator;
-import com.jme3.util.TangentBinormalGenerator.TriangleData;
 import java.io.IOException;
 import java.util.List;
 
@@ -333,8 +332,13 @@ public class TerrainPatch extends Geometry {
     protected void updateNormals() {
         FloatBuffer newNormalBuffer = geomap.writeNormalArray(null, getWorldScale());
         getMesh().getBuffer(Type.Normal).updateData(newNormalBuffer);
-        //FloatBuffer newTangentBuffer = geomap.writeTangentArray(null, getWorldScale());
-        //getMesh().getBuffer(Type.Tangent).updateData(newTangentBuffer);
+        FloatBuffer newTangentBuffer = null;
+        FloatBuffer newBinormalBuffer = null;
+        FloatBuffer[] tb = geomap.writeTangentArray(newTangentBuffer, newBinormalBuffer, (FloatBuffer)getMesh().getBuffer(Type.TexCoord).getData(), getWorldScale());
+        newTangentBuffer = tb[0];
+        newBinormalBuffer = tb[1];
+        getMesh().getBuffer(Type.Tangent).updateData(newTangentBuffer);
+        getMesh().getBuffer(Type.Binormal).updateData(newBinormalBuffer);
     }
 
     /**
@@ -359,7 +363,6 @@ public class TerrainPatch extends Geometry {
                                 TerrainPatch topRight,
                                 TerrainPatch topLeft)
     {
-
         Vector3f rootPoint = new Vector3f();
         Vector3f rightPoint = new Vector3f();
         Vector3f leftPoint = new Vector3f();
@@ -372,9 +375,6 @@ public class TerrainPatch extends Geometry {
         Vector2f bottomTex = new Vector2f();
         Vector3f normal = new Vector3f();
         Vector3f tangent = new Vector3f();
-        int[] indexes = new int[]{0,1,2};
-        Vector3f[] v = new Vector3f[3];
-        Vector2f[] t = new Vector2f[3];
 
         int s = this.getSize()-1;
         
@@ -390,7 +390,7 @@ public class TerrainPatch extends Geometry {
                     if (top == null) {
                         bottomPoint.set(s, this.getHeightmapHeight(s,i+1), i+1);
                         this.getTex(s,i+1, bottomTex);
-                        averageNormalsTangents(v, t, indexes, null, rootPoint, leftPoint, bottomPoint, rightPoint, null, rootTex, leftTex, bottomTex, rightTex, normal, tangent);
+                        averageNormalsTangents(null, rootPoint, leftPoint, bottomPoint, rightPoint, null, rootTex, leftTex, bottomTex, rightTex, normal, tangent);
                         VertexBuffer tpNB = this.getMesh().getBuffer(Type.Normal);
                         VertexBuffer tpTB = this.getMesh().getBuffer(Type.Tangent);
                         VertexBuffer rightNB = right.getMesh().getBuffer(Type.Normal);
@@ -404,7 +404,7 @@ public class TerrainPatch extends Geometry {
                         bottomPoint.set(s, this.getHeightmapHeight(s,i+1), i+1);
                         top.getTex(s,s-1, topTex);
                         this.getTex(s,i+1, bottomTex);
-                        averageNormalsTangents(v, t, indexes, topPoint, rootPoint, leftPoint, bottomPoint, rightPoint, topTex, rootTex, leftTex, bottomTex, rightTex, normal, tangent);
+                        averageNormalsTangents(topPoint, rootPoint, leftPoint, bottomPoint, rightPoint, topTex, rootTex, leftTex, bottomTex, rightTex, normal, tangent);
                         VertexBuffer tpNB = this.getMesh().getBuffer(Type.Normal);
                         VertexBuffer tpTB = this.getMesh().getBuffer(Type.Tangent);
                         VertexBuffer rightNB = right.getMesh().getBuffer(Type.Normal);
@@ -431,7 +431,7 @@ public class TerrainPatch extends Geometry {
                     if (bottom == null) {
                         topPoint.set(s, this.getHeightmapHeight(s,i-1), i-1);
                         this.getTex(s,i-1, topTex);
-                        averageNormalsTangents(v, t, indexes, topPoint, rootPoint, leftPoint, null, rightPoint, topTex, rootTex, leftTex, null, rightTex, normal, tangent);
+                        averageNormalsTangents(topPoint, rootPoint, leftPoint, null, rightPoint, topTex, rootTex, leftTex, null, rightTex, normal, tangent);
                         VertexBuffer tpNB = this.getMesh().getBuffer(Type.Normal);
                         VertexBuffer tpTB = this.getMesh().getBuffer(Type.Tangent);
                         VertexBuffer rightNB = right.getMesh().getBuffer(Type.Normal);
@@ -445,7 +445,7 @@ public class TerrainPatch extends Geometry {
                         bottomPoint.set(s, bottom.getHeightmapHeight(s,1), i+1);
                         this.getTex(s,i-1, topTex);
                         bottom.getTex(s,1, bottomTex);
-                        averageNormalsTangents(v, t, indexes, topPoint, rootPoint, leftPoint, bottomPoint, rightPoint, topTex, rootTex, leftTex, bottomTex, rightTex, normal, tangent);
+                        averageNormalsTangents(topPoint, rootPoint, leftPoint, bottomPoint, rightPoint, topTex, rootTex, leftTex, bottomTex, rightTex, normal, tangent);
                         VertexBuffer tpNB = this.getMesh().getBuffer(Type.Normal);
                         VertexBuffer tpTB = this.getMesh().getBuffer(Type.Tangent);
                         VertexBuffer rightNB = right.getMesh().getBuffer(Type.Normal);
@@ -474,7 +474,7 @@ public class TerrainPatch extends Geometry {
                     bottomPoint.set(s, this.getHeightmapHeight(s,i+1), i+1);
                     this.getTex(s,i-1, topTex);
                     this.getTex(s,i+1, bottomTex);
-                    averageNormalsTangents(v, t, indexes, topPoint, rootPoint, leftPoint, bottomPoint, rightPoint, topTex, rootTex, leftTex, bottomTex, rightTex, normal, tangent);
+                    averageNormalsTangents(topPoint, rootPoint, leftPoint, bottomPoint, rightPoint, topTex, rootTex, leftTex, bottomTex, rightTex, normal, tangent);
                     VertexBuffer tpNB = this.getMesh().getBuffer(Type.Normal);
                     VertexBuffer tpTB = this.getMesh().getBuffer(Type.Tangent);
                     VertexBuffer rightNB = right.getMesh().getBuffer(Type.Normal);
@@ -537,7 +537,7 @@ public class TerrainPatch extends Geometry {
                     rightPoint.set(i+1, this.getHeightmapHeight(i+1,s), s);
                     this.getTex(i-1,s, leftTex);
                     this.getTex(i+1,s, rightTex);
-                    averageNormalsTangents(v, t, indexes, topPoint, rootPoint, leftPoint, bottomPoint, rightPoint, topTex, rootTex, leftTex, bottomTex, rightTex, normal, tangent);
+                    averageNormalsTangents(topPoint, rootPoint, leftPoint, bottomPoint, rightPoint, topTex, rootTex, leftTex, bottomTex, rightTex, normal, tangent);
                     VertexBuffer tpNB = this.getMesh().getBuffer(Type.Normal);
                     VertexBuffer tpTB = this.getMesh().getBuffer(Type.Tangent);
                     VertexBuffer downNB = bottom.getMesh().getBuffer(Type.Normal);
@@ -564,7 +564,7 @@ public class TerrainPatch extends Geometry {
                     if (top == null) {
                         bottomPoint.set(0, this.getHeightmapHeight(0,i+1), i+1);
                         this.getTex(0,i+1, bottomTex);
-                        averageNormalsTangents(v, t, indexes, null, rootPoint, leftPoint, bottomPoint, rightPoint, null, rootTex, leftTex, bottomTex, rightTex, normal, tangent);
+                        averageNormalsTangents(null, rootPoint, leftPoint, bottomPoint, rightPoint, null, rootTex, leftTex, bottomTex, rightTex, normal, tangent);
                         VertexBuffer tpNB = this.getMesh().getBuffer(Type.Normal);
                         VertexBuffer tpTB = this.getMesh().getBuffer(Type.Tangent);
                         VertexBuffer leftNB = left.getMesh().getBuffer(Type.Normal);
@@ -578,7 +578,7 @@ public class TerrainPatch extends Geometry {
                         bottomPoint.set(0, this.getHeightmapHeight(0,i+1), i+1);
                         top.getTex(0,i-1, topTex);
                         this.getTex(0,i+1, bottomTex);
-                        averageNormalsTangents(v, t, indexes, topPoint, rootPoint, leftPoint, bottomPoint, rightPoint, topTex, rootTex, leftTex, bottomTex, rightTex, normal, tangent);
+                        averageNormalsTangents(topPoint, rootPoint, leftPoint, bottomPoint, rightPoint, topTex, rootTex, leftTex, bottomTex, rightTex, normal, tangent);
                         VertexBuffer tpNB = this.getMesh().getBuffer(Type.Normal);
                         VertexBuffer tpTB = this.getMesh().getBuffer(Type.Tangent);
                         VertexBuffer leftNB = left.getMesh().getBuffer(Type.Normal);
@@ -619,7 +619,7 @@ public class TerrainPatch extends Geometry {
                     bottomPoint.set(0, this.getHeightmapHeight(0,i+1), i+1);
                     this.getTex(0,i-1, topTex);
                     this.getTex(0,i+1, bottomTex);
-                    averageNormalsTangents(v, t, indexes, topPoint, rootPoint, leftPoint, bottomPoint, rightPoint, topTex, rootTex, leftTex, bottomTex, rightTex, normal, tangent);
+                    averageNormalsTangents(topPoint, rootPoint, leftPoint, bottomPoint, rightPoint, topTex, rootTex, leftTex, bottomTex, rightTex, normal, tangent);
                     VertexBuffer tpNB = this.getMesh().getBuffer(Type.Normal);
                     VertexBuffer tpTB = this.getMesh().getBuffer(Type.Tangent);
                     VertexBuffer leftNB = left.getMesh().getBuffer(Type.Normal);
@@ -655,7 +655,7 @@ public class TerrainPatch extends Geometry {
                     rightPoint.set(i+1, this.getHeightmapHeight(i+1,0), 0);
                     this.getTex(i-1,0, leftTex);
                     this.getTex(i+1,0, rightTex);
-                    averageNormalsTangents(v, t, indexes, topPoint, rootPoint, leftPoint, bottomPoint, rightPoint, topTex, rootTex, leftTex, bottomTex, rightTex, normal, tangent);
+                    averageNormalsTangents(topPoint, rootPoint, leftPoint, bottomPoint, rightPoint, topTex, rootTex, leftTex, bottomTex, rightTex, normal, tangent);
                     VertexBuffer tpNB = this.getMesh().getBuffer(Type.Normal);
                     VertexBuffer tpTB = this.getMesh().getBuffer(Type.Tangent);
                     VertexBuffer topNB = top.getMesh().getBuffer(Type.Normal);
@@ -673,10 +673,12 @@ public class TerrainPatch extends Geometry {
         this.getMesh().getBuffer(Type.Tangent).setUpdateNeeded();
     }
 
-    protected void averageNormalsTangents(Vector3f[] v, Vector2f[] t, int[] indexes,
+    protected void averageNormalsTangents(
             Vector3f topPoint,
             Vector3f rootPoint,
-            Vector3f leftPoint, Vector3f bottomPoint, Vector3f rightPoint,
+            Vector3f leftPoint, 
+            Vector3f bottomPoint, 
+            Vector3f rightPoint,
             Vector2f topTex,
             Vector2f rootTex,
             Vector2f leftTex,
@@ -685,65 +687,30 @@ public class TerrainPatch extends Geometry {
             Vector3f normal,
             Vector3f tangent)
     {
-        Vector3f scale = Vector3f.UNIT_XYZ;//getWorldScale();
-        v[0] = topPoint;
-        v[1] = rootPoint;
-        v[2] = leftPoint;
-        t[0] = topTex;
-        t[1] = rootTex;
-        t[2] = leftTex;
+        Vector3f scale = getWorldScale();
+        
         Vector3f n1 = Vector3f.ZERO;
-        Vector3f t1 = Vector3f.ZERO;
         if (topPoint != null && leftPoint != null) {
-            TriangleData td1 = TangentBinormalGenerator.processTriangle(indexes, v, t);
             n1 = getNormal(topPoint.mult(scale), rootPoint.mult(scale), leftPoint.mult(scale));
-            t1 = td1.tangent;
         }
-        v[0] = leftPoint;
-        v[1] = rootPoint;
-        v[2] = bottomPoint;
-        t[0] = leftTex;
-        t[1] = rootTex;
-        t[2] = bottomTex;
         Vector3f n2 = Vector3f.ZERO;
-        Vector3f t2 = Vector3f.ZERO;
         if (leftPoint != null && bottomPoint != null) {
-            TriangleData td2 = TangentBinormalGenerator.processTriangle(indexes, v, t);
             n2 = getNormal(leftPoint.mult(scale), rootPoint.mult(scale), bottomPoint.mult(scale));
-            t2 = td2.tangent;
         }
-        v[0] = bottomPoint;
-        v[1] = rootPoint;
-        v[2] = rightPoint;
-        t[0] = bottomTex;
-        t[1] = rootTex;
-        t[2] = rightTex;
         Vector3f n3 = Vector3f.ZERO;
-        Vector3f t3 = Vector3f.ZERO;
         if (rightPoint != null && bottomPoint != null) {
-            TriangleData td3 = TangentBinormalGenerator.processTriangle(indexes, v, t);
             n3 = getNormal(bottomPoint.mult(scale), rootPoint.mult(scale), rightPoint.mult(scale));
-            t3 = td3.tangent;
         }
-        v[0] = rightPoint;
-        v[1] = rootPoint;
-        v[2] = topPoint;
-        t[0] = rightTex;
-        t[1] = rootTex;
-        t[2] = topTex;
         Vector3f n4 = Vector3f.ZERO;
-        Vector3f t4 = Vector3f.ZERO;
         if (rightPoint != null && topPoint != null) {
-            TriangleData td4 = TangentBinormalGenerator.processTriangle(indexes, v, t);
             n4 = getNormal(rightPoint.mult(scale), rootPoint.mult(scale), topPoint.mult(scale));
-            t4 = td4.tangent;
         }
+        
+        Vector3f binormal = new Vector3f();
+        if (topPoint != null && rightPoint != null)
+            LODGeomap.calculateTangent(new Vector3f[]{rootPoint.mult(scale),rightPoint.mult(scale),topPoint.mult(scale)}, new Vector2f[]{rootTex,rightTex,topTex}, tangent, binormal);
 
         normal.set(n1.add(n2).add(n3).add(n4).normalizeLocal());
-        tangent.set(t1.add(t2).add(t3).add(t4)).normalizeLocal();
-        /*if (rightPoint != null) {
-            tangent.set(rootPoint.mult(scale).subtract(rightPoint.mult(scale)));
-        }*/
     }
 
     private Vector3f getNormal(Vector3f firstPoint, Vector3f rootPoint, Vector3f secondPoint) {

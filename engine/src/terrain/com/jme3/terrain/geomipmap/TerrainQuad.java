@@ -134,14 +134,14 @@ public class TerrainQuad extends Node implements Terrain {
     
     public TerrainQuad(String name, int patchSize, int size, int totalSize, float[] heightMap, LodCalculatorFactory lodCalculatorFactory) {
         this(name, patchSize, size, Vector3f.UNIT_XYZ, heightMap, totalSize, new Vector2f(), 0, lodCalculatorFactory);
-        affectedAreaBBox = new BoundingBox(new Vector3f(0,0,0), size, Float.MAX_VALUE, size);
+        affectedAreaBBox = new BoundingBox(new Vector3f(0,0,0), size*2, Float.MAX_VALUE, size*2);
         fixNormalEdges(affectedAreaBBox);
         addControl(new NormalRecalcControl(this));
     }
 
     public TerrainQuad(String name, int patchSize, int size, Vector3f scale, float[] heightMap, LodCalculatorFactory lodCalculatorFactory) {
         this(name, patchSize, size, scale, heightMap, size, new Vector2f(), 0, lodCalculatorFactory);
-        affectedAreaBBox = new BoundingBox(new Vector3f(0,0,0), size, Float.MAX_VALUE, size);
+        affectedAreaBBox = new BoundingBox(new Vector3f(0,0,0), size*2, Float.MAX_VALUE, size*2);
         fixNormalEdges(affectedAreaBBox);
         addControl(new NormalRecalcControl(this));
     }
@@ -214,7 +214,7 @@ public class TerrainQuad extends Node implements Terrain {
             //TODO background-thread this if it ends up being expensive
             fixNormals(affectedAreaBBox); // the affected patches
             fixNormalEdges(affectedAreaBBox); // the edges between the patches
-
+            
             setNormalRecalcNeeded(null); // set to false
         }
     }
@@ -691,7 +691,7 @@ public class TerrainQuad extends Node implements Terrain {
                 ((TerrainQuad)child).generateDebugTangents(mat);
             } else if (child instanceof TerrainPatch) {
                 Geometry debug = new Geometry( "Debug " + name,
-                    TangentBinormalGenerator.genTbnLines( ((TerrainPatch)child).getMesh(), 0.1f));
+                    TangentBinormalGenerator.genTbnLines( ((TerrainPatch)child).getMesh(), 0.8f));
                 attachChild(debug);
                 debug.setLocalTranslation(child.getLocalTranslation());
                 debug.setCullHint(CullHint.Never);
@@ -734,7 +734,7 @@ public class TerrainQuad extends Node implements Terrain {
         patch1.setModelBound(new BoundingBox());
         patch1.updateModelBound();
         patch1.setLodCalculator(lodCalculatorFactory);
-        TangentBinormalGenerator.generate(patch1);
+        //TangentBinormalGenerator.generate(patch1);
 
         // 2 lower left
         float[] heightBlock2 = createHeightSubBlock(heightMap, 0, split - 1,
@@ -756,7 +756,7 @@ public class TerrainQuad extends Node implements Terrain {
         patch2.setModelBound(new BoundingBox());
         patch2.updateModelBound();
         patch2.setLodCalculator(lodCalculatorFactory);
-        TangentBinormalGenerator.generate(patch2);
+        //TangentBinormalGenerator.generate(patch2);
 
         // 3 upper right
         float[] heightBlock3 = createHeightSubBlock(heightMap, split - 1, 0,
@@ -778,7 +778,7 @@ public class TerrainQuad extends Node implements Terrain {
         patch3.setModelBound(new BoundingBox());
         patch3.updateModelBound();
         patch3.setLodCalculator(lodCalculatorFactory);
-        TangentBinormalGenerator.generate(patch3);
+        //TangentBinormalGenerator.generate(patch3);
 
         // 4 lower right
         float[] heightBlock4 = createHeightSubBlock(heightMap, split - 1,
@@ -800,7 +800,7 @@ public class TerrainQuad extends Node implements Terrain {
         patch4.setModelBound(new BoundingBox());
         patch4.updateModelBound();
         patch4.setLodCalculator(lodCalculatorFactory);
-        TangentBinormalGenerator.generate(patch4);
+        //TangentBinormalGenerator.generate(patch4);
     }
 
     public float[] createHeightSubBlock(float[] heightMap, int x,
@@ -878,10 +878,11 @@ public class TerrainQuad extends Node implements Terrain {
     protected boolean needToRecalculateNormals() {
         if (affectedAreaBBox != null)
             return true;
-        /*if (!lastScale.equals(getWorldScale())) {
+        if (!lastScale.equals(getWorldScale())) {
+            affectedAreaBBox = new BoundingBox(new Vector3f(0,0,0), size, Float.MAX_VALUE, size);
             lastScale = getWorldScale();
             return true;
-        }*/
+        }
         return false;
     }
 

@@ -45,6 +45,7 @@ import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Mesh.Mode;
+import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.TangentBinormalGenerator;
@@ -78,16 +79,19 @@ public class LODGeomap extends GeoMap {
 
     public Mesh createMesh(Vector3f scale, Vector2f tcScale, Vector2f tcOffset, float offsetAmount, int totalSize, boolean center, int lod, boolean rightLod, boolean topLod, boolean leftLod, boolean bottomLod) {
         FloatBuffer pb = writeVertexArray(null, scale, center);
-        FloatBuffer tb = writeTexCoordArray(null, tcOffset, tcScale, offsetAmount, totalSize);
+        FloatBuffer texb = writeTexCoordArray(null, tcOffset, tcScale, offsetAmount, totalSize);
         FloatBuffer nb = writeNormalArray(null, scale);
         IntBuffer ib = writeIndexArrayLodDiff(null, lod, rightLod, topLod, leftLod, bottomLod);
-        FloatBuffer tanb = writeTangentArray(null, scale);
+        FloatBuffer bb = BufferUtils.createFloatBuffer(getWidth() * getHeight() * 3);
+        FloatBuffer tanb = BufferUtils.createFloatBuffer(getWidth() * getHeight() * 3);
+        writeTangentArray(tanb, bb, texb, scale);
         Mesh m = new Mesh();
         m.setMode(Mode.TriangleStrip);
         m.setBuffer(Type.Position, 3, pb);
         m.setBuffer(Type.Normal, 3, nb);
         m.setBuffer(Type.Tangent, 3, tanb);
-        m.setBuffer(Type.TexCoord, 2, tb);
+        m.setBuffer(Type.Binormal, 3, bb);
+        m.setBuffer(Type.TexCoord, 2, texb);
         m.setBuffer(Type.Index, 3, ib);
         m.setStatic();
         m.updateBound();
@@ -624,42 +628,120 @@ public class LODGeomap extends GeoMap {
         return num;
     }
     
-    public FloatBuffer writeTangentArray(FloatBuffer store, Vector3f scale) {
+    public FloatBuffer[] writeTangentArray(FloatBuffer tangentStore, FloatBuffer binormalStore, FloatBuffer textureBuffer, Vector3f scale) {
         if (!isLoaded()) {
             throw new NullPointerException();
         }
 
-        if (store != null) {
-            if (store.remaining() < getWidth() * getHeight() * 3) {
+        if (tangentStore != null) {
+            if (tangentStore.remaining() < getWidth() * getHeight() * 3) {
                 throw new BufferUnderflowException();
             }
         } else {
-            store = BufferUtils.createFloatBuffer(getWidth() * getHeight() * 3);
+            tangentStore = BufferUtils.createFloatBuffer(getWidth() * getHeight() * 3);
         }
-        store.rewind();
+        tangentStore.rewind();
+        
+        if (binormalStore != null) {
+            if (binormalStore.remaining() < getWidth() * getHeight() * 3) {
+                throw new BufferUnderflowException();
+            }
+        } else {
+            binormalStore = BufferUtils.createFloatBuffer(getWidth() * getHeight() * 3);
+        }
+        binormalStore.rewind();
         
         Vector3f tangent = new Vector3f();
+        Vector3f binormal = new Vector3f();
         Vector3f v1 = new Vector3f();
         Vector3f v2 = new Vector3f();
+        Vector3f v3 = new Vector3f();
+        Vector2f t1 = new Vector2f();
+        Vector2f t2 = new Vector2f();
+        Vector2f t3 = new Vector2f();
+        
+        scale = Vector3f.UNIT_XYZ;
         
         for (int r = 0; r < getHeight(); r++) {
             for (int c = 0; c < getWidth(); c++) {
                 
+                int texIdx = ((getHeight()-1-r)*getWidth()+c)*2; // pull from the end
+                int texIdxPrev = ((getHeight()-1-(r-1))*getWidth()+c)*2; // pull from the end
+                int texIdxNext = ((getHeight()-1-(r+1))*getWidth()+c)*2; // pull from the end
+                
                 v1.set(c, getValue(c, r), r);
+                t1.set(textureBuffer.get(texIdx), textureBuffer.get(texIdx+1));
+                
+                if (r == 0) { // first row
+                    v3.set(c, getValue(c, r), r); // ???
+                    t3.set(textureBuffer.get(texIdxNext), textureBuffer.get(texIdxNext+1)); // ???
+                } else {
+                    v3.set(c, getValue(c, r-1 ), r-1);
+                    t3.set(textureBuffer.get(texIdxPrev), textureBuffer.get(texIdxPrev+1));
+                }
                 
                 if (c == getWidth()-1) { // last column
                     v2.set(c+1, getValue(c, r ), r); // use same height
+                    t2.set(textureBuffer.get(texIdx), textureBuffer.get(texIdx+1));
                 } else {
-                    v2.set(c+1, getValue(c+1, r), r);
+                    v2.set(c+1, getValue(c+1, r), r); // one to the right
+                    t2.set(textureBuffer.get(texIdx+2), textureBuffer.get(texIdx+3));
                 }
-                tangent.set(v2.mult(scale).subtract(v1.mult(scale)));
-                BufferUtils.setInBuffer(tangent, store, (r * getWidth() + c)); // save the tangent
+                
+                calculateTangent(new Vector3f[]{v1.mult(scale),v2.mult(scale),v3.mult(scale)}, new Vector2f[]{t1,t2,t3}, tangent, binormal);
+                BufferUtils.setInBuffer(tangent, tangentStore, (r * getWidth() + c)); // save the tangent
+                BufferUtils.setInBuffer(binormal, binormalStore, (r * getWidth() + c)); // save the binormal
             }
         }
         
-        return store;
+        return new FloatBuffer[]{tangentStore,binormalStore};
     }
-   
+    
+    /**
+     * 
+     * @param v Takes 3 vertexes: root, right, top
+     * @param t Takes 3 tex coords: root, right, top
+     * @param tangent that will store the result
+     * @return the tangent store
+     */
+    public static Vector3f calculateTangent(Vector3f[] v, Vector2f[] t, Vector3f tangent, Vector3f binormal) {
+        Vector3f edge1 = new Vector3f(); // y=0
+        Vector3f edge2 = new Vector3f(); // x=0
+        Vector2f edge1uv = new Vector2f(); // y=0
+        Vector2f edge2uv = new Vector2f(); // x=0
+        
+        t[2].subtract(t[0], edge2uv);
+        t[1].subtract(t[0], edge1uv);
+        
+        float det = edge1uv.x*edge2uv.y;// - edge1uv.y*edge2uv.x;  = 0
+        
+        boolean normalize = true;
+        if (Math.abs(det) < 0.0000001f) {
+            det = 1;
+            normalize = true;
+        }
+        
+        v[1].subtract(v[0], edge1);
+        v[2].subtract(v[0], edge2);
+
+        tangent.set(edge1);
+        tangent.normalizeLocal();
+        binormal.set(edge2);
+        binormal.normalizeLocal();
+        
+        float factor = 1/det;
+        tangent.x = (edge2uv.y*edge1.x)*factor;
+        tangent.y = 0;
+        tangent.z = (edge2uv.y*edge1.z)*factor;
+        if (normalize) tangent.normalizeLocal();
+        
+        binormal.x = 0;
+        binormal.y = (edge1uv.x*edge2.y)*factor;
+        binormal.z = (edge1uv.x*edge2.z)*factor;
+        if (normalize) binormal.normalizeLocal();
+        
+        return tangent;
+    }
     
     @Override
     public FloatBuffer writeNormalArray(FloatBuffer store, Vector3f scale) {
