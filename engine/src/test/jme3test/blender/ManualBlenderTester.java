@@ -115,6 +115,10 @@ public class ManualBlenderTester extends SimpleApplication {
         if (debug) {
             mouseInput.setCursorVisible(true);
         }
+        //XXX: wrong, wrong, wrong!! The assets should be found without registering
+        //every single folder.
+        //Definitely need to remove all this and accomapnying classes,
+        //people use this as examples.
         assetManager.registerLocator(".", FileLocator.class);
         assetManager.registerLocator("./src/test-data/Blender/2.4x", FileLocator.class);
         assetManager.registerLocator("./src/test-data/Blender/2.4x/textures", FileLocator.class);
@@ -146,17 +150,17 @@ public class ManualBlenderTester extends SimpleApplication {
         if (modelKey instanceof BlenderKey) {
             this.testBlenderLoader(ai);
             //setting the selected animations as active
-            List<String[]> selectedAnimations = blenderKeyConfiguration.getSelectedAnimations().get(modelKey.getName());
-            if(selectedAnimations != null) {
-	            for(String[] animData : selectedAnimations) {
-	            	Spatial animatedSpatial = this.findNode(this.rootNode, animData[0]);
-	            	if(animatedSpatial != null) {
-                    	animatedSpatial.getControl(AnimControl.class).createChannel().setAnim(animData[1]);
-                    } else {
-                    	LOGGER.warning("Cannot find the node to play its animation: " + animData[0]);
-                    }
-	            }
-            }
+//            List<String[]> selectedAnimations = blenderKeyConfiguration.getSelectedAnimations().get(modelKey.getName());
+//            if(selectedAnimations != null) {
+//	            for(String[] animData : selectedAnimations) {
+//	            	Spatial animatedSpatial = this.findNode(this.rootNode, animData[0]);
+//	            	if(animatedSpatial != null) {
+//                    	animatedSpatial.getControl(AnimControl.class).createChannel().setAnim(animData[1]);
+//                    } else {
+//                    	LOGGER.warning("Cannot find the node to play its animation: " + animData[0]);
+//                    }
+//	            }
+//            }
         } else {
             this.testBlenderModelLoader(ai);
         }
