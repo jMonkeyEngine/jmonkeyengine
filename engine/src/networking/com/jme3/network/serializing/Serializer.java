@@ -145,6 +145,12 @@ public abstract class Serializer {
         return registerClass(cls, true);
     }
     
+    public static void registerClasses(Class... classes) {
+        for( Class c : classes ) {
+            registerClass(c);
+        }
+    }
+    
     /**
      *  Registers the specified class. The failOnMiss flag controls whether or
      *  not this method returns null for failed registration or throws an exception.
