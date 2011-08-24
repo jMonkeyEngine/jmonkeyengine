@@ -33,6 +33,7 @@
 package com.jme3.network.serializing.serializers;
 
 import com.jme3.network.serializing.Serializer;
+import com.jme3.network.serializing.SerializerException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
@@ -48,6 +49,8 @@ public class EnumSerializer extends Serializer {
 
             if (ordinal == -1) return null;
             T[] enumConstants = c.getEnumConstants();
+            if (enumConstants == null)
+                throw new SerializerException( "Class has no enum constants:" + c );
             return enumConstants[ordinal];
         } catch (IndexOutOfBoundsException ex) {
             return null;
