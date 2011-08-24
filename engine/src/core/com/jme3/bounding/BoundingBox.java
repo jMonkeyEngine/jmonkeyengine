@@ -805,7 +805,10 @@ public class BoundingBox extends BoundingVolume {
 
     public float distanceToEdge(Vector3f point) {
         // compute coordinates of point in box coordinate system
-        Vector3f closest = point.subtract(center);
+        TempVars vars= TempVars.get();
+        Vector3f closest = vars.vect1;
+        
+        point.subtract(center,closest);
 
         // project test point onto box
         float sqrDistance = 0.0f;
@@ -840,7 +843,8 @@ public class BoundingBox extends BoundingVolume {
             sqrDistance += delta * delta;
             closest.z = zExtent;
         }
-
+        
+        vars.release();
         return FastMath.sqrt(sqrDistance);
     }
 
