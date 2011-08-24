@@ -34,22 +34,21 @@ package com.jme3.scene.plugins.blender.textures;
 import java.awt.color.ColorSpace;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorConvertOp;
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import jme3tools.converters.ImageToAwt;
 
+import com.jme3.asset.AssetManager;
 import com.jme3.asset.AssetNotFoundException;
+import com.jme3.asset.BlenderKey;
 import com.jme3.asset.BlenderKey.FeaturesToLoad;
 import com.jme3.asset.GeneratedTextureKey;
 import com.jme3.asset.TextureKey;
@@ -931,83 +930,40 @@ public class TextureHelper extends AbstractBlenderHelper {
 	 * @return the loaded image or null if the image cannot be found
 	 */
 	protected Texture loadTextureFromFile(String name, DataRepository dataRepository) {
-		Image image = null;
-		ImageLoader imageLoader = new ImageLoader();
-		BufferedInputStream bis = null;
-		ImageType[] imageTypes = ImageType.values();
-		// TODO: would be nice to have the model asset key here to getthe models older in the assetmanager
-
+		AssetManager assetManager = dataRepository.getAssetManager();
+		name = name.replaceAll("\\\\", "\\/");
+		Texture result = null;
+		
+		List<String> assetNames = new ArrayList<String>();
 		if (name.startsWith("//")) {
-			File modelFolder = new File(dataRepository.getBlenderKey().getName());
-			File textureFolder = modelFolder.getParentFile();
-
-			if (textureFolder != null) {
-				name = textureFolder.getPath() + "/." + name.substring(1); // replace the // that means "relative" for blender (hopefully)
-																			// with
-			} else {
-				name = name.substring(1);
+			String relativePath = name.substring(1);
+			assetNames.add(relativePath);//use relative path to the asset root folder
+			//augument the path with blender key path
+			BlenderKey blenderKey = dataRepository.getBlenderKey();
+			String blenderAssetFolder = blenderKey.getName().substring(0, blenderKey.getName().lastIndexOf('/'));
+			assetNames.add(blenderAssetFolder+'/'+relativePath);
+		} else {//use every path from the asset name to the root (absolute path)
+			String[] paths = name.split("\\/");
+			StringBuilder sb = new StringBuilder(paths[paths.length-1]);//the asset name
+			assetNames.add(paths[paths.length-1]);
+			
+			for(int i=paths.length-2;i>=0;--i) {
+				sb.insert(0, '/');
+				sb.insert(0, paths[i]);
+				assetNames.add(sb.toString());
 			}
-
-			TextureKey texKey = new TextureKey(name, true);
+		}
+		
+		//now try to locate the asset
+		for(String assetName : assetNames) {
 			try {
-				Texture tex = dataRepository.getAssetManager().loadTexture(texKey);
-				image = tex.getImage();
-			} catch (AssetNotFoundException e) {
-				LOGGER.log(Level.WARNING, "Asset not found: {0}", e.getLocalizedMessage());
+				result = assetManager.loadTexture(new TextureKey(assetName));
+				break;//if no exception is thrown then accept the located asset and break the loop
+			} catch(AssetNotFoundException e) {
+				LOGGER.fine(e.getLocalizedMessage());
 			}
 		}
-
-		// 2. Try using the direct path from the blender file
-		if (image == null) {
-			File textureFile = new File(name);
-			if (textureFile.exists() && textureFile.isFile()) {
-				LOGGER.log(Level.INFO, "Trying with: {0}", name);
-				try {
-					for (int i = 0; i < imageTypes.length && image == null; ++i) {
-						FileInputStream fis = new FileInputStream(textureFile);
-						bis = new BufferedInputStream(fis);
-						image = imageLoader.loadImage(bis, imageTypes[i], false);
-						this.closeStream(fis);
-					}
-				} catch (FileNotFoundException e) {
-					assert false : e;// this should NEVER happen
-				} finally {
-					this.closeStream(bis);
-				}
-			}
-		}
-
-		// 3. if 2 failed we start including the parent folder(s) to see if the texture
-		// can be found
-		if (image == null) {
-			String baseName = File.separatorChar != '/' ? name.replace(File.separatorChar, '/') : name;
-			int idx = baseName.lastIndexOf('/');
-			while (idx != -1 && image == null) {
-				String texName = baseName.substring(idx + 1);
-				File textureFile = new File(texName);
-				if (textureFile.exists() && textureFile.isFile()) {
-					LOGGER.info("Trying with: " + texName);
-					try {
-						for (int i = 0; i < imageTypes.length && image == null; ++i) {
-							FileInputStream fis = new FileInputStream(textureFile);
-							bis = new BufferedInputStream(fis);
-							image = imageLoader.loadImage(bis, imageTypes[i], false);
-						}
-					} catch (FileNotFoundException e) {
-						assert false : e;// this should NEVER happen
-					} finally {
-						this.closeStream(bis);
-					}
-				}
-				if (idx > 1) {
-					idx = baseName.lastIndexOf('/', idx - 1);
-				} else {
-					idx = -1;
-				}
-			}
-		}
-
-		return image == null ? null : new Texture2D(image);
+		return result;
 	}
 
 	/**
