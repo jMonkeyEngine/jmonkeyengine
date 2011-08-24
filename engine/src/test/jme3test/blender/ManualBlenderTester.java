@@ -35,8 +35,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Map;
-import java.util.Map.Entry;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -69,7 +68,7 @@ import com.jme3.texture.plugins.AWTLoader;
 public class ManualBlenderTester extends SimpleApplication {
 
     private static final Logger LOGGER = Logger.getLogger(ManualBlenderTester.class.getName());
-    private ModelKey modelKey;//the key that holds the test file configuration
+    private BlenderKeyConfiguration blenderKeyConfiguration;
     private final boolean debug;
 
     /**
@@ -107,7 +106,7 @@ public class ManualBlenderTester extends SimpleApplication {
     public ManualBlenderTester(BlenderKeyConfiguration bkc, boolean debug) {
         this.debug = debug;
         Logger.getLogger("com.jme3").setLevel(bkc.getLogLevel());
-        this.modelKey = bkc.getKeyToUse();
+        this.blenderKeyConfiguration = bkc;
         this.showSettings = false;
     }
 
@@ -117,14 +116,20 @@ public class ManualBlenderTester extends SimpleApplication {
             mouseInput.setCursorVisible(true);
         }
         assetManager.registerLocator(".", FileLocator.class);
+        assetManager.registerLocator("./src/test-data/Blender/2.4x", FileLocator.class);
+        assetManager.registerLocator("./src/test-data/Blender/2.4x/textures", FileLocator.class);
+        assetManager.registerLocator("./src/test-data/Blender/2.5x", FileLocator.class);
+        
         assetManager.registerLoader(BlenderLoader.class, "blend");
-        assetManager.registerLoader(AWTLoader.class, "png");
+        assetManager.registerLoader(AWTLoader.class, "png", "jpg", "bmp");
 
         viewPort.setBackgroundColor(ColorRGBA.Gray);
 
         flyCam.setMoveSpeed(20);
         cam.setFrustumFar(1000.0f);
         cam.setFrustumNear(1.0f);
+        
+        ModelKey modelKey = blenderKeyConfiguration.getKeyToUse();
         AssetInfo ai = new AssetInfo(assetManager, modelKey) {
 
             @Override
@@ -140,19 +145,17 @@ public class ManualBlenderTester extends SimpleApplication {
         rootNode.attachChild(new Pivot(assetManager));
         if (modelKey instanceof BlenderKey) {
             this.testBlenderLoader(ai);
-            Map<String, Map<String, int[]>> animations = ((BlenderKey) modelKey).getAnimations();
-            //setting the first animation as active
-            if (((BlenderKey) modelKey).getAnimations() != null) {
-                for (Entry<String, Map<String, int[]>> animEntry : animations.entrySet()) {
-                    for (Entry<String, int[]> anim : animEntry.getValue().entrySet()) {
-                        Spatial animatedSpatial = this.findNode(this.rootNode, animEntry.getKey());
-                        if(animatedSpatial != null) {
-                        	animatedSpatial.getControl(AnimControl.class).createChannel().setAnim(anim.getKey());
-                        	break;
-                        }
+            //setting the selected animations as active
+            List<String[]> selectedAnimations = blenderKeyConfiguration.getSelectedAnimations().get(modelKey.getName());
+            if(selectedAnimations != null) {
+	            for(String[] animData : selectedAnimations) {
+	            	Spatial animatedSpatial = this.findNode(this.rootNode, animData[0]);
+	            	if(animatedSpatial != null) {
+                    	animatedSpatial.getControl(AnimControl.class).createChannel().setAnim(animData[1]);
+                    } else {
+                    	LOGGER.warning("Cannot find the node to play its animation: " + animData[0]);
                     }
-                    break;
-                }
+	            }
             }
         } else {
             this.testBlenderModelLoader(ai);
