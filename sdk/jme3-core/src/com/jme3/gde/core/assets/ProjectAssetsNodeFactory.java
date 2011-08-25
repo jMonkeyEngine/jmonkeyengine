@@ -37,7 +37,6 @@ import org.netbeans.spi.project.ui.support.NodeFactory;
 import org.netbeans.spi.project.ui.support.NodeFactorySupport;
 import org.netbeans.spi.project.ui.support.NodeList;
 import org.openide.loaders.DataObject;
-import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.nodes.Node;
 import org.openide.util.Exceptions;
 
@@ -58,15 +57,12 @@ public class ProjectAssetsNodeFactory implements NodeFactory {
             //return a new node for the project view if theres an assets folder:
             ProjectAssetManager item = project.getLookup().lookup(ProjectAssetManager.class);
             if (item != null) {
-                assetsFolder = DataObject.find(project.getProjectDirectory().getFileObject(item.getFolderName()));
+                assetsFolder = DataObject.find(item.getAssetFolder());
                 Node node = assetsFolder.getNodeDelegate();
 //                return NodeFactorySupport.fixedNodeList(node);
-                try {
-                    ProjectAssetsNode nd = new ProjectAssetsNode(item, proj, node);
-                    return NodeFactorySupport.fixedNodeList(nd);
-                } catch (DataObjectNotFoundException ex) {
-                    Exceptions.printStackTrace(ex);
-                }
+                ProjectAssetsNode nd = new ProjectAssetsNode(item, proj, node);
+//                return NodeFactorySupport.createCompositeChildren(project, item.getAssetFolderName());//fixedNodeList(nd);
+                return NodeFactorySupport.fixedNodeList(nd);
             }
         } catch (Exception ex) {
             Exceptions.printStackTrace(ex);

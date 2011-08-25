@@ -6,12 +6,14 @@ package com.jme3.gde.modelimporter;
 
 import com.jme3.asset.AssetEventListener;
 import com.jme3.asset.AssetKey;
-import com.jme3.asset.DesktopAssetManager;
 import com.jme3.asset.ModelKey;
-import com.jme3.asset.plugins.FileLocator;
+import com.jme3.gde.core.assets.AssetData;
+import com.jme3.gde.core.assets.AssetDataObject;
+import com.jme3.gde.core.assets.ProjectAssetManager;
 import com.jme3.gde.core.scene.OffScenePanel;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Spatial;
+import java.beans.IntrospectionException;
 import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
@@ -22,17 +24,25 @@ import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.NotifyDescriptor.Message;
 import org.openide.WizardDescriptor;
+import org.openide.explorer.propertysheet.PropertySheet;
 import org.openide.filesystems.FileChooserBuilder;
+import org.openide.filesystems.FileUtil;
+import org.openide.loaders.DataObject;
+import org.openide.loaders.DataObjectNotFoundException;
+import org.openide.nodes.BeanNode;
+import org.openide.nodes.Node;
+import org.openide.util.Exceptions;
 
-@SuppressWarnings("unchecked")
+@SuppressWarnings({"unchecked", "serial"})
 public final class ModelImporterVisualPanel1 extends JPanel implements AssetEventListener {
 
     private OffScenePanel offPanel;
-    private DesktopAssetManager manager;
     private String currentPath;
+    private String currentModelPath;
     private Spatial currentModel;
     private List<AssetKey> requestedAssets = new LinkedList<AssetKey>();
     private AssetKey mainKey;
+    private PropertySheet ps;
 
     /** Creates new form ModelImporterVisualPanel1 */
     public ModelImporterVisualPanel1() {
@@ -40,6 +50,9 @@ public final class ModelImporterVisualPanel1 extends JPanel implements AssetEven
         offPanel = new OffScenePanel(320, 320);
         offPanel.startPreview();
         jPanel1.add(offPanel);
+        ps = new PropertySheet();
+        ps.setNodes(new Node[]{});
+        jPanel2.add(ps);
     }
 
     @Override
@@ -48,8 +61,7 @@ public final class ModelImporterVisualPanel1 extends JPanel implements AssetEven
     }
 
     public void loadSettings(WizardDescriptor wiz) {
-        manager = (DesktopAssetManager) wiz.getProperty("manager");
-        manager.setAssetEventListener(this);
+//        manager = (ProjectAssetManager) wiz.getProperty("manager");
     }
 
     public void applySettings(WizardDescriptor wiz) {
@@ -62,45 +74,76 @@ public final class ModelImporterVisualPanel1 extends JPanel implements AssetEven
     }
 
     public synchronized void loadModel(File path) {
+        loadModel(path, null);
+    }
+
+    public synchronized void loadModel(File path, AssetKey modelKey) {
         try {
+            mainKey = modelKey;
+            ProjectAssetManager manager = new ProjectAssetManager(FileUtil.toFileObject(path).getParent());
+            manager.setAssetEventListener(this);
             if (currentPath != null) {
-                manager.unregisterLocator(currentPath, FileLocator.class);
-                manager.clearCache();
                 requestedAssets.clear();
-                mainKey = null;
+                currentPath = null;
+                updateProperties(null);
             }
             if (currentModel != null) {
                 offPanel.detach(currentModel);
+                currentModel = null;
             }
             currentPath = path.getParent();
-            manager.registerLocator(currentPath, FileLocator.class);
-            mainKey = new ModelKey(path.getName());
+            currentModelPath = path.getPath();
+            if (mainKey == null) {
+                try {
+                    DataObject obj = DataObject.find(FileUtil.toFileObject(path));
+                    AssetData data = obj.getLookup().lookup(AssetData.class);
+                    if (data != null) {
+                        ((AssetDataObject) obj).getLookupContents().add(manager);
+                        mainKey = data.getAssetKey();
+                    }
+                } catch (DataObjectNotFoundException ex) {
+                    Exceptions.printStackTrace(ex);
+                    mainKey = new ModelKey(path.getName());
+                }
+            }
             currentModel = (Spatial) manager.loadAsset(mainKey);
             if (currentModel != null) {
                 offPanel.attach(currentModel);
+                updateProperties(mainKey);
             } else {
                 Message msg = new NotifyDescriptor.Message(
                         "Cannot import this file!",
                         NotifyDescriptor.ERROR_MESSAGE);
                 DialogDisplayer.getDefault().notifyLater(msg);
             }
+            manager.setAssetEventListener(null);
+            manager.clearCache();
         } catch (Exception e) {
             Message msg = new NotifyDescriptor.Message(
                     "Error importing file!\n"
                     + "(" + e + ")",
                     NotifyDescriptor.ERROR_MESSAGE);
             DialogDisplayer.getDefault().notifyLater(msg);
+            Exceptions.printStackTrace(e);
         }
+    }
+
+    private void updateProperties(final AssetKey key) {
         java.awt.EventQueue.invokeLater(new Runnable() {
 
             public void run() {
-                updateList();
+                try {
+                    if (key == null) {
+                        ps.setNodes(new Node[]{});
+                    } else {
+                        ps.setNodes(new Node[]{new BeanNode(key)});
+                    }
+                } catch (IntrospectionException ex) {
+                    Exceptions.printStackTrace(ex);
+                }
             }
         });
-    }
 
-    private synchronized void updateList() {
-        jList1.setListData(requestedAssets.toArray());
     }
 
     public void assetRequested(AssetKey ak) {
@@ -136,27 +179,15 @@ public final class ModelImporterVisualPanel1 extends JPanel implements AssetEven
         jSeparator1 = new javax.swing.JToolBar.Separator();
         jButton3 = new javax.swing.JButton();
         jButton4 = new javax.swing.JButton();
+        jPanel3 = new javax.swing.JPanel();
+        jButton6 = new javax.swing.JButton();
         jButton5 = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
-        jPanel3 = new javax.swing.JPanel();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        jList1 = new javax.swing.JList();
 
         jPanel1.setPreferredSize(new java.awt.Dimension(320, 320));
         jPanel1.setLayout(new javax.swing.BoxLayout(jPanel1, javax.swing.BoxLayout.LINE_AXIS));
 
-        jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder(org.openide.util.NbBundle.getMessage(ModelImporterVisualPanel1.class, "ModelImporterVisualPanel1.jPanel2.border.title"))); // NOI18N
-
-        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
-        jPanel2.setLayout(jPanel2Layout);
-        jPanel2Layout.setHorizontalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 227, Short.MAX_VALUE)
-        );
-        jPanel2Layout.setVerticalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 131, Short.MAX_VALUE)
-        );
+        jPanel2.setLayout(new javax.swing.BoxLayout(jPanel2, javax.swing.BoxLayout.LINE_AXIS));
 
         jTextField1.setEditable(false);
         jTextField1.setText(org.openide.util.NbBundle.getMessage(ModelImporterVisualPanel1.class, "ModelImporterVisualPanel1.jTextField1.text")); // NOI18N
@@ -209,6 +240,30 @@ public final class ModelImporterVisualPanel1 extends JPanel implements AssetEven
         });
         jToolBar1.add(jButton4);
 
+        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
+        jPanel3.setLayout(jPanel3Layout);
+        jPanel3Layout.setHorizontalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 310, Short.MAX_VALUE)
+        );
+        jPanel3Layout.setVerticalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 21, Short.MAX_VALUE)
+        );
+
+        jToolBar1.add(jPanel3);
+
+        org.openide.awt.Mnemonics.setLocalizedText(jButton6, org.openide.util.NbBundle.getMessage(ModelImporterVisualPanel1.class, "ModelImporterVisualPanel1.jButton6.text")); // NOI18N
+        jButton6.setFocusable(false);
+        jButton6.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        jButton6.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        jButton6.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton6ActionPerformed(evt);
+            }
+        });
+        jToolBar1.add(jButton6);
+
         org.openide.awt.Mnemonics.setLocalizedText(jButton5, org.openide.util.NbBundle.getMessage(ModelImporterVisualPanel1.class, "ModelImporterVisualPanel1.jButton5.text")); // NOI18N
         jButton5.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -217,21 +272,6 @@ public final class ModelImporterVisualPanel1 extends JPanel implements AssetEven
         });
 
         org.openide.awt.Mnemonics.setLocalizedText(jLabel1, org.openide.util.NbBundle.getMessage(ModelImporterVisualPanel1.class, "ModelImporterVisualPanel1.jLabel1.text")); // NOI18N
-
-        jPanel3.setBorder(javax.swing.BorderFactory.createTitledBorder(org.openide.util.NbBundle.getMessage(ModelImporterVisualPanel1.class, "ModelImporterVisualPanel1.jPanel3.border.title"))); // NOI18N
-
-        jScrollPane1.setViewportView(jList1);
-
-        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
-        jPanel3.setLayout(jPanel3Layout);
-        jPanel3Layout.setHorizontalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 227, Short.MAX_VALUE)
-        );
-        jPanel3Layout.setVerticalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 158, Short.MAX_VALUE)
-        );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -243,26 +283,19 @@ public final class ModelImporterVisualPanel1 extends JPanel implements AssetEven
                 .addComponent(jButton5))
             .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, 559, Short.MAX_VALUE)
             .addGroup(layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jToolBar1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 320, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 331, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, 228, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addComponent(jToolBar1, javax.swing.GroupLayout.DEFAULT_SIZE, 559, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 320, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jToolBar1, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                        .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, 340, Short.MAX_VALUE)
+                    .addComponent(jPanel1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 340, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jToolBar1, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel1)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -305,18 +338,23 @@ public final class ModelImporterVisualPanel1 extends JPanel implements AssetEven
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
         offPanel.rotateCamera(Vector3f.UNIT_Y, -.1f);
     }//GEN-LAST:event_jButton4ActionPerformed
+
+private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
+    if (currentModelPath != null) {
+        loadModel(new File(currentModelPath), mainKey);
+    }
+}//GEN-LAST:event_jButton6ActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
     private javax.swing.JButton jButton5;
+    private javax.swing.JButton jButton6;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JList jList1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
-    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JToolBar.Separator jSeparator1;
     private javax.swing.JTextField jTextField1;
     private javax.swing.JToolBar jToolBar1;

@@ -5,10 +5,9 @@
 package com.jme3.gde.modelimporter;
 
 import com.jme3.asset.AssetKey;
-import com.jme3.asset.DesktopAssetManager;
 import com.jme3.asset.TextureKey;
 import com.jme3.export.binary.BinaryExporter;
-import com.jme3.gde.core.assets.AssetManagerConfigurator;
+import com.jme3.gde.core.assets.AssetData;
 import com.jme3.gde.core.assets.ProjectAssetManager;
 import com.jme3.gde.core.assets.SpatialAssetDataObject;
 import com.jme3.scene.Spatial;
@@ -32,7 +31,6 @@ import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
 import org.openide.util.Exceptions;
-import org.openide.util.Lookup;
 
 @SuppressWarnings("unchecked")
 public final class ImportModel implements ActionListener {
@@ -50,11 +48,6 @@ public final class ImportModel implements ActionListener {
         wiz.setTitleFormat(new MessageFormat("{0}"));
         wiz.setTitle("Import Model to Project");
         wiz.putProperty("project", context);
-        DesktopAssetManager manager = new DesktopAssetManager(true);
-        for (AssetManagerConfigurator di : Lookup.getDefault().lookupAll(AssetManagerConfigurator.class)) {
-            di.prepareManager(manager);
-        }
-        wiz.putProperty("manager", manager);
         Dialog dialog = DialogDisplayer.getDefault().createDialog(wiz);
         dialog.setVisible(true);
         dialog.toFront();
@@ -107,20 +100,23 @@ public final class ImportModel implements ActionListener {
             }
         }
         File file = new File(manager.getAssetFolderName() + "/" + importPath + "/" + key.getName());
-        File outFile = new File(manager.getAssetFolderName() + "/" + importPath + "/" + key.getName().replaceAll(key.getExtension(), "j3o"));
+//        File outFile = new File(manager.getAssetFolderName() + "/" + importPath + "/" + key.getName().replaceAll(key.getExtension(), "j3o"));
         DataObject targetModel;
         try {
             targetModel = DataObject.find(FileUtil.toFileObject(file));
             if (targetModel instanceof SpatialAssetDataObject) {
                 //TODO: wtf? why do i have to add the assetmanager?
                 ((SpatialAssetDataObject) targetModel).getLookupContents().add(manager);
-                Spatial spat = ((SpatialAssetDataObject) targetModel).loadAsset();
+                AssetData data = targetModel.getLookup().lookup(AssetData.class);
+                data.setAssetKey(key);
+                Spatial spat = (Spatial) data.loadAsset();
                 if (spat == null) {
                     throw new IllegalStateException("Cannot load model after copying!");
 
                 }
-                BinaryExporter exp = BinaryExporter.getInstance();
-                exp.save(spat, outFile);
+                data.saveAsset();
+//                BinaryExporter exp = BinaryExporter.getInstance();
+//                exp.save(spat, outFile);
             }
         } catch (Exception ex) {
             Exceptions.printStackTrace(ex);
@@ -148,9 +144,9 @@ public final class ImportModel implements ActionListener {
     private WizardDescriptor.Panel[] getPanels() {
         if (panels == null) {
             panels = new WizardDescriptor.Panel[]{
-                        new ModelImporterWizardPanel1(),
-                        new ModelImporterWizardPanel2()
-                    };
+                new ModelImporterWizardPanel1(),
+                new ModelImporterWizardPanel2()
+            };
             String[] steps = new String[panels.length];
             for (int i = 0; i < panels.length; i++) {
                 Component c = panels[i].getComponent();

@@ -18,11 +18,15 @@
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" alignment="0" attributes="0">
               <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
-              <EmptySpace pref="305" max="32767" attributes="0"/>
+              <EmptySpace pref="323" max="32767" attributes="0"/>
           </Group>
-          <Component id="jTextField1" alignment="0" pref="400" max="32767" attributes="0"/>
-          <Component id="jCheckBox1" alignment="0" pref="400" max="32767" attributes="0"/>
-          <Component id="jScrollPane1" alignment="1" pref="400" max="32767" attributes="0"/>
+          <Component id="jTextField1" alignment="0" pref="418" max="32767" attributes="0"/>
+          <Component id="jCheckBox1" alignment="0" pref="418" max="32767" attributes="0"/>
+          <Group type="102" alignment="0" attributes="0">
+              <Component id="jScrollPane2" pref="196" max="32767" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
+              <Component id="jScrollPane1" min="-2" pref="212" max="-2" attributes="0"/>
+          </Group>
       </Group>
     </DimensionLayout>
     <DimensionLayout dim="1">
@@ -34,7 +38,10 @@
               <EmptySpace type="unrelated" max="-2" attributes="0"/>
               <Component id="jCheckBox1" min="-2" max="-2" attributes="0"/>
               <EmptySpace type="unrelated" max="-2" attributes="0"/>
-              <Component id="jScrollPane1" pref="204" max="32767" attributes="0"/>
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Component id="jScrollPane2" pref="204" max="32767" attributes="0"/>
+                  <Component id="jScrollPane1" alignment="0" pref="204" max="32767" attributes="0"/>
+              </Group>
           </Group>
       </Group>
     </DimensionLayout>
@@ -78,6 +85,25 @@
               <ResourceString bundle="com/jme3/gde/modelimporter/Bundle.properties" key="ModelImporterVisualPanel2.jTextArea1.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
             </Property>
             <Property name="wrapStyleWord" type="boolean" value="true"/>
+          </Properties>
+        </Component>
+      </SubComponents>
+    </Container>
+    <Container class="javax.swing.JScrollPane" name="jScrollPane2">
+
+      <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
+      <SubComponents>
+        <Component class="javax.swing.JList" name="jList1">
+          <Properties>
+            <Property name="model" type="javax.swing.ListModel" editor="org.netbeans.modules.form.editors2.ListModelEditor">
+              <StringArray count="5">
+                <StringItem index="0" value="Item 1"/>
+                <StringItem index="1" value="Item 2"/>
+                <StringItem index="2" value="Item 3"/>
+                <StringItem index="3" value="Item 4"/>
+                <StringItem index="4" value="Item 5"/>
+              </StringArray>
+            </Property>
           </Properties>
         </Component>
       </SubComponents>

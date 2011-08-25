@@ -101,7 +101,7 @@ public class AssetPackLibrary implements Project {
                         projectAssetManager = new ProjectAssetManager(this, fileObject.getNameExt() + "/assets/");
                         content.add(projectAssetManager);
                     } else {
-                        projectAssetManager.addFileLocator(fileObject.getNameExt() + "/assets/");
+                        projectAssetManager.addFolderLocator(fileObject.getNameExt() + "/assets/");
                     }
                 } else {
                     Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, "Error in assetpack, could not load assetpack.xml!");

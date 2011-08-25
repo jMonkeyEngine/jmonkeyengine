@@ -12,7 +12,7 @@
                     <compile-dependency/>
                     <run-dependency>
                         <release-version>1</release-version>
-                        <specification-version>0.6</specification-version>
+                        <specification-version>3.0.0</specification-version>
                     </run-dependency>
                 </dependency>
                 <dependency>
@@ -21,13 +21,13 @@
                     <compile-dependency/>
                     <run-dependency>
                         <release-version>1</release-version>
-                        <specification-version>0.5</specification-version>
+                        <specification-version>3.0.0</specification-version>
                     </run-dependency>
                 </dependency>
                 <dependency>
                     <code-name-base>com.jme3.gde.core.updatecenters</code-name-base>
                     <run-dependency>
-                        <specification-version>0.6</specification-version>
+                        <specification-version>3.0.0</specification-version>
                     </run-dependency>
                 </dependency>
                 <dependency>
@@ -37,6 +37,15 @@
                     <run-dependency>
                         <release-version>1</release-version>
                         <specification-version>1.16.1.1</specification-version>
+                    </run-dependency>
+                </dependency>
+                <dependency>
+                    <code-name-base>org.netbeans.libs.commons_logging</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <release-version>1</release-version>
+                        <specification-version>1.18.0.11</specification-version>
                     </run-dependency>
                 </dependency>
                 <dependency>
@@ -268,6 +277,10 @@
             <class-path-extension>
                 <runtime-relative-path>ext/DDSUtils.jar</runtime-relative-path>
                 <binary-origin>release/modules/ext/DDSUtils.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/commons-beanutils-1.8.3.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/commons-beanutils-1.8.3.jar</binary-origin>
             </class-path-extension>
         </data>
     </configuration>

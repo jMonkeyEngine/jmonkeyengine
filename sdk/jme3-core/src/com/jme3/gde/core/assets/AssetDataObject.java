@@ -37,9 +37,11 @@ import com.jme3.export.binary.BinaryExporter;
 import com.jme3.gde.core.scene.SceneApplication;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.Callable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.apache.commons.beanutils.BeanUtils;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
 import org.netbeans.api.project.Project;
@@ -48,7 +50,6 @@ import org.openide.awt.StatusDisplayer;
 import org.openide.cookies.SaveCookie;
 import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataNode;
 import org.openide.loaders.DataObjectExistsException;
 import org.openide.loaders.MultiDataObject;
@@ -85,6 +86,7 @@ public class AssetDataObject extends MultiDataObject {
         }
     };
     protected DataNode dataNode;
+    protected AssetKey assetKey;
     protected Savable savable;
     protected String saveExtension;
 
@@ -115,6 +117,7 @@ public class AssetDataObject extends MultiDataObject {
             }
             file = file.getParent();
         }
+//        getLookupContents().add(new ProjectAssetManager(file.getParent()));
     }
 
     @Override
@@ -149,7 +152,6 @@ public class AssetDataObject extends MultiDataObject {
         setModified(false);
     }
 
-    //TODO: make save as j3o
     public Savable loadAsset() {
         if (isModified() && savable != null) {
             return savable;
@@ -158,11 +160,10 @@ public class AssetDataObject extends MultiDataObject {
         if (mgr == null) {
             return null;
         }
-        String assetKey = mgr.getRelativeAssetPath(getPrimaryFile().getPath());
         FileLock lock = null;
         try {
             lock = getPrimaryFile().lock();
-            Savable spatial = (Savable) mgr.loadAsset(new AssetKey(assetKey));
+            Savable spatial = (Savable) mgr.loadAsset(getAssetKey());
             savable = spatial;
             lock.releaseLock();
         } catch (Exception ex) {
@@ -212,11 +213,24 @@ public class AssetDataObject extends MultiDataObject {
     }
 
     public AssetKey<?> getAssetKey() {
-        ProjectAssetManager mgr = getLookup().lookup(ProjectAssetManager.class);
-        if (mgr == null) {
-            return null;
+        if (assetKey == null) {
+            ProjectAssetManager mgr = getLookup().lookup(ProjectAssetManager.class);
+            if (mgr == null) {
+                return null;
+            }
+            String assetKey = mgr.getRelativeAssetPath(getPrimaryFile().getPath());
+            this.assetKey = new AssetKey<Object>(assetKey);
         }
-        String assetKey = mgr.getRelativeAssetPath(getPrimaryFile().getPath());
-        return new AssetKey<Object>(assetKey);
+        return assetKey;
+    }
+
+    public void setAssetKeyData(AssetKey key) {
+        try {
+            BeanUtils.copyProperties(getAssetKey(), key);
+        } catch (IllegalAccessException ex) {
+            Exceptions.printStackTrace(ex);
+        } catch (InvocationTargetException ex) {
+            Exceptions.printStackTrace(ex);
+        }
     }
 }

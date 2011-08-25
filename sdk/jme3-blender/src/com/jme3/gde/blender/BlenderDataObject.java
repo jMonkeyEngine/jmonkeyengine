@@ -20,7 +20,11 @@ public class BlenderDataObject extends SpatialAssetDataObject {
 
     @Override
     public ModelKey getAssetKey() {
-        return new BlenderKey(super.getAssetKey().getName());
+        if(super.getAssetKey() instanceof BlenderKey){
+            return (BlenderKey)assetKey;
+        }
+        assetKey = new BlenderKey(super.getAssetKey().getName());
+        return (BlenderKey)assetKey;
     }
     
 }

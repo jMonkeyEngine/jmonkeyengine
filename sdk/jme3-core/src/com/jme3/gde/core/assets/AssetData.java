@@ -64,6 +64,10 @@ public class AssetData extends Properties {
     public AssetKey<?> getAssetKey() {
         return file.getAssetKey();
     }
+    
+    public void setAssetKey(AssetKey key){
+        file.setAssetKeyData(key);
+    }
 
     public Object loadAsset() {
         return file.loadAsset();

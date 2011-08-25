@@ -31,6 +31,7 @@
  */
 package com.jme3.gde.core.assets;
 
+import com.jme3.asset.AssetKey;
 import com.jme3.asset.ModelKey;
 import com.jme3.scene.Spatial;
 import java.io.IOException;
@@ -56,12 +57,17 @@ public class SpatialAssetDataObject extends AssetDataObject {
 
     @Override
     public ModelKey getAssetKey() {
-        ProjectAssetManager mgr = getLookup().lookup(ProjectAssetManager.class);
-        if (mgr == null) {
-            return null;
+        AssetKey superKey = super.getAssetKey();
+        if (superKey instanceof ModelKey) {
+            return (ModelKey)superKey;
+        } else {
+            ProjectAssetManager mgr = getLookup().lookup(ProjectAssetManager.class);
+            if (mgr == null) {
+                return null;
+            }
+            String assetKey = mgr.getRelativeAssetPath(getPrimaryFile().getPath());
+            return new ModelKey(assetKey);
         }
-        String assetKey = mgr.getRelativeAssetPath(getPrimaryFile().getPath());
-        return new ModelKey(assetKey);
     }
 
     @Override
@@ -73,12 +79,11 @@ public class SpatialAssetDataObject extends AssetDataObject {
         if (mgr == null) {
             return null;
         }
-        String assetKey = mgr.getRelativeAssetPath(getPrimaryFile().getPath());
         FileLock lock = null;
         try {
             lock = getPrimaryFile().lock();
-            mgr.deleteFromCache(new ModelKey(assetKey));
-            Spatial spatial = mgr.loadModel(assetKey);
+            mgr.deleteFromCache(getAssetKey());
+            Spatial spatial = mgr.loadModel(getAssetKey());
             savable = spatial;
             lock.releaseLock();
             return spatial;
@@ -104,7 +109,6 @@ public class SpatialAssetDataObject extends AssetDataObject {
         } else {
             outFile = getPrimaryFile().getParent().getFileObject(getPrimaryFile().getName(), saveExtension);
             if (outFile == null) {
-                //ERROR
                 Logger.getLogger(SpatialAssetDataObject.class.getName()).log(Level.SEVERE, "Could not locate saved file.");
                 return;
             }

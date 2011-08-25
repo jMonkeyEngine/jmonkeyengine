@@ -54,9 +54,9 @@ public class WelcomeScreen implements ScreenController {
 
     public void startScreen() {
         final Node rootNode = new Node("Welcome Screen");
-        request = new SceneRequest(this, NodeUtility.createNode(rootNode), new ProjectAssetManager(null));
+        request = new SceneRequest(this, NodeUtility.createNode(rootNode), new ProjectAssetManager());
         request.setHelpCtx(new HelpCtx("com.jme3.gde.core.about"));
-        request.setWindowTitle("Welcome to jMonkeyPlatform");
+        request.setWindowTitle("Welcome to jMonkeyEngine");
         final WelcomeScreen welcomeScreen = this;
         final DirectionalLight dirLight = new DirectionalLight();
         dirLight.setDirection(new Vector3f(.1f, 1, .1f).normalizeLocal());

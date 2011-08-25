@@ -1,7 +1,6 @@
 package com.jme3.gde.core.codeless;
 
 import com.jme3.gde.core.assets.ProjectAssetManager;
-import com.jme3.gde.core.assets.nodes.ProjectAssetsNode;
 import java.awt.Image;
 import java.util.LinkedList;
 import java.util.List;
@@ -124,7 +123,8 @@ class CodelessProjectLogicalView implements LogicalViewProvider {
                 try {
                     ProjectAssetManager manager = project.getProjectAssetManager();
                     FileObject assets = project.getAssetsFolder();
-                    node = new ProjectAssetsNode(manager, project, DataFolder.find(assets).getNodeDelegate());
+                    node = DataFolder.find(assets).getNodeDelegate();
+                    node.setDisplayName("Project Assets");
                 } catch (DataObjectNotFoundException ex) {
                     Exceptions.printStackTrace(ex);
                     node = new AbstractNode(Children.LEAF);

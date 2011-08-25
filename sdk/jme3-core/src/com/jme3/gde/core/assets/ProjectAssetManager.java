@@ -33,7 +33,6 @@ package com.jme3.gde.core.assets;
 
 import com.jme3.asset.AssetManager;
 import com.jme3.asset.DesktopAssetManager;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Iterator;
@@ -55,24 +54,30 @@ import org.openide.util.lookup.Lookups;
 public class ProjectAssetManager extends DesktopAssetManager {
 
     private Project project;
-    private List<String> folderName = new LinkedList<String>();
+    private List<String> folderNames = new LinkedList<String>();
 
     public ProjectAssetManager(Project prj, String folderName) {
-        this(prj);
-        addFileLocator(folderName);
+        super(true);
+        this.project = prj;
+        for (AssetManagerConfigurator di : Lookup.getDefault().lookupAll(AssetManagerConfigurator.class)) {
+            di.prepareManager(this);
+        }
+        addFolderLocator(folderName);
     }
 
-    public ProjectAssetManager(Project prj) {
+    public ProjectAssetManager(FileObject path) {
         super(true);
-        if (prj == null) {
+        if (path == null) {
             this.project = new DummyProject(this);
-            folderName.add("assets");
         } else {
-            this.project = prj;
+            this.project = new DummyProject(this, path);
         }
-        AssetManager manager = getManager();
+        String string = project.getProjectDirectory().getPath();
+        Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Add locator:{0}", string);
+        registerLocator(string,
+                "com.jme3.asset.plugins.FileLocator");
         for (AssetManagerConfigurator di : Lookup.getDefault().lookupAll(AssetManagerConfigurator.class)) {
-            di.prepareManager(manager);
+            di.prepareManager(this);
         }
     }
 
@@ -80,12 +85,15 @@ public class ProjectAssetManager extends DesktopAssetManager {
         this(null);
     }
 
-    public void addFileLocator(String relativePath) {
+    /**
+     * Adds a locator to a folder within the main project directory
+     */
+    public void addFolderLocator(String relativePath) {
         String string = project.getProjectDirectory().getPath() + "/" + relativePath + "/";
         Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Add locator:{0}", string);
         registerLocator(string,
                 "com.jme3.asset.plugins.FileLocator");
-        folderName.add(relativePath);
+        folderNames.add(relativePath);
     }
 
     public Project getProject() {
@@ -93,9 +101,10 @@ public class ProjectAssetManager extends DesktopAssetManager {
     }
 
     public String getRelativeAssetPath(String absolutePath) {
-        String prefix = project.getProjectDirectory().getFileObject(getFolderName() + "/").getPath();
+        String prefix = getAssetFolderName();
         int idx = absolutePath.indexOf(prefix);
         if (idx == 0) {
+            System.out.println("absolute/prefix:"+absolutePath+" / "+prefix);
             return absolutePath.substring(prefix.length() + 1);
         }
         return absolutePath;
@@ -107,7 +116,7 @@ public class ProjectAssetManager extends DesktopAssetManager {
     }
 
     public String[] getMaterials() {
-        FileObject assetsFolder = project.getProjectDirectory().getFileObject(getFolderName() + "/");
+        FileObject assetsFolder = getAssetFolder();
         if (assetsFolder == null) {
             return new String[]{};
         }
@@ -123,7 +132,7 @@ public class ProjectAssetManager extends DesktopAssetManager {
     }
 
     public String[] getSounds() {
-        FileObject assetsFolder = project.getProjectDirectory().getFileObject(getFolderName() + "/");
+        FileObject assetsFolder = getAssetFolder();
         if (assetsFolder == null) {
             return new String[]{};
         }
@@ -139,7 +148,7 @@ public class ProjectAssetManager extends DesktopAssetManager {
     }
 
     public String[] getTextures() {
-        FileObject assetsFolder = project.getProjectDirectory().getFileObject(getFolderName() + "/");
+        FileObject assetsFolder = getAssetFolder();
         if (assetsFolder == null) {
             return new String[]{};
         }
@@ -155,7 +164,7 @@ public class ProjectAssetManager extends DesktopAssetManager {
     }
 
     public String[] getMatDefs() {
-        FileObject assetsFolder = project.getProjectDirectory().getFileObject(getFolderName() + "/");
+        FileObject assetsFolder = getAssetFolder();
         if (assetsFolder == null) {
             return new String[]{};
         }
@@ -173,28 +182,41 @@ public class ProjectAssetManager extends DesktopAssetManager {
     /**
      * @return the folderName
      */
-    public String getFolderName() {
-        return folderName.get(0);
+    private String getFolderName() {
+        if (folderNames.isEmpty()) {
+            return "";
+        } else {
+            return folderNames.get(0);
+        }
     }
 
     /**
      * @return the folderName
      */
     public String getAssetFolderName() {
-        return project.getProjectDirectory().getPath() + "/" + getFolderName();
+        if (folderNames.isEmpty()) {
+            return project.getProjectDirectory().getPath();
+        } else {
+            return project.getProjectDirectory().getFileObject(getFolderName()).getPath();
+        }
     }
 
-    public FileObject getAssetFolder(){
-        return project.getProjectDirectory().getFileObject(getFolderName());
+    public FileObject getAssetFolder() {
+        if (folderNames.isEmpty()) {
+            return project.getProjectDirectory();
+        } else {
+            return project.getProjectDirectory().getFileObject(getFolderName());
+        }
     }
 
     public String getAbsoluteAssetPath(String path) {
-        for (Iterator<String> it = folderName.iterator(); it.hasNext();) {
-            String string = project.getProjectDirectory().getPath() + "/" + it.next() + "/" + path;
-            Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, "Check {0}", string);
-            File file = new File(string);
-            if (file.exists()) {
-                return file.getAbsolutePath();
+        if (folderNames.isEmpty()) {
+        } else {
+            for (Iterator<String> it = folderNames.iterator(); it.hasNext();) {
+                FileObject string = project.getProjectDirectory().getFileObject(it.next() + "/" + path);
+                if (string != null) {
+                    return string.getPath();
+                }
             }
         }
         return null;
@@ -204,10 +226,10 @@ public class ProjectAssetManager extends DesktopAssetManager {
      * @param folderName the folderName to set
      */
     public void setFolderName(String folderName) {
-        if (folderName.length() > 0) {
-            this.folderName.remove(0);
+        if (folderNames.size() > 0) {
+            this.folderNames.remove(0);
         }
-        this.folderName.add(0, folderName);
+        this.folderNames.add(0, folderName);
     }
 
     /**
