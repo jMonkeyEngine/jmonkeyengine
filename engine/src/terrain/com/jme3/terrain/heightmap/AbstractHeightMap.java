@@ -428,7 +428,9 @@ public abstract class AbstractHeightMap implements HeightMap {
      * Smooth the terrain. For each node, its 8 neighbors heights
      * are averaged and will participate in the  node new height
      * by a factor <code>np</code> between 0 and 1
-     *
+     * 
+     * You must first load() the heightmap data before this will have any effect.
+     * 
      * @param np
      *          The factor to what extend the neighbors average has an influence.
      *          Value of 0 will ignore neighbors (no smoothing)
@@ -443,6 +445,8 @@ public abstract class AbstractHeightMap implements HeightMap {
      * are averaged and will participate in the  node new height
      * by a factor <code>np</code> between 0 and 1
      *
+     * You must first load() the heightmap data before this will have any effect.
+     * 
      * @param np
      *          The factor to what extend the neighbors average has an influence.
      *          Value of 0 will ignore neighbors (no smoothing)
