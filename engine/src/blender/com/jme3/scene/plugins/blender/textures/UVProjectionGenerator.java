@@ -120,8 +120,6 @@ import com.jme3.scene.plugins.blender.textures.UVCoordinatesGenerator.BoundingTu
 		float cx = bt.getCenter().x, cy = bt.getCenter().y;
 		Vector3f uBase = new Vector3f(0, -1, 0);
 		
-		//the key is the Z-ccordinate of the vertex and the value a map between the vertex's angle nad indexes of its UV-coordinates
-//		Map<Float, Map<Float, Integer[]>> lowestAnglesUVCoordinatesMap = new HashMap<Float, Map<Float,Integer[]>>();
 		float vBase = bt.getCenter().z - bt.getHeight() * 0.5f;
 		for (int i = 0, j = 0; i < positions.limit(); i += 3, j += 2) {
 			// calculating U
@@ -135,7 +133,7 @@ import com.jme3.scene.plugins.blender.textures.UVCoordinatesGenerator.BoundingTu
 
 			// calculating V
 			float z = positions.get(i + 2);
-			uvCoordinates[j + 1] = (vBase - z) / bt.getHeight();
+			uvCoordinates[j + 1] = (z - vBase) / bt.getHeight();
 		}
 		
 		//looking for splitted triangles
