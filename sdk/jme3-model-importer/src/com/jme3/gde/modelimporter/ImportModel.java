@@ -94,7 +94,7 @@ public final class ImportModel implements ActionListener {
                     if (!(assetKey instanceof TextureKey)) {
                         deleteList.add(fileObj);
                     }
-                } catch (IOException ex) {
+                } catch (Exception ex) {
                     Exceptions.printStackTrace(ex);
                 }
             }
