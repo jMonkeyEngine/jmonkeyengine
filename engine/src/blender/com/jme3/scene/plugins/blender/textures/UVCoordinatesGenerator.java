@@ -101,44 +101,11 @@ public class UVCoordinatesGenerator {
 		VertexBuffer result = new VertexBuffer(VertexBuffer.Type.TexCoord);
 		Mesh mesh = geometries.get(0).getMesh();
 		BoundingBox bb = UVCoordinatesGenerator.getBoundingBox(geometries);
+		float[] inputData = null;//positions, normals, reflection vectors, etc.
 		
 		switch (texco) {
 			case TEXCO_ORCO:
-				float[] uvCoordinates = null;
-				if (textureDimension == 2) {
-					switch (projection) {
-						case PROJECTION_FLAT:
-							uvCoordinates = UVProjectionGenerator.flatProjection(mesh, bb);
-							break;
-						case PROJECTION_CUBE:
-							uvCoordinates = UVProjectionGenerator.cubeProjection(mesh, bb);
-							break;
-						case PROJECTION_TUBE:
-							 BoundingTube bt = UVCoordinatesGenerator.getBoundingTube(mesh);
-							 uvCoordinates = UVProjectionGenerator.tubeProjection(mesh, bt);
-							break;
-						case PROJECTION_SPHERE:
-							BoundingSphere bs = UVCoordinatesGenerator.getBoundingSphere(geometries);
-							uvCoordinates = UVProjectionGenerator.sphereProjection(mesh, bs);
-							break;
-						default:
-							throw new IllegalStateException("Unknown projection type: " + projection);
-					}
-				} else {
-					FloatBuffer positions = mesh.getFloatBuffer(VertexBuffer.Type.Position);
-					uvCoordinates = BufferUtils.getFloatArray(positions);
-					Vector3f min = bb.getMin(null);
-					float[] ext = new float[] { bb.getXExtent() * 2, bb.getYExtent() * 2, bb.getZExtent() * 2 };
-
-					// now transform the coordinates so that they are in the range of <0; 1>
-					for (int i = 0; i < uvCoordinates.length; i += 3) {
-						uvCoordinates[i] = (uvCoordinates[i] - min.x) / ext[0];
-						uvCoordinates[i + 1] = (uvCoordinates[i + 1] - min.y) / ext[1];
-						uvCoordinates[i + 2] = (uvCoordinates[i + 2] - min.z) / ext[2];
-					}
-					result.setupData(Usage.Static, textureDimension, Format.Float, BufferUtils.createFloatBuffer(uvCoordinates));
-				}
-				result.setupData(Usage.Static, textureDimension, Format.Float, BufferUtils.createFloatBuffer(uvCoordinates));
+				inputData = BufferUtils.getFloatArray(mesh.getFloatBuffer(VertexBuffer.Type.Position));
 				break;
 			case TEXCO_UV:
 				if (textureDimension == 2) {
@@ -151,8 +118,11 @@ public class UVCoordinatesGenerator {
 					}
 					result.setupData(Usage.Static, textureDimension, Format.Float, uvCoordinatesBuffer);
 				} else {
-
+					
 				}
+				break;
+			case TEXCO_NORM:
+				inputData = BufferUtils.getFloatArray(mesh.getFloatBuffer(VertexBuffer.Type.Normal));
 				break;
 			case TEXCO_GLOB:
 
@@ -161,9 +131,6 @@ public class UVCoordinatesGenerator {
 
 				break;
 			case TEXCO_STRESS:
-
-				break;
-			case TEXCO_NORM:
 
 				break;
 			case TEXCO_LAVECTOR:
@@ -181,6 +148,41 @@ public class UVCoordinatesGenerator {
 				throw new IllegalStateException("Unknown texture coordinates value: " + texco);
 		}
 
+		if(inputData!=null) {//make calculations
+			if (textureDimension == 2) {
+				switch (projection) {
+					case PROJECTION_FLAT:
+						inputData = UVProjectionGenerator.flatProjection(mesh, bb);
+						break;
+					case PROJECTION_CUBE:
+						inputData = UVProjectionGenerator.cubeProjection(mesh, bb);
+						break;
+					case PROJECTION_TUBE:
+						 BoundingTube bt = UVCoordinatesGenerator.getBoundingTube(mesh);
+						 inputData = UVProjectionGenerator.tubeProjection(mesh, bt);
+						break;
+					case PROJECTION_SPHERE:
+						BoundingSphere bs = UVCoordinatesGenerator.getBoundingSphere(geometries);
+						inputData = UVProjectionGenerator.sphereProjection(mesh, bs);
+						break;
+					default:
+						throw new IllegalStateException("Unknown projection type: " + projection);
+				}
+			} else {
+				Vector3f min = bb.getMin(null);
+				float[] ext = new float[] { bb.getXExtent() * 2, bb.getYExtent() * 2, bb.getZExtent() * 2 };
+
+				// now transform the coordinates so that they are in the range of <0; 1>
+				for (int i = 0; i < inputData.length; i += 3) {
+					inputData[i] = (inputData[i] - min.x) / ext[0];
+					inputData[i + 1] = (inputData[i + 1] - min.y) / ext[1];
+					inputData[i + 2] = (inputData[i + 2] - min.z) / ext[2];
+				}
+				result.setupData(Usage.Static, textureDimension, Format.Float, BufferUtils.createFloatBuffer(inputData));
+			}
+			result.setupData(Usage.Static, textureDimension, Format.Float, BufferUtils.createFloatBuffer(inputData));
+		}
+		
 		// each mesh will have the same coordinates
 		for (Geometry geometry : geometries) {
 			mesh = geometry.getMesh();
