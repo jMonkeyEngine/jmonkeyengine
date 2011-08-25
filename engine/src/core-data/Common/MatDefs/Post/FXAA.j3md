@@ -2,7 +2,7 @@ MaterialDef FXAA {
     MaterialParameters {
         Int NumSamples
         Texture2D Texture
-        Float SubPixelShif
+        Float SubPixelShift
         Float VxOffset
         Float SpanMax
         Float ReduceMul

@@ -15,7 +15,7 @@ import com.jme3.renderer.ViewPort;
  */
 public class FXAAFilter extends Filter {
 
-    private float subPixelShif = 1.0f / 4.0f;
+    private float subPixelShift = 1.0f / 4.0f;
     private float vxOffset = 0.0f;
     private float spanMax = 8.0f;
     private float reduceMul = 1.0f / 8.0f;
@@ -28,7 +28,7 @@ public class FXAAFilter extends Filter {
     protected void initFilter(AssetManager manager,
             RenderManager renderManager, ViewPort vp, int w, int h) {
         material = new Material(manager, "Common/MatDefs/Post/FXAA.j3md");   
-        material.setFloat("SubPixelShif", subPixelShif);
+        material.setFloat("SubPixelShift", subPixelShift);
         material.setFloat("VxOffset", vxOffset);
         material.setFloat("SpanMax", spanMax);
         material.setFloat("ReduceMul", reduceMul);
@@ -52,9 +52,9 @@ public class FXAAFilter extends Filter {
      * @param subPixelShift
      */
     public void setSubPixelShift(float subPixelShift) {
-        subPixelShif = subPixelShift;
+        this.subPixelShift = subPixelShift;
         if (material != null) {
-            material.setFloat("SubPixelShif", subPixelShif);
+            material.setFloat("SubPixelShif", this.subPixelShift);
         }
     }
 
@@ -85,8 +85,8 @@ public class FXAAFilter extends Filter {
         return spanMax;
     }
 
-    public float getSubPixelShif() {
-        return subPixelShif;
+    public float getSubPixelShift() {
+        return subPixelShift;
     }
 
     public float getVxOffset() {
