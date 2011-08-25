@@ -71,97 +71,19 @@ public class AndroidConfigChooser implements EGLConfigChooser
      * @return true if successfull, false if no config was found
      */
     public boolean findConfig(EGL10 egl, EGLDisplay display)
-    {        
-        //Querying number of configurations
-        int[] num_conf = new int[1];
-        egl.eglGetConfigs(display, null, 0, num_conf);  //if configuration array is null it still returns the number of configurations
-        int configurations = num_conf[0];
-
-        //Querying actual configurations
-        EGLConfig[] conf = new EGLConfig[configurations];
-        egl.eglGetConfigs(display, conf, configurations, num_conf);
-          
-        int[] value = new int[1];        
-   
+    {           
         
-        if (configurations <= 0)
-        {
-            logger.severe("###ERROR### ZERO EGL Configurations found, This Is a Problem"); 
-        }
-        
-        // Loop over all configs to get the best
-        for(int i = 0; i < configurations; i++)
-        {                    
-            if (conf[i] != null)
-            {                
-                egl.eglGetConfigAttrib(display, conf[i], EGL10.EGL_SURFACE_TYPE, value);
-                // check if conf is a valid gl window
-                if ((value[0] & EGL10.EGL_WINDOW_BIT) != 0)
-                {                    
-                    egl.eglGetConfigAttrib(display, conf[i], EGL10.EGL_DEPTH_SIZE, value);
-                    // check if conf has a minimum depth of 16
-                    if (value[0] >= 16)
-                    {
-                        egl.eglGetConfigAttrib(display, conf[i], EGL10.EGL_RENDERABLE_TYPE, value);
-                        // Check if conf is OpenGL ES 2.0
-                        if ((value[0] & EGL_OPENGL_ES2_BIT) != 0)
-                        {
-                            clientOpenGLESVersion = 2;  // OpenGL ES 2.0 detected
-                            bestConfig = better(bestConfig, conf[i], egl, display);
-                            fastestConfig = faster(fastestConfig, conf[i], egl, display);
-                            
-                            if (verbose)
-                            {
-                                logger.info("** Supported EGL Configuration #" + i );                            
-                                logEGLConfig(conf[i], display, egl);
-                            }
-                        }
-                        else
-                        {
-                            if (verbose)
-                            {
-                                logger.info("NOT Supported EGL Configuration #" + i + " EGL_OPENGL_ES2_BIT not set");                            
-                                logEGLConfig(conf[i], display, egl); 
-                            }
-                        }  
-                    }
-                    else
-                    {
-                        if (verbose)
-                        {
-                            logger.info("NOT Supported EGL Configuration #" + i + " EGL_DEPTH_SIZE < 16");                            
-                            logEGLConfig(conf[i], display, egl);
-                        }
-                    }
-                }
-                else
-                {
-                    if (verbose)
-                    {
-                        logger.info("NOT Supported EGL Configuration #" + i + " EGL_WINDOW_BIT not set");                            
-                        logEGLConfig(conf[i], display, egl);
-                    }
-                }
-            }
-            else
-            {
-                logger.severe("###ERROR### EGL Configuration #" + i + " is NULL");
-            }
-        }
-    
-        
-        if ((type == ConfigType.BEST) && (bestConfig != null))
-        {
+        if (type == ConfigType.BEST)
+        {        	
+        	ComponentSizeChooser compChooser = new ComponentSizeChooser(8, 8, 8, 8, 16, 0);
+        	choosenConfig = compChooser.chooseConfig(egl, display);
             logger.info("JME3 using best EGL configuration available here: ");
-            choosenConfig = bestConfig;
         }
         else
         {
-            if (fastestConfig != null)
-            {
-                logger.info("JME3 using fastest EGL configuration available here: ");
-            }
-            choosenConfig = fastestConfig;            
+        	ComponentSizeChooser compChooser = new ComponentSizeChooser(5, 6, 5, 0, 16, 0);
+        	choosenConfig = compChooser.chooseConfig(egl, display);
+            logger.info("JME3 using fastest EGL configuration available here: ");
         }
         
         if (choosenConfig != null)
@@ -179,147 +101,6 @@ public class AndroidConfigChooser implements EGLConfigChooser
             pixelFormat = PixelFormat.UNKNOWN;
             return false;
         }        
-    }
-
-    /**
-     * Returns the best of the two EGLConfig passed according to depth and colours
-     * @param a The first candidate
-     * @param b The second candidate
-     * @return The chosen candidate
-     */
-    private EGLConfig better(EGLConfig a, EGLConfig b, EGL10 egl, EGLDisplay display)
-    {
-        if(a == null) return b;
-    
-        EGLConfig result = null;
-    
-        int[] value = new int[1];
-    
-        // Choose highest color size
-        egl.eglGetConfigAttrib(display, a, EGL10.EGL_RED_SIZE, value);
-        int redA = value[0];
-    
-        egl.eglGetConfigAttrib(display, b, EGL10.EGL_RED_SIZE, value);
-        int redB = value[0];
-    
-        if (redA > redB)
-            result = a;
-        else if (redA < redB)
-            result = b;
-        else // red size is equal
-        {
-            // Choose highest depth size
-            egl.eglGetConfigAttrib(display, a, EGL10.EGL_DEPTH_SIZE, value);
-            int depthA = value[0];
-    
-            egl.eglGetConfigAttrib(display, b, EGL10.EGL_DEPTH_SIZE, value);
-            int depthB = value[0];
-    
-            if (depthA > depthB)
-                result = a;
-            else if (depthA < depthB)
-                result = b;
-            else // depth is equal
-            {       
-                
-                // Choose lowest alpha size
-                egl.eglGetConfigAttrib(display, a, EGL10.EGL_ALPHA_SIZE, value);
-                int alphaA = value[0];
-        
-                egl.eglGetConfigAttrib(display, b, EGL10.EGL_ALPHA_SIZE, value);
-                int alphaB = value[0];
-        
-                if (alphaA < alphaB)
-                    result = a;
-                else if (alphaA > alphaB)
-                    result = b;
-                else // alpha is equal
-                {
-                    // Choose lowest stencil size
-                    egl.eglGetConfigAttrib(display, a, EGL10.EGL_STENCIL_SIZE, value);
-                    int stencilA = value[0];
-            
-                    egl.eglGetConfigAttrib(display, b, EGL10.EGL_STENCIL_SIZE, value);
-                    int stencilB = value[0];
-            
-                    if (stencilA < stencilB)
-                        result = a;
-                    else
-                        result = b;
-                }
-            }
-        }
-        return result;
-    }
-    
-    /**
-     * Returns the fastest of the two EGLConfig passed according to depth and colours
-     * @param a The first candidate
-     * @param b The second candidate
-     * @return The chosen candidate
-     */
-    private EGLConfig faster(EGLConfig a, EGLConfig b, EGL10 egl, EGLDisplay display)
-    {
-        if(a == null) return b;
-    
-        EGLConfig result = null;
-    
-        int[] value = new int[1];
-    
-        // Choose 565 color size
-        egl.eglGetConfigAttrib(display, a, EGL10.EGL_GREEN_SIZE, value);
-        int greenA = value[0];
-    
-        egl.eglGetConfigAttrib(display, b, EGL10.EGL_GREEN_SIZE, value);
-        int greenB = value[0];
-    
-        if ((greenA == 6) && (greenB != 6))
-            result = a;
-        else if ((greenA != 6) && (greenB == 6))
-            result = b;
-        else // green size is equal
-        {
-            // Choose lowest depth size
-            egl.eglGetConfigAttrib(display, a, EGL10.EGL_DEPTH_SIZE, value);
-            int depthA = value[0];
-    
-            egl.eglGetConfigAttrib(display, b, EGL10.EGL_DEPTH_SIZE, value);
-            int depthB = value[0];
-    
-            if (depthA < depthB)
-                result = a;
-            else if (depthA > depthB)
-                result = b;
-            else // depth is equal
-            {                              
-                // Choose lowest alpha size
-                egl.eglGetConfigAttrib(display, a, EGL10.EGL_ALPHA_SIZE, value);
-                int alphaA = value[0];
-        
-                egl.eglGetConfigAttrib(display, b, EGL10.EGL_ALPHA_SIZE, value);
-                int alphaB = value[0];
-        
-                if (alphaA < alphaB)
-                    result = a;
-                else if (alphaA > alphaB)
-                    result = b;
-                else // alpha is equal
-                {
-                    // Choose lowest stencil size
-                    egl.eglGetConfigAttrib(display, a, EGL10.EGL_STENCIL_SIZE, value);
-                    int stencilA = value[0];
-            
-                    egl.eglGetConfigAttrib(display, b, EGL10.EGL_STENCIL_SIZE, value);
-                    int stencilB = value[0];
-            
-                    if (stencilA < stencilB)
-                        result = a;
-                    else
-                        result = b;
-                }
-            }
-        }
-        return result;
     }
     
     private int getPixelFormat(EGLConfig conf, EGLDisplay display, EGL10 egl)
@@ -439,5 +220,142 @@ public class AndroidConfigChooser implements EGLConfigChooser
     {
         return pixelFormat;
     }
+    
+    
+    
+    private abstract class BaseConfigChooser implements EGLConfigChooser 
+    {
+		public BaseConfigChooser(int[] configSpec) 
+		{
+		    mConfigSpec = filterConfigSpec(configSpec);
+		}
+		
+		public EGLConfig chooseConfig(EGL10 egl, EGLDisplay display) 
+		{
+		    int[] num_config = new int[1];
+		    if (!egl.eglChooseConfig(display, mConfigSpec, null, 0,
+		            num_config)) {
+		        throw new IllegalArgumentException("eglChooseConfig failed");
+		    }
+		
+		    int numConfigs = num_config[0];
+		
+		    if (numConfigs <= 0) {
+		        throw new IllegalArgumentException(
+		                "No configs match configSpec");
+		    }
+		
+		    EGLConfig[] configs = new EGLConfig[numConfigs];
+		    if (!egl.eglChooseConfig(display, mConfigSpec, configs, numConfigs,
+		            num_config)) {
+		        throw new IllegalArgumentException("eglChooseConfig#2 failed");
+		    }
+		    EGLConfig config = chooseConfig(egl, display, configs);
+		    if (config == null) {
+		        throw new IllegalArgumentException("No config chosen");
+		    }
+		    return config;
+		}
+		
+		abstract EGLConfig chooseConfig(EGL10 egl, EGLDisplay display,
+		        EGLConfig[] configs);
+		
+		protected int[] mConfigSpec;
+		
+		private int[] filterConfigSpec(int[] configSpec) 
+		{
+		    if (clientOpenGLESVersion != 2) {
+		        return configSpec;
+		    }
+		    /* We know none of the subclasses define EGL_RENDERABLE_TYPE.
+		     * And we know the configSpec is well formed.
+		     */
+		    int len = configSpec.length;
+		    int[] newConfigSpec = new int[len + 2];
+		    System.arraycopy(configSpec, 0, newConfigSpec, 0, len-1);
+		    newConfigSpec[len-1] = EGL10.EGL_RENDERABLE_TYPE;
+		    newConfigSpec[len] = 4; /* EGL_OPENGL_ES2_BIT */
+		    newConfigSpec[len+1] = EGL10.EGL_NONE;
+		    return newConfigSpec;
+		}
+    }
+    
+    /**
+     * Choose a configuration with exactly the specified r,g,b,a sizes,
+     * and at least the specified depth and stencil sizes.
+     */
+    private class ComponentSizeChooser extends BaseConfigChooser 
+    {
+        public ComponentSizeChooser(int redSize, int greenSize, int blueSize,
+                int alphaSize, int depthSize, int stencilSize) 
+        {
+            super(new int[] {
+                    EGL10.EGL_RED_SIZE, redSize,
+                    EGL10.EGL_GREEN_SIZE, greenSize,
+                    EGL10.EGL_BLUE_SIZE, blueSize,
+                    EGL10.EGL_ALPHA_SIZE, alphaSize,
+                    EGL10.EGL_DEPTH_SIZE, depthSize,
+                    EGL10.EGL_STENCIL_SIZE, stencilSize,
+                    EGL10.EGL_NONE});
+            mValue = new int[1];
+            mRedSize = redSize;
+            mGreenSize = greenSize;
+            mBlueSize = blueSize;
+            mAlphaSize = alphaSize;
+            mDepthSize = depthSize;
+            mStencilSize = stencilSize;
+       }
+
+        @Override
+        public EGLConfig chooseConfig(EGL10 egl, EGLDisplay display, EGLConfig[] configs) 
+        {
+            for (EGLConfig config : configs) 
+            {
+                int d = findConfigAttrib(egl, display, config,
+                        EGL10.EGL_DEPTH_SIZE, 0);
+                int s = findConfigAttrib(egl, display, config,
+                        EGL10.EGL_STENCIL_SIZE, 0);
+                if ((d >= mDepthSize) && (s >= mStencilSize)) 
+                {
+                    int r = findConfigAttrib(egl, display, config,
+                            EGL10.EGL_RED_SIZE, 0);
+                    int g = findConfigAttrib(egl, display, config,
+                             EGL10.EGL_GREEN_SIZE, 0);
+                    int b = findConfigAttrib(egl, display, config,
+                              EGL10.EGL_BLUE_SIZE, 0);
+                    int a = findConfigAttrib(egl, display, config,
+                            EGL10.EGL_ALPHA_SIZE, 0);
+                    if ((r == mRedSize) && (g == mGreenSize)
+                            && (b == mBlueSize) && (a == mAlphaSize)) {
+                        return config;
+                    }
+                }
+            }
+            return null;
+        }
+
+        private int findConfigAttrib(EGL10 egl, EGLDisplay display,
+                EGLConfig config, int attribute, int defaultValue) 
+        {
+
+            if (egl.eglGetConfigAttrib(display, config, attribute, mValue)) 
+            {
+                return mValue[0];
+            }
+            return defaultValue;
+        }
+
+        private int[] mValue;
+        // Subclasses can adjust these values:
+        protected int mRedSize;
+        protected int mGreenSize;
+        protected int mBlueSize;
+        protected int mAlphaSize;
+        protected int mDepthSize;
+        protected int mStencilSize;
+    }
+    
+    
+    
     
 }
