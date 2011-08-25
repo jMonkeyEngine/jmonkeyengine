@@ -41,11 +41,6 @@ import com.jme3.scene.Spatial;
 
 public class TestBlenderLoader extends SimpleApplication {
 
-    float angle;
-    PointLight pl;
-    Spatial lightMdl;
-    String assetName;
-
     public static void main(String[] args){
         TestBlenderLoader app = new TestBlenderLoader();
         app.start();
@@ -55,7 +50,7 @@ public class TestBlenderLoader extends SimpleApplication {
     public void simpleInitApp() {
         viewPort.setBackgroundColor(ColorRGBA.DarkGray);
 
-        Spatial bumpy = (Spatial) assetManager.loadModel("Blender/2.4x/Sinbad.blend");
+        Spatial bumpy = assetManager.loadModel("Blender/2.4x/Sinbad.blend");
         rootNode.attachChild(bumpy);
 
         // sunset light
@@ -73,7 +68,7 @@ public class TestBlenderLoader extends SimpleApplication {
         // white ambient light
         dl = new DirectionalLight();
         dl.setDirection(new Vector3f(1, -0.5f,-0.1f).normalizeLocal());
-        dl.setColor(new ColorRGBA(0.50f, 0.40f, 0.50f, 1.0f));
+        dl.setColor(new ColorRGBA(0.80f, 0.70f, 0.80f, 1.0f));
         rootNode.addLight(dl);
     }
 
