@@ -101,7 +101,7 @@ public class UVCoordinatesGenerator {
 		VertexBuffer result = new VertexBuffer(VertexBuffer.Type.TexCoord);
 		Mesh mesh = geometries.get(0).getMesh();
 		BoundingBox bb = UVCoordinatesGenerator.getBoundingBox(geometries);
-
+		
 		switch (texco) {
 			case TEXCO_ORCO:
 				float[] uvCoordinates = null;
@@ -118,7 +118,8 @@ public class UVCoordinatesGenerator {
 							 uvCoordinates = UVProjectionGenerator.tubeProjection(mesh, bt);
 							break;
 						case PROJECTION_SPHERE:
-							uvCoordinates = UVProjectionGenerator.sphereProjection(mesh, bb);
+							BoundingSphere bs = UVCoordinatesGenerator.getBoundingSphere(geometries);
+							uvCoordinates = UVProjectionGenerator.sphereProjection(mesh, bs);
 							break;
 						default:
 							throw new IllegalStateException("Unknown projection type: " + projection);
