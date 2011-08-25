@@ -4,7 +4,6 @@
  */
 package com.jme3.gde.gui.multiview;
 
-import com.jme3.asset.AssetManager;
 import com.jme3.audio.AudioRenderer;
 import com.jme3.gde.core.assets.ProjectAssetManager;
 import com.jme3.gde.core.scene.OffScenePanel;
@@ -32,11 +31,15 @@ import javax.swing.JToolBar;
 import org.netbeans.modules.xml.multiview.Error;
 import org.netbeans.modules.xml.multiview.ui.PanelView;
 import org.netbeans.modules.xml.multiview.ui.ToolBarDesignEditor;
+import org.openide.DialogDisplayer;
+import org.openide.NotifyDescriptor;
+import org.openide.NotifyDescriptor.Message;
 import org.openide.nodes.Node;
 import org.openide.util.Exceptions;
 import org.openide.xml.XMLUtil;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
+import uk.co.mandolane.midi.e;
 
 /**
  *
@@ -124,7 +127,12 @@ public class NiftyPreviewPanel extends PanelView {
             setRoot(rootContext);
             comp.setRootContext(rootContext);
         } catch (Exception ex) {
+            Message msg = new NotifyDescriptor.Message(
+                    "Error parsing File:" + ex,
+                    NotifyDescriptor.ERROR_MESSAGE);
+            DialogDisplayer.getDefault().notifyLater(msg);
             Exceptions.printStackTrace(ex);
+            return;
         }
         SceneApplication.getApplication().enqueue(new Callable<Object>() {
 
