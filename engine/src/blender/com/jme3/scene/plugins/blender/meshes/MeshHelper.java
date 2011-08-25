@@ -406,7 +406,7 @@ public class MeshHelper extends AbstractBlenderHelper {
 			}
 			for(Entry<Material, List<Geometry>> entry : materialMap.entrySet()) {
 				MaterialContext materialContext = dataRepository.getMaterialContext(entry.getKey());
-				if(materialContext.getTexturesCount()>0) {
+				if(materialContext != null && materialContext.getTexturesCount()>0) {
 					UVCoordinatesGenerator.generateUVCoordinates(materialContext.getUvCoordinatesType(), 
 							materialContext.getProjectionType(),
 							materialContext.getTextureDimension(), entry.getValue());
