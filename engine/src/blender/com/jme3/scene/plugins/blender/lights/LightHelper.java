@@ -38,7 +38,9 @@ import com.jme3.asset.BlenderKey.FeaturesToLoad;
 import com.jme3.light.DirectionalLight;
 import com.jme3.light.Light;
 import com.jme3.light.PointLight;
+import com.jme3.light.SpotLight;
 import com.jme3.math.ColorRGBA;
+import com.jme3.math.FastMath;
 import com.jme3.scene.plugins.blender.AbstractBlenderHelper;
 import com.jme3.scene.plugins.blender.DataRepository;
 import com.jme3.scene.plugins.blender.DataRepository.LoadedFeatureDataType;
@@ -79,7 +81,23 @@ public class LightHelper extends AbstractBlenderHelper {
                 LOGGER.log(Level.WARNING, "'Sun' lamp is not supported in jMonkeyEngine.");
                 break;
             case 2://Spot
-                LOGGER.log(Level.WARNING, "'Spot' lamp is not supported in jMonkeyEngine.");
+            	result = new SpotLight();
+            	//range
+            	((SpotLight)result).setSpotRange(((Number) structure.getFieldValue("dist")).floatValue());
+            	//outer angle
+            	float outerAngle = ((Number) structure.getFieldValue("spotsize")).floatValue()*FastMath.DEG_TO_RAD;
+            	((SpotLight)result).setSpotOuterAngle(outerAngle);
+            	
+            	//inner angle
+            	float spotblend = ((Number) structure.getFieldValue("spotblend")).floatValue();
+            	if(spotblend > 1.0f) {//floating point errors fix
+            		spotblend = 1.0f;
+            	}
+            	if(spotblend < 0.0f) {//floating point errors fix
+            		spotblend = 0.0f;
+            	}
+            	float innerAngle = 2.0f * (float)Math.atan((1.0f-spotblend)*Math.tan(spotblend/2.0f));
+            	((SpotLight)result).setSpotInnerAngle(innerAngle);
                 break;
             case 3://Hemi
                 LOGGER.log(Level.WARNING, "'Hemi' lamp is not supported in jMonkeyEngine.");
@@ -94,7 +112,7 @@ public class LightHelper extends AbstractBlenderHelper {
             float r = ((Number) structure.getFieldValue("r")).floatValue();
             float g = ((Number) structure.getFieldValue("g")).floatValue();
             float b = ((Number) structure.getFieldValue("b")).floatValue();
-            result.setColor(new ColorRGBA(r, g, b, 0.0f));//TODO: 0 czy 1 ???
+            result.setColor(new ColorRGBA(r, g, b, 1.0f));
         }
         return result;
     }

@@ -41,6 +41,7 @@ import com.jme3.asset.BlenderKey.FeaturesToLoad;
 import com.jme3.light.DirectionalLight;
 import com.jme3.light.Light;
 import com.jme3.light.PointLight;
+import com.jme3.light.SpotLight;
 import com.jme3.math.FastMath;
 import com.jme3.math.Matrix4f;
 import com.jme3.math.Quaternion;
@@ -237,6 +238,13 @@ public class ObjectHelper extends AbstractBlenderHelper {
 							Vector3f[] axes = new Vector3f[3];
 							quaternion.toAxes(axes);
 							((DirectionalLight)light).setDirection(axes[2].negate());//-Z is the direction axis of area lamp in blender
+						} else if(light instanceof SpotLight) {
+							((SpotLight)light).setPosition(t.getTranslation());
+							
+							Quaternion quaternion = t.getRotation();
+							Vector3f[] axes = new Vector3f[3];
+							quaternion.toAxes(axes);
+							((SpotLight)light).setDirection(axes[2].negate());//-Z is the direction axis of area lamp in blender
 						} else {
 							LOGGER.log(Level.WARNING, "Unknown type of light: {0}", light);
 						}
