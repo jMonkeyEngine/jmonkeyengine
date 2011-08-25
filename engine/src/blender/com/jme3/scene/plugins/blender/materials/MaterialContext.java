@@ -110,6 +110,16 @@ public final class MaterialContext {
 	}
 	
 	/**
+	 * This method returns the amount of textures applied for the current
+	 * material.
+	 * 
+	 * @return the amount of textures applied for the current material
+	 */
+	public int getTexturesCount() {
+		return textures == null ? 0 : textures.size();
+	}
+	
+	/**
 	 * This method determines the type of the texture.
 	 * @param texType texture type (from blender)
 	 * @return texture type (used by jme)
