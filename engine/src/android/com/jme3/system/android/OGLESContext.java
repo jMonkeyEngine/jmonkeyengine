@@ -101,6 +101,8 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer
      */
     protected int clientOpenGLESVersion = 1;
     
+    protected boolean verboseLogging = false;
+    
     final private String ESCAPE_EVENT = "TouchEscape";
     
     public OGLESContext() { }
@@ -141,6 +143,7 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer
     {                    
         // Start to set up the view
         this.view = view;    
+        verboseLogging = eglConfigVerboseLogging;
 
         if (configType == ConfigType.LEGACY)
         {
@@ -257,7 +260,7 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer
         renderer = new OGLESShaderRenderer();
     
         renderer.setUseVA(true);
-        renderer.setVerboseLogging(false);
+        renderer.setVerboseLogging(verboseLogging);
         
         renderer.initialize();
         listener.initialize();

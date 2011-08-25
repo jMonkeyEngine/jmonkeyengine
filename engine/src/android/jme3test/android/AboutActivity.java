@@ -42,7 +42,7 @@ public class AboutActivity extends Activity {
 
 		super.onCreate(savedInstanceState);
 
-		setContentView(R.layout.about);
+		//setContentView(R.layout.about);
 	}
 
 	@Override

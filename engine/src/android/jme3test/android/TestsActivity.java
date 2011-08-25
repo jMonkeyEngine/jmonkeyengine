@@ -66,7 +66,7 @@ public class TestsActivity extends Activity {
 		new Test("helloworld.HelloTerrain", "jme3test.helloworld.HelloTerrain")
 	};
 
-	private CheckBox useVA = null;
+	private boolean useVA;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -74,13 +74,13 @@ public class TestsActivity extends Activity {
 
 		super.onCreate(savedInstanceState);
 
-		setContentView(R.layout.tests);
+		//setContentView(R.layout.tests);
 
 		try {
 
-			useVA = (CheckBox) findViewById(R.id.useVA);
+			useVA = true;
 
-		LinearLayout buttonsContainer = (LinearLayout) findViewById(R.id.buttonsContainer);
+		//LinearLayout buttonsContainer = (LinearLayout) findViewById(R.id.buttonsContainer);
 
 
 		for (Test test: tests) {
@@ -91,7 +91,7 @@ public class TestsActivity extends Activity {
 			button.setText(test.getName());
 //			button.setTextSize(10.0f);
 //			button.setTextColor(Color.rgb(100, 200, 200));
-			buttonsContainer.addView(button);
+			//buttonsContainer.addView(button);
 
 			button.setOnClickListener(
 				new View.OnClickListener() {
@@ -99,7 +99,7 @@ public class TestsActivity extends Activity {
 					public void onClick(View view) {
 						Intent intent = new Intent(view.getContext(), AndroidActivity.class);
 						intent.putExtra(AndroidActivity.class.getName() + ".TEST_CLASS_NAME", finalClassName); 
-						intent.putExtra(AndroidActivity.class.getName() + ".USE_VA", useVA.isChecked()); 
+						intent.putExtra(AndroidActivity.class.getName() + ".USE_VA", useVA); 
 						startActivityForResult(intent, 0);
 					}
 				}
@@ -136,12 +136,13 @@ public class TestsActivity extends Activity {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getMenuInflater();
-		inflater.inflate(R.menu.options, menu);
+		//inflater.inflate(R.menu.options, menu);
 		return true;
 	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
+	    /*
 		switch (item.getItemId()) {
 			case R.id.about_button:
 				about();
@@ -152,6 +153,8 @@ public class TestsActivity extends Activity {
 			default:
 				return super.onOptionsItemSelected(item);
 		}
+		*/
+	    return false;
 	}
 
 	private void quit() {
