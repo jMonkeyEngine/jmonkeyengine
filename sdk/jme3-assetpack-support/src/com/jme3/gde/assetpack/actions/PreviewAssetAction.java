@@ -17,8 +17,11 @@ import java.beans.PropertyChangeListener;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.Action;
+import org.netbeans.api.project.Project;
 import org.openide.loaders.DataObject;
+import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.nodes.Node;
+import org.openide.util.Exceptions;
 import org.w3c.dom.Element;
 
 public final class PreviewAssetAction implements Action {
@@ -43,7 +46,11 @@ public final class PreviewAssetAction implements Action {
         JmeNode jmeNode = NodeUtility.createNode(node);
         SceneApplication app = SceneApplication.getApplication();
         SceneRequest request = new SceneRequest(app, jmeNode, pm);
-        request.setDataObject(context.getLookup().lookup(DataObject.class));
+        try {
+            request.setDataObject(DataObject.find(context.getLookup().lookup(Project.class).getProjectDirectory()));
+        } catch (DataObjectNotFoundException ex) {
+            Exceptions.printStackTrace(ex);
+        }
         request.setWindowTitle("AssetPack - PreView Model");
         app.requestScene(request);
 
