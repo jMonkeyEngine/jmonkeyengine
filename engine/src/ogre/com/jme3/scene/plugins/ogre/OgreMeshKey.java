@@ -65,5 +65,9 @@ public class OgreMeshKey extends ModelKey {
     public String getMaterialName() {
         return materialName;
     }
+    
+    public void setMaterialName(String name) {
+        materialName = name;
+    }
 
 }

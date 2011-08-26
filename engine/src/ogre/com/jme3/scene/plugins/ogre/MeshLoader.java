@@ -784,9 +784,17 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
                 String materialName = meshKey.getMaterialName();
                 if (materialList == null) {
                     if (materialName != null) {
-                        materialList = (MaterialList) assetManager.loadAsset(new OgreMaterialKey(folderName + materialName + ".material"));
+                        try {
+                            materialList = (MaterialList) assetManager.loadAsset(new OgreMaterialKey(folderName + materialName + ".material"));
+                        } catch (AssetNotFoundException e) {
+                            logger.log(Level.WARNING, "Cannot locate {0}{1}.material for model {2}{3}.{4}", new Object[]{folderName, materialName, folderName, meshName, ext});
+                        }
                     } else {
-                        materialList = (MaterialList) assetManager.loadAsset(new OgreMaterialKey(folderName + meshName + ".material"));
+                        try {
+                            materialList = (MaterialList) assetManager.loadAsset(new OgreMaterialKey(folderName + meshName + ".material"));
+                        } catch (AssetNotFoundException e) {
+                            logger.log(Level.WARNING, "Cannot locate {0}{1}.material for model {2}{3}.{4}", new Object[]{folderName, meshName, folderName, meshName, ext});
+                        }
                     }
                 }
             } else {
