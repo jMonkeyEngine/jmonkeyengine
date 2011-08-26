@@ -785,6 +785,9 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
                 if (materialList == null && materialName != null) {
                     materialList = (MaterialList) assetManager.loadAsset(new OgreMaterialKey(folderName + materialName + ".material"));
                 }
+                else{
+                    materialList = (MaterialList) assetManager.loadAsset(new OgreMaterialKey(folderName + meshName + ".material"));
+                }
             } else {
                 try {
                     materialList = (MaterialList) assetManager.loadAsset(new OgreMaterialKey(folderName + meshName + ".material"));
