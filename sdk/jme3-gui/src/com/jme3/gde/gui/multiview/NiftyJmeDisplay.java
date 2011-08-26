@@ -33,6 +33,7 @@
 package com.jme3.gde.gui.multiview;
 
 import com.jme3.asset.AssetManager;
+import com.jme3.asset.DesktopAssetManager;
 import com.jme3.audio.AudioRenderer;
 import com.jme3.niftygui.RenderDeviceJme;
 import com.jme3.niftygui.SoundDeviceJme;
@@ -53,7 +54,8 @@ public class NiftyJmeDisplay extends com.jme3.niftygui.NiftyJmeDisplay implement
                            AudioRenderer audioRenderer,
                            ViewPort vp){
         this.assetManager = assetManager;
-
+        //TODO: move
+        ((DesktopAssetManager)assetManager).clearCache();
         w = vp.getCamera().getWidth();
         h = vp.getCamera().getHeight();
 
