@@ -59,7 +59,7 @@ public class TestBumpModel extends SimpleApplication {
 
     @Override
     public void simpleInitApp() {
-        Spatial signpost = (Spatial) assetManager.loadAsset(new OgreMeshKey("Models/Sign Post/Sign Post.mesh.xml", null));
+        Spatial signpost = (Spatial) assetManager.loadAsset(new OgreMeshKey("Models/Sign Post/Sign Post.mesh.xml"));
         signpost.setMaterial( (Material) assetManager.loadMaterial("Models/Sign Post/Sign Post.j3m"));
         TangentBinormalGenerator.generate(signpost);
         rootNode.attachChild(signpost);

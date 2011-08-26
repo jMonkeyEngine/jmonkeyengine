@@ -88,27 +88,22 @@ import static com.jme3.util.xml.SAXUtil.*;
 public class MeshLoader extends DefaultHandler implements AssetLoader {
 
     private static final Logger logger = Logger.getLogger(MeshLoader.class.getName());
-
     public static boolean AUTO_INTERLEAVE = true;
     public static boolean HARDWARE_SKINNING = false;
-
     private static final Type[] TEXCOORD_TYPES =
-        new Type[]{
-            Type.TexCoord,
-            Type.TexCoord2,
-            Type.TexCoord3,
-            Type.TexCoord4,
-            Type.TexCoord5,
-            Type.TexCoord6,
-            Type.TexCoord7,
-            Type.TexCoord8,
-        };
-
+            new Type[]{
+        Type.TexCoord,
+        Type.TexCoord2,
+        Type.TexCoord3,
+        Type.TexCoord4,
+        Type.TexCoord5,
+        Type.TexCoord6,
+        Type.TexCoord7,
+        Type.TexCoord8,};
     private String meshName;
     private String folderName;
     private AssetManager assetManager;
     private MaterialList materialList;
-    
     // Data per submesh/sharedgeom
     private ShortBuffer sb;
     private IntBuffer ib;
@@ -121,17 +116,15 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
     private int vertCount;
     private boolean usesSharedVerts;
     private boolean usesBigIndices;
-    
     // Global data
     private Mesh sharedMesh;
     private int meshIndex = 0;
     private int texCoordIndex = 0;
     private String ignoreUntilEnd = null;
-    
     private List<Geometry> geoms = new ArrayList<Geometry>();
     private IntMap<List<VertexBuffer>> lodLevels = new IntMap<List<VertexBuffer>>();
     private AnimData animData;
-    
+
     public MeshLoader() {
         super();
     }
@@ -177,8 +170,8 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
             sb.put((short) i1).put((short) i2).put((short) i3);
         }
     }
-    
-    private boolean isUsingSharedVerts(Geometry geom){
+
+    private boolean isUsingSharedVerts(Geometry geom) {
         return geom.getUserData(UserData.JME_SHAREDMESH) != null;
     }
 
@@ -227,7 +220,7 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
         if (mat.isTransparent()) {
             geom.setQueueBucket(Bucket.Transparent);
         }
-        
+
         geom.setMaterial(mat);
     }
 
@@ -256,8 +249,8 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
         } else {
             geom = new Geometry(meshName + "-geom-" + (++meshIndex), mesh);
         }
-        
-        if (usesSharedVerts){
+
+        if (usesSharedVerts) {
             // this mesh is shared!
             geom.setUserData(UserData.JME_SHAREDMESH, sharedMesh);
         }
@@ -270,7 +263,7 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
         sharedMesh = new Mesh();
         vertCount = parseInt(vertexcount);
         usesSharedVerts = false;
- 
+
         geom = null;
         mesh = sharedMesh;
     }
@@ -345,7 +338,7 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
             weightsFloatData = FloatBuffer.allocate(vertCount * 4);
             indicesData = ByteBuffer.allocate(vertCount * 4);
         }
-        
+
         VertexBuffer weights = new VertexBuffer(Type.BoneWeight);
         VertexBuffer indices = new VertexBuffer(Type.BoneIndex);
 
@@ -398,7 +391,7 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
             }
 
             if (i <= 7) {
-                vb = new VertexBuffer( TEXCOORD_TYPES[i] );
+                vb = new VertexBuffer(TEXCOORD_TYPES[i]);
             } else {
                 // more than 8 texture coordinates are not supported by ogre.
                 throw new SAXException("More than 8 texture coordinates not supported");
@@ -521,7 +514,7 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
         int vert = parseInt(vertIndex);
         float w = parseFloat(weight);
         byte bone = (byte) parseInt(boneIndex);
-        
+
         assert bone >= 0;
         assert vert >= 0 && vert < mesh.getVertexCount();
 
@@ -534,7 +527,7 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
                 break;
             }
         }
-        if (v != 0){
+        if (v != 0) {
             logger.log(Level.WARNING, "Vertex {0} has more than 4 weights per vertex! Ignoring..", vert);
             return;
         }
@@ -694,7 +687,7 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
 
     private Node compileModel() {
         Node model = new Node(meshName + "-ogremesh");
-        
+
         for (int i = 0; i < geoms.size(); i++) {
             Geometry g = geoms.get(i);
             Mesh m = g.getMesh();
@@ -703,25 +696,25 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
             }
             model.attachChild(geoms.get(i));
         }
-        
+
         // Do not attach shared geometry to the node!
-        
+
         if (animData != null) {
             // This model uses animation
-            
+
             // generate bind pose for mesh
             // ONLY if not using shared geometry
             // This includes the shared geoemtry itself actually
-            if (sharedMesh != null){
+            if (sharedMesh != null) {
                 sharedMesh.generateBindPose(!HARDWARE_SKINNING);
             }
-            
+
             for (int i = 0; i < geoms.size(); i++) {
                 Geometry g = geoms.get(i);
                 Mesh m = geoms.get(i).getMesh();
-                boolean useShared = isUsingSharedVerts(g); 
-                
-                
+                boolean useShared = isUsingSharedVerts(g);
+
+
                 if (!useShared) {
                     // create bind pose
                     m.generateBindPose(!HARDWARE_SKINNING);
@@ -749,7 +742,7 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
 //                    }
                 }
             }
-            
+
             // Put the animations in the AnimControl
             HashMap<String, Animation> anims = new HashMap<String, Animation>();
             ArrayList<Animation> animList = animData.anims;
@@ -757,14 +750,14 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
                 Animation anim = animList.get(i);
                 anims.put(anim.getName(), anim);
             }
-           
+
             AnimControl ctrl = new AnimControl(animData.skeleton);
             ctrl.setAnimations(anims);
             model.addControl(ctrl);
-            
+
             // Put the skeleton in the skeleton control
             SkeletonControl skeletonControl = new SkeletonControl(animData.skeleton);
-            
+
             // This will acquire the targets from the node
             model.addControl(skeletonControl);
         }
@@ -788,6 +781,10 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
             if (key instanceof OgreMeshKey) {
                 meshKey = (OgreMeshKey) key;
                 materialList = meshKey.getMaterialList();
+                String materialName = meshKey.getMaterialName();
+                if (materialList == null && materialName != null) {
+                    materialList = (MaterialList) assetManager.loadAsset(new OgreMaterialKey(folderName + materialName + ".material"));
+                }
             } else {
                 try {
                     materialList = (MaterialList) assetManager.loadAsset(new OgreMaterialKey(folderName + meshName + ".material"));
@@ -796,7 +793,7 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
                 }
 
             }
-            
+
             // Added by larynx 25.06.2011
             // Android needs the namespace aware flag set to true                 
             // Kirill 30.06.2011
@@ -804,8 +801,8 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
             // checking with JmeSystem.
             SAXParserFactory factory = SAXParserFactory.newInstance();
             factory.setNamespaceAware(true);
-            XMLReader xr = factory.newSAXParser().getXMLReader();  
-            
+            XMLReader xr = factory.newSAXParser().getXMLReader();
+
             xr.setContentHandler(this);
             xr.setErrorHandler(this);
             InputStreamReader r = new InputStreamReader(info.openStream());

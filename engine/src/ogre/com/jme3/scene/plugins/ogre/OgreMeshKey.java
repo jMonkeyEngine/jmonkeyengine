@@ -38,18 +38,32 @@ import com.jme3.material.MaterialList;
 public class OgreMeshKey extends ModelKey {
 
     private MaterialList materialList;
-
-    public OgreMeshKey(String name, MaterialList materialList){
-        super(name);
-        this.materialList = materialList;
-    }
+    private String materialName;
 
     public OgreMeshKey(){
         super();
     }
 
+    public OgreMeshKey(String name){
+        super(name);
+    }
+    
+    public OgreMeshKey(String name, MaterialList materialList){
+        super(name);
+        this.materialList = materialList;
+    }
+    
+    public OgreMeshKey(String name, String materialName){
+        super(name);
+        this.materialName = materialName;
+    }
+
     public MaterialList getMaterialList() {
         return materialList;
+    }
+    
+    public String getMaterialName() {
+        return materialName;
     }
 
 }
