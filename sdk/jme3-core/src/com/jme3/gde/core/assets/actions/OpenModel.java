@@ -82,6 +82,7 @@ public final class OpenModel implements ActionListener {
                         JmeNode jmeNode = NodeUtility.createNode(node);
                         SceneApplication app = SceneApplication.getApplication();
                         SceneRequest request = new SceneRequest(app, jmeNode, manager);
+                        request.setDataObject(context);
                         request.setWindowTitle("OpenGL Window - View Model");
                         app.requestScene(request);
                     } else {

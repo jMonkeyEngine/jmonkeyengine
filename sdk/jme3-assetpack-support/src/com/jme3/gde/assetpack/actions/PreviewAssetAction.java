@@ -17,6 +17,7 @@ import java.beans.PropertyChangeListener;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.Action;
+import org.openide.loaders.DataObject;
 import org.openide.nodes.Node;
 import org.w3c.dom.Element;
 
@@ -42,7 +43,8 @@ public final class PreviewAssetAction implements Action {
         JmeNode jmeNode = NodeUtility.createNode(node);
         SceneApplication app = SceneApplication.getApplication();
         SceneRequest request = new SceneRequest(app, jmeNode, pm);
-        request.setWindowTitle("SceneViewer - PreView AssetPack Model");
+        request.setDataObject(context.getLookup().lookup(DataObject.class));
+        request.setWindowTitle("AssetPack - PreView Model");
         app.requestScene(request);
 
     }
