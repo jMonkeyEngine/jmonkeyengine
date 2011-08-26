@@ -26,8 +26,7 @@ package com.jme3.gde.core.sceneviewer;
 
 import com.jme3.gde.core.filters.FilterExplorerTopComponent;
 import com.jme3.gde.core.scene.SceneApplication;
-import com.jme3.gde.core.scene.controller.toolbars.CameraToolbar;
-import com.jme3.gde.core.sceneviewer.actions.ToggleOrthoPerspAction;
+import com.jme3.gde.core.scene.SceneRequest;
 import com.jme3.input.awt.AwtKeyInput;
 import com.jme3.input.event.KeyInputEvent;
 import com.jme3.system.JmeCanvasContext;
@@ -37,7 +36,6 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.util.logging.Logger;
-import javax.swing.JToolBar;
 import org.openide.util.NbBundle;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
@@ -294,9 +292,6 @@ public final class SceneViewerTopComponent extends TopComponent {
     @Override
     public void componentOpened() {
         super.componentOpened();
-//        oGLPanel.setMaximumSize(new Dimension(10000, 10000));
-//        ToolbarPool.getDefault().findToolbar("jMonkeyPlatform-Tools").remove(oglCanvas);
-//        oGLPanel.add(oglCanvas);
     }
 
     @Override
@@ -312,10 +307,10 @@ public final class SceneViewerTopComponent extends TopComponent {
     @Override
     public void componentClosed() {
         super.componentClosed();
-//        oGLPanel.remove(oglCanvas);
-//        oGLPanel.setPreferredSize(new Dimension(10, 10));
-//        oGLPanel.setMaximumSize(new Dimension(10, 10));
-//        ToolbarPool.getDefault().findToolbar("jMonkeyPlatform-Tools").add(oglCanvas);
+        SceneRequest req = SceneApplication.getApplication().getCurrentSceneRequest();
+        if (req != null) {
+            SceneApplication.getApplication().closeScene(req);
+        }
     }
 
     void writeProperties(java.util.Properties p) {
