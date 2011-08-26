@@ -4,7 +4,6 @@
  */
 package com.jme3.gde.materials.multiview;
 
-import com.jme3.gde.core.sceneviewer.SceneViewerTopComponent;
 import com.jme3.gde.materials.JMEMaterialDataObject;
 import org.openide.cookies.CloseCookie;
 import org.openide.cookies.OpenCookie;
@@ -22,9 +21,6 @@ public class MaterialOpenSupport extends OpenSupport implements OpenCookie, Clos
     }
 
     protected CloneableTopComponent createCloneableTopComponent() {
-        if (!SceneViewerTopComponent.findInstance().isOpened()) {
-            SceneViewerTopComponent.findInstance().open();
-        }
         JMEMaterialDataObject dobj = (JMEMaterialDataObject) entry.getDataObject();
         MaterialEditorTopComponent tc = new MaterialEditorTopComponent(dobj);
         return tc;
