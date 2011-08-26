@@ -31,7 +31,9 @@
  */
 package com.jme3.gde.ogrexml;
 
+import com.jme3.asset.ModelKey;
 import com.jme3.gde.core.assets.SpatialAssetDataObject;
+import com.jme3.scene.plugins.ogre.OgreMeshKey;
 import java.io.IOException;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObjectExistsException;
@@ -41,6 +43,15 @@ public class OgreXMLDataObject extends SpatialAssetDataObject {
 
     public OgreXMLDataObject(FileObject pf, MultiFileLoader loader) throws DataObjectExistsException, IOException {
         super(pf, loader);
+    }
+
+    @Override
+    public ModelKey getAssetKey() {
+        if(super.getAssetKey() instanceof OgreMeshKey){
+            return (OgreMeshKey)assetKey;
+        }
+        assetKey = new OgreMeshKey(super.getAssetKey().getName());
+        return (OgreMeshKey)assetKey;
     }
 
 }
