@@ -363,7 +363,7 @@ public class JmeSystem {
     }
 
     public static String getFullName() {
-        return "jMonkey Engine 3 Alpha 0.6";
+        return "jMonkeyEngine 3.0.0 Beta";
     }
 
     public static InputStream getResourceAsStream(String name) {
