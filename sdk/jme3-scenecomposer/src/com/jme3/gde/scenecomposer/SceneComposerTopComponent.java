@@ -614,6 +614,9 @@ private void emitButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FI
                 tb.setVisible(true);
             }
         }
+        if (currentRequest == null) {
+            close();
+        }
     }
 
     @Override

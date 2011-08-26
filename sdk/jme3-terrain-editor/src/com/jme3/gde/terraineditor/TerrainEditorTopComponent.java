@@ -929,7 +929,9 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
     @Override
     public void componentOpened() {
         super.componentOpened();
-
+        if (currentRequest == null) {
+            close();
+        }
     }
 
     @Override

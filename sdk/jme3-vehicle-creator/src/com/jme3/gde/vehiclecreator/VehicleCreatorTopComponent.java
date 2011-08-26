@@ -788,12 +788,13 @@ public final class VehicleCreatorTopComponent extends TopComponent implements Sc
 
     @Override
     public void componentOpened() {
-        // TODO add custom code on component opening
+        if (currentRequest == null) {
+            close();
+        }
     }
 
     @Override
     public void componentClosed() {
-        // TODO add custom code on component closing
         if (currentRequest != null) {
             SceneApplication.getApplication().closeScene(currentRequest);
         }
