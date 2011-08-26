@@ -21,6 +21,8 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.io.File;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.concurrent.Callable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -39,7 +41,6 @@ import org.openide.util.Exceptions;
 import org.openide.xml.XMLUtil;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
-import uk.co.mandolane.midi.e;
 
 /**
  *
@@ -91,7 +92,7 @@ public class NiftyPreviewPanel extends PanelView {
                 } else if ("800x600".equals(string)) {
                     width = 800;
                     height = 600;
-                } else{
+                } else {
                     width = 640;
                     height = 480;
                 }
@@ -110,7 +111,6 @@ public class NiftyPreviewPanel extends PanelView {
         toolBar.add(new JPanel());
         add(toolBar);
     }
-
 
     public void updatePreView() {
         updatePreView(screen);
@@ -137,16 +137,32 @@ public class NiftyPreviewPanel extends PanelView {
         SceneApplication.getApplication().enqueue(new Callable<Object>() {
 
             public Object call() throws Exception {
-                nifty.fromXml(pm.getRelativeAssetPath(niftyObject.getPrimaryFile().getPath()), screen);
+                try {
+                    nifty.fromXml(pm.getRelativeAssetPath(niftyObject.getPrimaryFile().getPath()), screen);
+                    if (screen == null || screen.length() == 0) {
+                        Collection<String> screens = nifty.getAllScreensName();
+                        for (Iterator<String> it = screens.iterator(); it.hasNext();) {
+                            String string = it.next();
+                            nifty.gotoScreen(string);
+                            return null;
+                        }
+                    }
+                } catch (Exception ex) {
+                    Message msg = new NotifyDescriptor.Message(
+                            "Error opening File:" + ex,
+                            NotifyDescriptor.ERROR_MESSAGE);
+                    DialogDisplayer.getDefault().notifyLater(msg);
+                    Exceptions.printStackTrace(ex);
+                }
                 return null;
             }
         });
-        java.awt.EventQueue.invokeLater(new Runnable() {
-
-            public void run() {
-                validateTree();
-            }
-        });
+//        java.awt.EventQueue.invokeLater(new Runnable() {
+//
+//            public void run() {
+//                validateTree();
+//            }
+//        });
     }
 
     @Override
@@ -239,7 +255,13 @@ public class NiftyPreviewPanel extends PanelView {
     @Override
     public void showSelection(Node[] nodes) {
         this.screen = nodes[0].getName();
-        updatePreView();
+        SceneApplication.getApplication().enqueue(new Callable<Object>() {
+
+            public Object call() throws Exception {
+                nifty.gotoScreen(screen);
+                return null;
+            }
+        });
     }
 
     public void cleanup() {
