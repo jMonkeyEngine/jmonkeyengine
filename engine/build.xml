@@ -104,48 +104,6 @@
         <ant antfile="src/bullet/native/build.xml" target="build-bullet-natives"/>
     </target>
     
-    <!-- puts jme3 jars, libs, source and javadoc in a dated zip file -->
-    <target name="dist" depends="clean, jar, javadoc" description="puts jme3 jars, libs, source and javadoc in a dated zip file">
-        <!-- create date in the format MM-dd-yyyy -->
-        <tstamp>
-            <format property="date" pattern="yyyy-MM-dd" locale="en,US"/>
-        </tstamp>
-        <property name="jme3zip" value="jME3_${date}.zip"/>
-
-        <!-- make zip file -->
-        <zip destfile="${jme3zip}">
-            <fileset dir=".">
-                <include name="TestChooser.exe"/>
-                <include name="README.TXT"/>
-            </fileset>
-            <fileset dir="dist/">
-                <include name="jMonkeyEngine3.jar"/>
-            </fileset>
-            <zipfileset dir="dist/lib" prefix="lib"/>
-            <zipfileset dir="dist/opt" prefix="opt"/>
-            <zipfileset dir="dist/javadoc" prefix="javadoc"/>
-            <zipfileset dir="${src.core.dir}" prefix="source"/>
-            <zipfileset dir="${src.core-data.dir}" prefix="source"/>
-            <zipfileset dir="${src.core-plugins.dir}" prefix="source"/>
-            <zipfileset dir="${src.desktop.dir}" prefix="source"/>
-            <zipfileset dir="${src.desktop-fx.dir}" prefix="source"/>
-            <zipfileset dir="${src.games.dir}" prefix="source"/>
-            <zipfileset dir="${src.jbullet.dir}" prefix="source"/>
-            <zipfileset dir="${src.niftygui.dir}" prefix="source"/>
-            <zipfileset dir="${src.jogg.dir}" prefix="source"/>
-            <zipfileset dir="${src.lwjgl-oal.dir}" prefix="source"/>
-            <zipfileset dir="${src.lwjgl-ogl.dir}" prefix="source"/>
-            <zipfileset dir="${src.ogre.dir}" prefix="source"/>
-            <zipfileset dir="${src.pack.dir}" prefix="source"/>
-            <zipfileset dir="${src.jheora.dir}" prefix="source"/>
-            <zipfileset dir="${src.test.dir}" prefix="source"/>
-            <zipfileset dir="${src.tools.dir}" prefix="source"/>
-            <zipfileset dir="${src.xml.dir}" prefix="source"/>
-            <zipfileset dir="${src.terrain.dir}" prefix="source"/>
-            <zipfileset dir="${src.networking.dir}" prefix="source"/>
-        </zip>
-    </target>
-
     <!-- overrides javadoc generation to only include relevant classes -->
     <target depends="init" if="have.sources" name="-javadoc-build">
         <mkdir dir="${dist.javadoc.dir}"/>
@@ -272,6 +230,9 @@
             <fileset dir="dist/lib/">
                 <include name="jME3-lwjgl-natives.jar"/>
             </fileset>
+            <fileset dir="lib/niftygui/">
+                <include name="nifty-1.3-javadoc.jar"/>
+            </fileset>
         </copy>
 
         <!--test data-->
@@ -315,55 +276,51 @@
         </copy>
     </target>
 
-    <!--creates properties files containing svn info for the jme3 folders in jMP-->
-    <target name="-create-jme3-svn-properties">
-        <mkdir dir="${jmp_dir}/build"/>
-        <!--update jme3 svn revision-->
-        <exec executable="svn" dir=".">
-            <arg value="update" />
-        </exec>
-        <!--jme3 svn properties-->
-        <exec executable="svn" dir="." output="${jmp_dir}/build/jme3-svn.properties">
-            <arg value="info" />
-        </exec>
-        <replace file="${jmp_dir}/build/jme3-svn.properties" token=" " value=""/>
-        <!--jme3 test data svn properties-->
-        <exec executable="svn" dir="src/test-data/" output="${jmp_dir}/build/jme3-testdata-svn.properties">
-            <arg value="info" />
-        </exec>
-        <replace file="${jmp_dir}/build/jme3-testdata-svn.properties" token=" " value=""/>
-        <!--jme3 libraries svn properties-->
-        <exec executable="svn" dir="lib/" output="${jmp_dir}/build/jme3-lib-svn.properties">
-            <arg value="info" />
-        </exec>
-        <replace file="${jmp_dir}/build/jme3-lib-svn.properties" token=" " value=""/>
-        <!--jme3 tests svn properties-->
-        <exec executable="svn" dir="src/test/" output="${jmp_dir}/build/jme3-tests-svn.properties">
-            <arg value="info" />
-        </exec>
-        <replace file="${jmp_dir}/build/jme3-tests-svn.properties" token=" " value=""/>
-    </target>
-
-    
     <!--
        ****************************************************************
        Only Relevant for building nightly on Hudson server from here on
        ****************************************************************
       -->
-      
-    <!-- convenience target to transfer jme3 libraries to the jme3-jmp folder on the Hudson build server (jMonkeyPlatform) -->
-    <target name="hudson-update-sdk" depends="init">
-        <!--update jme3 svn revision info properly-->
-        <exec executable="svn" dir=".">
-            <arg value="update" />
-        </exec>
-        <!--update jmp-->
-        <antcall target="-do-update-sdk" inheritall="true">
-            <param name="jmp_dir" value="../sdk/"/>
-        </antcall>
-        <!--antcall target="-create-jme3-svn-properties" inheritall="true">
-            <param name="jmp_dir" value="../../jme3-jmp/workspace/"/>
-        </antcall-->
+
+    <!-- puts jme3 jars, libs, source and javadoc in a dated zip file -->
+    <target name="dist" depends="clean, jar, javadoc" description="puts jme3 jars, libs, source and javadoc in a dated zip file">
+        <!-- create date in the format MM-dd-yyyy -->
+        <tstamp>
+            <format property="date" pattern="yyyy-MM-dd" locale="en,US"/>
+        </tstamp>
+        <property name="jme3zip" value="jME3_${date}.zip"/>
+        <!-- make zip file -->
+        <zip destfile="${jme3zip}">
+            <fileset dir=".">
+                <include name="TestChooser.exe"/>
+                <include name="README.TXT"/>
+            </fileset>
+            <fileset dir="dist/">
+                <include name="jMonkeyEngine3.jar"/>
+            </fileset>
+            <zipfileset dir="dist/lib" prefix="lib"/>
+            <zipfileset dir="dist/opt" prefix="opt"/>
+            <zipfileset dir="dist/javadoc" prefix="javadoc"/>
+            <zipfileset dir="${src.core.dir}" prefix="source"/>
+            <zipfileset dir="${src.core-data.dir}" prefix="source"/>
+            <zipfileset dir="${src.core-plugins.dir}" prefix="source"/>
+            <zipfileset dir="${src.desktop.dir}" prefix="source"/>
+            <zipfileset dir="${src.desktop-fx.dir}" prefix="source"/>
+            <zipfileset dir="${src.games.dir}" prefix="source"/>
+            <zipfileset dir="${src.jbullet.dir}" prefix="source"/>
+            <zipfileset dir="${src.niftygui.dir}" prefix="source"/>
+            <zipfileset dir="${src.jogg.dir}" prefix="source"/>
+            <zipfileset dir="${src.lwjgl-oal.dir}" prefix="source"/>
+            <zipfileset dir="${src.lwjgl-ogl.dir}" prefix="source"/>
+            <zipfileset dir="${src.ogre.dir}" prefix="source"/>
+            <zipfileset dir="${src.pack.dir}" prefix="source"/>
+            <zipfileset dir="${src.jheora.dir}" prefix="source"/>
+            <zipfileset dir="${src.test.dir}" prefix="source"/>
+            <zipfileset dir="${src.tools.dir}" prefix="source"/>
+            <zipfileset dir="${src.xml.dir}" prefix="source"/>
+            <zipfileset dir="${src.terrain.dir}" prefix="source"/>
+            <zipfileset dir="${src.networking.dir}" prefix="source"/>
+        </zip>
     </target>
 
     <!-- copy jme3 zip to jmonkeyengine.com/nightly -->
