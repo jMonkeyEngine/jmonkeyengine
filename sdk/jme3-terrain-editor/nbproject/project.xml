@@ -72,7 +72,7 @@
                     <build-prerequisite/>
                     <compile-dependency/>
                     <run-dependency>
-                        <specification-version>6.37</specification-version>
+                        <specification-version>6.20</specification-version>
                     </run-dependency>
                 </dependency>
                 <dependency>
