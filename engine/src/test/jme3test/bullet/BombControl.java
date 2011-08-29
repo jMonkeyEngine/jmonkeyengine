@@ -82,7 +82,6 @@ public class BombControl extends RigidBodyControl implements PhysicsCollisionLis
         Material mat = new Material(assetManager, "Common/MatDefs/Misc/Particle.j3md");
         mat.setTexture("Texture", assetManager.loadTexture("Effects/Explosion/flame.png"));
         effect.setMaterial(mat);
-        effect.setLocalScale(100);
     }
 
     protected void createGhostObject() {
