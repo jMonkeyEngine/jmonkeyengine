@@ -60,7 +60,6 @@ import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
 import org.openide.util.lookup.AbstractLookup;
 import org.openide.util.lookup.InstanceContent;
-import org.openide.util.lookup.Lookups;
 import org.openide.util.lookup.ProxyLookup;
 
 /**
@@ -89,10 +88,13 @@ public class AssetDataObject extends MultiDataObject {
     protected AssetKey assetKey;
     protected Savable savable;
     protected String saveExtension;
+    protected AbstractLookup contentLookup;
 
     public AssetDataObject(FileObject pf, MultiFileLoader loader) throws DataObjectExistsException, IOException {
         super(pf, loader);
-        lookup = new ProxyLookup(getCookieSet().getLookup(), new AbstractLookup(getLookupContents()), Lookups.fixed(new AssetData(this)));
+        contentLookup = new AbstractLookup(getLookupContents());
+        lookupContents.add(new AssetData(this));
+        lookup = new ProxyLookup(getCookieSet().getLookup(), contentLookup);
         setSaveCookie(saveCookie);
         findAssetManager();
     }
@@ -122,7 +124,7 @@ public class AssetDataObject extends MultiDataObject {
 
     @Override
     protected Node createNodeDelegate() {
-        DataNode node = new DataNode(this, Children.LEAF, getLookup());
+        DataNode node = new DataNode(this, Children.LEAF, new ProxyLookup(getCookieSet().getLookup(), contentLookup));
         node.setIconBaseWithExtension("com/jme3/gde/core/assets/jme-logo.png");
         return node;
     }
