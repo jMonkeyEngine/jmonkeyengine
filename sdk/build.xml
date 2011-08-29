@@ -13,8 +13,29 @@
     <taskdef name="deb" classname="com.googlecode.ant_deb_task.Deb" classpathref="ant-import.classpath"/>
     <taskdef name="desktopentry" classname="com.googlecode.ant_deb_task.DesktopEntry" classpathref="ant-import.classpath"/>
 
+    <!--override branding target to include netbeans config file creation, using this target makes sure init was called-->
+    <target name="branding" depends="-create-netbeans-config, -set-base-version, -zip-templates, suite.branding">
+    </target>
+
+    <!--updates the help sets-->
+    <target name="update-help-sets" description="Loads the wiki pages from the web and converts them to JavaHelp html for manual.">
+        <ant antfile="build.xml" target="update-help-sets" inheritall="false" inheritrefs="false" dir="jme3-core/"/>
+    </target>
+
+    <target name="-create-netbeans-config">
+        <!--replaces default values in jmonkeyplatform.conf file with run.args.extra from project.properties-->
+        <mkdir dir="build/launcher/etc"/>
+        <copy file="${harness.dir}/etc/app.conf" tofile="build/launcher/etc/${app.name}.conf">
+            <filterchain>
+                <replacestring from="$${branding.token}" to="${branding.token}"/>
+                <replacestring from="$${APPNAME}/dev" to="$${APPNAME}/${app.version}"/>
+                <replacestring from="-J-Xmx64m" to="${run.args.extra}"/>
+            </filterchain>
+        </copy>
+    </target>
+
     <!--zips up the templates and adds them to the template project-->
-    <target name="zip-templates" description="Updates the template zip files">
+    <target name="-zip-templates" description="Updates the template zip files">
         <zip basedir="BasicGameTemplate/" destfile="jme3-templates/src/com/jme3/gde/templates/BasicGameProject.zip">
             <exclude name="**/build/"/>
             <exclude name="**/dist/"/>
@@ -27,35 +48,60 @@
         </zip>
     </target>
 
-    <!--override build to include netbeans config file creation-->
-    <target name="build" depends="-create-netbeans-config, suite.build">
+    <target name="-set-base-version" description ="sets/unsets base version to major version for all plugins, updates branding version">
+        <!--sets/unsets base version to major version (e.g. 3.0.1) for all plugins-->
+        <foreach target="-do-base-version" list="${modules}" delimiter=":" param="module_dir" inheritall="true"/>
+        <!--sets version to application branding files-->
+        <replaceregexp file="${basedir}/branding/core/core.jar/org/netbeans/core/startup/Bundle.properties"
+                        match="currentVersion=(.*)"
+                        replace="currentVersion=${app.title} ${app.version}"
+                        byline="true"/>
+        <replaceregexp file="${basedir}/branding/modules/org-netbeans-core-windows.jar/org/netbeans/core/windows/view/ui/Bundle.properties"
+                        match="CTL_MainWindow_Title=(.*)"
+                        replace="CTL_MainWindow_Title=${app.title} ${app.version}"
+                        byline="true"/>
+        <replaceregexp file="${basedir}/branding/modules/org-netbeans-core-windows.jar/org/netbeans/core/windows/view/ui/Bundle.properties"
+                        match="CTL_MainWindow_Title_No_Project=(.*)"
+                        replace="CTL_MainWindow_Title_No_Project=${app.title} ${app.version}"
+                        byline="true"/>
+        <!--propertyfile
+            file="${basedir}/branding/core/core.jar/org/netbeans/core/startup/Bundle.properties" 
+            comment="Updated by build script">
+            <entry key="currentVersion" value="${app.title} ${app.version}" />
+        </propertyfile-->
+        <!--propertyfile
+            file="${basedir}/branding/modules/org-netbeans-core-windows.jar/org/netbeans/core/windows/view/ui/Bundle.properties"
+            comment="Updated by build script">
+            <entry key="CTL_MainWindow_Title" value="${app.title} ${app.version}" />
+            <entry key="CTL_MainWindow_Title_No_Project" value="${app.title} ${app.version}" />
+        </propertyfile-->
     </target>
 
-    <!--replaces default values in jmonkeyplatform.conf file with run.args.extra from project.properties-->
-    <target name="-create-netbeans-config">
-        <property file="nbproject/project.properties"/>
-        <mkdir dir="build/launcher/etc"/>
-        <copy file="${harness.dir}/etc/app.conf" tofile="build/launcher/etc/${app.name}.conf">
-            <filterchain>
-                <replacestring from="$${branding.token}" to="${branding.token}"/>
-                <replacestring from="$${APPNAME}/dev" to="$${APPNAME}/${app.version}"/>
-                <replacestring from="-J-Xmx64m" to="${run.args.extra}"/>
-            </filterchain>
-        </copy>
+    <target name="-do-base-version">
+        <!--propertyfile
+            file="${module_dir}/nbproject/project.properties"
+            comment="Updated by build script">
+            <entry key="spec.version.base" value="${plugins.version}" />
+        </propertyfile-->
+        <replaceregexp file="${module_dir}/nbproject/project.properties"
+                        match="spec.version.base=(.*)"
+                        replace="spec.version.base=${plugins.version}"
+                        byline="true"/>
     </target>
-
+    
+    <!--
+       ****************************************************************
+       Only Relevant for building nightly on Hudson server from here on
+       ****************************************************************
+      -->
+      
     <!--creates update center version via hudson build server-->
-    <target name="hudson-stable" depends="suite.clean, -revert-svn-changes, zip-templates, set-impl-version, suite.nbms, unset-impl-version">
+    <target name="hudson-nightly" depends="suite.clean, update-help-sets, -revert-svn-changes, set-impl-version, suite.nbms, unset-impl-version">
     </target>
 
-    <!--creates update center version via hudson build server-->
-    <target name="hudson-nightly" depends="suite.clean, -revert-svn-changes, zip-templates, set-impl-version, suite.nbms, unset-impl-version">
+    <target name="hudson-stable" depends="suite.clean, -revert-svn-changes, set-impl-version, suite.nbms, unset-impl-version">
     </target>
-
-    <!--creates update center version via hudson build server-->
-    <target name="hudson-release" depends="suite.clean, -revert-svn-changes, zip-templates, set-impl-version, build, unset-impl-version">
-    </target>
-
+    
     <target name="set-impl-version">
         <property file="nbproject/project.properties"/>
         <antcall target="-create-jme3-svn-properties" inheritall="true">
@@ -163,11 +209,6 @@
         </exec>
     </target>
 
-    <!--updates the help sets-->
-    <target name="-update-help-sets">
-        <ant antfile="build.xml" target="update-help-sets" inheritall="false" inheritrefs="false" dir="jme3-core/"/>
-    </target>
-
     <!--creates properties files containing svn info for the jme3 folders-->
     <target name="-create-jme3-svn-properties">
         <mkdir dir="build"/>
@@ -200,30 +241,30 @@
         </unzip>
         <desktopentry
             toFile="build/jmonkeyplatform.desktop"
-            name="jMonkeyEngine3 SDK"
-            comment="jMonkeyEngine3 Game SDK"
-            exec="/usr/local/jmonkeyplatform/bin/jmonkeyplatform"
-            icon="/usr/local/jmonkeyplatform/jmonkeyplatform.png"
+            name="jMonkeyEngine3 GDE"
+            comment="jMonkeyEngine3 Game Development Environment"
+            exec="/usr/local/${app.name}/bin/${app.name}"
+            icon="/usr/local/${app.name}/jmonkeyengine.png"
             categories="Development;Java"
         />
         <deb toDir="dist"
             package="jme3-sdk"
-            version="0.6.1"
+            version="${app.version}"
             section="devel"
             depends="sun-java6-jdk"
             maintainer="jMonkeyEngine"
             homepage="http://www.jmonkeyengine.com"
             postrm="debscripts/postrm"
             >
-            <tarfileset dir="dist/jmonkeyplatform/" prefix="usr/local/jmonkeyplatform">
+            <tarfileset dir="dist/${app.name}/" prefix="usr/local/${app.name}">
                 <exclude name="bin/**"/>
             </tarfileset>
-            <tarfileset dir="dist/jmonkeyplatform/bin" prefix="usr/local/jmonkeyplatform/bin" filemode="755">
+            <tarfileset dir="dist/${app.name}/bin" prefix="usr/local/${app.name}/bin" filemode="755">
                 <exclude name="*.exe"/>
             </tarfileset>
-            <tarfileset file="build/jmonkeyplatform.desktop" prefix="usr/share/applications"/>
-            <tarfileset file="jmonkeyplatform.png" prefix="usr/local/jmonkeyplatform"/>
-            <description synopsis="jMonkeyEngine3 SDK is a complete solution for Java OpenGL game development.">
+            <tarfileset file="build/jmonkeyengine.desktop" prefix="usr/share/applications"/>
+            <tarfileset file="jmonkeyengine.png" prefix="usr/local/${app.name}"/>
+            <description synopsis="jMonkeyEngine3 Game Development Environment is a complete solution for Java OpenGL game development.">
 jMonkeyEngine 3 was rebuilt from the ground up to be a modern 3D game engine,
 compatible with OpenGL 2.0 and above.
 Its architecture is shader-based, making it fully capable of current and

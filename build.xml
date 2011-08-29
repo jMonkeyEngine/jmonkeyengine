@@ -12,56 +12,39 @@
     
     <target name="default" depends="zip"/>
 
-    <target name="build" description="Builds the complete SDK" depends="-check-platform, -update-sdk-platform-config">
+    <target name="build" description="Builds the complete GDE, copies over engine libraries." depends="-check-platform, -update-sdk-platform-config">
         <ant dir="engine" target="update-sdk"/>
-        <ant dir="sdk" target="zip-templates"/>
         <ant dir="sdk" target="build"/>
     </target>
 
-    <target name="build-engine" description="Builds the engine only">
+    <target name="build-engine" description="Builds the engine libraries only">
         <ant dir="engine" target="clean"/>
-        <ant dir="engine" target="jar"/>
+        <ant dir="engine" target="dist"/>
     </target>
 
-    <target name="clean" description="Clean all build products">
+    <target name="clean" description="Clean all build products" depends="-check-platform, -update-sdk-platform-config">
         <ant dir="engine" target="clean"/>
         <ant dir="sdk" target="clean"/>
     </target>
 
-    <target name="run" description="Runs the SDK" depends="build">
+    <target name="run" description="Runs the SDK" depends="-check-platform, -update-sdk-platform-config">
+        <ant dir="engine" target="update-sdk"/>
         <ant dir="sdk" target="run"/>
     </target>
 
     <target name="zip" description="Builds the complete SDK and packs it as a ZIP file" depends="build">
-        <ant dir="sdk" target="build-zip"/>
-        <move file="sdk/dist/jmonkeyplatform.zip" tofile="./jME3-SDK.zip"/>
+        <propertyfile file="sdk/nbproject/project.properties"/>
+        <move file="sdk/dist/${app.name}.zip" tofile="./jMonkeyEngine-GDE-${app.version}.zip"/>
     </target>
-
+    
     <target name="update-platform" description="Updates the base platform to the latest available build" depends="-remove-platform,-check-platform"/>
 
-    <target name="hudson-nightly" depends="-update-platform-hudson">
-        <ant dir="engine" target="deploy-hudson"/>
-        <ant dir="engine" target="hudson-update-sdk"/>
-        <ant dir="sdk" target="hudson-nightly"/>
-    </target>
-
-    <target name="hudson-stable" depends="-update-platform-hudson">
-        <ant dir="engine" target="dist"/>
-        <ant dir="engine" target="hudson-update-sdk"/>
-        <ant dir="sdk" target="hudson-nightly"/>
-    </target>
-
-    <target name="-update-platform-hudson" description="Updates the base platform to the latest available build" depends="-remove-platform">
-        <copy file="/var/www/com/platform/base/alpha/platform-base.zip" todir="./"/>
-        <unzip src="platform-base.zip" dest="./"/>
-        <antcall target="-update-sdk-platform-config"/>
-        <delete file="platform-base.zip"/>
-    </target>
-
     <target name="-check-platform" depends="-check-platform-present" unless="platform.present">
+        <property file="sdk/nbproject/project.properties"/>
         <echo message="Downloading base platform, this only has to be done once."/>
         <!--get src="http://jmonkeyengine.googlecode.com/files/platform-base.zip" dest="./" skipexisting="true"/-->
-        <get src="http://jmonkeyengine.com/platform/base/alpha/platform-base.zip" dest="./" skipexisting="true"/>
+        <get src="http://jmonkeyengine.com/platform/base/alpha/platform-base.zip" dest="./" skipexisting="false"/>
+        <!--get src="http://jmonkeyengine.com/updates/${app.version}/platform-base.zip" dest="./" skipexisting="false"/-->
         <unzip src="platform-base.zip" dest="./"/>
         <antcall target="-update-sdk-platform-config"/>
         <delete file="platform-base.zip"/>
@@ -85,6 +68,30 @@
         <replace file="sdk/nbproject/private/platform-private.properties" token="\" value="\\"/>
     </target>
     
-    <target name="update-sdk-platform-config" depends="-update-sdk-platform-config"/>
+    <!--
+       ****************************************************************
+       Only Relevant for building nightly on Hudson server from here on
+       ****************************************************************
+      -->
+      
+    <target name="hudson-nightly" depends="update-platform">
+        <exec executable="svn" dir="engine">
+            <arg value="update" />
+        </exec>
+        <ant dir="engine" target="dist"/>
+        <ant dir="engine" target="build-bullet-natives"/>
+        <ant dir="engine" target="update-sdk"/>
+        <ant dir="sdk" target="hudson-nightly"/>
+    </target>
+
+    <target name="hudson-stable" depends="update-platform">
+        <exec executable="svn" dir="engine">
+            <arg value="update" />
+        </exec>
+        <ant dir="engine" target="dist"/>
+        <ant dir="engine" target="build-bullet-natives"/>
+        <ant dir="engine" target="update-sdk"/>
+        <ant dir="sdk" target="hudson-stable"/>
+    </target>
 
 </project>
