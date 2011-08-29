@@ -22,7 +22,7 @@ import org.openide.util.NbBundle;
  *
  * @author normenhansen
  */
-@ProjectCustomizer.CompositeCategoryProvider.Registration(projectType = "org-netbeans-modules-java-j2seproject", category = "Application", position = 510)
+@ProjectCustomizer.CompositeCategoryProvider.Registration(projectType = "org-netbeans-modules-java-j2seproject", category = "BuildCategory", position = 510)
 public class ObfuscateCompositeProvider implements ProjectCustomizer.CompositeCategoryProvider {
 
     private static final String CAT_OBFUSCATION = "Obfuscation"; // NOI18N
