@@ -94,6 +94,7 @@ public class TestBrickTower extends SimpleApplication {
     public void simpleInitApp() {
         bulletAppState = new BulletAppState();
         bulletAppState.setThreadingType(BulletAppState.ThreadingType.PARALLEL);
+     //   bulletAppState.setEnabled(false);
         stateManager.attach(bulletAppState);
         bullet = new Sphere(32, 32, 0.4f, true, false);
         bullet.setTextureMode(TextureMode.Projected);
@@ -101,7 +102,7 @@ public class TestBrickTower extends SimpleApplication {
 
         brick = new Box(Vector3f.ZERO, brickWidth, brickHeight, brickDepth);
         brick.scaleTextureCoordinates(new Vector2f(1f, .5f));
-//        bulletAppState.getPhysicsSpace().enableDebug(assetManager);
+        //bulletAppState.getPhysicsSpace().enableDebug(assetManager);
         initMaterial();
         initTower();
         initFloor();
@@ -112,12 +113,12 @@ public class TestBrickTower extends SimpleApplication {
         inputManager.addMapping("shoot", new MouseButtonTrigger(MouseInput.BUTTON_LEFT));
         inputManager.addListener(actionListener, "shoot");
         rootNode.setShadowMode(ShadowMode.Off);
-        bsr = new PssmShadowRenderer(assetManager, 2048, 3);
+        bsr = new PssmShadowRenderer(assetManager, 1024, 2);
         bsr.setDirection(new Vector3f(-1, -1, -1).normalizeLocal());
         bsr.setLambda(0.55f);
         bsr.setShadowIntensity(0.6f);
         bsr.setCompareMode(CompareMode.Hardware);
-        bsr.setFilterMode(FilterMode.Bilinear);
+        bsr.setFilterMode(FilterMode.PCF4);
         viewPort.addProcessor(bsr);
     }
 
