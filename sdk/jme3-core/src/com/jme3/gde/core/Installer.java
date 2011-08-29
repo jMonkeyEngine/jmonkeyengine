@@ -82,6 +82,7 @@ public class Installer extends ModuleInstall {
                 NbPreferences.forModule(Installer.class).put("projects_path", projectDir);
             }
         }
+        System.setProperty("netbeans.projects.dir", projectDir);
 
         //set extraction dir for platform natives
         String jmpDir = System.getProperty("netbeans.user");
