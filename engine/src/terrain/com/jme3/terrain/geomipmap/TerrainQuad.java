@@ -77,6 +77,20 @@ import java.util.logging.Logger;
  *
  * The leaves of the terrain quad tree are Terrain Patches. These have the real geometry mesh.
  *
+ * 
+ * Heightmap coordinates start from the bottom left of the world and work towards the
+ * top right. This will seem upside down, but the texture coordinates compensate; and
+ * it allows you to easily get the heightmap values at real world X,Z coordinates.
+ * 
+ *  +x
+ *  ^
+ *  | ......N = length of heightmap
+ *  | :     :
+ *  | :     :
+ *  | 0.....:
+ *  +---------> +z
+ * (world coordinates)
+ * 
  * @author Brent Owens
  */
 public class TerrainQuad extends Node implements Terrain {
@@ -152,16 +166,17 @@ public class TerrainQuad extends Node implements Terrain {
                             LodCalculatorFactory lodCalculatorFactory)
     {
         super(name);
+        
+        if (heightMap == null)
+            heightMap = generateDefaultHeightMap(size);
+        
         if (!FastMath.isPowerOfTwo(size - 1)) {
             throw new RuntimeException("size given: " + size + "  Terrain quad sizes may only be (2^N + 1)");
         }
         if (FastMath.sqrt(heightMap.length) > size) {
             Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "Heightmap size is larger than the terrain size. Make sure your heightmap image is the same size as the terrain!");
         }
-
-        if (heightMap == null)
-            heightMap = generateDefaultHeightMap(size);
-
+        
         this.offset = offset;
         this.offsetAmount = offsetAmount;
         this.totalSize = totalSize;
@@ -958,21 +973,29 @@ public class TerrainQuad extends Node implements Terrain {
      * @param y coordinate translated into actual (positive) terrain grid coordinates
      */
     protected float getHeight(float x, float z, Vector2f xz) {
-        float topLeft = getHeightmapHeight((int)FastMath.floor(x), (int)FastMath.ceil(z));
-        float topRight = getHeightmapHeight((int)FastMath.ceil(x), (int)FastMath.ceil(z));
-        float bottomLeft = getHeightmapHeight((int)FastMath.floor(x), (int)FastMath.floor(z));
-        float bottomRight = getHeightmapHeight((int)FastMath.ceil(x), (int)FastMath.floor(z));
-
-        // create a vertical, down-facing, ray and get the height from that
-        float max = Math.max(Math.max(Math.max(topLeft, topRight), bottomRight),bottomLeft);
-        max = max*getWorldScale().y;
-        Ray ray = new Ray(new Vector3f(xz.x,max+10f,xz.y), new Vector3f(0,-1,0).normalizeLocal());
-        CollisionResults cr = new CollisionResults();
-        int num = this.collideWith(ray, cr);
-        if (num > 0)
-            return cr.getClosestCollision().getContactPoint().y;
-        else
-            return 0;
+        x-=0.5f;
+        z-=0.5f;
+        float col = FastMath.floor(x);
+        float row = FastMath.floor(z);
+        boolean onX = false;
+        if(1 - (x - col)-(z - row) < 0) // what triangle to interpolate on
+            onX = true;
+        // v1--v2  ^
+        // |  / |  |
+        // | /  |  |
+        // v3--v4  | Z
+        //         |
+        // <-------Y
+        //     X 
+        float v1 = getHeightmapHeight((int) FastMath.ceil(x), (int) FastMath.ceil(z));
+        float v2 = getHeightmapHeight((int) FastMath.floor(x), (int) FastMath.ceil(z));
+        float v3 = getHeightmapHeight((int) FastMath.ceil(x), (int) FastMath.floor(z));
+        float v4 = getHeightmapHeight((int) FastMath.floor(x), (int) FastMath.floor(z));
+        if (onX) {
+            return ((x - col) + (z - row) - 1f)*v1 + (1f - (x - col))*v2 + (1f - (z - row))*v3;
+        } else {
+            return (1f - (x - col) - (z - row))*v4 + (z - row)*v2 + (x - col)*v3;
+        }
     }
 
     public void setHeight(Vector2f xz, float height) {
@@ -1473,6 +1496,12 @@ public class TerrainQuad extends Node implements Terrain {
                 for (int i = 0; i < getQuantity(); i++) {
                     if (children.get(i) instanceof TerrainPatch) {
                         TerrainPatch tp = (TerrainPatch) children.get(i);
+                        if (tp.getModelBound() instanceof BoundingBox) {
+                            if (((BoundingBox)tp.getModelBound()).getYExtent() == 0) {
+                                // a correction so the box always has a volume
+                                ((BoundingBox)tp.getModelBound()).setYExtent(0.00001f);
+                            }
+                        }
                         if (tp.getWorldBound().intersects(toTest)) {
                             CollisionResults cr = new CollisionResults();
                             toTest.collideWith(tp.getWorldBound(), cr);
