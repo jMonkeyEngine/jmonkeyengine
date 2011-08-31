@@ -52,7 +52,7 @@ import java.util.logging.Logger;
  * magnificationFilter options, apply options and correction options. Default
  * values are as follows: minificationFilter - NearestNeighborNoMipMaps,
  * magnificationFilter - NearestNeighbor, wrap - EdgeClamp on S,T and R, apply -
- * Modulate, enivoronment - None.
+ * Modulate, environment - None.
  *
  * @see com.jme3.texture.Image
  * @author Mark Powell
@@ -538,7 +538,7 @@ public abstract class Texture implements Asset, Savable, Cloneable {
 //    public abstract Texture createSimpleClone();
 
 
-   /** Retreive a basic clone of this Texture (ie, clone everything but the
+   /** Retrieve a basic clone of this Texture (ie, clone everything but the
      * image data, which is shared)
      *
      * @return Texture
