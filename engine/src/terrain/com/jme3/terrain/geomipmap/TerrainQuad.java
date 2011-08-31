@@ -1496,12 +1496,7 @@ public class TerrainQuad extends Node implements Terrain {
                 for (int i = 0; i < getQuantity(); i++) {
                     if (children.get(i) instanceof TerrainPatch) {
                         TerrainPatch tp = (TerrainPatch) children.get(i);
-                        if (tp.getModelBound() instanceof BoundingBox) {
-                            if (((BoundingBox)tp.getModelBound()).getYExtent() == 0) {
-                                // a correction so the box always has a volume
-                                ((BoundingBox)tp.getModelBound()).setYExtent(0.00001f);
-                            }
-                        }
+                        tp.ensurePositiveVolumeBBox();
                         if (tp.getWorldBound().intersects(toTest)) {
                             CollisionResults cr = new CollisionResults();
                             toTest.collideWith(tp.getWorldBound(), cr);

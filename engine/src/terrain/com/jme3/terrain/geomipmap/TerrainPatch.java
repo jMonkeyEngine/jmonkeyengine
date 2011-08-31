@@ -1048,7 +1048,8 @@ public class TerrainPatch extends Geometry {
         
         Mesh regen = geomap.createMesh(stepScale, new Vector2f(1,1), offset, offsetAmount, totalSize, false);
         setMesh(regen);
-        TangentBinormalGenerator.generate(this); // note that this will be removed
+        //TangentBinormalGenerator.generate(this); // note that this will be removed
+        ensurePositiveVolumeBBox();
     }
 
     @Override
@@ -1070,6 +1071,16 @@ public class TerrainPatch extends Geometry {
         clone.setMesh(m);
         clone.setMaterial(material.clone());
         return clone;
+    }
+
+    protected void ensurePositiveVolumeBBox() {
+        if (getModelBound() instanceof BoundingBox) {
+            if (((BoundingBox)getModelBound()).getYExtent() < 0.001f) {
+                // a correction so the box always has a volume
+                ((BoundingBox)getModelBound()).setYExtent(0.001f);
+                updateWorldBound();
+            }
+        }
     }
 
 
