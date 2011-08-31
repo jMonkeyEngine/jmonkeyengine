@@ -66,12 +66,8 @@ import com.jme3.texture.Texture;
 public class TestRagdollCharacter extends SimpleApplication implements RagdollCollisionListener, AnimEventListener, ActionListener {
 
     BulletAppState bulletAppState;
-    Material matBullet;
     Node model;
     KinematicRagdollControl ragdoll;
-    float bulletSize = 1f;
-    Material mat;
-    Material mat3;
     boolean leftStrafe = false, rightStrafe = false, forward = false, backward = false,
             leftRotate = false, rightRotate = false;
     AnimControl animControl;
@@ -83,16 +79,15 @@ public class TestRagdollCharacter extends SimpleApplication implements RagdollCo
     }
 
     public void simpleInitApp() {
+        setupKeys();
+
         bulletAppState = new BulletAppState();
         bulletAppState.setEnabled(true);
         stateManager.attach(bulletAppState);
-        initMaterial();
-        setupKeys();
         initWall(2,1,1);
 
         cam.setLocation(new Vector3f(-8,0,-4));
         cam.lookAt(new Vector3f(4,0,-7), Vector3f.UNIT_Y);
-
 
 
 //        bulletAppState.getPhysicsSpace().enableDebug(assetManager);
@@ -103,21 +98,10 @@ public class TestRagdollCharacter extends SimpleApplication implements RagdollCo
         model.lookAt(new Vector3f(0,0,-1), Vector3f.UNIT_Y);
         model.setLocalTranslation(4, 0, -7f);
 
-        //  model.setLocalRotation(new Quaternion().fromAngleAxis(FastMath.HALF_PI, Vector3f.UNIT_X));
-
-        //Note: PhysicsRagdollControl is still TODO, constructor will change
         ragdoll = new KinematicRagdollControl(0.5f);
         setupSinbad(ragdoll);
         ragdoll.addCollisionListener(this);
         model.addControl(ragdoll);
-
-        float eighth_pi = FastMath.PI * 0.125f;
-        ragdoll.setJointLimit("Waist", eighth_pi, eighth_pi, eighth_pi, eighth_pi, eighth_pi, eighth_pi);
-        ragdoll.setJointLimit("Chest", eighth_pi, eighth_pi, 0, 0, eighth_pi, eighth_pi);
-
-
-        //Oto's head is almost rigid
-        //    ragdoll.setJointLimit("head", 0, 0, eighth_pi, -eighth_pi, 0, 0);
 
         getPhysicsSpace().add(ragdoll);
         speed = 1.3f;
@@ -143,23 +127,7 @@ public class TestRagdollCharacter extends SimpleApplication implements RagdollCo
         return bulletAppState.getPhysicsSpace();
     }
 
-    public void initMaterial() {
-
-        matBullet = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-        TextureKey key2 = new TextureKey("Textures/Terrain/Rock/Rock.PNG");
-        key2.setGenerateMips(true);
-        Texture tex2 = assetManager.loadTexture(key2);
-        matBullet.setTexture("ColorMap", tex2);
-    }
-
     public void collide(Bone bone, PhysicsCollisionObject object, PhysicsCollisionEvent event) {
-//        if (object.getUserObject() != null && object.getUserObject() instanceof Geometry) {
-//            Geometry geom = (Geometry) object.getUserObject();
-//            if ("Floor".equals(geom.getName())) {
-//                return;
-//            }
-//        }
-//        ragdoll.setRagdollMode();
     }
 
     private void setupKeys() {
@@ -178,40 +146,6 @@ public class TestRagdollCharacter extends SimpleApplication implements RagdollCo
         inputManager.addListener(this, "Rotate Left", "Rotate Right");
         inputManager.addListener(this, "Walk Forward", "Walk Backward");
         inputManager.addListener(this, "Slice");
-    }
-
-    public void onAction(String binding, boolean value, float tpf) {
-        if (binding.equals("Rotate Left")) {
-            if (value) {
-                leftRotate = true;
-            } else {
-                leftRotate = false;
-            }
-        } else if (binding.equals("Rotate Right")) {
-            if (value) {
-                rightRotate = true;
-            } else {
-                rightRotate = false;
-            }
-        } else if (binding.equals("Walk Forward")) {
-            if (value) {
-                forward = true;
-            } else {
-                forward = false;
-            }
-        } else if (binding.equals("Walk Backward")) {
-            if (value) {
-                backward = true;
-            } else {
-                backward = false;
-            }
-        } else if (binding.equals("Slice")) {
-            if (value) {
-//                animChannel.setSpeed(0.3f);
-                animChannel.setAnim("SliceHorizontal");
-                animChannel.setSpeed(0.3f);
-            }
-        }
     }
 
     private void setupSinbad(KinematicRagdollControl ragdoll) {
@@ -235,35 +169,11 @@ public class TestRagdollCharacter extends SimpleApplication implements RagdollCo
         ragdoll.addBoneName("Clavicle.L");
         ragdoll.addBoneName("Clavicle.R");
 
+        float eighth_pi = FastMath.PI * 0.125f;
+        ragdoll.setJointLimit("Waist", eighth_pi, eighth_pi, eighth_pi, eighth_pi, eighth_pi, eighth_pi);
+        ragdoll.setJointLimit("Chest", eighth_pi, eighth_pi, 0, 0, eighth_pi, eighth_pi);
     }
 
-    @Override
-    public void simpleUpdate(float tpf) {
-        if(forward){
-            model.move(model.getLocalRotation().multLocal(new Vector3f(0,0,1)).multLocal(tpf));
-        }else if(backward){
-            model.move(model.getLocalRotation().multLocal(new Vector3f(0,0,1)).multLocal(-tpf));
-        }else if(leftRotate){
-            model.rotate(0, tpf, 0);
-        }else if(rightRotate){
-            model.rotate(0, -tpf, 0);
-        }
-        fpsText.setText(cam.getLocation() + "/" + cam.getRotation());
-    }
-
-    public void onAnimCycleDone(AnimControl control, AnimChannel channel, String animName) {
-
-        if (channel.getAnimationName().equals("SliceHorizontal")) {
-            channel.setLoopMode(LoopMode.DontLoop);
-            channel.setAnim("IdleTop", 5);
-            channel.setLoopMode(LoopMode.Loop);
-        }
-
-    }
-
-    public void onAnimChange(AnimControl control, AnimChannel channel, String animName) {
-    }
-    
     public void initWall(float bLength, float bWidth, float bHeight) {
         Box brick = new Box(Vector3f.ZERO, bLength, bHeight, bWidth);
         brick.scaleTextureCoordinates(new Vector2f(1f, .5f));
@@ -291,6 +201,66 @@ public class TestRagdollCharacter extends SimpleApplication implements RagdollCo
             startpt = -startpt;
             height += 2 * bHeight;
         }
+    }
+
+    public void onAnimCycleDone(AnimControl control, AnimChannel channel, String animName) {
+
+        if (channel.getAnimationName().equals("SliceHorizontal")) {
+            channel.setLoopMode(LoopMode.DontLoop);
+            channel.setAnim("IdleTop", 5);
+            channel.setLoopMode(LoopMode.Loop);
+        }
+
+    }
+
+    public void onAnimChange(AnimControl control, AnimChannel channel, String animName) {
+    }
+    
+    public void onAction(String binding, boolean value, float tpf) {
+        if (binding.equals("Rotate Left")) {
+            if (value) {
+                leftRotate = true;
+            } else {
+                leftRotate = false;
+            }
+        } else if (binding.equals("Rotate Right")) {
+            if (value) {
+                rightRotate = true;
+            } else {
+                rightRotate = false;
+            }
+        } else if (binding.equals("Walk Forward")) {
+            if (value) {
+                forward = true;
+            } else {
+                forward = false;
+            }
+        } else if (binding.equals("Walk Backward")) {
+            if (value) {
+                backward = true;
+            } else {
+                backward = false;
+            }
+        } else if (binding.equals("Slice")) {
+            if (value) {
+                animChannel.setAnim("SliceHorizontal");
+                animChannel.setSpeed(0.3f);
+            }
+        }
+    }
+
+    @Override
+    public void simpleUpdate(float tpf) {
+        if(forward){
+            model.move(model.getLocalRotation().multLocal(new Vector3f(0,0,1)).multLocal(tpf));
+        }else if(backward){
+            model.move(model.getLocalRotation().multLocal(new Vector3f(0,0,1)).multLocal(-tpf));
+        }else if(leftRotate){
+            model.rotate(0, tpf, 0);
+        }else if(rightRotate){
+            model.rotate(0, -tpf, 0);
+        }
+        fpsText.setText(cam.getLocation() + "/" + cam.getRotation());
     }
 
 }
