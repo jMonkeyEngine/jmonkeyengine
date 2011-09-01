@@ -34,15 +34,11 @@ package jme3test.bullet;
 import com.jme3.animation.AnimChannel;
 import com.jme3.animation.AnimControl;
 import com.jme3.animation.AnimEventListener;
-import com.jme3.animation.Bone;
 import com.jme3.animation.LoopMode;
 import com.jme3.bullet.BulletAppState;
 import com.jme3.app.SimpleApplication;
 import com.jme3.asset.TextureKey;
 import com.jme3.bullet.PhysicsSpace;
-import com.jme3.bullet.collision.PhysicsCollisionEvent;
-import com.jme3.bullet.collision.PhysicsCollisionObject;
-import com.jme3.bullet.collision.RagdollCollisionListener;
 import com.jme3.bullet.control.KinematicRagdollControl;
 import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.input.KeyInput;
@@ -62,7 +58,7 @@ import com.jme3.texture.Texture;
 /**
  * @author normenhansen
  */
-public class TestRagdollCharacter extends SimpleApplication implements RagdollCollisionListener, AnimEventListener, ActionListener {
+public class TestRagdollCharacter extends SimpleApplication implements AnimEventListener, ActionListener {
 
     BulletAppState bulletAppState;
     Node model;
@@ -83,22 +79,21 @@ public class TestRagdollCharacter extends SimpleApplication implements RagdollCo
         bulletAppState = new BulletAppState();
         bulletAppState.setEnabled(true);
         stateManager.attach(bulletAppState);
-        initWall(2,1,1);
-
-        cam.setLocation(new Vector3f(-8,0,-4));
-        cam.lookAt(new Vector3f(4,0,-7), Vector3f.UNIT_Y);
 
 
 //        bulletAppState.getPhysicsSpace().enableDebug(assetManager);
         PhysicsTestHelper.createPhysicsTestWorld(rootNode, assetManager, bulletAppState.getPhysicsSpace());
+        initWall(2,1,1);
         setupLight();
+
+        cam.setLocation(new Vector3f(-8,0,-4));
+        cam.lookAt(new Vector3f(4,0,-7), Vector3f.UNIT_Y);
 
         model = (Node) assetManager.loadModel("Models/Sinbad/Sinbad.mesh.xml");
         model.lookAt(new Vector3f(0,0,-1), Vector3f.UNIT_Y);
         model.setLocalTranslation(4, 0, -7f);
 
         ragdoll = new KinematicRagdollControl(0.5f);
-        ragdoll.addCollisionListener(this);
         model.addControl(ragdoll);
 
         getPhysicsSpace().add(ragdoll);
@@ -123,9 +118,6 @@ public class TestRagdollCharacter extends SimpleApplication implements RagdollCo
 
     private PhysicsSpace getPhysicsSpace() {
         return bulletAppState.getPhysicsSpace();
-    }
-
-    public void collide(Bone bone, PhysicsCollisionObject object, PhysicsCollisionEvent event) {
     }
 
     private void setupKeys() {
