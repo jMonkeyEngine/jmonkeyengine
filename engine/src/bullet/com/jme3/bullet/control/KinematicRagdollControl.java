@@ -165,7 +165,7 @@ public class KinematicRagdollControl implements PhysicsControl, PhysicsCollision
             return;
         }
         TempVars vars = TempVars.get();
-       
+        
         Quaternion tmpRot1 = vars.quat1;
         Quaternion tmpRot2 = vars.quat2;
 
@@ -660,7 +660,7 @@ public class KinematicRagdollControl implements PhysicsControl, PhysicsCollision
         }
 
         //dispatching the event if the ragdoll has been hit
-        if (hit) {
+        if (hit && listeners != null) {
             for (RagdollCollisionListener listener : listeners) {
                 listener.collide(hitBone, hitObject, event);
             }
@@ -681,7 +681,8 @@ public class KinematicRagdollControl implements PhysicsControl, PhysicsCollision
         animControl.setEnabled(mode == Mode.Kinetmatic);
 
         baseRigidBody.setKinematic(mode == Mode.Kinetmatic);
-        TempVars vars = TempVars.get();        
+        TempVars vars = TempVars.get();
+        
         for (PhysicsBoneLink link : boneLinks.values()) {
             link.rigidBody.setKinematic(mode == Mode.Kinetmatic);
             if (mode == Mode.Ragdoll) {
@@ -715,8 +716,7 @@ public class KinematicRagdollControl implements PhysicsControl, PhysicsCollision
         animControl.setEnabled(true);
 
 
-
-        TempVars vars = TempVars.get();
+        TempVars vars = TempVars.get();        
         for (PhysicsBoneLink link : boneLinks.values()) {
 
             Vector3f p = link.rigidBody.getMotionState().getWorldLocation();
