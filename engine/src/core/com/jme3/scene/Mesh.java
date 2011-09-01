@@ -778,6 +778,7 @@ public class Mesh implements Savable, Cloneable {
     public void getTriangle(int index, Triangle tri){
         getTriangle(index, tri.get1(), tri.get2(), tri.get3());
         tri.setIndex(index);
+        tri.setNormal(null);
     }
 
     /**
