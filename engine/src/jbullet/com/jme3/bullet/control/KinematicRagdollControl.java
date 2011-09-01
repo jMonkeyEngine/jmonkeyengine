@@ -660,7 +660,7 @@ public class KinematicRagdollControl implements PhysicsControl, PhysicsCollision
         }
 
         //dispatching the event if the ragdoll has been hit
-        if (hit) {
+        if (hit && listeners != null) {
             for (RagdollCollisionListener listener : listeners) {
                 listener.collide(hitBone, hitObject, event);
             }
