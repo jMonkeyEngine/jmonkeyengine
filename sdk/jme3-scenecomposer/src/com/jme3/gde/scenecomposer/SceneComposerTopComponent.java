@@ -18,6 +18,7 @@ import com.jme3.gde.core.sceneexplorer.nodes.JmeSpatial;
 import com.jme3.gde.core.sceneexplorer.nodes.NodeUtility;
 import com.jme3.gde.core.sceneviewer.SceneViewerTopComponent;
 import com.jme3.gde.scenecomposer.tools.MoveTool;
+import com.jme3.gde.scenecomposer.tools.ScaleTool;
 import com.jme3.gde.scenecomposer.tools.SelectTool;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
@@ -193,10 +194,14 @@ public final class SceneComposerTopComponent extends TopComponent implements Sce
         scaleButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/jme3/gde/scenecomposer/icon_arrow_inout.png"))); // NOI18N
         org.openide.awt.Mnemonics.setLocalizedText(scaleButton, org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.scaleButton.text")); // NOI18N
         scaleButton.setToolTipText(org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.scaleButton.toolTipText")); // NOI18N
-        scaleButton.setEnabled(false);
         scaleButton.setFocusable(false);
         scaleButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         scaleButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        scaleButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                scaleButtonActionPerformed(evt);
+            }
+        });
         jToolBar1.add(scaleButton);
         jToolBar1.add(jSeparator5);
 
@@ -300,11 +305,11 @@ public final class SceneComposerTopComponent extends TopComponent implements Sce
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 190, Short.MAX_VALUE)
+            .addGap(0, 321, Short.MAX_VALUE)
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 21, Short.MAX_VALUE)
+            .addGap(0, 23, Short.MAX_VALUE)
         );
 
         jToolBar1.add(jPanel3);
@@ -384,8 +389,8 @@ public final class SceneComposerTopComponent extends TopComponent implements Sce
                         .addGap(10, 10, 10)
                         .addComponent(jLabel5)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(emitButton, javax.swing.GroupLayout.DEFAULT_SIZE, 232, Short.MAX_VALUE))
-                    .addComponent(jSeparator6, javax.swing.GroupLayout.DEFAULT_SIZE, 302, Short.MAX_VALUE))
+                        .addComponent(emitButton, javax.swing.GroupLayout.DEFAULT_SIZE, 267, Short.MAX_VALUE))
+                    .addComponent(jSeparator6, javax.swing.GroupLayout.DEFAULT_SIZE, 322, Short.MAX_VALUE))
                 .addContainerGap())
         );
         jPanel4Layout.setVerticalGroup(
@@ -400,7 +405,7 @@ public final class SceneComposerTopComponent extends TopComponent implements Sce
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel5)
                     .addComponent(emitButton))
-                .addContainerGap(38, Short.MAX_VALUE))
+                .addContainerGap(39, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
@@ -411,7 +416,7 @@ public final class SceneComposerTopComponent extends TopComponent implements Sce
                 .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(sceneInfoPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addComponent(jToolBar1, javax.swing.GroupLayout.DEFAULT_SIZE, 731, Short.MAX_VALUE)
+            .addComponent(jToolBar1, javax.swing.GroupLayout.DEFAULT_SIZE, 737, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -503,6 +508,12 @@ private void emitButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FI
     });
 
 }//GEN-LAST:event_emitButtonActionPerformed
+
+private void scaleButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_scaleButtonActionPerformed
+    ScaleTool tool = new ScaleTool();
+    toolController.showEditTool(tool);
+}//GEN-LAST:event_scaleButtonActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton camToCursorSelectionButton;
     private javax.swing.JButton createPhysicsMeshButton;

@@ -299,6 +299,15 @@ public abstract class SceneEditTool {
      * @param axisMarkerPickType 
      */
     protected void highlightAxisMarker(Camera camera, Vector2f screenCoord, AxisMarkerPickType axisMarkerPickType) {
+        highlightAxisMarker(camera, screenCoord, axisMarkerPickType, false);
+    }
+    
+    /**
+     * Show what axis or plane the mouse is currently over and will affect.
+     * @param axisMarkerPickType 
+     * @param colorAll highlight all parts of the marker when only one is selected
+     */
+    protected void highlightAxisMarker(Camera camera, Vector2f screenCoord, AxisMarkerPickType axisMarkerPickType, boolean colorAll) {
         setDefaultAxisMarkerColors();
         Vector3f picked = pickAxisMarker(camera, screenCoord, axisPickType);
         if (picked == null) {
@@ -307,15 +316,21 @@ public abstract class SceneEditTool {
 
         if (picked == ARROW_X) {
             axisMarker.getChild("arrowX").setMaterial(orangeMat);
-        } else if (picked == ARROW_Y) {
+        } 
+        else if (picked == ARROW_Y) {
             axisMarker.getChild("arrowY").setMaterial(orangeMat);
-        } else if (picked == ARROW_Z) {
+        } 
+        else if (picked == ARROW_Z) {
             axisMarker.getChild("arrowZ").setMaterial(orangeMat);
-        } else if (picked == QUAD_XY) {
+        } 
+        
+        if (picked == QUAD_XY || colorAll) {
             axisMarker.getChild("quadXY").setMaterial(orangeMat);
-        } else if (picked == QUAD_XZ) {
+        } 
+        if (picked == QUAD_XZ || colorAll) {
             axisMarker.getChild("quadXZ").setMaterial(orangeMat);
-        } else if (picked == QUAD_YZ) {
+        } 
+        if (picked == QUAD_YZ || colorAll) {
             axisMarker.getChild("quadYZ").setMaterial(orangeMat);
         }
     }
