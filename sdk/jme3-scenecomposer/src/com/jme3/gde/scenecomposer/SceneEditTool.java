@@ -132,6 +132,7 @@ public abstract class SceneEditTool {
                 if (toolController.getSelectedSpatial() != null) {
                     axisMarker.setLocalTranslation(toolController.getSelectedSpatial().getWorldTranslation());
                     axisMarker.setLocalRotation(toolController.getSelectedSpatial().getWorldRotation());
+                    setAxisMarkerScale(toolController.getSelectedSpatial());
                 } else {
                     axisMarker.setLocalTranslation(Vector3f.ZERO);
                     axisMarker.setLocalRotation(Quaternion.IDENTITY);
@@ -141,6 +142,23 @@ public abstract class SceneEditTool {
         });
     }
 
+    /**
+     * Adjust the scale of the marker so it is relative to the size of the
+     * selected spatial. It will have a minimum scale of 2.
+     */
+    private void setAxisMarkerScale(Spatial selected) {
+        if (selected != null) {
+            if (selected.getWorldBound() instanceof BoundingBox) {
+                BoundingBox bbox = (BoundingBox) selected.getWorldBound();
+                float smallest = Math.min(Math.min(bbox.getXExtent(), bbox.getYExtent()), bbox.getZExtent());
+                float scale = Math.max(1, smallest/2f);
+                axisMarker.setLocalScale(new Vector3f(scale,scale,scale));
+            }
+        } else {
+            axisMarker.setLocalScale(new Vector3f(2,2,2));
+        }
+    }
+    
     /**
      * The primary action for the tool gets activated
      */
