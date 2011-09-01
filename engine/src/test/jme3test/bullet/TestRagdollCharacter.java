@@ -51,7 +51,6 @@ import com.jme3.input.controls.KeyTrigger;
 import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
-import com.jme3.math.FastMath;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.queue.RenderQueue.ShadowMode;
@@ -99,7 +98,6 @@ public class TestRagdollCharacter extends SimpleApplication implements RagdollCo
         model.setLocalTranslation(4, 0, -7f);
 
         ragdoll = new KinematicRagdollControl(0.5f);
-        setupSinbad(ragdoll);
         ragdoll.addCollisionListener(this);
         model.addControl(ragdoll);
 
@@ -146,32 +144,6 @@ public class TestRagdollCharacter extends SimpleApplication implements RagdollCo
         inputManager.addListener(this, "Rotate Left", "Rotate Right");
         inputManager.addListener(this, "Walk Forward", "Walk Backward");
         inputManager.addListener(this, "Slice");
-    }
-
-    private void setupSinbad(KinematicRagdollControl ragdoll) {
-        ragdoll.addBoneName("Ulna.L");
-        ragdoll.addBoneName("Ulna.R");
-        ragdoll.addBoneName("Chest");
-        ragdoll.addBoneName("Foot.L");
-        ragdoll.addBoneName("Foot.R");
-        ragdoll.addBoneName("Hand.R");
-        ragdoll.addBoneName("Hand.L");
-        ragdoll.addBoneName("Neck");
-        ragdoll.addBoneName("Root");
-        ragdoll.addBoneName("Stomach");
-        ragdoll.addBoneName("Waist");
-        ragdoll.addBoneName("Humerus.L");
-        ragdoll.addBoneName("Humerus.R");
-        ragdoll.addBoneName("Thigh.L");
-        ragdoll.addBoneName("Thigh.R");
-        ragdoll.addBoneName("Calf.L");
-        ragdoll.addBoneName("Calf.R");
-        ragdoll.addBoneName("Clavicle.L");
-        ragdoll.addBoneName("Clavicle.R");
-
-        float eighth_pi = FastMath.PI * 0.125f;
-        ragdoll.setJointLimit("Waist", eighth_pi, eighth_pi, eighth_pi, eighth_pi, eighth_pi, eighth_pi);
-        ragdoll.setJointLimit("Chest", eighth_pi, eighth_pi, 0, 0, eighth_pi, eighth_pi);
     }
 
     public void initWall(float bLength, float bWidth, float bHeight) {
