@@ -197,7 +197,7 @@ public class TestMusicPlayer extends javax.swing.JFrame {
                 ex.printStackTrace();
             }
 
-            musicSource = new AudioNode(ar, musicData, key);
+            musicSource = new AudioNode(musicData, key);
             musicLength = musicData.getDuration();
             updateTime();
         }
@@ -229,7 +229,7 @@ public class TestMusicPlayer extends javax.swing.JFrame {
             ar.pauseSource(musicSource);
         }else{
             musicSource.setPitch(1);
-            ar.playSource(musicSource);
+            musicSource.play();
         }
     }//GEN-LAST:event_btnPlayActionPerformed
 
@@ -263,8 +263,8 @@ public class TestMusicPlayer extends javax.swing.JFrame {
             
             musicSource.setTimeOffset(curTime);
             if (musicSource.getStatus() == Status.Playing){
-                ar.stopSource(musicSource);
-                ar.playSource(musicSource);
+                musicSource.stop();
+                musicSource.play();
             }
             updateTime();
         }

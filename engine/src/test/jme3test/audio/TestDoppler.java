@@ -69,7 +69,7 @@ public class TestDoppler extends SimpleApplication {
         ufo.setReverbEnabled(true);
         ufo.setRefDistance(100000000);
         ufo.setMaxDistance(100000000);
-        audioRenderer.playSource(ufo);
+        ufo.play();
     }
 
     @Override

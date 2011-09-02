@@ -46,8 +46,8 @@ public class TestMusicStreaming extends SimpleApplication {
     @Override
     public void simpleInitApp(){
         assetManager.registerLocator("http://www.vorbis.com/music/", UrlLocator.class);
-        AudioNode src = new AudioNode(assetManager, "Lumme-Badloop.ogg", true);
-        audioRenderer.playSource(src);
+        AudioNode audioSource = new AudioNode(assetManager, "Lumme-Badloop.ogg", true);
+        audioSource.play();
     }
 
     @Override

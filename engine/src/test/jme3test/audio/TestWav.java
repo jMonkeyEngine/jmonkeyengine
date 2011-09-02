@@ -35,7 +35,7 @@ import com.jme3.audio.AudioNode;
 public class TestWav extends SimpleApplication {
 
   private float time = 0;
-  private AudioNode src;
+  private AudioNode audioSource;
 
   public static void main(String[] args) {
     TestWav test = new TestWav();
@@ -46,7 +46,7 @@ public class TestWav extends SimpleApplication {
   public void simpleUpdate(float tpf) {
     time += tpf;
     if (time > 1f) {
-      audioRenderer.playSourceInstance(src);
+      audioSource.playInstance();
       time = 0;
     }
 
@@ -54,7 +54,7 @@ public class TestWav extends SimpleApplication {
 
   @Override
   public void simpleInitApp() {
-    src = new AudioNode(assetManager, "Sound/Effects/Gun.wav", false);
-    src.setLooping(false);
+    audioSource = new AudioNode(assetManager, "Sound/Effects/Gun.wav", false);
+    audioSource.setLooping(false);
   }
 }

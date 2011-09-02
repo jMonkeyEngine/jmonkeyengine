@@ -36,7 +36,7 @@ import com.jme3.math.Vector3f;
 
 public class TestReverb extends SimpleApplication {
 
-  private AudioNode src;
+  private AudioNode audioSource;
   private float time = 0;
   private float nextTime = 1;
 
@@ -47,7 +47,7 @@ public class TestReverb extends SimpleApplication {
 
   @Override
   public void simpleInitApp() {
-    src = new AudioNode(assetManager, "Sound/Effects/Bang.wav");
+    audioSource = new AudioNode(assetManager, "Sound/Effects/Bang.wav");
 
     float[] eax = new float[]{15, 38.0f, 0.300f, -1000, -3300, 0,
       1.49f, 0.54f, 1.00f, -2560, 0.162f, 0.00f, 0.00f, 0.00f,
@@ -70,8 +70,8 @@ public class TestReverb extends SimpleApplication {
       v.multLocal(40, 2, 40);
       v.subtractLocal(20, 1, 20);
 
-      src.setLocalTranslation(v);
-      audioRenderer.playSourceInstance(src);
+      audioSource.setLocalTranslation(v);
+      audioSource.playInstance();
       time = 0;
       nextTime = FastMath.nextRandomFloat() * 2 + 0.5f;
     }
