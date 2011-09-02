@@ -45,6 +45,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.SwingUtilities;
 import org.lwjgl.LWJGLException;
+import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.Pbuffer;
@@ -263,12 +264,13 @@ public class LwjglCanvas extends LwjglAbstractDisplay implements JmeCanvasContex
      * Makes sure the pbuffer is available and ready for use
      */
     protected void makePbufferAvailable() throws LWJGLException{
-        if (pbuffer == null || pbuffer.isBufferLost()){
-            if (pbuffer != null && pbuffer.isBufferLost()){
-                logger.log(Level.WARNING, "PBuffer was lost!");
-                pbuffer.destroy();
-            }
-            // Let the implementation choose an appropriate pixel format.
+        if (pbuffer != null && pbuffer.isBufferLost()){
+            logger.log(Level.WARNING, "PBuffer was lost!");
+            pbuffer.destroy();
+            pbuffer = null;
+        }
+        
+        if (pbuffer == null) {
             pbuffer = new Pbuffer(1, 1, acquirePixelFormat(), null);
             logger.log(Level.INFO, "OGL: Pbuffer has been created");
         }
@@ -280,24 +282,6 @@ public class LwjglCanvas extends LwjglAbstractDisplay implements JmeCanvasContex
      * 2) Any time the canvas becomes non-displayable
      */
     protected void destroyContext(){
-        if (Display.isCreated()){
-            try {
-                // NOTE: On Windows XP, not calling setParent(null)
-                // freezes the application.
-                // On Mac it freezes the application.
-                // On Linux it fixes a crash with X Window System.
-                if (JmeSystem.getPlatform() == Platform.Windows32
-                 || JmeSystem.getPlatform() == Platform.Windows64
-                 || JmeSystem.getPlatform() == Platform.Linux32
-                 || JmeSystem.getPlatform() == Platform.Linux64){
-                    Display.setParent(null);
-                }
-            } catch (LWJGLException ex) {
-                logger.log(Level.SEVERE, "Encountered exception when setting parent to null", ex);
-            }
-            Display.destroy();
-        }
-        
         try {
             // The canvas is no longer visible,
             // but the context thread is still running.
@@ -317,6 +301,34 @@ public class LwjglCanvas extends LwjglAbstractDisplay implements JmeCanvasContex
                 if (pbuffer != null){
                     pbuffer.destroy();
                 }
+            }
+            
+            if (Display.isCreated()){
+            
+            /* FIXES:
+             * org.lwjgl.LWJGLException: X Error
+             * BadWindow (invalid Window parameter) request_code: 2 minor_code: 0
+             * 
+             * Destroying keyboard early prevents the error above, triggered
+             * by destroying keyboard in by Display.destroy() or Display.setParent(null).
+             * Therefore Keyboard.destroy() should precede any of these calls.
+             */ 
+            Keyboard.destroy();
+            
+            try {
+                // NOTE: On Windows XP, not calling setParent(null)
+                // freezes the application.
+                // On Mac it freezes the application.
+                // On Linux it fixes a crash with X Window System.
+                if (JmeSystem.getPlatform() == Platform.Windows32
+                 || JmeSystem.getPlatform() == Platform.Windows64){
+                    Display.setParent(null);
+                }
+            } catch (LWJGLException ex) {
+                logger.log(Level.SEVERE, "Encountered exception when setting parent to null", ex);
+            }
+
+            Display.destroy();
             }
         } catch (LWJGLException ex) {
             listener.handleError("Failed make pbuffer available", ex);
