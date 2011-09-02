@@ -32,10 +32,11 @@
 
 package jme3test.audio;
 
+import com.jme3.app.SimpleApplication;
 import com.jme3.audio.AudioNode;
 import com.jme3.audio.LowPassFilter;
 
-public class TestOgg extends AudioApp {
+public class TestOgg extends SimpleApplication {
 
     private AudioNode src;
 
@@ -45,19 +46,19 @@ public class TestOgg extends AudioApp {
     }
 
     @Override
-    public void initAudioApp(){
+    public void simpleInitApp(){
         System.out.println("Playing without filter");
-        src = new AudioNode(audioRenderer, assetManager, "Sound/Effects/Foot steps.ogg", true);
+        src = new AudioNode(assetManager, "Sound/Effects/Foot steps.ogg", true);
         audioRenderer.playSource(src);
     }
 
     @Override
-    public void updateAudioApp(float tpf){
+    public void simpleUpdate(float tpf){
         if (src.getStatus() != AudioNode.Status.Playing){
             audioRenderer.deleteAudioData(src.getAudioData());
 
             System.out.println("Playing with low pass filter");
-            src = new AudioNode(audioRenderer, assetManager, "Sound/Effects/Foot steps.ogg", true);
+            src = new AudioNode(assetManager, "Sound/Effects/Foot steps.ogg", true);
             src.setDryFilter(new LowPassFilter(1f, .1f));
             src.setVolume(3);
             audioRenderer.playSource(src);

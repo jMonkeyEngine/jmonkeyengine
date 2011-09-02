@@ -32,12 +32,10 @@
 
 package jme3test.audio;
 
-import com.jme3.asset.plugins.FileLocator;
+import com.jme3.app.SimpleApplication;
 import com.jme3.audio.AudioNode;
 import com.jme3.audio.Environment;
-import com.jme3.audio.LowPassFilter;
 import com.jme3.math.FastMath;
-import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import org.lwjgl.openal.AL10;
 import org.lwjgl.openal.AL11;
@@ -45,31 +43,23 @@ import org.lwjgl.openal.AL11;
 /**
  * Test Doppler Effect
  */
-public class TestDoppler extends AudioApp {
+public class TestDoppler extends SimpleApplication {
 
     private AudioNode ufo;
 
     private float x = 20, z = 0;
-    
     private float rate     = -0.05f;
     private float xDist    = 20;
     private float zDist    = 5;
-    
     private float angle    = FastMath.TWO_PI;
     
-    private LowPassFilter filter = new LowPassFilter(1, 1);
-
     public static void main(String[] args){
         TestDoppler test = new TestDoppler();
         test.start();
     }
 
     @Override
-    public void initAudioApp(){
-        Quaternion q = new Quaternion();
-        q.lookAt(new Vector3f(0, 0, -1f), Vector3f.UNIT_Y);
-        listener.setRotation(q);
-        
+    public void simpleInitApp(){
         audioRenderer.setEnvironment(Environment.Dungeon);
         AL10.alDistanceModel(AL11.AL_EXPONENT_DISTANCE);
         
@@ -83,7 +73,7 @@ public class TestDoppler extends AudioApp {
     }
 
     @Override
-    public void updateAudioApp(float tpf){
+    public void simpleUpdate(float tpf){
         //float x  = (float) (Math.cos(angle) * xDist);
         float dx = (float)  Math.sin(angle) * xDist; 
         
@@ -107,7 +97,8 @@ public class TestDoppler extends AudioApp {
         ufo.setLocalTranslation(x, 0, z);
         ufo.updateGeometricState();
         
-        System.out.println("LOC: " + (int)x +", " + (int)z + ", VEL: " + (int)dx + ", " + (int)dz);
+        System.out.println("LOC: " + (int)x +", " + (int)z + 
+                ", VEL: " + (int)dx + ", " + (int)dz);
     }
 
 }
