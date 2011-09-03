@@ -54,7 +54,9 @@ public enum VarType {
 
     TextureBuffer(false,true),
     Texture2D(false,true),
+    Texture2DArray(false,true),
     Texture3D(false,true),
+    Texture3DArray(false,true),
     TextureArray(false,true),
     TextureCubeMap(false,true),
     Int;
@@ -77,5 +79,5 @@ public enum VarType {
     public boolean usesMultiData() {
         return usesMultiData;
     }
-    
+
 }
