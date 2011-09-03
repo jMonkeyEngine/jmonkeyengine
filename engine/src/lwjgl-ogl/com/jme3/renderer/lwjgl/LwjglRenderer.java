@@ -456,11 +456,11 @@ public class LwjglRenderer implements Renderer {
             bits = GL_COLOR_BUFFER_BIT;
         }
         if (depth) {
-            
+
             //glClear(GL_DEPTH_BUFFER_BIT) seems to not work when glDepthMask is false
             //here s some link on openl board
             //http://www.opengl.org/discussion_boards/ubbthreads.php?ubb=showflat&Number=257223
-            //if depth clear is requested, we enable the depthMask            
+            //if depth clear is requested, we enable the depthMask
             if (context.depthWriteEnabled == false) {
                 glDepthMask(true);
                 context.depthWriteEnabled = true;
@@ -478,7 +478,7 @@ public class LwjglRenderer implements Renderer {
     public void setBackgroundColor(ColorRGBA color) {
         glClearColor(color.r, color.g, color.b, color.a);
     }
-    
+
     public void setAlphaToCoverage(boolean value) {
         if (value) {
             glEnable(ARBMultisample.GL_SAMPLE_ALPHA_TO_COVERAGE_ARB);
@@ -531,7 +531,7 @@ public class LwjglRenderer implements Renderer {
         }
 
         if (state.isPointSprite() && !context.pointSprite) {
-            // Only enable/disable sprite 
+            // Only enable/disable sprite
             if (context.boundTextures[0] != null){
                 if (context.boundTextureUnit != 0){
                     glActiveTexture(GL_TEXTURE0);
@@ -792,7 +792,7 @@ public class LwjglRenderer implements Renderer {
         if (loc < 0) {
             uniform.setLocation(-1);
             // uniform is not declared in shader
-            logger.log(Level.INFO, "Uniform {0} is not declared in shader.", uniform.getName());
+            logger.log(Level.INFO, "Uniform {0} is not declared in shader {1}.", new Object[]{uniform.getName(), shader.getSources()});
         } else {
             uniform.setLocation(loc);
         }
@@ -1193,14 +1193,14 @@ public class LwjglRenderer implements Renderer {
             logger.warning("Shader is not uploaded to GPU, cannot delete.");
             return;
         }
-        
+
         for (ShaderSource source : shader.getSources()) {
             if (source.getId() != -1) {
                 glDetachShader(shader.getId(), source.getId());
                 deleteShaderSource(source);
             }
         }
-        
+
         // kill all references so sources can be collected
         // if needed.
         shader.resetSources();
@@ -1453,7 +1453,7 @@ public class LwjglRenderer implements Renderer {
                 if (tex != null
                         && tex.getMinFilter().usesMipMapLevels()) {
                     setTexture(0, rb.getTexture());
-                    
+
                     int textureType = convertTextureType(tex.getType(), tex.getImage().getMultiSamples());
                     glEnable(textureType);
                     glGenerateMipmapEXT(textureType);
@@ -2331,7 +2331,7 @@ public class LwjglRenderer implements Renderer {
 
         //IntMap<VertexBuffer> buffers = mesh.getBuffers();
         ArrayList<VertexBuffer> buffersList = mesh.getBufferList();
-        
+
         if (mesh.getNumLodLevels() > 0) {
             indices = mesh.getLodLevel(lod);
         } else {
@@ -2341,7 +2341,7 @@ public class LwjglRenderer implements Renderer {
         //     VertexBuffer vb = entry.getValue();
         for (int i = 0; i < buffersList.size(); i++){
             VertexBuffer vb = buffersList.get(i);
-            
+
             if (vb.getBufferType() == Type.InterleavedData
                     || vb.getUsage() == Usage.CpuOnly // ignore cpu-only buffers
                     || vb.getBufferType() == Type.Index) {
@@ -2356,7 +2356,7 @@ public class LwjglRenderer implements Renderer {
                 setVertexAttrib(vb, interleavedData);
             }
         }
-        
+
         if (indices != null) {
             drawTriangleList(indices, mesh, count);
         } else {
@@ -2370,7 +2370,7 @@ public class LwjglRenderer implements Renderer {
         if (mesh.getVertexCount() == 0) {
             return;
         }
-        
+
         if (context.pointSprite && mesh.getMode() != Mode.Points){
             // XXX: Hack, disable point sprite mode if mesh not in point mode
             if (context.boundTextures[0] != null){
@@ -2383,7 +2383,7 @@ public class LwjglRenderer implements Renderer {
                 context.pointSprite = false;
             }
         }
-        
+
         if (context.pointSize != mesh.getPointSize()) {
             glPointSize(mesh.getPointSize());
             context.pointSize = mesh.getPointSize();
