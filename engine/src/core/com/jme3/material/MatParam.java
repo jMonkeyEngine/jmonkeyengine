@@ -50,9 +50,9 @@ import com.jme3.texture.Texture.WrapMode;
 import java.io.IOException;
 
 /**
- * Describes a material parameter. This is used for both defining a name and type 
+ * Describes a material parameter. This is used for both defining a name and type
  * as well as a material parameter value.
- * 
+ *
  * @author Kirill Vainer
  */
 public class MatParam implements Savable, Cloneable {
@@ -82,7 +82,7 @@ public class MatParam implements Savable, Cloneable {
 
     /**
      * Returns the fixed function binding.
-     * 
+     *
      * @return the fixed function binding.
      */
     public FixedFuncBinding getFixedFuncBinding() {
@@ -91,7 +91,7 @@ public class MatParam implements Savable, Cloneable {
 
     /**
      * Returns the material parameter type.
-     * 
+     *
      * @return the material parameter type.
      */
     public VarType getVarType() {
@@ -108,7 +108,7 @@ public class MatParam implements Savable, Cloneable {
 
     /**
      * Returns the name with "m_" prefixed to it.
-     * 
+     *
      * @return the name with "m_" prefixed to it
      */
     public String getPrefixedName() {
@@ -117,7 +117,7 @@ public class MatParam implements Savable, Cloneable {
 
     /**
      * Used internally
-     * @param name 
+     * @param name
      */
     void setName(String name) {
         this.name = name;
@@ -130,7 +130,7 @@ public class MatParam implements Savable, Cloneable {
      * Material parameters that are used for material definitions
      * will not have a value, unless there's a default value declared
      * in the definition.
-     * 
+     *
      * @return the value of this material parameter.
      */
     public Object getValue() {
@@ -142,7 +142,7 @@ public class MatParam implements Savable, Cloneable {
      * <p>
      * It is assumed the value is of the same {@link MatParam#getVarType() type}
      * as this material parameter.
-     * 
+     *
      * @param value the value of this material parameter.
      */
     public void setValue(Object value) {
@@ -181,9 +181,60 @@ public class MatParam implements Savable, Cloneable {
             case Vector2:
                 Vector2f v2 = (Vector2f) value;
                 return v2.getX() + " " + v2.getY();
+            case Vector2Array:
+                Vector2f[] v2Arr = (Vector2f[]) value;
+                String v2str = "";
+                for (int i = 0; i < v2Arr.length ; i++) {
+                    v2str += v2Arr[i].getX() + " " + v2Arr[i].getY() + "\n";
+                }
+                return v2str;
             case Vector3:
                 Vector3f v3 = (Vector3f) value;
                 return v3.getX() + " " + v3.getY() + " " + v3.getZ();
+            case Vector3Array:
+                Vector3f[] v3Arr = (Vector3f[]) value;
+                String v3str = "";
+                for (int i = 0; i < v3Arr.length ; i++) {
+                    v3str += v3Arr[i].getX() + " "
+                            + v3Arr[i].getY() + " "
+                            + v3Arr[i].getZ() + "\n";
+                }
+                return v3str;
+            case Vector4Array:
+                // can be either ColorRGBA, Vector4f or Quaternion
+                if (value instanceof Vector4f) {
+                    Vector4f[] v4arr = (Vector4f[]) value;
+                    String v4str = "";
+                    for (int i = 0; i < v4arr.length ; i++) {
+                        v4str += v4arr[i].getX() + " "
+                                + v4arr[i].getY() + " "
+                                + v4arr[i].getZ() + " "
+                                + v4arr[i].getW() + "\n";
+                    }
+                    return v4str;
+                } else if (value instanceof ColorRGBA) {
+                    ColorRGBA[] colorArr = (ColorRGBA[]) value;
+                    String colStr = "";
+                    for (int i = 0; i < colorArr.length ; i++) {
+                        colStr += colorArr[i].getRed() + " "
+                                + colorArr[i].getGreen() + " "
+                                + colorArr[i].getBlue() + " "
+                                + colorArr[i].getAlpha() + "\n";
+                    }
+                    return colStr;
+                } else if (value instanceof Quaternion) {
+                    Quaternion[] quatArr = (Quaternion[]) value;
+                    String quatStr = "";
+                    for (int i = 0; i < quatArr.length ; i++) {
+                        quatStr += quatArr[i].getX() + " "
+                                + quatArr[i].getY() + " "
+                                + quatArr[i].getZ() + " "
+                                + quatArr[i].getW() + "\n";
+                    }
+                    return quatStr;
+                } else {
+                    throw new UnsupportedOperationException("Unexpected Vector4Array type: " + value);
+                }
             case Vector4:
                 // can be either ColorRGBA, Vector4f or Quaternion
                 if (value instanceof Vector4f) {
@@ -211,7 +262,7 @@ public class MatParam implements Savable, Cloneable {
                 if (texKey == null){
                     throw new UnsupportedOperationException("The specified MatParam cannot be represented in J3M");
                 }
-                
+
                 String ret = "";
                 if (texKey.isFlipY()) {
                     ret += "Flip ";
