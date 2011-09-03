@@ -408,7 +408,7 @@ public final class OBJLoader implements AssetLoader {
             geom.setQueueBucket(Bucket.Opaque);
         
         if (material.getMaterialDef().getName().contains("Lighting")
-          || mesh.getFloatBuffer(Type.Normal) == null){
+          && mesh.getFloatBuffer(Type.Normal) == null){
             logger.log(Level.WARNING, "OBJ mesh {0} doesn't contain normals! "
                                     + "It might not display correctly", geom.getName());
         }
