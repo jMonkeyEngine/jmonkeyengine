@@ -187,9 +187,7 @@ public class RenderDeviceJme implements RenderDevice {
         RenderFontJme jmeFont = (RenderFontJme) font;
         BitmapText text = jmeFont.getText();
 
-        // WARNING: Not compatible with OpenGL1 implementations..
         niftyMat.setColor("Color", convertColor(color, tempColor));
-        
         niftyMat.setBoolean("UseTex", true);
         niftyMat.getAdditionalRenderState().setBlendMode(convertBlend());
         text.setMaterial(niftyMat);

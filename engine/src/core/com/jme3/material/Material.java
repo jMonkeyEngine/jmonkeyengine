@@ -81,6 +81,8 @@ import java.util.logging.Logger;
  */
 public class Material implements Asset, Cloneable, Savable, Comparable<Material> {
 
+    public static final int SAVABLE_VERSION = 1;
+    
     private static final Logger logger = Logger.getLogger(Material.class.getName());
     private static final RenderState additiveLight = new RenderState();
     private static final RenderState depthOnly = new RenderState();
@@ -1046,6 +1048,7 @@ public class Material implements Asset, Cloneable, Savable, Comparable<Material>
 
         boolean enableVcolor = false;
         boolean separateTexCoord = false;
+        boolean applyDefaults = false;
 
         if (im.getFormatVersion() == 0) {
             // Enable compatibility with old models
@@ -1069,6 +1072,9 @@ public class Material implements Asset, Cloneable, Savable, Comparable<Material>
                     separateTexCoord = true;
                 }
             }
+            applyDefaults = true;
+        }else if (ic.getSavableVersion(Material.class) == 0){
+            applyDefaults = true;
         }
 
         def = (MaterialDef) im.getAssetManager().loadAsset(new AssetKey(defName));
@@ -1093,7 +1099,16 @@ public class Material implements Asset, Cloneable, Savable, Comparable<Material>
             param.setName(checkSetParam(param.getVarType(), param.getName()));
             paramValues.put(param.getName(), param);
         }
-
+        
+        if (applyDefaults){
+            // compatability with old versions where default vars were
+            // not available
+            for (MatParam param : def.getMaterialParams()){
+                if (param.getValue() != null && paramValues.get(param.getName()) == null){
+                    setParam(param.getName(), param.getVarType(), param.getValue());
+                }
+            }
+        }
         if (enableVcolor) {
             setBoolean("VertexColor", true);
         }

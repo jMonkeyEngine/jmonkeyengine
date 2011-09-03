@@ -93,9 +93,8 @@ float lightComputeDiffuse(in vec3 norm, in vec3 lightdir, in vec3 viewdir){
 }
 
 float lightComputeSpecular(in vec3 norm, in vec3 viewdir, in vec3 lightdir, in float shiny){
-    if (shiny <= 1.0){
-        return 0.0;
-    }
+    // NOTE: check for shiny <= 1 removed since shininess is now 
+    // 1.0 by default (uses matdefs default vals)
     #ifdef LOW_QUALITY
        // Blinn-Phong
        // Note: preferably, H should be computed in the vertex shader

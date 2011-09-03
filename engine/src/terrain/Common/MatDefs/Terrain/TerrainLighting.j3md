@@ -1,3 +1,4 @@
+// NOTE: Doesn't support OpenGL1
 MaterialDef Terrain Lighting {
 
     MaterialParameters {
@@ -21,7 +22,7 @@ MaterialDef Terrain Lighting {
         Color Specular
 
         // Specular power/shininess
-        Float Shininess
+        Float Shininess : 1
 
         // Texture map #0
         Texture2D DiffuseMap
