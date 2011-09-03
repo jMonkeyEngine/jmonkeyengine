@@ -49,8 +49,13 @@ import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
 import com.jme3.texture.Texture2D;
 import com.jme3.util.BufferUtils;
+import com.jme3.util.blockparser.BlockLanguageParser;
+import com.jme3.util.blockparser.Statement;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 import java.util.Scanner;
 import java.util.logging.Level;
@@ -62,9 +67,8 @@ public class MaterialLoader implements AssetLoader {
 
     private String folderName;
     private AssetManager assetManager;
-    private Scanner scan;
     private ColorRGBA ambient, diffuse, specular, emissive;
-    private Texture texture;
+    private Texture[] textures = new Texture[4];
     private String texName;
     private String matName;
     private float shinines;
@@ -72,48 +76,43 @@ public class MaterialLoader implements AssetLoader {
     private boolean blend = false;
     private boolean twoSide = false;
     private boolean noLight = false;
-    private boolean readTexUnit = false;
+    private boolean separateTexCoord = false;
+    private int texUnit = 0;
 
-    private String readString(String end){
-        scan.useDelimiter(end);
-        String str = scan.next();
-        scan.useDelimiter("\\p{javaWhitespace}+");
-        return str.trim();
-    }
-    
-    private ColorRGBA readColor(){
+    private ColorRGBA readColor(String content){
+        String[] split = content.split(" ");
+        
         ColorRGBA color = new ColorRGBA();
-        color.r = scan.nextFloat();
-        color.g = scan.nextFloat();
-        color.b = scan.nextFloat();
-        if (scan.hasNextFloat()){
-            color.a = scan.nextFloat();
+        color.r = Float.parseFloat(split[0]);
+        color.g = Float.parseFloat(split[1]);
+        color.b = Float.parseFloat(split[2]);
+        if (split.length >= 4){
+            color.a = Float.parseFloat(split[3]);
         }
         return color;
     }
 
-    private void readTextureImage(){
+    private void readTextureImage(String content){
         // texture image def
-        String ln = scan.nextLine();
         String path = null;
 
         // find extension
-        int extStart = ln.lastIndexOf(".");
-        for (int i = extStart; i < ln.length(); i++){
-            char c = ln.charAt(i);
+        int extStart = content.lastIndexOf(".");
+        for (int i = extStart; i < content.length(); i++){
+            char c = content.charAt(i);
             if (Character.isWhitespace(c)){
                 // extension ends here
-                path = ln.substring(0, i).trim();
-                ln   = ln.substring(i+1).trim();
+                path = content.substring(0, i).trim();
+                content   = content.substring(i+1).trim();
                 break;
             }
         }
         if (path == null){
-            path = ln.trim();
-            ln = "";
+            path = content.trim();
+            content = "";
         }
 
-        Scanner lnScan = new Scanner(ln);
+        Scanner lnScan = new Scanner(content);
         String mips = null;
         String type = null;
         if (lnScan.hasNext()){
@@ -145,144 +144,129 @@ public class MaterialLoader implements AssetLoader {
         if (loadedTexture == null){
             ByteBuffer tempData = BufferUtils.createByteBuffer(3);
             tempData.put((byte)0xFF).put((byte)0x00).put((byte)0x00);
-            texture = new Texture2D(new Image(Format.RGB8, 1,1,tempData));
+            textures[texUnit].setImage(new Image(Format.RGB8, 1,1,tempData));
             logger.log(Level.WARNING, "Using RED texture instead of {0}", path);
         }else{
-            texture.setImage(loadedTexture.getImage());
-            texture.setMinFilter(loadedTexture.getMinFilter());
-            texture.setKey(loadedTexture.getKey());
+            textures[texUnit].setImage(loadedTexture.getImage());
+            textures[texUnit].setMinFilter(loadedTexture.getMinFilter());
+            textures[texUnit].setKey(loadedTexture.getKey());
 
             // XXX: Is this really neccessary?
-            texture.setWrap(WrapMode.Repeat);
+            textures[texUnit].setWrap(WrapMode.Repeat);
             if (texName != null){
-                texture.setName(texName);
+                textures[texUnit].setName(texName);
                 texName = null;
             }else{
-                texture.setName(key.getName());
+                textures[texUnit].setName(key.getName());
             }
         }
-        
-        
     }
 
-    private void readTextureUnitStatement(){
-        String keyword = scan.next();
+    private void readTextureUnitStatement(Statement statement){
+        String[] split = statement.getLine().split(" ", 2);
+        String keyword = split[0];
         if (keyword.equals("texture")){
-            readTextureImage();
+            readTextureImage(split[1]);
         }else if (keyword.equals("tex_address_mode")){
-            String mode = scan.next();
+            String mode = split[1];
             if (mode.equals("wrap")){
-                texture.setWrap(WrapMode.Repeat);
+                textures[texUnit].setWrap(WrapMode.Repeat);
             }else if (mode.equals("clamp")){
-                texture.setWrap(WrapMode.Clamp);
+                textures[texUnit].setWrap(WrapMode.Clamp);
             }else if (mode.equals("mirror")){
-                texture.setWrap(WrapMode.MirroredRepeat);
+                textures[texUnit].setWrap(WrapMode.MirroredRepeat);
             }else if (mode.equals("border")){
-                texture.setWrap(WrapMode.BorderClamp);
+                textures[texUnit].setWrap(WrapMode.BorderClamp);
             }
         }else if (keyword.equals("filtering")){
             // ignored.. only anisotropy is considered
-            readString("\n");
+        }else if (keyword.equals("tex_coord_set")){
+            int texCoord = Integer.parseInt(split[1]);
+            if (texCoord == 1){
+                separateTexCoord = true;
+            }
         }else if (keyword.equals("max_anisotropy")){
-            int amount = scan.nextInt();
-            texture.setAnisotropicFilter(amount);
+            int amount = Integer.parseInt(split[1]);
+            textures[texUnit].setAnisotropicFilter(amount);
         }else{
             logger.log(Level.WARNING, "Unsupported texture_unit directive: {0}", keyword);
-            readString("\n");
         }
     }
 
-    private void readTextureUnit(boolean skipIt){
+    private void readTextureUnit(Statement statement){
+        String[] split = statement.getLine().split(" ", 2); 
         // name is optional
-        if (!scan.hasNext("\\{")){
-            texName = readString("\\{");
+        if (split.length == 2){
+            texName = split[1];
         }else{
             texName = null;
         }
-        scan.next(); // skip "{"
 
-        if (!skipIt){
-            texture = new Texture2D();
+        textures[texUnit] = new Texture2D();
+        for (Statement texUnitStat : statement.getContents()){
+            readTextureUnitStatement(texUnitStat);
         }
-
-        while (!scan.hasNext("\\}")){
-            if (skipIt){
-                readString("\n");
-            }else{
-                readTextureUnitStatement();
-            }
+        if (textures[texUnit].getImage() != null){
+            texUnit++;
+        }else{
+            // no image was loaded, ignore
+            textures[texUnit] = null;
         }
-        scan.next(); // skip "}"
     }
 
-    private void readPassStatement(){
+    private void readPassStatement(Statement statement){
         // read until newline
-        String keyword = scan.next();
-        if (keyword.equals(""))
-            return;
-
+        String[] split = statement.getLine().split(" ", 2);
+        String keyword = split[0];
         if (keyword.equals("diffuse")){
-            if (scan.hasNext("vertexcolour")){
+            if (split[1].equals("vertexcolour")){
                 // use vertex colors
                 diffuse = ColorRGBA.White;
                 vcolor = true;
-                scan.next(); // skip it
             }else{
-                diffuse = readColor();
+                diffuse = readColor(split[1]);
             }
         }else if(keyword.equals("ambient")) {
-           if (scan.hasNext("vertexcolour")){
+           if (split[1].equals("vertexcolour")){
                 // use vertex colors
                ambient = ColorRGBA.White;
-               scan.next(); // skip it
             }else{
-               ambient = readColor();
+               ambient = readColor(split[1]);
             }
         }else if (keyword.equals("emissive")){
-            emissive = readColor();
+            emissive = readColor(split[1]);
         }else if (keyword.equals("specular")){
+            String[] subsplit = split[1].split(" ");
             specular = new ColorRGBA();
-            specular.r = scan.nextFloat();
-            specular.g = scan.nextFloat();
-            specular.b = scan.nextFloat();
-            float unknown = scan.nextFloat();
-            if (scan.hasNextFloat()){
+            specular.r = Float.parseFloat(subsplit[0]);
+            specular.g = Float.parseFloat(subsplit[1]);
+            specular.b = Float.parseFloat(subsplit[2]);
+            float unknown = Float.parseFloat(subsplit[3]);
+            if (subsplit.length >= 5){
                 // using 5 float values
                 specular.a = unknown;
-                shinines = scan.nextFloat();
+                shinines = Float.parseFloat(subsplit[4]);
             }else{
                 // using 4 float values
                 specular.a = 1f;
                 shinines = unknown;
             }
         }else if (keyword.equals("texture_unit")){
-            readTextureUnit(readTexUnit);
-            // After reading the first texunit, ignore the rest
-            if (!readTexUnit) {
-                readTexUnit = true;
-            }
+            readTextureUnit(statement);
         }else if (keyword.equals("scene_blend")){
-            if (scan.hasNextInt()){
-                readString("\n"); // blender2ogre workaround
-                return; 
-            }
-            String mode = scan.next();
+            String mode = split[1];
             if (mode.equals("alpha_blend")){
                 blend = true;
-            }else{
-                // skip the rest
-                readString("\n");
             }
         }else if (keyword.equals("cull_hardware")){
-            String mode = scan.next();
+            String mode = split[1];
             if (mode.equals("none")){
                 twoSide = true;
             }
         }else if (keyword.equals("cull_software")){
             // ignore
-            scan.next();
         }else if (keyword.equals("lighting")){
-            String isOn = scan.next();
+            String isOn = split[1];
             if (isOn.equals("on")){
                 noLight = false;
             }else if (isOn.equals("off")){
@@ -290,75 +274,55 @@ public class MaterialLoader implements AssetLoader {
             }
         }else{
             logger.log(Level.WARNING, "Unsupported pass directive: {0}", keyword);
-            readString("\n");
         }
     }
 
-    private void readPass(){
-        scan.next(); // skip "pass"
-        // name is optional
+    private void readPass(Statement statement){
         String name;
-        if (scan.hasNext("\\{")){
+        String[] split = statement.getLine().split(" ", 2);
+        if (split.length == 1){
             // no name
             name = null;
         }else{
-            name = readString("\\{");
+            name = split[1];
         }
-        scan.next(); // skip "{"
         
-        // Has not yet read a tex unit for this pass
-        readTexUnit = false;
-        
-        while (!scan.hasNext("\\}")){
-            readPassStatement();
+        for (Statement passStat : statement.getContents()){
+            readPassStatement(passStat);
         }
-        scan.next(); // skip "}"
+        
+        texUnit = 0;
     }
 
-    private void readTechnique(){
-        scan.next(); // skip "technique"
-        // name is optional
+    private void readTechnique(Statement statement){
+        String[] split = statement.getLine().split(" ", 2);
         String name;
-        if (scan.hasNext("\\{")){
+        if (split.length == 1){
             // no name
             name = null;
         }else{
-            name = readString("\\{");
+            name = split[1];
         }
-        scan.next(); // skip "{"
-        while (!scan.hasNext("\\}")){
-            readPass();
+        for (Statement techStat : statement.getContents()){
+            readPass(techStat);
         }
-        scan.next();
     }
 
-    private boolean readMaterialStatement(){
-        if (scan.hasNext("technique")){
-            readTechnique();
-            return true;
-        }else if (scan.hasNext("receive_shadows")){
-            // skip "receive_shadows"
-            scan.next();
-            String isOn = scan.next();
+    private void readMaterialStatement(Statement statement){
+        if (statement.getLine().startsWith("technique")){
+            readTechnique(statement);
+        }else if (statement.getLine().startsWith("receive_shadows")){
+            String isOn = statement.getLine().split(" ")[1];
             if (isOn != null && isOn.equals("true")){
-
             }
-            return true;
-        }else{
-            return false;
         }
     }
 
     @SuppressWarnings("empty-statement")
-    private void readMaterial(){
-        scan.next(); // skip "material"
-        // read name
-        matName = readString("\\{");
-        scan.next(); // skip "{"
-        while (!scan.hasNext("\\}")){
-            readMaterialStatement();
+    private void readMaterial(Statement statement){
+        for (Statement materialStat : statement.getContents()){
+            readMaterialStatement(materialStat);
         }
-        scan.next();
     }
 
     private Material compileMaterial(){
@@ -396,8 +360,8 @@ public class MaterialLoader implements AssetLoader {
             if (vcolor)
                 mat.setBoolean("UseVertexColor", true);
 
-            if (texture != null)
-                mat.setTexture("DiffuseMap", texture);
+            if (textures[0] != null)
+                mat.setTexture("DiffuseMap", textures[0]);
 
             mat.setBoolean("UseMaterialColors", true);
             if(diffuse != null){
@@ -426,10 +390,21 @@ public class MaterialLoader implements AssetLoader {
                 mat.setBoolean("VertexColor", true);
             }
 
-            if (texture != null) {
-                mat.setTexture("ColorMap", texture);
+            if (textures[0] != null && textures[1] == null){
+                if (separateTexCoord){
+                    mat.setTexture("LightMap", textures[0]);
+                    mat.setBoolean("SeparateTexCoord", true);
+                }else{
+                    mat.setTexture("ColorMap", textures[0]);
+                }
+            }else if (textures[1] != null){
+                mat.setTexture("ColorMap", textures[0]);
+                mat.setTexture("LightMap", textures[1]);
+                if (separateTexCoord){
+                    mat.setBoolean("SeparateTexCoord", true);
+                }
             }
-
+                 
             if(diffuse != null){
                 mat.setColor("Color", diffuse);
             }
@@ -440,13 +415,14 @@ public class MaterialLoader implements AssetLoader {
         }
 
         noLight = false;
-        texture = null;
+        Arrays.fill(textures, null);
         diffuse = null;
         specular = null;
-        texture = null;
         shinines = 0f;
         vcolor = false;
         blend = false;
+        texUnit = 0;
+        separateTexCoord = false;
         return mat;
     }
 
@@ -454,31 +430,37 @@ public class MaterialLoader implements AssetLoader {
         folderName = info.getKey().getFolder();
         assetManager = info.getManager();
 
-        MaterialList list;
+        MaterialList list = null;
         
-        scan = new Scanner(info.openStream());
-        scan.useLocale(Locale.US);
-        if (scan.hasNext("import")){
-            MaterialExtensionSet matExts = null;
-            if (info.getKey() instanceof OgreMaterialKey){
-                 matExts = ((OgreMaterialKey)info.getKey()).getMaterialExtensionSet();
-            }
-            
-            if (matExts == null){
-                throw new IOException("Must specify MaterialExtensionSet when loading\n"+
-                                      "Ogre3D materials with extended materials");
-            }
+        InputStream in = info.openStream();
+        List<Statement> statements = BlockLanguageParser.parse(in);
+        
+        for (Statement statement : statements){
+            if (statement.getLine().startsWith("import")){
+                MaterialExtensionSet matExts = null;
+                if (info.getKey() instanceof OgreMaterialKey){
+                     matExts = ((OgreMaterialKey)info.getKey()).getMaterialExtensionSet();
+                }
 
-            list = new MaterialExtensionLoader().load(assetManager, matExts, scan);
-        }else{
-            list = new MaterialList();
-            while (scan.hasNext("material")){
-                readMaterial();
+                if (matExts == null){
+                    throw new IOException("Must specify MaterialExtensionSet when loading\n"+
+                                          "Ogre3D materials with extended materials");
+                }
+
+                list = new MaterialExtensionLoader().load(assetManager, matExts, statements);
+                break;
+            }else if (statement.getLine().startsWith("material")){
+                if (list == null){
+                    list = new MaterialList();
+                }
+                String[] split = statement.getLine().split(" ", 2);
+                matName = split[1].trim();
+                readMaterial(statement);
                 Material mat = compileMaterial();
                 list.put(matName, mat);
             }
         }
-        scan.close();
+        in.close();
         return list;
     }
 

@@ -39,6 +39,7 @@ import com.jme3.material.MaterialList;
 import com.jme3.scene.plugins.ogre.MaterialLoader;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
+import com.jme3.util.blockparser.Statement;
 import java.io.IOException;
 import java.util.List;
 import java.util.Scanner;
@@ -53,26 +54,17 @@ public class MaterialExtensionLoader {
     private static final Logger logger = Logger.getLogger(MaterialExtensionLoader.class.getName());
 
     private AssetManager assetManager;
-    private Scanner scan;
     private MaterialList list;
     private MaterialExtensionSet matExts;
     private MaterialExtension matExt;
     private String matName;
     private Material material;
 
-    private String readString(String end){
-        scan.useDelimiter(end);
-        String str = scan.next();
-        scan.useDelimiter("\\p{javaWhitespace}+");
-        return str.trim();
-    }
-
-    private boolean readExtendingMaterialStatement() throws IOException{
-        if (scan.hasNext("set_texture_alias")){
-            scan.next(); // skip "set_texture_alias"
-
-            String aliasName = scan.next();
-            String texturePath = readString("\n");
+    private void readExtendingMaterialStatement(Statement statement) throws IOException {
+        if (statement.getLine().startsWith("set_texture_alias")){
+            String[] split = statement.getLine().split(" ", 3);
+            String aliasName = split[1];
+            String texturePath = split[2];
 
             String jmeParamName = matExt.getTextureMapping(aliasName);
 
@@ -85,69 +77,51 @@ public class MaterialExtensionLoader {
             tex.setWrap(WrapMode.Repeat);
 
             material.setTexture(jmeParamName, tex);
-
-            return true;
-        }else{
-            return false;
         }
     }
 
-    private Material readExtendingMaterial() throws IOException{
-        scan.next(); // skip "material"
-        matName = readString(":").trim();
-        scan.next();
-        String extendedMat = readString("\\{").trim();
-        scan.next();
+    private Material readExtendingMaterial(Statement statement) throws IOException{
+        String[] split = statement.getLine().split(" ", 2);
+        String[] subsplit = split[1].split(":");
+        matName = subsplit[0].trim();
+        String extendedMat = subsplit[1].trim();
 
         matExt = matExts.getMaterialExtension(extendedMat);
         if (matExt == null){
             logger.log(Level.WARNING, "Cannot find MaterialExtension for: {0}. Ignoring material.", extendedMat);
-            readString("\\}");
-            scan.next();
             matExt = null;
             return null;
         }
 
         material = new Material(assetManager, matExt.getJmeMatDefName());
-
-        material.setFloat("Shininess", 16f);
-
-        while (!scan.hasNext("\\}")){
-            readExtendingMaterialStatement();
+        for (Statement extMatStat : statement.getContents()){
+            readExtendingMaterialStatement(extMatStat);
         }
-
         return material;
     }
 
-    public MaterialList load(AssetManager assetManager, MaterialExtensionSet matExts, Scanner scan) throws IOException{
+    public MaterialList load(AssetManager assetManager, MaterialExtensionSet matExts,
+            List<Statement> statements) throws IOException{
         this.assetManager = assetManager;
         this.matExts = matExts;
-        this.scan = scan;
         
         list = new MaterialList();
         
-        if (scan.hasNext("import")){
-            scan.nextLine(); // skip this line
-        }
-
-        toploop: while (scan.hasNext()){
-            while (!scan.hasNext("material")){
-                if (!scan.hasNext())
-                    break toploop;
-                
-                scan.next();
-            }
-
-            Material material = readExtendingMaterial();
-            list.put(matName, material);
-            List<String> matAliases = matExts.getNameMappings(matName);
-            if(matAliases != null){
-                for (String string : matAliases) {
-                    list.put(string, material);
+        for (Statement statement : statements){
+            if (statement.getLine().startsWith("import")){
+                // ignore
+                continue;
+            }else if (statement.getLine().startsWith("material")){
+                Material material = readExtendingMaterial(statement);
+                list.put(matName, material);
+                List<String> matAliases = matExts.getNameMappings(matName);
+                if(matAliases != null){
+                    for (String string : matAliases) {
+                        list.put(string, material);
+                    }
                 }
             }
         }
-
         return list;
     }
 }
