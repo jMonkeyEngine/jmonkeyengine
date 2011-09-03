@@ -159,7 +159,7 @@ public class AddTerrainAction extends AbstractNewSpatialWizardAction {
         ((Node)terrain).setModelBound(new BoundingBox());
         ((Node)terrain).updateModelBound();
         ((Node)terrain).setLocalTranslation(0, 0, 0);
-        ((Node)terrain).setLocalScale(4f, 1f, 4f);
+        ((Node)terrain).setLocalScale(1f, 1f, 1f);
 
         // add the lod control
         TerrainLodControl control = new TerrainLodControl(terrain, SceneApplication.getApplication().getCamera());

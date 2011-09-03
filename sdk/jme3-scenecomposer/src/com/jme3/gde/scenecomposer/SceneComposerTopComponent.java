@@ -894,6 +894,9 @@ private void scaleButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
             SelectTool tool = new SelectTool();
             toolController.showEditTool(tool);
             toolController.setShowSelection(true);
+            
+            editorController.setToolController(toolController);
+            toolController.refreshNonSpatialMarkers();
         }/* else {
          SceneApplication.getApplication().removeSceneListener(this);
          currentRequest = null;
@@ -923,4 +926,5 @@ private void scaleButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
 
     public void previewRequested(PreviewRequest request) {
     }
+    
 }

@@ -17,6 +17,7 @@ import com.jme3.effect.ParticleMesh;
 import com.jme3.gde.core.assets.ProjectAssetManager;
 import com.jme3.gde.core.assets.SpatialAssetDataObject;
 import com.jme3.gde.core.scene.SceneApplication;
+import com.jme3.gde.core.scene.controller.SceneToolController;
 import com.jme3.gde.core.sceneexplorer.nodes.AbstractSceneExplorerNode;
 import com.jme3.gde.core.sceneexplorer.nodes.JmeSpatial;
 import com.jme3.gde.core.undoredo.AbstractUndoableSceneEdit;
@@ -72,10 +73,15 @@ public class SceneEditorController implements PropertyChangeListener, NodeListen
     private JmeSpatial selectedSpat;
     private DataObject currentFileObject;
 //    private boolean needSave = false;
+    private SceneComposerToolController toolController;
 
     public SceneEditorController(JmeSpatial jmeRootNode, DataObject currentFileObject) {
         this.jmeRootNode = jmeRootNode;
         this.currentFileObject = currentFileObject;
+    }
+
+    public void setToolController(SceneComposerToolController toolController) {
+        this.toolController = toolController;
     }
 
     public JmeSpatial getJmeRootNode() {
@@ -148,12 +154,14 @@ public class SceneEditorController implements PropertyChangeListener, NodeListen
                 public void sceneUndo() throws CannotUndoException {
                     //undo stuff here
                     undoParent.removeLight(undoLight);
+                    toolController.removeLightMarker(undoLight);
                 }
 
                 @Override
                 public void sceneRedo() throws CannotRedoException {
                     //redo stuff here
                     undoParent.addLight(undoLight);
+                    toolController.addLightMarker(undoLight);
                 }
 
                 @Override
@@ -705,18 +713,22 @@ public class SceneEditorController implements PropertyChangeListener, NodeListen
 
     public void childrenAdded(NodeMemberEvent ev) {
 //        setNeedsSave(true);
+        toolController.refreshNonSpatialMarkers();
     }
 
     public void childrenRemoved(NodeMemberEvent ev) {
 //        setNeedsSave(true);
+        toolController.refreshNonSpatialMarkers();
     }
 
     public void childrenReordered(NodeReorderEvent ev) {
 //        setNeedsSave(true);
+        toolController.refreshNonSpatialMarkers();
     }
 
     public void nodeDestroyed(NodeEvent ev) {
 //        setNeedsSave(true);
+        toolController.refreshNonSpatialMarkers();
     }
 
     public void saveScene() {

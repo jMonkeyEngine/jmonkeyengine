@@ -5,15 +5,35 @@
 package com.jme3.gde.scenecomposer;
 
 import com.jme3.asset.AssetManager;
+import com.jme3.bounding.BoundingVolume;
+import com.jme3.collision.Collidable;
+import com.jme3.collision.CollisionResults;
+import com.jme3.collision.UnsupportedCollisionException;
 import com.jme3.gde.core.scene.SceneApplication;
 import com.jme3.gde.core.scene.controller.SceneToolController;
 import com.jme3.gde.core.sceneexplorer.nodes.JmeNode;
+import com.jme3.light.Light;
+import com.jme3.light.LightList;
+import com.jme3.light.PointLight;
+import com.jme3.light.SpotLight;
+import com.jme3.material.Material;
+import com.jme3.material.RenderState.BlendMode;
 import com.jme3.math.Vector2f;
+import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
+import com.jme3.renderer.queue.RenderQueue.Bucket;
+import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
+import com.jme3.scene.SceneGraphVisitor;
 import com.jme3.scene.Spatial;
+import com.jme3.scene.control.AbstractControl;
+import com.jme3.scene.control.BillboardControl;
+import com.jme3.scene.control.Control;
+import com.jme3.scene.shape.Quad;
+import com.jme3.texture.Texture;
+import java.util.Queue;
 import java.util.concurrent.Callable;
 
 /**
@@ -28,10 +48,14 @@ public class SceneComposerToolController extends SceneToolController {
     private ComposerCameraController cameraController;
     private ViewPort overlayView;
     private Node onTopToolsNode;
+    private Node lightMarkersNode;
+    private Material lightMarkerMaterial;
 
     public SceneComposerToolController(Node toolsNode, AssetManager manager, JmeNode rootNode) {
         super(toolsNode, manager);
         this.rootNode = rootNode;
+        lightMarkersNode = new Node("lightMarkersNode");
+        toolsNode.attachChild(lightMarkersNode);
     }
 
     public SceneComposerToolController(AssetManager manager) {
@@ -178,5 +202,145 @@ public class SceneComposerToolController extends SceneToolController {
             editTool.setCamera(camera);
             editTool.draggedSecondary(mouseLoc, pressed, rootNode, editorController.getCurrentDataObject());
         }
+    }
+
+    public Node getLightMarkersNode() {
+        return lightMarkersNode;
+    }
+    
+    /**
+     * Adds a marker for the light to the scene if it does not exist yet
+     */
+    public void addLightMarker(Light light) {
+        if (!(light instanceof PointLight) && !(light instanceof SpotLight))
+            return; // only handle point and spot lights
+        
+        Spatial s = lightMarkersNode.getChild(light.getName());
+        if (s != null) {
+            // update location maybe? Remove old and replace with new?
+            return;
+        }
+        
+        LightMarker lm = new LightMarker(light);
+        lightMarkersNode.attachChild(lm);
+    }
+    
+    /**
+     * Removes a light marker from the scene's tool node
+     */
+    public void removeLightMarker(Light light) {
+        Spatial s = lightMarkersNode.getChild(light.getName());
+        s.removeFromParent();
+    }
+    
+    private Material getLightMarkerMaterial() {
+        if (lightMarkerMaterial == null) {
+            Material mat = new Material(manager, "Common/MatDefs/Misc/Unshaded.j3md");
+            Texture tex = manager.loadTexture("com/jme3/gde/scenecomposer/lightbulb32.png");
+            mat.setTexture("ColorMap", tex);
+            mat.getAdditionalRenderState().setBlendMode(BlendMode.Alpha);
+            lightMarkerMaterial = mat;
+        }
+        return lightMarkerMaterial;
+    }
+
+    protected void refreshNonSpatialMarkers() {
+        lightMarkersNode.detachAllChildren();
+        addMarkers(rootNode.getLookup().lookup(Node.class));
+    }
+    
+    private void addMarkers(Node parent) {
+        
+        for (Light light : parent.getLocalLightList())
+            addLightMarker(light);
+        
+        for (Spatial s : parent.getChildren()) {
+            if (s instanceof Node)
+                addMarkers((Node)s);
+            else {
+                //TODO later if we include other types of non-spatial markers
+            }
+        }
+    }
+    
+    /**
+     * A marker on the screen that shows where a point light or
+     * a spot light is. This marker is not part of the scene,
+     * but is part of the tools node.
+     */
+    protected class LightMarker extends Geometry {
+        private Light light;
+        
+        protected LightMarker() {}
+    
+        protected LightMarker(Light light) {
+            this.light = light;
+            Quad q = new Quad(0.5f, 0.5f);
+            this.setMesh(q);
+            this.setMaterial(getLightMarkerMaterial());
+            this.addControl(new LightMarkerControl());
+            this.setQueueBucket(Bucket.Transparent);
+        }
+        
+        protected Light getLight() {
+            return light;
+        }
+        
+        @Override
+        public void setLocalTranslation(Vector3f location) {
+            super.setLocalTranslation(location);
+            if (light instanceof PointLight)
+                ((PointLight)light).setPosition(location);
+            else if (light instanceof SpotLight)
+                ((SpotLight)light).setPosition(location);
+        }
+        
+        @Override
+        public void setLocalTranslation(float x, float y, float z) {
+            super.setLocalTranslation(x, y, z);
+            if (light instanceof PointLight)
+                ((PointLight)light).setPosition(new Vector3f(x,y,z));
+            else if (light instanceof SpotLight)
+                ((SpotLight)light).setPosition(new Vector3f(x,y,z));
+        }
+    }
+    
+    /**
+     * Updates the marker's position whenever the light has moved.
+     * It is also a BillboardControl, so this marker always faces
+     * the camera
+     */
+    protected class LightMarkerControl extends BillboardControl {
+
+        LightMarkerControl(){
+            super();
+        }
+        
+        @Override
+        protected void controlUpdate(float f) {
+            super.controlUpdate(f);
+            LightMarker marker = (LightMarker) getSpatial();
+            if (marker != null) {
+                if (marker.getLight() instanceof PointLight) {
+                    marker.setLocalTranslation(((PointLight)marker.getLight()).getPosition());
+                } else if (marker.getLight() instanceof SpotLight) {
+                    marker.setLocalTranslation(((SpotLight)marker.getLight()).getPosition());
+                }
+            }
+        }
+
+        @Override
+        protected void controlRender(RenderManager rm, ViewPort vp) {
+            super.controlRender(rm, vp);
+        }
+
+        @Override
+        public Control cloneForSpatial(Spatial sptl) {
+            LightMarkerControl c = new LightMarkerControl();
+            c.setSpatial(sptl);
+            //TODO this isn't correct, none of BillboardControl is copied over
+            return c;
+        }
+        
     }
 }
