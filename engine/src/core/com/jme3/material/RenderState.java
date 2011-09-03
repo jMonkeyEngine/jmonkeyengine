@@ -43,9 +43,9 @@ import java.io.IOException;
 /**
  * <code>RenderState</code> specifies material rendering properties that cannot
  * be controlled by a shader on a {@link Material}. The properties
- * allow manipulation of rendering features such as depth testing, alpha blending, 
+ * allow manipulation of rendering features such as depth testing, alpha blending,
  * face culling, stencil operations, and much more.
- * 
+ *
  * @author Kirill Vainer
  */
 public class RenderState implements Cloneable, Savable {
@@ -53,7 +53,7 @@ public class RenderState implements Cloneable, Savable {
     /**
      * The <code>DEFAULT</code> render state is the one used by default
      * on all materials unless changed otherwise by the user.
-     * 
+     *
      * <p>
      * It has the following properties:
      * <ul>
@@ -63,13 +63,13 @@ public class RenderState implements Cloneable, Savable {
      * </ul>
      */
     public static final RenderState DEFAULT = new RenderState();
-    
+
     /**
      * The <code>NULL</code> render state is identical to the {@link RenderState#DEFAULT}
      * render state except that depth testing and face culling are disabled.
      */
     public static final RenderState NULL = new RenderState();
-    
+
     /**
      * The <code>ADDITIONAL</code> render state is identical to the
      * {@link RenderState#DEFAULT} render state except that all apply
@@ -82,9 +82,9 @@ public class RenderState implements Cloneable, Savable {
     /**
      * <code>TestFunction</code> specifies the testing function for stencil test
      * function and alpha test function.
-     * 
+     *
      * <p>The functions work similarly as described except that for stencil
-     * test function, the reference value given in the stencil command is 
+     * test function, the reference value given in the stencil command is
      * the input value while the reference is the value already in the stencil
      * buffer.
      */
@@ -103,7 +103,7 @@ public class RenderState implements Cloneable, Savable {
          */
         Less,
         /**
-         * The test succeeds if the input value is less than or equal to 
+         * The test succeeds if the input value is less than or equal to
          * the reference value.
          */
         LessOrEqual,
@@ -112,7 +112,7 @@ public class RenderState implements Cloneable, Savable {
          */
         Greater,
         /**
-         * The test succeeds if the input value is greater than or equal to 
+         * The test succeeds if the input value is greater than or equal to
          * the reference value.
          */
         GreaterOrEqual,
@@ -128,8 +128,8 @@ public class RenderState implements Cloneable, Savable {
 
     /**
      * <code>BlendMode</code> specifies the blending operation to use.
-     * 
-     * @see RenderState#setBlendMode(com.jme3.material.RenderState.BlendMode) 
+     *
+     * @see RenderState#setBlendMode(com.jme3.material.RenderState.BlendMode)
      */
     public enum BlendMode {
 
@@ -140,27 +140,27 @@ public class RenderState implements Cloneable, Savable {
         /**
          * Additive blending. For use with glows and particle emitters.
          * <p>
-         * Result = Source Color + Destination Color
+         * Result = Source Color + Destination Color -> (GL_ONE, GL_ONE)
          */
         Additive,
         /**
          * Premultiplied alpha blending, for use with premult alpha textures.
          * <p>
-         * Result = Source Color + (Dest Color * (1 - Source Alpha) )
+         * Result = Source Color + (Dest Color * (1 - Source Alpha) ) -> (GL_ONE, GL_ONE_MINUS_SRC_ALPHA)
          */
         PremultAlpha,
         /**
          * Additive blending that is multiplied with source alpha.
          * For use with glows and particle emitters.
          * <p>
-         * Result = (Source Alpha * Source Color) + Dest Color
+         * Result = (Source Alpha * Source Color) + Dest Color -> (GL_SRC_ALPHA, GL_ONE)
          */
         AlphaAdditive,
         /**
          * Color blending, blends in color from dest color
          * using source color.
          * <p>
-         * Result = Source Color + (1 - Source Color) * Dest Color
+         * Result = Source Color + (1 - Source Color) * Dest Color -> (GL_ONE, GL_ONE_MINUS_SRC_COLOR)
          */
         Color,
         /**
@@ -168,27 +168,27 @@ public class RenderState implements Cloneable, Savable {
          * using source alpha.
          * <p>
          * Result = Source Alpha * Source Color +
-         *          (1 - Source Alpha) * Dest Color
+         *          (1 - Source Alpha) * Dest Color -> (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
          */
         Alpha,
         /**
          * Multiplies the source and dest colors.
          * <p>
-         * Result = Source Color * Dest Color
+         * Result = Source Color * Dest Color -> (GL_DST_COLOR, GL_ZERO)
          */
         Modulate,
         /**
          * Multiplies the source and dest colors then doubles the result.
          * <p>
-         * Result = 2 * Source Color * Dest Color
+         * Result = 2 * Source Color * Dest Color -> (GL_DST_COLOR, GL_SRC_COLOR)
          */
         ModulateX2
     }
 
     /**
      * <code>FaceCullMode</code> specifies the criteria for faces to be culled.
-     * 
-     * @see RenderState#setFaceCullMode(com.jme3.material.RenderState.FaceCullMode) 
+     *
+     * @see RenderState#setFaceCullMode(com.jme3.material.RenderState.FaceCullMode)
      */
     public enum FaceCullMode {
 
@@ -212,14 +212,14 @@ public class RenderState implements Cloneable, Savable {
 
     /**
      * <code>StencilOperation</code> specifies the stencil operation to use
-     * in a certain scenario as specified in {@link RenderState#setStencil(boolean, 
-     * com.jme3.material.RenderState.StencilOperation, 
-     * com.jme3.material.RenderState.StencilOperation, 
-     * com.jme3.material.RenderState.StencilOperation, 
-     * com.jme3.material.RenderState.StencilOperation, 
-     * com.jme3.material.RenderState.StencilOperation, 
+     * in a certain scenario as specified in {@link RenderState#setStencil(boolean,
      * com.jme3.material.RenderState.StencilOperation,
-     * com.jme3.material.RenderState.StencilFunction, 
+     * com.jme3.material.RenderState.StencilOperation,
+     * com.jme3.material.RenderState.StencilOperation,
+     * com.jme3.material.RenderState.StencilOperation,
+     * com.jme3.material.RenderState.StencilOperation,
+     * com.jme3.material.RenderState.StencilOperation,
+     * com.jme3.material.RenderState.StencilFunction,
      * com.jme3.material.RenderState.StencilFunction)}
      */
     public enum StencilOperation {
@@ -236,15 +236,15 @@ public class RenderState implements Cloneable, Savable {
          * Replace the value in the stencil buffer with the reference value.
          */
         Replace,
-        
+
         /**
          * Increment the value in the stencil buffer, clamp once reaching
          * the maximum value.
          */
         Increment,
-        
+
         /**
-         * Increment the value in the stencil buffer and wrap to 0 when 
+         * Increment the value in the stencil buffer and wrap to 0 when
          * reaching the maximum value.
          */
         IncrementWrap,
@@ -257,7 +257,7 @@ public class RenderState implements Cloneable, Savable {
          * value when reaching 0.
          */
         DecrementWrap,
-        
+
         /**
          * Does a bitwise invert of the value in the stencil buffer.
          */
@@ -281,39 +281,39 @@ public class RenderState implements Cloneable, Savable {
         ADDITIONAL.applyAlphaFallOff = false;
         ADDITIONAL.applyPolyOffset = false;
     }
-    
+
     boolean pointSprite = false;
     boolean applyPointSprite = true;
-    
+
     boolean wireframe = false;
     boolean applyWireFrame = true;
-    
+
     FaceCullMode cullMode = FaceCullMode.Back;
     boolean applyCullMode = true;
-    
+
     boolean depthWrite = true;
     boolean applyDepthWrite = true;
-    
+
     boolean depthTest = true;
     boolean applyDepthTest = true;
-    
+
     boolean colorWrite = true;
     boolean applyColorWrite = true;
-    
+
     BlendMode blendMode = BlendMode.Off;
     boolean applyBlendMode = true;
-    
+
     boolean alphaTest = false;
     boolean applyAlphaTest = true;
-    
+
     float alphaFallOff = 0;
     boolean applyAlphaFallOff = true;
-    
+
     float offsetFactor = 0;
     float offsetUnits = 0;
     boolean offsetEnabled = false;
     boolean applyPolyOffset = true;
-    
+
     boolean stencilTest = false;
     boolean applyStencilTest = false;
     StencilOperation frontStencilStencilFailOperation = StencilOperation.Keep;
@@ -377,7 +377,7 @@ public class RenderState implements Cloneable, Savable {
 
     /**
      * Create a clone of this <code>RenderState</code>
-     * 
+     *
      * @return Clone of this render state.
      */
     @Override
@@ -390,15 +390,15 @@ public class RenderState implements Cloneable, Savable {
     }
 
     /**
-     * Enables point sprite mode. 
-     * 
+     * Enables point sprite mode.
+     *
      * <p>When point sprite is enabled, any meshes
      * with the type of {@link Mode#Points} will be rendered as 2D quads
-     * with texturing enabled. Fragment shaders can write to the 
-     * <code>gl_PointCoord</code> variable to manipulate the texture coordinate 
+     * with texturing enabled. Fragment shaders can write to the
+     * <code>gl_PointCoord</code> variable to manipulate the texture coordinate
      * for each pixel. The size of the 2D quad can be controlled by writing
      * to the <code>gl_PointSize</code> variable in the vertex shader.
-     * 
+     *
      * @param pointSprite Enables Point Sprite mode.
      */
     public void setPointSprite(boolean pointSprite) {
@@ -407,16 +407,16 @@ public class RenderState implements Cloneable, Savable {
     }
 
     /**
-     * Sets the alpha fall off value for alpha testing. 
-     * 
+     * Sets the alpha fall off value for alpha testing.
+     *
      * <p>If the pixel's alpha value is greater than the
      * <code>alphaFallOff</code> then the pixel will be rendered, otherwise
      * the pixel will be discarded.
-     * 
+     *
      * @param alphaFallOff The alpha of all rendered pixels must be higher
      * than this value to be rendered. This value should be between 0 and 1.
-     * 
-     * @see RenderState#setAlphaTest(boolean) 
+     *
+     * @see RenderState#setAlphaTest(boolean)
      */
     public void setAlphaFallOff(float alphaFallOff) {
         applyAlphaFallOff = true;
@@ -425,15 +425,15 @@ public class RenderState implements Cloneable, Savable {
 
     /**
      * Enable alpha testing.
-     * 
+     *
      * <p>When alpha testing is enabled, all input pixels' alpha are compared
-     * to the {@link RenderState#setAlphaFallOff(float) constant alpha falloff}. 
-     * If the input alpha is greater than the falloff, the pixel will be rendered, 
+     * to the {@link RenderState#setAlphaFallOff(float) constant alpha falloff}.
+     * If the input alpha is greater than the falloff, the pixel will be rendered,
      * otherwise it will be discarded.
-     * 
+     *
      * @param alphaTest Set to true to enable alpha testing.
-     * 
-     * @see RenderState#setAlphaFallOff(float) 
+     *
+     * @see RenderState#setAlphaFallOff(float)
      */
     public void setAlphaTest(boolean alphaTest) {
         applyAlphaTest = true;
@@ -442,11 +442,11 @@ public class RenderState implements Cloneable, Savable {
 
     /**
      * Enable writing color.
-     * 
+     *
      * <p>When color write is enabled, the result of a fragment shader, the
-     * <code>gl_FragColor</code>, will be rendered into the color buffer 
-     * (including alpha). 
-     * 
+     * <code>gl_FragColor</code>, will be rendered into the color buffer
+     * (including alpha).
+     *
      * @param colorWrite Set to true to enable color writing.
      */
     public void setColorWrite(boolean colorWrite) {
@@ -456,24 +456,24 @@ public class RenderState implements Cloneable, Savable {
 
     /**
      * Set the face culling mode.
-     * 
+     *
      * <p>See the {@link FaceCullMode} enum on what each value does.
      * Face culling will project the triangle's points onto the screen
-     * and determine if the triangle is in counter-clockwise order or 
-     * clockwise order. If a triangle is in counter-clockwise order, then 
+     * and determine if the triangle is in counter-clockwise order or
+     * clockwise order. If a triangle is in counter-clockwise order, then
      * it is considered a front-facing triangle, otherwise, it is considered
      * a back-facing triangle.
-     * 
+     *
      * @param cullMode the face culling mode.
      */
     public void setFaceCullMode(FaceCullMode cullMode) {
         applyCullMode = true;
         this.cullMode = cullMode;
     }
-    
+
     /**
      * Set the blending mode.
-     * 
+     *
      * <p>When blending is enabled, (<code>blendMode</code> is not {@link BlendMode#Off})
      * the input pixel will be blended with the pixel
      * already in the color buffer. The blending operation is determined
@@ -481,62 +481,62 @@ public class RenderState implements Cloneable, Savable {
      * will add the input pixel's color to the color already in the color buffer:
      * <br/>
      * <code>Result = Source Color + Destination Color</code>
-     * 
-     * @param blendMode The blend mode to use. Set to {@link BlendMode#Off} 
+     *
+     * @param blendMode The blend mode to use. Set to {@link BlendMode#Off}
      * to disable blending.
      */
     public void setBlendMode(BlendMode blendMode) {
         applyBlendMode = true;
         this.blendMode = blendMode;
     }
-    
+
     /**
      * Enable depth testing.
-     * 
-     * <p>When depth testing is enabled, a pixel must pass the depth test 
-     * before it is written to the color buffer. 
+     *
+     * <p>When depth testing is enabled, a pixel must pass the depth test
+     * before it is written to the color buffer.
      * The input pixel's depth value must be less than or equal than
      * the value already in the depth buffer to pass the depth test.
-     * 
+     *
      * @param depthTest Enable or disable depth testing.
      */
     public void setDepthTest(boolean depthTest) {
         applyDepthTest = true;
         this.depthTest = depthTest;
     }
-    
+
     /**
      * Enable depth writing.
-     * 
+     *
      * <p>After passing the {@link RenderState#setDepthTest(boolean) depth test},
      * a pixel's depth value will be written into the depth buffer if
      * depth writing is enabled.
-     * 
+     *
      * @param depthWrite True to enable writing to the depth buffer.
      */
     public void setDepthWrite(boolean depthWrite) {
         applyDepthWrite = true;
         this.depthWrite = depthWrite;
     }
-    
+
     /**
      * Enables wireframe rendering mode.
-     * 
+     *
      * <p>When in wireframe mode, {@link Mesh meshes} rendered in triangle mode
      * will not be solid, but instead, only the edges of the triangles
      * will be rendered.
-     * 
+     *
      * @param wireframe True to enable wireframe mode.
      */
     public void setWireframe(boolean wireframe) {
         applyWireFrame = true;
         this.wireframe = wireframe;
     }
-    
+
     /**
      * Offsets the on-screen z-order of the material's polygons, to combat visual artefacts like
      * stitching, bleeding and z-fighting for overlapping polygons.
-     * Factor and units are summed to produce the depth offset. 
+     * Factor and units are summed to produce the depth offset.
      * This offset is applied in screen space,
      * typically with positive Z pointing into the screen.
      * Typical values are (1.0f, 1.0f) or (-1.0f, -1.0f)
@@ -554,18 +554,18 @@ public class RenderState implements Cloneable, Savable {
 
     /**
      * Enable stencil testing.
-     * 
+     *
      * <p>Stencil testing can be used to filter pixels according to the stencil
      * buffer. Objects can be rendered with some stencil operation to manipulate
      * the values in the stencil buffer, then, other objects can be rendered
      * to test against the values written previously.
-     * 
+     *
      * @param enabled Set to true to enable stencil functionality. If false
      * all other parameters are ignored.
-     * 
+     *
      * @param _frontStencilStencilFailOperation Sets the operation to occur when
      * a front-facing triangle fails the front stencil function.
-     * @param _frontStencilDepthFailOperation Sets the operation to occur when 
+     * @param _frontStencilDepthFailOperation Sets the operation to occur when
      * a front-facing triangle fails the depth test.
      * @param _frontStencilDepthPassOperation Set the operation to occur when
      * a front-facing triangle passes the depth test.
@@ -602,7 +602,7 @@ public class RenderState implements Cloneable, Savable {
 
     /**
      * Check if stencil test is enabled.
-     * 
+     *
      * @return True if stencil test is enabled.
      */
     public boolean isStencilTest() {
@@ -611,18 +611,18 @@ public class RenderState implements Cloneable, Savable {
 
     /**
      * Retrieve the front stencil fail operation.
-     * 
+     *
      * @return the front stencil fail operation.
-     * 
-     * @see RenderState#setStencil(boolean, 
-     * com.jme3.material.RenderState.StencilOperation, 
-     * com.jme3.material.RenderState.StencilOperation, 
-     * com.jme3.material.RenderState.StencilOperation, 
-     * com.jme3.material.RenderState.StencilOperation, 
-     * com.jme3.material.RenderState.StencilOperation, 
-     * com.jme3.material.RenderState.StencilOperation, 
-     * com.jme3.material.RenderState.TestFunction, 
-     * com.jme3.material.RenderState.TestFunction) 
+     *
+     * @see RenderState#setStencil(boolean,
+     * com.jme3.material.RenderState.StencilOperation,
+     * com.jme3.material.RenderState.StencilOperation,
+     * com.jme3.material.RenderState.StencilOperation,
+     * com.jme3.material.RenderState.StencilOperation,
+     * com.jme3.material.RenderState.StencilOperation,
+     * com.jme3.material.RenderState.StencilOperation,
+     * com.jme3.material.RenderState.TestFunction,
+     * com.jme3.material.RenderState.TestFunction)
      */
     public StencilOperation getFrontStencilStencilFailOperation() {
         return frontStencilStencilFailOperation;
@@ -630,18 +630,18 @@ public class RenderState implements Cloneable, Savable {
 
     /**
      * Retrieve the front depth test fail operation.
-     * 
+     *
      * @return the front depth test fail operation.
-     * 
-     * @see RenderState#setStencil(boolean, 
-     * com.jme3.material.RenderState.StencilOperation, 
-     * com.jme3.material.RenderState.StencilOperation, 
-     * com.jme3.material.RenderState.StencilOperation, 
-     * com.jme3.material.RenderState.StencilOperation, 
-     * com.jme3.material.RenderState.StencilOperation, 
-     * com.jme3.material.RenderState.StencilOperation, 
-     * com.jme3.material.RenderState.TestFunction, 
-     * com.jme3.material.RenderState.TestFunction) 
+     *
+     * @see RenderState#setStencil(boolean,
+     * com.jme3.material.RenderState.StencilOperation,
+     * com.jme3.material.RenderState.StencilOperation,
+     * com.jme3.material.RenderState.StencilOperation,
+     * com.jme3.material.RenderState.StencilOperation,
+     * com.jme3.material.RenderState.StencilOperation,
+     * com.jme3.material.RenderState.StencilOperation,
+     * com.jme3.material.RenderState.TestFunction,
+     * com.jme3.material.RenderState.TestFunction)
      */
     public StencilOperation getFrontStencilDepthFailOperation() {
         return frontStencilDepthFailOperation;
@@ -649,18 +649,18 @@ public class RenderState implements Cloneable, Savable {
 
     /**
      * Retrieve the front depth test pass operation.
-     * 
+     *
      * @return the front depth test pass operation.
-     * 
-     * @see RenderState#setStencil(boolean, 
-     * com.jme3.material.RenderState.StencilOperation, 
-     * com.jme3.material.RenderState.StencilOperation, 
-     * com.jme3.material.RenderState.StencilOperation, 
-     * com.jme3.material.RenderState.StencilOperation, 
-     * com.jme3.material.RenderState.StencilOperation, 
-     * com.jme3.material.RenderState.StencilOperation, 
-     * com.jme3.material.RenderState.TestFunction, 
-     * com.jme3.material.RenderState.TestFunction) 
+     *
+     * @see RenderState#setStencil(boolean,
+     * com.jme3.material.RenderState.StencilOperation,
+     * com.jme3.material.RenderState.StencilOperation,
+     * com.jme3.material.RenderState.StencilOperation,
+     * com.jme3.material.RenderState.StencilOperation,
+     * com.jme3.material.RenderState.StencilOperation,
+     * com.jme3.material.RenderState.StencilOperation,
+     * com.jme3.material.RenderState.TestFunction,
+     * com.jme3.material.RenderState.TestFunction)
      */
     public StencilOperation getFrontStencilDepthPassOperation() {
         return frontStencilDepthPassOperation;
@@ -668,18 +668,18 @@ public class RenderState implements Cloneable, Savable {
 
     /**
      * Retrieve the back stencil fail operation.
-     * 
+     *
      * @return the back stencil fail operation.
-     * 
-     * @see RenderState#setStencil(boolean, 
-     * com.jme3.material.RenderState.StencilOperation, 
-     * com.jme3.material.RenderState.StencilOperation, 
-     * com.jme3.material.RenderState.StencilOperation, 
-     * com.jme3.material.RenderState.StencilOperation, 
-     * com.jme3.material.RenderState.StencilOperation, 
-     * com.jme3.material.RenderState.StencilOperation, 
-     * com.jme3.material.RenderState.TestFunction, 
-     * com.jme3.material.RenderState.TestFunction) 
+     *
+     * @see RenderState#setStencil(boolean,
+     * com.jme3.material.RenderState.StencilOperation,
+     * com.jme3.material.RenderState.StencilOperation,
+     * com.jme3.material.RenderState.StencilOperation,
+     * com.jme3.material.RenderState.StencilOperation,
+     * com.jme3.material.RenderState.StencilOperation,
+     * com.jme3.material.RenderState.StencilOperation,
+     * com.jme3.material.RenderState.TestFunction,
+     * com.jme3.material.RenderState.TestFunction)
      */
     public StencilOperation getBackStencilStencilFailOperation() {
         return backStencilStencilFailOperation;
@@ -687,18 +687,18 @@ public class RenderState implements Cloneable, Savable {
 
     /**
      * Retrieve the back depth test fail operation.
-     * 
+     *
      * @return the back depth test fail operation.
-     * 
-     * @see RenderState#setStencil(boolean, 
-     * com.jme3.material.RenderState.StencilOperation, 
-     * com.jme3.material.RenderState.StencilOperation, 
-     * com.jme3.material.RenderState.StencilOperation, 
-     * com.jme3.material.RenderState.StencilOperation, 
-     * com.jme3.material.RenderState.StencilOperation, 
-     * com.jme3.material.RenderState.StencilOperation, 
-     * com.jme3.material.RenderState.TestFunction, 
-     * com.jme3.material.RenderState.TestFunction) 
+     *
+     * @see RenderState#setStencil(boolean,
+     * com.jme3.material.RenderState.StencilOperation,
+     * com.jme3.material.RenderState.StencilOperation,
+     * com.jme3.material.RenderState.StencilOperation,
+     * com.jme3.material.RenderState.StencilOperation,
+     * com.jme3.material.RenderState.StencilOperation,
+     * com.jme3.material.RenderState.StencilOperation,
+     * com.jme3.material.RenderState.TestFunction,
+     * com.jme3.material.RenderState.TestFunction)
      */
     public StencilOperation getBackStencilDepthFailOperation() {
         return backStencilDepthFailOperation;
@@ -706,18 +706,18 @@ public class RenderState implements Cloneable, Savable {
 
     /**
      * Retrieve the back depth test pass operation.
-     * 
+     *
      * @return the back depth test pass operation.
-     * 
-     * @see RenderState#setStencil(boolean, 
-     * com.jme3.material.RenderState.StencilOperation, 
-     * com.jme3.material.RenderState.StencilOperation, 
-     * com.jme3.material.RenderState.StencilOperation, 
-     * com.jme3.material.RenderState.StencilOperation, 
-     * com.jme3.material.RenderState.StencilOperation, 
-     * com.jme3.material.RenderState.StencilOperation, 
-     * com.jme3.material.RenderState.TestFunction, 
-     * com.jme3.material.RenderState.TestFunction) 
+     *
+     * @see RenderState#setStencil(boolean,
+     * com.jme3.material.RenderState.StencilOperation,
+     * com.jme3.material.RenderState.StencilOperation,
+     * com.jme3.material.RenderState.StencilOperation,
+     * com.jme3.material.RenderState.StencilOperation,
+     * com.jme3.material.RenderState.StencilOperation,
+     * com.jme3.material.RenderState.StencilOperation,
+     * com.jme3.material.RenderState.TestFunction,
+     * com.jme3.material.RenderState.TestFunction)
      */
     public StencilOperation getBackStencilDepthPassOperation() {
         return backStencilDepthPassOperation;
@@ -725,18 +725,18 @@ public class RenderState implements Cloneable, Savable {
 
     /**
      * Retrieve the front stencil function.
-     * 
+     *
      * @return the front stencil function.
-     * 
-     * @see RenderState#setStencil(boolean, 
-     * com.jme3.material.RenderState.StencilOperation, 
-     * com.jme3.material.RenderState.StencilOperation, 
-     * com.jme3.material.RenderState.StencilOperation, 
-     * com.jme3.material.RenderState.StencilOperation, 
-     * com.jme3.material.RenderState.StencilOperation, 
-     * com.jme3.material.RenderState.StencilOperation, 
-     * com.jme3.material.RenderState.TestFunction, 
-     * com.jme3.material.RenderState.TestFunction) 
+     *
+     * @see RenderState#setStencil(boolean,
+     * com.jme3.material.RenderState.StencilOperation,
+     * com.jme3.material.RenderState.StencilOperation,
+     * com.jme3.material.RenderState.StencilOperation,
+     * com.jme3.material.RenderState.StencilOperation,
+     * com.jme3.material.RenderState.StencilOperation,
+     * com.jme3.material.RenderState.StencilOperation,
+     * com.jme3.material.RenderState.TestFunction,
+     * com.jme3.material.RenderState.TestFunction)
      */
     public TestFunction getFrontStencilFunction() {
         return frontStencilFunction;
@@ -744,18 +744,18 @@ public class RenderState implements Cloneable, Savable {
 
     /**
      * Retrieve the back stencil function.
-     * 
+     *
      * @return the back stencil function.
-     * 
-     * @see RenderState#setStencil(boolean, 
-     * com.jme3.material.RenderState.StencilOperation, 
-     * com.jme3.material.RenderState.StencilOperation, 
-     * com.jme3.material.RenderState.StencilOperation, 
-     * com.jme3.material.RenderState.StencilOperation, 
-     * com.jme3.material.RenderState.StencilOperation, 
-     * com.jme3.material.RenderState.StencilOperation, 
-     * com.jme3.material.RenderState.TestFunction, 
-     * com.jme3.material.RenderState.TestFunction) 
+     *
+     * @see RenderState#setStencil(boolean,
+     * com.jme3.material.RenderState.StencilOperation,
+     * com.jme3.material.RenderState.StencilOperation,
+     * com.jme3.material.RenderState.StencilOperation,
+     * com.jme3.material.RenderState.StencilOperation,
+     * com.jme3.material.RenderState.StencilOperation,
+     * com.jme3.material.RenderState.StencilOperation,
+     * com.jme3.material.RenderState.TestFunction,
+     * com.jme3.material.RenderState.TestFunction)
      */
     public TestFunction getBackStencilFunction() {
         return backStencilFunction;
@@ -763,7 +763,7 @@ public class RenderState implements Cloneable, Savable {
 
     /**
      * Retrieve the blend mode.
-     * 
+     *
      * @return the blend mode.
      */
     public BlendMode getBlendMode() {
@@ -772,21 +772,21 @@ public class RenderState implements Cloneable, Savable {
 
     /**
      * Check if point sprite mode is enabled
-     * 
+     *
      * @return True if point sprite mode is enabled.
-     * 
-     * @see RenderState#setPointSprite(boolean) 
+     *
+     * @see RenderState#setPointSprite(boolean)
      */
     public boolean isPointSprite() {
         return pointSprite;
     }
-    
+
     /**
      * Check if alpha test is enabled.
-     * 
+     *
      * @return True if alpha test is enabled.
-     * 
-     * @see RenderState#setAlphaTest(boolean) 
+     *
+     * @see RenderState#setAlphaTest(boolean)
      */
     public boolean isAlphaTest() {
         return alphaTest;
@@ -794,21 +794,21 @@ public class RenderState implements Cloneable, Savable {
 
     /**
      * Retrieve the face cull mode.
-     * 
+     *
      * @return the face cull mode.
-     * 
-     * @see RenderState#setFaceCullMode(com.jme3.material.RenderState.FaceCullMode) 
+     *
+     * @see RenderState#setFaceCullMode(com.jme3.material.RenderState.FaceCullMode)
      */
     public FaceCullMode getFaceCullMode() {
         return cullMode;
     }
-    
+
     /**
      * Check if depth test is enabled.
-     * 
+     *
      * @return True if depth test is enabled.
-     * 
-     * @see RenderState#setDepthTest(boolean) 
+     *
+     * @see RenderState#setDepthTest(boolean)
      */
     public boolean isDepthTest() {
         return depthTest;
@@ -816,10 +816,10 @@ public class RenderState implements Cloneable, Savable {
 
     /**
      * Check if depth write is enabled.
-     * 
+     *
      * @return True if depth write is enabled.
-     * 
-     * @see RenderState#setDepthWrite(boolean) 
+     *
+     * @see RenderState#setDepthWrite(boolean)
      */
     public boolean isDepthWrite() {
         return depthWrite;
@@ -827,21 +827,21 @@ public class RenderState implements Cloneable, Savable {
 
     /**
      * Check if wireframe mode is enabled.
-     * 
+     *
      * @return True if wireframe mode is enabled.
-     * 
-     * @see RenderState#setWireframe(boolean) 
+     *
+     * @see RenderState#setWireframe(boolean)
      */
     public boolean isWireframe() {
         return wireframe;
     }
-    
+
     /**
      * Check if color writing is enabled.
-     * 
+     *
      * @return True if color writing is enabled.
-     * 
-     * @see RenderState#setColorWrite(boolean) 
+     *
+     * @see RenderState#setColorWrite(boolean)
      */
     public boolean isColorWrite() {
         return colorWrite;
@@ -849,10 +849,10 @@ public class RenderState implements Cloneable, Savable {
 
     /**
      * Retrieve the poly offset factor value.
-     * 
+     *
      * @return the poly offset factor value.
-     * 
-     * @see RenderState#setPolyOffset(float, float) 
+     *
+     * @see RenderState#setPolyOffset(float, float)
      */
     public float getPolyOffsetFactor() {
         return offsetFactor;
@@ -860,10 +860,10 @@ public class RenderState implements Cloneable, Savable {
 
     /**
      * Retrieve the poly offset units value.
-     * 
+     *
      * @return the poly offset units value.
-     * 
-     * @see RenderState#setPolyOffset(float, float) 
+     *
+     * @see RenderState#setPolyOffset(float, float)
      */
     public float getPolyOffsetUnits() {
         return offsetUnits;
@@ -871,10 +871,10 @@ public class RenderState implements Cloneable, Savable {
 
     /**
      * Check if polygon offset is enabled.
-     * 
+     *
      * @return True if polygon offset is enabled.
-     * 
-     * @see RenderState#setPolyOffset(float, float) 
+     *
+     * @see RenderState#setPolyOffset(float, float)
      */
     public boolean isPolyOffset() {
         return offsetEnabled;
@@ -882,10 +882,10 @@ public class RenderState implements Cloneable, Savable {
 
     /**
      * Retrieve the alpha falloff value.
-     * 
+     *
      * @return the alpha falloff value.
-     * 
-     * @see RenderState#setAlphaFallOff(float) 
+     *
+     * @see RenderState#setAlphaFallOff(float)
      */
     public float getAlphaFallOff() {
         return alphaFallOff;
@@ -932,21 +932,21 @@ public class RenderState implements Cloneable, Savable {
         return applyWireFrame;
     }
 */
-    
+
     /**
-     * Merges <code>this</code> state and <code>additionalState</code> into 
+     * Merges <code>this</code> state and <code>additionalState</code> into
      * the parameter <code>state</code> based on a specific criteria.
-     * 
+     *
      * <p>The criteria for this merge is the following:<br/>
      * For every given property, such as alpha test or depth write, check
      * if it was modified from the original in the <code>additionalState</code>
      * if it was modified, then copy the property from the <code>additionalState</code>
      * into the parameter <code>state</code>, otherwise, copy the property from <code>this</code>
-     * into the parameter <code>state</code>. If <code>additionalState</code> 
-     * is <code>null</code>, then no modifications are made and <code>this</code> is returned, 
+     * into the parameter <code>state</code>. If <code>additionalState</code>
+     * is <code>null</code>, then no modifications are made and <code>this</code> is returned,
      * otherwise, the parameter <code>state</code> is returned with the result
      * of the merge.
-     * 
+     *
      * @param additionalState The <code>additionalState</code>, from which data is taken only
      * if it was modified by the user.
      * @param state Contains output of the method if <code>additionalState</code>
@@ -1017,28 +1017,28 @@ public class RenderState implements Cloneable, Savable {
         }
         if (additionalState.applyStencilTest){
             state.stencilTest = additionalState.stencilTest;
-            
+
             state.frontStencilStencilFailOperation = additionalState.frontStencilStencilFailOperation;
             state.frontStencilDepthFailOperation   = additionalState.frontStencilDepthFailOperation;
             state.frontStencilDepthPassOperation   = additionalState.frontStencilDepthPassOperation;
-            
+
             state.backStencilStencilFailOperation = additionalState.backStencilStencilFailOperation;
             state.backStencilDepthFailOperation   = additionalState.backStencilDepthFailOperation;
             state.backStencilDepthPassOperation   = additionalState.backStencilDepthPassOperation;
-            
+
             state.frontStencilFunction = additionalState.frontStencilFunction;
             state.backStencilFunction = additionalState.backStencilFunction;
         }else{
             state.stencilTest = stencilTest;
-            
+
             state.frontStencilStencilFailOperation = frontStencilStencilFailOperation;
             state.frontStencilDepthFailOperation   = frontStencilDepthFailOperation;
             state.frontStencilDepthPassOperation   = frontStencilDepthPassOperation;
-            
+
             state.backStencilStencilFailOperation = backStencilStencilFailOperation;
             state.backStencilDepthFailOperation   = backStencilDepthFailOperation;
             state.backStencilDepthPassOperation   = backStencilDepthPassOperation;
-            
+
             state.frontStencilFunction = frontStencilFunction;
             state.backStencilFunction = backStencilFunction;
         }
