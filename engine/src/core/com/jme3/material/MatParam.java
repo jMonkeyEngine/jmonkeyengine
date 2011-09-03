@@ -181,6 +181,10 @@ public class MatParam implements Savable, Cloneable {
             case Vector2:
                 Vector2f v2 = (Vector2f) value;
                 return v2.getX() + " " + v2.getY();
+/* 
+This may get used at a later point of time
+When arrays can be inserted in J3M files
+
             case Vector2Array:
                 Vector2f[] v2Arr = (Vector2f[]) value;
                 String v2str = "";
@@ -188,9 +192,11 @@ public class MatParam implements Savable, Cloneable {
                     v2str += v2Arr[i].getX() + " " + v2Arr[i].getY() + "\n";
                 }
                 return v2str;
+*/
             case Vector3:
                 Vector3f v3 = (Vector3f) value;
                 return v3.getX() + " " + v3.getY() + " " + v3.getZ();
+/*
             case Vector3Array:
                 Vector3f[] v3Arr = (Vector3f[]) value;
                 String v3str = "";
@@ -235,6 +241,7 @@ public class MatParam implements Savable, Cloneable {
                 } else {
                     throw new UnsupportedOperationException("Unexpected Vector4Array type: " + value);
                 }
+*/
             case Vector4:
                 // can be either ColorRGBA, Vector4f or Quaternion
                 if (value instanceof Vector4f) {
