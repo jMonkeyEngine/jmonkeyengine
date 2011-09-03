@@ -97,6 +97,11 @@ public abstract class LwjglAbstractDisplay extends LwjglContext implements Runna
                 Thread.currentThread().setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
                     public void uncaughtException(Thread thread, Throwable thrown) {
                         listener.handleError("Uncaught exception thrown in "+thread.toString(), thrown);
+                        if (needClose.get()){
+                            // listener.handleError() has requested the 
+                            // context to close. Satisfy request.
+                            deinitInThread();
+                        }
                     }
                 });
             }
