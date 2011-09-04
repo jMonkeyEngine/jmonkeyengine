@@ -185,6 +185,7 @@ public class PssmShadowRenderer implements SceneProcessor {
 
         setCompareMode(CompareMode.Hardware);
         setFilterMode(FilterMode.Bilinear);
+        setShadowIntensity(0.7f);
 
         shadowCam = new Camera(size, size);
         shadowCam.setParallelProjection(true);
