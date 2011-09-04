@@ -102,21 +102,23 @@ public abstract class Filter implements Savable {
             if (numSamples > 1 && caps.contains(Caps.FrameBufferMultisample) && caps.contains(Caps.OpenGL31)) {
                 renderFrameBuffer = new FrameBuffer(width, height, numSamples);
                 renderedTexture = new Texture2D(width, height, numSamples, textureFormat);
-                if(renderDepth){
+                renderFrameBuffer.setDepthBuffer(depthBufferFormat);
+                if (renderDepth) {
                     depthTexture = new Texture2D(width, height, numSamples, depthBufferFormat);
                     renderFrameBuffer.setDepthTexture(depthTexture);
                 }
             } else {
                 renderFrameBuffer = new FrameBuffer(width, height, 1);
                 renderedTexture = new Texture2D(width, height, textureFormat);
-                if(renderDepth){
+                renderFrameBuffer.setDepthBuffer(depthBufferFormat);
+                if (renderDepth) {
                     depthTexture = new Texture2D(width, height, depthBufferFormat);
                     renderFrameBuffer.setDepthTexture(depthTexture);
                 }
             }
 
             renderFrameBuffer.setColorTexture(renderedTexture);
-            renderFrameBuffer.setDepthBuffer(depthBufferFormat);
+
 
         }
 
@@ -131,9 +133,9 @@ public abstract class Filter implements Savable {
         public void init(Renderer renderer, int width, int height, Format textureFormat, Format depthBufferFormat) {
             init(renderer, width, height, textureFormat, depthBufferFormat, 1);
         }
-        
+
         public void init(Renderer renderer, int width, int height, Format textureFormat, Format depthBufferFormat, int numSamples) {
-           init(renderer, width, height, textureFormat, depthBufferFormat, numSamples, false);
+            init(renderer, width, height, textureFormat, depthBufferFormat, numSamples, false);
         }
 
         /**
