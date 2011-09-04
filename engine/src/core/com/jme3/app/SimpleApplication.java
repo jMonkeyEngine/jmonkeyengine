@@ -260,9 +260,7 @@ public abstract class SimpleApplication extends Application {
 
         // render states
         stateManager.render(renderManager);
-        if (context.isRenderable()){
-            renderManager.render(tpf);
-        }
+        renderManager.render(tpf, context.isRenderable());
         simpleRender(renderManager);
         stateManager.postRender();
     }

@@ -458,6 +458,8 @@ public class MaterialLoader implements AssetLoader {
                 list.put(matName, mat);
             }
         }
+        
+        return list;
     }
 
     public Object load(AssetInfo info) throws IOException {

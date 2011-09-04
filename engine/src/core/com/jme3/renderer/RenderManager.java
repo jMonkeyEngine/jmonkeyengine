@@ -1148,7 +1148,7 @@ public class RenderManager {
      * 
      * @param tpf Time per frame value
      */
-    public void render(float tpf) {
+    public void render(float tpf, boolean mainFrameBufferActive) {
         if (renderer instanceof NullRenderer) {
             return;
         }
@@ -1156,13 +1156,22 @@ public class RenderManager {
         this.shader = renderer.getCaps().contains(Caps.GLSL100);
 
         for (int i = 0; i < preViewPorts.size(); i++) {
-            renderViewPort(preViewPorts.get(i), tpf);
+            ViewPort vp = preViewPorts.get(i);
+            if (vp.getOutputFrameBuffer() != null || mainFrameBufferActive){
+                renderViewPort(vp, tpf);
+            }
         }
         for (int i = 0; i < viewPorts.size(); i++) {
-            renderViewPort(viewPorts.get(i), tpf);
+            ViewPort vp = viewPorts.get(i);
+            if (vp.getOutputFrameBuffer() != null || mainFrameBufferActive){
+                renderViewPort(vp, tpf);
+            }
         }
         for (int i = 0; i < postViewPorts.size(); i++) {
-            renderViewPort(postViewPorts.get(i), tpf);
+            ViewPort vp = postViewPorts.get(i);
+            if (vp.getOutputFrameBuffer() != null || mainFrameBufferActive){
+                renderViewPort(vp, tpf);
+            }
         }
     }
 }
