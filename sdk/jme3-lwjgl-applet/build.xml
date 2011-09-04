@@ -10,4 +10,9 @@
             <zipfileset dir="applet-data" prefix=""/>
         </zip>
     </target>
+    <target name="zip-appletloader" description="Zips applet loader">
+        <zip destfile="release/libs/applet-loader.zip">
+            <zipfileset dir="applet-loader" prefix=""/>
+        </zip>
+    </target>
 </project>
