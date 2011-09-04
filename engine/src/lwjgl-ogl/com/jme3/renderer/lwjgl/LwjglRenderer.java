@@ -1462,7 +1462,6 @@ public class LwjglRenderer implements Renderer {
             }
         }
 
-
         if (fb == null) {
             // unbind any fbos
             if (context.boundFBO != 0) {
@@ -1540,13 +1539,13 @@ public class LwjglRenderer implements Renderer {
             assert fb.getId() >= 0;
             assert context.boundFBO == fb.getId();
             lastFb = fb;
-        }
-
-        try {
-            checkFrameBufferError();
-        } catch (IllegalStateException ex) {
-            logger.log(Level.SEVERE, "Problem FBO:\n{0}", fb);
-            throw ex;
+            
+            try {
+                checkFrameBufferError();
+            } catch (IllegalStateException ex) {
+                logger.log(Level.SEVERE, "Problem FBO:\n{0}", fb);
+                throw ex;
+            }
         }
     }
 
@@ -1947,6 +1946,8 @@ public class LwjglRenderer implements Renderer {
             vb.setId(bufId);
             objManager.registerForCleanup(vb);
 
+            //statistics.onNewVertexBuffer();
+            
             created = true;
         }
 
@@ -1957,12 +1958,18 @@ public class LwjglRenderer implements Renderer {
             if (context.boundElementArrayVBO != bufId) {
                 glBindBuffer(target, bufId);
                 context.boundElementArrayVBO = bufId;
+                //statistics.onVertexBufferUse(vb, true);
+            }else{
+                //statistics.onVertexBufferUse(vb, false);
             }
         } else {
             target = GL_ARRAY_BUFFER;
             if (context.boundArrayVBO != bufId) {
                 glBindBuffer(target, bufId);
                 context.boundArrayVBO = bufId;
+                //statistics.onVertexBufferUse(vb, true);
+            }else{
+                //statistics.onVertexBufferUse(vb, false);
             }
         }
 
@@ -2070,6 +2077,8 @@ public class LwjglRenderer implements Renderer {
             intBuf1.position(0).limit(1);
             glDeleteBuffers(intBuf1);
             vb.resetObject();
+            
+            //statistics.onDeleteVertexBuffer();
         }
     }
 
@@ -2127,6 +2136,9 @@ public class LwjglRenderer implements Renderer {
                 if (context.boundArrayVBO != bufId) {
                     glBindBuffer(GL_ARRAY_BUFFER, bufId);
                     context.boundArrayVBO = bufId;
+                    //statistics.onVertexBufferUse(vb, true);
+                }else{
+                    //statistics.onVertexBufferUse(vb, false);
                 }
 
                 glVertexAttribPointer(loc,
@@ -2171,6 +2183,9 @@ public class LwjglRenderer implements Renderer {
         if (context.boundElementArrayVBO != bufId) {
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bufId);
             context.boundElementArrayVBO = bufId;
+            //statistics.onVertexBufferUse(indexBuf, true);
+        }else{
+            //statistics.onVertexBufferUse(indexBuf, true);
         }
 
         int vertCount = mesh.getVertexCount();
