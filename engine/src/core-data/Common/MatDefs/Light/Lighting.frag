@@ -174,16 +174,21 @@ void main(){
 
     #ifndef VERTEX_LIGHTING
         float spotFallOff = 1.0;
-        if(g_LightDirection.w != 0.0){
-              vec3 L       = normalize(lightVec.xyz);
-              vec3 spotdir = normalize(g_LightDirection.xyz);
-              float curAngleCos = dot(-L, spotdir);             
-              float innerAngleCos = floor(g_LightDirection.w) * 0.001;
-              float outerAngleCos = fract(g_LightDirection.w);
-              float innerMinusOuter = innerAngleCos - outerAngleCos;
 
-              spotFallOff = (curAngleCos - outerAngleCos) / innerMinusOuter;
+        #if __VERSION__ >= 110
+          // allow use of control flow
+          if(g_LightDirection.w != 0.0){
+        #endif
 
+          vec3 L       = normalize(lightVec.xyz);
+          vec3 spotdir = normalize(g_LightDirection.xyz);
+          float curAngleCos = dot(-L, spotdir);             
+          float innerAngleCos = floor(g_LightDirection.w) * 0.001;
+          float outerAngleCos = fract(g_LightDirection.w);
+          float innerMinusOuter = innerAngleCos - outerAngleCos;
+          spotFallOff = (curAngleCos - outerAngleCos) / innerMinusOuter;
+
+          #if __VERSION__ >= 110
               if(spotFallOff <= 0.0){
                   gl_FragColor.rgb = AmbientSum * diffuseColor.rgb;
                   gl_FragColor.a   = alpha;
@@ -191,7 +196,10 @@ void main(){
               }else{
                   spotFallOff = clamp(spotFallOff, 0.0, 1.0);
               }
-        }
+             }
+          #else
+             spotFallOff = clamp(spotFallOff, step(g_LightDirection.w, 0.001), 1.0);
+          #endif
      #endif
  
     // ***********************
