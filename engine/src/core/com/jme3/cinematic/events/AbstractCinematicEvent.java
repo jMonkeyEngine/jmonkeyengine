@@ -203,15 +203,6 @@ public abstract class AbstractCinematicEvent implements CinematicEvent {
         this.loopMode = loopMode;
     }
 
-    public void setInitalDuration(float initalDuration) {
-        this.initialDuration = initalDuration;
-        duration = initalDuration / speed;
-    }
-
-    public float getInitalDuration() {
-        return initialDuration;
-    }
-
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule oc = ex.getCapsule(this);
         oc.write(playState, "playState", PlayState.Stopped);
