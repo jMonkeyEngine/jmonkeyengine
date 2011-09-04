@@ -206,11 +206,11 @@ public final class Shader extends GLObject implements Savable {
         }
 
         public void deleteObject(Renderer r){
-            r.deleteShaderSource(this);
+            r.deleteShaderSource(ShaderSource.this);
         }
 
         public GLObject createDestructableClone(){
-            return new ShaderSource(this);
+            return new ShaderSource(ShaderSource.this);
         }
     }
 
@@ -427,9 +427,12 @@ public final class Shader extends GLObject implements Savable {
     public void resetObject() {
         this.id = -1;
         this.usable = false;
+        
+        for (ShaderSource source : shaderList){
+            source.resetObject();
+        }
+        
         setUpdateNeeded();
-        // Already done by the call above
-        //resetLocations();
     }
 
     @Override
