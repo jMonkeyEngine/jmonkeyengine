@@ -28,6 +28,7 @@ import com.jme3.app.Application;
 import com.jme3.app.StatsView;
 import com.jme3.font.BitmapFont;
 import com.jme3.font.BitmapText;
+import com.jme3.gde.core.assets.AssetData;
 import com.jme3.gde.core.scene.controller.AbstractCameraController;
 import com.jme3.gde.core.sceneexplorer.nodes.JmeSpatial;
 import com.jme3.gde.core.scene.processors.WireProcessor;
@@ -47,6 +48,7 @@ import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.Spatial.CullHint;
 import com.jme3.system.AppSettings;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.concurrent.Callable;
@@ -57,6 +59,7 @@ import org.netbeans.api.progress.ProgressHandleFactory;
 import org.netbeans.spi.project.LookupProvider;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
+import org.openide.NotifyDescriptor.Confirmation;
 import org.openide.NotifyDescriptor.Message;
 import org.openide.awt.StatusDisplayer;
 import org.openide.util.Exceptions;
@@ -341,6 +344,33 @@ public class SceneApplication extends Application implements LookupProvider, Loo
         });
     }
 
+    private void checkSave() {
+        if ((currentSceneRequest != null)
+                && currentSceneRequest.getDataObject().isModified()) {
+            final SceneRequest req = currentSceneRequest;
+            java.awt.EventQueue.invokeLater(new Runnable() {
+
+                public void run() {
+                    Confirmation mesg = new NotifyDescriptor.Confirmation("Scene has not been saved,\ndo you want to save it?",
+                            "Not Saved",
+                            NotifyDescriptor.YES_NO_OPTION);
+                    DialogDisplayer.getDefault().notify(mesg);
+                    if (mesg.getValue() == Confirmation.YES_OPTION) {
+                        try {
+                            req.getDataObject().getLookup().lookup(AssetData.class).saveAsset();
+                        } catch (IOException ex) {
+                            Exceptions.printStackTrace(ex);
+                        }
+                    } else if (mesg.getValue() == Confirmation.CANCEL_OPTION) {
+                        return;
+                    } else if (mesg.getValue() == Confirmation.NO_OPTION) {
+                        req.getDataObject().setModified(false);
+                    }
+                }
+            });
+        }
+    }
+
     /**
      * method to close a scene displayed by a scene request (threadsafe)
      * @param tree
@@ -375,6 +405,7 @@ public class SceneApplication extends Application implements LookupProvider, Loo
                     return false;
                 }
             }
+            checkSave();
             currentSceneRequest.setDisplayed(false);
         }
         toolsNode.detachAllChildren();
