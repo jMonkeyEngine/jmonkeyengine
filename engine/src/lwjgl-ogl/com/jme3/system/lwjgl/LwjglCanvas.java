@@ -65,9 +65,13 @@ public class LwjglCanvas extends LwjglAbstractDisplay implements JmeCanvasContex
     private Thread renderThread;
     private boolean runningFirstTime = true;
     private boolean mouseWasGrabbed = false;
+    
+    private boolean mouseWasCreated = false;
+    private boolean keyboardWasCreated = false;
 
     private Pbuffer pbuffer;
-    private PixelFormat pixelFormat;
+    private PixelFormat pbufferFormat;
+    private PixelFormat canvasFormat;
 
     private class GLCanvas extends Canvas {
         @Override
@@ -201,9 +205,17 @@ public class LwjglCanvas extends LwjglAbstractDisplay implements JmeCanvasContex
     }
 
     private void pauseCanvas(){
-        if (Mouse.isCreated() && Mouse.isGrabbed()){
-            Mouse.setGrabbed(false);
-            mouseWasGrabbed = true;
+        if (Mouse.isCreated()){
+            if (Mouse.isGrabbed()){
+                Mouse.setGrabbed(false);
+                mouseWasGrabbed = true;
+            }
+            mouseWasCreated = true;
+            Mouse.destroy();
+        }
+        if (Keyboard.isCreated()){
+            keyboardWasCreated = true;
+            Keyboard.destroy();
         }
 
         logger.log(Level.INFO, "OGL: Canvas will become invisible! Destroying ..");
@@ -233,9 +245,20 @@ public class LwjglCanvas extends LwjglAbstractDisplay implements JmeCanvasContex
 
         logger.log(Level.INFO, "OGL: Display is active!");
 
-        if (Mouse.isCreated() && mouseWasGrabbed){
-            Mouse.setGrabbed(true);
-            mouseWasGrabbed = false;
+        try {
+            if (mouseWasCreated){
+                Mouse.create();
+                if (mouseWasGrabbed){
+                    Mouse.setGrabbed(true);
+                    mouseWasGrabbed = false;
+                }
+            }
+            if (keyboardWasCreated){
+                Keyboard.create();
+                keyboardWasCreated = false;
+            }
+        } catch (LWJGLException ex){
+            logger.log(Level.SEVERE, "Encountered exception when restoring input", ex);
         }
 
         SwingUtilities.invokeLater(new Runnable(){
@@ -249,15 +272,26 @@ public class LwjglCanvas extends LwjglAbstractDisplay implements JmeCanvasContex
      * It seems it is best to use one pixel format for all shared contexts.
      * See http://developer.apple.com/library/mac/#qa/qa1248/_index.html.
      */
-    protected PixelFormat acquirePixelFormat(){
-        if (pixelFormat == null){
-            pixelFormat = new PixelFormat(settings.getBitsPerPixel(),
-                                          0,
-                                          settings.getDepthBits(),
-                                          settings.getStencilBits(),
-                                          settings.getSamples());
+    protected PixelFormat acquirePixelFormat(boolean forPbuffer){
+        if (forPbuffer){
+            if (pbufferFormat == null){
+                pbufferFormat = new PixelFormat(settings.getBitsPerPixel(),
+                                                0,
+                                                settings.getDepthBits(),
+                                                settings.getStencilBits(),
+                                                0);
+            }
+            return pbufferFormat;
+        }else{
+            if (canvasFormat == null){
+                canvasFormat = new PixelFormat(settings.getBitsPerPixel(),
+                                               0,
+                                               settings.getDepthBits(),
+                                               settings.getStencilBits(),
+                                               settings.getSamples());
+            }
+            return canvasFormat;
         }
-        return pixelFormat;
     }
 
     /**
@@ -271,7 +305,7 @@ public class LwjglCanvas extends LwjglAbstractDisplay implements JmeCanvasContex
         }
         
         if (pbuffer == null) {
-            pbuffer = new Pbuffer(1, 1, acquirePixelFormat(), null);
+            pbuffer = new Pbuffer(1, 1, acquirePixelFormat(true), null);
             logger.log(Level.INFO, "OGL: Pbuffer has been created");
         }
     }
@@ -298,37 +332,41 @@ public class LwjglCanvas extends LwjglAbstractDisplay implements JmeCanvasContex
             }else{
                 // The context thread is no longer running.
                 // Destroy pbuffer.
-                if (pbuffer != null){
+                if (pbuffer != null && !pbuffer.isBufferLost()){
                     pbuffer.destroy();
+                    pbuffer = null;
                 }
             }
             
             if (Display.isCreated()){
-            
-            /* FIXES:
-             * org.lwjgl.LWJGLException: X Error
-             * BadWindow (invalid Window parameter) request_code: 2 minor_code: 0
-             * 
-             * Destroying keyboard early prevents the error above, triggered
-             * by destroying keyboard in by Display.destroy() or Display.setParent(null).
-             * Therefore Keyboard.destroy() should precede any of these calls.
-             */ 
-            Keyboard.destroy();
-            
-            try {
-                // NOTE: On Windows XP, not calling setParent(null)
-                // freezes the application.
-                // On Mac it freezes the application.
-                // On Linux it fixes a crash with X Window System.
-                if (JmeSystem.getPlatform() == Platform.Windows32
-                 || JmeSystem.getPlatform() == Platform.Windows64){
-                    Display.setParent(null);
+                /* FIXES:
+                 * org.lwjgl.LWJGLException: X Error
+                 * BadWindow (invalid Window parameter) request_code: 2 minor_code: 0
+                 * 
+                 * Destroying keyboard early prevents the error above, triggered
+                 * by destroying keyboard in by Display.destroy() or Display.setParent(null).
+                 * Therefore Keyboard.destroy() should precede any of these calls.
+                 */
+                if (Keyboard.isCreated()){
+                    // Should only happen if called in 
+                    // LwjglAbstractDisplay.deinitInThread().
+                    Keyboard.destroy();
                 }
-            } catch (LWJGLException ex) {
-                logger.log(Level.SEVERE, "Encountered exception when setting parent to null", ex);
-            }
 
-            Display.destroy();
+                try {
+                    // NOTE: On Windows XP, not calling setParent(null)
+                    // freezes the application.
+                    // On Mac it freezes the application.
+                    // On Linux it fixes a crash with X Window System.
+                    if (JmeSystem.getPlatform() == Platform.Windows32
+                     || JmeSystem.getPlatform() == Platform.Windows64){
+                        Display.setParent(null);
+                    }
+                } catch (LWJGLException ex) {
+                    logger.log(Level.SEVERE, "Encountered exception when setting parent to null", ex);
+                }
+
+                Display.destroy();
             }
         } catch (LWJGLException ex) {
             listener.handleError("Failed make pbuffer available", ex);
@@ -359,7 +397,7 @@ public class LwjglCanvas extends LwjglAbstractDisplay implements JmeCanvasContex
 
                 Display.setVSyncEnabled(settings.isVSync());
                 Display.setParent(canvas);
-                Display.create(acquirePixelFormat(), pbuffer);
+                Display.create(acquirePixelFormat(false), pbuffer);
                 
                 // because the display is a different opengl context
                 // must reset the context state.
