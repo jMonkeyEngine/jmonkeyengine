@@ -987,7 +987,7 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
      */
     public Matrix3f invertLocal() {
         float det = determinant();
-        if (FastMath.abs(det) <= FastMath.FLT_EPSILON) {
+        if (FastMath.abs(det) <= 0f) {
             return zero();
         }
 
