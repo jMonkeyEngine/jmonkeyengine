@@ -33,6 +33,7 @@
 package com.jme3.scene.plugins.ogre;
 
 import com.jme3.asset.AssetInfo;
+import com.jme3.asset.AssetKey;
 import com.jme3.asset.AssetLoader;
 import com.jme3.asset.AssetManager;
 import com.jme3.asset.TextureKey;
@@ -56,7 +57,6 @@ import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -425,21 +425,19 @@ public class MaterialLoader implements AssetLoader {
         separateTexCoord = false;
         return mat;
     }
-
-    public Object load(AssetInfo info) throws IOException {
-        folderName = info.getKey().getFolder();
-        assetManager = info.getManager();
-
-        MaterialList list = null;
+    
+    private MaterialList load(AssetManager assetManager, AssetKey key, InputStream in) throws IOException{
+        folderName = key.getFolder();
+        this.assetManager = assetManager;
         
-        InputStream in = info.openStream();
+        MaterialList list = null;
         List<Statement> statements = BlockLanguageParser.parse(in);
         
         for (Statement statement : statements){
             if (statement.getLine().startsWith("import")){
                 MaterialExtensionSet matExts = null;
-                if (info.getKey() instanceof OgreMaterialKey){
-                     matExts = ((OgreMaterialKey)info.getKey()).getMaterialExtensionSet();
+                if (key instanceof OgreMaterialKey){
+                     matExts = ((OgreMaterialKey)key).getMaterialExtensionSet();
                 }
 
                 if (matExts == null){
@@ -460,8 +458,18 @@ public class MaterialLoader implements AssetLoader {
                 list.put(matName, mat);
             }
         }
-        in.close();
-        return list;
+    }
+
+    public Object load(AssetInfo info) throws IOException {
+        InputStream in = null;
+        try {
+            in = info.openStream();
+            return load(info.getManager(), info.getKey(), in);
+        } finally {
+            if (in != null){
+                in.close();
+            }
+        }
     }
 
 }

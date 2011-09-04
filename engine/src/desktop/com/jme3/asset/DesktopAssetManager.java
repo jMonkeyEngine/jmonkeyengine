@@ -199,6 +199,9 @@ public class DesktopAssetManager implements AssetManager {
      * @return
      */
     public <T> T loadAsset(AssetKey<T> key){
+        if (key == null)
+            throw new IllegalArgumentException("key cannot be null");
+        
         if (eventListener != null)
             eventListener.assetRequested(key);
 

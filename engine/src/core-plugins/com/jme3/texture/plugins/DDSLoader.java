@@ -122,17 +122,23 @@ public class DDSLoader implements AssetLoader {
             throw new IllegalArgumentException("Texture assets must be loaded using a TextureKey");
         }
 
-        InputStream stream = info.openStream();
-        in = new LittleEndien(stream);
-        loadHeader();
-        if (texture3D) {
-            ((TextureKey) info.getKey()).setTextureTypeHint(Type.ThreeDimensional);
-        } else if (depth > 1) {
-            ((TextureKey) info.getKey()).setTextureTypeHint(Type.CubeMap);
+        InputStream stream = null;
+        try {
+            stream = info.openStream();
+            in = new LittleEndien(stream);
+            loadHeader();
+            if (texture3D) {
+                ((TextureKey) info.getKey()).setTextureTypeHint(Type.ThreeDimensional);
+            } else if (depth > 1) {
+                ((TextureKey) info.getKey()).setTextureTypeHint(Type.CubeMap);
+            }
+            ArrayList<ByteBuffer> data = readData(((TextureKey) info.getKey()).isFlipY());
+            return new Image(pixelFormat, width, height, depth, data, sizes);
+        } finally {
+            if (stream != null){
+                stream.close();
+            }
         }
-        ArrayList<ByteBuffer> data = readData(((TextureKey) info.getKey()).isFlipY());
-        stream.close();
-        return new Image(pixelFormat, width, height, depth, data, sizes);
     }
 
     public Image load(InputStream stream) throws IOException {

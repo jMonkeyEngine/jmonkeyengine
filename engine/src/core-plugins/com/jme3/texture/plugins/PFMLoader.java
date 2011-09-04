@@ -34,7 +34,6 @@ package com.jme3.texture.plugins;
 
 import com.jme3.asset.AssetInfo;
 import com.jme3.asset.AssetLoader;
-import com.jme3.asset.AssetManager;
 import com.jme3.asset.TextureKey;
 import com.jme3.texture.Image;
 import com.jme3.texture.Image.Format;
@@ -50,7 +49,7 @@ public class PFMLoader implements AssetLoader {
     private static final Logger logger = Logger.getLogger(PFMLoader.class.getName());
 
     private String readString(InputStream is) throws IOException{
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         while (true){
             int i = is.read();
             if (i == 0x0a || i == -1) // new line or EOF
@@ -73,12 +72,8 @@ public class PFMLoader implements AssetLoader {
             scanline[i+1] = tmp;
         }
     }
-
-    public Object load(AssetInfo info) throws IOException {
-        if (!(info.getKey() instanceof TextureKey))
-            throw new IllegalArgumentException("Texture assets must be loaded using a TextureKey");
-
-        InputStream in = info.openStream();
+    
+    private Image load(InputStream in, boolean needYFlip) throws IOException{
         Format format = null;
 
         String fmtStr = readString(in);
@@ -105,7 +100,6 @@ public class PFMLoader implements AssetLoader {
         float scale = Float.parseFloat(scaleStr);
         ByteOrder order = scale < 0 ? ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN;
         boolean needEndienFlip = order != ByteOrder.nativeOrder();
-        boolean needYFlip = ((TextureKey)info.getKey()).isFlipY();
 
         // make sure all unneccessary stuff gets deleted from heap
         // before allocating large amount of memory
@@ -137,6 +131,22 @@ public class PFMLoader implements AssetLoader {
         imageData.rewind();
 
         return new Image(format, width, height, imageData);
+    }
+
+    public Object load(AssetInfo info) throws IOException {
+        if (!(info.getKey() instanceof TextureKey))
+            throw new IllegalArgumentException("Texture assets must be loaded using a TextureKey");
+
+        InputStream in = null;
+        try {
+            in = info.openStream();
+            return load(in, ((TextureKey)info.getKey()).isFlipY());
+        } finally {
+            if (in != null){
+                in.close();
+            }
+        }
+        
     }
 
 }

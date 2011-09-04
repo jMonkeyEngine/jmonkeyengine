@@ -38,27 +38,27 @@ import com.jme3.material.MaterialDef;
 import com.jme3.asset.AssetInfo;
 import com.jme3.asset.AssetKey;
 import com.jme3.asset.AssetLoader;
+import com.jme3.asset.AssetManager;
 import com.jme3.asset.TextureKey;
 import com.jme3.material.RenderState.BlendMode;
 import com.jme3.math.ColorRGBA;
 import com.jme3.texture.Texture;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 
 public class BitmapFontLoader implements AssetLoader {
 
-    public Object load(AssetInfo info) throws IOException {
+    private BitmapFont load(AssetManager assetManager, String folder, InputStream in) throws IOException{
         MaterialDef spriteMat = 
-                (MaterialDef) info.getManager().loadAsset(new AssetKey("Common/MatDefs/Misc/Unshaded.j3md"));
+                (MaterialDef) assetManager.loadAsset(new AssetKey("Common/MatDefs/Misc/Unshaded.j3md"));
 
         BitmapCharacterSet charSet = new BitmapCharacterSet();
         Material[] matPages = null;
         BitmapFont font = new BitmapFont();
 
-        String folder = info.getKey().getFolder();
-
-        BufferedReader reader = new BufferedReader(new InputStreamReader(info.openStream()));
+        BufferedReader reader = new BufferedReader(new InputStreamReader(in));
         String regex = "[\\s=]+";
 
         font.setCharSet(charSet);
@@ -105,7 +105,7 @@ public class BitmapFontLoader implements AssetLoader {
                         }
                         TextureKey key = new TextureKey(folder + file, true);
                         key.setGenerateMips(false);
-                        tex = info.getManager().loadTexture(key);
+                        tex = assetManager.loadTexture(key);
                         tex.setMagFilter(Texture.MagFilter.Bilinear);
                         tex.setMinFilter(Texture.MinFilter.BilinearNoMipMaps);
                     }
@@ -165,9 +165,20 @@ public class BitmapFontLoader implements AssetLoader {
                 ch.addKerning(second, amount);
             }
         }
-        reader.close();
-
         return font;
+    }
+    
+    public Object load(AssetInfo info) throws IOException {
+        InputStream in = null;
+        try {
+            in = info.openStream();
+            BitmapFont font = load(info.getManager(), info.getKey().getFolder(), in);
+            return font;
+        } finally {
+            if (in != null){
+                in.close();
+            }
+        }
     }
 
 }

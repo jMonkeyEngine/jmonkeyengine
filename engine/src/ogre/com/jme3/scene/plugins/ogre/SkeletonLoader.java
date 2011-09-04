@@ -296,9 +296,14 @@ public class SkeletonLoader extends DefaultHandler implements AssetLoader {
 
     public Object load(AssetInfo info) throws IOException {
         assetManager = info.getManager();
-        InputStream in = info.openStream();
-        Object obj = load(in);
-        in.close();
-        return obj;
+        InputStream in = null;
+        try {
+            in = info.openStream();
+            return load(in);
+        } finally {
+            if (in != null){
+                in.close();
+            }
+        }
     }
 }

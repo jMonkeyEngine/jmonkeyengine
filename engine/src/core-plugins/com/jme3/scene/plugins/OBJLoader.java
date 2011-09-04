@@ -534,17 +534,12 @@ public final class OBJLoader implements AssetLoader {
 
     @SuppressWarnings("empty-statement")
     public Object load(AssetInfo info) throws IOException{
+        reset();
+        
         key = (ModelKey) info.getKey();
         assetManager = info.getManager();
-
-        if (!(info.getKey() instanceof ModelKey))
-            throw new IllegalArgumentException("Model assets must be loaded using a ModelKey");
-
-        InputStream in = info.openStream();
-        scan = new Scanner(in);
-        scan.useLocale(Locale.US);
-
         objName    = key.getName();
+        
         String folderName = key.getFolder();
         String ext        = key.getExtension();
         objName = objName.substring(0, objName.length() - ext.length() - 1);
@@ -554,8 +549,23 @@ public final class OBJLoader implements AssetLoader {
 
         objNode = new Node(objName + "-objnode");
 
-        while (readLine());
+        if (!(info.getKey() instanceof ModelKey))
+            throw new IllegalArgumentException("Model assets must be loaded using a ModelKey");
 
+        InputStream in = null; 
+        try {
+            in = info.openStream();
+            
+            scan = new Scanner(in);
+            scan.useLocale(Locale.US);
+
+            while (readLine());
+        } finally {
+            if (in != null){
+                in.close();
+            }
+        }
+        
         if (matFaces.size() > 0){
             for (Entry<String, ArrayList<Face>> entry : matFaces.entrySet()){
                 ArrayList<Face> materialFaces = entry.getValue();
@@ -570,13 +580,6 @@ public final class OBJLoader implements AssetLoader {
             objNode.attachChild(geom);
         }
 
-        reset();
-
-        try{
-            in.close();
-        }catch (IOException ex){
-        }
-        
         if (objNode.getQuantity() == 1)
             // only 1 geometry, so no need to send node
             return objNode.getChild(0); 

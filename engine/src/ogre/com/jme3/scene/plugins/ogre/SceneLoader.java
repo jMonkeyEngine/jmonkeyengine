@@ -380,9 +380,18 @@ public class SceneLoader extends DefaultHandler implements AssetLoader {
             
             xr.setContentHandler(this);
             xr.setErrorHandler(this);
-            InputStreamReader r = new InputStreamReader(info.openStream());
-            xr.parse(new InputSource(r));
-            r.close();
+            
+            InputStreamReader r = null;
+            
+            try {
+                r = new InputStreamReader(info.openStream());
+                xr.parse(new InputSource(r));
+            } finally {
+                if (r != null){
+                    r.close();
+                }
+            }
+            
             return root;
         }catch (SAXException ex){
             IOException ioEx = new IOException("Error while parsing Ogre3D dotScene");

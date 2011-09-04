@@ -525,8 +525,9 @@ public class J3MLoader implements AssetLoader {
             key = info.getKey();
             loadFromRoot(BlockLanguageParser.parse(in));
         } finally {
-            if (in != null)
+            if (in != null){
                 in.close();
+            }
         }
         
         if (material != null){

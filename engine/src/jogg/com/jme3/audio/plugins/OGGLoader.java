@@ -36,6 +36,7 @@ import com.jme3.asset.AssetInfo;
 import com.jme3.audio.AudioBuffer;
 import com.jme3.audio.AudioStream;
 import com.jme3.asset.AssetLoader;
+import com.jme3.audio.AudioData;
 import com.jme3.audio.AudioKey;
 import com.jme3.util.BufferUtils;
 import de.jarnbjo.ogg.EndOfOggStreamException;
@@ -196,17 +197,8 @@ public class OGGLoader implements AssetLoader {
     private InputStream readToStream(){
         return new JOggInputStream(vorbisStream);
     }
-
-    public Object load(AssetInfo info) throws IOException {
-        if (!(info.getKey() instanceof AudioKey)){
-            throw new IllegalArgumentException("Audio assets must be loaded using an AudioKey");
-        }
-        
-        AudioKey key = (AudioKey) info.getKey();
-        boolean readStream = key.isStream();
-        boolean streamCache = key.useStreamCache();
-        
-        InputStream in = info.openStream();
+    
+    private AudioData load(InputStream in, boolean readStream, boolean streamCache) throws IOException{
         if (readStream && streamCache){
             oggStream = new CachedOggStream(in);
         }else{
@@ -239,6 +231,27 @@ public class OGGLoader implements AssetLoader {
             audioStream.updateData(readToStream(), streamDuration);
             return audioStream;
         }
+    }
+
+    public Object load(AssetInfo info) throws IOException {
+        if (!(info.getKey() instanceof AudioKey)){
+            throw new IllegalArgumentException("Audio assets must be loaded using an AudioKey");
+        }
+        
+        AudioKey key = (AudioKey) info.getKey();
+        boolean readStream = key.isStream();
+        boolean streamCache = key.useStreamCache();
+        
+        InputStream in = null;
+        try {
+            in = info.openStream();
+            return load(in, readStream, streamCache);
+        } finally {
+            if (in != null){
+                in.close();
+            }
+        }
+        
     }
 
 }

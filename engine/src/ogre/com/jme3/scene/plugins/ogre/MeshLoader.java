@@ -34,7 +34,6 @@ package com.jme3.scene.plugins.ogre;
 import com.jme3.animation.Animation;
 import com.jme3.scene.plugins.ogre.matext.OgreMaterialKey;
 import com.jme3.animation.AnimControl;
-import com.jme3.animation.BoneAnimation;
 import com.jme3.animation.SkeletonControl;
 import com.jme3.asset.AssetInfo;
 import com.jme3.asset.AssetKey;
@@ -53,7 +52,6 @@ import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.VertexBuffer.Format;
 import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.scene.VertexBuffer.Usage;
-import com.jme3.system.JmeSystem;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.IntMap;
 import com.jme3.util.IntMap.Entry;
@@ -78,7 +76,6 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
-import org.xml.sax.helpers.XMLReaderFactory;
 
 import static com.jme3.util.xml.SAXUtil.*;
 
@@ -813,14 +810,21 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
             // checking with JmeSystem.
             SAXParserFactory factory = SAXParserFactory.newInstance();
             factory.setNamespaceAware(true);
+            
             XMLReader xr = factory.newSAXParser().getXMLReader();
-
             xr.setContentHandler(this);
             xr.setErrorHandler(this);
-            InputStreamReader r = new InputStreamReader(info.openStream());
-            xr.parse(new InputSource(r));
-            r.close();
-
+            
+            InputStreamReader r = null;
+            try {
+                r = new InputStreamReader(info.openStream());
+                xr.parse(new InputSource(r));
+            } finally {
+                if (r != null){
+                    r.close();
+                }
+            }
+            
             return compileModel();
         } catch (SAXException ex) {
             IOException ioEx = new IOException("Error while parsing Ogre3D mesh.xml");

@@ -125,13 +125,20 @@ public final class BinaryImporter implements JmeImporter {
 
         assetManager = info.getManager();
 
-        try{
-            InputStream is = info.openStream();
+        InputStream is = null;
+        try {
+            is = info.openStream();
             Savable s = load(is);
-            is.close();
+            
             return s;
-        }catch (IOException ex){
+        } catch (IOException ex) {
             logger.log(Level.SEVERE, "An error occured while loading jME binary object", ex);
+        } finally {
+            if (is != null){
+                try {
+                    is.close();
+                } catch (IOException ex) {}
+            }
         }
         return null;
     }

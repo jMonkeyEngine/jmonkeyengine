@@ -254,16 +254,25 @@ public class MTLLoader implements AssetLoader {
     }
 
     @SuppressWarnings("empty-statement")
-    public Object load(AssetInfo info){
+    public Object load(AssetInfo info) throws IOException{
+        reset();
+        
         this.assetManager = info.getManager();
         folderName = info.getKey().getFolder();
-
-        InputStream in = info.openStream();
-        scan = new Scanner(in);
-        scan.useLocale(Locale.US);
-
         matList = new MaterialList();
-        while (readLine());
+
+        InputStream in = null;
+        try {
+            in = info.openStream();
+            scan = new Scanner(in);
+            scan.useLocale(Locale.US);
+            
+            while (readLine());
+        } finally {
+            if (in != null){
+                in.close();
+            }
+        }
         
         if (matName != null){
             // still have a material in the vars
@@ -273,12 +282,8 @@ public class MTLLoader implements AssetLoader {
         
         MaterialList list = matList;
 
-        reset();
+        
 
-        try{
-            in.close();
-        }catch (IOException ex){
-        }
         return list;
     }
 }

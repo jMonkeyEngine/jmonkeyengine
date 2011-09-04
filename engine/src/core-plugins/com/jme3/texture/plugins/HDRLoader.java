@@ -40,6 +40,7 @@ import com.jme3.texture.Image.Format;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class HDRLoader implements AssetLoader {
@@ -58,7 +59,7 @@ public class HDRLoader implements AssetLoader {
     public HDRLoader(){
     }
     
-    public static final void convertFloatToRGBE(byte[] rgbe, float red, float green, float blue){
+    public static void convertFloatToRGBE(byte[] rgbe, float red, float green, float blue){
         double max = red;
         if (green > max) max = green;
         if (blue > max) max = blue;
@@ -74,7 +75,7 @@ public class HDRLoader implements AssetLoader {
       }
     }
 
-    public static final void convertRGBEtoFloat(byte[] rgbe, float[] rgbf){
+    public static void convertRGBEtoFloat(byte[] rgbe, float[] rgbf){
         int R = rgbe[0] & 0xFF, 
             G = rgbe[1] & 0xFF,
             B = rgbe[2] & 0xFF, 
@@ -86,7 +87,7 @@ public class HDRLoader implements AssetLoader {
         rgbf[2] = B * e;
     }
 
-    public static final void convertRGBEtoFloat2(byte[] rgbe, float[] rgbf){
+    public static void convertRGBEtoFloat2(byte[] rgbe, float[] rgbf){
         int R = rgbe[0] & 0xFF,
             G = rgbe[1] & 0xFF,
             B = rgbe[2] & 0xFF,
@@ -98,7 +99,7 @@ public class HDRLoader implements AssetLoader {
         rgbf[2] = (B / 256.0f) * e;
     }
 
-    public static final void convertRGBEtoFloat3(byte[] rgbe, float[] rgbf){
+    public static void convertRGBEtoFloat3(byte[] rgbe, float[] rgbf){
         int R = rgbe[0] & 0xFF,
             G = rgbe[1] & 0xFF,
             B = rgbe[2] & 0xFF,
@@ -126,7 +127,7 @@ public class HDRLoader implements AssetLoader {
     }
     
     private String readString(InputStream is) throws IOException{
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         while (true){
             int i = is.read();
             if (i == 0x0a || i == -1) // new line or EOF
@@ -257,7 +258,7 @@ public class HDRLoader implements AssetLoader {
                 // regular command
                 int index = ln.indexOf("=");
                 if (index < 1){
-                    logger.fine("Ignored string: "+ln);
+                    logger.log(Level.FINE, "Ignored string: {0}", ln);
                     continue;
                 }
 
@@ -272,7 +273,7 @@ public class HDRLoader implements AssetLoader {
                 }else if (var.equals("gamma")){
                     gamma = Float.parseFloat(value);
                 }else{
-                    logger.warning("HDR Command ignored: "+ln);
+                    logger.log(Level.WARNING, "HDR Command ignored: {0}", ln);
                 }
             }
         }
@@ -314,10 +315,16 @@ public class HDRLoader implements AssetLoader {
             throw new IllegalArgumentException("Texture assets must be loaded using a TextureKey");
 
         boolean flip = ((TextureKey) info.getKey()).isFlipY();
-        InputStream in = info.openStream();
-        Image img = load(in, flip);
-        in.close();
-        return img;
+        InputStream in = null;
+        try {
+            in = info.openStream();
+            Image img = load(in, flip);
+            return img;
+        } finally {
+            if (in != null){
+                in.close();
+            }
+        }
     }
 
 }
