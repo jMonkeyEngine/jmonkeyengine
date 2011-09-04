@@ -44,7 +44,7 @@ public class ConstraintHelper extends AbstractBlenderHelper {
 	 * @throws BlenderFileException
 	 */
 	public Map<Long, List<Constraint>> loadConstraints(Structure objectStructure, DataRepository dataRepository) throws BlenderFileException {
-		if (blenderVersion < 250) {//TODO
+		if (blenderVersion >= 250) {//TODO
 			LOGGER.warning("Loading of constraints not yet implemented for version 2.5x !");
 			return new HashMap<Long, List<Constraint>>(0);
 		}
