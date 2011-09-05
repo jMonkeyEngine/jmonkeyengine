@@ -94,18 +94,22 @@ public class MobileCustomizerPanel extends javax.swing.JPanel implements ActionL
         jTextArea1 = new javax.swing.JTextArea();
 
         jCheckBox1.setText(org.openide.util.NbBundle.getMessage(MobileCustomizerPanel.class, "MobileCustomizerPanel.jCheckBox1.text")); // NOI18N
+        jCheckBox1.setToolTipText(org.openide.util.NbBundle.getMessage(MobileCustomizerPanel.class, "MobileCustomizerPanel.jCheckBox1.toolTipText")); // NOI18N
 
         jLabel1.setText(org.openide.util.NbBundle.getMessage(MobileCustomizerPanel.class, "MobileCustomizerPanel.jLabel1.text")); // NOI18N
 
         jLabel2.setText(org.openide.util.NbBundle.getMessage(MobileCustomizerPanel.class, "MobileCustomizerPanel.jLabel2.text")); // NOI18N
 
         jComboBox1.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        jComboBox1.setToolTipText(org.openide.util.NbBundle.getMessage(MobileCustomizerPanel.class, "MobileCustomizerPanel.jComboBox1.toolTipText")); // NOI18N
 
         jLabel3.setText(org.openide.util.NbBundle.getMessage(MobileCustomizerPanel.class, "MobileCustomizerPanel.jLabel3.text")); // NOI18N
 
         jTextField1.setText(org.openide.util.NbBundle.getMessage(MobileCustomizerPanel.class, "MobileCustomizerPanel.jTextField1.text")); // NOI18N
+        jTextField1.setToolTipText(org.openide.util.NbBundle.getMessage(MobileCustomizerPanel.class, "MobileCustomizerPanel.jTextField1.toolTipText")); // NOI18N
 
         jButton2.setText(org.openide.util.NbBundle.getMessage(MobileCustomizerPanel.class, "MobileCustomizerPanel.jButton2.text")); // NOI18N
+        jButton2.setToolTipText(org.openide.util.NbBundle.getMessage(MobileCustomizerPanel.class, "MobileCustomizerPanel.jButton2.toolTipText")); // NOI18N
         jButton2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton2ActionPerformed(evt);
