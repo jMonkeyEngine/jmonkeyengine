@@ -96,7 +96,7 @@
       -->
       
     <!--creates update center version via hudson build server-->
-    <target name="hudson-nightly" depends="suite.clean, update-help-sets, -revert-svn-changes, set-impl-version, suite.nbms, unset-impl-version">
+    <target name="hudson-nightly" depends="suite.clean, -revert-svn-changes, update-help-sets, set-impl-version, suite.nbms, unset-impl-version">
     </target>
 
     <target name="hudson-stable" depends="suite.clean, -revert-svn-changes, set-impl-version, suite.nbms, unset-impl-version">

@@ -1,0 +1,38 @@
+    <target name="run-android" depends="jar, -test-android-enabled, -copy-android-libs" if="is.android.enabled">
+        <ant dir="mobile" target="install"/>
+    </target>
+    
+    <target name="-clean-android">
+        <ant dir="mobile" target="clean"/>
+    </target>
+    
+    <target name="-mobile-deployment" depends="-test-android-enabled, -copy-android-libs" if="is.android.enabled">
+        <ant dir="mobile" target="release"/>
+        <copy todir="dist" verbose="false" flatten="true">
+            <!--exclude jme3 test data from core-->
+            <fileset dir="mobile/bin/">
+                <include name="**/*.apk"/>
+            </fileset>
+        </copy>
+    </target>
+    
+    <target name="-test-android-enabled">
+        <condition property="is.android.enabled">
+            <istrue value="${mobile.android.enabled}"/>
+        </condition>
+    </target>
+    
+    <target name="-copy-android-libs" if="is.android.enabled">
+        <property name="libs.jme3-android" location="${libs.jme3-android.classpath}"/>
+        <copy todir="mobile/libs" verbose="false" flatten="true">
+            <!--exclude jme3 test data from core-->
+            <fileset dir="dist/lib/">
+                <exclude name="jMonkeyEngine3.jar"/>
+                <exclude name="jME3-lwjgl-natives.jar"/>
+                <exclude name="lwjgl.jar"/>
+                <exclude name="jinput.jar"/>
+            </fileset>
+        </copy>
+        <copy file="${libs.jme3-android}" tofile="mobile/libs/jMonkeyEngine3.jar" verbose="false"/>
+        <copy file="${dist.jar}" todir="mobile/libs/" verbose="false"/>
+    </target>
