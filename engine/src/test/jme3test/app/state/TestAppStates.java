@@ -88,7 +88,7 @@ public class TestAppStates extends Application {
         stateManager.render(renderManager);
 
         // render the viewports
-        renderManager.render(tpf, false);
+        renderManager.render(tpf, true);
     }
 
     @Override

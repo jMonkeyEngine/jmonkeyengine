@@ -78,7 +78,7 @@ public class TestBareBonesApp extends Application {
         boxGeom.updateGeometricState();
 
         // render the viewports
-        renderManager.render(tpf, false);
+        renderManager.render(tpf, true);
     }
 
     @Override
