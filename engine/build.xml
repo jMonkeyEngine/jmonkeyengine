@@ -207,7 +207,7 @@
         <copy file="dist/lib/jME3-lwjgl-natives.jar" toDir="${jmp_dir}/jme3-core-baselibs/release/modules/ext/" overwrite="true" failonerror="true" verbose="false"/>
 
         <!--jMonkeyPlatform Android libs-->
-        <copy file="dist/opt/jMonkeyEngine3.jar" toFile="${jmp_dir}/jme3-android/release/libs/jMonkeyEngine3-android.jar" overwrite="true" failonerror="true" verbose="false"/>
+        <copy file="dist/opt/android/jMonkeyEngine3.jar" toFile="${jmp_dir}/jme3-android/release/libs/jMonkeyEngine3-android.jar" overwrite="true" failonerror="true" verbose="false"/>
         
         <!--Project jME3 libs-->
         <copy file="${dist.jar}" toDir="${jmp_dir}/jme3-project-baselibs/release/libs/" overwrite="true" failonerror="true" verbose="false"/>
