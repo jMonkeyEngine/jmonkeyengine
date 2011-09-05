@@ -232,9 +232,7 @@ public class SceneApplication extends Application implements LookupProvider, Loo
             guiNode.updateGeometricState();
             toolsNode.updateGeometricState();
             getStateManager().render(renderManager);
-            if (context.isRenderable()) {
-                renderManager.render(tpf);
-            }
+            renderManager.render(tpf, context.isRenderable());
             getStateManager().postRender();
         } catch (NullPointerException e) {
             handleError("NullPointerException: " + e.getMessage(), e);
