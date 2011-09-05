@@ -453,6 +453,11 @@ public class LwjglRenderer implements Renderer {
     public void clearBuffers(boolean color, boolean depth, boolean stencil) {
         int bits = 0;
         if (color) {
+            //See explanations of the depth below, we must enable color write to be able to clear the color buffer
+            if (context.colorWriteEnabled == false) {
+                glColorMask(true, true, true, true);
+                context.colorWriteEnabled = true;
+            }
             bits = GL_COLOR_BUFFER_BIT;
         }
         if (depth) {
@@ -532,8 +537,8 @@ public class LwjglRenderer implements Renderer {
 
         if (state.isPointSprite() && !context.pointSprite) {
             // Only enable/disable sprite
-            if (context.boundTextures[0] != null){
-                if (context.boundTextureUnit != 0){
+            if (context.boundTextures[0] != null) {
+                if (context.boundTextureUnit != 0) {
                     glActiveTexture(GL_TEXTURE0);
                     context.boundTextureUnit = 0;
                 }
@@ -542,8 +547,8 @@ public class LwjglRenderer implements Renderer {
             }
             context.pointSprite = true;
         } else if (!state.isPointSprite() && context.pointSprite) {
-            if (context.boundTextures[0] != null){
-                if (context.boundTextureUnit != 0){
+            if (context.boundTextures[0] != null) {
+                if (context.boundTextureUnit != 0) {
                     glActiveTexture(GL_TEXTURE0);
                     context.boundTextureUnit = 0;
                 }
@@ -955,7 +960,7 @@ public class LwjglRenderer implements Renderer {
             }
 
             source.setId(id);
-        }else{
+        } else {
             throw new RendererException("Cannot recompile shader source");
         }
 
@@ -1539,7 +1544,7 @@ public class LwjglRenderer implements Renderer {
             assert fb.getId() >= 0;
             assert context.boundFBO == fb.getId();
             lastFb = fb;
-            
+
             try {
                 checkFrameBufferError();
             } catch (IllegalStateException ex) {
@@ -1947,7 +1952,7 @@ public class LwjglRenderer implements Renderer {
             objManager.registerForCleanup(vb);
 
             //statistics.onNewVertexBuffer();
-            
+
             created = true;
         }
 
@@ -1959,7 +1964,7 @@ public class LwjglRenderer implements Renderer {
                 glBindBuffer(target, bufId);
                 context.boundElementArrayVBO = bufId;
                 //statistics.onVertexBufferUse(vb, true);
-            }else{
+            } else {
                 //statistics.onVertexBufferUse(vb, false);
             }
         } else {
@@ -1968,7 +1973,7 @@ public class LwjglRenderer implements Renderer {
                 glBindBuffer(target, bufId);
                 context.boundArrayVBO = bufId;
                 //statistics.onVertexBufferUse(vb, true);
-            }else{
+            } else {
                 //statistics.onVertexBufferUse(vb, false);
             }
         }
@@ -2077,7 +2082,7 @@ public class LwjglRenderer implements Renderer {
             intBuf1.position(0).limit(1);
             glDeleteBuffers(intBuf1);
             vb.resetObject();
-            
+
             //statistics.onDeleteVertexBuffer();
         }
     }
@@ -2137,7 +2142,7 @@ public class LwjglRenderer implements Renderer {
                     glBindBuffer(GL_ARRAY_BUFFER, bufId);
                     context.boundArrayVBO = bufId;
                     //statistics.onVertexBufferUse(vb, true);
-                }else{
+                } else {
                     //statistics.onVertexBufferUse(vb, false);
                 }
 
@@ -2184,7 +2189,7 @@ public class LwjglRenderer implements Renderer {
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bufId);
             context.boundElementArrayVBO = bufId;
             //statistics.onVertexBufferUse(indexBuf, true);
-        }else{
+        } else {
             //statistics.onVertexBufferUse(indexBuf, true);
         }
 
@@ -2309,9 +2314,9 @@ public class LwjglRenderer implements Renderer {
     }
 
     private void renderMeshVertexArray(Mesh mesh, int lod, int count) {
-        if (mesh.getId() == -1){
+        if (mesh.getId() == -1) {
             updateVertexArray(mesh);
-        }else{
+        } else {
             // TODO: Check if it was updated
         }
 
@@ -2354,7 +2359,7 @@ public class LwjglRenderer implements Renderer {
         }
         //for (Entry<VertexBuffer> entry : buffers) {
         //     VertexBuffer vb = entry.getValue();
-        for (int i = 0; i < buffersList.size(); i++){
+        for (int i = 0; i < buffersList.size(); i++) {
             VertexBuffer vb = buffersList.get(i);
 
             if (vb.getBufferType() == Type.InterleavedData
@@ -2386,10 +2391,10 @@ public class LwjglRenderer implements Renderer {
             return;
         }
 
-        if (context.pointSprite && mesh.getMode() != Mode.Points){
+        if (context.pointSprite && mesh.getMode() != Mode.Points) {
             // XXX: Hack, disable point sprite mode if mesh not in point mode
-            if (context.boundTextures[0] != null){
-                if (context.boundTextureUnit != 0){
+            if (context.boundTextures[0] != null) {
+                if (context.boundTextureUnit != 0) {
                     glActiveTexture(GL_TEXTURE0);
                     context.boundTextureUnit = 0;
                 }
@@ -2412,7 +2417,7 @@ public class LwjglRenderer implements Renderer {
 //        if (GLContext.getCapabilities().GL_ARB_vertex_array_object){
 //            renderMeshVertexArray(mesh, lod, count);
 //        }else{
-            renderMeshDefault(mesh, lod, count);
+        renderMeshDefault(mesh, lod, count);
 //        }
     }
 }
