@@ -32,8 +32,12 @@
 package jme3test.terrain;
 
 import com.jme3.app.SimpleApplication;
+import com.jme3.bounding.BoundingBox;
 import com.jme3.collision.CollisionResult;
 import com.jme3.collision.CollisionResults;
+import com.jme3.export.Savable;
+import com.jme3.export.binary.BinaryExporter;
+import com.jme3.export.binary.BinaryImporter;
 import com.jme3.font.BitmapText;
 import com.jme3.input.KeyInput;
 import com.jme3.input.MouseInput;
@@ -43,18 +47,34 @@ import com.jme3.input.controls.MouseButtonTrigger;
 import com.jme3.light.AmbientLight;
 import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
+import com.jme3.material.RenderState.BlendMode;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Ray;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
+import com.jme3.renderer.queue.RenderQueue.Bucket;
+import com.jme3.scene.Geometry;
+import com.jme3.scene.Node;
+import com.jme3.scene.shape.Sphere;
 import com.jme3.terrain.geomipmap.TerrainGrid;
 import com.jme3.terrain.geomipmap.TerrainLodControl;
 import com.jme3.terrain.geomipmap.TerrainQuad;
+import com.jme3.terrain.heightmap.AbstractHeightMap;
 import com.jme3.terrain.heightmap.FractalHeightMapGrid;
+import com.jme3.terrain.heightmap.ImageBasedHeightMap;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import jme3tools.converters.ImageToAwt;
 import org.novyon.noise.ShaderUtils;
 import org.novyon.noise.basis.FilteredBasis;
 import org.novyon.noise.filter.IterativeFilter;
@@ -84,6 +104,8 @@ public class TerrainTestModifyHeight extends SimpleApplication {
     
     private boolean raiseTerrain = false;
     private boolean lowerTerrain = false;
+    
+    private Geometry marker;
 
     public static void main(String[] args) {
         TerrainTestModifyHeight app = new TerrainTestModifyHeight();
@@ -105,6 +127,12 @@ public class TerrainTestModifyHeight extends SimpleApplication {
                 adjustHeight(intersection, 64, -tpf * 60);
             }
         }
+        
+        if (terrain != null && intersection != null) {
+            float h = terrain.getHeight(new Vector2f(intersection.x, intersection.z));
+            Vector3f tl = terrain.getWorldTranslation();
+            marker.setLocalTranslation(tl.add(new Vector3f(intersection.x, h, intersection.z)) );
+        }
     }
     
     @Override
@@ -112,6 +140,8 @@ public class TerrainTestModifyHeight extends SimpleApplication {
         loadHintText();
         initCrossHairs();
         setupKeys();
+        
+        createMarker();
 
         // WIREFRAME material
         matWire = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
@@ -120,7 +150,7 @@ public class TerrainTestModifyHeight extends SimpleApplication {
         
         //createTerrain();
         createTerrainGrid();
-
+        
         DirectionalLight light = new DirectionalLight();
         light.setDirection((new Vector3f(-0.5f, -1f, -0.5f)).normalize());
         rootNode.addLight(light);
@@ -130,9 +160,9 @@ public class TerrainTestModifyHeight extends SimpleApplication {
         rootNode.addLight(ambLight);
 
         cam.setLocation(new Vector3f(0, 256, 0));
-        cam.lookAtDirection(new Vector3f(0, -1.5f, -1).normalizeLocal(), Vector3f.UNIT_Y);
+        cam.lookAtDirection(new Vector3f(0, -1f, 0).normalizeLocal(), Vector3f.UNIT_X);
     }
-
+    
     public void loadHintText() {
         hintText = new BitmapText(guiFont, false);
         hintText.setLocalTranslation(0, getCamera().getHeight(), 0);
@@ -162,7 +192,6 @@ public class TerrainTestModifyHeight extends SimpleApplication {
 
     private void setupKeys() {
         flyCam.setMoveSpeed(100);
-        
         inputManager.addMapping("wireframe", new KeyTrigger(KeyInput.KEY_T));
         inputManager.addListener(actionListener, "wireframe");
         inputManager.addMapping("Raise", new MouseButtonTrigger(MouseInput.BUTTON_LEFT));
@@ -281,13 +310,25 @@ public class TerrainTestModifyHeight extends SimpleApplication {
         matTerrain.setTexture("DiffuseMap_2", rock);
         matTerrain.setFloat("DiffuseMap_2_scale", rockScale);
 
+        // HEIGHTMAP image (for the terrain heightmap)
+        Texture heightMapImage = assetManager.loadTexture("Textures/Terrain/splat/mountains512.png");
+        AbstractHeightMap heightmap = null;
+        try {
+            heightmap = new ImageBasedHeightMap(ImageToAwt.convert(heightMapImage.getImage(), false, true, 0), 0.5f);
+            heightmap.load();
+            heightmap.smooth(0.9f, 1);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        
         // CREATE THE TERRAIN
-        terrain = new TerrainQuad("terrain", 65, 513, null);
+        terrain = new TerrainQuad("terrain", 65, 513, heightmap.getHeightMap());
         TerrainLodControl control = new TerrainLodControl(terrain, getCamera());
         terrain.addControl(control);
         terrain.setMaterial(matTerrain);
         terrain.setLocalTranslation(0, -100, 0);
-        terrain.setLocalScale(2f, 1f, 2f);
+        terrain.setLocalScale(2.5f, 0.5f, 2.5f);
         rootNode.attachChild(terrain);
     }
 
@@ -370,7 +411,7 @@ public class TerrainTestModifyHeight extends SimpleApplication {
         this.terrain = new TerrainGrid("terrain", 65, 257, new FractalHeightMapGrid(ground, null, 256f));
 
 
-        terrain.setMaterial(matWire);
+        terrain.setMaterial(matTerrain);
         terrain.setLocalTranslation(0, 0, 0);
         terrain.setLocalScale(2f, 1f, 2f);
         ((TerrainGrid)terrain).initialize(Vector3f.ZERO);
@@ -378,5 +419,19 @@ public class TerrainTestModifyHeight extends SimpleApplication {
 
         TerrainLodControl control = new TerrainLodControl(this.terrain, getCamera());
         this.terrain.addControl(control);
+    }
+
+    private void createMarker() {
+        Sphere sphere = new Sphere(8, 8, 0.5f);
+        marker = new Geometry("Marker");
+        marker.setMesh(sphere);
+        
+        Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        mat.setColor("Color", new ColorRGBA(251f/255f, 130f/255f, 0f, 0.6f));
+        mat.getAdditionalRenderState().setBlendMode(BlendMode.Alpha);
+        
+        marker.setMaterial(mat);
+        rootNode.attachChild(marker);
+        
     }
 }

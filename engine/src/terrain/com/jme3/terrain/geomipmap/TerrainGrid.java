@@ -67,6 +67,8 @@ public class TerrainGrid extends TerrainQuad {
     protected LRUCache<Vector3f, TerrainQuad> cache = new LRUCache<Vector3f, TerrainQuad>(16);
     protected RigidBodyControl[] quadControls;
     protected PhysicsSpace space;
+    private int cellsLoaded = 0;
+    private int[] gridOffset;
 
     protected class UpdateQuadCache implements Runnable {
 
@@ -142,14 +144,15 @@ public class TerrainGrid extends TerrainQuad {
         this.offset = offset;
         this.offsetAmount = offsetAmount;
         this.lodCalculatorFactory = lodCalculatorFactory;
+        this.gridOffset = new int[]{0,0};
         if (lodCalculatorFactory == null) {
             lodCalculatorFactory = new LodDistanceCalculatorFactory();
         }
         this.quadIndex = new Vector3f[]{
-            new Vector3f(-1, 0, 2), new Vector3f(0, 0, 2), new Vector3f(1, 0, 2), new Vector3f(2, 0, 2),
-            new Vector3f(-1, 0, 1), new Vector3f(0, 0, 1), new Vector3f(1, 0, 1), new Vector3f(2, 0, 1),
-            new Vector3f(-1, 0, 0), new Vector3f(0, 0, 0), new Vector3f(1, 0, 0), new Vector3f(2, 0, 0),
-            new Vector3f(-1, 0, -1), new Vector3f(0, 0, -1), new Vector3f(1, 0, -1), new Vector3f(-2, 0, -1)};
+        new Vector3f(-1, 0, 2), new Vector3f(0, 0, 2), new Vector3f(1, 0, 2), new Vector3f(2, 0, 2),
+        new Vector3f(-1, 0, 1), new Vector3f(0, 0, 1), new Vector3f(1, 0, 1), new Vector3f(2, 0, 1),
+        new Vector3f(-1, 0, 0), new Vector3f(0, 0, 0), new Vector3f(1, 0, 0), new Vector3f(2, 0, 0),
+        new Vector3f(-1, 0, -1), new Vector3f(0, 0, -1), new Vector3f(1, 0, -1), new Vector3f(-2, 0, -1)};
 
         addControl(new UpdateControl());
     }
@@ -189,13 +192,17 @@ public class TerrainGrid extends TerrainQuad {
         // 2: grids are associated with locations, and no incremental update is done, we load new grids for new locations, and unload those that are not needed anymore
         Vector3f cam = locations.get(0);
         Vector3f camCell = this.getCell(cam);
+        if(cellsLoaded>1){                  // Check if cells are updated before updating gridoffset.
+            gridOffset[0] = Math.round(camCell.x*(size/2));
+            gridOffset[1] = Math.round(camCell.z*(size/2));
+            cellsLoaded=0;
+        }
         if (camCell.x != this.currentCell.x || camCell.z != currentCell.z) {
             this.updateChildrens(camCell);
             for (TerrainGridListener l : this.listeners.values()) {
                 l.gridMoved(camCell);
             }
         }
-
         super.update(locations);
     }
 
@@ -213,8 +220,8 @@ public class TerrainGrid extends TerrainQuad {
                 l.tileDetached(getCell(this.getQuad(idx).getWorldTranslation()), this.getQuad(idx));
             }
             this.detachChild(this.getQuad(idx));
+            cellsLoaded++; // For gridoffset calc., maybe the run() method is a better location for this.
         }
-
     }
 
     /**
@@ -312,6 +319,11 @@ public class TerrainGrid extends TerrainQuad {
             vect.y -= currentGridLocation.z;
         }
         super.adjustHeight(xz, height);
+    }
+    
+    @Override
+    protected float getHeightmapHeight(int x, int z) {
+        return super.getHeightmapHeight(x-gridOffset[0], z-gridOffset[1]);
     }
 
     @Override
