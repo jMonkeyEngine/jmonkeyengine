@@ -293,6 +293,13 @@ public class AndroidSdkTool {
         private int revision;
         private String skins;
 
+        public AndroidTarget() {
+        }
+
+        public AndroidTarget(String name) {
+            this.name = name;
+        }
+
         public int getId() {
             return id;
         }
@@ -352,6 +359,15 @@ public class AndroidSdkTool {
         @Override
         public String toString() {
             return getTitle();
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj instanceof String && getName() != null) {
+                return getName().equals(obj);
+            } else {
+                return super.equals(obj);
+            }
         }
     }
 }
