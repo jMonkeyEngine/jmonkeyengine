@@ -964,7 +964,9 @@ public class TerrainQuad extends Node implements Terrain {
         // offset
         float x = (float)(((xz.x - getLocalTranslation().x) / getLocalScale().x) + (float)totalSize / 2f);
         float z = (float)(((xz.y - getLocalTranslation().z) / getLocalScale().z) + (float)totalSize / 2f);
-        return getHeight(x, z, xz);
+        float height = getHeight(x, z, xz);
+        height *= getLocalScale().y;
+        return height;
     }
 
     /*
