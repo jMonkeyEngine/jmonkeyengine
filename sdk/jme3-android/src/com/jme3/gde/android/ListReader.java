@@ -47,18 +47,30 @@ public class ListReader implements Runnable {
             while ((line = in.readLine()) != null) {
                 line = line.trim();
                 if (line.length() > 0) {
-                    if (line.startsWith("id:")) {
-                        target = new AndroidTarget();
-                        int idstart = line.indexOf(":") + 1;
-                        int idend = line.indexOf("or");
-                        int start = line.indexOf("\"") + 1;
-                        int end = line.lastIndexOf("\"");
-                        target.setId(Integer.parseInt(line.substring(idstart, idend).trim()));
-                        target.setName(line.substring(start, end));
-                        list.add(target);
-                    }
-                    if (line.startsWith("Name:") && target != null) {
-                        target.setTitle(line.split(":")[1].trim());
+                    try {
+
+                        if (line.startsWith("id:")) {
+                            target = new AndroidTarget();
+                            int idstart = line.indexOf(":") + 1;
+                            int idend = line.indexOf("or");
+                            int start = line.indexOf("\"") + 1;
+                            int end = line.lastIndexOf("\"");
+                            target.setId(Integer.parseInt(line.substring(idstart, idend).trim()));
+                            target.setName(line.substring(start, end));
+                            list.add(target);
+                        } else if (line.startsWith("Name:") && target != null) {
+                            target.setTitle(line.split(":")[1].trim());
+                        } else if (line.startsWith("Type:") && target != null) {
+                            target.setPlatform(line.split(":")[1].trim());
+                        } else if (line.startsWith("API level:") && target != null) {
+                            target.setApiLevel(Integer.parseInt(line.split(":")[1].trim()));
+                        } else if (line.startsWith("Revision:") && target != null) {
+                            target.setRevision(Integer.parseInt(line.split(":")[1].trim()));
+                        } else if (line.startsWith("Skins:") && target != null) {
+                            target.setSkins(line.split(":")[1].trim());
+                        }
+                    } catch (Exception e) {
+                        Exceptions.printStackTrace(e);
                     }
                     if (progress != null) {
                         progress.progress(line);
