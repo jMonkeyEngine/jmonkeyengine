@@ -2,7 +2,7 @@
         <ant dir="mobile" target="install"/>
     </target>
     
-    <target name="-clean-android">
+    <target name="clean-android">
         <ant dir="mobile" target="clean"/>
     </target>
     

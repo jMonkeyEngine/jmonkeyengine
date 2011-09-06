@@ -323,6 +323,29 @@ public class ProjectExtensionManager {
      * @param runTarget Target for "run"
      * @param debugTarget Target for "debug"
      */
+    public void addRunConfiguration(Project project, String name, String label, String runTarget, String debugTarget, String cleanTarget) {
+        try {
+            EditableProperties properties = new EditableProperties(true);
+            properties.setProperty("$label", label);
+            properties.setProperty("$target.run", runTarget);
+            properties.setProperty("$target.debug", debugTarget);
+            properties.setProperty("$target.clean", cleanTarget);
+            J2SEProjectConfigurations.createConfigurationFiles(project, name, properties, null);
+        } catch (IOException ex) {
+            Exceptions.printStackTrace(ex);
+        } catch (IllegalArgumentException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+    }
+
+    /**
+     * Adds a run configuration (works direct, no removing)
+     * @param project
+     * @param name File name of the configuration
+     * @param label Label in the dropdown box
+     * @param runTarget Target for "run"
+     * @param debugTarget Target for "debug"
+     */
     public void addRunConfiguration(Project project, String name, String label, String runTarget, String debugTarget) {
         try {
             EditableProperties properties = new EditableProperties(true);

@@ -62,7 +62,7 @@ public class MobileCompositeProvider implements ProjectCustomizer.CompositeCateg
     private class SavePropsListener implements ActionListener {
 
         private String extensionName = "mobile";
-        private String extensionVersion = "v0.9";
+        private String extensionVersion = "v0.10";
         private String[] extensionDependencies = new String[]{"jar", "-mobile-deployment"};
         private ProjectExtensionManager manager = new ProjectExtensionManager(extensionName, extensionVersion, extensionDependencies);
         private ProjectExtensionProperties properties;
@@ -78,7 +78,7 @@ public class MobileCompositeProvider implements ProjectCustomizer.CompositeCateg
             if ("true".equals(properties.getProperty("mobile.android.enabled"))) {
                 manager.loadTargets("nbres:/com/jme3/gde/android/mobile-targets.xml");
                 manager.checkExtension(project);
-                manager.addRunConfiguration(project, "run-android", "Android Emulator", "run-android");
+                manager.addRunConfiguration(project, "run-android", "Android Device", "run-android", "run-android", "clean clean-android");
                 AndroidSdkTool.checkProject(project,
                         properties.getProperty("mobile.android.target"),
                         properties.getProperty("application.title"),
