@@ -4,6 +4,10 @@
  */
 package com.jme3.gde.android;
 
+import java.awt.Image;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 import org.netbeans.api.project.Project;
 import org.netbeans.spi.project.LookupProvider;
 import org.netbeans.spi.project.ui.support.NodeFactory;
@@ -12,26 +16,43 @@ import org.netbeans.spi.project.ui.support.NodeList;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
-import org.openide.nodes.FilterNode;
+import org.openide.nodes.AbstractNode;
+import org.openide.nodes.Children;
 import org.openide.nodes.Node;
 import org.openide.util.Exceptions;
+import org.openide.util.ImageUtilities;
 import org.openide.util.Lookup;
 import org.openide.util.lookup.Lookups;
+import org.openide.xml.XMLUtil;
+import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
 
 /**
  *
  * @author normenhansen
  */
-public class ImportantFilesNode extends FilterNode {
+public class ImportantFilesNode extends AbstractNode {
+
+    private static Image smallImage =
+            ImageUtilities.loadImage("com/jme3/gde/android/properties/Phone_16.gif");
 
     public ImportantFilesNode(Project proj) throws DataObjectNotFoundException {
-//        super(DataObject.find(proj.getProjectDirectory().getFileObject("mobile/AndroidManifest.xml")).getNodeDelegate());
-        super(Node.EMPTY);
+        super(new ImportantFilesChildren(proj));
     }
 
     @Override
     public String getDisplayName() {
-        return "Android Manifest";
+        return "Android Files";
+    }
+
+    @Override
+    public Image getIcon(int type) {
+        return smallImage;
+    }
+
+    @Override
+    public Image getOpenedIcon(int type) {
+        return smallImage;
     }
 
     public static class LookupProviderImpl implements LookupProvider {
@@ -79,6 +100,61 @@ public class ImportantFilesNode extends FilterNode {
     public static class ImportantFilesLookupItem {
 
         public ImportantFilesLookupItem(Project prj) {
+        }
+    }
+
+    public static class ImportantFilesChildren extends Children.Keys<FileObject> {
+
+        private Project project;
+
+        public ImportantFilesChildren(Project project) {
+            this.project = project;
+        }
+
+        protected List<FileObject> createKeys() {
+//            package="com.mycompany.mygame"
+            FileObject manifest = project.getProjectDirectory().getFileObject("mobile/AndroidManifest.xml");
+            String mainActivity = "mobile/src";
+            if (manifest != null) {
+                InputStream in = null;
+                try {
+                    in = manifest.getInputStream();
+                    Document configuration = XMLUtil.parse(new InputSource(in), false, false, null, null);
+                    mainActivity = "mobile/src/" + configuration.getDocumentElement().getAttribute("package").replaceAll("\\.", "/") + "/MainActivity.java";
+                    in.close();
+                } catch (Exception ex) {
+                    Exceptions.printStackTrace(ex);
+                } finally {
+                }
+            }
+            ArrayList<FileObject> list = new ArrayList<FileObject>();
+            addFileObject(project.getProjectDirectory().getFileObject(mainActivity), list);
+            addFileObject(project.getProjectDirectory().getFileObject("mobile/AndroidManifest.xml"), list);
+            addFileObject(project.getProjectDirectory().getFileObject("mobile/build.properties"), list);
+            return list;
+        }
+
+        private void addFileObject(FileObject file, List<FileObject> list) {
+            if (file != null) {
+                list.add(file);
+            }
+        }
+
+        @Override
+        protected void addNotify() {
+            super.addNotify();
+            setKeys(createKeys());
+        }
+
+        @Override
+        protected Node[] createNodes(FileObject key) {
+            try {
+                DataObject obj = DataObject.find(key);
+                return new Node[]{obj.getNodeDelegate()};
+            } catch (DataObjectNotFoundException ex) {
+                Exceptions.printStackTrace(ex);
+            }
+            return new Node[]{};
         }
     }
 }
