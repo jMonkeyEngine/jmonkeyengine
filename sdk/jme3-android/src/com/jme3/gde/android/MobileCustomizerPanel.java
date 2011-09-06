@@ -50,7 +50,7 @@ public class MobileCustomizerPanel extends javax.swing.JPanel implements ActionL
             jCheckBox1.setSelected(false);
         }
         if (properties.getProperty("mobile.android.target") != null) {
-            jComboBox1.setSelectedItem(properties.getProperty("mobile.android.target"));
+            setSelected(properties.getProperty("mobile.android.target"));
         }
         if (properties.getProperty("mobile.android.package") != null) {
             jTextField1.setText(properties.getProperty("mobile.android.package"));
@@ -68,6 +68,16 @@ public class MobileCustomizerPanel extends javax.swing.JPanel implements ActionL
         //TODO: check properties
         properties.setProperty("mobile.android.target", ((AndroidTarget) jComboBox1.getSelectedItem()).getName());
         properties.setProperty("mobile.android.package", jTextField1.getText());
+    }
+    
+    private void setSelected(String name){
+        for (int i = 0; i < jComboBox1.getItemCount(); i++) {
+            AndroidTarget target = (AndroidTarget)jComboBox1.getItemAt(i);
+            if(target.equals(name)){
+                jComboBox1.setSelectedIndex(i);
+                return;
+            }
+        }
     }
 
     public void actionPerformed(ActionEvent e) {
