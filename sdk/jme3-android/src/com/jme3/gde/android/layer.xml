@@ -18,6 +18,17 @@
         </folder>
 
     </folder>
+    <folder name="Services">
+        <folder name="AutoupdateType">
+            <file name="com_jme3_gde_android_update_center.instance">
+                <attr name="displayName" bundlevalue="com.jme3.gde.android.Bundle#Services/AutoupdateType/com_jme3_gde_android_update_center.instance"/>
+                <attr name="enabled" boolvalue="true"/>
+                <attr name="instanceCreate" methodvalue="org.netbeans.modules.autoupdate.updateprovider.AutoupdateCatalogFactory.createUpdateProvider"/>
+                <attr name="instanceOf" stringvalue="org.netbeans.spi.autoupdate.UpdateProvider"/>
+                <attr name="url" bundlevalue="com.jme3.gde.android.Bundle#com_jme3_gde_android_update_center"/>
+            </file>
+        </folder>
+    </folder>
     <folder name="org-netbeans-api-project-libraries">
         <folder name="Libraries">
             <file name="jme3-android.xml" url="jme3-android.xml"/>
