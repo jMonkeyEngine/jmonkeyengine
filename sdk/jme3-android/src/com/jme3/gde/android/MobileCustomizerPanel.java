@@ -40,6 +40,9 @@ public class MobileCustomizerPanel extends javax.swing.JPanel implements ActionL
             AndroidTarget androidTarget = it.next();
             jComboBox1.addItem(androidTarget);
         }
+        if (properties.getProperty("mobile.android.target") != null) {
+            setSelected(properties.getProperty("mobile.android.target"));
+        }
     }
 
     private void loadProperties() {
