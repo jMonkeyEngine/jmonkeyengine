@@ -99,7 +99,37 @@
     <target name="hudson-nightly" depends="suite.clean, -revert-svn-changes, update-help-sets, set-impl-version, suite.nbms, unset-impl-version">
     </target>
 
-    <target name="hudson-stable" depends="suite.clean, -revert-svn-changes, set-impl-version, suite.nbms, unset-impl-version">
+    <target name="hudson-stable" depends="suite.clean, -revert-svn-changes, set-spec-version, suite.nbms, unset-impl-version">
+    </target>
+    
+    <target name="set-spec-version">
+        <property file="nbproject/project.properties"/>
+        <foreach target="-do-spec-version" list="${modules}" delimiter=":" param="module_dir" inheritall="true">
+            <param name="set_spec_version" value="true"/>
+        </foreach>
+    </target>
+
+    <target name="unset-spec-version">
+        <property file="nbproject/project.properties"/>
+        <foreach target="-do-spec-version" list="${modules}" delimiter=":" param="module_dir" inheritall="true">
+            <param name="set_spec_version" value="false"/>
+        </foreach>
+    </target>
+
+    <!--sets/unsets specification version to major version (e.g. 3.0.1) for all plugins-->
+    <target name="-do-spec-version">
+        <if>
+            <equals arg1="${set_spec_version}" arg2="true"/>
+            <then>
+                <echo file="${module_dir}/manifest.mf" append="true">OpenIDE-Module-Specification-Version: ${plugins.version}</echo>
+            </then>
+            <else>
+                <replaceregexp file="${module_dir}/manifest.mf"
+                                match="OpenIDE-Module-Specification-Version:(.*)"
+                                replace=""
+                                byline="true"/>
+            </else>
+        </if>
     </target>
     
     <target name="set-impl-version">
