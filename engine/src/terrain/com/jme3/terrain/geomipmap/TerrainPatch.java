@@ -691,19 +691,19 @@ public class TerrainPatch extends Geometry {
         
         Vector3f n1 = Vector3f.ZERO;
         if (topPoint != null && leftPoint != null) {
-            n1 = getNormal(topPoint.mult(scale), rootPoint.mult(scale), leftPoint.mult(scale));
+            n1 = calculateNormal(topPoint.mult(scale), rootPoint.mult(scale), leftPoint.mult(scale));
         }
         Vector3f n2 = Vector3f.ZERO;
         if (leftPoint != null && bottomPoint != null) {
-            n2 = getNormal(leftPoint.mult(scale), rootPoint.mult(scale), bottomPoint.mult(scale));
+            n2 = calculateNormal(leftPoint.mult(scale), rootPoint.mult(scale), bottomPoint.mult(scale));
         }
         Vector3f n3 = Vector3f.ZERO;
         if (rightPoint != null && bottomPoint != null) {
-            n3 = getNormal(bottomPoint.mult(scale), rootPoint.mult(scale), rightPoint.mult(scale));
+            n3 = calculateNormal(bottomPoint.mult(scale), rootPoint.mult(scale), rightPoint.mult(scale));
         }
         Vector3f n4 = Vector3f.ZERO;
         if (rightPoint != null && topPoint != null) {
-            n4 = getNormal(rightPoint.mult(scale), rootPoint.mult(scale), topPoint.mult(scale));
+            n4 = calculateNormal(rightPoint.mult(scale), rootPoint.mult(scale), topPoint.mult(scale));
         }
         
         Vector3f binormal = new Vector3f();
@@ -713,10 +713,23 @@ public class TerrainPatch extends Geometry {
         normal.set(n1.add(n2).add(n3).add(n4).normalizeLocal());
     }
 
-    private Vector3f getNormal(Vector3f firstPoint, Vector3f rootPoint, Vector3f secondPoint) {
+    private Vector3f calculateNormal(Vector3f firstPoint, Vector3f rootPoint, Vector3f secondPoint) {
         Vector3f normal = new Vector3f();
         normal.set(firstPoint).subtractLocal(rootPoint)
                   .crossLocal(secondPoint.subtract(rootPoint)).normalizeLocal();
+        return normal;
+    }
+    
+    protected Vector3f getMeshNormal(int x, int z) {
+        if (x >= size || z >= size)
+            return null; // out of range
+        
+        int index = (z*size+x)*3;
+        FloatBuffer nb = (FloatBuffer)this.getMesh().getBuffer(Type.Normal).getData();
+        Vector3f normal = new Vector3f();
+        normal.x = nb.get(index);
+        normal.y = nb.get(index+1);
+        normal.z = nb.get(index+2);
         return normal;
     }
 

@@ -959,12 +959,56 @@ public class TerrainQuad extends Node implements Terrain {
         return Float.NaN;
     }
 
+    protected Vector3f getMeshNormal(int x, int z) {
+        int quad = findQuadrant(x, z);
+        int split = (size + 1) >> 1;
+        if (children != null) {
+            for (int i = children.size(); --i >= 0;) {
+                Spatial spat = children.get(i);
+                int col = x;
+                int row = z;
+                boolean match = false;
+
+                // get the childs quadrant
+                int childQuadrant = 0;
+                if (spat instanceof TerrainQuad) {
+                    childQuadrant = ((TerrainQuad) spat).getQuadrant();
+                } else if (spat instanceof TerrainPatch) {
+                    childQuadrant = ((TerrainPatch) spat).getQuadrant();
+                }
+
+                if (childQuadrant == 1 && (quad & 1) != 0) {
+                    match = true;
+                } else if (childQuadrant == 2 && (quad & 2) != 0) {
+                    row = z - split + 1;
+                    match = true;
+                } else if (childQuadrant == 3 && (quad & 4) != 0) {
+                    col = x - split + 1;
+                    match = true;
+                } else if (childQuadrant == 4 && (quad & 8) != 0) {
+                    col = x - split + 1;
+                    row = z - split + 1;
+                    match = true;
+                }
+
+                if (match) {
+                    if (spat instanceof TerrainQuad) {
+                        return ((TerrainQuad) spat).getMeshNormal(col, row);
+                    } else if (spat instanceof TerrainPatch) {
+                        return ((TerrainPatch) spat).getMeshNormal(col, row);
+                    }
+                }
+
+            }
+        }
+        return null;
+    }
 
     public float getHeight(Vector2f xz) {
         // offset
         float x = (float)(((xz.x - getLocalTranslation().x) / getLocalScale().x) + (float)totalSize / 2f);
         float z = (float)(((xz.y - getLocalTranslation().z) / getLocalScale().z) + (float)totalSize / 2f);
-        float height = getHeight(x, z, xz);
+        float height = getHeight(x, z);
         height *= getLocalScale().y;
         return height;
     }
@@ -974,7 +1018,7 @@ public class TerrainQuad extends Node implements Terrain {
      * @param x coordinate translated into actual (positive) terrain grid coordinates
      * @param y coordinate translated into actual (positive) terrain grid coordinates
      */
-    protected float getHeight(float x, float z, Vector2f xz) {
+    protected float getHeight(float x, float z) {
         x-=0.5f;
         z-=0.5f;
         float col = FastMath.floor(x);
@@ -1000,6 +1044,38 @@ public class TerrainQuad extends Node implements Terrain {
         }
     }
 
+    public Vector3f getNormal(Vector2f xz) {
+        // offset
+        float x = (float)(((xz.x - getLocalTranslation().x) / getLocalScale().x) + (float)totalSize / 2f);
+        float z = (float)(((xz.y - getLocalTranslation().z) / getLocalScale().z) + (float)totalSize / 2f);
+        Vector3f normal = getNormal(x, z, xz);
+        
+        return normal;
+    }
+    
+    protected Vector3f getNormal(float x, float z, Vector2f xz) {
+        x-=0.5f;
+        z-=0.5f;
+        float col = FastMath.floor(x);
+        float row = FastMath.floor(z);
+        boolean onX = false;
+        if(1 - (x - col)-(z - row) < 0) // what triangle to interpolate on
+            onX = true;
+        // v1--v2  ^
+        // |  / |  |
+        // | /  |  |
+        // v3--v4  | Z
+        //         |
+        // <-------Y
+        //     X 
+        Vector3f n1 = getMeshNormal((int) FastMath.ceil(x), (int) FastMath.ceil(z));
+        Vector3f n2 = getMeshNormal((int) FastMath.floor(x), (int) FastMath.ceil(z));
+        Vector3f n3 = getMeshNormal((int) FastMath.ceil(x), (int) FastMath.floor(z));
+        Vector3f n4 = getMeshNormal((int) FastMath.floor(x), (int) FastMath.floor(z));
+        
+        return n1.add(n2).add(n3).add(n4).normalize();
+    }
+    
     public void setHeight(Vector2f xz, float height) {
         List<Vector2f> coord = new ArrayList<Vector2f>();
         coord.add(xz);

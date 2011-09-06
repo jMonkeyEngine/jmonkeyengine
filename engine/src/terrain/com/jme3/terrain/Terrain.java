@@ -54,6 +54,15 @@ public interface Terrain {
      * @return the height at the given point
      */
     public float getHeight(Vector2f xz);
+    
+    /**
+     * Get the normal vector for the surface of the terrain at the specified
+     * X-Z coordinate. This normal vector can be a close approximation. It does not
+     * take into account any normal maps on the material.
+     * @param xz the X-Z world coordinate
+     * @return the normal vector at the given point
+     */
+    public Vector3f getNormal(Vector2f xz);
 
     /**
      * Get the heightmap height at the specified X-Z coordinate. This does not
