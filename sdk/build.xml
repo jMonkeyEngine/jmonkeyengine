@@ -99,7 +99,7 @@
     <target name="hudson-nightly" depends="suite.clean, -revert-svn-changes, update-help-sets, set-impl-version, suite.nbms, unset-impl-version">
     </target>
 
-    <target name="hudson-stable" depends="suite.clean, -revert-svn-changes, set-spec-version, suite.nbms, unset-impl-version">
+    <target name="hudson-stable" depends="suite.clean, -revert-svn-changes, set-spec-version, suite.nbms, unset-spec-version">
     </target>
     
     <target name="set-spec-version">
@@ -122,6 +122,10 @@
             <equals arg1="${set_spec_version}" arg2="true"/>
             <then>
                 <echo file="${module_dir}/manifest.mf" append="true">OpenIDE-Module-Specification-Version: ${plugins.version}</echo>
+                <replaceregexp file="${module_dir}/manifest.mf"
+                               match="(\r?\n)\s*\r?\n" 
+                               flags="g"
+                               replace="\1" />            
             </then>
             <else>
                 <replaceregexp file="${module_dir}/manifest.mf"
