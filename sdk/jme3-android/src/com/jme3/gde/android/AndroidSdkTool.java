@@ -125,7 +125,7 @@ public class AndroidSdkTool {
             return null;
         }
         if (Utilities.isWindows()) {
-            executable = folder.getFileObject("tools/android.exe");
+            executable = folder.getFileObject("tools/android.bat");
         } else {
             executable = folder.getFileObject("tools/android");
         }
