@@ -38,6 +38,7 @@ import java.util.logging.Logger;
 
 import com.jme3.asset.AssetInfo;
 import com.jme3.asset.BlenderKey.LoadingResults;
+import com.jme3.light.Light;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
@@ -54,35 +55,31 @@ public class BlenderModelLoader extends BlenderLoader {
     @Override
     public Spatial load(AssetInfo assetInfo) throws IOException {
         try {
-            this.setup(assetInfo);
+            setup(assetInfo);
             
-            LoadingResults loadingResults = blenderKey.prepareLoadingResults();
+            Node modelRoot = new Node(blenderKey.getName());
+            
             for (FileBlockHeader block : blocks) {
                 if (block.getCode() == FileBlockHeader.BLOCK_OB00) {
                     Object object = converter.toObject(block.getStructure(dataRepository));
                     if (object instanceof Node) {
                         LOGGER.log(Level.INFO, "{0}: {1}--> {2}", new Object[]{((Node) object).getName(), ((Node) object).getLocalTranslation().toString(), ((Node) object).getParent() == null ? "null" : ((Node) object).getParent().getName()});
                         if (((Node) object).getParent() == null) {
-                            loadingResults.addObject((Node) object);
+                            modelRoot.attachChild( (Node) object );
                         }
+                    }else if (object instanceof Light){
+                        modelRoot.addLight( (Light) object );
                     }
                 }
             }
+            
             try {
             	inputStream.close();
             } catch(IOException e) {
             	LOGGER.warning(e.getLocalizedMessage());
             }
-            List<Node> objects = loadingResults.getObjects();
-            if (objects.size() > 0) {
-                Node modelNode = new Node(blenderKey.getName());
-                for(Node object : objects) {
-                	modelNode.attachChild(object);
-                }
-                return modelNode;
-            } else if (objects.size() == 1) {
-                return objects.get(0);
-            }
+            
+            return modelRoot;
         } catch (BlenderFileException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }

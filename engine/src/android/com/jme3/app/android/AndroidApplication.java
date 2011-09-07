@@ -222,7 +222,7 @@ public abstract class AndroidApplication extends Application implements DialogIn
 
         // render states
         stateManager.render(renderManager);
-        renderManager.render(tpf, true);
+        renderManager.render(tpf, context.isRenderable());
         render(renderManager);
         stateManager.postRender();
     }

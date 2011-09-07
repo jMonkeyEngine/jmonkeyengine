@@ -437,6 +437,7 @@ public class FrameBuffer extends GLObject {
     @Override
     public void resetObject() {
         this.id = -1;
+        
         for (int i = 0; i < colorBufs.size(); i++) {
             colorBufs.get(i).resetObject();
         }

@@ -90,13 +90,9 @@ public class LightHelper extends AbstractBlenderHelper {
             	
             	//inner angle
             	float spotblend = ((Number) structure.getFieldValue("spotblend")).floatValue();
-            	if(spotblend > 1.0f) {//floating point errors fix
-            		spotblend = 1.0f;
-            	}
-            	if(spotblend < 0.0f) {//floating point errors fix
-            		spotblend = 0.0f;
-            	}
-            	float innerAngle = 2.0f * (float)Math.atan((1.0f-spotblend)*Math.tan(spotblend/2.0f));
+                spotblend = FastMath.clamp(spotblend, 0, 1);
+            	//float innerAngle = 2.0f * (float)Math.atan((1.0f-spotblend)*Math.tan(spotblend/2.0f));
+                float innerAngle = outerAngle * (1 - spotblend);
             	((SpotLight)result).setSpotInnerAngle(innerAngle);
                 break;
             case 3://Hemi
