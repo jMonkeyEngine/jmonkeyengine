@@ -37,7 +37,10 @@ import com.jme3.app.SimpleApplication;
 import com.jme3.system.AppSettings;
 import com.jme3.system.JmeCanvasContext;
 import com.jme3.util.JmeFormatter;
+import java.awt.BorderLayout;
 import java.awt.Canvas;
+import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -50,8 +53,11 @@ import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
+import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 
 public class TestCanvas {
 
@@ -59,8 +65,131 @@ public class TestCanvas {
     private static Canvas canvas;
     private static Application app;
     private static JFrame frame;
-    private static final String appClass = "jme3test.post.TestMultiplesFilters";
+    private static Container canvasPanel1, canvasPanel2;
+    private static Container currentPanel;
+    private static JTabbedPane tabbedPane;
+    private static final String appClass = "jme3test.post.TestRenderToTexture";
 
+    private static void createTabs(){
+        tabbedPane = new JTabbedPane();
+        
+        canvasPanel1 = new JPanel();
+        canvasPanel1.setLayout(new BorderLayout());
+        tabbedPane.addTab("jME3 Canvas 1", canvasPanel1);
+        
+        canvasPanel2 = new JPanel();
+        canvasPanel2.setLayout(new BorderLayout());
+        tabbedPane.addTab("jME3 Canvas 2", canvasPanel2);
+        
+        frame.getContentPane().add(tabbedPane);
+        
+        currentPanel = canvasPanel1;
+    }
+    
+    private static void createMenu(){
+        JMenuBar menuBar = new JMenuBar();
+        frame.setJMenuBar(menuBar);
+
+        JMenu menuTortureMethods = new JMenu("Canvas Torture Methods");
+        menuBar.add(menuTortureMethods);
+
+        final JMenuItem itemRemoveCanvas = new JMenuItem("Remove Canvas");
+        menuTortureMethods.add(itemRemoveCanvas);
+        itemRemoveCanvas.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                if (itemRemoveCanvas.getText().equals("Remove Canvas")){
+                    currentPanel.remove(canvas);
+
+                    itemRemoveCanvas.setText("Add Canvas");
+                }else if (itemRemoveCanvas.getText().equals("Add Canvas")){
+                    currentPanel.add(canvas, BorderLayout.CENTER);
+                    
+                    itemRemoveCanvas.setText("Remove Canvas");
+                }
+            }
+        });
+        
+        final JMenuItem itemHideCanvas = new JMenuItem("Hide Canvas");
+        menuTortureMethods.add(itemHideCanvas);
+        itemHideCanvas.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                if (itemHideCanvas.getText().equals("Hide Canvas")){
+                    canvas.setVisible(false);
+                    itemHideCanvas.setText("Show Canvas");
+                }else if (itemHideCanvas.getText().equals("Show Canvas")){
+                    canvas.setVisible(true);
+                    itemHideCanvas.setText("Hide Canvas");
+                }
+            }
+        });
+        
+        final JMenuItem itemSwitchTab = new JMenuItem("Switch to tab #2");
+        menuTortureMethods.add(itemSwitchTab);
+        itemSwitchTab.addActionListener(new ActionListener(){
+           public void actionPerformed(ActionEvent e){
+               if (itemSwitchTab.getText().equals("Switch to tab #2")){
+                   canvasPanel1.remove(canvas);
+                   canvasPanel2.add(canvas, BorderLayout.CENTER);
+                   currentPanel = canvasPanel2;
+                   itemSwitchTab.setText("Switch to tab #1");
+               }else if (itemSwitchTab.getText().equals("Switch to tab #1")){
+                   canvasPanel2.remove(canvas);
+                   canvasPanel1.add(canvas, BorderLayout.CENTER);
+                   currentPanel = canvasPanel1;
+                   itemSwitchTab.setText("Switch to tab #2");
+               }
+           } 
+        });
+        
+        JMenuItem itemSwitchLaf = new JMenuItem("Switch Look and Feel");
+        menuTortureMethods.add(itemSwitchLaf);
+        itemSwitchLaf.addActionListener(new ActionListener(){
+            public void actionPerformed(ActionEvent e){
+                try {
+                    UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+                } catch (Throwable t){
+                    t.printStackTrace();
+                }
+                SwingUtilities.updateComponentTreeUI(frame);
+                frame.pack();
+            }
+        });
+        
+        JMenuItem itemSmallSize = new JMenuItem("Set size to (0, 0)");
+        menuTortureMethods.add(itemSmallSize);
+        itemSmallSize.addActionListener(new ActionListener(){
+            public void actionPerformed(ActionEvent e){
+                Dimension preferred = frame.getPreferredSize();
+                frame.setPreferredSize(new Dimension(0, 0));
+                frame.pack();
+                frame.setPreferredSize(preferred);
+            }
+        });
+        
+        JMenuItem itemKillCanvas = new JMenuItem("Stop/Start Canvas");
+        menuTortureMethods.add(itemKillCanvas);
+        itemKillCanvas.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                currentPanel.remove(canvas);
+                app.stop(true);
+
+                createCanvas(appClass);
+                currentPanel.add(canvas, BorderLayout.CENTER);
+                frame.pack();
+                startApp();
+            }
+        });
+
+        JMenuItem itemExit = new JMenuItem("Exit");
+        menuTortureMethods.add(itemExit);
+        itemExit.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent ae) {
+                frame.dispose();
+                app.stop();
+            }
+        });
+    }
+    
     private static void createFrame(){
         frame = new JFrame("Test");
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -71,75 +200,14 @@ public class TestCanvas {
             }
         });
 
-        JMenuBar menuBar = new JMenuBar();
-        frame.setJMenuBar(menuBar);
-
-        JMenu menuFile = new JMenu("File");
-        menuBar.add(menuFile);
-
-        final JMenuItem itemRemoveCanvas = new JMenuItem("Remove Canvas");
-        menuFile.add(itemRemoveCanvas);
-        itemRemoveCanvas.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                if (itemRemoveCanvas.getText().equals("Remove Canvas")){
-                    frame.getContentPane().remove(canvas);
-
-                    // force OS to repaint over canvas ..
-                    // this is needed since AWT does not handle
-                    // that when a heavy-weight component is removed.
-                    frame.setVisible(false);
-                    frame.setVisible(true);
-                    frame.requestFocus();
-
-                    itemRemoveCanvas.setText("Add Canvas");
-                }else if (itemRemoveCanvas.getText().equals("Add Canvas")){
-                    frame.getContentPane().add(canvas);
-                    itemRemoveCanvas.setText("Remove Canvas");
-                }
-            }
-        });
-
-        JMenuItem itemKillCanvas = new JMenuItem("Stop/Start Canvas");
-        menuFile.add(itemKillCanvas);
-        itemKillCanvas.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                frame.getContentPane().remove(canvas);
-                app.stop(true);
-
-                createCanvas(appClass);
-                frame.getContentPane().add(canvas);
-                frame.pack();
-                startApp();
-            }
-        });
-
-        JMenuItem itemExit = new JMenuItem("Exit");
-        menuFile.add(itemExit);
-        itemExit.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent ae) {
-                frame.dispose();
-                app.stop();
-            }
-        });
-
-        JMenu menuEdit = new JMenu("Edit");
-        menuBar.add(menuEdit);
-        JMenuItem itemDelete = new JMenuItem("Delete");
-        menuEdit.add(itemDelete);
-
-        JMenu menuView = new JMenu("View");
-        menuBar.add(menuView);
-        JMenuItem itemSetting = new JMenuItem("Settings");
-        menuView.add(itemSetting);
-
-        JMenu menuHelp = new JMenu("Help");
-        menuBar.add(menuHelp);
+        createTabs();
+        createMenu();
     }
 
     public static void createCanvas(String appClass){
         AppSettings settings = new AppSettings(true);
-        settings.setWidth( Math.max(640, frame.getContentPane().getWidth()) );
-        settings.setHeight( Math.max(480, frame.getContentPane().getHeight()) );
+        settings.setWidth(640);
+        settings.setHeight(480);
 
         try{
             Class<? extends Application> clazz = (Class<? extends Application>) Class.forName(appClass);
@@ -155,6 +223,7 @@ public class TestCanvas {
         app.setPauseOnLostFocus(false);
         app.setSettings(settings);
         app.createCanvas();
+        app.startCanvas();
 
         context = (JmeCanvasContext) app.getContext();
         canvas = context.getCanvas();
@@ -184,14 +253,20 @@ public class TestCanvas {
         Logger.getLogger("").removeHandler(Logger.getLogger("").getHandlers()[0]);
         Logger.getLogger("").addHandler(consoleHandler);
         
+        createCanvas(appClass);
+        
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException ex) {
+        }
+        
         SwingUtilities.invokeLater(new Runnable(){
             public void run(){
                 JPopupMenu.setDefaultLightWeightPopupEnabled(false);
 
                 createFrame();
-                createCanvas(appClass);
                 
-                frame.getContentPane().add(canvas);
+                currentPanel.add(canvas, BorderLayout.CENTER);
                 frame.pack();
                 startApp();
                 frame.setLocationRelativeTo(null);

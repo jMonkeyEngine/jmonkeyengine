@@ -225,7 +225,7 @@ public class TestWalkingChar extends SimpleApplication implements ActionListener
         Material mat = new Material(assetManager, "Common/MatDefs/Misc/Particle.j3md");
         mat.setTexture("Texture", assetManager.loadTexture("Effects/Explosion/flame.png"));
         effect.setMaterial(mat);
-        effect.setLocalScale(100);
+//        effect.setLocalScale(100);
         rootNode.attachChild(effect);
     }
 

@@ -41,6 +41,8 @@ import com.jme3.asset.AssetNotFoundException;
 import com.jme3.light.DirectionalLight;
 import com.jme3.light.Light;
 import com.jme3.light.PointLight;
+import com.jme3.light.SpotLight;
+import com.jme3.math.FastMath;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
@@ -104,16 +106,22 @@ public class SceneLoader extends DefaultHandler implements AssetLoader {
         light = null;
     }
 
+    private void checkTopNode(String topNode) throws SAXException{
+        if (!elementStack.peek().equals(topNode)){
+            throw new SAXException("dotScene parse error: Expected parent node to be " + topNode);
+        }
+    }
+    
     private Quaternion parseQuat(Attributes attribs) throws SAXException{
         if (attribs.getValue("x") != null){
             // defined as quaternion
-            // qx, qy, qz, qw defined
             float x = parseFloat(attribs.getValue("x"));
             float y = parseFloat(attribs.getValue("y"));
             float z = parseFloat(attribs.getValue("z"));
             float w = parseFloat(attribs.getValue("w"));
             return new Quaternion(x,y,z,w);
         }else if (attribs.getValue("qx") != null){
+            // defined as quaternion with prefix "q"
             float x = parseFloat(attribs.getValue("qx"));
             float y = parseFloat(attribs.getValue("qy"));
             float z = parseFloat(attribs.getValue("qz"));
@@ -129,6 +137,7 @@ public class SceneLoader extends DefaultHandler implements AssetLoader {
             q.fromAngleAxis(angle, new Vector3f(axisX, axisY, axisZ));
             return q;
         }else{
+            // defines as 3 angles along XYZ axes
             float angleX = parseFloat(attribs.getValue("angleX"));
             float angleY = parseFloat(attribs.getValue("angleY"));
             float angleZ = parseFloat(attribs.getValue("angleZ"));
@@ -139,19 +148,22 @@ public class SceneLoader extends DefaultHandler implements AssetLoader {
     }
 
     private void parseLightNormal(Attributes attribs) throws SAXException {
-        assert elementStack.peek().equals("light");
+        checkTopNode("light");
         
         // SpotLight will be supporting a direction-normal, too.
         if (light instanceof DirectionalLight)
             ((DirectionalLight) light).setDirection(parseVector3(attribs));
+        else if (light instanceof SpotLight){
+            ((SpotLight) light).setDirection(parseVector3(attribs));
+        }
     }
 
     private void parseLightAttenuation(Attributes attribs) throws SAXException {
-        // NOTE: Only radius is supported atm ( for pointlights only, since there are no spotlights, yet).
-        assert elementStack.peek().equals("light");
+        // NOTE: Derives range based on "linear" if it is used solely
+        // for the attenuation. Otherwise derives it from "range"
+        checkTopNode("light");
 
-        // SpotLight will be supporting a direction-normal, too.
-        if (light instanceof PointLight){
+        if (light instanceof PointLight || light instanceof SpotLight){
             float range = parseFloat(attribs.getValue("range"));
             float constant = parseFloat(attribs.getValue("constant"));
             float linear = parseFloat(attribs.getValue("linear"));
@@ -165,15 +177,36 @@ public class SceneLoader extends DefaultHandler implements AssetLoader {
             if (constant == 1 && quadratic == 0 && linear > 0){
                 range = 1f / linear;
             }
-            ((PointLight) light).setRadius(range);
+            
+            if (light instanceof PointLight){
+                ((PointLight) light).setRadius(range);
+            }else{
+                ((SpotLight)light).setSpotRange(range);
+            }
         }
-
     }
 
+    private void parseLightSpotLightRange(Attributes attribs) throws SAXException{
+        checkTopNode("light");
+        
+        float outer = SAXUtil.parseFloat(attribs.getValue("outer"));
+        float inner = SAXUtil.parseFloat(attribs.getValue("inner"));
+        
+        if (!(light instanceof SpotLight)){
+            throw new SAXException("dotScene parse error: spotLightRange "
+                    + "can only appear under 'spot' light elements");
+        }
+        
+        SpotLight sl = (SpotLight) light;
+        sl.setSpotInnerAngle(inner * 0.5f);
+        sl.setSpotOuterAngle(outer * 0.5f);
+    }
+    
     private void parseLight(Attributes attribs) throws SAXException {
-        assert node != null;
-        assert node.getParent() != null;
-        assert elementStack.peek().equals("node");
+        if (node == null || node.getParent() == null)
+            throw new SAXException("dotScene parse error: light can only appear under a node");
+        
+        checkTopNode("node");
         
         String lightType = parseString(attribs.getValue("type"), "point");
         if(lightType.equals("point")) {
@@ -182,10 +215,8 @@ public class SceneLoader extends DefaultHandler implements AssetLoader {
             light = new DirectionalLight();
             // Assuming "normal" property is not provided
             ((DirectionalLight)light).setDirection(Vector3f.UNIT_Z);
-        } else if(lightType.equals("spotLight")) {
-            // TODO: SpotLight class.
-            logger.warning("No SpotLight class atm, using Pointlight instead.");
-            light = new PointLight();
+        } else if(lightType.equals("spotLight") || lightType.equals("spot")) {
+            light = new SpotLight();
         } else {
             logger.log(Level.WARNING, "No matching jME3 LightType found for OGRE LightType: {0}", lightType);
         }
@@ -203,14 +234,19 @@ public class SceneLoader extends DefaultHandler implements AssetLoader {
     @Override
     public void startElement(String uri, String localName, String qName, Attributes attribs) throws SAXException{
         if (qName.equals("scene")){
-            assert elementStack.size() == 0;
+            if (elementStack.size() != 0){
+                throw new SAXException("dotScene parse error: 'scene' element must be the root XML element");
+            }
+            
             String version = attribs.getValue("formatVersion");
-            if (version == null || !version.equals("1.0.0"))
+            if (version == null && !version.equals("1.0.0") && !version.equals("1.0.1"))
                 logger.log(Level.WARNING, "Unrecognized version number"
                         + " in dotScene file: {0}", version);
             
         }else if (qName.equals("nodes")){
-            assert root == null;
+            if (root != null){
+                throw new SAXException("dotScene parse error: nodes element was specified twice");
+            }
             if (sceneName == null)
                 root = new Node("OgreDotScene"+(++sceneIdx));
             else
@@ -218,22 +254,31 @@ public class SceneLoader extends DefaultHandler implements AssetLoader {
             
             node = root;
         }else if (qName.equals("externals")){
-            assert elementStack.peek().equals("scene");
-
+            checkTopNode("scene");
+            // Not loaded currently
         }else if (qName.equals("item")){
-            assert elementStack.peek().equals("externals");
+            checkTopNode("externals");
         }else if (qName.equals("file")){
-            assert elementStack.peek().equals("item");
-            String matFile = folderName+attribs.getValue("name");
-            try {
-                materialList = (MaterialList) assetManager.loadAsset(new OgreMaterialKey(matFile));
-            } catch (AssetNotFoundException ex){
-                materialList = null;
-                logger.log(Level.WARNING, "Cannot locate material file: {0}", matFile);
-            }
+            checkTopNode("item");
+            
+            // XXX: Currently material file name is based
+            // on the scene's filename. THIS IS NOT CORRECT.
+            // To solve, port SceneLoader to use DOM instead of SAX
+            
+            //String matFile = folderName+attribs.getValue("name");
+            //try {
+            //    materialList = (MaterialList) assetManager.loadAsset(new OgreMaterialKey(matFile));
+            //} catch (AssetNotFoundException ex){
+            //    materialList = null;
+            //    logger.log(Level.WARNING, "Cannot locate material file: {0}", matFile);
+            //}
         }else if (qName.equals("node")){
             String curElement = elementStack.peek();
-            assert curElement.equals("nodes") || curElement.equals("node");
+            if (!curElement.equals("node") && !curElement.equals("nodes")){
+                throw new SAXException("dotScene parse error: "
+                        + "node element can only appear under 'node' or 'nodes'");
+            }
+            
             String name = attribs.getValue("name");
             if (name == null)
                 name = "OgreNode-" + (++nodeIdx);
@@ -259,7 +304,8 @@ public class SceneLoader extends DefaultHandler implements AssetLoader {
                 }
             }
         }else if (qName.equals("entity")){
-            assert elementStack.peek().equals("node");
+            checkTopNode("node");
+            
             String name = attribs.getValue("name");
             if (name == null)
                 name = "OgreEntity-" + (++nodeIdx);
@@ -267,32 +313,31 @@ public class SceneLoader extends DefaultHandler implements AssetLoader {
                 name += "-entity";
 
             String meshFile = attribs.getValue("meshFile");
-            if (meshFile == null)
+            if (meshFile == null) {
                 throw new SAXException("Required attribute 'meshFile' missing for 'entity' node");
+            }
 
+            // TODO: Not currently used
             String materialName = attribs.getValue("materialName");
 
-            // NOTE: append "xml" since its assumed mesh filse are binary in dotScene
-            if (folderName != null)
+            if (folderName != null) {
                 meshFile = folderName + meshFile;
+            }
             
+            // NOTE: append "xml" since its assumed mesh files are binary in dotScene
             meshFile += ".xml";
             
             entityNode = new Node(name);
             OgreMeshKey key = new OgreMeshKey(meshFile, materialList);
-            Spatial ogreMesh = 
-                    (Spatial) assetManager.loadAsset(key);
-            //TODO:workaround for meshxml / mesh.xml
-            if(ogreMesh==null){
-                meshFile = folderName + attribs.getValue("meshFile") + "xml";
-                key = new OgreMeshKey(meshFile, materialList);
-                ogreMesh = (Spatial) assetManager.loadAsset(key);
-            }
+            Spatial ogreMesh = assetManager.loadModel(key);
+            
             entityNode.attachChild(ogreMesh);
             node.attachChild(entityNode);
             node = null;
         }else if (qName.equals("position")){
-            node.setLocalTranslation(SAXUtil.parseVector3(attribs));
+            if (elementStack.peek().equals("node")){
+                node.setLocalTranslation(SAXUtil.parseVector3(attribs));
+            }
         }else if (qName.equals("quaternion") || qName.equals("rotation")){
             node.setLocalRotation(parseQuat(attribs));
         }else if (qName.equals("scale")){
@@ -305,19 +350,22 @@ public class SceneLoader extends DefaultHandler implements AssetLoader {
                     light.setColor(parseColor(attribs));
                 }
             }else{
-                assert elementStack.peek().equals("environment");
+                checkTopNode("environment");
             }
-        } else if (qName.equals("normal")) {
+        } else if (qName.equals("normal") || qName.equals("direction")) {
+            checkTopNode("light");
             parseLightNormal(attribs);
         } else if (qName.equals("lightAttenuation")) {
             parseLightAttenuation(attribs);
+        } else if (qName.equals("spotLightRange") || qName.equals("lightRange")) {
+            parseLightSpotLightRange(attribs);
         }
 
         elementStack.push(qName);
     }
 
     @Override
-    public void endElement(String uri, String name, String qName) {
+    public void endElement(String uri, String name, String qName) throws SAXException {
         if (qName.equals("node")){
             node = node.getParent();
         }else if (qName.equals("nodes")){
@@ -339,11 +387,21 @@ public class SceneLoader extends DefaultHandler implements AssetLoader {
                     PointLight pl = (PointLight) light;
                     Vector3f pos = node.getWorldTranslation();
                     pl.setPosition(pos);
+                }else if (light instanceof SpotLight){
+                    SpotLight sl = (SpotLight) light;
+                    
+                    Vector3f pos = node.getWorldTranslation();
+                    sl.setPosition(pos);
+                    
+                    Quaternion q = node.getWorldRotation();
+                    Vector3f dir = sl.getDirection();
+                    q.multLocal(dir);
+                    sl.setDirection(dir);
                 }
             }
             light = null;
         }
-        assert elementStack.peek().equals(qName);
+        checkTopNode(qName);
         elementStack.pop();
     }
 

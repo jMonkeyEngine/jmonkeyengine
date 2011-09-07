@@ -102,12 +102,11 @@ public final class SAXUtil {
     public static boolean parseBool(String bool, boolean def) throws SAXException{
         if (bool == null || bool.equals(""))
             return def;
-        else if (bool.equals("false"))
-            return false;
-        else if (bool.equals("true"))
-            return true;
         else
-            throw new SAXException("Expected a boolean, got'"+bool+"'");
+            return Boolean.valueOf(bool); 
+        //else
+        //else
+        //    throw new SAXException("Expected a boolean, got'"+bool+"'");
     }
 
     public static String parseString(String str, String def){
