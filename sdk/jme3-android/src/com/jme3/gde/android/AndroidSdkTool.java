@@ -217,7 +217,7 @@ public class AndroidSdkTool {
             if (mainAct != null) {
                 lock = mainAct.lock();
                 OutputStreamWriter out = new OutputStreamWriter(new BufferedOutputStream(mainAct.getOutputStream(lock)));
-                out.write(mainActivityString(mainJmeClass));
+                out.write(mainActivityString(mainJmeClass, packag));
                 out.close();
                 lock.releaseLock();
             } else {
@@ -261,8 +261,9 @@ public class AndroidSdkTool {
         }
     }
 
-    private static String mainActivityString(String mainClass) {
-        String str = "import com.jme3.app.AndroidHarness;\n"
+    private static String mainActivityString(String mainClass, String packag) {
+        String str = "package "+packag+";\n"
+                + "import com.jme3.app.AndroidHarness;\n"
                 + "import android.content.pm.ActivityInfo;"
                 + "import com.jme3.system.android.AndroidConfigChooser.ConfigType;"
                 + "public class MainActivity extends AndroidHarness{\n"
