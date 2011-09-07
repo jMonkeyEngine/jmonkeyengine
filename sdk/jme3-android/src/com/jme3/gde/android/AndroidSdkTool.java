@@ -129,7 +129,11 @@ public class AndroidSdkTool {
         } else {
             executable = folder.getFileObject("tools/android");
         }
-        return FileUtil.toFile(executable).getPath();
+        if (executable != null) {
+            return FileUtil.toFile(executable).getPath();
+        } else {
+            return null;
+        }
     }
 
     /**
