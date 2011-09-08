@@ -1,6 +1,5 @@
-<target name="-lwjgl-applet-packlogo" if="splashscreen.available">
+    <target name="-lwjgl-applet-packlogo" if="splashscreen.available">
         <echo>Packing Splash</echo>
-        <copy file="appletlogo.png" todir="${applet.dir}"/>
         <copy file="${application.splash}" todir="${applet.dir}"/>
 
         <!-- <jar destfile="${applet.dir}/logo.jar">
@@ -18,6 +17,7 @@
         <unzip src="${libs.appletloader}" dest="${applet.dir}"/>
         <move file="${applet.dir}/applet-template.html" tofile="${applet.dir}/run-applet.html"/>
         <move file="${assets.jar.resolved}" tofile="${applet.dir}/data.jar"/>
+        <copy file="appletlogo.png" todir="${applet.dir}"/>
 
         <!-- if using many small jars -->
             <!--

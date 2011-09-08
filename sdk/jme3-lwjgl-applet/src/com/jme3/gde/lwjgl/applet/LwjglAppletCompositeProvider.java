@@ -61,7 +61,7 @@ public class LwjglAppletCompositeProvider implements ProjectCustomizer.Composite
     private class SavePropsListener implements ActionListener {
 
         private String extensionName = "lwjglapplet";
-        private String extensionVersion = "v0.96";
+        private String extensionVersion = "v0.97";
         private String[] extensionDependencies = new String[]{"jar", "-lwjgl-applet"};
         private ProjectExtensionManager manager = new ProjectExtensionManager(extensionName, extensionVersion, extensionDependencies);
         private ProjectExtensionProperties properties;
