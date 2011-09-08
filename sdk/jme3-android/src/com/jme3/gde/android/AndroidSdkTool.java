@@ -7,6 +7,8 @@ package com.jme3.gde.android;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +23,11 @@ import org.openide.filesystems.FileUtil;
 import org.openide.util.Exceptions;
 import org.openide.util.NbPreferences;
 import org.openide.util.Utilities;
+import org.openide.xml.XMLUtil;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 /**
  *
@@ -221,7 +228,7 @@ public class AndroidSdkTool {
                 out.close();
                 lock.releaseLock();
             } else {
-                throw new IOException("Cannot find " + mainAct);
+                throw new IOException("Cannot find " + mainActName);
             }
         } catch (InterruptedException ex) {
             Exceptions.printStackTrace(ex);
@@ -231,6 +238,7 @@ public class AndroidSdkTool {
             }
             Exceptions.printStackTrace(ex);
         }
+        updateAndroidManifest(project);
     }
 
     public static void updateProject(Project project, String target, String name) {
@@ -261,11 +269,60 @@ public class AndroidSdkTool {
         }
     }
 
+    private static void updateAndroidManifest(Project project) {
+        FileObject manifest = project.getProjectDirectory().getFileObject("mobile/AndroidManifest.xml");
+        if (manifest == null) {
+            return;
+        }
+        InputStream in = null;
+        FileLock lock = null;
+        OutputStream out = null;
+        try {
+            in = manifest.getInputStream();
+            Document configuration = XMLUtil.parse(new InputSource(in), false, false, null, null);
+            in.close();
+            in = null;
+            Element sdkElement = XmlHelper.findChildElement(configuration.getDocumentElement(), "uses-sdk");
+            if (sdkElement == null) {
+                sdkElement = configuration.createElement("uses-sdk");
+                configuration.getDocumentElement().appendChild(sdkElement);
+            }
+            if (!sdkElement.getAttribute("android:minSdkVersion").equals("8")) {
+                sdkElement.setAttribute("android:minSdkVersion", "8");
+                lock = manifest.lock();
+                out = manifest.getOutputStream(lock);
+                XMLUtil.write(configuration, out, "UTF-8");
+                out.close();
+                out = null;
+                lock.releaseLock();
+                lock = null;
+            }
+        } catch (SAXException ex) {
+            Exceptions.printStackTrace(ex);
+        } catch (IOException ex) {
+            Exceptions.printStackTrace(ex);
+        } finally {
+            if (lock != null) {
+                lock.releaseLock();
+            }
+            try {
+                if (in != null) {
+                    in.close();
+                }
+                if (out != null) {
+                    out.close();
+                }
+            } catch (IOException ex1) {
+                Exceptions.printStackTrace(ex1);
+            }
+        }
+    }
+
     private static String mainActivityString(String mainClass, String packag) {
-        String str = "package "+packag+";\n"
+        String str = "package " + packag + ";\n"
                 + "import com.jme3.app.AndroidHarness;\n"
-                + "import android.content.pm.ActivityInfo;"
-                + "import com.jme3.system.android.AndroidConfigChooser.ConfigType;"
+                + "import android.content.pm.ActivityInfo;\n"
+                + "import com.jme3.system.android.AndroidConfigChooser.ConfigType;\n"
                 + "public class MainActivity extends AndroidHarness{\n"
                 + "    public MainActivity(){\n"
                 + "        // Set the application class to run\n"
@@ -275,13 +332,13 @@ public class AndroidSdkTool {
                 + "        // Exit Dialog title & message\n"
                 + "        exitDialogTitle = \"Exit?\";\n"
                 + "        exitDialogMessage = \"Press Yes\";\n"
-                + "        // Edit: 25.06.2011: Enable verbose logging\n"
+                + "        // Enable verbose logging\n"
                 + "        eglConfigVerboseLogging = false;\n"
-                + "        // Edit: 30.06.2011: Choose screen orientation\n"
+                + "        // Choose screen orientation\n"
                 + "        screenOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;\n"
-                + "        // Edit 12.07.2011: Invert the MouseEvents X (default = true)\n"
+                + "        // Invert the MouseEvents X (default = true)\n"
                 + "        mouseEventsInvertX = true;\n"
-                + "        // Edit 05.07.2011: Invert the MouseEvents Y (default = true)\n"
+                + "        // Invert the MouseEvents Y (default = true)\n"
                 + "        mouseEventsInvertY = true;\n"
                 + "    }\n"
                 + "}\n";
