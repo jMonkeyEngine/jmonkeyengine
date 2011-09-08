@@ -36,19 +36,31 @@
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     </head>
     <body>
-        <h2>Automatically Updating jMonkeyEngine SDK</h2>
-        The jMonkeyEngine Game Development Environment includes an automatic web update feature.
-        You will automatically be notified about updates to the engine and editors.
-        To have your complete SDK being updated to the most current nightly version of jME3 and jMP do the following:
-        <ul>
-            <li>Go to Tools→Plugins</li>
-            <li>Select the “Settings” tab</li>
-            <li>Select the checkbox for “jMonkeyEngine Nightly”</li>
-            <li>Select the “Updates” tab</li>
-            <li>Press “Reload Catalog”</li>
-            <li>Press “Update”</li>
-        </ul>
-        There you go, the jMP will check for updates in the intervals set on the “Settings” tab.
-        Be warned however, the changes in the nightly versions might break your current game project if heavy changes have been committed.
+        <h2><a>Automatically Updating jMonkeyEngine SDK</a></h2><div></div><h3><a>Getting stable updates</a></h3><div>
+            <p> The jMonkeyPlatform software includes an automatic web update feature. To run an update, simply go to Help→Check for Updates and you will get the most current stable update of the <acronym
+                    title="Software Development Kit">SDK</acronym> and the engine. By default the IDE will check every week for new update and inform you about them with a symbol in the lower right.</p></div><h3><a
+                name="testing_the_nightly_version" id="testing_the_nightly_version">Testing the nightly version</a></h3><div
+            class="level3"><p> You can test the nightly version with all the latest untested features to give feedback to the developers. Be warned however, the changes in the nightly versions might break your current game project if heavy changes have been committed.</p><p> To make sure that you do not break your current development environment it is recommended to use a separate application and settings directory for the nightly version.</p><ul><li
+                    class="level1"><div
+                        class="li"> Copy the whole application (folder) to a new name like jmonkeyplatform_nightly.</div></li><li
+                    class="level1"><div
+                        class="li"> Edit the file jmonkeyplatform.conf in the etc directory of the folder. Mac users have to right-click the application and select &quot;Show package contents&quot; and then navigate to Contents/Resources/jmonkeyplatform.</div></li><li
+                    class="level1"><div
+                        class="li"> Change the default_userdir or default_mac_userdir from &quot;${HOME}/.${APPNAME}/version&quot; to something like &quot;${HOME}/.${APPNAME}/nightly&quot;.</div></li></ul><p> Then start the new application and have your <acronym
+                    title="Software Development Kit">SDK</acronym> being updated to the most current nightly version:</p><ul><li
+                    class="level1"><div
+                        class="li"> Go to Tools→Plugins</div></li><li
+                    class="level1"><div
+                        class="li"> Select the &quot;Settings&quot; tab</div></li><li
+                    class="level1"><div
+                        class="li"> Select the checkbox for &quot;jMonkeyPlatform nightly svn&quot;</div></li><li
+                    class="level1"><div
+                        class="li"> Make sure the &quot;force install to shared directories&quot; checkbox is selected</div></li><li
+                    class="level1"><div
+                        class="li"> Select the &quot;Updates&quot; tab</div></li><li
+                    class="level1"><div
+                        class="li"> Press &quot;Reload Catalog&quot;</div></li><li
+                    class="level1"><div
+                        class="li"> Press &quot;Update&quot;</div></li></ul></div>
     </body>
 </html>
