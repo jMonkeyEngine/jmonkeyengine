@@ -734,7 +734,10 @@ public class TextureHelper extends AbstractBlenderHelper {
 		//now try to locate the asset
 		for(String assetName : assetNames) {
 			try {
-				result = assetManager.loadTexture(new TextureKey(assetName));
+                TextureKey key = new TextureKey(assetName);
+                key.setGenerateMips(true);
+                key.setAsCube(false);
+				result = assetManager.loadTexture(key);
 				break;//if no exception is thrown then accept the located asset and break the loop
 			} catch(AssetNotFoundException e) {
 				LOGGER.fine(e.getLocalizedMessage());
