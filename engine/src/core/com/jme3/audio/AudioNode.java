@@ -758,7 +758,8 @@ public class AudioNode extends Node {
         
         positional = ic.readBoolean("positional", false);
         
-        data = im.getAssetManager().loadAudio(key);
+        if (key != null)
+            data = im.getAssetManager().loadAudio(key);
     }
 
     @Override
