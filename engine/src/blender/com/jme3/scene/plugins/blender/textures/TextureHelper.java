@@ -716,7 +716,8 @@ public class TextureHelper extends AbstractBlenderHelper {
 			String relativePath = name.substring(2);
 			//augument the path with blender key path
 			BlenderKey blenderKey = dataRepository.getBlenderKey();
-			String blenderAssetFolder = blenderKey.getName().substring(0, blenderKey.getName().lastIndexOf('/'));
+            int idx = blenderKey.getName().lastIndexOf('/');
+			String blenderAssetFolder = blenderKey.getName().substring(0, idx != -1 ? idx : 0);
 			assetNames.add(blenderAssetFolder+'/'+relativePath);
 		} else {//use every path from the asset name to the root (absolute path)
 			String[] paths = name.split("\\/");
