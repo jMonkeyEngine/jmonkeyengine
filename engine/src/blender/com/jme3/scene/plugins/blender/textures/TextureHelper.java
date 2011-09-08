@@ -713,8 +713,7 @@ public class TextureHelper extends AbstractBlenderHelper {
 
 		List<String> assetNames = new ArrayList<String>();
 		if (name.startsWith("//")) {
-			String relativePath = name.substring(1);
-			assetNames.add(relativePath);//use relative path to the asset root folder
+			String relativePath = name.substring(2);
 			//augument the path with blender key path
 			BlenderKey blenderKey = dataRepository.getBlenderKey();
 			String blenderAssetFolder = blenderKey.getName().substring(0, blenderKey.getName().lastIndexOf('/'));
@@ -727,7 +726,7 @@ public class TextureHelper extends AbstractBlenderHelper {
 			for(int i=paths.length-2;i>=0;--i) {
 				sb.insert(0, '/');
 				sb.insert(0, paths[i]);
-				assetNames.add(sb.toString());
+				assetNames.add(0, sb.toString());
 			}
 		}
 
