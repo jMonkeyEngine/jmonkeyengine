@@ -34,7 +34,6 @@ package jme3test.blender;
 
 import com.jme3.app.SimpleApplication;
 import com.jme3.light.DirectionalLight;
-import com.jme3.light.PointLight;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Spatial;
@@ -50,9 +49,14 @@ public class TestBlenderLoader extends SimpleApplication {
     public void simpleInitApp() {
         viewPort.setBackgroundColor(ColorRGBA.DarkGray);
 
-        Spatial bumpy = assetManager.loadModel("Blender/2.4x/Sinbad.blend");
-        rootNode.attachChild(bumpy);
+        //load model with packed images
+        Spatial ogre = assetManager.loadModel("Blender/2.4x/Sinbad.blend");
+        rootNode.attachChild(ogre);
 
+        //load model with referenced images
+        Spatial track = assetManager.loadModel("Blender/2.4x/MountainValley_Track.blend");
+        rootNode.attachChild(track);
+        
         // sunset light
         DirectionalLight dl = new DirectionalLight();
         dl.setDirection(new Vector3f(-0.1f,-0.7f,1).normalizeLocal());
