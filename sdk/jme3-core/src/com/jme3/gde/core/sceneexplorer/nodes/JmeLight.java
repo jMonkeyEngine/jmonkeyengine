@@ -43,6 +43,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import javax.swing.Action;
 import org.openide.actions.DeleteAction;
+import org.openide.loaders.DataObject;
 import org.openide.nodes.Children;
 import org.openide.nodes.Sheet;
 import org.openide.util.Exceptions;
@@ -121,6 +122,7 @@ public class JmeLight extends AbstractSceneExplorerNode {
     @Override
     public void destroy() throws IOException {
         try {
+            fireSave(true);
             SceneApplication.getApplication().enqueue(new Callable<Void>() {
 
                 public Void call() throws Exception {

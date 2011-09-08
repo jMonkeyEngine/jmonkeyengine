@@ -5,15 +5,11 @@
 package com.jme3.gde.scenecomposer;
 
 import com.jme3.asset.AssetManager;
-import com.jme3.bounding.BoundingVolume;
-import com.jme3.collision.Collidable;
-import com.jme3.collision.CollisionResults;
-import com.jme3.collision.UnsupportedCollisionException;
+import com.jme3.audio.AudioNode;
 import com.jme3.gde.core.scene.SceneApplication;
 import com.jme3.gde.core.scene.controller.SceneToolController;
 import com.jme3.gde.core.sceneexplorer.nodes.JmeNode;
 import com.jme3.light.Light;
-import com.jme3.light.LightList;
 import com.jme3.light.PointLight;
 import com.jme3.light.SpotLight;
 import com.jme3.material.Material;
@@ -26,14 +22,11 @@ import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.RenderQueue.Bucket;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
-import com.jme3.scene.SceneGraphVisitor;
 import com.jme3.scene.Spatial;
-import com.jme3.scene.control.AbstractControl;
 import com.jme3.scene.control.BillboardControl;
 import com.jme3.scene.control.Control;
 import com.jme3.scene.shape.Quad;
 import com.jme3.texture.Texture;
-import java.util.Queue;
 import java.util.concurrent.Callable;
 
 /**
@@ -48,14 +41,15 @@ public class SceneComposerToolController extends SceneToolController {
     private ComposerCameraController cameraController;
     private ViewPort overlayView;
     private Node onTopToolsNode;
-    private Node lightMarkersNode;
+    private Node nonSpatialMarkersNode;
     private Material lightMarkerMaterial;
+    private Material audioMarkerMaterial;
 
     public SceneComposerToolController(Node toolsNode, AssetManager manager, JmeNode rootNode) {
         super(toolsNode, manager);
         this.rootNode = rootNode;
-        lightMarkersNode = new Node("lightMarkersNode");
-        toolsNode.attachChild(lightMarkersNode);
+        nonSpatialMarkersNode = new Node("lightMarkersNode");
+        toolsNode.attachChild(nonSpatialMarkersNode);
     }
 
     public SceneComposerToolController(AssetManager manager) {
@@ -203,10 +197,6 @@ public class SceneComposerToolController extends SceneToolController {
             editTool.draggedSecondary(mouseLoc, pressed, rootNode, editorController.getCurrentDataObject());
         }
     }
-
-    public Node getLightMarkersNode() {
-        return lightMarkersNode;
-    }
     
     /**
      * Adds a marker for the light to the scene if it does not exist yet
@@ -215,21 +205,33 @@ public class SceneComposerToolController extends SceneToolController {
         if (!(light instanceof PointLight) && !(light instanceof SpotLight))
             return; // only handle point and spot lights
         
-        Spatial s = lightMarkersNode.getChild(light.getName());
+        Spatial s = nonSpatialMarkersNode.getChild(light.getName());
         if (s != null) {
             // update location maybe? Remove old and replace with new?
             return;
         }
         
         LightMarker lm = new LightMarker(light);
-        lightMarkersNode.attachChild(lm);
+        nonSpatialMarkersNode.attachChild(lm);
+    }
+    
+    public void addAudioMarker(AudioNode audio) {
+        
+        Spatial s = nonSpatialMarkersNode.getChild(audio.getName());
+        if (s != null) {
+            // update location maybe? Remove old and replace with new?
+            return;
+        }
+        
+        AudioMarker am = new AudioMarker(audio);
+        nonSpatialMarkersNode.attachChild(am);
     }
     
     /**
      * Removes a light marker from the scene's tool node
      */
     public void removeLightMarker(Light light) {
-        Spatial s = lightMarkersNode.getChild(light.getName());
+        Spatial s = nonSpatialMarkersNode.getChild(light.getName());
         s.removeFromParent();
     }
     
@@ -243,9 +245,20 @@ public class SceneComposerToolController extends SceneToolController {
         }
         return lightMarkerMaterial;
     }
+    
+    private Material getAudioMarkerMaterial() {
+        if (audioMarkerMaterial == null) {
+            Material mat = new Material(manager, "Common/MatDefs/Misc/Unshaded.j3md");
+            Texture tex = manager.loadTexture("com/jme3/gde/scenecomposer/audionode.gif");
+            mat.setTexture("ColorMap", tex);
+            mat.getAdditionalRenderState().setBlendMode(BlendMode.Alpha);
+            audioMarkerMaterial = mat;
+        }
+        return audioMarkerMaterial;
+    }
 
     protected void refreshNonSpatialMarkers() {
-        lightMarkersNode.detachAllChildren();
+        nonSpatialMarkersNode.detachAllChildren();
         addMarkers(rootNode.getLookup().lookup(Node.class));
     }
     
@@ -253,6 +266,10 @@ public class SceneComposerToolController extends SceneToolController {
         
         for (Light light : parent.getLocalLightList())
             addLightMarker(light);
+        
+        if (parent instanceof AudioNode) {
+            addAudioMarker((AudioNode)parent);
+        }
         
         for (Spatial s : parent.getChildren()) {
             if (s instanceof Node)
@@ -343,4 +360,75 @@ public class SceneComposerToolController extends SceneToolController {
         }
         
     }
+    
+    /**
+     * A marker on the screen that shows where an audio node is. 
+     * This marker is not part of the scene, but is part of the tools node.
+     */
+    protected class AudioMarker extends Geometry {
+        private AudioNode audio;
+        
+        protected AudioMarker() {}
+    
+        protected AudioMarker(AudioNode audio) {
+            this.audio = audio;
+            Quad q = new Quad(0.5f, 0.5f);
+            this.setMesh(q);
+            this.setMaterial(getAudioMarkerMaterial());
+            this.addControl(new AudioMarkerControl());
+            this.setQueueBucket(Bucket.Transparent);
+        }
+        
+        protected AudioNode getAudioNode() {
+            return audio;
+        }
+        
+        @Override
+        public void setLocalTranslation(Vector3f location) {
+            super.setLocalTranslation(location);
+            audio.setLocalTranslation(location);
+        }
+        
+        @Override
+        public void setLocalTranslation(float x, float y, float z) {
+            super.setLocalTranslation(x, y, z);
+            audio.setLocalTranslation(x, y, z);
+        }
+    }
+    
+    /**
+     * Updates the marker's position whenever the audio node has moved.
+     * It is also a BillboardControl, so this marker always faces
+     * the camera
+     */
+    protected class AudioMarkerControl extends BillboardControl {
+
+        AudioMarkerControl(){
+            super();
+        }
+        
+        @Override
+        protected void controlUpdate(float f) {
+            super.controlUpdate(f);
+            AudioMarker marker = (AudioMarker) getSpatial();
+            if (marker != null) {
+                marker.setLocalTranslation(marker.getAudioNode().getWorldTranslation());
+            }
+        }
+
+        @Override
+        protected void controlRender(RenderManager rm, ViewPort vp) {
+            super.controlRender(rm, vp);
+        }
+
+        @Override
+        public Control cloneForSpatial(Spatial sptl) {
+            AudioMarkerControl c = new AudioMarkerControl();
+            c.setSpatial(sptl);
+            //TODO this isn't correct, none of BillboardControl is copied over
+            return c;
+        }
+        
+    }
+    
 }

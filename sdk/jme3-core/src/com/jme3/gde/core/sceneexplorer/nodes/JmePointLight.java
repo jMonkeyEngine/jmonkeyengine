@@ -32,12 +32,9 @@
 
 package com.jme3.gde.core.sceneexplorer.nodes;
 
-import com.jme3.gde.core.sceneexplorer.nodes.SceneExplorerNode;
 import com.jme3.light.PointLight;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Spatial;
-import org.openide.cookies.SaveCookie;
-import org.openide.loaders.DataObject;
 import org.openide.nodes.Sheet;
 
 /**
@@ -85,9 +82,4 @@ public class JmePointLight extends JmeLight{
     public Class getExplorerNodeClass() {
         return JmePointLight.class;
     }
-
-    public org.openide.nodes.Node[] createNodes(Object key, DataObject key2, SaveCookie cookie) {
-        return null;
-    }
-
 }
