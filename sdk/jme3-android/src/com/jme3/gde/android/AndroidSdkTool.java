@@ -276,7 +276,7 @@ public class AndroidSdkTool {
                 + "        exitDialogTitle = \"Exit?\";\n"
                 + "        exitDialogMessage = \"Press Yes\";\n"
                 + "        // Edit: 25.06.2011: Enable verbose logging\n"
-                + "        eglConfigVerboseLogging= true;\n"
+                + "        eglConfigVerboseLogging = false;\n"
                 + "        // Edit: 30.06.2011: Choose screen orientation\n"
                 + "        screenOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;\n"
                 + "        // Edit 12.07.2011: Invert the MouseEvents X (default = true)\n"
