@@ -201,6 +201,10 @@ public class MaterialHelper extends AbstractBlenderHelper {
 		MaterialContext materialContext = new MaterialContext(structure, dataRepository);
 		LOGGER.log(Level.INFO, "Material's name: {0}", materialContext.name);
 
+		DiffuseShader diffuseShader = this.getDiffuseShader(structure);
+		ColorRGBA diffuseColor = this.getDiffuseColor(structure, diffuseShader);
+		float[] diffuseColorArray = new float[] {diffuseColor.r, diffuseColor.g, diffuseColor.b};
+		
 		// texture
 		Map<String, Texture> texturesMap = new HashMap<String, Texture>();
 		Type firstTextureType = null;
@@ -236,7 +240,7 @@ public class MaterialHelper extends AbstractBlenderHelper {
 							int blendType = ((Number) mtex.getFieldValue("blendtype")).intValue();
 							float[] color = new float[] { ((Number) mtex.getFieldValue("r")).floatValue(), ((Number) mtex.getFieldValue("g")).floatValue(), ((Number) mtex.getFieldValue("b")).floatValue() };
 							float colfac = ((Number) mtex.getFieldValue("colfac")).floatValue();
-							texture = textureHelper.blendTexture(new float[] {1, 1, 1}, texture, color, colfac, blendType, negateTexture, dataRepository);
+							texture = textureHelper.blendTexture(diffuseColorArray, texture, color, colfac, blendType, negateTexture, dataRepository);
 							texture.setWrap(WrapMode.Repeat);
 							//TODO: textures merging
 							if (materialContext.shadeless) {
@@ -289,7 +293,7 @@ public class MaterialHelper extends AbstractBlenderHelper {
 			if (materialContext.vertexColor) {
 				result.setBoolean(materialContext.shadeless ? "VertexColor" : "UseVertexColor", true);
 			}
-			ColorRGBA diffuseColor = null;
+			
 			if (materialContext.shadeless) {
 				// color of shadeless? doesn't seem to work in blender ..
 				diffuseColor = ColorRGBA.White.clone();
@@ -297,9 +301,7 @@ public class MaterialHelper extends AbstractBlenderHelper {
 				result.setBoolean("UseMaterialColors", Boolean.TRUE);
 
 				// setting the colors
-				DiffuseShader diffuseShader = this.getDiffuseShader(structure);
 				result.setBoolean("Minnaert", diffuseShader == DiffuseShader.MINNAERT);
-				diffuseColor = this.getDiffuseColor(structure, diffuseShader);
 				if (!materialContext.transparent) {
 					diffuseColor.a = 1;
 				}

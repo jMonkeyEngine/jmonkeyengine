@@ -1,32 +1,33 @@
 /*
- *
- * $Id: noise.c 14611 2008-04-29 08:24:33Z campbellbarton $
- *
- * ***** BEGIN GPL LICENSE BLOCK *****
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software Foundation,
- * Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- *
- * The Original Code is Copyright (C) 2001-2002 by NaN Holding BV.
+ * Copyright (c) 2009-2010 jMonkeyEngine
  * All rights reserved.
  *
- * The Original Code is: all of this file.
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
  *
- * Contributor(s): none yet.
+ * * Redistributions of source code must retain the above copyright
+ *   notice, this list of conditions and the following disclaimer.
  *
- * ***** END GPL LICENSE BLOCK *****
+ * * Redistributions in binary form must reproduce the above copyright
+ *   notice, this list of conditions and the following disclaimer in the
+ *   documentation and/or other materials provided with the distribution.
  *
+ * * Neither the name of 'jMonkeyEngine' nor the names of its contributors
+ *   may be used to endorse or promote products derived from this software
+ *   without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+ * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 package com.jme3.scene.plugins.blender.textures;
 
@@ -36,8 +37,6 @@ import java.util.ArrayList;
 import com.jme3.math.FastMath;
 import com.jme3.scene.plugins.blender.DataRepository;
 import com.jme3.scene.plugins.blender.file.Structure;
-import com.jme3.scene.plugins.blender.textures.TextureHelper.ColorBand;
-import com.jme3.scene.plugins.blender.textures.TextureHelper.TexResult;
 import com.jme3.texture.Image;
 import com.jme3.texture.Image.Format;
 import com.jme3.texture.Texture;
@@ -49,7 +48,63 @@ import com.jme3.util.BufferUtils;
  * @author Marcin Roguski (Kaelthas)
  */
 public final class TextureGeneratorBlend extends TextureGenerator {
-
+    
+    private static final IntensityFunction INTENSITY_FUNCTION[] = new IntensityFunction[7];
+    static {
+    	INTENSITY_FUNCTION[0] = new IntensityFunction() {//Linear: stype = 0 (TEX_LIN)
+			@Override
+			public float getIntensity(float x, float y, float z) {
+				return (1.0f + x) * 0.5f;
+			}
+		};
+		INTENSITY_FUNCTION[1] = new IntensityFunction() {//Quad: stype = 1 (TEX_QUAD)
+			@Override
+			public float getIntensity(float x, float y, float z) {
+				float result = (1.0f + x) * 0.5f;
+				return result * result;
+			}
+		};
+		INTENSITY_FUNCTION[2] = new IntensityFunction() {//Ease: stype = 2 (TEX_EASE)
+			@Override
+			public float getIntensity(float x, float y, float z) {
+				float result = (1.0f + x) * 0.5f;
+				if (result <= 0.0f) {
+					return 0.0f;
+				} else if (result >= 1.0f) {
+					return 1.0f;
+				} else {
+					return result * result *(3.0f - 2.0f * result);
+				}
+			}
+		};
+		INTENSITY_FUNCTION[3] = new IntensityFunction() {//Diagonal: stype = 3 (TEX_DIAG)
+			@Override
+			public float getIntensity(float x, float y, float z) {
+				return (2.0f + x + y) * 0.25f;
+			}
+		};
+		INTENSITY_FUNCTION[4] = new IntensityFunction() {//Sphere: stype = 4 (TEX_SPHERE)
+			@Override
+			public float getIntensity(float x, float y, float z) {
+				float result = 1.0f - (float) Math.sqrt(x * x + y * y + z * z);
+				return result < 0.0f ? 0.0f : result;
+			}
+		};
+		INTENSITY_FUNCTION[5] = new IntensityFunction() {//Halo: stype = 5 (TEX_HALO)
+			@Override
+			public float getIntensity(float x, float y, float z) {
+				float result = 1.0f - (float) Math.sqrt(x * x + y * y + z * z);
+				return result <= 0.0f ? 0.0f : result * result;
+			}
+		};
+		INTENSITY_FUNCTION[6] = new IntensityFunction() {//Radial: stype = 6 (TEX_RAD)
+			@Override
+			public float getIntensity(float x, float y, float z) {
+				return (float) Math.atan2(y, x) * FastMath.INV_TWO_PI + 0.5f;
+			}
+		};
+    }
+    
 	/**
 	 * Constructor stores the given noise generator.
 	 * @param noiseGenerator
@@ -63,81 +118,51 @@ public final class TextureGeneratorBlend extends TextureGenerator {
 	protected Texture generate(Structure tex, int width, int height, int depth, DataRepository dataRepository) {
 		int flag = ((Number) tex.getFieldValue("flag")).intValue();
 		int stype = ((Number) tex.getFieldValue("stype")).intValue();
-		float contrast = ((Number) tex.getFieldValue("contrast")).floatValue();
-		float brightness = ((Number) tex.getFieldValue("bright")).floatValue();
-		float wDelta = 1.0f / width, hDelta = 1.0f / height, dDelta = 1.0f / depth, x, y, t;
-		float[] texvec = new float[] { 0, 0, 0 };
-		TexResult texres = new TexResult();
-		int halfW = width, halfH = height, halfD = depth;
-		width <<= 1;
-		height <<= 1;
-		depth <<= 1;
-		ColorBand colorBand = this.readColorband(tex, dataRepository);
+		TextureResult texres = new TextureResult();
+		int halfW = width >> 1, halfH = height >> 1, halfD = depth >> 1, index = 0;
+		float wDelta = 1.0f / halfW, hDelta = 1.0f / halfH, dDelta = 1.0f / halfD, x, y;
+		float[][] colorBand = this.computeColorband(tex, dataRepository);
+		BrightnessAndContrastData bacd = new BrightnessAndContrastData(tex);
 		Format format = colorBand != null ? Format.RGB8 : Format.Luminance8;
 		int bytesPerPixel = colorBand != null ? 3 : 1;
-
-		ByteBuffer data = BufferUtils.createByteBuffer(width * height * depth * bytesPerPixel);
+		boolean flipped = (flag & NoiseGenerator.TEX_FLIPBLEND) != 0;
+		
+		byte[] data = new byte[width * height * depth * bytesPerPixel];
 		for (int i = -halfW; i < halfW; ++i) {
-			texvec[0] = wDelta * i;
+			x = wDelta * i;
 			for (int j = -halfH; j < halfH; ++j) {
-				texvec[1] = hDelta * j;
+				if (flipped) {
+					y = x;
+					x = hDelta * j;
+				} else {
+					y = hDelta * j;
+				}
 				for (int k = -halfD; k < halfD; ++k) {
-					texvec[2] = dDelta * k;
-					if ((flag & NoiseGenerator.TEX_FLIPBLEND) != 0) {
-						x = texvec[1];
-						y = texvec[0];
-					} else {
-						x = texvec[0];
-						y = texvec[1];
-					}
-
-					if (stype == NoiseGenerator.TEX_LIN) { /* lin */
-						texres.tin = (1.0f + x) / 2.0f;
-					} else if (stype == NoiseGenerator.TEX_QUAD) { /* quad */
-						texres.tin = (1.0f + x) / 2.0f;
-						if (texres.tin < 0.0f) {
-							texres.tin = 0.0f;
-						} else {
-							texres.tin *= texres.tin;
-						}
-					} else if (stype == NoiseGenerator.TEX_EASE) { /* ease */
-						texres.tin = (1.0f + x) / 2.0f;
-						if (texres.tin <= 0.0f) {
-							texres.tin = 0.0f;
-						} else if (texres.tin >= 1.0f) {
-							texres.tin = 1.0f;
-						} else {
-							t = texres.tin * texres.tin;
-							texres.tin = 3.0f * t - 2.0f * t * texres.tin;
-						}
-					} else if (stype == NoiseGenerator.TEX_DIAG) { /* diag */
-						texres.tin = (2.0f + x + y) / 4.0f;
-					} else if (stype == NoiseGenerator.TEX_RAD) { /* radial */
-						texres.tin = (float) Math.atan2(y, x) / FastMath.TWO_PI + 0.5f;
-					} else { /* sphere TEX_SPHERE */
-						texres.tin = 1.0f - (float) Math.sqrt(x * x + y * y + texvec[2] * texvec[2]);
-						if (texres.tin < 0.0f) {
-							texres.tin = 0.0f;
-						}
-						if (stype == NoiseGenerator.TEX_HALO) {
-							texres.tin *= texres.tin;
-						} /* halo */
-					}
+					texres.intensity = INTENSITY_FUNCTION[stype].getIntensity(x, y, dDelta * k);
+					
 					if (colorBand != null) {
-						noiseGenerator.doColorband(colorBand, texres, dataRepository);
-						noiseGenerator.brightnesAndContrastRGB(tex, texres);
-						data.put((byte) (texres.tr * 255.0f));
-						data.put((byte) (texres.tg * 255.0f));
-						data.put((byte) (texres.tb * 255.0f));
+						int colorbandIndex = (int) (texres.intensity * 1000.0f);
+						texres.red = colorBand[colorbandIndex][0];
+						texres.green = colorBand[colorbandIndex][1];
+						texres.blue = colorBand[colorbandIndex][2];
+						
+						this.applyBrightnessAndContrast(bacd, texres);
+						data[index++] = (byte) (texres.red * 255.0f);
+						data[index++] = (byte) (texres.green * 255.0f);
+						data[index++] = (byte) (texres.blue * 255.0f);
 					} else {
-						noiseGenerator.brightnesAndContrast(texres, contrast, brightness);
-						data.put((byte) (texres.tin * 255.0f));
+						this.applyBrightnessAndContrast(texres, bacd.contrast, bacd.brightness);
+						data[index++] = (byte) (texres.intensity * 255.0f);
 					}
 				}
 			}
 		}
 		ArrayList<ByteBuffer> dataArray = new ArrayList<ByteBuffer>(1);
-		dataArray.add(data);
+		dataArray.add(BufferUtils.createByteBuffer(data));
 		return new Texture3D(new Image(format, width, height, depth, dataArray));
+	}
+	
+	private static interface IntensityFunction {
+		float getIntensity(float x, float y, float z);
 	}
 }

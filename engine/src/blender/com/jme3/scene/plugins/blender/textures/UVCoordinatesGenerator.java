@@ -320,7 +320,54 @@ public class UVCoordinatesGenerator {
 		}
 
 		public void merge(BoundingTube boundingTube) {
-			// TODO: implement
+			//get tubes (tube1.radius >= tube2.radius)
+			BoundingTube tube1, tube2;
+			if(this.radius>=boundingTube.radius) {
+				tube1 = this;
+				tube2 = boundingTube;
+			} else {
+				tube1 = boundingTube;
+				tube2 = this;
+			}
+			float r1 = tube1.radius;
+			float r2 = tube2.radius;
+			
+			//get the distance between tubes projected on XY plane
+			Vector3f distance = boundingTube.center.subtract(this.center);
+			distance.z = 0;
+			float d = distance.length();
+			
+			//calculate union depending on tubes location
+			if(d>=r1+r2) {//tube2 is outside or touches tube1
+				
+			} else if(d<r1+r2 && d>r1-r2) {//tube2 crosses tube1
+				
+			} else {//tube2 is inside tube1
+				
+			}
+			
+			if(d >= this.radius + boundingTube.radius || 
+			  (d < this.radius + boundingTube.radius && d > this.radius - boundingTube.radius)) {
+				
+			}
+			
+			float centerZ = distance.z;
+			
+			float maxz = this.center.z + height*0.5f;
+			float minz = this.center.z - height*0.5f;
+			
+			distance.z = this.center.z = 0;
+			
+			Vector3f distanceNormal = distance.normalize();
+			Vector3f start = this.center.subtract(distanceNormal.multLocal(this.radius));
+			distanceNormal.normalizeLocal();
+			Vector3f stop = start.add(distance).addLocal(distanceNormal.multLocal(this.radius+boundingTube.radius));
+			this.center = start.add(stop.subtractLocal(start)).multLocal(0.5f);
+			this.center.z = centerZ;
+			this.radius = this.center.subtract(start).length();
+			maxz = Math.max(maxz, boundingTube.center.z + boundingTube.height*0.5f);
+			minz = Math.min(minz, boundingTube.center.z - boundingTube.height*0.5f);
+			this.height = maxz - minz;
 		}
 
 		public float getRadius() {

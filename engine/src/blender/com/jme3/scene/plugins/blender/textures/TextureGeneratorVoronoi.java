@@ -1,32 +1,33 @@
 /*
- *
- * $Id: noise.c 14611 2008-04-29 08:24:33Z campbellbarton $
- *
- * ***** BEGIN GPL LICENSE BLOCK *****
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software Foundation,
- * Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- *
- * The Original Code is Copyright (C) 2001-2002 by NaN Holding BV.
+ * Copyright (c) 2009-2010 jMonkeyEngine
  * All rights reserved.
  *
- * The Original Code is: all of this file.
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
  *
- * Contributor(s): none yet.
+ * * Redistributions of source code must retain the above copyright
+ *   notice, this list of conditions and the following disclaimer.
  *
- * ***** END GPL LICENSE BLOCK *****
+ * * Redistributions in binary form must reproduce the above copyright
+ *   notice, this list of conditions and the following disclaimer in the
+ *   documentation and/or other materials provided with the distribution.
  *
+ * * Neither the name of 'jMonkeyEngine' nor the names of its contributors
+ *   may be used to endorse or promote products derived from this software
+ *   without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+ * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 package com.jme3.scene.plugins.blender.textures;
 
@@ -36,8 +37,7 @@ import java.util.ArrayList;
 import com.jme3.math.FastMath;
 import com.jme3.scene.plugins.blender.DataRepository;
 import com.jme3.scene.plugins.blender.file.Structure;
-import com.jme3.scene.plugins.blender.textures.TextureHelper.ColorBand;
-import com.jme3.scene.plugins.blender.textures.TextureHelper.TexResult;
+import com.jme3.scene.plugins.blender.textures.NoiseGenerator.NoiseMath;
 import com.jme3.texture.Image;
 import com.jme3.texture.Image.Format;
 import com.jme3.texture.Texture;
@@ -61,115 +61,109 @@ public class TextureGeneratorVoronoi extends TextureGenerator {
 
 	@Override
 	protected Texture generate(Structure tex, int width, int height, int depth, DataRepository dataRepository) {
-		float vn_w1 = ((Number) tex.getFieldValue("vn_w1")).floatValue();
-		float vn_w2 = ((Number) tex.getFieldValue("vn_w2")).floatValue();
-		float vn_w3 = ((Number) tex.getFieldValue("vn_w3")).floatValue();
-		float vn_w4 = ((Number) tex.getFieldValue("vn_w4")).floatValue();
+		float voronoiWeight1 = ((Number) tex.getFieldValue("vn_w1")).floatValue();
+		float voronoiWeight2 = ((Number) tex.getFieldValue("vn_w2")).floatValue();
+		float voronoiWeight3 = ((Number) tex.getFieldValue("vn_w3")).floatValue();
+		float voronoiWeight4 = ((Number) tex.getFieldValue("vn_w4")).floatValue();
 		float noisesize = ((Number) tex.getFieldValue("noisesize")).floatValue();
-		float nabla = ((Number) tex.getFieldValue("nabla")).floatValue();
-		float ns_outscale = ((Number) tex.getFieldValue("ns_outscale")).floatValue();
-		float vn_mexp = ((Number) tex.getFieldValue("vn_mexp")).floatValue();
-		int vn_distm = ((Number) tex.getFieldValue("vn_distm")).intValue();
-		int vn_coltype = ((Number) tex.getFieldValue("vn_coltype")).intValue();
-		float contrast = ((Number) tex.getFieldValue("contrast")).floatValue();
-		float brightness = ((Number) tex.getFieldValue("bright")).floatValue();
+		float outscale = ((Number) tex.getFieldValue("ns_outscale")).floatValue();
+		float mexp = ((Number) tex.getFieldValue("vn_mexp")).floatValue();
+		int distm = ((Number) tex.getFieldValue("vn_distm")).intValue();
+		int voronoiColorType = ((Number) tex.getFieldValue("vn_coltype")).intValue();
 
-		TexResult texres = new TexResult();
+		TextureResult texres = new TextureResult();
 		float[] texvec = new float[] { 0, 0, 0 };
-		float wDelta = 1.0f / width, hDelta = 1.0f / height, dDelta = 1.0f / depth;
-		int halfW = width, halfH = height, halfD = depth;
-		width <<= 1;
-		height <<= 1;
-		depth <<= 1;
-		ColorBand colorBand = this.readColorband(tex, dataRepository);
-		Format format = vn_coltype != 0 || colorBand != null ? Format.RGB8 : Format.Luminance8;
-		int bytesPerPixel = vn_coltype != 0 || colorBand != null ? 3 : 1;
-
-		float[] da = new float[4], pa = new float[12]; /* distance and point coordinate arrays of 4 nearest neighbours */
-		float[] ca = vn_coltype != 0 ? new float[3] : null; // cell color
-		float aw1 = FastMath.abs(vn_w1);
-		float aw2 = FastMath.abs(vn_w2);
-		float aw3 = FastMath.abs(vn_w3);
-		float aw4 = FastMath.abs(vn_w4);
-		float sc = aw1 + aw2 + aw3 + aw4;
-		if (sc != 0.f) {
-			sc = ns_outscale / sc;
+		int halfW = width >> 1, halfH = height >> 1, halfD = depth >> 1, index = 0;
+		float wDelta = 1.0f / halfW, hDelta = 1.0f / halfH, dDelta = 1.0f / halfD;
+		
+		float[][] colorBand = this.computeColorband(tex, dataRepository);
+		Format format = voronoiColorType != 0 || colorBand != null ? Format.RGB8 : Format.Luminance8;
+		int bytesPerPixel = voronoiColorType != 0 || colorBand != null ? 3 : 1;
+		BrightnessAndContrastData bacd = new BrightnessAndContrastData(tex);
+		
+		float[] da = new float[4], pa = new float[12];
+		float[] hashPoint = voronoiColorType != 0 ? new float[3] : null;
+		float[] voronoiWeights = new float[] {FastMath.abs(voronoiWeight1), FastMath.abs(voronoiWeight2), 
+											  FastMath.abs(voronoiWeight3), FastMath.abs(voronoiWeight4)};
+		float weight;
+		float sc = voronoiWeights[0] + voronoiWeights[1] + voronoiWeights[2] + voronoiWeights[3];
+		if (sc != 0.0f) {
+			sc = outscale / sc;
 		}
 
-		ByteBuffer data = BufferUtils.createByteBuffer(width * height * depth * bytesPerPixel);
+		byte[] data = new byte[width * height * depth * bytesPerPixel];
 		for (int i = -halfW; i < halfW; ++i) {
 			texvec[0] = wDelta * i / noisesize;
 			for (int j = -halfH; j < halfH; ++j) {
 				texvec[1] = hDelta * j / noisesize;
 				for (int k = -halfD; k < halfD; ++k) {
 					texvec[2] = dDelta * k;
-					noiseGenerator.voronoi(texvec[0], texvec[1], texvec[2], da, pa, vn_mexp, vn_distm);
-					texres.tin = sc * FastMath.abs(vn_w1 * da[0] + vn_w2 * da[1] + vn_w3 * da[2] + vn_w4 * da[3]);
-					if (vn_coltype != 0) {
-						noiseGenerator.cellNoiseV(pa[0], pa[1], pa[2], ca);
-						texres.tr = aw1 * ca[0];
-						texres.tg = aw1 * ca[1];
-						texres.tb = aw1 * ca[2];
-						noiseGenerator.cellNoiseV(pa[3], pa[4], pa[5], ca);
-						texres.tr += aw2 * ca[0];
-						texres.tg += aw2 * ca[1];
-						texres.tb += aw2 * ca[2];
-						noiseGenerator.cellNoiseV(pa[6], pa[7], pa[8], ca);
-						texres.tr += aw3 * ca[0];
-						texres.tg += aw3 * ca[1];
-						texres.tb += aw3 * ca[2];
-						noiseGenerator.cellNoiseV(pa[9], pa[10], pa[11], ca);
-						texres.tr += aw4 * ca[0];
-						texres.tg += aw4 * ca[1];
-						texres.tb += aw4 * ca[2];
-						if (vn_coltype >= 2) {
+					NoiseGenerator.NoiseFunctions.voronoi(texvec[0], texvec[1], texvec[2], da, pa, mexp, distm);
+					texres.intensity = sc * FastMath.abs(voronoiWeight1 * da[0] + voronoiWeight2 * da[1] + voronoiWeight3 * da[2] + voronoiWeight4 * da[3]);
+					if(texres.intensity>1.0f) {
+						texres.intensity = 1.0f;
+					} else if(texres.intensity<0.0f) {
+						texres.intensity = 0.0f;
+					}
+					
+					if (colorBand != null) {//colorband ALWAYS goes first and covers the color (if set)
+						int colorbandIndex = (int) (texres.intensity * 1000.0f);
+						texres.red = colorBand[colorbandIndex][0];
+						texres.green = colorBand[colorbandIndex][1];
+						texres.blue = colorBand[colorbandIndex][2];
+					} else if (voronoiColorType != 0) {
+						texres.red = texres.green = texres.blue = 0.0f;
+						for(int m=0; m<12; m+=3) {
+							weight = voronoiWeights[m/3];
+							this.cellNoiseV(pa[m], pa[m + 1], pa[m + 2], hashPoint);
+							texres.red += weight * hashPoint[0];
+							texres.green += weight * hashPoint[1];
+							texres.blue += weight * hashPoint[2];
+						}
+						if (voronoiColorType >= 2) {
 							float t1 = (da[1] - da[0]) * 10.0f;
-							if (t1 > 1) {
+							if (t1 > 1.0f) {
 								t1 = 1.0f;
 							}
-							if (vn_coltype == 3) {
-								t1 *= texres.tin;
+							if (voronoiColorType == 3) {
+								t1 *= texres.intensity;
 							} else {
 								t1 *= sc;
 							}
-							texres.tr *= t1;
-							texres.tg *= t1;
-							texres.tb *= t1;
+							texres.red *= t1;
+							texres.green *= t1;
+							texres.blue *= t1;
 						} else {
-							texres.tr *= sc;
-							texres.tg *= sc;
-							texres.tb *= sc;
-						}
-					}
-					if (colorBand != null) {
-						noiseGenerator.doColorband(colorBand, texres, dataRepository);
-						if (texres.nor != null) {
-							float offs = nabla / noisesize; // also scaling of texvec
-							// calculate bumpnormal
-							noiseGenerator.voronoi(texvec[0] + offs, texvec[1], texvec[2], da, pa, vn_mexp, vn_distm);
-							texres.nor[0] = sc * FastMath.abs(vn_w1 * da[0] + vn_w2 * da[1] + vn_w3 * da[2] + vn_w4 * da[3]);
-							noiseGenerator.voronoi(texvec[0], texvec[1] + offs, texvec[2], da, pa, vn_mexp, vn_distm);
-							texres.nor[1] = sc * FastMath.abs(vn_w1 * da[0] + vn_w2 * da[1] + vn_w3 * da[2] + vn_w4 * da[3]);
-							noiseGenerator.voronoi(texvec[0], texvec[1], texvec[2] + offs, da, pa, vn_mexp, vn_distm);
-							texres.nor[2] = sc * FastMath.abs(vn_w1 * da[0] + vn_w2 * da[1] + vn_w3 * da[2] + vn_w4 * da[3]);
-							noiseGenerator.texNormalDerivate(colorBand, texres, dataRepository);
+							texres.red *= sc;
+							texres.green *= sc;
+							texres.blue *= sc;
 						}
 					}
 
-					if (vn_coltype != 0 || colorBand != null) {
-						noiseGenerator.brightnesAndContrastRGB(tex, texres);
-						data.put((byte) (texres.tr * 255.0f));// tin or tr??
-						data.put((byte) (texres.tg * 255.0f));
-						data.put((byte) (texres.tb * 255.0f));
+					if (voronoiColorType != 0 || colorBand != null) {
+						this.applyBrightnessAndContrast(bacd, texres);
+						data[index++] = (byte) (texres.red * 255.0f);
+						data[index++] = (byte) (texres.green * 255.0f);
+						data[index++] = (byte) (texres.blue * 255.0f);
 					} else {
-						noiseGenerator.brightnesAndContrast(texres, contrast, brightness);
-						data.put((byte) (texres.tin * 255.0f));
+						this.applyBrightnessAndContrast(texres, bacd.contrast, bacd.brightness);
+						data[index++] = (byte) (texres.intensity * 255.0f);
 					}
 				}
 			}
 		}
 		ArrayList<ByteBuffer> dataArray = new ArrayList<ByteBuffer>(1);
-		dataArray.add(data);
+		dataArray.add(BufferUtils.createByteBuffer(data));
 		return new Texture3D(new Image(format, width, height, depth, dataArray));
 	}
+	
+	/**
+     * Returns a vector/point/color in ca, using point hasharray directly
+     */
+    private void cellNoiseV(float x, float y, float z, float[] hashPoint) {
+        int xi = (int) Math.floor(x);
+        int yi = (int) Math.floor(y);
+        int zi = (int) Math.floor(z);
+        NoiseMath.hash(xi, yi, zi, hashPoint);
+    }
 }

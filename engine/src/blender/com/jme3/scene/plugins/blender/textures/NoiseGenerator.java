@@ -1,32 +1,33 @@
 /*
- *
- * $Id: noise.c 14611 2008-04-29 08:24:33Z campbellbarton $
- *
- * ***** BEGIN GPL LICENSE BLOCK *****
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software Foundation,
- * Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- *
- * The Original Code is Copyright (C) 2001-2002 by NaN Holding BV.
+ * Copyright (c) 2009-2010 jMonkeyEngine
  * All rights reserved.
  *
- * The Original Code is: all of this file.
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
  *
- * Contributor(s): none yet.
+ * * Redistributions of source code must retain the above copyright
+ *   notice, this list of conditions and the following disclaimer.
  *
- * ***** END GPL LICENSE BLOCK *****
+ * * Redistributions in binary form must reproduce the above copyright
+ *   notice, this list of conditions and the following disclaimer in the
+ *   documentation and/or other materials provided with the distribution.
  *
+ * * Neither the name of 'jMonkeyEngine' nor the names of its contributors
+ *   may be used to endorse or promote products derived from this software
+ *   without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+ * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 package com.jme3.scene.plugins.blender.textures;
 
@@ -42,9 +43,7 @@ import com.jme3.math.FastMath;
 import com.jme3.scene.plugins.blender.AbstractBlenderHelper;
 import com.jme3.scene.plugins.blender.DataRepository;
 import com.jme3.scene.plugins.blender.file.Structure;
-import com.jme3.scene.plugins.blender.textures.TextureHelper.CBData;
-import com.jme3.scene.plugins.blender.textures.TextureHelper.ColorBand;
-import com.jme3.scene.plugins.blender.textures.TextureHelper.TexResult;
+import com.jme3.scene.plugins.blender.textures.TextureGeneratorMusgrave.MusgraveData;
 
 /**
  * This generator is responsible for creating various noises used to create
@@ -54,22 +53,8 @@ import com.jme3.scene.plugins.blender.textures.TextureHelper.TexResult;
  * @author Marcin Roguski (Kaelthas)
  */
 /*package*/ class NoiseGenerator extends AbstractBlenderHelper {
-
     private static final Logger LOGGER = Logger.getLogger(NoiseGenerator.class.getName());
-
-    // return value
-    protected static final int TEX_INT = 0;
-    protected static final int TEX_RGB = 1;
-    protected static final int TEX_NOR = 2;
-
-    // noisetype
-    protected static final int TEX_NOISESOFT = 0;
-    protected static final int TEX_NOISEPERL = 1;
-
-    // tex->stype
-    protected static final int TEX_DEFAULT = 0;
-    protected static final int TEX_COLOR = 1;
-
+    
     // flag
     protected static final int TEX_COLORBAND = 1;
     protected static final int TEX_FLIPBLEND = 2;
@@ -81,31 +66,6 @@ import com.jme3.scene.plugins.blender.textures.TextureHelper.TexResult;
     protected static final int TEX_REPEAT_XMIR = 128;
     protected static final int TEX_REPEAT_YMIR = 256;
     protected static final int TEX_FLAG_MASK = TEX_COLORBAND | TEX_FLIPBLEND | TEX_NEGALPHA | TEX_CHECKER_ODD | TEX_CHECKER_EVEN | TEX_PRV_ALPHA | TEX_PRV_NOR | TEX_REPEAT_XMIR | TEX_REPEAT_YMIR;
-
-    // tex->noisebasis2
-    protected static final int TEX_SIN = 0;
-    protected static final int TEX_SAW = 1;
-    protected static final int TEX_TRI = 2;
-
-    // tex->stype
-    protected static final int TEX_SOFT = 0;
-    protected static final int TEX_SHARP = 1;
-    protected static final int TEX_SHARPER = 2;
-
-    // tex->stype
-    protected static final int TEX_BAND = 0;
-    protected static final int TEX_RING = 1;
-    protected static final int TEX_BANDNOISE = 2;
-    protected static final int TEX_RINGNOISE = 3;
-
-    // tex->stype
-    protected static final int TEX_LIN = 0;
-    protected static final int TEX_QUAD = 1;
-    protected static final int TEX_EASE = 2;
-    protected static final int TEX_DIAG = 3;
-    protected static final int TEX_SPHERE = 4;
-    protected static final int TEX_HALO = 5;
-    protected static final int TEX_RAD = 6;
 
     // tex->stype
     protected static final int TEX_PLASTIC = 0;
@@ -169,136 +129,127 @@ import com.jme3.scene.plugins.blender.textures.TextureHelper.TexResult;
             }
         }
     }
-    protected static Map<Integer, AbstractNoiseFunc> noiseFunctions = new HashMap<Integer, AbstractNoiseFunc>();
-
+    
+    protected static Map<Integer, NoiseFunction> noiseFunctions = new HashMap<Integer, NoiseFunction>();
     static {
-        // orgBlenderNoise (*Was BLI_hnoise(), removed noisesize, so other functions can call it without scaling.*)
-        noiseFunctions.put(Integer.valueOf(0), new AbstractNoiseFunc() {
-
+        noiseFunctions.put(Integer.valueOf(0), new NoiseFunction() {
+        	// originalBlenderNoise
             @Override
             public float execute(float x, float y, float z) {
-                return this.orgBlenderNoise(x, y, z);
+                return NoiseFunctions.originalBlenderNoise(x, y, z);
             }
 
             @Override
-            public float executeS(float x, float y, float z) {
-                return 2.0f * this.orgBlenderNoise(x, y, z) - 1.0f;
+            public float executeSigned(float x, float y, float z) {
+                return 2.0f * NoiseFunctions.originalBlenderNoise(x, y, z) - 1.0f;
             }
         });
-        // orgPerlinNoise (*For use with BLI_gNoise/gTurbulence, returns signed noise.*)
-        noiseFunctions.put(Integer.valueOf(1), new AbstractNoiseFunc() {
-
+        noiseFunctions.put(Integer.valueOf(1), new NoiseFunction() {
+        	// orgPerlinNoise
             @Override
             public float execute(float x, float y, float z) {
-                return 0.5f + 0.5f * this.noise3Perlin(new float[]{x, y, z});
+                return 0.5f + 0.5f * NoiseFunctions.noise3Perlin(x, y, z);
             }
 
             @Override
-            public float executeS(float x, float y, float z) {
-                return this.noise3Perlin(new float[]{x, y, z});
+            public float executeSigned(float x, float y, float z) {
+                return NoiseFunctions.noise3Perlin(x, y, z);
             }
         });
-        // newPerlin (* for use with BLI_gNoise()/BLI_gTurbulence(), returns unsigned improved perlin noise *)
-        noiseFunctions.put(Integer.valueOf(2), new AbstractNoiseFunc() {
-
+        noiseFunctions.put(Integer.valueOf(2), new NoiseFunction() {
+        	// newPerlin
             @Override
             public float execute(float x, float y, float z) {
-                return 0.5f + 0.5f * this.newPerlin(x, y, z);
+                return 0.5f + 0.5f * NoiseFunctions.newPerlin(x, y, z);
             }
 
             @Override
-            public float executeS(float x, float y, float z) {
+            public float executeSigned(float x, float y, float z) {
                 return this.execute(x, y, z);
             }
         });
-        // voronoi_F1
-        noiseFunctions.put(Integer.valueOf(3), new AbstractNoiseFunc() {
-
+        noiseFunctions.put(Integer.valueOf(3), new NoiseFunction() {
+        	// voronoi_F1
             @Override
             public float execute(float x, float y, float z) {
                 float[] da = new float[4], pa = new float[12];
-                AbstractNoiseFunc.voronoi(x, y, z, da, pa, 1, 0);
+                NoiseFunctions.voronoi(x, y, z, da, pa, 1, 0);
                 return da[0];
             }
 
             @Override
-            public float executeS(float x, float y, float z) {
+            public float executeSigned(float x, float y, float z) {
                 float[] da = new float[4], pa = new float[12];
-                AbstractNoiseFunc.voronoi(x, y, z, da, pa, 1, 0);
+                NoiseFunctions.voronoi(x, y, z, da, pa, 1, 0);
                 return 2.0f * da[0] - 1.0f;
             }
         });
-        // voronoi_F2
-        noiseFunctions.put(Integer.valueOf(4), new AbstractNoiseFunc() {
-
+        noiseFunctions.put(Integer.valueOf(4), new NoiseFunction() {
+        	// voronoi_F2
             @Override
             public float execute(float x, float y, float z) {
                 float[] da = new float[4], pa = new float[12];
-                AbstractNoiseFunc.voronoi(x, y, z, da, pa, 1, 0);
+                NoiseFunctions.voronoi(x, y, z, da, pa, 1, 0);
                 return da[1];
             }
 
             @Override
-            public float executeS(float x, float y, float z) {
+            public float executeSigned(float x, float y, float z) {
                 float[] da = new float[4], pa = new float[12];
-                AbstractNoiseFunc.voronoi(x, y, z, da, pa, 1, 0);
+                NoiseFunctions.voronoi(x, y, z, da, pa, 1, 0);
                 return 2.0f * da[1] - 1.0f;
             }
         });
-        // voronoi_F3
-        noiseFunctions.put(Integer.valueOf(5), new AbstractNoiseFunc() {
-
+        noiseFunctions.put(Integer.valueOf(5), new NoiseFunction() {
+        	// voronoi_F3
             @Override
             public float execute(float x, float y, float z) {
                 float[] da = new float[4], pa = new float[12];
-                AbstractNoiseFunc.voronoi(x, y, z, da, pa, 1, 0);
+                NoiseFunctions.voronoi(x, y, z, da, pa, 1, 0);
                 return da[2];
             }
 
             @Override
-            public float executeS(float x, float y, float z) {
+            public float executeSigned(float x, float y, float z) {
                 float[] da = new float[4], pa = new float[12];
-                AbstractNoiseFunc.voronoi(x, y, z, da, pa, 1, 0);
+                NoiseFunctions.voronoi(x, y, z, da, pa, 1, 0);
                 return 2.0f * da[2] - 1.0f;
             }
         });
-        // voronoi_F4
-        noiseFunctions.put(Integer.valueOf(6), new AbstractNoiseFunc() {
-
+        noiseFunctions.put(Integer.valueOf(6), new NoiseFunction() {
+        	// voronoi_F4
             @Override
             public float execute(float x, float y, float z) {
                 float[] da = new float[4], pa = new float[12];
-                AbstractNoiseFunc.voronoi(x, y, z, da, pa, 1, 0);
+                NoiseFunctions.voronoi(x, y, z, da, pa, 1, 0);
                 return da[3];
             }
 
             @Override
-            public float executeS(float x, float y, float z) {
+            public float executeSigned(float x, float y, float z) {
                 float[] da = new float[4], pa = new float[12];
-                AbstractNoiseFunc.voronoi(x, y, z, da, pa, 1, 0);
+                NoiseFunctions.voronoi(x, y, z, da, pa, 1, 0);
                 return 2.0f * da[3] - 1.0f;
             }
         });
-        // voronoi_F1F2
-        noiseFunctions.put(Integer.valueOf(7), new AbstractNoiseFunc() {
-
+        noiseFunctions.put(Integer.valueOf(7), new NoiseFunction() {
+        	// voronoi_F1F2
             @Override
             public float execute(float x, float y, float z) {
                 float[] da = new float[4], pa = new float[12];
-                AbstractNoiseFunc.voronoi(x, y, z, da, pa, 1, 0);
+                NoiseFunctions.voronoi(x, y, z, da, pa, 1, 0);
                 return da[1] - da[0];
             }
 
             @Override
-            public float executeS(float x, float y, float z) {
+            public float executeSigned(float x, float y, float z) {
                 float[] da = new float[4], pa = new float[12];
-                AbstractNoiseFunc.voronoi(x, y, z, da, pa, 1, 0);
+                NoiseFunctions.voronoi(x, y, z, da, pa, 1, 0);
                 return 2.0f * (da[1] - da[0]) - 1.0f;
             }
         });
-        // voronoi_Cr
-        noiseFunctions.put(Integer.valueOf(8), new AbstractNoiseFunc() {
-
+        noiseFunctions.put(Integer.valueOf(8), new NoiseFunction() {
+        	// voronoi_Cr
             @Override
             public float execute(float x, float y, float z) {
                 float t = 10 * noiseFunctions.get(Integer.valueOf(7)).execute(x, y, z);// voronoi_F1F2
@@ -306,14 +257,13 @@ import com.jme3.scene.plugins.blender.textures.TextureHelper.TexResult;
             }
 
             @Override
-            public float executeS(float x, float y, float z) {
+            public float executeSigned(float x, float y, float z) {
                 float t = 10.0f * noiseFunctions.get(Integer.valueOf(7)).execute(x, y, z);// voronoi_F1F2
                 return t > 1.0f ? 1.0f : 2.0f * t - 1.0f;
             }
         });
-        // cellNoise
-        noiseFunctions.put(Integer.valueOf(14), new AbstractNoiseFunc() {
-
+        noiseFunctions.put(Integer.valueOf(14), new NoiseFunction() {
+        	// cellNoise
             @Override
             public float execute(float x, float y, float z) {
                 int xi = (int) Math.floor(x);
@@ -325,42 +275,38 @@ import com.jme3.scene.plugins.blender.textures.TextureHelper.TexResult;
             }
 
             @Override
-            public float executeS(float x, float y, float z) {
+            public float executeSigned(float x, float y, float z) {
                 return 2.0f * this.execute(x, y, z) - 1.0f;
             }
         });
     }
     /** Distance metrics for voronoi. e parameter only used in Minkovsky. */
-    protected static Map<Integer, DistanceFunc> distanceFunctions = new HashMap<Integer, NoiseGenerator.DistanceFunc>();
+    protected static Map<Integer, DistanceFunction> distanceFunctions = new HashMap<Integer, NoiseGenerator.DistanceFunction>();
 
     static {
-        // real distance
-        distanceFunctions.put(Integer.valueOf(0), new DistanceFunc() {
-
+        distanceFunctions.put(Integer.valueOf(0), new DistanceFunction() {
+        	// real distance
             @Override
             public float execute(float x, float y, float z, float e) {
                 return (float) Math.sqrt(x * x + y * y + z * z);
             }
         });
-        // distance squared
-        distanceFunctions.put(Integer.valueOf(1), new DistanceFunc() {
-
+        distanceFunctions.put(Integer.valueOf(1), new DistanceFunction() {
+        	// distance squared
             @Override
             public float execute(float x, float y, float z, float e) {
                 return x * x + y * y + z * z;
             }
         });
-        // manhattan/taxicab/cityblock distance
-        distanceFunctions.put(Integer.valueOf(2), new DistanceFunc() {
-
+        distanceFunctions.put(Integer.valueOf(2), new DistanceFunction() {
+        	// manhattan/taxicab/cityblock distance
             @Override
             public float execute(float x, float y, float z, float e) {
                 return FastMath.abs(x) + FastMath.abs(y) + FastMath.abs(z);
             }
         });
-        // Chebychev
-        distanceFunctions.put(Integer.valueOf(3), new DistanceFunc() {
-
+        distanceFunctions.put(Integer.valueOf(3), new DistanceFunction() {
+        	// Chebychev
             @Override
             public float execute(float x, float y, float z, float e) {
                 x = FastMath.abs(x);
@@ -370,18 +316,16 @@ import com.jme3.scene.plugins.blender.textures.TextureHelper.TexResult;
                 return z > t ? z : t;
             }
         });
-        // minkovsky preset exponent 0.5 (MinkovskyH)
-        distanceFunctions.put(Integer.valueOf(4), new DistanceFunc() {
-
+        distanceFunctions.put(Integer.valueOf(4), new DistanceFunction() {
+        	// Minkovsky, preset exponent 0.5 (MinkovskyH)
             @Override
             public float execute(float x, float y, float z, float e) {
                 float d = (float) (Math.sqrt(FastMath.abs(x)) + Math.sqrt(FastMath.abs(y)) + Math.sqrt(FastMath.abs(z)));
                 return d * d;
             }
         });
-        // minkovsky preset exponent 4 (Minkovsky4)
-        distanceFunctions.put(Integer.valueOf(5), new DistanceFunc() {
-
+        distanceFunctions.put(Integer.valueOf(5), new DistanceFunction() {
+        	// Minkovsky, preset exponent 0.25 (Minkovsky4)
             @Override
             public float execute(float x, float y, float z, float e) {
                 x *= x;
@@ -390,43 +334,37 @@ import com.jme3.scene.plugins.blender.textures.TextureHelper.TexResult;
                 return (float) Math.sqrt(Math.sqrt(x * x + y * y + z * z));
             }
         });
-        // Minkovsky, general case, slow, maybe too slow to be useful
-        distanceFunctions.put(Integer.valueOf(6), new DistanceFunc() {
-
+        distanceFunctions.put(Integer.valueOf(6), new DistanceFunction() {
+        	// Minkovsky, general case
             @Override
             public float execute(float x, float y, float z, float e) {
                 return (float) Math.pow(Math.pow(FastMath.abs(x), e) + Math.pow(FastMath.abs(y), e) + Math.pow(FastMath.abs(z), e), 1.0f / e);
             }
         });
     }
+    
     protected static Map<Integer, MusgraveFunction> musgraveFunctions = new HashMap<Integer, NoiseGenerator.MusgraveFunction>();
-
     static {
         musgraveFunctions.put(Integer.valueOf(TEX_MFRACTAL), new MusgraveFunction() {
 
             @Override
-            public float execute(Structure tex, float x, float y, float z) {
-                float mg_H = ((Number) tex.getFieldValue("mg_H")).floatValue();
-                float mg_lacunarity = ((Number) tex.getFieldValue("mg_lacunarity")).floatValue();
-                float mg_octaves = ((Number) tex.getFieldValue("mg_octaves")).floatValue();
-                int noisebasis = ((Number) tex.getFieldValue("noisebasis")).intValue();
-
-                float rmd, value = 1.0f, pwr = 1.0f, pwHL = (float) Math.pow(mg_lacunarity, -mg_H);
-                AbstractNoiseFunc abstractNoiseFunc = noiseFunctions.get(Integer.valueOf(noisebasis));
+            public float execute(MusgraveData musgraveData, float x, float y, float z) {
+                float rmd, value = 1.0f, pwr = 1.0f, pwHL = (float) Math.pow(musgraveData.lacunarity, -musgraveData.h);
+                NoiseFunction abstractNoiseFunc = noiseFunctions.get(Integer.valueOf(musgraveData.noisebasis));
                 if (abstractNoiseFunc == null) {
                     abstractNoiseFunc = noiseFunctions.get(Integer.valueOf(0));
                 }
 
-                for (int i = 0; i < (int) mg_octaves; ++i) {
-                    value *= pwr * abstractNoiseFunc.executeS(x, y, z) + 1.0f;
+                for (int i = 0; i < (int) musgraveData.octaves; ++i) {
+                    value *= pwr * abstractNoiseFunc.executeSigned(x, y, z) + 1.0f;
                     pwr *= pwHL;
-                    x *= mg_lacunarity;
-                    y *= mg_lacunarity;
-                    z *= mg_lacunarity;
+                    x *= musgraveData.lacunarity;
+                    y *= musgraveData.lacunarity;
+                    z *= musgraveData.lacunarity;
                 }
-                rmd = (float) (mg_octaves - Math.floor(mg_octaves));
+                rmd = (float) (musgraveData.octaves - Math.floor(musgraveData.octaves));
                 if (rmd != 0.0f) {
-                    value *= rmd * abstractNoiseFunc.executeS(x, y, z) * pwr + 1.0f;
+                    value *= rmd * abstractNoiseFunc.executeSigned(x, y, z) * pwr + 1.0f;
                 }
                 return value;
             }
@@ -434,38 +372,32 @@ import com.jme3.scene.plugins.blender.textures.TextureHelper.TexResult;
         musgraveFunctions.put(Integer.valueOf(TEX_RIDGEDMF), new MusgraveFunction() {
 
             @Override
-            public float execute(Structure tex, float x, float y, float z) {
-                float mg_H = ((Number) tex.getFieldValue("mg_H")).floatValue();
-                float mg_lacunarity = ((Number) tex.getFieldValue("mg_lacunarity")).floatValue();
-                float mg_octaves = ((Number) tex.getFieldValue("mg_octaves")).floatValue();
-                float mg_offset = ((Number) tex.getFieldValue("mg_offset")).floatValue();
-                int noisebasis = ((Number) tex.getFieldValue("noisebasis")).intValue();
-                float mg_gain = ((Number) tex.getFieldValue("mg_gain")).floatValue();
+            public float execute(MusgraveData musgraveData, float x, float y, float z) {
                 float result, signal, weight;
-                float pwHL = (float) Math.pow(mg_lacunarity, -mg_H);
-                float pwr = pwHL; /* starts with i=1 instead of 0 */
+                float pwHL = (float) Math.pow(musgraveData.lacunarity, -musgraveData.h);
+                float pwr = pwHL;
 
-                AbstractNoiseFunc abstractNoiseFunc = noiseFunctions.get(Integer.valueOf(noisebasis));
+                NoiseFunction abstractNoiseFunc = noiseFunctions.get(Integer.valueOf(musgraveData.noisebasis));
                 if (abstractNoiseFunc == null) {
                     abstractNoiseFunc = noiseFunctions.get(Integer.valueOf(0));
                 }
 
-                signal = mg_offset - FastMath.abs(abstractNoiseFunc.executeS(x, y, z));
+                signal = musgraveData.offset - FastMath.abs(abstractNoiseFunc.executeSigned(x, y, z));
                 signal *= signal;
                 result = signal;
                 weight = 1.0f;
 
-                for (int i = 1; i < (int) mg_octaves; ++i) {
-                    x *= mg_lacunarity;
-                    y *= mg_lacunarity;
-                    z *= mg_lacunarity;
-                    weight = signal * mg_gain;
+                for (int i = 1; i < (int) musgraveData.octaves; ++i) {
+                    x *= musgraveData.lacunarity;
+                    y *= musgraveData.lacunarity;
+                    z *= musgraveData.lacunarity;
+                    weight = signal * musgraveData.gain;
                     if (weight > 1.0f) {
                         weight = 1.0f;
                     } else if (weight < 0.0) {
                         weight = 0.0f;
                     }
-                    signal = mg_offset - FastMath.abs(abstractNoiseFunc.executeS(x, y, z));
+                    signal = musgraveData.offset - FastMath.abs(abstractNoiseFunc.executeSigned(x, y, z));
                     signal *= signal;
                     signal *= weight;
                     result += signal * pwr;
@@ -477,43 +409,37 @@ import com.jme3.scene.plugins.blender.textures.TextureHelper.TexResult;
         musgraveFunctions.put(Integer.valueOf(TEX_HYBRIDMF), new MusgraveFunction() {
 
             @Override
-            public float execute(Structure tex, float x, float y, float z) {
-                float mg_H = ((Number) tex.getFieldValue("mg_H")).floatValue();
-                float mg_lacunarity = ((Number) tex.getFieldValue("mg_lacunarity")).floatValue();
-                float mg_octaves = ((Number) tex.getFieldValue("mg_octaves")).floatValue();
-                float mg_offset = ((Number) tex.getFieldValue("mg_offset")).floatValue();
-                int noisebasis = ((Number) tex.getFieldValue("noisebasis")).intValue();
-                float mg_gain = ((Number) tex.getFieldValue("mg_gain")).floatValue();
+            public float execute(MusgraveData musgraveData, float x, float y, float z) {
                 float result, signal, weight, rmd;
-                float pwHL = (float) Math.pow(mg_lacunarity, -mg_H);
-                float pwr = pwHL; /* starts with i=1 instead of 0 */
-                AbstractNoiseFunc abstractNoiseFunc = noiseFunctions.get(Integer.valueOf(noisebasis));
+                float pwHL = (float) Math.pow(musgraveData.lacunarity, -musgraveData.h);
+                float pwr = pwHL;
+                NoiseFunction abstractNoiseFunc = noiseFunctions.get(Integer.valueOf(musgraveData.noisebasis));
                 if (abstractNoiseFunc == null) {
                     abstractNoiseFunc = noiseFunctions.get(Integer.valueOf(0));
                 }
 
-                result = abstractNoiseFunc.executeS(x, y, z) + mg_offset;
-                weight = mg_gain * result;
-                x *= mg_lacunarity;
-                y *= mg_lacunarity;
-                z *= mg_lacunarity;
+                result = abstractNoiseFunc.executeSigned(x, y, z) + musgraveData.offset;
+                weight = musgraveData.gain * result;
+                x *= musgraveData.lacunarity;
+                y *= musgraveData.lacunarity;
+                z *= musgraveData.lacunarity;
 
-                for (int i = 1; weight > 0.001f && i < (int) mg_octaves; ++i) {
+                for (int i = 1; weight > 0.001f && i < (int) musgraveData.octaves; ++i) {
                     if (weight > 1.0f) {
                         weight = 1.0f;
                     }
-                    signal = (abstractNoiseFunc.executeS(x, y, z) + mg_offset) * pwr;
+                    signal = (abstractNoiseFunc.executeSigned(x, y, z) + musgraveData.offset) * pwr;
                     pwr *= pwHL;
                     result += weight * signal;
-                    weight *= mg_gain * signal;
-                    x *= mg_lacunarity;
-                    y *= mg_lacunarity;
-                    z *= mg_lacunarity;
+                    weight *= musgraveData.gain * signal;
+                    x *= musgraveData.lacunarity;
+                    y *= musgraveData.lacunarity;
+                    z *= musgraveData.lacunarity;
                 }
 
-                rmd = mg_octaves - (float) Math.floor(mg_octaves);
+                rmd = musgraveData.octaves - (float) Math.floor(musgraveData.octaves);
                 if (rmd != 0.0f) {
-                    result += rmd * (abstractNoiseFunc.executeS(x, y, z) + mg_offset) * pwr;
+                    result += rmd * (abstractNoiseFunc.executeSigned(x, y, z) + musgraveData.offset) * pwr;
                 }
                 return result;
             }
@@ -521,29 +447,25 @@ import com.jme3.scene.plugins.blender.textures.TextureHelper.TexResult;
         musgraveFunctions.put(Integer.valueOf(TEX_FBM), new MusgraveFunction() {
 
             @Override
-            public float execute(Structure tex, float x, float y, float z) {
-                float mg_H = ((Number) tex.getFieldValue("mg_H")).floatValue();
-                float mg_lacunarity = ((Number) tex.getFieldValue("mg_lacunarity")).floatValue();
-                float mg_octaves = ((Number) tex.getFieldValue("mg_octaves")).floatValue();
-                int noisebasis = ((Number) tex.getFieldValue("noisebasis")).intValue();
-                float rmd, value = 0.0f, pwr = 1.0f, pwHL = (float) Math.pow(mg_lacunarity, -mg_H);
+            public float execute(MusgraveData musgraveData, float x, float y, float z) {
+                float rmd, value = 0.0f, pwr = 1.0f, pwHL = (float) Math.pow(musgraveData.lacunarity, -musgraveData.h);
 
-                AbstractNoiseFunc abstractNoiseFunc = noiseFunctions.get(Integer.valueOf(noisebasis));
+                NoiseFunction abstractNoiseFunc = noiseFunctions.get(Integer.valueOf(musgraveData.noisebasis));
                 if (abstractNoiseFunc == null) {
                     abstractNoiseFunc = noiseFunctions.get(Integer.valueOf(0));
                 }
 
-                for (int i = 0; i < (int) mg_octaves; ++i) {
-                    value += abstractNoiseFunc.executeS(x, y, z) * pwr;
+                for (int i = 0; i < (int) musgraveData.octaves; ++i) {
+                    value += abstractNoiseFunc.executeSigned(x, y, z) * pwr;
                     pwr *= pwHL;
-                    x *= mg_lacunarity;
-                    y *= mg_lacunarity;
-                    z *= mg_lacunarity;
+                    x *= musgraveData.lacunarity;
+                    y *= musgraveData.lacunarity;
+                    z *= musgraveData.lacunarity;
                 }
 
-                rmd = (float) (mg_octaves - Math.floor(mg_octaves));
+                rmd = (float) (musgraveData.octaves - Math.floor(musgraveData.octaves));
                 if (rmd != 0.f) {
-                    value += rmd * abstractNoiseFunc.executeS(x, y, z) * pwr;
+                    value += rmd * abstractNoiseFunc.executeSigned(x, y, z) * pwr;
                 }
                 return value;
             }
@@ -551,677 +473,102 @@ import com.jme3.scene.plugins.blender.textures.TextureHelper.TexResult;
         musgraveFunctions.put(Integer.valueOf(TEX_HTERRAIN), new MusgraveFunction() {
 
             @Override
-            public float execute(Structure tex, float x, float y, float z) {
-                float mg_H = ((Number) tex.getFieldValue("mg_H")).floatValue();
-                float mg_lacunarity = ((Number) tex.getFieldValue("mg_lacunarity")).floatValue();
-                float mg_octaves = ((Number) tex.getFieldValue("mg_octaves")).floatValue();
-                int noisebasis = ((Number) tex.getFieldValue("noisebasis")).intValue();
-                float mg_offset = ((Number) tex.getFieldValue("mg_offset")).floatValue();
+            public float execute(MusgraveData musgraveData, float x, float y, float z) {
                 float value, increment, rmd;
-                float pwHL = (float) Math.pow(mg_lacunarity, -mg_H);
-                float pwr = pwHL; /* starts with i=1 instead of 0 */
-                AbstractNoiseFunc abstractNoiseFunc = noiseFunctions.get(Integer.valueOf(noisebasis));
+                float pwHL = (float) Math.pow(musgraveData.lacunarity, -musgraveData.h);
+                float pwr = pwHL;
+                NoiseFunction abstractNoiseFunc = noiseFunctions.get(Integer.valueOf(musgraveData.noisebasis));
                 if (abstractNoiseFunc == null) {
                     abstractNoiseFunc = noiseFunctions.get(Integer.valueOf(0));
                 }
 
-                /* first unscaled octave of function; later octaves are scaled */
-                value = mg_offset + abstractNoiseFunc.executeS(x, y, z);
-                x *= mg_lacunarity;
-                y *= mg_lacunarity;
-                z *= mg_lacunarity;
+                value = musgraveData.offset + abstractNoiseFunc.executeSigned(x, y, z);
+                x *= musgraveData.lacunarity;
+                y *= musgraveData.lacunarity;
+                z *= musgraveData.lacunarity;
 
-                for (int i = 1; i < (int) mg_octaves; ++i) {
-                    increment = (abstractNoiseFunc.executeS(x, y, z) + mg_offset) * pwr * value;
+                for (int i = 1; i < (int) musgraveData.octaves; ++i) {
+                    increment = (abstractNoiseFunc.executeSigned(x, y, z) + musgraveData.offset) * pwr * value;
                     value += increment;
                     pwr *= pwHL;
-                    x *= mg_lacunarity;
-                    y *= mg_lacunarity;
-                    z *= mg_lacunarity;
+                    x *= musgraveData.lacunarity;
+                    y *= musgraveData.lacunarity;
+                    z *= musgraveData.lacunarity;
                 }
 
-                rmd = mg_octaves - (float) Math.floor(mg_octaves);
+                rmd = musgraveData.octaves - (float) Math.floor(musgraveData.octaves);
                 if (rmd != 0.0) {
-                    increment = (abstractNoiseFunc.executeS(x, y, z) + mg_offset) * pwr * value;
+                    increment = (abstractNoiseFunc.executeSigned(x, y, z) + musgraveData.offset) * pwr * value;
                     value += rmd * increment;
                 }
                 return value;
             }
         });
     }
-
-    /**
-     * THE FOLLOWING METHODS HELP IN COMPUTATION OF THE TEXTURES.
-     */
-    protected void brightnesAndContrast(TexResult texres, float contrast, float brightness) {
-        texres.tin = (texres.tin - 0.5f) * contrast + brightness - 0.5f;
-        if (texres.tin < 0.0f) {
-            texres.tin = 0.0f;
-        } else if (texres.tin > 1.0f) {
-            texres.tin = 1.0f;
-        }
-    }
-
-    protected void brightnesAndContrastRGB(Structure tex, TexResult texres) {
-        float contrast = ((Number) tex.getFieldValue("contrast")).floatValue();
-        float bright = ((Number) tex.getFieldValue("bright")).floatValue();
-        float rfac = ((Number) tex.getFieldValue("rfac")).floatValue();
-        float gfac = ((Number) tex.getFieldValue("gfac")).floatValue();
-        float bfac = ((Number) tex.getFieldValue("bfac")).floatValue();
-
-        texres.tr = rfac * ((texres.tr - 0.5f) * contrast + bright - 0.5f);
-        if (texres.tr < 0.0f) {
-            texres.tr = 0.0f;
-        }
-        texres.tg = gfac * ((texres.tg - 0.5f) * contrast + bright - 0.5f);
-        if (texres.tg < 0.0f) {
-            texres.tg = 0.0f;
-        }
-        texres.tb = bfac * ((texres.tb - 0.5f) * contrast + bright - 0.5f);
-        if (texres.tb < 0.0f) {
-            texres.tb = 0.0f;
-        }
-    }
-
-    /* this allows colorbanded textures to control normals as well */
-    public void texNormalDerivate(ColorBand colorBand, TexResult texres, DataRepository dataRepository) {
-        if (texres.nor != null) {
-            TexResult fakeTexresult;
-            try {
-                fakeTexresult = (TexResult) texres.clone();
-            } catch (CloneNotSupportedException e) {
-                throw new IllegalStateException("Texture result class MUST support cloning!", e);
-            }
-
-            float fac0 = fakeTexresult.tr + fakeTexresult.tg + fakeTexresult.tb;
-            fakeTexresult.tin = texres.nor[0];
-            this.doColorband(colorBand, fakeTexresult, dataRepository);
-
-            float fac1 = fakeTexresult.tr + fakeTexresult.tg + fakeTexresult.tb;
-            fakeTexresult.tin = texres.nor[1];
-            this.doColorband(colorBand, fakeTexresult, dataRepository);
-
-            float fac2 = fakeTexresult.tr + fakeTexresult.tg + fakeTexresult.tb;
-            fakeTexresult.tin = texres.nor[2];
-            this.doColorband(colorBand, fakeTexresult, dataRepository);
-
-            float fac3 = fakeTexresult.tr + fakeTexresult.tg + fakeTexresult.tb;
-
-            texres.nor[0] = 0.3333f * (fac0 - fac1);
-            texres.nor[1] = 0.3333f * (fac0 - fac2);
-            texres.nor[2] = 0.3333f * (fac0 - fac3);
-
-            texres.nor[0] = texres.tin - texres.nor[0];
-            texres.nor[1] = texres.tin - texres.nor[1];
-            texres.nor[2] = texres.tin - texres.nor[2];
-        }
-    }
-
-    /**
-     * This method calculates the colorband for the texture.
-     * @param colorBand
-     *        the colorband data
-     * @param texres
-     *        the texture pixel result
-     * @param dataRepository
-     *        the data repository
-     * @return <b>true</b> if calculation suceedess and <b>false</b> otherwise
-     */
-    public boolean doColorband(ColorBand colorBand, TexResult texres, DataRepository dataRepository) {
-        CBData cbd1, cbd2, cbd0, cbd3;
-        int i1 = 0, i2 = 0, a;
-        float fac, mfac;
-        float[] t = new float[4];
-
-        if (colorBand == null || colorBand.tot == 0) {
-            return true;
-        }
-
-        cbd1 = colorBand.data[0];
-        if (colorBand.tot == 1) {
-            texres.tr = cbd1.r;
-            texres.tg = cbd1.g;
-            texres.tb = cbd1.b;
-            texres.ta = cbd1.a;
-        } else {
-            if (texres.tin <= cbd1.pos && colorBand.ipotype < 2) {
-                texres.tr = cbd1.r;
-                texres.tg = cbd1.g;
-                texres.tb = cbd1.b;
-                texres.ta = cbd1.a;
-            } else {
-                /* we're looking for first pos > in */
-                for (a = 0; a < colorBand.tot; ++a, ++i1) {
-                    cbd1 = colorBand.data[i1];
-                    if (cbd1.pos > texres.tin) {
-                        break;
-                    }
-                }
-
-                if (a == colorBand.tot) {
-                    cbd2 = colorBand.data[i1 - 1];
-                    try {
-                        cbd1 = (CBData) cbd2.clone();
-                    } catch (CloneNotSupportedException e) {
-                        throw new IllegalStateException("Clone not supported for " + CBData.class.getName() + " class! Fix that!");
-                    }
-                    cbd1.pos = 1.0f;
-                } else if (a == 0) {
-                    try {
-                        cbd2 = (CBData) cbd1.clone();
-                    } catch (CloneNotSupportedException e) {
-                        throw new IllegalStateException("Clone not supported for " + CBData.class.getName() + " class! Fix that!");
-                    }
-                    cbd2.pos = 0.0f;
-                } else {
-                    cbd2 = colorBand.data[i1 - 1];
-                }
-
-                if (texres.tin >= cbd1.pos && colorBand.ipotype < 2) {
-                    texres.tr = cbd1.r;
-                    texres.tg = cbd1.g;
-                    texres.tb = cbd1.b;
-                    texres.ta = cbd1.a;
-                } else {
-
-                    if (cbd2.pos != cbd1.pos) {
-                        fac = (texres.tin - cbd1.pos) / (cbd2.pos - cbd1.pos);
-                    } else {
-                        fac = 0.0f;
-                    }
-
-                    if (colorBand.ipotype == 4) {
-                        /* constant */
-                        texres.tr = cbd2.r;
-                        texres.tg = cbd2.g;
-                        texres.tb = cbd2.b;
-                        texres.ta = cbd2.a;
-                        return true;
-                    }
-
-                    if (colorBand.ipotype >= 2) {
-                        /* ipo from right to left: 3 2 1 0 */
-
-                        if (a >= colorBand.tot - 1) {
-                            cbd0 = cbd1;
-                        } else {
-                            cbd0 = colorBand.data[i1 + 1];
-                        }
-                        if (a < 2) {
-                            cbd3 = cbd2;
-                        } else {
-                            cbd3 = colorBand.data[i2 - 1];
-                        }
-
-                        fac = FastMath.clamp(fac, 0.0f, 1.0f);
-
-                        if (colorBand.ipotype == 3) {
-                            this.setFourIpo(fac, t, KEY_CARDINAL);
-                        } else {
-                            this.setFourIpo(fac, t, KEY_BSPLINE);
-                        }
-
-                        texres.tr = t[3] * cbd3.r + t[2] * cbd2.r + t[1] * cbd1.r + t[0] * cbd0.r;
-                        texres.tg = t[3] * cbd3.g + t[2] * cbd2.g + t[1] * cbd1.g + t[0] * cbd0.g;
-                        texres.tb = t[3] * cbd3.b + t[2] * cbd2.b + t[1] * cbd1.b + t[0] * cbd0.b;
-                        texres.ta = t[3] * cbd3.a + t[2] * cbd2.a + t[1] * cbd1.a + t[0] * cbd0.a;
-                        texres.tr = FastMath.clamp(texres.tr, 0.0f, 1.0f);
-                        texres.tg = FastMath.clamp(texres.tg, 0.0f, 1.0f);
-                        texres.tb = FastMath.clamp(texres.tb, 0.0f, 1.0f);
-                        texres.ta = FastMath.clamp(texres.ta, 0.0f, 1.0f);
-                    } else {
-
-                        if (colorBand.ipotype == 1) { /* EASE */
-                            mfac = fac * fac;
-                            fac = 3.0f * mfac - 2.0f * mfac * fac;
-                        }
-                        mfac = 1.0f - fac;
-
-                        texres.tr = mfac * cbd1.r + fac * cbd2.r;
-                        texres.tg = mfac * cbd1.g + fac * cbd2.g;
-                        texres.tb = mfac * cbd1.b + fac * cbd2.b;
-                        texres.ta = mfac * cbd1.a + fac * cbd2.a;
-                    }
-                }
-            }
-        }
-        return true;
-    }
-
-    protected void setFourIpo(float d, float[] data, int type) {
-        if (type == KEY_LINEAR) {
-            data[0] = 0.0f;
-            data[1] = 1.0f - d;
-            data[2] = d;
-            data[3] = 0.0f;
-        } else {
-            float d2 = d * d;
-            float d3 = d2 * d;
-            if (type == KEY_CARDINAL) {
-                float fc = 0.71f;
-                data[0] = -fc * d3 + 2.0f * fc * d2 - fc * d;
-                data[1] = (2.0f - fc) * d3 + (fc - 3.0f) * d2 + 1.0f;
-                data[2] = (fc - 2.0f) * d3 + (3.0f - 2.0f * fc) * d2 + fc * d;
-                data[3] = fc * d3 - fc * d2;
-            } else if (type == KEY_BSPLINE) {
-                data[0] = -0.16666666f * d3 + 0.5f * d2 - 0.5f * d + 0.16666666f;
-                data[1] = 0.5f * d3 - d2 + 0.6666666f;
-                data[2] = -0.5f * d3 + 0.5f * d2 + 0.5f * d + 0.16666666f;
-                data[3] = 0.16666666f * d3;
-            }
-        }
-    }
-
-    interface IWaveForm {
-
-        float execute(float x);
-    }
-    protected static IWaveForm[] waveformFunctions = new IWaveForm[3];
-
-    static {
-        waveformFunctions[0] = new IWaveForm() {// tex_sin
-
-            @Override
-            public float execute(float x) {
-                return 0.5f + 0.5f * (float) Math.sin(x);
-            }
-        };
-        waveformFunctions[1] = new IWaveForm() {// tex_saw
-
-            @Override
-            public float execute(float x) {
-                int n = (int) (x / FastMath.TWO_PI);
-                x -= n * FastMath.TWO_PI;
-                if (x < 0.0f) {
-                    x += FastMath.TWO_PI;
-                }
-                return x / FastMath.TWO_PI;
-            }
-        };
-        waveformFunctions[2] = new IWaveForm() {// tex_tri
-
-            @Override
-            public float execute(float x) {
-                return 1.0f - 2.0f * FastMath.abs((float) Math.floor(x * 1.0f / FastMath.TWO_PI + 0.5f) - x * 1.0f / FastMath.TWO_PI);
-            }
-        };
-    }
-
-    /* computes basic wood intensity value at x,y,z */
-    public float woodInt(Structure tex, float x, float y, float z, DataRepository dataRepository) {
-        int noisebasis2 = ((Number) tex.getFieldValue("noisebasis2")).intValue();
-        int noisebasis = ((Number) tex.getFieldValue("noisebasis")).intValue();
-        int stype = ((Number) tex.getFieldValue("stype")).intValue();
-        float noisesize = ((Number) tex.getFieldValue("noisesize")).floatValue();
-        float turbul = ((Number) tex.getFieldValue("turbul")).floatValue();
-        int noiseType = ((Number) tex.getFieldValue("noisetype")).intValue();
-        float wi = 0;
-        int waveform = noisebasis2; /* wave form: TEX_SIN=0, TEX_SAW=1, TEX_TRI=2 */
-        int wt = stype; /* wood type: TEX_BAND=0, TEX_RING=1, TEX_BANDNOISE=2, TEX_RINGNOISE=3 */
-
-        if (waveform > TEX_TRI || waveform < TEX_SIN) {
-            waveform = 0; /* check to be sure noisebasis2 is initialized ahead of time */
-        }
-
-        if (wt == TEX_BAND) {
-            wi = waveformFunctions[waveform].execute((x + y + z) * 10.0f);
-        } else if (wt == TEX_RING) {
-            wi = waveformFunctions[waveform].execute((float) Math.sqrt(x * x + y * y + z * z) * 20.0f);
-        } else if (wt == TEX_BANDNOISE) {
-            wi = turbul * this.bliGNoise(noisesize, x, y, z, noiseType != TEX_NOISESOFT, noisebasis);
-            wi = waveformFunctions[waveform].execute((x + y + z) * 10.0f + wi);
-        } else if (wt == TEX_RINGNOISE) {
-            wi = turbul * this.bliGNoise(noisesize, x, y, z, noiseType != TEX_NOISESOFT, noisebasis);
-            wi = waveformFunctions[waveform].execute((float) Math.sqrt(x * x + y * y + z * z) * 20.0f + wi);
-        }
-        return wi;
-    }
-
-    /* computes basic marble intensity at x,y,z */
-    public float marbleInt(Structure tex, float x, float y, float z, DataRepository dataRepository) {
-        float noisesize = ((Number) tex.getFieldValue("noisesize")).floatValue();
-        int noisebasis = ((Number) tex.getFieldValue("noisebasis")).intValue();
-        int noisedepth = ((Number) tex.getFieldValue("noisedepth")).intValue();
-        int stype = ((Number) tex.getFieldValue("stype")).intValue();/* marble type: TEX_SOFT=0, TEX_SHARP=1,TEX_SHAPER=2 */
-        float turbul = ((Number) tex.getFieldValue("turbul")).floatValue();
-        int noisetype = ((Number) tex.getFieldValue("noisetype")).intValue();
-        int waveform = ((Number) tex.getFieldValue("noisebasis2")).intValue(); /* wave form: TEX_SIN=0, TEX_SAW=1, TEX_TRI=2 */
-
-        if (waveform > TEX_TRI || waveform < TEX_SIN) {
-            waveform = 0; /* check to be sure noisebasis2 isn't initialized ahead of time */
-        }
-
-        float n = 5.0f * (x + y + z);
-        float mi = n + turbul * this.bliGTurbulence(noisesize, x, y, z, noisedepth, noisetype != TEX_NOISESOFT, noisebasis);
-
-        if (stype >= NoiseGenerator.TEX_SOFT) { /* TEX_SOFT always true */
-            mi = waveformFunctions[waveform].execute(mi);
-            if (stype == TEX_SHARP) {
-                mi = (float) Math.sqrt(mi);
-            } else if (stype == TEX_SHARPER) {
-                mi = (float) Math.sqrt(Math.sqrt(mi));
-            }
-        }
-        return mi;
-    }
-
-    public void voronoi(float x, float y, float z, float[] da, float[] pa, float me, int dtype) {
-        AbstractNoiseFunc.voronoi(x, y, z, da, pa, me, dtype);
-    }
-
-    public void cellNoiseV(float x, float y, float z, float[] ca) {
-        AbstractNoiseFunc.cellNoiseV(x, y, z, ca);
-    }
-
-    /**
-     * THE FOLLOWING METHODS HELP IN NOISE COMPUTATIONS
-     */
-    /**
-     * Separated from orgBlenderNoise above, with scaling.
-     * @param noisesize
-     * @param x
-     * @param y
-     * @param z
-     * @return
-     */
-    private float bliHnoise(float noisesize, float x, float y, float z) {
-        if (noisesize == 0.0) {
-            return 0.0f;
-        }
-        x = (1.0f + x) / noisesize;
-        y = (1.0f + y) / noisesize;
-        z = (1.0f + z) / noisesize;
-        return noiseFunctions.get(0).execute(x, y, z);
-    }
-
-    /**
-     * @param noisesize
-     * @param x
-     * @param y
-     * @param z
-     * @param nr
-     * @return
-     */
-    public float bliTurbulence(float noisesize, float x, float y, float z, int nr) {
-        float d = 0.5f, div = 1.0f;
-
-        float s = this.bliHnoise(noisesize, x, y, z);
-        while (nr > 0) {
-            s += d * this.bliHnoise(noisesize * d, x, y, z);
-            div += d;
-            d *= 0.5;
-            --nr;
-        }
-        return s / div;
-    }
-
-    /**
-     * @param noisesize
-     * @param x
-     * @param y
-     * @param z
-     * @param nr
-     * @return
-     */
-    public float bliTurbulence1(float noisesize, float x, float y, float z, int nr) {
-        float s, d = 0.5f, div = 1.0f;
-
-        s = FastMath.abs((-1.0f + 2.0f * this.bliHnoise(noisesize, x, y, z)));
-        while (nr > 0) {
-            s += Math.abs(d * (-1.0f + 2.0f * this.bliHnoise(noisesize * d, x, y, z)));
-            div += d;
-            d *= 0.5;
-            --nr;
-        }
-        return s / div;
-    }
-
-    /**
-     * @param noisesize
-     * @param x
-     * @param y
-     * @param z
-     * @return
-     */
-    public float bliHnoisep(float noisesize, float x, float y, float z) {
-        return noiseFunctions.get(Integer.valueOf(0)).noise3Perlin(new float[]{x / noisesize, y / noisesize, z / noisesize});
-    }
-
-    /**
-     * @param point
-     * @param lofreq
-     * @param hifreq
-     * @return
-     */
-    public float turbulencePerlin(float[] point, float lofreq, float hifreq) {
-        float freq, t = 0, p[] = new float[]{point[0] + 123.456f, point[1], point[2]};
-        for (freq = lofreq; freq < hifreq; freq *= 2.) {
-            t += Math.abs(noiseFunctions.get(Integer.valueOf(0)).noise3Perlin(p)) / freq;
-            p[0] *= 2.0f;
-            p[1] *= 2.0f;
-            p[2] *= 2.0f;
-        }
-        return t - 0.3f; /* readjust to make mean value = 0.0 */
-    }
-
-    /**
-     * @param noisesize
-     * @param x
-     * @param y
-     * @param z
-     * @param nr
-     * @return
-     */
-    public float turbulencep(float noisesize, float x, float y, float z, int nr) {
-        float[] vec = new float[]{x / noisesize, y / noisesize, z / noisesize};
-        ++nr;
-        return this.turbulencePerlin(vec, 1.0f, (1 << nr));
-    }
-
-    /**
-     * Newnoise: generic noise function for use with different noisebases
-     * @param x
-     * @param y
-     * @param z
-     * @param oct
-     * @param isHard
-     * @param noisebasis
-     * @return
-     */
-    public float bliGNoise(float noisesize, float x, float y, float z, boolean isHard, int noisebasis) {
-        AbstractNoiseFunc abstractNoiseFunc = noiseFunctions.get(Integer.valueOf(noisebasis));
-        if (abstractNoiseFunc == null) {
-            abstractNoiseFunc = noiseFunctions.get(0);
-            noisebasis = 0;
-        }
-        if (noisebasis == 0) {// add one to make return value same as BLI_hnoise
-            x += 1;
-            y += 1;
-            z += 1;
-        }
-
-        if (noisesize != 0.0) {
-            noisesize = 1.0f / noisesize;
-            x *= noisesize;
-            y *= noisesize;
-            z *= noisesize;
-        }
-        if (isHard) {
-            return Math.abs(2.0f * abstractNoiseFunc.execute(x, y, z) - 1.0f);
-        }
-        return abstractNoiseFunc.execute(x, y, z);
-    }
-
-    /**
-     * Newnoise: generic turbulence function for use with different noisebasis
-     * @param x
-     * @param y
-     * @param z
-     * @param oct
-     * @param isHard
-     * @param noisebasis
-     * @return
-     */
-    public float bliGTurbulence(float noisesize, float x, float y, float z, int oct, boolean isHard, int noisebasis) {
-        AbstractNoiseFunc abstractNoiseFunc = noiseFunctions.get(Integer.valueOf(noisebasis));
-        if (abstractNoiseFunc == null) {
-            abstractNoiseFunc = noiseFunctions.get(0);
-            noisebasis = 0;
-        }
-        if (noisebasis == 0) {// add one to make return value same as BLI_hnoise
-            x += 1;
-            y += 1;
-            z += 1;
-        }
-        float sum = 0, t, amp = 1, fscale = 1;
-
-        if (noisesize != 0.0) {
-            noisesize = 1.0f / noisesize;
-            x *= noisesize;
-            y *= noisesize;
-            z *= noisesize;
-        }
-        for (int i = 0; i <= oct; ++i, amp *= 0.5, fscale *= 2) {
-            t = abstractNoiseFunc.execute(fscale * x, fscale * y, fscale * z);
-            if (isHard) {
-                t = FastMath.abs(2.0f * t - 1.0f);
-            }
-            sum += t * amp;
-        }
-
-        sum *= (float) (1 << oct) / (float) ((1 << oct + 1) - 1);
-        return sum;
-    }
-
-    /**
-     * "Variable Lacunarity Noise" A distorted variety of Perlin noise. This method is used to calculate distorted noise
-     * texture.
-     * @param x
-     * @param y
-     * @param z
-     * @param distortion
-     * @param nbas1
-     * @param nbas2
-     * @return
-     */
-    public float mgVLNoise(float x, float y, float z, float distortion, int nbas1, int nbas2) {
-        AbstractNoiseFunc abstractNoiseFunc1 = noiseFunctions.get(Integer.valueOf(nbas1));
-        if (abstractNoiseFunc1 == null) {
-            abstractNoiseFunc1 = noiseFunctions.get(Integer.valueOf(0));
-        }
-        AbstractNoiseFunc abstractNoiseFunc2 = noiseFunctions.get(Integer.valueOf(nbas2));
-        if (abstractNoiseFunc2 == null) {
-            abstractNoiseFunc2 = noiseFunctions.get(Integer.valueOf(0));
-        }
-        // get a random vector and scale the randomization
-        float rx = abstractNoiseFunc1.execute(x + 13.5f, y + 13.5f, z + 13.5f) * distortion;
-        float ry = abstractNoiseFunc1.execute(x, y, z) * distortion;
-        float rz = abstractNoiseFunc1.execute(x - 13.5f, y - 13.5f, z - 13.5f) * distortion;
-        return abstractNoiseFunc2.executeS(x + rx, y + ry, z + rz); //distorted-domain noise
-    }
-
-    public void mgMFractalOrfBmTex(Structure tex, float[] texvec, ColorBand colorBand, TexResult texres, DataRepository dataRepository) {
-        int stype = ((Number) tex.getFieldValue("stype")).intValue();
-        float nsOutscale = ((Number) tex.getFieldValue("ns_outscale")).floatValue();
-        float nabla = ((Number) tex.getFieldValue("nabla")).floatValue();
-        float noisesize = ((Number) tex.getFieldValue("noisesize")).floatValue();
-        float contrast = ((Number) tex.getFieldValue("contrast")).floatValue();
-        float brightness = ((Number) tex.getFieldValue("bright")).floatValue();
-
-        MusgraveFunction mgravefunc = stype == TEX_MFRACTAL ? musgraveFunctions.get(Integer.valueOf(stype)) : musgraveFunctions.get(Integer.valueOf(TEX_FBM));
-
-        texres.tin = nsOutscale * mgravefunc.execute(tex, texvec[0], texvec[1], texvec[2]);
-        if (texres.nor != null) {
-            float offs = nabla / noisesize; // also scaling of texvec
-            // calculate bumpnormal
-            texres.nor[0] = nsOutscale * mgravefunc.execute(tex, texvec[0] + offs, texvec[1], texvec[2]);
-            texres.nor[1] = nsOutscale * mgravefunc.execute(tex, texvec[0], texvec[1] + offs, texvec[2]);
-            texres.nor[2] = nsOutscale * mgravefunc.execute(tex, texvec[0], texvec[1], texvec[2] + offs);
-            this.texNormalDerivate(colorBand, texres, dataRepository);
-        }
-        this.brightnesAndContrast(texres, contrast, brightness);
-    }
-
-    public void mgRidgedOrHybridMFTex(Structure tex, float[] texvec, ColorBand colorBand, TexResult texres, DataRepository dataRepository) {
-        int stype = ((Number) tex.getFieldValue("stype")).intValue();
-        float nsOutscale = ((Number) tex.getFieldValue("ns_outscale")).floatValue();
-        float nabla = ((Number) tex.getFieldValue("nabla")).floatValue();
-        float noisesize = ((Number) tex.getFieldValue("noisesize")).floatValue();
-        float contrast = ((Number) tex.getFieldValue("contrast")).floatValue();
-        float brightness = ((Number) tex.getFieldValue("bright")).floatValue();
-
-        MusgraveFunction mgravefunc = stype == TEX_RIDGEDMF ? musgraveFunctions.get(Integer.valueOf(stype)) : musgraveFunctions.get(Integer.valueOf(TEX_HYBRIDMF));
-
-        texres.tin = nsOutscale * mgravefunc.execute(tex, texvec[0], texvec[1], texvec[2]);
-        if (texres.nor != null) {
-            float offs = nabla / noisesize; // also scaling of texvec
-            // calculate bumpnormal
-            texres.nor[0] = nsOutscale * mgravefunc.execute(tex, texvec[0] + offs, texvec[1], texvec[2]);
-            texres.nor[1] = nsOutscale * mgravefunc.execute(tex, texvec[0], texvec[1] + offs, texvec[2]);
-            texres.nor[2] = nsOutscale * mgravefunc.execute(tex, texvec[0], texvec[1], texvec[2] + offs);
-            this.texNormalDerivate(colorBand, texres, dataRepository);
-        }
-        this.brightnesAndContrast(texres, contrast, brightness);
-    }
-
-    public void mgHTerrainTex(Structure tex, float[] texvec, ColorBand colorBand, TexResult texres, DataRepository dataRepository) {
-        float nsOutscale = ((Number) tex.getFieldValue("ns_outscale")).floatValue();
-        float nabla = ((Number) tex.getFieldValue("nabla")).floatValue();
-        float noisesize = ((Number) tex.getFieldValue("noisesize")).floatValue();
-        float contrast = ((Number) tex.getFieldValue("contrast")).floatValue();
-        float brightness = ((Number) tex.getFieldValue("bright")).floatValue();
-
-        MusgraveFunction musgraveFunction = musgraveFunctions.get(Integer.valueOf(TEX_HTERRAIN));
-        texres.tin = nsOutscale * musgraveFunction.execute(tex, texvec[0], texvec[1], texvec[2]);
-        if (texres.nor != null) {
-            float offs = nabla / noisesize; // also scaling of texvec
-            // calculate bumpnormal
-            texres.nor[0] = nsOutscale * musgraveFunction.execute(tex, texvec[0] + offs, texvec[1], texvec[2]);
-            texres.nor[1] = nsOutscale * musgraveFunction.execute(tex, texvec[0], texvec[1] + offs, texvec[2]);
-            texres.nor[2] = nsOutscale * musgraveFunction.execute(tex, texvec[0], texvec[1], texvec[2] + offs);
-            this.texNormalDerivate(colorBand, texres, dataRepository);
-        }
-        this.brightnesAndContrast(texres, contrast, brightness);
-    }
-
-    /**
-     * This class is abstract to the noise functions computations. It has two methods. One calculates the Signed (with
-     * 'S' at the end) and the other Unsigned value.
-     * @author Marcin Roguski (Kaelthas)
-     */
-    protected static abstract class AbstractNoiseFunc {
-
-        /**
-         * This method calculates the unsigned value of the noise.
-         * @param x
-         *        the x texture coordinate
-         * @param y
-         *        the y texture coordinate
-         * @param z
-         *        the z texture coordinate
-         * @return value of the noise
-         */
-        public abstract float execute(float x, float y, float z);
-
-        /**
-         * This method calculates the signed value of the noise.
-         * @param x
-         *        the x texture coordinate
-         * @param y
-         *        the y texture coordinate
-         * @param z
-         *        the z texture coordinate
-         * @return value of the noise
-         */
-        public abstract float executeS(float x, float y, float z);
-
-        /*
+    
+    public static class NoiseFunctions {
+    	public static float noise(float x, float y, float z, float noiseSize, int noiseDepth, int noiseBasis, boolean isHard) {
+    		NoiseFunction abstractNoiseFunc = noiseFunctions.get(Integer.valueOf(noiseBasis));
+    		if (abstractNoiseFunc == null) {
+	            abstractNoiseFunc = noiseFunctions.get(0);
+	            noiseBasis = 0;
+	        }
+    		
+    		if (noiseBasis == 0) {
+    			++x;
+	            ++y;
+	            ++z;
+	        }
+
+	        if (noiseSize != 0.0) {
+	            noiseSize = 1.0f / noiseSize;
+	            x *= noiseSize;
+	            y *= noiseSize;
+	            z *= noiseSize;
+	        }
+	        float result = abstractNoiseFunc.execute(x, y, z);
+	        return isHard ? Math.abs(2.0f * result - 1.0f) : result;
+    	}
+    	
+    	public static float turbulence(float x, float y, float z, float noiseSize, int noiseDepth, int noiseBasis, boolean isHard) {
+    		NoiseFunction abstractNoiseFunc = noiseFunctions.get(Integer.valueOf(noiseBasis));
+    		if (abstractNoiseFunc == null) {
+	            abstractNoiseFunc = noiseFunctions.get(0);
+	            noiseBasis = 0;
+	        }
+    		
+    		if (noiseBasis == 0) {
+	            ++x;
+	            ++y;
+	            ++z;
+	        }
+	        if (noiseSize != 0.0) {
+	            noiseSize = 1.0f / noiseSize;
+	            x *= noiseSize;
+	            y *= noiseSize;
+	            z *= noiseSize;
+	        }
+	        
+	        float sum = 0, t, amp = 1, fscale = 1;
+	        for (int i = 0; i <= noiseDepth; ++i, amp *= 0.5, fscale *= 2) {
+	            t = abstractNoiseFunc.execute(fscale * x, fscale * y, fscale * z);
+	            if (isHard) {
+	                t = FastMath.abs(2.0f * t - 1.0f);
+	            }
+	            sum += t * amp;
+	        }
+
+	        sum *= (float) (1 << noiseDepth) / (float) ((1 << noiseDepth + 1) - 1);
+	        return sum;
+    	}
+    	
+    	/**
          * Not 'pure' Worley, but the results are virtually the same. Returns distances in da and point coords in pa
          */
-        protected static void voronoi(float x, float y, float z, float[] da, float[] pa, float me, int dtype) {
-            float xd, yd, zd, d, p[];
+        public static void voronoi(float x, float y, float z, float[] da, float[] pa, float distanceExponent, int distanceType) {
+            float xd, yd, zd, d, p[] = new float[3];
 
-            DistanceFunc distanceFunc = distanceFunctions.get(Integer.valueOf(dtype));
+            DistanceFunction distanceFunc = distanceFunctions.get(Integer.valueOf(distanceType));
             if (distanceFunc == null) {
                 distanceFunc = distanceFunctions.get(Integer.valueOf(0));
             }
@@ -1230,14 +577,14 @@ import com.jme3.scene.plugins.blender.textures.TextureHelper.TexResult;
             int yi = (int) FastMath.floor(y);
             int zi = (int) FastMath.floor(z);
             da[0] = da[1] = da[2] = da[3] = 1e10f;
-            for (int xx = xi - 1; xx <= xi + 1; ++xx) {
-                for (int yy = yi - 1; yy <= yi + 1; ++yy) {
-                    for (int zz = zi - 1; zz <= zi + 1; ++zz) {
-                        p = AbstractNoiseFunc.hashPoint(xx, yy, zz);
-                        xd = x - (p[0] + xx);
-                        yd = y - (p[1] + yy);
-                        zd = z - (p[2] + zz);
-                        d = distanceFunc.execute(xd, yd, zd, me);
+            for (int i = xi - 1; i <= xi + 1; ++i) {
+                for (int j = yi - 1; j <= yi + 1; ++j) {
+                    for (int k = zi - 1; k <= zi + 1; ++k) {
+                        NoiseMath.hash(i, j, k, p);
+                        xd = x - (p[0] + i);
+                        yd = y - (p[1] + j);
+                        zd = z - (p[2] + k);
+                        d = distanceFunc.execute(xd, yd, zd, distanceExponent);
                         if (d < da[0]) {
                             da[3] = da[2];
                             da[2] = da[1];
@@ -1252,9 +599,9 @@ import com.jme3.scene.plugins.blender.textures.TextureHelper.TexResult;
                             pa[3] = pa[0];
                             pa[4] = pa[1];
                             pa[5] = pa[2];
-                            pa[0] = p[0] + xx;
-                            pa[1] = p[1] + yy;
-                            pa[2] = p[2] + zz;
+                            pa[0] = p[0] + i;
+                            pa[1] = p[1] + j;
+                            pa[2] = p[2] + k;
                         } else if (d < da[1]) {
                             da[3] = da[2];
                             da[2] = da[1];
@@ -1265,108 +612,119 @@ import com.jme3.scene.plugins.blender.textures.TextureHelper.TexResult;
                             pa[6] = pa[3];
                             pa[7] = pa[4];
                             pa[8] = pa[5];
-                            pa[3] = p[0] + xx;
-                            pa[4] = p[1] + yy;
-                            pa[5] = p[2] + zz;
+                            pa[3] = p[0] + i;
+                            pa[4] = p[1] + j;
+                            pa[5] = p[2] + k;
                         } else if (d < da[2]) {
                             da[3] = da[2];
                             da[2] = d;
                             pa[9] = pa[6];
                             pa[10] = pa[7];
                             pa[11] = pa[8];
-                            pa[6] = p[0] + xx;
-                            pa[7] = p[1] + yy;
-                            pa[8] = p[2] + zz;
+                            pa[6] = p[0] + i;
+                            pa[7] = p[1] + j;
+                            pa[8] = p[2] + k;
                         } else if (d < da[3]) {
                             da[3] = d;
-                            pa[9] = p[0] + xx;
-                            pa[10] = p[1] + yy;
-                            pa[11] = p[2] + zz;
+                            pa[9] = p[0] + i;
+                            pa[10] = p[1] + j;
+                            pa[11] = p[2] + k;
                         }
                     }
                 }
             }
         }
-
-        // needed for voronoi
-        protected static float[] hashPoint(int x, int y, int z) {
-            float[] result = new float[3];
-            result[0] = hashpntf[3 * hash[hash[hash[z & 255] + y & 255] + x & 255]];
-            result[1] = hashpntf[3 * hash[hash[hash[z & 255] + y & 255] + x & 255] + 1];
-            result[2] = hashpntf[3 * hash[hash[hash[z & 255] + y & 255] + x & 255] + 2];
-            return result;
+        
+        // instead of adding another permutation array, just use hash table defined above
+        public static float newPerlin(float x, float y, float z) {
+            int A, AA, AB, B, BA, BB;
+            float floorX = (float) Math.floor(x), floorY = (float) Math.floor(y), floorZ = (float) Math.floor(z);
+            int intX = (int) floorX & 0xFF, intY = (int) floorY & 0xFF, intZ = (int) floorZ & 0xFF;
+            x -= floorX;
+            y -= floorY;
+            z -= floorZ;
+            //computing fading curves
+            floorX = NoiseMath.npfade(x);
+            floorY = NoiseMath.npfade(y);
+            floorZ = NoiseMath.npfade(z);
+            A = hash[intX] + intY;
+            AA = hash[A] + intZ;
+            AB = hash[A + 1] + intZ;
+            B = hash[intX + 1] + intY;
+            BA = hash[B] + intZ;
+            BB = hash[B + 1] + intZ;
+            return  NoiseMath.lerp(floorZ, NoiseMath.lerp(floorY, NoiseMath.lerp(floorX, NoiseMath.grad(hash[AA], x, y, z),
+            		NoiseMath.grad(hash[BA], x - 1, y, z)),
+            		NoiseMath.lerp(floorX, NoiseMath.grad(hash[AB], x, y - 1, z),
+            		NoiseMath.grad(hash[BB], x - 1, y - 1, z))),
+            		NoiseMath.lerp(floorY, NoiseMath.lerp(floorX, NoiseMath.grad(hash[AA + 1], x, y, z - 1),
+            		NoiseMath.grad(hash[BA + 1], x - 1, y, z - 1)),
+            		NoiseMath.lerp(floorX, NoiseMath.grad(hash[AB + 1], x, y - 1, z - 1), 
+            		NoiseMath.grad(hash[BB + 1], x - 1, y - 1, z - 1))));
         }
 
-        public float noise3Perlin(float[] vec) {
-            int bx0, bx1, by0, by1, bz0, bz1, b00, b10, b01, b11;
-            float rx0, rx1, ry0, ry1, rz0, rz1, sx, sy, sz, a, b, c, d, t, u, v;
-            int i, j;
-
-            t = vec[0] + 10000.0f;
-            bx0 = (int) t & 255;
-            bx1 = bx0 + 1 & 255;
-            rx0 = t - (int) t;
-            rx1 = rx0 - 1.0f;
+        public static float noise3Perlin(float x, float y, float z) {
+            float t = x + 10000.0f;
+            int bx0 = (int) t & 0xFF;
+            int bx1 = bx0 + 1 & 0xFF;
+            float rx0 = t - (int) t;
+            float rx1 = rx0 - 1.0f;
             
-            t = vec[0] + 10000.0f;
-            by0 = (int) t & 255;
-            by1 = by0 + 1 & 255;
-            ry0 = t - (int) t;
-            ry1 = ry0 - 1.0f;
+            t = y + 10000.0f;
+            int by0 = (int) t & 0xFF;
+            int by1 = by0 + 1 & 0xFF;
+            float ry0 = t - (int) t;
+            float ry1 = ry0 - 1.0f;
             
-            t = vec[0] + 10000.0f;
-            bz0 = (int) t & 255;
-            bz1 = bz0 + 1 & 255;
-            rz0 = t - (int) t;
-            rz1 = rz0 - 1.0f;
+            t = z + 10000.0f;
+            int bz0 = (int) t & 0xFF;
+            int bz1 = bz0 + 1 & 0xFF;
+            float rz0 = t - (int) t;
+            float rz1 = rz0 - 1.0f;
 
-            i = p[bx0];
-            j = p[bx1];
+            int i = p[bx0];
+            int j = p[bx1];
 
-            b00 = p[i + by0];
-            b10 = p[j + by0];
-            b01 = p[i + by1];
-            b11 = p[j + by1];
+            int b00 = p[i + by0];
+            int b10 = p[j + by0];
+            int b01 = p[i + by1];
+            int b11 = p[j + by1];
 
-            // lerp moved to improved perlin above
+            float sx = NoiseMath.surve(rx0);
+            float sy = NoiseMath.surve(ry0);
+            float sz = NoiseMath.surve(rz0);
 
-            sx = this.surve(rx0);
-            sy = this.surve(ry0);
-            sz = this.surve(rz0);
-
-            float[] q = new float[3];
-            q = g[b00 + bz0];
-            u = this.at(rx0, ry0, rz0, q);
+            float[] q = g[b00 + bz0];
+            float u = NoiseMath.at(rx0, ry0, rz0, q);
             q = g[b10 + bz0];
-            v = this.at(rx1, ry0, rz0, q);
-            a = this.lerp(sx, u, v);
+            float v = NoiseMath.at(rx1, ry0, rz0, q);
+            float a = NoiseMath.lerp(sx, u, v);
 
             q = g[b01 + bz0];
-            u = this.at(rx0, ry1, rz0, q);
+            u = NoiseMath.at(rx0, ry1, rz0, q);
             q = g[b11 + bz0];
-            v = this.at(rx1, ry1, rz0, q);
-            b = this.lerp(sx, u, v);
+            v = NoiseMath.at(rx1, ry1, rz0, q);
+            float b = NoiseMath.lerp(sx, u, v);
 
-            c = this.lerp(sy, a, b); // interpolate in y at lo x
+            float c = NoiseMath.lerp(sy, a, b);
 
             q = g[b00 + bz1];
-            u = this.at(rx0, ry0, rz1, q);
+            u = NoiseMath.at(rx0, ry0, rz1, q);
             q = g[b10 + bz1];
-            v = this.at(rx1, ry0, rz1, q);
-            a = this.lerp(sx, u, v);
+            v = NoiseMath.at(rx1, ry0, rz1, q);
+            a = NoiseMath.lerp(sx, u, v);
 
             q = g[b01 + bz1];
-            u = this.at(rx0, ry1, rz1, q);
+            u = NoiseMath.at(rx0, ry1, rz1, q);
             q = g[b11 + bz1];
-            v = this.at(rx1, ry1, rz1, q);
-            b = this.lerp(sx, u, v);
+            v = NoiseMath.at(rx1, ry1, rz1, q);
+            b = NoiseMath.lerp(sx, u, v);
 
-            d = this.lerp(sy, a, b); // interpolate in y at hi x
-
-            return 1.5f * this.lerp(sz, c, d); // interpolate in z
+            float d = NoiseMath.lerp(sy, a, b);
+            return 1.5f * NoiseMath.lerp(sz, c, d);
         }
 
-        public float orgBlenderNoise(float x, float y, float z) {
+        public static float originalBlenderNoise(float x, float y, float z) {
             float n = 0.5f;
 
             int ix = (int) Math.floor(x);
@@ -1394,47 +752,25 @@ import com.jme3.scene.plugins.blender.textures.TextureHelper.TexResult;
             cn4 = 1.0f - 3.0f * cn4 - 2.0f * cn4 * jx;
             cn5 = 1.0f - 3.0f * cn5 - 2.0f * cn5 * jy;
             cn6 = 1.0f - 3.0f * cn6 - 2.0f * cn6 * jz;
-
-            int b00 = hash[hash[ix & 255] + (iy & 255)];
-            int b10 = hash[hash[ix + 1 & 255] + (iy & 255)];
-            int b01 = hash[hash[ix & 255] + (iy + 1 & 255)];
-            int b11 = hash[hash[ix + 1 & 255] + (iy + 1 & 255)];
-
-            int b20 = iz & 255;
-            int b21 = iz + 1 & 255;
-
-            // 0
-            float i = cn1 * cn2 * cn3;
-            int hIndex = 3 * hash[b20 + b00];
-            n += i * (hashvectf[hIndex] * ox + hashvectf[hIndex + 1] * oy + hashvectf[hIndex + 2] * oz);
-            // 1
-            i = cn1 * cn2 * cn6;
-            hIndex = 3 * hash[b21 + b00];
-            n += i * (hashvectf[hIndex] * ox + hashvectf[hIndex + 1] * oy + hashvectf[hIndex + 2] * jz);
-            // 2
-            i = cn1 * cn5 * cn3;
-            hIndex = 3 * hash[b20 + b01];
-            n += i * (hashvectf[hIndex] * ox + hashvectf[hIndex + 1] * jy + hashvectf[hIndex + 2] * oz);
-            // 3
-            i = cn1 * cn5 * cn6;
-            hIndex = 3 * hash[b21 + b01];
-            n += i * (hashvectf[hIndex] * ox + hashvectf[hIndex + 1] * jy + hashvectf[hIndex + 2] * jz);
-            // 4
-            i = cn4 * cn2 * cn3;
-            hIndex = 3 * hash[b20 + b10];
-            n += i * (hashvectf[hIndex] * jx + hashvectf[hIndex + 1] * oy + hashvectf[hIndex + 2] * oz);
-            // 5
-            i = cn4 * cn2 * cn6;
-            hIndex = 3 * hash[b21 + b10];
-            n += i * (hashvectf[hIndex] * jx + hashvectf[hIndex + 1] * oy + hashvectf[hIndex + 2] * jz);
-            // 6
-            i = cn4 * cn5 * cn3;
-            hIndex = 3 * hash[b20 + b11];
-            n += i * (hashvectf[hIndex] * jx + hashvectf[hIndex + 1] * jy + hashvectf[hIndex + 2] * oz);
-            // 7
-            i = cn4 * cn5 * cn6;
-            hIndex = 3 * hash[b21 + b11];
-            n += i * (hashvectf[hIndex] * jx + hashvectf[hIndex + 1] * jy + hashvectf[hIndex + 2] * jz);
+            float[] cn = new float[] {cn1 * cn2 * cn3, cn1 * cn2 * cn6, cn1 * cn5 * cn3, cn1 * cn5 * cn6,
+					  cn4 * cn2 * cn3, cn4 * cn2 * cn6, cn4 * cn5 * cn3, cn4 * cn5 * cn6,};
+            
+            int b00 = hash[hash[ix & 0xFF] + (iy & 0xFF)];
+            int b01 = hash[hash[ix & 0xFF] + (iy + 1 & 0xFF)];
+            int b10 = hash[hash[ix + 1 & 0xFF] + (iy & 0xFF)];
+            int b11 = hash[hash[ix + 1 & 0xFF] + (iy + 1 & 0xFF)];
+            int[] b1 = new int[] {b00, b00, b01, b01, b10, b10, b11, b11};
+            
+            int[] b2 = new int[] {iz & 0xFF, iz + 1 & 0xFF};
+            
+            float[] xFactor = new float[] {ox, ox, ox, ox, jx, jx, jx, jx};
+            float[] yFactor = new float[] {oy, oy, jy, jy, oy, oy, jy, jy};
+            float[] zFactor = new float[] {oz, jz, oz, jz, oz, jz, oz, jz};
+            
+            for(int i=0;i<8;++i) {
+            	int hIndex = 3 * hash[b1[i] + b2[i%2]];
+            	n += cn[i] * (hashvectf[hIndex] * xFactor[i] + hashvectf[hIndex + 1] * yFactor[i] + hashvectf[hIndex + 2] * zFactor[i]);
+            }
 
             if (n < 0.0f) {
                 n = 0.0f;
@@ -1443,79 +779,67 @@ import com.jme3.scene.plugins.blender.textures.TextureHelper.TexResult;
             }
             return n;
         }
+    }
 
-        // instead of adding another permutation array, just use hash table defined above
-        public float newPerlin(float x, float y, float z) {
-            int A, AA, AB, B, BA, BB;
-            float u = (float) Math.floor(x), v = (float) Math.floor(y), w = (float) Math.floor(z);
-            int X = (int) u & 255, Y = (int) v & 255, Z = (int) w & 255; // FIND UNIT CUBE THAT CONTAINS POINT
-            x -= u; // FIND RELATIVE X,Y,Z
-            y -= v; // OF POINT IN CUBE.
-            z -= w;
-            u = this.npfade(x); // COMPUTE FADE CURVES
-            v = this.npfade(y); // FOR EACH OF X,Y,Z.
-            w = this.npfade(z);
-            A = hash[X] + Y;
-            AA = hash[A] + Z;
-            AB = hash[A + 1] + Z; // HASH COORDINATES OF
-            B = hash[X + 1] + Y;
-            BA = hash[B] + Z;
-            BB = hash[B + 1] + Z; // THE 8 CUBE CORNERS,
-            return this.lerp(w, this.lerp(v, this.lerp(u, this.grad(hash[AA], x, y, z), // AND ADD
-                    this.grad(hash[BA], x - 1, y, z)), // BLENDED
-                    this.lerp(u, this.grad(hash[AB], x, y - 1, z), // RESULTS
-                    this.grad(hash[BB], x - 1, y - 1, z))),// FROM 8
-                    this.lerp(v, this.lerp(u, this.grad(hash[AA + 1], x, y, z - 1), // CORNERS
-                    this.grad(hash[BA + 1], x - 1, y, z - 1)), // OF CUBE
-                    this.lerp(u, this.grad(hash[AB + 1], x, y - 1, z - 1), this.grad(hash[BB + 1], x - 1, y - 1, z - 1))));
-        }
+    /**
+     * This class is abstract to the noise functions computations. It has two methods. One calculates the Signed (with
+     * 'S' at the end) and the other Unsigned value.
+     * @author Marcin Roguski (Kaelthas)
+     */
+    interface NoiseFunction {
 
         /**
-         * Returns a vector/point/color in ca, using point hasharray directly
+         * This method calculates the unsigned value of the noise.
+         * @param x
+         *        the x texture coordinate
+         * @param y
+         *        the y texture coordinate
+         * @param z
+         *        the z texture coordinate
+         * @return value of the noise
          */
-        protected static void cellNoiseV(float x, float y, float z, float[] ca) {
-            int xi = (int) Math.floor(x);
-            int yi = (int) Math.floor(y);
-            int zi = (int) Math.floor(z);
-            float[] p = AbstractNoiseFunc.hashPoint(xi, yi, zi);
-            ca[0] = p[0];
-            ca[1] = p[1];
-            ca[2] = p[2];
-        }
+        float execute(float x, float y, float z);
 
-        protected float lerp(float t, float a, float b) {
+        /**
+         * This method calculates the signed value of the noise.
+         * @param x
+         *        the x texture coordinate
+         * @param y
+         *        the y texture coordinate
+         * @param z
+         *        the z texture coordinate
+         * @return value of the noise
+         */
+        float executeSigned(float x, float y, float z);
+    }
+    
+    public static class NoiseMath {
+    	public static float lerp(float t, float a, float b) {
             return a + t * (b - a);
         }
 
-        protected float npfade(float t) {
+    	public static float npfade(float t) {
             return t * t * t * (t * (t * 6.0f - 15.0f) + 10.0f);
         }
 
-        protected float grad(int hash, float x, float y, float z) {
-            int h = hash & 0x0F; // CONVERT LO 4 BITS OF HASH CODE
-            float u = h < 8 ? x : y, // INTO 12 GRADIENT DIRECTIONS.
-                    v = h < 4 ? y : h == 12 || h == 14 ? x : z;
+    	public static float grad(int hash, float x, float y, float z) {
+            int h = hash & 0x0F;
+            float u = h < 8 ? x : y, v = h < 4 ? y : h == 12 || h == 14 ? x : z;
             return ((h & 1) == 0 ? u : -u) + ((h & 2) == 0 ? v : -v);
         }
 
-        /**
-         * Dot product of two vectors.
-         * @param a
-         *        the first vector
-         * @param b
-         *        the second vector
-         * @return the dot product of two vectors
-         */
-        protected float dot(float[] a, float[] b) {
-            return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
-        }
-
-        protected float surve(float t) {
+    	public static float surve(float t) {
             return t * t * (3.0f - 2.0f * t);
         }
 
-        protected float at(float rx, float ry, float rz, float[] q) {
-            return rx * q[0] + ry * q[1] + rz * q[2];
+    	public static float at(float x, float y, float z, float[] q) {
+            return x * q[0] + y * q[1] + z * q[2];
+        }
+    	
+    	public static void hash(int x, int y, int z, float[] result) {
+            result[0] = hashpntf[3 * hash[hash[hash[z & 0xFF] + y & 0xFF] + x & 0xFF]];
+            result[1] = hashpntf[3 * hash[hash[hash[z & 0xFF] + y & 0xFF] + x & 0xFF] + 1];
+            result[2] = hashpntf[3 * hash[hash[hash[z & 0xFF] + y & 0xFF] + x & 0xFF] + 2];
         }
     }
     
@@ -1528,7 +852,7 @@ import com.jme3.scene.plugins.blender.textures.TextureHelper.TexResult;
      * This interface is used for distance calculation classes. Distance metrics for voronoi. e parameter only used in
      * Minkovsky.
      */
-    interface DistanceFunc {
+    interface DistanceFunction {
 
         /**
          * This method calculates the distance for voronoi algorithms.
@@ -1547,6 +871,6 @@ import com.jme3.scene.plugins.blender.textures.TextureHelper.TexResult;
 
     interface MusgraveFunction {
 
-        float execute(Structure tex, float x, float y, float z);
+        float execute(MusgraveData musgraveData, float x, float y, float z);
     }
 }

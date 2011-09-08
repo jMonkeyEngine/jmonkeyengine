@@ -34,8 +34,6 @@ package com.jme3.scene.plugins.blender.textures;
 import java.awt.color.ColorSpace;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorConvertOp;
-import java.io.IOException;
-import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -58,7 +56,6 @@ import com.jme3.scene.plugins.blender.AbstractBlenderHelper;
 import com.jme3.scene.plugins.blender.DataRepository;
 import com.jme3.scene.plugins.blender.DataRepository.LoadedFeatureDataType;
 import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
-import com.jme3.scene.plugins.blender.file.DynamicArray;
 import com.jme3.scene.plugins.blender.file.FileBlockHeader;
 import com.jme3.scene.plugins.blender.file.Pointer;
 import com.jme3.scene.plugins.blender.file.Structure;
@@ -78,7 +75,7 @@ import com.jme3.util.BufferUtils;
  */
 public class TextureHelper extends AbstractBlenderHelper {
 	private static final Logger	LOGGER				= Logger.getLogger(TextureHelper.class.getName());
-	
+
 	// texture types
 	public static final int		TEX_NONE			= 0;
 	public static final int		TEX_CLOUDS			= 1;
@@ -95,8 +92,8 @@ public class TextureHelper extends AbstractBlenderHelper {
 	public static final int		TEX_VORONOI			= 12;
 	public static final int		TEX_DISTNOISE		= 13;
 	public static final int 	TEX_POINTDENSITY 	= 14;//v. 25+
-    public static final int 	TEX_VOXELDATA 		= 15;//v. 25+
-    
+	public static final int 	TEX_VOXELDATA 		= 15;//v. 25+
+
 	// mapto
 	public static final int		MAP_COL				= 1;
 	public static final int		MAP_NORM			= 2;
@@ -132,27 +129,9 @@ public class TextureHelper extends AbstractBlenderHelper {
 	public static final int		MTEX_BLEND_COLOR	= 13;
 	public static final int		MTEX_NUM_BLENDTYPES	= 14;
 
-	// variables used in rampBlend method
-	public static final int		MA_RAMP_BLEND		= 0;
-	public static final int		MA_RAMP_ADD			= 1;
-	public static final int		MA_RAMP_MULT		= 2;
-	public static final int		MA_RAMP_SUB			= 3;
-	public static final int		MA_RAMP_SCREEN		= 4;
-	public static final int		MA_RAMP_DIV			= 5;
-	public static final int		MA_RAMP_DIFF		= 6;
-	public static final int		MA_RAMP_DARK		= 7;
-	public static final int		MA_RAMP_LIGHT		= 8;
-	public static final int		MA_RAMP_OVERLAY		= 9;
-	public static final int		MA_RAMP_DODGE		= 10;
-	public static final int		MA_RAMP_BURN		= 11;
-	public static final int		MA_RAMP_HUE			= 12;
-	public static final int		MA_RAMP_SAT			= 13;
-	public static final int		MA_RAMP_VAL			= 14;
-	public static final int		MA_RAMP_COLOR		= 15;
-
 	protected NoiseGenerator noiseGenerator;
 	private Map<Integer, TextureGenerator> textureGenerators = new HashMap<Integer, TextureGenerator>();
-	
+
 	/**
 	 * This constructor parses the given blender version and stores the result.
 	 * It creates noise generator and texture generators.
@@ -196,42 +175,42 @@ public class TextureHelper extends AbstractBlenderHelper {
 		int width = dataRepository.getBlenderKey().getGeneratedTextureWidth();
 		int height = dataRepository.getBlenderKey().getGeneratedTextureHeight();
 		int depth = dataRepository.getBlenderKey().getGeneratedTextureDepth();
-		
+
 		switch (type) {
-			case TEX_IMAGE:// (it is first because probably this will be most commonly used)
-				Pointer pImage = (Pointer) tex.getFieldValue("ima");
-                if (pImage.isNotNull()){
-                    Structure image = pImage.fetchData(dataRepository.getInputStream()).get(0);
-                    result = this.getTextureFromImage(image, dataRepository);
-                }
-				break;
-			case TEX_CLOUDS:
-			case TEX_WOOD:
-			case TEX_MARBLE:
-			case TEX_MAGIC:
-			case TEX_BLEND:
-			case TEX_STUCCI:
-			case TEX_NOISE:
-			case TEX_MUSGRAVE:
-			case TEX_VORONOI:
-			case TEX_DISTNOISE:
-				TextureGenerator textureGenerator = textureGenerators.get(Integer.valueOf(type));
-				result = textureGenerator.generate(tex, width, height, depth, dataRepository);
-				break;
-			case TEX_NONE:// No texture, do nothing
-				break;
-			case TEX_POINTDENSITY:
-                LOGGER.warning("Point density texture loading currently not supported!");
-                break;
-            case TEX_VOXELDATA:
-                LOGGER.warning("Voxel data texture loading currently not supported!");
-                break;
-			case TEX_PLUGIN:
-			case TEX_ENVMAP:// TODO: implement envmap texture
-				LOGGER.log(Level.WARNING, "Unsupported texture type: {0} for texture: {1}", new Object[]{type, tex.getName()});
-				break;
-			default:
-				throw new BlenderFileException("Unknown texture type: " + type + " for texture: " + tex.getName());
+		case TEX_IMAGE:// (it is first because probably this will be most commonly used)
+			Pointer pImage = (Pointer) tex.getFieldValue("ima");
+			if (pImage.isNotNull()){
+				Structure image = pImage.fetchData(dataRepository.getInputStream()).get(0);
+				result = this.getTextureFromImage(image, dataRepository);
+			}
+			break;
+		case TEX_CLOUDS:
+		case TEX_WOOD:
+		case TEX_MARBLE:
+		case TEX_MAGIC:
+		case TEX_BLEND:
+		case TEX_STUCCI:
+		case TEX_NOISE:
+		case TEX_MUSGRAVE:
+		case TEX_VORONOI:
+		case TEX_DISTNOISE:
+			TextureGenerator textureGenerator = textureGenerators.get(Integer.valueOf(type));
+			result = textureGenerator.generate(tex, width, height, depth, dataRepository);
+			break;
+		case TEX_NONE:// No texture, do nothing
+			break;
+		case TEX_POINTDENSITY:
+			LOGGER.warning("Point density texture loading currently not supported!");
+			break;
+		case TEX_VOXELDATA:
+			LOGGER.warning("Voxel data texture loading currently not supported!");
+			break;
+		case TEX_PLUGIN:
+		case TEX_ENVMAP:// TODO: implement envmap texture
+			LOGGER.log(Level.WARNING, "Unsupported texture type: {0} for texture: {1}", new Object[]{type, tex.getName()});
+			break;
+		default:
+			throw new BlenderFileException("Unknown texture type: " + type + " for texture: " + tex.getName());
 		}
 		if (result != null) {
 			result.setName(tex.getName());
@@ -282,7 +261,7 @@ public class TextureHelper extends AbstractBlenderHelper {
 			newData.put(dataIndex++, (byte) (resultPixel[0] * 255.0f));
 			newData.put(dataIndex++, (byte) (resultPixel[1] * 255.0f));
 			newData.put(dataIndex++, (byte) (resultPixel[2] * 255.0f));
-            newData.put(dataIndex++, (byte) 255.0f);//1.0f * 255.0f
+			newData.put(dataIndex++, (byte) 255.0f);//1.0f * 255.0f
 		}
 		if(texture.getType()==Texture.Type.TwoDimensional) {
 			return new Texture2D(new Image(Format.RGBA8, width, height, newData));
@@ -312,88 +291,87 @@ public class TextureHelper extends AbstractBlenderHelper {
 	 * @return texture intensity for the current pixel
 	 */
 	protected float setupMaterialColor(ByteBuffer data, Format imageFormat, boolean neg, float[] materialColor) {
-		// at least one byte is always taken :)
 		float tin = 0.0f;
-		byte pixelValue = data.get();
+		byte pixelValue = data.get();// at least one byte is always taken :)
 		float firstPixelValue = pixelValue >= 0 ? 1.0f - pixelValue / 255.0f : (~pixelValue + 1) / 255.0f;
 		switch (imageFormat) {
-			case ABGR8:
-				pixelValue = data.get();
-				materialColor[2] = pixelValue >= 0 ? 1.0f - pixelValue / 255.0f : (~pixelValue + 1) / 255.0f;
-				pixelValue = data.get();
-				materialColor[1] = pixelValue >= 0 ? 1.0f - pixelValue / 255.0f : (~pixelValue + 1) / 255.0f;
-				pixelValue = data.get();
-				materialColor[0] = pixelValue >= 0 ? 1.0f - pixelValue / 255.0f : (~pixelValue + 1) / 255.0f;
-				break;
-			case BGR8:
-				materialColor[2] = firstPixelValue;
-				pixelValue = data.get();
-				materialColor[1] = pixelValue >= 0 ? 1.0f - pixelValue / 255.0f : (~pixelValue + 1) / 255.0f;
-				pixelValue = data.get();
-				materialColor[0] = pixelValue >= 0 ? 1.0f - pixelValue / 255.0f : (~pixelValue + 1) / 255.0f;
-				break;
-			case RGB8:
-				materialColor[0] = firstPixelValue;
-				pixelValue = data.get();
-				materialColor[1] = pixelValue >= 0 ? 1.0f - pixelValue / 255.0f : (~pixelValue + 1) / 255.0f;
-				pixelValue = data.get();
-				materialColor[2] = pixelValue >= 0 ? 1.0f - pixelValue / 255.0f : (~pixelValue + 1) / 255.0f;
-				break;
-			case RGBA8:
-				materialColor[0] = firstPixelValue;
-				pixelValue = data.get();
-				materialColor[1] = pixelValue >= 0 ? 1.0f - pixelValue / 255.0f : (~pixelValue + 1) / 255.0f;
-				pixelValue = data.get();
-				materialColor[2] = pixelValue >= 0 ? 1.0f - pixelValue / 255.0f : (~pixelValue + 1) / 255.0f;
-				data.get(); // ignore alpha
-				break;
-			case Luminance8:
-				tin = neg ? 1.0f - firstPixelValue : firstPixelValue;
-				neg = false;//do not negate the materialColor, it must be unchanged
-				break;
-			case Luminance8Alpha8:
-				tin = neg ? 1.0f - firstPixelValue : firstPixelValue;
-				neg = false;//do not negate the materialColor, it must be unchanged
-				data.get(); // ignore alpha
-				break;
-			case Luminance16:
-			case Luminance16Alpha16:
-			case Alpha16:
-			case Alpha8:
-			case ARGB4444:
-			case Depth:
-			case Depth16:
-			case Depth24:
-			case Depth32:
-			case Depth32F:
-			case DXT1:
-			case DXT1A:
-			case DXT3:
-			case DXT5:
-			case Intensity16:
-			case Intensity8:
-			case LATC:
-			case LTC:
-			case Luminance16F:
-			case Luminance16FAlpha16F:
-			case Luminance32F:
-			case RGB10:
-			case RGB111110F:
-			case RGB16:
-			case RGB16F:
-			case RGB16F_to_RGB111110F:
-			case RGB16F_to_RGB9E5:
-			case RGB32F:
-			case RGB565:
-			case RGB5A1:
-			case RGB9E5:
-			case RGBA16:
-			case RGBA16F:
-			case RGBA32F:
-				LOGGER.log(Level.WARNING, "Image type not yet supported for blending: {0}", imageFormat);
-				break;
-			default:
-				throw new IllegalStateException("Unknown image format type: " + imageFormat);
+		case ABGR8:
+			pixelValue = data.get();
+			materialColor[2] = pixelValue >= 0 ? 1.0f - pixelValue / 255.0f : (~pixelValue + 1) / 255.0f;
+			pixelValue = data.get();
+			materialColor[1] = pixelValue >= 0 ? 1.0f - pixelValue / 255.0f : (~pixelValue + 1) / 255.0f;
+			pixelValue = data.get();
+			materialColor[0] = pixelValue >= 0 ? 1.0f - pixelValue / 255.0f : (~pixelValue + 1) / 255.0f;
+			break;
+		case BGR8:
+			materialColor[2] = firstPixelValue;
+			pixelValue = data.get();
+			materialColor[1] = pixelValue >= 0 ? 1.0f - pixelValue / 255.0f : (~pixelValue + 1) / 255.0f;
+			pixelValue = data.get();
+			materialColor[0] = pixelValue >= 0 ? 1.0f - pixelValue / 255.0f : (~pixelValue + 1) / 255.0f;
+			break;
+		case RGB8:
+			materialColor[0] = firstPixelValue;
+			pixelValue = data.get();
+			materialColor[1] = pixelValue >= 0 ? 1.0f - pixelValue / 255.0f : (~pixelValue + 1) / 255.0f;
+			pixelValue = data.get();
+			materialColor[2] = pixelValue >= 0 ? 1.0f - pixelValue / 255.0f : (~pixelValue + 1) / 255.0f;
+			break;
+		case RGBA8:
+			materialColor[0] = firstPixelValue;
+			pixelValue = data.get();
+			materialColor[1] = pixelValue >= 0 ? 1.0f - pixelValue / 255.0f : (~pixelValue + 1) / 255.0f;
+			pixelValue = data.get();
+			materialColor[2] = pixelValue >= 0 ? 1.0f - pixelValue / 255.0f : (~pixelValue + 1) / 255.0f;
+			data.get(); // ignore alpha
+			break;
+		case Luminance8:
+			tin = neg ? 1.0f - firstPixelValue : firstPixelValue;
+			neg = false;//do not negate the materialColor, it must be unchanged
+			break;
+		case Luminance8Alpha8:
+			tin = neg ? 1.0f - firstPixelValue : firstPixelValue;
+			neg = false;//do not negate the materialColor, it must be unchanged
+			data.get(); // ignore alpha
+			break;
+		case Luminance16:
+		case Luminance16Alpha16:
+		case Alpha16:
+		case Alpha8:
+		case ARGB4444:
+		case Depth:
+		case Depth16:
+		case Depth24:
+		case Depth32:
+		case Depth32F:
+		case DXT1:
+		case DXT1A:
+		case DXT3:
+		case DXT5:
+		case Intensity16:
+		case Intensity8:
+		case LATC:
+		case LTC:
+		case Luminance16F:
+		case Luminance16FAlpha16F:
+		case Luminance32F:
+		case RGB10:
+		case RGB111110F:
+		case RGB16:
+		case RGB16F:
+		case RGB16F_to_RGB111110F:
+		case RGB16F_to_RGB9E5:
+		case RGB32F:
+		case RGB565:
+		case RGB5A1:
+		case RGB9E5:
+		case RGBA16:
+		case RGBA16F:
+		case RGBA32F:
+			LOGGER.log(Level.WARNING, "Image type not yet supported for blending: {0}", imageFormat);
+			break;
+		default:
+			throw new IllegalStateException("Unknown image format type: " + imageFormat);
 		}
 		if (neg) {
 			materialColor[0] = 1.0f - materialColor[0];
@@ -422,64 +400,59 @@ public class TextureHelper extends AbstractBlenderHelper {
 	 *        the data repository
 	 */
 	protected void blendPixel(float[] result, float[] materialColor, float[] color, float textureIntensity, float textureFactor, int blendtype, DataRepository dataRepository) {
-		float facm, col;
-
+		float oneMinusFactor, col;
+		textureIntensity *= textureFactor;
+		
 		switch (blendtype) {
 			case MTEX_BLEND:
-				textureIntensity *= textureFactor;
-				facm = 1.0f - textureIntensity;
-				result[0] = textureIntensity * color[0] + facm * materialColor[0];
-				result[1] = textureIntensity * color[1] + facm * materialColor[1];
-				result[2] = textureIntensity * color[2] + facm * materialColor[2];
+				oneMinusFactor = 1.0f - textureIntensity;
+				result[0] = textureIntensity * color[0] + oneMinusFactor * materialColor[0];
+				result[1] = textureIntensity * color[1] + oneMinusFactor * materialColor[1];
+				result[2] = textureIntensity * color[2] + oneMinusFactor * materialColor[2];
 				break;
 			case MTEX_MUL:
-				textureIntensity *= textureFactor;
-				facm = 1.0f - textureFactor;
-				result[0] = (facm + textureIntensity * materialColor[0]) * color[0];
-				result[1] = (facm + textureIntensity * materialColor[1]) * color[1];
-				result[2] = (facm + textureIntensity * materialColor[2]) * color[2];
+				oneMinusFactor = 1.0f - textureFactor;
+				result[0] = (oneMinusFactor + textureIntensity * materialColor[0]) * color[0];
+				result[1] = (oneMinusFactor + textureIntensity * materialColor[1]) * color[1];
+				result[2] = (oneMinusFactor + textureIntensity * materialColor[2]) * color[2];
 				break;
 			case MTEX_DIV:
-				textureIntensity *= textureFactor;
-				facm = 1.0f - textureIntensity;
+				oneMinusFactor = 1.0f - textureIntensity;
 				if (color[0] != 0.0) {
-					result[0] = (facm * materialColor[0] + textureIntensity * materialColor[0] / color[0]) * 0.5f;
+					result[0] = (oneMinusFactor * materialColor[0] + textureIntensity * materialColor[0] / color[0]) * 0.5f;
 				}
 				if (color[1] != 0.0) {
-					result[1] = (facm * materialColor[1] + textureIntensity * materialColor[1] / color[1]) * 0.5f;
+					result[1] = (oneMinusFactor * materialColor[1] + textureIntensity * materialColor[1] / color[1]) * 0.5f;
 				}
 				if (color[2] != 0.0) {
-					result[2] = (facm * materialColor[2] + textureIntensity * materialColor[2] / color[2]) * 0.5f;
+					result[2] = (oneMinusFactor * materialColor[2] + textureIntensity * materialColor[2] / color[2]) * 0.5f;
 				}
 				break;
 			case MTEX_SCREEN:
-				textureIntensity *= textureFactor;
-				facm = 1.0f - textureFactor;
-				result[0] = 1.0f - (facm + textureIntensity * (1.0f - materialColor[0])) * (1.0f - color[0]);
-				result[1] = 1.0f - (facm + textureIntensity * (1.0f - materialColor[1])) * (1.0f - color[1]);
-				result[2] = 1.0f - (facm + textureIntensity * (1.0f - materialColor[2])) * (1.0f - color[2]);
+				oneMinusFactor = 1.0f - textureFactor;
+				result[0] = 1.0f - (oneMinusFactor + textureIntensity * (1.0f - materialColor[0])) * (1.0f - color[0]);
+				result[1] = 1.0f - (oneMinusFactor + textureIntensity * (1.0f - materialColor[1])) * (1.0f - color[1]);
+				result[2] = 1.0f - (oneMinusFactor + textureIntensity * (1.0f - materialColor[2])) * (1.0f - color[2]);
 				break;
 			case MTEX_OVERLAY:
-				textureIntensity *= textureFactor;
-				facm = 1.0f - textureFactor;
+				oneMinusFactor = 1.0f - textureFactor;
 				if (materialColor[0] < 0.5f) {
-					result[0] = color[0] * (facm + 2.0f * textureIntensity * materialColor[0]);
+					result[0] = color[0] * (oneMinusFactor + 2.0f * textureIntensity * materialColor[0]);
 				} else {
-					result[0] = 1.0f - (facm + 2.0f * textureIntensity * (1.0f - materialColor[0])) * (1.0f - color[0]);
+					result[0] = 1.0f - (oneMinusFactor + 2.0f * textureIntensity * (1.0f - materialColor[0])) * (1.0f - color[0]);
 				}
 				if (materialColor[1] < 0.5f) {
-					result[1] = color[1] * (facm + 2.0f * textureIntensity * materialColor[1]);
+					result[1] = color[1] * (oneMinusFactor + 2.0f * textureIntensity * materialColor[1]);
 				} else {
-					result[1] = 1.0f - (facm + 2.0f * textureIntensity * (1.0f - materialColor[1])) * (1.0f - color[1]);
+					result[1] = 1.0f - (oneMinusFactor + 2.0f * textureIntensity * (1.0f - materialColor[1])) * (1.0f - color[1]);
 				}
 				if (materialColor[2] < 0.5f) {
-					result[2] = color[2] * (facm + 2.0f * textureIntensity * materialColor[2]);
+					result[2] = color[2] * (oneMinusFactor + 2.0f * textureIntensity * materialColor[2]);
 				} else {
-					result[2] = 1.0f - (facm + 2.0f * textureIntensity * (1.0f - materialColor[2])) * (1.0f - color[2]);
+					result[2] = 1.0f - (oneMinusFactor + 2.0f * textureIntensity * (1.0f - materialColor[2])) * (1.0f - color[2]);
 				}
 				break;
 			case MTEX_SUB:
-				textureIntensity *= textureFactor;
 				result[0] = materialColor[0] - textureIntensity * color[0];
 				result[1] = materialColor[1] - textureIntensity * color[1];
 				result[2] = materialColor[2] - textureIntensity * color[2];
@@ -488,20 +461,17 @@ public class TextureHelper extends AbstractBlenderHelper {
 				result[2] = FastMath.clamp(result[2], 0.0f, 1.0f);
 				break;
 			case MTEX_ADD:
-				textureIntensity *= textureFactor;
 				result[0] = (textureIntensity * color[0] + materialColor[0]) * 0.5f;
 				result[1] = (textureIntensity * color[1] + materialColor[1]) * 0.5f;
 				result[2] = (textureIntensity * color[2] + materialColor[2]) * 0.5f;
 				break;
 			case MTEX_DIFF:
-				textureIntensity *= textureFactor;
-				facm = 1.0f - textureIntensity;
-				result[0] = facm * color[0] + textureIntensity * Math.abs(materialColor[0] - color[0]);
-				result[1] = facm * color[1] + textureIntensity * Math.abs(materialColor[1] - color[1]);
-				result[2] = facm * color[2] + textureIntensity * Math.abs(materialColor[2] - color[2]);
+				oneMinusFactor = 1.0f - textureIntensity;
+				result[0] = oneMinusFactor * materialColor[0] + textureIntensity * Math.abs(materialColor[0] - color[0]);
+				result[1] = oneMinusFactor * materialColor[1] + textureIntensity * Math.abs(materialColor[1] - color[1]);
+				result[2] = oneMinusFactor * materialColor[2] + textureIntensity * Math.abs(materialColor[2] - color[2]);
 				break;
 			case MTEX_DARK:
-				textureIntensity *= textureFactor;
 				col = textureIntensity * color[0];
 				result[0] = col < materialColor[0] ? col : materialColor[0];
 				col = textureIntensity * color[1];
@@ -510,7 +480,6 @@ public class TextureHelper extends AbstractBlenderHelper {
 				result[2] = col < materialColor[2] ? col : materialColor[2];
 				break;
 			case MTEX_LIGHT:
-				textureIntensity *= textureFactor;
 				col = textureIntensity * color[0];
 				result[0] = col > materialColor[0] ? col : materialColor[0];
 				col = textureIntensity * color[1];
@@ -519,24 +488,11 @@ public class TextureHelper extends AbstractBlenderHelper {
 				result[2] = col > materialColor[2] ? col : materialColor[2];
 				break;
 			case MTEX_BLEND_HUE:
-				textureIntensity *= textureFactor;
-				System.arraycopy(materialColor, 0, result, 0, 3);
-				this.rampBlend(MA_RAMP_HUE, result, textureIntensity, color, dataRepository);
-				break;
 			case MTEX_BLEND_SAT:
-				textureIntensity *= textureFactor;
-				System.arraycopy(materialColor, 0, result, 0, 3);
-				this.rampBlend(MA_RAMP_SAT, result, textureIntensity, color, dataRepository);
-				break;
 			case MTEX_BLEND_VAL:
-				textureIntensity *= textureFactor;
-				System.arraycopy(materialColor, 0, result, 0, 3);
-				this.rampBlend(MA_RAMP_VAL, result, textureIntensity, color, dataRepository);
-				break;
 			case MTEX_BLEND_COLOR:
-				textureIntensity *= textureFactor;
 				System.arraycopy(materialColor, 0, result, 0, 3);
-				this.rampBlend(MA_RAMP_COLOR, result, textureIntensity, color, dataRepository);
+				this.rampBlend(blendtype, result, textureIntensity, color, dataRepository);
 				break;
 			default:
 				throw new IllegalStateException("Unknown blend type: " + blendtype);
@@ -544,10 +500,10 @@ public class TextureHelper extends AbstractBlenderHelper {
 	}
 
 	/**
-	 * The method that performs the ramp blending (whatever it is :P - copied from blender sources).
+	 * The method that performs the ramp blending.
 	 * 
 	 * @param type
-	 *        the ramp type
+	 *        the blend type
 	 * @param rgb
 	 *        the rgb value where the result is stored
 	 * @param fac
@@ -558,239 +514,60 @@ public class TextureHelper extends AbstractBlenderHelper {
 	 *        the data repository
 	 */
 	protected void rampBlend(int type, float[] rgb, float fac, float[] col, DataRepository dataRepository) {
-		float tmp, facm = 1.0f - fac;
+		float oneMinusFactor = 1.0f - fac;
 		MaterialHelper materialHelper = dataRepository.getHelper(MaterialHelper.class);
 
-		switch (type) {
-			case MA_RAMP_HUE:
-				if (rgb.length == 3) {
+		if (rgb.length >= 3) {
+			switch (type) {
+				case MTEX_BLEND_HUE: {
 					float[] colorTransformResult = new float[3];
 					materialHelper.rgbToHsv(col[0], col[1], col[2], colorTransformResult);
 					if (colorTransformResult[1] != 0.0f) {
 						float colH = colorTransformResult[0];
 						materialHelper.rgbToHsv(rgb[0], rgb[1], rgb[2], colorTransformResult);
 						materialHelper.hsvToRgb(colH, colorTransformResult[1], colorTransformResult[2], colorTransformResult);
-						rgb[0] = facm * rgb[0] + fac * colorTransformResult[0];
-						rgb[1] = facm * rgb[1] + fac * colorTransformResult[1];
-						rgb[2] = facm * rgb[2] + fac * colorTransformResult[2];
+						rgb[0] = oneMinusFactor * rgb[0] + fac * colorTransformResult[0];
+						rgb[1] = oneMinusFactor * rgb[1] + fac * colorTransformResult[1];
+						rgb[2] = oneMinusFactor * rgb[2] + fac * colorTransformResult[2];
 					}
+					break;
 				}
-				break;
-			case MA_RAMP_SAT:
-				if (rgb.length == 3) {
+				case MTEX_BLEND_SAT: {
 					float[] colorTransformResult = new float[3];
 					materialHelper.rgbToHsv(rgb[0], rgb[1], rgb[2], colorTransformResult);
-					float rH = colorTransformResult[0];
-					float rS = colorTransformResult[1];
-					float rV = colorTransformResult[2];
-					if (rS != 0) {
+					float h = colorTransformResult[0];
+					float s = colorTransformResult[1];
+					float v = colorTransformResult[2];
+					if (s != 0.0f) {
 						materialHelper.rgbToHsv(col[0], col[1], col[2], colorTransformResult);
-						materialHelper.hsvToRgb(rH, (facm * rS + fac * colorTransformResult[1]), rV, rgb);
+						materialHelper.hsvToRgb(h, (oneMinusFactor * s + fac * colorTransformResult[1]), v, rgb);
 					}
+					break;
 				}
-				break;
-			case MA_RAMP_VAL:
-				if (rgb.length == 3) {
+				case MTEX_BLEND_VAL: {
 					float[] rgbToHsv = new float[3];
 					float[] colToHsv = new float[3];
 					materialHelper.rgbToHsv(rgb[0], rgb[1], rgb[2], rgbToHsv);
 					materialHelper.rgbToHsv(col[0], col[1], col[2], colToHsv);
-					materialHelper.hsvToRgb(rgbToHsv[0], rgbToHsv[1], (facm * rgbToHsv[2] + fac * colToHsv[2]), rgb);
+					materialHelper.hsvToRgb(rgbToHsv[0], rgbToHsv[1], (oneMinusFactor * rgbToHsv[2] + fac * colToHsv[2]), rgb);
+					break;
 				}
-				break;
-			case MA_RAMP_COLOR:
-				if (rgb.length == 3) {
+				case MTEX_BLEND_COLOR: {
 					float[] rgbToHsv = new float[3];
 					float[] colToHsv = new float[3];
 					materialHelper.rgbToHsv(col[0], col[1], col[2], colToHsv);
 					if (colToHsv[2] != 0) {
 						materialHelper.rgbToHsv(rgb[0], rgb[1], rgb[2], rgbToHsv);
 						materialHelper.hsvToRgb(colToHsv[0], colToHsv[1], rgbToHsv[2], rgbToHsv);
-						rgb[0] = facm * rgb[0] + fac * rgbToHsv[0];
-						rgb[1] = facm * rgb[1] + fac * rgbToHsv[1];
-						rgb[2] = facm * rgb[2] + fac * rgbToHsv[2];
+						rgb[0] = oneMinusFactor * rgb[0] + fac * rgbToHsv[0];
+						rgb[1] = oneMinusFactor * rgb[1] + fac * rgbToHsv[1];
+						rgb[2] = oneMinusFactor * rgb[2] + fac * rgbToHsv[2];
 					}
+					break;
 				}
-				break;
-			case MA_RAMP_BLEND:
-				rgb[0] = facm * rgb[0] + fac * col[0];
-				if (rgb.length == 3) {
-					rgb[1] = facm * rgb[1] + fac * col[1];
-					rgb[2] = facm * rgb[2] + fac * col[2];
-				}
-				break;
-			case MA_RAMP_ADD:
-				rgb[0] += fac * col[0];
-				if (rgb.length == 3) {
-					rgb[1] += fac * col[1];
-					rgb[2] += fac * col[2];
-				}
-				break;
-			case MA_RAMP_MULT:
-				rgb[0] *= facm + fac * col[0];
-				if (rgb.length == 3) {
-					rgb[1] *= facm + fac * col[1];
-					rgb[2] *= facm + fac * col[2];
-				}
-				break;
-			case MA_RAMP_SCREEN:
-				rgb[0] = 1.0f - (facm + fac * (1.0f - col[0])) * (1.0f - rgb[0]);
-				if (rgb.length == 3) {
-					rgb[1] = 1.0f - (facm + fac * (1.0f - col[1])) * (1.0f - rgb[1]);
-					rgb[2] = 1.0f - (facm + fac * (1.0f - col[2])) * (1.0f - rgb[2]);
-				}
-				break;
-			case MA_RAMP_OVERLAY:
-				if (rgb[0] < 0.5f) {
-					rgb[0] *= facm + 2.0f * fac * col[0];
-				} else {
-					rgb[0] = 1.0f - (facm + 2.0f * fac * (1.0f - col[0])) * (1.0f - rgb[0]);
-				}
-				if (rgb.length == 3) {
-					if (rgb[1] < 0.5f) {
-						rgb[1] *= facm + 2.0f * fac * col[1];
-					} else {
-						rgb[1] = 1.0f - (facm + 2.0f * fac * (1.0f - col[1])) * (1.0f - rgb[1]);
-					}
-					if (rgb[2] < 0.5f) {
-						rgb[2] *= facm + 2.0f * fac * col[2];
-					} else {
-						rgb[2] = 1.0f - (facm + 2.0f * fac * (1.0f - col[2])) * (1.0f - rgb[2]);
-					}
-				}
-				break;
-			case MA_RAMP_SUB:
-				rgb[0] -= fac * col[0];
-				if (rgb.length == 3) {
-					rgb[1] -= fac * col[1];
-					rgb[2] -= fac * col[2];
-				}
-				break;
-			case MA_RAMP_DIV:
-				if (col[0] != 0.0) {
-					rgb[0] = facm * rgb[0] + fac * rgb[0] / col[0];
-				}
-				if (rgb.length == 3) {
-					if (col[1] != 0.0) {
-						rgb[1] = facm * rgb[1] + fac * rgb[1] / col[1];
-					}
-					if (col[2] != 0.0) {
-						rgb[2] = facm * rgb[2] + fac * rgb[2] / col[2];
-					}
-				}
-				break;
-			case MA_RAMP_DIFF:
-				rgb[0] = facm * rgb[0] + fac * Math.abs(rgb[0] - col[0]);
-				if (rgb.length == 3) {
-					rgb[1] = facm * rgb[1] + fac * Math.abs(rgb[1] - col[1]);
-					rgb[2] = facm * rgb[2] + fac * Math.abs(rgb[2] - col[2]);
-				}
-				break;
-			case MA_RAMP_DARK:
-				tmp = fac * col[0];
-				if (tmp < rgb[0]) {
-					rgb[0] = tmp;
-				}
-				if (rgb.length == 3) {
-					tmp = fac * col[1];
-					if (tmp < rgb[1]) {
-						rgb[1] = tmp;
-					}
-					tmp = fac * col[2];
-					if (tmp < rgb[2]) {
-						rgb[2] = tmp;
-					}
-				}
-				break;
-			case MA_RAMP_LIGHT:
-				tmp = fac * col[0];
-				if (tmp > rgb[0]) {
-					rgb[0] = tmp;
-				}
-				if (rgb.length == 3) {
-					tmp = fac * col[1];
-					if (tmp > rgb[1]) {
-						rgb[1] = tmp;
-					}
-					tmp = fac * col[2];
-					if (tmp > rgb[2]) {
-						rgb[2] = tmp;
-					}
-				}
-				break;
-			case MA_RAMP_DODGE:
-				if (rgb[0] != 0.0) {
-					tmp = 1.0f - fac * col[0];
-					if (tmp <= 0.0) {
-						rgb[0] = 1.0f;
-					} else if ((tmp = rgb[0] / tmp) > 1.0) {
-						rgb[0] = 1.0f;
-					} else {
-						rgb[0] = tmp;
-					}
-				}
-				if (rgb.length == 3) {
-					if (rgb[1] != 0.0) {
-						tmp = 1.0f - fac * col[1];
-						if (tmp <= 0.0) {
-							rgb[1] = 1.0f;
-						} else if ((tmp = rgb[1] / tmp) > 1.0) {
-							rgb[1] = 1.0f;
-						} else {
-							rgb[1] = tmp;
-						}
-					}
-					if (rgb[2] != 0.0) {
-						tmp = 1.0f - fac * col[2];
-						if (tmp <= 0.0) {
-							rgb[2] = 1.0f;
-						} else if ((tmp = rgb[2] / tmp) > 1.0) {
-							rgb[2] = 1.0f;
-						} else {
-							rgb[2] = tmp;
-						}
-					}
-
-				}
-				break;
-			case MA_RAMP_BURN:
-				tmp = facm + fac * col[0];
-				if (tmp <= 0.0) {
-					rgb[0] = 0.0f;
-				} else if ((tmp = 1.0f - (1.0f - rgb[0]) / tmp) < 0.0) {
-					rgb[0] = 0.0f;
-				} else if (tmp > 1.0) {
-					rgb[0] = 1.0f;
-				} else {
-					rgb[0] = tmp;
-				}
-
-				if (rgb.length == 3) {
-					tmp = facm + fac * col[1];
-					if (tmp <= 0.0) {
-						rgb[1] = 0.0f;
-					} else if ((tmp = 1.0f - (1.0f - rgb[1]) / tmp) < 0.0) {
-						rgb[1] = 0.0f;
-					} else if (tmp > 1.0) {
-						rgb[1] = 1.0f;
-					} else {
-						rgb[1] = tmp;
-					}
-
-					tmp = facm + fac * col[2];
-					if (tmp <= 0.0) {
-						rgb[2] = 0.0f;
-					} else if ((tmp = 1.0f - (1.0f - rgb[2]) / tmp) < 0.0) {
-						rgb[2] = 0.0f;
-					} else if (tmp > 1.0) {
-						rgb[2] = 1.0f;
-					} else {
-						rgb[2] = tmp;
-					}
-				}
-				break;
-			default:
-				throw new IllegalStateException("Unknown ramp type: " + type);
+				default:
+					throw new IllegalStateException("Unknown ramp type: " + type);
+			}
 		}
 	}
 
@@ -863,7 +640,7 @@ public class TextureHelper extends AbstractBlenderHelper {
 		}
 		return image.getRGB(x, y) & 0xff;
 	}
-    
+
 	/**
 	 * This method transforms given vector's coordinates into ARGB color (A is always = 255).
 	 * @param x X factor of the vector
@@ -871,13 +648,13 @@ public class TextureHelper extends AbstractBlenderHelper {
 	 * @param z Z factor of the vector
 	 * @return color representation of the given vector
 	 */
-    protected int vectorToColor(float x, float y, float z) {
-        int r = Math.round(255 * (x + 1f) / 2f);
-        int g = Math.round(255 * (y + 1f) / 2f);
-        int b = Math.round(255 * (z + 1f) / 2f);
-        return (255 << 24) + (r << 16) + (g << 8) + b;
-    }
-	
+	protected int vectorToColor(float x, float y, float z) {
+		int r = Math.round(255 * (x + 1f) / 2f);
+		int g = Math.round(255 * (y + 1f) / 2f);
+		int b = Math.round(255 * (z + 1f) / 2f);
+		return (255 << 24) + (r << 16) + (g << 8) + b;
+	}
+
 	/**
 	 * This class returns a texture read from the file or from packed blender data.
 	 * 
@@ -933,7 +710,7 @@ public class TextureHelper extends AbstractBlenderHelper {
 		AssetManager assetManager = dataRepository.getAssetManager();
 		name = name.replaceAll("\\\\", "\\/");
 		Texture result = null;
-		
+
 		List<String> assetNames = new ArrayList<String>();
 		if (name.startsWith("//")) {
 			String relativePath = name.substring(1);
@@ -946,14 +723,14 @@ public class TextureHelper extends AbstractBlenderHelper {
 			String[] paths = name.split("\\/");
 			StringBuilder sb = new StringBuilder(paths[paths.length-1]);//the asset name
 			assetNames.add(paths[paths.length-1]);
-			
+
 			for(int i=paths.length-2;i>=0;--i) {
 				sb.insert(0, '/');
 				sb.insert(0, paths[i]);
 				assetNames.add(sb.toString());
 			}
 		}
-		
+
 		//now try to locate the asset
 		for(String assetName : assetNames) {
 			try {
@@ -966,107 +743,8 @@ public class TextureHelper extends AbstractBlenderHelper {
 		return result;
 	}
 
-	/**
-	 * This method closes the given stream.
-	 * 
-	 * @param is
-	 *        the input stream that is to be closed
-	 */
-	protected void closeStream(InputStream is) {
-		if (is != null) {
-			try {
-				is.close();
-			} catch (IOException e) {
-				LOGGER.log(Level.SEVERE, e.getLocalizedMessage(), e);
-			}
-		}
-	}
-	
 	@Override
 	public boolean shouldBeLoaded(Structure structure, DataRepository dataRepository) {
 		return (dataRepository.getBlenderKey().getFeaturesToLoad() & FeaturesToLoad.TEXTURES) != 0;
-	}
-
-	/**
-	 * Image types that can be loaded. AWT: png, jpg, jped or bmp TGA: tga DDS: DirectX image files
-	 * 
-	 * @author Marcin Roguski (Kaelthas)
-	 */
-	public static enum ImageType {
-		AWT, TGA, DDS;
-	}
-
-	/**
-	 * The result pixel of generated texture computations;
-	 * 
-	 * @author Marcin Roguski (Kaelthas)
-	 */
-	protected static class TexResult implements Cloneable {
-		public float	tin, tr, tg, tb, ta;
-		public int		talpha;
-		public float[]	nor;
-
-		@Override
-		public Object clone() throws CloneNotSupportedException {
-			return super.clone();
-		}
-	}
-
-	/**
-	 * A class constaining the colorband data.
-	 * 
-	 * @author Marcin Roguski (Kaelthas)
-	 */
-	protected static class ColorBand {
-		public int		flag, tot, cur, ipotype;
-		public CBData[]	data	= new CBData[32];
-
-		/**
-		 * Constructor. Loads the data from the given structure.
-		 * 
-		 * @param cbdataStructure
-		 *        the colorband structure
-		 */
-		@SuppressWarnings("unchecked")
-		public ColorBand(Structure colorbandStructure) {
-			this.flag = ((Number) colorbandStructure.getFieldValue("flag")).intValue();
-			this.tot = ((Number) colorbandStructure.getFieldValue("tot")).intValue();
-			this.cur = ((Number) colorbandStructure.getFieldValue("cur")).intValue();
-			this.ipotype = ((Number) colorbandStructure.getFieldValue("ipotype")).intValue();
-			DynamicArray<Structure> data = (DynamicArray<Structure>) colorbandStructure.getFieldValue("data");
-			for (int i = 0; i < data.getTotalSize(); ++i) {
-				this.data[i] = new CBData(data.get(i));
-			}
-		}
-	}
-
-	/**
-	 * Class to store the single colorband unit data.
-	 * 
-	 * @author Marcin Roguski (Kaelthas)
-	 */
-	protected static class CBData implements Cloneable {
-		public float	r, g, b, a, pos;
-		public int		cur;
-
-		/**
-		 * Constructor. Loads the data from the given structure.
-		 * 
-		 * @param cbdataStructure
-		 *        the structure containing the CBData object
-		 */
-		public CBData(Structure cbdataStructure) {
-			this.r = ((Number) cbdataStructure.getFieldValue("r")).floatValue();
-			this.g = ((Number) cbdataStructure.getFieldValue("g")).floatValue();
-			this.b = ((Number) cbdataStructure.getFieldValue("b")).floatValue();
-			this.a = ((Number) cbdataStructure.getFieldValue("a")).floatValue();
-			this.pos = ((Number) cbdataStructure.getFieldValue("pos")).floatValue();
-			this.cur = ((Number) cbdataStructure.getFieldValue("cur")).intValue();
-		}
-
-		@Override
-		public Object clone() throws CloneNotSupportedException {
-			return super.clone();
-		}
 	}
 }

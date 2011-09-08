@@ -1,32 +1,33 @@
 /*
- *
- * $Id: noise.c 14611 2008-04-29 08:24:33Z campbellbarton $
- *
- * ***** BEGIN GPL LICENSE BLOCK *****
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software Foundation,
- * Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- *
- * The Original Code is Copyright (C) 2001-2002 by NaN Holding BV.
+ * Copyright (c) 2009-2010 jMonkeyEngine
  * All rights reserved.
  *
- * The Original Code is: all of this file.
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
  *
- * Contributor(s): none yet.
+ * * Redistributions of source code must retain the above copyright
+ *   notice, this list of conditions and the following disclaimer.
  *
- * ***** END GPL LICENSE BLOCK *****
+ * * Redistributions in binary form must reproduce the above copyright
+ *   notice, this list of conditions and the following disclaimer in the
+ *   documentation and/or other materials provided with the distribution.
  *
+ * * Neither the name of 'jMonkeyEngine' nor the names of its contributors
+ *   may be used to endorse or promote products derived from this software
+ *   without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+ * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 package com.jme3.scene.plugins.blender.textures;
 
@@ -35,8 +36,6 @@ import java.util.ArrayList;
 
 import com.jme3.scene.plugins.blender.DataRepository;
 import com.jme3.scene.plugins.blender.file.Structure;
-import com.jme3.scene.plugins.blender.textures.TextureHelper.ColorBand;
-import com.jme3.scene.plugins.blender.textures.TextureHelper.TexResult;
 import com.jme3.texture.Image;
 import com.jme3.texture.Image.Format;
 import com.jme3.texture.Texture;
@@ -48,7 +47,8 @@ import com.jme3.util.BufferUtils;
  * @author Marcin Roguski (Kaelthas)
  */
 public class TextureGeneratorStucci extends TextureGenerator {
-
+	protected static final int TEX_NOISESOFT = 0;
+	
 	/**
 	 * Constructor stores the given noise generator.
 	 * @param noiseGenerator
@@ -64,70 +64,61 @@ public class TextureGeneratorStucci extends TextureGenerator {
 		int noisebasis = ((Number) tex.getFieldValue("noisebasis")).intValue();
 		int noisetype = ((Number) tex.getFieldValue("noisetype")).intValue();
 		float turbul = ((Number) tex.getFieldValue("turbul")).floatValue();
-		boolean isHard = noisetype != NoiseGenerator.TEX_NOISESOFT;
+		boolean isHard = noisetype != TEX_NOISESOFT;
 		int stype = ((Number) tex.getFieldValue("stype")).intValue();
 
+		if(noisesize<=0.001f) {//the texture goes black if this value is lower than 0.001f
+			noisesize = 0.001f;
+		}
+		
 		float[] texvec = new float[] { 0, 0, 0 };
-		TexResult texres = new TexResult();
-		float wDelta = 1.0f / width, hDelta = 1.0f / height, dDelta = 1.0f / depth, b2, ofs;
-		int halfW = width, halfH = height, halfD = depth;
-		width <<= 1;
-		height <<= 1;
-		depth <<= 1;
-		ColorBand colorBand = this.readColorband(tex, dataRepository);
+		TextureResult texres = new TextureResult();
+		int halfW = width >> 1, halfH = height >> 1, halfD = depth >> 1, index = 0;
+		float wDelta = 1.0f / halfW, hDelta = 1.0f / halfH, dDelta = 1.0f / halfD, noiseValue, ofs;;
+		float[][] colorBand = this.computeColorband(tex, dataRepository);
 		Format format = colorBand != null ? Format.RGB8 : Format.Luminance8;
 		int bytesPerPixel = colorBand != null ? 3 : 1;
 
-		ByteBuffer data = BufferUtils.createByteBuffer(width * height * depth * bytesPerPixel);
+		byte[] data = new byte[width * height * depth * bytesPerPixel];
 		for (int i = -halfW; i < halfW; ++i) {
 			texvec[0] = wDelta * i;
 			for (int j = -halfH; j < halfH; ++j) {
 				texvec[1] = hDelta * j;
 				for (int k = -halfD; k < halfD; ++k) {
 					texvec[2] = dDelta * k;
-					b2 = noiseGenerator.bliGNoise(noisesize, texvec[0], texvec[1], texvec[2], isHard, noisebasis);
-
+					noiseValue = NoiseGenerator.NoiseFunctions.noise(texvec[0], texvec[1], texvec[2], noisesize, 0, noisebasis, isHard);
 					ofs = turbul / 200.0f;
-
 					if (stype != 0) {
-						ofs *= b2 * b2;
+						ofs *= noiseValue * noiseValue;
 					}
 
-					texres.tin = noiseGenerator.bliGNoise(noisesize, texvec[0], texvec[1], texvec[2] + ofs, isHard, noisebasis);// ==nor[2]
+					texres.intensity = NoiseGenerator.NoiseFunctions.noise(texvec[0], texvec[1], texvec[2] + ofs, noisesize, 0, noisebasis, isHard);
 					if (colorBand != null) {
-						noiseGenerator.doColorband(colorBand, texres, dataRepository);
-						if (texres.nor != null) {
-							texres.nor[0] = noiseGenerator.bliGNoise(noisesize, texvec[0] + ofs, texvec[1], texvec[2], isHard, noisebasis);
-							texres.nor[1] = noiseGenerator.bliGNoise(noisesize, texvec[0], texvec[1] + ofs, texvec[2], isHard, noisebasis);
-							texres.nor[2] = texres.tin;
-							noiseGenerator.texNormalDerivate(colorBand, texres, dataRepository);
-
-							if (stype == NoiseGenerator.TEX_WALLOUT) {
-								texres.nor[0] = -texres.nor[0];
-								texres.nor[1] = -texres.nor[1];
-								texres.nor[2] = -texres.nor[2];
-							}
-						}
+						int colorbandIndex = (int) (texres.intensity * 1000.0f);
+						texres.red = colorBand[colorbandIndex][0];
+						texres.green = colorBand[colorbandIndex][1];
+						texres.blue = colorBand[colorbandIndex][2];
 					}
 
 					if (stype == NoiseGenerator.TEX_WALLOUT) {
-						texres.tin = 1.0f - texres.tin;
+						texres.intensity = 1.0f - texres.intensity;
 					}
-					if (texres.tin < 0.0f) {
-						texres.tin = 0.0f;
+					if (texres.intensity < 0.0f) {
+						texres.intensity = 0.0f;
 					}
+					//no brightness and contrast needed for stucci (it doesn't affect the texture)
 					if (colorBand != null) {
-						data.put((byte) (texres.tr * 255.0f));
-						data.put((byte) (texres.tg * 255.0f));
-						data.put((byte) (texres.tb * 255.0f));
+						data[index++] = (byte) (texres.red * 255.0f);
+						data[index++] = (byte) (texres.green * 255.0f);
+						data[index++] = (byte) (texres.blue * 255.0f);
 					} else {
-						data.put((byte) (texres.tin * 255.0f));
+						data[index++] = (byte) (texres.intensity * 255.0f);
 					}
 				}
 			}
 		}
 		ArrayList<ByteBuffer> dataArray = new ArrayList<ByteBuffer>(1);
-		dataArray.add(data);
+		dataArray.add(BufferUtils.createByteBuffer(data));
 		return new Texture3D(new Image(format, width, height, depth, dataArray));
 	}
 }

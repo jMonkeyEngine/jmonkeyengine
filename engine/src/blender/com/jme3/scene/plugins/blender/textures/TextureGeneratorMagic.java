@@ -1,32 +1,33 @@
 /*
- *
- * $Id: noise.c 14611 2008-04-29 08:24:33Z campbellbarton $
- *
- * ***** BEGIN GPL LICENSE BLOCK *****
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software Foundation,
- * Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- *
- * The Original Code is Copyright (C) 2001-2002 by NaN Holding BV.
+ * Copyright (c) 2009-2010 jMonkeyEngine
  * All rights reserved.
  *
- * The Original Code is: all of this file.
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
  *
- * Contributor(s): none yet.
+ * * Redistributions of source code must retain the above copyright
+ *   notice, this list of conditions and the following disclaimer.
  *
- * ***** END GPL LICENSE BLOCK *****
+ * * Redistributions in binary form must reproduce the above copyright
+ *   notice, this list of conditions and the following disclaimer in the
+ *   documentation and/or other materials provided with the distribution.
  *
+ * * Neither the name of 'jMonkeyEngine' nor the names of its contributors
+ *   may be used to endorse or promote products derived from this software
+ *   without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+ * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 package com.jme3.scene.plugins.blender.textures;
 
@@ -35,8 +36,6 @@ import java.util.ArrayList;
 
 import com.jme3.scene.plugins.blender.DataRepository;
 import com.jme3.scene.plugins.blender.file.Structure;
-import com.jme3.scene.plugins.blender.textures.TextureHelper.ColorBand;
-import com.jme3.scene.plugins.blender.textures.TextureHelper.TexResult;
 import com.jme3.texture.Image;
 import com.jme3.texture.Image.Format;
 import com.jme3.texture.Texture;
@@ -48,7 +47,70 @@ import com.jme3.util.BufferUtils;
  * @author Marcin Roguski (Kaelthas)
  */
 public class TextureGeneratorMagic extends TextureGenerator {
-
+	private static NoiseDepthFunction[] noiseDepthFunctions = new NoiseDepthFunction[10];
+	static {
+		noiseDepthFunctions[0] = new NoiseDepthFunction() {
+			@Override
+			public void compute(float[] xyz, float turbulence) {
+				xyz[1] = -(float) Math.cos(xyz[0] - xyz[1] + xyz[2]) * turbulence;
+			}
+		};
+		noiseDepthFunctions[1] = new NoiseDepthFunction() {
+			@Override
+			public void compute(float[] xyz, float turbulence) {
+				xyz[0] = (float) Math.cos(xyz[0] - xyz[1] - xyz[2]) * turbulence;
+			}
+		};
+		noiseDepthFunctions[2] = new NoiseDepthFunction() {
+			@Override
+			public void compute(float[] xyz, float turbulence) {
+				xyz[2] = (float) Math.sin(-xyz[0] - xyz[1] - xyz[2]) * turbulence;
+			}
+		};
+		noiseDepthFunctions[3] = new NoiseDepthFunction() {
+			@Override
+			public void compute(float[] xyz, float turbulence) {
+				xyz[0] = -(float) Math.cos(-xyz[0] + xyz[1] - xyz[2]) * turbulence;
+			}
+		};
+		noiseDepthFunctions[4] = new NoiseDepthFunction() {
+			@Override
+			public void compute(float[] xyz, float turbulence) {
+				xyz[1] = -(float) Math.sin(-xyz[0] + xyz[1] + xyz[2]) * turbulence;
+			}
+		};
+		noiseDepthFunctions[5] = new NoiseDepthFunction() {
+			@Override
+			public void compute(float[] xyz, float turbulence) {
+				xyz[1] = -(float) Math.cos(-xyz[0] + xyz[1] + xyz[2]) * turbulence;
+			}
+		};
+		noiseDepthFunctions[6] = new NoiseDepthFunction() {
+			@Override
+			public void compute(float[] xyz, float turbulence) {
+				xyz[0] = (float) Math.cos(xyz[0] + xyz[1] + xyz[2]) * turbulence;
+			}
+		};
+		noiseDepthFunctions[7] = new NoiseDepthFunction() {
+			@Override
+			public void compute(float[] xyz, float turbulence) {
+				xyz[2] = (float) Math.sin(xyz[0] + xyz[1] - xyz[2]) * turbulence;
+			}
+		};
+		noiseDepthFunctions[8] = new NoiseDepthFunction() {
+			@Override
+			public void compute(float[] xyz, float turbulence) {
+				xyz[0] = -(float) Math.cos(-xyz[0] - xyz[1] + xyz[2]) * turbulence;
+			}
+		};
+		noiseDepthFunctions[9] = new NoiseDepthFunction() {
+			@Override
+			public void compute(float[] xyz, float turbulence) {
+				xyz[1] = -(float) Math.sin(xyz[0] - xyz[1] + xyz[2]) * turbulence;
+			}
+		};
+	}
+	
 	/**
 	 * Constructor stores the given noise generator.
 	 * @param noiseGenerator
@@ -60,88 +122,67 @@ public class TextureGeneratorMagic extends TextureGenerator {
 
 	@Override
 	protected Texture generate(Structure tex, int width, int height, int depth, DataRepository dataRepository) {
-		float x, y, z, turb;
+		float xyz[] = new float[3], turb;
 		int noisedepth = ((Number) tex.getFieldValue("noisedepth")).intValue();
 		float turbul = ((Number) tex.getFieldValue("turbul")).floatValue() / 5.0f;
 		float[] texvec = new float[] { 0, 0, 0 };
-		TexResult texres = new TexResult();
-		float wDelta = 1.0f / width, hDelta = 1.0f / height, dDelta = 1.0f / depth;
-		int halfW = width, halfH = height, halfD = depth;
-		width <<= 1;
-		height <<= 1;
-		depth <<= 1;
-		ColorBand colorBand = this.readColorband(tex, dataRepository);
-
-		ByteBuffer data = BufferUtils.createByteBuffer(width * height * depth * 4);
+		TextureResult texres = new TextureResult();
+		int halfW = width >> 1, halfH = height >> 1, halfD = depth >> 1, index = 0;
+		float wDelta = 1.0f / halfW, hDelta = 1.0f / halfH, dDelta = 1.0f / halfD;
+		float[][] colorBand = this.computeColorband(tex, dataRepository);
+		BrightnessAndContrastData bacd = new BrightnessAndContrastData(tex);
+		
+		byte[] data = new byte[width * height * depth * 3];
 		for (int i = -halfW; i < halfW; ++i) {
 			texvec[0] = wDelta * i;
 			for (int j = -halfH; j < halfH; ++j) {
 				texvec[1] = hDelta * j;
 				for (int k = -halfD; k < halfD; ++k) {
 					turb = turbul;
-					texvec[2] = dDelta * k;// z
-					x = (float) Math.sin((texvec[0] + texvec[1] + texvec[2]) * 5.0f);
-					y = (float) Math.cos((-texvec[0] + texvec[1] - texvec[2]) * 5.0f);
-					z = -(float) Math.cos((-texvec[0] - texvec[1] + texvec[2]) * 5.0f);
+					texvec[2] = dDelta * k;
+					xyz[0] = (float) Math.sin((texvec[0] + texvec[1] + texvec[2]) * 5.0f);
+					xyz[1] = (float) Math.cos((-texvec[0] + texvec[1] - texvec[2]) * 5.0f);
+					xyz[2] = -(float) Math.cos((-texvec[0] - texvec[1] + texvec[2]) * 5.0f);
 
 					if (colorBand != null) {
-						texres.tin = 0.3333f * (x + y + z);
-						noiseGenerator.doColorband(colorBand, texres, dataRepository);
+						texres.intensity = 0.3333f * (xyz[0] + xyz[1] + xyz[2]);
+						int colorbandIndex = (int) (texres.intensity * 1000.0f);
+						texres.red = colorBand[colorbandIndex][0];
+						texres.green = colorBand[colorbandIndex][1];
+						texres.blue = colorBand[colorbandIndex][2];
 					} else {
 						if (noisedepth > 0) {
-							x *= turb;
-							y *= turb;
-							z *= turb;
-							y = -(float) Math.cos(x - y + z) * turb;
-							if (noisedepth > 1) {
-								x = (float) Math.cos(x - y - z) * turb;
-								if (noisedepth > 2) {
-									z = (float) Math.sin(-x - y - z) * turb;
-									if (noisedepth > 3) {
-										x = -(float) Math.cos(-x + y - z) * turb;
-										if (noisedepth > 4) {
-											y = -(float) Math.sin(-x + y + z) * turb;
-											if (noisedepth > 5) {
-												y = -(float) Math.cos(-x + y + z) * turb;
-												if (noisedepth > 6) {
-													x = (float) Math.cos(x + y + z) * turb;
-													if (noisedepth > 7) {
-														z = (float) Math.sin(x + y - z) * turb;
-														if (noisedepth > 8) {
-															x = -(float) Math.cos(-x - y + z) * turb;
-															if (noisedepth > 9) {
-																y = -(float) Math.sin(x - y + z) * turb;
-															}
-														}
-													}
-												}
-											}
-										}
-									}
-								}
+							xyz[0] *= turb;
+							xyz[1] *= turb;
+							xyz[2] *= turb;
+							for (int m=0;m<noisedepth;++m) {
+								noiseDepthFunctions[m].compute(xyz, turb);
 							}
 						}
 
 						if (turb != 0.0f) {
 							turb *= 2.0f;
-							x /= turb;
-							y /= turb;
-							z /= turb;
+							xyz[0] /= turb;
+							xyz[1] /= turb;
+							xyz[2] /= turb;
 						}
-						texres.tr = 0.5f - x;
-						texres.tg = 0.5f - y;
-						texres.tb = 0.5f - z;
+						texres.red = 0.5f - xyz[0];
+						texres.green = 0.5f - xyz[1];
+						texres.blue = 0.5f - xyz[2];
 					}
-					noiseGenerator.brightnesAndContrastRGB(tex, texres);
-					data.put((byte) (texres.tin * 255));
-					data.put((byte) (texres.tb * 255));
-					data.put((byte) (texres.tg * 255));
-					data.put((byte) (texres.tr * 255));
+					this.applyBrightnessAndContrast(bacd, texres);
+					data[index++] = (byte) (texres.red * 255.0f);
+					data[index++] = (byte) (texres.green * 255.0f);
+					data[index++] = (byte) (texres.blue * 255.0f);
 				}
 			}
 		}
 		ArrayList<ByteBuffer> dataArray = new ArrayList<ByteBuffer>(1);
-		dataArray.add(data);
-		return new Texture3D(new Image(Format.ABGR8, width, height, depth, dataArray));
+		dataArray.add(BufferUtils.createByteBuffer(data));
+		return new Texture3D(new Image(Format.RGB8, width, height, depth, dataArray));
+	}
+	
+	private static interface NoiseDepthFunction {
+		void compute(float[] xyz, float turbulence);
 	}
 }
