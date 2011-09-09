@@ -46,6 +46,8 @@ import com.jme3.scene.Spatial;
 import com.jme3.scene.control.AbstractControl;
 import com.jme3.scene.control.Control;
 import com.jme3.terrain.Terrain;
+import com.jme3.terrain.geomipmap.lodcalc.DistanceLodCalculator;
+import com.jme3.terrain.geomipmap.lodcalc.LodCalculator;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -65,6 +67,7 @@ public class TerrainLodControl extends AbstractControl {
     private Terrain terrain;
     private List<Camera> cameras;
     private List<Vector3f> cameraLocations = new ArrayList<Vector3f>();
+    private LodCalculator lodCalculator;
 
     public TerrainLodControl() {
     }
@@ -74,6 +77,7 @@ public class TerrainLodControl extends AbstractControl {
         cams.add(camera);
         this.terrain = terrain;
         this.cameras = cams;
+        lodCalculator = new DistanceLodCalculator(); // a default calculator
     }
     
     /**
@@ -101,7 +105,7 @@ public class TerrainLodControl extends AbstractControl {
                     cameraLocations.add(c.getLocation());
                 }
             }
-            terrain.update(cameraLocations);
+            terrain.update(cameraLocations, lodCalculator);
         }
     }
 
@@ -144,11 +148,21 @@ public class TerrainLodControl extends AbstractControl {
         this.terrain = terrain;
     }
 
+    public LodCalculator getLodCalculator() {
+        return lodCalculator;
+    }
+
+    public void setLodCalculator(LodCalculator lodCalculator) {
+        this.lodCalculator = lodCalculator;
+    }
+    
+
     @Override
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
         OutputCapsule oc = ex.getCapsule(this);
         oc.write((Node)terrain, "terrain", null);
+        oc.write(lodCalculator, "lodCalculator", null);
     }
 
     @Override
@@ -156,5 +170,6 @@ public class TerrainLodControl extends AbstractControl {
         super.read(im);
         InputCapsule ic = im.getCapsule(this);
         terrain = (Terrain) ic.readSavable("terrain", null);
+        lodCalculator = (LodCalculator) ic.readSavable("lodCalculator", new DistanceLodCalculator());
     }
 }

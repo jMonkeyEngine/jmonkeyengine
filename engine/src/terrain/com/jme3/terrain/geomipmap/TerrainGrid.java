@@ -46,6 +46,7 @@ import com.jme3.material.Material;
 import com.jme3.math.FastMath;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
+import com.jme3.terrain.geomipmap.lodcalc.LodCalculator;
 import com.jme3.terrain.geomipmap.lodcalc.LodCalculatorFactory;
 import com.jme3.terrain.geomipmap.lodcalc.LodDistanceCalculatorFactory;
 import com.jme3.terrain.heightmap.HeightMapGrid;
@@ -88,7 +89,7 @@ public class TerrainGrid extends TerrainQuad {
                     if (q == null) {
                         // create the new Quad since it doesn't exist
                         HeightMap heightMapAt = heightMapGrid.getHeightMapAt(temp);
-                        q = new TerrainQuad(getName() + "Quad" + temp, patchSize, quadSize, totalSize, heightMapAt == null ? null : heightMapAt.getHeightMap(), lodCalculatorFactory);
+                        q = new TerrainQuad(getName() + "Quad" + temp, patchSize, quadSize, totalSize, heightMapAt == null ? null : heightMapAt.getHeightMap());
                         q.setMaterial(material.clone());
                         log.log(Level.FINE, "Loaded TerrainQuad {0}", q.getName());
                     }
@@ -131,7 +132,7 @@ public class TerrainGrid extends TerrainQuad {
     }
 
     public TerrainGrid(String name, int patchSize, int maxVisibleSize, Vector3f scale, HeightMapGrid heightMapGrid,
-            Vector2f offset, float offsetAmount, LodCalculatorFactory lodCalculatorFactory) {
+            Vector2f offset, float offsetAmount) {
         this.name = name;
         this.patchSize = patchSize;
         this.size = maxVisibleSize;
@@ -143,11 +144,11 @@ public class TerrainGrid extends TerrainQuad {
         this.totalSize = maxVisibleSize;
         this.offset = offset;
         this.offsetAmount = offsetAmount;
-        this.lodCalculatorFactory = lodCalculatorFactory;
+        //this.lodCalculatorFactory = lodCalculatorFactory;
         this.gridOffset = new int[]{0,0};
-        if (lodCalculatorFactory == null) {
-            lodCalculatorFactory = new LodDistanceCalculatorFactory();
-        }
+        //if (lodCalculatorFactory == null) {
+        //    lodCalculatorFactory = new LodDistanceCalculatorFactory();
+        //}
         this.quadIndex = new Vector3f[]{
         new Vector3f(-1, 0, 2), new Vector3f(0, 0, 2), new Vector3f(1, 0, 2), new Vector3f(2, 0, 2),
         new Vector3f(-1, 0, 1), new Vector3f(0, 0, 1), new Vector3f(1, 0, 1), new Vector3f(2, 0, 1),
@@ -157,17 +158,12 @@ public class TerrainGrid extends TerrainQuad {
         addControl(new UpdateControl());
     }
 
-    public TerrainGrid(String name, int patchSize, int maxVisibleSize, Vector3f scale, HeightMapGrid heightMapGrid,
-            LodCalculatorFactory lodCalculatorFactory) {
-        this(name, patchSize, maxVisibleSize, scale, heightMapGrid, new Vector2f(), 0, lodCalculatorFactory);
-    }
-
-    public TerrainGrid(String name, int patchSize, int maxVisibleSize, HeightMapGrid heightMapGrid, LodCalculatorFactory lodCalculatorFactory) {
-        this(name, patchSize, maxVisibleSize, Vector3f.UNIT_XYZ, heightMapGrid, lodCalculatorFactory);
+    public TerrainGrid(String name, int patchSize, int maxVisibleSize, Vector3f scale, HeightMapGrid heightMapGrid) {
+        this(name, patchSize, maxVisibleSize, scale, heightMapGrid, new Vector2f(), 0);
     }
 
     public TerrainGrid(String name, int patchSize, int maxVisibleSize, HeightMapGrid heightMapGrid) {
-        this(name, patchSize, maxVisibleSize, heightMapGrid, null);
+        this(name, patchSize, maxVisibleSize, Vector3f.UNIT_XYZ, heightMapGrid);
     }
 
     public TerrainGrid() {
@@ -185,7 +181,7 @@ public class TerrainGrid extends TerrainQuad {
     }
 
     @Override
-    public void update(List<Vector3f> locations) {
+    public void update(List<Vector3f> locations, LodCalculator lodCalculator) {
         // for now, only the first camera is handled.
         // to accept more, there are two ways:
         // 1: every camera has an associated grid, then the location is not enough to identify which camera location has changed
@@ -203,7 +199,7 @@ public class TerrainGrid extends TerrainQuad {
                 l.gridMoved(camCell);
             }
         }
-        super.update(locations);
+        super.update(locations, lodCalculator);
     }
 
     public Vector3f getCell(Vector3f location) {

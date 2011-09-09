@@ -50,6 +50,8 @@ public class PerspectiveLodCalculator implements LodCalculator {
     private float[] entropyDistances;
     private float pixelError;
 
+    public PerspectiveLodCalculator() {}
+    
     public PerspectiveLodCalculator(Camera cam, float pixelError){
         this.cam = cam;
         this.pixelError = pixelError;
@@ -71,12 +73,12 @@ public class PerspectiveLodCalculator implements LodCalculator {
         float T = (2f * pixelLimit) / v_res;
         return A / T;
     }
-
-    public void setTerrainPatch(TerrainPatch terrainPatch) {
-        patch = terrainPatch;
+    
+    public boolean calculateLod(List<Vector3f> locations, HashMap<String, UpdatedTerrainPatch> updates) {
+        return calculateLod(patch, locations, updates);
     }
 
-    public boolean calculateLod(List<Vector3f> locations, HashMap<String, UpdatedTerrainPatch> updates) {
+    public boolean calculateLod(TerrainPatch terrainPatch, List<Vector3f> locations, HashMap<String, UpdatedTerrainPatch> updates) {
         if (entropyDistances == null){
             // compute entropy distances
             float[] lodEntropies = patch.getLodEntropies();
@@ -87,7 +89,7 @@ public class PerspectiveLodCalculator implements LodCalculator {
             }
         }
 
-        Vector3f patchPos = getCenterLocation();
+        Vector3f patchPos = getCenterLocation(patch);
 
         // vector from camera to patch
         //Vector3f toPatchDir = locations.get(0).subtract(patchPos).normalizeLocal();
@@ -120,7 +122,7 @@ public class PerspectiveLodCalculator implements LodCalculator {
         return false;
     }
 
-    public Vector3f getCenterLocation() {
+    public Vector3f getCenterLocation(TerrainPatch patch) {
         Vector3f loc = patch.getWorldTranslation().clone();
         loc.x += patch.getSize() / 2;
         loc.z += patch.getSize() / 2;
@@ -146,4 +148,18 @@ public class PerspectiveLodCalculator implements LodCalculator {
         return true;
     }
 
+    public float getPixelError() {
+        return pixelError;
+    }
+
+    public void setPixelError(float pixelError) {
+        this.pixelError = pixelError;
+    }
+
+    public void setCam(Camera cam) {
+        this.cam = cam;
+    }
+
+    
+    
 }

@@ -34,6 +34,7 @@ package com.jme3.terrain;
 import com.jme3.material.Material;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
+import com.jme3.terrain.geomipmap.lodcalc.LodCalculator;
 import java.util.List;
 
 /**
@@ -133,7 +134,7 @@ public interface Terrain {
      * @param location: the Camera's location. A list of one camera location is normal 
      *  if you just have one camera in your scene.
      */
-    public void update(List<Vector3f> location);
+    public void update(List<Vector3f> location, LodCalculator lodCalculator);
 
     /**
      * Lock or unlock the meshes of this terrain.

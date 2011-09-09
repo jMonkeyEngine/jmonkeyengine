@@ -42,6 +42,7 @@ import java.io.IOException;
  * TODO: Make it work with multiple cameras
  * TODO: Fix the cracks when the lod differences are greater than 1
  * for two adjacent blocks.
+ * @deprecated phasing out
  */
 public class LodPerspectiveCalculatorFactory implements LodCalculatorFactory {
 
@@ -59,7 +60,6 @@ public class LodPerspectiveCalculatorFactory implements LodCalculatorFactory {
 
     public LodCalculator createCalculator(TerrainPatch terrainPatch) {
         PerspectiveLodCalculator p = new PerspectiveLodCalculator(cam, pixelError);
-        p.setTerrainPatch(terrainPatch);
         return p;
     }
 

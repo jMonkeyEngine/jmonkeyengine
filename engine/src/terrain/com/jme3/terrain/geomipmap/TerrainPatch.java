@@ -109,8 +109,8 @@ public class TerrainPatch extends Geometry {
     // amount the patch has been shifted.
     protected float offsetAmount;
 
-    protected LodCalculator lodCalculator;
-    protected LodCalculatorFactory lodCalculatorFactory;
+    //protected LodCalculator lodCalculator;
+    //protected LodCalculatorFactory lodCalculatorFactory;
 
     protected TerrainPatch leftNeighbour, topNeighbour, rightNeighbour, bottomNeighbour;
     protected boolean searchedForNeighboursAlready = false;
@@ -234,20 +234,7 @@ public class TerrainPatch extends Geometry {
         return maxLod;
     }
 
-    
-	
-
-    /**
-     * Delegates to the lodCalculator that was passed in.
-     * @param locations all possible camera locations
-     * @param updates update objects that may or may not contain this terrain patch
-     * @return true if the geometry needs re-indexing
-     */
-    protected boolean calculateLod(List<Vector3f> locations, HashMap<String,UpdatedTerrainPatch> updates) {
-        return lodCalculator.calculateLod(locations, updates);
-    }
-
-    protected void reIndexGeometry(HashMap<String,UpdatedTerrainPatch> updated) {
+    protected void reIndexGeometry(HashMap<String,UpdatedTerrainPatch> updated, boolean useVariableLod) {
 
         UpdatedTerrainPatch utp = updated.get(getName());
 
@@ -259,7 +246,7 @@ public class TerrainPatch extends Geometry {
             boolean bottom = utp.getBottomLod() > utp.getNewLod();
 
             IntBuffer ib = null;
-            if (lodCalculator.usesVariableLod())
+            if (useVariableLod)
                 ib = geomap.writeIndexArrayLodVariable(null, pow, (int) Math.pow(2, utp.getRightLod()), (int) Math.pow(2, utp.getTopLod()), (int) Math.pow(2, utp.getLeftLod()), (int) Math.pow(2, utp.getBottomLod()));
             else
                 ib = geomap.writeIndexArrayLodDiff(null, pow, right, top, left, bottom);
@@ -920,19 +907,11 @@ public class TerrainPatch extends Geometry {
     protected void setLodBottom(int lodBottom) {
         this.lodBottom = lodBottom;
     }
-
-    public LodCalculator getLodCalculator() {
-        return lodCalculator;
-    }
-
-    public void setLodCalculator(LodCalculator lodCalculator) {
-        this.lodCalculator = lodCalculator;
-    }
-
-    public void setLodCalculator(LodCalculatorFactory lodCalculatorFactory) {
+    
+    /*public void setLodCalculator(LodCalculatorFactory lodCalculatorFactory) {
         this.lodCalculatorFactory = lodCalculatorFactory;
         setLodCalculator(lodCalculatorFactory.createCalculator(this));
-    }
+    }*/
 
     @Override
     public int collideWith(Collidable other, CollisionResults results) throws UnsupportedCollisionException {
@@ -1035,8 +1014,8 @@ public class TerrainPatch extends Geometry {
         oc.write(stepScale, "stepScale", Vector3f.UNIT_XYZ);
         oc.write(offset, "offset", Vector3f.UNIT_XYZ);
         oc.write(offsetAmount, "offsetAmount", 0);
-        oc.write(lodCalculator, "lodCalculator", null);
-        oc.write(lodCalculatorFactory, "lodCalculatorFactory", null);
+        //oc.write(lodCalculator, "lodCalculator", null);
+        //oc.write(lodCalculatorFactory, "lodCalculatorFactory", null);
         oc.write(lodEntropy, "lodEntropy", null);
         oc.write(geomap, "geomap", null);
         
@@ -1053,9 +1032,9 @@ public class TerrainPatch extends Geometry {
         stepScale = (Vector3f) ic.readSavable("stepScale", Vector3f.UNIT_XYZ);
         offset = (Vector2f) ic.readSavable("offset", Vector3f.UNIT_XYZ);
         offsetAmount = ic.readFloat("offsetAmount", 0);
-        lodCalculator = (LodCalculator) ic.readSavable("lodCalculator", new DistanceLodCalculator());
-        lodCalculator.setTerrainPatch(this);
-        lodCalculatorFactory = (LodCalculatorFactory) ic.readSavable("lodCalculatorFactory", null);
+        //lodCalculator = (LodCalculator) ic.readSavable("lodCalculator", new DistanceLodCalculator());
+        //lodCalculator.setTerrainPatch(this);
+        //lodCalculatorFactory = (LodCalculatorFactory) ic.readSavable("lodCalculatorFactory", null);
         lodEntropy = ic.readFloatArray("lodEntropy", null);
         geomap = (LODGeomap) ic.readSavable("geomap", null);
         
@@ -1077,7 +1056,7 @@ public class TerrainPatch extends Geometry {
         clone.offsetAmount = offsetAmount;
         //clone.lodCalculator = lodCalculator.clone();
         //clone.lodCalculator.setTerrainPatch(clone);
-        clone.setLodCalculator(lodCalculatorFactory.clone());
+        //clone.setLodCalculator(lodCalculatorFactory.clone());
         clone.geomap = new LODGeomap(size, geomap.getHeightData());
         clone.setLocalTranslation(getLocalTranslation().clone());
         Mesh m = clone.geomap.createMesh(clone.stepScale, Vector2f.UNIT_XY, clone.offset, clone.offsetAmount, clone.totalSize, false);

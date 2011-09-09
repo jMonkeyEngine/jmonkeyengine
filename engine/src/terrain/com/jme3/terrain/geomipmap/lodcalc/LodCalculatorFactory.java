@@ -39,6 +39,7 @@ import com.jme3.terrain.geomipmap.TerrainPatch;
  * Creates LOD Calculator objects for the terrain patches.
  *
  * @author Brent Owens
+ * @deprecated phasing this out
  */
 public interface LodCalculatorFactory extends Savable, Cloneable {
 

@@ -42,6 +42,7 @@ import java.io.IOException;
 /**
  *
  * @author bowens
+ * @deprecated phasing out
  */
 public class LodDistanceCalculatorFactory implements LodCalculatorFactory {
 
@@ -61,9 +62,7 @@ public class LodDistanceCalculatorFactory implements LodCalculatorFactory {
     }
 
     public LodCalculator createCalculator(TerrainPatch terrainPatch) {
-        if (lodThreshold == null)
-            lodThreshold = new SimpleLodThreshold(terrainPatch.getSize(), lodThresholdSize);
-        return new DistanceLodCalculator(terrainPatch, lodThreshold);
+        return new DistanceLodCalculator();
     }
 
     public void write(JmeExporter ex) throws IOException {

@@ -26,6 +26,7 @@ import com.jme3.terrain.geomipmap.TerrainGrid;
 import com.jme3.terrain.geomipmap.TerrainGridListener;
 import com.jme3.terrain.geomipmap.TerrainLodControl;
 import com.jme3.terrain.geomipmap.TerrainQuad;
+import com.jme3.terrain.geomipmap.lodcalc.DistanceLodCalculator;
 import com.jme3.terrain.heightmap.FractalHeightMapGrid;
 import com.jme3.terrain.heightmap.ImageBasedHeightMapGrid;
 import com.jme3.terrain.heightmap.Namer;
@@ -158,6 +159,7 @@ public class TerrainGridAlphaMapTest extends SimpleApplication {
         List<Camera> cameras = new ArrayList<Camera>();
         cameras.add(this.getCamera());
         TerrainLodControl control = new TerrainLodControl(this.terrain, cameras);
+        control.setLodCalculator( new DistanceLodCalculator(33, 2.7f) ); // patch size, and a multiplier
         this.terrain.addControl(control);
 
         final BulletAppState bulletAppState = new BulletAppState();

@@ -50,27 +50,23 @@ import java.util.List;
  */
 public class DistanceLodCalculator implements LodCalculator {
 
-    private TerrainPatch terrainPatch;
-    private LodThreshold lodThresholdCalculator;
-
+    private int size; // size of a terrain patch
+    private float lodMultiplier = 2;
+    
     public DistanceLodCalculator() {
     }
-
-    public DistanceLodCalculator(LodThreshold lodThresholdCalculator) {
-        this.lodThresholdCalculator = lodThresholdCalculator;
+    
+    public DistanceLodCalculator(int patchSize, float multiplier) {
+        this.size = patchSize;
+        this.lodMultiplier = multiplier;
     }
-
-    public DistanceLodCalculator(TerrainPatch terrainPatch, LodThreshold lodThresholdCalculator) {
-        this.terrainPatch = terrainPatch;
-        this.lodThresholdCalculator = lodThresholdCalculator;
-    }
-
-    public boolean calculateLod(List<Vector3f> locations, HashMap<String, UpdatedTerrainPatch> updates) {
-        float distance = getCenterLocation().distance(locations.get(0));
+    
+    public boolean calculateLod(TerrainPatch terrainPatch, List<Vector3f> locations, HashMap<String, UpdatedTerrainPatch> updates) {
+        float distance = getCenterLocation(terrainPatch).distance(locations.get(0));
 
         // go through each lod level to find the one we are in
         for (int i = 0; i <= terrainPatch.getMaxLod(); i++) {
-            if (distance < lodThresholdCalculator.getLodDistanceThreshold() * (i + 1)*terrainPatch.getWorldScale().x || i == terrainPatch.getMaxLod()) {
+            if (distance < getLodDistanceThreshold() * (i + 1)*terrainPatch.getWorldScale().x || i == terrainPatch.getMaxLod()) {
                 boolean reIndexNeeded = false;
                 if (i != terrainPatch.getLod()) {
                     reIndexNeeded = true;
@@ -94,49 +90,67 @@ public class DistanceLodCalculator implements LodCalculator {
         return false;
     }
 
-    public Vector3f getCenterLocation() {
+    protected Vector3f getCenterLocation(TerrainPatch terrainPatch) {
         Vector3f loc = terrainPatch.getWorldTranslation().clone();
         loc.x += terrainPatch.getSize()*terrainPatch.getWorldScale().x / 2;
         loc.z += terrainPatch.getSize()*terrainPatch.getWorldScale().z / 2;
         return loc;
     }
 
-    public void setTerrainPatch(TerrainPatch terrainPatch) {
-        this.terrainPatch = terrainPatch;
-    }
-
-    protected LodThreshold getLodThreshold() {
-        return lodThresholdCalculator;
-    }
-
-    protected void setLodThreshold(LodThreshold lodThresholdCalculator) {
-        this.lodThresholdCalculator = lodThresholdCalculator;
-    }
-
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule oc = ex.getCapsule(this);
-        oc.write(lodThresholdCalculator, "lodThresholdCalculator", null);
+        oc.write(size, "patchSize", 32);
+        oc.write(lodMultiplier, "lodMultiplier", 32);
     }
 
     public void read(JmeImporter im) throws IOException {
         InputCapsule ic = im.getCapsule(this);
-        lodThresholdCalculator = (LodThreshold) ic.readSavable("lodThresholdCalculator", null);
+        size = ic.readInt("patchSize", 32);
+        lodMultiplier = ic.readFloat("lodMultiplier", 2.7f);
     }
 
     @Override
     public LodCalculator clone() {
         DistanceLodCalculator clone = new DistanceLodCalculator();
-        clone.lodThresholdCalculator = lodThresholdCalculator.clone();
 
         return clone;
     }
 
     @Override
     public String toString() {
-        return "DistanceLodCalculator " + lodThresholdCalculator.toString();
+        return "DistanceLodCalculator "+size+"*"+lodMultiplier;
     }
 
+    /**
+     * Gets the camera distance where the LOD level will change
+     */
+    protected float getLodDistanceThreshold() {
+        return size*lodMultiplier;
+    }
+    
+    /**
+     * Does this calculator require the terrain to have the difference of 
+     * LOD levels of neighbours to be more than 1.
+     */
     public boolean usesVariableLod() {
         return false;
     }
+
+    public float getLodMultiplier() {
+        return lodMultiplier;
+    }
+
+    public void setLodMultiplier(float lodMultiplier) {
+        this.lodMultiplier = lodMultiplier;
+    }
+
+    public int getSize() {
+        return size;
+    }
+
+    public void setSize(int size) {
+        this.size = size;
+    }
+    
+    
 }

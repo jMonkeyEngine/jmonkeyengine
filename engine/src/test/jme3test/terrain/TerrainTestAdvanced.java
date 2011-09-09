@@ -50,6 +50,7 @@ import com.jme3.terrain.geomipmap.TerrainLodControl;
 import com.jme3.terrain.heightmap.AbstractHeightMap;
 import com.jme3.terrain.heightmap.ImageBasedHeightMap;
 import com.jme3.terrain.geomipmap.TerrainQuad;
+import com.jme3.terrain.geomipmap.lodcalc.DistanceLodCalculator;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
 import com.jme3.util.SkyFactory;
@@ -96,7 +97,6 @@ public class TerrainTestAdvanced extends SimpleApplication {
         // TERRAIN TEXTURE material
         matTerrain = new Material(assetManager, "Common/MatDefs/Terrain/TerrainLighting.j3md");
         matTerrain.setBoolean("useTriPlanarMapping", false);
-        matTerrain.setBoolean("WardIso", true);
 
         // ALPHA map (for splat textures)
         matTerrain.setTexture("AlphaMap", assetManager.loadTexture("Textures/Terrain/splat/alpha1.png"));
@@ -105,18 +105,17 @@ public class TerrainTestAdvanced extends SimpleApplication {
         // HEIGHTMAP image (for the terrain heightmap)
         Texture heightMapImage = assetManager.loadTexture("Textures/Terrain/splat/mountains512.png");
 
-
         // GRASS texture
         Texture grass = assetManager.loadTexture("Textures/Terrain/splat/grass.jpg");
         grass.setWrap(WrapMode.Repeat);
-        matTerrain.setTexture("DiffuseMap", grass);
-        matTerrain.setFloat("DiffuseMap_0_scale", grassScale);
+        matTerrain.setTexture("DiffuseMap_1", grass);
+        matTerrain.setFloat("DiffuseMap_1_scale", grassScale);
 
         // DIRT texture
         Texture dirt = assetManager.loadTexture("Textures/Terrain/splat/dirt.jpg");
         dirt.setWrap(WrapMode.Repeat);
-        matTerrain.setTexture("DiffuseMap_1", dirt);
-        matTerrain.setFloat("DiffuseMap_1_scale", dirtScale);
+        matTerrain.setTexture("DiffuseMap", dirt);
+        matTerrain.setFloat("DiffuseMap_0_scale", dirtScale);
 
         // ROCK texture
         Texture rock = assetManager.loadTexture("Textures/Terrain/splat/road.jpg");
@@ -143,7 +142,7 @@ public class TerrainTestAdvanced extends SimpleApplication {
         normalMap1.setWrap(WrapMode.Repeat);
         Texture normalMap2 = assetManager.loadTexture("Textures/Terrain/splat/road_normal.png");
         normalMap2.setWrap(WrapMode.Repeat);
-        matTerrain.setTexture("NormalMap", normalMap0);
+        matTerrain.setTexture("NormalMap", normalMap2);
         matTerrain.setTexture("NormalMap_1", normalMap2);
         matTerrain.setTexture("NormalMap_2", normalMap2);
         matTerrain.setTexture("NormalMap_4", normalMap2);
@@ -158,10 +157,9 @@ public class TerrainTestAdvanced extends SimpleApplication {
         // CREATE HEIGHTMAP
         AbstractHeightMap heightmap = null;
         try {
-            //heightmap = new HillHeightMap(1025, 1000, 50, 100, (byte) 3);
-
-            heightmap = new ImageBasedHeightMap(ImageToAwt.convert(heightMapImage.getImage(), false, true, 0), 1f);
+            heightmap = new ImageBasedHeightMap(ImageToAwt.convert(heightMapImage.getImage(), false, true, 0), 0.5f);
             heightmap.load();
+            heightmap.smooth(0.9f, 1);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -178,6 +176,7 @@ public class TerrainTestAdvanced extends SimpleApplication {
          */
         terrain = new TerrainQuad("terrain", 65, 513, heightmap.getHeightMap());//, new LodPerspectiveCalculatorFactory(getCamera(), 4)); // add this in to see it use entropy for LOD calculations
         TerrainLodControl control = new TerrainLodControl(terrain, getCamera());
+        control.setLodCalculator( new DistanceLodCalculator(65, 2.7f) ); // patch size, and a multiplier
         terrain.addControl(control);
         terrain.setMaterial(matTerrain);
         terrain.setModelBound(new BoundingBox());
@@ -185,17 +184,17 @@ public class TerrainTestAdvanced extends SimpleApplication {
         terrain.setLocalTranslation(0, -100, 0);
         terrain.setLocalScale(1f, 1f, 1f);
         rootNode.attachChild(terrain);
+        
+        Material debugMat = assetManager.loadMaterial("Common/Materials/VertexColor.j3m");
+        //terrain.generateDebugTangents(debugMat);
 
         DirectionalLight light = new DirectionalLight();
-        light.setDirection((new Vector3f(-0.5f, -1f, -0.5f)).normalize());
+        light.setDirection((new Vector3f(-0.25f, -1f, -0.25f)).normalize());
         rootNode.addLight(light);
-
-        AmbientLight ambLight = new AmbientLight();
-        ambLight.setColor(new ColorRGBA(1f, 1f, 0.8f, 0.2f));
-        rootNode.addLight(ambLight);
 
         cam.setLocation(new Vector3f(0, 10, -10));
         cam.lookAtDirection(new Vector3f(0, -1.5f, -1).normalizeLocal(), Vector3f.UNIT_Y);
+        flyCam.setMoveSpeed(400);
     }
 
     public void loadHintText() {

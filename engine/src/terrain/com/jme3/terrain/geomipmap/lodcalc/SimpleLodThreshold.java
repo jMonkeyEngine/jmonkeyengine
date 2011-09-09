@@ -36,6 +36,8 @@ import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
+import com.jme3.terrain.Terrain;
+import com.jme3.terrain.geomipmap.TerrainQuad;
 import java.io.IOException;
 
 
@@ -49,17 +51,21 @@ import java.io.IOException;
  */
 public class SimpleLodThreshold implements LodThreshold {
 	
-	private int size; // size of a terrain patch
+    private int size; // size of a terrain patch
     private float lodMultiplier = 2;
 
     
     public SimpleLodThreshold() {
-
+    }
+    
+    public SimpleLodThreshold(Terrain terrain) {
+        if (terrain instanceof TerrainQuad)
+            this.size = ((TerrainQuad)terrain).getPatchSize();
     }
 
-	public SimpleLodThreshold(int patchSize, float lodMultiplier) {
-		this.size = patchSize;
-	}
+    public SimpleLodThreshold(int patchSize, float lodMultiplier) {
+        this.size = patchSize;
+    }
 
     public float getLodMultiplier() {
         return lodMultiplier;
@@ -78,9 +84,9 @@ public class SimpleLodThreshold implements LodThreshold {
     }
 	
 
-	public float getLodDistanceThreshold() {
-		return size*lodMultiplier;
-	}
+    public float getLodDistanceThreshold() {
+        return size*lodMultiplier;
+    }
 
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule oc = ex.getCapsule(this);

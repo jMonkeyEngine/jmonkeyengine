@@ -47,6 +47,7 @@ import com.jme3.scene.Node;
 import com.jme3.terrain.Terrain;
 import com.jme3.terrain.geomipmap.TerrainLodControl;
 import com.jme3.terrain.geomipmap.TerrainQuad;
+import com.jme3.terrain.geomipmap.lodcalc.DistanceLodCalculator;
 import com.jme3.terrain.heightmap.AbstractHeightMap;
 import com.jme3.terrain.heightmap.ImageBasedHeightMap;
 import com.jme3.texture.Texture;
@@ -159,6 +160,7 @@ public class TerrainTestReadWrite extends SimpleApplication {
             // create the terrain as normal, and give it a control for LOD management
             TerrainQuad terrainQuad = new TerrainQuad("terrain", 65, 129, heightmap.getHeightMap());//, new LodPerspectiveCalculatorFactory(getCamera(), 4)); // add this in to see it use entropy for LOD calculations
             TerrainLodControl control = new TerrainLodControl(terrainQuad, getCamera());
+            control.setLodCalculator( new DistanceLodCalculator(65, 2.7f) ); // patch size, and a multiplier
             terrainQuad.addControl(control);
             terrainQuad.setMaterial(matTerrain);
             terrainQuad.setLocalTranslation(0, -100, 0);
