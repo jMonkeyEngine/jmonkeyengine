@@ -101,8 +101,8 @@ public class UVCoordinatesGenerator {
 		VertexBuffer result = new VertexBuffer(VertexBuffer.Type.TexCoord);
 		Mesh mesh = geometries.get(0).getMesh();
 		BoundingBox bb = UVCoordinatesGenerator.getBoundingBox(geometries);
-		float[] inputData = null;//positions, normals, reflection vectors, etc.
-		
+		float[] inputData = null;// positions, normals, reflection vectors, etc.
+
 		switch (texco) {
 			case TEXCO_ORCO:
 				inputData = BufferUtils.getFloatArray(mesh.getFloatBuffer(VertexBuffer.Type.Position));
@@ -118,7 +118,7 @@ public class UVCoordinatesGenerator {
 					}
 					result.setupData(Usage.Static, textureDimension, Format.Float, uvCoordinatesBuffer);
 				} else {
-					
+
 				}
 				break;
 			case TEXCO_NORM:
@@ -148,7 +148,7 @@ public class UVCoordinatesGenerator {
 				throw new IllegalStateException("Unknown texture coordinates value: " + texco);
 		}
 
-		if(inputData!=null) {//make calculations
+		if (inputData != null) {// make calculations
 			if (textureDimension == 2) {
 				switch (projection) {
 					case PROJECTION_FLAT:
@@ -158,8 +158,8 @@ public class UVCoordinatesGenerator {
 						inputData = UVProjectionGenerator.cubeProjection(mesh, bb);
 						break;
 					case PROJECTION_TUBE:
-						 BoundingTube bt = UVCoordinatesGenerator.getBoundingTube(mesh);
-						 inputData = UVProjectionGenerator.tubeProjection(mesh, bt);
+						BoundingTube bt = UVCoordinatesGenerator.getBoundingTube(geometries);
+						inputData = UVProjectionGenerator.tubeProjection(mesh, bt);
 						break;
 					case PROJECTION_SPHERE:
 						BoundingSphere bs = UVCoordinatesGenerator.getBoundingSphere(geometries);
@@ -182,7 +182,7 @@ public class UVCoordinatesGenerator {
 			}
 			result.setupData(Usage.Static, textureDimension, Format.Float, BufferUtils.createFloatBuffer(inputData));
 		}
-		
+
 		// each mesh will have the same coordinates
 		for (Geometry geometry : geometries) {
 			mesh = geometry.getMesh();
@@ -234,7 +234,7 @@ public class UVCoordinatesGenerator {
 	 * This method returns the bounding sphere of the given geometries.
 	 * @param geometries
 	 *        the list of geometries
-	 * @return bounding spheres of the given geometries
+	 * @return bounding sphere of the given geometries
 	 */
 	/* package */static BoundingSphere getBoundingSphere(List<Geometry> geometries) {
 		BoundingSphere result = null;
@@ -296,10 +296,29 @@ public class UVCoordinatesGenerator {
 			maxz = z > maxz ? z : maxz;
 			minz = z < minz ? z : minz;
 		}
-		center.divideLocal(limit/3);
+		center.divideLocal(limit / 3);
 
 		float radius = Math.max(maxx - minx, maxy - miny) * 0.5f;
 		return new BoundingTube(radius, maxz - minz, center);
+	}
+	
+	/**
+	 * This method returns the bounding tube of the given geometries.
+	 * @param geometries
+	 *        the list of geometries
+	 * @return bounding tube of the given geometries
+	 */
+	/* package */static BoundingTube getBoundingTube(List<Geometry> geometries) {
+		BoundingTube result = null;
+		for (Geometry geometry : geometries) {
+			BoundingTube bt = UVCoordinatesGenerator.getBoundingTube(geometry.getMesh());
+			if (result == null) {
+				result = bt;
+			} else {
+				result.merge(bt);
+			}
+		}
+		return result;
 	}
 
 	/**
@@ -313,16 +332,31 @@ public class UVCoordinatesGenerator {
 		private float		height;
 		private Vector3f	center;
 
+		/**
+		 * Constructor creates the tube with the given params.
+		 * @param radius
+		 *        the radius of the tube
+		 * @param height
+		 *        the height of the tube
+		 * @param center
+		 *        the center of the tube
+		 */
 		public BoundingTube(float radius, float height, Vector3f center) {
 			this.radius = radius;
 			this.height = height;
 			this.center = center;
 		}
 
-		public void merge(BoundingTube boundingTube) {
-			//get tubes (tube1.radius >= tube2.radius)
+		/**
+		 * This method merges two bounding tubes.
+		 * @param boundingTube
+		 *        bounding tube to be merged woth the current one
+		 * @return new instance of bounding tube representing the tubes' merge
+		 */
+		public BoundingTube merge(BoundingTube boundingTube) {
+			// get tubes (tube1.radius >= tube2.radius)
 			BoundingTube tube1, tube2;
-			if(this.radius>=boundingTube.radius) {
+			if (this.radius >= boundingTube.radius) {
 				tube1 = this;
 				tube2 = boundingTube;
 			} else {
@@ -331,53 +365,40 @@ public class UVCoordinatesGenerator {
 			}
 			float r1 = tube1.radius;
 			float r2 = tube2.radius;
-			
-			//get the distance between tubes projected on XY plane
-			Vector3f distance = boundingTube.center.subtract(this.center);
-			distance.z = 0;
+
+			float minZ = Math.min(tube1.center.z - tube1.height * 0.5f, tube2.center.z - tube2.height * 0.5f);
+			float maxZ = Math.max(tube1.center.z + tube1.height * 0.5f, tube2.center.z + tube2.height * 0.5f);
+			float height = maxZ - minZ;
+			Vector3f distance = tube2.center.subtract(tube1.center);
+			Vector3f center = tube1.center.add(distance.mult(0.5f));
+			distance.z = 0;// projecting this vector on XY plane
 			float d = distance.length();
-			
-			//calculate union depending on tubes location
-			if(d>=r1+r2) {//tube2 is outside or touches tube1
-				
-			} else if(d<r1+r2 && d>r1-r2) {//tube2 crosses tube1
-				
-			} else {//tube2 is inside tube1
-				
-			}
-			
-			if(d >= this.radius + boundingTube.radius || 
-			  (d < this.radius + boundingTube.radius && d > this.radius - boundingTube.radius)) {
-				
-			}
-			
-			float centerZ = distance.z;
-			
-			float maxz = this.center.z + height*0.5f;
-			float minz = this.center.z - height*0.5f;
-			
-			distance.z = this.center.z = 0;
-			
-			Vector3f distanceNormal = distance.normalize();
-			Vector3f start = this.center.subtract(distanceNormal.multLocal(this.radius));
-			distanceNormal.normalizeLocal();
-			Vector3f stop = start.add(distance).addLocal(distanceNormal.multLocal(this.radius+boundingTube.radius));
-			this.center = start.add(stop.subtractLocal(start)).multLocal(0.5f);
-			this.center.z = centerZ;
-			this.radius = this.center.subtract(start).length();
-			maxz = Math.max(maxz, boundingTube.center.z + boundingTube.height*0.5f);
-			minz = Math.min(minz, boundingTube.center.z - boundingTube.height*0.5f);
-			this.height = maxz - minz;
+			// d <= r1 - r2: tube2 is inside tube1 or touches tube1 from the inside
+			// d > r1 - r2: tube2 is outside or touches tube1 or crosses tube1
+			float radius = d <= r1 - r2 ? tube1.radius : (d + r1 + r2) * 0.5f;
+			return new BoundingTube(radius, height, center);
 		}
 
+		/**
+		 * This method returns the radius of the tube.
+		 * @return the radius of the tube
+		 */
 		public float getRadius() {
 			return radius;
 		}
 
+		/**
+		 * This method returns the height of the tube.
+		 * @return the height of the tube
+		 */
 		public float getHeight() {
 			return height;
 		}
 
+		/**
+		 * This method returns the center of the tube.
+		 * @return the center of the tube
+		 */
 		public Vector3f getCenter() {
 			return center;
 		}
