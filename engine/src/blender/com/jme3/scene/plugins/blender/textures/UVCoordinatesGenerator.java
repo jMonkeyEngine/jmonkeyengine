@@ -108,18 +108,17 @@ public class UVCoordinatesGenerator {
 				inputData = BufferUtils.getFloatArray(mesh.getFloatBuffer(VertexBuffer.Type.Position));
 				break;
 			case TEXCO_UV:
-				if (textureDimension == 2) {
-					FloatBuffer uvCoordinatesBuffer = BufferUtils.createFloatBuffer(mesh.getVertexCount() << 1);
-					Vector2f[] data = new Vector2f[] { new Vector2f(0, 1), new Vector2f(0, 0), new Vector2f(1, 0) };
-					for (int i = 0; i < mesh.getVertexCount(); ++i) {
-						Vector2f uv = data[i % 3];
-						uvCoordinatesBuffer.put(uv.x);
-						uvCoordinatesBuffer.put(uv.y);
+				FloatBuffer uvCoordinatesBuffer = BufferUtils.createFloatBuffer(mesh.getVertexCount() * textureDimension);
+				Vector2f[] data = new Vector2f[] { new Vector2f(0, 1), new Vector2f(0, 0), new Vector2f(1, 0) };
+				for (int i = 0; i < mesh.getVertexCount(); ++i) {
+					Vector2f uv = data[i % 3];
+					uvCoordinatesBuffer.put(uv.x);
+					uvCoordinatesBuffer.put(uv.y);
+					if(textureDimension == 3) {
+						uvCoordinatesBuffer.put(0);
 					}
-					result.setupData(Usage.Static, textureDimension, Format.Float, uvCoordinatesBuffer);
-				} else {
-
 				}
+				result.setupData(Usage.Static, textureDimension, Format.Float, uvCoordinatesBuffer);
 				break;
 			case TEXCO_NORM:
 				inputData = BufferUtils.getFloatArray(mesh.getFloatBuffer(VertexBuffer.Type.Normal));
