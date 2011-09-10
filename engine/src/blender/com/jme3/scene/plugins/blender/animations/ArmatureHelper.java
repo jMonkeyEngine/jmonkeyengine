@@ -299,9 +299,9 @@ public class ArmatureHelper extends AbstractBlenderHelper {
      *        additional bone transformation which indicates it's mesh parent and armature object transformations
      * @return
      */
-    public Bone[] buildBonesStructure(Long armatureOMA, Matrix4f additionalRootBoneTransformation) {//TODO: uwzględnić wiele szkieletów
+    public Bone[] buildBonesStructure(Long armatureOMA, Matrix4f additionalRootBoneTransformation) {//TODO: consider many skeletons ???
         List<Bone> bones = new ArrayList<Bone>(boneDataRoots.size() + 1);
-        bones.add(new Bone(null));
+        bones.add(new Bone(""));
         for (BoneTransformationData btd : boneDataRoots) {
             this.assignBonesMatrices(btd, additionalRootBoneTransformation, bones);
         }
@@ -338,14 +338,46 @@ public class ArmatureHelper extends AbstractBlenderHelper {
     	return true;
     }
     
+	/**
+	 * This method retuns the bone tracks for animation.
+	 * 
+	 * @param actionStructure
+	 *            the structure containing the tracks
+	 * @param dataRepository
+	 *            the data repository
+	 * @param objectName
+	 *            the name of the object that will use these tracks
+	 * @param animationName
+	 *            the animation name
+	 * @return a list of tracks for the specified animation
+	 * @throws BlenderFileException
+	 *             an exception is thrown when there are problems with the blend
+	 *             file
+	 */
     public BoneTrack[] getTracks(Structure actionStructure, DataRepository dataRepository, String objectName, String animationName) throws BlenderFileException {
     	if (blenderVersion < 250) {
-            return this.getTracks250(actionStructure, dataRepository, objectName, animationName);
+            return this.getTracks249(actionStructure, dataRepository, objectName, animationName);
         } else {
-        	return this.getTracks249(actionStructure, dataRepository, objectName, animationName);
+        	return this.getTracks250(actionStructure, dataRepository, objectName, animationName);
         }
     }
     
+    /**
+	 * This method retuns the bone tracks for animation for blender version 2.50 and higher.
+	 * 
+	 * @param actionStructure
+	 *            the structure containing the tracks
+	 * @param dataRepository
+	 *            the data repository
+	 * @param objectName
+	 *            the name of the object that will use these tracks
+	 * @param animationName
+	 *            the animation name
+	 * @return a list of tracks for the specified animation
+	 * @throws BlenderFileException
+	 *             an exception is thrown when there are problems with the blend
+	 *             file
+	 */
     private BoneTrack[] getTracks250(Structure actionStructure, DataRepository dataRepository, String objectName, String animationName) throws BlenderFileException {
         LOGGER.log(Level.INFO, "Getting tracks!");
         int fps = dataRepository.getBlenderKey().getFps();
@@ -388,43 +420,43 @@ public class ArmatureHelper extends AbstractBlenderHelper {
         return tracks.toArray(new BoneTrack[tracks.size()]);
     }
     
+    /**
+	 * This method retuns the bone tracks for animation for blender version 2.49 (and probably several lower versions too).
+	 * 
+	 * @param actionStructure
+	 *            the structure containing the tracks
+	 * @param dataRepository
+	 *            the data repository
+	 * @param objectName
+	 *            the name of the object that will use these tracks
+	 * @param animationName
+	 *            the animation name
+	 * @return a list of tracks for the specified animation
+	 * @throws BlenderFileException
+	 *             an exception is thrown when there are problems with the blend
+	 *             file
+	 */
     private BoneTrack[] getTracks249(Structure actionStructure, DataRepository dataRepository, String objectName, String animationName) throws BlenderFileException {
-        LOGGER.log(Level.INFO, "Getting tracks!");
+    	LOGGER.log(Level.INFO, "Getting tracks!");
+        IpoHelper ipoHelper = dataRepository.getHelper(IpoHelper.class);
         int fps = dataRepository.getBlenderKey().getFps();
         int[] animationFrames = dataRepository.getBlenderKey().getAnimationFrames(objectName, animationName);
-        Structure groups = (Structure) actionStructure.getFieldValue("groups");
-        List<Structure> actionGroups = groups.evaluateListBase(dataRepository);//bActionGroup
-        if (actionGroups != null && actionGroups.size() > 0 && (bonesMap == null || bonesMap.size() == 0)) {
+        Structure chanbase = (Structure) actionStructure.getFieldValue("chanbase");
+        List<Structure> actionChannels = chanbase.evaluateListBase(dataRepository);//bActionChannel
+        if (actionChannels != null && actionChannels.size() > 0 && (bonesMap == null || bonesMap.size() == 0)) {
             throw new IllegalStateException("No bones found! Cannot proceed to calculating tracks!");
         }
-
         List<BoneTrack> tracks = new ArrayList<BoneTrack>();
-        for (Structure actionGroup : actionGroups) {
-            String name = actionGroup.getFieldValue("name").toString();
+        for (Structure bActionChannel : actionChannels) {
+            String name = bActionChannel.getFieldValue("name").toString();
             Integer boneIndex = bonesMap.get(name);
             if (boneIndex != null) {
-                List<Structure> channels = ((Structure) actionGroup.getFieldValue("channels")).evaluateListBase(dataRepository);
-                BezierCurve[] bezierCurves = new BezierCurve[channels.size()];
-                int channelCounter = 0;
-                for (Structure c : channels) {
-                    //reading rna path first
-                    BlenderInputStream bis = dataRepository.getInputStream();
-                    int currentPosition = bis.getPosition();
-                    Pointer pRnaPath = (Pointer) c.getFieldValue("rna_path");
-                    FileBlockHeader dataFileBlock = dataRepository.getFileBlock(pRnaPath.getOldMemoryAddress());
-                    bis.setPosition(dataFileBlock.getBlockPosition());
-                    String rnaPath = bis.readString();
-                    bis.setPosition(currentPosition);
-                    int arrayIndex = ((Number) c.getFieldValue("array_index")).intValue();
-                    int type = this.getCurveType(rnaPath, arrayIndex);
-
-                    Pointer pBezTriple = (Pointer) c.getFieldValue("bezt");
-                    List<Structure> bezTriples = pBezTriple.fetchData(dataRepository.getInputStream());
-                    bezierCurves[channelCounter++] = new BezierCurve(type, bezTriples, 2);
+                Pointer p = (Pointer) bActionChannel.getFieldValue("ipo");
+                if (!p.isNull()) {
+                    Structure ipoStructure = p.fetchData(dataRepository.getInputStream()).get(0);
+                    Ipo ipo = ipoHelper.createIpo(ipoStructure, dataRepository);
+                    tracks.add(ipo.calculateTrack(boneIndex.intValue(), animationFrames[0], animationFrames[1], fps));
                 }
-
-                Ipo ipo = new Ipo(bezierCurves);
-                tracks.add(ipo.calculateTrack(boneIndex.intValue(), animationFrames[0], animationFrames[1], fps));
             }
         }
         return tracks.toArray(new BoneTrack[tracks.size()]);
