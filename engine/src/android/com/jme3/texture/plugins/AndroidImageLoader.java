@@ -14,37 +14,35 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 
-public class AndroidImageLoader implements AssetLoader 
-{
+public class AndroidImageLoader implements AssetLoader {
 
-    public Object load2(AssetInfo info) throws IOException 
-    {
+    public Object load2(AssetInfo info) throws IOException {
         ByteBuffer bb = BufferUtils.createByteBuffer(1 * 1 * 2);
-        bb.put( (byte) 0xff ).put( (byte) 0xff );
+        bb.put((byte) 0xff).put((byte) 0xff);
         bb.clear();
         return new Image(Format.RGB5A1, 1, 1, bb);
     }
 
-    public Object load(AssetInfo info) throws IOException 
-    {
+    public Object load(AssetInfo info) throws IOException {
         InputStream in = null;
         Bitmap bitmap = null;
         try {
             in = info.openStream();
             bitmap = BitmapFactory.decodeStream(in);
-            if (bitmap == null){
-                throw new IOException("Failed to load image: "+info.getKey().getName());
+            if (bitmap == null) {
+                throw new IOException("Failed to load image: " + info.getKey().getName());
             }
         } finally {
-            if (in != null)
+            if (in != null) {
                 in.close();
+            }
         }
 
         int width = bitmap.getWidth();
         int height = bitmap.getHeight();
         Format fmt;
 
-        switch (bitmap.getConfig()){
+        switch (bitmap.getConfig()) {
             case ALPHA_8:
                 fmt = Format.Alpha8;
                 break;
@@ -54,15 +52,14 @@ public class AndroidImageLoader implements AssetLoader
             case ARGB_8888:
                 fmt = Format.RGBA8;
                 break;
-            case RGB_565:        
+            case RGB_565:
                 fmt = Format.RGB565;
                 break;
             default:
                 return null;
         }
 
-        if ( ((TextureKey)info.getKey()).isFlipY() )
-        {
+        if (((TextureKey) info.getKey()).isFlipY()) {
             Bitmap newBitmap = null;
             Matrix flipMat = new Matrix();
             flipMat.preScale(1.0f, -1.0f);
@@ -70,14 +67,13 @@ public class AndroidImageLoader implements AssetLoader
             bitmap.recycle();
             bitmap = newBitmap;
 
-            if (bitmap == null){
-                throw new IOException("Failed to flip image: "+info.getKey().getName());
+            if (bitmap == null) {
+                throw new IOException("Failed to flip image: " + info.getKey().getName());
             }
         }
 
         Image image = new Image(fmt, width, height, null);
-        image.setEfficentData(bitmap);        
+        image.setEfficentData(bitmap);
         return image;
     }
-
 }

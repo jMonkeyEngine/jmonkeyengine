@@ -48,41 +48,6 @@ import javax.swing.SwingUtilities;
 
 public class JmeSystem {
 
-    public static enum Platform {
-
-        /**
-         * Microsoft Windows 32 bit
-         */
-        Windows32,
-        /**
-         * Microsoft Windows 64 bit
-         */
-        Windows64,
-        /**
-         * Linux 32 bit
-         */
-        Linux32,
-        /**
-         * Linux 64 bit
-         */
-        Linux64,
-        /**
-         * Apple Mac OS X 32 bit
-         */
-        MacOSX32,
-        /**
-         * Apple Mac OS X 64 bit
-         */
-        MacOSX64,
-        /**
-         * Apple Mac OS X 32 bit PowerPC
-         */
-        MacOSX_PPC32,
-        /**
-         * Apple Mac OS X 64 bit PowerPC
-         */
-        MacOSX_PPC64,
-    }
     private static final Logger logger = Logger.getLogger(JmeSystem.class.getName());
     private static boolean initialized = false;
     private static boolean lowPermissions = false;

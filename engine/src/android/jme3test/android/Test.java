@@ -15,19 +15,19 @@ public class Test extends SimpleApplication {
     public void simpleInitApp() {
         Sphere s = new Sphere(8, 8, .5f);
         Geometry geom = new Geometry("sphere", s);
-  //      ModelConverter.optimize(geom);
+        //      ModelConverter.optimize(geom);
 
         Material mat = new Material(assetManager, "plain_texture.j3md");
         Texture tex = assetManager.loadTexture(new TextureKey("monkey.j3i"));
         mat.setTexture("ColorMap", tex);
 //        geom.setMaterial(mat);
 
-        for (int y = -1; y < 2; y++){
-            for (int x = -1; x < 2; x++){
+        for (int y = -1; y < 2; y++) {
+            for (int x = -1; x < 2; x++) {
                 Geometry geomClone = new Geometry("geom", s);
                 geomClone.setMaterial(mat);
                 geomClone.setLocalTranslation(x, y, 0);
-                
+
                 Transform t = geom.getLocalTransform().clone();
                 Transform t2 = geomClone.getLocalTransform().clone();
                 t.combineWithParent(t2);
@@ -37,5 +37,4 @@ public class Test extends SimpleApplication {
             }
         }
     }
-
 }

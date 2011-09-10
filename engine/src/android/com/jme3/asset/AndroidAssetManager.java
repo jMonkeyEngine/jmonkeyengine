@@ -29,7 +29,6 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package com.jme3.asset;
 
 import com.jme3.texture.Texture;
@@ -50,14 +49,14 @@ public class AndroidAssetManager extends DesktopAssetManager {
 
     private static final Logger logger = Logger.getLogger(AndroidAssetManager.class.getName());
 
-    public AndroidAssetManager(){
+    public AndroidAssetManager() {
         this(null);
     }
 
     @Deprecated
-    public AndroidAssetManager(boolean loadDefaults){    	
+    public AndroidAssetManager(boolean loadDefaults) {
         //this(Thread.currentThread().getContextClassLoader().getResource("com/jme3/asset/Android.cfg"));
-    	this(null);
+        this(null);
     }
 
     /**
@@ -65,14 +64,13 @@ public class AndroidAssetManager extends DesktopAssetManager {
      * If URL == null then a default list of locators and loaders for android is set
      * @param configFile
      */
-    public AndroidAssetManager(URL configFile)
-    {   
-        
-        System.setProperty("org.xml.sax.driver","org.xmlpull.v1.sax2.Driver");
-        
-        
-    	// Set Default Android config        	       
-        this.registerLocator("", AndroidLocator.class);	        
+    public AndroidAssetManager(URL configFile) {
+
+        System.setProperty("org.xml.sax.driver", "org.xmlpull.v1.sax2.Driver");
+
+
+        // Set Default Android config        	       
+        this.registerLocator("", AndroidLocator.class);
         this.registerLocator("", ClasspathLocator.class);
         this.registerLoader(AndroidImageLoader.class, "jpg", "bmp", "gif", "png", "jpeg");
         this.registerLoader(AndroidAudioLoader.class, "ogg", "mp3");
@@ -91,8 +89,8 @@ public class AndroidAssetManager extends DesktopAssetManager {
         this.registerLoader(com.jme3.scene.plugins.ogre.MaterialLoader.class, "material");
         this.registerLoader(com.jme3.scene.plugins.ogre.SceneLoader.class, "scene");
         this.registerLoader(com.jme3.shader.plugins.GLSLLoader.class, "vert", "frag", "glsl", "glsllib");
-    
-                
+
+
         logger.info("AndroidAssetManager created.");
     }
 
@@ -102,18 +100,17 @@ public class AndroidAssetManager extends DesktopAssetManager {
      * @return
      */
     @Override
-    public Texture loadTexture(TextureKey key){
-    	Texture tex = (Texture) loadAsset(key);
-    	
-    	// Needed for Android
+    public Texture loadTexture(TextureKey key) {
+        Texture tex = (Texture) loadAsset(key);
+
+        // Needed for Android
         tex.setMagFilter(Texture.MagFilter.Nearest);
         tex.setAnisotropicFilter(0);
-        if (tex.getMinFilter().usesMipMapLevels()){
+        if (tex.getMinFilter().usesMipMapLevels()) {
             tex.setMinFilter(Texture.MinFilter.NearestNearestMipMap);
-        }else{
+        } else {
             tex.setMinFilter(Texture.MinFilter.NearestNoMipMaps);
         }
-        return tex; 
+        return tex;
     }
-    
 }

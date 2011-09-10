@@ -37,7 +37,6 @@ import com.jme3.input.KeyInput;
 import com.jme3.input.MouseInput;
 import com.jme3.input.TouchInput;
 import com.jme3.renderer.Renderer;
-import com.jme3.system.JmeCanvasContext;
 
 /**
  * Represents a rendering context within the engine.
