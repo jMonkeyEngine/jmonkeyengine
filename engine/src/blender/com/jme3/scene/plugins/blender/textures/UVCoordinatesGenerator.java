@@ -90,10 +90,12 @@ public class UVCoordinatesGenerator {
 	 *        the projection type for 2D textures
 	 * @param textureDimension
 	 *        the dimension of the texture (only 2D and 3D)
+	 * @param coordinatesSwappingIndexes
+	 *        an array that tells how UV-coordinates need to be swapped
 	 * @param geometries
 	 *        a list of geometries the UV coordinates will be applied to
 	 */
-	public static void generateUVCoordinates(int texco, int projection, int textureDimension, List<Geometry> geometries) {
+	public static void generateUVCoordinates(int texco, int projection, int textureDimension, int[] coordinatesSwappingIndexes, List<Geometry> geometries) {
 		if (textureDimension != 2 && textureDimension != 3) {
 			throw new IllegalStateException("Unsupported texture dimension: " + textureDimension);
 		}
@@ -123,20 +125,14 @@ public class UVCoordinatesGenerator {
 			case TEXCO_NORM:
 				inputData = BufferUtils.getFloatArray(mesh.getFloatBuffer(VertexBuffer.Type.Normal));
 				break;
+			case TEXCO_REFL:
 			case TEXCO_GLOB:
-
-				break;
 			case TEXCO_TANGENT:
-
-				break;
 			case TEXCO_STRESS:
-
-				break;
 			case TEXCO_LAVECTOR:
 			case TEXCO_OBJECT:
 			case TEXCO_OSA:
 			case TEXCO_PARTICLE_OR_STRAND:
-			case TEXCO_REFL:
 			case TEXCO_SPEED:
 			case TEXCO_STICKY:
 			case TEXCO_VIEW:
@@ -169,15 +165,20 @@ public class UVCoordinatesGenerator {
 				}
 			} else {
 				Vector3f min = bb.getMin(null);
+				float[] uvCoordsResults = new float[4];//used for coordinates swapping
 				float[] ext = new float[] { bb.getXExtent() * 2, bb.getYExtent() * 2, bb.getZExtent() * 2 };
 
 				// now transform the coordinates so that they are in the range of <0; 1>
 				for (int i = 0; i < inputData.length; i += 3) {
-					inputData[i] = (inputData[i] - min.x) / ext[0];
-					inputData[i + 1] = (inputData[i + 1] - min.y) / ext[1];
-					inputData[i + 2] = (inputData[i + 2] - min.z) / ext[2];
+					uvCoordsResults[1] = (inputData[i] - min.x) / ext[0];
+					uvCoordsResults[2] = (inputData[i + 1] - min.y) / ext[1];
+					uvCoordsResults[3] = (inputData[i + 2] - min.z) / ext[2];
+					
+					
+					inputData[i] = uvCoordsResults[coordinatesSwappingIndexes[0]];
+					inputData[i + 1] = uvCoordsResults[coordinatesSwappingIndexes[1]];
+					inputData[i + 2] = uvCoordsResults[coordinatesSwappingIndexes[2]];
 				}
-				result.setupData(Usage.Static, textureDimension, Format.Float, BufferUtils.createFloatBuffer(inputData));
 			}
 			result.setupData(Usage.Static, textureDimension, Format.Float, BufferUtils.createFloatBuffer(inputData));
 		}

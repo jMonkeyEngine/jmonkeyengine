@@ -408,8 +408,8 @@ public class MeshHelper extends AbstractBlenderHelper {
 				MaterialContext materialContext = dataRepository.getMaterialContext(entry.getKey());
 				if(materialContext != null && materialContext.getTexturesCount()>0) {
 					UVCoordinatesGenerator.generateUVCoordinates(materialContext.getUvCoordinatesType(), 
-							materialContext.getProjectionType(),
-							materialContext.getTextureDimension(), entry.getValue());
+							materialContext.getProjectionType(), materialContext.getTextureDimension(),
+							materialContext.getProjection(0), entry.getValue());
 				}
 			}
 		}

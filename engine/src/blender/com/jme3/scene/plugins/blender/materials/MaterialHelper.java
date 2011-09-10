@@ -200,6 +200,10 @@ public class MaterialHelper extends AbstractBlenderHelper {
 		
 		MaterialContext materialContext = new MaterialContext(structure, dataRepository);
 		LOGGER.log(Level.INFO, "Material's name: {0}", materialContext.name);
+		
+		if(materialContext.textures.size() > 0) {
+			LOGGER.log(Level.WARNING, "Attetion! Many textures found for material: {0}. Only the first of each supported mapping types will be used!", materialContext.name);
+		}
 
 		DiffuseShader diffuseShader = this.getDiffuseShader(structure);
 		ColorRGBA diffuseColor = this.getDiffuseColor(structure, diffuseShader);
@@ -232,6 +236,7 @@ public class MaterialHelper extends AbstractBlenderHelper {
 						texture.setMinFilter(MinFilter.Trilinear);
 
 						if ((mapto & 0x01) != 0) {// Col
+							mapto &= 0xFFFFFFFE;//this is temporary to force loading of one texture of a mapping type (will be removed when textures merging is created)
 							// Map to COLOR channel or DIFFUSE
 							// Set diffuse to white so it doesn't get multiplied by texture
 							// result.setColor(shadeless ? "Color" : "Diffuse", ColorRGBA.White.clone());
@@ -251,6 +256,7 @@ public class MaterialHelper extends AbstractBlenderHelper {
 						}
 						if(firstTextureType == Type.TwoDimensional) {//for now other mappings available for images only
 							if ((mapto & 0x02) != 0 && !materialContext.shadeless) {// Nor
+								mapto &= 0xFFFFFFFD;//this is temporary to force loading of one texture of a mapping type (will be removed when textures merging is created)
 								Texture normalMapTexture;
 								if (texture.getKey() instanceof GeneratedTextureKey) {
 									normalMapTexture = textureHelper.convertToNormalMapTexture(texture, ((Number) mtex.getFieldValue("norfac")).floatValue());
@@ -261,13 +267,16 @@ public class MaterialHelper extends AbstractBlenderHelper {
 								texturesMap.put(TEXTURE_TYPE_NORMAL, normalMapTexture);
 							}
 							if ((mapto & 0x04) != 0 && !materialContext.shadeless) {// Spec
+								mapto &= 0xFFFFFFFB;//this is temporary to force loading of one texture of a mapping type (will be removed when textures merging is created)
 								// Map to SPECULAR
 								texturesMap.put(TEXTURE_TYPE_SPECULAR, texture);
 							}
 							if ((mapto & 0x40) != 0) {// Emit
+								mapto &= 0xFFFFFFF8;//this is temporary to force loading of one texture of a mapping type (will be removed when textures merging is created)
 								texturesMap.put(TEXTURE_TYPE_GLOW, texture);
 							}
 							if ((mapto & 0x80) != 0 && !materialContext.shadeless) {// Alpha
+								mapto &= 0xFFFFFF7F;//this is temporary to force loading of one texture of a mapping type (will be removed when textures merging is created)
 								texturesMap.put(TEXTURE_TYPE_ALPHA, texture);
 							}
 						} else {
