@@ -24,7 +24,8 @@ import com.jme3.scene.plugins.blender.particles.ParticlesHelper;
  * @author Marcin Roguski (Kaelthas)
  */
 /* package */class ParticlesModifier extends Modifier {
-
+	private ParticleEmitter particleEmitter;
+	
 	/**
 	 * This constructor reads the particles system structure and stores it in
 	 * order to apply it later to the node.
@@ -41,32 +42,25 @@ import com.jme3.scene.plugins.blender.particles.ParticlesHelper;
 			throws BlenderFileException {
 		Pointer pParticleSystem = (Pointer) modifier.getFieldValue("psys");
 		if (pParticleSystem.isNotNull()) {
-			ParticlesHelper particlesHelper = dataRepository
-					.getHelper(ParticlesHelper.class);
-			Structure particleSystem = pParticleSystem.fetchData(
-					dataRepository.getInputStream()).get(0);
-			jmeModifierRepresentation = particlesHelper.toParticleEmitter(
-					particleSystem, dataRepository);
+			ParticlesHelper particlesHelper = dataRepository.getHelper(ParticlesHelper.class);
+			Structure particleSystem = pParticleSystem.fetchData(dataRepository.getInputStream()).get(0);
+			particleEmitter = particlesHelper.toParticleEmitter(particleSystem, dataRepository);
 		}
 	}
 
 	@Override
 	public Node apply(Node node, DataRepository dataRepository) {
-		MaterialHelper materialHelper = dataRepository
-				.getHelper(MaterialHelper.class);
-		ParticleEmitter emitter = (ParticleEmitter) jmeModifierRepresentation;
-		emitter = emitter.clone();
+		MaterialHelper materialHelper = dataRepository.getHelper(MaterialHelper.class);
+		ParticleEmitter emitter = particleEmitter.clone();
 
 		// veryfying the alpha function for particles' texture
 		Integer alphaFunction = MaterialHelper.ALPHA_MASK_HYPERBOLE;
-		char nameSuffix = emitter.getName().charAt(
-				emitter.getName().length() - 1);
+		char nameSuffix = emitter.getName().charAt(emitter.getName().length() - 1);
 		if (nameSuffix == 'B' || nameSuffix == 'N') {
 			alphaFunction = MaterialHelper.ALPHA_MASK_NONE;
 		}
 		// removing the type suffix from the name
-		emitter.setName(emitter.getName().substring(0,
-				emitter.getName().length() - 1));
+		emitter.setName(emitter.getName().substring(0, emitter.getName().length() - 1));
 
 		// applying emitter shape
 		EmitterShape emitterShape = emitter.getShape();
@@ -77,10 +71,8 @@ import com.jme3.scene.plugins.blender.particles.ParticlesHelper;
 				if (mesh != null) {
 					meshes.add(mesh);
 					Material material = materialHelper.getParticlesMaterial(
-							((Geometry) spatial).getMaterial(), alphaFunction,
-							dataRepository);
-					emitter.setMaterial(material);// TODO: divide into several
-													// pieces
+							((Geometry) spatial).getMaterial(), alphaFunction, dataRepository);
+					emitter.setMaterial(material);// TODO: divide into several pieces
 				}
 			}
 		}

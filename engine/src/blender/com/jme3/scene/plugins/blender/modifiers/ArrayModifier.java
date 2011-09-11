@@ -33,6 +33,9 @@ import com.jme3.scene.shape.Curve;
 /*package*/ class ArrayModifier extends Modifier {
 	private static final Logger LOGGER = Logger.getLogger(ArrayModifier.class.getName());
 	
+	/** Parameters of the modifier. */
+	private Map<String, Object> modifierData = new HashMap<String, Object>();
+	
 	/**
 	 * This constructor reads array data from the modifier structure. The
 	 * stored data is a map of parameters for array modifier. No additional data
@@ -50,16 +53,14 @@ import com.jme3.scene.shape.Curve;
 	 */
 	@SuppressWarnings("unchecked")
 	public ArrayModifier(Structure modifier, DataRepository dataRepository) throws BlenderFileException {
-		Map<String, Object> params = new HashMap<String, Object>();
-
         Number fittype = (Number) modifier.getFieldValue("fit_type");
-        params.put("fittype", fittype);
+        modifierData.put("fittype", fittype);
         switch (fittype.intValue()) {
             case 0:// FIXED COUNT
-                params.put("count", modifier.getFieldValue("count"));
+            	modifierData.put("count", modifier.getFieldValue("count"));
                 break;
             case 1:// FIXED LENGTH
-                params.put("length", modifier.getFieldValue("length"));
+            	modifierData.put("length", modifier.getFieldValue("length"));
                 break;
             case 2:// FITCURVE
                 Pointer pCurveOb = (Pointer) modifier.getFieldValue("curve_ob");
@@ -86,8 +87,8 @@ import com.jme3.scene.shape.Curve;
                         }
                     }
                 }
-                params.put("length", Float.valueOf(length));
-                params.put("fittype", Integer.valueOf(1));// treat it like FIXED LENGTH
+                modifierData.put("length", Float.valueOf(length));
+                modifierData.put("fittype", Integer.valueOf(1));// treat it like FIXED LENGTH
                 break;
             default:
                 assert false : "Unknown array modifier fit type: " + fittype;
@@ -98,36 +99,33 @@ import com.jme3.scene.shape.Curve;
         if ((offsettype & 0x01) != 0) {// Constant offset
             DynamicArray<Number> offsetArray = (DynamicArray<Number>) modifier.getFieldValue("offset");
             float[] offset = new float[]{offsetArray.get(0).floatValue(), offsetArray.get(1).floatValue(), offsetArray.get(2).floatValue()};
-            params.put("offset", offset);
+            modifierData.put("offset", offset);
         }
         if ((offsettype & 0x02) != 0) {// Relative offset
             DynamicArray<Number> scaleArray = (DynamicArray<Number>) modifier.getFieldValue("scale");
             float[] scale = new float[]{scaleArray.get(0).floatValue(), scaleArray.get(1).floatValue(), scaleArray.get(2).floatValue()};
-            params.put("scale", scale);
+            modifierData.put("scale", scale);
         }
         if ((offsettype & 0x04) != 0) {// Object offset
             Pointer pOffsetObject = (Pointer) modifier.getFieldValue("offset_ob");
             if (pOffsetObject.isNotNull()) {
-                params.put("offsetob", pOffsetObject);
+            	modifierData.put("offsetob", pOffsetObject);
             }
         }
 
         // start cap and end cap
         Pointer pStartCap = (Pointer) modifier.getFieldValue("start_cap");
         if (pStartCap.isNotNull()) {
-            params.put("startcap", pStartCap);
+        	modifierData.put("startcap", pStartCap);
         }
         Pointer pEndCap = (Pointer) modifier.getFieldValue("end_cap");
         if (pEndCap.isNotNull()) {
-            params.put("endcap", pEndCap);
+        	modifierData.put("endcap", pEndCap);
         }
-        jmeModifierRepresentation = params;
 	}
 	
 	@Override
-	@SuppressWarnings("unchecked")
 	public Node apply(Node node, DataRepository dataRepository) {
-		Map<String, Object> modifierData = (Map<String, Object>) jmeModifierRepresentation;
         int fittype = ((Number) modifierData.get("fittype")).intValue();
         float[] offset = (float[]) modifierData.get("offset");
         if (offset == null) {// the node will be repeated several times in the same place

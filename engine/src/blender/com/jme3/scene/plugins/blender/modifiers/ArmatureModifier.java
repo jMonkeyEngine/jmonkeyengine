@@ -45,6 +45,8 @@ import com.jme3.util.BufferUtils;
 /* package */class ArmatureModifier extends Modifier {
 	private static final int	MAXIMUM_WEIGHTS_PER_VERTEX	= 4;	// have no idea why 4, could someone please explain ?
 	
+	/** Loaded animation data. */
+	private AnimData animData;
 	/** Old memory address of the armature's object. */
 	private Long armatureObjectOMA;
 	/** Old memory address of the mesh that will have the skeleton applied. */
@@ -124,7 +126,7 @@ import com.jme3.util.BufferUtils;
 						animations.add(boneAnimation);
 					}
 				}
-				jmeModifierRepresentation = new AnimData(new Skeleton(bones), animations);
+				animData = new AnimData(new Skeleton(bones), animations);
 			}
 		}
 	}
@@ -132,7 +134,7 @@ import com.jme3.util.BufferUtils;
 	@Override
 	@SuppressWarnings("unchecked")
 	public Node apply(Node node, DataRepository dataRepository) {
-		if(jmeModifierRepresentation == null) {
+		if(animData == null) {
 			return node;
 		}
 		
@@ -147,8 +149,7 @@ import com.jme3.util.BufferUtils;
 			}
 		}
 		
-		AnimData ad = (AnimData) jmeModifierRepresentation;
-		ArrayList<Animation> animList = ad.anims;
+		ArrayList<Animation> animList = animData.anims;
 		if (animList != null && animList.size() > 0) {
 			List<Constraint> constraints = dataRepository.getConstraints(this.armatureObjectOMA);
 			HashMap<String, Animation> anims = new HashMap<String, Animation>();
@@ -158,7 +159,7 @@ import com.jme3.util.BufferUtils;
 				// baking constraints into animations
 				if (constraints != null && constraints.size() > 0) {
 					for (Constraint constraint : constraints) {
-						constraint.affectAnimation(ad.skeleton, boneAnimation);
+						constraint.affectAnimation(animData.skeleton, boneAnimation);
 					}
 				}
 
@@ -179,8 +180,8 @@ import com.jme3.util.BufferUtils;
 			}
 
 			// applying the control to the node
-			SkeletonControl skeletonControl = new SkeletonControl(meshes, ad.skeleton);
-			AnimControl control = new AnimControl(ad.skeleton);
+			SkeletonControl skeletonControl = new SkeletonControl(meshes, animData.skeleton);
+			AnimControl control = new AnimControl(animData.skeleton);
 
 			control.setAnimations(anims);
 			node.addControl(control);

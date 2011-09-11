@@ -20,34 +20,6 @@ public abstract class Modifier {
 	public static final String OBJECT_ANIMATION_MODIFIER_DATA = "ObjectAnimationModifierData";
 
 	/**
-	 * JME modifier representation object.
-	 */
-	protected Object jmeModifierRepresentation;
-
-	/**
-	 * Various additional data used by modifiers.
-	 */
-	protected Object additionalData;
-
-	/**
-	 * This method returns JME modifier representation object.
-	 * 
-	 * @return JME modifier representation object
-	 */
-	public Object getJmeModifierRepresentation() {
-		return jmeModifierRepresentation;
-	}
-
-	/**
-	 * This method returns additional data stored in the modifier.
-	 * 
-	 * @return the additional data stored in the modifier
-	 */
-	public Object getAdditionalData() {
-		return additionalData;
-	}
-
-	/**
 	 * This method applies the modifier to the given node.
 	 * 
 	 * @param node

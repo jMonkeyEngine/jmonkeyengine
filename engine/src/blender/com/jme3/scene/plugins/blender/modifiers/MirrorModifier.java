@@ -29,6 +29,9 @@ import com.jme3.scene.plugins.blender.objects.ObjectHelper;
 /*package*/ class MirrorModifier extends Modifier {
 	private static final Logger LOGGER = Logger.getLogger(MirrorModifier.class.getName());
 	
+	/** Parameters of the modifier. */
+	private Map<String, Object> modifierData = new HashMap<String, Object>();
+	
 	/**
 	 * This constructor reads mirror data from the modifier structure. The
 	 * stored data is a map of parameters for mirror modifier. No additional data
@@ -46,21 +49,16 @@ import com.jme3.scene.plugins.blender.objects.ObjectHelper;
 	 *             corrupted
 	 */
 	public MirrorModifier(Structure modifier, DataRepository dataRepository) {
-		Map<String, Object> params = new HashMap<String, Object>();
-
-        params.put("flag", modifier.getFieldValue("flag"));
-        params.put("tolerance", modifier.getFieldValue("tolerance"));
+		modifierData.put("flag", modifier.getFieldValue("flag"));
+		modifierData.put("tolerance", modifier.getFieldValue("tolerance"));
         Pointer pMirrorOb = (Pointer) modifier.getFieldValue("mirror_ob");
         if (pMirrorOb.isNotNull()) {
-            params.put("mirrorob", pMirrorOb);
+        	modifierData.put("mirrorob", pMirrorOb);
         }
-        jmeModifierRepresentation = params;
 	}
 	
 	@Override
-	@SuppressWarnings("unchecked")
 	public Node apply(Node node, DataRepository dataRepository) {
-		Map<String, Object> modifierData = (Map<String, Object>) jmeModifierRepresentation;
         int flag = ((Number) modifierData.get("flag")).intValue();
         float[] mirrorFactor = new float[]{
             (flag & 0x08) != 0 ? -1.0f : 1.0f,
