@@ -135,8 +135,8 @@ public class LODGeomap extends GeoMap {
         float offsetX = offset.x + (offsetAmount * 1.0f);
         float offsetY = -offset.y + (offsetAmount * 1.0f);//note the -, we flip the tex coords
 
-        store.set((((float) x) + offsetX) / (float) (totalSize ), // calculates percentage of texture here
-                (((float) y) + offsetY) / (float) (totalSize ));
+        store.set((((float) x) + offsetX) / (float) (totalSize - 1), // calculates percentage of texture here
+                (((float) y) + offsetY) / (float) (totalSize - 1));
         return store;
     }
 
