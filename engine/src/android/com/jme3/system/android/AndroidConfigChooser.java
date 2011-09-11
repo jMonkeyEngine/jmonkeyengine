@@ -75,8 +75,25 @@ public class AndroidConfigChooser implements EGLConfigChooser
         
         if (type == ConfigType.BEST)
         {        	
-        	ComponentSizeChooser compChooser = new ComponentSizeChooser(8, 8, 8, 8, 16, 0);
+        	ComponentSizeChooser compChooser = new ComponentSizeChooser(8, 8, 8, 8, 32, 0);
         	choosenConfig = compChooser.chooseConfig(egl, display);
+
+        	if (choosenConfig == null)
+        	{
+                compChooser = new ComponentSizeChooser(8, 8, 8, 0, 32, 0);
+                choosenConfig = compChooser.chooseConfig(egl, display);
+                if (choosenConfig == null)
+                {
+                    compChooser = new ComponentSizeChooser(8, 8, 8, 8, 16, 0);
+                    choosenConfig = compChooser.chooseConfig(egl, display);
+                    if (choosenConfig == null)
+                    {
+                        compChooser = new ComponentSizeChooser(8, 8, 8, 0, 16, 0);
+                        choosenConfig = compChooser.chooseConfig(egl, display);
+                    }
+                }
+        	}
+        	
             logger.info("JME3 using best EGL configuration available here: ");
         }
         else
@@ -103,10 +120,11 @@ public class AndroidConfigChooser implements EGLConfigChooser
         }        
     }
     
+    
     private int getPixelFormat(EGLConfig conf, EGLDisplay display, EGL10 egl)
     {
         int[] value = new int[1];
-        int result = PixelFormat.RGB_565;
+        int result = PixelFormat.RGB_565;                
 
         egl.eglGetConfigAttrib(display, conf, EGL10.EGL_RED_SIZE, value);
         if (value[0] == 8)
@@ -129,7 +147,8 @@ public class AndroidConfigChooser implements EGLConfigChooser
             logger.info("Using PixelFormat " + result);                            
         }
     
-        return result;                    
+        //return result; TODO Test pixelformat
+        return PixelFormat.TRANSPARENT;
     }
     
     private int getOpenGLVersion(EGLConfig conf, EGLDisplay display, EGL10 egl)
@@ -181,30 +200,6 @@ public class AndroidConfigChooser implements EGLConfigChooser
         egl.eglGetConfigAttrib(display, conf, EGL10.EGL_SURFACE_TYPE, value);
         logger.info(String.format("EGL_SURFACE_TYPE  = %d", value[0] ) );               
     }
-    
-
-    
-    
-    // Getter - Setter
-    
-    public EGLConfig getBestConfig() 
-    {
-        return bestConfig;
-    }
-
-    public void setBestConfig(EGLConfig bestConfig) 
-    {
-        this.bestConfig = bestConfig;
-    }
-    public EGLConfig getFastestConfig() 
-    {
-        return fastestConfig;
-    }
-
-    public void setFastestConfig(EGLConfig fastestConfig) 
-    {
-        this.fastestConfig = fastestConfig;
-    }
         
     public int getClientOpenGLESVersion() 
     {
@@ -225,8 +220,11 @@ public class AndroidConfigChooser implements EGLConfigChooser
     
     private abstract class BaseConfigChooser implements EGLConfigChooser 
     {
+        private boolean bClientOpenGLESVersionSet;
+        
 		public BaseConfigChooser(int[] configSpec) 
 		{
+		    bClientOpenGLESVersionSet = false;
 		    mConfigSpec = filterConfigSpec(configSpec);
 		}
 		
@@ -240,9 +238,11 @@ public class AndroidConfigChooser implements EGLConfigChooser
 		
 		    int numConfigs = num_config[0];
 		
-		    if (numConfigs <= 0) {
-		        throw new IllegalArgumentException(
-		                "No configs match configSpec");
+		    if (numConfigs <= 0) 
+		    {
+		        //throw new IllegalArgumentException("No configs match configSpec");
+		        
+		        return null;
 		    }
 		
 		    EGLConfig[] configs = new EGLConfig[numConfigs];
@@ -251,9 +251,9 @@ public class AndroidConfigChooser implements EGLConfigChooser
 		        throw new IllegalArgumentException("eglChooseConfig#2 failed");
 		    }
 		    EGLConfig config = chooseConfig(egl, display, configs);
-		    if (config == null) {
-		        throw new IllegalArgumentException("No config chosen");
-		    }
+		    //if (config == null) {
+		    //    throw new IllegalArgumentException("No config chosen");
+		    //}
 		    return config;
 		}
 		
@@ -264,7 +264,7 @@ public class AndroidConfigChooser implements EGLConfigChooser
 		
 		private int[] filterConfigSpec(int[] configSpec) 
 		{
-		    if (clientOpenGLESVersion != 2) {
+		    if (bClientOpenGLESVersionSet == true) {
 		        return configSpec;
 		    }
 		    /* We know none of the subclasses define EGL_RENDERABLE_TYPE.
@@ -276,6 +276,9 @@ public class AndroidConfigChooser implements EGLConfigChooser
 		    newConfigSpec[len-1] = EGL10.EGL_RENDERABLE_TYPE;
 		    newConfigSpec[len] = 4; /* EGL_OPENGL_ES2_BIT */
 		    newConfigSpec[len+1] = EGL10.EGL_NONE;
+		    
+		    bClientOpenGLESVersionSet = true;
+		    
 		    return newConfigSpec;
 		}
     }
