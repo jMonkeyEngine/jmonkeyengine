@@ -31,7 +31,6 @@
  */
 package com.jme3.scene.plugins.blender.animations;
 
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -41,12 +40,8 @@ import java.util.logging.Logger;
 
 import com.jme3.animation.Bone;
 import com.jme3.animation.BoneTrack;
-import com.jme3.animation.Skeleton;
 import com.jme3.math.Matrix4f;
 import com.jme3.math.Vector3f;
-import com.jme3.scene.Mesh;
-import com.jme3.scene.VertexBuffer;
-import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.scene.plugins.blender.AbstractBlenderHelper;
 import com.jme3.scene.plugins.blender.DataRepository;
 import com.jme3.scene.plugins.blender.curves.BezierCurve;
@@ -101,27 +96,6 @@ public class ArmatureHelper extends AbstractBlenderHelper {
     }
 
     /**
-     * This method reads the bones and returns an empty skeleton. Bones should be assigned later.
-     * @param structure
-     *        armature structure
-     * @param dataRepository
-     *        the data repository
-     * @return an empty skeleton, bones are stored within the helper object
-     * @throws BlenderFileException
-     *         this exception is thrown when the blender file is somehow corrupted
-     */
-    public Skeleton toArmature(Structure structure, DataRepository dataRepository) throws BlenderFileException {
-        LOGGER.log(Level.INFO, "Converting structure to Armature!");
-        Structure bonebase = (Structure) structure.getFieldValue("bonebase");
-        List<Structure> bonesStructures = bonebase.evaluateListBase(dataRepository);
-        for (Structure boneStructure : bonesStructures) {
-            BoneTransformationData rootBoneTransformationData = this.readBoneAndItsChildren(boneStructure, null, dataRepository);
-            boneDataRoots.add(rootBoneTransformationData);
-        }
-        return new Skeleton();//bones are assigned later
-    }
-
-    /**
      * This method returns a map where the key is the object's group index that is used by a bone and the key is the
      * bone index in the armature.
      * @param poseStructure
@@ -135,7 +109,7 @@ public class ArmatureHelper extends AbstractBlenderHelper {
         if (bonesMap != null && bonesMap.size() != 0) {
             result = new HashMap<Integer, Integer>();
             List<Structure> deformGroups = defBaseStructure.evaluateListBase(dataRepository);//bDeformGroup
-            int groupIndex = 0;//TODO: consider many armatures attached to one object in the future !!!
+            int groupIndex = 0;
             for (Structure deformGroup : deformGroups) {
                 String deformGroupName = deformGroup.getFieldValue("name").toString();
                 Integer boneIndex = bonesMap.get(deformGroupName);
@@ -179,7 +153,7 @@ public class ArmatureHelper extends AbstractBlenderHelper {
      *         this exception is thrown when the blender file is somehow corrupted
      */
     @SuppressWarnings("unchecked")
-    protected BoneTransformationData readBoneAndItsChildren(Structure boneStructure, BoneTransformationData parent, DataRepository dataRepository) throws BlenderFileException {
+    public BoneTransformationData readBoneAndItsChildren(Structure boneStructure, BoneTransformationData parent, DataRepository dataRepository) throws BlenderFileException {
         String name = boneStructure.getFieldValue("name").toString();
         Bone bone = new Bone(name);
         int bonesAmount = bonesOMAs.size();
@@ -230,6 +204,10 @@ public class ArmatureHelper extends AbstractBlenderHelper {
         }
     }
 
+    public void addBoneDataRoot(BoneTransformationData dataRoot) {
+    	this.boneDataRoots.add(dataRoot);
+    }
+    
     /**
      * This method returns bone transformation data for the bone of a given index.
      * @param index
@@ -252,7 +230,7 @@ public class ArmatureHelper extends AbstractBlenderHelper {
      * This class holds the data needed later for bone transformation calculation and to bind parent with children.
      * @author Marcin Roguski
      */
-    private static class BoneTransformationData {
+    public static class BoneTransformationData {
 
         /** Inverse matrix of bone's parent bone. */
         private Matrix4f totalInverseBoneParentMatrix;
@@ -299,32 +277,13 @@ public class ArmatureHelper extends AbstractBlenderHelper {
      *        additional bone transformation which indicates it's mesh parent and armature object transformations
      * @return
      */
-    public Bone[] buildBonesStructure(Long armatureOMA, Matrix4f additionalRootBoneTransformation) {//TODO: consider many skeletons ???
+    public Bone[] buildBonesStructure(Long armatureOMA, Matrix4f additionalRootBoneTransformation) {
         List<Bone> bones = new ArrayList<Bone>(boneDataRoots.size() + 1);
         bones.add(new Bone(""));
         for (BoneTransformationData btd : boneDataRoots) {
             this.assignBonesMatrices(btd, additionalRootBoneTransformation, bones);
         }
         return bones.toArray(new Bone[bones.size()]);
-    }
-
-    /**
-     * This method assigns an immovable bone to vertices that have no bone assigned. They have the bone index with the
-     * value -1.
-     * @param immovableBoneIndex
-     *        the ondex of immovable bone
-     * @param meshes
-     *        a list of meshes whose vertices will be assigned to immovable bone
-     */
-    public void assignBoneToOrphanedVertices(byte immovableBoneIndex, Mesh[] meshes) {
-        //bone indices are common for all the object's meshes (vertex indices specify which are to be used)
-        VertexBuffer boneIndices = meshes[0].getBuffer(Type.BoneIndex);//common buffer to all the meshes
-        ByteBuffer data = (ByteBuffer) boneIndices.getData();
-        for (int i = 0; i < boneIndices.getNumElements(); ++i) {
-            if (data.get(i) == -1) {
-                data.put(i, immovableBoneIndex);
-            }
-        }
     }
 
     @Override

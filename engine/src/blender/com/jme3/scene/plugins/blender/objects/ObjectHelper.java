@@ -55,7 +55,6 @@ import com.jme3.scene.Spatial.CullHint;
 import com.jme3.scene.plugins.blender.AbstractBlenderHelper;
 import com.jme3.scene.plugins.blender.DataRepository;
 import com.jme3.scene.plugins.blender.DataRepository.LoadedFeatureDataType;
-import com.jme3.scene.plugins.blender.animations.ArmatureHelper;
 import com.jme3.scene.plugins.blender.cameras.CameraHelper;
 import com.jme3.scene.plugins.blender.constraints.ConstraintHelper;
 import com.jme3.scene.plugins.blender.curves.CurvesHelper;
@@ -141,9 +140,7 @@ public class ObjectHelper extends AbstractBlenderHelper {
 		}
 
 		dataRepository.pushParent(objectStructure);
-
 		ObjectHelper objectHelper = dataRepository.getHelper(ObjectHelper.class);
-		ArmatureHelper armatureHelper = dataRepository.getHelper(ArmatureHelper.class);
 
 		//get object data
 		int type = ((Number)objectStructure.getFieldValue("type")).intValue();
@@ -161,7 +158,7 @@ public class ObjectHelper extends AbstractBlenderHelper {
 		Pointer pParent = (Pointer)objectStructure.getFieldValue("parent");
 		Object parent = dataRepository.getLoadedFeature(pParent.getOldMemoryAddress(), LoadedFeatureDataType.LOADED_FEATURE);
 		if(parent == null && pParent.isNotNull()) {
-			Structure parentStructure = pParent.fetchData(dataRepository.getInputStream()).get(0);//TODO: moze byc wiecej rodzicow
+			Structure parentStructure = pParent.fetchData(dataRepository.getInputStream()).get(0);//TODO: what if there are more parents ??
 			parent = this.toObject(parentStructure, dataRepository);
 		}
 
@@ -263,10 +260,7 @@ public class ObjectHelper extends AbstractBlenderHelper {
 					}
 					break;
 				case OBJECT_TYPE_ARMATURE:
-					LOGGER.log(Level.INFO, "Importing armature.");
-					Pointer pArmature = (Pointer)objectStructure.getFieldValue("data");
-					List<Structure> armaturesArray = pArmature.fetchData(dataRepository.getInputStream());//TODO: moze byc wiecej???
-					result = armatureHelper.toArmature(armaturesArray.get(0), dataRepository);
+					//Do not do anything, the object with all needed data is loaded when armature modifier loads
 					break;
 				default:
 					LOGGER.log(Level.WARNING, "Unknown object type: {0}", type);
@@ -275,13 +269,13 @@ public class ObjectHelper extends AbstractBlenderHelper {
 			dataRepository.popParent();
 		}
 		
-		//reading custom properties
-		Properties properties = this.loadProperties(objectStructure, dataRepository);
-		if(result instanceof Spatial && properties != null && properties.getValue() != null) {
-			((Spatial)result).setUserData("properties", properties);
-		}
-		
 		if(result != null) {
+			//reading custom properties
+			Properties properties = this.loadProperties(objectStructure, dataRepository);
+			if(result instanceof Spatial && properties != null && properties.getValue() != null) {
+				((Spatial)result).setUserData("properties", properties);
+			}
+			
 			dataRepository.addLoadedFeatures(objectStructure.getOldMemoryAddress(), name, objectStructure, result);
 		}
 		return result;

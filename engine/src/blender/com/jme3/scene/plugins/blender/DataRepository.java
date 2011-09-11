@@ -49,6 +49,7 @@ import com.jme3.scene.plugins.blender.file.DnaBlockData;
 import com.jme3.scene.plugins.blender.file.FileBlockHeader;
 import com.jme3.scene.plugins.blender.file.Structure;
 import com.jme3.scene.plugins.blender.materials.MaterialContext;
+import com.jme3.scene.plugins.blender.meshes.MeshHelper.VertexData;
 import com.jme3.scene.plugins.blender.modifiers.Modifier;
 
 /**
@@ -89,6 +90,8 @@ public class DataRepository {
     protected Map<Long, List<Modifier>> modifiers = new HashMap<Long, List<Modifier>>();
     /** A list of constraints for the specified object. */
     protected Map<Long, List<Constraint>> constraints = new HashMap<Long, List<Constraint>>();
+    /** Vertex data for a mesh specified by OMA. */
+    protected Map<Long, VertexData> vertexData = new HashMap<Long, VertexData>();
     /** A map of material contexts. */
     protected Map<Material, MaterialContext> materialContexts = new HashMap<Material, MaterialContext>();
     /** A map og helpers that perform loading. */
@@ -396,6 +399,29 @@ public class DataRepository {
      */
     public List<Constraint> getConstraints(Long objectOMA) {
     	return constraints.get(objectOMA);
+    }
+    
+	/**
+	 * This method sets the vertex data for the specified mesh. Attention!!! If
+	 * vertex data is already set it will be overwritten.
+	 * @param meshOMA
+	 *        old memeory address of mesh
+	 * @param vertexData
+	 *        mesh's vertex data
+	 */
+    public void setVertexData(Long meshOMA, VertexData vertexData) {
+    	this.vertexData.put(meshOMA, vertexData);
+    }
+    
+	/**
+	 * This method returns vertex data for a mesh with the specified old memory
+	 * address. If no data is registered then null is returned.
+	 * @param meshOMA
+	 *        old memeory address of mesh
+	 * @return mesh's vertex data
+	 */
+    public VertexData getVertexData(Long meshOMA) {
+    	return vertexData.get(meshOMA);
     }
     
 	/**
