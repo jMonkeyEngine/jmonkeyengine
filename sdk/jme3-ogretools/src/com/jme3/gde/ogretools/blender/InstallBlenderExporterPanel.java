@@ -47,68 +47,68 @@ public class InstallBlenderExporterPanel extends javax.swing.JDialog {
     }
 
     private String findBlenderFolder() {
-        if (Utilities.isMac()) {
-            File scriptsDir = new File(System.getProperty("user.home") + "/.blender/scripts/");
-            if (!scriptsDir.exists()) {
-                scriptsDir = new File("/Applications/blender.app/Contents/Resources/MacOS/.blender/scripts/");
-                if (!scriptsDir.exists()) {
-                    scriptsDir = new File(System.getProperty("user.home") + "/Applications/blender.app/Contents/Resources/MacOS/.blender/scripts/");
-                    if (!scriptsDir.exists()) {
-                        scriptsDir = new File("/Applications/blender/blender.app/Contents/Resources/MacOS/.blender/scripts/");
-                    }
-                }
-            }
-            if (!scriptsDir.exists()) {
-                FileChooserBuilder builder = new FileChooserBuilder("/Applications/");
-                builder.setDirectoriesOnly(true);
-                builder.setTitle("Select Blender.app Application");
-                File file = builder.showOpenDialog();
-                if (file != null) {
-                    scriptsDir = new File(file.getPath() + "/Contents/Resources/MacOS/.blender/scripts/");
-                }
-                return scriptsDir.getPath();
-            } else {
-                return scriptsDir.getPath();
-            }
-        } else if (Utilities.isUnix()) {
-            File scriptsDir = new File("/usr/share/blender/");
-            if (!scriptsDir.exists()) {
-                scriptsDir = new File("/usr/lib/blender/");
-            }
-            if (!scriptsDir.exists()) {
-                FileChooserBuilder builder = new FileChooserBuilder("");
-                builder.setDirectoriesOnly(true);
-                builder.setTitle("Select Blender Scripts Directory");
-                File file = builder.showOpenDialog();
-                if (file != null) {
-                    scriptsDir = file;
-                }
-                return scriptsDir.getPath();
-            } else {
-                return scriptsDir.getPath();
-            }
-        } else if (Utilities.isWindows()) {
-            File scriptsDir = new File(System.getProperty("user.home") + "\\AppData\\Roaming\\Blender Foundation\\Blender\\scripts\\");
-            if (!scriptsDir.exists()) {
-                scriptsDir = new File(System.getProperty("user.home") + "\\Application Data\\Roaming\\Blender Foundation\\Blender\\scripts\\");
-                if (!scriptsDir.exists()) {
-                    scriptsDir = new File(System.getProperty("user.home") + "C:\\Program Files\\Blender\\.blender\\scripts\\");
-                }
-            }
-            if (!scriptsDir.exists()) {
-                FileChooserBuilder builder = new FileChooserBuilder("");
-                builder.setDirectoriesOnly(true);
-                builder.setTitle("Select Blender Scripts Directory");
-                File file = builder.showOpenDialog();
-                if (file != null) {
-                    scriptsDir = file;
-                }
-                return scriptsDir.getPath();
-            } else {
-                return scriptsDir.getPath();
-            }
-        }
-        return "could not find path";
+//        if (Utilities.isMac()) {
+//            File scriptsDir = new File(System.getProperty("user.home") + "/.blender/scripts/");
+//            if (!scriptsDir.exists()) {
+//                scriptsDir = new File("/Applications/blender.app/Contents/Resources/MacOS/.blender/scripts/");
+//                if (!scriptsDir.exists()) {
+//                    scriptsDir = new File(System.getProperty("user.home") + "/Applications/blender.app/Contents/Resources/MacOS/.blender/scripts/");
+//                    if (!scriptsDir.exists()) {
+//                        scriptsDir = new File("/Applications/blender/blender.app/Contents/Resources/MacOS/.blender/scripts/");
+//                    }
+//                }
+//            }
+//            if (!scriptsDir.exists()) {
+//                FileChooserBuilder builder = new FileChooserBuilder("/Applications/");
+//                builder.setDirectoriesOnly(true);
+//                builder.setTitle("Select Blender.app Application");
+//                File file = builder.showOpenDialog();
+//                if (file != null) {
+//                    scriptsDir = new File(file.getPath() + "/Contents/Resources/MacOS/.blender/scripts/");
+//                }
+//                return scriptsDir.getPath();
+//            } else {
+//                return scriptsDir.getPath();
+//            }
+//        } else if (Utilities.isUnix()) {
+//            File scriptsDir = new File("/usr/share/blender/");
+//            if (!scriptsDir.exists()) {
+//                scriptsDir = new File("/usr/lib/blender/");
+//            }
+//            if (!scriptsDir.exists()) {
+//                FileChooserBuilder builder = new FileChooserBuilder("");
+//                builder.setDirectoriesOnly(true);
+//                builder.setTitle("Select Blender Scripts Directory");
+//                File file = builder.showOpenDialog();
+//                if (file != null) {
+//                    scriptsDir = file;
+//                }
+//                return scriptsDir.getPath();
+//            } else {
+//                return scriptsDir.getPath();
+//            }
+//        } else if (Utilities.isWindows()) {
+//            File scriptsDir = new File(System.getProperty("user.home") + "\\AppData\\Roaming\\Blender Foundation\\Blender\\scripts\\");
+//            if (!scriptsDir.exists()) {
+//                scriptsDir = new File(System.getProperty("user.home") + "\\Application Data\\Roaming\\Blender Foundation\\Blender\\scripts\\");
+//                if (!scriptsDir.exists()) {
+//                    scriptsDir = new File(System.getProperty("user.home") + "C:\\Program Files\\Blender\\.blender\\scripts\\");
+//                }
+//            }
+//            if (!scriptsDir.exists()) {
+//                FileChooserBuilder builder = new FileChooserBuilder("");
+//                builder.setDirectoriesOnly(true);
+//                builder.setTitle("Select Blender Scripts Directory");
+//                File file = builder.showOpenDialog();
+//                if (file != null) {
+//                    scriptsDir = file;
+//                }
+//                return scriptsDir.getPath();
+//            } else {
+//                return scriptsDir.getPath();
+//            }
+//        }
+        return "please set blender scripts folder";
     }
     static final int BUFFER = 2048;
 
@@ -297,7 +297,6 @@ public class InstallBlenderExporterPanel extends javax.swing.JDialog {
         jButton3 = new javax.swing.JButton();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
-        jLabel4 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
@@ -333,15 +332,6 @@ public class InstallBlenderExporterPanel extends javax.swing.JDialog {
         jLabel3.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel3.setText(org.openide.util.NbBundle.getMessage(InstallBlenderExporterPanel.class, "InstallBlenderExporterPanel.jLabel3.text")); // NOI18N
 
-        jLabel4.setForeground(new java.awt.Color(0, 51, 255));
-        jLabel4.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel4.setText(org.openide.util.NbBundle.getMessage(InstallBlenderExporterPanel.class, "InstallBlenderExporterPanel.jLabel4.text")); // NOI18N
-        jLabel4.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseReleased(java.awt.event.MouseEvent evt) {
-                openBrowser(evt);
-            }
-        });
-
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -359,8 +349,7 @@ public class InstallBlenderExporterPanel extends javax.swing.JDialog {
                         .addComponent(jButton3)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jButton2))
-                    .addComponent(jLabel3, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 341, Short.MAX_VALUE)
-                    .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, 341, Short.MAX_VALUE))
+                    .addComponent(jLabel3, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 341, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -376,9 +365,7 @@ public class InstallBlenderExporterPanel extends javax.swing.JDialog {
                 .addComponent(jLabel2)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel3)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jLabel4)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 15, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 45, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jButton2)
                     .addComponent(jButton3))
@@ -406,9 +393,6 @@ public class InstallBlenderExporterPanel extends javax.swing.JDialog {
         dispose();
     }//GEN-LAST:event_jButton3ActionPerformed
 
-    private void openBrowser(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_openBrowser
-        openURL("http://www.python.org/download/releases/2.6/");
-    }//GEN-LAST:event_openBrowser
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
@@ -416,7 +400,6 @@ public class InstallBlenderExporterPanel extends javax.swing.JDialog {
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel4;
     private javax.swing.JTextField jTextField1;
     // End of variables declaration//GEN-END:variables
 }
