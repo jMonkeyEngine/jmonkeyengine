@@ -38,7 +38,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.jme3.scene.plugins.blender.AbstractBlenderHelper;
-import com.jme3.scene.plugins.blender.DataRepository;
+import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
 import com.jme3.scene.plugins.blender.file.Pointer;
 import com.jme3.scene.plugins.blender.file.Structure;
@@ -65,32 +65,32 @@ public class ModifierHelper extends AbstractBlenderHelper {
      * This method reads the given object's modifiers.
      * @param objectStructure
      *        the object structure
-     * @param dataRepository
-     *        the data repository
+     * @param blenderContext
+     *        the blender context
      * @param converter
      *        the converter object (in some cases we need to read an object first before loading the modifier)
      * @throws BlenderFileException
      *         this exception is thrown when the blender file is somehow corrupted
      */
-    public Collection<Modifier> readModifiers(Structure objectStructure, DataRepository dataRepository) throws BlenderFileException {
+    public Collection<Modifier> readModifiers(Structure objectStructure, BlenderContext blenderContext) throws BlenderFileException {
     	Collection<Modifier> result = new ArrayList<Modifier>();
     	Structure modifiersListBase = (Structure) objectStructure.getFieldValue("modifiers");
-        List<Structure> modifiers = modifiersListBase.evaluateListBase(dataRepository);
+        List<Structure> modifiers = modifiersListBase.evaluateListBase(blenderContext);
         for (Structure modifierStructure : modifiers) {
             Modifier modifier = null;
             if (Modifier.ARRAY_MODIFIER_DATA.equals(modifierStructure.getType())) {
-            	modifier = new ArrayModifier(modifierStructure, dataRepository);
+            	modifier = new ArrayModifier(modifierStructure, blenderContext);
             } else if (Modifier.MIRROR_MODIFIER_DATA.equals(modifierStructure.getType())) {
-            	modifier = new MirrorModifier(modifierStructure, dataRepository);
+            	modifier = new MirrorModifier(modifierStructure, blenderContext);
             } else if (Modifier.ARMATURE_MODIFIER_DATA.equals(modifierStructure.getType())) {
-            	modifier = new ArmatureModifier(objectStructure, modifierStructure, dataRepository);
+            	modifier = new ArmatureModifier(objectStructure, modifierStructure, blenderContext);
             } else if (Modifier.PARTICLE_MODIFIER_DATA.equals(modifierStructure.getType())) {
-            	modifier = new ParticlesModifier(modifierStructure, dataRepository);
+            	modifier = new ParticlesModifier(modifierStructure, blenderContext);
             }
             
             if(modifier != null) {
             	result.add(modifier);
-            	dataRepository.addModifier(objectStructure.getOldMemoryAddress(), modifier);
+            	blenderContext.addModifier(objectStructure.getOldMemoryAddress(), modifier);
             } else {
             	LOGGER.log(Level.WARNING, "Unsupported modifier type: {0}", modifierStructure.getType());
             }
@@ -99,15 +99,15 @@ public class ModifierHelper extends AbstractBlenderHelper {
         //at the end read object's animation modifier
         Pointer pIpo = (Pointer) objectStructure.getFieldValue("ipo");
         if (pIpo.isNotNull()) {
-        	Modifier modifier = new ObjectAnimationModifier(objectStructure, dataRepository);
+        	Modifier modifier = new ObjectAnimationModifier(objectStructure, blenderContext);
         	result.add(modifier);
-        	dataRepository.addModifier(objectStructure.getOldMemoryAddress(), modifier);
+        	blenderContext.addModifier(objectStructure.getOldMemoryAddress(), modifier);
         }
         return result;
     }
 
     @Override
-    public boolean shouldBeLoaded(Structure structure, DataRepository dataRepository) {
+    public boolean shouldBeLoaded(Structure structure, BlenderContext blenderContext) {
     	return true;
     }
 }

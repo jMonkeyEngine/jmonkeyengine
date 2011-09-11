@@ -34,7 +34,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
 import com.jme3.math.FastMath;
-import com.jme3.scene.plugins.blender.DataRepository;
+import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.file.Structure;
 import com.jme3.texture.Image;
 import com.jme3.texture.Image.Format;
@@ -71,7 +71,7 @@ public class TextureGeneratorWood extends TextureGenerator {
 	}
 
 	@Override
-	protected Texture generate(Structure tex, int width, int height, int depth, DataRepository dataRepository) {
+	protected Texture generate(Structure tex, int width, int height, int depth, BlenderContext blenderContext) {
 		float[] texvec = new float[] { 0, 0, 0 };
 		TextureResult texres = new TextureResult();
 		int halfW = width >> 1;
@@ -79,7 +79,7 @@ public class TextureGeneratorWood extends TextureGenerator {
 		int halfD = depth >> 1;
 		float wDelta = 1.0f / halfW, hDelta = 1.0f / halfH, dDelta = 1.0f / halfD;
 		
-		float[][] colorBand = this.computeColorband(tex, dataRepository);
+		float[][] colorBand = this.computeColorband(tex, blenderContext);
 		Format format = colorBand != null ? Format.RGB8 : Format.Luminance8;
 		int bytesPerPixel = colorBand != null ? 3 : 1;
 		WoodIntensityData woodIntensityData = new WoodIntensityData(tex);

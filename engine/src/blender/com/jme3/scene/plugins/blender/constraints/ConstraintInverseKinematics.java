@@ -12,8 +12,8 @@ import com.jme3.math.Quaternion;
 import com.jme3.math.Transform;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
-import com.jme3.scene.plugins.blender.DataRepository;
-import com.jme3.scene.plugins.blender.DataRepository.LoadedFeatureDataType;
+import com.jme3.scene.plugins.blender.BlenderContext;
+import com.jme3.scene.plugins.blender.BlenderContext.LoadedFeatureDataType;
 import com.jme3.scene.plugins.blender.animations.CalculationBone;
 import com.jme3.scene.plugins.blender.animations.Ipo;
 import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
@@ -37,22 +37,22 @@ import com.jme3.scene.plugins.blender.objects.ObjectHelper;
 	 *            the old memory address of the constraint owner
 	 * @param influenceIpo
 	 *            the ipo curve of the influence factor
-	 * @param dataRepository
-	 *            the data repository
+	 * @param blenderContext
+	 *            the blender context
 	 * @throws BlenderFileException
 	 *             this exception is thrown when the blender file is somehow
 	 *             corrupted
 	 */
 	public ConstraintInverseKinematics(Structure constraintStructure,
-			Long boneOMA, Ipo influenceIpo, DataRepository dataRepository) throws BlenderFileException {
-		super(constraintStructure, boneOMA, influenceIpo, dataRepository);
+			Long boneOMA, Ipo influenceIpo, BlenderContext blenderContext) throws BlenderFileException {
+		super(constraintStructure, boneOMA, influenceIpo, blenderContext);
 	}
 
 	@Override
 	public void affectAnimation(Skeleton skeleton, BoneAnimation boneAnimation) {
 		try {
 			// IK solver is only attached to bones
-			Bone ownerBone = (Bone) dataRepository.getLoadedFeature(boneOMA, LoadedFeatureDataType.LOADED_FEATURE);
+			Bone ownerBone = (Bone) blenderContext.getLoadedFeature(boneOMA, LoadedFeatureDataType.LOADED_FEATURE);
 
 			// get the target point
 			Object targetObject = this.getTarget(LoadedFeatureDataType.LOADED_FEATURE);
@@ -63,8 +63,8 @@ import com.jme3.scene.plugins.blender.objects.ObjectHelper;
 				pt = ((Node) targetObject).getWorldTranslation();
 			} else if (targetObject instanceof Skeleton) {
 				Structure armatureNodeStructure = (Structure) this.getTarget(LoadedFeatureDataType.LOADED_STRUCTURE);
-				ObjectHelper objectHelper = dataRepository.getHelper(ObjectHelper.class);
-				Transform transform = objectHelper.getTransformation(armatureNodeStructure, dataRepository);
+				ObjectHelper objectHelper = blenderContext.getHelper(ObjectHelper.class);
+				Transform transform = objectHelper.getTransformation(armatureNodeStructure, blenderContext);
 				pt = transform.getTranslation();
 			} else {
 				throw new IllegalStateException(

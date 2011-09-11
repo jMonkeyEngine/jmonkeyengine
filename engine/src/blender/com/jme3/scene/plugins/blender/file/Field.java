@@ -3,7 +3,7 @@ package com.jme3.scene.plugins.blender.file;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.jme3.scene.plugins.blender.DataRepository;
+import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
 import com.jme3.scene.plugins.blender.file.Structure.DataType;
 
@@ -17,8 +17,8 @@ class Field implements Cloneable {
 
     private static final int NAME_LENGTH = 24;
     private static final int TYPE_LENGTH = 16;
-    /** The data repository. */
-    public DataRepository dataRepository;
+    /** The blender context. */
+    public BlenderContext blenderContext;
     /** The type of the field. */
     public String type;
     /** The name of the field. */
@@ -40,14 +40,14 @@ class Field implements Cloneable {
      *        the name of the field
      * @param type
      *        the type of the field
-     * @param dataRepository
-     *        the data repository
+     * @param blenderContext
+     *        the blender context
      * @throws BlenderFileException
      *         this exception is thrown if the names contain errors
      */
-    public Field(String name, String type, DataRepository dataRepository) throws BlenderFileException {
+    public Field(String name, String type, BlenderContext blenderContext) throws BlenderFileException {
         this.type = type;
-        this.dataRepository = dataRepository;
+        this.blenderContext = blenderContext;
         this.parseField(new StringBuilder(name));
     }
 
@@ -60,7 +60,7 @@ class Field implements Cloneable {
     private Field(Field field) {
         type = field.type;
         name = field.name;
-        dataRepository = field.dataRepository;
+        blenderContext = field.blenderContext;
         pointerLevel = field.pointerLevel;
         if (field.tableSizes != null) {
             tableSizes = field.tableSizes.clone();
@@ -90,17 +90,17 @@ class Field implements Cloneable {
                 dataToRead *= size;
             }
         }
-        DataType dataType = pointerLevel == 0 ? DataType.getDataType(type, dataRepository) : DataType.POINTER;
+        DataType dataType = pointerLevel == 0 ? DataType.getDataType(type, blenderContext) : DataType.POINTER;
         switch (dataType) {
             case POINTER:
                 if (dataToRead == 1) {
-                    Pointer pointer = new Pointer(pointerLevel, function, dataRepository);
+                    Pointer pointer = new Pointer(pointerLevel, function, blenderContext);
                     pointer.fill(blenderInputStream);
                     value = pointer;
                 } else {
                     Pointer[] data = new Pointer[dataToRead];
                     for (int i = 0; i < dataToRead; ++i) {
-                        Pointer pointer = new Pointer(pointerLevel, function, dataRepository);
+                        Pointer pointer = new Pointer(pointerLevel, function, blenderContext);
                         pointer.fill(blenderInputStream);
                         data[i] = pointer;
                     }
@@ -180,13 +180,13 @@ class Field implements Cloneable {
                 break;
             case STRUCTURE:
                 if (dataToRead == 1) {
-                    Structure structure = dataRepository.getDnaBlockData().getStructure(type);
+                    Structure structure = blenderContext.getDnaBlockData().getStructure(type);
                     structure.fill(blenderInputStream);
                     value = structure;
                 } else {
                     Structure[] data = new Structure[dataToRead];
                     for (int i = 0; i < dataToRead; ++i) {
-                        Structure structure = dataRepository.getDnaBlockData().getStructure(type);
+                        Structure structure = blenderContext.getDnaBlockData().getStructure(type);
                         structure.fill(blenderInputStream);
                         data[i] = structure;
                     }

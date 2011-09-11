@@ -11,7 +11,7 @@ import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
 import com.jme3.export.Savable;
-import com.jme3.scene.plugins.blender.DataRepository;
+import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
 import com.jme3.scene.plugins.blender.file.BlenderInputStream;
 import com.jme3.scene.plugins.blender.file.FileBlockHeader;
@@ -57,12 +57,12 @@ public class Properties implements Cloneable, Savable {
 	 * This method loads the property from the belnder file.
 	 * @param idPropertyStructure
 	 *        the ID structure constining the property
-	 * @param dataRepository
-	 *        the data repository
+	 * @param blenderContext
+	 *        the blender context
 	 * @throws BlenderFileException
 	 *         an exception is thrown when the belnder file is somehow invalid
 	 */
-	public void load(Structure idPropertyStructure, DataRepository dataRepository) throws BlenderFileException {
+	public void load(Structure idPropertyStructure, BlenderContext blenderContext) throws BlenderFileException {
 		name = idPropertyStructure.getFieldValue("name").toString();
 		if (name == null || name.length() == 0) {
 			name = DEFAULT_NAME;
@@ -76,8 +76,8 @@ public class Properties implements Cloneable, Savable {
 		switch (type) {
 			case IDP_STRING: {
 				Pointer pointer = (Pointer) data.getFieldValue("pointer");
-				BlenderInputStream bis = dataRepository.getInputStream();
-				FileBlockHeader dataFileBlock = dataRepository.getFileBlock(pointer.getOldMemoryAddress());
+				BlenderInputStream bis = blenderContext.getInputStream();
+				FileBlockHeader dataFileBlock = blenderContext.getFileBlock(pointer.getOldMemoryAddress());
 				bis.setPosition(dataFileBlock.getBlockPosition());
 				value = bis.readString();
 				break;
@@ -92,8 +92,8 @@ public class Properties implements Cloneable, Savable {
 				break;
 			case IDP_ARRAY: {
 				Pointer pointer = (Pointer) data.getFieldValue("pointer");
-				BlenderInputStream bis = dataRepository.getInputStream();
-				FileBlockHeader dataFileBlock = dataRepository.getFileBlock(pointer.getOldMemoryAddress());
+				BlenderInputStream bis = blenderContext.getInputStream();
+				FileBlockHeader dataFileBlock = blenderContext.getFileBlock(pointer.getOldMemoryAddress());
 				bis.setPosition(dataFileBlock.getBlockPosition());
 				int elementAmount = dataFileBlock.getSize();
 				switch (subType) {
@@ -127,11 +127,11 @@ public class Properties implements Cloneable, Savable {
 			}
 			case IDP_GROUP:
 				Structure group = (Structure) data.getFieldValue("group");
-				List<Structure> dataList = group.evaluateListBase(dataRepository);
+				List<Structure> dataList = group.evaluateListBase(blenderContext);
 				List<Properties> subProperties = new ArrayList<Properties>(len);
 				for (Structure d : dataList) {
 					Properties properties = new Properties();
-					properties.load(d, dataRepository);
+					properties.load(d, blenderContext);
 					subProperties.add(properties);
 				}
 				value = subProperties;
@@ -144,11 +144,11 @@ public class Properties implements Cloneable, Savable {
 				break;
 			case IDP_IDPARRAY: {
 				Pointer pointer = (Pointer) data.getFieldValue("pointer");
-				List<Structure> arrays = pointer.fetchData(dataRepository.getInputStream());
+				List<Structure> arrays = pointer.fetchData(blenderContext.getInputStream());
 				List<Object> result = new ArrayList<Object>(arrays.size());
 				Properties temp = new Properties();
 				for (Structure array : arrays) {
-					temp.load(array, dataRepository);
+					temp.load(array, blenderContext);
 					result.add(temp.value);
 				}
 				this.value = result;

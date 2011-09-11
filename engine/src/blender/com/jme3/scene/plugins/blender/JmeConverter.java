@@ -56,32 +56,32 @@ import com.jme3.scene.plugins.blender.objects.ObjectHelper;
  */
 /* package */class JmeConverter {
 
-	private final DataRepository	dataRepository;
+	private final BlenderContext	blenderContext;
 
 	/**
 	 * Constructor. Creates the loader and checks if the given data is correct.
-	 * @param dataRepository
-	 *        the data repository; it should have the following field set: - asset manager - blender key - dna block
+	 * @param blenderContext
+	 *        the blender context; it should have the following field set: - asset manager - blender key - dna block
 	 *        data - blender input stream Otherwise IllegalArgumentException will be thrown.
 	 * @param featuresToLoad
 	 *        bitwise flag describing what features are to be loaded
 	 * @see FeaturesToLoad FeaturesToLoad
 	 */
-	public JmeConverter(DataRepository dataRepository) {
+	public JmeConverter(BlenderContext blenderContext) {
 		// validating the given data first
-		if (dataRepository.getAssetManager() == null) {
+		if (blenderContext.getAssetManager() == null) {
 			throw new IllegalArgumentException("Cannot find asset manager!");
 		}
-		if (dataRepository.getBlenderKey() == null) {
+		if (blenderContext.getBlenderKey() == null) {
 			throw new IllegalArgumentException("Cannot find blender key!");
 		}
-		if (dataRepository.getDnaBlockData() == null) {
+		if (blenderContext.getDnaBlockData() == null) {
 			throw new IllegalArgumentException("Cannot find dna block!");
 		}
-		if (dataRepository.getInputStream() == null) {
+		if (blenderContext.getInputStream() == null) {
 			throw new IllegalArgumentException("Cannot find blender file stream!");
 		}
-		this.dataRepository = dataRepository;
+		this.blenderContext = blenderContext;
 	}
 
 	/**
@@ -91,7 +91,7 @@ import com.jme3.scene.plugins.blender.objects.ObjectHelper;
 	 * @return scene's node
 	 */
 	public Node toScene(Structure structure) {// TODO: import the scene
-		if ((dataRepository.getBlenderKey().getFeaturesToLoad() & FeaturesToLoad.SCENES) == 0) {
+		if ((blenderContext.getBlenderKey().getFeaturesToLoad() & FeaturesToLoad.SCENES) == 0) {
 			return null;
 		}
 		return new Node(structure.getName());
@@ -104,8 +104,8 @@ import com.jme3.scene.plugins.blender.objects.ObjectHelper;
 	 * @return camera's node
 	 */
 	public Camera toCamera(Structure structure) throws BlenderFileException {
-		CameraHelper cameraHelper = dataRepository.getHelper(CameraHelper.class);
-		if (cameraHelper.shouldBeLoaded(structure, dataRepository)) {
+		CameraHelper cameraHelper = blenderContext.getHelper(CameraHelper.class);
+		if (cameraHelper.shouldBeLoaded(structure, blenderContext)) {
 			return cameraHelper.toCamera(structure);
 		}
 		return null;
@@ -118,9 +118,9 @@ import com.jme3.scene.plugins.blender.objects.ObjectHelper;
 	 * @return light's node
 	 */
 	public Light toLight(Structure structure) throws BlenderFileException {
-		LightHelper lightHelper = dataRepository.getHelper(LightHelper.class);
-		if (lightHelper.shouldBeLoaded(structure, dataRepository)) {
-			return lightHelper.toLight(structure, dataRepository);
+		LightHelper lightHelper = blenderContext.getHelper(LightHelper.class);
+		if (lightHelper.shouldBeLoaded(structure, blenderContext)) {
+			return lightHelper.toLight(structure, blenderContext);
 		}
 		return null;
 	}
@@ -132,9 +132,9 @@ import com.jme3.scene.plugins.blender.objects.ObjectHelper;
 	 * @return object's node
 	 */
 	public Object toObject(Structure structure) throws BlenderFileException {
-		ObjectHelper objectHelper = dataRepository.getHelper(ObjectHelper.class);
-		if (objectHelper.shouldBeLoaded(structure, dataRepository)) {
-			return objectHelper.toObject(structure, dataRepository);
+		ObjectHelper objectHelper = blenderContext.getHelper(ObjectHelper.class);
+		if (objectHelper.shouldBeLoaded(structure, blenderContext)) {
+			return objectHelper.toObject(structure, blenderContext);
 		}
 		return null;
 	}
@@ -146,9 +146,9 @@ import com.jme3.scene.plugins.blender.objects.ObjectHelper;
 	 * @return list of geometries
 	 */
 	public List<Geometry> toMesh(Structure structure) throws BlenderFileException {
-		MeshHelper meshHelper = dataRepository.getHelper(MeshHelper.class);
-		if (meshHelper.shouldBeLoaded(structure, dataRepository)) {
-			return meshHelper.toMesh(structure, dataRepository);
+		MeshHelper meshHelper = blenderContext.getHelper(MeshHelper.class);
+		if (meshHelper.shouldBeLoaded(structure, blenderContext)) {
+			return meshHelper.toMesh(structure, blenderContext);
 		}
 		return null;
 	}
@@ -160,9 +160,9 @@ import com.jme3.scene.plugins.blender.objects.ObjectHelper;
 	 * @return material's node
 	 */
 	public Material toMaterial(Structure structure) throws BlenderFileException {
-		MaterialHelper materialHelper = dataRepository.getHelper(MaterialHelper.class);
-		if (materialHelper.shouldBeLoaded(structure, dataRepository)) {
-			return materialHelper.toMaterial(structure, dataRepository);
+		MaterialHelper materialHelper = blenderContext.getHelper(MaterialHelper.class);
+		if (materialHelper.shouldBeLoaded(structure, blenderContext)) {
+			return materialHelper.toMaterial(structure, blenderContext);
 		}
 		return null;
 	}

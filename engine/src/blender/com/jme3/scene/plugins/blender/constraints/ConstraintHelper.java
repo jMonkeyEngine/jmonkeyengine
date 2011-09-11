@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 import com.jme3.scene.plugins.blender.AbstractBlenderHelper;
-import com.jme3.scene.plugins.blender.DataRepository;
+import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.animations.Ipo;
 import com.jme3.scene.plugins.blender.animations.IpoHelper;
 import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
@@ -29,7 +29,7 @@ public class ConstraintHelper extends AbstractBlenderHelper {
 	 * @param blenderVersion
 	 *        the version read from the blend file
 	 */
-	public ConstraintHelper(String blenderVersion, DataRepository dataRepository) {
+	public ConstraintHelper(String blenderVersion, BlenderContext blenderContext) {
 		super(blenderVersion);
 	}
 
@@ -39,34 +39,34 @@ public class ConstraintHelper extends AbstractBlenderHelper {
 	 *        the owner's old memory address
 	 * @param objectStructure
 	 *        the structure we read constraint's for
-	 * @param dataRepository
-	 *        the data repository
+	 * @param blenderContext
+	 *        the blender context
 	 * @throws BlenderFileException
 	 */
-	public Map<Long, List<Constraint>> loadConstraints(Structure objectStructure, DataRepository dataRepository) throws BlenderFileException {
+	public Map<Long, List<Constraint>> loadConstraints(Structure objectStructure, BlenderContext blenderContext) throws BlenderFileException {
 		if (blenderVersion >= 250) {//TODO
 			LOGGER.warning("Loading of constraints not yet implemented for version 2.5x !");
 			return new HashMap<Long, List<Constraint>>(0);
 		}
 		
 		// reading influence ipos for the constraints
-		IpoHelper ipoHelper = dataRepository.getHelper(IpoHelper.class);
+		IpoHelper ipoHelper = blenderContext.getHelper(IpoHelper.class);
 		Map<String, Map<String, Ipo>> constraintsIpos = new HashMap<String, Map<String, Ipo>>();
 		Pointer pActions = (Pointer) objectStructure.getFieldValue("action");
 		if (pActions.isNotNull()) {
-			List<Structure> actions = pActions.fetchData(dataRepository.getInputStream());
+			List<Structure> actions = pActions.fetchData(blenderContext.getInputStream());
 			for (Structure action : actions) {
 				Structure chanbase = (Structure) action.getFieldValue("chanbase");
-				List<Structure> actionChannels = chanbase.evaluateListBase(dataRepository);
+				List<Structure> actionChannels = chanbase.evaluateListBase(blenderContext);
 				for (Structure actionChannel : actionChannels) {
 					Map<String, Ipo> ipos = new HashMap<String, Ipo>();
 					Structure constChannels = (Structure) actionChannel.getFieldValue("constraintChannels");
-					List<Structure> constraintChannels = constChannels.evaluateListBase(dataRepository);
+					List<Structure> constraintChannels = constChannels.evaluateListBase(blenderContext);
 					for (Structure constraintChannel : constraintChannels) {
 						Pointer pIpo = (Pointer) constraintChannel.getFieldValue("ipo");
 						if (pIpo.isNotNull()) {
 							String constraintName = constraintChannel.getFieldValue("name").toString();
-							Ipo ipo = ipoHelper.createIpo(pIpo.fetchData(dataRepository.getInputStream()).get(0), dataRepository);
+							Ipo ipo = ipoHelper.createIpo(pIpo.fetchData(blenderContext.getInputStream()).get(0), blenderContext);
 							ipos.put(constraintName, ipo);
 						}
 					}
@@ -81,14 +81,14 @@ public class ConstraintHelper extends AbstractBlenderHelper {
 		//loading constraints connected with the object's bones
 		Pointer pPose = (Pointer) objectStructure.getFieldValue("pose");//TODO: what if the object has two armatures ????
 		if (pPose.isNotNull()) {
-			List<Structure> poseChannels = ((Structure) pPose.fetchData(dataRepository.getInputStream()).get(0).getFieldValue("chanbase")).evaluateListBase(dataRepository);
+			List<Structure> poseChannels = ((Structure) pPose.fetchData(blenderContext.getInputStream()).get(0).getFieldValue("chanbase")).evaluateListBase(blenderContext);
 			for (Structure poseChannel : poseChannels) {
 				List<Constraint> constraintsList = new ArrayList<Constraint>();
 				Long boneOMA = Long.valueOf(((Pointer) poseChannel.getFieldValue("bone")).getOldMemoryAddress());
 				
 				//the name is read directly from structure because bone might not yet be loaded
-				String name = dataRepository.getFileBlock(boneOMA).getStructure(dataRepository).getFieldValue("name").toString();
-				List<Structure> constraints = ((Structure) poseChannel.getFieldValue("constraints")).evaluateListBase(dataRepository);
+				String name = blenderContext.getFileBlock(boneOMA).getStructure(blenderContext).getFieldValue("name").toString();
+				List<Structure> constraints = ((Structure) poseChannel.getFieldValue("constraints")).evaluateListBase(blenderContext);
 				for (Structure constraint : constraints) {
 					String constraintName = constraint.getFieldValue("name").toString();
 					Map<String, Ipo> ipoMap = constraintsIpos.get(name);
@@ -97,22 +97,22 @@ public class ConstraintHelper extends AbstractBlenderHelper {
 						float enforce = ((Number) constraint.getFieldValue("enforce")).floatValue();
 						ipo = ipoHelper.createIpo(enforce);
 					}
-					constraintsList.add(ConstraintFactory.createConstraint(constraint, boneOMA, ipo, dataRepository));
+					constraintsList.add(ConstraintFactory.createConstraint(constraint, boneOMA, ipo, blenderContext));
 				}
 				
 				result.put(boneOMA, constraintsList);
-				dataRepository.addConstraints(boneOMA, constraintsList);
+				blenderContext.addConstraints(boneOMA, constraintsList);
 			}
 		}
 		// TODO: reading constraints for objects (implement when object's animation will be available)
-		List<Structure> constraintChannels = ((Structure)objectStructure.getFieldValue("constraintChannels")).evaluateListBase(dataRepository);
+		List<Structure> constraintChannels = ((Structure)objectStructure.getFieldValue("constraintChannels")).evaluateListBase(blenderContext);
 		for(Structure constraintChannel : constraintChannels) {
 			System.out.println(constraintChannel);
 		}
 
 		//loading constraints connected with the object itself (TODO: test this)
 		if(!result.containsKey(objectStructure.getOldMemoryAddress())) {
-			List<Structure> constraints = ((Structure)objectStructure.getFieldValue("constraints")).evaluateListBase(dataRepository);
+			List<Structure> constraints = ((Structure)objectStructure.getFieldValue("constraints")).evaluateListBase(blenderContext);
 			List<Constraint> constraintsList = new ArrayList<Constraint>(constraints.size());
 			
 			for(Structure constraint : constraints) {
@@ -125,16 +125,16 @@ public class ConstraintHelper extends AbstractBlenderHelper {
 					float enforce = ((Number) constraint.getFieldValue("enforce")).floatValue();
 					ipo = ipoHelper.createIpo(enforce);
 				}
-				constraintsList.add(ConstraintFactory.createConstraint(constraint, null, ipo, dataRepository));
+				constraintsList.add(ConstraintFactory.createConstraint(constraint, null, ipo, blenderContext));
 			}
 			result.put(objectStructure.getOldMemoryAddress(), constraintsList);
-			dataRepository.addConstraints(objectStructure.getOldMemoryAddress(), constraintsList);
+			blenderContext.addConstraints(objectStructure.getOldMemoryAddress(), constraintsList);
 		}
 		return result;
 	}
 	
 	@Override
-	public boolean shouldBeLoaded(Structure structure, DataRepository dataRepository) {
+	public boolean shouldBeLoaded(Structure structure, BlenderContext blenderContext) {
 		return true;
 	}
 }

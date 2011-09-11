@@ -11,7 +11,7 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
-import com.jme3.scene.plugins.blender.DataRepository;
+import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
 import com.jme3.scene.plugins.blender.file.Pointer;
 import com.jme3.scene.plugins.blender.file.Structure;
@@ -32,25 +32,25 @@ import com.jme3.scene.plugins.blender.particles.ParticlesHelper;
 	 * 
 	 * @param modifier
 	 *            the structure of the modifier
-	 * @param dataRepository
-	 *            the data repository
+	 * @param blenderContext
+	 *            the blender context
 	 * @throws BlenderFileException
 	 *             an exception is throw wneh there are problems with the
 	 *             blender file
 	 */
-	public ParticlesModifier(Structure modifier, DataRepository dataRepository)
+	public ParticlesModifier(Structure modifier, BlenderContext blenderContext)
 			throws BlenderFileException {
 		Pointer pParticleSystem = (Pointer) modifier.getFieldValue("psys");
 		if (pParticleSystem.isNotNull()) {
-			ParticlesHelper particlesHelper = dataRepository.getHelper(ParticlesHelper.class);
-			Structure particleSystem = pParticleSystem.fetchData(dataRepository.getInputStream()).get(0);
-			particleEmitter = particlesHelper.toParticleEmitter(particleSystem, dataRepository);
+			ParticlesHelper particlesHelper = blenderContext.getHelper(ParticlesHelper.class);
+			Structure particleSystem = pParticleSystem.fetchData(blenderContext.getInputStream()).get(0);
+			particleEmitter = particlesHelper.toParticleEmitter(particleSystem, blenderContext);
 		}
 	}
 
 	@Override
-	public Node apply(Node node, DataRepository dataRepository) {
-		MaterialHelper materialHelper = dataRepository.getHelper(MaterialHelper.class);
+	public Node apply(Node node, BlenderContext blenderContext) {
+		MaterialHelper materialHelper = blenderContext.getHelper(MaterialHelper.class);
 		ParticleEmitter emitter = particleEmitter.clone();
 
 		// veryfying the alpha function for particles' texture
@@ -71,7 +71,7 @@ import com.jme3.scene.plugins.blender.particles.ParticlesHelper;
 				if (mesh != null) {
 					meshes.add(mesh);
 					Material material = materialHelper.getParticlesMaterial(
-							((Geometry) spatial).getMaterial(), alphaFunction, dataRepository);
+							((Geometry) spatial).getMaterial(), alphaFunction, blenderContext);
 					emitter.setMaterial(material);// TODO: divide into several pieces
 				}
 			}

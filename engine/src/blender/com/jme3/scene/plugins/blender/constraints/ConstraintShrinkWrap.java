@@ -15,8 +15,8 @@ import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.VertexBuffer.Type;
-import com.jme3.scene.plugins.blender.DataRepository;
-import com.jme3.scene.plugins.blender.DataRepository.LoadedFeatureDataType;
+import com.jme3.scene.plugins.blender.BlenderContext;
+import com.jme3.scene.plugins.blender.BlenderContext.LoadedFeatureDataType;
 import com.jme3.scene.plugins.blender.animations.Ipo;
 import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
 import com.jme3.scene.plugins.blender.file.Structure;
@@ -37,15 +37,15 @@ import com.jme3.scene.plugins.blender.file.Structure;
 	 *            the old memory address of the constraint owner
 	 * @param influenceIpo
 	 *            the ipo curve of the influence factor
-	 * @param dataRepository
-	 *            the data repository
+	 * @param blenderContext
+	 *            the blender context
 	 * @throws BlenderFileException
 	 *             this exception is thrown when the blender file is somehow
 	 *             corrupted
 	 */
 	public ConstraintShrinkWrap(Structure constraintStructure, Long boneOMA,
-			Ipo influenceIpo, DataRepository dataRepository) throws BlenderFileException {
-		super(constraintStructure, boneOMA, influenceIpo, dataRepository);
+			Ipo influenceIpo, BlenderContext blenderContext) throws BlenderFileException {
+		super(constraintStructure, boneOMA, influenceIpo, blenderContext);
 	}
 
 	@Override

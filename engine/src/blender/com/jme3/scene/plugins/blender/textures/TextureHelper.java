@@ -53,8 +53,8 @@ import com.jme3.asset.TextureKey;
 import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.plugins.blender.AbstractBlenderHelper;
-import com.jme3.scene.plugins.blender.DataRepository;
-import com.jme3.scene.plugins.blender.DataRepository.LoadedFeatureDataType;
+import com.jme3.scene.plugins.blender.BlenderContext;
+import com.jme3.scene.plugins.blender.BlenderContext.LoadedFeatureDataType;
 import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
 import com.jme3.scene.plugins.blender.file.FileBlockHeader;
 import com.jme3.scene.plugins.blender.file.Pointer;
@@ -160,28 +160,28 @@ public class TextureHelper extends AbstractBlenderHelper {
 	 * 
 	 * @param tex
 	 *        texture structure filled with data
-	 * @param dataRepository
-	 *        the data repository
+	 * @param blenderContext
+	 *        the blender context
 	 * @return the texture that can be used by JME engine
 	 * @throws BlenderFileException
 	 *         this exception is thrown when the blend file structure is somehow invalid or corrupted
 	 */
-	public Texture getTexture(Structure tex, DataRepository dataRepository) throws BlenderFileException {
-		Texture result = (Texture) dataRepository.getLoadedFeature(tex.getOldMemoryAddress(), LoadedFeatureDataType.LOADED_FEATURE);
+	public Texture getTexture(Structure tex, BlenderContext blenderContext) throws BlenderFileException {
+		Texture result = (Texture) blenderContext.getLoadedFeature(tex.getOldMemoryAddress(), LoadedFeatureDataType.LOADED_FEATURE);
 		if (result != null) {
 			return result;
 		}
 		int type = ((Number) tex.getFieldValue("type")).intValue();
-		int width = dataRepository.getBlenderKey().getGeneratedTextureWidth();
-		int height = dataRepository.getBlenderKey().getGeneratedTextureHeight();
-		int depth = dataRepository.getBlenderKey().getGeneratedTextureDepth();
+		int width = blenderContext.getBlenderKey().getGeneratedTextureWidth();
+		int height = blenderContext.getBlenderKey().getGeneratedTextureHeight();
+		int depth = blenderContext.getBlenderKey().getGeneratedTextureDepth();
 
 		switch (type) {
 		case TEX_IMAGE:// (it is first because probably this will be most commonly used)
 			Pointer pImage = (Pointer) tex.getFieldValue("ima");
 			if (pImage.isNotNull()){
-				Structure image = pImage.fetchData(dataRepository.getInputStream()).get(0);
-				result = this.getTextureFromImage(image, dataRepository);
+				Structure image = pImage.fetchData(blenderContext.getInputStream()).get(0);
+				result = this.getTextureFromImage(image, blenderContext);
 			}
 			break;
 		case TEX_CLOUDS:
@@ -195,7 +195,7 @@ public class TextureHelper extends AbstractBlenderHelper {
 		case TEX_VORONOI:
 		case TEX_DISTNOISE:
 			TextureGenerator textureGenerator = textureGenerators.get(Integer.valueOf(type));
-			result = textureGenerator.generate(tex, width, height, depth, dataRepository);
+			result = textureGenerator.generate(tex, width, height, depth, blenderContext);
 			break;
 		case TEX_NONE:// No texture, do nothing
 			break;
@@ -236,11 +236,11 @@ public class TextureHelper extends AbstractBlenderHelper {
 	 *        the factor that the color affects the texture (value form 0.0 to 1.0)
 	 * @param blendType
 	 *        the blending type
-	 * @param dataRepository
-	 *        the data repository
+	 * @param blenderContext
+	 *        the blender context
 	 * @return new texture that was created after the blending
 	 */
-	public Texture blendTexture(float[] materialColor, Texture texture, float[] color, float affectFactor, int blendType, boolean neg, DataRepository dataRepository) {
+	public Texture blendTexture(float[] materialColor, Texture texture, float[] color, float affectFactor, int blendType, boolean neg, BlenderContext blenderContext) {
 		float[] materialColorClone = materialColor.clone();//this array may change, so we copy it
 		Format format = texture.getImage().getFormat();
 		ByteBuffer data = texture.getImage().getData(0);
@@ -257,7 +257,7 @@ public class TextureHelper extends AbstractBlenderHelper {
 		int dataIndex = 0;
 		while (data.hasRemaining()) {
 			float tin = this.setupMaterialColor(data, format, neg, materialColorClone);
-			this.blendPixel(resultPixel, materialColorClone, color, tin, affectFactor, blendType, dataRepository);
+			this.blendPixel(resultPixel, materialColorClone, color, tin, affectFactor, blendType, blenderContext);
 			newData.put(dataIndex++, (byte) (resultPixel[0] * 255.0f));
 			newData.put(dataIndex++, (byte) (resultPixel[1] * 255.0f));
 			newData.put(dataIndex++, (byte) (resultPixel[2] * 255.0f));
@@ -396,10 +396,10 @@ public class TextureHelper extends AbstractBlenderHelper {
 	 *        texture affection factor (variable 'facg' in blender source code)
 	 * @param blendtype
 	 *        the blend type
-	 * @param dataRepository
-	 *        the data repository
+	 * @param blenderContext
+	 *        the blender context
 	 */
-	protected void blendPixel(float[] result, float[] materialColor, float[] color, float textureIntensity, float textureFactor, int blendtype, DataRepository dataRepository) {
+	protected void blendPixel(float[] result, float[] materialColor, float[] color, float textureIntensity, float textureFactor, int blendtype, BlenderContext blenderContext) {
 		float oneMinusFactor, col;
 		textureIntensity *= textureFactor;
 		
@@ -492,7 +492,7 @@ public class TextureHelper extends AbstractBlenderHelper {
 			case MTEX_BLEND_VAL:
 			case MTEX_BLEND_COLOR:
 				System.arraycopy(materialColor, 0, result, 0, 3);
-				this.rampBlend(blendtype, result, textureIntensity, color, dataRepository);
+				this.rampBlend(blendtype, result, textureIntensity, color, blenderContext);
 				break;
 			default:
 				throw new IllegalStateException("Unknown blend type: " + blendtype);
@@ -510,12 +510,12 @@ public class TextureHelper extends AbstractBlenderHelper {
 	 *        color affection factor
 	 * @param col
 	 *        the texture color
-	 * @param dataRepository
-	 *        the data repository
+	 * @param blenderContext
+	 *        the blender context
 	 */
-	protected void rampBlend(int type, float[] rgb, float fac, float[] col, DataRepository dataRepository) {
+	protected void rampBlend(int type, float[] rgb, float fac, float[] col, BlenderContext blenderContext) {
 		float oneMinusFactor = 1.0f - fac;
-		MaterialHelper materialHelper = dataRepository.getHelper(MaterialHelper.class);
+		MaterialHelper materialHelper = blenderContext.getHelper(MaterialHelper.class);
 
 		if (rgb.length >= 3) {
 			switch (type) {
@@ -660,30 +660,30 @@ public class TextureHelper extends AbstractBlenderHelper {
 	 * 
 	 * @param image
 	 *        image structure filled with data
-	 * @param dataRepository
-	 *        the data repository
+	 * @param blenderContext
+	 *        the blender context
 	 * @return the texture that can be used by JME engine
 	 * @throws BlenderFileException
 	 *         this exception is thrown when the blend file structure is somehow invalid or corrupted
 	 */
-	public Texture getTextureFromImage(Structure image, DataRepository dataRepository) throws BlenderFileException {
-		Texture result = (Texture) dataRepository.getLoadedFeature(image.getOldMemoryAddress(), LoadedFeatureDataType.LOADED_FEATURE);
+	public Texture getTextureFromImage(Structure image, BlenderContext blenderContext) throws BlenderFileException {
+		Texture result = (Texture) blenderContext.getLoadedFeature(image.getOldMemoryAddress(), LoadedFeatureDataType.LOADED_FEATURE);
 		if (result == null) {
 			String texturePath = image.getFieldValue("name").toString();
 			Pointer pPackedFile = (Pointer) image.getFieldValue("packedfile");
 			if (pPackedFile.isNull()) {
 				LOGGER.info("Reading texture from file!");
-				result = this.loadTextureFromFile(texturePath, dataRepository);
+				result = this.loadTextureFromFile(texturePath, blenderContext);
 			} else {
 				LOGGER.info("Packed texture. Reading directly from the blend file!");
-				Structure packedFile = pPackedFile.fetchData(dataRepository.getInputStream()).get(0);
+				Structure packedFile = pPackedFile.fetchData(blenderContext.getInputStream()).get(0);
 				Pointer pData = (Pointer) packedFile.getFieldValue("data");
-				FileBlockHeader dataFileBlock = dataRepository.getFileBlock(pData.getOldMemoryAddress());
-				dataRepository.getInputStream().setPosition(dataFileBlock.getBlockPosition());
+				FileBlockHeader dataFileBlock = blenderContext.getFileBlock(pData.getOldMemoryAddress());
+				blenderContext.getInputStream().setPosition(dataFileBlock.getBlockPosition());
 				ImageLoader imageLoader = new ImageLoader();
 
 				// Should the texture be flipped? It works for sinbad ..
-				Image im = imageLoader.loadImage(dataRepository.getInputStream(), dataFileBlock.getBlockPosition(), true);
+				Image im = imageLoader.loadImage(blenderContext.getInputStream(), dataFileBlock.getBlockPosition(), true);
 				if (im != null) {
 					result = new Texture2D(im);
 				}
@@ -691,7 +691,7 @@ public class TextureHelper extends AbstractBlenderHelper {
 			if (result != null) {
 				result.setName(texturePath);
 				result.setWrap(Texture.WrapMode.Repeat);
-				dataRepository.addLoadedFeatures(image.getOldMemoryAddress(), image.getName(), image, result);
+				blenderContext.addLoadedFeatures(image.getOldMemoryAddress(), image.getName(), image, result);
 			}
 		}
 		return result;
@@ -702,12 +702,12 @@ public class TextureHelper extends AbstractBlenderHelper {
 	 * 
 	 * @param name
 	 *        the path to the image
-	 * @param dataRepository
-	 *        the data repository
+	 * @param blenderContext
+	 *        the blender context
 	 * @return the loaded image or null if the image cannot be found
 	 */
-	protected Texture loadTextureFromFile(String name, DataRepository dataRepository) {
-		AssetManager assetManager = dataRepository.getAssetManager();
+	protected Texture loadTextureFromFile(String name, BlenderContext blenderContext) {
+		AssetManager assetManager = blenderContext.getAssetManager();
 		name = name.replaceAll("\\\\", "\\/");
 		Texture result = null;
 
@@ -715,7 +715,7 @@ public class TextureHelper extends AbstractBlenderHelper {
 		if (name.startsWith("//")) {
 			String relativePath = name.substring(2);
 			//augument the path with blender key path
-			BlenderKey blenderKey = dataRepository.getBlenderKey();
+			BlenderKey blenderKey = blenderContext.getBlenderKey();
             int idx = blenderKey.getName().lastIndexOf('/');
 			String blenderAssetFolder = blenderKey.getName().substring(0, idx != -1 ? idx : 0);
 			assetNames.add(blenderAssetFolder+'/'+relativePath);
@@ -747,7 +747,7 @@ public class TextureHelper extends AbstractBlenderHelper {
 	}
 
 	@Override
-	public boolean shouldBeLoaded(Structure structure, DataRepository dataRepository) {
-		return (dataRepository.getBlenderKey().getFeaturesToLoad() & FeaturesToLoad.TEXTURES) != 0;
+	public boolean shouldBeLoaded(Structure structure, BlenderContext blenderContext) {
+		return (blenderContext.getBlenderKey().getFeaturesToLoad() & FeaturesToLoad.TEXTURES) != 0;
 	}
 }

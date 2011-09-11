@@ -31,7 +31,7 @@
  */
 package com.jme3.scene.plugins.blender.file;
 
-import com.jme3.scene.plugins.blender.DataRepository;
+import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
 
 /**
@@ -78,12 +78,12 @@ public class FileBlockHeader {
      * Constructor. Loads the block header from the given stream during instance creation.
      * @param inputStream
      *        the stream we read the block header from
-     * @param dataRepository
-     *        the data repository
+     * @param blenderContext
+     *        the blender context
      * @throws BlenderFileException
      *         this exception is thrown when the pointer size is neither 4 nor 8
      */
-    public FileBlockHeader(BlenderInputStream inputStream, DataRepository dataRepository) throws BlenderFileException {
+    public FileBlockHeader(BlenderInputStream inputStream, BlenderContext blenderContext) throws BlenderFileException {
         inputStream.alignPosition(4);
         code = inputStream.readByte() << 24 | inputStream.readByte() << 16
                 | inputStream.readByte() << 8 | inputStream.readByte();
@@ -93,24 +93,24 @@ public class FileBlockHeader {
         count = inputStream.readInt();
         blockPosition = inputStream.getPosition();
         if (FileBlockHeader.BLOCK_DNA1 == code) {
-            dataRepository.setBlockData(new DnaBlockData(inputStream, dataRepository));
+            blenderContext.setBlockData(new DnaBlockData(inputStream, blenderContext));
         } else {
             inputStream.setPosition(blockPosition + size);
-            dataRepository.addFileBlockHeader(Long.valueOf(oldMemoryAddress), this);
+            blenderContext.addFileBlockHeader(Long.valueOf(oldMemoryAddress), this);
         }
     }
 
     /**
      * This method returns the structure described by the header filled with appropriate data.
-     * @param dataRepository
-     *        the data repository
+     * @param blenderContext
+     *        the blender context
      * @return structure filled with data
      * @throws BlenderFileException
      */
-    public Structure getStructure(DataRepository dataRepository) throws BlenderFileException {
-        dataRepository.getInputStream().setPosition(blockPosition);
-        Structure structure = dataRepository.getDnaBlockData().getStructure(sdnaIndex);
-        structure.fill(dataRepository.getInputStream());
+    public Structure getStructure(BlenderContext blenderContext) throws BlenderFileException {
+        blenderContext.getInputStream().setPosition(blockPosition);
+        Structure structure = blenderContext.getDnaBlockData().getStructure(sdnaIndex);
+        structure.fill(blenderContext.getInputStream());
         return structure;
     }
 

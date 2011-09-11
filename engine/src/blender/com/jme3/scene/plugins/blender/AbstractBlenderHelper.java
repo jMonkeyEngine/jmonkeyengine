@@ -109,21 +109,21 @@ public abstract class AbstractBlenderHelper {
 	 * This method loads the properties if they are available and defined for the structure.
 	 * @param structure
 	 *        the structure we read the properties from
-	 * @param dataRepository
-	 *        the data repository
+	 * @param blenderContext
+	 *        the blender context
 	 * @return loaded properties or null if they are not available
 	 * @throws BlenderFileException
 	 *         an exception is thrown when the blend file is somehow corrupted
 	 */
-	protected Properties loadProperties(Structure structure, DataRepository dataRepository) throws BlenderFileException {
+	protected Properties loadProperties(Structure structure, BlenderContext blenderContext) throws BlenderFileException {
 		Properties properties = null;
 		Structure id = (Structure) structure.getFieldValue("ID");
 		if (id != null) {
 			Pointer pProperties = (Pointer) id.getFieldValue("properties");
 			if (pProperties.isNotNull()) {
-				Structure propertiesStructure = pProperties.fetchData(dataRepository.getInputStream()).get(0);
+				Structure propertiesStructure = pProperties.fetchData(blenderContext.getInputStream()).get(0);
 				properties = new Properties();
-				properties.load(propertiesStructure, dataRepository);
+				properties.load(propertiesStructure, blenderContext);
 			}
 		}
 		return properties;
@@ -131,12 +131,12 @@ public abstract class AbstractBlenderHelper {
 	
 	/**
 	 * This method analyzes the given structure and the data contained within
-	 * data repository and decides if the feature should be loaded.
+	 * blender context and decides if the feature should be loaded.
 	 * @param structure
 	 *        structure to be analyzed
-	 * @param dataRepository
-	 *        the data repository
+	 * @param blenderContext
+	 *        the blender context
 	 * @return <b>true</b> if the feature should be loaded and false otherwise
 	 */
-	public abstract boolean shouldBeLoaded(Structure structure, DataRepository dataRepository);
+	public abstract boolean shouldBeLoaded(Structure structure, BlenderContext blenderContext);
 }

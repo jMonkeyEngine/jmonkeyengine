@@ -49,8 +49,8 @@ import com.jme3.material.RenderState.FaceCullMode;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.scene.plugins.blender.AbstractBlenderHelper;
-import com.jme3.scene.plugins.blender.DataRepository;
-import com.jme3.scene.plugins.blender.DataRepository.LoadedFeatureDataType;
+import com.jme3.scene.plugins.blender.BlenderContext;
+import com.jme3.scene.plugins.blender.BlenderContext.LoadedFeatureDataType;
 import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
 import com.jme3.scene.plugins.blender.file.Pointer;
 import com.jme3.scene.plugins.blender.file.Structure;
@@ -182,23 +182,23 @@ public class MaterialHelper extends AbstractBlenderHelper {
 	 * This method converts the material structure to jme Material.
 	 * @param structure
 	 *        structure with material data
-	 * @param dataRepository
-	 *        the data repository
+	 * @param blenderContext
+	 *        the blender context
 	 * @return jme material
 	 * @throws BlenderFileException
 	 *         an exception is throw when problems with blend file occur
 	 */
-	public Material toMaterial(Structure structure, DataRepository dataRepository) throws BlenderFileException {
+	public Material toMaterial(Structure structure, BlenderContext blenderContext) throws BlenderFileException {
 		LOGGER.log(Level.INFO, "Loading material.");
 		if (structure == null) {
-			return dataRepository.getDefaultMaterial();
+			return blenderContext.getDefaultMaterial();
 		}
-		Material result = (Material) dataRepository.getLoadedFeature(structure.getOldMemoryAddress(), LoadedFeatureDataType.LOADED_FEATURE);
+		Material result = (Material) blenderContext.getLoadedFeature(structure.getOldMemoryAddress(), LoadedFeatureDataType.LOADED_FEATURE);
 		if (result != null) {
 			return result;
 		}
 		
-		MaterialContext materialContext = new MaterialContext(structure, dataRepository);
+		MaterialContext materialContext = new MaterialContext(structure, blenderContext);
 		LOGGER.log(Level.INFO, "Material's name: {0}", materialContext.name);
 		
 		if(materialContext.textures.size() > 0) {
@@ -212,8 +212,8 @@ public class MaterialHelper extends AbstractBlenderHelper {
 		// texture
 		Map<String, Texture> texturesMap = new HashMap<String, Texture>();
 		Type firstTextureType = null;
-		if ((dataRepository.getBlenderKey().getFeaturesToLoad() & FeaturesToLoad.TEXTURES) != 0) {
-			TextureHelper textureHelper = dataRepository.getHelper(TextureHelper.class);
+		if ((blenderContext.getBlenderKey().getFeaturesToLoad() & FeaturesToLoad.TEXTURES) != 0) {
+			TextureHelper textureHelper = blenderContext.getHelper(TextureHelper.class);
 			for (int i=0;i<materialContext.texturesCount;++i) {
 				Structure mtex = materialContext.mTexs.get(i);
 				
@@ -223,7 +223,7 @@ public class MaterialHelper extends AbstractBlenderHelper {
 				int mapto = ((Number) mtex.getFieldValue("mapto")).intValue();
 				if (mapto != 0) {
 					Structure tex = materialContext.textures.get(i);
-					Texture texture = textureHelper.getTexture(tex, dataRepository);
+					Texture texture = textureHelper.getTexture(tex, blenderContext);
 					if (texture != null) {
 						if(firstTextureType == null) {
 							firstTextureType = texture.getType();
@@ -245,7 +245,7 @@ public class MaterialHelper extends AbstractBlenderHelper {
 							int blendType = ((Number) mtex.getFieldValue("blendtype")).intValue();
 							float[] color = new float[] { ((Number) mtex.getFieldValue("r")).floatValue(), ((Number) mtex.getFieldValue("g")).floatValue(), ((Number) mtex.getFieldValue("b")).floatValue() };
 							float colfac = ((Number) mtex.getFieldValue("colfac")).floatValue();
-							texture = textureHelper.blendTexture(diffuseColorArray, texture, color, colfac, blendType, negateTexture, dataRepository);
+							texture = textureHelper.blendTexture(diffuseColorArray, texture, color, colfac, blendType, negateTexture, blenderContext);
 							texture.setWrap(WrapMode.Repeat);
 							//TODO: textures merging
 							if (materialContext.shadeless) {
@@ -291,12 +291,12 @@ public class MaterialHelper extends AbstractBlenderHelper {
 		
 		//creating the material
 		if(firstTextureType==Type.ThreeDimensional) {
-			result = new Material(dataRepository.getAssetManager(), "jme3test/texture/tex3D.j3md");
+			result = new Material(blenderContext.getAssetManager(), "jme3test/texture/tex3D.j3md");
 		} else {
 			if (materialContext.shadeless) {
-				result = new Material(dataRepository.getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
+				result = new Material(blenderContext.getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
 			} else {
-				result = new Material(dataRepository.getAssetManager(), "Common/MatDefs/Light/Lighting.j3md");
+				result = new Material(blenderContext.getAssetManager(), "Common/MatDefs/Light/Lighting.j3md");
 			}
 			
 			if (materialContext.vertexColor) {
@@ -337,8 +337,8 @@ public class MaterialHelper extends AbstractBlenderHelper {
 			result.getAdditionalRenderState().setBlendMode(BlendMode.Alpha);
 		}
 		
-		dataRepository.setMaterialContext(result, materialContext);
-		dataRepository.addLoadedFeatures(structure.getOldMemoryAddress(), structure.getName(), structure, result);
+		blenderContext.setMaterialContext(result, materialContext);
+		blenderContext.addLoadedFeatures(structure.getOldMemoryAddress(), structure.getName(), structure, result);
 		return result;
 	}
 	
@@ -391,12 +391,12 @@ public class MaterialHelper extends AbstractBlenderHelper {
 	 * The method assumes it receives the Lighting type of material.
 	 * @param material
 	 *        the source material
-	 * @param dataRepository
-	 *        the data repository
+	 * @param blenderContext
+	 *        the blender context
 	 * @return material converted into particles-usable material
 	 */
-	public Material getParticlesMaterial(Material material, Integer alphaMaskIndex, DataRepository dataRepository) {
-		Material result = new Material(dataRepository.getAssetManager(), "Common/MatDefs/Misc/Particle.j3md");
+	public Material getParticlesMaterial(Material material, Integer alphaMaskIndex, BlenderContext blenderContext) {
+		Material result = new Material(blenderContext.getAssetManager(), "Common/MatDefs/Misc/Particle.j3md");
 
 		// copying texture
 		MatParam diffuseMap = material.getParam("DiffuseMap");
@@ -612,25 +612,25 @@ public class MaterialHelper extends AbstractBlenderHelper {
 	 * 
 	 * @param structureWithMaterials
 	 *        the structure containing the mesh data
-	 * @param dataRepository
-	 *        the data repository
+	 * @param blenderContext
+	 *        the blender context
 	 * @return a list of vertices colors, each color belongs to a single vertex
 	 * @throws BlenderFileException
 	 *         this exception is thrown when the blend file structure is somehow invalid or corrupted
 	 */
-	public Material[] getMaterials(Structure structureWithMaterials, DataRepository dataRepository) throws BlenderFileException {
+	public Material[] getMaterials(Structure structureWithMaterials, BlenderContext blenderContext) throws BlenderFileException {
 		Pointer ppMaterials = (Pointer) structureWithMaterials.getFieldValue("mat");
 		Material[] materials = null;
 		if (ppMaterials.isNotNull()) {
-			List<Structure> materialStructures = ppMaterials.fetchData(dataRepository.getInputStream());
+			List<Structure> materialStructures = ppMaterials.fetchData(blenderContext.getInputStream());
 			if (materialStructures != null && materialStructures.size() > 0) {
-				MaterialHelper materialHelper = dataRepository.getHelper(MaterialHelper.class);
+				MaterialHelper materialHelper = blenderContext.getHelper(MaterialHelper.class);
 				materials = new Material[materialStructures.size()];
 				int i = 0;
 				for (Structure s : materialStructures) {
-					Material material = (Material) dataRepository.getLoadedFeature(s.getOldMemoryAddress(), LoadedFeatureDataType.LOADED_FEATURE);
+					Material material = (Material) blenderContext.getLoadedFeature(s.getOldMemoryAddress(), LoadedFeatureDataType.LOADED_FEATURE);
 					if (material == null) {
-						material = materialHelper.toMaterial(s, dataRepository);
+						material = materialHelper.toMaterial(s, blenderContext);
 					}
 					materials[i++] = material;
 				}
@@ -751,7 +751,7 @@ public class MaterialHelper extends AbstractBlenderHelper {
 	}
 
 	@Override
-	public boolean shouldBeLoaded(Structure structure, DataRepository dataRepository) {
-		return (dataRepository.getBlenderKey().getFeaturesToLoad() & FeaturesToLoad.MATERIALS) != 0;
+	public boolean shouldBeLoaded(Structure structure, BlenderContext blenderContext) {
+		return (blenderContext.getBlenderKey().getFeaturesToLoad() & FeaturesToLoad.MATERIALS) != 0;
 	}
 }

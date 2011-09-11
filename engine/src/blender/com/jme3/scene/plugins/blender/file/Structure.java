@@ -36,7 +36,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import com.jme3.scene.plugins.blender.DataRepository;
+import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
 
 /**
@@ -45,8 +45,8 @@ import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
  */
 public class Structure implements Cloneable {
 
-    /** The data repository. */
-    private DataRepository dataRepository;
+    /** The blender context. */
+    private BlenderContext blenderContext;
     /** The address of the block that fills the structure. */
     private transient Long oldMemoryAddress;
     /** The type of the structure. */
@@ -60,18 +60,18 @@ public class Structure implements Cloneable {
      * Constructor that copies the data of the structure.
      * @param structure
      *        the structure to copy.
-     * @param dataRepository
-     *        the data repository of the structure
+     * @param blenderContext
+     *        the blender context of the structure
      * @throws CloneNotSupportedException
      *         this exception should never be thrown
      */
-    private Structure(Structure structure, DataRepository dataRepository) throws CloneNotSupportedException {
+    private Structure(Structure structure, BlenderContext blenderContext) throws CloneNotSupportedException {
         type = structure.type;
         fields = new Field[structure.fields.length];
         for (int i = 0; i < fields.length; ++i) {
             fields[i] = (Field) structure.fields[i].clone();
         }
-        this.dataRepository = dataRepository;
+        this.blenderContext = blenderContext;
         this.oldMemoryAddress = structure.oldMemoryAddress;
     }
 
@@ -83,15 +83,15 @@ public class Structure implements Cloneable {
      *        the names from which the name of structure and its fields will be taken
      * @param types
      *        the names of types for the structure
-     * @param dataRepository
-     *        the data repository
+     * @param blenderContext
+     *        the blender context
      * @throws BlenderFileException
      *         this exception occurs if the amount of fields, defined in the file, is negative
      */
-    public Structure(BlenderInputStream inputStream, String[] names, String[] types, DataRepository dataRepository) throws BlenderFileException {
+    public Structure(BlenderInputStream inputStream, String[] names, String[] types, BlenderContext blenderContext) throws BlenderFileException {
         int nameIndex = inputStream.readShort();
         type = types[nameIndex];
-        this.dataRepository = dataRepository;
+        this.blenderContext = blenderContext;
         int fieldsAmount = inputStream.readShort();
         if (fieldsAmount < 0) {
             throw new BlenderFileException("The amount of fields of " + this.type + " structure cannot be negative!");
@@ -101,7 +101,7 @@ public class Structure implements Cloneable {
             for (int i = 0; i < fieldsAmount; ++i) {
                 int typeIndex = inputStream.readShort();
                 nameIndex = inputStream.readShort();
-                fields[i] = new Field(names[nameIndex], types[typeIndex], dataRepository);
+                fields[i] = new Field(names[nameIndex], types[typeIndex], blenderContext);
             }
         }
         this.oldMemoryAddress = Long.valueOf(-1L);
@@ -165,15 +165,15 @@ public class Structure implements Cloneable {
     /**
      * This methos should be used on structures that are of a 'ListBase' type. It creates a List of structures that are
      * held by this structure within the blend file.
-     * @param dataRepository
-     *        the data repository
+     * @param blenderContext
+     *        the blender context
      * @return a list of filled structures
      * @throws BlenderFileException
      *         this exception is thrown when the blend file structure is somehow invalid or corrupted
      * @throws IllegalArgumentException
      *         this exception is thrown if the type of the structure is not 'ListBase'
      */
-    public List<Structure> evaluateListBase(DataRepository dataRepository) throws BlenderFileException {
+    public List<Structure> evaluateListBase(BlenderContext blenderContext) throws BlenderFileException {
         if (!"ListBase".equals(this.type)) {
             throw new IllegalStateException("This structure is not of type: 'ListBase'");
         }
@@ -184,7 +184,7 @@ public class Structure implements Cloneable {
         List<Structure> result = new LinkedList<Structure>();
         while (currentAddress != lastAddress) {
             currentAddress = first.getOldMemoryAddress();
-            Structure structure = first.fetchData(dataRepository.getInputStream()).get(0);
+            Structure structure = first.fetchData(blenderContext.getInputStream()).get(0);
             result.add(structure);
             first = (Pointer) structure.getFlatFieldValue("next");
         }
@@ -264,7 +264,7 @@ public class Structure implements Cloneable {
 
     @Override
     public Object clone() throws CloneNotSupportedException {
-        return new Structure(this, dataRepository);
+        return new Structure(this, blenderContext);
     }
 
     /**
@@ -296,18 +296,18 @@ public class Structure implements Cloneable {
          * is case sensitive!
          * @param type
          *        the type name of the data
-         * @param dataRepository
-         *        the data repository
+         * @param blenderContext
+         *        the blender context
          * @return appropriate enum value to the given type name
          * @throws BlenderFileException
          *         this exception is thrown if the given type name does not exist in the blend file
          */
-        public static DataType getDataType(String type, DataRepository dataRepository) throws BlenderFileException {
+        public static DataType getDataType(String type, BlenderContext blenderContext) throws BlenderFileException {
             DataType result = PRIMARY_TYPES.get(type);
             if (result != null) {
                 return result;
             }
-            if (dataRepository.getDnaBlockData().hasStructure(type)) {
+            if (blenderContext.getDnaBlockData().hasStructure(type)) {
                 return STRUCTURE;
             }
             throw new BlenderFileException("Unknown data type: " + type);

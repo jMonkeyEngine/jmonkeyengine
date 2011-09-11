@@ -43,7 +43,7 @@ import com.jme3.animation.BoneTrack;
 import com.jme3.math.Matrix4f;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.plugins.blender.AbstractBlenderHelper;
-import com.jme3.scene.plugins.blender.DataRepository;
+import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.curves.BezierCurve;
 import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
 import com.jme3.scene.plugins.blender.file.BlenderInputStream;
@@ -104,11 +104,11 @@ public class ArmatureHelper extends AbstractBlenderHelper {
      * @throws BlenderFileException
      *         this exception is thrown when the blender file is somehow corrupted
      */
-    public Map<Integer, Integer> getGroupToBoneIndexMap(Structure defBaseStructure, DataRepository dataRepository) throws BlenderFileException {
+    public Map<Integer, Integer> getGroupToBoneIndexMap(Structure defBaseStructure, BlenderContext blenderContext) throws BlenderFileException {
         Map<Integer, Integer> result = null;
         if (bonesMap != null && bonesMap.size() != 0) {
             result = new HashMap<Integer, Integer>();
-            List<Structure> deformGroups = defBaseStructure.evaluateListBase(dataRepository);//bDeformGroup
+            List<Structure> deformGroups = defBaseStructure.evaluateListBase(blenderContext);//bDeformGroup
             int groupIndex = 0;
             for (Structure deformGroup : deformGroups) {
                 String deformGroupName = deformGroup.getFieldValue("name").toString();
@@ -146,14 +146,14 @@ public class ArmatureHelper extends AbstractBlenderHelper {
      *        a structure containing the bone data
      * @param parent
      *        the bone parent; if null then we read the root bone
-     * @param dataRepository
-     *        the data repository
+     * @param blenderContext
+     *        the blender context
      * @return the bone transformation data; contains bone chierarchy and the bone's matrices
      * @throws BlenderFileException
      *         this exception is thrown when the blender file is somehow corrupted
      */
     @SuppressWarnings("unchecked")
-    public BoneTransformationData readBoneAndItsChildren(Structure boneStructure, BoneTransformationData parent, DataRepository dataRepository) throws BlenderFileException {
+    public BoneTransformationData readBoneAndItsChildren(Structure boneStructure, BoneTransformationData parent, BlenderContext blenderContext) throws BlenderFileException {
         String name = boneStructure.getFieldValue("name").toString();
         Bone bone = new Bone(name);
         int bonesAmount = bonesOMAs.size();
@@ -165,12 +165,12 @@ public class ArmatureHelper extends AbstractBlenderHelper {
         DynamicArray<Float> sizeArray = (DynamicArray<Float>) boneStructure.getFieldValue("size");
         Vector3f size = new Vector3f(sizeArray.get(0), sizeArray.get(1), sizeArray.get(2));
         BoneTransformationData boneTransformationData = new BoneTransformationData(boneArmatureMatrix, size, bone, parent);
-        dataRepository.addLoadedFeatures(boneStructure.getOldMemoryAddress(), name, boneStructure, bone);
+        blenderContext.addLoadedFeatures(boneStructure.getOldMemoryAddress(), name, boneStructure, bone);
 
         Structure childbase = (Structure) boneStructure.getFieldValue("childbase");
-        List<Structure> children = childbase.evaluateListBase(dataRepository);//Bone
+        List<Structure> children = childbase.evaluateListBase(blenderContext);//Bone
         for (Structure boneChild : children) {
-            this.readBoneAndItsChildren(boneChild, boneTransformationData, dataRepository);
+            this.readBoneAndItsChildren(boneChild, boneTransformationData, blenderContext);
         }
         return boneTransformationData;
     }
@@ -293,7 +293,7 @@ public class ArmatureHelper extends AbstractBlenderHelper {
     }
     
     @Override
-    public boolean shouldBeLoaded(Structure structure, DataRepository dataRepository) {
+    public boolean shouldBeLoaded(Structure structure, BlenderContext blenderContext) {
     	return true;
     }
     
@@ -302,8 +302,8 @@ public class ArmatureHelper extends AbstractBlenderHelper {
 	 * 
 	 * @param actionStructure
 	 *            the structure containing the tracks
-	 * @param dataRepository
-	 *            the data repository
+	 * @param blenderContext
+	 *            the blender context
 	 * @param objectName
 	 *            the name of the object that will use these tracks
 	 * @param animationName
@@ -313,11 +313,11 @@ public class ArmatureHelper extends AbstractBlenderHelper {
 	 *             an exception is thrown when there are problems with the blend
 	 *             file
 	 */
-    public BoneTrack[] getTracks(Structure actionStructure, DataRepository dataRepository, String objectName, String animationName) throws BlenderFileException {
+    public BoneTrack[] getTracks(Structure actionStructure, BlenderContext blenderContext, String objectName, String animationName) throws BlenderFileException {
     	if (blenderVersion < 250) {
-            return this.getTracks249(actionStructure, dataRepository, objectName, animationName);
+            return this.getTracks249(actionStructure, blenderContext, objectName, animationName);
         } else {
-        	return this.getTracks250(actionStructure, dataRepository, objectName, animationName);
+        	return this.getTracks250(actionStructure, blenderContext, objectName, animationName);
         }
     }
     
@@ -326,8 +326,8 @@ public class ArmatureHelper extends AbstractBlenderHelper {
 	 * 
 	 * @param actionStructure
 	 *            the structure containing the tracks
-	 * @param dataRepository
-	 *            the data repository
+	 * @param blenderContext
+	 *            the blender context
 	 * @param objectName
 	 *            the name of the object that will use these tracks
 	 * @param animationName
@@ -337,12 +337,12 @@ public class ArmatureHelper extends AbstractBlenderHelper {
 	 *             an exception is thrown when there are problems with the blend
 	 *             file
 	 */
-    private BoneTrack[] getTracks250(Structure actionStructure, DataRepository dataRepository, String objectName, String animationName) throws BlenderFileException {
+    private BoneTrack[] getTracks250(Structure actionStructure, BlenderContext blenderContext, String objectName, String animationName) throws BlenderFileException {
         LOGGER.log(Level.INFO, "Getting tracks!");
-        int fps = dataRepository.getBlenderKey().getFps();
-        int[] animationFrames = dataRepository.getBlenderKey().getAnimationFrames(objectName, animationName);
+        int fps = blenderContext.getBlenderKey().getFps();
+        int[] animationFrames = blenderContext.getBlenderKey().getAnimationFrames(objectName, animationName);
         Structure groups = (Structure) actionStructure.getFieldValue("groups");
-        List<Structure> actionGroups = groups.evaluateListBase(dataRepository);//bActionGroup
+        List<Structure> actionGroups = groups.evaluateListBase(blenderContext);//bActionGroup
         if (actionGroups != null && actionGroups.size() > 0 && (bonesMap == null || bonesMap.size() == 0)) {
             throw new IllegalStateException("No bones found! Cannot proceed to calculating tracks!");
         }
@@ -352,15 +352,15 @@ public class ArmatureHelper extends AbstractBlenderHelper {
             String name = actionGroup.getFieldValue("name").toString();
             Integer boneIndex = bonesMap.get(name);
             if (boneIndex != null) {
-                List<Structure> channels = ((Structure) actionGroup.getFieldValue("channels")).evaluateListBase(dataRepository);
+                List<Structure> channels = ((Structure) actionGroup.getFieldValue("channels")).evaluateListBase(blenderContext);
                 BezierCurve[] bezierCurves = new BezierCurve[channels.size()];
                 int channelCounter = 0;
                 for (Structure c : channels) {
                     //reading rna path first
-                    BlenderInputStream bis = dataRepository.getInputStream();
+                    BlenderInputStream bis = blenderContext.getInputStream();
                     int currentPosition = bis.getPosition();
                     Pointer pRnaPath = (Pointer) c.getFieldValue("rna_path");
-                    FileBlockHeader dataFileBlock = dataRepository.getFileBlock(pRnaPath.getOldMemoryAddress());
+                    FileBlockHeader dataFileBlock = blenderContext.getFileBlock(pRnaPath.getOldMemoryAddress());
                     bis.setPosition(dataFileBlock.getBlockPosition());
                     String rnaPath = bis.readString();
                     bis.setPosition(currentPosition);
@@ -368,7 +368,7 @@ public class ArmatureHelper extends AbstractBlenderHelper {
                     int type = this.getCurveType(rnaPath, arrayIndex);
 
                     Pointer pBezTriple = (Pointer) c.getFieldValue("bezt");
-                    List<Structure> bezTriples = pBezTriple.fetchData(dataRepository.getInputStream());
+                    List<Structure> bezTriples = pBezTriple.fetchData(blenderContext.getInputStream());
                     bezierCurves[channelCounter++] = new BezierCurve(type, bezTriples, 2);
                 }
 
@@ -384,8 +384,8 @@ public class ArmatureHelper extends AbstractBlenderHelper {
 	 * 
 	 * @param actionStructure
 	 *            the structure containing the tracks
-	 * @param dataRepository
-	 *            the data repository
+	 * @param blenderContext
+	 *            the blender context
 	 * @param objectName
 	 *            the name of the object that will use these tracks
 	 * @param animationName
@@ -395,13 +395,13 @@ public class ArmatureHelper extends AbstractBlenderHelper {
 	 *             an exception is thrown when there are problems with the blend
 	 *             file
 	 */
-    private BoneTrack[] getTracks249(Structure actionStructure, DataRepository dataRepository, String objectName, String animationName) throws BlenderFileException {
+    private BoneTrack[] getTracks249(Structure actionStructure, BlenderContext blenderContext, String objectName, String animationName) throws BlenderFileException {
     	LOGGER.log(Level.INFO, "Getting tracks!");
-        IpoHelper ipoHelper = dataRepository.getHelper(IpoHelper.class);
-        int fps = dataRepository.getBlenderKey().getFps();
-        int[] animationFrames = dataRepository.getBlenderKey().getAnimationFrames(objectName, animationName);
+        IpoHelper ipoHelper = blenderContext.getHelper(IpoHelper.class);
+        int fps = blenderContext.getBlenderKey().getFps();
+        int[] animationFrames = blenderContext.getBlenderKey().getAnimationFrames(objectName, animationName);
         Structure chanbase = (Structure) actionStructure.getFieldValue("chanbase");
-        List<Structure> actionChannels = chanbase.evaluateListBase(dataRepository);//bActionChannel
+        List<Structure> actionChannels = chanbase.evaluateListBase(blenderContext);//bActionChannel
         if (actionChannels != null && actionChannels.size() > 0 && (bonesMap == null || bonesMap.size() == 0)) {
             throw new IllegalStateException("No bones found! Cannot proceed to calculating tracks!");
         }
@@ -412,8 +412,8 @@ public class ArmatureHelper extends AbstractBlenderHelper {
             if (boneIndex != null) {
                 Pointer p = (Pointer) bActionChannel.getFieldValue("ipo");
                 if (!p.isNull()) {
-                    Structure ipoStructure = p.fetchData(dataRepository.getInputStream()).get(0);
-                    Ipo ipo = ipoHelper.createIpo(ipoStructure, dataRepository);
+                    Structure ipoStructure = p.fetchData(blenderContext.getInputStream()).get(0);
+                    Ipo ipo = ipoHelper.createIpo(ipoStructure, blenderContext);
                     tracks.add(ipo.calculateTrack(boneIndex.intValue(), animationFrames[0], animationFrames[1], fps));
                 }
             }

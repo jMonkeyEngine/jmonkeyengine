@@ -35,7 +35,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
 import com.jme3.math.FastMath;
-import com.jme3.scene.plugins.blender.DataRepository;
+import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.file.Structure;
 import com.jme3.texture.Image;
 import com.jme3.texture.Image.Format;
@@ -115,13 +115,13 @@ public final class TextureGeneratorBlend extends TextureGenerator {
 	}
 
 	@Override
-	protected Texture generate(Structure tex, int width, int height, int depth, DataRepository dataRepository) {
+	protected Texture generate(Structure tex, int width, int height, int depth, BlenderContext blenderContext) {
 		int flag = ((Number) tex.getFieldValue("flag")).intValue();
 		int stype = ((Number) tex.getFieldValue("stype")).intValue();
 		TextureResult texres = new TextureResult();
 		int halfW = width >> 1, halfH = height >> 1, halfD = depth >> 1, index = 0;
 		float wDelta = 1.0f / halfW, hDelta = 1.0f / halfH, dDelta = 1.0f / halfD, x, y;
-		float[][] colorBand = this.computeColorband(tex, dataRepository);
+		float[][] colorBand = this.computeColorband(tex, blenderContext);
 		BrightnessAndContrastData bacd = new BrightnessAndContrastData(tex);
 		Format format = colorBand != null ? Format.RGB8 : Format.Luminance8;
 		int bytesPerPixel = colorBand != null ? 3 : 1;

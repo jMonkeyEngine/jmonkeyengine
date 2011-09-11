@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.jme3.scene.plugins.blender.DataRepository;
+import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
 import com.jme3.scene.plugins.blender.file.DynamicArray;
 import com.jme3.scene.plugins.blender.file.Pointer;
@@ -31,7 +31,7 @@ public final class MaterialContext {
 	/* package */int					projectionType;
 
 	@SuppressWarnings("unchecked")
-	/* package */MaterialContext(Structure structure, DataRepository dataRepository) throws BlenderFileException {
+	/* package */MaterialContext(Structure structure, BlenderContext blenderContext) throws BlenderFileException {
 		name = structure.getName();
 
 		int mode = ((Number) structure.getFieldValue("mode")).intValue();
@@ -48,7 +48,7 @@ public final class MaterialContext {
 		for (int i = 0; i < mtexsArray.getTotalSize(); ++i) {
 			Pointer p = mtexsArray.get(i);
 			if (p.isNotNull() && (separatedTextures & 1 << i) == 0) {
-				Structure mtex = p.fetchData(dataRepository.getInputStream()).get(0);
+				Structure mtex = p.fetchData(blenderContext.getInputStream()).get(0);
 
 				// the first texture determines the texture coordinates type
 				if (uvCoordinatesType == -1) {
@@ -61,7 +61,7 @@ public final class MaterialContext {
 
 				Pointer pTex = (Pointer) mtex.getFieldValue("tex");
 				if (pTex.isNotNull()) {
-					Structure tex = pTex.fetchData(dataRepository.getInputStream()).get(0);
+					Structure tex = pTex.fetchData(blenderContext.getInputStream()).get(0);
 					int type = ((Number) tex.getFieldValue("type")).intValue();
 					Type textureType = this.getType(type);
 					if (textureType != null) {

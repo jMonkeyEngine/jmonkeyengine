@@ -34,7 +34,7 @@ package com.jme3.scene.plugins.blender.file;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.jme3.scene.plugins.blender.DataRepository;
+import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
 
 /**
@@ -57,12 +57,12 @@ public class DnaBlockData {
      * Constructor. Loads the block from the given stream during instance creation.
      * @param inputStream
      *        the stream we read the block from
-     * @param dataRepository
-     *        the data repository
+     * @param blenderContext
+     *        the blender context
      * @throws BlenderFileException
      *         this exception is throw if the blend file is invalid or somehow corrupted
      */
-    public DnaBlockData(BlenderInputStream inputStream, DataRepository dataRepository) throws BlenderFileException {
+    public DnaBlockData(BlenderInputStream inputStream, BlenderContext blenderContext) throws BlenderFileException {
         int identifier;
 
         //reading 'SDNA' identifier
@@ -130,7 +130,7 @@ public class DnaBlockData {
         structures = new Structure[amount];
         structuresMap = new HashMap<String, Structure>(amount);
         for (int i = 0; i < amount; ++i) {
-            structures[i] = new Structure(inputStream, names, types, dataRepository);
+            structures[i] = new Structure(inputStream, names, types, blenderContext);
             if (structuresMap.containsKey(structures[i].getType())) {
                 throw new BlenderFileException("Blend file seems to be corrupted! The type " + structures[i].getType() + " is defined twice!");
             }

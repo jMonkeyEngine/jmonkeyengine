@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.jme3.animation.BoneTrack;
 import com.jme3.scene.plugins.blender.AbstractBlenderHelper;
-import com.jme3.scene.plugins.blender.DataRepository;
+import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.curves.BezierCurve;
 import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
 import com.jme3.scene.plugins.blender.file.Pointer;
@@ -31,30 +31,30 @@ public class IpoHelper extends AbstractBlenderHelper {
      * This method creates an ipo object used for interpolation calculations.
      * @param ipoStructure
      *        the structure with ipo definition
-     * @param dataRepository
-     *        the data repository
+     * @param blenderContext
+     *        the blender context
      * @return the ipo object
      * @throws BlenderFileException
      *         this exception is thrown when the blender file is somehow corrupted
      */
-    public Ipo createIpo(Structure ipoStructure, DataRepository dataRepository) throws BlenderFileException {
+    public Ipo createIpo(Structure ipoStructure, BlenderContext blenderContext) throws BlenderFileException {
         Structure curvebase = (Structure) ipoStructure.getFieldValue("curve");
 
         //preparing bezier curves
         Ipo result = null;
-        List<Structure> curves = curvebase.evaluateListBase(dataRepository);//IpoCurve
+        List<Structure> curves = curvebase.evaluateListBase(blenderContext);//IpoCurve
         if (curves.size() > 0) {
             BezierCurve[] bezierCurves = new BezierCurve[curves.size()];
             int frame = 0;
             for (Structure curve : curves) {
                 Pointer pBezTriple = (Pointer) curve.getFieldValue("bezt");
-                List<Structure> bezTriples = pBezTriple.fetchData(dataRepository.getInputStream());
+                List<Structure> bezTriples = pBezTriple.fetchData(blenderContext.getInputStream());
                 int type = ((Number) curve.getFieldValue("adrcode")).intValue();
                 bezierCurves[frame++] = new BezierCurve(type, bezTriples, 2);
             }
             curves.clear();
             result = new Ipo(bezierCurves);
-            dataRepository.addLoadedFeatures(ipoStructure.getOldMemoryAddress(), ipoStructure.getName(), ipoStructure, result);
+            blenderContext.addLoadedFeatures(ipoStructure.getOldMemoryAddress(), ipoStructure.getName(), ipoStructure, result);
         }
         return result;
     }
@@ -71,7 +71,7 @@ public class IpoHelper extends AbstractBlenderHelper {
     }
 
     @Override
-    public boolean shouldBeLoaded(Structure structure, DataRepository dataRepository) {
+    public boolean shouldBeLoaded(Structure structure, BlenderContext blenderContext) {
     	return true;
     }
     

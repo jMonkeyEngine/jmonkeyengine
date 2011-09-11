@@ -37,7 +37,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.jme3.math.FastMath;
-import com.jme3.scene.plugins.blender.DataRepository;
+import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
 import com.jme3.scene.plugins.blender.file.DynamicArray;
 import com.jme3.scene.plugins.blender.file.Pointer;
@@ -67,29 +67,29 @@ import com.jme3.texture.Texture;
 	 *        the height of the result texture
 	 * @param depth
 	 *        the depth of the texture
-	 * @param dataRepository
-	 *        the data repository
+	 * @param blenderContext
+	 *        the blender context
 	 * @return newly generated texture
 	 */
-	protected abstract Texture generate(Structure tex, int width, int height, int depth, DataRepository dataRepository);
+	protected abstract Texture generate(Structure tex, int width, int height, int depth, BlenderContext blenderContext);
 
 	/**
 	 * This method reads the colorband data from the given texture structure.
 	 * 
 	 * @param tex
 	 *        the texture structure
-	 * @param dataRepository
-	 *        the data repository
+	 * @param blenderContext
+	 *        the blender context
 	 * @return read colorband or null if not present
 	 */
-	private ColorBand readColorband(Structure tex, DataRepository dataRepository) {
+	private ColorBand readColorband(Structure tex, BlenderContext blenderContext) {
 		ColorBand result = null;
 		int flag = ((Number) tex.getFieldValue("flag")).intValue();
 		if ((flag & NoiseGenerator.TEX_COLORBAND) != 0) {
 			Pointer pColorband = (Pointer) tex.getFieldValue("coba");
 			Structure colorbandStructure;
 			try {
-				colorbandStructure = pColorband.fetchData(dataRepository.getInputStream()).get(0);
+				colorbandStructure = pColorband.fetchData(blenderContext.getInputStream()).get(0);
 				result = new ColorBand(colorbandStructure);
 			} catch (BlenderFileException e) {
 				LOGGER.log(Level.WARNING, "Cannot fetch the colorband structure. The reason: {0}", e.getLocalizedMessage());
@@ -98,8 +98,8 @@ import com.jme3.texture.Texture;
 		return result;
 	}
 	
-	protected float[][] computeColorband(Structure tex, DataRepository dataRepository) {
-		ColorBand colorBand = this.readColorband(tex, dataRepository);
+	protected float[][] computeColorband(Structure tex, BlenderContext blenderContext) {
+		ColorBand colorBand = this.readColorband(tex, blenderContext);
 		float[][] result = null;
 		if(colorBand!=null) {
 			result = new float[1001][4];//1001 - amount of possible cursor positions; 4 = [r, g, b, a]

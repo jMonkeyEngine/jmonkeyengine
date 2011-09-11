@@ -34,7 +34,7 @@ package com.jme3.scene.plugins.blender.textures;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
-import com.jme3.scene.plugins.blender.DataRepository;
+import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.file.Structure;
 import com.jme3.texture.Image;
 import com.jme3.texture.Image.Format;
@@ -121,7 +121,7 @@ public class TextureGeneratorMagic extends TextureGenerator {
 	}
 
 	@Override
-	protected Texture generate(Structure tex, int width, int height, int depth, DataRepository dataRepository) {
+	protected Texture generate(Structure tex, int width, int height, int depth, BlenderContext blenderContext) {
 		float xyz[] = new float[3], turb;
 		int noisedepth = ((Number) tex.getFieldValue("noisedepth")).intValue();
 		float turbul = ((Number) tex.getFieldValue("turbul")).floatValue() / 5.0f;
@@ -129,7 +129,7 @@ public class TextureGeneratorMagic extends TextureGenerator {
 		TextureResult texres = new TextureResult();
 		int halfW = width >> 1, halfH = height >> 1, halfD = depth >> 1, index = 0;
 		float wDelta = 1.0f / halfW, hDelta = 1.0f / halfH, dDelta = 1.0f / halfD;
-		float[][] colorBand = this.computeColorband(tex, dataRepository);
+		float[][] colorBand = this.computeColorband(tex, blenderContext);
 		BrightnessAndContrastData bacd = new BrightnessAndContrastData(tex);
 		
 		byte[] data = new byte[width * height * depth * 3];

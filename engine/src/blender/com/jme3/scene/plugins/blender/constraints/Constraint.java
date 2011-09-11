@@ -7,8 +7,8 @@ import com.jme3.animation.Skeleton;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
-import com.jme3.scene.plugins.blender.DataRepository;
-import com.jme3.scene.plugins.blender.DataRepository.LoadedFeatureDataType;
+import com.jme3.scene.plugins.blender.BlenderContext;
+import com.jme3.scene.plugins.blender.BlenderContext.LoadedFeatureDataType;
 import com.jme3.scene.plugins.blender.animations.Ipo;
 import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
 import com.jme3.scene.plugins.blender.file.Pointer;
@@ -32,7 +32,7 @@ public abstract class Constraint {
 	protected final Structure data;
 	/** The ipo object defining influence. */
 	protected final Ipo ipo;
-	protected DataRepository dataRepository;
+	protected BlenderContext blenderContext;
 	/**
 	 * This constructor creates the constraint instance.
 	 * 
@@ -42,14 +42,14 @@ public abstract class Constraint {
 	 *            the old memory address of the constraint owner
 	 * @param influenceIpo
 	 *            the ipo curve of the influence factor
-	 * @param dataRepository
-	 *            the data repository
+	 * @param blenderContext
+	 *            the blender context
 	 * @throws BlenderFileException
 	 *             this exception is thrown when the blender file is somehow
 	 *             corrupted
 	 */
 	public Constraint(Structure constraintStructure, Long boneOMA,
-			Ipo influenceIpo, DataRepository dataRepository) throws BlenderFileException {
+			Ipo influenceIpo, BlenderContext blenderContext) throws BlenderFileException {
 		this.name = constraintStructure.getFieldValue("name").toString();
 		ConstraintType constraintType = ConstraintType.valueOf(((Number)constraintStructure.getFieldValue("type")).intValue());
 		if(constraintType != this.getType()) {
@@ -57,7 +57,7 @@ public abstract class Constraint {
 		}
 		Pointer pData = (Pointer) constraintStructure.getFieldValue("data");
 		if (pData.isNotNull()) {
-			data = pData.fetchData(dataRepository.getInputStream()).get(0);
+			data = pData.fetchData(blenderContext.getInputStream()).get(0);
 		} else {
 			throw new BlenderFileException("The constraint has no data specified!");
 		}
@@ -102,7 +102,7 @@ public abstract class Constraint {
      * @return the bone track for the bone that is being affected by the constraint
      */
     protected BoneTrack getBoneTrack(Skeleton skeleton, BoneAnimation boneAnimation) {
-        Bone bone = (Bone) dataRepository.getLoadedFeature(boneOMA, LoadedFeatureDataType.LOADED_FEATURE);
+        Bone bone = (Bone) blenderContext.getLoadedFeature(boneOMA, LoadedFeatureDataType.LOADED_FEATURE);
         int boneIndex = bone==null ? 0 : skeleton.getBoneIndex(bone);//bone==null may mean the object animation
         if (boneIndex != -1) {
             //searching for track for this bone
@@ -124,17 +124,17 @@ public abstract class Constraint {
     protected Object getTarget(LoadedFeatureDataType loadedFeatureDataType) throws BlenderFileException {
     	//load the feature through objectHelper, this way we are certain the object loads and has
     	//his own constraints applied to traces
-    	ObjectHelper objectHelper = dataRepository.getHelper(ObjectHelper.class);
+    	ObjectHelper objectHelper = blenderContext.getHelper(ObjectHelper.class);
     	//always load the target first
     	Long targetOMA = ((Pointer) data.getFieldValue("tar")).getOldMemoryAddress();
-        Structure objectStructure = dataRepository.getFileBlock(targetOMA).getStructure(dataRepository);
-        Object result = objectHelper.toObject(objectStructure, dataRepository);
+        Structure objectStructure = blenderContext.getFileBlock(targetOMA).getStructure(blenderContext);
+        Object result = objectHelper.toObject(objectStructure, blenderContext);
     	
     	//subtarget should be loaded alogn with target
     	Object subtarget = data.getFieldValue("subtarget");
     	String subtargetName = subtarget==null ? null : subtarget.toString();
         if (subtargetName!=null && subtargetName.length() > 0) {
-            result = dataRepository.getLoadedFeature(subtargetName, loadedFeatureDataType);
+            result = blenderContext.getLoadedFeature(subtargetName, loadedFeatureDataType);
         }
         return result;
     }
@@ -145,7 +145,7 @@ public abstract class Constraint {
      */
     protected Vector3f getTargetLocation() {
         Long targetOMA = ((Pointer) data.getFieldValue("tar")).getOldMemoryAddress();
-        Node targetObject = (Node) dataRepository.getLoadedFeature(targetOMA, LoadedFeatureDataType.LOADED_FEATURE);
+        Node targetObject = (Node) blenderContext.getLoadedFeature(targetOMA, LoadedFeatureDataType.LOADED_FEATURE);
         switch (targetSpace) {
             case CONSTRAINT_SPACE_LOCAL:
                 return targetObject.getLocalTranslation();
@@ -172,7 +172,7 @@ public abstract class Constraint {
      */
     protected Quaternion getTargetRotation() {
         Long targetOMA = ((Pointer) data.getFieldValue("tar")).getOldMemoryAddress();
-        Node targetObject = (Node) dataRepository.getLoadedFeature(targetOMA, LoadedFeatureDataType.LOADED_FEATURE);
+        Node targetObject = (Node) blenderContext.getLoadedFeature(targetOMA, LoadedFeatureDataType.LOADED_FEATURE);
         switch (targetSpace) {
             case CONSTRAINT_SPACE_LOCAL:
                 return targetObject.getLocalRotation();
@@ -189,7 +189,7 @@ public abstract class Constraint {
      */
     protected Vector3f getTargetScale() {
         Long targetOMA = ((Pointer) data.getFieldValue("tar")).getOldMemoryAddress();
-        Node targetObject = (Node) dataRepository.getLoadedFeature(targetOMA, LoadedFeatureDataType.LOADED_FEATURE);
+        Node targetObject = (Node) blenderContext.getLoadedFeature(targetOMA, LoadedFeatureDataType.LOADED_FEATURE);
         switch (targetSpace) {
             case CONSTRAINT_SPACE_LOCAL:
                 return targetObject.getLocalScale();

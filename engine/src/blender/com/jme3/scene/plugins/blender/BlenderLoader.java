@@ -75,8 +75,8 @@ public class BlenderLoader implements AssetLoader {
 
 	/** Converter for blender structures. */
 	protected JmeConverter			converter;
-	/** The data repository. */
-	protected DataRepository		dataRepository;
+	/** The blender context. */
+	protected BlenderContext		blenderContext;
 	/** The blender key to use. */
 	protected BlenderKey			blenderKey;
 	/** The blocks read from the file. */
@@ -94,7 +94,7 @@ public class BlenderLoader implements AssetLoader {
 			for (FileBlockHeader block : blocks) {
 				switch (block.getCode()) {
 					case FileBlockHeader.BLOCK_OB00:// Object
-						Object object = converter.toObject(block.getStructure(dataRepository));
+						Object object = converter.toObject(block.getStructure(blenderContext));
 						if (object instanceof Node) {
 							if ((blenderKey.getFeaturesToLoad() & FeaturesToLoad.OBJECTS) != 0) {
 								LOGGER.log(Level.INFO, "{0}: {1}--> {2}", new Object[] { ((Node) object).getName(), ((Node) object).getLocalTranslation().toString(), ((Node) object).getParent() == null ? "null" : ((Node) object).getParent().getName() });
@@ -114,17 +114,17 @@ public class BlenderLoader implements AssetLoader {
 						break;
 					case FileBlockHeader.BLOCK_MA00:// Material
 						if (blenderKey.isLoadUnlinkedAssets() && (blenderKey.getFeaturesToLoad() & FeaturesToLoad.MATERIALS) != 0) {
-							loadingResults.addMaterial(converter.toMaterial(block.getStructure(dataRepository)));
+							loadingResults.addMaterial(converter.toMaterial(block.getStructure(blenderContext)));
 						}
 						break;
 					case FileBlockHeader.BLOCK_SC00:// Scene
 						if ((blenderKey.getFeaturesToLoad() & FeaturesToLoad.SCENES) != 0) {
-							loadingResults.addScene(converter.toScene(block.getStructure(dataRepository)));
+							loadingResults.addScene(converter.toScene(block.getStructure(blenderContext)));
 						}
 						break;
 					case FileBlockHeader.BLOCK_WO00:// World
 						if (blenderKey.isLoadUnlinkedAssets() && worldData == null) {// onlu one world data is used
-							Structure worldStructure = block.getStructure(dataRepository);
+							Structure worldStructure = block.getStructure(blenderContext);
 							String worldName = worldStructure.getName();
 							if (blenderKey.getUsedWorld() == null || blenderKey.getUsedWorld().equals(worldName)) {
 								worldData = converter.toWorldData(worldStructure);
@@ -171,39 +171,39 @@ public class BlenderLoader implements AssetLoader {
 		// reading blocks
 		blocks = new ArrayList<FileBlockHeader>();
 		FileBlockHeader fileBlock;
-		dataRepository = new DataRepository();
-		dataRepository.setAssetManager(assetInfo.getManager());
-		dataRepository.setInputStream(inputStream);
-		dataRepository.setBlenderKey(blenderKey);
+		blenderContext = new BlenderContext();
+		blenderContext.setAssetManager(assetInfo.getManager());
+		blenderContext.setInputStream(inputStream);
+		blenderContext.setBlenderKey(blenderKey);
 
 		// creating helpers
-		dataRepository.putHelper(ArmatureHelper.class, new ArmatureHelper(inputStream.getVersionNumber()));
-		dataRepository.putHelper(TextureHelper.class, new TextureHelper(inputStream.getVersionNumber()));
-		dataRepository.putHelper(MeshHelper.class, new MeshHelper(inputStream.getVersionNumber()));
-		dataRepository.putHelper(ObjectHelper.class, new ObjectHelper(inputStream.getVersionNumber()));
-		dataRepository.putHelper(CurvesHelper.class, new CurvesHelper(inputStream.getVersionNumber()));
-		dataRepository.putHelper(LightHelper.class, new LightHelper(inputStream.getVersionNumber()));
-		dataRepository.putHelper(CameraHelper.class, new CameraHelper(inputStream.getVersionNumber()));
-		dataRepository.putHelper(ModifierHelper.class, new ModifierHelper(inputStream.getVersionNumber()));
-		dataRepository.putHelper(MaterialHelper.class, new MaterialHelper(inputStream.getVersionNumber()));
-		dataRepository.putHelper(ConstraintHelper.class, new ConstraintHelper(inputStream.getVersionNumber(), dataRepository));
-		dataRepository.putHelper(IpoHelper.class, new IpoHelper(inputStream.getVersionNumber()));
-		dataRepository.putHelper(ParticlesHelper.class, new ParticlesHelper(inputStream.getVersionNumber()));
+		blenderContext.putHelper(ArmatureHelper.class, new ArmatureHelper(inputStream.getVersionNumber()));
+		blenderContext.putHelper(TextureHelper.class, new TextureHelper(inputStream.getVersionNumber()));
+		blenderContext.putHelper(MeshHelper.class, new MeshHelper(inputStream.getVersionNumber()));
+		blenderContext.putHelper(ObjectHelper.class, new ObjectHelper(inputStream.getVersionNumber()));
+		blenderContext.putHelper(CurvesHelper.class, new CurvesHelper(inputStream.getVersionNumber()));
+		blenderContext.putHelper(LightHelper.class, new LightHelper(inputStream.getVersionNumber()));
+		blenderContext.putHelper(CameraHelper.class, new CameraHelper(inputStream.getVersionNumber()));
+		blenderContext.putHelper(ModifierHelper.class, new ModifierHelper(inputStream.getVersionNumber()));
+		blenderContext.putHelper(MaterialHelper.class, new MaterialHelper(inputStream.getVersionNumber()));
+		blenderContext.putHelper(ConstraintHelper.class, new ConstraintHelper(inputStream.getVersionNumber(), blenderContext));
+		blenderContext.putHelper(IpoHelper.class, new IpoHelper(inputStream.getVersionNumber()));
+		blenderContext.putHelper(ParticlesHelper.class, new ParticlesHelper(inputStream.getVersionNumber()));
 
 		// setting additional data to helpers
 		if (blenderKey.isFixUpAxis()) {
-			ObjectHelper objectHelper = dataRepository.getHelper(ObjectHelper.class);
+			ObjectHelper objectHelper = blenderContext.getHelper(ObjectHelper.class);
 			objectHelper.setyIsUpAxis(true);
-			CurvesHelper curvesHelper = dataRepository.getHelper(CurvesHelper.class);
+			CurvesHelper curvesHelper = blenderContext.getHelper(CurvesHelper.class);
 			curvesHelper.setyIsUpAxis(true);
 		}
-		MaterialHelper materialHelper = dataRepository.getHelper(MaterialHelper.class);
+		MaterialHelper materialHelper = blenderContext.getHelper(MaterialHelper.class);
 		materialHelper.setFaceCullMode(blenderKey.getFaceCullMode());
 
-		// reading the blocks (dna block is automatically saved in the data repository when found)//TODO: zmienić to
+		// reading the blocks (dna block is automatically saved in the blender context when found)//TODO: zmienić to
 		FileBlockHeader sceneFileBlock = null;
 		do {
-			fileBlock = new FileBlockHeader(inputStream, dataRepository);
+			fileBlock = new FileBlockHeader(inputStream, blenderContext);
 			if (!fileBlock.isDnaBlock()) {
 				blocks.add(fileBlock);
 				// save the scene's file block
@@ -214,10 +214,10 @@ public class BlenderLoader implements AssetLoader {
 		} while (!fileBlock.isLastBlock());
 		// VERIFY LAYERS TO BE LOADED BEFORE LOADING FEATURES
 		if (sceneFileBlock != null) {
-			int lay = ((Number) sceneFileBlock.getStructure(dataRepository).getFieldValue("lay")).intValue();
-			dataRepository.getBlenderKey().setLayersToLoad(lay);// load only current layer
+			int lay = ((Number) sceneFileBlock.getStructure(blenderContext).getFieldValue("lay")).intValue();
+			blenderContext.getBlenderKey().setLayersToLoad(lay);// load only current layer
 		}
 
-		converter = new JmeConverter(dataRepository);
+		converter = new JmeConverter(blenderContext);
 	}
 }

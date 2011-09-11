@@ -15,8 +15,8 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
-import com.jme3.scene.plugins.blender.DataRepository;
-import com.jme3.scene.plugins.blender.DataRepository.LoadedFeatureDataType;
+import com.jme3.scene.plugins.blender.BlenderContext;
+import com.jme3.scene.plugins.blender.BlenderContext.LoadedFeatureDataType;
 import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
 import com.jme3.scene.plugins.blender.file.DynamicArray;
 import com.jme3.scene.plugins.blender.file.FileBlockHeader;
@@ -45,14 +45,14 @@ import com.jme3.scene.shape.Curve;
 	 *            the structure of the object
 	 * @param modifierStructure
 	 *            the structure of the modifier
-	 * @param dataRepository
-	 *            the data repository
+	 * @param blenderContext
+	 *            the blender context
 	 * @throws BlenderFileException
 	 *             this exception is thrown when the blender file is somehow
 	 *             corrupted
 	 */
 	@SuppressWarnings("unchecked")
-	public ArrayModifier(Structure modifier, DataRepository dataRepository) throws BlenderFileException {
+	public ArrayModifier(Structure modifier, BlenderContext blenderContext) throws BlenderFileException {
         Number fittype = (Number) modifier.getFieldValue("fit_type");
         modifierData.put("fittype", fittype);
         switch (fittype.intValue()) {
@@ -66,9 +66,9 @@ import com.jme3.scene.shape.Curve;
                 Pointer pCurveOb = (Pointer) modifier.getFieldValue("curve_ob");
                 float length = 0;
                 if (pCurveOb.isNotNull()) {
-                    Structure curveStructure = pCurveOb.fetchData(dataRepository.getInputStream()).get(0);
-                    ObjectHelper objectHelper = dataRepository.getHelper(ObjectHelper.class);
-                    Node curveObject = (Node) objectHelper.toObject(curveStructure, dataRepository);
+                    Structure curveStructure = pCurveOb.fetchData(blenderContext.getInputStream()).get(0);
+                    ObjectHelper objectHelper = blenderContext.getHelper(ObjectHelper.class);
+                    Node curveObject = (Node) objectHelper.toObject(curveStructure, blenderContext);
                     Set<Number> referencesToCurveLengths = new HashSet<Number>(curveObject.getChildren().size());
                     for (Spatial spatial : curveObject.getChildren()) {
                         if (spatial instanceof Geometry) {
@@ -125,7 +125,7 @@ import com.jme3.scene.shape.Curve;
 	}
 	
 	@Override
-	public Node apply(Node node, DataRepository dataRepository) {
+	public Node apply(Node node, BlenderContext blenderContext) {
         int fittype = ((Number) modifierData.get("fittype")).intValue();
         float[] offset = (float[]) modifierData.get("offset");
         if (offset == null) {// the node will be repeated several times in the same place
@@ -156,11 +156,11 @@ import com.jme3.scene.shape.Curve;
         float[] objectOffset = new float[]{0.0f, 0.0f, 0.0f};
         Pointer pOffsetObject = (Pointer) modifierData.get("offsetob");
         if (pOffsetObject != null) {
-            FileBlockHeader offsetObjectBlock = dataRepository.getFileBlock(pOffsetObject.getOldMemoryAddress());
-            ObjectHelper objectHelper = dataRepository.getHelper(ObjectHelper.class);
+            FileBlockHeader offsetObjectBlock = blenderContext.getFileBlock(pOffsetObject.getOldMemoryAddress());
+            ObjectHelper objectHelper = blenderContext.getHelper(ObjectHelper.class);
             try {// we take the structure in case the object was not yet loaded
-                Structure offsetStructure = offsetObjectBlock.getStructure(dataRepository);
-                Vector3f translation = objectHelper.getTransformation(offsetStructure, dataRepository).getTranslation();
+                Structure offsetStructure = offsetObjectBlock.getStructure(blenderContext);
+                Vector3f translation = objectHelper.getTransformation(offsetStructure, blenderContext).getTranslation();
                 objectOffset[0] = translation.x;
                 objectOffset[1] = translation.y;
                 objectOffset[2] = translation.z;
@@ -174,15 +174,15 @@ import com.jme3.scene.shape.Curve;
         Pointer[] pCaps = new Pointer[]{(Pointer) modifierData.get("startcap"), (Pointer) modifierData.get("endcap")};
         for (int i = 0; i < pCaps.length; ++i) {
             if (pCaps[i] != null) {
-                caps[i] = (Node) dataRepository.getLoadedFeature(pCaps[i].getOldMemoryAddress(), LoadedFeatureDataType.LOADED_FEATURE);
+                caps[i] = (Node) blenderContext.getLoadedFeature(pCaps[i].getOldMemoryAddress(), LoadedFeatureDataType.LOADED_FEATURE);
                 if (caps[i] != null) {
                     caps[i] = (Node) caps[i].clone();
                 } else {
-                    FileBlockHeader capBlock = dataRepository.getFileBlock(pOffsetObject.getOldMemoryAddress());
+                    FileBlockHeader capBlock = blenderContext.getFileBlock(pOffsetObject.getOldMemoryAddress());
                     try {// we take the structure in case the object was not yet loaded
-                        Structure capStructure = capBlock.getStructure(dataRepository);
-                        ObjectHelper objectHelper = dataRepository.getHelper(ObjectHelper.class);
-                        caps[i] = (Node) objectHelper.toObject(capStructure, dataRepository);
+                        Structure capStructure = capBlock.getStructure(blenderContext);
+                        ObjectHelper objectHelper = blenderContext.getHelper(ObjectHelper.class);
+                        caps[i] = (Node) objectHelper.toObject(capStructure, blenderContext);
                         if (caps[i] == null) {
                             LOGGER.log(Level.WARNING, "Cap object ''{0}'' couldn''t be loaded!", capStructure.getName());
                         }

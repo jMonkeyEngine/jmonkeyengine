@@ -6,7 +6,7 @@ import java.util.logging.Logger;
 import com.jme3.asset.BlenderKey.FeaturesToLoad;
 import com.jme3.renderer.Camera;
 import com.jme3.scene.plugins.blender.AbstractBlenderHelper;
-import com.jme3.scene.plugins.blender.DataRepository;
+import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
 import com.jme3.scene.plugins.blender.file.Structure;
 
@@ -112,7 +112,7 @@ public class CameraHelper extends AbstractBlenderHelper {
     }
 
 	@Override
-	public boolean shouldBeLoaded(Structure structure, DataRepository dataRepository) {
-		return (dataRepository.getBlenderKey().getFeaturesToLoad() & FeaturesToLoad.CAMERAS) != 0;
+	public boolean shouldBeLoaded(Structure structure, BlenderContext blenderContext) {
+		return (blenderContext.getBlenderKey().getFeaturesToLoad() & FeaturesToLoad.CAMERAS) != 0;
 	}
 }

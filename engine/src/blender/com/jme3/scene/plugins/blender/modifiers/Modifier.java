@@ -1,7 +1,7 @@
 package com.jme3.scene.plugins.blender.modifiers;
 
 import com.jme3.scene.Node;
-import com.jme3.scene.plugins.blender.DataRepository;
+import com.jme3.scene.plugins.blender.BlenderContext;
 
 /**
  * This class represents an object's modifier. The modifier object can be varied
@@ -24,11 +24,11 @@ public abstract class Modifier {
 	 * 
 	 * @param node
 	 *            the node that will have modifier applied
-	 * @param dataRepository
-	 *            the data repository
+	 * @param blenderContext
+	 *            the blender context
 	 * @return the node with applied modifier
 	 */
-	public abstract Node apply(Node node, DataRepository dataRepository);
+	public abstract Node apply(Node node, BlenderContext blenderContext);
 
 	/**
 	 * This method returns blender's type of modifier.

@@ -61,7 +61,7 @@ public class BlenderModelLoader extends BlenderLoader {
             
             for (FileBlockHeader block : blocks) {
                 if (block.getCode() == FileBlockHeader.BLOCK_OB00) {
-                    Object object = converter.toObject(block.getStructure(dataRepository));
+                    Object object = converter.toObject(block.getStructure(blenderContext));
                     if (object instanceof Node) {
                         LOGGER.log(Level.INFO, "{0}: {1}--> {2}", new Object[]{((Node) object).getName(), ((Node) object).getLocalTranslation().toString(), ((Node) object).getParent() == null ? "null" : ((Node) object).getParent().getName()});
                         if (((Node) object).getParent() == null) {

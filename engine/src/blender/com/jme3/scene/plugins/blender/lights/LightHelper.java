@@ -42,8 +42,8 @@ import com.jme3.light.SpotLight;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.scene.plugins.blender.AbstractBlenderHelper;
-import com.jme3.scene.plugins.blender.DataRepository;
-import com.jme3.scene.plugins.blender.DataRepository.LoadedFeatureDataType;
+import com.jme3.scene.plugins.blender.BlenderContext;
+import com.jme3.scene.plugins.blender.BlenderContext.LoadedFeatureDataType;
 import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
 import com.jme3.scene.plugins.blender.file.Structure;
 
@@ -65,8 +65,8 @@ public class LightHelper extends AbstractBlenderHelper {
         super(blenderVersion);
     }
 
-    public Light toLight(Structure structure, DataRepository dataRepository) throws BlenderFileException {
-        Light result = (Light) dataRepository.getLoadedFeature(structure.getOldMemoryAddress(), LoadedFeatureDataType.LOADED_FEATURE);
+    public Light toLight(Structure structure, BlenderContext blenderContext) throws BlenderFileException {
+        Light result = (Light) blenderContext.getLoadedFeature(structure.getOldMemoryAddress(), LoadedFeatureDataType.LOADED_FEATURE);
         if (result != null) {
             return result;
         }
@@ -114,7 +114,7 @@ public class LightHelper extends AbstractBlenderHelper {
     }
     
     @Override
-    public boolean shouldBeLoaded(Structure structure, DataRepository dataRepository) {
-    	return (dataRepository.getBlenderKey().getFeaturesToLoad() & FeaturesToLoad.LIGHTS) != 0;
+    public boolean shouldBeLoaded(Structure structure, BlenderContext blenderContext) {
+    	return (blenderContext.getBlenderKey().getFeaturesToLoad() & FeaturesToLoad.LIGHTS) != 0;
     }
 }

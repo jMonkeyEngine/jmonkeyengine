@@ -11,7 +11,7 @@ import com.jme3.animation.BoneTrack;
 import com.jme3.animation.Skeleton;
 import com.jme3.math.Transform;
 import com.jme3.scene.Node;
-import com.jme3.scene.plugins.blender.DataRepository;
+import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.animations.Ipo;
 import com.jme3.scene.plugins.blender.animations.IpoHelper;
 import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
@@ -44,24 +44,24 @@ import com.jme3.scene.plugins.ogre.AnimData;
 	 * 
 	 * @param objectStructure
 	 *            the structure of the object
-	 * @param dataRepository
-	 *            the data repository
+	 * @param blenderContext
+	 *            the blender context
 	 * @return animation modifier is returned, it should be separately applied
 	 *         when the object is loaded
 	 * @throws BlenderFileException
 	 *             this exception is thrown when the blender file is somehow
 	 *             corrupted
 	 */
-	public ObjectAnimationModifier(Structure objectStructure, DataRepository dataRepository) throws BlenderFileException {
+	public ObjectAnimationModifier(Structure objectStructure, BlenderContext blenderContext) throws BlenderFileException {
 		Pointer pIpo = (Pointer) objectStructure.getFieldValue("ipo");
 		if (pIpo.isNotNull()) {
 			// check if there is an action name connected with this ipo
 			String objectAnimationName = null;
-			List<FileBlockHeader> actionBlocks = dataRepository
+			List<FileBlockHeader> actionBlocks = blenderContext
 					.getFileBlocks(Integer.valueOf(FileBlockHeader.BLOCK_AC00));
 			for (FileBlockHeader actionBlock : actionBlocks) {
-				Structure action = actionBlock.getStructure(dataRepository);
-				List<Structure> actionChannels = ((Structure) action.getFieldValue("chanbase")).evaluateListBase(dataRepository);
+				Structure action = actionBlock.getStructure(blenderContext);
+				List<Structure> actionChannels = ((Structure) action.getFieldValue("chanbase")).evaluateListBase(blenderContext);
 				if (actionChannels.size() == 1) {// object's animtion action has only one channel
 					Pointer pChannelIpo = (Pointer) actionChannels.get(0).getFieldValue("ipo");
 					if (pChannelIpo.equals(pIpo)) {
@@ -76,14 +76,14 @@ import com.jme3.scene.plugins.ogre.AnimData;
 				objectAnimationName = objectName;
 			}
 
-			IpoHelper ipoHelper = dataRepository.getHelper(IpoHelper.class);
-			Structure ipoStructure = pIpo.fetchData(dataRepository.getInputStream()).get(0);
-			Ipo ipo = ipoHelper.createIpo(ipoStructure, dataRepository);
-			int[] animationFrames = dataRepository.getBlenderKey().getAnimationFrames(objectName, objectAnimationName);
+			IpoHelper ipoHelper = blenderContext.getHelper(IpoHelper.class);
+			Structure ipoStructure = pIpo.fetchData(blenderContext.getInputStream()).get(0);
+			Ipo ipo = ipoHelper.createIpo(ipoStructure, blenderContext);
+			int[] animationFrames = blenderContext.getBlenderKey().getAnimationFrames(objectName, objectAnimationName);
 			if (animationFrames == null) {// if the name was created here there are no frames set for the animation
 				animationFrames = new int[] { 1, ipo.getLastFrame() };
 			}
-			int fps = dataRepository.getBlenderKey().getFps();
+			int fps = blenderContext.getBlenderKey().getFps();
 			float start = (float) animationFrames[0] / (float) fps;
 			float stop = (float) animationFrames[1] / (float) fps;
 
@@ -97,8 +97,8 @@ import com.jme3.scene.plugins.ogre.AnimData;
 			animations.add(boneAnimation);
 
 			// preparing the object's bone
-			ObjectHelper objectHelper = dataRepository.getHelper(ObjectHelper.class);
-			Transform t = objectHelper.getTransformation(objectStructure, dataRepository);
+			ObjectHelper objectHelper = blenderContext.getHelper(ObjectHelper.class);
+			Transform t = objectHelper.getTransformation(objectStructure, blenderContext);
 			Bone bone = new Bone(null);
 			bone.setBindTransforms(t.getTranslation(), t.getRotation(), t.getScale());
 
@@ -108,7 +108,7 @@ import com.jme3.scene.plugins.ogre.AnimData;
 	}
 	
 	@Override
-	public Node apply(Node node, DataRepository dataRepository) {
+	public Node apply(Node node, BlenderContext blenderContext) {
 		LOGGER.warning("Object animation modifier not yet implemented!");
 		return null;
 	}

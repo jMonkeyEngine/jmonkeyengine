@@ -22,7 +22,7 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.scene.plugins.blender.AbstractBlenderHelper;
-import com.jme3.scene.plugins.blender.DataRepository;
+import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
 import com.jme3.scene.plugins.blender.file.BlenderInputStream;
 import com.jme3.scene.plugins.blender.file.DynamicArray;
@@ -74,12 +74,12 @@ public class CurvesHelper extends AbstractBlenderHelper {
      * can have several separate curves.
      * @param curveStructure
      *            the curve structure
-     * @param dataRepository
-     *            the data repository
+     * @param blenderContext
+     *            the blender context
      * @return a list of geometries repreenting a single curve object
      * @throws BlenderFileException
      */
-    public List<Geometry> toCurve(Structure curveStructure, DataRepository dataRepository) throws BlenderFileException {
+    public List<Geometry> toCurve(Structure curveStructure, BlenderContext blenderContext) throws BlenderFileException {
         String name = curveStructure.getName();
         int flag = ((Number) curveStructure.getFieldValue("flag")).intValue();
         boolean is3D = (flag & 0x01) != 0;
@@ -93,7 +93,7 @@ public class CurvesHelper extends AbstractBlenderHelper {
         }
 
         //reading nurbs (and sorting them by material)
-        List<Structure> nurbStructures = ((Structure) curveStructure.getFieldValue("nurb")).evaluateListBase(dataRepository);
+        List<Structure> nurbStructures = ((Structure) curveStructure.getFieldValue("nurb")).evaluateListBase(blenderContext);
         Map<Number, List<Structure>> nurbs = new HashMap<Number, List<Structure>>();
         for (Structure nurb : nurbStructures) {
             Number matNumber = (Number) nurb.getFieldValue("mat_nr");
@@ -106,10 +106,10 @@ public class CurvesHelper extends AbstractBlenderHelper {
         }
 
         //getting materials
-        MaterialHelper materialHelper = dataRepository.getHelper(MaterialHelper.class);
-        Material[] materials = materialHelper.getMaterials(curveStructure, dataRepository);
+        MaterialHelper materialHelper = blenderContext.getHelper(MaterialHelper.class);
+        Material[] materials = materialHelper.getMaterials(curveStructure, blenderContext);
         if (materials == null) {
-            materials = new Material[]{dataRepository.getDefaultMaterial().clone()};
+            materials = new Material[]{blenderContext.getDefaultMaterial().clone()};
         }
         for (Material material : materials) {
             material.getAdditionalRenderState().setFaceCullMode(FaceCullMode.Off);
@@ -119,9 +119,9 @@ public class CurvesHelper extends AbstractBlenderHelper {
         List<Geometry> bevelObject = null;
         Pointer pBevelObject = (Pointer) curveStructure.getFieldValue("bevobj");
         if (pBevelObject.isNotNull()) {
-            Pointer pBevelStructure = (Pointer) pBevelObject.fetchData(dataRepository.getInputStream()).get(0).getFieldValue("data");
-            Structure bevelStructure = pBevelStructure.fetchData(dataRepository.getInputStream()).get(0);
-            bevelObject = this.toCurve(bevelStructure, dataRepository);
+            Pointer pBevelStructure = (Pointer) pBevelObject.fetchData(blenderContext.getInputStream()).get(0).getFieldValue("data");
+            Structure bevelStructure = pBevelStructure.fetchData(blenderContext.getInputStream()).get(0);
+            bevelObject = this.toCurve(bevelStructure, blenderContext);
         } else {
             int bevResol = ((Number) curveStructure.getFieldValue("bevresol")).intValue();
             float extrude = ((Number) curveStructure.getFieldValue("ext1")).floatValue();
@@ -179,9 +179,9 @@ public class CurvesHelper extends AbstractBlenderHelper {
         Curve taperObject = null;
         Pointer pTaperObject = (Pointer) curveStructure.getFieldValue("taperobj");
         if (bevelObject != null && pTaperObject.isNotNull()) {
-            Pointer pTaperStructure = (Pointer) pTaperObject.fetchData(dataRepository.getInputStream()).get(0).getFieldValue("data");
-            Structure taperStructure = pTaperStructure.fetchData(dataRepository.getInputStream()).get(0);
-            taperObject = this.loadTaperObject(taperStructure, dataRepository);
+            Pointer pTaperStructure = (Pointer) pTaperObject.fetchData(blenderContext.getInputStream()).get(0).getFieldValue("data");
+            Structure taperStructure = pTaperStructure.fetchData(blenderContext.getInputStream()).get(0);
+            taperObject = this.loadTaperObject(taperStructure, blenderContext);
         }
 
         Vector3f loc = this.getLoc(curveStructure);
@@ -192,9 +192,9 @@ public class CurvesHelper extends AbstractBlenderHelper {
                 int type = ((Number) nurb.getFieldValue("type")).intValue();
                 List<Geometry> nurbGeoms = null;
                 if ((type & 0x01) != 0) {//Bezier curve
-                    nurbGeoms = this.loadBezierCurve(loc, nurb, bevelObject, taperObject, dataRepository);
+                    nurbGeoms = this.loadBezierCurve(loc, nurb, bevelObject, taperObject, blenderContext);
                 } else if ((type & 0x04) != 0) {//NURBS
-                    nurbGeoms = this.loadNurb(loc, nurb, bevelObject, taperObject, dataRepository);
+                    nurbGeoms = this.loadNurb(loc, nurb, bevelObject, taperObject, blenderContext);
                 }
                 if (nurbGeoms != null) {//setting the name and assigning materials
                     for (Geometry nurbGeom : nurbGeoms) {
@@ -207,7 +207,7 @@ public class CurvesHelper extends AbstractBlenderHelper {
         }
         
         //reading custom properties
-		Properties properties = this.loadProperties(curveStructure, dataRepository);
+		Properties properties = this.loadProperties(curveStructure, blenderContext);
 		if(properties != null && properties.getValue() != null) {
 			for(Geometry geom : result) {
 				geom.setUserData("properties", properties);
@@ -227,14 +227,14 @@ public class CurvesHelper extends AbstractBlenderHelper {
      *            the bevel object
      * @param taperObject
      *            the taper object
-     * @param dataRepository
-     *            the data repository
+     * @param blenderContext
+     *            the blender context
      * @return a list of geometries representing the curves
      * @throws BlenderFileException
      *             an exception is thrown when there are problems with the blender file
      */
     protected List<Geometry> loadBezierCurve(Vector3f loc, Structure nurb, List<Geometry> bevelObject, Curve taperObject,
-            DataRepository dataRepository) throws BlenderFileException {
+            BlenderContext blenderContext) throws BlenderFileException {
         Pointer pBezierTriple = (Pointer) nurb.getFieldValue("bezt");
         List<Geometry> result = new ArrayList<Geometry>();
         if (pBezierTriple.isNotNull()) {
@@ -243,7 +243,7 @@ public class CurvesHelper extends AbstractBlenderHelper {
             boolean cyclic = (((Number) nurb.getFieldValue("flagu")).intValue() & 0x01) != 0;
 
             //creating the curve object
-            BezierCurve bezierCurve = new BezierCurve(0, pBezierTriple.fetchData(dataRepository.getInputStream()), 3);
+            BezierCurve bezierCurve = new BezierCurve(0, pBezierTriple.fetchData(blenderContext.getInputStream()), 3);
             List<Vector3f> controlPoints = bezierCurve.getControlPoints();
             if (cyclic) {
                 //copy the first three points at the end
@@ -263,7 +263,7 @@ public class CurvesHelper extends AbstractBlenderHelper {
                 result.add(curveGeometry);
                 //TODO: use front and back flags; surface excluding algorithm for bezier circles should be added
             } else {//creating curve with bevel and taper shape
-                result = this.applyBevelAndTaper(curve, bevelObject, taperObject, smooth, dataRepository);
+                result = this.applyBevelAndTaper(curve, bevelObject, taperObject, smooth, blenderContext);
             }
         }
         return result;
@@ -279,22 +279,22 @@ public class CurvesHelper extends AbstractBlenderHelper {
      *            the bevel object to be applied
      * @param taperObject
      *            the taper object to be applied
-     * @param dataRepository
-     *            the data repository
+     * @param blenderContext
+     *            the blender context
      * @return a list of geometries that represents the loaded NURBS curve or surface
      * @throws BlenderFileException
      *             an exception is throw when problems with blender loaded data occurs
      */
     @SuppressWarnings("unchecked")
     protected List<Geometry> loadNurb(Vector3f loc, Structure nurb, List<Geometry> bevelObject, Curve taperObject,
-            DataRepository dataRepository) throws BlenderFileException {
+            BlenderContext blenderContext) throws BlenderFileException {
         //loading the knots
         List<Float>[] knots = new List[2];
         Pointer[] pKnots = new Pointer[]{(Pointer) nurb.getFieldValue("knotsu"), (Pointer) nurb.getFieldValue("knotsv")};
         for (int i = 0; i < knots.length; ++i) {
             if (pKnots[i].isNotNull()) {
-                FileBlockHeader fileBlockHeader = dataRepository.getFileBlock(pKnots[i].getOldMemoryAddress());
-                BlenderInputStream blenderInputStream = dataRepository.getInputStream();
+                FileBlockHeader fileBlockHeader = blenderContext.getFileBlock(pKnots[i].getOldMemoryAddress());
+                BlenderInputStream blenderInputStream = blenderContext.getInputStream();
                 blenderInputStream.setPosition(fileBlockHeader.getBlockPosition());
                 int knotsAmount = fileBlockHeader.getCount() * fileBlockHeader.getSize() / 4;
                 knots[i] = new ArrayList<Float>(knotsAmount);
@@ -313,7 +313,7 @@ public class CurvesHelper extends AbstractBlenderHelper {
         //loading control points and their weights
         int pntsU = ((Number) nurb.getFieldValue("pntsu")).intValue();
         int pntsV = ((Number) nurb.getFieldValue("pntsv")).intValue();
-        List<Structure> bPoints = ((Pointer) nurb.getFieldValue("bp")).fetchData(dataRepository.getInputStream());
+        List<Structure> bPoints = ((Pointer) nurb.getFieldValue("bp")).fetchData(blenderContext.getInputStream());
         List<List<Vector4f>> controlPoints = new ArrayList<List<Vector4f>>(pntsV);
         for (int i = 0; i < pntsV; ++i) {
             List<Vector4f> uControlPoints = new ArrayList<Vector4f>(pntsU);
@@ -344,7 +344,7 @@ public class CurvesHelper extends AbstractBlenderHelper {
             Spline nurbSpline = new Spline(controlPoints.get(0), knots[0]);
             Curve nurbCurve = new Curve(nurbSpline, resolu);
             if (bevelObject != null) {
-                result = this.applyBevelAndTaper(nurbCurve, bevelObject, taperObject, true, dataRepository);//TODO: smooth
+                result = this.applyBevelAndTaper(nurbCurve, bevelObject, taperObject, true, blenderContext);//TODO: smooth
             } else {
                 result = new ArrayList<Geometry>(1);
                 Geometry nurbGeometry = new Geometry("", nurbCurve);
@@ -400,14 +400,14 @@ public class CurvesHelper extends AbstractBlenderHelper {
      *            the taper object
      * @param smooth
      * 			  the smooth flag
-     * @param dataRepository
-     *            the data repository
+     * @param blenderContext
+     *            the blender context
      * @return a list of geometries representing the beveled and/or tapered curve
      */
     protected List<Geometry> applyBevelAndTaper(Curve curve, List<Geometry> bevelObject, Curve taperObject,
-            boolean smooth, DataRepository dataRepository) {
+            boolean smooth, BlenderContext blenderContext) {
         float[] curvePoints = BufferUtils.getFloatArray(curve.getFloatBuffer(Type.Position));
-        MeshHelper meshHelper = dataRepository.getHelper(MeshHelper.class);
+        MeshHelper meshHelper = blenderContext.getHelper(MeshHelper.class);
         float curveLength = curve.getLength();
         //TODO: use the smooth var
 
@@ -556,19 +556,19 @@ public class CurvesHelper extends AbstractBlenderHelper {
      * This method loads the taper object.
      * @param taperStructure
      *            the taper structure
-     * @param dataRepository
-     *            the data repository
+     * @param blenderContext
+     *            the blender context
      * @return the taper object
      * @throws BlenderFileException
      */
-    protected Curve loadTaperObject(Structure taperStructure, DataRepository dataRepository) throws BlenderFileException {
+    protected Curve loadTaperObject(Structure taperStructure, BlenderContext blenderContext) throws BlenderFileException {
         //reading nurbs
-        List<Structure> nurbStructures = ((Structure) taperStructure.getFieldValue("nurb")).evaluateListBase(dataRepository);
+        List<Structure> nurbStructures = ((Structure) taperStructure.getFieldValue("nurb")).evaluateListBase(blenderContext);
         for (Structure nurb : nurbStructures) {
             Pointer pBezierTriple = (Pointer) nurb.getFieldValue("bezt");
             if (pBezierTriple.isNotNull()) {
                 //creating the curve object
-                BezierCurve bezierCurve = new BezierCurve(0, pBezierTriple.fetchData(dataRepository.getInputStream()), 3);
+                BezierCurve bezierCurve = new BezierCurve(0, pBezierTriple.fetchData(blenderContext.getInputStream()), 3);
                 List<Vector3f> controlPoints = bezierCurve.getControlPoints();
                 //removing the first and last handles
                 controlPoints.remove(0);
@@ -602,7 +602,7 @@ public class CurvesHelper extends AbstractBlenderHelper {
     }
     
     @Override
-    public boolean shouldBeLoaded(Structure structure, DataRepository dataRepository) {
+    public boolean shouldBeLoaded(Structure structure, BlenderContext blenderContext) {
     	return true;
     }
 }

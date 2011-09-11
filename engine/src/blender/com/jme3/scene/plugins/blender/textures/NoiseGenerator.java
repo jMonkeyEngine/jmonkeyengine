@@ -41,14 +41,14 @@ import java.util.logging.Logger;
 
 import com.jme3.math.FastMath;
 import com.jme3.scene.plugins.blender.AbstractBlenderHelper;
-import com.jme3.scene.plugins.blender.DataRepository;
+import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.file.Structure;
 import com.jme3.scene.plugins.blender.textures.TextureGeneratorMusgrave.MusgraveData;
 
 /**
  * This generator is responsible for creating various noises used to create
  * generated textures loaded from blender.
- * It derives from AbstractBlenderHelper but is not stored in data repository.
+ * It derives from AbstractBlenderHelper but is not stored in blender context.
  * It is only used by TextureHelper.
  * @author Marcin Roguski (Kaelthas)
  */
@@ -844,7 +844,7 @@ import com.jme3.scene.plugins.blender.textures.TextureGeneratorMusgrave.Musgrave
     }
     
     @Override
-    public boolean shouldBeLoaded(Structure structure, DataRepository dataRepository) {
+    public boolean shouldBeLoaded(Structure structure, BlenderContext blenderContext) {
     	return true;
     }
 

@@ -34,7 +34,7 @@ package com.jme3.scene.plugins.blender.file;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.jme3.scene.plugins.blender.DataRepository;
+import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
 
 /**
@@ -43,8 +43,8 @@ import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
  */
 public class Pointer {
 
-    /** The data repository. */
-    private DataRepository dataRepository;
+    /** The blender context. */
+    private BlenderContext blenderContext;
     /** The level of the pointer. */
     private int pointerLevel;
     /** The address in file it points to. */
@@ -58,13 +58,13 @@ public class Pointer {
      *        the level of the pointer
      * @param function
      *        this variable indicates if the field is a function pointer
-     * @param dataRepository
+     * @param blenderContext
      *        the repository f data; used in fetching the value that the pointer points
      */
-    public Pointer(int pointerLevel, boolean function, DataRepository dataRepository) {
+    public Pointer(int pointerLevel, boolean function, BlenderContext blenderContext) {
         this.pointerLevel = pointerLevel;
         this.function = function;
-        this.dataRepository = dataRepository;
+        this.blenderContext = blenderContext;
     }
 
     /**
@@ -92,14 +92,14 @@ public class Pointer {
             throw new NullPointerException("The pointer points to nothing!");
         }
         List<Structure> structures = null;
-        FileBlockHeader dataFileBlock = dataRepository.getFileBlock(oldMemoryAddress);
+        FileBlockHeader dataFileBlock = blenderContext.getFileBlock(oldMemoryAddress);
         if (pointerLevel > 1) {
             int pointersAmount = dataFileBlock.getSize() / inputStream.getPointerSize() * dataFileBlock.getCount();
             for (int i = 0; i < pointersAmount; ++i) {
                 inputStream.setPosition(dataFileBlock.getBlockPosition() + inputStream.getPointerSize() * i);
                 long oldMemoryAddress = inputStream.readPointer();
                 if (oldMemoryAddress != 0L) {
-                    Pointer p = new Pointer(pointerLevel - 1, this.function, dataRepository);
+                    Pointer p = new Pointer(pointerLevel - 1, this.function, blenderContext);
                     p.oldMemoryAddress = oldMemoryAddress;
                     if (structures == null) {
                         structures = p.fetchData(inputStream);
@@ -112,7 +112,7 @@ public class Pointer {
             inputStream.setPosition(dataFileBlock.getBlockPosition());
             structures = new ArrayList<Structure>(dataFileBlock.getCount());
             for (int i = 0; i < dataFileBlock.getCount(); ++i) {
-                Structure structure = dataRepository.getDnaBlockData().getStructure(dataFileBlock.getSdnaIndex());
+                Structure structure = blenderContext.getDnaBlockData().getStructure(dataFileBlock.getSdnaIndex());
                 structure.fill(inputStream);
                 structures.add(structure);
             }

@@ -15,7 +15,7 @@ import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.VertexBuffer.Type;
-import com.jme3.scene.plugins.blender.DataRepository;
+import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
 import com.jme3.scene.plugins.blender.file.Pointer;
 import com.jme3.scene.plugins.blender.file.Structure;
@@ -42,13 +42,13 @@ import com.jme3.scene.plugins.blender.objects.ObjectHelper;
 	 *            the structure of the object
 	 * @param modifierStructure
 	 *            the structure of the modifier
-	 * @param dataRepository
-	 *            the data repository
+	 * @param blenderContext
+	 *            the blender context
 	 * @throws BlenderFileException
 	 *             this exception is thrown when the blender file is somehow
 	 *             corrupted
 	 */
-	public MirrorModifier(Structure modifier, DataRepository dataRepository) {
+	public MirrorModifier(Structure modifier, BlenderContext blenderContext) {
 		modifierData.put("flag", modifier.getFieldValue("flag"));
 		modifierData.put("tolerance", modifier.getFieldValue("tolerance"));
         Pointer pMirrorOb = (Pointer) modifier.getFieldValue("mirror_ob");
@@ -58,7 +58,7 @@ import com.jme3.scene.plugins.blender.objects.ObjectHelper;
 	}
 	
 	@Override
-	public Node apply(Node node, DataRepository dataRepository) {
+	public Node apply(Node node, BlenderContext blenderContext) {
         int flag = ((Number) modifierData.get("flag")).intValue();
         float[] mirrorFactor = new float[]{
             (flag & 0x08) != 0 ? -1.0f : 1.0f,
@@ -70,9 +70,9 @@ import com.jme3.scene.plugins.blender.objects.ObjectHelper;
         if (pObject != null) {
             Structure objectStructure;
             try {
-                objectStructure = pObject.fetchData(dataRepository.getInputStream()).get(0);
-                ObjectHelper objectHelper = dataRepository.getHelper(ObjectHelper.class);
-                Node object = (Node) objectHelper.toObject(objectStructure, dataRepository);
+                objectStructure = pObject.fetchData(blenderContext.getInputStream()).get(0);
+                ObjectHelper objectHelper = blenderContext.getHelper(ObjectHelper.class);
+                Node object = (Node) objectHelper.toObject(objectStructure, blenderContext);
                 if (object != null) {
                     Vector3f translation = object.getWorldTranslation();
                     center[0] = translation.x;

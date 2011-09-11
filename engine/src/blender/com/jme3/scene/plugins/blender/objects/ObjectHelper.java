@@ -53,8 +53,8 @@ import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.Spatial.CullHint;
 import com.jme3.scene.plugins.blender.AbstractBlenderHelper;
-import com.jme3.scene.plugins.blender.DataRepository;
-import com.jme3.scene.plugins.blender.DataRepository.LoadedFeatureDataType;
+import com.jme3.scene.plugins.blender.BlenderContext;
+import com.jme3.scene.plugins.blender.BlenderContext.LoadedFeatureDataType;
 import com.jme3.scene.plugins.blender.cameras.CameraHelper;
 import com.jme3.scene.plugins.blender.constraints.ConstraintHelper;
 import com.jme3.scene.plugins.blender.curves.CurvesHelper;
@@ -127,20 +127,20 @@ public class ObjectHelper extends AbstractBlenderHelper {
 	 * This method reads the given structure and createn an object that represents the data.
 	 * @param objectStructure
 	 *            the object's structure
-	 * @param dataRepository
-	 *            the data repository
+	 * @param blenderContext
+	 *            the blender context
 	 * @return blener's object representation
 	 * @throws BlenderFileException
 	 *             an exception is thrown when the given data is inapropriate
 	 */
-	public Object toObject(Structure objectStructure, DataRepository dataRepository) throws BlenderFileException {
-		Object loadedResult = dataRepository.getLoadedFeature(objectStructure.getOldMemoryAddress(), LoadedFeatureDataType.LOADED_FEATURE);
+	public Object toObject(Structure objectStructure, BlenderContext blenderContext) throws BlenderFileException {
+		Object loadedResult = blenderContext.getLoadedFeature(objectStructure.getOldMemoryAddress(), LoadedFeatureDataType.LOADED_FEATURE);
 		if(loadedResult != null) {
 			return loadedResult;
 		}
 
-		dataRepository.pushParent(objectStructure);
-		ObjectHelper objectHelper = dataRepository.getHelper(ObjectHelper.class);
+		blenderContext.pushParent(objectStructure);
+		ObjectHelper objectHelper = blenderContext.getHelper(ObjectHelper.class);
 
 		//get object data
 		int type = ((Number)objectStructure.getFieldValue("type")).intValue();
@@ -148,21 +148,21 @@ public class ObjectHelper extends AbstractBlenderHelper {
 		LOGGER.log(Level.INFO, "Loading obejct: {0}", name);
 
 		//loading constraints connected with this object
-		ConstraintHelper constraintHelper = dataRepository.getHelper(ConstraintHelper.class);
-		constraintHelper.loadConstraints(objectStructure, dataRepository);
+		ConstraintHelper constraintHelper = blenderContext.getHelper(ConstraintHelper.class);
+		constraintHelper.loadConstraints(objectStructure, blenderContext);
 
 		int restrictflag = ((Number)objectStructure.getFieldValue("restrictflag")).intValue();
 		boolean visible = (restrictflag & 0x01) != 0;
 		Object result = null;
 
 		Pointer pParent = (Pointer)objectStructure.getFieldValue("parent");
-		Object parent = dataRepository.getLoadedFeature(pParent.getOldMemoryAddress(), LoadedFeatureDataType.LOADED_FEATURE);
+		Object parent = blenderContext.getLoadedFeature(pParent.getOldMemoryAddress(), LoadedFeatureDataType.LOADED_FEATURE);
 		if(parent == null && pParent.isNotNull()) {
-			Structure parentStructure = pParent.fetchData(dataRepository.getInputStream()).get(0);//TODO: what if there are more parents ??
-			parent = this.toObject(parentStructure, dataRepository);
+			Structure parentStructure = pParent.fetchData(blenderContext.getInputStream()).get(0);//TODO: what if there are more parents ??
+			parent = this.toObject(parentStructure, blenderContext);
 		}
 
-		Transform t = objectHelper.getTransformation(objectStructure, dataRepository);
+		Transform t = objectHelper.getTransformation(objectStructure, blenderContext);
 		
 		try {
 			switch(type) {
@@ -178,10 +178,10 @@ public class ObjectHelper extends AbstractBlenderHelper {
 					node.setCullHint(visible ? CullHint.Always : CullHint.Inherit);
 
 					//reading mesh
-					MeshHelper meshHelper = dataRepository.getHelper(MeshHelper.class);
+					MeshHelper meshHelper = blenderContext.getHelper(MeshHelper.class);
 					Pointer pMesh = (Pointer)objectStructure.getFieldValue("data");
-					List<Structure> meshesArray = pMesh.fetchData(dataRepository.getInputStream());
-					List<Geometry> geometries = meshHelper.toMesh(meshesArray.get(0), dataRepository);
+					List<Structure> meshesArray = pMesh.fetchData(blenderContext.getInputStream());
+					List<Geometry> geometries = meshHelper.toMesh(meshesArray.get(0), blenderContext);
 					if (geometries != null){
                                             for(Geometry geometry : geometries) {
                                                     node.attachChild(geometry);
@@ -190,10 +190,10 @@ public class ObjectHelper extends AbstractBlenderHelper {
 					node.setLocalTransform(t);
 
 					//reading and applying all modifiers
-					ModifierHelper modifierHelper = dataRepository.getHelper(ModifierHelper.class);
-					Collection<Modifier> modifiers = modifierHelper.readModifiers(objectStructure, dataRepository);
+					ModifierHelper modifierHelper = blenderContext.getHelper(ModifierHelper.class);
+					Collection<Modifier> modifiers = modifierHelper.readModifiers(objectStructure, blenderContext);
 					for(Modifier modifier : modifiers) {
-						modifier.apply(node, dataRepository);
+						modifier.apply(node, blenderContext);
 					}
 
 					//setting the parent
@@ -208,9 +208,9 @@ public class ObjectHelper extends AbstractBlenderHelper {
 					LOGGER.log(Level.INFO, "Importing curve/nurb.");
 					Pointer pCurve = (Pointer)objectStructure.getFieldValue("data");
 					if(pCurve.isNotNull()) {
-						CurvesHelper curvesHelper = dataRepository.getHelper(CurvesHelper.class);
-						Structure curveData = pCurve.fetchData(dataRepository.getInputStream()).get(0);
-						List<Geometry> curves = curvesHelper.toCurve(curveData, dataRepository);
+						CurvesHelper curvesHelper = blenderContext.getHelper(CurvesHelper.class);
+						Structure curveData = pCurve.fetchData(blenderContext.getInputStream()).get(0);
+						List<Geometry> curves = curvesHelper.toCurve(curveData, blenderContext);
 						result = new Node(name);
 						for(Geometry curve : curves) {
 							((Node)result).attachChild(curve);
@@ -222,9 +222,9 @@ public class ObjectHelper extends AbstractBlenderHelper {
 					LOGGER.log(Level.INFO, "Importing lamp.");
 					Pointer pLamp = (Pointer)objectStructure.getFieldValue("data");
 					if(pLamp.isNotNull()) {
-						LightHelper lightHelper = dataRepository.getHelper(LightHelper.class);
-						List<Structure> lampsArray = pLamp.fetchData(dataRepository.getInputStream());
-						Light light = lightHelper.toLight(lampsArray.get(0), dataRepository);
+						LightHelper lightHelper = blenderContext.getHelper(LightHelper.class);
+						List<Structure> lampsArray = pLamp.fetchData(blenderContext.getInputStream());
+						Light light = lightHelper.toLight(lampsArray.get(0), blenderContext);
 						if(light!=null) {
 							light.setName(name);
 						}
@@ -251,8 +251,8 @@ public class ObjectHelper extends AbstractBlenderHelper {
 				case OBJECT_TYPE_CAMERA:
 					Pointer pCamera = (Pointer)objectStructure.getFieldValue("data");
 					if(pCamera.isNotNull()) {
-						CameraHelper cameraHelper = dataRepository.getHelper(CameraHelper.class);
-						List<Structure> camerasArray = pCamera.fetchData(dataRepository.getInputStream());
+						CameraHelper cameraHelper = blenderContext.getHelper(CameraHelper.class);
+						List<Structure> camerasArray = pCamera.fetchData(blenderContext.getInputStream());
 						Camera camera = cameraHelper.toCamera(camerasArray.get(0));
 						camera.setLocation(t.getTranslation());
 						camera.setRotation(t.getRotation());
@@ -266,17 +266,17 @@ public class ObjectHelper extends AbstractBlenderHelper {
 					LOGGER.log(Level.WARNING, "Unknown object type: {0}", type);
 			}
 		} finally {
-			dataRepository.popParent();
+			blenderContext.popParent();
 		}
 		
 		if(result != null) {
 			//reading custom properties
-			Properties properties = this.loadProperties(objectStructure, dataRepository);
+			Properties properties = this.loadProperties(objectStructure, blenderContext);
 			if(result instanceof Spatial && properties != null && properties.getValue() != null) {
 				((Spatial)result).setUserData("properties", properties);
 			}
 			
-			dataRepository.addLoadedFeatures(objectStructure.getOldMemoryAddress(), name, objectStructure, result);
+			blenderContext.addLoadedFeatures(objectStructure.getOldMemoryAddress(), name, objectStructure, result);
 		}
 		return result;
 	}
@@ -288,7 +288,7 @@ public class ObjectHelper extends AbstractBlenderHelper {
 	 * @return objects transformation relative to its parent
 	 */
 	@SuppressWarnings("unchecked")
-	public Transform getTransformation(Structure objectStructure, DataRepository dataRepository) {
+	public Transform getTransformation(Structure objectStructure, BlenderContext blenderContext) {
 		//these are transformations in global space
 		DynamicArray<Number> loc = (DynamicArray<Number>)objectStructure.getFieldValue("loc");
 		DynamicArray<Number> size = (DynamicArray<Number>)objectStructure.getFieldValue("size");
@@ -299,7 +299,7 @@ public class ObjectHelper extends AbstractBlenderHelper {
 		Structure parent = null;
 		if(pParent.isNotNull()) {
 			try {
-				parent = pParent.fetchData(dataRepository.getInputStream()).get(0);
+				parent = pParent.fetchData(blenderContext.getInputStream()).get(0);
 			} catch (BlenderFileException e) {
 				LOGGER.log(Level.WARNING, "Cannot fetch parent for object! Reason: {0}", e.getLocalizedMessage());
 			}
@@ -324,7 +324,7 @@ public class ObjectHelper extends AbstractBlenderHelper {
 									  size.get(2).floatValue() * scaleZ);
 		
 		//the root object is transformed if the Y axis is UP
-		if(fixUpAxis && (pParent.isNull() || (parent!=null && !this.shouldBeLoaded(parent, dataRepository)))) {
+		if(fixUpAxis && (pParent.isNull() || (parent!=null && !this.shouldBeLoaded(parent, blenderContext)))) {
 			float y = translation.y;
 			translation.y = translation.z;
 			translation.z = -y;
@@ -373,9 +373,9 @@ public class ObjectHelper extends AbstractBlenderHelper {
 	}
 	
 	@Override
-	public boolean shouldBeLoaded(Structure structure, DataRepository dataRepository) {
+	public boolean shouldBeLoaded(Structure structure, BlenderContext blenderContext) {
 		int lay = ((Number) structure.getFieldValue("lay")).intValue();
-        return ((lay & dataRepository.getBlenderKey().getLayersToLoad()) != 0
-                && (dataRepository.getBlenderKey().getFeaturesToLoad() & FeaturesToLoad.OBJECTS) != 0);
+        return ((lay & blenderContext.getBlenderKey().getLayersToLoad()) != 0
+                && (blenderContext.getBlenderKey().getFeaturesToLoad() & FeaturesToLoad.OBJECTS) != 0);
 	}
 }

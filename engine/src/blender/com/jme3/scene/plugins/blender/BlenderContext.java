@@ -55,9 +55,9 @@ import com.jme3.scene.plugins.blender.modifiers.Modifier;
 /**
  * The class that stores temporary data and manages it during loading the belnd file. This class is intended to be used
  * in a single loading thread. It holds the state of loading operations.
- * @author Marcin Roguski
+ * @author Marcin Roguski (Kaelthas)
  */
-public class DataRepository {
+public class BlenderContext {
 
     /** The blender key. */
     private BlenderKey blenderKey;

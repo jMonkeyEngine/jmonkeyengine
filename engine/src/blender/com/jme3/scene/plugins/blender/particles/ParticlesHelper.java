@@ -12,7 +12,7 @@ import com.jme3.effect.shapes.EmitterMeshFaceShape;
 import com.jme3.effect.shapes.EmitterMeshVertexShape;
 import com.jme3.math.ColorRGBA;
 import com.jme3.scene.plugins.blender.AbstractBlenderHelper;
-import com.jme3.scene.plugins.blender.DataRepository;
+import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
 import com.jme3.scene.plugins.blender.file.DynamicArray;
 import com.jme3.scene.plugins.blender.file.Pointer;
@@ -93,11 +93,11 @@ public class ParticlesHelper extends AbstractBlenderHelper {
 	}
 
 	@SuppressWarnings("unchecked")
-	public ParticleEmitter toParticleEmitter(Structure particleSystem, DataRepository dataRepository) throws BlenderFileException {
+	public ParticleEmitter toParticleEmitter(Structure particleSystem, BlenderContext blenderContext) throws BlenderFileException {
 		ParticleEmitter result = null;
 		Pointer pParticleSettings = (Pointer) particleSystem.getFieldValue("part");
 		if(pParticleSettings.isNotNull()) {
-			Structure particleSettings = pParticleSettings.fetchData(dataRepository.getInputStream()).get(0);
+			Structure particleSettings = pParticleSettings.fetchData(blenderContext.getInputStream()).get(0);
 			
 			int totPart = ((Number) particleSettings.getFieldValue("totpart")).intValue();
 			
@@ -159,7 +159,7 @@ public class ParticlesHelper extends AbstractBlenderHelper {
 			result.setEndSize(size);
 			
 			//reading lifetime
-			int fps = dataRepository.getBlenderKey().getFps();
+			int fps = blenderContext.getBlenderKey().getFps();
 			float lifetime = ((Number)particleSettings.getFieldValue("lifetime")).floatValue() / fps;
 			float randlife = ((Number)particleSettings.getFieldValue("randlife")).floatValue() / fps;
 			result.setLowLife(lifetime * (1.0f - randlife));
@@ -189,7 +189,7 @@ public class ParticlesHelper extends AbstractBlenderHelper {
 	}
 	
 	@Override
-	public boolean shouldBeLoaded(Structure structure, DataRepository dataRepository) {
+	public boolean shouldBeLoaded(Structure structure, BlenderContext blenderContext) {
 		return true;
 	}
 }

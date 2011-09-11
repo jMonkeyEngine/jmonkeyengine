@@ -52,8 +52,8 @@ import com.jme3.scene.VertexBuffer.Format;
 import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.scene.VertexBuffer.Usage;
 import com.jme3.scene.plugins.blender.AbstractBlenderHelper;
-import com.jme3.scene.plugins.blender.DataRepository;
-import com.jme3.scene.plugins.blender.DataRepository.LoadedFeatureDataType;
+import com.jme3.scene.plugins.blender.BlenderContext;
+import com.jme3.scene.plugins.blender.BlenderContext.LoadedFeatureDataType;
 import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
 import com.jme3.scene.plugins.blender.file.DynamicArray;
 import com.jme3.scene.plugins.blender.file.Pointer;
@@ -92,8 +92,8 @@ public class MeshHelper extends AbstractBlenderHelper {
 	 * @throws BlenderFileException
 	 */
 	@SuppressWarnings("unchecked")
-	public List<Geometry> toMesh(Structure structure, DataRepository dataRepository) throws BlenderFileException {
-		List<Geometry> geometries = (List<Geometry>) dataRepository.getLoadedFeature(structure.getOldMemoryAddress(),
+	public List<Geometry> toMesh(Structure structure, BlenderContext blenderContext) throws BlenderFileException {
+		List<Geometry> geometries = (List<Geometry>) blenderContext.getLoadedFeature(structure.getOldMemoryAddress(),
 				LoadedFeatureDataType.LOADED_FEATURE);
 		if (geometries != null) {
 			List<Geometry> copiedGeometries = new ArrayList<Geometry>(geometries.size());
@@ -104,17 +104,17 @@ public class MeshHelper extends AbstractBlenderHelper {
 		}
 
 		// helpers
-		TextureHelper textureHelper = dataRepository.getHelper(TextureHelper.class);
+		TextureHelper textureHelper = blenderContext.getHelper(TextureHelper.class);
 
 		// reading mesh data
 		String name = structure.getName();
 
 		// reading vertices
-		Vector3f[] vertices = this.getVertices(structure, dataRepository);
+		Vector3f[] vertices = this.getVertices(structure, blenderContext);
 		int verticesAmount = vertices.length;
 
 		// vertices Colors
-		List<float[]> verticesColors = this.getVerticesColors(structure, dataRepository);
+		List<float[]> verticesColors = this.getVerticesColors(structure, blenderContext);
 
 		// reading faces
 		// the following map sorts faces by material number (because in jme Mesh can have only one material)
@@ -122,7 +122,7 @@ public class MeshHelper extends AbstractBlenderHelper {
 		Pointer pMFace = (Pointer) structure.getFieldValue("mface");
         List<Structure> mFaces = null;
         if (pMFace.isNotNull()){
-            mFaces = pMFace.fetchData(dataRepository.getInputStream());
+            mFaces = pMFace.fetchData(blenderContext.getInputStream());
             if(mFaces==null || mFaces.size()==0) {
             	return new ArrayList<Geometry>(0);
             }
@@ -133,7 +133,7 @@ public class MeshHelper extends AbstractBlenderHelper {
 		List<Structure> mtFaces = null;
 
 		if (pMTFace.isNotNull()) {
-			mtFaces = pMTFace.fetchData(dataRepository.getInputStream());
+			mtFaces = pMTFace.fetchData(blenderContext.getInputStream());
 			int facesAmount = ((Number) structure.getFieldValue("totface")).intValue();
 			if (mtFaces.size() != facesAmount) {
 				throw new BlenderFileException("The amount of faces uv coordinates is not equal to faces amount!");
@@ -178,8 +178,8 @@ public class MeshHelper extends AbstractBlenderHelper {
 			
 			// attaching image to texture (face can have UV's and image whlie its material may have no texture attached)
 			if (pImage != null && pImage.isNotNull() && !materialNumberToTexture.containsKey(materialNumber)) {
-				Texture texture = textureHelper.getTextureFromImage(pImage.fetchData(dataRepository.getInputStream()).get(0),
-						dataRepository);
+				Texture texture = textureHelper.getTextureFromImage(pImage.fetchData(blenderContext.getInputStream()).get(0),
+						blenderContext);
 				if (texture != null) {
 					materialNumberToTexture.put(materialNumber, texture);
 				}
@@ -243,14 +243,14 @@ public class MeshHelper extends AbstractBlenderHelper {
 				}
 			}
 		}
-		dataRepository.setVertexData(structure.getOldMemoryAddress(), new VertexData(vertexList, vertexReferenceMap));
+		blenderContext.setVertexData(structure.getOldMemoryAddress(), new VertexData(vertexList, vertexReferenceMap));
 		
 		Vector3f[] normals = normalList.toArray(new Vector3f[normalList.size()]);
 
 		// reading vertices groups (from the parent)
-		Structure parent = dataRepository.peekParent();
+		Structure parent = blenderContext.peekParent();
 		Structure defbase = (Structure) parent.getFieldValue("defbase");
-		List<Structure> defs = defbase.evaluateListBase(dataRepository);
+		List<Structure> defs = defbase.evaluateListBase(blenderContext);
 		String[] verticesGroups = new String[defs.size()];
 		int defIndex = 0;
 		for (Structure def : defs) {
@@ -258,11 +258,11 @@ public class MeshHelper extends AbstractBlenderHelper {
 		}
 
 		// reading materials
-		MaterialHelper materialHelper = dataRepository.getHelper(MaterialHelper.class);
+		MaterialHelper materialHelper = blenderContext.getHelper(MaterialHelper.class);
 		Material[] materials = null;
 		Material[] nonTexturedMaterials = null;
-		if ((dataRepository.getBlenderKey().getFeaturesToLoad() & FeaturesToLoad.MATERIALS) != 0) {
-			materials = materialHelper.getMaterials(structure, dataRepository);
+		if ((blenderContext.getBlenderKey().getFeaturesToLoad() & FeaturesToLoad.MATERIALS) != 0) {
+			materials = materialHelper.getMaterials(structure, blenderContext);
 			nonTexturedMaterials = materials == null ? null : new Material[materials.length];// fill it when needed
 		}
 
@@ -292,7 +292,7 @@ public class MeshHelper extends AbstractBlenderHelper {
 		}
 
 		//reading custom properties
-		Properties properties = this.loadProperties(structure, dataRepository);
+		Properties properties = this.loadProperties(structure, blenderContext);
 		
 		// generating meshes
 		FloatBuffer verticesColorsBuffer = this.createFloatBuffer(verticesColors);
@@ -355,7 +355,7 @@ public class MeshHelper extends AbstractBlenderHelper {
                     geometry.setQueueBucket(Bucket.Transparent);
                 }
 			} else {
-				geometry.setMaterial(dataRepository.getDefaultMaterial());
+				geometry.setMaterial(blenderContext.getDefaultMaterial());
 			}
 			if(properties != null && properties.getValue() != null) {
 				geometry.setUserData("properties", properties);
@@ -381,7 +381,7 @@ public class MeshHelper extends AbstractBlenderHelper {
 				
 			}
 			for(Entry<Material, List<Geometry>> entry : materialMap.entrySet()) {
-				MaterialContext materialContext = dataRepository.getMaterialContext(entry.getKey());
+				MaterialContext materialContext = blenderContext.getMaterialContext(entry.getKey());
 				if(materialContext != null && materialContext.getTexturesCount()>0) {
 					UVCoordinatesGenerator.generateUVCoordinates(materialContext.getUvCoordinatesType(), 
 							materialContext.getProjectionType(), materialContext.getTextureDimension(),
@@ -390,7 +390,7 @@ public class MeshHelper extends AbstractBlenderHelper {
 			}
 		}
 		
-		dataRepository.addLoadedFeatures(structure.getOldMemoryAddress(), structure.getName(), structure, geometries);
+		blenderContext.addLoadedFeatures(structure.getOldMemoryAddress(), structure.getName(), structure, geometries);
 		return geometries;
 	}
 	
@@ -443,19 +443,19 @@ public class MeshHelper extends AbstractBlenderHelper {
 	 * 
 	 * @param meshStructure
 	 *            the structure containing the mesh data
-	 * @param dataRepository
-	 *            the data repository
+	 * @param blenderContext
+	 *            the blender context
 	 * @return a list of vertices colors, each color belongs to a single vertex
 	 * @throws BlenderFileException
 	 *             this exception is thrown when the blend file structure is somehow invalid or corrupted
 	 */
-	public List<float[]> getVerticesColors(Structure meshStructure, DataRepository dataRepository) throws BlenderFileException {
+	public List<float[]> getVerticesColors(Structure meshStructure, BlenderContext blenderContext) throws BlenderFileException {
 		Pointer pMCol = (Pointer) meshStructure.getFieldValue("mcol");
 		List<float[]> verticesColors = null;
 		List<Structure> mCol = null;
 		if (pMCol.isNotNull()) {
 			verticesColors = new LinkedList<float[]>();
-			mCol = pMCol.fetchData(dataRepository.getInputStream());
+			mCol = pMCol.fetchData(blenderContext.getInputStream());
 			for (Structure color : mCol) {
 				float r = ((Number) color.getFieldValue("r")).byteValue() / 256.0f;
 				float g = ((Number) color.getFieldValue("g")).byteValue() / 256.0f;
@@ -472,14 +472,14 @@ public class MeshHelper extends AbstractBlenderHelper {
 	 * 
 	 * @param meshStructure
 	 *            the structure containing the mesh data
-	 * @param dataRepository
-	 *            the data repository
+	 * @param blenderContext
+	 *            the blender context
 	 * @return a list of vertices colors, each color belongs to a single vertex
 	 * @throws BlenderFileException
 	 *             this exception is thrown when the blend file structure is somehow invalid or corrupted
 	 */
 	@SuppressWarnings("unchecked")
-	public Vector3f[] getVertices(Structure meshStructure, DataRepository dataRepository) throws BlenderFileException {
+	public Vector3f[] getVertices(Structure meshStructure, BlenderContext blenderContext) throws BlenderFileException {
 		int verticesAmount = ((Number) meshStructure.getFieldValue("totvert")).intValue();
 		Vector3f[] vertices = new Vector3f[verticesAmount];
                 if (verticesAmount == 0) {
@@ -487,7 +487,7 @@ public class MeshHelper extends AbstractBlenderHelper {
 				}
                 
 		Pointer pMVert = (Pointer) meshStructure.getFieldValue("mvert");
-		List<Structure> mVerts = pMVert.fetchData(dataRepository.getInputStream());
+		List<Structure> mVerts = pMVert.fetchData(blenderContext.getInputStream());
 		for (int i = 0; i < verticesAmount; ++i) {
 			DynamicArray<Number> coordinates = (DynamicArray<Number>) mVerts.get(i).getFieldValue("co");
 			vertices[i] = new Vector3f(coordinates.get(0).floatValue(), coordinates.get(1).floatValue(), coordinates.get(2).floatValue());
@@ -496,7 +496,7 @@ public class MeshHelper extends AbstractBlenderHelper {
 	}
 
 	@Override
-	public boolean shouldBeLoaded(Structure structure, DataRepository dataRepository) {
+	public boolean shouldBeLoaded(Structure structure, BlenderContext blenderContext) {
 		return true;
 	}
 	
