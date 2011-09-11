@@ -245,7 +245,12 @@ public class OGGLoader implements AssetLoader {
         InputStream in = null;
         try {
             in = info.openStream();
-            return load(in, readStream, streamCache);
+            AudioData data = load(in, readStream, streamCache);
+            if (data instanceof AudioStream){
+                // audio streams must remain open
+                in = null;
+            }
+            return data;
         } finally {
             if (in != null){
                 in.close();

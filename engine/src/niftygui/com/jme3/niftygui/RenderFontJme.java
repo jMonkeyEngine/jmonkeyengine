@@ -58,6 +58,10 @@ public class RenderFontJme implements RenderFont {
         text.setSize(actualSize);
     }
 
+    public BitmapText createText() {
+      return new BitmapText(font);
+    }
+
     public BitmapText getText(){
         return text;
     }

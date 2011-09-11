@@ -199,8 +199,6 @@ public class LwjglAudioRenderer implements AudioRenderer, Runnable {
         logger.log(Level.INFO, "AudioRenderer supports {0} channels", channels.length);
 
         supportEfx = ALC10.alcIsExtensionPresent(device, "ALC_EXT_EFX");
-        logger.log(Level.FINER, "Audio EFX support: {0}", supportEfx);
-
         if (supportEfx){
             ib.position(0).limit(1);
             ALC10.alcGetInteger(device, EFX10.ALC_EFX_MAJOR_VERSION, ib);
@@ -227,6 +225,8 @@ public class LwjglAudioRenderer implements AudioRenderer, Runnable {
 
             // attach reverb effect to effect slot
 //            EFX10.alAuxiliaryEffectSloti(reverbFxSlot, EFX10.AL_EFFECTSLOT_EFFECT, reverbFx);
+        }else{
+            logger.log(Level.WARNING, "OpenAL EFX not available! Audio effects won't work.");
         }
     }
 
@@ -348,7 +348,7 @@ public class LwjglAudioRenderer implements AudioRenderer, Runnable {
                     alSourcef(id, AL_REFERENCE_DISTANCE, src.getRefDistance());
                     break;
                 case ReverbFilter:
-                    if (!src.isPositional() || !src.isReverbEnabled())
+                    if (!supportEfx || !src.isPositional() || !src.isReverbEnabled())
                         return;
 
                     int filter = EFX10.AL_FILTER_NULL;
@@ -362,7 +362,7 @@ public class LwjglAudioRenderer implements AudioRenderer, Runnable {
                     AL11.alSource3i(id, EFX10.AL_AUXILIARY_SEND_FILTER, reverbFxSlot, 0, filter);
                     break;
                 case ReverbEnabled:
-                    if (!src.isPositional())
+                    if (!supportEfx || !src.isPositional())
                         return;
 
                     if (src.isReverbEnabled()){
@@ -418,6 +418,9 @@ public class LwjglAudioRenderer implements AudioRenderer, Runnable {
                     }
                     break;
                 case DryFilter:
+                    if (!supportEfx)
+                        return;
+                    
                     if (src.getDryFilter() != null){
                         Filter f = src.getDryFilter();
                         if (f.isUpdateNeeded()){
@@ -459,7 +462,7 @@ public class LwjglAudioRenderer implements AudioRenderer, Runnable {
             alSourcef(id, AL_REFERENCE_DISTANCE, src.getRefDistance());
             alSourcei(id, AL_SOURCE_RELATIVE, AL_FALSE);
 
-            if (src.isReverbEnabled()){
+            if (src.isReverbEnabled() && supportEfx){
                 int filter = EFX10.AL_FILTER_NULL;
                 if (src.getReverbFilter() != null){
                     Filter f = src.getReverbFilter();
@@ -477,7 +480,7 @@ public class LwjglAudioRenderer implements AudioRenderer, Runnable {
             alSource3f(id, AL_VELOCITY, 0,0,0);
         }
 
-        if (src.getDryFilter() != null){
+        if (src.getDryFilter() != null && supportEfx){
             Filter f = src.getDryFilter();
             if (f.isUpdateNeeded()){
                 updateFilter(f);
@@ -589,7 +592,7 @@ public class LwjglAudioRenderer implements AudioRenderer, Runnable {
                 } catch (InterruptedException ex) {
                 }
             }
-            if (audioDisabled)
+            if (audioDisabled || !supportEfx)
                 return;
             
             EFX10.alEffectf(reverbFx, EFX10.AL_REVERB_DENSITY,             env.getDensity());
@@ -706,13 +709,13 @@ public class LwjglAudioRenderer implements AudioRenderer, Runnable {
                 alSourcei(sourceId, AL_BUFFER, 0);
             }
 
-            if (src.getDryFilter() != null){
+            if (src.getDryFilter() != null && supportEfx){
                 // detach filter
                 alSourcei(sourceId, EFX10.AL_DIRECT_FILTER, EFX10.AL_FILTER_NULL);
             }
             if (src.isPositional()){
                 AudioNode pas = (AudioNode) src;
-                if (pas.isReverbEnabled()) {
+                if (pas.isReverbEnabled() && supportEfx) {
                     AL11.alSource3i(sourceId, EFX10.AL_AUXILIARY_SEND_FILTER, 0, 0, EFX10.AL_FILTER_NULL);
                 }
             }

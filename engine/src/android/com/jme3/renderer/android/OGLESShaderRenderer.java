@@ -178,7 +178,7 @@ public class OGLESShaderRenderer implements Renderer {
         if (versionStr == null || versionStr.equals("")) {
             glslVer = -1;
             throw new UnsupportedOperationException("GLSL and OpenGL2 is "
-                    + "required for the LWJGL "
+                    + "required for the OpenGL ES "
                     + "renderer!");
         }
 

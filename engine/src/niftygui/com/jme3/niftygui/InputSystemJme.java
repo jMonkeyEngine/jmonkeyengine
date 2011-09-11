@@ -55,6 +55,7 @@ public class InputSystemJme implements InputSystem, RawInputListener {
 
     private InputManager inputManager;
 
+    private boolean isDragging = false, niftyOwnsDragging = false;
     private boolean pressed = false;
     private int buttonIndex;
     private int x, y;
@@ -64,7 +65,6 @@ public class InputSystemJme implements InputSystem, RawInputListener {
     private boolean ctrlDown  = false;
 
     private Nifty nifty;
-
 
     public InputSystemJme(InputManager inputManager){
         this.inputManager = inputManager;
@@ -86,53 +86,50 @@ public class InputSystemJme implements InputSystem, RawInputListener {
     }
 
     public void beginInput(){
-
     }
 
     public void endInput(){
-        //requires nifty1.3
         boolean result = nifty.update();
-    }
-
-    public void onJoyAxisEvent(JoyAxisEvent evt) {
-    }
-
-    public void onJoyButtonEvent(JoyButtonEvent evt) {
     }
 
     private void onMouseMotionEventQueued(MouseMotionEvent evt, NiftyInputConsumer nic) {
         x = evt.getX();
         y = height - evt.getY();
         nic.processMouseEvent(x, y, evt.getDeltaWheel(), buttonIndex, pressed);
-        //MouseInputEvent niftyEvt = new MouseInputEvent(x, y, pressed);
 //        if (nic.processMouseEvent(niftyEvt) /*|| nifty.getCurrentScreen().isMouseOverElement()*/){
             // Do not consume motion events
             //evt.setConsumed();
 //        }
     }
 
-    public void onMouseMotionEvent(MouseMotionEvent evt) {
-        // Only forward the event if there's actual motion involved.
-        // No longer ignores mouse wheel
-        if (inputManager.isCursorVisible() && (evt.getDX() != 0 ||
-                                               evt.getDY() != 0 ||
-                                               evt.getDeltaWheel() != 0)){
-            inputQueue.add(evt);
-        }
-    }
-
     private void onMouseButtonEventQueued(MouseButtonEvent evt, NiftyInputConsumer nic) {
+        boolean wasPressed = pressed;
+        boolean forwardToNifty = true;
+        
         buttonIndex = evt.getButtonIndex();
         pressed = evt.isPressed();
-
-        if (nic.processMouseEvent(x, y, 0, buttonIndex, pressed)){
-            evt.setConsumed();
+        
+        // Mouse button raised. End dragging
+        if (wasPressed && !pressed){
+            if (!niftyOwnsDragging){
+                forwardToNifty = false;
+            }
+            isDragging = false;
+            niftyOwnsDragging = false;
         }
-    }
 
-    public void onMouseButtonEvent(MouseButtonEvent evt) {
-        if (inputManager.isCursorVisible() && evt.getButtonIndex() >= 0 || evt.getButtonIndex() <= 2){
-            inputQueue.add(evt);
+        boolean consumed = false;
+        if (forwardToNifty){
+            consumed = nic.processMouseEvent(x, y, 0, buttonIndex, pressed);
+            if (consumed){
+                evt.setConsumed();
+            }
+        }
+        
+        // Mouse button pressed. Begin dragging
+        if (!wasPressed && pressed){
+            isDragging = true;
+            niftyOwnsDragging = consumed;
         }
     }
 
@@ -155,9 +152,33 @@ public class InputSystemJme implements InputSystem, RawInputListener {
             evt.setConsumed();
         }
     }
+    
+    public void onMouseMotionEvent(MouseMotionEvent evt) {
+        // Only forward the event if there's actual motion involved.
+        if (inputManager.isCursorVisible() && (evt.getDX() != 0 ||
+                                               evt.getDY() != 0 ||
+                                               evt.getDeltaWheel() != 0)){
+            inputQueue.add(evt);
+        }
+    }
 
+    public void onMouseButtonEvent(MouseButtonEvent evt) {
+        if (inputManager.isCursorVisible() && evt.getButtonIndex() >= 0 || evt.getButtonIndex() <= 2){
+            inputQueue.add(evt);
+        }
+    }
+    
+    public void onJoyAxisEvent(JoyAxisEvent evt) {
+    }
+
+    public void onJoyButtonEvent(JoyButtonEvent evt) {
+    }
+    
     public void onKeyEvent(KeyInputEvent evt) {
         inputQueue.add(evt);
+    }
+    
+    public void onTouchEvent(TouchEvent evt) {        
     }
 
     public void forwardEvents(NiftyInputConsumer nic) {
@@ -177,6 +198,5 @@ public class InputSystemJme implements InputSystem, RawInputListener {
         inputQueue.clear();
     }
     
-    public void onTouchEvent(TouchEvent evt) {        
-    }
+    
 }

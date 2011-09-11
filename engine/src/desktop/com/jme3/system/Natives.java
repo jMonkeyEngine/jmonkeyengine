@@ -31,7 +31,6 @@
  */
 package com.jme3.system;
 
-import com.jme3.system.JmeSystem.Platform;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;

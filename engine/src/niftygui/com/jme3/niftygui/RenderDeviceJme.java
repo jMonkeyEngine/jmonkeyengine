@@ -53,12 +53,17 @@ import de.lessvoid.nifty.spi.render.*;
 import de.lessvoid.nifty.tools.Color;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
+import java.util.HashMap;
+import java.util.Map;
 
 public class RenderDeviceJme implements RenderDevice {
 
     private NiftyJmeDisplay display;
     private RenderManager rm;
     private Renderer r;
+    
+    private HashMap<String, BitmapText> textCacheLastFrame = new HashMap<String, BitmapText>();
+    private HashMap<String, BitmapText> textCacheCurrentFrame = new HashMap<String, BitmapText>();
 
     private final Quad quad = new Quad(1, -1, true);
     private final Geometry quadGeom = new Geometry("nifty-quad", quad);
@@ -120,6 +125,10 @@ public class RenderDeviceJme implements RenderDevice {
     }
 
     public void endFrame() {
+        HashMap<String, BitmapText> temp = textCacheLastFrame;
+        textCacheLastFrame = textCacheCurrentFrame;
+        textCacheCurrentFrame = temp;
+        textCacheCurrentFrame.clear();
     }
 
     public int getWidth() {
@@ -185,15 +194,19 @@ public class RenderDeviceJme implements RenderDevice {
             return;
 
         RenderFontJme jmeFont = (RenderFontJme) font;
-        BitmapText text = jmeFont.getText();
+        
+        BitmapText text = textCacheLastFrame.get(str);
+        if (text == null) {
+            text = jmeFont.createText();
+            text.setText(str);
+            text.updateLogicalState(0);
+        }
+        textCacheCurrentFrame.put(str, text);
 
         niftyMat.setColor("Color", convertColor(color, tempColor));
         niftyMat.setBoolean("UseTex", true);
         niftyMat.getAdditionalRenderState().setBlendMode(convertBlend());
         text.setMaterial(niftyMat);
-
-        text.setText(str);
-        text.updateLogicalState(0);
 
         float width = text.getLineWidth();
         float height = text.getLineHeight();
