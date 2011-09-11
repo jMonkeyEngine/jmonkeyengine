@@ -48,17 +48,24 @@ import com.jme3.scene.plugins.blender.objects.ObjectHelper;
 	 *             this exception is thrown when the blender file is somehow
 	 *             corrupted
 	 */
-	public MirrorModifier(Structure modifier, BlenderContext blenderContext) {
-		modifierData.put("flag", modifier.getFieldValue("flag"));
-		modifierData.put("tolerance", modifier.getFieldValue("tolerance"));
-        Pointer pMirrorOb = (Pointer) modifier.getFieldValue("mirror_ob");
-        if (pMirrorOb.isNotNull()) {
-        	modifierData.put("mirrorob", pMirrorOb);
-        }
+	public MirrorModifier(Structure modifierStructure, BlenderContext blenderContext) {
+		if(this.validate(modifierStructure, blenderContext)) {
+			modifierData.put("flag", modifierStructure.getFieldValue("flag"));
+			modifierData.put("tolerance", modifierStructure.getFieldValue("tolerance"));
+	        Pointer pMirrorOb = (Pointer) modifierStructure.getFieldValue("mirror_ob");
+	        if (pMirrorOb.isNotNull()) {
+	        	modifierData.put("mirrorob", pMirrorOb);
+	        }
+		}
 	}
 	
 	@Override
 	public Node apply(Node node, BlenderContext blenderContext) {
+		if(invalid) {
+			LOGGER.log(Level.WARNING, "Mirror modifier is invalid! Cannot be applied to: {0}", node.getName());
+			return node;
+		}
+		
         int flag = ((Number) modifierData.get("flag")).intValue();
         float[] mirrorFactor = new float[]{
             (flag & 0x08) != 0 ? -1.0f : 1.0f,

@@ -2,6 +2,8 @@ package com.jme3.scene.plugins.blender.modifiers;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import com.jme3.effect.ParticleEmitter;
 import com.jme3.effect.shapes.EmitterMeshVertexShape;
@@ -24,13 +26,16 @@ import com.jme3.scene.plugins.blender.particles.ParticlesHelper;
  * @author Marcin Roguski (Kaelthas)
  */
 /* package */class ParticlesModifier extends Modifier {
+	private static final Logger LOGGER = Logger.getLogger(MirrorModifier.class.getName());
+	
+	/** Loaded particles emitter. */
 	private ParticleEmitter particleEmitter;
 	
 	/**
 	 * This constructor reads the particles system structure and stores it in
 	 * order to apply it later to the node.
 	 * 
-	 * @param modifier
+	 * @param modifierStructure
 	 *            the structure of the modifier
 	 * @param blenderContext
 	 *            the blender context
@@ -38,18 +43,24 @@ import com.jme3.scene.plugins.blender.particles.ParticlesHelper;
 	 *             an exception is throw wneh there are problems with the
 	 *             blender file
 	 */
-	public ParticlesModifier(Structure modifier, BlenderContext blenderContext)
-			throws BlenderFileException {
-		Pointer pParticleSystem = (Pointer) modifier.getFieldValue("psys");
-		if (pParticleSystem.isNotNull()) {
-			ParticlesHelper particlesHelper = blenderContext.getHelper(ParticlesHelper.class);
-			Structure particleSystem = pParticleSystem.fetchData(blenderContext.getInputStream()).get(0);
-			particleEmitter = particlesHelper.toParticleEmitter(particleSystem, blenderContext);
+	public ParticlesModifier(Structure modifierStructure, BlenderContext blenderContext) throws BlenderFileException {
+		if(this.validate(modifierStructure, blenderContext)) {
+			Pointer pParticleSystem = (Pointer) modifierStructure.getFieldValue("psys");
+			if (pParticleSystem.isNotNull()) {
+				ParticlesHelper particlesHelper = blenderContext.getHelper(ParticlesHelper.class);
+				Structure particleSystem = pParticleSystem.fetchData(blenderContext.getInputStream()).get(0);
+				particleEmitter = particlesHelper.toParticleEmitter(particleSystem, blenderContext);
+			}
 		}
 	}
 
 	@Override
 	public Node apply(Node node, BlenderContext blenderContext) {
+		if(invalid) {
+			LOGGER.log(Level.WARNING, "Particles modifier is invalid! Cannot be applied to: {0}", node.getName());
+			return node;
+		}
+		
 		MaterialHelper materialHelper = blenderContext.getHelper(MaterialHelper.class);
 		ParticleEmitter emitter = particleEmitter.clone();
 

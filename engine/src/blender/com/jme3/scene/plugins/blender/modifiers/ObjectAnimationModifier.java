@@ -1,24 +1,11 @@
 package com.jme3.scene.plugins.blender.modifiers;
 
-import com.jme3.animation.Animation;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Logger;
 
-import com.jme3.animation.Bone;
-import com.jme3.animation.BoneAnimation;
-import com.jme3.animation.BoneTrack;
-import com.jme3.animation.Skeleton;
-import com.jme3.math.Transform;
 import com.jme3.scene.Node;
 import com.jme3.scene.plugins.blender.BlenderContext;
-import com.jme3.scene.plugins.blender.animations.Ipo;
-import com.jme3.scene.plugins.blender.animations.IpoHelper;
 import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
-import com.jme3.scene.plugins.blender.file.FileBlockHeader;
-import com.jme3.scene.plugins.blender.file.Pointer;
 import com.jme3.scene.plugins.blender.file.Structure;
-import com.jme3.scene.plugins.blender.objects.ObjectHelper;
 import com.jme3.scene.plugins.ogre.AnimData;
 
 /**
@@ -53,6 +40,8 @@ import com.jme3.scene.plugins.ogre.AnimData;
 	 *             corrupted
 	 */
 	public ObjectAnimationModifier(Structure objectStructure, BlenderContext blenderContext) throws BlenderFileException {
+		LOGGER.warning("Object animation modifier not yet implemented!");
+		/*
 		Pointer pIpo = (Pointer) objectStructure.getFieldValue("ipo");
 		if (pIpo.isNotNull()) {
 			// check if there is an action name connected with this ipo
@@ -105,12 +94,13 @@ import com.jme3.scene.plugins.ogre.AnimData;
 			animData = new AnimData(new Skeleton(new Bone[] { bone }), animations);
 			objectOMA = objectStructure.getOldMemoryAddress();
 		}
+		*/
 	}
 	
 	@Override
 	public Node apply(Node node, BlenderContext blenderContext) {
 		LOGGER.warning("Object animation modifier not yet implemented!");
-		return null;
+		return node;
 	}
 
 	@Override

@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import com.jme3.animation.AnimControl;
 import com.jme3.animation.Animation;
@@ -43,6 +45,7 @@ import com.jme3.util.BufferUtils;
  * @author Marcin Roguski (Kaelthas)
  */
 /* package */class ArmatureModifier extends Modifier {
+	private static final Logger LOGGER = Logger.getLogger(ArmatureModifier.class.getName());
 	private static final int	MAXIMUM_WEIGHTS_PER_VERTEX	= 4;	// have no idea why 4, could someone please explain ?
 	
 	/** Loaded animation data. */
@@ -80,53 +83,55 @@ import com.jme3.util.BufferUtils;
 	 *             corrupted
 	 */
 	public ArmatureModifier(Structure objectStructure, Structure modifierStructure, BlenderContext blenderContext) throws BlenderFileException {
-		Pointer pArmatureObject = (Pointer) modifierStructure.getFieldValue("object");
-		if (pArmatureObject.isNotNull()) {
-			ObjectHelper objectHelper = blenderContext.getHelper(ObjectHelper.class);
-			ArmatureHelper armatureHelper = blenderContext.getHelper(ArmatureHelper.class);
-			
-			Structure armatureObject = pArmatureObject.fetchData(blenderContext.getInputStream()).get(0);
-			this.armatureObjectOMA = armatureObject.getOldMemoryAddress();
-
-			//read skeleton
-			// changing bones matrices so that they fit the current object
-			Structure armatureStructure = ((Pointer)armatureObject.getFieldValue("data")).fetchData(blenderContext.getInputStream()).get(0);
-			Structure bonebase = (Structure) armatureStructure.getFieldValue("bonebase");
-	        List<Structure> bonesStructures = bonebase.evaluateListBase(blenderContext);
-	        for (Structure boneStructure : bonesStructures) {
-	            BoneTransformationData rootBoneTransformationData = armatureHelper.readBoneAndItsChildren(boneStructure, null, blenderContext);
-	            armatureHelper.addBoneDataRoot(rootBoneTransformationData);
-	        }
-			Matrix4f armatureObjectMatrix = objectHelper.getTransformationMatrix(armatureObject);
-			Matrix4f inverseMeshObjectMatrix = objectHelper.getTransformationMatrix(objectStructure).invert();
-			Matrix4f additionalRootBoneTransformation = inverseMeshObjectMatrix.multLocal(armatureObjectMatrix);
-			Bone[] bones = armatureHelper.buildBonesStructure(Long.valueOf(0L), additionalRootBoneTransformation);
-
-			//read mesh indexes
-			Structure meshStructure = ((Pointer)objectStructure.getFieldValue("data")).fetchData(blenderContext.getInputStream()).get(0);
-			this.meshOMA = meshStructure.getOldMemoryAddress();
-			this.readVerticesWeightsData(objectStructure, meshStructure, blenderContext);
-			
-			//read animations
-			String objectName = objectStructure.getName();
-			Set<String> animationNames = blenderContext.getBlenderKey().getAnimationNames(objectName);
-			if (animationNames != null && animationNames.size() > 0) {
-				ArrayList<Animation> animations = new ArrayList<Animation>();
-				List<FileBlockHeader> actionHeaders = blenderContext.getFileBlocks(Integer.valueOf(FileBlockHeader.BLOCK_AC00));
-				for (FileBlockHeader header : actionHeaders) {
-					Structure actionStructure = header.getStructure(blenderContext);
-					String actionName = actionStructure.getName();
-					if (animationNames.contains(actionName)) {
-						int[] animationFrames = blenderContext.getBlenderKey().getAnimationFrames(objectName, actionName);
-						int fps = blenderContext.getBlenderKey().getFps();
-						float start = (float) animationFrames[0] / (float) fps;
-						float stop = (float) animationFrames[1] / (float) fps;
-						BoneAnimation boneAnimation = new BoneAnimation(actionName, stop - start);
-						boneAnimation.setTracks(armatureHelper.getTracks(actionStructure, blenderContext, objectName, actionName));
-						animations.add(boneAnimation);
+		if(this.validate(modifierStructure, blenderContext)) {
+			Pointer pArmatureObject = (Pointer) modifierStructure.getFieldValue("object");
+			if (pArmatureObject.isNotNull()) {
+				ObjectHelper objectHelper = blenderContext.getHelper(ObjectHelper.class);
+				ArmatureHelper armatureHelper = blenderContext.getHelper(ArmatureHelper.class);
+				
+				Structure armatureObject = pArmatureObject.fetchData(blenderContext.getInputStream()).get(0);
+				this.armatureObjectOMA = armatureObject.getOldMemoryAddress();
+	
+				//read skeleton
+				// changing bones matrices so that they fit the current object
+				Structure armatureStructure = ((Pointer)armatureObject.getFieldValue("data")).fetchData(blenderContext.getInputStream()).get(0);
+				Structure bonebase = (Structure) armatureStructure.getFieldValue("bonebase");
+		        List<Structure> bonesStructures = bonebase.evaluateListBase(blenderContext);
+		        for (Structure boneStructure : bonesStructures) {
+		            BoneTransformationData rootBoneTransformationData = armatureHelper.readBoneAndItsChildren(boneStructure, null, blenderContext);
+		            armatureHelper.addBoneDataRoot(rootBoneTransformationData);
+		        }
+				Matrix4f armatureObjectMatrix = objectHelper.getTransformationMatrix(armatureObject);
+				Matrix4f inverseMeshObjectMatrix = objectHelper.getTransformationMatrix(objectStructure).invert();
+				Matrix4f additionalRootBoneTransformation = inverseMeshObjectMatrix.multLocal(armatureObjectMatrix);
+				Bone[] bones = armatureHelper.buildBonesStructure(Long.valueOf(0L), additionalRootBoneTransformation);
+	
+				//read mesh indexes
+				Structure meshStructure = ((Pointer)objectStructure.getFieldValue("data")).fetchData(blenderContext.getInputStream()).get(0);
+				this.meshOMA = meshStructure.getOldMemoryAddress();
+				this.readVerticesWeightsData(objectStructure, meshStructure, blenderContext);
+				
+				//read animations
+				String objectName = objectStructure.getName();
+				Set<String> animationNames = blenderContext.getBlenderKey().getAnimationNames(objectName);
+				if (animationNames != null && animationNames.size() > 0) {
+					ArrayList<Animation> animations = new ArrayList<Animation>();
+					List<FileBlockHeader> actionHeaders = blenderContext.getFileBlocks(Integer.valueOf(FileBlockHeader.BLOCK_AC00));
+					for (FileBlockHeader header : actionHeaders) {
+						Structure actionStructure = header.getStructure(blenderContext);
+						String actionName = actionStructure.getName();
+						if (animationNames.contains(actionName)) {
+							int[] animationFrames = blenderContext.getBlenderKey().getAnimationFrames(objectName, actionName);
+							int fps = blenderContext.getBlenderKey().getFps();
+							float start = (float) animationFrames[0] / (float) fps;
+							float stop = (float) animationFrames[1] / (float) fps;
+							BoneAnimation boneAnimation = new BoneAnimation(actionName, stop - start);
+							boneAnimation.setTracks(armatureHelper.getTracks(actionStructure, blenderContext, objectName, actionName));
+							animations.add(boneAnimation);
+						}
 					}
+					animData = new AnimData(new Skeleton(bones), animations);
 				}
-				animData = new AnimData(new Skeleton(bones), animations);
 			}
 		}
 	}
@@ -134,6 +139,9 @@ import com.jme3.util.BufferUtils;
 	@Override
 	@SuppressWarnings("unchecked")
 	public Node apply(Node node, BlenderContext blenderContext) {
+		if(invalid) {
+			LOGGER.log(Level.WARNING, "Armature modifier is invalid! Cannot be applied to: {0}", node.getName());
+		}//if invalid, animData will be null
 		if(animData == null) {
 			return node;
 		}

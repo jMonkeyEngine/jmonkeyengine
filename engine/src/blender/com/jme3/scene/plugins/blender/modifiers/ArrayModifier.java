@@ -52,80 +52,86 @@ import com.jme3.scene.shape.Curve;
 	 *             corrupted
 	 */
 	@SuppressWarnings("unchecked")
-	public ArrayModifier(Structure modifier, BlenderContext blenderContext) throws BlenderFileException {
-        Number fittype = (Number) modifier.getFieldValue("fit_type");
-        modifierData.put("fittype", fittype);
-        switch (fittype.intValue()) {
-            case 0:// FIXED COUNT
-            	modifierData.put("count", modifier.getFieldValue("count"));
-                break;
-            case 1:// FIXED LENGTH
-            	modifierData.put("length", modifier.getFieldValue("length"));
-                break;
-            case 2:// FITCURVE
-                Pointer pCurveOb = (Pointer) modifier.getFieldValue("curve_ob");
-                float length = 0;
-                if (pCurveOb.isNotNull()) {
-                    Structure curveStructure = pCurveOb.fetchData(blenderContext.getInputStream()).get(0);
-                    ObjectHelper objectHelper = blenderContext.getHelper(ObjectHelper.class);
-                    Node curveObject = (Node) objectHelper.toObject(curveStructure, blenderContext);
-                    Set<Number> referencesToCurveLengths = new HashSet<Number>(curveObject.getChildren().size());
-                    for (Spatial spatial : curveObject.getChildren()) {
-                        if (spatial instanceof Geometry) {
-                            Mesh mesh = ((Geometry) spatial).getMesh();
-                            if (mesh instanceof Curve) {
-                                length += ((Curve) mesh).getLength();
-                            } else {
-                                //if bevel object has several parts then each mesh will have the same reference
-                                //to length value (and we should use only one)
-                                Number curveLength = spatial.getUserData("curveLength");
-                                if (curveLength != null && !referencesToCurveLengths.contains(curveLength)) {
-                                    length += curveLength.floatValue();
-                                    referencesToCurveLengths.add(curveLength);
-                                }
-                            }
-                        }
-                    }
-                }
-                modifierData.put("length", Float.valueOf(length));
-                modifierData.put("fittype", Integer.valueOf(1));// treat it like FIXED LENGTH
-                break;
-            default:
-                assert false : "Unknown array modifier fit type: " + fittype;
-        }
-
-        // offset parameters
-        int offsettype = ((Number) modifier.getFieldValue("offset_type")).intValue();
-        if ((offsettype & 0x01) != 0) {// Constant offset
-            DynamicArray<Number> offsetArray = (DynamicArray<Number>) modifier.getFieldValue("offset");
-            float[] offset = new float[]{offsetArray.get(0).floatValue(), offsetArray.get(1).floatValue(), offsetArray.get(2).floatValue()};
-            modifierData.put("offset", offset);
-        }
-        if ((offsettype & 0x02) != 0) {// Relative offset
-            DynamicArray<Number> scaleArray = (DynamicArray<Number>) modifier.getFieldValue("scale");
-            float[] scale = new float[]{scaleArray.get(0).floatValue(), scaleArray.get(1).floatValue(), scaleArray.get(2).floatValue()};
-            modifierData.put("scale", scale);
-        }
-        if ((offsettype & 0x04) != 0) {// Object offset
-            Pointer pOffsetObject = (Pointer) modifier.getFieldValue("offset_ob");
-            if (pOffsetObject.isNotNull()) {
-            	modifierData.put("offsetob", pOffsetObject);
-            }
-        }
-
-        // start cap and end cap
-        Pointer pStartCap = (Pointer) modifier.getFieldValue("start_cap");
-        if (pStartCap.isNotNull()) {
-        	modifierData.put("startcap", pStartCap);
-        }
-        Pointer pEndCap = (Pointer) modifier.getFieldValue("end_cap");
-        if (pEndCap.isNotNull()) {
-        	modifierData.put("endcap", pEndCap);
-        }
+	public ArrayModifier(Structure modifierStructure, BlenderContext blenderContext) throws BlenderFileException {
+		if(this.validate(modifierStructure, blenderContext)) {
+	        Number fittype = (Number) modifierStructure.getFieldValue("fit_type");
+	        modifierData.put("fittype", fittype);
+	        switch (fittype.intValue()) {
+	            case 0:// FIXED COUNT
+	            	modifierData.put("count", modifierStructure.getFieldValue("count"));
+	                break;
+	            case 1:// FIXED LENGTH
+	            	modifierData.put("length", modifierStructure.getFieldValue("length"));
+	                break;
+	            case 2:// FITCURVE
+	                Pointer pCurveOb = (Pointer) modifierStructure.getFieldValue("curve_ob");
+	                float length = 0;
+	                if (pCurveOb.isNotNull()) {
+	                    Structure curveStructure = pCurveOb.fetchData(blenderContext.getInputStream()).get(0);
+	                    ObjectHelper objectHelper = blenderContext.getHelper(ObjectHelper.class);
+	                    Node curveObject = (Node) objectHelper.toObject(curveStructure, blenderContext);
+	                    Set<Number> referencesToCurveLengths = new HashSet<Number>(curveObject.getChildren().size());
+	                    for (Spatial spatial : curveObject.getChildren()) {
+	                        if (spatial instanceof Geometry) {
+	                            Mesh mesh = ((Geometry) spatial).getMesh();
+	                            if (mesh instanceof Curve) {
+	                                length += ((Curve) mesh).getLength();
+	                            } else {
+	                                //if bevel object has several parts then each mesh will have the same reference
+	                                //to length value (and we should use only one)
+	                                Number curveLength = spatial.getUserData("curveLength");
+	                                if (curveLength != null && !referencesToCurveLengths.contains(curveLength)) {
+	                                    length += curveLength.floatValue();
+	                                    referencesToCurveLengths.add(curveLength);
+	                                }
+	                            }
+	                        }
+	                    }
+	                }
+	                modifierData.put("length", Float.valueOf(length));
+	                modifierData.put("fittype", Integer.valueOf(1));// treat it like FIXED LENGTH
+	                break;
+	            default:
+	                assert false : "Unknown array modifier fit type: " + fittype;
+	        }
+	
+	        // offset parameters
+	        int offsettype = ((Number) modifierStructure.getFieldValue("offset_type")).intValue();
+	        if ((offsettype & 0x01) != 0) {// Constant offset
+	            DynamicArray<Number> offsetArray = (DynamicArray<Number>) modifierStructure.getFieldValue("offset");
+	            float[] offset = new float[]{offsetArray.get(0).floatValue(), offsetArray.get(1).floatValue(), offsetArray.get(2).floatValue()};
+	            modifierData.put("offset", offset);
+	        }
+	        if ((offsettype & 0x02) != 0) {// Relative offset
+	            DynamicArray<Number> scaleArray = (DynamicArray<Number>) modifierStructure.getFieldValue("scale");
+	            float[] scale = new float[]{scaleArray.get(0).floatValue(), scaleArray.get(1).floatValue(), scaleArray.get(2).floatValue()};
+	            modifierData.put("scale", scale);
+	        }
+	        if ((offsettype & 0x04) != 0) {// Object offset
+	            Pointer pOffsetObject = (Pointer) modifierStructure.getFieldValue("offset_ob");
+	            if (pOffsetObject.isNotNull()) {
+	            	modifierData.put("offsetob", pOffsetObject);
+	            }
+	        }
+	
+	        // start cap and end cap
+	        Pointer pStartCap = (Pointer) modifierStructure.getFieldValue("start_cap");
+	        if (pStartCap.isNotNull()) {
+	        	modifierData.put("startcap", pStartCap);
+	        }
+	        Pointer pEndCap = (Pointer) modifierStructure.getFieldValue("end_cap");
+	        if (pEndCap.isNotNull()) {
+	        	modifierData.put("endcap", pEndCap);
+	        }
+		}
 	}
 	
 	@Override
 	public Node apply(Node node, BlenderContext blenderContext) {
+		if(invalid) {
+			LOGGER.log(Level.WARNING, "Array modifier is invalid! Cannot be applied to: {0}", node.getName());
+			return node;
+		}
         int fittype = ((Number) modifierData.get("fittype")).intValue();
         float[] offset = (float[]) modifierData.get("offset");
         if (offset == null) {// the node will be repeated several times in the same place
