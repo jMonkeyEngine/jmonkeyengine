@@ -330,23 +330,18 @@ public class PssmShadowRenderer implements SceneProcessor {
         float zFar = zFarOverride;
         if (zFar == 0) {
             zFar = viewCam.getFrustumFar();
-            // zFar = PssmShadowUtil.computeZFar(occluders, receivers, viewCam);
         }
-        //  System.out.println("Zfar : "+zFar);
-        ShadowUtil.updateFrustumPoints(viewCam, viewCam.getFrustumNear(), zFar, 1.0f, points);
 
-//        Vector3f frustaCenter = new Vector3f();
-//        for (Vector3f point : points) {
-//            frustaCenter.addLocal(point);
-//        }
-//        frustaCenter.multLocal(1f / 8f);
+        //We prevent computing the frustum points and splits with zeroed or negative near clip value
+        float frustumNear = Math.max(viewCam.getFrustumNear(), 0.001f);
+        ShadowUtil.updateFrustumPoints(viewCam, frustumNear, zFar, 1.0f, points);
 
         //shadowCam.setDirection(direction);
         shadowCam.getRotation().lookAt(direction, shadowCam.getUp());
         shadowCam.update();
         shadowCam.updateViewProjection();
 
-        PssmShadowUtil.updateFrustumSplits(splitsArray, viewCam.getFrustumNear(), zFar, lambda);
+        PssmShadowUtil.updateFrustumSplits(splitsArray, frustumNear, zFar, lambda);
 
 
         switch (splitsArray.length) {
@@ -394,7 +389,7 @@ public class PssmShadowRenderer implements SceneProcessor {
         renderManager.setCamera(viewCam, false);
 
     }
-  
+
     //debug only : displays depth shadow maps
     private void displayShadowMap(Renderer r) {
         Camera cam = viewPort.getCamera();
@@ -425,9 +420,9 @@ public class PssmShadowRenderer implements SceneProcessor {
                 postshadowMat.setMatrix4("LightViewProjectionMatrix" + i, lightViewProjectionsMatrices[i]);
             }
             renderManager.setForcedMaterial(postshadowMat);
-           
+
             viewPort.getQueue().renderShadowQueue(ShadowMode.Receive, renderManager, cam, flushQueues);
-           
+
             renderManager.setForcedMaterial(null);
             renderManager.setCamera(cam, false);
 
@@ -524,7 +519,7 @@ public class PssmShadowRenderer implements SceneProcessor {
         this.edgesThickness *= 0.1f;
         postshadowMat.setFloat("PCFEdge", edgesThickness);
     }
-    
+
     /**
      * returns true if the PssmRenderer flushed the shadow queues
      * @return flushQueues
