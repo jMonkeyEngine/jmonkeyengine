@@ -40,6 +40,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.openide.nodes.PropertySupport;
 import org.openide.util.Exceptions;
 
@@ -73,7 +75,8 @@ public class UserDataProperty extends PropertySupport.ReadWrite<String> {
         } else if (type instanceof Long) {
             return 4;
         } else {
-            throw new IllegalArgumentException("Unsupported type: " + type);
+            Logger.getLogger(UserDataProperty.class.getName()).log(Level.WARNING, "UserData not editable" + type.getClass());
+            return -1;
         }
     }
 
@@ -108,7 +111,7 @@ public class UserDataProperty extends PropertySupport.ReadWrite<String> {
                             spatial.setUserData(name, Long.parseLong(val));
                             break;
                         default:
-                            throw new UnsupportedOperationException();
+//                            throw new UnsupportedOperationException();
                     }
                     return null;
                 }
