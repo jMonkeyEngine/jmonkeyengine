@@ -20,7 +20,6 @@ import com.jme3.math.Matrix4f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
-import com.jme3.scene.Spatial;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.VertexBuffer.Format;
 import com.jme3.scene.VertexBuffer.Type;
@@ -174,21 +173,8 @@ import com.jme3.util.BufferUtils;
 				anims.put(boneAnimation.getName(), boneAnimation);
 			}
 
-			// getting meshes
-			Mesh[] meshes = null;
-			List<Mesh> meshesList = new ArrayList<Mesh>();
-			List<Spatial> children = node.getChildren();
-			for (Spatial child : children) {
-				if (child instanceof Geometry) {
-					meshesList.add(((Geometry) child).getMesh());
-				}
-			}
-			if (meshesList.size() > 0) {
-				meshes = meshesList.toArray(new Mesh[meshesList.size()]);
-			}
-
 			// applying the control to the node
-			SkeletonControl skeletonControl = new SkeletonControl(meshes, animData.skeleton);
+			SkeletonControl skeletonControl = new SkeletonControl(animData.skeleton);
 			AnimControl control = new AnimControl(animData.skeleton);
 
 			control.setAnimations(anims);
