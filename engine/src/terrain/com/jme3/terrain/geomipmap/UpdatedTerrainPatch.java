@@ -90,9 +90,9 @@ public class UpdatedTerrainPatch {
 		return newLod;
 	}
 
-	protected void setNewLod(int newLod) {
+	public void setNewLod(int newLod) {
 		this.newLod = newLod;
-                if (this.newLod <= 0)
+                if (this.newLod < 0)
                     throw new IllegalArgumentException();
 	}
 

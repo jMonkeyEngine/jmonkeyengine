@@ -115,6 +115,7 @@ public class TerrainQuad extends Node implements Terrain {
     
     protected List<Vector3f> lastCameraLocations; // used for LOD calc
     private boolean lodCalcRunning = false;
+    private int lodOffCount = 0;
     private int maxLod = -1;
     private HashMap<String,UpdatedTerrainPatch> updatedPatches;
     private final Object updatePatchesLock = new Object();
@@ -241,8 +242,17 @@ public class TerrainQuad extends Node implements Terrain {
         // update any existing ones that need updating
         updateQuadLODs();
 
+        if (lodCalculator.isLodOff()) {
+            // we want to calculate the base lod at least once
+            if (lodOffCount == 1)
+                return;
+            else
+                lodOffCount++;
+        } else 
+            lodOffCount = 0;
+        
         if (lastCameraLocations != null) {
-            if (lastCameraLocationsTheSame(locations))
+            if (lastCameraLocationsTheSame(locations) && !lodCalculator.isLodOff())
                 return; // don't update if in same spot
             else
                 lastCameraLocations = cloneVectorList(locations);
@@ -424,6 +434,10 @@ public class TerrainQuad extends Node implements Terrain {
 
             updatedPatches.clear();
         }
+    }
+    
+    public boolean hasPatchesToUpdate() {
+        return updatedPatches != null && !updatedPatches.isEmpty();
     }
 
     protected boolean calculateLod(List<Vector3f> location, HashMap<String,UpdatedTerrainPatch> updates, LodCalculator lodCalculator) {
@@ -1680,9 +1694,11 @@ public class TerrainQuad extends Node implements Terrain {
         //quadClone.lodCalculatorFactory = lodCalculatorFactory.clone();
         //quadClone.lodCalculator = lodCalculator.clone();
         
+        TerrainLodControl lodControlCloned = this.getControl(TerrainLodControl.class);
         TerrainLodControl lodControl = quadClone.getControl(TerrainLodControl.class);
-        if (lodControl != null && !(getParent() instanceof TerrainQuad)) {
-            lodControl.setTerrain(quadClone); // set println in controller update to see if it is updating
+        
+        if (lodControlCloned != null && !(getParent() instanceof TerrainQuad)) {
+            //lodControlCloned.setLodCalculator(lodControl.getLodCalculator().clone());
         }
         NormalRecalcControl normalControl = getControl(NormalRecalcControl.class);
         if (normalControl != null)

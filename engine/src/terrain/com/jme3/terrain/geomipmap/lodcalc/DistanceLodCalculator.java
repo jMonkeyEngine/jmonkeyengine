@@ -52,6 +52,7 @@ public class DistanceLodCalculator implements LodCalculator {
 
     private int size; // size of a terrain patch
     private float lodMultiplier = 2;
+    private boolean turnOffLod = false;
     
     public DistanceLodCalculator() {
     }
@@ -64,6 +65,21 @@ public class DistanceLodCalculator implements LodCalculator {
     public boolean calculateLod(TerrainPatch terrainPatch, List<Vector3f> locations, HashMap<String, UpdatedTerrainPatch> updates) {
         float distance = getCenterLocation(terrainPatch).distance(locations.get(0));
 
+        
+        if (turnOffLod) {
+            // set to full detail
+            int prevLOD = terrainPatch.getLod();
+            UpdatedTerrainPatch utp = updates.get(terrainPatch.getName());
+            if (utp == null) {
+                utp = new UpdatedTerrainPatch(terrainPatch, 0);
+                updates.put(utp.getName(), utp);
+            }
+            utp.setNewLod(0);
+            utp.setPreviousLod(prevLOD);
+            utp.setReIndexNeeded(true);
+            return true;
+        }
+        
         // go through each lod level to find the one we are in
         for (int i = 0; i <= terrainPatch.getMaxLod(); i++) {
             if (distance < getLodDistanceThreshold() * (i + 1)*terrainPatch.getWorldScale().x || i == terrainPatch.getMaxLod()) {
@@ -111,8 +127,7 @@ public class DistanceLodCalculator implements LodCalculator {
 
     @Override
     public LodCalculator clone() {
-        DistanceLodCalculator clone = new DistanceLodCalculator();
-
+        DistanceLodCalculator clone = new DistanceLodCalculator(size, lodMultiplier);
         return clone;
     }
 
@@ -151,6 +166,17 @@ public class DistanceLodCalculator implements LodCalculator {
     public void setSize(int size) {
         this.size = size;
     }
+
+    public void turnOffLod() {
+        turnOffLod = true;
+    }
     
+    public boolean isLodOff() {
+        return turnOffLod;
+    }
+    
+    public void turnOnLod() {
+        turnOffLod = false;
+    }
     
 }

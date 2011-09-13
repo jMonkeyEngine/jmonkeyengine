@@ -68,6 +68,7 @@ public class TerrainLodControl extends AbstractControl {
     private List<Camera> cameras;
     private List<Vector3f> cameraLocations = new ArrayList<Vector3f>();
     private LodCalculator lodCalculator;
+    private boolean hasResetLod = false; // used when enabled is set to false
 
     public TerrainLodControl() {
     }
@@ -95,9 +96,25 @@ public class TerrainLodControl extends AbstractControl {
     }
 
     @Override
+    public void update(float tpf) {
+        controlUpdate(tpf);
+    }
+    
+    @Override
     protected void controlUpdate(float tpf) {
         //list of cameras for when terrain supports multiple cameras (ie split screen)
 
+        if (lodCalculator == null)
+            return;
+        
+        if (!enabled) {
+            if (!hasResetLod) {
+                // this will get run once
+                hasResetLod = true;
+                lodCalculator.turnOffLod();
+            }
+        }
+        
         if (cameras != null) {
             if (cameraLocations.isEmpty() && !cameras.isEmpty()) {
                 for (Camera c : cameras) // populate them
@@ -117,7 +134,9 @@ public class TerrainLodControl extends AbstractControl {
                     cameraClone.add(c);
                 }
             }
-            return new TerrainLodControl((Terrain) spatial, cameraClone);
+            TerrainLodControl cloned = new TerrainLodControl((Terrain) spatial, cameraClone);
+            cloned.setLodCalculator(lodCalculator.clone());
+            return cloned;
         }
         return null;
     }
@@ -156,6 +175,17 @@ public class TerrainLodControl extends AbstractControl {
         this.lodCalculator = lodCalculator;
     }
     
+    @Override
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+        if (!enabled) {
+            // reset the lod levels to max detail for the terrain
+            hasResetLod = false;
+        } else {
+            hasResetLod = true;
+            lodCalculator.turnOnLod();
+        }
+    }
 
     @Override
     public void write(JmeExporter ex) throws IOException {
@@ -172,4 +202,5 @@ public class TerrainLodControl extends AbstractControl {
         terrain = (Terrain) ic.readSavable("terrain", null);
         lodCalculator = (LodCalculator) ic.readSavable("lodCalculator", new DistanceLodCalculator());
     }
+
 }

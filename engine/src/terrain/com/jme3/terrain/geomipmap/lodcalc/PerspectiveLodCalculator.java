@@ -160,6 +160,16 @@ public class PerspectiveLodCalculator implements LodCalculator {
         this.cam = cam;
     }
 
+    public void turnOffLod() {
+        //TODO
+    }
+
+    public boolean isLodOff() {
+        return false; //TODO
+    }
     
+    public void turnOnLod() {
+        //TODO
+    }
     
 }
