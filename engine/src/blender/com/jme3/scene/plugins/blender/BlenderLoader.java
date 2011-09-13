@@ -38,7 +38,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.jme3.asset.AssetInfo;
-import com.jme3.asset.AssetLoader;
 import com.jme3.asset.BlenderKey;
 import com.jme3.asset.BlenderKey.FeaturesToLoad;
 import com.jme3.asset.BlenderKey.LoadingResults;
@@ -67,38 +66,31 @@ import com.jme3.scene.plugins.blender.textures.TextureHelper;
 
 /**
  * This is the main loading class. Have in notice that asset manager needs to have loaders for resources like textures.
- * @author Marcin Roguski
+ * @author Marcin Roguski (Kaelthas)
  */
-public class BlenderLoader implements AssetLoader {
+public class BlenderLoader extends AbstractBlenderLoader {
 
 	private static final Logger		LOGGER	= Logger.getLogger(BlenderLoader.class.getName());
 
-	/** Converter for blender structures. */
-	protected JmeConverter			converter;
-	/** The blender context. */
-	protected BlenderContext		blenderContext;
-	/** The blender key to use. */
-	protected BlenderKey			blenderKey;
 	/** The blocks read from the file. */
 	protected List<FileBlockHeader>	blocks;
-	/** Blender input stream. */
-	protected BlenderInputStream	inputStream;
 
 	@Override
 	public Spatial load(AssetInfo assetInfo) throws IOException {
 		try {
 			this.setup(assetInfo);
 
+			BlenderKey blenderKey = blenderContext.getBlenderKey();
 			LoadingResults loadingResults = blenderKey.prepareLoadingResults();
 			WorldData worldData = null;// a set of data used in different scene aspects
 			for (FileBlockHeader block : blocks) {
 				switch (block.getCode()) {
 					case FileBlockHeader.BLOCK_OB00:// Object
-						Object object = converter.toObject(block.getStructure(blenderContext));
+						Object object = this.toObject(block.getStructure(blenderContext));
 						if (object instanceof Node) {
 							if ((blenderKey.getFeaturesToLoad() & FeaturesToLoad.OBJECTS) != 0) {
 								LOGGER.log(Level.INFO, "{0}: {1}--> {2}", new Object[] { ((Node) object).getName(), ((Node) object).getLocalTranslation().toString(), ((Node) object).getParent() == null ? "null" : ((Node) object).getParent().getName() });
-								if (((Node) object).getParent() == null) {
+								if (this.isRootObject(loadingResults, (Node)object)) {
 									loadingResults.addObject((Node) object);
 								}
 							}
@@ -114,12 +106,12 @@ public class BlenderLoader implements AssetLoader {
 						break;
 					case FileBlockHeader.BLOCK_MA00:// Material
 						if (blenderKey.isLoadUnlinkedAssets() && (blenderKey.getFeaturesToLoad() & FeaturesToLoad.MATERIALS) != 0) {
-							loadingResults.addMaterial(converter.toMaterial(block.getStructure(blenderContext)));
+							loadingResults.addMaterial(this.toMaterial(block.getStructure(blenderContext)));
 						}
 						break;
 					case FileBlockHeader.BLOCK_SC00:// Scene
 						if ((blenderKey.getFeaturesToLoad() & FeaturesToLoad.SCENES) != 0) {
-							loadingResults.addScene(converter.toScene(block.getStructure(blenderContext)));
+							loadingResults.addScene(this.toScene(block.getStructure(blenderContext)));
 						}
 						break;
 					case FileBlockHeader.BLOCK_WO00:// World
@@ -127,7 +119,7 @@ public class BlenderLoader implements AssetLoader {
 							Structure worldStructure = block.getStructure(blenderContext);
 							String worldName = worldStructure.getName();
 							if (blenderKey.getUsedWorld() == null || blenderKey.getUsedWorld().equals(worldName)) {
-								worldData = converter.toWorldData(worldStructure);
+								worldData = this.toWorldData(worldStructure);
 								if ((blenderKey.getFeaturesToLoad() & FeaturesToLoad.LIGHTS) != 0) {
 									loadingResults.addLight(worldData.getAmbientLight());
 								}
@@ -136,11 +128,7 @@ public class BlenderLoader implements AssetLoader {
 						break;
 				}
 			}
-			try {
-				inputStream.close();
-			} catch (IOException e) {
-				LOGGER.log(Level.SEVERE, e.getMessage(), e);
-			}
+			blenderContext.dispose();
 			return loadingResults;
 		} catch (BlenderFileException e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -148,6 +136,30 @@ public class BlenderLoader implements AssetLoader {
 		return null;
 	}
 
+	/**
+	 * This method indicates if the given spatial is a root object. It means it
+	 * has no parent or is directly attached to one of the already loaded scene
+	 * nodes.
+	 * 
+	 * @param loadingResults
+	 *        loading results containing the scene nodes
+	 * @param spatial
+	 *        spatial object
+	 * @return <b>true</b> if the given spatial is a root object and
+	 *         <b>false</b> otherwise
+	 */
+	protected boolean isRootObject(LoadingResults loadingResults, Spatial spatial) {
+		if(spatial.getParent() == null) {
+			return true;
+		}
+		for(Node scene : loadingResults.getScenes()) {
+			if(spatial.getParent().equals(scene)) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	/**
 	 * This method sets up the loader.
 	 * @param assetInfo
@@ -158,6 +170,7 @@ public class BlenderLoader implements AssetLoader {
 	protected void setup(AssetInfo assetInfo) throws BlenderFileException {
 		// registering loaders
 		ModelKey modelKey = (ModelKey) assetInfo.getKey();
+		BlenderKey blenderKey;
 		if (modelKey instanceof BlenderKey) {
 			blenderKey = (BlenderKey) modelKey;
 		} else {
@@ -166,7 +179,7 @@ public class BlenderLoader implements AssetLoader {
 		}
 
 		// opening stream
-		inputStream = new BlenderInputStream(assetInfo.openStream(), assetInfo.getManager());
+		BlenderInputStream inputStream = new BlenderInputStream(assetInfo.openStream(), assetInfo.getManager());
 
 		// reading blocks
 		blocks = new ArrayList<FileBlockHeader>();
@@ -217,7 +230,5 @@ public class BlenderLoader implements AssetLoader {
 			int lay = ((Number) sceneFileBlock.getStructure(blenderContext).getFieldValue("lay")).intValue();
 			blenderContext.getBlenderKey().setLayersToLoad(lay);// load only current layer
 		}
-
-		converter = new JmeConverter(blenderContext);
 	}
 }

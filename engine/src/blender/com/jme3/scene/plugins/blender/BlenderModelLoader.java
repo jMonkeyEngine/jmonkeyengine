@@ -32,12 +32,11 @@
 package com.jme3.scene.plugins.blender;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.jme3.asset.AssetInfo;
-import com.jme3.asset.BlenderKey.LoadingResults;
+import com.jme3.asset.BlenderKey;
 import com.jme3.light.Light;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
@@ -55,13 +54,14 @@ public class BlenderModelLoader extends BlenderLoader {
     @Override
     public Spatial load(AssetInfo assetInfo) throws IOException {
         try {
-            setup(assetInfo);
+            this.setup(assetInfo);
             
+            BlenderKey blenderKey = blenderContext.getBlenderKey();
             Node modelRoot = new Node(blenderKey.getName());
             
             for (FileBlockHeader block : blocks) {
                 if (block.getCode() == FileBlockHeader.BLOCK_OB00) {
-                    Object object = converter.toObject(block.getStructure(blenderContext));
+                    Object object = this.toObject(block.getStructure(blenderContext));
                     if (object instanceof Node) {
                         LOGGER.log(Level.INFO, "{0}: {1}--> {2}", new Object[]{((Node) object).getName(), ((Node) object).getLocalTranslation().toString(), ((Node) object).getParent() == null ? "null" : ((Node) object).getParent().getName()});
                         if (((Node) object).getParent() == null) {
@@ -72,13 +72,7 @@ public class BlenderModelLoader extends BlenderLoader {
                     }
                 }
             }
-            
-            try {
-            	inputStream.close();
-            } catch(IOException e) {
-            	LOGGER.warning(e.getLocalizedMessage());
-            }
-            
+            blenderContext.dispose();
             return modelRoot;
         } catch (BlenderFileException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);

@@ -32,7 +32,10 @@
 package com.jme3.scene.plugins.blender;
 
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
+import com.jme3.asset.AssetLoader;
 import com.jme3.asset.BlenderKey.FeaturesToLoad;
 import com.jme3.asset.BlenderKey.WorldData;
 import com.jme3.light.AmbientLight;
@@ -42,8 +45,10 @@ import com.jme3.math.ColorRGBA;
 import com.jme3.renderer.Camera;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
+import com.jme3.scene.Spatial;
 import com.jme3.scene.plugins.blender.cameras.CameraHelper;
 import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
+import com.jme3.scene.plugins.blender.file.Pointer;
 import com.jme3.scene.plugins.blender.file.Structure;
 import com.jme3.scene.plugins.blender.lights.LightHelper;
 import com.jme3.scene.plugins.blender.materials.MaterialHelper;
@@ -52,37 +57,12 @@ import com.jme3.scene.plugins.blender.objects.ObjectHelper;
 
 /**
  * This class converts blender file blocks into jMonkeyEngine data structures.
- * @author Marcin Roguski
+ * @author Marcin Roguski (Kaelthas)
  */
-/* package */class JmeConverter {
-
-	private final BlenderContext	blenderContext;
-
-	/**
-	 * Constructor. Creates the loader and checks if the given data is correct.
-	 * @param blenderContext
-	 *        the blender context; it should have the following field set: - asset manager - blender key - dna block
-	 *        data - blender input stream Otherwise IllegalArgumentException will be thrown.
-	 * @param featuresToLoad
-	 *        bitwise flag describing what features are to be loaded
-	 * @see FeaturesToLoad FeaturesToLoad
-	 */
-	public JmeConverter(BlenderContext blenderContext) {
-		// validating the given data first
-		if (blenderContext.getAssetManager() == null) {
-			throw new IllegalArgumentException("Cannot find asset manager!");
-		}
-		if (blenderContext.getBlenderKey() == null) {
-			throw new IllegalArgumentException("Cannot find blender key!");
-		}
-		if (blenderContext.getDnaBlockData() == null) {
-			throw new IllegalArgumentException("Cannot find dna block!");
-		}
-		if (blenderContext.getInputStream() == null) {
-			throw new IllegalArgumentException("Cannot find blender file stream!");
-		}
-		this.blenderContext = blenderContext;
-	}
+/* package */ abstract class AbstractBlenderLoader implements AssetLoader {
+	private static final Logger LOGGER = Logger.getLogger(AbstractBlenderLoader.class.getName());
+	
+	protected BlenderContext	blenderContext;
 
 	/**
 	 * This method converts the given structure to a scene node.
@@ -90,11 +70,29 @@ import com.jme3.scene.plugins.blender.objects.ObjectHelper;
 	 *        structure of a scene
 	 * @return scene's node
 	 */
-	public Node toScene(Structure structure) {// TODO: import the scene
+	public Node toScene(Structure structure) {
 		if ((blenderContext.getBlenderKey().getFeaturesToLoad() & FeaturesToLoad.SCENES) == 0) {
 			return null;
 		}
-		return new Node(structure.getName());
+		Node result = new Node(structure.getName());
+		try {
+			List<Structure> base = ((Structure)structure.getFieldValue("base")).evaluateListBase(blenderContext);
+			for(Structure b : base) {
+				Pointer pObject = (Pointer) b.getFieldValue("object");
+				if(pObject.isNotNull()) {
+					Structure objectStructure = pObject.fetchData(blenderContext.getInputStream()).get(0);
+					Object object = this.toObject(objectStructure);
+					if(object instanceof Spatial) {
+						result.attachChild((Spatial) object);
+					} else if(object instanceof Light) {
+						result.addLight((Light)object);
+					}
+				}
+			}
+		} catch (BlenderFileException e) {
+			LOGGER.log(Level.SEVERE, e.getLocalizedMessage(), e);
+		}
+		return result;
 	}
 
 	/**

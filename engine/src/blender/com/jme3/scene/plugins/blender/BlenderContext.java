@@ -31,12 +31,15 @@
  */
 package com.jme3.scene.plugins.blender;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.EmptyStackException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import com.jme3.asset.AssetManager;
 import com.jme3.asset.BlenderKey;
@@ -58,7 +61,8 @@ import com.jme3.scene.plugins.blender.modifiers.Modifier;
  * @author Marcin Roguski (Kaelthas)
  */
 public class BlenderContext {
-
+	private static final Logger LOGGER = Logger.getLogger(BlenderContext.class.getName());
+	
     /** The blender key. */
     private BlenderKey blenderKey;
     /** The header of the file block. */
@@ -458,6 +462,16 @@ public class BlenderContext {
             blenderKey.setDefaultMaterial(defaultMaterial);
         }
         return blenderKey.getDefaultMaterial();
+    }
+    
+    public void dispose() {
+    	try {
+			inputStream.close();
+		} catch (IOException e) {
+			LOGGER.log(Level.SEVERE, e.getLocalizedMessage(), e);
+		}
+		loadedFeatures.clear();
+		loadedFeaturesByName.clear();
     }
 
     /**
