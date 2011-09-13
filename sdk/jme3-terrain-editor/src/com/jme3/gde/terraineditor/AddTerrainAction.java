@@ -10,12 +10,12 @@ import com.jme3.gde.core.assets.ProjectAssetManager;
 import com.jme3.gde.core.scene.SceneApplication;
 import com.jme3.gde.core.sceneexplorer.nodes.actions.AbstractNewSpatialWizardAction;
 import com.jme3.gde.core.sceneexplorer.nodes.actions.NewSpatialAction;
-import com.jme3.renderer.Camera;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.terrain.Terrain;
 import com.jme3.terrain.geomipmap.TerrainLodControl;
 import com.jme3.terrain.geomipmap.TerrainQuad;
+import com.jme3.terrain.geomipmap.lodcalc.DistanceLodCalculator;
 import com.jme3.terrain.heightmap.AbstractHeightMap;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
@@ -25,8 +25,6 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.List;
 import javax.imageio.ImageIO;
 import javax.swing.JComponent;
 import jme3tools.converters.ImageToAwt;
@@ -163,6 +161,7 @@ public class AddTerrainAction extends AbstractNewSpatialWizardAction {
 
         // add the lod control
         TerrainLodControl control = new TerrainLodControl(terrain, SceneApplication.getApplication().getCamera());
+        control.setLodCalculator(new DistanceLodCalculator(patchSize, 2.7f));
 	((Node)terrain).addControl(control);
 
         parent.attachChild((Node)terrain);
