@@ -108,7 +108,8 @@ public class MeshHelper extends AbstractBlenderHelper {
 
 		// reading mesh data
 		String name = structure.getName();
-
+		MeshContext meshContext = new MeshContext();
+		
 		// reading vertices
 		Vector3f[] vertices = this.getVertices(structure, blenderContext);
 		int verticesAmount = vertices.length;
@@ -243,7 +244,8 @@ public class MeshHelper extends AbstractBlenderHelper {
 				}
 			}
 		}
-		blenderContext.setVertexData(structure.getOldMemoryAddress(), new VertexData(vertexList, vertexReferenceMap));
+		meshContext.setVertexList(vertexList);
+		meshContext.setVertexReferenceMap(vertexReferenceMap);
 		
 		Vector3f[] normals = normalList.toArray(new Vector3f[normalList.size()]);
 
@@ -383,14 +385,19 @@ public class MeshHelper extends AbstractBlenderHelper {
 			for(Entry<Material, List<Geometry>> entry : materialMap.entrySet()) {
 				MaterialContext materialContext = blenderContext.getMaterialContext(entry.getKey());
 				if(materialContext != null && materialContext.getTexturesCount()>0) {
-					UVCoordinatesGenerator.generateUVCoordinates(materialContext.getUvCoordinatesType(), 
+					VertexBuffer coords = UVCoordinatesGenerator.generateUVCoordinates(materialContext.getUvCoordinatesType(), 
 							materialContext.getProjectionType(), materialContext.getTextureDimension(),
 							materialContext.getProjection(0), entry.getValue());
+					//setting the coordinates inside the mesh context
+					for(Geometry geometry : entry.getValue()) {
+						meshContext.addUVCoordinates(geometry, coords);
+					}
 				}
 			}
 		}
 		
 		blenderContext.addLoadedFeatures(structure.getOldMemoryAddress(), structure.getName(), structure, geometries);
+		blenderContext.setMeshContext(structure.getOldMemoryAddress(), meshContext);
 		return geometries;
 	}
 	
@@ -498,23 +505,5 @@ public class MeshHelper extends AbstractBlenderHelper {
 	@Override
 	public boolean shouldBeLoaded(Structure structure, BlenderContext blenderContext) {
 		return true;
-	}
-	
-	public static class VertexData {
-		private List<Vector3f> vertexList;
-		private Map<Integer, List<Integer>> vertexReferenceMap;
-		
-		public VertexData(List<Vector3f> vertexList, Map<Integer, List<Integer>> vertexReferenceMap) {
-			this.vertexList = vertexList;
-			this.vertexReferenceMap = vertexReferenceMap;
-		}
-		
-		public List<Vector3f> getVertexList() {
-			return vertexList;
-		}
-		
-		public Map<Integer, List<Integer>> getVertexReferenceMap() {
-			return vertexReferenceMap;
-		}
 	}
 }

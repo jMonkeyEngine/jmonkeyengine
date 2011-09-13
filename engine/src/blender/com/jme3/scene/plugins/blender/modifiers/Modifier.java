@@ -19,6 +19,7 @@ public abstract class Modifier {
 	public static final String ARMATURE_MODIFIER_DATA = "ArmatureModifierData";
 	public static final String PARTICLE_MODIFIER_DATA = "ParticleSystemModifierData";
 	public static final String MIRROR_MODIFIER_DATA = "MirrorModifierData";
+	public static final String SUBSURF_MODIFIER_DATA = "SubsurfModifierData";
 	public static final String OBJECT_ANIMATION_MODIFIER_DATA = "ObjectAnimationModifierData";
 
 	/** This variable indicates if the modifier is invalid (<b>true</b>) or not (<b>false</b>). */

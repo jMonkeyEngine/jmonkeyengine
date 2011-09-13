@@ -49,7 +49,7 @@ import com.jme3.scene.plugins.blender.file.DnaBlockData;
 import com.jme3.scene.plugins.blender.file.FileBlockHeader;
 import com.jme3.scene.plugins.blender.file.Structure;
 import com.jme3.scene.plugins.blender.materials.MaterialContext;
-import com.jme3.scene.plugins.blender.meshes.MeshHelper.VertexData;
+import com.jme3.scene.plugins.blender.meshes.MeshContext;
 import com.jme3.scene.plugins.blender.modifiers.Modifier;
 
 /**
@@ -90,8 +90,8 @@ public class BlenderContext {
     protected Map<Long, List<Modifier>> modifiers = new HashMap<Long, List<Modifier>>();
     /** A list of constraints for the specified object. */
     protected Map<Long, List<Constraint>> constraints = new HashMap<Long, List<Constraint>>();
-    /** Vertex data for a mesh specified by OMA. */
-    protected Map<Long, VertexData> vertexData = new HashMap<Long, VertexData>();
+    /** A map of mesh contexts. */
+    protected Map<Long, MeshContext> meshContexts = new HashMap<Long, MeshContext>();
     /** A map of material contexts. */
     protected Map<Material, MaterialContext> materialContexts = new HashMap<Material, MaterialContext>();
     /** A map og helpers that perform loading. */
@@ -401,27 +401,27 @@ public class BlenderContext {
     	return constraints.get(objectOMA);
     }
     
-	/**
-	 * This method sets the vertex data for the specified mesh. Attention!!! If
-	 * vertex data is already set it will be overwritten.
+    /**
+	 * This method sets the mesh context for the given mesh old memory address.
+	 * If the context is already set it will be replaced.
 	 * @param meshOMA
-	 *        old memeory address of mesh
-	 * @param vertexData
-	 *        mesh's vertex data
+	 *        the mesh's old memory address
+	 * @param meshContext
+	 *        the mesh's context
 	 */
-    public void setVertexData(Long meshOMA, VertexData vertexData) {
-    	this.vertexData.put(meshOMA, vertexData);
+    public void setMeshContext(Long meshOMA, MeshContext meshContext) {
+    	this.meshContexts.put(meshOMA, meshContext);
     }
     
-	/**
-	 * This method returns vertex data for a mesh with the specified old memory
-	 * address. If no data is registered then null is returned.
+    /**
+	 * This method returns the mesh context for the given mesh old memory address.
+	 * If no context exists then <b>null</b> is returned.
 	 * @param meshOMA
-	 *        old memeory address of mesh
-	 * @return mesh's vertex data
+	 *        the mesh's old memory address
+	 * @return mesh's context
 	 */
-    public VertexData getVertexData(Long meshOMA) {
-    	return vertexData.get(meshOMA);
+    public MeshContext getMeshContext(Long meshOMA) {
+    	return this.meshContexts.get(meshOMA);
     }
     
 	/**

@@ -33,7 +33,7 @@ import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
 import com.jme3.scene.plugins.blender.file.FileBlockHeader;
 import com.jme3.scene.plugins.blender.file.Pointer;
 import com.jme3.scene.plugins.blender.file.Structure;
-import com.jme3.scene.plugins.blender.meshes.MeshHelper.VertexData;
+import com.jme3.scene.plugins.blender.meshes.MeshContext;
 import com.jme3.scene.plugins.blender.objects.ObjectHelper;
 import com.jme3.scene.plugins.ogre.AnimData;
 import com.jme3.util.BufferUtils;
@@ -198,11 +198,10 @@ import com.jme3.util.BufferUtils;
 		Map<Integer, Integer> groupToBoneIndexMap = armatureHelper.getGroupToBoneIndexMap(defBase, blenderContext);
 
 		int[] bonesGroups = new int[] { 0 };
+		MeshContext meshContext = blenderContext.getMeshContext(meshStructure.getOldMemoryAddress());
 		
-		VertexData vertexData = blenderContext.getVertexData(meshStructure.getOldMemoryAddress());
-		
-		VertexBuffer[] boneWeightsAndIndex = this.getBoneWeightAndIndexBuffer(meshStructure, vertexData.getVertexList().size(), bonesGroups,
-				vertexData.getVertexReferenceMap(), groupToBoneIndexMap, blenderContext);
+		VertexBuffer[] boneWeightsAndIndex = this.getBoneWeightAndIndexBuffer(meshStructure, meshContext.getVertexList().size(), bonesGroups,
+				meshContext.getVertexReferenceMap(), groupToBoneIndexMap, blenderContext);
 		this.verticesWeights = boneWeightsAndIndex[0];
 		this.verticesWeightsIndices = boneWeightsAndIndex[1];
 		this.boneGroups = bonesGroups[0];

@@ -94,8 +94,9 @@ public class UVCoordinatesGenerator {
 	 *        an array that tells how UV-coordinates need to be swapped
 	 * @param geometries
 	 *        a list of geometries the UV coordinates will be applied to
+	 * @return created UV-coordinates buffer
 	 */
-	public static void generateUVCoordinates(int texco, int projection, int textureDimension, int[] coordinatesSwappingIndexes, List<Geometry> geometries) {
+	public static VertexBuffer generateUVCoordinates(int texco, int projection, int textureDimension, int[] coordinatesSwappingIndexes, List<Geometry> geometries) {
 		if (textureDimension != 2 && textureDimension != 3) {
 			throw new IllegalStateException("Unsupported texture dimension: " + textureDimension);
 		}
@@ -189,6 +190,8 @@ public class UVCoordinatesGenerator {
 			mesh.clearBuffer(VertexBuffer.Type.TexCoord);// in case there are coordinates already set
 			mesh.setBuffer(result);
 		}
+		
+		return result;
 	}
 
 	/**
