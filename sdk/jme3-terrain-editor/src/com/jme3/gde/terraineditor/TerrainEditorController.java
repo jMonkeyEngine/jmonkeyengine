@@ -42,6 +42,7 @@ import com.jme3.gde.core.sceneexplorer.nodes.AbstractSceneExplorerNode;
 import com.jme3.gde.core.sceneexplorer.nodes.JmeSpatial;
 import com.jme3.gde.core.undoredo.AbstractUndoableSceneEdit;
 import com.jme3.gde.core.undoredo.SceneUndoRedoManager;
+import com.jme3.gde.core.util.TerrainUtils;
 import com.jme3.material.MatParam;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
@@ -93,26 +94,32 @@ public class TerrainEditorController {
     protected final int MAX_TEXTURES = 16-NUM_ALPHA_TEXTURES; // 16 max (diffuse and normal), minus the ones we are reserving
     
     
-
-    protected SaveCookie terrainSaveCookie = new SaveCookie() {
-      public void save() throws IOException {
-            //TODO: On OpenGL thread? -- safest way.. with get()?
+    class TerrainSaveCookie implements SaveCookie {
+        JmeSpatial rootNode;
+        
+        public void save() throws IOException {
             SceneApplication.getApplication().enqueue(new Callable() {
 
                 public Object call() throws Exception {
                     currentFileObject.saveAsset();
-                    doSaveAlphaImages((Terrain)getTerrain(null));
+                    //TerrainSaveCookie sc = currentFileObject.getCookie(TerrainSaveCookie.class);
+                    //if (sc != null) {
+                        Node root = rootNode.getLookup().lookup(Node.class);
+                        doSaveAlphaImages((Terrain)getTerrain(root));
+                    //}
                     return null;
                 }
             });
         }
-    };
+    }
+    protected TerrainSaveCookie terrainSaveCookie = new TerrainSaveCookie();
 
     
     public TerrainEditorController(JmeSpatial jmeRootNode, AssetDataObject currentFileObject, TerrainEditorTopComponent topComponent) {
         this.jmeRootNode = jmeRootNode;
         rootNode = this.jmeRootNode.getLookup().lookup(Node.class);
         this.currentFileObject = currentFileObject;
+        terrainSaveCookie.rootNode = jmeRootNode;
         this.currentFileObject.setSaveCookie(terrainSaveCookie);
         this.topComponent = topComponent;
     }
@@ -751,6 +758,11 @@ public class TerrainEditorController {
      */
     private synchronized void doSaveAlphaImages(Terrain terrain) {
 
+        if (terrain == null) {
+            getTerrain(rootNode);
+            return;
+        }
+        
         AssetManager manager = SceneApplication.getApplication().getAssetManager();
         String assetFolder = null;
         if (manager != null && manager instanceof ProjectAssetManager)
@@ -1054,16 +1066,10 @@ public class TerrainEditorController {
      * update the control if there is already a terrain present in
      * the scene.
      */
-    protected void enableLodControl() {
-        Terrain terrain = (Terrain) getTerrain(null);
-        if (terrain == null)
-            return;
-        
-        TerrainQuad t = (TerrainQuad)terrain;
-        TerrainLodControl control = t.getControl(TerrainLodControl.class);
-        if (control != null) {
-            control.setCamera(SceneApplication.getApplication().getCamera());
-        }
+    protected void setTerrainLodCamera() {
+        Camera camera = SceneApplication.getApplication().getCamera();
+        Node root = jmeRootNode.getLookup().lookup(Node.class);
+        TerrainUtils.enableLodControl(camera, root);
     }
 
     

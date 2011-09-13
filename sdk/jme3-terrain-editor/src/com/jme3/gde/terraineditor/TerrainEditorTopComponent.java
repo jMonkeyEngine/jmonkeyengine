@@ -1013,7 +1013,6 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
         terrainDeletedNodeListener = new TerrainNodeListener();
         editorController.enableTextureButtons();
 
-        editorController.enableLodControl();
     }
 
     // run on GL thread
@@ -1063,6 +1062,8 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
             toolController.setHeightToolRadius((float) radiusSlider.getValue() / (float) radiusSlider.getMaximum());
             toolController.setHeightToolHeight((float) heightSlider.getValue() / (float) heightSlider.getMaximum());
 
+            editorController.setTerrainLodCamera();
+            
             java.awt.EventQueue.invokeLater(new Runnable() {
 
                 public void run() {
@@ -1072,7 +1073,6 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
                     }
                 }
             });
-            //editorController.getAlphaSaveDataObject(this);
         }
     }
 

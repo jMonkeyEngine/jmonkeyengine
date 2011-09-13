@@ -246,6 +246,13 @@ public class PaintTerrainToolAction extends AbstractTerrainToolAction {
                        .put(float2byte(color.b))
                        .put(float2byte(color.a));
                     return;
+                 case ABGR8:
+                    buf.position( position );
+                    buf.put(float2byte(color.a))
+                       .put(float2byte(color.b))
+                       .put(float2byte(color.g))
+                       .put(float2byte(color.r));
+                    return;
                 default:
                     throw new UnsupportedOperationException("Image format: "+image.getFormat());
             }
@@ -254,6 +261,14 @@ public class PaintTerrainToolAction extends AbstractTerrainToolAction {
                 case RGBA8:
                     buf.position( position );
                     color.set(byte2float(buf.get()), byte2float(buf.get()), byte2float(buf.get()), byte2float(buf.get()));
+                    return;
+                case ABGR8:
+                    buf.position( position );
+                    float a = byte2float(buf.get());
+                    float b = byte2float(buf.get());
+                    float g = byte2float(buf.get());
+                    float r = byte2float(buf.get());
+                    color.set(r,g,b,a);
                     return;
                 default:
                     throw new UnsupportedOperationException("Image format: "+image.getFormat());

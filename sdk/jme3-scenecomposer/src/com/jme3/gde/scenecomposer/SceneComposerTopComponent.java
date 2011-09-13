@@ -897,6 +897,8 @@ private void scaleButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
             
             editorController.setToolController(toolController);
             toolController.refreshNonSpatialMarkers();
+            
+            editorController.setTerrainLodCamera();
         }/* else {
          SceneApplication.getApplication().removeSceneListener(this);
          currentRequest = null;
@@ -926,5 +928,6 @@ private void scaleButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
 
     public void previewRequested(PreviewRequest request) {
     }
+
     
 }

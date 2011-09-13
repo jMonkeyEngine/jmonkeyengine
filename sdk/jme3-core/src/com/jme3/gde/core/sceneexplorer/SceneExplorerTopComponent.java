@@ -37,6 +37,8 @@ import com.jme3.gde.core.scene.SceneListener;
 import com.jme3.gde.core.scene.SceneRequest;
 import com.jme3.gde.core.sceneexplorer.nodes.AbstractSceneExplorerNode;
 import com.jme3.gde.core.sceneexplorer.nodes.JmeNode;
+import com.jme3.gde.core.util.TerrainUtils;
+import com.jme3.renderer.Camera;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -281,6 +283,7 @@ public final class SceneExplorerTopComponent extends TopComponent implements Exp
                 }
             });
         }
+        setTerrainLodCamera(node);
     }
 
     public boolean sceneClose(SceneRequest request) {
@@ -375,5 +378,14 @@ public final class SceneExplorerTopComponent extends TopComponent implements Exp
                 provider.addMaterialChangeListener(listener);
             }
         }
+    }
+    
+    /**
+     * Terrain has a LOD control that requires the camera to function.
+     */
+    protected void setTerrainLodCamera(JmeNode jmeRootNode) {
+        Camera camera = SceneApplication.getApplication().getCamera();
+        com.jme3.scene.Node root = jmeRootNode.getLookup().lookup(com.jme3.scene.Node.class);
+        TerrainUtils.enableLodControl(camera, root);
     }
 }

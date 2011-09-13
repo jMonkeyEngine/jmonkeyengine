@@ -17,9 +17,11 @@ import com.jme3.gde.core.sceneexplorer.nodes.AbstractSceneExplorerNode;
 import com.jme3.gde.core.sceneexplorer.nodes.JmeSpatial;
 import com.jme3.gde.core.undoredo.AbstractUndoableSceneEdit;
 import com.jme3.gde.core.undoredo.SceneUndoRedoManager;
+import com.jme3.gde.core.util.TerrainUtils;
 import com.jme3.light.Light;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
+import com.jme3.renderer.Camera;
 import com.jme3.scene.AssetLinkNode;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
@@ -781,4 +783,14 @@ public class SceneEditorController implements PropertyChangeListener, NodeListen
             selectedSpat.removePropertyChangeListener(this);
         }
     }
+
+    /**
+     * Terrain has a LOD control that requires the camera to function.
+     */
+    protected void setTerrainLodCamera() {
+        Camera camera = SceneApplication.getApplication().getCamera();
+        Node root = jmeRootNode.getLookup().lookup(Node.class);
+        TerrainUtils.enableLodControl(camera, root);
+    }
+    
 }
