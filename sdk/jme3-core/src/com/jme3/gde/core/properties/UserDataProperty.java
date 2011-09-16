@@ -75,7 +75,7 @@ public class UserDataProperty extends PropertySupport.ReadWrite<String> {
         } else if (type instanceof Long) {
             return 4;
         } else {
-            Logger.getLogger(UserDataProperty.class.getName()).log(Level.WARNING, "UserData not editable" + type.getClass());
+            Logger.getLogger(UserDataProperty.class.getName()).log(Level.WARNING, "UserData not editable" + (type == null ? "null" : type.getClass()));
             return -1;
         }
     }
