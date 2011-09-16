@@ -302,7 +302,7 @@ public class HDRRenderer implements SceneProcessor {
         // loadInitial()
         fsQuad = new Picture("HDR Fullscreen Quad");
 
-        Format lumFmt = Format.Luminance8;
+        Format lumFmt = Format.RGB8;
         scene64FB = new FrameBuffer(64, 64, 1);
         scene64 = new Texture2D(64, 64, lumFmt);
         scene64FB.setColorTexture(scene64);
