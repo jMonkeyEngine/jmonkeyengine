@@ -46,7 +46,7 @@ public class Filters
      *  Creates a filter that returns true for any value in the specified
      *  list of values and false for all other cases.
      */
-    public <T> Filter<T> in( T... values )
+    public static <T> Filter<T> in( T... values )
     {
         return in( new HashSet<T>(Arrays.asList(values)) );
     }
@@ -55,7 +55,7 @@ public class Filters
      *  Creates a filter that returns true for any value in the specified
      *  collection and false for all other cases.
      */
-    public <T> Filter<T> in( Collection<? extends T> collection )
+    public static <T> Filter<T> in( Collection<? extends T> collection )
     {
         return new InFilter<T>(collection);
     }
@@ -65,7 +65,7 @@ public class Filters
      *  list of values and false for all other cases.  This is the equivalent
      *  of calling not(in(values)).
      */
-    public <T> Filter<T> notIn( T... values )
+    public static <T> Filter<T> notIn( T... values )
     {
         return not( in( values ) );
     }
@@ -75,7 +75,7 @@ public class Filters
      *  collection and false for all other cases.  This is the equivalent
      *  of calling not(in(collection)).
      */
-    public <T> Filter<T> notIn( Collection<? extends T> collection )
+    public static <T> Filter<T> notIn( Collection<? extends T> collection )
     {
         return not( in( collection ) );
     }
@@ -84,7 +84,7 @@ public class Filters
      *  Creates a filter that returns true for inputs that are .equals()
      *  equivalent to the specified value.
      */
-    public <T> Filter<T> equalTo( T value )
+    public static <T> Filter<T> equalTo( T value )
     {
         return new EqualToFilter<T>(value); 
     }     
@@ -94,7 +94,7 @@ public class Filters
      *  equivalent to the specified value.  This is the equivalent of calling
      *  not(equalTo(value)).
      */
-    public <T> Filter<T> notEqualTo( T value )
+    public static <T> Filter<T> notEqualTo( T value )
     {
         return not(equalTo(value));
     }     
@@ -103,7 +103,7 @@ public class Filters
      *  Creates a filter that returns true when the specified delegate filter
      *  returns false, and vice versa.
      */
-    public <T> Filter<T> not( Filter<T> f )
+    public static <T> Filter<T> not( Filter<T> f )
     {
         return new NotFilter<T>(f);
     }
