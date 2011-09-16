@@ -16,14 +16,14 @@
 
        vec3 eyeDir = normalize(vViewDir).xyz;   
 
-        float nMinSamples = 6;
-        float nMaxSamples = 1000 * parallaxScale;   
+        float nMinSamples = 6.0;
+        float nMaxSamples = 1000.0 * parallaxScale;   
         float nNumSamples = mix( nMinSamples, nMaxSamples, 1.0 - eyeDir.z );   //In reference shader: int nNumSamples = (int)(lerp( nMinSamples, nMaxSamples, dot( eyeDirWS, N ) ));
         float fStepSize = 1.0 / nNumSamples;   
         float fCurrHeight = 0.0;
         float fPrevHeight = 1.0;
         float fNextHeight = 0.0;
-        float nStepIndex = 0;
+        float nStepIndex = 0.0;
         vec2 vTexOffsetPerStep = fStepSize * vParallaxOffsetTS;
         vec2 vTexCurrentOffset = texCoord;
         float  fCurrentBound     = 1.0;
