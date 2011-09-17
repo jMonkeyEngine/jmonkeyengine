@@ -32,17 +32,22 @@
 package com.jme3.gde.ogrexml;
 
 import com.jme3.asset.ModelKey;
+import com.jme3.export.binary.BinaryExporter;
 import com.jme3.gde.core.assets.AssetData;
 import com.jme3.gde.core.assets.ProjectAssetManager;
 import com.jme3.gde.core.assets.SpatialAssetDataObject;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.plugins.ogre.OgreMeshKey;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.netbeans.api.progress.ProgressHandle;
+import org.netbeans.api.progress.ProgressHandleFactory;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.NotifyDescriptor.Confirmation;
+import org.openide.awt.StatusDisplayer;
 import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObject;
@@ -118,20 +123,49 @@ public class OgreXMLDataObject extends SpatialAssetDataObject {
     }
 
     public void saveAsset() throws IOException {
-        super.saveAsset();
         ProjectAssetManager mgr = getLookup().lookup(ProjectAssetManager.class);
         if (mgr == null) {
             return;
         }
+        String name = getPrimaryFile().getName();
+        int idx = name.toLowerCase().indexOf(".mesh");
+        if(idx!=-1){
+            name = name.substring(0, idx);
+        }
+        
+        ProgressHandle progressHandle = ProgressHandleFactory.createHandle("Saving File..");
+        progressHandle.start();
+        BinaryExporter exp = BinaryExporter.getInstance();
+        FileLock lock = null;
+        OutputStream out = null;
+        try {
+            if (saveExtension == null) {
+                out = getPrimaryFile().getOutputStream();
+            } else {
+                FileObject outFileObject = getPrimaryFile().getParent().getFileObject(name, saveExtension);
+                if (outFileObject == null) {
+                    outFileObject = getPrimaryFile().getParent().createData(name, saveExtension);
+                }
+                out = outFileObject.getOutputStream();
+                outFileObject.getParent().refresh();
+            }
+            exp.save(savable, out);
+        } finally {
+            if (lock != null) {
+                lock.releaseLock();
+            }
+            if (out != null) {
+                out.close();
+            }
+        }
+        progressHandle.finish();
+        StatusDisplayer.getDefault().setStatusText(getPrimaryFile().getNameExt() + " saved.");
+        setModified(false);
+        
         FileObject outFile = null;
         if (saveExtension == null) {
             outFile = getPrimaryFile();
         } else {
-            String name = getPrimaryFile().getName();
-            int idx = name.toLowerCase().indexOf(".mesh");
-            if(idx!=-1){
-                name = name.substring(0, idx);
-            }
             outFile = getPrimaryFile().getParent().getFileObject(name, saveExtension);
             if (outFile == null) {
                 Logger.getLogger(SpatialAssetDataObject.class.getName()).log(Level.SEVERE, "Could not locate saved file.");
