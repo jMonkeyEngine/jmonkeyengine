@@ -32,12 +32,23 @@
 package com.jme3.gde.ogrexml;
 
 import com.jme3.asset.ModelKey;
+import com.jme3.gde.core.assets.AssetData;
+import com.jme3.gde.core.assets.ProjectAssetManager;
 import com.jme3.gde.core.assets.SpatialAssetDataObject;
+import com.jme3.scene.Spatial;
 import com.jme3.scene.plugins.ogre.OgreMeshKey;
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.openide.DialogDisplayer;
+import org.openide.NotifyDescriptor;
+import org.openide.NotifyDescriptor.Confirmation;
+import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
+import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectExistsException;
 import org.openide.loaders.MultiFileLoader;
+import org.openide.util.Exceptions;
 
 public class OgreXMLDataObject extends SpatialAssetDataObject {
 
@@ -53,5 +64,90 @@ public class OgreXMLDataObject extends SpatialAssetDataObject {
         assetKey = new OgreMeshKey(super.getAssetKey().getName());
         return (OgreMeshKey)assetKey;
     }
+    
+    @Override
+    public Spatial loadAsset() {
+        if (isModified() && savable != null) {
+            return (Spatial) savable;
+        }
+        ProjectAssetManager mgr = getLookup().lookup(ProjectAssetManager.class);
+        if (mgr == null) {
+            return null;
+        }
+        String name = getPrimaryFile().getName();
+        int idx = name.toLowerCase().indexOf(".mesh");
+        if(idx!=-1){
+            name = name.substring(0, idx);
+        }
+        FileObject sourceMatFile = getPrimaryFile().getParent().getFileObject(name, "material");
+        if (sourceMatFile != null && sourceMatFile.isValid()) {
+            try {
+                sourceMatFile.copy(sourceMatFile.getParent(), "+" + sourceMatFile.getName(), sourceMatFile.getExt());
+            } catch (IOException ex) {
+                Exceptions.printStackTrace(ex);
+            }
+        } else {
+            Confirmation msg = new NotifyDescriptor.Confirmation(
+                    "No material file found for " + getPrimaryFile().getNameExt() + "\n"
+                    + "A file named " + name + ".material should be in the same folder.\n"
+                    + "Press OK to import mesh only.",
+                    NotifyDescriptor.OK_CANCEL_OPTION,
+                    NotifyDescriptor.WARNING_MESSAGE);
+            Object result = DialogDisplayer.getDefault().notify(msg);
+            if (!NotifyDescriptor.OK_OPTION.equals(result)) {
+                return null;
+            }
+        }
+        
+        FileLock lock = null;
+        try {
+            lock = getPrimaryFile().lock();
+            mgr.deleteFromCache(getAssetKey());
+            Spatial spatial = mgr.loadModel(getAssetKey());
+            savable = spatial;
+            lock.releaseLock();
+            return spatial;
+        } catch (Exception ex) {
+            Exceptions.printStackTrace(ex);
+        } finally {
+            if (lock != null) {
+                lock.releaseLock();
+            }
+        }
+        return null;
+    }
 
+    public void saveAsset() throws IOException {
+        super.saveAsset();
+        ProjectAssetManager mgr = getLookup().lookup(ProjectAssetManager.class);
+        if (mgr == null) {
+            return;
+        }
+        FileObject outFile = null;
+        if (saveExtension == null) {
+            outFile = getPrimaryFile();
+        } else {
+            String name = getPrimaryFile().getName();
+            int idx = name.toLowerCase().indexOf(".mesh");
+            if(idx!=-1){
+                name = name.substring(0, idx);
+            }
+            outFile = getPrimaryFile().getParent().getFileObject(name, saveExtension);
+            if (outFile == null) {
+                Logger.getLogger(SpatialAssetDataObject.class.getName()).log(Level.SEVERE, "Could not locate saved file.");
+                return;
+            }
+        }
+        try {
+            DataObject targetModel = DataObject.find(outFile);
+            AssetData properties = targetModel.getLookup().lookup(AssetData.class);
+            if (properties != null) {
+                properties.loadProperties();
+                properties.setProperty("ORIGINAL_PATH", mgr.getRelativeAssetPath(outFile.getPath()));
+                properties.saveProperties();
+            }
+        } catch (Exception ex) {
+            Exceptions.printStackTrace(ex);
+        }
+    }
 }

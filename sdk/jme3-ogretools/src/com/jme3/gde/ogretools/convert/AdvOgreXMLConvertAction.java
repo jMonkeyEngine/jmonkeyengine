@@ -4,7 +4,6 @@
  */
 package com.jme3.gde.ogretools.convert;
 
-import com.jme3.asset.DesktopAssetManager;
 import com.jme3.export.binary.BinaryExporter;
 import com.jme3.gde.core.assets.ProjectAssetManager;
 import com.jme3.scene.Spatial;
@@ -17,7 +16,6 @@ import org.netbeans.api.progress.ProgressHandleFactory;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.NotifyDescriptor.Confirmation;
-import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
@@ -59,7 +57,7 @@ public final class AdvOgreXMLConvertAction implements ActionListener {
                     return;
                 }
                 FileObject sourceMatFile = FileUtil.toFileObject(new File(options.getSourceFile().replaceAll("mesh.xml", "material")));
-                if (sourceMatFile.isValid()) {
+                if (sourceMatFile != null && sourceMatFile.isValid()) {
                     try {
                         sourceMatFile.copy(sourceMatFile.getParent(), "+" + sourceMatFile.getName(), sourceMatFile.getExt());
                     } catch (IOException ex) {
