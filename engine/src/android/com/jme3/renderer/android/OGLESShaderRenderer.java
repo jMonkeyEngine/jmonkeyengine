@@ -1058,15 +1058,11 @@ public class OGLESShaderRenderer implements Renderer {
             }
             GLES20.glGetShaderiv(id, GLES20.GL_INFO_LOG_LENGTH, intBuf1);
             checkGLError();
-            int length = intBuf1.get(0);
-            if (length > 3) {
-                // get infos
-                ByteBuffer logBuf = BufferUtils.createByteBuffer(length);
-                if (verboseLogging) {
-                    logger.info("GLES20.glGetShaderInfoLog(" + id + ")");
-                }
-                infoLog = GLES20.glGetShaderInfoLog(id);
+            if (verboseLogging) {
+                logger.info("GLES20.glGetShaderInfoLog(" + id + ")");
             }
+            infoLog = GLES20.glGetShaderInfoLog(id);
+            logger.severe("Errooooooooooot(" + id + ")");
         }
 
         if (compiledOK) {
@@ -1076,12 +1072,13 @@ public class OGLESShaderRenderer implements Renderer {
                 logger.log(Level.FINE, "compile success: " + source.getName());
             }
         } else {
+           logger.log(Level.WARNING, "Bad compile of:\n{0}{1}",
+                    new Object[]{source.getDefines(), source.getSource()});
             if (infoLog != null) {
-                logger.log(Level.WARNING, "compile error: " + source.getName() + ", " + infoLog);
+                throw new RendererException("compile error in:" + source + " error:" + infoLog);
             } else {
-                logger.log(Level.WARNING, "compile error: " + source.getName());
+                throw new RendererException("compile error in:" + source + " error: <not provided>");
             }
-            logger.log(Level.WARNING, source.getDefines() + "\n" + source.getSource());
         }
 
         source.clearUpdateNeeded();
@@ -1184,9 +1181,9 @@ public class OGLESShaderRenderer implements Renderer {
             }
         } else {
             if (infoLog != null) {
-                logger.log(Level.WARNING, "shader link failure. \n{0}", infoLog);
+                throw new RendererException("Shader link failure, shader:" + shader + " info:" + infoLog);
             } else {
-                logger.warning("shader link failure");
+                throw new RendererException("Shader link failure, shader:" + shader + " info: <not provided>");
             }
         }
 
