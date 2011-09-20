@@ -46,6 +46,12 @@ import com.jme3.util.BufferUtils;
 /* package */class ArmatureModifier extends Modifier {
 	private static final Logger LOGGER = Logger.getLogger(ArmatureModifier.class.getName());
 	private static final int	MAXIMUM_WEIGHTS_PER_VERTEX	= 4;	// have no idea why 4, could someone please explain ?
+        //@Marcin it was an Ogre limitation, but as long as we use a MaxNumWeight variable in mesh, 
+        //i guess this limitation has no sense for the blender loader...so i guess it's up to you. You'll have to deternine the max weight according to the provided blend file
+        //I added a check to avoid crash when loading a model that has more than 4 weight per vertex on line 258
+        //If you decide to remove this limitation, remove this code.
+        //Rémy
+        
 	
 	/** Loaded animation data. */
 	private AnimData animData;
@@ -113,6 +119,7 @@ import com.jme3.util.BufferUtils;
 				//read animations
 				String objectName = objectStructure.getName();
 				Set<String> animationNames = blenderContext.getBlenderKey().getAnimationNames(objectName);
+                                System.out.println("Loaded animation " + objectName);
 				if (animationNames != null && animationNames.size() > 0) {
 					ArrayList<Animation> animations = new ArrayList<Animation>();
 					List<FileBlockHeader> actionHeaders = blenderContext.getFileBlocks(Integer.valueOf(FileBlockHeader.BLOCK_AC00));
@@ -127,6 +134,7 @@ import com.jme3.util.BufferUtils;
 							BoneAnimation boneAnimation = new BoneAnimation(actionName, stop - start);
 							boneAnimation.setTracks(armatureHelper.getTracks(actionStructure, blenderContext, objectName, actionName));
 							animations.add(boneAnimation);
+                                                 
 						}
 					}
 					animData = new AnimData(new Skeleton(bones), animations);
@@ -248,7 +256,14 @@ import com.jme3.util.BufferUtils;
 					int weightIndex = 0;
 					List<Structure> dw = pDW.fetchData(blenderContext.getInputStream());
 					for (Structure deformWeight : dw) {
-						Integer boneIndex = groupToBoneIndexMap.get(((Number) deformWeight.getFieldValue("def_nr")).intValue());
+                                              Integer boneIndex = groupToBoneIndexMap.get(((Number) deformWeight.getFieldValue("def_nr")).intValue());
+                                              
+                                               //Remove this code if 4 weights limitation is removed
+                                                if(weightIndex==4){
+                                                    LOGGER.log(Level.WARNING,"{0} has more than 4 weight on bone index {1}",new Object[]{meshStructure.getName(),boneIndex});
+                                                    break;
+                                                }
+						
 						if (boneIndex != null) {// null here means that we came accross group that has no bone attached to
 							float weight = ((Number) deformWeight.getFieldValue("weight")).floatValue();
 							if (weight == 0.0f) {
@@ -256,12 +271,12 @@ import com.jme3.util.BufferUtils;
 								boneIndex = Integer.valueOf(0);
 							}
 							// we apply the weight to all referenced vertices
-							for (Integer index : vertexIndices) {
+							for (Integer index : vertexIndices) {                                                            
 								weightsFloatData.put(index * MAXIMUM_WEIGHTS_PER_VERTEX + weightIndex, weight);
 								indicesData.put(index * MAXIMUM_WEIGHTS_PER_VERTEX + weightIndex, boneIndex.byteValue());
 							}
 						}
-						++weightIndex;
+						++weightIndex;                                              
 					}
 				} else {
 					for (Integer index : vertexIndices) {
