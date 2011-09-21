@@ -82,7 +82,7 @@ import com.jme3.scene.plugins.blender.objects.ObjectHelper;
 				if(pObject.isNotNull()) {
 					Structure objectStructure = pObject.fetchData(blenderContext.getInputStream()).get(0);
 					Object object = this.toObject(objectStructure);
-					if(object instanceof Spatial) {
+					if(object instanceof Spatial && ((Spatial) object).getParent()==null) {
 						result.attachChild((Spatial) object);
 					} else if(object instanceof Light) {
 						result.addLight((Light)object);
