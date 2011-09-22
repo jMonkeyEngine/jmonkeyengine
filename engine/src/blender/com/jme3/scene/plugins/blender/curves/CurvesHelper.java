@@ -43,8 +43,6 @@ import com.jme3.util.BufferUtils;
 public class CurvesHelper extends AbstractBlenderHelper {
 
     private static final Logger LOGGER = Logger.getLogger(CurvesHelper.class.getName());
-    /** This variable indicates if the Y asxis is the UP axis or not. */
-    protected boolean fixUpAxis;
     /** Minimum basis U function degree for NURBS curves and surfaces. */
     protected int minimumBasisUFunctionDegree = 4;
     /** Minimum basis V function degree for NURBS curves and surfaces. */
@@ -58,15 +56,6 @@ public class CurvesHelper extends AbstractBlenderHelper {
      */
     public CurvesHelper(String blenderVersion) {
         super(blenderVersion);
-    }
-
-    /**
-     * This method sets the Y is UP axis. By default the UP axis is Z (just like in blender).
-     * @param fixUpAxis
-     *        a variable that indicates if the Y asxis is the UP axis or not
-     */
-    public void setyIsUpAxis(boolean fixUpAxis) {
-        this.fixUpAxis = fixUpAxis;
     }
 
     /**

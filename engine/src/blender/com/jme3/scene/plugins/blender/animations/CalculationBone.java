@@ -113,7 +113,7 @@ public class CalculationBone extends Node {
 
 	public void applyCalculatedTracks() {
 		if(track != null) {
-			track.setKeyframes(track.getTimes(), translations, rotations);//TODO:scales
+			track.setKeyframes(track.getTimes(), translations, rotations, scales);
 		} else {
 			bone.setUserControl(true);
 			bone.setUserTransforms(translations[0], rotations[0], scales[0]);

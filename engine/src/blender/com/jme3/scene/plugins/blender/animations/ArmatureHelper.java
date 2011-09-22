@@ -41,6 +41,7 @@ import java.util.logging.Logger;
 import com.jme3.animation.Bone;
 import com.jme3.animation.BoneTrack;
 import com.jme3.math.Matrix4f;
+import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.plugins.blender.AbstractBlenderHelper;
 import com.jme3.scene.plugins.blender.BlenderContext;
@@ -137,6 +138,21 @@ public class ArmatureHelper extends AbstractBlenderHelper {
                 m.set(i, j, boneMat.get(j, i).floatValue());
             }
         }
+        
+        if(fixUpAxis) {
+        	Vector3f translation = m.toTranslationVector();
+            Quaternion rotation = m.toRotationQuat();
+            
+            float y = translation.y;
+    		translation.y = translation.z;
+    		translation.z = -y;
+    		
+    		rotation = upAxisRotationQuaternion.mult(rotation);
+    		
+    		m.setRotationQuaternion(rotation);
+    		m.setTranslation(translation);
+    		//TODO: what about scale ??
+        }     
         return m;
     }
 

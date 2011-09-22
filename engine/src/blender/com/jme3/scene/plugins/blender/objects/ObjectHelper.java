@@ -42,7 +42,6 @@ import com.jme3.light.DirectionalLight;
 import com.jme3.light.Light;
 import com.jme3.light.PointLight;
 import com.jme3.light.SpotLight;
-import com.jme3.math.FastMath;
 import com.jme3.math.Matrix4f;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Transform;
@@ -96,11 +95,6 @@ public class ObjectHelper extends AbstractBlenderHelper {
 		invisibleTypes.add(OBJECT_TYPE_ARMATURE);
 	}
 	
-	/** This variable indicates if the Y asxis is the UP axis or not. */
-	protected boolean						fixUpAxis;
-	/** Quaternion used to rotate data when Y is up axis. */
-	protected Quaternion					upAxisRotationQuaternion;
-
 	/**
 	 * This constructor parses the given blender version and stores the result. Some functionalities may differ in
 	 * different blender versions.
@@ -109,18 +103,6 @@ public class ObjectHelper extends AbstractBlenderHelper {
 	 */
 	public ObjectHelper(String blenderVersion) {
 		super(blenderVersion);
-	}
-
-	/**
-	 * This method sets the Y is UP axis. By default the UP axis is Z (just like in blender).
-	 * @param fixUpAxis
-	 *        a variable that indicates if the Y asxis is the UP axis or not
-	 */
-	public void setyIsUpAxis(boolean fixUpAxis) {
-		this.fixUpAxis = fixUpAxis;
-		if(fixUpAxis) {
-			upAxisRotationQuaternion = new Quaternion().fromAngles(-FastMath.HALF_PI, 0, 0);
-		}
 	}
 
 	/**

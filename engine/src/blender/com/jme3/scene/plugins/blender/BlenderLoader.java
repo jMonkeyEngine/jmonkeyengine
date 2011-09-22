@@ -205,10 +205,12 @@ public class BlenderLoader extends AbstractBlenderLoader {
 
 		// setting additional data to helpers
 		if (blenderKey.isFixUpAxis()) {
-			ObjectHelper objectHelper = blenderContext.getHelper(ObjectHelper.class);
-			objectHelper.setyIsUpAxis(true);
-			CurvesHelper curvesHelper = blenderContext.getHelper(CurvesHelper.class);
-			curvesHelper.setyIsUpAxis(true);
+			AbstractBlenderHelper helper = blenderContext.getHelper(ObjectHelper.class);
+			helper.setyIsUpAxis(true);
+			helper = blenderContext.getHelper(CurvesHelper.class);
+			helper.setyIsUpAxis(true);
+			helper = blenderContext.getHelper(ArmatureHelper.class);
+			helper.setyIsUpAxis(true);			
 		}
 		MaterialHelper materialHelper = blenderContext.getHelper(MaterialHelper.class);
 		materialHelper.setFaceCullMode(blenderKey.getFaceCullMode());

@@ -34,6 +34,8 @@ package com.jme3.scene.plugins.blender;
 import java.nio.FloatBuffer;
 import java.util.List;
 
+import com.jme3.math.FastMath;
+import com.jme3.math.Quaternion;
 import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
 import com.jme3.scene.plugins.blender.file.Pointer;
 import com.jme3.scene.plugins.blender.file.Structure;
@@ -49,7 +51,11 @@ public abstract class AbstractBlenderHelper {
 
 	/** The version of the blend file. */
 	protected final int	blenderVersion;
-
+	/** This variable indicates if the Y asxis is the UP axis or not. */
+	protected boolean						fixUpAxis;
+	/** Quaternion used to rotate data when Y is up axis. */
+	protected Quaternion					upAxisRotationQuaternion;
+	
 	/**
 	 * This constructor parses the given blender version and stores the result. Some functionalities may differ in different blender
 	 * versions.
@@ -60,6 +66,18 @@ public abstract class AbstractBlenderHelper {
 		this.blenderVersion = Integer.parseInt(blenderVersion);
 	}
 
+	/**
+	 * This method sets the Y is UP axis. By default the UP axis is Z (just like in blender).
+	 * @param fixUpAxis
+	 *        a variable that indicates if the Y asxis is the UP axis or not
+	 */
+	public void setyIsUpAxis(boolean fixUpAxis) {
+		this.fixUpAxis = fixUpAxis;
+		if(fixUpAxis) {
+			upAxisRotationQuaternion = new Quaternion().fromAngles(-FastMath.HALF_PI, 0, 0);
+		}
+	}
+	
 	/**
 	 * This method clears the state of the helper so that it can be used for different calculations of another feature.
 	 */
