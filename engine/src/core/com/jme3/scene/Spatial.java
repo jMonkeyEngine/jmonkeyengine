@@ -791,7 +791,6 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Asset {
      */
     public void setLocalRotation(Matrix3f rotation) {
         localTransform.getRotation().fromRotationMatrix(rotation);
-        this.worldTransform.setRotation(this.localTransform.getRotation());
         setTransformRefresh();
     }
 
@@ -803,7 +802,6 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Asset {
      */
     public void setLocalRotation(Quaternion quaternion) {
         localTransform.setRotation(quaternion);
-        this.worldTransform.setRotation(this.localTransform.getRotation());
         setTransformRefresh();
     }
 
@@ -824,7 +822,6 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Asset {
      */
     public void setLocalScale(float localScale) {
         localTransform.setScale(localScale);
-        worldTransform.setScale(localTransform.getScale());
         setTransformRefresh();
     }
 
@@ -833,7 +830,6 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Asset {
      */
     public void setLocalScale(float x, float y, float z) {
         localTransform.setScale(x, y, z);
-        worldTransform.setScale(localTransform.getScale());
         setTransformRefresh();
     }
 
@@ -845,7 +841,6 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Asset {
      */
     public void setLocalScale(Vector3f localScale) {
         localTransform.setScale(localScale);
-        worldTransform.setScale(localTransform.getScale());
         setTransformRefresh();
     }
 
@@ -868,7 +863,6 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Asset {
      */
     public void setLocalTranslation(Vector3f localTranslation) {
         this.localTransform.setTranslation(localTranslation);
-        this.worldTransform.setTranslation(this.localTransform.getTranslation());
         setTransformRefresh();
     }
 
@@ -878,7 +872,6 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Asset {
      */
     public void setLocalTranslation(float x, float y, float z) {
         this.localTransform.setTranslation(x, y, z);
-        this.worldTransform.setTranslation(this.localTransform.getTranslation());
         setTransformRefresh();
     }
 
@@ -939,7 +932,6 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Asset {
      */
     public Spatial move(float x, float y, float z) {
         this.localTransform.getTranslation().addLocal(x, y, z);
-        this.worldTransform.setTranslation(this.localTransform.getTranslation());
         setTransformRefresh();
 
         return this;
@@ -952,7 +944,6 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Asset {
      */
     public Spatial move(Vector3f offset) {
         this.localTransform.getTranslation().addLocal(offset);
-        this.worldTransform.setTranslation(this.localTransform.getTranslation());
         setTransformRefresh();
 
         return this;
@@ -974,7 +965,6 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Asset {
      */
     public Spatial scale(float x, float y, float z) {
         this.localTransform.getScale().multLocal(x, y, z);
-        this.worldTransform.setScale(this.localTransform.getScale());
         setTransformRefresh();
 
         return this;
@@ -987,7 +977,6 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Asset {
      */
     public Spatial rotate(Quaternion rot) {
         this.localTransform.getRotation().multLocal(rot);
-        this.worldTransform.setRotation(this.localTransform.getRotation());
         setTransformRefresh();
 
         return this;
