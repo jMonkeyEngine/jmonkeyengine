@@ -1070,14 +1070,14 @@ public class TerrainEditorController implements NodeListener {
     }
     
     public void childrenAdded(NodeMemberEvent ev) {
-        topComponent.reinitTextureTable();
+        //topComponent.reinitTextureTable();
     }
 
     public void childrenRemoved(NodeMemberEvent ev) {
-        terrainNode = null;
-        Node t = getTerrain(rootNode);
-        if (t == null)
-            topComponent.reinitTextureTable();
+        //terrainNode = null;
+        //Node t = getTerrain(rootNode);
+        //if (t == null)
+        //    topComponent.reinitTextureTable();
     }
 
     public void childrenReordered(NodeReorderEvent ev) {
