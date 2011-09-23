@@ -58,7 +58,8 @@
             <tocitem text="Using a custom version of jME3" target="sdk.use_own_jme"/>
         </tocitem>
         <tocitem text="Application Deployment">
-            <tocitem text="Deployment" target="sdk.application_deployment"/>
+            <tocitem text="General" target="sdk.application_deployment"/>
+            <tocitem text="Android" target="jme3.android"/>
         </tocitem>
         <tocitem text="jMP Plugin Development" expand="false">
             <tocitem text="About jMP Plugin Development" target="sdk.development"/>
