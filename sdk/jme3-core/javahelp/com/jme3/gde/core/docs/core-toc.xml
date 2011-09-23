@@ -143,7 +143,7 @@
             <tocitem text="Landscapes" expand="false">
                 <tocitem text="Sky" target="jme3.advanced.sky"/>
                 <tocitem text="Terrain" target="jme3.advanced.terrain"/>
-                <tocitem text="Terrain" target="jme3.advanced.endless_terraingrid"/>
+                <tocitem text="Grid Terrain" target="jme3.advanced.endless_terraingrid"/>
                 <tocitem text="Simple Water" target="jme3.advanced.water"/>
                 <tocitem text="Post Process Water" target="jme3.advanced.post-processor_water"/>
             </tocitem>
