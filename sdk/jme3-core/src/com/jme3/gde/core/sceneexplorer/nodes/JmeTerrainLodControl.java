@@ -58,7 +58,7 @@ import org.openide.util.actions.SystemAction;
  * @author Brent Owens
  */
 @org.openide.util.lookup.ServiceProvider(service=SceneExplorerNode.class)
-public class JmeTerrainLodControl extends AbstractSceneExplorerNode{
+public class JmeTerrainLodControl extends AbstractSceneExplorerNode {
     
     private static Image smallImage =
             ImageUtilities.loadImage("com/jme3/gde/core/sceneexplorer/nodes/icons/physicswheel.gif");
@@ -88,10 +88,10 @@ public class JmeTerrainLodControl extends AbstractSceneExplorerNode{
     @Override
     public Action[] getActions(boolean context) {
         return new SystemAction[]{
-                    //                    SystemAction.get(CopyAction.class),
-                    //                    SystemAction.get(CutAction.class),
-                    //                    SystemAction.get(PasteAction.class),
-                    SystemAction.get(DeleteAction.class)
+                    //SystemAction.get(CopyAction.class),
+                    //SystemAction.get(CutAction.class),
+                    //SystemAction.get(PasteAction.class),
+                    //SystemAction.get(DeleteAction.class)
                 };
     }
 
@@ -204,12 +204,13 @@ public class JmeTerrainLodControl extends AbstractSceneExplorerNode{
         protected Node[] createNodes(Object key) {
             if (key instanceof DistanceLodCalculator) {
                 DistanceLodCalculator assetKey = (DistanceLodCalculator) key;
-                return new Node[]{new JmeDistanceLodCalculator(control, assetKey)};
+                return new Node[]{new JmeDistanceLodCalculator(control, assetKey, getDataObject())};
             } else if (key instanceof PerspectiveLodCalculator) {
                 //PerspectiveLodCalculator assetKey = (PerspectiveLodCalculator) key;
                 //return new Node[]{new JmePerspectiveLodCalculator(control, assetKey)};
             }
             return null;
         }
+
     }
 }

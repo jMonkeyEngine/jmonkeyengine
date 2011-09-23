@@ -41,6 +41,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import javax.swing.Action;
 import org.openide.actions.DeleteAction;
+import org.openide.loaders.DataObject;
 import org.openide.nodes.Children;
 import org.openide.nodes.Sheet;
 import org.openide.util.Exceptions;
@@ -64,10 +65,11 @@ public class JmeDistanceLodCalculator extends AbstractSceneExplorerNode {
     public JmeDistanceLodCalculator() {
     }
 
-    public JmeDistanceLodCalculator(TerrainLodControl lodControl, DistanceLodCalculator lodCalculator) {
+    public JmeDistanceLodCalculator(TerrainLodControl lodControl, DistanceLodCalculator lodCalculator, DataObject dataObject) {
         super(Children.LEAF);
         this.lodControl=lodControl;
         this.lodCalculator = lodCalculator;
+        this.dataObject = dataObject;
         getLookupContents().add(lodCalculator);
         getLookupContents().add(this);
         setName("DistanceLodCalculator");
@@ -104,10 +106,10 @@ public class JmeDistanceLodCalculator extends AbstractSceneExplorerNode {
     @Override
     public Action[] getActions(boolean context) {
         return new SystemAction[]{
-                    //                    SystemAction.get(CopyAction.class),
-                    //                    SystemAction.get(CutAction.class),
-                    //                    SystemAction.get(PasteAction.class),
-                    SystemAction.get(DeleteAction.class)
+                    //SystemAction.get(CopyAction.class),
+                    //SystemAction.get(CutAction.class),
+                    //SystemAction.get(PasteAction.class),
+                    //SystemAction.get(DeleteAction.class)
                 };
     }
 
