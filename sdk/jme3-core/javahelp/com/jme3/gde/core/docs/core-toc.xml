@@ -94,7 +94,7 @@
             <tocitem text="Knowing SimpleApplication" target="jme3.intermediate.simpleapplication"/>
             <tocitem text="Application Settings" target="jme3.intermediate.appsettings"/>
             <tocitem text="File Types" target="jme3.intermediate.file_types"/>
-            <tocitem text="Math in jME3" target="jme3.math"/>
+            <tocitem text="Math in jME3" target="jme3.intermediate.math"/>
             <tocitem text="Optimization" target="jme3.intermediate.optimization"/>
             <tocitem text="FAQ" target="jme3.faq"/>
         </tocitem>
@@ -142,6 +142,7 @@
             <tocitem text="Landscapes" expand="false">
                 <tocitem text="Sky" target="jme3.advanced.sky"/>
                 <tocitem text="Terrain" target="jme3.advanced.terrain"/>
+                <tocitem text="Terrain" target="jme3.advanced.endless_terraingrid"/>
                 <tocitem text="Simple Water" target="jme3.advanced.water"/>
                 <tocitem text="Post Process Water" target="jme3.advanced.post-processor_water"/>
             </tocitem>
