@@ -96,7 +96,7 @@
             <tocitem text="File Types" target="jme3.intermediate.file_types"/>
             <tocitem text="Math in jME3" target="jme3.math"/>
             <tocitem text="Optimization" target="jme3.intermediate.optimization"/>
-            <tocitem text="I want to do X, what API do I use?" target="jme3.intermediate.api_feature_mapping"/>
+            <tocitem text="FAQ" target="jme3.faq"/>
         </tocitem>
 <!--        <tocitem text="Advanced" expand="false">-->
             <tocitem text="Controlling Game Logic" expand="false">
