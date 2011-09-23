@@ -1148,7 +1148,7 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
     /**
      * re-initialize the texture rows in the texture table to match the given terrain.
      */
-    private void reinitTextureTable() {
+    protected void reinitTextureTable() {
 
         TextureCellRendererEditor rendererTexturer = new TextureCellRendererEditor();
         textureTable.getColumnModel().getColumn(1).setCellRenderer(rendererTexturer); // diffuse
@@ -1159,9 +1159,8 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
         textureTable.getColumnModel().getColumn(2).setCellEditor(rendererNormal);
 
         // empty out the table
-        for (int i = 0; i < textureTable.getModel().getRowCount(); i++) {
-            ((TextureTableModel) textureTable.getModel()).removeRow(i);
-        }
+        while (textureTable.getModel().getRowCount() > 0)
+             ((TextureTableModel) textureTable.getModel()).removeRow(0);
 
         if (editorController.getTerrain(null) == null) {
             return;

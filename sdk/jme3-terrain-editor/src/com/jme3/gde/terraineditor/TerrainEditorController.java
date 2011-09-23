@@ -57,6 +57,7 @@ import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
 import com.jme3.util.SkyFactory;
 import java.awt.image.BufferedImage;
+import java.beans.PropertyChangeEvent;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -70,6 +71,10 @@ import jme3tools.converters.ImageToAwt;
 import org.openide.cookies.SaveCookie;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObject;
+import org.openide.nodes.NodeEvent;
+import org.openide.nodes.NodeListener;
+import org.openide.nodes.NodeMemberEvent;
+import org.openide.nodes.NodeReorderEvent;
 import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
 
@@ -79,7 +84,7 @@ import org.openide.util.Lookup;
  * @author normenhansen, bowens
  */
 @SuppressWarnings("unchecked")
-public class TerrainEditorController {
+public class TerrainEditorController implements NodeListener {
     private JmeSpatial jmeRootNode;
     private Node terrainNode;
     private Node rootNode;
@@ -122,6 +127,7 @@ public class TerrainEditorController {
         terrainSaveCookie.rootNode = jmeRootNode;
         this.currentFileObject.setSaveCookie(terrainSaveCookie);
         this.topComponent = topComponent;
+        this.jmeRootNode.addNodeListener(this);
     }
 
     public void setToolController(TerrainToolController toolController) {
@@ -1060,6 +1066,27 @@ public class TerrainEditorController {
         setNeedsSave(true);
     }
 
+    public void propertyChange(PropertyChangeEvent evt) {
+    }
+    
+    public void childrenAdded(NodeMemberEvent ev) {
+        topComponent.reinitTextureTable();
+    }
+
+    public void childrenRemoved(NodeMemberEvent ev) {
+        terrainNode = null;
+        Node t = getTerrain(rootNode);
+        if (t == null)
+            topComponent.reinitTextureTable();
+    }
+
+    public void childrenReordered(NodeReorderEvent ev) {
+    }
+
+    public void nodeDestroyed(NodeEvent ev) {
+        
+    }
+    
     /**
      * Re-attach the camera to the LOD control.
      * Called when the scene is opened and will only
