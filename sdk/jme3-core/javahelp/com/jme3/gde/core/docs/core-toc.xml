@@ -64,6 +64,7 @@
             <tocitem text="About jMP Plugin Development" target="sdk.development"/>
             <tocitem text="Creating a plugin" target="sdk.development.setup"/>
             <tocitem text="Creating components" target="sdk.development.general"/>
+            <tocitem text="Projects and Assets" target="sdk.development.projects_assets"/>
             <tocitem text="Accessing the Scene" target="sdk.development.scene"/>
             <tocitem text="Extending the SceneExplorer" target="sdk.development.sceneexplorer"/>
 <!--            <tocitem text="Recipes" expand="false">-->
