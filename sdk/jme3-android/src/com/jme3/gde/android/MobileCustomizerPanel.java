@@ -16,6 +16,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Iterator;
 import java.util.List;
+import org.openide.util.HelpCtx;
 
 /**
  *
@@ -29,6 +30,7 @@ public class MobileCustomizerPanel extends javax.swing.JPanel implements ActionL
     public MobileCustomizerPanel(ProjectExtensionProperties properties) {
         this.properties = properties;
         initComponents();
+        HelpCtx.setHelpIDString(this, "jme3.android");
         updateTargetList();
         loadProperties();
     }

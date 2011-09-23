@@ -12,6 +12,7 @@ import org.openide.NotifyDescriptor.Message;
 import org.openide.filesystems.FileChooserBuilder;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
+import org.openide.util.HelpCtx;
 import org.openide.util.NbPreferences;
 
 final class MobilePanel extends javax.swing.JPanel {
@@ -21,6 +22,7 @@ final class MobilePanel extends javax.swing.JPanel {
     MobilePanel(MobileOptionsPanelController controller) {
         this.controller = controller;
         initComponents();
+        HelpCtx.setHelpIDString(this, "jme3.android");
         // TODO listen to changes in form fields and call controller.changed()
     }
 
