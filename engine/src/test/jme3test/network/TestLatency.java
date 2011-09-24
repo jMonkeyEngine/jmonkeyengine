@@ -32,6 +32,7 @@
 
 package jme3test.network;
 
+import com.jme3.network.AbstractMessage;
 import com.jme3.network.Client;
 import com.jme3.network.HostedConnection;
 import com.jme3.network.MessageListener;
@@ -40,7 +41,6 @@ import com.jme3.network.Server;
 import com.jme3.network.Message;
 import com.jme3.network.serializing.Serializable;
 import com.jme3.network.serializing.Serializer;
-import com.jme3.network.sync.MovingAverage;
 import java.io.IOException;
 
 public class TestLatency {
@@ -58,7 +58,7 @@ public class TestLatency {
     }
 
     @Serializable
-    public static class TimestampMessage extends com.jme3.network.message.Message {
+    public static class TimestampMessage extends AbstractMessage {
 
         long timeSent     = 0;
         long timeReceived = 0;
