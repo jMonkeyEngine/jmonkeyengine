@@ -106,6 +106,7 @@
                 <tocitem text="Update Loop" target="jme3.advanced.update_loop"/>
                 <tocitem text="Application States" target="jme3.advanced.application_states"/>
                 <tocitem text="Custom Controls" target="jme3.advanced.custom_controls"/>
+                <tocitem text="Multithreading" target="jme3:advanced:multithreading"/>
             </tocitem>
             <tocitem text="Managing and Moving Objects" expand="false">
                 <tocitem text="Spatial types" target="jme3.advanced.spatial"/>
@@ -116,7 +117,6 @@
                 <tocitem text="Collision and Intersection" target="jme3.advanced.collision_and_intersection"/>
                 <tocitem text="Animation" target="jme3.advanced.animation"/>
                 <tocitem text="Cinematics" target="jme3.advanced.cinematics"/>
-                <tocitem text="Motion Path" target="jme3.advanced.motion_path"/>
             </tocitem>
             <tocitem text="Materials, Light and Shadow" expand="false">
                 <tocitem text="jME3 and Shaders" target="jme3.advanced.jme3_shaders"/>
@@ -150,12 +150,14 @@
                 <tocitem text="Post Process Water" target="jme3.advanced.post-processor_water"/>
             </tocitem>
             <tocitem text="Networking" expand="false">
+                <tocitem text="Networking" target="jme3.advanced.networking"/>
                 <tocitem text="Headless server" target="jme3.intermediate.headlessserver"/>
-                <tocitem text="SpiderMonkey Networking" target="spidermonkey"/>
             </tocitem>
             <tocitem text="Camera" expand="false">
                 <tocitem text="Camera" target="jme3.advanced.camera"/>
                 <tocitem text="Multiple Cameras" target="jme3.advanced.multiple_camera_views"/>
+                <tocitem text="Camera following Character" target="jme3.advanced.making_the_camera_follow_a_character"/>
+                
             </tocitem>
             <tocitem text="User Interaction" expand="false">
                 <tocitem text="Input Handling" target="jme3.advanced.input_handling"/>
