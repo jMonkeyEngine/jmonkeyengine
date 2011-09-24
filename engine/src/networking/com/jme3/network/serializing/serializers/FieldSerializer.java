@@ -32,7 +32,6 @@
 
 package com.jme3.network.serializing.serializers;
 
-import com.jme3.network.message.Message;
 import com.jme3.network.serializing.Serializer;
 import com.jme3.network.serializing.SerializerException;
 import java.io.IOException;
@@ -68,7 +67,7 @@ public class FieldSerializer extends Serializer {
         List<Field> fields = new ArrayList<Field>();
 
         Class processingClass = clazz;
-        while (processingClass != Object.class && processingClass != Message.class) {
+        while (processingClass != Object.class ) {
             Collections.addAll(fields, processingClass.getDeclaredFields());
             processingClass = processingClass.getSuperclass();
         }

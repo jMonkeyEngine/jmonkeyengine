@@ -32,6 +32,7 @@
 
 package com.jme3.network.message;
 
+import com.jme3.network.Message;
 import com.jme3.network.serializing.Serializable;
 
 /**

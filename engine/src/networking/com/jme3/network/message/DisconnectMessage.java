@@ -32,6 +32,7 @@
 
 package com.jme3.network.message;
 
+import com.jme3.network.AbstractMessage;
 import com.jme3.network.serializing.Serializable;
 
 /**
@@ -40,7 +41,7 @@ import com.jme3.network.serializing.Serializable;
  * @author Lars Wesselius
  */
 @Serializable()
-public class DisconnectMessage extends Message {
+public class DisconnectMessage extends AbstractMessage {
     public static final String KICK = "Kick";
     public static final String USER_REQUESTED = "User requested";
     public static final String ERROR = "Error";

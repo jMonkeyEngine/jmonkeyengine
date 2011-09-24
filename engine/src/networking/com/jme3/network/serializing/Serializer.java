@@ -123,12 +123,8 @@ public abstract class Serializer {
         registerClass(GZIPCompressedMessage.class, new GZIPSerializer());
         registerClass(ZIPCompressedMessage.class, new ZIPSerializer());
 
-        registerClass(Message.class);
         registerClass(DisconnectMessage.class);
         registerClass(ClientRegistrationMessage.class);
-        registerClass(DiscoverHostMessage.class);
-        registerClass(StreamDataMessage.class);
-        registerClass(StreamMessage.class);
     }
     
     /**
@@ -348,11 +344,10 @@ public abstract class Serializer {
      * @param type The class to write.
      * @return The SerializerRegistration that's registered to the class.
      */
-    public static SerializerRegistration writeClass(ByteBuffer buffer, Class type) {
+    public static SerializerRegistration writeClass(ByteBuffer buffer, Class type) throws IOException {
         SerializerRegistration reg = getSerializerRegistration(type);
         if (reg == null) {
-            reg = classRegistrations.get(Message.class);
-            //registerClassToSerializer(type, FieldSerializer.class);
+            throw new SerializerException( "Class not registered:" + type );
         }
         buffer.putShort(reg.getId());
         return reg;

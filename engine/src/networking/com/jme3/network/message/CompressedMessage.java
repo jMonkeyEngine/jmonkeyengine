@@ -32,6 +32,8 @@
 
 package com.jme3.network.message;
 
+import com.jme3.network.AbstractMessage;
+import com.jme3.network.Message;
 import com.jme3.network.serializing.Serializable;
 
 /**
@@ -41,7 +43,7 @@ import com.jme3.network.serializing.Serializable;
  * @author Lars Wesselius
  */
 @Serializable()
-public class CompressedMessage extends Message {
+public class CompressedMessage extends AbstractMessage {
     private Message message;
 
     public CompressedMessage() { }

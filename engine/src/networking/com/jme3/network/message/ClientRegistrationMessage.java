@@ -32,6 +32,7 @@
 
 package com.jme3.network.message;
 
+import com.jme3.network.AbstractMessage;
 import com.jme3.network.serializing.Serializable;
 
 /**
@@ -44,7 +45,7 @@ import com.jme3.network.serializing.Serializable;
  * @author Lars Wesselius
  */
 @Serializable()
-public class ClientRegistrationMessage extends Message {
+public class ClientRegistrationMessage extends AbstractMessage {
     private long id;
     private String gameName;
     private int version;
