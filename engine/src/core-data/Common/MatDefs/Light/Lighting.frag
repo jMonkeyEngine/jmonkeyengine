@@ -237,14 +237,15 @@ void main(){
     #endif
 
     #ifdef VERTEX_LIGHTING
+       vec2 light = vertexLightValues.xy;
        #ifdef COLORRAMP
-           light.x = texture2D(m_ColorRamp, vec2(vertexLightValues.x, 0.0)).r;
-           light.y = texture2D(m_ColorRamp, vec2(vertexLightValues.y, 0.0)).r;
+           light.x = texture2D(m_ColorRamp, vec2(light.x, 0.0)).r;
+           light.y = texture2D(m_ColorRamp, vec2(light.y, 0.0)).r;
        #endif
 
        gl_FragColor.rgb =  AmbientSum     * diffuseColor.rgb + 
-                           DiffuseSum.rgb * diffuseColor.rgb  * vec3(vertexLightValues.x) +
-                           SpecularSum    * specularColor.rgb * vec3(vertexLightValues.y);
+                           DiffuseSum.rgb * diffuseColor.rgb  * vec3(light.x) +
+                           SpecularSum    * specularColor.rgb * vec3(light.y);
     #else
        vec4 lightDir = vLightDir;
        lightDir.xyz = normalize(lightDir.xyz);
