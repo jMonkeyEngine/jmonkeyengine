@@ -295,6 +295,70 @@ public class Camera implements Savable, Cloneable {
             throw new AssertionError();
         }
     }
+    
+	/**
+	 * This method copise the settings of the given camera.
+	 * 
+	 * @param cam
+	 *            the camera we copy the settings from
+	 */
+    public void copyFrom(Camera cam) {
+    	location.set(cam.location);
+        rotation.set(cam.rotation);
+
+        frustumNear = cam.frustumNear;
+        frustumFar = cam.frustumFar;
+        frustumLeft = cam.frustumLeft;
+        frustumRight = cam.frustumRight;
+        frustumTop = cam.frustumTop;
+        frustumBottom = cam.frustumBottom;
+
+        coeffLeft[0] = cam.coeffLeft[0];
+        coeffLeft[1] = cam.coeffLeft[1];
+        coeffRight[0] = cam.coeffRight[0];
+        coeffRight[1] = cam.coeffRight[1];
+        coeffBottom[0] = cam.coeffBottom[0];
+        coeffBottom[1] = cam.coeffBottom[1];
+        coeffTop[0] = cam.coeffTop[0];
+        coeffTop[1] = cam.coeffTop[1];
+
+        viewPortLeft = cam.viewPortLeft;
+        viewPortRight = cam.viewPortRight;
+        viewPortTop = cam.viewPortTop;
+        viewPortBottom = cam.viewPortBottom;
+
+        this.width = cam.width;
+        this.height = cam.height;
+        
+        this.planeState = cam.planeState;
+        this.viewportChanged = cam.viewportChanged;
+        for (int i = 0; i < MAX_WORLD_PLANES; ++i) {
+            worldPlane[i].setNormal(cam.worldPlane[i].getNormal());
+            worldPlane[i].setConstant(cam.worldPlane[i].getConstant());
+        }
+        
+        this.parallelProjection = cam.parallelProjection;
+        if(cam.projectionMatrixOverride != null) {
+        	if(this.projectionMatrixOverride == null) {
+        		this.projectionMatrixOverride = cam.projectionMatrixOverride.clone();
+        	} else {
+        		this.projectionMatrixOverride.set(cam.projectionMatrixOverride);
+        	}
+        } else {
+        	this.projectionMatrixOverride = null;
+        }
+        this.viewMatrix.set(cam.viewMatrix);
+        this.projectionMatrix.set(cam.projectionMatrix);
+        this.viewProjectionMatrix.set(cam.viewProjectionMatrix);
+        
+        this.guiBounding.setXExtent(cam.guiBounding.getXExtent());
+        this.guiBounding.setYExtent(cam.guiBounding.getYExtent());
+        this.guiBounding.setZExtent(cam.guiBounding.getZExtent());
+        this.guiBounding.setCenter(cam.guiBounding.getCenter());
+        this.guiBounding.setCheckPlane(cam.guiBounding.getCheckPlane());
+        
+        this.name = cam.name;
+    }
 
     /**
      * This method sets the cameras name.
