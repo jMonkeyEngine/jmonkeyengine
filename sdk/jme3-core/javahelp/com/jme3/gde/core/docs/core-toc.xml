@@ -45,6 +45,7 @@
             <tocitem text="SceneComposer" target="sdk.scene_composer"/>
             <tocitem text="Terrain Editor" target="sdk.terrain_editor"/>
             <tocitem text="AssetPacks" target="sdk.asset_packs"/>
+            <tocitem text="Filters" target="sdk.filters"/>
             <tocitem text="Vehicle Creator" target="sdk.vehicle_creator"/>
         </tocitem>
         <tocitem text="Working with Materials">
