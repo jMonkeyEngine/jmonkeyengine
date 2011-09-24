@@ -41,6 +41,7 @@
         </tocitem>
         <tocitem text="Working with Models and Scenes">
             <tocitem text="Importing Models" target="sdk.model_loader_and_viewer"/>
+            <tocitem text="Blender File Import" target="sdk.blender"/>
             <tocitem text="SceneComposer" target="sdk.scene_composer"/>
             <tocitem text="Terrain Editor" target="sdk.terrain_editor"/>
             <tocitem text="AssetPacks" target="sdk.asset_packs"/>
