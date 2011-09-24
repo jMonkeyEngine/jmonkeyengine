@@ -41,11 +41,11 @@
         </tocitem>
         <tocitem text="Working with Models and Scenes">
             <tocitem text="Importing Models" target="sdk.model_loader_and_viewer"/>
-            <tocitem text="Blender File Import" target="sdk.blender"/>
             <tocitem text="SceneComposer" target="sdk.scene_composer"/>
             <tocitem text="Terrain Editor" target="sdk.terrain_editor"/>
             <tocitem text="AssetPacks" target="sdk.asset_packs"/>
             <tocitem text="Filters" target="sdk.filters"/>
+            <tocitem text="Blender File Support" target="sdk.blender"/>
             <tocitem text="Vehicle Creator" target="sdk.vehicle_creator"/>
         </tocitem>
         <tocitem text="Working with Materials">
