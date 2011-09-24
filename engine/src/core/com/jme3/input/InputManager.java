@@ -337,12 +337,16 @@ public class InputManager implements RawInputListener {
 
         } else if (value < 0) {
             int hash = JoyAxisTrigger.joyAxisHash(joyId, axis, true);
+            int otherHash = JoyAxisTrigger.joyAxisHash(joyId, axis, false);
             invokeAnalogsAndActions(hash, -value, true);
             axisValues.put(hash, -value);
+            axisValues.remove(otherHash);
         } else {
             int hash = JoyAxisTrigger.joyAxisHash(joyId, axis, false);
+            int otherHash = JoyAxisTrigger.joyAxisHash(joyId, axis, true);
             invokeAnalogsAndActions(hash, value, true);
             axisValues.put(hash, value);
+            axisValues.remove(otherHash);
         }
     }
 

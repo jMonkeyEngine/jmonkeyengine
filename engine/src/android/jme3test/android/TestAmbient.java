@@ -83,10 +83,10 @@ public class TestAmbient extends SimpleApplication {
         audioRenderer.playSource(beep);
         */
         
-        waves  = new AudioNode(audioRenderer, assetManager, "Sound/Environment/Ocean Waves.ogg", true);
+        waves  = new AudioNode(assetManager, "Sound/Environment/Ocean Waves.ogg", true);
         waves.setPositional(true);
 
-        nature = new AudioNode(audioRenderer, assetManager, "Sound/Environment/Nature.ogg", true);
+        nature = new AudioNode(assetManager, "Sound/Environment/Nature.ogg", true);
         
         waves.setLocalTranslation(new Vector3f(4, -1, 30));
         waves.setMaxDistance(5);

@@ -102,6 +102,9 @@ public final class Bone implements Savable {
      * @param name Name to give to this bone
      */
     public Bone(String name) {
+        if (name == null)
+            throw new IllegalArgumentException("Name cannot be null");
+        
         this.name = name;
 
         initialPos = new Vector3f();

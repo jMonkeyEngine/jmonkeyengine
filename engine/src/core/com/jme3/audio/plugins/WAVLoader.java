@@ -41,6 +41,7 @@ import com.jme3.audio.AudioKey;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.LittleEndien;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -52,7 +53,7 @@ public class WAVLoader implements AssetLoader {
     // all these are in big endian
     private static final int i_RIFF = 0x46464952;
     private static final int i_WAVE = 0x45564157;
-    private static final int i_fmt  = 0x20746D66 ;
+    private static final int i_fmt  = 0x20746D66;
     private static final int i_data = 0x61746164;
 
     private boolean readStream = false;
@@ -104,7 +105,6 @@ public class WAVLoader implements AssetLoader {
         if (remaining > 0){
             in.skipBytes(remaining);
         }
-       
     }
 
     private void readDataChunkForBuffer(int len) throws IOException {
@@ -123,9 +123,9 @@ public class WAVLoader implements AssetLoader {
         audioStream.updateData(in, duration);
     }
 
-    public Object load(AssetInfo info) throws IOException {
-        this.in = new LittleEndien(info.openStream());
-
+    private AudioData load(InputStream inputStream, boolean stream) throws IOException{
+        this.in = new LittleEndien(inputStream);
+        
         int sig = in.readInt();
         if (sig != i_RIFF)
             throw new IOException("File is not a WAVE file");
@@ -135,8 +135,7 @@ public class WAVLoader implements AssetLoader {
         if (in.readInt() != i_WAVE)
             throw new IOException("WAVE File does not contain audio");
 
-        readStream = ((AudioKey)info.getKey()).isStream();
-
+        readStream = stream;
         if (readStream){
             audioStream = new AudioStream();
             audioData = audioStream;
@@ -168,8 +167,24 @@ public class WAVLoader implements AssetLoader {
                     if (skipped <= 0) {
                         return null;
                     }
-
                     break;
+            }
+        }
+    }
+    
+    public Object load(AssetInfo info) throws IOException {
+        AudioData data;
+        InputStream inputStream = null;
+        try {
+            inputStream = info.openStream();
+            data = load(inputStream, ((AudioKey)info.getKey()).isStream());
+            if (data instanceof AudioStream){
+                inputStream = null;
+            }
+            return data;
+        } finally {
+            if (inputStream != null){
+                inputStream.close();
             }
         }
     }

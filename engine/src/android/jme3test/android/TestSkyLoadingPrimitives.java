@@ -36,7 +36,6 @@ import com.jme3.app.SimpleApplication;
 import com.jme3.scene.Spatial;
 import com.jme3.texture.Texture;
 import com.jme3.util.SkyFactory;
-import com.jme3.util.android.AndroidSkyFactory;
 
 public class TestSkyLoadingPrimitives extends SimpleApplication {
 
@@ -62,7 +61,7 @@ public class TestSkyLoadingPrimitives extends SimpleApplication {
         Texture up = assetManager.loadTexture("Textures/Sky/Primitives/primitives_positive_y.png");
         Texture down = assetManager.loadTexture("Textures/Sky/Primitives/primitives_negative_y.png");
         
-        Spatial sky = AndroidSkyFactory.createSky(assetManager, west, east, north, south, up, down);
+        Spatial sky = SkyFactory.createSky(assetManager, west, east, north, south, up, down);
         rootNode.attachChild(sky);
     }
 

@@ -43,6 +43,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.Sys;
+import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.OpenGLException;
 import org.lwjgl.opengl.Pbuffer;
 import org.lwjgl.opengl.PixelFormat;
@@ -64,10 +65,11 @@ public class LwjglOffscreenBuffer extends LwjglContext implements Runnable {
         }
 
         pixelFormat = new PixelFormat(settings.getBitsPerPixel(),
-                                         0,
-                                         settings.getDepthBits(),
-                                         settings.getStencilBits(),
-                                         settings.getSamples());
+                                      0,
+                                      settings.getDepthBits(),
+                                      settings.getStencilBits(),
+                                      settings.getSamples());
+        
         width = settings.getWidth();
         height = settings.getHeight();
         try{
@@ -77,21 +79,7 @@ public class LwjglOffscreenBuffer extends LwjglContext implements Runnable {
                 }
             });
 
-            //String rendererStr = settings.getString("Renderer");
-//            if (rendererStr.startsWith("LWJGL-OpenGL3")){
-//                ContextAttribs attribs;
-//                if (rendererStr.equals("LWJGL-OpenGL3.1")){
-//                    attribs = new ContextAttribs(3, 1);
-//                }else{
-//                    attribs = new ContextAttribs(3, 0);
-//                }
-//                attribs.withForwardCompatible(true);
-//                attribs.withDebug(false);
-//                Display.create(pf, attribs);
-//            }else{
             pbuffer = new Pbuffer(width, height, pixelFormat, null, null, createContextAttribs());
-//            }
-
             pbuffer.makeCurrent();
 
             renderable.set(true);
@@ -141,9 +129,16 @@ public class LwjglOffscreenBuffer extends LwjglContext implements Runnable {
         assert checkGLError();
         
         renderer.onFrame();
+        
+        int frameRate = settings.getFrameRate();
+        if (frameRate >= 1){
+            Display.sync(frameRate);
+        }
     }
 
     protected void deinitInThread(){
+        renderable.set(false);
+        
         listener.destroy();
         renderer.cleanup();
         pbuffer.destroy();

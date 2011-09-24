@@ -1530,7 +1530,9 @@ public class LwjglRenderer implements Renderer {
 
     public void setFrameBuffer(FrameBuffer fb) {
         if (lastFb == fb) {
-            return;
+            if (fb == null || !fb.isUpdateNeeded()){
+                return;
+            }
         }
 
         // generate mipmaps for last FB if needed

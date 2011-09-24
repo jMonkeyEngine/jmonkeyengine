@@ -286,6 +286,7 @@ public class Camera implements Savable, Cloneable {
             cam.viewMatrix = viewMatrix.clone();
             cam.projectionMatrix = projectionMatrix.clone();
             cam.viewProjectionMatrix = viewProjectionMatrix.clone();
+            cam.guiBounding = (BoundingBox) guiBounding.clone();
 
             cam.update();
 
@@ -1227,6 +1228,7 @@ public class Camera implements Savable, Cloneable {
      */
     public void setParallelProjection(final boolean value) {
         this.parallelProjection = value;
+        onFrustumChange();
     }
 
     /**
