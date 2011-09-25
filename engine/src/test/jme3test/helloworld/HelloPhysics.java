@@ -43,12 +43,10 @@ import com.jme3.input.controls.MouseButtonTrigger;
 import com.jme3.material.Material;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
-import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Box;
 import com.jme3.scene.shape.Sphere;
 import com.jme3.scene.shape.Sphere.TextureMode;
-import com.jme3.shadow.BasicShadowRenderer;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
 
@@ -65,9 +63,6 @@ public class HelloPhysics extends SimpleApplication {
 
   /** Prepare the Physics Application State (jBullet) */
   private BulletAppState bulletAppState;
-
-  /** Activate custom rendering of shadows */
-  BasicShadowRenderer bsr;
 
   /** Prepare Materials */
   Material wall_mat;
@@ -104,19 +99,23 @@ public class HelloPhysics extends SimpleApplication {
     /** Set up Physics Game */
     bulletAppState = new BulletAppState();
     stateManager.attach(bulletAppState);
+    //bulletAppState.getPhysicsSpace().enableDebug(assetManager);
     /** Configure cam to look at scene */
-    cam.setLocation(new Vector3f(0, 6f, 6f));
-    cam.lookAt(Vector3f.ZERO, new Vector3f(0, 1, 0));
-    cam.setFrustumFar(15);
-    /** Add InputManager action: Left click triggers shooting. */
-    inputManager.addMapping("shoot", new MouseButtonTrigger(MouseInput.BUTTON_LEFT));
-    inputManager.addListener(actionListener, "shoot");
-    /** Initialize the scene, materials, and physics space */
+    cam.setLocation(new Vector3f(0, 4f, 6f));
+    cam.lookAt(new Vector3f(2, 2, 0), Vector3f.UNIT_Y);
+    /** Initialize the scene, materials, inputs, and physics space */
+    initInputs();
     initMaterials();
     initWall();
     initFloor();
     initCrossHairs();
-    initShadows();
+  }
+
+  /** Add InputManager action: Left click triggers shooting. */
+  private void initInputs() {
+    inputManager.addMapping("shoot", 
+            new MouseButtonTrigger(MouseInput.BUTTON_LEFT));
+    inputManager.addListener(actionListener, "shoot");
   }
 
   /**
@@ -157,7 +156,6 @@ public class HelloPhysics extends SimpleApplication {
   public void initFloor() {
     Geometry floor_geo = new Geometry("Floor", floor);
     floor_geo.setMaterial(floor_mat);
-    floor_geo.setShadowMode(ShadowMode.Receive);
     floor_geo.setLocalTranslation(0, -0.1f, 0);
     this.rootNode.attachChild(floor_geo);
     /* Make the floor physical with mass 0.0f! */
@@ -171,7 +169,7 @@ public class HelloPhysics extends SimpleApplication {
     float startpt = brickLength / 4;
     float height = 0;
     for (int j = 0; j < 15; j++) {
-      for (int i = 0; i < 4; i++) {
+      for (int i = 0; i < 6; i++) {
         Vector3f vt =
          new Vector3f(i * brickLength * 2 + startpt, brickHeight + height, 0);
         makeBrick(vt);
@@ -181,24 +179,14 @@ public class HelloPhysics extends SimpleApplication {
     }
   }
 
-  /** Activate shadow casting and light direction */
-    private void initShadows() {
-        bsr = new BasicShadowRenderer(assetManager, 256);
-        bsr.setDirection(new Vector3f(-1, -1, -1).normalizeLocal());
-        viewPort.addProcessor(bsr);
-        // Default mode is Off -- Every node declares own shadow mode!
-        rootNode.setShadowMode(ShadowMode.Off);
-    }
-
   /** This method creates one individual physical brick. */
   public void makeBrick(Vector3f loc) {
     /** Create a brick geometry and attach to scene graph. */
     Geometry brick_geo = new Geometry("brick", box);
     brick_geo.setMaterial(wall_mat);
     rootNode.attachChild(brick_geo);
-    /** Position the brick geometry and activate shadows */
+    /** Position the brick geometry  */
     brick_geo.setLocalTranslation(loc);
-    brick_geo.setShadowMode(ShadowMode.CastAndReceive);
     /** Make brick physical with a mass > 0.0f. */
     brick_phy = new RigidBodyControl(2f);
     /** Add physical brick to physics space. */
@@ -214,9 +202,8 @@ public class HelloPhysics extends SimpleApplication {
     Geometry ball_geo = new Geometry("cannon ball", sphere);
     ball_geo.setMaterial(stone_mat);
     rootNode.attachChild(ball_geo);
-    /** Position the cannon ball and activate shadows */
+    /** Position the cannon ball  */
     ball_geo.setLocalTranslation(cam.getLocation());
-    ball_geo.setShadowMode(ShadowMode.CastAndReceive);
     /** Make the ball physcial with a mass > 0.0f */
     ball_phy = new RigidBodyControl(1f);
     /** Add physical ball to physics space. */

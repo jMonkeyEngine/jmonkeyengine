@@ -29,7 +29,8 @@ public class HelloAudio extends SimpleApplication {
     /** just a blue box floating in space */
     Box box1 = new Box(Vector3f.ZERO, 1, 1, 1);
     player = new Geometry("Player", box1);
-    Material mat1 = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+    Material mat1 = new Material(assetManager, 
+            "Common/MatDefs/Misc/Unshaded.j3md");
     mat1.setColor("Color", ColorRGBA.Blue);
     player.setMaterial(mat1);
     rootNode.attachChild(player);
@@ -42,22 +43,22 @@ public class HelloAudio extends SimpleApplication {
   /** We create two audio nodes. */
   private void initAudio() {
     /* gun shot sound is to be triggered by a mouse click. */
-    audio_gun = new AudioNode(audioRenderer, assetManager, "Sound/Effects/Gun.wav", false);
+    audio_gun = new AudioNode(assetManager, "Sound/Effects/Gun.wav", false);
     audio_gun.setLooping(false);
     audio_gun.setVolume(2);
+    rootNode.attachChild(audio_gun);
 
     /* nature sound - keeps playing in a loop. */
-    audio_nature = new AudioNode(audioRenderer, assetManager, "Sound/Environment/Nature.ogg", false);
-    audio_nature.setLooping(true);
+    audio_nature = new AudioNode(assetManager, "Sound/Environment/Nature.ogg", true);
+    audio_nature.setLooping(true);  // activate continuous playing
     audio_nature.setPositional(true);
     audio_nature.setLocalTranslation(Vector3f.ZERO.clone());
     audio_nature.setVolume(3);
-    audio_nature.updateGeometricState();
-    audioRenderer.playSource(audio_nature); // play continuously!
+    rootNode.attachChild(audio_nature);
+    audio_nature.play(); // play continuously!
   }
 
-  /** Declaring the "Shoot" action, and
-   *  mapping it to a trigger (mouse click). */
+  /** Declaring "Shoot" action, mapping it to a trigger (mouse click). */
   private void initKeys() {
     inputManager.addMapping("Shoot", new MouseButtonTrigger(0));
     inputManager.addListener(actionListener, "Shoot");
@@ -68,7 +69,7 @@ public class HelloAudio extends SimpleApplication {
     @Override
     public void onAction(String name, boolean keyPressed, float tpf) {
       if (name.equals("Shoot") && !keyPressed) {
-        audioRenderer.playSource(audio_gun); // play once!
+        audio_gun.playInstance(); // play each instance once!
       }
     }
   };

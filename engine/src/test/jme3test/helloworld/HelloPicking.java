@@ -33,7 +33,6 @@
 package jme3test.helloworld;
 
 import com.jme3.app.SimpleApplication;
-import com.jme3.bounding.BoundingBox;
 import com.jme3.collision.CollisionResult;
 import com.jme3.collision.CollisionResults;
 import com.jme3.font.BitmapText;
