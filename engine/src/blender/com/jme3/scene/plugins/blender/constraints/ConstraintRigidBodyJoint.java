@@ -3,8 +3,7 @@ package com.jme3.scene.plugins.blender.constraints;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.jme3.animation.BoneAnimation;
-import com.jme3.animation.Skeleton;
+import com.jme3.animation.Animation;
 import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.animations.Ipo;
 import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
@@ -38,7 +37,7 @@ import com.jme3.scene.plugins.blender.file.Structure;
 	}
 
 	@Override
-	public void affectAnimation(Skeleton skeleton, BoneAnimation boneAnimation) {
+	public void affectAnimation(Animation animation, int targetIndex) {
 		// TODO: implement 'Rigid body joint' constraint
 		LOGGER.log(Level.WARNING, "'Rigid body joint' constraint NOT implemented!");
 	}

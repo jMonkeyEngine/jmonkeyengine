@@ -13,7 +13,6 @@ import java.util.logging.Logger;
 import com.jme3.animation.AnimControl;
 import com.jme3.animation.Animation;
 import com.jme3.animation.Bone;
-import com.jme3.animation.BoneAnimation;
 import com.jme3.animation.Skeleton;
 import com.jme3.animation.SkeletonControl;
 import com.jme3.math.Matrix4f;
@@ -131,7 +130,7 @@ import com.jme3.util.BufferUtils;
 							int fps = blenderContext.getBlenderKey().getFps();
 							float start = (float) animationFrames[0] / (float) fps;
 							float stop = (float) animationFrames[1] / (float) fps;
-							BoneAnimation boneAnimation = new BoneAnimation(actionName, stop - start);
+							Animation boneAnimation = new Animation(actionName, stop - start);
 							boneAnimation.setTracks(armatureHelper.getTracks(actionStructure, blenderContext, objectName, actionName));
 							animations.add(boneAnimation);
                                                  
@@ -169,16 +168,19 @@ import com.jme3.util.BufferUtils;
 			List<Constraint> constraints = blenderContext.getConstraints(this.armatureObjectOMA);
 			HashMap<String, Animation> anims = new HashMap<String, Animation>();
 			for (int i = 0; i < animList.size(); ++i) {
-				BoneAnimation boneAnimation = (BoneAnimation) animList.get(i).clone();
+				Animation animation = (Animation) animList.get(i).clone();
 
 				// baking constraints into animations
 				if (constraints != null && constraints.size() > 0) {
 					for (Constraint constraint : constraints) {
-						constraint.affectAnimation(animData.skeleton, boneAnimation);
+						Long boneOMA = constraint.getBoneOMA();
+						Bone bone = (Bone) blenderContext.getLoadedFeature(boneOMA, LoadedFeatureDataType.LOADED_FEATURE);
+						int targetIndex = bone==null ? 0 : animData.skeleton.getBoneIndex(bone);//bone==null may mean the object animation
+						constraint.affectAnimation(animation, targetIndex);
 					}
 				}
 
-				anims.put(boneAnimation.getName(), boneAnimation);
+				anims.put(animation.getName(), animation);
 			}
 
 			// applying the control to the node

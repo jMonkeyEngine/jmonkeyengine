@@ -5,9 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
-import com.jme3.animation.BoneAnimation;
-import com.jme3.animation.BoneTrack;
-import com.jme3.animation.Skeleton;
+import com.jme3.animation.Animation;
+import com.jme3.animation.Track;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
@@ -49,7 +48,7 @@ import com.jme3.scene.plugins.blender.file.Structure;
 	}
 
 	@Override
-	public void affectAnimation(Skeleton skeleton, BoneAnimation boneAnimation) {
+	public void affectAnimation(Animation animation, int targetIndex) {
 		//loading mesh points (blender ensures that the target is a mesh-object)
 		List<Vector3f> pts = new ArrayList<Vector3f>();
 		try {
@@ -65,10 +64,10 @@ import com.jme3.scene.plugins.blender.file.Structure;
 			}
 			
 			//modifying traces
-			BoneTrack boneTrack = this.getBoneTrack(skeleton, boneAnimation);
-			if (boneTrack != null) {
-				Vector3f[] translations = boneTrack.getTranslations();
-				Quaternion[] rotations = boneTrack.getRotations();
+			Track<?> track = this.getTrack(animation, targetIndex);
+			if (track != null) {
+				Vector3f[] translations = track.getTranslations();
+				Quaternion[] rotations = track.getRotations();
 				int maxFrames = translations.length;
 				for (int frame = 0; frame < maxFrames; ++frame) {
 					Vector3f currentTranslation = translations[frame];
@@ -86,7 +85,7 @@ import com.jme3.scene.plugins.blender.file.Structure;
 					translations[frame] = minDistancePoint.clone();
 				}
 				
-				boneTrack.setKeyframes(boneTrack.getTimes(), translations, rotations, boneTrack.getScales());
+				track.setKeyframes(track.getTimes(), translations, rotations, track.getScales());
 			}
 		} catch (BlenderFileException e) {
 			LOGGER.severe(e.getLocalizedMessage());

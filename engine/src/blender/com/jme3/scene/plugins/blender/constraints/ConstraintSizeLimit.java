@@ -1,8 +1,7 @@
 package com.jme3.scene.plugins.blender.constraints;
 
-import com.jme3.animation.BoneAnimation;
-import com.jme3.animation.BoneTrack;
-import com.jme3.animation.Skeleton;
+import com.jme3.animation.Animation;
+import com.jme3.animation.Track;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.animations.Ipo;
@@ -42,11 +41,11 @@ import com.jme3.scene.plugins.blender.file.Structure;
 	}
 
 	@Override
-	public void affectAnimation(Skeleton skeleton, BoneAnimation boneAnimation) {
-		BoneTrack boneTrack = this.getBoneTrack(skeleton, boneAnimation);
-		if (boneTrack != null) {
+	public void affectAnimation(Animation animation, int targetIndex) {
+		Track<?> track = this.getTrack(animation, targetIndex);
+		if (track != null) {
 			int flag = ((Number) data.getFieldValue("flag")).intValue();
-			Vector3f[] scales = boneTrack.getScales();
+			Vector3f[] scales = track.getScales();
 			int maxFrames = scales.length;
 			for (int frame = 0; frame < maxFrames; ++frame) {
 				float influence = ipo.calculateValue(frame);
@@ -87,7 +86,7 @@ import com.jme3.scene.plugins.blender.file.Structure;
 					}
 				}//TODO: consider constraint space !!!
 			}
-			boneTrack.setKeyframes(boneTrack.getTimes(), boneTrack.getTranslations(), boneTrack.getRotations(), scales);
+			track.setKeyframes(track.getTimes(), track.getTranslations(), track.getRotations(), scales);
 		}
 	}
 	

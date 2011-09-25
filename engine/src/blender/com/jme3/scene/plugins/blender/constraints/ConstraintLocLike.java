@@ -1,8 +1,7 @@
 package com.jme3.scene.plugins.blender.constraints;
 
-import com.jme3.animation.BoneAnimation;
-import com.jme3.animation.BoneTrack;
-import com.jme3.animation.Skeleton;
+import com.jme3.animation.Animation;
+import com.jme3.animation.Track;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.animations.Ipo;
@@ -45,12 +44,12 @@ import com.jme3.scene.plugins.blender.file.Structure;
 	}
 
 	@Override
-	public void affectAnimation(Skeleton skeleton, BoneAnimation boneAnimation) {
-		BoneTrack boneTrack = this.getBoneTrack(skeleton, boneAnimation);
-		if (boneTrack != null) {
+	public void affectAnimation(Animation animation, int targetIndex) {
+		Track<?> track = this.getTrack(animation, targetIndex);
+		if (track != null) {
 			Vector3f targetLocation = this.getTargetLocation();
 			int flag = ((Number) data.getFieldValue("flag")).intValue();
-			Vector3f[] translations = boneTrack.getTranslations();
+			Vector3f[] translations = track.getTranslations();
 			int maxFrames = translations.length;
 			for (int frame = 0; frame < maxFrames; ++frame) {
 				Vector3f offset = Vector3f.ZERO;
@@ -76,7 +75,7 @@ import com.jme3.scene.plugins.blender.file.Structure;
 				}
 				translations[frame].addLocal(offset);//TODO: ipo influence
 			}
-			boneTrack.setKeyframes(boneTrack.getTimes(), translations, boneTrack.getRotations(), boneTrack.getScales());
+			track.setKeyframes(track.getTimes(), translations, track.getRotations(), track.getScales());
 		}
 	}
 	
