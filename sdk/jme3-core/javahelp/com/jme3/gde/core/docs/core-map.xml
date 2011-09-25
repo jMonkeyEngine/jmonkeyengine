@@ -37,5 +37,4 @@
     <mapID target="com.jme3.gde.core.about" url="core-about.html"/>
     <mapID target="com.jme3.gde.core.sceneviewer" url="core-sceneviewer.html"/>
     <mapID target="com.jme3.gde.core.updating" url="core-updating.html"/>
-    <mapID target="com.jme3.gde.development" url="core-development.html"/>
 </map>
