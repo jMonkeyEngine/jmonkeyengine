@@ -130,7 +130,7 @@
             <else>
                 <replaceregexp file="${module_dir}/manifest.mf"
                                 match="OpenIDE-Module-Specification-Version:(.*)"
-                                replace="\\n"
+                                replace=""
                                 byline="true"/>
             </else>
         </if>
