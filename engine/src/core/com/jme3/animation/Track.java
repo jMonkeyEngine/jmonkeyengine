@@ -31,49 +31,66 @@
  */
 package com.jme3.animation;
 
-import com.jme3.export.JmeExporter;
-import com.jme3.export.JmeImporter;
 import com.jme3.export.Savable;
-import com.jme3.scene.Mesh;
-import java.io.IOException;
+import com.jme3.math.Quaternion;
+import com.jme3.math.Vector3f;
 
 /**
  * A single track of mesh animation (either morph or pose based).
  * Currently morph animations are not supported (only pose).
  */
-public abstract class Track implements Savable {
-
-    protected int targetMeshIndex;
-
-    /**
-     * build a track for a an index
-     * @param targetMeshIndex 
-     */
-    public Track(int targetMeshIndex) {
-        this.targetMeshIndex = targetMeshIndex;
-    }
-
-    /**
-     * return the mesh index
-     * @return 
-     */
-    public int getTargetMeshIndex() {
-        return targetMeshIndex;
-    }
-
+public interface Track<T> extends Savable, Cloneable {
     /**
      * sets time for this track
      * @param time
-     * @param targets
+     * @param target
      * @param weight 
      */
-    public abstract void setTime(float time, Mesh[] targets, float weight);
+    void setTime(float time, T target, float weight);
+    
+    /**
+	 * Set the translations, rotations and scales for this track.
+	 * 
+	 * @param times
+	 *            a float array with the time of each frame
+	 * @param translations
+	 *            the translation of the bone for each frame
+	 * @param rotations
+	 *            the rotation of the bone for each frame
+	 * @param scales
+	 *            the scale of the bone for each frame
+	 */
+	void setKeyframes(float[] times, Vector3f[] translations,
+					  Quaternion[] rotations, Vector3f[] scales);
+    
+	/**
+	 * @return the index of the target object for this track
+	 */
+	int getTargetIndex();
+	
+    /**
+	 * @return the array of rotations of this track
+	 */
+	Quaternion[] getRotations();
 
-    public void write(JmeExporter ex) throws IOException {
-        ex.getCapsule(this).write(targetMeshIndex, "meshIndex", 0);
-    }
+	/**
+	 * @return the array of scales for this track
+	 */
+	Vector3f[] getScales();
 
-    public void read(JmeImporter im) throws IOException {
-        targetMeshIndex = im.getCapsule(this).readInt("meshIndex", 0);
-    }
+	/**
+	 * @return the arrays of time for this track
+	 */
+	float[] getTimes();
+
+	/**
+	 * @return the array of translations of this track
+	 */
+	Vector3f[] getTranslations();
+	
+	/**
+     * This method creates a clone of the current object.
+     * @return a clone of the current object
+     */
+	Track<T> clone();
 }

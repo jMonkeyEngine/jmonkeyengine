@@ -31,30 +31,16 @@
  */
 package com.jme3.scene.plugins.ogre;
 
-import com.jme3.animation.Animation;
-import com.jme3.animation.Bone;
-import com.jme3.animation.BoneAnimation;
-import com.jme3.animation.BoneTrack;
-import com.jme3.animation.Skeleton;
-import com.jme3.asset.AssetInfo;
-import com.jme3.asset.AssetLoader;
-import com.jme3.asset.AssetManager;
-import com.jme3.math.Quaternion;
-import com.jme3.math.Vector3f;
-import com.jme3.system.JmeSystem;
-import com.jme3.util.xml.SAXUtil;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Stack;
 import java.util.logging.Logger;
 
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
 import org.xml.sax.Attributes;
@@ -62,7 +48,17 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
-import org.xml.sax.helpers.XMLReaderFactory;
+
+import com.jme3.animation.Animation;
+import com.jme3.animation.Bone;
+import com.jme3.animation.BoneTrack;
+import com.jme3.animation.Skeleton;
+import com.jme3.asset.AssetInfo;
+import com.jme3.asset.AssetLoader;
+import com.jme3.asset.AssetManager;
+import com.jme3.math.Quaternion;
+import com.jme3.math.Vector3f;
+import com.jme3.util.xml.SAXUtil;
 
 public class SkeletonLoader extends DefaultHandler implements AssetLoader {
 
@@ -73,7 +69,7 @@ public class SkeletonLoader extends DefaultHandler implements AssetLoader {
     private HashMap<String, Bone> nameToBone = new HashMap<String, Bone>();
     private BoneTrack track;
     private ArrayList<BoneTrack> tracks = new ArrayList<BoneTrack>();
-    private BoneAnimation animation;
+    private Animation animation;
     private ArrayList<Animation> animations;
     private Bone bone;
     private Skeleton skeleton;
@@ -132,7 +128,7 @@ public class SkeletonLoader extends DefaultHandler implements AssetLoader {
             assert elementStack.peek().equals("animations");
             String name = SAXUtil.parseString(attribs.getValue("name"));
             float length = SAXUtil.parseFloat(attribs.getValue("length"));
-            animation = new BoneAnimation(name, length);
+            animation = new Animation(name, length);
         } else if (qName.equals("bonehierarchy")) {
             assert elementStack.peek().equals("skeleton");
         } else if (qName.equals("animations")) {

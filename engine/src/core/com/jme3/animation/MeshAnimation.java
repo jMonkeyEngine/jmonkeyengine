@@ -32,21 +32,25 @@
 
 package com.jme3.animation;
 
+import java.io.IOException;
+
+import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
-import com.jme3.export.InputCapsule;
 import com.jme3.export.OutputCapsule;
-import com.jme3.export.Savable;
 import com.jme3.scene.Mesh;
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
-public class MeshAnimation implements Animation, Savable {
+/**
+ * 
+ * @author Kirill Vainer
+ * @deprecated use Animation instead with tracks of selected type (ie. BoneTrack, SpatialTrack, MeshTrack)
+ */
+@Deprecated
+public class MeshAnimation extends Animation {
 
     private String name;
     private float length;
-    private Track[] tracks;
+    private PoseTrack[] tracks;
 
     public MeshAnimation(String name, float length){
         this.name = name;
@@ -61,11 +65,11 @@ public class MeshAnimation implements Animation, Savable {
         return length;
     }
 
-    public void setTracks(Track[] tracks){
+    public void setTracks(PoseTrack[] tracks){
         this.tracks = tracks;
     }
 
-    public Track[] getTracks(){
+    public PoseTrack[] getTracks(){
         return tracks;
     }
 
@@ -92,18 +96,6 @@ public class MeshAnimation implements Animation, Savable {
         InputCapsule in = i.getCapsule(this);
         name = in.readString("name", "");
         length = in.readFloat("length", -1f);
-        tracks = (Track[]) in.readSavableArray("tracks", null);
+        tracks = (PoseTrack[]) in.readSavableArray("tracks", null);
     }
-
-    @Override
-    public Animation clone() {
-        try {
-            return (Animation) super.clone();
-        } catch (CloneNotSupportedException ex) {
-            throw new AssertionError();
-        }
-    }
-
-    
-
 }

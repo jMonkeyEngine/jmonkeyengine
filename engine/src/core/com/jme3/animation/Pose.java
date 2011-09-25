@@ -32,20 +32,21 @@
 
 package com.jme3.animation;
 
+import java.io.IOException;
+import java.nio.FloatBuffer;
+
+import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
-import com.jme3.export.InputCapsule;
 import com.jme3.export.OutputCapsule;
 import com.jme3.export.Savable;
 import com.jme3.math.Vector3f;
 import com.jme3.util.BufferUtils;
-import java.io.IOException;
-import java.nio.FloatBuffer;
 
 /**
  * A pose is a list of offsets that say where a mesh vertices should be for this pose.
  */
-public final class Pose implements Savable {
+public final class Pose implements Savable, Cloneable {
 
     private String name;
     private int targetMeshIndex;
@@ -91,6 +92,26 @@ public final class Pose implements Savable {
             BufferUtils.setInBuffer(tempVec2, vertbuf, vertIndex);
         }
     }
+    
+    /**
+     * This method creates a clone of the current object.
+     * @return a clone of the current object
+     */
+    public Pose clone() {
+		try {
+			Pose result = (Pose) super.clone();
+            result.indices = this.indices.clone();
+            if(this.offsets!=null) {
+            	result.offsets = new Vector3f[this.offsets.length];
+            	for(int i=0;i<this.offsets.length;++i) {
+            		result.offsets[i] = this.offsets[i].clone();
+            	}
+            }
+    		return result;
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError();
+        }
+	}
 
     public void write(JmeExporter e) throws IOException {
         OutputCapsule out = e.getCapsule(this);

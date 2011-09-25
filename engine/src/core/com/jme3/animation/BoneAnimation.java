@@ -47,8 +47,10 @@ import java.util.BitSet;
  * to apply the animation.
  * 
  * @author Kirill Vainer
+ * @deprecated use Animation instead with tracks of selected type (ie. BoneTrack, SpatialTrack, MeshTrack)
  */
-public final class BoneAnimation implements Animation, Savable, Cloneable {
+@Deprecated
+public final class BoneAnimation extends Animation {
 
     private String name;
     private float length;
@@ -118,7 +120,7 @@ public final class BoneAnimation implements Animation, Savable, Cloneable {
         
         for (int i = 0; i < tracks.length; i++) {
             if (affectedBones == null
-                    || affectedBones.get(tracks[i].getTargetBoneIndex())) {
+                    || affectedBones.get(tracks[i].getTargetIndex())) {
                 tracks[i].setTime(time, skeleton, blendAmount);
             }
         }
@@ -131,12 +133,7 @@ public final class BoneAnimation implements Animation, Savable, Cloneable {
     
     @Override
     public BoneAnimation clone() {
-        BoneAnimation result;
-        try {
-            result = (BoneAnimation) super.clone();
-        } catch (CloneNotSupportedException e) {
-            throw new AssertionError();
-        }
+        BoneAnimation result = (BoneAnimation) super.clone();
         if (result.tracks == null) {
             result.tracks = new BoneTrack[tracks.length];
         }
@@ -157,7 +154,7 @@ public final class BoneAnimation implements Animation, Savable, Cloneable {
                 scales[j] = sourceScales != null ? sourceScales[j].clone() : new Vector3f(1.0f, 1.0f, 1.0f);
             }
             // times do not change, no need to clone them
-            result.tracks[i] = new BoneTrack(tracks[i].getTargetBoneIndex(), times,
+            result.tracks[i] = new BoneTrack(tracks[i].getTargetIndex(), times,
                     translations, rotations, scales);
         }
         return result;

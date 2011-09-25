@@ -45,7 +45,7 @@ import java.io.IOException;
  * 
  * @author Kirill Vainer
  */
-public final class BoneTrack implements Savable {
+public final class BoneTrack implements Track<Skeleton> {
 
     /**
      * Bone index in the skeleton which this track effects.
@@ -105,13 +105,21 @@ public final class BoneTrack implements Savable {
         this.targetBoneIndex = targetBoneIndex;
     }
 
-    /**
-     * returns the bone index of this bone track
-     * @return 
+	/**
+     * @return the bone index of this bone track
+     * @deprecated use getTargetIndex() instead
      */
+    @Deprecated
     public int getTargetBoneIndex() {
         return targetBoneIndex;
     }
+
+    /**
+	 * @return the bone index of this bone track
+	 */
+	public int getTargetIndex() {
+		return targetBoneIndex;
+	}
 
     /**
      * return the array of rotations of this track
@@ -245,6 +253,30 @@ public final class BoneTrack implements Savable {
         }
     }
 
+    /**
+     * This method creates a clone of the current object.
+     * @return a clone of the current object
+     */
+	public BoneTrack clone() {
+        int tablesLength = times.length;
+
+        float[] times = this.times.clone();
+        Vector3f[] sourceTranslations = this.getTranslations();
+        Quaternion[] sourceRotations = this.getRotations();
+        Vector3f[] sourceScales = this.getScales();
+
+        Vector3f[] translations = new Vector3f[tablesLength];
+        Quaternion[] rotations = new Quaternion[tablesLength];
+        Vector3f[] scales = new Vector3f[tablesLength];
+        for (int i = 0; i < tablesLength; ++i) {
+            translations[i] = sourceTranslations[i].clone();
+            rotations[i] = sourceRotations[i].clone();
+            scales[i] = sourceScales != null ? sourceScales[i].clone() : new Vector3f(1.0f, 1.0f, 1.0f);
+        }
+        //need to use the constructor here because of the final fields used in this class
+        return new BoneTrack(targetBoneIndex, times, translations, rotations, scales);
+	}
+    
     @Override
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule oc = ex.getCapsule(this);

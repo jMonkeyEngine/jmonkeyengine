@@ -4,7 +4,6 @@ import java.util.HashMap;
 
 import com.jme3.animation.AnimControl;
 import com.jme3.animation.Animation;
-import com.jme3.animation.SpatialAnimation;
 import com.jme3.animation.SpatialTrack;
 import com.jme3.app.SimpleApplication;
 import com.jme3.light.AmbientLight;
@@ -71,8 +70,8 @@ public class TestSpatialAnim extends SimpleApplication {
         SpatialTrack spatialTrack = new SpatialTrack(times, translations, rotations, scales);
         
         //creating the animation
-        SpatialAnimation spatialAnimation = new SpatialAnimation("anim", animTime);
-        spatialAnimation.setTrack(spatialTrack);
+        Animation spatialAnimation = new Animation("anim", animTime);
+        spatialAnimation.setTracks(new SpatialTrack[] { spatialTrack });
         
         //create spatial animation control
         AnimControl control = new AnimControl();

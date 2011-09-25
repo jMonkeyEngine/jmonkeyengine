@@ -6,7 +6,6 @@ import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
-import com.jme3.export.Savable;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Spatial;
@@ -16,7 +15,7 @@ import com.jme3.scene.Spatial;
  * 
  * @author Marcin Roguski (Kaelthas)
  */
-public class SpatialTrack implements Savable {
+public class SpatialTrack implements Track<Spatial> {
 	/** Translations of the track. */
 	private CompactVector3Array translations;
 	/** Rotations of the track. */
@@ -63,7 +62,7 @@ public class SpatialTrack implements Savable {
 	 * @param spatial
 	 *            the spatial that should be animated with this track
 	 */
-	public void setTime(float time, Spatial spatial) {
+	public void setTime(float time, Spatial spatial, float weight) {
 		int lastFrame = times.length - 1;
 		if (time < 0 || lastFrame == 0) {
 			rotations.get(0, tempQ);
@@ -148,6 +147,13 @@ public class SpatialTrack implements Savable {
 	}
 
 	/**
+	 * @return the index of the target object for this track
+	 */
+	public int getTargetIndex() {
+		return 0;
+	}
+	
+	/**
 	 * @return the array of rotations of this track
 	 */
 	public Quaternion[] getRotations() {
@@ -175,6 +181,30 @@ public class SpatialTrack implements Savable {
 		return translations.toObjectArray();
 	}
 
+	/**
+     * This method creates a clone of the current object.
+     * @return a clone of the current object
+     */
+	public SpatialTrack clone() {
+        int tablesLength = times.length;
+
+        float[] times = this.times.clone();
+        Vector3f[] sourceTranslations = this.getTranslations();
+        Quaternion[] sourceRotations = this.getRotations();
+        Vector3f[] sourceScales = this.getScales();
+
+        Vector3f[] translations = new Vector3f[tablesLength];
+        Quaternion[] rotations = new Quaternion[tablesLength];
+        Vector3f[] scales = new Vector3f[tablesLength];
+        for (int i = 0; i < tablesLength; ++i) {
+            translations[i] = sourceTranslations[i].clone();
+            rotations[i] = sourceRotations[i].clone();
+            scales[i] = sourceScales != null ? sourceScales[i].clone() : new Vector3f(1.0f, 1.0f, 1.0f);
+        }
+        //need to use the constructor here because of the final fields used in this class
+        return new SpatialTrack(times, translations, rotations, scales);
+	}
+	
 	@Override
 	public void write(JmeExporter ex) throws IOException {
 		OutputCapsule oc = ex.getCapsule(this);
