@@ -1,10 +1,22 @@
 package com.jme3.scene.plugins.blender.modifiers;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.jme3.animation.AnimControl;
+import com.jme3.animation.Animation;
+import com.jme3.animation.Track;
 import com.jme3.scene.Node;
 import com.jme3.scene.plugins.blender.BlenderContext;
+import com.jme3.scene.plugins.blender.animations.Ipo;
+import com.jme3.scene.plugins.blender.animations.IpoHelper;
+import com.jme3.scene.plugins.blender.constraints.Constraint;
 import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
+import com.jme3.scene.plugins.blender.file.FileBlockHeader;
+import com.jme3.scene.plugins.blender.file.Pointer;
 import com.jme3.scene.plugins.blender.file.Structure;
 import com.jme3.scene.plugins.ogre.AnimData;
 
@@ -41,13 +53,12 @@ import com.jme3.scene.plugins.ogre.AnimData;
 	 */
 	public ObjectAnimationModifier(Structure objectStructure, BlenderContext blenderContext) throws BlenderFileException {
 		LOGGER.warning("Object animation modifier not yet implemented!");
-		/*
+		
 		Pointer pIpo = (Pointer) objectStructure.getFieldValue("ipo");
 		if (pIpo.isNotNull()) {
 			// check if there is an action name connected with this ipo
 			String objectAnimationName = null;
-			List<FileBlockHeader> actionBlocks = blenderContext
-					.getFileBlocks(Integer.valueOf(FileBlockHeader.BLOCK_AC00));
+			List<FileBlockHeader> actionBlocks = blenderContext.getFileBlocks(Integer.valueOf(FileBlockHeader.BLOCK_AC00));
 			for (FileBlockHeader actionBlock : actionBlocks) {
 				Structure action = actionBlock.getStructure(blenderContext);
 				List<Structure> actionChannels = ((Structure) action.getFieldValue("chanbase")).evaluateListBase(blenderContext);
@@ -68,38 +79,51 @@ import com.jme3.scene.plugins.ogre.AnimData;
 			IpoHelper ipoHelper = blenderContext.getHelper(IpoHelper.class);
 			Structure ipoStructure = pIpo.fetchData(blenderContext.getInputStream()).get(0);
 			Ipo ipo = ipoHelper.createIpo(ipoStructure, blenderContext);
-			int[] animationFrames = blenderContext.getBlenderKey().getAnimationFrames(objectName, objectAnimationName);
-			if (animationFrames == null) {// if the name was created here there are no frames set for the animation
-				animationFrames = new int[] { 1, ipo.getLastFrame() };
-			}
 			int fps = blenderContext.getBlenderKey().getFps();
-			float start = (float) animationFrames[0] / (float) fps;
-			float stop = (float) animationFrames[1] / (float) fps;
 
 			// calculating track for the only bone in this skeleton
-			BoneTrack[] tracks = new BoneTrack[1];
-			tracks[0] = ipo.calculateTrack(0, animationFrames[0], animationFrames[1], fps);
-
-			BoneAnimation boneAnimation = new BoneAnimation(objectAnimationName, stop - start);
-			boneAnimation.setTracks(tracks);
+			Track<?> track = ipo.calculateTrack(-1, 0, ipo.getLastFrame(), fps);
+			
+			Animation animation = new Animation(objectAnimationName, ipo.getLastFrame() / fps);
+			animation.setTracks(new Track<?>[] { track });
 			ArrayList<Animation> animations = new ArrayList<Animation>(1);
-			animations.add(boneAnimation);
+			animations.add(animation);
 
-			// preparing the object's bone
-			ObjectHelper objectHelper = blenderContext.getHelper(ObjectHelper.class);
-			Transform t = objectHelper.getTransformation(objectStructure, blenderContext);
-			Bone bone = new Bone(null);
-			bone.setBindTransforms(t.getTranslation(), t.getRotation(), t.getScale());
-
-			animData = new AnimData(new Skeleton(new Bone[] { bone }), animations);
+			animData = new AnimData(null, animations);
 			objectOMA = objectStructure.getOldMemoryAddress();
 		}
-		*/
 	}
 	
 	@Override
 	public Node apply(Node node, BlenderContext blenderContext) {
-		LOGGER.warning("Object animation modifier not yet implemented!");
+		if(invalid) {
+			LOGGER.log(Level.WARNING, "Armature modifier is invalid! Cannot be applied to: {0}", node.getName());
+		}//if invalid, animData will be null
+		if(animData == null) {
+			return node;
+		}
+		
+		ArrayList<Animation> animList = animData.anims;
+		if (animList != null && animList.size() > 0) {
+			List<Constraint> constraints = blenderContext.getConstraints(this.objectOMA);
+			HashMap<String, Animation> anims = new HashMap<String, Animation>();
+			for (int i = 0; i < animList.size(); ++i) {
+				Animation animation = (Animation) animList.get(i).clone();
+
+				// baking constraints into animations
+				if (constraints != null && constraints.size() > 0) {
+					for (Constraint constraint : constraints) {
+						constraint.affectAnimation(animation, 0);
+					}
+				}
+
+				anims.put(animation.getName(), animation);
+			}
+
+			AnimControl control = new AnimControl(null);
+			control.setAnimations(anims);
+			node.addControl(control);
+		}
 		return node;
 	}
 

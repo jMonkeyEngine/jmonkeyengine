@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -15,6 +14,7 @@ import com.jme3.animation.Animation;
 import com.jme3.animation.Bone;
 import com.jme3.animation.Skeleton;
 import com.jme3.animation.SkeletonControl;
+import com.jme3.animation.Track;
 import com.jme3.math.Matrix4f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
@@ -116,28 +116,27 @@ import com.jme3.util.BufferUtils;
 				this.readVerticesWeightsData(objectStructure, meshStructure, blenderContext);
 				
 				//read animations
-				String objectName = objectStructure.getName();
-				Set<String> animationNames = blenderContext.getBlenderKey().getAnimationNames(objectName);
-                                System.out.println("Loaded animation " + objectName);
-				if (animationNames != null && animationNames.size() > 0) {
-					ArrayList<Animation> animations = new ArrayList<Animation>();
-					List<FileBlockHeader> actionHeaders = blenderContext.getFileBlocks(Integer.valueOf(FileBlockHeader.BLOCK_AC00));
-					for (FileBlockHeader header : actionHeaders) {
-						Structure actionStructure = header.getStructure(blenderContext);
-						String actionName = actionStructure.getName();
-						if (animationNames.contains(actionName)) {
-							int[] animationFrames = blenderContext.getBlenderKey().getAnimationFrames(objectName, actionName);
-							int fps = blenderContext.getBlenderKey().getFps();
-							float start = (float) animationFrames[0] / (float) fps;
-							float stop = (float) animationFrames[1] / (float) fps;
-							Animation boneAnimation = new Animation(actionName, stop - start);
-							boneAnimation.setTracks(armatureHelper.getTracks(actionStructure, blenderContext, objectName, actionName));
-							animations.add(boneAnimation);
-                                                 
+				ArrayList<Animation> animations = new ArrayList<Animation>();
+				List<FileBlockHeader> actionHeaders = blenderContext.getFileBlocks(Integer.valueOf(FileBlockHeader.BLOCK_AC00));
+				for (FileBlockHeader header : actionHeaders) {
+					Structure actionStructure = header.getStructure(blenderContext);
+					String actionName = actionStructure.getName();
+					
+					Track<?>[] tracks = armatureHelper.getTracks(actionStructure, blenderContext);
+					//determining the animation  time
+					float maximumTrackLength = 0;
+					for(Track<?> track : tracks) {
+						float length = track.getLength();
+						if(length > maximumTrackLength) {
+							maximumTrackLength = length;
 						}
 					}
-					animData = new AnimData(new Skeleton(bones), animations);
+					
+					Animation boneAnimation = new Animation(actionName, maximumTrackLength);
+					boneAnimation.setTracks(tracks);
+					animations.add(boneAnimation);
 				}
+				animData = new AnimData(new Skeleton(bones), animations);
 			}
 		}
 	}

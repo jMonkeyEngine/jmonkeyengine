@@ -33,12 +33,8 @@ package com.jme3.asset;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Queue;
-import java.util.Set;
 
 import com.jme3.bounding.BoundingVolume;
 import com.jme3.collision.Collidable;
@@ -66,13 +62,6 @@ import com.jme3.texture.Texture;
 public class BlenderKey extends ModelKey {
 
 	protected static final int					DEFAULT_FPS				= 25;
-	/**
-	 * Animation definitions. The key is the object name that owns the animation. The value is a map between animation
-	 * name and its start and stop frames. Blender stores a pointer for animation within object. Therefore one object
-	 * can only have one animation at the time. We want to be able to switch between animations for one object so we
-	 * need to map the object name to animation names the object will use.
-	 */
-	protected Map<String, Map<String, int[]>>	animations;
 	/**
 	 * FramesPerSecond parameter describe how many frames there are in each second. It allows to calculate the time
 	 * between the frames.
@@ -124,76 +113,6 @@ public class BlenderKey extends ModelKey {
 	 */
 	public BlenderKey(String name) {
 		super(name);
-	}
-
-	/**
-	 * This method adds an animation definition. If a definition already eixists in the key then it is replaced.
-	 * @param objectName
-	 *        the name of animation's owner
-	 * @param name
-	 *        the name of the animation
-	 * @param start
-	 *        the start frame of the animation
-	 * @param stop
-	 *        the stop frame of the animation
-	 */
-	public synchronized void addAnimation(String objectName, String name, int start, int stop) {
-		if (objectName == null) {
-			throw new IllegalArgumentException("Object name cannot be null!");
-		}
-		if (name == null) {
-			throw new IllegalArgumentException("Animation name cannot be null!");
-		}
-		if (start > stop) {
-			throw new IllegalArgumentException("Start frame cannot be greater than stop frame!");
-		}
-		if (animations == null) {
-			animations = new HashMap<String, Map<String, int[]>>();
-			animations.put(objectName, new HashMap<String, int[]>());
-		}
-		Map<String, int[]> objectAnimations = animations.get(objectName);
-		if (objectAnimations == null) {
-			objectAnimations = new HashMap<String, int[]>();
-			animations.put(objectName, objectAnimations);
-		}
-		objectAnimations.put(name, new int[] { start, stop });
-	}
-
-	/**
-	 * This method returns the animation frames boundaries.
-	 * @param objectName
-	 *        the name of animation's owner
-	 * @param name
-	 *        animation name
-	 * @return animation frame boundaries in a table [start, stop] or null if animation of the given name does not
-	 *         exists
-	 */
-	public int[] getAnimationFrames(String objectName, String name) {
-		Map<String, int[]> objectAnimations = animations == null ? null : animations.get(objectName);
-		int[] frames = objectAnimations == null ? null : objectAnimations.get(name);
-		return frames == null ? null : frames.clone();
-	}
-
-	/**
-	 * This method returns the animation names for the given object name.
-	 * @param objectName
-	 *        the name of the object
-	 * @return an array of animations for this object
-	 */
-	public Set<String> getAnimationNames(String objectName) {
-		Map<String, int[]> objectAnimations = animations == null ? null : animations.get(objectName);
-		return objectAnimations == null ? null : objectAnimations.keySet();
-	}
-
-	/**
-	 * This method returns the animations map.
-	 * The key is the animated spatial name. The value is a map where the key
-	 * is the animation name and the value is 2-element array of int that has
-	 * start and stop frame of the animation.
-	 * @return the animations map
-	 */
-	public Map<String, Map<String, int[]>> getAnimations() {
-		return animations;
 	}
 
 	/**
@@ -424,22 +343,6 @@ public class BlenderKey extends ModelKey {
 	public void write(JmeExporter e) throws IOException {
 		super.write(e);
 		OutputCapsule oc = e.getCapsule(this);
-		// saving animations
-		oc.write(animations == null ? 0 : animations.size(), "anim-size", 0);
-		if (animations != null) {
-			int objectCounter = 0;
-			for (Entry<String, Map<String, int[]>> animEntry : animations.entrySet()) {
-				oc.write(animEntry.getKey(), "animated-object-" + objectCounter, null);
-				int animsAmount = animEntry.getValue().size();
-				oc.write(animsAmount, "anims-amount-" + objectCounter, 0);
-				for (Entry<String, int[]> animsEntry : animEntry.getValue().entrySet()) {
-					oc.write(animsEntry.getKey(), "anim-name-" + objectCounter, null);
-					oc.write(animsEntry.getValue(), "anim-frames-" + objectCounter, null);
-				}
-				++objectCounter;
-			}
-		}
-		// saving the rest of the data
 		oc.write(fps, "fps", DEFAULT_FPS);
 		oc.write(generatedTextureWidth, "generated-texture-width", 20);
 		oc.write(generatedTextureHeight, "generated-texture-height", 20);
@@ -458,28 +361,6 @@ public class BlenderKey extends ModelKey {
 	public void read(JmeImporter e) throws IOException {
 		super.read(e);
 		InputCapsule ic = e.getCapsule(this);
-		// reading animations
-		int animSize = ic.readInt("anim-size", 0);
-		if (animSize > 0) {
-			if (animations == null) {
-				animations = new HashMap<String, Map<String, int[]>>(animSize);
-			} else {
-				animations.clear();
-			}
-			for (int i = 0; i < animSize; ++i) {
-				String objectName = ic.readString("animated-object-" + i, null);
-				int animationsAmount = ic.readInt("anims-amount-" + i, 0);
-				Map<String, int[]> objectAnimations = new HashMap<String, int[]>(animationsAmount);
-				for (int j = 0; j < animationsAmount; ++j) {
-					String animName = ic.readString("anim-name-" + i, null);
-					int[] animFrames = ic.readIntArray("anim-frames-" + i, null);
-					objectAnimations.put(animName, animFrames);
-				}
-				animations.put(objectName, objectAnimations);
-			}
-		}
-
-		// reading the rest of the data
 		fps = ic.readInt("fps", DEFAULT_FPS);
 		generatedTextureWidth = ic.readInt("generated-texture-width", 20);
 		generatedTextureHeight = ic.readInt("generated-texture-height", 20);
@@ -498,7 +379,6 @@ public class BlenderKey extends ModelKey {
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
-		result = prime * result + (animations == null ? 0 : animations.hashCode());
 		result = prime * result + (assetRootPath == null ? 0 : assetRootPath.hashCode());
 		result = prime * result + (defaultMaterial == null ? 0 : defaultMaterial.hashCode());
 		result = prime * result + (faceCullMode == null ? 0 : faceCullMode.hashCode());
@@ -526,13 +406,6 @@ public class BlenderKey extends ModelKey {
 			return false;
 		}
 		BlenderKey other = (BlenderKey) obj;
-		if (animations == null) {
-			if (other.animations != null) {
-				return false;
-			}
-		} else if (!animations.equals(other.animations)) {
-			return false;
-		}
 		if (assetRootPath == null) {
 			if (other.assetRootPath != null) {
 				return false;
