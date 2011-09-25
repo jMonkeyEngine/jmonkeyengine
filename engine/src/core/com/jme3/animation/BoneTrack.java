@@ -252,6 +252,13 @@ public final class BoneTrack implements Track<Skeleton> {
             target.setAnimTransforms(tempV, tempQ, scales != null ? tempS : null);
         }
     }
+    
+    /**
+	 * @return the length of the track
+	 */
+	public float getLength() {
+		return times == null ? 0 : times[times.length - 1] - times[0];
+	}
 
     /**
      * This method creates a clone of the current object.

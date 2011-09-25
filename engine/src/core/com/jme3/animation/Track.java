@@ -89,6 +89,11 @@ public interface Track<T> extends Savable, Cloneable {
 	Vector3f[] getTranslations();
 	
 	/**
+	 * @return the length of the track
+	 */
+	float getLength();
+	
+	/**
      * This method creates a clone of the current object.
      * @return a clone of the current object
      */
