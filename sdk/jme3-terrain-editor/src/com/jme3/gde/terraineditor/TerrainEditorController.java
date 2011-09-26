@@ -33,13 +33,13 @@
 package com.jme3.gde.terraineditor;
 
 import com.jme3.asset.AssetManager;
-import com.jme3.asset.TextureKey;
-import com.jme3.bounding.BoundingBox;
 import com.jme3.gde.core.assets.AssetDataObject;
 import com.jme3.gde.core.assets.ProjectAssetManager;
 import com.jme3.gde.core.scene.SceneApplication;
 import com.jme3.gde.core.sceneexplorer.nodes.AbstractSceneExplorerNode;
+import com.jme3.gde.core.sceneexplorer.nodes.JmeNode;
 import com.jme3.gde.core.sceneexplorer.nodes.JmeSpatial;
+import com.jme3.gde.core.sceneexplorer.nodes.JmeTerrainQuad;
 import com.jme3.gde.core.undoredo.AbstractUndoableSceneEdit;
 import com.jme3.gde.core.undoredo.SceneUndoRedoManager;
 import com.jme3.gde.core.util.TerrainUtils;
@@ -51,8 +51,6 @@ import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.terrain.ProgressMonitor;
 import com.jme3.terrain.Terrain;
-import com.jme3.terrain.geomipmap.TerrainLodControl;
-import com.jme3.terrain.geomipmap.TerrainQuad;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
 import com.jme3.util.SkyFactory;
@@ -86,6 +84,7 @@ import org.openide.util.Lookup;
 @SuppressWarnings("unchecked")
 public class TerrainEditorController implements NodeListener {
     private JmeSpatial jmeRootNode;
+    private JmeSpatial selectedSpat;
     private Node terrainNode;
     private Node rootNode;
     private AssetDataObject currentFileObject;
@@ -143,7 +142,26 @@ public class TerrainEditorController implements NodeListener {
     }
 
     public void setNeedsSave(boolean state) {
-        currentFileObject.setModified(state);
+        if (state && !currentFileObject.isModified())
+            currentFileObject.setModified(state);
+        else if (!state && currentFileObject.isModified())
+            currentFileObject.setModified(state);
+    }
+    
+    protected void setSelectedSpat(JmeSpatial selectedSpat) {
+        
+        if (this.selectedSpat == selectedSpat) {
+            return;
+        }
+        if (this.selectedSpat != null) {
+            this.selectedSpat.removePropertyChangeListener(this);
+            this.selectedSpat.removeNodeListener(this);
+        }
+        this.selectedSpat = selectedSpat;
+        if (selectedSpat != null) {
+            selectedSpat.addPropertyChangeListener(this);
+            selectedSpat.addNodeListener(this);
+        }
     }
 
     public Node getTerrain(Spatial root) {
@@ -171,6 +189,30 @@ public class TerrainEditorController implements NodeListener {
         }
 
         return terrainNode;
+    }
+    
+    public JmeNode findJmeTerrain(JmeNode root) {
+        if (root == null)
+            root = (JmeNode) jmeRootNode;
+        
+        Node node = root.getLookup().lookup(Node.class);
+        if (node != null && node instanceof Terrain && node instanceof Node) {
+            return root;
+        }
+        
+        if (node != null) {
+            if (root.getChildren() != null) {
+                for (org.openide.nodes.Node child : root.getChildren().getNodes() ) {
+                    if (child instanceof JmeNode) {
+                        JmeNode res = findJmeTerrain((JmeNode)child);
+                        if (res != null)
+                            return res;
+                    }
+                }
+            }
+        }
+        
+        return null;
     }
 
     /**
@@ -1066,18 +1108,28 @@ public class TerrainEditorController implements NodeListener {
         setNeedsSave(true);
     }
 
-    public void propertyChange(PropertyChangeEvent evt) {
+    public void propertyChange(PropertyChangeEvent ev) {
+        if (ev.getNewValue() == null && ev.getOldValue() != null) {
+            topComponent.clearTextureTable(); // terrain deleted
+            terrainNode = null;
+        }
     }
     
     public void childrenAdded(NodeMemberEvent ev) {
-        //topComponent.reinitTextureTable();
+        boolean isTerrain = false;
+        for(org.openide.nodes.Node n : ev.getSnapshot()) {
+            Node node = n.getLookup().lookup(Node.class);
+            if (node instanceof Terrain) {
+                isTerrain = true;
+                break;
+            }
+        }
+        if (isTerrain)
+            topComponent.reinitTextureTable();
     }
 
     public void childrenRemoved(NodeMemberEvent ev) {
-        //terrainNode = null;
-        //Node t = getTerrain(rootNode);
-        //if (t == null)
-        //    topComponent.reinitTextureTable();
+        
     }
 
     public void childrenReordered(NodeReorderEvent ev) {

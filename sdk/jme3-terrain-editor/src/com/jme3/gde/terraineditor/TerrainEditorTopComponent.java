@@ -869,10 +869,11 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
 
     private void selectSpatial(JmeSpatial spatial) {
         selectedSpat = spatial;
-        if (selectedSpat instanceof JmeTerrainQuad) { //TODO shouldn't be terrainQuad, should be a generic JmeTerrain
+        editorController.setSelectedSpat(spatial);
+        /*if (selectedSpat instanceof JmeTerrainQuad) { //TODO shouldn't be terrainQuad, should be a generic JmeTerrain
             selectedSpat.removeNodeListener(terrainDeletedNodeListener); // remove it if it exists, no way to check if it is there already
             selectedSpat.addNodeListener(terrainDeletedNodeListener); // add it back
-        }
+        }*/
     }
 
     /**
@@ -1150,6 +1151,21 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
      */
     protected void reinitTextureTable() {
 
+        clearTextureTable();
+
+        getTableModel().initModel();
+
+        if (textureTable.getRowCount() > 0) {
+            toolController.setSelectedTextureIndex(0); // select the first row by default
+        } else {
+            toolController.setSelectedTextureIndex(-1);
+        }
+
+        editorController.enableTextureButtons();
+        triPlanarCheckBox.setSelected(editorController.isTriPlanarEnabled());
+    }
+
+    protected void clearTextureTable() {
         TextureCellRendererEditor rendererTexturer = new TextureCellRendererEditor();
         textureTable.getColumnModel().getColumn(1).setCellRenderer(rendererTexturer); // diffuse
         textureTable.getColumnModel().getColumn(1).setCellEditor(rendererTexturer);
@@ -1165,19 +1181,8 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
         if (editorController.getTerrain(null) == null) {
             return;
         }
-
-        getTableModel().initModel();
-
-        if (textureTable.getRowCount() > 0) {
-            toolController.setSelectedTextureIndex(0); // select the first row by default
-        } else {
-            toolController.setSelectedTextureIndex(-1);
-        }
-
-        editorController.enableTextureButtons();
-        triPlanarCheckBox.setSelected(editorController.isTriPlanarEnabled());
     }
-
+    
     /**
      * Adds another texture layer to the material, sets a default texture for it.
      * Assumes that the new index is in the range of the amount of available textures

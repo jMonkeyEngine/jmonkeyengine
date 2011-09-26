@@ -91,6 +91,8 @@ public abstract class AbstractStatefulGLToolAction {
     }
 
     protected void setModified(final AbstractSceneExplorerNode rootNode, final DataObject dataObject) {
+        if (dataObject.isModified())
+            return;
         java.awt.EventQueue.invokeLater(new Runnable() {
 
             public void run() {
