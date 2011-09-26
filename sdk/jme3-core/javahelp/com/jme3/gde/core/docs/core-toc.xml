@@ -134,7 +134,7 @@
                 <tocitem text="Ragdoll Example" target="jme3.advanced.ragdoll"/>
                 <tocitem text="Using Vehicles" target="jme3.advanced.vehicles"/>
             </tocitem>
-            <tocitem text="Audio an Video" expand="false">
+            <tocitem text="Audio" expand="false">
                 <tocitem text="Audio" target="jme3.advanced.audio"/>
                 <!--tocitem text="Video" target="jme3.advanced.video"/-->
             </tocitem>
