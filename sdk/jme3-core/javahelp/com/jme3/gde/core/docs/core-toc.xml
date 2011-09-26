@@ -107,7 +107,7 @@
                 <tocitem text="Update Loop" target="jme3.advanced.update_loop"/>
                 <tocitem text="Application States" target="jme3.advanced.application_states"/>
                 <tocitem text="Custom Controls" target="jme3.advanced.custom_controls"/>
-                <tocitem text="Multithreading" target="jme3:advanced:multithreading"/>
+                <tocitem text="Multithreading" target="jme3.advanced.multithreading"/>
             </tocitem>
             <tocitem text="Managing and Moving Objects" expand="false">
                 <tocitem text="Spatial types" target="jme3.advanced.spatial"/>
