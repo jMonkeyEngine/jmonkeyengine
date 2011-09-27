@@ -34,16 +34,14 @@ package jme3test.helloworld;
 
 import com.jme3.app.SimpleApplication;
 import com.jme3.material.Material;
-import com.jme3.renderer.Camera;
 import com.jme3.terrain.geomipmap.TerrainLodControl;
 import com.jme3.terrain.heightmap.AbstractHeightMap;
 import com.jme3.terrain.geomipmap.TerrainQuad;
+import com.jme3.terrain.geomipmap.lodcalc.DistanceLodCalculator;
 import com.jme3.terrain.heightmap.HillHeightMap; // for exercise 2
 import com.jme3.terrain.heightmap.ImageBasedHeightMap;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
-import java.util.ArrayList;
-import java.util.List;
 import jme3tools.converters.ImageToAwt;
 
 public class HelloTerrain extends SimpleApplication {
@@ -105,7 +103,8 @@ public class HelloTerrain extends SimpleApplication {
      * 3.4) As LOD step scale we supply Vector3f(1,1,1).
      * 3.5) We supply the prepared heightmap itself.
      */
-    terrain = new TerrainQuad("my terrain", 65, 513, heightmap.getHeightMap());
+    int patchSize = 65;
+    terrain = new TerrainQuad("my terrain", patchSize, 513, heightmap.getHeightMap());
 
     /** 4. We give the terrain its material, position & scale it, and attach it. */
     terrain.setMaterial(mat_terrain);
@@ -114,9 +113,8 @@ public class HelloTerrain extends SimpleApplication {
     rootNode.attachChild(terrain);
 
     /** 5. The LOD (level of detail) depends on were the camera is: */
-    List<Camera> cameras = new ArrayList<Camera>();
-    cameras.add(getCamera());
-    TerrainLodControl control = new TerrainLodControl(terrain, cameras);
+    TerrainLodControl control = new TerrainLodControl(terrain, getCamera());
+    control.setLodCalculator( new DistanceLodCalculator(patchSize, 2.7f) ); // patch size, and a multiplier
     terrain.addControl(control);
   }
 }
