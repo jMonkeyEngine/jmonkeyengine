@@ -13,6 +13,7 @@ import com.jme3.texture.Image;
 import com.jme3.texture.Image.Format;
 import com.jme3.texture.Texture;
 import com.jme3.texture.TextureCubeMap;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
 /**
@@ -113,7 +114,8 @@ public class SkyFactory {
 
         Format fmt = images[0].getFormat();
         int width = images[0].getWidth();
-        int size = images[0].getData(0).capacity();
+        ByteBuffer data = images[0].getData(0);
+        int size = data != null ? data.capacity() : 0;
 
         checkImage(images[0]);
 
@@ -126,7 +128,8 @@ public class SkyFactory {
             if (image.getWidth() != width) {
                 throw new IllegalArgumentException("Images must have same resolution");
             }
-            if (image.getData(0).capacity() != size) {
+            ByteBuffer data2 = image.getData(0);
+            if (data2.capacity() != size) {
                 throw new IllegalArgumentException("Images must have same size");
             }
         }
