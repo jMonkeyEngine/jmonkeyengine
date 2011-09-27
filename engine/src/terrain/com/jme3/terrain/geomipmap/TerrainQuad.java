@@ -922,8 +922,8 @@ public class TerrainQuad extends Node implements Terrain {
     public float getHeightmapHeight(Vector2f xz) {
         // offset
         int halfSize = totalSize / 2;
-        int x = Math.round((xz.x / getLocalScale().x) + halfSize);
-        int z = Math.round((xz.y / getLocalScale().z) + halfSize);
+        int x = Math.round((xz.x / getWorldScale().x) + halfSize);
+        int z = Math.round((xz.y / getWorldScale().z) + halfSize);
 
         return getHeightmapHeight(x, z);
     }
@@ -1024,10 +1024,10 @@ public class TerrainQuad extends Node implements Terrain {
 
     public float getHeight(Vector2f xz) {
         // offset
-        float x = (float)(((xz.x - getLocalTranslation().x) / getLocalScale().x) + (float)totalSize / 2f);
-        float z = (float)(((xz.y - getLocalTranslation().z) / getLocalScale().z) + (float)totalSize / 2f);
+        float x = (float)(((xz.x - getLocalTranslation().x) / getWorldScale().x) + (float)totalSize / 2f);
+        float z = (float)(((xz.y - getLocalTranslation().z) / getWorldScale().z) + (float)totalSize / 2f);
         float height = getHeight(x, z);
-        height *= getLocalScale().y;
+        height *= getWorldScale().y;
         return height;
     }
 
@@ -1064,8 +1064,8 @@ public class TerrainQuad extends Node implements Terrain {
 
     public Vector3f getNormal(Vector2f xz) {
         // offset
-        float x = (float)(((xz.x - getLocalTranslation().x) / getLocalScale().x) + (float)totalSize / 2f);
-        float z = (float)(((xz.y - getLocalTranslation().z) / getLocalScale().z) + (float)totalSize / 2f);
+        float x = (float)(((xz.x - getLocalTranslation().x) / getWorldScale().x) + (float)totalSize / 2f);
+        float z = (float)(((xz.y - getLocalTranslation().z) / getWorldScale().z) + (float)totalSize / 2f);
         Vector3f normal = getNormal(x, z, xz);
         
         return normal;
@@ -1130,8 +1130,8 @@ public class TerrainQuad extends Node implements Terrain {
 
         // offset
         for (int i=0; i<xz.size(); i++) {
-            int x = Math.round((xz.get(i).x / getLocalScale().x) + halfSize);
-            int z = Math.round((xz.get(i).y / getLocalScale().z) + halfSize);
+            int x = Math.round((xz.get(i).x / getWorldScale().x) + halfSize);
+            int z = Math.round((xz.get(i).y / getWorldScale().z) + halfSize);
             locations.add(new LocationHeight(x,z,height.get(i)));
         }
 

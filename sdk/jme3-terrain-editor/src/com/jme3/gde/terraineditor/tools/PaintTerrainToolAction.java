@@ -105,7 +105,7 @@ public class PaintTerrainToolAction extends AbstractTerrainToolAction {
         Vector2f uv = new Vector2f(worldLoc.x,-worldLoc.z);
         float scale = ((Node)terrain).getLocalScale().x;
         
-        uv.subtractLocal(((Node)terrain).getLocalTranslation().x*scale, ((Node)terrain).getLocalTranslation().z*scale); // center it on 0,0
+        uv.subtractLocal(((Node)terrain).getWorldTranslation().x*scale, ((Node)terrain).getWorldTranslation().z*scale); // center it on 0,0
         float scaledSize = terrain.getTerrainSize()*scale;
         uv.addLocal(scaledSize/2, scaledSize/2); // shift the bottom left corner up to 0,0
         uv.divideLocal(scaledSize); // get the location as a percentage

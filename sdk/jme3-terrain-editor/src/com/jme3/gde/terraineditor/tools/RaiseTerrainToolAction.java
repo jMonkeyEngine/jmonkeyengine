@@ -76,15 +76,15 @@ public class RaiseTerrainToolAction extends AbstractTerrainToolAction {
 
     private void modifyHeight(Terrain terrain, float radius, float heightDir) {
 
-        int radiusStepsX = (int) (radius / ((Node)terrain).getLocalScale().x);
-        int radiusStepsZ = (int) (radius / ((Node)terrain).getLocalScale().z);
+        int radiusStepsX = (int) (radius / ((Node)terrain).getWorldScale().x);
+        int radiusStepsZ = (int) (radius / ((Node)terrain).getWorldScale().z);
 
-        float xStepAmount = ((Node)terrain).getLocalScale().x;
-        float zStepAmount = ((Node)terrain).getLocalScale().z;
+        float xStepAmount = ((Node)terrain).getWorldScale().x;
+        float zStepAmount = ((Node)terrain).getWorldScale().z;
 
         List<Vector2f> locs = new ArrayList<Vector2f>();
         List<Float> heights = new ArrayList<Float>();
-
+        
         for (int z=-radiusStepsZ; z<radiusStepsZ; z++) {
             for (int x=-radiusStepsZ; x<radiusStepsX; x++) {
 
