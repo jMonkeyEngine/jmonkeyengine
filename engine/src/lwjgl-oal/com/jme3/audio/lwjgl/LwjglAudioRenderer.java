@@ -167,6 +167,10 @@ public class LwjglAudioRenderer implements AudioRenderer, Runnable {
             logger.log(Level.SEVERE, "Failed to load audio library", ex);
             audioDisabled = true;
             return;
+        } catch (UnsatisfiedLinkError ex){
+            logger.log(Level.SEVERE, "Failed to load audio library", ex);
+            audioDisabled = true;
+            return;
         }
 
         ALCdevice device = AL.getDevice();
