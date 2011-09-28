@@ -207,7 +207,7 @@ public class Application implements SystemListener {
     }
 
     private void initAudio(){
-        if (settings.getAudioRenderer() != null){
+        if (settings.getAudioRenderer() != null && context.getType() != Type.Headless){
             audioRenderer = JmeSystem.newAudioRenderer(settings);
             audioRenderer.initialize();
             AudioContext.setAudioRenderer(audioRenderer);
