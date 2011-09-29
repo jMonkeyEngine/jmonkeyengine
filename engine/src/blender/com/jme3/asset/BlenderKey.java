@@ -165,6 +165,15 @@ public class BlenderKey extends ModelKey {
 	public int getGeneratedTextureHeight() {
 		return generatedTextureHeight;
 	}
+	
+	/**
+	 * This method sets the depth of generated texture (in pixels). By default the value is 20 px.
+	 * @param generatedTextureDepth
+	 *        the depth of generated texture
+	 */
+	public void setGeneratedTextureDepth(int generatedTextureDepth) {
+		this.generatedTextureDepth = generatedTextureDepth;
+	}
 
 	/**
 	 * This method returns the depth of generated texture (in pixels). By default the value is 20 px.
