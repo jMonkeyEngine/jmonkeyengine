@@ -400,11 +400,11 @@ public final class AppSettings extends HashMap<String, Object> {
 
     /**
      * Set a custom graphics renderer to use. The class should implement 
-     * the {@link Renderer} interface.
-     * @param clazz The custom graphics renderer class.
+     * the {@link JmeContext} interface.
+     * @param clazz The custom context class.
      * (Default: not set)
      */
-    public void setCustomRenderer(Class clazz){
+    public void setCustomRenderer(Class<? extends JmeContext> clazz){
         put("Renderer", "CUSTOM" + clazz.getName());
     }
 

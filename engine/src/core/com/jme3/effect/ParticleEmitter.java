@@ -569,22 +569,6 @@ public class ParticleEmitter extends Geometry {
     }
 
     /**
-     * This method sets the gravity value of Y axis.
-     * 
-     * By default the Y axis is the only one to have gravity value non zero.
-     * 
-     * @param gravity
-     *        Set the gravity of Y axis, in units/sec/sec, of particles
-     *        spawned.
-     * 
-     * @deprecated Use {@link ParticleEmitter#setGravity(float, float, float) instead.
-     */
-    @Deprecated
-    public void setGravity(float gravity) {
-        this.gravity.y = gravity;
-    }
-
-    /**
      * Get the gravity vector.
      * 
      * @return the gravity vector.
@@ -836,31 +820,7 @@ public class ParticleEmitter extends Geometry {
         this.particleInfluencer.setVelocityVariation(variation);
     }
 
-//    private int newIndex(){
-//        liveParticles ++;
-//        return unusedIndices.remove(0);
-//        if (unusedIndices.size() > 0){
-//            liveParticles++;
-//            return unusedIndices.remove(0);
-//        }else if (next < particles.length){
-//            liveParticles++;
-//            return next++;
-//        }else{
-//            return -1;
-//        }
-//    }
-//    private void freeIndex(int index){
-//        liveParticles--;
-//        if (index == next-1)
-//            next--;
-//        else
-//        assert !unusedIndices.contains(index);
-//        unusedIndices.add(index);
-//    }
     private Particle emitParticle(Vector3f min, Vector3f max) {
-//        int idx = newIndex();
-//        if (idx == -1)
-//            return false;
         int idx = lastUsed + 1;
         if (idx >= particles.length) {
             return null;
@@ -943,6 +903,16 @@ public class ParticleEmitter extends Geometry {
             }
         }
     }
+    
+    /**
+     * Kills the particle at the given index.
+     * 
+     * @param index The index of the particle to kill
+     * @see #getParticles() 
+     */
+    public void killParticle(int index){
+        freeParticle(index);
+    }
 
     private void freeParticle(int idx) {
         Particle p = particles[idx];
@@ -952,8 +922,6 @@ public class ParticleEmitter extends Geometry {
         p.imageIndex = 0;
         p.angle = 0;
         p.rotateSpeed = 0;
-
-//        freeIndex(idx);
 
         if (idx == lastUsed) {
             while (lastUsed >= 0 && particles[lastUsed].life == 0) {

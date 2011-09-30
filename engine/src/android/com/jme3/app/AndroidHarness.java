@@ -74,6 +74,23 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
      * Message of the exit dialog, default is "Use your home key to bring this app into the background or exit to terminate it."
      */
     protected String exitDialogMessage = "Use your home key to bring this app into the background or exit to terminate it.";
+    
+    /**
+     * Set the screen window size
+     * if screenFullSize is true, then the notification bar and title bar are
+     *   removed and the screen covers the entire display
+     * if screenFullSize is false, then the notification bar remains visible
+     *   if screenShowTitle is true while screenFullScreen is false, then the
+     *     title bar is also displayed under the notification bar
+     */
+    protected boolean screenFullScreen = true;
+    
+    /**
+     * if screenShowTitle is true while screenFullScreen is false, then the
+     *     title bar is also displayed under the notification bar
+     */
+    protected boolean screenShowTitle = true;
+    
     /**
      * Set the screen orientation, default is SENSOR
      * ActivityInfo.SCREEN_ORIENTATION_* constants
@@ -115,9 +132,15 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
         JmeSystem.setResources(getResources());
         JmeSystem.setActivity(this);
 
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        if (screenFullScreen) {
+            requestWindowFeature(Window.FEATURE_NO_TITLE);
+            getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                    WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        } else {
+            if (!screenShowTitle) {
+                requestWindowFeature(Window.FEATURE_NO_TITLE);
+            }
+        }
 
         setRequestedOrientation(screenOrientation);
 

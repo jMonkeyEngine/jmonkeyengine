@@ -114,6 +114,8 @@ public class SkyFactory {
 
         Format fmt = images[0].getFormat();
         int width = images[0].getWidth();
+        int height = images[0].getHeight();
+        
         ByteBuffer data = images[0].getData(0);
         int size = data != null ? data.capacity() : 0;
 
@@ -125,12 +127,14 @@ public class SkyFactory {
             if (image.getFormat() != fmt) {
                 throw new IllegalArgumentException("Images must have same format");
             }
-            if (image.getWidth() != width) {
+            if (image.getWidth() != width || image.getHeight() != height)  {
                 throw new IllegalArgumentException("Images must have same resolution");
             }
             ByteBuffer data2 = image.getData(0);
-            if (data2.capacity() != size) {
-                throw new IllegalArgumentException("Images must have same size");
+            if (data2 != null){
+                if (data2.capacity() != size) {
+                    throw new IllegalArgumentException("Images must have same size");
+                }
             }
         }
     }

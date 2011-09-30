@@ -1,25 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" path="src/core"/>
-	<classpathentry kind="src" path="src/core-data"/>
-	<classpathentry kind="src" path="src/core-plugins"/>
-	<classpathentry kind="src" path="src/desktop"/>
-	<classpathentry kind="src" path="src/desktop-fx"/>
-	<classpathentry kind="src" path="src/games"/>
-	<classpathentry kind="src" path="src/jbullet"/>
-	<classpathentry kind="src" path="src/jogg"/>
-	<classpathentry kind="src" path="src/lwjgl-oal"/>
-	<classpathentry kind="src" path="src/lwjgl-ogl"/>
-	<classpathentry kind="src" path="src/niftygui"/>
-	<classpathentry kind="src" path="src/ogre"/>
-	<classpathentry kind="src" path="src/pack"/>
-	<classpathentry kind="src" path="src/test"/>
-	<classpathentry kind="src" path="src/test-data"/>
-	<classpathentry kind="src" path="src/tools"/>
-	<classpathentry kind="src" path="src/xml"/>
-	<classpathentry kind="src" path="src/terrain"/>
-	<classpathentry kind="src" path="src/networking"/>
-	<classpathentry kind="src" path="src/blender"/>
+	<classpathentry excluding="**/.svn/*" kind="src" path="src/core"/>
+	<classpathentry excluding="**/.svn/*" kind="src" path="src/core-data"/>
+	<classpathentry excluding="**/.svn/*" kind="src" path="src/core-plugins"/>
+	<classpathentry excluding="**/.svn/*" kind="src" path="src/desktop"/>
+	<classpathentry excluding="**/.svn/*" kind="src" path="src/desktop-fx"/>
+	<classpathentry excluding="**/.svn/*" kind="src" path="src/games"/>
+	<classpathentry excluding="**/.svn/*" kind="src" path="src/jbullet"/>
+	<classpathentry excluding="**/.svn/*" kind="src" path="src/jogg"/>
+	<classpathentry excluding="**/.svn/*" kind="src" path="src/lwjgl-oal"/>
+	<classpathentry excluding="**/.svn/*" kind="src" path="src/lwjgl-ogl"/>
+	<classpathentry excluding="**/.svn/*" kind="src" path="src/niftygui"/>
+	<classpathentry excluding="**/.svn/*" kind="src" path="src/ogre"/>
+	<classpathentry excluding="**/.svn/*" kind="src" path="src/pack"/>
+	<classpathentry excluding="**/.svn/*" kind="src" path="src/test"/>
+	<classpathentry excluding="**/.svn/*" kind="src" path="src/test-data"/>
+	<classpathentry excluding="**/.svn/*" kind="src" path="src/tools"/>
+	<classpathentry excluding="**/.svn/*" kind="src" path="src/xml"/>
+	<classpathentry excluding="**/.svn/*" kind="src" path="src/terrain"/>
+	<classpathentry excluding="**/.svn/*" kind="src" path="src/networking"/>
+	<classpathentry excluding="**/.svn/*" kind="src" path="src/blender"/>
 
 	<classpathentry kind="lib" path="lib/jbullet/asm-all-3.1.jar"/>
 	<classpathentry kind="lib" path="lib/jbullet/jbullet.jar"/>
