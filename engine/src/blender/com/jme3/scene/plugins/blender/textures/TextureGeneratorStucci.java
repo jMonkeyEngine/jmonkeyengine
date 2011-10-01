@@ -72,12 +72,12 @@ public class TextureGeneratorStucci extends TextureGenerator {
 		}
 		
 		float[] texvec = new float[] { 0, 0, 0 };
-		TextureResult texres = new TextureResult();
+		TexturePixel texres = new TexturePixel();
 		int halfW = width >> 1, halfH = height >> 1, halfD = depth >> 1, index = 0;
 		float wDelta = 1.0f / halfW, hDelta = 1.0f / halfH, dDelta = 1.0f / halfD, noiseValue, ofs;;
 		float[][] colorBand = this.computeColorband(tex, blenderContext);
-		Format format = colorBand != null ? Format.RGB8 : Format.Luminance8;
-		int bytesPerPixel = colorBand != null ? 3 : 1;
+		Format format = colorBand != null ? Format.RGBA8 : Format.Luminance8;
+		int bytesPerPixel = colorBand != null ? 4 : 1;
 
 		byte[] data = new byte[width * height * depth * bytesPerPixel];
 		for (int i = -halfW; i < halfW; ++i) {
@@ -98,6 +98,7 @@ public class TextureGeneratorStucci extends TextureGenerator {
 						texres.red = colorBand[colorbandIndex][0];
 						texres.green = colorBand[colorbandIndex][1];
 						texres.blue = colorBand[colorbandIndex][2];
+						texres.alpha = colorBand[colorbandIndex][3];
 					}
 
 					if (stype == NoiseGenerator.TEX_WALLOUT) {
@@ -111,6 +112,7 @@ public class TextureGeneratorStucci extends TextureGenerator {
 						data[index++] = (byte) (texres.red * 255.0f);
 						data[index++] = (byte) (texres.green * 255.0f);
 						data[index++] = (byte) (texres.blue * 255.0f);
+						data[index++] = (byte) (texres.alpha * 255.0f);
 					} else {
 						data[index++] = (byte) (texres.intensity * 255.0f);
 					}

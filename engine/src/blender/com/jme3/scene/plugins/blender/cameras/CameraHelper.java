@@ -17,8 +17,8 @@ import com.jme3.scene.plugins.blender.file.Structure;
 public class CameraHelper extends AbstractBlenderHelper {
 
     private static final Logger LOGGER = Logger.getLogger(CameraHelper.class.getName());
-    protected static final int DEFAULT_CAM_WIDTH = 100;
-    protected static final int DEFAULT_CAM_HEIGHT = 100;
+    protected static final int DEFAULT_CAM_WIDTH = 640;
+    protected static final int DEFAULT_CAM_HEIGHT = 480;
     
     /**
      * This constructor parses the given blender version and stores the result. Some functionalities may differ in
@@ -98,7 +98,6 @@ public class CameraHelper extends AbstractBlenderHelper {
         }
         //type==0 - perspective; type==1 - orthographic; perspective is used as default
         result.setParallelProjection(type == 1);
-        float angle = ((Number) structure.getFieldValue("angle")).floatValue();
         float aspect = 0;
         float clipsta = ((Number) structure.getFieldValue("clipsta")).floatValue();
         float clipend = ((Number) structure.getFieldValue("clipend")).floatValue();
@@ -107,7 +106,7 @@ public class CameraHelper extends AbstractBlenderHelper {
         } else {
             aspect = ((Number) structure.getFieldValue("ortho_scale")).floatValue();
         }
-        result.setFrustumPerspective(angle, aspect, clipsta, clipend);
+        result.setFrustumPerspective(aspect, result.getWidth() / result.getHeight(), clipsta, clipend);
         return result;
     }
 

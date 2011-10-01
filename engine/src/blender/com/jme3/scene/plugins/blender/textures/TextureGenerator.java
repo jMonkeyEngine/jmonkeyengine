@@ -278,7 +278,7 @@ import com.jme3.texture.Texture;
 	 * @param tex texture structure
 	 * @param texres
 	 */
-	protected void applyBrightnessAndContrast(BrightnessAndContrastData bacd, TextureResult texres) {
+	protected void applyBrightnessAndContrast(BrightnessAndContrastData bacd, TexturePixel texres) {
         texres.red = (texres.red - 0.5f) * bacd.contrast + bacd.brightness;
         if (texres.red < 0.0f) {
             texres.red = 0.0f;
@@ -299,7 +299,7 @@ import com.jme3.texture.Texture;
 	 * @param contrast
 	 * @param brightness
 	 */
-	protected void applyBrightnessAndContrast(TextureResult texres, float contrast, float brightness) {
+	protected void applyBrightnessAndContrast(TexturePixel texres, float contrast, float brightness) {
         texres.intensity = (texres.intensity - 0.5f) * contrast + brightness;
         if (texres.intensity < 0.0f) {
             texres.intensity = 0.0f;
@@ -307,20 +307,6 @@ import com.jme3.texture.Texture;
             texres.intensity = 1.0f;
         }
     }
-	
-	/**
-	 * The result pixel of generated texture computations;
-	 * 
-	 * @author Marcin Roguski (Kaelthas)
-	 */
-	protected static class TextureResult implements Cloneable {
-		public float	intensity, red, green, blue, alpha;
-
-		@Override
-		public Object clone() throws CloneNotSupportedException {
-			return super.clone();
-		}
-	}
 	
 	/**
 	 * A class constaining the colorband data.

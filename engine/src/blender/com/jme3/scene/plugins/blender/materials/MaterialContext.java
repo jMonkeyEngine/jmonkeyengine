@@ -1,31 +1,58 @@
 package com.jme3.scene.plugins.blender.materials;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.jme3.math.ColorRGBA;
 import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
 import com.jme3.scene.plugins.blender.file.DynamicArray;
 import com.jme3.scene.plugins.blender.file.Pointer;
 import com.jme3.scene.plugins.blender.file.Structure;
+import com.jme3.scene.plugins.blender.materials.MaterialHelper.DiffuseShader;
+import com.jme3.scene.plugins.blender.materials.MaterialHelper.SpecularShader;
 import com.jme3.scene.plugins.blender.textures.TextureHelper;
+import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.Type;
+import com.jme3.texture.Texture.WrapMode;
 
+/**
+ * This class holds the data about the material.
+ * @author Marcin Roguski (Kaelthas)
+ */
 public final class MaterialContext {
 	private static final Logger			LOGGER				= Logger.getLogger(MaterialContext.class.getName());
 
+	//texture mapping types
+	public static final int				MTEX_COL = 0x01;
+	public static final int				MTEX_NOR = 0x02;
+	public static final int				MTEX_SPEC = 0x04;
+	public static final int				MTEX_EMIT = 0x40;
+	public static final int				MTEX_ALPHA = 0x80;
+	
 	/* package */final String			name;
 	/* package */final List<Structure>	mTexs;
 	/* package */final List<Structure>	textures;
+	/* package */final Map<Number, Texture> loadedTextures;
+	/* package */final Map<Texture, Structure> textureToMTexMap;
 	/* package */final int				texturesCount;
 	/* package */final Type				textureType;
 
+	/* package */final ColorRGBA		diffuseColor;
+	/* package */final DiffuseShader 	diffuseShader;
+	/* package */final SpecularShader 	specularShader;
+	/* package */final ColorRGBA		specularColor;
+	/* package */final ColorRGBA		ambientColor;
+	/* package */final float 			shininess;
 	/* package */final boolean			shadeless;
 	/* package */final boolean			vertexColor;
 	/* package */final boolean			transparent;
-	/* package */final boolean			vtangent;
+	/* package */final boolean			vTangent;
 
 	/* package */int					uvCoordinatesType	= -1;
 	/* package */int					projectionType;
@@ -38,10 +65,37 @@ public final class MaterialContext {
 		shadeless = (mode & 0x4) != 0;
 		vertexColor = (mode & 0x80) != 0;
 		transparent = (mode & 0x10000) != 0;
-		vtangent = (mode & 0x4000000) != 0; // NOTE: Requires tangents
+		vTangent = (mode & 0x4000000) != 0; // NOTE: Requires tangents
 
+		int diff_shader = ((Number) structure.getFieldValue("diff_shader")).intValue();
+		diffuseShader = DiffuseShader.values()[diff_shader];
+		
+		if(this.shadeless) {
+			diffuseColor = ColorRGBA.White.clone();
+			specularShader = null;
+			specularColor = ambientColor = null;
+			shininess = 0.0f;
+		} else {
+			diffuseColor = this.readDiffuseColor(structure, diffuseShader);
+			
+			int spec_shader = ((Number) structure.getFieldValue("spec_shader")).intValue();
+			specularShader = SpecularShader.values()[spec_shader];
+			specularColor = this.readSpecularColor(structure, specularShader);
+			
+			float r = ((Number) structure.getFieldValue("ambr")).floatValue();
+			float g = ((Number) structure.getFieldValue("ambg")).floatValue();
+			float b = ((Number) structure.getFieldValue("ambb")).floatValue();
+			float alpha = ((Number) structure.getFieldValue("alpha")).floatValue();
+			ambientColor = new ColorRGBA(r, g, b, alpha);
+			
+			float shininess = ((Number) structure.getFieldValue("emit")).floatValue();
+			this.shininess = shininess > 0.0f ? shininess : MaterialHelper.DEFAULT_SHININESS;
+		}
+		float[] diffuseColorArray = new float[] {diffuseColor.r, diffuseColor.g, diffuseColor.b, diffuseColor.a};//TODO: czy trzeba wstawiac te dane?
+		
 		mTexs = new ArrayList<Structure>();
 		textures = new ArrayList<Structure>();
+		
 		DynamicArray<Pointer> mtexsArray = (DynamicArray<Pointer>) structure.getFieldValue("mtex");
 		int separatedTextures = ((Number) structure.getFieldValue("septex")).intValue();
 		Type firstTextureType = null;
@@ -79,9 +133,88 @@ public final class MaterialContext {
 				}
 			}
 		}
+		
+		//loading the textures and merging them
+		Map<Number, List<Structure[]>> sortedTextures = this.sortAndFilterTextures();
+		loadedTextures = new HashMap<Number, Texture>(sortedTextures.size());
+		textureToMTexMap = new HashMap<Texture, Structure>();
+		TextureHelper textureHelper = blenderContext.getHelper(TextureHelper.class);
+		for(Entry<Number, List<Structure[]>> entry : sortedTextures.entrySet()) {
+			if(entry.getValue().size()>0) {
+				List<Texture> textures = new ArrayList<Texture>(entry.getValue().size());
+				for(Structure[] mtexAndTex : entry.getValue()) {
+					int texflag = ((Number) mtexAndTex[0].getFieldValue("texflag")).intValue();
+					boolean negateTexture = (texflag & 0x04) != 0;
+					Texture texture = textureHelper.getTexture(mtexAndTex[1], blenderContext);
+					int blendType = ((Number) mtexAndTex[0].getFieldValue("blendtype")).intValue();
+					float[] color = new float[] { ((Number) mtexAndTex[0].getFieldValue("r")).floatValue(), 
+												  ((Number) mtexAndTex[0].getFieldValue("g")).floatValue(), 
+												  ((Number) mtexAndTex[0].getFieldValue("b")).floatValue() };
+					float colfac = ((Number) mtexAndTex[0].getFieldValue("colfac")).floatValue();
+					texture = textureHelper.blendTexture(diffuseColorArray, texture, color, colfac, blendType, negateTexture, blenderContext);
+					texture.setWrap(WrapMode.Repeat);
+					textures.add(texture);
+					textureToMTexMap.put(texture, mtexAndTex[0]);
+				}
+				loadedTextures.put(entry.getKey(), textureHelper.mergeTextures(textures, this));
+			}
+		}
 
 		this.texturesCount = mTexs.size();
 		this.textureType = firstTextureType;
+	}
+	
+	/**
+	 * This method sorts the textures by their mapping type.
+	 * In each group only textures of one type are put (either two- or three-dimensional).
+	 * If the mapping type is MTEX_COL then if the texture has no alpha channel then all textures before it are
+	 * discarded and will not be loaded and merged because texture with no alpha will cover them anyway.
+	 * @return a map with sorted and filtered textures
+	 */
+	private Map<Number, List<Structure[]>> sortAndFilterTextures() {
+		Map<Number, List<Structure[]>> result = new HashMap<Number, List<Structure[]>>();
+		for (int i = 0; i < mTexs.size(); ++i) {
+			Structure mTex = mTexs.get(i);
+			Structure texture  = textures.get(i);
+			Number mapto = (Number) mTex.getFieldValue("mapto");
+			List<Structure[]> mtexs = result.get(mapto);
+			if(mtexs==null) {
+				mtexs = new ArrayList<Structure[]>();
+				result.put(mapto, mtexs);
+			}
+			if(mapto.intValue() == MTEX_COL && this.isWithoutAlpha(textures.get(i))) {
+				mtexs.clear();//remove previous textures, they will be covered anyway
+			}
+			mtexs.add(new Structure[] {mTex, texture});
+		}
+		return result;
+	}
+	
+	/**
+	 * This method determines if the given texture has no alpha channel.
+	 * 
+	 * @param texture
+	 *            the texture to check for alpha channel
+	 * @return <b>true</b> if the texture has no alpha channel and <b>false</b>
+	 *         otherwise
+	 */
+	private boolean isWithoutAlpha(Structure texture) {
+		int flag = ((Number) texture.getFieldValue("flag")).intValue();
+		if((flag & 0x01) == 0) {//the texture has no colorband
+			int type = ((Number) texture.getFieldValue("type")).intValue();
+			if(type==TextureHelper.TEX_MAGIC) {
+				return true;
+			}
+			if(type==TextureHelper.TEX_VORONOI) {
+				int voronoiColorType = ((Number) texture.getFieldValue("vn_coltype")).intValue();
+				return voronoiColorType != 0;//voronoiColorType == 0: intensity, voronoiColorType != 0: col1, col2 or col3
+			}
+			if(type==TextureHelper.TEX_CLOUDS) {
+				int sType = ((Number) texture.getFieldValue("stype")).intValue();
+				return sType == 1;//sType==0: without colors, sType==1: with colors
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -133,6 +266,74 @@ public final class MaterialContext {
 		Structure mtex = mTexs.get(textureIndex);
 		return new int[] { ((Number) mtex.getFieldValue("projx")).intValue(), ((Number) mtex.getFieldValue("projy")).intValue(), ((Number) mtex.getFieldValue("projz")).intValue() };
 	}
+	
+	/**
+	 * This method returns the diffuse color.
+	 * 
+	 * @param materialStructure the material structure
+	 * @param diffuseShader the diffuse shader
+	 * @return the diffuse color
+	 */
+	private ColorRGBA readDiffuseColor(Structure materialStructure, DiffuseShader diffuseShader) {
+		// bitwise 'or' of all textures mappings
+		int commonMapto = ((Number) materialStructure.getFieldValue("mapto")).intValue();
+
+		// diffuse color
+		float r = ((Number) materialStructure.getFieldValue("r")).floatValue();
+		float g = ((Number) materialStructure.getFieldValue("g")).floatValue();
+		float b = ((Number) materialStructure.getFieldValue("b")).floatValue();
+		float alpha = ((Number) materialStructure.getFieldValue("alpha")).floatValue();
+		if ((commonMapto & 0x01) == 0x01) {// Col
+			return new ColorRGBA(r, g, b, alpha);
+		} else {
+			switch (diffuseShader) {
+				case FRESNEL:
+				case ORENNAYAR:
+				case TOON:
+					break;// TODO: find what is the proper modification
+				case MINNAERT:
+				case LAMBERT:// TODO: check if that is correct
+					float ref = ((Number) materialStructure.getFieldValue("ref")).floatValue();
+					r *= ref;
+					g *= ref;
+					b *= ref;
+					break;
+				default:
+					throw new IllegalStateException("Unknown diffuse shader type: " + diffuseShader.toString());
+			}
+			return new ColorRGBA(r, g, b, alpha);
+		}
+	}
+
+	/**
+	 * This method returns a specular color used by the material.
+	 * 
+	 * @param materialStructure
+	 *        the material structure filled with data
+	 * @return a specular color used by the material
+	 */
+	private ColorRGBA readSpecularColor(Structure materialStructure, SpecularShader specularShader) {
+		float r = ((Number) materialStructure.getFieldValue("specr")).floatValue();
+		float g = ((Number) materialStructure.getFieldValue("specg")).floatValue();
+		float b = ((Number) materialStructure.getFieldValue("specb")).floatValue();
+		float alpha = ((Number) materialStructure.getFieldValue("alpha")).floatValue();
+		switch (specularShader) {
+			case BLINN:
+			case COOKTORRENCE:
+			case TOON:
+			case WARDISO:// TODO: find what is the proper modification
+				break;
+			case PHONG:// TODO: check if that is correct
+				float spec = ((Number) materialStructure.getFieldValue("spec")).floatValue();
+				r *= spec * 0.5f;
+				g *= spec * 0.5f;
+				b *= spec * 0.5f;
+				break;
+			default:
+				throw new IllegalStateException("Unknown specular shader type: " + specularShader.toString());
+		}
+		return new ColorRGBA(r, g, b, alpha);
+	}
 
 	/**
 	 * This method determines the type of the texture.
@@ -166,5 +367,93 @@ public final class MaterialContext {
 			default:
 				throw new IllegalStateException("Unknown texture type: " + texType);
 		}
+	}
+	
+	/**
+	 * @return he material's name
+	 */
+	public String getName() {
+		return name;
+	}
+	
+	/**
+	 * @return a copy of diffuse color
+	 */
+	public ColorRGBA getDiffuseColor() {
+		return diffuseColor.clone();
+	}
+	
+	/**
+	 * @return an enum describing the type of a diffuse shader used by this material
+	 */
+	public DiffuseShader getDiffuseShader() {
+		return diffuseShader;
+	}
+	
+	/**
+	 * @return a copy of specular color
+	 */
+	public ColorRGBA getSpecularColor() {
+		return specularColor.clone();
+	}
+	
+	/**
+	 * @return an enum describing the type of a specular shader used by this material
+	 */
+	public SpecularShader getSpecularShader() {
+		return specularShader;
+	}
+	
+	/**
+	 * @return an ambient color used by the material
+	 */
+	public ColorRGBA getAmbientColor() {
+		return ambientColor;
+	}
+	
+	/**
+	 * @return the sihiness of this material
+	 */
+	public float getShininess() {
+		return shininess;
+	}
+	
+	/**
+	 * @return <b>true</b> if the material is shadeless and <b>false</b> otherwise
+	 */
+	public boolean isShadeless() {
+		return shadeless;
+	}
+	
+	/**
+	 * @return <b>true</b> if the material uses vertex color and <b>false</b> otherwise
+	 */
+	public boolean isVertexColor() {
+		return vertexColor;
+	}
+	
+	/**
+	 * @return <b>true</b> if the material is transparent and <b>false</b> otherwise
+	 */
+	public boolean isTransparent() {
+		return transparent;
+	}
+	
+	/**
+	 * @return <b>true</b> if the material uses tangents and <b>false</b> otherwise
+	 */
+	public boolean isvTangent() {
+		return vTangent;
+	}
+	
+	/**
+	 * @param texture
+	 *            the texture for which its mtex structure definition will be
+	 *            fetched
+	 * @return mtex structure of the current texture or <b>null</b> if none
+	 *         exists
+	 */
+	public Structure getMTex(Texture texture) {
+		return textureToMTexMap.get(texture);
 	}
 }

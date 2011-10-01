@@ -62,11 +62,11 @@ public class TextureGeneratorNoise extends TextureGenerator {
 	protected Texture generate(Structure tex, int width, int height, int depth, BlenderContext blenderContext) {
 		int val, random, loop;
 		int noisedepth = ((Number) tex.getFieldValue("noisedepth")).intValue();
-		TextureResult texres = new TextureResult();
+		TexturePixel texres = new TexturePixel();
 		int halfW = width >> 1, halfH = height >> 1, halfD = depth >> 1, index = 0;
 		float[][] colorBand = this.computeColorband(tex, blenderContext);
-		Format format = colorBand != null ? Format.RGB8 : Format.Luminance8;
-		int bytesPerPixel = colorBand != null ? 3 : 1;
+		Format format = colorBand != null ? Format.RGBA8 : Format.Luminance8;
+		int bytesPerPixel = colorBand != null ? 4 : 1;
 		BrightnessAndContrastData bacd = new BrightnessAndContrastData(tex);
 		
 		byte[] data = new byte[width * height * depth * bytesPerPixel];
@@ -81,7 +81,7 @@ public class TextureGeneratorNoise extends TextureGenerator {
 						random >>= 2;
 						val *= random & 3;
 					}
-					texres.intensity = val;
+					texres.intensity = FastMath.clamp(val, 0.0f, 1.0f);
 					if (colorBand != null) {
 						int colorbandIndex = (int) (texres.intensity * 1000.0f);
 						texres.red = colorBand[colorbandIndex][0];
@@ -92,6 +92,7 @@ public class TextureGeneratorNoise extends TextureGenerator {
 						data[index++] = (byte) (texres.red * 255.0f);
 						data[index++] = (byte) (texres.green * 255.0f);
 						data[index++] = (byte) (texres.blue * 255.0f);
+						data[index++] = (byte) (colorBand[colorbandIndex][3] * 255.0f);
 					} else {
 						this.applyBrightnessAndContrast(texres, bacd.contrast, bacd.brightness);
 						data[index++] = (byte) (texres.intensity * 255.0f);

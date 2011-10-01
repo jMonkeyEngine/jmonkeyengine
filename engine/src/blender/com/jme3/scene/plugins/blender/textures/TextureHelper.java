@@ -50,6 +50,7 @@ import com.jme3.asset.BlenderKey;
 import com.jme3.asset.BlenderKey.FeaturesToLoad;
 import com.jme3.asset.GeneratedTextureKey;
 import com.jme3.asset.TextureKey;
+import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.plugins.blender.AbstractBlenderHelper;
@@ -59,10 +60,12 @@ import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
 import com.jme3.scene.plugins.blender.file.FileBlockHeader;
 import com.jme3.scene.plugins.blender.file.Pointer;
 import com.jme3.scene.plugins.blender.file.Structure;
+import com.jme3.scene.plugins.blender.materials.MaterialContext;
 import com.jme3.scene.plugins.blender.materials.MaterialHelper;
 import com.jme3.texture.Image;
 import com.jme3.texture.Image.Format;
 import com.jme3.texture.Texture;
+import com.jme3.texture.Texture.MinFilter;
 import com.jme3.texture.Texture.WrapMode;
 import com.jme3.texture.Texture2D;
 import com.jme3.texture.Texture3D;
@@ -215,6 +218,8 @@ public class TextureHelper extends AbstractBlenderHelper {
 		if (result != null) {
 			result.setName(tex.getName());
 			result.setWrap(WrapMode.Repeat);
+			// NOTE: Enable mipmaps FOR ALL TEXTURES EVER
+			result.setMinFilter(MinFilter.Trilinear);
 			if(type != TEX_IMAGE) {//only generated textures should have this key
 				result.setKey(new GeneratedTextureKey(tex.getName()));
 			}
@@ -261,7 +266,7 @@ public class TextureHelper extends AbstractBlenderHelper {
 			newData.put(dataIndex++, (byte) (resultPixel[0] * 255.0f));
 			newData.put(dataIndex++, (byte) (resultPixel[1] * 255.0f));
 			newData.put(dataIndex++, (byte) (resultPixel[2] * 255.0f));
-			newData.put(dataIndex++, (byte) 255.0f);//1.0f * 255.0f
+			newData.put(dataIndex++, (byte) (materialColorClone[3] * 255.0f));
 		}
 		if(texture.getType()==Texture.Type.TwoDimensional) {
 			return new Texture2D(new Image(Format.RGBA8, width, height, newData));
@@ -272,6 +277,78 @@ public class TextureHelper extends AbstractBlenderHelper {
 		}
 	}
 
+	/**
+	 * This method merges the given textures. The result texture has no alpha
+	 * factor (is always opaque).
+	 * 
+	 * @param sources
+	 *            the textures to be merged
+	 * @param materialContext
+	 *            the context of the material
+	 * @return merged textures
+	 */
+	public Texture mergeTextures(List<Texture> sources, MaterialContext materialContext) {
+		Texture result = null;
+		if(sources!=null && sources.size()>0) {
+			//checking the sizes of the textures (tehy should perfectly match)
+			int lastTextureWithoutAlphaIndex = 0;
+			int width = sources.get(0).getImage().getWidth();
+			int height = sources.get(0).getImage().getHeight();
+			int depth = sources.get(0).getImage().getDepth();
+			
+			for(Texture source : sources) {
+				if(source.getImage().getWidth() != width) {
+					throw new IllegalArgumentException("The texture " + source.getName() + " has invalid width! It should be: " + width + '!');
+				}
+				if(source.getImage().getHeight() != height) {
+					throw new IllegalArgumentException("The texture " + source.getName() + " has invalid height! It should be: " + height + '!');
+				}
+				if(source.getImage().getDepth() != depth) {
+					throw new IllegalArgumentException("The texture " + source.getName() + " has invalid depth! It should be: " + depth + '!');
+				}
+				//support for more formats is not necessary at the moment
+				if(source.getImage().getFormat()!=Format.RGB8 && source.getImage().getFormat()!=Format.BGR8) {
+					++lastTextureWithoutAlphaIndex;
+				}
+			}
+			
+			//remove textures before the one without alpha (they will be covered anyway)
+			if(lastTextureWithoutAlphaIndex > 0 && lastTextureWithoutAlphaIndex<sources.size()-1) {
+				sources = sources.subList(lastTextureWithoutAlphaIndex, sources.size()-1);
+			}
+			int pixelsAmount = width * height * depth;
+			
+			ByteBuffer data = BufferUtils.createByteBuffer(pixelsAmount * 3);
+			TexturePixel resultPixel = new TexturePixel();
+			TexturePixel sourcePixel = new TexturePixel();
+			ColorRGBA diffuseColor = materialContext.getDiffuseColor();
+			for (int i = 0; i < pixelsAmount; ++i) {
+				for (int j = 0; j < sources.size(); ++j) {
+					Image image = sources.get(j).getImage();
+					ByteBuffer sourceData = image.getData(0);
+					if(j==0) {
+						resultPixel.fromColor(diffuseColor);
+						sourcePixel.fromImage(image.getFormat(), sourceData, i);
+						resultPixel.merge(sourcePixel);
+					} else {
+						sourcePixel.fromImage(image.getFormat(), sourceData, i);
+						resultPixel.merge(sourcePixel);
+					}
+				}
+				data.put((byte)(255 * resultPixel.red));
+				data.put((byte)(255 * resultPixel.green));
+				data.put((byte)(255 * resultPixel.blue));
+				resultPixel.clear();
+			}
+			
+			ArrayList<ByteBuffer> arrayData = new ArrayList<ByteBuffer>(1);
+			arrayData.add(data);
+			//TODO: add different texture types
+			result = new Texture3D(new Image(Format.RGB8, width, height, depth, arrayData));
+		}
+		return result;
+	}
+	
 	/**
 	 * This method alters the material color in a way dependent on the type of the image.
 	 * For example the color remains untouched if the texture is of Luminance type.
@@ -293,46 +370,52 @@ public class TextureHelper extends AbstractBlenderHelper {
 	protected float setupMaterialColor(ByteBuffer data, Format imageFormat, boolean neg, float[] materialColor) {
 		float tin = 0.0f;
 		byte pixelValue = data.get();// at least one byte is always taken :)
-		float firstPixelValue = pixelValue >= 0 ? 1.0f - pixelValue / 255.0f : (~pixelValue + 1) / 255.0f;
+		float firstPixelValue = pixelValue >= 0 ? pixelValue / 255.0f : 1.0f - (~pixelValue) / 255.0f;
 		switch (imageFormat) {
-		case ABGR8:
-			pixelValue = data.get();
-			materialColor[2] = pixelValue >= 0 ? 1.0f - pixelValue / 255.0f : (~pixelValue + 1) / 255.0f;
-			pixelValue = data.get();
-			materialColor[1] = pixelValue >= 0 ? 1.0f - pixelValue / 255.0f : (~pixelValue + 1) / 255.0f;
-			pixelValue = data.get();
-			materialColor[0] = pixelValue >= 0 ? 1.0f - pixelValue / 255.0f : (~pixelValue + 1) / 255.0f;
-			break;
-		case BGR8:
-			materialColor[2] = firstPixelValue;
-			pixelValue = data.get();
-			materialColor[1] = pixelValue >= 0 ? 1.0f - pixelValue / 255.0f : (~pixelValue + 1) / 255.0f;
-			pixelValue = data.get();
-			materialColor[0] = pixelValue >= 0 ? 1.0f - pixelValue / 255.0f : (~pixelValue + 1) / 255.0f;
-			break;
-		case RGB8:
-			materialColor[0] = firstPixelValue;
-			pixelValue = data.get();
-			materialColor[1] = pixelValue >= 0 ? 1.0f - pixelValue / 255.0f : (~pixelValue + 1) / 255.0f;
-			pixelValue = data.get();
-			materialColor[2] = pixelValue >= 0 ? 1.0f - pixelValue / 255.0f : (~pixelValue + 1) / 255.0f;
+		case Luminance8:
+			tin = neg ? 1.0f - firstPixelValue : firstPixelValue;
+			materialColor[3] = tin;
+			neg = false;//do not negate the materialColor, it must be unchanged
 			break;
 		case RGBA8:
 			materialColor[0] = firstPixelValue;
 			pixelValue = data.get();
-			materialColor[1] = pixelValue >= 0 ? 1.0f - pixelValue / 255.0f : (~pixelValue + 1) / 255.0f;
+			materialColor[1] = pixelValue >= 0 ? pixelValue / 255.0f : 1.0f - (~pixelValue) / 255.0f;
 			pixelValue = data.get();
-			materialColor[2] = pixelValue >= 0 ? 1.0f - pixelValue / 255.0f : (~pixelValue + 1) / 255.0f;
-			data.get(); // ignore alpha
+			materialColor[2] = pixelValue >= 0 ? pixelValue / 255.0f : 1.0f - (~pixelValue) / 255.0f;
+			pixelValue = data.get();
+			materialColor[3] = pixelValue >= 0 ? pixelValue / 255.0f : 1.0f - (~pixelValue) / 255.0f;
 			break;
-		case Luminance8:
-			tin = neg ? 1.0f - firstPixelValue : firstPixelValue;
-			neg = false;//do not negate the materialColor, it must be unchanged
+		case ABGR8:
+			materialColor[3] = firstPixelValue;
+			pixelValue = data.get();
+			materialColor[2] = pixelValue >= 0 ? pixelValue / 255.0f : 1.0f - (~pixelValue) / 255.0f;
+			pixelValue = data.get();
+			materialColor[1] = pixelValue >= 0 ? pixelValue / 255.0f : 1.0f - (~pixelValue) / 255.0f;
+			pixelValue = data.get();
+			materialColor[0] = pixelValue >= 0 ? pixelValue / 255.0f : 1.0f - (~pixelValue) / 255.0f;
+			break;
+		case BGR8:
+			materialColor[2] = firstPixelValue;
+			pixelValue = data.get();
+			materialColor[1] = pixelValue >= 0 ? pixelValue / 255.0f : 1.0f - (~pixelValue) / 255.0f;
+			pixelValue = data.get();
+			materialColor[0] = pixelValue >= 0 ? pixelValue / 255.0f : 1.0f - (~pixelValue) / 255.0f;
+			materialColor[3] = 1.0f;
+			break;
+		case RGB8:
+			materialColor[0] = firstPixelValue;
+			pixelValue = data.get();
+			materialColor[1] = pixelValue >= 0 ? pixelValue / 255.0f : 1.0f - (~pixelValue) / 255.0f;
+			pixelValue = data.get();
+			materialColor[2] = pixelValue >= 0 ? pixelValue / 255.0f : 1.0f - (~pixelValue) / 255.0f;
+			materialColor[3] = 1.0f;
 			break;
 		case Luminance8Alpha8:
 			tin = neg ? 1.0f - firstPixelValue : firstPixelValue;
 			neg = false;//do not negate the materialColor, it must be unchanged
-			data.get(); // ignore alpha
+			pixelValue = data.get(); // ignore alpha
+			materialColor[3] = pixelValue >= 0 ? pixelValue / 255.0f : 1.0f - (~pixelValue) / 255.0f;
 			break;
 		case Luminance16:
 		case Luminance16Alpha16:

@@ -71,14 +71,14 @@ public class TextureGeneratorVoronoi extends TextureGenerator {
 		int distm = ((Number) tex.getFieldValue("vn_distm")).intValue();
 		int voronoiColorType = ((Number) tex.getFieldValue("vn_coltype")).intValue();
 
-		TextureResult texres = new TextureResult();
+		TexturePixel texres = new TexturePixel();
 		float[] texvec = new float[] { 0, 0, 0 };
 		int halfW = width >> 1, halfH = height >> 1, halfD = depth >> 1, index = 0;
 		float wDelta = 1.0f / halfW, hDelta = 1.0f / halfH, dDelta = 1.0f / halfD;
 		
 		float[][] colorBand = this.computeColorband(tex, blenderContext);
-		Format format = voronoiColorType != 0 || colorBand != null ? Format.RGB8 : Format.Luminance8;
-		int bytesPerPixel = voronoiColorType != 0 || colorBand != null ? 3 : 1;
+		Format format = voronoiColorType != 0 || colorBand != null ? Format.RGBA8 : Format.Luminance8;
+		int bytesPerPixel = voronoiColorType != 0 || colorBand != null ? 4 : 1;
 		BrightnessAndContrastData bacd = new BrightnessAndContrastData(tex);
 		
 		float[] da = new float[4], pa = new float[12];
@@ -111,8 +111,10 @@ public class TextureGeneratorVoronoi extends TextureGenerator {
 						texres.red = colorBand[colorbandIndex][0];
 						texres.green = colorBand[colorbandIndex][1];
 						texres.blue = colorBand[colorbandIndex][2];
+						texres.alpha = colorBand[colorbandIndex][3];
 					} else if (voronoiColorType != 0) {
 						texres.red = texres.green = texres.blue = 0.0f;
+						texres.alpha = 1.0f;
 						for(int m=0; m<12; m+=3) {
 							weight = voronoiWeights[m/3];
 							this.cellNoiseV(pa[m], pa[m + 1], pa[m + 2], hashPoint);
@@ -145,6 +147,7 @@ public class TextureGeneratorVoronoi extends TextureGenerator {
 						data[index++] = (byte) (texres.red * 255.0f);
 						data[index++] = (byte) (texres.green * 255.0f);
 						data[index++] = (byte) (texres.blue * 255.0f);
+						data[index++] = (byte) (texres.alpha * 255.0f);
 					} else {
 						this.applyBrightnessAndContrast(texres, bacd.contrast, bacd.brightness);
 						data[index++] = (byte) (texres.intensity * 255.0f);

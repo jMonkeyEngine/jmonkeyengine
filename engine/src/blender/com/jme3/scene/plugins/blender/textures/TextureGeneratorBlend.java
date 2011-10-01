@@ -118,13 +118,13 @@ public final class TextureGeneratorBlend extends TextureGenerator {
 	protected Texture generate(Structure tex, int width, int height, int depth, BlenderContext blenderContext) {
 		int flag = ((Number) tex.getFieldValue("flag")).intValue();
 		int stype = ((Number) tex.getFieldValue("stype")).intValue();
-		TextureResult texres = new TextureResult();
+		TexturePixel texres = new TexturePixel();
 		int halfW = width >> 1, halfH = height >> 1, halfD = depth >> 1, index = 0;
 		float wDelta = 1.0f / halfW, hDelta = 1.0f / halfH, dDelta = 1.0f / halfD, x, y;
 		float[][] colorBand = this.computeColorband(tex, blenderContext);
 		BrightnessAndContrastData bacd = new BrightnessAndContrastData(tex);
-		Format format = colorBand != null ? Format.RGB8 : Format.Luminance8;
-		int bytesPerPixel = colorBand != null ? 3 : 1;
+		Format format = colorBand != null ? Format.RGBA8 : Format.Luminance8;
+		int bytesPerPixel = colorBand != null ? 4 : 1;
 		boolean flipped = (flag & NoiseGenerator.TEX_FLIPBLEND) != 0;
 		
 		byte[] data = new byte[width * height * depth * bytesPerPixel];
@@ -150,6 +150,7 @@ public final class TextureGeneratorBlend extends TextureGenerator {
 						data[index++] = (byte) (texres.red * 255.0f);
 						data[index++] = (byte) (texres.green * 255.0f);
 						data[index++] = (byte) (texres.blue * 255.0f);
+						data[index++] = (byte) (colorBand[colorbandIndex][3] * 255.0f);
 					} else {
 						this.applyBrightnessAndContrast(texres, bacd.contrast, bacd.brightness);
 						data[index++] = (byte) (texres.intensity * 255.0f);

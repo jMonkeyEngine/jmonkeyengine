@@ -40,7 +40,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.jme3.asset.BlenderKey.FeaturesToLoad;
-import com.jme3.asset.GeneratedTextureKey;
 import com.jme3.material.MatParam;
 import com.jme3.material.MatParamTexture;
 import com.jme3.material.Material;
@@ -59,9 +58,7 @@ import com.jme3.shader.VarType;
 import com.jme3.texture.Image;
 import com.jme3.texture.Image.Format;
 import com.jme3.texture.Texture;
-import com.jme3.texture.Texture.MinFilter;
 import com.jme3.texture.Texture.Type;
-import com.jme3.texture.Texture.WrapMode;
 import com.jme3.util.BufferUtils;
 
 public class MaterialHelper extends AbstractBlenderHelper {
@@ -204,124 +201,66 @@ public class MaterialHelper extends AbstractBlenderHelper {
 		if(materialContext.textures.size() > 0) {
 			LOGGER.log(Level.WARNING, "Attetion! Many textures found for material: {0}. Only the first of each supported mapping types will be used!", materialContext.name);
 		}
-
-		DiffuseShader diffuseShader = this.getDiffuseShader(structure);
-		ColorRGBA diffuseColor = this.getDiffuseColor(structure, diffuseShader);
-		float[] diffuseColorArray = new float[] {diffuseColor.r, diffuseColor.g, diffuseColor.b};
 		
 		// texture
+		Type colorTextureType = null;
 		Map<String, Texture> texturesMap = new HashMap<String, Texture>();
-		Type firstTextureType = null;
-		if ((blenderContext.getBlenderKey().getFeaturesToLoad() & FeaturesToLoad.TEXTURES) != 0) {
-			TextureHelper textureHelper = blenderContext.getHelper(TextureHelper.class);
-			for (int i=0;i<materialContext.texturesCount;++i) {
-				Structure mtex = materialContext.mTexs.get(i);
-				
-				int texflag = ((Number) mtex.getFieldValue("texflag")).intValue();
-				boolean negateTexture = (texflag & 0x04) == 0;
-
-				int mapto = ((Number) mtex.getFieldValue("mapto")).intValue();
-				if (mapto != 0) {
-					Structure tex = materialContext.textures.get(i);
-					Texture texture = textureHelper.getTexture(tex, blenderContext);
-					if (texture != null) {
-						if(firstTextureType == null) {
-							firstTextureType = texture.getType();
-						} else if(firstTextureType != texture.getType()) {
-							LOGGER.warning("The texture with the name: " + texture.getName() + " is of different type than the first applied texture! It will not be applied!");
-							continue;
-						}
-
-						// NOTE: Enable mipmaps FOR ALL TEXTURES EVER
-						texture.setMinFilter(MinFilter.Trilinear);
-
-						if ((mapto & 0x01) != 0) {// Col
-							mapto &= 0xFFFFFFFE;//this is temporary to force loading of one texture of a mapping type (will be removed when textures merging is created)
-							// Map to COLOR channel or DIFFUSE
-							// Set diffuse to white so it doesn't get multiplied by texture
-							// result.setColor(shadeless ? "Color" : "Diffuse", ColorRGBA.White.clone());
-//							 result.setBoolean("UseMaterialColors", Boolean.FALSE);
-							// blending the texture with material color and texture's defined color
-							int blendType = ((Number) mtex.getFieldValue("blendtype")).intValue();
-							float[] color = new float[] { ((Number) mtex.getFieldValue("r")).floatValue(), ((Number) mtex.getFieldValue("g")).floatValue(), ((Number) mtex.getFieldValue("b")).floatValue() };
-							float colfac = ((Number) mtex.getFieldValue("colfac")).floatValue();
-							texture = textureHelper.blendTexture(diffuseColorArray, texture, color, colfac, blendType, negateTexture, blenderContext);
-							texture.setWrap(WrapMode.Repeat);
-							//TODO: textures merging
-							if (materialContext.shadeless) {
-								texturesMap.put(firstTextureType==Type.ThreeDimensional ? TEXTURE_TYPE_3D : TEXTURE_TYPE_COLOR, texture);
-							} else {
-								texturesMap.put(firstTextureType==Type.ThreeDimensional ? TEXTURE_TYPE_3D : TEXTURE_TYPE_DIFFUSE, texture);
-							}
-						}
-						if(firstTextureType == Type.TwoDimensional) {//for now other mappings available for images only
-							if ((mapto & 0x02) != 0 && !materialContext.shadeless) {// Nor
-								mapto &= 0xFFFFFFFD;//this is temporary to force loading of one texture of a mapping type (will be removed when textures merging is created)
-								Texture normalMapTexture;
-								if (texture.getKey() instanceof GeneratedTextureKey) {
-									normalMapTexture = textureHelper.convertToNormalMapTexture(texture, ((Number) mtex.getFieldValue("norfac")).floatValue());
-									normalMapTexture.setMinFilter(MinFilter.Trilinear);
-								} else {
-									normalMapTexture = texture;
-								}
-								texturesMap.put(TEXTURE_TYPE_NORMAL, normalMapTexture);
-							}
-							if ((mapto & 0x04) != 0 && !materialContext.shadeless) {// Spec
-								mapto &= 0xFFFFFFFB;//this is temporary to force loading of one texture of a mapping type (will be removed when textures merging is created)
-								// Map to SPECULAR
-								texturesMap.put(TEXTURE_TYPE_SPECULAR, texture);
-							}
-							if ((mapto & 0x40) != 0) {// Emit
-								mapto &= 0xFFFFFFF8;//this is temporary to force loading of one texture of a mapping type (will be removed when textures merging is created)
-								texturesMap.put(TEXTURE_TYPE_GLOW, texture);
-							}
-							if ((mapto & 0x80) != 0 && !materialContext.shadeless) {// Alpha
-								mapto &= 0xFFFFFF7F;//this is temporary to force loading of one texture of a mapping type (will be removed when textures merging is created)
-								texturesMap.put(TEXTURE_TYPE_ALPHA, texture);
-							}
-						} else {
-							LOGGER.warning("The following mappings: [Nor, Spec, Alpha] are available for 2D textures only!");
-						}
-					} else {
-						LOGGER.log(Level.WARNING, "Texture not found!");
-					}
+		TextureHelper textureHelper = blenderContext.getHelper(TextureHelper.class);
+		for(Entry<Number, Texture> textureEntry : materialContext.loadedTextures.entrySet()) {
+			int mapto = textureEntry.getKey().intValue();
+			Texture texture = textureEntry.getValue();
+			if ((mapto & MaterialContext.MTEX_COL) != 0) {
+				colorTextureType = texture.getType();
+				if (materialContext.shadeless) {
+					texturesMap.put(colorTextureType==Type.ThreeDimensional ? TEXTURE_TYPE_3D : TEXTURE_TYPE_COLOR, texture);
+				} else {
+					texturesMap.put(colorTextureType==Type.ThreeDimensional ? TEXTURE_TYPE_3D : TEXTURE_TYPE_DIFFUSE, texture);
+				}
+			}
+			if(texture.getType()==Type.TwoDimensional) {//so far only 2D textures can be mapped in other way than color
+				if ((mapto & MaterialContext.MTEX_NOR) != 0 && !materialContext.shadeless) {
+					Structure mTex = materialContext.getMTex(texture);
+					Texture normalMapTexture = textureHelper.convertToNormalMapTexture(texture, ((Number) mTex.getFieldValue("norfac")).floatValue());
+					texturesMap.put(TEXTURE_TYPE_NORMAL, normalMapTexture);
+				}
+				if ((mapto & MaterialContext.MTEX_EMIT) != 0) {
+					texturesMap.put(TEXTURE_TYPE_GLOW, texture);
+				}
+				if ((mapto & MaterialContext.MTEX_SPEC) != 0 && !materialContext.shadeless) {
+					texturesMap.put(TEXTURE_TYPE_SPECULAR, texture);
+				}
+				if ((mapto & MaterialContext.MTEX_ALPHA) != 0 && !materialContext.shadeless) {
+					texturesMap.put(TEXTURE_TYPE_ALPHA, texture);
 				}
 			}
 		}
 		
 		//creating the material
-		if(firstTextureType==Type.ThreeDimensional) {
+		if(colorTextureType==Type.ThreeDimensional) {
 			result = new Material(blenderContext.getAssetManager(), "jme3test/texture/tex3D.j3md");
 		} else {
 			if (materialContext.shadeless) {
 				result = new Material(blenderContext.getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
 			} else {
 				result = new Material(blenderContext.getAssetManager(), "Common/MatDefs/Light/Lighting.j3md");
+				result.setBoolean("UseMaterialColors", Boolean.TRUE);
+
+				// setting the colors
+				result.setBoolean("Minnaert", materialContext.diffuseShader == DiffuseShader.MINNAERT);
+				if (!materialContext.transparent) {
+					materialContext.diffuseColor.a = 1;
+				}
+				result.setColor("Diffuse", materialContext.diffuseColor);
+
+				result.setBoolean("WardIso", materialContext.specularShader == SpecularShader.WARDISO);
+				result.setColor("Specular", materialContext.specularColor);
+
+				result.setColor("Ambient", materialContext.ambientColor);
+				result.setFloat("Shininess", materialContext.shininess);
 			}
 			
 			if (materialContext.vertexColor) {
 				result.setBoolean(materialContext.shadeless ? "VertexColor" : "UseVertexColor", true);
-			}
-			
-			if (materialContext.shadeless) {
-				// color of shadeless? doesn't seem to work in blender ..
-				diffuseColor = ColorRGBA.White.clone();
-			} else {
-				result.setBoolean("UseMaterialColors", Boolean.TRUE);
-
-				// setting the colors
-				result.setBoolean("Minnaert", diffuseShader == DiffuseShader.MINNAERT);
-				if (!materialContext.transparent) {
-					diffuseColor.a = 1;
-				}
-				result.setColor("Diffuse", diffuseColor);
-
-				SpecularShader specularShader = this.getSpecularShader(structure);
-				result.setBoolean("WardIso", specularShader == SpecularShader.WARDISO);
-				result.setColor("Specular", this.getSpecularColor(structure, specularShader));
-
-				result.setColor("Ambient", this.getAmbientColor(structure));
-				result.setFloat("Shininess", this.getShininess(structure));
 			}
 		}
 		
@@ -485,125 +424,6 @@ public class MaterialHelper extends AbstractBlenderHelper {
 			return material.getTextureParam(textureType) != null;
 		}
 		return false;
-	}
-
-	/**
-	 * This method returns the diffuse color
-	 * 
-	 * @param materialStructure
-	 * @param diffuseShader
-	 * @return
-	 */
-	public ColorRGBA getDiffuseColor(Structure materialStructure, DiffuseShader diffuseShader) {
-		// bitwise 'or' of all textures mappings
-		int commonMapto = ((Number) materialStructure.getFieldValue("mapto")).intValue();
-
-		// diffuse color
-		float r = ((Number) materialStructure.getFieldValue("r")).floatValue();
-		float g = ((Number) materialStructure.getFieldValue("g")).floatValue();
-		float b = ((Number) materialStructure.getFieldValue("b")).floatValue();
-		float alpha = ((Number) materialStructure.getFieldValue("alpha")).floatValue();
-		if ((commonMapto & 0x01) == 0x01) {// Col
-			return new ColorRGBA(r, g, b, alpha);
-		} else {
-			switch (diffuseShader) {
-				case FRESNEL:
-				case ORENNAYAR:
-				case TOON:
-					break;// TODO: find what is the proper modification
-				case MINNAERT:
-				case LAMBERT:// TODO: check if that is correct
-					float ref = ((Number) materialStructure.getFieldValue("ref")).floatValue();
-					r *= ref;
-					g *= ref;
-					b *= ref;
-					break;
-				default:
-					throw new IllegalStateException("Unknown diffuse shader type: " + diffuseShader.toString());
-			}
-			return new ColorRGBA(r, g, b, alpha);
-		}
-	}
-
-	/**
-	 * This method returns an enum describing the type of a diffuse shader used by this material.
-	 * 
-	 * @param materialStructure
-	 *        the material structure filled with data
-	 * @return an enum describing the type of a diffuse shader used by this material
-	 */
-	public DiffuseShader getDiffuseShader(Structure materialStructure) {
-		int diff_shader = ((Number) materialStructure.getFieldValue("diff_shader")).intValue();
-		return DiffuseShader.values()[diff_shader];
-	}
-
-	/**
-	 * This method returns an ambient color used by the material.
-	 * 
-	 * @param materialStructure
-	 *        the material structure filled with data
-	 * @return an ambient color used by the material
-	 */
-	public ColorRGBA getAmbientColor(Structure materialStructure) {
-		float r = ((Number) materialStructure.getFieldValue("ambr")).floatValue();
-		float g = ((Number) materialStructure.getFieldValue("ambg")).floatValue();
-		float b = ((Number) materialStructure.getFieldValue("ambb")).floatValue();
-		float alpha = ((Number) materialStructure.getFieldValue("alpha")).floatValue();
-		return new ColorRGBA(r, g, b, alpha);
-	}
-
-	/**
-	 * This method returns an enum describing the type of a specular shader used by this material.
-	 * 
-	 * @param materialStructure
-	 *        the material structure filled with data
-	 * @return an enum describing the type of a specular shader used by this material
-	 */
-	public SpecularShader getSpecularShader(Structure materialStructure) {
-		int spec_shader = ((Number) materialStructure.getFieldValue("spec_shader")).intValue();
-		return SpecularShader.values()[spec_shader];
-	}
-
-	/**
-	 * This method returns a specular color used by the material.
-	 * 
-	 * @param materialStructure
-	 *        the material structure filled with data
-	 * @return a specular color used by the material
-	 */
-	public ColorRGBA getSpecularColor(Structure materialStructure, SpecularShader specularShader) {
-		float r = ((Number) materialStructure.getFieldValue("specr")).floatValue();
-		float g = ((Number) materialStructure.getFieldValue("specg")).floatValue();
-		float b = ((Number) materialStructure.getFieldValue("specb")).floatValue();
-		float alpha = ((Number) materialStructure.getFieldValue("alpha")).floatValue();
-		switch (specularShader) {
-			case BLINN:
-			case COOKTORRENCE:
-			case TOON:
-			case WARDISO:// TODO: find what is the proper modification
-				break;
-			case PHONG:// TODO: check if that is correct
-				float spec = ((Number) materialStructure.getFieldValue("spec")).floatValue();
-				r *= spec * 0.5f;
-				g *= spec * 0.5f;
-				b *= spec * 0.5f;
-				break;
-			default:
-				throw new IllegalStateException("Unknown specular shader type: " + specularShader.toString());
-		}
-		return new ColorRGBA(r, g, b, alpha);
-	}
-
-	/**
-	 * This method returns the sihiness of this material or DEFAULT_SHININESS value if not present.
-	 * 
-	 * @param materialStructure
-	 *        the material structure filled with data
-	 * @return the sihiness of this material or DEFAULT_SHININESS value if not present
-	 */
-	public float getShininess(Structure materialStructure) {
-		float shininess = ((Number) materialStructure.getFieldValue("emit")).floatValue();
-		return shininess > 0.0f ? shininess : DEFAULT_SHININESS;
 	}
 
 	/**

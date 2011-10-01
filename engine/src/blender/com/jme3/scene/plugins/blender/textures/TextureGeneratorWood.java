@@ -73,15 +73,15 @@ public class TextureGeneratorWood extends TextureGenerator {
 	@Override
 	protected Texture generate(Structure tex, int width, int height, int depth, BlenderContext blenderContext) {
 		float[] texvec = new float[] { 0, 0, 0 };
-		TextureResult texres = new TextureResult();
+		TexturePixel texres = new TexturePixel();
 		int halfW = width >> 1;
 		int halfH = height >> 1;
 		int halfD = depth >> 1;
 		float wDelta = 1.0f / halfW, hDelta = 1.0f / halfH, dDelta = 1.0f / halfD;
 		
 		float[][] colorBand = this.computeColorband(tex, blenderContext);
-		Format format = colorBand != null ? Format.RGB8 : Format.Luminance8;
-		int bytesPerPixel = colorBand != null ? 3 : 1;
+		Format format = colorBand != null ? Format.RGBA8 : Format.Luminance8;
+		int bytesPerPixel = colorBand != null ? 4 : 1;
 		WoodIntensityData woodIntensityData = new WoodIntensityData(tex);
 		BrightnessAndContrastData bacd = new BrightnessAndContrastData(tex);
 		
@@ -106,6 +106,7 @@ public class TextureGeneratorWood extends TextureGenerator {
 						data[index++] = (byte) (texres.red * 255.0f);
 						data[index++] = (byte) (texres.green * 255.0f);
 						data[index++] = (byte) (texres.blue * 255.0f);
+						data[index++] = (byte) (colorBand[colorbandIndex][3] * 255.0f);
 					} else {
 						this.applyBrightnessAndContrast(texres, bacd.contrast, bacd.brightness);
 						data[index++] = (byte) (texres.intensity * 255.0f);

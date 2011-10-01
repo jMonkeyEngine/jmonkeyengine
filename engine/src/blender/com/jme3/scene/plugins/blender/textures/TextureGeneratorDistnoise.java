@@ -34,6 +34,7 @@ package com.jme3.scene.plugins.blender.textures;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
+import com.jme3.math.FastMath;
 import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.file.Structure;
 import com.jme3.scene.plugins.blender.textures.NoiseGenerator.NoiseFunction;
@@ -65,13 +66,13 @@ public class TextureGeneratorDistnoise extends TextureGenerator {
 		int noisebasis = ((Number) tex.getFieldValue("noisebasis")).intValue();
 		int noisebasis2 = ((Number) tex.getFieldValue("noisebasis2")).intValue();
 
-		TextureResult texres = new TextureResult();
+		TexturePixel texres = new TexturePixel();
 		float[] texvec = new float[] { 0, 0, 0 };
 		int halfW = width >> 1, halfH = height >> 1, halfD = depth >> 1, index = 0;
 		float wDelta = 1.0f / halfW, hDelta = 1.0f / halfH, dDelta = 1.0f / halfD;
 		float[][] colorBand = this.computeColorband(tex, blenderContext);
-		Format format = colorBand != null ? Format.RGB8 : Format.Luminance8;
-		int bytesPerPixel = colorBand != null ? 3 : 1;
+		Format format = colorBand != null ? Format.RGBA8 : Format.Luminance8;
+		int bytesPerPixel = colorBand != null ? 4 : 1;
 		BrightnessAndContrastData bacd = new BrightnessAndContrastData(tex);
 		
 		byte[] data = new byte[width * height * depth * bytesPerPixel];
@@ -82,6 +83,7 @@ public class TextureGeneratorDistnoise extends TextureGenerator {
 				for (int k = -halfD; k < halfD; ++k) {
 					texvec[2] = dDelta * k;
 					texres.intensity = this.musgraveVariableLunacrityNoise(texvec[0], texvec[1], texvec[2], distAmount, noisebasis, noisebasis2);
+					texres.intensity = FastMath.clamp(texres.intensity, 0.0f, 1.0f);
 					if (colorBand != null) {
 						int colorbandIndex = (int) (texres.intensity * 1000.0f);
 						texres.red = colorBand[colorbandIndex][0];
@@ -92,6 +94,7 @@ public class TextureGeneratorDistnoise extends TextureGenerator {
 						data[index++] = (byte) (texres.red * 255.0f);
 						data[index++] = (byte) (texres.green * 255.0f);
 						data[index++] = (byte) (texres.blue * 255.0f);
+						data[index++] = (byte) (colorBand[colorbandIndex][3] * 255.0f);
 					} else {
 						this.applyBrightnessAndContrast(texres, bacd.contrast, bacd.brightness);
 						data[index++] = (byte) (texres.intensity * 255.0f);
