@@ -68,11 +68,11 @@ public class BlenderKey extends ModelKey {
 	 */
 	protected int								fps						= DEFAULT_FPS;
 	/** Width of generated textures (in pixels). */
-	protected int								generatedTextureWidth	= 20;
+	protected int								generatedTextureWidth	= 60;
 	/** Height of generated textures (in pixels). */
-	protected int								generatedTextureHeight	= 20;
+	protected int								generatedTextureHeight	= 60;
 	/** Depth of generated textures (in pixels). */
-	protected int								generatedTextureDepth	= 20;
+	protected int								generatedTextureDepth	= 60;
 	/**
 	 * This variable is a bitwise flag of FeatureToLoad interface values; By default everything is being loaded.
 	 */
