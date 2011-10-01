@@ -282,21 +282,36 @@ public class Dome extends Mesh {
             int bottomPlaneStart = ((plane - 1) * (radialSamples + 1));
             int topPlaneStart = (plane * (radialSamples + 1));
             for (int sample = 0; sample < radialSamples; sample++, index += 6) {
-                ib.put((short) (bottomPlaneStart + sample));
-                ib.put((short) (topPlaneStart + sample));
-                ib.put((short) (bottomPlaneStart + sample + 1));
-                ib.put((short) (bottomPlaneStart + sample + 1));
-                ib.put((short) (topPlaneStart + sample));
-                ib.put((short) (topPlaneStart + sample + 1));
+                if (insideView){
+                    ib.put((short) (bottomPlaneStart + sample));
+                    ib.put((short) (bottomPlaneStart + sample + 1));
+                    ib.put((short) (topPlaneStart + sample));
+                    ib.put((short) (bottomPlaneStart + sample + 1));
+                    ib.put((short) (topPlaneStart + sample + 1));
+                    ib.put((short) (topPlaneStart + sample));
+                }else{
+                    ib.put((short) (bottomPlaneStart + sample));
+                    ib.put((short) (topPlaneStart + sample));
+                    ib.put((short) (bottomPlaneStart + sample + 1));
+                    ib.put((short) (bottomPlaneStart + sample + 1));
+                    ib.put((short) (topPlaneStart + sample));
+                    ib.put((short) (topPlaneStart + sample + 1));
+                }
             }
         }
 
         // pole triangles
         int bottomPlaneStart = (planes - 2) * (radialSamples + 1);
         for (int samples = 0; samples < radialSamples; samples++, index += 3) {
-            ib.put((short) (bottomPlaneStart + samples));
-            ib.put((short) (vertCount - 1));
-            ib.put((short) (bottomPlaneStart + samples + 1));
+            if (insideView){
+                ib.put((short) (bottomPlaneStart + samples));
+                ib.put((short) (bottomPlaneStart + samples + 1));
+                ib.put((short) (vertCount - 1));
+            }else{
+                ib.put((short) (bottomPlaneStart + samples));
+                ib.put((short) (vertCount - 1));
+                ib.put((short) (bottomPlaneStart + samples + 1));
+            }
         }
 
         updateBound();
