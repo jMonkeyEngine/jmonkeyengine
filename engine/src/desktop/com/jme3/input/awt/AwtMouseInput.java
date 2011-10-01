@@ -68,8 +68,6 @@ public class AwtMouseInput implements MouseInput, MouseListener, MouseWheelListe
 
     private static final Logger logger = Logger.getLogger(AwtMouseInput.class.getName());
 
-    private boolean inited = false;
-
     private boolean visible = true;
 
     private RawInputListener listener;
@@ -92,8 +90,7 @@ public class AwtMouseInput implements MouseInput, MouseListener, MouseWheelListe
     private boolean isRecentering;
     private int eventsSinceRecenter;
 
-    public AwtMouseInput(Component comp) {
-        this.component = comp;
+    public AwtMouseInput() {
         location = new Point();
         centerLocation = new Point();
         centerLocationOnScreen = new Point();
@@ -105,28 +102,39 @@ public class AwtMouseInput implements MouseInput, MouseListener, MouseWheelListe
             logger.log(Level.SEVERE, "Could not create a robot, so the mouse cannot be grabbed! ", e);
         }
     }
+    
+    public void setInputSource(Component comp){
+        if (component != null){
+            component.removeMouseListener(this);
+            component.removeMouseMotionListener(this);
+            component.removeMouseWheelListener(this);
+            
+            wheelPos = 0;
+            isRecentering = false;
+            eventsSinceRecenter = 0;
+            lastEventX = 0;
+            lastEventY = 0;
+            lastEventWheel = 0;
+            location = new Point();
+            centerLocation = new Point();
+            centerLocationOnScreen = new Point();
+            lastKnownLocation = new Point();
+        }
 
-    public void initialize() {
-        inited = true;
+        component = comp;
         component.addMouseListener(this);
         component.addMouseMotionListener(this);
         component.addMouseWheelListener(this);
+    }
 
-        logger.info("Mouse input initialized.");
+    public void initialize() {
     }
 
     public void destroy() {
-        inited = false;
-        robot = null;
-
-        component.removeMouseListener(this);
-        component.removeMouseMotionListener(this);
-        component.removeMouseWheelListener(this);
-        logger.info("Mouse input destroyed.");
     }
 
     public boolean isInitialized() {
-        return inited;
+        return true;
     }
 
     public void setInputListener(RawInputListener listener){
@@ -139,10 +147,16 @@ public class AwtMouseInput implements MouseInput, MouseListener, MouseWheelListe
 
     public void setCursorVisible(boolean visible){
         if (this.visible != visible){
-            component.setCursor(visible ? null : getTransparentCursor());
             this.visible = visible;
-            if (!visible)
-                recenterMouse(component);
+            final boolean newVisible = visible;
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    component.setCursor(newVisible ? null : getTransparentCursor());
+                    if (!newVisible)
+                        recenterMouse(component);
+                }
+            });
+            
         }
     }
 

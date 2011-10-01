@@ -53,21 +53,27 @@ public class AwtKeyInput implements KeyInput, KeyListener {
 
     private static final Logger logger = Logger.getLogger(AwtKeyInput.class.getName());
     private RawInputListener listener;
-    private boolean inited = false;
     private List<KeyInputEvent> eventQueue = new LinkedList<KeyInputEvent>();
     private Component component;
 
-    public AwtKeyInput(Component comp){
-        this.component = comp;
+    public AwtKeyInput(){
     }
 
     public void initialize() {
-        inited = true;
-        component.addKeyListener(this);
-
-        logger.info("Key input initialized.");
+    }
+    
+    public void destroy() {
     }
 
+    public void setInputSource(Component comp){
+        if (component != null){
+            component.removeKeyListener(this);
+            eventQueue.clear();
+        }
+        component = comp;
+        component.addKeyListener(this);
+    }
+    
     public long getInputTimeNanos() {
         return System.nanoTime();
     }
@@ -84,15 +90,8 @@ public class AwtKeyInput implements KeyInput, KeyListener {
         eventQueue.clear();
     }
 
-    public void destroy() {
-        inited = false;
-
-        component.removeKeyListener(this);
-        logger.info("Key input destroyed.");
-    }
-
     public boolean isInitialized() {
-        return inited;
+        return true;
     }
 
     public void setInputListener(RawInputListener listener) {

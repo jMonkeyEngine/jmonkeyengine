@@ -11,30 +11,22 @@ import com.jme3.input.controls.ActionListener;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
-import com.jme3.renderer.RenderManager;
-import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Box;
 import com.jme3.system.AppSettings;
 import com.jme3.input.controls.KeyTrigger;
 import java.util.ArrayList;
 import java.util.Random;
-import com.jme3.light.DirectionalLight;
 import com.jme3.math.FastMath;
-import com.jme3.math.Matrix3f;
 import com.jme3.math.Quaternion;
 import com.jme3.post.FilterPostProcessor;
 import com.jme3.post.filters.BloomFilter;
-import com.jme3.post.ssao.SSAOFilter;
 import com.jme3.scene.BatchedGeometry;
 import com.jme3.scene.GeometryBatch;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
-import com.jme3.scene.control.AbstractControl;
-import com.jme3.scene.control.Control;
 import com.jme3.scene.debug.Arrow;
 import java.util.List;
-import jme3test.post.SSAOUI;
 
 public class TestCubeCluster extends SimpleApplication {
 

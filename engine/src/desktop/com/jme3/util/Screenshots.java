@@ -2,10 +2,36 @@ package com.jme3.util;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
+import java.awt.image.DataBufferInt;
 import java.awt.image.WritableRaster;
 import java.nio.ByteBuffer;
 
 public final class Screenshots {
+    
+    public static void convertScreenShot2(ByteBuffer bgraBuf, BufferedImage out){
+        WritableRaster wr = out.getRaster();
+        DataBufferInt db = (DataBufferInt) wr.getDataBuffer();
+        
+        int[] cpuArray = db.getData();
+        
+        bgraBuf.clear();
+        bgraBuf.asIntBuffer().get(cpuArray);
+        
+//        int width  = wr.getWidth();
+//        int height = wr.getHeight();
+//
+//        // flip the components the way AWT likes them
+//        for (int y = 0; y < height / 2; y++){
+//            for (int x = 0; x < width; x++){
+//                int inPtr  = (y * width + x);
+//                int outPtr = ((height-y-1) * width + x);
+//                int pixel = cpuArray[inPtr];
+//                cpuArray[inPtr] = cpuArray[outPtr];
+//                cpuArray[outPtr] = pixel;
+//            }
+//        }
+    }
+    
     public static void convertScreenShot(ByteBuffer bgraBuf, BufferedImage out){
         WritableRaster wr = out.getRaster();
         DataBufferByte db = (DataBufferByte) wr.getDataBuffer();
