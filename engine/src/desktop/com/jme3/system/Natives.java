@@ -140,6 +140,15 @@ public class Natives {
         }
         return null;
     }
+    
+    protected static boolean isUsingNativeBullet(){
+        try {
+            Class clazz = Class.forName("com.jme3.bullet.util.NativeMeshUtil");
+            return clazz != null;
+        } catch (ClassNotFoundException ex) {
+            return false;
+        }
+    }
 
     protected static void extractNativeLibs(Platform platform, AppSettings settings) throws IOException {
         String renderer = settings.getRenderer();
@@ -147,7 +156,7 @@ public class Natives {
         boolean needLWJGL = false;
         boolean needOAL = false;
         boolean needJInput = false;
-        boolean needNativeBullet = true;
+        boolean needNativeBullet = isUsingNativeBullet();
         if (renderer != null) {
             if (renderer.startsWith("LWJGL")) {
                 needLWJGL = true;
