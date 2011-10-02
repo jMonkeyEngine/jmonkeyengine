@@ -118,10 +118,12 @@
                 <tocitem text="3D Models" target="jme3.advanced.3d_models"/>
                 <tocitem text="Custom Meshes" target="jme3.advanced.custom_meshes"/>
                 <tocitem text="Asset Manager" target="jme3.advanced.asset_manager"/>
+                <tocitem text="Save and Load" target="jme3.advanced.save_and_load"/>
                 <tocitem text="Collision and Intersection" target="jme3.advanced.collision_and_intersection"/>
                 <tocitem text="Mouse Picking" target="jme3.advanced.mouse_picking"/>
                 <tocitem text="Animation" target="jme3.advanced.animation"/>
                 <tocitem text="Cinematics" target="jme3.advanced.cinematics"/>
+                <tocitem text="MotionPath" target="jme3.advanced.motionpath"/>
             </tocitem>
             <tocitem text="Materials, Light and Shadow" expand="false">
                 <tocitem text="jME3 and Shaders" target="jme3.advanced.jme3_shaders"/>
