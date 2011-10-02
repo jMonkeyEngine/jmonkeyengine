@@ -15,8 +15,8 @@ uniform int m_NumSamplesDepth;
     #define DEPTHTEXTURE sampler2D
 #endif
 
-// NOTE: Only define multisample functions if multisample is being used!
-#ifdef GL_ARB_texture_multisample
+// NOTE: Only define multisample functions if multisample is available and is being used!
+#if defined(GL_ARB_texture_multisample) && (defined(RESOLVE_MS) || defined(RESOLVE_DEPTH_MS))
 vec4 textureFetch(in sampler2DMS tex,in vec2 texC, in int numSamples){
       ivec2 iTexC = ivec2(texC * textureSize(tex));
       vec4 color = vec4(0.0);
