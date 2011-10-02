@@ -311,6 +311,9 @@ public class TextureHelper extends AbstractBlenderHelper {
 					++lastTextureWithoutAlphaIndex;
 				}
 			}
+			if(depth==0) {
+				depth = 1;
+			}
 			
 			//remove textures before the one without alpha (they will be covered anyway)
 			if(lastTextureWithoutAlphaIndex > 0 && lastTextureWithoutAlphaIndex<sources.size()-1) {
@@ -341,10 +344,13 @@ public class TextureHelper extends AbstractBlenderHelper {
 				resultPixel.clear();
 			}
 			
-			ArrayList<ByteBuffer> arrayData = new ArrayList<ByteBuffer>(1);
-			arrayData.add(data);
-			//TODO: add different texture types
-			result = new Texture3D(new Image(Format.RGB8, width, height, depth, arrayData));
+			if(depth==1) {
+				result = new Texture2D(new Image(Format.RGB8, width, height, data));
+			} else {
+				ArrayList<ByteBuffer> arrayData = new ArrayList<ByteBuffer>(1);
+				arrayData.add(data);
+				result = new Texture3D(new Image(Format.RGB8, width, height, depth, arrayData));
+			}
 		}
 		return result;
 	}
@@ -750,12 +756,13 @@ public class TextureHelper extends AbstractBlenderHelper {
 	 *         this exception is thrown when the blend file structure is somehow invalid or corrupted
 	 */
 	public Texture getTextureFromImage(Structure image, BlenderContext blenderContext) throws BlenderFileException {
+		LOGGER.log(Level.FINE, "Fetching texture with OMA = {0}", image.getOldMemoryAddress());
 		Texture result = (Texture) blenderContext.getLoadedFeature(image.getOldMemoryAddress(), LoadedFeatureDataType.LOADED_FEATURE);
 		if (result == null) {
 			String texturePath = image.getFieldValue("name").toString();
 			Pointer pPackedFile = (Pointer) image.getFieldValue("packedfile");
 			if (pPackedFile.isNull()) {
-				LOGGER.info("Reading texture from file!");
+				LOGGER.log(Level.INFO, "Reading texture from file: {0}", texturePath);
 				result = this.loadTextureFromFile(texturePath, blenderContext);
 			} else {
 				LOGGER.info("Packed texture. Reading directly from the blend file!");
@@ -774,6 +781,9 @@ public class TextureHelper extends AbstractBlenderHelper {
 			if (result != null) {
 				result.setName(texturePath);
 				result.setWrap(Texture.WrapMode.Repeat);
+				if(LOGGER.isLoggable(Level.FINE)) {
+					LOGGER.log(Level.FINE, "Adding texture {0} to the loaded features with OMA = {1}", new Object[] {texturePath, image.getOldMemoryAddress()});
+				}
 				blenderContext.addLoadedFeatures(image.getOldMemoryAddress(), image.getName(), image, result);
 			}
 		}
