@@ -46,6 +46,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Locale;
+import java.util.NoSuchElementException;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -69,6 +70,9 @@ public class MTLLoader implements AssetLoader {
     protected String matName;
     protected float alpha = 1;
     protected boolean transparent = false;
+    protected boolean disallowTransparency = false;
+    protected boolean disallowAmbient = false;
+    protected boolean disallowSpecular = false;
     
     public void reset(){
         scan = null;
@@ -91,8 +95,14 @@ public class MTLLoader implements AssetLoader {
         return result;
     }
     
-    protected void skipLine(){
-        scan.skip(".*\r{0,1}\n");
+    protected boolean skipLine(){
+        try {
+            scan.skip(".*\r{0,1}\n");
+            return true;
+        } catch (NoSuchElementException ex){
+            // EOF
+            return false;
+        }
     }
     
     protected void resetMaterial(){
@@ -100,6 +110,9 @@ public class MTLLoader implements AssetLoader {
         diffuse.set(ColorRGBA.LightGray);
         specular.set(ColorRGBA.Black);
         shininess = 16;
+        disallowTransparency = false;
+        disallowAmbient = false;
+        disallowSpecular = false;
         shadeless = false;
         transparent = false;
         matName = null;
@@ -113,7 +126,7 @@ public class MTLLoader implements AssetLoader {
     protected void createMaterial(){
         Material material;
         
-        if (alpha < 1f){
+        if (alpha < 1f && transparent && !disallowTransparency){
             diffuse.a = alpha;
         }
         
@@ -136,7 +149,7 @@ public class MTLLoader implements AssetLoader {
             if (alphaMap != null)    material.setTexture("AlphaMap", alphaMap);
         }
         
-        if (transparent){
+        if (transparent && !disallowTransparency){
             material.setTransparent(true);
             material.getAdditionalRenderState().setBlendMode(BlendMode.Alpha);
             material.getAdditionalRenderState().setAlphaTest(true);
@@ -181,7 +194,7 @@ public class MTLLoader implements AssetLoader {
         String cmd = scan.next().toLowerCase();
         if (cmd.startsWith("#")){
             // skip entire comment until next line
-            skipLine();
+            return skipLine();
         }else if (cmd.equals("newmtl")){
             String name = scan.next();
             startMaterial(name);
@@ -201,7 +214,7 @@ public class MTLLoader implements AssetLoader {
             transparent = true;
         }else if (cmd.equals("map_ka")){
             // ignore it for now
-            skipLine();
+            return skipLine();
         }else if (cmd.equals("map_kd")){
             String path = nextStatement();
             diffuseMap = loadTexture(path);
@@ -231,6 +244,17 @@ public class MTLLoader implements AssetLoader {
                 case 0:
                     // no lighting
                     shadeless = true;
+                    disallowTransparency = true;
+                    break;
+                case 1:
+                    disallowSpecular = true;
+                    disallowTransparency = true;
+                    break;
+                case 2:
+                case 3:
+                case 5:
+                case 8:
+                    disallowTransparency = true;
                     break;
                 case 4:
                 case 6:
@@ -244,10 +268,10 @@ public class MTLLoader implements AssetLoader {
         }else if (cmd.equals("ke") || cmd.equals("ni")){
             // Ni: index of refraction - unsupported in jME
             // Ke: emission color
-            skipLine();
+            return skipLine();
         }else{
             logger.log(Level.WARNING, "Unknown statement in MTL! {0}", cmd);
-            skipLine();
+            return skipLine();
         }
         
         return true;

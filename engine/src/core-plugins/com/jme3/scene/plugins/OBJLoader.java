@@ -59,6 +59,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map.Entry;
+import java.util.NoSuchElementException;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -323,7 +324,11 @@ public final class OBJLoader implements AssetLoader {
 
         // NOTE: Cut off any relative/absolute paths
         name = new File(name).getName();
-        matList = (MaterialList) assetManager.loadAsset(key.getFolder() + name);
+        try {
+            matList = (MaterialList) assetManager.loadAsset(key.getFolder() + name);
+        } catch (AssetNotFoundException ex){
+            throw new AssetNotFoundException("Cannot find material " + name + " for model " + key.getName());
+        }
 
         if (matList != null){
             // create face lists for every material
@@ -336,8 +341,14 @@ public final class OBJLoader implements AssetLoader {
         }
     }
 
-    protected void nextStatement(){
-        scan.skip(".*\r{0,1}\n");
+    protected boolean nextStatement(){
+        try {
+            scan.skip(".*\r{0,1}\n");
+            return true;
+        } catch (NoSuchElementException ex){
+            // EOF
+            return false;
+        }
     }
 
     protected boolean readLine() throws IOException{
@@ -348,7 +359,7 @@ public final class OBJLoader implements AssetLoader {
         String cmd = scan.next();
         if (cmd.startsWith("#")){
             // skip entire comment until next line
-            nextStatement();
+            return nextStatement();
         }else if (cmd.equals("v")){
             // vertex position
             verts.add(readVector3());
@@ -372,11 +383,11 @@ public final class OBJLoader implements AssetLoader {
             String mtllib = scan.nextLine().trim();
             loadMtlLib(mtllib);
         }else if (cmd.equals("s") || cmd.equals("g")){
-            nextStatement();
+            return nextStatement();
         }else{
             // skip entire command until next line
             logger.log(Level.WARNING, "Unknown statement in OBJ! {0}", cmd);
-            nextStatement();
+            return nextStatement();
         }     
 
         return true;
