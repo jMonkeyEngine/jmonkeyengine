@@ -78,7 +78,7 @@
         </tocitem>
         <tocitem text="Updating jMP" target="com.jme3.gde.core.updating"/>
     </tocitem>
-    <tocitem text="jMonkeyEngine3 Engine" expand="false">
+    <tocitem text="jMonkeyEngine3 Engine" expand="true">
         <tocitem text="Beginner Tutorials" expand="false">
             <tocitem text="Hello SimpleApplication" target="jme3.beginner.hello_simpleapplication"/>
             <tocitem text="Hello Node" target="jme3.beginner.hello_node"/>
