@@ -274,11 +274,11 @@
             <globmapper from="${app.name}/*" to="*"/>
         </unzip>
         <desktopentry
-            toFile="build/jmonkeyplatform.desktop"
+            toFile="build/jmonkeyengine.desktop"
             name="jMonkeyEngine3 GDE"
             comment="jMonkeyEngine3 Game Development Environment"
-            exec="/usr/local/${app.name}/bin/${app.name}"
-            icon="/usr/local/${app.name}/jmonkeyengine.png"
+            exec="/opt/${app.name}/bin/${app.name}"
+            icon="/opt/${app.name}/jmonkeyengine.png"
             categories="Development;Java"
         />
         <deb toDir="dist"
@@ -290,14 +290,14 @@
             homepage="http://www.jmonkeyengine.com"
             postrm="debscripts/postrm"
             >
-            <tarfileset dir="dist/${app.name}/" prefix="usr/local/${app.name}">
+            <tarfileset dir="dist/${app.name}/" prefix="opt/${app.name}">
                 <exclude name="bin/**"/>
             </tarfileset>
-            <tarfileset dir="dist/${app.name}/bin" prefix="usr/local/${app.name}/bin" filemode="755">
+            <tarfileset dir="dist/${app.name}/bin" prefix="opt/${app.name}/bin" filemode="755">
                 <exclude name="*.exe"/>
             </tarfileset>
             <tarfileset file="build/jmonkeyengine.desktop" prefix="usr/share/applications"/>
-            <tarfileset file="jmonkeyengine.png" prefix="usr/local/${app.name}"/>
+            <tarfileset file="jmonkeyengine.png" prefix="opt/${app.name}"/>
             <description synopsis="jMonkeyEngine3 Game Development Environment is a complete solution for Java OpenGL game development.">
 jMonkeyEngine 3 was rebuilt from the ground up to be a modern 3D game engine,
 compatible with OpenGL 2.0 and above.
