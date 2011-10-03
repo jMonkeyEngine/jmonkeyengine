@@ -88,6 +88,7 @@ public class AwtMouseInput implements MouseInput, MouseListener, MouseWheelListe
     private Point centerLocationOnScreen;
     private Point lastKnownLocation;
     private boolean isRecentering;
+    private boolean cursorMoved;
     private int eventsSinceRecenter;
 
     public AwtMouseInput() {
@@ -161,29 +162,33 @@ public class AwtMouseInput implements MouseInput, MouseListener, MouseWheelListe
     }
 
     public void update() {
-        int newX = location.x;
-        int newY = location.y;
-        int newWheel = wheelPos;
+        if (cursorMoved){
+            int newX = location.x;
+            int newY = location.y;
+            int newWheel = wheelPos;
 
-        // invert DY
-        MouseMotionEvent evt = new MouseMotionEvent(newX, newY,
-                                                    newX - lastEventX,
-                                                    lastEventY - newY,
-                                                    wheelPos, lastEventWheel - wheelPos);
-        listener.onMouseMotionEvent(evt);
+            // invert DY
+            MouseMotionEvent evt = new MouseMotionEvent(newX, newY,
+                                                        newX - lastEventX,
+                                                        lastEventY - newY,
+                                                        wheelPos, lastEventWheel - wheelPos);
+            listener.onMouseMotionEvent(evt);
+
+            lastEventX = newX;
+            lastEventY = newY;
+            lastEventWheel = newWheel;
+            
+            cursorMoved = false;
+        }
 
         int size = eventQueue.size();
         for (int i = 0; i < size; i++){
             listener.onMouseButtonEvent(eventQueue.get(i));
         }
         eventQueue.clear();
-        
-        lastEventX = newX;
-        lastEventY = newY;
-        lastEventWheel = newWheel;
     }
 
-    private final Cursor getTransparentCursor() {
+    private Cursor getTransparentCursor() {
         if (transparentCursor == null){
             BufferedImage cursorImage = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
             cursorImage.setRGB(0, 0, 0);
@@ -191,10 +196,7 @@ public class AwtMouseInput implements MouseInput, MouseListener, MouseWheelListe
         }
         return transparentCursor;
     }
-//
-//    public boolean isCursorVisible() {
-//        return( isCursorVisible );
-//    }
+
 //	public void setHardwareCursor(URL file, int xHotspot, int yHotspot) {
 //	    //Create the image from the provided url
 //	    java.awt.Image cursorImage = new ImageIcon( file ).getImage( );
@@ -239,6 +241,7 @@ public class AwtMouseInput implements MouseInput, MouseListener, MouseWheelListe
     public void mouseWheelMoved(MouseWheelEvent arg0) {
         int dwheel = arg0.getUnitsToScroll();
         wheelPos -= dwheel;
+        cursorMoved = true;
     }
 
     public void mouseDragged(MouseEvent arg0) {
@@ -267,16 +270,8 @@ public class AwtMouseInput implements MouseInput, MouseListener, MouseWheelListe
             }
             lastKnownLocation.x = arg0.getX();
             lastKnownLocation.y = arg0.getY();
-// MHenze (cylab) Fix Issue 35: all accesses to the swingEvents list have to be synchronized for StandardGame to work...
-                // TODO MHenze (cylab): Cleanup. this members seem obsolete by the newly introduced above.
-//                absPoint.setLocation(location);
-// 		if (lastPoint.x == Integer.MIN_VALUE) {
-// 			lastPoint.setLocation(absPoint.x, absPoint.y);
-// 		}
-//                lastPoint.setLocation(arg0.getPoint());
-//                currentDeltaPoint.x = absPoint.x - lastPoint.x;
-//                currentDeltaPoint.y = -(absPoint.y - lastPoint.y);
-//                lastPoint.setLocation(location);
+            
+            cursorMoved = true;
         }
     }
 
@@ -285,14 +280,10 @@ public class AwtMouseInput implements MouseInput, MouseListener, MouseWheelListe
         if (robot != null) {
             eventsSinceRecenter = 0;
             isRecentering = true;
-//            SwingUtilities.invokeLater(new Runnable() {
-//                public void run() {
             centerLocation.setLocation(component.getWidth()/2, component.getHeight()/2);
             centerLocationOnScreen.setLocation(centerLocation);
             SwingUtilities.convertPointToScreen(centerLocationOnScreen, component);
             robot.mouseMove(centerLocationOnScreen.x, centerLocationOnScreen.y);
-//                }
-//            });
         }
     }
 
@@ -301,13 +292,13 @@ public class AwtMouseInput implements MouseInput, MouseListener, MouseWheelListe
         switch (arg0.getButton()) {
             default:
             case MouseEvent.BUTTON1: //left
-                index = 0;
+                index = MouseInput.BUTTON_LEFT;
                 break;
             case MouseEvent.BUTTON2: //middle
-                index = 2;
+                index = MouseInput.BUTTON_MIDDLE;
                 break;
             case MouseEvent.BUTTON3: //right
-                index = 1;
+                index = MouseInput.BUTTON_RIGHT;
                 break;
         }
         return index;

@@ -38,8 +38,7 @@ import com.jme3.input.event.KeyInputEvent;
 import java.awt.Component;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.ArrayList;
 import java.util.logging.Logger;
 
 /**
@@ -52,8 +51,9 @@ import java.util.logging.Logger;
 public class AwtKeyInput implements KeyInput, KeyListener {
 
     private static final Logger logger = Logger.getLogger(AwtKeyInput.class.getName());
+    
+    private final ArrayList<KeyInputEvent> eventQueue = new ArrayList<KeyInputEvent>();
     private RawInputListener listener;
-    private List<KeyInputEvent> eventQueue = new LinkedList<KeyInputEvent>();
     private Component component;
 
     public AwtKeyInput(){
@@ -66,12 +66,14 @@ public class AwtKeyInput implements KeyInput, KeyListener {
     }
 
     public void setInputSource(Component comp){
-        if (component != null){
-            component.removeKeyListener(this);
-            eventQueue.clear();
+        synchronized (eventQueue){
+            if (component != null){
+                component.removeKeyListener(this);
+                eventQueue.clear();
+            }
+            component = comp;
+            component.addKeyListener(this);
         }
-        component = comp;
-        component.addKeyListener(this);
     }
     
     public long getInputTimeNanos() {
@@ -83,11 +85,13 @@ public class AwtKeyInput implements KeyInput, KeyListener {
     }
 
     public void update() {
-        // flush events to listener
-        for (int i = 0; i < eventQueue.size(); i++){
-            listener.onKeyEvent(eventQueue.get(i));
+        synchronized (eventQueue){
+            // flush events to listener
+            for (int i = 0; i < eventQueue.size(); i++){
+                listener.onKeyEvent(eventQueue.get(i));
+            }
+            eventQueue.clear();
         }
-        eventQueue.clear();
     }
 
     public boolean isInitialized() {
@@ -100,25 +104,30 @@ public class AwtKeyInput implements KeyInput, KeyListener {
 
     public void keyTyped(KeyEvent evt) {
         // key code is zero for typed events
-        int code = 0;
-        //int code = convertAwtKey(evt.getKeyCode());
-        KeyInputEvent keyEvent = new KeyInputEvent(code, evt.getKeyChar(), false, true);
-        keyEvent.setTime(evt.getWhen());
-        eventQueue.add(keyEvent);
+//        int code = 0;
+//        KeyInputEvent keyEvent = new KeyInputEvent(code, evt.getKeyChar(), false, true);
+//        keyEvent.setTime(evt.getWhen());
+//        synchronized (eventQueue){
+//            eventQueue.add(keyEvent);
+//        }
     }
 
     public void keyPressed(KeyEvent evt) {
         int code = convertAwtKey(evt.getKeyCode());
         KeyInputEvent keyEvent = new KeyInputEvent(code, evt.getKeyChar(), true, false);
         keyEvent.setTime(evt.getWhen());
-        eventQueue.add(keyEvent);
+        synchronized (eventQueue){
+            eventQueue.add(keyEvent);
+        }
     }
 
     public void keyReleased(KeyEvent evt) {
         int code = convertAwtKey(evt.getKeyCode());
         KeyInputEvent keyEvent = new KeyInputEvent(code, evt.getKeyChar(), false, false);
         keyEvent.setTime(evt.getWhen());
-        eventQueue.add(keyEvent);
+        synchronized (eventQueue){
+            eventQueue.add(keyEvent);
+        }
     }
 
     /**

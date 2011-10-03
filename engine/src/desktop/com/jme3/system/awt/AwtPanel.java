@@ -8,9 +8,12 @@ import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Image.Format;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.Screenshots;
+import java.awt.AWTException;
+import java.awt.BufferCapabilities;
 import java.awt.Canvas;
-import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.ImageCapabilities;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.geom.AffineTransform;
@@ -18,10 +21,9 @@ import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.concurrent.BrokenBarrierException;
-import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class AwtPanel extends Canvas implements SceneProcessor {
@@ -29,6 +31,7 @@ public class AwtPanel extends Canvas implements SceneProcessor {
     private BufferedImage img;
     private FrameBuffer fb;
     private ByteBuffer byteBuf;
+    private IntBuffer intBuf;
     private boolean activeUpdates = true;
     private RenderManager rm;
     private ArrayList<ViewPort> viewPorts = new ArrayList<ViewPort>(); 
@@ -36,15 +39,13 @@ public class AwtPanel extends Canvas implements SceneProcessor {
     // Visibility/drawing vars
     private BufferStrategy strategy;
     private AffineTransformOp transformOp;
-    private CyclicBarrier visibleBarrier = new CyclicBarrier(2);
     private AtomicBoolean visible = new AtomicBoolean(false);
-    private boolean glVisible = false;
     
     // Reshape vars
-    private int newWidth  = 0;
-    private int newHeight = 0;
-    private CyclicBarrier reshapeBarrier = new CyclicBarrier(2);
+    private int newWidth  = 1;
+    private int newHeight = 1;
     private AtomicBoolean reshapeNeeded  = new AtomicBoolean(false);
+    private final Object lock = new Object();
     
     public AwtPanel(boolean activeUpdates){
         this.activeUpdates = activeUpdates;
@@ -53,16 +54,15 @@ public class AwtPanel extends Canvas implements SceneProcessor {
         addComponentListener(new ComponentAdapter(){
             @Override
             public void componentResized(ComponentEvent e) {
-                newWidth = Math.max(getWidth(), 1);
-                newHeight = Math.max(getHeight(), 1);
-                reshapeNeeded.set(true);
-
-                try {
-                    reshapeBarrier.await();
-                } catch (InterruptedException ex) {
-                    ex.printStackTrace();
-                } catch (BrokenBarrierException ex) {
-                    ex.printStackTrace();
+                synchronized (lock){
+                    int newWidth2 = Math.max(getWidth(), 1);
+                    int newHeight2 = Math.max(getHeight(), 1);
+                    if (newWidth != newWidth2 || newHeight != newHeight2){
+                        newWidth = newWidth2;
+                        newHeight = newHeight2;
+                        reshapeNeeded.set(true);
+                        System.out.println("EDT: componentResized " + newWidth + ", " + newHeight);
+                    }
                 }
             }
         });
@@ -72,15 +72,9 @@ public class AwtPanel extends Canvas implements SceneProcessor {
     public void addNotify(){
         super.addNotify();
 
-        try {
-            createBufferStrategy(2);
-            strategy = getBufferStrategy();
+        synchronized (lock){
             visible.set(true);
-            visibleBarrier.await();
-        } catch (InterruptedException ex) {
-            ex.printStackTrace();
-        } catch (BrokenBarrierException ex) {
-            ex.printStackTrace();
+            System.out.println("EDT: addNotify");
         }
         
         requestFocusInWindow();
@@ -88,48 +82,47 @@ public class AwtPanel extends Canvas implements SceneProcessor {
 
     @Override
     public void removeNotify(){
-        try {
+        synchronized (lock){
             visible.set(false);
-            visibleBarrier.await();
-            strategy = null;
-        } catch (InterruptedException ex) {
-            ex.printStackTrace();
-        } catch (BrokenBarrierException ex) {
-            ex.printStackTrace();
+//            strategy.dispose();
+//            strategy = null;
+            System.out.println("EDT: removeNotify");
         }
         
         super.removeNotify();
     }
     
-    private void checkVisibility(){
-        if (visible.get() != glVisible){
+    public void drawFrameInThread(){
+        if (!visible.get()){
+            if (strategy != null){
+                strategy.dispose();
+                strategy = null;
+            }
+            return;
+        }
+
+        if (strategy == null || strategy.contentsLost()){
+            if (strategy != null){
+                strategy.dispose();
+            }
             try {
-                glVisible = visible.get();
-                visibleBarrier.await();
-            } catch (InterruptedException ex) {
-                ex.printStackTrace();
-            } catch (BrokenBarrierException ex) {
+                createBufferStrategy(1, new BufferCapabilities(new ImageCapabilities(true), new ImageCapabilities(true), BufferCapabilities.FlipContents.UNDEFINED));
+            } catch (AWTException ex) {
                 ex.printStackTrace();
             }
-        }
-    }
-    
-    public void drawFrame(){
-        checkVisibility();
-        if (!glVisible)
-            return;
-        
-        if (strategy.contentsLost()){
-            strategy.dispose();
-            createBufferStrategy(2);
             strategy = getBufferStrategy();
-            System.out.println("BufferStrategy lost!");
+            System.out.println("OGL: BufferStrategy lost!");
+        }
+
+        Graphics2D g2d;
+        
+        synchronized (lock){
+            g2d = (Graphics2D) strategy.getDrawGraphics();
         }
         
-        Graphics2D g2d = (Graphics2D) strategy.getDrawGraphics();
         g2d.drawImage(img, transformOp, 0, 0);
         g2d.dispose();
-        strategy.show();
+        strategy.show();        
     }
     
     public boolean isActiveUpdates() {
@@ -137,7 +130,9 @@ public class AwtPanel extends Canvas implements SceneProcessor {
     }
 
     public void setActiveUpdates(boolean activeUpdates) {
-        this.activeUpdates = activeUpdates;
+        synchronized (lock){
+            this.activeUpdates = activeUpdates;
+        }
     }
     
     public void attachTo(ViewPort ... vps){
@@ -162,11 +157,15 @@ public class AwtPanel extends Canvas implements SceneProcessor {
 
     private void reshapeInThread(int width, int height) {
         byteBuf = BufferUtils.ensureLargeEnough(byteBuf, width * height * 4);
+        intBuf = byteBuf.asIntBuffer();
         fb = new FrameBuffer(width, height, 1);
         fb.setDepthBuffer(Format.Depth);
         fb.setColorBuffer(Format.RGB8);
         
         img = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+//        synchronized (lock){
+//            img = (BufferedImage) getGraphicsConfiguration().createCompatibleImage(width, height);
+//        }
         AffineTransform tx = AffineTransform.getScaleInstance(1, -1);
         tx.translate(0, -img.getHeight());
         transformOp = new AffineTransformOp(tx, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
@@ -188,26 +187,19 @@ public class AwtPanel extends Canvas implements SceneProcessor {
     }
 
     public void postFrame(FrameBuffer out) {
-        if (out != fb)
+        if (out != fb){
             throw new IllegalStateException("Why did you change the output framebuffer?");
+        }
         
         if (reshapeNeeded.getAndSet(false)){
             reshapeInThread(newWidth, newHeight);
-            try {
-                reshapeBarrier.await();
-            } catch (InterruptedException ex) {
-                ex.printStackTrace();
-            } catch (BrokenBarrierException ex) {
-                ex.printStackTrace();
-            }
         }else if (activeUpdates){
             byteBuf.clear();
             rm.getRenderer().readFrameBuffer(fb, byteBuf);
-            Screenshots.convertScreenShot2(byteBuf, img);
-            drawFrame();
-        }else{
-            checkVisibility();
+            Screenshots.convertScreenShot2(intBuf, img);
+            drawFrameInThread();
         }
+        
     }
     
     public void reshape(ViewPort vp, int w, int h) {

@@ -5,17 +5,18 @@ import java.awt.image.DataBufferByte;
 import java.awt.image.DataBufferInt;
 import java.awt.image.WritableRaster;
 import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
 
 public final class Screenshots {
     
-    public static void convertScreenShot2(ByteBuffer bgraBuf, BufferedImage out){
+    public static void convertScreenShot2(IntBuffer bgraBuf, BufferedImage out){
         WritableRaster wr = out.getRaster();
         DataBufferInt db = (DataBufferInt) wr.getDataBuffer();
         
         int[] cpuArray = db.getData();
         
         bgraBuf.clear();
-        bgraBuf.asIntBuffer().get(cpuArray);
+        bgraBuf.get(cpuArray);
         
 //        int width  = wr.getWidth();
 //        int height = wr.getHeight();
