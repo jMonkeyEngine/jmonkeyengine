@@ -29,8 +29,8 @@ import com.jme3.gde.core.scene.SceneApplication;
 import com.jme3.gde.core.scene.SceneRequest;
 import com.jme3.input.awt.AwtKeyInput;
 import com.jme3.input.event.KeyInputEvent;
-import com.jme3.system.JmeCanvasContext;
-import java.awt.Canvas;
+import com.jme3.system.awt.AwtPanel;
+import com.jme3.system.awt.AwtPanelsContext;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseWheelEvent;
@@ -64,7 +64,8 @@ public final class SceneViewerTopComponent extends TopComponent {
     private static final String PREFERRED_ID = "SceneViewerTopComponent";
     private SceneApplication app;
     private HelpCtx helpContext = new HelpCtx("com.jme3.gde.core.sceneviewer");
-    private Canvas oglCanvas;
+//    private Canvas oglCanvas;
+    private AwtPanel oglCanvas;
 
     public SceneViewerTopComponent() {
         initComponents();
@@ -75,7 +76,8 @@ public final class SceneViewerTopComponent extends TopComponent {
         setIcon(ImageUtilities.loadImage(ICON_PATH, true));
         try {
             app = SceneApplication.getApplication();
-            oglCanvas = ((JmeCanvasContext) app.getContext()).getCanvas();
+//            oglCanvas = ((JmeCanvasContext) app.getContext()).getCanvas();
+            oglCanvas = app.getMainPanel();
             oGLPanel.add(oglCanvas);
 
         } catch (Exception e) {
@@ -292,6 +294,7 @@ public final class SceneViewerTopComponent extends TopComponent {
     @Override
     public void componentOpened() {
         super.componentOpened();
+        oglCanvas.setActiveUpdates(true);
     }
 
     @Override
@@ -307,6 +310,7 @@ public final class SceneViewerTopComponent extends TopComponent {
     @Override
     public void componentClosed() {
         super.componentClosed();
+        oglCanvas.setActiveUpdates(false);
         SceneRequest req = SceneApplication.getApplication().getCurrentSceneRequest();
         if (req != null) {
             SceneApplication.getApplication().closeScene(req);

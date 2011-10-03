@@ -48,6 +48,8 @@ import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.Spatial.CullHint;
 import com.jme3.system.AppSettings;
+import com.jme3.system.awt.AwtPanel;
+import com.jme3.system.awt.AwtPanelsContext;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
@@ -108,11 +110,14 @@ public class SceneApplication extends Application implements LookupProvider, Loo
     private ProgressHandle progressHandle = ProgressHandleFactory.createHandle("Opening SceneViewer..");
     private String lastError = "";
     private boolean started = false;
+    private AwtPanel panel;
+    private ViewPort overlayView;
 
     public SceneApplication() {
         progressHandle.start(7);
         try {
             AppSettings newSetting = new AppSettings(true);
+            newSetting.setCustomRenderer(AwtPanelsContext.class);
             newSetting.setFrameRate(30);
             setSettings(newSetting);
 
@@ -123,9 +128,9 @@ public class SceneApplication extends Application implements LookupProvider, Loo
             //add listener for project selection
             nodeSelectionResult = Utilities.actionsGlobalContext().lookupResult(JmeSpatial.class);
             nodeSelectionResult.addLookupListener(this);
+//            createCanvas();
+//            startCanvas(true);
 
-            createCanvas();
-            startCanvas(true);
             progressHandle.progress("initialize Base Application", 1);
         } catch (Exception e) {
             getProgressHandle().finish();
@@ -136,6 +141,20 @@ public class SceneApplication extends Application implements LookupProvider, Loo
             SceneViewerTopComponent.showOpenGLError(e.toString());
             Exceptions.printStackTrace(e);
         }
+        start();
+    }
+
+    public AwtPanel getMainPanel() {
+        if (panel == null) {
+            panel = ((AwtPanelsContext) getContext()).createPanel(true);
+            panel.attachTo(viewPort, guiViewPort, overlayView);
+            ((AwtPanelsContext) getContext()).setInputSource(panel);
+        }
+        return panel;
+    }
+    
+    public ViewPort getOverlayView(){
+        return overlayView;
     }
 
     private void loadFPSText() {
@@ -160,6 +179,11 @@ public class SceneApplication extends Application implements LookupProvider, Loo
     public void initialize() {
         try {
             super.initialize();
+            {
+                overlayView = getRenderManager().createMainView("Overlay", cam);
+                overlayView.setClearFlags(false, true, false);
+                guiViewPort.setClearFlags(false, false, false);
+            }
             getProgressHandle().progress("Setup Camera Controller", 2);
             //create camera controler
             camController = new SceneCameraController(cam, inputManager);

@@ -65,8 +65,8 @@ public class SceneComposerToolController extends SceneToolController {
 
         // a node in a viewport that will always render on top
         onTopToolsNode = new Node("OverlayNode");
-        overlayView = SceneApplication.getApplication().getRenderManager().createMainView("Overlay", this.cameraController.getCamera());
-        overlayView.setClearFlags(false, true, false);
+        overlayView = SceneApplication.getApplication().getOverlayView();
+//        overlayView.setClearFlags(false, true, false);
         overlayView.attachScene(onTopToolsNode);
     }
 
