@@ -63,19 +63,13 @@
                 <package>com.jme3.math</package>
                 <package>com.jme3.network</package>
                 <package>com.jme3.network.base</package>
-                <package>com.jme3.network.connection</package>
-                <package>com.jme3.network.events</package>
                 <package>com.jme3.network.kernel</package>
                 <package>com.jme3.network.kernel.tcp</package>
                 <package>com.jme3.network.kernel.udp</package>
                 <package>com.jme3.network.message</package>
-                <package>com.jme3.network.queue</package>
                 <package>com.jme3.network.rmi</package>
                 <package>com.jme3.network.serializing</package>
                 <package>com.jme3.network.serializing.serializers</package>
-                <package>com.jme3.network.service</package>
-                <package>com.jme3.network.streaming</package>
-                <package>com.jme3.network.sync</package>
                 <package>com.jme3.niftygui</package>
                 <package>com.jme3.post</package>
                 <package>com.jme3.post.filters</package>
@@ -110,6 +104,7 @@
                 <package>com.jme3.shader.plugins</package>
                 <package>com.jme3.shadow</package>
                 <package>com.jme3.system</package>
+                <package>com.jme3.system.awt</package>
                 <package>com.jme3.system.lwjgl</package>
                 <package>com.jme3.terrain</package>
                 <package>com.jme3.terrain.geomipmap</package>
