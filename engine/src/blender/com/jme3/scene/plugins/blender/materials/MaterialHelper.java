@@ -237,7 +237,7 @@ public class MaterialHelper extends AbstractBlenderHelper {
 		
 		//creating the material
 		if(colorTextureType==Type.ThreeDimensional) {
-			result = new Material(blenderContext.getAssetManager(), "jme3test/texture/tex3D.j3md");
+			result = new Material(blenderContext.getAssetManager(), "Common/MatDefs/Texture3D/tex3D.j3md");
 		} else {
 			if (materialContext.shadeless) {
 				result = new Material(blenderContext.getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
