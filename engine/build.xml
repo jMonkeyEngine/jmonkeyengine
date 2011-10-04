@@ -207,7 +207,7 @@
         <copy file="dist/lib/jME3-lwjgl-natives.jar" toDir="${jmp_dir}/jme3-core-baselibs/release/modules/ext/" overwrite="true" failonerror="true" verbose="false"/>
 
         <!--jMonkeyPlatform Android libs-->
-        <copy file="dist/opt/android/jMonkeyEngine3.jar" toFile="${jmp_dir}/jme3-android/release/libs/jMonkeyEngine3-android.jar" overwrite="true" failonerror="true" verbose="false"/>
+        <copy file="dist/opt/android/jMonkeyEngine3.jar" toFile="${jmp_dir}/jme3-project-baselibs/release/libs/jMonkeyEngine3-android.jar" overwrite="true" failonerror="true" verbose="false"/>
         
         <!--Project jME3 libs-->
         <copy file="${dist.jar}" toDir="${jmp_dir}/jme3-project-baselibs/release/libs/" overwrite="true" failonerror="true" verbose="false"/>
@@ -327,14 +327,25 @@
     </target>
 
     <!-- copy jme3 zip to jmonkeyengine.com/nightly -->
-    <target name="deploy-hudson" depends="dist, build-bullet-natives">
+    <target name="deploy-hudson-nightly" depends="dist, build-bullet-natives">
         <copy
             file="${jme3zip}"
-            toDir="/var/www/com/nightly" overwrite="true" failonerror="true" verbose="false"
+            toDir="/var/www/com/stable" overwrite="true" failonerror="true" verbose="false"
             />
         <copydir
             src="dist/javadoc/" dest="/var/www/org/javadoc/" forceoverwrite="true"
             />
     </target>
 
+    <!-- copy jme3 zip to jmonkeyengine.com/nightly -->
+    <target name="deploy-hudson-stable" depends="dist, build-bullet-natives">
+        <copy
+            file="${jme3zip}"
+            toDir="/var/www/com/stable" overwrite="true" failonerror="true" verbose="false"
+            />
+        <copydir
+            src="dist/javadoc/" dest="/var/www/org/javadoc/" forceoverwrite="true"
+            />
+    </target>
+    
 </project>

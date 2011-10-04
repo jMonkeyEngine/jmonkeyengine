@@ -4,6 +4,7 @@
     <folder name="org-netbeans-api-project-libraries">
         <folder name="Libraries">
             <file name="jme3.xml" url="jme3.xml"/>
+            <file name="jme3-android.xml" url="jme3-android.xml"/>
         </folder>
     </folder>
 </filesystem>
