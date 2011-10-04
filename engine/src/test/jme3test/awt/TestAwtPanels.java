@@ -8,6 +8,7 @@ import com.jme3.scene.shape.Box;
 import com.jme3.system.AppSettings;
 import com.jme3.system.awt.AwtPanel;
 import com.jme3.system.awt.AwtPanelsContext;
+import com.jme3.system.awt.PaintMode;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Toolkit;
@@ -56,11 +57,11 @@ public class TestAwtPanels extends SimpleApplication {
         SwingUtilities.invokeLater(new Runnable(){
             public void run(){
                 final AwtPanelsContext ctx = (AwtPanelsContext) app.getContext();
-                panel = ctx.createPanel(true);
+                panel = ctx.createPanel(PaintMode.Accelerated);
                 panel.setPreferredSize(new Dimension(400, 300));
                 ctx.setInputSource(panel);
                 
-                panel2 = ctx.createPanel(true);
+                panel2 = ctx.createPanel(PaintMode.Accelerated);
                 panel2.setPreferredSize(new Dimension(400, 300));
                 
                 createWindowForPanel(panel, 300);

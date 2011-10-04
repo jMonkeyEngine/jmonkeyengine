@@ -25,6 +25,8 @@ public class AwtPanelsContext implements JmeContext {
     protected AwtMouseInput mouseInput = new AwtMouseInput();
     protected AwtKeyInput keyInput = new AwtKeyInput();
     
+    protected boolean lastThrottleState = false;
+    
     private class AwtPanelsListener implements SystemListener {
 
         public void initialize() {
@@ -119,8 +121,8 @@ public class AwtPanelsContext implements JmeContext {
     public AwtPanelsContext(){
     }
     
-    public AwtPanel createPanel(boolean activeUpdates){
-        AwtPanel panel = new AwtPanel(activeUpdates);
+    public AwtPanel createPanel(PaintMode paintMode){
+        AwtPanel panel = new AwtPanel(paintMode);
         panels.add(panel);
         return panel;
     }
@@ -130,6 +132,32 @@ public class AwtPanelsContext implements JmeContext {
     }
     
     private void updateInThread(){
+        // Check if throttle required
+        boolean needThrottle = true;
+        
+        for (AwtPanel panel : panels){
+            if (panel.isActiveDrawing()){
+                needThrottle = false;
+                break;
+            }
+        }
+        
+        if (lastThrottleState != needThrottle){
+            lastThrottleState = needThrottle;
+            if (lastThrottleState){
+                System.out.println("OGL: Throttling update loop.");
+            }else{
+                System.out.println("OGL: Ceased throttling update loop.");
+            }
+        }
+        
+        if (needThrottle){
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException ex) {
+            }
+        }
+        
         listener.update();
     }
     
@@ -146,8 +174,9 @@ public class AwtPanelsContext implements JmeContext {
     }
 
     public void create(boolean waitFor) {
-        if (actualContext != null)
+        if (actualContext != null){
             throw new IllegalStateException("Already created");
+        }
         
         actualContext = JmeSystem.newContext(settings, Type.OffscreenSurface);
         actualContext.setSystemListener(new AwtPanelsListener());

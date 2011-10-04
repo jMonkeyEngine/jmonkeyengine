@@ -114,15 +114,10 @@ public class LwjglOffscreenBuffer extends LwjglContext implements Runnable {
             pbuffer.destroy();
             try{
                 pbuffer = new Pbuffer(width, height, pixelFormat, null);
+                pbuffer.makeCurrent();
             }catch (LWJGLException ex){
                 listener.handleError("Failed to restore pbuffer content", ex);
             }
-        }
-
-        try{
-            pbuffer.makeCurrent();
-        }catch (LWJGLException ex){
-            listener.handleError( "Error occured while making pbuffer current", ex);
         }
 
         listener.update();

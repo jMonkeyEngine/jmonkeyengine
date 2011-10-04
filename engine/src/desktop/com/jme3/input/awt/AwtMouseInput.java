@@ -148,6 +148,9 @@ public class AwtMouseInput implements MouseInput, MouseListener, MouseWheelListe
 
     public void setCursorVisible(boolean visible){
         if (this.visible != visible){
+            
+            lastKnownLocation.x = lastKnownLocation.y = 0;
+            
             this.visible = visible;
             final boolean newVisible = visible;
             SwingUtilities.invokeLater(new Runnable() {
@@ -168,7 +171,9 @@ public class AwtMouseInput implements MouseInput, MouseListener, MouseWheelListe
             int newWheel = wheelPos;
 
             // invert DY
-            MouseMotionEvent evt = new MouseMotionEvent(newX, newY,
+            int actualX = lastKnownLocation.x;
+            int actualY = component.getHeight() - lastKnownLocation.y;
+            MouseMotionEvent evt = new MouseMotionEvent(actualX, actualY,
                                                         newX - lastEventX,
                                                         lastEventY - newY,
                                                         wheelPos, lastEventWheel - wheelPos);

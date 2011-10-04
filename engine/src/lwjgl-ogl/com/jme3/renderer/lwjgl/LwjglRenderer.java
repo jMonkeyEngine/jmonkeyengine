@@ -1633,15 +1633,16 @@ public class LwjglRenderer implements Renderer {
 
             assert fb.getId() >= 0;
             assert context.boundFBO == fb.getId();
+            
             lastFb = fb;
-        }
-        
-        try {
-            checkFrameBufferError();
-        } catch (IllegalStateException ex) {
-            logger.log(Level.SEVERE, "=== jMonkeyEngine FBO State ===\n{0}", fb);
-            printRealFrameBufferInfo(fb);
-            throw ex;
+            
+            try {
+                checkFrameBufferError();
+            } catch (IllegalStateException ex) {
+                logger.log(Level.SEVERE, "=== jMonkeyEngine FBO State ===\n{0}", fb);
+                printRealFrameBufferInfo(fb);
+                throw ex;
+            }
         }
     }
 
