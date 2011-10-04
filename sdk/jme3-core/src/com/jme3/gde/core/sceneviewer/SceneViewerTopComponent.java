@@ -294,7 +294,7 @@ public final class SceneViewerTopComponent extends TopComponent {
     @Override
     public void componentOpened() {
         super.componentOpened();
-        oglCanvas.setActiveUpdates(true);
+//        oglCanvas.setActiveUpdates(true);
     }
 
     @Override
@@ -310,7 +310,7 @@ public final class SceneViewerTopComponent extends TopComponent {
     @Override
     public void componentClosed() {
         super.componentClosed();
-        oglCanvas.setActiveUpdates(false);
+//        oglCanvas.setActiveUpdates(false);
         SceneRequest req = SceneApplication.getApplication().getCurrentSceneRequest();
         if (req != null) {
             SceneApplication.getApplication().closeScene(req);

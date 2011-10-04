@@ -50,6 +50,7 @@ import com.jme3.scene.Spatial.CullHint;
 import com.jme3.system.AppSettings;
 import com.jme3.system.awt.AwtPanel;
 import com.jme3.system.awt.AwtPanelsContext;
+import com.jme3.system.awt.PaintMode;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
@@ -146,7 +147,7 @@ public class SceneApplication extends Application implements LookupProvider, Loo
 
     public AwtPanel getMainPanel() {
         if (panel == null) {
-            panel = ((AwtPanelsContext) getContext()).createPanel(true);
+            panel = ((AwtPanelsContext) getContext()).createPanel(PaintMode.Accelerated);
             panel.attachTo(viewPort, overlayView, guiViewPort);
             ((AwtPanelsContext) getContext()).setInputSource(panel);
         }
