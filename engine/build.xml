@@ -235,6 +235,7 @@
             </fileset>
             <fileset dir="lib/niftygui/">
                 <include name="nifty-javadoc.jar"/>
+                <include name="nifty-default-controls-javadoc.jar"/>
             </fileset>
         </copy>
 
