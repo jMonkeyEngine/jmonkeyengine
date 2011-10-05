@@ -234,7 +234,7 @@
                 <include name="jME3-lwjgl-natives.jar"/>
             </fileset>
             <fileset dir="lib/niftygui/">
-                <include name="nifty-1.3-javadoc.jar"/>
+                <include name="nifty-javadoc.jar"/>
             </fileset>
         </copy>
 
