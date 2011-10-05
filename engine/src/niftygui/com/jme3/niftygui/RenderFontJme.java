@@ -104,8 +104,8 @@ public class RenderFontJme implements RenderFont {
      * @param size font size
      * @return width of the character or null when no information for the character is available
      */
-    public Integer getCharacterAdvance(final char currentCharacter, final char nextCharacter, final float size) {
-        return Integer.valueOf( Math.round(font.getCharacterAdvance(currentCharacter, nextCharacter, size)) );
+    public int getCharacterAdvance(final char currentCharacter, final char nextCharacter, final float size) {
+        return Math.round(font.getCharacterAdvance(currentCharacter, nextCharacter, size));
     }
 
     public void dispose() {
