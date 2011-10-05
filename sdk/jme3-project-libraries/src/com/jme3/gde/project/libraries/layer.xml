@@ -6,6 +6,7 @@
             <file name="jme3-libraries.xml" url="jme3-libraries.xml"/>
             <file name="jme3-libraries-lwjgl-minimum.xml" url="jme3-libraries-lwjgl-minimum.xml"/>
             <file name="jme3-libraries-gui.xml" url="jme3-libraries-gui.xml"/>
+            <file name="jme3-libraries-gui-style-black.xml" url="jme3-libraries-gui-style-black.xml"/>
             <file name="jme3-libraries-physics.xml" url="jme3-libraries-physics.xml"/>
             <file name="jme3-libraries-physics-native.xml" url="jme3-libraries-physics-native.xml"/>
             <file name="jme3-libraries-video.xml" url="jme3-libraries-video.xml"/>

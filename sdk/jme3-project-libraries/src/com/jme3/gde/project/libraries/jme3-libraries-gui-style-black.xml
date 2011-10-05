@@ -10,10 +10,7 @@ and open the template in the editor.
     <localizing-bundle>com.jme3.gde.project.libraries.Bundle</localizing-bundle>
     <volume>
         <type>classpath</type>
-        <resource>jar:nbinst://com.jme3.gde.project.libraries/libs/eventbus.jar!/</resource>
-        <resource>jar:nbinst://com.jme3.gde.project.libraries/libs/nifty.jar!/</resource>
-        <resource>jar:nbinst://com.jme3.gde.project.libraries/libs/nifty-default-controls.jar!/</resource>
-        <resource>jar:nbinst://com.jme3.gde.project.libraries/libs/xmlpull-xpp3.jar!/</resource>
+        <resource>jar:nbinst://com.jme3.gde.project.libraries/libs/nifty-style-black.jar!/</resource>
     </volume>
     <volume>
         <type>src</type>
@@ -21,6 +18,5 @@ and open the template in the editor.
     </volume>
     <volume>
         <type>javadoc</type>
-        <resource>jar:nbinst://com.jme3.gde.project.libraries/libs/nifty-javadoc.jar!/</resource>
     </volume>
 </library>

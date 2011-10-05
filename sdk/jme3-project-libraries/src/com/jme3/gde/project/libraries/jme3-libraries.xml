@@ -17,13 +17,13 @@ and open the template in the editor.
         <resource>jar:nbinst://com.jme3.gde.project.libraries/libs/jbullet.jar!/</resource>
         <resource>jar:nbinst://com.jme3.gde.project.libraries/libs/jinput.jar!/</resource>
         <resource>jar:nbinst://com.jme3.gde.project.libraries/libs/lwjgl.jar!/</resource>
-        <resource>jar:nbinst://com.jme3.gde.project.libraries/libs/eventbus-1.4.jar!/</resource>
-        <resource>jar:nbinst://com.jme3.gde.project.libraries/libs/nifty-1.3.jar!/</resource>
-        <resource>jar:nbinst://com.jme3.gde.project.libraries/libs/nifty-default-controls-1.3.jar!/</resource>
-        <resource>jar:nbinst://com.jme3.gde.project.libraries/libs/nifty-style-black-1.3.jar!/</resource>
+        <resource>jar:nbinst://com.jme3.gde.project.libraries/libs/eventbus.jar!/</resource>
+        <resource>jar:nbinst://com.jme3.gde.project.libraries/libs/nifty.jar!/</resource>
+        <resource>jar:nbinst://com.jme3.gde.project.libraries/libs/nifty-default-controls.jar!/</resource>
+        <resource>jar:nbinst://com.jme3.gde.project.libraries/libs/nifty-style-black.jar!/</resource>
         <resource>jar:nbinst://com.jme3.gde.project.libraries/libs/stack-alloc.jar!/</resource>
         <resource>jar:nbinst://com.jme3.gde.project.libraries/libs/vecmath.jar!/</resource>
-        <resource>jar:nbinst://com.jme3.gde.project.libraries/libs/xmlpull-xpp3-1.1.4c.jar!/</resource>
+        <resource>jar:nbinst://com.jme3.gde.project.libraries/libs/xmlpull-xpp3.jar!/</resource>
         <resource>jar:nbinst://com.jme3.gde.project.libraries/libs/noise-0.0.1-SNAPSHOT.jar!/</resource>
     </volume>
     <volume>
@@ -32,6 +32,6 @@ and open the template in the editor.
     </volume>
     <volume>
         <type>javadoc</type>
-        <resource>jar:nbinst://com.jme3.gde.project.libraries/libs/nifty-1.3-javadoc.jar!/</resource>
+        <resource>jar:nbinst://com.jme3.gde.project.libraries/libs/nifty-javadoc.jar!/</resource>
     </volume>
 </library>
