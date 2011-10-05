@@ -73,7 +73,8 @@ public class SceneComposerToolController extends SceneToolController {
     @Override
     public void cleanup() {
         super.cleanup();
-        SceneApplication.getApplication().getRenderManager().removeMainView(overlayView);
+        //SceneApplication.getApplication().getRenderManager().removeMainView(overlayView);
+        overlayView.detachScene(onTopToolsNode);
         cameraController = null;
         editorController = null;
         onTopToolsNode.detachAllChildren();
