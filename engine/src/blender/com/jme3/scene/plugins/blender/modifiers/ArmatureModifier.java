@@ -118,23 +118,25 @@ import com.jme3.util.BufferUtils;
 				//read animations
 				ArrayList<Animation> animations = new ArrayList<Animation>();
 				List<FileBlockHeader> actionHeaders = blenderContext.getFileBlocks(Integer.valueOf(FileBlockHeader.BLOCK_AC00));
-				for (FileBlockHeader header : actionHeaders) {
-					Structure actionStructure = header.getStructure(blenderContext);
-					String actionName = actionStructure.getName();
-					
-					Track<?>[] tracks = armatureHelper.getTracks(actionStructure, blenderContext);
-					//determining the animation  time
-					float maximumTrackLength = 0;
-					for(Track<?> track : tracks) {
-						float length = track.getLength();
-						if(length > maximumTrackLength) {
-							maximumTrackLength = length;
+				if(actionHeaders != null) {//it may happen that the model has armature with no actions
+					for (FileBlockHeader header : actionHeaders) {
+						Structure actionStructure = header.getStructure(blenderContext);
+						String actionName = actionStructure.getName();
+						
+						Track<?>[] tracks = armatureHelper.getTracks(actionStructure, blenderContext);
+						//determining the animation  time
+						float maximumTrackLength = 0;
+						for(Track<?> track : tracks) {
+							float length = track.getLength();
+							if(length > maximumTrackLength) {
+								maximumTrackLength = length;
+							}
 						}
+						
+						Animation boneAnimation = new Animation(actionName, maximumTrackLength);
+						boneAnimation.setTracks(tracks);
+						animations.add(boneAnimation);
 					}
-					
-					Animation boneAnimation = new Animation(actionName, maximumTrackLength);
-					boneAnimation.setTracks(tracks);
-					animations.add(boneAnimation);
 				}
 				animData = new AnimData(new Skeleton(bones), animations);
 			}
