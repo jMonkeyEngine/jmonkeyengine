@@ -178,6 +178,11 @@ public class Spline implements Savable {
             this.computeTotalLentgh();
         }
     }
+    
+    public void clearControlPoints(){
+        controlPoints.clear();
+        totalLength = 0;
+    }
 
     /**
      * This method computes the total length of the curve.

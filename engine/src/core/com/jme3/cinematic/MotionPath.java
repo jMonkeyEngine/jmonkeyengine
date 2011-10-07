@@ -337,6 +337,10 @@ public class MotionPath implements Savable {
         }
     }
 
+    public void clearWayPoints(){
+        spline.clearControlPoints();
+    }
+    
     /**
      * Sets the path to be a cycle
      * @param cycle
