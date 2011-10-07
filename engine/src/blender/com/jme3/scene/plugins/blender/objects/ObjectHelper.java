@@ -152,6 +152,10 @@ public class ObjectHelper extends AbstractBlenderHelper {
 					LOGGER.log(Level.INFO, "Importing empty.");
 					Node empty = new Node(name);
 					empty.setLocalTransform(t);
+					if(parent instanceof Node) {
+						((Node) parent).attachChild(empty);
+					}
+					empty.updateModelBound();
 					result = empty;
 					break;
 				case OBJECT_TYPE_MESH:
