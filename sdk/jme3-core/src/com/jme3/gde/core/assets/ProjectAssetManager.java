@@ -124,7 +124,7 @@ public class ProjectAssetManager extends DesktopAssetManager {
         ArrayList<String> list = new ArrayList<String>();
         while (assets.hasMoreElements()) {
             FileObject asset = assets.nextElement();
-            if (asset.hasExt("j3m")) {
+            if (asset.getExt().equalsIgnoreCase("j3m")) {
                 list.add(getRelativeAssetPath(asset.getPath()));
             }
         }
@@ -140,7 +140,7 @@ public class ProjectAssetManager extends DesktopAssetManager {
         ArrayList<String> list = new ArrayList<String>();
         while (assets.hasMoreElements()) {
             FileObject asset = assets.nextElement();
-            if (asset.hasExt("wav") || asset.hasExt("ogg")) {
+            if (asset.getExt().equalsIgnoreCase("wav") || asset.getExt().equalsIgnoreCase("ogg")) {
                 list.add(getRelativeAssetPath(asset.getPath()));
             }
         }
@@ -156,7 +156,7 @@ public class ProjectAssetManager extends DesktopAssetManager {
         ArrayList<String> list = new ArrayList<String>();
         while (assets.hasMoreElements()) {
             FileObject asset = assets.nextElement();
-            if (asset.hasExt("jpg") || asset.hasExt("jpeg") || asset.hasExt("gif") || asset.hasExt("png") || asset.hasExt("dds") || asset.hasExt("pfm") || asset.hasExt("hdr") || asset.hasExt("tga")) {
+            if (asset.getExt().equalsIgnoreCase("jpg") || asset.getExt().equalsIgnoreCase("jpeg") || asset.getExt().equalsIgnoreCase("gif") || asset.getExt().equalsIgnoreCase("png") || asset.getExt().equalsIgnoreCase("dds") || asset.getExt().equalsIgnoreCase("pfm") || asset.getExt().equalsIgnoreCase("hdr") || asset.getExt().equalsIgnoreCase("tga")) {
                 list.add(getRelativeAssetPath(asset.getPath()));
             }
         }
@@ -172,7 +172,7 @@ public class ProjectAssetManager extends DesktopAssetManager {
         ArrayList<String> list = new ArrayList<String>();
         while (assets.hasMoreElements()) {
             FileObject asset = assets.nextElement();
-            if (asset.hasExt("j3md")) {
+            if (asset.getExt().equalsIgnoreCase("j3md")) {
                 list.add(getRelativeAssetPath(asset.getPath()));
             }
         }
