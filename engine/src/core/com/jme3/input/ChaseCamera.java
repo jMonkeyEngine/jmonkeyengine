@@ -636,9 +636,10 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control {
     }
 
     /**
-     * Only has an effect if smoothMotion is set to true and trailing is enabled
+     * 
      * Sets the chasing sensitivity, the lower the value the slower the camera will follow the target when it moves
      * default is 5
+     * Only has an effect if smoothMotion is set to true and trailing is enabled
      * @param chasingSensitivity
      */
     public void setChasingSensitivity(float chasingSensitivity) {
@@ -654,10 +655,10 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control {
     }
 
     /**
-     * Only has an effect if smoothMotion is set to true
      * Sets the rotation sensitivity, the lower the value the slower the camera will rotates around the target when draging with the mouse
      * default is 5, values over 5 should have no effect.
      * If you want a significant slow down try values below 1.
+     * Only has an effect if smoothMotion is set to true 
      * @param rotationSensitivity
      */
     public void setRotationSensitivity(float rotationSensitivity) {
@@ -673,8 +674,8 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control {
     }
 
     /**
-     * Only has an effect if smoothMotion is set to true 
      * Enable the camera trailing : The camera smoothly go in the targets trail when it moves.
+     * Only has an effect if smoothMotion is set to true 
      * @param trailingEnabled
      */
     public void setTrailingEnabled(boolean trailingEnabled) {
@@ -691,9 +692,9 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control {
     }
 
     /**
-     * Only has an effect if smoothMotion is set to true and trailing is enabled
      * Sets the trailing rotation inertia : default is 0.1. This prevent the camera to roughtly stop when the target stops moving
      * before the camera reached the trail position.
+     * Only has an effect if smoothMotion is set to true and trailing is enabled
      * @param trailingRotationInertia
      */
     public void setTrailingRotationInertia(float trailingRotationInertia) {
