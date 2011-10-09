@@ -66,6 +66,7 @@ public final class BIHNode implements Savable {
     private float leftPlane;
     private float rightPlane;
     private int axis;
+    private Triangle tmpTriangle = new Triangle();
 
     public BIHNode(int l, int r) {
         leftIndex = l;
@@ -166,7 +167,7 @@ public final class BIHNode implements Savable {
 
         stack.add(new BIHStackData(this, 0, 0));
 
-        Triangle t = new Triangle();
+        Triangle t = tmpTriangle;
         int cols = 0;
 
         stackloop:
@@ -241,14 +242,15 @@ public final class BIHNode implements Savable {
             float sceneMax,
             CollisionResults results) {
         float tHit = Float.POSITIVE_INFINITY;
+        
+        TempVars vars = TempVars.get();
 
-        Vector3f v1 = new Vector3f(),
-                v2 = new Vector3f(),
-                v3 = new Vector3f();
+        Vector3f v1 = vars.vect1,
+                v2 = vars.vect2,
+                v3 = vars.vect3;
 
         int cols = 0;
 
-        TempVars vars = TempVars.get();
         ArrayList<BIHStackData> stack = vars.bihStack;
         stack.clear();
         stack.add(new BIHStackData(this, 0, 0));
@@ -306,10 +308,10 @@ public final class BIHNode implements Savable {
 
 //        float tHit = Float.POSITIVE_INFINITY;
 
-        Vector3f o = r.getOrigin().clone();
-        Vector3f d = r.getDirection().clone();
+        Vector3f o = vars.vect1.set(r.getOrigin());
+        Vector3f d =  vars.vect2.set(r.getDirection());
 
-        Matrix4f inv = worldMatrix.invert();
+        Matrix4f inv =vars.tempMat4.set(worldMatrix).invertLocal();
 
         inv.mult(r.getOrigin(), r.getOrigin());
 
@@ -327,9 +329,9 @@ public final class BIHNode implements Savable {
 
         r.getDirection().normalizeLocal();
 
-        Vector3f v1 = new Vector3f(),
-                v2 = new Vector3f(),
-                v3 = new Vector3f();
+        Vector3f v1 = vars.vect3,
+                v2 = vars.vect4,
+                v3 = vars.vect5;
         int cols = 0;
 
         stack.add(new BIHStackData(this, sceneMin, sceneMax));
