@@ -637,6 +637,7 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control {
 
     /**
      * Sets the chasing sensitivity, the lower the value the slower the camera will follow the target when it moves
+     * default is 5
      * @param chasingSensitivity
      */
     public void setChasingSensitivity(float chasingSensitivity) {
@@ -653,7 +654,8 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control {
 
     /**
      * Sets the rotation sensitivity, the lower the value the slower the camera will rotates around the target when draging with the mouse
-     * default is 5
+     * default is 5, values over 5 should have no effect.
+     * If you want a significant slow down try values below 1.
      * @param rotationSensitivity
      */
     public void setRotationSensitivity(float rotationSensitivity) {
