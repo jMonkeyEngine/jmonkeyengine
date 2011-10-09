@@ -73,7 +73,7 @@ public class NiftyPreviewPanel extends PanelView {
         toolBar.setPreferredSize(new Dimension(10000, 24));
         toolBar.setMaximumSize(new Dimension(10000, 24));
         toolBar.setFloatable(false);
-        JComboBox comboBox = new JComboBox(new String[]{"640x480", "800x600", "1024x768", "1280x720"});
+        JComboBox comboBox = new JComboBox(new String[]{"640x480", "480x800","800x480", "800x600", "1024x768", "1280x720"});
         comboBox.addItemListener(new ItemListener() {
 
             public void itemStateChanged(ItemEvent e) {
@@ -92,6 +92,12 @@ public class NiftyPreviewPanel extends PanelView {
                 } else if ("800x600".equals(string)) {
                     width = 800;
                     height = 600;
+                } else if ("800x480".equals(string)) {
+                    width = 800;
+                    height = 480;
+                } else if ("480x800".equals(string)) {
+                    width = 480;
+                    height = 800;
                 } else {
                     width = 640;
                     height = 480;
