@@ -29,8 +29,7 @@ import com.jme3.gde.core.scene.SceneApplication;
 import com.jme3.gde.core.scene.SceneRequest;
 import com.jme3.input.awt.AwtKeyInput;
 import com.jme3.input.event.KeyInputEvent;
-import com.jme3.system.awt.AwtPanel;
-import com.jme3.system.awt.AwtPanelsContext;
+import java.awt.Component;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseWheelEvent;
@@ -65,7 +64,7 @@ public final class SceneViewerTopComponent extends TopComponent {
     private SceneApplication app;
     private HelpCtx helpContext = new HelpCtx("com.jme3.gde.core.sceneviewer");
 //    private Canvas oglCanvas;
-    private AwtPanel oglCanvas;
+    private Component oglCanvas;
 
     public SceneViewerTopComponent() {
         initComponents();

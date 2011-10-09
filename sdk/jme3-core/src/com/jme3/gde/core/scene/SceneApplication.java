@@ -28,6 +28,7 @@ import com.jme3.app.Application;
 import com.jme3.app.StatsView;
 import com.jme3.font.BitmapFont;
 import com.jme3.font.BitmapText;
+import com.jme3.gde.core.Installer;
 import com.jme3.gde.core.assets.AssetData;
 import com.jme3.gde.core.scene.controller.AbstractCameraController;
 import com.jme3.gde.core.sceneexplorer.nodes.JmeSpatial;
@@ -48,9 +49,11 @@ import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.Spatial.CullHint;
 import com.jme3.system.AppSettings;
+import com.jme3.system.JmeCanvasContext;
 import com.jme3.system.awt.AwtPanel;
 import com.jme3.system.awt.AwtPanelsContext;
 import com.jme3.system.awt.PaintMode;
+import java.awt.Component;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
@@ -70,6 +73,7 @@ import org.openide.util.HelpCtx;
 import org.openide.util.Lookup;
 import org.openide.util.LookupEvent;
 import org.openide.util.LookupListener;
+import org.openide.util.NbPreferences;
 import org.openide.util.Utilities;
 import org.openide.util.lookup.Lookups;
 
@@ -113,13 +117,20 @@ public class SceneApplication extends Application implements LookupProvider, Loo
     private boolean started = false;
     private AwtPanel panel;
     private ViewPort overlayView;
+    boolean useCanvas = false;
 
     public SceneApplication() {
         progressHandle.start(7);
+        useCanvas = "true".equals(NbPreferences.forModule(Installer.class).get("use_lwjgl_canvas", "false"));
         try {
             AppSettings newSetting = new AppSettings(true);
-            newSetting.setCustomRenderer(AwtPanelsContext.class);
             newSetting.setFrameRate(30);
+            if ("true".equals(NbPreferences.forModule(Installer.class).get("use_opengl_1", "false"))) {
+                newSetting.setRenderer(AppSettings.LWJGL_OPENGL_ANY);
+            }
+            if (!useCanvas) {
+                newSetting.setCustomRenderer(AwtPanelsContext.class);
+            }
             setSettings(newSetting);
 
             Logger.getLogger("com.jme3").addHandler(logHandler);
@@ -129,9 +140,10 @@ public class SceneApplication extends Application implements LookupProvider, Loo
             //add listener for project selection
             nodeSelectionResult = Utilities.actionsGlobalContext().lookupResult(JmeSpatial.class);
             nodeSelectionResult.addLookupListener(this);
-//            createCanvas();
-//            startCanvas(true);
-
+            if (useCanvas) {
+                createCanvas();
+                startCanvas(true);
+            }
             progressHandle.progress("initialize Base Application", 1);
         } catch (Exception e) {
             getProgressHandle().finish();
@@ -142,19 +154,25 @@ public class SceneApplication extends Application implements LookupProvider, Loo
             SceneViewerTopComponent.showOpenGLError(e.toString());
             Exceptions.printStackTrace(e);
         }
-        start();
+        if (!useCanvas) {
+            start();
+        }
     }
 
-    public AwtPanel getMainPanel() {
-        if (panel == null) {
-            panel = ((AwtPanelsContext) getContext()).createPanel(PaintMode.Accelerated);
-            panel.attachTo(viewPort, overlayView, guiViewPort);
-            ((AwtPanelsContext) getContext()).setInputSource(panel);
+    public Component getMainPanel() {
+        if (useCanvas) {
+            return ((JmeCanvasContext)getContext()).getCanvas();
+        } else {
+            if (panel == null) {
+                panel = ((AwtPanelsContext) getContext()).createPanel(PaintMode.Accelerated);
+                panel.attachTo(viewPort, overlayView, guiViewPort);
+                ((AwtPanelsContext) getContext()).setInputSource(panel);
+            }
+            return panel;
         }
-        return panel;
     }
-    
-    public ViewPort getOverlayView(){
+
+    public ViewPort getOverlayView() {
         return overlayView;
     }
 

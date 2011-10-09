@@ -41,7 +41,6 @@ import org.openide.nodes.FilterNode;
 import org.openide.nodes.Node;
 import org.openide.util.ImageUtilities;
 import org.openide.util.Lookup;
-import org.openide.util.lookup.Lookups;
 import org.openide.util.lookup.ProxyLookup;
 
 /**
@@ -55,6 +54,13 @@ public class ProjectAssetsNode extends FilterNode {
 
     public ProjectAssetsNode(ProjectAssetManager manager, Project proj, Node node) throws DataObjectNotFoundException {
         super(node, new AssetChildren(manager, node), createLookupProxy(manager, node));
+//        for (Iterator<Class<? extends Object>> it = proj.getLookup().lookupResult(Object.class).allClasses().iterator(); it.hasNext();) {
+//            Class<? extends Object> class1 = it.next();
+//            System.out.println("Clazz: "+class1.getName());
+//        }
+//        proj.getLookup().lookup(ProjectClassPathProvider.class).findClassPath(null, ClassPath.EXECUTE);
+//        proj.getLookup().lookup(AntProjectHelper.class).getProperties(PROP_NAME);
+//        proj.getLookup().lookup(ProjectClassPathModifier.class).#
         enableDelegation(DELEGATE_GET_ACTIONS);
         enableDelegation(DELEGATE_GET_CONTEXT_ACTIONS);
         setDisplayName("Project Assets");
