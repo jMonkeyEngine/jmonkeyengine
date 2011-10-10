@@ -199,6 +199,8 @@ public class Animation implements Savable, Cloneable {
 		InputCapsule in = im.getCapsule(this);
         name = in.readString("name", null);
         length = in.readFloat("length", 0f);
-        tracks = (Track<?>[]) in.readSavableArray("tracks", null);
+        Object[] arr = in.readSavableArray("tracks", null);
+        tracks = new Track<?>[arr.length];
+        System.arraycopy(arr, 0, tracks, 0, arr.length);
 	}
 }
