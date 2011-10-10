@@ -13,6 +13,8 @@ import java.io.File;
 import java.io.IOException;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
+import org.openide.DialogDisplayer;
+import org.openide.NotifyDescriptor;
 import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObjectExistsException;
@@ -44,6 +46,7 @@ public class OgreBinaryMeshDataObject extends SpatialAssetDataObject {
         handle.progress("Convert Model");
         ProjectAssetManager mgr = getLookup().lookup(ProjectAssetManager.class);
         if (mgr == null) {
+            DialogDisplayer.getDefault().notifyLater(new NotifyDescriptor.Message("File is not part of a project!\nCannot load without ProjectAssetManager."));
             return null;
         }
         String assetKey = mgr.getRelativeAssetPath(options.getDestFile());

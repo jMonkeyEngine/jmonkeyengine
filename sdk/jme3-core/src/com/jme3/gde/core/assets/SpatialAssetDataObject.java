@@ -37,6 +37,8 @@ import com.jme3.scene.Spatial;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.openide.DialogDisplayer;
+import org.openide.NotifyDescriptor;
 import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObject;
@@ -77,6 +79,7 @@ public class SpatialAssetDataObject extends AssetDataObject {
         }
         ProjectAssetManager mgr = getLookup().lookup(ProjectAssetManager.class);
         if (mgr == null) {
+            DialogDisplayer.getDefault().notifyLater(new NotifyDescriptor.Message("File is not part of a project!\nCannot load without ProjectAssetManager."));
             return null;
         }
         FileLock lock = null;
@@ -101,6 +104,7 @@ public class SpatialAssetDataObject extends AssetDataObject {
         super.saveAsset();
         ProjectAssetManager mgr = getLookup().lookup(ProjectAssetManager.class);
         if (mgr == null) {
+            DialogDisplayer.getDefault().notifyLater(new NotifyDescriptor.Message("File is not part of a project!\nCannot load without ProjectAssetManager."));
             return;
         }
         FileObject outFile = null;

@@ -77,6 +77,7 @@ public class OgreXMLDataObject extends SpatialAssetDataObject {
         }
         ProjectAssetManager mgr = getLookup().lookup(ProjectAssetManager.class);
         if (mgr == null) {
+            DialogDisplayer.getDefault().notifyLater(new NotifyDescriptor.Message("File is not part of a project!\nCannot load without ProjectAssetManager."));
             return null;
         }
         String name = getPrimaryFile().getName();
