@@ -60,6 +60,8 @@
                 <package>de.lessvoid.nifty.controls.shared</package>
                 <package>de.lessvoid.nifty.controls.slider</package>
                 <package>de.lessvoid.nifty.controls.slider.builder</package>
+                <package>de.lessvoid.nifty.controls.tabs</package>
+                <package>de.lessvoid.nifty.controls.tabs.builder</package>
                 <package>de.lessvoid.nifty.controls.textfield</package>
                 <package>de.lessvoid.nifty.controls.textfield.builder</package>
                 <package>de.lessvoid.nifty.controls.window</package>
@@ -119,6 +121,7 @@
                 <package>org.lwjgl.opencl</package>
                 <package>org.lwjgl.opencl.api</package>
                 <package>org.lwjgl.opengl</package>
+                <package>org.lwjgl.opengles</package>
                 <package>org.novyon.noise</package>
                 <package>org.novyon.noise.basis</package>
                 <package>org.novyon.noise.filter</package>
