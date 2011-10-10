@@ -100,13 +100,14 @@ public final class ModelImporterVisualPanel1 extends JPanel implements AssetEven
                     if (data != null) {
                         ((AssetDataObject) obj).getLookupContents().add(manager);
                         mainKey = data.getAssetKey();
+                        currentModel = (Spatial)data.loadAsset();
                     }
                 } catch (DataObjectNotFoundException ex) {
                     Exceptions.printStackTrace(ex);
                     mainKey = new ModelKey(path.getName());
                 }
             }
-            currentModel = (Spatial) manager.loadAsset(mainKey);
+//            currentModel = (Spatial) manager.loadAsset(mainKey);
             if (currentModel != null) {
                 offPanel.attach(currentModel);
                 updateProperties(mainKey);
