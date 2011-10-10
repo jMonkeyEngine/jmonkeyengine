@@ -17,8 +17,8 @@ import javax.swing.Action;
 import org.openide.nodes.Node;
 import org.w3c.dom.Element;
 import com.jme3.gde.scenecomposer.SceneComposerTopComponent;
-import java.util.ArrayList;
-import java.util.List;
+import org.openide.DialogDisplayer;
+import org.openide.NotifyDescriptor;
 
 public final class AddAssetAction implements Action {
 
@@ -30,8 +30,13 @@ public final class AddAssetAction implements Action {
 
     public void actionPerformed(ActionEvent ev) {
         ProjectAssetManager pm = context.getLookup().lookup(ProjectAssetManager.class);
+        ProjectAssetManager scenePm = SceneApplication.getApplication().getCurrentSceneRequest().getManager();
         if (pm == null) {
             Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, "AssetManager not found!");
+            return;
+        }
+        if (scenePm == null) {
+            DialogDisplayer.getDefault().notifyLater(new NotifyDescriptor.Message("No scene opened!"));
             return;
         }
         Element assetElement = context.getLookup().lookup(Element.class);
@@ -41,7 +46,7 @@ public final class AddAssetAction implements Action {
             Spatial model = AssetPackLoader.loadAssetPackModel(pm, conf);
             if (model != null) {
                 SceneComposerTopComponent.findInstance().addModel(model);
-                AssetPackLoader.addModelFiles(pm, SceneApplication.getApplication().getCurrentSceneRequest().getManager(),conf);
+                AssetPackLoader.addModelFiles(pm, scenePm,conf);
             } else {
                 Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "Error loading model");
             }

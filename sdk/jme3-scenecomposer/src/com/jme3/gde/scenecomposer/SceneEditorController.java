@@ -42,6 +42,7 @@ import org.netbeans.api.progress.ProgressHandleFactory;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.NotifyDescriptor.Confirmation;
+import org.openide.NotifyDescriptor.Message;
 import org.openide.cookies.SaveCookie;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObject;
@@ -58,30 +59,30 @@ import org.openide.util.Lookup;
  */
 @SuppressWarnings("unchecked")
 public class SceneEditorController implements PropertyChangeListener, NodeListener {
-
+    
     private JmeSpatial jmeRootNode;
     private JmeSpatial selectedSpat;
     private DataObject currentFileObject;
 //    private boolean needSave = false;
     private SceneComposerToolController toolController;
-
+    
     public SceneEditorController(JmeSpatial jmeRootNode, DataObject currentFileObject) {
         this.jmeRootNode = jmeRootNode;
         this.currentFileObject = currentFileObject;
     }
-
+    
     public void setToolController(SceneComposerToolController toolController) {
         this.toolController = toolController;
     }
-
+    
     public JmeSpatial getJmeRootNode() {
         return jmeRootNode;
     }
-
+    
     public JmeSpatial getSelectedSpat() {
         return selectedSpat;
     }
-
+    
     public void setSelectedSpat(JmeSpatial selectedSpat) {
         if (this.selectedSpat == selectedSpat) {
             return;
@@ -96,39 +97,39 @@ public class SceneEditorController implements PropertyChangeListener, NodeListen
             selectedSpat.addNodeListener(this);//WeakListeners.propertyChange(this, selectedSpat));
         }
     }
-
+    
     public FileObject getCurrentFileObject() {
         return currentFileObject.getPrimaryFile();
     }
-
+    
     public DataObject getCurrentDataObject() {
         return currentFileObject;
     }
-
+    
     private void addSpatialUndo(final Node undoParent, final Spatial undoSpatial, final Light undoLight, final AbstractSceneExplorerNode parentNode) {
         //add undo
         if (undoParent != null && undoSpatial != null) {
             Lookup.getDefault().lookup(SceneUndoRedoManager.class).addEdit(this, new AbstractUndoableSceneEdit() {
-
+                
                 @Override
                 public void sceneUndo() throws CannotUndoException {
                     //undo stuff here
                     undoSpatial.removeFromParent();
                 }
-
+                
                 @Override
                 public void sceneRedo() throws CannotRedoException {
                     //redo stuff here
                     undoParent.attachChild(undoSpatial);
                 }
-
+                
                 @Override
                 public void awtRedo() {
                     if (parentNode != null) {
                         parentNode.refresh(true);
                     }
                 }
-
+                
                 @Override
                 public void awtUndo() {
                     if (parentNode != null) {
@@ -139,28 +140,28 @@ public class SceneEditorController implements PropertyChangeListener, NodeListen
         }
         if (undoParent != null && undoLight != null) {
             Lookup.getDefault().lookup(SceneUndoRedoManager.class).addEdit(this, new AbstractUndoableSceneEdit() {
-
+                
                 @Override
                 public void sceneUndo() throws CannotUndoException {
                     //undo stuff here
                     undoParent.removeLight(undoLight);
                     toolController.removeLightMarker(undoLight);
                 }
-
+                
                 @Override
                 public void sceneRedo() throws CannotRedoException {
                     //redo stuff here
                     undoParent.addLight(undoLight);
                     toolController.addLightMarker(undoLight);
                 }
-
+                
                 @Override
                 public void awtRedo() {
                     if (parentNode != null) {
                         parentNode.refresh(true);
                     }
                 }
-
+                
                 @Override
                 public void awtUndo() {
                     if (parentNode != null) {
@@ -170,7 +171,7 @@ public class SceneEditorController implements PropertyChangeListener, NodeListen
             });
         }
     }
-
+    
     public void moveSelectedSpatial(final Vector3f point) {
         if (selectedSpat == null) {
             return;
@@ -180,11 +181,11 @@ public class SceneEditorController implements PropertyChangeListener, NodeListen
             if (node != null) {
                 setNeedsSave(true);
                 SceneApplication.getApplication().enqueue(new Callable() {
-
+                    
                     public Object call() throws Exception {
                         doMoveSpatial(node, point);
                         return null;
-
+                        
                     }
                 }).get();
             }
@@ -194,7 +195,7 @@ public class SceneEditorController implements PropertyChangeListener, NodeListen
             Exceptions.printStackTrace(ex);
         }
     }
-
+    
     public void doMoveSpatial(Spatial selected, Vector3f translation) {
         Vector3f localTranslation = selected.getLocalTranslation();
         Vector3f before = new Vector3f(localTranslation);
@@ -212,17 +213,17 @@ public class SceneEditorController implements PropertyChangeListener, NodeListen
         AbstractSceneExplorerNode selectedSpat = this.selectedSpat;
         moveUndo(selected, before, after, selectedSpat);
     }
-
+    
     private void moveUndo(final Spatial spatial, final Vector3f before, final Vector3f after, final AbstractSceneExplorerNode parentNode) {
         if (spatial != null && before != null) {
             Lookup.getDefault().lookup(SceneUndoRedoManager.class).addEdit(this, new AbstractUndoableSceneEdit() {
-
+                
                 @Override
                 public void sceneUndo() throws CannotUndoException {
                     //undo stuff here
                     spatial.setLocalTranslation(before);
                 }
-
+                
                 @Override
                 public void sceneRedo() throws CannotRedoException {
                     //redo stuff here
@@ -231,7 +232,7 @@ public class SceneEditorController implements PropertyChangeListener, NodeListen
             });
         }
     }
-
+    
     public void nudgeSelectedSpatial(final Vector3f amount) {
         if (selectedSpat == null) {
             return;
@@ -241,11 +242,11 @@ public class SceneEditorController implements PropertyChangeListener, NodeListen
             if (node != null) {
                 setNeedsSave(true);
                 SceneApplication.getApplication().enqueue(new Callable() {
-
+                    
                     public Object call() throws Exception {
                         doNudgeSpatial(node, amount);
                         return null;
-
+                        
                     }
                 }).get();
             }
@@ -255,24 +256,24 @@ public class SceneEditorController implements PropertyChangeListener, NodeListen
             Exceptions.printStackTrace(ex);
         }
     }
-
+    
     public void doNudgeSpatial(Spatial selected, Vector3f translation) {
         Vector3f before = new Vector3f(selected.getLocalTranslation());
         selected.setLocalTranslation(before.add(translation));
         Vector3f after = new Vector3f(selected.getLocalTranslation());
         nudgeUndo(selected, before, after, selectedSpat);
     }
-
+    
     private void nudgeUndo(final Spatial spatial, final Vector3f before, final Vector3f after, final AbstractSceneExplorerNode parentNode) {
         if (spatial != null && before != null) {
             Lookup.getDefault().lookup(SceneUndoRedoManager.class).addEdit(this, new AbstractUndoableSceneEdit() {
-
+                
                 @Override
                 public void sceneUndo() throws CannotUndoException {
                     //undo stuff here
                     spatial.setLocalTranslation(before);
                 }
-
+                
                 @Override
                 public void sceneRedo() throws CannotRedoException {
                     //redo stuff here
@@ -281,7 +282,7 @@ public class SceneEditorController implements PropertyChangeListener, NodeListen
             });
         }
     }
-
+    
     public void rotateSelectedSpatial(final Quaternion amount) {
         if (selectedSpat == null) {
             return;
@@ -291,11 +292,11 @@ public class SceneEditorController implements PropertyChangeListener, NodeListen
             if (node != null) {
                 setNeedsSave(true);
                 SceneApplication.getApplication().enqueue(new Callable() {
-
+                    
                     public Object call() throws Exception {
                         doRotateSpatial(node, amount);
                         return null;
-
+                        
                     }
                 }).get();
             }
@@ -305,24 +306,24 @@ public class SceneEditorController implements PropertyChangeListener, NodeListen
             Exceptions.printStackTrace(ex);
         }
     }
-
+    
     public void doRotateSpatial(Spatial selected, Quaternion rotation) {
         Quaternion before = new Quaternion(selected.getLocalRotation());
         selected.rotate(rotation);
         Quaternion after = new Quaternion(selected.getLocalRotation());
         rotateUndo(selected, before, after, selectedSpat);
     }
-
+    
     private void rotateUndo(final Spatial spatial, final Quaternion before, final Quaternion after, final AbstractSceneExplorerNode parentNode) {
         if (spatial != null && before != null) {
             Lookup.getDefault().lookup(SceneUndoRedoManager.class).addEdit(this, new AbstractUndoableSceneEdit() {
-
+                
                 @Override
                 public void sceneUndo() throws CannotUndoException {
                     //undo stuff here
                     spatial.setLocalRotation(before);
                 }
-
+                
                 @Override
                 public void sceneRedo() throws CannotRedoException {
                     //redo stuff here
@@ -331,7 +332,7 @@ public class SceneEditorController implements PropertyChangeListener, NodeListen
             });
         }
     }
-
+    
     public void createTangentsForSelectedSpatial() {
         if (selectedSpat == null) {
             return;
@@ -341,11 +342,11 @@ public class SceneEditorController implements PropertyChangeListener, NodeListen
             if (node != null) {
                 setNeedsSave(true);
                 SceneApplication.getApplication().enqueue(new Callable() {
-
+                    
                     public Object call() throws Exception {
                         doCreateTangents(node);
                         return null;
-
+                        
                     }
                 }).get();
             }
@@ -355,7 +356,7 @@ public class SceneEditorController implements PropertyChangeListener, NodeListen
             Exceptions.printStackTrace(ex);
         }
     }
-
+    
     public void doCreateTangents(Spatial selected) {
         if (selected instanceof Geometry) {
             Geometry geom = (Geometry) selected;
@@ -366,16 +367,16 @@ public class SceneEditorController implements PropertyChangeListener, NodeListen
             }
         }
     }
-
+    
     private void createTrangentsUndo(final Mesh mesh) {
         if (mesh != null) {
             Lookup.getDefault().lookup(SceneUndoRedoManager.class).addEdit(this, new AbstractUndoableSceneEdit() {
-
+                
                 @Override
                 public void sceneUndo() throws CannotUndoException {
                     mesh.clearBuffer(Type.Tangent);
                 }
-
+                
                 @Override
                 public void sceneRedo() throws CannotRedoException {
                     TangentBinormalGenerator.generate(mesh);
@@ -383,7 +384,7 @@ public class SceneEditorController implements PropertyChangeListener, NodeListen
             });
         }
     }
-
+    
     public void createPhysicsMeshForSelectedSpatial() {
         if (selectedSpat == null) {
             return;
@@ -393,11 +394,11 @@ public class SceneEditorController implements PropertyChangeListener, NodeListen
             setNeedsSave(true);
             if (node != null) {
                 SceneApplication.getApplication().enqueue(new Callable() {
-
+                    
                     public Object call() throws Exception {
                         doCreatePhysicsMesh(node);
                         return null;
-
+                        
                     }
                 }).get();
             }
@@ -407,7 +408,7 @@ public class SceneEditorController implements PropertyChangeListener, NodeListen
             Exceptions.printStackTrace(ex);
         }
     }
-
+    
     public void doCreatePhysicsMesh(Spatial selected) {
         RigidBodyControl control = selected.getControl(RigidBodyControl.class);
         if (control != null) {
@@ -424,7 +425,7 @@ public class SceneEditorController implements PropertyChangeListener, NodeListen
         AbstractSceneExplorerNode selectedSpat = this.selectedSpat;
         addControlUndo(parent, control, selectedSpat);
     }
-
+    
     public void createDynamicPhysicsMeshForSelectedSpatial(final float weight) {
         if (selectedSpat == null) {
             return;
@@ -434,11 +435,11 @@ public class SceneEditorController implements PropertyChangeListener, NodeListen
             setNeedsSave(true);
             if (node != null) {
                 SceneApplication.getApplication().enqueue(new Callable() {
-
+                    
                     public Object call() throws Exception {
                         doCreateDynamicPhysicsMesh(node, weight);
                         return null;
-
+                        
                     }
                 }).get();
             }
@@ -448,7 +449,7 @@ public class SceneEditorController implements PropertyChangeListener, NodeListen
             Exceptions.printStackTrace(ex);
         }
     }
-
+    
     public void doCreateDynamicPhysicsMesh(Spatial selected, float weight) {
         RigidBodyControl control = selected.getControl(RigidBodyControl.class);
         if (control != null) {
@@ -465,7 +466,7 @@ public class SceneEditorController implements PropertyChangeListener, NodeListen
         AbstractSceneExplorerNode selectedSpat = this.selectedSpat;
         addControlUndo(parent, control, selectedSpat);
     }
-
+    
     public void createCharacterControlForSelectedSpatial(final boolean auto, final float radius, final float height) {
         if (selectedSpat == null) {
             return;
@@ -475,11 +476,11 @@ public class SceneEditorController implements PropertyChangeListener, NodeListen
             setNeedsSave(true);
             if (node != null) {
                 SceneApplication.getApplication().enqueue(new Callable() {
-
+                    
                     public Object call() throws Exception {
                         doCreateCharacterControl(node, auto, radius, height);
                         return null;
-
+                        
                     }
                 }).get();
             }
@@ -489,7 +490,7 @@ public class SceneEditorController implements PropertyChangeListener, NodeListen
             Exceptions.printStackTrace(ex);
         }
     }
-
+    
     public void doCreateCharacterControl(Spatial selected, boolean auto, float radius, float height) {
         CharacterControl control = selected.getControl(CharacterControl.class);
         if (control != null) {
@@ -511,30 +512,30 @@ public class SceneEditorController implements PropertyChangeListener, NodeListen
         AbstractSceneExplorerNode selectedSpat = this.selectedSpat;
         addControlUndo(parent, control, selectedSpat);
     }
-
+    
     private void addControlUndo(final Node undoParent, final Control undoControl, final AbstractSceneExplorerNode parentNode) {
         if (undoParent != null && undoControl != null) {
             Lookup.getDefault().lookup(SceneUndoRedoManager.class).addEdit(this, new AbstractUndoableSceneEdit() {
-
+                
                 @Override
                 public void sceneUndo() throws CannotUndoException {
                     //undo stuff here
                     undoParent.removeControl(undoControl);
                 }
-
+                
                 @Override
                 public void sceneRedo() throws CannotRedoException {
                     //redo stuff here
                     undoParent.addControl(undoControl);
                 }
-
+                
                 @Override
                 public void awtRedo() {
                     if (parentNode != null) {
                         parentNode.refresh(true);
                     }
                 }
-
+                
                 @Override
                 public void awtUndo() {
                     if (parentNode != null) {
@@ -544,7 +545,7 @@ public class SceneEditorController implements PropertyChangeListener, NodeListen
             });
         }
     }
-
+    
     public void addModel(final SpatialAssetDataObject file, final Vector3f location) {
         if (selectedSpat == null) {
             return;
@@ -557,15 +558,17 @@ public class SceneEditorController implements PropertyChangeListener, NodeListen
         if (selected != null) {
             setNeedsSave(true);
             SceneApplication.getApplication().enqueue(new Callable<Object>() {
-
+                
                 public Object call() throws Exception {
                     doAddModel(file, selected, location);
                     return null;
                 }
             });
+        } else {
+            displayInfo("Please select a Node to attach to\nin the SceneExplorer.");
         }
     }
-
+    
     public void doAddModel(SpatialAssetDataObject file, Node selected, Vector3f location) {
         ProgressHandle progressHandle = ProgressHandleFactory.createHandle("Adding Model..");
         progressHandle.start();
@@ -589,9 +592,9 @@ public class SceneEditorController implements PropertyChangeListener, NodeListen
             DialogDisplayer.getDefault().notifyLater(msg);
         }
         progressHandle.finish();
-
+        
     }
-
+    
     public void linkModel(final AssetManager manager, final String assetName, final Vector3f location) {
         if (selectedSpat == null) {
             return;
@@ -600,15 +603,17 @@ public class SceneEditorController implements PropertyChangeListener, NodeListen
         if (selected != null) {
             setNeedsSave(true);
             SceneApplication.getApplication().enqueue(new Callable<Object>() {
-
+                
                 public Object call() throws Exception {
                     doLinkModel(manager, assetName, selected, location);
                     return null;
                 }
             });
+        } else {
+            displayInfo("Please select a Node to attach to\nin the SceneExplorer.");
         }
     }
-
+    
     public void doLinkModel(AssetManager manager, String assetName, Node selected, Vector3f location) {
         ProgressHandle progressHandle = ProgressHandleFactory.createHandle("Adding Model..");
         progressHandle.start();
@@ -638,13 +643,13 @@ public class SceneEditorController implements PropertyChangeListener, NodeListen
             DialogDisplayer.getDefault().notifyLater(msg);
         }
         progressHandle.finish();
-
+        
     }
-
+    
     public void addModel(final Spatial file) {
         addModel(file, null);
     }
-
+    
     public void addModel(final Spatial file, final Vector3f location) {
         if (selectedSpat == null) {
             return;
@@ -653,15 +658,17 @@ public class SceneEditorController implements PropertyChangeListener, NodeListen
         if (selected != null) {
             setNeedsSave(true);
             SceneApplication.getApplication().enqueue(new Callable<Object>() {
-
+                
                 public Object call() throws Exception {
                     doAddModel(file, selected, location);
                     return null;
                 }
             });
+        } else {
+            displayInfo("Please select a Node to attach to\nin the SceneExplorer.");
         }
     }
-
+    
     public void doAddModel(Spatial file, Node selected, Vector3f location) {
         ProgressHandle progressHandle = ProgressHandleFactory.createHandle("Adding Model..");
         progressHandle.start();
@@ -684,43 +691,43 @@ public class SceneEditorController implements PropertyChangeListener, NodeListen
             DialogDisplayer.getDefault().notifyLater(msg);
         }
         progressHandle.finish();
-
+        
     }
-
+    
     public void setNeedsSave(boolean state) {
         currentFileObject.setModified(state);
     }
-
+    
     public boolean isNeedSave() {
         return currentFileObject.isModified();
     }
-
+    
     public void propertyChange(PropertyChangeEvent evt) {
 //        if ((evt.getOldValue() == null && !(evt.getNewValue() == null)) || ((evt.getOldValue() != null) && !evt.getOldValue().equals(evt.getNewValue()))) {
 //            setNeedsSave(true);
 //        }
     }
-
+    
     public void childrenAdded(NodeMemberEvent ev) {
 //        setNeedsSave(true);
         toolController.refreshNonSpatialMarkers();
     }
-
+    
     public void childrenRemoved(NodeMemberEvent ev) {
 //        setNeedsSave(true);
         toolController.refreshNonSpatialMarkers();
     }
-
+    
     public void childrenReordered(NodeReorderEvent ev) {
 //        setNeedsSave(true);
         toolController.refreshNonSpatialMarkers();
     }
-
+    
     public void nodeDestroyed(NodeEvent ev) {
 //        setNeedsSave(true);
         toolController.refreshNonSpatialMarkers();
     }
-
+    
     public void saveScene() {
         try {
             currentFileObject.getLookup().lookup(SaveCookie.class).save();
@@ -728,55 +735,55 @@ public class SceneEditorController implements PropertyChangeListener, NodeListen
             Exceptions.printStackTrace(ex);
         }
     }
-
+    
     private void refreshSelected(final JmeSpatial spat) {
         java.awt.EventQueue.invokeLater(new Runnable() {
-
+            
             public void run() {
                 if (spat != null) {
                     spat.refresh(false);
                 }
             }
         });
-
+        
     }
-
+    
     private void refreshSelected() {
         java.awt.EventQueue.invokeLater(new Runnable() {
-
+            
             public void run() {
                 if (getSelectedSpat() != null) {
                     getSelectedSpat().refresh(false);
                 }
             }
         });
-
+        
     }
-
+    
     private void refreshSelectedParent() {
         java.awt.EventQueue.invokeLater(new Runnable() {
-
+            
             public void run() {
                 if (getSelectedSpat() != null) {
                     ((JmeSpatial) getSelectedSpat().getParentNode()).refresh(false);
                 }
             }
         });
-
+        
     }
-
+    
     private void refreshRoot() {
         java.awt.EventQueue.invokeLater(new Runnable() {
-
+            
             public void run() {
                 if (getJmeRootNode() != null) {
                     getJmeRootNode().refresh(true);
                 }
             }
         });
-
+        
     }
-
+    
     public void cleanup() {
         final Node node = jmeRootNode.getLookup().lookup(Node.class);
         if (selectedSpat != null) {
@@ -793,4 +800,8 @@ public class SceneEditorController implements PropertyChangeListener, NodeListen
         TerrainUtils.enableLodControl(camera, root);
     }
     
+    public void displayInfo(String info) {
+        Message msg = new NotifyDescriptor.Message(info);
+        DialogDisplayer.getDefault().notifyLater(msg);
+    }
 }

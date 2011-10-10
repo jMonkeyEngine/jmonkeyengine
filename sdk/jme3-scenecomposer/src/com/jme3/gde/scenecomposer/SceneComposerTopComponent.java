@@ -38,6 +38,7 @@ import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.NotifyDescriptor.Confirmation;
+import org.openide.NotifyDescriptor.Message;
 import org.openide.awt.Toolbar;
 import org.openide.awt.ToolbarPool;
 import org.openide.awt.UndoRedo;
@@ -761,24 +762,32 @@ private void scaleButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
     public void addModel(Spatial model) {
         if (editorController != null) {
             editorController.addModel(model, toolController.getCursorLocation());
+        } else {
+            displayInfo("No scene opened!");
         }
     }
 
     public void addModel(SpatialAssetDataObject model) {
         if (editorController != null) {
             editorController.addModel(model, toolController.getCursorLocation());
+        } else {
+            displayInfo("No scene opened!");
         }
     }
 
     public void linkModel(AssetManager manager, String assetName) {
         if (editorController != null) {
             editorController.linkModel(manager, assetName, toolController.getCursorLocation());
+        } else {
+            displayInfo("No scene opened!");
         }
     }
 
     public void doMoveCursor(Vector3f vector) {
         if (toolController != null) {
             toolController.doSetCursorLocation(vector);
+        } else {
+            displayInfo("No scene opened!");
         }
     }
 
@@ -929,5 +938,9 @@ private void scaleButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
     public void previewRequested(PreviewRequest request) {
     }
 
+    public void displayInfo(String info) {
+        Message msg = new NotifyDescriptor.Message(info);
+        DialogDisplayer.getDefault().notifyLater(msg);
+    }
     
 }
