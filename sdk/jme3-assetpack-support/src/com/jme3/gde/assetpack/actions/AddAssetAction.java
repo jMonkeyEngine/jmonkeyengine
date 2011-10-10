@@ -8,6 +8,7 @@ import com.jme3.gde.assetpack.AssetConfiguration;
 import com.jme3.gde.assetpack.AssetPackLoader;
 import com.jme3.gde.core.assets.ProjectAssetManager;
 import com.jme3.gde.core.scene.SceneApplication;
+import com.jme3.gde.core.scene.SceneRequest;
 import com.jme3.scene.Spatial;
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeListener;
@@ -30,7 +31,11 @@ public final class AddAssetAction implements Action {
 
     public void actionPerformed(ActionEvent ev) {
         ProjectAssetManager pm = context.getLookup().lookup(ProjectAssetManager.class);
-        ProjectAssetManager scenePm = SceneApplication.getApplication().getCurrentSceneRequest().getManager();
+        SceneRequest req = SceneApplication.getApplication().getCurrentSceneRequest();
+        ProjectAssetManager scenePm = null;
+        if (req != null) {
+            scenePm = req.getManager();
+        }
         if (pm == null) {
             Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, "AssetManager not found!");
             return;
@@ -46,7 +51,7 @@ public final class AddAssetAction implements Action {
             Spatial model = AssetPackLoader.loadAssetPackModel(pm, conf);
             if (model != null) {
                 SceneComposerTopComponent.findInstance().addModel(model);
-                AssetPackLoader.addModelFiles(pm, scenePm,conf);
+                AssetPackLoader.addModelFiles(pm, scenePm, conf);
             } else {
                 Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "Error loading model");
             }
