@@ -74,7 +74,9 @@ public class AwtMouseInput implements MouseInput, MouseListener, MouseWheelListe
 
     private Component component;
 
-    private ArrayList<MouseButtonEvent> eventQueue = new ArrayList<MouseButtonEvent>();
+    private final ArrayList<MouseButtonEvent> eventQueue = new ArrayList<MouseButtonEvent>();
+    private final ArrayList<MouseButtonEvent> eventQueueCopy = new ArrayList<MouseButtonEvent>();
+    
     private int lastEventX;
     private int lastEventY;
     private int lastEventWheel;
@@ -109,6 +111,8 @@ public class AwtMouseInput implements MouseInput, MouseListener, MouseWheelListe
             component.removeMouseListener(this);
             component.removeMouseMotionListener(this);
             component.removeMouseWheelListener(this);
+            
+            eventQueue.clear();
             
             wheelPos = 0;
             isRecentering = false;
@@ -160,7 +164,6 @@ public class AwtMouseInput implements MouseInput, MouseListener, MouseWheelListe
                         recenterMouse(component);
                 }
             });
-            
         }
     }
 
@@ -186,11 +189,16 @@ public class AwtMouseInput implements MouseInput, MouseListener, MouseWheelListe
             cursorMoved = false;
         }
 
-        int size = eventQueue.size();
-        for (int i = 0; i < size; i++){
-            listener.onMouseButtonEvent(eventQueue.get(i));
+        synchronized (eventQueue){
+            eventQueueCopy.clear();
+            eventQueueCopy.addAll(eventQueue);
+            eventQueue.clear();
         }
-        eventQueue.clear();
+        
+        int size = eventQueueCopy.size();
+        for (int i = 0; i < size; i++){
+            listener.onMouseButtonEvent(eventQueueCopy.get(i));
+        }
     }
 
     private Cursor getTransparentCursor() {
@@ -224,13 +232,17 @@ public class AwtMouseInput implements MouseInput, MouseListener, MouseWheelListe
     public void mousePressed(MouseEvent arg0) {
         MouseButtonEvent evt = new MouseButtonEvent(getJMEButtonIndex(arg0), true, arg0.getX(), arg0.getY());
         evt.setTime(arg0.getWhen());
-        eventQueue.add(evt);
+        synchronized (eventQueue){
+            eventQueue.add(evt);
+        }
     }
 
     public void mouseReleased(MouseEvent arg0) {
         MouseButtonEvent evt = new MouseButtonEvent(getJMEButtonIndex(arg0), false, arg0.getX(), arg0.getY());
         evt.setTime(arg0.getWhen());
-        eventQueue.add(evt);
+        synchronized (eventQueue){
+            eventQueue.add(evt);
+        }
     }
 
     public void mouseEntered(MouseEvent arg0) {
