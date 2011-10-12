@@ -195,13 +195,13 @@ public class RenderDeviceJme implements RenderDevice {
 
         RenderFontJme jmeFont = (RenderFontJme) font;
         
-        BitmapText text = textCacheLastFrame.get(str);
+        BitmapText text = textCacheLastFrame.get(font+str+color);
         if (text == null) {
             text = jmeFont.createText();
             text.setText(str);
             text.updateLogicalState(0);
         }
-        textCacheCurrentFrame.put(str, text);
+        textCacheCurrentFrame.put(font+str+color, text);
 
         niftyMat.setColor("Color", convertColor(color, tempColor));
         niftyMat.setBoolean("UseTex", true);
