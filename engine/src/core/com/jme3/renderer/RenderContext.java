@@ -33,6 +33,7 @@
 package com.jme3.renderer;
 
 import com.jme3.material.RenderState;
+import com.jme3.math.ColorRGBA;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.texture.FrameBuffer;
@@ -233,6 +234,36 @@ public class RenderContext {
      * IDList for vertex attributes
      */
     public IDList attribIndexList = new IDList();
+    
+    /**
+     * Ambient color (GL1 only)
+     */
+    public ColorRGBA ambient;
+    
+    /**
+     * Diffuse color (GL1 only)
+     */
+    public ColorRGBA diffuse;
+    
+    /**
+     * Specular color (GL1 only)
+     */
+    public ColorRGBA specular;
+    
+    /**
+     * Material color (GL1 only)
+     */
+    public ColorRGBA color;
+    
+    /**
+     * Shininess (GL1 only)
+     */
+    public float shininess;
+    
+    /**
+     * Use vertex color (GL1 only)
+     */
+    public boolean useVertexColor;
 
     /**
      * Reset the RenderContext to default GL state
@@ -280,5 +311,9 @@ public class RenderContext {
         backStencilDepthPassOperation = RenderState.StencilOperation.Keep;
         frontStencilFunction = RenderState.TestFunction.Always;
         backStencilFunction = RenderState.TestFunction.Always;
+        
+        ambient = diffuse = specular = color = null;
+        shininess = 0;
+        useVertexColor = false;
     }
 }

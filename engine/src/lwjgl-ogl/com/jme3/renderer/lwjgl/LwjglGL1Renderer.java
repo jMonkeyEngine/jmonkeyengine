@@ -1,5 +1,11 @@
 package com.jme3.renderer.lwjgl;
 
+import com.jme3.light.SpotLight;
+import java.util.ArrayList;
+import com.jme3.light.PointLight;
+import com.jme3.math.Vector3f;
+import com.jme3.light.DirectionalLight;
+import com.jme3.light.Light;
 import org.lwjgl.opengl.GL14;
 import com.jme3.math.FastMath;
 import com.jme3.renderer.GL1Renderer;
@@ -48,6 +54,7 @@ public class LwjglGL1Renderer implements GL1Renderer {
     private final IntBuffer ib1 = BufferUtils.createIntBuffer(1);
     private final IntBuffer intBuf16 = BufferUtils.createIntBuffer(16);
     private final FloatBuffer fb16 = BufferUtils.createFloatBuffer(16);
+    private final FloatBuffer fb4Null = BufferUtils.createFloatBuffer(4);
     private final RenderContext context = new RenderContext();
     private final GLObjectManager objManager = new GLObjectManager();
     private final EnumSet<Caps> caps = EnumSet.noneOf(Caps.class);
@@ -55,15 +62,18 @@ public class LwjglGL1Renderer implements GL1Renderer {
     private int maxCubeTexSize;
     private int maxVertCount;
     private int maxTriCount;
+    private int maxLights;
     private boolean gl12 = false;
     private final Statistics statistics = new Statistics();
     private int vpX, vpY, vpW, vpH;
     private int clipX, clipY, clipW, clipH;
-//    private Matrix4f worldMatrix = new Matrix4f();
+    
+    private Matrix4f worldMatrix = new Matrix4f();
     private Matrix4f viewMatrix = new Matrix4f();
-//    private Matrix4f projMatrix = new Matrix4f();
-    private boolean colorSet = false;
-    private boolean materialSet = false;
+    
+    private ArrayList<Light> lightList = new ArrayList<Light>(8);
+    private ColorRGBA materialAmbientColor = new ColorRGBA();
+    private Vector3f tempVec = new Vector3f();
 
     protected void updateNameBuffer() {
         int len = stringBuf.length();
@@ -86,9 +96,22 @@ public class LwjglGL1Renderer implements GL1Renderer {
     }
 
     public void initialize() {
-        //glDisable(GL_DEPTH_TEST);
+        if (GLContext.getCapabilities().OpenGL12){
+            gl12 = true;
+        }
+        
+        // Default values for certain GL state.
         glShadeModel(GL_SMOOTH);
+        glColorMaterial(GL_FRONT_AND_BACK, GL_DIFFUSE);
         glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+        
+		// Enable rescaling/normaling of normal vectors.
+		// Fixes lighting issues with scaled models.
+        if (gl12){
+            glEnable(GL12.GL_RESCALE_NORMAL);
+        }else{
+            glEnable(GL_NORMALIZE);
+        }
 
         if (GLContext.getCapabilities().GL_ARB_texture_non_power_of_two) {
             caps.add(Caps.NonPowerOfTwoTextures);
@@ -98,26 +121,26 @@ public class LwjglGL1Renderer implements GL1Renderer {
                     + "Some features might not work.");
         }
         
-        if (GLContext.getCapabilities().OpenGL12){
-            gl12 = true;
-        }
+        maxLights = glGetInteger(GL_MAX_LIGHTS);
+        
     }
-
+    
     public void invalidateState() {
         context.reset();
     }
 
     public void resetGLObjects() {
-        colorSet = false;
-
+        logger.log(Level.INFO, "Reseting objects and invalidating state");
         objManager.resetObjects();
         statistics.clearMemory();
-        context.reset();
+        invalidateState();
     }
 
     public void cleanup() {
+        logger.log(Level.INFO, "Deleting objects and invalidating state");
         objManager.deleteAllObjects(this);
         statistics.clearMemory();
+        invalidateState();
     }
 
     public void setDepthRange(float start, float end) {
@@ -127,9 +150,23 @@ public class LwjglGL1Renderer implements GL1Renderer {
     public void clearBuffers(boolean color, boolean depth, boolean stencil) {
         int bits = 0;
         if (color) {
+            //See explanations of the depth below, we must enable color write to be able to clear the color buffer
+            if (context.colorWriteEnabled == false) {
+                glColorMask(true, true, true, true);
+                context.colorWriteEnabled = true;
+            }
             bits = GL_COLOR_BUFFER_BIT;
         }
         if (depth) {
+
+            //glClear(GL_DEPTH_BUFFER_BIT) seems to not work when glDepthMask is false
+            //here s some link on openl board
+            //http://www.opengl.org/discussion_boards/ubbthreads.php?ubb=showflat&Number=257223
+            //if depth clear is requested, we enable the depthMask
+            if (context.depthWriteEnabled == false) {
+                glDepthMask(true);
+                context.depthWriteEnabled = true;
+            }
             bits |= GL_DEPTH_BUFFER_BIT;
         }
         if (stencil) {
@@ -144,65 +181,77 @@ public class LwjglGL1Renderer implements GL1Renderer {
         glClearColor(color.r, color.g, color.b, color.a);
     }
 
-    private void setMaterialColor(int type, ColorRGBA color) {
-        if (!materialSet) {
-            materialSet = true;
-            glEnable(GL_COLOR_MATERIAL);
+    private void setMaterialColor(int type, ColorRGBA color, ColorRGBA defaultColor) {
+        if (color != null){
+            fb16.put(color.r).put(color.g).put(color.b).put(color.a).flip();
+        }else{
+            fb16.put(defaultColor.r).put(defaultColor.g).put(defaultColor.b).put(defaultColor.a).flip();
         }
-
-        fb16.clear();
-        fb16.put(color.r).put(color.g).put(color.b).put(color.a);
-        fb16.clear();
         glMaterial(GL_FRONT_AND_BACK, type, fb16);
     }
-
-    private void setMaterialFloat(int type, float value){
-        if (!materialSet) {
-            materialSet = true;
-            glEnable(GL_COLOR_MATERIAL);
+    
+    /**
+     * Applies fixed function bindings from the context to OpenGL
+     */
+    private void applyFixedFuncBindings(boolean forLighting){
+        if (forLighting){
+            glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, context.shininess);
+            setMaterialColor(GL_AMBIENT,  context.ambient,  ColorRGBA.DarkGray);
+            setMaterialColor(GL_DIFFUSE,  context.diffuse,  ColorRGBA.White);
+            setMaterialColor(GL_SPECULAR, context.specular, ColorRGBA.Black);
+            
+            if (context.useVertexColor){
+                glEnable(GL_COLOR_MATERIAL);
+            }else{
+                glDisable(GL_COLOR_MATERIAL);
+            }
+        }else{
+            // Ignore other values as they have no effect when 
+            // GL_LIGHTING is disabled.
+            ColorRGBA color = context.color;
+            if (color != null){
+                glColor4f(color.r, color.g, color.b, color.a);
+            }else{
+                glColor4f(1,1,1,1);
+            }
         }
-
-        glMaterialf(GL_FRONT_AND_BACK, type, value);
+    }
+    
+    /**
+     * Reset fixed function bindings to default values.
+     */
+    private void resetFixedFuncBindings(){
+        context.color = null;
+        context.ambient = null;
+        context.diffuse = null;
+        context.specular = null;
+        context.shininess = 0;
+        context.useVertexColor = false;
     }
     
     public void setFixedFuncBinding(FixedFuncBinding ffBinding, Object val) {
         switch (ffBinding) {
             case Color:
-                ColorRGBA color = (ColorRGBA) val;
-                glColor4f(color.r, color.g, color.b, color.a);
-                colorSet = true;
+                context.color = (ColorRGBA) val;
                 break;
             case MaterialAmbient:
-                ColorRGBA ambient = (ColorRGBA) val;
-                setMaterialColor(GL_AMBIENT, ambient);
+                context.ambient = (ColorRGBA) val;
                 break;
             case MaterialDiffuse:
-                ColorRGBA diffuse = (ColorRGBA) val;
-                setMaterialColor(GL_DIFFUSE, diffuse);
+                context.diffuse = (ColorRGBA) val;
                 break;
             case MaterialSpecular:
-                ColorRGBA specular = (ColorRGBA) val;
-                setMaterialColor(GL_SPECULAR, specular);
+                context.specular = (ColorRGBA) val;
                 break;
             case MaterialShininess:
-                float shiny = (Float) val;
-                setMaterialFloat(GL_SPECULAR, shiny);
+                context.shininess = (Float) val;
                 break;
-                
+            case UseVertexColor:
+                context.useVertexColor = (Boolean) val;
+                break;
         }
     }
-
-    public void clearSetFixedFuncBindings() {
-        if (colorSet) {
-            glColor4f(1, 1, 1, 1);
-            colorSet = false;
-        }
-        if (materialSet) {
-            glDisable(GL_COLOR_MATERIAL);
-            materialSet = false; // TODO: not efficient
-        }
-    }
-
+    
     public void applyRenderState(RenderState state) {
         if (state.isWireframe() && !context.wireframe) {
             glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -393,37 +442,194 @@ public class LwjglGL1Renderer implements GL1Renderer {
         store.clear();
         return store;
     }
-
-    public void setWorldMatrix(Matrix4f worldMatrix) {
+    
+    private void setModelView(Matrix4f modelMatrix, Matrix4f viewMatrix){
         if (context.matrixMode != GL_MODELVIEW) {
             glMatrixMode(GL_MODELVIEW);
             context.matrixMode = GL_MODELVIEW;
         }
 
         glLoadMatrix(storeMatrix(viewMatrix, fb16));
-        glMultMatrix(storeMatrix(worldMatrix, fb16));
+        glMultMatrix(storeMatrix(modelMatrix, fb16));
     }
-
-    public void setViewProjectionMatrices(Matrix4f viewMatrix, Matrix4f projMatrix) {
+    
+    private void setProjection(Matrix4f projMatrix){
         if (context.matrixMode != GL_PROJECTION) {
             glMatrixMode(GL_PROJECTION);
             context.matrixMode = GL_PROJECTION;
         }
 
-        storeMatrix(projMatrix, fb16);
-        glLoadMatrix(fb16);
+        glLoadMatrix(storeMatrix(projMatrix, fb16));
+    }
 
+    public void setWorldMatrix(Matrix4f worldMatrix) {
+        this.worldMatrix.set(worldMatrix);
+    }
+
+    public void setViewProjectionMatrices(Matrix4f viewMatrix, Matrix4f projMatrix) {
         this.viewMatrix.set(viewMatrix);
+        setProjection(projMatrix);
     }
 
     public void setLighting(LightList list) {
-        if (list == null || list.size() == 0) {
-            // turn off lighting
-            //glDisable(GL_LIGHTING);
+        // XXX: This is abuse of setLighting() to
+		// apply fixed function bindings
+        // and do other book keeping.
+        if (list == null || list.size() == 0){
+            glDisable(GL_LIGHTING);
+            applyFixedFuncBindings(false);
+            setModelView(worldMatrix, viewMatrix);
             return;
         }
+        
+        // Number of lights set previously
+        int numLightsSetPrev = lightList.size();
+        
+        // If more than maxLights are defined, they will be ignored.
+        // The GL1 renderer is not permitted to crash due to a 
+        // GL1 limitation. It must render anything that the GL2 renderer
+        // can render (even incorrectly).
+        lightList.clear();
+        materialAmbientColor.set(0, 0, 0, 0);
+        
+        for (int i = 0; i < list.size(); i++){
+            Light l = list.get(i);
+            if (l.getType() == Light.Type.Ambient){
+                // Gather
+                materialAmbientColor.addLocal(l.getColor());
+            }else{
+                // Add to list
+                lightList.add(l);
+                
+                // Once maximum lights reached, exit loop.
+                if (lightList.size() >= maxLights){
+                    break;
+                }
+            }
+        }
+        
+        applyFixedFuncBindings(true);
+        
+        glEnable(GL_LIGHTING);
+        
+        fb16.clear();
+        fb16.put(materialAmbientColor.r)
+            .put(materialAmbientColor.g)
+            .put(materialAmbientColor.b)
+            .put(1).flip();
+        
+        glLightModel(GL_LIGHT_MODEL_AMBIENT, fb16);
+        
+        if (context.matrixMode != GL_MODELVIEW) {
+            glMatrixMode(GL_MODELVIEW);
+            context.matrixMode = GL_MODELVIEW;
+        }
+        // Lights are already in world space, so just convert
+        // them to view space.
+        glLoadMatrix(storeMatrix(viewMatrix, fb16));
+        
+        for (int i = 0; i < lightList.size(); i++){
+            int glLightIndex = GL_LIGHT0 + i;
+            Light light = lightList.get(i);
+            Light.Type lightType = light.getType();
+            ColorRGBA col = light.getColor();
+            Vector3f pos;
+            
+            // Enable the light
+            glEnable(glLightIndex);
+            
+            // OGL spec states default value for light ambient is black
+            switch (lightType){
+                case Directional:
+                    DirectionalLight dLight = (DirectionalLight) light;
 
-        //glEnable(GL_LIGHTING);
+                    fb16.clear();
+                    fb16.put(col.r).put(col.g).put(col.b).put(col.a).flip();
+                    glLight(glLightIndex, GL_DIFFUSE, fb16);
+                    glLight(glLightIndex, GL_SPECULAR, fb16);
+
+                    pos = tempVec.set(dLight.getDirection()).negateLocal().normalizeLocal();
+                    fb16.clear();
+                    fb16.put(pos.x).put(pos.y).put(pos.z).put(0.0f).flip();
+                    glLight(glLightIndex, GL_POSITION, fb16);
+                    glLightf(glLightIndex, GL_SPOT_CUTOFF, 180);
+                    break;
+                case Point:
+                    PointLight pLight = (PointLight) light;
+      
+                    fb16.clear();
+                    fb16.put(col.r).put(col.g).put(col.b).put(col.a).flip();
+                    glLight(glLightIndex, GL_DIFFUSE, fb16);
+                    glLight(glLightIndex, GL_SPECULAR, fb16);
+
+                    pos = pLight.getPosition();
+                    fb16.clear();
+                    fb16.put(pos.x).put(pos.y).put(pos.z).put(1.0f).flip();
+                    glLight(glLightIndex, GL_POSITION, fb16);
+                    glLightf(glLightIndex, GL_SPOT_CUTOFF, 180);
+
+                    if (pLight.getRadius() > 0) {
+                        // Note: this doesn't follow the same attenuation model
+                        // as the one used in the lighting shader.
+                        glLightf(glLightIndex, GL_CONSTANT_ATTENUATION,  1);
+                        glLightf(glLightIndex, GL_LINEAR_ATTENUATION,    pLight.getInvRadius() * 2);
+                        glLightf(glLightIndex, GL_QUADRATIC_ATTENUATION, pLight.getInvRadius() * pLight.getInvRadius()); 
+                    }else{
+                        glLightf(glLightIndex, GL_CONSTANT_ATTENUATION,  1);
+                        glLightf(glLightIndex, GL_LINEAR_ATTENUATION,    0);
+                        glLightf(glLightIndex, GL_QUADRATIC_ATTENUATION, 0);
+                    }
+
+                    break;
+                case Spot:
+                    SpotLight sLight = (SpotLight) light;
+
+                    fb16.clear();
+                    fb16.put(col.r).put(col.g).put(col.b).put(col.a).flip();
+                    glLight(glLightIndex, GL_DIFFUSE, fb16);
+                    glLight(glLightIndex, GL_SPECULAR, fb16);
+
+                    pos = sLight.getPosition();
+                    fb16.clear();
+                    fb16.put(pos.x).put(pos.y).put(pos.z).put(1.0f).flip();
+                    glLight(glLightIndex, GL_POSITION, fb16);
+
+                    Vector3f dir = sLight.getDirection();
+                    fb16.clear();
+                    fb16.put(dir.x).put(dir.y).put(dir.z).put(1.0f).flip();
+                    glLight(glLightIndex, GL_SPOT_DIRECTION, fb16);
+
+                    float outerAngleRad = sLight.getSpotOuterAngle();
+                    float innerAngleRad = sLight.getSpotInnerAngle();
+                    float spotCut = outerAngleRad * FastMath.RAD_TO_DEG;
+                    float spotExpo = 0.0f;
+                    if (outerAngleRad > 0) {
+                        spotExpo = (1.0f - (innerAngleRad / outerAngleRad)) * 128.0f;
+                    }
+
+                    glLightf(glLightIndex, GL_SPOT_CUTOFF, spotCut);
+                    glLightf(glLightIndex, GL_SPOT_EXPONENT, spotExpo);
+
+                    if (sLight.getSpotRange() > 0) {
+                        glLightf(glLightIndex, GL_LINEAR_ATTENUATION, sLight.getInvSpotRange());
+                    }else{
+                        glLightf(glLightIndex, GL_LINEAR_ATTENUATION, 0);
+                    }
+
+                    break;
+                default:
+                    throw new UnsupportedOperationException(
+                            "Unrecognized light type: " + lightType);
+            }
+        }
+        
+        // Disable lights after the index
+        for (int i = lightList.size(); i < numLightsSetPrev; i++){
+            glDisable(GL_LIGHT0 + i);
+        }
+        
+        // This will set view matrix as well.
+        setModelView(worldMatrix, viewMatrix);
     }
 
     private int convertTextureType(Texture.Type type) {
@@ -889,7 +1095,7 @@ public class LwjglGL1Renderer implements GL1Renderer {
         // TODO: Fix these to use IDList??
         clearVertexAttribs();
         clearTextureUnits();
-        clearSetFixedFuncBindings();
+        resetFixedFuncBindings();
     }
 
     public void renderMesh(Mesh mesh, int lod, int count) {
@@ -905,7 +1111,7 @@ public class LwjglGL1Renderer implements GL1Renderer {
             glLineWidth(mesh.getLineWidth());
             context.lineWidth = mesh.getLineWidth();
         }
-
+        
         boolean dynamic = false;
         if (mesh.getBuffer(Type.InterleavedData) != null) {
             throw new UnsupportedOperationException("Interleaved meshes are not supported");

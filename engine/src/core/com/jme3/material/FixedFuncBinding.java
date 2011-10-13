@@ -69,5 +69,12 @@ public enum FixedFuncBinding {
      * 
      * Same as GL_SHININESS for OpenGL.
      */
-    MaterialShininess
+    MaterialShininess,
+    
+    /**
+     * Use vertex color as an additional diffuse color, if lighting is enabled.
+     * If lighting is disabled, vertex color is modulated with
+     * {@link #Color material color}.
+     */
+    UseVertexColor
 }
