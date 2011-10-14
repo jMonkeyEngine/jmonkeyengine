@@ -66,7 +66,10 @@ public final class BIHNode implements Savable {
     private float leftPlane;
     private float rightPlane;
     private int axis;
-    private Triangle tmpTriangle = new Triangle();
+    
+    //Do not do this: It increases memory usage of each BIHNode by at least 56 bytes!
+    //
+    //private Triangle tmpTriangle = new Triangle();
 
     public BIHNode(int l, int r) {
         leftIndex = l;
@@ -167,7 +170,7 @@ public final class BIHNode implements Savable {
 
         stack.add(new BIHStackData(this, 0, 0));
 
-        Triangle t = tmpTriangle;
+        Triangle t = new Triangle();
         int cols = 0;
 
         stackloop:
