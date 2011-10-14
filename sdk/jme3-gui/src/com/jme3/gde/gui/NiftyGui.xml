@@ -3,7 +3,7 @@
   <!-- +++++++++++++++++++++++++++++++++++++++ -->
   <!-- start screen -->
   <!-- +++++++++++++++++++++++++++++++++++++++ -->
-  <screen id="start" controller="de.lessvoid.nifty.examples.helloworld.HelloWorldStartScreen">
+  <screen id="start" controller="mygame.Main">
     <layer id="layer" backgroundColor="#003f" childLayout="center">
       <panel id="panel" height="25%" width="35%" align="center" valign="center" backgroundColor="#f60f" childLayout="center" visibleToMouse="true">
         <interact onClick="quit()"/>
