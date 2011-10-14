@@ -176,6 +176,7 @@
                 <tocitem text="Combo Moves" target="jme3.advanced.combo_moves"/>
                 <tocitem text="NiftyGUI" target="jme3.advanced.nifty_gui"/>
                 <tocitem text="Head-Up Display (HUD)" target="jme3.advanced.hud"/>
+                <tocitem text="Loading Screen" target="jme3.advanced.loading_screen"/>
                 <tocitem text="Swing Canvas" target="jme3.advanced.swing_canvas"/>
                 <tocitem text="Game Localization" target="jme3.advanced.localization"/>
             </tocitem>
