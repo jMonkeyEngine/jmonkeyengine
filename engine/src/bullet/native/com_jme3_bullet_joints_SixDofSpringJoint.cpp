@@ -78,15 +78,6 @@ JNIEXPORT jlong JNICALL Java_com_jme3_bullet_joints_SixDofSpringJoint_createJoin
         jmeClasses::initJavaClasses(env);
         btRigidBody* bodyA = (btRigidBody*) bodyIdA;
         btRigidBody* bodyB = (btRigidBody*) bodyIdB;
-        btMatrix3x3* mtx1 = &btMatrix3x3();
-        btMatrix3x3* mtx2 = &btMatrix3x3();
-/*        btTransform* transA = &btTransform(*mtx1);
-        jmeBulletUtil::convert(env, pivotA, &transA->getOrigin());
-        jmeBulletUtil::convert(env, rotA, &transA->getBasis());
-        btTransform* transB = &btTransform(*mtx2);
-        jmeBulletUtil::convert(env, pivotB, &transB->getOrigin());
-        jmeBulletUtil::convert(env, rotB, &transB->getBasis());
-*/
         btTransform transA;
         jmeBulletUtil::convert(env, pivotA, &transA.getOrigin());
         jmeBulletUtil::convert(env, rotA, &transA.getBasis());

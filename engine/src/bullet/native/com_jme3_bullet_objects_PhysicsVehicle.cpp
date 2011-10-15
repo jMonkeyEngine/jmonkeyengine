@@ -231,7 +231,8 @@ extern "C" {
             env->ThrowNew(newExc, "The native object does not exist.");
             return;
         }
-        jmeBulletUtil::convert(env, &vehicle->getForwardVector(), out);
+        btVector3 forwardVector = vehicle->getForwardVector();
+        jmeBulletUtil::convert(env, &forwardVector, out);
     }
 
     /*
