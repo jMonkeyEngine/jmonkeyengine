@@ -125,6 +125,9 @@ public abstract class PhysicsCollisionObject implements Savable {
      */
     public void setCollisionGroup(int collisionGroup) {
         this.collisionGroup = collisionGroup;
+        if (objectId != 0) {
+            setCollisionGroup(objectId, collisionGroup);
+        }
     }
 
     /**
@@ -135,6 +138,9 @@ public abstract class PhysicsCollisionObject implements Savable {
      */
     public void addCollideWithGroup(int collisionGroup) {
         this.collisionGroupsMask = this.collisionGroupsMask | collisionGroup;
+        if (objectId != 0) {
+            setCollideWithGroups(objectId, this.collisionGroupsMask);
+        }
     }
 
     /**
@@ -143,6 +149,9 @@ public abstract class PhysicsCollisionObject implements Savable {
      */
     public void removeCollideWithGroup(int collisionGroup) {
         this.collisionGroupsMask = this.collisionGroupsMask & ~collisionGroup;
+        if (objectId != 0) {
+            setCollideWithGroups(this.collisionGroupsMask);
+        }
     }
 
     /**
@@ -151,6 +160,9 @@ public abstract class PhysicsCollisionObject implements Savable {
      */
     public void setCollideWithGroups(int collisionGroups) {
         this.collisionGroupsMask = collisionGroups;
+        if (objectId != 0) {
+            setCollideWithGroups(objectId, this.collisionGroupsMask);
+        }
     }
 
     /**
@@ -161,6 +173,11 @@ public abstract class PhysicsCollisionObject implements Savable {
         return collisionGroupsMask;
     }
 
+    protected void initUserPointer() {
+        Logger.getLogger(this.getClass().getName()).log(Level.INFO, "initUserPointer() objectId = {0}", Long.toHexString(objectId));
+        initUserPointer(objectId, collisionGroup, collisionGroupsMask);
+    }
+    native void initUserPointer(long objectId, int group, int groups);
     /**
      * Creates a visual debug shape of the current collision shape of this physics object<br/>
      * <b>Does not work with detached physics, please switch to PARALLEL or SEQUENTIAL for debugging</b>
@@ -278,6 +295,8 @@ public abstract class PhysicsCollisionObject implements Savable {
     }
     
     protected native void attachCollisionShape(long objectId, long collisionShapeId);
+    native void setCollisionGroup(long objectId, int collisionGroup);
+    native void setCollideWithGroups(long objectId, int collisionGroups);
 
     @Override
     public void write(JmeExporter e) throws IOException {

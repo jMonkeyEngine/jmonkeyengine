@@ -38,6 +38,7 @@
 
 jmeMotionState::jmeMotionState() {
     trans = new btTransform();
+    trans -> setIdentity();
     worldTransform = *trans;
     dirty = true;
 }

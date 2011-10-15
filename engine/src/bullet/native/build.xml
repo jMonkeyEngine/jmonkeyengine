@@ -5,6 +5,9 @@
     <!-- load properties -->
     <property file="src/bullet/native/bullet.properties"/>
     <!-- condition for mac platform check -->
+    <condition property="isSolaris">
+        <os name="SunOS"/>
+    </condition>
     <condition property="isMac">
         <and>
             <os family="mac" />
@@ -21,6 +24,9 @@
             <os family="unix"/>
             <not>
                 <os family="mac"/>
+            </not>
+            <not>
+                <os name="SunOS"/>
             </not>
         </and>
     </condition>
@@ -41,7 +47,7 @@
         <fileset refid="lib.jme.jars"/>
     </pathconvert>
 
-    <target name="build-bullet-natives" description="builds the native bullet library for the platform being run on" depends="-create-folders, create-native-headers, -nativelib-osx, -nativelib-windows, -nativelib-linux">
+    <target name="build-bullet-natives" description="builds the native bullet library for the platform being run on" depends="-create-folders, create-native-headers, -nativelib-osx, -nativelib-windows, -nativelib-linux, -nativelib-solaris">
         <echo message="Updating native jME3-bullet-natives.jar"/>
         <zip basedir="${bullet.output.base}/jarcontent" file="${bullet.output.base}/jME3-bullet-natives.jar" compress="true"/>
         <copy file="${bullet.output.base}/jME3-bullet-natives.jar" todir="dist/lib"/>
@@ -51,6 +57,7 @@
         <javah destdir="${bullet.source.dir}" classpath="${bullet.build.dir}${path.separator}${lib.importpath}" force="yes">
             <class name="com.jme3.bullet.PhysicsSpace"/>
 
+            <class name="com.jme3.bullet.collision.PhysicsCollisionEvent"/>
             <class name="com.jme3.bullet.collision.PhysicsCollisionObject"/>
             <class name="com.jme3.bullet.objects.PhysicsCharacter"/>
             <class name="com.jme3.bullet.objects.PhysicsGhostObject"/>
@@ -78,6 +85,7 @@
             <class name="com.jme3.bullet.joints.HingeJoint"/>
             <class name="com.jme3.bullet.joints.Point2PointJoint"/>
             <class name="com.jme3.bullet.joints.SixDofJoint"/>
+            <class name="com.jme3.bullet.joints.SixDofSpringJoint"/>
             <class name="com.jme3.bullet.joints.SliderJoint"/>
             <class name="com.jme3.bullet.joints.motors.RotationalLimitMotor"/>
             <class name="com.jme3.bullet.joints.motors.TranslationalLimitMotor"/>
@@ -172,7 +180,10 @@
             <includepath path="${bullet.java.include}/linux"/>
             <includepath path="${bullet.bullet.include}"/>
             <!--compilerarg value="-m32"/-->
+            <compilerarg value="-m32"/>
+            <compilerarg value="-static-libgcc"/>
             <linker name="${bullet.linux.compiler}">
+                <!-- linkerarg value="-static-libgcc"/ -->
                 <libset dir="${bullet.folder}/src/BulletMultiThreaded" libs="BulletMultiThreaded"/>
                 <libset dir="${bullet.folder}/src/BulletDynamics" libs="BulletDynamics"/>
                 <libset dir="${bullet.folder}/src/BulletCollision" libs="BulletCollision"/>
@@ -180,6 +191,37 @@
             </linker>
         </cc>
         <delete file="${bullet.output.dir}/linux/history.xml"/>
+    </target>
+    
+    <target name="-nativelib-solaris" if="isSolaris">
+        <echo message="Building Solaris version of native bullet"/>
+        <mkdir dir="${bullet.output.dir}/linux"/>
+        <cc name="${bullet.solaris.compiler}" warnings="severe" debug="${bullet.compile.debug}" link="shared" outfile="${bullet.output.dir}/solaris/${bullet.library.name}" objdir="${bullet.build.dir}">
+            <fileset dir="${bullet.source.dir}">
+                <include name="*.cpp">
+                </include>
+            </fileset>
+            <includepath path="${bullet.java.include}"/>
+            <includepath path="${bullet.java.include}/solaris"/>
+            <includepath path="${bullet.bullet.include}"/>
+            <!--compilerarg value="-m32"/-->
+            <compilerarg value="-m32"/>
+            <compilerarg value="-fno-strict-aliasing"/>
+            <compilerarg value="-pthread"/>
+            <compilerarg value="-fPIC"/>
+            <compilerarg value="-D_REENTRANT"/>
+            <compilerarg value="-static-libstdc++"/>
+            <compilerarg value="-static-libgcc"/>
+            <compilerarg value="-D_REENTRANT"/>
+            <linker name="${bullet.solaris.compiler}">
+                <linkerarg value="-R/usr/sfw/lib"/>
+                <libset dir="${bullet.folder}/src/BulletMultiThreaded" libs="BulletMultiThreaded"/>
+                <libset dir="${bullet.folder}/src/BulletDynamics" libs="BulletDynamics"/>
+                <libset dir="${bullet.folder}/src/BulletCollision" libs="BulletCollision"/>
+                <libset dir="${bullet.folder}/src/LinearMath" libs="LinearMath"/>
+            </linker>
+        </cc>
+        <delete file="${bullet.output.dir}/solaris/history.xml"/>
     </target>
 
     <target name="-nativelib-windows" if="isWindows">

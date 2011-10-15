@@ -32,7 +32,7 @@
 #include "com_jme3_bullet_PhysicsSpace.h"
 #include "jmePhysicsSpace.h"
 #include "jmeBulletUtil.h"
-
+#include "jmeUserPointer.h"
 /**
  * Author: Normen Hansen
  */
@@ -93,6 +93,9 @@ extern "C" {
             env->ThrowNew(newExc, "The collision object does not exist.");
             return;
         }
+        jmeUserPointer *userPointer = (jmeUserPointer*)collisionObject->getUserPointer();
+        userPointer -> space = space;
+
         space->getDynamicsWorld()->addCollisionObject(collisionObject);
     }
 
@@ -116,6 +119,8 @@ extern "C" {
             return;
         }
         space->getDynamicsWorld()->removeCollisionObject(collisionObject);
+        jmeUserPointer *userPointer = (jmeUserPointer*)collisionObject->getUserPointer();
+        userPointer -> space = NULL;
     }
 
     /*
@@ -137,6 +142,8 @@ extern "C" {
             env->ThrowNew(newExc, "The collision object does not exist.");
             return;
         }
+        jmeUserPointer *userPointer = (jmeUserPointer*)collisionObject->getUserPointer();
+        userPointer -> space = space;
         space->getDynamicsWorld()->addRigidBody(collisionObject);
     }
 
@@ -159,6 +166,8 @@ extern "C" {
             env->ThrowNew(newExc, "The collision object does not exist.");
             return;
         }
+        jmeUserPointer *userPointer = (jmeUserPointer*)collisionObject->getUserPointer();
+        userPointer -> space = NULL;
         space->getDynamicsWorld()->removeRigidBody(collisionObject);
     }
 
@@ -181,7 +190,12 @@ extern "C" {
             env->ThrowNew(newExc, "The collision object does not exist.");
             return;
         }
-        space->getDynamicsWorld()->addCollisionObject(collisionObject, btBroadphaseProxy::CharacterFilter, btBroadphaseProxy::StaticFilter | btBroadphaseProxy::DefaultFilter);
+        jmeUserPointer *userPointer = (jmeUserPointer*)collisionObject->getUserPointer();
+        userPointer -> space = space;
+        space->getDynamicsWorld()->addCollisionObject(collisionObject,
+                btBroadphaseProxy::CharacterFilter,
+                btBroadphaseProxy::StaticFilter | btBroadphaseProxy::DefaultFilter
+        );
     }
 
     /*
@@ -203,6 +217,8 @@ extern "C" {
             env->ThrowNew(newExc, "The collision object does not exist.");
             return;
         }
+        jmeUserPointer *userPointer = (jmeUserPointer*)collisionObject->getUserPointer();
+        userPointer -> space = NULL;
         space->getDynamicsWorld()->removeCollisionObject(collisionObject);
     }
 

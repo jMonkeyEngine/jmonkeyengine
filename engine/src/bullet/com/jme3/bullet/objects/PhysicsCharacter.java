@@ -79,6 +79,7 @@ public class PhysicsCharacter extends PhysicsCollisionObject {
         if (objectId == 0) {
             objectId = createGhostObject();
             Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Creating GhostObject {0}", Long.toHexString(objectId));
+            initUserPointer();
         }
         setCharacterFlags(objectId);
         attachCollisionShape(objectId, collisionShape.getObjectId());

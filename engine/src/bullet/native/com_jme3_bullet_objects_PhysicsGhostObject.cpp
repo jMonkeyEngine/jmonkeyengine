@@ -37,8 +37,10 @@
 #include <BulletCollision/CollisionDispatch/btGhostObject.h>
 
 #include "com_jme3_bullet_objects_PhysicsGhostObject.h"
+#include "BulletCollision/BroadphaseCollision/btOverlappingPairCache.h"
 #include "jmeBulletUtil.h"
-
+#include "jmePhysicsSpace.h"
+#include "jmeUserPointer.h"
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -167,6 +169,48 @@ extern "C" {
         jmeBulletUtil::convert(env, &ghost->getWorldTransform().getBasis(), value);
     }
 
+    class jmeGhostOverlapCallback : public btOverlapCallback {
+        JNIEnv* m_env;
+        jobject m_object;
+    public:
+        jmeGhostOverlapCallback(JNIEnv *env, jobject object)
+                :m_env(env),
+                 m_object(object)
+        {
+        }
+        virtual ~jmeGhostOverlapCallback() {}
+        virtual bool    processOverlap(btBroadphasePair& pair)
+        {
+            btCollisionObject *co1 = (btCollisionObject *)pair.m_pProxy0->m_clientObject;
+            jmeUserPointer *up1 = (jmeUserPointer*)co1 -> getUserPointer();
+
+            m_env->CallVoidMethod(m_object, jmeClasses::PhysicsGhostObject_addOverlappingObject, up1->javaCollisionObject);
+            if (m_env->ExceptionCheck()) {
+                m_env->Throw(m_env->ExceptionOccurred());
+                return false;
+            }
+
+            return false;
+        }
+    };
+
+    /*
+     * Class:     com_jme3_bullet_objects_PhysicsGhostObject
+     * Method:    getOverlappingObjects
+     * Signature: (J)V
+     */
+    JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsGhostObject_getOverlappingObjects
+      (JNIEnv *env, jobject object, jlong objectId) {
+        btPairCachingGhostObject* ghost = (btPairCachingGhostObject*) objectId;
+        if (ghost == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
+        btHashedOverlappingPairCache * pc = ghost->getOverlappingPairCache();
+        jmeGhostOverlapCallback cb(env, object);
+        pc -> processAllOverlappingPairs(&cb, NULL);
+    }
     /*
      * Class:     com_jme3_bullet_objects_PhysicsGhostObject
      * Method:    getOverlappingCount

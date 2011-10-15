@@ -31,6 +31,8 @@
  */
 #include "jmePhysicsSpace.h"
 #include "jmeBulletUtil.h"
+#include "jmeUserPointer.h"
+#include <stdio.h>
 
 /**
  * Author: Normen Hansen
@@ -170,16 +172,33 @@ void jmePhysicsSpace::createPhysicsSpace(jfloat minX, jfloat minY, jfloat minZ, 
         // return true when pairs need collision
 
         virtual bool needBroadphaseCollision(btBroadphaseProxy* proxy0, btBroadphaseProxy * proxy1) const {
+            //            bool collides = (proxy0->m_collisionFilterGroup & proxy1->m_collisionFilterMask) != 0;
+            //            collides = collides && (proxy1->m_collisionFilterGroup & proxy0->m_collisionFilterMask);
             bool collides = (proxy0->m_collisionFilterGroup & proxy1->m_collisionFilterMask) != 0;
             collides = collides && (proxy1->m_collisionFilterGroup & proxy0->m_collisionFilterMask);
+            if (collides) {
+                btCollisionObject* co0 = (btCollisionObject*) proxy0->m_clientObject;
+                btCollisionObject* co1 = (btCollisionObject*) proxy1->m_clientObject;
+                jmeUserPointer *up0 = (jmeUserPointer*) co0 -> getUserPointer();
+                jmeUserPointer *up1 = (jmeUserPointer*) co1 -> getUserPointer();
+                if (up0 != NULL && up1 != NULL) {
+                    collides = (up0->group & up1->groups) != 0;
+                    collides = collides && (up1->group & up0->groups);
 
-            //add some additional logic here that modified 'collides'
+                    //add some additional logic here that modified 'collides'
+                    return collides;
+                }
+                return false;
+            }
             return collides;
         }
     };
     dynamicsWorld->getPairCache()->setOverlapFilterCallback(new jmeFilterCallback());
     dynamicsWorld->setInternalTickCallback(&jmePhysicsSpace::preTickCallback, static_cast<void *> (this), true);
     dynamicsWorld->setInternalTickCallback(&jmePhysicsSpace::postTickCallback, static_cast<void *> (this));
+    if (gContactProcessedCallback == NULL) {
+        gContactProcessedCallback = &jmePhysicsSpace::contactProcessedCallback;
+    }
 }
 
 void jmePhysicsSpace::preTickCallback(btDynamicsWorld *world, btScalar timeStep) {
@@ -200,6 +219,26 @@ void jmePhysicsSpace::postTickCallback(btDynamicsWorld *world, btScalar timeStep
         env->Throw(env->ExceptionOccurred());
         return;
     }
+}
+
+bool jmePhysicsSpace::contactProcessedCallback(btManifoldPoint &cp, void *body0, void *body1) {
+    //    printf("contactProcessedCallback %d %dn", body0, body1);
+    btCollisionObject* co0 = (btCollisionObject*) body0;
+    jmeUserPointer *up0 = (jmeUserPointer*) co0 -> getUserPointer();
+    btCollisionObject* co1 = (btCollisionObject*) body1;
+    jmeUserPointer *up1 = (jmeUserPointer*) co1 -> getUserPointer();
+    if (up0 != NULL) {
+        jmePhysicsSpace *dynamicsWorld = up0->space;
+        if (dynamicsWorld != NULL) {
+            JNIEnv* env = dynamicsWorld->getEnv();
+            env->CallVoidMethod(dynamicsWorld->getJavaPhysicsSpace(), jmeClasses::PhysicsSpace_addCollisionEvent, up0->javaCollisionObject, up1->javaCollisionObject, (jlong) & cp);
+            if (env->ExceptionCheck()) {
+                env->Throw(env->ExceptionOccurred());
+                return true;
+            }
+        }
+    }
+    return true;
 }
 
 btDynamicsWorld* jmePhysicsSpace::getDynamicsWorld() {

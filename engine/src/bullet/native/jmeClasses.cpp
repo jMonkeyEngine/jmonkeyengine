@@ -38,6 +38,10 @@
 jclass jmeClasses::PhysicsSpace;
 jmethodID jmeClasses::PhysicsSpace_preTick;
 jmethodID jmeClasses::PhysicsSpace_postTick;
+jmethodID jmeClasses::PhysicsSpace_addCollisionEvent;
+
+jclass jmeClasses::PhysicsGhostObject;
+jmethodID jmeClasses::PhysicsGhostObject_addOverlappingObject;
 
 jclass jmeClasses::Vector3f;
 jmethodID jmeClasses::Vector3f_set;
@@ -106,6 +110,18 @@ void jmeClasses::initJavaClasses(JNIEnv* env) {
 
     PhysicsSpace_preTick = env->GetMethodID(PhysicsSpace, "preTick_native", "(F)V");
     PhysicsSpace_postTick = env->GetMethodID(PhysicsSpace, "postTick_native", "(F)V");
+    PhysicsSpace_addCollisionEvent = env->GetMethodID(PhysicsSpace, "addCollisionEvent_native","(Lcom/jme3/bullet/collision/PhysicsCollisionObject;Lcom/jme3/bullet/collision/PhysicsCollisionObject;J)V");
+    if (env->ExceptionCheck()) {
+        env->Throw(env->ExceptionOccurred());
+        return;
+    }
+
+    PhysicsGhostObject = env->FindClass("com/jme3/bullet/objects/PhysicsGhostObject");
+    if (env->ExceptionCheck()) {
+        env->Throw(env->ExceptionOccurred());
+        return;
+    }
+    PhysicsGhostObject_addOverlappingObject = env->GetMethodID(PhysicsGhostObject, "addOverlappingObject_native","(Lcom/jme3/bullet/collision/PhysicsCollisionObject;)V");
     if (env->ExceptionCheck()) {
         env->Throw(env->ExceptionOccurred());
         return;

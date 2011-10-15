@@ -41,12 +41,12 @@ public class PhysicsCollisionEventFactory {
 
     private ConcurrentLinkedQueue<PhysicsCollisionEvent> eventBuffer = new ConcurrentLinkedQueue<PhysicsCollisionEvent>();
 
-    public PhysicsCollisionEvent getEvent(int type, PhysicsCollisionObject source, PhysicsCollisionObject nodeB) {
+    public PhysicsCollisionEvent getEvent(int type, PhysicsCollisionObject source, PhysicsCollisionObject nodeB, long manifoldPointObjectId) {
         PhysicsCollisionEvent event = eventBuffer.poll();
         if (event == null) {
-            event = new PhysicsCollisionEvent(type, source, nodeB);
+            event = new PhysicsCollisionEvent(type, source, nodeB, manifoldPointObjectId);
         }else{
-//            event.refactor(type, source, nodeB);
+            event.refactor(type, source, nodeB, manifoldPointObjectId);
         }
         return event;
     }

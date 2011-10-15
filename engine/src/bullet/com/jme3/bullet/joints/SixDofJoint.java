@@ -59,14 +59,14 @@ import java.util.logging.Logger;
  */
 public class SixDofJoint extends PhysicsJoint {
 
-    private Matrix3f rotA, rotB;
-    private boolean useLinearReferenceFrameA;
-    private LinkedList<RotationalLimitMotor> rotationalMotors = new LinkedList<RotationalLimitMotor>();
-    private TranslationalLimitMotor translationalMotor;
-    private Vector3f angularUpperLimit = new Vector3f(Vector3f.POSITIVE_INFINITY);
-    private Vector3f angularLowerLimit = new Vector3f(Vector3f.NEGATIVE_INFINITY);
-    private Vector3f linearUpperLimit = new Vector3f(Vector3f.POSITIVE_INFINITY);
-    private Vector3f linearLowerLimit = new Vector3f(Vector3f.NEGATIVE_INFINITY);
+    Matrix3f rotA, rotB;
+    boolean useLinearReferenceFrameA;
+    LinkedList<RotationalLimitMotor> rotationalMotors = new LinkedList<RotationalLimitMotor>();
+    TranslationalLimitMotor translationalMotor;
+    Vector3f angularUpperLimit = new Vector3f(Vector3f.POSITIVE_INFINITY);
+    Vector3f angularLowerLimit = new Vector3f(Vector3f.NEGATIVE_INFINITY);
+    Vector3f linearUpperLimit = new Vector3f(Vector3f.POSITIVE_INFINITY);
+    Vector3f linearLowerLimit = new Vector3f(Vector3f.NEGATIVE_INFINITY);
 
     public SixDofJoint() {
     }
@@ -160,7 +160,7 @@ public class SixDofJoint extends PhysicsJoint {
 
     private native void setAngularLowerLimit(long objctId, Vector3f vector);
 
-    private native long createJoint(long objectIdA, long objectIdB, Vector3f pivotA, Matrix3f rotA, Vector3f pivotB, Matrix3f rotB, boolean useLinearReferenceFrameA);
+    native long createJoint(long objectIdA, long objectIdB, Vector3f pivotA, Matrix3f rotA, Vector3f pivotB, Matrix3f rotB, boolean useLinearReferenceFrameA);
 
     @Override
     public void read(JmeImporter im) throws IOException {

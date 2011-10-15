@@ -121,6 +121,7 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
         } else {
             setStatic(objectId, false);
         }
+        initUserPointer();
     }
 
     /**

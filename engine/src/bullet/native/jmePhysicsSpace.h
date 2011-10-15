@@ -46,6 +46,8 @@
 #include "BulletMultiThreaded/SpuCollisionTaskProcess.h"
 #include "BulletMultiThreaded/SequentialThreadSupport.h"
 #include "BulletCollision/CollisionDispatch/btSimulationIslandManager.h"
+#include "BulletCollision/NarrowPhaseCollision/btManifoldPoint.h"
+#include "BulletCollision/NarrowPhaseCollision/btPersistentManifold.h"
 
 /**
  * Author: Normen Hansen
@@ -70,4 +72,5 @@ public:
         JNIEnv* getEnv();
         static void preTickCallback(btDynamicsWorld*, btScalar);
         static void postTickCallback(btDynamicsWorld*, btScalar);
+        static bool contactProcessedCallback(btManifoldPoint &, void *, void *);
 };

@@ -107,6 +107,14 @@ JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsGhostObject_getPhysic
 
 /*
  * Class:     com_jme3_bullet_objects_PhysicsGhostObject
+ * Method:    getOverlappingObjects
+ * Signature: (J)V
+ */
+JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsGhostObject_getOverlappingObjects
+  (JNIEnv *, jobject, jlong);
+
+/*
+ * Class:     com_jme3_bullet_objects_PhysicsGhostObject
  * Method:    getOverlappingCount
  * Signature: (J)I
  */

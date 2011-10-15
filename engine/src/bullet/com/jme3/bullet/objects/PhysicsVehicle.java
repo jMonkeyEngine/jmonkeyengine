@@ -149,6 +149,12 @@ public class PhysicsVehicle extends PhysicsRigidBody {
         setCoordinateSystem(vehicleId, 0, 1, 2);
         for (VehicleWheel wheel : wheels) {
             wheel.setWheelId(addWheel(vehicleId, wheel.getLocation(), wheel.getDirection(), wheel.getAxle(), wheel.getRestLength(), wheel.getRadius(), tuning, wheel.isFrontWheel()));
+            wheel.setFrictionSlip(tuning.frictionSlip);
+            wheel.setMaxSuspensionTravelCm(tuning.maxSuspensionTravelCm);
+            wheel.setSuspensionStiffness(tuning.suspensionStiffness);
+            wheel.setWheelsDampingCompression(tuning.suspensionCompression);
+            wheel.setWheelsDampingRelaxation(tuning.suspensionDamping);
+            wheel.setMaxSuspensionForce(tuning.maxSuspensionForce);
         }
     }
 

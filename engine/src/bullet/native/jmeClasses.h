@@ -43,6 +43,9 @@ public:
     static jclass PhysicsSpace;
     static jmethodID PhysicsSpace_preTick;
     static jmethodID PhysicsSpace_postTick;
+    static jmethodID PhysicsSpace_addCollisionEvent;
+    static jclass PhysicsGhostObject;
+    static jmethodID PhysicsGhostObject_addOverlappingObject;
 
     static jclass Vector3f;
     static jmethodID Vector3f_set;
