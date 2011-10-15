@@ -433,7 +433,7 @@ extern "C" {
             env->ThrowNew(newExc, "The native object does not exist.");
             return;
         }
-        body->setDamping(body->getLinearDamping(), value);
+        body->setDamping(body->getAngularDamping(), value);
     }
 
     /*
@@ -756,7 +756,7 @@ extern "C" {
             env->ThrowNew(newExc, "The native object does not exist.");
             return;
         }
-        body->setSleepingThresholds(value, body->getAngularSleepingThreshold());
+        body->setSleepingThresholds(value, body->getLinearSleepingThreshold());
     }
 
     /*
@@ -772,7 +772,7 @@ extern "C" {
             env->ThrowNew(newExc, "The native object does not exist.");
             return;
         }
-        body->setSleepingThresholds(body->getLinearSleepingThreshold(), value);
+        body->setSleepingThresholds(body->getAngularSleepingThreshold(), value);
     }
 
     /*
