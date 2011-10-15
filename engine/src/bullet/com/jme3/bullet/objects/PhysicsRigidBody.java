@@ -420,7 +420,7 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
      * @param restitution
      */
     public void setRestitution(float restitution) {
-        setRestitution(objectId, mass);
+        setRestitution(objectId, restitution);
     }
 
     private native void setRestitution(long objectId, float factor);
