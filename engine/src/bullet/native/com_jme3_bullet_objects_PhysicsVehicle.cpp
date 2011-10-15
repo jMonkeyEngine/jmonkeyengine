@@ -36,6 +36,7 @@
 
 #include "com_jme3_bullet_objects_PhysicsVehicle.h"
 #include "jmeBulletUtil.h"
+#include "jmePhysicsSpace.h"
 #include "BulletDynamics/Vehicle/btRaycastVehicle.h"
 
 #ifdef __cplusplus
@@ -66,13 +67,13 @@ extern "C" {
     JNIEXPORT jlong JNICALL Java_com_jme3_bullet_objects_PhysicsVehicle_createVehicleRaycaster
     (JNIEnv *env, jobject object, jlong bodyId, jlong spaceId) {
         //btRigidBody* body = (btRigidBody*) bodyId;
-        btDiscreteDynamicsWorld* spsace = (btDiscreteDynamicsWorld*) spaceId;
-        if (spsace == NULL) {
+        jmePhysicsSpace *space = (jmePhysicsSpace *)spaceId;
+        if (space == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
             return 0;
         }
-        btDefaultVehicleRaycaster* caster = new btDefaultVehicleRaycaster(spsace);
+        btDefaultVehicleRaycaster* caster = new btDefaultVehicleRaycaster(space->getDynamicsWorld());
         return (long) caster;
     }
 

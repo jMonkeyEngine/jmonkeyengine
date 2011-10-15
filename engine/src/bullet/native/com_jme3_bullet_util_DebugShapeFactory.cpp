@@ -105,7 +105,7 @@ extern "C" {
             // Check there is a hull shape to render
             if (convexShape->getUserPointer() == NULL) {
                 // create a hull approximation
-                btShapeHull* hull = &btShapeHull(convexShape);
+                btShapeHull* hull = new btShapeHull(convexShape);
                 float margin = convexShape->getMargin();
                 hull->buildHull(margin);
                 convexShape->setUserPointer(hull);
@@ -146,7 +146,7 @@ extern "C" {
                     return;
                 }
             }
-
+            delete hull;
             convexShape->setUserPointer(NULL);
         }
     }

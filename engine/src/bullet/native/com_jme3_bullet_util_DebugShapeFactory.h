@@ -7,7 +7,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-/* Inaccessible static: _00024assertionsDisabled */
 /*
  * Class:     com_jme3_bullet_util_DebugShapeFactory
  * Method:    getVertices
