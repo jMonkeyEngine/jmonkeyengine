@@ -49,7 +49,11 @@ jmePhysicsSpace::jmePhysicsSpace(JNIEnv* env, jobject javaSpace) {
 }
 
 void jmePhysicsSpace::attachThread() {
-    vm->AttachCurrentThread((void **) &env, NULL);
+#ifdef JNI_VERSION_1_2
+    vm->AttachCurrentThread((void**) &env, NULL);
+#else
+    vm->AttachCurrentThread(vm, &env, NULL);
+#endif
 }
 
 JNIEnv* jmePhysicsSpace::getEnv() {
