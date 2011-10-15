@@ -150,11 +150,19 @@ public class PhysicsCollisionEvent extends EventObject {
     }
     private native int getIndex1(long manifoldPointObjectId);
 
+    public Vector3f getLateralFrictionDir1() {
+        return getLateralFrictionDir1(new Vector3f());
+    }
+
     public Vector3f getLateralFrictionDir1(Vector3f lateralFrictionDir1) {
         getLateralFrictionDir1(manifoldPointObjectId, lateralFrictionDir1);
         return lateralFrictionDir1;
     }
     private native void getLateralFrictionDir1(long manifoldPointObjectId, Vector3f lateralFrictionDir1);
+
+    public Vector3f getLateralFrictionDir2() {
+        return getLateralFrictionDir2(new Vector3f());
+    }
 
     public Vector3f getLateralFrictionDir2(Vector3f lateralFrictionDir2) {
         getLateralFrictionDir2(manifoldPointObjectId, lateralFrictionDir2);
@@ -172,17 +180,29 @@ public class PhysicsCollisionEvent extends EventObject {
     }
     private native int getLifeTime(long manifoldPointObjectId);
 
+    public Vector3f getLocalPointA() {
+        return getLocalPointA(new Vector3f());
+    }
+    
     public Vector3f getLocalPointA(Vector3f localPointA) {
         getLocalPointA(manifoldPointObjectId, localPointA);
         return localPointA;
     }
     private native void getLocalPointA(long manifoldPointObjectId, Vector3f localPointA);
 
+    public Vector3f getLocalPointB() {
+        return getLocalPointB(new Vector3f());
+    }
+    
     public Vector3f getLocalPointB(Vector3f localPointB) {
         getLocalPointB(manifoldPointObjectId, localPointB);
         return localPointB;
     }
     private native void getLocalPointB(long manifoldPointObjectId, Vector3f localPointB);
+
+    public Vector3f getNormalWorldOnB() {
+        return getNormalWorldOnB(new Vector3f());
+    }
 
     public Vector3f getNormalWorldOnB(Vector3f normalWorldOnB) {
         getNormalWorldOnB(manifoldPointObjectId, normalWorldOnB);
@@ -201,11 +221,19 @@ public class PhysicsCollisionEvent extends EventObject {
 
     private native int getPartId1(long manifoldPointObjectId);
 
+    public Vector3f getPositionWorldOnA() {
+        return getPositionWorldOnA(new Vector3f());
+    }
+
     public Vector3f getPositionWorldOnA(Vector3f positionWorldOnA) {
         getPositionWorldOnA(positionWorldOnA);
         return positionWorldOnA;
     }
     private native void getPositionWorldOnA(long manifoldPointObjectId, Vector3f positionWorldOnA);
+
+    public Vector3f getPositionWorldOnB() {
+        return getPositionWorldOnB(new Vector3f());
+    }
 
     public Vector3f getPositionWorldOnB(Vector3f positionWorldOnB) {
         getPositionWorldOnB(manifoldPointObjectId, positionWorldOnB);
