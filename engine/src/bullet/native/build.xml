@@ -180,7 +180,7 @@
             <includepath path="${bullet.java.include}/linux"/>
             <includepath path="${bullet.bullet.include}"/>
             <!--compilerarg value="-m32"/-->
-            <compilerarg value="-static-libgcc"/>
+            <!--compilerarg value="-static-libgcc"/-->
             <linker name="${bullet.linux.compiler}">
                 <!-- linkerarg value="-static-libgcc"/ -->
                 <libset dir="${bullet.folder}/src/BulletMultiThreaded" libs="BulletMultiThreaded"/>
