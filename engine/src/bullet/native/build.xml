@@ -151,7 +151,7 @@
             <compilerarg value="-arch"/>
             <compilerarg value="x86_64"/>
             <linker name="${bullet.osx.compiler}">
-                <libset dir="${bullet.folder}/src/BulletSoftBody" libs="BulletSoftBody"/>
+                <!--libset dir="${bullet.folder}/src/BulletSoftBody" libs="BulletSoftBody"/-->
                 <libset dir="${bullet.folder}/src/BulletMultiThreaded" libs="BulletMultiThreaded"/>
                 <libset dir="${bullet.folder}/src/BulletDynamics" libs="BulletDynamics"/>
                 <libset dir="${bullet.folder}/src/BulletCollision" libs="BulletCollision"/>
@@ -180,7 +180,6 @@
             <includepath path="${bullet.java.include}/linux"/>
             <includepath path="${bullet.bullet.include}"/>
             <!--compilerarg value="-m32"/-->
-            <compilerarg value="-m32"/>
             <compilerarg value="-static-libgcc"/>
             <linker name="${bullet.linux.compiler}">
                 <!-- linkerarg value="-static-libgcc"/ -->
