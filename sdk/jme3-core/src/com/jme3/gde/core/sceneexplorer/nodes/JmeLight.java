@@ -32,8 +32,6 @@
 package com.jme3.gde.core.sceneexplorer.nodes;
 
 import com.jme3.gde.core.scene.SceneApplication;
-import com.jme3.gde.core.sceneexplorer.nodes.AbstractSceneExplorerNode;
-import com.jme3.gde.core.sceneexplorer.nodes.SceneExplorerNode;
 import com.jme3.light.Light;
 import com.jme3.math.ColorRGBA;
 import com.jme3.scene.Spatial;
@@ -45,6 +43,7 @@ import javax.swing.Action;
 import org.openide.actions.DeleteAction;
 import org.openide.loaders.DataObject;
 import org.openide.nodes.Children;
+import org.openide.nodes.Node;
 import org.openide.nodes.Sheet;
 import org.openide.util.Exceptions;
 import org.openide.util.ImageUtilities;
@@ -72,6 +71,16 @@ public class JmeLight extends AbstractSceneExplorerNode {
         lookupContents.add(light);
         lookupContents.add(this);
         setName("Light");
+    }
+
+    protected void fireSave(boolean modified) {
+        Node parent = getParentNode();
+        if (parent != null) {
+            dataObject = parent.getLookup().lookup(DataObject.class);
+        }
+        if (dataObject != null) {
+            dataObject.setModified(true);
+        }
     }
 
     @Override
@@ -129,7 +138,7 @@ public class JmeLight extends AbstractSceneExplorerNode {
                     spatial.removeLight(light);
                     return null;
                 }
-            }).get();            
+            }).get();
             if (getParentNode() instanceof JmeNode) {
                 JmeNode node = ((JmeNode) getParentNode());
                 if (node != null) {
