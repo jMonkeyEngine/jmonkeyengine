@@ -73,7 +73,7 @@ public class AssetDataNode extends DataNode {
         
         Sheet.Set set = sheet.createPropertiesSet();
         set.setName("AssetKey");
-        set.setDisplayName("AssetKey Settings");
+        set.setDisplayName("Conversion Settings");
         for (Field field : key.getClass().getDeclaredFields()) {
             PropertyDescriptor prop = PropertyUtils.getPropertyDescriptor(key.getClass(), field);
             if (prop != null) {
