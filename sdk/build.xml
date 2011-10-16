@@ -233,9 +233,15 @@
     <target name="-revert-svn-changes">
         <!--remove changes from jMP (old version numbers)-->
         <exec executable="svn" dir=".">
+            <arg value="cleanup" />
+        </exec>
+        <exec executable="svn" dir=".">
             <arg value="revert" />
             <arg value="." />
             <arg value="-R" />
+        </exec>
+        <exec executable="svn" dir=".">
+            <arg value="cleanup" />
         </exec>
         <!--update gde svn revision-->
         <exec executable="svn" dir=".">
