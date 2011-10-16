@@ -390,6 +390,9 @@ extern "C" {
     JNIEXPORT void JNICALL Java_com_jme3_bullet_PhysicsSpace_finalizeNative
     (JNIEnv * env, jobject object, jlong spaceId) {
         jmePhysicsSpace* space = (jmePhysicsSpace*) spaceId;
+        if (space == NULL) {
+            return;
+        }
         delete(space);
     }
 

@@ -67,6 +67,7 @@ extern "C" {
     JNIEXPORT jlong JNICALL Java_com_jme3_bullet_objects_PhysicsVehicle_createVehicleRaycaster
     (JNIEnv *env, jobject object, jlong bodyId, jlong spaceId) {
         //btRigidBody* body = (btRigidBody*) bodyId;
+        jmeClasses::initJavaClasses(env);
         jmePhysicsSpace *space = (jmePhysicsSpace *)spaceId;
         if (space == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
@@ -84,6 +85,7 @@ extern "C" {
      */
     JNIEXPORT jlong JNICALL Java_com_jme3_bullet_objects_PhysicsVehicle_createRaycastVehicle
     (JNIEnv *env, jobject object, jlong objectId, jlong casterId) {
+        jmeClasses::initJavaClasses(env);
         btRigidBody* body = (btRigidBody*) objectId;
         if (body == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
@@ -92,6 +94,11 @@ extern "C" {
         }
         body->setActivationState(DISABLE_DEACTIVATION);
         btVehicleRaycaster* caster = (btDefaultVehicleRaycaster*) casterId;
+        if (caster == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return 0;
+        }
         btRaycastVehicle::btVehicleTuning tuning;
         btRaycastVehicle* vehicle = new btRaycastVehicle(tuning, body, caster);
         return (long) vehicle;
@@ -250,6 +257,11 @@ extern "C" {
             return;
         }
         delete(vehicle);
+        if (rayCaster == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
         delete(rayCaster);
     }
 
