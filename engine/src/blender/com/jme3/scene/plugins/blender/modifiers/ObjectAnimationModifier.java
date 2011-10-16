@@ -9,6 +9,7 @@ import java.util.logging.Logger;
 import com.jme3.animation.AnimControl;
 import com.jme3.animation.Animation;
 import com.jme3.animation.BoneTrack;
+import com.jme3.animation.SpatialTrack;
 import com.jme3.animation.Track;
 import com.jme3.scene.Node;
 import com.jme3.scene.plugins.blender.BlenderContext;
@@ -83,10 +84,10 @@ import com.jme3.scene.plugins.ogre.AnimData;
 			int fps = blenderContext.getBlenderKey().getFps();
 
 			// calculating track for the only bone in this skeleton
-			BoneTrack track = (BoneTrack) ipo.calculateTrack(-1, 0, ipo.getLastFrame(), fps);
+			SpatialTrack track = (SpatialTrack) ipo.calculateTrack(-1, 0, ipo.getLastFrame(), fps);
 			
 			Animation animation = new Animation(objectAnimationName, ipo.getLastFrame() / fps);
-			animation.setTracks(new BoneTrack[] { track });
+			animation.setTracks(new SpatialTrack[] { track });
 			ArrayList<Animation> animations = new ArrayList<Animation>(1);
 			animations.add(animation);
 
