@@ -75,11 +75,9 @@ public class JmeLight extends AbstractSceneExplorerNode {
 
     protected void fireSave(boolean modified) {
         Node parent = getParentNode();
-        if (parent != null) {
-            dataObject = parent.getLookup().lookup(DataObject.class);
-        }
-        if (dataObject != null) {
-            dataObject.setModified(true);
+        if (parent instanceof AbstractSceneExplorerNode) {
+            AbstractSceneExplorerNode par=(AbstractSceneExplorerNode)parent;
+            par.fireSave(modified);
         }
     }
 
