@@ -219,9 +219,10 @@ public class MaterialHelper extends AbstractBlenderHelper {
 			}
 			if(texture.getType()==Type.TwoDimensional) {//so far only 2D textures can be mapped in other way than color
 				if ((mapto & MaterialContext.MTEX_NOR) != 0 && !materialContext.shadeless) {
-					Structure mTex = materialContext.getMTex(texture);
-					Texture normalMapTexture = textureHelper.convertToNormalMapTexture(texture, ((Number) mTex.getFieldValue("norfac")).floatValue());
-					texturesMap.put(TEXTURE_TYPE_NORMAL, normalMapTexture);
+					//Structure mTex = materialContext.getMTex(texture);
+					//Texture normalMapTexture = textureHelper.convertToNormalMapTexture(texture, ((Number) mTex.getFieldValue("norfac")).floatValue());
+					//texturesMap.put(TEXTURE_TYPE_NORMAL, normalMapTexture);
+                                        texturesMap.put(TEXTURE_TYPE_NORMAL, texture);
 				}
 				if ((mapto & MaterialContext.MTEX_EMIT) != 0) {
 					texturesMap.put(TEXTURE_TYPE_GLOW, texture);

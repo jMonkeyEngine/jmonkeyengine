@@ -1,6 +1,7 @@
 package com.jme3.scene.plugins.blender.constraints;
 
 import com.jme3.animation.Animation;
+import com.jme3.animation.BoneTrack;
 import com.jme3.animation.Track;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
@@ -91,7 +92,7 @@ public abstract class Constraint {
 	 */
 	public abstract ConstraintType getType();
 
-	/**
+    /**
      * This method returns the bone traces for the bone that is affected by the given constraint.
      * @param skeleton
      *        the skeleton containing bones
@@ -99,17 +100,17 @@ public abstract class Constraint {
      *        the bone animation that affects the skeleton
      * @return the bone track for the bone that is being affected by the constraint
      */
-    protected Track<?> getTrack(Animation animation, int targetIndex) {
-    	if(boneOMA >= 0) {//bone animation
-    		for(Track<?> track : animation.getTracks()) {
-    			if(track.getTargetIndex() == targetIndex) {
-    				return track;
-    			}
-    		}
-    	} else {//spatial animation
-    		return animation.getTracks()[0];
-    	}
-    	return null;
+    protected Track getTrack(Animation animation, int targetIndex) {
+        if (boneOMA >= 0) {//bone animation
+            for (Track track : animation.getTracks()) {
+                if (((BoneTrack) track).getTargetBoneIndex() == targetIndex) {
+                    return track;
+                }
+            }
+        } else {//spatial animation
+            return animation.getTracks()[0];
+        }
+        return null;
     }
     
     /**

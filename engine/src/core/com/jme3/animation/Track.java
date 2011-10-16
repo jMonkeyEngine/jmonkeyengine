@@ -32,70 +32,32 @@
 package com.jme3.animation;
 
 import com.jme3.export.Savable;
-import com.jme3.math.Quaternion;
-import com.jme3.math.Vector3f;
+import com.jme3.util.TempVars;
 
-/**
- * A single track of mesh animation (either morph or pose based).
- * Currently morph animations are not supported (only pose).
- */
-public interface Track<T> extends Savable, Cloneable {
+public interface Track extends Savable, Cloneable {
+
     /**
-     * sets time for this track
-     * @param time
-     * @param target
-     * @param weight 
+     * Sets the time of the animation.
+     * 
+     * Internally, the track will retrieve objects from the control
+     * and modify them according to the properties of the channel and the
+     * given parameters.
+     * 
+     * @param time The time in the animation
+     * @param weight The weight from 0 to 1 on how much to apply the track 
+     * @param control The control which the track should effect
+     * @param channel The channel which the track should effect
      */
-    void setTime(float time, T target, float weight);
-    
+    public void setTime(float time, float weight, AnimControl control, AnimChannel channel, TempVars vars);
+
     /**
-	 * Set the translations, rotations and scales for this track.
-	 * 
-	 * @param times
-	 *            a float array with the time of each frame
-	 * @param translations
-	 *            the translation of the bone for each frame
-	 * @param rotations
-	 *            the rotation of the bone for each frame
-	 * @param scales
-	 *            the scale of the bone for each frame
-	 */
-	void setKeyframes(float[] times, Vector3f[] translations,
-					  Quaternion[] rotations, Vector3f[] scales);
-    
-	/**
-	 * @return the index of the target object for this track
-	 */
-	int getTargetIndex();
-	
+     * @return the length of the track
+     */
+    public float getLength();
+
     /**
-	 * @return the array of rotations of this track
-	 */
-	Quaternion[] getRotations();
-
-	/**
-	 * @return the array of scales for this track
-	 */
-	Vector3f[] getScales();
-
-	/**
-	 * @return the arrays of time for this track
-	 */
-	float[] getTimes();
-
-	/**
-	 * @return the array of translations of this track
-	 */
-	Vector3f[] getTranslations();
-	
-	/**
-	 * @return the length of the track
-	 */
-	float getLength();
-	
-	/**
      * This method creates a clone of the current object.
      * @return a clone of the current object
      */
-	Track<T> clone();
+    public Track clone();
 }

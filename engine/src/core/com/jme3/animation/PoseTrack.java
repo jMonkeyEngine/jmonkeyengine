@@ -37,29 +37,29 @@ import com.jme3.export.JmeImporter;
 import com.jme3.export.InputCapsule;
 import com.jme3.export.OutputCapsule;
 import com.jme3.export.Savable;
-import com.jme3.math.Quaternion;
-import com.jme3.math.Vector3f;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.VertexBuffer.Type;
+import com.jme3.util.TempVars;
 import java.io.IOException;
 import java.nio.FloatBuffer;
 
 /**
  * A single track of pose animation associated with a certain mesh.
  */
-public final class PoseTrack implements Track<Mesh[]> {
+@Deprecated
+public final class PoseTrack implements Track {
     
-	protected int targetMeshIndex;
+    private int targetMeshIndex;
     private PoseFrame[] frames;
-    private float[]     times;
+    private float[] times;
 
     public static class PoseFrame implements Savable, Cloneable {
 
         Pose[] poses;
         float[] weights;
 
-        public PoseFrame(Pose[] poses, float[] weights){
+        public PoseFrame(Pose[] poses, float[] weights) {
             this.poses = poses;
             this.weights = weights;
         }
@@ -68,21 +68,22 @@ public final class PoseTrack implements Track<Mesh[]> {
          * This method creates a clone of the current object.
          * @return a clone of the current object
          */
+        @Override
         public PoseFrame clone() {
-    		try {
-    			PoseFrame result = (PoseFrame) super.clone();
+            try {
+                PoseFrame result = (PoseFrame) super.clone();
                 result.weights = this.weights.clone();
-                if(this.poses != null) {
-                	result.poses = new Pose[this.poses.length];
-                	for(int i=0;i<this.poses.length;++i) {
-                		result.poses[i] = this.poses[i].clone();
-                	}
+                if (this.poses != null) {
+                    result.poses = new Pose[this.poses.length];
+                    for (int i = 0; i < this.poses.length; ++i) {
+                        result.poses[i] = this.poses[i].clone();
+                    }
                 }
-        		return result;
+                return result;
             } catch (CloneNotSupportedException e) {
                 throw new AssertionError();
             }
-    	}
+        }
 
         public void write(JmeExporter e) throws IOException {
             OutputCapsule out = e.getCapsule(this);
@@ -103,13 +104,6 @@ public final class PoseTrack implements Track<Mesh[]> {
         this.frames = frames;
     }
     
-    /**
-	 * @return the index of the target object for this track
-	 */
-	public int getTargetIndex() {
-		return targetMeshIndex;
-	}
-
     private void applyFrame(Mesh target, int frameIndex, float weight){
         PoseFrame frame = frames[frameIndex];
         VertexBuffer pb = target.getBuffer(Type.Position);
@@ -124,52 +118,59 @@ public final class PoseTrack implements Track<Mesh[]> {
         pb.updateData(pb.getData());
     }
 
-    public void setTime(float time, Mesh[] targets, float weight) {
+    public void setTime(float time, float weight, AnimControl control, AnimChannel channel, TempVars vars) {
+        // TODO: When MeshControl is created, it will gather targets
+        // list automatically which is then retrieved here.
+        
+        /*
         Mesh target = targets[targetMeshIndex];
-        if (time < times[0]){
+        if (time < times[0]) {
             applyFrame(target, 0, weight);
-        }else if (time > times[times.length-1]){
-            applyFrame(target, times.length-1, weight);
-        } else{
+        } else if (time > times[times.length - 1]) {
+            applyFrame(target, times.length - 1, weight);
+        } else {
             int startFrame = 0;
-            for (int i = 0; i < times.length; i++){
-                if (times[i] < time)
+            for (int i = 0; i < times.length; i++) {
+                if (times[i] < time) {
                     startFrame = i;
+                }
             }
 
             int endFrame = startFrame + 1;
             float blend = (time - times[startFrame]) / (times[endFrame] - times[startFrame]);
             applyFrame(target, startFrame, blend * weight);
-            applyFrame(target, endFrame,   (1f-blend) * weight);
+            applyFrame(target, endFrame, (1f - blend) * weight);
         }
+        */
     }
 
     /**
-	 * @return the length of the track
-	 */
-	public float getLength() {
-		return times == null ? 0 : times[times.length - 1] - times[0];
-	}
+     * @return the length of the track
+     */
+    public float getLength() {
+        return times == null ? 0 : times[times.length - 1] - times[0];
+    }
     
     /**
      * This method creates a clone of the current object.
      * @return a clone of the current object
      */
+    @Override
     public PoseTrack clone() {
-		try {
-			PoseTrack result = (PoseTrack) super.clone();
+        try {
+            PoseTrack result = (PoseTrack) super.clone();
             result.times = this.times.clone();
-            if(this.frames!=null) {
-            	result.frames = new PoseFrame[this.frames.length];
-            	for(int i=0;i<this.frames.length;++i) {
-            		result.frames[i] = this.frames[i].clone();
-            	}
+            if (this.frames != null) {
+                result.frames = new PoseFrame[this.frames.length];
+                for (int i = 0; i < this.frames.length; ++i) {
+                    result.frames[i] = this.frames[i].clone();
+                }
             }
-    		return result;
+            return result;
         } catch (CloneNotSupportedException e) {
             throw new AssertionError();
         }
-	}
+    }
     
     @Override
     public void write(JmeExporter e) throws IOException {
@@ -186,29 +187,4 @@ public final class PoseTrack implements Track<Mesh[]> {
         frames = (PoseFrame[]) in.readSavableArray("frames", null);
         times = in.readFloatArray("times", null);
     }
-
-	@Override
-	public Quaternion[] getRotations() {
-		return null;
-	}
-
-	@Override
-	public Vector3f[] getScales() {
-		return null;
-	}
-
-	@Override
-	public float[] getTimes() {
-		return null;
-	}
-
-	@Override
-	public Vector3f[] getTranslations() {
-		return null;
-	}
-
-	@Override
-	public void setKeyframes(float[] times, Vector3f[] translations,
-			Quaternion[] rotations, Vector3f[] scales) {
-	}
 }

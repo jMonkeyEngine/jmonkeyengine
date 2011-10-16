@@ -54,6 +54,7 @@ public final class Skeleton implements Savable {
 
     private Bone[] rootBones;
     private Bone[] boneList;
+    
     /**
      * Contains the skinning matrices, multiplying it by a vertex effected by a bone
      * will cause it to go to the animated position.

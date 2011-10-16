@@ -31,6 +31,7 @@
  */
 package com.jme3.export;
 
+import com.jme3.animation.Animation;
 import com.jme3.effect.shapes.EmitterBoxShape;
 import com.jme3.effect.shapes.EmitterMeshConvexHullShape;
 import com.jme3.effect.shapes.EmitterMeshFaceShape;
@@ -73,6 +74,8 @@ public class SavableClassUtil {
         addRemapping("com.jme3.effect.EmitterMeshVertexShape", EmitterMeshVertexShape.class);
         addRemapping("com.jme3.effect.EmitterPointShape", EmitterPointShape.class);
         addRemapping("com.jme3.material.Material$MatParamTexture", MatParamTexture.class);
+        addRemapping("com.jme3.animation.BoneAnimation", Animation.class);
+        addRemapping("com.jme3.animation.SpatialAnimation", Animation.class);
     }
     
     private static String remapClass(String className) throws ClassNotFoundException {

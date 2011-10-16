@@ -75,7 +75,7 @@ public class SkeletonControl extends AbstractControl implements Cloneable {
      * @param skeleton the skeleton
      */
     @Deprecated
-    public SkeletonControl(Mesh[] targets, Skeleton skeleton){
+    SkeletonControl(Mesh[] targets, Skeleton skeleton){
         this.skeleton = skeleton;
         this.targets = targets;
     }

@@ -39,6 +39,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.jme3.animation.Bone;
+import com.jme3.animation.BoneTrack;
 import com.jme3.animation.Track;
 import com.jme3.math.Matrix4f;
 import com.jme3.math.Quaternion;
@@ -325,7 +326,7 @@ public class ArmatureHelper extends AbstractBlenderHelper {
 	 *             an exception is thrown when there are problems with the blend
 	 *             file
 	 */
-    public Track<?>[] getTracks(Structure actionStructure, BlenderContext blenderContext) throws BlenderFileException {
+    public BoneTrack[] getTracks(Structure actionStructure, BlenderContext blenderContext) throws BlenderFileException {
     	if (blenderVersion < 250) {
             return this.getTracks249(actionStructure, blenderContext);
         } else {
@@ -345,7 +346,7 @@ public class ArmatureHelper extends AbstractBlenderHelper {
 	 *             an exception is thrown when there are problems with the blend
 	 *             file
 	 */
-    private Track<?>[] getTracks250(Structure actionStructure, BlenderContext blenderContext) throws BlenderFileException {
+    private BoneTrack[] getTracks250(Structure actionStructure, BlenderContext blenderContext) throws BlenderFileException {
         LOGGER.log(Level.INFO, "Getting tracks!");
         int fps = blenderContext.getBlenderKey().getFps();
         Structure groups = (Structure) actionStructure.getFieldValue("groups");
@@ -354,7 +355,7 @@ public class ArmatureHelper extends AbstractBlenderHelper {
             throw new IllegalStateException("No bones found! Cannot proceed to calculating tracks!");
         }
 
-        List<Track<?>> tracks = new ArrayList<Track<?>>();
+        List<BoneTrack> tracks = new ArrayList<BoneTrack>();
         for (Structure actionGroup : actionGroups) {
             String name = actionGroup.getFieldValue("name").toString();
             Integer boneIndex = bonesMap.get(name);
@@ -380,10 +381,10 @@ public class ArmatureHelper extends AbstractBlenderHelper {
                 }
 
                 Ipo ipo = new Ipo(bezierCurves);
-                tracks.add(ipo.calculateTrack(boneIndex.intValue(), 0, ipo.getLastFrame(), fps));
+                tracks.add( (BoneTrack) ipo.calculateTrack(boneIndex.intValue(), 0, ipo.getLastFrame(), fps) );
             }
         }
-        return tracks.toArray(new Track<?>[tracks.size()]);
+        return tracks.toArray(new BoneTrack[tracks.size()]);
     }
     
     /**
@@ -398,7 +399,7 @@ public class ArmatureHelper extends AbstractBlenderHelper {
 	 *             an exception is thrown when there are problems with the blend
 	 *             file
 	 */
-    private Track<?>[] getTracks249(Structure actionStructure, BlenderContext blenderContext) throws BlenderFileException {
+    private BoneTrack[] getTracks249(Structure actionStructure, BlenderContext blenderContext) throws BlenderFileException {
     	LOGGER.log(Level.INFO, "Getting tracks!");
         IpoHelper ipoHelper = blenderContext.getHelper(IpoHelper.class);
         int fps = blenderContext.getBlenderKey().getFps();
@@ -407,7 +408,7 @@ public class ArmatureHelper extends AbstractBlenderHelper {
         if (actionChannels != null && actionChannels.size() > 0 && (bonesMap == null || bonesMap.size() == 0)) {
             throw new IllegalStateException("No bones found! Cannot proceed to calculating tracks!");
         }
-        List<Track<?>> tracks = new ArrayList<Track<?>>();
+        List<BoneTrack> tracks = new ArrayList<BoneTrack>();
         for (Structure bActionChannel : actionChannels) {
             String name = bActionChannel.getFieldValue("name").toString();
             Integer boneIndex = bonesMap.get(name);
@@ -416,11 +417,11 @@ public class ArmatureHelper extends AbstractBlenderHelper {
                 if (!p.isNull()) {
                     Structure ipoStructure = p.fetchData(blenderContext.getInputStream()).get(0);
                     Ipo ipo = ipoHelper.createIpo(ipoStructure, blenderContext);
-                    tracks.add(ipo.calculateTrack(boneIndex.intValue(), 0, ipo.getLastFrame(), fps));
+                    tracks.add( (BoneTrack) ipo.calculateTrack(boneIndex.intValue(), 0, ipo.getLastFrame(), fps));
                 }
             }
         }
-        return tracks.toArray(new Track<?>[tracks.size()]);
+        return tracks.toArray(new BoneTrack[tracks.size()]);
     }
 
     /**

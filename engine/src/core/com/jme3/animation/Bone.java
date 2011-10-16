@@ -413,27 +413,30 @@ public final class Bone implements Savable {
         }
     }
 
-    /**
+     /**
      * Stores the skinning transform in the specified Matrix4f.
      * The skinning transform applies the animation of the bone to a vertex.
-     * @param m
+     * 
+     * This assumes that the world transforms for the entire bone hierarchy
+     * have already been computed, otherwise this method will return undefined
+     * results.
+     * 
+     * @param outTransform
      */
-    void getOffsetTransform(Matrix4f m, Quaternion tmp1, Vector3f tmp2, Vector3f tmp3, Matrix3f rotMat) {
-
-        //Computing scale
+    void getOffsetTransform(Matrix4f outTransform, Quaternion tmp1, Vector3f tmp2, Vector3f tmp3, Matrix3f tmp4) {
+        // Computing scale
         Vector3f scale = worldScale.mult(worldBindInverseScale, tmp3);
 
-        //computing rotation
+        // Computing rotation
         Quaternion rotate = worldRot.mult(worldBindInverseRot, tmp1);
 
-        //computing translation
-        //translation depend on rotation and scale
+        // Computing translation
+        // Translation depend on rotation and scale
         Vector3f translate = worldPos.add(rotate.mult(scale.mult(worldBindInversePos, tmp2), tmp2), tmp2);
 
-        //populating the matrix
-        m.loadIdentity();
-        m.setTransform(translate, scale, rotate.toRotationMatrix(rotMat));
-
+        // Populating the matrix
+        outTransform.loadIdentity();
+        outTransform.setTransform(translate, scale, rotate.toRotationMatrix(tmp4));
     }
 
     /**

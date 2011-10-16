@@ -12,6 +12,7 @@ import java.util.logging.Logger;
 import com.jme3.animation.AnimControl;
 import com.jme3.animation.Animation;
 import com.jme3.animation.Bone;
+import com.jme3.animation.BoneTrack;
 import com.jme3.animation.Skeleton;
 import com.jme3.animation.SkeletonControl;
 import com.jme3.animation.Track;
@@ -123,10 +124,10 @@ import com.jme3.util.BufferUtils;
 						Structure actionStructure = header.getStructure(blenderContext);
 						String actionName = actionStructure.getName();
 						
-						Track<?>[] tracks = armatureHelper.getTracks(actionStructure, blenderContext);
+						BoneTrack[] tracks = armatureHelper.getTracks(actionStructure, blenderContext);
 						//determining the animation  time
 						float maximumTrackLength = 0;
-						for(Track<?> track : tracks) {
+						for(BoneTrack track : tracks) {
 							float length = track.getLength();
 							if(length > maximumTrackLength) {
 								maximumTrackLength = length;

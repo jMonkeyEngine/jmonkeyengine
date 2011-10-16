@@ -33,6 +33,7 @@
 package com.jme3.animation;
 
 import com.jme3.math.FastMath;
+import com.jme3.util.TempVars;
 import java.util.BitSet;
 
 /**
@@ -52,7 +53,6 @@ public final class AnimChannel {
     
     private AnimControl control;
 
-//    private ArrayList<Integer> affectedBones;
     private BitSet affectedBones;
 
     private Animation animation;
@@ -101,6 +101,7 @@ public final class AnimChannel {
 
     /**
      * Returns the parent control of this AnimChannel.
+     * 
      * @return the parent control of this AnimChannel.
      * @see AnimControl
      */
@@ -316,12 +317,12 @@ public final class AnimChannel {
         return affectedBones;
     }
 
-    void update(float tpf) {
+    void update(float tpf, TempVars vars) {
         if (animation == null)
             return;
 
         if (blendFrom != null){
-            blendFrom.setTime(timeBlendFrom, 1f - blendAmount, control, this);
+            blendFrom.setTime(timeBlendFrom, 1f - blendAmount, control, this, vars);
             //blendFrom.setTime(timeBlendFrom, control.skeleton, 1f - blendAmount, affectedBones);
             timeBlendFrom += tpf * speedBlendFrom;
             timeBlendFrom = clampWrapTime(timeBlendFrom,
@@ -339,7 +340,7 @@ public final class AnimChannel {
             }
         }
 
-        animation.setTime(time, blendAmount, control, this);
+        animation.setTime(time, blendAmount, control, this, vars);
         //animation.setTime(time, control.skeleton, blendAmount, affectedBones);
         time += tpf * speed;
 

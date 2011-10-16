@@ -42,6 +42,7 @@ import com.jme3.scene.Mesh;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.control.AbstractControl;
 import com.jme3.scene.control.Control;
+import com.jme3.util.TempVars;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -101,9 +102,6 @@ public final class AnimControl extends AbstractControl implements Cloneable {
      * @param skeleton The skeleton to animate
      */
     public AnimControl(Skeleton skeleton) {
-        //if (skeleton == null)
-        //    throw new IllegalArgumentException("skeleton cannot be null");
-
         this.skeleton = skeleton;
         reset();
     }
@@ -121,10 +119,11 @@ public final class AnimControl extends AbstractControl implements Cloneable {
         try {
             AnimControl clone = (AnimControl) super.clone();
             clone.spatial = spatial;
+            clone.channels = new ArrayList<AnimChannel>();
+            
             if (skeleton != null){
                 clone.skeleton = new Skeleton(skeleton);
             }
-            clone.channels = new ArrayList<AnimChannel>();
             
             // animationMap is reference-copied, animation data should be shared
             // to reduce memory usage.
@@ -327,9 +326,11 @@ public final class AnimControl extends AbstractControl implements Cloneable {
             skeleton.reset(); // reset skeleton to bind pose
         }
 
+        TempVars vars = TempVars.get();
         for (int i = 0; i < channels.size(); i++) {
-            channels.get(i).update(tpf);
+            channels.get(i).update(tpf, vars);
         }
+        vars.release();
 
         if (skeleton != null){
             skeleton.updateWorldVectors();
@@ -359,9 +360,12 @@ public final class AnimControl extends AbstractControl implements Cloneable {
         animationMap = (HashMap<String, Animation>) in.readStringSavableMap("animations", null);
 
         if (im.getFormatVersion() == 0){
-            //changed for backward compatibility with j3o files generated before the AnimControl/SkeletonControl split
-            //if we find a target mesh array the AnimControl creates the SkeletonControl for old files and add it to the spatial.        
-            //When backward compatibility won't be needed anymore this can deleted        
+            // Changed for backward compatibility with j3o files generated 
+            // before the AnimControl/SkeletonControl split.
+            
+            // If we find a target mesh array the AnimControl creates the 
+            // SkeletonControl for old files and add it to the spatial.        
+            // When backward compatibility won't be needed anymore this can deleted        
             Savable[] sav = in.readSavableArray("targets", null);
             if (sav != null) {
                 Mesh[] targets = new Mesh[sav.length];

@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import com.jme3.animation.Animation;
+import com.jme3.animation.BoneTrack;
 import com.jme3.animation.Track;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
@@ -64,7 +65,7 @@ import com.jme3.scene.plugins.blender.file.Structure;
 			}
 			
 			//modifying traces
-			Track<?> track = this.getTrack(animation, targetIndex);
+			BoneTrack track = (BoneTrack) this.getTrack(animation, targetIndex);
 			if (track != null) {
 				Vector3f[] translations = track.getTranslations();
 				Quaternion[] rotations = track.getRotations();

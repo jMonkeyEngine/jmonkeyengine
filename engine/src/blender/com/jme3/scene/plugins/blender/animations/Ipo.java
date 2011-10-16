@@ -27,10 +27,16 @@ public class Ipo {
     public static final int AC_QUAT_X = 26;
     public static final int AC_QUAT_Y = 27;
     public static final int AC_QUAT_Z = 28;
-    /** A list of bezier curves for this interpolation object. */
+    
+    /** 
+     * A list of bezier curves for this interpolation object. 
+     */
     private BezierCurve[] bezierCurves;
-    /** Each ipo contains one bone track. */
-    private Track<?> calculatedTrack;
+    
+    /** 
+     * Each ipo contains one bone track. 
+     */
+    private Track calculatedTrack;
 
     /**
      * Constructor. Stores the bezier curves.
@@ -87,6 +93,7 @@ public class Ipo {
         return result;
     }
 
+    /*
     public void modifyTranslation(int frame, Vector3f translation) {
         if (calculatedTrack != null) {
             calculatedTrack.getTranslations()[frame].set(translation);
@@ -104,6 +111,7 @@ public class Ipo {
             calculatedTrack.getScales()[frame].set(scale);
         }
     }
+    */
 
     /**
      * This method calculates the value of the curves as a bone track between the specified frames.
@@ -118,7 +126,7 @@ public class Ipo {
      *        frame rate (frames per second)
      * @return bone track for the specified bone
      */
-    public Track<?> calculateTrack(int targetIndex, int startFrame, int stopFrame, int fps) {
+    public Track calculateTrack(int targetIndex, int startFrame, int stopFrame, int fps) {
     	if(calculatedTrack == null) {
     		//preparing data for track
             int framesAmount = stopFrame - startFrame;

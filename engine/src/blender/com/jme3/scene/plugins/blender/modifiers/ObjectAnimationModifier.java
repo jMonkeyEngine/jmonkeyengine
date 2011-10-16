@@ -8,6 +8,7 @@ import java.util.logging.Logger;
 
 import com.jme3.animation.AnimControl;
 import com.jme3.animation.Animation;
+import com.jme3.animation.BoneTrack;
 import com.jme3.animation.Track;
 import com.jme3.scene.Node;
 import com.jme3.scene.plugins.blender.BlenderContext;
@@ -82,10 +83,10 @@ import com.jme3.scene.plugins.ogre.AnimData;
 			int fps = blenderContext.getBlenderKey().getFps();
 
 			// calculating track for the only bone in this skeleton
-			Track<?> track = ipo.calculateTrack(-1, 0, ipo.getLastFrame(), fps);
+			BoneTrack track = (BoneTrack) ipo.calculateTrack(-1, 0, ipo.getLastFrame(), fps);
 			
 			Animation animation = new Animation(objectAnimationName, ipo.getLastFrame() / fps);
-			animation.setTracks(new Track<?>[] { track });
+			animation.setTracks(new BoneTrack[] { track });
 			ArrayList<Animation> animations = new ArrayList<Animation>(1);
 			animations.add(animation);
 
