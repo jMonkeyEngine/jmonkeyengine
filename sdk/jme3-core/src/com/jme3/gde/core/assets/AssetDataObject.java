@@ -126,7 +126,7 @@ public class AssetDataObject extends MultiDataObject {
 
     @Override
     protected Node createNodeDelegate() {
-        DataNode node = new DataNode(this, Children.LEAF, new ProxyLookup(getCookieSet().getLookup(), contentLookup));
+        AssetDataNode node = new AssetDataNode(this, Children.LEAF, new ProxyLookup(getCookieSet().getLookup(), contentLookup));
         node.setIconBaseWithExtension("com/jme3/gde/core/assets/jme-logo.png");
         return node;
     }
