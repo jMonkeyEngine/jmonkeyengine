@@ -76,10 +76,12 @@ public final class ModelImporterVisualPanel1 extends JPanel implements AssetEven
     }
 
     public synchronized void loadModel(File path, AssetKey modelKey) {
+        ProjectAssetManager manager = new ProjectAssetManager(FileUtil.toFileObject(path).getParent());
+        manager.setAssetEventListener(this);
         try {
-            ProjectAssetManager manager = new ProjectAssetManager(FileUtil.toFileObject(path).getParent());
-            manager.setAssetEventListener(this);
-            requestedAssets.clear();
+            if (modelKey != mainKey) {
+                requestedAssets.clear();
+            }
             if (currentModel != null) {
                 offPanel.detach(currentModel);
                 currentModel = null;
@@ -109,8 +111,6 @@ public final class ModelImporterVisualPanel1 extends JPanel implements AssetEven
                         NotifyDescriptor.ERROR_MESSAGE);
                 DialogDisplayer.getDefault().notifyLater(msg);
             }
-            manager.setAssetEventListener(null);
-            manager.clearCache();
         } catch (Exception e) {
             Message msg = new NotifyDescriptor.Message(
                     "Error importing file!\n"
@@ -119,6 +119,8 @@ public final class ModelImporterVisualPanel1 extends JPanel implements AssetEven
             DialogDisplayer.getDefault().notifyLater(msg);
             Exceptions.printStackTrace(e);
         }
+        manager.setAssetEventListener(null);
+        manager.clearCache();
     }
 
     private void updateProperties(final AssetKey key) {
@@ -140,7 +142,9 @@ public final class ModelImporterVisualPanel1 extends JPanel implements AssetEven
                 && !"glsllib".equalsIgnoreCase(ak.getExtension())
                 && !"frag".equalsIgnoreCase(ak.getExtension())
                 && !"vert".equalsIgnoreCase(ak.getExtension())) {
-            requestedAssets.add(ak);
+            if (!requestedAssets.contains(ak)) {
+                requestedAssets.add(ak);
+            }
         }
     }
 
