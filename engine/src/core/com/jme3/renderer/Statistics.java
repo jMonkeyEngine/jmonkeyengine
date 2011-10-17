@@ -134,10 +134,10 @@ public class Statistics {
      * @param wasSwitched If true, the shader has required a state switch
      */
     public void onShaderUse(Shader shader, boolean wasSwitched){
-        assert shader.id >= 1;
+        assert shader.getId() >= 1;
 
-        if (!shadersUsed.contains(shader.id))
-            shadersUsed.add(shader.id);
+        if (!shadersUsed.contains(shader.getId()))
+            shadersUsed.add(shader.getId());
 
         if (wasSwitched)
             numShaderSwitches++;
@@ -157,10 +157,10 @@ public class Statistics {
      * @param wasSwitched If true, the texture has required a state switch
      */
     public void onTextureUse(Image image, boolean wasSwitched){
-        assert image.id >= 1;
+        assert image.getId() >= 1;
 
-        if (!texturesUsed.contains(image.id))
-            texturesUsed.add(image.id);
+        if (!texturesUsed.contains(image.getId()))
+            texturesUsed.add(image.getId());
 
         if (wasSwitched)
             numTextureBinds ++;
@@ -174,10 +174,10 @@ public class Statistics {
      */
     public void onFrameBufferUse(FrameBuffer fb, boolean wasSwitched){
         if (fb != null){
-            assert fb.id >= 1;
+            assert fb.getId() >= 1;
 
-            if (!fbosUsed.contains(fb.id))
-                fbosUsed.add(fb.id);
+            if (!fbosUsed.contains(fb.getId()))
+                fbosUsed.add(fb.getId());
         }
 
         if (wasSwitched)

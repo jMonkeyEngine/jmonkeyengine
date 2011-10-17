@@ -35,12 +35,12 @@ package jme3test.stress;
 import com.jme3.app.SimpleApplication;
 import com.jme3.material.Material;
 import com.jme3.math.Vector3f;
-import com.jme3.renderer.GLObjectManager;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial.CullHint;
 import com.jme3.scene.shape.Sphere;
+import com.jme3.util.NativeObjectManager;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -71,7 +71,7 @@ public class TestLeakingGL extends SimpleApplication {
         cam.lookAt(Vector3f.ZERO, Vector3f.UNIT_Y);
 
         Logger.getLogger(Node.class.getName()).setLevel(Level.WARNING);
-        Logger.getLogger(GLObjectManager.class.getName()).setLevel(Level.WARNING);
+        Logger.getLogger(NativeObjectManager.class.getName()).setLevel(Level.WARNING);
     }
 
     @Override
