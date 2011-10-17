@@ -49,8 +49,7 @@ import java.io.IOException;
 public class SoundTrack extends AbstractCinematicEvent {
 
     protected String path;
-    protected AudioNode audioNode;
-    protected AudioRenderer audioRenderer;
+    protected AudioNode audioNode;    
     protected boolean stream = false;
 
     /**
@@ -108,26 +107,27 @@ public class SoundTrack extends AbstractCinematicEvent {
     }
 
     @Override
-    public void initEvent(Application app, Cinematic cinematic) {
-        audioRenderer = app.getAudioRenderer();
-        audioNode = new AudioNode(audioRenderer, app.getAssetManager(), path, stream);
+    public void initEvent(Application app, Cinematic cinematic) {        
+        audioNode = new AudioNode(app.getAssetManager(), path, stream);
         setLoopMode(loopMode);
 
     }
 
     @Override
     public void onPlay() {
-        audioRenderer.playSource(audioNode);
+        audioNode.play();
+        
     }
 
     @Override
     public void onStop() {
-        audioRenderer.stopSource(audioNode);
+        audioNode.stop();
+        
     }
 
     @Override
     public void onPause() {
-        audioRenderer.pauseSource(audioNode);
+        audioNode.pause();        
     }
 
     @Override
