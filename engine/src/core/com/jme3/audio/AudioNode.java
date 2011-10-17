@@ -260,6 +260,13 @@ public class AudioNode extends Node {
     }
     
     /**
+     * Pause the audio that was started with {@link AudioNode#play() }.
+     */
+    public void pause(){
+        getRenderer().pauseSource(this);
+    }
+    
+    /**
      * Do not use.
      */
     public final void setChannel(int channel) {
