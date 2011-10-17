@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+OpenIDE-Module: net.java.nboglpack.glsleditor
+OpenIDE-Module-Implementation-Version: 0
+OpenIDE-Module-Layer: net/java/nboglpack/glsleditor/layer.xml
+OpenIDE-Module-Localizing-Bundle: net/java/nboglpack/glsleditor/Bundle.properties
+
+Name: net/java/nboglpack/glsleditor/dataobject/GlslGeometryShaderDataLoader.class
+OpenIDE-Module-Class: Loader
+
+Name: net/java/nboglpack/glsleditor/dataobject/GlslFragmentShaderDataLoader.class
+OpenIDE-Module-Class: Loader
+
+Name: net/java/nboglpack/glsleditor/dataobject/GlslVertexShaderDataLoader.class
+OpenIDE-Module-Class: Loader
+

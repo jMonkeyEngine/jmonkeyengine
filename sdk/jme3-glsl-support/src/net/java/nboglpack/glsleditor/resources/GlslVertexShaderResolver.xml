@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE MIME-resolver PUBLIC "-//NetBeans//DTD MIME Resolver 1.0//EN" "http://www.netbeans.org/dtds/mime-resolver-1_0.dtd">
+<MIME-resolver>
+    <file>
+        <ext name="vert"/>
+        <ext name="vertex"/>
+        <ext name="glvert"/>
+        <ext name="glslvert"/>
+        <ext name="glslvertex"/>
+        <ext name="glvertexshader"/>
+        <ext name="glslvertexshader"/>
+        <ext name="glsl-vert"/>
+        <ext name="glsl-vertex"/>
+        <ext name="gl-vertex-shader"/>
+        <ext name="glsl-vertex-shader"/>
+        <resolver mime="text/x-glsl-vertex-shader"/>
+    </file>
+</MIME-resolver>
