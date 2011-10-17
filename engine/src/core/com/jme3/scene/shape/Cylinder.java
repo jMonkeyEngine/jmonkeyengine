@@ -259,6 +259,25 @@ public class Cylinder extends Mesh {
         sin[radialSamples] = sin[0];
         cos[radialSamples] = cos[0];
 
+        // calculate normals
+        Vector3f[] vNormals = null;
+        Vector3f vNormal = Vector3f.UNIT_Z;
+
+        if ((height != 0.0f) && (radius != radius2)) {
+            vNormals = new Vector3f[radialSamples];
+            Vector3f vHeight = Vector3f.UNIT_Z.mult(height);
+            Vector3f vRadial = new Vector3f();
+
+            for (int radialCount = 0; radialCount < radialSamples; radialCount++) {
+                vRadial.set(cos[radialCount], sin[radialCount], 0.0f);
+                Vector3f vRadius = vRadial.mult(radius);
+                Vector3f vRadius2 = vRadial.mult(radius2);
+                Vector3f vMantle = vHeight.subtract(vRadius2.subtract(vRadius));
+                Vector3f vTangent = vRadial.cross(Vector3f.UNIT_Z);
+                vNormals[radialCount] = vMantle.cross(vTangent).normalize();
+            }
+        }
+
         FloatBuffer nb = getFloatBuffer(Type.Normal);
         FloatBuffer pb = getFloatBuffer(Type.Position);
         FloatBuffer tb = getFloatBuffer(Type.TexCoord);
@@ -286,21 +305,28 @@ public class Cylinder extends Mesh {
                     axisFractionTexture = axisCount * inverseAxisLessTexture;
                 }
             }
-            float z = -halfHeight + height * axisFraction;
 
             // compute center of slice
+            float z = -halfHeight + height * axisFraction;
             Vector3f sliceCenter = new Vector3f(0, 0, z);
 
             // compute slice vertices with duplication at end point
             int save = i;
             for (int radialCount = 0; radialCount < radialSamples; radialCount++, i++) {
                 float radialFraction = radialCount * inverseRadial; // in [0,1)
-                tempNormal.set(cos[radialCount], sin[radialCount], 0);
+                tempNormal.set(cos[radialCount], sin[radialCount], 0.0f);
+
+                if (vNormals != null) {
+                    vNormal = vNormals[radialCount];
+                } else if (radius == radius2) {
+                    vNormal = tempNormal;
+                }
+
                 if (topBottom == 0) {
                     if (!inverted)
-                        nb.put(tempNormal.x).put(tempNormal.y).put(tempNormal.z);
+                        nb.put(vNormal.x).put(vNormal.y).put(vNormal.z);
                     else
-                        nb.put(-tempNormal.x).put(-tempNormal.y).put(-tempNormal.z);
+                        nb.put(-vNormal.x).put(-vNormal.y).put(-vNormal.z);
                 } else {
                     nb.put(0).put(0).put(topBottom * (inverted ? -1 : 1));
                 }
