@@ -43,7 +43,7 @@ import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.math.Vector4f;
 import com.jme3.renderer.Caps;
-import com.jme3.renderer.GLObjectManager;
+import com.jme3.util.NativeObjectManager;
 import com.jme3.renderer.IDList;
 import com.jme3.renderer.Renderer;
 import com.jme3.scene.Mesh;
@@ -124,7 +124,7 @@ public class LwjglRenderer implements Renderer {
     private final IntBuffer intBuf1 = BufferUtils.createIntBuffer(1);
     private final IntBuffer intBuf16 = BufferUtils.createIntBuffer(16);
     private final RenderContext context = new RenderContext();
-    private final GLObjectManager objManager = new GLObjectManager();
+    private final NativeObjectManager objManager = new NativeObjectManager();
     private final EnumSet<Caps> caps = EnumSet.noneOf(Caps.class);
     // current state
     private Shader boundShader;

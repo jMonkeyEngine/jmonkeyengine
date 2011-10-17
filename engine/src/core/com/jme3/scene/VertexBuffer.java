@@ -38,7 +38,7 @@ import com.jme3.export.InputCapsule;
 import com.jme3.export.OutputCapsule;
 import com.jme3.export.Savable;
 import com.jme3.math.FastMath;
-import com.jme3.renderer.GLObject;
+import com.jme3.util.NativeObject;
 import com.jme3.renderer.Renderer;
 import com.jme3.util.BufferUtils;
 import java.io.IOException;
@@ -62,7 +62,7 @@ import java.nio.ShortBuffer;
  * For a 3D vector, a single component is one of the dimensions, X, Y or Z.</li>
  * </ul>
  */
-public class VertexBuffer extends GLObject implements Savable, Cloneable {
+public class VertexBuffer extends NativeObject implements Savable, Cloneable {
   
     /**
      * Type of buffer. Specifies the actual attribute it defines.
@@ -316,7 +316,7 @@ public class VertexBuffer extends GLObject implements Savable, Cloneable {
      * Must call setupData() to initialize.
      */
     public VertexBuffer(Type type){
-        super(GLObject.Type.VertexBuffer);
+        super(VertexBuffer.class);
         this.bufType = type;
     }
 
@@ -324,11 +324,11 @@ public class VertexBuffer extends GLObject implements Savable, Cloneable {
      * Serialization only. Do not use.
      */
     public VertexBuffer(){
-        super(GLObject.Type.VertexBuffer);
+        super(VertexBuffer.class);
     }
 
     protected VertexBuffer(int id){
-        super(GLObject.Type.VertexBuffer, id);
+        super(VertexBuffer.class, id);
     }
 
     /**
@@ -853,12 +853,12 @@ public class VertexBuffer extends GLObject implements Savable, Cloneable {
     }
 
     @Override
-    public void deleteObject(Renderer r) {
-        r.deleteBuffer(this);
+    public void deleteObject(Object rendererObject) {
+        ((Renderer)rendererObject).deleteBuffer(this);
     }
 
     @Override
-    public GLObject createDestructableClone(){
+    public NativeObject createDestructableClone(){
         return new VertexBuffer(id);
     }
 

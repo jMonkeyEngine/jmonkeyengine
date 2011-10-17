@@ -43,7 +43,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import com.jme3.export.Savable;
-import com.jme3.renderer.GLObject;
+import com.jme3.util.NativeObject;
 
 /**
  * <code>Image</code> defines a data format for a graphical image. The image
@@ -55,7 +55,7 @@ import com.jme3.renderer.GLObject;
  * @author Joshua Slack
  * @version $Id: Image.java 4131 2009-03-19 20:15:28Z blaine.dev $
  */
-public class Image extends GLObject implements Savable /*, Cloneable*/ {
+public class Image extends NativeObject implements Savable /*, Cloneable*/ {
 
     public enum Format {
         /**
@@ -329,12 +329,12 @@ public class Image extends GLObject implements Savable /*, Cloneable*/ {
     }
 
     @Override
-    public void deleteObject(Renderer r) {
-        r.deleteImage(this);
+    public void deleteObject(Object rendererObject) {
+        ((Renderer)rendererObject).deleteImage(this);
     }
 
     @Override
-    public GLObject createDestructableClone() {
+    public NativeObject createDestructableClone() {
         return new Image(id);
     }
 
@@ -355,12 +355,12 @@ public class Image extends GLObject implements Savable /*, Cloneable*/ {
      * are undefined.
      */
     public Image() {
-        super(Type.Texture);
+        super(Image.class);
         data = new ArrayList<ByteBuffer>(1);
     }
 
     protected Image(int id){
-        super(GLObject.Type.Texture, id);
+        super(Image.class, id);
     }
 
     /**

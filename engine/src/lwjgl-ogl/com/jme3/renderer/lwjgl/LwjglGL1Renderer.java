@@ -32,7 +32,7 @@ import java.util.logging.Level;
 import com.jme3.material.RenderState;
 import com.jme3.math.ColorRGBA;
 import com.jme3.renderer.Caps;
-import com.jme3.renderer.GLObjectManager;
+import com.jme3.util.NativeObjectManager;
 import com.jme3.renderer.RenderContext;
 import com.jme3.renderer.Statistics;
 import com.jme3.util.BufferUtils;
@@ -56,7 +56,7 @@ public class LwjglGL1Renderer implements GL1Renderer {
     private final FloatBuffer fb16 = BufferUtils.createFloatBuffer(16);
     private final FloatBuffer fb4Null = BufferUtils.createFloatBuffer(4);
     private final RenderContext context = new RenderContext();
-    private final GLObjectManager objManager = new GLObjectManager();
+    private final NativeObjectManager objManager = new NativeObjectManager();
     private final EnumSet<Caps> caps = EnumSet.noneOf(Caps.class);
     private int maxTexSize;
     private int maxCubeTexSize;

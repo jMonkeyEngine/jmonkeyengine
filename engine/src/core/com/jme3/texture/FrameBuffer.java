@@ -33,7 +33,7 @@
 package com.jme3.texture;
 
 import com.jme3.renderer.Caps;
-import com.jme3.renderer.GLObject;
+import com.jme3.util.NativeObject;
 import com.jme3.renderer.Renderer;
 import com.jme3.texture.Image.Format;
 import java.util.ArrayList;
@@ -72,7 +72,7 @@ import java.util.ArrayList;
  * 
  * @author Kirill Vainer
  */
-public class FrameBuffer extends GLObject {
+public class FrameBuffer extends NativeObject {
 
     private int width = 0;
     private int height = 0;
@@ -171,7 +171,7 @@ public class FrameBuffer extends GLObject {
      * @throws IllegalArgumentException If width or height are not positive.
      */
     public FrameBuffer(int width, int height, int samples){
-        super(Type.FrameBuffer);
+        super(FrameBuffer.class);
         if (width <= 0 || height <= 0)
                 throw new IllegalArgumentException("FrameBuffer must have valid size.");
 
@@ -181,7 +181,7 @@ public class FrameBuffer extends GLObject {
     }
 
     protected FrameBuffer(FrameBuffer src){
-        super(Type.FrameBuffer, src.id);
+        super(FrameBuffer.class, src.id);
         /*
         for (RenderBuffer renderBuf : src.colorBufs){
             RenderBuffer clone = renderBuf.createDestructableClone();
@@ -449,11 +449,11 @@ public class FrameBuffer extends GLObject {
     }
 
     @Override
-    public void deleteObject(Renderer r) {
-        r.deleteFrameBuffer(this);
+    public void deleteObject(Object rendererObject) {
+        ((Renderer)rendererObject).deleteFrameBuffer(this);
     }
 
-    public GLObject createDestructableClone(){
+    public NativeObject createDestructableClone(){
         return new FrameBuffer(this);
     }
 }

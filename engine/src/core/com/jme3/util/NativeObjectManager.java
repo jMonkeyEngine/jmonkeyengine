@@ -30,7 +30,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.jme3.renderer;
+package com.jme3.util;
 
 import java.lang.ref.PhantomReference;
 import java.lang.ref.ReferenceQueue;
@@ -47,12 +47,12 @@ import java.util.logging.Logger;
  * On restart, the renderer may request the objects to be reset, thus allowing
  * the GLObjects to re-initialize with the new display context.
  */
-public class GLObjectManager {
+public class NativeObjectManager {
 
-    private static final Logger logger = Logger.getLogger(GLObjectManager.class.getName());
+    private static final Logger logger = Logger.getLogger(NativeObjectManager.class.getName());
 
     /**
-     * The queue will receive notifications of GLObjects which are no longer
+     * The queue will receive notifications of {@link NativeObject}s which are no longer
      * referenced.
      */
     private ReferenceQueue<Object> refQueue = new ReferenceQueue<Object>();
@@ -60,19 +60,19 @@ public class GLObjectManager {
     /**
      * List of currently active GLObjects.
      */
-    private ArrayList<GLObjectRef> refList
-            = new ArrayList<GLObjectRef>();
+    private ArrayList<NativeObjectRef> refList
+            = new ArrayList<NativeObjectRef>();
 
-    private class GLObjectRef extends PhantomReference<Object>{
+    private class NativeObjectRef extends PhantomReference<Object>{
         
-        private GLObject objClone;
-        private WeakReference<GLObject> realObj;
+        private NativeObject objClone;
+        private WeakReference<NativeObject> realObj;
 
-        public GLObjectRef(GLObject obj){
+        public NativeObjectRef(NativeObject obj){
             super(obj.handleRef, refQueue);
             assert obj.handleRef != null;
 
-            this.realObj = new WeakReference<GLObject>(obj);
+            this.realObj = new WeakReference<NativeObject>(obj);
             this.objClone = obj.createDestructableClone();       
         }
     }
@@ -80,8 +80,8 @@ public class GLObjectManager {
     /**
      * Register a GLObject with the manager.
      */
-    public void registerForCleanup(GLObject obj){
-        GLObjectRef ref = new GLObjectRef(obj);
+    public void registerForCleanup(NativeObject obj){
+        NativeObjectRef ref = new NativeObjectRef(obj);
         refList.add(ref);
         if (logger.isLoggable(Level.FINEST))
             logger.log(Level.FINEST, "Registered: {0}", new String[]{obj.toString()});
@@ -90,14 +90,14 @@ public class GLObjectManager {
     /**
      * Deletes unused GLObjects
      */
-    public void deleteUnused(Renderer r){
+    public void deleteUnused(Object rendererObject){
         while (true){
-            GLObjectRef ref = (GLObjectRef) refQueue.poll();
+            NativeObjectRef ref = (NativeObjectRef) refQueue.poll();
             if (ref == null)
                 return;
 
             refList.remove(ref);
-            ref.objClone.deleteObject(r);
+            ref.objClone.deleteObject(rendererObject);
             if (logger.isLoggable(Level.FINEST))
                 logger.log(Level.FINEST, "Deleted: {0}", ref.objClone);
         }
@@ -106,11 +106,11 @@ public class GLObjectManager {
     /**
      * Deletes all objects. Must only be called when display is destroyed.
      */
-    public void deleteAllObjects(Renderer r){
-        deleteUnused(r);
-        for (GLObjectRef ref : refList){
-            ref.objClone.deleteObject(r);
-            GLObject realObj = ref.realObj.get();
+    public void deleteAllObjects(Object rendererObject){
+        deleteUnused(rendererObject);
+        for (NativeObjectRef ref : refList){
+            ref.objClone.deleteObject(rendererObject);
+            NativeObject realObj = ref.realObj.get();
             if (realObj != null){
                 // Note: make sure to reset them as well
                 // They may get used in a new renderer in the future
@@ -121,13 +121,13 @@ public class GLObjectManager {
     }
 
     /**
-     * Resets all GLObjects.
+     * Resets all {@link NativeObject}s.
      */
     public void resetObjects(){
-        for (GLObjectRef ref : refList){
+        for (NativeObjectRef ref : refList){
             // here we use the actual obj not the clone,
             // otherwise its useless
-            GLObject realObj = ref.realObj.get();
+            NativeObject realObj = ref.realObj.get();
             if (realObj == null)
                 continue;
             

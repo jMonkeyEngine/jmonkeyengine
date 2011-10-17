@@ -30,16 +30,19 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.jme3.renderer;
+package com.jme3.util;
+
+import com.jme3.renderer.Renderer;
 
 /**
- * Describes a GL object. An encapsulation of a certain object 
- * on the native side of the graphics library.
- * This class is used to track when OpenGL native objects are collected
- * by the garbage collector, and then invoke the proper destructor
+ * Describes a native object. An encapsulation of a certain object 
+ * on the native side of the graphics or audio library.
+ * 
+ * This class is used to track when OpenGL and OpenAL native objects are 
+ * collected by the garbage collector, and then invoke the proper destructor
  * on the OpenGL library to delete it from memory.
  */
-public abstract class GLObject implements Cloneable {
+public abstract class NativeObject implements Cloneable {
 
     /**
      * The ID of the object, usually depends on its type.
@@ -63,41 +66,7 @@ public abstract class GLObject implements Cloneable {
     /**
      * The type of the GLObject, usually specified by a subclass.
      */
-    protected final Type type;
-
-    /**
-     * The type of the GLObject, usually specified by a subclass.
-     */
-    public static enum Type {
-        /**
-         * A texture is an image that is applied to geometry.
-         */
-        Texture,
-
-        /**
-         * Vertex buffers are used to describe geometry data and it's attributes.
-         */
-        VertexBuffer,
-
-        /**
-         * ShaderSource is a shader source code that controls the output of
-         * a certain rendering pipeline, like vertex position or fragment color.
-         */
-        ShaderSource,
-
-        /**
-         * A Shader is an aggregation of ShaderSources, collectively
-         * they cooperate to control the vertex and fragment processor.
-         */
-        Shader,
-
-        /**
-         * FrameBuffer is an offscreen surface which can be rendered to.
-         * Can be used to create "Render-to-Texture" effects and
-         * scene post processing.
-         */
-        FrameBuffer,
-    }
+    protected final Class<?> type;
 
     /**
      * Creates a new GLObject with the given type. Should be
@@ -105,7 +74,7 @@ public abstract class GLObject implements Cloneable {
      * 
      * @param type The type that the subclass represents.
      */
-    public GLObject(Type type){
+    public NativeObject(Class<?> type){
         this.type = type;
         this.handleRef = new Object();
     }
@@ -114,7 +83,7 @@ public abstract class GLObject implements Cloneable {
      * Protected constructor that doesn't allocate handle ref.
      * This is used in subclasses for the createDestructableClone().
      */
-    protected GLObject(Type type, int id){
+    protected NativeObject(Class<?> type, int id){
         this.type = type;
         this.id = id;
     }
@@ -163,7 +132,7 @@ public abstract class GLObject implements Cloneable {
 
     @Override
     public String toString(){
-        return type.name() + " " + Integer.toHexString(hashCode());
+        return "Native" + type.getSimpleName() + " " + id;
     }
 
     /**
@@ -171,9 +140,9 @@ public abstract class GLObject implements Cloneable {
      * createDestructableClone().
      */
     @Override
-    protected GLObject clone(){
+    protected NativeObject clone(){
         try{
-            GLObject obj = (GLObject) super.clone();
+            NativeObject obj = (NativeObject) super.clone();
             obj.handleRef = new Object();
             obj.id = -1;
             obj.updateNeeded = true;
@@ -195,11 +164,11 @@ public abstract class GLObject implements Cloneable {
      * 
      * @param r The renderer to be used to delete the object
      */
-    public abstract void deleteObject(Renderer r);
+    public abstract void deleteObject(Object rendererObject);
 
     /**
      * Creates a shallow clone of this GL Object. The deleteObject method
      * should be functional for this object.
      */
-    public abstract GLObject createDestructableClone();
+    public abstract NativeObject createDestructableClone();
 }

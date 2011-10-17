@@ -37,7 +37,7 @@ import com.jme3.export.JmeImporter;
 import com.jme3.export.InputCapsule;
 import com.jme3.export.OutputCapsule;
 import com.jme3.export.Savable;
-import com.jme3.renderer.GLObject;
+import com.jme3.util.NativeObject;
 import com.jme3.renderer.Renderer;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.util.IntMap;
@@ -48,7 +48,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 
-public final class Shader extends GLObject implements Savable {
+public final class Shader extends NativeObject implements Savable {
 
     private String language;
 
@@ -98,7 +98,7 @@ public final class Shader extends GLObject implements Savable {
      * Shader source describes a shader object in OpenGL. Each shader source
      * is assigned a certain pipeline which it controls (described by it's type).
      */
-    public static class ShaderSource extends GLObject implements Savable {
+    public static class ShaderSource extends NativeObject implements Savable {
 
         ShaderType shaderType;
 
@@ -108,14 +108,14 @@ public final class Shader extends GLObject implements Savable {
         String defines = null;
 
         public ShaderSource(ShaderType type){
-            super(Type.ShaderSource);
+            super(ShaderSource.class);
             this.shaderType = type;
             if (type == null)
                 throw new NullPointerException("The shader type must be specified");
         }
         
         protected ShaderSource(ShaderSource ss){
-            super(Type.ShaderSource, ss.id);
+            super(ShaderSource.class, ss.id);
             this.shaderType = ss.shaderType;
             usable = false;
             name = ss.name;
@@ -123,7 +123,7 @@ public final class Shader extends GLObject implements Savable {
         }
 
         public ShaderSource(){
-            super(Type.ShaderSource);
+            super(ShaderSource.class);
         }
 
         public void write(JmeExporter ex) throws IOException{
@@ -205,11 +205,11 @@ public final class Shader extends GLObject implements Savable {
             setUpdateNeeded();
         }
 
-        public void deleteObject(Renderer r){
-            r.deleteShaderSource(ShaderSource.this);
+        public void deleteObject(Object rendererObject){
+            ((Renderer)rendererObject).deleteShaderSource(ShaderSource.this);
         }
 
-        public GLObject createDestructableClone(){
+        public NativeObject createDestructableClone(){
             return new ShaderSource(ShaderSource.this);
         }
     }
@@ -218,7 +218,7 @@ public final class Shader extends GLObject implements Savable {
      * Create an empty shader.
      */
     public Shader(String language){
-        super(Type.Shader);
+        super(Shader.class);
         this.language = language;
         shaderList = new ArrayList<ShaderSource>();
 //        uniforms = new HashMap<String, Uniform>();
@@ -230,11 +230,11 @@ public final class Shader extends GLObject implements Savable {
      * Do not use this constructor. Serialization purposes only.
      */
     public Shader(){
-        super(Type.Shader);
+        super(Shader.class);
     }
 
     protected Shader(Shader s){
-        super(Type.Shader, s.id);
+        super(Shader.class, s.id);
         shaderList = new ArrayList<ShaderSource>();
         //uniforms = new ListMap<String, Uniform>();
         //attribs = new IntMap<Attribute>();
@@ -436,11 +436,11 @@ public final class Shader extends GLObject implements Savable {
     }
 
     @Override
-    public void deleteObject(Renderer r) {
-        r.deleteShader(this);
+    public void deleteObject(Object rendererObject) {
+        ((Renderer)rendererObject).deleteShader(this);
     }
 
-    public GLObject createDestructableClone(){
+    public NativeObject createDestructableClone(){
         return new Shader(this);
     }
 
