@@ -36,6 +36,7 @@ import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.InputCapsule;
 import com.jme3.export.OutputCapsule;
+import com.jme3.util.NativeObject;
 import java.io.IOException;
 
 public class LowPassFilter extends Filter {
@@ -43,8 +44,13 @@ public class LowPassFilter extends Filter {
     protected float volume, highFreqVolume;
 
     public LowPassFilter(float volume, float highFreqVolume) {
+        super();
         setVolume(volume);
         setHighFreqVolume(highFreqVolume);
+    }
+    
+    protected LowPassFilter(int id){
+        super(id);
     }
 
     public float getHighFreqVolume() {
@@ -84,6 +90,11 @@ public class LowPassFilter extends Filter {
         InputCapsule ic = im.getCapsule(this);
         volume = ic.readFloat("volume", 0);
         highFreqVolume = ic.readFloat("hf_volume", 0);
+    }
+
+    @Override
+    public NativeObject createDestructableClone() {
+        return new LowPassFilter(id);
     }
 
 }

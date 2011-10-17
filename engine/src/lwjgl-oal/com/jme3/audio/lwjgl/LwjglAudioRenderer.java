@@ -46,6 +46,7 @@ import com.jme3.audio.Listener;
 import com.jme3.audio.LowPassFilter;
 import com.jme3.math.Vector3f;
 import com.jme3.util.BufferUtils;
+import com.jme3.util.NativeObjectManager;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
@@ -68,6 +69,8 @@ public class LwjglAudioRenderer implements AudioRenderer, Runnable {
 
     private static final Logger logger = Logger.getLogger(LwjglAudioRenderer.class.getName());
 
+    private final NativeObjectManager objManager = new NativeObjectManager();
+    
     // When multiplied by STREAMING_BUFFER_COUNT, will equal 44100 * 2 * 2
     // which is exactly 1 second of audio.
     private static final int BUFFER_SIZE = 35280;
@@ -228,7 +231,7 @@ public class LwjglAudioRenderer implements AudioRenderer, Runnable {
             EFX10.alEffecti(reverbFx, EFX10.AL_EFFECT_TYPE, EFX10.AL_EFFECT_REVERB);
 
             // attach reverb effect to effect slot
-//            EFX10.alAuxiliaryEffectSloti(reverbFxSlot, EFX10.AL_EFFECTSLOT_EFFECT, reverbFx);
+            EFX10.alAuxiliaryEffectSloti(reverbFxSlot, EFX10.AL_EFFECTSLOT_EFFECT, reverbFx);
         }else{
             logger.log(Level.WARNING, "OpenAL EFX not available! Audio effects won't work.");
         }
@@ -252,19 +255,22 @@ public class LwjglAudioRenderer implements AudioRenderer, Runnable {
         ib.put(channels);
         ib.flip();
         alDeleteSources(ib);
+        
+        // delete audio buffers and filters
+        objManager.deleteAllObjects(this);
 
         if (supportEfx){
             ib.position(0).limit(1);
             ib.put(0, reverbFx);
             EFX10.alDeleteEffects(ib);
 
+            // If this is not allocated, why is it deleted?
+            // Commented out to fix native crash in OpenAL.
             ib.position(0).limit(1);
             ib.put(0, reverbFxSlot);
             EFX10.alDeleteAuxiliaryEffectSlots(ib);
         }
 
-        // TODO: Cleanup buffers allocated for audio buffers and streams
-        
         AL.destroy();
     }
 
@@ -282,6 +288,8 @@ public class LwjglAudioRenderer implements AudioRenderer, Runnable {
             EFX10.alGenFilters(ib);
             id = ib.get(0);
             f.setId(id);
+            
+            objManager.registerForCleanup(f);
         }
 
         if (f instanceof LowPassFilter){
@@ -296,7 +304,7 @@ public class LwjglAudioRenderer implements AudioRenderer, Runnable {
 
         f.clearUpdateNeeded();
     }
-
+    
     public void updateSourceParam(AudioNode src, AudioParam param){
         checkDead();
         synchronized (threadLock){
@@ -792,6 +800,9 @@ public class LwjglAudioRenderer implements AudioRenderer, Runnable {
                 }
             }
         }
+        
+        // Delete any unused objects.
+        objManager.deleteUnused(this);
     }
 
     public void setListener(Listener listener) {
@@ -983,6 +994,8 @@ public class LwjglAudioRenderer implements AudioRenderer, Runnable {
             alGenBuffers(ib);
             id = ib.get(0);
             ab.setId(id);
+            
+            objManager.registerForCleanup(ab);
         }
 
         ab.getData().clear();
@@ -1001,6 +1014,10 @@ public class LwjglAudioRenderer implements AudioRenderer, Runnable {
         ib.position(0).limit(STREAMING_BUFFER_COUNT);        
         ib.get(ids);
         
+        // Not registered with object manager.
+        // AudioStreams can be handled without object manager
+        // since their lifecycle is known to the audio renderer.
+        
         as.setIds(ids);
         as.clearUpdateNeeded();
     }
@@ -1010,6 +1027,13 @@ public class LwjglAudioRenderer implements AudioRenderer, Runnable {
             updateAudioBuffer((AudioBuffer) ad);
         }else if (ad instanceof AudioStream){
             updateAudioStream((AudioStream) ad);
+        }
+    }
+    
+    public void deleteFilter(Filter filter) {
+        int id = filter.getId();
+        if (id != -1){
+            EFX10.alDeleteFilters(id);
         }
     }
 

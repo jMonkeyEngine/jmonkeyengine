@@ -3,12 +3,20 @@ package com.jme3.audio.android;
 import com.jme3.asset.AssetKey;
 import com.jme3.audio.AudioData;
 import com.jme3.audio.AudioRenderer;
+import com.jme3.util.NativeObject;
 
-public class AndroidAudioData extends AudioData 
-{
+public class AndroidAudioData extends AudioData {
+
     protected AssetKey assetKey;
-    protected int soundId = 0;
     protected float currentVolume = 0f;
+
+    public AndroidAudioData(){
+        super();
+    }
+    
+    protected AndroidAudioData(int id){
+        super(id);
+    }
     
     public AssetKey getAssetKey() {
         return assetKey;
@@ -18,35 +26,25 @@ public class AndroidAudioData extends AudioData
         this.assetKey = assetKey;
     }
 
-    public int getSoundId() {
-        return soundId;
-    }
-
-    public void setSoundId(int soundId) {
-        this.soundId = soundId;
-    }
-
     @Override
     public DataType getDataType() {
-        // TODO Auto-generated method stub
-        return null;
+        return DataType.Buffer;
     }
 
     @Override
     public float getDuration() {
-        // TODO Auto-generated method stub
-        return 0;
+        return 0; // TODO: ???
     }
 
     @Override
     public void resetObject() {
-        // TODO Auto-generated method stub
-        
+        this.id = -1;
+        setUpdateNeeded();  
     }
 
     @Override
-    public void deleteObject(AudioRenderer r) {
-        r.deleteAudioData(this);        
+    public void deleteObject(Object rendererObject) {
+        ((AudioRenderer)rendererObject).deleteAudioData(this);
     }
 
     public float getCurrentVolume() {
@@ -56,7 +54,9 @@ public class AndroidAudioData extends AudioData
     public void setCurrentVolume(float currentVolume) {
         this.currentVolume = currentVolume;
     }
-    
-    
 
+    @Override
+    public NativeObject createDestructableClone() {
+        return new AndroidAudioData(id);
+    }
 }

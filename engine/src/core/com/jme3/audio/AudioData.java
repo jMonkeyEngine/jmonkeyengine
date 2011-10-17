@@ -32,6 +32,8 @@
 
 package com.jme3.audio;
 
+import com.jme3.util.NativeObject;
+
 /**
  * <code>AudioData</code> is an abstract representation
  * of audio data. There are two ways to handle audio data, short audio files
@@ -40,7 +42,7 @@ package com.jme3.audio;
  *
  * @author Kirill Vainer
  */
-public abstract class AudioData extends ALObject {
+public abstract class AudioData extends NativeObject {
 
     protected int sampleRate;
     protected int channels;
@@ -50,7 +52,15 @@ public abstract class AudioData extends ALObject {
         Buffer,
         Stream
     }
+    
+    public AudioData(){
+        super(AudioData.class);
+    }
 
+    protected AudioData(int id){
+        super(AudioData.class, id);
+    }
+    
     /**
      * @return The data type, either <code>Buffer</code> or <code>Stream</code>.
      */

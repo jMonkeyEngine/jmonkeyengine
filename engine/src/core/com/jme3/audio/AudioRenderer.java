@@ -61,6 +61,7 @@ public interface AudioRenderer {
     public void updateSourceParam(AudioNode src, AudioParam param);
     public void updateListenerParam(Listener listener, ListenerParam param);
 
+    public void deleteFilter(Filter filter);
     public void deleteAudioData(AudioData ad);
 
     /**

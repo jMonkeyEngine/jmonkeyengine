@@ -33,6 +33,7 @@
 package com.jme3.audio;
 
 import com.jme3.audio.AudioData.DataType;
+import com.jme3.util.NativeObject;
 import java.nio.ByteBuffer;
 
 /**
@@ -51,6 +52,11 @@ public class AudioBuffer extends AudioData {
     protected ByteBuffer audioData;
 
     public AudioBuffer(){
+        super();
+    }
+    
+    protected AudioBuffer(int id){
+        super(id);
     }
 
     public DataType getDataType() {
@@ -98,7 +104,17 @@ public class AudioBuffer extends AudioData {
     }
 
     public void deleteObject(AudioRenderer ar) {
-        ar.deleteAudioData(this);
+        
+    }
+
+    @Override
+    public void deleteObject(Object rendererObject) {
+        ((AudioRenderer)rendererObject).deleteAudioData(this);
+    }
+
+    @Override
+    public NativeObject createDestructableClone() {
+        return new AudioBuffer(id);
     }
 
 }

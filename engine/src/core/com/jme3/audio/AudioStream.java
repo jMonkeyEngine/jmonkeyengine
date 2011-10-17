@@ -32,6 +32,7 @@
 
 package com.jme3.audio;
 
+import com.jme3.util.NativeObject;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
@@ -52,6 +53,16 @@ public class AudioStream extends AudioData implements Closeable{
     protected int[] ids;
 
     public AudioStream(){
+        super();
+    }
+    
+    protected AudioStream(int[] ids){
+        // Pass some dummy ID so handle
+        // doesn't get created.
+        super(-1);
+        
+        // This is what gets destroyed in reality
+        this.ids = ids;
     }
 
     public void updateData(InputStream in, float duration){
@@ -142,10 +153,17 @@ public class AudioStream extends AudioData implements Closeable{
     }
 
     @Override
-    public void deleteObject(AudioRenderer r) {
-        r.deleteAudioData(this);
+    public void deleteObject(Object rendererObject) {
+        // It seems that the audio renderer is already doing a good
+        // job at deleting audio streams when they finish playing.
+//        ((AudioRenderer)rendererObject).deleteAudioData(this);
     }
 
+    @Override
+    public NativeObject createDestructableClone() {
+        return new AudioStream(ids);
+    }
+    
     /**
      * @return Whether the stream is open or not. Reading from a closed
      * stream will always return eof.

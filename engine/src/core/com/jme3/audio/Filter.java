@@ -35,29 +35,19 @@ package com.jme3.audio;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.Savable;
+import com.jme3.util.NativeObject;
 import java.io.IOException;
 
-public class Filter implements Savable {
+public abstract class Filter extends NativeObject implements Savable {
 
-    protected int id = -1;
-    protected boolean updateNeeded = true;
-
-    public int getId() {
-        return id;
+    public Filter(){
+        super(Filter.class);
     }
-
-    public void setId(int id) {
-        this.id = id;
+    
+    protected Filter(int id){
+        super(Filter.class, id);
     }
-
-    public void clearUpdateNeeded(){
-        this.updateNeeded = false;
-    }
-
-    public boolean isUpdateNeeded() {
-        return updateNeeded;
-    }
-
+    
     public void write(JmeExporter ex) throws IOException {
         // nothing to save
     }
@@ -65,5 +55,19 @@ public class Filter implements Savable {
     public void read(JmeImporter im) throws IOException {
         // nothing to read
     }
+
+    @Override
+    public void resetObject() {
+        this.id = -1;
+        setUpdateNeeded();
+    }
+
+    @Override
+    public void deleteObject(Object rendererObject) {
+        ((AudioRenderer)rendererObject).deleteFilter(this);
+    }
+
+    @Override
+    public abstract NativeObject createDestructableClone();
 
 }

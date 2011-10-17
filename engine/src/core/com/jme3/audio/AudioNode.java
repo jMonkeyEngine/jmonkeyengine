@@ -64,7 +64,7 @@ public class AudioNode extends Node {
     protected float pitch = 1;
     protected float timeOffset = 0;
     protected Filter dryFilter;
-    protected AudioKey key;
+    protected AudioKey audioKey;
     protected transient AudioData data = null;
     protected transient volatile Status status = Status.Stopped;
     protected transient volatile int channel = -1;
@@ -123,22 +123,22 @@ public class AudioNode extends Node {
      * 
      * @param audioRenderer The audio renderer to use for playing. Cannot be null.
      * @param audioData The audio data contains the audio track to play.
-     * @param key The audio key that was used to load the AudioData
+     * @param audioKey The audio key that was used to load the AudioData
      *
      * @deprecated AudioRenderer parameter is ignored.
      */
-    public AudioNode(AudioRenderer audioRenderer, AudioData audioData, AudioKey key) {
-        setAudioData(audioData, key);
+    public AudioNode(AudioRenderer audioRenderer, AudioData audioData, AudioKey audioKey) {
+        setAudioData(audioData, audioKey);
     }
 
     /**
      * Creates a new <code>AudioNode</code> with the given data and key.
      * 
      * @param audioData The audio data contains the audio track to play.
-     * @param key The audio key that was used to load the AudioData
+     * @param audioKey The audio key that was used to load the AudioData
      */
-    public AudioNode(AudioData audioData, AudioKey key) {
-        setAudioData(audioData, key);
+    public AudioNode(AudioData audioData, AudioKey audioKey) {
+        setAudioData(audioData, audioKey);
     }
 
     /**
@@ -157,8 +157,8 @@ public class AudioNode extends Node {
      * @deprecated AudioRenderer parameter is ignored.
      */
     public AudioNode(AudioRenderer audioRenderer, AssetManager assetManager, String name, boolean stream, boolean streamCache) {
-        this.key = new AudioKey(name, stream, streamCache);
-        this.data = (AudioData) assetManager.loadAsset(key);
+        this.audioKey = new AudioKey(name, stream, streamCache);
+        this.data = (AudioData) assetManager.loadAsset(audioKey);
     }
 
     /**
@@ -174,8 +174,8 @@ public class AudioNode extends Node {
      * seeking, looping and determining duration.
      */
     public AudioNode(AssetManager assetManager, String name, boolean stream, boolean streamCache) {
-        this.key = new AudioKey(name, stream, streamCache);
-        this.data = (AudioData) assetManager.loadAsset(key);
+        this.audioKey = new AudioKey(name, stream, streamCache);
+        this.data = (AudioData) assetManager.loadAsset(audioKey);
     }
     
     /**
@@ -309,15 +309,15 @@ public class AudioNode extends Node {
      * without an {@link AudioData}.
      * 
      * @param audioData The audio data contains the audio track to play.
-     * @param key The audio key that was used to load the AudioData
+     * @param audioKey The audio key that was used to load the AudioData
      */
-    public void setAudioData(AudioData audioData, AudioKey key) {
+    public void setAudioData(AudioData audioData, AudioKey audioKey) {
         if (data != null) {
             throw new IllegalStateException("Cannot change data once its set");
         }
 
         data = audioData;
-        this.key = key;
+        this.audioKey = audioKey;
     }
 
     /**
@@ -713,7 +713,7 @@ public class AudioNode extends Node {
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
         OutputCapsule oc = ex.getCapsule(this);
-        oc.write(key, "key", null);
+        oc.write(audioKey, "audio_key", null);
         oc.write(loop, "looping", false);
         oc.write(volume, "volume", 1);
         oc.write(pitch, "pitch", 1);
@@ -738,7 +738,16 @@ public class AudioNode extends Node {
     public void read(JmeImporter im) throws IOException {
         super.read(im);
         InputCapsule ic = im.getCapsule(this);
-        key = (AudioKey) ic.readSavable("key", null);
+        
+        // NOTE: In previous versions of jME3, audioKey was actually
+        // written with the name "key". This has been changed
+        // to "audio_key" in case Spatial's key will be written as "key".
+        if (ic.getSavableVersion(AudioNode.class) == 0){
+            audioKey = (AudioKey) ic.readSavable("key", null);
+        }else{
+            audioKey = (AudioKey) ic.readSavable("audio_key", null);
+        }
+        
         loop = ic.readBoolean("looping", false);
         volume = ic.readFloat("volume", 1);
         pitch = ic.readFloat("pitch", 1);
@@ -758,8 +767,9 @@ public class AudioNode extends Node {
         
         positional = ic.readBoolean("positional", false);
         
-        if (key != null)
-            data = im.getAssetManager().loadAudio(key);
+        if (audioKey != null) {
+            data = im.getAssetManager().loadAudio(audioKey);
+        }
     }
 
     @Override
