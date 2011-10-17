@@ -11,9 +11,9 @@ import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
-import com.jme3.math.FastMath;
 import com.jme3.math.Quaternion;
 import com.jme3.scene.Spatial;
+import com.jme3.util.TempVars;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -25,8 +25,8 @@ import java.util.logging.Logger;
 public class RotationTrack extends AbstractCinematicEvent {
 
     private static final Logger log = Logger.getLogger(RotationTrack.class.getName());
-    private float[] startRotation;
-    private float[] endRotation;
+    private Quaternion startRotation = new Quaternion();
+    private Quaternion endRotation = new Quaternion();
     private Spatial spatial;
     private String spatialName = "";
     private float value = 0;
@@ -46,29 +46,29 @@ public class RotationTrack extends AbstractCinematicEvent {
     public RotationTrack() {
     }
 
-    public RotationTrack(Spatial spatial, float[] endRotation) {
-        this.endRotation = endRotation;
+    public RotationTrack(Spatial spatial, Quaternion endRotation) {
+        this.endRotation.set(endRotation);
         this.spatial = spatial;
         spatialName = spatial.getName();
     }
 
-    public RotationTrack(Spatial spatial, float[] endRotation, float initialDuration, LoopMode loopMode) {
+    public RotationTrack(Spatial spatial, Quaternion endRotation, float initialDuration, LoopMode loopMode) {
         super(initialDuration, loopMode);
-        this.endRotation = endRotation;
+        this.endRotation.set(endRotation);
         this.spatial = spatial;
         spatialName = spatial.getName();
     }
 
-    public RotationTrack(Spatial spatial, float[] endRotation, LoopMode loopMode) {
+    public RotationTrack(Spatial spatial, Quaternion endRotation, LoopMode loopMode) {
         super(loopMode);
-        this.endRotation = endRotation;
+        this.endRotation.set(endRotation);
         this.spatial = spatial;
         spatialName = spatial.getName();
     }
 
-    public RotationTrack(Spatial spatial, float[] endRotation, float initialDuration) {
+    public RotationTrack(Spatial spatial, Quaternion endRotation, float initialDuration) {
         super(initialDuration);
-        this.endRotation = endRotation;
+        this.endRotation.set(endRotation);
         this.spatial = spatial;
         spatialName = spatial.getName();
     }
@@ -76,10 +76,10 @@ public class RotationTrack extends AbstractCinematicEvent {
     @Override
     public void onPlay() {
         if (playState != playState.Paused) {
-            startRotation = spatial.getWorldRotation().toAngles(null);
+            startRotation.set(spatial.getWorldRotation());
         }
         if (duration == 0 && spatial != null) {
-            spatial.setLocalRotation(new Quaternion().fromAngles(endRotation));
+            spatial.setLocalRotation(endRotation);
             stop();
         }
     }
@@ -88,11 +88,12 @@ public class RotationTrack extends AbstractCinematicEvent {
     public void onUpdate(float tpf) {
         if (spatial != null) {
             value += Math.min(tpf * speed / duration, 1.0f);
-            float[] rot = new float[3];
-            rot[0] = FastMath.interpolateLinear(value, startRotation[0], endRotation[0]);
-            rot[1] = FastMath.interpolateLinear(value, startRotation[1], endRotation[1]);
-            rot[2] = FastMath.interpolateLinear(value, startRotation[2], endRotation[2]);
-            spatial.setLocalRotation(new Quaternion().fromAngles(rot));
+            TempVars vars = TempVars.get();
+            Quaternion q = vars.quat1;
+            q.set(startRotation).slerp(endRotation, value);
+
+            spatial.setLocalRotation(q);
+            vars.release();
         }
     }
 
@@ -118,6 +119,6 @@ public class RotationTrack extends AbstractCinematicEvent {
         super.read(im);
         InputCapsule ic = im.getCapsule(this);
         spatialName = ic.readString("spatialName", "");
-        endRotation = ic.readFloatArray("endRotation", null);
+        endRotation = (Quaternion) ic.readSavable("endRotation", null);
     }
 }

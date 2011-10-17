@@ -53,6 +53,7 @@ import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
+import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.post.FilterPostProcessor;
 import com.jme3.post.filters.FadeFilter;
@@ -123,13 +124,14 @@ public class TestCinematic extends SimpleApplication {
         });
         cinematic.addCinematicEvent(0, new PositionTrack(teapot, new Vector3f(10, 0, 10), 0));
         cinematic.addCinematicEvent(0, new ScaleTrack(teapot, new Vector3f(1, 1, 1), 0));
-        float[] rotation = {0, 0, 0};
-        cinematic.addCinematicEvent(0, new RotationTrack(teapot, rotation, 0));
+        Quaternion q = new Quaternion();
+        q.loadIdentity();
+        cinematic.addCinematicEvent(0, new RotationTrack(teapot, q, 0));
 
         cinematic.addCinematicEvent(0, new PositionTrack(teapot, new Vector3f(10, 0, -10), 20));
         cinematic.addCinematicEvent(0, new ScaleTrack(teapot, new Vector3f(4, 4, 4), 10));
         cinematic.addCinematicEvent(10, new ScaleTrack(teapot, new Vector3f(1, 1, 1), 10));
-        float[] rotation2 = {0, FastMath.TWO_PI, 0};
+        Quaternion rotation2 = new Quaternion().fromAngleAxis(FastMath.PI, Vector3f.UNIT_Y);
         cinematic.addCinematicEvent(0, new RotationTrack(teapot, rotation2, 20));
 
         cinematic.activateCamera(0, "aroundCam");
