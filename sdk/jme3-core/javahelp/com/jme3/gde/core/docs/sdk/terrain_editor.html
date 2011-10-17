@@ -1,74 +1,227 @@
-<h1><a
-name="overview">Overview</a></h1><div
-class="level1"><p> The terrain lets you create, modify, and paint terrain.</p></div><h1><a
-name="controls">Controls</a></h1><div
-class="level1"><p> Terrain controls are the same as the Scene Composer, you rotate the camera with the left mouse button and pan the camera with the right mouse button. Until you select one of the terrain tools in the toolbar, then the controls change for that tool. Then left mouse button will use that tool: painting, raising/lowering terrain, etc. The right mouse button might do something, depending on the tool.</p></div><h1><a
-name="add_light_to_your_scene">Add light to your scene</a></h1><div
-class="level1"><p> In order to see the terrain, you will need to add light to your scene. To do this you will need to head to the Scene Composer:<br/> <a
-href="/wiki/lib/exe/detail.php/sdk:tut-selectscenecomposer.png?id=sdk%3Aterrain_editor"><img
-src="nbdocs:/com/jme3/gde/core/docs/sdk/tut-selectscenecomposer.png" class="media" alt="" /></a><br/> Then, from the Palette list, select &#039;Directional Light&#039;<br/> <a
-href="/wiki/lib/exe/detail.php/sdk:tut-scenecomposerdirlight.png?id=sdk%3Aterrain_editor"><img
-src="nbdocs:/com/jme3/gde/core/docs/sdk/tut-scenecomposerdirlight.png" class="media" alt="" /></a><br/> Then, hit the &#039;add selected item&#039; button.<br/> <a
-href="/wiki/lib/exe/detail.php/sdk:tut-scenecomposeradd.png?id=sdk%3Aterrain_editor"><img
-src="nbdocs:/com/jme3/gde/core/docs/sdk/tut-scenecomposeradd.png" class="media" alt="" /></a><br/> Save your scene.<br/> You now have light in your scene and will be able to see your terrain.</p></div><h1><a
-name="creating_terrain">Creating Terrain</a></h1><div
-class="level1"><p> To create terrain, first select a node (probably your root node) in your scene.<br/> <a
-href="/wiki/lib/exe/detail.php/sdk:tut-selectnode.png?id=sdk%3Aterrain_editor"><img
-src="nbdocs:/com/jme3/gde/core/docs/sdk/tut-selectnode.png" class="media" alt="" /></a><br/> Then click the add terrain button.<br/> <a
-href="/wiki/lib/exe/detail.php/sdk:tut-addterrain.png?id=sdk%3Aterrain_editor"><img
-src="nbdocs:/com/jme3/gde/core/docs/sdk/tut-addterrain.png" class="media" alt="" /></a><br/> This will pop up the Create Terrain wizard that will walk you through the steps for creating terrain. Make sure you decide now how large you want your terrain to be and how detailed you want the textures to be as you cannot change it later on!</p></div><h5><a
-name="step_1terrain_size">Step 1: Terrain Size</a></h5><div
-class="level5"><p> Here you determine the size of your terrain, the total size and the patch size. You should probably leave the patch size alone. But the total size should be defined; this is how big your terrain is.</p></div><h5><a
-name="step_2heightmap">Step 2: Heightmap</a></h5><div
-class="level5"><p> Here you can select a heightmap generation technique to give you a default/random look of the terrain. You can also select a heightmap image to pre-define how your terrain looks.
-By default, it will give you a flat terrain.</p></div><h5><a
-name="step_3alpha_image_detail">Step 3: Alpha Image Detail</a></h5><div
-class="level5"><p> This step determines how large the alpha blend images are for your terrain.  The smaller the alpha image, the less detailed you can paint the terrain. Play around with this to see how big you need it to be. Remember that terrain does not have to be that detailed, and is often covered by vegetation, rocks, and other items. So having a really detailed texture is not always necessary.</p></div><h1><a
-name="modifying_terrain">Modifying Terrain</a></h1><div
-class="level1"><p> Right now there are two terrain modification tools: raise and lower terrain.<br/> <a
-href="/wiki/lib/exe/detail.php/sdk:terrain-raise-lower.png?id=sdk%3Aterrain_editor"><img
-src="nbdocs:/com/jme3/gde/core/docs/sdk/terrain-raise-lower.png" class="media" alt="" /></a><br/> There are two sliders that affect how these tools operate:</p><ul><li
-class="level1"><div
-class="li"> Radius: how big the brush is</div></li><li
-class="level1"><div
-class="li"> Weight/Height: how much impact the brush has</div></li></ul><p> Once a tool is selected, you will see the tool marker (now an ugly wire sphere) on the map where your mouse is. Click and drag on the terrain to see the tool change the height of the terrain.</p></div><h1><a
-name="painting_terrain">Painting Terrain</a></h1><div
-class="level1"><p> Your terrain comes with one diffuse default texture, and you can have up to 12 total diffuse textures. It also allows you to add normal maps to each texture layer.
+
+<h1><a>Overview</a></h1>
+<div>
+
+<p>
+The terrain editor lets you create, modify, and paint terrain.
+
+</p>
+
+</div>
+
+<h1><a>Controls</a></h1>
+<div>
+
+<p>
+Terrain controls are the same as the Scene Composer, you rotate the camera with the left mouse button and pan the camera with the right mouse button. Until you select one of the terrain tools in the toolbar, then the controls change for that tool. Then left mouse button will use that tool: painting, raising/lowering terrain, etc. The right mouse button might do something, depending on the tool.
+
+</p>
+
+</div>
+
+<h1><a>Creating Terrain</a></h1>
+<div>
+
+<p>
+To create terrain, first select a node (probably your root node) in your scene.<br/>
+
+<img src="nbdocs:/com/jme3/gde/core/docs/sdk/sdk-terrain-tut-selectnode.png"><br/>
+
+Then click the add terrain button.<br/>
+
+<img src="nbdocs:/com/jme3/gde/core/docs/sdk/sdk-terrain-tut-addterrain.png"><br/>
+
+This will pop up the Create Terrain wizard that will walk you through the steps for creating terrain. Make sure you decide now how large you want your terrain to be and how detailed you want the textures to be as you cannot change it later on!
+</p>
+
+<p>
+In order to see the terrain, you will need to add light to your scene. To do this right-click the root node in the SceneExplorer window and select &quot;Add Light→Directional Light&quot;
+
+</p>
+
+</div>
+
+<h5><a>Step 1: Terrain Size</a></h5>
+<div>
+
+<p>
+Here you determine the size of your terrain, the total size and the patch size. You should probably leave the patch size alone. But the total size should be defined; this is how big your terrain is.
+
+</p>
+
+</div>
+
+<h5><a>Step 2: Heightmap</a></h5>
+<div>
+
+<p>
+Here you can select a heightmap generation technique to give you a default/random look of the terrain. You can also select a heightmap image to pre-define how your terrain looks.
+By default, it will give you a flat terrain.
+
+</p>
+
+</div>
+
+<h5><a>Step 3: Alpha Image Detail</a></h5>
+<div>
+
+<p>
+This step determines how large the alpha blend images are for your terrain.  The smaller the alpha image, the less detailed you can paint the terrain. Play around with this to see how big you need it to be. Remember that terrain does not have to be that detailed, and is often covered by vegetation, rocks, and other items. So having a really detailed texture is not always necessary.
+
+</p>
+
+</div>
+
+<h1><a>Modifying Terrain</a></h1>
+<div>
+
+<p>
+Right now there are two terrain modification tools: raise and lower terrain.<br/>
+
+<img src="nbdocs:/com/jme3/gde/core/docs/sdk/sdk-terrain-raise-lower.png"><br/>
+
+There are two sliders that affect how these tools operate:
+</p>
+<ul>
+<li><div> Radius: how big the brush is</div>
+</li>
+<li><div> Weight/Height: how much impact the brush has</div>
+</li>
+</ul>
+
+<p>
+Once a tool is selected, you will see the tool marker (now an ugly wire sphere) on the map where your mouse is. Click and drag on the terrain to see the tool change the height of the terrain.
+
+</p>
+
+</div>
+
+<h1><a>Painting Terrain</a></h1>
+<div>
+
+<p>
+Your terrain comes with one diffuse default texture, and you can have up to 12 total diffuse textures. It also allows you to add normal maps to each texture layer. There can be a maximum of 13 textures, including Diffuse and Normal (3 textures are taken up by alpha maps).
 All of the textures can be controlled in the Texture Layer table by clicking on the textures.
-There are two sliders that affect how the paint tool operates:</p><ul><li
-class="level1"><div
-class="li"> Radius: how big the brush is</div></li><li
-class="level1"><div
-class="li"> Weight/Height: how much impact the brush has</div></li></ul></div><h5><a
-name="adding_a_new_texture_layer">Adding a new texture layer</a></h5><div
-class="level5"><p> Adds a new texture layer to the terrain. The will be drawn over top of the other texture layers listed above it in the list.<br/> <a
-href="/wiki/lib/exe/detail.php/sdk:terrain-addtexture.png?id=sdk%3Aterrain_editor"><img
-src="nbdocs:/com/jme3/gde/core/docs/sdk/terrain-addtexture.png" class="media" alt="" /></a><br/></p></div><h5><a
-name="changing_the_diffuse_texture">Changing the diffuse texture</a></h5><div
-class="level5"><p> Click on the diffuse texture image in the texture table. This will pop up a window with the available textures in your assets directory.<br/> <a
-href="/wiki/lib/exe/detail.php/sdk:terrain-editdiffuse.png?id=sdk%3Aterrain_editor"><img
-src="nbdocs:/com/jme3/gde/core/docs/sdk/terrain-editdiffuse.png" class="media" alt="" /></a><br/></p></div><h5><a
-name="adding_a_normal_map_to_the_texture_layer">Adding a normal map to the texture layer</a></h5><div
-class="level5"><p> When you add a texture layer, by default it does not add a normal map for you. To add one, click on the button next to the diffuse texture for that texture layer. This will pop up the texture browser. Select a texture and hit Ok, and you are done.<br/> <a
-href="/wiki/lib/exe/detail.php/sdk:terrain-addnormaltexture.png?id=sdk%3Aterrain_editor"><img
-src="nbdocs:/com/jme3/gde/core/docs/sdk/terrain-addnormaltexture.png" class="media" alt="" /></a><br/></p></div><h5><a
-name="removing_a_normal_map_from_the_texture_layer">Removing a normal map from the texture layer</a></h5><div
-class="level5"><p> To remove a normal map from the texture layer, hit the normal map button for that texture layer again, and deselect the texture. Then hit Ok and the texture should be removed.</p></div><h5><a
-name="changing_the_texture_scale">Changing the texture scale</a></h5><div
-class="level5"><p> The field in the table to the right of the diffuse and normal textures for your texture layer is the scale. Changing that value changes the scale of the texture.<br/> <a
-href="/wiki/lib/exe/detail.php/sdk:terrain-texturescale.png?id=sdk%3Aterrain_editor"><img
-src="nbdocs:/com/jme3/gde/core/docs/sdk/terrain-texturescale.png" class="media" alt="" /></a><br/> You will notice that the scale changes when you switch between Tri-Planar and normal texture mapping. Tri-planar mapping does not use the texture coordinates of the geometry, but real world coordinates. And because of this, in order for the texture to look the same when you switch between the two texture mapping methods, the terrain editor will automatically convert the scales for you.
-Essentially if your scale in normal texture coordinates is 16, then for tri-planar gets converted like this: 1/terrainSize/16</p></div><h5><a
-name="tri-planar_texture_mapping">Tri-planar texture mapping</a></h5><div
-class="level5"><p> Tri-planar texture mapping is recommended if you have lots of near-vertical terrain. With normal texture mapping the textures can look stretched because it is rendered on the one plane: X-Z. Tri-planar mapping renders the textures on three planes: X-Z, X-Y, Z-Y; and blends them together based on what plane the normal of the triangle is facing most on.
+There are two sliders that affect how the paint tool operates:
+</p>
+<ul>
+<li><div> Radius: how big the brush is</div>
+</li>
+<li><div> Weight/Height: how much impact the brush has</div>
+</li>
+</ul>
+
+</div>
+
+<h5><a>Adding a new texture layer</a></h5>
+<div>
+
+<p>
+Adds a new texture layer to the terrain. The will be drawn over top of the other texture layers listed above it in the list.<br/>
+
+<img src="nbdocs:/com/jme3/gde/core/docs/sdk/sdk-terrain-addtexture.png"><br/>
+
+
+</p>
+
+</div>
+
+<h5><a>Changing the diffuse texture</a></h5>
+<div>
+
+<p>
+Click on the diffuse texture image in the texture table. This will pop up a window with the available textures in your assets directory.<br/>
+
+<img src="nbdocs:/com/jme3/gde/core/docs/sdk/sdk-terrain-editdiffuse.png"><br/>
+
+
+</p>
+
+</div>
+
+<h5><a>Adding a normal map to the texture layer</a></h5>
+<div>
+
+<p>
+When you add a texture layer, by default it does not add a normal map for you. To add one, click on the button next to the diffuse texture for that texture layer. This will pop up the texture browser. Select a texture and hit Ok, and you are done.<br/>
+
+<img src="nbdocs:/com/jme3/gde/core/docs/sdk/sdk-terrain-addnormaltexture.png"><br/>
+
+
+</p>
+
+</div>
+
+<h5><a>Removing a normal map from the texture layer</a></h5>
+<div>
+
+<p>
+To remove a normal map from the texture layer, hit the normal map button for that texture layer again, and deselect the texture. Then hit Ok and the texture should be removed.
+
+</p>
+
+</div>
+
+<h5><a>Changing the texture scale</a></h5>
+<div>
+
+<p>
+The field in the table to the right of the diffuse and normal textures for your texture layer is the scale. Changing that value changes the scale of the texture.<br/>
+
+<img src="nbdocs:/com/jme3/gde/core/docs/sdk/sdk-terrain-texturescale.png"><br/>
+
+You will notice that the scale changes when you switch between Tri-Planar and normal texture mapping. Tri-planar mapping does not use the texture coordinates of the geometry, but real world coordinates. And because of this, in order for the texture to look the same when you switch between the two texture mapping methods, the terrain editor will automatically convert the scales for you.
+Essentially if your scale in normal texture coordinates is 16, then for tri-planar gets converted like this: 1/terrainSize/16
+
+</p>
+
+</div>
+
+<h5><a>Tri-planar texture mapping</a></h5>
+<div>
+
+<p>
+Tri-planar texture mapping is recommended if you have lots of near-vertical terrain. With normal texture mapping the textures can look stretched because it is rendered on the one plane: X-Z. Tri-planar mapping renders the textures on three planes: X-Z, X-Y, Z-Y; and blends them together based on what plane the normal of the triangle is facing most on.
 This makes the terrain look much better, but it does have a performance hit!
-Here is an article on tri-planar mapping: <a
-href="http://http.developer.nvidia.com/GPUGems3/gpugems3_ch01.html">http://http.developer.nvidia.com/GPUGems3/gpugems3_ch01.html</a></p></div><h5><a
-name="total_texture_count">Total texture count</a></h5><div
-class="level5"><p> Terrain will support a maximum of 12 diffuse texture. And a combined total of 13 diffuse and normal maps.
-Most video cards are limited to 16 texture units (textures), and 3 are used behind the scenes of the terrain material for alpha blending of the textures, so you are left with a maximum of 13 textures.</p></div><h1><a
-name="generating_terrain_entropies_for_lod">Generating Terrain Entropies for LOD</a></h1><div
-class="level1"><p> If you are using the recommended PerspectiveLodCalculator for calculating LOD levels of the terrain, then you will want to pre-generate the entropy levels for the terrain. This is a slow process. If they are not pre-generated, the LOD control will generate them for you, but this will lag the user when they load the scene, and the terrain will flicker.
+Here is an article on tri-planar mapping: <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://http.developer.nvidia.com/GPUGems3/gpugems3_ch01.html"><param name="text" value="<html><u>http://http.developer.nvidia.com/GPUGems3/gpugems3_ch01.html</u></html>"><param name="textColor" value="blue"></object>
+
+</p>
+
+</div>
+
+<h5><a>Total texture count</a></h5>
+<div>
+
+<p>
+Terrain will support a maximum of 12 diffuse texture. And a combined total of 13 diffuse and normal maps.
+Most video cards are limited to 16 texture units (textures), and 3 are used behind the scenes of the terrain material for alpha blending of the textures, so you are left with a maximum of 13 textures.
+
+</p>
+
+</div>
+
+<h1><a>Generating Terrain Entropies for LOD</a></h1>
+<div>
+
+<p>
+If you are using the recommended PerspectiveLodCalculator for calculating LOD levels of the terrain, then you will want to pre-generate the entropy levels for the terrain. This is a slow process. If they are not pre-generated, the LOD control will generate them for you, but this will lag the user when they load the scene, and the terrain will flicker.
 Use the &#039;Generate Entropies&#039; button to pre-generate the entropies for the terrain, they will be saved with it.
-Note that whenever you modify the height of the terrain, you should re-generate the entropies. Of course, don&#039;t do this every time, but maybe just before you are ready to send the map out for testing.</p></div>
-<p><em><a href="http://jmonkeyengine.org/wiki/doku.php/sdk:terrain_editor?do=export_xhtmlbody">view online version</a></em></p>
+Note that whenever you modify the height of the terrain, you should re-generate the entropies. Of course, don&#039;t do this every time, but maybe just before you are ready to send the map out for testing.
+
+</p>
+
+</div>
+
+<h1><a>Loading Terrain Into Your Game</a></h1>
+<div>
+
+<p>
+When you want to load a scene into your game that has terrain, you have to set the camera on the LOD control in order for it to work correctly:
+
+</p>
+<pre>TerrainLodControl lodControl = &#40;&#40;Node&#41;terrain&#41;.getControl&#40;TerrainLodControl.class&#41;;
+            if &#40;lodControl != null&#41;
+                lodControl.setCamera&#40;getCamera&#40;&#41;&#41;;</pre>
+
+</div>
+<p><em><a href="http://direct.jmonkeyengine.org/wiki/doku.php/sdk:terrain_editor?do=export_xhtmlbody">view online version</a></em></p>

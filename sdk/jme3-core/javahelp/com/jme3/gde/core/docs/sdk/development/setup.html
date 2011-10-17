@@ -1,85 +1,118 @@
-<h1><a
-name="creating_a_jmp_plugin">Creating a jMP plugin</a></h1><div
-class="level1"><p> Note that the creation of a Module Suite is only necessary if you want to upload your plugin to the contribution update center.</p></div><h3><a
-name="using_jmp_for_development_preferred">Using jMP for development (preferred)</a></h3><div
-class="level3"><ul><li
-class="level1"><div
-class="li"> Install the &quot;Netbeans Plugin Development&quot;, &quot;NetBeans <acronym
-title="Application Programming Interface">API</acronym> Documentation&quot; and &quot;<acronym
-title="Graphical User Interface">GUI</acronym> Builder&quot; plugins via Tools→Plugins</div></li><li
-class="level1"><div
-class="li"> Create a new &quot;Module Suite&quot; project (can be any name, this will be your local &quot;collection&quot; of plugins that you create)</div></li><li
-class="level1"><div
-class="li"> Open the suite, right-click the &quot;Modules&quot; folder and select &quot;Add new..&quot;</div></li><li
-class="level1"><div
-class="li"> For &quot;Project Name&quot; enter an all-lowercase name without spaces like <code>my-library</code></div></li><li
-class="level1"><div
-class="li"> Make sure the &quot;Project Location&quot; is inside the module suite folder and press &quot;Next&quot;</div></li><li
-class="level1"><div
-class="li"> Enter the base java package for your plugin in &quot;Code Name Base&quot; like <code>com.mycompany.plugins.mylibrary</code></div></li><li
-class="level1"><div
-class="li"> Enter a &quot;Module Display Name&quot; for your plugin like &quot;My Library&quot;</div></li><li
-class="level1"><div
-class="li"> Check the &quot;Generate <acronym
-title="Extensible Markup Language">XML</acronym> Layer&quot; checkbox</div></li><li
-class="level1"><div
-class="li"> Press Finish</div></li><li
-class="level1"><div
-class="li"> To use core jMP or jME3 functions, add &quot;jMonkeyPlatfom Core&quot; and &quot;jMonkeyPlatform Core jME3&quot; via &quot;Module Properties→Library→Add Dependency&quot;</div></li><li
-class="level1"><div
-class="li"> Write your plugin</div></li></ul></div><h3><a
-name="using_netbeans_for_development">Using NetBeans for development</a></h3><div
-class="level3"><ul><li
-class="level1"><div
-class="li"> Download the jMP source from svn, then open and compile the project</div></li><li
-class="level1"><div
-class="li"> Create a new &quot;Module Suite&quot; project (can be any name, this will be your local &quot;collection&quot; of plugins that you create)</div></li><li
-class="level1"><div
-class="li"> In the Suites Properties, under &quot;Libraries&quot;, press &quot;Add Project&quot; and select the jMP project folder.</div></li><li
-class="level1"><div
-class="li"> Open the suite, right-click the &quot;Modules&quot; folder and select &quot;Add new..&quot;</div></li><li
-class="level1"><div
-class="li"> For &quot;Project Name&quot; enter an all-lowercase name for your plugin without spaces like <code>my-library</code></div></li><li
-class="level1"><div
-class="li"> Make sure the &quot;Project Location&quot; is inside the module suite folder and press &quot;Next&quot;</div></li><li
-class="level1"><div
-class="li"> Enter the base java package for your plugin in &quot;Code Name Base&quot; like <code>com.mycompany.plugins.mylibrary</code></div></li><li
-class="level1"><div
-class="li"> Enter a &quot;Module Display Name&quot; for your plugin like &quot;My Library&quot;</div></li><li
-class="level1"><div
-class="li"> Check the &quot;Generate <acronym
-title="Extensible Markup Language">XML</acronym> Layer&quot; checkbox</div></li><li
-class="level1"><div
-class="li"> Press Finish</div></li><li
-class="level1"><div
-class="li"> To use core jMP or jME3 functions, add &quot;jMonkeyPlatfom Core&quot; and &quot;jMonkeyPlatform Core jME3&quot; via &quot;Module Properties→Library→Add Dependency&quot;</div></li><li
-class="level1"><div
-class="li"> Write your plugin</div></li></ul></div><h3><a
-name="jmp_contributions_update_center">jMP Contributions Update Center</a></h3><div
-class="level3"><p> If you want your plugin to appear in the &quot;jMP Contributions Update Center&quot; so users can download, install and update it easily via the plugin manager, you can host your plugin in the contributions update center svn repository. The contributions update center is based on a googlecode project for contributed plugins which will be automatically compiled, version-labeled and added to the contributions update center like the core jMP plugins.</p><p> <br/> To add your plugin to the repository, do the following:</p><ul><li
-class="level1"><div
-class="li"> Make sure the plugin is part of a &quot;Module Suite&quot; and that its located in the folder of the suite (this saves you from problems with the svn and local version not being configured the same)</div></li><li
-class="level1"><div
-class="li"> In &quot;Module Properties→Sources&quot; set the &quot;Source Level&quot; to 1.5 if possible (jMP is compatible to Java 1.5)</div></li><li
-class="level1"><div
-class="li"> In &quot;Module Properties→<acronym
-title="Application Programming Interface">API</acronym> Versioning&quot; set a specification version for your plugin (like 0.8.1)</div></li><li
-class="level1"><div
-class="li"> Set the &quot;implementation version&quot; to &quot;0&quot; and select &quot;append implementation versions automatically&quot;</div></li><li
-class="level1"><div
-class="li"> Ask the managers or developers for access to the gc project</div></li><li
-class="level1"><div
-class="li"> Commit <strong>only the module project</strong> to trunk:</div><ul><li
-class="level2"><div
-class="li"> Right click the Plugin Project and select &quot;Versioning → Import into Subversion Repository&quot;</div></li><li
-class="level2"><div
-class="li"> Enter <code><a
-href="https://jmonkeyplatform-contributions.googlecode.com/svn/trunk">https://jmonkeyplatform-contributions.googlecode.com/svn/trunk</a></code> in the <acronym
-title="Uniform Resource Locator">URL</acronym> field</div></li><li
-class="level2"><div
-class="li"> Enter your googlecode username and commit password (different than login pass!) and press &quot;Next&quot;</div></li><li
-class="level2"><div
-class="li"> Check that the &quot;Repository Folder&quot; is <code>trunk/mypluginfolder</code> and enter an import message</div></li><li
-class="level2"><div
-class="li"> Press &quot;Finish&quot;</div></li></ul></li></ul><p> And thats it, from now on each time you commit changes to your module it will be built and added to the contributions center automatically and the version number will be extended by the svn revision number (e.g. 0.8.1.1234)</p></div>
-<p><em><a href="http://jmonkeyengine.org/wiki/doku.php/sdk:development:setup?do=export_xhtmlbody">view online version</a></em></p>
+
+<h1><a>Creating a jMP plugin</a></h1>
+<div>
+
+<p>
+Note that the creation of a Module Suite is only necessary if you want to upload your plugin to the contribution update center.
+
+</p>
+
+</div>
+
+<h3><a>Using jMP for development (preferred)</a></h3>
+<div>
+<ul>
+<li><div> Install the &quot;Netbeans Plugin Development&quot;, &quot;NetBeans <acronym title="Application Programming Interface">API</acronym> Documentation&quot; and &quot;<acronym title="Graphical User Interface">GUI</acronym> Builder&quot; plugins via Tools→Plugins</div>
+</li>
+<li><div> Create a new &quot;Module Suite&quot; project (can be any name, this will be your local &quot;collection&quot; of plugins that you create)</div>
+</li>
+<li><div> Open the suite, right-click the &quot;Modules&quot; folder and select &quot;Add new..&quot;</div>
+</li>
+<li><div> For &quot;Project Name&quot; enter an all-lowercase name without spaces like <code>my-library</code></div>
+</li>
+<li><div> Make sure the &quot;Project Location&quot; is inside the module suite folder and press &quot;Next&quot;</div>
+</li>
+<li><div> Enter the base java package for your plugin in &quot;Code Name Base&quot; like <code>com.mycompany.plugins.mylibrary</code></div>
+</li>
+<li><div> Enter a &quot;Module Display Name&quot; for your plugin like &quot;My Library&quot;</div>
+</li>
+<li><div> Check the &quot;Generate <acronym title="Extensible Markup Language">XML</acronym> Layer&quot; checkbox</div>
+</li>
+<li><div> Press Finish</div>
+</li>
+<li><div> To use core jMP or jME3 functions, add &quot;jMonkeyPlatfom Core&quot; and &quot;jMonkeyPlatform Core jME3&quot; via &quot;Module Properties→Library→Add Dependency&quot;</div>
+</li>
+<li><div> Write your plugin </div>
+</li>
+</ul>
+
+</div>
+
+<h3><a>Using NetBeans for development</a></h3>
+<div>
+<ul>
+<li><div> Download the jMP source from svn, then open and compile the project</div>
+</li>
+<li><div> Create a new &quot;Module Suite&quot; project (can be any name, this will be your local &quot;collection&quot; of plugins that you create)</div>
+</li>
+<li><div> In the Suites Properties, under &quot;Libraries&quot;, press &quot;Add Project&quot; and select the jMP project folder.</div>
+</li>
+<li><div> Open the suite, right-click the &quot;Modules&quot; folder and select &quot;Add new..&quot;</div>
+</li>
+<li><div> For &quot;Project Name&quot; enter an all-lowercase name for your plugin without spaces like <code>my-library</code></div>
+</li>
+<li><div> Make sure the &quot;Project Location&quot; is inside the module suite folder and press &quot;Next&quot;</div>
+</li>
+<li><div> Enter the base java package for your plugin in &quot;Code Name Base&quot; like <code>com.mycompany.plugins.mylibrary</code></div>
+</li>
+<li><div> Enter a &quot;Module Display Name&quot; for your plugin like &quot;My Library&quot;</div>
+</li>
+<li><div> Check the &quot;Generate <acronym title="Extensible Markup Language">XML</acronym> Layer&quot; checkbox</div>
+</li>
+<li><div> Press Finish</div>
+</li>
+<li><div> To use core jMP or jME3 functions, add &quot;jMonkeyPlatfom Core&quot; and &quot;jMonkeyPlatform Core jME3&quot; via &quot;Module Properties→Library→Add Dependency&quot;</div>
+</li>
+<li><div> Write your plugin </div>
+</li>
+</ul>
+
+</div>
+
+<h3><a>jMP Contributions Update Center</a></h3>
+<div>
+
+<p>
+If you want your plugin to appear in the &quot;jMP Contributions Update Center&quot; so users can download, install and update it easily via the plugin manager, you can host your plugin in the contributions update center svn repository. The contributions update center is based on a googlecode project for contributed plugins which will be automatically compiled, version-labeled and added to the contributions update center like the core jMP plugins.
+</p>
+
+<p>
+<br/>
+
+To add your plugin to the repository, do the following:
+</p>
+<ul>
+<li><div> Make sure the plugin is part of a &quot;Module Suite&quot; and that its located in the folder of the suite (this saves you from problems with the svn and local version not being configured the same)</div>
+</li>
+<li><div> In &quot;Module Properties→Sources&quot; set the &quot;Source Level&quot; to 1.5 if possible (jMP is compatible to Java 1.5)</div>
+</li>
+<li><div> In &quot;Module Properties→<acronym title="Application Programming Interface">API</acronym> Versioning&quot; set a specification version for your plugin (like 0.8.1)</div>
+</li>
+<li><div> Set the &quot;implementation version&quot; to &quot;0&quot; and select &quot;append implementation versions automatically&quot;</div>
+</li>
+<li><div> Ask the managers or developers for access to the gc project</div>
+</li>
+<li><div> Commit <strong>only the module project</strong> to trunk:</div>
+<ul>
+<li><div> Right click the Plugin Project and select &quot;Versioning → Import into Subversion Repository&quot;</div>
+</li>
+<li><div> Enter <code><object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="https://jmonkeyplatform-contributions.googlecode.com/svn/trunk"><param name="text" value="<html><u>https://jmonkeyplatform-contributions.googlecode.com/svn/trunk</u></html>"><param name="textColor" value="blue"></object></code> in the <acronym title="Uniform Resource Locator">URL</acronym> field</div>
+</li>
+<li><div> Enter your googlecode username and commit password (different than login pass!) and press &quot;Next&quot;</div>
+</li>
+<li><div> Check that the &quot;Repository Folder&quot; is <code>trunk/mypluginfolder</code> and enter an import message</div>
+</li>
+<li><div> Press &quot;Finish&quot;</div>
+</li>
+</ul>
+</li>
+</ul>
+
+<p>
+
+And thats it, from now on each time you commit changes to your module it will be built and added to the contributions center automatically and the version number will be extended by the svn revision number (e.g. 0.8.1.1234)
+
+</p>
+
+</div>
+<p><em><a href="http://direct.jmonkeyengine.org/wiki/doku.php/sdk:development:setup?do=export_xhtmlbody">view online version</a></em></p>

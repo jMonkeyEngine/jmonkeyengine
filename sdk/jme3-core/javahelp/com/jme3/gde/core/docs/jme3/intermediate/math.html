@@ -1,0 +1,130 @@
+
+<h1><a>Math Cheat Sheet</a></h1>
+<div>
+
+<p>
+Just some maths notes to myself…
+
+</p>
+
+</div>
+
+<h2><a>Formulas</a></h2>
+<div>
+
+<p>
+Note: Typically you have to string these formulas together. Look in the table for what you want, and what you have. If the two are not the same line, than you need conversion steps inbetween. E.g. if you have an angle in degrees, but the formula expects radians: 1) convert degrees to radians, 2) use the radians formula on the result.
+</p>
+<div><table>
+	<tr>
+		<th>I have…</th><th>I want…</th><th>Formula</th>
+	</tr>
+	<tr>
+		<td>normalized direction and length <br/>
+n1,d1</td><td>a vector that goes that far in that direction <br/>
+new direction vector v0</td><td>v0 = n1.mult(d1)</td>
+	</tr>
+	<tr>
+		<td>point and direction vector <br/>
+p1,v1</td><td>to move the point <br/>
+new point p0</td><td>p0 = p1.add(v1)</td>
+	</tr>
+	<tr>
+		<td>two direction vectors or normals <br/>
+v1,v2</td><td>to combine both directions <br/>
+new direction vector v0</td><td>v0 = v1.add(v2)</td>
+	</tr>
+	<tr>
+		<td>two points <br/>
+p1, p2</td><td>distance between two points <br/>
+new scalar d0</td><td>d0 = p1.subtract(p2).length() <br/>
+d0 = p1.distance(p2)</td>
+	</tr>
+	<tr>
+		<td>two points <br/>
+p1, p2</td><td>the direction from p2 to p1 <br/>
+new direction vector v0</td><td>v0 = p1.substract(p2)</td>
+	</tr>
+	<tr>
+		<td>two points, a fraction <br/>
+p1, p2, h=0.5f</td><td>the point &quot;halfway&quot; (h=0.5f) between the two points <br/>
+new interpolated point p0</td><td>p0 = FastMath.interpolateLinear(h,p1,p2)</td>
+	</tr>
+</table></div>
+<!-- EDIT1 TABLE [421-1172] -->
+<p>
+<br/>
+
+</p>
+<div><table>
+	<tr>
+		<th>I have…</th><th>I want…</th><th>Formula</th>
+	</tr>
+	<tr>
+		<td>angle in degrees <br/>
+a </td><td> to convert angle a from degrees to radians <br/>
+new float angle phi</td><td>phi = a / 180 * FastMath.PI; <br/>
+OR <br/>
+phi=a.mult(FastMath.DEG_TO_RAD); </td>
+	</tr>
+	<tr>
+		<td>angle in radians <br/>
+phi </td><td> to convert angle phi from radians to degrees <br/>
+new float angle a</td><td>a = phi * 180 / FastMath.PI </td>
+	</tr>
+	<tr>
+		<td>radian angle and x axis <br/>
+phi, x </td><td>to rotate around x axis <br/>
+new quaternion q0</td><td>q0.fromAngleAxis( phi, Vector3f.UNIT_X )</td>
+	</tr>
+	<tr>
+		<td>radian angle and y axis <br/>
+phi, y </td><td>to rotate around y axis <br/>
+new quaternion q0</td><td>q0.fromAngleAxis( phi, Vector3f.UNIT_Y )</td>
+	</tr>
+	<tr>
+		<td>radian angle and z axis <br/>
+phi, z </td><td>to rotate around z axis <br/>
+new quaternion q0</td><td>q0.fromAngleAxis( phi, Vector3f.UNIT_Z )</td>
+	</tr>
+	<tr>
+		<td>several quaternions <br/>
+q1, q2, q3</td><td>to combine rotations, in that order <br/>
+new quaternion q0</td><td>q0 = q1.mult(q2).mult(q3)</td>
+	</tr>
+	<tr>
+		<td>point and quaternion <br/>
+p1, q1</td><td>to rotate the point around origin <br/>
+new point p0</td><td>p0 = q1.mult(p1)</td>
+	</tr>
+	<tr>
+		<td>angle in radians and radius <br/>
+phi,r</td><td>to arrange or move objects horizontally in a circle (with y=0) <br/>
+x and z coordinates</td><td>float x = FastMath.cos(phi)*r; <br/>
+float z = FastMath.sin(phi)*r;</td>
+	</tr>
+</table></div>
+<!-- EDIT2 TABLE [1176-2270] -->
+</div>
+
+<h2><a>Local vs Non-local methods?</a></h2>
+<div>
+
+<p>
+<code>v2 = v.mult(); v2 = v.add(); v2 = v.subtract(); etc</code>
+</p>
+<ul>
+<li><div> Creates new object as return value, v is unchanged.</div>
+</li>
+</ul>
+
+<p>
+<code>v.multLocal(); v.addLocal(); v.subtractLocal(); etc</code>
+</p>
+<ul>
+<li><div> Changes v.</div>
+</li>
+</ul>
+
+</div>
+<p><em><a href="http://direct.jmonkeyengine.org/wiki/doku.php/jme3:intermediate:math?do=export_xhtmlbody">view online version</a></em></p>

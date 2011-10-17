@@ -1,72 +1,339 @@
-<h1><a
-name="walking_character">Walking Character</a></h1><div
-class="level1"><p> <strong>Work in progress.</strong></p><p> In other code samples we have seen how to create collidable landscapes and walk around in a first-person perspective, by enclosing the camera with a collision shape.</p><p> Many games however require a third-person perspective of the character. If you load a character model, create a PhysicsControl for it, and use forces to push it around, you may not get the desired effect: Phyical objects often fall over when pushed, and that is not what you expect of a walking character.</p><p> This is why jME3 offers a special CharacterControl to implement walking characters.</p></div><h2><a
-name="sample_code">Sample Code</a></h2><div
-class="level2"><p> The full code sample can be found here:</p><ul><li
-class="level1"><div
-class="li"> <a
-href="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/bullet/TestWalkingChar.java">TestPhysicsCharacter.java</a> (third-person view)</div></li><li
-class="level1"><div
-class="li"> <a
-href="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/bullet/TestWalkingChar.java">TestWalkingChar.java</a> (third-person view)</div></li><li
-class="level1"><div
-class="li"> <a
-href="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/bullet/TestQ3.java">TestQ3.java</a> (first-person view)</div></li></ul></div><h2><a
-name="overview_of_this_physics_application">Overview of this Physics Application</a></h2><div
-class="level2"><ol><li
-class="level1"><div
-class="li"> Create a SimpleApplication with a <a
-href="/com/jme3/gde/core/docs/jme3/advanced/physics.html">BulletAppState</a></div><ul><li
-class="level2"><div
-class="li"> This gives us a Physics Space</div></li></ul></li><li
-class="level1"><div
-class="li"> Load any physical game level model, terrain, or floor</div></li><li
-class="level1"><div
-class="li"> Load an animated character model</div></li><li
-class="level1"><div
-class="li"> Set up animation channel and controller</div></li><li
-class="level1"><div
-class="li"> Add a CharacterControl to the model</div></li></ol></div><h2><a
-name="creating_the_character">Creating the Character</a></h2><div
-class="level2"><ol><li
-class="level1"><div
-class="li"> Initialze physical character behaviour, including collision shape</div><ol><li
-class="level2"><div
-class="li"> Create CapsuleCollisionShape of the right size for the model.</div><ul><li
-class="level3"><div
-class="li"> A Capsule is a cylinder with rounded top and bottom: A good collision shape for a character since it reduces the risk of getting stuck on obstacles.</div></li></ul></li><li
-class="level2"><div
-class="li"> Create a CharacterControl from the collision shape</div></li></ol></li><li
-class="level1"><div
-class="li"> Load the visible character model, and add the physical behaviour to it</div><ol><li
-class="level2"><div
-class="li"> Load an animated model (e.g. &quot;Models/Oto/Oto.mesh.xml&quot;).</div></li><li
-class="level2"><div
-class="li"> Add the CharacterControl to the character model.</div></li></ol></li><li
-class="level1"><div
-class="li"> Make character visible and physical</div><ol><li
-class="level2"><div
-class="li"> Attach the model to the rootNode to make it appear in the scene.</div></li><li
-class="level2"><div
-class="li"> Add the CharacterControl to the PhysicsSpace to make it physical.</div></li></ol></li></ol><pre>// initialze physical character behaviour, including collision shape
-CapsuleCollisionShape capsule = new CapsuleCollisionShape&#40;3f, 4f&#41;;
-CharacterControl character = new CharacterControl&#40;capsule, 0.01f&#41;;
-// load the visible character model and add the physical behaviour to it
-Node model = &#40;Node&#41; assetManager.loadModel&#40;&quot;Models/Oto/Oto.mesh.xml&quot;&#41;;
-model.addControl&#40;character&#41;;
-// Make character visible and physical
-rootNode.attachChild&#40;model&#41;;      // make it visible
-getPhysicsSpace&#40;&#41;.add&#40;character&#41;; // make it physical</pre></div><h2><a
-name="setting_up_the_animation_controller">Setting Up the Animation Controller</a></h2><div
-class="level2"><p> We create two AninChannels, for example one for walking, one for shooting. The shootingChannel only controls one arm, while the walking channels controls the whole animation.</p><pre>AnimControl animationControl = model.getControl&#40;AnimControl.class&#41;;
-animationControl.addListener&#40;this&#41;;
-&nbsp;
-AnimChannel animationChannel = animationControl.createChannel&#40;&#41;;
-AnimChannel shootingChannel = animationControl.createChannel&#40;&#41;;
-&nbsp;
-shootingChannel.addBone&#40;animationControl.getSkeleton&#40;&#41;.getBone&#40;&quot;uparm.right&quot;&#41;&#41;;
-shootingChannel.addBone&#40;animationControl.getSkeleton&#40;&#41;.getBone&#40;&quot;arm.right&quot;&#41;&#41;;
-shootingChannel.addBone&#40;animationControl.getSkeleton&#40;&#41;.getBone&#40;&quot;hand.right&quot;&#41;&#41;;</pre><p> The extra shooting channel exists so the character can lift an arm to shoot and walk at the same time.</p></div><h2><a
-name="walking">Walking</a></h2><div
-class="level2"><p> Work in progress (this is being updated for the new physics and chase cam.)</p></div>
-<p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:walking_character?do=export_xhtmlbody">view online version</a></em></p>
+
+<h1><a>Walking Character</a></h1>
+<div>
+
+<p>
+In the <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/bullet/TestQ3.java"><param name="text" value="<html><u>TestQ3.java</u></html>"><param name="textColor" value="blue"></object>  code sample you have seen how to create collidable landscapes and walk around in a first-person perspective, where the camera is enclosed by a collision shape. Other games however require a third-person perspective of the character: In these cases you use a CharacterControl. This example uses a custom navigation – press WASD to walk and drag the mouse to rotate.
+
+</p>
+
+</div>
+
+<h3><a>Why use CharacterControl instead of RigidBodyControl?</a></h3>
+<div>
+
+<p>
+When you load a character model with a RigidBodyControl, and use forces to push it around, you do not get the desired effect: RigidBodyControl&#039;ed objects can tip over when pushed, and that is not what you expect of a walking character. jMonkeyEngine offers a special CharacterControl with a special walking methods to implement characters that walk upright.
+
+</p>
+
+</div>
+
+<h3><a>Sample Code</a></h3>
+<div>
+
+<p>
+The several related code samples can be found here:
+</p>
+<ul>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/bullet/TestWalkingChar.java"><param name="text" value="<html><u>TestPhysicsCharacter.java</u></html>"><param name="textColor" value="blue"></object> (third-person view)</div>
+</li>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/bullet/TestWalkingChar.java"><param name="text" value="<html><u>TestWalkingChar.java</u></html>"><param name="textColor" value="blue"></object> (third-person view)</div>
+</li>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/bullet/TestQ3.java"><param name="text" value="<html><u>TestQ3.java</u></html>"><param name="textColor" value="blue"></object> (first-person view)</div>
+</li>
+</ul>
+
+<p>
+The code in this tutorial is a combination of them.
+
+</p>
+
+</div>
+
+<h3><a>Code Skeleton</a></h3>
+<div>
+<pre>public class WalkingCharacterDemo extends SimpleApplication
+        implements ActionListener, AnimEventListener &#123;
+  public static void main&#40;String&#91;&#93; args&#41; &#123;
+    WalkingCharacterDemo app = new WalkingCharacterDemo&#40;&#41;;
+    app.start&#40;&#41;;
+  &#125;
+  public void simpleInitApp&#40;&#41; &#123; &#125;
+  public void simpleUpdate&#40;float tpf&#41; &#123; &#125;
+  public void onAction&#40;String name, boolean isPressed, float tpf&#41; &#123; &#125;
+  public void onAnimCycleDone&#40;AnimControl control, AnimChannel channel, String animName&#41; &#123; &#125;
+  public void onAnimChange&#40;AnimControl control, AnimChannel channel, String animName&#41; &#123; &#125;</pre>
+
+</div>
+
+<h3><a>Overview</a></h3>
+<div>
+<ol>
+<li><div> Activate physics by adding a <a href="/com/jme3/gde/core/docs/jme3/advanced/physics.html">BulletAppState</a>.</div>
+</li>
+<li><div> Init the scene by loading a game level model (terrain or floor/buildings) and giving it a MeshCollisionShape.</div>
+</li>
+<li><div> Create the animated character</div>
+<ol>
+<li><div> Load an animated character model.</div>
+</li>
+<li><div> Add a CharacterControl to the model.</div>
+</li>
+</ol>
+</li>
+<li><div> Set up animation channel and controllers.</div>
+</li>
+<li><div> Add a ChaseCam or CameraNode.</div>
+</li>
+<li><div> Handle navigational inputs</div>
+</li>
+</ol>
+
+</div>
+
+<h2><a>Activate Physics</a></h2>
+<div>
+<pre>private BulletAppState bulletAppState;
+...
+public void simpleInitApp&#40;&#41; &#123;
+    bulletAppState = new BulletAppState&#40;&#41;;
+    //bulletAppState.setThreadingType(BulletAppState.ThreadingType.PARALLEL);
+    stateManager.attach&#40;bulletAppState&#41;;
+    ...
+&#125;</pre>
+
+</div>
+
+<h2><a>Initialize the Scene</a></h2>
+<div>
+
+<p>
+In the simpleInitApp() method you initialize the scene and give it a MeshCollisionShape. The sample in the jme3 sources uses a custom helper class that simply creates a flat floor and drops some cubes and spheres on it:
+
+</p>
+<pre>public void simpleInitApp&#40;&#41; &#123;
+  ...
+  PhysicsTestHelper.createPhysicsTestWorld&#40;rootNode,
+      assetManager, bulletAppState.getPhysicsSpace&#40;&#41;&#41;;
+  ...</pre>
+
+<p>
+
+In a real game, you would load a scene model here instead of a test world. You can load a model from a local or remote zip file, and scale and position it:
+
+</p>
+<pre>private Node gameLevel;
+..
+public void simpleInitApp&#40;&#41; &#123;
+  ...
+  //assetManager.registerLocator(&quot;quake3level.zip&quot;, ZipLocator.class.getName());
+  assetManager.registerLocator&#40;
+  &quot;http://jmonkeyengine.googlecode.com/files/quake3level.zip&quot;,
+    HttpZipLocator.class.getName&#40;&#41;&#41;;
+  MaterialList matList = &#40;MaterialList&#41; assetManager.loadAsset&#40;&quot;Scene.material&quot;&#41;;
+  OgreMeshKey key = new OgreMeshKey&#40;&quot;main.meshxml&quot;, matList&#41;;
+  gameLevel = &#40;Node&#41; assetManager.loadAsset&#40;key&#41;;
+  gameLevel.setLocalTranslation&#40;-20, -16, 20&#41;;
+  gameLevel.setLocalScale&#40;0.10f&#41;;
+  gameLevel.addControl&#40;new RigidBodyControl&#40;0&#41;&#41;;
+  rootNode.attachChild&#40;gameLevel&#41;;
+  bulletAppState.getPhysicsSpace&#40;&#41;.addAll&#40;gameLevel&#41;;
+  ...</pre>
+
+<p>
+
+Also, add a light source to be able to see the scene.
+
+</p>
+<pre>  AmbientLight light = new AmbientLight&#40;&#41;;
+  light.setColor&#40;ColorRGBA.White.mult&#40;2&#41;&#41;;
+  rootNode.addLight&#40;light&#41;;</pre>
+
+</div>
+
+<h2><a>Create the Animated Character</a></h2>
+<div>
+
+<p>
+You create an animated model, such as Oto.mesh.xml.
+</p>
+<ol>
+<li><div> Place the &quot;Oto&quot; model into the <code>assets/Models/Oto/</code> directory of your project.</div>
+</li>
+<li><div> Create the CollisionShape and adjust the capsule radius and height to fit your character model.</div>
+</li>
+<li><div> Create the CharacterControl and adjust the stepheight (here 0.05f) to the height that the character can climb up without jumping.</div>
+</li>
+<li><div> Load the visible model. Make sure its start position does not overlap with scene objects.</div>
+</li>
+<li><div> Add the CharacterControl to the model and register it to the physicsSpace.</div>
+</li>
+<li><div> Attach the visible model to the rootNode.</div>
+</li>
+</ol>
+<pre>private CharacterControl character;
+private Node model;
+...
+public void simpleInitApp&#40;&#41; &#123;
+  ...
+  CapsuleCollisionShape capsule = new CapsuleCollisionShape&#40;3f, 4f&#41;;
+  character = new CharacterControl&#40;capsule, 0.05f&#41;;
+  character.setJumpSpeed&#40;20f&#41;;
+  model = &#40;Node&#41; assetManager.loadModel&#40;&quot;Models/Oto/Oto.mesh.xml&quot;&#41;;
+  model.addControl&#40;character&#41;;
+  bulletAppState.getPhysicsSpace&#40;&#41;.add&#40;character&#41;;
+  rootNode.attachChild&#40;model&#41;;
+  ...</pre>
+
+<p>
+
+<br/>
+
+<strong>Did you know?</strong> A CapsuleCollisionShape is a cylinder with rounded top and bottom. A capsule rotated upright is a good collision shape for a humanoid character since its roundedness reduces the risk of getting stuck on obstacles.
+
+</p>
+
+</div>
+
+<h3><a>Set Up AnimControl and AnimChannels</a></h3>
+<div>
+
+<p>
+Create several AnimChannels, one for each animation that can happen simultaneously. In this example, you create one channel for walking and one for attacking. (Because the character can attack with its arms and walk with the rest of the body at the same time.)
+
+</p>
+<pre>private AnimChannel animationChannel;
+private AnimChannel attackChannel;
+private AnimControl animationControl;
+...
+public void simpleInitApp&#40;&#41; &#123;
+  ...
+  animationControl = model.getControl&#40;AnimControl.class&#41;;
+  animationControl.addListener&#40;this&#41;;
+  animationChannel = animationControl.createChannel&#40;&#41;;
+  attackChannel = animationControl.createChannel&#40;&#41;;
+  attackChannel.addBone&#40;animationControl.getSkeleton&#40;&#41;.getBone&#40;&quot;uparm.right&quot;&#41;&#41;;
+  attackChannel.addBone&#40;animationControl.getSkeleton&#40;&#41;.getBone&#40;&quot;arm.right&quot;&#41;&#41;;
+  attackChannel.addBone&#40;animationControl.getSkeleton&#40;&#41;.getBone&#40;&quot;hand.right&quot;&#41;&#41;;
+  ...</pre>
+
+<p>
+
+The attackChannel only controls one arm, while the walking channels controls the whole character.
+
+</p>
+
+</div>
+
+<h2><a>Add ChaseCam / CameraNode</a></h2>
+<div>
+<pre>private ChaseCamera chaseCam;
+...
+public void simpleInitApp&#40;&#41; &#123;
+  ...
+  flyCam.setEnabled&#40;false&#41;;
+  chaseCam = new ChaseCamera&#40;cam, model, inputManager&#41;;
+  ...</pre>
+
+</div>
+
+<h2><a>Handle navigational inputs</a></h2>
+<div>
+
+<p>
+Configure custom key bindings for WASD keys that you will use to make the character walk.
+
+</p>
+<pre>private boolean left = false, right = false, up = false, down = false;
+...
+public void simpleInitApp&#40;&#41; &#123;
+  ...
+  inputManager.addMapping&#40;&quot;CharLeft&quot;, new KeyTrigger&#40;KeyInput.KEY_A&#41;&#41;;
+  inputManager.addMapping&#40;&quot;CharRight&quot;, new KeyTrigger&#40;KeyInput.KEY_D&#41;&#41;;
+  inputManager.addMapping&#40;&quot;CharForward&quot;, new KeyTrigger&#40;KeyInput.KEY_W&#41;&#41;;
+  inputManager.addMapping&#40;&quot;CharBackward&quot;, new KeyTrigger&#40;KeyInput.KEY_S&#41;&#41;;
+  inputManager.addMapping&#40;&quot;CharJump&quot;, new KeyTrigger&#40;KeyInput.KEY_RETURN&#41;&#41;;
+  inputManager.addMapping&#40;&quot;CharAttack&quot;, new KeyTrigger&#40;KeyInput.KEY_SPACE&#41;&#41;;
+  inputManager.addListener&#40;this, &quot;CharLeft&quot;, &quot;CharRight&quot;&#41;;
+  inputManager.addListener&#40;this, &quot;CharForward&quot;, &quot;CharBackward&quot;&#41;;
+  inputManager.addListener&#40;this, &quot;CharJump&quot;, &quot;CharAttack&quot;&#41;;
+  ...
+&#125;</pre>
+
+<p>
+
+Respond to the key bindings by setting variables that track in which direction you will go. (No actual walking happens here yet)
+
+</p>
+<pre>@Override
+public void onAction&#40;String binding, boolean value, float tpf&#41; &#123;
+  if &#40;binding.equals&#40;&quot;CharLeft&quot;&#41;&#41; &#123;
+      if &#40;value&#41; left = true;
+      else left = false;
+  &#125; else if &#40;binding.equals&#40;&quot;CharRight&quot;&#41;&#41; &#123;
+      if &#40;value&#41; right = true;
+      else right = false;
+  &#125; else if &#40;binding.equals&#40;&quot;CharForward&quot;&#41;&#41; &#123;
+      if &#40;value&#41; up = true;
+      else up = false;
+  &#125; else if &#40;binding.equals&#40;&quot;CharBackward&quot;&#41;&#41; &#123;
+      if &#40;value&#41; down = true;
+      else down = false;
+  &#125; else if &#40;binding.equals&#40;&quot;CharJump&quot;&#41;&#41;
+      character.jump&#40;&#41;;
+  if &#40;binding.equals&#40;&quot;CharAttack&quot;&#41;&#41;
+    attack&#40;&#41;;
+&#125;</pre>
+
+<p>
+
+The player can attack and walk at the same time. Attack() is a custom method that triggers an attack animation in the arms. Here you should also add custom code to play an effect and sound, and to determine whether the hit was successful.
+
+</p>
+<pre>private void attack&#40;&#41; &#123;
+    attackChannel.setAnim&#40;&quot;Dodge&quot;, 0.1f&#41;;
+    attackChannel.setLoopMode&#40;LoopMode.DontLoop&#41;;
+&#125;</pre>
+
+<p>
+
+The update loop looks at the directional variables and moves the character accordingly. Since it&#039;s a physical character, we use setWalkDirection(). The variable airTime tracks how long the character is off the ground (e.g. when jumping or falling) and adjusts the walk and stand animations acccordingly.
+
+</p>
+<pre>private Vector3f walkDirection = new Vector3f&#40;0,0,0&#41;;
+private float airTime = 0;
+public void simpleUpdate&#40;float tpf&#41; &#123;
+  Vector3f camDir = cam.getDirection&#40;&#41;.clone&#40;&#41;.multLocal&#40;0.25f&#41;;
+  Vector3f camLeft = cam.getLeft&#40;&#41;.clone&#40;&#41;.multLocal&#40;0.25f&#41;;
+  camDir.y = 0;
+  camLeft.y = 0;
+  walkDirection.set&#40;0, 0, 0&#41;;
+  if &#40;left&#41;  walkDirection.addLocal&#40;camLeft&#41;;
+  if &#40;right&#41; walkDirection.addLocal&#40;camLeft.negate&#40;&#41;&#41;;
+  if &#40;up&#41; walkDirection.addLocal&#40;camDir&#41;;
+  if &#40;down&#41; walkDirection.addLocal&#40;camDir.negate&#40;&#41;&#41;;
+  if &#40;!character.onGround&#40;&#41;&#41; &#123;
+      airTime = airTime + tpf;
+  &#125; else &#123;
+      airTime = 0;
+  &#125;
+  if &#40;walkDirection.length&#40;&#41; == 0&#41; &#123;
+      if &#40;!&quot;stand&quot;.equals&#40;animationChannel.getAnimationName&#40;&#41;&#41;&#41; &#123;
+        animationChannel.setAnim&#40;&quot;stand&quot;, 1f&#41;;
+      &#125;
+  &#125; else &#123;
+      character.setViewDirection&#40;walkDirection&#41;;
+      if &#40;airTime &gt; .3f&#41; &#123;
+        if &#40;!&quot;stand&quot;.equals&#40;animationChannel.getAnimationName&#40;&#41;&#41;&#41; &#123;
+          animationChannel.setAnim&#40;&quot;stand&quot;&#41;;
+        &#125;
+      &#125; else if &#40;!&quot;Walk&quot;.equals&#40;animationChannel.getAnimationName&#40;&#41;&#41;&#41; &#123;
+        animationChannel.setAnim&#40;&quot;Walk&quot;, 0.7f&#41;;
+      &#125;
+    &#125;
+  character.setWalkDirection&#40;walkDirection&#41;;
+&#125;</pre>
+
+<p>
+
+This method resets the walk animation.
+
+</p>
+<pre>public void onAnimCycleDone&#40;AnimControl control, AnimChannel channel, String animName&#41; &#123;
+        if &#40;channel == attackChannel&#41; channel.setAnim&#40;&quot;stand&quot;&#41;;
+&#125;
+public void onAnimChange&#40;AnimControl control, AnimChannel channel, String animName&#41; &#123; &#125;</pre>
+
+</div>
+<p><em><a href="http://direct.jmonkeyengine.org/wiki/doku.php/jme3:advanced:walking_character?do=export_xhtmlbody">view online version</a></em></p>

@@ -1,0 +1,53 @@
+
+<h1><a>Remote-Controlling the Camera</a></h1>
+<div>
+
+</div>
+
+<h2><a>Positioning the Camera</a></h2>
+<div>
+
+<p>
+
+You can steer the camera using <a href="/com/jme3/gde/core/docs/jme3/advanced/cinematics.html">Cinematics</a>:
+</p>
+<ol>
+<li><div> Create a Cinematic.</div>
+</li>
+<li><div> Create a CameraNode and bind the camera object to the Cinematic. Note that we also give the camera node a name in this step. <pre>CameraNode camNode = cinematic.bindCamera&#40;&quot;topView&quot;, cam&#41;;</pre>
+</div>
+</li>
+<li><div> Position the camera node in its start location.</div>
+</li>
+<li><div> Use activateCamera() to give the control of the camera to this node. You now see the scene from this camera&#039;s point of view. For example to see through the camera node named &quot;topView&quot;, 6 seconds after the start of the cinematic, you&#039;d write <pre>cinematic.activateCamera&#40;6, &quot;topView&quot;&#41;;</pre>
+</div>
+</li>
+</ol>
+
+</div>
+
+<h3><a>Code Sample</a></h3>
+<div>
+<pre>flyCam.setEnabled&#40;false&#41;;
+Cinematic cinematic = new Cinematic&#40;rootNode, 20&#41;;
+&nbsp;
+CameraNode camNodeTop = cinematic.bindCamera&#40;&quot;topView&quot;, cam&#41;;
+camNodeTop.setControlDir&#40;ControlDirection.SpatialToCamera&#41;;
+camNodeTop.getControl&#40;0&#41;.setEnabled&#40;false&#41;;
+&nbsp;
+CameraNode camNodeSide = cinematic.bindCamera&#40;&quot;sideView&quot;, cam&#41;;
+camNodeSide.setControlDir&#40;ControlDirection.CameraToSpatial&#41;;
+camNodeSide.getControl&#40;0&#41;.setEnabled&#40;false&#41;;</pre>
+
+</div>
+
+<h2><a>Moving the Camera</a></h2>
+<div>
+
+<p>
+
+If desired, attach the camNode to a MotionTrack to let it travel along waypoints. This is demonstrated in the <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/animation/TestCinematic.java"><param name="text" value="<html><u>TestCameraMotionPath.java example</u></html>"><param name="textColor" value="blue"></object>.
+</p>
+
+</div>
+<p><em><a href="http://direct.jmonkeyengine.org/wiki/doku.php/jme3:advanced:remote-controlling_the_camera?do=export_xhtmlbody">view online version</a></em></p>

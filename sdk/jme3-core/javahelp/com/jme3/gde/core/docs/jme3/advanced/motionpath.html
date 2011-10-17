@@ -1,0 +1,120 @@
+
+<h1><a>MotionPath</a></h1>
+<div>
+
+<p>
+
+A MotionPath describes the motion of a spatial between waypoints. The path can be linear or rounded. You use MotionPaths to remote-control a spatial, or the camera.
+</p>
+
+<p>
+<strong>Tip:</strong> If you want to remote-control a whole cutscene with several spatials moving at various times, then we recommened you use MotionPaths together with <a href="/com/jme3/gde/core/docs/jme3/advanced/cinematics.html">Cinematics</a>.
+</p>
+
+</div>
+
+<h2><a>Sample Code</a></h2>
+<div>
+<ul>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/animation/TestMotionPath.java"><param name="text" value="<html><u>TestMotionPath.java</u></html>"><param name="textColor" value="blue"></object></div>
+</li>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/animation/TestCameraMotionPath.java"><param name="text" value="<html><u>TestCameraMotionPath.java</u></html>"><param name="textColor" value="blue"></object></div>
+</li>
+</ul>
+
+</div>
+
+<h2><a>What Are Way Points?</a></h2>
+<div>
+
+<p>
+
+When shooting a movie scene, the director tells actors where to walk, for example, by drawing a series of small crosses on the floor. Cameramen often mount the camera on rails (so called dolly track) so they can follow along complex scenes more easily. 
+</p>
+
+<p>
+In JME3, you use MotionPaths to specify a series of positions for a character or the camera. The MotionPath automatically updates the transformation of the spatial in each frame to make it move from one point to the next.
+</p>
+<ul>
+<li><div> <strong>A way point</strong> is one positions on a path. </div>
+</li>
+<li><div> <strong>A MotionPath</strong> contains a list of all way points of one path. </div>
+</li>
+</ul>
+
+<p>
+The final shape of the path is computed using a linear interpolation or a <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://www.mvps.org/directx/articles/catmull/"><param name="text" value="<html><u>Catmull-Rom</u></html>"><param name="textColor" value="blue"></object> spline interpolation on the way points. 
+</p>
+
+</div>
+
+<h2><a>Create a MotionPath</a></h2>
+<div>
+
+<p>
+
+Create a Motionpath object and add way points to it.
+
+</p>
+<pre>MotionPath path = new MotionPath&#40;&#41;;
+path.addWayPoint&#40;new Vector3f&#40;10, 3, 0&#41;&#41;;
+path.addWayPoint&#40;new Vector3f&#40;8, -2, 1&#41;&#41;;
+...</pre>
+
+<p>
+You can configure the path as follows.
+
+</p>
+<div><table>
+	<tr>
+		<th> MotionPath Method </th><th> Usage </th>
+	</tr>
+	<tr>
+		<td>path.setCycle(true)</td><td>Sets whether the motion along this path should be closed (true) or open-ended (false). </td>
+	</tr>
+	<tr>
+		<td>path.addWayPoint(vector)</td><td>Adds individual waypoints to this path. The order is relevant.</td>
+	</tr>
+	<tr>
+		<td>path.removeWayPoint(vector) <br/>
+removeWayPoint(index)</td><td>Removes a way point from this path. You can specify the point that you want to remove as vector or as integer index.</td>
+	</tr>
+	<tr>
+		<td>path.setCurveTension(0.83f)</td><td>Sets the tension of the curve (Catmull-Rom Spline). A value of 0.0f results in a straight linear line, 1.0 a very round curve.</td>
+	</tr>
+	<tr>
+		<td>path.getNbWayPoints()</td><td>Returns the number of waypoints in this path.</td>
+	</tr>
+	<tr>
+		<td>path.enableDebugShape(assetManager,rootNode)</td><td>Shows a line that visualizes the path. Use this during development and for debugging so you see what you are doing.</td>
+	</tr>
+	<tr>
+		<td>path.disableDebugShape()</td><td>Hides the line that visualizes the path. Use this for the release build.</td>
+	</tr>
+</table></div>
+<!-- EDIT1 TABLE [1769-2660] -->
+</div>
+
+<h2><a>MotionPathListener</a></h2>
+<div>
+
+<p>
+
+You can hook interactions into a playing MotionPath. Register a MotionPathListener to the MotionPath to track whether way points have been reached, and then trigger a custom action. The onWayPointReach() method of the interface gives you access to the MotionTrack object <code>control</code>, and an integer value representing the current wayPointIndex.
+</p>
+
+<p>
+In this example, you just print the status at every way point. In a game you could trigger actions here: Transformations, animations, sounds, game actions (attack, open door, etc).
+</p>
+<pre>path.addListener&#40; new MotionPathListener&#40;&#41; &#123;
+  public void onWayPointReach&#40;MotionTrack control, int wayPointIndex&#41; &#123;
+    if &#40;path.getNbWayPoints&#40;&#41; == wayPointIndex + 1&#41; &#123;
+      println&#40;control.getSpatial&#40;&#41;.getName&#40;&#41; + &quot; has finished moving. &quot;&#41;;
+    &#125; else &#123;
+      println&#40;control.getSpatial&#40;&#41;.getName&#40;&#41; + &quot; has reached way point &quot; + wayPointIndex&#41;;
+    &#125;
+  &#125;
+&#125;&#41;;</pre>
+
+</div>
+<p><em><a href="http://direct.jmonkeyengine.org/wiki/doku.php/jme3:advanced:motionpath?do=export_xhtmlbody">view online version</a></em></p>

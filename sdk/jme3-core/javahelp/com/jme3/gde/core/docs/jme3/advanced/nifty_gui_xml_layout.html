@@ -1,121 +1,379 @@
-<h1><a
-name="laying_out_the_gui_in_xml">Laying out the GUI in XML</a></h1><div
-class="level1"><ol><li
-class="level1"><div
-class="li"> <strong>Nifty <acronym
-title="Graphical User Interface">GUI</acronym> <acronym
-title="Extensible Markup Language">XML</acronym> Layout</strong></div></li><li
-class="level1"><div
-class="li"> <a
-href="/com/jme3/gde/core/docs/jme3/advanced/nifty_gui_overlay.html">Nifty GUI Overlay</a> or <a
-href="/com/jme3/gde/core/docs/jme3/advanced/nifty_gui_projection.html">Nifty GUI Projection</a></div></li><li
-class="level1"><div
-class="li"> <a
-href="/com/jme3/gde/core/docs/jme3/advanced/nifty_gui_java_interaction.html">Interact with the GUI from Java</a></div></li></ol><p> <a
-href="/wiki/lib/exe/detail.php/jme3:advanced:nifty-screen-layer-panel.png?id=jme3%3Aadvanced%3Anifty_gui_xml_layout"><img
-src="nbdocs:/com/jme3/gde/core/docs/jme3/advanced/nifty-screen-layer-panel.png" class="media" alt="" /></a></p><p> You &quot;draw&quot; the <acronym
-title="Graphical User Interface">GUI</acronym> to the screen by writing <acronym
-title="Extensible Markup Language">XML</acronym> code. We will be referring to the following elements:</p><ul><li
-class="level1"><div
-class="li"> Every Nifty Gui is made up of screens.</div><ul><li
-class="level2"><div
-class="li"> Nifty can display only one screen at a time.</div></li><li
-class="level2"><div
-class="li"> You must name the first screen <code>id=&quot;start&quot;</code>. Name any others whatever you like.</div></li><li
-class="level2"><div
-class="li"> Every screen is <a
-href="/com/jme3/gde/core/docs/jme3/advanced/nifty_gui_java_interaction.html">controlled by a Java class</a>.</div></li></ul></li><li
-class="level1"><div
-class="li"> A screen contains one or more layers.</div><ul><li
-class="level2"><div
-class="li"> Layers are containers that impose an alignment on their content (vertical, horizontal, centered)</div></li><li
-class="level2"><div
-class="li"> Layers can overlap (z-order), but cannot be nested.</div></li><li
-class="level2"><div
-class="li"> Layers are usually transparent (but can be opaque).</div></li></ul></li><li
-class="level1"><div
-class="li"> A layer contains panels.</div><ul><li
-class="level2"><div
-class="li"> Panels are containers that impose an alignment on their content (vertical, horizontal, centered)</div></li><li
-class="level2"><div
-class="li"> Panels can be nested, but not overlap.</div></li><li
-class="level2"><div
-class="li"> Panels are usually opaque (but can be transparent). ?</div></li></ul></li><li
-class="level1"><div
-class="li"> A panel can contain images, text fields, buttons, controls.</div></li><li
-class="level1"><div
-class="li"> Every element has an id to refer to it.</div></li></ul></div><h2><a
-name="how_to_use_screens_and_layers">How to Use Screens and Layers</a></h2><div
-class="level2"><p> Create an empty helloworld.xml file in the <code>assets/Interfaces/</code> directory of your project.</p><p> Here&#039;s a minimal example showing an empty centered layer on the start screen:</p><pre><span>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
-<span>&lt;nifty xmlns=&quot;http://nifty-gui.sourceforge.net/nifty.xsd&quot; </span>
-<span>       xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; </span>
-<span>       xsi:schemaLocation=&quot;http://nifty-gui.sourceforge.net/nifty.xsd 
-                           http://nifty-gui.sourceforge.net/nifty.xsd&quot;&gt;</span>
-&nbsp;
-  <span>&lt;screen id=&quot;start&quot; controller=&quot;de.lessvoid.nifty.examples.helloworld.HelloWorldStartScreen&quot;&gt;</span>
-    <span>&lt;layer id=&quot;layer1&quot; backgroundColor=&quot;#003f&quot; childLayout=&quot;center&quot;&gt;</span>
-       &lt;!-- ... panels go here... --&gt;
+
+<h1><a>Laying out the GUI in XML</a></h1>
+<div>
+<ol>
+<li><div> <a href="/com/jme3/gde/core/docs/jme3/advanced/nifty_gui.html">Nifty GUI Concepts</a></div>
+</li>
+<li><div> <strong>Nifty <acronym title="Graphical User Interface">GUI</acronym> <acronym title="Extensible Markup Language">XML</acronym> Layout</strong> or <a href="/com/jme3/gde/core/docs/jme3/advanced/nifty_gui_java_layout.html">Nifty GUI Java Layout</a></div>
+</li>
+<li><div> <a href="/com/jme3/gde/core/docs/jme3/advanced/nifty_gui_overlay.html">Nifty GUI Overlay</a> or <a href="/com/jme3/gde/core/docs/jme3/advanced/nifty_gui_projection.html">Nifty GUI Projection</a></div>
+</li>
+<li><div> <a href="/com/jme3/gde/core/docs/jme3/advanced/nifty_gui_java_interaction.html">Interact with the GUI from Java</a></div>
+</li>
+</ol>
+
+<p>
+
+You can &quot;draw&quot; the <acronym title="Graphical User Interface">GUI</acronym> to the screen by writing <acronym title="Extensible Markup Language">XML</acronym> code (alternatively you can also use Java).
+</p>
+
+</div>
+
+<h2><a>Plan Your GUI Layout</a></h2>
+<div>
+
+<p>
+
+<img src="nbdocs:/com/jme3/gde/core/docs/jme3/advanced/gui-layout-draft.png">
+</p>
+
+<p>
+In this tutorial, you want to create two game screens: An out-of-game StartScreen that the players see before the game starts; and an in-game <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://en.wikipedia.org/wiki/HUD_%28video_gaming%29"><param name="text" value="<html><u>HUD</u></html>"><param name="textColor" value="blue"></object> that displays info during the game. Before writing code, you plan the <acronym title="Graphical User Interface">GUI</acronym> layout, either on paper or in a graphic application.
+</p>
+
+<p>
+The StartScreen contains:
+</p>
+<ul>
+<li><div> The background layer has a centered layout and contains an image.</div>
+</li>
+<li><div> The top layer has a vertical layout, containing 3 panels: </div>
+<ul>
+<li><div> The top panel contains a label with the game title, </div>
+</li>
+<li><div> The middle panel contains a text field with the game description. </div>
+</li>
+<li><div> The bottom panel has a horizontal layout and contains two more panels:</div>
+<ul>
+<li><div> The left panel contains a Start button.</div>
+</li>
+<li><div> The right panel contains a Quit button.</div>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+<p>
+
+The HUD contains:
+</p>
+<ul>
+<li><div> The background layer has a centered layout, and contains a the partially transparent HUD image.</div>
+</li>
+<li><div> The top layer has a horizontal layout, containing 2 panels: </div>
+<ul>
+<li><div> The left panel as transparent spacer.</div>
+</li>
+<li><div> The right panel has a vertical layout containing 2 panels, a label and an image.</div>
+</li>
+</ul>
+</li>
+</ul>
+
+</div>
+
+<h2><a>Implement Your GUI Layout</a></h2>
+<div>
+
+<p>
+
+<img src="nbdocs:/com/jme3/gde/core/docs/jme3/advanced/nifty-screen-layer-panel.png">
+</p>
+
+<p>
+Create an empty screen.xml file in the <code>assets/Interfaces/</code> directory of your project. One <acronym title="Extensible Markup Language">XML</acronym> file can contain several, or even all screens. As a reminder: Nifty displays one screen at a time; a screen contains several layers on top of one another; each layer contains panels that are embedded into another; the panels contain the actual content (text, images, or controls).
+</p>
+
+</div>
+
+<h3><a>Make Screens</a></h3>
+<div>
+
+<p>
+
+The following minimal <acronym title="Extensible Markup Language">XML</acronym> file contains a start screen and a HUD screen. (Neither has been defined yet.)
+</p>
+<pre><span>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
+<span>&lt;nifty xmlns=&quot;http://nifty-gui.sourceforge.net/nifty.xsd&quot; xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; </span>
+<span>       xsi:schemaLocation=&quot;http://nifty-gui.sourceforge.net/nifty.xsd http://nifty-gui.sourceforge.net/nifty.xsd&quot;&gt;</span>
+  <span>&lt;screen id=&quot;start&quot;&gt;</span>
+    &lt;!-- ... --&gt;
+  <span><span>&lt;/screen&gt;</span></span>
+  <span>&lt;screen id=&quot;hud&quot;&gt;</span>
+    &lt;!-- ... --&gt;
+  <span><span>&lt;/screen&gt;</span></span>
+<span><span>&lt;/nifty&gt;</span></span></pre>
+
+<p>
+Every Nifty <acronym title="Graphical User Interface">GUI</acronym> must have a start screen. The others (in this example, the HUD screen) are optional. 
+</p>
+
+<p>
+<strong>Note:</strong> In the following examples, the <acronym title="Extensible Markup Language">XML</acronym> schema header is abbreviated to just <code>&lt;nifty&gt;</code>.
+</p>
+
+</div>
+
+<h3><a>Make Layers</a></h3>
+<div>
+
+<p>
+
+The following minimal <acronym title="Extensible Markup Language">XML</acronym> file shows how we added layers to the start screen and HUD screen:
+</p>
+<pre><span><span>&lt;nifty&gt;</span></span>
+  <span>&lt;screen id=&quot;start&quot;&gt;</span>
+    <span>&lt;layer id=&quot;background&quot; backgroundColor=&quot;#000f&quot;&gt;</span>
+      &lt;!-- ... --&gt;
+    <span><span>&lt;/layer&gt;</span></span>
+    <span>&lt;layer id=&quot;foreground&quot; backgroundColor=&quot;#0000&quot; childLayout=&quot;vertical&quot;&gt;</span>
+      &lt;!-- ... --&gt;
     <span><span>&lt;/layer&gt;</span></span>
   <span><span>&lt;/screen&gt;</span></span>
-&nbsp;
-<span><span>&lt;/nifty&gt;</span></span></pre><p> Into a layer, you add panels (text, images, etc), and specify their properties:</p></div><h3><a
-name="panel">Panel</a></h3><div
-class="level3"><p> A panels looks like a rectangular colored box.</p><pre>...
-<span>&lt;panel height=&quot;25%&quot; width=&quot;35%&quot; align=&quot;center&quot; valign=&quot;center&quot; backgroundColor=&quot;#f60f&quot;</span>
-<span>       childLayout=&quot;center&quot; visibleToMouse=&quot;true&quot;&gt;</span>
-<span><span>&lt;/panel&gt;</span></span>
-...</pre></div><h3><a
-name="text">Text</a></h3><div
-class="level3"><pre>...
-<span>&lt;text font=&quot;verdana-24-shadow.fnt&quot; text=&quot;Hello World!&quot; align=&quot;center&quot; valign=&quot;center&quot; /&gt;</span>
-...</pre><p> or</p><pre>...
-<span>&lt;label text=&quot;this is my text&quot; align=&quot;left&quot;/&gt;</span>
-...</pre></div><h3><a
-name="image">Image</a></h3><div
-class="level3"><pre><span>&lt;image filename=&quot;Textures/jme-logo.png&quot; &gt;<span>&lt;/image&gt;</span></span></pre><p> Nifty additionally offers predefined controls – learn more from the NiftyGUI page:</p><ul><li
-class="level1"><div
-class="li"> <a
-href="http://sourceforge.net/apps/mediawiki/nifty-gui/index.php?title=Layout_Introduction">http://sourceforge.net/apps/mediawiki/nifty-gui/index.php?title=Layout_Introduction</a></div></li><li
-class="level1"><div
-class="li"> <a
-href="http://sourceforge.net/apps/mediawiki/nifty-gui/index.php?title=Elements">http://sourceforge.net/apps/mediawiki/nifty-gui/index.php?title=Elements</a></div></li></ul></div><h2><a
-name="effects">Effects</a></h2><div
-class="level2"><p> You can register effects to screen elements.</p><ul><li
-class="level1"><div
-class="li"> Respond to element events such as onStartScreen, onEndScreen, onHover, onFocus, onActive,</div></li><li
-class="level1"><div
-class="li"> Trigger effects that change movement, blending, size, color, fading, and much more.</div></li></ul><p> Here is an example that moves a panel when the startScreen opens. You place an &lt; effect &gt; tag inside the element that you want to want to be affected.</p><pre>...
-  <span>&lt;panel height=&quot;25%&quot; width=&quot;35%&quot; ...&gt;</span>
-    <span><span>&lt;effect&gt;</span></span>
-      <span>&lt;onStartScreen name=&quot;move&quot; mode=&quot;in&quot; direction=&quot;top&quot; </span>
-<span>                     length=&quot;300&quot; startDelay=&quot;0&quot; inherit=&quot;true&quot;/&gt;</span>
-    <span><span>&lt;/effect&gt;</span></span>
-  <span><span>&lt;/panel&gt;</span></span>
-...</pre><p> Playing sounds using nifty is also possible with effects as triggers. Remember to first register the sound you&#039;re going to play:</p><pre>...
-  <span>&lt;registerSound id=&quot;click&quot; filename=&quot;Sounds/Gui/ButtonClick.ogg&quot; /&gt;</span>
-...
-  <span><span>&lt;label&gt;</span></span>
-    <span><span>&lt;effect&gt;</span></span>
-       <span>&lt;onClick name=&quot;playSound&quot; sound=&quot;click&quot;/&gt;</span>
-    <span><span>&lt;/effect&gt;</span></span>
-  <span><span>&lt;/label&gt;</span></span>
-...</pre><p> Learn more from the NiftyGUI page:</p><ul><li
-class="level1"><div
-class="li"> <a
-href="http://sourceforge.net/apps/mediawiki/nifty-gui/index.php?title=Effects">http://sourceforge.net/apps/mediawiki/nifty-gui/index.php?title=Effects</a></div></li></ul><hr
-/><ol><li
-class="level1"><div
-class="li"> <strong>Nifty <acronym
-title="Graphical User Interface">GUI</acronym> <acronym
-title="Extensible Markup Language">XML</acronym> Layout</strong></div></li><li
-class="level1"><div
-class="li"> <a
-href="/com/jme3/gde/core/docs/jme3/advanced/nifty_gui_overlay.html">Nifty GUI Overlay</a> or <a
-href="/com/jme3/gde/core/docs/jme3/advanced/nifty_gui_projection.html">Nifty GUI Projection</a></div></li><li
-class="level1"><div
-class="li"> <a
-href="/com/jme3/gde/core/docs/jme3/advanced/nifty_gui_java_interaction.html">Interact with the GUI from Java</a></div></li></ol><div
-class="tags"><span> <a
-href="/wiki/doku.php/tag:documentation?do=showtag&amp;tag=tag%3Adocumentation">documentation</a>, <a
-href="/wiki/doku.php/tag:gui?do=showtag&amp;tag=tag%3Agui">gui</a> </span></div></div>
-<p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:nifty_gui_xml_layout?do=export_xhtmlbody">view online version</a></em></p>
+  <span>&lt;screen id=&quot;hud&quot;&gt;</span>
+    <span>&lt;layer id=&quot;background&quot; backgroundColor=&quot;#000f&quot;&gt;</span>
+      &lt;!-- ... --&gt;
+    <span><span>&lt;/layer&gt;</span></span>
+    <span>&lt;layer id=&quot;foreground&quot; backgroundColor=&quot;#0000&quot; childLayout=&quot;vertical&quot;&gt;</span>
+      &lt;!-- ... --&gt;
+    <span><span>&lt;/layer&gt;</span></span>
+  <span><span>&lt;/screen&gt;</span></span>
+<span><span>&lt;/nifty&gt;</span></span></pre>
+
+<p>
+In a layer, you can now add panels and arrange them. Panels are containers that mark the areas where you want to display text, images, or controls (buttons etc) later. 
+</p>
+
+</div>
+
+<h3><a>Make Panels</a></h3>
+<div>
+
+<p>
+
+A panel is the inner-most container (that will contain the actual content: text, images, or controls). You place panels inside layers. The following panels go into in the <code>start</code> screen&#039;s <code>foreground</code> layer:
+</p>
+<pre>      <span>&lt;panel id=&quot;panel_top&quot; height=&quot;25%&quot; width=&quot;75%&quot; align=&quot;center&quot; childLayout=&quot;center&quot;</span>
+<span>             backgroundColor=&quot;#f008&quot;&gt;</span>  
+      <span><span>&lt;/panel&gt;</span></span>
+      <span>&lt;panel id=&quot;panel_mid&quot; height=&quot;50%&quot; width=&quot;75%&quot; align=&quot;center&quot; childLayout=&quot;center&quot;</span>
+<span>             backgroundColor=&quot;#0f08&quot;&gt;</span>  
+      <span><span>&lt;/panel&gt;</span></span>
+      <span>&lt;panel id=&quot;panel_bottom&quot; height=&quot;25%&quot; width=&quot;75%&quot; align=&quot;center&quot; childLayout=&quot;horizontal&quot;</span>
+<span>             backgroundColor=&quot;#00f8&quot;&gt;</span>  
+        <span>&lt;panel id=&quot;panel_bottom_left&quot; height=&quot;50%&quot; width=&quot;50%&quot; valign=&quot;center&quot; childLayout=&quot;center&quot; </span>
+<span>             backgroundColor=&quot;#44f8&quot;&gt;</span>  
+        <span><span>&lt;/panel&gt;</span></span>
+        <span>&lt;panel id=&quot;panel_bottom_right&quot; height=&quot;50%&quot; width=&quot;50%&quot; valign=&quot;center&quot; childLayout=&quot;center&quot;</span>
+<span>             backgroundColor=&quot;#88f8&quot;&gt;</span>  
+        <span><span>&lt;/panel&gt;</span></span>
+      <span><span>&lt;/panel&gt;</span></span></pre>
+
+<p>
+The following panels go into in the <code>hud</code> screen&#039;s <code>foreground</code> layer:
+</p>
+<pre>      <span>&lt;panel id=&quot;panel_left&quot; width=&quot;80%&quot; height=&quot;100%&quot; childLayout=&quot;vertical&quot; </span>
+<span>      backgroundColor=&quot;#0f08&quot;&gt;</span>  
+        &lt;!-- spacer --&gt;
+      <span><span>&lt;/panel&gt;</span></span>
+      <span>&lt;panel id=&quot;panel_right&quot; width=&quot;20%&quot; height=&quot;100%&quot; childLayout=&quot;vertical&quot; </span>
+<span>      backgroundColor=&quot;#00f8&quot; &gt;</span>  
+        <span>&lt;panel id=&quot;panel_top_right1&quot; width=&quot;100%&quot; height=&quot;15%&quot; childLayout=&quot;center&quot;</span>
+<span>             backgroundColor=&quot;#00f8&quot;&gt;</span>  
+        <span><span>&lt;/panel&gt;</span></span>
+        <span>&lt;panel id=&quot;panel_top_right2&quot; width=&quot;100%&quot; height=&quot;15%&quot; childLayout=&quot;center&quot;</span>
+<span>             backgroundColor=&quot;#44f8&quot;&gt;</span>  
+        <span><span>&lt;/panel&gt;</span></span>
+        <span>&lt;panel id=&quot;panel_bot_right&quot; width=&quot;100%&quot; height=&quot;70%&quot; valign=&quot;center&quot;</span>
+<span>             backgroundColor=&quot;#88f8&quot;&gt;</span>  
+        <span><span>&lt;/panel&gt;</span></span>
+      <span><span>&lt;/panel&gt;</span></span></pre>
+
+<p>
+The result should look as follows:
+</p>
+
+<p>
+<img src="nbdocs:/com/jme3/gde/core/docs/jme3/advanced/nifty-gui-panels.png">
+</p>
+
+</div>
+
+<h2><a>Adding Content to Panels</a></h2>
+<div>
+
+<p>
+
+See also <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://sourceforge.net/apps/mediawiki/nifty-gui/index.php?title=Layout_Introduction"><param name="text" value="<html><u>Layout Introduction</u></html>"><param name="textColor" value="blue"></object> on the Nifty <acronym title="Graphical User Interface">GUI</acronym> site.
+</p>
+
+</div>
+
+<h3><a>Add Images</a></h3>
+<div>
+
+<p>
+
+The start-background.png image is a fullscreen background picture. In the <code>start</code> screen, add the following image element:
+
+</p>
+<pre>    <span>&lt;layer id=&quot;background&quot; childLayout=&quot;center&quot;&gt;</span>
+        <span>&lt;image filename=&quot;Interface/tutorial/step2/start-background.png&quot;&gt;<span>&lt;/image&gt;</span></span>
+    <span><span>&lt;/layer&gt;</span></span></pre>
+
+<p>
+The hud-frame.png image is a transparent frame that we use as HUD decoration. In the <code>hud</code> screen, add the following image element:
+
+</p>
+<pre>    <span>&lt;layer id=&quot;background&quot; childLayout=&quot;center&quot;&gt;</span>
+        <span>&lt;image filename=&quot;Interface/tutorial/step2/hud-frame.png&quot;&gt;<span>&lt;/image&gt;</span></span>
+    <span><span>&lt;/layer&gt;</span></span></pre>
+
+<p>
+The face1.png image is an image that you want to use as a status icon. 
+In the <code>hud</code> screen&#039;s <code>foreground</code> layer, add the following image element:
+
+</p>
+<pre>        <span>&lt;panel id=&quot;panel_bottom_left&quot; height=&quot;75%&quot; width=&quot;20%&quot; valign=&quot;center&quot; childLayout=&quot;center&quot;&gt;</span>  
+            <span>&lt;image filename=&quot;Interface/tutorial/step2/face1.png&quot; </span>
+<span>                valign=&quot;center&quot; align=&quot;center&quot; height=&quot;50%&quot; width=&quot;30%&quot; &gt;</span>
+            <span><span>&lt;/image&gt;</span></span>
+        <span><span>&lt;/panel&gt;</span></span></pre>
+
+<p>
+
+This image is scaled to use 50% of the height and 30% of the width of its container.
+</p>
+
+</div>
+
+<h3><a>Add Static Text</a></h3>
+<div>
+
+<p>
+
+The game title is a typical exmaple of static text. In the <code>start</code> screen, add the following text element:
+
+</p>
+<pre>      <span>&lt;panel id=&quot;panel_top&quot; height=&quot;25%&quot; width=&quot;75%&quot; align=&quot;center&quot; childLayout=&quot;center&quot;&gt;</span>  
+          <span>&lt;text text=&quot;My Cool Game&quot; font=&quot;Interface/Fonts/Default.fnt&quot; width=&quot;100%&quot; height=&quot;100%&quot; /&gt;</span>
+      <span><span>&lt;/panel&gt;</span></span></pre>
+
+<p>
+For longer pieces of static text, such as an introduction, you can use wrap=&quot;true&quot;. Add the following text element to the <code>Start screen</code>:
+</p>
+<pre>      <span>&lt;panel id=&quot;panel_mid&quot; height=&quot;50%&quot; width=&quot;75%&quot; align=&quot;center&quot; childLayout=&quot;center&quot;&gt;</span>       
+        <span>&lt;text text=&quot;Here goes some text describing the game and the rules and stuff. Incidentally, 
+         the text is quite long and needs to wrap at the end of lines. ...&quot; </span>
+<span>        font=&quot;Interface/Fonts/Default.fnt&quot; width=&quot;100%&quot; height=&quot;100%&quot; wrap=&quot;true&quot; /&gt;</span>
+      <span><span>&lt;/panel&gt;</span></span></pre>
+
+<p>
+The font used is jME3&#039;s default font &quot;Interface/Fonts/Default.fnt&quot; which is included in the jMonkeyEngine.JAR. You can add your own fonts to your own <code>assets/Interface</code> directory.
+</p>
+
+</div>
+
+<h3><a>Add Controls</a></h3>
+<div>
+
+<p>
+
+Before you can use any control, you must load a Control Definition first. Add the following two lines <em>before</em> your screen definitions:
+</p>
+<pre>  <span>&lt;useControls filename=&quot;nifty-default-controls.xml&quot; /&gt;</span>
+  <span>&lt;useStyles filename=&quot;nifty-default-styles.xml&quot; /&gt;</span></pre>
+
+</div>
+
+<h4><a>Label Control</a></h4>
+<div>
+
+<p>
+
+Use label controls for text that you want to edit dynamically from Java. One example for this is the score display.
+In the <code>hud</code> screen&#039;s <code>foreground</code> layer, add the following text element:
+</p>
+<pre>        <span>&lt;panel id=&quot;panel_top_right&quot; height=&quot;100%&quot; width=&quot;15%&quot; childLayout=&quot;center&quot;&gt;</span>  
+            <span>&lt;control name=&quot;label&quot; color=&quot;#000&quot; text=&quot;123&quot; width=&quot;100%&quot; height=&quot;100%&quot; /&gt;</span>
+        <span><span>&lt;/panel&gt;</span></span></pre>
+
+<p>
+Note that the width and height do not scale the bitmap font, but the make indirectly certain it is centered. If you want a different size for the font, you need to provide an extra bitmap font (they come with fixes sizes and don&#039;t scale well).
+</p>
+
+</div>
+
+<h4><a>Button Control</a></h4>
+<div>
+
+<p>
+
+Our <acronym title="Graphical User Interface">GUI</acronym> plan asks for two buttons on the start screen. You add the Start and Quit buttons to the bottom panel of the <code>start</code> screen using the <code>&lt;control&gt;</code> element:
+</p>
+<pre>        <span>&lt;panel id=&quot;panel_bottom_left&quot; height=&quot;50%&quot; width=&quot;50%&quot; valign=&quot;center&quot; childLayout=&quot;center&quot;&gt;</span>  
+          <span>&lt;control name=&quot;button&quot; label=&quot;Start&quot; id=&quot;StartButton&quot; align=&quot;center&quot; valign=&quot;center&quot;&gt;</span> 
+          <span><span>&lt;/control&gt;</span></span>
+        <span><span>&lt;/panel&gt;</span></span>
+        <span>&lt;panel id=&quot;panel_bottom_right&quot; height=&quot;50%&quot; width=&quot;50%&quot; valign=&quot;center&quot; childLayout=&quot;center&quot;&gt;</span>  
+          <span>&lt;control name=&quot;button&quot; label=&quot;Quit&quot; id=&quot;QuitButton&quot; align=&quot;center&quot; valign=&quot;center&quot;&gt;</span> 
+          <span><span>&lt;/control&gt;</span></span>
+        <span><span>&lt;/panel&gt;</span></span></pre>
+
+<p>
+Note that these controls don&#039;t do anything yet – we&#039;ll get to that soon.
+</p>
+
+</div>
+
+<h4><a>Other Controls</a></h4>
+<div>
+
+<p>
+
+Nifty additionally offers many customizable controls such as check boxes, text fields, menus, chats, tabs, … See also <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://sourceforge.net/apps/mediawiki/nifty-gui/index.php?title=Elements"><param name="text" value="<html><u>Elements</u></html>"><param name="textColor" value="blue"></object> on the Nifty <acronym title="Graphical User Interface">GUI</acronym> site.
+</p>
+
+</div>
+
+<h2><a>Intermediate Result</a></h2>
+<div>
+
+<p>
+
+When you preview this code in the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym>, our tutorial demo should looks as follows: A start screen with two buttons, and a game screen with a simple HUD frame and a blue cube (which stands for any jME3 game content).
+</p>
+
+<p>
+<img src="nbdocs:/com/jme3/gde/core/docs/jme3/advanced/nifty-gui-simple-demo.png">
+</p>
+
+<p>
+Compare this result with the layout draft above.
+</p>
+
+</div>
+
+<h2><a>Next Steps</a></h2>
+<div>
+
+<p>
+
+Integrate the <acronym title="Graphical User Interface">GUI</acronym> into the game. Typically, you will overlay the <acronym title="Graphical User Interface">GUI</acronym>.
+</p>
+<ul>
+<li><div> <a href="/com/jme3/gde/core/docs/jme3/advanced/nifty_gui_overlay.html">Nifty GUI Overlay</a> (recommended)</div>
+</li>
+<li><div> <a href="/com/jme3/gde/core/docs/jme3/advanced/nifty_gui_projection.html">Nifty GUI Projection</a> (optional)</div>
+</li>
+</ul>
+<div><span>
+	<a href="/wiki/doku.php/tag:documentation?do=showtag&amp;tag=tag%3Adocumentation">documentation</a>,
+	<a href="/wiki/doku.php/tag:gui?do=showtag&amp;tag=tag%3Agui">gui</a>,
+	<a href="/wiki/doku.php/tag:nifty?do=showtag&amp;tag=tag%3Anifty">nifty</a>
+</span></div>
+
+</div>
+<p><em><a href="http://direct.jmonkeyengine.org/wiki/doku.php/jme3:advanced:nifty_gui_xml_layout?do=export_xhtmlbody">view online version</a></em></p>

@@ -1,20 +1,42 @@
-<h1><a
-name="jme_3_tutorial_9_-_hello_collision">JME 3 Tutorial (9) - Hello Collision</a></h1><div
-class="level1"><p> Previous: <a
-href="/com/jme3/gde/core/docs/jme3/beginner/hello_picking.html">Hello Picking</a>,
-Next: <a
-href="/com/jme3/gde/core/docs/jme3/beginner/hello_terrain.html">Hello Terrain</a> <br/> This tutorial demonstrates how you load a scene model and give it solid walls and floors for a character to walk around.
-We will use a <code>PhysicsNode</code> for the static collidable scene, and a <code>PhysicsCharacterNode</code> for the mobile first-person character. We will also adapt the default first-person camera to work with physics-controlled navigation.
-The solution shown here can be used for first-person shooters, mazes, and similar games. <a
-href="/wiki/lib/exe/detail.php/jme3:beginner:beginner-scene.png?id=jme3%3Abeginner%3Ahello_collision"><img
-src="nbdocs:/com/jme3/gde/core/docs/jme3/beginner/beginner-scene.png?w=360&amp;h=281" class="mediacenter" alt="" width="360" height="281" /></a></p></div><h2><a
-name="sample_code">Sample Code</a></h2><div
-class="level2"><p> If you don&#039;t have it yet, <a
-href="http://jmonkeyengine.googlecode.com/svn/trunk/engine/town.zip">download the town.zip</a> sample scene.</p><pre>jMonkeyProjects$ ls -1 BasicGame
+
+<h1><a>JME 3 Tutorial (9) - Hello Collision</a></h1>
+<div>
+
+<p>
+Previous: <a href="/com/jme3/gde/core/docs/jme3/beginner/hello_picking.html">Hello Picking</a>,
+Next: <a href="/com/jme3/gde/core/docs/jme3/beginner/hello_terrain.html">Hello Terrain</a>
+</p>
+
+<p>
+This tutorial demonstrates how you load a scene model and give it solid walls and floors for a character to walk around.
+You use a <code>RigidBodyControl</code> for the static collidable scene, and a <code>CharacterControl</code> for the mobile first-person character. You also learn how to set up the default first-person camera to work with physics-controlled navigation.
+You can use the solution shown here for first-person shooters, mazes, and similar games.
+</p>
+
+<p>
+<img src="nbdocs:/com/jme3/gde/core/docs/jme3/beginner/beginner-scene.png">
+</p>
+
+</div>
+
+<h2><a>Sample Code</a></h2>
+<div>
+
+<p>
+
+If you don&#039;t have it yet, <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://jmonkeyengine.googlecode.com/svn/trunk/engine/town.zip"><param name="text" value="<html><u>download the town.zip</u></html>"><param name="textColor" value="blue"></object> sample scene.
+</p>
+<pre>jMonkeyProjects$ ls -1 BasicGame
 assets/
 build.xml
 town.zip
-src/</pre><p> Place town.zip in the root directory of your JME3 project.</p><pre>package jme3test.helloworld;
+src/</pre>
+
+<p>
+Place town.zip in the root directory of your JME3 project. Here is the code:
+</p>
+<pre>package jme3test.helloworld;
+&nbsp;
 import com.jme3.app.SimpleApplication;
 import com.jme3.asset.plugins.ZipLocator;
 import com.jme3.bullet.BulletAppState;
@@ -32,45 +54,54 @@ import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
+&nbsp;
 <span>/**
  * Example 9 - How to make walls and floors solid.
- * This version uses Physics and a custom Action Listener.
+ * This collision code uses Physics and a custom Action Listener.
  * @author normen, with edits by Zathras
  */</span>
 public class HelloCollision extends SimpleApplication
-  implements ActionListener &#123;
+        implements ActionListener &#123;
+&nbsp;
   private Spatial sceneModel;
   private BulletAppState bulletAppState;
   private RigidBodyControl landscape;
   private CharacterControl player;
   private Vector3f walkDirection = new Vector3f&#40;&#41;;
   private boolean left = false, right = false, up = false, down = false;
+&nbsp;
   public static void main&#40;String&#91;&#93; args&#41; &#123;
     HelloCollision app = new HelloCollision&#40;&#41;;
     app.start&#40;&#41;;
   &#125;
+&nbsp;
   public void simpleInitApp&#40;&#41; &#123;
     /** Set up Physics */
     bulletAppState = new BulletAppState&#40;&#41;;
     stateManager.attach&#40;bulletAppState&#41;;
-    // We re-use the flyby camera control for rotation, while positioning is handled by physics
-    viewPort.setBackgroundColor&#40;new ColorRGBA&#40;0.7f,0.8f,1f,1f&#41;&#41;;
+    //bulletAppState.getPhysicsSpace().enableDebug(assetManager);
+&nbsp;
+    // We re-use the flyby camera for rotation, while positioning is handled by physics
+    viewPort.setBackgroundColor&#40;new ColorRGBA&#40;0.7f, 0.8f, 1f, 1f&#41;&#41;;
     flyCam.setMoveSpeed&#40;100&#41;;
     setUpKeys&#40;&#41;;
     setUpLight&#40;&#41;;
+&nbsp;
     // We load the scene from the zip file and adjust its size.
     assetManager.registerLocator&#40;&quot;town.zip&quot;, ZipLocator.class.getName&#40;&#41;&#41;;
     sceneModel = assetManager.loadModel&#40;&quot;main.scene&quot;&#41;;
     sceneModel.setLocalScale&#40;2f&#41;;
+&nbsp;
     // We set up collision detection for the scene by creating a
-    // compound collision shape and a static physics node with mass zero.
+    // compound collision shape and a static RigidBodyControl with mass zero.
     CollisionShape sceneShape =
-      CollisionShapeFactory.createMeshShape&#40;&#40;Node&#41; sceneModel&#41;;
+            CollisionShapeFactory.createMeshShape&#40;&#40;Node&#41; sceneModel&#41;;
     landscape = new RigidBodyControl&#40;sceneShape, 0&#41;;
     sceneModel.addControl&#40;landscape&#41;;
+&nbsp;
     // We set up collision detection for the player by creating
-    // a capsule collision shape and a physics character node.
-    // The physics character node offers extra settings for
+    // a capsule collision shape and a CharacterControl.
+    // The CharacterControl offers extra settings for
     // size, stepheight, jumping, falling, and gravity.
     // We also put the player in its starting position.
     CapsuleCollisionShape capsuleShape = new CapsuleCollisionShape&#40;1.5f, 6f, 1&#41;;
@@ -79,51 +110,57 @@ public class HelloCollision extends SimpleApplication
     player.setFallSpeed&#40;30&#41;;
     player.setGravity&#40;30&#41;;
     player.setPhysicsLocation&#40;new Vector3f&#40;0, 10, 0&#41;&#41;;
-    // We attach the scene and the player to the rootnode and the physics space,
+&nbsp;
+    // We attach the scene and the player to the rootNode and the physics space,
     // to make them appear in the game world.
     rootNode.attachChild&#40;sceneModel&#41;;
     bulletAppState.getPhysicsSpace&#40;&#41;.add&#40;landscape&#41;;
     bulletAppState.getPhysicsSpace&#40;&#41;.add&#40;player&#41;;
   &#125;
-    private void setUpLight&#40;&#41; &#123;
-        // We add light so we see the scene
-        AmbientLight al = new AmbientLight&#40;&#41;;
-        al.setColor&#40;ColorRGBA.White.mult&#40;1.3f&#41;&#41;;
-        rootNode.addLight&#40;al&#41;;
-        DirectionalLight dl = new DirectionalLight&#40;&#41;;
-        dl.setColor&#40;ColorRGBA.White&#41;;
-        dl.setDirection&#40;new Vector3f&#40;2.8f, -2.8f, -2.8f&#41;.normalizeLocal&#40;&#41;&#41;;
-        rootNode.addLight&#40;dl&#41;;
-    &#125;
+&nbsp;
+  private void setUpLight&#40;&#41; &#123;
+    // We add light so we see the scene
+    AmbientLight al = new AmbientLight&#40;&#41;;
+    al.setColor&#40;ColorRGBA.White.mult&#40;1.3f&#41;&#41;;
+    rootNode.addLight&#40;al&#41;;
+&nbsp;
+    DirectionalLight dl = new DirectionalLight&#40;&#41;;
+    dl.setColor&#40;ColorRGBA.White&#41;;
+    dl.setDirection&#40;new Vector3f&#40;2.8f, -2.8f, -2.8f&#41;.normalizeLocal&#40;&#41;&#41;;
+    rootNode.addLight&#40;dl&#41;;
+  &#125;
+&nbsp;
   <span>/** We over-write some navigational key mappings here, so we can
    * add physics-controlled walking and jumping: */</span>
   private void setUpKeys&#40;&#41; &#123;
-    inputManager.addMapping&#40;&quot;Lefts&quot;,  new KeyTrigger&#40;KeyInput.KEY_A&#41;&#41;;
-    inputManager.addMapping&#40;&quot;Rights&quot;, new KeyTrigger&#40;KeyInput.KEY_D&#41;&#41;;
-    inputManager.addMapping&#40;&quot;Ups&quot;,    new KeyTrigger&#40;KeyInput.KEY_W&#41;&#41;;
-    inputManager.addMapping&#40;&quot;Downs&quot;,  new KeyTrigger&#40;KeyInput.KEY_S&#41;&#41;;
-    inputManager.addMapping&#40;&quot;Jumps&quot;,  new KeyTrigger&#40;KeyInput.KEY_SPACE&#41;&#41;;
-    inputManager.addListener&#40;this, &quot;Lefts&quot;&#41;;
-    inputManager.addListener&#40;this, &quot;Rights&quot;&#41;;
-    inputManager.addListener&#40;this, &quot;Ups&quot;&#41;;
-    inputManager.addListener&#40;this, &quot;Downs&quot;&#41;;
-    inputManager.addListener&#40;this, &quot;Jumps&quot;&#41;;
+    inputManager.addMapping&#40;&quot;Left&quot;, new KeyTrigger&#40;KeyInput.KEY_A&#41;&#41;;
+    inputManager.addMapping&#40;&quot;Right&quot;, new KeyTrigger&#40;KeyInput.KEY_D&#41;&#41;;
+    inputManager.addMapping&#40;&quot;Up&quot;, new KeyTrigger&#40;KeyInput.KEY_W&#41;&#41;;
+    inputManager.addMapping&#40;&quot;Down&quot;, new KeyTrigger&#40;KeyInput.KEY_S&#41;&#41;;
+    inputManager.addMapping&#40;&quot;Jump&quot;, new KeyTrigger&#40;KeyInput.KEY_SPACE&#41;&#41;;
+    inputManager.addListener&#40;this, &quot;Left&quot;&#41;;
+    inputManager.addListener&#40;this, &quot;Right&quot;&#41;;
+    inputManager.addListener&#40;this, &quot;Up&quot;&#41;;
+    inputManager.addListener&#40;this, &quot;Down&quot;&#41;;
+    inputManager.addListener&#40;this, &quot;Jump&quot;&#41;;
   &#125;
+&nbsp;
   <span>/** These are our custom actions triggered by key presses.
    * We do not walk yet, we just keep track of the direction the user pressed. */</span>
   public void onAction&#40;String binding, boolean value, float tpf&#41; &#123;
-    if &#40;binding.equals&#40;&quot;Lefts&quot;&#41;&#41; &#123;
-      left = value;
-    &#125; else if &#40;binding.equals&#40;&quot;Rights&quot;&#41;&#41; &#123;
-      right = value;
-    &#125; else if &#40;binding.equals&#40;&quot;Ups&quot;&#41;&#41; &#123;
-      up = value;
-    &#125; else if &#40;binding.equals&#40;&quot;Downs&quot;&#41;&#41; &#123;
-      down = value;
-    &#125; else if &#40;binding.equals&#40;&quot;Jumps&quot;&#41;&#41; &#123;
+    if &#40;binding.equals&#40;&quot;Left&quot;&#41;&#41; &#123;
+      if &#40;value&#41; &#123; left = true; &#125; else &#123; left = false; &#125;
+    &#125; else if &#40;binding.equals&#40;&quot;Right&quot;&#41;&#41; &#123;
+      if &#40;value&#41; &#123; right = true; &#125; else &#123; right = false; &#125;
+    &#125; else if &#40;binding.equals&#40;&quot;Up&quot;&#41;&#41; &#123;
+      if &#40;value&#41; &#123; up = true; &#125; else &#123; up = false; &#125;
+    &#125; else if &#40;binding.equals&#40;&quot;Down&quot;&#41;&#41; &#123;
+      if &#40;value&#41; &#123; down = true; &#125; else &#123; down = false; &#125;
+    &#125; else if &#40;binding.equals&#40;&quot;Jump&quot;&#41;&#41; &#123;
       player.jump&#40;&#41;;
     &#125;
   &#125;
+&nbsp;
   <span>/**
    * This is the main event loop--walking happens here.
    * We check in which direction the player is walking by interpreting
@@ -143,122 +180,361 @@ public class HelloCollision extends SimpleApplication
     player.setWalkDirection&#40;walkDirection&#41;;
     cam.setLocation&#40;player.getPhysicsLocation&#40;&#41;&#41;;
   &#125;
-&#125;</pre><p> Run the sample. You should see a town square with houses and a monument. Use the WASD keys and the mouse to navigate around in first person view. Run forward and jump by pressing W and Space. Note how you step over the sidewalk, and up the steps to the monument. You can walk in the alleys between the houses, but the walls are solid. Don&#039;t walk over the edge of the world! <img
-src="/wiki/lib/images/smileys/icon_smile.gif" class="middle" alt=":-)" /></p></div><h2><a
-name="understanding_the_code">Understanding the Code</a></h2><div
-class="level2"><p> Let&#039;s start with the class declaration:</p><pre>extends SimpleApplication implements ActionListener</pre><p> SimpleApplication is the base class for all jME3 games. We also have this class implement the <code>ActionListener</code> interface because we want to customize the navigational inputs later.</p><pre>  private Spatial sceneModel;
+&#125;</pre>
+
+<p>
+Run the sample. You should see a town square with houses and a monument. Use the WASD keys and the mouse to navigate around with a first-person perspective. Run forward and jump by pressing W and Space. Note how you step over the sidewalk, and up the steps to the monument. You can walk in the alleys between the houses, but the walls are solid. Don&#039;t walk over the edge of the world! <img src="/wiki/lib/images/smileys/icon_smile.gif" class="middle" alt=":-)" />
+</p>
+
+</div>
+
+<h2><a>Understanding the Code</a></h2>
+<div>
+
+<p>
+
+Let&#039;s start with the class declaration:
+</p>
+<pre>public class HelloCollision extends SimpleApplication
+        implements ActionListener &#123; ... &#125;</pre>
+
+<p>
+You already know that SimpleApplication is the base class for all jME3 games. You make this class implement the <code>ActionListener</code> interface because you want to customize the navigational inputs later.
+</p>
+<pre>  private Spatial sceneModel;
   private BulletAppState bulletAppState;
   private RigidBodyControl landscape;
   private CharacterControl player;
   private Vector3f walkDirection = new Vector3f&#40;&#41;;
-  private boolean left = false, right = false, up = false, down = false;</pre><p> We initialize a few private fields:</p><ul><li
-class="level1"><div
-class="li"> The BulletAppState gives this SimpleApplication access to physics features (such as collision detection) supplied by jME3&#039;s jBullet integration</div></li><li
-class="level1"><div
-class="li"> The Spatial sceneModel is a normal OgreXML model loaded as a Spatial.</div></li><li
-class="level1"><div
-class="li"> You use the model as the game&#039;s landscape by adding a RigidBodyControl to it.</div></li><li
-class="level1"><div
-class="li"> The (invisible) first-person player is represented by a CharacterControl object.</div></li><li
-class="level1"><div
-class="li"> The fields <code>walkDirection</code> and the four Booleans are used for physics-controlled navigation.</div></li></ul><p> Let&#039;s have a look at all the details:</p></div><h2><a
-name="initializing_the_game">Initializing the Game</a></h2><div
-class="level2"><p> As usual, you initialize the game in the <code>simpleInitApp()</code> method.</p><pre>    viewPort.setBackgroundColor&#40;new ColorRGBA&#40;0.7f,0.8f,1f,1f&#41;&#41;;
+  private boolean left = false, right = false, up = false, down = false;</pre>
+
+<p>
+You initialize a few private fields:
+</p>
+<ul>
+<li><div> The BulletAppState gives this SimpleApplication access to physics features (such as collision detection) supplied by jME3&#039;s jBullet integration</div>
+</li>
+<li><div> The Spatial sceneModel is for loading an OgreXML model of a town.</div>
+</li>
+<li><div> You need a RigidBodyControl to make the town model solid.</div>
+</li>
+<li><div> The (invisible) first-person player is represented by a CharacterControl object.</div>
+</li>
+<li><div> The fields <code>walkDirection</code> and the four Booleans are used for physics-controlled navigation.</div>
+</li>
+</ul>
+
+<p>
+
+Let&#039;s have a look at all the details:
+</p>
+
+</div>
+
+<h2><a>Initializing the Game</a></h2>
+<div>
+
+<p>
+
+As usual, you initialize the game in the <code>simpleInitApp()</code> method.
+</p>
+<pre>    viewPort.setBackgroundColor&#40;new ColorRGBA&#40;0.7f,0.8f,1f,1f&#41;&#41;;
     flyCam.setMoveSpeed&#40;100&#41;;
     setUpKeys&#40;&#41;;
-    setUpLight&#40;&#41;;</pre><p> We switch the background color from balck to light blue, since this is a scene with a sky.
-You repurpose the default camera control &quot;flyCam&quot; as first-person camera and set its speed.
-The auxiliary method <code>setUpLights()</code> adds light sources.
-The auxiliary method <code>setUpKeys()</code> configures input mappings–we will look at it later.</p></div><h3><a
-name="the_physics-controlled_scene">The Physics-Controlled Scene</a></h3><div
-class="level3"><p> The first thing you do in every physics game is create a BulletAppState object. It gives you access to jME3&#039;s jBullet integration which handles physical forces and collisions.</p><pre>    bulletAppState = new BulletAppState&#40;&#41;;
-    stateManager.attach&#40;bulletAppState&#41;;</pre><p> For the scene, you load the <code>sceneModel</code> from a zip file, and adjust the size.</p><pre>    assetManager.registerLocator&#40;&quot;town.zip&quot;, ZipLocator.class.getName&#40;&#41;&#41;;
+    setUpLight&#40;&#41;;</pre>
+<ol>
+<li><div> You set the background color to light blue, since this is a scene with a sky.</div>
+</li>
+<li><div> You repurpose the default camera control &quot;flyCam&quot; as first-person camera and set its speed.</div>
+</li>
+<li><div> The auxiliary method <code>setUpLights()</code> adds your light sources.</div>
+</li>
+<li><div> The auxiliary method <code>setUpKeys()</code> configures input mappings–we will look at it later.</div>
+</li>
+</ol>
+
+</div>
+
+<h3><a>The Physics-Controlled Scene</a></h3>
+<div>
+
+<p>
+
+The first thing you do in every physics game is create a BulletAppState object. It gives you access to jME3&#039;s jBullet integration which handles physical forces and collisions.
+</p>
+<pre>    bulletAppState = new BulletAppState&#40;&#41;;
+    stateManager.attach&#40;bulletAppState&#41;;</pre>
+
+<p>
+For the scene, you load the <code>sceneModel</code> from a zip file, and adjust the size.
+</p>
+<pre>    assetManager.registerLocator&#40;&quot;town.zip&quot;, ZipLocator.class.getName&#40;&#41;&#41;;
     sceneModel = assetManager.loadModel&#40;&quot;main.scene&quot;&#41;;
-    sceneModel.setLocalScale&#40;2f&#41;;</pre><p> The file <code>town.zip</code> is included as a sample model in the JME3 sources – you can <a
-href="http://jmonkeyengine.googlecode.com/svn/trunk/engine/town.zip">download it here</a>. (Optionally, use any OgreXML scene of your own.) For this sample, place the zip file in the application&#039;s top level directory (that is, next to src/, assets/, build.xml).</p><pre>    CollisionShape sceneShape =
+    sceneModel.setLocalScale&#40;2f&#41;;</pre>
+
+<p>
+The file <code>town.zip</code> is included as a sample model in the JME3 sources – you can <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://jmonkeyengine.googlecode.com/svn/trunk/engine/town.zip"><param name="text" value="<html><u>download it here</u></html>"><param name="textColor" value="blue"></object>. (Optionally, use any OgreXML scene of your own.) For this sample, place the zip file in the application&#039;s top level directory (that is, next to src/, assets/, build.xml).
+</p>
+<pre>    CollisionShape sceneShape =
       CollisionShapeFactory.createMeshShape&#40;&#40;Node&#41; sceneModel&#41;;
     landscape = new RigidBodyControl&#40;sceneShape, 0&#41;;
-    sceneModel.addControl&#40;landscape&#41;;</pre><p> To use collision detection, you want to add a RigidBodyControl to the <code>sceneModel</code> Spatial. The RigidBodyControl for a complex model takes two arguments: A Collision Shape, and the object&#039;s mass.</p><ul><li
-class="level1"><div
-class="li"> JME3 offers a <code>CollisionShapeFactory</code> that precalculates a mesh-accurate collision shape for a Spatial. We choose to generate a <code>CompoundCollisionShape</code>, which has MeshCollisionShapes as its children. <strong>Note:</strong> This type of collision shape is optimal for immobile objects, such as terrain, houses, and whole shooter levels.</div></li><li
-class="level1"><div
-class="li"> You set the mass to zero since a scene is static and its mass irrevelant.</div></li></ul><p> Add the control to the Spatial to give it physical properties. Attach the sceneModel to the rootNode to make it visible.</p><pre>    rootNode.attachChild&#40;sceneModel&#41;;</pre><p> <strong>Tip:</strong> Remember to always add a light source so you can see the scene.</p></div><h3><a
-name="the_physics-controlled_player">The Physics-Controlled Player</a></h3><div
-class="level3"><p> Next you set up collision detection for the first-person player.</p><pre>    CapsuleCollisionShape capsuleShape = new CapsuleCollisionShape&#40;1.5f, 6f, 1&#41;;</pre><p> Again, you create a CollisionShape: This time we choose a CapsuleCollisionShape, a cylinder with a rounded top and bottom. <strong>Note:</strong> This shape is optimal for a person: It&#039;s tall and the roundness helps to get stuck less often on obstacles.</p><ul><li
-class="level1"><div
-class="li"> Supply the CapsuleCollisionShape constructor with the desired size of the bounding capsule to fit the shape of your character. In this example the character is 2*1.5f units wide, and 6f units tall.</div></li><li
-class="level1"><div
-class="li"> The final integer argument specifies the orientation of the cylinder: 1 is the Y-axis, which fits an upright person. For many animals and vehicles you would use 0 or 2.</div></li></ul><pre>    player = new CharacterControl&#40;capsuleShape, 0.05f&#41;;</pre><p> Now you use the CollisionShape to create a <code>CharacterControl</code> that represents the player. The last argument of the CharacterControl constructor (here <code>.05f</code>) is the size of a step that the character should be able to surmount.</p><pre>    player.setJumpSpeed&#40;20&#41;;
+    sceneModel.addControl&#40;landscape&#41;;
+    rootNode.attachChild&#40;sceneModel&#41;;</pre>
+
+<p>
+To use collision detection, you add a RigidBodyControl to the <code>sceneModel</code> Spatial. The RigidBodyControl for a complex model takes two arguments: A Collision Shape, and the object&#039;s mass.
+</p>
+<ul>
+<li><div> JME3 offers a <code>CollisionShapeFactory</code> that precalculates a mesh-accurate collision shape for a Spatial. You choose to generate a <code>CompoundCollisionShape</code> (which has MeshCollisionShapes as its children) because this type of collision shape is optimal for immobile objects, such as terrain, houses, and whole shooter levels.</div>
+</li>
+<li><div> You set the mass to zero since a scene is static and its mass is irrevelant.</div>
+</li>
+<li><div> Add the control to the Spatial to give it physical properties. </div>
+</li>
+<li><div> As always, attach the sceneModel to the rootNode to make it visible.</div>
+</li>
+</ul>
+
+<p>
+
+<strong>Tip:</strong> Remember to add a light source so you can see the scene.
+</p>
+
+</div>
+
+<h3><a>The Physics-Controlled Player</a></h3>
+<div>
+
+<p>
+
+A first-person player is typically invisible. When you use the default flyCam as first-person cam, it does not even test for collisons and runs through walls. This is because the flyCam control does not have any physical shape assigned. In this code sample, you represent the first-person player as an (invisible) physical shape. You use the WASD keys to steer this physical shape around, while the physics engine manages for you how it walks along solid walls and on solid floors and jumps over solid obstacles. Then you simply make the camera follow the walking shape&#039;s location – and you get the illusion of being a physical body in a solid environment seeing through the camera.
+</p>
+
+<p>
+So let&#039;s set up collision detection for the first-person player.
+</p>
+<pre>    CapsuleCollisionShape capsuleShape = new CapsuleCollisionShape&#40;1.5f, 6f, 1&#41;;</pre>
+
+<p>
+Again, you create a CollisionShape: This time you choose a CapsuleCollisionShape, a cylinder with a rounded top and bottom. This shape is optimal for a person: It&#039;s tall and the roundness helps to get stuck less often on obstacles.
+</p>
+<ul>
+<li><div> Supply the CapsuleCollisionShape constructor with the desired radius and height of the bounding capsule to fit the shape of your character. In this example the character is 2*1.5f units wide, and 6f units tall.</div>
+</li>
+<li><div> The final integer argument specifies the orientation of the cylinder: 1 is the Y-axis, which fits an upright person. For animals which are longer than high you would use 0 or 2 (depending on how it is rotated).</div>
+</li>
+</ul>
+<pre>    player = new CharacterControl&#40;capsuleShape, 0.05f&#41;;</pre>
+
+<p>
+<p><div>&quot;Does that CollisionShape make me look fat?&quot; If you ever get confusing physics behaviour, remember to have a look at the collision shapes. Add the following line after the bulletAppState initialization to make the shapes visible: 
+</p>
+<pre>bulletAppState.getPhysicsSpace&#40;&#41;.enableDebug&#40;assetManager&#41;;</pre>
+
+<p>
+
+</div></p>
+</p>
+
+<p>
+Now you use the CollisionShape to create a <code>CharacterControl</code> that represents the first-person player. The last argument of the CharacterControl constructor (here <code>.05f</code>) is the size of a step that the character should be able to surmount.
+</p>
+<pre>    player.setJumpSpeed&#40;20&#41;;
     player.setFallSpeed&#40;30&#41;;
-    player.setGravity&#40;30&#41;;</pre><p> Apart from step height and character size, the <code>CharacterControl</code> lets you configure jumping, falling, and gravity speeds. Adjust the values to fit your game situation.</p><pre>    player.setPhysicsLocation&#40;new Vector3f&#40;0, 10, 0&#41;&#41;;</pre><p> Finally we put the player in its starting position and update its state – remember to use     setPhysicsLocation() instead of setLocalTranslation(). since you are dealing with a physical object.</p></div><h3><a
-name="activating_the_physicsspace">Activating the PhysicsSpace</a></h3><div
-class="level3"><p> As in every JME3 application, you must attach the scene and the player to the <code>rootNode</code> to make them appear in the game world.</p><pre>    rootNode.attachChild&#40;landscape&#41;;
-    rootNode.attachChild&#40;player&#41;;</pre><p> Remember that for physical games, you must also add all solid objects (usually the characters and the scene) to the <code>PhysicsSpace</code>!</p><pre>    bulletAppState.getPhysicsSpace&#40;&#41;.add&#40;landscape&#41;;
-    bulletAppState.getPhysicsSpace&#40;&#41;.add&#40;player&#41;;</pre></div><h2><a
-name="navigation">Navigation</a></h2><div
-class="level2"><p> The default camera controller <code>cam</code> is a third-person camera. JME3 also offers a first-person controller, <code>flyCam</code>, which we use here to handle camera rotation.
-However we must redefine how walking is handled for physics-controlled objects: When you navigate a physical node, you do not specify a <em>target location</em>, but a <em>walk direction</em>. The physics space calculates how far the character can actually go in the desired direction – or whether it will be stoped by an obstacle.
-This is why we must re-define the flyCam&#039;s navigational key mappings to use <code>setWalkDirection()</code> instead of <code>setLocalTranslation()</code>. Here are the steps:</p></div><h3><a
-name="inputmanager">1. inputManager</a></h3><div
-class="level3"><p> Configure the familiar WASD inputs for walking, and Space for jumping.</p><pre>    inputManager.addMapping&#40;&quot;Lefts&quot;,  new KeyTrigger&#40;KeyInput.KEY_A&#41;&#41;;
-    inputManager.addMapping&#40;&quot;Rights&quot;, new KeyTrigger&#40;KeyInput.KEY_D&#41;&#41;;
-    inputManager.addMapping&#40;&quot;Ups&quot;,    new KeyTrigger&#40;KeyInput.KEY_W&#41;&#41;;
-    inputManager.addMapping&#40;&quot;Downs&quot;,  new KeyTrigger&#40;KeyInput.KEY_S&#41;&#41;;
-    inputManager.addMapping&#40;&quot;Jumps&quot;,  new KeyTrigger&#40;KeyInput.KEY_SPACE&#41;&#41;;
-    inputManager.addListener&#40;this, &quot;Lefts&quot;&#41;;
-    inputManager.addListener&#40;this, &quot;Rights&quot;&#41;;
-    inputManager.addListener&#40;this, &quot;Ups&quot;&#41;;
-    inputManager.addListener&#40;this, &quot;Downs&quot;&#41;;
-    inputManager.addListener&#40;this, &quot;Jumps&quot;&#41;;</pre><p> In the code sample above, this block of code was moved into an auxiliary method <code>setupKeys()</code> that is called from <code>simpleInitApp()</code>–this is just to keep the code more readable.</p></div><h3><a
-name="onaction">2. onAction()</a></h3><div
-class="level3"><p> Remember that we declared this class an <code>ActionListener</code> so we could customize the flyCam. The <code>ActionListener</code> interface requires us to implement the <code>onAction()</code> method: You re-define the actions triggered by navigation key presses to work with physics.</p><pre>  public void onAction&#40;String binding, boolean value, float tpf&#41; &#123;
-    if &#40;binding.equals&#40;&quot;Lefts&quot;&#41;&#41; &#123;
-      left = value;
-    &#125; else if &#40;binding.equals&#40;&quot;Rights&quot;&#41;&#41; &#123;
-      right = value;
-    &#125; else if &#40;binding.equals&#40;&quot;Ups&quot;&#41;&#41; &#123;
-      up = value;
-    &#125; else if &#40;binding.equals&#40;&quot;Downs&quot;&#41;&#41; &#123;
-      down = value;
-    &#125; else if &#40;binding.equals&#40;&quot;Jumps&quot;&#41;&#41; &#123;
+    player.setGravity&#40;30&#41;;</pre>
+
+<p>
+Apart from step height and character size, the <code>CharacterControl</code> lets you configure jumping, falling, and gravity speeds. Adjust the values to fit your game situation.
+</p>
+<pre>    player.setPhysicsLocation&#40;new Vector3f&#40;0, 10, 0&#41;&#41;;</pre>
+
+<p>
+Finally we put the player in its starting position and update its state – remember to use <code>setPhysicsLocation()</code> instead of <code>setLocalTranslation()</code> now, since you are dealing with a physical object. 
+</p>
+
+</div>
+
+<h3><a>PhysicsSpace</a></h3>
+<div>
+
+<p>
+
+Remember, in physical games, you must register all solid objects (usually the characters and the scene) to the PhysicsSpace!
+</p>
+<pre>    bulletAppState.getPhysicsSpace&#40;&#41;.add&#40;landscape&#41;;
+    bulletAppState.getPhysicsSpace&#40;&#41;.add&#40;player&#41;;</pre>
+
+<p>
+The invisible body of the character just sits there on the physical floor. It cannot walk yet – you will deal with that next.
+</p>
+
+</div>
+
+<h2><a>Navigation</a></h2>
+<div>
+
+<p>
+
+The default camera controller <code>cam</code> is a third-person camera. JME3 also offers a first-person controller, <code>flyCam</code>, which we use here to handle camera rotation. The <code>flyCam</code> control moves the camera using <code>setLocation()</code>.
+</p>
+
+<p>
+However, you must redefine how walking (camera movement) is handled for physics-controlled objects: When you navigate a non-physical node (e.g. the default flyCam), you simply specify the <em>target location</em>. There are no tests that prevent the flyCam from getting stuck in a wall! When you move a PhysicsControl, you want to specify a <em>walk direction</em> instead. Then the PhysicsSpace can calculate for you how far the character can actually move in the desired direction – or whether an obstacle prevents it from going any further.
+</p>
+
+<p>
+In short, you must re-define the flyCam&#039;s navigational key mappings to use <code>setWalkDirection()</code> instead of <code>setLocalTranslation()</code>. Here are the steps:
+</p>
+
+</div>
+
+<h3><a>1. inputManager</a></h3>
+<div>
+
+<p>
+
+In the <code>simpleInitApp()</code> method, you re-configure the familiar WASD inputs for walking, and Space for jumping.
+</p>
+<pre>private void setUpKeys&#40;&#41; &#123;
+    inputManager.addMapping&#40;&quot;Left&quot;, new KeyTrigger&#40;KeyInput.KEY_A&#41;&#41;;
+    inputManager.addMapping&#40;&quot;Right&quot;, new KeyTrigger&#40;KeyInput.KEY_D&#41;&#41;;
+    inputManager.addMapping&#40;&quot;Up&quot;, new KeyTrigger&#40;KeyInput.KEY_W&#41;&#41;;
+    inputManager.addMapping&#40;&quot;Down&quot;, new KeyTrigger&#40;KeyInput.KEY_S&#41;&#41;;
+    inputManager.addMapping&#40;&quot;Jump&quot;, new KeyTrigger&#40;KeyInput.KEY_SPACE&#41;&#41;;
+    inputManager.addListener&#40;this, &quot;Left&quot;&#41;;
+    inputManager.addListener&#40;this, &quot;Right&quot;&#41;;
+    inputManager.addListener&#40;this, &quot;Up&quot;&#41;;
+    inputManager.addListener&#40;this, &quot;Down&quot;&#41;;
+    inputManager.addListener&#40;this, &quot;Jump&quot;&#41;;
+&#125;</pre>
+
+<p>
+You can move this block of code into an auxiliary method <code>setupKeys()</code> and call this method from <code>simpleInitApp()</code>– to keep the code more readable.
+</p>
+
+</div>
+
+<h3><a>2. onAction()</a></h3>
+<div>
+
+<p>
+
+Remember that this class implements the an <code>ActionListener</code> interface, so you can customize the flyCam inputs. The <code>ActionListener</code> interface requires you to implement the <code>onAction()</code> method: You re-define the actions triggered by navigation key presses to work with physics.
+</p>
+<pre>  public void onAction&#40;String binding, boolean value, float tpf&#41; &#123;
+    if &#40;binding.equals&#40;&quot;Left&quot;&#41;&#41; &#123;
+      if &#40;value&#41; &#123; left = true; &#125; else &#123; left = false; &#125;
+    &#125; else if &#40;binding.equals&#40;&quot;Right&quot;&#41;&#41; &#123;
+      if &#40;value&#41; &#123; right = true; &#125; else &#123; right = false; &#125;
+    &#125; else if &#40;binding.equals&#40;&quot;Up&quot;&#41;&#41; &#123;
+      if &#40;value&#41; &#123; up = true; &#125; else &#123; up = false; &#125;
+    &#125; else if &#40;binding.equals&#40;&quot;Down&quot;&#41;&#41; &#123;
+      if &#40;value&#41; &#123; down = true; &#125; else &#123; down = false; &#125;
+    &#125; else if &#40;binding.equals&#40;&quot;Jump&quot;&#41;&#41; &#123;
       player.jump&#40;&#41;;
     &#125;
-  &#125;</pre><p> Every time the user presses one of the WASD keys, you keep track of the direction the user wants to go – by storing this info in four directional Booleans. We will use them soon.
-Note that no actual walking happens here – not yet!
-The only movement that you do not have to implement yourself is the jumping action. The call <code>player.jump()</code> is a special method that handles a correct jumping motion for your <code>PhysicsCharacterNode</code>.</p></div><h3><a
-name="setwalkdirection">3. setWalkDirection()</a></h3><div
-class="level3"><p> In <code>onAction()</code> you have determined in which direction the user wants to go in terms of &quot;forward&quot; or &quot;left&quot;.
-Now you need poll the current rotation of the camera to find to which vectors &quot;forward&quot; and &quot;left&quot; correspond in the coordinate system.
-This last and most important code snippet goes into the main event loop, <code>simpleUpdate()</code>.</p><pre>    Vector3f camDir = cam.getDirection&#40;&#41;.clone&#40;&#41;.multLocal&#40;0.6f&#41;;
+  &#125;</pre>
+
+<p>
+The only movement that you do not have to implement yourself is the jumping action. The call <code>player.jump()</code> is a special method that handles a correct jumping motion for your <code>PhysicsCharacterNode</code>.
+</p>
+
+<p>
+For all other directions: Every time the user presses one of the WASD keys, you <em>keep track</em> of the direction the user wants to go, by storing this info in four directional Booleans. No actual walking happens here yet. The update loop is what acts out the directional info stored in the booleans, and makes the player move, as shown in the next code snippet:
+</p>
+
+</div>
+
+<h3><a>3. setWalkDirection()</a></h3>
+<div>
+
+<p>
+
+Previously in the <code>onAction()</code> method, you have collected the info in which direction the user wants to go in terms of &quot;forward&quot; or &quot;left&quot;. In the update loop, you repatedly poll the current rotation of the camera. You calculate the actual vectors to which &quot;forward&quot; or &quot;left&quot; corresponds in the coordinate system.
+</p>
+
+<p>
+This last and most important code snippet goes into the <code>simpleUpdate()</code> method.
+</p>
+<pre>  public void simpleUpdate&#40;float tpf&#41; &#123;
+    Vector3f camDir = cam.getDirection&#40;&#41;.clone&#40;&#41;.multLocal&#40;0.6f&#41;;
     Vector3f camLeft = cam.getLeft&#40;&#41;.clone&#40;&#41;.multLocal&#40;0.4f&#41;;
     walkDirection.set&#40;0, 0, 0&#41;;
     if &#40;left&#41;  &#123; walkDirection.addLocal&#40;camLeft&#41;; &#125;
     if &#40;right&#41; &#123; walkDirection.addLocal&#40;camLeft.negate&#40;&#41;&#41;; &#125;
     if &#40;up&#41;    &#123; walkDirection.addLocal&#40;camDir&#41;; &#125;
-    if &#40;down&#41;  &#123; walkDirection.addLocal&#40;camDir.negate&#40;&#41;&#41;; &#125;</pre><p> Reset the variable <code>walkDirection</code> to zero. Then add to it all latest motion vectors that you polled from the camera. It is posible for a character to move forward and to the left simultaneously.</p><pre>player.setWalkDirection&#40;walkDirection&#41;;</pre><p> This one line does the &quot;walking&quot; magic: Always use <code>setWalkDirection()</code> to make a physics-controlled object move continuously, and the physics engine automatically handles collision detection for you! <strong>Important:</strong> Do not use <code>setLocalTranslation()</code> to walk the player around. You may get it stuck by overlapping with another physical object. You can put the player in a start position with <code>setPhysicalLocation()</code> if you make sure to place it a bit above the floor and away from obstacles.
-Lastly, do not forget to make the first-person camera object move along with the physics-controlled player node:</p><pre>    cam.setLocation&#40;player.getPhysicsLocation&#40;&#41;&#41;;</pre><p> That&#039;s it!</p></div><h2><a
-name="conclusion">Conclusion</a></h2><div
-class="level2"><p> You have learned how to load a &quot;solid&quot; physical scene model and walk around in it with a first-person perspective.
-You had JME3 calculate the CollisionShapes, and you represented collidables as PhysicsNodes that you registered to the Physics Space.
-You also made certain to use <code>player.setWalkDirection(walkDirection)</code> to move physical characters around.
-To learn more about different ways of loading models and scene have a look at <a
-href="/com/jme3/gde/core/docs/jme3/beginner/hello_asset.html">Hello Asset</a>,<a
-href="/com/jme3/gde/core/docs/sdk/scene_explorer.html">Scene Explorer</a> and <a
-href="/com/jme3/gde/core/docs/sdk/scene_composer.html">Scene Composer</a> There are also other possible solutions for this task that do not require physics.
-Have a look at <a
-href="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/collision/TestSimpleCollision.java?r=5192&amp;spec=svn5192">jme3test.collision.TestSimpleCollision.java</a> (and SphereMotionAllowedListener.java).
-To learn more about complex physics scenes where several mobile physical objects bump into each other, read <a
-href="/com/jme3/gde/core/docs/jme3/beginner/hello_physics.html">Hello Physics</a>.
-Do you want to hear your player say &quot;ouch!&quot; when he bumps into a wall? Continue with learning <a
-href="/com/jme3/gde/core/docs/jme3/beginner/hello_audio.html">how to add sound</a> to your game.</p><div
-class="tags"><span> <a
-href="/wiki/doku.php/tag:beginner?do=showtag&amp;tag=tag%3Abeginner">beginner</a>, <a
-href="/wiki/doku.php/tag:beginner?do=showtag&amp;tag=tag%3Abeginner">beginner,</a>, <a
-href="/wiki/doku.php/tag:collision?do=showtag&amp;tag=tag%3Acollision">collision</a>, <a
-href="/wiki/doku.php/tag:controller?do=showtag&amp;tag=tag%3Acontroller">controller</a>, <a
-href="/wiki/doku.php/tag:controllers?do=showtag&amp;tag=tag%3Acontrollers">controllers</a>, <a
-href="/wiki/doku.php/tag:intro?do=showtag&amp;tag=tag%3Aintro">intro</a>, <a
-href="/wiki/doku.php/tag:documentation?do=showtag&amp;tag=tag%3Adocumentation">documentation</a>, <a
-href="/wiki/doku.php/tag:model?do=showtag&amp;tag=tag%3Amodel">model</a>, <a
-href="/wiki/doku.php/tag:physics?do=showtag&amp;tag=tag%3Aphysics">physics</a> </span></div></div>
-<p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:beginner:hello_collision?do=export_xhtmlbody">view online version</a></em></p>
+    if &#40;down&#41;  &#123; walkDirection.addLocal&#40;camDir.negate&#40;&#41;&#41;; &#125;
+    player.setWalkDirection&#40;walkDirection&#41;;
+    cam.setLocation&#40;player.getPhysicsLocation&#40;&#41;&#41;;
+  &#125;</pre>
+
+<p>
+This is how the walking is triggered:
+</p>
+<ol>
+<li><div> Initialize the vector <code>walkDirection</code> to zero. This is where you want to store the calculated walk direction.</div>
+</li>
+<li><div> Add to <code>walkDirection</code> the recent motion vectors that you polled from the camera. This way it is posible for a character to move forward and to the left simultaneously, for example! </div>
+</li>
+<li><div> This one last line does the &quot;walking magic&quot;: <pre>player.setWalkDirection&#40;walkDirection&#41;;</pre>
+
+<p>
+ Always use <code>setWalkDirection()</code> to make a physics-controlled object move continuously, and the physics engine handles collision detection for you.
+</p>
+</div>
+</li>
+<li><div> Make the first-person camera object follow along with the physics-controlled player:<pre>cam.setLocation&#40;player.getPhysicsLocation&#40;&#41;&#41;;</pre>
+</div>
+</li>
+</ol>
+
+<p>
+
+<strong>Important:</strong> Again, do not use <code>setLocalTranslation()</code> to walk the player around. You will get it stuck by overlapping with another physical object. You can put the player in a start position with <code>setPhysicalLocation()</code> if you make sure to place it a bit above the floor and away from obstacles.
+</p>
+
+</div>
+
+<h2><a>Conclusion</a></h2>
+<div>
+
+<p>
+
+You have learned how to load a &quot;solid&quot; physical scene model and walk around in it with a first-person perspective.
+You learned to speed up the physics calculations by using the CollisionShapeFactory to create efficient CollisionShapes for complex Geometries. You know how to add PhysicsControls to your collidable geometries and you register them to the PhysicsSpace. You also learned to use <code>player.setWalkDirection(walkDirection)</code> to move collision-aware characters around, and not <code>setLocalTranslation()</code>.
+</p>
+
+<p>
+Terrains are another type of scene in which you will want to walk around. Let&#039;s proceed with learning <a href="/com/jme3/gde/core/docs/jme3/beginner/hello_terrain.html">how to generate terrains</a> now. 
+
+</p>
+<hr />
+
+<p>
+
+Related info:
+</p>
+<ul>
+<li><div> How to load models and scenes: <a href="/com/jme3/gde/core/docs/jme3/beginner/hello_asset.html">Hello Asset</a>, <a href="/com/jme3/gde/core/docs/sdk/scene_explorer.html">Scene Explorer</a>, <a href="/com/jme3/gde/core/docs/sdk/scene_composer.html">Scene Composer</a></div>
+</li>
+<li><div> <a href="/com/jme3/gde/core/docs/jme3/advanced/terrain_collision.html">Terrain Collision</a></div>
+</li>
+<li><div> To learn more about complex physics scenes, where several mobile physical objects bump into each other, read <a href="/com/jme3/gde/core/docs/jme3/beginner/hello_physics.html">Hello Physics</a>.</div>
+</li>
+<li><div> FYI, there are simpler collision detection solutions without physics, too. Have a look at <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/collision/TestSimpleCollision.java?r=5192&amp;spec=svn5192"><param name="text" value="<html><u>jme3test.collision.TestSimpleCollision.java</u></html>"><param name="textColor" value="blue"></object> (and SphereMotionAllowedListener.java).</div>
+</li>
+</ul>
+<div><span>
+	<a href="/wiki/doku.php/tag:beginner?do=showtag&amp;tag=tag%3Abeginner">beginner</a>,
+	<a href="/wiki/doku.php/tag:beginner?do=showtag&amp;tag=tag%3Abeginner">beginner,</a>,
+	<a href="/wiki/doku.php/tag:collision?do=showtag&amp;tag=tag%3Acollision">collision</a>,
+	<a href="/wiki/doku.php/tag:controller?do=showtag&amp;tag=tag%3Acontroller">controller</a>,
+	<a href="/wiki/doku.php/tag:controllers?do=showtag&amp;tag=tag%3Acontrollers">controllers</a>,
+	<a href="/wiki/doku.php/tag:intro?do=showtag&amp;tag=tag%3Aintro">intro</a>,
+	<a href="/wiki/doku.php/tag:documentation?do=showtag&amp;tag=tag%3Adocumentation">documentation</a>,
+	<a href="/wiki/doku.php/tag:model?do=showtag&amp;tag=tag%3Amodel">model</a>,
+	<a href="/wiki/doku.php/tag:physics?do=showtag&amp;tag=tag%3Aphysics">physics</a>
+</span></div>
+
+</div>
+<p><em><a href="http://direct.jmonkeyengine.org/wiki/doku.php/jme3:beginner:hello_collision?do=export_xhtmlbody">view online version</a></em></p>

@@ -1,0 +1,48 @@
+
+<h1><a>Saving and Loading Games</a></h1>
+<div>
+
+<p>
+
+You can save and load scenes and individual Nodes using com.jme3.export.binary.BinaryExporter and com.jme3.export.binary.BinaryImporter. Use standard Java serialization to load game data. The jMonkeyEngine binary file format is .j3o. You can open, view, and edit .j3o files in the jMonkeyPlatform.
+</p>
+
+</div>
+
+<h2><a>Saving a Node</a></h2>
+<div>
+<pre>  @Override
+  public void destroy&#40;&#41; &#123;
+    System.getProperty&#40;&quot;user.home&quot;&#41;;
+    BinaryExporter exporter = BinaryExporter.getInstance&#40;&#41;;
+    File&#40;userHome+&quot;/somefile.j3o&quot;&#41;;
+    try &#123;
+      exporter.save&#40;rootNode, file&#41;;
+    &#125; catch &#40;IOException ex&#41; &#123;
+      Logger.getLogger&#40;Main.class.getName&#40;&#41;&#41;.log&#40;Level.SEVERE, &quot;Failed to save node!&quot;, ex&#41;;
+    &#125;
+    super.destroy&#40;&#41;;
+  &#125;</pre>
+
+</div>
+
+<h2><a>Loading a Node</a></h2>
+<div>
+<pre>  @Override
+  public void simpleInitApp&#40;&#41; &#123;
+    System.getProperty&#40;&quot;user.home&quot;&#41;;
+    BinaryImporter importer = BinaryImporter.getInstance&#40;&#41;;
+    importer.setAssetManager&#40;assetManager&#41;;
+    File&#40;userHome+&quot;/somefile.j3o&quot;&#41;;
+    try &#123;
+      Node loadedNode = &#40;Node&#41;importer.load&#40;file&#41;;
+      loadedNode.setName&#40;&quot;loaded node&quot;&#41;;
+      rootNode.attachChild&#40;loadedNode&#41;;
+    &#125; catch &#40;IOException ex&#41; &#123;
+      Logger.getLogger&#40;Main.class.getName&#40;&#41;&#41;.log&#40;Level.SEVERE, &quot;No saved node loaded.&quot;, ex&#41;;
+    &#125;
+    ...
+&nbsp;</pre>
+
+</div>
+<p><em><a href="http://direct.jmonkeyengine.org/wiki/doku.php/jme3:advanced:save_and_load?do=export_xhtmlbody">view online version</a></em></p>

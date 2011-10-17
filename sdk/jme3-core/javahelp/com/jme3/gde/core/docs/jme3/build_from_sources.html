@@ -1,0 +1,56 @@
+
+<h1><a>Building jMonkeyEngine 3 from the Sources</a></h1>
+<div>
+
+<p>
+
+We recommend downloading the <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/downloads/list"><param name="text" value="<html><u>jMonkeyEngine SDK</u></html>"><param name="textColor" value="blue"></object> - but of course you can also build the jMonkeyEngine yourself from the sources. You need <a href="/com/jme3/gde/core/docs/htpp/subversion.tigris.org.html">Subversion</a> installed.
+
+</p>
+<ol>
+<li><div> <strong>Checkout:</strong> Checkout the Subversion repository. <pre>svn checkout http://jmonkeyengine.googlecode.com/svn/trunk/engine jme3</pre>
+</div>
+<ul>
+<li><div> You can leave login and password empty</div>
+</li>
+</ul>
+</li>
+<li><div> <strong>Build:</strong> Execute <code>ant jar</code></div>
+<ul>
+<li><div> This compiles the files <code>dist/jMonkeyEngine3.jar</code> and <code>dist/libs/*</code></div>
+</li>
+</ul>
+</li>
+<li><div> <strong>Javadoc:</strong> Execute <code>ant javadoc</code> </div>
+<ul>
+<li><div> This generates javadocs in the <code>dist/javadoc</code> directory.</div>
+</li>
+</ul>
+</li>
+<li><div> <strong>Run:</strong> Execute <code>ant run</code></div>
+<ul>
+<li><div> This runs the TestChooser where you can browse examples.</div>
+</li>
+</ul>
+</li>
+<li><div> <strong>Use:</strong> Create a Java SE project and place <code>dist/jMonkeyEngine3.jar</code> and all JARs from the <code>dist/lib</code> directory on the classpath.</div>
+<ul>
+<li><div> You can now extend your first game from <code>com.jme3.app.SimpleApplication</code>. </div>
+</li>
+</ul>
+</li>
+</ol>
+<hr />
+
+<p>
+Learn more about:
+</p>
+<ul>
+<li><div> <a href="/com/jme3/gde/core/docs/jme3/simpleapplication_from_the_commandline.html">Setting up JME3 on the commandline (generic)</a>.</div>
+</li>
+<li><div> <a href="/com/jme3/gde/core/docs/jme3/build_jme3_sources_with_netbeans.html">Building JME3 from the sources with NetBeans</a> </div>
+</li>
+</ul>
+
+</div>
+<p><em><a href="http://direct.jmonkeyengine.org/wiki/doku.php/jme3:build_from_sources?do=export_xhtmlbody">view online version</a></em></p>

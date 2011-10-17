@@ -1,0 +1,801 @@
+
+<h1><a>Frequently Asked Questions</a></h1>
+<div>
+
+</div>
+
+<h2><a>I want to create and configure a jME3 Application</a></h2>
+<div>
+
+</div>
+
+<h3><a>How do I start with a preconfigured game?</a></h3>
+<div>
+
+<p>
+Extend com.jme3.app.SimpleApplication.
+<br/>
+<strong>Learn more:</strong> <a href="/com/jme3/gde/core/docs/jme3/beginner/hello_simpleapplication.html">Hello SimpleApplication</a>, <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/core/com/jme3/app/SimpleApplication.java"><param name="text" value="<html><u>com.jme3.app.SimpleApplication</u></html>"><param name="textColor" value="blue"></object>.
+
+</p>
+
+</div>
+
+<h3><a>How do I change the background color?</a></h3>
+<div>
+<pre>viewPort.setBackgroundColor&#40;ColorRGBA.Blue&#41;;</pre>
+
+</div>
+
+<h3><a>Can I customize the SimpleApplication class?</a></h3>
+<div>
+
+<p>
+Yes! For your own games, you should create a custom base class that extends <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/core/com/jme3/app/SimpleApplication.java"><param name="text" value="<html><u>com.jme3.app.SimpleApplication</u></html>"><param name="textColor" value="blue"></object> class, configure <a href="/com/jme3/gde/core/docs/jme3/intermediate/appsettings.html">application settings</a>, and customize away.
+<br/>
+<strong>Learn more:</strong> <a href="/com/jme3/gde/core/docs/jme3/intermediate/simpleapplication.html">SimpleApplication</a>, <a href="/com/jme3/gde/core/docs/jme3/intermediate/appsettings.html">AppSettings</a>.
+</p>
+
+</div>
+
+<h3><a>How do I disable logger output to the console?</a></h3>
+<div>
+
+<p>
+During development, you can switch the severity level of the default logger to no longer print FINE warnings, but only WARNINGs.
+
+</p>
+<pre>java.util.logging.Logger.getLogger&#40;&quot;&quot;&#41;.setLevel&#40;Level.WARNING&#41;;</pre>
+
+<p>
+
+For the release, switch the severity level of the default logger to print only SEVERE errors.
+
+</p>
+<pre>java.util.logging.Logger.getLogger&#40;&quot;&quot;&#41;.setLevel&#40;Level.SEVERE&#41;;</pre>
+
+<p>
+
+<strong>Learn more:</strong>  <a href="/com/jme3/gde/core/docs/jme3/advanced/logging.html">Logging</a>.
+</p>
+
+</div>
+
+<h2><a>I want to load my scene</a></h2>
+<div>
+
+</div>
+
+<h3><a>How do I make objects appear / disappear in the 3D scene?</a></h3>
+<div>
+
+<p>
+To make a spatial appear in the scene, you attach it to the rootNode, To remove a spatial, you detach it.
+
+</p>
+<pre>rootNode.attachChild&#40;spatial&#41;; // appear</pre>
+<pre>rootNode.detachChild&#40;spatial&#41;; // remove</pre>
+
+<p>
+
+Optionally, you can control whether the engine culls an object always or never.
+
+</p>
+<pre>spatial.setCullHint&#40;CullHint.Never&#41;; // always drawn</pre>
+<pre>spatial.setCullHint&#40;CullHint.Always&#41;; // never drawn</pre>
+
+<p>
+
+<strong>Learn more:</strong> <a href="/com/jme3/gde/core/docs/jme3/the_scene_graph.html">The Scene Graph</a>, <a href="/com/jme3/gde/core/docs/jme3/beginner/hello_node.html">Hello Node</a>, <a href="/com/jme3/gde/core/docs/jme3/beginner/hello_asset.html">Hello Asset</a>, <a href="/com/jme3/gde/core/docs/jme3/advanced/spatial.html">Spatial</a>, <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/core/com/jme3/scene/Node.java"><param name="text" value="<html><u>com.jme3.scene.Node</u></html>"><param name="textColor" value="blue"></object> and <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/core/com/jme3/scene/Geometry.java"><param name="text" value="<html><u>com.jme3.scene.Geometry</u></html>"><param name="textColor" value="blue"></object>.
+</p>
+
+</div>
+
+<h3><a>Why do I get AssetNotFoundException when loading X ?</a></h3>
+<div>
+
+<p>
+First check whether the file path of the asset is correct. By default it is relative to your project&#039;s assets directory:
+
+</p>
+<pre>// To load .../jMonkeyProjects/MyGame/assets/Models/Ninja/Ninja.mesh.xml
+Spatial ninja = assetManager.loadModel&#40;&quot;Models/Ninja/Ninja.mesh.xml&quot;&#41;;</pre>
+
+<p>
+
+If you are not using the default <code>assets</code> directory, verify that you have registered a locator to the AssetManager. <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://jmonkeyengine.org/javadoc/com/jme3/asset/plugins/package-summary.html"><param name="text" value="<html><u>Different Locator types</u></html>"><param name="textColor" value="blue"></object> are available.
+
+</p>
+<pre>this.assetManager.registerLocator&#40;&quot;assets/&quot;, FileLocator.class&#41;; // default
+this.assetManager.registerLocator&#40;&quot;c:/jme3User/JMEisSoCool/myAwesomeFolder&quot;, FileLocator.class&#41;;
+this.assetManager.registerLocator&#40;&quot;town.zip&quot;, ZipLocator.class.getName&#40;&#41;&#41;;</pre>
+
+<p>
+
+<strong>Learn more:</strong> <a href="/com/jme3/gde/core/docs/jme3/advanced/asset_manager.html">Asset Manager</a>
+</p>
+
+</div>
+
+<h3><a>How do I Create 3-D models?</a></h3>
+<div>
+
+<p>
+You create 3-D models in a 3-D mesh editor, for example Blender, and export it in Ogre Mesh <acronym title="Extensible Markup Language">XML</acronym> or Wavefront OBJ format.
+<br/>
+<strong>Learn more:</strong>  <a href="/com/jme3/gde/core/docs/jme3/advanced/3d_models.html">3D Models</a>, <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://blender.org"><param name="text" value="<html><u>Download Blender</u></html>"><param name="textColor" value="blue"></object>, <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://en.wikibooks.org/wiki/Blender_3D:_Noob_to_Pro"><param name="text" value="<html><u>Blender tutorial</u></html>"><param name="textColor" value="blue"></object>, <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://www.ogre3d.org/wiki/index.php/Blender_Exporter"><param name="text" value="<html><u>Blender-to-Ogre plugin</u></html>"><param name="textColor" value="blue"></object>.
+</p>
+
+</div>
+
+<h3><a>How do I load a 3-D model into the scene?</a></h3>
+<div>
+
+<p>
+Use the jMonkeyPlatform to convert models from Ogre <acronym title="Extensible Markup Language">XML</acronym> or Wavefront OBJ formats to .j3o binary format. Load the .j3o file using the AssetManager.
+
+</p>
+<pre>// To load .../jMonkeyProjects/MyGame/assets/Models/Ninja/Ninja.mesh.xml
+Spatial ninja = assetManager.loadModel&#40;&quot;Models/Ninja/Ninja.mesh.xml&quot;&#41;;</pre>
+
+<p>
+
+<strong>Learn more:</strong> <a href="/com/jme3/gde/core/docs/jme3/beginner/hello_asset.html">Hello Asset</a>, <a href="/com/jme3/gde/core/docs/jme3/advanced/asset_manager.html">Asset Manager</a>, <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/core/com/jme3/asset/AssetManager.java"><param name="text" value="<html><u>come.jme3.assets.AssetManager</u></html>"><param name="textColor" value="blue"></object>, <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/ogre/com/jme3/scene/plugins/ogre/"><param name="text" value="<html><u>com.jme3.scene.plugins.ogre], [[http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/core/com/jme3/scene/Geometry.java|com.jme3.scene.Geometry</u></html>"><param name="textColor" value="blue"></object>, <a href="/com/jme3/gde/core/docs/sdk/model_loader_and_viewer.html">jMonkeyPlatform j3o converter</a>,
+<br/>
+<strong>Code sample:</strong> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/model/TestOgreLoading.java"><param name="text" value="<html><u>TestOgreLoading.java</u></html>"><param name="textColor" value="blue"></object>, <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/export/TestOgreConvert.java"><param name="text" value="<html><u>TestOgreConvert.java</u></html>"><param name="textColor" value="blue"></object>.
+
+</p>
+
+</div>
+
+<h3><a>How do initialize the scene?</a></h3>
+<div>
+
+<p>
+Use the simpleInitApp() method in SimpleApplication (or initApp() in Application).
+<br/>
+<strong>Learn more:</strong> <a href="/com/jme3/gde/core/docs/jme3/beginner/hello_simpleapplication.html">Hello SimpleApplication</a>, <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/core/com/jme3/app/SimpleApplication.java"><param name="text" value="<html><u>com.jme3.app.SimpleApplication</u></html>"><param name="textColor" value="blue"></object>.
+</p>
+
+</div>
+
+<h2><a>I want to transform objects in the scene</a></h2>
+<div>
+
+</div>
+
+<h3><a>How do I move or turn or resize a spatial?</a></h3>
+<div>
+
+<p>
+To move or turn or resize a spatial you use transformations. You can concatenate transformations (e.g. perform rotations around several axes in one step using a Quaternion with <code>slerp()</code> or a com.jme3.math.Transform with interpolateTransforms().
+
+</p>
+<pre>spatial.setLocalTranslation&#40;1,-3,2.5f&#41;; spatial.rotate&#40;0,3.14f,0&#41;; spatial.scale&#40;2,2,2&#41;;</pre>
+
+<p>
+
+<strong>Learn more:</strong> <a href="/com/jme3/gde/core/docs/jme3/beginner/hello_node.html">Hello Node</a>, <a href="/com/jme3/gde/core/docs/jme3/advanced/spatial.html">Spatial</a>, <a href="/com/jme3/gde/core/docs/jme2/rotate.html">rotate</a>, <a href="/com/jme3/gde/core/docs/jme2/rotate_about_a_point.html">rotate_about_a_point</a>, <a href="/com/jme3/gde/core/docs/jme2/quaternion.html">quaternion</a>, <a href="/com/jme3/gde/core/docs/jme3/math_for_dummies.html">math_for_dummies</a>.
+</p>
+
+</div>
+
+<h3><a>How do I make a spatial move by itself?</a></h3>
+<div>
+
+<p>
+Change the geometry&#039;s translation (position) live in the update loop using setLocalTranslation() for non-physical and setWalkDirection() for physical objects. You can also define and remote-control a spatial&#039;s motion using <a href="/com/jme3/gde/core/docs/jme3/advanced/cinematics.html">Cinematics</a>, e.g. to record cut scenes.
+<br/>
+<strong>Learn more:</strong> <a href="/com/jme3/gde/core/docs/jme3/beginner/hello_main_event_loop.html">Hello Loop</a>, <a href="/com/jme3/gde/core/docs/jme3/advanced/update_loop.html">Update Loop</a>, <a href="/com/jme3/gde/core/docs/jme3/advanced/custom_controls.html">Custom Controls</a>, <a href="/com/jme3/gde/core/docs/jme3/advanced/cinematics.html">Cinematics</a>
+<br/>
+<strong>Code sample:</strong> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/material/TestBumpModel.java"><param name="text" value="<html><u>TestBumpModel.java</u></html>"><param name="textColor" value="blue"></object>, <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/model/TestOgreLoading.java"><param name="text" value="<html><u>TestOgreLoading.java</u></html>"><param name="textColor" value="blue"></object>
+</p>
+
+</div>
+
+<h3><a>How do I access a named sub-mesh in Model?</a></h3>
+<div>
+<pre>Geometry result = spatial.getName&#40;&#41;.startsWith&#40;name&#41;;</pre>
+
+<p>
+
+<strong>Learn more:</strong> <a href="/com/jme3/gde/core/docs/jme3/advanced/spatial.html">Spatial</a>
+</p>
+
+</div>
+
+<h3><a>How do I make procedural or custom shapes?</a></h3>
+<div>
+
+<p>
+You can programmatically create com.jme3.scene.Mesh&#039;es.
+<br/>
+<strong>Learn more:</strong> <a href="/com/jme3/gde/core/docs/jme3/advanced/custom_meshes.html">Custom Meshes</a>
+</p>
+
+</div>
+
+<h2><a>I want to change the surface of objects in the scene</a></h2>
+<div>
+
+</div>
+
+<h3><a>Why is my UV wrapping / texture appearance all wrong?</a></h3>
+<div>
+
+<p>
+The most likely reason is the flipping of textures. You may be using the following default method:
+
+</p>
+<pre>  material.setTexture&#40;&quot;ColorMap&quot;, assetManager.loadTexture&#40;&quot;myTexture.jpg&quot;&#41;&#41;;</pre>
+
+<p>
+
+You can set the boolean value in the constructor of TextureKey to flipped or not flipped. Toggle the boolean to see if it fixes your UV wrapping/texture problem:
+
+</p>
+<pre>  material.setTexture&#40;&quot;ColorMap&quot;, this.assetManager.loadTexture&#40;new TextureKey&#40;&quot;myTexture.jpg&quot;, false&#41;&#41;&#41;;</pre>
+
+</div>
+
+<h3><a>How do I scale, mirror, or wrap a texture?</a></h3>
+<div>
+
+<p>
+You cannot scale a texture, but you scale the texture coordinates of the mesh the texture is applied to:
+
+</p>
+<pre>mesh.scaleTextureCoordinates&#40;new Vector2f&#40;2,2&#41;&#41;;</pre>
+
+<p>
+
+You can choose among various <code>com.jme3.texture.Texture.WrapMode</code>s for individual texture maps of a material: BorderClamp, EdgeClamp, Clamp; MirrorBorderClamp, MirrorEdgeClamp, MirrorClamp; Repeat, MirroredRepeat.
+
+</p>
+<pre>material.getTextureParam&#40;&quot;DiffuseMap&quot;&#41;.getTextureValue&#40;&#41;.setWrap&#40;WrapMode.Repeat&#41;;</pre>
+
+</div>
+
+<h3><a>How do I change color or shininess of an material?</a></h3>
+<div>
+
+<p>
+Use the AssetManager to load Materials, and change material settings.
+<br/>
+<strong>Learn more:</strong> <a href="/com/jme3/gde/core/docs/jme3/beginner/hello_material.html">Hello Material</a>, <a href="/com/jme3/gde/core/docs/jme3/advanced/materials_overview.html">Materials Overview</a>, <a href="/com/jme3/gde/core/docs/jme3/advanced/asset_manager.html">Asset Manager</a>
+<br/>
+<strong>Code sample:</strong> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/light/TestNormalMapping.java"><param name="text" value="<html><u>TestNormalMapping.java</u></html>"><param name="textColor" value="blue"></object>, <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/model/TestSphere.java"><param name="text" value="<html><u>TestSphere.java</u></html>"><param name="textColor" value="blue"></object>.
+</p>
+
+</div>
+
+<h3><a>How do I make a surface wood, stone, metal, etc?</a></h3>
+<div>
+
+<p>
+Create Textures as image files. Use the AssetManager to load a Material and set the material&#039;s texture maps.
+<br/>
+<strong>Learn more:</strong> <a href="/com/jme3/gde/core/docs/jme3/beginner/hello_material.html">Hello Material</a>, <a href="/com/jme3/gde/core/docs/jme3/advanced/materials_overview.html">Materials Overview</a>, <a href="/com/jme3/gde/core/docs/jme3/advanced/asset_manager.html">Asset Manager</a>, <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/core/com/jme3/asset/AssetManager.java"><param name="text" value="<html><u>come.jme3.assets.AssetManager</u></html>"><param name="textColor" value="blue"></object>, <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://wiki.blender.org/index.php/Doc:Manual/Textures/Maps/Bump_and_Normal_Maps"><param name="text" value="<html><u>Blender: Creating Bump Maps and Normal maps</u></html>"><param name="textColor" value="blue"></object>
+<br/>
+<strong>Code sample:</strong> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/material/TestSimpleBumps.java"><param name="text" value="<html><u>TestSimpleBumps.java</u></html>"><param name="textColor" value="blue"></object>
+</p>
+
+</div>
+
+<h3><a>Why are materials too bright, too dark, or flickering?</a></h3>
+<div>
+
+<p>
+If you use a lit material (based on Lighting.j3md) then you must attach a light source to the rootNode, otherwise you see nothing. If you use lit material colors, make sure you have specified an Ambient color (can be the same as the Diffuse color) if you use an AmbientLight. If you see objects, but they are gray or too dark, set the light color to white, or make it brighter (you can multiply the color value with a scalar), or add a global light source (AmbientLight). Similarly, if everything is white, tune down the lights. If materials flicker under a directional light, change the light direction vector. Change the background color (which is independent of light sources) to get a better contrast while debugging a light problem.
+</p>
+
+</div>
+
+<h3><a>How do I make geometries cast a shadow?</a></h3>
+<div>
+
+<p>
+Use com.jme3.shadow.BasicShadowRenderer together with com.jme3.light.DirectionalLight, and setShadowMode().
+<br/>
+<strong>Learn more:</strong> <a href="/com/jme3/gde/core/docs/jme3/advanced/light_and_shadow.html">Light and Shadow</a>
+<br/>
+<strong>Code sample:</strong> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/jme3test/fx/TestEverything.java"><param name="text" value="<html><u>TestEverything.java</u></html>"><param name="textColor" value="blue"></object>, <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/jme3test/light/TestShadow.java"><param name="text" value="<html><u>TestShadow.java</u></html>"><param name="textColor" value="blue"></object>
+</p>
+
+</div>
+
+<h3><a>How do I make materials transparent?</a></h3>
+<div>
+
+<p>
+Assign a texture with an alpha channel to a Material and set the Material&#039;s blend mode to alpha. Use this to create transparent or translucent materials such as glass, window panes, water, tree leaves, etc.
+
+</p>
+<pre>material.getAdditionalRenderState&#40;&#41;.setBlendMode&#40;BlendMode.Alpha&#41;;</pre>
+
+<p>
+
+<strong>Learn more:</strong>  <a href="/com/jme3/gde/core/docs/jme3/beginner/hello_material.html">Hello Material</a>, <a href="/com/jme3/gde/core/docs/jme3/advanced/materials_overview.html">Materials Overview</a>
+</p>
+
+</div>
+
+<h3><a>How do I force or disable backface culling?</a></h3>
+<div>
+
+<p>
+You can switch the com.jme3.material.RenderState.FaceCullMode to Back, Front, FrontAndBack, or Off. This influences whether the front or backside of an object is being drawn. By default, backsides are culled (not drawn) because they are usually not visible anyway.
+
+</p>
+<pre>material.getAdditionalRenderState&#40;&#41;.setFaceCullMode&#40;FaceCullMode.FrontAndBack&#41;;</pre>
+
+</div>
+
+<h3><a>Can I draw only an outline of the scene?</a></h3>
+<div>
+
+<p>
+Create a material and switch its renders state to wireframe.
+
+</p>
+<pre>material.getAdditionalRenderState&#40;&#41;.setWireframe&#40;true&#41;;</pre>
+
+<p>
+
+<strong>Learn more:</strong> <a href="/com/jme3/gde/core/docs/jme3/advanced/debugging.html">Debugging</a>.
+</p>
+
+</div>
+
+<h2><a>I want to control the camera</a></h2>
+<div>
+
+</div>
+
+<h3><a>How do I switch between third-person and first-person view ?</a></h3>
+<div>
+
+<p>
+The default camera is the <code>cam</code> object. <strong>Learn more:</strong> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/core/com/jme3/renderer/Camera.java"><param name="text" value="<html><u>com.jme3.renderer.Camera</u></html>"><param name="textColor" value="blue"></object>
+</p>
+<ul>
+<li><div> You can activate the FlyBy Cam as a first-person camera. <br/>
+<strong>Learn more:</strong> <a href="/com/jme3/gde/core/docs/jme3/beginner/hello_collision.html">Hello Collision</a>. <br/>
+<strong>Code sample:</strong>  <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/core/com/jme3/input/FlyByCam.java"><param name="text" value="<html><u>com.jme3.input.FlyByCamera</u></html>"><param name="textColor" value="blue"></object> <pre>flyCam.setEnabled&#40;true&#41;;</pre>
+</div>
+</li>
+<li><div> You can also create a third-person chase cam. <br/>
+<strong>Learn more:</strong> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/core/com/jme3/input/ChaseCamera.java"><param name="text" value="<html><u>com.jme3.input.ChaseCamera</u></html>"><param name="textColor" value="blue"></object> <br/>
+<strong>Code sample:</strong> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/input/TestChaseCamera.java"><param name="text" value="<html><u>jme3test/input/TestChaseCamera.java</u></html>"><param name="textColor" value="blue"></object>. <pre>flyCam.setEnabled&#40;false&#41;;
+chaseCam = new ChaseCamera&#40;cam, spatial, inputManager&#41;;</pre>
+</div>
+</li>
+</ul>
+
+</div>
+
+<h3><a>How do I increase camera speed?</a></h3>
+<div>
+<pre>flyCam.setMoveSpeed&#40;50f&#41;;</pre>
+
+</div>
+
+<h2><a>Actions, Interactions, Physics</a></h2>
+<div>
+
+</div>
+
+<h3><a>How do I implement game logic / game mechanics?</a></h3>
+<div>
+
+<p>
+Use Controls to define the behaviour of types of Spatials. Use Application States to implement global behaviour. Use the <code>simpleUpdate()</code> loop for the remaining tests and interactions. Use Cinematics to remote-control objects in scenes.
+<br/>
+<strong>Learn more:</strong> <a href="/com/jme3/gde/core/docs/jme3/beginner/hello_main_event_loop.html">Hello Loop</a>, <a href="/com/jme3/gde/core/docs/jme3/advanced/update_loop.html">Update Loop</a>, <a href="/com/jme3/gde/core/docs/jme3/advanced/custom_controls.html">Custom Controls</a>, <a href="/com/jme3/gde/core/docs/jme3/advanced/application_states.html">Application States</a>, <a href="/com/jme3/gde/core/docs/jme3/advanced/cinematics.html">Cinematics</a>
+</p>
+
+</div>
+
+<h3><a>How do I let players interact via keyboard?</a></h3>
+<div>
+
+<p>
+Use com.jme3.input.KeyInput and a Input Listener.
+<br/>
+<strong>Learn more:</strong> <a href="/com/jme3/gde/core/docs/jme3/beginner/hello_input_system.html">Hello Input</a>, <a href="/com/jme3/gde/core/docs/jme3/advanced/input_handling.html">Input Handling</a>
+</p>
+
+</div>
+
+<h3><a>How do I let players interact by clicking?</a></h3>
+<div>
+
+<p>
+Players use the mouse to pick up objects, to open doors, to shoot a weapon, etc. Use an Input Listener to respond to mouse clicks, then cast a ray from the player; if it intersect with the bounding volume of a spatial, this is the selected target. The links below contain code samples for both &quot;fixed crosshair&quot; picking and &quot;free mouse pointer&quot; picking.
+<br/>
+<strong>Learn more:</strong> <a href="/com/jme3/gde/core/docs/jme3/beginner/hello_picking.html">Hello Picking</a>, <a href="/com/jme3/gde/core/docs/jme3/advanced/mouse_picking.html">Mouse Picking</a>, <a href="/com/jme3/gde/core/docs/jme3/advanced/collision_and_intersection.html">Collision and Intersection</a>, <a href="/com/jme3/gde/core/docs/jme3/advanced/input_handling.html">Input Handling</a>, com.jme3.bounding.*, com.jme3.math.Ray, com.jme3.collision.CollisionResults.
+<br/>
+<strong>Code sample:</strong> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/bounding/TestRayCollision.java"><param name="text" value="<html><u>TestRayCollision.java</u></html>"><param name="textColor" value="blue"></object>
+</p>
+
+</div>
+
+<h3><a>How do I animate characters?</a></h3>
+<div>
+
+<p>
+Create an animated OgreMesh model with bones in a 3-D mesh editor (e.g. Blender).
+<br/>
+<strong>Learn more:</strong> com.jme3.animation.*, <a href="/com/jme3/gde/core/docs/jme3/beginner/hello_animation.html">Hello Animation</a>, <a href="/com/jme3/gde/core/docs/jme3/advanced/animation.html">Animation</a>, <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://wiki.blender.org/index.php/Doc:Tutorials/Animation/BSoD/Character_Animation"><param name="text" value="<html><u>Blender animation tutorial</u></html>"><param name="textColor" value="blue"></object>
+<br/>
+<strong>Code sample:</strong>  <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/model/anim/"><param name="text" value="<html><u>animation</u></html>"><param name="textColor" value="blue"></object>
+</p>
+
+</div>
+
+<h3><a>How do I keep players from falling through walls and floors?</a></h3>
+<div>
+
+<p>
+Use collision detection. The most common solution is to use jme&#039;s physics integration.
+<br/>
+<strong>Learn more:</strong> <a href="/com/jme3/gde/core/docs/jme3/beginner/hello_collision.html">Hello Collision</a>, <a href="/com/jme3/gde/core/docs/jme3/advanced/physics.html">Physics</a>, com.jme3.bullet.*, CapsuleCollisionShape versus CompoundCollisionShape, CharacterControl versus RigidBodyControl.
+</p>
+
+</div>
+
+<h3><a>How do I make balls/wheels/etc bounce and roll?</a></h3>
+<div>
+
+<p>
+Add physics controls to Spatials and give them spherical or cylindrical bounding volumes.
+<br/>
+<strong>Learn more:</strong> <a href="/com/jme3/gde/core/docs/jme3/beginner/hello_physics.html">Hello Physics</a>, <a href="/com/jme3/gde/core/docs/jme3/advanced/physics.html">Physics</a>, com.jme3.bounding.*, com.jme3.bullet.collisions, com.jme3.bullet.controls.RigidBodyControl,
+<br/>
+<strong>Code sample:</strong> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/bullet/TestSimplePhysics.java"><param name="text" value="<html><u>TestSimplePhysics.java</u></html>"><param name="textColor" value="blue"></object>, <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/bullet"><param name="text" value="<html><u>more physics samples</u></html>"><param name="textColor" value="blue"></object>
+</p>
+
+</div>
+
+<h3><a>How do I debug weird Physics behaviour?</a></h3>
+<div>
+
+<p>
+Maybe your collision shapes overlap – or they are not where you think they are. Make the collision shapes visible by adding the following line after the bulletAppState initialization: 
+</p>
+<pre>bulletAppState.getPhysicsSpace&#40;&#41;.enableDebug&#40;assetManager&#41;;</pre>
+
+</div>
+
+<h3><a>How do I make a walking character?</a></h3>
+<div>
+
+<p>
+Use a CharacterControl that locks the physical object upright, so it does not tip over when moving/walking (as tall physical objects are wont to do).
+<br/>
+<strong>Learn more:</strong> CharacterControl
+<br/>
+Code samples: <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/bullet/TestQ3.java"><param name="text" value="<html><u>TestQ3.java</u></html>"><param name="textColor" value="blue"></object> (first-person), <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/bullet/TestPhysicsCharacter.java"><param name="text" value="<html><u>TestPhysicsCharacter.java</u></html>"><param name="textColor" value="blue"></object> (third-person)
+</p>
+
+</div>
+
+<h3><a>How do I steer vehicles?</a></h3>
+<div>
+
+<p>
+Use a VehicleControl that supports suspension behavior.
+<br/>
+<strong>Learn more:</strong> <a href="/com/jme3/gde/core/docs/jme3/advanced/vehicles.html">Vehicles</a>, com.jme3.bullet.*, VehicleControl
+<br/>
+Code samples: <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/bullet/TestFancyCar.java"><param name="text" value="<html><u>TestFancyCar.java</u></html>"><param name="textColor" value="blue"></object>, (Press HUJK keys to steer, spacebar to jump.)
+</p>
+
+</div>
+
+<h3><a>Can objects swing like a pendulums, chains, ropebridges?</a></h3>
+<div>
+
+<p>
+Use PhysicsControl&#039;s joints.
+<br/>
+<strong>Learn more:</strong> <a href="/com/jme3/gde/core/docs/jme3/advanced/hinges_and_joints.html">Hinges and Joints</a>, com.jme3.bullet.joints.PhysicsHingeJoint,
+<object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/bullet/TestPhysicsHingeJoint.java"><param name="text" value="<html><u>TestPhysicsHingeJoint.java</u></html>"><param name="textColor" value="blue"></object> (Press HK keys to turn, spacebar to swing.)
+</p>
+
+</div>
+
+<h2><a>Default GUI Display</a></h2>
+<div>
+
+</div>
+
+<h3><a>How do I get rid of the debug display (fps, stats)?</a></h3>
+<div>
+
+<p>
+In the application&#039;s simpleInitApp() method, call: 
+</p>
+<pre>setDisplayFps(false);
+setDisplayStatView(false);</pre>
+
+</div>
+
+<h3><a>How do I display score, health, mini-maps, status icons?</a></h3>
+<div>
+
+<p>
+Attach text and pictures to the orthogonal <code>guiNode</code> to create a heads-up display (<object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://en.wikipedia.org/wiki/HUD_%28video_gaming%29"><param name="text" value="<html><u>HUD</u></html>"><param name="textColor" value="blue"></object>).
+<br/>
+<strong>Learn more:</strong> <a href="/com/jme3/gde/core/docs/jme3/advanced/hud.html">HUD</a>, com.jme3.font.*, com.jme3.ui.Picture, guiNode.attachChild()
+<br/>
+<strong>Code sample:</strong> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/gui/TestOrtho.java"><param name="text" value="<html><u>TestOrtho.java</u></html>"><param name="textColor" value="blue"></object>, <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/gui/TestBitmapFont.java"><param name="text" value="<html><u>TestBitmapFont.java</u></html>"><param name="textColor" value="blue"></object> |
+</p>
+
+</div>
+
+<h3><a>How do I display buttons and UI controls?</a></h3>
+<div>
+
+<p>
+You may want to display buttons to let the player switch between the game, settings screen, and score screens. For buttons and other more advanced UI controls, jME supports the Nifty <acronym title="Graphical User Interface">GUI</acronym> library.
+<br/>
+<strong>Learn more:</strong> <a href="/com/jme3/gde/core/docs/jme3/advanced/nifty_gui.html">Nifty GUI</a>
+<br/>
+Sample Code: <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/niftygui/TestNiftyGui.java"><param name="text" value="<html><u>TestNiftyGui.java</u></html>"><param name="textColor" value="blue"></object>
+</p>
+
+</div>
+
+<h3><a>How do i display a loading screen?</a></h3>
+<div>
+
+<p>
+Instead of having a frozen frame while your games loads, you can have a loading screen while it loads. 
+<br/>
+<strong>Learn more:</strong> <a href="/com/jme3/gde/core/docs/jme3/advanced/loading_screen.html">Loading screen</a>
+</p>
+
+</div>
+
+<h2><a>Nifty GUI</a></h2>
+<div>
+
+</div>
+
+<h3><a>I get NoSuchElementException when adding controls (buttons etc)!</a></h3>
+<div>
+
+<p>
+Verify that you include a controls definition file link in your <acronym title="Extensible Markup Language">XML</acronym>: This is the default:
+
+</p>
+<pre><span>&lt;useControls filename=&quot;nifty-default-controls.xml&quot;/&gt;</span></pre>
+
+</div>
+
+<h3><a>Where can I find example code of Nifty GUI&#039;s XML and Java classes?</a></h3>
+<div>
+
+<p>
+<object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://nifty-gui.svn.sourceforge.net/viewvc/nifty-gui/nifty-examples/trunk/src/main/"><param name="text" value="<html><u>http://nifty-gui.svn.sourceforge.net/viewvc/nifty-gui/nifty-examples/trunk/src/main/</u></html>"><param name="textColor" value="blue"></object>
+</p>
+
+</div>
+
+<h3><a>Is there Java Doc for Nifty GUI?</a></h3>
+<div>
+
+<p>
+<a href="/com/jme3/gde/core/docs/jme3/advanced/nifty_gui_java_interaction#useful_links.html">Nifty GUI 1.3 Java docs</a>
+</p>
+
+</div>
+
+<h2><a>I want to create an environment with sounds, effects, and landscapes</a></h2>
+<div>
+
+</div>
+
+<h3><a>How do I play sounds and noises?</a></h3>
+<div>
+
+<p>
+Use AudioRenderer, Listener, and AudioNode from com.jme3.audio.*.
+<br/>
+<strong>Learn more:</strong> <a href="/com/jme3/gde/core/docs/jme3/beginner/hello_audio.html">Hello Audio</a>, <a href="/com/jme3/gde/core/docs/jme3/advanced/audio.html">Audio</a>
+<br/>
+<strong>Code sample:</strong> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/audio"><param name="text" value="<html><u>audio</u></html>"><param name="textColor" value="blue"></object>
+</p>
+
+</div>
+
+<h3><a>How do I make fire, smoke, explosions, swarms, magic spells?</a></h3>
+<div>
+
+<p>
+For swarm like effects you use particle emitters.
+<br/>
+<strong>Learn more:</strong> <a href="/com/jme3/gde/core/docs/jme3/beginner/hello_effects.html">Hello Effects</a>, <a href="/com/jme3/gde/core/docs/jme3/advanced/particle_emitters.html">Particle Emitters</a>, <a href="/com/jme3/gde/core/docs/jme3/advanced/bloom_and_glow.html">Bloom and Glow</a>, <a href="/com/jme3/gde/core/docs/jme3/advanced/effects_overview.html">Effects Overview</a>, com.jme3.effect.EmitterSphereShape, com.jme3.effect.ParticleEmitter
+<br/>
+<strong>Code sample:</strong> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/fx/TestExplosionEffect.java"><param name="text" value="<html><u>TestExplosionEffect.java</u></html>"><param name="textColor" value="blue"></object>, <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/fx/TestParticleEmitter.java"><param name="text" value="<html><u>TestParticleEmitter.java</u></html>"><param name="textColor" value="blue"></object>
+</p>
+
+</div>
+
+<h3><a>How do I make water, waves, reflections?</a></h3>
+<div>
+
+<p>
+Use a special post-processor renderer from com.jme3.water.*.
+<br/>
+<strong>Learn more:</strong> <a href="/com/jme3/gde/core/docs/jme3/advanced/water.html">Water</a>, <a href="/com/jme3/gde/core/docs/jme3/advanced/post-processor_water.html">Post-Processor Water</a>
+<br/>
+<strong>Code sample:</strong> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/water/TestSimpleWater.java"><param name="text" value="<html><u>TestSimpleWater.java</u></html>"><param name="textColor" value="blue"></object>, <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/water/TestSceneWater.java"><param name="text" value="<html><u>TestSceneWater.java</u></html>"><param name="textColor" value="blue"></object>, <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/water/TestPostWaterLake.java"><param name="text" value="<html><u>TestPostWaterLake.java</u></html>"><param name="textColor" value="blue"></object>, <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/water/TestPostWater.java"><param name="text" value="<html><u>TestPostWater.java</u></html>"><param name="textColor" value="blue"></object>
+</p>
+
+</div>
+
+<h3><a>How do I make fog, bloom, blur, light scrattering?</a></h3>
+<div>
+
+<p>
+Use special post-processor renderers from com.jme3.post.*.
+<br/>
+<strong>Learn more:</strong> <a href="/com/jme3/gde/core/docs/jme3/advanced/effects_overview.html">effects_overview</a>
+</p>
+
+</div>
+
+<h3><a>How do I generate a terrain?</a></h3>
+<div>
+
+<p>
+Use com.jme3.terrain.*. The JMonkeyEngine also provides you with a Terrain Editor plugin.
+<br/>
+<strong>Learn more:</strong> <a href="/com/jme3/gde/core/docs/jme3/beginner/hello_terrain.html">Hello Terrain</a>, <a href="/com/jme3/gde/core/docs/jme3/advanced/terrain.html">Terrain</a>, <a href="/com/jme3/gde/core/docs/sdk/terrain_editor.html">Terrain Editor</a>
+<br/>
+<strong>Code sample:</strong> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/terrain/TestTerrain.java"><param name="text" value="<html><u>TestTerrain.java</u></html>"><param name="textColor" value="blue"></object>
+</p>
+
+</div>
+
+<h3><a>How do I make a sky?</a></h3>
+<div>
+
+<p>
+<strong>Code sample:</strong> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/texture/TestCubeMap.java"><param name="text" value="<html><u>TestCubeMap.java</u></html>"><param name="textColor" value="blue"></object>
+
+</p>
+<pre>rootNode.attachChild&#40;SkyFactory.createSky&#40; assetManager,
+       &quot;Textures/Sky/Bright/BrightSky.dds&quot;, false&#41;&#41;;
+skyGeo.setQueueBucket&#40;Bucket.Sky&#41; </pre>
+
+<p>
+
+<strong>Learn more:</strong> <a href="/com/jme3/gde/core/docs/jme3/advanced/sky.html">Sky</a>
+</p>
+
+</div>
+
+<h2><a>I want to access to back-end properties</a></h2>
+<div>
+
+</div>
+
+<h3><a>How do I read out graphic card capabilities?</a></h3>
+<div>
+
+<p>
+If your game is heavily using features that older cards do not support, you can add a check of the JME3 Renderer Caps.
+
+</p>
+<pre>Collection&lt;com.jme3.renderer.Caps&gt; caps = renderer.getCaps&#40;&#41;;
+Logger.getLogger&#40;HelloJME3.class.getName&#40;&#41;&#41;.log&#40;Level.INFO, &quot;Capabilities: {0}&quot; + caps.toString&#40;&#41;&#41;;</pre>
+
+<p>
+
+The following shortened example shows the capabilities of an older graphic card. In this case you decide whether to branch to a low-quality rendering of the unsupported features (if you still want to support this card), or print an error message explaining the user what capabilities the card is missing to play the game.
+
+</p>
+<pre>INFO: Running on jMonkey Engine 3 Alpha 0.6
+INFO: Using LWJGL 2.7.1
+INFO: Selected display mode: 1024 x 768 x 0 @0Hz
+INFO: Adapter: null
+INFO: Driver Version: null
+INFO: Vendor: ATI Technologies Inc.
+INFO: OpenGL Version: 2.0 ATI-1.6.36
+INFO: Renderer: ATI Radeon X1600 OpenGL Engine
+INFO: GLSL Ver: 1.20
+INFO: Timer resolution: 1.000 ticks per second
+INFO: Capabilities: [FrameBuffer, FrameBufferMRT, FrameBufferMultisample,
+OpenGL20, ARBprogram, GLSL100, GLSL110, GLSL120, VertexTextureFetch,
+FloatTexture, TextureCompressionLATC, NonPowerOfTwoTextures]</pre>
+
+</div>
+
+<h3><a>How do I optimize the heck out of the Scene Graph?</a></h3>
+<div>
+<pre>jme3tools.optimize.GeometryBatchFactory.optimize&#40;rootNode&#41;;</pre>
+
+</div>
+
+<h2><a>I want to do maths</a></h2>
+<div>
+
+</div>
+
+<h3><a>What does addLocal() / multLocal() etc mean?</a></h3>
+<div>
+
+<p>
+Many maths functions (mult(), add(), subtract(), etc) come as local and a non-local variant (multLocal(), addLocal(), subtractLocal(), etc).
+</p>
+<ol>
+<li><div> Non-local means a new independent object is created (similar to clone()) as a return value. Use non-local methods if you want to keep using the old value of the object calling the method.</div>
+<ul>
+<li><div> Example 1:  <code>Quaternion q1 = q2.mult(q3);</code></div>
+<ul>
+<li><div> Returns the result as a new Quaternion q1.</div>
+</li>
+<li><div> The involved objects q2 and q3 stay as they are and can be reused.</div>
+</li>
+</ul>
+</li>
+<li><div> Example 2: <code>v.mult(b).add(b);</code> <img src="/wiki/lib/images/smileys/icon_exclaim.gif" class="middle" alt=":!:" /></div>
+<ul>
+<li><div> <strong>Watch out:</strong> This calculates the expected result, but unless you actually use the return value, it is discarded!</div>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><div> Local means that no new objects are created, instead, the calling object is modified. Use this if you are sure you no longer need the old value of the calling object.</div>
+<ul>
+<li><div> Example 1: <code>q2.multLocal(q3)</code></div>
+<ul>
+<li><div> Calculates q2*q3 without creating temp objects.</div>
+</li>
+<li><div> The result is stored in the calling object q2. The old value of q2 is gone.</div>
+</li>
+<li><div> Object q3 stays as it was.</div>
+</li>
+</ul>
+</li>
+<li><div> Example 2:<code>v.multLocal(a).addLocal(b);</code></div>
+<ul>
+<li><div> Calculates the expected result without creating temp objects.</div>
+</li>
+<li><div> The result is stored in the calling object v. The old value of v is gone.</div>
+</li>
+<li><div> The objects a and b stay as they were.</div>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+
+</div>
+
+<h3><a>What is the difference between World and Local coordinates?</a></h3>
+<div>
+
+<p>
+World coordinates of a Spatial are its absolute coordinates in the 3D scene (this is like giving GPS coordinates). Local coordinates are relative to the Spatial&#039;s parent Spatial (this is like saying, &quot;I&#039;m ten meters left of the entrance&quot;).
+
+</p>
+
+</div>
+
+<h3><a>How do I convert Degrees to Radians?</a></h3>
+<div>
+
+<p>
+
+Multiply degree value by FastMath.DEG_TO_RAD to convert it to radians.
+
+</p>
+
+</div>
+<p><em><a href="http://direct.jmonkeyengine.org/wiki/doku.php/jme3:faq?do=export_xhtmlbody">view online version</a></em></p>

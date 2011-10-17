@@ -1,33 +1,147 @@
-<h1><a
-name="shapes">Shapes</a></h1><div
-class="level1"><p> The simplest type of Meshes are jME&#039;s default Shapes. You can use Shapes to build complex Geometries. Shapes are created without using the AssetManager.</p><p> <strong>3D shapes:</strong></p><ul><li
-class="level1"><div
-class="li"> com.jme3.scene.shape.Sphere – A ball or elipsoid.</div></li><li
-class="level1"><div
-class="li"> com.jme3.scene.shape.Box – A cube or cuboid.</div></li><li
-class="level1"><div
-class="li"> com.jme3.scene.shape.Cylinder – A disk or pillar.</div></li><li
-class="level1"><div
-class="li"> com.jme3.scene.shape.Dome – Half a sphere.</div></li><li
-class="level1"><div
-class="li"> com.jme3.scene.shape.Torus – An single-holed torus (&quot;donut&quot;).</div></li><li
-class="level1"><div
-class="li"> com.jme3.scene.shape.PQTorus – A parameterized torus, also known as PQ torus. Looks like a <a
-href="http://en.wikipedia.org/wiki/Torus_knot">donut knotted into spirals</a>.</div></li></ul><p> <strong>Non-3D shapes:</strong></p><ul><li
-class="level1"><div
-class="li"> com.jme3.scene.shape.Quad – A flat 2D rectangle (has two sides)</div></li><li
-class="level1"><div
-class="li"> com.jme3.scene.shape.Line – A 1D line (has a length)</div></li><li
-class="level1"><div
-class="li"> come.jme3.math.Ray – A 1D line (has length, direction, start point, but no end)</div></li></ul></div><h2><a
-name="usage">Usage</a></h2><div
-class="level2"><p> To add a shape to the scene:</p><ol><li
-class="level1"><div
-class="li"> Create the base mesh shape</div></li><li
-class="level1"><div
-class="li"> Wrap it into a Geometry</div></li><li
-class="level1"><div
-class="li"> Attach the Geometry to the rootNode to make it visible.</div></li></ol><pre>Sphere sphereMesh = new Sphere&#40;32, 32, 10, false, true&#41;;
-Geometry sphere = new Geometry&#40;&quot;Sky&quot;, sphereMesh&#41;;
-rootNode.attachChild&#40;sphere&#41;;</pre></div>
-<p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:shape?do=export_xhtmlbody">view online version</a></em></p>
+
+<h1><a>Shapes</a></h1>
+<div>
+
+<p>
+The simplest type of Meshes are the built-in JME Shapes. You can create Shapes without using the AssetManager.
+
+</p>
+
+</div>
+
+<h2><a>List of 3D shapes</a></h2>
+<div>
+<ul>
+<li><div> com.jme3.scene.shape.Box – A cube or cuboid. Single-sided Quad faces (outside only). </div>
+</li>
+<li><div> com.jme3.scene.shape.StripBox – A cube or cuboid. Solid filled faces (inside and outside).</div>
+</li>
+<li><div> com.jme3.scene.shape.Cylinder – A disk or pillar.</div>
+</li>
+<li><div> com.jme3.scene.shape.Sphere – A ball or elipsoid.</div>
+</li>
+<li><div> com.jme3.scene.shape.Dome – Semi-sphere, e.g. SkyDome. </div>
+</li>
+<li><div> com.jme3.scene.shape.Torus – An single-holed torus or &quot;donut&quot;.</div>
+</li>
+<li><div> com.jme3.scene.shape.PQTorus – A parameterized torus. A PQ-Torus looks like a <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://en.wikipedia.org/wiki/Torus_knot"><param name="text" value="<html><u>donut knotted into spirals</u></html>"><param name="textColor" value="blue"></object>.</div>
+</li>
+<li><div> com.jme3.scene.shape.Surface – A curved surface (called <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://en.wikipedia.org/wiki/File:NURBS_3-D_surface.gif"><param name="text" value="<html><u>NURBS</u></html>"><param name="textColor" value="blue"></object>) described by knots, weights and control points. Compare with shape.Curve.</div>
+</li>
+</ul>
+
+</div>
+
+<h2><a>List of Non-3D shapes</a></h2>
+<div>
+<ul>
+<li><div> com.jme3.scene.shape.Quad – A flat 2D rectangle (has two sides)</div>
+</li>
+<li><div> com.jme3.scene.shape.Line – A straight 1D line defined by a start and end point.</div>
+</li>
+<li><div> com.jme3.scene.shape.Curve – A curved 1D spline. Compare with shape.Surface.</div>
+</li>
+</ul>
+
+</div>
+
+<h3><a>Math versus Shape?</a></h3>
+<div>
+
+<p>
+Do not mix up these visible Shapes with similarly named classes from the maths package. Choose the right package when letting your IDE fill in the import statements!
+</p>
+<ul>
+<li><div> com.jme3.math.Line – is invisible, has a direction, goes through a point, infinite length.</div>
+</li>
+<li><div> com.jme3.math.Ray – is invisible, has a direction and start point, but no end.</div>
+</li>
+<li><div> com.jme3.math.Spline – is an invisible curve.</div>
+</li>
+<li><div> etc</div>
+</li>
+</ul>
+
+<p>
+These maths objects are invisible and are used for collision testing (ray casting) or to describe motion paths. They cannot be wrapped into a Geometry.
+
+</p>
+
+</div>
+
+<h2><a>Usage</a></h2>
+<div>
+
+</div>
+
+<h3><a>Basic Usage</a></h3>
+<div>
+
+<p>
+To add a shape to the scene:
+</p>
+<ol>
+<li><div> Create the base mesh shape.</div>
+</li>
+<li><div> Wrap it into a Geometry.</div>
+</li>
+<li><div> Assign a Material to the Geometry.</div>
+</li>
+<li><div> Attach the Geometry to the rootNode to make it visible.</div>
+</li>
+</ol>
+
+</div>
+
+<h3><a>Complex Shapes</a></h3>
+<div>
+
+<p>
+You can compose more complex custom Geometries out of simple Shapes. Think of the buildings in games like Angry Birds, or the building blocks in Second Life (&quot;prims&quot;) and in Tetris (&quot;Tetrominos&quot;).
+</p>
+<ol>
+<li><div> Create a Node. By default it is located at the origin (0/0/0) – leave the Node there for now.</div>
+</li>
+<li><div> Create your shapes and wrap each into a Geometry, as just described.</div>
+</li>
+<li><div> Attach each Geometry to the Node.</div>
+</li>
+<li><div> Arrange the Geometries around the Node (using <code>setLocalTranslation()</code>) so that the Node is in the center of the new constellation. The central Node is the pivot point for transformations (move/scale/rotate).</div>
+</li>
+<li><div> Move the pivot Node to its final location in the scene. Moving the pivot Node moves the attached constellation of Geometries with it.</div>
+</li>
+</ol>
+
+<p>
+The order is important: First arrange around origin, then transform. Otherwise, transformations are applied around the wrong center (pivot). Of course, you can attach your constellation to other pivot Nodes to create even more complex shapes (a chair, a furnished room, a house, a city, …), but again, arrange them around the origin first before you transform them.
+<br/>
+
+Note: Obviously, these composed Geometries are simpler than hand-sculpted meshes from a mesh editor.
+
+</p>
+
+</div>
+
+<h2><a>Code Examples</a></h2>
+<div>
+<pre>Sphere mesh = new Sphere&#40;32, 32, 10, false, true&#41;;</pre>
+<pre>Dome mesh = new Dome&#40;Vector3f.ZERO, 2, 4, 1f,false&#41;; // Pyramid</pre>
+<pre>Dome mesh = new Dome&#40;Vector3f.ZERO, 2, 32, 1f,false&#41;; // Cone</pre>
+<pre>Dome mesh = new Dome&#40;Vector3f.ZERO, 32, 32, 1f,false&#41;; // Small hemisphere</pre>
+<pre>Dome mesh = new Dome&#40;Vector3f.ZERO, 32, 32, 1000f,true&#41;; // SkyDome</pre>
+<pre>PQTorus mesh = new PQTorus&#40;5,3, 2f, 1f, 32, 32&#41;; // Spiral torus</pre>
+<pre>PQTorus mesh = new PQTorus&#40;3,8, 2f, 1f, 32, 32&#41;; // Flower torus</pre>
+
+<p>
+
+Use one of the above examples together with the following geometry in a scene:
+
+</p>
+<pre>Geometry geom = new Geometry&#40;&quot;A shape&quot;, mesh&#41;;
+Material mat = new Material&#40;assetManager,
+    &quot;Common/MatDefs/Misc/ShowNormals.j3md&quot;&#41;;
+geom.setMaterial&#40;mat&#41;;
+rootNode.attachChild&#40;geom&#41;;</pre>
+
+</div>
+<p><em><a href="http://direct.jmonkeyengine.org/wiki/doku.php/jme3:advanced:shape?do=export_xhtmlbody">view online version</a></em></p>

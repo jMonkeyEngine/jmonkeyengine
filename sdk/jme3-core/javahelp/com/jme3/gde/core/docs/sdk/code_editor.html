@@ -1,112 +1,252 @@
-<h1><a
-name="jmonkeyplatformcode_editor_and_palette">jMonkeyPlatform: Code Editor and Palette</a></h1><div
-class="level1"><p> The Source Code Editor is the central part of the jMonkeyPlatform. This documentation shows you how to make the most of the jMonkeyPlatform&#039;s assistive features.</p><p> Note: Since the jMonkeyPlatform is based on the NetBeans Platform framework, you can learn about certain jMonkeyPlatform features by reading the corresponding NetBeans IDE tutorials (in the &quot;see also links&quot;).</p></div><h2><a
-name="code_completion_and_code_generation">Code Completion and Code Generation</a></h2><div
-class="level2"><p> While typing Java code in the source code editor, you will see popups that help you to write more quickly by completing keywords, and generating code snippets. Additionally, they will let you see the javadoc for the classes you are working with.</p><p> <a
-href="/wiki/lib/exe/detail.php/sdk:netbeans_code_completion.png?id=sdk%3Acode_editor"><img
-src="nbdocs:/com/jme3/gde/core/docs/sdk/netbeans_code_completion.png" class="mediaright" align="right" alt="" /></a></p><p> Code Completion</p><ul><li
-class="level1"><div
-class="li"> Complete keyword / method / variable: <strong>Ctrl-Space</strong> (Alternatively use <strong>Ctrl-\</strong>)</div><ul><li
-class="level2"><div
-class="li"> Customize Code Completion options: Tools &gt; Options &gt; Editor &gt; Code Completion</div></li></ul></li><li
-class="level1"><div
-class="li"> Show expected parameters of this method in a tooltip: <strong>Ctrl-P</strong></div></li><li
-class="level1"><div
-class="li"> Complete any string (even non-Java) that has been used before: <strong>(Shift-)Ctrl-K</strong></div></li></ul><p> Code Generation</p><ul><li
-class="level1"><div
-class="li"> Auto-fix import statements: <strong>Ctrl-Shift-I</strong></div></li><li
-class="level1"><div
-class="li"> Auto-generate getters/setters, try/catch, equals/hashCode: <strong>Alt-Insert</strong></div><ul><li
-class="level2"><div
-class="li"> Customize code completion: Choose Tools &gt; Options &gt; Editor &gt; Code Completion</div></li></ul></li><li
-class="level1"><div
-class="li"> Auto-generate common code snippets such as loops, declarations, println, by typing the <strong>template name + TabKey</strong></div><ul><li
-class="level2"><div
-class="li"> Customize code templates: Choose Tools &gt; Options &gt; Editor &gt; Code Templates</div></li></ul></li><li
-class="level1"><div
-class="li"> Rename, move, or introduce methods, fields, and variables, without breaking the project: <strong>Refactoring menu</strong></div></li></ul></div><h2><a
-name="semantic_and_syntactic_coloring">Semantic and Syntactic Coloring</a></h2><div
-class="level2"><p> <a
-href="/wiki/lib/exe/detail.php/sdk:jmonkeyplatform-docu-5.png?id=sdk%3Acode_editor"><img
-src="nbdocs:/com/jme3/gde/core/docs/sdk/jmonkeyplatform-docu-5.png?w=421&amp;h=298" class="mediaright" align="right" alt="" width="421" height="298" /></a></p><p> The text color in the editor gives you important hints how the compiler will interpret what you typed, even before you compiled it.</p><p> Examples:</p><ul><li
-class="level1"><div
-class="li"> Java keywords are <strong>blue</strong>, variables and fields are <strong>green</strong>, parameters are <strong>orange</strong>.</div></li><li
-class="level1"><div
-class="li"> <del>Strikethrough</del> means deprecated method or field.</div></li><li
-class="level1"><div
-class="li"> <em
-class="u">Gray underline</em> means unused variable or method.</div></li><li
-class="level1"><div
-class="li"> Place the caret in a method or variable and all its ocurrences are marked <strong>tan</strong>.</div></li><li
-class="level1"><div
-class="li"> Place the caret in a method&#039;s return type to highlight all exit points</div></li><li
-class="level1"><div
-class="li"> and many more…</div></li></ul><p> To customize Colors and indentation:</p><ul><li
-class="level1"><div
-class="li"> Tools &gt; Options &gt; Editor &gt; Formatting.</div></li><li
-class="level1"><div
-class="li"> Tools &gt; Options &gt; Fonts and Colors.</div></li></ul></div><h2><a
-name="editor_hints_and_quick_fixes_aka_lightbulbs">Editor Hints and Quick Fixes (a.k.a. Lightbulbs)</a></h2><div
-class="level2"><p> Editor hints and quick fixes show as lightbulbs along the left edge of the editor. They point out warnings and errors, and often propose useful solutions!</p><ul><li
-class="level1"><div
-class="li"> Execute a quick fix: Place the caret in the line next to the lightbulb and press <strong>Alt-Enter</strong> (or click the lightbulb)</div><ul><li
-class="level2"><div
-class="li"> Customize hints: Choose Tools &gt; Options &gt; Editor &gt; Hints.</div></li></ul></li></ul></div><h2><a
-name="javadoc">Javadoc</a></h2><div
-class="level2"><ul><li
-class="level1"><div
-class="li"> Place the caret above a method or a class that has no Javadoc, type <code
-class="code html4strict">/**</code> and press Enter: The editor generates skeleton code for a Javadoc comment.</div></li><li
-class="level1"><div
-class="li"> Right-click the project in the Projects window and choose Generate Javadoc.</div></li><li
-class="level1"><div
-class="li"> Right-click a file and choose Tools &gt; Analyze Javadoc</div></li></ul><p> To display a javadoc popup in the editor, place the caret in a line and press <strong>Ctrl-Space</strong> (Alternatively use <strong>Ctrl-\</strong>).</p><ul><li
-class="level1"><div
-class="li"> If the javadoc popup doesn&#039;t work, make certain that</div><ul><li
-class="level2"><div
-class="li"> You have the Java <acronym
-title="Java Development Kit">JDK</acronym> documentation installed and set up: Tools &gt; Java Platforms</div></li><li
-class="level2"><div
-class="li"> You downloaded and set up javadoc for third-party libraries: Project properties &gt; Libraries &gt; Edit</div></li></ul></li></ul></div><h2><a
-name="navigating_the_jme3_source">Navigating the jME3 Source</a></h2><div
-class="level2"><p> When the JavaDoc does not deliver enough information, you can have a look at the source of every method or object of jME3 that you use. Just right-click the variable or method, select &quot;Navigate &gt; Go to source..&quot; and an editor will open showing you the source file of jME3.</p></div><h2><a
-name="palette">Palette</a></h2><div
-class="level2"><p> <a
-href="/wiki/lib/exe/detail.php/sdk:jmonkeyplatform-docu-4.png?id=sdk%3Acode_editor"><img
-src="nbdocs:/com/jme3/gde/core/docs/sdk/jmonkeyplatform-docu-4.png?w=421&amp;h=298" class="mediaright" align="right" alt="" width="421" height="298" /></a></p><p> Choose Windows &gt; Palette to open the context-sensitive Palette. The jMonkeyPlatform provides you with jme3 code snippets here that you can drag and drop into your source files.</p><ul><li
-class="level1"><div
-class="li"> Examples: Node and Model creation code snippets.</div></li></ul><p> Tip: Choose Tools &gt; Add to Palette… from the menu to add your own code snippets to the Palette. (not available yet in alpha build)</p></div><h2><a
-name="keyboard_shortcuts">Keyboard Shortcuts</a></h2><div
-class="level2"><p> Keyboard Shortcuts save you time when when you need to repeat common actions such as Build&amp;Run or navigation to files.</p><ul><li
-class="level1"><div
-class="li"> Go to File: <strong>Alt-Shift-O</strong></div></li><li
-class="level1"><div
-class="li"> Go to Type: <strong>Ctrl-O</strong></div></li><li
-class="level1"><div
-class="li"> Open in Projects / Files / Favorites window: <strong>Ctrl-Shift-1 / 2 / 3</strong></div></li><li
-class="level1"><div
-class="li"> Build&amp;Run Project / File: <strong>F6 / Shift-F6</strong></div></li><li
-class="level1"><div
-class="li"> Switch to Editor / Projects / Files / Navigator: <strong>Ctrl-0 / 1 / 3 / 7</strong></div></li><li
-class="level1"><div
-class="li"> Indent code: <strong>Ctrl-Shift-F</strong></div></li></ul><p> By default, jMonkeyEngine uses the same <a
-href="http://netbeans.org/project_downloads/www/shortcuts-6.5.pdf">Editor Shortcuts</a> as the NetBeans IDE, but you can also switch to an Eclipse Keymap, or create your own set.</p><ul><li
-class="level1"><div
-class="li"> Customize keyboard shortcuts: Tools &gt; Options &gt; Keymap</div></li></ul></div><h2><a
-name="tips_and_tricks">Tips and Tricks</a></h2><div
-class="level2"><ul><li
-class="level1"><div
-class="li"> To browse the physical file structure of your project, use the Files window: <strong>Ctrl-2</strong></div></li><li
-class="level1"><div
-class="li"> To open a file that is not part of a Java project, add it to the Favorites window: <strong>Ctrl-3</strong></div></li><li
-class="level1"><div
-class="li"> If you cannot find a particular menu item or option panel, use the IDE Search box in the top right! <strong>Ctrl-i</strong></div></li><li
-class="level1"><div
-class="li"> If a code block, class, or javadoc is quite long and you don&#039;t want to scroll over it, click the <strong>+/-</strong> signs to collapse (fold) the code block temporarily.</div></li><li
-class="level1"><div
-class="li"> Press <strong>F1</strong> for Help</div></li></ul><hr
-/><p> See also</p><ul><li
-class="level1"><div
-class="li"> <a
-href="http://netbeans.org/kb/docs/java/editor-codereference.html">Code Assistance</a></div></li></ul></div>
-<p><em><a href="http://jmonkeyengine.org/wiki/doku.php/sdk:code_editor?do=export_xhtmlbody">view online version</a></em></p>
+
+<h1><a>jMonkeyPlatform: Code Editor and Palette</a></h1>
+<div>
+
+<p>
+
+The Source Code Editor is the central part of the jMonkeyPlatform. This documentation shows you how to make the most of the jMonkeyPlatform&#039;s assistive features.
+</p>
+
+<p>
+Note: Since the jMonkeyPlatform is based on the NetBeans Platform framework, you can learn about certain jMonkeyPlatform features by reading the corresponding NetBeans IDE tutorials (in the &quot;see also links&quot;). 
+</p>
+
+</div>
+
+<h2><a>Code Completion and Code Generation</a></h2>
+<div>
+
+<p>
+
+While typing Java code in the source code editor, you will see popups that help you to write more quickly by completing keywords, and generating code snippets. Additionally, they will let you see the javadoc for the classes you are working with.
+</p>
+
+<p>
+<img src="nbdocs:/com/jme3/gde/core/docs/sdk/netbeans_code_completion.png">
+</p>
+
+<p>
+Code Completion
+</p>
+<ul>
+<li><div> Complete keyword / method / variable: <strong>Ctrl-Space</strong> (Alternatively use <strong>Ctrl-\</strong>)</div>
+<ul>
+<li><div> Customize Code Completion options: Tools &gt; Options &gt; Editor &gt; Code Completion </div>
+</li>
+</ul>
+</li>
+<li><div> Show expected parameters of this method in a tooltip: <strong>Ctrl-P</strong> </div>
+</li>
+<li><div> Complete any string (even non-Java) that has been used before: <strong>(Shift-)Ctrl-K</strong></div>
+</li>
+</ul>
+
+<p>
+
+Code Generation
+</p>
+<ul>
+<li><div> Auto-fix import statements: <strong>Ctrl-Shift-I</strong></div>
+</li>
+<li><div> Auto-generate getters/setters, try/catch, equals/hashCode: <strong>Alt-Insert</strong></div>
+<ul>
+<li><div> Customize code completion: Choose Tools &gt; Options &gt; Editor &gt; Code Completion</div>
+</li>
+</ul>
+</li>
+<li><div> Auto-generate common code snippets such as loops, declarations, println, by typing the <strong>template name + TabKey</strong> </div>
+<ul>
+<li><div> Customize code templates: Choose Tools &gt; Options &gt; Editor &gt; Code Templates</div>
+</li>
+</ul>
+</li>
+<li><div> Rename, move, or introduce methods, fields, and variables, without breaking the project: <strong>Refactoring menu</strong></div>
+</li>
+</ul>
+
+</div>
+
+<h2><a>Semantic and Syntactic Coloring</a></h2>
+<div>
+
+<p>
+
+<img src="nbdocs:/com/jme3/gde/core/docs/sdk/jmonkeyplatform-docu-5.png">
+</p>
+
+<p>
+The text color in the editor gives you important hints how the compiler will interpret what you typed, even before you compiled it.
+</p>
+
+<p>
+Examples:
+</p>
+<ul>
+<li><div> Java keywords are <strong>blue</strong>, variables and fields are <strong>green</strong>, parameters are <strong>orange</strong>. </div>
+</li>
+<li><div> <del>Strikethrough</del> means deprecated method or field. </div>
+</li>
+<li><div> <em>Gray underline</em> means unused variable or method.</div>
+</li>
+<li><div> Place the caret in a method or variable and all its ocurrences are marked <strong>tan</strong>.</div>
+</li>
+<li><div> Place the caret in a method&#039;s return type to highlight all exit points</div>
+</li>
+<li><div> and many more…</div>
+</li>
+</ul>
+
+<p>
+
+To customize Colors and indentation:
+</p>
+<ul>
+<li><div> Tools &gt; Options &gt; Editor &gt; Formatting.</div>
+</li>
+<li><div> Tools &gt; Options &gt; Fonts and Colors.</div>
+</li>
+</ul>
+
+</div>
+
+<h2><a>Editor Hints and Quick Fixes (a.k.a. Lightbulbs)</a></h2>
+<div>
+
+<p>
+
+Editor hints and quick fixes show as lightbulbs along the left edge of the editor. They point out warnings and errors, and often propose useful solutions! 
+
+</p>
+<ul>
+<li><div> Execute a quick fix: Place the caret in the line next to the lightbulb and press <strong>Alt-Enter</strong> (or click the lightbulb)</div>
+<ul>
+<li><div> Customize hints: Choose Tools &gt; Options &gt; Editor &gt; Hints.</div>
+</li>
+</ul>
+</li>
+</ul>
+
+</div>
+
+<h2><a>Javadoc</a></h2>
+<div>
+<ul>
+<li><div> Place the caret above a method or a class that has no Javadoc, type <code>/**</code> and press Enter: The editor generates skeleton code for a Javadoc comment. </div>
+</li>
+<li><div> Right-click the project in the Projects window and choose Generate Javadoc.</div>
+</li>
+<li><div> Right-click a file and choose Tools &gt; Analyze Javadoc</div>
+</li>
+</ul>
+
+<p>
+
+To display a javadoc popup in the editor, place the caret in a line and press <strong>Ctrl-Space</strong> (Alternatively use <strong>Ctrl-\</strong>).
+
+</p>
+<ul>
+<li><div> If the javadoc popup doesn&#039;t work, make certain that</div>
+<ul>
+<li><div> You have the Java <acronym title="Java Development Kit">JDK</acronym> documentation installed and set up: Tools &gt; Java Platforms </div>
+</li>
+<li><div> You downloaded and set up javadoc for third-party libraries: Project properties &gt; Libraries &gt; Edit</div>
+</li>
+</ul>
+</li>
+</ul>
+
+</div>
+
+<h2><a>Navigating the jME3 Source</a></h2>
+<div>
+
+<p>
+
+When the JavaDoc does not deliver enough information, you can have a look at the source of every method or object of jME3 that you use. Just right-click the variable or method, select &quot;Navigate &gt; Go to source..&quot; and an editor will open showing you the source file of jME3.
+</p>
+
+</div>
+
+<h2><a>Palette</a></h2>
+<div>
+
+<p>
+
+<img src="nbdocs:/com/jme3/gde/core/docs/sdk/jmonkeyplatform-docu-4.png">
+</p>
+
+<p>
+Choose Windows &gt; Palette to open the context-sensitive Palette. The jMonkeyPlatform provides you with jme3 code snippets here that you can drag and drop into your source files.
+</p>
+<ul>
+<li><div> Examples: Node and Model creation code snippets.</div>
+</li>
+</ul>
+
+<p>
+
+Tip: Choose Tools &gt; Add to Palette… from the menu to add your own code snippets to the Palette. (not available yet in alpha build)
+</p>
+
+</div>
+
+<h2><a>Keyboard Shortcuts</a></h2>
+<div>
+
+<p>
+
+Keyboard Shortcuts save you time when when you need to repeat common actions such as Build&amp;Run or navigation to files.
+</p>
+<ul>
+<li><div> Go to File: <strong>Alt-Shift-O</strong></div>
+</li>
+<li><div> Go to Type: <strong>Ctrl-O</strong></div>
+</li>
+<li><div> Open in Projects / Files / Favorites window: <strong>Ctrl-Shift-1 / 2 / 3</strong></div>
+</li>
+<li><div> Build&amp;Run Project / File: <strong>F6 / Shift-F6</strong></div>
+</li>
+<li><div> Switch to Editor / Projects / Files / Navigator: <strong>Ctrl-0 / 1 / 3 / 7</strong></div>
+</li>
+<li><div> Indent code: <strong>Ctrl-Shift-F</strong></div>
+</li>
+</ul>
+
+<p>
+
+By default, jMonkeyEngine uses the same <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://netbeans.org/project_downloads/www/shortcuts-6.5.pdf"><param name="text" value="<html><u>Editor Shortcuts</u></html>"><param name="textColor" value="blue"></object> as the NetBeans IDE, but you can also switch to an Eclipse Keymap, or create your own set.
+</p>
+<ul>
+<li><div> Customize keyboard shortcuts: Tools &gt; Options &gt; Keymap</div>
+</li>
+</ul>
+
+</div>
+
+<h2><a>Tips and Tricks</a></h2>
+<div>
+<ul>
+<li><div> To browse the physical file structure of your project, use the Files window: <strong>Ctrl-2</strong></div>
+</li>
+<li><div> To open a file that is not part of a Java project, add it to the Favorites window: <strong>Ctrl-3</strong></div>
+</li>
+<li><div> If you cannot find a particular menu item or option panel, use the IDE Search box in the top right! <strong>Ctrl-i</strong></div>
+</li>
+<li><div> If a code block, class, or javadoc is quite long and you don&#039;t want to scroll over it, click the <strong>+/-</strong> signs to collapse (fold) the code block temporarily.</div>
+</li>
+<li><div> Press <strong>F1</strong> for Help</div>
+</li>
+</ul>
+<hr />
+
+<p>
+See also
+
+</p>
+<ul>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://netbeans.org/kb/docs/java/editor-codereference.html"><param name="text" value="<html><u>Code Assistance</u></html>"><param name="textColor" value="blue"></object></div>
+</li>
+</ul>
+
+</div>
+<p><em><a href="http://direct.jmonkeyengine.org/wiki/doku.php/sdk:code_editor?do=export_xhtmlbody">view online version</a></em></p>

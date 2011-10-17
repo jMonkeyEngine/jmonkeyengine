@@ -1,55 +1,143 @@
-<h1><a
-name="physical_hinges_and_joints">Physical Hinges and Joints</a></h1><div
-class="level1"><p> The jMonkeyEngine3 has built-in support for <a
-href="http://jbullet.advel.cz">jBullet physics</a> via the <code>com.jme3.bullet</code> package.</p><p> Game Physics are not only employed to calculate collisions, but they can also simulate hinges and joints. Think of pulley chains, shaky rope bridges, swinging pendulums, or (trap)door and chest hinges. Physics are a great addition to e.g. an action or puzzle game.</p><p> In this example, we will create a pendulum. The joint is the (invisible) connection between the pendulum body and the hook. You will see that you can use what you learn from the simple pendulum and apply it to other joint/hinge objects (rope bridges, etc).</p></div><h2><a
-name="sample_code">Sample Code</a></h2><div
-class="level2"><ul><li
-class="level1"><div
-class="li"> <a
-href="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/bullet/TestPhysicsHingeJoint.java">TestPhysicsHingeJoint.java</a></div></li></ul></div><h2><a
-name="overview_of_this_physics_application">Overview of this Physics Application</a></h2><div
-class="level2"><ol><li
-class="level1"><div
-class="li"> Create a SimpleApplication with a <a
-href="/com/jme3/gde/core/docs/jme3/advanced/physics.html">BulletAppState</a></div><ul><li
-class="level2"><div
-class="li"> This gives us a PhysicsSpace for PhysicsControls</div></li></ul></li><li
-class="level1"><div
-class="li"> For the pendulum, we use a Spatial with a PhysicsControl, and we apply physical forces to them.</div><ul><li
-class="level2"><div
-class="li"> The parts of the &quot;pendulum&quot; are Physics Control&#039;ed Spatials with Collision Shapes.</div></li><li
-class="level2"><div
-class="li"> We create a fixed <code>hookNode</code> and a dynamic <code>pendulumNode</code>.</div></li></ul></li><li
-class="level1"><div
-class="li"> We can &quot;crank the handle&quot; and rotate the joint like a hinge, or we can let loose and expose the joints freely to gravity.</div><ul><li
-class="level2"><div
-class="li"> For physical forces we will use the method <code>joint.enableMotor();</code></div></li></ul></li></ol></div><h2><a
-name="creating_a_fixed_node">Creating a Fixed Node</a></h2><div
-class="level2"><p> The hookNode is the fixed point from which the pendulum hangs. It has no mass.</p><pre>Node hookNode=PhysicsTestHelper.createPhysicsTestNode&#40;assetManager, new BoxCollisionShape&#40;new Vector3f&#40; .1f, .1f, .1f&#41;&#41;,0&#41;;
+
+<h1><a>Physical Hinges and Joints</a></h1>
+<div>
+
+<p>
+
+The jMonkeyEngine3 has built-in support for <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://jbullet.advel.cz"><param name="text" value="<html><u>jBullet physics</u></html>"><param name="textColor" value="blue"></object> via the <code>com.jme3.bullet</code> package.
+</p>
+
+<p>
+Game Physics are not only employed to calculate collisions, but they can also simulate hinges and joints. Think of pulley chains, shaky rope bridges, swinging pendulums, or (trap)door and chest hinges. Physics are a great addition to e.g. an action or puzzle game.
+</p>
+
+<p>
+In this example, we will create a pendulum. The joint is the (invisible) connection between the pendulum body and the hook. You will see that you can use what you learn from the simple pendulum and apply it to other joint/hinge objects (rope bridges, etc).
+</p>
+
+</div>
+
+<h2><a>Sample Code</a></h2>
+<div>
+<ul>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/bullet/TestPhysicsHingeJoint.java"><param name="text" value="<html><u>TestPhysicsHingeJoint.java</u></html>"><param name="textColor" value="blue"></object></div>
+</li>
+</ul>
+
+</div>
+
+<h2><a>Overview of this Physics Application</a></h2>
+<div>
+<ol>
+<li><div> Create a SimpleApplication with a <a href="/com/jme3/gde/core/docs/jme3/advanced/physics.html">BulletAppState</a> </div>
+<ul>
+<li><div> This gives us a PhysicsSpace for PhysicsControls</div>
+</li>
+</ul>
+</li>
+<li><div> For the pendulum, we use a Spatial with a PhysicsControl, and we apply physical forces to them.</div>
+<ul>
+<li><div> The parts of the &quot;pendulum&quot; are Physics Control&#039;ed Spatials with Collision Shapes. </div>
+</li>
+<li><div> We create a fixed <code>hookNode</code> and a dynamic <code>pendulumNode</code>. </div>
+</li>
+</ul>
+</li>
+<li><div> We can &quot;crank the handle&quot; and rotate the joint like a hinge, or we can let loose and expose the joints freely to gravity. </div>
+<ul>
+<li><div> For physical forces we will use the method <code>joint.enableMotor();</code></div>
+</li>
+</ul>
+</li>
+</ol>
+
+</div>
+
+<h2><a>Creating a Fixed Node</a></h2>
+<div>
+
+<p>
+
+The hookNode is the fixed point from which the pendulum hangs. It has no mass. 
+</p>
+<pre>Node hookNode=PhysicsTestHelper.createPhysicsTestNode&#40;
+    assetManager, new BoxCollisionShape&#40;new Vector3f&#40; .1f, .1f, .1f&#41;&#41;,0&#41;;
 hookNode.getControl&#40;RigidBodyControl.class&#41;.setPhysicsLocation&#40;new Vector3f&#40;0f,0,0f&#41;&#41;;
 &nbsp;
 rootNode.attachChild&#40;hookNode&#41;;
-getPhysicsSpace&#40;&#41;.add&#40;hookNode&#41;;</pre><p> For a rope bridge, there would be two fixed nodes where the bridge is attached to the mountainside.</p></div><h2><a
-name="creating_a_dynamic_node">Creating a Dynamic Node</a></h2><div
-class="level2"><p> The pendulumNode is the dynamic part of the construction. It has a mass.</p><pre>Node pendulumNode=PhysicsTestHelper.createPhysicsTestNode&#40;assetManager, new BoxCollisionShape&#40;new Vector3f&#40; .3f, .3f, .3f&#41;&#41;,1&#41;;
+getPhysicsSpace&#40;&#41;.add&#40;hookNode&#41;;</pre>
+
+<p>
+For a rope bridge, there would be two fixed nodes where the bridge is attached to the mountainside.
+</p>
+
+</div>
+
+<h2><a>Creating a Dynamic Node</a></h2>
+<div>
+
+<p>
+
+The pendulumNode is the dynamic part of the construction. It has a mass. 
+</p>
+<pre>Node pendulumNode=PhysicsTestHelper.createPhysicsTestNode&#40;
+    assetManager, new BoxCollisionShape&#40;new Vector3f&#40; .3f, .3f, .3f&#41;&#41;,1&#41;;
 pendulumNode.getControl&#40;RigidBodyControl.class&#41;.setPhysicsLocation&#40;new Vector3f&#40;0f,-1,0f&#41;&#41;;
 rootNode.attachChild&#40;pendulumNode&#41;;
-getPhysicsSpace&#40;&#41;.add&#40;pendulumNode&#41;;</pre><p> For a rope bridge, each set of planks would be one dynamic node.</p></div><h2><a
-name="understanding_dof_joints_and_hinges">Understanding DOF, Joints, and Hinges</a></h2><div
-class="level2"><p> A PhysicsHingeJoint is an invisible connection between two nodes – here between the pendulum body and the hook. Why are hinges and joints represented by the same class? Hinges and joints have something in common: They constrain the <em>mechanical degree of freedom</em> (DOF) of another object.</p><p> Consider a free falling, &quot;unchained&quot; object in physical 3D space: It has 6 DOFs:</p><ul><li
-class="level1"><div
-class="li"> It translates along 3 axes</div></li><li
-class="level1"><div
-class="li"> It rotates around 3 axes</div></li></ul><p> Now consider some examples of objects with joints:</p><ul><li
-class="level1"><div
-class="li"> An individual chain link is free to spin and move around, but joined into a chain, the link&#039;s movement is restricted to stay with the surrounding links.</div></li><li
-class="level1"><div
-class="li"> A person&#039;s arm can rotate around some axes, but not around others. The shoulder joint allows one and restricts the other.</div></li><li
-class="level1"><div
-class="li"> A door hinge is one of the most restricted types of joint: It can only rotate around one axis.</div></li></ul><p> You&#039;ll understand that, when creating any type of joint, it is important to correctly specify the DOFs that the joint restricts, and the DOFs that the joint allows. For the typical DOF of a <a
-href="/com/jme3/gde/core/docs/jme3/advanced/ragdoll.html">ragDoll</a> character&#039;s limbs, jME even offers a special joint, <code>PhysicsConeJoint</code>.</p></div><h2><a
-name="creating_the_joint">Creating the Joint</a></h2><div
-class="level2"><p> You create the PhysicsHingeJoint after you have created the nodes that are to be chained together. In the code snippet you see that the PhysicsHingeJoint constructor requires the two node objects. You also have to specify axes and pivots – they are the degrees of freedom that you just heard about.</p><pre>private HingeJoint joint;
+getPhysicsSpace&#40;&#41;.add&#40;pendulumNode&#41;;</pre>
+
+<p>
+For a rope bridge, each set of planks would be one dynamic node. 
+</p>
+
+</div>
+
+<h2><a>Understanding DOF, Joints, and Hinges</a></h2>
+<div>
+
+<p>
+
+A PhysicsHingeJoint is an invisible connection between two nodes – here between the pendulum body and the hook. Why are hinges and joints represented by the same class? Hinges and joints have something in common: They constrain the <em>mechanical degree of freedom</em> (DOF) of another object. 
+</p>
+
+<p>
+Consider a free falling, &quot;unchained&quot; object in physical 3D space: It has 6 DOFs:
+</p>
+<ul>
+<li><div> It translates along 3 axes</div>
+</li>
+<li><div> It rotates around 3 axes</div>
+</li>
+</ul>
+
+<p>
+
+Now consider some examples of objects with joints:
+</p>
+<ul>
+<li><div> An individual chain link is free to spin and move around, but joined into a chain, the link&#039;s movement is restricted to stay with the surrounding links.</div>
+</li>
+<li><div> A person&#039;s arm can rotate around some axes, but not around others. The shoulder joint allows one and restricts the other.</div>
+</li>
+<li><div> A door hinge is one of the most restricted types of joint: It can only rotate around one axis. </div>
+</li>
+</ul>
+
+<p>
+
+You&#039;ll understand that, when creating any type of joint, it is important to correctly specify the DOFs that the joint restricts, and the DOFs that the joint allows. For the typical DOF of a <a href="/com/jme3/gde/core/docs/jme3/advanced/ragdoll.html">ragDoll</a> character&#039;s limbs, jME even offers a special joint, <code>PhysicsConeJoint</code>.
+</p>
+
+</div>
+
+<h2><a>Creating the Joint</a></h2>
+<div>
+
+<p>
+
+You create the PhysicsHingeJoint after you have created the nodes that are to be chained together. In the code snippet you see that the PhysicsHingeJoint constructor requires the two node objects. You also have to specify axes and pivots – they are the degrees of freedom that you just heard about.
+</p>
+<pre>private HingeJoint joint;
 ...
   public void simpleInitApp&#40;&#41; &#123;
     ...
@@ -61,26 +149,76 @@ class="level2"><p> You create the PhysicsHingeJoint after you have created the n
                      new Vector3f&#40;0f, 0f, 0f&#41;,  // pivot point of A
                      new Vector3f&#40;0f,-1f, 0f&#41;,  // pivot point of B 
                      Vector3f.UNIT_Z,           // DoF Axis of A (Z axis)
-                     Vector3f.UNIT_Z  &#41;;        // DoF Axis of B (Z axis)</pre><p> Specify the following parameters for each joint:</p><ul><li
-class="level1"><div
-class="li"> PhysicsControl A and B – the two nodes that are to be joined</div></li><li
-class="level1"><div
-class="li"> Vector3f pivot A and pivot B – coordinates of the two attachment points</div><ul><li
-class="level2"><div
-class="li"> The points typically lie on the surface of the PhysicsControl&#039;s Spatials, rarely in the middle.</div></li></ul></li><li
-class="level1"><div
-class="li"> Vector3f axisA and axisB – around which axes each node is allowed to spin.</div><ul><li
-class="level2"><div
-class="li"> In our example, we constrain the pendulum to swing only along the Z axis.</div></li></ul></li></ul><p> Remember to add all joint objects to the physicsSpace, just like you would do with any physical objects.</p><pre>bulletAppState.getPhysicsSpace&#40;&#41;.add&#40;joint&#41;;</pre><p> <strong>Tip:</strong> If you want the joint to be visible, attach a geometry to the dynamic node, and translate it to its start position.</p></div><h2><a
-name="apply_physical_forces">Apply Physical Forces</a></h2><div
-class="level2"><p> You can apply forces to dynamic nodes (the ones that have a mass), and see how other joined (&quot;chained&quot;) objects are dragged along.</p><p> Alternatively, you can also apply forces to the joint itself. In a game, you may want to spin an automatic revolving door, or slam a door closed in a spooky way, or dramatically open the lid of a treasure chest.</p><p> The method to call on the joint is <code>enableMotor()</code>.</p><pre>joint.enableMotor&#40;true, 1, .1f&#41;;
-joint.enableMotor&#40;true, -1, .1f&#41;;</pre><ol><li
-class="level1"><div
-class="li"> Switch the motor on by supplying <code>true</code></div></li><li
-class="level1"><div
-class="li"> Specify the velocity with which the joint should rotate around the specified axis.</div><ul><li
-class="level2"><div
-class="li"> Use positive and negative numbers to change direction.</div></li></ul></li><li
-class="level1"><div
-class="li"> Specify the impulse for this motor. Heavier masses need a bigger impulse to be moved.</div></li></ol><p> When you disable the motor, the chained nodes are exposed to gravity again:</p><pre>joint.enableMotor&#40;false, 0, 0&#41;;</pre></div>
-<p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:hinges_and_joints?do=export_xhtmlbody">view online version</a></em></p>
+                     Vector3f.UNIT_Z  &#41;;        // DoF Axis of B (Z axis)</pre>
+
+<p>
+Specify the following parameters for each joint:
+</p>
+<ul>
+<li><div> PhysicsControl A and B – the two nodes that are to be joined</div>
+</li>
+<li><div> Vector3f pivot A and pivot B – coordinates of the two attachment points</div>
+<ul>
+<li><div> The points typically lie on the surface of the PhysicsControl&#039;s Spatials, rarely in the middle.</div>
+</li>
+</ul>
+</li>
+<li><div> Vector3f axisA and axisB – around which axes each node is allowed to spin.</div>
+<ul>
+<li><div> In our example, we constrain the pendulum to swing only along the Z axis.</div>
+</li>
+</ul>
+</li>
+</ul>
+
+<p>
+
+Remember to add all joint objects to the physicsSpace, just like you would do with any physical objects.
+</p>
+<pre>bulletAppState.getPhysicsSpace&#40;&#41;.add&#40;joint&#41;;</pre>
+
+<p>
+<strong>Tip:</strong> If you want the joint to be visible, attach a geometry to the dynamic node, and translate it to its start position.
+</p>
+
+</div>
+
+<h2><a>Apply Physical Forces</a></h2>
+<div>
+
+<p>
+
+You can apply forces to dynamic nodes (the ones that have a mass), and see how other joined (&quot;chained&quot;) objects are dragged along. 
+</p>
+
+<p>
+Alternatively, you can also apply forces to the joint itself. In a game, you may want to spin an automatic revolving door, or slam a door closed in a spooky way, or dramatically open the lid of a treasure chest.
+</p>
+
+<p>
+The method to call on the joint is <code>enableMotor()</code>.
+</p>
+<pre>joint.enableMotor&#40;true, 1, .1f&#41;;
+joint.enableMotor&#40;true, -1, .1f&#41;;</pre>
+<ol>
+<li><div> Switch the motor on by supplying <code>true</code></div>
+</li>
+<li><div> Specify the velocity with which the joint should rotate around the specified axis. </div>
+<ul>
+<li><div> Use positive and negative numbers to change direction.</div>
+</li>
+</ul>
+</li>
+<li><div> Specify the impulse for this motor. Heavier masses need a bigger impulse to be moved.</div>
+</li>
+</ol>
+
+<p>
+
+When you disable the motor, the chained nodes are exposed to gravity again:
+
+</p>
+<pre>joint.enableMotor&#40;false, 0, 0&#41;;</pre>
+
+</div>
+<p><em><a href="http://direct.jmonkeyengine.org/wiki/doku.php/jme3:advanced:hinges_and_joints?do=export_xhtmlbody">view online version</a></em></p>

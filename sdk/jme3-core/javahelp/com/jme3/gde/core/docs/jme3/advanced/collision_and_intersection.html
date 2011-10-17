@@ -1,68 +1,127 @@
-<h1><a
-name="collision_and_intersection">Collision and Intersection</a></h1><div
-class="level1"><p> The term collision can be used to refer to physical interactions (where physical objects collide and bump off one another), and also to non-physical intersections. This article is about non-physical (mathematical) collisions.
-Non-physical collisions are interesting because they take less resources than physical ones. You cn optimize your game if you find a way to simulate a certain effect in a non-physical way, using mathematical techniques such as ray casting.
-One example for an optimization is a physical vehicle&#039;s wheels. You could make the wheels fully physical disks, and have jME calculate every tiny force – sounds very accurate, but is total overkill. An more performant solution is to cast four rays down from the vehicle and calculate the intersections with the floor and other obstacles. These non-physical wheels require (in the simplest case) only four calculations to achieve an effect that players can hardly distinguish from the real thing.</p></div><h2><a
-name="bounding_volumes">Bounding Volumes</a></h2><div
-class="level2"><p> A com.jme3.bounding.BoundingVolume is an interface for dealing with containment of a collection of points. All BoundingVolumes are Collidable and are used as optimization to calculate non-physical collisions more quickly: It&#039;s faster to calculate an intersection between simple shapes like spheres and boxes than between complex shapes. In cases where precision is not relevant, you wrap a complex model in a simpler shape to improve collision detection performance.</p><ul><li
-class="level1"><div
-class="li"> Type.Sphere: com.jme3.bounding.BoundingSphere is a sphere used as a container for a group of vertices of a piece of geometry. A BoundingSphere has a center and a radius.</div></li><li
-class="level1"><div
-class="li"> Type.AABB = Axis-aligned bounding box. A com.jme3.bounding.BoundingBox is an axis-aligned cuboid used as a container for a group of vertices of a piece of geometry. A BoundingBox has a center and extents from that center along the x, y and z axis.</div></li><li
-class="level1"><div
-class="li"> Type.OBB = Oriented bounding box. (not in use)</div></li><li
-class="level1"><div
-class="li"> Type.Capsule</div></li></ul><p> Note: Physical objects have their own &quot;bounding volumes&quot; called CollisionShapes.</p></div><h2><a
-name="collisions">Collisions</a></h2><div
-class="level2"><p> The interface com.jme3.collision.Collidable declares one method that returns how many collisions were found between two Collidables: <code>collideWith(Collidable other, CollisionResults results)</code>.
-A <code>com.jme3.collision.CollisionResults</code> object is an ArrayList of comparable <code>com.jme3.collision.CollisionResult</code> objects.
-You can iterate over the CollisionResults to identify the other parties involved in the collision. Note that jME counts <em>all</em> collisions, this means a ray intersecting a box will be counted as two hits, one on the front where the ray enters, and one on the back where the ray exits.</p><div
-class="table sectionedit1"><table
-class="inline"><tr
-class="row0"><th
-class="col0">CollisionResults Method</th><th
-class="col1">Usage</th></tr><tr
-class="row1"><td
-class="col0 leftalign">size()</td><td
-class="col1">Returns the number of CollisionResult objects.</td></tr><tr
-class="row2"><td
-class="col0">getClosestCollision()</td><td
-class="col1">Returns the CollisionResult with the lowest distance.</td></tr><tr
-class="row3"><td
-class="col0">getFarthestCollision()</td><td
-class="col1">Returns the CollisionResult with the farthest distance.</td></tr><tr
-class="row4"><td
-class="col0 leftalign">getCollision(i)</td><td
-class="col1">Returns the CollisionResult at index i.</td></tr></table></div><p> A CollisionResult object contains information about the second party of the collision event.</p><div
-class="table sectionedit2"><table
-class="inline"><tr
-class="row0"><th
-class="col0">CollisionResult Method</th><th
-class="col1">Usage</th></tr><tr
-class="row1"><td
-class="col0">getContactPoint()</td><td
-class="col1">Returns the contact point coordinate on the second party, as Vector3f.</td></tr><tr
-class="row2"><td
-class="col0">getContactNormal()</td><td
-class="col1">Returns the Normal vector at the contact point, as Vector3f.</td></tr><tr
-class="row3"><td
-class="col0">getDistance()</td><td
-class="col1">Returns the distance between the Collidable and the second party, as float.</td></tr><tr
-class="row4"><td
-class="col0">getGeometry()</td><td
-class="col1">Returns the Geometry of the second party.</td></tr><tr
-class="row5"><td
-class="col0">getTriangle(t)</td><td
-class="col1">Binds t to the triangle t on the second party&#039;s mesh that was hit.</td></tr><tr
-class="row6"><td
-class="col0">getTriangleIndex()</td><td
-class="col1">Returns the index of the triangle on the second party&#039;s mesh that was hit. (?)</td></tr></table></div><p> Assume you have two collidables a and b and want to detect collisions between them. The collision parties can be Geometries, Nodes with Geometries attached (including the rootNode), Planes, Quads, Lines, or Rays. <br/> The following code snippet can be triggered by listeners (e.g. after an input action such as a click), or timed in the update loop.</p><pre>  // Calculate Results
+
+<h1><a>Collision and Intersection</a></h1>
+<div>
+
+<p>
+
+The term collision can be used to refer to physical interactions (where physical objects collide and bump off one another), and also to non-physical intersections. This article is about non-physical (mathematical) collisions.
+</p>
+
+<p>
+Non-physical collision detection is interesting because they use less computing resources than physical collision detection. You can optimize your game if you find a way to simulate a certain effect in a non-physical way, using mathematical techniques such as ray casting.
+</p>
+
+<p>
+One example for an optimization is a physical vehicle&#039;s wheels. You could make the wheels fully physical disks, and have jME calculate every tiny force – sounds very accurate, but is total overkill. A more performant solution is to cast four invisible rays down from the vehicle and calculate the intersections with the floor and other obstacles. These non-physical wheels require (in the simplest case) only four calculations to achieve an effect that players can hardly distinguish from the real thing.
+</p>
+
+</div>
+
+<h2><a>Bounding Volumes</a></h2>
+<div>
+
+<p>
+
+A com.jme3.bounding.BoundingVolume is an interface for dealing with containment of a collection of points. All BoundingVolumes are Collidable and are used as optimization to calculate non-physical collisions more quickly: It&#039;s faster to calculate an intersection between simple shapes like spheres and boxes than between complex shapes. In cases where precision is not relevant, you wrap a complex model in a simpler shape to speed up collision detection.
+</p>
+<ul>
+<li><div> Type.Sphere: com.jme3.bounding.BoundingSphere is a sphere used as a container for a group of vertices of a piece of geometry. A BoundingSphere has a center and a radius.</div>
+</li>
+<li><div> Type.AABB = Axis-aligned bounding box. A com.jme3.bounding.BoundingBox is an axis-aligned cuboid used as a container for a group of vertices of a piece of geometry. A BoundingBox has a center and extents from that center along the x, y and z axis.</div>
+</li>
+<li><div> Type.OBB = Oriented bounding box. (not in use)</div>
+</li>
+<li><div> Type.Capsule = Cylinder with rounded ends. Often used for mobile characters.</div>
+</li>
+</ul>
+
+<p>
+
+<strong>Note:</strong> Physical objects have their own &quot;bounding volumes&quot; called CollisionShapes. 
+</p>
+
+</div>
+
+<h2><a>Collisions</a></h2>
+<div>
+
+<p>
+
+The interface com.jme3.collision.Collidable declares one method that returns how many collisions were found between two Collidables: <code>collideWith(Collidable other, CollisionResults results)</code>.
+</p>
+<ul>
+<li><div> A <code>com.jme3.collision.CollisionResults</code> object is an ArrayList of comparable <code>com.jme3.collision.CollisionResult</code> objects.</div>
+</li>
+<li><div> You can iterate over the CollisionResults to identify the other parties involved in the collision. <br/>
+Note that jME counts <em>all</em> collisions, this means a ray intersecting a box will be counted as two hits, one on the front where the ray enters, and one on the back where the ray exits.</div>
+</li>
+</ul>
+<div><table>
+	<tr>
+		<th>CollisionResults Method</th><th>Usage</th>
+	</tr>
+	<tr>
+		<td>size()                </td><td>Returns the number of CollisionResult objects.</td>
+	</tr>
+	<tr>
+		<td>getClosestCollision() </td><td>Returns the CollisionResult with the lowest distance.</td>
+	</tr>
+	<tr>
+		<td>getFarthestCollision()</td><td>Returns the CollisionResult with the farthest distance.</td>
+	</tr>
+	<tr>
+		<td>getCollision(i)       </td><td>Returns the CollisionResult at index i.</td>
+	</tr>
+</table></div>
+<!-- EDIT1 TABLE [2825-3153] -->
+<p>
+A CollisionResult object contains information about the second party of the collision event.
+</p>
+<div><table>
+	<tr>
+		<th>CollisionResult Method</th><th>Usage</th>
+	</tr>
+	<tr>
+		<td>getContactPoint()</td><td>Returns the contact point coordinate on the second party, as Vector3f.</td>
+	</tr>
+	<tr>
+		<td>getContactNormal()</td><td>Returns the Normal vector at the contact point, as Vector3f.</td>
+	</tr>
+	<tr>
+		<td>getDistance()</td><td>Returns the distance between the Collidable and the second party, as float.</td>
+	</tr>
+	<tr>
+		<td>getGeometry()</td><td>Returns the Geometry of the second party.</td>
+	</tr>
+	<tr>
+		<td>getTriangle(t)</td><td>Binds t to the triangle t on the second party&#039;s mesh that was hit.</td>
+	</tr>
+	<tr>
+		<td>getTriangleIndex()</td><td>Returns the index of the triangle on the second party&#039;s mesh that was hit. (?)</td>
+	</tr>
+</table></div>
+<!-- EDIT2 TABLE [3247-3784] -->
+</div>
+
+<h3><a>Code Sample</a></h3>
+<div>
+
+<p>
+
+Assume you have two collidables a and b and want to detect collisions between them. The collision parties can be Geometries, Nodes with Geometries attached (including the rootNode), Planes, Quads, Lines, or Rays.
+</p>
+
+<p>
+The following code snippet can be triggered by listeners (e.g. after an input action such as a click), or timed in the update loop.
+</p>
+<pre>  // Calculate detection results
   CollisionResults results = new CollisionResults&#40;&#41;;
   a.collideWith&#40;b, results&#41;;
-  System.out.println&#40;&quot;Number of Collisions between&quot; + a.getName&#40;&#41;+ &quot; and &quot;
-   + b.getName&#40;&#41; &quot; : &quot; + results.size&#40;&#41;&#41;;
+  System.out.println&#40;&quot;Number of Collisions between&quot; + 
+      a.getName&#40;&#41;+ &quot; and &quot; + b.getName&#40;&#41; &quot;: &quot; + results.size&#40;&#41;&#41;;
   // Use the results
   if &#40;results.size&#40;&#41; &gt; 0&#41; &#123;
+    // how to react when a collision was detected
     CollisionResult closest  = results.getClosestCollision&#40;&#41;;
     System.out.println&#40;&quot;What was hit? &quot; + closest.getGeometry&#40;&#41;.getName&#40;&#41; &#41;;
     System.out.println&#40;&quot;Where was it hit? &quot; + closest.getContactPoint&#40;&#41; &#41;;
@@ -70,7 +129,12 @@ class="col1">Returns the index of the triangle on the second party&#039;s mesh t
   &#125; else &#123;
     // how to react when no collision occured
   &#125;
-&#125;</pre><p> You can also loop over all results and trigger different reactions depending on what was hit and where it was hit. In this example, we simply print info about them.</p><pre>  // Calculate Results
+&#125;</pre>
+
+<p>
+You can also loop over all results and trigger different reactions depending on what was hit and where it was hit. In this example, we simply print info about them.
+</p>
+<pre>  // Calculate Results
   CollisionResults results = new CollisionResults&#40;&#41;;
   a.collideWith&#40;b, results&#41;;
   System.out.println&#40;&quot;Number of Collisions between&quot; + a.getName&#40;&#41;+ &quot; and &quot;
@@ -86,87 +150,62 @@ class="col1">Returns the index of the triangle on the second party&#039;s mesh t
     System.out.println&#40;&quot;Details of Collision #&quot; + i + &quot;:&quot;&#41;;
     System.out.println&#40;&quot;  Party &quot; + party + &quot; was hit at &quot; + pt + &quot;, &quot; + dist + &quot; wu away.&quot;&#41;;
     System.out.println&#40;&quot;  The hit triangle #&quot; + tri + &quot; has a normal vector of &quot; + norm&#41;;
-  &#125;</pre><p> Knowing the distance of the collisions is useful for example when you intersect Lines and Rays with other objects.</p></div><h2><a
-name="intersection">Intersection</a></h2><div
-class="level2"><p> A com.jme3.math.Ray is an infinite line with a beginning, a direction, and no end; whereas a com.jme3.math.Line is an infinite line with only a direction (no beginning, no end).
-Rays are used to detect where a 3D object is &quot;looking&quot; and whether one object can &quot;see&quot; the other.</p><ul><li
-class="level1"><div
-class="li"> You can determine where a user has clicked by casting a ray from the camera in the direction of the camera. Now identify the closest collision of the ray with e.g. the rootNode.</div></li><li
-class="level1"><div
-class="li"> Or you cast a ray from a player in the direction of another player. Then you detect all collisions of this ray with other entities (walls, foliage, window panes) and use this to calculate whether one can see the other.</div></li></ul><p> These simple ray-surface intersection tests are called Ray Casting. (As opposed to the more advanced Ray Tracing, Ray Casting does not follow a ray&#039;s reflection after the first hit, but the ray goes straight on.)</p></div><h3><a
-name="usecasepicking_a_target_with_crosshairs">Usecase: Picking a target with crosshairs</a></h3><div
-class="level3"><p> This <code>pick target</code> input mapping implements an action that determines what a user clicked (if you map this to a mouse click). It assumes that there are crosshairs in the center of the screen, and the user aims the crosshairs at an object in the scene. We use a ray casting approach to determine the geometry that was picked by the user. You can extend this code to do whatever with the identified target (shoot it, take it, move it, …)
-Use this together with <code>inputManager.setCursorVisible(false)</code>.</p><pre>  private AnalogListener analogListener = new AnalogListener&#40;&#41; &#123;
-    public void onAnalog&#40;String name, float intensity, float tpf&#41; &#123;
-        if &#40;name.equals&#40;&quot;pick target&quot;&#41;&#41; &#123;
-         // Reset results list.
-         CollisionResults results = new CollisionResults&#40;&#41;;
-         // Aim the ray from camera location in camera direction
-         // (assuming crosshairs in center of screen).
-         Ray ray = new Ray&#40;cam.getLocation&#40;&#41;, cam.getDirection&#40;&#41;&#41;;
-         // Collect intersections between ray and all nodes in results list.
-         rootNode.collideWith&#40;ray, results&#41;;
-         // Print the results so we see what is going on
-         for &#40;int i = 0; i &lt; results.size&#40;&#41;; i++&#41; &#123;
-           // For each “hit”, we know distance, impact point, geometry.
-           float dist = results.getCollision&#40;i&#41;.getDistance&#40;&#41;;
-           Vector3f pt = results.getCollision&#40;i&#41;.getContactPoint&#40;&#41;;
-           String target = results.getCollision&#40;i&#41;.getGeometry&#40;&#41;.getName&#40;&#41;;
-           System.out.println&#40;&quot;Selection #&quot; + i + &quot;: &quot; + target + &quot; at &quot; + pt + &quot;, &quot; + dist + &quot; WU away.&quot;&#41;;
-         &#125;
-         // 5. Use the results -- we rotate the selected geometry.
-         if &#40;results.size&#40;&#41; &gt; 0&#41; &#123;
-           // The closest result is the target that the player picked:
-           Geometry target = results.getClosestCollision&#40;&#41;.getGeometry&#40;&#41;;
-           // Here comes the action:
-           if&#40;target.getName&#40;&#41;.equals&#40;&quot;Red Box&quot;&#41;&#41;
-             target.rotate&#40;0, - intensity, 0&#41;;
-           else if&#40;target.getName&#40;&#41;.equals&#40;&quot;Blue Box&quot;&#41;&#41;
-             target.rotate&#40;0, intensity, 0&#41;;
-         &#125;
-        &#125; // else if ...
-    &#125;
-  &#125;;</pre></div><h3><a
-name="usecasepicking_a_target_with_mouse_cursor">Usecase: Picking a target with mouse cursor</a></h3><div
-class="level3"><p> This <code>pick target</code> input mapping implements an action that determines what a user clicked (if you map this to a mouse click). It assumes that the cursor is visible, and the user aims the cursor at an object in the scene. We use a ray casting approach to determine the geometry that was picked by the user. You can extend this code to do whatever with the identified target (shoot it, take it, move it, …) Use this together with <code>inputManager.setCursorVisible(true)</code>.</p><pre>private AnalogListener analogListener = new AnalogListener&#40;&#41; &#123;
-    public void onAnalog&#40;String name, float intensity, float tpf&#41; &#123;
-      if &#40;name.equals&#40;&quot;pick target&quot;&#41;&#41; &#123;
-        // Reset results list.
-        CollisionResults results = new CollisionResults&#40;&#41;;
-        // Convert screen click to 3d position
-        Vector2f click2d = inputManager.getCursorPosition&#40;&#41;;
-        Vector3f click3d = cam.getWorldCoordinates&#40;new Vector2f&#40;click2d.x, click2d.y&#41;, 0f&#41;.clone&#40;&#41;;
-        Vector3f dir = cam.getWorldCoordinates&#40;new Vector2f&#40;click2d.x, click2d.y&#41;, 1f&#41;.subtractLocal&#40;click3d&#41;;
-        // Aim the ray from the clicked spot forwards.
-        Ray ray = new Ray&#40;click3d, dir&#41;;
-        // Collect intersections between ray and all nodes in results list.
-        rootNode.collideWith&#40;ray, results&#41;;
-        // (Print the results so we see what is going on:)
-        for &#40;int i = 0; i &lt; results.size&#40;&#41;; i++&#41; &#123;
-          // (For each “hit”, we know distance, impact point, geometry.)
-          float dist = results.getCollision&#40;i&#41;.getDistance&#40;&#41;;
-          Vector3f pt = results.getCollision&#40;i&#41;.getContactPoint&#40;&#41;;
-          String target = results.getCollision&#40;i&#41;.getGeometry&#40;&#41;.getName&#40;&#41;;
-          System.out.println&#40;&quot;Selection #&quot; + i + &quot;: &quot; + target + &quot; at &quot; + pt + &quot;, &quot; + dist + &quot; WU away.&quot;&#41;;
-        &#125;
-        // Use the results -- we rotate the selected geometry.
-        if &#40;results.size&#40;&#41; &gt; 0&#41; &#123;
-          // The closest result is the target that the player picked:
-          Geometry target = results.getClosestCollision&#40;&#41;.getGeometry&#40;&#41;;
-          // Here comes the action:
-          if &#40;target.getName&#40;&#41;.equals&#40;&quot;Red Box&quot;&#41;&#41; &#123;
-            target.rotate&#40;0, -intensity, 0&#41;;
-          &#125; else if &#40;target.getName&#40;&#41;.equals&#40;&quot;Blue Box&quot;&#41;&#41; &#123;
-            target.rotate&#40;0, intensity, 0&#41;;
-          &#125;
-        &#125;
-      &#125; // else if ...
-    &#125;
-  &#125;;</pre></div><h2><a
-name="bounding_interval_hierarchy">Bounding Interval Hierarchy</a></h2><div
-class="level2"><p> com.jme3.collision.bih.BIHNode
-com.jme3.scene.CollisionData</p></div><h2><a
-name="sweepsphere">SweepSphere</a></h2><div
-class="level2"><p> A com.jme3.collision.SweepSphere implements a collidable &quot;stretched&quot; sphere that is shaped like a capsule (an upright cylinder with half a sphere on top and the second half at the bottom).
-This shape is usually used to simulate simple non-physcial collisions for character entities in games. The sweep sphere can be used to check collision against a triangle or another sweep sphere.</p></div>
-<p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:collision_and_intersection?do=export_xhtmlbody">view online version</a></em></p>
+  &#125;</pre>
+
+<p>
+Knowing the distance of the collisions is useful for example when you intersect Lines and Rays with other objects.
+</p>
+
+</div>
+
+<h2><a>Intersection</a></h2>
+<div>
+
+<p>
+
+A com.jme3.math.Ray is an infinite line with a beginning, a direction, and no end; whereas a com.jme3.math.Line is an infinite line with only a direction (no beginning, no end).
+</p>
+
+<p>
+Rays are used to detect where the user or a player is &quot;looking&quot; when performing an action:
+</p>
+<ul>
+<li><div> <strong>Click to select:</strong> You can determine what a user has clicked by casting a ray from the camera in the direction of the camera. Now identify the closest collision of the ray with the rootNode.</div>
+</li>
+<li><div> <strong>Line of sight:</strong> Cast a ray from a player in the direction of another player. Then you detect all collisions of this ray with other entities (walls, foliage, window panes) and use this to calculate whether one can see the other.</div>
+</li>
+</ul>
+
+<p>
+
+These simple ray-surface intersection tests are called Ray Casting. As opposed to the more advanced Ray Tracing, Ray Casting does not follow a ray&#039;s reflection after the first hit, the ray just goes straight on.
+</p>
+
+<p>
+Learn how to implement <a href="/com/jme3/gde/core/docs/jme3/advanced/mouse_picking.html">Mouse Picking</a> here.
+</p>
+
+</div>
+
+<h2><a>Bounding Interval Hierarchy</a></h2>
+<div>
+
+<p>
+
+com.jme3.collision.bih.BIHNode
+com.jme3.scene.CollisionData
+</p>
+
+</div>
+
+<h2><a>SweepSphere</a></h2>
+<div>
+
+<p>
+
+A com.jme3.collision.SweepSphere implements a collidable &quot;stretched&quot; sphere that is shaped like a capsule (an upright cylinder with half a sphere on top and the second half at the bottom).
+This shape is usually used to simulate simple non-physcial collisions for character entities in games. The sweep sphere can be used to check collision against a triangle or another sweep sphere.
+</p>
+
+</div>
+<p><em><a href="http://direct.jmonkeyengine.org/wiki/doku.php/jme3:advanced:collision_and_intersection?do=export_xhtmlbody">view online version</a></em></p>

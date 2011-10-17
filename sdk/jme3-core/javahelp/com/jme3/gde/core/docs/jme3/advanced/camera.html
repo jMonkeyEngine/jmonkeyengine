@@ -1,132 +1,173 @@
-<h1><a
-name="the_jme3_camera">The jME3 Camera</a></h1><div
-class="level1"></div><h2><a
-name="default_camera">Default Camera</a></h2><div
-class="level2"><p> The default com.jme3.renderer.Camera object is <code>cam</code> in com.jme3.app.Application.</p><p> The camera object is created with the following defaults:</p><ul><li
-class="level1"><div
-class="li"> Width and height are set to the current Application&#039;s settings.getWidth() and settings.getHeight() values.</div></li><li
-class="level1"><div
-class="li"> Frustum Perspective:</div><ul><li
-class="level2"><div
-class="li"> Frame of view angle of 45° along the Y axis</div></li><li
-class="level2"><div
-class="li"> Aspect ratio of width divided by height</div></li><li
-class="level2"><div
-class="li"> Near view plane of 1 wu</div></li><li
-class="level2"><div
-class="li"> Far view plane of 1000 wu</div></li></ul></li><li
-class="level1"><div
-class="li"> Start location at (0f, 0f, 10f).</div></li><li
-class="level1"><div
-class="li"> Start direction is looking at the origin.</div></li></ul><div
-class="table sectionedit1"><table
-class="inline"><tr
-class="row0"><th
-class="col0">Method</th><th
-class="col1">Usage</th></tr><tr
-class="row1"><td
-class="col0">cam.getLocation(), setLocation()</td><td
-class="col1">The camera position</td></tr><tr
-class="row2"><td
-class="col0">cam.getRotation(), setRotation()</td><td
-class="col1">The camera rotation</td></tr><tr
-class="row3"><td
-class="col0">cam.getLeft(), setLeft()</td><td
-class="col1">The left axis of the camera</td></tr><tr
-class="row4"><td
-class="col0">cam.getUp(), setUp()</td><td
-class="col1">The up axis of the camera, usually Vector3f(0,1,0)</td></tr><tr
-class="row5"><td
-class="col0">cam.getDirection(), setDirection()</td><td
-class="col1">The vector the camera is facing</td></tr><tr
-class="row6"><td
-class="col0">cam.getAxes(), setAxes(left,up,dir)</td><td
-class="col1">One accessor for the three properties left/up/direction.</td></tr><tr
-class="row7"><td
-class="col0">cam.getFrame(), setFrame(loc,left,up,dir)</td><td
-class="col1">One accessor for the four properties location/left/up/direction.</td></tr><tr
-class="row8"><td
-class="col0">cam.resize(width, height, fixAspect)</td><td
-class="col1">Resize an existing camera object while keeping all other settings. Set fixAspect to true to adjust the aspect ratio (?)</td></tr><tr
-class="row9"><td
-class="col0">cam.setFrustum( near, far, left, right, top, bottom )</td><td
-class="col1">The frustrum is defined by the near/far plane, left/rught plane, top/bottom plane (all distances as float values)</td></tr><tr
-class="row10"><td
-class="col0">cam.setFrustumPerspective( fovY, aspect ratio, near, far)</td><td
-class="col1">The frustrum is defined by view angle along the Y axis (in degrees), aspect ratio, and the near/far plane.</td></tr><tr
-class="row11"><td
-class="col0">cam.lookAt(target,up)</td><td
-class="col1">Turn the camera to look at Coordinate target, and rotate it around the up axis.</td></tr><tr
-class="row12"><td
-class="col0">cam.setParallelProjection(false)</td><td
-class="col1">Normal perspective</td></tr><tr
-class="row13"><td
-class="col0">cam.setParallelProjection(true)</td><td
-class="col1">Parallel projection perspective</td></tr><tr
-class="row14"><td
-class="col0">cam.getScreenCoordinates()</td><td
-class="col1">?</td></tr></table></div><p> <strong>Tip:</strong> After you change view port, frustrum, or frame, call <code>cam.update();</code></p></div><h2><a
-name="flyby_camera">FlyBy Camera</a></h2><div
-class="level2"><p> The flyby camera is an extension of the default camera in com.jme3.app.SimpleApplication. It is preconfigured to respond to the WASD keys for walking forwards and backwards, and for strafing to the sides. Move the mouse to rotate the camera, scroll the mouse wheel for zooming in or out. The QZ keys raise or lower the camera.</p><div
-class="table sectionedit2"><table
-class="inline"><tr
-class="row0"><th
-class="col0">Method</th><th
-class="col1">Usage</th></tr><tr
-class="row1"><td
-class="col0">flyCam.setEnabled(true);</td><td
-class="col1">Activate the flyby cam</td></tr><tr
-class="row2"><td
-class="col0">flyCam.setMoveSpeed(10);</td><td
-class="col1">Control the move speed</td></tr><tr
-class="row3"><td
-class="col0">flyCam.setRotationSpeed(10);</td><td
-class="col1">Control the rotation speed</td></tr><tr
-class="row4"><td
-class="col0">flyCam.setDragToRotate(true)</td><td
-class="col1">Must keep mouse button pressed to rotate camera. Used e.g. for Applets. if false, all mouse movement will be captured and interpreted as rotations.</td></tr></table></div></div><h2><a
-name="chase_camera">Chase Camera</a></h2><div
-class="level2"><p> jME3 also supports a Chase Cam that can follow a moving target Spatial (<code>com.jme3.input.ChaseCamera</code>). Click and hold the mouse button to rotate around the target.</p><pre>flyCam.setEnabled&#40;false&#41;;
-ChaseCamera chaseCam = new ChaseCamera&#40;cam, target, inputManager&#41;;</pre><div
-class="table sectionedit3"><table
-class="inline"><tr
-class="row0"><th
-class="col0">Method</th><th
-class="col1">Usage</th></tr><tr
-class="row1"><td
-class="col0">chaseCam.setSmoothMotion(true);</td><td
-class="col1">Interpolates a smoother acceleration/deceleration when the camera moves.</td></tr><tr
-class="row2"><td
-class="col0">chaseCam.setChasingSensitivity(5f)</td><td
-class="col1">The lower the chasing sensitivity, the slower the camera will follow the target when it moves.</td></tr><tr
-class="row3"><td
-class="col0">chaseCam.setTrailingSensitivity(0.5f)</td><td
-class="col1">The lower the traling sensitivity, the slower the camera will begin to go after the target when it moves. Default is 0.5;</td></tr><tr
-class="row4"><td
-class="col0">chaseCam.setRotationSensitivity(5f)</td><td
-class="col1">The lower the sensitivity, the slower the camera will rotate around the target when the mosue is dragged. Default is 5.</td></tr><tr
-class="row5"><td
-class="col0">chaseCam.setTrailingRotationInertia(0.1f)</td><td
-class="col1">This prevents the camera to stop too abruptly when the target stops rotating before the camera has reached the target&#039;s trailing position. Default is 0.1f.</td></tr><tr
-class="row6"><td
-class="col0">chaseCam.setDefaultDistance(40);</td><td
-class="col1">The default distance to the target at the start of the application.</td></tr><tr
-class="row7"><td
-class="col0">chaseCam.setMaxDistance(40);</td><td
-class="col1">The maximum zoom distance. Default is 40f.</td></tr><tr
-class="row8"><td
-class="col0">chaseCam.setMinDistance(1);</td><td
-class="col1">The minimum zoom distance. Default is 1f.</td></tr><tr
-class="row9"><td
-class="col0">chaseCam.setMinVerticalRotation(-FastMath.PI/2);</td><td
-class="col1">The minimal vertical rotation angle of the camera around the target. Default is 0.</td></tr><tr
-class="row10"><td
-class="col0">chaseCam.setDefaultVerticalRotation(-FastMath.PI/2);</td><td
-class="col1">The default vertical rotation angle of the camera around the target at the start of the application.</td></tr><tr
-class="row11"><td
-class="col0">chaseCam.setDefaultHorizontalRotation(-FastMath.PI/2);</td><td
-class="col1">The default horizontal rotation angle of the camera around the target at the start of the application.</td></tr></table></div><div
-class="tags"><span> <a
-href="/wiki/doku.php/tag:camera?do=showtag&amp;tag=tag%3Acamera">camera</a>, <a
-href="/wiki/doku.php/tag:documentation?do=showtag&amp;tag=tag%3Adocumentation">documentation</a> </span></div></div>
-<p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:camera?do=export_xhtmlbody">view online version</a></em></p>
+
+<h1><a>The jME3 Camera</a></h1>
+<div>
+
+</div>
+
+<h2><a>Default Camera</a></h2>
+<div>
+
+<p>
+
+The default com.jme3.renderer.Camera object is <code>cam</code> in com.jme3.app.Application.
+</p>
+
+<p>
+The camera object is created with the following defaults:
+</p>
+<ul>
+<li><div> Width and height are set to the current Application&#039;s settings.getWidth() and settings.getHeight() values. </div>
+</li>
+<li><div> Frustum Perspective:</div>
+<ul>
+<li><div> Frame of view angle of 45° along the Y axis</div>
+</li>
+<li><div> Aspect ratio of width divided by height</div>
+</li>
+<li><div> Near view plane of 1 wu</div>
+</li>
+<li><div> Far view plane of 1000 wu</div>
+</li>
+</ul>
+</li>
+<li><div> Start location at (0f, 0f, 10f).</div>
+</li>
+<li><div> Start direction is looking at the origin.</div>
+</li>
+</ul>
+<div><table>
+	<tr>
+		<th>Method</th><th>Usage</th>
+	</tr>
+	<tr>
+		<td>cam.getLocation(), setLocation()</td><td>The camera position</td>
+	</tr>
+	<tr>
+		<td>cam.getRotation(), setRotation()</td><td>The camera rotation</td>
+	</tr>
+	<tr>
+		<td>cam.getLeft(), setLeft()</td><td>The left axis of the camera</td>
+	</tr>
+	<tr>
+		<td>cam.getUp(), setUp()</td><td>The up axis of the camera, usually Vector3f(0,1,0)</td>
+	</tr>
+	<tr>
+		<td>cam.getDirection(), setDirection()</td><td>The vector the camera is facing</td>
+	</tr>
+	<tr>
+		<td>cam.getAxes(), setAxes(left,up,dir)</td><td>One accessor for the three properties left/up/direction.</td>
+	</tr>
+	<tr>
+		<td>cam.getFrame(), setFrame(loc,left,up,dir)</td><td>One accessor for the four properties location/left/up/direction.</td>
+	</tr>
+	<tr>
+		<td>cam.resize(width, height, fixAspect)</td><td>Resize an existing camera object while keeping all other settings. Set fixAspect to true to adjust the aspect ratio (?)</td>
+	</tr>
+	<tr>
+		<td>cam.setFrustum( near, far, left, right, top, bottom )</td><td>The frustrum is defined by the near/far plane, left/rught plane, top/bottom plane (all distances as float values)</td>
+	</tr>
+	<tr>
+		<td>cam.setFrustumPerspective( fovY, aspect ratio, near, far)</td><td>The frustrum is defined by view angle along the Y axis (in degrees), aspect ratio, and the near/far plane.</td>
+	</tr>
+	<tr>
+		<td>cam.lookAt(target,up)</td><td>Turn the camera to look at Coordinate target, and rotate it around the up axis.</td>
+	</tr>
+	<tr>
+		<td>cam.setParallelProjection(false)</td><td>Normal perspective</td>
+	</tr>
+	<tr>
+		<td>cam.setParallelProjection(true)</td><td>Parallel projection perspective</td>
+	</tr>
+	<tr>
+		<td>cam.getScreenCoordinates()</td><td>?</td>
+	</tr>
+</table></div>
+<!-- EDIT1 TABLE [583-1860] -->
+<p>
+<strong>Tip:</strong> After you change view port, frustrum, or frame, call <code>cam.update();</code>
+</p>
+
+</div>
+
+<h2><a>FlyBy Camera</a></h2>
+<div>
+
+<p>
+
+The flyby camera is an extension of the default camera in com.jme3.app.SimpleApplication. It is preconfigured to respond to the WASD keys for walking forwards and backwards, and for strafing to the sides. Move the mouse to rotate the camera, scroll the mouse wheel for zooming in or out. The QZ keys raise or lower the camera.
+
+</p>
+<div><table>
+	<tr>
+		<th>Method</th><th>Usage</th>
+	</tr>
+	<tr>
+		<td>flyCam.setEnabled(true);</td><td>Activate the flyby cam</td>
+	</tr>
+	<tr>
+		<td>flyCam.setMoveSpeed(10);</td><td>Control the move speed</td>
+	</tr>
+	<tr>
+		<td>flyCam.setRotationSpeed(10);</td><td>Control the rotation speed</td>
+	</tr>
+	<tr>
+		<td>flyCam.setDragToRotate(true)</td><td>Must keep mouse button pressed to rotate camera. Used e.g. for Applets. if false, all mouse movement will be captured and interpreted as rotations.</td>
+	</tr>
+</table></div>
+<!-- EDIT2 TABLE [2298-2649] -->
+</div>
+
+<h2><a>Chase Camera</a></h2>
+<div>
+
+<p>
+
+jME3 also supports a Chase Cam that can follow a moving target Spatial (<code>com.jme3.input.ChaseCamera</code>). Click and hold the mouse button to rotate around the target.
+</p>
+<pre>flyCam.setEnabled&#40;false&#41;;
+ChaseCamera chaseCam = new ChaseCamera&#40;cam, target, inputManager&#41;;</pre>
+<div><table>
+	<tr>
+		<th>Method</th><th>Usage</th>
+	</tr>
+	<tr>
+		<td>chaseCam.setSmoothMotion(true);</td><td>Interpolates a smoother acceleration/deceleration when the camera moves.</td>
+	</tr>
+	<tr>
+		<td>chaseCam.setChasingSensitivity(5f)</td><td>The lower the chasing sensitivity, the slower the camera will follow the target when it moves.</td>
+	</tr>
+	<tr>
+		<td>chaseCam.setTrailingSensitivity(0.5f)</td><td>The lower the traling sensitivity, the slower the camera will begin to go after the target when it moves. Default is 0.5;</td>
+	</tr>
+	<tr>
+		<td>chaseCam.setRotationSensitivity(5f)</td><td>The lower the sensitivity, the slower the camera will rotate around the target when the mosue is dragged. Default is 5.</td>
+	</tr>
+	<tr>
+		<td>chaseCam.setTrailingRotationInertia(0.1f)</td><td>This prevents the camera to stop too abruptly when the target stops rotating before the camera has reached the target&#039;s trailing position. Default is 0.1f.</td>
+	</tr>
+	<tr>
+		<td>chaseCam.setDefaultDistance(40);</td><td>The default distance to the target at the start of the application.</td>
+	</tr>
+	<tr>
+		<td>chaseCam.setMaxDistance(40);</td><td>The maximum zoom distance. Default is 40f.</td>
+	</tr>
+	<tr>
+		<td>chaseCam.setMinDistance(1);</td><td>The minimum zoom distance. Default is 1f.</td>
+	</tr>
+	<tr>
+		<td>chaseCam.setMinVerticalRotation(-FastMath.PI/2);</td><td>The minimal vertical rotation angle of the camera around the target. Default is 0.</td>
+	</tr>
+	<tr>
+		<td>chaseCam.setDefaultVerticalRotation(-FastMath.PI/2);</td><td>The default vertical rotation angle of the camera around the target at the start of the application.</td>
+	</tr>
+	<tr>
+		<td>chaseCam.setDefaultHorizontalRotation(-FastMath.PI/2);</td><td>The default horizontal rotation angle of the camera around the target at the start of the application.</td>
+	</tr>
+</table></div>
+<!-- EDIT3 TABLE [2958-4430] --><div><span>
+	<a href="/wiki/doku.php/tag:camera?do=showtag&amp;tag=tag%3Acamera">camera</a>,
+	<a href="/wiki/doku.php/tag:documentation?do=showtag&amp;tag=tag%3Adocumentation">documentation</a>
+</span></div>
+
+</div>
+<p><em><a href="http://direct.jmonkeyengine.org/wiki/doku.php/jme3:advanced:camera?do=export_xhtmlbody">view online version</a></em></p>

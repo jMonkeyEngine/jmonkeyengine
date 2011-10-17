@@ -1,33 +1,98 @@
-<h1><a
-name="logging_and_monitoring">Logging and Monitoring</a></h1><div
-class="level1"></div><h2><a
-name="development_phase_log_output">Development Phase Log Output</a></h2><div
-class="level2"><p> Many developers just use System.out.println() to print diagnostic strings to the terminal. The problem with that is that before the release, you&#039;d have to go through all your code and make certain you removed all these println() calls. You do not want your users to see them and worry about ominous strings babbling about old development diagnostics.</p><p> Instead of println(), you use the standard Java logger from <code>java.util.logging</code>. It has many advantages for professional game development:</p><ul><li
-class="level1"><div
-class="li"> You &quot;tag&quot; each message with a log level: Severe error, informative warning, etc.</div></li><li
-class="level1"><div
-class="li"> You can switch off printing of all messages up to certain log level with just one line of code.</div><ul><li
-class="level2"><div
-class="li"> During development, you would set the log level to fine, because you want all warnings printed.</div></li><li
-class="level2"><div
-class="li"> For the release, you set the log level to only report severe errors, and no informative diagnostics.</div></li></ul></li><li
-class="level1"><div
-class="li"> The logger string is localizable, since it contains variables. You may want to localize all errors.</div></li></ul><p> So to print comments like a pro, you use the following logger syntax. The variables a, b, c, can be any printable Java object, e.g. <code>Vector3f a = cam.getLocation()</code>. They are numbered {0},{1},{2},etc for use in the string, in the order you put them in the Object array.</p><pre>private static final Logger logger = Logger.getLogger&#40;HelloWorld.class.getName&#40;&#41;&#41;;</pre><p> Replace HelloWorld by the name of the class where you are using this line.</p><pre>logger.log&#40;Level.WARNING, &quot;ok seriously wtf somebody check why {0} is {1} again?!&quot;,
-                      new Object&#91;&#93;&#123;a , b&#125;&#41;;</pre><p> or</p><pre>logger.log&#40;Level.SEVERE, &quot;Game error: {0} must not be {1} after {2}! Please check your flux generator.&quot;,
-                      new Object&#91;&#93;&#123;a , b , c&#125;&#41;;</pre><p> As you see in the example, you should phrase potentially &quot;customer facing&quot; errors in a neutral way and offer a reason and a solution. If you use WARNINGs as replacement for casual printlns, make sure you deactivate them for the release.</p><p> More details about <a
-href="http://download.oracle.com/javase/6/docs/api/java/util/logging/Level.html">Java log levels</a> here.</p></div><h3><a
-name="switching_the_logger_on_and_off">Switching the Logger on and off</a></h3><div
-class="level3"><p> In the release version you will deactivate the logging output to the terminal.</p><p> To deactivate the default logger, you set the log level to only report severe messages:</p><pre>Logger.getLogger&#40;””&#41;.setLevel&#40;Level.SEVERE&#41;;</pre><p> To reactivate it:</p><pre>Logger.getLogger&#40;””&#41;.setLevel&#40;Level.FINE&#41;;</pre></div><h2><a
-name="jmonkeyplatform_log_files">jMonkeyPlatform Log Files</a></h2><div
-class="level2"><p> You find the jMonkeyPlatform log file in /dev/var/log/messages.log in the jMonkeyPlatform preferences folder. You can learn the location of the preferences folder in the “About” screen of the jMonkeyPlatform under the label <strong>Userdir</strong>.</p><ul><li
-class="level1"><div
-class="li"> Windows: C:\Documents and Settings\YOUR_NAME\.jmonkeyplatform\&quot;</div></li><li
-class="level1"><div
-class="li"> Linux: /home/YOUR_NAME/.jmonkeyplatform/&quot;</div></li><li
-class="level1"><div
-class="li"> Mac <acronym
-title="Operating System">OS</acronym>: <code>/Users/YOUR_NAME/Library/Application Support/jmonkeyplatform/</code></div></li></ul></div><h2><a
-name="read_graphic_card_capabilites">Read Graphic Card Capabilites</a></h2><div
-class="level2"><p> You can read the graphic card&#039;s capabilities using the <code>com.jme3.renderer.Caps</code> class:</p><pre>Collection&lt;Caps&gt; caps = renderer.getCaps&#40;&#41;;
-Logger.getLogger&#40;HelloWorld.class.getName&#40;&#41;&#41;.log&#40;Level.INFO, “Caps: &#123;0&#125;” + caps.toString&#40;&#41;&#41;; 	</pre><p> Replace HelloWorld by the name of the class where you are using this line.</p><p> The result looks like the following example:</p><pre>Caps: [FrameBuffer, FrameBufferMRT, FrameBufferMultisample, OpenGL20, ARBprogram, GLSL100, GLSL110, GLSL120, VertexTextureFetch, FloatTexture, TextureCompressionLATC]</pre><p> This would tell you that this user&#039;s graphic card only supports OpenGL 2.0 and cannot handle newer OpenGL features.</p></div>
-<p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:logging?do=export_xhtmlbody">view online version</a></em></p>
+
+<h1><a>Logging and Monitoring</a></h1>
+<div>
+
+</div>
+
+<h2><a>Logging Like a Newb</a></h2>
+<div>
+
+<p>
+
+Many developers just use System.out.println() to print diagnostic strings to the terminal. The problem with that is that before the release, you&#039;d have to go through all your code and make certain you removed all these println() calls. You do not want your users to see them and worry about ominous strings babbling about old development diagnostics. 
+</p>
+
+</div>
+
+<h2><a>Logging Like a Pro</a></h2>
+<div>
+
+<p>
+
+Instead of println(), you use the standard Java logger from <code>java.util.logging</code>. It has many advantages for professional game development:
+</p>
+<ul>
+<li><div> You &quot;tag&quot; each message with a log level: Severe error, informative warning, etc.</div>
+</li>
+<li><div> You can switch off printing of all messages up to certain log level with just one line of code.</div>
+<ul>
+<li><div> During development, you would set the log level to fine, because you want all warnings printed.</div>
+</li>
+<li><div> For the release, you set the log level to only report severe errors, and no informative diagnostics.</div>
+</li>
+</ul>
+</li>
+<li><div> The logger string is localizable, since it contains variables. You may want to localize all errors.</div>
+</li>
+</ul>
+
+<p>
+
+So to print comments like a pro, you use the following logger syntax. The variables a, b, c, can be any printable Java object, e.g. <code>Vector3f a = cam.getLocation()</code>. They are numbered {0},{1},{2},etc for use in the string, in the order you put them in the Object array.
+</p>
+<pre>private static final Logger logger = Logger.getLogger&#40;HelloWorld.class.getName&#40;&#41;&#41;;</pre>
+
+<p>
+
+Replace HelloWorld by the name of the class where you are using this line.
+
+</p>
+<pre>logger.log&#40;Level.WARNING, &quot;ok seriously wtf somebody check why {0} is {1} again?!&quot;, 
+                      new Object&#91;&#93;&#123;a , b&#125;&#41;;</pre>
+
+<p>
+
+or
+
+</p>
+<pre>logger.log&#40;Level.SEVERE, &quot;Game error: {0} must not be {1} after {2}! Please check your flux generator.&quot;, 
+                      new Object&#91;&#93;&#123;a , b , c&#125;&#41;;</pre>
+
+<p>
+As you see in the example, you should phrase potentially &quot;customer facing&quot; errors in a neutral way and offer a reason and a solution. If you use WARNINGs as replacement for casual printlns, make sure you deactivate them for the release.
+</p>
+
+<p>
+More details about <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://download.oracle.com/javase/6/docs/api/java/util/logging/Level.html"><param name="text" value="<html><u>Java log levels</u></html>"><param name="textColor" value="blue"></object> here.
+</p>
+
+</div>
+
+<h2><a>Switching the Logger on and off</a></h2>
+<div>
+
+<p>
+
+In the release version you will deactivate the logging output to the terminal.
+</p>
+
+<p>
+To deactivate the default logger for a release, you set the log level to only report severe messages:
+
+</p>
+<pre>Logger.getLogger&#40;””&#41;.setLevel&#40;Level.SEVERE&#41;;</pre>
+
+<p>
+During development, you can tune down the default logger, and set the log level to only report warnings:
+
+</p>
+<pre>Logger.getLogger&#40;””&#41;.setLevel&#40;Level.WARNING&#41;;</pre>
+
+<p>
+To reactivate full logging, e.g. for debugging and testing: 
+
+</p>
+<pre>Logger.getLogger&#40;””&#41;.setLevel&#40;Level.FINE&#41;;</pre>
+
+</div>
+<p><em><a href="http://direct.jmonkeyengine.org/wiki/doku.php/jme3:advanced:logging?do=export_xhtmlbody">view online version</a></em></p>

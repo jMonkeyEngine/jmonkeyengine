@@ -1,146 +1,310 @@
-<h1><a
-name="jmonkeyplatformapplication_deployment">jMonkeyPlatform: Application Deployment</a></h1><div
-class="level1"><p> After you have written and tested your game, you want to brand it and distribute it to your users. If you use the build script provided by the  jMonkeyPlatform&#039;s BaseGame, you have the following deployment options:</p><ul><li
-class="level1"><div
-class="li"> Desktop application (.JAR)</div></li><li
-class="level1"><div
-class="li"> WebStart from <acronym
-title="Uniform Resource Locator">URL</acronym> (.JNLP + .JAR)</div></li><li
-class="level1"><div
-class="li"> Applet in browser page (.JNLP + .JAR)</div></li><li
-class="level1"><div
-class="li"> Android Mobile phone (work in progress)</div></li></ul></div><h2><a
-name="requirements">Requirements</a></h2><div
-class="level2"><p> Since JAR files are platform independent, your customers can play your jMonkeyEngine application on Windows, Mac <acronym
-title="Operating System">OS</acronym>, or Linux. The only requirement is that the user has the free Java 5 or 6 Runtime (or browser plugin) installed. For more information see <a
-href="http://java.com">http://java.com</a>.</p></div><h2><a
-name="branding">Branding</a></h2><div
-class="level2"><ol><li
-class="level1"><div
-class="li"> Open your game project in the jMonkeyPlatform&#039;s Projects window.</div></li><li
-class="level1"><div
-class="li"> Right-click the project and open the Properties</div></li><li
-class="level1"><div
-class="li"> Open the properties → Application section. Here you do your branding:</div><ol><li
-class="level2"><div
-class="li"> Title: the game&#039;s name</div></li><li
-class="level2"><div
-class="li"> Vendor: your name</div></li><li
-class="level2"><div
-class="li"> Description: why your game is the coolest ever ;)</div></li><li
-class="level2"><div
-class="li"> Homepage: Your web <acronym
-title="Uniform Resource Locator">URL</acronym></div></li><li
-class="level2"><div
-class="li"> Splashscreen: Browse to a picture that will be shown while the game loads.</div></li></ol></li><li
-class="level1"><div
-class="li"> Click OK.</div></li><li
-class="level1"><div
-class="li"> Clean and Build.</div></li></ol></div><h2><a
-name="creating_the_distributable">Creating the Distributable</a></h2><div
-class="level2"><p> When you run the build script provided by the jMonkeyPlatform, it automatically compiles your classes, libraries, and assets. It creates a <code>dist</code> directory in your project directory which contains the executable JAR and a directory with libraries.</p><p> In the simplest case, you zip up the <code>dist</code> directory and distribute it to your customers. Companies often have additional tools to create executables and installers.</p><p> Here are your deployment options in detail:</p></div><h3><a
-name="desktop_application_jar">Desktop Application (JAR)</a></h3><div
-class="level3"><p> The JAR file is the most common deployment method for Java desktop applications. The user downloads the executable JAR file to his machine and runs it to start the game.</p><ol><li
-class="level1"><div
-class="li"> Right-click your project and open the Project Properties.</div></li><li
-class="level1"><div
-class="li"> In the Application&gt;Web Start category, make sure the box &quot;Enable Web Start&quot; is not checked. Click OK.</div></li><li
-class="level1"><div
-class="li"> Right-click your project and Clean and Build.</div></li><li
-class="level1"><div
-class="li"> If the build succeeds you see a line similar to <br/> <code>Building jar: /home/joe/jMonkeyPlatform/MySuperTestGame/dist/MySuperTestGame.jar</code> <br/> this means the executable JAR has been generated successfully in your project directory.</div></li><li
-class="level1"><div
-class="li"> Zip up the <code>dist</code> directory and distribute it to your users. Make sure to keep the <code>lib</code> directory in it!</div></li></ol><p> Most operating systems execute a JAR when users double-click on it, but you can also create a launcher.</p></div><h3><a
-name="desktop_executables">Desktop Executables</a></h3><div
-class="level3"><p> jMonkeyPlatform allows you to create launchers for different desktop platforms, like an .exe file for Windows systems, an Application for MaxOSX and a launcher for Linux systems.</p><ol><li
-class="level1"><div
-class="li"> Right-click your project and open the Project Properties.</div></li><li
-class="level1"><div
-class="li"> In the Application&gt;Desktop category, select the checkboxes for the platforms you want to distribute to.</div></li><li
-class="level1"><div
-class="li"> Click OK.</div></li></ol><p> When you build your project, zip files for each selected platform will be created in the <code>dist</code> folder that contain all that is needed to run your application on that platform.</p></div><h3><a
-name="web_start_jnlp">Web Start (JNLP)</a></h3><div
-class="level3"><p> Web Start allows your users to start your application by simply clicking a link that you provide, for example in a button on your web page. The browser downloads the JAR file and then automatically runs your game in an extra window. The only requirement is that the user&#039;s browser has the Java plugin installed. This is a very user-friendly way for your customers to play your game without any extra steps to install it. Optionally, you can set it up so the file is saved to their desktop and can be restarted later, so they do not need to be online to play.</p><ol><li
-class="level1"><div
-class="li"> Right-click your project and open the Project Properties.</div><ol><li
-class="level2"><div
-class="li"> In the Application&gt;Web Start category, check the box to Enable Web Start.</div></li><li
-class="level2"><div
-class="li"> Check the box to make the application self-signed. <img
-src="/wiki/lib/images/smileys/icon_exclaim.gif" class="middle" alt=":!:" /></div></li><li
-class="level2"><div
-class="li"> Optionally, check the box to allow offline use.</div></li><li
-class="level2"><div
-class="li"> Make sure <code>Application Descriptor</code> is activated. Click OK.</div></li></ol></li><li
-class="level1"><div
-class="li"> Right-click your project and Clean and Build. The <code>dist</code> directory is generated.</div></li><li
-class="level1"><div
-class="li"> Upload the contents of the <code>dist</code> directory to a public http server</div></li><li
-class="level1"><div
-class="li"> Either edit the sample launch.html file, or simply add a standard link (A HREF) pointing to your .jnlp file to one of your web pages.</div></li><li
-class="level1"><div
-class="li"> Tell your users to open your page in a webbrowser, and click the link to webstart the application.</div></li></ol><p> Look at the sample launch.html, you can have any custom content around the link. Keep a copy of your launcher file because the jMonkeyPlatform will always regenerate its default launch.html.</p><p> Also, see this <a
-href="http://www.youtube.com/watch?v=oZnssg8TBWQ">demo video</a> on creating WebStarts.</p></div><h3><a
-name="browser_applet">Browser Applet</a></h3><div
-class="level3"><p> A browser Applet is a Java application that runs in the web browser while the user is visiting your web page. The only requirement is that the user&#039;s browser has the Java plugin installed. There is no installation step, the user can play right away in the browser. The user will not be able to save the game to his harddrive, nor can he play offline.</p><p> These instrcutions assume that you have already written a game that you want to turn into an Applet. As opposed to other jME3 games, Applets cannot capture the mouse for navigation, so the camera will be switched to dragToRotate mode. The jMonkeyPlatform and the included build script already contain what you need.</p></div><h4><a
-name="to_turn_a_project_into_an_applet">To Turn a Project Into an Applet</a></h4><div
-class="level4"><ol><li
-class="level1"><div
-class="li"> Right-click your project and open the Project Properties.</div><ol><li
-class="level2"><div
-class="li"> In the Application&gt;Applet category, check the box to enable Applet creation.</div></li><li
-class="level2"><div
-class="li"> Change the applet width and height as you want it.</div></li><li
-class="level2"><div
-class="li"> Click OK.</div></li></ol></li><li
-class="level1"><div
-class="li"> Right-click your project and Clean and Build.</div></li></ol><p> The <code>dist/Applet</code> directory now contains all the files necessary for the game to run as Applet. To test the Applet-based game, run the project in the jMonkeyPlatform.</p></div><h4><a
-name="to_deploy_the_game_as_applet">To Deploy the Game as Applet</a></h4><div
-class="level4"><ol><li
-class="level1"><div
-class="li"> Edit the <code>dist/Applet/run-applet.html</code> file in anyway you like. Just keep the Applet code.</div></li><li
-class="level1"><div
-class="li"> Upload the contents of the <code>dist/Applet</code> directory to a public http server.</div></li><li
-class="level1"><div
-class="li"> Access the run-applet.html file using a webbrowser</div></li><li
-class="level1"><div
-class="li"> Click the link to web-start your application.</div></li></ol></div><h4><a
-name="to_troubleshoot_applets">To Troubleshoot Applets</a></h4><div
-class="level4"><ul><li
-class="level1"><div
-class="li"> Open the Java console for error messages.</div></li><li
-class="level1"><div
-class="li"> Depending on your settings, the browser caches the applet, the html page, and/or the jnlp file, even after you have cleaned and built the project. Make sure to empty the browser cache.</div></li></ul></div><h3><a
-name="android">Android</a></h3><div
-class="level3"><p> TODO</p></div><h2><a
-name="tipswitching_build_configurations">Tip: Switching Build Configurations</a></h2><div
-class="level2"><p> The jMonkeyPlatform has a Run Configuration menu in the toolbar. Use it to save your various sets of Project Property configuations, and switch between them.</p><ol><li
-class="level1"><div
-class="li"> Click the <code>Set Project Configuration</code> popup in the toolbar and choose Customize.</div></li><li
-class="level1"><div
-class="li"> The Project Properties Run section opens. Under Configuration, click New.</div></li><li
-class="level1"><div
-class="li"> Name the saved configuration, for instance &quot;my webstart&quot; vs &quot;my desktop app&quot;, or &quot;development&quot; vs &quot;deployment&quot;. Click OK.</div></li><li
-class="level1"><div
-class="li"> Make sure the new config is selected in the <code>Set Project Configuration</code> popup above the editor.</div></li><li
-class="level1"><div
-class="li"> Make changes to the Project Properties as described above.</div></li></ol><p> Now you can use the <code>Set Project Configuration</code> popup menu to switch between your run/build configurations.</p></div><h2><a
-name="tipreducing_distribution_size">Tip: Reducing Distribution Size</a></h2><div
-class="level2"><p> There may be several parts of the full jMonkeyEngine library that you do not even use in your application. You should leave out the corresponding libraries from your distribution.</p><p> To remove unused libraries:</p><ol><li
-class="level1"><div
-class="li"> Right-click your project and select &quot;Properties&quot;</div></li><li
-class="level1"><div
-class="li"> Select &quot;Libraries&quot; on the left</div></li><li
-class="level1"><div
-class="li"> Select the &quot;jme3-libraries&quot; entry and press &quot;remove&quot;. <br/> This library package contains <strong>all</strong> libraries for jME3 and is quite large.</div></li><li
-class="level1"><div
-class="li"> Press the &quot;Add Library&quot; button</div></li><li
-class="level1"><div
-class="li"> Select the &quot;jme3-libraries-lwjgl-minimum&quot; library</div></li><li
-class="level1"><div
-class="li"> Add other jME3 libraries in the same way depending which features you use (jme3-libraries-gui, jme3-libraries-physics, jme3-libraries-video etc.)</div></li><li
-class="level1"><div
-class="li"> Click OK.</div></li><li
-class="level1"><div
-class="li"> Clean, Build and Run the project and make sure you have not missed anything.</div></li></ol></div>
-<p><em><a href="http://jmonkeyengine.org/wiki/doku.php/sdk:application_deployment?do=export_xhtmlbody">view online version</a></em></p>
+
+<h1><a>jMonkeyPlatform: Application Deployment</a></h1>
+<div>
+
+<p>
+
+After you have written and tested your game, you want to brand it and distribute it to your users. If you use the build script provided by the  jMonkeyPlatform&#039;s BaseGame, you have the following deployment options:
+</p>
+<ul>
+<li><div> Desktop application (.JAR)</div>
+</li>
+<li><div> WebStart from <acronym title="Uniform Resource Locator">URL</acronym> (.JNLP + .JAR)</div>
+</li>
+<li><div> Applet in web browser (.JNLP + .JAR)</div>
+</li>
+<li><div> Android mobile device (.APK)</div>
+</li>
+</ul>
+
+</div>
+
+<h2><a>Requirements</a></h2>
+<div>
+
+<p>
+
+Since JAR files are platform independent, your customers can play your jMonkeyEngine application on Windows, Mac <acronym title="Operating System">OS</acronym>, or Linux. The only requirement is that the user has the free Java 5 or 6 Runtime (or browser plugin) installed. For more information see <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://java.com"><param name="text" value="<html><u>http://java.com</u></html>"><param name="textColor" value="blue"></object>.
+</p>
+
+</div>
+
+<h2><a>Branding</a></h2>
+<div>
+
+<p>
+
+<img src="nbdocs:/com/jme3/gde/core/docs/sdk/jmonkey-branding.png">
+Make your game unique and recognizable:
+</p>
+<ol>
+<li><div> Open your game project in the jMonkeyPlatform&#039;s Projects window.</div>
+</li>
+<li><div> Right-click the project and open the Properties</div>
+</li>
+<li><div> Open the Properties → Application section. Here you configure your branding:</div>
+<ol>
+<li><div> Title: Enter the game&#039;s name</div>
+</li>
+<li><div> Vendor: Enter your name (the development team)</div>
+</li>
+<li><div> Description: Write one line why your game is the coolest ever <img src="/wiki/lib/images/smileys/icon_wink.gif" class="middle" alt=";-)" /></div>
+</li>
+<li><div> Homepage: Enter your web <acronym title="Uniform Resource Locator">URL</acronym>, so your fans can find you</div>
+</li>
+<li><div> Splashscreen: Browse to a cool screenshot that will be displayed while the game loads.</div>
+</li>
+</ol>
+</li>
+<li><div> Click OK.</div>
+</li>
+<li><div> Clean and Build. </div>
+</li>
+</ol>
+
+<p>
+Your executables are now branded.
+</p>
+
+</div>
+
+<h2><a>Creating the Distributable</a></h2>
+<div>
+
+<p>
+
+<img src="/wiki/lib/exe/fetch.php">
+When you run the build script provided by the jMonkeyPlatform, it automatically compiles your classes, libraries, and assets. It creates a <code>dist</code> directory in your project directory which contains the executable JAR and a directory with libraries.
+</p>
+
+<p>
+In the simplest case, you zip up the <code>dist</code> directory and distribute it to your customers. Companies often have additional tools to create executables and installers.
+</p>
+
+<p>
+Here are your deployment options in detail:
+</p>
+
+</div>
+
+<h3><a>Desktop Application (JAR)</a></h3>
+<div>
+
+<p>
+
+The JAR file is the most common deployment method for Java desktop applications. The user downloads the executable JAR file to his machine and runs it to start the game.
+</p>
+<ol>
+<li><div> Right-click your project and open the Project Properties.</div>
+</li>
+<li><div> In the Application&gt;Web Start category, make sure the box &quot;Enable Web Start&quot; is not checked. Click OK.</div>
+</li>
+<li><div> Right-click your project and Clean and Build.</div>
+</li>
+<li><div> If the build succeeds you see a line similar to  <br/>
+<code>Building jar: /home/joe/jMonkeyPlatform/MySuperTestGame/dist/MySuperTestGame.jar</code> <br/>
+this means the executable JAR has been generated successfully in your project directory.</div>
+</li>
+<li><div> Zip up the <code>dist</code> directory and distribute it to your users. Make sure to keep the <code>lib</code> directory in it!</div>
+</li>
+</ol>
+
+<p>
+Most operating systems execute a JAR when users double-click on it, but you can also create a launcher.
+</p>
+
+</div>
+
+<h3><a>Desktop Executables</a></h3>
+<div>
+
+<p>
+
+jMonkeyPlatform allows you to create launchers for different desktop platforms, like an .exe file for Windows systems, an Application for MaxOSX and a launcher for Linux systems.
+</p>
+<ol>
+<li><div> Right-click your project and open the Project Properties.</div>
+</li>
+<li><div> In the Application&gt;Desktop category, select the checkboxes for the platforms you want to distribute to.</div>
+</li>
+<li><div> Click OK.</div>
+</li>
+</ol>
+
+<p>
+When you build your project, zip files for each selected platform will be created in the <code>dist</code> folder that contain all that is needed to run your application on that platform.
+</p>
+
+</div>
+
+<h3><a>Web Start (JNLP)</a></h3>
+<div>
+
+<p>
+
+Web Start allows your users to start your application by simply clicking a link that you provide, for example in a button on your web page. The browser downloads the JAR file and then automatically runs your game in an extra window. The only requirement is that the user&#039;s browser has the Java plugin installed. This is a very user-friendly way for your customers to play your game without any extra steps to install it. Optionally, you can set it up so the file is saved to their desktop and can be restarted later, so they do not need to be online to play.
+</p>
+<ol>
+<li><div> Right-click your project and open the Project Properties.</div>
+<ol>
+<li><div> In the Application&gt;Web Start category, check the box to Enable Web Start.</div>
+</li>
+<li><div> Check the box to make the application self-signed. <img src="/wiki/lib/images/smileys/icon_exclaim.gif" class="middle" alt=":!:" /></div>
+</li>
+<li><div> Optionally, check the box to allow offline use.</div>
+</li>
+<li><div> Make sure <code>Application Descriptor</code> is activated. Click OK.</div>
+</li>
+</ol>
+</li>
+<li><div> Right-click your project and Clean and Build. The <code>dist</code> directory is generated.</div>
+</li>
+<li><div> Upload the contents of the <code>dist</code> directory to a public http server</div>
+</li>
+<li><div> Either edit the sample launch.html file, or simply add a standard link (A HREF) pointing to your .jnlp file to one of your web pages.</div>
+</li>
+<li><div> Tell your users to open your page in a webbrowser, and click the link to webstart the application.</div>
+</li>
+</ol>
+
+<p>
+Look at the sample launch.html, you can have any custom content around the link. Keep a copy of your launcher file because the jMonkeyPlatform will always regenerate its default launch.html.
+Also, see this <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://www.youtube.com/watch?v=oZnssg8TBWQ"><param name="text" value="<html><u>demo video</u></html>"><param name="textColor" value="blue"></object> on creating WebStarts.
+</p>
+
+</div>
+
+<h3><a>Browser Applet</a></h3>
+<div>
+
+<p>
+
+A browser Applet is a Java application that runs in the web browser while the user is visiting your web page. The only requirement is that the user&#039;s browser has the Java plugin installed. There is no installation step, the user can play right away in the browser. The user will not be able to save the game to his harddrive, nor can he play offline.
+</p>
+
+<p>
+These instrcutions assume that you have already written a game that you want to turn into an Applet. As opposed to other jME3 games, Applets cannot capture the mouse for navigation, so the camera will be switched to dragToRotate mode. The jMonkeyPlatform and the included build script already contain what you need.
+
+</p>
+
+</div>
+
+<h4><a>To Turn a Project Into an Applet</a></h4>
+<div>
+<ol>
+<li><div> Right-click your project and open the Project Properties.</div>
+<ol>
+<li><div> In the Application&gt;Applet category, check the box to enable Applet creation.</div>
+</li>
+<li><div> Change the applet width and height as you want it.</div>
+</li>
+<li><div> Click OK.</div>
+</li>
+</ol>
+</li>
+<li><div> Right-click your project and Clean and Build.</div>
+</li>
+</ol>
+
+<p>
+The <code>dist/Applet</code> directory now contains all the files necessary for the game to run as Applet. To test the Applet-based game, run the project in the jMonkeyPlatform.
+
+</p>
+
+</div>
+
+<h4><a>To Deploy the Game as Applet</a></h4>
+<div>
+<ol>
+<li><div> Edit the <code>dist/Applet/run-applet.html</code> file in anyway you like. Just keep the Applet code.</div>
+</li>
+<li><div> Upload the contents of the <code>dist/Applet</code> directory to a public http server.</div>
+</li>
+<li><div> Access the run-applet.html file using a webbrowser</div>
+</li>
+<li><div> Click the link to web-start your application.</div>
+</li>
+</ol>
+
+</div>
+
+<h4><a>To Troubleshoot Applets</a></h4>
+<div>
+<ul>
+<li><div> Open the Java console for error messages.</div>
+</li>
+<li><div> Depending on your settings, the browser caches the applet, the html page, and/or the jnlp file, even after you have cleaned and built the project. Make sure to empty the browser cache.</div>
+</li>
+</ul>
+
+</div>
+
+<h3><a>Android Mobile Device</a></h3>
+<div>
+
+<p>
+
+You can set the jMonkeyPlatform to build an executable for Android mobile platforms. Learn more about <a href="/com/jme3/gde/core/docs/jme3/android.html">Android Support</a> here.
+</p>
+
+</div>
+
+<h2><a>Tip: Switching Build Configurations</a></h2>
+<div>
+
+<p>
+The jMonkeyPlatform has a Run Configuration menu in the toolbar. Use it to save your various sets of Project Property configuations, and switch between them.
+</p>
+<ol>
+<li><div> Click the <code>Set Project Configuration</code> popup in the toolbar and choose Customize.</div>
+</li>
+<li><div> The Project Properties Run section opens. Under Configuration, click New.</div>
+</li>
+<li><div> Name the saved configuration, for instance &quot;my webstart&quot; vs &quot;my desktop app&quot;, or &quot;development&quot; vs &quot;deployment&quot;. Click OK.</div>
+</li>
+<li><div> Make sure the new config is selected in the <code>Set Project Configuration</code> popup above the editor.</div>
+</li>
+<li><div> Make changes to the Project Properties as described above.</div>
+</li>
+</ol>
+
+<p>
+Now you can use the <code>Set Project Configuration</code> popup menu to switch between your run/build configurations.
+</p>
+
+</div>
+
+<h2><a>Tip: Reduce Distribution File Size</a></h2>
+<div>
+
+<p>
+
+There may be several parts of the full jMonkeyEngine library that you do not even use in your application. You should leave out the corresponding libraries from your distribution.
+</p>
+
+<p>
+To remove unused libraries:
+</p>
+<ol>
+<li><div> Right-click your project and select &quot;Properties&quot;</div>
+</li>
+<li><div> Select &quot;Libraries&quot; on the left</div>
+</li>
+<li><div> Select the &quot;jme3-libraries&quot; entry and press &quot;remove&quot;. <br/>
+This library package contains <strong>all</strong> libraries for jME3 and is quite large.</div>
+</li>
+<li><div> Press the &quot;Add Library&quot; button</div>
+</li>
+<li><div> Select the &quot;jme3-libraries-lwjgl-minimum&quot; library</div>
+</li>
+<li><div> Add other jME3 libraries in the same way depending which features you use: <br/>
+jme3-libraries-gui, jme3-libraries-physics, jme3-libraries-video, etc.</div>
+</li>
+<li><div> Click OK.</div>
+</li>
+<li><div> Clean, Build and Run the project and make sure you have not missed anything.</div>
+</li>
+</ol>
+
+</div>
+<p><em><a href="http://direct.jmonkeyengine.org/wiki/doku.php/sdk:application_deployment?do=export_xhtmlbody">view online version</a></em></p>

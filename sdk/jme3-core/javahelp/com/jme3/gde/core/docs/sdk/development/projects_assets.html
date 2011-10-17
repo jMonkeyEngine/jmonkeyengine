@@ -1,29 +1,75 @@
-<h1><a
-name="projects_and_assets">Projects and Assets</a></h1><div
-class="level1"><p> The <acronym
-title="Software Development Kit">SDK</acronym> heavily uses the systems provided by the base platform for the handling of assets and projects and extends the system with jME3 specific features.</p></div><h2><a
-name="projectassetmanager">ProjectAssetManager</a></h2><div
-class="level2"><p> All AssetDataObjects and SceneExplorerNodes allow access to the ProjectAssetManager of the project they were loaded from.</p><pre>ProjectAssetManager pm = node.getLookup&#40;&#41;.lookup&#40;ProjectAssetManager.class&#41;</pre><p> The ProjectAssetManager is basically a normal DesktopAssetManager for each project with some added functionality:</p><ul><li
-class="level1"><div
-class="li"> Access to the FileObject of the assets folder of the project to load and save data</div></li><li
-class="level1"><div
-class="li"> Convert absolute file paths to relative asset paths and vice versa</div></li><li
-class="level1"><div
-class="li"> Get lists of all textures, materials etc. in the project</div></li><li
-class="level1"><div
-class="li"> more convenient stuff.. :)</div></li></ul></div><h2><a
-name="assetdataobject">AssetDataObject</a></h2><div
-class="level2"><p> Most &quot;files&quot; that you encounter in the <acronym
-title="Software Development Kit">SDK</acronym> come in the form of AssetDataObjects. All Nodes that you encounter contain the AssetDataObject they were loaded from. It provides not just access to the FileObject of the specific file but also an AssetData object that allows access to jME specific properties and data. The AssetData object also allows loading the object via the jME3 assetManager. It is accessible via the lookup of the Node or AssetDataObject:</p><pre>assetDataObject.getLookup&#40;&#41;.lookup&#40;AssetData.class&#41;</pre></div><h2><a
-name="new_asset_file_types">New Asset File Types</a></h2><div
-class="level2"><p> When you add a new file type for a model format or other asset file that can be loaded in jME3 you can start by using new file type template (New File→Module Development→File Type). Change the DataObject to extend AssetDataObject (general), SpatialAssetDataObject (some type of model) or BinaryModelDataObject (basically a j3o savable file). And possibly override the loadAsset and saveAsset methods which are used by the AssetData object.</p><pre>public class BlenderDataObject extends SpatialAssetDataObject &#123;
+
+<h1><a>Projects and Assets</a></h1>
+<div>
+
+<p>
+The <acronym title="Software Development Kit">SDK</acronym> heavily uses the systems provided by the base platform for the handling of assets and projects and extends the system with jME3 specific features.
+
+</p>
+
+</div>
+
+<h2><a>ProjectAssetManager</a></h2>
+<div>
+
+<p>
+All AssetDataObjects and SceneExplorerNodes allow access to the ProjectAssetManager of the project they were loaded from.
+
+</p>
+<pre>ProjectAssetManager pm = node.getLookup&#40;&#41;.lookup&#40;ProjectAssetManager.class&#41;</pre>
+
+<p>
+
+The ProjectAssetManager is basically a normal DesktopAssetManager for each project with some added functionality:
+</p>
+<ul>
+<li><div> Access to the FileObject of the assets folder of the project to load and save data</div>
+</li>
+<li><div> Convert absolute file paths to relative asset paths and vice versa</div>
+</li>
+<li><div> Get lists of all textures, materials etc. in the project</div>
+</li>
+<li><div> more convenient stuff.. :)</div>
+</li>
+</ul>
+
+</div>
+
+<h2><a>AssetDataObject</a></h2>
+<div>
+
+<p>
+Most &quot;files&quot; that you encounter in the <acronym title="Software Development Kit">SDK</acronym> come in the form of AssetDataObjects. All Nodes that you encounter contain the AssetDataObject they were loaded from. It provides not just access to the FileObject of the specific file but also an AssetData object that allows access to jME specific properties and data. The AssetData object also allows loading the object via the jME3 assetManager. It is accessible via the lookup of the Node or AssetDataObject:
+
+</p>
+<pre>assetDataObject.getLookup&#40;&#41;.lookup&#40;AssetData.class&#41;</pre>
+
+</div>
+
+<h2><a>New Asset File Types</a></h2>
+<div>
+
+<p>
+When you add a new file type for a model format or other asset file that can be loaded in jME3 you can start by using new file type template (New File→Module Development→File Type). Change the DataObject to extend AssetDataObject (general), SpatialAssetDataObject (some type of model) or BinaryModelDataObject (basically a j3o savable file). And possibly override the loadAsset and saveAsset methods which are used by the AssetData object.
+
+</p>
+<pre>public class BlenderDataObject extends SpatialAssetDataObject &#123;
     public BlenderDataObject&#40;FileObject pf, MultiFileLoader loader&#41; throws DataObjectExistsException, IOException &#123;
         super&#40;pf, loader&#41;;
     &#125;
-&#125;</pre><p> An AssetManagerConfigurator class can be created to configure the assetManager of the projects and model importer to use the new asset type:</p><pre>@org.openide.util.lookup.ServiceProvider&#40;service = AssetManagerConfigurator.class&#41;
+&#125;</pre>
+
+<p>
+
+An AssetManagerConfigurator class can be created to configure the assetManager of the projects and model importer to use the new asset type:
+
+</p>
+<pre>@org.openide.util.lookup.ServiceProvider&#40;service = AssetManagerConfigurator.class&#41;
 public class BlenderAssetManagerConfigurator implements AssetManagerConfigurator &#123;
     public void prepareManager&#40;AssetManager manager&#41; &#123;
         manager.registerLoader&#40;com.jme3.scene.plugins.blender.BlenderModelLoader.class, &quot;blend&quot;&#41;;
     &#125;
-&#125;</pre></div>
-<p><em><a href="http://jmonkeyengine.org/wiki/doku.php/sdk:development:projects_assets?do=export_xhtmlbody">view online version</a></em></p>
+&#125;</pre>
+
+</div>
+<p><em><a href="http://direct.jmonkeyengine.org/wiki/doku.php/sdk:development:projects_assets?do=export_xhtmlbody">view online version</a></em></p>

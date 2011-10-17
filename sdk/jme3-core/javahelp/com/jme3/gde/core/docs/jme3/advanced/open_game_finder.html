@@ -1,0 +1,192 @@
+
+<h1><a>Open Game Finder</a></h1>
+<div>
+
+<p>
+The Open Game Finder (OGF) by Mark Schrijver can be plugged into any Java game. OGF enables you to find other people playing the same multiplayer game, and join them.
+</p>
+<ul>
+<li><div> Homepage: <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/open-game-finder/"><param name="text" value="<html><u>http://code.google.com/p/open-game-finder/</u></html>"><param name="textColor" value="blue"></object></div>
+</li>
+<li><div> Documentation: <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/open-game-finder/w/list"><param name="text" value="<html><u>http://code.google.com/p/open-game-finder/w/list</u></html>"><param name="textColor" value="blue"></object></div>
+</li>
+</ul>
+
+<p>
+Both on the client and the server side of OGF is written purely in Java. OGF has a pluggable architecture and comes with a full set of plugins to get the job done. You can add your own plugins, or replace existing plugins to make them more in line with your game. OGF uses NiftyGUI as the main <acronym title="Graphical User Interface">GUI</acronym> plugin.
+
+</p>
+
+</div>
+
+<h2><a>Installation</a></h2>
+<div>
+<ol>
+<li><div> Go to <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/open-game-finder/downloads/list"><param name="text" value="<html><u>http://code.google.com/p/open-game-finder/downloads/list</u></html>"><param name="textColor" value="blue"></object></div>
+</li>
+<li><div> Download Client-1.0-bin.zip and Server-1.0-bin.zip</div>
+</li>
+<li><div> Unzip the two files to, for example, your jMonkeyProjects directory.</div>
+</li>
+</ol>
+
+</div>
+
+<h2><a>Setting up the Database</a></h2>
+<div>
+
+<p>
+The OGF server uses an embedded Apache Derby database. You have to install the database, this means creating the data files and adding the tables. You can do this straight from the command line by running a script file.
+</p>
+<ul>
+<li><div> On Windows, use installServer.bat to create a new database from scratch. On Mac <acronym title="Operating System">OS</acronym> or Linux, run <code>java -jar lib/Server-0.1.jar install</code> in the Terminal.</div>
+</li>
+<li><div> On Windows, use updateServer.bat to update the difference between the current state of the database and the way it should be. On Mac <acronym title="Operating System">OS</acronym> and Linux, run <code>java -jar lib/Server-0.1.jar update</code> in the Terminal. <br/>
+<strong>This new feature is currently untested.</strong></div>
+</li>
+</ul>
+
+</div>
+
+<h2><a>Running the server</a></h2>
+<div>
+
+<p>
+Change into the OGF-Server directory and run the server:
+</p>
+<ul>
+<li><div> On Windows: Run startServer.bat</div>
+</li>
+<li><div> On Linux and MacOS X: Run <code>java -jar lib/Server-1.0.jar</code> in the Terminal.</div>
+</li>
+</ul>
+
+<p>
+The server is now running and ready to accept connections. <br/>
+
+<strong>Note:</strong> In the alpha release, the server runs on localhost. In the final release, you will be able to configure the host!
+
+</p>
+
+</div>
+
+<h2><a>Running the client</a></h2>
+<div>
+<ol>
+<li><div> Change into the OGF-Client directory and run the client:</div>
+<ul>
+<li><div> On Windows: Run startClient.bat</div>
+</li>
+<li><div> On Linux and MacOS X: Run <code>java -jar lib/Client-1.0.jar</code> in the Terminal.</div>
+</li>
+</ul>
+</li>
+<li><div> If a Display Settings window appears, you can keep the defaults and click OK.</div>
+</li>
+</ol>
+
+<p>
+A client is now running, connects to the server, and displays a registration/login window.
+<img src="nbdocs:/com/jme3/gde/core/docs/jme3/advanced/open-game-finder-1.png">
+<strong>Note:</strong> You can run several clients on localhost for testing.
+
+</p>
+
+</div>
+
+<h3><a>Client: 1. Registration</a></h3>
+<div>
+
+<p>
+If clients use OGF for the first time, they need to register.
+On the main screen of the client:
+</p>
+<ol>
+<li><div> Click Register</div>
+</li>
+<li><div> Choose a user name and password (repeat the password).</div>
+</li>
+<li><div> Select an Avatar image.</div>
+</li>
+<li><div> Click register to complete the registration.</div>
+</li>
+</ol>
+
+<p>
+The client registers the account and opens the chat window directly.
+
+</p>
+
+</div>
+
+<h3><a>Client: 2. Login</a></h3>
+<div>
+
+<p>
+If returning clients are already registered to an OGF server, they can log in.
+On the main screen of the client:
+</p>
+<ol>
+<li><div> Enter a user name and password that you previously registered.</div>
+</li>
+<li><div> Click Login</div>
+</li>
+</ol>
+
+<p>
+The client logs you in and opens the chat window.
+
+</p>
+
+</div>
+
+<h3><a>Client: 3. Chat</a></h3>
+<div>
+
+<p>
+The chat window shows a list of all users logged in to the server. Logged-in users can send public messages, and can receive public messages from others.
+
+</p>
+
+</div>
+
+<h2><a>Connecting to a Game</a></h2>
+<div>
+
+<p>
+Q: I want to gather players using the OGF client to connect to the game server. How do I start my multiplayer game? <br/>
+
+A: The following sample code demos the typical use case: <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/open-game-finder/source/browse/OGF/TRUNK/Client/src/main/java/com/ractoc/opengamefinder/client/OGFClientStartup.java"><param name="text" value="<html><u>OGFClientStartup.java</u></html>"><param name="textColor" value="blue"></object>
+<br/>
+
+In a JME3 Application&#039;s init method:
+</p>
+<ol>
+<li><div> Create a com.ractoc.opengamefinder.client.GUIContainer object.</div>
+</li>
+<li><div> Create a game instance using the GUIContainer (via a ClientFactory).</div>
+</li>
+<li><div> Check the com.ractoc.pffj.api.BasePluginMessageResult for success or failure.</div>
+</li>
+</ol>
+
+<p>
+After this, continue writing your JME3 init method.
+
+</p>
+
+</div>
+
+<h2><a>Configuration</a></h2>
+<div>
+<ul>
+<li><div> Q: How can I offer more avatars to choose from? <br/>
+A: Save the image files in the path <code>jMonkeyProjects/OGF-Client-1.0-bin/OGF/resources/avatars/</code></div>
+</li>
+<li><div> Q: How do I configure servers addresses? <br/>
+A: TBD</div>
+</li>
+</ul>
+
+</div>
+<p><em><a href="http://direct.jmonkeyengine.org/wiki/doku.php/jme3:advanced:open_game_finder?do=export_xhtmlbody">view online version</a></em></p>

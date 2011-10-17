@@ -1,24 +1,89 @@
-<h1><a
-name="rendering_water_as_post-process_effect">Rendering Water as Post-Process Effect</a></h1><div
-class="level1"><p> This awesome water effect is highly configurable and can render any type of water. It is is based on <a
-href="http://www.gamedev.net/page/reference/index.html/_//feature/fprogramming/rendering-water-as-a-post-process-effect-r2642">Wojciech Toman’s Rendering Water as a Post-process Effect</a> published on gamedev.net. Here&#039;s a video:</p><p> <a
-href="http://www.youtube.com/watch?v=AWlUzgRN3Pc"><img
-src="nbdocs:/com/jme3/gde/core/docs/jme3/advanced/water-post.png" class="mediacenter" alt="" /></a></p></div><h2><a
-name="the_theory">The Theory</a></h2><div
-class="level2"><p> In this article the author uses the effect in a deferred rendering process, taking advantage of the pre-computed position buffer and back buffer (a texture representing the screen’s pixels position in view space, and a texture of the rendered scene).</p><p> After some calculation this allows to reconstruct the position in world space for each pixel on the screen. If a pixel is under a given water height, let’s render it as a blue pixel! Blue pixel? Not exactly, we want waves, we want ripples, we want foam, we want reflection and refraction.</p><p> The GameDev.net article describes how those effects are achieved, but the main idea is to generate waves from a height map, create ripples from a normal map, blend in the foam texture when the water depth is below a certain height, compute the refraction color with a clever color extinction algorithm, and then, display the reflection and specular effect by computing a Fresnel term (like in standard water effect). In addition this effect, allow to blend the water shore with the ground to avoid the hard edges effect of classic water effects based on grids or quads.</p></div><h2><a
-name="how_did_we_implement_it_in_jme3">How Did We Implement it in jME3?</a></h2><div
-class="level2"><p> jME3 default behavior is to use a forward rendering process, so there is no position buffer rendered that we can take advantage of. But while rendering the main scene to a frame buffer in the FilterPostPorcessor, we can write the hardware depth buffer to a texture, with nearly no additional cost.</p><p> I won’t go into the details of this, but there are several ways of reconstructing the world space position of a pixel from the depth buffer. The computational cost is higher than just fetching the position form a position buffer, but the bandwidth and the memory required is a lot lower.</p><p> We have the rendered scene in a texture, and we can reconstruct the position in world space of each pixel… We’re good to go!</p><p> See also: <a
-href="http://jmonkeyengine.org/2011/01/15/new-advanced-water-effect-for-jmonkeyengine-3/#comment-609">JME3&#039;s Water Post-Process Effect</a> by Nehon</p></div><h2><a
-name="sample_code">Sample Code</a></h2><div
-class="level2"><p> There are two test cases in the jME3 repository:</p><ul><li
-class="level1"><div
-class="li"> <a
-href="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/water/TestPostWater.java">jme3/src/test/jme3test/water/TestPostWater.java</a> (ocean island)</div></li></ul><ul><li
-class="level1"><div
-class="li"> <a
-href="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/water/TestPostWaterLake.java">jme3/src/test/jme3test/water/TestPostWaterLake.java</a> (calm and muddy water pond)</div></li></ul></div><h3><a
-name="using_the_water_filter">Using the Water Filter</a></h3><div
-class="level3"><p> In the <code>simpleInitApp()</code> method, you attach your scene to the rootNode, typically a terrain with a sky. Remember to add a directional light, since the water relies on the light direction vector. The WaterFilter constrcutor expects a node with the scene attached that should be reflected in the water, and vector information from the light source&#039;s direction.</p><p> This is how you use the water filter post-processor code in your code:</p><pre>private FilterPostProcessor fpp;
+
+<h1><a>Rendering Water as Post-Process Effect</a></h1>
+<div>
+
+<p>
+
+The awesome SeaMonkey water Filter is highly configurable. It can render any type of water and also simulates the underwater part of the effect, including &quot;caustics&quot;. It is is based on <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://www.gamedev.net/page/reference/index.html/_//feature/fprogramming/rendering-water-as-a-post-process-effect-r2642"><param name="text" value="<html><u>Wojciech Toman’s Rendering Water as a Post-process Effect</u></html>"><param name="textColor" value="blue"></object> published on gamedev.net. Here&#039;s a video:
+</p>
+
+<p>
+<img src="nbdocs:/com/jme3/gde/core/docs/jme3/advanced/water-post.png">
+</p>
+
+</div>
+
+<h2><a>The Theory</a></h2>
+<div>
+
+<p>
+
+The effect is part of a deferred rendering process, taking advantage of the pre-computed position buffer and back buffer (a texture representing the screen’s pixels position in view space, and a texture of the rendered scene).
+</p>
+
+<p>
+After some calculation, this allows to reconstruct the position in world space for each pixel on the screen. &quot;If a pixel is under a given water height, let’s render it as a blue pixel!&quot; Blue pixel? Not exactly, we want waves, we want ripples, we want foam, we want reflection and refraction.
+</p>
+
+<p>
+The GameDev.net article describes how those effects are achieved, but the main idea is to generate waves from a height map, create ripples from a normal map, blend in the foam texture when the water depth is below a certain height, compute the refraction color with a clever color extinction algorithm, and then, display the reflection and specular effect by computing a Fresnel term (like in the simple water effect). In addition, this effect allows to blend the water shore with the ground to avoid the hard edges of classic water effects based on grids or quads.
+</p>
+
+</div>
+
+<h2><a>How Did We Implement it in jME3?</a></h2>
+<div>
+
+<p>
+
+jME3 default behavior is to use a forward rendering process, so there is no position buffer rendered that we can take advantage of. But while rendering the main scene to a frame buffer in the FilterPostPorcessor, we can write the hardware depth buffer to a texture, with nearly no additional cost.
+</p>
+
+<p>
+There are several ways of reconstructing the world space position of a pixel from the depth buffer. The computational cost is higher than just fetching the position from a position buffer, but the bandwidth and the memory required is a lot lower.
+</p>
+
+<p>
+Now we have the rendered scene in a texture, and we can reconstruct the position in world space of each pixel. We’re good to go!
+</p>
+
+<p>
+– Nehon
+</p>
+
+</div>
+
+<h2><a>Sample Code</a></h2>
+<div>
+
+<p>
+
+There are two test cases in the jME3 repository:
+
+</p>
+<ul>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/water/TestPostWater.java"><param name="text" value="<html><u>jme3/src/test/jme3test/water/TestPostWater.java</u></html>"><param name="textColor" value="blue"></object> (ocean island)</div>
+</li>
+</ul>
+<ul>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/water/TestPostWaterLake.java"><param name="text" value="<html><u>jme3/src/test/jme3test/water/TestPostWaterLake.java</u></html>"><param name="textColor" value="blue"></object> (calm and muddy water pond)</div>
+</li>
+</ul>
+
+</div>
+
+<h3><a>Using the Water Filter</a></h3>
+<div>
+
+<p>
+
+In the <code>simpleInitApp()</code> method, you attach your scene to the rootNode, typically a terrain with a sky. Remember to add a directional light, since the water relies on the light direction vector. The WaterFilter constrcutor expects a node with the scene attached that should be reflected in the water, and vector information from the light source&#039;s direction.
+</p>
+
+<p>
+This is how you use the water filter post-processor code in your code:
+</p>
+<pre>private FilterPostProcessor fpp;
 private WaterFilter water;
 private Vector3f lightDir = new Vector3f&#40;-4.9f, -1.3f, 5.9f&#41;; // same as light source
 private float initialWaterHeight = 0.8f; // choose a value for your scene
@@ -32,10 +97,23 @@ public void simpleInitApp&#40;&#41; &#123;
   fpp.addFilter&#40;water&#41;;
   viewPort.addProcessor&#40;fpp&#41;;
   ...
-&#125;</pre><p> Usually you make the water reflect everything attached to the rootNode. But you can also give a custom node (a subnode of the rootNode) to the WaterFilter constructor that has only a subset of scene nodes attached. This would be a relevant optimization if you have lots of nodes that are far away from the water, or covered, and will never be reflected.</p></div><h3><a
-name="optionalwaves">Optional: Waves</a></h3><div
-class="level3"><p> If you want waves, set the water height in the update loop. We reuse the initialWaterHeight variable, and repeatedly reset the waterHeight value according to time. This causes the waves.</p><pre>private float time = 0.0f;
-private float waterHeight = 0.0f;
+&#125;</pre>
+
+<p>
+Usually you make the water reflect everything attached to the rootNode. But you can also give a custom node (a subnode of the rootNode) to the WaterFilter constructor that has only a subset of scene nodes attached. This would be a relevant optimization if you have lots of nodes that are far away from the water, or covered, and will never be reflected.
+</p>
+
+</div>
+
+<h3><a>Optional: Waves</a></h3>
+<div>
+
+<p>
+
+If you want waves, set the water height in the update loop. We reuse the initialWaterHeight variable, and repeatedly reset the waterHeight value according to time. This causes the waves.
+</p>
+<pre>private float time = 0.0f;
+private float waterHeight = 0.0f; 
 &nbsp;
 @Override
 public void simpleUpdate&#40;float tpf&#41; &#123;
@@ -43,155 +121,158 @@ public void simpleUpdate&#40;float tpf&#41; &#123;
   time += tpf;
   waterHeight = &#40;float&#41; Math.cos&#40;&#40;&#40;time * 0.6f&#41; % FastMath.TWO_PI&#41;&#41; * 1.5f;
   water.setWaterHeight&#40;initialWaterHeight + waterHeight&#41;;
-&#125;</pre></div><h3><a
-name="optionalwater_wave_and_color_effects">Optional: Water Wave and Color Effects</a></h3><div
-class="level3"><p> <a
-href="/wiki/lib/exe/detail.php/jme3:advanced:water-post-muddy.png?id=jme3%3Aadvanced%3Apost-processor_water"><img
-src="nbdocs:/com/jme3/gde/core/docs/jme3/advanced/water-post-muddy.png?w=220&amp;h=172" class="mediacenter" alt="" width="220" height="172" /></a></p><p> All these effects are optional. Every setter also has a getter.</p><div
-class="table sectionedit1"><table
-class="inline"><tr
-class="row0"><th
-class="col0"> Water method example</th><th
-class="col1">Effects: Waves</th><th
-class="col2">Default</th></tr><tr
-class="row1"><td
-class="col0">water.setWaterHeight(-6);</td><td
-class="col1">Use this waterheight method for causing waves.</td><td
-class="col2">0.0f</td></tr><tr
-class="row2"><td
-class="col0">water.setMaxAmplitude(0.3f);</td><td
-class="col1">How high the highest waves are.</td><td
-class="col2">1.0f</td></tr><tr
-class="row3"><td
-class="col0">water.setWaveScale(0.008f);</td><td
-class="col1">Sets the scale factor of the waves height map. The smaller the value, the bigger the waves!</td><td
-class="col2"> 0.005f</td></tr><tr
-class="row4"><td
-class="col0">water.setWindDirection(new Vector2f(0,1))</td><td
-class="col1">Sets the wind direction, which is the direction where the waves move</td><td
-class="col2">Vector2f(0.0f, -1.0f)</td></tr><tr
-class="row5"><td
-class="col0">water.setSpeed(0.7f);</td><td
-class="col1">How fast the waves move. Set it to 0.0f for still water.</td><td
-class="col2">1.0f</td></tr><tr
-class="row6"><td
-class="col0">water.setHeightTexture( (Texture2D) <br/> manager.loadTexture(&quot;Textures/waveheight.png&quot;) )</td><td
-class="col1">This height map describes the shape of the waves</td><td
-class="col2">&quot;Common/MatDefs/Water/Textures/heightmap.jpg&quot;</td></tr><tr
-class="row7"><td
-class="col0">water.setNormalTexture( (Texture2D) <br/> manager.loadTexture(&quot;Textures/wavenormals.png&quot;) )</td><td
-class="col1">This normal map describes the shape of the waves</td><td
-class="col2">&quot;Common/MatDefs/Water/Textures/gradient_map.jpg&quot;</td></tr><tr
-class="row8"><td
-class="col0">water.setUseRipples(false);</td><td
-class="col1">Switches the ripples effect on or off.</td><td
-class="col2">true</td></tr><tr
-class="row9"><td
-class="col0">water.setNormalScale(0.5f)</td><td
-class="col1">Sets the normal scaling factors to apply to the normal map. The higher the value, the more small ripples will be visible on the waves.</td><td
-class="col2">1.0f</td></tr></table></div><div
-class="table sectionedit2"><table
-class="inline"><tr
-class="row0"><th
-class="col0"> Water method example</th><th
-class="col1"> Effects: Color</th><th
-class="col2">Default</th></tr><tr
-class="row1"><td
-class="col0">water.setLightDirection(new Vector3f(-0.37f,-0.50f,-0.78f))</td><td
-class="col1">Usually you set this to the same as the light source&#039;s direction. Use this to set the light direction if the sun is moving.</td><td
-class="col2">Value given to WaterFilter() constructor.</td></tr><tr
-class="row2"><td
-class="col0">water.setLightColor(ColorRGBA.White)</td><td
-class="col1">Usually you set this to the same as the light source&#039;s color.</td><td
-class="col2">RGBA.White</td></tr><tr
-class="row3"><td
-class="col0">water.setWaterColor(ColorRGBA.Brown.mult(2.0f));</td><td
-class="col1">Sets the main water color.</td><td
-class="col2">greenish blue <br/> Vector3f(0.0f,0.5f,0.5f,1.0f)</td></tr><tr
-class="row4"><td
-class="col0">water.setDeepWaterColor(ColorRGBA.Brown);</td><td
-class="col1">Sets the deep water color.</td><td
-class="col2">dark blue <br/> Vector3f(0.0f, 0.0f,0.2f,1.0f)</td></tr><tr
-class="row5"><td
-class="col0">water.setWaterTransparency(0.2f);</td><td
-class="col1">Sets how fast colors fade out. use this to control how clear (e.g. 0.05f) or muddy (0.2f) water is.</td><td
-class="col2"> 0.1f</td></tr><tr
-class="row6"><td
-class="col0">water.setColorExtinction(new Vector3f(10f,20f,30f));</td><td
-class="col1">Sets At what depth the refraction color extincts. The three values are RGB (red, green, blue) in this order. Play with these parameters to &quot;muddy&quot; the water.</td><td
-class="col2">Vector3f(5f,20f,30f)</td></tr></table></div><div
-class="table sectionedit3"><table
-class="inline"><tr
-class="row0"><th
-class="col0"> Water method example</th><th
-class="col1"> Effects: Shore</th><th
-class="col2">Default</th></tr><tr
-class="row1"><td
-class="col0">water.setShoreHardness(1.0f);</td><td
-class="col1">Sets how soft the transition between shore and water should be. High values mean a harder transition between shore and water.</td><td
-class="col2">0.1f</td></tr><tr
-class="row2"><td
-class="col0">water.setUseHQShoreline(false);</td><td
-class="col1">Renders shoreline with better quality ?</td><td
-class="col2">true</td></tr></table></div><div
-class="table sectionedit4"><table
-class="inline"><tr
-class="row0"><th
-class="col0"> Water method example</th><th
-class="col1"> Effects: Foam</th><th
-class="col2">Default</th></tr><tr
-class="row1"><td
-class="col0">water.setUseFoam(false);</td><td
-class="col1">Switches the white foam on or off</td><td
-class="col2">true</td></tr><tr
-class="row2"><td
-class="col0">water.setFoamHardness(0.5f)</td><td
-class="col1">Sets how much the foam will blend with the shore to avoid a hard edged water plane.</td><td
-class="col2">1.0f</td></tr><tr
-class="row3"><td
-class="col0">water.setFoamExistence(new Vector3f(0.5f,5f,1.0f))</td><td
-class="col1">The three values describe what depth foam starts to fade out, at what depth it is completely invisible, at what height foam for waves appears (+ waterHeight).</td><td
-class="col2">Vector3f(0.45f,4.35f,1.0f)</td></tr><tr
-class="row4"><td
-class="col0">water.setFoamTexture( (Texture2D) <br/> manager.loadTexture(&quot;Textures/foam.png&quot;) )</td><td
-class="col1">This foam texture will be used with WrapMode.Repeat</td><td
-class="col2">&quot;Common/MatDefs/Water/Textures/foam.jpg&quot;</td></tr></table></div><div
-class="table sectionedit5"><table
-class="inline"><tr
-class="row0"><th
-class="col0"> Water method example</th><th
-class="col1"> Effects: Light</th><th
-class="col2">Default</th></tr><tr
-class="row1"><td
-class="col0">water.setSunScale(1f);</td><td
-class="col1">Sets how big the sun should appear in the light&#039;s specular effect on the water.</td><td
-class="col2">3.0f</td></tr><tr
-class="row2"><td
-class="col0">water.setUseSpecular(false)</td><td
-class="col1">Switches specular effect on or off</td><td
-class="col2">true</td></tr><tr
-class="row3"><td
-class="col0">water.setShininess(0.8f)</td><td
-class="col1">Sets the shininess of the water reflections</td><td
-class="col2">0.7f</td></tr><tr
-class="row4"><td
-class="col0">water.setUseRefraction(true)</td><td
-class="col1">Switches the refraction effect on or off.</td><td
-class="col2">true</td></tr><tr
-class="row5"><td
-class="col0">water.setRefractionConstant(0.2f);</td><td
-class="col1">The lower the value, the less reflection can be seen on water. This is a constant related to the index of refraction (IOR) used to compute the fresnel term.</td><td
-class="col2">0.3f</td></tr><tr
-class="row6"><td
-class="col0">water.setRefractionStrength(-0.1)</td><td
-class="col1">This value modifies the current Fresnel term. If you want to weaken reflections use bigger value. If you want to empasize them, use a value smaller than 0.</td><td
-class="col2">0.0f</td></tr><tr
-class="row7"><td
-class="col0">water.setReflectionMapSize(256)</td><td
-class="col1">Sets the size of the reflection map. The higher, the better the quality, but the slower the effect.</td><td
-class="col2">512</td></tr></table></div></div><h3><a
-name="sound_effects">Sound Effects</a></h3><div
-class="level3"><p> You should also add audio nodes with water sounds to complete the effect.</p><pre>AudioNode waves = new AudioNode&#40;assetManager, &quot;Sound/Environment/Ocean Waves.ogg&quot;, false&#41;;
+&#125;</pre>
+
+</div>
+
+<h3><a>Optional: Water Wave and Color Effects</a></h3>
+<div>
+
+<p>
+
+<img src="nbdocs:/com/jme3/gde/core/docs/jme3/advanced/water-post-muddy.png">
+</p>
+
+<p>
+All these effects are optional. Every setter also has a getter.
+
+</p>
+<div><table>
+	<tr>
+		<th> Water method example</th><th>Effects: Waves </th><th>Default</th>
+	</tr>
+	<tr>
+		<td>water.setWaterHeight(-6);</td><td>Use this waterheight method for causing waves.</td><td>0.0f</td>
+	</tr>
+	<tr>
+		<td>water.setMaxAmplitude(0.3f);</td><td>How high the highest waves are.</td><td>1.0f</td>
+	</tr>
+	<tr>
+		<td>water.setWaveScale(0.008f);</td><td>Sets the scale factor of the waves height map. The smaller the value, the bigger the waves!</td><td> 0.005f </td>
+	</tr>
+	<tr>
+		<td>water.setWindDirection(new Vector2f(0,1))</td><td>Sets the wind direction, which is the direction where the waves move</td><td>Vector2f(0.0f, -1.0f)</td>
+	</tr>
+	<tr>
+		<td>water.setSpeed(0.7f);</td><td>How fast the waves move. Set it to 0.0f for still water.</td><td>1.0f</td>
+	</tr>
+	<tr>
+		<td>water.setHeightTexture( (Texture2D) <br/>
+manager.loadTexture(&quot;Textures/waveheight.png&quot;) )</td><td>This height map describes the shape of the waves</td><td>&quot;Common/MatDefs/Water/Textures/heightmap.jpg&quot;</td>
+	</tr>
+	<tr>
+		<td>water.setNormalTexture( (Texture2D) <br/>
+manager.loadTexture(&quot;Textures/wavenormals.png&quot;) )</td><td>This normal map describes the shape of the waves</td><td>&quot;Common/MatDefs/Water/Textures/gradient_map.jpg&quot;</td>
+	</tr>
+	<tr>
+		<td>water.setUseRipples(false);</td><td>Switches the ripples effect on or off.</td><td>true</td>
+	</tr>
+	<tr>
+		<td>water.setNormalScale(0.5f)</td><td>Sets the normal scaling factors to apply to the normal map. The higher the value, the more small ripples will be visible on the waves.</td><td>1.0f</td>
+	</tr>
+</table></div>
+<!-- EDIT1 TABLE [4858-6022] --><div><table>
+	<tr>
+		<th> Water method example</th><th> Effects: Color</th><th>Default</th>
+	</tr>
+	<tr>
+		<td>water.setLightDirection(new Vector3f(-0.37f,-0.50f,-0.78f))</td><td>Usually you set this to the same as the light source&#039;s direction. Use this to set the light direction if the sun is moving.</td><td>Value given to WaterFilter() constructor.</td>
+	</tr>
+	<tr>
+		<td>water.setLightColor(ColorRGBA.White)</td><td>Usually you set this to the same as the light source&#039;s color.</td><td>RGBA.White</td>
+	</tr>
+	<tr>
+		<td>water.setWaterColor(ColorRGBA.Brown.mult(2.0f));</td><td>Sets the main water color.</td><td>greenish blue <br/>
+Vector3f(0.0f,0.5f,0.5f,1.0f)</td>
+	</tr>
+	<tr>
+		<td>water.setDeepWaterColor(ColorRGBA.Brown);</td><td>Sets the deep water color.</td><td>dark blue <br/>
+Vector3f(0.0f, 0.0f,0.2f,1.0f)</td>
+	</tr>
+	<tr>
+		<td>water.setWaterTransparency(0.2f);</td><td>Sets how fast colors fade out. use this to control how clear (e.g. 0.05f) or muddy (0.2f) water is.</td><td> 0.1f </td>
+	</tr>
+	<tr>
+		<td>water.setColorExtinction(new Vector3f(10f,20f,30f));</td><td>Sets At what depth the refraction color extincts. The three values are RGB (red, green, blue) in this order. Play with these parameters to &quot;muddy&quot; the water.</td><td>Vector3f(5f,20f,30f)</td>
+	</tr>
+</table></div>
+<!-- EDIT2 TABLE [6024-7028] --><div><table>
+	<tr>
+		<th> Water method example</th><th> Effects: Shore</th><th>Default</th>
+	</tr>
+	<tr>
+		<td>water.setShoreHardness(1.0f);</td><td>Sets how soft the transition between shore and water should be. High values mean a harder transition between shore and water.</td><td>0.1f</td>
+	</tr>
+	<tr>
+		<td>water.setUseHQShoreline(false);</td><td>Renders shoreline with better quality ?</td><td>true</td>
+	</tr>
+</table></div>
+<!-- EDIT3 TABLE [7030-7319] --><div><table>
+	<tr>
+		<th> Water method example</th><th> Effects: Foam</th><th>Default</th>
+	</tr>
+	<tr>
+		<td>water.setUseFoam(false);</td><td>Switches the white foam on or off</td><td>true</td>
+	</tr>
+	<tr>
+		<td>water.setFoamHardness(0.5f)</td><td>Sets how much the foam will blend with the shore to avoid a hard edged water plane.</td><td>1.0f</td>
+	</tr>
+	<tr>
+		<td>water.setFoamExistence(new Vector3f(0.5f,5f,1.0f))</td><td>The three values describe what depth foam starts to fade out, at what depth it is completely invisible, at what height foam for waves appears (+ waterHeight).</td><td>Vector3f(0.45f,4.35f,1.0f)</td>
+	</tr>
+	<tr>
+		<td>water.setFoamTexture( (Texture2D) <br/>
+manager.loadTexture(&quot;Textures/foam.png&quot;) )</td><td>This foam texture will be used with WrapMode.Repeat</td><td>&quot;Common/MatDefs/Water/Textures/foam.jpg&quot;</td>
+	</tr>
+</table></div>
+<!-- EDIT4 TABLE [7321-7966] --><div><table>
+	<tr>
+		<th> Water method example</th><th> Effects: Light</th><th>Default</th>
+	</tr>
+	<tr>
+		<td>water.setSunScale(1f);</td><td>Sets how big the sun should appear in the light&#039;s specular effect on the water.</td><td>3.0f</td>
+	</tr>
+	<tr>
+		<td>water.setUseSpecular(false)</td><td>Switches specular effect on or off</td><td>true</td>
+	</tr>
+	<tr>
+		<td>water.setShininess(0.8f)</td><td>Sets the shininess of the water reflections</td><td>0.7f</td>
+	</tr>
+	<tr>
+		<td>water.setUseRefraction(true)</td><td>Switches the refraction effect on or off.</td><td>true</td>
+	</tr>
+	<tr>
+		<td>water.setRefractionConstant(0.2f);</td><td>The lower the value, the less reflection can be seen on water. This is a constant related to the index of refraction (IOR) used to compute the fresnel term.</td><td>0.3f</td>
+	</tr>
+	<tr>
+		<td>water.setRefractionStrength(-0.1)</td><td>This value modifies the current Fresnel term. If you want to weaken reflections use bigger value. If you want to empasize them, use a value smaller than 0.</td><td>0.0f</td>
+	</tr>
+	<tr>
+		<td>water.setReflectionMapSize(256)</td><td>Sets the size of the reflection map. The higher, the better the quality, but the slower the effect.</td><td>512</td>
+	</tr>
+</table></div>
+<!-- EDIT5 TABLE [7968-8883] -->
+</div>
+
+<h3><a>Sound Effects</a></h3>
+<div>
+
+<p>
+
+You should also add audio nodes with water sounds to complete the effect.
+</p>
+<pre>AudioNode waves = new AudioNode&#40;assetManager, &quot;Sound/Environment/Ocean Waves.ogg&quot;, false&#41;;
 waves.setLooping&#40;true&#41;;
-audioRenderer.playSource&#40;waves&#41;;</pre></div>
-<p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:post-processor_water?do=export_xhtmlbody">view online version</a></em></p>
+audioRenderer.playSource&#40;waves&#41;;</pre>
+<hr />
+
+<p>
+See also:
+</p>
+<ul>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://jmonkeyengine.org/2011/01/15/new-advanced-water-effect-for-jmonkeyengine-3/#comment-609"><param name="text" value="<html><u>JME3&#039;s Water Post-Process Effect</u></html>"><param name="textColor" value="blue"></object> by Nehon</div>
+</li>
+</ul>
+
+</div>
+<p><em><a href="http://direct.jmonkeyengine.org/wiki/doku.php/jme3:advanced:post-processor_water?do=export_xhtmlbody">view online version</a></em></p>

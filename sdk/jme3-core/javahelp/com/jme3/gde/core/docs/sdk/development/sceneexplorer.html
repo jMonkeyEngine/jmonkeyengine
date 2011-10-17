@@ -1,14 +1,44 @@
-<h1><a
-name="the_sceneexplorer">The SceneExplorer</a></h1><div
-class="level1"></div><h2><a
-name="adding_node_types_to_sceneexplorer">Adding Node types to SceneExplorer</a></h2><div
-class="level2"><p> If your plugin brings in its own SceneGraph objects you can still have them work like any other SceneExplorer item, including its special properties.</p><p> You will have to create your own class that extends org.openide.nodes.Node and implement the interface com.jme3.gde.core.sceneexplorer.nodes.SceneExplorerNode. Then you register that class by adding</p><pre>@org.openide.util.lookup.ServiceProvider(service=SceneExplorerNode.class)</pre><p> above the body of your class. Thats all, your Spatial type will automatically be used and displayed in the SceneExplorer. Make sure you register a jar with the used classes in the plugin preferences under &quot;wrapped libraries&quot;, otherwise the IDE cannot access those classes.</p><p> Theres also AbstractSceneExplorerNode which brings some other useful features you might want to include like automatic creation of properly threaded properties etc. JmeSpatial for example bases on it. A simple SceneExplorerNode example for an object extending Spatial would be JmeGeometry (see below). Editors for special variable types can be added using the SceneExplorerPropertyEditor interface, which can be registered as a ServiceProvider as well.</p><p> The SceneExplorerNode can be used for Spatial and Control type objects.</p><ul><li
-class="level1"><div
-class="li"><em>Add the &quot;Nodes <acronym
-title="Application Programming Interface">API</acronym>&quot; and &quot;Lookup <acronym
-title="Application Programming Interface">API</acronym>&quot; libraries to your project when you want to use this</em></div></li></ul></div><h3><a
-name="spatial_example">Spatial Example</a></h3><div
-class="level3"><pre>@org.openide.util.lookup.ServiceProvider&#40;service=SceneExplorerNode.class&#41;
+
+<h1><a>The SceneExplorer</a></h1>
+<div>
+
+</div>
+
+<h2><a>Adding Node types to SceneExplorer</a></h2>
+<div>
+
+<p>
+
+If your plugin brings in its own SceneGraph objects you can still have them work like any other SceneExplorer item, including its special properties.
+</p>
+
+<p>
+You will have to create your own class that extends org.openide.nodes.Node and implement the interface com.jme3.gde.core.sceneexplorer.nodes.SceneExplorerNode. Then you register that class by adding 
+</p>
+<pre>@org.openide.util.lookup.ServiceProvider(service=SceneExplorerNode.class)</pre>
+
+<p>
+ above the body of your class. Thats all, your Spatial type will automatically be used and displayed in the SceneExplorer. Make sure you register a jar with the used classes in the plugin preferences under &quot;wrapped libraries&quot;, otherwise the IDE cannot access those classes.
+</p>
+
+<p>
+Theres also AbstractSceneExplorerNode which brings some other useful features you might want to include like automatic creation of properly threaded properties etc. JmeSpatial for example bases on it. A simple SceneExplorerNode example for an object extending Spatial would be JmeGeometry (see below). Editors for special variable types can be added using the SceneExplorerPropertyEditor interface, which can be registered as a ServiceProvider as well.
+</p>
+
+<p>
+The SceneExplorerNode can be used for Spatial and Control type objects.
+
+</p>
+<ul>
+<li><div><em>Add the &quot;Nodes <acronym title="Application Programming Interface">API</acronym>&quot; and &quot;Lookup <acronym title="Application Programming Interface">API</acronym>&quot; libraries to your project when you want to use this</em></div>
+</li>
+</ul>
+
+</div>
+
+<h3><a>Spatial Example</a></h3>
+<div>
+<pre>@org.openide.util.lookup.ServiceProvider&#40;service=SceneExplorerNode.class&#41;
 public class JmeGeometry extends JmeSpatial &#123;
 &nbsp;
     private static Image smallImage =
@@ -68,9 +98,13 @@ public class JmeGeometry extends JmeSpatial &#123;
         children.setReadOnly&#40;readOnly&#41;;
         return new org.openide.nodes.Node&#91;&#93;&#123;new JmeGeometry&#40;&#40;Geometry&#41; key, children&#41;.setReadOnly&#40;readOnly&#41;&#125;;
     &#125;
-&#125;</pre></div><h3><a
-name="control_example">Control Example</a></h3><div
-class="level3"><pre>@org.openide.util.lookup.ServiceProvider&#40;service=SceneExplorerNode.class&#41;
+&#125;</pre>
+
+</div>
+
+<h3><a>Control Example</a></h3>
+<div>
+<pre>@org.openide.util.lookup.ServiceProvider&#40;service=SceneExplorerNode.class&#41;
 public class JmeGhostControl extends AbstractSceneExplorerNode &#123;
 &nbsp;
     private static Image smallImage =
@@ -166,10 +200,26 @@ public class JmeGhostControl extends AbstractSceneExplorerNode &#123;
     public org.openide.nodes.Node&#91;&#93; createNodes&#40;Object key, DataObject key2, boolean cookie&#41; &#123;
         return new org.openide.nodes.Node&#91;&#93;&#123;new JmeGhostControl&#40;&#40;GhostControl&#41; key, key2&#41;.setReadOnly&#40;cookie&#41;&#125;;
     &#125;
-&#125;</pre></div><h2><a
-name="adding_items_to_the_add_and_tools_menus">Adding items to the add and tools menus</a></h2><div
-class="level2"><p> For adding Spatials, Contols and for general tools theres premade abstract classes that you can use to extend the options. Undo/Redo is handled by the abstract class. AbstractNewSpatial<strong>Wizard</strong>Action allows you to show an AWT wizard before creating the Spatial. You can also just implement the base ServiceProvider class and return any kind of action (such as a wizard), in this case you have to handle the threading yourself!</p><p><p><div
-class="noteimportant">Note that the classes you create are singletons which are used across multiple nodes and you should not store any data in local variables!</div></p></p><p> To add a new Tool, create a new AbstractToolAction:</p><pre>@org.openide.util.lookup.ServiceProvider&#40;service = ToolAction.class&#41;
+&#125;</pre>
+
+</div>
+
+<h2><a>Adding items to the add and tools menus</a></h2>
+<div>
+
+<p>
+For adding Spatials, Contols and for general tools theres premade abstract classes that you can use to extend the options. Undo/Redo is handled by the abstract class. AbstractNewSpatial<strong>Wizard</strong>Action allows you to show an AWT wizard before creating the Spatial. You can also just implement the base ServiceProvider class and return any kind of action (such as a wizard), in this case you have to handle the threading yourself!
+</p>
+
+<p>
+<p><div>Note that the classes you create are singletons which are used across multiple nodes and you should not store any data in local variables!
+</div></p>
+</p>
+
+<p>
+To add a new Tool, create a new AbstractToolAction:
+</p>
+<pre>@org.openide.util.lookup.ServiceProvider&#40;service = ToolAction.class&#41;
 public class GenerateTangentsTool extends AbstractToolAction &#123;
 &nbsp;
     public GenerateTangentsTool&#40;&#41; &#123;
@@ -199,7 +249,12 @@ public class GenerateTangentsTool extends AbstractToolAction &#123;
         return JmeGeometry.class;
     &#125;
 &nbsp;
-&#125;</pre><p> For a new Spatial or Control, use AbstractNewSpatialAction</p><pre>@org.openide.util.lookup.ServiceProvider&#40;service = NewSpatialAction.class&#41;
+&#125;</pre>
+
+<p>
+For a new Spatial or Control, use AbstractNewSpatialAction
+</p>
+<pre>@org.openide.util.lookup.ServiceProvider&#40;service = NewSpatialAction.class&#41;
 public class NewSpecialSpatialAction extends AbstractNewSpatialAction &#123;
 &nbsp;
     public NewSpecialSpatialAction&#40;&#41; &#123;
@@ -211,7 +266,12 @@ public class NewSpecialSpatialAction extends AbstractNewSpatialAction &#123;
         Spatial spatial=new Node&#40;&#41;;
         return spatial;
     &#125;
-&#125;</pre><p> or AbstractNewControlAction:</p><pre>@org.openide.util.lookup.ServiceProvider&#40;service = NewControlAction.class&#41;
+&#125;</pre>
+
+<p>
+or AbstractNewControlAction:
+</p>
+<pre>@org.openide.util.lookup.ServiceProvider&#40;service = NewControlAction.class&#41;
 public class NewRigidBodyAction extends AbstractNewControlAction &#123;
 &nbsp;
     public NewRigidBodyAction&#40;&#41; &#123;
@@ -232,10 +292,22 @@ public class NewRigidBodyAction extends AbstractNewControlAction &#123;
         &#125;
         return control;
     &#125;
-&#125;</pre></div><h4><a
-name="adding_using_a_wizard">Adding using a Wizard</a></h4><div
-class="level4"><p> You can create a new wizard using the wizard template in the <acronym
-title="Software Development Kit">SDK</acronym> (New File→Module Development→Wizard). The Action that the template creates can easily be changed to one for adding a Control or Spatial or for applying a Tool. Note that we extend AbstractNewSpatial<strong>Wizard</strong>Action here.</p><p> A good example is the &quot;Add SkyBox&quot; Wizard:</p><pre>@org.openide.util.lookup.ServiceProvider&#40;service = NewSpatialAction.class&#41;
+&#125;</pre>
+
+</div>
+
+<h4><a>Adding using a Wizard</a></h4>
+<div>
+
+<p>
+You can create a new wizard using the wizard template in the <acronym title="Software Development Kit">SDK</acronym> (New File→Module Development→Wizard). The Action that the template creates can easily be changed to one for adding a Control or Spatial or for applying a Tool. Note that we extend AbstractNewSpatial<strong>Wizard</strong>Action here.
+</p>
+
+<p>
+A good example is the &quot;Add SkyBox&quot; Wizard:
+
+</p>
+<pre>@org.openide.util.lookup.ServiceProvider&#40;service = NewSpatialAction.class&#41;
 public class AddSkyboxAction extends AbstractNewSpatialWizardAction &#123;
 &nbsp;
     private WizardDescriptor.Panel&#91;&#93; panels;
@@ -320,6 +392,13 @@ public class AddSkyboxAction extends AbstractNewSpatialWizardAction &#123;
         &#125;
         return panels;
     &#125;
-&#125;</pre><p><p><div
-class="notetip">The abstract spatial and control actions implement undo/redo automatically, for the ToolActions you have to implement it yourself.</div></p></p></div>
-<p><em><a href="http://jmonkeyengine.org/wiki/doku.php/sdk:development:sceneexplorer?do=export_xhtmlbody">view online version</a></em></p>
+&#125;</pre>
+
+<p>
+
+<p><div>The abstract spatial and control actions implement undo/redo automatically, for the ToolActions you have to implement it yourself.
+</div></p>
+</p>
+
+</div>
+<p><em><a href="http://direct.jmonkeyengine.org/wiki/doku.php/sdk:development:sceneexplorer?do=export_xhtmlbody">view online version</a></em></p>

@@ -1,0 +1,29 @@
+
+<h1><a>Read Graphic Card Capabilites</a></h1>
+<div>
+
+<p>
+
+You can read the graphic card&#039;s capabilities using the <code>com.jme3.renderer.Caps</code> class:
+</p>
+<pre>Collection&lt;Caps&gt; caps = renderer.getCaps&#40;&#41;;
+Logger.getLogger&#40;HelloWorld.class.getName&#40;&#41;&#41;.log&#40;Level.INFO, “Caps: &#123;0&#125;” + caps.toString&#40;&#41;&#41;; 	</pre>
+
+<p>
+Replace HelloWorld by the name of the class where you are using this line.
+</p>
+
+<p>
+The result looks like the following example:
+</p>
+<pre>Caps: [FrameBuffer, FrameBufferMRT, FrameBufferMultisample, 
+OpenGL20, ARBprogram, GLSL100, GLSL110, GLSL120, 
+VertexTextureFetch, FloatTexture, TextureCompressionLATC]</pre>
+
+<p>
+This would tell you that this user&#039;s graphic card only supports OpenGL 2.0 and cannot handle newer OpenGL features.
+
+</p>
+
+</div>
+<p><em><a href="http://direct.jmonkeyengine.org/wiki/doku.php/jme3:advanced:read_graphic_card_capabilites?do=export_xhtmlbody">view online version</a></em></p>

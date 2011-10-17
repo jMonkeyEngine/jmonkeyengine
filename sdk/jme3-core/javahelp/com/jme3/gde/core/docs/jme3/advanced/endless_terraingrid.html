@@ -1,0 +1,114 @@
+
+<h1><a>Endless Terrain</a></h1>
+<div>
+
+<p>
+TerrainGrid is an extension built on top of the TerraMonkey tools like TerrainQuad and HeightMap, that provides &quot;infinite&quot; Terrain paging routines.  <br/>
+
+Thanks to Gábor (@anthyon) and Brent (@sploreg) for this contribution!
+
+</p>
+
+</div>
+
+<h2><a>Sample Code</a></h2>
+<div>
+
+<p>
+The classes with source code can be found in the org.jme3.terrain.geomipmapping and org.jme3.terrain.heightmap packages. Also there are 3 tests prepared in the jme3test.terrain package:
+</p>
+<ul>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/terrain/TerrainGridTest.java"><param name="text" value="<html><u>TerrainGridTest.java</u></html>"><param name="textColor" value="blue"></object>: uses an ImageBasedHeightMapGrid instance to load the tiles</div>
+</li>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/terrain/TerrainFractalGridTest.java"><param name="text" value="<html><u>TerrainFractalGridTest.java</u></html>"><param name="textColor" value="blue"></object>: makes use of the FractalHeightMapGrid class, and generates a terrain from noise</div>
+</li>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/terrain/TerrainGridAlphaMapTest.java"><param name="text" value="<html><u>TerrainGridAlphaMapTest.java</u></html>"><param name="textColor" value="blue"></object>: shows how to use TerrainGridListener to change the material of the tiles</div>
+</li>
+</ul>
+
+</div>
+
+<h2><a>Specification</a></h2>
+<div>
+
+<p>
+TerrainGrid is made up of the TerrainGrid class, and the HeightMapGrid and TerrainGridListener interfaces.
+</p>
+<ul>
+<li><div> TerrainGrid is the central class of the system. It takes care for handling camera movement in LODUpdate, loading and unloading terrain tiles on demand, and notifying any registered listeners of changes.</div>
+</li>
+<li><div> TerrainGridListener defines two events to listen to:</div>
+<ul>
+<li><div> gridMoved(Vector3f):  gets the new center as parameter after terrain update, so any objects can be added or removed as needed.</div>
+</li>
+<li><div> Material tileLoaded(Material material, Vector3f cell): notifies the system about a tile being loaded. Parameters are a cloned value of the material added to the TerrainGrid, and the cell of the new tile. The system can change the material according to this information (eg. load required alphamaps, etc).</div>
+</li>
+</ul>
+</li>
+</ul>
+
+<p>
+<br/>
+
+Multiple listeners can be added to the TerrainGrid, they will be called in the order of addition, so it’s possible to have multiple changes to the material before completing the load of the tile.
+<br/>
+
+HeightMapGrid adds the possibility of loading terrain tiles on demand instead of having a simple height array. There’s no predefined way of how to store these tiles, it only takes care of loading one HeightMap object at given location at a time.
+
+</p>
+
+</div>
+
+<h2><a>Motivation</a></h2>
+<div>
+
+<p>
+After playing around with the terrain in jME3, soon comes the requirement of having larger explorable lands. Increasing the size of one TerrainQuad leads to more memory usage, while it will still be easy to reach the worlds boundaries. That’s why TerrainGrid was designed. It extends the TerraindQuad class and uses 4 HeightMaps (dark blue) as the four sub-quad. This means that a terrain of size 513 will use tiles of 257. Also an LRUCache is built into the terrain package, so surrounding tiles (green) can be pre-cached on a different thread, lowering the loading time. The quads are updated as the camera approaches the boundary of the light blue section.
+
+</p>
+
+</div>
+
+<h2><a>Rationale</a></h2>
+<div>
+
+<p>
+The design of the TerrainGrid system was chosen carefully, so that minimal effort needs to be taken to switch from previous TerrainQuad uses. It has the same constructors with the small exception that instead of an array of heightmap it takes a HeightMapGrid instance. All other parameters are forwarded down to the underlying TerrainQuad system.
+There exist also two basic HeightMapGrid implementations:
+</p>
+<ul>
+<li><div> ImageBasedHeightMapGrid: uses a sequentially numbered, 16 bit grayscale heightmaps. The physical filename of these files can be generated through the Namer interface. When a tile cannot be found by the assetManager, an empty (all-zero) heightmap is created, and a warning is added to the log.</div>
+</li>
+<li><div> FractalHeightMapGrid: uses a noise library to create a landscape on the fly. The shape of the terrain can be controlled by the various parameters and postfilters of the fractals. With the help of this grid implementation there’s no limitation – above of floating point precision limits – how far the camera can get. The tiles generated this way can be cached to the filesystem, for later modification. The FractalHeightMapGrid will always load from cache if a tile exists there!</div>
+</li>
+</ul>
+
+</div>
+
+<h2><a>Usage</a></h2>
+<div>
+<ol>
+<li><div>  instantiate a TerrainGrid object</div>
+</li>
+<li><div>  set material, listeners, translation, scale, etc.</div>
+</li>
+<li><div>  add a LODControl instance to the object</div>
+</li>
+<li><div>  call initialize with the camera location</div>
+</li>
+<li><div>  (optional) add it to the physicsSpace as you would a TerrainQuad</div>
+</li>
+</ol>
+
+<p>
+Further information about terrain and TerrainQuad can be found in the wiki at:
+</p>
+<ul>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://jmonkeyengine.org/wiki/doku.php/jme3:beginner:hello_terrain"><param name="text" value="<html><u>http://jmonkeyengine.org/wiki/doku.php/jme3:beginner:hello_terrain</u></html>"><param name="textColor" value="blue"></object> and</div>
+</li>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:terrain"><param name="text" value="<html><u>http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:terrain</u></html>"><param name="textColor" value="blue"></object></div>
+</li>
+</ul>
+
+</div>
+<p><em><a href="http://direct.jmonkeyengine.org/wiki/doku.php/jme3:advanced:endless_terraingrid?do=export_xhtmlbody">view online version</a></em></p>

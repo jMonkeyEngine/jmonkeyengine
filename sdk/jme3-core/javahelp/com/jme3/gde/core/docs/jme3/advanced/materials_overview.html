@@ -1,146 +1,279 @@
-<h1><a
-name="materials_overview">Materials Overview</a></h1><div
-class="level1"><p> This table shows you which material definitions jME supplies by default, and how to make the most of your designer&#039;s 3D models by using material parameters.
-If you are looking for information about how to use these materials in code, look at <a
-href="/com/jme3/gde/core/docs/jme3/advanced/material_definitions.html">Material Definitions</a> and <a
-href="/com/jme3/gde/core/docs/jme3/advanced/j3m_material_files.html">j3M Material Files</a>. <br/> <strong>Tip:</strong> The two most commonly used materials are Lighting.j3md and Unshaded.j3md (standard materials with and without Phong illumination, respectively).</p></div><h2><a
-name="table_of_material_definitions">Table of Material Definitions</a></h2><div
-class="level2"><p> Some parameters are &quot;optional&quot; because they are somewhat advanced. If you don&#039;t know what an option means, chances are that you are not using this feature in your textures – and you don&#039;t need to specify it. (E.g. YCoCg and LATC are image compression formats; Minnaert and WardIso are shader types.)
-Also note that many other parameters are optional, even if they are not explicitly marked optional. For example, it&#039;s okay to specify solely the <code>DiffuseMap</code> and <code>NormalMap</code> when using <code>Lighting.j3md</code>. You are only using a subset of what is possible, but if that&#039;s what you want, you can do that. The developer should be in contact with the designer regarding what jME features individual Materials/Textures require.</p></div><h3><a
-name="coloring_and_standard_textures">Coloring and Standard Textures</a></h3><div
-class="level3"><div
-class="table sectionedit1"><table
-class="inline"><tr
-class="row0"><th
-class="col0 leftalign"> Material Definition</th><th
-class="col1"> Usage</th><th
-class="col2 leftalign"> Parameter : Type</th></tr><tr
-class="row1"><td
-class="col0"> Common/MatDefs/Misc/Unshaded.j3md</td><td
-class="col1"> Standard unlit Material. Use this for simple coloring, simple texturing, simple glow, simple transparency. <br/> See also: <a
-href="/com/jme3/gde/core/docs/jme3/beginner/hello_material.html">Hello Material</a></td><td
-class="col2"> ColorMap : Texture <br/> LightMap : Texture <br/> Color : Color <br/> VertexColor : Boolean <br/> SeparateTexCoord : Boolean <br/> GlowMap : Texture <br/> GlowColor: Color</td></tr><tr
-class="row2"><td
-class="col0 leftalign"> Common/MatDefs/Misc/Sky.j3md</td><td
-class="col1"> A solid skyblue, or use with a custom SkyDome texture. <br/> See also: <a
-href="/com/jme3/gde/core/docs/jme3/advanced/sky.html">Sky</a></td><td
-class="col2"> Texture : TextureCubeMap <br/> SphereMap : Boolean <br/> NormalScale : Vector3</td></tr><tr
-class="row3"><td
-class="col0"> Common/MatDefs/Terrain/Terrain.j3md</td><td
-class="col1"> Splat textures for e.g. terrains. <br/> See also: <a
-href="/com/jme3/gde/core/docs/jme3/beginner/hello_terrain.html">Hello Terrain</a></td><td
-class="col2"> Texture1 : Texture (red) <br/> Texture1Scale : Float <br/> Texture2 : Texture (green) <br/> Texture2Scale : Float <br/> Texture3 : Texture (blue) <br/> Texture3Scale : Float <br/> Alpha : Texture</td></tr><tr
-class="row4"><td
-class="col0 leftalign"> Common/MatDefs/Misc/Particle.j3md</td><td
-class="col1"> Used with texture masks for particle effects, or for point sprites. <br/> The Quadratic value scales the particle for perspective view (<a
-href="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/core/com/jme3/effect/ParticleEmitter.java">formula</a>). <br/> Does support an optional colored glow effect. <br/> See also: <a
-href="/com/jme3/gde/core/docs/jme3/beginner/hello_effects.html">Hello Effects</a></td><td
-class="col2"> Texture : Texture <br/> GlowMap : Texture <br/> GlowColor : Color <br/> Quadratic : Float <br/> PointSprite : Boolean</td></tr></table></div><p> <br/></p></div><h3><a
-name="light_and_shadow">Light and Shadow</a></h3><div
-class="level3"><div
-class="table sectionedit2"><table
-class="inline"><tr
-class="row0"><th
-class="col0 leftalign"> Material Definition</th><th
-class="col1"> Usage</th><th
-class="col2 leftalign"> Parameters</th></tr><tr
-class="row1"><td
-class="col0 leftalign"> Common/MatDefs/Light/Lighting.j3md</td><td
-class="col1"> Standard lit material with Phong Illumination. Use this material together with DiffuseMap, SpecularMap, BumpMap (NormalMaps, ParalaxMap) textures. Supports shininess, transparency, and plain material colors (Diffuse, Ambient, Specular colors). <br/> See also: <a
-href="/com/jme3/gde/core/docs/jme3/beginner/hello_material.html">Hello Material</a> <br/> <strong>Note:</strong> Lit materials require a <a
-href="/com/jme3/gde/core/docs/jme3/advanced/light_and_shadow.html">light source</a>! Glowing materials require a <a
-href="/com/jme3/gde/core/docs/jme3/advanced/bloom_and_glow.html">FilterPostProcessor</a>!</td><td
-class="col2"> DiffuseMap : Texture <br/> UseAlpha<sup><a
-href="#fn__1">1)</a></sup> : Boolean <br/> NormalMap : Texture <br/> LATC<sup><a
-href="#fn__2">2)</a></sup> : Boolean <br/> SpecularMap : Texture <br/> Shininess : Float <br/> ParallaxMap : Texture <br/> AlphaMap : Texture <br/> AlphaDiscardThreshold: Float <br/> ColorRamp : Texture <br/> <strong>Glow (optional)</strong> <br/> GlowMap : Texture <br/> GlowColor : Color <br/> <strong>Performance and quality (optional)</strong> <br/> VertexLighting : Boolean <br/> UseVertexColor  : Boolean <br/> LowQuality : Boolean <br/> HighQuality : Boolean <br/> <strong>Material Colors (optional)</strong> <br/> UseMaterialColors : Boolean <br/> Diffuse : Color <br/> Ambient : Color <br/> Specular : Color <br/> <strong>Tangent shading (optional):</strong> <br/> VTangent : Boolean <br/> Minnaert<sup><a
-href="#fn__3">3)</a></sup> : Boolean <br/> WardIso<sup><a
-href="#fn__4">4)</a></sup> : Boolean</td></tr><tr
-class="row2"><td
-class="col0">Common/MatDefs/Terrain/TerrainLighting.j3md</td><td
-class="col1">Same kind of splat texture as Terrain.j3md, but with shading. <br/> Requires a light source.</td><td
-class="col2">Color Diffuse : Color <br/> Ambient : Color <br/> Shininess : Float <br/> Specular : Color <br/> SpecularMap : Texture <br/> WardIso : Boolean <br/> useTriPlanarMapping : Boolean <br/> <strong>Texture Splat Maps</strong> <br/> DiffuseMap : Texture <br/> DiffuseMap_0_scale : Float <br/> NormalMap : Texture <br/> DiffuseMap_1 : Texture <br/> DiffuseMap_1_scale : Float <br/> NormalMap_1 : Texture <br/> DiffuseMap_2 : Texture <br/> DiffuseMap_2_scale : Float <br/> NormalMap_2 : Texture <br/> DiffuseMap_3 : Texture <br/> DiffuseMap_3_scale : Float <br/> NormalMap_3 : Texture <br/> <strong>Alpha Maps</strong> <br/> AlphaMap : Texture <br/> AlphaMap_1 : Texture <br/> AlphaMap_2 : Texture <br/> <strong>Glowing</strong> <br/> GlowMap : Texture <br/> GlowColor : Color</td></tr><tr
-class="row3"><td
-class="col0 leftalign"> Common/MatDefs/Light/Reflection.j3md</td><td
-class="col1"> Reflective glass material with environment map (CubeMap/SphereMap). <br/> Requires light source. <br/> See also: <a
-href="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/texture/TestCubeMap.java">TestCubeMap.java</a></td><td
-class="col2"> Texture : Texture <br/> SphereMap: Boolean</td></tr></table></div></div><h3><a
-name="testing_and_debugging">Testing and Debugging</a></h3><div
-class="level3"><div
-class="table sectionedit3"><table
-class="inline"><tr
-class="row0"><th
-class="col0 leftalign"> Material Definition</th><th
-class="col1"> Usage</th><th
-class="col2 leftalign"> Parameters</th></tr><tr
-class="row1"><td
-class="col0 leftalign"> Common/MatDefs/Misc/ShowNormals.j3md</td><td
-class="col1"> A color gradient calculated from the model&#039;s surface normals. You can use this built-in material to test models that have no material, or as fall-back default material.</td><td
-class="col2"> –</td></tr></table></div><p> <br/> <strong>Note:</strong> Common/MatDefs/Misc/SimpleTextured.j3md, ColoredTextured.j3md, VertexColor.j3md, Wireframe.j3md have been deprecated. Use equivalent features of Unshaded.j3md instead.</p></div><h2><a
-name="transparency">Transparency</a></h2><div
-class="level2"><p> Most Material Definitions support an alpha channel for transparency. In an RGBA color, the last float is the alpha channel: 0.0f is transparent, 1.0f is opaque. <br/> For example: <code>mat.setColor(&quot;Color&quot;, new ColorRGBA(1,0,0,0.5f));</code> is a half-opaque red. <br/> Additionally, you must specify a blendmode:</p><div
-class="table sectionedit4"><table
-class="inline"><tr
-class="row0"><th
-class="col0">Option</th><th
-class="col1">Usage</th></tr><tr
-class="row1"><td
-class="col0">mat.getAdditionalRenderState().setBlendMode(BlendMode.Off);</td><td
-class="col1">Opaque</td></tr><tr
-class="row2"><td
-class="col0">mat.getAdditionalRenderState().setBlendMode(BlendMode.Alpha);</td><td
-class="col1">Use this for normal transparency. Interpolates the background pixel with the current by using the current pixel&#039;s alpha. E.g. alpha-blended vegetation.</td></tr><tr
-class="row3"><td
-class="col0">mat.getAdditionalRenderState().setBlendMode(BlendMode.Additive);</td><td
-class="col1">Additive alpha blending adds colors in a commutative way, i.e. the result does not depend on the order of transparent layers. Adds the background pixel color with the current pixel color. E.g. particle effects that have black color as background.</td></tr><tr
-class="row4"><td
-class="col0">mat.getAdditionalRenderState().setBlendMode(BlendMode.AlphaAdditive);</td><td
-class="col1">Same as &quot;Additive&quot;, except first it multiplies the current pixel color by the pixel alpha. E.g. used for particle effects that have alpha as background.</td></tr><tr
-class="row5"><td
-class="col0">mat.getAdditionalRenderState().setBlendMode(BlendMode.Color);</td><td
-class="col1">Blends by color. Generally useless.</td></tr><tr
-class="row6"><td
-class="col0">mat.getAdditionalRenderState().setBlendMode(BlendMode.Modulate);</td><td
-class="col1">Multiplies the background pixel by the current pixel.</td></tr><tr
-class="row7"><td
-class="col0">mat.getAdditionalRenderState().setBlendMode(BlendMode.ModulateX2);</td><td
-class="col1">Same as &quot;Modulate&quot;, except the result is doubled.</td></tr><tr
-class="row8"><td
-class="col0">mat.getAdditionalRenderState().setBlendMode(BlendMode.PremultAlpha);</td><td
-class="col1">Pre-multiplied alpha blending. E.g. if the color of the object has already been multiplied by its alpha, this is used instead of  &quot;Alpha&quot; blend mode.</td></tr><tr
-class="row9"><td
-class="col0">mat.getAdditionalRenderState().setDepthWrite(false);</td><td
-class="col1">Use this if you have several transparent objects obscuring one another. Disables writing of the pixel&#039;s depth value to the depth buffer.</td></tr><tr
-class="row10"><td
-class="col0">mat.getAdditionalRenderState().setAlphaFallOff(0.5f); <br/> mat.getAdditionalRenderState().setAlphaTest(true)</td><td
-class="col1">Enables alpha test, generally used for vegetation. Works the same way as &quot;AlphaDiscardThreshold&quot;.</td></tr></table></div><p> <br/> Also note the AlphaDiscardThreshold value for materials based on Lighting.j3md. The renderer does not render pixels whose transparancy is below the threshold.</p></div><h2><a
-name="material_options">Material Options</a></h2><div
-class="level2"><div
-class="table sectionedit5"><table
-class="inline"><tr
-class="row0"><td
-class="col0">mat.getAdditionalRenderState().setWireframe(true);</td><td
-class="col1">Switch to showing the (textured) Material in wireframe mode</td></tr><tr
-class="row1"><td
-class="col0">mat.getAdditionalRenderState().setFaceCullMode(FaceCullMode.Off); <br/> mat.getAdditionalRenderState().setFaceCullMode(FaceCullMode.Front); <br/> mat.getAdditionalRenderState().setFaceCullMode(FaceCullMode.Back); <br/> mat.getAdditionalRenderState().setFaceCullMode(FaceCullMode.FrontAndBack)</td><td
-class="col1">Activate back- or frontface culling, both (=invisible), or off. Backface culling is activated by default as an optimization.</td></tr><tr
-class="row2"><td
-class="col0">mat.getAdditionalRenderState().setColorWrite(false);</td><td
-class="col1">Disable writing the color of pixels. Use this together with setDepthWrite(true) to write pixels only to the depth buffer for example.</td></tr><tr
-class="row3"><td
-class="col0">mat.getAdditionalRenderState().setPointSprite(true);</td><td
-class="col1">Enables point-sprite mode, so meshes with &quot;Mode.Points&quot; will be rendered as textured sprites. Note that gl_PointCoord must be set in the shader. Point sprites are used for hardware accelerated particle effects.</td></tr><tr
-class="row4"><td
-class="col0">mat.getAdditionalRenderState().setPolyOffset();</td><td
-class="col1">Enable polygon offset. Use this when you have meshes that have triangles really close to each over (e.g. <a
-href="http://en.wikipedia.org/wiki/Coplanarity">Coplanar</a>), it will shift the depth values to prevent <a
-href="http://en.wikipedia.org/wiki/Z-fighting">Z-fighting</a>.</td></tr></table></div></div><div
-class="footnotes"><div
-class="fn"><sup><a
-href="#fnt__1">1)</a></sup> UseAlpha specifies whether DiffuseMap uses the alpha channel</div><div
-class="fn"><sup><a
-href="#fnt__2">2)</a></sup> LATC Specifies whether NormalMap is BC5/ATI2n/LATC/3Dc-compressed</div><div
-class="fn"><sup><a
-href="#fnt__3">3)</a></sup> Minnaert is a shader type.</div><div
-class="fn"><sup><a
-href="#fnt__4">4)</a></sup> WardIso is a shader type.</div></div>
-<p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:materials_overview?do=export_xhtmlbody">view online version</a></em></p>
+
+<h1><a>Materials Overview</a></h1>
+<div>
+
+<p>
+This table shows you which material definitions jME supplies by default, and how to make the most of your designer&#039;s 3D models by using material parameters.
+If you are looking for information about how to use these materials in code, look at <a href="/com/jme3/gde/core/docs/jme3/advanced/material_definitions.html">Material Definitions</a> and <a href="/com/jme3/gde/core/docs/jme3/advanced/j3m_material_files.html">j3M Material Files</a>.
+</p>
+
+<p>
+<strong>Tip:</strong> Looks complicated? Remember two things: The most commonly used material is Lighting.j3md (which supports Phong illumination). The <a href="/com/jme3/gde/core/docs/sdk.html">jMonkeyPlatform</a> can create Material files, and it offers a visual editor where you can select and set properties, and preview the outcome. The Palatte contains code snippets that demo how to load materials.
+</p>
+
+</div>
+
+<h2><a>Table of Material Definitions</a></h2>
+<div>
+
+<p>
+
+Some parameters are &quot;optional&quot; because they are somewhat advanced. If you don&#039;t know what an option means, chances are that you are not using this feature in your textures – and you don&#039;t need to specify it. (E.g. YCoCg and LATC are image compression formats; Minnaert and WardIso are shader types.)
+</p>
+
+<p>
+Also note that many other parameters are optional, even if they are not explicitly marked optional. For example, it&#039;s okay to specify solely the <code>DiffuseMap</code> and <code>NormalMap</code> when using <code>Lighting.j3md</code>. You are only using a subset of what is possible, but if that&#039;s what you want, you can do that. The developer should be in contact with the designer regarding what jME features individual Materials/Textures require.
+</p>
+
+</div>
+
+<h3><a>Coloring and Standard Textures</a></h3>
+<div>
+<div><table>
+	<tr>
+		<th> Material Definition                     </th><th> Usage </th><th> Parameter : Type  </th>
+	</tr>
+	<tr>
+		<td> Common/MatDefs/Misc/Unshaded.j3md </td><td> Standard unlit Material. Use this for simple coloring, simple texturing, simple glow, simple transparency. <br/>
+See also: <a href="/com/jme3/gde/core/docs/jme3/beginner/hello_material.html">Hello Material</a> </td><td> ColorMap : Texture <br/>
+LightMap : Texture <br/>
+Color : Color <br/>
+VertexColor : Boolean <br/>
+SeparateTexCoord : Boolean <br/>
+GlowMap : Texture <br/>
+GlowColor: Color </td>
+	</tr>
+	<tr>
+		<td> Common/MatDefs/Misc/Sky.j3md            </td><td> A solid skyblue, or use with a custom SkyDome texture. <br/>
+See also: <a href="/com/jme3/gde/core/docs/jme3/advanced/sky.html">Sky</a> </td><td> Texture : TextureCubeMap <br/>
+SphereMap : Boolean <br/>
+NormalScale : Vector3 </td>
+	</tr>
+	<tr>
+		<td> Common/MatDefs/Terrain/Terrain.j3md </td><td> Splat textures for e.g. terrains. <br/>
+See also: <a href="/com/jme3/gde/core/docs/jme3/beginner/hello_terrain.html">Hello Terrain</a> </td><td> Texture1 : Texture (red) <br/>
+Texture1Scale : Float <br/>
+Texture2 : Texture (green) <br/>
+Texture2Scale : Float <br/>
+Texture3 : Texture (blue)  <br/>
+Texture3Scale : Float <br/>
+Alpha : Texture </td>
+	</tr>
+	<tr>
+		<td> Common/MatDefs/Misc/Particle.j3md       </td><td> Used with texture masks for particle effects, or for point sprites. <br/>
+The Quadratic value scales the particle for perspective view (<object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/core/com/jme3/effect/ParticleEmitter.java"><param name="text" value="<html><u>formula</u></html>"><param name="textColor" value="blue"></object>). <br/>
+Does support an optional colored glow effect. <br/>
+See also: <a href="/com/jme3/gde/core/docs/jme3/beginner/hello_effects.html">Hello Effects</a> </td><td> Texture : Texture <br/>
+GlowMap : Texture <br/>
+GlowColor : Color <br/>
+Quadratic : Float <br/>
+PointSprite : Boolean </td>
+	</tr>
+</table></div>
+<!-- EDIT1 TABLE [1496-2939] -->
+<p>
+<br/>
+
+
+</p>
+
+</div>
+
+<h3><a>Light and Shadow</a></h3>
+<div>
+<div><table>
+	<tr>
+		<th> Material Definition                     </th><th> Usage </th><th> Parameters  </th>
+	</tr>
+	<tr>
+		<td> Common/MatDefs/Light/Lighting.j3md      </td><td> Standard lit material with Phong Illumination. Use this material together with DiffuseMap, SpecularMap, BumpMap (NormalMaps, ParalaxMap) textures. Supports shininess, transparency, and plain material colors (Diffuse, Ambient, Specular colors). <br/>
+See also: <a href="/com/jme3/gde/core/docs/jme3/beginner/hello_material.html">Hello Material</a> <br/>
+<strong>Note:</strong> Lit materials require a <a href="/com/jme3/gde/core/docs/jme3/advanced/light_and_shadow.html">light source</a>! Glowing materials require a <a href="/com/jme3/gde/core/docs/jme3/advanced/bloom_and_glow.html">FilterPostProcessor</a>! </td><td> DiffuseMap : Texture <br/>
+UseAlpha<sup><a href="#fn__1">1)</a></sup> : Boolean <br/>
+NormalMap : Texture <br/>
+LATC<sup><a href="#fn__2">2)</a></sup> : Boolean  <br/>
+SpecularMap : Texture <br/>
+Shininess : Float [1-128] <br/>
+ParallaxMap : Texture <br/>
+AlphaMap : Texture <br/>
+AlphaDiscardThreshold: Float <br/>
+ColorRamp : Texture <br/>
+<strong>Glow (optional)</strong> <br/>
+GlowMap : Texture <br/>
+GlowColor : Color <br/>
+<strong>Performance and quality (optional)</strong> <br/>
+VertexLighting : Boolean <br/>
+UseVertexColor  : Boolean <br/>
+LowQuality : Boolean <br/>
+HighQuality : Boolean <br/>
+<strong>Material Colors (optional)</strong> <br/>
+UseMaterialColors : Boolean <br/>
+Diffuse : Color <br/>
+ Ambient : Color <br/>
+Specular : Color <br/>
+<strong>Tangent shading (optional):</strong> <br/>
+VTangent : Boolean <br/>
+Minnaert<sup><a href="#fn__3">3)</a></sup> : Boolean <br/>
+WardIso<sup><a href="#fn__4">4)</a></sup> : Boolean </td>
+	</tr>
+	<tr>
+		<td>Common/MatDefs/Terrain/TerrainLighting.j3md</td><td>Same kind of splat texture as Terrain.j3md, but with shading. <br/>
+Requires a light source.</td><td>Color Diffuse : Color <br/>
+Ambient : Color <br/>
+Shininess : Float <br/>
+Specular : Color <br/>
+SpecularMap : Texture <br/>
+WardIso : Boolean <br/>
+useTriPlanarMapping : Boolean <br/>
+<strong>Texture Splat Maps</strong> <br/>
+DiffuseMap : Texture <br/>
+DiffuseMap_0_scale : Float <br/>
+NormalMap : Texture <br/>
+DiffuseMap_1 : Texture <br/>
+DiffuseMap_1_scale : Float <br/>
+NormalMap_1 : Texture <br/>
+DiffuseMap_2 : Texture <br/>
+DiffuseMap_2_scale : Float <br/>
+NormalMap_2 : Texture <br/>
+DiffuseMap_3 : Texture <br/>
+DiffuseMap_3_scale : Float <br/>
+NormalMap_3 : Texture <br/>
+<strong>Alpha Maps</strong> <br/>
+AlphaMap : Texture <br/>
+AlphaMap_1 : Texture <br/>
+AlphaMap_2 : Texture <br/>
+<strong>Glowing</strong> <br/>
+GlowMap : Texture <br/>
+GlowColor : Color </td>
+	</tr>
+	<tr>
+		<td> Common/MatDefs/Light/Reflection.j3md    </td><td> Reflective glass material with environment map (CubeMap/SphereMap). <br/>
+Requires light source. <br/>
+See also: <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/texture/TestCubeMap.java"><param name="text" value="<html><u>TestCubeMap.java</u></html>"><param name="textColor" value="blue"></object> </td><td> Texture : Texture <br/>
+SphereMap: Boolean </td>
+	</tr>
+</table></div>
+<!-- EDIT2 TABLE [2970-5525] -->
+<p>
+
+<strong>Shininess Tip:</strong> To deactivate Shininess, do not set <code>Shininess</code> to 0, but instead set the <code>Specular</code> color to <code>ColorRGBA.Black</code>.
+</p>
+
+<p>
+<strong>Bumpiness Tip:</strong> Before you can use NormalMaps, you must generate normals for the mesh (not the Geometry). 
+</p>
+<pre>TangentBinormalGenerator.generate&#40;mesh&#41;;</pre>
+
+</div>
+
+<h3><a>Testing and Debugging</a></h3>
+<div>
+<div><table>
+	<tr>
+		<th> Material Definition                     </th><th> Usage </th><th> Parameters  </th>
+	</tr>
+	<tr>
+		<td> Common/MatDefs/Misc/ShowNormals.j3md    </td><td> A color gradient calculated from the model&#039;s surface normals. You can use this built-in material to test models that have no material, or as fall-back default material. </td><td> – </td>
+	</tr>
+</table></div>
+<!-- EDIT3 TABLE [5867-6152] -->
+<p>
+<br/>
+
+<strong>Note:</strong> Common/MatDefs/Misc/SimpleTextured.j3md, ColoredTextured.j3md, VertexColor.j3md, Wireframe.j3md have been deprecated. Use equivalent features of Unshaded.j3md instead.
+
+</p>
+
+</div>
+
+<h2><a>Transparency</a></h2>
+<div>
+
+<p>
+Most Material Definitions support an alpha channel for transparency. In an RGBA color, the last float is the alpha channel: 0.0f is transparent, 1.0f is opaque. <br/>
+
+For example: <code>mat.setColor(&quot;Color&quot;, new ColorRGBA(1,0,0,0.5f));</code> is a half-opaque red. <br/>
+
+Additionally, you must specify a blendmode:
+</p>
+<div><table>
+	<tr>
+		<th>Option</th><th>Usage</th>
+	</tr>
+	<tr>
+		<td>mat.getAdditionalRenderState().setBlendMode(BlendMode.Off);</td><td>Opaque</td>
+	</tr>
+	<tr>
+		<td>mat.getAdditionalRenderState().setBlendMode(BlendMode.Alpha);</td><td>Use this for normal transparency. Interpolates the background pixel with the current by using the current pixel&#039;s alpha. E.g. alpha-blended vegetation. </td>
+	</tr>
+	<tr>
+		<td>mat.getAdditionalRenderState().setBlendMode(BlendMode.Additive);</td><td>Additive alpha blending adds colors in a commutative way, i.e. the result does not depend on the order of transparent layers. Adds the background pixel color with the current pixel color. E.g. particle effects that have black color as background. </td>
+	</tr>
+	<tr>
+		<td>mat.getAdditionalRenderState().setBlendMode(BlendMode.AlphaAdditive);</td><td>Same as &quot;Additive&quot;, except first it multiplies the current pixel color by the pixel alpha. E.g. used for particle effects that have alpha as background. </td>
+	</tr>
+	<tr>
+		<td>mat.getAdditionalRenderState().setBlendMode(BlendMode.Color);</td><td>Blends by color. Generally useless.</td>
+	</tr>
+	<tr>
+		<td>mat.getAdditionalRenderState().setBlendMode(BlendMode.Modulate);</td><td>Multiplies the background pixel by the current pixel.</td>
+	</tr>
+	<tr>
+		<td>mat.getAdditionalRenderState().setBlendMode(BlendMode.ModulateX2);</td><td>Same as &quot;Modulate&quot;, except the result is doubled.</td>
+	</tr>
+	<tr>
+		<td>mat.getAdditionalRenderState().setBlendMode(BlendMode.PremultAlpha);</td><td>Pre-multiplied alpha blending. E.g. if the color of the object has already been multiplied by its alpha, this is used instead of  &quot;Alpha&quot; blend mode. </td>
+	</tr>
+	<tr>
+		<td>mat.getAdditionalRenderState().setDepthWrite(false);</td><td>Use this if you have several transparent objects obscuring one another. Disables writing of the pixel&#039;s depth value to the depth buffer. </td>
+	</tr>
+	<tr>
+		<td>mat.getAdditionalRenderState().setAlphaFallOff(0.5f); <br/>
+mat.getAdditionalRenderState().setAlphaTest(true)</td><td>Enables alpha test, generally used for vegetation. Works the same way as &quot;AlphaDiscardThreshold&quot;.</td>
+	</tr>
+</table></div>
+<!-- EDIT4 TABLE [6659-8462] -->
+<p>
+<br/>
+
+Also note the AlphaDiscardThreshold value for materials based on Lighting.j3md. The renderer does not render pixels whose transparancy is below the threshold.
+
+</p>
+
+</div>
+
+<h2><a>Material Options</a></h2>
+<div>
+<div><table>
+	<tr>
+		<td>mat.getAdditionalRenderState().setWireframe(true);</td><td>Switch to showing the (textured) Material in wireframe mode</td>
+	</tr>
+	<tr>
+		<td>mat.getAdditionalRenderState().setFaceCullMode(FaceCullMode.Off); <br/>
+mat.getAdditionalRenderState().setFaceCullMode(FaceCullMode.Front); <br/>
+mat.getAdditionalRenderState().setFaceCullMode(FaceCullMode.Back); <br/>
+mat.getAdditionalRenderState().setFaceCullMode(FaceCullMode.FrontAndBack)</td><td>Activate back- or frontface culling, both (=invisible), or off. Backface culling is activated by default as an optimization.</td>
+	</tr>
+	<tr>
+		<td>mat.getAdditionalRenderState().setColorWrite(false);</td><td>Disable writing the color of pixels. Use this together with setDepthWrite(true) to write pixels only to the depth buffer for example. </td>
+	</tr>
+	<tr>
+		<td>mat.getAdditionalRenderState().setPointSprite(true);</td><td>Enables point-sprite mode, so meshes with &quot;Mode.Points&quot; will be rendered as textured sprites. Note that gl_PointCoord must be set in the shader. Point sprites are used for hardware accelerated particle effects. </td>
+	</tr>
+	<tr>
+		<td>mat.getAdditionalRenderState().setPolyOffset();</td><td>Enable polygon offset. Use this when you have meshes that have triangles really close to each over (e.g. <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://en.wikipedia.org/wiki/Coplanarity"><param name="text" value="<html><u>Coplanar</u></html>"><param name="textColor" value="blue"></object>), it will shift the depth values to prevent <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://en.wikipedia.org/wiki/Z-fighting"><param name="text" value="<html><u>Z-fighting</u></html>"><param name="textColor" value="blue"></object>.</td>
+	</tr>
+</table></div>
+<!-- EDIT5 TABLE [8654-9943] -->
+</div>
+<div>
+<div><sup><a href="#fnt__1">1)</a></sup> 
+UseAlpha specifies whether DiffuseMap uses the alpha channel</div>
+<div><sup><a href="#fnt__2">2)</a></sup> 
+LATC Specifies whether NormalMap is BC5/ATI2n/LATC/3Dc-compressed</div>
+<div><sup><a href="#fnt__3">3)</a></sup> 
+Minnaert is a shader type.</div>
+<div><sup><a href="#fnt__4">4)</a></sup> 
+WardIso is a shader type.</div>
+</div>
+<p><em><a href="http://direct.jmonkeyengine.org/wiki/doku.php/jme3:advanced:materials_overview?do=export_xhtmlbody">view online version</a></em></p>

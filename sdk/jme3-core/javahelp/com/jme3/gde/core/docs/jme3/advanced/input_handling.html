@@ -1,135 +1,353 @@
-<h1><a
-name="input_handling">Input Handling</a></h1><div
-class="level1"><p> Users interact with your jME3 application with different input devices – the mouse, the keyboard, or a joystick. To respond to inputs we use the <code>inputManager</code> object in <code>SimpleApplication</code>.</p><p> This is how you add interaction to your game:</p><ol><li
-class="level1"><div
-class="li"> For each action, choose the trigger(s) (a key or mouse click etc)</div></li><li
-class="level1"><div
-class="li"> For each action, add a trigger mapping to the inputManager</div></li><li
-class="level1"><div
-class="li"> Create at least one listener in SimpleApplication</div></li><li
-class="level1"><div
-class="li"> For each action, register its mappings to a listener</div></li><li
-class="level1"><div
-class="li"> Implement each action in the listener</div></li></ol></div><h2><a
-name="choose_trigger">1. Choose Trigger</a></h2><div
-class="level2"><p> Choose one or several key/mouse events for the interaction. We use <code>KeyTrigger</code>, <code>MouseAxisTrigger</code>, <code>MouseButtonTrigger</code>, <code>JoyAxisTrigger</code> and <code>JoyButtonTrigger</code> constants from the <code>com.jme3.input.controls</code> package.</p><p> The booleans are used to negate the axes: For inputs that have two axes (MouseAxis, JoyAxis), you have to listen to the negative (true) and positive (false) axis separately.</p><div
-class="table sectionedit1"><table
-class="inline"><tr
-class="row0"><th
-class="col0"> Trigger</th><th
-class="col1"> Code</th></tr><tr
-class="row1"><td
-class="col0"> Mouse button: Left Click</td><td
-class="col1"> MouseButtonTrigger(MouseInput.BUTTON_LEFT)</td></tr><tr
-class="row2"><td
-class="col0"> Mouse button: Right Click</td><td
-class="col1"> MouseButtonTrigger(MouseInput.BUTTON_RIGHT)</td></tr><tr
-class="row3"><td
-class="col0"> Mouse button: Middle Click</td><td
-class="col1"> MouseButtonTrigger(MouseInput.BUTTON_MIDDLE)</td></tr><tr
-class="row4"><td
-class="col0"> Mouse movement:</td><td
-class="col1"> MouseAxisTrigger(MouseInput.AXIS_X, true), <br/> MouseAxisTrigger(MouseInput.AXIS_Y, true), <br/> MouseAxisTrigger(MouseInput.AXIS_X, false), <br/> MouseAxisTrigger(MouseInput.AXIS_Y, false)</td></tr><tr
-class="row5"><td
-class="col0"> Mouse wheel:</td><td
-class="col1"> MouseAxisTrigger(MouseInput.AXIS_WHEEL,false) <br/> MouseAxisTrigger(MouseInput.AXIS_WHEEL,true)</td></tr><tr
-class="row6"><td
-class="col0"> Keyboard: Characters and Numbers etc</td><td
-class="col1"> KeyTrigger(KeyInput.KEY_X) etc</td></tr><tr
-class="row7"><td
-class="col0 leftalign"> Keyboard: Spacebar</td><td
-class="col1"> KeyTrigger(KeyInput.KEY_SPACE)</td></tr><tr
-class="row8"><td
-class="col0"> Keyboard: Shift</td><td
-class="col1"> KeyTrigger(KeyInput.KEY_RSHIFT), <br/> KeyTrigger(KeyInput.KEY_LSHIFT)</td></tr><tr
-class="row9"><td
-class="col0"> Keyboard: F1 etc</td><td
-class="col1"> KeyTrigger(KeyInput.KEY_F1) etc</td></tr><tr
-class="row10"><td
-class="col0"> Keyboard: Return, Enter</td><td
-class="col1 leftalign"> KeyTrigger(KeyInput.KEY_RETURN), <br/> KeyTrigger(KeyInput.KEY_NUMPADENTER)</td></tr><tr
-class="row11"><td
-class="col0"> Keyboard: PageUp, PageDown</td><td
-class="col1"> KeyTrigger(KeyInput.KEY_PGUP), <br/> KeyTrigger(KeyInput.KEY_PGDN)</td></tr><tr
-class="row12"><td
-class="col0"> Keyboard: Delete, Backspace</td><td
-class="col1"> KeyTrigger(KeyInput.KEY_BACK), <br/> KeyTrigger(KeyInput.KEY_DELETE)</td></tr><tr
-class="row13"><td
-class="col0"> Keyboard: Escape</td><td
-class="col1"> KeyTrigger(KeyInput.KEY_ESCAPE)</td></tr><tr
-class="row14"><td
-class="col0"> Keyboard: Arrows</td><td
-class="col1"> KeyTrigger(KeyInput.KEY_DOWN), <br/> KeyTrigger(KeyInput.KEY_UP) <br/> KeyTrigger(KeyInput.KEY_LEFT), KeyTrigger(KeyInput.KEY_RIGHT)</td></tr><tr
-class="row15"><td
-class="col0"> NumPad: Number 1 etc</td><td
-class="col1"> KeyTrigger(KeyInput.KEY_NUMPAD1) etc</td></tr><tr
-class="row16"><td
-class="col0"> Joystick: Button</td><td
-class="col1"> JoyButtonTrigger(0, JoyInput.AXIS_POV_X), <br/> JoyButtonTrigger(0, JoyInput.AXIS_POV_Y) ?</td></tr><tr
-class="row17"><td
-class="col0"> Joystick: Movement</td><td
-class="col1"> JoyAxisTrigger(0, JoyInput.AXIS_POV_X, true), <br/> JoyAxisTrigger(0, JoyInput.AXIS_POV_X, false), <br/> JoyAxisTrigger(0, JoyInput.AXIS_POV_Z, true), <br/> JoyAxisTrigger(0, JoyInput.AXIS_POV_Z, false)</td></tr></table></div></div><h2><a
-name="add_a_trigger_mapping">2. Add a Trigger Mapping</a></h2><div
-class="level2"><p> When initializing the application, add a Mapping for each Trigger.</p><p> Give the mapping a meaningful name. The name should reflect the action, not the key, since the keys can change. Here some examples:</p><pre>inputManager.addMapping&#40;&quot;Pause Game&quot;, new KeyTrigger&#40;KeyInput.KEY_P&#41;&#41;;
-inputManager.addMapping&#40;&quot;Rotate&quot;,     new KeyTrigger&#40;KeyInput.KEY_SPACE&#41;&#41;;</pre><p> There are cases where you may want more then one trigger for one action. For instance some users prefer the WASD keys to navigate, others prefer the arrow keys. You can define both by adding them after a comma.</p><pre>inputManager.addMapping&#40;&quot;Left&quot;,  new KeyTrigger&#40;KeyInput.KEY_A&#41;,
-                                 new KeyTrigger&#40;KeyInput.KEY_LEFT&#41;&#41;;
-inputManager.addMapping&#40;&quot;Right&quot;, new KeyTrigger&#40;KeyInput.KEY_D&#41;,
-                                 new KeyTrigger&#40;KeyInput.KEY_RIGHT&#41;&#41;;</pre></div><h2><a
-name="create_listeners">3. Create Listeners</a></h2><div
-class="level2"><p> The jME3 input manager supports two types of event listeners for inputs:</p><p> <strong>com.jme3.input.controls.AnalogListener</strong></p><ul><li
-class="level1"><div
-class="li"> Use for continuous and gradual actions.</div><ul><li
-class="level2"><div
-class="li"> Examples: Walk, run, rotate, accelerate vehicle, strafe, (semi-)automatic weapon shot</div></li></ul></li><li
-class="level1"><div
-class="li"> JME gives you access to:</div><ul><li
-class="level2"><div
-class="li"> the name of the triggered action.</div></li><li
-class="level2"><div
-class="li"> a gradual value between 0-9 how long the key has been pressed.</div></li></ul></li></ul><p> <strong>com.jme3.input.controls.ActionListener</strong></p><ul><li
-class="level1"><div
-class="li"> Use for absolute &quot;pressed or released?&quot;, &quot;on or off?&quot; actions.</div><ul><li
-class="level2"><div
-class="li"> Examples: Pause/unpause, a rifle or revolver shot, jump, click to select.</div></li></ul></li><li
-class="level1"><div
-class="li"> JME gives you access to:</div><ul><li
-class="level2"><div
-class="li"> the name of the triggered action.</div></li><li
-class="level2"><div
-class="li"> a boolean whether the key is still pressed or has just been released.</div></li></ul></li></ul><p> You can use one or both in the same application. Add one or both of these code snippets to your main SimpleApplication-based class to activate the listener.</p><pre>private ActionListener&#40;&#41; &#123;
+
+<h1><a>Input Handling</a></h1>
+<div>
+
+<p>
+
+Users interact with your jME3 application with different input devices – the mouse, the keyboard, or a joystick. To respond to inputs we use the <code>inputManager</code> object in <code>SimpleApplication</code>.
+</p>
+
+<p>
+This is how you add interaction to your game:
+
+</p>
+<ol>
+<li><div> For each action, choose the trigger(s) (a key or mouse click etc)</div>
+</li>
+<li><div> For each action, add a trigger mapping to the inputManager</div>
+</li>
+<li><div> Create at least one listener in SimpleApplication</div>
+</li>
+<li><div> For each action, register its mappings to a listener</div>
+</li>
+<li><div> Implement each action in the listener</div>
+</li>
+</ol>
+
+</div>
+
+<h2><a>1. Choose Trigger</a></h2>
+<div>
+
+<p>
+
+Choose one or several key/mouse events for the interaction. We use <code>KeyTrigger</code>, <code>MouseAxisTrigger</code>, <code>MouseButtonTrigger</code>, <code>JoyAxisTrigger</code> and <code>JoyButtonTrigger</code> constants from the <code>com.jme3.input.controls</code> package. 
+</p>
+
+<p>
+<strong>Note:</strong> The MouseAxis and JoyAxis triggers go along the X axis (right/left) or Y axis (up/down). These Triggers come with extra booleans for the negative half of the axis (left, down). Remember to write code that listens to the negative (true) and positive (false) axis!
+
+</p>
+<div><table>
+	<tr>
+		<th> Trigger </th><th> Code </th>
+	</tr>
+	<tr>
+		<td> Mouse button: Left Click </td><td> MouseButtonTrigger(MouseInput.BUTTON_LEFT) </td>
+	</tr>
+	<tr>
+		<td> Mouse button: Right Click </td><td> MouseButtonTrigger(MouseInput.BUTTON_RIGHT) </td>
+	</tr>
+	<tr>
+		<td> Mouse button: Middle Click </td><td> MouseButtonTrigger(MouseInput.BUTTON_MIDDLE) </td>
+	</tr>
+	<tr>
+		<td> Mouse movement: Right </td><td> MouseAxisTrigger(MouseInput.AXIS_X, true) </td>
+	</tr>
+	<tr>
+		<td> Mouse movement: Left </td><td> MouseAxisTrigger(MouseInput.AXIS_X, false)</td>
+	</tr>
+	<tr>
+		<td> Mouse movement: Up </td><td> MouseAxisTrigger(MouseInput.AXIS_Y, true) </td>
+	</tr>
+	<tr>
+		<td> Mouse movement: Down </td><td> MouseAxisTrigger(MouseInput.AXIS_Y, false) </td>
+	</tr>
+	<tr>
+		<td> Mouse wheel: Up </td><td> MouseAxisTrigger(MouseInput.AXIS_WHEEL,false) </td>
+	</tr>
+	<tr>
+		<td> Mouse wheel: Down </td><td> MouseAxisTrigger(MouseInput.AXIS_WHEEL,true) </td>
+	</tr>
+	<tr>
+		<td> NumPad: 1, 2, 3, … </td><td> KeyTrigger(KeyInput.KEY_NUMPAD1) … </td>
+	</tr>
+	<tr>
+		<td> Keyboard: 1, 2 , 3, … </td><td> KeyTrigger(KeyInput.KEY_1) … </td>
+	</tr>
+	<tr>
+		<td> Keyboard: A, B, C, … </td><td> KeyTrigger(KeyInput.KEY_A) … </td>
+	</tr>
+	<tr>
+		<td> Keyboard: Spacebar </td><td> KeyTrigger(KeyInput.KEY_SPACE) </td>
+	</tr>
+	<tr>
+		<td> Keyboard: Shift </td><td> KeyTrigger(KeyInput.KEY_RSHIFT), <br/>
+KeyTrigger(KeyInput.KEY_LSHIFT) </td>
+	</tr>
+	<tr>
+		<td> Keyboard: F1, F2, … </td><td> KeyTrigger(KeyInput.KEY_F1) … </td>
+	</tr>
+	<tr>
+		<td> Keyboard: Return, Enter </td><td> KeyTrigger(KeyInput.KEY_RETURN), <br/>
+KeyTrigger(KeyInput.KEY_NUMPADENTER)  </td>
+	</tr>
+	<tr>
+		<td> Keyboard: PageUp, PageDown </td><td> KeyTrigger(KeyInput.KEY_PGUP), <br/>
+KeyTrigger(KeyInput.KEY_PGDN) </td>
+	</tr>
+	<tr>
+		<td> Keyboard: Delete, Backspace </td><td> KeyTrigger(KeyInput.KEY_BACK), <br/>
+KeyTrigger(KeyInput.KEY_DELETE) </td>
+	</tr>
+	<tr>
+		<td> Keyboard: Escape </td><td> KeyTrigger(KeyInput.KEY_ESCAPE) </td>
+	</tr>
+	<tr>
+		<td> Keyboard: Arrows </td><td> KeyTrigger(KeyInput.KEY_DOWN), <br/>
+KeyTrigger(KeyInput.KEY_UP) <br/>
+KeyTrigger(KeyInput.KEY_LEFT), KeyTrigger(KeyInput.KEY_RIGHT) </td>
+	</tr>
+	<tr>
+		<td> Joystick Button: </td><td> JoyButtonTrigger(0, JoyInput.AXIS_POV_X), <br/>
+JoyButtonTrigger(0, JoyInput.AXIS_POV_Y) ? </td>
+	</tr>
+	<tr>
+		<td> Joystick Movement: Right </td><td> JoyAxisTrigger(0, JoyInput.AXIS_POV_X, true) </td>
+	</tr>
+	<tr>
+		<td> Joystick Movement: Left </td><td> JoyAxisTrigger(0, JoyInput.AXIS_POV_X, false) </td>
+	</tr>
+	<tr>
+		<td> Joystick Movement: Forward </td><td> JoyAxisTrigger(0, JoyInput.AXIS_POV_Z, true) </td>
+	</tr>
+	<tr>
+		<td> Joystick Movement: Backward</td><td> JoyAxisTrigger(0, JoyInput.AXIS_POV_Z, false) </td>
+	</tr>
+</table></div>
+<!-- EDIT1 TABLE [1098-3076] -->
+<p>
+
+In your IDE, use code completion to quickly look up Trigger literals. In the jMonkeyPlatform for example, press ctrl-space or ctrl-/ after <code>KeyInput.|</code> to choose from the list of all keys.
+</p>
+
+</div>
+
+<h2><a>2. Add a Trigger Mapping</a></h2>
+<div>
+
+<p>
+
+When initializing the application, add a Mapping for each Trigger. 
+</p>
+
+<p>
+Give the mapping a meaningful name. The name should reflect the action, not the button/key (because buttons/keys can change). Here some examples:
+</p>
+<pre>inputManager.addMapping&#40;&quot;Pause Game&quot;, new KeyTrigger&#40;KeyInput.KEY_P&#41;&#41;;
+inputManager.addMapping&#40;&quot;Rotate&quot;,     new KeyTrigger&#40;KeyInput.KEY_SPACE&#41;&#41;;
+...</pre>
+
+<p>
+There are cases where you may want to provide more then one trigger for one action. For example, some users prefer the WASD keys to navigate, while others prefer the arrow keys. Add several triggers for one mapping, by separating the Trigger objects with commas:
+</p>
+<pre>inputManager.addMapping&#40;&quot;Left&quot;,  new KeyTrigger&#40;KeyInput.KEY_A&#41;, 
+                                 new KeyTrigger&#40;KeyInput.KEY_LEFT&#41;&#41;; // A and left arrow
+inputManager.addMapping&#40;&quot;Right&quot;, new KeyTrigger&#40;KeyInput.KEY_D&#41;, 
+                                 new KeyTrigger&#40;KeyInput.KEY_RIGHT&#41;&#41;; // D and right arrow
+                                 ...</pre>
+
+</div>
+
+<h2><a>3. Create Listeners</a></h2>
+<div>
+
+<p>
+
+The jME3 input manager supports two types of event listeners for inputs: AnalogListener and ActionListener. You can use one or both listeners in the same application. Add one or both of the following code snippets to your main SimpleApplication-based class to activate the listeners.
+</p>
+
+<p>
+<strong>Note:</strong> The two input listeners do not know, and do not care, which actual key was pressed. They only know which <em>named input mapping</em> was triggered. 
+</p>
+
+</div>
+
+<h3><a>ActionListener</a></h3>
+<div>
+
+<p>
+
+<code>com.jme3.input.controls.ActionListener</code>
+</p>
+<ul>
+<li><div> Use for absolute &quot;button pressed or released?&quot;, &quot;on or off?&quot; actions. </div>
+<ul>
+<li><div> Examples: Pause/unpause, a rifle or revolver shot, jump, click to select.</div>
+</li>
+</ul>
+</li>
+<li><div> JME gives you access to:</div>
+<ul>
+<li><div> The mapping name of the triggered action.</div>
+</li>
+<li><div> A boolean whether the trigger is still pressed or has just been released.</div>
+</li>
+<li><div> A float of the current time-per-frame as timing factor</div>
+</li>
+</ul>
+</li>
+<li><div> </div>
+</li>
+</ul>
+<pre>private ActionListener&#40;&#41; &#123;
   public void onAction&#40;String name, boolean keyPressed, float tpf&#41; &#123;
-     /** TODO */
+     /** TODO: test for mapping names and implement actions */
   &#125;
-&#125;;</pre><pre>private AnalogListener analogListener = new AnalogListener&#40;&#41; &#123;
+&#125;;</pre>
+
+</div>
+
+<h3><a>AnalogListener</a></h3>
+<div>
+
+<p>
+
+<code>com.jme3.input.controls.AnalogListener</code>
+</p>
+<ul>
+<li><div> Use for continuous and gradual actions.</div>
+<ul>
+<li><div> Examples: Walk, run, rotate, accelerate vehicle, strafe, (semi-)automatic weapon shot</div>
+</li>
+</ul>
+</li>
+<li><div> JME gives you access to:</div>
+<ul>
+<li><div> The mapping name of the triggered action.</div>
+</li>
+<li><div> A gradual float value between how long the trigger has been pressed.</div>
+</li>
+<li><div> A float of the current time-per-frame as timing factor</div>
+</li>
+</ul>
+</li>
+</ul>
+<pre>private AnalogListener analogListener = new AnalogListener&#40;&#41; &#123;
   public void onAnalog&#40;String name, float keyPressed, float tpf&#41; &#123;
-     /** TODO */
+     /** TODO: test for mapping names and implement actions */
   &#125;
-&#125;;</pre></div><h2><a
-name="register_mappings_to_listeners">4. Register Mappings to Listeners</a></h2><div
-class="level2"><p> To activate the mappings, you must register them to the Listener. Write your registration code after the part where you have added the mappings to the inputManager before.</p><p> In this example, we register the &quot;Pause Game&quot; mapping to the <code>actionListener</code> object, because pausing a game is in &quot;either/or&quot; decision.</p><pre>inputManager.addListener&#40;actionListener, new String&#91;&#93;&#123;&quot;Left&quot;, &quot;Right&quot;&#125;&#41;;</pre><p> As you see, you can add several listeners in one String array. You can call the addListener() method more than once, each time with a subset of your list, if that helps you keep you code tidy.</p><p> <strong>Tip:</strong> Check the string&#039;s capitalization and spelling if you think you have registered an action, but it does not work.</p></div><h2><a
-name="implement_actions">5. Implement Actions</a></h2><div
-class="level2"><p> You specify the action to be triggered where it says TODO in the Listener code snippets.
-Typically you write a series of if/else conditions, testing for all the mapping names, and specifying each action. Here is one example:</p><pre>private AnalogListener analogListener = new AnalogListener&#40;&#41; &#123;
-    public void onAnalog&#40;String name, float value, float tpf&#41; &#123;
-&nbsp;
-      if &#40;name.equals&#40;&quot;Rotate&quot;&#41;&#41; &#123;         // test?
-        player.rotate&#40;0, value*speed, 0&#41;;  // action!
-      &#125; // else if ...
-&nbsp;
-    &#125;
-  &#125;;</pre><p> It&#039;s very common that you want an action to be only triggered once, in the moment when the key is released. Examples are when the player presses an action key to open a door or pick up an item, or to flip a game state, such as pause/unpause. For these cases, use an ActionListener and test for <code>&amp;&amp; !keyPressed</code>, like shown in the following example.</p><pre>private ActionListener&#40;&#41; &#123;
+&#125;;</pre>
+
+</div>
+
+<h2><a>4. Register Mappings to Listeners</a></h2>
+<div>
+
+<p>
+
+To activate the mappings, you must register them to a Listener. Write your registration code after the code block where you have added the mappings to the inputManager.
+</p>
+
+<p>
+In the following example, you register the &quot;Pause Game&quot; mapping to the <code>actionListener</code> object, because pausing a game is in &quot;either/or&quot; decision.
+</p>
+<pre>inputManager.addListener&#40;actionListener, new String&#91;&#93;&#123;&quot;Pause Game&quot;&#125;&#41;;</pre>
+
+<p>
+In the following example, you register navigational mappings to the <code>analogListener</code> object, because walking is a continuous action. Players typically keep the key pressed to express continuity, for example when they want to &quot;walk on&quot; or &quot;accelerate&quot;.
+</p>
+<pre>inputManager.addListener&#40;analogListener, new String&#91;&#93;&#123;&quot;Left&quot;, &quot;Right&quot;&#125;&#41;;</pre>
+
+<p>
+As you see, you can add several listeners in one String array. You can call the addListener() method more than once, each time with a subset of your list, if that helps you keep you code tidy. Again, the Listeners do not care about actual which keys are configured, you only register named trigger mappings.
+</p>
+
+<p>
+<p><div>Did you register an action, but it does not work? Check the string&#039;s capitalization and spelling, it&#039;s case sensitive!
+</div></p>
+</p>
+
+</div>
+
+<h2><a>5. Implement Actions in Listeners</a></h2>
+<div>
+
+<p>
+
+You specify the action to be triggered where it says TODO in the Listener code snippets. Typically, you write a series of if/else conditions, testing for all the mapping names, and then calling the respective action. 
+</p>
+
+<p>
+Make use of the distinction between <code>if</code> and <code>else if</code> in this conditional.
+</p>
+<ul>
+<li><div> If several actions can be triggered simultaneously, test for all of these with a series of bare <code>if</code>s. For example, a character can be running forward <em>and</em> to the left.</div>
+</li>
+<li><div> If certain actions exclude one another, test for them with <code>else if</code>, the the rest of the exclusive tests can be skipped and you save some miliseconds. For example, you either shoot or pick something up.</div>
+</li>
+</ul>
+
+</div>
+
+<h3><a>ActionListener</a></h3>
+<div>
+
+<p>
+
+In the most common case, you want an action to be triggered once, in the moment when the button or key trigger is released. For example, when the player presses a key to open a door, or clicks to pick up an item. For these cases, use an ActionListener and test for <code>&amp;&amp; !keyPressed</code>, like shown in the following example. 
+</p>
+<pre>private ActionListener&#40;&#41; &#123;
     public void onAction&#40;String name, boolean keyPressed, float tpf&#41; &#123;
 &nbsp;
       if &#40;name.equals&#40;&quot;Pause Game&quot;&#41; &amp;&amp; !keyPressed&#41; &#123; // test?
         isRunning = !isRunning;                       // action!
-      &#125; // else if ...
+      &#125; 
+&nbsp;
+      if ...
 &nbsp;
     &#125;
-  &#125;;</pre></div><h2><a
-name="remapping_keys">Remapping Keys</a></h2><div
-class="level2"><p> This approach of separating triggers from actions has the advantage that you can remap triggers easily. Maybe your players have different keyboard layouts, are used to &quot;reversed&quot; mouse navigation, or prefer different navigational keys than the ones you defined. In any case, you only need to replace the trigger parts in the <code>inputManager.addMapping()</code> lines with variables, and load different sets of trigger objects when the game starts. The rest of the code stays as it is.</p><div
-class="tags"><span> <a
-href="/wiki/doku.php/tag:keyinput?do=showtag&amp;tag=tag%3Akeyinput">keyinput</a>, <a
-href="/wiki/doku.php/tag:input?do=showtag&amp;tag=tag%3Ainput">input</a>, <a
-href="/wiki/doku.php/tag:documentation?do=showtag&amp;tag=tag%3Adocumentation">documentation</a> </span></div></div>
-<p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:input_handling?do=export_xhtmlbody">view online version</a></em></p>
+  &#125;;</pre>
+
+</div>
+
+<h3><a>AnalogListener</a></h3>
+<div>
+
+<p>
+
+The following example shows how you define actions with an AnalogListener. Thiese actions are triggered continuously, as long (intensity <code>value</code>) as the named key or mouse button is down. Use this listeners for semi-automatic weapons and navigational actions.
+</p>
+<pre>private AnalogListener analogListener = new AnalogListener&#40;&#41; &#123;
+    public void onAnalog&#40;String name, float value, float tpf&#41; &#123;
+&nbsp;
+      if &#40;name.equals&#40;&quot;Rotate&quot;&#41;&#41; &#123;         // test?
+        player.rotate&#40;0, value*speed, 0&#41;;  // action!
+      &#125; 
+&nbsp;
+      if ...
+&nbsp;
+    &#125;
+  &#125;;</pre>
+
+</div>
+
+<h2><a>Let Users Remap Keys</a></h2>
+<div>
+
+<p>
+
+It is likely that your players have different keyboard layouts, are used to &quot;reversed&quot; mouse navigation, or prefer different navigational keys than the ones that you defined. You should create an options screen that lets users customize their mouse/key triggers for your mappings. Replace the trigger literals in the <code>inputManager.addMapping()</code> lines with variables, and load sets of triggers when the game starts. 
+</p>
+
+<p>
+The abstraction of separating triggers and mappings has the advantage that you can remap triggers easily. Your code only needs to remove and add some trigger mappings. The core of the code (the listeners and actions) remains unchanged. 
+</p>
+<div><span>
+	<a href="/wiki/doku.php/tag:keyinput?do=showtag&amp;tag=tag%3Akeyinput">keyinput</a>,
+	<a href="/wiki/doku.php/tag:input?do=showtag&amp;tag=tag%3Ainput">input</a>,
+	<a href="/wiki/doku.php/tag:documentation?do=showtag&amp;tag=tag%3Adocumentation">documentation</a>
+</span></div>
+
+</div>
+<p><em><a href="http://direct.jmonkeyengine.org/wiki/doku.php/jme3:advanced:input_handling?do=export_xhtmlbody">view online version</a></em></p>

@@ -1,71 +1,114 @@
-<h2><a
-name="developing_for_jmonkeyplatform">Developing for jMonkeyPlatform</a></h2><div
-class="level2"><p> <em>Note that all info is subject to change while jMP is still in alpha!</em> In general, developing plugins for jMonkeyPlatform is not much different than creating plugins for the NetBeans Platform which in turn is not much different than creating Swing applications. You can use jMonkeyPlatform to develop plugins, be it for personal use or to contribute to the community.
-If you feel like you want to make an addition to jMonkeyPlatform dont hesitate to contact the jme team regardless of your knowledge in NetBeans platform development. For new plugins, the basic project creation and layout of the plugin can always be handled by a core developer and you can go on from there fleshing out the plugin.
-By using the Platform functions, your plugin feels more like a Platform application (global save button, file type support etc.).</p></div><h4><a
-name="creating_plugins_and_components">Creating plugins and components</a></h4><div
-class="level4"><ul><li
-class="level1"><div
-class="li"> <a
-href="/com/jme3/gde/core/docs/sdk/development/setup.html">Creating a plugin</a></div></li><li
-class="level1"><div
-class="li"> <a
-href="/com/jme3/gde/core/docs/sdk/development/general.html">Creating components</a></div></li></ul></div><h4><a
-name="extending_jmonkeyplatform">Extending jMonkeyPlatform</a></h4><div
-class="level4"><ul><li
-class="level1"><div
-class="li"> <a
-href="/com/jme3/gde/core/docs/sdk/development/scene.html">The Main Scene</a></div></li><li
-class="level1"><div
-class="li"> <a
-href="/com/jme3/gde/core/docs/sdk/development/sceneexplorer.html">The Scene Explorer</a></div></li><li
-class="level1"><div
-class="li"> <a
-href="/com/jme3/gde/core/docs/sdk/development/projects_assets.html">Projects and Assets</a></div></li></ul></div><h4><a
-name="recipes">Recipes</a></h4><div
-class="level4"><ul><li
-class="level1"><div
-class="li"> <a
-href="/com/jme3/gde/core/docs/sdk/development/extension_library.html">Create a library plugin from a jar file</a></div></li><li
-class="level1"><div
-class="li"> <a
-href="/com/jme3/gde/core/docs/sdk/development/model_loader.html">Create a new or custom model filetype and loader</a></div></li></ul></div><h4><a
-name="general_notes">General Notes</a></h4><div
-class="level4"><ul><li
-class="level1"><div
-class="li"> <strong>Remember the scene runs on the render thread and most everything you do in the plugin (button events etc.) runs on the AWT thread, always encapsulate calls to either side correctly via Callables/Runnables or register as an AppState to the SceneApplication to have an update() call by the render thread.</strong></div></li><li
-class="level1"><div
-class="li"> Although the scene can be accessed at any time via SceneApplication.getApplication() it is not recommended to modify the scene like that. Other plugins might be accessing the scene and updates will not be properly recognized. Use the sceneRequest object and the lookup of selected nodes and files to access things like the assetManager etc.</div></li><li
-class="level1"><div
-class="li"> It became a standard in jMP to start the name of methods that execute directly on the OpenGL thread with \&quot;do\&quot; e.g \&quot;doMoveSpatial\&quot;, this makes identifying threading issues easier.</div></li><li
-class="level1"><div
-class="li"> The AssetManager of jme3 is threadsafe and can be used from any thread to load assets</div></li><li
-class="level1"><div
-class="li"> You can get access to the ProjectAssetManager via the Lookup of a JmeSpatial and other objects</div></li><li
-class="level1"><div
-class="li"> Use org.openide.filesystems.FileObject instead of java.io.File for file access, it always uses system-independent \&quot;/\&quot; path separators and has some more advanced functions that make file handling easier.</div></li><li
-class="level1"><div
-class="li"> You can get a file from a string using Repository.getDefault().getDefaultFileSystem().getRoot().getFileObject(\&quot;aaa/bbb/ccc/whatever\&quot;);</div></li><li
-class="level1"><div
-class="li"> You can convert a regular java File to a FileObject and vice versa using org.openide.filesystems.FileUtil</div></li><li
-class="level1"><div
-class="li"> If you have problems with unresolved classes, check if all needed Libraries are registered in the settings of your Project. To find out which library contains a certain class, just enter the name in the library search field.</div></li></ul></div><h4><a
-name="handy_things_in_jmonkeyplatform_core">Handy things in jMonkeyPlatform Core</a></h4><div
-class="level4"><ul><li
-class="level1"><div
-class="li"> com.jme3.gde.core.scene.controller</div><ul><li
-class="level2"><div
-class="li"> AbstractCameraController → A basic camera control for plugins, used by SimpleSceneComposer and \&quot;View Model\&quot;</div></li><li
-class="level2"><div
-class="li"> SceneToolController → A basic controller for having selection, cursor etc. displayed in the scene, used by SimpleSceneComposer</div></li></ul></li><li
-class="level1"><div
-class="li"> com.jme3.gde.core.scene</div><ul><li
-class="level2"><div
-class="li"> OffViewPanel → A panel that renders a 3d scene in a preview and displays it in a lightweight swing panel</div></li></ul></li><li
-class="level1"><div
-class="li"> com.jme3.gde.core.util</div><ul><li
-class="level2"><div
-class="li"> DataObjectSaveNode → Allows enabling the save all button by using any file and implementing the SvaeCookie yourself.</div></li></ul></li></ul><p> Learn more about NetBeans Plugin Development at <a
-href="http://platform.netbeans.org">http://platform.netbeans.org</a> .\\<br/> Also check out this Essential NetBeans Platform Refcard: <a
-href="http://refcardz.dzone.com/refcardz/essential-netbeans-platform">http://refcardz.dzone.com/refcardz/essential-netbeans-platform</a></p></div>
-<p><em><a href="http://jmonkeyengine.org/wiki/doku.php/sdk:development?do=export_xhtmlbody">view online version</a></em></p>
+
+<h2><a>Developing for jMonkeyPlatform</a></h2>
+<div>
+
+<p>
+<em>Note that all info is subject to change while jMP is still in alpha!</em>
+</p>
+
+<p>
+In general, developing plugins for jMonkeyPlatform is not much different than creating plugins for the NetBeans Platform which in turn is not much different than creating Swing applications. You can use jMonkeyPlatform to develop plugins, be it for personal use or to contribute to the community.
+</p>
+
+<p>
+If you feel like you want to make an addition to jMonkeyPlatform dont hesitate to contact the jme team regardless of your knowledge in NetBeans platform development. For new plugins, the basic project creation and layout of the plugin can always be handled by a core developer and you can go on from there fleshing out the plugin. By using the Platform functions, your plugin feels more like a Platform application (global save button, file type support etc.).
+</p>
+
+</div>
+
+<h4><a>Creating plugins and components</a></h4>
+<div>
+<ul>
+<li><div> <a href="/com/jme3/gde/core/docs/sdk/development/setup.html">Creating a plugin</a></div>
+</li>
+<li><div> <a href="/com/jme3/gde/core/docs/sdk/development/general.html">Creating components</a></div>
+</li>
+</ul>
+
+</div>
+
+<h4><a>Extending jMonkeyPlatform</a></h4>
+<div>
+<ul>
+<li><div> <a href="/com/jme3/gde/core/docs/sdk/development/scene.html">The Main Scene</a></div>
+</li>
+<li><div> <a href="/com/jme3/gde/core/docs/sdk/development/sceneexplorer.html">The Scene Explorer</a></div>
+</li>
+<li><div> <a href="/com/jme3/gde/core/docs/sdk/development/projects_assets.html">Projects and Assets</a></div>
+</li>
+</ul>
+
+</div>
+
+<h4><a>Recipes</a></h4>
+<div>
+<ul>
+<li><div> <a href="/com/jme3/gde/core/docs/sdk/development/extension_library.html">Create a library plugin from a jar file</a></div>
+</li>
+<li><div> <a href="/com/jme3/gde/core/docs/sdk/development/model_loader.html">Create a new or custom model filetype and loader</a></div>
+</li>
+</ul>
+
+</div>
+
+<h4><a>General Notes</a></h4>
+<div>
+<ul>
+<li><div> <strong>Remember the scene runs on the render thread and most everything you do in the plugin (button events etc.) runs on the AWT thread, always encapsulate calls to either side correctly via Callables/Runnables or register as an AppState to the SceneApplication to have an update() call by the render thread.</strong></div>
+</li>
+<li><div> Although the scene can be accessed at any time via SceneApplication.getApplication() it is not recommended to modify the scene like that. Other plugins might be accessing the scene and updates will not be properly recognized. Use the sceneRequest object and the lookup of selected nodes and files to access things like the assetManager etc.</div>
+</li>
+<li><div> It became a standard in jMP to start the name of methods that execute directly on the OpenGL thread with &quot;do&quot; e.g &quot;doMoveSpatial&quot;, this makes identifying threading issues easier.</div>
+</li>
+<li><div> The AssetManager of jme3 is threadsafe and can be used from any thread to load assets</div>
+</li>
+<li><div> You can get access to the ProjectAssetManager via the Lookup of a JmeSpatial and other objects</div>
+</li>
+<li><div> Use org.openide.filesystems.FileObject instead of java.io.File for file access, it always uses system-independent &quot;/&quot; path separators and has some more advanced functions that make file handling easier.</div>
+</li>
+<li><div> You can get a file from a string using Repository.getDefault().getDefaultFileSystem().getRoot().getFileObject(&quot;aaa/bbb/ccc/whatever&quot;);</div>
+</li>
+<li><div> You can convert a regular java File to a FileObject and vice versa using org.openide.filesystems.FileUtil</div>
+</li>
+<li><div> If you have problems with unresolved classes, check if all needed Libraries are registered in the settings of your Project. To find out which library contains a certain class, just enter the name in the library search field.</div>
+</li>
+</ul>
+
+</div>
+
+<h4><a>Handy things in jMonkeyPlatform Core</a></h4>
+<div>
+<ul>
+<li><div> com.jme3.gde.core.scene.controller</div>
+<ul>
+<li><div> AbstractCameraController → A basic camera control for plugins, used by SimpleSceneComposer and &quot;View Model&quot;</div>
+</li>
+<li><div> SceneToolController → A basic controller for having selection, cursor etc. displayed in the scene, used by SimpleSceneComposer</div>
+</li>
+</ul>
+</li>
+<li><div> com.jme3.gde.core.scene</div>
+<ul>
+<li><div> OffViewPanel → A panel that renders a 3d scene in a preview and displays it in a lightweight swing panel</div>
+</li>
+</ul>
+</li>
+<li><div> com.jme3.gde.core.util</div>
+<ul>
+<li><div> DataObjectSaveNode → Allows enabling the save all button by using any file and implementing the SvaeCookie yourself.</div>
+</li>
+</ul>
+</li>
+</ul>
+
+<p>
+
+Learn more about NetBeans Plugin Development at <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://platform.netbeans.org"><param name="text" value="<html><u>http://platform.netbeans.org</u></html>"><param name="textColor" value="blue"></object>
+</p>
+
+<p>
+Also check out this Essential NetBeans Platform Refcard: <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://refcardz.dzone.com/refcardz/essential-netbeans-platform"><param name="text" value="<html><u>http://refcardz.dzone.com/refcardz/essential-netbeans-platform</u></html>"><param name="textColor" value="blue"></object>
+</p>
+
+</div>
+<p><em><a href="http://direct.jmonkeyengine.org/wiki/doku.php/sdk:development?do=export_xhtmlbody">view online version</a></em></p>
