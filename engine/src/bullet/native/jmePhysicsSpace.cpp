@@ -52,7 +52,7 @@ void jmePhysicsSpace::attachThread() {
 #ifdef JNI_VERSION_1_2
     vm->AttachCurrentThread((void**) &env, NULL);
 #else
-    vm->AttachCurrentThread(vm, &env, NULL);
+    vm->AttachCurrentThread(&env, NULL);
 #endif
 }
 
@@ -208,20 +208,28 @@ void jmePhysicsSpace::createPhysicsSpace(jfloat minX, jfloat minY, jfloat minZ, 
 void jmePhysicsSpace::preTickCallback(btDynamicsWorld *world, btScalar timeStep) {
     jmePhysicsSpace* dynamicsWorld = (jmePhysicsSpace*) world->getWorldUserInfo();
     JNIEnv* env = dynamicsWorld->getEnv();
-    env->CallVoidMethod(dynamicsWorld->getJavaPhysicsSpace(), jmeClasses::PhysicsSpace_preTick, timeStep);
-    if (env->ExceptionCheck()) {
-        env->Throw(env->ExceptionOccurred());
-        return;
+    jobject javaPhysicsSpace = env->NewLocalRef(dynamicsWorld->getJavaPhysicsSpace());
+    if (javaPhysicsSpace != NULL) {
+        env->CallVoidMethod(javaPhysicsSpace, jmeClasses::PhysicsSpace_preTick, timeStep);
+        env->DeleteLocalRef(javaPhysicsSpace);
+        if (env->ExceptionCheck()) {
+            env->Throw(env->ExceptionOccurred());
+            return;
+        }
     }
 }
 
 void jmePhysicsSpace::postTickCallback(btDynamicsWorld *world, btScalar timeStep) {
     jmePhysicsSpace* dynamicsWorld = (jmePhysicsSpace*) world->getWorldUserInfo();
     JNIEnv* env = dynamicsWorld->getEnv();
-    env->CallVoidMethod(dynamicsWorld->getJavaPhysicsSpace(), jmeClasses::PhysicsSpace_postTick, timeStep);
-    if (env->ExceptionCheck()) {
-        env->Throw(env->ExceptionOccurred());
-        return;
+    jobject javaPhysicsSpace = env->NewLocalRef(dynamicsWorld->getJavaPhysicsSpace());
+    if (javaPhysicsSpace != NULL) {
+        env->CallVoidMethod(javaPhysicsSpace, jmeClasses::PhysicsSpace_postTick, timeStep);
+        env->DeleteLocalRef(javaPhysicsSpace);
+        if (env->ExceptionCheck()) {
+            env->Throw(env->ExceptionOccurred());
+            return;
+        }
     }
 }
 
@@ -235,10 +243,18 @@ bool jmePhysicsSpace::contactProcessedCallback(btManifoldPoint &cp, void *body0,
         jmePhysicsSpace *dynamicsWorld = up0->space;
         if (dynamicsWorld != NULL) {
             JNIEnv* env = dynamicsWorld->getEnv();
-            env->CallVoidMethod(dynamicsWorld->getJavaPhysicsSpace(), jmeClasses::PhysicsSpace_addCollisionEvent, up0->javaCollisionObject, up1->javaCollisionObject, (jlong) & cp);
-            if (env->ExceptionCheck()) {
-                env->Throw(env->ExceptionOccurred());
-                return true;
+            jobject javaPhysicsSpace = env->NewLocalRef(dynamicsWorld->getJavaPhysicsSpace());
+            if (javaPhysicsSpace != NULL) {
+                jobject javaCollisionObject0 = env->NewLocalRef(up0->javaCollisionObject);
+                jobject javaCollisionObject1 = env->NewLocalRef(up1->javaCollisionObject);
+                env->CallVoidMethod(javaPhysicsSpace, jmeClasses::PhysicsSpace_addCollisionEvent, javaCollisionObject0, javaCollisionObject1, (jlong) & cp);
+                env->DeleteLocalRef(javaPhysicsSpace);
+                env->DeleteLocalRef(javaCollisionObject0);
+                env->DeleteLocalRef(javaCollisionObject1);
+                if (env->ExceptionCheck()) {
+                    env->Throw(env->ExceptionOccurred());
+                    return true;
+                }
             }
         }
     }

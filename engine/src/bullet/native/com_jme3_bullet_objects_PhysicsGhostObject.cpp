@@ -183,8 +183,9 @@ extern "C" {
         {
             btCollisionObject *co1 = (btCollisionObject *)pair.m_pProxy0->m_clientObject;
             jmeUserPointer *up1 = (jmeUserPointer*)co1 -> getUserPointer();
-
-            m_env->CallVoidMethod(m_object, jmeClasses::PhysicsGhostObject_addOverlappingObject, up1->javaCollisionObject);
+            jobject javaCollisionObject1 = m_env->NewLocalRef(up1->javaCollisionObject);
+            m_env->CallVoidMethod(m_object, jmeClasses::PhysicsGhostObject_addOverlappingObject, javaCollisionObject1);
+            m_env->DeleteLocalRef(javaCollisionObject1);
             if (m_env->ExceptionCheck()) {
                 m_env->Throw(m_env->ExceptionOccurred());
                 return false;
