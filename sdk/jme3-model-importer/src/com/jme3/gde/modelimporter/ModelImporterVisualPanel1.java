@@ -6,17 +6,16 @@ package com.jme3.gde.modelimporter;
 
 import com.jme3.asset.AssetEventListener;
 import com.jme3.asset.AssetKey;
-import com.jme3.asset.ModelKey;
 import com.jme3.gde.core.assets.AssetData;
 import com.jme3.gde.core.assets.AssetDataObject;
 import com.jme3.gde.core.assets.ProjectAssetManager;
 import com.jme3.gde.core.scene.OffScenePanel;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Spatial;
-import java.beans.IntrospectionException;
 import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import javax.swing.JPanel;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
@@ -28,8 +27,6 @@ import org.openide.explorer.propertysheet.PropertySheet;
 import org.openide.filesystems.FileChooserBuilder;
 import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
-import org.openide.loaders.DataObjectNotFoundException;
-import org.openide.nodes.BeanNode;
 import org.openide.nodes.Node;
 import org.openide.util.Exceptions;
 
@@ -43,6 +40,7 @@ public final class ModelImporterVisualPanel1 extends JPanel implements AssetEven
     private List<AssetKey> requestedAssets = new LinkedList<AssetKey>();
     private AssetKey mainKey;
     private PropertySheet ps;
+    private AtomicBoolean loading = new AtomicBoolean(false);
 
     /** Creates new form ModelImporterVisualPanel1 */
     public ModelImporterVisualPanel1() {
@@ -79,38 +77,32 @@ public final class ModelImporterVisualPanel1 extends JPanel implements AssetEven
 
     public synchronized void loadModel(File path, AssetKey modelKey) {
         try {
-            mainKey = modelKey;
             ProjectAssetManager manager = new ProjectAssetManager(FileUtil.toFileObject(path).getParent());
             manager.setAssetEventListener(this);
-            if (currentPath != null) {
-                requestedAssets.clear();
-                currentPath = null;
-                updateProperties(null);
-            }
+            requestedAssets.clear();
             if (currentModel != null) {
                 offPanel.detach(currentModel);
                 currentModel = null;
             }
-            currentPath = path.getParent();
             currentModelPath = path.getPath();
-            if (mainKey == null) {
-                try {
-                    DataObject obj = DataObject.find(FileUtil.toFileObject(path));
-                    AssetData data = obj.getLookup().lookup(AssetData.class);
-                    if (data != null) {
-                        ((AssetDataObject) obj).getLookupContents().add(manager);
-                        mainKey = data.getAssetKey();
-                        currentModel = (Spatial)data.loadAsset();
-                    }
-                } catch (DataObjectNotFoundException ex) {
-                    Exceptions.printStackTrace(ex);
-                    mainKey = new ModelKey(path.getName());
+            currentPath = path.getParent();
+            DataObject obj = DataObject.find(FileUtil.toFileObject(path));
+            AssetData data = obj != null ? obj.getLookup().lookup(AssetData.class) : null;
+            if (data != null) {
+                if (modelKey == null) {
+                    ((AssetDataObject) obj).getLookupContents().add(manager);
+                    modelKey = data.getAssetKey();
+                    currentModel = (Spatial) data.loadAsset();
+                } else {
+                    ((AssetDataObject) obj).getLookupContents().add(manager);
+                    data.setAssetKey(modelKey);
+                    currentModel = (Spatial) data.loadAsset();
                 }
             }
-//            currentModel = (Spatial) manager.loadAsset(mainKey);
+            mainKey = modelKey;
+            updateProperties(mainKey);
             if (currentModel != null) {
                 offPanel.attach(currentModel);
-                updateProperties(mainKey);
             } else {
                 Message msg = new NotifyDescriptor.Message(
                         "Cannot import this file!",
@@ -133,14 +125,10 @@ public final class ModelImporterVisualPanel1 extends JPanel implements AssetEven
         java.awt.EventQueue.invokeLater(new Runnable() {
 
             public void run() {
-                try {
-                    if (key == null) {
-                        ps.setNodes(new Node[]{});
-                    } else {
-                        ps.setNodes(new Node[]{new BeanNode(key)});
-                    }
-                } catch (IntrospectionException ex) {
-                    Exceptions.printStackTrace(ex);
+                if (key == null) {
+                    ps.setNodes(new Node[]{});
+                } else {
+                    ps.setNodes(new Node[]{new ImportKeyNode(key)});
                 }
             }
         });
@@ -311,6 +299,10 @@ public final class ModelImporterVisualPanel1 extends JPanel implements AssetEven
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
+        if (loading.get()) {
+            return;
+        }
+        loading.set(true);
         FileChooserBuilder builder = new FileChooserBuilder(this.getClass());
         builder.setTitle("Select Model File");
         final File file = builder.showOpenDialog();
@@ -323,6 +315,7 @@ public final class ModelImporterVisualPanel1 extends JPanel implements AssetEven
                     handle.start();
                     loadModel(file);
                     handle.finish();
+                    loading.set(false);
                 }
             }).start();
         }
@@ -342,7 +335,22 @@ public final class ModelImporterVisualPanel1 extends JPanel implements AssetEven
 
 private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
     if (currentModelPath != null) {
-        loadModel(new File(currentModelPath), mainKey);
+        if (loading.get()) {
+            return;
+        }
+        loading.set(true);
+        final String modelPath = currentModelPath;
+        final AssetKey key = mainKey;
+        new Thread(new Runnable() {
+
+            public void run() {
+                ProgressHandle handle = ProgressHandleFactory.createHandle("Opening Model..");
+                handle.start();
+                loadModel(new File(modelPath), key);
+                handle.finish();
+                loading.set(false);
+            }
+        }).start();
     }
 }//GEN-LAST:event_jButton6ActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
