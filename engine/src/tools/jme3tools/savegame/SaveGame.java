@@ -78,12 +78,14 @@ public class SaveGame {
             sav = imp.load(is);
         } catch (IOException ex) {
             Logger.getLogger(SaveGame.class.getName()).log(Level.SEVERE, "Error loading data: {0}", ex);
+            ex.printStackTrace();
         } finally {
             if (is != null) {
                 try {
                     is.close();
                 } catch (IOException ex) {
                     Logger.getLogger(SaveGame.class.getName()).log(Level.SEVERE, "Error loading data: {0}", ex);
+                    ex.printStackTrace();
                 }
             }
         }
