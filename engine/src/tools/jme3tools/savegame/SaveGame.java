@@ -11,7 +11,6 @@ import com.jme3.export.binary.BinaryImporter;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.prefs.Preferences;
@@ -50,7 +49,6 @@ public class SaveGame {
         }
         UUEncoder enc = new UUEncoder();
         String dataString = enc.encodeBuffer(out.toByteArray());
-        System.out.println(out);
         if (dataString.length() > Preferences.MAX_VALUE_LENGTH) {
             throw new IllegalStateException("SaveGame dataset too large");
         }
