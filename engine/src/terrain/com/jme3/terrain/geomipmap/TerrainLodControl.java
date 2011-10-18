@@ -78,7 +78,7 @@ public class TerrainLodControl extends AbstractControl {
         cams.add(camera);
         this.terrain = terrain;
         this.cameras = cams;
-        lodCalculator = new DistanceLodCalculator(); // a default calculator
+        lodCalculator = new DistanceLodCalculator(65, 2.7f); // a default calculator
     }
     
     /**
