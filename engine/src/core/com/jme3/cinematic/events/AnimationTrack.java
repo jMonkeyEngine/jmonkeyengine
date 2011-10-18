@@ -85,6 +85,7 @@ public class AnimationTrack extends AbstractCinematicEvent {
 
     @Override
     public void initEvent(Application app, Cinematic cinematic) {
+        super.initEvent(app, cinematic);
         if (channel == null) {
             Object s = cinematic.getEventData("modelChannels", modelName);
             if (s != null && s instanceof AnimChannel) {
@@ -107,6 +108,7 @@ public class AnimationTrack extends AbstractCinematicEvent {
         channel.getControl().setEnabled(true);
         if (playState == PlayState.Stopped) {
             channel.setAnim(animationName);
+            channel.setSpeed(speed);
         }
     }
 
@@ -117,6 +119,7 @@ public class AnimationTrack extends AbstractCinematicEvent {
     @Override
     public void onStop() {
         channel.getControl().setEnabled(false);
+        channel.setTime(0);
     }
 
     @Override

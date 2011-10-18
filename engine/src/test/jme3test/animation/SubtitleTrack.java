@@ -23,8 +23,7 @@ public class SubtitleTrack extends GuiTrack{
     @Override
     public void onPlay() {
         super.onPlay();
-		//REMY FIX THIS
-        //nifty.getScreen(screen).findElementByName("text").getRenderer(TextRenderer.class).changeText(text);
+        nifty.getScreen(screen).findElementByName("text").getRenderer(TextRenderer.class).setText(text);
     }
 
 

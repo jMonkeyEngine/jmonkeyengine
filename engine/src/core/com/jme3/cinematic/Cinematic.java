@@ -166,7 +166,6 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
     @Override
     public void setSpeed(float speed) {
         super.setSpeed(speed);
-        duration = initialDuration / speed;
         for (int i = 0; i < cinematicEvents.size(); i++) {
             CinematicEvent ce = cinematicEvents.get(i);
             ce.setSpeed(speed);
@@ -185,6 +184,7 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
             nifty.fromXmlWithoutStartScreen(niftyXmlPath);
             app.getGuiViewPort().addProcessor(niftyDisplay);
         }
+        initEvent(app, this);
         for (CinematicEvent cinematicEvent : cinematicEvents) {
             cinematicEvent.initEvent(app, this);
         }
@@ -203,11 +203,10 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
             play();
         }
     }
-    
+
     public boolean isEnabled() {
         return playState == PlayState.Playing;
     }
-
 
     public void stateAttached(AppStateManager stateManager) {
     }
@@ -303,8 +302,8 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
         enableCurrentCam(true);
     }
 
-    public void activateCamera(float time, final String cameraName) {
-        addCinematicEvent(time, new AbstractCinematicEvent() {
+    public void activateCamera(float timeStamp, final String cameraName) {
+        addCinematicEvent(timeStamp, new AbstractCinematicEvent() {
 
             @Override
             public void onPlay() {

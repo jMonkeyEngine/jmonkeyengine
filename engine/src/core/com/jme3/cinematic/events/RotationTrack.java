@@ -78,7 +78,7 @@ public class RotationTrack extends AbstractCinematicEvent {
         if (playState != playState.Paused) {
             startRotation.set(spatial.getWorldRotation());
         }
-        if (duration == 0 && spatial != null) {
+        if (initialDuration == 0 && spatial != null) {
             spatial.setLocalRotation(endRotation);
             stop();
         }
@@ -87,7 +87,7 @@ public class RotationTrack extends AbstractCinematicEvent {
     @Override
     public void onUpdate(float tpf) {
         if (spatial != null) {
-            value += Math.min(tpf * speed / duration, 1.0f);
+            value = Math.min(time / initialDuration, 1.0f);         
             TempVars vars = TempVars.get();
             Quaternion q = vars.quat1;
             q.set(startRotation).slerp(endRotation, value);

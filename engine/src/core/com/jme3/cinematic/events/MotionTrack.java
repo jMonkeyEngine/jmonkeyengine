@@ -46,6 +46,7 @@ import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.control.Control;
+import com.jme3.system.NanoTimer;
 import java.io.IOException;
 
 /**
@@ -66,7 +67,7 @@ public class MotionTrack extends AbstractCinematicEvent implements Control {
     protected Quaternion rotation;
     protected Direction directionType = Direction.None;
     protected MotionPath path;
-    private boolean isControl=true;
+    private boolean isControl = true;
 
 
     /**
@@ -157,11 +158,12 @@ public class MotionTrack extends AbstractCinematicEvent implements Control {
     }
 
     public void update(float tpf) {
-        if(isControl){
+        if (isControl) {
+
             if (playState == PlayState.Playing) {
-                time += tpf * speed;
+                time = (elapsedTimePause + timer.getTimeInSeconds()) * speed;
                 onUpdate(tpf);
-                if (time >= duration && loopMode == loopMode.DontLoop) {
+                if (time >= initialDuration && loopMode == loopMode.DontLoop) {
                     stop();
                 }
             }
@@ -171,13 +173,13 @@ public class MotionTrack extends AbstractCinematicEvent implements Control {
 
     @Override
     public void initEvent(Application app, Cinematic cinematic) {
-        isControl=false;
+        super.initEvent(app, cinematic);
+        isControl = false;
+        timer = null;
     }
 
-
-
     public void onUpdate(float tpf) {
-        spatial.setLocalTranslation(path.interpolatePath(tpf, this));
+        spatial.setLocalTranslation(path.interpolatePath(tpf * speed, this));
         computeTargetDirection();
 
         if (currentValue >= 1.0f) {
@@ -270,10 +272,8 @@ public class MotionTrack extends AbstractCinematicEvent implements Control {
         control.lookAt = lookAt.clone();
         control.upVector = upVector.clone();
         control.rotation = rotation.clone();
-        control.duration = duration;
         control.initialDuration = initialDuration;
         control.speed = speed;
-        control.duration = duration;
         control.loopMode = loopMode;
         control.directionType = directionType;
 

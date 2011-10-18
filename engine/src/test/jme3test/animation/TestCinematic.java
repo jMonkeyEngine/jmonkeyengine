@@ -64,6 +64,8 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Box;
 import com.jme3.shadow.PssmShadowRenderer;
+import com.jme3.system.NanoTimer;
+import com.jme3.system.lwjgl.LwjglTimer;
 
 public class TestCinematic extends SimpleApplication {
 
@@ -79,6 +81,8 @@ public class TestCinematic extends SimpleApplication {
     public static void main(String[] args) {
         TestCinematic app = new TestCinematic();
         app.start();
+      
+        
 
     }
 
@@ -106,6 +110,7 @@ public class TestCinematic extends SimpleApplication {
 
             @Override
             public void onPlay() {
+                fade.setDuration(1f/cinematic.getSpeed());
                 fade.setValue(0);
                 fade.fadeIn();
             }
@@ -148,6 +153,7 @@ public class TestCinematic extends SimpleApplication {
 
             @Override
             public void onPlay() {
+                fade.setDuration(1f/cinematic.getSpeed());
                 fade.fadeOut();
             }
 
@@ -164,10 +170,13 @@ public class TestCinematic extends SimpleApplication {
             }
         });
 
+      final NanoTimer myTimer = new NanoTimer();
         cinematic.addListener(new CinematicEventListener() {
 
             public void onPlay(CinematicEvent cinematic) {
                 chaseCam.setEnabled(false);
+                myTimer.reset();
+                
                 System.out.println("play");
             }
 
@@ -180,9 +189,13 @@ public class TestCinematic extends SimpleApplication {
                 chaseCam.setEnabled(true);
                 fade.setValue(1);
                 System.out.println("stop");
+                System.out.println((float)myTimer.getTime()/(float)myTimer.getResolution());            
+ 
             }
+            
         });
 
+        cinematic.setSpeed(2);
         flyCam.setEnabled(false);
         chaseCam = new ChaseCamera(cam, model, inputManager);
         initInputs();
@@ -270,4 +283,9 @@ public class TestCinematic extends SimpleApplication {
         };
         inputManager.addListener(acl, "togglePause");
     }
+
+    
+    
+    
+    
 }
