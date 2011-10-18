@@ -110,7 +110,7 @@ public class Box extends AbstractBox {
      * Constructor instantiates a new <code>Box</code> object.
      * <p>
      * The minimum and maximum point are provided, these two points define the
-     * shape and size of the box but not it’s orientation or position. You should
+     * shape and size of the box but not it's orientation or position. You should
      * use the {@link #setLocalTranslation()} and {@link #setLocalRotation()}
      * methods to define those properties.
      * 
@@ -132,7 +132,7 @@ public class Box extends AbstractBox {
     /**
      * Creates a clone of this box.
      * <p>
-     * The cloned box will have ‘_clone’ appended to it’s name, but all other
+     * The cloned box will have '_clone' appended to it's name, but all other
      * properties will be the same as this box.
      */
     @Override
