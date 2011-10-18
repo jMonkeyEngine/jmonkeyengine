@@ -6,16 +6,17 @@ package jme3tools.savegame;
 
 import com.jme3.asset.AssetManager;
 import com.jme3.export.Savable;
-import com.jme3.export.xml.XMLExporter;
-import com.jme3.export.xml.XMLImporter;
+import com.jme3.export.binary.BinaryExporter;
+import com.jme3.export.binary.BinaryImporter;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.prefs.Preferences;
+import sun.misc.UUDecoder;
+import sun.misc.UUEncoder;
 
 /**
  * Tool for saving Savables as SaveGame entries in a system-dependent way.
@@ -31,7 +32,7 @@ public class SaveGame {
      */
     public static void saveGame(String gamePath, String dataName, Savable data) {
         Preferences prefs = Preferences.userRoot().node(gamePath);
-        XMLExporter ex = XMLExporter.getInstance();
+        BinaryExporter ex = BinaryExporter.getInstance();
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         try {
             ex.save(data, out);
@@ -39,12 +40,12 @@ public class SaveGame {
             Logger.getLogger(SaveGame.class.getName()).log(Level.SEVERE, "Error saving data: {0}", ex1);
             ex1.printStackTrace();
         }
-        try {
-            prefs.put(dataName, out.toString("UTF-8"));
-        } catch (UnsupportedEncodingException ex1) {
-            Logger.getLogger(SaveGame.class.getName()).log(Level.SEVERE, "Error saving data: {0}", ex1);
-            ex1.printStackTrace();
+        UUEncoder enc = new UUEncoder();
+        String dataString = enc.encodeBuffer(out.toByteArray());
+        if (dataString.length() > Preferences.MAX_VALUE_LENGTH) {
+            throw new IllegalStateException("SaveGame dataset too large");
         }
+        prefs.put(dataName, dataString);
     }
 
     /**
@@ -66,12 +67,13 @@ public class SaveGame {
      */
     public static Savable loadGame(String gamePath, String dataName, AssetManager manager) {
         Preferences prefs = Preferences.userRoot().node(gamePath);
-        String data = prefs.get(gamePath, dataName);
+        String data = prefs.get(dataName, "");
         InputStream is = null;
         Savable sav = null;
+        UUDecoder dec = new UUDecoder();
         try {
-            is = new ByteArrayInputStream(data.getBytes("UTF-8"));
-            XMLImporter imp = XMLImporter.getInstance();
+            is = new ByteArrayInputStream(dec.decodeBuffer(data));
+            BinaryImporter imp = BinaryImporter.getInstance();
             if (manager != null) {
                 imp.setAssetManager(manager);
             }
