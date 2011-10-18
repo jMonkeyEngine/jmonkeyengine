@@ -34,8 +34,6 @@ package com.jme3.gde.core;
 import com.jme3.gde.core.scene.SceneApplication;
 import java.io.File;
 import javax.swing.JPopupMenu;
-import org.openide.DialogDisplayer;
-import org.openide.NotifyDescriptor;
 import org.openide.filesystems.FileChooserBuilder;
 import org.openide.modules.ModuleInstall;
 import org.openide.util.NbBundle;
@@ -60,14 +58,7 @@ public class Installer extends ModuleInstall {
     }
 
     static {
-        //set default projects directory
-//        File userDir = new File(System.getProperty("user.home"));
-//        File myProjectsDir = new File(userDir, "jMonkeyProjects");
-//        if (!myProjectsDir.exists()) {
-//            myProjectsDir.mkdirs();
-//        }
-
-        //Set http agent
+        //set http agent
         System.setProperty("http.agent", NbBundle.getBundle("org.netbeans.core.windows.view.ui.Bundle").getString("CTL_MainWindow_Title")
                 + " (" + System.getProperty("os.name") + "/" + System.getProperty("os.version") + ")");
 
@@ -77,7 +68,6 @@ public class Installer extends ModuleInstall {
             //set extraction dir for platform natives
             javax.swing.JFileChooser fr = new javax.swing.JFileChooser();
             javax.swing.filechooser.FileSystemView fw = fr.getFileSystemView();
-//            File myProjectsDir = new File(fw.getDefaultDirectory().getPath() + File.separator + "jMonkeyProjects");
             projectDir = fw.getDefaultDirectory().getAbsolutePath();
             FileChooserBuilder builder = new FileChooserBuilder(projectDir);
             builder.setApproveText("Set Project Folder");
@@ -98,18 +88,6 @@ public class Installer extends ModuleInstall {
             file.mkdirs();
         }
         com.jme3.system.Natives.setExtractionDir(jmpDir);
-
-//        if (Utilities.isMac()) {
-//            String jmpDir = System.getProperty("user.home") + "/Library/Application Support/jmonkeyplatform/";
-//            File file = new File(jmpDir);
-//            file.mkdirs();
-//            com.jme3.system.Natives.setExtractionDir(jmpDir);
-//        } else {
-//            String jmpDir = System.getProperty("user.home") + File.separator + ".jmonkeyplatform" + File.separator;
-//            File file = new File(jmpDir);
-//            file.mkdirs();
-//            com.jme3.system.Natives.setExtractionDir(jmpDir);
-//        }
 
         //avoid problems with lightweight popups
         JPopupMenu.setDefaultLightWeightPopupEnabled(false);
