@@ -43,10 +43,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * <code>UrlLocator</code> is a locator that combines a root url
- * and the given path in the AssetKey to construct a new url
+ * <code>UrlLocator</code> is a locator that combines a root URL
+ * and the given path in the AssetKey to construct a new URL
  * that allows locating the asset.
- * @author Kiirill Vainer
+ * @author Kirill Vainer
  */
 public class UrlLocator implements AssetLocator {
 
