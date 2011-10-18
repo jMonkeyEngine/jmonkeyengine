@@ -523,9 +523,14 @@ removeCollideWithGroup(COLLISION_GROUP_01)</td><td>Collision Groups are integer 
 </li>
 </ul>
 <ul>
-<li><div> For large static meshes like shooter levels or terrain its best to divide the mesh into multiple physics objects to allow the less CPU intense broadphase to filter out most collision items.</div>
+<li><div> For large static meshes like shooter levels or terrain it is best to divide the scene model into multiple physics objects, with each its own CollisionShape. A huge city level should not be one huge mesh (model) of pavement and streets and buildings. Instead, you make individual models for buildings, for pieces of pavement, for pieces of streets, etc. Position them next to one another to form the whole city, and give each piece its own optimal CollisionShape. E.g. streets can use a fast PlaneCollisionShape if you keep them separate for buildings. Breaking the level into manageable pieces helps the engine improve performance: The less CPU-intensive <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://en.wikipedia.org/wiki/Sweep_and_prune"><param name="text" value="<html><u>broadphase</u></html>"><param name="textColor" value="blue"></object> can now filter out parts of the scene that are behind you or out of reach, and it only calculates the details of collisions for parts that are actually close to the action.</div>
 </li>
 </ul>
+<div><span>
+	<a href="/wiki/doku.php/tag:physics?do=showtag&amp;tag=tag%3Aphysics">physics</a>,
+	<a href="/wiki/doku.php/tag:documentation?do=showtag&amp;tag=tag%3Adocumentation">documentation</a>,
+	<a href="/wiki/doku.php/tag:control?do=showtag&amp;tag=tag%3Acontrol">control</a>
+</span></div>
 
 </div>
 <p><em><a href="http://direct.jmonkeyengine.org/wiki/doku.php/jme3:advanced:physics?do=export_xhtmlbody">view online version</a></em></p>

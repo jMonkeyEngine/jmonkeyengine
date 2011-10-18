@@ -30,7 +30,7 @@ Set the boolean in the AppSettings contructor to true if you want to keep the de
 </p>
 
 <p>
-<p><div>Use <code>app.setShowSettings(false);</code> in the <code>main()</code> method to hide the default settings window (default splash screen) at startup.
+<p><div>Use <code>app.setShowSettings(true);</code> to present the user with a splashscreen and display settings dialog when starting the game, or <code>app.setShowSettings(false);</code> to hide the custom splashscreen. Set this boolean before calling <code>app.start()</code> on the SimpleApplication.
 </div></p>
 </p>
 
@@ -40,15 +40,11 @@ Set the boolean in the AppSettings contructor to true if you want to keep the de
 <div>
 <div><table>
 	<tr>
-		<th>Settings Property</th><th>Dscription</th><th>Default</th>
+		<th>Settings Property (Video)</th><th>Description</th><th>Default</th>
 	</tr>
 	<tr>
 		<td>setRenderer(AppSettings.LWJGL_OPENGL2) <br/>
 setRenderer(AppSettings.LWJGL_OPENGL3)</td><td>Switch Video Renderer</td><td>OpenGL 2</td>
-	</tr>
-	<tr>
-		<td>setAudioRenderer(AppSettings.LWJGL_OPENAL) <br/>
-setAudioRenderer(AppSettings.LWJGL_JOAL)</td><td>Switch Audio Renderer</td><td>OpenAL</td>
 	</tr>
 	<tr>
 		<td>setBitsPerPixel(8)</td><td>Set color depth. <br/>
@@ -78,20 +74,46 @@ Depending on your graphic card, you may be able to set multisampling to higher v
 		<td>setVSync(true)</td><td>Set vertical syncing to true to time the frame buffer to coincide with the refresh interval of the screen: Prevents page tearing, but slower; recommened for release. <br/>
 Set to false to deactivate vertical syncing (faster, but possible page tearing artifacts); can be deactivated during development.</td><td>false</td>
 	</tr>
+</table></div>
+<!-- EDIT1 TABLE [1372-3122] --><div><table>
 	<tr>
-		<td>useInput(false)</td><td>Respond to user input by mouse and keyboard. Can be deactivated for use cases where you only display a 3D scene on the canvas without any interaction.</td><td>true</td>
+		<th>Settings Property (Input)</th><th>Description</th><th>Default</th>
 	</tr>
 	<tr>
-		<td>useJoysticks(true)</td><td>Activate optional joystick support</td><td>false</td>
+		<td>setUseInput(false)</td><td>Respond to user input by mouse and keyboard. Can be deactivated for use cases where you only display a 3D scene on the canvas without any interaction.</td><td>true</td>
 	</tr>
 	<tr>
-		<td>setSettingsDialogImage(&quot;/path/in/assets.png&quot;)</td><td>A custom image to display when the settings dialog is shown.</td><td>&quot;/com/jme3/app/Monkey.png&quot;</td>
+		<td>setUseJoysticks(true)</td><td>Activate optional joystick support</td><td>false</td>
+	</tr>
+</table></div>
+<!-- EDIT2 TABLE [3124-3413] --><div><table>
+	<tr>
+		<th>Settings Property (Audio)</th><th>Description</th><th>Default</th>
+	</tr>
+	<tr>
+		<td>setAudioRenderer(AppSettings.LWJGL_OPENAL) <br/>
+setAudioRenderer(AppSettings.LWJGL_JOAL)</td><td>Switch Audio Renderer</td><td>OpenAL</td>
+	</tr>
+	<tr>
+		<td>setStereo3D(true)</td><td>Enable 3D stereo. This feature requires hardware support from the GPU driver. See <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://en.wikipedia.org/wiki/Quad_buffering"><param name="text" value="<html><u>Quard Buffering</u></html>"><param name="textColor" value="blue"></object>.</td><td>false</td>
+	</tr>
+</table></div>
+<!-- EDIT3 TABLE [3415-3753] --><div><table>
+	<tr>
+		<th>Settings Property (Branding)</th><th>Description</th><th>Default</th>
 	</tr>
 	<tr>
 		<td>setTitle(&quot;My Game&quot;)</td><td>This string will be visible in the titlebar, unless the window is fullscreen.</td><td>&quot;jMonkey Engine 3.0&quot;</td>
 	</tr>
+	<tr>
+		<td>setIcons(new BufferedImage[]{ <br/>
+ImageIO.read(new File(&quot;&quot;)), …});</td><td>This specifies the little application icon in the titlebar of the application. You should specify the icon in various sizes (256,128,32,16) to look good on each <acronym title="Operating System">OS</acronym>. Note: This is not the application icon on the desktop.</td><td>null</td>
+	</tr>
+	<tr>
+		<td>setSettingsDialogImage(&quot;/path/to/splash.png&quot;)</td><td>A custom splashscreen image in the assets directory which is displayed when the settings dialog is shown.</td><td>&quot;/com/jme3/app/Monkey.png&quot;</td>
+	</tr>
 </table></div>
-<!-- EDIT1 TABLE [1235-3587] -->
+<!-- EDIT4 TABLE [3755-4402] -->
 </div>
 
 <h2><a>Saving and Loading Settings</a></h2>
@@ -102,11 +124,33 @@ Set to false to deactivate vertical syncing (faster, but possible page tearing a
 An AppSettings object also supports the following methods:
 </p>
 <ul>
-<li><div> Use <code>settings.save(outstream)</code> to save your settings via standard java.io serialization.</div>
+<li><div> Use <code>settings.save(&quot;unique_key&quot;)</code> to save your settings via standard java.io serialization.</div>
 </li>
-<li><div> Use <code>settings.load(instream)</code> to load your settings.</div>
+<li><div> Use <code>settings.load(&quot;unique_key&quot;)</code> to load your settings.</div>
 </li>
 <li><div> Use <code>settings2.copyFrom(settings)</code> to copy a settings object.</div>
+</li>
+</ul>
+
+<p>
+
+Usage: 
+</p>
+
+<p>
+Provide the unique name of your jME3 application as the String argument. For example <code>com.foo.MyCoolGame3</code>.
+</p>
+<pre>    try &#123; settings.save&#40;&quot;com.foo.MyCoolGame3&quot;&#41;; &#125; 
+    catch &#40;BackingStoreException ex&#41; &#123; /** could not save settings */ &#125;</pre>
+<ul>
+<li><div> On Windows, the preferences are saved under the following registry key: <br/>
+<code>HKEY_CURRENT_USER\Software\JavaSoft\Prefs\com\foo\MyCoolGame3</code></div>
+</li>
+<li><div> On Linux, the preferences are saved in an <acronym title="Extensible Markup Language">XML</acronym> file under: <br/>
+<code>$HOME/.java/.userPrefs/com/foo/MyCoolGame3</code></div>
+</li>
+<li><div> On Mac <acronym title="Operating System">OS</acronym> X, the preferences are saved as <acronym title="Extensible Markup Language">XML</acronym> file under: <br/>
+<code>$HOME/Library/Preferences/com.foo.MyCoolGame3.plist</code></div>
 </li>
 </ul>
 

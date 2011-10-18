@@ -3,8 +3,8 @@
 <div>
 
 <p>
-Before you start, make certain you are familiar with the following concepts and terminology. 
 
+Before you start, make certain you are familiar with the following concepts and terminology. 
 </p>
 
 </div>
@@ -24,7 +24,6 @@ Before you start, make certain you are familiar with the following concepts and 
 
 <p>
 <strong>OpenAL</strong> is the Open Audio Library, a platform-independent 3D audio <acronym title="Application Programming Interface">API</acronym>.
-
 </p>
 
 </div>
@@ -33,6 +32,7 @@ Before you start, make certain you are familiar with the following concepts and 
 <div>
 
 <p>
+
 The <strong>jME Context</strong> makes settings, renderer, timer, input and event listeners, display system, accessible to a JME game.
 </p>
 <ul>
@@ -59,10 +59,13 @@ The <strong>jME Context</strong> makes settings, renderer, timer, input and even
 <div>
 
 <p>
+
 Coordinates represent a location in a coordinate system, relative to the origin (0,0,0). m. In 3D space, you need to specify three coordinate values to locate a point: x,y,z.
 As opposed to a vector (which looks similar), a coordinate does not have a &quot;direction&quot;.
-<img src="nbdocs:/com/jme3/gde/core/docs/jme3/intermediate/coordinate-system.png">
+</p>
 
+<p>
+<img src="nbdocs:/com/jme3/gde/core/docs/jme3/intermediate/coordinate-system.png">
 </p>
 
 </div>
@@ -71,9 +74,9 @@ As opposed to a vector (which looks similar), a coordinate does not have a &quot
 <div>
 
 <p>
+
 The origin is the central point in the 3D world. It&#039;s at the coordinates (0,0,0).
 Code sample: <code>Vector3f origin = new Vector3f( Vector3f.ZERO );</code>
-
 </p>
 
 </div>
@@ -82,9 +85,9 @@ Code sample: <code>Vector3f origin = new Vector3f( Vector3f.ZERO );</code>
 <div>
 
 <p>
+
 A vector has a length and a direction. It is used like an arrow pointing at a point in 3D space. A vector starts at the origin (0,0,0), and ends at the target coordinate (x,y,z). Backwards directions are expressed with negative values.
 Code sample: <code>Vector3f v = new Vector3f( 17 , -4 , 0 );</code>
-
 </p>
 
 </div>
@@ -93,6 +96,7 @@ Code sample: <code>Vector3f v = new Vector3f( 17 , -4 , 0 );</code>
 <div>
 
 <p>
+
 A <em>unit vector</em> is a basic vector with a length of 1 world unit. Since its length is fixed (and it thus can only point at one location anyway), the only interesting thing about this vector is its direction.
 </p>
 <ul>
@@ -106,16 +110,23 @@ A <em>unit vector</em> is a basic vector with a length of 1 world unit. Since it
 </li>
 </ul>
 
+<p>
+Negate the vegator to change its direction, e.g. (-1, 0, 0) = left.
+</p>
+
 </div>
 
 <h3><a>Normalized Vectors</a></h3>
 <div>
 
 <p>
+
 A <em>normalized vector</em> is a custom <em>unit vector</em>. A normalized vector is not the same as a <em>(surface) normal vector</em>.
 When you normalize a vector, it still has the same direction, but you lose the information where the vector originally pointed.
-For instance, you normalize vectors before calculating angles.
+</p>
 
+<p>
+<strong>Example:</strong> You normalize vectors before calculating angles.
 </p>
 
 </div>
@@ -124,9 +135,9 @@ For instance, you normalize vectors before calculating angles.
 <div>
 
 <p>
+
 A surface normal is a vector that is perpendicular to a plane.
 You calculate the Surface Normal by calculating the cross product.
-
 </p>
 
 </div>
@@ -135,12 +146,15 @@ You calculate the Surface Normal by calculating the cross product.
 <div>
 
 <p>
+
 The cross product is a calculation that you use to find a perpendicular vector (an orthogonal, a &quot;right angle&quot; at 90°).
 In 3D space, speaking of an orthogonal only makes sense with respect to a plane. You need two vectors to uniquely define a plane. The cross product of the two vectors, <code>v1 × v2</code>, is a new vector that is perpendicular to this plane. A vector perpendicular to a plane is a called <em>Surface Normal</em>.
-Example: The x unit vector and the y unit vector together define the x/y plane. The vector perpendicular to them is the z axis. JME can calculate that this equation is true: <br/>
+</p>
+
+<p>
+<strong>Example:</strong> The x unit vector and the y unit vector together define the x/y plane. The vector perpendicular to them is the z axis. JME can calculate that this equation is true: <br/>
 
 <code>( Vector3f.UNIT_X.cross( Vector3f.UNIT_Y ) ).equals( Vector3f.UNIT_Z )</code> == true
-
 </p>
 
 </div>
@@ -149,12 +163,24 @@ Example: The x unit vector and the y unit vector together define the x/y plane. 
 <div>
 
 <p>
-<img src="nbdocs:/com/jme3/gde/core/docs/jme3/dolphin-mesh.png">
-Most visible objects in a 3D scene are made up of polygon meshes – characters, terrains, buildings, etc. A mesh is a grid-like structure that represents a complex shape. The advantage of a mesh is that it is mathematically simple enough to render in real time, and detailed enough to be recognizable.
-Every shape is reduced to a number of connected polygons, usually triangles; even round surfaces such as spheres are reduced to a grid of triangles. The polygons&#039; corner points are called vertices. Every vertex is positioned at a coordinate, all vertices together describe the outline of the shape.
-You create 3D meshes in tools called mesh editors, e.g in Blender.
-<a href="/com/jme3/gde/core/docs/jme3/math.html">Learn more about 3D maths here.</a>
 
+<img src="nbdocs:/com/jme3/gde/core/docs/jme3/dolphin-mesh.png">
+</p>
+
+<p>
+Most visible objects in a 3D scene are made up of polygon meshes – characters, terrains, buildings, etc. A mesh is a grid-like structure that represents a complex shape. The advantage of a mesh is that it is mathematically simple enough to render in real time, and detailed enough to be recognizable.
+</p>
+
+<p>
+Every shape is reduced to a number of connected polygons, usually triangles; even round surfaces such as spheres are reduced to a grid of triangles. The polygons&#039; corner points are called vertices. Every vertex is positioned at a coordinate, all vertices together describe the outline of the shape.
+</p>
+
+<p>
+You create 3D meshes in tools called mesh editors, e.g in Blender. The jMonkeyEngine can load finished meshes (=models) and arrange them to scenes, but it cannot edit the mesh itself.
+</p>
+
+<p>
+<a href="/com/jme3/gde/core/docs/jme3/math.html">Learn more about 3D maths here.</a>
 </p>
 
 </div>
@@ -163,8 +189,8 @@ You create 3D meshes in tools called mesh editors, e.g in Blender.
 <div>
 
 <p>
-What we call &quot;color&quot; is merely part of an object&#039;s light reflection. The onlooker&#039;s brain uses shading and reflecting properties to infer an object&#039;s shape and material. Factors like these make all the difference between chalk vs milk, skin vs paper, water vs plastic, etc! (<object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://www.shaders.org/ifw2_textures/whatsin10.htm"><param name="text" value="<html><u>External examples</u></html>"><param name="textColor" value="blue"></object>)
 
+What we call &quot;color&quot; is merely part of an object&#039;s light reflection. The onlooker&#039;s brain uses shading and reflecting properties to infer an object&#039;s shape and material. Factors like these make all the difference between chalk vs milk, skin vs paper, water vs plastic, etc! (<object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://www.shaders.org/ifw2_textures/whatsin10.htm"><param name="text" value="<html><u>External examples</u></html>"><param name="textColor" value="blue"></object>)
 </p>
 
 </div>
@@ -252,7 +278,6 @@ Set the Specular color to ColorRGBA.Black to switch off shininess.</div>
 
 <p>
 <img src="/wiki/lib/exe/fetch.php">
-
 </p>
 
 </div>
@@ -261,9 +286,9 @@ Set the Specular color to ColorRGBA.Black to switch off shininess.</div>
 <div>
 
 <p>
+
 Textures are part of Materials. In the simplest case, an object could have just one texture, the Color Map, loaded from one image file. When you think back of old computer games you&#039;ll remember this looks quite plain.
 The more information you (the game designer) provide additionally to the Color Map, the higher the degree of detail and realism. Whether you want photo-realistic rendering or &quot;toon&quot; rendering (Cel Shading), everything depends on the quality of your materials and texture maps. Modern 3D graphics use several layers of information to describe one material, each layer is a Texture Map.
-
 </p>
 
 </div>
@@ -380,10 +405,16 @@ A seamless texture is an image file that has been designed so that it can be use
 <div>
 
 <p>
-<img src="/wiki/lib/exe/fetch.php">
-Creating a texture for a cube is easy – but what about a character with a face and extremities? For more complex objects, you design the texture in the same ways as a sewing pattern: One image file contains the outline of the front, back, and side of the object, next to one another. Specific areas of the flat texture (UV coordinates) map onto certain areas of your 3D model (XYZ coordinates), hence the name UV map.
-Getting the seams and mappings right is crucial: You will have to use a graphic tool like Blender to create UV Maps. It&#039;s worth the while to learn this, UV mapped models look a lot more professional.
 
+<img src="/wiki/lib/exe/fetch.php">
+</p>
+
+<p>
+Creating a texture for a cube is easy – but what about a character with a face and extremities? For more complex objects, you design the texture in the same ways as a sewing pattern: One image file contains the outline of the front, back, and side of the object, next to one another. Specific areas of the flat texture (UV coordinates) map onto certain areas of your 3D model (XYZ coordinates), hence the name UV map. Using UV Maps, models can have a different texture on each side.
+</p>
+
+<p>
+Getting the seams and mappings right is crucial: You must use a graphic tool like Blender to create UV Maps and store the coordinates. It&#039;s worth the while to learn this, UV mapped models look a lot more professional.
 </p>
 
 </div>
@@ -392,10 +423,13 @@ Getting the seams and mappings right is crucial: You will have to use a graphic 
 <div>
 
 <p>
+
 <img src="/wiki/lib/exe/fetch.php">
+</p>
+
+<p>
 Environment Maps are used to create the impression of reflections and refractions. You create a Cube Map to represent your environment, similar to a skybox. (Sphere Maps are possible, but often look too distorted.) You give the Cube Map a set of images showing a &quot;360° view&quot; of the completed scene. The renderer uses this as base to texture the reflective surface.
 Of course these reflections are static and not &quot;real&quot;, e.g. the player will not see his avatar&#039;s face reflected, etc… But they cause the desired &quot;glass/mirror/water&quot; effect, and are fast enough to render in real usecases, it&#039;s better than nothing.
-
 </p>
 
 </div>
@@ -404,8 +438,8 @@ Of course these reflections are static and not &quot;real&quot;, e.g. the player
 <div>
 
 <p>
-You provide the texture in two or three resolutions to be stored in one file (MIP = &quot;multum in parvo&quot; = &quot;many in one&quot;). Depending on how close (or far) the camera is, the engine automatically renders a more (or less) detailed texture for the object. Thus objects look smooth from close up, but don&#039;t waste resources with unspottable details when far away. Good for everything, but requires more time to create and more space to store textures.
 
+You provide the texture in two or three resolutions to be stored in one file (MIP = &quot;multum in parvo&quot; = &quot;many in one&quot;). Depending on how close (or far) the camera is, the engine automatically renders a more (or less) detailed texture for the object. Thus objects look smooth from close up, but don&#039;t waste resources with unspottable details when far away. Good for everything, but requires more time to create and more space to store textures.
 </p>
 
 </div>
@@ -414,10 +448,16 @@ You provide the texture in two or three resolutions to be stored in one file (MI
 <div>
 
 <p>
-A procedural texture is generated from repeating one small image, plus some pseudo-random, gradient variations (Perlin noise). Procedural textures look more natural than static rectangular textures, for instance, they look less distorted on spheres. On big meshes, their repetitiveness is much less noticable than tiled seamless textures. Procedural textures are ideal for irregular large-area textures like grass, soil, rock, rust, and walls. See also: <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://jmonkeyengine.org/wiki/doku.php/jme3:jmonkeyplatform:neotexture"><param name="text" value="<html><u>jMonkeyPlatform NeoTexture plugin</u></html>"><param name="textColor" value="blue"></object>
-<img src="/wiki/lib/exe/fetch.php">
-See also: <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://www.blender.org/education-help/tutorials/materials/"><param name="text" value="<html><u>Creating Materials in Blender</u></html>"><param name="textColor" value="blue"></object>, <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://en.wikibooks.org/wiki/Blender_3D:_Noob_to_Pro/Every_Material_Known_to_Man"><param name="text" value="<html><u>Blender: Every Material Known to Man</u></html>"><param name="textColor" value="blue"></object>
 
+A procedural texture is generated from repeating one small image, plus some pseudo-random, gradient variations (Perlin noise). Procedural textures look more natural than static rectangular textures, for instance, they look less distorted on spheres. On big meshes, their repetitiveness is much less noticable than tiled seamless textures. Procedural textures are ideal for irregular large-area textures like grass, soil, rock, rust, and walls. See also: <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://jmonkeyengine.org/wiki/doku.php/jme3:jmonkeyplatform:neotexture"><param name="text" value="<html><u>jMonkeyPlatform NeoTexture plugin</u></html>"><param name="textColor" value="blue"></object>
+</p>
+
+<p>
+<img src="/wiki/lib/exe/fetch.php">
+</p>
+
+<p>
+See also: <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://www.blender.org/education-help/tutorials/materials/"><param name="text" value="<html><u>Creating Materials in Blender</u></html>"><param name="textColor" value="blue"></object>, <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://en.wikibooks.org/wiki/Blender_3D:_Noob_to_Pro/Every_Material_Known_to_Man"><param name="text" value="<html><u>Blender: Every Material Known to Man</u></html>"><param name="textColor" value="blue"></object>
 </p>
 
 </div>
@@ -426,9 +466,9 @@ See also: <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer">
 <div>
 
 <p>
+
 In 3D games, Skeletal Animation is used for animated characters, but in principle the skeleton approach can be extended to any 3D mesh (for example, an opening crate&#039;s hinge can be considered a joint).
 Unless you animate a 3D cartoon, realism of animated characters is generally a problem: Movement can look alien-like mechanical or broken, the character appears hollow, or as if floating. Professional game designers invest a lot of effort to make characters animate in a natural way (including motion capturing).
-
 </p>
 
 </div>
@@ -437,8 +477,15 @@ Unless you animate a 3D cartoon, realism of animated characters is generally a p
 <div>
 
 <p>
+
 <img src="/wiki/lib/exe/fetch.php">
+</p>
+
+<p>
 An animated character has an armature: An internal skeleton (Bones) and an external surface (Skin). The Skin is the visible outside of the character and it includes clothing. The Bones are not visible and are used to interpolate (calculate) the morphing steps of the skin.
+</p>
+
+<p>
 JME3, the game engine, only loads and plays your recorded animations. You must use a tool (such as Blender) to set up (rig, skin, and animate) a character.
 </p>
 <ol>
@@ -494,7 +541,6 @@ E.g. when the thigh bone moves, the leg is fully affected, the hips joints less 
 
 <p>
 In the JME3 application, you register animated models to the Animation Controller. The controller object gives you access to the available animation sequences. The controller has several channels, each channels can run one animation sequence at a time. To run several sequences, you create several channels, and run them in parallel.
-
 </p>
 
 </div>
@@ -514,8 +560,8 @@ Non-player (computer-controlled) characters (NPCs) are only fun in a game if the
 The domain of artificial intelligence deals, among other things, with:
 </p>
 <ul>
-<li><div> <strong>Knowledge</strong> – An agent only &quot;knows&quot; what it can &quot;see and hear&quot;, this implies that information can be hidden from it (to keep the game fair). You can let some agents share knowledge and let others find out by themselves. <br/>
-Example: All guards with two-way radios know the player&#039;s position within 60 sec, while other guards don&#039;t know anything yet.</div>
+<li><div> <strong>Knowledge</strong> – Knowledge is about the data to which the agent has access to base its decisions on. Realistic agents only &quot;know&quot; what they &quot;see and hear&quot;, this implies that information can be hidden from them (to keep the game fair). You can let some agents share information and others need to find out by themselves. <br/>
+Example: After tripping the wire, all guards with two-way radios start moving towards the player&#039;s position within 60 sec, while minor guards don&#039;t suspect anything yet.</div>
 </li>
 <li><div> <strong>Goal Planning</strong> – Planning is about how the agent <em>takes action</em>. Each game agent has the priority to achieve a specific goal, to reach a future state. You split the agent&#039;s goal into subgoals, then the agent chooses from available tactics and strategies, and prioritizes them. The agent keeps testing whether the current state is closer to the (sub)goal. If unsuccessful, the agent changes the tactics/strategy and tries again. <br/>
 Example: An agent searches the best path to reach the player base in a changing environment; an agent chases the player with the goal of eliminating him; an agent hides from the player with the goal of murdering a VIP. </div>

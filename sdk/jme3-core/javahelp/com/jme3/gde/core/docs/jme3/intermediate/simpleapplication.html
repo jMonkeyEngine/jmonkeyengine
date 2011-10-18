@@ -172,12 +172,7 @@ The com.jme3.app.SimpleApplication class extends the generic com.jme3.app.Applic
 
 <p>
 
-<p><div>By default, a SimpleApplication also displays statistics (such as frames per second) on the screen, using the com.jme3.app.StatsView class. You hide the statistics HUD from the screen by calling <code>setDisplayFps(false); setDisplayStatView(false);</code> inside the <code>simpleInitApp()</code> method. The displays contain valuable information during the development and debugging phase. At the latest, you remove these displays for the release.
-</div></p>
-</p>
-
-<p>
-Additional to the functionality that Application brings, SimpleApplication offers:
+Additional to the functionality that Application brings, SimpleApplication offers the following methods and fields that can be used, for example, inside the <code>simpleInitApp()</code> method:
 
 </p>
 <div><table>
@@ -197,35 +192,44 @@ getGuiNode()</td><td>Attach flat <acronym title="Graphical User Interface">GUI</
 getFlyByCamera()</td><td>The default first-person fly-by camera control. This default camera control lets you navigate the 3D scene using the preconfigured WASD and arrow keys and the mouse.</td>
 	</tr>
 </table></div>
-<!-- EDIT4 TABLE [6236-6779] --><div><table>
+<!-- EDIT4 TABLE [5889-6432] --><div><table>
 	<tr>
 		<th>SimpleApplication Method</th><th>Purpose</th>
 	</tr>
 	<tr>
-		<td>loadStatsView()</td><td>Call this method to print live statistic information to the screen, such as current frames-per-second and triangles/vertices counts. You use this info typically only during development or debugging.</td>
+		<td>loadStatsView();</td><td>Call this method to print live statistic information to the screen, such as current frames-per-second and triangles/vertices counts. You use this info typically only during development or debugging.</td>
 	</tr>
 	<tr>
-		<td>loadFPSText()</td><td>Call this method to print the current framerate (frames per second) to the screen.</td>
+		<td>loadFPSText();</td><td>Call this method to print the current framerate (frames per second) to the screen.</td>
 	</tr>
 	<tr>
-		<td>setShowSettings(true)</td><td>Whether the user should be presented with a splashscreen and display settings dialog when starting the game. Set this boolean before calling start() on the SimpleApplication.</td>
+		<td>setDisplayFps(false);</td><td>A default SimpleApplication displays the framerate (frames per second) on the screen. You can choose to deactivate the FPS display using this command.</td>
+	</tr>
+	<tr>
+		<td>setDisplayStatView(false);</td><td>A default SimpleApplication displays mesh statistics on the screen using the com.jme3.app.StatsView class. The information is valuable during the development and debugging phase, but for the release, you should hide the statistics HUD.</td>
 	</tr>
 </table></div>
-<!-- EDIT5 TABLE [6781-7330] --><div><table>
+<!-- EDIT5 TABLE [6434-7226] --><div><table>
 	<tr>
 		<th>SimpleApplication Interface</th><th>Purpose</th>
 	</tr>
 	<tr>
-		<td>simpleInitApp()</td><td>Override this method to initialize the game scene. Here you load and create objects, attach Spatials to the rootNode, and bring everything in its starts position. See also <a href="/com/jme3/gde/core/docs/jme3/advanced/application_states.html">Application States</a> for best practies.</td>
+		<td>public void simpleInitApp()</td><td>Override this method to initialize the game scene. Here you load and create objects, attach Spatials to the rootNode, and bring everything in its starts position. See also <a href="/com/jme3/gde/core/docs/jme3/advanced/application_states.html">Application States</a> for best practices.</td>
 	</tr>
 	<tr>
-		<td>simpleUpdate(float tpf)</td><td>Override this method to have access to the <a href="/com/jme3/gde/core/docs/jme3/advanced/update_loop.html">update loop</a>. Use this loop to poll the current game state and respond to changes, or to let the game mechanics generate encounters and initiate state changes. Use tpd (time per frame) as a factor to time events. For more info on how to hook into the <a href="/com/jme3/gde/core/docs/jme3/advanced/update_loop.html">update loop</a>, see <a href="/com/jme3/gde/core/docs/jme3/advanced/application_states.html">Application States</a> and <a href="/com/jme3/gde/core/docs/jme3/advanced/custom_controls.html">Custom Controls</a>. </td>
+		<td>public void simpleUpdate(float tpf)</td><td>Override this method to have access to the <a href="/com/jme3/gde/core/docs/jme3/advanced/update_loop.html">update loop</a>. Use this loop to poll the current game state and respond to changes, or to let the game mechanics generate encounters and initiate state changes. Use tpf (time per frame) as a factor to time events. For more info on how to hook into the <a href="/com/jme3/gde/core/docs/jme3/advanced/update_loop.html">update loop</a>, see <a href="/com/jme3/gde/core/docs/jme3/advanced/application_states.html">Application States</a> and <a href="/com/jme3/gde/core/docs/jme3/advanced/custom_controls.html">Custom Controls</a>. </td>
 	</tr>
 	<tr>
-		<td>simpleRender()</td><td><strong>Optional:</strong> Override this method to implement <em>advanced</em> modifications of the frameBuffer and scene graph.</td>
+		<td>public void simpleRender(RenderManager rm)</td><td><strong>Optional:</strong> Override this method to implement <em>advanced</em> modifications of the frameBuffer and scene graph.</td>
 	</tr>
 </table></div>
-<!-- EDIT6 TABLE [7332-8197] -->
+<!-- EDIT6 TABLE [7228-8146] -->
+<p>
+
+<p><div>Use <code>app.setShowSettings(true);</code> to present the user with a splashscreen and display settings dialog when starting the game, or <code>app.setShowSettings(false);</code> to hide the custom splashscreen. Set this boolean before calling <code>app.start()</code> on the SimpleApplication.
+</div></p>
+</p>
+
 </div>
 
 <h2><a>Default Input Mappings</a></h2>
@@ -250,7 +254,7 @@ The following default navigational input actions are mapped by the default <code
 		<td>KEY_M</td><td>Prints memory usage stats the out stream.</td>
 	</tr>
 </table></div>
-<!-- EDIT7 TABLE [8469-8660] -->
+<!-- EDIT7 TABLE [8705-8896] -->
 <p>
 
 As long as useInput() is true, the default Flyby Cam is active. Then the following so-called &quot;WASD&quot; inputs are additionally available:
@@ -300,7 +304,7 @@ As long as useInput() is true, the default Flyby Cam is active. Then the followi
 		<td>Rotate drag</td><td>Hold left mouse button and move</td>
 	</tr>
 </table></div>
-<!-- EDIT8 TABLE [8798-9358] --><div><span>
+<!-- EDIT8 TABLE [9034-9594] --><div><span>
 	<a href="/wiki/doku.php/tag:display?do=showtag&amp;tag=tag%3Adisplay">display</a>,
 	<a href="/wiki/doku.php/tag:basegame?do=showtag&amp;tag=tag%3Abasegame">basegame</a>,
 	<a href="/wiki/doku.php/tag:documentation?do=showtag&amp;tag=tag%3Adocumentation">documentation</a>,
