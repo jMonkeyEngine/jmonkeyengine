@@ -53,6 +53,7 @@ import com.jme3.terrain.geomipmap.TerrainLodControl;
 import com.jme3.terrain.heightmap.AbstractHeightMap;
 import com.jme3.terrain.heightmap.ImageBasedHeightMap;
 import com.jme3.terrain.geomipmap.TerrainQuad;
+import com.jme3.terrain.geomipmap.lodcalc.DistanceLodCalculator;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
 import com.jme3.util.SkyFactory;
@@ -194,6 +195,7 @@ public class TestSpotLightTerrain extends SimpleApplication {
 
         terrain = new TerrainQuad("terrain", 65, 513, heightmap.getHeightMap());//, new LodPerspectiveCalculatorFactory(getCamera(), 4)); // add this in to see it use entropy for LOD calculations
         TerrainLodControl control = new TerrainLodControl(terrain, getCamera());
+        control.setLodCalculator( new DistanceLodCalculator(65, 2.7f) );
         terrain.addControl(control);
         terrain.setMaterial(matTerrain);
         terrain.setModelBound(new BoundingBox());
