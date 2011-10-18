@@ -34,8 +34,11 @@ package com.jme3.gde.core;
 import com.jme3.gde.core.scene.SceneApplication;
 import java.io.File;
 import javax.swing.JPopupMenu;
+import org.openide.DialogDisplayer;
+import org.openide.NotifyDescriptor;
 import org.openide.filesystems.FileChooserBuilder;
 import org.openide.modules.ModuleInstall;
+import org.openide.util.NbBundle;
 import org.openide.util.NbPreferences;
 
 /**
@@ -64,8 +67,9 @@ public class Installer extends ModuleInstall {
 //            myProjectsDir.mkdirs();
 //        }
 
-        //Fixes online urls in panels
-        System.setProperty("http.agent", "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.4; en-US; rv:1.9.2.2) Gecko/20100316 Firefox/3.6.2");
+        //Set http agent
+        System.setProperty("http.agent", NbBundle.getBundle("org.netbeans.core.windows.view.ui.Bundle").getString("CTL_MainWindow_Title")
+                + " (" + System.getProperty("os.name") + "/" + System.getProperty("os.version") + ")");
 
         //select project folder
         String projectDir = NbPreferences.forModule(Installer.class).get("projects_path", null);
