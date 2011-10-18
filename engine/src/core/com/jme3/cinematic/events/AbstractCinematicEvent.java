@@ -40,6 +40,7 @@ import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
 import com.jme3.system.NanoTimer;
+import com.jme3.system.Timer;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -58,8 +59,8 @@ public abstract class AbstractCinematicEvent implements CinematicEvent {
     protected float initialDuration = 10;
     protected LoopMode loopMode = LoopMode.DontLoop;
     protected float time = 0;
-    //nano timer for precisely computing the elapsed time
-    protected NanoTimer timer;
+    protected Timer timer;
+    protected float start = 0;
     /**
      * the last time the event was paused
      */
@@ -108,9 +109,11 @@ public abstract class AbstractCinematicEvent implements CinematicEvent {
         onPlay();
         playState = PlayState.Playing;
         if (timer == null) {
+            //only when used as a control
             timer = new NanoTimer();
         }
-        timer.reset();
+        start = timer.getTimeInSeconds();
+        //timer.reset();
         if (listeners != null) {
             for (int i = 0; i < listeners.size(); i++) {
                 CinematicEventListener cel = listeners.get(i);
@@ -130,7 +133,7 @@ public abstract class AbstractCinematicEvent implements CinematicEvent {
      */
     public void internalUpdate(float tpf) {
         if (playState == PlayState.Playing) {
-            time = (elapsedTimePause + timer.getTimeInSeconds()) * speed;
+            time = (elapsedTimePause + timer.getTimeInSeconds() - start) * speed;
 
             onUpdate(tpf);
             if (time >= initialDuration && loopMode == loopMode.DontLoop) {
@@ -287,7 +290,8 @@ public abstract class AbstractCinematicEvent implements CinematicEvent {
      * @param cinematic 
      */
     public void initEvent(Application app, Cinematic cinematic) {
-        timer = new NanoTimer();
+        timer = app.getContext().getTimer();
+        //timer = new NanoTimer();
     }
 
     /**

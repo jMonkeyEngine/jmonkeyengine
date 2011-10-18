@@ -46,7 +46,6 @@ import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.control.Control;
-import com.jme3.system.NanoTimer;
 import java.io.IOException;
 
 /**
@@ -175,7 +174,7 @@ public class MotionTrack extends AbstractCinematicEvent implements Control {
     public void initEvent(Application app, Cinematic cinematic) {
         super.initEvent(app, cinematic);
         isControl = false;
-        timer = null;
+       // timer = null;
     }
 
     public void onUpdate(float tpf) {
