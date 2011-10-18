@@ -27,7 +27,7 @@ import sun.misc.UUEncoder;
 public class SaveGame {
 
     /**
-     * Saves a savable in a system-dependent way.
+     * Saves a savable in a system-dependent way. Note that only small amounts of data can be saved.
      * @param gamePath A unique path for this game, e.g. com/mycompany/mygame
      * @param dataName A unique name for this savegame, e.g. "save_001"
      * @param data The Savable to save
