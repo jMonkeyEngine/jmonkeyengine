@@ -65,7 +65,6 @@ public class Installer extends ModuleInstall {
         //select project folder
         String projectDir = NbPreferences.forModule(Installer.class).get("projects_path", null);
         if (projectDir == null) {
-            //set extraction dir for platform natives
             javax.swing.JFileChooser fr = new javax.swing.JFileChooser();
             javax.swing.filechooser.FileSystemView fw = fr.getFileSystemView();
             projectDir = fw.getDefaultDirectory().getAbsolutePath();
