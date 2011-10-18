@@ -15,6 +15,9 @@ import java.io.InputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.prefs.Preferences;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
 import sun.misc.UUDecoder;
 import sun.misc.UUEncoder;
 
@@ -34,14 +37,20 @@ public class SaveGame {
         Preferences prefs = Preferences.userRoot().node(gamePath);
         BinaryExporter ex = BinaryExporter.getInstance();
         ByteArrayOutputStream out = new ByteArrayOutputStream();
+        ZipOutputStream zos = new ZipOutputStream(out);
+        zos.setLevel(9);
         try {
-            ex.save(data, out);
+            zos.putNextEntry(new ZipEntry(dataName));
+            ex.save(data, zos);
+            zos.closeEntry();
+            zos.close();
         } catch (IOException ex1) {
             Logger.getLogger(SaveGame.class.getName()).log(Level.SEVERE, "Error saving data: {0}", ex1);
             ex1.printStackTrace();
         }
         UUEncoder enc = new UUEncoder();
         String dataString = enc.encodeBuffer(out.toByteArray());
+        System.out.println(out);
         if (dataString.length() > Preferences.MAX_VALUE_LENGTH) {
             throw new IllegalStateException("SaveGame dataset too large");
         }
@@ -68,11 +77,12 @@ public class SaveGame {
     public static Savable loadGame(String gamePath, String dataName, AssetManager manager) {
         Preferences prefs = Preferences.userRoot().node(gamePath);
         String data = prefs.get(dataName, "");
-        InputStream is = null;
+        ZipInputStream is = null;
         Savable sav = null;
         UUDecoder dec = new UUDecoder();
         try {
-            is = new ByteArrayInputStream(dec.decodeBuffer(data));
+            is = new ZipInputStream(new ByteArrayInputStream(dec.decodeBuffer(data)));
+            is.getNextEntry();
             BinaryImporter imp = BinaryImporter.getInstance();
             if (manager != null) {
                 imp.setAssetManager(manager);
