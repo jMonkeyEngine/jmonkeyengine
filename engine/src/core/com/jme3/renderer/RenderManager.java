@@ -774,7 +774,7 @@ public class RenderManager {
         // check culling first.
         if (!scene.checkCulling(vp.getCamera())) {
             // move on to shadow-only render
-            if (scene.getShadowMode() != RenderQueue.ShadowMode.Off || scene instanceof Node) {
+            if ((scene.getShadowMode() != RenderQueue.ShadowMode.Off || scene instanceof Node) && scene.getCullHint()!=Spatial.CullHint.Always) {
                 renderShadow(scene, vp.getQueue());
             }
             return;
