@@ -72,9 +72,9 @@ import java.util.logging.Logger;
 /**
  * <code>Material</code> describes the rendering style for a given
  * {@link Geometry}.
- * <p>A material is essentially a list of {
- * @link MatParam parameters}, those parameters map to uniforms which are
- * defined in a shader.  Setting the parameters can modify the behavior of a
+ * <p>A material is essentially a list of {@link MatParam parameters},
+ * those parameters map to uniforms which are defined in a shader.
+ * Setting the parameters can modify the behavior of a
  * shader.
  * <p/>
  * @author Kirill Vainer
