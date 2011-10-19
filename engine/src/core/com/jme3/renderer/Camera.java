@@ -56,7 +56,7 @@ import java.util.logging.Logger;
  *
  * <p>
  * Given input data such as location, orientation (direction, left, up),
- * and viewport settings, it can compute data neccessary to render objects
+ * and viewport settings, it can compute data necessary to render objects
  * with the graphics library. Two matrices are generated, the view matrix
  * transforms objects from world space into eye space, while the projection
  * matrix transforms objects from eye space into clip space.
@@ -430,9 +430,12 @@ public class Camera implements Savable, Cloneable {
      * The cliPlane is used to recompute the projectionMatrix using the plane as the near plane
      * This technique is known as the oblique near-plane clipping method introduced by Eric Lengyel
      * more info here
-     * http://www.terathon.com/code/oblique.html
-     * http://aras-p.info/texts/obliqueortho.html
-     * http://hacksoflife.blogspot.com/2008/12/every-now-and-then-i-come-across.html
+     * <ul>
+     * <li><a href="http://www.terathon.com/code/oblique.html">http://www.terathon.com/code/oblique.html</a></li>
+     * <li><a href="http://aras-p.info/texts/obliqueortho.html">http://aras-p.info/texts/obliqueortho.html</a></li>
+     * <li><a href="http://hacksoflife.blogspot.com/2008/12/every-now-and-then-i-come-across.html">
+     * http://hacksoflife.blogspot.com/2008/12/every-now-and-then-i-come-across.html</a></li>
+     * </ul>
      *
      * Note that this will work properly only if it's called on each update, and be aware that it won't work properly with the sky bucket.
      * if you want to handle the sky bucket, look at how it's done in SimpleWaterProcessor.java
