@@ -46,7 +46,7 @@ public class SaveGame {
         }
         UUEncoder enc = new UUEncoder();
         String dataString = enc.encodeBuffer(out.toByteArray());
-        System.out.println(dataString);
+//        System.out.println(dataString);
         if (dataString.length() > Preferences.MAX_VALUE_LENGTH) {
             throw new IllegalStateException("SaveGame dataset too large");
         }
