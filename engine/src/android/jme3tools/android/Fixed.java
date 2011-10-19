@@ -8,7 +8,8 @@ import java.util.Random;
  *	</code>, which would also require <code>SIN_PRECALC</code> and <code>
  *	COS_PRECALC</code> updating).
  *
- *  http://blog.numfum.com/2007/09/java-fixed-point-maths.html
+ *  <p><a href="http://blog.numfum.com/2007/09/java-fixed-point-maths.html">
+ *  http://blog.numfum.com/2007/09/java-fixed-point-maths.html</a></p>
  *
  *	@version 1.0
  *	@author CW

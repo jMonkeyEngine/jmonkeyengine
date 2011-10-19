@@ -240,7 +240,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
      * <code>fromAngles</code> builds a Quaternion from the Euler rotation
      * angles (y,r,p). Note that we are applying in order: roll, pitch, yaw but
      * we've ordered them in x, y, and z for convenience.
-     * See: http://www.euclideanspace.com/maths/geometry/rotations/conversions/eulerToQuaternion/index.htm
+     * @see <a href="http://www.euclideanspace.com/maths/geometry/rotations/conversions/eulerToQuaternion/index.htm">http://www.euclideanspace.com/maths/geometry/rotations/conversions/eulerToQuaternion/index.htm</a>
      * 
      * @param yaw
      *            the Euler yaw of rotation (in radians). (aka Bank, often rot
@@ -283,7 +283,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
     /**
      * <code>toAngles</code> returns this quaternion converted to Euler
      * rotation angles (yaw,roll,pitch).<br/>
-     * See http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToEuler/index.htm
+     * @see <a href="http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToEuler/index.htm">http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToEuler/index.htm</a>
      * 
      * @param angles
      *            the float[] in which the angles should be stored, or null if

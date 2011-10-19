@@ -47,7 +47,7 @@ import java.io.IOException;
  * Fade Filter allows you to make an animated fade effect on a scene.
  * @author Rémy Bouquet aka Nehon
  * implemented from boxjar implementation
- * see http://jmonkeyengine.org/groups/graphics/forum/topic/newbie-question-general-fade-inout-effect/#post-105559
+ * @see <a href="http://jmonkeyengine.org/groups/graphics/forum/topic/newbie-question-general-fade-inout-effect/#post-105559">http://jmonkeyengine.org/groups/graphics/forum/topic/newbie-question-general-fade-inout-effect/#post-105559</a>
  */
 public class FadeFilter extends Filter {
 

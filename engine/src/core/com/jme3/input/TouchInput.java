@@ -83,7 +83,8 @@ public interface TouchInput extends Input {
     
     /**
      * Set if historic android events should be transmitted, can be used to get better performance and less mem
-     * see: <link>http://developer.android.com/reference/android/view/MotionEvent.html#getHistoricalX%28int,%20int%29</link> 
+     * @see <a href="http://developer.android.com/reference/android/view/MotionEvent.html#getHistoricalX%28int,%20int%29">
+     * http://developer.android.com/reference/android/view/MotionEvent.html#getHistoricalX%28int,%20int%29</a>
      * @param dontSendHistory turn of historic events if true, false else and default
      */
     public void setOmitHistoricEvents(boolean dontSendHistory);

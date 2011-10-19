@@ -777,7 +777,8 @@ public class BoundingBox extends BoundingVolume {
     }
 
     /**
-     * C code ported from http://www.cs.lth.se/home/Tomas_Akenine_Moller/code/tribox3.txt
+     * C code ported from <a href="http://www.cs.lth.se/home/Tomas_Akenine_Moller/code/tribox3.txt">
+     * http://www.cs.lth.se/home/Tomas_Akenine_Moller/code/tribox3.txt</a>
      *
      * @param v1 The first point in the triangle
      * @param v2 The second point in the triangle

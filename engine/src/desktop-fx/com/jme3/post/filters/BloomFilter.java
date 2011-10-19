@@ -50,7 +50,7 @@ import java.util.ArrayList;
  * There are 2 mode : Scene and Objects.<br>
  * Scene mode extracts the bright parts of the scene to make them glow<br>
  * Object mode make objects glow according to their material's glowMap or their GlowColor<br>
- * see {@link http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:bloom_and_glow} for more details
+ * @see <a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:bloom_and_glow">advanced:bloom_and_glow</a> for more details
  * 
  * @author Rémy Bouquet aka Nehon
  */

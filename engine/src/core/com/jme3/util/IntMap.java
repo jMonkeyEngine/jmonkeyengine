@@ -38,9 +38,8 @@ import java.util.Map;
 
 /**
  * Similar to a {@link Map} except that ints are used as keys.
- * @see Map
  * 
- * Taken from http://code.google.com/p/skorpios/
+ * Taken from <a href="http://code.google.com/p/skorpios/">http://code.google.com/p/skorpios/</a>
  * 
  * @author Nate 
  */

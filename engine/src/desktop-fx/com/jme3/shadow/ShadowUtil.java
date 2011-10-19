@@ -49,9 +49,11 @@ import static java.lang.Math.*;
 /**
  * Includes various useful shadow mapping functions.
  *
- * See: 
- * http://appsrv.cse.cuhk.edu.hk/~fzhang/pssm_vrcia/
- * http://http.developer.nvidia.com/GPUGems3/gpugems3_ch10.html
+ * @see
+ * <ul>
+ * <li><a href="http://appsrv.cse.cuhk.edu.hk/~fzhang/pssm_vrcia/">http://appsrv.cse.cuhk.edu.hk/~fzhang/pssm_vrcia/</a></li>
+ * <li><a href="http://http.developer.nvidia.com/GPUGems3/gpugems3_ch10.html">http://http.developer.nvidia.com/GPUGems3/gpugems3_ch10.html</a></li>
+ * </ul>
  * for more info.
  */
 public class ShadowUtil {

@@ -381,9 +381,11 @@ public class Camera implements Savable, Cloneable {
      * The cliPlane is used to recompute the projectionMatrix using the plane as the near plane
      * This technique is known as the oblique near-plane clipping method introduced by Eric Lengyel
      * more info here
-     * http://www.terathon.com/code/oblique.html
-     * http://aras-p.info/texts/obliqueortho.html
-     * http://hacksoflife.blogspot.com/2008/12/every-now-and-then-i-come-across.html
+     * <ul>
+     * <li><a href="http://www.terathon.com/code/oblique.html">http://www.terathon.com/code/oblique.html</a>
+     * <li><a href="http://aras-p.info/texts/obliqueortho.html">http://aras-p.info/texts/obliqueortho.html</a>
+     * <li><a href="http://hacksoflife.blogspot.com/2008/12/every-now-and-then-i-come-across.html">http://hacksoflife.blogspot.com/2008/12/every-now-and-then-i-come-across.html</a>
+     * </ul>
      *
      * Note that this will work properly only if it's called on each update, and be aware that it won't work properly with the sky bucket.
      * if you want to handle the sky bucket, look at how it's done in SimpleWaterProcessor.java

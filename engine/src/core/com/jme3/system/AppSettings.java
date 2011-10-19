@@ -540,7 +540,7 @@ public final class AppSettings extends HashMap<String, Object> {
     /**
      * Enable 3D stereo.
      * <p>This feature requires hardware support from the GPU driver. 
-     * See: http://en.wikipedia.org/wiki/Quad_buffering<br>
+     * @see <a href="http://en.wikipedia.org/wiki/Quad_buffering">http://en.wikipedia.org/wiki/Quad_buffering</a><br>
      * Once enabled, filters or scene processors that handle 3D stereo rendering
      * could use this feature to render using hardware 3D stereo.</p>
      * (Default: false)

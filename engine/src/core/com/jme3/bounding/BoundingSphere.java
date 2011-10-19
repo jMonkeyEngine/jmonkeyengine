@@ -179,9 +179,10 @@ public class BoundingSphere extends BoundingVolume {
 
     /**
      * Calculates a minimum bounding sphere for the set of points. The algorithm
-     * was originally found at
-     * http://www.flipcode.com/cgi-bin/msg.cgi?showThread=COTD-SmallestEnclosingSpheres&forum=cotd&id=-1
-     * in C++ and translated to java by Cep21
+     * was originally found in C++ at
+     * <p><a href="http://www.flipcode.com/cgi-bin/msg.cgi?showThread=COTD-SmallestEnclosingSpheres&forum=cotd&id=-1">
+     * http://www.flipcode.com/cgi-bin/msg.cgi?showThread=COTD-SmallestEnclosingSpheres&forum=cotd&id=-1</a><br><strong>broken link</strong></p>
+     * <p>and translated to java by Cep21</p>
      *
      * @param points
      *            The points to calculate the minimum bounds from.

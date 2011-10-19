@@ -52,9 +52,9 @@ import java.util.ArrayList;
 
 /**
  * SSAO stands for screen space ambient occlusion
- * It's a technique that fake ambient lighting by computind shadows that near by objects would casts on each others 
+ * It's a technique that fake ambient lighting by computing shadows that near by objects would casts on each others 
  * under the effect of an ambient light
- * more info on this in this blog post http://jmonkeyengine.org/2010/08/16/screen-space-ambient-occlusion-for-jmonkeyengine-3-0/
+ * more info on this in this blog post <a href="http://jmonkeyengine.org/2010/08/16/screen-space-ambient-occlusion-for-jmonkeyengine-3-0/">http://jmonkeyengine.org/2010/08/16/screen-space-ambient-occlusion-for-jmonkeyengine-3-0/</a>
  * 
  * @author Rémy Bouquet aka Nehon
  */
@@ -77,14 +77,14 @@ public class SSAOFilter extends Filter {
     private float downSampleFactor = 1f;
 
     /**
-     * Create a Screen Space Ambiant Occlusion Filter
+     * Create a Screen Space Ambient Occlusion Filter
      */
     public SSAOFilter() {
         super("SSAOFilter");
     }
 
     /**
-     * Create a Screen Space Ambiant Occlusion Filter
+     * Create a Screen Space Ambient Occlusion Filter
      * @param sampleRadius The radius of the area where random samples will be picked. default 5.1f
      * @param intensity intensity of the resulting AO. default 1.2f
      * @param scale distance between occluders and occludee. default 0.2f
@@ -255,7 +255,7 @@ public class SSAOFilter extends Filter {
 
     /**
      * 
-     * Returns the distance between occluders and occludee. dafault 0.2f
+     * Returns the distance between occluders and occludee. default 0.2f
      * @param scale 
      */
     public void setScale(float scale) {

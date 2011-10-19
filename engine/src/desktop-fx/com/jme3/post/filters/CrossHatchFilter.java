@@ -38,7 +38,7 @@ import com.jme3.post.Filter;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 
-/*
+/**
  * A Post Processing filter that makes the screen look like it was drawn as
  * diagonal lines with a pen.
  * Try combining this with a cartoon edge filter to obtain manga style visuals.

@@ -61,7 +61,7 @@ import com.jme3.ui.Picture;
  * the smaller they are to maximize the resolution used of the shadow map.<br>
  * This result in a better quality shadow than standard shadow mapping.<br> for
  * more informations on this read this
- * http://http.developer.nvidia.com/GPUGems3/gpugems3_ch10.html<br>
+ * <a href="http://http.developer.nvidia.com/GPUGems3/gpugems3_ch10.html">http://http.developer.nvidia.com/GPUGems3/gpugems3_ch10.html</a><br>
  * <p/>
  * @author Rémy Bouquet aka Nehon
  */
@@ -143,7 +143,7 @@ public class PssmShadowRenderer implements SceneProcessor {
 
     /**
      * Create a PSSM Shadow Renderer 
-     * More info on the technique at http://http.developer.nvidia.com/GPUGems3/gpugems3_ch10.html
+     * More info on the technique at <a href="http://http.developer.nvidia.com/GPUGems3/gpugems3_ch10.html">http://http.developer.nvidia.com/GPUGems3/gpugems3_ch10.html</a>
      * @param manager the application asset manager
      * @param size the size of the rendered shadowmaps (512,1024,2048, etc...)
      * @param nbSplits the number of shadow maps rendered (the more shadow maps the more quality, the less fps). 

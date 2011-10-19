@@ -291,7 +291,7 @@ public class LwjglCanvas extends LwjglAbstractDisplay implements JmeCanvasContex
     
     /**
      * It seems it is best to use one pixel format for all shared contexts.
-     * See http://developer.apple.com/library/mac/#qa/qa1248/_index.html.
+     * @see <a href="http://developer.apple.com/library/mac/#qa/qa1248/_index.html">http://developer.apple.com/library/mac/#qa/qa1248/_index.html</a>
      */
     protected PixelFormat acquirePixelFormat(boolean forPbuffer){
         if (forPbuffer){
