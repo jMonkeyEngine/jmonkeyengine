@@ -178,7 +178,7 @@ public class MotionTrack extends AbstractCinematicEvent implements Control {
     }
 
     public void onUpdate(float tpf) {
-        spatial.setLocalTranslation(path.interpolatePath(tpf * speed, this));
+        path.interpolatePath(tpf * speed, this);
         computeTargetDirection();
 
         if (currentValue >= 1.0f) {

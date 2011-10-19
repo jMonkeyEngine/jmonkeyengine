@@ -50,6 +50,7 @@ import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.shape.Box;
 import com.jme3.math.Spline.SplineType;
 import com.jme3.scene.shape.Curve;
+import com.jme3.util.TempVars;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -66,9 +67,6 @@ public class MotionPath implements Savable {
     private List<MotionPathListener> listeners;
     private Spline spline = new Spline();
     private float eps = 0.0001f;
-    //temp variables to avoid crazy instanciation
-    private Vector3f temp = new Vector3f();
-    private Vector3f tmpVector = new Vector3f();
 
     /**
      * Create a motion Path
@@ -77,26 +75,29 @@ public class MotionPath implements Savable {
     }
 
     /**
-     * interpolate the path giving the tpf and the motionControl
+     * interpolate the path giving the tpf and the motionControl     
+     * this methods sets the new localTranslation to the spatial of the motionTrack control.
      * @param tpf
-     * @param control
-     * @return
+     * @param control   
      */
-    public Vector3f interpolatePath(float tpf, MotionTrack control) {
+    public void interpolatePath(float tpf, MotionTrack control) {
 
         float val;
+        TempVars vars = TempVars.get();
+        Vector3f temp = vars.vect1;
+        Vector3f tmpVector = vars.vect2;
         switch (spline.getType()) {
             case CatmullRom:
 
                 val = tpf * (spline.getTotalLength() / control.getDuration());
                 control.setCurrentValue(control.getCurrentValue() + eps);
                 spline.interpolate(control.getCurrentValue(), control.getCurrentWayPoint(), temp);
-                float dist = getDist(control);
+                float dist = getDist(control,temp, tmpVector);
 
                 while (dist < val) {
                     control.setCurrentValue(control.getCurrentValue() + eps);
                     spline.interpolate(control.getCurrentValue(), control.getCurrentWayPoint(), temp);
-                    dist = getDist(control);
+                    dist = getDist(control,temp, tmpVector);
                 }
                 if (control.needsDirection()) {
                     tmpVector.set(temp);
@@ -115,10 +116,11 @@ public class MotionPath implements Savable {
             default:
                 break;
         }
-        return temp;
+        control.getSpatial().setLocalTranslation(temp);
+        vars.release();
     }
 
-    private float getDist(MotionTrack control) {
+    private float getDist(MotionTrack control,Vector3f temp, Vector3f tmpVector) {
         tmpVector.set(temp);
         return tmpVector.subtractLocal(control.getSpatial().getLocalTranslation()).length();
     }
