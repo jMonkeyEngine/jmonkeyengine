@@ -239,8 +239,8 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Asset {
     public boolean checkCulling(Camera cam) {
         if (refreshFlags != 0) {
             throw new IllegalStateException("Scene graph is not properly updated for rendering.\n"
-                    + "Make sure scene graph state was not changed after\n"
-                    + " rootNode.updateGeometricState() call. \n"
+                    + "State was changed after rootNode.updateGeometricState() call. \n"
+                    + "Make sure you do not modify the scene from another thread!\n"
                     + "Problem spatial name: " + getName());
         }
 
