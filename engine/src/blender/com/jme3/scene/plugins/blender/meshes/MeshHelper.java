@@ -128,6 +128,8 @@ public class MeshHelper extends AbstractBlenderHelper {
             if (mFaces == null || mFaces.size() == 0) {
                 return new ArrayList<Geometry>(0);
             }
+        } else{
+        	mFaces = new ArrayList<Structure>(0);
         }
 
         Pointer pMTFace = (Pointer) structure.getFieldValue("mtface");
