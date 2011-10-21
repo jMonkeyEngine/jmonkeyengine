@@ -52,6 +52,7 @@ import java.util.logging.Logger;
 public class VehicleWheel implements Savable {
 
     protected long wheelId = 0;
+    protected int wheelIndex = 0;
     protected boolean frontWheel;
     protected Vector3f location = new Vector3f();
     protected Vector3f direction = new Vector3f();
@@ -92,15 +93,15 @@ public class VehicleWheel implements Savable {
     }
 
     public synchronized void updatePhysicsState() {
-        getWheelLocation(wheelId, wheelWorldLocation);
-        getWheelRotation(wheelId, tmp_Matrix);
+        getWheelLocation(wheelId, wheelIndex, wheelWorldLocation);
+        getWheelRotation(wheelId, wheelIndex, tmp_Matrix);
         wheelWorldRotation.fromRotationMatrix(tmp_Matrix);
     }
-    
-    private native void getWheelLocation(long wheelId, Vector3f location);
 
-    private native void getWheelRotation(long wheelId, Matrix3f location);
-    
+    private native void getWheelLocation(long vehicleId, int wheelId, Vector3f location);
+
+    private native void getWheelRotation(long vehicleId, int wheelId, Matrix3f location);
+
     public synchronized void applyWheelTransform() {
         if (wheelSpatial == null) {
             return;
@@ -127,8 +128,9 @@ public class VehicleWheel implements Savable {
         return wheelId;
     }
 
-    public void setWheelId(long wheelInfo) {
-        this.wheelId = wheelInfo;
+    public void setVehicleId(long vehicleId, int wheelIndex) {
+        this.wheelId = vehicleId;
+        this.wheelIndex = wheelIndex;
         applyInfo();
     }
 
@@ -258,10 +260,10 @@ public class VehicleWheel implements Savable {
         if (wheelId == 0) {
             return;
         }
-        applyInfo(wheelId, suspensionStiffness, wheelsDampingRelaxation, wheelsDampingCompression, frictionSlip, rollInfluence, maxSuspensionTravelCm, maxSuspensionForce, radius, frontWheel, restLength);
+        applyInfo(wheelId, wheelIndex, suspensionStiffness, wheelsDampingRelaxation, wheelsDampingCompression, frictionSlip, rollInfluence, maxSuspensionTravelCm, maxSuspensionForce, radius, frontWheel, restLength);
     }
-    
-    private native void applyInfo(long wheelId, 
+
+    private native void applyInfo(long wheelId, int wheelIndex,
             float suspensionStiffness,
             float wheelsDampingRelaxation,
             float wheelsDampingCompression,
@@ -302,7 +304,7 @@ public class VehicleWheel implements Savable {
 //            System.out.println("RigidBody");
 //            return (PhysicsRigidBody) ((RigidBody) wheelInfo.raycastInfo.groundObject).getUserPointer();
 //        } else {
-            return null;
+        return null;
 //        }
     }
 
@@ -310,18 +312,18 @@ public class VehicleWheel implements Savable {
      * returns the location where the wheel collides with the ground (world space)
      */
     public Vector3f getCollisionLocation(Vector3f vec) {
-        getCollisionLocation(wheelId, vec);
+        getCollisionLocation(wheelId, wheelIndex, vec);
         return vec;
     }
-    
-    private native void getCollisionLocation(long wheelId, Vector3f vec);
+
+    private native void getCollisionLocation(long wheelId, int wheelIndex, Vector3f vec);
 
     /**
      * returns the location where the wheel collides with the ground (world space)
      */
     public Vector3f getCollisionLocation() {
         Vector3f vec = new Vector3f();
-        getCollisionLocation(wheelId, vec);
+        getCollisionLocation(wheelId, wheelIndex, vec);
         return vec;
     }
 
@@ -329,18 +331,18 @@ public class VehicleWheel implements Savable {
      * returns the normal where the wheel collides with the ground (world space)
      */
     public Vector3f getCollisionNormal(Vector3f vec) {
-        getCollisionNormal(wheelId, vec);
+        getCollisionNormal(wheelId, wheelIndex, vec);
         return vec;
     }
 
-    private native void getCollisionNormal(long wheelId, Vector3f vec);
+    private native void getCollisionNormal(long wheelId, int wheelIndex, Vector3f vec);
 
     /**
      * returns the normal where the wheel collides with the ground (world space)
      */
     public Vector3f getCollisionNormal() {
         Vector3f vec = new Vector3f();
-        getCollisionNormal(wheelId, vec);
+        getCollisionNormal(wheelId, wheelIndex, vec);
         return vec;
     }
 
@@ -349,10 +351,10 @@ public class VehicleWheel implements Savable {
      * 0.0 = wheels are sliding, 1.0 = wheels have traction.
      */
     public float getSkidInfo() {
-        return getSkidInfo(wheelId);
+        return getSkidInfo(wheelId, wheelIndex);
     }
-    
-    public native float getSkidInfo(long wheelId);
+
+    public native float getSkidInfo(long wheelId, int wheelIndex);
 
     @Override
     public void read(JmeImporter im) throws IOException {
@@ -413,7 +415,7 @@ public class VehicleWheel implements Savable {
     public void setApplyLocal(boolean applyLocal) {
         this.applyLocal = applyLocal;
     }
-    
+
     @Override
     protected void finalize() throws Throwable {
         super.finalize();
@@ -421,5 +423,5 @@ public class VehicleWheel implements Savable {
 //        finalizeNative(wheelId);
     }
 
-    private native void finalizeNative(long wheelId);
+    private native void finalizeNative(long wheelId, int wheelIndex);
 }

@@ -126,7 +126,7 @@ extern "C" {
      * Method:    addWheel
      * Signature: (JLcom/jme3/math/Vector3f;Lcom/jme3/math/Vector3f;Lcom/jme3/math/Vector3f;FFLcom/jme3/bullet/objects/infos/VehicleTuning;Z)J
      */
-    JNIEXPORT jlong JNICALL Java_com_jme3_bullet_objects_PhysicsVehicle_addWheel
+    JNIEXPORT jint JNICALL Java_com_jme3_bullet_objects_PhysicsVehicle_addWheel
     (JNIEnv *env, jobject object, jlong vehicleId, jobject location, jobject direction, jobject axle, jfloat restLength, jfloat radius, jobject tuning, jboolean frontWheel) {
         btRaycastVehicle* vehicle = (btRaycastVehicle*) vehicleId;
         if (vehicle == NULL) {
@@ -142,7 +142,8 @@ extern "C" {
         jmeBulletUtil::convert(env, axle, &vec3);
         btRaycastVehicle::btVehicleTuning tune;
         btWheelInfo* info = &vehicle->addWheel(vec1, vec2, vec3, restLength, radius, tune, frontWheel);
-        return (long) info;
+        int idx = vehicle->getNumWheels();
+        return idx-1;
     }
 
     /*

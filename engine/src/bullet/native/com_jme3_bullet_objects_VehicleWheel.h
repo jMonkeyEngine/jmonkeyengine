@@ -10,58 +10,58 @@ extern "C" {
 /*
  * Class:     com_jme3_bullet_objects_VehicleWheel
  * Method:    getWheelLocation
- * Signature: (JLcom/jme3/math/Vector3f;)V
+ * Signature: (JILcom/jme3/math/Vector3f;)V
  */
 JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_VehicleWheel_getWheelLocation
-  (JNIEnv *, jobject, jlong, jobject);
+  (JNIEnv *, jobject, jlong, jint, jobject);
 
 /*
  * Class:     com_jme3_bullet_objects_VehicleWheel
  * Method:    getWheelRotation
- * Signature: (JLcom/jme3/math/Matrix3f;)V
+ * Signature: (JILcom/jme3/math/Matrix3f;)V
  */
 JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_VehicleWheel_getWheelRotation
-  (JNIEnv *, jobject, jlong, jobject);
+  (JNIEnv *, jobject, jlong, jint, jobject);
 
 /*
  * Class:     com_jme3_bullet_objects_VehicleWheel
  * Method:    applyInfo
- * Signature: (JFFFFFFFFZF)V
+ * Signature: (JIFFFFFFFFZF)V
  */
 JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_VehicleWheel_applyInfo
-  (JNIEnv *, jobject, jlong, jfloat, jfloat, jfloat, jfloat, jfloat, jfloat, jfloat, jfloat, jboolean, jfloat);
+  (JNIEnv *, jobject, jlong, jint, jfloat, jfloat, jfloat, jfloat, jfloat, jfloat, jfloat, jfloat, jboolean, jfloat);
 
 /*
  * Class:     com_jme3_bullet_objects_VehicleWheel
  * Method:    getCollisionLocation
- * Signature: (JLcom/jme3/math/Vector3f;)V
+ * Signature: (JILcom/jme3/math/Vector3f;)V
  */
 JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_VehicleWheel_getCollisionLocation
-  (JNIEnv *, jobject, jlong, jobject);
+  (JNIEnv *, jobject, jlong, jint, jobject);
 
 /*
  * Class:     com_jme3_bullet_objects_VehicleWheel
  * Method:    getCollisionNormal
- * Signature: (JLcom/jme3/math/Vector3f;)V
+ * Signature: (JILcom/jme3/math/Vector3f;)V
  */
 JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_VehicleWheel_getCollisionNormal
-  (JNIEnv *, jobject, jlong, jobject);
+  (JNIEnv *, jobject, jlong, jint, jobject);
 
 /*
  * Class:     com_jme3_bullet_objects_VehicleWheel
  * Method:    getSkidInfo
- * Signature: (J)F
+ * Signature: (JI)F
  */
 JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_objects_VehicleWheel_getSkidInfo
-  (JNIEnv *, jobject, jlong);
+  (JNIEnv *, jobject, jlong, jint);
 
 /*
  * Class:     com_jme3_bullet_objects_VehicleWheel
  * Method:    finalizeNative
- * Signature: (J)V
+ * Signature: (JI)V
  */
 JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_VehicleWheel_finalizeNative
-  (JNIEnv *, jobject, jlong);
+  (JNIEnv *, jobject, jlong, jint);
 
 #ifdef __cplusplus
 }
