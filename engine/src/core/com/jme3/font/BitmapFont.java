@@ -185,6 +185,28 @@ public class BitmapFont implements Savable {
         // just to create a Letters object for the sole purpose of
         // getting a text size.  It's less efficient but at least it
         // would be accurate.  
+        
+        // And here I am mucking around in here again...
+        //
+        // A font character has a few values that are pertinent to the
+        // line width:
+        //  xOffset
+        //  xAdvance
+        //  kerningAmount(nextChar)
+        //
+        // The way BitmapText ultimately works is that the first character
+        // starts with xOffset included (ie: it is rendered at -xOffset).
+        // Its xAdvance is wider to accomodate that initial offset.
+        // The cursor position is advanced by xAdvance each time.
+        //
+        // So, a width should be calculated in a similar way.  Start with
+        // -xOffset + xAdvance for the first character and then each subsequent
+        // character is just xAdvance more 'width'.
+        // 
+        // The kerning amount from one character to the next affects the
+        // cursor position of that next character and thus the ultimate width 
+        // and so must be factored in also.
+        
         float lineWidth = 0f;
         float maxLineWidth = 0f;
         char lastChar = 0;
@@ -211,17 +233,27 @@ public class BitmapFont implements Savable {
                     }
                 }
                 if (!firstCharOfLine){
-                    lineWidth += c.getXOffset() * sizeScale;
-                    lineWidth += findKerningAmount(lastChar, theChar) * sizeScale;
+                    lineWidth += findKerningAmount(lastChar, theChar) * sizeScale;                    
                 } else {
+                    // The first character needs to add in its xOffset but it
+                    // is the only one... and negative offsets = postive width
+                    // because we're trying to account for the part that hangs
+                    // over the left.  So we subtract. 
+                    lineWidth -= c.getXOffset() * sizeScale;                    
                     firstCharOfLine = false;
                 }
                 float xAdvance = c.getXAdvance() * sizeScale;
                 
                 // If this is the last character, then we really should have
-                // only add its width
+                // only add its width.  The advance may include extra spacing
+                // that we don't care about.
                 if (i == text.length() - 1) {
                     lineWidth += c.getWidth() * sizeScale;
+                    
+                    // Since theh width includes the xOffset then we need
+                    // to take it out again by adding it, ie: offset the width
+                    // we just added by the appropriate amount.
+                    lineWidth += c.getXOffset() * sizeScale;                      
                 } else {                 
                     lineWidth += xAdvance;
                 }
