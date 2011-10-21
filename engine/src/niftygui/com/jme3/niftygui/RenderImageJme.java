@@ -54,8 +54,8 @@ public class RenderImageJme implements RenderImage {
         key.setGenerateMips(false);
         
         texture = (Texture2D) display.getAssetManager().loadTexture(key);
-        texture.setMagFilter(MagFilter.Bilinear);
-        texture.setMinFilter(MinFilter.BilinearNoMipMaps);
+        texture.setMagFilter(linear ? MagFilter.Bilinear : MagFilter.Nearest);
+        texture.setMinFilter(linear ? MinFilter.BilinearNoMipMaps : MinFilter.NearestNoMipMaps);
         image = texture.getImage();
 
         width = image.getWidth();

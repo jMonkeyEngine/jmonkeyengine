@@ -54,7 +54,6 @@ import de.lessvoid.nifty.tools.Color;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.util.HashMap;
-import java.util.Map;
 
 public class RenderDeviceJme implements RenderDevice {
 
@@ -129,6 +128,8 @@ public class RenderDeviceJme implements RenderDevice {
         textCacheLastFrame = textCacheCurrentFrame;
         textCacheCurrentFrame = temp;
         textCacheCurrentFrame.clear();
+        
+//        System.exit(1);
     }
 
     public int getWidth() {
@@ -206,7 +207,8 @@ public class RenderDeviceJme implements RenderDevice {
 
         niftyMat.setColor("Color", convertColor(color, tempColor));
         niftyMat.setBoolean("UseTex", true);
-        niftyMat.getAdditionalRenderState().setBlendMode(convertBlend());
+        niftyMat.getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Alpha);
+//        niftyMat.getAdditionalRenderState().setBlendMode(convertBlend());
         text.setMaterial(niftyMat);
 
         float width = text.getLineWidth();
@@ -221,6 +223,8 @@ public class RenderDeviceJme implements RenderDevice {
 
         rm.setWorldMatrix(tempMat);
         text.render(rm);
+        
+//        System.out.println("renderFont");
     }
 
     public void renderImage(RenderImage image, int x, int y, int w, int h,
@@ -268,6 +272,8 @@ public class RenderDeviceJme implements RenderDevice {
 
         rm.setWorldMatrix(tempMat);
         niftyMat.render(quadGeom, rm);
+//        
+//        System.out.println("renderImage (Sub)");
     }
 
     public void renderImage(RenderImage image, int x, int y, int width, int height,
@@ -293,6 +299,8 @@ public class RenderDeviceJme implements RenderDevice {
 
         rm.setWorldMatrix(tempMat);
         niftyMat.render(quadGeom, rm);
+//        
+//        System.out.println("renderImage");
     }
 
     public void renderQuad(int x, int y, int width, int height, Color color){
@@ -308,6 +316,8 @@ public class RenderDeviceJme implements RenderDevice {
 
         rm.setWorldMatrix(tempMat);
         niftyMat.render(quadGeom, rm);
+        
+//        System.out.println("renderQuad (Solid)");
     }
 
     public void renderQuad(int x, int y, int width, int height,
@@ -336,14 +346,18 @@ public class RenderDeviceJme implements RenderDevice {
 
         rm.setWorldMatrix(tempMat);
         niftyMat.render(quadGeom, rm);
+//        
+//        System.out.println("renderQuad (Grad)");
     }
 
     public void enableClip(int x0, int y0, int x1, int y1){
+//        System.out.println("enableClip");
         clipWasSet = true;
         r.setClipRect(x0, getHeight() - y1, x1 - x0, y1 - y0);
     }
 
     public void disableClip() {
+//        System.out.println("disableClip");
         if (clipWasSet){
             r.clearClipRect();
             clipWasSet = false;
