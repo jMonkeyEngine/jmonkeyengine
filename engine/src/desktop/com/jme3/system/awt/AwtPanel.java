@@ -13,7 +13,6 @@ import java.awt.BufferCapabilities;
 import java.awt.Canvas;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Image;
 import java.awt.ImageCapabilities;
 import java.awt.RenderingHints;
 import java.awt.event.ComponentAdapter;
@@ -30,6 +29,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class AwtPanel extends Canvas implements SceneProcessor {
 
+    private boolean attachAsMain = false;
+    
     private BufferedImage img;
     private FrameBuffer fb;
     private ByteBuffer byteBuf;
@@ -186,7 +187,7 @@ public class AwtPanel extends Canvas implements SceneProcessor {
         return paintMode != PaintMode.OnRequest && showing.get();
     }
     
-    public void attachTo(ViewPort ... vps){
+    public void attachTo(boolean overrideMainFramebuffer, ViewPort ... vps){
         if (viewPorts.size() > 0){
             for (ViewPort vp : viewPorts){
                 vp.setOutputFrameBuffer(null);
@@ -196,6 +197,8 @@ public class AwtPanel extends Canvas implements SceneProcessor {
         
         viewPorts.addAll(Arrays.asList(vps));
         viewPorts.get(viewPorts.size()-1).addProcessor(this);
+        
+        this.attachAsMain = overrideMainFramebuffer;
     }
     
     public void initialize(RenderManager rm, ViewPort vp) {
@@ -214,6 +217,10 @@ public class AwtPanel extends Canvas implements SceneProcessor {
         fb.setDepthBuffer(Format.Depth);
         fb.setColorBuffer(Format.RGB8);
         
+        if (attachAsMain){
+            rm.getRenderer().setMainFrameBufferOverride(fb);
+        }
+        
         synchronized (lock){
             img = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         }
@@ -227,7 +234,9 @@ public class AwtPanel extends Canvas implements SceneProcessor {
         transformOp = new AffineTransformOp(tx, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
         
         for (ViewPort vp : viewPorts){
-            vp.setOutputFrameBuffer(fb);
+            if (!attachAsMain){
+                vp.setOutputFrameBuffer(fb);
+            }
             vp.getCamera().resize(width, height, true);
             
             // NOTE: Hack alert. This is done ONLY for custom framebuffers.
@@ -255,7 +264,7 @@ public class AwtPanel extends Canvas implements SceneProcessor {
     }
 
     public void postFrame(FrameBuffer out) {
-        if (out != fb){
+        if (!attachAsMain && out != fb){
             throw new IllegalStateException("Why did you change the output framebuffer?");
         }
         

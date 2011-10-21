@@ -1158,6 +1158,9 @@ public class LwjglGL1Renderer implements GL1Renderer {
     public void copyFrameBuffer(FrameBuffer src, FrameBuffer dst, boolean copyDepth) {
     }
 
+    public void setMainFrameBufferOverride(FrameBuffer fb){
+    }
+    
     public void setFrameBuffer(FrameBuffer fb) {
     }
 

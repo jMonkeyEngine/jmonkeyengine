@@ -147,6 +147,7 @@ public class LwjglRenderer implements Renderer {
     private int maxDepthTexSamples;
     private boolean tdc;
     private FrameBuffer lastFb = null;
+    private FrameBuffer mainFbOverride = null;
     private final Statistics statistics = new Statistics();
     private int vpX, vpY, vpW, vpH;
     private int clipX, clipY, clipW, clipH;
@@ -1527,8 +1528,16 @@ public class LwjglRenderer implements Renderer {
         }
         return samplePositions;
     }
+    
+    public void setMainFrameBufferOverride(FrameBuffer fb){
+        mainFbOverride = fb;
+    }
 
     public void setFrameBuffer(FrameBuffer fb) {
+        if (fb == null && mainFbOverride != null){
+            fb = mainFbOverride;
+        }
+        
         if (lastFb == fb) {
             if (fb == null || !fb.isUpdateNeeded()){
                 return;

@@ -81,8 +81,8 @@ public class TestAwtPanels extends SimpleApplication {
         geom.setMaterial(mat);
         rootNode.attachChild(geom);
         
-        panel.attachTo(viewPort);
+        panel.attachTo(true, viewPort);
         guiViewPort.setClearFlags(true, true, true);
-        panel2.attachTo(guiViewPort);
+        panel2.attachTo(false, guiViewPort);
     }
 }

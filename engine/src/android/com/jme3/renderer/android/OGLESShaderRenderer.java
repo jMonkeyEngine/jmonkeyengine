@@ -1567,6 +1567,9 @@ public class OGLESShaderRenderer implements Renderer {
     }
      */
 
+    public void setMainFrameBufferOverride(FrameBuffer fb){
+    }
+    
     public void setFrameBuffer(FrameBuffer fb) {
         if (verboseLogging) {
             logger.warning("setFrameBuffer is not supported.");

@@ -206,6 +206,14 @@ public interface Renderer {
      * Sets the framebuffer that will be drawn to.
      */
     public void setFrameBuffer(FrameBuffer fb);
+    
+    /**
+     * Set the framebuffer that will be set instead of the main framebuffer
+     * when a call to setFrameBuffer(null) is made.
+     * 
+     * @param fb 
+     */
+    public void setMainFrameBufferOverride(FrameBuffer fb);
 
     /**
      * Reads the pixels currently stored in the specified framebuffer
