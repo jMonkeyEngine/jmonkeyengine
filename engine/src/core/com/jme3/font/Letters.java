@@ -77,7 +77,7 @@ class Letters {
         int lineCount = 1;
         BitmapCharacter ellipsis = font.getCharSet().getCharacter(block.getEllipsisChar());
         float ellipsisWidth = ellipsis!=null? ellipsis.getWidth()*getScale(): 0;
-        
+ 
         while (!l.isTail()) {
             if (l.isInvalid()) {
                 l.update(block);

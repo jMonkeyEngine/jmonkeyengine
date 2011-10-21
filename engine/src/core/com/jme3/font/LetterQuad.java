@@ -293,6 +293,15 @@ class LetterQuad {
                 x0 = bound.x;
             } else {
                 x0 = previous.getNextX() + xOffset * incrScale;
+                
+                // Since x0 will have offset baked into it then we
+                // need to counteract that in xAdvance.  This is better
+                // than removing it in getNextX() because we also need
+                // to take kerning into account below... which will also
+                // get baked in.
+                // Without this, getNextX() will return values too far to
+                // the left, for example.
+                xAdvance -= xOffset * incrScale; 
             }
             y0 = lineY + LINE_DIR*yOffset;
 
@@ -301,6 +310,10 @@ class LetterQuad {
             if (lastChar != null && block.isKerning()) {
                 kernAmount = lastChar.getKerning(c) * sizeScale;
                 x0 += kernAmount * incrScale;
+                
+                // Need to unbake the kerning from xAdvance since it
+                // is baked into x0... see above.
+                xAdvance -= kernAmount * incrScale; 
             }
         }
         if (isEndOfLine()) {
