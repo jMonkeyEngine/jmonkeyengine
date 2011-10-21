@@ -1871,8 +1871,7 @@ public class LwjglRenderer implements Renderer {
 
             if (img.getWidth() != 0 && img.getHeight() != 0) {
                 if (!FastMath.isPowerOfTwo(img.getWidth())
-                        || !FastMath.isPowerOfTwo(img.getHeight())
-                        || img.getWidth() != img.getHeight()) {
+                        || !FastMath.isPowerOfTwo(img.getHeight())) {
 //                    logger.log(Level.WARNING, "Encountered NPOT texture {0}, "
 //                                            + "it might not display correctly.", img);
 
