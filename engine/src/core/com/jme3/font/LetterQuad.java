@@ -325,7 +325,9 @@ class LetterQuad {
                 
                 // Need to unbake the kerning from xAdvance since it
                 // is baked into x0... see above.
-                xAdvance -= kernAmount * incrScale; 
+                //xAdvance -= kernAmount * incrScale;
+                // No, kerning is an inter-character spacing and _does_ affect
+                // all subsequent cursor positions. 
             }
         }
         if (isEndOfLine()) {
