@@ -615,9 +615,7 @@ public class PhysicsSpace {
         Logger.getLogger(PhysicsSpace.class.getName()).log(Level.INFO, "Adding RigidBody {0} to physics space.", node.getObjectId());
         if (node instanceof PhysicsVehicle) {
             Logger.getLogger(PhysicsSpace.class.getName()).log(Level.INFO, "Adding vehicle constraint {0} to physics space.", Long.toHexString(((PhysicsVehicle) node).getVehicleId()));
-            ((PhysicsVehicle) node).createVehicle(this);
             addVehicle(physicsSpaceId, ((PhysicsVehicle) node).getVehicleId());
-//            dynamicsWorld.addVehicle(((PhysicsVehicle) node).getVehicleId());
         }
     }
 
@@ -625,7 +623,6 @@ public class PhysicsSpace {
         if (node instanceof PhysicsVehicle) {
             Logger.getLogger(PhysicsSpace.class.getName()).log(Level.INFO, "Removing vehicle constraint {0} from physics space.", Long.toHexString(((PhysicsVehicle) node).getVehicleId()));
             removeVehicle(physicsSpaceId, ((PhysicsVehicle) node).getVehicleId());
-//            dynamicsWorld.removeVehicle(((PhysicsVehicle) node).getVehicleId());
         }
         Logger.getLogger(PhysicsSpace.class.getName()).log(Level.INFO, "Removing RigidBody {0} from physics space.", Long.toHexString(node.getObjectId()));
         physicsNodes.remove(node.getObjectId());

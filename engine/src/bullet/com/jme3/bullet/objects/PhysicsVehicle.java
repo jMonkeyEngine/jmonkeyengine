@@ -114,9 +114,7 @@ public class PhysicsVehicle extends PhysicsRigidBody {
             tuning = new VehicleTuning();
         }
         motionState.setVehicle(this);
-//        if (physicsSpace != null) {
-//            createVehicle(physicsSpace);
-//        }
+        createVehicle(physicsSpace);
     }
 
     /**
@@ -124,12 +122,6 @@ public class PhysicsVehicle extends PhysicsRigidBody {
      */
     public void createVehicle(PhysicsSpace space) {
         physicsSpace = space;
-//        try{
-//        if(5==5)
-//            throw new IllegalStateException("Who calls this!");
-//        }catch(Exception e){
-//            e.printStackTrace();
-//        }
         if (space == null) {
             return;
         }
@@ -137,7 +129,6 @@ public class PhysicsVehicle extends PhysicsRigidBody {
             throw new IllegalStateException("Physics space is not initialized!");
         }
         if (rayCasterId != 0) {
-            space.removeCollisionObject(this);
             Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Clearing RayCaster {0}", Long.toHexString(rayCasterId));
             Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Clearing Vehicle {0}", Long.toHexString(vehicleId));
             finalizeNative(rayCasterId, vehicleId);
@@ -149,12 +140,6 @@ public class PhysicsVehicle extends PhysicsRigidBody {
         setCoordinateSystem(vehicleId, 0, 1, 2);
         for (VehicleWheel wheel : wheels) {
             wheel.setWheelId(addWheel(vehicleId, wheel.getLocation(), wheel.getDirection(), wheel.getAxle(), wheel.getRestLength(), wheel.getRadius(), tuning, wheel.isFrontWheel()));
-            wheel.setFrictionSlip(tuning.frictionSlip);
-            wheel.setMaxSuspensionTravelCm(tuning.maxSuspensionTravelCm);
-            wheel.setSuspensionStiffness(tuning.suspensionStiffness);
-            wheel.setWheelsDampingCompression(tuning.suspensionCompression);
-            wheel.setWheelsDampingRelaxation(tuning.suspensionDamping);
-            wheel.setMaxSuspensionForce(tuning.maxSuspensionForce);
         }
     }
 
@@ -198,9 +183,6 @@ public class PhysicsVehicle extends PhysicsRigidBody {
         } else {
             wheel = new VehicleWheel(spat, connectionPoint, direction, axle, suspensionRestLength, wheelRadius, isFrontWheel);
         }
-        if (vehicleId != 0) {
-            wheel.setWheelId(addWheel(vehicleId, wheel.getLocation(), wheel.getDirection(), wheel.getAxle(), wheel.getRestLength(), wheel.getRadius(), tuning, wheel.isFrontWheel()));
-        }
         wheel.setFrictionSlip(tuning.frictionSlip);
         wheel.setMaxSuspensionTravelCm(tuning.maxSuspensionTravelCm);
         wheel.setSuspensionStiffness(tuning.suspensionStiffness);
@@ -208,6 +190,9 @@ public class PhysicsVehicle extends PhysicsRigidBody {
         wheel.setWheelsDampingRelaxation(tuning.suspensionDamping);
         wheel.setMaxSuspensionForce(tuning.maxSuspensionForce);
         wheels.add(wheel);
+        if (vehicleId != 0) {
+            wheel.setWheelId(addWheel(vehicleId, wheel.getLocation(), wheel.getDirection(), wheel.getAxle(), wheel.getRestLength(), wheel.getRadius(), tuning, wheel.isFrontWheel()));
+        }
         if (debugShape != null) {
             updateDebugShape();
         }

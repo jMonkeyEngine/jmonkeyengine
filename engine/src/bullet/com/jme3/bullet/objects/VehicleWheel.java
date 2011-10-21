@@ -418,7 +418,7 @@ public class VehicleWheel implements Savable {
     protected void finalize() throws Throwable {
         super.finalize();
         Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Finalizing Wheel {0}", Long.toHexString(wheelId));
-        finalizeNative(wheelId);
+//        finalizeNative(wheelId);
     }
 
     private native void finalizeNative(long wheelId);
