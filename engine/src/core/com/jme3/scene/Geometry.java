@@ -41,6 +41,7 @@ import com.jme3.export.InputCapsule;
 import com.jme3.export.OutputCapsule;
 import com.jme3.material.Material;
 import com.jme3.math.Matrix4f;
+import com.jme3.math.Transform;
 import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.util.TempVars;
 import java.io.IOException;
@@ -67,6 +68,22 @@ public class Geometry extends Spatial {
      */
     protected boolean ignoreTransform = false;
     protected transient Matrix4f cachedWorldMat = new Matrix4f();
+    /**
+     * used when geometry is batched
+     */
+    protected BatchNode batchNode = null;
+    /**
+     * the start index of this geom's mesh in the batchNode mesh
+     */
+    protected int startIndex;
+    /**
+     * the previous transforms of the geometry used to compute world transforms
+     */
+    protected Transform prevLocalTransform = null;
+    /**
+     * the cached offset matrix used when the geometry is batched
+     */
+    protected Matrix4f cachedOffsetMat = null;   
 
     /**
      * Serialization only. Do not use.
@@ -181,6 +198,9 @@ public class Geometry extends Spatial {
         if (mesh == null) {
             throw new IllegalArgumentException();
         }
+        if (isBatched()) {
+            throw new UnsupportedOperationException("Cannot set the mesh of a batched geometry");
+        }
 
         this.mesh = mesh;
         setBoundRefresh();
@@ -204,6 +224,9 @@ public class Geometry extends Spatial {
      */
     @Override
     public void setMaterial(Material material) {
+        if (isBatched()) {
+            throw new UnsupportedOperationException("Cannot set the material of a batched geometry, change the material of the parent BatchNode.");
+        }
         this.material = material;
     }
 
@@ -261,12 +284,98 @@ public class Geometry extends Spatial {
 
     @Override
     protected void updateWorldTransforms() {
+
         super.updateWorldTransforms();
-
         computeWorldMatrix();
-
+        if ((refreshFlags & RF_REFRESHBATCH) != 0) {
+            computeOffsetTransform();
+            batchNode.updateSubBatch(this);
+            prevLocalTransform.set(localTransform);
+            refreshFlags &= ~RF_REFRESHBATCH;
+        }
         // geometry requires lights to be sorted
         worldLights.sort(true);
+    }
+
+    /**
+     * Batch this geometry, should only be called by the BatchNode.
+     * @param node the batchNode
+     * @param startIndex the starting index of this geometry in the batched mesh
+     */
+    protected void batch(BatchNode node, int startIndex) {
+        this.batchNode = node;
+        this.startIndex = startIndex;
+        prevLocalTransform = new Transform();
+        cachedOffsetMat = new Matrix4f();
+        setCullHint(CullHint.Always);
+        refreshFlags |= RF_REFRESHBATCH;
+    }
+
+    /**
+     * unBatch this geometry. 
+     */
+    protected void unBatch() {
+        this.startIndex = 0;
+        prevLocalTransform = null;
+        cachedOffsetMat = null;
+        //once the geometry is removed from the screnegraph we call batch on the batchNode before unreferencing it.
+        this.batchNode.batch();
+        this.batchNode = null;
+        setCullHint(CullHint.Dynamic);
+    }
+
+    @Override
+    public boolean removeFromParent() {
+        boolean removed = super.removeFromParent();
+        //if the geometry is batched we also have to unbatch it
+        if (isBatched()) {
+            unBatch();
+        }
+        return removed;
+    }
+
+    /**
+     * Recomputes the cached offset matrix used when the geometry is batched     * 
+     */
+    public void computeOffsetTransform() {
+        TempVars vars = TempVars.get();
+        Matrix4f tmpMat = vars.tempMat42;
+
+        // Compute the cached world matrix
+        cachedOffsetMat.loadIdentity();
+        cachedOffsetMat.setRotationQuaternion(prevLocalTransform.getRotation());
+        cachedOffsetMat.setTranslation(prevLocalTransform.getTranslation());
+
+
+        Matrix4f scaleMat = vars.tempMat4;
+        scaleMat.loadIdentity();
+        scaleMat.scale(prevLocalTransform.getScale());
+        cachedOffsetMat.multLocal(scaleMat);
+        cachedOffsetMat.invertLocal();
+
+        tmpMat.loadIdentity();
+        tmpMat.setRotationQuaternion(localTransform.getRotation());
+        tmpMat.setTranslation(localTransform.getTranslation());
+        scaleMat.loadIdentity();
+        scaleMat.scale(localTransform.getScale());
+        tmpMat.multLocal(scaleMat);
+
+        tmpMat.mult(cachedOffsetMat, cachedOffsetMat);
+
+        vars.release();
+    }
+
+    /**
+     * Indicate that the transform of this spatial has changed and that
+     * a refresh is required.
+     */
+    @Override
+    protected void setTransformRefresh() {
+        refreshFlags |= RF_TRANSFORM;
+        setBoundRefresh();
+        if (isBatched()) {
+             refreshFlags |= RF_REFRESHBATCH;
+        }
     }
 
     /**
@@ -316,7 +425,7 @@ public class Geometry extends Spatial {
         this.worldBound = null;
         mesh.setBound(modelBound);
         setBoundRefresh();
-        
+
         // NOTE: Calling updateModelBound() would cause the mesh
         // to recompute the bound based on the geometry thus making
         // this call useless!
@@ -352,6 +461,10 @@ public class Geometry extends Spatial {
 
     @Override
     protected void breadthFirstTraversal(SceneGraphVisitor visitor, Queue<Spatial> queue) {
+    }
+
+    public boolean isBatched() {
+        return batchNode != null;
     }
 
     /**

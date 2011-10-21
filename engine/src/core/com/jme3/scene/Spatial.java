@@ -112,7 +112,8 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Asset {
      */
     protected static final int RF_TRANSFORM = 0x01, // need light resort + combine transforms
             RF_BOUND = 0x02,
-            RF_LIGHTLIST = 0x04; // changes in light lists
+            RF_LIGHTLIST = 0x04, // changes in light lists
+            RF_REFRESHBATCH = 0x08; //  chamge in geometry transforms that require refreshing the batched mesh
     
     protected CullHint cullHint = CullHint.Inherit;
     
