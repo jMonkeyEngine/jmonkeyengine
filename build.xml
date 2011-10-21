@@ -76,6 +76,15 @@
       
     <target name="hudson-nightly" depends="update-platform">
         <exec executable="svn" dir="engine">
+            <arg value="cleanup" />
+        </exec>
+        <exec executable="svn" dir="engine">
+            <arg value="revert" />
+        </exec>
+        <exec executable="svn" dir="engine">
+            <arg value="cleanup" />
+        </exec>
+        <exec executable="svn" dir="engine">
             <arg value="update" />
         </exec>
         <ant dir="engine" target="dist"/>
@@ -85,6 +94,15 @@
     </target>
 
     <target name="hudson-stable" depends="update-platform">
+        <exec executable="svn" dir="engine">
+            <arg value="cleanup" />
+        </exec>
+        <exec executable="svn" dir="engine">
+            <arg value="revert" />
+        </exec>
+        <exec executable="svn" dir="engine">
+            <arg value="cleanup" />
+        </exec>
         <exec executable="svn" dir="engine">
             <arg value="update" />
         </exec>
