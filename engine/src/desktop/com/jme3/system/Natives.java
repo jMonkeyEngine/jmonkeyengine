@@ -51,12 +51,52 @@ public class Natives {
 
     private static final Logger logger = Logger.getLogger(Natives.class.getName());
     private static final byte[] buf = new byte[1024];
-    private static File workingDir = new File("").getAbsoluteFile();
+    private static File extractionDirOverride = null;
+    private static File extractionDir = null;
  
     public static void setExtractionDir(String name) {
-        workingDir = new File(name).getAbsoluteFile();
+        extractionDirOverride = new File(name).getAbsoluteFile();
+    }
+    
+    public static File getExtractionDir(){
+        if (extractionDirOverride != null){
+            return extractionDirOverride;
+        }
+        if (extractionDir == null){
+            extractionDir = new File(JmeSystem.getStorageFolder(), 
+                                     "natives_" + Integer.toHexString(computeNativesHash()) );
+            if (!extractionDir.exists()){
+                extractionDir.mkdir();
+            }
+        }
+        return extractionDir;
     }
 
+    private static int computeNativesHash(){
+        try {
+            String classpath = System.getProperty("java.class.path");
+            URL url = Natives.class.getResource("");
+            if (url != null) {
+                StringBuilder sb = new StringBuilder(url.toString());
+                if (sb.indexOf("jar:") == 0) {
+                    sb.delete(0, 4);
+                    sb.delete(sb.indexOf("!"), sb.length());
+                    sb.delete(sb.lastIndexOf("/") + 1, sb.length());
+                }
+                try {
+                    url = new URL(sb.toString());
+                } catch (MalformedURLException ex) {
+                    throw new UnsupportedOperationException(ex);
+                }
+            }
+            URLConnection conn = url.openConnection();
+            int hash = classpath.hashCode() ^ (int)conn.getLastModified();
+            return hash;
+        } catch (IOException ex) {
+            throw new UnsupportedOperationException(ex);
+        }
+    }
+    
     protected static void extractNativeLib(String sysName, String name) throws IOException {
         extractNativeLib(sysName, name, false, true);
     }
@@ -81,7 +121,7 @@ public class Natives {
         
         URLConnection conn = url.openConnection();
         InputStream in = conn.getInputStream();
-        File targetFile = new File(workingDir, fullname);
+        File targetFile = new File(getExtractionDir(), fullname);
         
         try {
             if (targetFile.exists()){
@@ -123,24 +163,6 @@ public class Natives {
         logger.log(Level.FINE, "Copied {0} to {1}", new Object[]{fullname, targetFile});
     }
 
-    private static String getExtractionDir() {
-        URL temp = Natives.class.getResource("");
-        if (temp != null) {
-            StringBuilder sb = new StringBuilder(temp.toString());
-            if (sb.indexOf("jar:") == 0) {
-                sb.delete(0, 4);
-                sb.delete(sb.indexOf("!"), sb.length());
-                sb.delete(sb.lastIndexOf("/") + 1, sb.length());
-            }
-            try {
-                return new URL(sb.toString()).toString();
-            } catch (MalformedURLException ex) {
-                return null;
-            }
-        }
-        return null;
-    }
-    
     protected static boolean isUsingNativeBullet(){
         try {
             Class clazz = Class.forName("com.jme3.bullet.util.NativeMeshUtil");
@@ -171,14 +193,11 @@ public class Natives {
         needJInput = settings.useJoysticks();
 
         if (needLWJGL) {
-            logger.log(Level.INFO, "Extraction Directory #1: {0}", getExtractionDir());
-            logger.log(Level.INFO, "Extraction Directory #2: {0}", workingDir.toString());
-            logger.log(Level.INFO, "Extraction Directory #3: {0}", System.getProperty("user.dir"));
+            logger.log(Level.INFO, "Extraction Directory: {0}", getExtractionDir().toString());
+            
             // LWJGL supports this feature where
             // it can load libraries from this path.
-            // This is a fallback method in case the OS doesn't load
-            // native libraries from the working directory (e.g Linux).
-            System.setProperty("org.lwjgl.librarypath", workingDir.toString());
+            System.setProperty("org.lwjgl.librarypath", getExtractionDir().toString());
         }
 
         switch (platform) {

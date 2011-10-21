@@ -37,6 +37,7 @@ import com.jme3.asset.AssetManager;
 import com.jme3.asset.AssetNotFoundException;
 import com.jme3.asset.DesktopAssetManager;
 import com.jme3.audio.AudioRenderer;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -47,10 +48,37 @@ import java.util.logging.Logger;
 import javax.swing.SwingUtilities;
 
 public class JmeSystem {
-
+    
     private static final Logger logger = Logger.getLogger(JmeSystem.class.getName());
     private static boolean initialized = false;
     private static boolean lowPermissions = false;
+    private static File storageFolder = null;
+    
+    public static synchronized File getStorageFolder(){
+        if (lowPermissions){
+            throw new UnsupportedOperationException("File system access restricted");
+        }
+        if (storageFolder == null){
+            // Initialize storage folder
+            storageFolder = new File(System.getProperty("user.home"), ".jme3");
+            if (!storageFolder.exists()){
+                storageFolder.mkdir();
+            }
+        }
+        return storageFolder;
+    }
+    
+    public static String getFullName() {
+        return JmeVersion.FULL_NAME;
+    }
+    
+    public static InputStream getResourceAsStream(String name) {
+        return JmeSystem.class.getResourceAsStream(name);
+    }
+
+    public static URL getResource(String name) {
+        return JmeSystem.class.getResource(name);
+    }
 
     public static boolean trackDirectMemory() {
         return false;
@@ -76,7 +104,6 @@ public class JmeSystem {
         if (SwingUtilities.isEventDispatchThread()) {
             throw new IllegalStateException("Cannot run from EDT");
         }
-
 
         final AppSettings settings = new AppSettings(false);
         settings.copyFrom(sourceSettings);
@@ -317,7 +344,6 @@ public class JmeSystem {
         }
         logger.log(Level.INFO, "Running on {0}", getFullName());
 
-
         if (!lowPermissions) {
             try {
                 Natives.extractNativeLibs(getPlatform(), settings);
@@ -325,17 +351,5 @@ public class JmeSystem {
                 logger.log(Level.SEVERE, "Error while copying native libraries", ex);
             }
         }
-    }
-
-    public static String getFullName() {
-        return "jMonkeyEngine 3.0.0 Beta";
-    }
-
-    public static InputStream getResourceAsStream(String name) {
-        return JmeSystem.class.getResourceAsStream(name);
-    }
-
-    public static URL getResource(String name) {
-        return JmeSystem.class.getResource(name);
     }
 }

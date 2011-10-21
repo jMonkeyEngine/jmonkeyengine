@@ -111,8 +111,8 @@ public class BloomFilter extends Filter {
 
     @Override
     protected void initFilter(AssetManager manager, RenderManager renderManager, ViewPort vp, int w, int h) {
-        screenWidth = (int) (w / downSamplingFactor);
-        screenHeight = (int) (h / downSamplingFactor);
+        screenWidth = (int) Math.max(1, (w / downSamplingFactor));
+        screenHeight = (int) Math.max(1, (h / downSamplingFactor));
         //    System.out.println(screenWidth + " " + screenHeight);
         if (glowMode != GlowMode.Scene) {
             preGlowPass = new Pass();
