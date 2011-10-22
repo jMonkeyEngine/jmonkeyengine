@@ -62,7 +62,7 @@ extern "C" {
                 shape = new btCylinderShapeZ(extents);
                 break;
         }
-        return (OBJ_PTR) shape;
+        return reinterpret_cast<jlong>(shape);
     }
 
 #ifdef __cplusplus

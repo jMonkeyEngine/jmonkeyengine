@@ -16,7 +16,7 @@ extern "C" {
  */
 JNIEXPORT void JNICALL Java_com_jme3_bullet_joints_SixDofSpringJoint_enableSpring
   (JNIEnv *env, jobject object, jlong jointId, jint index, jboolean onOff) {
-    btGeneric6DofSpringConstraint* joint = (btGeneric6DofSpringConstraint*) jointId;
+    btGeneric6DofSpringConstraint* joint = reinterpret_cast<btGeneric6DofSpringConstraint*>(jointId);
     joint -> enableSpring(index, onOff);
 }
 
@@ -28,7 +28,7 @@ JNIEXPORT void JNICALL Java_com_jme3_bullet_joints_SixDofSpringJoint_enableSprin
  */
 JNIEXPORT void JNICALL Java_com_jme3_bullet_joints_SixDofSpringJoint_setStiffness
   (JNIEnv *env, jobject object, jlong jointId, jint index, jfloat stiffness) {
-    btGeneric6DofSpringConstraint* joint = (btGeneric6DofSpringConstraint*) jointId;
+    btGeneric6DofSpringConstraint* joint = reinterpret_cast<btGeneric6DofSpringConstraint*>(jointId);
     joint -> setStiffness(index, stiffness);
 }
 
@@ -39,7 +39,7 @@ JNIEXPORT void JNICALL Java_com_jme3_bullet_joints_SixDofSpringJoint_setStiffnes
  */
 JNIEXPORT void JNICALL Java_com_jme3_bullet_joints_SixDofSpringJoint_setDamping
   (JNIEnv *env, jobject object, jlong jointId, jint index, jfloat damping) {
-    btGeneric6DofSpringConstraint* joint = (btGeneric6DofSpringConstraint*) jointId;
+    btGeneric6DofSpringConstraint* joint = reinterpret_cast<btGeneric6DofSpringConstraint*>(jointId);
     joint -> setDamping(index, damping);
 }
 
@@ -50,7 +50,7 @@ JNIEXPORT void JNICALL Java_com_jme3_bullet_joints_SixDofSpringJoint_setDamping
  */
 JNIEXPORT void JNICALL Java_com_jme3_bullet_joints_SixDofSpringJoint_setEquilibriumPoint__J
   (JNIEnv *env, jobject object, jlong jointId) {
-    btGeneric6DofSpringConstraint* joint = (btGeneric6DofSpringConstraint*) jointId;
+    btGeneric6DofSpringConstraint* joint = reinterpret_cast<btGeneric6DofSpringConstraint*>(jointId);
     joint -> setEquilibriumPoint();
 }
 
@@ -61,7 +61,7 @@ JNIEXPORT void JNICALL Java_com_jme3_bullet_joints_SixDofSpringJoint_setEquilibr
  */
 JNIEXPORT void JNICALL Java_com_jme3_bullet_joints_SixDofSpringJoint_setEquilibriumPoint__JI
   (JNIEnv *env, jobject object, jlong jointId, jint index) {
-    btGeneric6DofSpringConstraint* joint = (btGeneric6DofSpringConstraint*) jointId;
+    btGeneric6DofSpringConstraint* joint = reinterpret_cast<btGeneric6DofSpringConstraint*>(jointId);
     joint -> setEquilibriumPoint(index);
 }
 
@@ -76,8 +76,8 @@ JNIEXPORT void JNICALL Java_com_jme3_bullet_joints_SixDofSpringJoint_setEquilibr
 JNIEXPORT jlong JNICALL Java_com_jme3_bullet_joints_SixDofSpringJoint_createJoint
     (JNIEnv * env, jobject object, jlong bodyIdA, jlong bodyIdB, jobject pivotA, jobject rotA, jobject pivotB, jobject rotB, jboolean useLinearReferenceFrameA) {
         jmeClasses::initJavaClasses(env);
-        btRigidBody* bodyA = (btRigidBody*) bodyIdA;
-        btRigidBody* bodyB = (btRigidBody*) bodyIdB;
+        btRigidBody* bodyA = reinterpret_cast<btRigidBody*>(bodyIdA);
+        btRigidBody* bodyB = reinterpret_cast<btRigidBody*>(bodyIdB);
         btTransform transA;
         jmeBulletUtil::convert(env, pivotA, &transA.getOrigin());
         jmeBulletUtil::convert(env, rotA, &transA.getBasis());
@@ -86,7 +86,7 @@ JNIEXPORT jlong JNICALL Java_com_jme3_bullet_joints_SixDofSpringJoint_createJoin
         jmeBulletUtil::convert(env, rotB, &transB.getBasis());
 
         btGeneric6DofSpringConstraint* joint = new btGeneric6DofSpringConstraint(*bodyA, *bodyB, transA, transB, useLinearReferenceFrameA);
-        return (OBJ_PTR)joint;
+        return reinterpret_cast<jlong>(joint);
     }
 
 #ifdef __cplusplus

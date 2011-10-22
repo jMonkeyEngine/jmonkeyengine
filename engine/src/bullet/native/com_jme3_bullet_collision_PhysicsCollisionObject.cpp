@@ -49,13 +49,13 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_collision_PhysicsCollisionObject_attachCollisionShape
     (JNIEnv * env, jobject object, jlong objectId, jlong shapeId) {
-        btCollisionObject* collisionObject = (btCollisionObject*) objectId;
+        btCollisionObject* collisionObject = reinterpret_cast<btCollisionObject*>(objectId);
         if (collisionObject == NULL) {
             jclass newExc = env->FindClass("java/lang/IllegalStateException");
             env->ThrowNew(newExc, "The collision object does not exist.");
             return;
         }
-        btCollisionShape* collisionShape = (btCollisionShape*) shapeId;
+        btCollisionShape* collisionShape = reinterpret_cast<btCollisionShape*>(shapeId);
         if (collisionShape == NULL) {
             jclass newExc = env->FindClass("java/lang/IllegalStateException");
             env->ThrowNew(newExc, "The collision shape does not exist.");
@@ -71,7 +71,7 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_collision_PhysicsCollisionObject_finalizeNative
     (JNIEnv * env, jobject object, jlong objectId) {
-        btCollisionObject* collisionObject = (btCollisionObject*) objectId;
+        btCollisionObject* collisionObject = reinterpret_cast<btCollisionObject*>(objectId);
         if (collisionObject == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
@@ -90,7 +90,7 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_collision_PhysicsCollisionObject_initUserPointer
       (JNIEnv *env, jobject object, jlong objectId, jint group, jint groups) {
-        btCollisionObject* collisionObject = (btCollisionObject*) objectId;
+        btCollisionObject* collisionObject = reinterpret_cast<btCollisionObject*>(objectId);
         if (collisionObject == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
@@ -114,7 +114,7 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_collision_PhysicsCollisionObject_setCollisionGroup
       (JNIEnv *env, jobject object, jlong objectId, jint group) {
-        btCollisionObject* collisionObject = (btCollisionObject*) objectId;
+        btCollisionObject* collisionObject = reinterpret_cast<btCollisionObject*>(objectId);
         if (collisionObject == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
@@ -132,7 +132,7 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_collision_PhysicsCollisionObject_setCollideWithGroups
       (JNIEnv *env, jobject object, jlong objectId, jint groups) {
-        btCollisionObject* collisionObject = (btCollisionObject*) objectId;
+        btCollisionObject* collisionObject = reinterpret_cast<btCollisionObject*>(objectId);
         if (collisionObject == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");

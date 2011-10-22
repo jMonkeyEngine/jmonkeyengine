@@ -54,7 +54,7 @@ extern "C" {
     (JNIEnv * env, jobject object) {
         jmeClasses::initJavaClasses(env);
         btPairCachingGhostObject* ghost = new btPairCachingGhostObject();
-        return (OBJ_PTR) ghost;
+        return reinterpret_cast<jlong>(ghost);
     }
 
     /*
@@ -64,7 +64,7 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsGhostObject_setGhostFlags
     (JNIEnv *env, jobject object, jlong objectId) {
-        btPairCachingGhostObject* ghost = (btPairCachingGhostObject*) objectId;
+        btPairCachingGhostObject* ghost = reinterpret_cast<btPairCachingGhostObject*>(objectId);
         if (ghost == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
@@ -80,7 +80,7 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsGhostObject_setPhysicsLocation
     (JNIEnv *env, jobject object, jlong objectId, jobject value) {
-        btPairCachingGhostObject* ghost = (btPairCachingGhostObject*) objectId;
+        btPairCachingGhostObject* ghost = reinterpret_cast<btPairCachingGhostObject*>(objectId);
         if (ghost == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
@@ -96,7 +96,7 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsGhostObject_setPhysicsRotation__JLcom_jme3_math_Matrix3f_2
     (JNIEnv *env, jobject object, jlong objectId, jobject value) {
-        btPairCachingGhostObject* ghost = (btPairCachingGhostObject*) objectId;
+        btPairCachingGhostObject* ghost = reinterpret_cast<btPairCachingGhostObject*>(objectId);
         if (ghost == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
@@ -112,7 +112,7 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsGhostObject_setPhysicsRotation__JLcom_jme3_math_Quaternion_2
     (JNIEnv *env, jobject object, jlong objectId, jobject value) {
-        btPairCachingGhostObject* ghost = (btPairCachingGhostObject*) objectId;
+        btPairCachingGhostObject* ghost = reinterpret_cast<btPairCachingGhostObject*>(objectId);
         if (ghost == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
@@ -128,7 +128,7 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsGhostObject_getPhysicsLocation
     (JNIEnv *env, jobject object, jlong objectId, jobject value) {
-        btPairCachingGhostObject* ghost = (btPairCachingGhostObject*) objectId;
+        btPairCachingGhostObject* ghost = reinterpret_cast<btPairCachingGhostObject*>(objectId);
         if (ghost == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
@@ -144,7 +144,7 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsGhostObject_getPhysicsRotation
     (JNIEnv *env, jobject object, jlong objectId, jobject value) {
-        btPairCachingGhostObject* ghost = (btPairCachingGhostObject*) objectId;
+        btPairCachingGhostObject* ghost = reinterpret_cast<btPairCachingGhostObject*>(objectId);
         if (ghost == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
@@ -160,7 +160,7 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsGhostObject_getPhysicsRotationMatrix
     (JNIEnv *env, jobject object, jlong objectId, jobject value) {
-        btPairCachingGhostObject* ghost = (btPairCachingGhostObject*) objectId;
+        btPairCachingGhostObject* ghost = reinterpret_cast<btPairCachingGhostObject*>(objectId);
         if (ghost == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
@@ -202,7 +202,7 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsGhostObject_getOverlappingObjects
       (JNIEnv *env, jobject object, jlong objectId) {
-        btPairCachingGhostObject* ghost = (btPairCachingGhostObject*) objectId;
+        btPairCachingGhostObject* ghost = reinterpret_cast<btPairCachingGhostObject*>(objectId);
         if (ghost == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
@@ -219,7 +219,7 @@ extern "C" {
      */
     JNIEXPORT jint JNICALL Java_com_jme3_bullet_objects_PhysicsGhostObject_getOverlappingCount
     (JNIEnv *env, jobject object, jlong objectId) {
-        btPairCachingGhostObject* ghost = (btPairCachingGhostObject*) objectId;
+        btPairCachingGhostObject* ghost = reinterpret_cast<btPairCachingGhostObject*>(objectId);
         if (ghost == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
@@ -235,7 +235,7 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsGhostObject_setCcdSweptSphereRadius
     (JNIEnv *env, jobject object, jlong objectId, jfloat value) {
-        btPairCachingGhostObject* ghost = (btPairCachingGhostObject*) objectId;
+        btPairCachingGhostObject* ghost = reinterpret_cast<btPairCachingGhostObject*>(objectId);
         if (ghost == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
@@ -251,7 +251,7 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsGhostObject_setCcdMotionThreshold
     (JNIEnv *env, jobject object, jlong objectId, jfloat value) {
-        btPairCachingGhostObject* ghost = (btPairCachingGhostObject*) objectId;
+        btPairCachingGhostObject* ghost = reinterpret_cast<btPairCachingGhostObject*>(objectId);
         if (ghost == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
@@ -267,7 +267,7 @@ extern "C" {
      */
     JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_objects_PhysicsGhostObject_getCcdSweptSphereRadius
     (JNIEnv *env, jobject object, jlong objectId) {
-        btPairCachingGhostObject* ghost = (btPairCachingGhostObject*) objectId;
+        btPairCachingGhostObject* ghost = reinterpret_cast<btPairCachingGhostObject*>(objectId);
         if (ghost == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
@@ -283,7 +283,7 @@ extern "C" {
      */
     JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_objects_PhysicsGhostObject_getCcdMotionThreshold
     (JNIEnv *env, jobject object, jlong objectId) {
-        btPairCachingGhostObject* ghost = (btPairCachingGhostObject*) objectId;
+        btPairCachingGhostObject* ghost = reinterpret_cast<btPairCachingGhostObject*>(objectId);
         if (ghost == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
@@ -299,7 +299,7 @@ extern "C" {
      */
     JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_objects_PhysicsGhostObject_getCcdSquareMotionThreshold
     (JNIEnv *env, jobject object, jlong objectId) {
-        btPairCachingGhostObject* ghost = (btPairCachingGhostObject*) objectId;
+        btPairCachingGhostObject* ghost = reinterpret_cast<btPairCachingGhostObject*>(objectId);
         if (ghost == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");

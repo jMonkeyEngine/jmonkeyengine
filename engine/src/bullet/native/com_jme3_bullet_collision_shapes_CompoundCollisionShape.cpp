@@ -49,7 +49,7 @@ extern "C" {
     (JNIEnv *env, jobject object) {
         jmeClasses::initJavaClasses(env);
         btCompoundShape* shape = new btCompoundShape();
-        return (OBJ_PTR) shape;
+        return reinterpret_cast<jlong>(shape);
     }
 
     /*
@@ -59,13 +59,13 @@ extern "C" {
      */
     JNIEXPORT jlong JNICALL Java_com_jme3_bullet_collision_shapes_CompoundCollisionShape_addChildShape
     (JNIEnv *env, jobject object, jlong compoundId, jlong childId, jobject childLocation, jobject childRotation) {
-        btCompoundShape* shape = (btCompoundShape*) compoundId;
+        btCompoundShape* shape = reinterpret_cast<btCompoundShape*>(compoundId);
         if (shape == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
             return 0;
         }
-        btCollisionShape* child = (btCollisionShape*) childId;
+        btCollisionShape* child = reinterpret_cast<btCollisionShape*>(childId);
         if (shape == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
@@ -86,13 +86,13 @@ extern "C" {
      */
     JNIEXPORT jlong JNICALL Java_com_jme3_bullet_collision_shapes_CompoundCollisionShape_removeChildShape
     (JNIEnv * env, jobject object, jlong compoundId, jlong childId) {
-        btCompoundShape* shape = (btCompoundShape*) compoundId;
+        btCompoundShape* shape = reinterpret_cast<btCompoundShape*>(compoundId);
         if (shape == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
             return 0;
         }
-        btCollisionShape* child = (btCollisionShape*) childId;
+        btCollisionShape* child = reinterpret_cast<btCollisionShape*>(childId);
         if (shape == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");

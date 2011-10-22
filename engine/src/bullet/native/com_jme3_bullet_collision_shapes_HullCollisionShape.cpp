@@ -61,7 +61,7 @@ extern "C" {
             shape->addPoint(vect);
         }
 
-        return (OBJ_PTR) shape;
+        return reinterpret_cast<jlong>(shape);
     }
 
 #ifdef __cplusplus

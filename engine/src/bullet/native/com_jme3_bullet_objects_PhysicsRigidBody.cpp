@@ -49,13 +49,13 @@ extern "C" {
     JNIEXPORT jlong JNICALL Java_com_jme3_bullet_objects_PhysicsRigidBody_createRigidBody
     (JNIEnv *env, jobject object, jfloat mass, jlong motionstatId, jlong shapeId) {
         jmeClasses::initJavaClasses(env);
-        btMotionState* motionState = (btMotionState*) motionstatId;
-        btCollisionShape* shape = (btCollisionShape*) shapeId;
+        btMotionState* motionState = reinterpret_cast<btMotionState*>(motionstatId);
+        btCollisionShape* shape = reinterpret_cast<btCollisionShape*>(shapeId);
         btVector3 localInertia = btVector3();
         shape->calculateLocalInertia(mass, localInertia);
         btRigidBody* body = new btRigidBody(mass, motionState, shape, localInertia);
         body->setUserPointer(NULL);
-        return (OBJ_PTR) body;
+        return reinterpret_cast<jlong>(body);
     }
 
     /*
@@ -65,7 +65,7 @@ extern "C" {
      */
     JNIEXPORT jboolean JNICALL Java_com_jme3_bullet_objects_PhysicsRigidBody_isInWorld
     (JNIEnv *env, jobject object, jlong bodyId) {
-        btRigidBody* body = (btRigidBody*) bodyId;
+        btRigidBody* body = reinterpret_cast<btRigidBody*>(bodyId);
         if (body == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
@@ -81,7 +81,7 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsRigidBody_setPhysicsLocation
     (JNIEnv *env, jobject object, jlong bodyId, jobject value) {
-        btRigidBody* body = (btRigidBody*) bodyId;
+        btRigidBody* body = reinterpret_cast<btRigidBody*>(bodyId);
         if (body == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
@@ -106,7 +106,7 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsRigidBody_setPhysicsRotation__JLcom_jme3_math_Matrix3f_2
     (JNIEnv *env, jobject object, jlong bodyId, jobject value) {
-        btRigidBody* body = (btRigidBody*) bodyId;
+        btRigidBody* body = reinterpret_cast<btRigidBody*>(bodyId);
         if (body == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
@@ -131,7 +131,7 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsRigidBody_setPhysicsRotation__JLcom_jme3_math_Quaternion_2
     (JNIEnv *env, jobject object, jlong bodyId, jobject value) {
-        btRigidBody* body = (btRigidBody*) bodyId;
+        btRigidBody* body = reinterpret_cast<btRigidBody*>(bodyId);
         if (body == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
@@ -156,7 +156,7 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsRigidBody_getPhysicsLocation
     (JNIEnv *env, jobject object, jlong bodyId, jobject value) {
-        btRigidBody* body = (btRigidBody*) bodyId;
+        btRigidBody* body = reinterpret_cast<btRigidBody*>(bodyId);
         if (body == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
@@ -172,7 +172,7 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsRigidBody_getPhysicsRotation
     (JNIEnv *env, jobject object, jlong bodyId, jobject value) {
-        btRigidBody* body = (btRigidBody*) bodyId;
+        btRigidBody* body = reinterpret_cast<btRigidBody*>(bodyId);
         if (body == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
@@ -188,7 +188,7 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsRigidBody_getPhysicsRotationMatrix
     (JNIEnv *env, jobject object, jlong bodyId, jobject value) {
-        btRigidBody* body = (btRigidBody*) bodyId;
+        btRigidBody* body = reinterpret_cast<btRigidBody*>(bodyId);
         if (body == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
@@ -204,7 +204,7 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsRigidBody_setKinematic
     (JNIEnv *env, jobject object, jlong bodyId, jboolean value) {
-        btRigidBody* body = (btRigidBody*) bodyId;
+        btRigidBody* body = reinterpret_cast<btRigidBody*>(bodyId);
         if (body == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
@@ -226,7 +226,7 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsRigidBody_setCcdSweptSphereRadius
     (JNIEnv *env, jobject object, jlong bodyId, jfloat value) {
-        btRigidBody* body = (btRigidBody*) bodyId;
+        btRigidBody* body = reinterpret_cast<btRigidBody*>(bodyId);
         if (body == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
@@ -242,7 +242,7 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsRigidBody_setCcdMotionThreshold
     (JNIEnv *env, jobject object, jlong bodyId, jfloat value) {
-        btRigidBody* body = (btRigidBody*) bodyId;
+        btRigidBody* body = reinterpret_cast<btRigidBody*>(bodyId);
         if (body == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
@@ -258,7 +258,7 @@ extern "C" {
      */
     JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_objects_PhysicsRigidBody_getCcdSweptSphereRadius
     (JNIEnv *env, jobject object, jlong bodyId) {
-        btRigidBody* body = (btRigidBody*) bodyId;
+        btRigidBody* body = reinterpret_cast<btRigidBody*>(bodyId);
         if (body == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
@@ -274,7 +274,7 @@ extern "C" {
      */
     JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_objects_PhysicsRigidBody_getCcdMotionThreshold
     (JNIEnv *env, jobject object, jlong bodyId) {
-        btRigidBody* body = (btRigidBody*) bodyId;
+        btRigidBody* body = reinterpret_cast<btRigidBody*>(bodyId);
         if (body == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
@@ -290,7 +290,7 @@ extern "C" {
      */
     JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_objects_PhysicsRigidBody_getCcdSquareMotionThreshold
     (JNIEnv *env, jobject object, jlong bodyId) {
-        btRigidBody* body = (btRigidBody*) bodyId;
+        btRigidBody* body = reinterpret_cast<btRigidBody*>(bodyId);
         if (body == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
@@ -306,7 +306,7 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsRigidBody_setStatic
     (JNIEnv *env, jobject object, jlong bodyId, jboolean value) {
-        btRigidBody* body = (btRigidBody*) bodyId;
+        btRigidBody* body = reinterpret_cast<btRigidBody*>(bodyId);
         if (body == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
@@ -326,17 +326,17 @@ extern "C" {
      */
     JNIEXPORT jlong JNICALL Java_com_jme3_bullet_objects_PhysicsRigidBody_updateMassProps
     (JNIEnv *env, jobject object, jlong bodyId, jlong shapeId, jfloat mass) {
-        btRigidBody* body = (btRigidBody*) bodyId;
+        btRigidBody* body = reinterpret_cast<btRigidBody*>(bodyId);
         if (body == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
             return 0;
         }
-        btCollisionShape* shape = (btCollisionShape*) shapeId;
+        btCollisionShape* shape = reinterpret_cast<btCollisionShape*>(shapeId);
         btVector3 localInertia = btVector3();
         shape->calculateLocalInertia(mass, localInertia);
         body->setMassProps(mass, localInertia);
-        return (OBJ_PTR) body;
+        return reinterpret_cast<jlong>(body);
     }
 
     /*
@@ -346,7 +346,7 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsRigidBody_getGravity
     (JNIEnv *env, jobject object, jlong bodyId, jobject value) {
-        btRigidBody* body = (btRigidBody*) bodyId;
+        btRigidBody* body = reinterpret_cast<btRigidBody*>(bodyId);
         if (body == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
@@ -362,7 +362,7 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsRigidBody_setGravity
     (JNIEnv *env, jobject object, jlong bodyId, jobject value) {
-        btRigidBody* body = (btRigidBody*) bodyId;
+        btRigidBody* body = reinterpret_cast<btRigidBody*>(bodyId);
         if (body == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
@@ -380,7 +380,7 @@ extern "C" {
      */
     JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_objects_PhysicsRigidBody_getFriction
     (JNIEnv *env, jobject object, jlong bodyId) {
-        btRigidBody* body = (btRigidBody*) bodyId;
+        btRigidBody* body = reinterpret_cast<btRigidBody*>(bodyId);
         if (body == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
@@ -396,7 +396,7 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsRigidBody_setFriction
     (JNIEnv *env, jobject object, jlong bodyId, jfloat value) {
-        btRigidBody* body = (btRigidBody*) bodyId;
+        btRigidBody* body = reinterpret_cast<btRigidBody*>(bodyId);
         if (body == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
@@ -412,7 +412,7 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsRigidBody_setDamping
     (JNIEnv *env, jobject object, jlong bodyId, jfloat value1, jfloat value2) {
-        btRigidBody* body = (btRigidBody*) bodyId;
+        btRigidBody* body = reinterpret_cast<btRigidBody*>(bodyId);
         if (body == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
@@ -428,7 +428,7 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsRigidBody_setAngularDamping
     (JNIEnv *env, jobject object, jlong bodyId, jfloat value) {
-        btRigidBody* body = (btRigidBody*) bodyId;
+        btRigidBody* body = reinterpret_cast<btRigidBody*>(bodyId);
         if (body == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
@@ -444,7 +444,7 @@ extern "C" {
      */
     JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_objects_PhysicsRigidBody_getLinearDamping
     (JNIEnv *env, jobject object, jlong bodyId) {
-        btRigidBody* body = (btRigidBody*) bodyId;
+        btRigidBody* body = reinterpret_cast<btRigidBody*>(bodyId);
         if (body == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
@@ -460,7 +460,7 @@ extern "C" {
      */
     JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_objects_PhysicsRigidBody_getAngularDamping
     (JNIEnv *env, jobject object, jlong bodyId) {
-        btRigidBody* body = (btRigidBody*) bodyId;
+        btRigidBody* body = reinterpret_cast<btRigidBody*>(bodyId);
         if (body == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
@@ -476,7 +476,7 @@ extern "C" {
      */
     JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_objects_PhysicsRigidBody_getRestitution
     (JNIEnv *env, jobject object, jlong bodyId) {
-        btRigidBody* body = (btRigidBody*) bodyId;
+        btRigidBody* body = reinterpret_cast<btRigidBody*>(bodyId);
         if (body == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
@@ -492,7 +492,7 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsRigidBody_setRestitution
     (JNIEnv *env, jobject object, jlong bodyId, jfloat value) {
-        btRigidBody* body = (btRigidBody*) bodyId;
+        btRigidBody* body = reinterpret_cast<btRigidBody*>(bodyId);
         if (body == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
@@ -508,7 +508,7 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsRigidBody_getAngularVelocity
     (JNIEnv *env, jobject object, jlong bodyId, jobject value) {
-        btRigidBody* body = (btRigidBody*) bodyId;
+        btRigidBody* body = reinterpret_cast<btRigidBody*>(bodyId);
         if (body == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
@@ -524,7 +524,7 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsRigidBody_setAngularVelocity
     (JNIEnv *env, jobject object, jlong bodyId, jobject value) {
-        btRigidBody* body = (btRigidBody*) bodyId;
+        btRigidBody* body = reinterpret_cast<btRigidBody*>(bodyId);
         if (body == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
@@ -542,7 +542,7 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsRigidBody_getLinearVelocity
     (JNIEnv *env, jobject object, jlong bodyId, jobject value) {
-        btRigidBody* body = (btRigidBody*) bodyId;
+        btRigidBody* body = reinterpret_cast<btRigidBody*>(bodyId);
         if (body == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
@@ -558,7 +558,7 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsRigidBody_setLinearVelocity
     (JNIEnv *env, jobject object, jlong bodyId, jobject value) {
-        btRigidBody* body = (btRigidBody*) bodyId;
+        btRigidBody* body = reinterpret_cast<btRigidBody*>(bodyId);
         if (body == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
@@ -576,7 +576,7 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsRigidBody_applyForce
     (JNIEnv *env, jobject object, jlong bodyId, jobject force, jobject location) {
-        btRigidBody* body = (btRigidBody*) bodyId;
+        btRigidBody* body = reinterpret_cast<btRigidBody*>(bodyId);
         if (body == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
@@ -596,7 +596,7 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsRigidBody_applyCentralForce
     (JNIEnv *env, jobject object, jlong bodyId, jobject force) {
-        btRigidBody* body = (btRigidBody*) bodyId;
+        btRigidBody* body = reinterpret_cast<btRigidBody*>(bodyId);
         if (body == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
@@ -614,7 +614,7 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsRigidBody_applyTorque
     (JNIEnv *env, jobject object, jlong bodyId, jobject force) {
-        btRigidBody* body = (btRigidBody*) bodyId;
+        btRigidBody* body = reinterpret_cast<btRigidBody*>(bodyId);
         if (body == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
@@ -632,7 +632,7 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsRigidBody_applyImpulse
     (JNIEnv *env, jobject object, jlong bodyId, jobject force, jobject location) {
-        btRigidBody* body = (btRigidBody*) bodyId;
+        btRigidBody* body = reinterpret_cast<btRigidBody*>(bodyId);
         if (body == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
@@ -652,7 +652,7 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsRigidBody_applyTorqueImpulse
     (JNIEnv *env, jobject object, jlong bodyId, jobject force) {
-        btRigidBody* body = (btRigidBody*) bodyId;
+        btRigidBody* body = reinterpret_cast<btRigidBody*>(bodyId);
         if (body == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
@@ -670,7 +670,7 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsRigidBody_clearForces
     (JNIEnv *env, jobject object, jlong bodyId) {
-        btRigidBody* body = (btRigidBody*) bodyId;
+        btRigidBody* body = reinterpret_cast<btRigidBody*>(bodyId);
         if (body == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
@@ -686,13 +686,13 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsRigidBody_setCollisionShape
     (JNIEnv *env, jobject object, jlong bodyId, jlong shapeId) {
-        btRigidBody* body = (btRigidBody*) bodyId;
+        btRigidBody* body = reinterpret_cast<btRigidBody*>(bodyId);
         if (body == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
             return;
         }
-        btCollisionShape* shape = (btCollisionShape*) shapeId;
+        btCollisionShape* shape = reinterpret_cast<btCollisionShape*>(shapeId);
         body->setCollisionShape(shape);
     }
 
@@ -703,7 +703,7 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsRigidBody_activate
     (JNIEnv *env, jobject object, jlong bodyId) {
-        btRigidBody* body = (btRigidBody*) bodyId;
+        btRigidBody* body = reinterpret_cast<btRigidBody*>(bodyId);
         if (body == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
@@ -719,7 +719,7 @@ extern "C" {
      */
     JNIEXPORT jboolean JNICALL Java_com_jme3_bullet_objects_PhysicsRigidBody_isActive
     (JNIEnv *env, jobject object, jlong bodyId) {
-        btRigidBody* body = (btRigidBody*) bodyId;
+        btRigidBody* body = reinterpret_cast<btRigidBody*>(bodyId);
         if (body == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
@@ -735,7 +735,7 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsRigidBody_setSleepingThresholds
     (JNIEnv *env, jobject object, jlong bodyId, jfloat linear, jfloat angular) {
-        btRigidBody* body = (btRigidBody*) bodyId;
+        btRigidBody* body = reinterpret_cast<btRigidBody*>(bodyId);
         if (body == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
@@ -751,7 +751,7 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsRigidBody_setLinearSleepingThreshold
     (JNIEnv *env, jobject object, jlong bodyId, jfloat value) {
-        btRigidBody* body = (btRigidBody*) bodyId;
+        btRigidBody* body = reinterpret_cast<btRigidBody*>(bodyId);
         if (body == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
@@ -767,7 +767,7 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsRigidBody_setAngularSleepingThreshold
     (JNIEnv *env, jobject object, jlong bodyId, jfloat value) {
-        btRigidBody* body = (btRigidBody*) bodyId;
+        btRigidBody* body = reinterpret_cast<btRigidBody*>(bodyId);
         if (body == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
@@ -783,7 +783,7 @@ extern "C" {
      */
     JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_objects_PhysicsRigidBody_getLinearSleepingThreshold
     (JNIEnv *env, jobject object, jlong bodyId) {
-        btRigidBody* body = (btRigidBody*) bodyId;
+        btRigidBody* body = reinterpret_cast<btRigidBody*>(bodyId);
         if (body == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
@@ -799,7 +799,7 @@ extern "C" {
      */
     JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_objects_PhysicsRigidBody_getAngularSleepingThreshold
     (JNIEnv *env, jobject object, jlong bodyId) {
-        btRigidBody* body = (btRigidBody*) bodyId;
+        btRigidBody* body = reinterpret_cast<btRigidBody*>(bodyId);
         if (body == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
@@ -815,7 +815,7 @@ extern "C" {
      */
     JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_objects_PhysicsRigidBody_getAngularFactor
     (JNIEnv *env, jobject object, jlong bodyId) {
-        btRigidBody* body = (btRigidBody*) bodyId;
+        btRigidBody* body = reinterpret_cast<btRigidBody*>(bodyId);
         if (body == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
@@ -831,7 +831,7 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsRigidBody_setAngularFactor
     (JNIEnv *env, jobject object, jlong bodyId, jfloat value) {
-        btRigidBody* body = (btRigidBody*) bodyId;
+        btRigidBody* body = reinterpret_cast<btRigidBody*>(bodyId);
         if (body == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");

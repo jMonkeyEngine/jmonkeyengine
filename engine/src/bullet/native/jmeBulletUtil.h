@@ -34,14 +34,6 @@
 #include "btBulletCollisionCommon.h"
 #include "LinearMath/btVector3.h"
 
-#ifdef _WIN32
-typedef jlong OBJ_PTR;
-#elif _WIN64
-typedef jlong OBJ_PTR;
-#else
-typedef jlong OBJ_PTR;
-#endif
-
 /**
  * Author: Normen Hansen
  */

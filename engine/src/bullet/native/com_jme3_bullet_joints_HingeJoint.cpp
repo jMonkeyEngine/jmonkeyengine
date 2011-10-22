@@ -47,7 +47,7 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_joints_HingeJoint_enableMotor
     (JNIEnv * env, jobject object, jlong jointId, jboolean enable, jfloat targetVelocity, jfloat maxMotorImpulse) {
-        btHingeConstraint* joint = (btHingeConstraint*) jointId;
+        btHingeConstraint* joint = reinterpret_cast<btHingeConstraint*>(jointId);
         if (joint == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
@@ -63,7 +63,7 @@ extern "C" {
      */
     JNIEXPORT jboolean JNICALL Java_com_jme3_bullet_joints_HingeJoint_getEnableAngularMotor
     (JNIEnv * env, jobject object, jlong jointId) {
-        btHingeConstraint* joint = (btHingeConstraint*) jointId;
+        btHingeConstraint* joint = reinterpret_cast<btHingeConstraint*>(jointId);
         if (joint == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
@@ -79,7 +79,7 @@ extern "C" {
      */
     JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_joints_HingeJoint_getMotorTargetVelocity
     (JNIEnv * env, jobject object, jlong jointId) {
-        btHingeConstraint* joint = (btHingeConstraint*) jointId;
+        btHingeConstraint* joint = reinterpret_cast<btHingeConstraint*>(jointId);
         if (joint == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
@@ -95,7 +95,7 @@ extern "C" {
      */
     JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_joints_HingeJoint_getMaxMotorImpulse
     (JNIEnv * env, jobject object, jlong jointId) {
-        btHingeConstraint* joint = (btHingeConstraint*) jointId;
+        btHingeConstraint* joint = reinterpret_cast<btHingeConstraint*>(jointId);
         if (joint == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
@@ -111,7 +111,7 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_joints_HingeJoint_setLimit__JFF
     (JNIEnv * env, jobject object, jlong jointId, jfloat low, jfloat high) {
-        btHingeConstraint* joint = (btHingeConstraint*) jointId;
+        btHingeConstraint* joint = reinterpret_cast<btHingeConstraint*>(jointId);
         if (joint == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
@@ -127,7 +127,7 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_joints_HingeJoint_setLimit__JFFFFF
     (JNIEnv * env, jobject object, jlong jointId, jfloat low, jfloat high, jfloat softness, jfloat biasFactor, jfloat relaxationFactor) {
-        btHingeConstraint* joint = (btHingeConstraint*) jointId;
+        btHingeConstraint* joint = reinterpret_cast<btHingeConstraint*>(jointId);
         if (joint == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
@@ -143,7 +143,7 @@ extern "C" {
      */
     JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_joints_HingeJoint_getUpperLimit
     (JNIEnv * env, jobject object, jlong jointId) {
-        btHingeConstraint* joint = (btHingeConstraint*) jointId;
+        btHingeConstraint* joint = reinterpret_cast<btHingeConstraint*>(jointId);
         if (joint == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
@@ -159,7 +159,7 @@ extern "C" {
      */
     JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_joints_HingeJoint_getLowerLimit
     (JNIEnv * env, jobject object, jlong jointId) {
-        btHingeConstraint* joint = (btHingeConstraint*) jointId;
+        btHingeConstraint* joint = reinterpret_cast<btHingeConstraint*>(jointId);
         if (joint == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
@@ -175,7 +175,7 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_joints_HingeJoint_setAngularOnly
     (JNIEnv * env, jobject object, jlong jointId, jboolean angular) {
-        btHingeConstraint* joint = (btHingeConstraint*) jointId;
+        btHingeConstraint* joint = reinterpret_cast<btHingeConstraint*>(jointId);
         if (joint == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
@@ -191,7 +191,7 @@ extern "C" {
      */
     JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_joints_HingeJoint_getHingeAngle
     (JNIEnv * env, jobject object, jlong jointId) {
-        btHingeConstraint* joint = (btHingeConstraint*) jointId;
+        btHingeConstraint* joint = reinterpret_cast<btHingeConstraint*>(jointId);
         if (joint == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
@@ -208,8 +208,8 @@ extern "C" {
     JNIEXPORT jlong JNICALL Java_com_jme3_bullet_joints_HingeJoint_createJoint
     (JNIEnv * env, jobject object, jlong bodyIdA, jlong bodyIdB, jobject pivotA, jobject axisA, jobject pivotB, jobject axisB) {
         jmeClasses::initJavaClasses(env);
-        btRigidBody* bodyA = (btRigidBody*) bodyIdA;
-        btRigidBody* bodyB = (btRigidBody*) bodyIdB;
+        btRigidBody* bodyA = reinterpret_cast<btRigidBody*>(bodyIdA);
+        btRigidBody* bodyB = reinterpret_cast<btRigidBody*>(bodyIdB);
         btVector3 vec1 = btVector3();
         btVector3 vec2 = btVector3();
         btVector3 vec3 = btVector3();
@@ -219,7 +219,7 @@ extern "C" {
         jmeBulletUtil::convert(env, axisA, &vec3);
         jmeBulletUtil::convert(env, axisB, &vec4);
         btHingeConstraint* joint = new btHingeConstraint(*bodyA, *bodyB, vec1, vec2, vec3, vec4);
-        return (OBJ_PTR) joint;
+        return reinterpret_cast<jlong>(joint);
     }
 #ifdef __cplusplus
 }

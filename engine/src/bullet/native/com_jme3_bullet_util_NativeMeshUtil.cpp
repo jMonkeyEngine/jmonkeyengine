@@ -51,7 +51,7 @@ extern "C" {
         int* triangles = (int*) env->GetDirectBufferAddress(triangleIndexBase);
         float* vertices = (float*) env->GetDirectBufferAddress(vertexIndexBase);
         btTriangleIndexVertexArray* array = new btTriangleIndexVertexArray(numTriangles, triangles, triangleIndexStride, numVertices, vertices, vertexStride);
-        return (OBJ_PTR) array;
+        return reinterpret_cast<jlong>(array);
     }
 
 #ifdef __cplusplus

@@ -51,7 +51,7 @@ extern "C" {
         jmeClasses::initJavaClasses(env);
         void* data = env->GetDirectBufferAddress(heightfieldData);
         btHeightfieldTerrainShape* shape=new btHeightfieldTerrainShape(heightStickWidth, heightStickLength, data, heightScale, minHeight, maxHeight, upAxis, PHY_FLOAT, flipQuadEdges);
-        return (OBJ_PTR)shape;
+        return reinterpret_cast<jlong>(shape);
     }
 
 #ifdef __cplusplus

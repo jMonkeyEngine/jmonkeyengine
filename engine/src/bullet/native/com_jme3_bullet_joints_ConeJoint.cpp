@@ -47,7 +47,7 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_joints_ConeJoint_setLimit
     (JNIEnv * env, jobject object, jlong jointId, jfloat swingSpan1, jfloat swingSpan2, jfloat twistSpan) {
-        btConeTwistConstraint* joint = (btConeTwistConstraint*) jointId;
+        btConeTwistConstraint* joint = reinterpret_cast<btConeTwistConstraint*>(jointId);
         if (joint == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
@@ -64,7 +64,7 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_joints_ConeJoint_setAngularOnly
     (JNIEnv * env, jobject object, jlong jointId, jboolean angularOnly) {
-        btConeTwistConstraint* joint = (btConeTwistConstraint*) jointId;
+        btConeTwistConstraint* joint = reinterpret_cast<btConeTwistConstraint*>(jointId);
         if (joint == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
@@ -81,8 +81,8 @@ extern "C" {
     JNIEXPORT jlong JNICALL Java_com_jme3_bullet_joints_ConeJoint_createJoint
     (JNIEnv * env, jobject object, jlong bodyIdA, jlong bodyIdB, jobject pivotA, jobject rotA, jobject pivotB, jobject rotB) {
         jmeClasses::initJavaClasses(env);
-        btRigidBody* bodyA = (btRigidBody*) bodyIdA;
-        btRigidBody* bodyB = (btRigidBody*) bodyIdB;
+        btRigidBody* bodyA = reinterpret_cast<btRigidBody*>(bodyIdA);
+        btRigidBody* bodyB = reinterpret_cast<btRigidBody*>(bodyIdB);
         btMatrix3x3 mtx1 = btMatrix3x3();
         btMatrix3x3 mtx2 = btMatrix3x3();
         btTransform transA = btTransform(mtx1);
@@ -92,7 +92,7 @@ extern "C" {
         jmeBulletUtil::convert(env, pivotB, &transB.getOrigin());
         jmeBulletUtil::convert(env, rotB, &transB.getBasis());
         btConeTwistConstraint* joint = new btConeTwistConstraint(*bodyA, *bodyB, transA, transB);
-        return (OBJ_PTR) joint;
+        return reinterpret_cast<jlong>(joint);
     }
 
 #ifdef __cplusplus

@@ -48,7 +48,7 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_VehicleWheel_getWheelLocation
     (JNIEnv *env, jobject object, jlong vehicleId, jint wheelIndex, jobject out) {
-        btRaycastVehicle* vehicle = (btRaycastVehicle*) vehicleId;
+        btRaycastVehicle* vehicle = reinterpret_cast<btRaycastVehicle*>(vehicleId);
         if (vehicle == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
@@ -64,7 +64,7 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_VehicleWheel_getWheelRotation
     (JNIEnv *env, jobject object, jlong vehicleId, jint wheelIndex, jobject out) {
-        btRaycastVehicle* vehicle = (btRaycastVehicle*) vehicleId;
+        btRaycastVehicle* vehicle = reinterpret_cast<btRaycastVehicle*>(vehicleId);
         if (vehicle == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
@@ -80,7 +80,7 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_VehicleWheel_applyInfo
     (JNIEnv *env, jobject object, jlong vehicleId, jint wheelIndex, jfloat suspensionStiffness, jfloat wheelsDampingRelaxation, jfloat wheelsDampingCompression, jfloat frictionSlip, jfloat rollInfluence, jfloat maxSuspensionTravelCm, jfloat maxSuspensionForce, jfloat radius, jboolean frontWheel, jfloat restLength) {
-        btRaycastVehicle* vehicle = (btRaycastVehicle*) vehicleId;
+        btRaycastVehicle* vehicle = reinterpret_cast<btRaycastVehicle*>(vehicleId);
         vehicle->getWheelInfo(wheelIndex).m_suspensionStiffness = suspensionStiffness;
         vehicle->getWheelInfo(wheelIndex).m_wheelsDampingRelaxation = wheelsDampingRelaxation;
         vehicle->getWheelInfo(wheelIndex).m_wheelsDampingCompression = wheelsDampingCompression;
@@ -101,7 +101,7 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_VehicleWheel_getCollisionLocation
     (JNIEnv *env, jobject object, jlong vehicleId, jint wheelIndex, jobject out) {
-        btRaycastVehicle* vehicle = (btRaycastVehicle*) vehicleId;
+        btRaycastVehicle* vehicle = reinterpret_cast<btRaycastVehicle*>(vehicleId);
         if (vehicle == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
@@ -117,7 +117,7 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_VehicleWheel_getCollisionNormal
     (JNIEnv *env, jobject object, jlong vehicleId, jint wheelIndex, jobject out) {
-        btRaycastVehicle* vehicle = (btRaycastVehicle*) vehicleId;
+        btRaycastVehicle* vehicle = reinterpret_cast<btRaycastVehicle*>(vehicleId);
         if (vehicle == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
@@ -133,7 +133,7 @@ extern "C" {
      */
     JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_objects_VehicleWheel_getSkidInfo
     (JNIEnv *env, jobject object, jlong vehicleId, jint wheelIndex) {
-        btRaycastVehicle* vehicle = (btRaycastVehicle*) vehicleId;
+        btRaycastVehicle* vehicle = reinterpret_cast<btRaycastVehicle*>(vehicleId);
         if (vehicle == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
@@ -144,7 +144,7 @@ extern "C" {
 
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_VehicleWheel_finalizeNative
     (JNIEnv *env, jobject object, jlong vehicleId, jint wheelIndex) {
-        btRaycastVehicle* vehicle = (btRaycastVehicle*) vehicleId;
+        btRaycastVehicle* vehicle = reinterpret_cast<btRaycastVehicle*>(vehicleId);
         if (vehicle == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");

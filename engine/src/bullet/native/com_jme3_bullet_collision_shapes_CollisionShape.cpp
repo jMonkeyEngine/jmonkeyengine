@@ -47,7 +47,7 @@ extern "C" {
      */
     JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_collision_shapes_CollisionShape_getMargin
     (JNIEnv * env, jobject object, jlong shapeId) {
-        btCollisionShape* shape = (btCollisionShape*) shapeId;
+        btCollisionShape* shape = reinterpret_cast<btCollisionShape*>(shapeId);
         if (shape == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
@@ -63,7 +63,7 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_collision_shapes_CollisionShape_setLocalScaling
     (JNIEnv * env, jobject object, jlong shapeId, jobject scale) {
-        btCollisionShape* shape = (btCollisionShape*) shapeId;
+        btCollisionShape* shape = reinterpret_cast<btCollisionShape*>(shapeId);
         if (shape == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
@@ -81,7 +81,7 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_collision_shapes_CollisionShape_setMargin
     (JNIEnv * env, jobject object, jlong shapeId, jfloat newMargin) {
-        btCollisionShape* shape = (btCollisionShape*) shapeId;
+        btCollisionShape* shape = reinterpret_cast<btCollisionShape*>(shapeId);
         if (shape == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
@@ -97,7 +97,7 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_collision_shapes_CollisionShape_finalizeNative
     (JNIEnv * env, jobject object, jlong shapeId) {
-        btCollisionShape* shape = (btCollisionShape*) shapeId;
+        btCollisionShape* shape = reinterpret_cast<btCollisionShape*>(shapeId);
         if (shape == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");

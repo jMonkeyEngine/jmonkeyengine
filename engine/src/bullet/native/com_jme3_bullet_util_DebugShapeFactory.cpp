@@ -88,16 +88,16 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_util_DebugShapeFactory_getVertices
     (JNIEnv *env, jclass clazz, jlong shapeId, jobject callback) {
-        btCollisionShape* shape = (btCollisionShape*) shapeId;
+        btCollisionShape* shape = reinterpret_cast<btCollisionShape*>(shapeId);
         if (shape->isConcave()) {
-            btConcaveShape* concave = (btConcaveShape*) shape;
+            btConcaveShape* concave = reinterpret_cast<btConcaveShape*>(shape);
             DebugCallback* clb = new DebugCallback(env, callback);
             btVector3 min = btVector3(-1e30, -1e30, -1e30);
             btVector3 max = btVector3(1e30, 1e30, 1e30);
             concave->processAllTriangles(clb, min, max);
             delete(clb);
         } else if (shape->isConvex()) {
-            btConvexShape* convexShape = (btConvexShape*) shape;
+            btConvexShape* convexShape = reinterpret_cast<btConvexShape*>(shape);
             // Check there is a hull shape to render
             if (convexShape->getUserPointer() == NULL) {
                 // create a hull approximation

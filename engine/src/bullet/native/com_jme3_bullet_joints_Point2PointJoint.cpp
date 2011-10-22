@@ -47,7 +47,7 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_joints_Point2PointJoint_setDamping
     (JNIEnv * env, jobject object, jlong jointId, jfloat damping) {
-        btPoint2PointConstraint* joint = (btPoint2PointConstraint*) jointId;
+        btPoint2PointConstraint* joint = reinterpret_cast<btPoint2PointConstraint*>(jointId);
         if (joint == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
@@ -63,7 +63,7 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_joints_Point2PointJoint_setImpulseClamp
     (JNIEnv * env, jobject object, jlong jointId, jfloat clamp) {
-        btPoint2PointConstraint* joint = (btPoint2PointConstraint*) jointId;
+        btPoint2PointConstraint* joint = reinterpret_cast<btPoint2PointConstraint*>(jointId);
         if (joint == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
@@ -79,7 +79,7 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_joints_Point2PointJoint_setTau
     (JNIEnv * env, jobject object, jlong jointId, jfloat tau) {
-        btPoint2PointConstraint* joint = (btPoint2PointConstraint*) jointId;
+        btPoint2PointConstraint* joint = reinterpret_cast<btPoint2PointConstraint*>(jointId);
         if (joint == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
@@ -95,7 +95,7 @@ extern "C" {
      */
     JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_joints_Point2PointJoint_getDamping
     (JNIEnv * env, jobject object, jlong jointId) {
-        btPoint2PointConstraint* joint = (btPoint2PointConstraint*) jointId;
+        btPoint2PointConstraint* joint = reinterpret_cast<btPoint2PointConstraint*>(jointId);
         if (joint == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
@@ -111,7 +111,7 @@ extern "C" {
      */
     JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_joints_Point2PointJoint_getImpulseClamp
     (JNIEnv * env, jobject object, jlong jointId) {
-        btPoint2PointConstraint* joint = (btPoint2PointConstraint*) jointId;
+        btPoint2PointConstraint* joint = reinterpret_cast<btPoint2PointConstraint*>(jointId);
         if (joint == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
@@ -127,7 +127,7 @@ extern "C" {
      */
     JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_joints_Point2PointJoint_getTau
     (JNIEnv * env, jobject object, jlong jointId) {
-        btPoint2PointConstraint* joint = (btPoint2PointConstraint*) jointId;
+        btPoint2PointConstraint* joint = reinterpret_cast<btPoint2PointConstraint*>(jointId);
         if (joint == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
@@ -144,8 +144,8 @@ extern "C" {
     JNIEXPORT jlong JNICALL Java_com_jme3_bullet_joints_Point2PointJoint_createJoint
     (JNIEnv * env, jobject object, jlong bodyIdA, jlong bodyIdB, jobject pivotA, jobject pivotB) {
         jmeClasses::initJavaClasses(env);
-        btRigidBody* bodyA = (btRigidBody*) bodyIdA;
-        btRigidBody* bodyB = (btRigidBody*) bodyIdB;
+        btRigidBody* bodyA = reinterpret_cast<btRigidBody*>(bodyIdA);
+        btRigidBody* bodyB = reinterpret_cast<btRigidBody*>(bodyIdB);
         //TODO: matrix not needed?
         btMatrix3x3 mtx1 = btMatrix3x3();
         btMatrix3x3 mtx2 = btMatrix3x3();
@@ -154,7 +154,7 @@ extern "C" {
         btTransform transB = btTransform(mtx2);
         jmeBulletUtil::convert(env, pivotB, &transB.getOrigin());
         btHingeConstraint* joint = new btHingeConstraint(*bodyA, *bodyB, transA, transB);
-        return (OBJ_PTR) joint;
+        return reinterpret_cast<jlong>(joint);
     }
 
 #ifdef __cplusplus

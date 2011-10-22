@@ -47,13 +47,13 @@ extern "C" {
      */
     JNIEXPORT jlong JNICALL Java_com_jme3_bullet_joints_SixDofJoint_getRotationalLimitMotor
     (JNIEnv * env, jobject object, jlong jointId, jint index) {
-        btGeneric6DofConstraint* joint = (btGeneric6DofConstraint*) jointId;
+        btGeneric6DofConstraint* joint = reinterpret_cast<btGeneric6DofConstraint*>(jointId);
         if (joint == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
             return 0;
         }
-        return (OBJ_PTR) joint->getRotationalLimitMotor(index);
+        return reinterpret_cast<jlong>(joint->getRotationalLimitMotor(index));
     }
 
     /*
@@ -63,13 +63,13 @@ extern "C" {
      */
     JNIEXPORT jlong JNICALL Java_com_jme3_bullet_joints_SixDofJoint_getTranslationalLimitMotor
     (JNIEnv * env, jobject object, jlong jointId) {
-        btGeneric6DofConstraint* joint = (btGeneric6DofConstraint*) jointId;
+        btGeneric6DofConstraint* joint = reinterpret_cast<btGeneric6DofConstraint*>(jointId);
         if (joint == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
             return 0;
         }
-        return (OBJ_PTR) joint->getTranslationalLimitMotor();
+        return reinterpret_cast<jlong>(joint->getTranslationalLimitMotor());
     }
 
     /*
@@ -79,7 +79,7 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_joints_SixDofJoint_setLinearUpperLimit
     (JNIEnv * env, jobject object, jlong jointId, jobject vector) {
-        btGeneric6DofConstraint* joint = (btGeneric6DofConstraint*) jointId;
+        btGeneric6DofConstraint* joint = reinterpret_cast<btGeneric6DofConstraint*>(jointId);
         if (joint == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
@@ -97,7 +97,7 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_joints_SixDofJoint_setLinearLowerLimit
     (JNIEnv * env, jobject object, jlong jointId, jobject vector) {
-        btGeneric6DofConstraint* joint = (btGeneric6DofConstraint*) jointId;
+        btGeneric6DofConstraint* joint = reinterpret_cast<btGeneric6DofConstraint*>(jointId);
         if (joint == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
@@ -115,7 +115,7 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_joints_SixDofJoint_setAngularUpperLimit
     (JNIEnv * env, jobject object, jlong jointId, jobject vector) {
-        btGeneric6DofConstraint* joint = (btGeneric6DofConstraint*) jointId;
+        btGeneric6DofConstraint* joint = reinterpret_cast<btGeneric6DofConstraint*>(jointId);
         if (joint == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
@@ -133,7 +133,7 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_joints_SixDofJoint_setAngularLowerLimit
     (JNIEnv * env, jobject object, jlong jointId, jobject vector) {
-        btGeneric6DofConstraint* joint = (btGeneric6DofConstraint*) jointId;
+        btGeneric6DofConstraint* joint = reinterpret_cast<btGeneric6DofConstraint*>(jointId);
         if (joint == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
@@ -152,8 +152,8 @@ extern "C" {
     JNIEXPORT jlong JNICALL Java_com_jme3_bullet_joints_SixDofJoint_createJoint
     (JNIEnv * env, jobject object, jlong bodyIdA, jlong bodyIdB, jobject pivotA, jobject rotA, jobject pivotB, jobject rotB, jboolean useLinearReferenceFrameA) {
         jmeClasses::initJavaClasses(env);
-        btRigidBody* bodyA = (btRigidBody*) bodyIdA;
-        btRigidBody* bodyB = (btRigidBody*) bodyIdB;
+        btRigidBody* bodyA = reinterpret_cast<btRigidBody*>(bodyIdA);
+        btRigidBody* bodyB = reinterpret_cast<btRigidBody*>(bodyIdB);
         btMatrix3x3 mtx1 = btMatrix3x3();
         btMatrix3x3 mtx2 = btMatrix3x3();
         btTransform transA = btTransform(mtx1);
@@ -163,7 +163,7 @@ extern "C" {
         jmeBulletUtil::convert(env, pivotB, &transB.getOrigin());
         jmeBulletUtil::convert(env, rotB, &transB.getBasis());
         btGeneric6DofConstraint* joint = new btGeneric6DofConstraint(*bodyA, *bodyB, transA, transB, useLinearReferenceFrameA);
-        return (OBJ_PTR) joint;
+        return reinterpret_cast<jlong>(joint);
     }
 #ifdef __cplusplus
 }
