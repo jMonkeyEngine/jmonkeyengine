@@ -64,7 +64,7 @@ public class Natives {
         }
         if (extractionDir == null) {
             File workingFolder = new File("").getAbsoluteFile();
-            if (!workingFolder.canWrite()) {
+            if (workingFolder.getUsableSpace()>0) {
                 logger.log(Level.WARNING, "Working directory is not writable. Using home directory instead.");
                 extractionDir = new File(JmeSystem.getStorageFolder(),
                         "natives_" + Integer.toHexString(computeNativesHash()));
