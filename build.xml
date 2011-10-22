@@ -42,9 +42,7 @@
     <target name="-check-platform" depends="-check-platform-present" unless="platform.present">
         <property file="sdk/nbproject/project.properties"/>
         <echo message="Downloading base platform, this only has to be done once."/>
-        <!--get src="http://jmonkeyengine.googlecode.com/files/platform-base.zip" dest="./" skipexisting="true"/-->
-        <get src="http://jmonkeyengine.com/platform/base/alpha/platform-base.zip" dest="./" skipexisting="false"/>
-        <!--get src="http://jmonkeyengine.com/updates/${app.version}/platform-base.zip" dest="./" skipexisting="false"/-->
+        <get src="http://jmonkeyengine.com/updates/${app.version}/platform-base.zip" dest="./" skipexisting="false"/>
         <unzip src="platform-base.zip" dest="./"/>
         <antcall target="-update-sdk-platform-config"/>
         <delete file="platform-base.zip"/>
