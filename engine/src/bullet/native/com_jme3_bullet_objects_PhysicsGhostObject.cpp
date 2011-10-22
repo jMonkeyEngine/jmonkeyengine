@@ -54,7 +54,7 @@ extern "C" {
     (JNIEnv * env, jobject object) {
         jmeClasses::initJavaClasses(env);
         btPairCachingGhostObject* ghost = new btPairCachingGhostObject();
-        return (long) ghost;
+        return (OBJ_PTR) ghost;
     }
 
     /*

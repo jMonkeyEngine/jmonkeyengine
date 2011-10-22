@@ -55,7 +55,7 @@ extern "C" {
         shape->calculateLocalInertia(mass, localInertia);
         btRigidBody* body = new btRigidBody(mass, motionState, shape, localInertia);
         body->setUserPointer(NULL);
-        return (long) body;
+        return (OBJ_PTR) body;
     }
 
     /*
@@ -336,7 +336,7 @@ extern "C" {
         btVector3 localInertia = btVector3();
         shape->calculateLocalInertia(mass, localInertia);
         body->setMassProps(mass, localInertia);
-        return (long) body;
+        return (OBJ_PTR) body;
     }
 
     /*

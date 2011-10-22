@@ -154,7 +154,7 @@ extern "C" {
         btTransform transB = btTransform(mtx2);
         jmeBulletUtil::convert(env, pivotB, &transB.getOrigin());
         btHingeConstraint* joint = new btHingeConstraint(*bodyA, *bodyB, transA, transB);
-        return (long) joint;
+        return (OBJ_PTR) joint;
     }
 
 #ifdef __cplusplus

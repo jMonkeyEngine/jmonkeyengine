@@ -53,7 +53,7 @@ extern "C" {
             env->ThrowNew(newExc, "The native object does not exist.");
             return 0;
         }
-        return (long) joint->getRotationalLimitMotor(index);
+        return (OBJ_PTR) joint->getRotationalLimitMotor(index);
     }
 
     /*
@@ -69,7 +69,7 @@ extern "C" {
             env->ThrowNew(newExc, "The native object does not exist.");
             return 0;
         }
-        return (long) joint->getTranslationalLimitMotor();
+        return (OBJ_PTR) joint->getTranslationalLimitMotor();
     }
 
     /*
@@ -163,7 +163,7 @@ extern "C" {
         jmeBulletUtil::convert(env, pivotB, &transB.getOrigin());
         jmeBulletUtil::convert(env, rotB, &transB.getBasis());
         btGeneric6DofConstraint* joint = new btGeneric6DofConstraint(*bodyA, *bodyB, transA, transB, useLinearReferenceFrameA);
-        return (long) joint;
+        return (OBJ_PTR) joint;
     }
 #ifdef __cplusplus
 }

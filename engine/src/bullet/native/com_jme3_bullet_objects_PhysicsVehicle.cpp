@@ -75,7 +75,7 @@ extern "C" {
             return 0;
         }
         btDefaultVehicleRaycaster* caster = new btDefaultVehicleRaycaster(space->getDynamicsWorld());
-        return (long) caster;
+        return (OBJ_PTR) caster;
     }
 
     /*
@@ -101,7 +101,7 @@ extern "C" {
         }
         btRaycastVehicle::btVehicleTuning tuning;
         btRaycastVehicle* vehicle = new btRaycastVehicle(tuning, body, caster);
-        return (long) vehicle;
+        return (OBJ_PTR) vehicle;
 
     }
 

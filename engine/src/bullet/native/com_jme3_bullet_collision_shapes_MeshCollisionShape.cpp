@@ -51,7 +51,7 @@ extern "C" {
         jmeClasses::initJavaClasses(env);
         btTriangleIndexVertexArray* array = (btTriangleIndexVertexArray*) arrayId;
         btBvhTriangleMeshShape* shape = new btBvhTriangleMeshShape(array, true, true);
-        return (long) shape;
+        return (OBJ_PTR) shape;
     }
     
     /*

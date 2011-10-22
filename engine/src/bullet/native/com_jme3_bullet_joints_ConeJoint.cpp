@@ -92,7 +92,7 @@ extern "C" {
         jmeBulletUtil::convert(env, pivotB, &transB.getOrigin());
         jmeBulletUtil::convert(env, rotB, &transB.getBasis());
         btConeTwistConstraint* joint = new btConeTwistConstraint(*bodyA, *bodyB, transA, transB);
-        return (long) joint;
+        return (OBJ_PTR) joint;
     }
 
 #ifdef __cplusplus

@@ -51,7 +51,7 @@ extern "C" {
         btVector3 extents =  btVector3();
         jmeBulletUtil::convert(env, halfExtents, &extents);
         btBoxShape* shape = new btBoxShape(extents);
-        return (long)shape;
+        return (OBJ_PTR)shape;
     }
 
 #ifdef __cplusplus

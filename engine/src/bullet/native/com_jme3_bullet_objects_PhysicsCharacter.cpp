@@ -52,7 +52,7 @@ extern "C" {
     (JNIEnv * env, jobject object) {
         jmeClasses::initJavaClasses(env);
         btPairCachingGhostObject* ghost = new btPairCachingGhostObject();
-        return (long) ghost;
+        return (OBJ_PTR) ghost;
     }
 
     /*
@@ -88,7 +88,7 @@ extern "C" {
         //TODO: check convexshape!
         btConvexShape* shape = (btConvexShape*) shapeId;
         btKinematicCharacterController* character = new btKinematicCharacterController(ghost, shape, stepHeight);
-        return (long) character;
+        return (OBJ_PTR) character;
     }
 
     /*

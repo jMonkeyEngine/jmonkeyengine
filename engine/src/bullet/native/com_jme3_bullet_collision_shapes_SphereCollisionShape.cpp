@@ -49,7 +49,7 @@ extern "C" {
     (JNIEnv *env, jobject object, jfloat radius) {
         jmeClasses::initJavaClasses(env);
         btSphereShape* shape=new btSphereShape(radius);
-        return (long)shape;
+        return (OBJ_PTR)shape;
     }
 
 #ifdef __cplusplus

@@ -219,7 +219,7 @@ extern "C" {
         jmeBulletUtil::convert(env, axisA, &vec3);
         jmeBulletUtil::convert(env, axisB, &vec4);
         btHingeConstraint* joint = new btHingeConstraint(*bodyA, *bodyB, vec1, vec2, vec3, vec4);
-        return (long) joint;
+        return (OBJ_PTR) joint;
     }
 #ifdef __cplusplus
 }

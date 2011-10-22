@@ -955,7 +955,7 @@ extern "C" {
         jmeBulletUtil::convert(env, pivotB, &transB.getOrigin());
         jmeBulletUtil::convert(env, rotB, &transB.getBasis());
         btSliderConstraint* joint = new btSliderConstraint(*bodyA, *bodyB, transA, transB, useLinearReferenceFrameA);
-        return (long) joint;
+        return (OBJ_PTR) joint;
     }
 
 #ifdef __cplusplus

@@ -55,7 +55,7 @@ extern "C" {
             return 0;
         }
         space->createPhysicsSpace(minX, minY, minZ, maxX, maxY, maxZ, broadphase, threading);
-        return (long) space;
+        return (OBJ_PTR) space;
     }
 
     /*

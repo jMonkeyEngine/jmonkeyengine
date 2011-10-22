@@ -50,7 +50,7 @@ extern "C" {
     (JNIEnv *env, jobject object) {
         jmeClasses::initJavaClasses(env);
         jmeMotionState* motionState = new jmeMotionState();
-        return (long) motionState;
+        return (OBJ_PTR) motionState;
     }
 
     /*

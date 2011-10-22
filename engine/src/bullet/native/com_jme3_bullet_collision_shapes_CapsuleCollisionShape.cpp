@@ -60,7 +60,7 @@ extern "C" {
                 shape = new btCapsuleShapeZ(radius, height);
                 break;
         }
-        return (long) shape;
+        return (OBJ_PTR) shape;
     }
 
 #ifdef __cplusplus

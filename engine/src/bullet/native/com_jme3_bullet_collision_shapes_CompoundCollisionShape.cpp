@@ -49,7 +49,7 @@ extern "C" {
     (JNIEnv *env, jobject object) {
         jmeClasses::initJavaClasses(env);
         btCompoundShape* shape = new btCompoundShape();
-        return (long) shape;
+        return (OBJ_PTR) shape;
     }
 
     /*

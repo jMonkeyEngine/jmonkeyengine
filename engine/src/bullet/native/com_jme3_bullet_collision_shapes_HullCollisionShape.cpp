@@ -61,7 +61,7 @@ extern "C" {
             shape->addPoint(vect);
         }
 
-        return (long) shape;
+        return (OBJ_PTR) shape;
     }
 
 #ifdef __cplusplus

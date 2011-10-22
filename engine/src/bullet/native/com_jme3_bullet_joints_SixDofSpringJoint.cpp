@@ -86,7 +86,7 @@ JNIEXPORT jlong JNICALL Java_com_jme3_bullet_joints_SixDofSpringJoint_createJoin
         jmeBulletUtil::convert(env, rotB, &transB.getBasis());
 
         btGeneric6DofSpringConstraint* joint = new btGeneric6DofSpringConstraint(*bodyA, *bodyB, transA, transB, useLinearReferenceFrameA);
-        return (long)joint;
+        return (OBJ_PTR)joint;
     }
 
 #ifdef __cplusplus
