@@ -55,14 +55,6 @@ JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_VehicleWheel_getCollisionNor
 JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_objects_VehicleWheel_getSkidInfo
   (JNIEnv *, jobject, jlong, jint);
 
-/*
- * Class:     com_jme3_bullet_objects_VehicleWheel
- * Method:    finalizeNative
- * Signature: (JI)V
- */
-JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_VehicleWheel_finalizeNative
-  (JNIEnv *, jobject, jlong, jint);
-
 #ifdef __cplusplus
 }
 #endif

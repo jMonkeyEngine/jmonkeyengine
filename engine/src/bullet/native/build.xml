@@ -144,8 +144,8 @@
             <includepath path="${bullet.osx.java.include}"/>
             <includepath path="${bullet.bullet.include}"/>
             <compilerarg value="-syslibroot ${bullet.osx.syslibroot}"/>
-            <compilerarg value="-arch"/>
-            <compilerarg value="ppc"/>
+            <!--compilerarg value="-arch"/>
+            <compilerarg value="ppc"/-->
             <compilerarg value="-arch"/>
             <compilerarg value="i386"/>
             <compilerarg value="-arch"/>
@@ -156,8 +156,8 @@
                 <libset dir="${bullet.folder}/src/BulletDynamics" libs="BulletDynamics"/>
                 <libset dir="${bullet.folder}/src/BulletCollision" libs="BulletCollision"/>
                 <libset dir="${bullet.folder}/src/LinearMath" libs="LinearMath"/>
-                <linkerarg value="-arch"/>
-                <linkerarg value="ppc"/>
+                <!--linkerarg value="-arch"/>
+                <linkerarg value="ppc"/-->
                 <linkerarg value="-arch"/>
                 <linkerarg value="i386"/>
                 <linkerarg value="-arch"/>
