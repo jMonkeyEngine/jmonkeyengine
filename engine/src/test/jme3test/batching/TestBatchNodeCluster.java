@@ -77,7 +77,7 @@ public class TestBatchNodeCluster extends SimpleApplication {
 
     @Override
     public void simpleInitApp() {
-        timer = new NanoTimer();
+       
 
         blue = new BatchNode("blue");
         brown = new BatchNode("brown");
