@@ -416,14 +416,4 @@ public class VehicleWheel implements Savable {
         this.applyLocal = applyLocal;
     }
 
-    @Override
-    protected void finalize() throws Throwable {
-        super.finalize();
-        Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Finalizing Wheel {0}", Long.toHexString(wheelId));
-//        if (wheelId != 0 && wheelIndex != 0) {
-//            finalizeNative(wheelId, wheelIndex);
-//        }
-    }
-
-    private native void finalizeNative(long wheelId, int wheelIndex);
 }

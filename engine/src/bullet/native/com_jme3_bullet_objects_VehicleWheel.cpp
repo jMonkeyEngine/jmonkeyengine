@@ -142,17 +142,6 @@ extern "C" {
         return vehicle->getWheelInfo(wheelIndex).m_skidInfo;
     }
 
-    JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_VehicleWheel_finalizeNative
-    (JNIEnv *env, jobject object, jlong vehicleId, jint wheelIndex) {
-        btRaycastVehicle* vehicle = reinterpret_cast<btRaycastVehicle*>(vehicleId);
-        if (vehicle == NULL) {
-            jclass newExc = env->FindClass("java/lang/NullPointerException");
-            env->ThrowNew(newExc, "The native object does not exist.");
-            return;
-        }
-        btWheelInfo  m_wheelInfo[wheelIndex];
-        delete(&m_wheelInfo);
-    }
 #ifdef __cplusplus
 }
 #endif
