@@ -150,7 +150,8 @@ extern "C" {
             env->ThrowNew(newExc, "The native object does not exist.");
             return;
         }
-        delete(&vehicle->getWheelInfo(wheelIndex));
+        btWheelInfo  m_wheelInfo[wheelIndex];
+        delete(&m_wheelInfo);
     }
 #ifdef __cplusplus
 }
