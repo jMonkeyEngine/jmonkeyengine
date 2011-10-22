@@ -35,11 +35,11 @@
 #include "LinearMath/btVector3.h"
 
 #ifdef _WIN32
-typedef ULONG OBJ_PTR;
+typedef jlong OBJ_PTR;
 #elif _WIN64
-typedef _int64 OBJ_PTR;
+typedef jlong OBJ_PTR;
 #else
-typedef long OBJ_PTR;
+typedef jlong OBJ_PTR;
 #endif
 
 /**
