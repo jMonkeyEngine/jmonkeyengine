@@ -59,14 +59,20 @@ public class Natives {
     }
     
     public static File getExtractionDir(){
-        if (extractionDirOverride != null){
+        if (extractionDirOverride != null) {
             return extractionDirOverride;
         }
-        if (extractionDir == null){
-            extractionDir = new File(JmeSystem.getStorageFolder(), 
-                                     "natives_" + Integer.toHexString(computeNativesHash()) );
-            if (!extractionDir.exists()){
-                extractionDir.mkdir();
+        if (extractionDir == null) {
+            File workingFolder = new File("").getAbsoluteFile();
+            if (!workingFolder.canWrite()) {
+                logger.log(Level.WARNING, "Working directory is not writable. Using home directory instead.");
+                extractionDir = new File(JmeSystem.getStorageFolder(),
+                        "natives_" + Integer.toHexString(computeNativesHash()));
+                if (!extractionDir.exists()) {
+                    extractionDir.mkdir();
+                }
+            } else {
+                extractionDir = workingFolder;
             }
         }
         return extractionDir;
@@ -75,20 +81,20 @@ public class Natives {
     private static int computeNativesHash(){
         try {
             String classpath = System.getProperty("java.class.path");
-            URL url = Natives.class.getResource("");
-            if (url != null) {
-                StringBuilder sb = new StringBuilder(url.toString());
-                if (sb.indexOf("jar:") == 0) {
-                    sb.delete(0, 4);
-                    sb.delete(sb.indexOf("!"), sb.length());
-                    sb.delete(sb.lastIndexOf("/") + 1, sb.length());
-                }
-                try {
-                    url = new URL(sb.toString());
-                } catch (MalformedURLException ex) {
-                    throw new UnsupportedOperationException(ex);
-                }
+            URL url = Thread.currentThread().getContextClassLoader().getResource("com/jme3/system/Natives.class");
+            
+            StringBuilder sb = new StringBuilder(url.toString());
+            if (sb.indexOf("jar:") == 0) {
+                sb.delete(0, 4);
+                sb.delete(sb.indexOf("!"), sb.length());
+                sb.delete(sb.lastIndexOf("/") + 1, sb.length());
             }
+            try {
+                url = new URL(sb.toString());
+            } catch (MalformedURLException ex) {
+                throw new UnsupportedOperationException(ex);
+            }
+            
             URLConnection conn = url.openConnection();
             int hash = classpath.hashCode() ^ (int)conn.getLastModified();
             return hash;
