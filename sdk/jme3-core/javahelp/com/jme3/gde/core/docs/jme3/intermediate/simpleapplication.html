@@ -147,11 +147,6 @@ getGuiViewPort()</td><td>The view object for the orthogonal <acronym title="Grap
 	</tr>
 </table></div>
 <!-- EDIT3 TABLE [4097-5293] -->
-<p>
-
-See also: <a href="/com/jme3/gde/core/docs/jme3/intermediate/appsettings.html">AppSettings</a>
-</p>
-
 </div>
 
 <h2><a>SimpleApplication Class</a></h2>
@@ -192,7 +187,7 @@ getGuiNode()</td><td>Attach flat <acronym title="Graphical User Interface">GUI</
 getFlyByCamera()</td><td>The default first-person fly-by camera control. This default camera control lets you navigate the 3D scene using the preconfigured WASD and arrow keys and the mouse.</td>
 	</tr>
 </table></div>
-<!-- EDIT4 TABLE [5889-6432] --><div><table>
+<!-- EDIT4 TABLE [5862-6405] --><div><table>
 	<tr>
 		<th>SimpleApplication Method</th><th>Purpose</th>
 	</tr>
@@ -209,7 +204,7 @@ getFlyByCamera()</td><td>The default first-person fly-by camera control. This de
 		<td>setDisplayStatView(false);</td><td>A default SimpleApplication displays mesh statistics on the screen using the com.jme3.app.StatsView class. The information is valuable during the development and debugging phase, but for the release, you should hide the statistics HUD.</td>
 	</tr>
 </table></div>
-<!-- EDIT5 TABLE [6434-7226] --><div><table>
+<!-- EDIT5 TABLE [6407-7199] --><div><table>
 	<tr>
 		<th>SimpleApplication Interface</th><th>Purpose</th>
 	</tr>
@@ -223,10 +218,10 @@ getFlyByCamera()</td><td>The default first-person fly-by camera control. This de
 		<td>public void simpleRender(RenderManager rm)</td><td><strong>Optional:</strong> Override this method to implement <em>advanced</em> modifications of the frameBuffer and scene graph.</td>
 	</tr>
 </table></div>
-<!-- EDIT6 TABLE [7228-8146] -->
+<!-- EDIT6 TABLE [7201-8119] -->
 <p>
 
-<p><div>Use <code>app.setShowSettings(true);</code> to present the user with a splashscreen and display settings dialog when starting the game, or <code>app.setShowSettings(false);</code> to hide the custom splashscreen. Set this boolean before calling <code>app.start()</code> on the SimpleApplication.
+<p><div>Use <code>app.setShowSettings(true);</code> to present the user with a splashscreen and the built-in display settings dialog when starting the game; or use <code>app.setShowSettings(false);</code> to hide the buil-in screen (in this case, you may want to provide a custom splashscreen and settings panel). Set this boolean before calling <code>app.start()</code> in the <code>main()</code> method of the SimpleApplication. See also <a href="/com/jme3/gde/core/docs/jme3/intermediate/appsettings.html">AppSettings</a>.
 </div></p>
 </p>
 
@@ -254,7 +249,7 @@ The following default navigational input actions are mapped by the default <code
 		<td>KEY_M</td><td>Prints memory usage stats the out stream.</td>
 	</tr>
 </table></div>
-<!-- EDIT7 TABLE [8705-8896] -->
+<!-- EDIT7 TABLE [8822-9013] -->
 <p>
 
 As long as useInput() is true, the default Flyby Cam is active. Then the following so-called &quot;WASD&quot; inputs are additionally available:
@@ -304,7 +299,7 @@ As long as useInput() is true, the default Flyby Cam is active. Then the followi
 		<td>Rotate drag</td><td>Hold left mouse button and move</td>
 	</tr>
 </table></div>
-<!-- EDIT8 TABLE [9034-9594] --><div><span>
+<!-- EDIT8 TABLE [9151-9711] --><div><span>
 	<a href="/wiki/doku.php/tag:display?do=showtag&amp;tag=tag%3Adisplay">display</a>,
 	<a href="/wiki/doku.php/tag:basegame?do=showtag&amp;tag=tag%3Abasegame">basegame</a>,
 	<a href="/wiki/doku.php/tag:documentation?do=showtag&amp;tag=tag%3Adocumentation">documentation</a>,

@@ -102,8 +102,9 @@ public class HelloTerrain extends SimpleApplication &#123;
     rootNode.attachChild&#40;terrain&#41;;
 &nbsp;
     /** 5. The LOD (level of detail) depends on were the camera is: */
-    TerrainLodControl control = new TerrainLodControl&#40;terrain, getCamera&#40;&#41;&#41;;
-    control.setLodCalculator&#40; new DistanceLodCalculator&#40;patchSize, 2.7f&#41; &#41;; // patch size, and a multiplier
+    List&lt;Camera&gt; cameras = new ArrayList&lt;Camera&gt;&#40;&#41;;
+    cameras.add&#40;getCamera&#40;&#41;&#41;;
+    TerrainLodControl control = new TerrainLodControl&#40;terrain, cameras&#41;;
     terrain.addControl&#40;control&#41;;
   &#125;
 &#125;</pre>

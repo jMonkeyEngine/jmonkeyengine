@@ -26,7 +26,7 @@ Every class that extends jme3.app.SimpleApplication has properties that can be c
 &#125;</pre>
 
 <p>
-Set the boolean in the AppSettings contructor to true if you want to keep the default settings for everything that you do not specify. Set this parameter to false if you want to specify each property yourself (you&#039;ll get an exception if you missed one).
+Set the boolean in the AppSettings contructor to true if you want to keep the default settings for everything that you do not specify. Set this parameter to false if you want to change some of the settings, but otherwise want the application to load user settings from previous launches.
 </p>
 
 <p>
@@ -75,7 +75,7 @@ Depending on your graphic card, you may be able to set multisampling to higher v
 Set to false to deactivate vertical syncing (faster, but possible page tearing artifacts); can be deactivated during development.</td><td>false</td>
 	</tr>
 </table></div>
-<!-- EDIT1 TABLE [1372-3122] --><div><table>
+<!-- EDIT1 TABLE [1406-3156] --><div><table>
 	<tr>
 		<th>Settings Property (Input)</th><th>Description</th><th>Default</th>
 	</tr>
@@ -86,7 +86,7 @@ Set to false to deactivate vertical syncing (faster, but possible page tearing a
 		<td>setUseJoysticks(true)</td><td>Activate optional joystick support</td><td>false</td>
 	</tr>
 </table></div>
-<!-- EDIT2 TABLE [3124-3413] --><div><table>
+<!-- EDIT2 TABLE [3158-3447] --><div><table>
 	<tr>
 		<th>Settings Property (Audio)</th><th>Description</th><th>Default</th>
 	</tr>
@@ -95,10 +95,10 @@ Set to false to deactivate vertical syncing (faster, but possible page tearing a
 setAudioRenderer(AppSettings.LWJGL_JOAL)</td><td>Switch Audio Renderer</td><td>OpenAL</td>
 	</tr>
 	<tr>
-		<td>setStereo3D(true)</td><td>Enable 3D stereo. This feature requires hardware support from the GPU driver. See <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://en.wikipedia.org/wiki/Quad_buffering"><param name="text" value="<html><u>Quard Buffering</u></html>"><param name="textColor" value="blue"></object>.</td><td>false</td>
+		<td>setStereo3D(true)</td><td>Enable 3D stereo. This feature requires hardware support from the GPU driver. See <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://en.wikipedia.org/wiki/Quad_buffering"><param name="text" value="<html><u>Quad Buffering</u></html>"><param name="textColor" value="blue"></object>.</td><td>false</td>
 	</tr>
 </table></div>
-<!-- EDIT3 TABLE [3415-3753] --><div><table>
+<!-- EDIT3 TABLE [3449-3786] --><div><table>
 	<tr>
 		<th>Settings Property (Branding)</th><th>Description</th><th>Default</th>
 	</tr>
@@ -113,7 +113,7 @@ ImageIO.read(new File(&quot;&quot;)), …});</td><td>This specifies the little a
 		<td>setSettingsDialogImage(&quot;/path/to/splash.png&quot;)</td><td>A custom splashscreen image in the assets directory which is displayed when the settings dialog is shown.</td><td>&quot;/com/jme3/app/Monkey.png&quot;</td>
 	</tr>
 </table></div>
-<!-- EDIT4 TABLE [3755-4402] -->
+<!-- EDIT4 TABLE [3788-4435] -->
 </div>
 
 <h2><a>Saving and Loading Settings</a></h2>
