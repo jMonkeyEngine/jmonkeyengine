@@ -21,7 +21,9 @@ import java.util.logging.Logger;
 /**
  *
  * @author Nehon
+ * @deprecated use spatial animation instead.
  */
+@Deprecated
 public class ScaleTrack extends AbstractCinematicEvent {
 
     private static final Logger log = Logger.getLogger(RotationTrack.class.getName());
