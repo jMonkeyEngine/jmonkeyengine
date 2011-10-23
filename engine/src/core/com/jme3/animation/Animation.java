@@ -106,6 +106,9 @@ public class Animation implements Savable, Cloneable {
      * @param channel the animation channel
      */
     void setTime(float time, float blendAmount, AnimControl control, AnimChannel channel, TempVars vars) {
+        if (tracks == null)
+            return;
+        
         for (int i = 0; i < tracks.length; i++){
             tracks[i].setTime(time, blendAmount, control, channel, vars);
         }

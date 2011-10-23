@@ -785,12 +785,14 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
                             materialList = (MaterialList) assetManager.loadAsset(new OgreMaterialKey(folderName + materialName + ".material"));
                         } catch (AssetNotFoundException e) {
                             logger.log(Level.WARNING, "Cannot locate {0}{1}.material for model {2}{3}.{4}", new Object[]{folderName, materialName, folderName, meshName, ext});
+                            logger.log(Level.WARNING, "", e);
                         }
                     } else {
                         try {
                             materialList = (MaterialList) assetManager.loadAsset(new OgreMaterialKey(folderName + meshName + ".material"));
                         } catch (AssetNotFoundException e) {
                             logger.log(Level.WARNING, "Cannot locate {0}{1}.material for model {2}{3}.{4}", new Object[]{folderName, meshName, folderName, meshName, ext});
+                            logger.log(Level.WARNING, "", e);
                         }
                     }
                 }
@@ -799,7 +801,8 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
                     materialList = (MaterialList) assetManager.loadAsset(new OgreMaterialKey(folderName + meshName + ".material"));
                 } catch (AssetNotFoundException e) {
                     logger.log(Level.WARNING, "Cannot locate {0}{1}.material for model {2}{3}.{4}", new Object[]{folderName, meshName, folderName, meshName, ext});
-                }
+					logger.log(Level.WARNING, "", e);
+				}
 
             }
 

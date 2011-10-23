@@ -36,6 +36,7 @@ import com.jme3.asset.AssetInfo;
 import com.jme3.asset.AssetKey;
 import com.jme3.asset.AssetLoader;
 import com.jme3.asset.AssetManager;
+import com.jme3.asset.AssetNotFoundException;
 import com.jme3.asset.TextureKey;
 import com.jme3.material.Material;
 import com.jme3.material.MaterialList;
@@ -140,7 +141,13 @@ public class MaterialLoader implements AssetLoader {
         key.setGenerateMips(genMips);
         key.setAsCube(cubic);
 
-        Texture loadedTexture = assetManager.loadTexture(key);
+        Texture loadedTexture;
+        try {
+            loadedTexture = assetManager.loadTexture(key);
+        } catch (AssetNotFoundException ex){
+            logger.log(Level.WARNING, "Failed to load texture " + key + " for material " + matName, ex);
+            loadedTexture = null;
+        }
         if (loadedTexture == null){
             ByteBuffer tempData = BufferUtils.createByteBuffer(3);
             tempData.put((byte)0xFF).put((byte)0x00).put((byte)0x00);
