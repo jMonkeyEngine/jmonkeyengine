@@ -64,7 +64,7 @@ public class Natives {
         }
         if (extractionDir == null) {
             File workingFolder = new File("").getAbsoluteFile();
-            if (workingFolder.getUsableSpace() == 0 || !workingFolder.canWrite()) {
+            if (!workingFolder.canWrite()) {
                 setStorageExtractionDir();
             } else {
                 try {
