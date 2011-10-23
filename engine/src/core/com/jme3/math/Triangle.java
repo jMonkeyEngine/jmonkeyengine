@@ -37,8 +37,8 @@ import com.jme3.export.Savable;
 import java.io.IOException;
 
 /**
- * <code>Triangle</code> defines a object for containing triangle information.
- * The triangle is defined by a collection of three <code>Vector3f</code>
+ * <code>Triangle</code> defines an object for containing triangle information.
+ * The triangle is defined by a collection of three {@link Vector3f}
  * objects.
  * 
  * @author Mark Powell
@@ -108,7 +108,7 @@ public class Triangle extends AbstractTriangle implements Savable, java.io.Seria
 
     /**
      *
-     * <code>set</code> sets one of the triangles points to that specified as
+     * <code>set</code> sets one of the triangle's points to that specified as
      * a parameter.
      * @param i the index to place the point.
      * @param point the point to set.
@@ -129,7 +129,7 @@ public class Triangle extends AbstractTriangle implements Savable, java.io.Seria
 
     /**
      *
-     * <code>set</code> sets one of the triangles points to that specified as
+     * <code>set</code> sets one of the triangle's points to that specified as
      * a parameter.
      * @param i the index to place the point.
      */
@@ -179,7 +179,7 @@ public class Triangle extends AbstractTriangle implements Savable, java.io.Seria
     }
 
     /**
-     * calculateCenter finds the average point of the triangle. 
+     * calculateNormal generates the normal for this triangle
      *
      */
     public void calculateNormal() {
