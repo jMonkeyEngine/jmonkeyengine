@@ -53,18 +53,18 @@ public class Natives {
     private static final byte[] buf = new byte[1024];
     private static File extractionDirOverride = null;
     private static File extractionDir = null;
- 
+
     public static void setExtractionDir(String name) {
         extractionDirOverride = new File(name).getAbsoluteFile();
     }
-    
-    public static File getExtractionDir(){
+
+    public static File getExtractionDir() {
         if (extractionDirOverride != null) {
             return extractionDirOverride;
         }
         if (extractionDir == null) {
             File workingFolder = new File("").getAbsoluteFile();
-            if (workingFolder.getUsableSpace()>0) {
+            if (workingFolder.getUsableSpace() == 0 || !workingFolder.canWrite()) {
                 logger.log(Level.WARNING, "Working directory is not writable. Using home directory instead.");
                 extractionDir = new File(JmeSystem.getStorageFolder(),
                         "natives_" + Integer.toHexString(computeNativesHash()));
@@ -78,11 +78,11 @@ public class Natives {
         return extractionDir;
     }
 
-    private static int computeNativesHash(){
+    private static int computeNativesHash() {
         try {
             String classpath = System.getProperty("java.class.path");
             URL url = Thread.currentThread().getContextClassLoader().getResource("com/jme3/system/Natives.class");
-            
+
             StringBuilder sb = new StringBuilder(url.toString());
             if (sb.indexOf("jar:") == 0) {
                 sb.delete(0, 4);
@@ -94,15 +94,15 @@ public class Natives {
             } catch (MalformedURLException ex) {
                 throw new UnsupportedOperationException(ex);
             }
-            
+
             URLConnection conn = url.openConnection();
-            int hash = classpath.hashCode() ^ (int)conn.getLastModified();
+            int hash = classpath.hashCode() ^ (int) conn.getLastModified();
             return hash;
         } catch (IOException ex) {
             throw new UnsupportedOperationException(ex);
         }
     }
-    
+
     protected static void extractNativeLib(String sysName, String name) throws IOException {
         extractNativeLib(sysName, name, false, true);
     }
@@ -110,13 +110,13 @@ public class Natives {
     protected static void extractNativeLib(String sysName, String name, boolean load) throws IOException {
         extractNativeLib(sysName, name, load, true);
     }
-    
+
     protected static void extractNativeLib(String sysName, String name, boolean load, boolean warning) throws IOException {
         String fullname = System.mapLibraryName(name);
 
         String path = "native/" + sysName + "/" + fullname;
         URL url = Thread.currentThread().getContextClassLoader().getResource(path);
-        
+
         if (url == null) {
             if (!warning) {
                 logger.log(Level.WARNING, "Cannot locate native library: {0}/{1}",
@@ -124,25 +124,25 @@ public class Natives {
             }
             return;
         }
-        
+
         URLConnection conn = url.openConnection();
         InputStream in = conn.getInputStream();
         File targetFile = new File(getExtractionDir(), fullname);
-        
+
         try {
-            if (targetFile.exists()){
+            if (targetFile.exists()) {
                 // OK, compare last modified date of this file to 
                 // file in jar
                 long targetLastModified = targetFile.lastModified();
                 long sourceLastModified = conn.getLastModified();
 
                 // Allow ~1 second range for OSes that only support low precision
-                if (targetLastModified + 1000 > sourceLastModified){
+                if (targetLastModified + 1000 > sourceLastModified) {
                     logger.log(Level.FINE, "Not copying library {0}. Latest already extracted.", fullname);
                     return;
                 }
             }
-            
+
             OutputStream out = new FileOutputStream(targetFile);
             int len;
             while ((len = in.read(buf)) > 0) {
@@ -150,7 +150,7 @@ public class Natives {
             }
             in.close();
             out.close();
-            
+
             // NOTE: On OSes that support "Date Created" property, 
             // this will cause the last modified date to be lower than
             // date created which makes no sense
@@ -169,7 +169,7 @@ public class Natives {
         logger.log(Level.FINE, "Copied {0} to {1}", new Object[]{fullname, targetFile});
     }
 
-    protected static boolean isUsingNativeBullet(){
+    protected static boolean isUsingNativeBullet() {
         try {
             Class clazz = Class.forName("com.jme3.bullet.util.NativeMeshUtil");
             return clazz != null;
@@ -200,7 +200,7 @@ public class Natives {
 
         if (needLWJGL) {
             logger.log(Level.INFO, "Extraction Directory: {0}", getExtractionDir().toString());
-            
+
             // LWJGL supports this feature where
             // it can load libraries from this path.
             System.setProperty("org.lwjgl.librarypath", getExtractionDir().toString());
