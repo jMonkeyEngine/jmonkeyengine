@@ -65,17 +65,28 @@ public class Natives {
         if (extractionDir == null) {
             File workingFolder = new File("").getAbsoluteFile();
             if (workingFolder.getUsableSpace() == 0 || !workingFolder.canWrite()) {
-                logger.log(Level.WARNING, "Working directory is not writable. Using home directory instead.");
-                extractionDir = new File(JmeSystem.getStorageFolder(),
-                        "natives_" + Integer.toHexString(computeNativesHash()));
-                if (!extractionDir.exists()) {
-                    extractionDir.mkdir();
-                }
+                setStorageExtractionDir();
             } else {
-                extractionDir = workingFolder;
+                try {
+                    File file = new File(workingFolder.getAbsolutePath() + File.separator + ".jmetestwrite");
+                    file.createNewFile();
+                    file.delete();
+                    extractionDir = workingFolder;
+                } catch (Exception e) {
+                    setStorageExtractionDir();
+                }
             }
         }
         return extractionDir;
+    }
+
+    private static void setStorageExtractionDir() {
+        logger.log(Level.WARNING, "Working directory is not writable. Using home directory instead.");
+        extractionDir = new File(JmeSystem.getStorageFolder(),
+                "natives_" + Integer.toHexString(computeNativesHash()));
+        if (!extractionDir.exists()) {
+            extractionDir.mkdir();
+        }
     }
 
     private static int computeNativesHash() {
