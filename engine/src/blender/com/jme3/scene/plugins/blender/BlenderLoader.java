@@ -210,7 +210,9 @@ public class BlenderLoader extends AbstractBlenderLoader {
 			helper = blenderContext.getHelper(CurvesHelper.class);
 			helper.setyIsUpAxis(true);
 			helper = blenderContext.getHelper(ArmatureHelper.class);
-			helper.setyIsUpAxis(true);			
+			helper.setyIsUpAxis(true);
+			helper = blenderContext.getHelper(MeshHelper.class);
+			helper.setyIsUpAxis(true);
 		}
 		MaterialHelper materialHelper = blenderContext.getHelper(MaterialHelper.class);
 		materialHelper.setFaceCullMode(blenderKey.getFaceCullMode());

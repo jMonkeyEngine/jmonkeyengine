@@ -498,9 +498,16 @@ public class MeshHelper extends AbstractBlenderHelper {
 
         Pointer pMVert = (Pointer) meshStructure.getFieldValue("mvert");
         List<Structure> mVerts = pMVert.fetchData(blenderContext.getInputStream());
-        for (int i = 0; i < verticesAmount; ++i) {
-            DynamicArray<Number> coordinates = (DynamicArray<Number>) mVerts.get(i).getFieldValue("co");
-            vertices[i] = new Vector3f(coordinates.get(0).floatValue(), coordinates.get(1).floatValue(), coordinates.get(2).floatValue());
+        if(this.fixUpAxis) {
+        	for (int i = 0; i < verticesAmount; ++i) {
+                DynamicArray<Number> coordinates = (DynamicArray<Number>) mVerts.get(i).getFieldValue("co");
+                vertices[i] = new Vector3f(coordinates.get(0).floatValue(), coordinates.get(2).floatValue(), coordinates.get(1).floatValue());
+            }
+        } else {
+        	for (int i = 0; i < verticesAmount; ++i) {
+                DynamicArray<Number> coordinates = (DynamicArray<Number>) mVerts.get(i).getFieldValue("co");
+                vertices[i] = new Vector3f(coordinates.get(0).floatValue(), coordinates.get(1).floatValue(), coordinates.get(2).floatValue());
+            }
         }
         return vertices;
     }
