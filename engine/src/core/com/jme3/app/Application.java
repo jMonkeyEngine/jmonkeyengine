@@ -197,11 +197,32 @@ public class Application implements SystemListener {
         }
     }
 
+    /**
+     * Sets the Timer implementation that will be used for calculating
+     * frame times.  By default, Application will use the Timer as returned
+     * by the current JmeContext implementation.
+     */
+    public void setTimer(Timer timer){
+        this.timer = timer;
+        
+        if (timer != null) {
+            timer.reset();
+        }
+        
+        if (renderManager != null) {
+            renderManager.setTimer(timer);
+        }
+    } 
+
     private void initDisplay(){
         // aquire important objects
         // from the context
         settings = context.getSettings();
-        timer = context.getTimer();
+ 
+        // Only reset the timer if a user has not already provided one       
+        if (timer == null) {
+            timer = context.getTimer();
+        }
        
         renderer = context.getRenderer();
     }
