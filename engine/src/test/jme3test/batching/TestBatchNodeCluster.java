@@ -22,6 +22,7 @@ import com.jme3.post.FilterPostProcessor;
 import com.jme3.post.filters.BloomFilter;
 import com.jme3.scene.BatchNode;
 import com.jme3.scene.Node;
+import com.jme3.scene.SimpleBatchNode;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.debug.Arrow;
 import com.jme3.system.NanoTimer;
@@ -60,13 +61,8 @@ public class TestBatchNodeCluster extends SimpleApplication {
     protected int dynamic = 4;
     protected static AppSettings settingst;
     protected boolean isTrue = true;
-
     private int lineLength = 50;
-    protected BatchNode blue;
-    protected BatchNode brown;
-    protected BatchNode pink;
-    protected BatchNode orange;
-  
+    protected BatchNode batchNode;
     Material mat1;
     Material mat2;
     Material mat3;
@@ -77,34 +73,33 @@ public class TestBatchNodeCluster extends SimpleApplication {
 
     @Override
     public void simpleInitApp() {
-       
+        timer = new NanoTimer();
 
-        blue = new BatchNode("blue");
-        brown = new BatchNode("brown");
-        pink = new BatchNode("pink");
-        orange = new BatchNode("orange");
-        
+        batchNode = new SimpleBatchNode("BatchNode");
+
+
         xPosition.add(0);
         yPosition.add(0);
         zPosition.add(0);
-        randomGenerator();
-        
+
         mat1 = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         mat1.setColor("Color", ColorRGBA.White);
         mat1.setColor("GlowColor", ColorRGBA.Blue.mult(10));
-        blue.setMaterial(mat1);
+
         mat2 = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         mat2.setColor("Color", ColorRGBA.White);
         mat2.setColor("GlowColor", ColorRGBA.Red.mult(10));
-        brown.setMaterial(mat2);
+
         mat3 = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         mat3.setColor("Color", ColorRGBA.White);
         mat3.setColor("GlowColor", ColorRGBA.Yellow.mult(10));
-        pink.setMaterial(mat3);
+
         mat4 = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         mat4.setColor("Color", ColorRGBA.White);
         mat4.setColor("GlowColor", ColorRGBA.Orange.mult(10));
-        orange.setMaterial(mat4);
+
+        randomGenerator();
+
         //rootNode.attachChild(SkyFactory.createSky(
         //  assetManager, "Textures/SKY02.zip", false));
         inputManager.addMapping("Start Game", new KeyTrigger(KeyInput.KEY_J));
@@ -115,24 +110,17 @@ public class TestBatchNodeCluster extends SimpleApplication {
         cam.setRotation(new Quaternion(0.022630932f, 0.9749435f, -0.18736298f, 0.11776358f));
 
 
-        blue.batch();
-        brown.batch();
-        pink.batch();
-        orange.batch();
+        batchNode.batch();
+
 
         terrain = new Node("terrain");
         terrain.setLocalTranslation(50, 0, 50);
-        terrain.attachChild(blue);
-        terrain.attachChild(brown);
-        terrain.attachChild(pink);
-        terrain.attachChild(orange);
+        terrain.attachChild(batchNode);
+
         flyCam.setMoveSpeed(100);
         rootNode.attachChild(terrain);
         Vector3f pos = new Vector3f(-40, 0, -40);
-        blue.setLocalTranslation(pos);
-        brown.setLocalTranslation(pos);
-        pink.setLocalTranslation(pos);
-        orange.setLocalTranslation(pos);
+        batchNode.setLocalTranslation(pos);
 
 
         Arrow a = new Arrow(new Vector3f(0, 50, 0));
@@ -141,7 +129,7 @@ public class TestBatchNodeCluster extends SimpleApplication {
         Material m = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         m.setColor("Color", ColorRGBA.Blue);
         g.setMaterial(m);
-      
+
 
 
         FilterPostProcessor fpp = new FilterPostProcessor(assetManager);
@@ -159,35 +147,37 @@ public class TestBatchNodeCluster extends SimpleApplication {
             box.setLocalTranslation(new Vector3f(xPosition.get(xPosition.size() - 1),
                     yPosition.get(yPosition.size() - 1),
                     zPosition.get(zPosition.size() - 1)));
-
+            batchNode.attachChild(box);
             if (i < 500) {
-                blue.attachChild(box);
+                box.setMaterial(mat1);
             } else if (i < 1000) {
-                brown.attachChild(box);
+
+                box.setMaterial(mat2);
             } else if (i < 1500) {
-                pink.attachChild(box);
+
+                box.setMaterial(mat3);
             } else {
-                orange.attachChild(box);
+
+                box.setMaterial(mat4);
             }
 
         }
     }
 
-    public BatchNode randomBatch() {
-
-        int randomn = rand.nextInt(4);
-        if (randomn == 0) {
-            return blue;
-        } else if (randomn == 1) {
-            return brown;
-        } else if (randomn == 2) {
-            return pink;
-        } else if (randomn == 3) {
-            return orange;
-        }
-        return null;
-    }
-
+//    public BatchNode randomBatch() {
+//
+//        int randomn = rand.nextInt(4);
+//        if (randomn == 0) {
+//            return blue;
+//        } else if (randomn == 1) {
+//            return brown;
+//        } else if (randomn == 2) {
+//            return pink;
+//        } else if (randomn == 3) {
+//            return orange;
+//        }
+//        return null;
+//    }
     public ColorRGBA randomColor() {
         ColorRGBA color = ColorRGBA.Black;
         int randomn = rand.nextInt(4);
@@ -330,32 +320,27 @@ public class TestBatchNodeCluster extends SimpleApplication {
 
     @Override
     public void simpleUpdate(float tpf) {
-             time += tpf;
+        time += tpf;
         int random = rand.nextInt(2000);
         float mult1 = 1.0f;
         float mult2 = 1.0f;
-        BatchNode b = null;
         if (random < 500) {
-            b = blue;
             mult1 = 1.0f;
             mult2 = 1.0f;
         } else if (random < 1000) {
-            b = brown;
             mult1 = -1.0f;
             mult2 = 1.0f;
         } else if (random < 1500) {
-            b = pink;
             mult1 = 1.0f;
             mult2 = -1.0f;
         } else if (random <= 2000) {
-            b = orange;
             mult1 = -1.0f;
             mult2 = -1.0f;
         }
-        box = b.getChild("Box" + random);
+        box = batchNode.getChild("Box" + random);
         if (box != null) {
             Vector3f v = box.getLocalTranslation();
-            box.setLocalTranslation(v.x + FastMath.sin(time * mult1) * 20, v.y +( FastMath.sin(time * mult1)* FastMath.cos(time * mult1)* 20), v.z + FastMath.cos(time * mult2) * 20);
+            box.setLocalTranslation(v.x + FastMath.sin(time * mult1) * 20, v.y + (FastMath.sin(time * mult1) * FastMath.cos(time * mult1) * 20), v.z + FastMath.cos(time * mult2) * 20);
         }
         terrain.setLocalRotation(new Quaternion().fromAngleAxis(time, Vector3f.UNIT_Y));
 

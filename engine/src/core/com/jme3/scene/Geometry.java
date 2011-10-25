@@ -79,11 +79,11 @@ public class Geometry extends Spatial {
     /**
      * the previous transforms of the geometry used to compute world transforms
      */
-    protected Transform prevLocalTransform = null;
+    protected Transform prevBatchTransforms = null;
     /**
      * the cached offset matrix used when the geometry is batched
      */
-    protected Matrix4f cachedOffsetMat = null;   
+    protected Matrix4f cachedOffsetMat = null;
 
     /**
      * Serialization only. Do not use.
@@ -287,11 +287,12 @@ public class Geometry extends Spatial {
 
         super.updateWorldTransforms();
         computeWorldMatrix();
-        if ((refreshFlags & RF_REFRESHBATCH) != 0) {
+
+        if (isBatched()) {
             computeOffsetTransform();
             batchNode.updateSubBatch(this);
-            prevLocalTransform.set(localTransform);
-            refreshFlags &= ~RF_REFRESHBATCH;
+            prevBatchTransforms.set(batchNode.getTransforms(this));
+
         }
         // geometry requires lights to be sorted
         worldLights.sort(true);
@@ -305,10 +306,9 @@ public class Geometry extends Spatial {
     protected void batch(BatchNode node, int startIndex) {
         this.batchNode = node;
         this.startIndex = startIndex;
-        prevLocalTransform = new Transform();
+        prevBatchTransforms = new Transform();
         cachedOffsetMat = new Matrix4f();
         setCullHint(CullHint.Always);
-        refreshFlags |= RF_REFRESHBATCH;
     }
 
     /**
@@ -316,7 +316,7 @@ public class Geometry extends Spatial {
      */
     protected void unBatch() {
         this.startIndex = 0;
-        prevLocalTransform = null;
+        prevBatchTransforms = null;
         cachedOffsetMat = null;
         //once the geometry is removed from the screnegraph we call batch on the batchNode before unreferencing it.
         this.batchNode.batch();
@@ -343,21 +343,21 @@ public class Geometry extends Spatial {
 
         // Compute the cached world matrix
         cachedOffsetMat.loadIdentity();
-        cachedOffsetMat.setRotationQuaternion(prevLocalTransform.getRotation());
-        cachedOffsetMat.setTranslation(prevLocalTransform.getTranslation());
+        cachedOffsetMat.setRotationQuaternion(prevBatchTransforms.getRotation());
+        cachedOffsetMat.setTranslation(prevBatchTransforms.getTranslation());
 
 
         Matrix4f scaleMat = vars.tempMat4;
         scaleMat.loadIdentity();
-        scaleMat.scale(prevLocalTransform.getScale());
+        scaleMat.scale(prevBatchTransforms.getScale());
         cachedOffsetMat.multLocal(scaleMat);
         cachedOffsetMat.invertLocal();
 
         tmpMat.loadIdentity();
-        tmpMat.setRotationQuaternion(localTransform.getRotation());
-        tmpMat.setTranslation(localTransform.getTranslation());
+        tmpMat.setRotationQuaternion(batchNode.getTransforms(this).getRotation());
+        tmpMat.setTranslation(batchNode.getTransforms(this).getTranslation());
         scaleMat.loadIdentity();
-        scaleMat.scale(localTransform.getScale());
+        scaleMat.scale(batchNode.getTransforms(this).getScale());
         tmpMat.multLocal(scaleMat);
 
         tmpMat.mult(cachedOffsetMat, cachedOffsetMat);
@@ -373,9 +373,6 @@ public class Geometry extends Spatial {
     protected void setTransformRefresh() {
         refreshFlags |= RF_TRANSFORM;
         setBoundRefresh();
-        if (isBatched()) {
-             refreshFlags |= RF_REFRESHBATCH;
-        }
     }
 
     /**

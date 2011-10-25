@@ -54,12 +54,15 @@ import com.jme3.math.Vector3f;
 import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.BatchNode;
 import com.jme3.scene.Geometry;
+import com.jme3.scene.SimpleBatchNode;
 import com.jme3.scene.shape.Box;
 import com.jme3.scene.shape.Sphere;
 import com.jme3.scene.shape.Sphere.TextureMode;
 import com.jme3.shadow.PssmShadowRenderer;
 import com.jme3.shadow.PssmShadowRenderer.CompareMode;
 import com.jme3.shadow.PssmShadowRenderer.FilterMode;
+import com.jme3.system.AppSettings;
+import com.jme3.system.NanoTimer;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
 
@@ -90,11 +93,14 @@ public class TestBatchNodeTower extends SimpleApplication {
     
     public static void main(String args[]) {
         TestBatchNodeTower f = new TestBatchNodeTower();
+        AppSettings s = new AppSettings(true);
+        f.setSettings(s);
         f.start();
     }
 
     @Override
     public void simpleInitApp() {
+        timer = new NanoTimer();
         bulletAppState = new BulletAppState();
         bulletAppState.setThreadingType(BulletAppState.ThreadingType.PARALLEL);
      //   bulletAppState.setEnabled(false);
@@ -128,7 +134,7 @@ public class TestBatchNodeTower extends SimpleApplication {
         bsr.setShadowIntensity(0.6f);
         bsr.setCompareMode(CompareMode.Hardware);
         bsr.setFilterMode(FilterMode.PCF4);
-        viewPort.addProcessor(bsr);
+        viewPort.addProcessor(bsr);   
     }
 
     private PhysicsSpace getPhysicsSpace() {
@@ -219,7 +225,7 @@ public class TestBatchNodeTower extends SimpleApplication {
         tex3.setWrap(WrapMode.Repeat);
         mat3.setTexture("ColorMap", tex3);
     }
-
+int nbBrick =0;
     public void addBrick(Vector3f ori) {
         Geometry reBoxg = new Geometry("brick", brick);
         reBoxg.setMaterial(mat);
@@ -230,6 +236,7 @@ public class TestBatchNodeTower extends SimpleApplication {
         reBoxg.getControl(RigidBodyControl.class).setFriction(1.6f);
         this.batchNode.attachChild(reBoxg);
         this.getPhysicsSpace().add(reBoxg);
+        nbBrick++;
     }
 
     protected void initCrossHairs() {

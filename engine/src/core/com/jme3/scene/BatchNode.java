@@ -31,8 +31,6 @@
  */
 package com.jme3.scene;
 
-import com.jme3.asset.AssetNotFoundException;
-import com.jme3.bounding.BoundingVolume;
 import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
@@ -40,31 +38,33 @@ import com.jme3.export.OutputCapsule;
 import com.jme3.export.Savable;
 import com.jme3.material.Material;
 import com.jme3.math.Matrix4f;
+import com.jme3.math.Transform;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.mesh.IndexBuffer;
 import com.jme3.util.IntMap.Entry;
-import com.jme3.util.SafeArrayList;
 import com.jme3.util.TempVars;
 import java.io.IOException;
 import java.nio.Buffer;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * BatchNode holds a geometry that is a batched version of all geometries that are in its sub scenegraph.
- * this geometry is directly attached to the node in the scene graph.
- * usage is like any other node except you have to call the {@link #batch()} method once all geoms have been attached to the sub scene graph (see todo more automagic for further enhancements)
+ * BatchNode holds geometrie that are batched version of all geometries that are in its sub scenegraph.
+ * There is one geometry per different material in the sub tree.
+ * this geometries are directly attached to the node in the scene graph.
+ * usage is like any other node except you have to call the {@link #batch()} method once all geoms have been attached to the sub scene graph and theire material set
+ * (see todo more automagic for further enhancements)
  * all the geometry that have been batched are set to {@link CullHint#Always} to not render them.
  * the sub geometries can be transformed as usual their transforms are used to update the mesh of the geometryBatch.
  * sub geoms can be removed but it may be slower than the normal spatial removing
  * Sub geoms can be added after the batch() method has been called but won't be batched and will be rendered as normal geometries.
- * To integrated them in the batch you have to call the batch() method again on the batchNode.
+ * To integrate them in the batch you have to call the batch() method again on the batchNode.
  * 
- * TODO account for sub-BatchNodes
- * TODO account for geometries that have different materials
  * TODO normal or tangents or both looks a bit weird
  * TODO more automagic (batch when needed in the updateLigicalState)
  * @author Nehon
@@ -73,12 +73,13 @@ public class BatchNode extends Node implements Savable {
 
     private static final Logger logger = Logger.getLogger(BatchNode.class.getName());
     /**
-     * the geometry holding the batched mesh
+     * the map of geometry holding the batched meshes
      */
-    protected Geometry batch;
-    protected Material material;
-    private boolean needMeshUpdate = false;
+    protected Map<Material, Batch> batches = new HashMap<Material, Batch>();
 
+    /**
+     * Construct a batchNode
+     */
     public BatchNode() {
         super();
     }
@@ -109,11 +110,16 @@ public class BatchNode extends Node implements Savable {
             for (Spatial child : children.getArray()) {
                 child.updateGeometricState();
             }
-            if (needMeshUpdate) {
-                batch.getMesh().updateBound();
-                batch.updateWorldBound();
-                needMeshUpdate = false;
+
+            for (Batch batch : batches.values()) {
+                if (batch.needMeshUpdate) {
+                    batch.geometry.getMesh().updateBound();
+                    batch.geometry.updateWorldBound();
+                    batch.needMeshUpdate = false;
+
+                }
             }
+
 
         }
 
@@ -123,10 +129,15 @@ public class BatchNode extends Node implements Savable {
 
         assert refreshFlags == 0;
     }
+    
+    protected Transform getTransforms(Geometry geom){
+        return geom.getWorldTransform();
+    }
 
     protected void updateSubBatch(Geometry bg) {
+        Batch batch = batches.get(bg.getMaterial());
         if (batch != null) {
-            Mesh mesh = batch.getMesh();
+            Mesh mesh = batch.geometry.getMesh();
 
             FloatBuffer buf = (FloatBuffer) mesh.getBuffer(VertexBuffer.Type.Position).getData();
             doTransformVerts(buf, 0, bg.startIndex, bg.startIndex + bg.getVertexCount(), buf, bg.cachedOffsetMat);
@@ -144,40 +155,8 @@ public class BatchNode extends Node implements Savable {
                 mesh.getBuffer(VertexBuffer.Type.Tangent).updateData(buf);
             }
 
-            needMeshUpdate = true;
+            batch.needMeshUpdate = true;
         }
-    }
-
-    @Override
-    protected void setTransformRefresh() {
-        refreshFlags |= RF_TRANSFORM;
-        setBoundRefresh();
-
-        for (Spatial child : children.getArray()) {
-            if ((child.refreshFlags & RF_TRANSFORM) != 0) {
-                continue;
-            }
-
-           innerTransformRefresh(child);
-            //child.setTransformRefresh();
-
-        }
-    }
-//
-    private void innerTransformRefresh(Spatial s) {
-        s.refreshFlags |= RF_TRANSFORM;
-        s.setBoundRefresh();
-        if (s instanceof Node) {            
-            Node n = (Node) s;
-           
-            for (Spatial child :((SafeArrayList<Spatial>) n.getChildren()).getArray()) {
-                if ((child.refreshFlags & RF_TRANSFORM) != 0) {
-                    continue;
-                }
-                innerTransformRefresh(child);
-            }
-        }
-
     }
 
     /**
@@ -185,121 +164,146 @@ public class BatchNode extends Node implements Savable {
      * every geometry of the sub scene graph of this node will be batched into a single mesh that will be rendered in one call
      */
     public void batch() {
-
-        List<Geometry> tmpList = new ArrayList<Geometry>();
-        Mesh m = new Mesh();
-        populateList(tmpList, this);
-        mergeGeometries(m, tmpList);
-
-        if (batch == null) {
-            batch = new Geometry(name + "-batch");
-            batch.setMaterial(material);
-            this.attachChild(batch);
+        doBatch();
+        //we set the batch geometries to ignore transforms to avoid transforms of parent nodes to be applied twice        
+        for (Batch batch : batches.values()) {
+            batch.geometry.setIgnoreTransform(true);
         }
-        batch.setMesh(m);
-        batch.getMesh().updateCounts();
-        batch.getMesh().updateBound();
     }
 
-    private void populateList(List<Geometry> list, Spatial n) {
+    protected void doBatch() {
+        ///List<Geometry> tmpList = new ArrayList<Geometry>();
+        Map<Material, List<Geometry>> matMap = new HashMap<Material, List<Geometry>>();
 
-        if (n instanceof Geometry) {
-            if (n != batch) {
-                list.add((Geometry) n);
+        gatherGeomerties(matMap, this);
+        batches.clear();
+        int nbGeoms = 0;
+        for (Material material : matMap.keySet()) {
+            Mesh m = new Mesh();
+            List<Geometry> list = matMap.get(material);
+            nbGeoms += list.size();
+            mergeGeometries(m, list);
+            Batch batch = new Batch();
+
+            batch.geometry = new Geometry(name + "-batch" + batches.size());
+            batch.geometry.setMaterial(material);
+            this.attachChild(batch.geometry);
+
+
+            batch.geometry.setMesh(m);
+            batch.geometry.getMesh().updateCounts();
+            batch.geometry.getMesh().updateBound();
+            batches.put(material, batch);
+        }
+        logger.log(Level.INFO, "Batched {0} geometries in {1} batches.", new Object[]{nbGeoms, batches.size()});
+    }
+
+    private void gatherGeomerties(Map<Material, List<Geometry>> map, Spatial n) {
+
+        if (n.getClass() == Geometry.class) {
+            if (!isBatch(n)) {
+                Geometry g = (Geometry) n;
+                if (g.getMaterial() == null) {
+                    throw new IllegalStateException("No material is set for Geometry: " + g.getName() + " please set a material before batching");
+                }
+                List<Geometry> list = map.get(g.getMaterial());
+                if (list == null) {
+                    list = new ArrayList<Geometry>();
+                    map.put(g.getMaterial(), list);
+                }
+                list.add(g);
             }
 
         } else if (n instanceof Node) {
             for (Spatial child : ((Node) n).getChildren()) {
-                populateList(list, child);
+                if (child instanceof BatchNode) {
+                    continue;
+                }
+                gatherGeomerties(map, child);
             }
         }
 
     }
 
+    private boolean isBatch(Spatial s) {
+        for (Batch batch : batches.values()) {
+            if (batch.geometry == s) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     /**
-     * Sets the material to use for this geometry.
+     * Sets the material to the all the batches of this BatchNode
+     * use setMaterial(Material material,int batchIndex) to set a material to a specific batch
      * 
      * @param material the material to use for this geometry
      */
     @Override
     public void setMaterial(Material material) {
-        super.setMaterial(material);
-        if (batch != null) {
-            batch.setMaterial(material);
-        }
-        this.material = material;
-
+//        for (Batch batch : batches.values()) {
+//            batch.geometry.setMaterial(material);
+//        }
+        throw new UnsupportedOperationException("Unsupported for now, please set the material on the geoms before batching");
     }
 
     /**
-     * Returns the material that is used for this geometry.
+     * Returns the material that is used for the first batch of this BatchNode
      * 
-     * @return the material that is used for this geometry
+     * use getMaterial(Material material,int batchIndex) to get a material from a specific batch
+     * 
+     * @return the material that is used for the first batch of this BatchNode
      * 
      * @see #setMaterial(com.jme3.material.Material) 
      */
     public Material getMaterial() {
-        return material;
-    }
-
-    /**
-     * @return The bounding volume of the mesh, in model space.
-     */
-    public BoundingVolume getModelBound() {
-        if (batch != null) {
-            return batch.getMesh().getBound();
+        if (!batches.isEmpty()) {
+            Batch b = batches.get(batches.keySet().iterator().next());
+            return b.geometry.getMaterial();
         }
-        return super.getWorldBound();
-
+        return null;//material;
     }
-
-    /**
-     * This version of clone is a shallow clone, in other words, the
-     * same mesh is referenced as the original geometry.
-     * Exception: if the mesh is marked as being a software
-     * animated mesh, (bind pose is set) then the positions
-     * and normals are deep copied.
-     */
-    @Override
-    public BatchNode clone(boolean cloneMaterial) {
-        BatchNode clone = (BatchNode) super.clone(cloneMaterial);
-        clone.batch = batch.clone(cloneMaterial);
-        return clone;
-    }
-
-    /**
-     * This version of clone is a shallow clone, in other words, the
-     * same mesh is referenced as the original geometry.
-     * Exception: if the mesh is marked as being a software
-     * animated mesh, (bind pose is set) then the positions
-     * and normals are deep copied.
-     */
-    @Override
-    public BatchNode clone() {
-        return clone(true);
-    }
-
-    /**
-     * Creates a deep clone of the geometry,
-     * this creates an identical copy of the mesh
-     * with the vertexbuffer data duplicated.
-     */
-    @Override
-    public Spatial deepClone() {
-        BatchNode clone = clone(true);
-        clone.batch = (Geometry) batch.deepClone();
-        return clone;
-    }
+    
+//    /**
+//     * Sets the material to the a specific batch of this BatchNode
+//     * 
+//     * 
+//     * @param material the material to use for this geometry
+//     */   
+//    public void setMaterial(Material material,int batchIndex) {
+//        if (!batches.isEmpty()) {
+//            
+//        }
+//        
+//    }
+//
+//    /**
+//     * Returns the material that is used for the first batch of this BatchNode
+//     * 
+//     * use getMaterial(Material material,int batchIndex) to get a material from a specific batch
+//     * 
+//     * @return the material that is used for the first batch of this BatchNode
+//     * 
+//     * @see #setMaterial(com.jme3.material.Material) 
+//     */
+//    public Material getMaterial(int batchIndex) {
+//        if (!batches.isEmpty()) {
+//            Batch b = batches.get(batches.keySet().iterator().next());
+//            return b.geometry.getMaterial();
+//        }
+//        return null;//material;
+//    }
 
     @Override
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
         OutputCapsule oc = ex.getCapsule(this);
-
-        if (material != null) {
-            oc.write(material.getAssetName(), "materialName", null);
-        }
-        oc.write(material, "material", null);
+//
+//        if (material != null) {
+//            oc.write(material.getAssetName(), "materialName", null);
+//        }
+//        oc.write(material, "material", null);
 
     }
 
@@ -309,23 +313,23 @@ public class BatchNode extends Node implements Savable {
         InputCapsule ic = im.getCapsule(this);
 
 
-        material = null;
-        String matName = ic.readString("materialName", null);
-        if (matName != null) {
-            // Material name is set,
-            // Attempt to load material via J3M
-            try {
-                material = im.getAssetManager().loadMaterial(matName);
-            } catch (AssetNotFoundException ex) {
-                // Cannot find J3M file.
-                logger.log(Level.FINE, "Could not load J3M file {0} for Geometry.",
-                        matName);
-            }
-        }
-        // If material is NULL, try to load it from the geometry
-        if (material == null) {
-            material = (Material) ic.readSavable("material", null);
-        }
+//        material = null;
+//        String matName = ic.readString("materialName", null);
+//        if (matName != null) {
+//            // Material name is set,
+//            // Attempt to load material via J3M
+//            try {
+//                material = im.getAssetManager().loadMaterial(matName);
+//            } catch (AssetNotFoundException ex) {
+//                // Cannot find J3M file.
+//                logger.log(Level.FINE, "Could not load J3M file {0} for Geometry.",
+//                        matName);
+//            }
+//        }
+//        // If material is NULL, try to load it from the geometry
+//        if (material == null) {
+//            material = (Material) ic.readSavable("material", null);
+//        }
 
     }
 
@@ -418,9 +422,6 @@ public class BatchNode extends Node implements Savable {
 
         for (Geometry geom : geometries) {
             Mesh inMesh = geom.getMesh();
-            if (geom.getMaterial() != null && material == null) {
-                material = geom.getMaterial();
-            }
             geom.batch(this, globalVertIndex);
 
             int geomVertCount = inMesh.getVertexCount();
@@ -531,5 +532,11 @@ public class BatchNode extends Node implements Savable {
             outBuf.put(offset + i * 3 + 2, pos.z);
         }
         vars.release();
+    }
+
+    protected class Batch {
+
+        Geometry geometry;
+        boolean needMeshUpdate = false;
     }
 }

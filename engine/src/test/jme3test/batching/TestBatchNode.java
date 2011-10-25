@@ -16,6 +16,7 @@ import com.jme3.scene.BatchNode;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.shape.Box;
+import com.jme3.system.NanoTimer;
 import com.jme3.util.TangentBinormalGenerator;
 
 /**
@@ -33,6 +34,7 @@ public class TestBatchNode extends SimpleApplication {
 
     @Override
     public void simpleInitApp() {
+        timer = new NanoTimer();
         batch = new BatchNode("theBatchNode");
 
         /**
@@ -41,7 +43,8 @@ public class TestBatchNode extends SimpleApplication {
          */
         Box boxshape4 = new Box(Vector3f.ZERO, 1f, 1f, 1f );
         cube = new Geometry("cube1", boxshape4);
-        Material mat = assetManager.loadMaterial("Textures/Terrain/Pond/Pond.j3m");        
+        Material mat = assetManager.loadMaterial("Textures/Terrain/Pond/Pond.j3m");     
+        cube.setMaterial(mat);
 //        Material mat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");        
 //        mat.setColor("Diffuse", ColorRGBA.Blue);
 //        mat.setBoolean("UseMaterialColors", true);
@@ -51,7 +54,7 @@ public class TestBatchNode extends SimpleApplication {
          */
         Box box = new Box(Vector3f.ZERO, 1f, 1f, 1f);
         cube2 = new Geometry("cube2", box);
-        
+        cube2.setMaterial(mat);
         
         TangentBinormalGenerator.generate(cube);
         TangentBinormalGenerator.generate(cube2);
@@ -61,7 +64,7 @@ public class TestBatchNode extends SimpleApplication {
        // n.attachChild(cube2);
         batch.attachChild(cube);
         batch.attachChild(cube2);
-        batch.setMaterial(mat);
+      //  batch.setMaterial(mat);
         batch.batch();
         rootNode.attachChild(batch);
         cube.setLocalTranslation(3, 0, 0);
