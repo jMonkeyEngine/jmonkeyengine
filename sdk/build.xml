@@ -284,11 +284,11 @@
             <globmapper from="${app.name}/*" to="*"/>
         </unzip>
         <desktopentry
-            toFile="build/jmonkeyengine.desktop"
-            name="jMonkeyEngine3 GDE"
-            comment="jMonkeyEngine3 Game Development Environment"
+            toFile="build/${app.name}.desktop"
+            name="${app.title}"
+            comment="${app.title}"
             exec="/opt/${app.name}/bin/${app.name}"
-            icon="/opt/${app.name}/jmonkeyengine.png"
+            icon="/opt/${app.name}/${app.name}.png"
             categories="Development;Java"
         />
         <deb toDir="dist"
@@ -306,13 +306,13 @@
             <tarfileset dir="dist/${app.name}/bin" prefix="opt/${app.name}/bin" filemode="755">
                 <exclude name="*.exe"/>
             </tarfileset>
-            <tarfileset file="build/jmonkeyengine.desktop" prefix="usr/share/applications"/>
-            <tarfileset file="jmonkeyengine.png" prefix="opt/${app.name}"/>
-            <description synopsis="jMonkeyEngine3 Game Development Environment is a complete solution for Java OpenGL game development.">
+            <tarfileset file="build/${app.name}.desktop" prefix="usr/share/applications"/>
+            <tarfileset file="${app.name}.png" prefix="opt/${app.name}"/>
+            <description synopsis="jMonkeyEngine3 SDK is a complete solution for Java OpenGL game development.">
 jMonkeyEngine 3 was rebuilt from the ground up to be a modern 3D game engine,
 compatible with OpenGL 2.0 and above.
 Its architecture is shader-based, making it fully capable of current and
-next generation graphics standards. The jMonkeyPlatform gives you a complete IDE
+next generation graphics standards. The jMonkeyEngine SDK gives you a complete IDE
 for coding and for managing and creating game assets.
             </description>
         </deb>
