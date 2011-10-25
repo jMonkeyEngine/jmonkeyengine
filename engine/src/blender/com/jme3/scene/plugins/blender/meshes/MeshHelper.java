@@ -194,7 +194,12 @@ public class MeshHelper extends AbstractBlenderHelper {
             int v3 = ((Number) mFace.getFieldValue("v3")).intValue();
             int v4 = ((Number) mFace.getFieldValue("v4")).intValue();
 
-            Vector3f n = FastMath.computeNormal(vertices[v1], vertices[v2], vertices[v3]);
+            Vector3f n;
+            if(fixUpAxis) {
+            	n = FastMath.computeNormal(vertices[v1], vertices[v3], vertices[v2]);
+            } else {
+            	n = FastMath.computeNormal(vertices[v1], vertices[v2], vertices[v3]);
+            }
             this.addNormal(n, normalMap, smooth, vertices[v1], vertices[v2], vertices[v3]);
             normalList.add(normalMap.get(vertices[v1]));
             normalList.add(normalMap.get(vertices[v2]));
@@ -489,7 +494,7 @@ public class MeshHelper extends AbstractBlenderHelper {
      *             this exception is thrown when the blend file structure is somehow invalid or corrupted
      */
     @SuppressWarnings("unchecked")
-    public Vector3f[] getVertices(Structure meshStructure, BlenderContext blenderContext) throws BlenderFileException {
+    private Vector3f[] getVertices(Structure meshStructure, BlenderContext blenderContext) throws BlenderFileException {
         int verticesAmount = ((Number) meshStructure.getFieldValue("totvert")).intValue();
         Vector3f[] vertices = new Vector3f[verticesAmount];
         if (verticesAmount == 0) {
