@@ -160,7 +160,7 @@ public class MotionTrack extends AbstractCinematicEvent implements Control {
         if (isControl) {
 
             if (playState == PlayState.Playing) {
-                time = (elapsedTimePause + timer.getTimeInSeconds()) * speed;
+                time = (elapsedTimePause + timer.getTimeInSeconds() - start) * speed;
                 onUpdate(tpf);
                 if (time >= initialDuration && loopMode == loopMode.DontLoop) {
                     stop();
