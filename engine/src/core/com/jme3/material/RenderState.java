@@ -324,7 +324,7 @@ public class RenderState implements Cloneable, Savable {
     StencilOperation backStencilDepthPassOperation = StencilOperation.Keep;
     TestFunction frontStencilFunction = TestFunction.Always;
     TestFunction backStencilFunction = TestFunction.Always;
-
+    
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule oc = ex.getCapsule(this);
         oc.write(pointSprite, "pointSprite", false);
@@ -348,6 +348,19 @@ public class RenderState implements Cloneable, Savable {
         oc.write(backStencilDepthPassOperation, "backStencilDepthPassOperation", StencilOperation.Keep);
         oc.write(frontStencilFunction, "frontStencilFunction", TestFunction.Always);
         oc.write(backStencilFunction, "backStencilFunction", TestFunction.Always);
+        
+        // Only "additional render state" has them set to false by default
+        oc.write(applyPointSprite,  "applyPointSprite",  true);
+        oc.write(applyWireFrame,    "applyWireFrame",    true);
+        oc.write(applyCullMode,     "applyCullMode",     true);
+        oc.write(applyDepthWrite,   "applyDepthWrite",   true);
+        oc.write(applyDepthTest,    "applyDepthTest",    true);
+        oc.write(applyColorWrite,   "applyColorWrite",   true);
+        oc.write(applyBlendMode,    "applyBlendMode",    true);
+        oc.write(applyAlphaTest,    "applyAlphaTest",    true);
+        oc.write(applyAlphaFallOff, "applyAlphaFallOff", true);
+        oc.write(applyPolyOffset,   "applyPolyOffset",   true);
+        
     }
 
     public void read(JmeImporter im) throws IOException {
@@ -373,6 +386,17 @@ public class RenderState implements Cloneable, Savable {
         backStencilDepthPassOperation = ic.readEnum("backStencilDepthPassOperation", StencilOperation.class, StencilOperation.Keep);
         frontStencilFunction = ic.readEnum("frontStencilFunction", TestFunction.class, TestFunction.Always);
         backStencilFunction = ic.readEnum("backStencilFunction", TestFunction.class, TestFunction.Always);
+        
+        applyPointSprite =  ic.readBoolean("applyPointSprite",  true);
+        applyWireFrame =    ic.readBoolean("applyWireFrame",    true);
+        applyCullMode =     ic.readBoolean("applyCullMode",     true);
+        applyDepthWrite =   ic.readBoolean("applyDepthWrite",   true);
+        applyDepthTest =    ic.readBoolean("applyDepthTest",    true);
+        applyColorWrite =   ic.readBoolean("applyColorWrite",   true);
+        applyBlendMode =    ic.readBoolean("applyBlendMode",    true);
+        applyAlphaTest =    ic.readBoolean("applyAlphaTest",    true);
+        applyAlphaFallOff = ic.readBoolean("applyAlphaFallOff", true);
+        applyPolyOffset =   ic.readBoolean("applyPolyOffset",   true);
     }
 
     /**

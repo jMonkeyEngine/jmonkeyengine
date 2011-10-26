@@ -46,13 +46,17 @@ import com.jme3.light.Light;
 import com.jme3.light.LightList;
 import com.jme3.light.PointLight;
 import com.jme3.light.SpotLight;
+import com.jme3.material.RenderState.BlendMode;
+import com.jme3.material.RenderState.FaceCullMode;
 import com.jme3.material.TechniqueDef.LightMode;
+import com.jme3.material.TechniqueDef.ShadowMode;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.math.Vector4f;
 import com.jme3.renderer.Caps;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.Renderer;
+import com.jme3.renderer.queue.RenderQueue.Bucket;
 import com.jme3.scene.Geometry;
 import com.jme3.shader.Shader;
 import com.jme3.shader.Uniform;
@@ -81,7 +85,8 @@ import java.util.logging.Logger;
  */
 public class Material implements Asset, Cloneable, Savable, Comparable<Material> {
 
-    public static final int SAVABLE_VERSION = 1;
+    // Version #2: Fixed issue with RenderState.apply*** flags not getting exported
+    public static final int SAVABLE_VERSION = 2;
     
     private static final Logger logger = Logger.getLogger(Material.class.getName());
     private static final RenderState additiveLight = new RenderState();
@@ -1048,8 +1053,16 @@ public class Material implements Asset, Cloneable, Savable, Comparable<Material>
 
         boolean enableVcolor = false;
         boolean separateTexCoord = false;
-        boolean applyDefaults = false;
+        boolean applyDefaultValues = false;
+        boolean guessRenderStateApply = false;
 
+        int ver = ic.getSavableVersion(Material.class);
+        if (ver < 1){
+            applyDefaultValues = true;
+        }
+        if (ver < 2){
+            guessRenderStateApply = true;
+        }
         if (im.getFormatVersion() == 0) {
             // Enable compatibility with old models
             if (defName.equalsIgnoreCase("Common/MatDefs/Misc/VertexColor.j3md")) {
@@ -1072,9 +1085,7 @@ public class Material implements Asset, Cloneable, Savable, Comparable<Material>
                     separateTexCoord = true;
                 }
             }
-            applyDefaults = true;
-        }else if (ic.getSavableVersion(Material.class) == 0){
-            applyDefaults = true;
+            assert applyDefaultValues && guessRenderStateApply;
         }
 
         def = (MaterialDef) im.getAssetManager().loadAsset(new AssetKey(defName));
@@ -1100,7 +1111,7 @@ public class Material implements Asset, Cloneable, Savable, Comparable<Material>
             paramValues.put(param.getName(), param);
         }
         
-        if (applyDefaults){
+        if (applyDefaultValues){
             // compatability with old versions where default vars were
             // not available
             for (MatParam param : def.getMaterialParams()){
@@ -1108,6 +1119,21 @@ public class Material implements Asset, Cloneable, Savable, Comparable<Material>
                     setParam(param.getName(), param.getVarType(), param.getValue());
                 }
             }
+        }
+        if (guessRenderStateApply){
+            // Try to guess values of "apply" render state based on defaults
+            // if value != default then set apply to true
+            additionalState.applyPolyOffset = additionalState.offsetEnabled;
+            additionalState.applyAlphaFallOff = additionalState.alphaTest;
+            additionalState.applyAlphaTest = additionalState.alphaTest;
+            additionalState.applyBlendMode = additionalState.blendMode != BlendMode.Off;
+            additionalState.applyColorWrite = !additionalState.colorWrite; 
+            additionalState.applyCullMode = additionalState.cullMode != FaceCullMode.Back;
+            additionalState.applyDepthTest = !additionalState.depthTest;
+            additionalState.applyDepthWrite = !additionalState.depthWrite;
+            additionalState.applyPointSprite = additionalState.pointSprite;
+            additionalState.applyStencilTest = additionalState.stencilTest;
+            additionalState.applyWireFrame = additionalState.wireframe;
         }
         if (enableVcolor) {
             setBoolean("VertexColor", true);
