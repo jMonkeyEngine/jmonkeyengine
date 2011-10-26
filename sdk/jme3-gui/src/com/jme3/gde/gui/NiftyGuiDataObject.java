@@ -23,8 +23,8 @@ import org.openide.util.lookup.InstanceContent;
 import org.openide.util.lookup.ProxyLookup;
 
 public class NiftyGuiDataObject extends XmlMultiViewDataObject {
-    private static final int TYPE_TOOLBAR = 0;
 
+    private static final int TYPE_TOOLBAR = 0;
     protected final Lookup lookup;
     protected final InstanceContent lookupContents = new InstanceContent();
 
@@ -74,7 +74,12 @@ public class NiftyGuiDataObject extends XmlMultiViewDataObject {
 
     @Override
     protected DesignMultiViewDesc[] getMultiViewDesc() {
-        return new DesignMultiViewDesc[]{new PreviewView(this, TYPE_TOOLBAR)};
+        if (getLookup().lookup(ProjectAssetManager.class) == null) {
+            return new DesignMultiViewDesc[]{};
+        } else {
+
+            return new DesignMultiViewDesc[]{new PreviewView(this, TYPE_TOOLBAR)};
+        }
     }
 
     @Override
