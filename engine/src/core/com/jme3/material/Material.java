@@ -1120,7 +1120,7 @@ public class Material implements Asset, Cloneable, Savable, Comparable<Material>
                 }
             }
         }
-        if (guessRenderStateApply){
+        if (guessRenderStateApply && additionalState != null){
             // Try to guess values of "apply" render state based on defaults
             // if value != default then set apply to true
             additionalState.applyPolyOffset = additionalState.offsetEnabled;
