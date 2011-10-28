@@ -73,6 +73,7 @@ public abstract class SimpleApplication extends Application {
     protected Node rootNode = new Node("Root Node");
     protected Node guiNode = new Node("Gui Node");
     protected float secondCounter = 0.0f;
+    protected int frameCounter = 0;
     protected BitmapText fpsText;
     protected BitmapFont guiFont;
     protected StatsView statsView;
@@ -241,10 +242,12 @@ public abstract class SimpleApplication extends Application {
 
         if (showFps) {
             secondCounter += timer.getTimePerFrame();
-            int fps = (int) timer.getFrameRate();
+            frameCounter ++;
             if (secondCounter >= 1.0f) {
+                int fps = (int) (frameCounter / secondCounter);
                 fpsText.setText("Frames per second: " + fps);
                 secondCounter = 0.0f;
+                frameCounter = 0;
             }          
         }
 
