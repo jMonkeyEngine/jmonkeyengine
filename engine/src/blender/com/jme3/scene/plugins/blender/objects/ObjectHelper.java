@@ -312,7 +312,7 @@ public class ObjectHelper extends AbstractBlenderHelper {
 			
 			y=scale.y;
 			scale.y = scale.z;
-			scale.z = -y;
+			scale.z = y;
 		}
 		
 		//create the result
