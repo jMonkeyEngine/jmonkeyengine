@@ -99,10 +99,8 @@ public class SkeletonControl extends AbstractControl implements Cloneable {
             Mesh childSharedMesh = geom.getUserData(UserData.JME_SHAREDMESH);
             
             if (childSharedMesh != null){
-                
                 // Don't bother with non-animated shared meshes
                 if (isMeshAnimated(childSharedMesh)){
-                    
                     // child is using shared mesh,
                     // so animate the shared mesh but ignore child
                     if (sharedMesh == null){
@@ -147,10 +145,12 @@ public class SkeletonControl extends AbstractControl implements Cloneable {
             // if hardware skinning is supported, the matrices and weight buffer
             // will be sent by the SkinningShaderLogic object assigned to the shader
             for (int i = 0; i < targets.length; i++) {
-                // only update targets with bone-vertex assignments
-                if (targets[i].getBuffer(Type.BoneIndex) != null) {
+				// NOTE: This assumes that code higher up
+				// Already ensured those targets are animated
+				// otherwise a crash will happen in skin update
+                //if (isMeshAnimated(targets[i])) {
                     softwareSkinUpdate(targets[i], offsetMatrices);
-                }
+                //}
             }
 
             wasMeshUpdated = true;
@@ -195,11 +195,11 @@ public class SkeletonControl extends AbstractControl implements Cloneable {
         clone.setSpatial(clonedNode);
 
         clone.skeleton = ctrl.getSkeleton();
-        Mesh[] meshes = new Mesh[targets.length];
-        for (int i = 0; i < meshes.length; i++) {
-            meshes[i] = ((Geometry) clonedNode.getChild(i)).getMesh();
-        }
-        for (int i = meshes.length; i < clonedNode.getQuantity(); i++) {
+		// Fix animated targets for the cloned node
+        clone.targets = findTargets(clonedNode);
+
+		// Fix attachments for the cloned node
+        for (int i = 0; i < clonedNode.getQuantity(); i++) {
             // go through attachment nodes, apply them to correct bone
             Spatial child = clonedNode.getChild(i);
             if (child instanceof Node) {
@@ -214,7 +214,7 @@ public class SkeletonControl extends AbstractControl implements Cloneable {
                 }
             }
         }
-        clone.targets = meshes;
+
         return clone;
     }
 
@@ -347,7 +347,6 @@ public class SkeletonControl extends AbstractControl implements Cloneable {
                 normBuf[idxPositions] = rnz;
                 posBuf[idxPositions++] = rz;
             }
-
 
             fvb.position(fvb.position() - bufLength);
             fvb.put(posBuf, 0, bufLength);

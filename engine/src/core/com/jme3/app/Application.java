@@ -175,9 +175,12 @@ public class Application implements SystemListener {
     }
 
     /**
-     * Set the display settings to define the display created. Examples of
-     * display parameters include display pixel width and height,
+     * Set the display settings to define the display created.
+     * <p>
+     * Examples of display parameters include display pixel width and height,
      * color bit depth, z-buffer bits, anti-aliasing samples, and update frequency.
+     * If this method is called while the application is already running, then
+     * {@link #restart() } must be called to apply the settings to the display.
      *
      * @param settings The settings to set.
      */
@@ -460,7 +463,6 @@ public class Application implements SystemListener {
     }
 
     /**
-     * 
      * Requests the context to close, shutting down the main loop
      * and making necessary cleanup operations.
      * 
@@ -526,11 +528,12 @@ public class Application implements SystemListener {
      * Internal use only.
      */
     public void gainFocus(){
-        if (pauseOnFocus){
+        if (pauseOnFocus) {
             paused = false;
             context.setAutoFlushFrames(true);
-            if (inputManager != null)
+            if (inputManager != null) {
                 inputManager.reset();
+            }
         }
     }
 
@@ -553,7 +556,11 @@ public class Application implements SystemListener {
 
     /**
      * Enqueues a task/callable object to execute in the jME3
-     * rendering thread.
+     * rendering thread. 
+     * <p>
+     * Callables are executed right at the beginning of the main loop.
+     * They are executed even if the application is currently paused
+     * or out of focus.
      */
     public <V> Future<V> enqueue(Callable<V> callable) {
         AppTask<V> task = new AppTask<V>(callable);
@@ -625,6 +632,10 @@ public class Application implements SystemListener {
         timer.reset();
     }
 
+    /**
+     * @return The GUI viewport. Which is used for the on screen
+     * statistics and FPS.
+     */
     public ViewPort getGuiViewPort() {
         return guiViewPort;
     }
