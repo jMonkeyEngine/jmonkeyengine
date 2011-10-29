@@ -89,7 +89,7 @@ public class LineSegment implements Cloneable, Savable, java.io.Serializable {
     public LineSegment(Vector3f start, Vector3f end) {
         this.origin = new Vector3f(0.5f * (start.x + end.x), 0.5f * (start.y + end.y), 0.5f * (start.z + end.z));
         this.direction = end.subtract(start);
-        this.extent = direction.length();
+        this.extent = direction.length() * 0.5f;
         direction.normalizeLocal();
     }
 
