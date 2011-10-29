@@ -1219,9 +1219,11 @@ public class Camera implements Savable, Cloneable {
      * <code>onFrameChange</code> updates the view frame of the camera.
      */
     public void onFrameChange() {
-        Vector3f left = getLeft();
-        Vector3f direction = getDirection();
-        Vector3f up = getUp();
+        TempVars vars = TempVars.get();
+        
+        Vector3f left = getLeft(vars.vect1);
+        Vector3f direction = getDirection(vars.vect2);
+        Vector3f up = getUp(vars.vect3);
 
         float dirDotLocation = direction.dot(location);
 
@@ -1278,6 +1280,9 @@ public class Camera implements Savable, Cloneable {
         worldPlane[NEAR_PLANE].setConstant(dirDotLocation + frustumNear);
 
         viewMatrix.fromFrame(location, direction, up, left);
+        
+        vars.release();
+        
 //        viewMatrix.transposeLocal();
         updateViewProjection();
     }

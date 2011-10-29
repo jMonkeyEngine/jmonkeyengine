@@ -45,6 +45,8 @@ import java.util.Map;
  */
 public final class IntMap<T> implements Iterable<Entry<T>>, Cloneable {
 
+    private final IntMapIterator iterator = new IntMapIterator();
+            
     private Entry[] table;
     private final float loadFactor;
     private int size, mask, capacity, threshold;
@@ -198,7 +200,8 @@ public final class IntMap<T> implements Iterable<Entry<T>>, Cloneable {
     }
 
     public Iterator<Entry<T>> iterator() {
-        return (Iterator<Entry<T>>) new IntMapIterator();
+        iterator.beginUse();
+        return iterator;
     }
 
     final class IntMapIterator implements Iterator<Entry<T>> {
@@ -219,9 +222,14 @@ public final class IntMap<T> implements Iterable<Entry<T>>, Cloneable {
         private int el  = 0;
 
         public IntMapIterator() {
-            cur = table[0];
         }
 
+        public void beginUse(){
+            cur = table[0];
+            idx = 0;
+            el = 0;
+        }
+        
         public boolean hasNext() {
             return el < size;
         }
@@ -248,9 +256,11 @@ public final class IntMap<T> implements Iterable<Entry<T>>, Cloneable {
                 // the entry was null. find another non-null entry.
                 cur = table[++idx];
             } while (cur == null);
+            
             Entry e = cur;
             cur = cur.next;
             el ++;
+            
             return e;
         }
 
