@@ -196,6 +196,7 @@ public class Natives {
         boolean needOAL = false;
         boolean needJInput = false;
         boolean needNativeBullet = isUsingNativeBullet();
+        
         if (renderer != null) {
             if (renderer.startsWith("LWJGL")) {
                 needLWJGL = true;
@@ -209,12 +210,17 @@ public class Natives {
         }
         needJInput = settings.useJoysticks();
 
+        String libraryPath = getExtractionDir().toString();
         if (needLWJGL) {
             logger.log(Level.INFO, "Extraction Directory: {0}", getExtractionDir().toString());
 
             // LWJGL supports this feature where
             // it can load libraries from this path.
-            System.setProperty("org.lwjgl.librarypath", getExtractionDir().toString());
+            System.setProperty("org.lwjgl.librarypath", libraryPath);
+        }
+        if (needJInput) {
+            // AND Luckily enough JInput supports the same feature.
+            System.setProperty("net.java.games.input.librarypath", libraryPath);
         }
 
         switch (platform) {
