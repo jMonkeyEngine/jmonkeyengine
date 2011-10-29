@@ -79,7 +79,7 @@ public class LightNode extends Node {
         lightControl.setControlDir(controlDir);
     }
 
-    public void setCamera(Light light) {
+    public void setLight(Light light) {
         lightControl.setLight(light);
     }
 
@@ -87,7 +87,7 @@ public class LightNode extends Node {
         return lightControl.getControlDir();
     }
 
-    public Light getCamera() {
+    public Light getLight() {
         return lightControl.getLight();
     }
 }
