@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<nifty xmlns="http://nifty-gui.sourceforge.net/nifty-1.3.xsd"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://nifty-gui.sourceforge.net/nifty-1.3.xsd http://nifty-gui.sourceforge.net/nifty-1.3.xsd">
+  <useStyles filename="nifty-default-styles.xml" />
+  <useControls filename="nifty-default-controls.xml" />
+
+  <screen id="start">
+    <layer childLayout="center">
+      <panel childLayout="horizontal" align="center" valign="center" width="50%" height="50%" backgroundColor="#55a5" padding="10">
+        <control id="RadioGroup-1" name="radioButtonGroup" />
+        <control name="label" text="Radio Buttons" />
+        <panel width="10" />
+        <panel childLayout="vertical" backgroundColor="#8001" paddingLeft="7px" paddingRight="7px" paddingTop="4px" paddingBottom="4px" width="105px">
+          <effect>
+            <onActive name="border" color="#0008" />
+          </effect>
+          <panel childLayout="horizontal">
+            <control name="label" text="Option 1" with="60px" />
+            <control name="radioButton" id="option-1" group="RadioGroup-1" />
+          </panel>
+          <panel childLayout="horizontal">
+            <control name="label" text="Option 2" with="60px" />
+            <control name="radioButton" id="option-2" group="RadioGroup-1" />
+          </panel>
+          <panel childLayout="horizontal">
+            <control name="label" text="Option 3" with="60px" />
+            <control name="radioButton" id="option-3" group="RadioGroup-1" />
+          </panel>
+          <panel childLayout="horizontal">
+            <control name="label" text="Option 4" with="60px" />
+            <control name="radioButton" id="option-4" group="RadioGroup-1" />
+          </panel>
+        </panel>
+      </panel>
+    </layer>
+  </screen>
+</nifty>

@@ -86,6 +86,62 @@
                 <attr name="displayName" bundlevalue="com.jme3.gde.gui.Bundle#Templates/Other/NiftyGuiTemplate.xml"/>
                 <attr name="template" boolvalue="true"/>
             </file>
+            <file name="button.xml" url="examples/01-button.xml">
+                <attr name="displayName" stringvalue="Button Example"/>
+                <attr name="template" boolvalue="true"/>
+            </file>
+            <file name="chat.xml" url="examples/02-chat.xml">
+                <attr name="displayName" stringvalue="Chat Example"/>
+                <attr name="template" boolvalue="true"/>
+            </file>
+            <file name="checkbox.xml" url="examples/03-checkbox.xml">
+                <attr name="displayName" stringvalue="Checkbox Example"/>
+                <attr name="template" boolvalue="true"/>
+            </file>
+            <file name="console.xml" url="examples/04-console.xml">
+                <attr name="displayName" stringvalue="Console Example"/>
+                <attr name="template" boolvalue="true"/>
+            </file>
+            <file name="dropdown.xml" url="examples/05-dropdown.xml">
+                <attr name="displayName" stringvalue="Dropdown Example"/>
+                <attr name="template" boolvalue="true"/>
+            </file>
+            <file name="imageselect.xml" url="examples/06-imageselect.xml">
+                <attr name="displayName" stringvalue="Imageselect Example"/>
+                <attr name="template" boolvalue="true"/>
+            </file>
+            <file name="label.xml" url="examples/07-label.xml">
+                <attr name="displayName" stringvalue="Label Example"/>
+                <attr name="template" boolvalue="true"/>
+            </file>
+            <file name="dropdown.xml" url="examples/08-dropdown.xml">
+                <attr name="displayName" stringvalue="Dropdown Example"/>
+                <attr name="template" boolvalue="true"/>
+            </file>
+            <file name="radiobutton.xml" url="examples/09-radiobutton.xml">
+                <attr name="displayName" stringvalue="Radiobutton Example"/>
+                <attr name="template" boolvalue="true"/>
+            </file>
+            <file name="scrollbar.xml" url="examples/10-scrollbar.xml">
+                <attr name="displayName" stringvalue="Scrollbar Example"/>
+                <attr name="template" boolvalue="true"/>
+            </file>
+            <file name="scrollpanel.xml" url="examples/11-scrollpanel.xml">
+                <attr name="displayName" stringvalue="Scrollpanel Example"/>
+                <attr name="template" boolvalue="true"/>
+            </file>
+            <file name="slider.xml" url="examples/12-slider.xml">
+                <attr name="displayName" stringvalue="Slider Example"/>
+                <attr name="template" boolvalue="true"/>
+            </file>
+            <file name="textfield.xml" url="examples/13-textfield.xml">
+                <attr name="displayName" stringvalue="Textfield Example"/>
+                <attr name="template" boolvalue="true"/>
+            </file>
+            <file name="window.xml" url="examples/14-window.xml">
+                <attr name="displayName" stringvalue="Window Example"/>
+                <attr name="template" boolvalue="true"/>
+            </file>
         </folder>
     </folder>
     <folder name="NiftyGUIPalette">
