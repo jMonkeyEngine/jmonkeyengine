@@ -370,8 +370,6 @@ public class TangentBinormalGenerator {
         Vector3f tangentUnit = new Vector3f();
         Vector3f binormalUnit = new Vector3f();
         
-        
-
         for (int i = 0; i < vertices.length; i++) {
             float wCoord = -1;
             
@@ -592,11 +590,22 @@ public class TangentBinormalGenerator {
         IntBuffer lineIndex = BufferUtils.createIntBuffer(vertexBuffer.capacity() / 3 * 6);
         FloatBuffer lineVertex = BufferUtils.createFloatBuffer(vertexBuffer.capacity() * 4);
         FloatBuffer lineColor = BufferUtils.createFloatBuffer(vertexBuffer.capacity() / 3 * 4 * 4);
-
+        
+        boolean hasParity = mesh.getBuffer(Type.Tangent).getNumComponents() == 4;
+        float tangentW = 1;
+        
         for (int i = 0; i < vertexBuffer.capacity() / 3; i++) {
             populateFromBuffer(origin, vertexBuffer, i);
             populateFromBuffer(normal, normalBuffer, i);
-            populateFromBuffer(tangent, tangentBuffer, i);
+            
+            if (hasParity){
+                tangent.x = tangentBuffer.get(i * 4);
+                tangent.y = tangentBuffer.get(i * 4 + 1);
+                tangent.z = tangentBuffer.get(i * 4 + 2);
+                tangentW  = tangentBuffer.get(i * 4 + 3);
+            }else{
+                populateFromBuffer(tangent, tangentBuffer, i);
+            }
 
             int index = i * 4;
 
@@ -617,13 +626,16 @@ public class TangentBinormalGenerator {
             setInBuffer(point, lineVertex, index + 1);
             setInBuffer(tangentColor, lineColor, index + 1);
 
+            // wvBinormal = cross(wvNormal, wvTangent) * -inTangent.w
+            
             if (binormalBuffer == null) {
                 normal.cross(tangent, point);
+                point.multLocal(-tangentW);
                 point.normalizeLocal();
-            }
-            else {
+            } else {
                 populateFromBuffer(point, binormalBuffer, i);
             }
+            
             point.multLocal(scale);
             point.addLocal(origin);
             setInBuffer(point, lineVertex, index + 2);

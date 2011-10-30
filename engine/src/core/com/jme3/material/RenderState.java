@@ -915,7 +915,6 @@ public class RenderState implements Cloneable, Savable {
         return alphaFallOff;
     }
 
-/*
     public boolean isApplyAlphaFallOff() {
         return applyAlphaFallOff;
     }
@@ -955,7 +954,6 @@ public class RenderState implements Cloneable, Savable {
     public boolean isApplyWireFrame() {
         return applyWireFrame;
     }
-*/
 
     /**
      * Merges <code>this</code> state and <code>additionalState</code> into
