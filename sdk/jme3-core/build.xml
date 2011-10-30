@@ -42,7 +42,7 @@
         <!-- download images from page (custom task) -->
         <loadwikiimages file="javahelp/${javahelp_path}${page_path}.html"
              target="javahelp/${javahelp_path}"
-             host="http://direct.jmonkeyengine.org"/>
+             host="http://jmonkeyengine.org"/>
         <!-- fix links in wiki (custom task) -->
         <fixwikilinks file="javahelp/${javahelp_path}${page_path}.html"
              helppath="${javahelp_path}"/>
