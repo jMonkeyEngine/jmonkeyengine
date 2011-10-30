@@ -474,7 +474,7 @@ public class TextureUtil {
                                      border,
                                      format,
                                      dataType,
-                                     0);
+                                     data);
                     }else{
                         glTexSubImage3D(target,
                                         i, // level

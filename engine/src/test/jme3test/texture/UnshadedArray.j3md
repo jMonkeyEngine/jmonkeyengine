@@ -1,0 +1,70 @@
+MaterialDef Unshaded {
+
+    MaterialParameters {
+        TextureArray ColorMap
+        Texture2D LightMap
+        Color Color (Color)
+        Boolean VertexColor
+        Boolean SeparateTexCoord
+
+        // Texture of the glowing parts of the material
+        Texture2D GlowMap
+        // The glow color of the object
+        Color GlowColor
+    }
+
+    Technique {
+        VertexShader GLSL100:   jme3test/texture/UnshadedArray.vert
+        FragmentShader GLSL100: jme3test/texture/UnshadedArray.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+        }
+
+        Defines {
+            SEPARATE_TEXCOORD : SeparateTexCoord
+            HAS_COLORMAP : ColorMap
+            HAS_LIGHTMAP : LightMap
+            HAS_VERTEXCOLOR : VertexColor
+            HAS_COLOR : Color
+        }
+    }
+
+      Technique PreNormalPass {
+
+            VertexShader GLSL100 :   Common/MatDefs/SSAO/normal.vert
+            FragmentShader GLSL100 : Common/MatDefs/SSAO/normal.frag
+
+            WorldParameters {
+                WorldViewProjectionMatrix
+                WorldViewMatrix
+                NormalMatrix
+            }
+
+            RenderState {
+
+            }
+
+        }
+
+
+    Technique Glow {
+
+        VertexShader GLSL100:   Cjme3test/texture/UnshadedArray.vert
+        FragmentShader GLSL100: Common/MatDefs/Light/Glow.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+        }
+
+        Defines {
+            HAS_GLOWMAP : GlowMap
+            HAS_GLOWCOLOR : GlowColor
+            HAS_COLORMAP // Must be passed so that Unshaded.vert exports texCoord.
+        }
+    }
+
+    Technique FixedFunc {
+    }
+
+}
