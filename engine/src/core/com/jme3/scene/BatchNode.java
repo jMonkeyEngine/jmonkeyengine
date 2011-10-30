@@ -146,9 +146,9 @@ public class BatchNode extends Node implements Savable {
             doTransformVerts(buf, bg.startIndex, bg.startIndex + bg.getVertexCount(), buf, bg.cachedOffsetMat);
             mesh.getBuffer(VertexBuffer.Type.Position).updateData(buf);
 
-//            buf = (FloatBuffer) mesh.getBuffer(VertexBuffer.Type.Normal).getData();
-//            doTransformNorm(buf, 0, bg.startIndex, bg.startIndex + bg.getVertexCount(), buf, bg.cachedOffsetMat);
-//            mesh.getBuffer(VertexBuffer.Type.Normal).updateData(buf);
+            buf = (FloatBuffer) mesh.getBuffer(VertexBuffer.Type.Normal).getData();
+            doTransformNorm(buf, bg.startIndex, bg.startIndex + bg.getVertexCount(), buf, bg.cachedOffsetMat);
+            mesh.getBuffer(VertexBuffer.Type.Normal).updateData(buf);
 
 
             if (mesh.getBuffer(VertexBuffer.Type.Tangent) != null) {
@@ -403,6 +403,8 @@ public class BatchNode extends Node implements Savable {
             formatForBuf[VertexBuffer.Type.Index.ordinal()] = VertexBuffer.Format.UnsignedShort;
         }
 
+        int maxElemCount = 0;
+        int elements = 0;
         // generate output buffers based on retrieved info
         for (int i = 0; i < compsForBuf.length; i++) {
             if (compsForBuf[i] == 0) {
@@ -412,10 +414,15 @@ public class BatchNode extends Node implements Savable {
             Buffer data;
             if (i == VertexBuffer.Type.Index.ordinal()) {
                 data = VertexBuffer.createBuffer(formatForBuf[i], compsForBuf[i], totalTris);
+                elements = compsForBuf[i]* totalTris;
             } else {
                 data = VertexBuffer.createBuffer(formatForBuf[i], compsForBuf[i], totalVerts);
+                elements = compsForBuf[i]* totalVerts;
             }
 
+            if(maxElemCount<elements){
+                maxElemCount = elements;
+            }
             VertexBuffer vb = new VertexBuffer(VertexBuffer.Type.values()[i]);
             vb.setupData(VertexBuffer.Usage.Dynamic, compsForBuf[i], formatForBuf[i], data);
             outMesh.setBuffer(vb);
@@ -423,20 +430,17 @@ public class BatchNode extends Node implements Savable {
 
         int globalVertIndex = 0;
         int globalTriIndex = 0;
-        int maxVertCount = 0;
-
+   
         for (Geometry geom : geometries) {
             Mesh inMesh = geom.getMesh();
             geom.batch(this, globalVertIndex);
 
-            int geomVertCount = inMesh.getVertexCount();
-            if (maxVertCount < geomVertCount) {
-                maxVertCount = geomVertCount;
-            }
+            int geomVertCount = inMesh.getVertexCount();         
             int geomTriCount = inMesh.getTriangleCount();
 
             for (int bufType = 0; bufType < compsForBuf.length; bufType++) {
                 VertexBuffer inBuf = inMesh.getBuffer(VertexBuffer.Type.values()[bufType]);
+                
                 VertexBuffer outBuf = outMesh.getBuffer(VertexBuffer.Type.values()[bufType]);
 
                 if (outBuf == null) {
@@ -473,8 +477,8 @@ public class BatchNode extends Node implements Savable {
 
             globalVertIndex += geomVertCount;
             globalTriIndex += geomTriCount;
-        }
-        tmpFloat = new float[maxVertCount*3];
+        }     
+        tmpFloat = new float[maxElemCount];
     }
   
 
