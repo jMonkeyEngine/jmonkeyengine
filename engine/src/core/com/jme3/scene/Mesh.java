@@ -334,6 +334,17 @@ public class Mesh implements Savable, Cloneable {
                 setBuffer(bindNorm);
                 norm.setUsage(Usage.Stream);
             }
+            
+            VertexBuffer tangents = getBuffer(Type.Tangent);
+            if (tangents != null) {
+                VertexBuffer bindTangents = new VertexBuffer(Type.BindPoseTangent);
+                bindTangents.setupData(Usage.CpuOnly,
+                        4,
+                        Format.Float,
+                        BufferUtils.clone(tangents.getData()));
+                setBuffer(bindTangents);
+                tangents.setUsage(Usage.Stream);
+            }
         }
     }
 

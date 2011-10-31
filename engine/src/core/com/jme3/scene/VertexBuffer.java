@@ -94,7 +94,9 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
         Color,
 
         /**
-         * Tangent vector, normalized (3 floats)
+         * Tangent vector, normalized (4 floats) (x,y,z,w)
+         * the w component is called the binormal parity, is not normalized and is either 1f or -1f
+         * It's used to compuste the direction on the binormal verctor on the GPU at render time.
          */
         Tangent,
 
@@ -139,6 +141,15 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
          * on the heap.
          */
         BindPoseNormal,
+        
+         /** 
+         * Initial vertex tangents, used with animation.
+         * Should have the same format and size as {@link Type#Tangent}.
+         * If used with software skinning, the usage should be 
+         * {@link Usage#CpuOnly}, and the buffer should be allocated
+         * on the heap.
+         */
+        BindPoseTangent,
 
         /** 
          * Bone weights, used with animation (4 floats).

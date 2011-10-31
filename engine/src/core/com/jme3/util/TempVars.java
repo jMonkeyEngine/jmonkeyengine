@@ -157,6 +157,8 @@ public class TempVars {
      */
     public final float[] skinPositions = new float[512 * 3];
     public final float[] skinNormals = new float[512 * 3];
+     //tangent buffer as 4 components by elements
+    public final float[] skinTangents = new float[512 * 4];
     /**
      * Fetching triangle from mesh
      */
