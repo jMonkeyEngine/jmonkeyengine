@@ -80,6 +80,9 @@ public class BatchNode extends Node implements Savable {
      * used to store transformed vectors before proceeding to a bulk put into the FloatBuffer 
      */
     private float[] tmpFloat;
+    private float[] tmpFloatN;
+    private float[] tmpFloatT;
+
     /**
      * Construct a batchNode
      */
@@ -142,21 +145,23 @@ public class BatchNode extends Node implements Savable {
         if (batch != null) {
             Mesh mesh = batch.geometry.getMesh();
 
-            FloatBuffer buf = (FloatBuffer) mesh.getBuffer(VertexBuffer.Type.Position).getData();
-            doTransformVerts(buf, bg.startIndex, bg.startIndex + bg.getVertexCount(), buf, bg.cachedOffsetMat);
-            mesh.getBuffer(VertexBuffer.Type.Position).updateData(buf);
-
-            buf = (FloatBuffer) mesh.getBuffer(VertexBuffer.Type.Normal).getData();
-            doTransformNorm(buf, bg.startIndex, bg.startIndex + bg.getVertexCount(), buf, bg.cachedOffsetMat);
-            mesh.getBuffer(VertexBuffer.Type.Normal).updateData(buf);
-
+            VertexBuffer pvb = mesh.getBuffer(VertexBuffer.Type.Position);
+            FloatBuffer posBuf = (FloatBuffer) pvb.getData();
+            VertexBuffer nvb = mesh.getBuffer(VertexBuffer.Type.Normal);
+            FloatBuffer normBuf = (FloatBuffer) nvb.getData();
 
             if (mesh.getBuffer(VertexBuffer.Type.Tangent) != null) {
 
-                buf = (FloatBuffer) mesh.getBuffer(VertexBuffer.Type.Tangent).getData();
-                doTransformNorm(buf, bg.startIndex, bg.startIndex + bg.getVertexCount(), buf, bg.cachedOffsetMat);
-                mesh.getBuffer(VertexBuffer.Type.Tangent).updateData(buf);
+                VertexBuffer tvb = mesh.getBuffer(VertexBuffer.Type.Tangent);
+                FloatBuffer tanBuf = (FloatBuffer) tvb.getData();
+                doTransformsTangents(posBuf, normBuf, tanBuf, bg.startIndex, bg.startIndex + bg.getVertexCount(), bg.cachedOffsetMat);
+                tvb.updateData(tanBuf);
+            } else {
+                doTransforms(posBuf, normBuf, bg.startIndex, bg.startIndex + bg.getVertexCount(), bg.cachedOffsetMat);
             }
+            pvb.updateData(posBuf);
+            nvb.updateData(normBuf);
+
 
             batch.needMeshUpdate = true;
         }
@@ -351,13 +356,16 @@ public class BatchNode extends Node implements Savable {
         int totalVerts = 0;
         int totalTris = 0;
         int totalLodLevels = 0;
+        int maxVertCount = 0;
 
         Mesh.Mode mode = null;
-        for (Geometry geom : geometries) {
+        for (Geometry geom : geometries) {           
             totalVerts += geom.getVertexCount();
             totalTris += geom.getTriangleCount();
             totalLodLevels = Math.min(totalLodLevels, geom.getMesh().getNumLodLevels());
-
+            if (maxVertCount < geom.getVertexCount()) {
+                maxVertCount = geom.getVertexCount();
+            }
             Mesh.Mode listMode;
             int components;
             switch (geom.getMesh().getMode()) {
@@ -403,8 +411,6 @@ public class BatchNode extends Node implements Savable {
             formatForBuf[VertexBuffer.Type.Index.ordinal()] = VertexBuffer.Format.UnsignedShort;
         }
 
-        int maxElemCount = 0;
-        int elements = 0;
         // generate output buffers based on retrieved info
         for (int i = 0; i < compsForBuf.length; i++) {
             if (compsForBuf[i] == 0) {
@@ -413,16 +419,11 @@ public class BatchNode extends Node implements Savable {
 
             Buffer data;
             if (i == VertexBuffer.Type.Index.ordinal()) {
-                data = VertexBuffer.createBuffer(formatForBuf[i], compsForBuf[i], totalTris);
-                elements = compsForBuf[i]* totalTris;
+                data = VertexBuffer.createBuffer(formatForBuf[i], compsForBuf[i], totalTris);                
             } else {
-                data = VertexBuffer.createBuffer(formatForBuf[i], compsForBuf[i], totalVerts);
-                elements = compsForBuf[i]* totalVerts;
+                data = VertexBuffer.createBuffer(formatForBuf[i], compsForBuf[i], totalVerts);                
             }
 
-            if(maxElemCount<elements){
-                maxElemCount = elements;
-            }
             VertexBuffer vb = new VertexBuffer(VertexBuffer.Type.values()[i]);
             vb.setupData(VertexBuffer.Usage.Dynamic, compsForBuf[i], formatForBuf[i], data);
             outMesh.setBuffer(vb);
@@ -430,17 +431,17 @@ public class BatchNode extends Node implements Savable {
 
         int globalVertIndex = 0;
         int globalTriIndex = 0;
-   
+
         for (Geometry geom : geometries) {
             Mesh inMesh = geom.getMesh();
             geom.batch(this, globalVertIndex);
 
-            int geomVertCount = inMesh.getVertexCount();         
+            int geomVertCount = inMesh.getVertexCount();
             int geomTriCount = inMesh.getTriangleCount();
 
             for (int bufType = 0; bufType < compsForBuf.length; bufType++) {
                 VertexBuffer inBuf = inMesh.getBuffer(VertexBuffer.Type.values()[bufType]);
-                
+
                 VertexBuffer outBuf = outMesh.getBuffer(VertexBuffer.Type.values()[bufType]);
 
                 if (outBuf == null) {
@@ -477,68 +478,126 @@ public class BatchNode extends Node implements Savable {
 
             globalVertIndex += geomVertCount;
             globalTriIndex += geomTriCount;
-        }     
-        tmpFloat = new float[maxElemCount];
+        }
+        tmpFloat = new float[maxVertCount * 3];
+        tmpFloatN = new float[maxVertCount * 3];
+        tmpFloatT = new float[maxVertCount * 4];
     }
-  
 
-    private void doTransformVerts(FloatBuffer inBuf, int start, int end, FloatBuffer outBuf, Matrix4f transform) {
+    private void doTransforms(FloatBuffer bufPos, FloatBuffer bufNorm, int start, int end, Matrix4f transform) {
         TempVars vars = TempVars.get();
         Vector3f pos = vars.vect1;
+        Vector3f norm = vars.vect2;
 
         int length = (end - start) * 3;
 
         // offset is given in element units
         // convert to be in component units
         int offset = start * 3;
-
-        for (int i = start; i < end; i++) {
-            int index = i * 3;
-            pos.x = inBuf.get(index);
-            pos.y = inBuf.get(index + 1);
-            pos.z = inBuf.get(index + 2);
+        bufPos.position(offset);
+        bufNorm.position(offset);     
+        bufPos.get(tmpFloat, 0, length);
+        bufNorm.get(tmpFloatN, 0, length);
+        int index = 0;
+        while (index < length) {
+            pos.x = tmpFloat[index];
+            norm.x = tmpFloatN[index++];
+            pos.y = tmpFloat[index];
+            norm.y = tmpFloatN[index++];
+            pos.z = tmpFloat[index];
+            norm.z = tmpFloatN[index];
 
             transform.mult(pos, pos);
-            index -= offset;
+            transform.multNormal(norm, norm);
+
+            index -= 2;
             tmpFloat[index] = pos.x;
-            tmpFloat[index + 1] = pos.y;
-            tmpFloat[index + 2] = pos.z;
+            tmpFloatN[index++] = norm.x;
+            tmpFloat[index] = pos.y;
+            tmpFloatN[index++] = norm.y;
+            tmpFloat[index] = pos.z;
+            tmpFloatN[index++] = norm.z;
 
         }
         vars.release();
-        outBuf.position(offset);
+        bufPos.position(offset);
         //using bulk put as it's faster
-        outBuf.put(tmpFloat, 0, length);
+        bufPos.put(tmpFloat, 0, length);
+        bufNorm.position(offset);
+        //using bulk put as it's faster
+        bufNorm.put(tmpFloatN, 0, length);
     }
 
-    private void doTransformNorm(FloatBuffer inBuf, int start, int end, FloatBuffer outBuf, Matrix4f transform) {
+    private void doTransformsTangents(FloatBuffer bufPos, FloatBuffer bufNorm, FloatBuffer bufTangents, int start, int end, Matrix4f transform) {
         TempVars vars = TempVars.get();
         Vector3f pos = vars.vect1;
-        int length = (end - start) * 3;
+        Vector3f norm = vars.vect2;
+        Vector3f tan = vars.vect3;
 
+        int length = (end - start) * 3;
+        int tanLength = (end - start) * 4;
 
         // offset is given in element units
         // convert to be in component units
         int offset = start * 3;
+        int tanOffset = start * 4;
+        
+        bufPos.position(offset);
+        bufNorm.position(offset);
+        bufTangents.position(tanOffset);
+        bufPos.get(tmpFloat, 0, length);
+        bufNorm.get(tmpFloatN, 0, length);               
+        bufTangents.get(tmpFloatT, 0, tanLength);
+        
+        int index = 0;
+        int tanIndex = 0;
+        while (index < length) {
+            pos.x = tmpFloat[index];
+            norm.x = tmpFloatN[index++];
+            pos.y = tmpFloat[index];
+            norm.y = tmpFloatN[index++];
+            pos.z = tmpFloat[index];
+            norm.z = tmpFloatN[index];
+            
+            tan.x = tmpFloatT[tanIndex++];
+            tan.y = tmpFloatT[tanIndex++];
+            tan.z = tmpFloatT[tanIndex++];
+                        
 
-        for (int i = start; i < end; i++) {
-            int index = i * 3;
-            pos.x = inBuf.get(index);
-            pos.y = inBuf.get(index + 1);
-            pos.z = inBuf.get(index + 2);
+            transform.mult(pos, pos);
+            transform.multNormal(norm, norm);
+            transform.multNormal(tan, tan);
 
-            transform.multNormal(pos, pos);
-            index -= offset;
+            index -= 2;
+            tanIndex -= 3;
+            
             tmpFloat[index] = pos.x;
-            tmpFloat[index + 1] = pos.y;
-            tmpFloat[index + 2] = pos.z;
+            tmpFloatN[index++] = norm.x;
+            tmpFloat[index] = pos.y;
+            tmpFloatN[index++] = norm.y;
+            tmpFloat[index] = pos.z;
+            tmpFloatN[index++] = norm.z;
+            
+            tmpFloatT[tanIndex++] = tan.x;
+            tmpFloatT[tanIndex++] = tan.y;
+            tmpFloatT[tanIndex++] = tan.z;
+            
+            tanIndex++;
 
         }
         vars.release();
-        outBuf.position(offset);
+        bufPos.position(offset);
         //using bulk put as it's faster
-        outBuf.put(tmpFloat, 0, length);
+        bufPos.put(tmpFloat, 0, length);
+        bufNorm.position(offset);
+        //using bulk put as it's faster
+        bufNorm.put(tmpFloatN, 0, length);        
+        bufTangents.position(tanOffset);
+        //using bulk put as it's faster
+        bufTangents.put(tmpFloatT, 0, tanLength);
     }
+
+  
 
     private void doCopyBuffer(FloatBuffer inBuf, int offset, FloatBuffer outBuf) {
         TempVars vars = TempVars.get();
