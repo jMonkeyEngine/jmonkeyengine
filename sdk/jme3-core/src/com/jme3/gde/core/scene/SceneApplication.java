@@ -161,15 +161,25 @@ public class SceneApplication extends Application implements LookupProvider, Loo
 
     public Component getMainPanel() {
         if (useCanvas) {
-            return ((JmeCanvasContext)getContext()).getCanvas();
+            return ((JmeCanvasContext) getContext()).getCanvas();
         } else {
             if (panel == null) {
                 panel = ((AwtPanelsContext) getContext()).createPanel(PaintMode.Accelerated);
-                panel.attachTo(true, viewPort, overlayView, guiViewPort);
                 ((AwtPanelsContext) getContext()).setInputSource(panel);
+                attachPanel();
             }
             return panel;
         }
+    }
+
+    private void attachPanel() {
+        enqueue(new Callable() {
+
+            public Object call() throws Exception {
+                panel.attachTo(true, viewPort, overlayView, guiViewPort);
+                return null;
+            }
+        });
     }
 
     public ViewPort getOverlayView() {
