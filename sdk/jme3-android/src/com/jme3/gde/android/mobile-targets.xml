@@ -1,5 +1,6 @@
     <target name="run-android" depends="-flag-no-android, jar, -test-android-enabled, -copy-android-libs" if="is.android.enabled">
-        <ant dir="mobile" target="install"/>
+        <ant dir="mobile" target="debug"/>
+        <ant dir="mobile" target="installd"/>
     </target>
     
     <target name="clean-android">
