@@ -103,7 +103,7 @@ public class TerrainGridTest extends SimpleApplication {
 
         this.terrain.setMaterial(this.mat_terrain);
         this.terrain.setLocalTranslation(0, 0, 0);
-        this.terrain.setLocalScale(2f, 1f, 2f);
+        this.terrain.setLocalScale(1f, 1f, 1f);
         this.rootNode.attachChild(this.terrain);
 
         TerrainLodControl control = new TerrainLodControl(this.terrain, getCamera());

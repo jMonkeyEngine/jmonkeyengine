@@ -42,7 +42,7 @@ public class TerrainFractalGridTest extends SimpleApplication {
     private float grassScale = 64;
     private float dirtScale = 16;
     private float rockScale = 128;
-    private boolean usePhysics = false;
+    private boolean usePhysics = true;
 
     public static void main(final String[] args) {
         TerrainFractalGridTest app = new TerrainFractalGridTest();
@@ -143,9 +143,7 @@ public class TerrainFractalGridTest extends SimpleApplication {
         this.terrain.setLocalScale(2f, 1f, 2f);
         this.rootNode.attachChild(this.terrain);
 
-        List<Camera> cameras = new ArrayList<Camera>();
-        cameras.add(this.getCamera());
-        TerrainLodControl control = new TerrainLodControl(this.terrain, cameras);
+        TerrainLodControl control = new TerrainLodControl(this.terrain, this.getCamera());
         control.setLodCalculator( new DistanceLodCalculator(33, 2.7f) ); // patch size, and a multiplier
         this.terrain.addControl(control);
 
@@ -153,7 +151,7 @@ public class TerrainFractalGridTest extends SimpleApplication {
         stateManager.attach(bulletAppState);
 
 
-        this.getCamera().setLocation(new Vector3f(0, 0, 0));
+        this.getCamera().setLocation(new Vector3f(0, 300, 0));
 
         this.viewPort.setBackgroundColor(new ColorRGBA(0.7f, 0.8f, 1f, 1f));
 

@@ -33,7 +33,6 @@ package com.jme3.terrain.geomipmap;
 
 import com.jme3.scene.control.UpdateControl;
 import com.jme3.bullet.PhysicsSpace;
-import com.jme3.bullet.collision.shapes.HeightfieldCollisionShape;
 import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.terrain.heightmap.HeightMap;
 import java.util.HashMap;
@@ -47,8 +46,6 @@ import com.jme3.math.FastMath;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.terrain.geomipmap.lodcalc.LodCalculator;
-import com.jme3.terrain.geomipmap.lodcalc.LodCalculatorFactory;
-import com.jme3.terrain.geomipmap.lodcalc.LodDistanceCalculatorFactory;
 import com.jme3.terrain.heightmap.HeightMapGrid;
 import java.util.concurrent.Callable;
 
@@ -203,7 +200,8 @@ public class TerrainGrid extends TerrainQuad {
     }
 
     public Vector3f getCell(Vector3f location) {
-        final Vector3f v = location.clone().divideLocal(this.getLocalScale().mult(this.quadSize - 1)).add(0.5f, 0, 0.5f);
+        final Vector3f v = location.add(this.getWorldScale().mult((this.quadSize - 1)/2)).divide(this.getWorldScale().mult(this.quadSize - 1)).add(0.5f, 0, 0.5f);
+        
         return new Vector3f(FastMath.floor(v.x), 0, FastMath.floor(v.z));
     }
 
