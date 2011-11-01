@@ -186,8 +186,11 @@ public class RenderDeviceJme implements RenderDevice {
         buf.flip();
         quadColor.updateData(buf);
     }
-
-    public void renderFont(RenderFont font, String str, int x, int y, Color color, float size){
+    
+ 
+    @Override
+    public void renderFont(RenderFont font, String str, int x, int y, Color color, float size, float f1){        
+        //TODO find out what the f1 param is for
         if (str.length() == 0)
             return;
 
@@ -363,5 +366,7 @@ public class RenderDeviceJme implements RenderDevice {
             clipWasSet = false;
         }
     }
+
+    
 
 }
