@@ -90,8 +90,7 @@ public class BloomFilter extends Filter {
     private Material vBlurMat;
     private Material hBlurMat;
     private int screenWidth;
-    private int screenHeight;
-    private ColorRGBA backupColor;
+    private int screenHeight;    
 
     /**
      * Creates a Bloom filter
@@ -188,14 +187,12 @@ public class BloomFilter extends Filter {
 
     @Override
     protected void postQueue(RenderManager renderManager, ViewPort viewPort) {
-        if (glowMode != GlowMode.Scene) {
-            backupColor = viewPort.getBackgroundColor();
-            viewPort.setBackgroundColor(ColorRGBA.Black);
+        if (glowMode != GlowMode.Scene) {           
+            renderManager.getRenderer().setBackgroundColor(ColorRGBA.Black);
             renderManager.getRenderer().setFrameBuffer(preGlowPass.getRenderFrameBuffer());
             renderManager.getRenderer().clearBuffers(true, true, true);
             renderManager.setForcedTechnique("Glow");
-            renderManager.renderViewPortQueues(viewPort, false);
-            viewPort.setBackgroundColor(backupColor);
+            renderManager.renderViewPortQueues(viewPort, false);         
             renderManager.setForcedTechnique(null);
             renderManager.getRenderer().setFrameBuffer(viewPort.getOutputFrameBuffer());
         }
