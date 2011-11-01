@@ -187,9 +187,23 @@ public class RenderDeviceJme implements RenderDevice {
         quadColor.updateData(buf);
     }
     
+    /**
+     * 
+     * @param font
+     * @param str
+     * @param x
+     * @param y
+     * @param color
+     * @param size 
+     * @deprecated use renderFont(RenderFont font, String str, int x, int y, Color color, float sizeX, float sizeY) instead
+     */
+    @Deprecated
+    public void renderFont(RenderFont font, String str, int x, int y, Color color, float size){        
+        renderFont(font, str, x, y, color, size, size);
+    }
  
     @Override
-    public void renderFont(RenderFont font, String str, int x, int y, Color color, float size, float f1){        
+    public void renderFont(RenderFont font, String str, int x, int y, Color color, float sizeX, float sizeY){        
         //TODO find out what the f1 param is for
         if (str.length() == 0)
             return;
@@ -217,12 +231,12 @@ public class RenderDeviceJme implements RenderDevice {
         float width = text.getLineWidth();
         float height = text.getLineHeight();
 
-        float x0 = x + 0.5f * width  * (1f - size);
-        float y0 = y + 0.5f * height * (1f - size);
+        float x0 = x + 0.5f * width  * (1f - sizeX);
+        float y0 = y + 0.5f * height * (1f - sizeY);
 
         tempMat.loadIdentity();
         tempMat.setTranslation(x0, getHeight() - y0, 0);
-        tempMat.setScale(size, size, 0);
+        tempMat.setScale(sizeX, sizeY, 0);
 
         rm.setWorldMatrix(tempMat);
         text.render(rm);
