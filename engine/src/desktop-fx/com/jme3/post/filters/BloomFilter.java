@@ -188,7 +188,7 @@ public class BloomFilter extends Filter {
     @Override
     protected void postQueue(RenderManager renderManager, ViewPort viewPort) {
         if (glowMode != GlowMode.Scene) {           
-            renderManager.getRenderer().setBackgroundColor(ColorRGBA.Black);
+            renderManager.getRenderer().setBackgroundColor(ColorRGBA.BlackNoAlpha);            
             renderManager.getRenderer().setFrameBuffer(preGlowPass.getRenderFrameBuffer());
             renderManager.getRenderer().clearBuffers(true, true, true);
             renderManager.setForcedTechnique("Glow");
