@@ -140,17 +140,8 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
          * {@link Usage#CpuOnly}, and the buffer should be allocated
          * on the heap.
          */
-        BindPoseNormal,
-        
-         /** 
-         * Initial vertex tangents, used with animation.
-         * Should have the same format and size as {@link Type#Tangent}.
-         * If used with software skinning, the usage should be 
-         * {@link Usage#CpuOnly}, and the buffer should be allocated
-         * on the heap.
-         */
-        BindPoseTangent,
-
+        BindPoseNormal,      
+         
         /** 
          * Bone weights, used with animation (4 floats).
          * If used with software skinning, the usage should be 
@@ -201,6 +192,15 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
          * Texture coordinate #8
          */
         TexCoord8,
+        
+        /** 
+         * Initial vertex tangents, used with animation.
+         * Should have the same format and size as {@link Type#Tangent}.
+         * If used with software skinning, the usage should be 
+         * {@link Usage#CpuOnly}, and the buffer should be allocated
+         * on the heap.
+         */
+        BindPoseTangent,
     }
 
     /**
