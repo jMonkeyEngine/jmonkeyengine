@@ -205,10 +205,17 @@ public class MTLLoader implements AssetLoader {
         }else if (cmd.equals("ks")){
             specular.set(readColor());
         }else if (cmd.equals("ns")){
-            shininess = scan.nextFloat(); /* (128f / 1000f)*/
-            if (specular.equals(ColorRGBA.Black)){
-                specular.set(ColorRGBA.White);
+            float shiny = scan.nextFloat();
+            if (shiny >= 1){
+                shininess = shiny; /* (128f / 1000f)*/
+                if (specular.equals(ColorRGBA.Black)){
+                    specular.set(ColorRGBA.White);
+                }
+            }else{
+                // For some reason blender likes to export Ns 0 statements
+                // Ignore Ns 0 instead of setting it
             }
+            
         }else if (cmd.equals("d") || cmd.equals("tr")){
             alpha = scan.nextFloat();
             transparent = true;
