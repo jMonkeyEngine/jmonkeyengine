@@ -141,14 +141,37 @@ public class TerrainQuad extends Node implements Terrain {
         super("Terrain");
     }
 
+    /**
+     * 
+     * @param name
+     * @param patchSize size of the individual patches
+     * @param totalSize the size of this entire terrain tree (on one side)
+     * @param heightMap
+     */
     public TerrainQuad(String name, int patchSize, int totalSize, float[] heightMap) {
         this(name, patchSize, totalSize, Vector3f.UNIT_XYZ, heightMap);
     }
     
+    /**
+     * 
+     * @param name
+     * @param patchSize size of the individual patches
+     * @param quadSize
+     * @param totalSize the size of this entire terrain tree (on one side)
+     * @param heightMap
+     */
     public TerrainQuad(String name, int patchSize, int quadSize, int totalSize, float[] heightMap) {
         this(name, patchSize, totalSize, Vector3f.UNIT_XYZ, heightMap);
     }
 
+    /**
+     * 
+     * @param name
+     * @param patchSize size of the individual patches
+     * @param size size of this quad, can be between totalSize and patchSize
+     * @param scale
+     * @param heightMap
+     */
     public TerrainQuad(String name, int patchSize, int size, Vector3f scale, float[] heightMap) {
         this(name, patchSize, size, scale, heightMap, size, new Vector2f(), 0);
         affectedAreaBBox = new BoundingBox(new Vector3f(0,0,0), size*2, Float.MAX_VALUE, size*2);
@@ -156,6 +179,15 @@ public class TerrainQuad extends Node implements Terrain {
         addControl(new NormalRecalcControl(this));
     }
     
+    /**
+     * 
+     * @param name
+     * @param patchSize size of the individual patches
+     * @param totalSize the size of this entire terrain tree (on one side)
+     * @param quadSize
+     * @param scale
+     * @param heightMap
+     */
     public TerrainQuad(String name, int patchSize, int totalSize, int quadSize, Vector3f scale, float[] heightMap) {
         this(name, patchSize, quadSize, scale, heightMap, totalSize, new Vector2f(), 0);
         affectedAreaBBox = new BoundingBox(new Vector3f(0,0,0), totalSize*2, Float.MAX_VALUE, totalSize*2);
