@@ -36,11 +36,12 @@ public class TestTangentGenBadModels extends SimpleApplication {
         assetManager.registerLocator("http://jme-glsl-shaders.googlecode.com/hg/assets/Models/LightBlow/", UrlLocator.class);
         assetManager.registerLocator("http://jmonkeyengine.googlecode.com/files/", UrlLocator.class);
         
-        Spatial badModel = assetManager.loadModel("jme_lightblow.obj");
+        Geometry badModel = (Geometry) assetManager.loadModel("jme_lightblow.obj");
         badModel.setLocalScale(2f);
         
-        Material mat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
-        mat.setTexture("NormalMap", assetManager.loadTexture("jme_lightblow_nor.png"));
+//        Material mat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
+//        mat.setTexture("NormalMap", assetManager.loadTexture("jme_lightblow_nor.png"));
+        Material mat = assetManager.loadMaterial("Textures/BumpMapTest/Tangent.j3m");
         badModel.setMaterial(mat);
         rootNode.attachChild(badModel);
         
@@ -55,25 +56,25 @@ public class TestTangentGenBadModels extends SimpleApplication {
                 Mesh m = g.getMesh();
                 Material mat = g.getMaterial();
                 
-                if (mat.getParam("DiffuseMap") != null){
-                    mat.setTexture("DiffuseMap", null);
-                }
+//                if (mat.getParam("DiffuseMap") != null){
+//                    mat.setTexture("DiffuseMap", null);
+//                }
                 TangentBinormalGenerator.generate(m);
             }
         });
 
-//        Geometry debug = new Geometry(
-//                "Debug Teapot",
-//                TangentBinormalGenerator.genTbnLines(((Geometry) badModel).getMesh(), 0.03f)
-//        );
-//        debug.getMesh().setLineWidth(3);
+        Geometry debug = new Geometry(
+                "Debug Teapot",
+                TangentBinormalGenerator.genTbnLines(((Geometry) badModel).getMesh(), 0.03f)
+        );
+        debug.getMesh().setLineWidth(3);
         
-//        Material debugMat = assetManager.loadMaterial("Common/Materials/VertexColor.j3m");
-//        debug.setMaterial(debugMat);
-//        debug.setCullHint(Spatial.CullHint.Never);
-//        debug.getLocalTranslation().set(badModel.getLocalTranslation());
-//        debug.getLocalScale().set(badModel.getLocalScale());
-//        rootNode.attachChild(debug);
+        Material debugMat = assetManager.loadMaterial("Common/Materials/VertexColor.j3m");
+        debug.setMaterial(debugMat);
+        debug.setCullHint(Spatial.CullHint.Never);
+        debug.getLocalTranslation().set(badModel.getLocalTranslation());
+        debug.getLocalScale().set(badModel.getLocalScale());
+        rootNode.attachChild(debug);
 
         DirectionalLight dl = new DirectionalLight();
         dl.setDirection(new Vector3f(-0.8f, -0.6f, -0.08f).normalizeLocal());
