@@ -213,15 +213,14 @@ public class PhysicsSpace {
             physicsTickCallback.physicsTick(this, f);
         }
     }
-    
-    private void addCollision_native(){
-        
+
+    private void addCollision_native() {
     }
 
-    private boolean needCollision_native(PhysicsCollisionObject objectA, PhysicsCollisionObject objectB){
+    private boolean needCollision_native(PhysicsCollisionObject objectA, PhysicsCollisionObject objectB) {
         return false;
     }
-    
+
 //    private void setOverlapFilterCallback() {
 //        OverlapFilterCallback callback = new OverlapFilterCallback() {
 //
@@ -333,6 +332,7 @@ public class PhysicsSpace {
 //        System.out.println("addCollisionEvent:"+node.getObjectId()+" "+ node1.getObjectId());
         collisionEvents.add(eventFactory.getEvent(PhysicsCollisionEvent.TYPE_PROCESSED, node, node1, manifoldPointObjectId));
     }
+
     /**
      * updates the physics space
      * @param time the current time value
@@ -715,10 +715,10 @@ public class PhysicsSpace {
     /**
      * Performs a ray collision test and returns the results as a list of PhysicsRayTestResults
      */
-    public List<PhysicsRayTestResult> rayTest(Vector3f from, Vector3f to) {
-        List<PhysicsRayTestResult> results = new LinkedList<PhysicsRayTestResult>();
-//        dynamicsWorld.rayTest(Converter.convert(from, rayVec1), Converter.convert(to, rayVec2), new InternalRayListener(results));
-        return results;
+    public List rayTest(Vector3f from, Vector3f to) {
+        List results = new LinkedList();
+        rayTest(from, to, results);
+        return (List<PhysicsRayTestResult>) results;
     }
 
     /**
@@ -726,9 +726,11 @@ public class PhysicsSpace {
      */
     public List<PhysicsRayTestResult> rayTest(Vector3f from, Vector3f to, List<PhysicsRayTestResult> results) {
         results.clear();
-//        dynamicsWorld.rayTest(Converter.convert(from, rayVec1), Converter.convert(to, rayVec2), new InternalRayListener(results));
+        rayTest_native(from, to, physicsSpaceId, results);
         return results;
     }
+
+    public native void rayTest_native(Vector3f from, Vector3f to, long physicsSpaceId, List<PhysicsRayTestResult> results);
 
 //    private class InternalRayListener extends CollisionWorld.RayResultCallback {
 //

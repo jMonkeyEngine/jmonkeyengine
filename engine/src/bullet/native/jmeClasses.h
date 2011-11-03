@@ -81,6 +81,14 @@ public:
     static jfieldID Matrix3f_m21;
     static jfieldID Matrix3f_m22;
 
+    static jclass PhysicsRay_Class;
+    static jmethodID PhysicsRay_newSingleResult;
+    static jfieldID PhysicsRay_normalInWorldSpace;
+    static jfieldID PhysicsRay_hitfraction;
+    static jfieldID PhysicsRay_collisionObject;
+    static jclass PhysicsRay_listresult;
+    static jmethodID PhysicsRay_addmethod;
+
     static jclass DebugMeshCallback;
     static jmethodID DebugMeshCallback_addVector;
 

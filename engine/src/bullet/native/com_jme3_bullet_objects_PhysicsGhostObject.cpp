@@ -40,7 +40,7 @@
 #include "BulletCollision/BroadphaseCollision/btOverlappingPairCache.h"
 #include "jmeBulletUtil.h"
 #include "jmePhysicsSpace.h"
-#include "jmeUserPointer.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif

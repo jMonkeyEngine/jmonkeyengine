@@ -36,7 +36,6 @@
 #include "com_jme3_bullet_collision_PhysicsCollisionObject.h"
 #include "jmeBulletUtil.h"
 #include "jmePhysicsSpace.h"
-#include "jmeUserPointer.h"
 
 #ifdef __cplusplus
 extern "C" {

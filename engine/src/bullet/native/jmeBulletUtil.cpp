@@ -33,23 +33,23 @@
 #include "jmeBulletUtil.h"
 
 /**
- * Author: Normen Hansen
+ * Author: Normen Hansen,Empire Phoenix, Lutherion
  */
 void jmeBulletUtil::convert(JNIEnv* env, jobject in, btVector3* out) {
     if (in == NULL || out == NULL) {
         jmeClasses::throwNPE(env);
     }
-    float x = env->GetFloatField(in, jmeClasses::Vector3f_x);//env->CallFloatMethod(in, jmeClasses::Vector3f_getX);
+    float x = env->GetFloatField(in, jmeClasses::Vector3f_x); //env->CallFloatMethod(in, jmeClasses::Vector3f_getX);
     if (env->ExceptionCheck()) {
         env->Throw(env->ExceptionOccurred());
         return;
     }
-    float y = env->GetFloatField(in, jmeClasses::Vector3f_y);//env->CallFloatMethod(in, jmeClasses::Vector3f_getY);
+    float y = env->GetFloatField(in, jmeClasses::Vector3f_y); //env->CallFloatMethod(in, jmeClasses::Vector3f_getY);
     if (env->ExceptionCheck()) {
         env->Throw(env->ExceptionOccurred());
         return;
     }
-    float z = env->GetFloatField(in, jmeClasses::Vector3f_z);//env->CallFloatMethod(in, jmeClasses::Vector3f_getZ);
+    float z = env->GetFloatField(in, jmeClasses::Vector3f_z); //env->CallFloatMethod(in, jmeClasses::Vector3f_getZ);
     if (env->ExceptionCheck()) {
         env->Throw(env->ExceptionOccurred());
         return;
@@ -77,7 +77,7 @@ void jmeBulletUtil::convert(JNIEnv* env, const btVector3* in, jobject out) {
         return;
     }
     env->SetFloatField(out, jmeClasses::Vector3f_z, z);
-//    env->CallObjectMethod(out, jmeClasses::Vector3f_set, x, y, z);
+    //    env->CallObjectMethod(out, jmeClasses::Vector3f_set, x, y, z);
     if (env->ExceptionCheck()) {
         env->Throw(env->ExceptionOccurred());
         return;
@@ -300,7 +300,26 @@ void jmeBulletUtil::convertQuat(JNIEnv* env, const btMatrix3x3* in, jobject out)
         return;
     }
     env->SetFloatField(out, jmeClasses::Quaternion_w, w);
-//    env->CallObjectMethod(out, jmeClasses::Quaternion_set, x, y, z, w);
+    //    env->CallObjectMethod(out, jmeClasses::Quaternion_set, x, y, z, w);
+    if (env->ExceptionCheck()) {
+        env->Throw(env->ExceptionOccurred());
+        return;
+    }
+}
+
+void jmeBulletUtil::addResult(JNIEnv* env, jobject resultlist, btVector3 hitnormal, btVector3 m_hitPointWorld, btScalar m_hitFraction, btCollisionObject* hitobject) {
+
+    jobject singleresult = env->AllocObject(jmeClasses::PhysicsRay_Class);
+    jobject hitnormalvec = env->AllocObject(jmeClasses::Vector3f);
+
+    convert(env, const_cast<btVector3*> (&hitnormal), hitnormalvec);
+    jmeUserPointer *up1 = (jmeUserPointer*) hitobject -> getUserPointer();
+
+    env->SetObjectField(singleresult, jmeClasses::PhysicsRay_normalInWorldSpace, hitnormalvec);
+    env->SetFloatField(singleresult, jmeClasses::PhysicsRay_hitfraction, m_hitFraction);
+
+    env->SetObjectField(singleresult, jmeClasses::PhysicsRay_collisionObject, up1->javaCollisionObject);
+    env->CallVoidMethod(resultlist, jmeClasses::PhysicsRay_addmethod, singleresult);
     if (env->ExceptionCheck()) {
         env->Throw(env->ExceptionOccurred());
         return;

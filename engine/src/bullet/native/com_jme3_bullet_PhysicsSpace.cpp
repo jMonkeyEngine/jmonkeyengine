@@ -32,7 +32,7 @@
 #include "com_jme3_bullet_PhysicsSpace.h"
 #include "jmePhysicsSpace.h"
 #include "jmeBulletUtil.h"
-#include "jmeUserPointer.h"
+
 /**
  * Author: Normen Hansen
  */
@@ -394,6 +394,55 @@ extern "C" {
             return;
         }
         delete(space);
+    }
+    
+    JNIEXPORT void JNICALL Java_com_jme3_bullet_PhysicsSpace_rayTest_1native
+    (JNIEnv * env, jobject object, jobject to, jobject from, jlong spaceId, jobject resultlist) {
+
+        jmePhysicsSpace* space = reinterpret_cast<jmePhysicsSpace*> (spaceId);
+        if (space == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The physics space does not exist.");
+            return;
+        }
+
+        struct AllRayResultCallback : public btCollisionWorld::RayResultCallback {
+
+            AllRayResultCallback(const btVector3& rayFromWorld, const btVector3 & rayToWorld) : m_rayFromWorld(rayFromWorld), m_rayToWorld(rayToWorld) {
+            }
+            jobject resultlist;
+            JNIEnv* env;
+            btVector3 m_rayFromWorld; //used to calculate hitPointWorld from hitFraction
+            btVector3 m_rayToWorld;
+
+            btVector3 m_hitNormalWorld;
+            btVector3 m_hitPointWorld;
+
+            virtual btScalar addSingleResult(btCollisionWorld::LocalRayResult& rayResult, bool normalInWorldSpace) {
+                if (normalInWorldSpace) {
+                    m_hitNormalWorld = rayResult.m_hitNormalLocal;
+                } else {
+                    m_hitNormalWorld = m_collisionObject->getWorldTransform().getBasis() * rayResult.m_hitNormalLocal;
+                }
+                m_hitPointWorld.setInterpolate3(m_rayFromWorld, m_rayToWorld, rayResult.m_hitFraction);
+
+                jmeBulletUtil::addResult(env, resultlist, m_hitNormalWorld, m_hitPointWorld, rayResult.m_hitFraction, rayResult.m_collisionObject);
+
+                return 1.f;
+            }
+        };
+
+        btVector3 native_to = btVector3();
+        jmeBulletUtil::convert(env, to, &native_to);
+
+        btVector3 native_from = btVector3();
+        jmeBulletUtil::convert(env, from, &native_from);
+
+        AllRayResultCallback resultCallback(native_from, native_to);
+        resultCallback.env = env;
+        resultCallback.resultlist = resultlist;
+        space->getDynamicsWorld()->rayTest(native_from, native_to, resultCallback);
+        return;
     }
 
 #ifdef __cplusplus

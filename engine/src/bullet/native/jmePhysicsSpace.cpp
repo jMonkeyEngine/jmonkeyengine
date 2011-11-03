@@ -31,7 +31,6 @@
  */
 #include "jmePhysicsSpace.h"
 #include "jmeBulletUtil.h"
-#include "jmeUserPointer.h"
 #include <stdio.h>
 
 /**
@@ -240,7 +239,7 @@ bool jmePhysicsSpace::contactProcessedCallback(btManifoldPoint &cp, void *body0,
     btCollisionObject* co1 = (btCollisionObject*) body1;
     jmeUserPointer *up1 = (jmeUserPointer*) co1 -> getUserPointer();
     if (up0 != NULL) {
-        jmePhysicsSpace *dynamicsWorld = up0->space;
+        jmePhysicsSpace *dynamicsWorld = (jmePhysicsSpace *)up0->space;
         if (dynamicsWorld != NULL) {
             JNIEnv* env = dynamicsWorld->getEnv();
             jobject javaPhysicsSpace = env->NewLocalRef(dynamicsWorld->getJavaPhysicsSpace());
