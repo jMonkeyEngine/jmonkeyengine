@@ -38,7 +38,11 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 
 /**
- * @author Kirill
+ * A <code>CollisionResult</code> represents a single collision instance
+ * between two {@link Collidable}. A collision check can result in many 
+ * collision instances (places where collision has occured).
+ * 
+ * @author Kirill Vainer
  */
 public class CollisionResult implements Comparable<CollisionResult> {
 

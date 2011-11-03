@@ -54,12 +54,33 @@ import com.jme3.math.Vector3f;
  */
 public abstract class BoundingVolume implements Savable, Cloneable, Collidable {
 
+    /**
+     * The type of bounding volume being used.
+     */
     public enum Type {
-        Sphere, AABB, OBB, Capsule;
+        /**
+         * {@link BoundingSphere}
+         */
+        Sphere, 
+        
+        /**
+         * {@link BoundingBox}.
+         */
+        AABB, 
+        
+        /**
+         * {@link com.jme3.bounding.OrientedBoundingBox}
+         */
+        OBB, 
+        
+        /**
+         * Currently unsupported by jME3.
+         */
+        Capsule;
     }
 
     protected int checkPlane = 0;
-    Vector3f center = new Vector3f();
+    protected Vector3f center = new Vector3f();
 
     public BoundingVolume() {
     }

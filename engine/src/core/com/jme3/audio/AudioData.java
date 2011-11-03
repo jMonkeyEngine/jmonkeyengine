@@ -37,8 +37,8 @@ import com.jme3.util.NativeObject;
 /**
  * <code>AudioData</code> is an abstract representation
  * of audio data. There are two ways to handle audio data, short audio files
- * are to be stored entirely in memory, while long audio files (music) is
- * streamed from the hard drive as it is played.
+ * are to be stored entirely in memory, while long audio files (music) are
+ * streamed from the hard drive as they are played.
  *
  * @author Kirill Vainer
  */

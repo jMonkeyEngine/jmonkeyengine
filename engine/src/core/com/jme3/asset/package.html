@@ -1,0 +1,37 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+
+<head>
+<title></title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+</head>
+<body>
+
+<code>com.jme3.asset</code> contains the {@link com.jme3.asset.AssetManager}, 
+a utility class that is used to load assets such as textures, models, and
+sound effects in a jME3 application. <br>
+
+<p>
+    
+<h3>AssetLoaders</h3>
+{@link com.jme3.asset.AssetLoader asset loaders} are registered to load 
+assets of a particular format. For example, an <code>AssetLoader</code> that
+loads TGA images should read a stream in .tga format and return an 
+{@link com.jme3.texture.Image} object as its output. 
+<code>AssetLoader</code>s are initialized once a file of that format
+is loaded, there's only one AssetLoader per thread so 
+AssetLoader's load() method does not have to be thread safe.
+
+<h3>AssetLocators</h3>
+{@link com.jme3.asset.AssetLocators asset locators} are used to resolve 
+an asset name (a string) into an {@link java.io.InputStream} which is 
+contained in an {@link com.jme3.asset.AssetInfo} object. 
+There are <code>AssetLocators</code> for loading files from the application's 
+classpath, the local hard drive, a ZIP file, an HTTP server, and more. The user
+can implement their own AssetLocators and register them with the <code>AssetManager</code>
+to load their resources from their own location.
+
+
+</body>
+</html>
+
