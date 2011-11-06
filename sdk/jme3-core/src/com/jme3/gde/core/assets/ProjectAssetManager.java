@@ -104,10 +104,16 @@ public class ProjectAssetManager extends DesktopAssetManager {
         String prefix = getAssetFolderName();
         int idx = absolutePath.indexOf(prefix);
         if (idx == 0) {
-            System.out.println("absolute/prefix:"+absolutePath+" / "+prefix);
-            return absolutePath.substring(prefix.length() + 1);
+            return stripFirstSlash(absolutePath.substring(prefix.length()));
         }
         return absolutePath;
+    }
+
+    private String stripFirstSlash(String input) {
+        if (input.startsWith("/")) {
+            return input.substring(1);
+        }
+        return input;
     }
 
     @Deprecated
