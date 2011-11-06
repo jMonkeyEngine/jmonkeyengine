@@ -109,11 +109,11 @@ public class MaterialPropertyEditor implements PropertyEditor, SceneExplorerProp
                 FileObject currentFolder = currentFile.getParent();
 
                 int i = 0;
-                String newFileName = currentFile.getName() + "-" + geom.getName();
+                String newFileName = currentFile.getName() + "-" + sanitizeFileName(geom.getName());
                 FileObject newFile = currentFolder.getFileObject(newFileName, "j3m");
                 while (newFile != null) {
                     i++;
-                    newFileName = currentFile.getName() + "-" + geom.getName() + "-" + i;
+                    newFileName = currentFile.getName() + "-" + sanitizeFileName(geom.getName()) + "-" + i;
                     newFile = currentFolder.getFileObject(newFileName, "j3m");
                 }
                 newFile = currentFolder.createData(newFileName, "j3m");
@@ -130,6 +130,10 @@ public class MaterialPropertyEditor implements PropertyEditor, SceneExplorerProp
         } else {
             applyMaterial(text);
         }
+    }
+    
+    private String sanitizeFileName(String input){
+        return input.replaceAll("[^A-Za-z0-9 ]", "_");
     }
 
     private void applyMaterial(final String text) {
