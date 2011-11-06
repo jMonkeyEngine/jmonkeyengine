@@ -306,11 +306,11 @@ public final class ModelImporterVisualPanel1 extends JPanel implements AssetEven
         if (loading.get()) {
             return;
         }
-        loading.set(true);
         FileChooserBuilder builder = new FileChooserBuilder(this.getClass());
         builder.setTitle("Select Model File");
         final File file = builder.showOpenDialog();
         if (file != null) {
+            loading.set(true);
             jTextField1.setText(file.getAbsolutePath());
             new Thread(new Runnable() {
 
