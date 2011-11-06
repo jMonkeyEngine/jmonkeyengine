@@ -327,7 +327,7 @@ public final class OBJLoader implements AssetLoader {
         try {
             matList = (MaterialList) assetManager.loadAsset(key.getFolder() + name);
         } catch (AssetNotFoundException ex){
-            throw new AssetNotFoundException("Cannot find material " + name + " for model " + key.getName());
+            throw new AssetNotFoundException("Cannot load or find material " + name + " for model " + key.getName(), ex);
         }
 
         if (matList != null){
