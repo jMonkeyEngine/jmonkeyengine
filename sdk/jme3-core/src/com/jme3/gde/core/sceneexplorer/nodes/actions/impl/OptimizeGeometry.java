@@ -53,7 +53,7 @@ public class OptimizeGeometry extends AbstractToolAction {
     protected Object doApplyTool(AbstractSceneExplorerNode rootNode) {
         Node geom = rootNode.getLookup().lookup(Node.class);
         GeometryBatchFactory.optimize(geom);
-        return null;
+        return geom;
     }
 
     @Override
