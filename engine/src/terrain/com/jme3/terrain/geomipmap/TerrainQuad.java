@@ -161,7 +161,7 @@ public class TerrainQuad extends Node implements Terrain {
      * @param heightMap
      */
     public TerrainQuad(String name, int patchSize, int quadSize, int totalSize, float[] heightMap) {
-        this(name, patchSize, totalSize, Vector3f.UNIT_XYZ, heightMap);
+        this(name, patchSize, totalSize, quadSize, Vector3f.UNIT_XYZ, heightMap);
     }
 
     /**

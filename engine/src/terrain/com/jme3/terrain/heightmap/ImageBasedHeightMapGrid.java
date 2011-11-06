@@ -17,8 +17,14 @@ import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 
 /**
- *
- * @author Anthyon
+ * Loads Terrain grid tiles with image heightmaps.
+ * By default it expects a 16-bit grayscale image as the heightmap, but
+ * you can also call setImageType(BufferedImage.TYPE_) to set it to be a different
+ * image type. If you do this, you must also set a custom ImageHeightmap that will
+ * understand and be able to parse the image. By default if you pass in an image of type
+ * BufferedImage.TYPE_3BYTE_BGR, it will use the ImageBasedHeightMap for you.
+ * 
+ * @author Anthyon, Brent Owens
  */
 public class ImageBasedHeightMapGrid implements HeightMapGrid {
 
@@ -26,6 +32,8 @@ public class ImageBasedHeightMapGrid implements HeightMapGrid {
     private final AssetManager assetManager;
     private final Namer namer;
     private int size;
+    private int imageType = BufferedImage.TYPE_USHORT_GRAY; // 16 bit grayscale
+    private ImageHeightmap customImageHeightmap;
 
     public ImageBasedHeightMapGrid(final String textureBase, final String textureExt, AssetManager assetManager) {
         this(assetManager, new Namer() {
@@ -39,6 +47,27 @@ public class ImageBasedHeightMapGrid implements HeightMapGrid {
     public ImageBasedHeightMapGrid(AssetManager assetManager, Namer namer) {
         this.assetManager = assetManager;
         this.namer = namer;
+    }
+    
+    /**
+     * Lets you specify the type of images that are being loaded. All images
+     * must be the same type.
+     * @param imageType eg. BufferedImage.TYPE_USHORT_GRAY
+     */
+    public void setImageType(int imageType) {
+        this.imageType = imageType;
+    }
+
+    /**
+     * The ImageHeightmap that will parse the image type that you 
+     * specify with setImageType().
+     * @param customImageHeightmap must extend AbstractHeightmap
+     */
+    public void setCustomImageHeightmap(ImageHeightmap customImageHeightmap) {
+        if (!(customImageHeightmap instanceof AbstractHeightMap)) {
+            throw new IllegalArgumentException("customImageHeightmap must be an AbstractHeightMap!");
+        }
+        this.customImageHeightmap = customImageHeightmap;
     }
 
     public HeightMap getHeightMapAt(Vector3f location) {
@@ -57,11 +86,28 @@ public class ImageBasedHeightMapGrid implements HeightMapGrid {
                 InputStream in = assetInfo.openStream();
                 im = ImageIO.read(in);
             } else {
-                im = new BufferedImage(size, size, BufferedImage.TYPE_USHORT_GRAY);
+                im = new BufferedImage(size, size, imageType);
                 logger.log(Level.WARNING, "File: {0} not found, loading zero heightmap instead", name);
             }
             // CREATE HEIGHTMAP
-            heightmap = new Grayscale16BitHeightMap(im);
+            if (imageType == BufferedImage.TYPE_USHORT_GRAY) {
+                heightmap = new Grayscale16BitHeightMap(im);
+            } else if (imageType == BufferedImage.TYPE_3BYTE_BGR) {
+                heightmap = new ImageBasedHeightMap(im);
+            } else if (customImageHeightmap != null && customImageHeightmap instanceof AbstractHeightMap) {
+                // If it gets here, it means you have specified a different image type, and you must
+                // then also supply a custom image heightmap class that can parse that image into
+                // a heightmap.
+                customImageHeightmap.setImage(im);
+                heightmap = (AbstractHeightMap) customImageHeightmap;
+            } else {
+                // error, no supported image format and no custom image heightmap specified
+                if (customImageHeightmap == null)
+                    logger.log(Level.SEVERE, "Custom image type specified [{0}] but no customImageHeightmap declared! Use setCustomImageHeightmap()",imageType);
+                if (!(customImageHeightmap instanceof AbstractHeightMap))
+                    logger.severe("customImageHeightmap must be an AbstractHeightMap!");
+                return null;
+            }
             heightmap.setHeightScale(256);
             heightmap.load();
         } catch (IOException e) {

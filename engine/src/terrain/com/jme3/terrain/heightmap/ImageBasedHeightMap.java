@@ -48,7 +48,7 @@ import java.awt.image.WritableRaster;
  * @author Mike Kienenberger
  * @version $id$
  */
-public class ImageBasedHeightMap extends AbstractHeightMap {
+public class ImageBasedHeightMap extends AbstractHeightMap implements ImageHeightmap {
 
     static protected class ImageConverter {
 
@@ -136,6 +136,14 @@ public class ImageBasedHeightMap extends AbstractHeightMap {
     protected Image colorImage;
     protected float dampen = 1.0f;
 
+    
+    public void setImage(Image image) {
+        this.colorImage = image;
+    }
+    
+    public int getSupportedImageType() {
+        return BufferedImage.TYPE_3BYTE_BGR;
+    }
     
     /**
      * Creates a HeightMap from an Image. The image will be converted to
