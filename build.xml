@@ -88,6 +88,7 @@
         <ant dir="engine" target="dist"/>
         <ant dir="engine" target="build-bullet-natives"/>
         <ant dir="engine" target="update-sdk"/>
+        <ant dir="engine" target="copy-javadoc"/>
         <ant dir="sdk" target="hudson-nightly"/>
     </target>
 

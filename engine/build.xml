@@ -349,4 +349,10 @@
             />
     </target>
     
+    <target name="copy-javadoc">
+        <copydir
+            src="dist/javadoc/" dest="/var/www/org/javadoc/" forceoverwrite="true"
+            />
+    </target>
+    
 </project>
