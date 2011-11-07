@@ -59,6 +59,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import com.jme3.system.JmeContext.Type;
 import com.jme3.system.JmeSystem;
+import com.jme3.system.NanoTimer;
 import com.jme3.system.SystemListener;
 import com.jme3.system.Timer;
 
@@ -87,7 +88,7 @@ public class Application implements SystemListener {
 
     protected JmeContext context;
     protected AppSettings settings;
-    protected Timer timer;
+    protected Timer timer = new NanoTimer();
     protected Camera cam;
     protected Listener listener;
 
