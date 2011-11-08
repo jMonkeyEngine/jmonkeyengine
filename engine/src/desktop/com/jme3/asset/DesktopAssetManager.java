@@ -236,13 +236,23 @@ public class DesktopAssetManager implements AssetManager {
 
             AssetInfo info = handler.tryLocate(key);
             if (info == null){
+                if (handler.getParentKey() != null && eventListener != null){
+                    // Inform event listener that an asset has failed to load.
+                    // If the parent AssetLoader chooses not to propagate
+                    // the exception, this is the only means of finding
+                    // that something went wrong.
+                    eventListener.assetDependencyNotFound(handler.getParentKey(), key);
+                }
                 throw new AssetNotFoundException(key.toString());
             }
 
             try {
+                handler.establishParentKey(key);
                 o = loader.load(info);
             } catch (IOException ex) {
                 throw new AssetLoadException("An exception has occured while loading asset: " + key, ex);
+            } finally {
+                handler.releaseParentKey(key);
             }
             if (o == null){
                 throw new AssetLoadException("Error occured while loading asset \"" + key + "\" using" + loader.getClass().getSimpleName());

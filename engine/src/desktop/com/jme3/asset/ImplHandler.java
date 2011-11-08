@@ -51,6 +51,9 @@ public class ImplHandler {
 
     private final AssetManager owner;
     
+    private final ThreadLocal<AssetKey> parentAssetKey 
+            = new ThreadLocal<AssetKey>();
+    
     private final ArrayList<ImplThreadLocal> genericLocators =
                 new ArrayList<ImplThreadLocal>();
 
@@ -104,6 +107,30 @@ public class ImplHandler {
     }
 
     /**
+     * Establishes the asset key that is used for tracking dependent assets
+     * that have failed to load. When set, the {@link DesktopAssetManager}
+     * gets a hint that it should suppress {@link AssetNotFoundException}s
+     * and instead call the listener callback (if set).
+     * 
+     * @param key The parent key  
+     */
+    public void establishParentKey(AssetKey parentKey){
+        if (parentAssetKey.get() == null){
+            parentAssetKey.set(parentKey);
+        }
+    }
+    
+    public void releaseParentKey(AssetKey parentKey){
+        if (parentAssetKey.get() == parentKey){
+            parentAssetKey.set(null);
+        }
+    }
+    
+    public AssetKey getParentKey(){
+        return parentAssetKey.get();
+    }
+    
+    /**
      * Attempts to locate the given resource name.
      * @param name The full name of the resource.
      * @return The AssetInfo containing resource information required for
@@ -111,7 +138,7 @@ public class ImplHandler {
      */
     public AssetInfo tryLocate(AssetKey key){
         synchronized (genericLocators){
-            if (genericLocators.size() == 0)
+            if (genericLocators.isEmpty())
                 return null;
 
             for (ImplThreadLocal local : genericLocators){

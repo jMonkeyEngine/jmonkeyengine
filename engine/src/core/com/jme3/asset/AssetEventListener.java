@@ -60,5 +60,18 @@ public interface AssetEventListener {
      * @param key
      */
     public void assetRequested(AssetKey key);
+    
+    /**
+     * Called when an asset dependency cannot be found for an asset.
+     * When an asset is loaded, each of its dependent assets that 
+     * have failed to load due to a {@link AssetNotFoundException}, will cause 
+     * an invocation of this callback. 
+     * 
+     * @param parentKey The key of the parent asset that is being loaded
+     * from within the user application.
+     * @param dependentAssetKey The asset key of the dependent asset that has 
+     * failed to load.
+     */
+    public void assetDependencyNotFound(AssetKey parentKey, AssetKey dependentAssetKey);
 
 }
