@@ -66,6 +66,10 @@ public abstract class AssetInfo {
     /**
      * Implementations of this method should return an {@link InputStream}
      * allowing access to the data represented by the {@link AssetKey}.
+     * <p>
+     * Each invocation of this method should return a new stream to the
+     * asset data, starting at the beginning of the file.
+     * 
      * @return The asset data.
      */
     public abstract InputStream openStream();

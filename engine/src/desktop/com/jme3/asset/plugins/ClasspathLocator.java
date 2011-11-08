@@ -32,14 +32,17 @@
 
 package com.jme3.asset.plugins;
 
-import com.jme3.asset.*;
+import com.jme3.asset.AssetInfo;
+import com.jme3.asset.AssetKey;
+import com.jme3.asset.AssetLoadException;
+import com.jme3.asset.AssetLocator;
+import com.jme3.asset.AssetManager;
+import com.jme3.asset.AssetNotFoundException;
 import com.jme3.system.JmeSystem;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.net.URLConnection;
 import java.util.logging.Logger;
 
 /**
@@ -50,25 +53,6 @@ public class ClasspathLocator implements AssetLocator {
 
     private static final Logger logger = Logger.getLogger(ClasspathLocator.class.getName());
     private String root = "";
-
-    private static class ClasspathAssetInfo extends AssetInfo {
-
-        private URLConnection conn;
-
-        public ClasspathAssetInfo(AssetManager manager, AssetKey key, URLConnection conn){
-            super(manager, key);
-            this.conn = conn;
-        }
-
-        @Override
-        public InputStream openStream() {
-            try{
-                return conn.getInputStream();
-            }catch (IOException ex){
-                return null; // failure..
-            }
-        }
-    }
 
     public ClasspathLocator(){
     }
@@ -127,10 +111,11 @@ public class ClasspathLocator implements AssetLocator {
         }
         
         try{
-            URLConnection conn = url.openConnection();
-            conn.setUseCaches(false);
-            return new ClasspathAssetInfo(manager, key, conn);
+            return UrlAssetInfo.create(manager, key, url);
         }catch (IOException ex){
+            // This is different handling than URL locator
+            // since classpath locating would return null at the getResource() 
+            // call, otherwise there's a more critical error...
             throw new AssetLoadException("Failed to read URL " + url, ex);
         }
     }
