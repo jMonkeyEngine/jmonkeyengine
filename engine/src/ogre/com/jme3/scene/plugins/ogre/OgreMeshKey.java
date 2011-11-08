@@ -35,6 +35,14 @@ package com.jme3.scene.plugins.ogre;
 import com.jme3.asset.ModelKey;
 import com.jme3.material.MaterialList;
 
+/**
+ * OgreMeshKey is used to load Ogre3D mesh.xml models with a specific
+ * material file or list. This allows customizing from where the materials
+ * are retrieved, instead of loading the material file as the same
+ * name as the model (the default).
+ * 
+ * @author Kirill Vainer
+ */
 public class OgreMeshKey extends ModelKey {
 
     private MaterialList materialList;
@@ -60,6 +68,10 @@ public class OgreMeshKey extends ModelKey {
 
     public MaterialList getMaterialList() {
         return materialList;
+    }
+    
+    public void setMaterialList(MaterialList materialList){
+        this.materialList = materialList;
     }
     
     public String getMaterialName() {

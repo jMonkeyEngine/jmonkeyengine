@@ -790,38 +790,38 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
             }
             assetManager = info.getManager();
 
-            OgreMeshKey meshKey = null;
             if (key instanceof OgreMeshKey) {
-                meshKey = (OgreMeshKey) key;
+                // OgreMeshKey is being used, try getting the material list
+                // from it
+                OgreMeshKey meshKey = (OgreMeshKey) key;
                 materialList = meshKey.getMaterialList();
                 String materialName = meshKey.getMaterialName();
-                if (materialList == null) {
-                    if (materialName != null) {
-                        try {
-                            materialList = (MaterialList) assetManager.loadAsset(new OgreMaterialKey(folderName + materialName + ".material"));
-                        } catch (AssetNotFoundException e) {
-                            logger.log(Level.WARNING, "Cannot locate {0}{1}.material for model {2}{3}.{4}", new Object[]{folderName, materialName, folderName, meshName, ext});
-                            logger.log(Level.WARNING, "", e);
-                        }
-                    } else {
-                        try {
-                            materialList = (MaterialList) assetManager.loadAsset(new OgreMaterialKey(folderName + meshName + ".material"));
-                        } catch (AssetNotFoundException e) {
-                            logger.log(Level.WARNING, "Cannot locate {0}{1}.material for model {2}{3}.{4}", new Object[]{folderName, meshName, folderName, meshName, ext});
-                            logger.log(Level.WARNING, "", e);
-                        }
+                
+                // Material list not set but material name is available
+                if (materialList == null && materialName != null) {
+                    OgreMaterialKey materialKey = new OgreMaterialKey(folderName + materialName + ".material");
+                    try {
+                        materialList = (MaterialList) assetManager.loadAsset(materialKey);
+                    } catch (AssetNotFoundException e) {
+                        logger.log(Level.WARNING, "Cannot locate {0} for model {1}", new Object[]{materialKey, key});
+                        logger.log(Level.WARNING, "", e);
                     }
                 }
-            } else {
-                try {
-                    materialList = (MaterialList) assetManager.loadAsset(new OgreMaterialKey(folderName + meshName + ".material"));
-                } catch (AssetNotFoundException e) {
-                    logger.log(Level.WARNING, "Cannot locate {0}{1}.material for model {2}{3}.{4}", new Object[]{folderName, meshName, folderName, meshName, ext});
-					logger.log(Level.WARNING, "", e);
-				}
-
             }
 
+            // If for some reason material list could not be found through
+            // OgreMeshKey, or if regular ModelKey specified, load using 
+            // default method.
+            if (materialList == null){
+                OgreMaterialKey materialKey = new OgreMaterialKey(folderName + meshName + ".material");
+                try {
+                    materialList = (MaterialList) assetManager.loadAsset(materialKey);
+                } catch (AssetNotFoundException e) {
+                    logger.log(Level.WARNING, "Cannot locate {0} for model {1}", new Object[]{ materialKey, key });
+                    logger.log(Level.WARNING, "", e);
+                }
+            }
+            
             // Added by larynx 25.06.2011
             // Android needs the namespace aware flag set to true                 
             // Kirill 30.06.2011
