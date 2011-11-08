@@ -46,6 +46,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -100,7 +101,7 @@ public class DesktopAssetManager implements AssetManager {
 
     public void addClassLoader(ClassLoader loader){
         if(classLoaders == null)
-            classLoaders = new ArrayList<ClassLoader>();
+            classLoaders = Collections.synchronizedList(new ArrayList<ClassLoader>());
         classLoaders.add(loader);
     }
     
