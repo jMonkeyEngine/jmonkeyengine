@@ -32,6 +32,7 @@
 
 package com.jme3.scene.plugins.ogre;
 
+import com.jme3.asset.AssetKey;
 import com.jme3.scene.plugins.ogre.matext.OgreMaterialKey;
 import com.jme3.material.MaterialList;
 import com.jme3.asset.AssetInfo;
@@ -42,11 +43,10 @@ import com.jme3.light.DirectionalLight;
 import com.jme3.light.Light;
 import com.jme3.light.PointLight;
 import com.jme3.light.SpotLight;
-import com.jme3.math.FastMath;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
-import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
+import com.jme3.util.PlaceholderAssets;
 import com.jme3.util.xml.SAXUtil;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -70,13 +70,14 @@ public class SceneLoader extends DefaultHandler implements AssetLoader {
     private static final Logger logger = Logger.getLogger(SceneLoader.class.getName());
 
     private Stack<String> elementStack = new Stack<String>();
+    private AssetKey key;
     private String sceneName;
     private String folderName;
     private AssetManager assetManager;
     private MaterialList materialList;
-    private Node root;
-    private Node node;
-    private Node entityNode;
+    private com.jme3.scene.Node root;
+    private com.jme3.scene.Node node;
+    private com.jme3.scene.Node entityNode;
     private Light light;
     private int nodeIdx = 0;
     private static volatile int sceneIdx = 0;
@@ -248,9 +249,9 @@ public class SceneLoader extends DefaultHandler implements AssetLoader {
                 throw new SAXException("dotScene parse error: nodes element was specified twice");
             }
             if (sceneName == null)
-                root = new Node("OgreDotScene"+(++sceneIdx));
+                root = new com.jme3.scene.Node("OgreDotScene"+(++sceneIdx));
             else
-                root = new Node(sceneName+"-scene_node");
+                root = new com.jme3.scene.Node(sceneName+"-scene_node");
             
             node = root;
         }else if (qName.equals("externals")){
@@ -283,7 +284,7 @@ public class SceneLoader extends DefaultHandler implements AssetLoader {
             if (name == null)
                 name = "OgreNode-" + (++nodeIdx);
 
-            Node newNode = new Node(name);
+            com.jme3.scene.Node newNode = new com.jme3.scene.Node(name);
             if (node != null){
                 node.attachChild(newNode);
             }
@@ -327,11 +328,17 @@ public class SceneLoader extends DefaultHandler implements AssetLoader {
             // NOTE: append "xml" since its assumed mesh files are binary in dotScene
             meshFile += ".xml";
             
-            entityNode = new Node(name);
-            OgreMeshKey key = new OgreMeshKey(meshFile, materialList);
-            Spatial ogreMesh = assetManager.loadModel(key);
+            entityNode = new com.jme3.scene.Node(name);
+            OgreMeshKey meshKey = new OgreMeshKey(meshFile, materialList);
+            try {
+                Spatial ogreMesh = assetManager.loadModel(meshKey);
+                entityNode.attachChild(ogreMesh);
+            } catch (AssetNotFoundException ex){
+                logger.log(Level.WARNING, "Cannot locate {0} for scene {1}", new Object[]{meshKey, key});
+                // Attach placeholder asset.
+                entityNode.attachChild(PlaceholderAssets.getPlaceholderModel(assetManager));
+            }
             
-            entityNode.attachChild(ogreMesh);
             node.attachChild(entityNode);
             node = null;
         }else if (qName.equals("position")){
@@ -409,19 +416,22 @@ public class SceneLoader extends DefaultHandler implements AssetLoader {
     public void characters(char ch[], int start, int length) {
     }
 
+    
+    
     public Object load(AssetInfo info) throws IOException {
         try{
+            key = info.getKey();
             assetManager = info.getManager();
-            sceneName = info.getKey().getName();
-            String ext = info.getKey().getExtension();
-            folderName = info.getKey().getFolder();
+            sceneName = key.getName();
+            String ext = key.getExtension();
+            folderName = key.getFolder();
             sceneName = sceneName.substring(0, sceneName.length() - ext.length() - 1);
 
+            OgreMaterialKey materialKey = new OgreMaterialKey(sceneName+".material");
             try {
-                materialList = (MaterialList) 
-                      assetManager.loadAsset(new OgreMaterialKey(sceneName+".material"));
+                materialList = (MaterialList) assetManager.loadAsset(materialKey);
             } catch (AssetNotFoundException ex){
-                logger.log(Level.WARNING, "Cannot locate material file {0}", ex.getMessage());
+                logger.log(Level.WARNING, "Cannot locate {0} for scene {1}", new Object[]{materialKey, key});
                 materialList = null;
             }
 

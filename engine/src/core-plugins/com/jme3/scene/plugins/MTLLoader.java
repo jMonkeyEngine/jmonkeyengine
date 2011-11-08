@@ -33,8 +33,10 @@
 package com.jme3.scene.plugins;
 
 import com.jme3.asset.AssetInfo;
+import com.jme3.asset.AssetKey;
 import com.jme3.asset.AssetLoader;
 import com.jme3.asset.AssetManager;
+import com.jme3.asset.AssetNotFoundException;
 import com.jme3.asset.TextureKey;
 import com.jme3.material.Material;
 import com.jme3.material.MaterialList;
@@ -42,6 +44,8 @@ import com.jme3.material.RenderState.BlendMode;
 import com.jme3.math.ColorRGBA;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
+import com.jme3.texture.Texture2D;
+import com.jme3.util.PlaceholderAssets;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -60,6 +64,7 @@ public class MTLLoader implements AssetLoader {
     //protected Material material;
     protected AssetManager assetManager;
     protected String folderName;
+    protected AssetKey key;
     
     protected Texture diffuseMap, normalMap, specularMap, alphaMap;
     protected ColorRGBA ambient = new ColorRGBA();
@@ -177,11 +182,15 @@ public class MTLLoader implements AssetLoader {
         path = split[split.length-1];
         
         String name = new File(path).getName();
-        TextureKey key = new TextureKey(folderName + name);
-        key.setGenerateMips(true);
-        Texture texture = assetManager.loadTexture(key);
-        if (texture != null){
+        TextureKey texKey = new TextureKey(folderName + name);
+        texKey.setGenerateMips(true);
+        Texture texture;
+        try {
+            texture = assetManager.loadTexture(texKey);
             texture.setWrap(WrapMode.Repeat);
+        } catch (AssetNotFoundException ex){
+            logger.log(Level.WARNING, "Cannot locate {0} for material {1}", new Object[]{texKey, key});
+            texture = new Texture2D(PlaceholderAssets.getPlaceholderImage());
         }
         return texture;
     }
@@ -288,6 +297,7 @@ public class MTLLoader implements AssetLoader {
     public Object load(AssetInfo info) throws IOException{
         reset();
         
+        this.key = info.getKey();
         this.assetManager = info.getManager();
         folderName = info.getKey().getFolder();
         matList = new MaterialList();

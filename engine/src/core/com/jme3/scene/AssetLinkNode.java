@@ -171,7 +171,8 @@ public class AssetLinkNode extends Node {
                 children.add(child);
                 assetChildren.put(modelKey, child);
             } else {
-                Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "Could not load linked child spatial: {0}", modelKey.getName());
+                Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "Cannot locate {0} for asset link node {1}", 
+                                                                    new Object[]{ modelKey, key });
             }
         }
     }

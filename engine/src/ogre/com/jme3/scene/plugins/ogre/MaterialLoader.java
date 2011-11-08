@@ -45,17 +45,14 @@ import com.jme3.math.ColorRGBA;
 import com.jme3.scene.plugins.ogre.matext.MaterialExtensionLoader;
 import com.jme3.scene.plugins.ogre.matext.MaterialExtensionSet;
 import com.jme3.scene.plugins.ogre.matext.OgreMaterialKey;
-import com.jme3.texture.Image;
-import com.jme3.texture.Image.Format;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
 import com.jme3.texture.Texture2D;
-import com.jme3.util.BufferUtils;
+import com.jme3.util.PlaceholderAssets;
 import com.jme3.util.blockparser.BlockLanguageParser;
 import com.jme3.util.blockparser.Statement;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
@@ -137,23 +134,13 @@ public class MaterialLoader implements AssetLoader {
             cubic = true;
         }
 
-        TextureKey key = new TextureKey(folderName + path, false);
-        key.setGenerateMips(genMips);
-        key.setAsCube(cubic);
+        TextureKey texKey = new TextureKey(folderName + path, false);
+        texKey.setGenerateMips(genMips);
+        texKey.setAsCube(cubic);
 
-        Texture loadedTexture;
         try {
-            loadedTexture = assetManager.loadTexture(key);
-        } catch (AssetNotFoundException ex){
-            logger.log(Level.WARNING, "Failed to load texture " + key + " for material " + matName, ex);
-            loadedTexture = null;
-        }
-        if (loadedTexture == null){
-            ByteBuffer tempData = BufferUtils.createByteBuffer(3);
-            tempData.put((byte)0xFF).put((byte)0x00).put((byte)0x00);
-            textures[texUnit].setImage(new Image(Format.RGB8, 1,1,tempData));
-            logger.log(Level.WARNING, "Using RED texture instead of {0}", path);
-        }else{
+            Texture loadedTexture = assetManager.loadTexture(texKey);
+            
             textures[texUnit].setImage(loadedTexture.getImage());
             textures[texUnit].setMinFilter(loadedTexture.getMinFilter());
             textures[texUnit].setKey(loadedTexture.getKey());
@@ -164,8 +151,11 @@ public class MaterialLoader implements AssetLoader {
                 textures[texUnit].setName(texName);
                 texName = null;
             }else{
-                textures[texUnit].setName(key.getName());
+                textures[texUnit].setName(texKey.getName());
             }
+        } catch (AssetNotFoundException ex){
+            logger.log(Level.WARNING, "Cannot locate {0} for material {1}", new Object[]{texKey, matName});
+            textures[texUnit].setImage(PlaceholderAssets.getPlaceholderImage());
         }
     }
 
@@ -344,12 +334,16 @@ public class MaterialLoader implements AssetLoader {
             rs.setAlphaTest(true);
             rs.setAlphaFallOff(0.01f);
             rs.setBlendMode(RenderState.BlendMode.Alpha);
-            if (twoSide)
+            
+            if (twoSide){
                 rs.setFaceCullMode(RenderState.FaceCullMode.Off);
+            }
+            
 //            rs.setDepthWrite(false);
             mat.setTransparent(true);
-            if (!noLight)
+            if (!noLight){
                 mat.setBoolean("UseAlpha", true);
+            }
         }else{
             if (twoSide){
                 RenderState rs = mat.getAdditionalRenderState();
@@ -452,7 +446,7 @@ public class MaterialLoader implements AssetLoader {
                                           "Ogre3D materials with extended materials");
                 }
 
-                list = new MaterialExtensionLoader().load(assetManager, matExts, statements);
+                list = new MaterialExtensionLoader().load(assetManager, key, matExts, statements);
                 break;
             }else if (statement.getLine().startsWith("material")){
                 if (list == null){

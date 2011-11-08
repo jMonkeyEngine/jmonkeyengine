@@ -177,6 +177,7 @@ public final class OBJLoader implements AssetLoader {
         indexVertMap.clear();
 
         currentMatName = null;
+        matList = null;
         curIndex = 0;
         geomIndex = 0;
         scan = null;
@@ -324,10 +325,11 @@ public final class OBJLoader implements AssetLoader {
 
         // NOTE: Cut off any relative/absolute paths
         name = new File(name).getName();
+        AssetKey mtlKey = new AssetKey(key.getFolder() + name);
         try {
-            matList = (MaterialList) assetManager.loadAsset(key.getFolder() + name);
+            matList = (MaterialList) assetManager.loadAsset(mtlKey);
         } catch (AssetNotFoundException ex){
-            throw new AssetNotFoundException("Cannot load or find material " + name + " for model " + key.getName(), ex);
+            logger.log(Level.WARNING, "Cannot locate {0} for model {1}", new Object[]{name, key});
         }
 
         if (matList != null){
@@ -335,9 +337,6 @@ public final class OBJLoader implements AssetLoader {
             for (String matName : matList.keySet()){
                 matFaces.put(matName, new ArrayList<Face>());
             }
-        }else{
-            logger.log(Level.WARNING, "Can't find MTL file. " +
-                                      "Using default material for OBJ.");
         }
     }
 

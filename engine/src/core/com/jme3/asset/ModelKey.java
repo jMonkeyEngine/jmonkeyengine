@@ -47,7 +47,6 @@ public class ModelKey extends AssetKey<Spatial> {
     public ModelKey(){
         super();
     }
-
     @Override
     public boolean useSmartCache(){
         return true;

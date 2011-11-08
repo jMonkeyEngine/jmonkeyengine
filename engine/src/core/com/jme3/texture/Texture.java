@@ -34,12 +34,14 @@ package com.jme3.texture;
 
 import com.jme3.asset.Asset;
 import com.jme3.asset.AssetKey;
+import com.jme3.asset.AssetNotFoundException;
 import com.jme3.asset.TextureKey;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.InputCapsule;
 import com.jme3.export.OutputCapsule;
 import com.jme3.export.Savable;
+import com.jme3.util.PlaceholderAssets;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -588,11 +590,12 @@ public abstract class Texture implements Asset, Savable, Cloneable {
         // load texture from key, if available
         if (key != null) {
             // key is available, so try the texture from there.
-            Texture loadedTex = e.getAssetManager().loadTexture(key);
-            if (loadedTex == null) {
-                Logger.getLogger(Texture.class.getName()).log(Level.SEVERE, "Could not load texture: {0}", key.toString());
-            } else {
+            try {
+                Texture loadedTex = e.getAssetManager().loadTexture(key);
                 image = loadedTex.getImage();
+            } catch (AssetNotFoundException ex){
+                Logger.getLogger(Texture.class.getName()).log(Level.SEVERE, "Cannot locate texture {0}", key);
+                image = PlaceholderAssets.getPlaceholderImage();
             }
         }else{
             // no key is set on the texture. Attempt to load an embedded image
@@ -600,7 +603,7 @@ public abstract class Texture implements Asset, Savable, Cloneable {
             if (image == null){
                 // TODO: what to print out here? the texture has no key or data, there's no useful information .. 
                 // assume texture.name is set even though the key is null
-                Logger.getLogger(Texture.class.getName()).log(Level.SEVERE, "Could not load embedded image: {0}", toString() );
+                Logger.getLogger(Texture.class.getName()).log(Level.SEVERE, "Cannot load embedded image {0}", toString() );
             }
         }
 

@@ -33,13 +33,17 @@
 package com.jme3.audio;
 
 import com.jme3.asset.AssetManager;
+import com.jme3.asset.AssetNotFoundException;
 import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
+import com.jme3.util.PlaceholderAssets;
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * An <code>AudioNode</code> is used in jME3 for playing audio files.
@@ -775,7 +779,12 @@ public class AudioNode extends Node {
         positional = ic.readBoolean("positional", false);
         
         if (audioKey != null) {
-            data = im.getAssetManager().loadAudio(audioKey);
+            try {
+                data = im.getAssetManager().loadAudio(audioKey);
+            } catch (AssetNotFoundException ex){
+                Logger.getLogger(AudioNode.class.getName()).log(Level.FINE, "Cannot locate {0} for audio node {1}", new Object[]{audioKey, key});
+                data = PlaceholderAssets.getPlaceholderAudio();
+            }
         }
     }
 

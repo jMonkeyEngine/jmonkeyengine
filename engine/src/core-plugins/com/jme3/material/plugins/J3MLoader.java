@@ -41,6 +41,7 @@ import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.asset.AssetLoader;
 import com.jme3.asset.AssetManager;
+import com.jme3.asset.AssetNotFoundException;
 import com.jme3.asset.MaterialKey;
 import com.jme3.asset.TextureKey;
 import com.jme3.material.RenderState.BlendMode;
@@ -48,21 +49,23 @@ import com.jme3.material.RenderState.FaceCullMode;
 import com.jme3.material.TechniqueDef.LightMode;
 import com.jme3.material.TechniqueDef.ShadowMode;
 import com.jme3.shader.VarType;
-import com.jme3.texture.Image;
-import com.jme3.texture.Image.Format;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
-import com.jme3.util.BufferUtils;
+import com.jme3.texture.Texture2D;
+import com.jme3.util.PlaceholderAssets;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.ByteBuffer;
 import java.util.List;
 import com.jme3.util.blockparser.BlockLanguageParser;
 import com.jme3.util.blockparser.Statement;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class J3MLoader implements AssetLoader {
 
-    private AssetManager owner;
+    private static final Logger logger = Logger.getLogger(J3MLoader.class.getName());
+    
+    private AssetManager assetManager;
     private AssetKey key;
 
     private MaterialDef materialDef;
@@ -87,25 +90,6 @@ public class J3MLoader implements AssetLoader {
             throw new IOException("Expected '"+expected+"', got '"+got+"'!");
     }
 
-    private Image createColorTexture(ColorRGBA color){
-        if (color.getAlpha() == 1.0f){
-            // create RGB texture
-            ByteBuffer data = BufferUtils.createByteBuffer(3);
-            byte[] bytes = color.asBytesRGBA();
-            data.put(bytes[0]).put(bytes[1]).put(bytes[2]);
-            data.flip();
-
-            return new Image(Format.RGB8, 1, 1, data);
-        }else{
-            // create RGBA texture
-            ByteBuffer data = BufferUtils.createByteBuffer(4);
-            data.putInt(color.asIntRGBA());
-            data.flip();
-
-            return new Image(Format.RGBA8, 1, 1, data);
-        }
-    }
-
     // <TYPE> <LANG> : <SOURCE>
     private void readShaderStatement(String statement) throws IOException {
         String[] split = statement.split(":");
@@ -122,7 +106,6 @@ public class J3MLoader implements AssetLoader {
         }else if (typeAndLang[0].equals("FragmentShader")){
             fragName = split[1].trim();
         }
-        
     }
 
     // LightMode <MODE>
@@ -163,14 +146,23 @@ public class J3MLoader implements AssetLoader {
                 repeat = true;
             }
 
-            TextureKey key = new TextureKey(texturePath, flipY);
-            key.setAsCube(type == VarType.TextureCubeMap);
-            key.setGenerateMips(true);
+            TextureKey texKey = new TextureKey(texturePath, flipY);
+            texKey.setAsCube(type == VarType.TextureCubeMap);
+            texKey.setGenerateMips(true);
 
-            Texture tex = owner.loadTexture(key);
+            Texture tex;
+            try {
+                tex = assetManager.loadTexture(texKey);
+            } catch (AssetNotFoundException ex){
+                logger.log(Level.WARNING, "Cannot locate {0} for material {1}", new Object[]{texKey, key});
+                tex = null;
+            }
             if (tex != null){
-                if (repeat)
+                if (repeat){
                     tex.setWrap(WrapMode.Repeat);
+                }
+            }else{
+                tex = new Texture2D(PlaceholderAssets.getPlaceholderImage());
             }
             return tex;
         }else{
@@ -476,7 +468,7 @@ public class J3MLoader implements AssetLoader {
 
             String extendedMat = split[1].trim();
 
-            MaterialDef def = (MaterialDef) owner.loadAsset(new AssetKey(extendedMat));
+            MaterialDef def = (MaterialDef) assetManager.loadAsset(new AssetKey(extendedMat));
             if (def == null)
                 throw new IOException("Extended material "+extendedMat+" cannot be found.");
 
@@ -487,7 +479,7 @@ public class J3MLoader implements AssetLoader {
             if (extending){
                 throw new IOException("Expected ':', got '{'");
             }
-            materialDef = new MaterialDef(owner, materialName);
+            materialDef = new MaterialDef(assetManager, materialName);
             // NOTE: pass file name for defs so they can be loaded later
             materialDef.setAssetName(key.getName());
         }else{
@@ -518,7 +510,7 @@ public class J3MLoader implements AssetLoader {
     }
 
     public Object load(AssetInfo info) throws IOException {
-        this.owner = info.getManager();
+        this.assetManager = info.getManager();
 
         InputStream in = info.openStream();
         try {
