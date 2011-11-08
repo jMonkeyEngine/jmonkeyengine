@@ -110,6 +110,7 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
     private Geometry geom;
     private ByteBuffer indicesData;
     private FloatBuffer weightsFloatData;
+    private boolean actuallyHasWeights = false;
     private int vertCount;
     private boolean usesSharedVerts;
     private boolean usesBigIndices;
@@ -147,6 +148,7 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
 
         animData = null;
 
+        actuallyHasWeights = false;
         indicesData = null;
         weightsFloatData = null;
     }
@@ -278,6 +280,18 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
             return;
         }
 
+        if (!actuallyHasWeights){
+            // No weights were actually written (the tag didn't have any entries)
+            // remove those buffers
+            mesh.clearBuffer(Type.BoneIndex);
+            mesh.clearBuffer(Type.BoneWeight);
+            
+            weightsFloatData = null;
+            indicesData = null;
+            
+            return;
+        }
+        
         //int vertCount = mesh.getVertexCount();
         int maxWeightsPerVert = 0;
         weightsFloatData.rewind();
@@ -310,6 +324,7 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
         }
         weightsFloatData.rewind();
 
+        actuallyHasWeights = false;
         weightsFloatData = null;
         indicesData = null;
 
@@ -531,6 +546,7 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
 
         weightsFloatData.put(i, w);
         indicesData.put(i, bone);
+        actuallyHasWeights = true;
     }
 
     private void startSkeleton(String name) {

@@ -120,6 +120,7 @@ public final class AnimControl extends AbstractControl implements Cloneable {
             AnimControl clone = (AnimControl) super.clone();
             clone.spatial = spatial;
             clone.channels = new ArrayList<AnimChannel>();
+            clone.listeners = new ArrayList<AnimEventListener>();
             
             if (skeleton != null){
                 clone.skeleton = new Skeleton(skeleton);
