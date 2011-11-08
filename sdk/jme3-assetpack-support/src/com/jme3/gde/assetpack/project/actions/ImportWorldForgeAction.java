@@ -376,6 +376,10 @@ public final class ImportWorldForgeAction implements Action {
                     good.set(false);
                 }
             }
+
+            public void assetDependencyNotFound(AssetKey ak, AssetKey ak1) {
+            }
+            
         });
         try {
             return mgr.loadAsset(getOgreMaterialKey(key));
@@ -430,6 +434,10 @@ public final class ImportWorldForgeAction implements Action {
                     good.set(false);
                 }
             }
+
+            public void assetDependencyNotFound(AssetKey ak, AssetKey ak1) {
+            }
+            
         });
         try {
             mgr.loadModel(key);

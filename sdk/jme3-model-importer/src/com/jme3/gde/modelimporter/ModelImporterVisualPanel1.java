@@ -151,6 +151,9 @@ public final class ModelImporterVisualPanel1 extends JPanel implements AssetEven
     public void assetLoaded(AssetKey ak) {
     }
 
+    public void assetDependencyNotFound(AssetKey ak, AssetKey ak1) {
+    }
+            
     public void cleanup() {
         offPanel.stopPreview();
     }
