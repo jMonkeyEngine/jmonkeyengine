@@ -102,12 +102,15 @@ public class DesktopAssetManager implements AssetManager {
     public void addClassLoader(ClassLoader loader){
         if(classLoaders == null)
             classLoaders = Collections.synchronizedList(new ArrayList<ClassLoader>());
-        classLoaders.add(loader);
+        synchronized(classLoaders) {
+            classLoaders.add(loader);
+        }
     }
     
     public void removeClassLoader(ClassLoader loader){
-        if(classLoaders != null)
-            classLoaders.remove(loader);
+        if(classLoaders != null) synchronized(classLoaders) {
+                classLoaders.remove(loader);
+            }
     }
 
     public List<ClassLoader> getClassLoaders(){

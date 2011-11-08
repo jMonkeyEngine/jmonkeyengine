@@ -185,13 +185,15 @@ public class SavableClassUtil {
         }
         
         String newClassName = remapClass(className);
-        for (ClassLoader classLoader : loaders){
-            try {
-                return (Savable) classLoader.loadClass(newClassName).newInstance();
-            } catch (InstantiationException e) {
-            } catch (IllegalAccessException e) {
-            }
+        synchronized(loaders) {
+            for (ClassLoader classLoader : loaders){
+                try {
+                    return (Savable) classLoader.loadClass(newClassName).newInstance();
+                } catch (InstantiationException e) {
+                } catch (IllegalAccessException e) {
+                }
 
+            }
         }
 
         return fromName(className);
