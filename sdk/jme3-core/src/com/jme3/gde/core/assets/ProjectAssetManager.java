@@ -35,6 +35,8 @@ import com.jme3.asset.AssetEventListener;
 import com.jme3.asset.AssetKey;
 import com.jme3.asset.AssetManager;
 import com.jme3.asset.DesktopAssetManager;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Iterator;
@@ -42,9 +44,16 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.netbeans.api.java.classpath.ClassPath;
+import org.netbeans.api.java.project.JavaProjectConstants;
 import org.netbeans.api.project.Project;
+import org.netbeans.api.project.ProjectManager;
+import org.netbeans.api.project.SourceGroup;
+import org.netbeans.api.project.Sources;
 import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileStateInvalidException;
 import org.openide.filesystems.XMLFileSystem;
+import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
 import org.openide.util.lookup.Lookups;
 
@@ -58,6 +67,7 @@ public class ProjectAssetManager extends DesktopAssetManager {
     private Project project;
     private List<String> folderNames = new LinkedList<String>();
     private List<AssetEventListener> assetEventListeners = new LinkedList<AssetEventListener>();
+    private URLClassLoader loader;
 
     public ProjectAssetManager(Project prj, String folderName) {
         super(true);
@@ -66,6 +76,39 @@ public class ProjectAssetManager extends DesktopAssetManager {
             di.prepareManager(this);
         }
         addFolderLocator(folderName);
+        ProjectManager.mutex().postWriteRequest(new Runnable() {
+
+            public void run() {
+                updateClassLoader();
+            }
+        });
+    }
+
+    public void updateClassLoader() {
+        Sources sources = project.getLookup().lookup(Sources.class);
+        if (sources != null) {
+            if (loader != null) {
+                removeClassLoader(loader);
+            }
+            SourceGroup[] groups = sources.getSourceGroups(JavaProjectConstants.SOURCES_TYPE_JAVA);
+            List<URL> urls = new LinkedList<URL>();
+            for (SourceGroup sourceGroup : groups) {
+                ClassPath path = ClassPath.getClassPath(sourceGroup.getRootFolder(), ClassPath.EXECUTE);
+                if (path != null) {
+                    System.out.println("Classpath: " + path);
+                    try {
+                        FileObject[] roots = path.getRoots();
+                        for (FileObject fileObject : roots) {
+                            urls.add(fileObject.getURL());
+                        }
+                    } catch (FileStateInvalidException ex) {
+                        Exceptions.printStackTrace(ex);
+                    }
+                }
+            }
+            loader = new URLClassLoader(urls.toArray(new URL[urls.size()]), getClass().getClassLoader());
+            addClassLoader(loader);
+        }
     }
 
     public ProjectAssetManager(FileObject path) {
