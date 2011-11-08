@@ -31,6 +31,8 @@
  */
 package com.jme3.gde.core.assets;
 
+import com.jme3.asset.AssetEventListener;
+import com.jme3.asset.AssetKey;
 import com.jme3.asset.AssetManager;
 import com.jme3.asset.DesktopAssetManager;
 import java.util.ArrayList;
@@ -55,6 +57,7 @@ public class ProjectAssetManager extends DesktopAssetManager {
 
     private Project project;
     private List<String> folderNames = new LinkedList<String>();
+    private List<AssetEventListener> assetEventListeners = new LinkedList<AssetEventListener>();
 
     public ProjectAssetManager(Project prj, String folderName) {
         super(true);
@@ -73,16 +76,39 @@ public class ProjectAssetManager extends DesktopAssetManager {
             this.project = new DummyProject(this, path);
         }
         String string = project.getProjectDirectory().getPath();
-        Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Add locator:{0}", string);
-        registerLocator(string,
-                "com.jme3.asset.plugins.FileLocator");
+        Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Add locator: {0}", string);
+        registerLocator(string, "com.jme3.asset.plugins.FileLocator");
         for (AssetManagerConfigurator di : Lookup.getDefault().lookupAll(AssetManagerConfigurator.class)) {
             di.prepareManager(this);
         }
+        prepAssetEventListeners();
     }
 
     public ProjectAssetManager() {
         this(null);
+    }
+
+    private void prepAssetEventListeners() {
+        setAssetEventListener(new AssetEventListener() {
+
+            public void assetLoaded(AssetKey ak) {
+                for (AssetEventListener assetEventListener : assetEventListeners) {
+                    assetEventListener.assetLoaded(ak);
+                }
+            }
+
+            public void assetRequested(AssetKey ak) {
+                for (AssetEventListener assetEventListener : assetEventListeners) {
+                    assetEventListener.assetRequested(ak);
+                }
+            }
+
+            public void assetDependencyNotFound(AssetKey ak, AssetKey ak1) {
+                for (AssetEventListener assetEventListener : assetEventListeners) {
+                    assetEventListener.assetDependencyNotFound(ak, ak1);
+                }
+            }
+        });
     }
 
     /**
@@ -236,6 +262,14 @@ public class ProjectAssetManager extends DesktopAssetManager {
             this.folderNames.remove(0);
         }
         this.folderNames.add(0, folderName);
+    }
+
+    public void addAssetEventListener(AssetEventListener listener) {
+        assetEventListeners.add(listener);
+    }
+
+    public void removeAssetEventListener(AssetEventListener listener) {
+        assetEventListeners.remove(listener);
     }
 
     /**

@@ -31,6 +31,7 @@
  */
 package com.jme3.gde.core.assets;
 
+import com.jme3.asset.AssetEventListener;
 import com.jme3.asset.AssetKey;
 import com.jme3.export.Savable;
 import com.jme3.export.binary.BinaryExporter;
@@ -38,6 +39,8 @@ import com.jme3.gde.core.scene.SceneApplication;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -91,12 +94,16 @@ public class AssetDataObject extends MultiDataObject {
     protected Savable savable;
     protected String saveExtension;
     protected AbstractLookup contentLookup;
+    protected AssetListListener listListener;
+    protected List<FileObject> assetList = new LinkedList<FileObject>();
+    protected List<AssetKey> failedList = new LinkedList<AssetKey>();
 
     public AssetDataObject(FileObject pf, MultiFileLoader loader) throws DataObjectExistsException, IOException {
         super(pf, loader);
         contentLookup = new AbstractLookup(getLookupContents());
         lookupContents.add(new AssetData(this));
         lookup = new ProxyLookup(getCookieSet().getLookup(), contentLookup);
+        listListener = new AssetListListener(this, assetList, failedList);
         setSaveCookie(saveCookie);
         findAssetManager();
     }
@@ -168,7 +175,9 @@ public class AssetDataObject extends MultiDataObject {
         FileLock lock = null;
         try {
             lock = getPrimaryFile().lock();
+            listListener.start();
             Savable spatial = (Savable) mgr.loadAsset(getAssetKey());
+            listListener.stop();
             savable = spatial;
             lock.releaseLock();
         } catch (Exception ex) {
@@ -238,4 +247,71 @@ public class AssetDataObject extends MultiDataObject {
             Exceptions.printStackTrace(ex);
         }
     }
+
+    public List<FileObject> getAssetList() {
+        return assetList;
+    }
+
+    public List<AssetKey> getFailedList() {
+        return failedList;
+    }
+
+    protected static class AssetListListener implements AssetEventListener {
+
+        private AssetDataObject obj;
+        private List<FileObject> assetList;
+        private List<AssetKey> failedList;
+        private Thread loadingThread;
+
+        public AssetListListener(AssetDataObject obj, List<FileObject> assetList, List<AssetKey> failedList) {
+            this.obj = obj;
+            this.assetList = assetList;
+            this.failedList = failedList;
+        }
+
+        public void assetLoaded(AssetKey ak) {
+        }
+
+        public void assetRequested(AssetKey ak) {
+            ProjectAssetManager pm = obj.getLookup().lookup(ProjectAssetManager.class);
+            if (pm == null || loadingThread != Thread.currentThread()) {
+                return;
+            }
+            FileObject obj = pm.getAssetFolder().getFileObject(ak.getName());
+            if (obj != null) {
+                assetList.add(obj);
+            }
+        }
+
+        public void assetDependencyNotFound(AssetKey ak, AssetKey ak1) {
+            ProjectAssetManager pm = obj.getLookup().lookup(ProjectAssetManager.class);
+            if (pm == null || loadingThread != Thread.currentThread()) {
+                return;
+            }
+            FileObject obj = pm.getAssetFolder().getFileObject(ak1.getName());
+            if (obj != null && assetList.contains(obj)) {
+                assetList.remove(obj);
+                failedList.add(ak1);
+            }
+        }
+
+        public void start() {
+            ProjectAssetManager pm = obj.getLookup().lookup(ProjectAssetManager.class);
+            loadingThread = Thread.currentThread();
+            assetList.clear();
+            failedList.clear();
+            if (pm == null) {
+                return;
+            }
+            pm.addAssetEventListener(this);
+        }
+
+        public void stop() {
+            ProjectAssetManager pm = obj.getLookup().lookup(ProjectAssetManager.class);
+            if (pm == null) {
+                return;
+            }
+            pm.removeAssetEventListener(this);
+        }
+    };
 }

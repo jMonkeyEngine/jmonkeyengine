@@ -86,7 +86,9 @@ public class SpatialAssetDataObject extends AssetDataObject {
         try {
             lock = getPrimaryFile().lock();
             mgr.deleteFromCache(getAssetKey());
+            listListener.start();
             Spatial spatial = mgr.loadModel(getAssetKey());
+            listListener.stop();
             savable = spatial;
             lock.releaseLock();
             return spatial;
