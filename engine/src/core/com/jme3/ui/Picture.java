@@ -56,6 +56,7 @@ public class Picture extends Geometry {
 
     /**
      * Create a named picture. 
+     * 
      * By default a picture's width and height are 1
      * and its position is 0, 0.
      * 

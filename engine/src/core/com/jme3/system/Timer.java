@@ -29,7 +29,6 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package com.jme3.system;
 
 /**
@@ -40,7 +39,7 @@ package com.jme3.system;
  * @version $Id: Timer.java,v 1.18 2007/03/09 10:19:34 rherlitz Exp $
  */
 public abstract class Timer {
-    
+
     /**
      * Returns the current time in ticks. A tick is an arbitrary measure of time
      * defined by the timer implementation. The number of ticks per second is
@@ -88,8 +87,7 @@ public abstract class Timer {
      */
     public abstract void update();
 
-
-	/**
+    /**
      * Reset the timer to 0. Clear any tpf history.
      */
     public abstract void reset();

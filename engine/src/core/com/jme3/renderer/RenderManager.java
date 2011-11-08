@@ -75,6 +75,7 @@ import java.util.logging.Logger;
 public class RenderManager {
 
     private static final Logger logger = Logger.getLogger(RenderManager.class.getName());
+    
     private Renderer renderer;
     private Timer timer;
     private ArrayList<ViewPort> preViewPorts = new ArrayList<ViewPort>();
