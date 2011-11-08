@@ -40,6 +40,7 @@ import com.jme3.scene.Spatial;
 import com.jme3.shader.Shader;
 import com.jme3.shader.ShaderKey;
 import com.jme3.texture.Texture;
+import java.util.List;
 
 /**
  * <code>AssetManager</code> provides an interface for managing the data assets
@@ -47,6 +48,24 @@ import com.jme3.texture.Texture;
  */
 public interface AssetManager {
 
+    /**
+     * Adds a ClassLoader that is used to load *Classes* that are needed for Assets like j3o models.
+     * This does *not* allow loading assets from that classpath, use registerLocator for that.
+     * @param loader A ClassLoader that Classes in asset files can be loaded from
+     */
+    public void addClassLoader(ClassLoader loader);
+
+    /**
+     * Remove a ClassLoader from the list of registered ClassLoaders
+     */
+    public void removeClassLoader(ClassLoader loader);
+
+    /**
+     * Retrieve the list of registered ClassLoaders that are used for loading Classes from
+     * asset files.
+     */
+    public List<ClassLoader> getClassLoaders();
+    
     /**
      * Registers a loader for the given extensions.
      * @param loaderClassName

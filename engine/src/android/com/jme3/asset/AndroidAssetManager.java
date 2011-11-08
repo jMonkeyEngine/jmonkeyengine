@@ -39,6 +39,8 @@ import java.util.logging.Logger;
 import com.jme3.asset.plugins.AndroidLocator;
 import com.jme3.asset.plugins.ClasspathLocator;
 import com.jme3.audio.plugins.AndroidAudioLoader;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * <code>AndroidAssetManager</code> is an implementation of DesktopAssetManager for Android
@@ -48,6 +50,7 @@ import com.jme3.audio.plugins.AndroidAudioLoader;
 public class AndroidAssetManager extends DesktopAssetManager {
 
     private static final Logger logger = Logger.getLogger(AndroidAssetManager.class.getName());
+    private List<ClassLoader> classLoaders;
 
     public AndroidAssetManager() {
         this(null);
@@ -94,6 +97,21 @@ public class AndroidAssetManager extends DesktopAssetManager {
         logger.info("AndroidAssetManager created.");
     }
 
+    public void addClassLoader(ClassLoader loader){
+        if(classLoaders == null)
+            classLoaders = new ArrayList<ClassLoader>();
+        classLoaders.add(loader);
+    }
+    
+    public void removeClassLoader(ClassLoader loader){
+        if(classLoaders != null)
+            classLoaders.remove(loader);
+    }
+
+    public List<ClassLoader> getClassLoaders(){
+        return classLoaders;
+    }
+    
     /**
      * Loads a texture. 
      *

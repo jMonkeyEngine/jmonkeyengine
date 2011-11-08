@@ -44,7 +44,9 @@ import com.jme3.texture.Texture;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -62,6 +64,7 @@ public class DesktopAssetManager implements AssetManager {
     private final ImplHandler handler = new ImplHandler(this);
 
     private AssetEventListener eventListener = null;
+    private List<ClassLoader> classLoaders;
 
 //    private final ThreadingManager threadingMan = new ThreadingManager(this);
 //    private final Set<AssetKey> alreadyLoadingSet = new HashSet<AssetKey>();
@@ -95,6 +98,21 @@ public class DesktopAssetManager implements AssetManager {
         logger.info("DesktopAssetManager created.");
     }
 
+    public void addClassLoader(ClassLoader loader){
+        if(classLoaders == null)
+            classLoaders = new ArrayList<ClassLoader>();
+        classLoaders.add(loader);
+    }
+    
+    public void removeClassLoader(ClassLoader loader){
+        if(classLoaders != null)
+            classLoaders.remove(loader);
+    }
+
+    public List<ClassLoader> getClassLoaders(){
+        return classLoaders;
+    }
+    
     public void setAssetEventListener(AssetEventListener listener){
         eventListener = listener;
     }
@@ -198,7 +216,7 @@ public class DesktopAssetManager implements AssetManager {
      * @param key
      * @return
      */
-    public <T> T loadAsset(AssetKey<T> key){
+      public <T> T loadAsset(AssetKey<T> key){
         if (key == null)
             throw new IllegalArgumentException("key cannot be null");
         
