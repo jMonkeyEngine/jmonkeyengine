@@ -26,6 +26,7 @@ package com.jme3.gde.core.scene;
 
 import com.jme3.app.Application;
 import com.jme3.app.StatsView;
+import com.jme3.bullet.BulletAppState;
 import com.jme3.font.BitmapFont;
 import com.jme3.font.BitmapText;
 import com.jme3.gde.core.Installer;
@@ -118,6 +119,7 @@ public class SceneApplication extends Application implements LookupProvider, Loo
     private AwtPanel panel;
     private ViewPort overlayView;
     boolean useCanvas = false;
+    private BulletAppState physicsState;
 
     public SceneApplication() {
         progressHandle.start(7);
@@ -457,6 +459,11 @@ public class SceneApplication extends Application implements LookupProvider, Loo
                 }
             }
             checkSave();
+            if (physicsState != null) {
+                physicsState.getPhysicsSpace().removeAll(rootNode);
+                getStateManager().detach(physicsState);
+                physicsState=null;
+            }
             currentSceneRequest.setDisplayed(false);
         }
         toolsNode.detachAllChildren();
@@ -557,6 +564,27 @@ public class SceneApplication extends Application implements LookupProvider, Loo
                     viewPort.addProcessor(wireProcessor);
                 } else {
                     viewPort.removeProcessor(wireProcessor);
+                }
+                return null;
+            }
+        });
+    }
+    
+    public void setPhysicsEnabled(final boolean enabled){
+        enqueue(new Callable() {
+
+            public Object call() throws Exception {
+                if (enabled) {
+                    if(physicsState==null){
+                        physicsState = new BulletAppState();
+                        getStateManager().attach(physicsState);
+                        physicsState.getPhysicsSpace().addAll(rootNode);
+                    }
+                }else{
+                    if(physicsState!=null){
+                        physicsState.getPhysicsSpace().removeAll(rootNode);
+                        getStateManager().detach(physicsState);
+                    }
                 }
                 return null;
             }
