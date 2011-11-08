@@ -462,7 +462,7 @@ public class SceneApplication extends Application implements LookupProvider, Loo
             if (physicsState != null) {
                 physicsState.getPhysicsSpace().removeAll(rootNode);
                 getStateManager().detach(physicsState);
-                physicsState=null;
+                physicsState = null;
             }
             currentSceneRequest.setDisplayed(false);
         }
@@ -569,21 +569,22 @@ public class SceneApplication extends Application implements LookupProvider, Loo
             }
         });
     }
-    
-    public void setPhysicsEnabled(final boolean enabled){
+
+    public void setPhysicsEnabled(final boolean enabled) {
         enqueue(new Callable() {
 
             public Object call() throws Exception {
                 if (enabled) {
-                    if(physicsState==null){
+                    if (physicsState == null) {
                         physicsState = new BulletAppState();
                         getStateManager().attach(physicsState);
                         physicsState.getPhysicsSpace().addAll(rootNode);
                     }
-                }else{
-                    if(physicsState!=null){
+                } else {
+                    if (physicsState != null) {
                         physicsState.getPhysicsSpace().removeAll(rootNode);
                         getStateManager().detach(physicsState);
+                        physicsState = null;
                     }
                 }
                 return null;
