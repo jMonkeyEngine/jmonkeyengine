@@ -31,12 +31,37 @@
  */
 package com.jme3.gde.core.sceneexplorer.nodes.actions.impl;
 
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+import javax.lang.model.element.TypeElement;
+import javax.lang.model.type.TypeMirror;
 import javax.swing.JPanel;
+import org.netbeans.api.java.classpath.ClassPath;
+import org.netbeans.api.java.project.JavaProjectConstants;
+import org.netbeans.api.java.source.ClassIndex;
+import org.netbeans.api.java.source.ClassIndex.NameKind;
+import org.netbeans.api.java.source.ClassIndex.SearchScope;
+import org.netbeans.api.java.source.ClasspathInfo;
+import org.netbeans.api.java.source.CompilationController;
+import org.netbeans.api.java.source.ElementHandle;
+import org.netbeans.api.java.source.JavaSource;
+import org.netbeans.api.java.source.JavaSource.Phase;
+import org.netbeans.api.java.source.Task;
+import org.netbeans.api.project.Project;
+import org.netbeans.api.project.SourceGroup;
+import org.netbeans.api.project.Sources;
+import org.openide.util.Exceptions;
 
 public final class NewCustomControlVisualPanel1 extends JPanel {
 
+    Project proj;
+
     /** Creates new form NewCustomControlVisualPanel1 */
     public NewCustomControlVisualPanel1() {
+        this.proj = proj;
         initComponents();
     }
 
@@ -44,9 +69,71 @@ public final class NewCustomControlVisualPanel1 extends JPanel {
     public String getName() {
         return "Select Control";
     }
-    
-    public String getClassName(){
+
+    public String getClassName() {
         return jTextField1.getText();
+    }
+
+    private void scanControls() {
+        List<String> sources = getSources();
+        jList1.setListData(sources.toArray());
+    }
+
+    private List<String> getSources() {
+        Sources sources = proj.getLookup().lookup(Sources.class);
+        final List<String> list = new LinkedList<String>();
+        if (sources != null) {
+            SourceGroup[] groups = sources.getSourceGroups(JavaProjectConstants.SOURCES_TYPE_JAVA);
+            if (groups != null) {
+                for (SourceGroup sourceGroup : groups) {
+                    ClasspathInfo cpInfo = ClasspathInfo.create(ClassPath.getClassPath(sourceGroup.getRootFolder(), ClassPath.BOOT),
+                            ClassPath.getClassPath(sourceGroup.getRootFolder(), ClassPath.COMPILE),
+                            ClassPath.getClassPath(sourceGroup.getRootFolder(), ClassPath.SOURCE));
+
+                    HashSet<SearchScope> set = new HashSet<SearchScope>();
+                    set.add(ClassIndex.SearchScope.SOURCE);
+                    Set<ElementHandle<TypeElement>> types = cpInfo.getClassIndex().getDeclaredTypes("", NameKind.PREFIX, set);
+                    for (Iterator<ElementHandle<TypeElement>> it = types.iterator(); it.hasNext();) {
+                        final ElementHandle<TypeElement> elementHandle = it.next();
+                        JavaSource js = JavaSource.create(cpInfo);
+                        try {
+                            js.runUserActionTask(new Task<CompilationController>() {
+
+                                public void run(CompilationController control)
+                                        throws Exception {
+                                    control.toPhase(Phase.RESOLVED);
+                                    //TODO: check with proper casting check.. gotta get TypeMirror of Control interface..
+//                                    TypeUtilities util = control.getTypeUtilities();//.isCastable(Types., null)
+//                                    util.isCastable(null, null);
+                                    TypeElement elem = elementHandle.resolve(control);
+                                    List<? extends TypeMirror> interfaces = elem.getInterfaces();
+                                    for (TypeMirror typeMirror : interfaces) {
+                                        String interfaceName = typeMirror.toString();
+                                        if ("com.jme3.scene.control.Control".equals(interfaceName)) {
+                                            list.add(elem.getQualifiedName().toString());
+                                        }
+                                    }
+                                    TypeMirror superClass = elem.getSuperclass();
+                                    String superClassName = superClass.toString();
+                                    if ("com.jme3.scene.control.AbstractControl".equals(superClassName)) {
+                                        list.add(elem.getQualifiedName().toString());
+                                    }
+                                }
+                            }, false);
+                        } catch (Exception ioe) {
+                            Exceptions.printStackTrace(ioe);
+                        }
+                    }
+
+                }
+            }
+        }
+        return list;
+    }
+
+    public void load(Project proj) {
+        this.proj = proj;
+        scanControls();
     }
 
     /** This method is called from within the constructor to
@@ -59,10 +146,24 @@ public final class NewCustomControlVisualPanel1 extends JPanel {
 
         jTextField1 = new javax.swing.JTextField();
         jLabel1 = new javax.swing.JLabel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jList1 = new javax.swing.JList();
 
         jTextField1.setText(org.openide.util.NbBundle.getMessage(NewCustomControlVisualPanel1.class, "NewCustomControlVisualPanel1.jTextField1.text")); // NOI18N
 
         org.openide.awt.Mnemonics.setLocalizedText(jLabel1, org.openide.util.NbBundle.getMessage(NewCustomControlVisualPanel1.class, "NewCustomControlVisualPanel1.jLabel1.text")); // NOI18N
+
+        jList1.setModel(new javax.swing.AbstractListModel() {
+            String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
+            public int getSize() { return strings.length; }
+            public Object getElementAt(int i) { return strings[i]; }
+        });
+        jList1.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
+            public void valueChanged(javax.swing.event.ListSelectionEvent evt) {
+                updateClassName(evt);
+            }
+        });
+        jScrollPane1.setViewportView(jList1);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -71,22 +172,34 @@ public final class NewCustomControlVisualPanel1 extends JPanel {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 360, Short.MAX_VALUE)
                     .addComponent(jTextField1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 360, Short.MAX_VALUE)
-                    .addComponent(jLabel1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 360, Short.MAX_VALUE))
+                    .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, 360, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel1)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(228, Short.MAX_VALUE))
+                .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
+
+    private void updateClassName(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_updateClassName
+        Object obj = jList1.getSelectedValue();
+        if (obj != null) {
+            jTextField1.setText(obj + "");
+        }
+    }//GEN-LAST:event_updateClassName
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JList jList1;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextField jTextField1;
     // End of variables declaration//GEN-END:variables
 }

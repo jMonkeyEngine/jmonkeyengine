@@ -33,6 +33,7 @@ package com.jme3.gde.core.sceneexplorer.nodes.actions.impl;
 
 import java.awt.Component;
 import javax.swing.event.ChangeListener;
+import org.netbeans.api.project.Project;
 import org.openide.WizardDescriptor;
 import org.openide.util.HelpCtx;
 
@@ -106,6 +107,7 @@ public class NewCustomControlWizardPanel1 implements WizardDescriptor.Panel {
     // WizardDescriptor.getProperty & putProperty to store information entered
     // by the user.
     public void readSettings(Object settings) {
+        ((NewCustomControlVisualPanel1) component).load((Project)((WizardDescriptor) settings).getProperty("project"));
     }
 
     public void storeSettings(Object settings) {

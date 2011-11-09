@@ -68,6 +68,7 @@ public final class NewCustomControlWizardAction extends AbstractNewControlWizard
         wizardDescriptor.setTitleFormat(new MessageFormat("{0}"));
         wizardDescriptor.setTitle("Create Custom Control");
         wizardDescriptor.putProperty("asset_manager", node.getLookup().lookup(ProjectAssetManager.class));
+        wizardDescriptor.putProperty("project", node.getLookup().lookup(ProjectAssetManager.class).getProject());
         Dialog dialog = DialogDisplayer.getDefault().createDialog(wizardDescriptor);
         dialog.setVisible(true);
         dialog.toFront();
