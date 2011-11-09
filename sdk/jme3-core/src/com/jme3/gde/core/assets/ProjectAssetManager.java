@@ -147,8 +147,13 @@ public class ProjectAssetManager extends DesktopAssetManager {
         }
     }
 
+    @Override
+    public void setAssetEventListener(AssetEventListener listener) {
+        throw new UnsupportedOperationException("Setting the asset event listener is not allowed for ProjectAssetManager, use addAssetEventListener instead");
+    }
+    
     private void prepAssetEventListeners() {
-        setAssetEventListener(new AssetEventListener() {
+        super.setAssetEventListener(new AssetEventListener() {
 
             public void assetLoaded(AssetKey ak) {
                 for (AssetEventListener assetEventListener : assetEventListeners) {
