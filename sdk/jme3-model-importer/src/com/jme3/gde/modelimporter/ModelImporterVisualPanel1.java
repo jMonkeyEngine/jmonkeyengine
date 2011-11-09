@@ -4,7 +4,6 @@
  */
 package com.jme3.gde.modelimporter;
 
-import com.jme3.asset.AssetEventListener;
 import com.jme3.asset.AssetKey;
 import com.jme3.gde.core.assets.AssetData;
 import com.jme3.gde.core.assets.AssetDataObject;
@@ -13,7 +12,6 @@ import com.jme3.gde.core.scene.OffScenePanel;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Spatial;
 import java.io.File;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javax.swing.JPanel;
@@ -25,19 +23,20 @@ import org.openide.NotifyDescriptor.Message;
 import org.openide.WizardDescriptor;
 import org.openide.explorer.propertysheet.PropertySheet;
 import org.openide.filesystems.FileChooserBuilder;
+import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
 import org.openide.nodes.Node;
 import org.openide.util.Exceptions;
 
 @SuppressWarnings({"unchecked", "serial"})
-public final class ModelImporterVisualPanel1 extends JPanel implements AssetEventListener {
+public final class ModelImporterVisualPanel1 extends JPanel {
 
     private OffScenePanel offPanel;
     private String currentPath;
     private String currentModelPath;
     private Spatial currentModel;
-    private List<AssetKey> requestedAssets = new LinkedList<AssetKey>();
+    private List<AssetKey> keys;
     private AssetKey mainKey;
     private PropertySheet ps;
     private AtomicBoolean loading = new AtomicBoolean(false);
@@ -64,7 +63,7 @@ public final class ModelImporterVisualPanel1 extends JPanel implements AssetEven
 
     public void applySettings(WizardDescriptor wiz) {
         wiz.putProperty("path", currentPath);
-        wiz.putProperty("assetlist", requestedAssets);
+        wiz.putProperty("assetlist", keys);
         wiz.putProperty("mainkey", mainKey);
         if (mainKey != null) {
             wiz.putProperty("destpath", "Models/" + mainKey.getName().replaceAll(mainKey.getExtension(), "").replaceAll("\\.", "") + "/");
@@ -77,10 +76,9 @@ public final class ModelImporterVisualPanel1 extends JPanel implements AssetEven
 
     public synchronized void loadModel(File path, AssetKey modelKey) {
         ProjectAssetManager manager = new ProjectAssetManager(FileUtil.toFileObject(path).getParent());
-        manager.setAssetEventListener(this);
         try {
             if (modelKey != mainKey) {
-                requestedAssets.clear();
+                keys = null;
             }
             if (currentModel != null) {
                 offPanel.detach(currentModel);
@@ -95,10 +93,12 @@ public final class ModelImporterVisualPanel1 extends JPanel implements AssetEven
                     ((AssetDataObject) obj).getLookupContents().add(manager);
                     modelKey = data.getAssetKey();
                     currentModel = (Spatial) data.loadAsset();
+                    keys = data.getAssetKeyList();
                 } else {
                     ((AssetDataObject) obj).getLookupContents().add(manager);
                     data.setAssetKey(modelKey);
                     currentModel = (Spatial) data.loadAsset();
+                    keys = data.getAssetKeyList();
                 }
             }
             mainKey = modelKey;
@@ -137,23 +137,6 @@ public final class ModelImporterVisualPanel1 extends JPanel implements AssetEven
 
     }
 
-    public void assetRequested(AssetKey ak) {
-        if (!"j3md".equalsIgnoreCase(ak.getExtension())
-                && !"glsllib".equalsIgnoreCase(ak.getExtension())
-                && !"frag".equalsIgnoreCase(ak.getExtension())
-                && !"vert".equalsIgnoreCase(ak.getExtension())) {
-            if (!requestedAssets.contains(ak)) {
-                requestedAssets.add(ak);
-            }
-        }
-    }
-
-    public void assetLoaded(AssetKey ak) {
-    }
-
-    public void assetDependencyNotFound(AssetKey ak, AssetKey ak1) {
-    }
-            
     public void cleanup() {
         offPanel.stopPreview();
     }

@@ -96,6 +96,7 @@ public class AssetDataObject extends MultiDataObject {
     protected AbstractLookup contentLookup;
     protected AssetListListener listListener;
     protected List<FileObject> assetList = new LinkedList<FileObject>();
+    protected List<AssetKey> assetKeyList = new LinkedList<AssetKey>();
     protected List<AssetKey> failedList = new LinkedList<AssetKey>();
 
     public AssetDataObject(FileObject pf, MultiFileLoader loader) throws DataObjectExistsException, IOException {
@@ -103,7 +104,7 @@ public class AssetDataObject extends MultiDataObject {
         contentLookup = new AbstractLookup(getLookupContents());
         lookupContents.add(new AssetData(this));
         lookup = new ProxyLookup(getCookieSet().getLookup(), contentLookup);
-        listListener = new AssetListListener(this, assetList, failedList);
+        listListener = new AssetListListener(this, assetList, assetKeyList, failedList);
         setSaveCookie(saveCookie);
         findAssetManager();
     }
@@ -252,6 +253,10 @@ public class AssetDataObject extends MultiDataObject {
         return assetList;
     }
 
+    public List<AssetKey> getAssetKeyList() {
+        return assetKeyList;
+    }
+
     public List<AssetKey> getFailedList() {
         return failedList;
     }
@@ -260,12 +265,14 @@ public class AssetDataObject extends MultiDataObject {
 
         private AssetDataObject obj;
         private List<FileObject> assetList;
+        private List<AssetKey> assetKeyList;
         private List<AssetKey> failedList;
         private Thread loadingThread;
 
-        public AssetListListener(AssetDataObject obj, List<FileObject> assetList, List<AssetKey> failedList) {
+        public AssetListListener(AssetDataObject obj, List<FileObject> assetList, List<AssetKey> assetKeyList, List<AssetKey> failedList) {
             this.obj = obj;
             this.assetList = assetList;
+            this.assetKeyList = assetKeyList;
             this.failedList = failedList;
         }
 
@@ -280,6 +287,7 @@ public class AssetDataObject extends MultiDataObject {
             FileObject obj = pm.getAssetFolder().getFileObject(ak.getName());
             if (obj != null) {
                 assetList.add(obj);
+                assetKeyList.add(ak);
             }
         }
 
@@ -299,6 +307,7 @@ public class AssetDataObject extends MultiDataObject {
             ProjectAssetManager pm = obj.getLookup().lookup(ProjectAssetManager.class);
             loadingThread = Thread.currentThread();
             assetList.clear();
+            assetKeyList.clear();
             failedList.clear();
             if (pm == null) {
                 return;

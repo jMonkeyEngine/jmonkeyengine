@@ -48,6 +48,7 @@ import org.openide.util.Exceptions;
  *
  * @author normenhansen
  */
+@SuppressWarnings("unchecked")
 public class AssetData extends Properties {
 
     private AssetDataObject file;
@@ -82,6 +83,10 @@ public class AssetData extends Properties {
         return file.getAssetList();
     }
 
+    public List<AssetKey> getAssetKeyList(){
+        return file.getAssetKeyList();
+    }
+    
     public List<AssetKey> getFailedList() {
         return file.getFailedList();
     }

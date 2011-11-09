@@ -6,7 +6,6 @@ package com.jme3.gde.modelimporter;
 
 import com.jme3.asset.AssetKey;
 import com.jme3.asset.TextureKey;
-import com.jme3.export.binary.BinaryExporter;
 import com.jme3.gde.core.assets.AssetData;
 import com.jme3.gde.core.assets.ProjectAssetManager;
 import com.jme3.gde.core.assets.SpatialAssetDataObject;
