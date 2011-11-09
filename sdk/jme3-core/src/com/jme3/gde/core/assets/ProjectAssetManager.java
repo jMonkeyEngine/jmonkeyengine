@@ -129,9 +129,9 @@ public class ProjectAssetManager extends DesktopAssetManager {
                     try {
                         FileObject[] roots = path.getRoots();
                         for (FileObject fileObject : roots) {
+                            urls.add(fileObject.getURL());
                             if(fileObject.getURL().toExternalForm().startsWith("jar")){
                                 Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Add classpath locator:{0}", fileObject.getURL());
-                                urls.add(fileObject.getURL());
                                 classPathItems.add(fileObject);
                                 registerLocator(fileObject.getURL().toExternalForm(),
                                         "com.jme3.asset.plugins.UrlLocator");
