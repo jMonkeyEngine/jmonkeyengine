@@ -166,9 +166,9 @@ final public class FastMath {
      * @return an extrapolation for the given parameters
      */
     public static float extrapolateLinear(float scale, float startValue, float endValue) {
-        if (scale <= 0f) {
-            return startValue;
-        }
+//        if (scale <= 0f) {
+//            return startValue;
+//        }
         return ((1f - scale) * startValue) + (scale * endValue);
     }
 
@@ -187,9 +187,9 @@ final public class FastMath {
         if (store == null) {
             store = new Vector3f();
         }
-        if (scale <= 1f) {
-            return interpolateLinear(scale, startValue, endValue, store);
-        }
+//        if (scale <= 1f) {
+//            return interpolateLinear(scale, startValue, endValue, store);
+//        }
         store.x = extrapolateLinear(scale, startValue.x, endValue.x);
         store.y = extrapolateLinear(scale, startValue.y, endValue.y);
         store.z = extrapolateLinear(scale, startValue.z, endValue.z);
