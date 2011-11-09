@@ -108,6 +108,8 @@ public final class NewCustomControlWizardAction extends AbstractNewControlWizard
                 Object contr = clazz.newInstance();
                 if (contr instanceof Control) {
                     return (Control) contr;
+                } else {
+                    DialogDisplayer.getDefault().notifyLater(new NotifyDescriptor.Message("This is no Control class!"));
                 }
             } catch (InstantiationException ex) {
                 Exceptions.printStackTrace(ex);
@@ -117,7 +119,7 @@ public final class NewCustomControlWizardAction extends AbstractNewControlWizard
                 DialogDisplayer.getDefault().notifyLater(new NotifyDescriptor.Message("Error instatiating class!"));
             }
         } else {
-            DialogDisplayer.getDefault().notifyLater(new NotifyDescriptor.Message("Cannot find class: " + className+ "\nMake sure the name is correct and the project is compiled,\nbest enable 'Save on Compile' in the project preferences."));
+            DialogDisplayer.getDefault().notifyLater(new NotifyDescriptor.Message("Cannot find class: " + className + "\nMake sure the name is correct and the project is compiled,\nbest enable 'Save on Compile' in the project preferences."));
         }
         return null;
     }
