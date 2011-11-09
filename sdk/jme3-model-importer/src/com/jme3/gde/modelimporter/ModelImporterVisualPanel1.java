@@ -119,7 +119,6 @@ public final class ModelImporterVisualPanel1 extends JPanel {
             DialogDisplayer.getDefault().notifyLater(msg);
             Exceptions.printStackTrace(e);
         }
-        manager.setAssetEventListener(null);
         manager.clearCache();
     }
 
