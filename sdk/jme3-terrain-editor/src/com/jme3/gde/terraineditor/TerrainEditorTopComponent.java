@@ -126,6 +126,7 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
     TerrainToolController toolController;
     TerrainEditorController editorController;
     private SceneRequest currentRequest;
+    private SceneRequest sentRequest;
     private boolean alreadyChoosing = false; // used for texture table selection
     private CreateTerrainWizardAction terrainWizard;
     private SkyboxWizardAction skyboxWizard;
@@ -1006,7 +1007,7 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
             editorController.cleanup();
         }
         editorController = new TerrainEditorController(jmeNode, file, this);
-        this.currentRequest = request;
+        this.sentRequest = request;
         request.setWindowTitle("TerrainEditor - " + manager.getRelativeAssetPath(file.getPrimaryFile().getPath()));
         request.setToolNode(new Node("TerrainEditorToolNode"));
         SceneApplication.getApplication().openScene(request);
@@ -1019,7 +1020,8 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
     // runs on AWT thread now
     public void sceneOpened(SceneRequest request) {
 
-        if (request.equals(currentRequest)) {
+        if (request.equals(sentRequest)) {
+            currentRequest = request;
             Logger.getLogger(TerrainEditorTopComponent.class.getName()).finer("Terrain sceneRequested " + request.getWindowTitle());
 
             setSceneInfo(currentRequest.getJmeNode(), true);

@@ -67,6 +67,7 @@ public final class SceneComposerTopComponent extends TopComponent implements Sce
     ComposerCameraController camController;
     SceneComposerToolController toolController;
     SceneEditorController editorController;
+    private SceneRequest sentRequest;
     private SceneRequest currentRequest;
     private HelpCtx ctx = new HelpCtx("sdk.scene_composer");
 //    private ProjectAssetManager.ClassPathChangeListener listener;
@@ -791,7 +792,7 @@ private void scaleButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
             editorController.cleanup();
         }
         editorController = new SceneEditorController(jmeNode, file);
-        this.currentRequest = request;
+        this.sentRequest = request;
         request.setWindowTitle("SceneComposer - " + manager.getRelativeAssetPath(file.getPrimaryFile().getPath()));
         request.setToolNode(new Node("SceneComposerToolNode"));
         SceneApplication.getApplication().openScene(request);
@@ -889,7 +890,8 @@ private void scaleButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
      * SceneListener
      */
     public void sceneOpened(SceneRequest request) {
-        if (request.equals(currentRequest)) {
+        if (request.equals(sentRequest)) {
+            currentRequest = request;
             setActivatedNodes(new org.openide.nodes.Node[]{currentRequest.getDataObject().getNodeDelegate()});
             setSceneInfo(currentRequest.getJmeNode(), editorController.getCurrentFileObject(), true);
             if (camController != null) {

@@ -390,41 +390,36 @@ public class SceneApplication extends Application implements LookupProvider {
             java.awt.EventQueue.invokeLater(new Runnable() {
 
                 public void run() {
-
-                    if (request == currentSceneRequest) {
-                        checkSave();
-                        setCurrentFileNode(null);
-                        setWindowTitle("OpenGL Window");
-                        setHelpContext(null);
-                        SceneUndoRedoManager manager = Lookup.getDefault().lookup(SceneUndoRedoManager.class);
-                        if (manager != null) {
-                            manager.discardAllEdits();
-                        }
-                        final SceneRequest currentRequest = currentSceneRequest;
-                        currentSceneRequest = null;
-                        notifyClose(request);
-                        enqueue(new Callable() {
-
-                            public Object call() throws Exception {
-                                if (request.getRequester() instanceof SceneApplication) {
-                                    camController.disable();
-                                }
-                                notifyClose(currentRequest);
-                                if (physicsState != null) {
-                                    physicsState.getPhysicsSpace().removeAll(rootNode);
-                                    getStateManager().detach(physicsState);
-                                    physicsState = null;
-                                }
-                                currentRequest.setDisplayed(false);
-                                toolsNode.detachAllChildren();
-                                rootNode.detachAllChildren();
-                                // resetCam();
-                                lastError = "";
-                                return null;
-                            }
-                        });
+                    checkSave();
+                    setCurrentFileNode(null);
+                    setWindowTitle("OpenGL Window");
+                    setHelpContext(null);
+                    SceneUndoRedoManager manager = Lookup.getDefault().lookup(SceneUndoRedoManager.class);
+                    if (manager != null) {
+                        manager.discardAllEdits();
                     }
+                    final SceneRequest currentRequest = currentSceneRequest;
+                    currentSceneRequest = null;
+                    notifyClose(request);
+                    enqueue(new Callable() {
 
+                        public Object call() throws Exception {
+                            if (request.getRequester() instanceof SceneApplication) {
+                                camController.disable();
+                            }
+                            if (physicsState != null) {
+                                physicsState.getPhysicsSpace().removeAll(rootNode);
+                                getStateManager().detach(physicsState);
+                                physicsState = null;
+                            }
+                            toolsNode.detachAllChildren();
+                            rootNode.detachAllChildren();
+                            // resetCam();
+                            lastError = "";
+                            currentRequest.setDisplayed(false);
+                            return null;
+                        }
+                    });
                 }
             });
         }

@@ -39,6 +39,7 @@ public final class VehicleCreatorTopComponent extends TopComponent implements Sc
     private static final String PREFERRED_ID = "VehicleCreatorTopComponent";
     private VehicleEditorController editorController;
     private SceneRequest currentRequest;
+    private SceneRequest sentRequest;
     private boolean testing = false;
     DirectionalLight dirLight = new DirectionalLight();
     private HelpCtx ctx = new HelpCtx("sdk.vehicle_creator");
@@ -870,19 +871,20 @@ public final class VehicleCreatorTopComponent extends TopComponent implements Sc
         JmeNode node = NodeUtility.createNode(spatial, false);
         editorController = new VehicleEditorController(node, file);
         SceneApplication.getApplication().addSceneListener(this);
-        currentRequest = new SceneRequest(this, node, file.getLookup().lookup(ProjectAssetManager.class));
-        currentRequest.setWindowTitle("Vehicle Creator");
-        currentRequest.setDataObject(file);
-        currentRequest.setToolNode(editorController.getToolsNode());
-        currentRequest.setHelpCtx(ctx);
-        SceneApplication.getApplication().openScene(currentRequest);
+        sentRequest = new SceneRequest(this, node, file.getLookup().lookup(ProjectAssetManager.class));
+        sentRequest.setWindowTitle("Vehicle Creator");
+        sentRequest.setDataObject(file);
+        sentRequest.setToolNode(editorController.getToolsNode());
+        sentRequest.setHelpCtx(ctx);
+        SceneApplication.getApplication().openScene(sentRequest);
     }
 
     public void previewCreated(PreviewRequest request) {
     }
 
     public void sceneClosed(SceneRequest request) {
-        if (request == currentRequest) {
+        if (request == sentRequest) {
+            currentRequest = request;
             SceneApplication.getApplication().removeSceneListener(this);
             editorController.cleanupApplication();
             setLoadedScene(null, false);
