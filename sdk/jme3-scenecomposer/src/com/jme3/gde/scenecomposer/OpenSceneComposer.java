@@ -34,15 +34,12 @@ public final class OpenSceneComposer implements ActionListener {
                 ProgressHandle progressHandle = ProgressHandleFactory.createHandle("Opening in SceneComposer");
                 progressHandle.start();
                 try {
-
+                    manager.clearCache();
                     final Spatial asset = context.loadAsset();
-
                     if (asset != null) {
                         java.awt.EventQueue.invokeLater(new Runnable() {
 
                             public void run() {
-                                manager.updateClassLoader();
-                                manager.clearCache();
                                 SceneComposerTopComponent composer = SceneComposerTopComponent.findInstance();
                                 composer.openScene(asset, context, manager);
                             }

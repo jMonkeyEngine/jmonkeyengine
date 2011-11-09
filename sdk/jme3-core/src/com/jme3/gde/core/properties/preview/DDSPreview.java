@@ -120,27 +120,21 @@ public class DDSPreview implements SceneListener {
         SceneApplication.getApplication().removeSceneListener(this);
     }
 
-    public void sceneRequested(SceneRequest request) {
+    public void sceneOpened(SceneRequest request) {
     }
 
-    public boolean sceneClose(SceneRequest request) {
-        return true;
+    public void sceneClosed(SceneRequest request) {
     }
 
-    public void previewRequested(PreviewRequest request) {
+    public void previewCreated(PreviewRequest request) {
         if (request.getRequester() == this) {
             final ImageIcon icon = new ImageIcon(request.getImage());
-            java.awt.EventQueue.invokeLater(new Runnable() {
-
-                public void run() {
-                    if (picPreview instanceof JLabel) {
-                        ((JLabel) picPreview).setIcon(icon);
-                    }
-                    if (picPreview instanceof JButton) {
-                        ((JButton) picPreview).setIcon(icon);
-                    }
-                }
-            });
+            if (picPreview instanceof JLabel) {
+                ((JLabel) picPreview).setIcon(icon);
+            }
+            if (picPreview instanceof JButton) {
+                ((JButton) picPreview).setIcon(icon);
+            }
         }
     }
 }

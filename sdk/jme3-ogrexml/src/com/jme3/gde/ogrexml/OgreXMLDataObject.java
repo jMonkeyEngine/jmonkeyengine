@@ -62,7 +62,7 @@ public class OgreXMLDataObject extends SpatialAssetDataObject {
     }
 
     @Override
-    public ModelKey getAssetKey() {
+    public synchronized ModelKey getAssetKey() {
         if(super.getAssetKey() instanceof OgreMeshKey){
             return (OgreMeshKey)assetKey;
         }
@@ -71,7 +71,7 @@ public class OgreXMLDataObject extends SpatialAssetDataObject {
     }
     
     @Override
-    public Spatial loadAsset() {
+    public synchronized Spatial loadAsset() {
         if (isModified() && savable != null) {
             return (Spatial) savable;
         }
@@ -125,7 +125,7 @@ public class OgreXMLDataObject extends SpatialAssetDataObject {
         return null;
     }
 
-    public void saveAsset() throws IOException {
+    public synchronized void saveAsset() throws IOException {
         ProjectAssetManager mgr = getLookup().lookup(ProjectAssetManager.class);
         if (mgr == null) {
             return;

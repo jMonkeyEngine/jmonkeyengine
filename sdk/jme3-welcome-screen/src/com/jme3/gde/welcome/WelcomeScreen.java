@@ -61,60 +61,60 @@ public class WelcomeScreen implements ScreenController {
         final DirectionalLight dirLight = new DirectionalLight();
         dirLight.setDirection(new Vector3f(.1f, 1, .1f).normalizeLocal());
         dirLight.setColor(ColorRGBA.Gray);
-        SceneApplication.getApplication().addSceneListener(new SceneListener() {
-
-            @Override
-            public void sceneRequested(SceneRequest request) {
-                if (request.getRequester() == WelcomeScreen.this) {
-                    //FIXME: planet location dont work?
-                    if (SceneApplication.getApplication().getRenderer().getCaps().contains(Caps.OpenGL21)) {
-//                        planetView = new PlanetRendererState(new Planet(100f, new Vector3f(0, 0, 0)), dirLight);
-//                        SceneApplication.getApplication().getStateManager().attach(planetView);
-                    }
-                    SceneApplication.getApplication().getViewPort().getScenes().get(0).addLight(dirLight);
-                    SceneApplication.getApplication().getCamera().setLocation(new Vector3f(0, 0, 400));
-                    setupSkyBox();
-                    niftyDisplay = new NiftyJmeDisplay(SceneApplication.getApplication().getAssetManager(),
-                            SceneApplication.getApplication().getInputManager(),
-                            SceneApplication.getApplication().getAudioRenderer(),
-                            SceneApplication.getApplication().getGuiViewPort());
-                    nifty = niftyDisplay.getNifty();
-                    try {
-                        nifty.fromXml("Interface/WelcomeScreen.xml", new URL("nbres:/Interface/WelcomeScreen.xml").openStream(), "start", welcomeScreen);
-                    } catch (Exception ex) {
-                        Exceptions.printStackTrace(ex);
-                    }
-
-                    // attach the nifty display to the gui view port as a processor
-                    SceneApplication.getApplication().getGuiViewPort().addProcessor(niftyDisplay);
-                }
-            }
-
-            @Override
-            public boolean sceneClose(SceneRequest request) {
-                SceneApplication.getApplication().getViewPort().getScenes().get(0).removeLight(dirLight);
-                skyBox.removeFromParent();
-                SceneApplication.getApplication().getGuiViewPort().removeProcessor(niftyDisplay);
-                nifty.exit();
-//                if (planetView != null) {
-//                    SceneApplication.getApplication().getStateManager().detach(planetView);
+//        SceneApplication.getApplication().addSceneListener(new SceneListener() {
+//
+//            @Override
+//            public void sceneRequested(SceneRequest request) {
+//                if (request.getRequester() == WelcomeScreen.this) {
+//                    //FIXME: planet location dont work?
+//                    if (SceneApplication.getApplication().getRenderer().getCaps().contains(Caps.OpenGL21)) {
+////                        planetView = new PlanetRendererState(new Planet(100f, new Vector3f(0, 0, 0)), dirLight);
+////                        SceneApplication.getApplication().getStateManager().attach(planetView);
+//                    }
+//                    SceneApplication.getApplication().getViewPort().getScenes().get(0).addLight(dirLight);
+//                    SceneApplication.getApplication().getCamera().setLocation(new Vector3f(0, 0, 400));
+//                    setupSkyBox();
+//                    niftyDisplay = new NiftyJmeDisplay(SceneApplication.getApplication().getAssetManager(),
+//                            SceneApplication.getApplication().getInputManager(),
+//                            SceneApplication.getApplication().getAudioRenderer(),
+//                            SceneApplication.getApplication().getGuiViewPort());
+//                    nifty = niftyDisplay.getNifty();
+//                    try {
+//                        nifty.fromXml("Interface/WelcomeScreen.xml", new URL("nbres:/Interface/WelcomeScreen.xml").openStream(), "start", welcomeScreen);
+//                    } catch (Exception ex) {
+//                        Exceptions.printStackTrace(ex);
+//                    }
+//
+//                    // attach the nifty display to the gui view port as a processor
+//                    SceneApplication.getApplication().getGuiViewPort().addProcessor(niftyDisplay);
 //                }
-                SceneApplication.getApplication().removeSceneListener(this);
-                return true;
-            }
-
-            @Override
-            public void previewRequested(PreviewRequest request) {
-            }
-        });
-        SceneApplication.getApplication().enqueue(new Callable<Object>() {
-
-            @Override
-            public Object call() throws Exception {
-                SceneApplication.getApplication().requestScene(request);
-                return null;
-            }
-        });
+//            }
+//
+//            @Override
+//            public boolean sceneClose(SceneRequest request) {
+//                SceneApplication.getApplication().getViewPort().getScenes().get(0).removeLight(dirLight);
+//                skyBox.removeFromParent();
+//                SceneApplication.getApplication().getGuiViewPort().removeProcessor(niftyDisplay);
+//                nifty.exit();
+////                if (planetView != null) {
+////                    SceneApplication.getApplication().getStateManager().detach(planetView);
+////                }
+//                SceneApplication.getApplication().removeSceneListener(this);
+//                return true;
+//            }
+//
+//            @Override
+//            public void previewRequested(PreviewRequest request) {
+//            }
+//        });
+//        SceneApplication.getApplication().enqueue(new Callable<Object>() {
+//
+//            @Override
+//            public Object call() throws Exception {
+//                SceneApplication.getApplication().requestScene(request);
+//                return null;
+//            }
+//        });
     }
 
     private void setupSkyBox() {

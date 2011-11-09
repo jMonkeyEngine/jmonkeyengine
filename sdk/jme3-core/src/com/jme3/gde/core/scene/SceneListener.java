@@ -37,10 +37,10 @@ package com.jme3.gde.core.scene;
  */
 public interface SceneListener {
 
-    public void sceneRequested(SceneRequest request);
+    public void sceneOpened(SceneRequest request);
 
-    public boolean sceneClose(SceneRequest request);
+    public void sceneClosed(SceneRequest request);
 
-    public void previewRequested(PreviewRequest request);
+    public void previewCreated(PreviewRequest request);
 
 }

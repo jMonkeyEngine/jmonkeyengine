@@ -58,7 +58,7 @@ public class SpatialAssetDataObject extends AssetDataObject {
     }
 
     @Override
-    public ModelKey getAssetKey() {
+    public synchronized ModelKey getAssetKey() {
         AssetKey superKey = super.getAssetKey();
         if (superKey instanceof ModelKey) {
             return (ModelKey)superKey;
@@ -73,7 +73,7 @@ public class SpatialAssetDataObject extends AssetDataObject {
     }
 
     @Override
-    public Spatial loadAsset() {
+    public synchronized Spatial loadAsset() {
         if (isModified() && savable != null) {
             return (Spatial) savable;
         }
@@ -102,7 +102,7 @@ public class SpatialAssetDataObject extends AssetDataObject {
         return null;
     }
 
-    public void saveAsset() throws IOException {
+    public synchronized void saveAsset() throws IOException {
         super.saveAsset();
         ProjectAssetManager mgr = getLookup().lookup(ProjectAssetManager.class);
         if (mgr == null) {

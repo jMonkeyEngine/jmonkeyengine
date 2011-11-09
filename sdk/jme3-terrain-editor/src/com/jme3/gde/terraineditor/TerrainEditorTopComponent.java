@@ -871,8 +871,8 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
         selectedSpat = spatial;
         editorController.setSelectedSpat(spatial);
         /*if (selectedSpat instanceof JmeTerrainQuad) { //TODO shouldn't be terrainQuad, should be a generic JmeTerrain
-            selectedSpat.removeNodeListener(terrainDeletedNodeListener); // remove it if it exists, no way to check if it is there already
-            selectedSpat.addNodeListener(terrainDeletedNodeListener); // add it back
+        selectedSpat.removeNodeListener(terrainDeletedNodeListener); // remove it if it exists, no way to check if it is there already
+        selectedSpat.addNodeListener(terrainDeletedNodeListener); // add it back
         }*/
     }
 
@@ -948,7 +948,7 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
     protected void componentActivated() {
         SceneViewerTopComponent.findInstance().requestVisible();
     }
-    
+
     void writeProperties(java.util.Properties p) {
         // better to version settings since initial version as advocated at
         // http://wiki.apidesign.org/wiki/PropertyFiles
@@ -1009,15 +1009,15 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
         this.currentRequest = request;
         request.setWindowTitle("TerrainEditor - " + manager.getRelativeAssetPath(file.getPrimaryFile().getPath()));
         request.setToolNode(new Node("TerrainEditorToolNode"));
-        SceneApplication.getApplication().requestScene(request);
+        SceneApplication.getApplication().openScene(request);
 
         terrainDeletedNodeListener = new TerrainNodeListener();
         editorController.enableTextureButtons();
 
     }
 
-    // run on GL thread
-    public void sceneRequested(SceneRequest request) {
+    // runs on AWT thread now
+    public void sceneOpened(SceneRequest request) {
 
         if (request.equals(currentRequest)) {
             Logger.getLogger(TerrainEditorTopComponent.class.getName()).finer("Terrain sceneRequested " + request.getWindowTitle());
@@ -1064,16 +1064,11 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
             toolController.setHeightToolHeight((float) heightSlider.getValue() / (float) heightSlider.getMaximum());
 
             editorController.setTerrainLodCamera();
-            
-            java.awt.EventQueue.invokeLater(new Runnable() {
 
-                public void run() {
-                    reinitTextureTable(); // update the UI
-                    if (editorController.getTerrain(null) != null) {
-                        //createTerrainButton.setEnabled(false); // only let the user add one terrain
-                    }
-                }
-            });
+            reinitTextureTable(); // update the UI
+            if (editorController.getTerrain(null) != null) {
+                //createTerrainButton.setEnabled(false); // only let the user add one terrain
+            }
         }
     }
 
@@ -1110,24 +1105,18 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
         });
     }
 
-    public boolean sceneClose(SceneRequest request) {
+    public void sceneClosed(SceneRequest request) {
         if (request.equals(currentRequest)) {
 //            if (checkSaved()) {
             SceneApplication.getApplication().removeSceneListener(this);
             setSceneInfo(null, false);
             currentRequest = null;
-            java.awt.EventQueue.invokeLater(new Runnable() {
-
-                public void run() {
-                    cleanupControllers();
-                }
-            });
+            cleanupControllers();
 //            }
         }
-        return true;
     }
 
-    public void previewRequested(PreviewRequest request) {
+    public void previewCreated(PreviewRequest request) {
     }
 
     private void cleanupControllers() {
@@ -1175,14 +1164,15 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
         textureTable.getColumnModel().getColumn(2).setCellEditor(rendererNormal);
 
         // empty out the table
-        while (textureTable.getModel().getRowCount() > 0)
-             ((TextureTableModel) textureTable.getModel()).removeRow(0);
+        while (textureTable.getModel().getRowCount() > 0) {
+            ((TextureTableModel) textureTable.getModel()).removeRow(0);
+        }
 
         if (editorController.getTerrain(null) == null) {
             return;
         }
     }
-    
+
     /**
      * Adds another texture layer to the material, sets a default texture for it.
      * Assumes that the new index is in the range of the amount of available textures
@@ -1596,22 +1586,22 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
             throw new UnsupportedOperationException("Unable to create directory");
         }
         /*
-         @Override
-         public File[] getRoots()
-         {
-         return rootDirectories;
-         }
-
-         @Override
-         public boolean isRoot(File file)
-         {
-         for (File root : rootDirectories) {
-         if (root.equals(file)) {
-         return true;
-         }
-         }
-         return false;
-         }*/
+        @Override
+        public File[] getRoots()
+        {
+        return rootDirectories;
+        }
+        
+        @Override
+        public boolean isRoot(File file)
+        {
+        for (File root : rootDirectories) {
+        if (root.equals(file)) {
+        return true;
+        }
+        }
+        return false;
+        }*/
     }
 
     public class Utils {

@@ -84,7 +84,7 @@ public final class OpenModel implements ActionListener {
                         SceneRequest request = new SceneRequest(app, jmeNode, manager);
                         request.setDataObject(context);
                         request.setWindowTitle("OpenGL Window - View Model");
-                        app.requestScene(request);
+                        app.openScene(request);
                     } else {
                         Confirmation msg = new NotifyDescriptor.Confirmation(
                                 "Error opening " + context.getPrimaryFile().getNameExt(),

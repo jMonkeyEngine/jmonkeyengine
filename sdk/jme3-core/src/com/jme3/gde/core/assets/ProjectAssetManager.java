@@ -38,6 +38,7 @@ import com.jme3.asset.DesktopAssetManager;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -50,7 +51,11 @@ import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectManager;
 import org.netbeans.api.project.SourceGroup;
 import org.netbeans.api.project.Sources;
+import org.openide.filesystems.FileAttributeEvent;
+import org.openide.filesystems.FileChangeListener;
+import org.openide.filesystems.FileEvent;
 import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileRenameEvent;
 import org.openide.filesystems.FileStateInvalidException;
 import org.openide.filesystems.XMLFileSystem;
 import org.openide.util.Exceptions;
@@ -66,9 +71,11 @@ public class ProjectAssetManager extends DesktopAssetManager {
 
     private Project project;
     private List<String> folderNames = new LinkedList<String>();
-    private List<AssetEventListener> assetEventListeners = new LinkedList<AssetEventListener>();
+    private List<AssetEventListener> assetEventListeners = Collections.synchronizedList(new LinkedList<AssetEventListener>());
+    private List<ClassPathChangeListener> classPathListeners = Collections.synchronizedList(new LinkedList<ClassPathChangeListener>());
     private URLClassLoader loader;
-    private LinkedList<FileObject> classPathItems = new LinkedList<FileObject>();
+    private LinkedList<FileObject> jarItems = new LinkedList<FileObject>();
+    private LinkedList<ClassPathItem> classPathItems = new LinkedList<ClassPathItem>();
 
     public ProjectAssetManager(Project prj, String folderName) {
         super(true);
@@ -106,14 +113,19 @@ public class ProjectAssetManager extends DesktopAssetManager {
         this(null);
     }
 
-    public void updateClassLoader() {
-        for (FileObject fileObject : classPathItems) {
+    private synchronized void updateClassLoader() {
+        for (FileObject fileObject : jarItems) {
             try {
+                Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Remove classpath locator:{0}", fileObject.getURL());
                 unregisterLocator(fileObject.getURL().toExternalForm(),
                         com.jme3.asset.plugins.UrlLocator.class);
             } catch (FileStateInvalidException ex) {
                 Exceptions.printStackTrace(ex);
             }
+        }
+        jarItems.clear();
+        for (ClassPathItem fileObject : classPathItems) {
+            fileObject.object.removeRecursiveListener(fileObject.listener);
         }
         classPathItems.clear();
         Sources sources = project.getLookup().lookup(Sources.class);
@@ -129,10 +141,41 @@ public class ProjectAssetManager extends DesktopAssetManager {
                     try {
                         FileObject[] roots = path.getRoots();
                         for (FileObject fileObject : roots) {
+                            FileChangeListener listener = new FileChangeListener() {
+
+                                public void fileFolderCreated(FileEvent fe) {
+//                                    notifyClassPathListeners();
+                                }
+
+                                public void fileDataCreated(FileEvent fe) {
+//                                    notifyClassPathListeners();
+                                }
+
+                                public void fileChanged(FileEvent fe) {
+                                    System.out.println(fe);
+                                    if (!fe.isExpected()) {
+                                        notifyClassPathListeners();
+                                    }
+                                }
+
+                                public void fileDeleted(FileEvent fe) {
+//                                    notifyClassPathListeners();
+                                }
+
+                                public void fileRenamed(FileRenameEvent fre) {
+//                                    notifyClassPathListeners();
+                                }
+
+                                public void fileAttributeChanged(FileAttributeEvent fae) {
+//                                    notifyClassPathListeners();
+                                }
+                            };
+                            fileObject.addRecursiveListener(listener);
+                            classPathItems.add(new ClassPathItem(fileObject, listener));
                             urls.add(fileObject.getURL());
-                            if(fileObject.getURL().toExternalForm().startsWith("jar")){
+                            if (fileObject.getURL().toExternalForm().startsWith("jar")) {
                                 Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Add classpath locator:{0}", fileObject.getURL());
-                                classPathItems.add(fileObject);
+                                jarItems.add(fileObject);
                                 registerLocator(fileObject.getURL().toExternalForm(),
                                         "com.jme3.asset.plugins.UrlLocator");
                             }
@@ -151,25 +194,31 @@ public class ProjectAssetManager extends DesktopAssetManager {
     public void setAssetEventListener(AssetEventListener listener) {
         throw new UnsupportedOperationException("Setting the asset event listener is not allowed for ProjectAssetManager, use addAssetEventListener instead");
     }
-    
+
     private void prepAssetEventListeners() {
         super.setAssetEventListener(new AssetEventListener() {
 
             public void assetLoaded(AssetKey ak) {
-                for (AssetEventListener assetEventListener : assetEventListeners) {
-                    assetEventListener.assetLoaded(ak);
+                synchronized (assetEventListeners) {
+                    for (AssetEventListener assetEventListener : assetEventListeners) {
+                        assetEventListener.assetLoaded(ak);
+                    }
                 }
             }
 
             public void assetRequested(AssetKey ak) {
-                for (AssetEventListener assetEventListener : assetEventListeners) {
-                    assetEventListener.assetRequested(ak);
+                synchronized (assetEventListeners) {
+                    for (AssetEventListener assetEventListener : assetEventListeners) {
+                        assetEventListener.assetRequested(ak);
+                    }
                 }
             }
 
             public void assetDependencyNotFound(AssetKey ak, AssetKey ak1) {
-                for (AssetEventListener assetEventListener : assetEventListeners) {
-                    assetEventListener.assetDependencyNotFound(ak, ak1);
+                synchronized (assetEventListeners) {
+                    for (AssetEventListener assetEventListener : assetEventListeners) {
+                        assetEventListener.assetDependencyNotFound(ak, ak1);
+                    }
                 }
             }
         });
@@ -336,10 +385,33 @@ public class ProjectAssetManager extends DesktopAssetManager {
         assetEventListeners.remove(listener);
     }
 
+    public void addClassPathEventListener(ClassPathChangeListener listener) {
+        classPathListeners.add(listener);
+    }
+
+    public void removeClassPathEventListener(ClassPathChangeListener listener) {
+        classPathListeners.remove(listener);
+    }
+
+    private void notifyClassPathListeners() {
+        updateClassLoader();
+        final ProjectAssetManager pm = this;
+        java.awt.EventQueue.invokeLater(new Runnable() {
+
+            public void run() {
+                synchronized (classPathListeners) {
+                    for (ClassPathChangeListener classPathChangeListener : classPathListeners) {
+                        classPathChangeListener.classPathChanged(pm);
+                    }
+                }
+            }
+        });
+    }
+
     /**
      * For situations with no Project
      */
-    private class DummyProject implements Project {
+    private static class DummyProject implements Project {
 
         ProjectAssetManager pm;
         FileObject folder;
@@ -364,5 +436,24 @@ public class ProjectAssetManager extends DesktopAssetManager {
             }
             return fileSystem.getRoot();
         }
+    }
+
+    private static class ClassPathItem {
+
+        FileObject object;
+        FileChangeListener listener;
+
+        public ClassPathItem() {
+        }
+
+        public ClassPathItem(FileObject object, FileChangeListener listener) {
+            this.object = object;
+            this.listener = listener;
+        }
+    }
+
+    public static interface ClassPathChangeListener {
+
+        public void classPathChanged(ProjectAssetManager manager);
     }
 }

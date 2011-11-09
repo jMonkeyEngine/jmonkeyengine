@@ -140,7 +140,7 @@ public class AssetDataObject extends MultiDataObject {
     }
 
     @Override
-    public void setModified(boolean modif) {
+    public synchronized void setModified(boolean modif) {
         super.setModified(modif);
         if (modif && saveCookie != null) {
             getCookieSet().assign(SaveCookie.class, saveCookie);
@@ -158,13 +158,13 @@ public class AssetDataObject extends MultiDataObject {
         return lookupContents;
     }
 
-    public void setSaveCookie(SaveCookie cookie) {
+    public synchronized void setSaveCookie(SaveCookie cookie) {
         this.saveCookie = cookie;
         getCookieSet().assign(SaveCookie.class, saveCookie);
         setModified(false);
     }
 
-    public Savable loadAsset() {
+    public synchronized Savable loadAsset() {
         if (isModified() && savable != null) {
             return savable;
         }
@@ -191,7 +191,7 @@ public class AssetDataObject extends MultiDataObject {
         return savable;
     }
 
-    public void saveAsset() throws IOException {
+    public synchronized void saveAsset() throws IOException {
         if (savable == null) {
             Logger.getLogger(AssetDataObject.class.getName()).log(Level.WARNING, "Trying to save asset that has not been loaded before or does not support saving!");
             return;
@@ -227,7 +227,7 @@ public class AssetDataObject extends MultiDataObject {
         setModified(false);
     }
 
-    public AssetKey<?> getAssetKey() {
+    public synchronized AssetKey<?> getAssetKey() {
         if (assetKey == null) {
             ProjectAssetManager mgr = getLookup().lookup(ProjectAssetManager.class);
             if (mgr == null) {
@@ -239,7 +239,7 @@ public class AssetDataObject extends MultiDataObject {
         return assetKey;
     }
 
-    public void setAssetKeyData(AssetKey key) {
+    public synchronized void setAssetKeyData(AssetKey key) {
         try {
             BeanUtils.copyProperties(getAssetKey(), key);
         } catch (IllegalAccessException ex) {
@@ -249,16 +249,16 @@ public class AssetDataObject extends MultiDataObject {
         }
     }
 
-    public List<FileObject> getAssetList() {
-        return assetList;
+    public synchronized List<FileObject> getAssetList() {
+        return new LinkedList<FileObject>(assetList);
     }
 
-    public List<AssetKey> getAssetKeyList() {
-        return assetKeyList;
+    public synchronized List<AssetKey> getAssetKeyList() {
+        return new LinkedList<AssetKey>(assetKeyList);
     }
 
-    public List<AssetKey> getFailedList() {
-        return failedList;
+    public synchronized List<AssetKey> getFailedList() {
+        return new LinkedList<AssetKey>(failedList);
     }
 
     protected static class AssetListListener implements AssetEventListener {

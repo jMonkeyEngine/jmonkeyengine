@@ -17,6 +17,7 @@ import com.jme3.light.DirectionalLight;
 import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
+import java.util.concurrent.Callable;
 import java.util.logging.Logger;
 import org.openide.util.NbBundle;
 import org.openide.windows.TopComponent;
@@ -874,25 +875,31 @@ public final class VehicleCreatorTopComponent extends TopComponent implements Sc
         currentRequest.setDataObject(file);
         currentRequest.setToolNode(editorController.getToolsNode());
         currentRequest.setHelpCtx(ctx);
-        SceneApplication.getApplication().requestScene(currentRequest);
+        SceneApplication.getApplication().openScene(currentRequest);
     }
 
-    public void previewRequested(PreviewRequest request) {
+    public void previewCreated(PreviewRequest request) {
     }
 
-    public boolean sceneClose(SceneRequest request) {
+    public void sceneClosed(SceneRequest request) {
         if (request == currentRequest) {
             SceneApplication.getApplication().removeSceneListener(this);
-            currentRequest.getRootNode().getParent().removeLight(dirLight);
             editorController.cleanupApplication();
-            SceneApplication.getApplication().getStateManager().detach(editorController.getBulletState());
             setLoadedScene(null, false);
+            final SceneRequest current= currentRequest;
             currentRequest = null;
+            SceneApplication.getApplication().enqueue(new Callable<Void>() {
+
+                public Void call() throws Exception {
+                    current.getRootNode().getParent().removeLight(dirLight);
+                    SceneApplication.getApplication().getStateManager().detach(editorController.getBulletState());
+                    return null;
+                }
+            });
         }
-        return true;
     }
 
-    public void sceneRequested(SceneRequest request) {
+    public void sceneOpened(SceneRequest request) {
         if (request == currentRequest) {
             editorController.prepareApplication();
             SceneApplication.getApplication().getStateManager().attach(editorController.getBulletState());

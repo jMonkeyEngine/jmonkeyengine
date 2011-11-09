@@ -71,18 +71,6 @@ public class ScenePreviewProcessor implements SceneProcessor {
 
     public void addRequest(PreviewRequest request) {
         previewQueue.add(request);
-        boolean reInit = false;
-        if (request.getCameraRequest().getWidth() != width) {
-            reInit = true;
-            width = request.getCameraRequest().getWidth();
-        }
-        if (request.getCameraRequest().getHeight() != height) {
-            reInit = true;
-            height = request.getCameraRequest().getHeight();
-        }
-        if (reInit) {
-            setupPreviewView();
-        }
     }
 
     private void update(float tpf) {
@@ -148,6 +136,18 @@ public class ScenePreviewProcessor implements SceneProcessor {
     public void preFrame(float f) {
         currentPreviewRequest = previewQueue.poll();
         if (currentPreviewRequest != null) {
+            boolean reInit = false;
+            if (currentPreviewRequest.getCameraRequest().getWidth() != width) {
+                reInit = true;
+                width = currentPreviewRequest.getCameraRequest().getWidth();
+            }
+            if (currentPreviewRequest.getCameraRequest().getHeight() != height) {
+                reInit = true;
+                height = currentPreviewRequest.getCameraRequest().getHeight();
+            }
+            if (reInit) {
+                setupPreviewView();
+            }
             previewNode.attachChild(currentPreviewRequest.getSpatial());
             if (currentPreviewRequest.getCameraRequest().location != null) {
                 offCamera.setLocation(currentPreviewRequest.getCameraRequest().location);
@@ -197,7 +197,7 @@ public class ScenePreviewProcessor implements SceneProcessor {
 
             currentPreviewRequest.setImage(image);
             previewNode.detachAllChildren();
-            SceneApplication.getApplication().notifySceneListeners(currentPreviewRequest);
+            SceneApplication.getApplication().notifyPreview(currentPreviewRequest);
             currentPreviewRequest = null;
         }
     }

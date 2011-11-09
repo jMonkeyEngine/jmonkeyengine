@@ -34,11 +34,11 @@ public class SelectTool extends SceneEditTool {
                     if (result != null) {
 //                        System.out.println(rootNode.getChild(result).getName());
 //                        SceneExplorerTopComponent.findInstance().setActivatedNodes(new org.openide.nodes.Node[]{rootNode.getChild(result)});
-                        SceneApplication.getApplication().setCurrentFileNode(rootNode.getChild(result));
+                        SceneExplorerTopComponent.findInstance().setSelectedNode(rootNode.getChild(result));
 
                     } else {
                        // SceneExplorerTopComponent.findInstance().setActivatedNodes(new org.openide.nodes.Node[]{rootNode});
-                        SceneApplication.getApplication().setCurrentFileNode(rootNode);
+                        SceneExplorerTopComponent.findInstance().setSelectedNode(rootNode);
                     }
                 }
             });

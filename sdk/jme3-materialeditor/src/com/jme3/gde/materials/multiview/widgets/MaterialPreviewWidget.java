@@ -103,18 +103,17 @@ public class MaterialPreviewWidget extends javax.swing.JPanel implements SceneLi
         previewLabel.setIcon(null);
     }
 
-    public void sceneRequested(SceneRequest request) {
+    public void sceneOpened(SceneRequest request) {
     }
 
-    public boolean sceneClose(SceneRequest request) {
-        return true;
+    public void sceneClosed(SceneRequest request) {
     }
 
     public void cleanUp(){
          SceneApplication.getApplication().removeSceneListener(this);
     }
     
-    public void previewRequested(PreviewRequest request) {        
+    public void previewCreated(PreviewRequest request) {        
         if (request.getRequester() == this) {
             final ImageIcon icon = new ImageIcon(request.getImage());
             java.awt.EventQueue.invokeLater(new Runnable() {

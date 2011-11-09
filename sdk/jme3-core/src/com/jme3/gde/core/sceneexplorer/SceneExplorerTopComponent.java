@@ -39,15 +39,15 @@ import com.jme3.gde.core.sceneexplorer.nodes.AbstractSceneExplorerNode;
 import com.jme3.gde.core.sceneexplorer.nodes.JmeNode;
 import com.jme3.gde.core.util.TerrainUtils;
 import com.jme3.renderer.Camera;
+import java.beans.PropertyVetoException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.openide.util.Lookup.Result;
+import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
@@ -64,9 +64,6 @@ import org.openide.explorer.view.BeanTreeView;
 import org.openide.nodes.Node;
 import org.openide.util.HelpCtx;
 import org.openide.util.Lookup;
-import org.openide.util.LookupEvent;
-import org.openide.util.LookupListener;
-import org.openide.util.Utilities;
 import org.openide.util.actions.SystemAction;
 
 /**
@@ -74,14 +71,14 @@ import org.openide.util.actions.SystemAction;
  */
 @ConvertAsProperties(dtd = "-//com.jme3.gde.core.sceneexplorer//SceneExplorer//EN",
 autostore = false)
-public final class SceneExplorerTopComponent extends TopComponent implements ExplorerManager.Provider, SceneListener, LookupListener {
+public final class SceneExplorerTopComponent extends TopComponent implements ExplorerManager.Provider, SceneListener/*, LookupListener */ {
 
     private static SceneExplorerTopComponent instance;
     /** path to the icon used by the component and its open action */
     static final String ICON_PATH = "com/jme3/gde/core/sceneexplorer/jme-logo.png";
     private static final String PREFERRED_ID = "SceneExplorerTopComponent";
     private SceneRequest request;
-    private final Result<AbstractSceneExplorerNode> nodeSelectionResult;
+//    private final Result<AbstractSceneExplorerNode> nodeSelectionResult;
     private AbstractSceneExplorerNode selectedSpatial;
     private AbstractSceneExplorerNode lastSelected;
     private Map<String, MaterialChangeProvider> materialChangeProviders = new HashMap<String, MaterialChangeProvider>();
@@ -94,8 +91,8 @@ public final class SceneExplorerTopComponent extends TopComponent implements Exp
         setToolTipText(NbBundle.getMessage(SceneExplorerTopComponent.class, "HINT_SceneExplorerTopComponent"));
         setIcon(ImageUtilities.loadImage(ICON_PATH, true));
         associateLookup(ExplorerUtils.createLookup(explorerManager, getActionMap()));
-        nodeSelectionResult = Utilities.actionsGlobalContext().lookupResult(AbstractSceneExplorerNode.class);
-        nodeSelectionResult.addLookupListener(this);
+//        nodeSelectionResult = Utilities.actionsGlobalContext().lookupResult(AbstractSceneExplorerNode.class);
+//        nodeSelectionResult.addLookupListener(this);
     }
 
     private void initActions() {
@@ -253,20 +250,35 @@ public final class SceneExplorerTopComponent extends TopComponent implements Exp
         return explorerManager;
     }
 
-    public void resultChanged(LookupEvent ev) {
-        Collection collection = nodeSelectionResult.allInstances();
-        for (Iterator it = collection.iterator(); it.hasNext();) {
-            Object object = it.next();
-            if (object instanceof AbstractSceneExplorerNode) {
-                selectedSpatial = (AbstractSceneExplorerNode) object;
-                lastSelected = (AbstractSceneExplorerNode) object;
-                return;
-            }
+    public void setSelectedNode(AbstractSceneExplorerNode node) {
+        selectedSpatial = node;
+        if (node != null) {
+            lastSelected = node;
         }
-        selectedSpatial = null;
+        try {
+            if (node != null) {
+                explorerManager.setSelectedNodes(new Node[]{node});
+//                setActivatedNodes(new Node[]{node});
+            } else {
+                explorerManager.setSelectedNodes(new Node[]{});
+//                setActivatedNodes(new Node[]{});
+            }
+        } catch (Exception ex) {
+            Exceptions.printStackTrace(ex);
+        }
     }
 
-    public void sceneRequested(SceneRequest request) {
+//    public void resultChanged(LookupEvent ev) {
+//        Collection collection = nodeSelectionResult.allInstances();
+//        for (Iterator it = collection.iterator(); it.hasNext();) {
+//            Object object = it.next();
+//            if (object instanceof AbstractSceneExplorerNode) {
+//                return;
+//            }
+//        }
+//        selectedSpatial = null;
+//    }
+    public void sceneOpened(SceneRequest request) {
         this.request = request;
         final JmeNode node = request.getJmeNode();
         for (Iterator it = materialChangeProviders.values().iterator(); it.hasNext();) {
@@ -274,25 +286,25 @@ public final class SceneExplorerTopComponent extends TopComponent implements Exp
             provider.clearMaterialChangeListeners();
         }
         if (node != null) {
-            java.awt.EventQueue.invokeLater(new Runnable() {
-
-                public void run() {
-                    explorerManager.setRootContext(node);
-                    explorerManager.getRootContext().setDisplayName(node.getName());
-                    requestVisible();
-                }
-            });
+                explorerManager.setRootContext(node);
+                explorerManager.getRootContext().setDisplayName(node.getName());
+                setActivatedNodes(new Node[]{node});
+                requestVisible();
+            try {
+                explorerManager.setSelectedNodes(new Node[]{node});
+            } catch (PropertyVetoException ex) {
+                Exceptions.printStackTrace(ex);
+            }
         }
         setTerrainLodCamera(node);
     }
 
-    public boolean sceneClose(SceneRequest request) {
+    public void sceneClosed(SceneRequest request) {
         this.request = null;
         explorerManager.setRootContext(Node.EMPTY);
-        return true;
     }
 
-    public void previewRequested(PreviewRequest request) {
+    public void previewCreated(PreviewRequest request) {
     }
 
     /**
@@ -321,7 +333,7 @@ public final class SceneExplorerTopComponent extends TopComponent implements Exp
     public void addMaterialChangeListener(MaterialChangeListener listener) {
 
         if (listener.getKey() != null) {
-             Logger.getLogger(SceneExplorerTopComponent.class.getName()).log(Level.INFO, "New material listener for : {0}", listener.getKey());
+            Logger.getLogger(SceneExplorerTopComponent.class.getName()).log(Level.INFO, "New material listener for : {0}", listener.getKey());
             List<MaterialChangeListener> listeners = materialChangeListeners.get(listener.getKey());
             if (listeners == null) {
                 listeners = new ArrayList<MaterialChangeListener>();
@@ -366,7 +378,7 @@ public final class SceneExplorerTopComponent extends TopComponent implements Exp
 
         if (newKey != null) {
             //  assert newKey.equals(listener.getKey());
-             List<MaterialChangeListener> listeners = materialChangeListeners.get(newKey);
+            List<MaterialChangeListener> listeners = materialChangeListeners.get(newKey);
             if (listeners == null) {
                 listeners = new ArrayList<MaterialChangeListener>();
                 materialChangeListeners.put(newKey, listeners);
@@ -379,7 +391,7 @@ public final class SceneExplorerTopComponent extends TopComponent implements Exp
             }
         }
     }
-    
+
     /**
      * Terrain has a LOD control that requires the camera to function.
      */

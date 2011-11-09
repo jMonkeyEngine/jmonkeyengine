@@ -51,7 +51,7 @@ public class OgreSceneDataObject extends SpatialAssetDataObject {
     }
 
     @Override
-    public Spatial loadAsset() {
+    public synchronized Spatial loadAsset() {
         if (isModified() && savable != null) {
             return (Spatial) savable;
         }

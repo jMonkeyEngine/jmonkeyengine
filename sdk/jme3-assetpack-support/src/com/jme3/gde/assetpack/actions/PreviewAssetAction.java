@@ -52,7 +52,7 @@ public final class PreviewAssetAction implements Action {
             Exceptions.printStackTrace(ex);
         }
         request.setWindowTitle("AssetPack - PreView Model");
-        app.requestScene(request);
+        app.openScene(request);
 
     }
 
