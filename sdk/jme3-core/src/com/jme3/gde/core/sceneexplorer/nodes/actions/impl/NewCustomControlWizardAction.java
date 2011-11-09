@@ -111,11 +111,13 @@ public final class NewCustomControlWizardAction extends AbstractNewControlWizard
                 }
             } catch (InstantiationException ex) {
                 Exceptions.printStackTrace(ex);
+                DialogDisplayer.getDefault().notifyLater(new NotifyDescriptor.Message("Error instatiating class!"));
             } catch (IllegalAccessException ex) {
                 Exceptions.printStackTrace(ex);
+                DialogDisplayer.getDefault().notifyLater(new NotifyDescriptor.Message("Error instatiating class!"));
             }
         } else {
-            DialogDisplayer.getDefault().notifyLater(new NotifyDescriptor.Message("Cannot find this class:\n" + className));
+            DialogDisplayer.getDefault().notifyLater(new NotifyDescriptor.Message("Cannot find class:\n" + className+ "\nMake sure the name is correct, also make sure\nyour projects classes are compiled, best enable\n 'Save on Compile' in the project preferences under 'build'"));
         }
         return null;
     }
