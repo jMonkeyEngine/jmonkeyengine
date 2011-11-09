@@ -68,6 +68,7 @@ public class ProjectAssetManager extends DesktopAssetManager {
     private List<String> folderNames = new LinkedList<String>();
     private List<AssetEventListener> assetEventListeners = new LinkedList<AssetEventListener>();
     private URLClassLoader loader;
+    private LinkedList<FileObject> classPathItems = new LinkedList<FileObject>();
 
     public ProjectAssetManager(Project prj, String folderName) {
         super(true);
@@ -82,33 +83,7 @@ public class ProjectAssetManager extends DesktopAssetManager {
                 updateClassLoader();
             }
         });
-    }
-
-    public void updateClassLoader() {
-        Sources sources = project.getLookup().lookup(Sources.class);
-        if (sources != null) {
-            if (loader != null) {
-                removeClassLoader(loader);
-            }
-            SourceGroup[] groups = sources.getSourceGroups(JavaProjectConstants.SOURCES_TYPE_JAVA);
-            List<URL> urls = new LinkedList<URL>();
-            for (SourceGroup sourceGroup : groups) {
-                ClassPath path = ClassPath.getClassPath(sourceGroup.getRootFolder(), ClassPath.EXECUTE);
-                if (path != null) {
-                    System.out.println("Classpath: " + path);
-                    try {
-                        FileObject[] roots = path.getRoots();
-                        for (FileObject fileObject : roots) {
-                            urls.add(fileObject.getURL());
-                        }
-                    } catch (FileStateInvalidException ex) {
-                        Exceptions.printStackTrace(ex);
-                    }
-                }
-            }
-            loader = new URLClassLoader(urls.toArray(new URL[urls.size()]), getClass().getClassLoader());
-            addClassLoader(loader);
-        }
+        prepAssetEventListeners();
     }
 
     public ProjectAssetManager(FileObject path) {
@@ -129,6 +104,47 @@ public class ProjectAssetManager extends DesktopAssetManager {
 
     public ProjectAssetManager() {
         this(null);
+    }
+
+    public void updateClassLoader() {
+        for (FileObject fileObject : classPathItems) {
+            try {
+                unregisterLocator(fileObject.getURL().toExternalForm(),
+                        com.jme3.asset.plugins.UrlLocator.class);
+            } catch (FileStateInvalidException ex) {
+                Exceptions.printStackTrace(ex);
+            }
+        }
+        classPathItems.clear();
+        Sources sources = project.getLookup().lookup(Sources.class);
+        if (sources != null) {
+            if (loader != null) {
+                removeClassLoader(loader);
+            }
+            SourceGroup[] groups = sources.getSourceGroups(JavaProjectConstants.SOURCES_TYPE_JAVA);
+            List<URL> urls = new LinkedList<URL>();
+            for (SourceGroup sourceGroup : groups) {
+                ClassPath path = ClassPath.getClassPath(sourceGroup.getRootFolder(), ClassPath.EXECUTE);
+                if (path != null) {
+                    try {
+                        FileObject[] roots = path.getRoots();
+                        for (FileObject fileObject : roots) {
+                            if(fileObject.getURL().toExternalForm().startsWith("jar")){
+                                Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Add classpath locator:{0}", fileObject.getURL());
+                                urls.add(fileObject.getURL());
+                                classPathItems.add(fileObject);
+                                registerLocator(fileObject.getURL().toExternalForm(),
+                                        "com.jme3.asset.plugins.UrlLocator");
+                            }
+                        }
+                    } catch (FileStateInvalidException ex) {
+                        Exceptions.printStackTrace(ex);
+                    }
+                }
+            }
+            loader = new URLClassLoader(urls.toArray(new URL[urls.size()]), getClass().getClassLoader());
+            addClassLoader(loader);
+        }
     }
 
     private void prepAssetEventListeners() {
