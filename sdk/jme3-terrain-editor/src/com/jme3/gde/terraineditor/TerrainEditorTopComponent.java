@@ -1087,32 +1087,25 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
 
     private void setSceneInfo(final JmeNode jmeNode, final boolean active) {
         final TerrainEditorTopComponent inst = this;
-        java.awt.EventQueue.invokeLater(new Runnable() {
+        if (jmeNode != null) {
+        } else {
+        }
 
-            public void run() {
-                if (jmeNode != null) {
-                } else {
-                }
-
-                if (!active) {
-                    result.removeLookupListener(inst);
-                    close();
-                } else {
-                    open();
-                    requestActive();
-                }
-            }
-        });
+        if (!active) {
+            result.removeLookupListener(inst);
+            close();
+        } else {
+            open();
+            requestActive();
+        }
     }
 
     public void sceneClosed(SceneRequest request) {
         if (request.equals(currentRequest)) {
-//            if (checkSaved()) {
             SceneApplication.getApplication().removeSceneListener(this);
             setSceneInfo(null, false);
             currentRequest = null;
             cleanupControllers();
-//            }
         }
     }
 

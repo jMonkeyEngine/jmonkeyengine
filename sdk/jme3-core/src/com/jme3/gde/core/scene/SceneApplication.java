@@ -75,8 +75,7 @@ import org.openide.util.NbPreferences;
 import org.openide.util.lookup.Lookups;
 
 /**
- * <p/> <p/> <p/> <p/>
- * <p/>
+ * 
  * @author normenhansen
  */
 @SuppressWarnings("unchecked")
@@ -115,6 +114,7 @@ public class SceneApplication extends Application implements LookupProvider {
     private ViewPort overlayView;
     boolean useCanvas = false;
     private BulletAppState physicsState;
+    private Thread thread;
 
     public SceneApplication() {
         progressHandle.start(7);
@@ -200,6 +200,7 @@ public class SceneApplication extends Application implements LookupProvider {
 
     @Override
     public void initialize() {
+        thread = Thread.currentThread();
         try {
             super.initialize();
             {
@@ -599,5 +600,13 @@ public class SceneApplication extends Application implements LookupProvider {
 
     public void setActiveCameraController(AbstractCameraController activeCamController) {
         this.activeCamController = activeCamController;
+    }
+
+    public boolean isOgl() {
+        return Thread.currentThread() == thread;
+    }
+
+    public boolean isAwt() {
+        return java.awt.EventQueue.isDispatchThread();
     }
 }
