@@ -102,6 +102,15 @@ public class SceneToolController implements AppState {
         grid = new Geometry("grid", new Grid(20, 20, 1.0f));
         grid.setMaterial(grayMat);
         grid.setLocalTranslation(-10, 0, -10);
+        final Spatial cursor = this.cursor;
+        final Node toolsNode = this.toolsNode;
+        SceneApplication.getApplication().enqueue(new Callable<Object>() {
+
+            public Object call() throws Exception {
+                toolsNode.attachChild(cursor);
+                return null;
+            }
+        });
     }
 
     public void updateSelection(final Spatial spat) {
@@ -366,7 +375,6 @@ public class SceneToolController implements AppState {
     }
 
     public void stateAttached(AppStateManager asm) {
-        toolsNode.attachChild(cursor);
 //        throw new UnsupportedOperationException("Not supported yet.");
     }
 
