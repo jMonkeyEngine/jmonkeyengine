@@ -399,6 +399,7 @@ public class SceneApplication extends Application implements LookupProvider {
                 if (oldRequest == null) {
                     return;
                 }
+                notifyClose(oldRequest);
                 if (newRequest == null || newRequest.getRootNode() != oldRequest.getRootNode()) {
                     checkSave(oldRequest);
                     SceneUndoRedoManager manager = Lookup.getDefault().lookup(SceneUndoRedoManager.class);
@@ -406,10 +407,11 @@ public class SceneApplication extends Application implements LookupProvider {
                         manager.discardAllEdits();
                     }
                 }
-                setCurrentFileNode(null);
-                setWindowTitle("OpenGL Window");
-                setHelpContext(null);
-                notifyClose(oldRequest);
+                if (newRequest == null) {
+                    setCurrentFileNode(null);
+                    setWindowTitle("OpenGL Window");
+                    setHelpContext(null);
+                }
                 enqueue(new Callable() {
 
                     public Object call() throws Exception {
