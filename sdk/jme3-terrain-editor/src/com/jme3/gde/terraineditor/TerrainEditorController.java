@@ -39,7 +39,6 @@ import com.jme3.gde.core.scene.SceneApplication;
 import com.jme3.gde.core.sceneexplorer.nodes.AbstractSceneExplorerNode;
 import com.jme3.gde.core.sceneexplorer.nodes.JmeNode;
 import com.jme3.gde.core.sceneexplorer.nodes.JmeSpatial;
-import com.jme3.gde.core.sceneexplorer.nodes.JmeTerrainQuad;
 import com.jme3.gde.core.undoredo.AbstractUndoableSceneEdit;
 import com.jme3.gde.core.undoredo.SceneUndoRedoManager;
 import com.jme3.gde.core.util.TerrainUtils;
@@ -309,116 +308,121 @@ public class TerrainEditorController implements NodeListener {
      * pre-calculate the terrain's entropy values
      */
     public void generateEntropies(final ProgressMonitor progressMonitor) {
-        SceneApplication.getApplication().enqueue(new Callable<Object>() {
+        if (SceneApplication.getApplication().isOgl()) {
+            Terrain terrain = (Terrain) getTerrain(null);
+            if (terrain == null)
+                return;
 
-            public Object call() throws Exception {
-                doGenerateEntropies(progressMonitor);
-                return null;
-            }
-        });
-    }
+            terrain.generateEntropy(progressMonitor);
+        } else {
+            SceneApplication.getApplication().enqueue(new Callable<Object>() {
 
-    private void doGenerateEntropies(ProgressMonitor progressMonitor) {
-        Terrain terrain = (Terrain) getTerrain(null);
-        if (terrain == null)
-            return;
-
-        terrain.generateEntropy(progressMonitor);
-    }
-
-    // blocks on scale get
-    public Float getTextureScale(final int layer) {
-        try {
-            Float scale =
-                SceneApplication.getApplication().enqueue(new Callable<Float>() {
-                    public Float call() throws Exception {
-                        return doGetTextureScale(layer);
-                    }
-                }).get();
-                return scale;
-        } catch (InterruptedException ex) {
-            Exceptions.printStackTrace(ex);
-        } catch (ExecutionException ex) {
-            Exceptions.printStackTrace(ex);
-        }
-        return null;
-    }
-
-    protected Float doGetTextureScale(int layer) {
-        Terrain terrain = (Terrain) getTerrain(null);
-        if (terrain == null)
-            return 1f;
-        MatParam matParam = null;
-        matParam = terrain.getMaterial().getParam("DiffuseMap_"+layer+"_scale");
-        if (matParam == null)
-            return -1f;
-        return (Float) matParam.getValue();
-    }
-
-
-    // blocks on scale set
-    public void setTextureScale(final int layer, final float scale) {
-        try {
-            SceneApplication.getApplication().enqueue(new Callable() {
                 public Object call() throws Exception {
-                    doSetTextureScale(layer, scale);
+                    generateEntropies(progressMonitor);
                     return null;
                 }
-            }).get();
-        } catch (InterruptedException ex) {
-            Exceptions.printStackTrace(ex);
-        } catch (ExecutionException ex) {
-            Exceptions.printStackTrace(ex);
+            });
         }
-    }
-
-    private void doSetTextureScale(int layer, float scale) {
-        Terrain terrain = (Terrain) getTerrain(null);
-        if (terrain == null)
-            return;
-        terrain.getMaterial().setFloat("DiffuseMap_"+layer+"_scale", scale);
-        setNeedsSave(true);
-    }
-
-
-    // blocks on texture get
-    public Texture getDiffuseTexture(final int layer) {
-        try {
-            Texture tex =
-                SceneApplication.getApplication().enqueue(new Callable<Texture>() {
-                    public Texture call() throws Exception {
-                        return doGetDiffuseTexture(layer);
-                    }
-                }).get();
-                return tex;
-        } catch (InterruptedException ex) {
-            Exceptions.printStackTrace(ex);
-        } catch (ExecutionException ex) {
-            Exceptions.printStackTrace(ex);
-        }
-        return null;
     }
 
     /**
-     * Get the diffuse texture at the specified layer.
-     * Run this on the GL thread!
+     * Get the scale of the texture at the specified layer.
+     * Blocks on the OGL thread
      */
-    private Texture doGetDiffuseTexture(int layer) {
-        Terrain terrain = (Terrain) getTerrain(null);
-        if (terrain == null)
-            return null;
-        MatParam matParam = null;
-        if (layer == 0)
-            matParam = terrain.getMaterial().getParam("DiffuseMap");
-        else
-            matParam = terrain.getMaterial().getParam("DiffuseMap_"+layer);
+    public Float getTextureScale(final int layer) {
+        if (SceneApplication.getApplication().isOgl()) {
+            Terrain terrain = (Terrain) getTerrain(null);
+            if (terrain == null)
+                return 1f;
+            MatParam matParam = null;
+            matParam = terrain.getMaterial().getParam("DiffuseMap_"+layer+"_scale");
+            if (matParam == null)
+                return -1f;
+            return (Float) matParam.getValue();
+        } else {
+            try {
+                Float scale =
+                    SceneApplication.getApplication().enqueue(new Callable<Float>() {
+                        public Float call() throws Exception {
+                            return getTextureScale(layer);
+                        }
+                    }).get();
+                    return scale;
+            } catch (InterruptedException ex) {
+                Exceptions.printStackTrace(ex);
+            } catch (ExecutionException ex) {
+                Exceptions.printStackTrace(ex);
+            }
+        }
+        return null;
+    }
 
-        if (matParam == null || matParam.getValue() == null) {
+
+    /**
+     * Set the scale of a texture at the specified layer
+     * Blocks on the OGL thread
+     */
+    public void setTextureScale(final int layer, final float scale) {
+        if (SceneApplication.getApplication().isOgl()) {
+            Terrain terrain = (Terrain) getTerrain(null);
+            if (terrain == null)
+                return;
+            terrain.getMaterial().setFloat("DiffuseMap_"+layer+"_scale", scale);
+            setNeedsSave(true);
+        } else {
+            try {
+                SceneApplication.getApplication().enqueue(new Callable() {
+                    public Object call() throws Exception {
+                        setTextureScale(layer, scale);
+                        return null;
+                    }
+                }).get();
+            } catch (InterruptedException ex) {
+                Exceptions.printStackTrace(ex);
+            } catch (ExecutionException ex) {
+                Exceptions.printStackTrace(ex);
+            }
+        }
+    }
+
+
+    /**
+     * Get the diffuse texture at the specified layer.
+     * Blocks on the GL thread!
+     */
+    public Texture getDiffuseTexture(final int layer) {
+        if (SceneApplication.getApplication().isOgl()) {
+            Terrain terrain = (Terrain) getTerrain(null);
+            if (terrain == null)
+                return null;
+            MatParam matParam = null;
+            if (layer == 0)
+                matParam = terrain.getMaterial().getParam("DiffuseMap");
+            else
+                matParam = terrain.getMaterial().getParam("DiffuseMap_"+layer);
+
+            if (matParam == null || matParam.getValue() == null) {
+                return null;
+            }
+            Texture tex = (Texture) matParam.getValue();
+
+            return tex;
+        } else {
+            try {
+                Texture tex =
+                    SceneApplication.getApplication().enqueue(new Callable<Texture>() {
+                        public Texture call() throws Exception {
+                            return getDiffuseTexture(layer);
+                        }
+                    }).get();
+                    return tex;
+            } catch (InterruptedException ex) {
+                Exceptions.printStackTrace(ex);
+            } catch (ExecutionException ex) {
+                Exceptions.printStackTrace(ex);
+            }
             return null;
         }
-        Texture tex = (Texture) matParam.getValue();
-
-        return tex;
     }
 
     private Texture doGetAlphaTexture(Terrain terrain, int alphaLayer) {
@@ -447,63 +451,44 @@ public class TerrainEditorController implements NodeListener {
      * @param texturePath if null, the default texture will be used
      */
     public void setDiffuseTexture(final int layer, final String texturePath) {
-        try {
-            SceneApplication.getApplication().enqueue(new Callable() {
-                public Object call() throws Exception {
-                    doSetDiffuseTexture(layer, texturePath);
-                    return null;
-                }
-            }).get();
-        } catch (InterruptedException ex) {
-            Exceptions.printStackTrace(ex);
-        } catch (ExecutionException ex) {
-            Exceptions.printStackTrace(ex);
-        }
-    }
-
-    private void doSetDiffuseTexture(int layer, String texturePath) {
+        String path = texturePath;
         if (texturePath == null || texturePath.equals(""))
-            texturePath = DEFAULT_TERRAIN_TEXTURE;
+            path = DEFAULT_TERRAIN_TEXTURE;
 
-        Texture tex = SceneApplication.getApplication().getAssetManager().loadTexture(texturePath);
-        tex.setWrap(WrapMode.Repeat);
-        Terrain terrain = (Terrain) getTerrain(null);
-        
-        if (layer == 0)
-            terrain.getMaterial().setTexture("DiffuseMap", tex);
-        else
-            terrain.getMaterial().setTexture("DiffuseMap_"+layer, tex);
-
-        doSetTextureScale(layer, DEFAULT_TEXTURE_SCALE);
-        
-        setNeedsSave(true);
+        Texture tex = SceneApplication.getApplication().getAssetManager().loadTexture(path);
+        setDiffuseTexture(layer, tex);
     }
     
-    private void doSetDiffuseTexture(int layer, Texture tex) {
-        tex.setWrap(WrapMode.Repeat);
-        Terrain terrain = (Terrain) getTerrain(null);
-        if (terrain == null)
-            return;
-        if (layer == 0)
-            terrain.getMaterial().setTexture("DiffuseMap", tex);
-        else
-            terrain.getMaterial().setTexture("DiffuseMap_"+layer, tex);
+    /**
+     * Set the diffuse texture at the specified layer.
+     * Blocks on the GL thread
+     * @param layer number to set the texture
+     */
+    public void setDiffuseTexture(final int layer, final Texture texture) {
+        if (SceneApplication.getApplication().isOgl()) {
+            texture.setWrap(WrapMode.Repeat);
+            Terrain terrain = (Terrain) getTerrain(null);
+            if (terrain == null)
+                return;
+            if (layer == 0)
+                terrain.getMaterial().setTexture("DiffuseMap", texture);
+            else
+                terrain.getMaterial().setTexture("DiffuseMap_"+layer, texture);
 
-        setNeedsSave(true);
-    }
-
-     public void setDiffuseTexture(final int layer, final Texture texture) {
-        try {
-            SceneApplication.getApplication().enqueue(new Callable() {
-                public Object call() throws Exception {
-                    doSetDiffuseTexture(layer, texture);
-                    return null;
-                }
-            }).get();
-        } catch (InterruptedException ex) {
-            Exceptions.printStackTrace(ex);
-        } catch (ExecutionException ex) {
-            Exceptions.printStackTrace(ex);
+            setNeedsSave(true);
+        } else {
+            try {
+                SceneApplication.getApplication().enqueue(new Callable() {
+                    public Object call() throws Exception {
+                        setDiffuseTexture(layer, texture);
+                        return null;
+                    }
+                }).get();
+            } catch (InterruptedException ex) {
+                Exceptions.printStackTrace(ex);
+            } catch (ExecutionException ex) {
+                Exceptions.printStackTrace(ex);
+            }
         }
     }
 
@@ -513,18 +498,22 @@ public class TerrainEditorController implements NodeListener {
      * @param texturePath
      */
     public void removeTextureLayer(final int layer) {
-        try {
-            SceneApplication.getApplication().enqueue(new Callable() {
-                public Object call() throws Exception {
-                    doRemoveDiffuseTexture(layer);
-                    doRemoveNormalMap(layer);
-                    return null;
-                }
-            }).get();
-        } catch (InterruptedException ex) {
-            Exceptions.printStackTrace(ex);
-        } catch (ExecutionException ex) {
-            Exceptions.printStackTrace(ex);
+        if (SceneApplication.getApplication().isOgl()) {
+            doRemoveDiffuseTexture(layer);
+            doRemoveNormalMap(layer);
+        } else {
+            try {
+                SceneApplication.getApplication().enqueue(new Callable() {
+                    public Object call() throws Exception {
+                        removeTextureLayer(layer);
+                        return null;
+                    }
+                }).get();
+            } catch (InterruptedException ex) {
+                Exceptions.printStackTrace(ex);
+            } catch (ExecutionException ex) {
+                Exceptions.printStackTrace(ex);
+            }
         }
     }
 
@@ -553,43 +542,42 @@ public class TerrainEditorController implements NodeListener {
         setNeedsSave(true);
     }
 
-    // blocks on normal map get
-    public Texture getNormalMap(final int layer) {
-        try {
-            Texture tex =
-                SceneApplication.getApplication().enqueue(new Callable<Texture>() {
-                    public Texture call() throws Exception {
-                        return doGetNormalMap(layer);
-                    }
-                }).get();
-                return tex;
-        } catch (InterruptedException ex) {
-            Exceptions.printStackTrace(ex);
-        } catch (ExecutionException ex) {
-            Exceptions.printStackTrace(ex);
-        }
-        return null;
-    }
-
     /**
      * Get the normal map texture at the specified layer.
      * Run this on the GL thread!
      */
-    private Texture doGetNormalMap(int layer) {
-        Terrain terrain = (Terrain) getTerrain(null);
-        if (terrain == null)
-            return null;
-        MatParam matParam = null;
-        if (layer == 0)
-            matParam = terrain.getMaterial().getParam("NormalMap");
-        else
-            matParam = terrain.getMaterial().getParam("NormalMap_"+layer);
+    public Texture getNormalMap(final int layer) {
+        if (SceneApplication.getApplication().isOgl()) {
+            Terrain terrain = (Terrain) getTerrain(null);
+            if (terrain == null)
+                return null;
+            MatParam matParam = null;
+            if (layer == 0)
+                matParam = terrain.getMaterial().getParam("NormalMap");
+            else
+                matParam = terrain.getMaterial().getParam("NormalMap_"+layer);
 
-        if (matParam == null || matParam.getValue() == null) {
-            return null;
+            if (matParam == null || matParam.getValue() == null) {
+                return null;
+            }
+            Texture tex = (Texture) matParam.getValue();
+            return tex;
+        } else {
+            try {
+                Texture tex =
+                    SceneApplication.getApplication().enqueue(new Callable<Texture>() {
+                        public Texture call() throws Exception {
+                            return getNormalMap(layer);
+                        }
+                    }).get();
+                    return tex;
+            } catch (InterruptedException ex) {
+                Exceptions.printStackTrace(ex);
+            } catch (ExecutionException ex) {
+                Exceptions.printStackTrace(ex);
+            }
         }
-        Texture tex = (Texture) matParam.getValue();
-        return tex;
+        return null;
     }
 
     /**
@@ -597,7 +585,13 @@ public class TerrainEditorController implements NodeListener {
      * Blocks on the GL thread
      */
     public void setNormalMap(final int layer, final String texturePath) {
-        try {
+        if (texturePath != null) {
+            Texture tex = SceneApplication.getApplication().getAssetManager().loadTexture(texturePath);
+            setNormalMap(layer, tex);
+        } else {
+            setNormalMap(layer, (Texture)null);
+        }
+        /*try {
             SceneApplication.getApplication().enqueue(new Callable() {
                 public Object call() throws Exception {
                     doSetNormalMap(layer, texturePath);
@@ -608,69 +602,48 @@ public class TerrainEditorController implements NodeListener {
             Exceptions.printStackTrace(ex);
         } catch (ExecutionException ex) {
             Exceptions.printStackTrace(ex);
-        }
+        }*/
     }
 
-    private void doSetNormalMap(int layer, String texturePath) {
-        Terrain terrain = (Terrain) getTerrain(null);
-        if (terrain == null)
-            return;
-
-        if (texturePath == null) {
-            // remove the texture if it is null
-            if (layer == 0)
-                terrain.getMaterial().clearParam("NormalMap");
-            else
-                terrain.getMaterial().clearParam("NormalMap_"+layer);
-        } else {
-            Texture tex = SceneApplication.getApplication().getAssetManager().loadTexture(texturePath);
-            tex.setWrap(WrapMode.Repeat);
-
-            if (layer == 0)
-                terrain.getMaterial().setTexture("NormalMap", tex);
-            else
-                terrain.getMaterial().setTexture("NormalMap_"+layer, tex);
-        }
-        enableTextureButtons();
-        setNeedsSave(true);
-    }
-
+    /**
+     * Set the normal map texture at the specified layer
+     */
     public void setNormalMap(final int layer, final Texture texture) {
-        try {
-            SceneApplication.getApplication().enqueue(new Callable() {
-                public Object call() throws Exception {
-                    doSetNormalMap(layer, texture);
-                    return null;
-                }
-            }).get();
-        } catch (InterruptedException ex) {
-            Exceptions.printStackTrace(ex);
-        } catch (ExecutionException ex) {
-            Exceptions.printStackTrace(ex);
-        }
-    }
+        if (SceneApplication.getApplication().isOgl()) {
+            Terrain terrain = (Terrain) getTerrain(null);
+            if (terrain == null)
+                return;
+            if (texture == null) {
+                // remove the texture if it is null
+                if (layer == 0)
+                    terrain.getMaterial().clearParam("NormalMap");
+                else
+                    terrain.getMaterial().clearParam("NormalMap_"+layer);
+                return;
+            }
 
-    private void doSetNormalMap(int layer, Texture tex) {
-        Terrain terrain = (Terrain) getTerrain(null);
-        if (terrain == null)
-            return;
-        if (tex == null) {
-            // remove the texture if it is null
+            texture.setWrap(WrapMode.Repeat);
+
             if (layer == 0)
-                terrain.getMaterial().clearParam("NormalMap");
+                terrain.getMaterial().setTexture("NormalMap", texture);
             else
-                terrain.getMaterial().clearParam("NormalMap_"+layer);
-            return;
+                terrain.getMaterial().setTexture("NormalMap_"+layer, texture);
+
+            setNeedsSave(true);
+        } else {
+            try {
+                SceneApplication.getApplication().enqueue(new Callable() {
+                    public Object call() throws Exception {
+                        setNormalMap(layer, texture);
+                        return null;
+                    }
+                }).get();
+            } catch (InterruptedException ex) {
+                Exceptions.printStackTrace(ex);
+            } catch (ExecutionException ex) {
+                Exceptions.printStackTrace(ex);
+            }
         }
-
-        tex.setWrap(WrapMode.Repeat);
-        
-        if (layer == 0)
-            terrain.getMaterial().setTexture("NormalMap", tex);
-        else
-            terrain.getMaterial().setTexture("NormalMap_"+layer, tex);
-
-        setNeedsSave(true);
     }
 
     // blocks on GL thread until terrain is created
@@ -701,72 +674,6 @@ public class TerrainEditorController implements NodeListener {
         return null; // if failed
     }
 
-    /*private Terrain doCreateTerrain(Node parent,
-                                    int totalSize,
-                                    int patchSize,
-                                    int alphaTextureSize,
-                                    float[] heightmapData,
-                                    String sceneName,
-                                    JmeSpatial jmeNodeParent) throws IOException
-    {
-        AssetManager manager = SceneApplication.getApplication().getAssetManager();
-
-        Terrain terrain = new TerrainQuad("terrain-"+sceneName, patchSize, totalSize, heightmapData); //TODO make this pluggable for different Terrain implementations
-        com.jme3.material.Material mat = new com.jme3.material.Material(manager, "Common/MatDefs/Terrain/TerrainLighting.j3md");
-
-        String assetFolder = "";
-        if (manager != null && manager instanceof ProjectAssetManager)
-            assetFolder = ((ProjectAssetManager)manager).getAssetFolderName();
-
-        // write out 3 alpha blend images
-        for (int i=0; i<NUM_ALPHA_TEXTURES; i++) {
-            BufferedImage alphaBlend = new BufferedImage(alphaTextureSize, alphaTextureSize, BufferedImage.TYPE_INT_ARGB);
-            if (i == 0) {
-                // the first alpha level should be opaque so we see the first texture over the whole terrain
-                for (int h=0; h<alphaTextureSize; h++)
-                    for (int w=0; w<alphaTextureSize; w++)
-                        alphaBlend.setRGB(w, h, 0x00FF0000);//argb
-            }
-            File alphaFolder = new File(assetFolder+"/Textures/terrain-alpha/");
-            if (!alphaFolder.exists())
-                alphaFolder.mkdir();
-            String alphaBlendFileName = "/Textures/terrain-alpha/"+sceneName+"-"+((Node)terrain).getName()+"-alphablend"+i+".png";
-            File alphaImageFile = new File(assetFolder+alphaBlendFileName);
-            ImageIO.write(alphaBlend, "png", alphaImageFile);
-            Texture tex = manager.loadAsset(new TextureKey(alphaBlendFileName, false));
-            if (i == 0)
-                mat.setTexture("AlphaMap", tex);
-            else if (i == 1)
-                mat.setTexture("AlphaMap_1", tex);
-            else if (i == 2)
-                mat.setTexture("AlphaMap_2", tex);
-        }
-        
-        // give the first layer default texture
-        Texture defaultTexture = manager.loadTexture(DEFAULT_TERRAIN_TEXTURE);
-        defaultTexture.setWrap(WrapMode.Repeat);
-        mat.setTexture("DiffuseMap", defaultTexture);
-        mat.setFloat("DiffuseMap_0_scale", DEFAULT_TEXTURE_SCALE);
-        mat.setBoolean("WardIso", true);
-
-        ((Node)terrain).setMaterial(mat);
-        ((Node)terrain).setModelBound(new BoundingBox());
-        ((Node)terrain).updateModelBound();
-        ((Node)terrain).setLocalTranslation(0, 0, 0);
-        ((Node)terrain).setLocalScale(4f, 1f, 4f);
-
-        // add the lod control
-        TerrainLodControl control = new TerrainLodControl(terrain, SceneApplication.getApplication().getCamera());
-	((Node)terrain).addControl(control);
-
-        parent.attachChild((Node)terrain);
-
-        setNeedsSave(true);
-
-        addSpatialUndo(parent, (Node)terrain, jmeNodeParent);
-        
-        return terrain;
-    }*/
 
     private void addSpatialUndo(final Node undoParent, final Spatial undoSpatial, final AbstractSceneExplorerNode parentNode) {
         //add undo
@@ -919,22 +826,30 @@ public class TerrainEditorController implements NodeListener {
         return sky;
     }
 
+    /**
+     * Is there a texture at the specified layer?
+     * Blocks on ogl thread
+     */
     public boolean hasTextureAt(final int i) {
-        try {
-            Boolean result =
-                SceneApplication.getApplication().enqueue(new Callable<Boolean>() {
-                    public Boolean call() throws Exception {
-                        Texture tex = doGetDiffuseTexture(i);
-                        return tex != null;
-                    }
-                }).get();
-                return result;
-        } catch (InterruptedException ex) {
-            Exceptions.printStackTrace(ex);
-        } catch (ExecutionException ex) {
-            Exceptions.printStackTrace(ex);
+        if (SceneApplication.getApplication().isOgl()) {
+            Texture tex = getDiffuseTexture(i);
+            return tex != null;
+        } else {
+            try {
+                Boolean result =
+                    SceneApplication.getApplication().enqueue(new Callable<Boolean>() {
+                        public Boolean call() throws Exception {
+                            return hasTextureAt(i);
+                        }
+                    }).get();
+                    return result;
+            } catch (InterruptedException ex) {
+                Exceptions.printStackTrace(ex);
+            } catch (ExecutionException ex) {
+                Exceptions.printStackTrace(ex);
+            }
+            return false;
         }
-        return false;
     }
     
     /**
@@ -942,11 +857,11 @@ public class TerrainEditorController implements NodeListener {
      * on how many textures are currently being used.
      */
     protected void enableTextureButtons() {
-        SceneApplication.getApplication().enqueue(new Callable<Object>() {
-            public Object call() throws Exception {
-                final int numAvailable = MAX_TEXTURES-doGetNumUsedTextures();
-                final boolean add = doGetNumDiffuseTextures() < MAX_DIFFUSE && numAvailable > 0;
-                final boolean remove = doGetNumDiffuseTextures() > 1;
+        //SceneApplication.getApplication().enqueue(new Callable<Object>() {
+        //    public Object call() throws Exception {
+                final int numAvailable = MAX_TEXTURES-getNumUsedTextures();
+                final boolean add = getNumDiffuseTextures() < MAX_DIFFUSE && numAvailable > 0;
+                final boolean remove = getNumDiffuseTextures() > 1;
 
                 java.awt.EventQueue.invokeLater(new Runnable() {
                     public void run() {
@@ -956,9 +871,9 @@ public class TerrainEditorController implements NodeListener {
                         topComponent.setAddNormalTextureEnabled(numAvailable>0);
                     }
                 });
-                return null;
-            }
-        });
+        //        return null;
+        //    }
+        //});
         
     }
     
@@ -967,35 +882,35 @@ public class TerrainEditorController implements NodeListener {
      * Blocking call on GL thread
      */
     protected int getNumDiffuseTextures() {
-        try {
-            Integer count =
-              SceneApplication.getApplication().enqueue(new Callable<Integer>() {
-                public Integer call() throws Exception {
-                    return doGetNumDiffuseTextures();
-                }
-            }).get();
+        if (SceneApplication.getApplication().isOgl()) {
+            Terrain terrain = (Terrain) getTerrain(null);
+            if (terrain == null)
+                return 0;
+
+            int count = 0;
+
+            for (int i=0; i<MAX_TEXTURES; i++) {
+                Texture tex = getDiffuseTexture(i);
+                if (tex != null)
+                    count++;
+            }
             return count;
-        } catch (InterruptedException ex) {
-            Exceptions.printStackTrace(ex);
-        } catch (ExecutionException ex) {
-            Exceptions.printStackTrace(ex);
+        } else {
+            try {
+                Integer count =
+                  SceneApplication.getApplication().enqueue(new Callable<Integer>() {
+                    public Integer call() throws Exception {
+                        return getNumDiffuseTextures();
+                    }
+                }).get();
+                return count;
+            } catch (InterruptedException ex) {
+                Exceptions.printStackTrace(ex);
+            } catch (ExecutionException ex) {
+                Exceptions.printStackTrace(ex);
+            }
+            return -1;
         }
-        return -1;
-    }
-    
-    private int doGetNumDiffuseTextures() {
-        Terrain terrain = (Terrain) getTerrain(null);
-        if (terrain == null)
-            return 0;
-
-        int count = 0;
-
-        for (int i=0; i<MAX_TEXTURES; i++) {
-            Texture tex = doGetDiffuseTexture(i);
-            if (tex != null)
-                count++;
-        }
-        return count;
     }
     
     /**
@@ -1003,80 +918,65 @@ public class TerrainEditorController implements NodeListener {
      * Blocking call on GL thread
      */
     protected int getNumUsedTextures() {
-        try {
-            Integer count =
-              SceneApplication.getApplication().enqueue(new Callable<Integer>() {
-                public Integer call() throws Exception {
-                    return doGetNumUsedTextures();
-                }
-            }).get();
+        if (SceneApplication.getApplication().isOgl()) {
+            Terrain terrain = (Terrain) getTerrain(null);
+            if (terrain == null)
+                return 0;
+
+            int count = 0;
+
+            for (int i=0; i<MAX_TEXTURES; i++) {
+                Texture tex = getDiffuseTexture(i);
+                if (tex != null)
+                    count++;
+                tex = getNormalMap(i);
+                if (tex != null)
+                    count++;
+            }
             return count;
-        } catch (InterruptedException ex) {
-            Exceptions.printStackTrace(ex);
-        } catch (ExecutionException ex) {
-            Exceptions.printStackTrace(ex);
+        } else {
+            try {
+                Integer count =
+                  SceneApplication.getApplication().enqueue(new Callable<Integer>() {
+                    public Integer call() throws Exception {
+                        return getNumUsedTextures();
+                    }
+                }).get();
+                return count;
+            } catch (InterruptedException ex) {
+                Exceptions.printStackTrace(ex);
+            } catch (ExecutionException ex) {
+                Exceptions.printStackTrace(ex);
+            }
+            return -1;
         }
-        return -1;
-    }
-
-    protected int doGetNumUsedTextures() {
-        Terrain terrain = (Terrain) getTerrain(null);
-        if (terrain == null)
-            return 0;
-
-        int count = 0;
-
-        for (int i=0; i<MAX_TEXTURES; i++) {
-            Texture tex = doGetDiffuseTexture(i);
-            if (tex != null)
-                count++;
-            tex = doGetNormalMap(i);
-            if (tex != null)
-                count++;
-        }
-        return count;
     }
 
     public boolean isTriPlanarEnabled() {
-        try {
-            Boolean isEnabled =
-            SceneApplication.getApplication().enqueue(new Callable<Boolean>() {
-                public Boolean call() throws Exception {
-                    return doIsTriPlanarEnabled();
-                }
-            }).get();
-            return isEnabled;
-        } catch (InterruptedException ex) {
-            Exceptions.printStackTrace(ex);
-        } catch (ExecutionException ex) {
-            Exceptions.printStackTrace(ex);
-        }
-        return false;
-    }
+        if (SceneApplication.getApplication().isOgl()) {
+            Terrain terrain = (Terrain) getTerrain(null);
+            if (terrain == null)
+                return false;
+            MatParam param = terrain.getMaterial().getParam("useTriPlanarMapping");
+            if (param != null)
+                return (Boolean)param.getValue();
 
-    private boolean doIsTriPlanarEnabled() {
-        Terrain terrain = (Terrain) getTerrain(null);
-        if (terrain == null)
             return false;
-        MatParam param = terrain.getMaterial().getParam("useTriPlanarMapping");
-        if (param != null)
-            return (Boolean)param.getValue();
-
-        return false;
-    }
-
-    public void setTriPlanarEnabled(final boolean selected) {
-        try {
-            SceneApplication.getApplication().enqueue(new Callable() {
-                public Object call() throws Exception {
-                    doSetTriPlanarEnabled(selected);
-                    return null;
-                }
-            }).get();
-        } catch (InterruptedException ex) {
-            Exceptions.printStackTrace(ex);
-        } catch (ExecutionException ex) {
-            Exceptions.printStackTrace(ex);
+        } else {
+            try {
+                Boolean isEnabled =
+                SceneApplication.getApplication().enqueue(new Callable<Boolean>() {
+                    public Boolean call() throws Exception {
+                        return isTriPlanarEnabled();
+                    }
+                }).get();
+                return isEnabled;
+            } catch (InterruptedException ex) {
+                Exceptions.printStackTrace(ex);
+            } catch (ExecutionException ex) {
+                Exceptions.printStackTrace(ex);
+            }
+            return false;
         }
     }
 
@@ -1087,27 +987,42 @@ public class TerrainEditorController implements NodeListener {
      * @param enabled
      * @param terrainTotalSize
      */
-    private void doSetTriPlanarEnabled(boolean enabled) {
-        Terrain terrain = (Terrain) getTerrain(null);
-        if (terrain == null)
-            return;
-        terrain.getMaterial().setBoolean("useTriPlanarMapping", enabled);
-        
-        float texCoordSize = 1/terrain.getTextureCoordinateScale();
+    public void setTriPlanarEnabled(final boolean enabled) {
+        if (SceneApplication.getApplication().isOgl()) {
+            Terrain terrain = (Terrain) getTerrain(null);
+            if (terrain == null)
+                return;
+            terrain.getMaterial().setBoolean("useTriPlanarMapping", enabled);
 
-        if (enabled) {
-            for (int i=0; i<doGetNumUsedTextures(); i++) {
-                float scale = 1f/(float)(texCoordSize/doGetTextureScale(i));
-                doSetTextureScale(i, scale);
+            float texCoordSize = 1/terrain.getTextureCoordinateScale();
+
+            if (enabled) {
+                for (int i=0; i<getNumUsedTextures(); i++) {
+                    float scale = 1f/(float)(texCoordSize/getTextureScale(i));
+                    setTextureScale(i, scale);
+                }
+            } else {
+                for (int i=0; i<getNumUsedTextures(); i++) {
+                    float scale = (float)(texCoordSize*getTextureScale(i));
+                    setTextureScale(i, scale);
+                }
             }
+
+            setNeedsSave(true);
         } else {
-            for (int i=0; i<doGetNumUsedTextures(); i++) {
-                float scale = (float)(texCoordSize*doGetTextureScale(i));
-                doSetTextureScale(i, scale);
+            try {
+                SceneApplication.getApplication().enqueue(new Callable() {
+                    public Object call() throws Exception {
+                        setTriPlanarEnabled(enabled);
+                        return null;
+                    }
+                }).get();
+            } catch (InterruptedException ex) {
+                Exceptions.printStackTrace(ex);
+            } catch (ExecutionException ex) {
+                Exceptions.printStackTrace(ex);
             }
         }
-
-        setNeedsSave(true);
     }
 
     public void propertyChange(PropertyChangeEvent ev) {
