@@ -97,7 +97,6 @@ public class SceneToolController implements AppState {
         //cursor.attachChild(cursorArrowX);
         cursor.attachChild(cursorArrowY);
         //cursor.attachChild(cursorArrowZ);
-        toolsNode.attachChild(cursor);
 
         //grid
         grid = new Geometry("grid", new Grid(20, 20, 1.0f));
@@ -203,11 +202,17 @@ public class SceneToolController implements AppState {
         if (mesh == null) {
             return;
         }
-        Geometry selectionGeometry = new Geometry("selection_geometry_sceneviewer", mesh);
+        final Geometry selectionGeometry = new Geometry("selection_geometry_sceneviewer", mesh);
         selectionGeometry.setMaterial(blueMat);
         selectionGeometry.setLocalTransform(geom.getWorldTransform());
-        toolsNode.attachChild(selectionGeometry);
         selectionShape = selectionGeometry;
+        SceneApplication.getApplication().enqueue(new Callable<Object>() {
+
+            public Object call() throws Exception {
+                toolsNode.attachChild(selectionGeometry);
+                return null;
+            }
+        });
     }
 
     protected void attachBoxSelection(Spatial geom) {
@@ -219,12 +224,18 @@ public class SceneToolController implements AppState {
             WireBox wireBox = new WireBox();
             wireBox.fromBoundingBox(bbox);
             selctionShapeOffset.set(bbox.getCenter()).subtractLocal(geom.getWorldTranslation());
-            Geometry selectionGeometry = new Geometry("selection_geometry_sceneviewer", wireBox);
+            final Geometry selectionGeometry = new Geometry("selection_geometry_sceneviewer", wireBox);
             selectionGeometry.setMaterial(blueMat);
             selectionGeometry.setLocalTransform(geom.getWorldTransform());
             selectionGeometry.setLocalTranslation(bbox.getCenter());
-            toolsNode.attachChild(selectionGeometry);
             selectionShape = selectionGeometry;
+            SceneApplication.getApplication().enqueue(new Callable<Object>() {
+
+                public Object call() throws Exception {
+                    toolsNode.attachChild(selectionGeometry);
+                    return null;
+                }
+            });
 
         }
     }
@@ -250,12 +261,18 @@ public class SceneToolController implements AppState {
         if (control == null) {
             return;
         }
-        Spatial selectionGeometry = DebugShapeFactory.getDebugShape(control.getCollisionShape());
+        final Spatial selectionGeometry = DebugShapeFactory.getDebugShape(control.getCollisionShape());
         if (selectionGeometry != null) {
             selectionGeometry.setMaterial(blueMat);
             selectionGeometry.setLocalTransform(geom.getWorldTransform());
-            toolsNode.attachChild(selectionGeometry);
             selectionShape = selectionGeometry;
+            SceneApplication.getApplication().enqueue(new Callable<Object>() {
+
+                public Object call() throws Exception {
+                    toolsNode.attachChild(selectionGeometry);
+                    return null;
+                }
+            });
         }
     }
 
@@ -342,6 +359,7 @@ public class SceneToolController implements AppState {
     }
 
     public void stateAttached(AppStateManager asm) {
+        toolsNode.attachChild(cursor);
 //        throw new UnsupportedOperationException("Not supported yet.");
     }
 
