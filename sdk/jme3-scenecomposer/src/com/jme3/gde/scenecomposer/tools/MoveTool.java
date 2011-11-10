@@ -169,14 +169,29 @@ public class MoveTool extends SceneEditTool {
         @Override
         public void sceneUndo() {
             spatial.setLocalTranslation(before);
+            RigidBodyControl control = toolController.getSelectedSpatial().getControl(RigidBodyControl.class);
+            if (control != null) {
+                control.setPhysicsLocation(toolController.getSelectedSpatial().getWorldTranslation());
+            }
+            CharacterControl character = toolController.getSelectedSpatial().getControl(CharacterControl.class);
+            if (character != null) {
+                character.setPhysicsLocation(toolController.getSelectedSpatial().getWorldTranslation());
+            }
             toolController.selectedSpatialTransformed();
         }
 
         @Override
         public void sceneRedo() {
             spatial.setLocalTranslation(after);
+            RigidBodyControl control = toolController.getSelectedSpatial().getControl(RigidBodyControl.class);
+            if (control != null) {
+                control.setPhysicsLocation(toolController.getSelectedSpatial().getWorldTranslation());
+            }
+            CharacterControl character = toolController.getSelectedSpatial().getControl(CharacterControl.class);
+            if (character != null) {
+                character.setPhysicsLocation(toolController.getSelectedSpatial().getWorldTranslation());
+            }
             toolController.selectedSpatialTransformed();
         }
-        
     }
 }
