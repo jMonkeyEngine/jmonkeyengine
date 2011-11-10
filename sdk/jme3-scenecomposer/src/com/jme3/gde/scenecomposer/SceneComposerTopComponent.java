@@ -70,7 +70,7 @@ public final class SceneComposerTopComponent extends TopComponent implements Sce
     private SceneRequest sentRequest;
     private SceneRequest currentRequest;
     private HelpCtx ctx = new HelpCtx("sdk.scene_composer");
-//    private ProjectAssetManager.ClassPathChangeListener listener;
+    private ProjectAssetManager.ClassPathChangeListener listener;
 
     public SceneComposerTopComponent() {
         initComponents();
@@ -912,62 +912,62 @@ private void scaleButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
             toolController.refreshNonSpatialMarkers();
 
             editorController.setTerrainLodCamera();
-//            final SpatialAssetDataObject dobj = ((SpatialAssetDataObject) currentRequest.getDataObject());
-//            listener = new ProjectAssetManager.ClassPathChangeListener() {
-//
-//                public void classPathChanged(final ProjectAssetManager manager) {
-//                    if (dobj.isModified()) {
-//                        Confirmation msg = new NotifyDescriptor.Confirmation(
-//                                "Classes have been changed, reload scene?",
-//                                NotifyDescriptor.OK_CANCEL_OPTION,
-//                                NotifyDescriptor.ERROR_MESSAGE);
-//                        Object result = DialogDisplayer.getDefault().notify(msg);
-//                        if (!NotifyDescriptor.OK_OPTION.equals(result)) {
-//                            return;
-//                        }
-//                    }
-//                    Runnable call = new Runnable() {
-//
-//                        public void run() {
-//                            ProgressHandle progressHandle = ProgressHandleFactory.createHandle("Opening in SceneComposer");
-//                            progressHandle.start();
-//                            try {
-//                                manager.clearCache();
-//                                final Spatial asset = dobj.loadAsset();
-//                                if (asset != null) {
-//                                    java.awt.EventQueue.invokeLater(new Runnable() {
-//
-//                                        public void run() {
-//                                            SceneComposerTopComponent composer = SceneComposerTopComponent.findInstance();
-//                                            composer.openScene(asset, dobj, manager);
-//                                        }
-//                                    });
-//                                } else {
-//                                    Confirmation msg = new NotifyDescriptor.Confirmation(
-//                                            "Error opening " + dobj.getPrimaryFile().getNameExt(),
-//                                            NotifyDescriptor.OK_CANCEL_OPTION,
-//                                            NotifyDescriptor.ERROR_MESSAGE);
-//                                    DialogDisplayer.getDefault().notify(msg);
-//                                }
-//                            } finally {
-//                                progressHandle.finish();
-//                            }
-//                        }
-//                    };
-//                    new Thread(call).start();
-//                }
-//            };
-//            currentRequest.getManager().addClassPathEventListener(listener);
+            final SpatialAssetDataObject dobj = ((SpatialAssetDataObject) currentRequest.getDataObject());
+            listener = new ProjectAssetManager.ClassPathChangeListener() {
+
+                public void classPathChanged(final ProjectAssetManager manager) {
+                    if (dobj.isModified()) {
+                        Confirmation msg = new NotifyDescriptor.Confirmation(
+                                "Classes have been changed, reload scene?",
+                                NotifyDescriptor.OK_CANCEL_OPTION,
+                                NotifyDescriptor.ERROR_MESSAGE);
+                        Object result = DialogDisplayer.getDefault().notify(msg);
+                        if (!NotifyDescriptor.OK_OPTION.equals(result)) {
+                            return;
+                        }
+                    }
+                    Runnable call = new Runnable() {
+
+                        public void run() {
+                            ProgressHandle progressHandle = ProgressHandleFactory.createHandle("Opening in SceneComposer");
+                            progressHandle.start();
+                            try {
+                                manager.clearCache();
+                                final Spatial asset = dobj.loadAsset();
+                                if (asset != null) {
+                                    java.awt.EventQueue.invokeLater(new Runnable() {
+
+                                        public void run() {
+                                            SceneComposerTopComponent composer = SceneComposerTopComponent.findInstance();
+                                            composer.openScene(asset, dobj, manager);
+                                        }
+                                    });
+                                } else {
+                                    Confirmation msg = new NotifyDescriptor.Confirmation(
+                                            "Error opening " + dobj.getPrimaryFile().getNameExt(),
+                                            NotifyDescriptor.OK_CANCEL_OPTION,
+                                            NotifyDescriptor.ERROR_MESSAGE);
+                                    DialogDisplayer.getDefault().notify(msg);
+                                }
+                            } finally {
+                                progressHandle.finish();
+                            }
+                        }
+                    };
+                    new Thread(call).start();
+                }
+            };
+            currentRequest.getManager().addClassPathEventListener(listener);
         }
     }
 
     public void sceneClosed(SceneRequest request) {
         if (request.equals(currentRequest)) {
             setActivatedNodes(new org.openide.nodes.Node[]{});
-//            if (currentRequest != null) {
-//                currentRequest.getManager().removeClassPathEventListener(listener);
-//                listener = null;
-//            }
+            if (request != null) {
+                request.getManager().removeClassPathEventListener(listener);
+                listener = null;
+            }
             SceneApplication.getApplication().removeSceneListener(this);
             currentRequest = null;
             setSceneInfo(null, null, false);
