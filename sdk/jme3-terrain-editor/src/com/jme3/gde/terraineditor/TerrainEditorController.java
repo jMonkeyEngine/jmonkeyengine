@@ -344,12 +344,14 @@ public class TerrainEditorController implements NodeListener {
         return null;
     }
 
-    private Float doGetTextureScale(int layer) {
+    protected Float doGetTextureScale(int layer) {
         Terrain terrain = (Terrain) getTerrain(null);
         if (terrain == null)
             return 1f;
         MatParam matParam = null;
         matParam = terrain.getMaterial().getParam("DiffuseMap_"+layer+"_scale");
+        if (matParam == null)
+            return -1f;
         return (Float) matParam.getValue();
     }
 
@@ -1017,7 +1019,7 @@ public class TerrainEditorController implements NodeListener {
         return -1;
     }
 
-    private int doGetNumUsedTextures() {
+    protected int doGetNumUsedTextures() {
         Terrain terrain = (Terrain) getTerrain(null);
         if (terrain == null)
             return 0;

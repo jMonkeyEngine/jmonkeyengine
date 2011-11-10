@@ -131,7 +131,7 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
     private CreateTerrainWizardAction terrainWizard;
     private SkyboxWizardAction skyboxWizard;
     private JmeSpatial selectedSpat;
-    private TerrainNodeListener terrainDeletedNodeListener;
+    //private TerrainNodeListener terrainDeletedNodeListener;
     private boolean availableNormalTextures;
     private HelpCtx ctx = new HelpCtx("sdk.terrain_editor");
     private DDSPreview ddsPreview;
@@ -1012,8 +1012,8 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
         request.setToolNode(new Node("TerrainEditorToolNode"));
         SceneApplication.getApplication().openScene(request);
 
-        terrainDeletedNodeListener = new TerrainNodeListener();
-        editorController.enableTextureButtons();
+        //terrainDeletedNodeListener = new TerrainNodeListener();
+        //editorController.enableTextureButtons();
 
     }
 
@@ -1022,7 +1022,7 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
 
         if (request.equals(sentRequest)) {
             currentRequest = request;
-            Logger.getLogger(TerrainEditorTopComponent.class.getName()).finer("Terrain sceneRequested " + request.getWindowTitle());
+            //Logger.getLogger(TerrainEditorTopComponent.class.getName()).finer("Terrain sceneRequested " + request.getWindowTitle());
 
             setSceneInfo(currentRequest.getJmeNode(), true);
 
@@ -1033,7 +1033,6 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
             if (terrain != null) {
                 // add the terrain root save node
 
-                // ugh! wtf, why is this fixing the material problem?
                 ((Node) terrain).setMaterial(terrain.getMaterial());
                 // it appears when loading the actual applied material on the terrain
                 // does not reflect the material that we get from the terrain.
@@ -1047,9 +1046,6 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
             if (toolController != null) {
                 toolController.cleanup();
             }
-
-            //for (int i=0; i<textureTable.getModel().getRowCount(); i++)
-            //    ((TextureTableModel)textureTable.getModel()).removeRow(i);
 
             toolController = new TerrainToolController(currentRequest.getToolNode(), currentRequest.getManager().getManager(), request.getJmeNode());
             camController = new TerrainCameraController(SceneApplication.getApplication().getCamera());
@@ -1104,6 +1100,7 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
 
     public void sceneClosed(SceneRequest request) {
         if (request.equals(currentRequest)) {
+            setActivatedNodes(new org.openide.nodes.Node[]{});
             SceneApplication.getApplication().removeSceneListener(this);
             setSceneInfo(null, false);
             currentRequest = null;
@@ -1135,6 +1132,9 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
      */
     protected void reinitTextureTable() {
 
+        if (toolController == null)
+            return; // we are not initialized yet
+        
         clearTextureTable();
 
         getTableModel().initModel();
