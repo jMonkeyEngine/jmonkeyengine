@@ -920,7 +920,7 @@ private void scaleButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
                         Confirmation msg = new NotifyDescriptor.Confirmation(
                                 "Classes have been changed, reload scene?",
                                 NotifyDescriptor.OK_CANCEL_OPTION,
-                                NotifyDescriptor.ERROR_MESSAGE);
+                                NotifyDescriptor.INFORMATION_MESSAGE);
                         Object result = DialogDisplayer.getDefault().notify(msg);
                         if (!NotifyDescriptor.OK_OPTION.equals(result)) {
                             return;
