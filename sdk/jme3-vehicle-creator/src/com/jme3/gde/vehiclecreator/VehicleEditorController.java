@@ -60,7 +60,6 @@ public class VehicleEditorController implements LookupListener, ActionListener {
     private Result<VehicleWheel> result2;
     private List<Geometry> list = new LinkedList<Geometry>();
     private SceneToolController toolController;
-    private VehicleCreatorCameraController cameraController;
     private Node toolsNode;
     private BulletAppState bulletState;
     private boolean testing = false;
@@ -107,16 +106,10 @@ public class VehicleEditorController implements LookupListener, ActionListener {
         SceneApplication.getApplication().getInputManager().addMapping("VehicleEditor_Space", new KeyTrigger(KeyInput.KEY_SPACE));
         SceneApplication.getApplication().getInputManager().addMapping("VehicleEditor_Reset", new KeyTrigger(KeyInput.KEY_RETURN));
         SceneApplication.getApplication().getInputManager().addListener(this, "VehicleEditor_Left", "VehicleEditor_Right", "VehicleEditor_Up", "VehicleEditor_Down", "VehicleEditor_Space", "VehicleEditor_Reset");
-        cameraController = new VehicleCreatorCameraController(SceneApplication.getApplication().getCamera(), SceneApplication.getApplication().getInputManager());
-        cameraController.setMaster(this);
-        cameraController.enable();
-        cameraController.setVehicle(rootNode);
     }
 
     public void cleanupApplication() {
         SceneApplication.getApplication().getInputManager().removeListener(this);
-        cameraController.disable();
-        cameraController = null;
         SceneApplication.getApplication().getStateManager().detach(getBulletState());
     }
 

@@ -44,6 +44,7 @@ public final class VehicleCreatorTopComponent extends TopComponent implements Sc
     private boolean testing = false;
     DirectionalLight dirLight = new DirectionalLight();
     private HelpCtx ctx = new HelpCtx("sdk.vehicle_creator");
+    private VehicleCreatorCameraController cameraController;
 
     public VehicleCreatorTopComponent() {
         initComponents();
@@ -889,6 +890,8 @@ public final class VehicleCreatorTopComponent extends TopComponent implements Sc
             currentRequest = null;
             final VehicleEditorController controller = editorController;
             setLoadedScene(null, false);
+            cameraController.disable();
+            cameraController = null;
             SceneApplication.getApplication().enqueue(new Callable<Void>() {
 
                 public Void call() throws Exception {
@@ -904,6 +907,10 @@ public final class VehicleCreatorTopComponent extends TopComponent implements Sc
         if (request == sentRequest) {
             currentRequest = request;
             editorController = newEditorController;
+            cameraController = new VehicleCreatorCameraController(SceneApplication.getApplication().getCamera(), SceneApplication.getApplication().getInputManager());
+            cameraController.setMaster(this);
+            cameraController.enable();
+            cameraController.setVehicle(request.getRootNode());
             setLoadedScene(currentRequest.getDataObject().getNodeDelegate(), true);
             final VehicleEditorController controller = editorController;
             SceneApplication.getApplication().enqueue(new Callable<Void>() {
