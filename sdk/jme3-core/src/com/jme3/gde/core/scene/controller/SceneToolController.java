@@ -301,8 +301,16 @@ public class SceneToolController implements AppState {
 
     public void cleanup() {
         detachSelectionShape();
-        cursor.removeFromParent();
-        grid.removeFromParent();
+        final Spatial cursor = this.cursor;
+        final Spatial grid = this.grid;
+        SceneApplication.getApplication().enqueue(new Callable<Void>() {
+
+            public Void call() throws Exception {
+                cursor.removeFromParent();
+                grid.removeFromParent();
+                return null;
+            }
+        });
         SceneApplication.getApplication().getStateManager().detach(this);
     }
 
