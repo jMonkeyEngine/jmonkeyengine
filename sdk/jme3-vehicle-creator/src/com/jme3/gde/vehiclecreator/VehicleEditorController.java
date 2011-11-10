@@ -99,6 +99,7 @@ public class VehicleEditorController implements LookupListener, ActionListener {
     }
 
     public void prepareApplication() {
+        SceneApplication.getApplication().getStateManager().attach(getBulletState());
         SceneApplication.getApplication().getInputManager().addMapping("VehicleEditor_Left", new KeyTrigger(KeyInput.KEY_A));
         SceneApplication.getApplication().getInputManager().addMapping("VehicleEditor_Right", new KeyTrigger(KeyInput.KEY_D));
         SceneApplication.getApplication().getInputManager().addMapping("VehicleEditor_Up", new KeyTrigger(KeyInput.KEY_W));
@@ -116,6 +117,7 @@ public class VehicleEditorController implements LookupListener, ActionListener {
         SceneApplication.getApplication().getInputManager().removeListener(this);
         cameraController.disable();
         cameraController = null;
+        SceneApplication.getApplication().getStateManager().detach(getBulletState());
     }
 
     public JmeSpatial getJmeRootNode() {
