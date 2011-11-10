@@ -400,7 +400,7 @@ public class SceneApplication extends Application implements LookupProvider {
                     return;
                 }
                 notifyClose(oldRequest);
-                if (newRequest == null || newRequest.getRootNode() != oldRequest.getRootNode()) {
+                if (newRequest == null || newRequest.getDataObject() != oldRequest.getDataObject()) {
                     checkSave(oldRequest);
                     SceneUndoRedoManager manager = Lookup.getDefault().lookup(SceneUndoRedoManager.class);
                     if (manager != null) {
