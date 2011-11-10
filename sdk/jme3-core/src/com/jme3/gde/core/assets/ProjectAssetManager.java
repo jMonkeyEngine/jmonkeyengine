@@ -141,38 +141,39 @@ public class ProjectAssetManager extends DesktopAssetManager {
                     try {
                         FileObject[] roots = path.getRoots();
                         for (FileObject fileObject : roots) {
-                            FileChangeListener listener = new FileChangeListener() {
+                            if (!fileObject.equals(getAssetFolder())) {
+                                FileChangeListener listener = new FileChangeListener() {
 
-                                public void fileFolderCreated(FileEvent fe) {
+                                    public void fileFolderCreated(FileEvent fe) {
 //                                    notifyClassPathListeners();
-                                }
-
-                                public void fileDataCreated(FileEvent fe) {
-//                                    notifyClassPathListeners();
-                                }
-
-                                public void fileChanged(FileEvent fe) {
-                                    System.out.println(fe);
-                                    if (!fe.isExpected()) {
-                                        notifyClassPathListeners();
                                     }
-                                }
 
-                                public void fileDeleted(FileEvent fe) {
+                                    public void fileDataCreated(FileEvent fe) {
 //                                    notifyClassPathListeners();
-                                }
+                                    }
 
-                                public void fileRenamed(FileRenameEvent fre) {
-//                                    notifyClassPathListeners();
-                                }
+                                    public void fileChanged(FileEvent fe) {
+                                        if (!fe.isExpected()) {
+                                            notifyClassPathListeners();
+                                        }
+                                    }
 
-                                public void fileAttributeChanged(FileAttributeEvent fae) {
+                                    public void fileDeleted(FileEvent fe) {
 //                                    notifyClassPathListeners();
-                                }
-                            };
-                            fileObject.addRecursiveListener(listener);
-                            classPathItems.add(new ClassPathItem(fileObject, listener));
-                            urls.add(fileObject.getURL());
+                                    }
+
+                                    public void fileRenamed(FileRenameEvent fre) {
+//                                    notifyClassPathListeners();
+                                    }
+
+                                    public void fileAttributeChanged(FileAttributeEvent fae) {
+//                                    notifyClassPathListeners();
+                                    }
+                                };
+                                fileObject.addRecursiveListener(listener);
+                                classPathItems.add(new ClassPathItem(fileObject, listener));
+                                urls.add(fileObject.getURL());
+                            }
                             if (fileObject.getURL().toExternalForm().startsWith("jar")) {
                                 Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Add classpath locator:{0}", fileObject.getURL());
                                 jarItems.add(fileObject);
