@@ -105,12 +105,7 @@ public abstract class AbstractCameraController extends AbstractAppState implemen
         }
 
         SceneApplication.getApplication().setActiveCameraController(this);
-        java.awt.EventQueue.invokeLater(new Runnable() {
-
-            public void run() {
-                addAdditionnalToolbar();
-            }
-        });
+        addAdditionnalToolbar();
     }
 
     private void addAdditionnalToolbar() {
@@ -135,13 +130,7 @@ public abstract class AbstractCameraController extends AbstractAppState implemen
         inputManager.removeListener(this);
         SceneApplication.getApplication().getStateManager().detach(this);
         if (SceneApplication.getApplication().getActiveCameraController() == this) {
-            java.awt.EventQueue.invokeLater(new Runnable() {
-
-                public void run() {
-                    removeAdditionnalToolbar();
-
-                }
-            });
+            removeAdditionnalToolbar();
         }
     }
 
