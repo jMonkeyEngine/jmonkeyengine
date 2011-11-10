@@ -278,8 +278,15 @@ public class SceneToolController implements AppState {
 
     protected void detachSelectionShape() {
         if (selectionShape != null) {
-            selectionShape.removeFromParent();
+            final Spatial shape = selectionShape;
             selectionShape = null;
+            SceneApplication.getApplication().enqueue(new Callable<Void>() {
+
+                public Void call() throws Exception {
+                    shape.removeFromParent();
+                    return null;
+                }
+            });
         }
     }
 

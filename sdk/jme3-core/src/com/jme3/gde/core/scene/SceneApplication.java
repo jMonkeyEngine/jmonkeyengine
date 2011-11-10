@@ -209,7 +209,7 @@ public class SceneApplication extends Application implements LookupProvider {
                 guiViewPort.setClearFlags(false, false, false);
             }
             getProgressHandle().progress("Setup Camera Controller", 2);
-            //create camera controler
+            //create camera controller
             camController = new SceneCameraController(cam, inputManager);
             //create preview view
             getProgressHandle().progress("Setup Preview Scene", 3);
@@ -305,10 +305,10 @@ public class SceneApplication extends Application implements LookupProvider {
         listeners.remove(listener);
     }
 
-    private void notifyOpen() {
+    private void notifyOpen(final SceneRequest opened) {
         for (Iterator<SceneListener> it = listeners.iterator(); it.hasNext();) {
             SceneListener sceneViewerListener = it.next();
-            sceneViewerListener.sceneOpened(currentSceneRequest);
+            sceneViewerListener.sceneOpened(opened);
         }
     }
 
@@ -337,13 +337,16 @@ public class SceneApplication extends Application implements LookupProvider {
 
     /**
      * method to display the node tree of a plugin (threadsafe)
-     * @param tree
+     * @param request
      */
     public void openScene(final SceneRequest request) {
-        closeScene(currentSceneRequest);
+        closeScene(currentSceneRequest, request);
         java.awt.EventQueue.invokeLater(new Runnable() {
 
             public void run() {
+                if (request == null) {
+                    return;
+                }
                 currentSceneRequest = request;
                 if (request.getDataObject() != null) {
                     setCurrentFileNode(request.getDataObject().getNodeDelegate());
@@ -352,7 +355,6 @@ public class SceneApplication extends Application implements LookupProvider {
                 }
                 setHelpContext(request.getHelpCtx());
                 setWindowTitle(request.getWindowTitle());
-                notifyOpen();
                 enqueue(new Callable() {
 
                     public Object call() throws Exception {
@@ -373,7 +375,57 @@ public class SceneApplication extends Application implements LookupProvider {
                         if (request.getToolNode() != null) {
                             toolsNode.attachChild(request.getToolNode());
                         }
-                        getCurrentSceneRequest().setDisplayed(true);
+                        request.setDisplayed(true);
+                        return null;
+                    }
+                });
+                notifyOpen(request);
+            }
+        });
+    }
+
+    /**
+     * method to close a scene displayed by a scene request (threadsafe)
+     * @param request
+     */
+    public void closeScene(final SceneRequest request) {
+        closeScene(request, null);
+    }
+
+    private void closeScene(final SceneRequest oldRequest, final SceneRequest newRequest) {
+        java.awt.EventQueue.invokeLater(new Runnable() {
+
+            public void run() {
+                if (oldRequest == null) {
+                    return;
+                }
+                if (newRequest == null || newRequest.getRootNode() != oldRequest.getRootNode()) {
+                    checkSave(oldRequest);
+                    SceneUndoRedoManager manager = Lookup.getDefault().lookup(SceneUndoRedoManager.class);
+                    if (manager != null) {
+                        manager.discardAllEdits();
+                    }
+                }
+                setCurrentFileNode(null);
+                setWindowTitle("OpenGL Window");
+                setHelpContext(null);
+                notifyClose(oldRequest);
+                enqueue(new Callable() {
+
+                    public Object call() throws Exception {
+                        if (oldRequest.getRequester() instanceof SceneApplication) {
+                            camController.disable();
+                        }
+                        if (physicsState != null) {
+                            physicsState.getPhysicsSpace().removeAll(rootNode);
+                            getStateManager().detach(physicsState);
+                            physicsState = null;
+                        }
+                        toolsNode.detachAllChildren();
+                        rootNode.detachAllChildren();
+                        // resetCam();
+                        lastError = "";
+                        oldRequest.setDisplayed(false);
                         return null;
                     }
                 });
@@ -381,54 +433,10 @@ public class SceneApplication extends Application implements LookupProvider {
         });
     }
 
-    /**
-     * method to close a scene displayed by a scene request (threadsafe)
-     * @param tree
-     */
-    public void closeScene(final SceneRequest request) {
-        if (request != null) {
-            java.awt.EventQueue.invokeLater(new Runnable() {
-
-                public void run() {
-                    checkSave();
-                    setCurrentFileNode(null);
-                    setWindowTitle("OpenGL Window");
-                    setHelpContext(null);
-                    SceneUndoRedoManager manager = Lookup.getDefault().lookup(SceneUndoRedoManager.class);
-                    if (manager != null) {
-                        manager.discardAllEdits();
-                    }
-                    final SceneRequest currentRequest = currentSceneRequest;
-                    currentSceneRequest = null;
-                    notifyClose(request);
-                    enqueue(new Callable() {
-
-                        public Object call() throws Exception {
-                            if (request.getRequester() instanceof SceneApplication) {
-                                camController.disable();
-                            }
-                            if (physicsState != null) {
-                                physicsState.getPhysicsSpace().removeAll(rootNode);
-                                getStateManager().detach(physicsState);
-                                physicsState = null;
-                            }
-                            toolsNode.detachAllChildren();
-                            rootNode.detachAllChildren();
-                            // resetCam();
-                            lastError = "";
-                            currentRequest.setDisplayed(false);
-                            return null;
-                        }
-                    });
-                }
-            });
-        }
-    }
-
-    private void checkSave() {
-        if ((currentSceneRequest != null)
-                && currentSceneRequest.getDataObject().isModified()) {
-            final DataObject req = currentSceneRequest.getDataObject();
+    private void checkSave(SceneRequest request) {
+        if ((request != null)
+                && request.getDataObject().isModified()) {
+            final DataObject req = request.getDataObject();
             Confirmation mesg = new NotifyDescriptor.Confirmation("Scene has not been saved,\ndo you want to save it?",
                     "Not Saved",
                     NotifyDescriptor.YES_NO_OPTION);

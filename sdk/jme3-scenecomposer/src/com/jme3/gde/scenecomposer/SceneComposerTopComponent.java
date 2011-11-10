@@ -788,10 +788,6 @@ private void scaleButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
         SceneRequest request = new SceneRequest(this, jmeNode, manager);
         request.setDataObject(file);
         request.setHelpCtx(ctx);
-        if (editorController != null) {
-            editorController.cleanup();
-        }
-        editorController = new SceneEditorController(jmeNode, file);
         this.sentRequest = request;
         request.setWindowTitle("SceneComposer - " + manager.getRelativeAssetPath(file.getPrimaryFile().getPath()));
         request.setToolNode(new Node("SceneComposerToolNode"));
@@ -845,22 +841,17 @@ private void scaleButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
     }
 
     private void selectSpatial(JmeSpatial spatial) {
-
+        if (editorController != null) {
+            editorController.setSelectedSpat(spatial);
+        }
         if (spatial == null) {
             setSelectedObjectText(null);
-            if (editorController != null) {
-                editorController.setSelectedSpat(spatial);
-            }
             return;
         } else {
             if (toolController != null) {
                 toolController.updateSelection(spatial.getLookup().lookup(Spatial.class));
             }
         }
-        if (editorController == null) {
-            return;
-        }
-        editorController.setSelectedSpat(spatial);
         if (spatial.getLookup().lookup(Node.class) != null) {
             setSelectedObjectText(spatial.getLookup().lookup(Node.class).getName());
         } else if (spatial.getLookup().lookup(Spatial.class) != null) {
@@ -892,15 +883,19 @@ private void scaleButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
     public void sceneOpened(SceneRequest request) {
         if (request.equals(sentRequest)) {
             currentRequest = request;
-            setActivatedNodes(new org.openide.nodes.Node[]{currentRequest.getDataObject().getNodeDelegate()});
-            setSceneInfo(currentRequest.getJmeNode(), editorController.getCurrentFileObject(), true);
+            if (editorController != null) {
+                editorController.cleanup();
+            }
+            editorController = new SceneEditorController(request.getJmeNode(), request.getDataObject());
+            setActivatedNodes(new org.openide.nodes.Node[]{request.getDataObject().getNodeDelegate()});
+            setSceneInfo(request.getJmeNode(), editorController.getCurrentFileObject(), true);
             if (camController != null) {
                 camController.disable();
             }
             if (toolController != null) {
                 toolController.cleanup();
             }
-            toolController = new SceneComposerToolController(currentRequest.getToolNode(), currentRequest.getManager(), request.getJmeNode());
+            toolController = new SceneComposerToolController(request.getToolNode(), request.getManager(), request.getJmeNode());
 
             camController = new ComposerCameraController(SceneApplication.getApplication().getCamera(), request.getJmeNode());
             toolController.setEditorController(editorController);

@@ -893,7 +893,7 @@ public final class VehicleCreatorTopComponent extends TopComponent implements Sc
 
                 public Void call() throws Exception {
                     controller.cleanupApplication();
-//                    current.getRootNode().removeLight(dirLight);
+                    current.getRootNode().getParent().removeLight(dirLight);
                     return null;
                 }
             });
@@ -910,7 +910,7 @@ public final class VehicleCreatorTopComponent extends TopComponent implements Sc
 
                 public Void call() throws Exception {
                     controller.prepareApplication();
-//                    request.getRootNode().addLight(dirLight);
+                    request.getRootNode().getParent().addLight(dirLight);
                     return null;
                 }
             });

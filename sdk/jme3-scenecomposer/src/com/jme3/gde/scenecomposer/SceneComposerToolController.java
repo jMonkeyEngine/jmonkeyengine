@@ -66,18 +66,28 @@ public class SceneComposerToolController extends SceneToolController {
         // a node in a viewport that will always render on top
         onTopToolsNode = new Node("OverlayNode");
         overlayView = SceneApplication.getApplication().getOverlayView();
-//        overlayView.setClearFlags(false, true, false);
-        overlayView.attachScene(onTopToolsNode);
+        SceneApplication.getApplication().enqueue(new Callable<Void>() {
+
+            public Void call() throws Exception {
+                overlayView.attachScene(onTopToolsNode);
+                return null;
+            }
+        });
     }
 
     @Override
     public void cleanup() {
         super.cleanup();
-        //SceneApplication.getApplication().getRenderManager().removeMainView(overlayView);
-        overlayView.detachScene(onTopToolsNode);
         cameraController = null;
         editorController = null;
-        onTopToolsNode.detachAllChildren();
+        SceneApplication.getApplication().enqueue(new Callable<Void>() {
+
+            public Void call() throws Exception {
+                overlayView.detachScene(onTopToolsNode);
+                onTopToolsNode.detachAllChildren();
+                return null;
+            }
+        });
     }
 
     @Override
