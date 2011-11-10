@@ -24,6 +24,7 @@ import com.jme3.gde.scenecomposer.tools.SelectTool;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.concurrent.Callable;
 import java.util.logging.Logger;
@@ -31,6 +32,7 @@ import javax.swing.ButtonGroup;
 import javax.swing.border.TitledBorder;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
+import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
@@ -918,12 +920,17 @@ private void scaleButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
                 public void classPathChanged(final ProjectAssetManager manager) {
                     if (dobj.isModified()) {
                         Confirmation msg = new NotifyDescriptor.Confirmation(
-                                "Classes have been changed, reload scene?",
+                                "Classes have been changed, save and reload scene?",
                                 NotifyDescriptor.OK_CANCEL_OPTION,
                                 NotifyDescriptor.INFORMATION_MESSAGE);
                         Object result = DialogDisplayer.getDefault().notify(msg);
                         if (!NotifyDescriptor.OK_OPTION.equals(result)) {
                             return;
+                        }
+                        try {
+                            dobj.saveAsset();
+                        } catch (IOException ex) {
+                            Exceptions.printStackTrace(ex);
                         }
                     }
                     Runnable call = new Runnable() {
