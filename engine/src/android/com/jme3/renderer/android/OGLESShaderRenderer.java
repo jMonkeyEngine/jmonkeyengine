@@ -2437,7 +2437,7 @@ public class OGLESShaderRenderer implements Renderer {
                         convertFormat(vb.getFormat()),
                         vb.isNormalized(),
                         vb.getStride(),
-                        0);
+                        vb.getData());
 
                 attribs[loc] = vb;
             }
