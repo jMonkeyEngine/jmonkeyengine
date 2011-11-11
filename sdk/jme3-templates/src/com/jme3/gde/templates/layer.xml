@@ -17,6 +17,7 @@
         <folder name="JME3 Classes">
             <attr name="position" intvalue="200"/>
             <file name="Control.java" url="files/Control.template">
+                <attr name="displayName" stringvalue="New Control"/>
                 <attr name="instantiatingIterator" methodvalue="org.netbeans.spi.java.project.support.ui.templates.JavaTemplates.createJavaTemplateIterator"/>
                 <attr name="position" intvalue="100"/>
                 <attr name="templateCategory" stringvalue="java-classes, java-classes-basic"/>
@@ -27,6 +28,7 @@
                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/java/resources/class.gif"/>
             </file>
             <file name="AppState.java" url="files/AppState.template">
+                <attr name="displayName" stringvalue="New AppState"/>
                 <attr name="instantiatingIterator" methodvalue="org.netbeans.spi.java.project.support.ui.templates.JavaTemplates.createJavaTemplateIterator"/>
                 <attr name="position" intvalue="200"/>
                 <attr name="templateCategory" stringvalue="java-classes, java-classes-basic"/>
