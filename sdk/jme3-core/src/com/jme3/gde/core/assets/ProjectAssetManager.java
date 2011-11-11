@@ -116,7 +116,7 @@ public class ProjectAssetManager extends DesktopAssetManager {
     private synchronized void updateClassLoader() {
         for (FileObject fileObject : jarItems) {
             try {
-                Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Remove classpath locator:{0}", fileObject.getURL());
+                Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Remove locator:{0}", fileObject.getURL());
                 unregisterLocator(fileObject.getURL().toExternalForm(),
                         com.jme3.asset.plugins.UrlLocator.class);
             } catch (FileStateInvalidException ex) {
@@ -125,6 +125,7 @@ public class ProjectAssetManager extends DesktopAssetManager {
         }
         jarItems.clear();
         for (ClassPathItem fileObject : classPathItems) {
+            Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Remove classpath:{0}", fileObject.object);
             fileObject.object.removeRecursiveListener(fileObject.listener);
         }
         classPathItems.clear();
@@ -171,11 +172,12 @@ public class ProjectAssetManager extends DesktopAssetManager {
                                     }
                                 };
                                 fileObject.addRecursiveListener(listener);
+                                Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Add classpath:{0}", fileObject);
                                 classPathItems.add(new ClassPathItem(fileObject, listener));
                                 urls.add(fileObject.getURL());
                             }
                             if (fileObject.getURL().toExternalForm().startsWith("jar")) {
-                                Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Add classpath locator:{0}", fileObject.getURL());
+                                Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Add locator:{0}", fileObject.getURL());
                                 jarItems.add(fileObject);
                                 registerLocator(fileObject.getURL().toExternalForm(),
                                         "com.jme3.asset.plugins.UrlLocator");
