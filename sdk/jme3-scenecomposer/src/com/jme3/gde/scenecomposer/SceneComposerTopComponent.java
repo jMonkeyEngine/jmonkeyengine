@@ -936,7 +936,7 @@ private void scaleButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
                     Runnable call = new Runnable() {
 
                         public void run() {
-                            ProgressHandle progressHandle = ProgressHandleFactory.createHandle("Opening in SceneComposer");
+                            ProgressHandle progressHandle = ProgressHandleFactory.createHandle("Reloading Scene..");
                             progressHandle.start();
                             try {
                                 manager.clearCache();
