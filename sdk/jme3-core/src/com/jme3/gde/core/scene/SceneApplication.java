@@ -355,16 +355,16 @@ public class SceneApplication extends Application implements LookupProvider {
                 }
                 setHelpContext(request.getHelpCtx());
                 setWindowTitle(request.getWindowTitle());
+                if (request.getRequester() instanceof SceneApplication) {
+                    camController.enable();
+                } else {
+                    camController.disable();
+                }
                 enqueue(new Callable() {
 
                     public Object call() throws Exception {
                         if (request.getManager() != null) {
                             assetManager = request.getManager();
-                        }
-                        if (request.getRequester() instanceof SceneApplication) {
-                            camController.enable();
-                        } else {
-                            camController.disable();
                         }
                         Spatial model = request.getRootNode();
                         if (model == null) {
@@ -412,12 +412,12 @@ public class SceneApplication extends Application implements LookupProvider {
                     setWindowTitle("OpenGL Window");
                     setHelpContext(null);
                 }
+                if (oldRequest.getRequester() instanceof SceneApplication) {
+                    camController.disable();
+                }
                 enqueue(new Callable() {
 
                     public Object call() throws Exception {
-                        if (oldRequest.getRequester() instanceof SceneApplication) {
-                            camController.disable();
-                        }
                         if (physicsState != null) {
                             physicsState.getPhysicsSpace().removeAll(rootNode);
                             getStateManager().detach(physicsState);
