@@ -4,6 +4,7 @@
     <folder name="Templates">
         <folder name="Project">
             <folder name="JME3">
+                <attr name="position" intvalue="10"/>
                 <file name="BasicGameProject.zip" url="BasicGameProject.zip">
                     <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/com/jme3/gde/templates/jme-logo.png"/>
                     <attr name="displayName" bundlevalue="com.jme3.gde.templates.Bundle#Templates/Project/JME3/BasicGameProject.zip"/>
@@ -12,6 +13,19 @@
                     <attr name="template" boolvalue="true"/>
                 </file>
             </folder>
+        </folder>
+        <folder name="JME3Classes">
+            <attr name="position" intvalue="200"/>
+            <file name="Control.java" url="files/Control.template">
+                <attr name="instantiatingIterator" methodvalue="org.netbeans.spi.java.project.support.ui.templates.JavaTemplates.createJavaTemplateIterator"/>
+                <attr name="position" intvalue="100"/>
+                <attr name="templateCategory" stringvalue="java-classes, java-classes-basic"/>
+                <attr name="template" boolvalue="true"/>
+                <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
+                <attr name="templateWizardURL" urlvalue="nbresloc:/com/jme3/gde/templates/files/Control.html"/>
+                <!--attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.java.project.Bundle"/-->
+                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/java/resources/class.gif"/>
+            </file>
         </folder>
     </folder>
 </filesystem>
