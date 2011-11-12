@@ -71,7 +71,7 @@ public class OnlineBrowser extends javax.swing.JPanel implements HyperlinkListen
                     }
                     handle.finish();
                     Confirmation msg = new NotifyDescriptor.Confirmation(
-                            "Successfully downloades asset pack!\n" + name,
+                            "Successfully downloaded asset pack!\n" + name,
                             NotifyDescriptor.OK_CANCEL_OPTION,
                             NotifyDescriptor.INFORMATION_MESSAGE);
                     DialogDisplayer.getDefault().notifyLater(msg);
