@@ -57,7 +57,7 @@
         <java-data xmlns="http://www.netbeans.org/ns/freeform-project-java/1">
             <compilation-unit>
                 <package-root>.</package-root>
-                <classpath mode="compile">../../build/classes</classpath>
+                <classpath mode="compile">../../dist/jMonkeyEngine3.jar</classpath>
                 <source-level>1.5</source-level>
             </compilation-unit>
         </java-data>
