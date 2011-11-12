@@ -22,7 +22,6 @@
             <ide-actions>
                 <action name="build">
                     <script>${ant.script}</script>
-                    <target>jar</target>
                     <target>build-bullet-natives</target>
                 </action>
                 <action name="clean">
@@ -32,8 +31,11 @@
                 <action name="rebuild">
                     <script>${ant.script}</script>
                     <target>clean</target>
-                    <target>jar</target>
                     <target>build-bullet-natives</target>
+                </action>
+                <action name="run">
+                    <script>${ant.script}</script>
+                    <target>run-bullet-native</target>
                 </action>
             </ide-actions>
             <view>
@@ -50,6 +52,7 @@
                     <ide-action name="build"/>
                     <ide-action name="rebuild"/>
                     <ide-action name="clean"/>
+                    <ide-action name="run"/>
                 </context-menu>
             </view>
             <subprojects/>

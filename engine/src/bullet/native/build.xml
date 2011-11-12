@@ -50,7 +50,7 @@
     <target name="build-bullet-natives" description="builds the native bullet library for the platform being run on" depends="-create-folders, create-native-headers, -nativelib-osx, -nativelib-windows, -nativelib-linux, -nativelib-solaris">
         <echo message="Updating native jME3-bullet-natives.jar"/>
         <zip basedir="${bullet.output.base}/jarcontent" file="${bullet.output.base}/jME3-bullet-natives.jar" compress="true"/>
-        <copy file="${bullet.output.base}/jME3-bullet-natives.jar" todir="dist/lib"/>
+        <copy file="${bullet.output.base}/jME3-bullet-natives.jar" todir="dist/opt/native-bullet/lib/"/>
     </target>
     
     <target name="create-native-headers" description="creates the native headers">

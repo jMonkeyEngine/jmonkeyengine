@@ -104,8 +104,17 @@
     </target>
 
     <!-- compiles the *native binary* of the native bullet version (read bullet-native-build.txt for more info) -->
-    <target name="build-bullet-natives" description="uses native build tools to build the bulletjme binary (read bullet-native-build.txt for more info)">
+    <target name="build-bullet-natives" description="uses native build tools to build the bulletjme binary (read bullet-native-build.txt for more info)" depends="jar">
         <ant antfile="src/bullet/native/build.xml" target="build-bullet-natives"/>
+    </target>
+    
+    <target name="run-bullet-native" description="runs the jMonkeyEngine3 demos using native bullet">
+        <copy file="dist/opt/native-bullet/lib/jME3-bullet-natives.jar" todir="dist/lib" failonerror="false"/>
+        <copy file="dist/opt/native-bullet/lib/jME3-bullet.jar" todir="dist/lib" failonerror="false"/>
+        <delete file="dist/lib/jME3-jbullet.jar" failonerror="false"/>
+        <exec executable="java" dir="dist">
+            <arg line="-jar jMonkeyEngine3.jar"/>
+        </exec>
     </target>
     
     <!-- overrides javadoc generation to only include relevant classes -->
