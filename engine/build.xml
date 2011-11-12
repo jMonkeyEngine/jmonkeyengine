@@ -12,6 +12,10 @@
     </target>
     
     <target name="-post-jar" depends="-create-optional-packages">
+        <!--move back classes-->
+        <move file="build/testclasses/jme3test" todir="build/classes/" failonerror="false"/>
+        <move file="build/testclasses/jme3game" todir="build/classes/" failonerror="false"/>
+        <move file="build/jbullet/com/jme3/bullet" todir="build/classes/com/jme3/" failonerror="false"/>
     </target>
 
     <!-- compiles the java classes of the native bullet version (works on all systems) -->
@@ -48,14 +52,11 @@
         <move file="build/classes/jme3test" todir="build/testclasses/" failonerror="false"/>
         <move file="build/classes/jme3game" todir="build/testclasses/" failonerror="false"/>
         <jar jarfile="build/jME3-test.jar" basedir="build/testclasses/" compress="true"/>
-        <move file="build/testclasses/jme3test" todir="build/classes/" failonerror="false"/>
-        <move file="build/testclasses/jme3game" todir="build/classes/" failonerror="false"/>
 
         <!--separate jbullet physics classes-->
         <mkdir dir="build/jbullet/com/jme3/"/>
         <move file="build/classes/com/jme3/bullet" todir="build/jbullet/com/jme3/" failonerror="false"/>
         <jar jarfile="build/jME3-jbullet.jar" basedir="build/jbullet/" compress="true"/>
-        <move file="build/jbullet/com/jme3/bullet" todir="build/classes/com/jme3/" failonerror="false"/>
 
         <!--separate assets-->
         <jar jarfile="build/jME3-testdata.jar" basedir="src/test-data" compress="true"/>
