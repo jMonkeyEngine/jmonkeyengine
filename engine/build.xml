@@ -24,7 +24,7 @@
     
     <!-- compiles the android jar for jME3 -->
     <target name="-compile-android" description="builds the jMonkeyEngine3 distribution for android">
-        <echo message="Compiling Android jMonkeyEngin3.jar"/>
+        <echo message="Compiling Android jMonkeyEngine3.jar"/>
         <path id="android-classpath">
             <pathelement path="lib/android/android.jar"/>
             <pathelement path="build/classes"/>
@@ -37,7 +37,7 @@
                 srcdir="src/android"
                 destdir="build/android"
                 classpathref="android-classpath"
-                excludes="**/OGLESRenderer.java,**/TestsActivity.java,**/AboutActivity.java"/>
+                excludes="**/OGLESRenderer.java,**/TestsActivity.java,**/AboutActivity.java,nbproject/**"/>
     </target>
     
     <!--this target creates the separate jar files for jme3 and modifies the classpath to include them-->
@@ -48,11 +48,14 @@
         <move file="build/classes/jme3test" todir="build/testclasses/" failonerror="false"/>
         <move file="build/classes/jme3game" todir="build/testclasses/" failonerror="false"/>
         <jar jarfile="build/jME3-test.jar" basedir="build/testclasses/" compress="true"/>
+        <move file="build/testclasses/jme3test" todir="build/classes/" failonerror="false"/>
+        <move file="build/testclasses/jme3game" todir="build/classes/" failonerror="false"/>
 
         <!--separate jbullet physics classes-->
         <mkdir dir="build/jbullet/com/jme3/"/>
         <move file="build/classes/com/jme3/bullet" todir="build/jbullet/com/jme3/" failonerror="false"/>
         <jar jarfile="build/jME3-jbullet.jar" basedir="build/jbullet/" compress="true"/>
+        <move file="build/jbullet/com/jme3/bullet" todir="build/classes/com/jme3/" failonerror="false"/>
 
         <!--separate assets-->
         <jar jarfile="build/jME3-testdata.jar" basedir="src/test-data" compress="true"/>
