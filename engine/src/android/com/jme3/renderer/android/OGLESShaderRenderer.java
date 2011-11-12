@@ -2432,12 +2432,12 @@ public class OGLESShaderRenderer implements Renderer {
                             + "data.capacity=" + vb.getData().capacity() + ")");
                 }
 
-                GLES20.glVertexAttribPointer(loc,
-                        vb.getNumComponents(),
-                        convertFormat(vb.getFormat()),
-                        vb.isNormalized(),
-                        vb.getStride(),
-                        vb.getData());
+                Android22Workaround.glVertexAttribPointer(loc,
+                                    vb.getNumComponents(),
+                                    convertFormat(vb.getFormat()),
+                                    vb.isNormalized(),
+                                    vb.getStride(),
+                                    0);
 
                 attribs[loc] = vb;
             }
