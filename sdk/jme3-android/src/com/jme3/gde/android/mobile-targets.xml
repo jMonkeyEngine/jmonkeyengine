@@ -24,6 +24,8 @@
     
     <target name="-copy-android-libs" if="is.android.enabled">
         <property name="libs.jme3-android" location="${libs.jme3-android.classpath}"/>
+        <delete dir="mobile/libs" failonerror="false"/>
+        <mkdir dir="mobile/libs"/>
         <copy todir="mobile/libs" verbose="false" flatten="true">
             <fileset dir="dist/lib/">
                 <exclude name="jMonkeyEngine3.jar"/>
