@@ -90,45 +90,57 @@ public final class SceneViewerTopComponent extends TopComponent {
 
         //We add a mouse wheel listener to the top conmponent in order to correctly dispatch the event ot the cam controller
         //the oGLPanel may naver have the focus.
-        addMouseWheelListener(new MouseWheelListener() {
-
-            public void mouseWheelMoved(final MouseWheelEvent e) {
-                SceneApplication.getApplication().enqueue(new Callable<Void>() {
-
-                    public Void call() throws Exception {
-                        String action = "MouseWheel-";
-                        if (e.getWheelRotation() < 0) {
-                            action = "MouseWheel";
-                        }
-                        app.getActiveCameraController().onAnalog(action, e.getWheelRotation(), 0);
-                        return null;
-                    }
-                });
-            }
-        });
-        addKeyListener(new KeyListener() {
-
-            public void keyTyped(KeyEvent evt) {
-            }
-
-            public void keyPressed(KeyEvent evt) {
-                int code = AwtKeyInput.convertAwtKey(evt.getKeyCode());
-                KeyInputEvent keyEvent = new KeyInputEvent(code, evt.getKeyChar(), true, false);
-                keyEvent.setTime(evt.getWhen());
-                if (app.getActiveCameraController() != null) {
-                    app.getActiveCameraController().onKeyEvent(keyEvent);
-                }
-            }
-
-            public void keyReleased(KeyEvent evt) {
-                int code = AwtKeyInput.convertAwtKey(evt.getKeyCode());
-                KeyInputEvent keyEvent = new KeyInputEvent(code, evt.getKeyChar(), false, false);
-                keyEvent.setTime(evt.getWhen());
-                if (app.getActiveCameraController() != null) {
-                    app.getActiveCameraController().onKeyEvent(keyEvent);
-                }
-            }
-        });
+//        addMouseWheelListener(new MouseWheelListener() {
+//
+//            public void mouseWheelMoved(final MouseWheelEvent e) {
+//                SceneApplication.getApplication().enqueue(new Callable<Void>() {
+//
+//                    public Void call() throws Exception {
+//                        String action = "MouseWheel-";
+//                        if (e.getWheelRotation() < 0) {
+//                            action = "MouseWheel";
+//                        }
+//                        app.getActiveCameraController().onAnalog(action, e.getWheelRotation(), 0);
+//                        return null;
+//                    }
+//                });
+//            }
+//        });
+//        addKeyListener(new KeyListener() {
+//
+//            public void keyTyped(KeyEvent evt) {
+//            }
+//
+//            public void keyPressed(final KeyEvent evt) {
+//                SceneApplication.getApplication().enqueue(new Callable<Void>() {
+//
+//                    public Void call() throws Exception {
+//                        int code = AwtKeyInput.convertAwtKey(evt.getKeyCode());
+//                        KeyInputEvent keyEvent = new KeyInputEvent(code, evt.getKeyChar(), true, false);
+//                        keyEvent.setTime(evt.getWhen());
+//                        if (app.getActiveCameraController() != null) {
+//                            app.getActiveCameraController().onKeyEvent(keyEvent);
+//                        }
+//                        return null;
+//                    }
+//                });
+//            }
+//
+//            public void keyReleased(final KeyEvent evt) {
+//                SceneApplication.getApplication().enqueue(new Callable<Void>() {
+//
+//                    public Void call() throws Exception {
+//                        int code = AwtKeyInput.convertAwtKey(evt.getKeyCode());
+//                        KeyInputEvent keyEvent = new KeyInputEvent(code, evt.getKeyChar(), false, false);
+//                        keyEvent.setTime(evt.getWhen());
+//                        if (app.getActiveCameraController() != null) {
+//                            app.getActiveCameraController().onKeyEvent(keyEvent);
+//                        }
+//                        return null;
+//                    }
+//                });
+//            }
+//        });
 
     }
 
