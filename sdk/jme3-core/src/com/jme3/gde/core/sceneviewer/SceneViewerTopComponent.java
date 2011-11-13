@@ -34,6 +34,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.util.concurrent.Callable;
 import java.util.logging.Logger;
 import org.openide.util.NbBundle;
 import org.openide.windows.TopComponent;
@@ -96,7 +97,13 @@ public final class SceneViewerTopComponent extends TopComponent {
                 if (e.getWheelRotation() < 0) {
                     action = "MouseWheel";
                 }
-                app.getActiveCameraController().onAnalog(action, e.getWheelRotation(), 0);
+                SceneApplication.getApplication().enqueue(new Callable<Void>() {
+
+                    public Void call() throws Exception {
+                        app.getActiveCameraController().onAnalog(action, e.getWheelRotation(), 0);
+                        return null;
+                    }
+                });
             }
         });
         addKeyListener(new KeyListener() {
