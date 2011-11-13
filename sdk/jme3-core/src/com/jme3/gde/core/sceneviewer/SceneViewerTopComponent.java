@@ -92,14 +92,14 @@ public final class SceneViewerTopComponent extends TopComponent {
         //the oGLPanel may naver have the focus.
         addMouseWheelListener(new MouseWheelListener() {
 
-            public void mouseWheelMoved(MouseWheelEvent e) {
-                String action = "MouseWheel-";
-                if (e.getWheelRotation() < 0) {
-                    action = "MouseWheel";
-                }
+            public void mouseWheelMoved(final MouseWheelEvent e) {
                 SceneApplication.getApplication().enqueue(new Callable<Void>() {
 
                     public Void call() throws Exception {
+                        String action = "MouseWheel-";
+                        if (e.getWheelRotation() < 0) {
+                            action = "MouseWheel";
+                        }
                         app.getActiveCameraController().onAnalog(action, e.getWheelRotation(), 0);
                         return null;
                     }
