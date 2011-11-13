@@ -24,6 +24,7 @@
  */
 package com.jme3.gde.core.sceneviewer;
 
+import com.jme3.gde.core.Installer;
 import com.jme3.gde.core.filters.FilterExplorerTopComponent;
 import com.jme3.gde.core.scene.SceneApplication;
 import com.jme3.gde.core.scene.SceneRequest;
@@ -48,6 +49,7 @@ import org.openide.awt.UndoRedo;
 import org.openide.util.Exceptions;
 import org.openide.util.HelpCtx;
 import org.openide.util.Lookup;
+import org.openide.util.NbPreferences;
 
 /**
  * Top component which displays something.
@@ -90,57 +92,59 @@ public final class SceneViewerTopComponent extends TopComponent {
 
         //We add a mouse wheel listener to the top conmponent in order to correctly dispatch the event ot the cam controller
         //the oGLPanel may naver have the focus.
-//        addMouseWheelListener(new MouseWheelListener() {
-//
-//            public void mouseWheelMoved(final MouseWheelEvent e) {
-//                SceneApplication.getApplication().enqueue(new Callable<Void>() {
-//
-//                    public Void call() throws Exception {
-//                        String action = "MouseWheel-";
-//                        if (e.getWheelRotation() < 0) {
-//                            action = "MouseWheel";
-//                        }
-//                        app.getActiveCameraController().onAnalog(action, e.getWheelRotation(), 0);
-//                        return null;
-//                    }
-//                });
-//            }
-//        });
-//        addKeyListener(new KeyListener() {
-//
-//            public void keyTyped(KeyEvent evt) {
-//            }
-//
-//            public void keyPressed(final KeyEvent evt) {
-//                SceneApplication.getApplication().enqueue(new Callable<Void>() {
-//
-//                    public Void call() throws Exception {
-//                        int code = AwtKeyInput.convertAwtKey(evt.getKeyCode());
-//                        KeyInputEvent keyEvent = new KeyInputEvent(code, evt.getKeyChar(), true, false);
-//                        keyEvent.setTime(evt.getWhen());
-//                        if (app.getActiveCameraController() != null) {
-//                            app.getActiveCameraController().onKeyEvent(keyEvent);
-//                        }
-//                        return null;
-//                    }
-//                });
-//            }
-//
-//            public void keyReleased(final KeyEvent evt) {
-//                SceneApplication.getApplication().enqueue(new Callable<Void>() {
-//
-//                    public Void call() throws Exception {
-//                        int code = AwtKeyInput.convertAwtKey(evt.getKeyCode());
-//                        KeyInputEvent keyEvent = new KeyInputEvent(code, evt.getKeyChar(), false, false);
-//                        keyEvent.setTime(evt.getWhen());
-//                        if (app.getActiveCameraController() != null) {
-//                            app.getActiveCameraController().onKeyEvent(keyEvent);
-//                        }
-//                        return null;
-//                    }
-//                });
-//            }
-//        });
+        if ("true".equals(NbPreferences.forModule(Installer.class).get("use_lwjgl_canvas", "false"))) {
+            addMouseWheelListener(new MouseWheelListener() {
+
+                public void mouseWheelMoved(final MouseWheelEvent e) {
+                    SceneApplication.getApplication().enqueue(new Callable<Void>() {
+
+                        public Void call() throws Exception {
+                            String action = "MouseWheel-";
+                            if (e.getWheelRotation() < 0) {
+                                action = "MouseWheel";
+                            }
+                            app.getActiveCameraController().onAnalog(action, e.getWheelRotation(), 0);
+                            return null;
+                        }
+                    });
+                }
+            });
+            addKeyListener(new KeyListener() {
+
+                public void keyTyped(KeyEvent evt) {
+                }
+
+                public void keyPressed(final KeyEvent evt) {
+                    SceneApplication.getApplication().enqueue(new Callable<Void>() {
+
+                        public Void call() throws Exception {
+                            int code = AwtKeyInput.convertAwtKey(evt.getKeyCode());
+                            KeyInputEvent keyEvent = new KeyInputEvent(code, evt.getKeyChar(), true, false);
+                            keyEvent.setTime(evt.getWhen());
+                            if (app.getActiveCameraController() != null) {
+                                app.getActiveCameraController().onKeyEvent(keyEvent);
+                            }
+                            return null;
+                        }
+                    });
+                }
+
+                public void keyReleased(final KeyEvent evt) {
+                    SceneApplication.getApplication().enqueue(new Callable<Void>() {
+
+                        public Void call() throws Exception {
+                            int code = AwtKeyInput.convertAwtKey(evt.getKeyCode());
+                            KeyInputEvent keyEvent = new KeyInputEvent(code, evt.getKeyChar(), false, false);
+                            keyEvent.setTime(evt.getWhen());
+                            if (app.getActiveCameraController() != null) {
+                                app.getActiveCameraController().onKeyEvent(keyEvent);
+                            }
+                            return null;
+                        }
+                    });
+                }
+            });
+        }
 
     }
 
