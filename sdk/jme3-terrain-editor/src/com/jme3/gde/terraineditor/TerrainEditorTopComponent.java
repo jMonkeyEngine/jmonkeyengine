@@ -1102,8 +1102,8 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
         if (request.equals(currentRequest)) {
             setActivatedNodes(new org.openide.nodes.Node[]{});
             SceneApplication.getApplication().removeSceneListener(this);
-            setSceneInfo(null, false);
             currentRequest = null;
+            setSceneInfo(null, false);
             cleanupControllers();
         }
     }
