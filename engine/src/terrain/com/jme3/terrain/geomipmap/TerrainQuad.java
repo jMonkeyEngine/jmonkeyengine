@@ -80,8 +80,7 @@ import java.util.logging.Logger;
  *
  * 
  * Heightmap coordinates start from the bottom left of the world and work towards the
- * top right. This will seem upside down, but the texture coordinates compensate; and
- * it allows you to easily get the heightmap values at real world X,Z coordinates.
+ * top right.
  * 
  *  +x
  *  ^
@@ -108,7 +107,7 @@ public class TerrainQuad extends Node implements Terrain {
 
     protected float offsetAmount;
 
-    protected int quadrant = 1; // 1=upper left, 2=lower left, 3=upper right, 4=lower right
+    protected int quadrant = 0; // 1=upper left, 2=lower left, 3=upper right, 4=lower right
 
     //protected LodCalculatorFactory lodCalculatorFactory;
     //protected LodCalculator lodCalculator;
@@ -646,13 +645,14 @@ public class TerrainQuad extends Node implements Terrain {
 
     /**
      * Quadrants, world coordinates, and heightmap coordinates (Y-up):
-     *         x
-     *         | u
-     *        2|4 v
-     *  -z ----+---- z
-     *     -v 1|3
-     *      -u |
-     *        -x
+     * 
+     *         -z
+     *      -u | 
+     *    -v  1|3 
+     *  -x ----+---- x
+     *        2|4 u
+     *         | v
+     *         z
      * <code>createQuad</code> generates four new quads from this quad.
      * The heightmap's top left (0,0) coordinate is at the bottom, -x,-z
      * coordinate of the terrain, so it grows in the positive x.z direction.
@@ -669,7 +669,7 @@ public class TerrainQuad extends Node implements Terrain {
         //if (lodCalculator == null)
         //    lodCalculator = createDefaultLodCalculator(); // set a default one
 
-        // 1 upper left of heightmap, lower left quad
+        // 1 upper left of heightmap, upper left quad
         float[] heightBlock1 = createHeightSubBlock(heightMap, 0, 0, split);
 
         Vector3f origin1 = new Vector3f(-quarterSize * stepScale.x, 0,
@@ -687,7 +687,7 @@ public class TerrainQuad extends Node implements Terrain {
         quad1.quadrant = 1;
         this.attachChild(quad1);
 
-        // 2 lower left of heightmap, upper left quad
+        // 2 lower left of heightmap, lower left quad
         float[] heightBlock2 = createHeightSubBlock(heightMap, 0, split - 1,
                         split);
 
@@ -707,7 +707,7 @@ public class TerrainQuad extends Node implements Terrain {
         quad2.quadrant = 2;
         this.attachChild(quad2);
 
-        // 3 upper right of heightmap, lower right quad
+        // 3 upper right of heightmap, upper right quad
         float[] heightBlock3 = createHeightSubBlock(heightMap, split - 1, 0,
                         split);
 
@@ -727,7 +727,7 @@ public class TerrainQuad extends Node implements Terrain {
         quad3.quadrant = 3;
         this.attachChild(quad3);
         
-        // 4 lower right of heightmap, upper right quad
+        // 4 lower right of heightmap, lower right quad
         float[] heightBlock4 = createHeightSubBlock(heightMap, split - 1,
                         split - 1, split);
 
@@ -779,7 +779,7 @@ public class TerrainQuad extends Node implements Terrain {
 
         offsetAmount += quarterSize;
 
-        // 1 upper left
+        // 1 lower left
         float[] heightBlock1 = createHeightSubBlock(heightMap, 0, 0, split);
 
         Vector3f origin1 = new Vector3f(-halfSize * stepScale.x, 0, -halfSize
@@ -801,7 +801,7 @@ public class TerrainQuad extends Node implements Terrain {
         //patch1.setLodCalculator(lodCalculator);
         //TangentBinormalGenerator.generate(patch1);
 
-        // 2 lower left
+        // 2 upper left
         float[] heightBlock2 = createHeightSubBlock(heightMap, 0, split - 1,
                         split);
 
@@ -823,7 +823,7 @@ public class TerrainQuad extends Node implements Terrain {
         //patch2.setLodCalculator(lodCalculator);
         //TangentBinormalGenerator.generate(patch2);
 
-        // 3 upper right
+        // 3 lower right
         float[] heightBlock3 = createHeightSubBlock(heightMap, split - 1, 0,
                         split);
 
@@ -845,7 +845,7 @@ public class TerrainQuad extends Node implements Terrain {
         //patch3.setLodCalculator(lodCalculator);
         //TangentBinormalGenerator.generate(patch3);
 
-        // 4 lower right
+        // 4 upper right
         float[] heightBlock4 = createHeightSubBlock(heightMap, split - 1,
                         split - 1, split);
 

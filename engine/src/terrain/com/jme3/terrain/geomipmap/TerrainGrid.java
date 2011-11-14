@@ -50,12 +50,17 @@ import com.jme3.terrain.heightmap.HeightMapGrid;
 import java.util.concurrent.Callable;
 
 /**
+ * 
+ * The grid is indexed by cells. Each cell has an integer XZ coordinate originating at 0,0.
+ * TerrainGrid will piggyback on the TerrainLodControl so it can use the camera for its
+ * updates as well. It does this in the overwritten update() method.
+ * 
  * @author Anthyon
  */
 public class TerrainGrid extends TerrainQuad {
 
     protected static final Logger log = Logger.getLogger(TerrainGrid.class.getCanonicalName());
-    protected Vector3f currentCell;
+    protected Vector3f currentCamCell;
     protected int quarterSize;
     protected int quadSize;
     protected HeightMapGrid heightMapGrid;
@@ -77,7 +82,6 @@ public class TerrainGrid extends TerrainQuad {
         }
 
         public void run() {
-
             for (int i = 0; i < 4; i++) {
                 for (int j = 0; j < 4; j++) {
                     int quadIdx = i * 4 + j;
@@ -86,7 +90,7 @@ public class TerrainGrid extends TerrainQuad {
                     if (q == null) {
                         // create the new Quad since it doesn't exist
                         HeightMap heightMapAt = heightMapGrid.getHeightMapAt(temp);
-                        q = new TerrainQuad(getName() + "Quad" + temp, patchSize, totalSize, quadSize, heightMapAt == null ? null : heightMapAt.getHeightMap());
+                        q = new TerrainQuad(getName() + "Quad" + temp, patchSize, quadSize, heightMapAt == null ? null : heightMapAt.getHeightMap());
                         q.setMaterial(material.clone());
                         log.log(Level.FINE, "Loaded TerrainQuad {0}", q.getName());
                     }
@@ -116,13 +120,13 @@ public class TerrainGrid extends TerrainQuad {
     }
 
     protected int getQuadrant(int quadIndex) {
-        if (quadIndex == 9) {
+        if (quadIndex == 5) {
             return 1;
-        } else if (quadIndex == 5) {
+        } else if (quadIndex == 9) {
             return 2;
-        } else if (quadIndex == 10) {
-            return 3;
         } else if (quadIndex == 6) {
+            return 3;
+        } else if (quadIndex == 10) {
             return 4;
         }
         return 0; // error
@@ -141,16 +145,22 @@ public class TerrainGrid extends TerrainQuad {
         this.totalSize = maxVisibleSize;
         this.offset = offset;
         this.offsetAmount = offsetAmount;
-        //this.lodCalculatorFactory = lodCalculatorFactory;
         this.gridOffset = new int[]{0,0};
-        //if (lodCalculatorFactory == null) {
-        //    lodCalculatorFactory = new LodDistanceCalculatorFactory();
-        //}
+        
+        /*
+         *        -z
+         *         | 
+         *        1|3 
+         *  -x ----+---- x
+         *        2|4
+         *         |
+         *         z
+         */
         this.quadIndex = new Vector3f[]{
-        new Vector3f(-1, 0, 2), new Vector3f(0, 0, 2), new Vector3f(1, 0, 2), new Vector3f(2, 0, 2),
-        new Vector3f(-1, 0, 1), new Vector3f(0, 0, 1), new Vector3f(1, 0, 1), new Vector3f(2, 0, 1),
+        new Vector3f(-1, 0, -1), new Vector3f(0, 0, -1), new Vector3f(1, 0, -1), new Vector3f(2, 0, -1),
         new Vector3f(-1, 0, 0), new Vector3f(0, 0, 0), new Vector3f(1, 0, 0), new Vector3f(2, 0, 0),
-        new Vector3f(-1, 0, -1), new Vector3f(0, 0, -1), new Vector3f(1, 0, -1), new Vector3f(-2, 0, -1)};
+        new Vector3f(-1, 0, 1), new Vector3f(0, 0, 1), new Vector3f(1, 0, 1), new Vector3f(2, 0, 1),
+        new Vector3f(-1, 0, 2), new Vector3f(0, 0, 2), new Vector3f(1, 0, 2), new Vector3f(2, 0, 2)};
 
         addControl(new UpdateControl());
     }
@@ -170,7 +180,7 @@ public class TerrainGrid extends TerrainQuad {
         if (this.material == null) {
             throw new RuntimeException("Material must be set prior to call of initialize");
         }
-        Vector3f camCell = this.getCell(location);
+        Vector3f camCell = this.getCamCell(location);
         this.updateChildrens(camCell);
         for (TerrainGridListener l : this.listeners.values()) {
             l.gridMoved(camCell);
@@ -184,13 +194,14 @@ public class TerrainGrid extends TerrainQuad {
         // 1: every camera has an associated grid, then the location is not enough to identify which camera location has changed
         // 2: grids are associated with locations, and no incremental update is done, we load new grids for new locations, and unload those that are not needed anymore
         Vector3f cam = locations.get(0);
-        Vector3f camCell = this.getCell(cam);
+        Vector3f camCell = this.getCamCell(cam); // get the grid index value of where the camera is (ie. 2,1)
         if(cellsLoaded>1){                  // Check if cells are updated before updating gridoffset.
             gridOffset[0] = Math.round(camCell.x*(size/2));
             gridOffset[1] = Math.round(camCell.z*(size/2));
             cellsLoaded=0;
         }
-        if (camCell.x != this.currentCell.x || camCell.z != currentCell.z) {
+        if (camCell.x != this.currentCamCell.x || camCell.z != currentCamCell.z) {
+            // if the camera has moved into a new cell, load new terrain into the visible 4 center quads
             this.updateChildrens(camCell);
             for (TerrainGridListener l : this.listeners.values()) {
                 l.gridMoved(camCell);
@@ -199,10 +210,21 @@ public class TerrainGrid extends TerrainQuad {
         super.update(locations, lodCalculator);
     }
 
-    public Vector3f getCell(Vector3f location) {
-        final Vector3f v = location.add(this.getWorldScale().mult((this.quadSize - 1)/2)).divide(this.getWorldScale().mult(this.quadSize - 1)).add(0.5f, 0, 0.5f);
-        
-        return new Vector3f(FastMath.floor(v.x), 0, FastMath.floor(v.z));
+    public Vector3f getCamCell(Vector3f location) {
+        Vector3f tile = getTileCell(location);
+        Vector3f offsetHalf = new Vector3f(-0.5f, 0, -0.5f);
+        Vector3f shifted = tile.subtract(offsetHalf);
+        return new Vector3f(FastMath.floor(shifted.x), 0, FastMath.floor(shifted.z));
+    }
+    
+    /**
+     * Centered at 0,0.
+     * Get the tile index location in integer form:
+     * @param location world coordinate
+     */
+    public Vector3f getTileCell(Vector3f location) {
+        Vector3f tileLoc = location.divide(this.getWorldScale().mult(this.quadSize));
+        return tileLoc;
     }
 
     protected void removeQuad(int idx) {
@@ -211,7 +233,7 @@ public class TerrainGrid extends TerrainQuad {
                 this.getQuad(idx).removeControl(RigidBodyControl.class);
             }
             for (TerrainGridListener l : listeners.values()) {
-                l.tileDetached(getCell(this.getQuad(idx).getWorldTranslation()), this.getQuad(idx));
+                l.tileDetached(getTileCell(this.getQuad(idx).getWorldTranslation()), this.getQuad(idx));
             }
             this.detachChild(this.getQuad(idx));
             cellsLoaded++; // For gridoffset calc., maybe the run() method is a better location for this.
@@ -223,8 +245,7 @@ public class TerrainGrid extends TerrainQuad {
      */
     protected void attachQuadAt(TerrainQuad q, int quadrant, Vector3f cam) {
         this.removeQuad(quadrant);
-        //q.setMaterial(this.material);
-        //q.setLocalTranslation(quadOrigins[quadrant - 1]);
+        
         q.setQuadrant((short) quadrant);
         this.attachChild(q);
 
@@ -234,53 +255,66 @@ public class TerrainGrid extends TerrainQuad {
         for (TerrainGridListener l : listeners.values()) {
             l.tileAttached(cam, q);
         }
-
+        System.err.println("attachQuadAt "+quadrant+", children: "+this.getChildren().size());
         updateModelBound();
     }
 
-    protected void updateChildrens(Vector3f cam) {
-        // ---------------------------------------------------
-        // LRU cache is used, so elements that need to remain
-        // should be touched.
-        // ---------------------------------------------------
+    /**
+     * Called when the camera has moved into a new cell. We need to
+     * update what quads are in the scene now.
+     * 
+     * Step 1: touch cache
+     * LRU cache is used, so elements that need to remain
+     * should be touched.
+     *
+     * Step 2: load new quads in background thread
+     * if the camera has moved into a new cell, we load in new quads
+     * @param camCell the cell the camera is in
+     */
+    protected void updateChildrens(Vector3f camCell) {
+        
         int dx = 0;
         int dy = 0;
-        if (currentCell != null) {
-            dx = (int) (cam.x - currentCell.x);
-            dy = (int) (cam.z - currentCell.z);
+        if (currentCamCell != null) {
+            dx = (int) (camCell.x - currentCamCell.x);
+            dy = (int) (camCell.z - currentCamCell.z);
         }
 
-        int kxm = 0;
-        int kxM = 4;
-        int kym = 0;
-        int kyM = 4;
-        if (dx == -1) {
-            kxM = 3;
-        } else if (dx == 1) {
-            kxm = 1;
+        int xMin = 0;
+        int xMax = 4;
+        int yMin = 0;
+        int yMax = 4;
+        if (dx == -1) { // camera moved to -X direction
+            xMax = 3;
+        } else if (dx == 1) { // camera moved to +X direction
+            xMin = 1;
         }
 
-        if (dy == -1) {
-            kyM = 3;
-        } else if (dy == 1) {
-            kym = 1;
+        if (dy == -1) { // camera moved to -Y direction
+            yMax = 3;
+        } else if (dy == 1) { // camera moved to +Y direction
+            yMin = 1;
         }
 
-        for (int i = kym; i < kyM; i++) {
-            for (int j = kxm; j < kxM; j++) {
-                cache.get(cam.add(quadIndex[i * 4 + j]));
+        // Touch the items in the cache that we are and will be interested in.
+        // We activate cells in the direction we are moving. If we didn't move 
+        // either way in one of the axes (say X or Y axis) then they are all touched.
+        for (int i = yMin; i < yMax; i++) {
+            for (int j = xMin; j < xMax; j++) {
+                cache.get(camCell.add(quadIndex[i * 4 + j]));
             }
         }
         // ---------------------------------------------------
         // ---------------------------------------------------
 
         if (executor == null) {
+            // use the same executor as the LODControl
             executor = createExecutorService();
         }
 
-        executor.submit(new UpdateQuadCache(cam));
+        executor.submit(new UpdateQuadCache(camCell));
 
-        this.currentCell = cam;
+        this.currentCamCell = camCell;
     }
 
     public void addListener(String id, TerrainGridListener listener) {
@@ -288,7 +322,7 @@ public class TerrainGrid extends TerrainQuad {
     }
 
     public Vector3f getCurrentCell() {
-        return this.currentCell;
+        return this.currentCamCell;
     }
 
     public void removeListener(String id) {
@@ -320,43 +354,4 @@ public class TerrainGrid extends TerrainQuad {
         return super.getHeightmapHeight(x-gridOffset[0], z-gridOffset[1]);
     }
 
-    @Override
-    protected TerrainQuad findDownQuad() {
-        if (quadrant == 1) {
-            return cache.get(currentCell.add(quadIndex[13]));
-        } else if (quadrant == 3) {
-            return cache.get(currentCell.add(quadIndex[14]));
-        }
-        return null;
-    }
-
-    @Override
-    protected TerrainQuad findLeftQuad() {
-        if (quadrant == 1) {
-            return cache.get(currentCell.add(quadIndex[8]));
-        } else if (quadrant == 2) {
-            return cache.get(currentCell.add(quadIndex[4]));
-        }
-        return null;
-    }
-
-    @Override
-    protected TerrainQuad findRightQuad() {
-        if (quadrant == 3) {
-            return cache.get(currentCell.add(quadIndex[11]));
-        } else if (quadrant == 4) {
-            return cache.get(currentCell.add(quadIndex[7]));
-        }
-        return null;
-    }
-
-    @Override
-    protected TerrainQuad findTopQuad() {
-        if (quadrant == 2) {
-            return cache.get(currentCell.add(quadIndex[1]));
-        } else if (quadrant == 4) {
-            return cache.get(currentCell.add(quadIndex[2]));
-        }
-        return null;
-    }
 }
