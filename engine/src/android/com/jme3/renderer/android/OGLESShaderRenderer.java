@@ -407,9 +407,12 @@ public class OGLESShaderRenderer implements Renderer {
 
 //	checkGLError();
 
-        if ("2.2".equals(Build.VERSION.RELEASE)) {
-            useVBO = false;
-        } else {
+        useVBO = false;
+        
+        // NOTE: SDK_INT is only available since 1.6, 
+        // but for jME3 it doesn't matter since android versions 1.5 and below
+        // are not supported.
+        if (Build.VERSION.SDK_INT >= 9){
             useVBO = true;
         }
         
