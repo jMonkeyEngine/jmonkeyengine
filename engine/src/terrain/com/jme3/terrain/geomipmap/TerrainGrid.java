@@ -105,6 +105,7 @@ public class TerrainGrid extends TerrainQuad {
 
                             public Object call() throws Exception {
                                 attachQuadAt(newQuad, quadrant, temp);
+                                newQuad.resetCachedNeighbours();
                                 return null;
                             }
                         });
@@ -255,7 +256,6 @@ public class TerrainGrid extends TerrainQuad {
         for (TerrainGridListener l : listeners.values()) {
             l.tileAttached(cam, q);
         }
-        System.err.println("attachQuadAt "+quadrant+", children: "+this.getChildren().size());
         updateModelBound();
     }
 

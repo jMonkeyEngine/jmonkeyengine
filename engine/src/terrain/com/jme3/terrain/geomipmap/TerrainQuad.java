@@ -546,6 +546,24 @@ public class TerrainQuad extends Node implements Terrain {
     }
 
     /**
+     * TerrainQuad caches neighbours for faster LOD checks.
+     * Sometimes you might want to reset this cache (for instance in TerrainGrid)
+     */
+    protected void resetCachedNeighbours() {
+        if (children != null) {
+            for (int x = children.size(); --x >= 0;) {
+                Spatial child = children.get(x);
+                if (child instanceof TerrainQuad) {
+                    ((TerrainQuad) child).resetCachedNeighbours();
+                } else if (child instanceof TerrainPatch) {
+                    TerrainPatch patch = (TerrainPatch) child;
+                    patch.searchedForNeighboursAlready = false;
+                }
+            }
+        }
+    }
+    
+    /**
      * Find any neighbours that should have their edges seamed because another neighbour
      * changed its LOD to a greater value (less detailed)
      */
