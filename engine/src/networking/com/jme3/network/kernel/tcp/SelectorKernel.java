@@ -265,6 +265,9 @@ public class SelectorKernel extends AbstractKernel
             // Make sure the channel is closed
             serverChannel.close();
 
+            // Force the selector to stop blocking
+            wakeupSelector();
+
             // And wait for it
             join();
         }
