@@ -9,6 +9,7 @@ import com.jme3.bullet.collision.shapes.CapsuleCollisionShape;
 import com.jme3.bullet.collision.shapes.HeightfieldCollisionShape;
 import com.jme3.bullet.control.CharacterControl;
 import com.jme3.bullet.control.RigidBodyControl;
+import com.jme3.export.binary.BinaryExporter;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
@@ -25,6 +26,9 @@ import com.jme3.terrain.heightmap.Namer;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
 import java.io.File;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class TerrainGridTest extends SimpleApplication {
 
@@ -138,6 +142,12 @@ public class TerrainGridTest extends SimpleApplication {
                 }
 
                 public void tileAttached(Vector3f cell, TerrainQuad quad) {
+//                    try {
+//                        BinaryExporter.getInstance().save(quad, new File("/Users/normenhansen/Documents/Code/jme3/engine/src/test-data/TerrainGrid/"
+//                                + "testgrid_" + Math.round(cell.x) + "_" + Math.round(cell.y) + "_" + Math.round(cell.z) + ".j3o"));
+//                    } catch (IOException ex) {
+//                        Logger.getLogger(TerrainFractalGridTest.class.getName()).log(Level.SEVERE, null, ex);
+//                    }
                     quad.addControl(new RigidBodyControl(new HeightfieldCollisionShape(quad.getHeightMap(), terrain.getLocalScale()), 0));
                     bulletAppState.getPhysicsSpace().add(quad);
                 }
