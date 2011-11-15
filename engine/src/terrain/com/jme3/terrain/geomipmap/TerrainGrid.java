@@ -106,7 +106,7 @@ public class TerrainGrid extends TerrainQuad {
     protected int quarterSize;
     protected int quadSize;
     protected HeightMapGrid heightMapGrid;
-    protected TerrainQuadGrid terrainQuadGrid;
+    protected TerrainGridTileLoader terrainQuadGrid;
     protected Vector3f[] quadIndex;
     protected Map<String, TerrainGridListener> listeners = new HashMap<String, TerrainGridListener>();
     protected Material material;
@@ -191,7 +191,7 @@ public class TerrainGrid extends TerrainQuad {
         return 0; // error
     }
 
-    public TerrainGrid(String name, int patchSize, int maxVisibleSize, Vector3f scale, TerrainQuadGrid terrainQuadGrid,
+    public TerrainGrid(String name, int patchSize, int maxVisibleSize, Vector3f scale, TerrainGridTileLoader terrainQuadGrid,
             Vector2f offset, float offsetAmount) {
         this.name = name;
         this.patchSize = patchSize;
@@ -206,11 +206,11 @@ public class TerrainGrid extends TerrainQuad {
         terrainQuadGrid.setQuadSize(this.quadSize);
     }
 
-    public TerrainGrid(String name, int patchSize, int maxVisibleSize, Vector3f scale, TerrainQuadGrid terrainQuadGrid) {
+    public TerrainGrid(String name, int patchSize, int maxVisibleSize, Vector3f scale, TerrainGridTileLoader terrainQuadGrid) {
         this(name, patchSize, maxVisibleSize, scale, terrainQuadGrid, new Vector2f(), 0);
     }
 
-    public TerrainGrid(String name, int patchSize, int maxVisibleSize, TerrainQuadGrid terrainQuadGrid) {
+    public TerrainGrid(String name, int patchSize, int maxVisibleSize, TerrainGridTileLoader terrainQuadGrid) {
         this(name, patchSize, maxVisibleSize, Vector3f.UNIT_XYZ, terrainQuadGrid);
     }
 
@@ -450,7 +450,7 @@ public class TerrainGrid extends TerrainQuad {
         stepScale = (Vector3f) c.readSavable("stepScale", null);
         offset = (Vector2f) c.readSavable("offset", null);
         offsetAmount = c.readFloat("offsetAmount", 0);
-        terrainQuadGrid = (TerrainQuadGrid) c.readSavable("terrainQuadGrid", null);
+        terrainQuadGrid = (TerrainGridTileLoader) c.readSavable("terrainQuadGrid", null);
         material = (Material) c.readSavable("material", null);
         initData();
         if (terrainQuadGrid != null) {

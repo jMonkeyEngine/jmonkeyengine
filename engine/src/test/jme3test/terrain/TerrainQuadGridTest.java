@@ -20,7 +20,7 @@ import com.jme3.terrain.geomipmap.TerrainGrid;
 import com.jme3.terrain.geomipmap.TerrainGridListener;
 import com.jme3.terrain.geomipmap.TerrainLodControl;
 import com.jme3.terrain.geomipmap.TerrainQuad;
-import com.jme3.terrain.geomipmap.grid.AssetQuadGrid;
+import com.jme3.terrain.geomipmap.grid.AssetTileLoader;
 import com.jme3.terrain.geomipmap.lodcalc.DistanceLodCalculator;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
@@ -97,7 +97,7 @@ public class TerrainQuadGridTest extends SimpleApplication {
 
         this.mat_terrain.setFloat("terrainSize", 129);
 //quad.getHeightMap(), terrain.getLocalScale()), 0
-        AssetQuadGrid grid = new AssetQuadGrid(assetManager, "testgrid", "TerrainGrid");
+        AssetTileLoader grid = new AssetTileLoader(assetManager, "testgrid", "TerrainGrid");
         this.terrain = new TerrainGrid("terrain", 65, 257, grid);
 
         this.terrain.setMaterial(this.mat_terrain);

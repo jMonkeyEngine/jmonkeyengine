@@ -11,7 +11,7 @@ import com.jme3.math.Vector3f;
  *
  * @author normenhansen
  */
-public interface TerrainQuadGrid extends Savable {
+public interface TerrainGridTileLoader extends Savable {
 
     public TerrainQuad getTerrainQuadAt(Vector3f location);
 

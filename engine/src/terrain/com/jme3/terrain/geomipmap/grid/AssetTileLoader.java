@@ -11,7 +11,7 @@ import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
 import com.jme3.math.Vector3f;
 import com.jme3.terrain.geomipmap.TerrainQuad;
-import com.jme3.terrain.geomipmap.TerrainQuadGrid;
+import com.jme3.terrain.geomipmap.TerrainGridTileLoader;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -20,7 +20,7 @@ import java.util.logging.Logger;
  *
  * @author normenhansen
  */
-public class AssetQuadGrid implements TerrainQuadGrid {
+public class AssetTileLoader implements TerrainGridTileLoader {
 
     private AssetManager manager;
     private String assetPath;
@@ -29,10 +29,10 @@ public class AssetQuadGrid implements TerrainQuadGrid {
     private int patchSize;
     private int quadSize;
 
-    public AssetQuadGrid() {
+    public AssetTileLoader() {
     }
 
-    public AssetQuadGrid(AssetManager manager, String name, String assetPath) {
+    public AssetTileLoader(AssetManager manager, String name, String assetPath) {
         this.manager = manager;
         this.name = name;
         this.assetPath = assetPath;
