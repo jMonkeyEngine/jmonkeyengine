@@ -82,6 +82,10 @@ public class TerrainQuadGridSerializationTest extends SimpleApplication {
                 }
 
                 public void tileAttached(Vector3f cell, TerrainQuad quad) {
+                    //workaround for bugged test j3o's
+                    while(quad.getControl(RigidBodyControl.class)!=null){
+                        quad.removeControl(RigidBodyControl.class);
+                    }
                     quad.addControl(new RigidBodyControl(new HeightfieldCollisionShape(quad.getHeightMap(), terrain.getLocalScale()), 0));
                     bulletAppState.getPhysicsSpace().add(quad);
                 }
