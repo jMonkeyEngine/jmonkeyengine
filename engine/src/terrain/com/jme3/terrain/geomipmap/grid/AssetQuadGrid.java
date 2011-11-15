@@ -76,10 +76,7 @@ public class AssetQuadGrid implements TerrainQuadGrid {
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule c = ex.getCapsule(this);
         c.write(assetPath, "assetPath", null);
-        c.write(size, "size", 0);
         c.write(name, "name", null);
-        c.write(patchSize, "patchSize", 0);
-        c.write(quadSize, "quadSize", 0);
     }
 
     public void read(JmeImporter im) throws IOException {
@@ -87,8 +84,5 @@ public class AssetQuadGrid implements TerrainQuadGrid {
         manager = im.getAssetManager();
         assetPath = c.readString("assetPath", null);
         name = c.readString("name", null);
-        size = c.readInt("size", 0);
-        patchSize = c.readInt("patchSize", 0);
-        quadSize = c.readInt("quadSize", 0);
     }
 }
