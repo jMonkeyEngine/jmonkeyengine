@@ -31,10 +31,15 @@
  */
 package com.jme3.terrain.geomipmap;
 
+import com.jme3.export.JmeExporter;
+import com.jme3.export.JmeImporter;
 import com.jme3.scene.control.UpdateControl;
 import com.jme3.bullet.PhysicsSpace;
 import com.jme3.bullet.control.RigidBodyControl;
+import com.jme3.export.InputCapsule;
+import com.jme3.export.OutputCapsule;
 import com.jme3.terrain.heightmap.HeightMap;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -101,6 +106,7 @@ public class TerrainGrid extends TerrainQuad {
     protected int quarterSize;
     protected int quadSize;
     protected HeightMapGrid heightMapGrid;
+    protected TerrainQuadGrid terrainQuadGrid;
     protected Vector3f[] quadIndex;
     protected Map<String, TerrainGridListener> listeners = new HashMap<String, TerrainGridListener>();
     protected Material material;
@@ -134,11 +140,17 @@ public class TerrainGrid extends TerrainQuad {
                     final Vector3f temp = location.add(quadIndex[quadIdx]);
                     TerrainQuad q = cache.get(temp);
                     if (q == null) {
-                        // create the new Quad since it doesn't exist
-                        HeightMap heightMapAt = heightMapGrid.getHeightMapAt(temp);
-                        q = new TerrainQuad(getName() + "Quad" + temp, patchSize, quadSize, heightMapAt == null ? null : heightMapAt.getHeightMap());
-                        q.setMaterial(material.clone());
-                        log.log(Level.FINE, "Loaded TerrainQuad {0}", q.getName());
+                        if (heightMapGrid != null) {
+                            // create the new Quad since it doesn't exist
+                            HeightMap heightMapAt = heightMapGrid.getHeightMapAt(temp);
+                            q = new TerrainQuad(getName() + "Quad" + temp, patchSize, quadSize, heightMapAt == null ? null : heightMapAt.getHeightMap());
+                            q.setMaterial(material.clone());
+                            log.log(Level.FINE, "Loaded TerrainQuad {0} from HeightMapGrid", q.getName());
+                        } else if (terrainQuadGrid != null) {
+                            q = terrainQuadGrid.getTerrainQuadAt(location);
+                            q.setMaterial(material);
+                            log.log(Level.FINE, "Loaded TerrainQuad {0} from TerrainQuadGrid", q.getName());
+                        }
                     }
                     cache.put(temp, q);
 
@@ -179,6 +191,50 @@ public class TerrainGrid extends TerrainQuad {
         return 0; // error
     }
 
+    //TODO: unify constructors
+    public TerrainGrid(String name, int patchSize, int maxVisibleSize, Vector3f scale, TerrainQuadGrid terrainQuadGrid,
+            Vector2f offset, float offsetAmount) {
+        this.name = name;
+        this.patchSize = patchSize;
+        this.size = maxVisibleSize;
+        this.quarterSize = maxVisibleSize >> 2;
+        this.quadSize = (maxVisibleSize + 1) >> 1;
+        this.stepScale = scale;
+        this.terrainQuadGrid = terrainQuadGrid;
+        terrainQuadGrid.setSize(this.size);
+        terrainQuadGrid.setPatchSize(this.patchSize);
+        terrainQuadGrid.setQuadSize(this.quadSize);
+        this.totalSize = maxVisibleSize;
+        this.offset = offset;
+        this.offsetAmount = offsetAmount;
+        this.gridOffset = new int[]{0, 0};
+
+        /*
+         *        -z
+         *         | 
+         *        1|3 
+         *  -x ----+---- x
+         *        2|4
+         *         |
+         *         z
+         */
+        this.quadIndex = new Vector3f[]{
+            new Vector3f(-1, 0, -1), new Vector3f(0, 0, -1), new Vector3f(1, 0, -1), new Vector3f(2, 0, -1),
+            new Vector3f(-1, 0, 0), new Vector3f(0, 0, 0), new Vector3f(1, 0, 0), new Vector3f(2, 0, 0),
+            new Vector3f(-1, 0, 1), new Vector3f(0, 0, 1), new Vector3f(1, 0, 1), new Vector3f(2, 0, 1),
+            new Vector3f(-1, 0, 2), new Vector3f(0, 0, 2), new Vector3f(1, 0, 2), new Vector3f(2, 0, 2)};
+
+        addControl(new UpdateControl());
+    }
+
+    public TerrainGrid(String name, int patchSize, int maxVisibleSize, Vector3f scale, TerrainQuadGrid terrainQuadGrid) {
+        this(name, patchSize, maxVisibleSize, scale, terrainQuadGrid, new Vector2f(), 0);
+    }
+
+    public TerrainGrid(String name, int patchSize, int maxVisibleSize, TerrainQuadGrid terrainQuadGrid) {
+        this(name, patchSize, maxVisibleSize, Vector3f.UNIT_XYZ, terrainQuadGrid);
+    }
+
     public TerrainGrid(String name, int patchSize, int maxVisibleSize, Vector3f scale, HeightMapGrid heightMapGrid,
             Vector2f offset, float offsetAmount) {
         this.name = name;
@@ -192,8 +248,8 @@ public class TerrainGrid extends TerrainQuad {
         this.totalSize = maxVisibleSize;
         this.offset = offset;
         this.offsetAmount = offsetAmount;
-        this.gridOffset = new int[]{0,0};
-        
+        this.gridOffset = new int[]{0, 0};
+
         /*
          *        -z
          *         | 
@@ -204,10 +260,10 @@ public class TerrainGrid extends TerrainQuad {
          *         z
          */
         this.quadIndex = new Vector3f[]{
-        new Vector3f(-1, 0, -1), new Vector3f(0, 0, -1), new Vector3f(1, 0, -1), new Vector3f(2, 0, -1),
-        new Vector3f(-1, 0, 0), new Vector3f(0, 0, 0), new Vector3f(1, 0, 0), new Vector3f(2, 0, 0),
-        new Vector3f(-1, 0, 1), new Vector3f(0, 0, 1), new Vector3f(1, 0, 1), new Vector3f(2, 0, 1),
-        new Vector3f(-1, 0, 2), new Vector3f(0, 0, 2), new Vector3f(1, 0, 2), new Vector3f(2, 0, 2)};
+            new Vector3f(-1, 0, -1), new Vector3f(0, 0, -1), new Vector3f(1, 0, -1), new Vector3f(2, 0, -1),
+            new Vector3f(-1, 0, 0), new Vector3f(0, 0, 0), new Vector3f(1, 0, 0), new Vector3f(2, 0, 0),
+            new Vector3f(-1, 0, 1), new Vector3f(0, 0, 1), new Vector3f(1, 0, 1), new Vector3f(2, 0, 1),
+            new Vector3f(-1, 0, 2), new Vector3f(0, 0, 2), new Vector3f(1, 0, 2), new Vector3f(2, 0, 2)};
 
         addControl(new UpdateControl());
     }
@@ -242,10 +298,10 @@ public class TerrainGrid extends TerrainQuad {
         // 2: grids are associated with locations, and no incremental update is done, we load new grids for new locations, and unload those that are not needed anymore
         Vector3f cam = locations.get(0);
         Vector3f camCell = this.getCamCell(cam); // get the grid index value of where the camera is (ie. 2,1)
-        if(cellsLoaded>1){                  // Check if cells are updated before updating gridoffset.
-            gridOffset[0] = Math.round(camCell.x*(size/2));
-            gridOffset[1] = Math.round(camCell.z*(size/2));
-            cellsLoaded=0;
+        if (cellsLoaded > 1) {                  // Check if cells are updated before updating gridoffset.
+            gridOffset[0] = Math.round(camCell.x * (size / 2));
+            gridOffset[1] = Math.round(camCell.z * (size / 2));
+            cellsLoaded = 0;
         }
         if (camCell.x != this.currentCamCell.x || camCell.z != currentCamCell.z) {
             // if the camera has moved into a new cell, load new terrain into the visible 4 center quads
@@ -263,7 +319,7 @@ public class TerrainGrid extends TerrainQuad {
         Vector3f shifted = tile.subtract(offsetHalf);
         return new Vector3f(FastMath.floor(shifted.x), 0, FastMath.floor(shifted.z));
     }
-    
+
     /**
      * Centered at 0,0.
      * Get the tile index location in integer form:
@@ -292,7 +348,7 @@ public class TerrainGrid extends TerrainQuad {
      */
     protected void attachQuadAt(TerrainQuad q, int quadrant, Vector3f cam) {
         this.removeQuad(quadrant);
-        
+
         q.setQuadrant((short) quadrant);
         this.attachChild(q);
 
@@ -318,7 +374,7 @@ public class TerrainGrid extends TerrainQuad {
      * @param camCell the cell the camera is in
      */
     protected void updateChildrens(Vector3f camCell) {
-        
+
         int dx = 0;
         int dy = 0;
         if (currentCamCell != null) {
@@ -394,10 +450,61 @@ public class TerrainGrid extends TerrainQuad {
         }
         super.adjustHeight(xz, height);
     }
-    
+
     @Override
     protected float getHeightmapHeight(int x, int z) {
-        return super.getHeightmapHeight(x-gridOffset[0], z-gridOffset[1]);
+        return super.getHeightmapHeight(x - gridOffset[0], z - gridOffset[1]);
     }
 
+    @Override
+    public void read(JmeImporter im) throws IOException {
+        super.read(im);
+        InputCapsule c = im.getCapsule(this);
+        name = c.readString("name", null);
+        size = c.readInt("size", 0);
+        patchSize = c.readInt("patchSize", 0);
+        stepScale = (Vector3f) c.readSavable("stepScale", null);
+        offset = (Vector2f) c.readSavable("offset", null);
+        offsetAmount = c.readFloat("offsetAmount", 0);
+        terrainQuadGrid = (TerrainQuadGrid) c.readSavable("terrainQuadGrid", null);
+//        terrainQuadGrid.setSize(this.size);
+//        terrainQuadGrid.setPatchSize(this.patchSize);
+//        terrainQuadGrid.setQuadSize(this.quadSize);
+
+        int maxVisibleSize = size;
+        this.quarterSize = maxVisibleSize >> 2;
+        this.quadSize = (maxVisibleSize + 1) >> 1;
+        this.totalSize = maxVisibleSize;
+
+        this.gridOffset = new int[]{0, 0};
+
+        /*
+         *        -z
+         *         | 
+         *        1|3 
+         *  -x ----+---- x
+         *        2|4
+         *         |
+         *         z
+         */
+        this.quadIndex = new Vector3f[]{
+            new Vector3f(-1, 0, -1), new Vector3f(0, 0, -1), new Vector3f(1, 0, -1), new Vector3f(2, 0, -1),
+            new Vector3f(-1, 0, 0), new Vector3f(0, 0, 0), new Vector3f(1, 0, 0), new Vector3f(2, 0, 0),
+            new Vector3f(-1, 0, 1), new Vector3f(0, 0, 1), new Vector3f(1, 0, 1), new Vector3f(2, 0, 1),
+            new Vector3f(-1, 0, 2), new Vector3f(0, 0, 2), new Vector3f(1, 0, 2), new Vector3f(2, 0, 2)};
+
+        addControl(new UpdateControl());
+    }
+
+    @Override
+    public void write(JmeExporter ex) throws IOException {
+        super.write(ex);
+        OutputCapsule c = ex.getCapsule(this);
+        c.write(terrainQuadGrid, "terrainQuadGrid", null);
+        c.write(size, "size", 0);
+        c.write(patchSize, "patchSize", 0);
+        c.write(stepScale, "stepScale", null);
+        c.write(offset, "offset", null);
+        c.write(offsetAmount, "offsetAmount", 0);
+    }
 }
