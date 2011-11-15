@@ -1,15 +1,14 @@
 package jme3test.terrain;
 
-import com.jme3.terrain.geomipmap.TerrainQuad;
-
 import com.jme3.app.SimpleApplication;
 import com.jme3.app.state.ScreenshotAppState;
+import com.jme3.asset.plugins.HttpZipLocator;
+import com.jme3.asset.plugins.ZipLocator;
 import com.jme3.bullet.BulletAppState;
 import com.jme3.bullet.collision.shapes.CapsuleCollisionShape;
 import com.jme3.bullet.collision.shapes.HeightfieldCollisionShape;
 import com.jme3.bullet.control.CharacterControl;
 import com.jme3.bullet.control.RigidBodyControl;
-import com.jme3.export.binary.BinaryExporter;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
@@ -19,24 +18,14 @@ import com.jme3.math.Vector3f;
 import com.jme3.terrain.geomipmap.TerrainGrid;
 import com.jme3.terrain.geomipmap.TerrainGridListener;
 import com.jme3.terrain.geomipmap.TerrainLodControl;
+import com.jme3.terrain.geomipmap.TerrainQuad;
+import com.jme3.terrain.geomipmap.grid.AssetQuadGrid;
 import com.jme3.terrain.geomipmap.lodcalc.DistanceLodCalculator;
-import com.jme3.terrain.heightmap.FractalHeightMapGrid;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
 import java.io.File;
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import org.novyon.noise.ShaderUtils;
-import org.novyon.noise.basis.FilteredBasis;
-import org.novyon.noise.filter.IterativeFilter;
-import org.novyon.noise.filter.OptimizedErode;
-import org.novyon.noise.filter.PerturbFilter;
-import org.novyon.noise.filter.SmoothFilter;
-import org.novyon.noise.fractal.FractalSum;
-import org.novyon.noise.modulator.NoiseModulator;
 
-public class TerrainFractalGridTest extends SimpleApplication {
+public class TerrainQuadGridTest extends SimpleApplication {
 
     private Material mat_terrain;
     private TerrainGrid terrain;
@@ -44,20 +33,23 @@ public class TerrainFractalGridTest extends SimpleApplication {
     private float dirtScale = 16;
     private float rockScale = 128;
     private boolean usePhysics = true;
+    private boolean physicsAdded = false;
 
     public static void main(final String[] args) {
-        TerrainFractalGridTest app = new TerrainFractalGridTest();
+        TerrainQuadGridTest app = new TerrainQuadGridTest();
         app.start();
     }
     private CharacterControl player3;
-    private FractalSum base;
-    private PerturbFilter perturb;
-    private OptimizedErode therm;
-    private SmoothFilter smooth;
-    private IterativeFilter iterate;
 
     @Override
     public void simpleInitApp() {
+        File file = new File("mountains.zip");
+        if (!file.exists()) {
+            assetManager.registerLocator("http://jmonkeyengine.googlecode.com/files/mountains.zip", HttpZipLocator.class);
+        } else {
+            assetManager.registerLocator("mountains.zip", ZipLocator.class);
+        }
+
         this.flyCam.setMoveSpeed(100f);
         ScreenshotAppState state = new ScreenshotAppState();
         this.stateManager.attach(state);
@@ -79,13 +71,13 @@ public class TerrainFractalGridTest extends SimpleApplication {
         Texture grass = this.assetManager.loadTexture("Textures/Terrain/splat/grass.jpg");
         grass.setWrap(WrapMode.Repeat);
         this.mat_terrain.setTexture("region1ColorMap", grass);
-        this.mat_terrain.setVector3("region1", new Vector3f(15, 200, this.grassScale));
+        this.mat_terrain.setVector3("region1", new Vector3f(88, 200, this.grassScale));
 
         // DIRT texture
         Texture dirt = this.assetManager.loadTexture("Textures/Terrain/splat/dirt.jpg");
         dirt.setWrap(WrapMode.Repeat);
         this.mat_terrain.setTexture("region2ColorMap", dirt);
-        this.mat_terrain.setVector3("region2", new Vector3f(0, 20, this.dirtScale));
+        this.mat_terrain.setVector3("region2", new Vector3f(0, 90, this.dirtScale));
 
         // ROCK texture
         Texture rock = this.assetManager.loadTexture("Textures/Terrain/Rock2/rock.jpg");
@@ -99,60 +91,24 @@ public class TerrainFractalGridTest extends SimpleApplication {
         this.mat_terrain.setTexture("slopeColorMap", rock);
         this.mat_terrain.setFloat("slopeTileFactor", 32);
 
-        this.mat_terrain.setFloat("terrainSize", 513);
-
-        this.base = new FractalSum();
-        this.base.setRoughness(0.7f);
-        this.base.setFrequency(1.0f);
-        this.base.setAmplitude(1.0f);
-        this.base.setLacunarity(2.12f);
-        this.base.setOctaves(8);
-        this.base.setScale(0.02125f);
-        this.base.addModulator(new NoiseModulator() {
-
-            @Override
-            public float value(float... in) {
-                return ShaderUtils.clamp(in[0] * 0.5f + 0.5f, 0, 1);
-            }
-        });
-
-        FilteredBasis ground = new FilteredBasis(this.base);
-
-        this.perturb = new PerturbFilter();
-        this.perturb.setMagnitude(0.119f);
-
-        this.therm = new OptimizedErode();
-        this.therm.setRadius(5);
-        this.therm.setTalus(0.011f);
-
-        this.smooth = new SmoothFilter();
-        this.smooth.setRadius(1);
-        this.smooth.setEffect(0.7f);
-
-        this.iterate = new IterativeFilter();
-        this.iterate.addPreFilter(this.perturb);
-        this.iterate.addPostFilter(this.smooth);
-        this.iterate.setFilter(this.therm);
-        this.iterate.setIterations(1);
-
-        ground.addPreFilter(this.iterate);
-
-        this.terrain = new TerrainGrid("terrain", 33, 129, new FractalHeightMapGrid(ground, null, 256f));
+        this.mat_terrain.setFloat("terrainSize", 129);
+//quad.getHeightMap(), terrain.getLocalScale()), 0
+        AssetQuadGrid grid = new AssetQuadGrid(assetManager, "testgrid", "TerrainGrid");
+        this.terrain = new TerrainGrid("terrain", 33, 129, grid);
 
         this.terrain.setMaterial(this.mat_terrain);
         this.terrain.setLocalTranslation(0, 0, 0);
         this.terrain.setLocalScale(2f, 1f, 2f);
         this.rootNode.attachChild(this.terrain);
 
-        TerrainLodControl control = new TerrainLodControl(this.terrain, this.getCamera());
-        control.setLodCalculator( new DistanceLodCalculator(33, 2.7f) ); // patch size, and a multiplier
+        TerrainLodControl control = new TerrainLodControl(this.terrain, getCamera());
+        control.setLodCalculator( new DistanceLodCalculator(65, 2.7f) ); // patch size, and a multiplier
         this.terrain.addControl(control);
 
         final BulletAppState bulletAppState = new BulletAppState();
         stateManager.attach(bulletAppState);
 
-
-        this.getCamera().setLocation(new Vector3f(0, 300, 0));
+        this.getCamera().setLocation(new Vector3f(0, 256, 0));
 
         this.viewPort.setBackgroundColor(new ColorRGBA(0.7f, 0.8f, 1f, 1f));
 
@@ -163,7 +119,7 @@ public class TerrainFractalGridTest extends SimpleApplication {
             player3.setFallSpeed(10);
             player3.setGravity(10);
 
-            player3.setPhysicsLocation(new Vector3f(cam.getLocation().x, 512, cam.getLocation().z));
+            player3.setPhysicsLocation(new Vector3f(cam.getLocation().x, 256, cam.getLocation().z));
 
             bulletAppState.getPhysicsSpace().add(player3);
 
@@ -177,13 +133,6 @@ public class TerrainFractalGridTest extends SimpleApplication {
                 }
 
                 public void tileAttached(Vector3f cell, TerrainQuad quad) {
-                    //uncomment to create data for TerrainQuadGridTest
-//                    try {
-//                        BinaryExporter.getInstance().save(quad, new File("/Users/normenhansen/Documents/Code/jme3/engine/src/test-data/TerrainGrid/"
-//                                + "testgrid_" + Math.round(cell.x) + "_" + Math.round(cell.y) + "_" + Math.round(cell.z) + ".j3o"));
-//                    } catch (IOException ex) {
-//                        Logger.getLogger(TerrainFractalGridTest.class.getName()).log(Level.SEVERE, null, ex);
-//                    }
                     quad.addControl(new RigidBodyControl(new HeightfieldCollisionShape(quad.getHeightMap(), terrain.getLocalScale()), 0));
                     bulletAppState.getPhysicsSpace().add(quad);
                 }
@@ -192,6 +141,7 @@ public class TerrainFractalGridTest extends SimpleApplication {
                     bulletAppState.getPhysicsSpace().remove(quad);
                     quad.removeControl(RigidBodyControl.class);
                 }
+
             });
         }
         this.terrain.initialize(cam.getLocation());
@@ -221,32 +171,30 @@ public class TerrainFractalGridTest extends SimpleApplication {
         public void onAction(final String name, final boolean keyPressed, final float tpf) {
             if (name.equals("Lefts")) {
                 if (keyPressed) {
-                    TerrainFractalGridTest.this.left = true;
+                    TerrainQuadGridTest.this.left = true;
                 } else {
-                    TerrainFractalGridTest.this.left = false;
+                    TerrainQuadGridTest.this.left = false;
                 }
             } else if (name.equals("Rights")) {
                 if (keyPressed) {
-                    TerrainFractalGridTest.this.right = true;
+                    TerrainQuadGridTest.this.right = true;
                 } else {
-                    TerrainFractalGridTest.this.right = false;
+                    TerrainQuadGridTest.this.right = false;
                 }
             } else if (name.equals("Ups")) {
                 if (keyPressed) {
-                    TerrainFractalGridTest.this.up = true;
+                    TerrainQuadGridTest.this.up = true;
                 } else {
-                    TerrainFractalGridTest.this.up = false;
+                    TerrainQuadGridTest.this.up = false;
                 }
             } else if (name.equals("Downs")) {
                 if (keyPressed) {
-                    TerrainFractalGridTest.this.down = true;
+                    TerrainQuadGridTest.this.down = true;
                 } else {
-                    TerrainFractalGridTest.this.down = false;
+                    TerrainQuadGridTest.this.down = false;
                 }
             } else if (name.equals("Jumps")) {
-                if (usePhysics) {
-                    TerrainFractalGridTest.this.player3.jump();
-                }
+                TerrainQuadGridTest.this.player3.jump();
             }
         }
     };

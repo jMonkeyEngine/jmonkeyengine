@@ -13,6 +13,8 @@ import com.jme3.math.Vector3f;
 import com.jme3.terrain.geomipmap.TerrainQuad;
 import com.jme3.terrain.geomipmap.TerrainQuadGrid;
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -30,19 +32,26 @@ public class AssetQuadGrid implements TerrainQuadGrid {
     public AssetQuadGrid() {
     }
 
-    public AssetQuadGrid(AssetManager manager, String name, String assetPath, int size, int patchSize, int quadSize) {
+    public AssetQuadGrid(AssetManager manager, String name, String assetPath) {
         this.manager = manager;
         this.name = name;
         this.assetPath = assetPath;
-        this.size = size;
-        this.patchSize = patchSize;
-        this.quadSize = quadSize;
     }
 
     public TerrainQuad getTerrainQuadAt(Vector3f location) {
-        TerrainQuad quad = (TerrainQuad) manager.loadModel(assetPath + "/" + name + "-" + Math.round(location.x) + "/" + Math.round(location.y) + "/" + Math.round(location.z));
+        String modelName = assetPath + "/" + name + "_" + Math.round(location.x) + "_" + Math.round(location.y) + "_" + Math.round(location.z) + ".j3o";
+        Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Load terrain grid tile: {0}", modelName);
+        TerrainQuad quad = null;
+        try {
+            quad = (TerrainQuad) manager.loadModel(modelName);
+        } catch (Exception e) {
+//            e.printStackTrace();
+        }
         if (quad == null) {
-            createNewQuad(location);
+            Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "Could not load terrain grid tile: {0}", modelName);
+            quad = createNewQuad(location);
+        } else {
+            Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Loaded terrain grid tile: {0}", modelName);
         }
         return quad;
     }
