@@ -94,7 +94,7 @@ public class TerrainQuadGridTest extends SimpleApplication {
         this.mat_terrain.setFloat("terrainSize", 129);
 //quad.getHeightMap(), terrain.getLocalScale()), 0
         AssetQuadGrid grid = new AssetQuadGrid(assetManager, "testgrid", "TerrainGrid");
-        this.terrain = new TerrainGrid("terrain", 33, 129, grid);
+        this.terrain = new TerrainGrid("terrain", 65, 257, grid);
 
         this.terrain.setMaterial(this.mat_terrain);
         this.terrain.setLocalTranslation(0, 0, 0);
