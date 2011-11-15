@@ -85,7 +85,7 @@ public class JmeTerrainGrid extends JmeTerrainQuad implements TerrainGridListene
             return sheet;
         }
 
-        createFields(obj.getClass(), set, obj);
+//        createFields(obj.getClass(), set, obj);
 
         sheet.put(set);
         return sheet;

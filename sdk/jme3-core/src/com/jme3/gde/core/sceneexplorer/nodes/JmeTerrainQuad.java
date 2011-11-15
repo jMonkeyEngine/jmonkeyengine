@@ -80,7 +80,8 @@ public class JmeTerrainQuad extends JmeNode {
             return sheet;
         }
 
-        createFields(obj.getClass(), set, obj);
+        set.put(makeProperty(obj, int.class, "getMaxLod", "Max Lod"));
+        set.put(makeProperty(obj, short.class, "getQuadrant", "setQuadrant", "Quadrant"));
 
         sheet.put(set);
         return sheet;

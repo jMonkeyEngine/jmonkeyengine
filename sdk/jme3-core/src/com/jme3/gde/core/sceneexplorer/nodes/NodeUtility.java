@@ -33,6 +33,7 @@ package com.jme3.gde.core.sceneexplorer.nodes;
 
 import com.jme3.scene.Node;
 import org.openide.loaders.DataObject;
+import org.openide.util.Lookup;
 
 /**
  *
@@ -41,32 +42,35 @@ import org.openide.loaders.DataObject;
 public class NodeUtility {
 
     public static JmeNode createNode(Node node) {
-        JmeSpatialChildren factory = new JmeSpatialChildren(node);
-        factory.setReadOnly(true);
-        JmeNode jmeNode = new JmeNode(node, factory);
-        return jmeNode;
+        return findNode(node, null, true);
     }
 
     public static JmeNode createNode(Node node, boolean readOnly) {
-        JmeSpatialChildren factory = new JmeSpatialChildren(node);
-        factory.setReadOnly(readOnly);
-        JmeNode jmeNode = new JmeNode(node, factory);
-        return jmeNode;
+        return findNode(node, null, readOnly);
     }
 
     public static JmeNode createNode(Node node, DataObject dataObject) {
-        JmeSpatialChildren factory = new JmeSpatialChildren(node);
-        factory.setDataObject(dataObject);
-        factory.setReadOnly(true);
-        JmeNode jmeNode = new JmeNode(node, factory);
-        return jmeNode;
+        return findNode(node, dataObject, true);
     }
 
     public static JmeNode createNode(Node node, DataObject dataObject, boolean readOnly) {
+        return findNode(node, dataObject, readOnly);
+    }
+
+    private static JmeNode findNode(Node node, DataObject dataObject, boolean readOnly) {
+        for (SceneExplorerNode di : Lookup.getDefault().lookupAll(SceneExplorerNode.class)) {
+            if (di.getExplorerObjectClass().getName().equals(node.getClass().getName())) {
+                org.openide.nodes.Node[] hack = di.createNodes(node, dataObject, readOnly);
+                if (hack.length > 0 && hack[0] instanceof JmeNode) {
+                    return (JmeNode) hack[0];
+                }
+            }
+        }
         JmeSpatialChildren factory = new JmeSpatialChildren(node);
-        factory.setDataObject(dataObject);
+        if (dataObject != null) {
+            factory.setDataObject(dataObject);
+        }
         factory.setReadOnly(readOnly);
-        JmeNode jmeNode = new JmeNode(node, factory);
-        return jmeNode;
+        return new JmeNode(node, factory);
     }
 }
