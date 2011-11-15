@@ -185,9 +185,6 @@ public class TerrainFractalGridTest extends SimpleApplication {
 //                        Logger.getLogger(TerrainFractalGridTest.class.getName()).log(Level.SEVERE, null, ex);
 //                    }
                     //workaround for bugged test j3o's
-                    while(quad.getControl(RigidBodyControl.class)!=null){
-                        quad.removeControl(RigidBodyControl.class);
-                    }
                     quad.addControl(new RigidBodyControl(new HeightfieldCollisionShape(quad.getHeightMap(), terrain.getLocalScale()), 0));
                     bulletAppState.getPhysicsSpace().add(quad);
                 }
