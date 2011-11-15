@@ -191,40 +191,19 @@ public class TerrainGrid extends TerrainQuad {
         return 0; // error
     }
 
-    //TODO: unify constructors
     public TerrainGrid(String name, int patchSize, int maxVisibleSize, Vector3f scale, TerrainQuadGrid terrainQuadGrid,
             Vector2f offset, float offsetAmount) {
         this.name = name;
         this.patchSize = patchSize;
         this.size = maxVisibleSize;
-        this.quarterSize = maxVisibleSize >> 2;
-        this.quadSize = (maxVisibleSize + 1) >> 1;
         this.stepScale = scale;
+        this.offset = offset;
+        this.offsetAmount = offsetAmount;
+        initData();
         this.terrainQuadGrid = terrainQuadGrid;
         terrainQuadGrid.setSize(this.size);
         terrainQuadGrid.setPatchSize(this.patchSize);
         terrainQuadGrid.setQuadSize(this.quadSize);
-        this.totalSize = maxVisibleSize;
-        this.offset = offset;
-        this.offsetAmount = offsetAmount;
-        this.gridOffset = new int[]{0, 0};
-
-        /*
-         *        -z
-         *         | 
-         *        1|3 
-         *  -x ----+---- x
-         *        2|4
-         *         |
-         *         z
-         */
-        this.quadIndex = new Vector3f[]{
-            new Vector3f(-1, 0, -1), new Vector3f(0, 0, -1), new Vector3f(1, 0, -1), new Vector3f(2, 0, -1),
-            new Vector3f(-1, 0, 0), new Vector3f(0, 0, 0), new Vector3f(1, 0, 0), new Vector3f(2, 0, 0),
-            new Vector3f(-1, 0, 1), new Vector3f(0, 0, 1), new Vector3f(1, 0, 1), new Vector3f(2, 0, 1),
-            new Vector3f(-1, 0, 2), new Vector3f(0, 0, 2), new Vector3f(1, 0, 2), new Vector3f(2, 0, 2)};
-
-        addControl(new UpdateControl());
     }
 
     public TerrainGrid(String name, int patchSize, int maxVisibleSize, Vector3f scale, TerrainQuadGrid terrainQuadGrid) {
@@ -240,14 +219,30 @@ public class TerrainGrid extends TerrainQuad {
         this.name = name;
         this.patchSize = patchSize;
         this.size = maxVisibleSize;
-        this.quarterSize = maxVisibleSize >> 2;
-        this.quadSize = (maxVisibleSize + 1) >> 1;
         this.stepScale = scale;
-        this.heightMapGrid = heightMapGrid;
-        heightMapGrid.setSize(this.quadSize);
-        this.totalSize = maxVisibleSize;
         this.offset = offset;
         this.offsetAmount = offsetAmount;
+        initData();
+        this.heightMapGrid = heightMapGrid;
+        heightMapGrid.setSize(this.quadSize);
+    }
+
+    public TerrainGrid(String name, int patchSize, int maxVisibleSize, Vector3f scale, HeightMapGrid heightMapGrid) {
+        this(name, patchSize, maxVisibleSize, scale, heightMapGrid, new Vector2f(), 0);
+    }
+
+    public TerrainGrid(String name, int patchSize, int maxVisibleSize, HeightMapGrid heightMapGrid) {
+        this(name, patchSize, maxVisibleSize, Vector3f.UNIT_XYZ, heightMapGrid);
+    }
+
+    public TerrainGrid() {
+    }
+    
+    private void initData(){
+        int maxVisibleSize = size;
+        this.quarterSize = maxVisibleSize >> 2;
+        this.quadSize = (maxVisibleSize + 1) >> 1;
+        this.totalSize = maxVisibleSize;
         this.gridOffset = new int[]{0, 0};
 
         /*
@@ -266,17 +261,6 @@ public class TerrainGrid extends TerrainQuad {
             new Vector3f(-1, 0, 2), new Vector3f(0, 0, 2), new Vector3f(1, 0, 2), new Vector3f(2, 0, 2)};
 
         addControl(new UpdateControl());
-    }
-
-    public TerrainGrid(String name, int patchSize, int maxVisibleSize, Vector3f scale, HeightMapGrid heightMapGrid) {
-        this(name, patchSize, maxVisibleSize, scale, heightMapGrid, new Vector2f(), 0);
-    }
-
-    public TerrainGrid(String name, int patchSize, int maxVisibleSize, HeightMapGrid heightMapGrid) {
-        this(name, patchSize, maxVisibleSize, Vector3f.UNIT_XYZ, heightMapGrid);
-    }
-
-    public TerrainGrid() {
     }
 
     public void initialize(Vector3f location) {
@@ -470,30 +454,7 @@ public class TerrainGrid extends TerrainQuad {
 //        terrainQuadGrid.setSize(this.size);
 //        terrainQuadGrid.setPatchSize(this.patchSize);
 //        terrainQuadGrid.setQuadSize(this.quadSize);
-
-        int maxVisibleSize = size;
-        this.quarterSize = maxVisibleSize >> 2;
-        this.quadSize = (maxVisibleSize + 1) >> 1;
-        this.totalSize = maxVisibleSize;
-
-        this.gridOffset = new int[]{0, 0};
-
-        /*
-         *        -z
-         *         | 
-         *        1|3 
-         *  -x ----+---- x
-         *        2|4
-         *         |
-         *         z
-         */
-        this.quadIndex = new Vector3f[]{
-            new Vector3f(-1, 0, -1), new Vector3f(0, 0, -1), new Vector3f(1, 0, -1), new Vector3f(2, 0, -1),
-            new Vector3f(-1, 0, 0), new Vector3f(0, 0, 0), new Vector3f(1, 0, 0), new Vector3f(2, 0, 0),
-            new Vector3f(-1, 0, 1), new Vector3f(0, 0, 1), new Vector3f(1, 0, 1), new Vector3f(2, 0, 1),
-            new Vector3f(-1, 0, 2), new Vector3f(0, 0, 2), new Vector3f(1, 0, 2), new Vector3f(2, 0, 2)};
-
-        addControl(new UpdateControl());
+        initData();
     }
 
     @Override
