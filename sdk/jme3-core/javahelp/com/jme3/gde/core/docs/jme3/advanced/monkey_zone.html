@@ -28,8 +28,8 @@ This open-source demo:
 
 <p>
 The game idea is based on “BattleZone” arcade game from the 1980s, a first-person shooter the with real-time strategy elements.
-The game was written using the jMonkeyPlatform IDE, and it&#039;s based off the BasicGame project template. It took us one week to create a playable pre-alpha, including networking.
-The project design follows best practices that make it possible to edit maps, vehicles, etc, in jMonkeyPlatform without having to change the code – This allows 3D graphic designers to contribute models more easily. (If you feel like contributing assets or working on parts of the game code, drop us a note!)
+The game was written using the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym>, and it&#039;s based off the BasicGame project template. It took us one week to create a playable pre-alpha, including networking.
+The project design follows best practices that make it possible to edit maps, vehicles, etc, in jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> without having to change the code – This allows 3D graphic designers to contribute models more easily. (If you feel like contributing assets or working on parts of the game code, drop us a note!)
 
 </p>
 
@@ -195,11 +195,11 @@ The sync manager basically puts a timestamp on every message sent from the serve
 
 </div>
 
-<h2><a>Use of jMonkeyPlatform tools</a></h2>
+<h2><a>Use of jMonkeyEngine SDK tools</a></h2>
 <div>
 
 <p>
-All assets used in the game, like entity models and loaded maps can be preconfigured and edited using jMonkeyPlatform. For example, to add a new vehicle type, a vehicle is created in the jMP vehicle editor and UserData like Speed, HitPoints etc. is applied directly in the editor. When the model is loaded in the game it is automatically configured based on these settings, the same accounts for maps that are loaded, special Nodes that mark e.g. player start locations are recognized automatically etc.
+All assets used in the game, like entity models and loaded maps can be preconfigured and edited using the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym>. For example, to add a new vehicle type, a vehicle is created in the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> vehicle editor and UserData like Speed, HitPoints etc. is applied directly in the editor. When the model is loaded in the game it is automatically configured based on these settings, the same accounts for maps that are loaded, special Nodes that mark e.g. player start locations are recognized automatically etc.
 
 </p>
 
@@ -209,7 +209,7 @@ All assets used in the game, like entity models and loaded maps can be preconfig
 <div>
 
 <p>
-Entities that are loaded from disk have certain UserData like HitPoints, Speed etc. that is used to configure the entity at runtime. jMP allows adding and editing this UserData so entity properties are editable visually.
+Entities (Nodes and Geometries) that are loaded from disk have certain UserData like HitPoints, Speed etc. that is used to configure the entity at runtime. The jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> allows adding and editing this UserData, so entity properties are editable visually.
 
 </p>
 
@@ -219,7 +219,7 @@ Entities that are loaded from disk have certain UserData like HitPoints, Speed e
 <div>
 
 <p>
-VehicleControls, CharacterControls and RigidBodyControls with mesh collision shape for terrain and objects are generated in jMP and saved in the entity j3o file. When an entity is loaded, the type of entity is identified based on the available controls and UserData and it is configured accordingly.
+VehicleControls, CharacterControls and RigidBodyControls with mesh collision shape for terrain and objects are generated in the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> and saved in the entity j3o file. When an entity is loaded, the type of entity is identified based on the available controls and UserData and it is configured accordingly.
 
 </p>
 
@@ -307,10 +307,10 @@ Programmatic PlayerData:
 
 <p>
 Have a look at the code and feel free to ask about it, if you want any new features, you are free to implement them. ;)
-MonkeyZone is hosted at GoogleCode, where you can check out the jMonkeyPlatform-ready project via svn:
+MonkeyZone is hosted at GoogleCode, where you can check out the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym>-ready project via svn:
 </p>
 <ol>
-<li><div> jMonkeyPlatform→Team→Subversion→Checkout,</div>
+<li><div> jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym>→Team→Subversion→Checkout,</div>
 </li>
 <li><div> Enter the SVN <acronym title="Uniform Resource Locator">URL</acronym> <code><object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://monkeyzone.googlecode.com/svn/trunk/"><param name="text" value="<html><u>http://monkeyzone.googlecode.com/svn/trunk/</u></html>"><param name="textColor" value="blue"></object></code></div>
 </li>
@@ -328,4 +328,4 @@ MonkeyZone is hosted at GoogleCode, where you can check out the jMonkeyPlatform-
 </span></div>
 
 </div>
-<p><em><a href="http://direct.jmonkeyengine.org/wiki/doku.php/jme3:advanced:monkey_zone?do=export_xhtmlbody">view online version</a></em></p>
+<p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:monkey_zone?do=export_xhtmlbody">view online version</a></em></p>

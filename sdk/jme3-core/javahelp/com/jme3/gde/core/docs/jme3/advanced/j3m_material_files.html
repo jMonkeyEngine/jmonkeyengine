@@ -57,7 +57,7 @@ How to this file is structured:
 
 <p>
 
-<strong>Tip:</strong> In the jMonkeyPlatform, use File&gt;New File&gt;Material&gt;Empty Material File to create .j3m files.
+<strong>Tip:</strong> In the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym>, use File&gt;New File&gt;Material&gt;Empty Material File to create .j3m files.
 </p>
 
 </div>
@@ -69,10 +69,10 @@ How to this file is structured:
 
 This is how you use the prepared .j3m Material on a Spatial. Since you have saved the .j3m file to your project&#039;s Assets directory, the .j3m path is relative to <code>MyGame/src/assets/…</code>.
 </p>
-<pre>myGeometry.setMaterial&#40;assetManager.loadAsset&#40;&quot;Materials/SimpleBump.j3m&quot;&#41;&#41;;</pre>
+<pre>myGeometry.setMaterial&#40;assetManager.loadMaterial&#40;&quot;Materials/SimpleBump.j3m&quot;&#41;&#41;;</pre>
 
 <p>
-<strong>Tip:</strong> In the jMonkeyPlatform, open Windows&gt;Palette and drag the <code>JME Material: Set J3M</code> snippet into your code.
+<strong>Tip:</strong> In the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym>, open Windows&gt;Palette and drag the <code>JME Material: Set J3M</code> snippet into your code.
 </p>
 
 </div>
@@ -175,7 +175,7 @@ All data types (except Color) are specified in com.jme3.shader.VarType.
 		<td> TextureArray</td><td> </td><td> (Currently not supported in J3M) </td>
 	</tr>
 </table></div>
-<!-- EDIT1 TABLE [3125-4539] -->
+<!-- EDIT1 TABLE [3132-4546] -->
 </div>
 
 <h3><a>Flip and Repeat Syntax</a></h3>
@@ -239,7 +239,7 @@ See the <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><p
 		<td> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://jmonkeyengine.org/javadoc/com/jme3/material/RenderState.html#setPointSprite(boolean)"><param name="text" value="<html><u>PointSprite</u></html>"><param name="textColor" value="blue"></object> </td><td>(Boolean)</td><td> Enable point sprite rendering for point meshes </td>
 	</tr>
 </table></div>
-<!-- EDIT2 TABLE [5177-6745] -->
+<!-- EDIT2 TABLE [5184-6752] -->
 </div>
 
 <h2><a>Examples</a></h2>
@@ -251,7 +251,7 @@ See the <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><p
 <div>
 <pre>Spatial signpost = &#40;Spatial&#41; assetManager.loadAsset&#40;
     new OgreMeshKey&#40;&quot;Models/Sign Post/Sign Post.mesh.xml&quot;, null&#41;&#41;;
-signpost.setMaterial&#40; &#40;Material&#41; assetManager.loadAsset&#40;
+signpost.setMaterial&#40; assetManager.loadMaterial&#40;
     new AssetKey&#40;&quot;Models/Sign Post/Sign Post.j3m&quot;&#41;&#41;&#41;;
 TangentBinormalGenerator.generate&#40;signpost&#41;;
 rootNode.attachChild&#40;signpost&#41;;</pre>
@@ -336,4 +336,4 @@ The <acronym title="Portable Network Graphics">PNG</acronym> file is in the same
 </p>
 
 </div>
-<p><em><a href="http://direct.jmonkeyengine.org/wiki/doku.php/jme3:advanced:j3m_material_files?do=export_xhtmlbody">view online version</a></em></p>
+<p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:j3m_material_files?do=export_xhtmlbody">view online version</a></em></p>

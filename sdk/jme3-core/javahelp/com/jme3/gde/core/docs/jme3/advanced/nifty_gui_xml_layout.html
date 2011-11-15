@@ -232,6 +232,13 @@ The hud-frame.png image is a transparent frame that we use as HUD decoration. In
     <span><span>&lt;/layer&gt;</span></span></pre>
 
 <p>
+In order to make the hud-frame.png independent of the screen resolution you are using, you could use the <code>imageMode</code> attribute on the image element <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://sourceforge.net/apps/mediawiki/nifty-gui/index.php?title=Resizable_Images_(ImageMode%3Dresize)_explained"><param name="text" value="<html><u> Resizable Images (ImageMode=resize) explained</u></html>"><param name="textColor" value="blue"></object>
+</p>
+<pre>    <span>&lt;layer id=&quot;background&quot; childLayout=&quot;center&quot;&gt;</span>
+        <span>&lt;image filename=&quot;Interface/tutorial/step2/hud-frame.png&quot; imageMode=&quot;resize:40,490,110,170,40,560,40,270,40,560,40,40&quot; width=&quot;100%&quot; height=&quot;100%&quot;/&gt;</span>
+    <span><span>&lt;/layer&gt;</span></span></pre>
+
+<p>
 The face1.png image is an image that you want to use as a status icon. 
 In the <code>hud</code> screen&#039;s <code>foreground</code> layer, add the following image element:
 
@@ -377,4 +384,4 @@ Integrate the <acronym title="Graphical User Interface">GUI</acronym> into the g
 </span></div>
 
 </div>
-<p><em><a href="http://direct.jmonkeyengine.org/wiki/doku.php/jme3:advanced:nifty_gui_xml_layout?do=export_xhtmlbody">view online version</a></em></p>
+<p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:nifty_gui_xml_layout?do=export_xhtmlbody">view online version</a></em></p>

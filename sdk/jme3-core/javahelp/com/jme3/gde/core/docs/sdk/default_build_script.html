@@ -4,7 +4,7 @@
 
 <p>
 
-If you use jME3 together with the jMonkeyPlatform (recommended) then you benefit from the provided build script. Every new project comes with a default Ant script. The toolbar buttons and clean/build/run actions in the jMonkeyPlatform are already pre-configured.  
+If you use jME3 together with the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> (recommended) then you benefit from the provided build script. Every new project comes with a default Ant script. The toolbar buttons and clean/build/run actions in the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> are already pre-configured.  
 </p>
 
 </div>
@@ -26,9 +26,9 @@ The build script includes targets for the following tasks:
 </li>
 <li><div> javadoc – compiles javadoc from your java files into html files.</div>
 </li>
-<li><div> debug – used by the jMonkeyPlatform Debugger plugin.</div>
+<li><div> debug – used by the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> Debugger plugin.</div>
 </li>
-<li><div> test – Used by the jMonkeyPlatform JUnit Test plugin.</div>
+<li><div> test – Used by the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> JUnit Test plugin.</div>
 </li>
 </ul>
 
@@ -42,7 +42,7 @@ ant jar
 ant run</pre>
 
 <p>
-Recommended Usage: Use the menu items or toolbar buttons in the jMonkeyPlatform to trigger clean, build, and run actions.
+Recommended Usage: Use the menu items or toolbar buttons in the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> to trigger clean, build, and run actions.
 </p>
 
 </div>
@@ -55,7 +55,7 @@ Recommended Usage: Use the menu items or toolbar buttons in the jMonkeyPlatform 
 To see the build script and the predefined tasks
 </p>
 <ol>
-<li><div> Open your project in the jMonkeyPlatform if it isn&#039;t already open (File &gt; Open Project…)</div>
+<li><div> Open your project in the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> if it isn&#039;t already open (File &gt; Open Project…)</div>
 </li>
 <li><div> Open the Files window (Window &gt; Files)</div>
 </li>
@@ -86,8 +86,20 @@ The build script is a non-proprietary Apache Ant script. It will work out-of-the
 
 <p>
 Read the comments in <code>build.xml</code>, they explain how to override targets, or extend them, to customize the build process without breaking the existing functionality.
+</p>
+
+<p>
+Additionally, you can manually edit the <code>*-build-impl.xml</code> files that are created when you change the deployment settings: linuxlauncher-impl.xml, macapp-impl.xml, mobile-impl.xml, jnlp-impl.xml, etc. Note that if you deactivate and reactivate a deployment setting, these files are reset, so keep a copy of your changes. 
+</p>
+
+<p>
+Don&#039;t edit the base <code>build-impl.xml</code>.
+</p>
+
+<p>
+<img src="nbdocs:/com/jme3/gde/core/docs/sdk/build-impl.png">
 
 </p>
 
 </div>
-<p><em><a href="http://direct.jmonkeyengine.org/wiki/doku.php/sdk:default_build_script?do=export_xhtmlbody">view online version</a></em></p>
+<p><em><a href="http://jmonkeyengine.org/wiki/doku.php/sdk:default_build_script?do=export_xhtmlbody">view online version</a></em></p>

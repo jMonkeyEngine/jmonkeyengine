@@ -4,7 +4,7 @@
 
 <p>
 
-You can split the screen and look into the 3D scene from different camera angles at the same time. In this example, we create four views (2x2) with the same aspect ratio as the normal view, but half the size. 
+You can split the screen and look into the 3D scene from different camera angles at the same time. 
 </p>
 
 <p>
@@ -13,29 +13,99 @@ The packages used in this example are <code>com.jme3.renderer.Camera</code> and 
 
 </div>
 
-<h2><a>Set up the First View</a></h2>
+<h2><a>How to resize and Position ViewPorts</a></h2>
 <div>
 
 <p>
 
-We use the preconfigured Camera <code>cam</code> and <code>viewPort</code> from <code>SimpleApplication</code> for the first view.
-</p>
-<pre>viewPort.setBackgroundColor&#40;ColorRGBA.Blue&#41;;
-cam.setViewPort&#40;.5f, 1f, 0f, 0.5f&#41;; // resize the viewPort
-cam.setLocation&#40;new Vector3f&#40;3.3212643f, 4.484704f, 4.2812433f&#41;&#41;;
-cam.setRotation&#40;new Quaternion &#40;-0.07680723f, 0.92299235f, -0.2564353f, -0.27645364f&#41;&#41;;</pre>
-
-<p>
-Place the main camera in the scene and rotate it in its start position. 
+The default viewPort is as big as the window. If you have several, the must be of different sizes, either overlapping or adjacent to one another. How do you tell jME which of the ViewPorts should appear where on the screen, and how big it should be?
 </p>
 
 <p>
-We will have a detailed look at how we use setViewPort() to position and resize the default view later.
+Imagine the window as a 1.0f x 1.0f rectangle. The default cam&#039;s viewPort is set to 
+
+</p>
+<pre>cam.setViewPort&#40;0f, 1f, 0f, 1f&#41;;</pre>
+
+<p>
+
+This setting makes the ViewPort take up the whole rectangle. 
+</p>
+
+<p>
+The four values are read in the following order: 
+</p>
+<pre>cam.setViewPort&#40;x1,x2 , y1,y2&#41;;</pre>
+<ul>
+<li><div> <strong>X-axis</strong> from left to right</div>
+</li>
+<li><div> <strong>Y-axis</strong> upwards from bottom to top</div>
+</li>
+</ul>
+
+<p>
+
+Here are a few examples:
+
+</p>
+<pre>cam1.setViewPort&#40; 0.0f , 1.0f   ,   0.0f , 1.0f &#41;;
+cam2.setViewPort&#40; 0.5f , 1.0f   ,   0.0f , 0.5f &#41;;</pre>
+
+<p>
+These viewport parameters are, (in this order) the left-right extend, and the bottom-top extend of a views&#039;s rectangle on the screen. 
+</p>
+<pre>0.0 , 1.0       1.0 , 1.0
+       +-----+-----+
+       |cam1       |
+       |           |
+       |     +-----+
+       |     |     |
+       |     |cam2 |
+       +-----+-----+
+0.0 , 0.0       1.0 , 0.0</pre>
+
+<p>
+Example: Cam2&#039;s rectangle is int he bottom right: It extends from mid (x1=0.5f) bottom (y1=0.0f), to right (x2=1.0f) mid (y2=0.5f)
+</p>
+
+<p>
+<p><div>If you scale the views in a way so that the aspect ratio of a ViewPort is different than the window&#039;s aspect ratio, then the ViewPort appears distorted. In these cases, you must recreate (not clone) the ViewPort&#039;s cam object with the right aspect ratio. For example: <code>Camera cam5 = new Camera(100,100);</code> 
+</div></p>
 </p>
 
 </div>
 
-<h2><a>Set up Three Additional Views</a></h2>
+<h2><a>Four-Time Split Screen</a></h2>
+<div>
+
+<p>
+
+In this example, you create four views (2x2) with the same aspect ratio as the window, but each is only half the width and height. 
+</p>
+
+</div>
+
+<h3><a>Set up the First View</a></h3>
+<div>
+
+<p>
+
+You use the preconfigured Camera <code>cam</code> and <code>viewPort</code> from <code>SimpleApplication</code> for the first view. It&#039;s in the bottom right.
+
+</p>
+<pre>cam.setViewPort&#40;.5f, 1f, 0f, 0.5f&#41;; // Resize the viewPort to half its size, bottom right.</pre>
+
+<p>
+
+Optionally, place the main camera in the scene and rotate it in its start position. 
+
+</p>
+<pre>cam.setLocation&#40;new Vector3f&#40;3.32f, 4.48f, 4.28f&#41;&#41;;
+cam.setRotation&#40;new Quaternion &#40;-0.07f, 0.92f, -0.25f, -0.27f&#41;&#41;;</pre>
+
+</div>
+
+<h3><a>Set Up Three More Views</a></h3>
 <div>
 
 <p>
@@ -46,23 +116,24 @@ Here is the outline for how you create the three other cams and viewPorts (<obje
 <ol>
 <li><div> Clone the first cam to reuse its settings</div>
 </li>
-<li><div> Resize and position the cam&#039;s viewPort with setViewPort() – details below.</div>
+<li><div> Resize and position the cam&#039;s viewPort with setViewPort().</div>
 </li>
-<li><div> Place the cameras in the scene and rotate them.</div>
+<li><div> (Optionally) Move the cameras in the scene and rotate them so they face what you want to see.</div>
 </li>
-<li><div> Create a main view for each camera</div>
+<li><div> Create a ViewPort for each camera</div>
 </li>
-<li><div> Reset the cameras&#039; enabled statuses</div>
+<li><div> Reset the camera&#039;s enabled statuses</div>
 </li>
-<li><div> Attach the rootNode to be displayed to this view</div>
-<ol>
-<li><div> It doesn&#039;t have to be rootNode, but that is the most common use case</div>
-</li>
-</ol>
-</li>
-<li><div> You can set other optional view properties such as backgroundColor</div>
+<li><div> Attach the Node to be displayed to this ViewPort. <br/>
+The camera doesn&#039;t have to look at the rootNode, but that is the most common use case.</div>
 </li>
 </ol>
+
+<p>
+
+Here is the abstract code sample for camera <code>n</code>:
+
+</p>
 <pre>Camera cam_n    = cam.clone&#40;&#41;;
 cam_n.setViewPort&#40;...&#41;; // resize the viewPort
 cam_n.setLocation&#40;new Vector3f&#40;...&#41;&#41;;
@@ -73,71 +144,89 @@ view_n.setClearEnabled&#40;true&#41;;
 view_n.attachScene&#40;rootNode&#41;;
 view_n.setBackgroundColor&#40;ColorRGBA.Black&#41;;</pre>
 
-</div>
-
-<h2><a>How to resize and position the ViewPorts</a></h2>
-<div>
-
 <p>
-
-How does jme know which of the four views should appear where on the screen?
-</p>
-
-<p>
-Imagine the view as a 1x1-sized box. By default, the settings is <code>cam.setViewPort(0f, 1f, 0f, 1f);</code>. This means the view takes up the whole box, from 0 to 1 left to right, and from 0 to 1 bottom to top.
-</p>
-
-<p>
-In the <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/renderer/TestMultiViews.java"><param name="text" value="<html><u>code sample</u></html>"><param name="textColor" value="blue"></object>, note the following four lines:
-</p>
-<pre>cam.setViewPort&#40;  0.5f, 1.0f, 0.0f, 0.5f&#41;;
-...
-cam_2.setViewPort&#40;0.0f, 0.5f, 0.0f, 0.5f&#41;;
-...
-cam_3.setViewPort&#40;0.0f, 0.5f, 0.5f, 1.0f&#41;;
-...
-cam_4.setViewPort&#40;0.5f, 1.0f, 0.5f, 1.0f&#41;;</pre>
-
-<p>
-These viewport parameters are, in this order, the left - right - bottom - top extend of a camera&#039;s box on the screen. Note that we have set a few values to 0.5f – this is where we resize each view to half its default height and width.
+To visualize what you do, use the following drawing of the viewport positions:
 </p>
 <pre>0.0 , 1.0       1.0 , 1.0
-       +----+----+
-       |    |    |
-       |cam3|cam4|
-       +---------+
-       |    |    |
-       |cam2|cam |
-       +----+----+
+       +-----+-----+
+       |     |     |
+       |cam3 |cam4 |
+       +-----------+
+       |     |     |
+       |cam2 |cam1 |
+       +-----+-----+
 0.0 , 0.0       1.0 , 0.0</pre>
 
 <p>
-Example: Cam3&#039;s rect extends from bottom-left (0.0 , 0.5) to top-right (0.5 , 1.0)
+This are the lines of code that set the four cameras to create a four-times split screen.
 </p>
-<ul>
-<li><div> The left corner is at 0, and the right corner is 0.5 on the x axis. </div>
-</li>
-<li><div> The bottom of the box is at 0.5 and the top at 1.0 on the y axis.</div>
-</li>
-</ul>
+<pre>cam1.setViewPort&#40; 0.5f , 1.0f  ,  0.0f , 0.5f&#41;;
+...
+cam2.setViewPort&#40; 0.0f , 0.5f  ,  0.0f , 0.5f&#41;;
+...
+cam3.setViewPort&#40; 0.0f , 0.5f  ,  0.5f , 1.0f&#41;;
+...
+cam4.setViewPort&#40; 0.5f , 1.0f  ,  0.5f , 1.0f&#41;;</pre>
 
 </div>
 
-<h2><a>Other Layouts</a></h2>
+<h2><a>Picture in Picture</a></h2>
 <div>
 
 <p>
 
-This layout shows 2x2 views. For a split screen you may want to lay out two views, one above the other, or one next to the other.
+The following code snippet sets up two views, one covers the whole screen, and the second is a small view in the top center.
 </p>
+<pre>       +-----+-----+
+       |   |cam|   |
+       |   | 2 |   |
+       +   +---+   +
+       |           |
+       |    cam    |
+       +-----+-----+</pre>
+<pre>// Setup first full-window view
+cam.setViewPort&#40;0f, 1f, 0f, 1f&#41;;
+cam.setLocation&#40;new Vector3f&#40;3.32f, 4.48f, 4.28f&#41;&#41;;
+cam.setRotation&#40;new Quaternion&#40;-0.07f, 0.92f, -0.25f, -0.27f&#41;&#41;;
+&nbsp;
+// Setup second, smaller PiP view
+Camera cam2 = cam.clone&#40;&#41;;
+cam2.setViewPort&#40;.4f, .6f, 0.8f, 1f&#41;;
+cam2.setLocation&#40;new Vector3f&#40;-0.10f, 1.57f, 4.81f&#41;&#41;;
+cam2.setRotation&#40;new Quaternion&#40;0.00f, 0.99f, -0.04f, 0.02f&#41;&#41;;
+ViewPort viewPort2 = renderManager.createMainView&#40;&quot;PiP&quot;, cam2&#41;;
+viewPort2.setClearFlags&#40;true, true, true&#41;;
+viewPort2.attachScene&#40;rootNode&#41;;</pre>
+
+</div>
+
+<h2><a>Settings</a></h2>
+<div>
 
 <p>
-If you scale the views in a way so that the aspect ratio changes, the views will obviously be distorted. In these cases, create custom camera objects with the right aspect ratio (redefine the default cam).  
+
+You can customize the camera and the viewPort of each view individually. For example, each view can have a different background color:
+
 </p>
+<pre>viewPort.setBackgroundColor&#40;ColorRGBA.Blue&#41;;</pre>
+
+<p>
+
+You have full control to determine which Nodes the camera can see! It can see the full rootNode…
+
+</p>
+<pre>viewPort1.attachScene&#40;rootNode&#41;;</pre>
+
+<p>
+
+… or you can give each camera a special node whose content it can see:
+
+</p>
+<pre>viewPort2.attachScene&#40;spookyGhostDetectorNode&#41;;</pre>
 <div><span>
 	<a href="/wiki/doku.php/tag:camera?do=showtag&amp;tag=tag%3Acamera">camera</a>,
 	<a href="/wiki/doku.php/tag:documentation?do=showtag&amp;tag=tag%3Adocumentation">documentation</a>
 </span></div>
 
 </div>
-<p><em><a href="http://direct.jmonkeyengine.org/wiki/doku.php/jme3:advanced:multiple_camera_views?do=export_xhtmlbody">view online version</a></em></p>
+<p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:multiple_camera_views?do=export_xhtmlbody">view online version</a></em></p>

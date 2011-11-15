@@ -17,7 +17,7 @@ In this tutorial we will learn to load 3-D models and text into the scene graph,
 </p>
 
 <p>
-<p><div>To use the example assets in a new jMonkeyPlatform project, right-click your project, select &quot;Properties&quot;, go to &quot;Libraries&quot;, press &quot;Add Library&quot; and add the &quot;jme3-test-data&quot; library.
+<p><div>To use the example assets in a new jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> project, right-click your project, select &quot;Properties&quot;, go to &quot;Libraries&quot;, press &quot;Add Library&quot; and add the &quot;jme3-test-data&quot; library.
 </div></p>
 </p>
 
@@ -240,7 +240,7 @@ JME3 offers ClasspathLocator, ZipLocator, FileLocator, HttpZipLocator, and UrlLo
 <p>
 
 To create 3D models and scenes, you need a 3D Mesh Editor with an OgreXML Exporter plugin. For example, you can <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://en.wikibooks.org/wiki/Blender_3D:_Noob_to_Pro/UV_Map_Basics"><param name="text" value="<html><u>create fully textured models with Blender</u></html>"><param name="textColor" value="blue"></object>.
-You use the <a href="/com/jme3/gde/core/docs/sdk.html">jMonkeyPlatform</a> to <a href="/com/jme3/gde/core/docs/sdk/model_loader_and_viewer.html">load models</a>, <a href="/com/jme3/gde/core/docs/sdk/blender.html">convert models</a> and <a href="/com/jme3/gde/core/docs/sdk/scene_composer.html">create scenes</a> from them. 
+You use the <a href="/com/jme3/gde/core/docs/sdk.html">SDK</a> to <a href="/com/jme3/gde/core/docs/sdk/model_loader_and_viewer.html">load models</a>, <a href="/com/jme3/gde/core/docs/sdk/blender.html">convert models</a> and <a href="/com/jme3/gde/core/docs/sdk/scene_composer.html">create scenes</a> from them. 
 </p>
 
 <p>
@@ -278,7 +278,7 @@ If you use Blender, export your models as Ogre <acronym title="Extensible Markup
 
 <p>
 
-JME3 can load Ogre <acronym title="Extensible Markup Language">XML</acronym> models + materials, Ogre DotScenes, as well as Wavefront OBJ+MTL models. The loadModel() code works with these files when you run the code directly from the jMonkeyPlatform. 
+JME3 can load Ogre <acronym title="Extensible Markup Language">XML</acronym> models + materials, Ogre DotScenes, as well as Wavefront OBJ+MTL models. The loadModel() code works with these files when you run the code directly from the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym>. 
 </p>
 
 <p>
@@ -295,11 +295,11 @@ Loading the <acronym title="Extensible Markup Language">XML</acronym>/OBJ files 
 </p>
 
 <p>
-For testing and for the final release build, you use .j3o files exclusively. J3o is an optimized binary format for jME3 applications, and .j3o files are automatically included in the distributable JAR file by the build script. When you do QA test builds or are ready to release, use the <a href="/com/jme3/gde/core/docs/sdk.html">jMonkeyPlatform</a> to <a href="/com/jme3/gde/core/docs/sdk/model_loader_and_viewer.html">convert</a> all .obj/.scene/.xml/.blend files to .j3o files, and only load the .j3o versions.
+For testing and for the final release build, you use .j3o files exclusively. J3o is an optimized binary format for jME3 applications, and .j3o files are automatically included in the distributable JAR file by the build script. When you do QA test builds or are ready to release, use the <a href="/com/jme3/gde/core/docs/sdk.html">SDK</a> to <a href="/com/jme3/gde/core/docs/sdk/model_loader_and_viewer.html">convert</a> all .obj/.scene/.xml/.blend files to .j3o files, and only load the .j3o versions.
 </p>
 
 <p>
-Open your JME3 Project in the jMonkeyplatform.
+Open your JME3 Project in the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym>.
 </p>
 <ol>
 <li><div> Right-click a .Blend, .OBJ, or .mesh.xml file in the Projects window, and choose &quot;convert to JME3 binary&quot;. </div>
@@ -346,7 +346,7 @@ rootNode.attachChild&#40;scene&#41;;</pre>
 </td>
 	</tr>
 </table></div>
-<!-- EDIT1 TABLE [10854-11908] -->
+<!-- EDIT1 TABLE [10828-11882] -->
 </div>
 
 <h2><a>Excercise - How to Load Assets</a></h2>
@@ -431,7 +431,7 @@ Here is a third method you must know, loading a scene/model from a .j3o file:
 <ol>
 <li><div> Remove the code from the previous exercise.</div>
 </li>
-<li><div> If you haven&#039;t already, open the <a href="/com/jme3/gde/core/docs/sdk.html">jMonkeyPlatform</a> and open the project that contains the HelloAsset class.</div>
+<li><div> If you haven&#039;t already, open the <a href="/com/jme3/gde/core/docs/sdk.html">SDK</a> and open the project that contains the HelloAsset class.</div>
 </li>
 <li><div> In the projects window, browse to the <code>assets/Scenes/town</code> directory. </div>
 </li>
@@ -497,4 +497,4 @@ Let&#039;s add some action to the scene and continue with the <a href="/com/jme3
 </span></div>
 
 </div>
-<p><em><a href="http://direct.jmonkeyengine.org/wiki/doku.php/jme3:beginner:hello_asset?do=export_xhtmlbody">view online version</a></em></p>
+<p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:beginner:hello_asset?do=export_xhtmlbody">view online version</a></em></p>

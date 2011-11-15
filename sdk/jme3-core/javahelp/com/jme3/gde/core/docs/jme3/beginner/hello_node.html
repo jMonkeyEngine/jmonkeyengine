@@ -33,7 +33,7 @@ When creating a 3D game
 
 <p>
 
-You will learn that the scene graph represents the 3D world, and why the rootNode is important. You will learn how to create simple objects, and how to &quot;transform&quot; them by moving, scaling, and rotating. You will understand the difference between the two types of &quot;Spatials&quot; in the scene graph: Nodes and Geometries. 
+You will learn that the scene graph represents the 3D world, and why the rootNode is important. You will learn how to create simple objects, how to let them carry custom data (such as health points), and how to &quot;transform&quot; them by moving, scaling, and rotating. You will understand the difference between the two types of &quot;Spatials&quot; in the scene graph: Nodes and Geometries. 
 </p>
 
 </div>
@@ -122,7 +122,7 @@ In this tutorial, you learn some new terms:
 		<td>Make an object disappear from the scene</td><td>Detach the Spatial from the rootNode</td>
 	</tr>
 </table></div>
-<!-- EDIT1 TABLE [3020-3312] -->
+<!-- EDIT1 TABLE [3079-3371] -->
 <p>
 
 Every JME3 application has a rootNode: Your game automatically inherits the <code>rootNode</code> object from SimpleApplication. Everything attached to the rootNode is part of the scene graph. The elements of the scene graph are Spatials.
@@ -149,7 +149,7 @@ Every JME3 application has a rootNode: Your game automatically inherits the <cod
 		<th> Examples: </th><td> A box, a sphere, a player, a building, a piece of terrain, a vehicle, missiles, NPCs, etc… </td><td> The <code>rootNode</code>, a floor node grouping several terrains, a custom vehicle-with-passengers node, a player-with-weapon node, an audio node, etc… </td>
 	</tr>
 </table></div>
-<!-- EDIT2 TABLE [3728-4221] -->
+<!-- EDIT2 TABLE [3787-4280] -->
 </div>
 
 <h2><a>Understanding the Code</a></h2>
@@ -275,7 +275,7 @@ thing.setMaterial&#40;mat&#41;;</pre>
 		<td> Specify what should be loaded at the start </td><td> Everything you initialize and attach to the <code>rootNode</code> in the <code>simpleInitApp()</code> method is part of the scene at the start of the game. </td>
 	</tr>
 </table></div>
-<!-- EDIT3 TABLE [7021-8142] -->
+<!-- EDIT3 TABLE [7080-8201] -->
 </div>
 
 <h2><a>How do I Transform Spatials?</a></h2>
@@ -301,7 +301,7 @@ To move a Spatial <em>to</em> specific coordinates, such as (0,40.2f,-2), use: <
 </td><td>+right -left</td><td>+up -down</td><td>+forward -backward</td>
 	</tr>
 </table></div>
-<!-- EDIT4 TABLE [8267-8783] --><div><table>
+<!-- EDIT4 TABLE [8326-8842] --><div><table>
 	<tr>
 		<th> Scaling resizes Spatials </th><th> X-axis </th><th> Y-axis </th><th> Z-axis </th>
 	</tr>
@@ -313,7 +313,7 @@ To scale a Spatial 10 times longer, one tenth the height, and keep the same widt
 </td><td>length</td><td>height</td><td>width</td>
 	</tr>
 </table></div>
-<!-- EDIT5 TABLE [8785-9274] --><div><table>
+<!-- EDIT5 TABLE [8844-9333] --><div><table>
 	<tr>
 		<th> Rotation turns Spatials </th><th> X-axis </th><th> Y-axis </th><th> Z-axis </th>
 	</tr>
@@ -329,7 +329,7 @@ To roll an object 180° around the z axis: <pre>thing.rotate&#40; 0f , 0f , 180*
 </td><td>pitch = nodding your head</td><td>yaw = shaking your head</td><td>roll = cocking your head</td>
 	</tr>
 </table></div>
-<!-- EDIT6 TABLE [9276-10057] -->
+<!-- EDIT6 TABLE [9335-10116] -->
 </div>
 
 <h2><a>How do I Troubleshoot Spatials?</a></h2>
@@ -360,7 +360,40 @@ Did you rotate around the right axis? </td>
 		<td> A Geometry has an unexpected Color or Material. </td><td> Did you reuse a Material from another Geometry and have inadvertently changed its properties? (If so, consider cloning it: mat2 = mat.clone(); )  </td>
 	</tr>
 </table></div>
-<!-- EDIT7 TABLE [10190-11163] -->
+<!-- EDIT7 TABLE [10249-11222] -->
+</div>
+
+<h2><a>How do I Add Custom Data to Spatials?</a></h2>
+<div>
+
+<p>
+
+Many Spatials represent game characters or other entities that the player can interact with. The above code that rotates the two boxes around a common center (pivot) could be used for a spacecraft docked to a orbiting space station, for example.
+</p>
+
+<p>
+Depending on your game, game entities do not only change their position, rotation, or scale (the transformations that you just learned about). Game entities also have custom properties, such as health, inventory carried, equipment worn for a character, or hull strength and fuel left for a spacecraft. In Java, you represent entity data as class variables, e.g. floats, Strings, or Arrays. 
+</p>
+
+<p>
+You can add custom data directly to any Node or Geometry. <strong>You do not need to extend the Node class to include variables</strong>!
+For example, to add a custom id number to a node, you would use:
+
+</p>
+<pre>pivot.setUserData&#40; &quot;pivot id&quot;, 42 &#41;;</pre>
+
+<p>
+
+To read this Node&#039;s id number elsewhere, you would use:
+
+</p>
+<pre>int id = pivot.getUserData&#40; &quot;pivot id&quot; &#41;; </pre>
+
+<p>
+
+By using different Strings keys (here the key is <code>pivot id</code>), you can get and set several values for whatever data the Spatial needs to carry. When you start writing your game, you might add a fuel value to a car node, speed value to an airplane node, or number of gold coins to a player node, and much more. 
+</p>
+
 </div>
 
 <h2><a>Conclusion</a></h2>
@@ -368,11 +401,11 @@ Did you rotate around the right axis? </td>
 
 <p>
 
-You have learned that your 3D scene is a scene graph made up of Spatials: Visible Geometries and invisible Nodes. You can transform Spatials, or attach them to nodes and transform the nodes. 
+You have learned that your 3D scene is a scene graph made up of Spatials: Visible Geometries and invisible Nodes. You can transform Spatials, or attach them to nodes and transform the nodes. You know the easiest way how to add custom entity properties (such as player health or vehicle speed) to Spatials.
 </p>
 
 <p>
-Since standard shapes like spheres and boxes get old fast, continue with the next chapter where you learn to <a href="/com/jme3/gde/core/docs/jme3/beginner/hello_asset.html">load assets, such as 3-D models</a>.
+Since standard shapes like spheres and boxes get old fast, continue with the next chapter where you learn to <a href="/com/jme3/gde/core/docs/jme3/beginner/hello_asset.html">load assets such as 3-D models</a>.
 </p>
 <div><span>
 	<a href="/wiki/doku.php/tag:beginner?do=showtag&amp;tag=tag%3Abeginner">beginner</a>,
@@ -384,4 +417,4 @@ Since standard shapes like spheres and boxes get old fast, continue with the nex
 </span></div>
 
 </div>
-<p><em><a href="http://direct.jmonkeyengine.org/wiki/doku.php/jme3:beginner:hello_node?do=export_xhtmlbody">view online version</a></em></p>
+<p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:beginner:hello_node?do=export_xhtmlbody">view online version</a></em></p>

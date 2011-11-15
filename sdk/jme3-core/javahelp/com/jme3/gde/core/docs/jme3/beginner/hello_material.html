@@ -332,7 +332,7 @@ You create a j3m file as follows:
 <li><div> Create a file <code>assets/Materials/LeakThrough.j3m</code> with the following content:<pre>Material Leak Through : Common/MatDefs/Misc/Unshaded.j3md {
      MaterialParameters {
          Color : 1 0 1 1
-         ColorMap : Textures/ColoredTex/Monkey.png
+         ColorMap : Flip Textures/ColoredTex/Monkey.png
      }
 }</pre>
 </div>
@@ -347,7 +347,7 @@ You create a j3m file as follows:
 </li>
 <li><div> In the code sample, comment out the three lines with <code>mat_tl</code> in them.</div>
 </li>
-<li><div> Below them, add the following line: <pre>cube_leak.setMaterial&#40;&#40;Material&#41; assetManager.loadAsset&#40; &quot;Materials/LeakThrough.j3m&quot;&#41;&#41;;</pre>
+<li><div> Below them, add the following line: <pre>cube_leak.setMaterial&#40;&#40;Material&#41; assetManager.loadMaterial&#40; &quot;Materials/LeakThrough.j3m&quot;&#41;&#41;;</pre>
 </div>
 </li>
 <li><div> Run the app. The result is the same.</div>
@@ -421,7 +421,7 @@ See also
 </li>
 <li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://jmonkeyengine.googlecode.com/files/jME3_materials.pdf"><param name="text" value="<html><u>jME3 Materials documentation</u></html>"><param name="textColor" value="blue"></object> (<acronym title="Portable Document Format">PDF</acronym>)</div>
 </li>
-<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://www.youtube.com/watch?v=Feu3-mrpolc"><param name="text" value="<html><u>Video Tutorial: Editing and Assigning Materials to Models in jMonkeyPlatform</u></html>"><param name="textColor" value="blue"></object></div>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://www.youtube.com/watch?v=Feu3-mrpolc"><param name="text" value="<html><u>Video Tutorial: Editing and Assigning Materials to Models in jMonkeyEngine SDK</u></html>"><param name="textColor" value="blue"></object></div>
 </li>
 <li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://www.blender.org/education-help/tutorials/materials/"><param name="text" value="<html><u>Creating textures in Blender</u></html>"><param name="textColor" value="blue"></object></div>
 </li>
@@ -440,4 +440,4 @@ See also
 </span></div>
 
 </div>
-<p><em><a href="http://direct.jmonkeyengine.org/wiki/doku.php/jme3:beginner:hello_material?do=export_xhtmlbody">view online version</a></em></p>
+<p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:beginner:hello_material?do=export_xhtmlbody">view online version</a></em></p>

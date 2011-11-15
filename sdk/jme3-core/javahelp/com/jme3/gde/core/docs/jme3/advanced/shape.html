@@ -20,7 +20,13 @@ The simplest type of Meshes are the built-in JME Shapes. You can create Shapes w
 </li>
 <li><div> com.jme3.scene.shape.Sphere – A ball or elipsoid.</div>
 </li>
-<li><div> com.jme3.scene.shape.Dome – Semi-sphere, e.g. SkyDome. </div>
+<li><div> com.jme3.scene.shape.Dome – A semi-sphere, e.g. SkyDome. </div>
+<ul>
+<li><div> For a cone, set the Dome&#039;s radialSamples&gt;4 and planes=2. </div>
+</li>
+<li><div> For a pyramid, set the Dome&#039;s radialSamples=4 and planes=2. </div>
+</li>
+</ul>
 </li>
 <li><div> com.jme3.scene.shape.Torus – An single-holed torus or &quot;donut&quot;.</div>
 </li>
@@ -144,4 +150,4 @@ geom.setMaterial&#40;mat&#41;;
 rootNode.attachChild&#40;geom&#41;;</pre>
 
 </div>
-<p><em><a href="http://direct.jmonkeyengine.org/wiki/doku.php/jme3:advanced:shape?do=export_xhtmlbody">view online version</a></em></p>
+<p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:shape?do=export_xhtmlbody">view online version</a></em></p>

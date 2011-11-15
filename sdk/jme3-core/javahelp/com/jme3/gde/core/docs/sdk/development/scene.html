@@ -1,16 +1,10 @@
 
-<h1><a>The Scene</a></h1>
+<h1><a>jMonkeyEngine SDK -- The Scene</a></h1>
 <div>
 
 <p>
 
-To reduce system overhead the jMonkeyPlatform Core supplies one scene/jme3 application that is shared between plugins. Furthermore there&#039;s the &quot;SceneExplorer&quot; that shows a visual representation of the scenegraph and its objects properties across plugins.
-</p>
-
-<p>
-<br/>
-
-Note: All info due to change until jMP is stable!
+To reduce system overhead the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> Core supplies one scene/jme3 application that is shared between plugins. Furthermore there&#039;s the &quot;SceneExplorer&quot; that shows a visual representation of the scenegraph and its objects properties across plugins.
 </p>
 
 </div>
@@ -36,12 +30,10 @@ There are several ways for your plugin to interact with the Scene:
 
 <p>
 
-In jMP, all objects are wrapped into NetBeans &quot;Nodes&quot; (different thing than jme Nodes!). Such nodes can have properties and icons and can be displayed and selected in the jMP UI. The SceneExplorer shows a tree of Nodes that wrap the Spatials of the current scene and allows manipulating their properties on selection. A jME &quot;Spatial&quot; is wrapped by a &quot;JmeSpatial&quot; node, for example. One advantage of these Nodes is that one can manipulate properties of Spatials directly from the AWT thread.
+In the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym>, all objects are wrapped into NetBeans &quot;Nodes&quot; (different thing than jme Nodes!). Such nodes can have properties and icons and can be displayed and selected in the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> UI. The SceneExplorer shows a tree of Nodes that wrap the Spatials of the current scene and allows manipulating their properties on selection. A jME &quot;Spatial&quot; is wrapped by a &quot;JmeSpatial&quot; node, for example. One advantage of these Nodes is that one can manipulate properties of Spatials directly from the AWT thread.
 </p>
 
 <p>
-<br/>
-
 To listen to the current selection, implement org.openide.util.LookupListener and register like this:
 </p>
 <pre>private final Result&lt;JmeSpatial&gt; result;
@@ -106,25 +98,21 @@ private void requestScene&#40;&#41;&#123;
     //create the scene request
     SceneRequest request=new SceneRequest&#40;this, jmeNode, assetManager&#41;;
     //request the scene
-    SceneApplication.getApplication&#40;&#41;.requestScene&#40;request&#41;;
+    SceneApplication.getApplication&#40;&#41;.openScene&#40;request&#41;;
 &#125;
 &nbsp;
-//implements SceneListener (called from render thread)
-public void sceneRequested&#40;SceneRequest request&#41;&#123;
+//implements SceneListener (called from AWT thread)
+public void sceneOpened&#40;SceneRequest request&#41;&#123;
     //check if its our request
     if &#40;request.getRequester&#40;&#41; == this&#41; &#123;
-        //we now own the scene
+        //we now own the scene, any operations on the scene have to be done via Callables
     &#125;
 &#125;
 &nbsp;
-public boolean sceneClose&#40;SceneRequest request&#41; &#123;
+public void sceneClosed&#40;SceneRequest request&#41; &#123;
     if &#40;request.getRequester&#40;&#41; == this&#41; &#123;
-        //we have to close the scene, if we cannot, return false
-        if&#40;isNotSaved&#40;&#41;&#41;&#123;
-            return false;
-        &#125;
+        //we have to close the scene,  any operations on the scene have to be done via Callables
     &#125;
-    return true;
 &#125;</pre>
 
 </div>
@@ -133,7 +121,7 @@ public boolean sceneClose&#40;SceneRequest request&#41; &#123;
 <div>
 
 <p>
-jMP has a global undo/redo queue that activates the undo/redo buttons. To use it in your TopComponent, add the following method:
+The jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> has a global undo/redo queue that activates the undo/redo buttons. To use it in your TopComponent, add the following method:
 
 </p>
 <pre>@Override 
@@ -174,4 +162,4 @@ Note: Its important that you use the method addEdit(Object source, UndoableEdit 
 </p>
 
 </div>
-<p><em><a href="http://direct.jmonkeyengine.org/wiki/doku.php/sdk:development:scene?do=export_xhtmlbody">view online version</a></em></p>
+<p><em><a href="http://jmonkeyengine.org/wiki/doku.php/sdk:development:scene?do=export_xhtmlbody">view online version</a></em></p>

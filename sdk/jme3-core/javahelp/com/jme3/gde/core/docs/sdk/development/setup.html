@@ -1,5 +1,5 @@
 
-<h1><a>Creating a jMP plugin</a></h1>
+<h1><a>Creating a jMonkeyEngine SDK plugin</a></h1>
 <div>
 
 <p>
@@ -9,7 +9,7 @@ Note that the creation of a Module Suite is only necessary if you want to upload
 
 </div>
 
-<h3><a>Using jMP for development (preferred)</a></h3>
+<h3><a>Using jMonkeyEngine SDK for development (preferred)</a></h3>
 <div>
 <ul>
 <li><div> Install the &quot;Netbeans Plugin Development&quot;, &quot;NetBeans <acronym title="Application Programming Interface">API</acronym> Documentation&quot; and &quot;<acronym title="Graphical User Interface">GUI</acronym> Builder&quot; plugins via Tools→Plugins</div>
@@ -30,7 +30,7 @@ Note that the creation of a Module Suite is only necessary if you want to upload
 </li>
 <li><div> Press Finish</div>
 </li>
-<li><div> To use core jMP or jME3 functions, add &quot;jMonkeyPlatfom Core&quot; and &quot;jMonkeyPlatform Core jME3&quot; via &quot;Module Properties→Library→Add Dependency&quot;</div>
+<li><div> To use core <acronym title="Software Development Kit">SDK</acronym> or jME3 functions, add &quot;jMonkeyPlatfom Core&quot; and &quot;jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> Core jME3&quot; via &quot;Module Properties→Library→Add Dependency&quot;</div>
 </li>
 <li><div> Write your plugin </div>
 </li>
@@ -41,11 +41,11 @@ Note that the creation of a Module Suite is only necessary if you want to upload
 <h3><a>Using NetBeans for development</a></h3>
 <div>
 <ul>
-<li><div> Download the jMP source from svn, then open and compile the project</div>
+<li><div> Download the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> source from svn, then open and compile the project</div>
 </li>
 <li><div> Create a new &quot;Module Suite&quot; project (can be any name, this will be your local &quot;collection&quot; of plugins that you create)</div>
 </li>
-<li><div> In the Suites Properties, under &quot;Libraries&quot;, press &quot;Add Project&quot; and select the jMP project folder.</div>
+<li><div> In the Suites Properties, under &quot;Libraries&quot;, press &quot;Add Project&quot; and select the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> project folder.</div>
 </li>
 <li><div> Open the suite, right-click the &quot;Modules&quot; folder and select &quot;Add new..&quot;</div>
 </li>
@@ -61,7 +61,7 @@ Note that the creation of a Module Suite is only necessary if you want to upload
 </li>
 <li><div> Press Finish</div>
 </li>
-<li><div> To use core jMP or jME3 functions, add &quot;jMonkeyPlatfom Core&quot; and &quot;jMonkeyPlatform Core jME3&quot; via &quot;Module Properties→Library→Add Dependency&quot;</div>
+<li><div> To use core <acronym title="Software Development Kit">SDK</acronym> or jME3 functions, add &quot;jMonkeyPlatfom Core&quot; and &quot;jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> Core jME3&quot; via &quot;Module Properties→Library→Add Dependency&quot;</div>
 </li>
 <li><div> Write your plugin </div>
 </li>
@@ -69,11 +69,11 @@ Note that the creation of a Module Suite is only necessary if you want to upload
 
 </div>
 
-<h3><a>jMP Contributions Update Center</a></h3>
+<h3><a>jMonkeyEngine SDK Contributions Update Center</a></h3>
 <div>
 
 <p>
-If you want your plugin to appear in the &quot;jMP Contributions Update Center&quot; so users can download, install and update it easily via the plugin manager, you can host your plugin in the contributions update center svn repository. The contributions update center is based on a googlecode project for contributed plugins which will be automatically compiled, version-labeled and added to the contributions update center like the core jMP plugins.
+If you want your plugin to appear in the &quot;jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> Contributions Update Center&quot; so users can download, install and update it easily via the plugin manager, you can host your plugin in the contributions update center svn repository. The contributions update center is based on a googlecode project for contributed plugins which will be automatically compiled, version-labeled and added to the contributions update center like the core jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> plugins.
 </p>
 
 <p>
@@ -84,7 +84,7 @@ To add your plugin to the repository, do the following:
 <ul>
 <li><div> Make sure the plugin is part of a &quot;Module Suite&quot; and that its located in the folder of the suite (this saves you from problems with the svn and local version not being configured the same)</div>
 </li>
-<li><div> In &quot;Module Properties→Sources&quot; set the &quot;Source Level&quot; to 1.5 if possible (jMP is compatible to Java 1.5)</div>
+<li><div> In &quot;Module Properties→Sources&quot; set the &quot;Source Level&quot; to 1.5 if possible (jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> is compatible to Java 1.5)</div>
 </li>
 <li><div> In &quot;Module Properties→<acronym title="Application Programming Interface">API</acronym> Versioning&quot; set a specification version for your plugin (like 0.8.1)</div>
 </li>
@@ -115,4 +115,4 @@ And thats it, from now on each time you commit changes to your module it will be
 </p>
 
 </div>
-<p><em><a href="http://direct.jmonkeyengine.org/wiki/doku.php/sdk:development:setup?do=export_xhtmlbody">view online version</a></em></p>
+<p><em><a href="http://jmonkeyengine.org/wiki/doku.php/sdk:development:setup?do=export_xhtmlbody">view online version</a></em></p>

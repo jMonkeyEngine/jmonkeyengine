@@ -1,10 +1,10 @@
 
-<h1><a>jMonkeyPlatform: Importing and Viewing Models</a></h1>
+<h1><a>jMonkeyEngine SDK: Importing and Viewing Models</a></h1>
 <div>
 
 <p>
 
-JMonkeyPlatform imports models from your project and stores them in the assets folder. The imported models are converted to a jME3 compatible binary format called .j3o. Double-click .j3o files in the jMonkeyPlatform to display them in the SceneViewer, or load them in-game using the AssetManager.
+The jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> imports models from your project and stores them in the assets folder. The imported models are converted to a jME3 compatible binary format called .j3o. Double-click .j3o files in the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> to display them in the SceneViewer, or load them in-game using the AssetManager.
 </p>
 
 <p>
@@ -22,11 +22,11 @@ Also, see this <object classid="java:org.netbeans.modules.javahelp.BrowserDispla
 
 <p>
 
-jMonkeyPlatform includes a tool to install the correct exporter tools in Blender to export OgreXML files. To install the exporter, do the following:
+The jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> includes a tool to install the correct exporter tools in Blender to export OgreXML files. To install the exporter, do the following:
 
 </p>
 <ol>
-<li><div> Select &quot;Tools&quot;→&quot;OgreXML&quot;→&quot;Install Blender OgreXML&quot; in the jMonkeyPlatform Menu</div>
+<li><div> Select &quot;Tools&quot;→&quot;OgreXML&quot;→&quot;Install Blender OgreXML&quot; in the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> Menu</div>
 </li>
 <li><div> If you are presented a filechooser, select the folder where your blender scripts reside</div>
 </li>
@@ -45,7 +45,7 @@ jMonkeyPlatform includes a tool to install the correct exporter tools in Blender
 <div>
 
 <p>
-jMonkeyPlatform includes a model importer tool that allows you to preview and import supported models into your jMonkeyEngine3 project.
+jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> includes a model importer tool that allows you to preview and import supported models into your jMonkeyEngine3 project.
 </p>
 
 <p>
@@ -153,11 +153,11 @@ Most plugins will deliver their own UI elements to modify the scene so the Scene
 <div>
 
 <p>
-Each jMP project has its own internal AssetManager that has the projects assets folder registered as a FileLocator. When the project is run, the assets folder is compressed into a jar file and added to the projects main jar classpath. This way the editors in jMP and the running game have the same asset folder structure.
+Each jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> project has its own internal AssetManager that has the projects assets folder registered as a FileLocator. When the project is run, the assets folder is compressed into a jar file and added to the projects main jar classpath. This way the editors in jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> and the running game have the same asset folder structure.
 </p>
 
 <p>
-You might wonder why jMP requires you to copy the model that is to be converted to j3o into the assets folder before. The Model Import Tool also copies the model and associated files to the project directory before converting. To load the model it needs to be in a folder (or jar etc..) that belongs to the projects AssetManager root. To load a model from some other folder of the filesystem, that folder would have to be added to the AssetManager root. If every folder that contains a model was in the root of the AssetManager, all textures named &quot;hull.jpg&quot; for example would be the same for the AssetManager and it would only deliver the texture of the first model folder that was added.
+You might wonder why jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> requires you to copy the model that is to be converted to j3o into the assets folder before. The Model Import Tool also copies the model and associated files to the project directory before converting. To load the model it needs to be in a folder (or jar etc..) that belongs to the projects AssetManager root. To load a model from some other folder of the filesystem, that folder would have to be added to the AssetManager root. If every folder that contains a model was in the root of the AssetManager, all textures named &quot;hull.jpg&quot; for example would be the same for the AssetManager and it would only deliver the texture of the first model folder that was added.
 </p>
 
 <p>
@@ -166,4 +166,4 @@ To have a valid jME3 object, the paths to textures and other assets belonging to
 </p>
 
 </div>
-<p><em><a href="http://direct.jmonkeyengine.org/wiki/doku.php/sdk:model_loader_and_viewer?do=export_xhtmlbody">view online version</a></em></p>
+<p><em><a href="http://jmonkeyengine.org/wiki/doku.php/sdk:model_loader_and_viewer?do=export_xhtmlbody">view online version</a></em></p>

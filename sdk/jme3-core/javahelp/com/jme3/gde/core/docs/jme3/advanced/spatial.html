@@ -48,10 +48,10 @@ mesh, material;  </td><td> Transformations; custom user data; <br/>
 no mesh, no material.</td>
 	</tr>
 	<tr>
-		<th> Examples:   </th><td> A box, a sphere, player, a building, a piece of terrain, a vehicle, missiles, NPCs, etc… </td><td> The rootNode, the guiNode, an audio node, a custom grouping node, etc… </td>
+		<th> Examples:   </th><td> Box, sphere, player, building, terrain, vehicle, missiles, NPCs, etc… </td><td> The rootNode, the guiNode, an audio node, a custom grouping node, etc… </td>
 	</tr>
 </table></div>
-<!-- EDIT1 TABLE [944-2177] -->
+<!-- EDIT1 TABLE [944-2158] -->
 <p>
 
 <p><div>You never create a Spatial with <code>Spatial s = new Spatial();</code>! A Spatial is an abstract concept, like a mammal (there is no actual creature called &quot;mammal&quot; walking around here). You create a Node, or load a Geometry object. Some methods however require a Spatial argement: This is because they are able to accept both Nodes and Geometries as arguments. In this case, you must cast a Node or Geometry to Spatial.
@@ -79,34 +79,56 @@ The polygon <a href="/com/jme3/gde/core/docs/jme3/advanced/mesh.html">Mesh</a> i
 
 </div>
 
-<h2><a>How to Add User Data to a Spatial</a></h2>
+<h2><a>How to Add Fields and Methods to a Spatial</a></h2>
 <div>
 
 <p>
 
-You can include custom Java objects in Nodes and Geometries. This is useful for maintaining information about a game element, such as health, budget, ammunition, inventory, equipment, etc for players, or landmark locations for terrains, and much more. Where ever the spatial is accessible, you can also access the object&#039;s game data.
+You can include custom Java objects in Nodes and Geometries. This is useful for maintaining information about a game element, such as health, budget, ammunition, inventory, equipment, etc for players, or landmark locations for terrains, and much more. 
 </p>
-<pre>// create and instance of your custom data class
-PlayerData playerData = new PlayerData&#40;&quot;joe&quot;, 0, 100&#41;; 
-// store custom data in Node or Geometry
-player.setUserData&#40;&quot;player data&quot;, playerData&#41;; 
+
+<p>
+You do not need to create a custom class that extends Node or Geometry to be able to add custom fields to a spatial – use the setUserData() method instead. Neither do need to create a custom class that extends Node to be able to add custom accessor methods to this spatial – use a Control instead. Where ever the spatial is accessible, you can also access the object&#039;s game data and accessors. 
+</p>
+
+<p>
+For example when you initialize your custom PlayerControl class:
+
+</p>
+<pre>// init custom data fields in this Control's Spatial (Node or Geometry)
+spatial.setUserData&#40;&quot;Health&quot;, 100&#41;; </pre>
+
+<p>
+
+In your PlayerControl, you offer accessors that manipulate and get this custom data: 
+
+</p>
+<pre>public int getHealth&#40;&#41; &#123;
+  return &#40;Integer&#41;spatial.getUserData&#40;&quot;Health&quot;&#41;;
+&#125;
+public void setHealth&#40;int h&#41; &#123;
+  spatial.setUserData&#40;&quot;Health&quot;,h&#41;;
+&#125;</pre>
+
+<p>
+
+Elsewhere in your code, you can access this data wherever you have access to the spatial. 
+
+</p>
+<pre>health = player_node.getControl&#40;PlayerControl.class&#41;.getHealth&#40;&#41;;
 ...
-// Elsewhere: retrieved data from Node or Geometry...
-PlayerData playerData = player.getUserData&#40;&quot;player data&quot;&#41;;
-// ... set the data...
-playerData.setHealth&#40;&quot;99&quot;&#41;;
-// ... or get the data for tests or to display it in the HUD.
-health = playerData.getHealth&#40;&#41;;</pre>
+player_node.getControl&#40;PlayerControl.class&#41;.setHealth&#40;99&#41;;</pre>
 
 <p>
-You can add as many data objects to a Spatial as you need. Just make sure to label them with different Strings (<code>player data</code>, <code>player inventory</code>, <code>player equipment</code>, etc).
+You can add as many data objects (including Strings, Integers, Floats, Arrays,) to a Spatial as you need. Just make sure to label them with different Strings (<code>health</code>, <code>inventory</code>, <code>equipment</code>, etc). The saved data can also be custom Java objects if you make the Java class implement the Savable interface. When you save a Spatial as a j3o file, the custom data is saved too, and it will be restored the next time you load the j3o!
 </p>
 
 <p>
-You can also list all data keys that are defined for one Spatial:
+
+You can list all data keys that are already defined for one Spatial:
 </p>
-<pre>for&#40;String key : geom.getUserDataKeys&#40;&#41;&#41;&#123;
-      System.out.println&#40;geom.getName&#40;&#41;+&quot;'s keys: &quot;+key&#41;;
+<pre>for&#40;String key : spatial.getUserDataKeys&#40;&#41;&#41;&#123;
+      System.out.println&#40;spatial.getName&#40;&#41;+&quot;'s keys: &quot;+key&#41;;
 &#125;</pre>
 
 </div>
@@ -120,7 +142,7 @@ Often after you load a scene or model, you need to access a part of it as an ind
 
 </p>
 <ol>
-<li><div> Open the model in a 3D mesh editor, or in the jMonkeyPlatform&#039;s viewer. </div>
+<li><div> Open the model in a 3D mesh editor, or in the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym>&#039;s Scene Composer. </div>
 </li>
 <li><div> Find out the existing names of sub-meshes in the model.</div>
 </li>
@@ -135,4 +157,4 @@ In the following example, the Node <code>house</code> is the loaded model. The s
 <pre>Geometry submesh = &#40;Geometry&#41; houseScene.getChild&#40;&quot;door 12&quot;&#41;;</pre>
 
 </div>
-<p><em><a href="http://direct.jmonkeyengine.org/wiki/doku.php/jme3:advanced:spatial?do=export_xhtmlbody">view online version</a></em></p>
+<p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:spatial?do=export_xhtmlbody">view online version</a></em></p>

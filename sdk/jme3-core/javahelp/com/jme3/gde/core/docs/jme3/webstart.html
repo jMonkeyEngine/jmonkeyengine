@@ -4,11 +4,17 @@
 
 <p>
 
-When you <a href="/com/jme3/gde/core/docs/sdk/application_deployment.html">use the jMonkeyPlatform to deploy your application</a>, you can configure the project to build files required for WebStart automatically. If you use another IDE, or work on the command line, use the following tips to set up WebStart correctly:
+When you <a href="/com/jme3/gde/core/docs/sdk/application_deployment.html">use the jMonkeyEngine SDK to deploy your application</a>, you can configure the project to build files required for WebStart automatically. If you use another IDE, or work on the command line, use the following tips to set up WebStart correctly:
 </p>
 
+</div>
+
+<h2><a>Problem Statement</a></h2>
+<div>
+
 <p>
-Problem:
+
+<strong>Problem:</strong>
 </p>
 
 <p>
@@ -16,7 +22,7 @@ When running under WebStart, jMonkeyEngine may not have permission to extract th
 </p>
 
 <p>
-Solution: 
+<strong>Solution: </strong>
 </p>
 
 <p>
@@ -57,6 +63,21 @@ for i in *; do
   jar cfv ../../native_$i.jar .
   cd ..
 done</pre>
+
+<p>
+For Windows:
+</p>
+<pre>@echo off
+md tmp
+cd tmp
+&quot;%JDK_HOME%\bin\jar&quot; -xfv ..\jME3-lwjgl-natives.jar
+cd native
+for /D %%i in (&quot;*&quot;) do (
+  cd %%i
+  &quot;%JDK_HOME%\bin\jar&quot; -cfv ..\..\native_%%i%.jar .
+  cd ..
+)
+cd ..</pre>
 
 <p>
 Remember to sign all the jar files and move them into the right place from the tmp directory.
@@ -104,4 +125,4 @@ In your main() method, if running under WebStart, tell jME3 it is running in a l
       &#125;</pre>
 
 </div>
-<p><em><a href="http://direct.jmonkeyengine.org/wiki/doku.php/jme3:webstart?do=export_xhtmlbody">view online version</a></em></p>
+<p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:webstart?do=export_xhtmlbody">view online version</a></em></p>

@@ -16,9 +16,9 @@ This is a draft of a feature that is work in progress. If you have questions or 
 </li>
 <li><div> Install <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://developer.android.com/sdk/index.html"><param name="text" value="<html><u>Android SDK 2.2</u></html>"><param name="textColor" value="blue"></object> or better.</div>
 </li>
-<li><div> Install jMonkeyPlatform</div>
+<li><div> Install jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym></div>
 </li>
-<li><div> Install Android Project support in the jMonkeyPlatform:</div>
+<li><div> Install Android Project support in the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym>:</div>
 <ol>
 <li><div> Open Tools→Plugins→Settings</div>
 </li>
@@ -68,12 +68,12 @@ This is a draft of a feature that is work in progress. If you have questions or 
 
 </div>
 
-<h3><a>jMonkeyPlatform Android Integration</a></h3>
+<h3><a>jMonkeyEngine SDK Android Integration</a></h3>
 <div>
 
 <p>
 
-Mobile deployment is a &quot;one-click&quot; option next to Desktop/WebStart/Applet deployment in the jMonkeyPlatform.
+Mobile deployment is a &quot;one-click&quot; option next to Desktop/WebStart/Applet deployment in the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym>.
 </p>
 <ul>
 <li><div> Automatic creation of Android harness and settings.</div>
@@ -89,9 +89,9 @@ Mobile deployment is a &quot;one-click&quot; option next to Desktop/WebStart/App
 <h2><a>Beta Instructions</a></h2>
 <div>
 <ol>
-<li><div> Make sure you have installed the Android Project Support into the jMonkeyPlatform.</div>
+<li><div> Make sure you have installed the Android Project Support into the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym>.</div>
 </li>
-<li><div> Open the jMonkeyPlatform Options&gt;Mobile and enter the path to your Android <acronym title="Software Development Kit">SDK</acronym> directory, and click OK. E.g. <code>/opt/android-sdk</code></div>
+<li><div> Open the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> Options&gt;Mobile and enter the path to your Android <acronym title="Software Development Kit">SDK</acronym> directory, and click OK. E.g. <code>/opt/android-sdk</code></div>
 </li>
 </ol>
 
@@ -124,7 +124,7 @@ The Android deployment option creates a separate sub-project for android and mak
 </p>
 
 <p>
-Activating the nbandroid plugin in the jMonkeyPlatform is optional, but recommended. You do not need the nbandroid plugin for Android support to work, however nbandroid will not interfere and will in fact allow you to edit the android source files and project more conveniently. To be able to edit, extend and code android-specific code in Android projects, install NBAndroid from the update center:
+Activating the nbandroid plugin in the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> is optional, but recommended. You do not need the nbandroid plugin for Android support to work, however nbandroid will not interfere and will in fact allow you to edit the android source files and project more conveniently. To be able to edit, extend and code android-specific code in Android projects, install NBAndroid from the update center:
 </p>
 <ol>
 <li><div> Open Tools→Plugins→Settings</div>
@@ -137,7 +137,7 @@ Activating the nbandroid plugin in the jMonkeyPlatform is optional, but recommen
 
 <p>
 
-Restart the jMonkeyPlatform.
+Restart the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym>.
 </p>
 
 </div>
@@ -147,7 +147,7 @@ Restart the jMonkeyPlatform.
 
 <p>
 
-Open your game project in the jMonkeyPlatform.
+Open your game project in the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym>.
 </p>
 <ol>
 <li><div> Right-click the project node and choose Set Main Project.</div>
@@ -194,15 +194,15 @@ Optionally, download <object classid="java:org.netbeans.modules.javahelp.Browser
 
 <p>
 
-You can use the jMonkeyPlatform to save (theoretically) any jMonkeyEngine app as Android app. But the application has to be prepared for the fact that Android devices have a smaller screen resolution, touchscreens instead of mouse buttons, and (typically) no keyboards.
+You can use the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> to save (theoretically) any jMonkeyEngine app as Android app. But the application has to be prepared for the fact that Android devices have a smaller screen resolution, touchscreens instead of mouse buttons, and (typically) no keyboards.
 
 </p>
 <ul>
 <li><div> <strong>Inputs:</strong> Devise an alternate control scheme that works for Android users (e.g. using com.jme3.input.controls.TouchListener). This mobile scheme is likely quite different from the desktop scheme.</div>
 </li>
-<li><div> <strong>Effects:</strong> Android devices do no support 3D features as well as PCs – or even not at all. E.g. post-processor filters (depth-of-field blur, bloom, light scattering, cartoon, etc), drop shadows, water effects, 3D Audio. Be prepared that these effects will (at best) slow down the application or (in the worst case) not work at all. Provide the option to switch to a low-fi equivalent! </div>
+<li><div> <strong>Effects:</strong> Android devices do no support 3D features as well as PCs – or even not at all. This restriction includes post-processor filters (depth-of-field blur, bloom, light scattering, cartoon, etc), drop shadows, water effects, 3D Audio. Be prepared that these effects will (at best) slow down the application or (in the worst case) not work at all. Provide the option to switch to a low-fi equivalent! </div>
 </li>
-<li><div> <strong>Nifty <acronym title="Graphical User Interface">GUI</acronym>:</strong> Use different base UI layout <acronym title="Extensible Markup Language">XML</acronym> files for the mobile version of your app to account for the different screen settings.</div>
+<li><div> <strong>Nifty <acronym title="Graphical User Interface">GUI</acronym>:</strong> Use different base UI layout <acronym title="Extensible Markup Language">XML</acronym> files for the mobile version of your app to account for a different screen resolution.</div>
 </li>
 </ul>
 
@@ -247,4 +247,4 @@ The <acronym title="Software Development Kit">SDK</acronym> will later provide t
 </ul>
 
 </div>
-<p><em><a href="http://direct.jmonkeyengine.org/wiki/doku.php/jme3:android?do=export_xhtmlbody">view online version</a></em></p>
+<p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:android?do=export_xhtmlbody">view online version</a></em></p>

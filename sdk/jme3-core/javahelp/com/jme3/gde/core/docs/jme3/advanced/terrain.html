@@ -1,8 +1,9 @@
 
-<h1><a>TerraMonkey - jME3&#039;s Terrain System</a></h1>
+<h1><a>TerraMonkey - The jMonkeyEngine Terrain System</a></h1>
 <div>
 
 <p>
+
 The goal of TerraMonkey is to provide a base implementation that will be usable for 80% of people&#039;s goals, while providing tools and a good foundation for the other 20% to build off of. Check out the videos in the following announcements:
 </p>
 <ul>
@@ -18,6 +19,7 @@ The goal of TerraMonkey is to provide a base implementation that will be usable 
 <div>
 
 <p>
+
 TerraMonkey is a GeoMipMapping quad tree of terrain tiles that supports real time editing and texture splatting. That&#039;s a mouth full! Lets look at each part:
 </p>
 <ul>
@@ -27,37 +29,52 @@ TerraMonkey is a GeoMipMapping quad tree of terrain tiles that supports real tim
 </li>
 <li><div> <strong>Splatting:</strong> The ability to paint multiple textures onto your terrain. What differs here from JME2 is that this is all done in a shader, no more render passes. So it performs much faster.</div>
 </li>
-<li><div> <strong>Real-time editing:</strong> TerraMonkey will be editable in JMonkeyPlatform, and you will be able to do it in real time: raising and lowering terrain.</div>
+<li><div> <strong>Real-time editing:</strong> TerraMonkey terrains are editable in jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym>, and you are able to modify them in real time: raising and lowering terrain.</div>
 </li>
 </ul>
 
 </div>
 
-<h2><a>Current Features:</a></h2>
+<h3><a>Current Features:</a></h3>
 <div>
 <ul>
-<li><div> Support for up to 3 splat textures.</div>
+<li><div> Support for 16 splat textures. You use a custom combination of Diffuse, Normal, Specular, and Glow Maps.</div>
 </li>
-<li><div> GeoMipMapping</div>
+<li><div> GeoMipMapping: LodControl optimizes the level of detail</div>
 </li>
-<li><div> can be supplied a heightmap</div>
+<li><div> Terrain can be randomized or generated from a heightmap</div>
+</li>
+<li><div> jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> terrain editor</div>
+</li>
+<li><div> Streaming <a href="/com/jme3/gde/core/docs/jme3/advanced/endless_terraingrid.html">terrain grid</a> (ie. &quot;infinite&quot; terrain)</div>
 </li>
 </ul>
 
 </div>
 
-<h2><a>Planned Features:</a></h2>
+<h3><a>Planned Features:</a></h3>
 <div>
 <ul>
-<li><div> jMonkeyPlatform terrain editor</div>
-</li>
-<li><div> Support for up to 16 splat textures.</div>
-</li>
 <li><div> Hydraulic erosion and procedural texture generation</div>
 </li>
-<li><div> Streaming terrain (ie. &quot;infinite&quot; terrain)</div>
-</li>
 <li><div> Holes: caves, cliffs</div>
+</li>
+</ul>
+
+</div>
+
+<h2><a>Sample Code</a></h2>
+<div>
+<ul>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/terrain/TerrainTest.java"><param name="text" value="<html><u>TerrainTest.java</u></html>"><param name="textColor" value="blue"></object></div>
+</li>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/terrain/TerrainTestAdvanced.java"><param name="text" value="<html><u>TerrainTestAdvanced.java</u></html>"><param name="textColor" value="blue"></object></div>
+</li>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/terrain/TerrainTestCollision.java"><param name="text" value="<html><u>TerrainTestCollision.java</u></html>"><param name="textColor" value="blue"></object></div>
+</li>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/terrain/TerrainTestModifyHeight.java"><param name="text" value="<html><u>TerrainTestModifyHeight.java</u></html>"><param name="textColor" value="blue"></object></div>
+</li>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/terrain/TerrainTestReadWrite.java"><param name="text" value="<html><u>TerrainTestReadWrite.java</u></html>"><param name="textColor" value="blue"></object></div>
 </li>
 </ul>
 
@@ -67,14 +84,16 @@ TerraMonkey is a GeoMipMapping quad tree of terrain tiles that supports real tim
 <div>
 
 <p>
-You have seen GeoMipMapping implemented in games before. This is where the farther away terrain has fewer polygons, and as you move closer, more polygons fill in. The whole terrain is divided into a grid of patches, and each one has its own LOD. The GeoMipMapping algorithm will look at each patch, and its neighbours, to determine how to render the geometry. It will seam the edges between two patches with different LOD.
-This often leads to &quot;popping&quot; where you see the terrain switch from one LOD to another. TerraMonkey has been designed so you can swap out different LOD calculation algorithms based on what will look best for your game.
-You can do this with the LodCalculator interface.
-GeoMipMapping in TerraMonkey has been split into several parts: the terrain quad tree, and the LODGeomap. The geomap deals with the actual LOD and seaming algorithm. So if you want a different data structure for your terrain system, you can re-use this piece of code.
-The quad tree (TerrainQuad and TerrainPatch) provide a means to organize the LODGeomaps, notify them of their neighbour&#039;s LOD change, and to update the geometry when the LOD does change.
-To change the LOD it does this by changing the index buffer of the triangle strip, so the whole geometry doesn&#039;t have to be re-loaded onto the video card.
-If you are eager, you can read up more detail how GeoMipMapping works here: <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://www.flipcode.com/archives/article_geomipmaps.pdf"><param name="text" value="<html><u>www.flipcode.com/archives/article_geomipmaps.pdf</u></html>"><param name="textColor" value="blue"></object>
 
+You have seen GeoMipMapping implemented in games before. This is where the farther away terrain has fewer polygons, and as you move closer, more polygons fill in. The whole terrain is divided into a grid of patches, and each one has its own level of detail (LOD). The GeoMipMapping algorithm looks at each patch, and its neighbours, to determine how to render the geometry. It will seam the edges between two patches with different LOD.
+</p>
+
+<p>
+GeoMipMapping often leads to &quot;popping&quot; where you see the terrain switch from one LOD to another. TerraMonkey has been designed so you can swap out different LOD calculation algorithms based on what will look best for your game. You can do this with the LodCalculator interface.
+</p>
+
+<p>
+GeoMipMapping in TerraMonkey has been split into several parts: the terrain quad tree, and the LODGeomap. The geomap deals with the actual LOD and seaming algorithm. So if you want a different data structure for your terrain system, you can re-use this piece of code. The quad tree (TerrainQuad and TerrainPatch) provide a means to organize the LODGeomaps, notify them of their neighbour&#039;s LOD change, and to update the geometry when the LOD does change. To change the LOD it does this by changing the index buffer of the triangle strip, so the whole geometry doesn&#039;t have to be re-loaded onto the video card. If you are eager, you can read up more detail how GeoMipMapping works here: <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://www.flipcode.com/archives/article_geomipmaps.pdf"><param name="text" value="<html><u>www.flipcode.com/archives/article_geomipmaps.pdf</u></html>"><param name="textColor" value="blue"></object>
 </p>
 
 </div>
@@ -83,8 +102,8 @@ If you are eager, you can read up more detail how GeoMipMapping works here: <obj
 <div>
 
 <p>
-TerraMonkey is a quad tree. Each node is a TerrainQuad, and each leaf is a TerrainPatch. A TerrainQuad has either 4 child TerrainQuads, or 4 child TerrainPatches. The TerrainPatch holds the actual mesh geometry. This structure is almost exactly the same as JME2&#039;s TerrainPage system. Except now each leaf has a reference to its neighbours, so it doesn&#039;t ever have to traverse the tree to get them.
 
+TerraMonkey is a quad tree. Each node is a TerrainQuad, and each leaf is a TerrainPatch. A TerrainQuad has either 4 child TerrainQuads, or 4 child TerrainPatches. The TerrainPatch holds the actual mesh geometry. This structure is almost exactly the same as JME2&#039;s TerrainPage system. Except now each leaf has a reference to its neighbours, so it doesn&#039;t ever have to traverse the tree to get them.
 </p>
 
 </div>
@@ -93,22 +112,122 @@ TerraMonkey is a quad tree. Each node is a TerrainQuad, and each leaf is a Terra
 <div>
 
 <p>
-The default material for TerraMonkey is Terrain.j3md. This material combines an alphamap with several textures to produce the final texture.
-Right now there is support for only 3 textures and an alpha map. This is in place until we finish the terrain editor in JMP, and then the texture support will be 16 textures.
-It is only 3 right now so you can hand-paint them in a drawing program, like Photoshop, setting each splat texture in either Red, Green, or Blue. The test case has an example texture to show you how this works.
-Along with getting more splat texture support, we will be adding in lighting and normal mapping support. The normal mapping isn&#039;t fully planned out yet. We need to decide how we are going to handle a normal map for each texture that is passed in. That could generate some very odd effects.
-Thoughts, ideas, and recommendations are appreciated!
+We recommend to <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://jmonkeyengine.org/wiki/doku.php/sdk:terrain_editor"><param name="text" value="<html><u>create and edit Splat Textures for terrains visually in the jMonkeyEngine SDK</u></html>"><param name="textColor" value="blue"></object>. If you are curious or want to create materials manually, read on for the implementation details:
+</p>
 
+<p>
+When you &quot;slap&quot; a texture on a mesh, the whole mesh looks the same. For big meshes (such as terrains) that is undesirable because it looks very boring (your whole landscape would be all rock, or all grass, or all sand). Texture Splatting is a technique that lets you &quot;paint&quot; several textures into one combined texure. Each of the splat textures has an opacity value so you can define where it is visible in the final overall texture.
+</p>
+
+<p>
+The default material for TerraMonkey is TerrainLighting.j3md. This material combines several texture maps to produce the final custom texture. Remember, Diffuse Maps are the main textures that define the look; optionally, each Diffuse Map can be enhanced with a Normal Map; Alpha Maps describe the opacity of each Diffuse Map used (one color –red, green, blue, or alpha– stands for one Diffuse Map&#039;s opacity); Glow and Specular Maps define optional effects. Here are the names of the material properties:
+
+</p>
+<ul>
+<li><div> 1-3 Alpha Maps</div>
+<ul>
+<li><div> <code>AlphaMap</code></div>
+</li>
+<li><div> <code>AlphaMap_1</code></div>
+</li>
+<li><div> <code>AlphaMap_2</code></div>
+</li>
+</ul>
+</li>
+<li><div> 12 Diffuse and/or Normal Maps (either in pairs, or stand-alone Diffuse Maps)</div>
+<ul>
+<li><div> <code>DiffuseMap</code></div>
+</li>
+<li><div> <code>NormalMap</code></div>
+</li>
+<li><div> <code>DiffuseMap_1</code></div>
+</li>
+<li><div> <code>NormalMap_1</code></div>
+</li>
+<li><div> <code>DiffuseMap_2</code></div>
+</li>
+<li><div> <code>NormalMap_2</code></div>
+</li>
+<li><div> etc, up to <code>…Map_11</code>.</div>
+</li>
+</ul>
+</li>
+<li><div> &quot;Light&quot; maps</div>
+<ul>
+<li><div> <code>GlowMap</code></div>
+</li>
+<li><div> <code>SpecularMap</code></div>
+</li>
+</ul>
+</li>
+</ul>
+
+<p>
+
+Video cards support a maximum of 16 Splat textures total. This means you can only use a subset of material properties at the same time! Follow these constraints:
+</p>
+<ul>
+<li><div> 1-12 Diffuse Maps</div>
+</li>
+<li><div> 1-3 Alpha Maps (for each 4 Diffuse Maps, you need 1 more Alpha Map!)</div>
+</li>
+<li><div> 0-6 Normal Maps (number must be equal or less than number of Diffuse Maps, since they come in pairs!)</div>
+</li>
+<li><div> 0 or 1 Glow Map</div>
+</li>
+<li><div> 0 or 1 Specular Map.</div>
+</li>
+<li><div> The sum of all maps used must be 16 or less.</div>
+</li>
+</ul>
+
+<p>
+
+Here are some common examples what this means:
+</p>
+<ul>
+<li><div> 3 Alpha + 12 Diffuse + 1 Normal. </div>
+</li>
+<li><div> 3 Alpha + 12 Diffuse + 1 Glow. </div>
+</li>
+<li><div> 3 Alpha + 12 Diffuse + 1 Specular. </div>
+</li>
+<li><div> 3 Alpha + 10 Diffuse + 3 Normal. </div>
+</li>
+<li><div> 3 Alpha + 10 Diffuse + 1 Normal + 1 Glow + 1 Specular. </div>
+</li>
+<li><div> 2 Alpha + 8 Diffuse + 6 Normal. </div>
+</li>
+<li><div> 2 Alpha + 6 Diffuse + 6 Normal + 1 Glow + 1 Specular. </div>
+</li>
+<li><div> 1 Alpha + 3 Diffuse + 3 Normal + 1 Glow + 1 Specular (rest unused)</div>
+</li>
+</ul>
+
+<p>
+
+You can hand-paint Alpha, Diffuse, Glow, and Specular maps in a drawing program, like Photoshop. Define each splat texture in the Alpha Map in either Red, Green, Blue, or Alpha (=RGBA). The JmeTests project bundled in the <a href="/com/jme3/gde/core/docs/sdk.html">SDK</a> includes some image files that show you how this works. The following images show the terrains heightmap next to its Alpha Map (ready for 3 Diffuse Maps) and one exemplary Diffuse/Normal Map pair.
+</p>
+
+<p>
+<img src="/wiki/lib/exe/fetch.php">
+<img src="/wiki/lib/exe/fetch.php">
+<img src="/wiki/lib/exe/fetch.php">
+<img src="/wiki/lib/exe/fetch.php">
 </p>
 
 </div>
 
-<h2><a>Code Sample</a></h2>
+<h2><a>Code Sample: Terrain.j3md</a></h2>
 <div>
 
 <p>
-First, we load our textures and the heightmap texture for the terrain
 
+This example shows the simpler material definition <code>Terrain.j3md</code>, which only supports 1 Alpha Map, 3 Diffuse Maps, 3 Normal Maps, and does not support Phong illumination. It makes the exmaple shorter – TerrainLighting.j3md works accordingly (The list of material properties see above. Links to extended sample code see above.)
+</p>
+
+<p>
+First, we load our textures and the heightmap texture for the terrain
 </p>
 <pre>// Create material from Terrain Material Definition
 matRock = new Material&#40;assetManager, &quot;Common/MatDefs/Terrain/Terrain.j3md&quot;&#41;;
@@ -133,9 +252,7 @@ matRock.setTexture&#40;&quot;m_Tex3&quot;, rock&#41;;
 matRock.setFloat&#40;&quot;m_Tex3Scale&quot;, 128f&#41;;</pre>
 
 <p>
-
 We create the heightmap from the <code>heightMapImage</code>.
-
 </p>
 <pre>AbstractHeightMap heightmap = null;
 heightmap = new ImageBasedHeightMap&#40;
@@ -143,7 +260,6 @@ heightmap = new ImageBasedHeightMap&#40;
 heightmap.load&#40;&#41;;</pre>
 
 <p>
-
 Next we create the actual terrain.
 </p>
 <ul>
@@ -166,11 +282,9 @@ terrain.addControl&#40;control&#41;;
 rootNode.attachChild&#40;terrain&#41;;</pre>
 
 <p>
-
 PS: As an alternative to an image-based height map, you can also generate a Hill hightmap:
-
 </p>
 <pre>heightmap = new HillHeightMap&#40;1025, 1000, 50, 100, &#40;byte&#41; 3&#41;;</pre>
 
 </div>
-<p><em><a href="http://direct.jmonkeyengine.org/wiki/doku.php/jme3:advanced:terrain?do=export_xhtmlbody">view online version</a></em></p>
+<p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:terrain?do=export_xhtmlbody">view online version</a></em></p>

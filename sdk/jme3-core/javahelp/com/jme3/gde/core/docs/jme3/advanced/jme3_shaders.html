@@ -204,6 +204,44 @@ The complete list of global uniforms that can be used in JME3 can be found <obje
 
 </div>
 
+<h3><a>JME3 Lighting Global uniforms</a></h3>
+<div>
+
+<p>
+JME3 uses some global uniforms for lighting :
+</p>
+<ul>
+<li><div> g_LightDirection (vec4) : the direction of the light</div>
+<ul>
+<li><div> use for SpotLight : x,y,z contain the world direction vector of the light, the w component contains the spotlight angle cosine </div>
+</li>
+</ul>
+</li>
+<li><div> g_LightColor (vec4) : the color of the light</div>
+</li>
+<li><div> g_LightPosition : the position of the light</div>
+<ul>
+<li><div> use for SpotLight : x,y,z contain the world position of the light, the w component contains 1/lightRange</div>
+</li>
+<li><div> use for PointLight : x,y,z contain the world position of the light, the w component contains 1/lightRadius</div>
+</li>
+<li><div> use for DirectionalLight : strangely enough it&#039;s used for the direction of the light…this might change though. The fourth component contains -1 and it&#039;s used in the lighting shader to know if it&#039;s a directionalLight or not.</div>
+</li>
+</ul>
+</li>
+<li><div> g_AmbientLightColor the color of the ambient light.</div>
+</li>
+</ul>
+
+<p>
+these uniforms are passed to the shader without having to declare them in the j3md file, but you have to specify in the technique definition &quot; LightMode MultiPass&quot; see lighting.j3md for more information.
+<br/>
+
+
+</p>
+
+</div>
+
 <h3><a>JME3 attributes</a></h3>
 <div>
 
@@ -227,36 +265,114 @@ Note that in the shader the attributes names will be prefixed by a “in”.<br/
 <p>
 At some point when making your own shader you&#039;ll need to pass your own uniforms<br/>
 
-Any uniform has to be declared in the material definition file in the &quot;MaterialParameters&quot; section.<br/>
+Any uniform has to be declared in the material definition file (.j3md) in the &quot;MaterialParameters&quot; section.<br/>
 
 
 </p>
 <pre>    MaterialParameters &#123;
         Vector4 Color
+        Texture2D ColorMap
+    &#125;</pre>
+
+<p>
+You can also pass some define to your vertex/fragment programs to know if an uniform as been declared. <br/>
+
+You simply add it in the Defines section of your Technique in the definition file. <br/>
+
+
+</p>
+<pre>    Defines &#123;
+        COLORMAP: ColorMap
     &#125;</pre>
 
 <p>
 
-This material parameter will be sent from the engine to the shader as follow
-
-</p>
-<pre>   material.setColor&#40;&quot;Color&quot;, new ColorRGBA&#40;1.0f, 0.0f, 0.0f, 1.0f&#41;;//red color</pre>
-
-<p>
-
+Those material parameters will be sent from the engine to the shader as follow
 Note that there is a setXXXX method for any type of uniform you want to pass.<br/>
 
-To use this uniform in the shader, you need to declare it in the .frag or in the .vert files (depending on where you need it) as follow :
 
 </p>
-<pre>   uniform vec4 m_Color;</pre>
+<pre>   material.setColor&#40;&quot;Color&quot;, new ColorRGBA&#40;1.0f, 0.0f, 0.0f, 1.0f&#41;; //red color
+   material.setTexture&#40;&quot;ColorMap&quot;, myTexture&#41;; </pre>
 
 <p>
-
+To use this uniform in the shader, you need to declare it in the .frag or in the .vert files (depending on where you need it).
+You can make use of the defines here and later in the code:
 <strong>Note the &quot;m_&quot; prefix that specifies that the uniform is a material parameter.</strong><br/>
 
-This uniform will be populated at runtime with the value you sent.
 
+</p>
+<pre>   uniform vec4 m_Color;
+   #ifdef COLORMAP
+     uniform sampler2D m_ColorMap;
+   #endif</pre>
+
+<p>
+The uniforms will be populated at runtime with the value you sent.
+</p>
+
+</div>
+
+<h3><a>Example: Adding Color Keying to the Lighting.j3md Material Definition</a></h3>
+<div>
+
+<p>
+Color Keying is useful in games involving many players. It consists of adding some <br/>
+
+player-specific color on models textures. <br/>
+
+The easiest way of doing this is to use a keyMap which will contain the amount of <br/>
+
+color to add in its alpha channel. <br/>
+
+Here I will use this color map: <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://wstaw.org/m/2011/10/24/plasma-desktopxB2787.jpg"><param name="text" value="<html><u>http://wstaw.org/m/2011/10/24/plasma-desktopxB2787.jpg</u></html>"><param name="textColor" value="blue"></object> <br/>
+
+to bend color on this texture: <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://wstaw.org/m/2011/10/24/plasma-desktopbq2787.jpg"><param name="text" value="<html><u>http://wstaw.org/m/2011/10/24/plasma-desktopbq2787.jpg</u></html>"><param name="textColor" value="blue"></object> <br/>
+
+<br/>
+
+We need to pass 2 new parameters to the Lighting.j3md definition, MaterialParameters section :
+
+</p>
+<pre>// Keying Map
+Texture2D KeyMap
+&nbsp;
+// Key Color 
+Color KeyColor</pre>
+
+<p>
+Below, add a new Define in the main Technique section:
+
+</p>
+<pre>KEYMAP : KeyMap</pre>
+
+<p>
+In the Lighting.frag file, define the new uniforms:
+
+</p>
+<pre>#ifdef KEYMAP
+  uniform sampler2D m_KeyMap;
+  uniform vec4 m_KeyColor;
+#endif</pre>
+
+<p>
+Further, when obtaining the diffuseColor from the DiffuseMap texture, check
+if we need to blend it:
+
+</p>
+<pre>    #ifdef KEYMAP
+      vec4 keyColor = texture2D&#40;m_KeyMap, newTexCoord&#41;;
+      diffuseColor.rgb = &#40;1.0-keyColor.a&#41; * diffuseColor.rgb + keyColor.a * m_KeyColor.rgb;
+    #endif</pre>
+
+<p>
+This way, a transparent pixel in the KeyMap texture doesn&#039;t modify the color. <br/>
+
+A black pixel replaces it for the m_KeyColor and values in between are blended.<br/>
+
+<br/>
+
+A result preview can be seen here: <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://wstaw.org/m/2011/10/24/plasma-desktopuV2787.jpg"><param name="text" value="<html><u>http://wstaw.org/m/2011/10/24/plasma-desktopuV2787.jpg</u></html>"><param name="textColor" value="blue"></object>
 </p>
 
 </div>
@@ -328,7 +444,7 @@ Those attributes are deprecated since GLSL 1.3 (opengl 3), hence JME3 global uni
 		<td>gl_NormalMatrix	</td><td>g_NormalMatrix</td>
 	</tr>
 </table></div>
-<!-- EDIT1 TABLE [8076-8387] -->
+<!-- EDIT1 TABLE [11121-11432] -->
 </div>
 
 <h3><a>Useful links</a></h3>
@@ -339,4 +455,4 @@ Those attributes are deprecated since GLSL 1.3 (opengl 3), hence JME3 global uni
 </p>
 
 </div>
-<p><em><a href="http://direct.jmonkeyengine.org/wiki/doku.php/jme3:advanced:jme3_shaders?do=export_xhtmlbody">view online version</a></em></p>
+<p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:jme3_shaders?do=export_xhtmlbody">view online version</a></em></p>
