@@ -451,6 +451,7 @@ public class TerrainGrid extends TerrainQuad {
         offset = (Vector2f) c.readSavable("offset", null);
         offsetAmount = c.readFloat("offsetAmount", 0);
         terrainQuadGrid = (TerrainQuadGrid) c.readSavable("terrainQuadGrid", null);
+        material = (Material) c.readSavable("material", null);
         initData();
         if (terrainQuadGrid != null) {
             terrainQuadGrid.setSize(this.size);
@@ -469,5 +470,6 @@ public class TerrainGrid extends TerrainQuad {
         c.write(stepScale, "stepScale", null);
         c.write(offset, "offset", null);
         c.write(offsetAmount, "offsetAmount", 0);
+        c.write(material, "material", null);
     }
 }

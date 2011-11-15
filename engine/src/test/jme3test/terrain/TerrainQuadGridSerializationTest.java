@@ -25,7 +25,7 @@ import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
 import java.io.File;
 
-public class TerrainQuadGridTest extends SimpleApplication {
+public class TerrainQuadGridSerializationTest extends SimpleApplication {
 
     private Material mat_terrain;
     private TerrainGrid terrain;
@@ -36,7 +36,7 @@ public class TerrainQuadGridTest extends SimpleApplication {
     private boolean physicsAdded = false;
 
     public static void main(final String[] args) {
-        TerrainQuadGridTest app = new TerrainQuadGridTest();
+        TerrainQuadGridSerializationTest app = new TerrainQuadGridSerializationTest();
         app.start();
     }
     private CharacterControl player3;
@@ -93,12 +93,13 @@ public class TerrainQuadGridTest extends SimpleApplication {
 
         this.mat_terrain.setFloat("terrainSize", 129);
 //quad.getHeightMap(), terrain.getLocalScale()), 0
-        AssetQuadGrid grid = new AssetQuadGrid(assetManager, "testgrid", "TerrainGrid");
-        this.terrain = new TerrainGrid("terrain", 65, 257, grid);
-
-        this.terrain.setMaterial(this.mat_terrain);
-        this.terrain.setLocalTranslation(0, 0, 0);
-        this.terrain.setLocalScale(2f, 1f, 2f);
+//        AssetQuadGrid grid = new AssetQuadGrid(assetManager, "testgrid", "TerrainGrid");
+//        this.terrain = new TerrainGrid("terrain", 65, 257, grid);
+        this.terrain= (TerrainGrid) assetManager.loadModel("TerrainGrid/TerrainGrid.j3o");
+        terrain.setMaterial(mat_terrain);
+//        this.terrain.setMaterial(this.mat_terrain);
+//        this.terrain.setLocalTranslation(0, 0, 0);
+//        this.terrain.setLocalScale(2f, 1f, 2f);
 //        try {
 //            BinaryExporter.getInstance().save(terrain, new File("/Users/normenhansen/Documents/Code/jme3/engine/src/test-data/TerrainGrid/"
 //                    + "TerrainGrid.j3o"));
@@ -178,30 +179,30 @@ public class TerrainQuadGridTest extends SimpleApplication {
         public void onAction(final String name, final boolean keyPressed, final float tpf) {
             if (name.equals("Lefts")) {
                 if (keyPressed) {
-                    TerrainQuadGridTest.this.left = true;
+                    TerrainQuadGridSerializationTest.this.left = true;
                 } else {
-                    TerrainQuadGridTest.this.left = false;
+                    TerrainQuadGridSerializationTest.this.left = false;
                 }
             } else if (name.equals("Rights")) {
                 if (keyPressed) {
-                    TerrainQuadGridTest.this.right = true;
+                    TerrainQuadGridSerializationTest.this.right = true;
                 } else {
-                    TerrainQuadGridTest.this.right = false;
+                    TerrainQuadGridSerializationTest.this.right = false;
                 }
             } else if (name.equals("Ups")) {
                 if (keyPressed) {
-                    TerrainQuadGridTest.this.up = true;
+                    TerrainQuadGridSerializationTest.this.up = true;
                 } else {
-                    TerrainQuadGridTest.this.up = false;
+                    TerrainQuadGridSerializationTest.this.up = false;
                 }
             } else if (name.equals("Downs")) {
                 if (keyPressed) {
-                    TerrainQuadGridTest.this.down = true;
+                    TerrainQuadGridSerializationTest.this.down = true;
                 } else {
-                    TerrainQuadGridTest.this.down = false;
+                    TerrainQuadGridSerializationTest.this.down = false;
                 }
             } else if (name.equals("Jumps")) {
-                TerrainQuadGridTest.this.player3.jump();
+                TerrainQuadGridSerializationTest.this.player3.jump();
             }
         }
     };

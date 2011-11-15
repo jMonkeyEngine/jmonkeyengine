@@ -1737,8 +1737,12 @@ public class TerrainQuad extends Node implements Terrain {
         quadClone.name = name.toString();
         quadClone.size = size;
         quadClone.totalSize = totalSize;
-        quadClone.stepScale = stepScale.clone();
-        quadClone.offset = offset.clone();
+        if (stepScale != null) {
+            quadClone.stepScale = stepScale.clone();
+        }
+        if (offset != null) {
+            quadClone.offset = offset.clone();
+        }
         quadClone.offsetAmount = offsetAmount;
         quadClone.quadrant = quadrant;
         //quadClone.lodCalculatorFactory = lodCalculatorFactory.clone();
