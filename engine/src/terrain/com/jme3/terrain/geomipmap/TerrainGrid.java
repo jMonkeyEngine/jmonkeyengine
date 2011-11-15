@@ -237,8 +237,8 @@ public class TerrainGrid extends TerrainQuad {
 
     public TerrainGrid() {
     }
-    
-    private void initData(){
+
+    private void initData() {
         int maxVisibleSize = size;
         this.quarterSize = maxVisibleSize >> 2;
         this.quadSize = (maxVisibleSize + 1) >> 1;
@@ -452,9 +452,11 @@ public class TerrainGrid extends TerrainQuad {
         offsetAmount = c.readFloat("offsetAmount", 0);
         terrainQuadGrid = (TerrainQuadGrid) c.readSavable("terrainQuadGrid", null);
         initData();
-        terrainQuadGrid.setSize(this.size);
-        terrainQuadGrid.setPatchSize(this.patchSize);
-        terrainQuadGrid.setQuadSize(this.quadSize);
+        if (terrainQuadGrid != null) {
+            terrainQuadGrid.setSize(this.size);
+            terrainQuadGrid.setPatchSize(this.patchSize);
+            terrainQuadGrid.setQuadSize(this.quadSize);
+        }
     }
 
     @Override
