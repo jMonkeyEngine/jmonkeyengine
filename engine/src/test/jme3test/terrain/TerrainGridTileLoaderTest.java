@@ -29,7 +29,7 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class TerrainQuadGridTest extends SimpleApplication {
+public class TerrainGridTileLoaderTest extends SimpleApplication {
 
     private Material mat_terrain;
     private TerrainGrid terrain;
@@ -40,7 +40,7 @@ public class TerrainQuadGridTest extends SimpleApplication {
     private boolean physicsAdded = false;
 
     public static void main(final String[] args) {
-        TerrainQuadGridTest app = new TerrainQuadGridTest();
+        TerrainGridTileLoaderTest app = new TerrainGridTileLoaderTest();
         app.start();
     }
     private CharacterControl player3;
@@ -185,30 +185,30 @@ public class TerrainQuadGridTest extends SimpleApplication {
         public void onAction(final String name, final boolean keyPressed, final float tpf) {
             if (name.equals("Lefts")) {
                 if (keyPressed) {
-                    TerrainQuadGridTest.this.left = true;
+                    TerrainGridTileLoaderTest.this.left = true;
                 } else {
-                    TerrainQuadGridTest.this.left = false;
+                    TerrainGridTileLoaderTest.this.left = false;
                 }
             } else if (name.equals("Rights")) {
                 if (keyPressed) {
-                    TerrainQuadGridTest.this.right = true;
+                    TerrainGridTileLoaderTest.this.right = true;
                 } else {
-                    TerrainQuadGridTest.this.right = false;
+                    TerrainGridTileLoaderTest.this.right = false;
                 }
             } else if (name.equals("Ups")) {
                 if (keyPressed) {
-                    TerrainQuadGridTest.this.up = true;
+                    TerrainGridTileLoaderTest.this.up = true;
                 } else {
-                    TerrainQuadGridTest.this.up = false;
+                    TerrainGridTileLoaderTest.this.up = false;
                 }
             } else if (name.equals("Downs")) {
                 if (keyPressed) {
-                    TerrainQuadGridTest.this.down = true;
+                    TerrainGridTileLoaderTest.this.down = true;
                 } else {
-                    TerrainQuadGridTest.this.down = false;
+                    TerrainGridTileLoaderTest.this.down = false;
                 }
             } else if (name.equals("Jumps")) {
-                TerrainQuadGridTest.this.player3.jump();
+                TerrainGridTileLoaderTest.this.player3.jump();
             }
         }
     };
