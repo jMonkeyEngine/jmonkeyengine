@@ -31,9 +31,13 @@
  */
 package com.jme3.gde.core.sceneexplorer.nodes;
 
-import com.jme3.gde.core.sceneexplorer.nodes.SceneExplorerNode;
+import com.jme3.math.Vector3f;
+import com.jme3.terrain.geomipmap.TerrainGrid;
+import com.jme3.terrain.geomipmap.TerrainGridListener;
 import com.jme3.terrain.geomipmap.TerrainQuad;
 import java.awt.Image;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.openide.loaders.DataObject;
 import org.openide.nodes.Sheet;
 import org.openide.util.ImageUtilities;
@@ -42,21 +46,22 @@ import org.openide.util.ImageUtilities;
  *
  * @author normenhansen
  */
-@org.openide.util.lookup.ServiceProvider(service=SceneExplorerNode.class)
-public class JmeTerrainQuad extends JmeNode {
+@org.openide.util.lookup.ServiceProvider(service = SceneExplorerNode.class)
+public class JmeTerrainGrid extends JmeTerrainQuad implements TerrainGridListener {
 
     private static Image smallImage =
             ImageUtilities.loadImage("com/jme3/gde/core/sceneexplorer/nodes/icons/terrain.png");
-    private TerrainQuad geom;
+    private TerrainGrid geom;
 
-    public JmeTerrainQuad() {
+    public JmeTerrainGrid() {
     }
 
-    public JmeTerrainQuad(TerrainQuad spatial, JmeSpatialChildren children) {
+    public JmeTerrainGrid(TerrainGrid spatial, JmeSpatialChildren children) {
         super(spatial, children);
         getLookupContents().add(spatial);
         this.geom = spatial;
         setName(spatial.getName());
+        geom.addListener("GuiListener", this);
     }
 
     @Override
@@ -73,9 +78,9 @@ public class JmeTerrainQuad extends JmeNode {
     protected Sheet createSheet() {
         Sheet sheet = super.createSheet();
         Sheet.Set set = Sheet.createPropertiesSet();
-        set.setDisplayName("TerrainQuad");
-        set.setName(TerrainQuad.class.getName());
-        TerrainQuad obj = geom;//getLookup().lookup(Spatial.class);
+        set.setDisplayName("TerrainGrid");
+        set.setName(TerrainGrid.class.getName());
+        TerrainGrid obj = geom;//getLookup().lookup(Spatial.class);
         if (obj == null) {
             return sheet;
         }
@@ -88,17 +93,40 @@ public class JmeTerrainQuad extends JmeNode {
     }
 
     public Class getExplorerObjectClass() {
-        return TerrainQuad.class;
+        return TerrainGrid.class;
     }
 
     public Class getExplorerNodeClass() {
-        return JmeTerrainQuad.class;
+        return JmeTerrainGrid.class;
     }
 
     public org.openide.nodes.Node[] createNodes(Object key, DataObject key2, boolean cookie) {
-        JmeSpatialChildren children=new JmeSpatialChildren((com.jme3.scene.Spatial)key);
+        JmeSpatialChildren children = new JmeSpatialChildren((com.jme3.scene.Spatial) key);
         children.setReadOnly(cookie);
         children.setDataObject(key2);
-        return new org.openide.nodes.Node[]{new JmeTerrainQuad((TerrainQuad) key, children).setReadOnly(cookie)};
+        return new org.openide.nodes.Node[]{new JmeTerrainGrid((TerrainGrid) key, children).setReadOnly(cookie)};
+    }
+
+    public void gridMoved(Vector3f vctrf) {
+    }
+
+    public void tileAttached(Vector3f vctrf, TerrainQuad tq) {
+        Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Calling TerrainGrid update for node: {0}" + this);
+        java.awt.EventQueue.invokeLater(new Runnable() {
+
+            public void run() {
+                refresh(false);
+            }
+        });
+    }
+
+    public void tileDetached(Vector3f vctrf, TerrainQuad tq) {
+        Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Calling TerrainGrid update for node: {0}" + this);
+        java.awt.EventQueue.invokeLater(new Runnable() {
+
+            public void run() {
+                refresh(false);
+            }
+        });
     }
 }
