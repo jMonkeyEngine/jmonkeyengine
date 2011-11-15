@@ -118,6 +118,15 @@ public class TerrainGrid extends TerrainQuad {
             this.location = location;
         }
 
+        /**
+         * This is executed if the camera has moved into a new CameraCell and will load in
+         * the new TerrainQuad tiles to be children of this TerrainGrid parent.
+         * It will first check the LRU cache to see if the terrain tile is already there,
+         * if it is not there, it will load it in and then cache that tile.
+         * The terrain tiles get added to the quad tree back on the OGL thread using the
+         * attachQuadAt() method. It also resets any cached values in TerrainQuad (such as
+         * neighbours).
+         */
         public void run() {
             for (int i = 0; i < 4; i++) {
                 for (int j = 0; j < 4; j++) {
