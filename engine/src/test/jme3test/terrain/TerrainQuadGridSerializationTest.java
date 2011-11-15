@@ -19,21 +19,13 @@ import com.jme3.terrain.geomipmap.TerrainGrid;
 import com.jme3.terrain.geomipmap.TerrainGridListener;
 import com.jme3.terrain.geomipmap.TerrainLodControl;
 import com.jme3.terrain.geomipmap.TerrainQuad;
-import com.jme3.terrain.geomipmap.grid.AssetQuadGrid;
 import com.jme3.terrain.geomipmap.lodcalc.DistanceLodCalculator;
-import com.jme3.texture.Texture;
-import com.jme3.texture.Texture.WrapMode;
 import java.io.File;
 
 public class TerrainQuadGridSerializationTest extends SimpleApplication {
 
-    private Material mat_terrain;
     private TerrainGrid terrain;
-    private float grassScale = 64;
-    private float dirtScale = 16;
-    private float rockScale = 128;
     private boolean usePhysics = true;
-    private boolean physicsAdded = false;
 
     public static void main(final String[] args) {
         TerrainQuadGridSerializationTest app = new TerrainQuadGridSerializationTest();
@@ -54,58 +46,7 @@ public class TerrainQuadGridSerializationTest extends SimpleApplication {
         ScreenshotAppState state = new ScreenshotAppState();
         this.stateManager.attach(state);
 
-        // TERRAIN TEXTURE material
-        this.mat_terrain = new Material(this.assetManager, "Common/MatDefs/Terrain/HeightBasedTerrain.j3md");
-
-        // Parameters to material:
-        // regionXColorMap: X = 1..4 the texture that should be appliad to state X
-        // regionX: a Vector3f containing the following information:
-        //      regionX.x: the start height of the region
-        //      regionX.y: the end height of the region
-        //      regionX.z: the texture scale for the region
-        //  it might not be the most elegant way for storing these 3 values, but it packs the data nicely :)
-        // slopeColorMap: the texture to be used for cliffs, and steep mountain sites
-        // slopeTileFactor: the texture scale for slopes
-        // terrainSize: the total size of the terrain (used for scaling the texture)
-        // GRASS texture
-        Texture grass = this.assetManager.loadTexture("Textures/Terrain/splat/grass.jpg");
-        grass.setWrap(WrapMode.Repeat);
-        this.mat_terrain.setTexture("region1ColorMap", grass);
-        this.mat_terrain.setVector3("region1", new Vector3f(88, 200, this.grassScale));
-
-        // DIRT texture
-        Texture dirt = this.assetManager.loadTexture("Textures/Terrain/splat/dirt.jpg");
-        dirt.setWrap(WrapMode.Repeat);
-        this.mat_terrain.setTexture("region2ColorMap", dirt);
-        this.mat_terrain.setVector3("region2", new Vector3f(0, 90, this.dirtScale));
-
-        // ROCK texture
-        Texture rock = this.assetManager.loadTexture("Textures/Terrain/Rock2/rock.jpg");
-        rock.setWrap(WrapMode.Repeat);
-        this.mat_terrain.setTexture("region3ColorMap", rock);
-        this.mat_terrain.setVector3("region3", new Vector3f(198, 260, this.rockScale));
-
-        this.mat_terrain.setTexture("region4ColorMap", rock);
-        this.mat_terrain.setVector3("region4", new Vector3f(198, 260, this.rockScale));
-
-        this.mat_terrain.setTexture("slopeColorMap", rock);
-        this.mat_terrain.setFloat("slopeTileFactor", 32);
-
-        this.mat_terrain.setFloat("terrainSize", 129);
-//quad.getHeightMap(), terrain.getLocalScale()), 0
-//        AssetQuadGrid grid = new AssetQuadGrid(assetManager, "testgrid", "TerrainGrid");
-//        this.terrain = new TerrainGrid("terrain", 65, 257, grid);
         this.terrain= (TerrainGrid) assetManager.loadModel("TerrainGrid/TerrainGrid.j3o");
-        terrain.setMaterial(mat_terrain);
-//        this.terrain.setMaterial(this.mat_terrain);
-//        this.terrain.setLocalTranslation(0, 0, 0);
-//        this.terrain.setLocalScale(2f, 1f, 2f);
-//        try {
-//            BinaryExporter.getInstance().save(terrain, new File("/Users/normenhansen/Documents/Code/jme3/engine/src/test-data/TerrainGrid/"
-//                    + "TerrainGrid.j3o"));
-//        } catch (IOException ex) {
-//            Logger.getLogger(TerrainFractalGridTest.class.getName()).log(Level.SEVERE, null, ex);
-//        }
         
         this.rootNode.attachChild(this.terrain);
         
