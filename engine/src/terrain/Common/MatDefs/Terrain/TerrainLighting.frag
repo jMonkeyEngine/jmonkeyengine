@@ -276,7 +276,6 @@ vec2 computeLighting(in vec3 wvPos, in vec3 wvNorm, in vec3 wvViewDir, in vec3 w
       normalHeight = texture2D(m_NormalMap, texCoord * m_DiffuseMap_0_scale);
       n = (normalHeight.xyz * vec3(2.0) - vec3(1.0));
       n.z = sqrt(1.0 - (n.x * n.x) - (n.y * n.y));
-      n.y = -n.y;
       normal += n * alphaBlend.r;
     #endif
 
@@ -292,7 +291,6 @@ vec2 computeLighting(in vec3 wvPos, in vec3 wvNorm, in vec3 wvViewDir, in vec3 w
       normalHeight = texture2D(m_NormalMap_2, texCoord * m_DiffuseMap_2_scale);
       n = (normalHeight.xyz * vec3(2.0) - vec3(1.0));
       n.z = sqrt(1.0 - (n.x * n.x) - (n.y * n.y));
-      n.y = -n.y;
       normal += n * alphaBlend.b;
     #endif
 
@@ -300,7 +298,6 @@ vec2 computeLighting(in vec3 wvPos, in vec3 wvNorm, in vec3 wvViewDir, in vec3 w
       normalHeight = texture2D(m_NormalMap_3, texCoord * m_DiffuseMap_3_scale);
       n = (normalHeight.xyz * vec3(2.0) - vec3(1.0));
       n.z = sqrt(1.0 - (n.x * n.x) - (n.y * n.y));
-      n.y = -n.y;
       normal += n * alphaBlend.a;
     #endif
 
@@ -309,7 +306,6 @@ vec2 computeLighting(in vec3 wvPos, in vec3 wvNorm, in vec3 wvViewDir, in vec3 w
           normalHeight = texture2D(m_NormalMap_4, texCoord * m_DiffuseMap_4_scale);
           n = (normalHeight.xyz * vec3(2.0) - vec3(1.0));
           n.z = sqrt(1.0 - (n.x * n.x) - (n.y * n.y));
-          n.y = -n.y;
           normal += n * alphaBlend1.r;
         #endif
 
@@ -317,7 +313,6 @@ vec2 computeLighting(in vec3 wvPos, in vec3 wvNorm, in vec3 wvViewDir, in vec3 w
           normalHeight = texture2D(m_NormalMap_5, texCoord * m_DiffuseMap_5_scale);
           n = (normalHeight.xyz * vec3(2.0) - vec3(1.0));
           n.z = sqrt(1.0 - (n.x * n.x) - (n.y * n.y));
-          n.y = -n.y;
           normal += n * alphaBlend1.g;
         #endif
 
@@ -325,7 +320,6 @@ vec2 computeLighting(in vec3 wvPos, in vec3 wvNorm, in vec3 wvViewDir, in vec3 w
           normalHeight = texture2D(m_NormalMap_6, texCoord * m_DiffuseMap_6_scale);
           n = (normalHeight.xyz * vec3(2.0) - vec3(1.0));
           n.z = sqrt(1.0 - (n.x * n.x) - (n.y * n.y));
-          n.y = -n.y;
           normal += n * alphaBlend1.b;
         #endif
 
@@ -333,7 +327,6 @@ vec2 computeLighting(in vec3 wvPos, in vec3 wvNorm, in vec3 wvViewDir, in vec3 w
           normalHeight = texture2D(m_NormalMap_7, texCoord * m_DiffuseMap_7_scale);
           n = (normalHeight.xyz * vec3(2.0) - vec3(1.0));
           n.z = sqrt(1.0 - (n.x * n.x) - (n.y * n.y));
-          n.y = -n.y;
           normal += n * alphaBlend1.a;
         #endif
     #endif
@@ -343,7 +336,6 @@ vec2 computeLighting(in vec3 wvPos, in vec3 wvNorm, in vec3 wvViewDir, in vec3 w
           normalHeight = texture2D(m_NormalMap_8, texCoord * m_DiffuseMap_8_scale);
           n = (normalHeight.xyz * vec3(2.0) - vec3(1.0));
           n.z = sqrt(1.0 - (n.x * n.x) - (n.y * n.y));
-          n.y = -n.y;
           normal += n * alphaBlend2.r;
         #endif
 
@@ -351,7 +343,6 @@ vec2 computeLighting(in vec3 wvPos, in vec3 wvNorm, in vec3 wvViewDir, in vec3 w
           normalHeight = texture2D(m_NormalMap_9, texCoord * m_DiffuseMap_9_scale);
           n = (normalHeight.xyz * vec3(2.0) - vec3(1.0));
           n.z = sqrt(1.0 - (n.x * n.x) - (n.y * n.y));
-          n.y = -n.y;
           normal += n * alphaBlend2.g;
         #endif
 
@@ -359,7 +350,6 @@ vec2 computeLighting(in vec3 wvPos, in vec3 wvNorm, in vec3 wvViewDir, in vec3 w
           normalHeight = texture2D(m_NormalMap_10, texCoord * m_DiffuseMap_10_scale);
           n = (normalHeight.xyz * vec3(2.0) - vec3(1.0));
           n.z = sqrt(1.0 - (n.x * n.x) - (n.y * n.y));
-          n.y = -n.y;
           normal += n * alphaBlend2.b;
         #endif
 
@@ -367,7 +357,6 @@ vec2 computeLighting(in vec3 wvPos, in vec3 wvNorm, in vec3 wvViewDir, in vec3 w
           normalHeight = texture2D(m_NormalMap_11, texCoord * m_DiffuseMap_11_scale);
           n = (normalHeight.xyz * vec3(2.0) - vec3(1.0));
           n.z = sqrt(1.0 - (n.x * n.x) - (n.y * n.y));
-          n.y = -n.y;
           normal += n * alphaBlend2.a;
         #endif
     #endif
