@@ -63,9 +63,9 @@ public class FractalTileLoader implements TerrainGridTileLoader{
 				heightmap.setHeightScale(heightScale);
 			} catch (IOException e) {}
 		} else {
-			FloatBuffer buffer = this.base.getBuffer(location.x * (this.patchSize - 1), location.z * (this.patchSize - 1), 0, this.patchSize);
+			FloatBuffer buffer = this.base.getBuffer(location.x * (this.quadSize - 1), location.z * (this.quadSize - 1), 0, this.quadSize);
 			if (this.cacheDir != null) {
-				MapUtils.saveImage(MapUtils.toGrayscale16Image(buffer, this.patchSize), new File(this.cacheDir, "terrain_" + (int) location.x
+				MapUtils.saveImage(MapUtils.toGrayscale16Image(buffer, this.quadSize), new File(this.cacheDir, "terrain_" + (int) location.x
 						+ "_" + (int) location.z + ".png"));
 			}
 			float[] arr = buffer.array();
