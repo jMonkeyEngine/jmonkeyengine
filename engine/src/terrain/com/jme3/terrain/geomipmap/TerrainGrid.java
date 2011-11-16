@@ -106,7 +106,7 @@ public class TerrainGrid extends TerrainQuad {
     protected int quarterSize;
     protected int quadSize;
     protected HeightMapGrid heightMapGrid;
-    protected TerrainGridTileLoader terrainQuadGrid;
+    private TerrainGridTileLoader gridTileLoader;
     protected Vector3f[] quadIndex;
     protected Map<String, TerrainGridListener> listeners = new HashMap<String, TerrainGridListener>();
     protected Material material;
@@ -146,8 +146,8 @@ public class TerrainGrid extends TerrainQuad {
                             q = new TerrainQuad(getName() + "Quad" + temp, patchSize, quadSize, heightMapAt == null ? null : heightMapAt.getHeightMap());
                             q.setMaterial(material.clone());
                             log.log(Level.FINE, "Loaded TerrainQuad {0} from HeightMapGrid", q.getName());
-                        } else if (terrainQuadGrid != null) {
-                            q = terrainQuadGrid.getTerrainQuadAt(temp);
+                        } else if (gridTileLoader != null) {
+                            q = gridTileLoader.getTerrainQuadAt(temp);
                             q.setMaterial(material);
                             log.log(Level.FINE, "Loaded TerrainQuad {0} from TerrainQuadGrid", q.getName());
                         }
@@ -200,7 +200,7 @@ public class TerrainGrid extends TerrainQuad {
         this.offset = offset;
         this.offsetAmount = offsetAmount;
         initData();
-        this.terrainQuadGrid = terrainQuadGrid;
+        this.gridTileLoader = terrainQuadGrid;
         terrainQuadGrid.setPatchSize(this.patchSize);
         terrainQuadGrid.setQuadSize(this.quadSize);
         addControl(new UpdateControl());
@@ -271,7 +271,7 @@ public class TerrainGrid extends TerrainQuad {
             throw new RuntimeException("Material must be set prior to call of initialize");
         }
         Vector3f camCell = this.getCamCell(location);
-        this.updateChildrens(camCell);
+        this.updateChildren(camCell);
         for (TerrainGridListener l : this.listeners.values()) {
             l.gridMoved(camCell);
         }
@@ -292,7 +292,7 @@ public class TerrainGrid extends TerrainQuad {
         }
         if (camCell.x != this.currentCamCell.x || camCell.z != currentCamCell.z) {
             // if the camera has moved into a new cell, load new terrain into the visible 4 center quads
-            this.updateChildrens(camCell);
+            this.updateChildren(camCell);
             for (TerrainGridListener l : this.listeners.values()) {
                 l.gridMoved(camCell);
             }
@@ -317,6 +317,10 @@ public class TerrainGrid extends TerrainQuad {
         return tileLoc;
     }
 
+    public TerrainGridTileLoader getGridTileLoader() {
+        return gridTileLoader;
+    }
+    
     protected void removeQuad(int idx) {
         if (this.getQuad(idx) != null) {
             if (quadControls != null) {
@@ -348,6 +352,14 @@ public class TerrainGrid extends TerrainQuad {
         updateModelBound();
     }
 
+    @Deprecated
+    /**
+     * @Deprecated, use updateChildren
+     */
+    protected void updateChildrens(Vector3f camCell) {
+        updateChildren(camCell);
+    }
+    
     /**
      * Called when the camera has moved into a new cell. We need to
      * update what quads are in the scene now.
@@ -360,7 +372,7 @@ public class TerrainGrid extends TerrainQuad {
      * if the camera has moved into a new cell, we load in new quads
      * @param camCell the cell the camera is in
      */
-    protected void updateChildrens(Vector3f camCell) {
+    protected void updateChildren(Vector3f camCell) {
 
         int dx = 0;
         int dy = 0;
@@ -453,12 +465,12 @@ public class TerrainGrid extends TerrainQuad {
         stepScale = (Vector3f) c.readSavable("stepScale", null);
         offset = (Vector2f) c.readSavable("offset", null);
         offsetAmount = c.readFloat("offsetAmount", 0);
-        terrainQuadGrid = (TerrainGridTileLoader) c.readSavable("terrainQuadGrid", null);
+        gridTileLoader = (TerrainGridTileLoader) c.readSavable("terrainQuadGrid", null);
         material = (Material) c.readSavable("material", null);
         initData();
-        if (terrainQuadGrid != null) {
-            terrainQuadGrid.setPatchSize(this.patchSize);
-            terrainQuadGrid.setQuadSize(this.quadSize);
+        if (gridTileLoader != null) {
+            gridTileLoader.setPatchSize(this.patchSize);
+            gridTileLoader.setQuadSize(this.quadSize);
         }
     }
 
@@ -466,7 +478,7 @@ public class TerrainGrid extends TerrainQuad {
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
         OutputCapsule c = ex.getCapsule(this);
-        c.write(terrainQuadGrid, "terrainQuadGrid", null);
+        c.write(gridTileLoader, "terrainQuadGrid", null);
         c.write(size, "size", 0);
         c.write(patchSize, "patchSize", 0);
         c.write(stepScale, "stepScale", null);
