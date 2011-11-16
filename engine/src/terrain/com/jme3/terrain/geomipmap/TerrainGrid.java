@@ -201,7 +201,6 @@ public class TerrainGrid extends TerrainQuad {
         this.offsetAmount = offsetAmount;
         initData();
         this.terrainQuadGrid = terrainQuadGrid;
-        terrainQuadGrid.setSize(this.size);
         terrainQuadGrid.setPatchSize(this.patchSize);
         terrainQuadGrid.setQuadSize(this.quadSize);
         addControl(new UpdateControl());
@@ -215,6 +214,7 @@ public class TerrainGrid extends TerrainQuad {
         this(name, patchSize, maxVisibleSize, Vector3f.UNIT_XYZ, terrainQuadGrid);
     }
 
+    @Deprecated
     public TerrainGrid(String name, int patchSize, int maxVisibleSize, Vector3f scale, HeightMapGrid heightMapGrid,
             Vector2f offset, float offsetAmount) {
         this.name = name;
@@ -229,10 +229,12 @@ public class TerrainGrid extends TerrainQuad {
         addControl(new UpdateControl());
     }
 
+    @Deprecated
     public TerrainGrid(String name, int patchSize, int maxVisibleSize, Vector3f scale, HeightMapGrid heightMapGrid) {
         this(name, patchSize, maxVisibleSize, scale, heightMapGrid, new Vector2f(), 0);
     }
 
+    @Deprecated
     public TerrainGrid(String name, int patchSize, int maxVisibleSize, HeightMapGrid heightMapGrid) {
         this(name, patchSize, maxVisibleSize, Vector3f.UNIT_XYZ, heightMapGrid);
     }
@@ -455,7 +457,6 @@ public class TerrainGrid extends TerrainQuad {
         material = (Material) c.readSavable("material", null);
         initData();
         if (terrainQuadGrid != null) {
-            terrainQuadGrid.setSize(this.size);
             terrainQuadGrid.setPatchSize(this.patchSize);
             terrainQuadGrid.setQuadSize(this.quadSize);
         }

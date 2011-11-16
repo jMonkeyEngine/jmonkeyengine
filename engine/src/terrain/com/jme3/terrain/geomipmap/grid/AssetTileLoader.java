@@ -56,10 +56,6 @@ public class AssetTileLoader implements TerrainGridTileLoader {
         return quad;
     }
 
-    public void setSize(int size) {
-        this.size = size;
-    }
-
     public void setPatchSize(int patchSize) {
         this.patchSize = patchSize;
     }

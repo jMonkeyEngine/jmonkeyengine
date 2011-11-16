@@ -15,8 +15,6 @@ public interface TerrainGridTileLoader extends Savable {
 
     public TerrainQuad getTerrainQuadAt(Vector3f location);
 
-    public void setSize(int size);
-    
     public void setPatchSize(int patchSize);
 
     public void setQuadSize(int quadSize);

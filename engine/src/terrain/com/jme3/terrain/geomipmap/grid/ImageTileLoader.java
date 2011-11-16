@@ -2,13 +2,23 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.jme3.terrain.heightmap;
+package com.jme3.terrain.geomipmap.grid;
 
 import com.jme3.asset.AssetInfo;
 import com.jme3.asset.AssetKey;
 import com.jme3.asset.AssetManager;
 import com.jme3.asset.AssetNotFoundException;
+import com.jme3.export.JmeExporter;
+import com.jme3.export.JmeImporter;
 import com.jme3.math.Vector3f;
+import com.jme3.terrain.geomipmap.TerrainGridTileLoader;
+import com.jme3.terrain.geomipmap.TerrainQuad;
+import com.jme3.terrain.heightmap.AbstractHeightMap;
+import com.jme3.terrain.heightmap.Grayscale16BitHeightMap;
+import com.jme3.terrain.heightmap.HeightMap;
+import com.jme3.terrain.heightmap.ImageBasedHeightMap;
+import com.jme3.terrain.heightmap.ImageHeightmap;
+import com.jme3.terrain.heightmap.Namer;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,29 +27,19 @@ import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 
 /**
- * Loads Terrain grid tiles with image heightmaps.
- * By default it expects a 16-bit grayscale image as the heightmap, but
- * you can also call setImageType(BufferedImage.TYPE_) to set it to be a different
- * image type. If you do this, you must also set a custom ImageHeightmap that will
- * understand and be able to parse the image. By default if you pass in an image of type
- * BufferedImage.TYPE_3BYTE_BGR, it will use the ImageBasedHeightMap for you.
- * 
- * @author Anthyon, Brent Owens
+ *
+ * @author Anthyon, normenhansen
  */
-@Deprecated
-/**
- * @Deprecated in favor of ImageTileLoader
- */
-public class ImageBasedHeightMapGrid implements HeightMapGrid {
-
-    private static final Logger logger = Logger.getLogger(ImageBasedHeightMapGrid.class.getName());
+public class ImageTileLoader implements TerrainGridTileLoader{
+    private static final Logger logger = Logger.getLogger(ImageTileLoader.class.getName());
     private final AssetManager assetManager;
     private final Namer namer;
-    private int size;
+    private int patchSize;
+    private int quadSize;
     private int imageType = BufferedImage.TYPE_USHORT_GRAY; // 16 bit grayscale
     private ImageHeightmap customImageHeightmap;
 
-    public ImageBasedHeightMapGrid(final String textureBase, final String textureExt, AssetManager assetManager) {
+    public ImageTileLoader(final String textureBase, final String textureExt, AssetManager assetManager) {
         this(assetManager, new Namer() {
 
             public String getName(int x, int y) {
@@ -48,7 +48,7 @@ public class ImageBasedHeightMapGrid implements HeightMapGrid {
         });
     }
 
-    public ImageBasedHeightMapGrid(AssetManager assetManager, Namer namer) {
+    public ImageTileLoader(AssetManager assetManager, Namer namer) {
         this.assetManager = assetManager;
         this.namer = namer;
     }
@@ -74,7 +74,7 @@ public class ImageBasedHeightMapGrid implements HeightMapGrid {
         this.customImageHeightmap = customImageHeightmap;
     }
 
-    public HeightMap getHeightMapAt(Vector3f location) {
+    private HeightMap getHeightMapAt(Vector3f location) {
         // HEIGHTMAP image (for the terrain heightmap)
         int x = (int) location.x;
         int z = (int) location.z;
@@ -90,7 +90,7 @@ public class ImageBasedHeightMapGrid implements HeightMapGrid {
                 InputStream in = assetInfo.openStream();
                 im = ImageIO.read(in);
             } else {
-                im = new BufferedImage(size, size, imageType);
+                im = new BufferedImage(patchSize, patchSize, imageType);
                 logger.log(Level.WARNING, "File: {0} not found, loading zero heightmap instead", name);
             }
             // CREATE HEIGHTMAP
@@ -121,6 +121,28 @@ public class ImageBasedHeightMapGrid implements HeightMapGrid {
     }
 
     public void setSize(int size) {
-        this.size = size - 1;
+        this.patchSize = size - 1;
+    }
+
+    public TerrainQuad getTerrainQuadAt(Vector3f location) {
+        HeightMap heightMapAt = getHeightMapAt(location);
+        TerrainQuad q = new TerrainQuad("Quad" + location, patchSize, quadSize, heightMapAt == null ? null : heightMapAt.getHeightMap());
+        return q;
+    }
+
+    public void setPatchSize(int patchSize) {
+        this.patchSize = patchSize;
+    }
+
+    public void setQuadSize(int quadSize) {
+        this.quadSize = quadSize;
+    }
+
+    public void write(JmeExporter ex) throws IOException {
+        //TODO: serialization
+    }
+
+    public void read(JmeImporter im) throws IOException {
+        //TODO: serialization
     }
 }
