@@ -21,15 +21,12 @@ import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
-import com.jme3.shader.VarType;
 import com.jme3.terrain.geomipmap.TerrainGrid;
 import com.jme3.terrain.geomipmap.TerrainGridListener;
 import com.jme3.terrain.geomipmap.TerrainLodControl;
 import com.jme3.terrain.geomipmap.TerrainQuad;
+import com.jme3.terrain.geomipmap.grid.FractalTileLoader;
 import com.jme3.terrain.geomipmap.lodcalc.DistanceLodCalculator;
-import com.jme3.terrain.heightmap.FractalHeightMapGrid;
-import com.jme3.terrain.heightmap.ImageBasedHeightMapGrid;
-import com.jme3.terrain.heightmap.Namer;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
 import java.io.File;
@@ -149,7 +146,7 @@ public class TerrainGridAlphaMapTest extends SimpleApplication {
 
         ground.addPreFilter(this.iterate);
 
-        this.terrain = new TerrainGrid("terrain", 33, 257, new FractalHeightMapGrid(ground, null, 256));
+        this.terrain = new TerrainGrid("terrain", 33, 257, new FractalTileLoader(ground, null, 256));
         this.terrain.setMaterial(this.matRock);
 
         this.terrain.setLocalTranslation(0, 0, 0);

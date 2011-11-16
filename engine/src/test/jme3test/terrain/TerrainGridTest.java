@@ -9,7 +9,6 @@ import com.jme3.bullet.collision.shapes.CapsuleCollisionShape;
 import com.jme3.bullet.collision.shapes.HeightfieldCollisionShape;
 import com.jme3.bullet.control.CharacterControl;
 import com.jme3.bullet.control.RigidBodyControl;
-import com.jme3.export.binary.BinaryExporter;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
@@ -20,15 +19,12 @@ import com.jme3.terrain.geomipmap.TerrainGrid;
 import com.jme3.terrain.geomipmap.TerrainGridListener;
 import com.jme3.terrain.geomipmap.TerrainLodControl;
 import com.jme3.terrain.geomipmap.TerrainQuad;
+import com.jme3.terrain.geomipmap.grid.ImageTileLoader;
 import com.jme3.terrain.geomipmap.lodcalc.DistanceLodCalculator;
-import com.jme3.terrain.heightmap.ImageBasedHeightMapGrid;
 import com.jme3.terrain.heightmap.Namer;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
 import java.io.File;
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class TerrainGridTest extends SimpleApplication {
 
@@ -98,7 +94,7 @@ public class TerrainGridTest extends SimpleApplication {
 
         this.mat_terrain.setFloat("terrainSize", 129);
 
-        this.terrain = new TerrainGrid("terrain", 65, 257, new ImageBasedHeightMapGrid(assetManager, new Namer() {
+        this.terrain = new TerrainGrid("terrain", 65, 257, new ImageTileLoader(assetManager, new Namer() {
 
             public String getName(int x, int y) {
                 return "Scenes/TerrainMountains/terrain_" + x + "_" + y + ".png";

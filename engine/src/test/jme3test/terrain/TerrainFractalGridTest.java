@@ -9,7 +9,6 @@ import com.jme3.bullet.collision.shapes.CapsuleCollisionShape;
 import com.jme3.bullet.collision.shapes.HeightfieldCollisionShape;
 import com.jme3.bullet.control.CharacterControl;
 import com.jme3.bullet.control.RigidBodyControl;
-import com.jme3.export.binary.BinaryExporter;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
@@ -19,14 +18,10 @@ import com.jme3.math.Vector3f;
 import com.jme3.terrain.geomipmap.TerrainGrid;
 import com.jme3.terrain.geomipmap.TerrainGridListener;
 import com.jme3.terrain.geomipmap.TerrainLodControl;
+import com.jme3.terrain.geomipmap.grid.FractalTileLoader;
 import com.jme3.terrain.geomipmap.lodcalc.DistanceLodCalculator;
-import com.jme3.terrain.heightmap.FractalHeightMapGrid;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
-import java.io.File;
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.novyon.noise.ShaderUtils;
 import org.novyon.noise.basis.FilteredBasis;
 import org.novyon.noise.filter.IterativeFilter;
@@ -137,7 +132,7 @@ public class TerrainFractalGridTest extends SimpleApplication {
 
         ground.addPreFilter(this.iterate);
 
-        this.terrain = new TerrainGrid("terrain", 33, 129, new FractalHeightMapGrid(ground, null, 256f));
+        this.terrain = new TerrainGrid("terrain", 33, 129, new FractalTileLoader(ground, null, 256f));
 
         this.terrain.setMaterial(this.mat_terrain);
         this.terrain.setLocalTranslation(0, 0, 0);
