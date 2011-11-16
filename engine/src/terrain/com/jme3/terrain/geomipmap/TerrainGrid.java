@@ -204,6 +204,7 @@ public class TerrainGrid extends TerrainQuad {
         terrainQuadGrid.setSize(this.size);
         terrainQuadGrid.setPatchSize(this.patchSize);
         terrainQuadGrid.setQuadSize(this.quadSize);
+        addControl(new UpdateControl());
     }
 
     public TerrainGrid(String name, int patchSize, int maxVisibleSize, Vector3f scale, TerrainGridTileLoader terrainQuadGrid) {
@@ -225,6 +226,7 @@ public class TerrainGrid extends TerrainQuad {
         initData();
         this.heightMapGrid = heightMapGrid;
         heightMapGrid.setSize(this.quadSize);
+        addControl(new UpdateControl());
     }
 
     public TerrainGrid(String name, int patchSize, int maxVisibleSize, Vector3f scale, HeightMapGrid heightMapGrid) {
@@ -260,7 +262,6 @@ public class TerrainGrid extends TerrainQuad {
             new Vector3f(-1, 0, 1), new Vector3f(0, 0, 1), new Vector3f(1, 0, 1), new Vector3f(2, 0, 1),
             new Vector3f(-1, 0, 2), new Vector3f(0, 0, 2), new Vector3f(1, 0, 2), new Vector3f(2, 0, 2)};
 
-        addControl(new UpdateControl());
     }
 
     public void initialize(Vector3f location) {
