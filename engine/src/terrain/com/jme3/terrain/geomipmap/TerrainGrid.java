@@ -103,7 +103,7 @@ public class TerrainGrid extends TerrainQuad {
 
     protected static final Logger log = Logger.getLogger(TerrainGrid.class.getCanonicalName());
     protected Vector3f currentCamCell;
-    protected int quarterSize;
+    protected int quarterSize; // half of quadSize
     protected int quadSize;
     protected HeightMapGrid heightMapGrid;
     private TerrainGridTileLoader gridTileLoader;
