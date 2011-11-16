@@ -142,6 +142,9 @@ public class TerrainGridTest extends SimpleApplication {
                 }
 
                 public void tileAttached(Vector3f cell, TerrainQuad quad) {
+                    while(quad.getControl(RigidBodyControl.class)!=null){
+                        quad.removeControl(RigidBodyControl.class);
+                    }
 //                    try {
 //                        BinaryExporter.getInstance().save(quad, new File("/Users/normenhansen/Documents/Code/jme3/engine/src/test-data/TerrainGrid/"
 //                                + "testgrid_" + Math.round(cell.x) + "_" + Math.round(cell.y) + "_" + Math.round(cell.z) + ".j3o"));

@@ -281,7 +281,7 @@ public class TerrainGrid extends TerrainQuad {
         // to accept more, there are two ways:
         // 1: every camera has an associated grid, then the location is not enough to identify which camera location has changed
         // 2: grids are associated with locations, and no incremental update is done, we load new grids for new locations, and unload those that are not needed anymore
-        Vector3f cam = locations.get(0);
+        Vector3f cam = locations.size() == 0 ? Vector3f.ZERO.clone() : locations.get(0);
         Vector3f camCell = this.getCamCell(cam); // get the grid index value of where the camera is (ie. 2,1)
         if (cellsLoaded > 1) {                  // Check if cells are updated before updating gridoffset.
             gridOffset[0] = Math.round(camCell.x * (size / 2));
