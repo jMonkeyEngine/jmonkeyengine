@@ -47,53 +47,16 @@ public class VideoRecorderAppState extends AbstractAppState {
         super.cleanup();
     }
 
-    public static final class IsoTimer extends com.jme3.system.Timer {
-
-        private float framerate;
-        private int ticks;
-
-        public IsoTimer(float framerate) {
-            this.framerate = framerate;
-            this.ticks = 0;
-        }
-
-        public long getTime() {
-            return (long) (this.ticks * (1.0f / this.framerate));
-        }
-
-        public long getResolution() {
-            return 1000000000L;
-        }
-
-        public float getFrameRate() {
-            return this.framerate;
-        }
-
-        public float getTimePerFrame() {
-            return (float) (1.0f / this.framerate);
-        }
-
-        public void update() {
-            this.ticks++;
-        }
-
-        public void reset() {
-            this.ticks = 0;
-        }
-    }
-
     public class VideoProcessor implements SceneProcessor {
 
-        Camera camera;
-        int width;
-        int height;
-        FrameBuffer frameBuffer;
-        RenderManager renderManager;
-        ByteBuffer byteBuffer;
-        BufferedImage rawFrame;
-        int videoChannel = 0;
-        long currentTimeStamp = 0;
-        boolean isInitilized = false;
+        private Camera camera;
+        private int width;
+        private int height;
+        private FrameBuffer frameBuffer;
+        private RenderManager renderManager;
+        private ByteBuffer byteBuffer;
+        private BufferedImage rawFrame;
+        private boolean isInitilized = false;
 
         public void initialize(RenderManager rm, ViewPort viewPort) {
             this.camera = viewPort.getCamera();
@@ -130,7 +93,6 @@ public class VideoRecorderAppState extends AbstractAppState {
             byteBuffer.clear();
             renderManager.getRenderer().readFrameBuffer(out, byteBuffer);
             synchronized (rawFrame) {
-                rawFrame.getGraphics().clearRect(0, 0, width, height);
                 Screenshots.convertScreenShot(byteBuffer, rawFrame);
                 try {
                     writer.addImage(rawFrame);
@@ -138,7 +100,6 @@ public class VideoRecorderAppState extends AbstractAppState {
                     Logger.getLogger(VideoRecorderAppState.class.getName()).log(Level.SEVERE, "Error writing frame: {0}", ex);
                 }
             }
-            currentTimeStamp += (long) (1000000000.0 / (double) framerate);
         }
 
         public void cleanup() {
@@ -147,6 +108,41 @@ public class VideoRecorderAppState extends AbstractAppState {
             } catch (Exception ex) {
                 Logger.getLogger(VideoRecorderAppState.class.getName()).log(Level.SEVERE, "Error closing video: {0}", ex);
             }
+        }
+    }
+
+    public static final class IsoTimer extends com.jme3.system.Timer {
+
+        private float framerate;
+        private int ticks;
+
+        public IsoTimer(float framerate) {
+            this.framerate = framerate;
+            this.ticks = 0;
+        }
+
+        public long getTime() {
+            return (long) (this.ticks * (1.0f / this.framerate));
+        }
+
+        public long getResolution() {
+            return 1000000000L;
+        }
+
+        public float getFrameRate() {
+            return this.framerate;
+        }
+
+        public float getTimePerFrame() {
+            return (float) (1.0f / this.framerate);
+        }
+
+        public void update() {
+            this.ticks++;
+        }
+
+        public void reset() {
+            this.ticks = 0;
         }
     }
 }
