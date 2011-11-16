@@ -58,7 +58,7 @@ public class VideoRecorderAppState extends AbstractAppState {
         }
 
         public long getTime() {
-            return (long) (this.ticks / this.framerate);
+            return (long) (this.ticks * (1.0f / this.framerate));
         }
 
         public long getResolution() {
