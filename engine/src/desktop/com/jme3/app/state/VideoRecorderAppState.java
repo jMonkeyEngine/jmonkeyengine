@@ -46,15 +46,6 @@ public class VideoRecorderAppState extends AbstractAppState {
             return th;
         }
     });
-    private ExecutorService writeThread = Executors.newSingleThreadExecutor(new ThreadFactory() {
-
-        public Thread newThread(Runnable r) {
-            Thread th = new Thread(r);
-            th.setName("jME Video Writing Thread");
-            th.setDaemon(true);
-            return th;
-        }
-    });
     private int numCpus = Runtime.getRuntime().availableProcessors();
 
     public VideoRecorderAppState(File file) {
@@ -125,17 +116,11 @@ public class VideoRecorderAppState extends AbstractAppState {
                         Screenshots.convertScreenShot(item.buffer, item.image);
                         item.data = writer.writeImageToBytes(item.image);
                         while (usedItems.peek() != item) {
-                            Thread.sleep(5);
+                            Thread.sleep(1);
                         }
-                        writeThread.submit(new Callable<Void>() {
-
-                            public Void call() throws Exception {
-                                writer.addImage(item.data);
-                                freeItems.add(item);
-                                return null;
-                            }
-                        });
+                        writer.addImage(item.data);
                         usedItems.poll();
+                        freeItems.add(item);
                         return null;
                     }
                 });
