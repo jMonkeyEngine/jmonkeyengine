@@ -4,6 +4,7 @@ import com.jme3.app.Application;
 import com.jme3.post.SceneProcessor;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.RenderManager;
+import com.jme3.renderer.Renderer;
 import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.system.NanoTimer;
@@ -15,10 +16,9 @@ import java.io.*;
 import java.nio.ByteBuffer;
 
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -35,23 +35,31 @@ public class VideoRecorderAppState extends AbstractAppState {
 
     private int framerate = 30;
     private VideoProcessor processor;
-    private MjpegFileWriter writer;
     private File file;
     private Application app;
-    private ExecutorService executor;
-    private Future fut;
+    private ExecutorService executor = Executors.newCachedThreadPool(new ThreadFactory() {
+
+        public Thread newThread(Runnable r) {
+            Thread th = new Thread(r);
+            th.setName("jME Video Processing Thread");
+            th.setDaemon(true);
+            return th;
+        }
+    });
+    private ExecutorService writeThread = Executors.newSingleThreadExecutor(new ThreadFactory() {
+
+        public Thread newThread(Runnable r) {
+            Thread th = new Thread(r);
+            th.setName("jME Video Writing Thread");
+            th.setDaemon(true);
+            return th;
+        }
+    });
+    private int numCpus = Runtime.getRuntime().availableProcessors();
 
     public VideoRecorderAppState(File file) {
         this.file = file;
-        executor = Executors.newSingleThreadExecutor(new ThreadFactory() {
-
-            public Thread newThread(Runnable r) {
-                Thread th = new Thread(r);
-                th.setName("jME Video processing Thread");
-                th.setDaemon(true);
-                return th;
-            }
-        });
+        Logger.getLogger(this.getClass().getName()).log(Level.INFO, "JME3 VideoRecorder running on {0} CPU's", numCpus);
     }
 
     public File getFile() {
@@ -74,29 +82,80 @@ public class VideoRecorderAppState extends AbstractAppState {
     @Override
     public void cleanup() {
         app.getViewPort().removeProcessor(processor);
+        app.setTimer(new NanoTimer());
         super.cleanup();
     }
 
-    public class VideoProcessor implements SceneProcessor {
+    private class WorkItem {
+
+        ByteBuffer buffer;
+        BufferedImage image;
+        byte[] data;
+
+        public WorkItem(int width, int height) {
+            image = new BufferedImage(width, height,
+                    BufferedImage.TYPE_4BYTE_ABGR);
+            buffer = BufferUtils.createByteBuffer(width * height * 4);
+        }
+    }
+
+    private class VideoProcessor implements SceneProcessor {
 
         private Camera camera;
         private int width;
         private int height;
-        private FrameBuffer frameBuffer;
         private RenderManager renderManager;
-        private ByteBuffer byteBuffer;
-        private BufferedImage rawFrame;
         private boolean isInitilized = false;
+        private LinkedBlockingQueue<WorkItem> freeItems;
+        private LinkedBlockingQueue<WorkItem> usedItems = new LinkedBlockingQueue<WorkItem>();
+        private MjpegFileWriter writer;
+
+        public void addImage(Renderer renderer, FrameBuffer out) {
+            if (freeItems == null) {
+                return;
+            }
+            try {
+                final WorkItem item = freeItems.take();
+                usedItems.add(item);
+                item.buffer.clear();
+                renderer.readFrameBuffer(out, item.buffer);
+                executor.submit(new Callable<Void>() {
+
+                    public Void call() throws Exception {
+                        Screenshots.convertScreenShot(item.buffer, item.image);
+                        item.data = writer.writeImageToBytes(item.image);
+                        while (usedItems.peek() != item) {
+                            Thread.sleep(5);
+                        }
+                        writeThread.submit(new Callable<Void>() {
+
+                            public Void call() throws Exception {
+                                writer.addImage(item.data);
+                                freeItems.add(item);
+                                return null;
+                            }
+                        });
+                        usedItems.poll();
+                        return null;
+                    }
+                });
+            } catch (InterruptedException ex) {
+                Logger.getLogger(VideoRecorderAppState.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
 
         public void initialize(RenderManager rm, ViewPort viewPort) {
             this.camera = viewPort.getCamera();
             this.width = camera.getWidth();
             this.height = camera.getHeight();
-            rawFrame = new BufferedImage(width, height,
-                    BufferedImage.TYPE_4BYTE_ABGR);
-            byteBuffer = BufferUtils.createByteBuffer(width * height * 4);
             this.renderManager = rm;
             this.isInitilized = true;
+            if (freeItems == null) {
+                freeItems = new LinkedBlockingQueue<WorkItem>();
+                for (int i = 0; i < numCpus; i++) {
+                    freeItems.add(new WorkItem(width, height));
+                }
+            }
         }
 
         public void reshape(ViewPort vp, int w, int h) {
@@ -120,45 +179,19 @@ public class VideoRecorderAppState extends AbstractAppState {
         }
 
         public void postFrame(FrameBuffer out) {
-            try {
-                if (fut != null) {
-                    fut.get();
-                }
-                fut = null;
-            } catch (InterruptedException ex) {
-            } catch (ExecutionException ex) {
-            }
-            byteBuffer.clear();
-            renderManager.getRenderer().readFrameBuffer(out, byteBuffer);
-            fut = executor.submit(new Callable<Void>() {
-
-                public Void call() throws Exception {
-                    Screenshots.convertScreenShot(byteBuffer, rawFrame);
-                    try {
-                        writer.addImage(rawFrame);
-                    } catch (Exception ex) {
-                        Logger.getLogger(VideoRecorderAppState.class.getName()).log(Level.SEVERE, "Error writing frame: {0}", ex);
-                    }
-                    return null;
-                }
-            });
+            addImage(renderManager.getRenderer(), out);
         }
 
         public void cleanup() {
             try {
-                if (fut != null) {
-                    fut.get();
-                    fut = null;
+                while (freeItems.size() < numCpus) {
+                    Thread.sleep(10);
                 }
-            } catch (InterruptedException ex) {
-            } catch (ExecutionException ex) {
-            }
-            app.setTimer(new NanoTimer());
-            try {
                 writer.finishAVI();
             } catch (Exception ex) {
                 Logger.getLogger(VideoRecorderAppState.class.getName()).log(Level.SEVERE, "Error closing video: {0}", ex);
             }
+            writer = null;
         }
     }
 

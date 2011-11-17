@@ -18,6 +18,7 @@ import javax.imageio.ImageIO;
  * @author monceaux, normenhansen
  */
 public class MjpegFileWriter {
+
     int width = 0;
     int height = 0;
     double framerate = 0;
@@ -32,7 +33,7 @@ public class MjpegFileWriter {
     public MjpegFileWriter(File aviFile, int width, int height, double framerate) throws Exception {
         this(aviFile, width, height, framerate, 0);
     }
-    
+
     public MjpegFileWriter(File aviFile, int width, int height, double framerate, int numFrames) throws Exception {
         this.aviFile = aviFile;
         this.width = width;
@@ -55,8 +56,11 @@ public class MjpegFileWriter {
     }
 
     public void addImage(Image image) throws Exception {
+        addImage(writeImageToBytes(image));
+    }
+
+    public void addImage(byte[] imagedata) throws Exception {
         byte[] fcc = new byte[]{'0', '0', 'd', 'b'};
-        byte[] imagedata = writeImageToBytes(image);
         int useLength = imagedata.length;
         long position = aviChannel.position();
         int extra = (useLength + (int) position) % 4;
@@ -469,16 +473,18 @@ public class MjpegFileWriter {
         }
     }
 
-    private byte[] writeImageToBytes(Image image) throws Exception {
-        BufferedImage bi = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+    public byte[] writeImageToBytes(Image image) throws Exception {
+        BufferedImage bi;
+        if (image instanceof BufferedImage && ((BufferedImage) image).getType() == BufferedImage.TYPE_INT_RGB) {
+            bi = (BufferedImage) image;
+        } else {
+            bi = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+            Graphics2D g = bi.createGraphics();
+            g.drawImage(image, 0, 0, width, height, null);
+        }
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        Graphics2D g = bi.createGraphics();
-        g.drawImage(image, 0, 0, width, height, null);
         ImageIO.write(bi, "jpg", baos);
         baos.close();
-        bi = null;
-        g = null;
-
         return baos.toByteArray();
-    }    
+    }
 }
