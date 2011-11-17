@@ -378,6 +378,10 @@ public class TerrainQuad extends Node implements Terrain {
         return (getParent() != null && !(getParent() instanceof TerrainQuad) );
     }
 
+    public Material getMaterial() {
+        return getMaterial(null);
+    }
+    
     public Material getMaterial(Vector3f worldLocation) {
         // get the material from one of the children. They all share the same material
         if (children != null) {

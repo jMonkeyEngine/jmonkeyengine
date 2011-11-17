@@ -197,7 +197,7 @@ public class TerrainGridAlphaMapTest extends SimpleApplication {
                 } catch (Exception e) {
                     alpha = assetManager.loadTexture("TerrainAlphaTest/alpha_default.png");
                 }
-                quad.getMaterial(null).setTexture("AlphaMap", alpha);
+                quad.getMaterial().setTexture("AlphaMap", alpha);
                 if (usePhysics) {
                     quad.addControl(new RigidBodyControl(new HeightfieldCollisionShape(quad.getHeightMap(), terrain.getLocalScale()), 0));
                     bulletAppState.getPhysicsSpace().add(quad);

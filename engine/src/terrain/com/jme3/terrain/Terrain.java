@@ -154,6 +154,14 @@ public interface Terrain {
 
     /**
      * Returns the material that this terrain uses.
+     * If it uses many materials, just return the one you think is best.
+     * For TerrainQuads this is sufficient. For TerrainGrid you want to call
+     * getMaterial(Vector3f) instead.
+     */
+    public Material getMaterial();
+    
+    /**
+     * Returns the material that this terrain uses.
      * Terrain can have different materials in different locations.
      * In general, the TerrainQuad will only have one material. But 
      * TerrainGrid will have a different material per tile.
