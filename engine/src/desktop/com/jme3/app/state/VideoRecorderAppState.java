@@ -14,6 +14,12 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.nio.ByteBuffer;
 
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.ThreadFactory;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -28,9 +34,20 @@ public class VideoRecorderAppState extends AbstractAppState {
     private MjpegFileWriter writer;
     private File file;
     private Application app;
+    private ExecutorService executor;
+    private Future fut;
 
     public VideoRecorderAppState(File file) {
         this.file = file;
+        executor = Executors.newSingleThreadExecutor(new ThreadFactory() {
+
+            public Thread newThread(Runnable r) {
+                Thread th = new Thread(r);
+                th.setName("jME Video processing Thread");
+                th.setDaemon(true);
+                return th;
+            }
+        });
     }
 
     public File getFile() {
@@ -40,7 +57,7 @@ public class VideoRecorderAppState extends AbstractAppState {
     public void setFile(File file) {
         this.file = file;
     }
-    
+
     @Override
     public void initialize(AppStateManager stateManager, Application app) {
         super.initialize(stateManager, app);
@@ -99,19 +116,39 @@ public class VideoRecorderAppState extends AbstractAppState {
         }
 
         public void postFrame(FrameBuffer out) {
+            try {
+                if (fut != null) {
+                    fut.get();
+                }
+                fut = null;
+            } catch (InterruptedException ex) {
+            } catch (ExecutionException ex) {
+            }
             byteBuffer.clear();
             renderManager.getRenderer().readFrameBuffer(out, byteBuffer);
-            synchronized (rawFrame) {
-                Screenshots.convertScreenShot(byteBuffer, rawFrame);
-                try {
-                    writer.addImage(rawFrame);
-                } catch (Exception ex) {
-                    Logger.getLogger(VideoRecorderAppState.class.getName()).log(Level.SEVERE, "Error writing frame: {0}", ex);
+            fut = executor.submit(new Callable<Void>() {
+
+                public Void call() throws Exception {
+                    Screenshots.convertScreenShot(byteBuffer, rawFrame);
+                    try {
+                        writer.addImage(rawFrame);
+                    } catch (Exception ex) {
+                        Logger.getLogger(VideoRecorderAppState.class.getName()).log(Level.SEVERE, "Error writing frame: {0}", ex);
+                    }
+                    return null;
                 }
-            }
+            });
         }
 
         public void cleanup() {
+            try {
+                if (fut != null) {
+                    fut.get();
+                    fut = null;
+                }
+            } catch (InterruptedException ex) {
+            } catch (ExecutionException ex) {
+            }
             app.setTimer(new NanoTimer());
             try {
                 writer.finishAVI();
@@ -125,6 +162,7 @@ public class VideoRecorderAppState extends AbstractAppState {
 
         private float framerate;
         private int ticks;
+        private long lastTime = 0;
 
         public IsoTimer(float framerate) {
             this.framerate = framerate;
@@ -132,7 +170,7 @@ public class VideoRecorderAppState extends AbstractAppState {
         }
 
         public long getTime() {
-            return (long) (this.ticks * (1.0f / this.framerate));
+            return (long) (this.ticks * (1.0f / this.framerate) * 1000f);
         }
 
         public long getResolution() {
@@ -148,6 +186,15 @@ public class VideoRecorderAppState extends AbstractAppState {
         }
 
         public void update() {
+            long time = System.currentTimeMillis();
+            long difference = time - lastTime;
+            lastTime = time;
+            if (difference < (1.0f / this.framerate) * 1000.0f) {
+                try {
+                    Thread.sleep(difference);
+                } catch (InterruptedException ex) {
+                }
+            }
             this.ticks++;
         }
 
