@@ -6,6 +6,7 @@ import com.jme3.renderer.Camera;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.RenderQueue;
+import com.jme3.system.NanoTimer;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.Screenshots;
@@ -32,6 +33,14 @@ public class VideoRecorderAppState extends AbstractAppState {
         this.file = file;
     }
 
+    public File getFile() {
+        return file;
+    }
+
+    public void setFile(File file) {
+        this.file = file;
+    }
+    
     @Override
     public void initialize(AppStateManager stateManager, Application app) {
         super.initialize(stateManager, app);
@@ -103,6 +112,7 @@ public class VideoRecorderAppState extends AbstractAppState {
         }
 
         public void cleanup() {
+            app.setTimer(new NanoTimer());
             try {
                 writer.finishAVI();
             } catch (Exception ex) {
