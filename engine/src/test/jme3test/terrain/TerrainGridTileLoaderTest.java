@@ -9,7 +9,6 @@ import com.jme3.bullet.collision.shapes.CapsuleCollisionShape;
 import com.jme3.bullet.collision.shapes.HeightfieldCollisionShape;
 import com.jme3.bullet.control.CharacterControl;
 import com.jme3.bullet.control.RigidBodyControl;
-import com.jme3.export.binary.BinaryExporter;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
@@ -25,9 +24,6 @@ import com.jme3.terrain.geomipmap.lodcalc.DistanceLodCalculator;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
 import java.io.File;
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class TerrainGridTileLoaderTest extends SimpleApplication {
 
@@ -47,11 +43,11 @@ public class TerrainGridTileLoaderTest extends SimpleApplication {
 
     @Override
     public void simpleInitApp() {
-        File file = new File("mountains.zip");
+        File file = new File("TerrainGridTestData.zip");
         if (!file.exists()) {
-            assetManager.registerLocator("http://jmonkeyengine.googlecode.com/files/mountains.zip", HttpZipLocator.class);
+            assetManager.registerLocator("http://jmonkeyengine.googlecode.com/files/TerrainGridTestData.zip", HttpZipLocator.class);
         } else {
-            assetManager.registerLocator("mountains.zip", ZipLocator.class);
+            assetManager.registerLocator("TerrainGridTestData.zip", ZipLocator.class);
         }
 
         this.flyCam.setMoveSpeed(100f);
@@ -134,7 +130,7 @@ public class TerrainGridTileLoaderTest extends SimpleApplication {
 
             bulletAppState.getPhysicsSpace().add(player3);
 
-            terrain.addListener("physicsStartListener", new TerrainGridListener() {
+            terrain.addListener(new TerrainGridListener() {
 
                 public void gridMoved(Vector3f newCenter) {
                 }

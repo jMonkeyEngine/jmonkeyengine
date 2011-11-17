@@ -378,13 +378,13 @@ public class TerrainQuad extends Node implements Terrain {
         return (getParent() != null && !(getParent() instanceof TerrainQuad) );
     }
 
-    public Material getMaterial() {
+    public Material getMaterial(Vector3f worldLocation) {
         // get the material from one of the children. They all share the same material
         if (children != null) {
             for (int i = children.size(); --i >= 0;) {
                 Spatial child = children.get(i);
                 if (child instanceof TerrainQuad) {
-                    return ((TerrainQuad)child).getMaterial();
+                    return ((TerrainQuad)child).getMaterial(worldLocation);
                 } else if (child instanceof TerrainPatch) {
                     return ((TerrainPatch)child).getMaterial();
                 }
@@ -393,8 +393,11 @@ public class TerrainQuad extends Node implements Terrain {
         return null;
     }
 
-    public float getTextureCoordinateScale() {
-        return 1f/(float)totalSize;
+    //public float getTextureCoordinateScale() {
+    //    return 1f/(float)totalSize;
+    //}
+    public int getNumMajorSubdivisions() {
+        return 1;
     }
 
     /**

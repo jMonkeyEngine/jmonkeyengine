@@ -154,10 +154,18 @@ public interface Terrain {
 
     /**
      * Returns the material that this terrain uses.
-     * This does not necessarily have to guarantee the material
-     * return is the only material used in the whole terrain structure.
+     * Terrain can have different materials in different locations.
+     * In general, the TerrainQuad will only have one material. But 
+     * TerrainGrid will have a different material per tile.
+     * 
+     * It could be possible to pass in null for the location, some Terrain
+     * implementations might just have the one material and not care where
+     * you are looking. So implementations must handle null being supplied.
+     * 
+     * @param worldLocation the location, in world coordinates, of where 
+     * we are interested in the underlying texture.
      */
-    public Material getMaterial();
+    public Material getMaterial(Vector3f worldLocation);
 
     /**
      * Used for painting to get the number of vertices along the edge of the
@@ -180,6 +188,14 @@ public interface Terrain {
      * 1/512 (or 0.00195) percent of the texture.
      * This is used for converting between tri-planar texture scales and regular
      * texture scales.
+     * 
+     * not needed
      */
-    public float getTextureCoordinateScale();
+    //public float getTextureCoordinateScale();
+    
+    /**
+     * 
+     * 
+     */
+    public int getNumMajorSubdivisions();
 }

@@ -335,7 +335,7 @@ public class TerrainEditorController implements NodeListener {
             if (terrain == null)
                 return 1f;
             MatParam matParam = null;
-            matParam = terrain.getMaterial().getParam("DiffuseMap_"+layer+"_scale");
+            matParam = terrain.getMaterial(null).getParam("DiffuseMap_"+layer+"_scale");
             if (matParam == null)
                 return -1f;
             return (Float) matParam.getValue();
@@ -367,7 +367,7 @@ public class TerrainEditorController implements NodeListener {
             Terrain terrain = (Terrain) getTerrain(null);
             if (terrain == null)
                 return;
-            terrain.getMaterial().setFloat("DiffuseMap_"+layer+"_scale", scale);
+            terrain.getMaterial(null).setFloat("DiffuseMap_"+layer+"_scale", scale);
             setNeedsSave(true);
         } else {
             try {
@@ -397,9 +397,9 @@ public class TerrainEditorController implements NodeListener {
                 return null;
             MatParam matParam = null;
             if (layer == 0)
-                matParam = terrain.getMaterial().getParam("DiffuseMap");
+                matParam = terrain.getMaterial(null).getParam("DiffuseMap");
             else
-                matParam = terrain.getMaterial().getParam("DiffuseMap_"+layer);
+                matParam = terrain.getMaterial(null).getParam("DiffuseMap_"+layer);
 
             if (matParam == null || matParam.getValue() == null) {
                 return null;
@@ -430,11 +430,11 @@ public class TerrainEditorController implements NodeListener {
             return null;
         MatParam matParam = null;
         if (alphaLayer == 0)
-            matParam = terrain.getMaterial().getParam("AlphaMap");
+            matParam = terrain.getMaterial(null).getParam("AlphaMap");
         else if(alphaLayer == 1)
-            matParam = terrain.getMaterial().getParam("AlphaMap_1");
+            matParam = terrain.getMaterial(null).getParam("AlphaMap_1");
         else if(alphaLayer == 2)
-            matParam = terrain.getMaterial().getParam("AlphaMap_2");
+            matParam = terrain.getMaterial(null).getParam("AlphaMap_2");
         
         if (matParam == null || matParam.getValue() == null) {
             return null;
@@ -471,9 +471,9 @@ public class TerrainEditorController implements NodeListener {
             if (terrain == null)
                 return;
             if (layer == 0)
-                terrain.getMaterial().setTexture("DiffuseMap", texture);
+                terrain.getMaterial(null).setTexture("DiffuseMap", texture);
             else
-                terrain.getMaterial().setTexture("DiffuseMap_"+layer, texture);
+                terrain.getMaterial(null).setTexture("DiffuseMap_"+layer, texture);
 
             setNeedsSave(true);
         } else {
@@ -522,9 +522,9 @@ public class TerrainEditorController implements NodeListener {
         if (terrain == null)
             return;
         if (layer == 0)
-            terrain.getMaterial().clearParam("DiffuseMap");
+            terrain.getMaterial(null).clearParam("DiffuseMap");
         else
-            terrain.getMaterial().clearParam("DiffuseMap_"+layer);
+            terrain.getMaterial(null).clearParam("DiffuseMap_"+layer);
 
         setNeedsSave(true);
     }
@@ -535,9 +535,9 @@ public class TerrainEditorController implements NodeListener {
         if (terrain == null)
             return;
         if (layer == 0)
-            terrain.getMaterial().clearParam("NormalMap");
+            terrain.getMaterial(null).clearParam("NormalMap");
         else
-            terrain.getMaterial().clearParam("NormalMap_"+layer);
+            terrain.getMaterial(null).clearParam("NormalMap_"+layer);
 
         setNeedsSave(true);
     }
@@ -553,9 +553,9 @@ public class TerrainEditorController implements NodeListener {
                 return null;
             MatParam matParam = null;
             if (layer == 0)
-                matParam = terrain.getMaterial().getParam("NormalMap");
+                matParam = terrain.getMaterial(null).getParam("NormalMap");
             else
-                matParam = terrain.getMaterial().getParam("NormalMap_"+layer);
+                matParam = terrain.getMaterial(null).getParam("NormalMap_"+layer);
 
             if (matParam == null || matParam.getValue() == null) {
                 return null;
@@ -616,18 +616,18 @@ public class TerrainEditorController implements NodeListener {
             if (texture == null) {
                 // remove the texture if it is null
                 if (layer == 0)
-                    terrain.getMaterial().clearParam("NormalMap");
+                    terrain.getMaterial(null).clearParam("NormalMap");
                 else
-                    terrain.getMaterial().clearParam("NormalMap_"+layer);
+                    terrain.getMaterial(null).clearParam("NormalMap_"+layer);
                 return;
             }
 
             texture.setWrap(WrapMode.Repeat);
 
             if (layer == 0)
-                terrain.getMaterial().setTexture("NormalMap", texture);
+                terrain.getMaterial(null).setTexture("NormalMap", texture);
             else
-                terrain.getMaterial().setTexture("NormalMap_"+layer, texture);
+                terrain.getMaterial(null).setTexture("NormalMap_"+layer, texture);
 
             setNeedsSave(true);
         } else {
@@ -957,7 +957,7 @@ public class TerrainEditorController implements NodeListener {
             Terrain terrain = (Terrain) getTerrain(null);
             if (terrain == null)
                 return false;
-            MatParam param = terrain.getMaterial().getParam("useTriPlanarMapping");
+            MatParam param = terrain.getMaterial(null).getParam("useTriPlanarMapping");
             if (param != null)
                 return (Boolean)param.getValue();
 
@@ -992,18 +992,18 @@ public class TerrainEditorController implements NodeListener {
             Terrain terrain = (Terrain) getTerrain(null);
             if (terrain == null)
                 return;
-            terrain.getMaterial().setBoolean("useTriPlanarMapping", enabled);
+            terrain.getMaterial(null).setBoolean("useTriPlanarMapping", enabled);
 
-            float texCoordSize = 1/terrain.getTextureCoordinateScale();
+            float size = terrain.getTerrainSize();
 
             if (enabled) {
                 for (int i=0; i<getNumUsedTextures(); i++) {
-                    float scale = 1f/(float)(texCoordSize/getTextureScale(i));
+                    float scale = 1f/(float)(size/getTextureScale(i));
                     setTextureScale(i, scale);
                 }
             } else {
                 for (int i=0; i<getNumUsedTextures(); i++) {
-                    float scale = (float)(texCoordSize*getTextureScale(i));
+                    float scale = (float)(size*getTextureScale(i));
                     setTextureScale(i, scale);
                 }
             }

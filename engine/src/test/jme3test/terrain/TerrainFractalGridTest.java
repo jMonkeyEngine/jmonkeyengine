@@ -38,7 +38,7 @@ public class TerrainFractalGridTest extends SimpleApplication {
     private float grassScale = 64;
     private float dirtScale = 16;
     private float rockScale = 128;
-    private boolean usePhysics = true;
+    private boolean usePhysics = false;
 
     public static void main(final String[] args) {
         TerrainFractalGridTest app = new TerrainFractalGridTest();
@@ -162,7 +162,7 @@ public class TerrainFractalGridTest extends SimpleApplication {
 
             bulletAppState.getPhysicsSpace().add(player3);
 
-            terrain.addListener("physicsStartListener", new TerrainGridListener() {
+            terrain.addListener(new TerrainGridListener() {
 
                 public void gridMoved(Vector3f newCenter) {
                 }

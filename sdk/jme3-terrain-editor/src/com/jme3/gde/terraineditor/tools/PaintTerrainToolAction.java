@@ -118,11 +118,11 @@ public class PaintTerrainToolAction extends AbstractTerrainToolAction {
             return null;
         MatParam matParam = null;
         if (alphaLayer == 0)
-            matParam = terrain.getMaterial().getParam("AlphaMap");
+            matParam = terrain.getMaterial(null).getParam("AlphaMap");
         else if(alphaLayer == 1)
-            matParam = terrain.getMaterial().getParam("AlphaMap_1");
+            matParam = terrain.getMaterial(null).getParam("AlphaMap_1");
         else if(alphaLayer == 2)
-            matParam = terrain.getMaterial().getParam("AlphaMap_2");
+            matParam = terrain.getMaterial(null).getParam("AlphaMap_2");
         
         if (matParam == null || matParam.getValue() == null) {
             return null;

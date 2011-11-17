@@ -35,11 +35,11 @@ public class TerrainGridSerializationTest extends SimpleApplication {
 
     @Override
     public void simpleInitApp() {
-        File file = new File("mountains.zip");
+        File file = new File("TerrainGridTestData.zip");
         if (!file.exists()) {
-            assetManager.registerLocator("http://jmonkeyengine.googlecode.com/files/mountains.zip", HttpZipLocator.class);
+            assetManager.registerLocator("http://jmonkeyengine.googlecode.com/files/TerrainGridTestData.zip", HttpZipLocator.class);
         } else {
-            assetManager.registerLocator("mountains.zip", ZipLocator.class);
+            assetManager.registerLocator("TerrainGridTestData.zip", ZipLocator.class);
         }
 
         this.flyCam.setMoveSpeed(100f);
@@ -72,7 +72,7 @@ public class TerrainGridSerializationTest extends SimpleApplication {
 
             bulletAppState.getPhysicsSpace().add(player3);
 
-            terrain.addListener("physicsStartListener", new TerrainGridListener() {
+            terrain.addListener(new TerrainGridListener() {
 
                 public void gridMoved(Vector3f newCenter) {
                 }

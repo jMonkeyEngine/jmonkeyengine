@@ -1020,7 +1020,7 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
     // runs on AWT thread now
     public void sceneOpened(SceneRequest request) {
 
-        if (request.equals(sentRequest)) {
+        if (request.equals(sentRequest) && editorController != null) {
             currentRequest = request;
             //Logger.getLogger(TerrainEditorTopComponent.class.getName()).finer("Terrain sceneRequested " + request.getWindowTitle());
 
@@ -1033,7 +1033,7 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
             if (terrain != null) {
                 // add the terrain root save node
 
-                ((Node) terrain).setMaterial(terrain.getMaterial());
+                ((Node) terrain).setMaterial(terrain.getMaterial(null));
                 // it appears when loading the actual applied material on the terrain
                 // does not reflect the material that we get from the terrain.
 

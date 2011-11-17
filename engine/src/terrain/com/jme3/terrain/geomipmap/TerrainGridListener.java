@@ -31,7 +31,6 @@
  */
 package com.jme3.terrain.geomipmap;
 
-import com.jme3.material.Material;
 import com.jme3.math.Vector3f;
 
 /**
