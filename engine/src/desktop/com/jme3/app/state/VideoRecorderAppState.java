@@ -15,6 +15,7 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.nio.ByteBuffer;
 
+import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -80,7 +81,9 @@ public class VideoRecorderAppState extends AbstractAppState {
             file = new File(filename);
         }
         processor = new VideoProcessor();
-        app.getViewPort().addProcessor(processor);
+        List<ViewPort> vps = app.getRenderManager().getPostViews();
+        ViewPort last = vps.get(vps.size()-1);
+        last.addProcessor(processor);
     }
 
     @Override
