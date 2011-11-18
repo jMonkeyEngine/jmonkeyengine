@@ -50,6 +50,7 @@ public class VideoRecorderAppState extends AbstractAppState {
         }
     });
     private int numCpus = Runtime.getRuntime().availableProcessors();
+    private ViewPort lastViewPort;
 
     public VideoRecorderAppState() {
         Logger.getLogger(this.getClass().getName()).log(Level.INFO, "JME3 VideoRecorder running on {0} CPU's", numCpus);
@@ -82,13 +83,13 @@ public class VideoRecorderAppState extends AbstractAppState {
         }
         processor = new VideoProcessor();
         List<ViewPort> vps = app.getRenderManager().getPostViews();
-        ViewPort last = vps.get(vps.size()-1);
-        last.addProcessor(processor);
+        lastViewPort = vps.get(vps.size()-1);
+        lastViewPort.addProcessor(processor);
     }
 
     @Override
     public void cleanup() {
-        app.getViewPort().removeProcessor(processor);
+        lastViewPort.removeProcessor(processor);
         app.setTimer(new NanoTimer());
         initialized = false;
         file = null;
