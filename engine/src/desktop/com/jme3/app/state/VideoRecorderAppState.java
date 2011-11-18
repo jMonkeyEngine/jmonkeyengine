@@ -48,6 +48,10 @@ public class VideoRecorderAppState extends AbstractAppState {
     });
     private int numCpus = Runtime.getRuntime().availableProcessors();
 
+    public VideoRecorderAppState() {
+        Logger.getLogger(this.getClass().getName()).log(Level.INFO, "JME3 VideoRecorder running on {0} CPU's", numCpus);
+    }
+
     public VideoRecorderAppState(File file) {
         this.file = file;
         Logger.getLogger(this.getClass().getName()).log(Level.INFO, "JME3 VideoRecorder running on {0} CPU's", numCpus);
@@ -58,6 +62,9 @@ public class VideoRecorderAppState extends AbstractAppState {
     }
 
     public void setFile(File file) {
+        if (isInitialized()) {
+            throw new IllegalStateException("Cannot set file while attached!");
+        }
         this.file = file;
     }
 
@@ -74,6 +81,7 @@ public class VideoRecorderAppState extends AbstractAppState {
     public void cleanup() {
         app.getViewPort().removeProcessor(processor);
         app.setTimer(new NanoTimer());
+        initialized = false;
         super.cleanup();
     }
 
@@ -153,7 +161,12 @@ public class VideoRecorderAppState extends AbstractAppState {
         public void preFrame(float tpf) {
             if (null == writer) {
                 try {
-                    writer = new MjpegFileWriter(file, width, height, framerate);
+                    if (file != null) {
+                        String filename = System.getProperty("user.home") + "/jMonkey-" + System.currentTimeMillis() / 1000;
+                        writer = new MjpegFileWriter(new File(filename + ".avi"), width, height, framerate);
+                    } else {
+                        writer = new MjpegFileWriter(file, width, height, framerate);
+                    }
                 } catch (Exception ex) {
                     Logger.getLogger(VideoRecorderAppState.class.getName()).log(Level.SEVERE, "Error creating file writer {0}", ex);
                 }
