@@ -28,7 +28,9 @@ import java.util.logging.Logger;
  * M-JPEG content. The file should be playable on any OS in any video player.<br/>
  * The video recording starts when the state is attached and stops when it is detached
  * or the application is quit. You can set the fileName of the file to be written when the
- * state is detached, else the old file will be overwritten.
+ * state is detached, else the old file will be overwritten. If you specify no file
+ * the AppState will attempt to write a file into the user home directory, made unique
+ * by a timestamp.
  * @author normenhansen, Robert McIntyre
  */
 public class VideoRecorderAppState extends AbstractAppState {
@@ -73,6 +75,10 @@ public class VideoRecorderAppState extends AbstractAppState {
         super.initialize(stateManager, app);
         this.app = app;
         app.setTimer(new IsoTimer(framerate));
+        if (file == null) {
+            String filename = System.getProperty("user.home") + File.separator + "jMonkey-" + System.currentTimeMillis() / 1000 + ".avi";
+            file = new File(filename);
+        }
         processor = new VideoProcessor();
         app.getViewPort().addProcessor(processor);
     }
@@ -82,6 +88,7 @@ public class VideoRecorderAppState extends AbstractAppState {
         app.getViewPort().removeProcessor(processor);
         app.setTimer(new NanoTimer());
         initialized = false;
+        file = null;
         super.cleanup();
     }
 
@@ -161,14 +168,9 @@ public class VideoRecorderAppState extends AbstractAppState {
         public void preFrame(float tpf) {
             if (null == writer) {
                 try {
-                    if (file != null) {
-                        String filename = System.getProperty("user.home") + "/jMonkey-" + System.currentTimeMillis() / 1000;
-                        writer = new MjpegFileWriter(new File(filename + ".avi"), width, height, framerate);
-                    } else {
-                        writer = new MjpegFileWriter(file, width, height, framerate);
-                    }
+                    writer = new MjpegFileWriter(file, width, height, framerate);
                 } catch (Exception ex) {
-                    Logger.getLogger(VideoRecorderAppState.class.getName()).log(Level.SEVERE, "Error creating file writer {0}", ex);
+                    Logger.getLogger(VideoRecorderAppState.class.getName()).log(Level.SEVERE, "Error creating file writer: {0}", ex);
                 }
             }
         }
