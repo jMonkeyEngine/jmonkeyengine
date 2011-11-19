@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.jme3.gde.gui.swing;
 
 import com.jme3.gde.core.assets.ProjectAssetManager;
@@ -36,6 +32,7 @@ id = "com.jme3.gde.gui.swing.ConvertToNifty")
     @ActionReference(path = "Menu/Tools/NiftyGUI", position = 0)
 })
 @Messages("CTL_ConvertToNifty=Convert Project Swing classes to NiftyGUI")
+@SuppressWarnings("unchecked")
 public final class ConvertToNifty implements ActionListener {
 
     private final Project context;
@@ -84,12 +81,11 @@ public final class ConvertToNifty implements ActionListener {
             }
             for (SourceGroup sourceGroup : groups) {
                 ClassLoader loader = new URLClassLoader(urls.toArray(new URL[urls.size()]), this.getClass().getClassLoader());
-                Class clazzFactory;
                 try {
-                    clazzFactory = loader.loadClass("nl.tygron.niftyconverter.NiftyFactory");
-                    Class clazzFile = loader.loadClass("java.io.File");
-                    Class clazzString = loader.loadClass("java.lang.String");
-                    Class clazzConfig = loader.loadClass("nl.tygron.niftyconverter.util.NiftyConverterConfig");
+                    Class<?> clazzFactory = loader.loadClass("nl.tygron.niftyconverter.NiftyFactory");
+                    Class<?> clazzFile = loader.loadClass("java.io.File");
+                    Class<?> clazzString = loader.loadClass("java.lang.String");
+                    Class<?> clazzConfig = loader.loadClass("nl.tygron.niftyconverter.util.NiftyConverterConfig");
                     clazzConfig.getDeclaredMethod("setOutputDir", clazzString).invoke(null, folder.getPath());
                     Object string = clazzString.getDeclaredConstructor(clazzString).newInstance(sourceGroup.getRootFolder().getPath());//context.getProjectDirectory().getFileObject("build/classes").getPath());
                     Object file = clazzFile.getDeclaredConstructor(clazzString).newInstance(string);
@@ -103,21 +99,3 @@ public final class ConvertToNifty implements ActionListener {
 
     }
 }
-//            SourceGroup[] groups = sources.getSourceGroups(JavaProjectConstants.SOURCES_TYPE_JAVA);
-//            for (SourceGroup sourceGroup : groups) {
-//                try {
-//                    ClassPath path = ClassPath.getClassPath(sourceGroup.getRootFolder(), ClassPath.COMPILE);
-//                    ClassLoader loader = new URLClassLoader(new URL[]{new URL("jar:file:/Users/normenhansen/Documents/Code/swingtonifty/dist/swingtonifty.jar!/")}, path.getClassLoader(true));
-//                    Class clazzFactory = loader.loadClass("nl.tygron.niftyconverter.NiftyFactory");
-//                    Class clazzFile = loader.loadClass("java.io.File");
-//                    Class clazzString = loader.loadClass("java.lang.String");
-//                    Class clazzConfig = loader.loadClass("nl.tygron.niftyconverter.util.NiftyConverterConfig");
-//                    clazzConfig.getDeclaredMethod("setOutputDir", clazzString).invoke(null, folder.getPath());
-//                    Object string = clazzString.getDeclaredConstructor(clazzString).newInstance(sourceGroup.getRootFolder().getPath());//context.getProjectDirectory().getFileObject("build/classes").getPath());
-//                    Object file = clazzFile.getDeclaredConstructor(clazzString).newInstance(string);
-//                    Object factory = clazzFactory.newInstance();
-//                    clazzFactory.getMethod("loadComponents", clazzFile).invoke(factory, file);
-//                } catch (Exception ex) {
-//                    Exceptions.printStackTrace(ex);
-//                }
-//            }
