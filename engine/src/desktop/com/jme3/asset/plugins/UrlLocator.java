@@ -33,12 +33,9 @@
 package com.jme3.asset.plugins;
 
 import com.jme3.asset.*;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLConnection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -64,7 +61,12 @@ public class UrlLocator implements AssetLocator {
     public AssetInfo locate(AssetManager manager, AssetKey key) {
         String name = key.getName();
         try{
-            URL url = new URL(root, name);
+            //TODO: remove workaround for SDK
+//            URL url = new URL(root, name);
+            if(name.startsWith("/")){
+                name = name.substring(1);
+            }
+            URL url = new URL(root.toExternalForm() + name);
             return UrlAssetInfo.create(manager, key, url);
         }catch (IOException ex){
             logger.log(Level.WARNING, "Error while locating " + name, ex);
