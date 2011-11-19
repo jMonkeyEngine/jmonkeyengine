@@ -51,7 +51,7 @@ public class ${name} extends AbstractControl{
         super.read(im);
         InputCapsule in = im.getCapsule(this);
         //TODO: load properties of this Control, e.g.
-        //this.value = in.readFloat(value, "name", defaultValue);
+        //this.value = in.readFloat("name", defaultValue);
     }
 
     @Override
