@@ -32,7 +32,10 @@
 
 package com.jme3.gde.gui.multiview;
 
+import com.jme3.asset.AssetInfo;
+import com.jme3.asset.AssetKey;
 import com.jme3.asset.AssetManager;
+import com.jme3.asset.AssetNotFoundException;
 import com.jme3.asset.DesktopAssetManager;
 import com.jme3.audio.AudioRenderer;
 import com.jme3.niftygui.RenderDeviceJme;
@@ -46,9 +49,30 @@ import com.jme3.texture.FrameBuffer;
 import de.lessvoid.nifty.Nifty;
 import de.lessvoid.nifty.spi.input.InputSystem;
 import de.lessvoid.nifty.tools.TimeProvider;
+import de.lessvoid.nifty.tools.resourceloader.ResourceLoader;
+import de.lessvoid.nifty.tools.resourceloader.ResourceLocation;
+import java.io.InputStream;
+import java.net.URL;
 
 public class NiftyJmeDisplay extends com.jme3.niftygui.NiftyJmeDisplay implements SceneProcessor {
 
+    protected class ResourceLocationJmp implements ResourceLocation {
+
+        public InputStream getResourceAsStream(String path) {
+            AssetKey<Object> key = new AssetKey<Object>(path);
+            AssetInfo info = assetManager.locateAsset(key);
+            if (info != null){
+                return info.openStream();
+            }else{
+                throw new AssetNotFoundException(path);
+            }
+        }
+
+        public URL getResource(String path) {
+            throw new UnsupportedOperationException();
+        }
+    }
+    
     public NiftyJmeDisplay(AssetManager assetManager, 
                            InputSystem inputManager,
                            AudioRenderer audioRenderer,
@@ -66,6 +90,9 @@ public class NiftyJmeDisplay extends com.jme3.niftygui.NiftyJmeDisplay implement
 
     @Override
     public void initialize(RenderManager rm, ViewPort vp) {
+        ResourceLocationJmp resourceLocation = new ResourceLocationJmp();
+        ResourceLoader.removeAllResourceLocations();
+        ResourceLoader.addResourceLocation(resourceLocation);
         this.renderManager = rm;
         renderDev.setRenderManager(rm);
         inited = true;

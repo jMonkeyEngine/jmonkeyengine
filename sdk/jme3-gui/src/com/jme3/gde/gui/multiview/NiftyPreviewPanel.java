@@ -244,8 +244,6 @@ public class NiftyPreviewPanel extends PanelView {
                         audioRenderer,
                         guiViewPort);
                 nifty = niftyDisplay.getNifty();
-                //TODO: assetManager isn't used for loading xml??
-                de.lessvoid.nifty.tools.resourceloader.ResourceLoader.addResourceLocation(new FileSystemLocation(new File(pm.getAssetFolderName())));
 
                 // attach the nifty display to the gui view port as a processor
                 guiViewPort.addProcessor(niftyDisplay);
@@ -273,12 +271,12 @@ public class NiftyPreviewPanel extends PanelView {
 
     public void cleanup() {
         offPanel.stopPreview();
-        SceneApplication.getApplication().enqueue(new Callable<Object>() {
-
-            public Object call() throws Exception {
-                nifty.exit();
-                return null;
-            }
-        });
+//        SceneApplication.getApplication().enqueue(new Callable<Object>() {
+//
+//            public Object call() throws Exception {
+//                nifty.exit();
+//                return null;
+//            }
+//        });
     }
 }
