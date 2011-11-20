@@ -1796,13 +1796,13 @@ public class TerrainQuad extends Node implements Terrain {
             if (getChild(0) instanceof TerrainPatch) {
                 for (Spatial s : getChildren()) {
                     if ( ((TerrainPatch)s).getQuadrant() == 1)
-                        ul = BufferUtils.getFloatArray(((TerrainPatch)s).getHeightmap());
+                        ul = ((TerrainPatch)s).getHeightmap();
                     else if(((TerrainPatch) s).getQuadrant() == 2)
-                        bl = BufferUtils.getFloatArray(((TerrainPatch)s).getHeightmap());
+                        bl = ((TerrainPatch)s).getHeightmap();
                     else if(((TerrainPatch) s).getQuadrant() == 3)
-                        ur = BufferUtils.getFloatArray(((TerrainPatch)s).getHeightmap());
+                        ur = ((TerrainPatch)s).getHeightmap();
                     else if(((TerrainPatch) s).getQuadrant() == 4)
-                        br = BufferUtils.getFloatArray(((TerrainPatch)s).getHeightmap());
+                        br = ((TerrainPatch)s).getHeightmap();
                 }
             }
             else {

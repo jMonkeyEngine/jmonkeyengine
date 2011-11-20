@@ -53,36 +53,23 @@ import java.nio.IntBuffer;
  */
 public class GeoMap implements Savable {
     
-    protected FloatBuffer hdata;
-    protected ByteBuffer ndata;
+    protected float[] hdata;
     protected int width, height, maxval;
     
     public GeoMap() {}
     
-    public GeoMap(FloatBuffer heightData, ByteBuffer normalData, int width, int height, int maxval){
+    public GeoMap(float[] heightData, int width, int height, int maxval){
         this.hdata = heightData;
-        this.ndata = normalData;
         this.width = width;
         this.height = height;
         this.maxval = maxval;
     }
 
-    public GeoMap(int width, int height, int maxval) {
-        this(BufferUtils.createFloatBuffer(width*height), null, width,height,maxval);
-    }
-
-    public FloatBuffer getHeightData(){
+    public float[] getHeightData(){
         if (!isLoaded())
             return null;
 
         return hdata;
-    }
-
-    public ByteBuffer getNormalData(){
-        if (!isLoaded() || !hasNormalmap())
-            return null;
-
-        return ndata;
     }
 
     /**
@@ -105,7 +92,7 @@ public class GeoMap implements Savable {
      * @throws NullPointerException If isLoaded() is false
      */
     public float getValue(int x, int y) {
-        return hdata.get(y*width+x);
+        return hdata[y*width+x];
     }
 
     /**
@@ -120,50 +107,9 @@ public class GeoMap implements Savable {
      * @throws NullPointerException If isLoaded() is false
      */
     public float getValue(int i) {
-        return hdata.get(i);
+        return hdata[i];
     }
 
-    /**
-     * Returns the normal at a point
-     *
-     * If store is null, then a new vector is returned,
-     * otherwise, the result is stored in the provided vector
-     * and then returned from this method
-     *
-     * @param x the X coordinate
-     * @param y the Y coordinate
-     * @param store A preallocated vector for storing the normal data, optional
-     * @returns store, or a new vector with the normal data if store is null
-     *
-     * @throws NullPointerException If isLoaded() or hasNormalmap() is false
-     */
-    public Vector3f getNormal(int x, int y, Vector3f store) {
-        return getNormal(y*width+x,store);
-    }
-
-    /**
-     * Returns the normal at an index
-     *
-     * If store is null, then a new vector is returned,
-     * otherwise, the result is stored in the provided vector
-     * and then returned from this method
-     *
-     * See getHeight(int) for information about index lookup
-     *
-     * @param i the index
-     * @param store A preallocated vector for storing the normal data, optional
-     * @returns store, or a new vector with the normal data if store is null
-     *
-     * @throws NullPointerException If isLoaded() or hasNormalmap() is false
-     */
-    public Vector3f getNormal(int i, Vector3f store) {
-        ndata.position( i*3 );
-        if (store==null) store = new Vector3f();
-        store.setX( (((float)(ndata.get() & 0xFF)/255f)-0.5f)*2f );
-        store.setY( (((float)(ndata.get() & 0xFF)/255f)-0.5f)*2f );
-        store.setZ( (((float)(ndata.get() & 0xFF)/255f)-0.5f)*2f );
-        return store;
-    }
 
     /**
      * Returns the width of this Geomap
@@ -181,43 +127,6 @@ public class GeoMap implements Savable {
      */
     public int getHeight() {
         return height;
-    }
-
-    /**
-     * Copies a section of this geomap as a new geomap
-     */
-    public GeoMap copySubGeomap(int x, int y, int w, int h){
-        FloatBuffer nhdata = BufferUtils.createFloatBuffer(w * h);
-        hdata.position(y*width+x);
-        for (int cy = 0; cy < height; cy++){
-            hdata.limit(hdata.position()+w);
-            nhdata.put(hdata);
-            hdata.limit(hdata.capacity());
-            hdata.position(hdata.position()+width);
-        }
-        nhdata.flip();
-
-        ByteBuffer nndata = null;
-        if (ndata!=null){
-            nndata = BufferUtils.createByteBuffer(w*h*3);
-            ndata.position( (y*width+x)*3 );
-            for (int cy = 0; cy < height; cy++){
-                ndata.limit(ndata.position()+w*3);
-                nndata.put(ndata);
-                ndata.limit(ndata.capacity());
-                ndata.position(ndata.position()+width*3);
-            }
-            nndata.flip();
-        }
-
-        return new GeoMap(nhdata,nndata,w,h,maxval);
-    }
-
-    /**
-     * Returns true if this Geomap has a normalmap associated with it
-     */
-    public boolean hasNormalmap() {
-        return ndata != null;
     }
 
     /**
@@ -250,65 +159,55 @@ public class GeoMap implements Savable {
             store = BufferUtils.createFloatBuffer(getWidth()*getHeight()*3);
         }
         store.rewind();
-        
-        if (!hasNormalmap()){
-            Vector3f oppositePoint = new Vector3f();
-            Vector3f adjacentPoint = new Vector3f();
-            Vector3f rootPoint = new Vector3f();
-            Vector3f tempNorm = new Vector3f();
-            int normalIndex = 0;
 
-            for (int y = 0; y < getHeight(); y++) {
-                for (int x = 0; x < getWidth(); x++) {
-                    rootPoint.set(x, getValue(x,y), y);
-                    if (y == getHeight() - 1) {
-                        if (x == getWidth() - 1) {  // case #4 : last row, last col
-                            // left cross up
+        Vector3f oppositePoint = new Vector3f();
+        Vector3f adjacentPoint = new Vector3f();
+        Vector3f rootPoint = new Vector3f();
+        Vector3f tempNorm = new Vector3f();
+        int normalIndex = 0;
+
+        for (int y = 0; y < getHeight(); y++) {
+            for (int x = 0; x < getWidth(); x++) {
+                rootPoint.set(x, getValue(x,y), y);
+                if (y == getHeight() - 1) {
+                    if (x == getWidth() - 1) {  // case #4 : last row, last col
+                        // left cross up
 //                            adj = normalIndex - getWidth();
 //                            opp = normalIndex - 1;
-                            adjacentPoint.set(x, getValue(x,y-1), y-1);
-                            oppositePoint.set(x-1, getValue(x-1, y), y);
-                        } else {                    // case #3 : last row, except for last col
-                            // right cross up
+                        adjacentPoint.set(x, getValue(x,y-1), y-1);
+                        oppositePoint.set(x-1, getValue(x-1, y), y);
+                    } else {                    // case #3 : last row, except for last col
+                        // right cross up
 //                            adj = normalIndex + 1;
 //                            opp = normalIndex - getWidth();
-                            adjacentPoint.set(x+1, getValue(x+1,y), y);
-                            oppositePoint.set(x, getValue(x,y-1), y-1);
-                        }
-                    } else {
-                        if (x == getWidth() - 1) {  // case #2 : last column except for last row
-                            // left cross down
-                            adjacentPoint.set(x-1, getValue(x-1,y), y);
-                            oppositePoint.set(x, getValue(x,y+1), y+1);
+                        adjacentPoint.set(x+1, getValue(x+1,y), y);
+                        oppositePoint.set(x, getValue(x,y-1), y-1);
+                    }
+                } else {
+                    if (x == getWidth() - 1) {  // case #2 : last column except for last row
+                        // left cross down
+                        adjacentPoint.set(x-1, getValue(x-1,y), y);
+                        oppositePoint.set(x, getValue(x,y+1), y+1);
 //                            adj = normalIndex - 1;
 //                            opp = normalIndex + getWidth();
-                        } else {                    // case #1 : most cases
-                            // right cross down
-                            adjacentPoint.set(x, getValue(x,y+1), y+1);
-                            oppositePoint.set(x+1, getValue(x+1,y), y);
+                    } else {                    // case #1 : most cases
+                        // right cross down
+                        adjacentPoint.set(x, getValue(x,y+1), y+1);
+                        oppositePoint.set(x+1, getValue(x+1,y), y);
 //                            adj = normalIndex + getWidth();
 //                            opp = normalIndex + 1;
-                        }
                     }
+                }
 
 
 
-                    tempNorm.set(adjacentPoint).subtractLocal(rootPoint)
-                            .crossLocal(oppositePoint.subtractLocal(rootPoint));
-                    tempNorm.multLocal(scale).normalizeLocal();
+                tempNorm.set(adjacentPoint).subtractLocal(rootPoint)
+                        .crossLocal(oppositePoint.subtractLocal(rootPoint));
+                tempNorm.multLocal(scale).normalizeLocal();
 //                    store.put(tempNorm.x).put(tempNorm.y).put(tempNorm.z);
-                    BufferUtils.setInBuffer(tempNorm, store,
-                            normalIndex);
-                    normalIndex++;
-                }
-            }
-        }else{
-            Vector3f temp = new Vector3f();
-            for (int z = 0; z < getHeight(); z++){
-                for (int x = 0; x < getWidth(); x++){
-                    getNormal(x,z,temp);
-                    store.put(temp.x).put(temp.y).put(temp.z);
-                }
+                BufferUtils.setInBuffer(tempNorm, store,
+                        normalIndex);
+                normalIndex++;
             }
         }
 
@@ -337,9 +236,8 @@ public class GeoMap implements Savable {
         }else{
             store = BufferUtils.createFloatBuffer(width*height*3);
         }
-        hdata.rewind();
 
-        assert hdata.limit() == height*width;
+        assert hdata.length == height*width;
 
         Vector3f offset = new Vector3f(-getWidth() * scale.x * 0.5f,
                                        0,
@@ -347,10 +245,11 @@ public class GeoMap implements Savable {
         if (!center)
             offset.zero();
 
+        int i = 0;
         for (int z = 0; z < height; z++){
             for (int x = 0; x < width; x++){
                 store.put( (float)x*scale.x + offset.x );
-                store.put( (float)hdata.get()*scale.y );
+                store.put( (float)hdata[i++]*scale.y );
                 store.put( (float)z*scale.z + offset.z );
             }
         }
@@ -433,24 +332,6 @@ public class GeoMap implements Savable {
         return m;
     }
     
-    /**
-     * Populate the height data from the supplied mesh.
-     * The mesh's dimensions should be the same as width and height
-     * of this geomap
-     */
-    public void populateHdataFromMesh(Mesh mesh) {
-        hdata = BufferUtils.createFloatBuffer(width*height);
-        hdata.rewind();
-        VertexBuffer pb = mesh.getBuffer(Type.Position);
-        FloatBuffer fb = (FloatBuffer) pb.getData();
-        for (int r=0; r<height; r++) {
-            for (int c=0; c<width; c++) {
-                float f = fb.get( (width*r) + c + 1);
-                hdata.put( f );
-            }
-        }
-    }
-
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule oc = ex.getCapsule(this);
         oc.write(hdata, "hdata", null);
@@ -461,7 +342,7 @@ public class GeoMap implements Savable {
 
     public void read(JmeImporter im) throws IOException {
         InputCapsule ic = im.getCapsule(this);
-        hdata = ic.readFloatBuffer("hdata", null);
+        hdata = ic.readFloatArray("hdata", null);
         width = ic.readInt("width", 0);
         height = ic.readInt("height", 0);
         maxval = ic.readInt("maxval", 0);

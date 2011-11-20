@@ -49,6 +49,7 @@ import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.TangentBinormalGenerator;
+import com.jme3.util.TempVars;
 import java.io.IOException;
 
 /**
@@ -69,8 +70,8 @@ public class LODGeomap extends GeoMap {
     public LODGeomap() {
     }
 
-    public LODGeomap(int size, FloatBuffer heightMap) {
-        super(heightMap, null, size, size, 1);
+    public LODGeomap(int size, float[] heightMap) {
+        super(heightMap, size, size, 1);
     }
 
     public Mesh createMesh(Vector3f scale, Vector2f tcScale, Vector2f tcOffset, float offsetAmount, int totalSize, boolean center) {
@@ -96,10 +97,6 @@ public class LODGeomap extends GeoMap {
         m.setStatic();
         m.updateBound();
         return m;
-    }
-
-    protected void removeNormalBuffer() {
-        ndata = null;
     }
 
     public FloatBuffer writeTexCoordArray(FloatBuffer store, Vector2f offset, Vector2f scale, float offsetAmount, int totalSize) {
@@ -762,94 +759,150 @@ public class LODGeomap extends GeoMap {
         }
         store.rewind();
 
-        Vector3f rootPoint = new Vector3f();
-        Vector3f rightPoint = new Vector3f();
-        Vector3f leftPoint = new Vector3f();
-        Vector3f topPoint = new Vector3f();
-        Vector3f bottomPoint = new Vector3f();
+        TempVars vars = TempVars.get();
+        
+        Vector3f rootPoint = vars.vect1;
+        Vector3f rightPoint = vars.vect2;
+        Vector3f leftPoint = vars.vect3;
+        Vector3f topPoint = vars.vect4;
+        Vector3f bottomPoint = vars.vect5;
+        
+        Vector3f tmp1 = vars.vect6;
+        Vector3f tmp2 = vars.vect7;
 
         // calculate normals for each polygon
         for (int r = 0; r < getHeight(); r++) {
             for (int c = 0; c < getWidth(); c++) {
 
                 rootPoint.set(c, getValue(c, r), r);
-                Vector3f normal = new Vector3f();
+                Vector3f normal = vars.vect8;
 
                 if (r == 0) { // first row
                     if (c == 0) { // first column
                         rightPoint.set(c + 1, getValue(c + 1, r), r);
                         bottomPoint.set(c, getValue(c, r + 1), r + 1);
-                        normal.set(getNormal(bottomPoint, rootPoint, rightPoint, scale));
+                        getNormal(bottomPoint, rootPoint, rightPoint, scale, normal);
+                        
+                        normal.set(Vector3f.UNIT_Y);
                     } else if (c == getWidth() - 1) { // last column
                         leftPoint.set(c - 1, getValue(c - 1, r), r);
                         bottomPoint.set(c, getValue(c, r + 1), r + 1);
-                        normal.set(getNormal(leftPoint, rootPoint, bottomPoint, scale));
+                        getNormal(leftPoint, rootPoint, bottomPoint, scale, normal);
+                        
+                        normal.set(Vector3f.UNIT_Y);
                     } else { // all middle columns
                         leftPoint.set(c - 1, getValue(c - 1, r), r);
                         rightPoint.set(c + 1, getValue(c + 1, r), r);
                         bottomPoint.set(c, getValue(c, r + 1), r + 1);
-                        Vector3f n1 = getNormal(leftPoint, rootPoint, bottomPoint, scale);
-                        Vector3f n2 = getNormal(bottomPoint, rootPoint, rightPoint, scale);
-                        normal.set(n1.add(n2).normalizeLocal());
+                        
+                        normal.set( getNormal(leftPoint, rootPoint, bottomPoint, scale, tmp1) );
+                        normal.add( getNormal(bottomPoint, rootPoint, rightPoint, scale, tmp1) );
+                        normal.normalizeLocal();
+                        
+                        normal.set(Vector3f.UNIT_Y);
                     }
                 } else if (r == getHeight() - 1) { // last row
                     if (c == 0) { // first column
                         topPoint.set(c, getValue(c, r - 1), r - 1);
                         rightPoint.set(c + 1, getValue(c + 1, r), r);
-                        normal.set(getNormal(rightPoint, rootPoint, topPoint, scale));
+                        getNormal(rightPoint, rootPoint, topPoint, scale, normal);
+                        
+                        normal.set(Vector3f.UNIT_Y);
                     } else if (c == getWidth() - 1) { // last column
                         topPoint.set(c, getValue(c, r - 1), r - 1);
                         leftPoint.set(c - 1, getValue(c - 1, r), r);
-                        normal.set(getNormal(topPoint, rootPoint, leftPoint, scale));
+                        getNormal(topPoint, rootPoint, leftPoint, scale, normal);
+                        
+                        normal.set(Vector3f.UNIT_Y);
                     } else { // all middle columns
                         topPoint.set(c, getValue(c, r - 1), r - 1);
                         leftPoint.set(c - 1, getValue(c - 1, r), r);
                         rightPoint.set(c + 1, getValue(c + 1, r), r);
-                        Vector3f n1 = getNormal(topPoint, rootPoint, leftPoint, scale);
-                        Vector3f n2 = getNormal(rightPoint, rootPoint, topPoint, scale);
-                        normal.set(n1.add(n2).normalizeLocal());
+                        
+                        normal.set( getNormal(topPoint, rootPoint, leftPoint, scale, tmp1) );
+                        normal.add( getNormal(rightPoint, rootPoint, topPoint, scale, tmp1) );
+                        normal.normalizeLocal();
+                        
+                        normal.set(Vector3f.UNIT_Y);
                     }
                 } else { // all middle rows
                     if (c == 0) { // first column
                         topPoint.set(c, getValue(c, r - 1), r - 1);
                         rightPoint.set(c + 1, getValue(c + 1, r), r);
                         bottomPoint.set(c, getValue(c, r + 1), r + 1);
-                        Vector3f n1 = getNormal(rightPoint, rootPoint, topPoint, scale);
-                        Vector3f n2 = getNormal(bottomPoint, rootPoint, rightPoint, scale);
-                        normal.set(n1.add(n2).normalizeLocal());
+                        
+                        normal.set( getNormal(rightPoint, rootPoint, topPoint, scale, tmp1) );
+                        normal.add( getNormal(bottomPoint, rootPoint, rightPoint, scale, tmp1) );
+                        normal.normalizeLocal();
+                        
+                        normal.set(Vector3f.UNIT_Y);
                     } else if (c == getWidth() - 1) { // last column
                         topPoint.set(c, getValue(c, r - 1), r - 1);
                         leftPoint.set(c - 1, getValue(c - 1, r), r);
                         bottomPoint.set(c, getValue(c, r + 1), r + 1);
-                        Vector3f n1 = getNormal(topPoint, rootPoint, leftPoint, scale);
-                        Vector3f n2 = getNormal(leftPoint, rootPoint, bottomPoint, scale);
-                        normal.set(n1.add(n2).normalizeLocal());
+
+                        normal.set( getNormal(topPoint, rootPoint, leftPoint, scale, tmp1) );
+                        normal.add( getNormal(leftPoint, rootPoint, bottomPoint, scale, tmp1) );
+                        normal.normalizeLocal();
+                        
+                        normal.set(Vector3f.UNIT_Y);
                     } else { // all middle columns
                         topPoint.set(c, getValue(c, r - 1), r - 1);
                         leftPoint.set(c - 1, getValue(c - 1, r), r);
                         rightPoint.set(c + 1, getValue(c + 1, r), r);
                         bottomPoint.set(c, getValue(c, r + 1), r + 1);
-                        Vector3f n1 = getNormal(topPoint, rootPoint, leftPoint, scale);
-                        Vector3f n2 = getNormal(leftPoint, rootPoint, bottomPoint, scale);
-                        Vector3f n3 = getNormal(bottomPoint, rootPoint, rightPoint, scale);
-                        Vector3f n4 = getNormal(rightPoint, rootPoint, topPoint, scale);
-                        normal.set(n1.add(n2).add(n3).add(n4).normalizeLocal());
+                        
+                        normal.set( getNormal(topPoint,  rootPoint, leftPoint, scale, tmp1 ) );
+                        normal.add( getNormal(leftPoint, rootPoint, bottomPoint, scale, tmp1) );
+                        normal.add( getNormal(bottomPoint, rootPoint, rightPoint, scale, tmp1) );
+                        normal.add( getNormal(rightPoint, rootPoint, topPoint, scale, tmp1) );
+                        normal.normalizeLocal();
+                        
+                        normal.set(Vector3f.UNIT_Y);
                     }
                 }
-
+                
+                normal.set(Vector3f.UNIT_Y);
                 BufferUtils.setInBuffer(normal, store, (r * getWidth() + c)); // save the normal
-
             }
         }
+        
+        vars.release();
 
         return store;
     }
 
-    private Vector3f getNormal(Vector3f firstPoint, Vector3f rootPoint, Vector3f secondPoint, Vector3f scale) {
-        Vector3f normal = new Vector3f();
-        //scale = Vector3f.UNIT_XYZ;
-        normal.set(firstPoint.mult(scale)).subtractLocal(rootPoint.mult(scale)).crossLocal(secondPoint.mult(scale).subtract(rootPoint.mult(scale))).normalizeLocal();
-        return normal;
+    private Vector3f getNormal(Vector3f firstPoint, Vector3f rootPoint, Vector3f secondPoint, Vector3f scale, Vector3f store) {
+//        store.set(firstPoint).subtractLocal(rootPoint);
+//        tmp.set(secondPoint).subtractLocal(rootPoint);
+//        store.crossLocal(tmp).mult(scale).normalizeLocal();
+        
+       // store.set(
+       //         firstPoint.mult(scale)).subtractLocal(rootPoint.mult(scale))
+       //               .crossLocal(
+       //         secondPoint.mult(scale).subtract(rootPoint.mult(scale))).normalizeLocal();
+        
+        float x1 = firstPoint.x - rootPoint.x;
+        float y1 = firstPoint.y - rootPoint.y;
+        float z1 = firstPoint.z - rootPoint.z;
+        float x2 = secondPoint.x - rootPoint.x;
+        float y2 = secondPoint.y - rootPoint.y;
+        float z2 = secondPoint.z - rootPoint.z;
+        float x3 = (y1 * z2) - (z1 * y2);
+        float y3 = (z1 * x2) - (x1 * z2);
+        float z3 = (x1 * y2) - (y1 * x2);
+        
+        x3 *= scale.x;
+        y3 *= scale.y;
+        z3 *= scale.z;
+        
+        float inv = 1.0f / FastMath.sqrt(x3 * x3 + y3 * y3 + z3 * z3);
+        store.x = x3 * inv;
+        store.y = y3 * inv;
+        store.z = z3 * inv;
+        
+        return store;
+        
     }
 
     /**
@@ -953,10 +1006,10 @@ public class LODGeomap extends GeoMap {
         Triangle t = new Triangle(new Vector3f(), new Vector3f(), new Vector3f());
         Triangle t2 = new Triangle(new Vector3f(), new Vector3f(), new Vector3f());
 
-        float h1 = hdata.get(index);                // top left
-        float h2 = hdata.get(index + 1);            // top right
-        float h3 = hdata.get(index + width);        // bottom left
-        float h4 = hdata.get(index + width + 1);    // bottom right
+        float h1 = hdata[index];                // top left
+        float h2 = hdata[index + 1];            // top right
+        float h3 = hdata[index + width];        // bottom left
+        float h4 = hdata[index + width + 1];    // bottom right
 
 
         if ((gridX == 0 && gridY == 0) || (gridX == width - 1 && gridY == width - 1)) {

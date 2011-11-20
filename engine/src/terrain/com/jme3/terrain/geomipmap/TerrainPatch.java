@@ -186,10 +186,7 @@ public class TerrainPatch extends Geometry {
 
         setLocalTranslation(origin);
 
-        FloatBuffer heightBuffer = BufferUtils.createFloatBuffer(size*size);
-        heightBuffer.put(heightMap);
-
-        geomap = new LODGeomap(size, heightBuffer);
+        geomap = new LODGeomap(size, heightMap);
         Mesh m = geomap.createMesh(stepScale, new Vector2f(1,1), offset, offsetAmount, totalSize, false);
         setMesh(m);
 
@@ -216,7 +213,7 @@ public class TerrainPatch extends Geometry {
         return lodEntropy;
     }
 
-    public FloatBuffer getHeightmap() {
+    public float[] getHeightmap() {
         return geomap.getHeightData();
     }
 
@@ -300,10 +297,10 @@ public class TerrainPatch extends Geometry {
                 continue;
             int idx = lh.z * size + lh.x;
             if (overrideHeight) {
-                geomap.getHeightData().put(idx, lh.h);
+                geomap.getHeightData()[idx] = lh.h;
             } else {
                 float h = getMesh().getFloatBuffer(Type.Position).get(idx*3+1);
-                geomap.getHeightData().put(idx, h+lh.h);
+                geomap.getHeightData()[idx] = h+lh.h;
             }
             
         }
