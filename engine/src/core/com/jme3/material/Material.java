@@ -942,7 +942,8 @@ public class Material implements Asset, Cloneable, Savable, Comparable<Material>
 
     private void clearUniformsSetByCurrent(Shader shader) {
         ListMap<String, Uniform> uniforms = shader.getUniformMap();
-        for (int i = 0; i < uniforms.size(); i++) {
+        int size = uniforms.size();
+        for (int i = 0; i < size; i++) {
             Uniform u = uniforms.getValue(i);
             u.clearSetByCurrentMaterial();
         }
@@ -950,7 +951,8 @@ public class Material implements Asset, Cloneable, Savable, Comparable<Material>
 
     private void resetUniformsNotSetByCurrent(Shader shader) {
         ListMap<String, Uniform> uniforms = shader.getUniformMap();
-        for (int i = 0; i < uniforms.size(); i++) {
+        int size = uniforms.size();
+        for (int i = 0; i < size; i++) {
             Uniform u = uniforms.getValue(i);
             if (!u.isSetByCurrentMaterial()) {
                 u.clearValue();

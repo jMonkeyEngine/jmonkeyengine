@@ -295,6 +295,8 @@ public class LwjglCanvas extends LwjglAbstractDisplay implements JmeCanvasContex
      */
     protected PixelFormat acquirePixelFormat(boolean forPbuffer){
         if (forPbuffer){
+            // Use 0 samples for pbuffer format, prevents
+            // crashes on bad drivers
             if (pbufferFormat == null){
                 pbufferFormat = new PixelFormat(settings.getBitsPerPixel(),
                                                 0,
