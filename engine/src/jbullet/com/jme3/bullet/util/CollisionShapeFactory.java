@@ -155,7 +155,7 @@ public class CollisionShapeFactory {
             return new HeightfieldCollisionShape(terrain.getHeightMap(), terrain.getLocalScale());
         } else if (spatial instanceof TerrainPatch) {
             TerrainPatch terrain = (TerrainPatch) spatial;
-            return new HeightfieldCollisionShape(terrain.getHeightmap().array(), terrain.getLocalScale());
+            return new HeightfieldCollisionShape(terrain.getHeightmap(), terrain.getLocalScale());
         } else if (spatial instanceof Geometry) {
             return createSingleMeshShape((Geometry) spatial, spatial);
         } else if (spatial instanceof Node) {
