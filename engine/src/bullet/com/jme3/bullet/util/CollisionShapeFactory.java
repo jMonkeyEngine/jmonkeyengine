@@ -96,7 +96,7 @@ public class CollisionShapeFactory {
                 }
                 TerrainQuad terrain = (TerrainQuad) spatial;
                 Transform trans = getTransform(spatial, realRootNode);
-                shape.addChildShape(new HeightfieldCollisionShape(terrain.getHeightMap(), terrain.getLocalScale()),
+                shape.addChildShape(new HeightfieldCollisionShape(terrain.getHeightMap(), trans.getScale()),
                         trans.getTranslation(),
                         trans.getRotation().toRotationMatrix());
             } else if (spatial instanceof Node) {
