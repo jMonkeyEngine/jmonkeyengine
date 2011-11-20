@@ -1,22 +1,12 @@
 package jme3test.terrain;
 
-import com.jme3.terrain.geomipmap.TerrainQuad;
-
 import com.jme3.app.SimpleApplication;
 import com.jme3.app.state.ScreenshotAppState;
-import com.jme3.bullet.BulletAppState;
-import com.jme3.bullet.collision.shapes.CapsuleCollisionShape;
-import com.jme3.bullet.collision.shapes.HeightfieldCollisionShape;
 import com.jme3.bullet.control.CharacterControl;
-import com.jme3.bullet.control.RigidBodyControl;
-import com.jme3.input.KeyInput;
-import com.jme3.input.controls.ActionListener;
-import com.jme3.input.controls.KeyTrigger;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.terrain.geomipmap.TerrainGrid;
-import com.jme3.terrain.geomipmap.TerrainGridListener;
 import com.jme3.terrain.geomipmap.TerrainLodControl;
 import com.jme3.terrain.geomipmap.grid.FractalTileLoader;
 import com.jme3.terrain.geomipmap.lodcalc.DistanceLodCalculator;
@@ -38,7 +28,6 @@ public class TerrainFractalGridTest extends SimpleApplication {
     private float grassScale = 64;
     private float dirtScale = 16;
     private float rockScale = 128;
-    private boolean usePhysics = false;
 
     public static void main(final String[] args) {
         TerrainFractalGridTest app = new TerrainFractalGridTest();
@@ -140,135 +129,19 @@ public class TerrainFractalGridTest extends SimpleApplication {
         this.rootNode.attachChild(this.terrain);
 
         TerrainLodControl control = new TerrainLodControl(this.terrain, this.getCamera());
-        control.setLodCalculator( new DistanceLodCalculator(33, 2.7f) ); // patch size, and a multiplier
+        control.setLodCalculator(new DistanceLodCalculator(33, 2.7f)); // patch size, and a multiplier
         this.terrain.addControl(control);
 
-        final BulletAppState bulletAppState = new BulletAppState();
-        stateManager.attach(bulletAppState);
 
 
         this.getCamera().setLocation(new Vector3f(0, 300, 0));
 
         this.viewPort.setBackgroundColor(new ColorRGBA(0.7f, 0.8f, 1f, 1f));
 
-        if (usePhysics) {
-            CapsuleCollisionShape capsuleShape = new CapsuleCollisionShape(0.5f, 1.8f, 1);
-            player3 = new CharacterControl(capsuleShape, 0.5f);
-            player3.setJumpSpeed(20);
-            player3.setFallSpeed(10);
-            player3.setGravity(10);
-
-            player3.setPhysicsLocation(new Vector3f(cam.getLocation().x, 512, cam.getLocation().z));
-
-            bulletAppState.getPhysicsSpace().add(player3);
-
-            terrain.addListener(new TerrainGridListener() {
-
-                public void gridMoved(Vector3f newCenter) {
-                }
-
-                public Material tileLoaded(Material material, Vector3f cell) {
-                    return material;
-                }
-
-                public void tileAttached(Vector3f cell, TerrainQuad quad) {
-                    //uncomment to create data for TerrainQuadGridTest
-//                    try {
-//                        BinaryExporter.getInstance().save(quad, new File("/Users/normenhansen/Documents/Code/jme3/engine/src/test-data/TerrainGrid/"
-//                                + "testgrid_" + Math.round(cell.x) + "_" + Math.round(cell.y) + "_" + Math.round(cell.z) + ".j3o"));
-//                    } catch (IOException ex) {
-//                        Logger.getLogger(TerrainFractalGridTest.class.getName()).log(Level.SEVERE, null, ex);
-//                    }
-                    //workaround for bugged test j3o's
-                    quad.addControl(new RigidBodyControl(new HeightfieldCollisionShape(quad.getHeightMap(), terrain.getLocalScale()), 0));
-                    bulletAppState.getPhysicsSpace().add(quad);
-                }
-
-                public void tileDetached(Vector3f cell, TerrainQuad quad) {
-                    bulletAppState.getPhysicsSpace().remove(quad);
-                    quad.removeControl(RigidBodyControl.class);
-                }
-            });
-        }
         this.terrain.initialize(cam.getLocation());
-        this.initKeys();
     }
-
-    private void initKeys() {
-        // You can map one or several inputs to one named action
-        this.inputManager.addMapping("Lefts", new KeyTrigger(KeyInput.KEY_A));
-        this.inputManager.addMapping("Rights", new KeyTrigger(KeyInput.KEY_D));
-        this.inputManager.addMapping("Ups", new KeyTrigger(KeyInput.KEY_W));
-        this.inputManager.addMapping("Downs", new KeyTrigger(KeyInput.KEY_S));
-        this.inputManager.addMapping("Jumps", new KeyTrigger(KeyInput.KEY_SPACE));
-        this.inputManager.addListener(this.actionListener, "Lefts");
-        this.inputManager.addListener(this.actionListener, "Rights");
-        this.inputManager.addListener(this.actionListener, "Ups");
-        this.inputManager.addListener(this.actionListener, "Downs");
-        this.inputManager.addListener(this.actionListener, "Jumps");
-    }
-    private boolean left;
-    private boolean right;
-    private boolean up;
-    private boolean down;
-    private final ActionListener actionListener = new ActionListener() {
-
-        @Override
-        public void onAction(final String name, final boolean keyPressed, final float tpf) {
-            if (name.equals("Lefts")) {
-                if (keyPressed) {
-                    TerrainFractalGridTest.this.left = true;
-                } else {
-                    TerrainFractalGridTest.this.left = false;
-                }
-            } else if (name.equals("Rights")) {
-                if (keyPressed) {
-                    TerrainFractalGridTest.this.right = true;
-                } else {
-                    TerrainFractalGridTest.this.right = false;
-                }
-            } else if (name.equals("Ups")) {
-                if (keyPressed) {
-                    TerrainFractalGridTest.this.up = true;
-                } else {
-                    TerrainFractalGridTest.this.up = false;
-                }
-            } else if (name.equals("Downs")) {
-                if (keyPressed) {
-                    TerrainFractalGridTest.this.down = true;
-                } else {
-                    TerrainFractalGridTest.this.down = false;
-                }
-            } else if (name.equals("Jumps")) {
-                if (usePhysics) {
-                    TerrainFractalGridTest.this.player3.jump();
-                }
-            }
-        }
-    };
-    private final Vector3f walkDirection = new Vector3f();
 
     @Override
     public void simpleUpdate(final float tpf) {
-        Vector3f camDir = this.cam.getDirection().clone().multLocal(0.6f);
-        Vector3f camLeft = this.cam.getLeft().clone().multLocal(0.4f);
-        this.walkDirection.set(0, 0, 0);
-        if (this.left) {
-            this.walkDirection.addLocal(camLeft);
-        }
-        if (this.right) {
-            this.walkDirection.addLocal(camLeft.negate());
-        }
-        if (this.up) {
-            this.walkDirection.addLocal(camDir);
-        }
-        if (this.down) {
-            this.walkDirection.addLocal(camDir.negate());
-        }
-
-        if (usePhysics) {
-            this.player3.setWalkDirection(this.walkDirection);
-            this.cam.setLocation(this.player3.getPhysicsLocation());
-        }
     }
 }
