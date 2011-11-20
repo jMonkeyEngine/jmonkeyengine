@@ -72,7 +72,7 @@ public class LODGeomap extends GeoMap {
 
     @Deprecated
     public LODGeomap(int size, FloatBuffer heightMap) {
-        this(size, new float[heightMap.limit()]);
+        super(heightMap, size, size, 1);
     }
     
     public LODGeomap(int size, float[] heightMap) {
