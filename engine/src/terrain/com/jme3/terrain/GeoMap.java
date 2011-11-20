@@ -355,7 +355,8 @@ public class GeoMap implements Savable {
         if (hdata == null) {
             FloatBuffer buf = ic.readFloatBuffer("hdata", null);
             if (buf != null) {
-                hdata = buf.array();
+                hdata = new float[buf.limit()];
+                buf.get(hdata);
             }
         }
         width = ic.readInt("width", 0);
