@@ -130,7 +130,7 @@ public class CollisionShapeFactory {
                 }
                 TerrainPatch terrain = (TerrainPatch) spatial;
                 Transform trans = getTransform(spatial, realRootNode);
-                shape.addChildShape(new HeightfieldCollisionShape(terrain.getHeightmap(), terrain.getLocalScale()),
+                shape.addChildShape(new HeightfieldCollisionShape(terrain.getHeightMap(), terrain.getLocalScale()),
                         trans.getTranslation(),
                         trans.getRotation().toRotationMatrix());
             }
@@ -175,7 +175,7 @@ public class CollisionShapeFactory {
             return new HeightfieldCollisionShape(terrain.getHeightMap(), terrain.getLocalScale());
         } else if (spatial instanceof TerrainPatch) {
             TerrainPatch terrain = (TerrainPatch) spatial;
-            return new HeightfieldCollisionShape(terrain.getHeightmap(), terrain.getLocalScale());
+            return new HeightfieldCollisionShape(terrain.getHeightMap(), terrain.getLocalScale());
         } else if (spatial instanceof Geometry) {
             return createSingleMeshShape((Geometry) spatial, spatial);
         } else if (spatial instanceof Node) {
