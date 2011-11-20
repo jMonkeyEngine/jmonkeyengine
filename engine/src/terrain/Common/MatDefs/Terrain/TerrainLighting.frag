@@ -163,11 +163,6 @@ float lightComputeDiffuse(in vec3 norm, in vec3 lightdir, in vec3 viewdir){
 }
 
 float lightComputeSpecular(in vec3 norm, in vec3 viewdir, in vec3 lightdir, in float shiny){
-    // NOTE: check for shiny <= 1 removed since shininess is now 
-    // 1.0 by default (uses matdefs default vals)
-    if (shiny <= 1.0){
-        return 0.0;
-    }
     #ifdef WARDISO
         // Isotropic Ward
         vec3 halfVec = normalize(viewdir + lightdir);
@@ -262,7 +257,6 @@ vec2 computeLighting(in vec3 wvPos, in vec3 wvNorm, in vec3 wvViewDir, in vec3 w
 
   vec3 calculateNormal(in vec2 texCoord) {
     vec3 normal = vec3(0,0,1);
-    vec4 normalHeight = vec4(0,0,0,0);
     vec3 n = vec3(0,0,0);
 
     vec4 alphaBlend = texture2D( m_AlphaMap, texCoord.xy );
@@ -275,94 +269,70 @@ vec2 computeLighting(in vec3 wvPos, in vec3 wvNorm, in vec3 wvViewDir, in vec3 w
     #endif
 
     #ifdef NORMALMAP
-      normalHeight = texture2D(m_NormalMap, texCoord * m_DiffuseMap_0_scale);
-      n = (normalHeight.xyz * vec3(2.0) - vec3(1.0));
-      n.z = sqrt(1.0 - (n.x * n.x) - (n.y * n.y));
+      n = texture2D(m_NormalMap, texCoord * m_DiffuseMap_0_scale).xyz;
       normal += n * alphaBlend.r;
     #endif
 
     #ifdef NORMALMAP_1
-      normalHeight = texture2D(m_NormalMap_1, texCoord * m_DiffuseMap_1_scale);
-      n = (normalHeight.xyz * vec3(2.0) - vec3(1.0));
-      n.z = sqrt(1.0 - (n.x * n.x) - (n.y * n.y));
-      n.y = -n.y;
+      n = texture2D(m_NormalMap_1, texCoord * m_DiffuseMap_1_scale).xyz;
       normal += n * alphaBlend.g;
     #endif
 
     #ifdef NORMALMAP_2
-      normalHeight = texture2D(m_NormalMap_2, texCoord * m_DiffuseMap_2_scale);
-      n = (normalHeight.xyz * vec3(2.0) - vec3(1.0));
-      n.z = sqrt(1.0 - (n.x * n.x) - (n.y * n.y));
+      n = texture2D(m_NormalMap_2, texCoord * m_DiffuseMap_2_scale).xyz;
       normal += n * alphaBlend.b;
     #endif
 
     #ifdef NORMALMAP_3
-      normalHeight = texture2D(m_NormalMap_3, texCoord * m_DiffuseMap_3_scale);
-      n = (normalHeight.xyz * vec3(2.0) - vec3(1.0));
-      n.z = sqrt(1.0 - (n.x * n.x) - (n.y * n.y));
+      n = texture2D(m_NormalMap_3, texCoord * m_DiffuseMap_3_scale).xyz;
       normal += n * alphaBlend.a;
     #endif
 
     #ifdef ALPHAMAP_1
         #ifdef NORMALMAP_4
-          normalHeight = texture2D(m_NormalMap_4, texCoord * m_DiffuseMap_4_scale);
-          n = (normalHeight.xyz * vec3(2.0) - vec3(1.0));
-          n.z = sqrt(1.0 - (n.x * n.x) - (n.y * n.y));
+          n = texture2D(m_NormalMap_4, texCoord * m_DiffuseMap_4_scale).xyz;
           normal += n * alphaBlend1.r;
         #endif
 
         #ifdef NORMALMAP_5
-          normalHeight = texture2D(m_NormalMap_5, texCoord * m_DiffuseMap_5_scale);
-          n = (normalHeight.xyz * vec3(2.0) - vec3(1.0));
-          n.z = sqrt(1.0 - (n.x * n.x) - (n.y * n.y));
+          n = texture2D(m_NormalMap_5, texCoord * m_DiffuseMap_5_scale).xyz;
           normal += n * alphaBlend1.g;
         #endif
 
         #ifdef NORMALMAP_6
-          normalHeight = texture2D(m_NormalMap_6, texCoord * m_DiffuseMap_6_scale);
-          n = (normalHeight.xyz * vec3(2.0) - vec3(1.0));
-          n.z = sqrt(1.0 - (n.x * n.x) - (n.y * n.y));
+          n = texture2D(m_NormalMap_6, texCoord * m_DiffuseMap_6_scale).xyz;
           normal += n * alphaBlend1.b;
         #endif
 
         #ifdef NORMALMAP_7
-          normalHeight = texture2D(m_NormalMap_7, texCoord * m_DiffuseMap_7_scale);
-          n = (normalHeight.xyz * vec3(2.0) - vec3(1.0));
-          n.z = sqrt(1.0 - (n.x * n.x) - (n.y * n.y));
+          n = texture2D(m_NormalMap_7, texCoord * m_DiffuseMap_7_scale).xyz;
           normal += n * alphaBlend1.a;
         #endif
     #endif
 
     #ifdef ALPHAMAP_2
         #ifdef NORMALMAP_8
-          normalHeight = texture2D(m_NormalMap_8, texCoord * m_DiffuseMap_8_scale);
-          n = (normalHeight.xyz * vec3(2.0) - vec3(1.0));
-          n.z = sqrt(1.0 - (n.x * n.x) - (n.y * n.y));
+          n = texture2D(m_NormalMap_8, texCoord * m_DiffuseMap_8_scale).xyz;
           normal += n * alphaBlend2.r;
         #endif
 
         #ifdef NORMALMAP_9
-          normalHeight = texture2D(m_NormalMap_9, texCoord * m_DiffuseMap_9_scale);
-          n = (normalHeight.xyz * vec3(2.0) - vec3(1.0));
-          n.z = sqrt(1.0 - (n.x * n.x) - (n.y * n.y));
+          n = texture2D(m_NormalMap_9, texCoord * m_DiffuseMap_9_scale);
           normal += n * alphaBlend2.g;
         #endif
 
         #ifdef NORMALMAP_10
-          normalHeight = texture2D(m_NormalMap_10, texCoord * m_DiffuseMap_10_scale);
-          n = (normalHeight.xyz * vec3(2.0) - vec3(1.0));
-          n.z = sqrt(1.0 - (n.x * n.x) - (n.y * n.y));
+          n = texture2D(m_NormalMap_10, texCoord * m_DiffuseMap_10_scale);
           normal += n * alphaBlend2.b;
         #endif
 
         #ifdef NORMALMAP_11
-          normalHeight = texture2D(m_NormalMap_11, texCoord * m_DiffuseMap_11_scale);
-          n = (normalHeight.xyz * vec3(2.0) - vec3(1.0));
-          n.z = sqrt(1.0 - (n.x * n.x) - (n.y * n.y));
+          n = texture2D(m_NormalMap_11, texCoord * m_DiffuseMap_11_scale);
           normal += n * alphaBlend2.a;
         #endif
     #endif
 
+    normal = (normal.xyz * vec3(2.0) - vec3(1.0));
     return normalize(normal);
   }
 
@@ -508,108 +478,72 @@ vec2 computeLighting(in vec3 wvPos, in vec3 wvNorm, in vec3 wvViewDir, in vec3 w
 
       vec3 normal = vec3(0,0,1);
       vec3 n = vec3(0,0,0);
-      vec4 normalHeight = vec4(0,0,0,0);
 
       #ifdef NORMALMAP
-          normalHeight = getTriPlanarBlend(coords, blending, m_NormalMap, m_DiffuseMap_0_scale);
-          n = (normalHeight.xyz * vec3(2.0) - vec3(1.0));
-          n.z = sqrt(1.0 - (n.x * n.x) - (n.y * n.y));
-          n.y = -n.y;
+          n = getTriPlanarBlend(coords, blending, m_NormalMap, m_DiffuseMap_0_scale).xyz;
           normal += n * alphaBlend.r;
       #endif
 
       #ifdef NORMALMAP_1
-          normalHeight = getTriPlanarBlend(coords, blending, m_NormalMap_1, m_DiffuseMap_1_scale);
-          n = (normalHeight.xyz * vec3(2.0) - vec3(1.0));
-          n.z = sqrt(1.0 - (n.x * n.x) - (n.y * n.y));
-          n.y = -n.y;
+          n = getTriPlanarBlend(coords, blending, m_NormalMap_1, m_DiffuseMap_1_scale).xyz;
           normal += n * alphaBlend.g;
       #endif
 
       #ifdef NORMALMAP_2
-          normalHeight = getTriPlanarBlend(coords, blending, m_NormalMap_2, m_DiffuseMap_2_scale);
-          n = (normalHeight.xyz * vec3(2.0) - vec3(1.0));
-          n.z = sqrt(1.0 - (n.x * n.x) - (n.y * n.y));
-          n.y = -n.y;
+          n = getTriPlanarBlend(coords, blending, m_NormalMap_2, m_DiffuseMap_2_scale).xyz;
           normal += n * alphaBlend.b;
       #endif
 
       #ifdef NORMALMAP_3
-          normalHeight = getTriPlanarBlend(coords, blending, m_NormalMap_3, m_DiffuseMap_3_scale);
-          n = (normalHeight.xyz * vec3(2.0) - vec3(1.0));
-          n.z = sqrt(1.0 - (n.x * n.x) - (n.y * n.y));
-          n.y = -n.y;
+          n = getTriPlanarBlend(coords, blending, m_NormalMap_3, m_DiffuseMap_3_scale).xyz;
           normal += n * alphaBlend.a;
       #endif
 
       #ifdef ALPHAMAP_1
           #ifdef NORMALMAP_4
-              normalHeight = getTriPlanarBlend(coords, blending, m_NormalMap_4, m_DiffuseMap_4_scale);
-              n = (normalHeight.xyz * vec3(2.0) - vec3(1.0));
-              n.z = sqrt(1.0 - (n.x * n.x) - (n.y * n.y));
-              n.y = -n.y;
+              n = getTriPlanarBlend(coords, blending, m_NormalMap_4, m_DiffuseMap_4_scale).xyz;
               normal += n * alphaBlend1.r;
           #endif
 
           #ifdef NORMALMAP_5
-              normalHeight = getTriPlanarBlend(coords, blending, m_NormalMap_5, m_DiffuseMap_5_scale);
-              n = (normalHeight.xyz * vec3(2.0) - vec3(1.0));
-              n.z = sqrt(1.0 - (n.x * n.x) - (n.y * n.y));
-              n.y = -n.y;
+              n = getTriPlanarBlend(coords, blending, m_NormalMap_5, m_DiffuseMap_5_scale).xyz;
               normal += n * alphaBlend1.g;
           #endif
 
           #ifdef NORMALMAP_6
-              normalHeight = getTriPlanarBlend(coords, blending, m_NormalMap_6, m_DiffuseMap_6_scale);
-              n = (normalHeight.xyz * vec3(2.0) - vec3(1.0));
-              n.z = sqrt(1.0 - (n.x * n.x) - (n.y * n.y));
-              n.y = -n.y;
+              n = getTriPlanarBlend(coords, blending, m_NormalMap_6, m_DiffuseMap_6_scale).xyz;
               normal += n * alphaBlend1.b;
           #endif
 
           #ifdef NORMALMAP_7
-              normalHeight = getTriPlanarBlend(coords, blending, m_NormalMap_7, m_DiffuseMap_7_scale);
-              n = (normalHeight.xyz * vec3(2.0) - vec3(1.0));
-              n.z = sqrt(1.0 - (n.x * n.x) - (n.y * n.y));
-              n.y = -n.y;
+              n = getTriPlanarBlend(coords, blending, m_NormalMap_7, m_DiffuseMap_7_scale).xyz;
               normal += n * alphaBlend1.a;
           #endif
       #endif
 
       #ifdef ALPHAMAP_2
           #ifdef NORMALMAP_8
-              normalHeight = getTriPlanarBlend(coords, blending, m_NormalMap_8, m_DiffuseMap_8_scale);
-              n = (normalHeight.xyz * vec3(2.0) - vec3(1.0));
-              n.z = sqrt(1.0 - (n.x * n.x) - (n.y * n.y));
-              n.y = -n.y;
+              n = getTriPlanarBlend(coords, blending, m_NormalMap_8, m_DiffuseMap_8_scale).xyz;
               normal += n * alphaBlend2.r;
           #endif
 
           #ifdef NORMALMAP_9
-              normalHeight = getTriPlanarBlend(coords, blending, m_NormalMap_9, m_DiffuseMap_9_scale);
-              n = (normalHeight.xyz * vec3(2.0) - vec3(1.0));
-              n.z = sqrt(1.0 - (n.x * n.x) - (n.y * n.y));
-              n.y = -n.y;
+              n = getTriPlanarBlend(coords, blending, m_NormalMap_9, m_DiffuseMap_9_scale).xyz;
               normal += n * alphaBlend2.g;
           #endif
 
           #ifdef NORMALMAP_10
-              normalHeight = getTriPlanarBlend(coords, blending, m_NormalMap_10, m_DiffuseMap_10_scale);
-              n = (normalHeight.xyz * vec3(2.0) - vec3(1.0));
-              n.z = sqrt(1.0 - (n.x * n.x) - (n.y * n.y));
-              n.y = -n.y;
+              n = getTriPlanarBlend(coords, blending, m_NormalMap_10, m_DiffuseMap_10_scale).xyz;
               normal += n * alphaBlend2.b;
           #endif
 
           #ifdef NORMALMAP_11
-              normalHeight = getTriPlanarBlend(coords, blending, m_NormalMap_11, m_DiffuseMap_11_scale);
-              n = (normalHeight.xyz * vec3(2.0) - vec3(1.0));
-              n.z = sqrt(1.0 - (n.x * n.x) - (n.y * n.y));
-              n.y = -n.y;
+              n = getTriPlanarBlend(coords, blending, m_NormalMap_11, m_DiffuseMap_11_scale).xyz;
               normal += n * alphaBlend2.a;
           #endif
       #endif
 
+      normal = (normal.xyz * vec3(2.0) - vec3(1.0));
       return normalize(normal);
     }
   #endif
