@@ -215,11 +215,11 @@ public class TerrainPatch extends Geometry {
 
     @Deprecated
     public FloatBuffer getHeightmap() {
-        return BufferUtils.createFloatBuffer(geomap.getHeightData());
+        return BufferUtils.createFloatBuffer(geomap.getHeightArray());
     }
     
     public float[] getHeightMap() {
-        return geomap.getHeightData();
+        return geomap.getHeightArray();
     }
 
     /**
@@ -302,10 +302,10 @@ public class TerrainPatch extends Geometry {
                 continue;
             int idx = lh.z * size + lh.x;
             if (overrideHeight) {
-                geomap.getHeightData()[idx] = lh.h;
+                geomap.getHeightArray()[idx] = lh.h;
             } else {
                 float h = getMesh().getFloatBuffer(Type.Position).get(idx*3+1);
-                geomap.getHeightData()[idx] = h+lh.h;
+                geomap.getHeightArray()[idx] = h+lh.h;
             }
             
         }
@@ -1059,7 +1059,7 @@ public class TerrainPatch extends Geometry {
         //clone.lodCalculator = lodCalculator.clone();
         //clone.lodCalculator.setTerrainPatch(clone);
         //clone.setLodCalculator(lodCalculatorFactory.clone());
-        clone.geomap = new LODGeomap(size, geomap.getHeightData());
+        clone.geomap = new LODGeomap(size, geomap.getHeightArray());
         clone.setLocalTranslation(getLocalTranslation().clone());
         Mesh m = clone.geomap.createMesh(clone.stepScale, Vector2f.UNIT_XY, clone.offset, clone.offsetAmount, clone.totalSize, false);
         clone.setMesh(m);

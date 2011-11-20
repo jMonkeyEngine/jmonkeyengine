@@ -39,12 +39,10 @@ import com.jme3.export.Savable;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Mesh;
-import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.util.BufferUtils;
 import java.io.IOException;
 import java.nio.BufferUnderflowException;
-import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
@@ -58,6 +56,11 @@ public class GeoMap implements Savable {
     
     public GeoMap() {}
     
+    @Deprecated
+    public GeoMap(FloatBuffer heightData, int width, int height, int maxval){
+        this(heightData.array(), width, height, maxval);
+    }
+    
     public GeoMap(float[] heightData, int width, int height, int maxval){
         this.hdata = heightData;
         this.width = width;
@@ -65,10 +68,16 @@ public class GeoMap implements Savable {
         this.maxval = maxval;
     }
 
-    public float[] getHeightData(){
+    @Deprecated
+    public FloatBuffer getHeightData(){
         if (!isLoaded())
             return null;
-
+        return BufferUtils.createFloatBuffer(hdata);
+    }
+    
+    public float[] getHeightArray(){
+        if (!isLoaded())
+            return null;
         return hdata;
     }
 
@@ -334,7 +343,7 @@ public class GeoMap implements Savable {
     
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule oc = ex.getCapsule(this);
-        oc.write(hdata, "hdata", null);
+        oc.write(hdata, "hdataarray", null);
         oc.write(width, "width", 0);
         oc.write(height, "height", 0);
         oc.write(maxval, "maxval", 0);
@@ -342,7 +351,13 @@ public class GeoMap implements Savable {
 
     public void read(JmeImporter im) throws IOException {
         InputCapsule ic = im.getCapsule(this);
-        hdata = ic.readFloatArray("hdata", null);
+        hdata = ic.readFloatArray("hdataarray", null);
+        if (hdata == null) {
+            FloatBuffer buf = ic.readFloatBuffer("hdata", null);
+            if (buf != null) {
+                hdata = buf.array();
+            }
+        }
         width = ic.readInt("width", 0);
         height = ic.readInt("height", 0);
         maxval = ic.readInt("maxval", 0);
