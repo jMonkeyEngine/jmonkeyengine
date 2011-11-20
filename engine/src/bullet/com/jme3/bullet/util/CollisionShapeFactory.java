@@ -89,13 +89,24 @@ public class CollisionShapeFactory {
     private static CompoundCollisionShape createCompoundShape(Node realRootNode,
             Node rootNode, CompoundCollisionShape shape, boolean meshAccurate, boolean dynamic) {
         for (Spatial spatial : rootNode.getChildren()) {
-            if (spatial instanceof Node) {
+            if (spatial instanceof TerrainQuad) {
+                Boolean bool = spatial.getUserData(UserData.JME_PHYSICSIGNORE);
+                if (bool != null && bool.booleanValue()) {
+                    continue; // go to the next child in the loop
+                }
+                TerrainQuad terrain = (TerrainQuad) spatial;
+                Transform trans = getTransform(spatial, realRootNode);
+                shape.addChildShape(new HeightfieldCollisionShape(terrain.getHeightMap(), terrain.getLocalScale()),
+                        trans.getTranslation(),
+                        trans.getRotation().toRotationMatrix());
+            } else if (spatial instanceof Node) {
                 createCompoundShape(realRootNode, (Node) spatial, shape, meshAccurate, dynamic);
             } else if (spatial instanceof Geometry) {
                 Boolean bool = spatial.getUserData(UserData.JME_PHYSICSIGNORE);
                 if (bool != null && bool.booleanValue()) {
                     continue; // go to the next child in the loop
                 }
+
                 if (meshAccurate) {
                     CollisionShape childShape = dynamic
                             ? createSingleDynamicMeshShape((Geometry) spatial, realRootNode)
@@ -112,6 +123,16 @@ public class CollisionShapeFactory {
                             trans.getTranslation(),
                             trans.getRotation().toRotationMatrix());
                 }
+            } else if (spatial instanceof TerrainPatch) {
+                Boolean bool = spatial.getUserData(UserData.JME_PHYSICSIGNORE);
+                if (bool != null && bool.booleanValue()) {
+                    continue; // go to the next child in the loop
+                }
+                TerrainPatch terrain = (TerrainPatch) spatial;
+                Transform trans = getTransform(spatial, realRootNode);
+                shape.addChildShape(new HeightfieldCollisionShape(terrain.getHeightmap(), terrain.getLocalScale()),
+                        trans.getTranslation(),
+                        trans.getRotation().toRotationMatrix());
             }
         }
         return shape;
