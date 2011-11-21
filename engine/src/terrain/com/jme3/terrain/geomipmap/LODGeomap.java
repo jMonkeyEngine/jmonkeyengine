@@ -45,10 +45,8 @@ import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Mesh.Mode;
-import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.util.BufferUtils;
-import com.jme3.util.TangentBinormalGenerator;
 import com.jme3.util.TempVars;
 import java.io.IOException;
 
@@ -773,7 +771,6 @@ public class LODGeomap extends GeoMap {
         Vector3f bottomPoint = vars.vect5;
         
         Vector3f tmp1 = vars.vect6;
-        Vector3f tmp2 = vars.vect7;
 
         // calculate normals for each polygon
         for (int r = 0; r < getHeight(); r++) {
@@ -787,14 +784,10 @@ public class LODGeomap extends GeoMap {
                         rightPoint.set(c + 1, getValue(c + 1, r), r);
                         bottomPoint.set(c, getValue(c, r + 1), r + 1);
                         getNormal(bottomPoint, rootPoint, rightPoint, scale, normal);
-                        
-                        normal.set(Vector3f.UNIT_Y);
                     } else if (c == getWidth() - 1) { // last column
                         leftPoint.set(c - 1, getValue(c - 1, r), r);
                         bottomPoint.set(c, getValue(c, r + 1), r + 1);
                         getNormal(leftPoint, rootPoint, bottomPoint, scale, normal);
-                        
-                        normal.set(Vector3f.UNIT_Y);
                     } else { // all middle columns
                         leftPoint.set(c - 1, getValue(c - 1, r), r);
                         rightPoint.set(c + 1, getValue(c + 1, r), r);
@@ -803,22 +796,16 @@ public class LODGeomap extends GeoMap {
                         normal.set( getNormal(leftPoint, rootPoint, bottomPoint, scale, tmp1) );
                         normal.add( getNormal(bottomPoint, rootPoint, rightPoint, scale, tmp1) );
                         normal.normalizeLocal();
-                        
-                        normal.set(Vector3f.UNIT_Y);
                     }
                 } else if (r == getHeight() - 1) { // last row
                     if (c == 0) { // first column
                         topPoint.set(c, getValue(c, r - 1), r - 1);
                         rightPoint.set(c + 1, getValue(c + 1, r), r);
                         getNormal(rightPoint, rootPoint, topPoint, scale, normal);
-                        
-                        normal.set(Vector3f.UNIT_Y);
                     } else if (c == getWidth() - 1) { // last column
                         topPoint.set(c, getValue(c, r - 1), r - 1);
                         leftPoint.set(c - 1, getValue(c - 1, r), r);
                         getNormal(topPoint, rootPoint, leftPoint, scale, normal);
-                        
-                        normal.set(Vector3f.UNIT_Y);
                     } else { // all middle columns
                         topPoint.set(c, getValue(c, r - 1), r - 1);
                         leftPoint.set(c - 1, getValue(c - 1, r), r);
@@ -827,8 +814,6 @@ public class LODGeomap extends GeoMap {
                         normal.set( getNormal(topPoint, rootPoint, leftPoint, scale, tmp1) );
                         normal.add( getNormal(rightPoint, rootPoint, topPoint, scale, tmp1) );
                         normal.normalizeLocal();
-                        
-                        normal.set(Vector3f.UNIT_Y);
                     }
                 } else { // all middle rows
                     if (c == 0) { // first column
@@ -839,8 +824,6 @@ public class LODGeomap extends GeoMap {
                         normal.set( getNormal(rightPoint, rootPoint, topPoint, scale, tmp1) );
                         normal.add( getNormal(bottomPoint, rootPoint, rightPoint, scale, tmp1) );
                         normal.normalizeLocal();
-                        
-                        normal.set(Vector3f.UNIT_Y);
                     } else if (c == getWidth() - 1) { // last column
                         topPoint.set(c, getValue(c, r - 1), r - 1);
                         leftPoint.set(c - 1, getValue(c - 1, r), r);
@@ -849,8 +832,6 @@ public class LODGeomap extends GeoMap {
                         normal.set( getNormal(topPoint, rootPoint, leftPoint, scale, tmp1) );
                         normal.add( getNormal(leftPoint, rootPoint, bottomPoint, scale, tmp1) );
                         normal.normalizeLocal();
-                        
-                        normal.set(Vector3f.UNIT_Y);
                     } else { // all middle columns
                         topPoint.set(c, getValue(c, r - 1), r - 1);
                         leftPoint.set(c - 1, getValue(c - 1, r), r);
@@ -862,31 +843,18 @@ public class LODGeomap extends GeoMap {
                         normal.add( getNormal(bottomPoint, rootPoint, rightPoint, scale, tmp1) );
                         normal.add( getNormal(rightPoint, rootPoint, topPoint, scale, tmp1) );
                         normal.normalizeLocal();
-                        
-                        normal.set(Vector3f.UNIT_Y);
                     }
                 }
                 
-                normal.set(Vector3f.UNIT_Y);
                 BufferUtils.setInBuffer(normal, store, (r * getWidth() + c)); // save the normal
             }
         }
-        
         vars.release();
-
+        
         return store;
     }
 
     private Vector3f getNormal(Vector3f firstPoint, Vector3f rootPoint, Vector3f secondPoint, Vector3f scale, Vector3f store) {
-//        store.set(firstPoint).subtractLocal(rootPoint);
-//        tmp.set(secondPoint).subtractLocal(rootPoint);
-//        store.crossLocal(tmp).mult(scale).normalizeLocal();
-        
-       // store.set(
-       //         firstPoint.mult(scale)).subtractLocal(rootPoint.mult(scale))
-       //               .crossLocal(
-       //         secondPoint.mult(scale).subtract(rootPoint.mult(scale))).normalizeLocal();
-        
         float x1 = firstPoint.x - rootPoint.x;
         float y1 = firstPoint.y - rootPoint.y;
         float z1 = firstPoint.z - rootPoint.z;
@@ -907,7 +875,6 @@ public class LODGeomap extends GeoMap {
         store.z = z3 * inv;
         
         return store;
-        
     }
 
     /**
