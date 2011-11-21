@@ -73,6 +73,8 @@ public class NiftyJmeDisplay extends com.jme3.niftygui.NiftyJmeDisplay implement
         }
     }
     
+    private ResourceLocation resourceLocation = new ResourceLocationJmp();
+    
     public NiftyJmeDisplay(AssetManager assetManager, 
                            InputSystem inputManager,
                            AudioRenderer audioRenderer,
@@ -90,8 +92,6 @@ public class NiftyJmeDisplay extends com.jme3.niftygui.NiftyJmeDisplay implement
 
     @Override
     public void initialize(RenderManager rm, ViewPort vp) {
-        ResourceLocationJmp resourceLocation = new ResourceLocationJmp();
-        ResourceLoader.removeAllResourceLocations();
         ResourceLoader.addResourceLocation(resourceLocation);
         this.renderManager = rm;
         renderDev.setRenderManager(rm);
@@ -160,6 +160,7 @@ public class NiftyJmeDisplay extends com.jme3.niftygui.NiftyJmeDisplay implement
 
     @Override
     public void cleanup() {
+        ResourceLoader.removeResourceLocation(resourceLocation);
         inited = false;
 //        nifty.exit();
     }
