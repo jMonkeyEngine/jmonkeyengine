@@ -136,6 +136,7 @@
                                 match="OpenIDE-Module-Specification-Version:(.*)"
                                 replace=""
                                 byline="true"/>
+                <echo file="${module_dir}/manifest.mf" append="true"></echo>
             </else>
         </if>
     </target>
