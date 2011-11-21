@@ -319,15 +319,26 @@ public class AndroidSdkTool {
     }
 
     private static String mainActivityString(String mainClass, String packag) {
-        String str = "package " + packag + ";\n"
+        String str = 
+                "package " + packag + ";\n"
+                + " \n"
                 + "import com.jme3.app.AndroidHarness;\n"
                 + "import android.content.pm.ActivityInfo;\n"
                 + "import com.jme3.system.android.AndroidConfigChooser.ConfigType;\n"
+                + " \n"
                 + "public class MainActivity extends AndroidHarness{\n"
+                + " \n"
+                + "    /*\n"
+                + "     * Note that you can ignore the errors displayed in this file,\n"
+                + "     * the android project will build regardless.\n"
+                + "     * Install the 'Android' plugin under Tools->Plugins->Available Plugins\n"
+                + "     * to get error checks and code completion for the Android project files.\n"
+                + "     */\n"
+                + " \n"
                 + "    public MainActivity(){\n"
                 + "        // Set the application class to run\n"
                 + "        appClass = \"" + mainClass + "\";\n"
-                + "        //eglConfigType = ConfigType.FASTEST;  // Default\n"
+                + "        // Try ConfigType.FASTEST; or ConfigType.LEGACY if you have problems\n"
                 + "        eglConfigType = ConfigType.BEST;\n"
                 + "        // Exit Dialog title & message\n"
                 + "        exitDialogTitle = \"Exit?\";\n"
@@ -341,6 +352,7 @@ public class AndroidSdkTool {
                 + "        // Invert the MouseEvents Y (default = true)\n"
                 + "        mouseEventsInvertY = true;\n"
                 + "    }\n"
+                + " \n"
                 + "}\n";
         return str;
     }
