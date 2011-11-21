@@ -5,9 +5,13 @@
 <project name="com.jme3.gde.desktop.executables" default="netbeans" basedir=".">
     <description>Builds, tests, and runs the project com.jme3.gde.desktop.executables.</description>
     <import file="nbproject/build-impl.xml"/>
-    <target name="zip-osxdata" description="Zips mac stubs">
+    <target name="init" depends="-zip-data,basic-init,files-init,build-init,-javac-init"/>
+    <target name="-zip-data" description="Zips mac stubs">
         <zip destfile="src/com/jme3/gde/desktop/executables/macapp-data.zip">
             <zipfileset dir="macapp-data" prefix=""/>
+        </zip>
+        <zip destfile="src/com/jme3/gde/desktop/executables/winapp-data.zip">
+            <zipfileset dir="winapp-data" prefix=""/>
         </zip>
     </target>
 

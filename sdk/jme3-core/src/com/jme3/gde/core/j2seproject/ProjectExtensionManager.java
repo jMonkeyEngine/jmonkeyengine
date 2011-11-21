@@ -32,14 +32,21 @@
 package com.jme3.gde.core.j2seproject;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.LineNumberReader;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.StringWriter;
+import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectManager;
 import org.netbeans.api.project.ant.AntBuildExtender;
@@ -50,6 +57,7 @@ import org.netbeans.modules.java.j2seproject.api.J2SEProjectConfigurations;
 import org.netbeans.spi.project.support.ant.EditableProperties;
 import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
 import org.openide.util.Exceptions;
 
 /**
@@ -63,6 +71,7 @@ public class ProjectExtensionManager {
     private String extensionTargets;
     private String[] extensionDependencies;
     private String antTaskLibrary;
+    private URL zipFile;
 
     /**
      * Allows extending ant based projects
@@ -140,60 +149,15 @@ public class ProjectExtensionManager {
                     Exceptions.printStackTrace(ex);
                 }
                 addAntTaskLibrary(proj, antTaskLibrary);
+                try {
+                    addZipContents(proj.getProjectDirectory());
+                } catch (IOException ex) {
+                    Exceptions.printStackTrace(ex);
+                }
             }
         } else {
             Logger.getLogger(ProjectExtensionManager.class.getName()).log(Level.WARNING, "Trying to include assets build snippet in project type that doesn't support AntBuildExtender API contract.");
         }
-    }
-
-    private FileObject getImplFile(FileObject projDir, boolean create) {
-        FileObject assetsImpl = projDir.getFileObject("nbproject/" + extensionName + "-impl.xml");
-        if (assetsImpl == null) {
-            Logger.getLogger(ProjectExtensionManager.class.getName()).log(Level.INFO, "No {0}-impl.xml found", extensionName);
-            if (create) {
-                Logger.getLogger(ProjectExtensionManager.class.getName()).log(Level.INFO, "Creating {0}-impl.xml", extensionName);
-                assetsImpl = createImplFile(projDir);
-            }
-        } else {
-            Logger.getLogger(ProjectExtensionManager.class.getName()).log(Level.INFO, "Found {0}-impl.xml", extensionName);
-            try {
-                if (create && !assetsImpl.asLines().get(1).startsWith("<!--" + extensionName + "-impl.xml " + extensionVersion + "-->")) {
-                    Logger.getLogger(ProjectExtensionManager.class.getName()).log(Level.INFO, "Updating {0}-impl.xml", extensionName);
-                    assetsImpl.delete();
-                    Logger.getLogger(ProjectExtensionManager.class.getName()).log(Level.INFO, "Deleted {0}-impl.xml", extensionName);
-                    assetsImpl = createImplFile(projDir);
-                    Logger.getLogger(ProjectExtensionManager.class.getName()).log(Level.INFO, "Recreated {0}-impl.xml", extensionName);
-                }
-            } catch (Exception ex) {
-                Exceptions.printStackTrace(ex);
-            }
-        }
-        return assetsImpl;
-    }
-
-    private FileObject createImplFile(FileObject projDir) {
-        FileLock lock = null;
-        FileObject file = null;
-        try {
-            file = projDir.getFileObject("nbproject").createData(extensionName + "-impl.xml");
-            lock = file.lock();
-            OutputStreamWriter out = new OutputStreamWriter(file.getOutputStream(lock));
-            out.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
-            out.write("<!--" + extensionName + "-impl.xml " + extensionVersion + "-->\n");
-            out.write("<project name=\"" + extensionName + "-impl\" basedir=\"..\">\n");
-            if (extensionTargets != null) {
-                out.write(extensionTargets);
-            }
-            out.write("</project>\n");
-            out.close();
-        } catch (IOException ex) {
-            Exceptions.printStackTrace(ex);
-        } finally {
-            if (lock != null) {
-                lock.releaseLock();
-            }
-        }
-        return file;
     }
 
     /**
@@ -229,43 +193,23 @@ public class ProjectExtensionManager {
                     Exceptions.printStackTrace(ex);
                 }
                 removeAntTaskLibrary(proj, antTaskLibrary);
+                try {
+                    removeZipContents(proj.getProjectDirectory());
+                } catch (IOException ex) {
+                    Exceptions.printStackTrace(ex);
+                }
             }
         } else {
             Logger.getLogger(ProjectExtensionManager.class.getName()).log(Level.WARNING, "Trying to include assets build snippet in project type that doesn't support AntBuildExtender API contract.");
         }
     }
 
-    private void addAntTaskLibrary(Project proj, String name) {
-        if (name == null) {
-            return;
-        }
-        try {
-            AntBuildExtender extender = proj.getLookup().lookup(AntBuildExtender.class);
-            if (extender != null) {
-                LibraryManager.getDefault();
-                extender.addLibrary(LibraryManager.getDefault().getLibrary(name));
-                ProjectManager.getDefault().saveProject(proj);
-            }
-
-        } catch (Exception e) {
-            Exceptions.printStackTrace(e);
-        }
+    public void setExtensionDependencies(String[] extensionDependencies) {
+        this.extensionDependencies = extensionDependencies;
     }
 
-    private void removeAntTaskLibrary(Project proj, String name) {
-        if (name == null) {
-            return;
-        }
-        try {
-            AntBuildExtender extender = proj.getLookup().lookup(AntBuildExtender.class);
-            if (extender != null) {
-                LibraryManager.getDefault();
-                extender.removeLibrary(LibraryManager.getDefault().getLibrary(name));
-                ProjectManager.getDefault().saveProject(proj);
-            }
-        } catch (IOException ex) {
-            Exceptions.printStackTrace(ex);
-        }
+    public void setExtensionTargets(String extensionTargets) {
+        this.extensionTargets = extensionTargets;
     }
 
     /**
@@ -275,6 +219,18 @@ public class ProjectExtensionManager {
      */
     public void setAntTaskLibrary(String antTaskLibrary) {
         this.antTaskLibrary = antTaskLibrary;
+    }
+
+    public void setDataZip(String url) {
+        try {
+            this.zipFile = new URL(url);
+        } catch (MalformedURLException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+    }
+
+    public void setDataZipUrl(URL url) {
+        this.zipFile = url;
     }
 
     /**
@@ -380,11 +336,146 @@ public class ProjectExtensionManager {
         }
     }
 
-    public void setExtensionDependencies(String[] extensionDependencies) {
-        this.extensionDependencies = extensionDependencies;
+    private FileObject getImplFile(FileObject projDir, boolean create) {
+        FileObject assetsImpl = projDir.getFileObject("nbproject/" + extensionName + "-impl.xml");
+        if (assetsImpl == null) {
+            Logger.getLogger(ProjectExtensionManager.class.getName()).log(Level.INFO, "No extension file {0}-impl.xml found", extensionName);
+            if (create) {
+                Logger.getLogger(ProjectExtensionManager.class.getName()).log(Level.INFO, "Creating extension file {0}-impl.xml", extensionName);
+                assetsImpl = createImplFile(projDir);
+            }
+        } else {
+            Logger.getLogger(ProjectExtensionManager.class.getName()).log(Level.INFO, "Found extension file {0}-impl.xml", extensionName);
+            try {
+                if (create && !assetsImpl.asLines().get(1).startsWith("<!--" + extensionName + "-impl.xml " + extensionVersion + "-->")) {
+                    Logger.getLogger(ProjectExtensionManager.class.getName()).log(Level.INFO, "Updating extension file {0}-impl.xml", extensionName);
+                    assetsImpl.delete();
+                    Logger.getLogger(ProjectExtensionManager.class.getName()).log(Level.INFO, "Deleted extension file {0}-impl.xml", extensionName);
+                    assetsImpl = createImplFile(projDir);
+                    Logger.getLogger(ProjectExtensionManager.class.getName()).log(Level.INFO, "Recreated extension file {0}-impl.xml", extensionName);
+                }
+            } catch (Exception ex) {
+                Exceptions.printStackTrace(ex);
+            }
+        }
+        return assetsImpl;
     }
 
-    public void setExtensionTargets(String extensionTargets) {
-        this.extensionTargets = extensionTargets;
+    private FileObject createImplFile(FileObject projDir) {
+        FileLock lock = null;
+        FileObject file = null;
+        try {
+            file = projDir.getFileObject("nbproject").createData(extensionName + "-impl.xml");
+            lock = file.lock();
+            OutputStreamWriter out = new OutputStreamWriter(file.getOutputStream(lock));
+            out.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+            out.write("<!--" + extensionName + "-impl.xml " + extensionVersion + "-->\n");
+            out.write("<project name=\"" + extensionName + "-impl\" basedir=\"..\">\n");
+            if (extensionTargets != null) {
+                out.write(extensionTargets);
+            }
+            out.write("</project>\n");
+            out.close();
+        } catch (IOException ex) {
+            Exceptions.printStackTrace(ex);
+        } finally {
+            if (lock != null) {
+                lock.releaseLock();
+            }
+        }
+        return file;
+    }
+
+    private void addAntTaskLibrary(Project proj, String name) {
+        if (name == null) {
+            return;
+        }
+        try {
+            AntBuildExtender extender = proj.getLookup().lookup(AntBuildExtender.class);
+            if (extender != null) {
+                LibraryManager.getDefault();
+                extender.addLibrary(LibraryManager.getDefault().getLibrary(name));
+                ProjectManager.getDefault().saveProject(proj);
+            }
+
+        } catch (Exception e) {
+            Exceptions.printStackTrace(e);
+        }
+    }
+
+    private void removeAntTaskLibrary(Project proj, String name) {
+        if (name == null) {
+            return;
+        }
+        try {
+            AntBuildExtender extender = proj.getLookup().lookup(AntBuildExtender.class);
+            if (extender != null) {
+                LibraryManager.getDefault();
+                extender.removeLibrary(LibraryManager.getDefault().getLibrary(name));
+                ProjectManager.getDefault().saveProject(proj);
+            }
+        } catch (IOException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+    }
+
+    private void addZipContents(FileObject projectRoot) throws IOException {
+        if (zipFile == null) {
+            return;
+        }
+        InputStream in = zipFile.openStream();
+        try {
+            ZipInputStream str = new ZipInputStream(in);
+            ZipEntry entry;
+            while ((entry = str.getNextEntry()) != null) {
+                if (entry.isDirectory()) {
+                    FileObject fo = projectRoot.getFileObject(entry.getName());
+                    if (fo == null) {
+                        FileUtil.createFolder(projectRoot, entry.getName());
+                    }
+                } else {
+                    FileObject fo = projectRoot.getFileObject(entry.getName());
+                    if (fo != null && !fo.equals(projectRoot)) {
+                        fo.delete();
+                    }
+                    fo = FileUtil.createData(projectRoot, entry.getName());
+                    writeFile(str, fo);
+                }
+            }
+        } finally {
+            in.close();
+        }
+    }
+
+    private void removeZipContents(FileObject projectRoot) throws IOException {
+        if (zipFile == null) {
+            return;
+        }
+        InputStream in = zipFile.openStream();
+        try {
+            ZipInputStream str = new ZipInputStream(in);
+            ZipEntry entry;
+            while ((entry = str.getNextEntry()) != null) {
+                FileObject obj = projectRoot.getFileObject(entry.getName());
+                if (obj != null && !obj.equals(projectRoot)) {
+                    Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Deleting file " + obj.getNameExt());
+                    if (entry.getSize() != -1 && entry.getSize() == obj.getSize()) {
+                        obj.delete();
+                    }
+                }
+            }
+        } finally {
+            in.close();
+        }
+    }
+
+    private void writeFile(ZipInputStream str, FileObject fo) throws IOException {
+        OutputStream out = fo.getOutputStream();
+        try {
+            Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Creating file " + fo.getNameExt());
+            FileUtil.copy(str, out);
+        } finally {
+            out.close();
+        }
     }
 }

@@ -2,7 +2,7 @@
         <echo>Windows EXE Creation</echo>
         <taskdef classname="net.sf.launch4j.ant.Launch4jTask" classpath="${libs.launch4j.classpath}" name="launch4j"/>
         <launch4j>
-            <config jar="${dist.jar}" outfile="${dist.dir}/${application.title}.exe" errTitle="${application.title}" headertype="gui" chdir="." customProcName="true">
+            <config jar="${dist.jar}" outfile="${dist.dir}/${application.title}.exe" errTitle="${application.title}" icon="win-icon.ico" headertype="gui" chdir="." customProcName="true">
                 <singleInstance mutexName="${main.class}"/>
                 <jre minVersion="1.5.0" maxheapsize="512"/>
             </config>
