@@ -489,6 +489,10 @@ public class ProjectExtensionManager {
         if (folder != null && folder.getChildren().length == 0) {
             folder.delete();
         }
+        FileObject resourceFolder = projectRoot.getFileObject(resourcesFolder);
+        if (resourceFolder != null && resourceFolder.getChildren().length == 0) {
+            resourceFolder.delete();
+        }
     }
 
     private void writeFile(ZipInputStream str, FileObject fo) throws IOException {
