@@ -39,7 +39,7 @@ public class ImportantFilesNode extends AbstractNode implements FileChangeListen
 
     @Override
     public String getDisplayName() {
-        return "Configuration Files";
+        return "Important Files";
     }
 
     @Override
