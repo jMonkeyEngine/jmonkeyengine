@@ -40,8 +40,6 @@ import java.io.OutputStreamWriter;
 import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -72,6 +70,7 @@ public class ProjectExtensionManager {
     private String[] extensionDependencies;
     private String antTaskLibrary;
     private URL zipFile;
+    private static final String resourcesFolder = "resources";
 
     /**
      * Allows extending ant based projects
@@ -428,17 +427,23 @@ public class ProjectExtensionManager {
             ZipInputStream str = new ZipInputStream(in);
             ZipEntry entry;
             while ((entry = str.getNextEntry()) != null) {
+                String fileName = resourcesFolder + "/" + extensionName + "/" + entry.getName();
                 if (entry.isDirectory()) {
+                    //XXX: deleting old (beta) files here
                     FileObject fo = projectRoot.getFileObject(entry.getName());
-                    if (fo == null) {
-                        FileUtil.createFolder(projectRoot, entry.getName());
-                    }
-                } else {
-                    FileObject fo = projectRoot.getFileObject(entry.getName());
-                    if (fo != null && !fo.equals(projectRoot)) {
+                    if (fo != null && entry.getSize() != -1 && entry.getSize() == fo.getSize()) {
+                        Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Deleting old folder " + fo.getNameExt());
                         fo.delete();
                     }
-                    fo = FileUtil.createData(projectRoot, entry.getName());
+                    FileUtil.createFolder(projectRoot, fileName);
+                } else {
+                    //XXX: deleting old (beta) files here
+                    FileObject fo = projectRoot.getFileObject(entry.getName());
+                    if (fo != null && !fo.equals(projectRoot)) {
+                        Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Deleting old file " + fo.getNameExt());
+                        fo.delete();
+                    }
+                    fo = FileUtil.createData(projectRoot, fileName);
                     writeFile(str, fo);
                 }
             }
@@ -456,16 +461,31 @@ public class ProjectExtensionManager {
             ZipInputStream str = new ZipInputStream(in);
             ZipEntry entry;
             while ((entry = str.getNextEntry()) != null) {
-                FileObject obj = projectRoot.getFileObject(entry.getName());
+                //XXX: deleting old (beta) files here
+                FileObject old = projectRoot.getFileObject(entry.getName());
+                if (old != null && !old.equals(projectRoot)) {
+                    Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Deleting old file " + old.getNameExt());
+                    if (entry.getSize() != -1 && entry.getSize() == old.getSize()) {
+                        old.delete();
+                    }
+                }
+                String fileName = resourcesFolder + "/" + extensionName + "/" + entry.getName();
+                FileObject obj = projectRoot.getFileObject(fileName);
                 if (obj != null && !obj.equals(projectRoot)) {
                     Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Deleting file " + obj.getNameExt());
                     if (entry.getSize() != -1 && entry.getSize() == obj.getSize()) {
                         obj.delete();
+                    } else{
+                        Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Keeping file " + obj.getNameExt());
                     }
                 }
             }
         } finally {
             in.close();
+        }
+        FileObject folder = projectRoot.getFileObject(resourcesFolder + "/" + extensionName);
+        if (folder != null && folder.getChildren().length == 0) {
+            folder.delete();
         }
     }
 

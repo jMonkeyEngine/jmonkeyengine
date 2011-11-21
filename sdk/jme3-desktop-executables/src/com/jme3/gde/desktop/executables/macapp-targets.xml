@@ -8,9 +8,9 @@
             </filterchain>
         </copy>
         <zip destfile="${dist.dir}/${application.title}-MacOSX.zip">
-            <zipfileset file="osx-stub" filemode="755" fullpath="${application.title}.app/Contents/MacOS/JavaApplicationStub"/>
-            <zipfileset file="_Info.plist" fullpath="${application.title}.app/Contents/Info.plist"/>
-            <zipfileset file="osx-icon.icns" fullpath="${application.title}.app/Contents/Resources/GenericApp.icns"/>
+            <zipfileset file="resources/macapp/osx-stub" filemode="755" fullpath="${application.title}.app/Contents/MacOS/JavaApplicationStub"/>
+            <zipfileset file="resources/macapp/_Info.plist" fullpath="${application.title}.app/Contents/Info.plist"/>
+            <zipfileset file="resources/macapp/osx-icon.icns" fullpath="${application.title}.app/Contents/Resources/GenericApp.icns"/>
             <zipfileset file="${dist.jar}" prefix="${application.title}.app/Contents/Resources/Java"/>
             <zipfileset dir="${dist.dir}/lib" prefix="${application.title}.app/Contents/Resources/Java/lib"/>
         </zip>

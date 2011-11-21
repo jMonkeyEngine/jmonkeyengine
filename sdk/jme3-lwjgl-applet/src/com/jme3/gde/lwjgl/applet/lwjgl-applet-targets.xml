@@ -17,7 +17,7 @@
         <unzip src="${libs.appletloader}" dest="${applet.dir}"/>
         <move file="${applet.dir}/applet-template.html" tofile="${applet.dir}/run-applet.html"/>
         <move file="${assets.jar.resolved}" tofile="${applet.dir}/data.jar"/>
-        <copy file="appletlogo.png" todir="${applet.dir}"/>
+        <copy file="resources/lwjglapplet/appletlogo.png" todir="${applet.dir}"/>
 
         <!-- if using many small jars -->
             <!--
@@ -45,7 +45,7 @@
                 <zipgroupfileset file="${dist.jar}"/>
             </jar>
             <property name="applet.classpath" value="code.jar, data.jar, lwjgl.jar.pack.lzma"/>
-            <property name="applet.logo" value="appletlogo.png"/>
+            <!--property name="applet.logo" value="appletlogo.png"/-->
 
             <antcall target="-lwjgl-applet-packlogo"/>
 

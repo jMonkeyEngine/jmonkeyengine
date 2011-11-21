@@ -65,7 +65,7 @@ public class DesktopExeCompositeProvider implements ProjectCustomizer.CompositeC
             launch4j = new ProjectExtensionManager("launch4j", "v1.2", new String[]{"jar", "-launch4j-exe"});
             launch4j.setAntTaskLibrary("launch4j");
             launch4j.setDataZip("nbres:/com/jme3/gde/desktop/executables/winapp-data.zip");
-            macapp = new ProjectExtensionManager("macapp", "v1.1", new String[]{"jar", "-mac-app"});
+            macapp = new ProjectExtensionManager("macapp", "v1.2", new String[]{"jar", "-mac-app"});
             macapp.setDataZip("nbres:/com/jme3/gde/desktop/executables/macapp-data.zip");
             linux = new ProjectExtensionManager("linuxlauncher", "v1.1", new String[]{"jar", "-linux-launcher"});
         }
