@@ -444,7 +444,9 @@ public class ProjectExtensionManager {
                         fo.delete();
                     }
                     fo = FileUtil.createData(projectRoot, fileName);
-                    writeFile(str, fo);
+                    if (entry.getSize() != fo.getSize()) {
+                        writeFile(str, fo);
+                    }
                 }
             }
         } finally {
