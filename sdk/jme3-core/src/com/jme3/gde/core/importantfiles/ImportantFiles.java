@@ -32,12 +32,21 @@
 package com.jme3.gde.core.importantfiles;
 
 import org.netbeans.api.project.Project;
-import org.openide.filesystems.FileObject;
+import org.openide.nodes.Node;
 
 /**
  *
  * @author normenhansen
  */
 public interface ImportantFiles {
-    public FileObject[] getFiles(Project proj);
+    /**
+     * should return true if given project contains files relevant to this project
+     */
+    public boolean hasFiles(Project proj);
+    /**
+     * get the node(s) for the configuration files, can also be a node containing children
+     * @param proj
+     * @return 
+     */
+    public Node[] getNodes(Project proj);
 }

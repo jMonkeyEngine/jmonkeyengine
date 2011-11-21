@@ -14,9 +14,7 @@ import org.netbeans.spi.project.ui.support.NodeList;
 import org.openide.filesystems.FileAttributeEvent;
 import org.openide.filesystems.FileChangeListener;
 import org.openide.filesystems.FileEvent;
-import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileRenameEvent;
-import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
@@ -29,7 +27,7 @@ import org.openide.util.Lookup;
  *
  * @author normenhansen
  */
-public class ImportantFilesNode extends AbstractNode implements FileChangeListener{
+public class ImportantFilesNode extends AbstractNode implements FileChangeListener {
 
     private static Image smallImage =
             ImageUtilities.loadImage("com/jme3/gde/core/importantfiles/important.gif");
@@ -58,7 +56,7 @@ public class ImportantFilesNode extends AbstractNode implements FileChangeListen
         java.awt.EventQueue.invokeLater(new Runnable() {
 
             public void run() {
-                ((ImportantFilesChildren)getChildren()).addNotify();
+                ((ImportantFilesChildren) getChildren()).addNotify();
             }
         });
     }
@@ -67,7 +65,7 @@ public class ImportantFilesNode extends AbstractNode implements FileChangeListen
         java.awt.EventQueue.invokeLater(new Runnable() {
 
             public void run() {
-                ((ImportantFilesChildren)getChildren()).addNotify();
+                ((ImportantFilesChildren) getChildren()).addNotify();
             }
         });
     }
@@ -79,7 +77,7 @@ public class ImportantFilesNode extends AbstractNode implements FileChangeListen
         java.awt.EventQueue.invokeLater(new Runnable() {
 
             public void run() {
-                ((ImportantFilesChildren)getChildren()).addNotify();
+                ((ImportantFilesChildren) getChildren()).addNotify();
             }
         });
     }
@@ -88,7 +86,7 @@ public class ImportantFilesNode extends AbstractNode implements FileChangeListen
         java.awt.EventQueue.invokeLater(new Runnable() {
 
             public void run() {
-                ((ImportantFilesChildren)getChildren()).addNotify();
+                ((ImportantFilesChildren) getChildren()).addNotify();
             }
         });
     }
@@ -105,19 +103,18 @@ public class ImportantFilesNode extends AbstractNode implements FileChangeListen
 //            return Lookups.fixed(new ImportantFilesLookupItem(prj));
 //        }
 //    }
-
     public static class ImportantFilesNodeFactoryImpl implements NodeFactory {
 
         public NodeList createNodes(Project project) {
 
 //            ImportantFilesLookupItem item = project.getLookup().lookup(ImportantFilesLookupItem.class);
 //            if (item != null) {
-                try {
-                    ImportantFilesNode nd = new ImportantFilesNode(project);
-                    return NodeFactorySupport.fixedNodeList(nd);
-                } catch (DataObjectNotFoundException ex) {
-                    Exceptions.printStackTrace(ex);
-                }
+            try {
+                ImportantFilesNode nd = new ImportantFilesNode(project);
+                return NodeFactorySupport.fixedNodeList(nd);
+            } catch (DataObjectNotFoundException ex) {
+                Exceptions.printStackTrace(ex);
+            }
 //            }
 
             return NodeFactorySupport.fixedNodeList();
@@ -129,8 +126,7 @@ public class ImportantFilesNode extends AbstractNode implements FileChangeListen
 //        public ImportantFilesLookupItem(Project prj) {
 //        }
 //    }
-
-    public static class ImportantFilesChildren extends Children.Keys<FileObject[]> {
+    public static class ImportantFilesChildren extends Children.Keys<ImportantFiles> {
 
         private Project project;
 
@@ -138,11 +134,12 @@ public class ImportantFilesNode extends AbstractNode implements FileChangeListen
             this.project = project;
         }
 
-        protected List<FileObject[]> createKeys() {
-            ArrayList<FileObject[]> list = new ArrayList<FileObject[]>();
+        protected List<ImportantFiles> createKeys() {
+            ArrayList<ImportantFiles> list = new ArrayList<ImportantFiles>();
             for (ImportantFiles di : Lookup.getDefault().lookupAll(ImportantFiles.class)) {
-                FileObject[] nodes = di.getFiles(project);
-                list.add(nodes);
+                if (di.hasFiles(project)) {
+                    list.add(di);
+                }
             }
             return list;
         }
@@ -154,17 +151,8 @@ public class ImportantFilesNode extends AbstractNode implements FileChangeListen
         }
 
         @Override
-        protected Node[] createNodes(FileObject[] key) {
-            Node[] nodes= new Node[key.length];
-            for (int i = 0; i < key.length; i++) {
-                FileObject fileObject = key[i];
-                try {
-                    nodes[i] = DataObject.find(fileObject).getNodeDelegate();
-                } catch (DataObjectNotFoundException ex) {
-                    nodes[i] = Node.EMPTY;
-                    Exceptions.printStackTrace(ex);
-                }
-            }
+        protected Node[] createNodes(ImportantFiles key) {
+            Node[] nodes = key.getNodes(project);
             return nodes;
         }
     }
