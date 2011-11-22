@@ -300,7 +300,7 @@
       -->
 
     <!-- puts jme3 jars, libs, source and javadoc in a dated zip file -->
-    <target name="create-zip-distribution" description="puts jme3 jars, libs, source and javadoc in a dated zip file">
+    <target depends="init" name="create-zip-distribution" description="puts jme3 jars, libs, source and javadoc in a dated zip file">
         <!-- create date in the format MM-dd-yyyy -->
         <tstamp>
             <format property="date" pattern="yyyy-MM-dd" locale="en,US"/>
