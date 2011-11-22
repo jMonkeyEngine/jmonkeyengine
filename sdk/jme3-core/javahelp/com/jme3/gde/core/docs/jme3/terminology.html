@@ -53,6 +53,10 @@ The <strong>jME Context</strong> makes settings, renderer, timer, input and even
 <h1><a>Geometry</a></h1>
 <div>
 
+<p>
+<img src="nbdocs:/com/jme3/gde/core/docs/jme3/intermediate/coordinate-system.png">
+</p>
+
 </div>
 
 <h2><a>Coordinates</a></h2>
@@ -60,12 +64,8 @@ The <strong>jME Context</strong> makes settings, renderer, timer, input and even
 
 <p>
 
-Coordinates represent a location in a coordinate system, relative to the origin (0,0,0). m. In 3D space, you need to specify three coordinate values to locate a point: x,y,z.
-As opposed to a vector (which looks similar), a coordinate does not have a &quot;direction&quot;.
-</p>
-
-<p>
-<img src="nbdocs:/com/jme3/gde/core/docs/jme3/intermediate/coordinate-system.png">
+Coordinates represent a location in a coordinate system. Coordinates are relative to the origin at (0,0,0). In 3D space, you need to specify three coordinate values to locate a point: X (right), Y (up), Z (towards you). 
+In contrast to a vector (which looks similar), a coordinate is a location, not a direction.
 </p>
 
 </div>
@@ -75,8 +75,11 @@ As opposed to a vector (which looks similar), a coordinate does not have a &quot
 
 <p>
 
-The origin is the central point in the 3D world. It&#039;s at the coordinates (0,0,0).
-Code sample: <code>Vector3f origin = new Vector3f( Vector3f.ZERO );</code>
+The origin is the central point in the 3D world, where the three axes meet. It&#039;s at the coordinates (0,0,0).
+</p>
+
+<p>
+<strong>Example:</strong> <code>Vector3f origin = new Vector3f( Vector3f.ZERO );</code>
 </p>
 
 </div>
@@ -86,8 +89,11 @@ Code sample: <code>Vector3f origin = new Vector3f( Vector3f.ZERO );</code>
 
 <p>
 
-A vector has a length and a direction. It is used like an arrow pointing at a point in 3D space. A vector starts at the origin (0,0,0), and ends at the target coordinate (x,y,z). Backwards directions are expressed with negative values.
-Code sample: <code>Vector3f v = new Vector3f( 17 , -4 , 0 );</code>
+A vector has a length and a direction, like an arrow in 3D space. A vector starts at the origin (0,0,0), and ends at the target coordinate (x,y,z). Backwards directions are expressed with negative values.
+</p>
+
+<p>
+<strong>Example:</strong> <code>Vector3f v = new Vector3f( 17 , -4 , 0 );</code>
 </p>
 
 </div>
@@ -131,12 +137,12 @@ When you normalize a vector, it still has the same direction, but you lose the i
 
 </div>
 
-<h3><a>Surface Normals</a></h3>
+<h3><a>Surface Normal Vectors</a></h3>
 <div>
 
 <p>
-
-A surface normal is a vector that is perpendicular to a plane.
+<img src="nbdocs:/com/jme3/gde/core/docs/jme3/300px-surface_normal.png">
+A surface normal is a vector that is perpendicular (orthogonal) to a plane. 
 You calculate the Surface Normal by calculating the cross product.
 </p>
 
@@ -288,7 +294,13 @@ Set the Specular color to ColorRGBA.Black to switch off shininess.</div>
 <p>
 
 Textures are part of Materials. In the simplest case, an object could have just one texture, the Color Map, loaded from one image file. When you think back of old computer games you&#039;ll remember this looks quite plain.
+</p>
+
+<p>
 The more information you (the game designer) provide additionally to the Color Map, the higher the degree of detail and realism. Whether you want photo-realistic rendering or &quot;toon&quot; rendering (Cel Shading), everything depends on the quality of your materials and texture maps. Modern 3D graphics use several layers of information to describe one material, each layer is a Texture Map.
+<p><div>You have no textures? <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://opengameart.org"><param name="text" value="<html><u>Download free textures</u></html>"><param name="textColor" value="blue"></object> (including texture maps) from opengameart.org.
+</div></p>
+
 </p>
 
 </div>
@@ -298,34 +310,20 @@ The more information you (the game designer) provide additionally to the Color M
 
 </div>
 
-<h3><a>Color Map</a></h3>
+<h3><a>Color Map / Diffuse Map</a></h3>
 <div>
 
 <p>
 <img src="/wiki/lib/exe/fetch.php">
 </p>
 <ul>
-<li><div> A simple image file (or a procedural texture).</div>
+<li><div> A plain image file or a procedural texture that describes an object&#039;s visible surface.</div>
 </li>
 <li><div> The image can have alpha channels for transparency.</div>
 </li>
-<li><div> <strong>A color map is the minimum texture you need.</strong> All other texture maps are optional improvements.</div>
+<li><div> <strong>A Color Map is the minimum texture.</strong> You can add texture maps as optional improvements. </div>
 </li>
-</ul>
-
-<p>
-<img src="/wiki/lib/exe/fetch.php">
-
-</p>
-
-</div>
-
-<h3><a>Diffuse Map</a></h3>
-<div>
-<ul>
-<li><div> The Diffuse Map specifies the intensity of color.</div>
-</li>
-<li><div> Its basically the same as a Color Map but its called Diffuse Map in a lighting environment, as it defines the color the object &quot;diffuses&quot;.</div>
+<li><div> Color Maps are called Diffuse Map in a Phong-illuminated Material, because the map defines the basic colors of light that are diffused by this object.</div>
 </li>
 </ul>
 
@@ -335,7 +333,16 @@ The more information you (the game designer) provide additionally to the Color M
 <div>
 
 <p>
-Bump maps are used to describe detailed shapes that would be too hard or simply too inefficient to sculpt in a mesh editor. You use Normal Maps to model cracks in walls, rust, skin texture, or a canvas weave. You use Height Maps to model whole terrains with valleys and mountains.
+Bump maps are used to describe detailed shapes that would be too hard or simply too inefficient to sculpt in a mesh editor. There are two types:
+</p>
+<ul>
+<li><div> You use Normal Maps to model tiny details such as cracks in walls, rust, skin texture, or a canvas weave ( (<object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://en.wikipedia.org/wiki/Bump_mapping"><param name="text" value="<html><u>More on BumpMaps</u></html>"><param name="textColor" value="blue"></object>). </div>
+</li>
+<li><div> You use Height Maps to model large terrains with valleys and mountains.</div>
+</li>
+</ul>
+
+<p>
 <img src="/wiki/lib/exe/fetch.php">
 
 </p>
@@ -362,11 +369,11 @@ Bump maps are used to describe detailed shapes that would be too hard or simply 
 <img src="/wiki/lib/exe/fetch.php">
 </p>
 <ul>
-<li><div> A well-done Normal Map makes a shape more detailed–without the need to add costly polygons to the mesh. It contains shading information that makes the object appear smoother and more fine-grained.</div>
+<li><div> A well-done Normal Map makes a shape more detailed – without the need to add costly polygons to the mesh. It contains shading information that makes the object appear smoother and more fine-grained.</div>
 </li>
-<li><div> The Normal Map is displayed looking like a false-color version of the Color Map–but it is never used for coloring, instead, each RGB value encodes transformation data. This displacement data is represented by Surface Normals of the slopes, hence the name.</div>
+<li><div> When you open a Normal Map in an image editor, it looks like a false-color version of the Color Map. Normal maps however are never used for coloring, instead, each the color values encode displacement data of bumps and cracks on the surface. Displacement data is represented by the Surface Normals of the slopes, hence the name.</div>
 </li>
-<li><div> It&#039;s hard to draw normal maps by hand. Generally you use software tools to calculate them off 3D models.</div>
+<li><div> You cannot draw normal maps by hand, professional designers use software to calculate them off high-quality 3D models. </div>
 </li>
 </ul>
 
@@ -381,9 +388,9 @@ Bump maps are used to describe detailed shapes that would be too hard or simply 
 <ul>
 <li><div> A Specular Map further improves the realism of an object&#039;s surface: It contains extra information about shininess and makes the shape appear more realistically illumated.</div>
 </li>
-<li><div> Start out with a gray value that corresponds to the average shininess/dullness of this material. Then add ligher grays for smoother, shinier, more reflective areas; and darker grays for duller, rougher, worn-out areas. The resulting image file looks similar to a grayscale version of the Color Map.</div>
+<li><div> Start out with a copy of the Diffuse Map in a medium gray that corresponds to the average shininess/dullness of this material. Then add ligher grays for smoother, shinier, more reflective areas; and darker grays for duller, rougher, worn-out areas. The resulting image file looks similar to a grayscale version of the Diffuse Map.</div>
 </li>
-<li><div> You can use colors in a specular map to create certain reflective effects (iridiscence, metallic).</div>
+<li><div> You can use colors in a specular map to create certain reflective effects (fake iridiscence, metallic effect).</div>
 </li>
 </ul>
 
@@ -394,9 +401,11 @@ Bump maps are used to describe detailed shapes that would be too hard or simply 
 
 <p>
 <img src="/wiki/lib/exe/fetch.php">
-This is a very simple, commonly used type of texture. When texturing a wide area (e.g. walls, floors), you don&#039;t create one huge texture, instead you tile a small texture repeatedly to fill the area.
-A seamless texture is an image file that has been designed so that it can be used as tiles: The right edge matches the left edge, and the top edge matches the bottom edge. The onlooker cannot easily tell where one starts and the next one ends, thus creating an illusion of a huge texture. The downside is that the tiling becomes painfully obvious when the area is viewed from a distance. Also you cannot use it on more complex models such as characters.
+Tiles are a very simple, commonly used type of texture. When texturing a wide area (e.g. walls, floors), you don&#039;t create one huge texture – instead you tile a small texture repeatedly to fill the area.
+</p>
 
+<p>
+A seamless texture is an image file that has been designed so that it can be used as tiles: The right edge matches the left edge, and the top edge matches the bottom edge. The onlooker cannot easily tell where one starts and the next one ends, thus creating an illusion of a huge texture. The downside is that the tiling becomes painfully obvious when the area is viewed from a distance. Also you cannot use it on more complex models such as characters.
 </p>
 
 </div>
@@ -410,7 +419,7 @@ A seamless texture is an image file that has been designed so that it can be use
 </p>
 
 <p>
-Creating a texture for a cube is easy – but what about a character with a face and extremities? For more complex objects, you design the texture in the same ways as a sewing pattern: One image file contains the outline of the front, back, and side of the object, next to one another. Specific areas of the flat texture (UV coordinates) map onto certain areas of your 3D model (XYZ coordinates), hence the name UV map. Using UV Maps, models can have a different texture on each side.
+Creating a texture for a cube is easy – but what about a character with a face and extremities? For more complex objects, you design the texture in the same ways as a flat sewing pattern: One image file contains the outline of the front, back, and side of the object, next to one another. Specific areas of the flat texture (UV coordinates) map onto certain areas of your 3D model (XYZ coordinates), hence the name UV map. Using UV Maps, one model can have different textures on each side.
 </p>
 
 <p>
@@ -428,8 +437,11 @@ Getting the seams and mappings right is crucial: You must use a graphic tool lik
 </p>
 
 <p>
-Environment Maps are used to create the impression of reflections and refractions. You create a Cube Map to represent your environment, similar to a skybox. (Sphere Maps are possible, but often look too distorted.) You give the Cube Map a set of images showing a &quot;360° view&quot; of the completed scene. The renderer uses this as base to texture the reflective surface.
-Of course these reflections are static and not &quot;real&quot;, e.g. the player will not see his avatar&#039;s face reflected, etc… But they cause the desired &quot;glass/mirror/water&quot; effect, and are fast enough to render in real usecases, it&#039;s better than nothing.
+Environment Maps are used to create the impression of reflections and refractions. You create a Cube Map to represent your environment, similar to a skybox. (Sphere Maps are possible, but often look distorted.) You give the Cube Map a set of images showing a &quot;360° view&quot; of the completed scene. The renderer uses this as base to texture the reflective surface.
+</p>
+
+<p>
+Of course the reflected environment is static and not &quot;real&quot;, e.g. the player will not see his avatar&#039;s face reflected, etc. But EnvMaps cause the desired &quot;glass/mirror/water&quot; effect, and are fast enough to render in real usecases.
 </p>
 
 </div>
@@ -439,7 +451,7 @@ Of course these reflections are static and not &quot;real&quot;, e.g. the player
 
 <p>
 
-You provide the texture in two or three resolutions to be stored in one file (MIP = &quot;multum in parvo&quot; = &quot;many in one&quot;). Depending on how close (or far) the camera is, the engine automatically renders a more (or less) detailed texture for the object. Thus objects look smooth from close up, but don&#039;t waste resources with unspottable details when far away. Good for everything, but requires more time to create and more space to store textures.
+MIP Map means that you provide one texture in two or three resolutions in one file (MIP = &quot;multum in parvo&quot; = &quot;many in one&quot;). Depending on how close (or far) the camera is, the engine automatically renders a more (or less) detailed texture for the object. Thus objects look smooth from close up, but don&#039;t waste resources with unspottable details when far away. Good for everything, but requires more time to create and more space to store textures. If you don&#039;t provide custom ones, the jMonkeyEngine creates basic MIP maps automatically as an optimization.
 </p>
 
 </div>
@@ -449,7 +461,7 @@ You provide the texture in two or three resolutions to be stored in one file (MI
 
 <p>
 
-A procedural texture is generated from repeating one small image, plus some pseudo-random, gradient variations (Perlin noise). Procedural textures look more natural than static rectangular textures, for instance, they look less distorted on spheres. On big meshes, their repetitiveness is much less noticable than tiled seamless textures. Procedural textures are ideal for irregular large-area textures like grass, soil, rock, rust, and walls. See also: <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://jmonkeyengine.org/wiki/doku.php/sdk:neotexture"><param name="text" value="<html><u>jMonkeyEngine SDK NeoTexture plugin</u></html>"><param name="textColor" value="blue"></object>
+A procedural texture is generated from repeating one small image, plus some pseudo-random, gradient variations (called Perlin noise). Procedural textures look more natural than static rectangular textures, and they look less distorted on spheres. On big meshes, their repetitiveness is much less noticable than with tiled seamless textures. Procedural textures are ideal for irregular large-area textures like grass, soil, rock, rust, and walls. Use the <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://jmonkeyengine.org/wiki/doku.php/sdk:neotexture"><param name="text" value="<html><u>jMonkeyEngine SDK NeoTexture plugin</u></html>"><param name="textColor" value="blue"></object> to create them.
 </p>
 
 <p>
@@ -467,8 +479,11 @@ See also: <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer">
 
 <p>
 
-In 3D games, Skeletal Animation is used for animated characters, but in principle the skeleton approach can be extended to any 3D mesh (for example, an opening crate&#039;s hinge can be considered a joint).
-Unless you animate a 3D cartoon, realism of animated characters is generally a problem: Movement can look alien-like mechanical or broken, the character appears hollow, or as if floating. Professional game designers invest a lot of effort to make characters animate in a natural way (including motion capturing).
+In 3D games, Skeletal Animation is used for animated characters, but in principle the skeleton approach can be extended to any 3D mesh (for example, an opening crate&#039;s hinge can be considered a primitive joint).
+</p>
+
+<p>
+Unless you animate a 3D cartoon, realism of animated characters is generally a problem: Movement can look alien-like mechanical or broken, the character appears hollow, or as if floating. Professional game designers invest a lot of effort to make characters animate in a natural way, including <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://en.wikipedia.org/wiki/Motion_capture"><param name="text" value="<html><u>motion capture</u></html>"><param name="textColor" value="blue"></object>.
 </p>
 
 </div>

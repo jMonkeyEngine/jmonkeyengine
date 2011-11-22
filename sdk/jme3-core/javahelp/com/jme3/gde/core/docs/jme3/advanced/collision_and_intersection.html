@@ -4,45 +4,20 @@
 
 <p>
 
-The term collision can be used to refer to physical interactions (where physical objects collide and bump off one another), and also to non-physical intersections. This article is about non-physical (mathematical) collisions.
+The term collision can be used to refer to <a href="/com/jme3/gde/core/docs/jme3/advanced/physics_listeners.html">physical interactions</a> (where <a href="/com/jme3/gde/core/docs/jme3/advanced/physics.html">physical objects</a> collide, push and bump off one another), and also to non-physical <em>intersections</em> in 3D space. This article is about the non-physical (mathematical) collisions.
 </p>
 
 <p>
-Non-physical collision detection is interesting because they use less computing resources than physical collision detection. You can optimize your game if you find a way to simulate a certain effect in a non-physical way, using mathematical techniques such as ray casting.
+Non-physical collision detection is interesting because it uses less computing resources than physical collision detection. The non-physical calculations are faster because they do not have any side effects such as pushing other objects or bumping off of them. Tasks such as <a href="/com/jme3/gde/core/docs/jme3/advanced/mouse_picking.html">mouse picking</a> are easily implemented using using mathematical techniques such as ray casting and intersections.  Experienced developers optimize their games by finding ways to simulate certain (otherwise expensive physical) interactions in a non-physical way. 
 </p>
 
 <p>
-One example for an optimization is a physical vehicle&#039;s wheels. You could make the wheels fully physical disks, and have jME calculate every tiny force – sounds very accurate, but is total overkill. A more performant solution is to cast four invisible rays down from the vehicle and calculate the intersections with the floor and other obstacles. These non-physical wheels require (in the simplest case) only four calculations to achieve an effect that players can hardly distinguish from the real thing.
+<strong>Example:</strong> One example for an optimization is a physical vehicle&#039;s wheels. You could make the wheels fully physical disks, and have jME calculate every tiny force – sounds very accurate? It&#039;s total overkill and too slow for a racing game. A more performant solution is to cast four invisible rays down from the vehicle and calculate the intersections with the floor. These non-physical wheels require (in the simplest case) only four calculations per tick to achieve an effect that players can hardly distinguish from the real thing.
 </p>
 
 </div>
 
-<h2><a>Bounding Volumes</a></h2>
-<div>
-
-<p>
-
-A com.jme3.bounding.BoundingVolume is an interface for dealing with containment of a collection of points. All BoundingVolumes are Collidable and are used as optimization to calculate non-physical collisions more quickly: It&#039;s faster to calculate an intersection between simple shapes like spheres and boxes than between complex shapes. In cases where precision is not relevant, you wrap a complex model in a simpler shape to speed up collision detection.
-</p>
-<ul>
-<li><div> Type.Sphere: com.jme3.bounding.BoundingSphere is a sphere used as a container for a group of vertices of a piece of geometry. A BoundingSphere has a center and a radius.</div>
-</li>
-<li><div> Type.AABB = Axis-aligned bounding box. A com.jme3.bounding.BoundingBox is an axis-aligned cuboid used as a container for a group of vertices of a piece of geometry. A BoundingBox has a center and extents from that center along the x, y and z axis.</div>
-</li>
-<li><div> Type.OBB = Oriented bounding box. (not in use)</div>
-</li>
-<li><div> Type.Capsule = Cylinder with rounded ends. Often used for mobile characters.</div>
-</li>
-</ul>
-
-<p>
-
-<strong>Note:</strong> Physical objects have their own &quot;bounding volumes&quot; called CollisionShapes. 
-</p>
-
-</div>
-
-<h2><a>Collisions</a></h2>
+<h2><a>Collidable</a></h2>
 <div>
 
 <p>
@@ -73,7 +48,7 @@ Note that jME counts <em>all</em> collisions, this means a ray intersecting a bo
 		<td>getCollision(i)       </td><td>Returns the CollisionResult at index i.</td>
 	</tr>
 </table></div>
-<!-- EDIT1 TABLE [2825-3153] -->
+<!-- EDIT1 TABLE [2081-2409] -->
 <p>
 A CollisionResult object contains information about the second party of the collision event.
 </p>
@@ -100,7 +75,7 @@ A CollisionResult object contains information about the second party of the coll
 		<td>getTriangleIndex()</td><td>Returns the index of the triangle on the second party&#039;s mesh that was hit. (?)</td>
 	</tr>
 </table></div>
-<!-- EDIT2 TABLE [3247-3784] -->
+<!-- EDIT2 TABLE [2503-3040] -->
 </div>
 
 <h3><a>Code Sample</a></h3>
@@ -158,6 +133,54 @@ Knowing the distance of the collisions is useful for example when you intersect 
 
 </div>
 
+<h2><a>Bounding Volumes</a></h2>
+<div>
+
+<p>
+
+A com.jme3.bounding.BoundingVolume is an interface for dealing with containment of a collection of points. All BoundingVolumes are <code>Collidable</code> and are used as optimization to calculate non-physical collisions more quickly: It&#039;s always faster to calculate an intersection between simple shapes like spheres and boxes than between complex shapes like models. 
+</p>
+
+<p>
+All fast-paced action and shooter games use BoundingVolumes as an optimization. Wrap all complex models into simpler shapes – in the end, you get equally useful collision detection results, but faster. <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://en.wikipedia.org/wiki/Bounding_volume"><param name="text" value="<html><u>More about bounding volumes...</u></html>"><param name="textColor" value="blue"></object>
+</p>
+
+<p>
+Supported types:
+<img src="/wiki/lib/exe/fetch.php">
+</p>
+<ul>
+<li><div> Type.Sphere: com.jme3.bounding.BoundingSphere is a sphere used as a container for a group of vertices of a piece of geometry. A BoundingSphere has a center and a radius.</div>
+</li>
+<li><div> Type.AABB = Axis-aligned bounding box, that means it doesn&#039;t rotatewhich makes it less precise. A com.jme3.bounding.BoundingBox is an axis-aligned cuboid used as a container for a group of vertices of a piece of geometry. A BoundingBox has a center and extents from that center along the x, y and z axis.</div>
+</li>
+<li><div> Type.OBB = Oriented bounding box. This bounding box is more precise because it can rotate with its content, but is computationally more expensive. (Currently not supported.)</div>
+</li>
+<li><div> Type.Capsule = Cylinder with rounded ends, also called &quot;swept sphere&quot;. Typically used for mobile characters.</div>
+</li>
+</ul>
+
+<p>
+
+<p><div>Note: If you are looking for BoundingVolumes for physical objects, use <a href="/com/jme3/gde/core/docs/jme3/advanced/physics.html">CollisionShapes</a>.
+</div></p>
+</p>
+
+</div>
+
+<h3><a>Usage</a></h3>
+<div>
+
+<p>
+
+For example you can use Bounding Volumes on custom meshes, or complex non-physical shapes.
+
+</p>
+<pre>mesh.setBound&#40;new BoundingSphere&#40;&#41;&#41;;
+q.updateBound&#40;&#41;;</pre>
+
+</div>
+
 <h2><a>Intersection</a></h2>
 <div>
 
@@ -167,45 +190,37 @@ A com.jme3.math.Ray is an infinite line with a beginning, a direction, and no en
 </p>
 
 <p>
-Rays are used to detect where the user or a player is &quot;looking&quot; when performing an action:
+Rays are used to perform line-of-sight calculations. This means you can detect what users were &quot;aiming at&quot; when they clicked or pressed a key. You can also use this to detect whether game characters can see something (or someone) or not.
 </p>
 <ul>
-<li><div> <strong>Click to select:</strong> You can determine what a user has clicked by casting a ray from the camera in the direction of the camera. Now identify the closest collision of the ray with the rootNode.</div>
+<li><div> <strong>Click to select:</strong> You can determine what a user has clicked by casting a ray from the camera forward in the direction of the camera. Now identify the closest collision of the ray with the rootNode, and you have the clicked object.</div>
 </li>
-<li><div> <strong>Line of sight:</strong> Cast a ray from a player in the direction of another player. Then you detect all collisions of this ray with other entities (walls, foliage, window panes) and use this to calculate whether one can see the other.</div>
+<li><div> <strong>Line of sight:</strong> Cast a ray from a player in the direction of another player. Then you detect all collisions of this ray with other entities (walls versus foliage versus window panes) and use this to calculate how likely it is that one can see the other.</div>
 </li>
 </ul>
 
 <p>
 
-These simple ray-surface intersection tests are called Ray Casting. As opposed to the more advanced Ray Tracing, Ray Casting does not follow a ray&#039;s reflection after the first hit, the ray just goes straight on.
+<p><div>These simple but powerful ray-surface intersection tests are called Ray Casting. As opposed to the more advanced Ray Tracing technique, Ray Casting does not follow the ray&#039;s reflection after the first hit – the ray just goes straight on.
+</div></p>
 </p>
 
 <p>
-Learn how to implement <a href="/com/jme3/gde/core/docs/jme3/advanced/mouse_picking.html">Mouse Picking</a> here.
+Learn the details of how to implement <a href="/com/jme3/gde/core/docs/jme3/advanced/mouse_picking.html">Mouse Picking</a> here.
 </p>
-
-</div>
-
-<h2><a>Bounding Interval Hierarchy</a></h2>
-<div>
+<hr />
 
 <p>
-
-com.jme3.collision.bih.BIHNode
-com.jme3.scene.CollisionData
+TODO:
 </p>
-
-</div>
-
-<h2><a>SweepSphere</a></h2>
-<div>
-
-<p>
-
-A com.jme3.collision.SweepSphere implements a collidable &quot;stretched&quot; sphere that is shaped like a capsule (an upright cylinder with half a sphere on top and the second half at the bottom).
-This shape is usually used to simulate simple non-physcial collisions for character entities in games. The sweep sphere can be used to check collision against a triangle or another sweep sphere.
-</p>
+<ul>
+<li><div> Bounding Interval Hierarchy com.jme3.collision.bih.BIHNode</div>
+</li>
+<li><div> com.jme3.scene.CollisionData</div>
+</li>
+<li><div> A com.jme3.collision.SweepSphere implements a collidable &quot;stretched&quot; sphere that is shaped like a capsule (an upright cylinder with half a sphere on top and the second half at the bottom). This shape is usually used to simulate simple non-physcial collisions for character entities in games. The sweep sphere can be used to check collision against a triangle or another sweep sphere.</div>
+</li>
+</ul>
 
 </div>
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:collision_and_intersection?do=export_xhtmlbody">view online version</a></em></p>

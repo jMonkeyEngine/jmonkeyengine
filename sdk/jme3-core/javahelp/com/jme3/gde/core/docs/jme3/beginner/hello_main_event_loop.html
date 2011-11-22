@@ -109,22 +109,37 @@ A rotating object is just a simple example. In the update loop, you typically ha
 
 </div>
 
-<h2><a>Init versus Update</a></h2>
+<h2><a>Init - Update - Render</a></h2>
 <div>
 
 <p>
 
-Note the contrast: The <code>simpleUpdate()</code> method runs repeatedly, while the <code>simpleInitApp()</code> method is executed only once, right at the beginning. These two are the most important methods in a SimpleApplication-derived game. From these two methods, you create other class instances (your game data) and change their properties (your game state).
+Note the contrast:
 </p>
 <ul>
-<li><div> <code>simpleInitApp()</code> is the application&#039;s &quot;first breath&quot;.</div>
+<li><div> The <code>simpleInitApp()</code> method is executed only once, right at the beginning; </div>
 </li>
-<li><div> <code>simpleUpdate()</code> is the application&#039;s heartbeat.</div>
+<li><div> The <code>simpleUpdate()</code> method runs repeatedly, during the game. </div>
+</li>
+<li><div> After every update, the jMonkeyEngine automatically redraws (<code>renders</code>) the screen for you!</div>
 </li>
 </ul>
 
 <p>
-Basically everything in your game happens in either one or the other method. This means that these methods grow very long over time. There are two strategies how advanced developers can spread out their init and update code over several Java classes:
+
+Since rendering is automatic, initialization and updating are the two most important concepts in a SimpleApplication for you right now. These methods are where you load and create game data (once), and (repeatedly) change their properties to update the game state:
+</p>
+<ul>
+<li><div> <code>simpleInitApp()</code> is the application&#039;s &quot;first breath&quot;.</div>
+</li>
+<li><div> <code>simpleUpdate()</code> is the application&#039;s heartbeat. <br/>
+The update time unit is called <code>ticks</code>.</div>
+</li>
+</ul>
+
+<p>
+
+<p><div>Everything in a game happens either during initialization or during the update loop. This means that these two methods grow very long over time. There are two strategies how experienced developers spread out their init and update code over several Java classes:
 </p>
 <ul>
 <li><div> Move code blocks from the simpleInitApp() method to <a href="/com/jme3/gde/core/docs/jme3/advanced/application_states.html">AppStates</a>.</div>
@@ -134,7 +149,9 @@ Basically everything in your game happens in either one or the other method. Thi
 </ul>
 
 <p>
-Keep this in mind for later when your game application grows.
+Keep this in mind for later when your application grows.
+
+</div></p>
 </p>
 
 </div>

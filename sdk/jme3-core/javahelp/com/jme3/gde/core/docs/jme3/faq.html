@@ -716,7 +716,18 @@ FloatTexture, TextureCompressionLATC, NonPowerOfTwoTextures]</pre>
 
 <h3><a>How do I optimize the heck out of the Scene Graph?</a></h3>
 <div>
+
+<p>
+You can batch all Geometries in a scene (or a subnode) that remains static.
+
+</p>
 <pre>jme3tools.optimize.GeometryBatchFactory.optimize&#40;rootNode&#41;;</pre>
+
+<p>
+
+Batching means that all Geometries with the same Material are combined into one mesh. This optimization only has an effect if you use only few (roughly up to 32) Materials total. The pay-off is that batching takes extra time when the game is initialized.
+
+</p>
 
 </div>
 

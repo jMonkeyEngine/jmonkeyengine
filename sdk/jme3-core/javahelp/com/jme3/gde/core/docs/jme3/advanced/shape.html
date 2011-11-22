@@ -4,23 +4,38 @@
 
 <p>
 The simplest type of Meshes are the built-in JME Shapes. You can create Shapes without using the AssetManager.
-
 </p>
 
 </div>
 
-<h2><a>List of 3D shapes</a></h2>
+<h2><a>3D shapes</a></h2>
 <div>
+
+<p>
+
+<img src="/wiki/lib/exe/fetch.php"><img src="/wiki/lib/exe/fetch.php"><img src="/wiki/lib/exe/fetch.php">
+
+</p>
 <ul>
 <li><div> com.jme3.scene.shape.Box – A cube or cuboid. Single-sided Quad faces (outside only). </div>
 </li>
 <li><div> com.jme3.scene.shape.StripBox – A cube or cuboid. Solid filled faces (inside and outside).</div>
 </li>
+</ul>
+<ul>
 <li><div> com.jme3.scene.shape.Cylinder – A disk or pillar.</div>
 </li>
-<li><div> com.jme3.scene.shape.Sphere – A ball or elipsoid.</div>
+<li><div> com.jme3.scene.shape.Sphere – A ball or elipsoid. </div>
 </li>
-<li><div> com.jme3.scene.shape.Dome – A semi-sphere, e.g. SkyDome. </div>
+</ul>
+
+<p>
+
+<img src="/wiki/lib/exe/fetch.php"><img src="/wiki/lib/exe/fetch.php"><img src="/wiki/lib/exe/fetch.php">
+
+</p>
+<ul>
+<li><div> com.jme3.scene.shape.Dome – A semi-sphere, e.g. SkyDome.</div>
 <ul>
 <li><div> For a cone, set the Dome&#039;s radialSamples&gt;4 and planes=2. </div>
 </li>
@@ -28,9 +43,11 @@ The simplest type of Meshes are the built-in JME Shapes. You can create Shapes w
 </li>
 </ul>
 </li>
+</ul>
+<ul>
 <li><div> com.jme3.scene.shape.Torus – An single-holed torus or &quot;donut&quot;.</div>
 </li>
-<li><div> com.jme3.scene.shape.PQTorus – A parameterized torus. A PQ-Torus looks like a <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://en.wikipedia.org/wiki/Torus_knot"><param name="text" value="<html><u>donut knotted into spirals</u></html>"><param name="textColor" value="blue"></object>.</div>
+<li><div> com.jme3.scene.shape.PQTorus – A parameterized torus. A PQ-Torus looks like a <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://en.wikipedia.org/wiki/Torus_knot"><param name="text" value="<html><u>donut knotted into spirals</u></html>"><param name="textColor" value="blue"></object>. <img src="nbdocs:/com/jme3/gde/core/docs/jme3/advanced/nurbs_3-d_surface.png"><img src="nbdocs:/com/jme3/gde/core/docs/jme3/advanced/220px-trefoil_knot_arb.png"><img src="/wiki/lib/exe/fetch.php"></div>
 </li>
 <li><div> com.jme3.scene.shape.Surface – A curved surface (called <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://en.wikipedia.org/wiki/File:NURBS_3-D_surface.gif"><param name="text" value="<html><u>NURBS</u></html>"><param name="textColor" value="blue"></object>) described by knots, weights and control points. Compare with shape.Curve.</div>
 </li>
@@ -38,7 +55,7 @@ The simplest type of Meshes are the built-in JME Shapes. You can create Shapes w
 
 </div>
 
-<h2><a>List of Non-3D shapes</a></h2>
+<h2><a>Non-3D shapes</a></h2>
 <div>
 <ul>
 <li><div> com.jme3.scene.shape.Quad – A flat 2D rectangle (has two sides)</div>
@@ -51,10 +68,11 @@ The simplest type of Meshes are the built-in JME Shapes. You can create Shapes w
 
 </div>
 
-<h3><a>Math versus Shape?</a></h3>
+<h4><a>Math versus Shape?</a></h4>
 <div>
 
 <p>
+
 Do not mix up these visible Shapes with similarly named classes from the maths package. Choose the right package when letting your IDE fill in the import statements!
 </p>
 <ul>
@@ -70,7 +88,6 @@ Do not mix up these visible Shapes with similarly named classes from the maths p
 
 <p>
 These maths objects are invisible and are used for collision testing (ray casting) or to describe motion paths. They cannot be wrapped into a Geometry.
-
 </p>
 
 </div>
@@ -80,7 +97,7 @@ These maths objects are invisible and are used for collision testing (ray castin
 
 </div>
 
-<h3><a>Basic Usage</a></h3>
+<h4><a>Basic Usage</a></h4>
 <div>
 
 <p>
@@ -99,7 +116,7 @@ To add a shape to the scene:
 
 </div>
 
-<h3><a>Complex Shapes</a></h3>
+<h4><a>Complex Shapes</a></h4>
 <div>
 
 <p>
@@ -119,11 +136,7 @@ You can compose more complex custom Geometries out of simple Shapes. Think of th
 </ol>
 
 <p>
-The order is important: First arrange around origin, then transform. Otherwise, transformations are applied around the wrong center (pivot). Of course, you can attach your constellation to other pivot Nodes to create even more complex shapes (a chair, a furnished room, a house, a city, …), but again, arrange them around the origin first before you transform them.
-<br/>
-
-Note: Obviously, these composed Geometries are simpler than hand-sculpted meshes from a mesh editor.
-
+The order is important: First arrange around origin, then transform. Otherwise, transformations are applied around the wrong center (pivot). Of course, you can attach your constellation to other pivot Nodes to create even more complex shapes (a chair, a furnished room, a house, a city, …), but again, arrange them around the origin first before you transform them. Obviously, such composed Geometries are simpler than hand-sculpted meshes from a mesh editor.
 </p>
 
 </div>

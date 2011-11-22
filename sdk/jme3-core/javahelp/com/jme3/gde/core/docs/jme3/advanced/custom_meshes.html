@@ -34,7 +34,14 @@ Okay, we want to create a Quad. A quad has four vertices, and is made up of two 
 The base class for creating meshes is <code>com.jme3.scene.Mesh</code>.
 
 </p>
-<pre>Mesh m = new Mesh&#40;&#41;;</pre>
+<pre>Mesh mesh = new Mesh&#40;&#41;;</pre>
+
+<p>
+
+If you create your own Mesh-based class, replace <code>mesh</code> by <code>this</code> in the following examples: 
+
+</p>
+<pre>public class MyMesh extends Mesh &#123;  &#125;</pre>
 
 </div>
 
@@ -110,13 +117,13 @@ The Mesh data is stored in a buffer.
 </li>
 <li><div> The third parameter describes the number of components of the values. Vertex postions are 3 float values, texture coordinates are 2 float values, and the indices are single ints.</div>
 </li>
-<li><div> In order for JMonkey to correctly show the mesh in the scene, it needs to know the bounds of our new mesh. This can easily be achieved by calling the updateBound() method on it.</div>
+<li><div> In order for jMonkey to correctly show the mesh in the scene, it needs to know the bounds of our new mesh. This can easily be achieved by calling the updateBound() method on it.</div>
 </li>
 </ol>
-<pre>m.setBuffer&#40;Type.Position, 3, BufferUtils.createFloatBuffer&#40;vertices&#41;&#41;;
-m.setBuffer&#40;Type.TexCoord, 2, BufferUtils.createFloatBuffer&#40;texCoord&#41;&#41;;
-m.setBuffer&#40;Type.Index,    1, BufferUtils.createIntBuffer&#40;indexes&#41;&#41;;
-m.updateBound&#40;&#41;;</pre>
+<pre>mesh.setBuffer&#40;Type.Position, 3, BufferUtils.createFloatBuffer&#40;vertices&#41;&#41;;
+mesh.setBuffer&#40;Type.TexCoord, 2, BufferUtils.createFloatBuffer&#40;texCoord&#41;&#41;;
+mesh.setBuffer&#40;Type.Index,    1, BufferUtils.createIntBuffer&#40;indexes&#41;&#41;;
+mesh.updateBound&#40;&#41;;</pre>
 
 <p>
 
@@ -133,11 +140,11 @@ Our Mesh is ready! Now we want to see it.
 We create a <code>com.jme3.scene.Geometry</code>, apply a simple color material to it, and attach it to the rootNode to make it appear in the scene.
 
 </p>
-<pre>Geometry geom = new Geometry&#40;&quot;OurMesh&quot;, m&#41;;
-Material mat = new Material&#40;assetManager, &quot;Common/MatDefs/Misc/SolidColor.j3md&quot;&#41;;
+<pre>Geometry geo = new Geometry&#40;&quot;OurMesh&quot;, mesh&#41;;
+Material mat = new Material&#40;assetManager, &quot;Common/MatDefs/Misc/Unshaded.j3md&quot;&#41;;
 mat.setColor&#40;&quot;Color&quot;, ColorRGBA.Blue&#41;;
-geom.setMaterial&#40;mat&#41;;
-rootNode.attachChild&#40;geom&#41;;</pre>
+geo.setMaterial&#40;mat&#41;;
+rootNode.attachChild&#40;geo&#41;;</pre>
 
 <p>
 
@@ -161,21 +168,20 @@ There are more vertex buffers in a Mesh than the three shown above. For an overv
 <div>
 
 <p>
-Vertex coloring is a simple way of coloring meshes. Instead of just assigning one solid color, each vertex (corner) has a color assigned. The faces between the vertices are then colored with a gradient.
-We will use the same mesh <code>m</code> as defined above, but with a special VertexColor material.
+Vertex coloring is a simple way of coloring meshes. Instead of just assigning one solid color, each vertex (corner) has a color assigned. The faces between the vertices are then colored with a gradient. You can use the same mesh <code>mesh</code> object that you defined above.
 
 </p>
-<pre>Geometry coloredMesh = new Geometry &#40;&quot;ColoredMesh&quot;, m&#41;;
-Material matVC = new Material&#40;assetManager, &quot;Common/MatDefs/Misc/VertexColor.j3md&quot;&#41;;</pre>
+<pre>Geometry geo = new Geometry &#40;&quot;ColoredMesh&quot;, mesh&#41;;
+Material matVC = new Material&#40;assetManager, &quot;Common/MatDefs/Misc/Unshaded.j3md&quot;&#41;;</pre>
 
 <p>
 
-We create a float array color buffer.
+You create a float array color buffer:
 </p>
 <ul>
-<li><div> We assign 4 color values, RGBA, to each vertex.</div>
+<li><div> Assign 4 color values, RGBA, to each vertex.</div>
 <ul>
-<li><div> To loop over the 4 color values, we use a color index <pre>int colorIndex = 0;</pre>
+<li><div> To loop over the 4 color values, use a color index <pre>int colorIndex = 0;</pre>
 </div>
 </li>
 </ul>
@@ -193,7 +199,7 @@ We create a float array color buffer.
 </ul>
 
 <p>
-We loop over the colorArray buffer to quickly set some RGBA value for each vertex. As usual, RGBA color values range from 0.0f to 1.0f. Note that the values we use here are arbitrarily chosen! It&#039;s just a quick loop to give every vertex a different RGBA value (a purplish gray, purple, a greenish gray, green, see screenshot), without writing too much code. For your own mesh, you&#039;d assign values for the color buffer depending on which color you want your mesh to have.
+Loop over the colorArray buffer to quickly set some RGBA value for each vertex. As usual, RGBA color values range from 0.0f to 1.0f. <strong>Note that the color values in this example are arbitrarily chosen.</strong> It&#039;s just a quick loop to give every vertex a different RGBA value (a purplish gray, purple, a greenish gray, green, see screenshot), without writing too much code. For your own mesh, you&#039;d assign meaningful values for the color buffer depending on which color you want your mesh to have.
 
 </p>
 <pre>for&#40;int i = 0; i &lt; 4; i++&#41;&#123;
@@ -212,13 +218,31 @@ We loop over the colorArray buffer to quickly set some RGBA value for each verte
 Next, set the color buffer. An RGBA color value contains four float components, thus the parameter <code>4</code>.
 
 </p>
-<pre>m.setBuffer&#40;Type.Color, 4, colorArray&#41;;
-coloredMesh.setMaterial&#40;matVC&#41;;</pre>
+<pre>mesh.setBuffer&#40;Type.Color, 4, colorArray&#41;;
+geo.setMaterial&#40;matVC&#41;;</pre>
 
 <p>
 
 Now you see a gradient color extending from each vertex.
 
+</p>
+
+</div>
+
+<h3><a>Example: Shaded Mesh with Normals</a></h3>
+<div>
+
+<p>
+The examples used the mesh together with the Unshaded.j3md material. If you want to use the Mesh with a Phong illuminated material (such as Lighting.j3md), the mesh needs to include information about its normals. (The Normals encode in which direction a mesh polygon is facing, which is important for calculating light and shadow.)
+
+</p>
+<pre>float&#91;&#93; normals = new float&#91;12&#93;;
+normals = new float&#91;&#93;&#123;0,0,1, 0,0,1, 0,0,1, 0,0,1&#125;;
+mesh.setBuffer&#40;Type.Normal, 3, BufferUtils.createFloatBuffer&#40;normals&#41;&#41;;</pre>
+
+<p>
+
+You need as many normals as the polygon has vertices. For a flat quad, they point all in the same direction. In this case, the direction is the Z unit vector (Vector3f.UNIT_Z), this means the quad is facing the camera.
 </p>
 
 </div>
@@ -232,14 +256,14 @@ Alternatively, you can show the vertices as colored points instead of coloring t
 </p>
 <pre>Geometry coloredMesh = new Geometry &#40;&quot;ColoredMesh&quot;, cMesh&#41;;
 ...
-m.setMode&#40;Mesh.Mode.Points&#41;;
-m.setPointSize&#40;10f&#41;;
-m.updateBound&#40;&#41;;
-m.setStatic&#40;&#41;;
-Geometry points = new Geometry&#40;&quot;Points&quot;, m&#41;;
+mesh.setMode&#40;Mesh.Mode.Points&#41;;
+mesh.setPointSize&#40;10f&#41;;
+mesh.updateBound&#40;&#41;;
+mesh.setStatic&#40;&#41;;
+Geometry points = new Geometry&#40;&quot;Points&quot;, mesh&#41;;
 points.setMaterial&#40;mat&#41;;
 rootNode.attachChild&#40;points&#41;;
-rootNode.attachChild&#40;coloredMesh&#41;;</pre>
+rootNode.attachChild&#40;geo&#41;;</pre>
 
 <p>
 

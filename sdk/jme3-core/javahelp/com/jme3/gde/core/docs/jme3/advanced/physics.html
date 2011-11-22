@@ -445,13 +445,7 @@ Use the following methods to move physics objects.
 		<td> applyForce(…) </td><td> Move (push) the object once with a certain moment, expressed as a Vector3f. Optionally, you can specify where on the object the pushing force hits. </td>
 	</tr>
 	<tr>
-		<td> applyContinuousForce(…) </td><td> Keep moving (pushing) the object with continuous force in one direction, expressed as a Vector3f. Optionally, you can specifiy where on the object the pushing force hits. You can <code>applyContinuousForce(false)</code> to stop the force. </td>
-	</tr>
-	<tr>
 		<td> applyTorque(…) </td><td> Rotate (twist) the object once around its axes, expressed as a Vector3f. </td>
-	</tr>
-	<tr>
-		<td> applyContinuousTorque(…) </td><td> Keep rotating (twisting) the object continuously around its axes, expressed as a Vector3f. You can <code>applyContinuousTorque(false)</code> to stop the rotation.</td>
 	</tr>
 	<tr>
 		<td> applyImpulse(…) </td><td> An idealised change of momentum. This is the kind of push that you would use on a pool billiard ball. </td>
@@ -466,7 +460,7 @@ Use the following methods to move physics objects.
 		<td>clearForces()</td><td>Cancels out all forces (force, torque) etc and stops the motion.</td>
 	</tr>
 </table></div>
-<!-- EDIT5 TABLE [13584-15257] -->
+<!-- EDIT5 TABLE [13584-14809] -->
 <p>
 
 <strong>Note:</strong> It is technically possible to position PhysicsControls using setLocalTranslation(), e.g. to place them in their start position in the scene. However you must be very careful not to cause an &quot;impossible state&quot; where one physical object overlaps with another! Within the game, you typically use the setters shown here exclusively.
@@ -501,7 +495,7 @@ removeCollideWithGroup(COLLISION_GROUP_01)</td><td>Collision Groups are integer 
 		<td> setSleepingThreshold(float,float)</td><td>Sets the sleeping thresholds wich define when the object gets deactivated to save ressources. Low values keep the object active when it barely moves. The first value is the linear threshold and the second the angular.</td>
 	</tr>
 </table></div>
-<!-- EDIT6 TABLE [15653-16648] -->
+<!-- EDIT6 TABLE [15205-16200] -->
 </div>
 
 <h2><a>Best Practices</a></h2>
