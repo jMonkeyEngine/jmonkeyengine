@@ -117,14 +117,14 @@
       -->
       
     <!--creates update center version via hudson build server-->
-    <target name="hudson-nightly" depends="suite.clean, -revert-svn-changes, update-help-sets, set-impl-version, suite.nbms, unset-impl-version">
+    <target name="hudson-nightly" depends="suite.clean, update-help-sets, set-impl-version, suite.nbms, unset-impl-version">
     </target>
 
     <!--to be used after release, sets version number sans svn revision-->
-    <!--target name="hudson-stable" depends="suite.clean, -revert-svn-changes, set-spec-version, suite.nbms, unset-spec-version">
+    <!--target name="hudson-stable" depends="suite.clean, set-spec-version, suite.nbms, unset-spec-version">
     </target-->
     
-    <target name="hudson-stable" depends="suite.clean, -revert-svn-changes, set-impl-version, suite.nbms, unset-spec-version">
+    <target name="hudson-stable" depends="suite.clean, set-impl-version, suite.nbms, unset-spec-version">
     </target>
     
     <target name="hudson-release" depends="suite.clean, set-spec-version, build-installers, unset-spec-version">
@@ -256,26 +256,6 @@
             </else>
         </if>
 
-    </target>
-
-    <!--reverts svn changes (in case the revision numbers haven't been reset-->
-    <target name="-revert-svn-changes">
-        <!--remove changes from jMP (old version numbers)-->
-        <exec executable="svn" dir=".">
-            <arg value="cleanup" />
-        </exec>
-        <exec executable="svn" dir=".">
-            <arg value="revert" />
-            <arg value="." />
-            <arg value="-R" />
-        </exec>
-        <exec executable="svn" dir=".">
-            <arg value="cleanup" />
-        </exec>
-        <!--update gde svn revision-->
-        <exec executable="svn" dir=".">
-            <arg value="update" />
-        </exec>
     </target>
 
     <!--creates properties files containing svn info for the jme3 folders-->

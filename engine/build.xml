@@ -340,7 +340,7 @@
         </zip>
     </target>
 
-    <target name="update-sdk-nobuild">
+    <target depends="init" name="update-sdk-nobuild">
         <antcall target="-do-update-sdk" inheritall="true">
             <param name="jmp_dir" value="../sdk/"/>
         </antcall>
