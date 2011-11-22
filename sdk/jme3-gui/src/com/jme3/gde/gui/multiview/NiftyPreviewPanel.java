@@ -11,7 +11,6 @@ import com.jme3.gde.core.scene.SceneApplication;
 import com.jme3.gde.gui.NiftyGuiDataObject;
 import com.jme3.renderer.ViewPort;
 import de.lessvoid.nifty.Nifty;
-import de.lessvoid.nifty.tools.resourceloader.FileSystemLocation;
 import java.awt.Dimension;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
@@ -20,7 +19,6 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
-import java.io.File;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.concurrent.Callable;
@@ -57,6 +55,7 @@ public class NiftyPreviewPanel extends PanelView {
     private NiftyPreviewInputHandler inputHandler;
     private NiftyJmeDisplay niftyDisplay;
     private JScrollPane scrollPanel;
+    private int width = 640, height = 480;
 
     public NiftyPreviewPanel(NiftyGuiDataObject niftyObject, ToolBarDesignEditor comp) {
         super();
@@ -78,8 +77,6 @@ public class NiftyPreviewPanel extends PanelView {
 
             public void itemStateChanged(ItemEvent e) {
                 String string = (String) e.getItem();
-                final int width;
-                final int height;
                 if ("640x480".equals(string)) {
                     width = 640;
                     height = 480;
@@ -110,7 +107,7 @@ public class NiftyPreviewPanel extends PanelView {
                         return null;
                     }
                 });
-                updatePreView(screen);
+//                updatePreView();
             }
         });
         toolBar.add(comboBox);
@@ -260,6 +257,7 @@ public class NiftyPreviewPanel extends PanelView {
     @Override
     public void showSelection(Node[] nodes) {
         this.screen = nodes[0].getName();
+        final String screen = this.screen;
         SceneApplication.getApplication().enqueue(new Callable<Object>() {
 
             public Object call() throws Exception {
@@ -271,12 +269,13 @@ public class NiftyPreviewPanel extends PanelView {
 
     public void cleanup() {
         offPanel.stopPreview();
-//        SceneApplication.getApplication().enqueue(new Callable<Object>() {
-//
-//            public Object call() throws Exception {
-//                nifty.exit();
-//                return null;
-//            }
-//        });
+        SceneApplication.getApplication().enqueue(new Callable<Object>() {
+
+            public Object call() throws Exception {
+                ViewPort guiViewPort = offPanel.getViewPort();
+                guiViewPort.removeProcessor(niftyDisplay);
+                return null;
+            }
+        });
     }
 }
