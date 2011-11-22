@@ -78,7 +78,7 @@
 
         <property name="product-uid"  value="${suite.nbi.product.uid}"/>
         <!--normen-->
-        <property name="product-version"  value="${suite.nbi.product.uid}"/>
+        <property name="product-version"  value="${suite.nbi.product.version}"/>
 
         <condition property="icon.path" value="${nbi.icon.file}" else="${installer.build.dir}/ext/components/products/helloworld/data/icon48.png">
              <and>
