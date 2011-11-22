@@ -815,6 +815,10 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
                         logger.log(Level.WARNING, "Cannot locate {0} for model {1}", new Object[]{materialKey, key});
                     }
                 }
+            }else{
+                // Make sure to reset it to null so that previous state
+                // doesn't leak onto this one
+                materialList = null;
             }
 
             // If for some reason material list could not be found through
