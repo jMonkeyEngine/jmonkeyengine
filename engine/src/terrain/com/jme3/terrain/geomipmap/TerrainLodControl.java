@@ -93,6 +93,7 @@ public class TerrainLodControl extends AbstractControl {
     public TerrainLodControl(Terrain terrain, List<Camera> cameras) {
         this.terrain = terrain;
         this.cameras = cameras;
+        lodCalculator = new DistanceLodCalculator(65, 2.7f); // a default calculator
     }
 
     @Override
