@@ -300,7 +300,7 @@
       -->
 
     <!-- puts jme3 jars, libs, source and javadoc in a dated zip file -->
-    <target name="dist" depends="clean, jar, javadoc" description="puts jme3 jars, libs, source and javadoc in a dated zip file">
+    <target name="create-zip-distribution" description="puts jme3 jars, libs, source and javadoc in a dated zip file">
         <!-- create date in the format MM-dd-yyyy -->
         <tstamp>
             <format property="date" pattern="yyyy-MM-dd" locale="en,US"/>
@@ -340,26 +340,10 @@
         </zip>
     </target>
 
-    <!-- copy jme3 zip to jmonkeyengine.com/nightly -->
-    <target name="deploy-hudson-nightly" depends="dist, build-bullet-natives">
-        <copy
-            file="${jme3zip}"
-            toDir="/var/www/com/stable" overwrite="true" failonerror="true" verbose="false"
-            />
-        <copydir
-            src="dist/javadoc/" dest="/var/www/org/javadoc/" forceoverwrite="true"
-            />
-    </target>
-
-    <!-- copy jme3 zip to jmonkeyengine.com/nightly -->
-    <target name="deploy-hudson-stable" depends="dist, build-bullet-natives">
-        <copy
-            file="${jme3zip}"
-            toDir="/var/www/com/stable" overwrite="true" failonerror="true" verbose="false"
-            />
-        <copydir
-            src="dist/javadoc/" dest="/var/www/org/javadoc/" forceoverwrite="true"
-            />
+    <target name="update-sdk-nobuild">
+        <antcall target="-do-update-sdk" inheritall="true">
+            <param name="jmp_dir" value="../sdk/"/>
+        </antcall>
     </target>
     
     <target name="copy-javadoc">

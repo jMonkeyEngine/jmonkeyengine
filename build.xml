@@ -19,7 +19,9 @@
 
     <target name="build-engine" description="Builds the engine libraries only">
         <ant dir="engine" target="clean"/>
-        <ant dir="engine" target="dist"/>
+        <ant dir="engine" target="jar"/>
+        <ant dir="engine" target="javadoc"/>
+        <ant dir="engine" target="create-zip-distribution"/>
     </target>
 
     <target name="clean" description="Clean all build products" depends="-check-platform, -update-sdk-platform-config">
@@ -72,46 +74,22 @@
        ****************************************************************
       -->
       
-    <target name="hudson-nightly" depends="-check-platform, -update-sdk-platform-config">
-        <exec executable="svn" dir="engine">
-            <arg value="cleanup" />
-        </exec>
-        <exec executable="svn" dir="engine">
-            <arg value="revert" />
-        </exec>
-        <exec executable="svn" dir="engine">
-            <arg value="cleanup" />
-        </exec>
-        <exec executable="svn" dir="engine">
-            <arg value="update" />
-        </exec>
-        <ant dir="engine" target="dist"/>
-        <ant dir="engine" target="build-bullet-natives"/>
-        <ant dir="engine" target="update-sdk"/>
+    <target name="hudson-nightly" depends="-check-platform, -update-sdk-platform-config, -hudson-build-engine">
         <ant dir="engine" target="copy-javadoc"/>
+        <ant dir="engine" target="create-zip-distribution"/>
         <ant dir="sdk" target="hudson-nightly"/>
     </target>
 
-    <target name="hudson-stable" depends="-check-platform, -update-sdk-platform-config">
-        <exec executable="svn" dir="engine">
-            <arg value="cleanup" />
-        </exec>
-        <exec executable="svn" dir="engine">
-            <arg value="revert" />
-        </exec>
-        <exec executable="svn" dir="engine">
-            <arg value="cleanup" />
-        </exec>
-        <exec executable="svn" dir="engine">
-            <arg value="update" />
-        </exec>
-        <ant dir="engine" target="dist"/>
-        <ant dir="engine" target="build-bullet-natives"/>
-        <ant dir="engine" target="update-sdk"/>
+    <target name="hudson-stable" depends="-check-platform, -update-sdk-platform-config, -hudson-build-engine">
+        <!--ant dir="engine" target="dist"/-->
         <ant dir="sdk" target="hudson-stable"/>
     </target>
 
-    <target name="hudson-release" depends="-check-platform, -update-sdk-platform-config">
+    <target name="hudson-release" depends="-check-platform, -update-sdk-platform-config, -hudson-build-engine">
+        <ant dir="sdk" target="hudson-release"/>
+    </target>
+    
+    <target name="-hudson-build-engine">
         <exec executable="svn" dir="engine">
             <arg value="cleanup" />
         </exec>
@@ -124,10 +102,13 @@
         <exec executable="svn" dir="engine">
             <arg value="update" />
         </exec>
-        <ant dir="engine" target="dist"/>
+        <exec executable="svn" dir=".">
+            <arg value="unlock" />
+            <arg value="engine" />
+        </exec>
         <ant dir="engine" target="build-bullet-natives"/>
-        <ant dir="engine" target="update-sdk"/>
-        <ant dir="sdk" target="hudson-release"/>
+        <ant dir="engine" target="javadoc"/>
+        <ant dir="engine" target="update-sdk-nobuild"/>
     </target>
 
 </project>
