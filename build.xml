@@ -111,4 +111,23 @@
         <ant dir="sdk" target="hudson-stable"/>
     </target>
 
+    <target name="hudson-release" depends="-check-platform, -update-sdk-platform-config">
+        <exec executable="svn" dir="engine">
+            <arg value="cleanup" />
+        </exec>
+        <exec executable="svn" dir="engine">
+            <arg value="revert" />
+        </exec>
+        <exec executable="svn" dir="engine">
+            <arg value="cleanup" />
+        </exec>
+        <exec executable="svn" dir="engine">
+            <arg value="update" />
+        </exec>
+        <ant dir="engine" target="dist"/>
+        <ant dir="engine" target="build-bullet-natives"/>
+        <ant dir="engine" target="update-sdk"/>
+        <ant dir="sdk" target="hudson-release"/>
+    </target>
+
 </project>
