@@ -22,6 +22,7 @@ import org.openide.awt.ActionReference;
 import org.openide.awt.ActionReferences;
 import org.openide.awt.ActionID;
 import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
 import org.openide.util.Exceptions;
 import org.openide.util.NbBundle.Messages;
 
@@ -49,18 +50,11 @@ public final class ConvertToNifty implements ActionListener {
         FileObject folder;
         folder = context.getProjectDirectory();
         if (pm != null) {
-            folder = pm.getAssetFolder().getFileObject("Interface/Converted");
-            if (folder == null) {
-                try {
-                    folder = pm.getAssetFolder().getFileObject("Interface");
-                    if (folder == null) {
-                        folder = pm.getAssetFolder().createFolder("Interface");
-                    }
-                    folder = folder.createFolder("Converted");
-                } catch (IOException ex) {
-                    Exceptions.printStackTrace(ex);
-                    folder = context.getProjectDirectory();
-                }
+            try {
+                folder = FileUtil.createFolder(pm.getAssetFolder(), "Interface/Converted");
+            } catch (IOException ex) {
+                Exceptions.printStackTrace(ex);
+                folder = context.getProjectDirectory();
             }
         }
 

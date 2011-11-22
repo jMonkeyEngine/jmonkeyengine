@@ -23,6 +23,7 @@ import javax.swing.event.ChangeListener;
 import org.netbeans.api.project.Project;
 import org.openide.WizardDescriptor;
 import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
 import org.openide.util.Exceptions;
 
 public final class AngelFontWizardIterator implements WizardDescriptor.InstantiatingIterator {
@@ -38,9 +39,9 @@ public final class AngelFontWizardIterator implements WizardDescriptor.Instantia
     private WizardDescriptor.Panel[] getPanels() {
         if (panels == null) {
             panels = new WizardDescriptor.Panel[]{
-                        new AngelFontWizardPanel1(),
-                        new AngelFontWizardPanel2()
-                    };
+                new AngelFontWizardPanel1(),
+                new AngelFontWizardPanel2()
+            };
             String[] steps = createSteps();
             for (int i = 0; i < panels.length; i++) {
                 Component c = panels[i].getComponent();
@@ -98,26 +99,13 @@ public final class AngelFontWizardIterator implements WizardDescriptor.Instantia
         FileObject imageFile;
         FileObject descriptionFile;
         try {
-            //create fonts folder if it doesnt exist
-            if (pm.getAssetFolder().getFileObject("Interface") == null) {
-                pm.getAssetFolder().createFolder("Interface");
-            }
-            if (pm.getAssetFolder().getFileObject("Interface/Fonts") == null) {
-                pm.getAssetFolder().getFileObject("Interface").createFolder("Fonts");
-            }
             //create PNG file
-            imageFile = pm.getAssetFolder().getFileObject("Interface/Fonts" + name, "png");
-            if (imageFile == null) {
-                imageFile = pm.getAssetFolder().getFileObject("Interface/Fonts").createData(name, "png");
-            }
+            imageFile = FileUtil.createData(pm.getAssetFolder(), "Interface/Fonts/" + name + ".png");
             OutputStream out = imageFile.getOutputStream();
             ImageIO.write(fontImage, "PNG", out);
             out.close();
             //create fnt file
-            descriptionFile = pm.getAssetFolder().getFileObject("Interface/Fonts/" + name, "fnt");
-            if (descriptionFile == null) {
-                descriptionFile = pm.getAssetFolder().getFileObject("Interface/Fonts").createData(name, "fnt");
-            }
+            descriptionFile = FileUtil.createData(pm.getAssetFolder(), "Interface/Fonts/" + name + ".fnt");
             OutputStreamWriter out2 = new OutputStreamWriter(descriptionFile.getOutputStream());
             out2.write(font.getDescription());
             out2.close();
