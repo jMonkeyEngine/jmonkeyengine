@@ -124,7 +124,7 @@
     <!--target name="hudson-stable" depends="suite.clean, set-spec-version, suite.nbms, unset-spec-version">
     </target-->
     
-    <target name="hudson-stable" depends="suite.clean, set-impl-version, suite.nbms, unset-spec-version">
+    <target name="hudson-stable" depends="suite.clean, set-impl-version, suite.nbms, unset-impl-version">
     </target>
     
     <target name="hudson-release" depends="suite.clean, set-spec-version, build-installers, unset-spec-version">
@@ -154,11 +154,27 @@
                                match="(\r?\n)\s*\r?\n" 
                                flags="g"
                                replace="\1" />            
+                <replaceregexp file="${module_dir}/manifest.mf"
+                                match="OpenIDE-Module-Implementation-Version"
+                                replace="#OpenIDE-Module-Implementation-Version"
+                                byline="true"/>
+                <replaceregexp file="${module_dir}/nbproject/project.properties"
+                                match="spec.version.base"
+                                replace="#spec.version.base"
+                                byline="true"/>
             </then>
             <else>
                 <replaceregexp file="${module_dir}/manifest.mf"
                                 match="OpenIDE-Module-Specification-Version:(.*)"
                                 replace=""
+                                byline="true"/>
+                <replaceregexp file="${module_dir}/manifest.mf"
+                                match="#OpenIDE-Module-Implementation-Version"
+                                replace="OpenIDE-Module-Implementation-Version"
+                                byline="true"/>
+                <replaceregexp file="${module_dir}/nbproject/project.properties"
+                                match="#spec.version.base"
+                                replace="spec.version.base"
                                 byline="true"/>
                 <echo file="${module_dir}/manifest.mf" append="true"></echo>
             </else>
