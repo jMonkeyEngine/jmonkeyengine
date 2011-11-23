@@ -39,7 +39,7 @@
             <property name="generate.installer.for.platforms" value="windows linux macosx"/>
             <property name="generator-jdk-location-forward-slashes" value="${java.home}"/>
             <property name="generated-installers-location-forward-slashes" value="${basedir}/build/installer"/>
-            <property name="pack200.enabled" value="true"/>
+            <property name="pack200.enabled" value="false"/>
             <property name="nbi.icon.file" value="${basedir}/jmonkeyplatform.png"/>
             <property name="nbi.dock.icon.file" value="${basedir}/jmonkeyplatform.icns"/>
         </ant>
@@ -339,7 +339,7 @@ for coding and for managing and creating game assets.
         <gcupload projectname="jmonkeyengine"
                   labels="Type-Installer OpSys-Windows jMonkeyEngine3 Featured"
                   summary="jMonkeyEngine3 SDK ${app.version} for Windows"
-                  filename="dist/${app.name}-windows.exe"
+                  filename="${basedir}/dist/${app.name}-windows.exe"
                   targetfilename="jME3_SDK_${app.version}-windows.exe"
                   username="${googlecode.username}"
                   password="${googlecode.password}"
@@ -348,7 +348,7 @@ for coding and for managing and creating game assets.
         <gcupload projectname="jmonkeyengine"
                   labels="Type-Installer OpSys-Linux jMonkeyEngine3 Featured"
                   summary="jMonkeyEngine3 SDK ${app.version} for Linux"
-                  filename="dist/${app.name}-linux.sh"
+                  filename="${basedir}/dist/${app.name}-linux.sh"
                   targetfilename="jME3_SDK_${app.version}-linux.sh"
                   username="${googlecode.username}"
                   password="${googlecode.password}"
@@ -357,7 +357,7 @@ for coding and for managing and creating game assets.
         <gcupload projectname="jmonkeyengine"
                   labels="Type-Installer OpSys-OSX jMonkeyEngine3 Featured"
                   summary="jMonkeyEngine3 SDK ${app.version} for MacOS X"
-                  filename="dist/${app.name}-macosx.tgz"
+                  filename="${basedir}/dist/${app.name}-macosx.tgz"
                   targetfilename="jME3_SDK_${app.version}-macosx.tgz"
                   username="${googlecode.username}"
                   password="${googlecode.password}"
