@@ -359,7 +359,7 @@ public class BatchNode extends Node implements Savable {
         int maxVertCount = 0;
 
         Mesh.Mode mode = null;
-        for (Geometry geom : geometries) {           
+        for (Geometry geom : geometries) {
             totalVerts += geom.getVertexCount();
             totalTris += geom.getTriangleCount();
             totalLodLevels = Math.min(totalLodLevels, geom.getMesh().getNumLodLevels());
