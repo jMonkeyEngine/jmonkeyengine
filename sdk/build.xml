@@ -154,10 +154,10 @@
                                match="(\r?\n)\s*\r?\n" 
                                flags="g"
                                replace="\1" />            
-                <replaceregexp file="${module_dir}/manifest.mf"
+                <!--replaceregexp file="${module_dir}/manifest.mf"
                                 match="OpenIDE-Module-Implementation-Version"
                                 replace="#OpenIDE-Module-Implementation-Version"
-                                byline="true"/>
+                                byline="true"/-->
                 <replaceregexp file="${module_dir}/nbproject/project.properties"
                                 match="spec.version.base"
                                 replace="#spec.version.base"
@@ -168,10 +168,10 @@
                                 match="OpenIDE-Module-Specification-Version:(.*)"
                                 replace=""
                                 byline="true"/>
-                <replaceregexp file="${module_dir}/manifest.mf"
+                <!--replaceregexp file="${module_dir}/manifest.mf"
                                 match="#OpenIDE-Module-Implementation-Version"
                                 replace="OpenIDE-Module-Implementation-Version"
-                                byline="true"/>
+                                byline="true"/-->
                 <replaceregexp file="${module_dir}/nbproject/project.properties"
                                 match="#spec.version.base"
                                 replace="spec.version.base"
