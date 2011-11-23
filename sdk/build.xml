@@ -105,7 +105,8 @@
             comment="Updated by build script">
             <entry key="spec.version.base" value="${plugins.version}" />
         </propertyfile-->
-        <updatesdkdeps projectfile="${module_dir}/nbproject/project.xml" version="${plugins.version}"/>
+        <updatesdkdeps projectfile="${module_dir}/nbproject/project.xml" version="${plugins.version}" basepackage="com.jme3.gde"/>
+        <replace file="${module_dir}/nbproject/project.xml" token=' standalone="no"?>' value="?>${line.separator}"/>
         <replaceregexp file="${module_dir}/nbproject/project.properties"
                         match="spec.version.base=(.*)"
                         replace="spec.version.base=${plugins.version}"
