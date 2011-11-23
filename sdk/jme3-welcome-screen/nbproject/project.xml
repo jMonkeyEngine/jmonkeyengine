@@ -85,14 +85,6 @@
                 </dependency>
             </module-dependencies>
             <public-packages/>
-            <class-path-extension>
-                <runtime-relative-path>ext/nifty-style-black-1.2.jar</runtime-relative-path>
-                <binary-origin>release/modules/ext/nifty-style-black-1.2.jar</binary-origin>
-            </class-path-extension>
-            <class-path-extension>
-                <runtime-relative-path>ext/nifty-default-controls-1.2.jar</runtime-relative-path>
-                <binary-origin>release/modules/ext/nifty-default-controls-1.2.jar</binary-origin>
-            </class-path-extension>
         </data>
     </configuration>
 </project>
