@@ -12,6 +12,7 @@
     <taskdef resource="net/sf/antcontrib/antcontrib.properties" classpathref="ant-import.classpath"/>
     <taskdef name="deb" classname="com.googlecode.ant_deb_task.Deb" classpathref="ant-import.classpath"/>
     <taskdef name="desktopentry" classname="com.googlecode.ant_deb_task.DesktopEntry" classpathref="ant-import.classpath"/>
+    <taskdef resource="com/jme/ant/ant-jme.properties" classpath="ant-lib/ant-jme.jar"/>
 
     <!--override branding target to include netbeans config file creation, using this target makes sure init was called-->
     <target name="branding" depends="-create-netbeans-config, -set-base-version, -zip-templates, suite.branding">
@@ -104,6 +105,7 @@
             comment="Updated by build script">
             <entry key="spec.version.base" value="${plugins.version}" />
         </propertyfile-->
+        <updatesdkdeps projectfile="${module_dir}/nbproject/project.xml" version="${plugins.version}"/>
         <replaceregexp file="${module_dir}/nbproject/project.properties"
                         match="spec.version.base=(.*)"
                         replace="spec.version.base=${plugins.version}"
