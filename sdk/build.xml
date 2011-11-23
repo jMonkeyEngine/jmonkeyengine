@@ -153,11 +153,19 @@
                                 match="OpenIDE-Module-Implementation-Version:(.*)"
                                 replace="OpenIDE-Module-Specification-Version: ${plugins.version}"
                                 byline="true"/>
+                <replaceregexp file="${module_dir}/nbproject/project.properties"
+                                match="spec.version.base"
+                                replace="#spec.version.base"
+                                byline="true"/>
             </then>
             <else>
                 <replaceregexp file="${module_dir}/manifest.mf"
                                 match="OpenIDE-Module-Specification-Version:(.*)"
                                 replace="OpenIDE-Module-Implementation-Version: 0"
+                                byline="true"/>
+                <replaceregexp file="${module_dir}/nbproject/project.properties"
+                                match="#spec.version.base"
+                                replace="spec.version.base"
                                 byline="true"/>
             </else>
         </if>
