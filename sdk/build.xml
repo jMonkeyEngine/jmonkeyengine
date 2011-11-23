@@ -149,34 +149,16 @@
         <if>
             <equals arg1="${set_spec_version}" arg2="true"/>
             <then>
-                <echo file="${module_dir}/manifest.mf" append="true">OpenIDE-Module-Specification-Version: ${plugins.version}</echo>
                 <replaceregexp file="${module_dir}/manifest.mf"
-                               match="(\r?\n)\s*\r?\n" 
-                               flags="g"
-                               replace="\1" />            
-                <!--replaceregexp file="${module_dir}/manifest.mf"
-                                match="OpenIDE-Module-Implementation-Version"
-                                replace="#OpenIDE-Module-Implementation-Version"
-                                byline="true"/-->
-                <replaceregexp file="${module_dir}/nbproject/project.properties"
-                                match="spec.version.base"
-                                replace="#spec.version.base"
+                                match="OpenIDE-Module-Implementation-Version:(.*)"
+                                replace="OpenIDE-Module-Specification-Version: ${plugins.version}"
                                 byline="true"/>
             </then>
             <else>
                 <replaceregexp file="${module_dir}/manifest.mf"
                                 match="OpenIDE-Module-Specification-Version:(.*)"
-                                replace=""
+                                replace="OpenIDE-Module-Implementation-Version: 0"
                                 byline="true"/>
-                <!--replaceregexp file="${module_dir}/manifest.mf"
-                                match="#OpenIDE-Module-Implementation-Version"
-                                replace="OpenIDE-Module-Implementation-Version"
-                                byline="true"/-->
-                <replaceregexp file="${module_dir}/nbproject/project.properties"
-                                match="#spec.version.base"
-                                replace="spec.version.base"
-                                byline="true"/>
-                <echo file="${module_dir}/manifest.mf" append="true"></echo>
             </else>
         </if>
     </target>
