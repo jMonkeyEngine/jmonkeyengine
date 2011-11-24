@@ -21,15 +21,11 @@ This is a draft of a feature that is work in progress. If you have questions or 
 </li>
 <li><div> Install jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym></div>
 </li>
-<li><div> Install Android Project support in the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym>:</div>
+<li><div> (Optional) Install NBAndroid in the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym>:</div>
 <ol>
-<li><div> Open Tools→Plugins→Settings</div>
-</li>
-<li><div> Activate the nightly build.</div>
-</li>
 <li><div> Go to Tools→Plugins→Available Plugins.</div>
 </li>
-<li><div> Install the Android Support plugin.</div>
+<li><div> Install the &quot;Android&quot; plugin.</div>
 </li>
 </ol>
 </li>
@@ -136,8 +132,58 @@ It lets you edit the MainActivitity.java, the AndroidManifest.xml, and build.pro
 </p>
 
 <p>
-The Android deployment option creates a separate sub-project for android and makes the main project and associated libraries available to the sub-project as libraries. The sub-project can be edited using NBAndroid (see below) or using Eclipse or any other IDE that supports standard android projects. Normally you do not need to edit the android project files. Exceptions are described further below.
+The Android deployment option creates a separate sub-project for android and makes the main project and associated libraries available to the sub-project as libraries. The sub-project can be edited using NBAndroid (see below) or using Eclipse or any other IDE that supports standard android projects. Normally you do not need to edit the android project files. Exceptions are described further below. <em>The libraries are first added to the android sub-project when the main project is built for the first time.</em>
 </p>
+
+</div>
+
+<h4><a>Build and Run</a></h4>
+<div>
+
+<p>
+
+Open your game project in the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym>.
+</p>
+
+<p>
+<strong>Building</strong>
+</p>
+<ol>
+<li><div> Right-click the project node and choose Set Main Project.</div>
+</li>
+<li><div> Right-click the project node to build your project. <br/>
+An APK file is created in the &quot;dist&quot; folder.</div>
+</li>
+</ol>
+
+<p>
+
+<strong>Running</strong>
+</p>
+<ol>
+<li><div> Select the project</div>
+</li>
+<li><div> Select the &quot;Android Device&quot; build configuration next to the Run toolbar button.</div>
+</li>
+<li><div> Make sure &quot;Compile on Save&quot; is disabled in your project preferences.</div>
+</li>
+<li><div> Run the application on a connected phone by right-clicking it and selecting &quot;Run&quot; or press the &quot;Play&quot; button in the toolbar.</div>
+</li>
+</ol>
+
+<p>
+
+The default android run target uses the default device set in the Android configuration utility. If you set that to a phone you can run the application directly on your phone, the emulator does not support OpenGLES 2.0 and cannot run the engine.
+</p>
+
+<p>
+Optionally, download <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/downloads/detail?name=Jme3Beta1Demo.apk&amp;can=1&amp;q="><param name="text" value="<html><u>Jme3Beta1Demo.apk</u></html>"><param name="textColor" value="blue"></object>
+</p>
+
+</div>
+
+<h4><a>Installing NBAndroid</a></h4>
+<div>
 
 <p>
 Activating the nbandroid plugin in the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> is optional, but recommended. You do not need the nbandroid plugin for Android support to work, however nbandroid will not interfere and will in fact allow you to edit the android source files and project more conveniently. To be able to edit, extend and code android-specific code in Android projects, install NBAndroid from the update center:
@@ -150,37 +196,6 @@ Activating the nbandroid plugin in the jMonkeyEngine <acronym title="Software De
 <li><div> Install the NbAndroid plugin. (Will show up as Android)</div>
 </li>
 </ol>
-
-<p>
-
-Restart the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym>.
-</p>
-
-</div>
-
-<h4><a>Build and Run</a></h4>
-<div>
-
-<p>
-
-Open your game project in the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym>.
-</p>
-<ol>
-<li><div> Right-click the project node and choose Set Main Project.</div>
-</li>
-<li><div> Right-click the project node to build your project. <br/>
-An APK file is created in the &quot;dist&quot; folder.</div>
-</li>
-<li><div> (Right-click and run the project. The default run target uses the default device set in the Android configuration utility. If you set that to a phone you can run the application directly on your phone!)</div>
-</li>
-<li><div> Alternatively, select the &quot;Android Device&quot; build configuration next to the Run toolbar button. You can run the project on the emulator (in theory – the emulator doesn’t support OpenGL 2.0 yet?)</div>
-</li>
-</ol>
-
-<p>
-
-Optionally, download <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/downloads/detail?name=Jme3Beta1Demo.apk&amp;can=1&amp;q="><param name="text" value="<html><u>Jme3Beta1Demo.apk</u></html>"><param name="textColor" value="blue"></object>
-</p>
 
 </div>
 
