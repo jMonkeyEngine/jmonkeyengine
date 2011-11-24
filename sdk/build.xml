@@ -334,7 +334,7 @@ for coding and for managing and creating game assets.
     </target>
     
     <target name="-upload-googlecode" depends="-check-googlecode" if="googlecode.credentials.present">
-        <property file="../../googlecode.properties" prefix="googlecode"/>
+        <property file="../../../googlecode.properties" prefix="googlecode"/>
         <echo>Upload windows installer to googlecode..</echo>
         <gcupload projectname="jmonkeyengine"
                   labels="Type-Installer OpSys-Windows jMonkeyEngine3 Featured"
