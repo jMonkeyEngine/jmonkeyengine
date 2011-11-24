@@ -365,7 +365,7 @@ for coding and for managing and creating game assets.
     </target> 
     
     <target name="-check-googlecode">
-        <available file="../../googlecode.properties" property="googlecode.credentials.present"/>
+        <available file="../../../googlecode.properties" property="googlecode.credentials.present"/>
     </target> 
     
     
