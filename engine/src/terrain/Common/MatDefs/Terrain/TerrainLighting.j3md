@@ -22,7 +22,7 @@ MaterialDef Terrain Lighting {
         Color Specular
 
         // Specular power/shininess
-        Float Shininess : 0
+        Float Shininess : 1
 
         // Texture map #0
         Texture2D DiffuseMap
