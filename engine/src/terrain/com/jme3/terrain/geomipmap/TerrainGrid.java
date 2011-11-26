@@ -105,7 +105,7 @@ import java.util.concurrent.Callable;
 public class TerrainGrid extends TerrainQuad {
 
     protected static final Logger log = Logger.getLogger(TerrainGrid.class.getCanonicalName());
-    protected Vector3f currentCamCell;
+    protected Vector3f currentCamCell = Vector3f.ZERO;
     protected int quarterSize; // half of quadSize
     protected int quadSize;
     protected HeightMapGrid heightMapGrid;

@@ -762,6 +762,83 @@ public class LODGeomap extends GeoMap {
         }
         store.rewind();
 
+        /*Vector3f rootPoint = new Vector3f();
+        Vector3f rightPoint = new Vector3f();
+        Vector3f leftPoint = new Vector3f();
+        Vector3f topPoint = new Vector3f();
+        Vector3f bottomPoint = new Vector3f();
+
+        // calculate normals for each polygon
+        for (int r = 0; r < getHeight(); r++) {
+            for (int c = 0; c < getWidth(); c++) {
+
+                rootPoint.set(c, getValue(c, r), r);
+                Vector3f normal = new Vector3f();
+                Vector3f normal2 = new Vector3f();
+                Vector3f normal3 = new Vector3f();
+                Vector3f normal4 = new Vector3f();
+
+                if (r == 0) { // first row
+                    if (c == 0) { // first column
+                        rightPoint.set(c + 1, getValue(c + 1, r), r);
+                        bottomPoint.set(c, getValue(c, r + 1), r + 1);
+                        getNormal(bottomPoint, rootPoint, rightPoint, scale, normal);
+                    } else if (c == getWidth() - 1) { // last column
+                        leftPoint.set(c - 1, getValue(c - 1, r), r);
+                        bottomPoint.set(c, getValue(c, r + 1), r + 1);
+                        getNormal(leftPoint, rootPoint, bottomPoint, scale, normal);
+                    } else { // all middle columns
+                        leftPoint.set(c - 1, getValue(c - 1, r), r);
+                        rightPoint.set(c + 1, getValue(c + 1, r), r);
+                        bottomPoint.set(c, getValue(c, r + 1), r + 1);
+                        getNormal(leftPoint, rootPoint, bottomPoint, scale, normal);
+                        getNormal(bottomPoint, rootPoint, rightPoint, scale, normal2);
+                        normal.set(normal.add(normal2).normalize());
+                    }
+                } else if (r == getHeight() - 1) { // last row
+                    if (c == 0) { // first column
+                        topPoint.set(c, getValue(c, r - 1), r - 1);
+                        rightPoint.set(c + 1, getValue(c + 1, r), r);
+                        getNormal(rightPoint, rootPoint, topPoint, scale, normal);
+                    } else if (c == getWidth() - 1) { // last column
+                        topPoint.set(c, getValue(c, r - 1), r - 1);
+                        leftPoint.set(c - 1, getValue(c - 1, r), r);
+                        getNormal(topPoint, rootPoint, leftPoint, scale, normal);
+                    } else { // all middle columns
+                        topPoint.set(c, getValue(c, r - 1), r - 1);
+                        leftPoint.set(c - 1, getValue(c - 1, r), r);
+                        rightPoint.set(c + 1, getValue(c + 1, r), r);
+                        getNormal(topPoint, rootPoint, leftPoint, scale, normal);
+                        getNormal(rightPoint, rootPoint, topPoint, scale, normal2);
+                        normal.set(normal.add(normal2).normalize());
+                    }
+                } else { // all middle rows
+                    if (c == 0) { // first column
+                        topPoint.set(c, getValue(c, r - 1), r - 1);
+                        rightPoint.set(c + 1, getValue(c + 1, r), r);
+                        bottomPoint.set(c, getValue(c, r + 1), r + 1);
+                        getNormal(rightPoint, rootPoint, topPoint, scale, normal);
+                        getNormal(bottomPoint, rootPoint, rightPoint, scale, normal2);
+                        normal.set(normal.add(normal2).normalize());
+                    } else if (c == getWidth() - 1) { // last column
+                        topPoint.set(c, getValue(c, r - 1), r - 1);
+                        leftPoint.set(c - 1, getValue(c - 1, r), r);
+                        bottomPoint.set(c, getValue(c, r + 1), r + 1);
+                        getNormal(topPoint, rootPoint, leftPoint, scale, normal);
+                        getNormal(leftPoint, rootPoint, bottomPoint, scale, normal2);
+                        normal.set(normal.add(normal2).normalize());
+                    } else { // all middle columns
+                        topPoint.set(c, getValue(c, r - 1), r - 1);
+                        leftPoint.set(c - 1, getValue(c - 1, r), r);
+                        rightPoint.set(c + 1, getValue(c + 1, r), r);
+                        bottomPoint.set(c, getValue(c, r + 1), r + 1);
+                        getNormal(topPoint, rootPoint, leftPoint, scale, normal);
+                        getNormal(leftPoint, rootPoint, bottomPoint, scale, normal2);
+                        getNormal(bottomPoint, rootPoint, rightPoint, scale, normal3);
+                        getNormal(rightPoint, rootPoint, topPoint, scale, normal4);
+                        normal.set(normal.add(normal2).add(normal3).add(normal4).normalize());
+                    }
+                }*/
         TempVars vars = TempVars.get();
         
         Vector3f rootPoint = vars.vect1;
@@ -858,23 +935,28 @@ public class LODGeomap extends GeoMap {
         float x1 = firstPoint.x - rootPoint.x;
         float y1 = firstPoint.y - rootPoint.y;
         float z1 = firstPoint.z - rootPoint.z;
+        x1 *= scale.x;
+        y1 *= scale.y;
+        z1 *= scale.z;
         float x2 = secondPoint.x - rootPoint.x;
         float y2 = secondPoint.y - rootPoint.y;
         float z2 = secondPoint.z - rootPoint.z;
+        x2 *= scale.x;
+        y2 *= scale.y;
+        z2 *= scale.z;
         float x3 = (y1 * z2) - (z1 * y2);
         float y3 = (z1 * x2) - (x1 * z2);
         float z3 = (x1 * y2) - (y1 * x2);
-        
-        x3 *= scale.x;
-        y3 *= scale.y;
-        z3 *= scale.z;
         
         float inv = 1.0f / FastMath.sqrt(x3 * x3 + y3 * y3 + z3 * z3);
         store.x = x3 * inv;
         store.y = y3 * inv;
         store.z = z3 * inv;
-        
         return store;
+        
+        /*store.set( firstPoint.subtractLocal(rootPoint).multLocal(scale).crossLocal(secondPoint.subtractLocal(rootPoint).multLocal(scale)).normalizeLocal() );
+        return store;*/
+        
     }
 
     /**
