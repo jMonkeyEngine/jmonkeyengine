@@ -92,6 +92,7 @@ public class TerrainGridAlphaMapTest extends SimpleApplication {
         material = new Material(assetManager, "Common/MatDefs/Terrain/TerrainLighting.j3md");
         material.setBoolean("useTriPlanarMapping", false);
         //material.setBoolean("isTerrainGrid", true);
+        material.setFloat("Shininess", 0.0f);
 
         // GRASS texture
         Texture grass = assetManager.loadTexture("Textures/Terrain/splat/grass.jpg");
@@ -192,11 +193,11 @@ public class TerrainGridAlphaMapTest extends SimpleApplication {
 
             public void tileAttached(Vector3f cell, TerrainQuad quad) {
                 Texture alpha = null;
-                try {
-                    alpha = assetManager.loadTexture("TerrainAlphaTest/alpha_" + (int)cell.x+ "_" + (int)cell.z + ".png");
-                } catch (Exception e) {
+                //try {
+                //    alpha = assetManager.loadTexture("TerrainAlphaTest/alpha_" + (int)cell.x+ "_" + (int)cell.z + ".png");
+                //} catch (Exception e) {
                     alpha = assetManager.loadTexture("TerrainAlphaTest/alpha_default.png");
-                }
+                //}
                 quad.getMaterial().setTexture("AlphaMap", alpha);
                 if (usePhysics) {
                     quad.addControl(new RigidBodyControl(new HeightfieldCollisionShape(quad.getHeightMap(), terrain.getLocalScale()), 0));
@@ -213,7 +214,7 @@ public class TerrainGridAlphaMapTest extends SimpleApplication {
                 updateMarkerElevations();
             }
         });
-        this.terrain.initialize(cam.getLocation());
+        
         this.initKeys();
     
         markers = new Node();

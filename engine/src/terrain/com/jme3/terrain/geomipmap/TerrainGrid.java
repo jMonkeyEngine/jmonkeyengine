@@ -31,6 +31,7 @@
  */
 package com.jme3.terrain.geomipmap;
 
+import com.jme3.bounding.BoundingBox;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.scene.control.UpdateControl;
@@ -50,6 +51,7 @@ import com.jme3.material.Material;
 import com.jme3.math.FastMath;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
+import com.jme3.scene.Spatial;
 import com.jme3.terrain.Terrain;
 import com.jme3.terrain.geomipmap.lodcalc.LodCalculator;
 import com.jme3.terrain.heightmap.HeightMapGrid;
@@ -118,6 +120,7 @@ public class TerrainGrid extends TerrainQuad {
     protected PhysicsSpace space;
     private int cellsLoaded = 0;
     private int[] gridOffset;
+    private boolean runOnce = false;
 
     protected class UpdateQuadCache implements Runnable {
 
@@ -166,7 +169,7 @@ public class TerrainGrid extends TerrainQuad {
 
                             public Object call() throws Exception {
                                 attachQuadAt(newQuad, quadrant, quadCell);
-                                newQuad.resetCachedNeighbours();
+                                //newQuad.resetCachedNeighbours();
                                 return null;
                             }
                         });
@@ -269,6 +272,9 @@ public class TerrainGrid extends TerrainQuad {
 
     }
 
+    /**
+     * @deprecated not needed to be called any more, handled automatically
+     */
     public void initialize(Vector3f location) {
         if (this.material == null) {
             throw new RuntimeException("Material must be set prior to call of initialize");
@@ -293,13 +299,14 @@ public class TerrainGrid extends TerrainQuad {
             gridOffset[1] = Math.round(camCell.z * (size / 2));
             cellsLoaded = 0;
         }
-        if (camCell.x != this.currentCamCell.x || camCell.z != currentCamCell.z) {
+        if (camCell.x != this.currentCamCell.x || camCell.z != currentCamCell.z || !runOnce) {
             // if the camera has moved into a new cell, load new terrain into the visible 4 center quads
             this.updateChildren(camCell);
             for (TerrainGridListener l : this.listeners) {
                 l.gridMoved(camCell);
             }
         }
+        runOnce = true;
         super.update(locations, lodCalculator);
     }
 
@@ -353,6 +360,14 @@ public class TerrainGrid extends TerrainQuad {
             l.tileAttached(quadCell, q);
         }
         updateModelBound();
+        
+        for (Spatial s : getChildren()) {
+            if (s instanceof TerrainQuad) {
+                TerrainQuad tq = (TerrainQuad)s;
+                tq.resetCachedNeighbours();
+                tq.fixNormalEdges(new BoundingBox(tq.getWorldTranslation(), totalSize*2, Float.MAX_VALUE, totalSize*2));
+            }
+        }
     }
 
     @Deprecated

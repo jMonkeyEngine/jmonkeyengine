@@ -97,7 +97,7 @@ public class TerrainGridSerializationTest extends SimpleApplication {
 
             });
         }
-        this.terrain.initialize(cam.getLocation());
+        
         this.initKeys();
     }
 

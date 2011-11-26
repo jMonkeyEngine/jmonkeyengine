@@ -154,7 +154,7 @@ public class TerrainGridTileLoaderTest extends SimpleApplication {
 
             });
         }
-        this.terrain.initialize(cam.getLocation());
+        
         this.initKeys();
     }
 

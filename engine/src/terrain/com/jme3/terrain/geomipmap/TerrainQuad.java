@@ -584,7 +584,7 @@ public class TerrainQuad extends Node implements Terrain {
                     TerrainPatch patch = (TerrainPatch) child;
                     UpdatedTerrainPatch utp = updated.get(patch.getName());
 
-                    if(utp.lodChanged()) {
+                    if(utp != null && utp.lodChanged()) {
                         if (!patch.searchedForNeighboursAlready) {
                             // set the references to the neighbours
                             patch.rightNeighbour = findRightPatch(patch);
@@ -974,6 +974,13 @@ public class TerrainQuad extends Node implements Terrain {
             return true;
         }
         return false;
+    }
+    
+    /**
+     * This will cause all normals for this terrain quad to be recalculated
+     */
+    protected void setNeedToRecalculateNormals() {
+        affectedAreaBBox = new BoundingBox(new Vector3f(0,0,0), size*2, Float.MAX_VALUE, size*2);
     }
 
     public float getHeightmapHeight(Vector2f xz) {

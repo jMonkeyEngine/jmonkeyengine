@@ -158,7 +158,7 @@ public class TerrainGridTest extends SimpleApplication {
 
             });
         }
-        this.terrain.initialize(cam.getLocation());
+        
         this.initKeys();
     }
 

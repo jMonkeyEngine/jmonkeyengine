@@ -138,7 +138,7 @@ public class TerrainFractalGridTest extends SimpleApplication {
 
         this.viewPort.setBackgroundColor(new ColorRGBA(0.7f, 0.8f, 1f, 1f));
 
-        this.terrain.initialize(cam.getLocation());
+        
     }
 
     @Override

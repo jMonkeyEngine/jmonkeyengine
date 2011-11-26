@@ -408,7 +408,7 @@ public class TerrainTestModifyHeight extends SimpleApplication {
         terrain.setMaterial(matTerrain);
         terrain.setLocalTranslation(0, 0, 0);
         terrain.setLocalScale(2f, 1f, 2f);
-        ((TerrainGrid)terrain).initialize(Vector3f.ZERO);
+        
         rootNode.attachChild(this.terrain);
 
         TerrainLodControl control = new TerrainLodControl(this.terrain, getCamera());
