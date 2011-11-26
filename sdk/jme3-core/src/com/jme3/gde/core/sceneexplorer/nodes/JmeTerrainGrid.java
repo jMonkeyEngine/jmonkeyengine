@@ -64,13 +64,6 @@ public class JmeTerrainGrid extends JmeTerrainQuad implements TerrainGridListene
         this.geom = spatial;
         setName(spatial.getName());
         geom.addListener(this);
-        SceneApplication.getApplication().enqueue(new Callable<Void>() {
-
-            public Void call() throws Exception {
-                geom.initialize(SceneApplication.getApplication().getCamera().getLocation());
-                return null;
-            }
-        });
     }
 
     @Override
