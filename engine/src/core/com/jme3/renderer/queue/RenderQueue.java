@@ -294,16 +294,10 @@ public class RenderQueue {
         list.setCamera(cam); // select camera for sorting
         list.sort();
         for (int i = 0; i < list.size(); i++) {
-            Spatial obj = list.get(i);
+            Geometry obj = list.get(i);
             assert obj != null;
-            if (obj instanceof Geometry) {
-                Geometry g = (Geometry) obj;
-                rm.renderGeometry(g);
-                // make sure to reset queue distance
-            }
-            if (obj != null) {
-                obj.queueDistance = Float.NEGATIVE_INFINITY;
-            }
+            rm.renderGeometry(obj);
+            obj.queueDistance = Float.NEGATIVE_INFINITY;
         }
         if (clear) {
             list.clear();
