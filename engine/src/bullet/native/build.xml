@@ -54,9 +54,9 @@
     <target name="build-bullet-natives" description="builds the native bullet library for the platform being run on" depends="">
         <echo message="Updating native jME3-bullet-natives.jar"/>
         <zip basedir="${bullet.output.base}/jarcontent" file="${bullet.output.base}/jME3-bullet-natives.jar" compress="true"/>
-        <zip basedir="${bullet.output.base}/android" file="${bullet.output.base}/jME3-bullet-android-natives.jar" compress="true"/>
+        <zip basedir="${bullet.output.base}/android" file="${bullet.output.base}/jME3-bullet-natives-android.jar" compress="true"/>
         <copy file="${bullet.output.base}/jME3-bullet-natives.jar" todir="dist/opt/native-bullet/lib/"/>
-        <copy file="${bullet.output.base}/jME3-bullet-android-natives.jar" todir="dist/opt/native-bullet/lib/"/>
+        <copy file="${bullet.output.base}/jME3-bullet-natives-android.jar" todir="dist/opt/native-bullet/lib/"/>
     </target>
     
     <target name="create-native-headers" description="creates the native headers">
