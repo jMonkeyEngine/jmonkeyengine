@@ -162,8 +162,6 @@ public class GeoMap implements Savable {
      * @throws NullPointerException If isLoaded() or hasNormalmap() is false
      */
     public FloatBuffer writeNormalArray(FloatBuffer store, Vector3f scale) {
-        if (!isLoaded())
-            throw new NullPointerException();
         
         if (store!=null){
             if (store.remaining() < getWidth()*getHeight()*3)
@@ -241,7 +239,6 @@ public class GeoMap implements Savable {
      * @throws NullPointerException If isLoaded() is false
      */
     public FloatBuffer writeVertexArray(FloatBuffer store, Vector3f scale, boolean center) {
-        if (!isLoaded()) throw new NullPointerException();
 
         if (store!=null){
             if (store.remaining() < width*height*3)
