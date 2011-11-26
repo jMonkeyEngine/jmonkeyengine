@@ -258,7 +258,7 @@
         <delete dir="build/bullet-android/libs" failonerror="false"/>
         <delete dir="build/bullet-android/obj" failonerror="false"/>
         <!-- create the android subdirectory in jarcontent for the libbulletjme.so shared library -->
-        <mkdir dir="${bullet.output.dir}/../../android"/>
+        <mkdir dir="${bullet.output.base}/android"/>
         <!-- create the jni subdirectory -->
         <mkdir dir="build/bullet-android/jni" />
         <!-- copy Android.mk and Application.mk files into jni directory -->
@@ -292,7 +292,7 @@
         </exec>
 
         <!-- copy resulting library directories to jarcontent directory -->
-        <copy todir="${bullet.output.dir}/../../android" verbose="true" flatten="false">
+        <copy todir="${bullet.output.base}/android" verbose="true" flatten="false">
             <fileset dir="build/bullet-android/libs">
                 <include name="**/*.*"/>
                 <include name="**/*.*"/>
