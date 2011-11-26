@@ -53,6 +53,7 @@ import com.jme3.terrain.Terrain;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
 import com.jme3.util.SkyFactory;
+import com.sun.imageio.plugins.common.ImageUtil;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.io.File;
@@ -95,7 +96,7 @@ public class TerrainEditorController implements NodeListener {
     public static final int NUM_ALPHA_TEXTURES = 3;
     protected final int MAX_DIFFUSE = 12;
     protected final int MAX_TEXTURES = 16-NUM_ALPHA_TEXTURES; // 16 max (diffuse and normal), minus the ones we are reserving
-    
+
     
     class TerrainSaveCookie implements SaveCookie {
         JmeSpatial rootNode;
@@ -213,7 +214,7 @@ public class TerrainEditorController implements NodeListener {
         
         return null;
     }
-
+    
     /**
      * Perform the actual height modification on the terrain.
      * @param worldLoc the location in the world where the tool was activated
@@ -454,7 +455,7 @@ public class TerrainEditorController implements NodeListener {
         String path = texturePath;
         if (texturePath == null || texturePath.equals(""))
             path = DEFAULT_TERRAIN_TEXTURE;
-
+        
         Texture tex = SceneApplication.getApplication().getAssetManager().loadTexture(path);
         setDiffuseTexture(layer, tex);
     }
@@ -1024,6 +1025,108 @@ public class TerrainEditorController implements NodeListener {
             }
         }
     }
+    
+     protected void setShininess(final float shininess) {
+        if (SceneApplication.getApplication().isOgl()) {
+            Terrain terrain = (Terrain) getTerrain(null);
+            if (terrain == null)
+                return;
+
+            terrain.getMaterial().setFloat("Shininess", shininess);
+            
+            setNeedsSave(true);
+        } else {
+            SceneApplication.getApplication().enqueue(new Callable<Object>() {
+
+                public Object call() throws Exception {
+                    setShininess(shininess);
+                    return null;
+                }
+            });
+        }
+    }
+     
+      protected float getShininess() {
+        if (SceneApplication.getApplication().isOgl()) {
+            Terrain terrain = (Terrain) getTerrain(null);
+            if (terrain == null)
+                return 0;
+
+            MatParam param = terrain.getMaterial().getParam("Shininess");
+            if (param != null)
+                return (Float)param.getValue();
+            
+                return 0;
+        } else {
+            try {
+                Float shininess = SceneApplication.getApplication().enqueue(new Callable<Float>() {
+
+                    public Float call() throws Exception {
+                        return getShininess();
+                    }
+                }).get();
+                return shininess;
+            } catch (InterruptedException ex) {
+                Exceptions.printStackTrace(ex);
+            } catch (ExecutionException ex) {
+                Exceptions.printStackTrace(ex);
+            }
+            return 0;
+        }
+    }
+      
+    protected void setWardIsoEnabled(final boolean enabled) {
+        if (SceneApplication.getApplication().isOgl()) {
+            Terrain terrain = (Terrain) getTerrain(null);
+            if (terrain == null)
+                return;
+            terrain.getMaterial().setBoolean("WardIso", enabled);
+
+            setNeedsSave(true);
+        } else {
+            try {
+                SceneApplication.getApplication().enqueue(new Callable() {
+                    public Object call() throws Exception {
+                        setWardIsoEnabled(enabled);
+                        return null;
+                    }
+                }).get();
+            } catch (InterruptedException ex) {
+                Exceptions.printStackTrace(ex);
+            } catch (ExecutionException ex) {
+                Exceptions.printStackTrace(ex);
+            }
+        }
+    }
+    
+    protected boolean isWardIsoEnabled() {
+        if (SceneApplication.getApplication().isOgl()) {
+            Terrain terrain = (Terrain) getTerrain(null);
+            if (terrain == null)
+                return false;
+            MatParam param = terrain.getMaterial().getParam("WardIso");
+            if (param != null)
+                return (Boolean)param.getValue();
+
+            return false;
+        } else {
+            try {
+                Boolean isEnabled =
+                SceneApplication.getApplication().enqueue(new Callable<Boolean>() {
+                    public Boolean call() throws Exception {
+                        return isWardIsoEnabled();
+                    }
+                }).get();
+                return isEnabled;
+            } catch (InterruptedException ex) {
+                Exceptions.printStackTrace(ex);
+            } catch (ExecutionException ex) {
+                Exceptions.printStackTrace(ex);
+            }
+            return false;
+        }
+    }
+    
 
     public void propertyChange(PropertyChangeEvent ev) {
         if (ev.getNewValue() == null && ev.getOldValue() != null) {

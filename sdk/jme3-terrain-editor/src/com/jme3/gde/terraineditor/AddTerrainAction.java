@@ -152,6 +152,7 @@ public class AddTerrainAction extends AbstractNewSpatialWizardAction {
         mat.setTexture("DiffuseMap", dirtTexture);
         mat.setFloat("DiffuseMap_0_scale", TerrainEditorController.DEFAULT_TEXTURE_SCALE);
         mat.setBoolean("WardIso", true);
+        mat.setFloat("Shininess", 0.01f);
 
         ((Node)terrain).setMaterial(mat);
         ((Node)terrain).setModelBound(new BoundingBox());
