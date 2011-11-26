@@ -23,19 +23,43 @@
     </target>
     
     <target name="-copy-android-libs" if="is.android.enabled">
-        <property name="libs.jme3-android" location="${libs.jme3-android.classpath}"/>
+        <!--property name="libs.jme3-android" location="${libs.jme3-android.classpath}"/-->
         <delete dir="mobile/libs" failonerror="false"/>
         <mkdir dir="mobile/libs"/>
         <copy todir="mobile/libs" verbose="false" flatten="true">
             <fileset dir="dist/lib/">
                 <exclude name="jMonkeyEngine3.jar"/>
                 <exclude name="jME3-lwjgl-natives.jar"/>
+                <exclude name="jME3-bullet-natives.jar"/>
+                <exclude name="jME3-jbullet.jar"/>
+                <exclude name="jME3-bullet.jar"/>
+                <exclude name="jbullet.jar"/>
+                <exclude name="stack-alloc.jar"/>
+                <exclude name="vecmath.jar"/>
                 <exclude name="lwjgl.jar"/>
                 <exclude name="jinput.jar"/>
             </fileset>
         </copy>
-        <copy file="${libs.jme3-android}" tofile="mobile/libs/jMonkeyEngine3.jar" verbose="false"/>
+
+        <copy todir="mobile/libs" flatten="true">
+            <mapper type="flatten" from="*jMonkeyEngine-android.jar" to="jMonkeyEngine.jar"/>
+            <path>
+                <pathelement path="${libs.jme3-android.classpath}"/>
+            </path>
+        </copy>
+        <antcall target="-delete-bullet-libs"/>
         <copy file="${dist.jar}" todir="mobile/libs/" verbose="false"/>
+    </target>
+    
+    <target name="-delete-bullet-libs" depends="-test-bullet-included" unless="bulletIsIncluded">
+        <delete file="mobile/libs/jME3-bullet.jar"/>
+        <delete file="mobile/libs/jME3-bullet-natives-android.jar"/>
+    </target>
+    
+    <target name="-test-bullet-included">
+        <condition property="bulletIsIncluded">
+            <contains string="${javac.classpath}" substring="bullet.jar"/>
+        </condition>
     </target>
 
     <target name="-flag-no-android">

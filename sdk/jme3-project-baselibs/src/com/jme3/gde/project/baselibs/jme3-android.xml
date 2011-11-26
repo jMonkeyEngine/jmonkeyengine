@@ -11,6 +11,8 @@ and open the template in the editor.
     <volume>
         <type>classpath</type>
         <resource>jar:nbinst://com.jme3.gde.project.baselibs/libs/jMonkeyEngine3-android.jar!/</resource>
+        <resource>jar:nbinst://com.jme3.gde.project.baselibs/libs/jME3-bullet-natives-android.jar!/</resource>
+        <resource>jar:nbinst://com.jme3.gde.project.baselibs/libs/jME3-bullet.jar!/</resource>
     </volume>
     <volume>
         <type>src</type>
