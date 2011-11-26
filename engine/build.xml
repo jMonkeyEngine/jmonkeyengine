@@ -201,6 +201,7 @@
             <include name="**/jME3-jbullet.jar"/>
             <include name="**/jME3-bullet.jar"/>
             <include name="**/jME3-bullet-natives.jar"/>
+            <include name="**/jME3-bullet-natives-android.jar"/>
         </fileset>
 
         <!--clear old files-->

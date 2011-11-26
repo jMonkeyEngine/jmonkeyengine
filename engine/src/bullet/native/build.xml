@@ -35,6 +35,10 @@
         <os arch="x86_64" />
     </condition>
     
+    <condition property="ndk-build-name" value="ndk-build.cmd" else="ndk-build">
+        <os family="windows" />
+    </condition>
+    
     <fileset id="lib.jars" dir="${bullet.lib.dir}">
         <include name="**/*.jar"/>
     </fileset>
@@ -47,10 +51,12 @@
         <fileset refid="lib.jme.jars"/>
     </pathconvert>
 
-    <target name="build-bullet-natives" description="builds the native bullet library for the platform being run on" depends="-create-folders, create-native-headers, -nativelib-osx, -nativelib-windows, -nativelib-linux, -nativelib-solaris">
+    <target name="build-bullet-natives" description="builds the native bullet library for the platform being run on" depends="">
         <echo message="Updating native jME3-bullet-natives.jar"/>
         <zip basedir="${bullet.output.base}/jarcontent" file="${bullet.output.base}/jME3-bullet-natives.jar" compress="true"/>
+        <zip basedir="${bullet.output.base}/android" file="${bullet.output.base}/jME3-bullet-android-natives.jar" compress="true"/>
         <copy file="${bullet.output.base}/jME3-bullet-natives.jar" todir="dist/opt/native-bullet/lib/"/>
+        <copy file="${bullet.output.base}/jME3-bullet-android-natives.jar" todir="dist/opt/native-bullet/lib/"/>
     </target>
     
     <target name="create-native-headers" description="creates the native headers">
@@ -245,4 +251,59 @@
         </cc>
         <delete file="${bullet.output.dir}/windows/history.xml"/>
     </target>
+
+    <target name="-nativelib-android" depends="-check-android-ndk" if="haveAndoidNdk">
+        <!-- delete previous android jni, libs, and obj subdirectories for a clean start -->
+        <delete dir="build/bullet-android/jni" failonerror="false"/>
+        <delete dir="build/bullet-android/libs" failonerror="false"/>
+        <delete dir="build/bullet-android/obj" failonerror="false"/>
+        <!-- create the android subdirectory in jarcontent for the libbulletjme.so shared library -->
+        <mkdir dir="${bullet.output.dir}/../../android"/>
+        <!-- create the jni subdirectory -->
+        <mkdir dir="build/bullet-android/jni" />
+        <!-- copy Android.mk and Application.mk files into jni directory -->
+        <copy file="${bullet.source.dir}/android/Android.mk" todir="build/bullet-android/jni" verbose="true"/>
+        <copy file="${bullet.source.dir}/android/Application.mk" todir="build/bullet-android/jni" verbose="true"/>
+
+        <!-- copy edited version of jmePhysicsSpace to remove NDK compile error -->
+        <copy file="${bullet.source.dir}/android/jmePhysicsSpace.cpp" todir="build/bullet-android/jni" verbose="true"/>
+
+        <!-- copy jME3 Native Bullet files into jni directory -->
+        <copy todir="build/bullet-android/jni" verbose="true" flatten="false">
+            <fileset dir="${bullet.source.dir}">
+                <include name="*.cpp" />
+                <include name="*.h" />
+               <!-- skip jmePhysicsSpace (use edited one) to remove NDK compile error -->
+                <exclude name="jmePhysicsSpace.cpp" />
+            </fileset>
+        </copy>
+
+        <!-- copy Bullet-2.79 files into jni directory -->
+        <copy todir="build/bullet-android/jni" verbose="true" flatten="false">
+            <fileset dir="${bullet.bullet.include}">
+                <include name="**/*.cpp"/>
+                <include name="**/*.h"/>
+                <include name="**/*.cl"/>
+            </fileset>
+        </copy>
+
+        <exec executable="${ndk.dir}/${ndk-build-name}" failonerror="true" >
+            <arg line="-C build/bullet-android/"/>
+        </exec>
+
+        <!-- copy resulting library directories to jarcontent directory -->
+        <copy todir="${bullet.output.dir}/../../android" verbose="true" flatten="false">
+            <fileset dir="build/bullet-android/libs">
+                <include name="**/*.*"/>
+                <include name="**/*.*"/>
+                <!--exclude name="**/x86/*.*"/-->
+            </fileset>
+        </copy>
+
+    </target>
+    
+    <target name="-check-android-ndk">
+        <available file="${ndk.dir}/${ndk-build-name}" property="haveAndoidNdk"/>
+    </target>
+    
 </project>
