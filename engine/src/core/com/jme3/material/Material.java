@@ -202,6 +202,14 @@ public class Material implements Asset, Cloneable, Savable, Comparable<Material>
         return m.getSortId() - getSortId();
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if(obj instanceof Material){
+            return ((Material)obj).compareTo(this) == 0;
+        }
+        return super.equals(obj);
+    }
+    
     /**
      * Clones this material. The result is returned.
      */
@@ -331,10 +339,7 @@ public class Material implements Asset, Cloneable, Savable, Comparable<Material>
      */
     public MatParam getParam(String name) {
         MatParam param = paramValues.get(name);
-        if (param instanceof MatParam) {
-            return (MatParam) param;
-        }
-        return null;
+        return param;
     }
 
     /**
