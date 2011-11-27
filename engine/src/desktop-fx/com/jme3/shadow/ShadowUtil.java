@@ -177,7 +177,7 @@ public class ShadowUtil {
             BoundingVolume vol = list.get(i).getWorldBound();
             BoundingVolume newVol = vol.transform(transform);
             //Nehon : prevent NaN and infinity values to screw the final bounding box
-            if (!Float.isNaN(newVol.getCenter().x) && newVol.getCenter().x != Float.POSITIVE_INFINITY && newVol.getCenter().x != Float.NEGATIVE_INFINITY) {
+            if (!Float.isNaN(newVol.getCenter().x) && !Float.isInfinite(newVol.getCenter().x)) {
                 bbox.mergeLocal(newVol);
             }
         }
