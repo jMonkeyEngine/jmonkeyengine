@@ -110,6 +110,13 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
     protected boolean isGLThreadPaused = true;
     final private String ESCAPE_EVENT = "TouchEscape";
 
+    static {
+        try {
+            System.loadLibrary("bulletjme");
+        } catch (UnsatisfiedLinkError e) {
+        }
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
