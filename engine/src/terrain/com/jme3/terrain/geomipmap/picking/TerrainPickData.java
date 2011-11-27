@@ -68,4 +68,12 @@ public class TerrainPickData implements Comparable {
         return 0;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if(obj instanceof TerrainPickData){
+            return ((TerrainPickData)obj).compareTo(this) == 0;
+        }
+        return super.equals(obj);
+    }
+    
 }

@@ -107,6 +107,14 @@ public class CollisionResult implements Comparable<CollisionResult> {
             return 0;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if(obj instanceof CollisionResult){
+            return ((CollisionResult)obj).compareTo(this) == 0;
+        }
+        return super.equals(obj);
+    }
+    
     public Vector3f getContactPoint() {
         return contactPoint;
     }
