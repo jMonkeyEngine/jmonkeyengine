@@ -137,12 +137,13 @@
         <mkdir dir="${bullet.source.dir}"/>
         <mkdir dir="${bullet.build.dir}"/>
         <mkdir dir="${bullet.output.dir}"/>
+        <mkdir dir="build/bullet-native"/>
     </target>
     
     <target name="-nativelib-osx" if="isMac">
         <echo message="Building MacOSX version of native bullet"/>
         <mkdir dir="${bullet.output.dir}/macosx"/>
-        <cc name="${bullet.osx.compiler}" warnings="none" debug="${bullet.compile.debug}" link="shared" outfile="${bullet.output.dir}/macosx/${bullet.library.name}" objdir="${bullet.build.dir}">
+        <cc name="${bullet.osx.compiler}" warnings="none" debug="${bullet.compile.debug}" link="shared" outfile="${bullet.output.dir}/macosx/${bullet.library.name}" objdir="build/bullet-native">
             <fileset dir="${bullet.source.dir}">
                 <include name="*.cpp">
                 </include>
@@ -177,7 +178,7 @@
     <target name="-nativelib-linux" if="isLinux">
         <echo message="Building Linux version of native bullet"/>
         <mkdir dir="${bullet.output.dir}/linux"/>
-        <cc name="${bullet.linux.compiler}" warnings="severe" debug="${bullet.compile.debug}" link="shared" outfile="${bullet.output.dir}/linux/${bullet.library.name}" objdir="${bullet.build.dir}">
+        <cc name="${bullet.linux.compiler}" warnings="severe" debug="${bullet.compile.debug}" link="shared" outfile="${bullet.output.dir}/linux/${bullet.library.name}" objdir="build/bullet-native">
             <fileset dir="${bullet.source.dir}">
                 <include name="*.cpp">
                 </include>
@@ -202,7 +203,7 @@
     <target name="-nativelib-solaris" if="isSolaris">
         <echo message="Building Solaris version of native bullet"/>
         <mkdir dir="${bullet.output.dir}/linux"/>
-        <cc name="${bullet.solaris.compiler}" warnings="severe" debug="${bullet.compile.debug}" link="shared" outfile="${bullet.output.dir}/solaris/${bullet.library.name}" objdir="${bullet.build.dir}">
+        <cc name="${bullet.solaris.compiler}" warnings="severe" debug="${bullet.compile.debug}" link="shared" outfile="${bullet.output.dir}/solaris/${bullet.library.name}" objdir="build/bullet-native">
             <fileset dir="${bullet.source.dir}">
                 <include name="*.cpp">
                 </include>
@@ -233,7 +234,7 @@
     <target name="-nativelib-windows" if="isWindows">
         <echo message="Building Windows version of native bullet"/>
         <mkdir dir="${bullet.output.dir}/windows"/>
-        <cc multithreaded="" name="${bullet.windows.compiler}" warnings="none" debug="${bullet.compile.debug}" outtype="shared" outfile="${bullet.output.dir}/windows/${bullet.library.name}" objdir="${bullet.build.dir}">
+        <cc multithreaded="" name="${bullet.windows.compiler}" warnings="none" debug="${bullet.compile.debug}" outtype="shared" outfile="${bullet.output.dir}/windows/${bullet.library.name}" objdir="build/bullet-native">
             <fileset dir="${bullet.source.dir}">
                 <include name="*.cpp">
                 </include>
