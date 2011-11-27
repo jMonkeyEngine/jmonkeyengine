@@ -89,8 +89,8 @@
                       <Component id="materialPreviewWidget1" min="-2" pref="120" max="-2" attributes="0"/>
                       <EmptySpace min="-2" pref="32" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="jToolBar3" alignment="0" pref="612" max="32767" attributes="1"/>
-                          <Component id="jToolBar2" alignment="0" pref="612" max="32767" attributes="1"/>
+                          <Component id="jToolBar3" alignment="0" pref="596" max="32767" attributes="1"/>
+                          <Component id="jToolBar2" alignment="0" pref="596" max="32767" attributes="1"/>
                           <Group type="102" alignment="1" attributes="0">
                               <Component id="jCheckBox1" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
@@ -100,7 +100,7 @@
                   <Group type="102" attributes="0">
                       <Component id="jTabbedPane3" min="-2" pref="223" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jTabbedPane2" pref="535" max="32767" attributes="0"/>
+                      <Component id="jTabbedPane2" pref="525" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -120,8 +120,8 @@
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="1" attributes="0">
-                          <Component id="jTabbedPane2" pref="338" max="32767" attributes="0"/>
-                          <Component id="jTabbedPane3" pref="338" max="32767" attributes="0"/>
+                          <Component id="jTabbedPane2" pref="326" max="32767" attributes="0"/>
+                          <Component id="jTabbedPane3" pref="326" max="32767" attributes="0"/>
                       </Group>
                   </Group>
               </Group>
@@ -276,12 +276,12 @@
                   <Layout>
                     <DimensionLayout dim="0">
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <EmptySpace min="0" pref="276" max="32767" attributes="0"/>
+                          <EmptySpace min="0" pref="157" max="32767" attributes="0"/>
                       </Group>
                     </DimensionLayout>
                     <DimensionLayout dim="1">
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <EmptySpace min="0" pref="23" max="32767" attributes="0"/>
+                          <EmptySpace min="0" pref="21" max="32767" attributes="0"/>
                       </Group>
                     </DimensionLayout>
                   </Layout>
@@ -353,7 +353,7 @@
                     </DimensionLayout>
                     <DimensionLayout dim="1">
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <EmptySpace min="0" pref="23" max="32767" attributes="0"/>
+                          <EmptySpace min="0" pref="21" max="32767" attributes="0"/>
                       </Group>
                     </DimensionLayout>
                   </Layout>
