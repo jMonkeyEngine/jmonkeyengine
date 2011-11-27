@@ -160,7 +160,9 @@ public class Natives {
                 out.write(buf, 0, len);
             }
             in.close();
+            in = null;
             out.close();
+            out = null;
 
             // NOTE: On OSes that support "Date Created" property, 
             // this will cause the last modified date to be lower than
@@ -175,6 +177,9 @@ public class Natives {
         } finally {
             if (load) {
                 System.load(targetFile.getAbsolutePath());
+            }
+            if(in != null){
+                in.close();
             }
             if(out != null){
                 out.close();
