@@ -139,7 +139,7 @@ public class Natives {
         URLConnection conn = url.openConnection();
         InputStream in = conn.getInputStream();
         File targetFile = new File(getExtractionDir(), fullname);
-
+        OutputStream out = null;
         try {
             if (targetFile.exists()) {
                 // OK, compare last modified date of this file to 
@@ -154,7 +154,7 @@ public class Natives {
                 }
             }
 
-            OutputStream out = new FileOutputStream(targetFile);
+            out = new FileOutputStream(targetFile);
             int len;
             while ((len = in.read(buf)) > 0) {
                 out.write(buf, 0, len);
@@ -175,6 +175,9 @@ public class Natives {
         } finally {
             if (load) {
                 System.load(targetFile.getAbsolutePath());
+            }
+            if(out != null){
+                out.close();
             }
         }
         logger.log(Level.FINE, "Copied {0} to {1}", new Object[]{fullname, targetFile});
