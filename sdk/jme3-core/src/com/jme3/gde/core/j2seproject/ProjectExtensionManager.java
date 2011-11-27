@@ -142,11 +142,11 @@ public class ProjectExtensionManager {
                         ext.addDependency(target, extension);
                     }
                 }
-                try {
-                    ProjectManager.getDefault().saveProject(proj);
-                } catch (IOException ex) {
-                    Exceptions.printStackTrace(ex);
-                }
+//                try {
+//                    ProjectManager.getDefault().saveProject(proj);
+//                } catch (IOException ex) {
+//                    Exceptions.printStackTrace(ex);
+//                }
                 addAntTaskLibrary(proj, antTaskLibrary);
                 try {
                     addZipContents(proj.getProjectDirectory());
@@ -187,7 +187,7 @@ public class ProjectExtensionManager {
                         assetsBuildFile.delete();
                     }
                     Logger.getLogger(ProjectExtensionManager.class.getName()).log(Level.INFO, "Saving project {0}", proj.getProjectDirectory().getName());
-                    ProjectManager.getDefault().saveProject(proj);
+//                    ProjectManager.getDefault().saveProject(proj);
                 } catch (IOException ex) {
                     Exceptions.printStackTrace(ex);
                 }
@@ -394,7 +394,7 @@ public class ProjectExtensionManager {
             if (extender != null) {
                 LibraryManager.getDefault();
                 extender.addLibrary(LibraryManager.getDefault().getLibrary(name));
-                ProjectManager.getDefault().saveProject(proj);
+//                ProjectManager.getDefault().saveProject(proj);
             }
 
         } catch (Exception e) {
@@ -411,7 +411,7 @@ public class ProjectExtensionManager {
             if (extender != null) {
                 LibraryManager.getDefault();
                 extender.removeLibrary(LibraryManager.getDefault().getLibrary(name));
-                ProjectManager.getDefault().saveProject(proj);
+//                ProjectManager.getDefault().saveProject(proj);
             }
         } catch (IOException ex) {
             Exceptions.printStackTrace(ex);
