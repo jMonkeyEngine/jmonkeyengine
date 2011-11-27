@@ -89,6 +89,7 @@
         <!--move file="bullet-api-diff.html" todir="dist/opt/native-bullet" overwrite="true"/-->
         <move file="dist/lib/jME3-bullet.jar" todir="dist/opt/native-bullet/lib" overwrite="true"/>
         <move file="dist/lib/jME3-bullet-natives.jar" todir="dist/opt/native-bullet/lib" overwrite="true"/>
+        <move file="lib/bullet/jME3-bullet-natives-android.jar" todir="dist/opt/native-bullet/lib" overwrite="true"/>
 
         <!--android-->
         <mkdir dir="dist/opt/android"/>
