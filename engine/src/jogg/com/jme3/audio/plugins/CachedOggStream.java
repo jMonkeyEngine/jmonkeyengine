@@ -81,7 +81,7 @@ public class CachedOggStream implements PhysicalOggStream {
     }
     
     private LogicalOggStream getLogicalStream(int serialNumber) {
-        return logicalStreams.get(new Integer(serialNumber));
+        return logicalStreams.get(Integer.valueOf(serialNumber));
     }
 
     public Collection<LogicalOggStream> getLogicalStreams() {
