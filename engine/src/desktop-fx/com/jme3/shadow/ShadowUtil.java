@@ -177,7 +177,7 @@ public class ShadowUtil {
             BoundingVolume vol = list.get(i).getWorldBound();
             BoundingVolume newVol = vol.transform(transform);
             //Nehon : prevent NaN and infinity values to screw the final bounding box
-            if (newVol.getCenter().x != Float.NaN && newVol.getCenter().x != Float.POSITIVE_INFINITY && newVol.getCenter().x != Float.NEGATIVE_INFINITY) {
+            if (!Float.isNaN(newVol.getCenter().x) && newVol.getCenter().x != Float.POSITIVE_INFINITY && newVol.getCenter().x != Float.NEGATIVE_INFINITY) {
                 bbox.mergeLocal(newVol);
             }
         }
@@ -197,7 +197,7 @@ public class ShadowUtil {
             BoundingVolume vol = list.get(i).getWorldBound();
             store = vol.clone().transform(mat, null);
             //Nehon : prevent NaN and infinity values to screw the final bounding box
-            if (store.getCenter().x != Float.NaN && store.getCenter().x != Float.POSITIVE_INFINITY && store.getCenter().x != Float.NEGATIVE_INFINITY) {
+            if (!Float.isNaN(store.getCenter().x) && store.getCenter().x != Float.POSITIVE_INFINITY && store.getCenter().x != Float.NEGATIVE_INFINITY) {
                 bbox.mergeLocal(store);
             }
         }
