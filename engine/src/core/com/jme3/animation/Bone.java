@@ -469,6 +469,12 @@ public final class Bone implements Savable {
         // TODO: add scale here ???
         worldPos.set(translation);
         worldRot.set(rotation);
+        
+        //if there is an attached Node we need to set it's local transforms too.
+        if(attachNode != null){
+            attachNode.setLocalTranslation(translation);
+            attachNode.setLocalRotation(rotation);
+        }
     }
 
     /**
