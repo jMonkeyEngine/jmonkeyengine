@@ -24,7 +24,6 @@
     </target>
     
     <target name="-copy-android-libs" if="is.android.enabled">
-        <!--property name="libs.jme3-android" location="${libs.jme3-android.classpath}"/-->
         <echo>Copying application libraries to android project.</echo>
         <delete dir="mobile/libs" failonerror="false"/>
         <mkdir dir="mobile/libs"/>
@@ -45,7 +44,6 @@
 
         <echo>Adding jMonkeyEngine3.jar for android.</echo>
         <copy todir="mobile/libs" flatten="true">
-            <!--mapper type="flatten" from="*jMonkeyEngine-android.jar" to="jMonkeyEngine.jar"/-->
             <path>
                 <pathelement path="${libs.jme3-android.classpath}"/>
             </path>
@@ -54,16 +52,16 @@
         <copy file="${dist.jar}" todir="mobile/libs/" verbose="false"/>
     </target>
     
-    <target name="-delete-bullet-libs" depends="-test-bullet-included" unless="bulletIsIncluded">
-        <delete file="mobile/libs/jME3-bullet.jar"/>
-        <delete file="mobile/libs/jME3-bullet-natives-android.jar"/>
-    </target>
-    
     <target name="-unzip-bullet-libs" depends="-delete-bullet-libs" if="bulletIsIncluded">
         <echo>Replacing bullet library with android native version.</echo>
         <unzip src="mobile/libs/jME3-bullet-natives-android.jar" dest="mobile/libs"/>
         <delete file="mobile/libs/jME3-bullet-natives-android.jar"/>
         <delete dir="mobile/libs/x86"/>
+    </target>
+    
+    <target name="-delete-bullet-libs" depends="-test-bullet-included" unless="bulletIsIncluded">
+        <delete file="mobile/libs/jME3-bullet.jar"/>
+        <delete file="mobile/libs/jME3-bullet-natives-android.jar"/>
     </target>
     
     <target name="-test-bullet-included">
@@ -77,7 +75,7 @@
         <exec executable="${sdk.dir}${android-adb-name}" failonerror="true">
             <arg value="start-server"/>
         </exec>
-        <echo>Waiting for device to be ready.. Connect your device or start the emulator if not done yet.</echo>
+        <echo>Waiting for device to be ready.. Connect your device now if its not connected yet.</echo>
         <exec executable="${sdk.dir}${android-adb-name}" failonerror="true">
             <arg value="wait-for-device"/>
         </exec>
@@ -93,10 +91,9 @@
             <arg value="shell"/>
             <arg value="am start -n ${mobile.android.package}/.MainActivity"/>
         </exec>
-        <echo>Logging android device output, cancel build or stop device to stop logging.</echo>
+        <echo>Logging android device output, cancel build or disconnect device to stop logging.</echo>
         <exec executable="${sdk.dir}${android-adb-name}" failonerror="true">
             <arg value="logcat"/>
-            <arg value="-s"/>
             <arg value="AndroidRuntime:E"/>
             <arg value="System.out:I"/>
             <arg value="System.err:W"/>
