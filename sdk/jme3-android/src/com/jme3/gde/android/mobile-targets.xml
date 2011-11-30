@@ -1,6 +1,13 @@
+    <condition property="android-adb-name" value="${file.separator}platform-tools${file.separator}adb.exe" else="${file.separator}platform-tools${file.separator}adb">
+        <os family="windows" />
+    </condition>
+    
     <target name="run-android" depends="-flag-no-android, jar, -test-android-enabled, -copy-android-libs" if="is.android.enabled">
+        <echo>Building debug android application version.</echo>
         <ant dir="mobile" target="debug"/>
+        <antcall target="-start-android-device"/>
         <ant dir="mobile" target="installd"/>
+        <antcall target="-run-android-device"/>
     </target>
     
     <target name="clean-android">
@@ -14,12 +21,6 @@
                 <include name="**/*.apk"/>
             </fileset>
         </copy>
-    </target>
-    
-    <target name="-test-android-enabled">
-        <condition property="is.android.enabled">
-            <istrue value="${mobile.android.enabled}"/>
-        </condition>
     </target>
     
     <target name="-copy-android-libs" if="is.android.enabled">
@@ -71,6 +72,44 @@
         </condition>
     </target>
 
+    <target name="-start-android-device">
+        <property file="mobile/local.properties"/>
+        <exec executable="${sdk.dir}${android-adb-name}" failonerror="true">
+            <arg value="start-server"/>
+        </exec>
+        <echo>Waiting for device to be ready.. Connect your device or start the emulator if not done yet.</echo>
+        <exec executable="${sdk.dir}${android-adb-name}" failonerror="true">
+            <arg value="wait-for-device"/>
+        </exec>
+    </target>
+    
+    <target name="-run-android-device">
+        <property file="mobile/local.properties"/>
+        <exec executable="${sdk.dir}${android-adb-name}" failonerror="true">
+            <arg value="logcat"/>
+            <arg value="-c"/>
+        </exec>
+        <exec executable="${sdk.dir}${android-adb-name}" failonerror="true">
+            <arg value="shell"/>
+            <arg value="am start -n ${mobile.android.package}/.MainActivity"/>
+        </exec>
+        <echo>Logging android device output, cancel build or stop device to stop logging.</echo>
+        <exec executable="${sdk.dir}${android-adb-name}" failonerror="true">
+            <arg value="logcat"/>
+            <arg value="-s"/>
+            <arg value="AndroidRuntime:E"/>
+            <arg value="System.out:I"/>
+            <arg value="System.err:W"/>
+            <arg value="NSLog:*"/>
+        </exec>
+    </target>
+    
+    <target name="-test-android-enabled">
+        <condition property="is.android.enabled">
+            <istrue value="${mobile.android.enabled}"/>
+        </condition>
+    </target>
+    
     <target name="-flag-no-android">
         <property name="no.android.build" value="true"/>
     </target>
