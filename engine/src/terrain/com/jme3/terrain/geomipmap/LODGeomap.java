@@ -660,29 +660,39 @@ public class LODGeomap extends GeoMap {
         Vector2f t2 = new Vector2f();
         Vector2f t3 = new Vector2f();
 
-        scale = Vector3f.UNIT_XYZ;
+        //scale = Vector3f.UNIT_XYZ;
 
         for (int r = 0; r < getHeight(); r++) {
             for (int c = 0; c < getWidth(); c++) {
 
                 int texIdx = ((getHeight() - 1 - r) * getWidth() + c) * 2; // pull from the end
-                int texIdxPrev = ((getHeight() - 1 - (r - 1)) * getWidth() + c) * 2; // pull from the end
+                int texIdxAbove = ((getHeight() - 1 - (r - 1)) * getWidth() + c) * 2; // pull from the end
                 int texIdxNext = ((getHeight() - 1 - (r + 1)) * getWidth() + c) * 2; // pull from the end
 
                 v1.set(c, getValue(c, r), r);
                 t1.set(textureBuffer.get(texIdx), textureBuffer.get(texIdx + 1));
 
-                if (r == 0) { // first row
-                    v3.set(c, getValue(c, r), r); // ???
-                    t3.set(textureBuffer.get(texIdxNext), textureBuffer.get(texIdxNext + 1)); // ???
+                // below
+                if (r == getHeight()-1) { // last row
+                    v3.set(c, getValue(c, r), r + 1);
+                    float u = textureBuffer.get(texIdx) - textureBuffer.get(texIdxAbove);
+                    u += textureBuffer.get(texIdx);
+                    float v = textureBuffer.get(texIdx + 1) - textureBuffer.get(texIdxAbove + 1);
+                    v += textureBuffer.get(texIdx + 1);
+                    t3.set(u, v);
                 } else {
-                    v3.set(c, getValue(c, r - 1), r - 1);
-                    t3.set(textureBuffer.get(texIdxPrev), textureBuffer.get(texIdxPrev + 1));
+                    v3.set(c, getValue(c, r + 1), r + 1);
+                    t3.set(textureBuffer.get(texIdxNext), textureBuffer.get(texIdxNext + 1));
                 }
-
-                if (c == getWidth() - 1) { // last column
-                    v2.set(c + 1, getValue(c, r), r); // use same height
-                    t2.set(textureBuffer.get(texIdx), textureBuffer.get(texIdx + 1));
+                
+                //right
+                if (c == getWidth()-1) { // last column
+                    v2.set(c + 1, getValue(c, r), r);
+                    float u = textureBuffer.get(texIdx) - textureBuffer.get(texIdx - 2);
+                    u += textureBuffer.get(texIdx);
+                    float v = textureBuffer.get(texIdx + 1) - textureBuffer.get(texIdx - 1);
+                    v += textureBuffer.get(texIdx - 1);
+                    t2.set(u, v);
                 } else {
                     v2.set(c + 1, getValue(c + 1, r), r); // one to the right
                     t2.set(textureBuffer.get(texIdx + 2), textureBuffer.get(texIdx + 3));
@@ -699,8 +709,8 @@ public class LODGeomap extends GeoMap {
 
     /**
      * 
-     * @param v Takes 3 vertexes: root, right, top
-     * @param t Takes 3 tex coords: root, right, top
+     * @param v Takes 3 vertices: root, right, bottom
+     * @param t Takes 3 tex coords: root, right, bottom
      * @param tangent that will store the result
      * @return the tangent store
      */
@@ -827,7 +837,7 @@ public class LODGeomap extends GeoMap {
                     } else if (c == getWidth() - 1) { // last column
                         topPoint.set(c, getValue(c, r - 1), r - 1);
                         leftPoint.set(c - 1, getValue(c - 1, r), r);
-                        bottomPoint.set(c, getValue(c, r + 1), r + 1);
+                        bottomPoint.set(c, getValue(c, r + 1), r + 1); //XXX wrong
 
                         normal.set( getNormal(topPoint, rootPoint, leftPoint, scale, tmp1) );
                         normal.add( getNormal(leftPoint, rootPoint, bottomPoint, scale, tmp1) );
