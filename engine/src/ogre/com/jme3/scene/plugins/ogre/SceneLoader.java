@@ -240,7 +240,7 @@ public class SceneLoader extends DefaultHandler implements AssetLoader {
             }
             
             String version = attribs.getValue("formatVersion");
-            if (version == null && !version.equals("1.0.0") && !version.equals("1.0.1"))
+            if (version == null || (!version.equals("1.0.0") && !version.equals("1.0.1")))
                 logger.log(Level.WARNING, "Unrecognized version number"
                         + " in dotScene file: {0}", version);
             
