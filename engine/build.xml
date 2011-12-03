@@ -288,6 +288,7 @@
         </fileset>
         <fileset id="jme3-external-libraries" dir="${dist.dir}/lib/">
             <exclude name="jME3-**"/>
+            <exclude name="**/nifty-examples.jar"/>
         </fileset>
         <!--clear old files-->
         <delete dir="${jmp_dir}/JME3TestsTemplate/src/"/>
