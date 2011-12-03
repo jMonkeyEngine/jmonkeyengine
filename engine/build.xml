@@ -33,7 +33,7 @@
         <mkdir dir="${build.dir}/android"/>
         <mkdir dir="${build.dir}/test"/>
         
-        <!--compile core-->
+        <echo>Compile Core</echo>
         <j2seproject3:javac 
             destdir="${build.dir}/core"
             srcdir="${src.core.dir}:${src.core-data.dir}:${src.core-plugins.dir}:${src.tools.dir}:${src.networking.dir}"
@@ -45,7 +45,7 @@
             <fileset dir="${src.tools.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
         </copy>
         
-        <!--compile non-core plugins (ogre, xml)-->
+        <echo>Compile Plugins (Ogre, XML)</echo>
         <j2seproject3:javac 
             destdir="${build.dir}/plugins"
             srcdir="${src.ogre.dir}:${src.xml.dir}"
@@ -56,7 +56,7 @@
             <fileset dir="${src.xml.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
         </copy>
         
-        <!--compile jogg-->
+        <echo>Compile Jogg</echo>
         <j2seproject3:javac 
             destdir="${build.dir}/jogg"
             srcdir="${src.jogg.dir}"
@@ -66,7 +66,7 @@
             <fileset dir="${src.jogg.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
         </copy>
         
-        <!--compile desktop-->
+        <echo>Compile Desktop</echo>
         <j2seproject3:javac 
             destdir="${build.dir}/desktop"
             srcdir="${src.desktop.dir}:${src.desktop-fx.dir}"
@@ -77,7 +77,7 @@
             <fileset dir="${src.desktop-fx.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
         </copy>
         
-        <!--compile blender loader-->
+        <echo>Compile Blender Loader</echo>
         <j2seproject3:javac 
             destdir="${build.dir}/blender"
             srcdir="${src.blender.dir}"
@@ -87,7 +87,7 @@
             <fileset dir="${src.blender.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
         </copy>
         
-        <!--compile terrain-->
+        <echo>Compile Terrain</echo>
         <j2seproject3:javac 
             destdir="${build.dir}/terrain"
             srcdir="${src.terrain.dir}"
@@ -97,7 +97,7 @@
             <fileset dir="${src.terrain.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
         </copy>
         
-        <!--compile jbullet-->
+        <echo>Compile jBullet</echo>
         <j2seproject3:javac 
             destdir="${build.dir}/jbullet"
             srcdir="${src.jbullet.dir}:${src.bullet-common.dir}"
@@ -108,7 +108,7 @@
             <fileset dir="${src.bullet-common.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
         </copy>
         
-        <!--compile bullet-->
+        <echo>Compile Bullet</echo>
         <j2seproject3:javac 
             destdir="${build.dir}/bullet"
             srcdir="${src.bullet.dir}:${src.bullet-common.dir}"
@@ -119,7 +119,7 @@
             <fileset dir="${src.bullet-common.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
         </copy>
         
-        <!--compile nifty-->
+        <echo>Compile Nifty</echo>
         <j2seproject3:javac 
             destdir="${build.dir}/niftygui"
             srcdir="${src.niftygui.dir}"
@@ -129,7 +129,7 @@
             <fileset dir="${src.niftygui.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
         </copy>
         
-        <!--compile lwjgl-->
+        <echo>Compile Lwjgl</echo>
         <j2seproject3:javac 
             destdir="${build.dir}/lwjgl"
             srcdir="${src.lwjgl.dir}"
@@ -139,7 +139,7 @@
             <fileset dir="${src.lwjgl.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
         </copy>
 
-        <!--compile android-->
+        <echo>Compile Android</echo>
         <j2seproject3:javac 
             destdir="${build.dir}/android"
             srcdir="${src.android.dir}"
@@ -151,7 +151,7 @@
             <fileset dir="${src.android.dir}" excludes="${build.classes.excludes},${excludes},**/jme3test/**,**/res/**" includes="${includes}"/>
         </copy>
         
-        <!--compile tests-->
+        <echo>Compile Tests</echo>
         <j2seproject3:javac 
             destdir="${build.dir}/test"
             srcdir="${src.test.dir}"
@@ -166,6 +166,7 @@
     </target>
     
     <target name="-pre-jar">
+        <echo>Building Engine JAR files..</echo>
         <jar jarfile="build/jME3-core.jar" basedir="${build.dir}/core" compress="true"/>
         <jar jarfile="build/jME3-plugins.jar" basedir="${build.dir}/plugins" compress="true"/>
         <jar jarfile="build/jME3-jogg.jar" basedir="${build.dir}/jogg" compress="true"/>
@@ -178,6 +179,7 @@
         <jar jarfile="build/jME3-lwjgl.jar" basedir="${build.dir}/lwjgl" compress="true"/>
         <jar jarfile="build/jME3-android.jar" basedir="${build.dir}/android" compress="true"/>
         
+        <echo>Building TestData JAR files..</echo>
         <jar jarfile="build/jME3-testdata.jar" basedir="test-data" compress="true"/>
         
         <!--this sets properties that would normally later be created in the build-impl.xml-->
@@ -233,7 +235,7 @@
     </target>
     
     <target name="-post-jar">
-        <echo message="Creating optional packages"/>
+        <echo>Moving optional packages</echo>
         <mkdir dir="dist/opt"/>
         <!--native bullet-->
         <mkdir dir="dist/opt/native-bullet"/>
