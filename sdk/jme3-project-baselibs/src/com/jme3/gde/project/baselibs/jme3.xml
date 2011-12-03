@@ -10,7 +10,7 @@ and open the template in the editor.
     <localizing-bundle>com.jme3.gde.project.baselibs.Bundle</localizing-bundle>
     <volume>
         <type>classpath</type>
-        <resource>jar:nbinst://com.jme3.gde.project.baselibs/libs/jMonkeyEngine3.jar!/</resource>
+        <resource>jar:nbinst://com.jme3.gde.project.baselibs/libs/jME3-core.jar!/</resource>
     </volume>
     <volume>
         <type>src</type>

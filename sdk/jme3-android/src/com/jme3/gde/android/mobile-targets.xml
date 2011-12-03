@@ -29,7 +29,9 @@
         <mkdir dir="mobile/libs"/>
         <copy todir="mobile/libs" verbose="false" flatten="true">
             <fileset dir="dist/lib/">
-                <exclude name="jMonkeyEngine3.jar"/>
+                <exclude name="jME3-desktop.jar"/>
+                <exclude name="jME3-blender.jar"/>
+                <exclude name="jME3-lwjgl.jar"/>
                 <exclude name="jME3-lwjgl-natives.jar"/>
                 <exclude name="jME3-bullet-natives.jar"/>
                 <exclude name="jME3-jbullet.jar"/>
@@ -42,7 +44,7 @@
             </fileset>
         </copy>
 
-        <echo>Adding jMonkeyEngine3.jar for android.</echo>
+        <echo>Adding libraries for android.</echo>
         <copy todir="mobile/libs" flatten="true">
             <path>
                 <pathelement path="${libs.jme3-android.classpath}"/>

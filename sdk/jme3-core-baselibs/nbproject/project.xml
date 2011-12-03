@@ -22,7 +22,6 @@
                 <package>com.jme3.app</package>
                 <package>com.jme3.app.state</package>
                 <package>com.jme3.asset</package>
-                <package>com.jme3.asset.pack</package>
                 <package>com.jme3.asset.plugins</package>
                 <package>com.jme3.audio</package>
                 <package>com.jme3.audio.lwjgl</package>
@@ -75,7 +74,6 @@
                 <package>com.jme3.post.filters</package>
                 <package>com.jme3.post.ssao</package>
                 <package>com.jme3.renderer</package>
-                <package>com.jme3.renderer.layer</package>
                 <package>com.jme3.renderer.lwjgl</package>
                 <package>com.jme3.renderer.queue</package>
                 <package>com.jme3.scene</package>
@@ -108,6 +106,7 @@
                 <package>com.jme3.system.lwjgl</package>
                 <package>com.jme3.terrain</package>
                 <package>com.jme3.terrain.geomipmap</package>
+                <package>com.jme3.terrain.geomipmap.grid</package>
                 <package>com.jme3.terrain.geomipmap.lodcalc</package>
                 <package>com.jme3.terrain.geomipmap.lodcalc.util</package>
                 <package>com.jme3.terrain.geomipmap.picking</package>
@@ -118,8 +117,6 @@
                 <package>com.jme3.util</package>
                 <package>com.jme3.util.blockparser</package>
                 <package>com.jme3.util.xml</package>
-                <package>com.jme3.video</package>
-                <package>com.jme3.video.plugins.jheora</package>
                 <package>com.jme3.water</package>
                 <package>jme3tools.converters</package>
                 <package>jme3tools.converters.model</package>
@@ -127,18 +124,47 @@
                 <package>jme3tools.navigation</package>
                 <package>jme3tools.nvtex</package>
                 <package>jme3tools.optimize</package>
+                <package>jme3tools.savegame</package>
             </public-packages>
+            <class-path-extension>
+                <runtime-relative-path>ext/jME3-niftygui.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/jME3-niftygui.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/jME3-blender.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/jME3-blender.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/jME3-desktop.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/jME3-desktop.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/jME3-lwjgl.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/jME3-lwjgl.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/jME3-terrain.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/jME3-terrain.jar</binary-origin>
+            </class-path-extension>
             <class-path-extension>
                 <runtime-relative-path>ext/jME3-jbullet.jar</runtime-relative-path>
                 <binary-origin>release/modules/ext/jME3-jbullet.jar</binary-origin>
             </class-path-extension>
             <class-path-extension>
-                <runtime-relative-path>ext/jMonkeyEngine3.jar</runtime-relative-path>
-                <binary-origin>release/modules/ext/jMonkeyEngine3.jar</binary-origin>
+                <runtime-relative-path>ext/jME3-plugins.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/jME3-plugins.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/jME3-core.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/jME3-core.jar</binary-origin>
             </class-path-extension>
             <class-path-extension>
                 <runtime-relative-path>ext/jME3-lwjgl-natives.jar</runtime-relative-path>
                 <binary-origin>release/modules/ext/jME3-lwjgl-natives.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/jME3-jogg.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/jME3-jogg.jar</binary-origin>
             </class-path-extension>
         </data>
     </configuration>

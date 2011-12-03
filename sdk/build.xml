@@ -272,12 +272,12 @@
     <target name="-create-jme3-svn-properties">
         <mkdir dir="build"/>
         <!--jme3 svn properties-->
-        <exec executable="svn" dir="${jme3_dir}" output="build/jme3-svn.properties">
+        <exec executable="svn" dir="${jme3_dir}/src/" output="build/jme3-svn.properties">
             <arg value="info" />
         </exec>
         <replace file="build/jme3-svn.properties" token=" " value=""/>
         <!--jme3 test data svn properties-->
-        <exec executable="svn" dir="${jme3_dir}/src/test-data/" output="build/jme3-testdata-svn.properties">
+        <exec executable="svn" dir="${jme3_dir}/test-data/" output="build/jme3-testdata-svn.properties">
             <arg value="info" />
         </exec>
         <replace file="build/jme3-testdata-svn.properties" token=" " value=""/>
