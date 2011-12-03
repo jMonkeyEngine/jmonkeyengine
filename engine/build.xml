@@ -148,7 +148,7 @@
             excludes="${excludes},**/jme3test/**"
             />
         <copy todir="${build.dir}/android">
-            <fileset dir="${src.android.dir}" excludes="${build.classes.excludes},${excludes},**/jme3test/**" includes="${includes}"/>
+            <fileset dir="${src.android.dir}" excludes="${build.classes.excludes},${excludes},**/jme3test/**,**/res/**" includes="${includes}"/>
         </copy>
         
         <!--compile tests-->
