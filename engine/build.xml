@@ -29,7 +29,6 @@
         <mkdir dir="${build.dir}/niftygui"/>
         <mkdir dir="${build.dir}/lwjgl"/>
         <mkdir dir="${build.dir}/android"/>
-        <mkdir dir="${build.dir}/test"/>
         
         <echo>Compile Core</echo>
         <j2seproject3:javac 
