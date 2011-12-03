@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <project xmlns:j2seproject1="http://www.netbeans.org/ns/j2se-project/1" xmlns:j2seproject3="http://www.netbeans.org/ns/j2se-project/3" xmlns:jaxrpc="http://www.netbeans.org/ns/j2se-project/jax-rpc" name="jMonkeyEngine3" default="default" basedir=".">
-    <description>Builds, tests, and runs the project jME3_ordered.</description>
+    <description>Builds, tests, and runs the jMonkeyEngine3 core engine.</description>
     <import file="nbproject/build-impl.xml"/>
 
-    <!-- compiles the *native binary* of the native bullet version (read bullet-native-build.txt for more info) -->
     <target name="build-bullet-natives" description="uses native build tools to build the bulletjme binary (read bullet-native-build.txt for more info)" depends="jar">
         <ant antfile="nbproject/build-bullet-natives.xml" target="build-bullet-natives"/>
     </target>
@@ -18,8 +17,7 @@
         </exec>
     </target>
     
-    <!--Override compile section to compile in different folders-->
-    <target depends="init,deps-jar,-pre-pre-compile,-pre-compile, -copy-persistence-xml,-compile-depend" if="have.sources" name="-do-compile">
+    <target name="-do-compile" description="Overrides default compile target to separate the build into folders" depends="init,deps-jar,-pre-pre-compile,-pre-compile, -copy-persistence-xml,-compile-depend" if="have.sources">
         <mkdir dir="${build.dir}/core"/>
         <mkdir dir="${build.dir}/plugins"/>
         <mkdir dir="${build.dir}/jogg"/>
@@ -153,19 +151,16 @@
         
         <echo>Compile Tests</echo>
         <j2seproject3:javac 
-            destdir="${build.dir}/test"
+            destdir="${build.classes.dir}"
             srcdir="${src.test.dir}"
             classpath="${javac.classpath}:${build.dir}/core:${build.dir}/plugins:${build.dir}/jogg:${build.dir}/desktop:${build.dir}/blender:${build.dir}/terrain:${build.dir}/jbullet:${build.dir}/niftygui"
             gensrcdir="${build.generated.sources.dir}"/>
-        <copy todir="${build.dir}/test">
-            <fileset dir="${src.test.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
-        </copy>
         <copy todir="${build.classes.dir}">
-            <fileset dir="${build.dir}/test"/>
+            <fileset dir="${src.test.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
         </copy>
     </target>
     
-    <target name="-pre-jar">
+    <target name="-pre-jar" description="Prepares the separate jME3-xxx.jar files and modifies properties for libraries to be used for lib/ folder, Manifest etc.">
         <echo>Building Engine JAR files..</echo>
         <jar jarfile="${build.dir}/jME3-core.jar" basedir="${build.dir}/core" compress="true"/>
         <jar jarfile="${build.dir}/jME3-plugins.jar" basedir="${build.dir}/plugins" compress="true"/>
@@ -182,8 +177,6 @@
         <echo>Building TestData JAR file..</echo>
         <jar jarfile="${build.dir}/jME3-testdata.jar" basedir="test-data" compress="true"/>
         
-        <!--this sets properties that would normally later be created in the build-impl.xml-->
-        <!--the names here correspont to the run.classpath entries in the project.properties file-->
         <property location="test-data" name="testdata.dir.resolved"/>
         <property location="${build.dir}/jME3-testdata.jar" name="testdata.jar.resolved"/>
         <property location="lib/android/android.jar" name="android.jar.resolved"/>
@@ -217,6 +210,9 @@
             <map from="${build.lwjgl.dir.resolved}" to=""/>
             <map from="${build.android.dir.resolved}" to=""/>
             
+            <map from="${testdata.dir.resolved}" to="${testdata.jar.resolved}"/>
+            <map from="${android.jar.resolved}" to=""/>
+
             <path path="${build.dir}/jME3-core.jar"/>
             <path path="${build.dir}/jME3-plugins.jar"/>
             <path path="${build.dir}/jME3-jogg.jar"/>
@@ -229,15 +225,12 @@
             <path path="${build.dir}/jME3-lwjgl.jar"/>
             <!--path path="${build.dir}/jME3-android.jar"/-->
 
-            <map from="${testdata.dir.resolved}" to="${testdata.jar.resolved}"/>
-            <map from="${android.jar.resolved}" to=""/>
         </pathconvert>        
     </target>
     
     <target name="-post-jar">
         <echo>Moving optional packages</echo>
         <mkdir dir="${dist.dir}/opt"/>
-        <!--native bullet-->
         <mkdir dir="${dist.dir}/opt/native-bullet"/>
         <!--ant antfile="nbproject/build-bullet-natives.xml" target="bullet-api-diff"/-->
         <!--move file="bullet-api-diff.html" todir="${dist.dir}/opt/native-bullet" overwrite="true"/-->
@@ -245,18 +238,17 @@
         <move file="${dist.dir}/lib/jME3-bullet-natives.jar" todir="${dist.dir}/opt/native-bullet" overwrite="true"/>
         <copy file="lib/bullet/jME3-bullet-natives-android.jar" todir="${dist.dir}/opt/native-bullet" overwrite="true"/>
 
-        <!--android-->
         <mkdir dir="${dist.dir}/opt/android"/>
         <copy file="${build.dir}/jME3-android.jar" todir="${dist.dir}/opt/android" overwrite="true"/>
     </target>
+    
     <!--
        ****************************************************************
        Only Relevant for building the SDK from here on
        ****************************************************************
       -->
 
-    <!-- convenience target to transfer jme3 libraries to sdk (jMonkeyPlatform) -->
-    <target name="update-sdk" depends="jar, javadoc">
+    <target name="update-sdk" depends="jar, javadoc" description="convenience target to transfer jme3 libraries to sdk (jMonkeyPlatform)">
         <antcall target="-do-update-sdk" inheritall="true">
             <param name="jmp_dir" value="../sdk/"/>
         </antcall>
@@ -290,7 +282,7 @@
             <exclude name="jME3-**"/>
             <exclude name="**/nifty-examples.jar"/>
         </fileset>
-        <!--clear old files-->
+        <echo>Clearing old files</echo>
         <delete dir="${jmp_dir}/JME3TestsTemplate/src/"/>
         <delete dir="${jmp_dir}/jme3-core-baselibs/release/modules/ext/"/>
         <delete dir="${jmp_dir}/jme3-core-libraries/release/modules/ext/"/>
@@ -298,36 +290,36 @@
         <delete dir="${jmp_dir}/jme3-project-baselibs/release/libs/"/>
         <delete dir="${jmp_dir}/jme3-project-testdata/release/libs/"/>
 
-        <!--jMonkeyPlatform jME3 libs-->
+        <echo>Copying jMonkeyPlatform jME3 libs</echo>
         <copy toDir="${jmp_dir}/jme3-core-baselibs/release/modules/ext/" overwrite="true" failonerror="true" verbose="false" flatten="true">
             <fileset refid="jme3-sdk-jars"/>
             <!--natives need to be in jme3 package for jme to work in jMP-->
             <fileset refid="jme3-lwjgl-native-jars"/>
         </copy>
 
-        <!--jMonkeyPlatform external libraries-->
+        <echo>Copying jMonkeyPlatform external libraries</echo>
         <copy todir="${jmp_dir}/jme3-core-libraries/release/modules/ext/" overwrite="true" failonerror="true" verbose="false" flatten="true">
             <fileset refid="jme3-external-libraries"/>
         </copy>
         
-        <!--Project jME3 libs-->
+        <echo>Copying Project jME3 libs</echo>
         <copy toDir="${jmp_dir}/jme3-project-baselibs/release/libs/" overwrite="true" failonerror="true" verbose="false" flatten="true">
             <fileset refid="jme3-jars"/>
         </copy>
 
-        <!--Project external libraries-->
+        <echo>Copying Project external libraries</echo>
         <copy todir="${jmp_dir}/jme3-project-libraries/release/libs/" overwrite="true" failonerror="true" verbose="false" flatten="true">
             <fileset refid="jme3-external-libraries"/>
             <fileset refid="jme3-lwjgl-native-jars"/>
             <fileset refid="jme3-bullet-native-jars"/>
         </copy>
 
-        <!--Test Project Data-->
+        <echo>Copying Test Project Data</echo>
         <copy toDir="${jmp_dir}/jme3-project-testdata/release/libs/" overwrite="true" failonerror="true" verbose="false">
             <fileset refid="jme3-testdata-jars"/>
         </copy>
 
-        <!-- javadoc -->
+        <echo>Copying Javadoc</echo>
         <zip destfile="${dist.dir}/jMonkeyEngine3-javadoc.zip">
             <zipfileset dir="${dist.dir}/javadoc/"/>
         </zip>
@@ -362,7 +354,7 @@
             </fileset>
         </copy>
         
-        <!--examples-->
+        <echo>Copying Test Examples</echo>
         <copy todir="${jmp_dir}/JME3TestsTemplate/src/" overwrite="true" failonerror="true" verbose="false">
             <fileset dir="src/test/">
                 <exclude name=".svn"/>
@@ -376,14 +368,11 @@
        ****************************************************************
       -->
 
-    <!-- puts jme3 jars, libs, source and javadoc in a dated zip file -->
     <target depends="init" name="create-zip-distribution" description="puts jme3 jars, libs, source and javadoc in a dated zip file">
-        <!-- create date in the format MM-dd-yyyy -->
         <tstamp>
             <format property="date" pattern="yyyy-MM-dd" locale="en,US"/>
         </tstamp>
         <property name="jme3zip" value="jME3_${date}.zip"/>
-        <!-- make zip file -->
         <zip destfile="${jme3zip}">
             <fileset dir=".">
                 <include name="TestChooser.exe"/>
