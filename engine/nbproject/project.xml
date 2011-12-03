@@ -15,7 +15,6 @@
                 <root id="src.core-data.dir" name="Core-Data"/>
                 <root id="src.core-plugins.dir" name="Core-Plugins"/>
                 <root id="src.desktop.dir" name="Desktop"/>
-                <root id="src.desktop-fx.dir" name="Desktop-FX"/>
                 <root id="src.terrain.dir" name="Terrain"/>
                 <root id="src.jbullet.dir" name="Java Bullet"/>
                 <root id="src.bullet.dir" name="Native Bullet"/>

@@ -67,12 +67,11 @@
         <echo>Compile Desktop</echo>
         <j2seproject3:javac 
             destdir="${build.dir}/desktop"
-            srcdir="${src.desktop.dir}:${src.desktop-fx.dir}"
+            srcdir="${src.desktop.dir}"
             classpath="${javac.classpath}:${build.dir}/core"
             gensrcdir="${build.generated.sources.dir}"/>
         <copy todir="${build.dir}/desktop">
             <fileset dir="${src.desktop.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
-            <fileset dir="${src.desktop-fx.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
         </copy>
         
         <echo>Compile Blender Loader</echo>
@@ -330,7 +329,6 @@
             <zipfileset dir="${src.core-data.dir}"/>
             <zipfileset dir="${src.core-plugins.dir}"/>
             <zipfileset dir="${src.desktop.dir}"/>
-            <zipfileset dir="${src.desktop-fx.dir}"/>
             <zipfileset dir="${src.jbullet.dir}"/>
             <zipfileset dir="${src.niftygui.dir}"/>
             <zipfileset dir="${src.jogg.dir}"/>
@@ -388,7 +386,6 @@
             <zipfileset dir="${src.core-data.dir}" prefix="source"/>
             <zipfileset dir="${src.core-plugins.dir}" prefix="source"/>
             <zipfileset dir="${src.desktop.dir}" prefix="source"/>
-            <zipfileset dir="${src.desktop-fx.dir}" prefix="source"/>
             <zipfileset dir="${src.jbullet.dir}" prefix="source"/>
             <zipfileset dir="${src.niftygui.dir}" prefix="source"/>
             <zipfileset dir="${src.jogg.dir}" prefix="source"/>
