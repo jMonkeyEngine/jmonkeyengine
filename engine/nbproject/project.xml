@@ -14,23 +14,22 @@
                 <root id="src.core.dir" name="Core"/>
                 <root id="src.core-data.dir" name="Core-Data"/>
                 <root id="src.core-plugins.dir" name="Core-Plugins"/>
-                <root id="src.terrain.dir" name="Terrain"/>
-                <root id="src.networking.dir" name="Networking"/>
                 <root id="src.desktop.dir" name="Desktop"/>
                 <root id="src.desktop-fx.dir" name="Desktop-FX"/>
-                <root id="src.games.dir" name="Games"/>
-                <root id="src.jbullet.dir" name="JBullet"/>
+                <root id="src.terrain.dir" name="Terrain"/>
+                <root id="src.jbullet.dir" name="Java Bullet"/>
+                <root id="src.bullet.dir" name="Native Bullet"/>
+                <root id="src.bullet-common.dir" name="Bullet Common"/>
+                <root id="src.networking.dir" name="Networking"/>
                 <root id="src.niftygui.dir" name="NiftyGUI"/>
                 <root id="src.jogg.dir" name="JOGG"/>
-                <root id="src.lwjgl-oal.dir" name="LWJGL-OAL"/>
-                <root id="src.lwjgl-ogl.dir" name="LWJGL-OGL"/>
                 <root id="src.ogre.dir" name="Ogre"/>
                 <root id="src.blender.dir" name="Blender"/>
-                <root id="src.pack.dir" name="Pack"/>
-                <root id="src.jheora.dir" name="Jheora"/>
-                <root id="src.test.dir" name="Test"/>
-                <root id="src.tools.dir" name="Tools"/>
                 <root id="src.xml.dir" name="XML"/>
+                <root id="src.tools.dir" name="Tools"/>
+                <root id="src.test.dir" name="Test"/>
+                <root id="src.lwjgl.dir" name="LWJGL Renderer"/>
+                <root id="src.android.dir" name="Android Renderer"/>
             </source-roots>
             <test-roots>
                 <root id="test.test.dir" name="Unit Test"/>

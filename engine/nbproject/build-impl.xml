@@ -169,23 +169,22 @@ is divided into following sections:
                 <available file="${src.core.dir}"/>
                 <available file="${src.core-data.dir}"/>
                 <available file="${src.core-plugins.dir}"/>
-                <available file="${src.terrain.dir}"/>
-                <available file="${src.networking.dir}"/>
                 <available file="${src.desktop.dir}"/>
                 <available file="${src.desktop-fx.dir}"/>
-                <available file="${src.games.dir}"/>
+                <available file="${src.terrain.dir}"/>
                 <available file="${src.jbullet.dir}"/>
+                <available file="${src.bullet.dir}"/>
+                <available file="${src.bullet-common.dir}"/>
+                <available file="${src.networking.dir}"/>
                 <available file="${src.niftygui.dir}"/>
                 <available file="${src.jogg.dir}"/>
-                <available file="${src.lwjgl-oal.dir}"/>
-                <available file="${src.lwjgl-ogl.dir}"/>
                 <available file="${src.ogre.dir}"/>
                 <available file="${src.blender.dir}"/>
-                <available file="${src.pack.dir}"/>
-                <available file="${src.jheora.dir}"/>
-                <available file="${src.test.dir}"/>
-                <available file="${src.tools.dir}"/>
                 <available file="${src.xml.dir}"/>
+                <available file="${src.tools.dir}"/>
+                <available file="${src.test.dir}"/>
+                <available file="${src.lwjgl.dir}"/>
+                <available file="${src.android.dir}"/>
             </or>
         </condition>
         <condition property="netbeans.home+have.tests">
@@ -253,23 +252,22 @@ is divided into following sections:
         <fail unless="src.core.dir">Must set src.core.dir</fail>
         <fail unless="src.core-data.dir">Must set src.core-data.dir</fail>
         <fail unless="src.core-plugins.dir">Must set src.core-plugins.dir</fail>
-        <fail unless="src.terrain.dir">Must set src.terrain.dir</fail>
-        <fail unless="src.networking.dir">Must set src.networking.dir</fail>
         <fail unless="src.desktop.dir">Must set src.desktop.dir</fail>
         <fail unless="src.desktop-fx.dir">Must set src.desktop-fx.dir</fail>
-        <fail unless="src.games.dir">Must set src.games.dir</fail>
+        <fail unless="src.terrain.dir">Must set src.terrain.dir</fail>
         <fail unless="src.jbullet.dir">Must set src.jbullet.dir</fail>
+        <fail unless="src.bullet.dir">Must set src.bullet.dir</fail>
+        <fail unless="src.bullet-common.dir">Must set src.bullet-common.dir</fail>
+        <fail unless="src.networking.dir">Must set src.networking.dir</fail>
         <fail unless="src.niftygui.dir">Must set src.niftygui.dir</fail>
         <fail unless="src.jogg.dir">Must set src.jogg.dir</fail>
-        <fail unless="src.lwjgl-oal.dir">Must set src.lwjgl-oal.dir</fail>
-        <fail unless="src.lwjgl-ogl.dir">Must set src.lwjgl-ogl.dir</fail>
         <fail unless="src.ogre.dir">Must set src.ogre.dir</fail>
         <fail unless="src.blender.dir">Must set src.blender.dir</fail>
-        <fail unless="src.pack.dir">Must set src.pack.dir</fail>
-        <fail unless="src.jheora.dir">Must set src.jheora.dir</fail>
-        <fail unless="src.test.dir">Must set src.test.dir</fail>
-        <fail unless="src.tools.dir">Must set src.tools.dir</fail>
         <fail unless="src.xml.dir">Must set src.xml.dir</fail>
+        <fail unless="src.tools.dir">Must set src.tools.dir</fail>
+        <fail unless="src.test.dir">Must set src.test.dir</fail>
+        <fail unless="src.lwjgl.dir">Must set src.lwjgl.dir</fail>
+        <fail unless="src.android.dir">Must set src.android.dir</fail>
         <fail unless="test.test.dir">Must set test.test.dir</fail>
         <fail unless="build.dir">Must set build.dir</fail>
         <fail unless="dist.dir">Must set dist.dir</fail>
@@ -291,7 +289,7 @@ is divided into following sections:
     </target>
     <target depends="-init-ap-cmdline-properties" if="ap.supported.internal" name="-init-macrodef-javac-with-processors">
         <macrodef name="javac" uri="http://www.netbeans.org/ns/j2se-project/3">
-            <attribute default="${src.core.dir}:${src.core-data.dir}:${src.core-plugins.dir}:${src.terrain.dir}:${src.networking.dir}:${src.desktop.dir}:${src.desktop-fx.dir}:${src.games.dir}:${src.jbullet.dir}:${src.niftygui.dir}:${src.jogg.dir}:${src.lwjgl-oal.dir}:${src.lwjgl-ogl.dir}:${src.ogre.dir}:${src.blender.dir}:${src.pack.dir}:${src.jheora.dir}:${src.test.dir}:${src.tools.dir}:${src.xml.dir}" name="srcdir"/>
+            <attribute default="${src.core.dir}:${src.core-data.dir}:${src.core-plugins.dir}:${src.desktop.dir}:${src.desktop-fx.dir}:${src.terrain.dir}:${src.jbullet.dir}:${src.bullet.dir}:${src.bullet-common.dir}:${src.networking.dir}:${src.niftygui.dir}:${src.jogg.dir}:${src.ogre.dir}:${src.blender.dir}:${src.xml.dir}:${src.tools.dir}:${src.test.dir}:${src.lwjgl.dir}:${src.android.dir}" name="srcdir"/>
             <attribute default="${build.classes.dir}" name="destdir"/>
             <attribute default="${javac.classpath}" name="classpath"/>
             <attribute default="${javac.processorpath}" name="processorpath"/>
@@ -331,7 +329,7 @@ is divided into following sections:
     </target>
     <target depends="-init-ap-cmdline-properties" name="-init-macrodef-javac-without-processors" unless="ap.supported.internal">
         <macrodef name="javac" uri="http://www.netbeans.org/ns/j2se-project/3">
-            <attribute default="${src.core.dir}:${src.core-data.dir}:${src.core-plugins.dir}:${src.terrain.dir}:${src.networking.dir}:${src.desktop.dir}:${src.desktop-fx.dir}:${src.games.dir}:${src.jbullet.dir}:${src.niftygui.dir}:${src.jogg.dir}:${src.lwjgl-oal.dir}:${src.lwjgl-ogl.dir}:${src.ogre.dir}:${src.blender.dir}:${src.pack.dir}:${src.jheora.dir}:${src.test.dir}:${src.tools.dir}:${src.xml.dir}" name="srcdir"/>
+            <attribute default="${src.core.dir}:${src.core-data.dir}:${src.core-plugins.dir}:${src.desktop.dir}:${src.desktop-fx.dir}:${src.terrain.dir}:${src.jbullet.dir}:${src.bullet.dir}:${src.bullet-common.dir}:${src.networking.dir}:${src.niftygui.dir}:${src.jogg.dir}:${src.ogre.dir}:${src.blender.dir}:${src.xml.dir}:${src.tools.dir}:${src.test.dir}:${src.lwjgl.dir}:${src.android.dir}" name="srcdir"/>
             <attribute default="${build.classes.dir}" name="destdir"/>
             <attribute default="${javac.classpath}" name="classpath"/>
             <attribute default="${javac.processorpath}" name="processorpath"/>
@@ -363,7 +361,7 @@ is divided into following sections:
     </target>
     <target depends="-init-macrodef-javac-with-processors,-init-macrodef-javac-without-processors" name="-init-macrodef-javac">
         <macrodef name="depend" uri="http://www.netbeans.org/ns/j2se-project/3">
-            <attribute default="${src.core.dir}:${src.core-data.dir}:${src.core-plugins.dir}:${src.terrain.dir}:${src.networking.dir}:${src.desktop.dir}:${src.desktop-fx.dir}:${src.games.dir}:${src.jbullet.dir}:${src.niftygui.dir}:${src.jogg.dir}:${src.lwjgl-oal.dir}:${src.lwjgl-ogl.dir}:${src.ogre.dir}:${src.blender.dir}:${src.pack.dir}:${src.jheora.dir}:${src.test.dir}:${src.tools.dir}:${src.xml.dir}" name="srcdir"/>
+            <attribute default="${src.core.dir}:${src.core-data.dir}:${src.core-plugins.dir}:${src.desktop.dir}:${src.desktop-fx.dir}:${src.terrain.dir}:${src.jbullet.dir}:${src.bullet.dir}:${src.bullet-common.dir}:${src.networking.dir}:${src.niftygui.dir}:${src.jogg.dir}:${src.ogre.dir}:${src.blender.dir}:${src.xml.dir}:${src.tools.dir}:${src.test.dir}:${src.lwjgl.dir}:${src.android.dir}" name="srcdir"/>
             <attribute default="${build.classes.dir}" name="destdir"/>
             <attribute default="${javac.classpath}" name="classpath"/>
             <sequential>
@@ -661,7 +659,7 @@ is divided into following sections:
                 <include name="*"/>
             </dirset>
         </pathconvert>
-        <j2seproject3:depend srcdir="${src.core.dir}:${src.core-data.dir}:${src.core-plugins.dir}:${src.terrain.dir}:${src.networking.dir}:${src.desktop.dir}:${src.desktop-fx.dir}:${src.games.dir}:${src.jbullet.dir}:${src.niftygui.dir}:${src.jogg.dir}:${src.lwjgl-oal.dir}:${src.lwjgl-ogl.dir}:${src.ogre.dir}:${src.blender.dir}:${src.pack.dir}:${src.jheora.dir}:${src.test.dir}:${src.tools.dir}:${src.xml.dir}:${build.generated.subdirs}"/>
+        <j2seproject3:depend srcdir="${src.core.dir}:${src.core-data.dir}:${src.core-plugins.dir}:${src.desktop.dir}:${src.desktop-fx.dir}:${src.terrain.dir}:${src.jbullet.dir}:${src.bullet.dir}:${src.bullet-common.dir}:${src.networking.dir}:${src.niftygui.dir}:${src.jogg.dir}:${src.ogre.dir}:${src.blender.dir}:${src.xml.dir}:${src.tools.dir}:${src.test.dir}:${src.lwjgl.dir}:${src.android.dir}:${build.generated.subdirs}"/>
     </target>
     <target depends="init,deps-jar,-pre-pre-compile,-pre-compile, -copy-persistence-xml,-compile-depend" if="have.sources" name="-do-compile">
         <j2seproject3:javac gensrcdir="${build.generated.sources.dir}"/>
@@ -669,23 +667,22 @@ is divided into following sections:
             <fileset dir="${src.core.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
             <fileset dir="${src.core-data.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
             <fileset dir="${src.core-plugins.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
-            <fileset dir="${src.terrain.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
-            <fileset dir="${src.networking.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
             <fileset dir="${src.desktop.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
             <fileset dir="${src.desktop-fx.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
-            <fileset dir="${src.games.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
+            <fileset dir="${src.terrain.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
             <fileset dir="${src.jbullet.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
+            <fileset dir="${src.bullet.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
+            <fileset dir="${src.bullet-common.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
+            <fileset dir="${src.networking.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
             <fileset dir="${src.niftygui.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
             <fileset dir="${src.jogg.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
-            <fileset dir="${src.lwjgl-oal.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
-            <fileset dir="${src.lwjgl-ogl.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
             <fileset dir="${src.ogre.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
             <fileset dir="${src.blender.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
-            <fileset dir="${src.pack.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
-            <fileset dir="${src.jheora.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
-            <fileset dir="${src.test.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
-            <fileset dir="${src.tools.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
             <fileset dir="${src.xml.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
+            <fileset dir="${src.tools.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
+            <fileset dir="${src.test.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
+            <fileset dir="${src.lwjgl.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
+            <fileset dir="${src.android.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
         </copy>
     </target>
     <target if="has.persistence.xml" name="-copy-persistence-xml">
@@ -706,7 +703,7 @@ is divided into following sections:
     <target depends="init,deps-jar,-pre-pre-compile" name="-do-compile-single">
         <fail unless="javac.includes">Must select some files in the IDE or set javac.includes</fail>
         <j2seproject3:force-recompile/>
-        <j2seproject3:javac excludes="" gensrcdir="${build.generated.sources.dir}" includes="${javac.includes}" sourcepath="${src.core.dir}:${src.core-data.dir}:${src.core-plugins.dir}:${src.terrain.dir}:${src.networking.dir}:${src.desktop.dir}:${src.desktop-fx.dir}:${src.games.dir}:${src.jbullet.dir}:${src.niftygui.dir}:${src.jogg.dir}:${src.lwjgl-oal.dir}:${src.lwjgl-ogl.dir}:${src.ogre.dir}:${src.blender.dir}:${src.pack.dir}:${src.jheora.dir}:${src.test.dir}:${src.tools.dir}:${src.xml.dir}"/>
+        <j2seproject3:javac excludes="" gensrcdir="${build.generated.sources.dir}" includes="${javac.includes}" sourcepath="${src.core.dir}:${src.core-data.dir}:${src.core-plugins.dir}:${src.desktop.dir}:${src.desktop-fx.dir}:${src.terrain.dir}:${src.jbullet.dir}:${src.bullet.dir}:${src.bullet-common.dir}:${src.networking.dir}:${src.niftygui.dir}:${src.jogg.dir}:${src.ogre.dir}:${src.blender.dir}:${src.xml.dir}:${src.tools.dir}:${src.test.dir}:${src.lwjgl.dir}:${src.android.dir}"/>
     </target>
     <target name="-post-compile-single">
         <!-- Empty placeholder for easier customization. -->
@@ -935,22 +932,25 @@ is divided into following sections:
             <fileset dir="${src.core-plugins.dir}" excludes="*.java,${excludes}" includes="${includes}">
                 <filename name="**/*.java"/>
             </fileset>
-            <fileset dir="${src.terrain.dir}" excludes="*.java,${excludes}" includes="${includes}">
-                <filename name="**/*.java"/>
-            </fileset>
-            <fileset dir="${src.networking.dir}" excludes="*.java,${excludes}" includes="${includes}">
-                <filename name="**/*.java"/>
-            </fileset>
             <fileset dir="${src.desktop.dir}" excludes="*.java,${excludes}" includes="${includes}">
                 <filename name="**/*.java"/>
             </fileset>
             <fileset dir="${src.desktop-fx.dir}" excludes="*.java,${excludes}" includes="${includes}">
                 <filename name="**/*.java"/>
             </fileset>
-            <fileset dir="${src.games.dir}" excludes="*.java,${excludes}" includes="${includes}">
+            <fileset dir="${src.terrain.dir}" excludes="*.java,${excludes}" includes="${includes}">
                 <filename name="**/*.java"/>
             </fileset>
             <fileset dir="${src.jbullet.dir}" excludes="*.java,${excludes}" includes="${includes}">
+                <filename name="**/*.java"/>
+            </fileset>
+            <fileset dir="${src.bullet.dir}" excludes="*.java,${excludes}" includes="${includes}">
+                <filename name="**/*.java"/>
+            </fileset>
+            <fileset dir="${src.bullet-common.dir}" excludes="*.java,${excludes}" includes="${includes}">
+                <filename name="**/*.java"/>
+            </fileset>
+            <fileset dir="${src.networking.dir}" excludes="*.java,${excludes}" includes="${includes}">
                 <filename name="**/*.java"/>
             </fileset>
             <fileset dir="${src.niftygui.dir}" excludes="*.java,${excludes}" includes="${includes}">
@@ -959,31 +959,25 @@ is divided into following sections:
             <fileset dir="${src.jogg.dir}" excludes="*.java,${excludes}" includes="${includes}">
                 <filename name="**/*.java"/>
             </fileset>
-            <fileset dir="${src.lwjgl-oal.dir}" excludes="*.java,${excludes}" includes="${includes}">
-                <filename name="**/*.java"/>
-            </fileset>
-            <fileset dir="${src.lwjgl-ogl.dir}" excludes="*.java,${excludes}" includes="${includes}">
-                <filename name="**/*.java"/>
-            </fileset>
             <fileset dir="${src.ogre.dir}" excludes="*.java,${excludes}" includes="${includes}">
                 <filename name="**/*.java"/>
             </fileset>
             <fileset dir="${src.blender.dir}" excludes="*.java,${excludes}" includes="${includes}">
                 <filename name="**/*.java"/>
             </fileset>
-            <fileset dir="${src.pack.dir}" excludes="*.java,${excludes}" includes="${includes}">
-                <filename name="**/*.java"/>
-            </fileset>
-            <fileset dir="${src.jheora.dir}" excludes="*.java,${excludes}" includes="${includes}">
-                <filename name="**/*.java"/>
-            </fileset>
-            <fileset dir="${src.test.dir}" excludes="*.java,${excludes}" includes="${includes}">
+            <fileset dir="${src.xml.dir}" excludes="*.java,${excludes}" includes="${includes}">
                 <filename name="**/*.java"/>
             </fileset>
             <fileset dir="${src.tools.dir}" excludes="*.java,${excludes}" includes="${includes}">
                 <filename name="**/*.java"/>
             </fileset>
-            <fileset dir="${src.xml.dir}" excludes="*.java,${excludes}" includes="${includes}">
+            <fileset dir="${src.test.dir}" excludes="*.java,${excludes}" includes="${includes}">
+                <filename name="**/*.java"/>
+            </fileset>
+            <fileset dir="${src.lwjgl.dir}" excludes="*.java,${excludes}" includes="${includes}">
+                <filename name="**/*.java"/>
+            </fileset>
+            <fileset dir="${src.android.dir}" excludes="*.java,${excludes}" includes="${includes}">
                 <filename name="**/*.java"/>
             </fileset>
             <fileset dir="${build.generated.sources.dir}" erroronmissingdir="false">
@@ -1001,22 +995,25 @@ is divided into following sections:
             <fileset dir="${src.core-plugins.dir}" excludes="${excludes}" includes="${includes}">
                 <filename name="**/doc-files/**"/>
             </fileset>
-            <fileset dir="${src.terrain.dir}" excludes="${excludes}" includes="${includes}">
-                <filename name="**/doc-files/**"/>
-            </fileset>
-            <fileset dir="${src.networking.dir}" excludes="${excludes}" includes="${includes}">
-                <filename name="**/doc-files/**"/>
-            </fileset>
             <fileset dir="${src.desktop.dir}" excludes="${excludes}" includes="${includes}">
                 <filename name="**/doc-files/**"/>
             </fileset>
             <fileset dir="${src.desktop-fx.dir}" excludes="${excludes}" includes="${includes}">
                 <filename name="**/doc-files/**"/>
             </fileset>
-            <fileset dir="${src.games.dir}" excludes="${excludes}" includes="${includes}">
+            <fileset dir="${src.terrain.dir}" excludes="${excludes}" includes="${includes}">
                 <filename name="**/doc-files/**"/>
             </fileset>
             <fileset dir="${src.jbullet.dir}" excludes="${excludes}" includes="${includes}">
+                <filename name="**/doc-files/**"/>
+            </fileset>
+            <fileset dir="${src.bullet.dir}" excludes="${excludes}" includes="${includes}">
+                <filename name="**/doc-files/**"/>
+            </fileset>
+            <fileset dir="${src.bullet-common.dir}" excludes="${excludes}" includes="${includes}">
+                <filename name="**/doc-files/**"/>
+            </fileset>
+            <fileset dir="${src.networking.dir}" excludes="${excludes}" includes="${includes}">
                 <filename name="**/doc-files/**"/>
             </fileset>
             <fileset dir="${src.niftygui.dir}" excludes="${excludes}" includes="${includes}">
@@ -1025,31 +1022,25 @@ is divided into following sections:
             <fileset dir="${src.jogg.dir}" excludes="${excludes}" includes="${includes}">
                 <filename name="**/doc-files/**"/>
             </fileset>
-            <fileset dir="${src.lwjgl-oal.dir}" excludes="${excludes}" includes="${includes}">
-                <filename name="**/doc-files/**"/>
-            </fileset>
-            <fileset dir="${src.lwjgl-ogl.dir}" excludes="${excludes}" includes="${includes}">
-                <filename name="**/doc-files/**"/>
-            </fileset>
             <fileset dir="${src.ogre.dir}" excludes="${excludes}" includes="${includes}">
                 <filename name="**/doc-files/**"/>
             </fileset>
             <fileset dir="${src.blender.dir}" excludes="${excludes}" includes="${includes}">
                 <filename name="**/doc-files/**"/>
             </fileset>
-            <fileset dir="${src.pack.dir}" excludes="${excludes}" includes="${includes}">
-                <filename name="**/doc-files/**"/>
-            </fileset>
-            <fileset dir="${src.jheora.dir}" excludes="${excludes}" includes="${includes}">
-                <filename name="**/doc-files/**"/>
-            </fileset>
-            <fileset dir="${src.test.dir}" excludes="${excludes}" includes="${includes}">
+            <fileset dir="${src.xml.dir}" excludes="${excludes}" includes="${includes}">
                 <filename name="**/doc-files/**"/>
             </fileset>
             <fileset dir="${src.tools.dir}" excludes="${excludes}" includes="${includes}">
                 <filename name="**/doc-files/**"/>
             </fileset>
-            <fileset dir="${src.xml.dir}" excludes="${excludes}" includes="${includes}">
+            <fileset dir="${src.test.dir}" excludes="${excludes}" includes="${includes}">
+                <filename name="**/doc-files/**"/>
+            </fileset>
+            <fileset dir="${src.lwjgl.dir}" excludes="${excludes}" includes="${includes}">
+                <filename name="**/doc-files/**"/>
+            </fileset>
+            <fileset dir="${src.android.dir}" excludes="${excludes}" includes="${includes}">
                 <filename name="**/doc-files/**"/>
             </fileset>
             <fileset dir="${build.generated.sources.dir}" erroronmissingdir="false">

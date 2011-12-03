@@ -1,117 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project name="jMonkeyEngine3" default="default" basedir=".">
+<project xmlns:j2seproject1="http://www.netbeans.org/ns/j2se-project/1" xmlns:j2seproject3="http://www.netbeans.org/ns/j2se-project/3" xmlns:jaxrpc="http://www.netbeans.org/ns/j2se-project/jax-rpc" name="jMonkeyEngine3" default="default" basedir=".">
     <description>Builds, tests, and runs the project jME3_ordered.</description>
     <import file="nbproject/build-impl.xml"/>
-    <!-- <import file="nbproject/profiler-build-impl.xml"/> -->
-
-    <target name="-post-compile" depends="-compile-bullet, -compile-android">
-    </target>
-    
-    <target name="-pre-jar" depends="-prepare-separate-jar-files">
-    </target>
-    
-    <target name="-post-jar" depends="-create-optional-packages">
-        <!--move back classes-->
-        <move file="build/testclasses/jme3test" todir="build/classes/" failonerror="false"/>
-        <move file="build/testclasses/jme3game" todir="build/classes/" failonerror="false"/>
-        <move file="build/jbullet/com/jme3/bullet" todir="build/classes/com/jme3/" failonerror="false"/>
-    </target>
-
-    <!-- compiles the java classes of the native bullet version (works on all systems) -->
-    <target name="-compile-bullet">
-        <echo message="Compiling Bullet"/>
-        <mkdir dir="build/bullet"/>
-        <javac classpath="${javac.classpath}${path.separator}${build.classes.dir}" destdir="build/bullet" srcdir="src/bullet"/>
-        <jar jarfile="build/jME3-bullet.jar" basedir="build/bullet/" compress="true"/>
-    </target>
-    
-    <!-- compiles the android jar for jME3 -->
-    <target name="-compile-android" description="builds the jMonkeyEngine3 distribution for android">
-        <echo message="Compiling Android jMonkeyEngine3.jar"/>
-        <path id="android-classpath">
-            <pathelement path="lib/android/android.jar"/>
-            <pathelement path="build/classes"/>
-        </path>
-        <mkdir dir="build/android"/>
-        <javac  target="1.6"
-                encoding="UTF-8"
-                debug="true"
-                deprecation="on"
-                srcdir="src/android"
-                destdir="build/android"
-                classpathref="android-classpath"
-                excludes="**/OGLESRenderer.java,**/TestsActivity.java,**/AboutActivity.java,nbproject/**"/>
-    </target>
-    
-    <!--this target creates the separate jar files for jme3 and modifies the classpath to include them-->
-    <target name="-prepare-separate-jar-files">
-        <echo message="Preparing jME3 jar files"/>
-        <!--separate test classes-->
-        <mkdir dir="build/testclasses/"/>
-        <move file="build/classes/jme3test" todir="build/testclasses/" failonerror="false"/>
-        <move file="build/classes/jme3game" todir="build/testclasses/" failonerror="false"/>
-        <jar jarfile="build/jME3-test.jar" basedir="build/testclasses/" compress="true"/>
-
-        <!--separate jbullet physics classes-->
-        <mkdir dir="build/jbullet/com/jme3/"/>
-        <move file="build/classes/com/jme3/bullet" todir="build/jbullet/com/jme3/" failonerror="false"/>
-        <jar jarfile="build/jME3-jbullet.jar" basedir="build/jbullet/" compress="true"/>
-
-        <!--separate assets-->
-        <jar jarfile="build/jME3-testdata.jar" basedir="src/test-data" compress="true"/>
-        <property location="src/test-data" name="testdata.dir.resolved"/>
-        <property location="build/jME3-testdata.jar" name="testdata.jar.resolved"/>
-
-        <!--this sets properties that would normally later be created in the build-impl.xml-->
-        <property location="${build.classes.dir}" name="build.classes.dir.resolved"/>
-        <pathconvert property="run.classpath.without.build.classes.dir">
-            <path path="${run.classpath}"/>
-            <map from="${build.classes.dir.resolved}" to=""/>
-            
-            <!--replace assets folder in dist classpath-->
-            <map from="${testdata.dir.resolved}" to="${testdata.jar.resolved}"/>
-            
-            <!--add both bullet jar files to dist classpath, will both be in manifest-->
-            <path path="build/jME3-jbullet.jar"/>
-            <path path="build/jME3-bullet.jar"/>
-            <path path="build/jME3-test.jar"/>
-        </pathconvert>
-    </target>
-    
-    <!--separates and packs the optional packages-->
-    <target name="-create-optional-packages">
-        <echo message="Creating optional packages"/>
-        <!--native bullet-->
-        <mkdir dir="dist/opt/native-bullet"/>
-        <mkdir dir="dist/opt/native-bullet/lib"/>
-        <!--ant antfile="src/bullet/native/build.xml" target="bullet-api-diff"/-->
-        <!--move file="bullet-api-diff.html" todir="dist/opt/native-bullet" overwrite="true"/-->
-        <move file="dist/lib/jME3-bullet.jar" todir="dist/opt/native-bullet/lib" overwrite="true"/>
-        <move file="dist/lib/jME3-bullet-natives.jar" todir="dist/opt/native-bullet/lib" overwrite="true"/>
-        <copy file="lib/bullet/jME3-bullet-natives-android.jar" todir="dist/opt/native-bullet/lib" overwrite="true"/>
-
-        <!--android-->
-        <mkdir dir="dist/opt/android"/>
-        <jar jarfile="dist/opt/android/jMonkeyEngine3.jar"
-                basedir="build/android"
-                />
-        <jar jarfile="dist/opt/android/jMonkeyEngine3.jar"
-                basedir="build/classes"
-		excludes="com/jme3/system/JmeSystem*"
-                update="true"/>
-        <!--<jar jarfile="dist/opt/jME3-android-tests.jar"
-		basedir="build/testclasses"/>-->
-    </target>
 
     <!-- compiles the *native binary* of the native bullet version (read bullet-native-build.txt for more info) -->
     <target name="build-bullet-natives" description="uses native build tools to build the bulletjme binary (read bullet-native-build.txt for more info)" depends="jar">
-        <ant antfile="src/bullet/native/build.xml" target="build-bullet-natives"/>
+        <ant antfile="nbproject/build-bullet-natives.xml" target="build-bullet-natives"/>
     </target>
     
     <target name="run-bullet-native" description="runs the jMonkeyEngine3 demos using native bullet">
-        <copy file="dist/opt/native-bullet/lib/jME3-bullet-natives.jar" todir="dist/lib" failonerror="false"/>
-        <copy file="dist/opt/native-bullet/lib/jME3-bullet.jar" todir="dist/lib" failonerror="false"/>
+        <copy file="dist/opt/native-bullet/jME3-bullet-natives.jar" todir="dist/lib" failonerror="false"/>
+        <copy file="dist/opt/native-bullet/jME3-bullet.jar" todir="dist/lib" failonerror="false"/>
         <delete file="dist/lib/jME3-jbullet.jar" failonerror="false"/>
         <exec executable="java" dir="dist">
             <arg line="-jar jMonkeyEngine3.jar"/>
@@ -119,7 +19,7 @@
     </target>
     
     <!-- overrides javadoc generation to only include relevant classes -->
-    <target depends="init" if="have.sources" name="-javadoc-build">
+    <!--target depends="init" if="have.sources" name="-javadoc-build">
         <mkdir dir="${dist.javadoc.dir}"/>
         <javadoc additionalparam="${javadoc.additionalparam}" author="${javadoc.author}" charset="UTF-8" destdir="${dist.javadoc.dir}" docencoding="UTF-8" encoding="${javadoc.encoding.used}" failonerror="true" noindex="${javadoc.noindex}" nonavbar="${javadoc.nonavbar}" notree="${javadoc.notree}" private="${javadoc.private}" source="${javac.source}" splitindex="${javadoc.splitindex}" use="${javadoc.use}" useexternalfile="true" version="${javadoc.version}" windowtitle="${javadoc.windowtitle}">
             <classpath>
@@ -182,8 +82,251 @@
                 <include name="**/doc-files/**"/>
             </fileset>
         </copy>
-    </target>
+    </target-->
 
+    <!--Override compile section to compile in different folders-->
+    <target depends="init,deps-jar,-pre-pre-compile,-pre-compile, -copy-persistence-xml,-compile-depend" if="have.sources" name="-do-compile">
+        <mkdir dir="${build.dir}/core"/>
+        <mkdir dir="${build.dir}/plugins"/>
+        <mkdir dir="${build.dir}/blender"/>
+        <mkdir dir="${build.dir}/desktop"/>
+        <mkdir dir="${build.dir}/terrain"/>
+        <mkdir dir="${build.dir}/jbullet"/>
+        <mkdir dir="${build.dir}/bullet"/>
+        <mkdir dir="${build.dir}/niftygui"/>
+        <mkdir dir="${build.dir}/lwjgl"/>
+        <mkdir dir="${build.dir}/android"/>
+        <mkdir dir="${build.dir}/test"/>
+        
+        <!--compile core-->
+        <j2seproject3:javac 
+            destdir="${build.dir}/core"
+            srcdir="${src.core.dir}:${src.core-data.dir}:${src.core-plugins.dir}:${src.tools.dir}:${src.networking.dir}"
+            gensrcdir="${build.generated.sources.dir}"/>
+        <copy todir="${build.dir}/core">
+            <fileset dir="${src.core.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
+            <fileset dir="${src.core-data.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
+            <fileset dir="${src.core-plugins.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
+            <fileset dir="${src.tools.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
+        </copy>
+        <!--copy todir="${build.classes.dir}">
+            <fileset dir="${build.dir}/core"/>
+        </copy-->
+        
+        <!--compile non-core plugins (jogg, ogre, xml)-->
+        <j2seproject3:javac 
+            destdir="${build.dir}/plugins"
+            srcdir="${src.jogg.dir}:${src.ogre.dir}:${src.xml.dir}"
+            classpath="${javac.classpath}:${build.dir}/core"
+            gensrcdir="${build.generated.sources.dir}"/>
+        <copy todir="${build.dir}/plugins">
+            <fileset dir="${src.jogg.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
+            <fileset dir="${src.ogre.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
+            <fileset dir="${src.xml.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
+        </copy>
+        <!--copy todir="${build.classes.dir}">
+            <fileset dir="${build.dir}/plugins"/>
+        </copy-->
+        
+        <!--compile desktop-->
+        <j2seproject3:javac 
+            destdir="${build.dir}/desktop"
+            srcdir="${src.desktop.dir}:${src.desktop-fx.dir}"
+            classpath="${javac.classpath}:${build.dir}/core"
+            gensrcdir="${build.generated.sources.dir}"/>
+        <copy todir="${build.dir}/desktop">
+            <fileset dir="${src.desktop.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
+            <fileset dir="${src.desktop-fx.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
+        </copy>
+        <!--copy todir="${build.classes.dir}">
+            <fileset dir="${build.dir}/desktop"/>
+        </copy-->
+        
+        <!--compile blender loader-->
+        <j2seproject3:javac 
+            destdir="${build.dir}/blender"
+            srcdir="${src.blender.dir}"
+            classpath="${javac.classpath}:${build.dir}/core:${build.dir}/plugins:${build.dir}/desktop"
+            gensrcdir="${build.generated.sources.dir}"/>
+        <copy todir="${build.dir}/blender">
+            <fileset dir="${src.blender.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
+        </copy>
+        <!--copy todir="${build.classes.dir}">
+            <fileset dir="${build.dir}/blender"/>
+        </copy-->
+        
+        <!--compile terrain-->
+        <j2seproject3:javac 
+            destdir="${build.dir}/terrain"
+            srcdir="${src.terrain.dir}"
+            classpath="${javac.classpath}:${build.dir}/core:${build.dir}/desktop"
+            gensrcdir="${build.generated.sources.dir}"/>
+        <copy todir="${build.dir}/terrain">
+            <fileset dir="${src.terrain.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
+        </copy>
+        <!--copy todir="${build.classes.dir}">
+            <fileset dir="${build.dir}/terrain"/>
+        </copy-->
+        
+        <!--compile jbullet-->
+        <j2seproject3:javac 
+            destdir="${build.dir}/jbullet"
+            srcdir="${src.jbullet.dir}:${src.bullet-common.dir}"
+            classpath="${javac.classpath}:${build.dir}/core:${build.dir}/terrain"
+            gensrcdir="${build.generated.sources.dir}"/>
+        <copy todir="${build.dir}/jbullet">
+            <fileset dir="${src.jbullet.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
+            <fileset dir="${src.bullet-common.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
+        </copy>
+        <!--copy todir="${build.classes.dir}">
+            <fileset dir="${build.dir}/jbullet"/>
+        </copy-->
+        
+        <!--compile bullet-->
+        <j2seproject3:javac 
+            destdir="${build.dir}/bullet"
+            srcdir="${src.bullet.dir}:${src.bullet-common.dir}"
+            classpath="${javac.classpath}:${build.dir}/core:${build.dir}/terrain"
+            gensrcdir="${build.generated.sources.dir}"/>
+        <copy todir="${build.dir}/bullet">
+            <fileset dir="${src.bullet.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
+            <fileset dir="${src.bullet-common.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
+        </copy>
+        <!--copy todir="${build.classes.dir}">
+            <fileset dir="${build.dir}/bullet"/>
+        </copy-->
+        
+        <!--compile nifty-->
+        <j2seproject3:javac 
+            destdir="${build.dir}/niftygui"
+            srcdir="${src.niftygui.dir}"
+            classpath="${javac.classpath}:${build.dir}/core"
+            gensrcdir="${build.generated.sources.dir}"/>
+        <copy todir="${build.dir}/niftygui">
+            <fileset dir="${src.niftygui.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
+        </copy>
+        <!--copy todir="${build.classes.dir}">
+            <fileset dir="${build.dir}/niftygui"/>
+        </copy-->
+        
+        <!--compile lwjgl-->
+        <j2seproject3:javac 
+            destdir="${build.dir}/lwjgl"
+            srcdir="${src.lwjgl.dir}"
+            classpath="${javac.classpath}:${build.dir}/core:${build.dir}/desktop"
+            gensrcdir="${build.generated.sources.dir}"/>
+        <copy todir="${build.dir}/lwjgl">
+            <fileset dir="${src.lwjgl.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
+        </copy>
+        <!--copy todir="${build.classes.dir}">
+            <fileset dir="${build.dir}/lwjgl"/>
+        </copy-->
+
+        <!--compile android-->
+        <j2seproject3:javac 
+            destdir="${build.dir}/android"
+            srcdir="${src.android.dir}"
+            classpath="${javac.classpath}:${build.dir}/core:${build.dir}/plugins"
+            gensrcdir="${build.generated.sources.dir}"/>
+        <copy todir="${build.dir}/android">
+            <fileset dir="${src.android.dir}" excludes="${build.classes.excludes},${excludes},**/OGLESRenderer.java,**/TestsActivity.java,**/AboutActivity.java,nbproject/**" includes="${includes}"/>
+        </copy>
+        <!--copy todir="${build.classes.dir}">
+            <fileset dir="${build.dir}/android"/>
+        </copy-->
+        
+        <!--compile tests-->
+        <j2seproject3:javac 
+            destdir="${build.dir}/test"
+            srcdir="${src.test.dir}"
+            classpath="${javac.classpath}:${build.dir}/core:${build.dir}/plugins:${build.dir}/desktop:${build.dir}/blender:${build.dir}/terrain:${build.dir}/jbullet:${build.dir}/niftygui"
+            gensrcdir="${build.generated.sources.dir}"/>
+        <copy todir="${build.dir}/test">
+            <fileset dir="${src.test.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
+        </copy>
+        <copy todir="${build.classes.dir}">
+            <fileset dir="${build.dir}/test"/>
+        </copy>
+    </target>
+    
+    <target name="-pre-jar">
+        <jar jarfile="build/jME3-core.jar" basedir="${build.dir}/core" compress="true"/>
+        <jar jarfile="build/jME3-plugins.jar" basedir="${build.dir}/plugins" compress="true"/>
+        <jar jarfile="build/jME3-desktop.jar" basedir="${build.dir}/desktop" compress="true"/>
+        <jar jarfile="build/jME3-blender.jar" basedir="${build.dir}/blender" compress="true"/>
+        <jar jarfile="build/jME3-terrain.jar" basedir="${build.dir}/terrain" compress="true"/>
+        <jar jarfile="build/jME3-jbullet.jar" basedir="${build.dir}/jbullet" compress="true"/>
+        <jar jarfile="build/jME3-bullet.jar" basedir="${build.dir}/bullet" compress="true"/>
+        <jar jarfile="build/jME3-niftygui.jar" basedir="${build.dir}/niftygui" compress="true"/>
+        <jar jarfile="build/jME3-lwjgl.jar" basedir="${build.dir}/lwjgl" compress="true"/>
+        <jar jarfile="build/jME3-android.jar" basedir="${build.dir}/android" compress="true"/>
+        
+        <jar jarfile="build/jME3-testdata.jar" basedir="test-data" compress="true"/>
+        
+        <!--this sets properties that would normally later be created in the build-impl.xml-->
+        <!--the names here correspont to the run.classpath entries in the project.properties file-->
+        <property location="test-data" name="testdata.dir.resolved"/>
+        <property location="build/jME3-testdata.jar" name="testdata.jar.resolved"/>
+        <property location="lib/android/android.jar" name="android.jar.resolved"/>
+        <property location="${build.classes.dir}" name="build.classes.dir.resolved"/>
+        
+        <property location="${build.dir}/core" name="build.core.dir.resolved"/>
+        <property location="${build.dir}/plugins" name="build.plugins.dir.resolved"/>
+        <property location="${build.dir}/desktop" name="build.desktop.dir.resolved"/>
+        <property location="${build.dir}/blender" name="build.blender.dir.resolved"/>
+        <property location="${build.dir}/terrain" name="build.terrain.dir.resolved"/>
+        <property location="${build.dir}/jbullet" name="build.jbullet.dir.resolved"/>
+        <property location="${build.dir}/bullet" name="build.bullet.dir.resolved"/>
+        <property location="${build.dir}/niftygui" name="build.niftygui.dir.resolved"/>
+        <property location="${build.dir}/lwjgl" name="build.lwjgl.dir.resolved"/>
+        <property location="${build.dir}/android" name="build.android.dir.resolved"/>
+        
+        <pathconvert property="run.classpath.without.build.classes.dir">
+            <path path="${run.classpath}"/>
+            <map from="${build.classes.dir.resolved}" to=""/>
+            
+            <map from="${build.core.dir.resolved}" to=""/>
+            <map from="${build.plugins.dir.resolved}" to=""/>
+            <map from="${build.desktop.dir.resolved}" to=""/>
+            <map from="${build.blender.dir.resolved}" to=""/>
+            <map from="${build.terrain.dir.resolved}" to=""/>
+            <map from="${build.jbullet.dir.resolved}" to=""/>
+            <map from="${build.bullet.dir.resolved}" to=""/>
+            <map from="${build.niftygui.dir.resolved}" to=""/>
+            <map from="${build.lwjgl.dir.resolved}" to=""/>
+            <map from="${build.android.dir.resolved}" to=""/>
+            
+            <path path="build/jME3-core.jar"/>
+            <path path="build/jME3-plugins.jar"/>
+            <path path="build/jME3-desktop.jar"/>
+            <path path="build/jME3-blender.jar"/>
+            <path path="build/jME3-terrain.jar"/>
+            <path path="build/jME3-jbullet.jar"/>
+            <path path="build/jME3-bullet.jar"/>
+            <path path="build/jME3-niftygui.jar"/>
+            <path path="build/jME3-lwjgl.jar"/>
+            <!--path path="build/jME3-android.jar"/-->
+
+            <map from="${testdata.dir.resolved}" to="${testdata.jar.resolved}"/>
+            <map from="${android.jar.resolved}" to=""/>
+        </pathconvert>        
+    </target>
+    
+    <target name="-post-jar">
+        <echo message="Creating optional packages"/>
+        <mkdir dir="dist/opt"/>
+        <!--native bullet-->
+        <mkdir dir="dist/opt/native-bullet"/>
+        <!--ant antfile="src/bullet/native/build.xml" target="bullet-api-diff"/-->
+        <!--move file="bullet-api-diff.html" todir="dist/opt/native-bullet" overwrite="true"/-->
+        <move file="dist/lib/jME3-bullet.jar" todir="dist/opt/native-bullet" overwrite="true"/>
+        <move file="dist/lib/jME3-bullet-natives.jar" todir="dist/opt/native-bullet" overwrite="true"/>
+        <copy file="lib/bullet/jME3-bullet-natives-android.jar" todir="dist/opt/native-bullet" overwrite="true"/>
+
+        <!--android-->
+        <mkdir dir="dist/opt/android"/>
+        <move file="build/jME3-android.jar" todir="dist/opt/android" overwrite="true"/>
+    </target>
     <!--
        ****************************************************************
        Only Relevant for building the SDK from here on

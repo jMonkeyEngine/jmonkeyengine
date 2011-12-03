@@ -35,7 +35,6 @@ package com.jme3.network.serializing;
 import com.jme3.math.Vector3f;
 import com.jme3.network.message.*;
 import com.jme3.network.serializing.serializers.*;
-import java.awt.RenderingHints;
 import java.beans.beancontext.BeanContextServicesSupport;
 import java.beans.beancontext.BeanContextSupport;
 import java.io.File;
@@ -115,7 +114,6 @@ public abstract class Serializer {
         registerClass(HashMap.class,                    new MapSerializer());
         registerClass(Hashtable.class,                  new MapSerializer());
         registerClass(IdentityHashMap.class,            new MapSerializer());
-        registerClass(RenderingHints.class,             new MapSerializer());
         registerClass(TreeMap.class,                    new MapSerializer());
         registerClass(WeakHashMap.class,                new MapSerializer());
         

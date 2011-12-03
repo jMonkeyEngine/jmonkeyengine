@@ -48,7 +48,6 @@ import com.jme3.input.InputManager;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.system.AppSettings;
-import com.jme3.system.JmeCanvasContext;
 import com.jme3.system.JmeContext;
 import java.net.MalformedURLException;
 import java.net.URL;

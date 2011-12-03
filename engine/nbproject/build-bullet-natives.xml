@@ -1,0 +1,310 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="build bullet natives" default="all" basedir="../">
+    <!-- load cpp compiler ant task -->
+    <taskdef resource="cpptasks.tasks" classpath="lib/antlibs/cpptasks.jar"/>
+    <!-- load properties -->
+    <property file="nbproject/bullet-native.properties"/>
+    <!-- condition for mac platform check -->
+    <condition property="isSolaris">
+        <os name="SunOS"/>
+    </condition>
+    <condition property="isMac">
+        <and>
+            <os family="mac" />
+            <os family="unix" />
+        </and>
+    </condition>
+    <!-- condition for windows platform check -->
+    <condition property="isWindows">
+        <os family="windows" />
+    </condition>
+    <!-- condition for linux platform check -->
+    <condition property="isLinux">
+        <and>
+            <os family="unix"/>
+            <not>
+                <os family="mac"/>
+            </not>
+            <not>
+                <os name="SunOS"/>
+            </not>
+        </and>
+    </condition>
+    <!-- condition for x86_64 check -->
+    <condition property="isx86_64">
+        <os arch="x86_64" />
+    </condition>
+    
+    <condition property="ndk-build-name" value="ndk-build.cmd" else="ndk-build">
+        <os family="windows" />
+    </condition>
+    
+    <fileset id="lib.jars" dir="${bullet.lib.dir}">
+        <include name="**/*.jar"/>
+    </fileset>
+    <fileset id="lib.jme.jars" dir="${bullet.jme.dir}">
+        <include name="**/*.jar"/>
+    </fileset>
+    
+    <pathconvert property="lib.importpath">
+        <fileset refid="lib.jars"/>
+        <fileset refid="lib.jme.jars"/>
+    </pathconvert>
+
+    <target name="build-bullet-natives" description="builds the native bullet library for the platform being run on" depends="-create-folders, create-native-headers, -nativelib-osx, -nativelib-windows, -nativelib-linux, -nativelib-solaris, -nativelib-android">
+        <echo message="Updating native jME3-bullet-natives.jar"/>
+        <zip basedir="${bullet.output.base}/jarcontent" file="${bullet.output.base}/jME3-bullet-natives.jar" compress="true"/>
+        <zip basedir="${bullet.output.base}/android" file="${bullet.output.base}/jME3-bullet-natives-android.jar" compress="true"/>
+        <copy file="${bullet.output.base}/jME3-bullet-natives.jar" todir="dist/opt/native-bullet/lib/"/>
+        <copy file="${bullet.output.base}/jME3-bullet-natives-android.jar" todir="dist/opt/native-bullet/lib/"/>
+    </target>
+    
+    <target name="create-native-headers" description="creates the native headers">
+        <javah destdir="${bullet.source.dir}" classpath="${bullet.build.dir}${path.separator}${lib.importpath}" force="yes">
+            <class name="com.jme3.bullet.PhysicsSpace"/>
+
+            <class name="com.jme3.bullet.collision.PhysicsCollisionEvent"/>
+            <class name="com.jme3.bullet.collision.PhysicsCollisionObject"/>
+            <class name="com.jme3.bullet.objects.PhysicsCharacter"/>
+            <class name="com.jme3.bullet.objects.PhysicsGhostObject"/>
+            <class name="com.jme3.bullet.objects.PhysicsRigidBody"/>
+            <class name="com.jme3.bullet.objects.PhysicsVehicle"/>
+            <class name="com.jme3.bullet.objects.VehicleWheel"/>
+            <class name="com.jme3.bullet.objects.infos.RigidBodyMotionState"/>
+            
+            <class name="com.jme3.bullet.collision.shapes.CollisionShape"/>
+            <class name="com.jme3.bullet.collision.shapes.BoxCollisionShape"/>
+            <class name="com.jme3.bullet.collision.shapes.CapsuleCollisionShape"/>
+            <class name="com.jme3.bullet.collision.shapes.CompoundCollisionShape"/>
+            <class name="com.jme3.bullet.collision.shapes.ConeCollisionShape"/>
+            <class name="com.jme3.bullet.collision.shapes.CylinderCollisionShape"/>
+            <class name="com.jme3.bullet.collision.shapes.GImpactCollisionShape"/>
+            <class name="com.jme3.bullet.collision.shapes.HeightfieldCollisionShape"/>
+            <class name="com.jme3.bullet.collision.shapes.HullCollisionShape"/>
+            <class name="com.jme3.bullet.collision.shapes.MeshCollisionShape"/>
+            <class name="com.jme3.bullet.collision.shapes.PlaneCollisionShape"/>
+            <class name="com.jme3.bullet.collision.shapes.SimplexCollisionShape"/>
+            <class name="com.jme3.bullet.collision.shapes.SphereCollisionShape"/>
+
+            <class name="com.jme3.bullet.joints.PhysicsJoint"/>
+            <class name="com.jme3.bullet.joints.ConeJoint"/>
+            <class name="com.jme3.bullet.joints.HingeJoint"/>
+            <class name="com.jme3.bullet.joints.Point2PointJoint"/>
+            <class name="com.jme3.bullet.joints.SixDofJoint"/>
+            <class name="com.jme3.bullet.joints.SixDofSpringJoint"/>
+            <class name="com.jme3.bullet.joints.SliderJoint"/>
+            <class name="com.jme3.bullet.joints.motors.RotationalLimitMotor"/>
+            <class name="com.jme3.bullet.joints.motors.TranslationalLimitMotor"/>
+
+            <class name="com.jme3.bullet.util.NativeMeshUtil"/>
+            <class name="com.jme3.bullet.util.DebugShapeFactory"/>
+        </javah>
+    </target>
+
+    <!-- compares the API of native bullet and java version-->
+    <target name="bullet-api-diff">
+        <echo message="Comparing bullet and jbullet API"/>
+        <property name="dependencyfinder.home" value="lib/antlibs/depfinder"/>
+        <path id="dependencyfinder">
+            <pathelement location="${dependencyfinder.home}/classes"/>
+            <pathelement location="${dependencyfinder.home}/lib/DependencyFinder.jar"/>
+            <pathelement location="${dependencyfinder.home}/lib/jakarta-oro.jar"/>
+            <pathelement location="${dependencyfinder.home}/lib/log4j.jar"/>
+            <pathelement location="${dependencyfinder.home}/lib/guava.jar"/>
+        </path>
+        <taskdef resource="dependencyfindertasks.properties">
+            <classpath refid="dependencyfinder"/>
+        </taskdef>
+        <jarjardiff destfile="bullet-api-diff.xml"
+              name="jMonkeyEngine3 Bullet Physics API Comparison"
+              oldlabel="Java Version"
+              newlabel="Native Version"
+              level="incompatible">
+            <old>
+                <pathelement location="build/jME3-jbullet.jar"/>
+            </old>
+            <new>
+                <pathelement location="build/jME3-bullet.jar"/>
+            </new>
+        </jarjardiff>    
+        <xslt style="${dependencyfinder.home}/etc/DiffToHTML.xsl"
+        in="bullet-api-diff.xml"
+        out="bullet-api-diff.html" force="true"/>
+        <delete file="bullet-api-diff.xml"/>
+    </target>
+
+    <target name="-create-folders" description="creates the native headers">
+        <mkdir dir="${bullet.source.dir}"/>
+        <mkdir dir="${bullet.build.dir}"/>
+        <mkdir dir="${bullet.output.dir}"/>
+        <mkdir dir="build/bullet-native"/>
+    </target>
+    
+    <target name="-nativelib-osx" if="isMac">
+        <echo message="Building MacOSX version of native bullet"/>
+        <mkdir dir="${bullet.output.dir}/macosx"/>
+        <cc name="${bullet.osx.compiler}" warnings="none" debug="${bullet.compile.debug}" link="shared" outfile="${bullet.output.dir}/macosx/${bullet.library.name}" objdir="build/bullet-native">
+            <fileset dir="${bullet.source.dir}">
+                <include name="*.cpp">
+                </include>
+            </fileset>
+            <includepath path="${bullet.osx.java.include}"/>
+            <includepath path="${bullet.bullet.include}"/>
+            <compilerarg value="-syslibroot ${bullet.osx.syslibroot}"/>
+            <!--compilerarg value="-arch"/>
+            <compilerarg value="ppc"/-->
+            <compilerarg value="-arch"/>
+            <compilerarg value="i386"/>
+            <compilerarg value="-arch"/>
+            <compilerarg value="x86_64"/>
+            <linker name="${bullet.osx.compiler}">
+                <!--libset dir="${bullet.folder}/src/BulletSoftBody" libs="BulletSoftBody"/-->
+                <libset dir="${bullet.folder}/src/BulletMultiThreaded" libs="BulletMultiThreaded"/>
+                <libset dir="${bullet.folder}/src/BulletDynamics" libs="BulletDynamics"/>
+                <libset dir="${bullet.folder}/src/BulletCollision" libs="BulletCollision"/>
+                <libset dir="${bullet.folder}/src/LinearMath" libs="LinearMath"/>
+                <!--linkerarg value="-arch"/>
+                <linkerarg value="ppc"/-->
+                <linkerarg value="-arch"/>
+                <linkerarg value="i386"/>
+                <linkerarg value="-arch"/>
+                <linkerarg value="x86_64"/>
+            </linker>
+        </cc>
+        <move file="${bullet.output.dir}/macosx/lib${bullet.library.name}.dylib" tofile="${bullet.output.dir}/macosx/lib${bullet.library.name}.jnilib" failonerror="true" verbose="true"/>
+        <delete file="${bullet.output.dir}/macosx/history.xml"/>
+    </target>
+    
+    <target name="-nativelib-linux" if="isLinux">
+        <echo message="Building Linux version of native bullet"/>
+        <mkdir dir="${bullet.output.dir}/linux"/>
+        <cc name="${bullet.linux.compiler}" warnings="severe" debug="${bullet.compile.debug}" link="shared" outfile="${bullet.output.dir}/linux/${bullet.library.name}" objdir="build/bullet-native">
+            <fileset dir="${bullet.source.dir}">
+                <include name="*.cpp">
+                </include>
+            </fileset>
+            <includepath path="${bullet.java.include}"/>
+            <includepath path="${bullet.java.include}/linux"/>
+            <includepath path="${bullet.bullet.include}"/>
+            <!--compilerarg value="-m32"/-->
+            <!--compilerarg value="-static-libgcc"/>
+            <compilerarg value="-fPIC"/-->
+            <linker name="${bullet.linux.compiler}">
+                <!-- linkerarg value="-static-libgcc"/ -->
+                <libset dir="${bullet.folder}/src/BulletMultiThreaded" libs="BulletMultiThreaded"/>
+                <libset dir="${bullet.folder}/src/BulletDynamics" libs="BulletDynamics"/>
+                <libset dir="${bullet.folder}/src/BulletCollision" libs="BulletCollision"/>
+                <libset dir="${bullet.folder}/src/LinearMath" libs="LinearMath"/>
+            </linker>
+        </cc>
+        <delete file="${bullet.output.dir}/linux/history.xml"/>
+    </target>
+    
+    <target name="-nativelib-solaris" if="isSolaris">
+        <echo message="Building Solaris version of native bullet"/>
+        <mkdir dir="${bullet.output.dir}/linux"/>
+        <cc name="${bullet.solaris.compiler}" warnings="severe" debug="${bullet.compile.debug}" link="shared" outfile="${bullet.output.dir}/solaris/${bullet.library.name}" objdir="build/bullet-native">
+            <fileset dir="${bullet.source.dir}">
+                <include name="*.cpp">
+                </include>
+            </fileset>
+            <includepath path="${bullet.java.include}"/>
+            <includepath path="${bullet.java.include}/solaris"/>
+            <includepath path="${bullet.bullet.include}"/>
+            <!--compilerarg value="-m32"/-->
+            <compilerarg value="-m32"/>
+            <compilerarg value="-fno-strict-aliasing"/>
+            <compilerarg value="-pthread"/>
+            <compilerarg value="-fPIC"/>
+            <compilerarg value="-D_REENTRANT"/>
+            <compilerarg value="-static-libstdc++"/>
+            <compilerarg value="-static-libgcc"/>
+            <compilerarg value="-D_REENTRANT"/>
+            <linker name="${bullet.solaris.compiler}">
+                <linkerarg value="-R/usr/sfw/lib"/>
+                <libset dir="${bullet.folder}/src/BulletMultiThreaded" libs="BulletMultiThreaded"/>
+                <libset dir="${bullet.folder}/src/BulletDynamics" libs="BulletDynamics"/>
+                <libset dir="${bullet.folder}/src/BulletCollision" libs="BulletCollision"/>
+                <libset dir="${bullet.folder}/src/LinearMath" libs="LinearMath"/>
+            </linker>
+        </cc>
+        <delete file="${bullet.output.dir}/solaris/history.xml"/>
+    </target>
+
+    <target name="-nativelib-windows" if="isWindows">
+        <echo message="Building Windows version of native bullet"/>
+        <mkdir dir="${bullet.output.dir}/windows"/>
+        <cc multithreaded="" name="${bullet.windows.compiler}" warnings="none" debug="${bullet.compile.debug}" outtype="shared" outfile="${bullet.output.dir}/windows/${bullet.library.name}" objdir="build/bullet-native">
+            <fileset dir="${bullet.source.dir}">
+                <include name="*.cpp">
+                </include>
+            </fileset>
+            <includepath path="${bullet.java.include}"/>
+            <includepath path="${bullet.java.include}/win32"/>
+            <includepath path="${bullet.bullet.include}"/>
+            <!--compilerarg value="-m32"/-->
+            <linker name="${bullet.windows.compiler}" debug="${bullet.compile.debug}" >
+                <linkerarg value="-o${bullet.library.name}.dll" />
+                <linkerarg value="--kill-at" />
+                <linkerarg value="-static"/>
+                <libset dir="${bullet.folder}/lib" libs="BulletMultiThreaded,BulletDynamics,BulletCollision,LinearMath"/> 
+            </linker>
+        </cc>
+        <delete file="${bullet.output.dir}/windows/history.xml"/>
+    </target>
+
+    <target name="-nativelib-android" depends="-check-android-ndk" if="haveAndoidNdk">
+        <!-- delete previous android jni, libs, and obj subdirectories for a clean start -->
+        <delete dir="build/bullet-android/jni" failonerror="false"/>
+        <delete dir="build/bullet-android/libs" failonerror="false"/>
+        <delete dir="build/bullet-android/obj" failonerror="false"/>
+        <!-- create the android subdirectory in jarcontent for the libbulletjme.so shared library -->
+        <mkdir dir="${bullet.output.base}/android"/>
+        <!-- create the jni subdirectory -->
+        <mkdir dir="build/bullet-android/jni" />
+        <!-- copy Android.mk and Application.mk files into jni directory -->
+        <copy file="${bullet.source.dir}/android/Android.mk" todir="build/bullet-android/jni" verbose="true"/>
+        <copy file="${bullet.source.dir}/android/Application.mk" todir="build/bullet-android/jni" verbose="true"/>
+
+        <!-- copy edited version of jmePhysicsSpace to remove NDK compile error -->
+        <copy file="${bullet.source.dir}/android/jmePhysicsSpace.cpp" todir="build/bullet-android/jni" verbose="true"/>
+
+        <!-- copy jME3 Native Bullet files into jni directory -->
+        <copy todir="build/bullet-android/jni" verbose="true" flatten="false">
+            <fileset dir="${bullet.source.dir}">
+                <include name="*.cpp" />
+                <include name="*.h" />
+               <!-- skip jmePhysicsSpace (use edited one) to remove NDK compile error -->
+                <exclude name="jmePhysicsSpace.cpp" />
+            </fileset>
+        </copy>
+
+        <!-- copy Bullet-2.79 files into jni directory -->
+        <copy todir="build/bullet-android/jni" verbose="true" flatten="false">
+            <fileset dir="${bullet.bullet.include}">
+                <include name="**/*.cpp"/>
+                <include name="**/*.h"/>
+                <include name="**/*.cl"/>
+            </fileset>
+        </copy>
+
+        <exec executable="${ndk.dir}/${ndk-build-name}" failonerror="true" >
+            <arg line="-C build/bullet-android/"/>
+        </exec>
+
+        <!-- copy resulting library directories to jarcontent directory -->
+        <copy todir="${bullet.output.base}/android" verbose="true" flatten="false">
+            <fileset dir="build/bullet-android/libs">
+                <include name="**/*.*"/>
+                <include name="**/*.*"/>
+                <!--exclude name="**/x86/*.*"/-->
+            </fileset>
+        </copy>
+
+    </target>
+    
+    <target name="-check-android-ndk">
+        <available file="${ndk.dir}/${ndk-build-name}" property="haveAndoidNdk"/>
+    </target>
+    
+</project>

@@ -1,0 +1,76 @@
+material ElphSkin
+{
+	technique
+	{
+		pass
+		{
+			ambient 0 0 0 1
+			diffuse 1 1 1 1
+			specular 1 1 1 25.6
+			emissive 0 0 0
+
+			texture_unit
+			{
+				texture Elephant.jpg
+				tex_coord_set 0
+			}
+		}
+	}
+}
+material Ele_Tuskh
+{
+	technique
+	{
+		pass
+		{
+			ambient 0 0 0 1
+			diffuse 1 1 1 1
+			specular 1 1 1 25.6
+			emissive 0 0 0
+
+			texture_unit
+			{
+				texture ElephantTusk.jpg
+				tex_coord_set 0
+			}
+		}
+	}
+}
+material leftEyeShader
+{
+	technique
+	{
+		pass
+		{
+			ambient 0 0 0 1
+			diffuse 1 1 1 1
+			specular 0.5 0.5 0.5 25.6
+			emissive 0 0 0
+
+			texture_unit
+			{
+				texture ElephantEye.jpg
+				tex_coord_set 0
+			}
+		}
+	}
+}
+material rightEyeShader
+{
+	technique
+	{
+		pass
+		{
+			ambient 0 0 0 1
+			diffuse 1 1 1 1
+			specular 0.5 0.5 0.5 25.6
+			emissive 0 0 0
+
+			texture_unit
+			{
+				texture ElephantEye.jpg
+				tex_coord_set 0
+			}
+		}
+	}
+}

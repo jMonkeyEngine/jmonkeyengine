@@ -35,8 +35,8 @@ import com.jme3.bounding.BoundingBox;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.scene.control.UpdateControl;
-import com.jme3.bullet.PhysicsSpace;
-import com.jme3.bullet.control.RigidBodyControl;
+//import com.jme3.bullet.PhysicsSpace;
+//import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.export.InputCapsule;
 import com.jme3.export.OutputCapsule;
 import com.jme3.terrain.heightmap.HeightMap;
@@ -116,8 +116,6 @@ public class TerrainGrid extends TerrainQuad {
     protected Set<TerrainGridListener> listeners = new HashSet<TerrainGridListener>();
     protected Material material;
     protected LRUCache<Vector3f, TerrainQuad> cache = new LRUCache<Vector3f, TerrainQuad>(16);
-    protected RigidBodyControl[] quadControls;
-    protected PhysicsSpace space;
     private int cellsLoaded = 0;
     private int[] gridOffset;
     private boolean runOnce = false;
@@ -333,9 +331,6 @@ public class TerrainGrid extends TerrainQuad {
     
     protected void removeQuad(int idx) {
         if (this.getQuad(idx) != null) {
-            if (quadControls != null) {
-                this.getQuad(idx).removeControl(RigidBodyControl.class);
-            }
             for (TerrainGridListener l : listeners) {
                 l.tileDetached(getTileCell(this.getQuad(idx).getWorldTranslation()), this.getQuad(idx));
             }

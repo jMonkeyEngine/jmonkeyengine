@@ -4,10 +4,9 @@ import android.content.res.Resources;
 import com.jme3.asset.AssetInfo;
 import com.jme3.asset.AssetKey;
 import com.jme3.asset.AssetLocator;
-import com.jme3.system.JmeSystem;
+import com.jme3.system.android.JmeAndroidSystem;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class AndroidLocator implements AssetLocator {
@@ -36,7 +35,7 @@ public class AndroidLocator implements AssetLocator {
 
     public AndroidLocator()
     {
-        resources = JmeSystem.getResources();
+        resources = JmeAndroidSystem.getResources();
         androidManager = resources.getAssets();
     }
     

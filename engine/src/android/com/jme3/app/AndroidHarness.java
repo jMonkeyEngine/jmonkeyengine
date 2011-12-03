@@ -3,7 +3,6 @@ package com.jme3.app;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.logging.SimpleFormatter;
 import com.jme3.util.JmeFormatter;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -12,22 +11,18 @@ import android.content.pm.ActivityInfo;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.view.Display;
-import android.view.SurfaceView;
-import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.TextView;
 
-import com.jme3.app.Application;
-import com.jme3.input.TouchInput;
 import com.jme3.input.android.AndroidInput;
 import com.jme3.input.controls.TouchListener;
-import com.jme3.input.controls.TouchTrigger;
 import com.jme3.input.event.TouchEvent;
 import com.jme3.system.AppSettings;
 import com.jme3.system.JmeSystem;
 import com.jme3.system.android.OGLESContext;
 import com.jme3.system.android.AndroidConfigChooser.ConfigType;
+import com.jme3.system.android.JmeAndroidSystem;
 
 /**
  * <code>AndroidHarness</code> wraps a jme application object and runs it on Android
@@ -115,6 +110,7 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
             System.loadLibrary("bulletjme");
         } catch (UnsatisfiedLinkError e) {
         }
+        JmeSystem.setSystemDelegate(new JmeAndroidSystem());
     }
 
     @Override
@@ -136,8 +132,8 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
             }
         } while (log != null && !bIsLogFormatSet);
 
-        JmeSystem.setResources(getResources());
-        JmeSystem.setActivity(this);
+        JmeAndroidSystem.setResources(getResources());
+        JmeAndroidSystem.setActivity(this);
 
         if (screenFullScreen) {
             requestWindowFeature(Window.FEATURE_NO_TITLE);

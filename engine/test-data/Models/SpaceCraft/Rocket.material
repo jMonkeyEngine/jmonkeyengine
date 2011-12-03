@@ -1,0 +1,13 @@
+material SOLID/TEX/Rocket.tga
+{
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				texture Rocket.png
+			}
+		}
+	}
+}

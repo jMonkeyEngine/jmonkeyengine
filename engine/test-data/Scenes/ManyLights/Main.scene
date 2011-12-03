@@ -1,0 +1,187 @@
+<scene formatVersion="1.0.0">
+  <nodes>
+    <node name="Lamp.006">
+      <position x="-24.000000" y="6.000000" z="8.000000"/>
+      <quaternion x="-0.284166" y="0.726942" z="0.342034" w="0.523275"/>
+      <scale x="1.000000" y="1.000000" z="1.000000"/>
+      <light name="Spot.025" type="point">
+        <colourDiffuse r="1" g="1" b="1"/>
+        <colourSpecular r="0.000000" g="0.00000" b="0.00000"/>
+        <lightAttenuation range="5000.0" constant="1.000000" linear="0.050000" quadratic="0.000000"/>
+      </light>
+    </node>
+    <node name="Lamp.007">
+      <position x="-24.000000" y="6.000000" z="24.000000"/>
+      <quaternion x="-0.284166" y="0.726942" z="0.342034" w="0.523275"/>
+      <scale x="1.000000" y="1.000000" z="1.000000"/>
+      <light name="Spot.026" type="point">
+        <colourDiffuse r="1" g="1" b="1"/>
+        <colourSpecular r="0.000000" g="0.00000" b="0.00000"/>
+        <lightAttenuation range="5000.0" constant="1.000000" linear="0.050000" quadratic="0.000000"/>
+      </light>
+    </node>
+    <node name="Lamp.002">
+      <position x="-8.000000" y="6.000000" z="-24.000000"/>
+      <quaternion x="-0.284166" y="0.726942" z="0.342034" w="0.523275"/>
+      <scale x="1.000000" y="1.000000" z="1.000000"/>
+      <light name="Spot.021" type="point">
+        <colourDiffuse r="1" g="1" b="1"/>
+        <colourSpecular r="0.000000" g="0.00000" b="0.00000"/>
+        <lightAttenuation range="5000.0" constant="1.000000" linear="0.050000" quadratic="0.000000"/>
+      </light>
+    </node>
+    <node name="Grid">
+      <position x="0.000000" y="0.913137" z="-0.000000"/>
+      <quaternion x="0.000000" y="0.000000" z="-0.000000" w="1.000000"/>
+      <scale x="39.557323" y="39.557323" z="39.557323"/>
+      <entity name="Grid" meshFile="Grid.mesh"/>
+    </node>
+    <node name="Lamp.001">
+      <position x="8.000000" y="6.000000" z="-24.000000"/>
+      <quaternion x="-0.284166" y="0.726942" z="0.342034" w="0.523275"/>
+      <scale x="1.000000" y="1.000000" z="1.000000"/>
+      <light name="Spot.029" type="point">
+        <colourDiffuse r="1" g="1" b="1"/>
+        <colourSpecular r="0.000000" g="0.00000" b="0.00000"/>
+        <lightAttenuation range="5000.0" constant="1.000000" linear="0.050000" quadratic="0.000000"/>
+      </light>
+    </node>
+    <node name="Lamp">
+      <position x="-23.000000" y="6.000000" z="-24.000000"/>
+      <quaternion x="-0.284166" y="0.726942" z="0.342034" w="0.523275"/>
+      <scale x="1.000000" y="1.000000" z="1.000000"/>
+      <light name="Spot.028" type="point">
+        <colourDiffuse r="1" g="1" b="1"/>
+        <colourSpecular r="0.000000" g="0.00000" b="0.00000"/>
+        <lightAttenuation range="5000.0" constant="1.000000" linear="0.050000" quadratic="0.000000"/>
+      </light>
+    </node>
+    <node name="Camera">
+      <position x="0.000000" y="56.592728" z="89.409599"/>
+      <quaternion x="-0.300704" y="0.000000" z="0.000000" w="0.953717"/>
+      <scale x="1.785218" y="1.785218" z="1.785218"/>
+      <camera name="Camera" fov="37.849289" projectionType="perspective">
+        <clipping nearPlaneDist="1.000000" farPlaneDist="1000.000000"/>
+      </camera>
+    </node>
+    <node name="Lamp.008">
+      <position x="-7.000000" y="6.000000" z="24.000000"/>
+      <quaternion x="-0.284166" y="0.726942" z="0.342034" w="0.523275"/>
+      <scale x="1.000000" y="1.000000" z="1.000000"/>
+      <light name="Spot.027" type="point">
+        <colourDiffuse r="1" g="1" b="1"/>
+        <colourSpecular r="0.000000" g="0.00000" b="0.00000"/>
+        <lightAttenuation range="5000.0" constant="1.000000" linear="0.050000" quadratic="0.000000"/>
+      </light>
+    </node>
+    <node name="Lamp.009">
+      <position x="8.000000" y="6.000000" z="-8.000000"/>
+      <quaternion x="-0.284166" y="0.726942" z="0.342034" w="0.523275"/>
+      <scale x="1.000000" y="1.000000" z="1.000000"/>
+      <light name="Spot.030" type="point">
+        <colourDiffuse r="1" g="1" b="1"/>
+        <colourSpecular r="0.000000" g="0.00000" b="0.00000"/>
+        <lightAttenuation range="5000.0" constant="1.000000" linear="0.050000" quadratic="0.000000"/>
+      </light>
+    </node>
+    <node name="Lamp.003">
+      <position x="-24.000000" y="6.000000" z="-8.000000"/>
+      <quaternion x="-0.284166" y="0.726942" z="0.342034" w="0.523275"/>
+      <scale x="1.000000" y="1.000000" z="1.000000"/>
+      <light name="Spot.022" type="point">
+        <colourDiffuse r="1" g="1" b="1"/>
+        <colourSpecular r="0.000000" g="0.00000" b="0.00000"/>
+        <lightAttenuation range="5000.0" constant="1.000000" linear="0.050000" quadratic="0.000000"/>
+      </light>
+    </node>
+    <node name="Lamp.004">
+      <position x="-8.000000" y="6.000000" z="-8.000000"/>
+      <quaternion x="-0.284166" y="0.726942" z="0.342034" w="0.523275"/>
+      <scale x="1.000000" y="1.000000" z="1.000000"/>
+      <light name="Spot.023" type="point">
+        <colourDiffuse r="1" g="1" b="1"/>
+        <colourSpecular r="0.000000" g="0.00000" b="0.00000"/>
+        <lightAttenuation range="5000.0" constant="1.000000" linear="0.050000" quadratic="0.000000"/>
+      </light>
+    </node>
+    <node name="Lamp.005">
+      <position x="-8.000000" y="6.000000" z="8.000000"/>
+      <quaternion x="-0.284166" y="0.726942" z="0.342034" w="0.523275"/>
+      <scale x="1.000000" y="1.000000" z="1.000000"/>
+      <light name="Spot.024" type="point">
+        <colourDiffuse r="1" g="1" b="1"/>
+        <colourSpecular r="0.000000" g="0.00000" b="0.00000"/>
+        <lightAttenuation range="5000.0" constant="1.000000" linear="0.050000" quadratic="0.000000"/>
+      </light>
+    </node>
+    <node name="Lamp.015">
+      <position x="23.000000" y="6.000000" z="-24.000000"/>
+      <quaternion x="-0.284166" y="0.726942" z="0.342034" w="0.523275"/>
+      <scale x="1.000000" y="1.000000" z="1.000000"/>
+      <light name="Spot.036" type="point">
+        <colourDiffuse r="1" g="1" b="1"/>
+        <colourSpecular r="0.000000" g="0.00000" b="0.00000"/>
+        <lightAttenuation range="5000.0" constant="1.000000" linear="0.050000" quadratic="0.000000"/>
+      </light>
+    </node>
+    <node name="Lamp.014">
+      <position x="23.000000" y="6.000000" z="-8.000000"/>
+      <quaternion x="-0.284166" y="0.726942" z="0.342034" w="0.523275"/>
+      <scale x="1.000000" y="1.000000" z="1.000000"/>
+      <light name="Spot.035" type="point">
+        <colourDiffuse r="1" g="1" b="1"/>
+        <colourSpecular r="0.000000" g="0.00000" b="0.00000"/>
+        <lightAttenuation range="5000.0" constant="1.000000" linear="0.050000" quadratic="0.000000"/>
+      </light>
+    </node>
+    <node name="Lamp.013">
+      <position x="23.000000" y="6.000000" z="8.000000"/>
+      <quaternion x="-0.284166" y="0.726942" z="0.342034" w="0.523275"/>
+      <scale x="1.000000" y="1.000000" z="1.000000"/>
+      <light name="Spot.034" type="point">
+        <colourDiffuse r="1" g="1" b="1"/>
+        <colourSpecular r="0.000000" g="0.00000" b="0.00000"/>
+        <lightAttenuation range="5000.0" constant="1.000000" linear="0.050000" quadratic="0.000000"/>
+      </light>
+    </node>
+    <node name="Lamp.012">
+      <position x="24.000000" y="6.000000" z="24.000000"/>
+      <quaternion x="-0.284166" y="0.726942" z="0.342034" w="0.523275"/>
+      <scale x="1.000000" y="1.000000" z="1.000000"/>
+      <light name="Spot.033" type="point">
+        <colourDiffuse r="1" g="1" b="1"/>
+        <colourSpecular r="0.000000" g="0.00000" b="0.00000"/>
+        <lightAttenuation range="5000.0" constant="1.000000" linear="0.050000" quadratic="0.000000"/>
+      </light>
+    </node>
+    <node name="Lamp.011">
+      <position x="9.000000" y="6.000000" z="23.000000"/>
+      <quaternion x="-0.284166" y="0.726942" z="0.342034" w="0.523275"/>
+      <scale x="1.000000" y="1.000000" z="1.000000"/>
+      <light name="Spot.032" type="point">
+        <colourDiffuse r="1" g="1" b="1"/>
+        <colourSpecular r="0.000000" g="0.00000" b="0.00000"/>
+        <lightAttenuation range="5000.0" constant="1.000000" linear="0.050000" quadratic="0.000000"/>
+      </light>
+    </node>
+    <node name="Lamp.010">
+      <position x="8.000000" y="6.000000" z="8.000000"/>
+      <quaternion x="-0.284166" y="0.726942" z="0.342034" w="0.523275"/>
+      <scale x="1.000000" y="1.000000" z="1.000000"/>
+      <light name="Spot.031" type="point">
+        <colourDiffuse r="1" g="1" b="1"/>
+        <colourSpecular r="0.000000" g="0.00000" b="0.00000"/>
+        <lightAttenuation range="5000.0" constant="1.000000" linear="0.050000" quadratic="0.000000"/>
+      </light>
+    </node>
+  </nodes>
+  <externals>
+    <item type="material">
+      <file name="Scene.material"/>
+    </item>
+  </externals>
+  <environment>
+    <colourAmbient r="0.000000" g="0.000000" b="0.000000"/>
+    <colourBackground r="0.056563" g="0.220815" b="0.400000"/>
+  </environment>
+</scene>

@@ -55,6 +55,7 @@ import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
+import com.jme3.niftygui.NiftyJmeDisplay;
 import com.jme3.post.FilterPostProcessor;
 import com.jme3.post.filters.FadeFilter;
 import com.jme3.renderer.Caps;
@@ -65,7 +66,7 @@ import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Box;
 import com.jme3.shadow.PssmShadowRenderer;
 import com.jme3.system.NanoTimer;
-import com.jme3.system.lwjgl.LwjglTimer;
+import de.lessvoid.nifty.Nifty;
 
 public class TestCinematic extends SimpleApplication {
 
@@ -81,14 +82,22 @@ public class TestCinematic extends SimpleApplication {
     public static void main(String[] args) {
         TestCinematic app = new TestCinematic();
         app.start();
-      
-        
+
+
 
     }
 
     @Override
     public void simpleInitApp() {
         //just some text
+        NiftyJmeDisplay niftyDisplay = new NiftyJmeDisplay(getAssetManager(),
+                getInputManager(),
+                getAudioRenderer(),
+                getGuiViewPort());
+        Nifty nifty;
+        nifty = niftyDisplay.getNifty();
+        nifty.fromXmlWithoutStartScreen("Interface/Nifty/CinematicTest.xml");
+        getGuiViewPort().addProcessor(niftyDisplay);
         guiFont = assetManager.loadFont("Interface/Fonts/Default.fnt");
         final BitmapText text = new BitmapText(guiFont, false);
         text.setSize(guiFont.getCharSet().getRenderedSize());
@@ -100,7 +109,7 @@ public class TestCinematic extends SimpleApplication {
         createScene();
 
         cinematic = new Cinematic(rootNode, 20);
-        cinematic.bindUi("Interface/Nifty/CinematicTest.xml");
+//        cinematic.bindUi("Interface/Nifty/CinematicTest.xml");
         stateManager.attach(cinematic);
 
         createCameraMotion();
@@ -110,7 +119,7 @@ public class TestCinematic extends SimpleApplication {
 
             @Override
             public void onPlay() {
-                fade.setDuration(1f/cinematic.getSpeed());
+                fade.setDuration(1f / cinematic.getSpeed());
                 fade.setValue(0);
                 fade.fadeIn();
             }
@@ -143,7 +152,7 @@ public class TestCinematic extends SimpleApplication {
         cinematic.addCinematicEvent(0, cameraMotionTrack);
         cinematic.addCinematicEvent(0, new SoundTrack("Sound/Environment/Nature.ogg", LoopMode.Loop));
         cinematic.addCinematicEvent(3, new SoundTrack("Sound/Effects/kick.wav"));
-        cinematic.addCinematicEvent(3, new SubtitleTrack("start", 3, "jMonkey engine really kicks A..."));
+        cinematic.addCinematicEvent(3, new SubtitleTrack(nifty, "start", 3, "jMonkey engine really kicks A..."));
         cinematic.addCinematicEvent(5.0f, new SoundTrack("Sound/Effects/Beep.ogg", 1));
         cinematic.addCinematicEvent(6, new AnimationTrack(model, "Walk", LoopMode.Loop));
         cinematic.activateCamera(6, "topView");
@@ -153,7 +162,7 @@ public class TestCinematic extends SimpleApplication {
 
             @Override
             public void onPlay() {
-                fade.setDuration(1f/cinematic.getSpeed());
+                fade.setDuration(1f / cinematic.getSpeed());
                 fade.fadeOut();
             }
 
@@ -170,13 +179,13 @@ public class TestCinematic extends SimpleApplication {
             }
         });
 
-      final NanoTimer myTimer = new NanoTimer();
+        final NanoTimer myTimer = new NanoTimer();
         cinematic.addListener(new CinematicEventListener() {
 
             public void onPlay(CinematicEvent cinematic) {
                 chaseCam.setEnabled(false);
                 myTimer.reset();
-                
+
                 System.out.println("play");
             }
 
@@ -189,10 +198,9 @@ public class TestCinematic extends SimpleApplication {
                 chaseCam.setEnabled(true);
                 fade.setValue(1);
                 System.out.println("stop");
-                System.out.println((float)myTimer.getTime()/(float)myTimer.getResolution());            
- 
+                System.out.println((float) myTimer.getTime() / (float) myTimer.getResolution());
+
             }
-            
         });
 
         cinematic.setSpeed(2);
@@ -257,8 +265,8 @@ public class TestCinematic extends SimpleApplication {
         fpp = new FilterPostProcessor(assetManager);
         fade = new FadeFilter();
         fpp.addFilter(fade);
-        
-        if (renderer.getCaps().contains(Caps.GLSL100)){
+
+        if (renderer.getCaps().contains(Caps.GLSL100)) {
             PssmShadowRenderer pssm = new PssmShadowRenderer(assetManager, 512, 1);
             pssm.setDirection(new Vector3f(0, -1, -1).normalizeLocal());
             pssm.setShadowIntensity(0.4f);
@@ -270,6 +278,7 @@ public class TestCinematic extends SimpleApplication {
     private void initInputs() {
         inputManager.addMapping("togglePause", new KeyTrigger(keyInput.KEY_RETURN));
         ActionListener acl = new ActionListener() {
+
             public void onAction(String name, boolean keyPressed, float tpf) {
                 if (name.equals("togglePause") && keyPressed) {
                     if (cinematic.getPlayState() == PlayState.Playing) {
@@ -283,9 +292,4 @@ public class TestCinematic extends SimpleApplication {
         };
         inputManager.addListener(acl, "togglePause");
     }
-
-    
-    
-    
-    
 }

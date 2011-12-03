@@ -42,13 +42,13 @@ import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
 import com.jme3.export.Savable;
-import com.jme3.niftygui.NiftyJmeDisplay;
+//import com.jme3.niftygui.NiftyJmeDisplay;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.RenderManager;
 import com.jme3.scene.CameraNode;
 import com.jme3.scene.Node;
 import com.jme3.scene.control.CameraControl.ControlDirection;
-import de.lessvoid.nifty.Nifty;
+//import de.lessvoid.nifty.Nifty;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -72,7 +72,7 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
     private Map<String, CameraNode> cameras = new HashMap<String, CameraNode>();
     private CameraNode currentCam;
     private boolean initialized = false;
-    private Nifty nifty = null;
+//    private Nifty nifty = null;
     private Map<String, Map<String, Object>> eventsData;
 
     public Cinematic() {
@@ -176,13 +176,13 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
 
     public void initialize(AppStateManager stateManager, Application app) {
         if (niftyXmlPath != null) {
-            NiftyJmeDisplay niftyDisplay = new NiftyJmeDisplay(app.getAssetManager(),
-                    app.getInputManager(),
-                    app.getAudioRenderer(),
-                    app.getGuiViewPort());
-            nifty = niftyDisplay.getNifty();
-            nifty.fromXmlWithoutStartScreen(niftyXmlPath);
-            app.getGuiViewPort().addProcessor(niftyDisplay);
+//            NiftyJmeDisplay niftyDisplay = new NiftyJmeDisplay(app.getAssetManager(),
+//                    app.getInputManager(),
+//                    app.getAudioRenderer(),
+//                    app.getGuiViewPort());
+//            nifty = niftyDisplay.getNifty();
+//            nifty.fromXmlWithoutStartScreen(niftyXmlPath);
+//            app.getGuiViewPort().addProcessor(niftyDisplay);
         }
         initEvent(app, this);
         for (CinematicEvent cinematicEvent : cinematicEvents) {
@@ -329,9 +329,9 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
         this.scene = scene;
     }
 
-    public Nifty getNifty() {
-        return nifty;
-    }
+//    public Nifty getNifty() {
+//        return nifty;
+//    }
 
     private Map<String, Map<String, Object>> getEventsData() {
         if (eventsData == null) {
