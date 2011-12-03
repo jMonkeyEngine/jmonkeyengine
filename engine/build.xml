@@ -10,9 +10,9 @@
     </target>
     
     <target name="run-bullet-native" description="runs the jMonkeyEngine3 demos using native bullet">
-        <copy file="dist/opt/native-bullet/jME3-bullet-natives.jar" todir="dist/lib" failonerror="false"/>
-        <copy file="dist/opt/native-bullet/jME3-bullet.jar" todir="dist/lib" failonerror="false"/>
-        <delete file="dist/lib/jME3-jbullet.jar" failonerror="false"/>
+        <copy file="${dist.dir}/opt/native-bullet/jME3-bullet-natives.jar" todir="${dist.dir}/lib" failonerror="false"/>
+        <copy file="${dist.dir}/opt/native-bullet/jME3-bullet.jar" todir="${dist.dir}/lib" failonerror="false"/>
+        <delete file="${dist.dir}/lib/jME3-jbullet.jar" failonerror="false"/>
         <exec executable="java" dir="dist">
             <arg line="-jar jMonkeyEngine3.jar"/>
         </exec>
@@ -167,25 +167,25 @@
     
     <target name="-pre-jar">
         <echo>Building Engine JAR files..</echo>
-        <jar jarfile="build/jME3-core.jar" basedir="${build.dir}/core" compress="true"/>
-        <jar jarfile="build/jME3-plugins.jar" basedir="${build.dir}/plugins" compress="true"/>
-        <jar jarfile="build/jME3-jogg.jar" basedir="${build.dir}/jogg" compress="true"/>
-        <jar jarfile="build/jME3-desktop.jar" basedir="${build.dir}/desktop" compress="true"/>
-        <jar jarfile="build/jME3-blender.jar" basedir="${build.dir}/blender" compress="true"/>
-        <jar jarfile="build/jME3-terrain.jar" basedir="${build.dir}/terrain" compress="true"/>
-        <jar jarfile="build/jME3-jbullet.jar" basedir="${build.dir}/jbullet" compress="true"/>
-        <jar jarfile="build/jME3-bullet.jar" basedir="${build.dir}/bullet" compress="true"/>
-        <jar jarfile="build/jME3-niftygui.jar" basedir="${build.dir}/niftygui" compress="true"/>
-        <jar jarfile="build/jME3-lwjgl.jar" basedir="${build.dir}/lwjgl" compress="true"/>
-        <jar jarfile="build/jME3-android.jar" basedir="${build.dir}/android" compress="true"/>
+        <jar jarfile="${build.dir}/jME3-core.jar" basedir="${build.dir}/core" compress="true"/>
+        <jar jarfile="${build.dir}/jME3-plugins.jar" basedir="${build.dir}/plugins" compress="true"/>
+        <jar jarfile="${build.dir}/jME3-jogg.jar" basedir="${build.dir}/jogg" compress="true"/>
+        <jar jarfile="${build.dir}/jME3-desktop.jar" basedir="${build.dir}/desktop" compress="true"/>
+        <jar jarfile="${build.dir}/jME3-blender.jar" basedir="${build.dir}/blender" compress="true"/>
+        <jar jarfile="${build.dir}/jME3-terrain.jar" basedir="${build.dir}/terrain" compress="true"/>
+        <jar jarfile="${build.dir}/jME3-jbullet.jar" basedir="${build.dir}/jbullet" compress="true"/>
+        <jar jarfile="${build.dir}/jME3-bullet.jar" basedir="${build.dir}/bullet" compress="true"/>
+        <jar jarfile="${build.dir}/jME3-niftygui.jar" basedir="${build.dir}/niftygui" compress="true"/>
+        <jar jarfile="${build.dir}/jME3-lwjgl.jar" basedir="${build.dir}/lwjgl" compress="true"/>
+        <jar jarfile="${build.dir}/jME3-android.jar" basedir="${build.dir}/android" compress="true"/>
         
-        <echo>Building TestData JAR files..</echo>
-        <jar jarfile="build/jME3-testdata.jar" basedir="test-data" compress="true"/>
+        <echo>Building TestData JAR file..</echo>
+        <jar jarfile="${build.dir}/jME3-testdata.jar" basedir="test-data" compress="true"/>
         
         <!--this sets properties that would normally later be created in the build-impl.xml-->
         <!--the names here correspont to the run.classpath entries in the project.properties file-->
         <property location="test-data" name="testdata.dir.resolved"/>
-        <property location="build/jME3-testdata.jar" name="testdata.jar.resolved"/>
+        <property location="${build.dir}/jME3-testdata.jar" name="testdata.jar.resolved"/>
         <property location="lib/android/android.jar" name="android.jar.resolved"/>
         <property location="${build.classes.dir}" name="build.classes.dir.resolved"/>
         
@@ -217,17 +217,17 @@
             <map from="${build.lwjgl.dir.resolved}" to=""/>
             <map from="${build.android.dir.resolved}" to=""/>
             
-            <path path="build/jME3-core.jar"/>
-            <path path="build/jME3-plugins.jar"/>
-            <path path="build/jME3-jogg.jar"/>
-            <path path="build/jME3-desktop.jar"/>
-            <path path="build/jME3-blender.jar"/>
-            <path path="build/jME3-terrain.jar"/>
-            <path path="build/jME3-jbullet.jar"/>
-            <path path="build/jME3-bullet.jar"/>
-            <path path="build/jME3-niftygui.jar"/>
-            <path path="build/jME3-lwjgl.jar"/>
-            <!--path path="build/jME3-android.jar"/-->
+            <path path="${build.dir}/jME3-core.jar"/>
+            <path path="${build.dir}/jME3-plugins.jar"/>
+            <path path="${build.dir}/jME3-jogg.jar"/>
+            <path path="${build.dir}/jME3-desktop.jar"/>
+            <path path="${build.dir}/jME3-blender.jar"/>
+            <path path="${build.dir}/jME3-terrain.jar"/>
+            <path path="${build.dir}/jME3-jbullet.jar"/>
+            <path path="${build.dir}/jME3-bullet.jar"/>
+            <path path="${build.dir}/jME3-niftygui.jar"/>
+            <path path="${build.dir}/jME3-lwjgl.jar"/>
+            <!--path path="${build.dir}/jME3-android.jar"/-->
 
             <map from="${testdata.dir.resolved}" to="${testdata.jar.resolved}"/>
             <map from="${android.jar.resolved}" to=""/>
@@ -236,18 +236,18 @@
     
     <target name="-post-jar">
         <echo>Moving optional packages</echo>
-        <mkdir dir="dist/opt"/>
+        <mkdir dir="${dist.dir}/opt"/>
         <!--native bullet-->
-        <mkdir dir="dist/opt/native-bullet"/>
+        <mkdir dir="${dist.dir}/opt/native-bullet"/>
         <!--ant antfile="nbproject/build-bullet-natives.xml" target="bullet-api-diff"/-->
-        <!--move file="bullet-api-diff.html" todir="dist/opt/native-bullet" overwrite="true"/-->
-        <move file="dist/lib/jME3-bullet.jar" todir="dist/opt/native-bullet" overwrite="true"/>
-        <move file="dist/lib/jME3-bullet-natives.jar" todir="dist/opt/native-bullet" overwrite="true"/>
-        <copy file="lib/bullet/jME3-bullet-natives-android.jar" todir="dist/opt/native-bullet" overwrite="true"/>
+        <!--move file="bullet-api-diff.html" todir="${dist.dir}/opt/native-bullet" overwrite="true"/-->
+        <move file="${dist.dir}/lib/jME3-bullet.jar" todir="${dist.dir}/opt/native-bullet" overwrite="true"/>
+        <move file="${dist.dir}/lib/jME3-bullet-natives.jar" todir="${dist.dir}/opt/native-bullet" overwrite="true"/>
+        <copy file="lib/bullet/jME3-bullet-natives-android.jar" todir="${dist.dir}/opt/native-bullet" overwrite="true"/>
 
         <!--android-->
-        <mkdir dir="dist/opt/android"/>
-        <copy file="build/jME3-android.jar" todir="dist/opt/android" overwrite="true"/>
+        <mkdir dir="${dist.dir}/opt/android"/>
+        <copy file="${build.dir}/jME3-android.jar" todir="${dist.dir}/opt/android" overwrite="true"/>
     </target>
     <!--
        ****************************************************************
@@ -277,16 +277,16 @@
             <exclude name="**/jME3-bullet-natives.jar"/>
             <exclude name="**/jME3-bullet-natives-android.jar"/>
         </fileset>
-        <fileset id="jme3-bullet-native-jars" dir="dist/opt/native-bullet">
+        <fileset id="jme3-bullet-native-jars" dir="${dist.dir}/opt/native-bullet">
             <include name="**/jME3-bullet-native**.jar"/>
         </fileset>
         <fileset id="jme3-testdata-jars" dir="build">
             <include name="**/jME3-testdata.jar"/>
         </fileset>
-        <fileset id="jme3-lwjgl-native-jars" dir="dist/lib">
+        <fileset id="jme3-lwjgl-native-jars" dir="${dist.dir}/lib">
             <include name="**/jME3-lwjgl-natives.jar"/>
         </fileset>
-        <fileset id="jme3-external-libraries" dir="dist/lib/">
+        <fileset id="jme3-external-libraries" dir="${dist.dir}/lib/">
             <exclude name="jME3-**"/>
         </fileset>
         <!--clear old files-->
@@ -327,12 +327,12 @@
         </copy>
 
         <!-- javadoc -->
-        <zip destfile="dist/jMonkeyEngine3-javadoc.zip">
-            <zipfileset dir="dist/javadoc/"/>
+        <zip destfile="${dist.dir}/jMonkeyEngine3-javadoc.zip">
+            <zipfileset dir="${dist.dir}/javadoc/"/>
         </zip>
-        <copy file="dist/jMonkeyEngine3-javadoc.zip" toDir="${jmp_dir}/jme3-project-baselibs/release/libs/" overwrite="true" failonerror="true" verbose="false"/>
+        <copy file="${dist.dir}/jMonkeyEngine3-javadoc.zip" toDir="${jmp_dir}/jme3-project-baselibs/release/libs/" overwrite="true" failonerror="true" verbose="false"/>
 
-        <zip destfile="dist/jMonkeyEngine3-sources.zip">
+        <zip destfile="${dist.dir}/jMonkeyEngine3-sources.zip">
             <zipfileset dir="${src.core.dir}"/>
             <zipfileset dir="${src.core-data.dir}"/>
             <zipfileset dir="${src.core-plugins.dir}"/>
@@ -349,7 +349,7 @@
             <zipfileset dir="${src.terrain.dir}"/>
             <zipfileset dir="${src.networking.dir}"/>
         </zip>
-        <copy file="dist/jMonkeyEngine3-sources.zip" toDir="${jmp_dir}/jme3-project-baselibs/release/libs/" overwrite="true" failonerror="true" verbose="false"/>
+        <copy file="${dist.dir}/jMonkeyEngine3-sources.zip" toDir="${jmp_dir}/jme3-project-baselibs/release/libs/" overwrite="true" failonerror="true" verbose="false"/>
         
         <copy todir="${jmp_dir}/jme3-project-libraries/release/libs/" overwrite="true" failonerror="true" verbose="false" flatten="true">
             <fileset refid="jme3-external-libraries"/>
@@ -388,12 +388,12 @@
                 <include name="TestChooser.exe"/>
                 <include name="README.TXT"/>
             </fileset>
-            <fileset dir="dist/">
+            <fileset dir="${dist.dir}/">
                 <include name="jMonkeyEngine3.jar"/>
             </fileset>
-            <zipfileset dir="dist/lib" prefix="lib"/>
-            <zipfileset dir="dist/opt" prefix="opt"/>
-            <zipfileset dir="dist/javadoc" prefix="javadoc"/>
+            <zipfileset dir="${dist.dir}/lib" prefix="lib"/>
+            <zipfileset dir="${dist.dir}/opt" prefix="opt"/>
+            <zipfileset dir="${dist.dir}/javadoc" prefix="javadoc"/>
             <zipfileset dir="${src.core.dir}" prefix="source"/>
             <zipfileset dir="${src.core-data.dir}" prefix="source"/>
             <zipfileset dir="${src.core-plugins.dir}" prefix="source"/>
@@ -420,7 +420,7 @@
     
     <target name="copy-javadoc">
         <copydir
-            src="dist/javadoc/" dest="/var/www/org/javadoc/" forceoverwrite="true"
+            src="${dist.dir}/javadoc/" dest="/var/www/org/javadoc/" forceoverwrite="true"
             />
     </target>
     
