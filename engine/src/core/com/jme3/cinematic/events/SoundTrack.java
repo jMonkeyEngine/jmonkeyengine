@@ -34,7 +34,6 @@ package com.jme3.cinematic.events;
 import com.jme3.animation.LoopMode;
 import com.jme3.app.Application;
 import com.jme3.audio.AudioNode;
-import com.jme3.audio.AudioRenderer;
 import com.jme3.cinematic.Cinematic;
 import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;

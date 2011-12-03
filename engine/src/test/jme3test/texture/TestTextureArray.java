@@ -1,9 +1,6 @@
 package jme3test.texture;
 
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.jme3.app.SimpleApplication;
 import com.jme3.material.Material;
 import com.jme3.math.Vector3f;
@@ -15,6 +12,8 @@ import com.jme3.texture.Image;
 import com.jme3.texture.Texture;
 import com.jme3.texture.TextureArray;
 import com.jme3.util.BufferUtils;
+import java.util.ArrayList;
+import java.util.List;
 
 public class TestTextureArray extends SimpleApplication
 {

@@ -4,7 +4,6 @@ import com.jme3.asset.AssetInfo;
 import com.jme3.asset.AssetKey;
 import com.jme3.asset.AssetLoadException;
 import com.jme3.asset.AssetManager;
-import com.jme3.asset.AssetNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;

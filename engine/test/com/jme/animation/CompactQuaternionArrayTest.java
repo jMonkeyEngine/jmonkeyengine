@@ -1,14 +1,11 @@
 package com.jme.animation;
 
-import static org.junit.Assert.assertTrue;
-
-import java.util.Arrays;
-
-import org.junit.Before;
-import org.junit.Test;
-
 import com.jme3.animation.CompactQuaternionArray;
 import com.jme3.math.Quaternion;
+import java.util.Arrays;
+import static org.junit.Assert.assertTrue;
+import org.junit.Before;
+import org.junit.Test;
 
 public class CompactQuaternionArrayTest {
 

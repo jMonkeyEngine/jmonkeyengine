@@ -42,8 +42,6 @@ import com.jme3.material.Material;
 import com.jme3.math.Vector3f;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class TestParticleExportingCloning extends SimpleApplication {
 

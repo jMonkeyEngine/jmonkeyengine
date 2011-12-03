@@ -32,16 +32,7 @@
 package com.jme3.util;
 
 import com.jme3.collision.bih.BIHNode.BIHStackData;
-import com.jme3.math.ColorRGBA;
-import com.jme3.math.Eigen3f;
-import com.jme3.math.Matrix4f;
-import com.jme3.math.Matrix3f;
-import com.jme3.math.Plane;
-import com.jme3.math.Quaternion;
-import com.jme3.math.Triangle;
-import com.jme3.math.Vector2f;
-import com.jme3.math.Vector3f;
-import com.jme3.math.Vector4f;
+import com.jme3.math.*;
 import com.jme3.scene.Spatial;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;

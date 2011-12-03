@@ -33,7 +33,6 @@
 package jme3test.gui;
 
 import com.jme3.app.SimpleApplication;
-import com.jme3.math.Vector3f;
 import com.jme3.ui.Picture;
 
 public class TestOrtho extends SimpleApplication {

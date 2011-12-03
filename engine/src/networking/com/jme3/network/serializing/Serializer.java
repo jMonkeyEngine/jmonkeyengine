@@ -33,7 +33,10 @@
 package com.jme3.network.serializing;
 
 import com.jme3.math.Vector3f;
-import com.jme3.network.message.*;
+import com.jme3.network.message.ClientRegistrationMessage;
+import com.jme3.network.message.DisconnectMessage;
+import com.jme3.network.message.GZIPCompressedMessage;
+import com.jme3.network.message.ZIPCompressedMessage;
 import com.jme3.network.serializing.serializers.*;
 import java.beans.beancontext.BeanContextServicesSupport;
 import java.beans.beancontext.BeanContextSupport;

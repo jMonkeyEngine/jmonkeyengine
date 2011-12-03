@@ -32,7 +32,8 @@
 
 package com.jme3.math;
 
-import com.jme3.collision.*;
+import com.jme3.collision.Collidable;
+import com.jme3.collision.CollisionResults;
 
 public abstract class AbstractTriangle implements Collidable {
 

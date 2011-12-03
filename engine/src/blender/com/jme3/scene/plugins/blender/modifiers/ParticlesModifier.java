@@ -1,10 +1,5 @@
 package com.jme3.scene.plugins.blender.modifiers;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import com.jme3.effect.ParticleEmitter;
 import com.jme3.effect.shapes.EmitterMeshVertexShape;
 import com.jme3.effect.shapes.EmitterShape;
@@ -19,6 +14,10 @@ import com.jme3.scene.plugins.blender.file.Pointer;
 import com.jme3.scene.plugins.blender.file.Structure;
 import com.jme3.scene.plugins.blender.materials.MaterialHelper;
 import com.jme3.scene.plugins.blender.particles.ParticlesHelper;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * This modifier allows to add particles to the object.

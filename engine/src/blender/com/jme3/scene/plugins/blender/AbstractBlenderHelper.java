@@ -31,9 +31,6 @@
  */
 package com.jme3.scene.plugins.blender;
 
-import java.nio.FloatBuffer;
-import java.util.List;
-
 import com.jme3.math.FastMath;
 import com.jme3.math.Quaternion;
 import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
@@ -41,6 +38,8 @@ import com.jme3.scene.plugins.blender.file.Pointer;
 import com.jme3.scene.plugins.blender.file.Structure;
 import com.jme3.scene.plugins.blender.objects.Properties;
 import com.jme3.util.BufferUtils;
+import java.nio.FloatBuffer;
+import java.util.List;
 
 /**
  * A purpose of the helper class is to split calculation code into several classes. Each helper after use should be cleared because it can

@@ -32,8 +32,6 @@
 
 package com.jme3.util;
 
-import com.jme3.renderer.Renderer;
-
 /**
  * Describes a native object. An encapsulation of a certain object 
  * on the native side of the graphics or audio library.

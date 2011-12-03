@@ -1,7 +1,6 @@
 package com.jme3.math;
 
 import static org.junit.Assert.assertEquals;
-
 import org.junit.Test;
 
 public class TrigonometryTest {

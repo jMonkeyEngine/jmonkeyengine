@@ -32,13 +32,15 @@
 
 package com.jme3.network.base;
 
-import java.util.*;
-import java.util.concurrent.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import com.jme3.network.Message;
 import com.jme3.network.MessageListener;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *  Keeps track of message listeners registered to specific

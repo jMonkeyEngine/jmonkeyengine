@@ -8,34 +8,19 @@
 package jme3test.android;
 
 
-import java.util.List;
-import java.util.ArrayList;
-
 import com.jme3.app.SimpleApplication;
-
 import com.jme3.asset.TextureKey;
-
+import com.jme3.light.PointLight;
 import com.jme3.material.Material;
-
-import com.jme3.math.Transform;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
-
+import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
-import com.jme3.scene.Geometry;
-import com.jme3.scene.shape.Sphere;
 import com.jme3.scene.shape.Box;
-
+import com.jme3.scene.shape.Sphere;
 import com.jme3.texture.Texture;
-
-import com.jme3.light.PointLight;
-
 import com.jme3.util.TangentBinormalGenerator;
-
-import jme3tools.converters.model.ModelConverter;
-
-import java.awt.font.*;
 
 
 public class SimpleTexturedTest extends SimpleApplication {

@@ -37,10 +37,9 @@ package jme3test.batching;
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import jme3test.bullet.*;
-import com.jme3.bullet.BulletAppState;
 import com.jme3.app.SimpleApplication;
 import com.jme3.asset.TextureKey;
+import com.jme3.bullet.BulletAppState;
 import com.jme3.bullet.PhysicsSpace;
 import com.jme3.bullet.collision.shapes.SphereCollisionShape;
 import com.jme3.bullet.control.RigidBodyControl;
@@ -54,7 +53,6 @@ import com.jme3.math.Vector3f;
 import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.BatchNode;
 import com.jme3.scene.Geometry;
-import com.jme3.scene.SimpleBatchNode;
 import com.jme3.scene.shape.Box;
 import com.jme3.scene.shape.Sphere;
 import com.jme3.scene.shape.Sphere.TextureMode;
@@ -65,6 +63,7 @@ import com.jme3.system.AppSettings;
 import com.jme3.system.NanoTimer;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
+import jme3test.bullet.BombControl;
 
 /**
  *

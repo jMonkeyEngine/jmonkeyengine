@@ -1,11 +1,10 @@
 package com.jme3.scene.plugins.blender.textures;
 
+import com.jme3.math.ColorRGBA;
+import com.jme3.texture.Image.Format;
 import java.nio.ByteBuffer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import com.jme3.math.ColorRGBA;
-import com.jme3.texture.Image.Format;
 
 /*package*/ class TexturePixel implements Cloneable {
 	private static final Logger LOGGER = Logger.getLogger(TexturePixel.class.getName());

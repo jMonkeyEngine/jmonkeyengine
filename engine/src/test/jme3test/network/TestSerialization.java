@@ -32,22 +32,11 @@
 
 package jme3test.network;
 
-import com.jme3.network.AbstractMessage;
-import com.jme3.network.Client;
-import com.jme3.network.HostedConnection;
-import com.jme3.network.Message;
-import com.jme3.network.MessageListener;
-import com.jme3.network.Network;
-import com.jme3.network.Server;
+import com.jme3.network.*;
 import com.jme3.network.serializing.Serializable;
 import com.jme3.network.serializing.Serializer;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class TestSerialization implements MessageListener<HostedConnection> {
 

@@ -32,8 +32,6 @@
 
 package com.jme3.shader;
 
-import com.jme3.light.AmbientLight;
-
 public enum UniformBinding {
 
     /**

@@ -32,8 +32,6 @@
 
 package com.jme3.network.kernel;
 
-import java.nio.ByteBuffer;
-
 /**
  *  Encapsulates a received piece of data.  This is used by the Kernel
  *  to track incoming chunks of data.  

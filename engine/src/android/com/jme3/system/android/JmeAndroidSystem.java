@@ -2,21 +2,20 @@ package com.jme3.system.android;
 
 import android.app.Activity;
 import android.content.res.Resources;
-import com.jme3.system.AppSettings;
-import com.jme3.system.JmeContext;
-import com.jme3.system.Platform;
-import com.jme3.util.AndroidLogHandler;
 import com.jme3.asset.AndroidAssetManager;
 import com.jme3.asset.AssetManager;
 import com.jme3.audio.AudioRenderer;
 import com.jme3.audio.android.AndroidAudioRenderer;
+import com.jme3.system.AppSettings;
+import com.jme3.system.JmeContext;
 import com.jme3.system.JmeContext.Type;
 import com.jme3.system.JmeSystemDelegate;
+import com.jme3.system.Platform;
+import com.jme3.util.AndroidLogHandler;
 import com.jme3.util.JmeFormatter;
+import java.net.URL;
 import java.util.logging.Handler;
 import java.util.logging.Level;
-
-import java.net.URL;
 
 public class JmeAndroidSystem extends JmeSystemDelegate{
 

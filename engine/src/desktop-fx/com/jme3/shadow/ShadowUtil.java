@@ -39,12 +39,11 @@ import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.queue.GeometryList;
-
 import com.jme3.scene.Geometry;
+import static java.lang.Math.max;
+import static java.lang.Math.min;
 import java.util.ArrayList;
 import java.util.List;
-
-import static java.lang.Math.*;
 
 /**
  * Includes various useful shadow mapping functions.

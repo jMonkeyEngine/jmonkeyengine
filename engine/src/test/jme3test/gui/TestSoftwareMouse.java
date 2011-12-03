@@ -34,12 +34,7 @@ package jme3test.gui;
 
 import com.jme3.app.SimpleApplication;
 import com.jme3.input.RawInputListener;
-import com.jme3.input.event.JoyAxisEvent;
-import com.jme3.input.event.JoyButtonEvent;
-import com.jme3.input.event.KeyInputEvent;
-import com.jme3.input.event.MouseButtonEvent;
-import com.jme3.input.event.MouseMotionEvent;
-import com.jme3.input.event.TouchEvent;
+import com.jme3.input.event.*;
 import com.jme3.math.FastMath;
 import com.jme3.system.AppSettings;
 import com.jme3.texture.Texture;

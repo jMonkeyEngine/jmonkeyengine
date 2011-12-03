@@ -1,10 +1,9 @@
 package com.jme3.font;
 
+import com.jme3.math.ColorRGBA;
 import java.util.LinkedList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import com.jme3.math.ColorRGBA;
 
 /**
  * Contains the color information tagged in a text string

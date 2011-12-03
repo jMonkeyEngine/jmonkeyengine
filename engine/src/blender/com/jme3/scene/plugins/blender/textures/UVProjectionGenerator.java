@@ -1,7 +1,5 @@
 package com.jme3.scene.plugins.blender.textures;
 
-import java.nio.FloatBuffer;
-
 import com.jme3.bounding.BoundingBox;
 import com.jme3.bounding.BoundingSphere;
 import com.jme3.math.FastMath;
@@ -10,6 +8,7 @@ import com.jme3.math.Vector3f;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.plugins.blender.textures.UVCoordinatesGenerator.BoundingTube;
+import java.nio.FloatBuffer;
 
 /**
  * This class helps with projection calculations.

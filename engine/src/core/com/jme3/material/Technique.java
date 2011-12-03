@@ -32,17 +32,8 @@
 package com.jme3.material;
 
 import com.jme3.asset.AssetManager;
-import com.jme3.export.JmeExporter;
-import com.jme3.export.JmeImporter;
-import com.jme3.export.InputCapsule;
-import com.jme3.export.OutputCapsule;
-import com.jme3.export.Savable;
-import com.jme3.shader.DefineList;
-import com.jme3.shader.Shader;
-import com.jme3.shader.ShaderKey;
-import com.jme3.shader.Uniform;
-import com.jme3.shader.UniformBinding;
-import com.jme3.shader.VarType;
+import com.jme3.export.*;
+import com.jme3.shader.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;

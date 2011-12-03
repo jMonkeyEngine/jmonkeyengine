@@ -1,10 +1,9 @@
 package com.jme3.font;
 
+import com.jme3.math.ColorRGBA;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
-
-import com.jme3.math.ColorRGBA;
 
 /**
  * LetterQuad contains the position, color, uv texture information for a character in text.

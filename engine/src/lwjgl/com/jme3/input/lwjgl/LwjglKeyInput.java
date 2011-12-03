@@ -33,8 +33,8 @@
 package com.jme3.input.lwjgl;
 
 import com.jme3.input.KeyInput;
-import com.jme3.input.event.KeyInputEvent;
 import com.jme3.input.RawInputListener;
+import com.jme3.input.event.KeyInputEvent;
 import com.jme3.system.lwjgl.LwjglAbstractDisplay;
 import com.jme3.system.lwjgl.LwjglTimer;
 import java.util.logging.Level;

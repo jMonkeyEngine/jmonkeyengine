@@ -33,22 +33,18 @@
 package com.jme3.app;
 
 import com.jme3.app.state.AppStateManager;
-import com.jme3.input.JoyInput;
-import com.jme3.input.KeyInput;
-import com.jme3.input.MouseInput;
-import com.jme3.input.TouchInput;
-import com.jme3.math.Vector3f;
-import com.jme3.renderer.Camera;
-import com.jme3.renderer.Renderer;
 import com.jme3.asset.AssetManager;
 import com.jme3.audio.AudioContext;
 import com.jme3.audio.AudioRenderer;
 import com.jme3.audio.Listener;
-import com.jme3.input.InputManager;
+import com.jme3.input.*;
+import com.jme3.math.Vector3f;
+import com.jme3.renderer.Camera;
 import com.jme3.renderer.RenderManager;
+import com.jme3.renderer.Renderer;
 import com.jme3.renderer.ViewPort;
-import com.jme3.system.AppSettings;
-import com.jme3.system.JmeContext;
+import com.jme3.system.JmeContext.Type;
+import com.jme3.system.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.concurrent.Callable;
@@ -56,11 +52,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import com.jme3.system.JmeContext.Type;
-import com.jme3.system.JmeSystem;
-import com.jme3.system.NanoTimer;
-import com.jme3.system.SystemListener;
-import com.jme3.system.Timer;
 
 /**
  * The <code>Application</code> class represents an instance of a

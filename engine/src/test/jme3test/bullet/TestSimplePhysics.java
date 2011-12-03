@@ -31,19 +31,15 @@
  */
 package jme3test.bullet;
 
-import com.jme3.bullet.BulletAppState;
 import com.jme3.app.SimpleApplication;
+import com.jme3.bullet.BulletAppState;
 import com.jme3.bullet.PhysicsSpace;
-import com.jme3.math.Vector3f;
-import com.jme3.scene.shape.Sphere;
-import com.jme3.bullet.collision.shapes.BoxCollisionShape;
-import com.jme3.bullet.collision.shapes.CylinderCollisionShape;
-import com.jme3.bullet.collision.shapes.MeshCollisionShape;
-import com.jme3.bullet.collision.shapes.PlaneCollisionShape;
-import com.jme3.bullet.collision.shapes.SphereCollisionShape;
+import com.jme3.bullet.collision.shapes.*;
 import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.math.Plane;
+import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
+import com.jme3.scene.shape.Sphere;
 
 /**
  * This is a basic Test of jbullet-jme functions

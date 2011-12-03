@@ -32,8 +32,8 @@
 
 package com.jme3.network.serializing.serializers;
 
-import com.jme3.network.message.GZIPCompressedMessage;
 import com.jme3.network.Message;
+import com.jme3.network.message.GZIPCompressedMessage;
 import com.jme3.network.serializing.Serializer;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

@@ -39,8 +39,8 @@ import de.jarnbjo.ogg.OggPage;
 import de.jarnbjo.ogg.PhysicalOggStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 

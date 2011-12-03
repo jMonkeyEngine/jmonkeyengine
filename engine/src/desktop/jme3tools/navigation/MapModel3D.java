@@ -5,11 +5,7 @@
 package jme3tools.navigation;
 
 import com.jme3.math.Vector3f;
-import jme3tools.navigation.Position;
-import jme3tools.navigation.InvalidPositionException;
-import java.awt.Point;
 import java.text.DecimalFormat;
-import jme3tools.navigation.NavCalculator;
 
 
 /**

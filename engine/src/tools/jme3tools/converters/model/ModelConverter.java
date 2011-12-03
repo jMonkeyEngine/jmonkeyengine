@@ -32,22 +32,18 @@
 
 package jme3tools.converters.model;
 
-import com.jme3.scene.Geometry;
-import com.jme3.scene.mesh.IndexBuffer;
-import com.jme3.scene.Mesh;
 import com.jme3.scene.Mesh.Mode;
-import com.jme3.scene.Node;
-import com.jme3.scene.Spatial;
-import com.jme3.scene.VertexBuffer;
+import com.jme3.scene.*;
 import com.jme3.scene.VertexBuffer.Format;
 import com.jme3.scene.VertexBuffer.Type;
+import com.jme3.scene.mesh.IndexBuffer;
 import com.jme3.util.IntMap;
 import com.jme3.util.IntMap.Entry;
-import jme3tools.converters.model.strip.PrimitiveGroup;
-import jme3tools.converters.model.strip.TriStrip;
 import java.nio.Buffer;
 import java.util.Arrays;
 import java.util.Comparator;
+import jme3tools.converters.model.strip.PrimitiveGroup;
+import jme3tools.converters.model.strip.TriStrip;
 
 public class ModelConverter {
 

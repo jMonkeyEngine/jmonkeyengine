@@ -1,13 +1,12 @@
 package com.jme3.scene.plugins.blender.constraints;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import com.jme3.animation.Animation;
 import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.animations.Ipo;
 import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
 import com.jme3.scene.plugins.blender.file.Structure;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * This class represents 'Transform' constraint type in blender.

@@ -31,16 +31,15 @@
  */
 package com.jme3.asset;
 
-import com.jme3.texture.Texture;
-import com.jme3.texture.plugins.AndroidImageLoader;
-import java.net.URL;
-import java.util.logging.Logger;
-
 import com.jme3.asset.plugins.AndroidLocator;
 import com.jme3.asset.plugins.ClasspathLocator;
 import com.jme3.audio.plugins.AndroidAudioLoader;
+import com.jme3.texture.Texture;
+import com.jme3.texture.plugins.AndroidImageLoader;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 /**
  * <code>AndroidAssetManager</code> is an implementation of DesktopAssetManager for Android

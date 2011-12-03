@@ -32,12 +32,7 @@
 
 package jme3test.asset;
 
-import com.jme3.asset.AssetInfo;
-import com.jme3.asset.AssetKey;
-import com.jme3.asset.AssetManager;
-import com.jme3.asset.DesktopAssetManager;
-import com.jme3.asset.ModelKey;
-import com.jme3.asset.TextureKey;
+import com.jme3.asset.*;
 import com.jme3.asset.plugins.ClasspathLocator;
 import com.jme3.asset.plugins.HttpZipLocator;
 import com.jme3.asset.plugins.UrlLocator;

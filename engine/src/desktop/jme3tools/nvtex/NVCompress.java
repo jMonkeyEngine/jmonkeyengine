@@ -39,18 +39,12 @@ import com.jme3.system.JmeSystem;
 import com.jme3.texture.Image;
 import com.jme3.texture.Texture;
 import com.jme3.texture.plugins.HDRLoader;
-import jme3tools.converters.ImageToAwt;
-import jme3tools.converters.MipMapGenerator;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.prefs.BackingStoreException;
@@ -60,6 +54,8 @@ import javax.swing.DefaultListModel;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
+import jme3tools.converters.ImageToAwt;
+import jme3tools.converters.MipMapGenerator;
 
 public class NVCompress extends javax.swing.JFrame {
     

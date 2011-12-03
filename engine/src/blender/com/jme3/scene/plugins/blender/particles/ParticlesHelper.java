@@ -1,12 +1,10 @@
 package com.jme3.scene.plugins.blender.particles;
 
-import java.util.logging.Logger;
-
 import com.jme3.effect.ParticleEmitter;
 import com.jme3.effect.ParticleMesh.Type;
 import com.jme3.effect.influencers.EmptyParticleInfluencer;
-import com.jme3.effect.influencers.ParticleInfluencer;
 import com.jme3.effect.influencers.NewtonianParticleInfluencer;
+import com.jme3.effect.influencers.ParticleInfluencer;
 import com.jme3.effect.shapes.EmitterMeshConvexHullShape;
 import com.jme3.effect.shapes.EmitterMeshFaceShape;
 import com.jme3.effect.shapes.EmitterMeshVertexShape;
@@ -17,6 +15,7 @@ import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
 import com.jme3.scene.plugins.blender.file.DynamicArray;
 import com.jme3.scene.plugins.blender.file.Pointer;
 import com.jme3.scene.plugins.blender.file.Structure;
+import java.util.logging.Logger;
 
 public class ParticlesHelper extends AbstractBlenderHelper {
 	private static final Logger			LOGGER		= Logger.getLogger(ParticlesHelper.class.getName());

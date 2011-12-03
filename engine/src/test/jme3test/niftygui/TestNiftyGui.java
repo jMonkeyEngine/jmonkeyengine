@@ -41,7 +41,6 @@ import com.jme3.scene.shape.Box;
 import de.lessvoid.nifty.Nifty;
 import de.lessvoid.nifty.screen.Screen;
 import de.lessvoid.nifty.screen.ScreenController;
-import java.net.URL;
 
 public class TestNiftyGui extends SimpleApplication implements ScreenController {
 

@@ -36,10 +36,8 @@ import com.jme3.math.FastMath;
 import com.jme3.math.Matrix4f;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.queue.GeometryList;
-
-import java.util.Arrays;
-
-import static java.lang.Math.*;
+import static java.lang.Math.max;
+import static java.lang.Math.min;
 
 /**
  * Includes various useful shadow mapping functions.

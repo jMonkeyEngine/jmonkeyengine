@@ -2,7 +2,6 @@ package jme3test.android;
 
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
-
 import com.jme3.app.AndroidHarness;
 import com.jme3.system.android.AndroidConfigChooser.ConfigType;
 

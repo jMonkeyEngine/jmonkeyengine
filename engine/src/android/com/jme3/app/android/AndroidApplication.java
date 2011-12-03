@@ -31,13 +31,10 @@
  */
 package com.jme3.app.android;
 
-import java.nio.CharBuffer;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.logging.Logger;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import com.jme3.app.AndroidHarness;
 import com.jme3.app.Application;
 import com.jme3.font.BitmapFont;
 import com.jme3.font.BitmapText;
@@ -53,7 +50,9 @@ import com.jme3.scene.Spatial.CullHint;
 import com.jme3.system.AppSettings;
 import com.jme3.system.JmeSystem;
 import com.jme3.util.FastInteger;
-import com.jme3.app.AndroidHarness;
+import java.nio.CharBuffer;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Logger;
 
 
 /**

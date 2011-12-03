@@ -32,12 +32,13 @@
 
 package com.jme3.network.kernel.tcp;
 
+import com.jme3.network.kernel.Endpoint;
+import com.jme3.network.kernel.Kernel;
+import com.jme3.network.kernel.KernelException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.util.concurrent.ConcurrentLinkedQueue;
-
-import com.jme3.network.kernel.*;
 
 
 /**

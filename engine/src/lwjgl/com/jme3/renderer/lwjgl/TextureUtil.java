@@ -32,28 +32,20 @@
 
 package com.jme3.renderer.lwjgl;
 
-import org.lwjgl.opengl.GLContext;
 import com.jme3.renderer.RendererException;
-import org.lwjgl.opengl.EXTAbgr;
 import com.jme3.texture.Image;
 import com.jme3.texture.Image.Format;
 import java.nio.ByteBuffer;
-import org.lwjgl.opengl.ARBDepthBufferFloat;
-import org.lwjgl.opengl.ARBHalfFloatPixel;
-import org.lwjgl.opengl.ARBTextureFloat;
-import org.lwjgl.opengl.ARBTextureMultisample;
-import org.lwjgl.opengl.ContextCapabilities;
-import org.lwjgl.opengl.EXTPackedFloat;
-import org.lwjgl.opengl.EXTTextureArray;
-import org.lwjgl.opengl.EXTTextureSharedExponent;
-import org.lwjgl.opengl.NVDepthBufferFloat;
+import static org.lwjgl.opengl.ATITextureCompression3DC.GL_COMPRESSED_LUMINANCE_ALPHA_3DC_ATI;
+import static org.lwjgl.opengl.EXTTextureCompressionLATC.GL_COMPRESSED_LUMINANCE_ALPHA_LATC2_EXT;
+import static org.lwjgl.opengl.EXTTextureCompressionLATC.GL_COMPRESSED_LUMINANCE_LATC1_EXT;
 import static org.lwjgl.opengl.EXTTextureCompressionS3TC.*;
-import static org.lwjgl.opengl.EXTTextureCompressionLATC.*;
-import static org.lwjgl.opengl.ATITextureCompression3DC.*;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL12.*;
-import static org.lwjgl.opengl.GL13.*;
+import static org.lwjgl.opengl.GL13.glCompressedTexImage2D;
+import static org.lwjgl.opengl.GL13.glCompressedTexImage3D;
 import static org.lwjgl.opengl.GL14.*;
+import org.lwjgl.opengl.*;
 
 public class TextureUtil {
 

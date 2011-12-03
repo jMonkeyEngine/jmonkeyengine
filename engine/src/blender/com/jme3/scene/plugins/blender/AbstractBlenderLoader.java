@@ -31,10 +31,6 @@
  */
 package com.jme3.scene.plugins.blender;
 
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import com.jme3.asset.AssetLoader;
 import com.jme3.asset.BlenderKey.FeaturesToLoad;
 import com.jme3.asset.BlenderKey.WorldData;
@@ -54,6 +50,9 @@ import com.jme3.scene.plugins.blender.lights.LightHelper;
 import com.jme3.scene.plugins.blender.materials.MaterialHelper;
 import com.jme3.scene.plugins.blender.meshes.MeshHelper;
 import com.jme3.scene.plugins.blender.objects.ObjectHelper;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * This class converts blender file blocks into jMonkeyEngine data structures.

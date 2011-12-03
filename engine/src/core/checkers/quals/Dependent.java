@@ -1,6 +1,9 @@
 package checkers.quals;
 
-import java.lang.annotation.*;
+import java.lang.annotation.Annotation;
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 /**
  * Refines the qualified type of the annotated field or variable based on the

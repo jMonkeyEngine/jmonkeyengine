@@ -31,8 +31,8 @@
  */
 package com.jme3.bullet.joints.motors;
 
-import com.jme3.math.Vector3f;
 import com.jme3.bullet.util.Converter;
+import com.jme3.math.Vector3f;
 
 /**
  *

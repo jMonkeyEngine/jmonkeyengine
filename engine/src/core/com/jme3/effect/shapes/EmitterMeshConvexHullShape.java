@@ -1,10 +1,9 @@
 package com.jme3.effect.shapes;
 
-import java.util.List;
-
 import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Mesh;
+import java.util.List;
 
 /**
  * This emiter shape emits the particles from the given shape's interior constrained by its convex hull

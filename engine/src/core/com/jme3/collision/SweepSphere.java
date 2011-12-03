@@ -32,11 +32,7 @@
 
 package com.jme3.collision;
 
-import com.jme3.math.AbstractTriangle;
-import com.jme3.math.FastMath;
-import com.jme3.math.Plane;
-import com.jme3.math.Triangle;
-import com.jme3.math.Vector3f;
+import com.jme3.math.*;
 
 /**
  * No longer public ..

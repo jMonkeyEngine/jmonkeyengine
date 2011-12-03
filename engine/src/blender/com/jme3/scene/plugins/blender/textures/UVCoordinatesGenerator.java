@@ -31,10 +31,6 @@
  */
 package com.jme3.scene.plugins.blender.textures;
 
-import java.nio.FloatBuffer;
-import java.util.List;
-import java.util.logging.Logger;
-
 import com.jme3.bounding.BoundingBox;
 import com.jme3.bounding.BoundingSphere;
 import com.jme3.bounding.BoundingVolume;
@@ -46,6 +42,9 @@ import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.VertexBuffer.Format;
 import com.jme3.scene.VertexBuffer.Usage;
 import com.jme3.util.BufferUtils;
+import java.nio.FloatBuffer;
+import java.util.List;
+import java.util.logging.Logger;
 
 /**
  * This class is used for UV coordinates generation.

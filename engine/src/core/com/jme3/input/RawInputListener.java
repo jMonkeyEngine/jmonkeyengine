@@ -32,13 +32,7 @@
 
 package com.jme3.input;
 
-import com.jme3.input.event.InputEvent;
-import com.jme3.input.event.JoyAxisEvent;
-import com.jme3.input.event.JoyButtonEvent;
-import com.jme3.input.event.KeyInputEvent;
-import com.jme3.input.event.MouseButtonEvent;
-import com.jme3.input.event.MouseMotionEvent;
-import com.jme3.input.event.TouchEvent;
+import com.jme3.input.event.*;
 
 /**
  * An interface used for receiving raw input from devices.

@@ -32,19 +32,10 @@
 
 package jme3test.android;
 
-import android.app.Activity;
-import android.media.AudioManager;
 import android.media.SoundPool;
-
 import com.jme3.app.SimpleApplication;
-import com.jme3.asset.DesktopAssetManager;
 import com.jme3.audio.AudioNode;
-import com.jme3.audio.Listener;
-//import com.jme3.audio.PointAudioSource;
-import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
-import com.jme3.system.AppSettings;
-import com.jme3.system.JmeSystem;
 
 public class TestAmbient extends SimpleApplication {
 

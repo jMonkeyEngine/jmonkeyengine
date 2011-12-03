@@ -4,10 +4,7 @@
  */
 package jme3tools.navigation;
 
-import jme3tools.navigation.InvalidPositionException;
 import java.text.DecimalFormat;
-import jme3tools.navigation.StringUtil;
-import jme3tools.navigation.NumUtil;
 
 /**
  * Coordinate class. Used to store a coordinate in [DD]D MM.M format.

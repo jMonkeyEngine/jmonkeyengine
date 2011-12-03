@@ -31,14 +31,6 @@
  */
 package com.jme3.scene.plugins.blender.materials;
 
-import java.nio.ByteBuffer;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import com.jme3.asset.BlenderKey.FeaturesToLoad;
 import com.jme3.material.MatParam;
 import com.jme3.material.MatParamTexture;
@@ -60,6 +52,13 @@ import com.jme3.texture.Image.Format;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.Type;
 import com.jme3.util.BufferUtils;
+import java.nio.ByteBuffer;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class MaterialHelper extends AbstractBlenderHelper {
 	private static final Logger					LOGGER					= Logger.getLogger(MaterialHelper.class.getName());

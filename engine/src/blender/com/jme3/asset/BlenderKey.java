@@ -31,11 +31,6 @@
  */
 package com.jme3.asset;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Queue;
-
 import com.jme3.bounding.BoundingVolume;
 import com.jme3.collision.Collidable;
 import com.jme3.collision.CollisionResults;
@@ -54,6 +49,10 @@ import com.jme3.scene.SceneGraphVisitor;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.plugins.ogre.AnimData;
 import com.jme3.texture.Texture;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Queue;
 
 /**
  * Blender key. Contains path of the blender file and its loading properties.

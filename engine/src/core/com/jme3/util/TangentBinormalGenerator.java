@@ -31,26 +31,21 @@
  */
 package com.jme3.util;
 
-import com.jme3.scene.VertexBuffer;
-import com.jme3.scene.VertexBuffer.Format;
-import com.jme3.scene.VertexBuffer.Usage;
-import java.util.logging.Level;
-import com.jme3.scene.mesh.IndexBuffer;
-import com.jme3.scene.Geometry;
-import com.jme3.scene.Node;
-import com.jme3.scene.Spatial;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
-import com.jme3.scene.Mesh;
+import com.jme3.scene.*;
+import com.jme3.scene.VertexBuffer.Format;
 import com.jme3.scene.VertexBuffer.Type;
+import com.jme3.scene.VertexBuffer.Usage;
+import com.jme3.scene.mesh.IndexBuffer;
+import static com.jme3.util.BufferUtils.*;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
-
 import java.util.ArrayList;
+import java.util.logging.Level;
 import java.util.logging.Logger;
-import static com.jme3.util.BufferUtils.*;
 
 /**
  * 

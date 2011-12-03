@@ -32,9 +32,8 @@
 
 package com.jme3.terrain.geomipmap;
 
-import java.nio.IntBuffer;
-
 import com.jme3.scene.VertexBuffer.Type;
+import java.nio.IntBuffer;
 
 /**
  * Stores a terrain patch's details so the LOD background thread can update

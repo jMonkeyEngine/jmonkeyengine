@@ -34,12 +34,8 @@ package com.jme3.system.android;
 
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.PixelFormat;
-import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
-import android.opengl.GLSurfaceView.EGLConfigChooser;
 import android.view.SurfaceHolder;
-
 import com.jme3.app.AndroidHarness;
 import com.jme3.app.Application;
 import com.jme3.input.JoyInput;
@@ -56,10 +52,8 @@ import com.jme3.system.JmeContext;
 import com.jme3.system.SystemListener;
 import com.jme3.system.Timer;
 import com.jme3.system.android.AndroidConfigChooser.ConfigType;
-
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
-
 import javax.microedition.khronos.egl.EGL10;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.egl.EGLContext;

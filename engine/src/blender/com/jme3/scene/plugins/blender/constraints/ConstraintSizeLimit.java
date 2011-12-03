@@ -2,7 +2,6 @@ package com.jme3.scene.plugins.blender.constraints;
 
 import com.jme3.animation.Animation;
 import com.jme3.animation.BoneTrack;
-import com.jme3.animation.Track;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.animations.Ipo;

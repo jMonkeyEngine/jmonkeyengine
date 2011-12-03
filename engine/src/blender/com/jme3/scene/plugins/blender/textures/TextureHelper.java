@@ -31,25 +31,8 @@
  */
 package com.jme3.scene.plugins.blender.textures;
 
-import java.awt.color.ColorSpace;
-import java.awt.image.BufferedImage;
-import java.awt.image.ColorConvertOp;
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import jme3tools.converters.ImageToAwt;
-
-import com.jme3.asset.AssetManager;
-import com.jme3.asset.AssetNotFoundException;
-import com.jme3.asset.BlenderKey;
 import com.jme3.asset.BlenderKey.FeaturesToLoad;
-import com.jme3.asset.GeneratedTextureKey;
-import com.jme3.asset.TextureKey;
+import com.jme3.asset.*;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
@@ -70,6 +53,17 @@ import com.jme3.texture.Texture.WrapMode;
 import com.jme3.texture.Texture2D;
 import com.jme3.texture.Texture3D;
 import com.jme3.util.BufferUtils;
+import java.awt.color.ColorSpace;
+import java.awt.image.BufferedImage;
+import java.awt.image.ColorConvertOp;
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import jme3tools.converters.ImageToAwt;
 
 /**
  * A class that is used in texture calculations.

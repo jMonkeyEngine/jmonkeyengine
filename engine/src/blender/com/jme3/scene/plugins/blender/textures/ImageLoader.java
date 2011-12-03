@@ -31,14 +31,13 @@
  */
 package com.jme3.scene.plugins.blender.textures;
 
-import java.io.InputStream;
-import java.util.logging.Logger;
-
 import com.jme3.scene.plugins.blender.file.BlenderInputStream;
 import com.jme3.texture.Image;
 import com.jme3.texture.plugins.AWTLoader;
 import com.jme3.texture.plugins.DDSLoader;
 import com.jme3.texture.plugins.TGALoader;
+import java.io.InputStream;
+import java.util.logging.Logger;
 
 /**
  * An image loader class. It uses three loaders (AWTLoader, TGALoader and DDSLoader) in an attempt to load the image from the given

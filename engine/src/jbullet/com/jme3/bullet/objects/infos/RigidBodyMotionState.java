@@ -34,10 +34,10 @@ package com.jme3.bullet.objects.infos;
 import com.bulletphysics.linearmath.MotionState;
 import com.bulletphysics.linearmath.Transform;
 import com.jme3.bullet.objects.PhysicsVehicle;
-import com.jme3.math.Quaternion;
-import com.jme3.math.Vector3f;
 import com.jme3.bullet.util.Converter;
 import com.jme3.math.Matrix3f;
+import com.jme3.math.Quaternion;
+import com.jme3.math.Vector3f;
 import com.jme3.scene.Spatial;
 
 /**

@@ -31,9 +31,6 @@
  */
 package com.jme3.scene.plugins.blender.lights;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import com.jme3.asset.BlenderKey.FeaturesToLoad;
 import com.jme3.light.DirectionalLight;
 import com.jme3.light.Light;
@@ -46,6 +43,8 @@ import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.BlenderContext.LoadedFeatureDataType;
 import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
 import com.jme3.scene.plugins.blender.file.Structure;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * A class that is used in light calculations.

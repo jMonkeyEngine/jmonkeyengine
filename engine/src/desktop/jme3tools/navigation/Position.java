@@ -4,8 +4,6 @@
  */
 package jme3tools.navigation;
 
-import jme3tools.navigation.InvalidPositionException;
-
 /**
  * This class represents the position of an entity in the world.
  * 

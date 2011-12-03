@@ -1,11 +1,10 @@
 package com.jme3.scene.plugins.blender.file;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
 import com.jme3.scene.plugins.blender.file.Structure.DataType;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This class represents a single field in the structure. It can be either a primitive type or a table or a reference to

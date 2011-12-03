@@ -1,9 +1,6 @@
 package jme3tools.navigation;
-import jme3tools.navigation.InvalidPositionException;
 import java.awt.Point;
 import java.text.DecimalFormat;
-import jme3tools.navigation.Position;
-import jme3tools.navigation.NavCalculator;
 
 /*
  * To change this template, choose Tools | Templates

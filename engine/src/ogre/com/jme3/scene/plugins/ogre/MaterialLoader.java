@@ -32,12 +32,7 @@
 
 package com.jme3.scene.plugins.ogre;
 
-import com.jme3.asset.AssetInfo;
-import com.jme3.asset.AssetKey;
-import com.jme3.asset.AssetLoader;
-import com.jme3.asset.AssetManager;
-import com.jme3.asset.AssetNotFoundException;
-import com.jme3.asset.TextureKey;
+import com.jme3.asset.*;
 import com.jme3.material.Material;
 import com.jme3.material.MaterialList;
 import com.jme3.material.RenderState;

@@ -37,20 +37,13 @@ import com.jme3.collision.CollisionResults;
 import com.jme3.collision.UnsupportedCollisionException;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
+import com.jme3.math.*;
+import com.jme3.util.BufferUtils;
+import com.jme3.util.TempVars;
 import java.io.IOException;
 import java.nio.FloatBuffer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import com.jme3.math.FastMath;
-import com.jme3.math.Matrix4f;
-import com.jme3.math.Plane;
-import com.jme3.math.Ray;
-import com.jme3.math.Transform;
-import com.jme3.math.Triangle;
-import com.jme3.math.Vector3f;
-import com.jme3.util.BufferUtils;
-import com.jme3.util.TempVars;
 
 /**
  * <code>BoundingSphere</code> defines a sphere that defines a container for a

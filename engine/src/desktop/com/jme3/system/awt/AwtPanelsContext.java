@@ -7,11 +7,7 @@ import com.jme3.input.TouchInput;
 import com.jme3.input.awt.AwtKeyInput;
 import com.jme3.input.awt.AwtMouseInput;
 import com.jme3.renderer.Renderer;
-import com.jme3.system.AppSettings;
-import com.jme3.system.JmeContext;
-import com.jme3.system.JmeSystem;
-import com.jme3.system.SystemListener;
-import com.jme3.system.Timer;
+import com.jme3.system.*;
 import java.util.ArrayList;
 
 public class AwtPanelsContext implements JmeContext {

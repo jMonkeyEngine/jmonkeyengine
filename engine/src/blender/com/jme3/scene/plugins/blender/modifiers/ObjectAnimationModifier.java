@@ -1,16 +1,8 @@
 package com.jme3.scene.plugins.blender.modifiers;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import com.jme3.animation.AnimControl;
 import com.jme3.animation.Animation;
-import com.jme3.animation.BoneTrack;
 import com.jme3.animation.SpatialTrack;
-import com.jme3.animation.Track;
 import com.jme3.scene.Node;
 import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.animations.Ipo;
@@ -21,6 +13,11 @@ import com.jme3.scene.plugins.blender.file.FileBlockHeader;
 import com.jme3.scene.plugins.blender.file.Pointer;
 import com.jme3.scene.plugins.blender.file.Structure;
 import com.jme3.scene.plugins.ogre.AnimData;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * This modifier allows to add animation to the object.

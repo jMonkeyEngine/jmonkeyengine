@@ -33,12 +33,7 @@ package com.jme3.terrain.heightmap;
 
 import com.jme3.math.FastMath;
 import com.jme3.util.LittleEndien;
-import java.io.BufferedInputStream;
-import java.io.DataInputStream;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.URL;
 import java.util.logging.Logger;
 

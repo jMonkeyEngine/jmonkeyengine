@@ -32,11 +32,7 @@
 
 package jme3test.network;
 
-import com.jme3.network.Client;
-import com.jme3.network.ConnectionListener;
-import com.jme3.network.HostedConnection;
-import com.jme3.network.Network;
-import com.jme3.network.Server;
+import com.jme3.network.*;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;

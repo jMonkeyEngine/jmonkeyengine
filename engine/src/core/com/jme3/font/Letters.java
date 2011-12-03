@@ -1,11 +1,10 @@
 package com.jme3.font;
 
-import java.util.LinkedList;
-
 import com.jme3.font.BitmapFont.Align;
 import com.jme3.font.BitmapFont.VAlign;
 import com.jme3.font.ColorTags.Range;
 import com.jme3.math.ColorRGBA;
+import java.util.LinkedList;
 
 /**
  * Manage and align LetterQuads

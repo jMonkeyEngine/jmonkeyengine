@@ -1,12 +1,11 @@
 package com.jme3.scene.plugins.blender.meshes;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.VertexBuffer;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Class that holds information about the mesh.

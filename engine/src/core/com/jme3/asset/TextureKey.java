@@ -31,16 +31,12 @@
  */
 package com.jme3.asset;
 
+import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
-import com.jme3.export.InputCapsule;
 import com.jme3.export.OutputCapsule;
-import com.jme3.texture.Image;
-import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.Type;
-import com.jme3.texture.Texture2D;
-import com.jme3.texture.Texture3D;
-import com.jme3.texture.TextureCubeMap;
+import com.jme3.texture.*;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 

@@ -4,7 +4,7 @@
  */
 package jme3tools.navigation;
 
-import java.util.regex.*;
+import java.util.regex.Pattern;
 
 /**
  * A collection of String utilities.

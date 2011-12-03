@@ -32,7 +32,6 @@
 
 package com.jme3.network.kernel;
 
-import java.util.Collection;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicLong;

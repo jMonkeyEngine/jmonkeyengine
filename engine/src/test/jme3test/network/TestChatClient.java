@@ -31,17 +31,15 @@
  */
 package jme3test.network;
 
-import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-import java.awt.Component;
-import java.io.IOException;
-import javax.swing.*;
-
 import com.jme3.network.Client;
 import com.jme3.network.Message;
 import com.jme3.network.MessageListener;
 import com.jme3.network.Network;
-
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.io.IOException;
+import javax.swing.*;
 import jme3test.network.TestChatServer.ChatMessage;
 
 /**

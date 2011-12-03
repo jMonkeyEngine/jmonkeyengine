@@ -32,12 +32,12 @@
 
 package com.jme3.network.kernel.udp;
 
-import java.io.*;
+import com.jme3.network.kernel.Connector;
+import com.jme3.network.kernel.ConnectorException;
+import java.io.IOException;
 import java.net.*;
 import java.nio.ByteBuffer;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import com.jme3.network.kernel.*;
 
 
 /**

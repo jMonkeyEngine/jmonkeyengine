@@ -32,12 +32,16 @@
 
 package com.jme3.network.kernel.tcp;
 
-import java.io.*;
-import java.net.*;
+import com.jme3.network.kernel.Connector;
+import com.jme3.network.kernel.ConnectorException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.InetAddress;
+import java.net.Socket;
+import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import com.jme3.network.kernel.*;
 
 
 /**

@@ -4,9 +4,6 @@
  */
 package jme3tools.navigation;
 
-import jme3tools.navigation.InvalidPositionException;
-import jme3tools.navigation.Position;
-
 
 
 /**

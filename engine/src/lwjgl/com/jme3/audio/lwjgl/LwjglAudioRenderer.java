@@ -32,18 +32,8 @@
 
 package com.jme3.audio.lwjgl;
 
-import com.jme3.audio.ListenerParam;
-import com.jme3.audio.AudioParam;
-import com.jme3.audio.AudioBuffer;
-import com.jme3.audio.AudioData;
-import com.jme3.audio.AudioRenderer;
-import com.jme3.audio.AudioNode;
 import com.jme3.audio.AudioNode.Status;
-import com.jme3.audio.AudioStream;
-import com.jme3.audio.Environment;
-import com.jme3.audio.Filter;
-import com.jme3.audio.Listener;
-import com.jme3.audio.LowPassFilter;
+import com.jme3.audio.*;
 import com.jme3.math.Vector3f;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.NativeObjectManager;
@@ -55,15 +45,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.lwjgl.LWJGLException;
-import org.lwjgl.openal.AL;
-
-import org.lwjgl.openal.AL11;
-import org.lwjgl.openal.ALC10;
-import org.lwjgl.openal.ALCdevice;
-import org.lwjgl.openal.EFX10;
-import org.lwjgl.openal.OpenALException;
-
 import static org.lwjgl.openal.AL10.*;
+import org.lwjgl.openal.*;
 
 public class LwjglAudioRenderer implements AudioRenderer, Runnable {
 

@@ -31,8 +31,6 @@
  */
 package com.jme3.bullet.control;
 
-import com.jme3.bullet.control.ragdoll.RagdollPreset;
-import com.jme3.bullet.control.ragdoll.HumanoidRagdollPreset;
 import com.jme3.animation.AnimControl;
 import com.jme3.animation.Bone;
 import com.jme3.animation.Skeleton;
@@ -45,6 +43,8 @@ import com.jme3.bullet.collision.PhysicsCollisionObject;
 import com.jme3.bullet.collision.RagdollCollisionListener;
 import com.jme3.bullet.collision.shapes.BoxCollisionShape;
 import com.jme3.bullet.collision.shapes.HullCollisionShape;
+import com.jme3.bullet.control.ragdoll.HumanoidRagdollPreset;
+import com.jme3.bullet.control.ragdoll.RagdollPreset;
 import com.jme3.bullet.control.ragdoll.RagdollUtils;
 import com.jme3.bullet.joints.SixDofJoint;
 import com.jme3.bullet.objects.PhysicsRigidBody;
@@ -59,13 +59,7 @@ import com.jme3.scene.Spatial;
 import com.jme3.scene.control.Control;
 import com.jme3.util.TempVars;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 

@@ -33,20 +33,12 @@
 package jme3test.audio;
 
 import com.jme3.asset.AssetInfo;
-import com.jme3.audio.AudioKey;
-import com.jme3.audio.AudioData;
-import com.jme3.audio.AudioRenderer;
-import com.jme3.audio.AudioNode;
 import com.jme3.audio.AudioNode.Status;
-import com.jme3.audio.Listener;
+import com.jme3.audio.*;
 import com.jme3.audio.plugins.OGGLoader;
 import com.jme3.system.AppSettings;
 import com.jme3.system.JmeSystem;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import javax.swing.JFileChooser;
 
 public class TestMusicPlayer extends javax.swing.JFrame {

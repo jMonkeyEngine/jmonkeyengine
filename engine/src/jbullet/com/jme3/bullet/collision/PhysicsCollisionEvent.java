@@ -32,8 +32,8 @@
 package com.jme3.bullet.collision;
 
 import com.bulletphysics.collision.narrowphase.ManifoldPoint;
-import com.jme3.math.Vector3f;
 import com.jme3.bullet.util.Converter;
+import com.jme3.math.Vector3f;
 import com.jme3.scene.Spatial;
 import java.util.EventObject;
 

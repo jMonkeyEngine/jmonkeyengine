@@ -32,21 +32,21 @@
 
 package com.jme3.network.kernel.tcp;
 
+import com.jme3.network.Filter;
+import com.jme3.network.kernel.*;
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.channels.*;
-import java.nio.channels.spi.SelectorProvider;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.util.*;
+import java.nio.ByteBuffer;
+import java.nio.channels.*;
+import java.nio.channels.spi.SelectorProvider;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import com.jme3.network.Filter;
-import com.jme3.network.kernel.*;
 
 
 /**

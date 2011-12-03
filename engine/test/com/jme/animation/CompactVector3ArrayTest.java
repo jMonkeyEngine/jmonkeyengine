@@ -1,20 +1,15 @@
 package com.jme.animation;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.Arrays;
-
-import org.junit.Before;
-import org.junit.Test;
-
 import com.jme3.animation.CompactVector3Array;
 import com.jme3.export.binary.BinaryExporter;
 import com.jme3.export.binary.BinaryImporter;
 import com.jme3.math.Vector3f;
+import java.io.File;
+import java.io.IOException;
+import java.util.Arrays;
+import static org.junit.Assert.*;
+import org.junit.Before;
+import org.junit.Test;
 
 public class CompactVector3ArrayTest {
     private final Vector3f[] objArray1 = new Vector3f[] {

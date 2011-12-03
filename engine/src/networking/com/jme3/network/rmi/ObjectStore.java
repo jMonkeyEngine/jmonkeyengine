@@ -32,14 +32,8 @@
 
 package com.jme3.network.rmi;
 
-import com.jme3.network.Client;
-import com.jme3.network.ClientStateListener;
 import com.jme3.network.ClientStateListener.DisconnectInfo;
-import com.jme3.network.ConnectionListener;
-import com.jme3.network.HostedConnection;
-import com.jme3.network.Message;
-import com.jme3.network.MessageListener;
-import com.jme3.network.Server;
+import com.jme3.network.*;
 import com.jme3.network.serializing.Serializer;
 import com.jme3.util.IntMap;
 import com.jme3.util.IntMap.Entry;

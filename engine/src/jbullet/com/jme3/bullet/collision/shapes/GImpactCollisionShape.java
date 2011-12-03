@@ -34,13 +34,13 @@ package com.jme3.bullet.collision.shapes;
 import com.bulletphysics.collision.shapes.IndexedMesh;
 import com.bulletphysics.collision.shapes.TriangleIndexVertexArray;
 import com.bulletphysics.extras.gimpact.GImpactMeshShape;
-import com.jme3.export.JmeExporter;
-import com.jme3.export.JmeImporter;
-import com.jme3.math.Vector3f;
-import com.jme3.scene.Mesh;
 import com.jme3.bullet.util.Converter;
 import com.jme3.export.InputCapsule;
+import com.jme3.export.JmeExporter;
+import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
+import com.jme3.math.Vector3f;
+import com.jme3.scene.Mesh;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 

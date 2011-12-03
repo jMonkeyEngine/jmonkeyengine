@@ -32,19 +32,17 @@
 
 package com.jme3.network.base;
 
-import java.io.IOException;
+import com.jme3.network.ClientStateListener.DisconnectInfo;
+import com.jme3.network.*;
+import com.jme3.network.kernel.Connector;
+import com.jme3.network.message.ClientRegistrationMessage;
+import com.jme3.network.message.DisconnectMessage;
 import java.nio.ByteBuffer;
-import java.util.*;
-import java.util.concurrent.*;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CountDownLatch;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import com.jme3.network.*;
-import com.jme3.network.ClientStateListener.DisconnectInfo;
-import com.jme3.network.message.ClientRegistrationMessage; //hopefully temporary
-import com.jme3.network.message.DisconnectMessage; //hopefully temporary
-import com.jme3.network.kernel.Connector;
-import com.jme3.network.serializing.Serializer;
 
 /**
  *  A default implementation of the Client interface that delegates

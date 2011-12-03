@@ -1,9 +1,5 @@
 package com.jme3.app;
 
-import java.util.logging.Handler;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import com.jme3.util.JmeFormatter;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -14,15 +10,18 @@ import android.view.Display;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.TextView;
-
 import com.jme3.input.android.AndroidInput;
 import com.jme3.input.controls.TouchListener;
 import com.jme3.input.event.TouchEvent;
 import com.jme3.system.AppSettings;
 import com.jme3.system.JmeSystem;
-import com.jme3.system.android.OGLESContext;
 import com.jme3.system.android.AndroidConfigChooser.ConfigType;
 import com.jme3.system.android.JmeAndroidSystem;
+import com.jme3.system.android.OGLESContext;
+import com.jme3.util.JmeFormatter;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * <code>AndroidHarness</code> wraps a jme application object and runs it on Android

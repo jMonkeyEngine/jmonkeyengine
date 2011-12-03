@@ -31,13 +31,12 @@
  */
 package com.jme3.scene.plugins.blender.file;
 
+import com.jme3.scene.plugins.blender.BlenderContext;
+import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-
-import com.jme3.scene.plugins.blender.BlenderContext;
-import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
 
 /**
  * A class representing a single structure in the file.

@@ -1,13 +1,11 @@
 package com.jme3.system.android;
 
+import android.graphics.PixelFormat;
+import android.opengl.GLSurfaceView.EGLConfigChooser;
 import java.util.logging.Logger;
-
 import javax.microedition.khronos.egl.EGL10;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.egl.EGLDisplay;
-
-import android.graphics.PixelFormat;
-import android.opengl.GLSurfaceView.EGLConfigChooser;
 
 /**
  * AndroidConfigChooser is used to determine the best suited EGL Config

@@ -39,18 +39,13 @@ import com.jme3.renderer.Renderer;
 import com.jme3.renderer.lwjgl.LwjglGL1Renderer;
 import com.jme3.renderer.lwjgl.LwjglRenderer;
 import com.jme3.system.AppSettings;
-import com.jme3.system.SystemListener;
 import com.jme3.system.JmeContext;
-import com.jme3.system.NullRenderer;
+import com.jme3.system.SystemListener;
 import com.jme3.system.Timer;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.lwjgl.opengl.ContextAttribs;
-import org.lwjgl.opengl.Display;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL20;
-import org.lwjgl.opengl.GLContext;
+import org.lwjgl.opengl.*;
 
 /**
  * A LWJGL implementation of a graphics context.

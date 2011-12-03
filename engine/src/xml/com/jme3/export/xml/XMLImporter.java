@@ -34,8 +34,8 @@ package com.jme3.export.xml;
 
 import com.jme3.asset.AssetInfo;
 import com.jme3.asset.AssetManager;
-import com.jme3.export.JmeImporter;
 import com.jme3.export.InputCapsule;
+import com.jme3.export.JmeImporter;
 import com.jme3.export.Savable;
 import java.io.File;
 import java.io.FileInputStream;

@@ -1,14 +1,13 @@
 package jme3test.android;
 
-import java.util.List;
-
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
+import java.util.List;
 
 /**
  * The view adapter which gets a list of LaunchEntries and displaqs them

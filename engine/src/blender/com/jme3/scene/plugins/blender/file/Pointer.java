@@ -31,11 +31,10 @@
  */
 package com.jme3.scene.plugins.blender.file;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A class that represents a pointer of any level that can be stored in the file.

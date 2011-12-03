@@ -1,7 +1,5 @@
 package com.jme3.input.android;
 
-import java.util.HashMap;
-import java.util.logging.Logger;
 import android.content.Context;
 import android.opengl.GLSurfaceView;
 import android.util.AttributeSet;
@@ -18,6 +16,8 @@ import com.jme3.input.event.TouchEvent;
 import com.jme3.input.event.TouchEvent.Type;
 import com.jme3.math.Vector2f;
 import com.jme3.util.RingBuffer;
+import java.util.HashMap;
+import java.util.logging.Logger;
 
 
 /**

@@ -32,12 +32,11 @@
 
 package com.jme3.network.base;
 
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.util.*;
-
 import com.jme3.network.Message;
 import com.jme3.network.serializing.Serializer;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.util.LinkedList;
 
 /**
  *  Consolidates the conversion of messages to/from byte buffers

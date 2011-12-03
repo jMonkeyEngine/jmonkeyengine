@@ -37,7 +37,6 @@ import com.bulletphysics.collision.shapes.ConvexShape;
 import com.bulletphysics.dynamics.character.KinematicCharacterController;
 import com.bulletphysics.linearmath.Transform;
 import com.jme3.bullet.collision.PhysicsCollisionObject;
-import com.jme3.math.Vector3f;
 import com.jme3.bullet.collision.shapes.CollisionShape;
 import com.jme3.bullet.util.Converter;
 import com.jme3.export.InputCapsule;
@@ -46,6 +45,7 @@ import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
 import com.jme3.math.Matrix3f;
 import com.jme3.math.Quaternion;
+import com.jme3.math.Vector3f;
 import java.io.IOException;
 
 /**

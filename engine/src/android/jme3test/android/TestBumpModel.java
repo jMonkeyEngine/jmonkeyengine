@@ -33,7 +33,6 @@
 package jme3test.android;
 
 import com.jme3.app.SimpleApplication;
-import com.jme3.asset.AssetKey;
 import com.jme3.light.AmbientLight;
 import com.jme3.light.DirectionalLight;
 import com.jme3.light.PointLight;

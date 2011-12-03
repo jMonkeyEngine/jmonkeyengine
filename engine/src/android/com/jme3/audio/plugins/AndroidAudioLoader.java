@@ -1,11 +1,10 @@
 package com.jme3.audio.plugins;
 
-import java.io.IOException;
-import java.io.InputStream;
-
 import com.jme3.asset.AssetInfo;
 import com.jme3.asset.AssetLoader;
 import com.jme3.audio.android.AndroidAudioData;
+import java.io.IOException;
+import java.io.InputStream;
 
 public class AndroidAudioLoader implements AssetLoader 
 {

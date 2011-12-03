@@ -1,13 +1,12 @@
 package com.jme3.scene.plugins.blender.animations;
 
-import java.util.Arrays;
-
 import com.jme3.animation.Bone;
 import com.jme3.animation.BoneTrack;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
+import java.util.Arrays;
 
 /**
  * The purpose of this class is to imitate bone's movement when calculating inverse kinematics.

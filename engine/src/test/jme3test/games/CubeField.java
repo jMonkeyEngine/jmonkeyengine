@@ -32,8 +32,6 @@
 
 package jme3test.games;
 
-import java.util.ArrayList;
-
 import com.jme3.app.SimpleApplication;
 import com.jme3.bounding.BoundingVolume;
 import com.jme3.font.BitmapFont;
@@ -51,6 +49,7 @@ import com.jme3.scene.Node;
 import com.jme3.scene.Spatial.CullHint;
 import com.jme3.scene.shape.Box;
 import com.jme3.scene.shape.Dome;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 

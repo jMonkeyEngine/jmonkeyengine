@@ -1,13 +1,5 @@
 package com.jme3.scene.plugins.blender.materials;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import com.jme3.math.ColorRGBA;
 import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
@@ -20,6 +12,13 @@ import com.jme3.scene.plugins.blender.textures.TextureHelper;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.Type;
 import com.jme3.texture.Texture.WrapMode;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * This class holds the data about the material.

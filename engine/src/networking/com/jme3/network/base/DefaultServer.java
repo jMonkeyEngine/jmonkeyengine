@@ -32,19 +32,18 @@
 
 package com.jme3.network.base;
 
-import java.io.IOException;
+import com.jme3.network.*;
+import com.jme3.network.kernel.Endpoint;
+import com.jme3.network.kernel.Kernel;
+import com.jme3.network.message.ClientRegistrationMessage;
+import com.jme3.network.message.DisconnectMessage;
 import java.nio.ByteBuffer;
 import java.util.*;
-import java.util.concurrent.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import com.jme3.network.*;
-import com.jme3.network.kernel.*;
-import com.jme3.network.message.ClientRegistrationMessage; //hopefully temporary
-import com.jme3.network.message.DisconnectMessage; //hopefully temporary 
-import com.jme3.network.serializing.Serializer;
 
 /**
  *  A default implementation of the Server interface that delegates

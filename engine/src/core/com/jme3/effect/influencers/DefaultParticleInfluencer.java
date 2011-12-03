@@ -1,7 +1,5 @@
 package com.jme3.effect.influencers;
 
-import java.io.IOException;
-
 import com.jme3.effect.Particle;
 import com.jme3.effect.shapes.EmitterShape;
 import com.jme3.export.InputCapsule;
@@ -10,6 +8,7 @@ import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
 import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
+import java.io.IOException;
 
 /**
  * This emitter influences the particles so that they move all in the same direction.

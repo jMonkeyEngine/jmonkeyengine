@@ -37,14 +37,11 @@ import com.jme3.export.Savable;
 import com.jme3.network.Client;
 import com.jme3.network.Network;
 import com.jme3.network.Server;
-import com.jme3.network.rmi.ObjectDef;
 import com.jme3.network.rmi.ObjectStore;
-import com.jme3.network.rmi.RemoteObjectDefMessage;
 import com.jme3.network.serializing.Serializer;
 import com.jme3.network.serializing.serializers.SavableSerializer;
 import com.jme3.scene.Spatial;
 import java.io.IOException;
-import java.lang.reflect.Method;
 import java.util.concurrent.Callable;
 
 public class TestRemoteCall {

@@ -32,13 +32,13 @@
 package jme3test.model;
 
 import com.jme3.app.SimpleApplication;
-import com.jme3.light.PointLight;
 import com.jme3.light.DirectionalLight;
-import com.jme3.math.Vector3f;
+import com.jme3.light.PointLight;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
-import com.jme3.scene.Spatial;
+import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
+import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Sphere;
 
 public class TestOgreLoading extends SimpleApplication {

@@ -32,19 +32,18 @@
 
 package com.jme3.network.kernel.udp;
 
+import com.jme3.network.Filter;
+import com.jme3.network.kernel.*;
 import java.io.IOException;
 import java.net.*;
 import java.nio.ByteBuffer;
-import java.util.*;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import com.jme3.network.Filter;
-import com.jme3.network.kernel.*;
 
 /**
  *  A Kernel implementation using UDP packets.

@@ -31,8 +31,6 @@
  */
 package com.jme3.input.event;
 
-import com.jme3.math.Vector2f;
-
 /**
  * <code>TouchEvent</code> represents a single event from multi-touch input devices
  * @author larynx

@@ -31,26 +31,21 @@
  */
 package com.jme3.renderer.android;
 
+import android.graphics.Bitmap;
+import android.opengl.GLES10;
+import android.opengl.GLES11;
+import android.opengl.GLES20;
+import android.os.Build;
 import com.jme3.light.LightList;
 import com.jme3.material.RenderState;
-import com.jme3.math.ColorRGBA;
-import com.jme3.math.Matrix4f;
-import com.jme3.math.Quaternion;
-import com.jme3.math.Vector2f;
-import com.jme3.math.Vector3f;
-import com.jme3.renderer.Caps;
-import com.jme3.util.NativeObjectManager;
-import com.jme3.renderer.IDList;
-import com.jme3.renderer.Renderer;
+import com.jme3.math.*;
+import com.jme3.renderer.*;
 import com.jme3.scene.Mesh;
+import com.jme3.scene.Mesh.Mode;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.VertexBuffer.Format;
 import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.scene.VertexBuffer.Usage;
-import com.jme3.renderer.RenderContext;
-import com.jme3.renderer.RendererException;
-import com.jme3.renderer.Statistics;
-import com.jme3.scene.Mesh.Mode;
 import com.jme3.shader.Attribute;
 import com.jme3.shader.Shader;
 import com.jme3.shader.Shader.ShaderSource;
@@ -65,24 +60,14 @@ import com.jme3.util.BufferUtils;
 import com.jme3.util.IntMap;
 import com.jme3.util.IntMap.Entry;
 import com.jme3.util.ListMap;
-import java.nio.Buffer;
-import java.nio.ByteBuffer;
-import java.nio.DoubleBuffer;
-import java.nio.FloatBuffer;
-import java.nio.IntBuffer;
-import java.nio.ShortBuffer;
+import com.jme3.util.NativeObjectManager;
+import java.nio.*;
+import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.microedition.khronos.opengles.GL10;
-
-import android.graphics.Bitmap;
-import android.opengl.GLES10;
-import android.opengl.GLES11;
-import android.opengl.GLES20;
-import android.os.Build;
-import java.util.ArrayList;
 
 public class OGLESShaderRenderer implements Renderer {
 

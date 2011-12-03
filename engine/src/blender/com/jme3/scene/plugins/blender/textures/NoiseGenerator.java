@@ -31,6 +31,11 @@
  */
 package com.jme3.scene.plugins.blender.textures;
 
+import com.jme3.math.FastMath;
+import com.jme3.scene.plugins.blender.AbstractBlenderHelper;
+import com.jme3.scene.plugins.blender.BlenderContext;
+import com.jme3.scene.plugins.blender.file.Structure;
+import com.jme3.scene.plugins.blender.textures.TextureGeneratorMusgrave.MusgraveData;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
@@ -38,12 +43,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import com.jme3.math.FastMath;
-import com.jme3.scene.plugins.blender.AbstractBlenderHelper;
-import com.jme3.scene.plugins.blender.BlenderContext;
-import com.jme3.scene.plugins.blender.file.Structure;
-import com.jme3.scene.plugins.blender.textures.TextureGeneratorMusgrave.MusgraveData;
 
 /**
  * This generator is responsible for creating various noises used to create

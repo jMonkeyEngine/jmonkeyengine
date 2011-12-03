@@ -1,13 +1,9 @@
 package jme3test.terrain;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.jme3.app.SimpleApplication;
 import com.jme3.app.state.ScreenshotAppState;
 import com.jme3.asset.plugins.HttpZipLocator;
 import com.jme3.asset.plugins.ZipLocator;
-import com.jme3.bounding.BoundingBox;
 import com.jme3.bullet.BulletAppState;
 import com.jme3.bullet.collision.shapes.CapsuleCollisionShape;
 import com.jme3.bullet.collision.shapes.HeightfieldCollisionShape;
@@ -36,6 +32,8 @@ import com.jme3.terrain.geomipmap.lodcalc.DistanceLodCalculator;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import org.novyon.noise.ShaderUtils;
 import org.novyon.noise.basis.FilteredBasis;
 import org.novyon.noise.filter.IterativeFilter;

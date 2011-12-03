@@ -6,9 +6,7 @@ import java.io.IOException;
 import java.nio.FloatBuffer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import javax.imageio.ImageIO;
-
 import org.novyon.noise.ShaderUtils;
 
 public class MapUtils {

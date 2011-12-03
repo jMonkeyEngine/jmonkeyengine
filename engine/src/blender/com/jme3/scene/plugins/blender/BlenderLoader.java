@@ -31,12 +31,6 @@
  */
 package com.jme3.scene.plugins.blender;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import com.jme3.asset.AssetInfo;
 import com.jme3.asset.BlenderKey;
 import com.jme3.asset.BlenderKey.FeaturesToLoad;
@@ -63,6 +57,11 @@ import com.jme3.scene.plugins.blender.modifiers.ModifierHelper;
 import com.jme3.scene.plugins.blender.objects.ObjectHelper;
 import com.jme3.scene.plugins.blender.particles.ParticlesHelper;
 import com.jme3.scene.plugins.blender.textures.TextureHelper;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * This is the main loading class. Have in notice that asset manager needs to have loaders for resources like textures.

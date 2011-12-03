@@ -32,15 +32,14 @@
 
 package com.jme3.network;
 
-import java.io.IOException;
-import java.net.InetAddress;
-
 import com.jme3.network.base.DefaultClient;
 import com.jme3.network.base.DefaultServer;
 import com.jme3.network.kernel.tcp.SelectorKernel;
 import com.jme3.network.kernel.tcp.SocketConnector;
 import com.jme3.network.kernel.udp.UdpConnector;
 import com.jme3.network.kernel.udp.UdpKernel;
+import java.io.IOException;
+import java.net.InetAddress;
 
 /**
  *  The main service provider for conveniently creating

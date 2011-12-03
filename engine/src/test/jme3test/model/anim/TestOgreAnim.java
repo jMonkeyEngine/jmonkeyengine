@@ -32,11 +32,7 @@
 
 package jme3test.model.anim;
 
-import com.jme3.animation.AnimChannel;
-import com.jme3.animation.AnimControl;
-import com.jme3.animation.AnimEventListener;
-import com.jme3.animation.LoopMode;
-import com.jme3.animation.SkeletonControl;
+import com.jme3.animation.*;
 import com.jme3.app.SimpleApplication;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;

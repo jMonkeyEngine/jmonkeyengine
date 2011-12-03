@@ -1,5 +1,22 @@
 package com.jme3.scene.plugins.blender.curves;
 
+import com.jme3.material.Material;
+import com.jme3.material.RenderState.FaceCullMode;
+import com.jme3.math.Spline.SplineType;
+import com.jme3.math.*;
+import com.jme3.scene.Geometry;
+import com.jme3.scene.Mesh;
+import com.jme3.scene.VertexBuffer.Type;
+import com.jme3.scene.plugins.blender.AbstractBlenderHelper;
+import com.jme3.scene.plugins.blender.BlenderContext;
+import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
+import com.jme3.scene.plugins.blender.file.*;
+import com.jme3.scene.plugins.blender.materials.MaterialHelper;
+import com.jme3.scene.plugins.blender.meshes.MeshHelper;
+import com.jme3.scene.plugins.blender.objects.Properties;
+import com.jme3.scene.shape.Curve;
+import com.jme3.scene.shape.Surface;
+import com.jme3.util.BufferUtils;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
@@ -8,33 +25,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.logging.Logger;
-
-import com.jme3.material.Material;
-import com.jme3.material.RenderState.FaceCullMode;
-import com.jme3.math.FastMath;
-import com.jme3.math.Matrix4f;
-import com.jme3.math.Quaternion;
-import com.jme3.math.Spline;
-import com.jme3.math.Spline.SplineType;
-import com.jme3.math.Vector3f;
-import com.jme3.math.Vector4f;
-import com.jme3.scene.Geometry;
-import com.jme3.scene.Mesh;
-import com.jme3.scene.VertexBuffer.Type;
-import com.jme3.scene.plugins.blender.AbstractBlenderHelper;
-import com.jme3.scene.plugins.blender.BlenderContext;
-import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
-import com.jme3.scene.plugins.blender.file.BlenderInputStream;
-import com.jme3.scene.plugins.blender.file.DynamicArray;
-import com.jme3.scene.plugins.blender.file.FileBlockHeader;
-import com.jme3.scene.plugins.blender.file.Pointer;
-import com.jme3.scene.plugins.blender.file.Structure;
-import com.jme3.scene.plugins.blender.materials.MaterialHelper;
-import com.jme3.scene.plugins.blender.meshes.MeshHelper;
-import com.jme3.scene.plugins.blender.objects.Properties;
-import com.jme3.scene.shape.Curve;
-import com.jme3.scene.shape.Surface;
-import com.jme3.util.BufferUtils;
 
 /**
  * A class that is used in mesh calculations.
