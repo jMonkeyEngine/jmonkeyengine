@@ -397,15 +397,11 @@
             <zipfileset dir="${src.core-plugins.dir}" prefix="source"/>
             <zipfileset dir="${src.desktop.dir}" prefix="source"/>
             <zipfileset dir="${src.desktop-fx.dir}" prefix="source"/>
-            <zipfileset dir="${src.games.dir}" prefix="source"/>
             <zipfileset dir="${src.jbullet.dir}" prefix="source"/>
             <zipfileset dir="${src.niftygui.dir}" prefix="source"/>
             <zipfileset dir="${src.jogg.dir}" prefix="source"/>
-            <zipfileset dir="${src.lwjgl-oal.dir}" prefix="source"/>
-            <zipfileset dir="${src.lwjgl-ogl.dir}" prefix="source"/>
+            <zipfileset dir="${src.lwjgl.dir}" prefix="source"/>
             <zipfileset dir="${src.ogre.dir}" prefix="source"/>
-            <zipfileset dir="${src.pack.dir}" prefix="source"/>
-            <zipfileset dir="${src.jheora.dir}" prefix="source"/>
             <zipfileset dir="${src.test.dir}" prefix="source"/>
             <zipfileset dir="${src.tools.dir}" prefix="source"/>
             <zipfileset dir="${src.xml.dir}" prefix="source"/>
