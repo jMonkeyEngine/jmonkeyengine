@@ -5,7 +5,7 @@
 
 This document outlines the process of building bullet-jme on different platforms.
 Since bulletjme is a native java library and bullet gets included statically,
-building requires you to download and build the bullet source first.
+building requires downloading and building the bullet sources.
 
 Note that you do need to have CMake and a GCC compiler installed as well as
 the Android NDK in case you want to build for android too.
@@ -15,7 +15,7 @@ Requirements
 -----------------------------------
 ALL PLATFORMS
 - Java SDK 1.5+: http://java.sun.com
-- Apache ANT: http://ant.apache.org (Included in most Java IDEs)
+- Apache ANT: http://ant.apache.org (included in most Java IDEs)
 - Android NDK (optional): http://developer.android.com/sdk/ndk/index.html
 
 WINDOWS
@@ -45,6 +45,16 @@ via your IDE or command line:
 
 You can alter options in the "nbproject/bullet.properties" file, such as the used
 bullet version, native compilation options (see below), path to Android NDK etc.
+
+-----------------------------------
+Running
+-----------------------------------
+The resulting jMonkeyEngine3.jar containing the tests will automatically use the
+jME3-jbullet.jar or jME3-bullet.jar, depending on which is available in the libs directory.
+
+A convenience target exists to run the engine tests using the native bullet library:
+
+> ant run-bullet-native
 
 -----------------------------------
 Altering the native build process
@@ -78,14 +88,14 @@ of the old one.
 -----------------------------------
 Netbeans Project
 -----------------------------------
-The project also includes a Netbeans project to edit and build
-the source in the Netbeans IDE in the /src/bullet/ subfolder.
+The engine NetBeans project also includes the native sources and a build configuration
+entry to build the binary and run the tests with it.
 
 To have correct syntax highlighting in .cpp/.h files:
 
 - in Netbeans Settings -> C/C++ -> Code Assistance -> C++
-  - add bullet-2.77/src as include directories for c++
-  - add JAVA_HOME/include as include directories for c++
+  - add bullet-2.79/src as include directories for C++
+  - add JAVA_HOME/include as include directories for C
 
 
 
