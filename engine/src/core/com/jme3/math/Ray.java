@@ -52,25 +52,25 @@ public final class Ray implements Savable, Cloneable, Collidable, java.io.Serial
 
     static final long serialVersionUID = 1;
 
-    //todo: merge with Line?
-    /** The ray's begining point. */
-    public Vector3f origin;
-    /** The direction of the ray. */
-    public Vector3f direction;
+    /** 
+     * The ray's begining point. 
+     */
+    public Vector3f origin = new Vector3f();
+    
+    /** 
+     * The direction of the ray. 
+     */
+    public Vector3f direction = new Vector3f(0, 0, 1);
+    
+    
     public float limit = Float.POSITIVE_INFINITY;
 
-//    protected static final Vector3f tempVa=new Vector3f();
-//    protected static final Vector3f tempVb=new Vector3f();
-//    protected static final Vector3f tempVc=new Vector3f();
-//    protected static final Vector3f tempVd=new Vector3f();
     /**
      * Constructor instantiates a new <code>Ray</code> object. As default, the
-     * origin is (0,0,0) and the direction is (0,0,0).
+     * origin is (0,0,0) and the direction is (0,0,1).
      *
      */
     public Ray() {
-        origin = new Vector3f();
-        direction = new Vector3f();
     }
 
     /**
@@ -80,8 +80,8 @@ public final class Ray implements Savable, Cloneable, Collidable, java.io.Serial
      * @param direction the direction the ray travels in.
      */
     public Ray(Vector3f origin, Vector3f direction) {
-        this.origin = origin;
-        this.direction = direction;
+        setOrigin(origin)
+        setDirection(direction);
     }
 
     /**
@@ -476,6 +476,9 @@ public final class Ray implements Savable, Cloneable, Collidable, java.io.Serial
      * @param direction the direction of the ray.
      */
     public void setDirection(Vector3f direction) {
+        if (!direction.isUnitVector()) {
+            throw new IllegalArgumentException("direction must be a unit vector");
+        }
         this.direction.set(direction);
     }
 
