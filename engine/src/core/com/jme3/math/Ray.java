@@ -80,7 +80,7 @@ public final class Ray implements Savable, Cloneable, Collidable, java.io.Serial
      * @param direction the direction the ray travels in.
      */
     public Ray(Vector3f origin, Vector3f direction) {
-        setOrigin(origin)
+        setOrigin(origin);
         setDirection(direction);
     }
 
