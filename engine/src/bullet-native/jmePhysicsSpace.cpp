@@ -48,7 +48,9 @@ jmePhysicsSpace::jmePhysicsSpace(JNIEnv* env, jobject javaSpace) {
 }
 
 void jmePhysicsSpace::attachThread() {
-#ifdef JNI_VERSION_1_2
+#ifdef ANDROID
+    vm->AttachCurrentThread((JNIEnv**) &env, NULL);
+#elif defined (JNI_VERSION_1_2)
     vm->AttachCurrentThread((void**) &env, NULL);
 #else
     vm->AttachCurrentThread(&env, NULL);
