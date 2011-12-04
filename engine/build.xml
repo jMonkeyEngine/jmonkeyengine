@@ -8,7 +8,7 @@
         <ant antfile="nbproject/build-bullet-natives.xml" target="build-bullet-natives"/>
     </target>
     
-    <target name="run-bullet-native" description="runs the jMonkeyEngine3 demos using native bullet">
+    <target name="run-bullet-native" description="runs the jMonkeyEngine3 demos using native bullet" depends="init">
         <copy file="${dist.dir}/opt/native-bullet/jME3-bullet-natives.jar" todir="${dist.dir}/lib" failonerror="false"/>
         <copy file="${dist.dir}/opt/native-bullet/jME3-bullet.jar" todir="${dist.dir}/lib" failonerror="false"/>
         <delete file="${dist.dir}/lib/jME3-jbullet.jar" failonerror="false"/>
