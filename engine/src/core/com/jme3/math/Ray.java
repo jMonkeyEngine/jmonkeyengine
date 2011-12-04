@@ -476,9 +476,7 @@ public final class Ray implements Savable, Cloneable, Collidable, java.io.Serial
      * @param direction the direction of the ray.
      */
     public void setDirection(Vector3f direction) {
-        if (!direction.isUnitVector()) {
-            throw new IllegalArgumentException("direction must be a unit vector");
-        }
+        assert direction.isUnitVector();
         this.direction.set(direction);
     }
 
