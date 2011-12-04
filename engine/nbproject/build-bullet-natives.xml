@@ -60,7 +60,7 @@
     </target>
     
     <target name="create-native-headers" description="creates the native headers">
-        <javah destdir="${bullet.source.dir}" classpath="${bullet.build.dir}${path.separator}${lib.importpath}" force="yes">
+        <javah destdir="${bullet.source.dir}" classpath="${bullet.build.dir}${path.separator}${lib.importpath}">
             <class name="com.jme3.bullet.PhysicsSpace"/>
 
             <class name="com.jme3.bullet.collision.PhysicsCollisionEvent"/>
