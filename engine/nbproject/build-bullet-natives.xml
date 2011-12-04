@@ -51,7 +51,7 @@
         <fileset refid="lib.jme.jars"/>
     </pathconvert>
 
-    <target name="build-bullet-natives" description="builds the native bullet library for the platform being run on" depends="-create-folders, create-native-headers, -nativelib-osx, -nativelib-windows, -nativelib-linux, -nativelib-solaris, -nativelib-android">
+    <target name="build-bullet-natives" description="builds the native bullet library for the platform being run on" depends="-compile-bullet-sources, -create-folders, create-native-headers, -nativelib-osx, -nativelib-windows, -nativelib-linux, -nativelib-solaris, -nativelib-android">
         <echo message="Updating native jME3-bullet-natives.jar"/>
         <zip basedir="${bullet.output.base}/jarcontent" file="${bullet.output.base}/jME3-bullet-natives.jar" compress="true"/>
         <zip basedir="${bullet.output.base}/android" file="${bullet.output.base}/jME3-bullet-natives-android.jar" compress="true"/>
@@ -302,4 +302,55 @@
         <available file="${ndk.dir}/${ndk-build-name}" property="haveAndoidNdk"/>
     </target>
     
+    <target name="-compile-bullet-sources" depends="-get-bullet-sources, -compile-bullet-sources-windows, -compile-bullet-sources-macosx, -compile-bullet-sources-linux"/>
+
+    <target name="-get-bullet-sources" depends="-check-bullet-sources" unless="haveBulletSource">
+        <echo>Downloading bullet source..</echo>
+        <get src="${bullet.download}" dest="../bullet.zip"/>
+        <unzip src="../bullet.zip" dest="../"/>
+        <delete file="../bullet.zip"/>
+    </target>
+
+    <target name="-check-bullet-sources">
+        <available file="${bullet.folder}" property="haveBulletSource"/>
+    </target>
+    
+    <target name="-compile-bullet-sources-windows" if="isWindows">
+        <exec executable="${cmake.windows}" dir="${bullet.folder}">
+            <arg value="."/>
+            <arg value="-DBUILD_SHARED_LIBS=OFF"/>
+            <arg value="-DBUILD_EXTRAS:BOOL=OFF"/>
+            <arg value="-DBUILD_DEMOS:BOOL=OFF"/>
+            <arg value="-DCMAKE_BUILD_TYPE=Release"/>
+            <arg value="."/>
+            <arg value="-G"/>
+            <arg value="'MinGW Makefiles'"/>
+        </exec>
+        <exec executable="${make.windows}" dir="${bullet.folder}"/>
+    </target>
+    
+    <target name="-compile-bullet-sources-macosx" if="isMac">
+        <exec executable="${cmake.osx}" dir="${bullet.folder}">
+            <arg value="-DBUILD_SHARED_LIBS=OFF"/>
+            <arg value="-DBUILD_STATIC_LIBS=ON"/>
+            <arg value="-DCMAKE_OSX_ARCHITECTURES='i386;x86_64'"/>
+            <arg value="-DBUILD_EXTRAS=off"/>
+            <arg value="-DBUILD_DEMOS=off"/>
+            <arg value="-DCMAKE_BUILD_TYPE=Release"/>
+        </exec>
+        <exec executable="${make.osx}" dir="${bullet.folder}"/>
+    </target>
+    
+    <target name="-compile-bullet-sources-linux" if="isLinux">
+        <exec executable="${cmake.linux}" dir="${bullet.folder}">
+            <arg value="-DBUILD_SHARED_LIBS=OFF"/>
+            <arg value="-DBUILD_STATIC_LIBS=ON"/>
+            <arg value="-DCMAKE_C_FLAGS=-fPIC"/>
+            <arg value="-DCMAKE_CXX_FLAGS=-fPIC"/>
+            <arg value="-DBUILD_EXTRAS=off"/>
+            <arg value="-DBUILD_DEMOS=off"/>
+            <arg value="-DCMAKE_BUILD_TYPE=Release"/>
+        </exec>
+        <exec executable="${make.linux}" dir="${bullet.folder}"/>
+    </target>
 </project>
