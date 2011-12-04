@@ -266,16 +266,11 @@
         <copy file="${bullet.source.dir}/android/Android.mk" todir="build/bullet-android/jni" verbose="true"/>
         <copy file="${bullet.source.dir}/android/Application.mk" todir="build/bullet-android/jni" verbose="true"/>
 
-        <!-- copy edited version of jmePhysicsSpace to remove NDK compile error -->
-        <copy file="${bullet.source.dir}/android/jmePhysicsSpace.cpp" todir="build/bullet-android/jni" verbose="true"/>
-
         <!-- copy jME3 Native Bullet files into jni directory -->
         <copy todir="build/bullet-android/jni" verbose="true" flatten="false">
             <fileset dir="${bullet.source.dir}">
                 <include name="*.cpp" />
                 <include name="*.h" />
-               <!-- skip jmePhysicsSpace (use edited one) to remove NDK compile error -->
-                <exclude name="jmePhysicsSpace.cpp" />
             </fileset>
         </copy>
 
