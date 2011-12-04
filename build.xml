@@ -75,7 +75,7 @@
       -->
       
     <target name="hudson-nightly" depends="-hudson-revert-changes, -check-platform, -update-sdk-platform-config, -hudson-build-engine">
-        <ant dir="engine" target="copy-javadoc"/>
+        <!--ant dir="engine" target="copy-javadoc"/-->
         <ant dir="engine" target="create-zip-distribution"/>
         <ant dir="sdk" target="hudson-nightly"/>
     </target>

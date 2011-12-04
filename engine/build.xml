@@ -404,10 +404,4 @@
         </antcall>
     </target>
     
-    <target name="copy-javadoc">
-        <copydir
-            src="${dist.dir}/javadoc/" dest="/var/www/org/javadoc/" forceoverwrite="true"
-            />
-    </target>
-    
 </project>
