@@ -18,6 +18,7 @@
                 <root id="src.terrain.dir" name="Terrain"/>
                 <root id="src.jbullet.dir" name="Java Bullet"/>
                 <root id="src.bullet.dir" name="Native Bullet"/>
+                <root id="src.bullet-native.dir" name="Native Bullet C++"/>
                 <root id="src.bullet-common.dir" name="Bullet Common"/>
                 <root id="src.networking.dir" name="Networking"/>
                 <root id="src.niftygui.dir" name="NiftyGUI"/>
