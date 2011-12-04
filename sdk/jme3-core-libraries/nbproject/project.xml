@@ -223,16 +223,12 @@
                 <binary-origin>release/modules/ext/jbullet.jar</binary-origin>
             </class-path-extension>
             <class-path-extension>
-                <runtime-relative-path>ext/nifty-examples.jar</runtime-relative-path>
-                <binary-origin>release/modules/ext/nifty-examples.jar</binary-origin>
+                <runtime-relative-path>ext/nifty-style-black.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/nifty-style-black.jar</binary-origin>
             </class-path-extension>
             <class-path-extension>
                 <runtime-relative-path>ext/lwjgl.jar</runtime-relative-path>
                 <binary-origin>release/modules/ext/lwjgl.jar</binary-origin>
-            </class-path-extension>
-            <class-path-extension>
-                <runtime-relative-path>ext/nifty-style-black.jar</runtime-relative-path>
-                <binary-origin>release/modules/ext/nifty-style-black.jar</binary-origin>
             </class-path-extension>
         </data>
     </configuration>
