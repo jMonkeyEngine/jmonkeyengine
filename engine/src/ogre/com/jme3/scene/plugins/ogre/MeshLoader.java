@@ -144,16 +144,29 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
     public void endDocument() {
     }
 
+    private void pushIndex(int index){
+        if (ib != null){
+            ib.put(index);
+        }else{
+            sb.put((short)index);
+        }
+    }
+    
     private void pushFace(String v1, String v2, String v3) throws SAXException {
-        int i1 = parseInt(v1);
-
         // TODO: fan/strip support
-        int i2 = parseInt(v2);
-        int i3 = parseInt(v3);
-        if (ib != null) {
-            ib.put(i1).put(i2).put(i3);
-        } else {
-            sb.put((short) i1).put((short) i2).put((short) i3);
+        switch (mesh.getMode()){
+            case Triangles:
+                pushIndex(parseInt(v1));
+                pushIndex(parseInt(v2));
+                pushIndex(parseInt(v3));
+                break;
+            case Lines:
+                pushIndex(parseInt(v1));
+                pushIndex(parseInt(v2));
+                break;
+            case Points:
+                pushIndex(parseInt(v1));
+                break;
         }
     }
 
@@ -163,23 +176,33 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
 
     private void startFaces(String count) throws SAXException {
         int numFaces = parseInt(count);
-        int numIndices;
+        int indicesPerFace = 0;
 
-        if (mesh.getMode() == Mesh.Mode.Triangles) {
-            numIndices = numFaces * 3;
-        } else {
-            throw new SAXException("Triangle strip or fan not supported!");
+        switch (mesh.getMode()){
+            case Triangles:
+                indicesPerFace = 3;
+                break;
+            case Lines:
+                indicesPerFace = 2;
+                break;
+            case Points:
+                indicesPerFace = 1;
+                break;
+            default:
+                throw new SAXException("Strips or fans not supported!");
         }
 
+        int numIndices = indicesPerFace * numFaces;
+        
         vb = new VertexBuffer(VertexBuffer.Type.Index);
         if (!usesBigIndices) {
             sb = BufferUtils.createShortBuffer(numIndices);
             ib = null;
-            vb.setupData(Usage.Static, 3, Format.UnsignedShort, sb);
+            vb.setupData(Usage.Static, indicesPerFace, Format.UnsignedShort, sb);
         } else {
             ib = BufferUtils.createIntBuffer(numIndices);
             sb = null;
-            vb.setupData(Usage.Static, 3, Format.UnsignedInt, ib);
+            vb.setupData(Usage.Static, indicesPerFace, Format.UnsignedInt, ib);
         }
         mesh.setBuffer(vb);
     }
@@ -215,10 +238,14 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
         mesh = new Mesh();
         if (opType == null || opType.equals("triangle_list")) {
             mesh.setMode(Mesh.Mode.Triangles);
-        } else if (opType.equals("triangle_strip")) {
-            mesh.setMode(Mesh.Mode.TriangleStrip);
-        } else if (opType.equals("triangle_fan")) {
-            mesh.setMode(Mesh.Mode.TriangleFan);
+        //} else if (opType.equals("triangle_strip")) {
+        //    mesh.setMode(Mesh.Mode.TriangleStrip);
+        //} else if (opType.equals("triangle_fan")) {
+        //    mesh.setMode(Mesh.Mode.TriangleFan);
+        } else if (opType.equals("line_list")) {
+            mesh.setMode(Mesh.Mode.Lines);
+        } else {
+            throw new SAXException("Unsupported operation type: " + opType);
         }
 
         usesBigIndices = parseBool(use32bitIndices, false);
