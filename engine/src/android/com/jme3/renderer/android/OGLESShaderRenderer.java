@@ -57,8 +57,6 @@ import com.jme3.texture.Image;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapAxis;
 import com.jme3.util.BufferUtils;
-import com.jme3.util.IntMap;
-import com.jme3.util.IntMap.Entry;
 import com.jme3.util.ListMap;
 import com.jme3.util.NativeObjectManager;
 import java.nio.*;
@@ -2643,9 +2641,10 @@ public class OGLESShaderRenderer implements Renderer {
             logger.info("renderMeshVertexArray");
         }
 
-        IntMap<VertexBuffer> buffers = mesh.getBuffers();
-        for (Entry<VertexBuffer> entry : buffers) {
-            VertexBuffer vb = entry.getValue();
+      //  IntMap<VertexBuffer> buffers = mesh.getBuffers();
+        ArrayList<VertexBuffer> buffersList = mesh.getBufferList();
+        for (int i = 0; i < buffersList.size(); i++){
+            VertexBuffer vb = buffersList.get(i);
 
             if (vb.getBufferType() == Type.InterleavedData
                     || vb.getUsage() == Usage.CpuOnly // ignore cpu-only buffers
@@ -2667,7 +2666,7 @@ public class OGLESShaderRenderer implements Renderer {
         if (mesh.getNumLodLevels() > 0) {
             indices = mesh.getLodLevel(lod);
         } else {
-            indices = buffers.get(Type.Index.ordinal());
+            indices = mesh.getBuffer(Type.Index);//buffers.get(Type.Index.ordinal());
         }
         if (indices != null) {
             drawTriangleList_Array(indices, mesh, count);
@@ -2695,14 +2694,15 @@ public class OGLESShaderRenderer implements Renderer {
             updateBufferData(interleavedData);
         }
 
-        IntMap<VertexBuffer> buffers = mesh.getBuffers();
+        //IntMap<VertexBuffer> buffers = mesh.getBuffers();
+        ArrayList<VertexBuffer> buffersList = mesh.getBufferList();
         if (mesh.getNumLodLevels() > 0) {
             indices = mesh.getLodLevel(lod);
         } else {
-            indices = buffers.get(Type.Index.ordinal());
+            indices = mesh.getBuffer(Type.Index);// buffers.get(Type.Index.ordinal());
         }
-        for (Entry<VertexBuffer> entry : buffers) {
-            VertexBuffer vb = entry.getValue();
+        for (int i = 0; i < buffersList.size(); i++){
+            VertexBuffer vb = buffersList.get(i);
 
             if (vb.getBufferType() == Type.InterleavedData
                     || vb.getUsage() == Usage.CpuOnly // ignore cpu-only buffers
