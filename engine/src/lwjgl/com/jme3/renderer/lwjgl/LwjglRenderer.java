@@ -58,8 +58,8 @@ import com.jme3.util.IntMap;
 import com.jme3.util.IntMap.Entry;
 import com.jme3.util.ListMap;
 import com.jme3.util.NativeObjectManager;
+import com.jme3.util.SafeArrayList;
 import java.nio.*;
-import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.logging.Level;
@@ -2410,7 +2410,7 @@ public class LwjglRenderer implements Renderer {
         }
 
         //IntMap<VertexBuffer> buffers = mesh.getBuffers();
-        ArrayList<VertexBuffer> buffersList = mesh.getBufferList();
+        SafeArrayList<VertexBuffer> buffersList = mesh.getBufferList();
 
         if (mesh.getNumLodLevels() > 0) {
             indices = mesh.getLodLevel(lod);
@@ -2419,8 +2419,7 @@ public class LwjglRenderer implements Renderer {
         }
         //for (Entry<VertexBuffer> entry : buffers) {
         //     VertexBuffer vb = entry.getValue();
-        for (int i = 0; i < buffersList.size(); i++){
-            VertexBuffer vb = buffersList.get(i);
+        for (VertexBuffer vb : mesh.getBufferList().getArray()){               
 
             if (vb.getBufferType() == Type.InterleavedData
                     || vb.getUsage() == Usage.CpuOnly // ignore cpu-only buffers

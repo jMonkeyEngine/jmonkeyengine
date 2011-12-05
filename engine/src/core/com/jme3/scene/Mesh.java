@@ -50,6 +50,7 @@ import com.jme3.scene.mesh.*;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.IntMap;
 import com.jme3.util.IntMap.Entry;
+import com.jme3.util.SafeArrayList;
 import java.io.IOException;
 import java.nio.*;
 import java.util.ArrayList;
@@ -164,7 +165,7 @@ public class Mesh implements Savable, Cloneable {
 
     private CollisionData collisionTree = null;
 
-    private ArrayList<VertexBuffer> buffersList = new ArrayList<VertexBuffer>(5);
+    private SafeArrayList<VertexBuffer> buffersList = new SafeArrayList<VertexBuffer>(VertexBuffer.class);
     private IntMap<VertexBuffer> buffers = new IntMap<VertexBuffer>();
     private VertexBuffer[] lodLevels;
     private float pointSize = 1;
@@ -201,7 +202,7 @@ public class Mesh implements Savable, Cloneable {
             clone.meshBound = meshBound.clone();
             clone.collisionTree = collisionTree != null ? collisionTree : null;
             clone.buffers = buffers.clone();
-            clone.buffersList = new ArrayList<VertexBuffer>(buffersList);
+            clone.buffersList = new SafeArrayList<VertexBuffer>(VertexBuffer.class,buffersList);
             clone.vertexArrayID = -1;
             if (elementLengths != null) {
                 clone.elementLengths = elementLengths.clone();
@@ -232,7 +233,7 @@ public class Mesh implements Savable, Cloneable {
             clone.collisionTree = null; // it will get re-generated in any case
 
             clone.buffers = new IntMap<VertexBuffer>();
-            clone.buffersList = new ArrayList<VertexBuffer>();
+            clone.buffersList = new SafeArrayList<VertexBuffer>(VertexBuffer.class);
             for (Entry<VertexBuffer> ent : buffers){
                 VertexBuffer bufClone = ent.getValue().clone();
                 clone.buffers.put(ent.getKey(), bufClone);
@@ -1129,7 +1130,7 @@ public class Mesh implements Savable, Cloneable {
         return buffers;
     }
     
-    public ArrayList<VertexBuffer> getBufferList(){
+    public SafeArrayList<VertexBuffer> getBufferList(){
         return buffersList;
     }
 
