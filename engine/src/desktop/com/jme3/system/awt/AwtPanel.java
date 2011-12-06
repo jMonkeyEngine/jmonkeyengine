@@ -103,7 +103,7 @@ public class AwtPanel extends Canvas implements SceneProcessor {
     public boolean checkVisibilityState(){
         if (!hasNativePeer.get()){
             if (strategy != null){
-                strategy.dispose();
+//                strategy.dispose();
                 strategy = null;
                 System.out.println("OGL: Not visible. Destroy strategy.");
             }
