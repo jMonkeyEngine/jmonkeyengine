@@ -13,7 +13,7 @@
         <copy file="${dist.dir}/opt/native-bullet/jME3-bullet.jar" todir="${dist.dir}/lib" failonerror="false"/>
         <delete file="${dist.dir}/lib/jME3-jbullet.jar" failonerror="false"/>
         <exec executable="java" dir="dist">
-            <arg line="-jar jMonkeyEngine3.jar"/>
+            <arg line="${run.jvmargs} -jar jMonkeyEngine3.jar"/>
         </exec>
     </target>
     
