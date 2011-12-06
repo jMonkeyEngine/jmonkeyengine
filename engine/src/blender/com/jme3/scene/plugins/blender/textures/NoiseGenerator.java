@@ -96,7 +96,7 @@ import java.util.logging.Logger;
      *        the number of blender version
      */
     public NoiseGenerator(String blenderVersion) {
-        super(blenderVersion);
+        super(blenderVersion, false);
         this.loadConstants();
     }
 

@@ -43,9 +43,11 @@ public class CurvesHelper extends AbstractBlenderHelper {
      * different blender versions.
      * @param blenderVersion
      *        the version read from the blend file
+     * @param fixUpAxis
+     *        a variable that indicates if the Y asxis is the UP axis or not
      */
-    public CurvesHelper(String blenderVersion) {
-        super(blenderVersion);
+    public CurvesHelper(String blenderVersion, boolean fixUpAxis) {
+        super(blenderVersion, fixUpAxis);
     }
 
     /**
@@ -457,7 +459,7 @@ public class CurvesHelper extends AbstractBlenderHelper {
                     temp[1] = vertices[j * 3 + 1] * taperScale;
                     temp[2] = 0;
                     m.mult(temp);//the result is stored in the array
-                    if (fixUpAxis) {
+                    if (fixUpAxis) {//TODO: not the other way ???
                         verts[j] = new Vector3f(temp[0], temp[1], temp[2]);
                     } else {
                         verts[j] = new Vector3f(temp[0], temp[2], -temp[1]);

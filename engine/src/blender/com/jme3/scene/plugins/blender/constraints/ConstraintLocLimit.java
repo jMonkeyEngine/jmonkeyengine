@@ -1,12 +1,14 @@
 package com.jme3.scene.plugins.blender.constraints;
 
 import com.jme3.animation.Animation;
-import com.jme3.animation.BoneTrack;
+import com.jme3.animation.Track;
+import com.jme3.math.Transform;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.animations.Ipo;
 import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
 import com.jme3.scene.plugins.blender.file.Structure;
+import com.jme3.scene.plugins.ogre.AnimData;
 
 /**
  * This class represents 'Loc limit' constraint type in blender.
@@ -20,12 +22,15 @@ import com.jme3.scene.plugins.blender.file.Structure;
     private static final int LIMIT_ZMIN = 0x10;
     private static final int LIMIT_ZMAX = 0x20;
     
+    protected float[][] limits = new float[3][2];
+    protected int flag;
+    
 	/**
 	 * This constructor creates the constraint instance.
 	 * 
 	 * @param constraintStructure
 	 *            the constraint's structure (bConstraint clss in blender 2.49).
-	 * @param boneOMA
+	 * @param ownerOMA
 	 *            the old memory address of the constraint owner
 	 * @param influenceIpo
 	 *            the ipo curve of the influence factor
@@ -35,63 +40,101 @@ import com.jme3.scene.plugins.blender.file.Structure;
 	 *             this exception is thrown when the blender file is somehow
 	 *             corrupted
 	 */
-	public ConstraintLocLimit(Structure constraintStructure, Long boneOMA,
+	public ConstraintLocLimit(Structure constraintStructure, Long ownerOMA,
 			Ipo influenceIpo, BlenderContext blenderContext) throws BlenderFileException {
-		super(constraintStructure, boneOMA, influenceIpo, blenderContext);
+		super(constraintStructure, ownerOMA, influenceIpo, blenderContext);
+		
+		flag = ((Number) data.getFieldValue("flag")).intValue();
+		if(blenderContext.getBlenderKey().isFixUpAxis()) {
+			limits[0][0] = ((Number) data.getFieldValue("xmin")).floatValue();
+			limits[0][1] = ((Number) data.getFieldValue("xmax")).floatValue();
+			limits[2][0] = -((Number) data.getFieldValue("ymin")).floatValue();
+			limits[2][1] = -((Number) data.getFieldValue("ymax")).floatValue();
+			limits[1][0] = ((Number) data.getFieldValue("zmin")).floatValue();
+			limits[1][1] = ((Number) data.getFieldValue("zmax")).floatValue();
+			
+			//swapping Y and X limits flag in the bitwise flag
+			int ymin = flag & LIMIT_YMIN;
+			int ymax = flag & LIMIT_YMAX;
+			int zmin = flag & LIMIT_ZMIN;
+			int zmax = flag & LIMIT_ZMAX;
+			flag &= LIMIT_XMIN | LIMIT_XMAX;//clear the other flags to swap them
+			flag |= ymin << 2;
+			flag |= ymax << 2;
+			flag |= zmin >> 2;
+			flag |= zmax >> 2;
+		} else {
+			limits[0][0] = ((Number) data.getFieldValue("xmin")).floatValue();
+			limits[0][1] = ((Number) data.getFieldValue("xmax")).floatValue();
+			limits[1][0] = ((Number) data.getFieldValue("ymin")).floatValue();
+			limits[1][1] = ((Number) data.getFieldValue("ymax")).floatValue();
+			limits[2][0] = ((Number) data.getFieldValue("zmin")).floatValue();
+			limits[2][1] = ((Number) data.getFieldValue("zmax")).floatValue();
+		}
 	}
 
 	@Override
-	public void affectAnimation(Animation animation, int targetIndex) {
-		BoneTrack track = (BoneTrack) this.getTrack(animation, targetIndex);
-		if (track != null) {
-			int flag = ((Number) data.getFieldValue("flag")).intValue();
-			Vector3f[] translations = track.getTranslations();
-			int maxFrames = translations.length;
-			for (int frame = 0; frame < maxFrames; ++frame) {
-				float influence = ipo.calculateValue(frame);
-				if ((flag & LIMIT_XMIN) != 0) {
-					float xmin = ((Number) data.getFieldValue("xmin")).floatValue();
-					if (translations[frame].x < xmin) {
-						translations[frame].x -= (translations[frame].x - xmin) * influence;
-					}
+	public void bakeDynamic() {
+		Object owner = this.owner.getObject();
+		AnimData animData = blenderContext.getAnimData(this.owner.getOma());
+		if(animData != null) {
+			for(Animation animation : animData.anims) {
+				BlenderTrack track = this.getTrack(owner, animData.skeleton, animation);
+				Vector3f[] translations = track.getTranslations();
+				int maxFrames = translations.length;
+				for (int frame = 0; frame < maxFrames; ++frame) {
+					this.locLimit(translations[frame], ipo.calculateValue(frame));
 				}
-				if ((flag & LIMIT_XMAX) != 0) {
-					float xmax = ((Number) data.getFieldValue("xmax")).floatValue();
-					if (translations[frame].x > xmax) {
-						translations[frame].x -= (translations[frame].x - xmax) * influence;
-					}
-				}
-				if ((flag & LIMIT_YMIN) != 0) {
-					float ymin = ((Number) data.getFieldValue("ymin")).floatValue();
-					if (translations[frame].y < ymin) {
-						translations[frame].y -= (translations[frame].y - ymin) * influence;
-					}
-				}
-				if ((flag & LIMIT_YMAX) != 0) {
-					float ymax = ((Number) data.getFieldValue("ymax")).floatValue();
-					if (translations[frame].y > ymax) {
-						translations[frame].y -= (translations[frame].y - ymax) * influence;
-					}
-				}
-				if ((flag & LIMIT_ZMIN) != 0) {
-					float zmin = ((Number) data.getFieldValue("zmin")).floatValue();
-					if (translations[frame].z < zmin) {
-						translations[frame].z -= (translations[frame].z - zmin) * influence;
-					}
-				}
-				if ((flag & LIMIT_ZMAX) != 0) {
-					float zmax = ((Number) data.getFieldValue("zmax")).floatValue();
-					if (translations[frame].z > zmax) {
-						translations[frame].z -= (translations[frame].z - zmax) * influence;
-					}
-				}//TODO: consider constraint space !!!
+				track.setKeyframes(track.getTimes(), translations, track.getRotations(), track.getScales());
+				translations = track.getTranslations();
+				animation.setTracks(new Track[] {track.getTrack()});
 			}
-			track.setKeyframes(track.getTimes(), translations, track.getRotations(), track.getScales());
 		}
 	}
 	
 	@Override
-	public ConstraintType getType() {
-		return ConstraintType.CONSTRAINT_TYPE_LOCLIMIT;
+	public void bakeStatic() {
+		Transform ownerTransform = this.owner.getTransform();
+		Vector3f ownerLocation = ownerTransform.getTranslation();
+		this.locLimit(ownerLocation, ipo.calculateValue(0));
+		this.owner.applyTransform(ownerTransform);
+	}
+	
+	/**
+	 * This method modifies the given translation.
+	 * @param translation the translation to be modified.
+	 * @param influence the influence value
+	 */
+	private void locLimit(Vector3f translation, float influence) {
+		if ((flag & LIMIT_XMIN) != 0) {
+			if (translation.x < limits[0][0]) {
+				translation.x -= (translation.x - limits[0][0]) * influence;
+			}
+		}
+		if ((flag & LIMIT_XMAX) != 0) {
+			if (translation.x > limits[0][1]) {
+				translation.x -= (translation.x - limits[0][1]) * influence;
+			}
+		}
+		if ((flag & LIMIT_YMIN) != 0) {
+			if (translation.y < limits[1][0]) {
+				translation.y -= (translation.y - limits[1][0]) * influence;
+			}
+		}
+		if ((flag & LIMIT_YMAX) != 0) {
+			if (translation.y > limits[1][1]) {
+				translation.y -= (translation.y - limits[1][1]) * influence;
+			}
+		}
+		if ((flag & LIMIT_ZMIN) != 0) {
+			if (translation.z < limits[2][0]) {
+				translation.z -= (translation.z - limits[2][0]) * influence;
+			}
+		}
+		if ((flag & LIMIT_ZMAX) != 0) {
+			if (translation.z > limits[2][1]) {
+				translation.z -= (translation.z - limits[2][1]) * influence;
+			}
+		}
 	}
 }

@@ -1,7 +1,9 @@
 package com.jme3.scene.plugins.blender.constraints;
 
 import com.jme3.animation.Animation;
+import com.jme3.animation.Skeleton;
 import com.jme3.scene.plugins.blender.BlenderContext;
+import com.jme3.scene.plugins.blender.animations.CalculationBone;
 import com.jme3.scene.plugins.blender.animations.Ipo;
 import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
 import com.jme3.scene.plugins.blender.file.Structure;
@@ -20,7 +22,7 @@ import java.util.logging.Logger;
 	 * 
 	 * @param constraintStructure
 	 *            the constraint's structure (bConstraint clss in blender 2.49).
-	 * @param boneOMA
+	 * @param ownerOMA
 	 *            the old memory address of the constraint owner
 	 * @param influenceIpo
 	 *            the ipo curve of the influence factor
@@ -31,23 +33,30 @@ import java.util.logging.Logger;
 	 *             corrupted
 	 */
 	public ConstraintInverseKinematics(Structure constraintStructure,
-			Long boneOMA, Ipo influenceIpo, BlenderContext blenderContext) throws BlenderFileException {
-		super(constraintStructure, boneOMA, influenceIpo, blenderContext);
+			Long ownerOMA, Ipo influenceIpo, BlenderContext blenderContext) throws BlenderFileException {
+		super(constraintStructure, ownerOMA, influenceIpo, blenderContext);
 	}
 
 	@Override
-	public void affectAnimation(Animation animation, int targetIndex) {
+	public void bakeDynamic() {
 //		try {
 			// IK solver is only attached to bones
-//			Bone ownerBone = (Bone) blenderContext.getLoadedFeature(boneOMA, LoadedFeatureDataType.LOADED_FEATURE);
-//
-//			// get the target point
+//			Bone ownerBone = (Bone) blenderContext.getLoadedFeature(ownerOMA, LoadedFeatureDataType.LOADED_FEATURE);
+//			AnimData animData = blenderContext.getAnimData(ownerOMA);
+//			if(animData == null) {
+				//TODO: to nie mo¿e byæ null, utworzyæ dane bez ruchu, w zale¿noœci czy target siê rusza
+//			}
+			
+			//prepare a list of all parents of this bone
+//			CalculationBone[] bones = this.getBonesToCalculate(skeleton, boneAnimation);
+			
+			// get the target point
 //			Object targetObject = this.getTarget(LoadedFeatureDataType.LOADED_FEATURE);
 //			Vector3f pt = null;// Point Target
 //			if (targetObject instanceof Bone) {
 //				pt = ((Bone) targetObject).getModelSpacePosition();
-//			} else if (targetObject instanceof Node) {
-//				pt = ((Node) targetObject).getWorldTranslation();
+//			} else if (targetObject instanceof Spatial) {
+//				pt = ((Spatial) targetObject).getWorldTranslation();
 //			} else if (targetObject instanceof Skeleton) {
 //				Structure armatureNodeStructure = (Structure) this.getTarget(LoadedFeatureDataType.LOADED_STRUCTURE);
 //				ObjectHelper objectHelper = blenderContext.getHelper(ObjectHelper.class);
@@ -106,7 +115,7 @@ import java.util.logging.Logger;
 //			for (CalculationBone bone : bones) {
 //				bone.applyCalculatedTracks();
 //			}
-
+//
 //			System.out.println("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&");
 //			for (int i = 0; i < bones.length; ++i) {
 //				System.out.println(Arrays.toString(bones[i].track.getTranslations()));
@@ -118,40 +127,42 @@ import java.util.logging.Logger;
 //		}
 	}
 	
-//	/**
-//	 * This method returns bones used for rotation calculations.
-//	 * @param bone
-//	 *        the bone to which the constraint is applied
-//	 * @param skeleton
-//	 *        the skeleton owning the bone and its ancestors
-//	 * @param boneAnimation
-//	 *        the bone animation data that stores the traces for the skeleton's bones
-//	 * @return a list of bones to imitate the bone's movement during IK solving
-//	 */
-//	private CalculationBone[] getBonesToCalculate(Bone bone, Skeleton skeleton, Animation boneAnimation) {
+	@Override
+	public void bakeStatic() {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	/**
+	 * This method returns bones used for rotation calculations.
+	 * @param bone
+	 *        the bone to which the constraint is applied
+	 * @param skeleton
+	 *        the skeleton owning the bone and its ancestors
+	 * @param boneAnimation
+	 *        the bone animation data that stores the traces for the skeleton's bones
+	 * @return a list of bones to imitate the bone's movement during IK solving
+	 */
+	private CalculationBone[] getBonesToCalculate(Skeleton skeleton, Animation boneAnimation) {
+//		Bone ownerBone = (Bone) blenderContext.getLoadedFeature(ownerOMA, LoadedFeatureDataType.LOADED_FEATURE);
 //		List<CalculationBone> bonesList = new ArrayList<CalculationBone>();
-//		Bone currentBone = bone;
 //		do {
-//			bonesList.add(new CalculationBone(currentBone, 1));
-//			int boneIndex = skeleton.getBoneIndex(currentBone);
+//			bonesList.add(new CalculationBone(ownerBone, 1));
+//			int boneIndex = skeleton.getBoneIndex(ownerBone);
 //			for (int i = 0; i < boneAnimation.getTracks().length; ++i) {
-//				if (boneAnimation.getTracks()[i].getTargetBoneIndex() == boneIndex) {
-//					bonesList.add(new CalculationBone(currentBone, boneAnimation.getTracks()[i]));
+//				if (((BoneTrack[])boneAnimation.getTracks())[i].getTargetBoneIndex() == boneIndex) {
+//					bonesList.add(new CalculationBone(ownerBone, (BoneTrack)boneAnimation.getTracks()[i]));
 //					break;
 //				}
 //			}
-//			currentBone = currentBone.getParent();
-//		} while (currentBone != null);
+//			ownerBone = ownerBone.getParent();
+//		} while (ownerBone != null);
 //		//attaching children
 //		CalculationBone[] result = bonesList.toArray(new CalculationBone[bonesList.size()]);
 //		for (int i = result.length - 1; i > 0; --i) {
 //			result[i].attachChild(result[i - 1]);
 //		}
 //		return result;
-//	}
-	
-	@Override
-	public ConstraintType getType() {
-		return ConstraintType.CONSTRAINT_TYPE_KINEMATIC;
+		return null;
 	}
 }

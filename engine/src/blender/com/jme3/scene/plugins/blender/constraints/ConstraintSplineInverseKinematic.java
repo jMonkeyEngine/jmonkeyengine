@@ -1,15 +1,19 @@
 package com.jme3.scene.plugins.blender.constraints;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.animations.Ipo;
 import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
 import com.jme3.scene.plugins.blender.file.Structure;
 
 /**
- * This class represents 'Null' constraint type in blender.
+ * The spline inverse kinematic constraint. Available for blender 2.50+.
  * @author Marcin Roguski (Kaelthas)
  */
-/*package*/ class ConstraintNull extends Constraint {
+/*package*/ class ConstraintSplineInverseKinematic extends Constraint {
+	private static final Logger LOGGER = Logger.getLogger(ConstraintSplineInverseKinematic.class.getName());
 	
 	/**
 	 * This constructor creates the constraint instance.
@@ -26,15 +30,21 @@ import com.jme3.scene.plugins.blender.file.Structure;
 	 *             this exception is thrown when the blender file is somehow
 	 *             corrupted
 	 */
-	public ConstraintNull(Structure constraintStructure, Long ownerOMA,
-			Ipo influenceIpo, BlenderContext blenderContext)
-			throws BlenderFileException {
+	public ConstraintSplineInverseKinematic(Structure constraintStructure, Long ownerOMA, Ipo influenceIpo,
+			BlenderContext blenderContext) throws BlenderFileException {
 		super(constraintStructure, ownerOMA, influenceIpo, blenderContext);
+		// TODO Auto-generated constructor stub
 	}
 
 	@Override
-	public void bakeDynamic() {}
-	
+	public void bakeDynamic() {
+		// TODO Auto-generated method stub
+		LOGGER.log(Level.WARNING, "'Splie IK' constraint NOT implemented!");
+	}
+
 	@Override
-	public void bakeStatic() {}
+	public void bakeStatic() {
+		// TODO Auto-generated method stub
+		LOGGER.log(Level.WARNING, "'Spline IK' constraint NOT implemented!");
+	}
 }

@@ -1,6 +1,5 @@
 package com.jme3.scene.plugins.blender.constraints;
 
-import com.jme3.animation.Animation;
 import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.animations.Ipo;
 import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
@@ -20,7 +19,7 @@ import java.util.logging.Logger;
 	 * 
 	 * @param constraintStructure
 	 *            the constraint's structure (bConstraint clss in blender 2.49).
-	 * @param boneOMA
+	 * @param ownerOMA
 	 *            the old memory address of the constraint owner
 	 * @param influenceIpo
 	 *            the ipo curve of the influence factor
@@ -30,20 +29,21 @@ import java.util.logging.Logger;
 	 *             this exception is thrown when the blender file is somehow
 	 *             corrupted
 	 */
-	public ConstraintClampTo(Structure constraintStructure, Long boneOMA,
+	public ConstraintClampTo(Structure constraintStructure, Long ownerOMA,
 			Ipo influenceIpo, BlenderContext blenderContext)
 			throws BlenderFileException {
-		super(constraintStructure, boneOMA, influenceIpo, blenderContext);
+		super(constraintStructure, ownerOMA, influenceIpo, blenderContext);
 	}
 
 	@Override
-	public void affectAnimation(Animation animation, int targetIndex) {
+	public void bakeDynamic() {
 		//TODO: implement when curves are implemented
-		LOGGER.log(Level.INFO, "'Clamp to' not yet implemented! Curves not yet implemented!", this.getName());
+		LOGGER.log(Level.INFO, "'Clamp to' not yet implemented! Curves not yet implemented!", name);
 	}
 	
 	@Override
-	public ConstraintType getType() {
-		return ConstraintType.CONSTRAINT_TYPE_CLAMPTO;
+	public void bakeStatic() {
+		//TODO: implement when curves are implemented
+		LOGGER.log(Level.INFO, "'Clamp to' not yet implemented! Curves not yet implemented!", name);
 	}
 }

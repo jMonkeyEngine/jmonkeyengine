@@ -1,12 +1,13 @@
 package com.jme3.scene.plugins.blender.constraints;
 
 import com.jme3.animation.Animation;
-import com.jme3.animation.BoneTrack;
 import com.jme3.math.Quaternion;
+import com.jme3.math.Transform;
 import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.animations.Ipo;
 import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
 import com.jme3.scene.plugins.blender.file.Structure;
+import com.jme3.scene.plugins.ogre.AnimData;
 
 /**
  * This class represents 'Rot like' constraint type in blender.
@@ -21,12 +22,14 @@ import com.jme3.scene.plugins.blender.file.Structure;
     private static final int ROTLIKE_Z_INVERT = 0x40;
     private static final int ROTLIKE_OFFSET = 0x80;
     
-    /**
+    protected int flag;
+    
+	/**
 	 * This constructor creates the constraint instance.
 	 * 
 	 * @param constraintStructure
 	 *            the constraint's structure (bConstraint clss in blender 2.49).
-	 * @param boneOMA
+	 * @param ownerOMA
 	 *            the old memory address of the constraint owner
 	 * @param influenceIpo
 	 *            the ipo curve of the influence factor
@@ -36,52 +39,76 @@ import com.jme3.scene.plugins.blender.file.Structure;
 	 *             this exception is thrown when the blender file is somehow
 	 *             corrupted
 	 */
-	public ConstraintRotLike(Structure constraintStructure, Long boneOMA,
+	public ConstraintRotLike(Structure constraintStructure, Long ownerOMA,
 			Ipo influenceIpo, BlenderContext blenderContext) throws BlenderFileException {
-		super(constraintStructure, boneOMA, influenceIpo, blenderContext);
+		super(constraintStructure, ownerOMA, influenceIpo, blenderContext);
+		
+		flag = ((Number) data.getFieldValue("flag")).intValue();
 	}
 
 	@Override
-	public void affectAnimation(Animation animation, int targetIndex) {
-		BoneTrack track = (BoneTrack) this.getTrack(animation, targetIndex);
-		if (track != null) {
-			Quaternion targetRotation = this.getTargetRotation();
-			int flag = ((Number) data.getFieldValue("flag")).intValue();
-			float[] targetAngles = targetRotation.toAngles(null);
-			Quaternion[] rotations = track.getRotations();
-			int maxFrames = rotations.length;
-			for (int frame = 0; frame < maxFrames; ++frame) {
-				float[] angles = rotations[frame].toAngles(null);
-
-				Quaternion offset = Quaternion.IDENTITY;
-				if ((flag & ROTLIKE_OFFSET) != 0) {//we add the original rotation to the copied rotation
-					offset = rotations[frame].clone();
+	public void bakeDynamic() {
+		AnimData animData = blenderContext.getAnimData(this.owner.getOma());
+		if(animData != null) {
+			Object owner = this.owner.getObject();
+			Transform targetTransform = this.target.getTransform();
+			Quaternion targetRotation = targetTransform.getRotation();
+			for(Animation animation : animData.anims) {
+				BlenderTrack track = this.getTrack(owner, animData.skeleton, animation);
+				float[] targetAngles = targetRotation.toAngles(null);
+				Quaternion[] rotations = track.getRotations();
+				int maxFrames = rotations.length;
+				float[] angles = new float[3];
+				for (int frame = 0; frame < maxFrames; ++frame) {
+					rotations[frame].toAngles(angles);
+					this.rotLike(rotations[frame], angles, targetAngles, ipo.calculateValue(frame));
 				}
-
-				if ((flag & ROTLIKE_X) != 0) {
-					angles[0] = targetAngles[0];
-					if ((flag & ROTLIKE_X_INVERT) != 0) {
-						angles[0] = -angles[0];
-					}
-				} else if ((flag & ROTLIKE_Y) != 0) {
-					angles[1] = targetAngles[1];
-					if ((flag & ROTLIKE_Y_INVERT) != 0) {
-						angles[1] = -angles[1];
-					}
-				} else if ((flag & ROTLIKE_Z) != 0) {
-					angles[2] = targetAngles[2];
-					if ((flag & ROTLIKE_Z_INVERT) != 0) {
-						angles[2] = -angles[2];
-					}
-				}
-				rotations[frame].fromAngles(angles).multLocal(offset);//TODO: ipo influence
+				track.setKeyframes(track.getTimes(), track.getTranslations(), rotations, track.getScales());
 			}
-			track.setKeyframes(track.getTimes(), track.getTranslations(), rotations, track.getScales());
 		}
 	}
 	
 	@Override
-	public ConstraintType getType() {
-		return ConstraintType.CONSTRAINT_TYPE_ROTLIKE;
+	public void bakeStatic() {
+		Transform targetTransform = this.target.getTransform();
+		Transform ownerTransform = this.owner.getTransform();
+		Quaternion ownerRotation = ownerTransform.getRotation();
+		this.rotLike(ownerRotation, ownerRotation.toAngles(null), targetTransform.getRotation().toAngles(null), ipo.calculateValue(0));
+		this.owner.applyTransform(ownerTransform);
+	}
+	
+	private void rotLike(Quaternion ownerRotation, float[] ownerAngles, float[] targetAngles, float influence) {
+		Quaternion startRotation = ownerRotation.clone();
+		Quaternion offset = Quaternion.IDENTITY;
+		if ((flag & ROTLIKE_OFFSET) != 0) {//we add the original rotation to the copied rotation
+			offset = startRotation;
+		}
+
+		if ((flag & ROTLIKE_X) != 0) {
+			ownerAngles[0] = targetAngles[0];
+			if ((flag & ROTLIKE_X_INVERT) != 0) {
+				ownerAngles[0] = -ownerAngles[0];
+			}
+		}
+		if ((flag & ROTLIKE_Y) != 0) {
+			ownerAngles[1] = targetAngles[1];
+			if ((flag & ROTLIKE_Y_INVERT) != 0) {
+				ownerAngles[1] = -ownerAngles[1];
+			}
+		}
+		if ((flag & ROTLIKE_Z) != 0) {
+			ownerAngles[2] = targetAngles[2];
+			if ((flag & ROTLIKE_Z_INVERT) != 0) {
+				ownerAngles[2] = -ownerAngles[2];
+			}
+		}
+		ownerRotation.fromAngles(ownerAngles).multLocal(offset);
+
+		if(influence < 1.0f) {
+			
+//			startLocation.subtractLocal(ownerLocation).normalizeLocal().mult(influence);
+//			ownerLocation.addLocal(startLocation);
+			//TODO
+		}
 	}
 }

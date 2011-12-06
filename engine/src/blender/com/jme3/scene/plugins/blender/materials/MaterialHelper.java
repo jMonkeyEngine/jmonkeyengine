@@ -45,7 +45,6 @@ import com.jme3.scene.plugins.blender.BlenderContext.LoadedFeatureDataType;
 import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
 import com.jme3.scene.plugins.blender.file.Pointer;
 import com.jme3.scene.plugins.blender.file.Structure;
-import com.jme3.scene.plugins.blender.textures.TextureHelper;
 import com.jme3.shader.VarType;
 import com.jme3.texture.Image;
 import com.jme3.texture.Image.Format;
@@ -101,9 +100,11 @@ public class MaterialHelper extends AbstractBlenderHelper {
 	 * 
 	 * @param blenderVersion
 	 *        the version read from the blend file
+	 * @param fixUpAxis
+     *        a variable that indicates if the Y asxis is the UP axis or not
 	 */
-	public MaterialHelper(String blenderVersion) {
-		super(blenderVersion);
+	public MaterialHelper(String blenderVersion, boolean fixUpAxis) {
+		super(blenderVersion, false);
 		// setting alpha masks
 		alphaMasks.put(ALPHA_MASK_NONE, new IAlphaMask() {
 			@Override
@@ -204,7 +205,6 @@ public class MaterialHelper extends AbstractBlenderHelper {
 		// texture
 		Type colorTextureType = null;
 		Map<String, Texture> texturesMap = new HashMap<String, Texture>();
-		TextureHelper textureHelper = blenderContext.getHelper(TextureHelper.class);
 		for(Entry<Number, Texture> textureEntry : materialContext.loadedTextures.entrySet()) {
 			int mapto = textureEntry.getKey().intValue();
 			Texture texture = textureEntry.getValue();

@@ -1,15 +1,19 @@
 package com.jme3.scene.plugins.blender.constraints;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.animations.Ipo;
 import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
 import com.jme3.scene.plugins.blender.file.Structure;
 
 /**
- * This class represents 'Null' constraint type in blender.
+ * The damp track constraint. Available for blender 2.50+.
  * @author Marcin Roguski (Kaelthas)
  */
-/*package*/ class ConstraintNull extends Constraint {
+/*package*/ class ConstraintDampTrack extends Constraint {
+	private static final Logger LOGGER = Logger.getLogger(ConstraintDampTrack.class.getName());
 	
 	/**
 	 * This constructor creates the constraint instance.
@@ -26,15 +30,20 @@ import com.jme3.scene.plugins.blender.file.Structure;
 	 *             this exception is thrown when the blender file is somehow
 	 *             corrupted
 	 */
-	public ConstraintNull(Structure constraintStructure, Long ownerOMA,
-			Ipo influenceIpo, BlenderContext blenderContext)
-			throws BlenderFileException {
+	public ConstraintDampTrack(Structure constraintStructure, Long ownerOMA, Ipo influenceIpo, BlenderContext blenderContext) throws BlenderFileException {
 		super(constraintStructure, ownerOMA, influenceIpo, blenderContext);
+		// TODO Auto-generated constructor stub
 	}
 
 	@Override
-	public void bakeDynamic() {}
-	
+	public void bakeDynamic() {
+		// TODO Auto-generated method stub
+		LOGGER.log(Level.WARNING, "'Damp Track' constraint NOT implemented!");
+	}
+
 	@Override
-	public void bakeStatic() {}
+	public void bakeStatic() {
+		// TODO Auto-generated method stub
+		LOGGER.log(Level.WARNING, "'Damp Track' constraint NOT implemented!");
+	}
 }

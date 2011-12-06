@@ -1,11 +1,12 @@
 package com.jme3.scene.plugins.blender.constraints;
 
 import com.jme3.animation.Animation;
+import com.jme3.animation.Bone;
 import com.jme3.animation.BoneTrack;
+import com.jme3.animation.Skeleton;
+import com.jme3.animation.SpatialTrack;
 import com.jme3.animation.Track;
-import com.jme3.math.Quaternion;
-import com.jme3.math.Vector3f;
-import com.jme3.scene.Node;
+import com.jme3.scene.Spatial;
 import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.BlenderContext.LoadedFeatureDataType;
 import com.jme3.scene.plugins.blender.animations.Ipo;
@@ -17,27 +18,29 @@ import com.jme3.scene.plugins.blender.objects.ObjectHelper;
 /**
  * The implementation of a constraint.
  * 
- * @author Marcin Roguski
+ * @author Marcin Roguski (Kaelthas)
  */
 public abstract class Constraint {
-
+	
 	/** The name of this constraint. */
 	protected final String name;
-	/** The old memory address of the constraint's owner. */
-	protected Long boneOMA = -1L;
-	protected final Space ownerSpace;
-	protected final Space targetSpace;
+	/** The constraint's owner. */
+	protected final Feature owner;
+	/** The constraint's target. */
+	protected final Feature target;
 	/** The structure with constraint's data. */
 	protected final Structure data;
 	/** The ipo object defining influence. */
 	protected final Ipo ipo;
-	protected BlenderContext blenderContext;
+	/** The blender context. */
+	protected final BlenderContext blenderContext;
+	
 	/**
 	 * This constructor creates the constraint instance.
 	 * 
 	 * @param constraintStructure
 	 *            the constraint's structure (bConstraint clss in blender 2.49).
-	 * @param boneOMA
+	 * @param ownerOMA
 	 *            the old memory address of the constraint owner
 	 * @param influenceIpo
 	 *            the ipo curve of the influence factor
@@ -47,51 +50,47 @@ public abstract class Constraint {
 	 *             this exception is thrown when the blender file is somehow
 	 *             corrupted
 	 */
-	public Constraint(Structure constraintStructure, Long boneOMA,
+	public Constraint(Structure constraintStructure, Long ownerOMA,
 			Ipo influenceIpo, BlenderContext blenderContext) throws BlenderFileException {
+		this.blenderContext = blenderContext;
 		this.name = constraintStructure.getFieldValue("name").toString();
-		ConstraintType constraintType = ConstraintType.valueOf(((Number)constraintStructure.getFieldValue("type")).intValue());
-		if(constraintType != this.getType()) {
-			throw new IllegalStateException("Constraint structure does not match its type for constraint: " + name);
-		}
 		Pointer pData = (Pointer) constraintStructure.getFieldValue("data");
 		if (pData.isNotNull()) {
 			data = pData.fetchData(blenderContext.getInputStream()).get(0);
+			Pointer pTar = (Pointer)data.getFieldValue("tar");
+			if(pTar!= null && pTar.isNotNull()) {
+				Structure targetStructure = pTar.fetchData(blenderContext.getInputStream()).get(0);
+				Long targetOMA = pTar.getOldMemoryAddress();
+				Space targetSpace = Space.valueOf(((Number) constraintStructure.getFieldValue("tarspace")).byteValue());
+				ObjectHelper objectHelper = blenderContext.getHelper(ObjectHelper.class);
+				Spatial target = (Spatial) objectHelper.toObject(targetStructure, blenderContext);
+				this.target = new Feature(target, targetSpace, targetOMA, blenderContext);
+			} else {
+				this.target = null;
+			}
 		} else {
 			throw new BlenderFileException("The constraint has no data specified!");
 		}
-		this.boneOMA = boneOMA;
-		this.ownerSpace = Space.valueOf(((Number) constraintStructure.getFieldValue("ownspace")).byteValue());
-		this.targetSpace = Space.valueOf(((Number) constraintStructure.getFieldValue("tarspace")).byteValue());
+		Space ownerSpace = Space.valueOf(((Number) constraintStructure.getFieldValue("ownspace")).byteValue());
+		Object owner = blenderContext.getLoadedFeature(ownerOMA, LoadedFeatureDataType.LOADED_FEATURE);
+		if(owner instanceof Spatial) {
+			this.owner = new Feature((Spatial)owner, ownerSpace, ownerOMA, blenderContext);
+		} else {
+			this.owner = new Feature((Bone)owner, ownerSpace, ownerOMA, blenderContext);
+		}
 		this.ipo = influenceIpo;
 	}
 
 	/**
-	 * This method returns the name of the constraint.
-	 * 
-	 * @return the name of the constraint
+	 * Bake the animation's constraints into its owner.
 	 */
-	public String getName() {
-		return name;
-	}
-
+	public abstract void bakeDynamic();
+	
 	/**
-	 * This method returns the old memoty address of the bone this constraint
-	 * affects.
-	 * 
-	 * @return the old memory address of the bone this constraint affects
+	 * Bake the static constraints into its owner.
 	 */
-	public Long getBoneOMA() {
-		return boneOMA;
-	}
-
-	/**
-	 * This method returns the type of the constraint.
-	 * 
-	 * @return the type of the constraint
-	 */
-	public abstract ConstraintType getType();
-
+	public abstract void bakeStatic();
+	
     /**
      * This method returns the bone traces for the bone that is affected by the given constraint.
      * @param skeleton
@@ -100,118 +99,24 @@ public abstract class Constraint {
      *        the bone animation that affects the skeleton
      * @return the bone track for the bone that is being affected by the constraint
      */
-    protected Track getTrack(Animation animation, int targetIndex) {
-        if (boneOMA >= 0) {//bone animation
-            for (Track track : animation.getTracks()) {
-                if (((BoneTrack) track).getTargetBoneIndex() == targetIndex) {
-                    return track;
+    protected BlenderTrack getTrack(Object owner, Skeleton skeleton, Animation animation) {
+    	if(owner instanceof Bone) {
+    		int boneIndex = skeleton.getBoneIndex((Bone) owner);
+    		for (Track track : animation.getTracks()) {
+                if (((BoneTrack) track).getTargetBoneIndex() == boneIndex) {
+                    return new BlenderTrack(((BoneTrack) track));
                 }
             }
-        } else {//spatial animation
-            return animation.getTracks()[0];
-        }
-        return null;
+    		throw new IllegalStateException("Cannot find track for: " + owner);
+    	} else {
+    		return new BlenderTrack((SpatialTrack)animation.getTracks()[0]);
+    	}
     }
     
-    /**
-     * This method returns the target or subtarget object (if specified).
-     * @param loadedFeatureDataType
-     * @return target or subtarget feature
-     * @throws BlenderFileException this exception is thrown if the blend file is somehow corrupted
-     */
-    protected Object getTarget(LoadedFeatureDataType loadedFeatureDataType) throws BlenderFileException {
-    	//load the feature through objectHelper, this way we are certain the object loads and has
-    	//his own constraints applied to traces
-    	ObjectHelper objectHelper = blenderContext.getHelper(ObjectHelper.class);
-    	//always load the target first
-    	Long targetOMA = ((Pointer) data.getFieldValue("tar")).getOldMemoryAddress();
-        Structure objectStructure = blenderContext.getFileBlock(targetOMA).getStructure(blenderContext);
-        Object result = objectHelper.toObject(objectStructure, blenderContext);
-    	
-    	//subtarget should be loaded alogn with target
-    	Object subtarget = data.getFieldValue("subtarget");
-    	String subtargetName = subtarget==null ? null : subtarget.toString();
-        if (subtargetName!=null && subtargetName.length() > 0) {
-            result = blenderContext.getLoadedFeature(subtargetName, loadedFeatureDataType);
-        }
-        return result;
-    }
-	
-	/**
-     * This method returns target's object location.
-     * @return target's object location
-     */
-    protected Vector3f getTargetLocation() {
-        Long targetOMA = ((Pointer) data.getFieldValue("tar")).getOldMemoryAddress();
-        Node targetObject = (Node) blenderContext.getLoadedFeature(targetOMA, LoadedFeatureDataType.LOADED_FEATURE);
-        switch (targetSpace) {
-            case CONSTRAINT_SPACE_LOCAL:
-                return targetObject.getLocalTranslation();
-            case CONSTRAINT_SPACE_WORLD:
-                return targetObject.getWorldTranslation();
-            default:
-                throw new IllegalStateException("Invalid space type for target object: " + targetSpace.toString());
-        }
-    }
-
-    /**
-     * This method returns target's object location in the specified frame.
-     * @param frame
-     *        the frame number
-     * @return target's object location
-     */
-    protected Vector3f getTargetLocation(int frame) {
-        return this.getTargetLocation();//TODO: implement getting location in a specified frame
-    }
-
-    /**
-     * This method returns target's object rotation.
-     * @return target's object rotation
-     */
-    protected Quaternion getTargetRotation() {
-        Long targetOMA = ((Pointer) data.getFieldValue("tar")).getOldMemoryAddress();
-        Node targetObject = (Node) blenderContext.getLoadedFeature(targetOMA, LoadedFeatureDataType.LOADED_FEATURE);
-        switch (targetSpace) {
-            case CONSTRAINT_SPACE_LOCAL:
-                return targetObject.getLocalRotation();
-            case CONSTRAINT_SPACE_WORLD:
-                return targetObject.getWorldRotation();
-            default:
-                throw new IllegalStateException("Invalid space type for target object: " + targetSpace.toString());
-        }
-    }
-
-    /**
-     * This method returns target's object scale.
-     * @return target's object scale
-     */
-    protected Vector3f getTargetScale() {
-        Long targetOMA = ((Pointer) data.getFieldValue("tar")).getOldMemoryAddress();
-        Node targetObject = (Node) blenderContext.getLoadedFeature(targetOMA, LoadedFeatureDataType.LOADED_FEATURE);
-        switch (targetSpace) {
-            case CONSTRAINT_SPACE_LOCAL:
-                return targetObject.getLocalScale();
-            case CONSTRAINT_SPACE_WORLD:
-                return targetObject.getWorldScale();
-            default:
-                throw new IllegalStateException("Invalid space type for target object: " + targetSpace.toString());
-        }
-    }
-    
-	/**
-	 * This method affects the bone animation tracks for the given skeleton.
-	 * 
-	 * @param animation
-	 *            the bone animation baked traces
-	 * @param targetIndex
-	 * 			  the index of the constraint's target object
-	 */
-	public abstract void affectAnimation(Animation animation, int targetIndex);
-
 	/**
 	 * The space of target or owner transformation.
 	 * 
-	 * @author Marcin Roguski
+	 * @author Marcin Roguski (Kaelthas)
 	 */
 	public static enum Space {
 
@@ -227,16 +132,16 @@ public abstract class Constraint {
 		 */
 		public static Space valueOf(byte c) {
 			switch (c) {
-			case 0:
-				return CONSTRAINT_SPACE_WORLD;
-			case 1:
-				return CONSTRAINT_SPACE_LOCAL;
-			case 2:
-				return CONSTRAINT_SPACE_POSE;
-			case 3:
-				return CONSTRAINT_SPACE_PARLOCAL;
-			default:
-				return CONSTRAINT_SPACE_INVALID;
+				case 0:
+					return CONSTRAINT_SPACE_WORLD;
+				case 1:
+					return CONSTRAINT_SPACE_LOCAL;
+				case 2:
+					return CONSTRAINT_SPACE_POSE;
+				case 3:
+					return CONSTRAINT_SPACE_PARLOCAL;
+				default:
+					return CONSTRAINT_SPACE_INVALID;
 			}
 		}
 	}

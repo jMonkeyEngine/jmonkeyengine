@@ -1,5 +1,7 @@
 package com.jme3.scene.plugins.blender.animations;
 
+import java.util.List;
+
 import com.jme3.animation.BoneTrack;
 import com.jme3.scene.plugins.blender.AbstractBlenderHelper;
 import com.jme3.scene.plugins.blender.BlenderContext;
@@ -7,7 +9,6 @@ import com.jme3.scene.plugins.blender.curves.BezierCurve;
 import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
 import com.jme3.scene.plugins.blender.file.Pointer;
 import com.jme3.scene.plugins.blender.file.Structure;
-import java.util.List;
 
 /**
  * This class helps to compute values from interpolation curves for features like animation or constraint influence. The
@@ -21,9 +22,11 @@ public class IpoHelper extends AbstractBlenderHelper {
      * different blender versions.
      * @param blenderVersion
      *        the version read from the blend file
+     * @param fixUpAxis
+     *        a variable that indicates if the Y asxis is the UP axis or not
      */
-    public IpoHelper(String blenderVersion) {
-        super(blenderVersion);
+    public IpoHelper(String blenderVersion, boolean fixUpAxis) {
+        super(blenderVersion, fixUpAxis);
     }
 
     /**
@@ -52,7 +55,7 @@ public class IpoHelper extends AbstractBlenderHelper {
                 bezierCurves[frame++] = new BezierCurve(type, bezTriples, 2);
             }
             curves.clear();
-            result = new Ipo(bezierCurves);
+            result = new Ipo(bezierCurves, fixUpAxis);
             blenderContext.addLoadedFeatures(ipoStructure.getOldMemoryAddress(), ipoStructure.getName(), ipoStructure, result);
         }
         return result;
@@ -90,7 +93,7 @@ public class IpoHelper extends AbstractBlenderHelper {
          *        the constant value of this ipo
          */
         public ConstIpo(float constValue) {
-            super(null);
+            super(null, false);
             this.constValue = constValue;
         }
 

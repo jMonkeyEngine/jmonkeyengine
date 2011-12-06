@@ -74,9 +74,11 @@ public class MeshHelper extends AbstractBlenderHelper {
      * 
      * @param blenderVersion
      *            the version read from the blend file
+     * @param fixUpAxis
+     *        a variable that indicates if the Y asxis is the UP axis or not
      */
-    public MeshHelper(String blenderVersion) {
-        super(blenderVersion);
+    public MeshHelper(String blenderVersion, boolean fixUpAxis) {
+        super(blenderVersion,fixUpAxis);
     }
 
     /**

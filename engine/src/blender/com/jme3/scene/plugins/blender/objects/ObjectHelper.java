@@ -49,6 +49,7 @@ import com.jme3.scene.plugins.blender.AbstractBlenderHelper;
 import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.BlenderContext.LoadedFeatureDataType;
 import com.jme3.scene.plugins.blender.cameras.CameraHelper;
+import com.jme3.scene.plugins.blender.constraints.Constraint;
 import com.jme3.scene.plugins.blender.constraints.ConstraintHelper;
 import com.jme3.scene.plugins.blender.curves.CurvesHelper;
 import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
@@ -99,9 +100,11 @@ public class ObjectHelper extends AbstractBlenderHelper {
 	 * different blender versions.
 	 * @param blenderVersion
 	 *        the version read from the blend file
+	 * @param fixUpAxis
+     *        a variable that indicates if the Y asxis is the UP axis or not
 	 */
-	public ObjectHelper(String blenderVersion) {
-		super(blenderVersion);
+	public ObjectHelper(String blenderVersion, boolean fixUpAxis) {
+		super(blenderVersion, fixUpAxis);
 	}
 
 	/**
@@ -121,16 +124,11 @@ public class ObjectHelper extends AbstractBlenderHelper {
 		}
 
 		blenderContext.pushParent(objectStructure);
-		ObjectHelper objectHelper = blenderContext.getHelper(ObjectHelper.class);
 
 		//get object data
 		int type = ((Number)objectStructure.getFieldValue("type")).intValue();
 		String name = objectStructure.getName();
 		LOGGER.log(Level.INFO, "Loading obejct: {0}", name);
-
-		//loading constraints connected with this object
-		ConstraintHelper constraintHelper = blenderContext.getHelper(ConstraintHelper.class);
-		constraintHelper.loadConstraints(objectStructure, blenderContext);
 
 		int restrictflag = ((Number)objectStructure.getFieldValue("restrictflag")).intValue();
 		boolean visible = (restrictflag & 0x01) != 0;
@@ -143,7 +141,7 @@ public class ObjectHelper extends AbstractBlenderHelper {
 			parent = this.toObject(parentStructure, blenderContext);
 		}
 
-		Transform t = objectHelper.getTransformation(objectStructure, blenderContext);
+		Transform t = this.getTransformation(objectStructure, blenderContext);
 		
 		try {
 			switch(type) {
@@ -245,7 +243,7 @@ public class ObjectHelper extends AbstractBlenderHelper {
 					}
 					break;
 				case OBJECT_TYPE_ARMATURE:
-					//Do not do anything, the object with all needed data is loaded when armature modifier loads
+					//Do nothing, the object with all needed data is loaded when armature modifier loads
 					break;
 				default:
 					LOGGER.log(Level.WARNING, "Unknown object type: {0}", type);
@@ -255,13 +253,25 @@ public class ObjectHelper extends AbstractBlenderHelper {
 		}
 		
 		if(result != null) {
+			blenderContext.addLoadedFeatures(objectStructure.getOldMemoryAddress(), name, objectStructure, result);
+			
+			//loading constraints connected with this object
+			ConstraintHelper constraintHelper = blenderContext.getHelper(ConstraintHelper.class);
+			constraintHelper.loadConstraints(objectStructure, blenderContext);
+			
+			//baking constraints
+			List<Constraint> objectConstraints = blenderContext.getConstraints(objectStructure.getOldMemoryAddress());
+			if(objectConstraints!=null) {
+				for(Constraint objectConstraint : objectConstraints) {
+					objectConstraint.bakeStatic();
+				}
+			}
+			
 			//reading custom properties
 			Properties properties = this.loadProperties(objectStructure, blenderContext);
 			if(result instanceof Spatial && properties != null && properties.getValue() != null) {
 				((Spatial)result).setUserData("properties", properties);
 			}
-			
-			blenderContext.addLoadedFeatures(objectStructure.getOldMemoryAddress(), name, objectStructure, result);
 		}
 		return result;
 	}
@@ -292,13 +302,7 @@ public class ObjectHelper extends AbstractBlenderHelper {
 
 		Vector3f translation = localMatrix.toTranslationVector();
 		Quaternion rotation = localMatrix.toRotationQuat();
-		//getting the scale
-		float scaleX = (float) Math.sqrt(parentInv.m00 * parentInv.m00 + parentInv.m10 * parentInv.m10 + parentInv.m20 * parentInv.m20);
-		float scaleY = (float) Math.sqrt(parentInv.m01 * parentInv.m01 + parentInv.m11 * parentInv.m11 + parentInv.m21 * parentInv.m21);
-		float scaleZ = (float) Math.sqrt(parentInv.m02 * parentInv.m02 + parentInv.m12 * parentInv.m12 + parentInv.m22 * parentInv.m22);
-		Vector3f scale = new Vector3f(size.get(0).floatValue() * scaleX, 
-									  size.get(1).floatValue() * scaleY, 
-									  size.get(2).floatValue() * scaleZ);
+		Vector3f scale = this.getScale(parentInv).multLocal(size.get(0).floatValue(), size.get(1).floatValue(), size.get(2).floatValue());
 		
 		if(fixUpAxis) {
 			float y = translation.y;
@@ -321,35 +325,76 @@ public class ObjectHelper extends AbstractBlenderHelper {
 	}
 
 	/**
-	 * This method returns the transformation matrix of the given object structure.
-	 * @param objectStructure
-	 *        the structure with object's data
-	 * @return object's transformation matrix
-	 */
-	public Matrix4f getTransformationMatrix(Structure objectStructure) {
-		return this.getMatrix(objectStructure, "obmat");
-	}
-
-	/**
-	 * This method returns the matrix of a given name for the given object structure.
-	 * @param objectStructure
-	 *        the structure with object's data
+	 * This method returns the matrix of a given name for the given structure.
+	 * The matrix is NOT transformed if Y axis is up - the raw data is loaded from the blender file.
+	 * @param structure
+	 *        the structure with matrix data
 	 * @param matrixName
-	 * 		  the name of the matrix structure
-	 * @return object's matrix
+	 * 		  the name of the matrix
+	 * @return the required matrix
+	 */
+	public Matrix4f getMatrix(Structure structure, String matrixName) {
+		return this.getMatrix(structure, matrixName, false);
+	}
+	
+	/**
+	 * This method returns the matrix of a given name for the given structure.
+	 * It takes up axis into consideration.
+	 * @param structure
+	 *        the structure with matrix data
+	 * @param matrixName
+	 * 		  the name of the matrix
+	 * @return the required matrix
 	 */
 	@SuppressWarnings("unchecked")
-	protected Matrix4f getMatrix(Structure objectStructure, String matrixName) {
+	public Matrix4f getMatrix(Structure structure, String matrixName, boolean applyFixUpAxis) {
 		Matrix4f result = new Matrix4f();
-		DynamicArray<Number> obmat = (DynamicArray<Number>)objectStructure.getFieldValue(matrixName);
-		for(int i = 0; i < 4; ++i) {
-			for(int j = 0; j < 4; ++j) {
+		DynamicArray<Number> obmat = (DynamicArray<Number>)structure.getFieldValue(matrixName);
+		int rowAndColumnSize = Math.abs((int)Math.sqrt(obmat.getTotalSize()));//the matrix must be square
+		for(int i = 0; i < rowAndColumnSize; ++i) {
+			for(int j = 0; j < rowAndColumnSize; ++j) {
 				result.set(i, j, obmat.get(j, i).floatValue());
 			}
 		}
+		if(applyFixUpAxis && fixUpAxis) {
+        	Vector3f translation = result.toTranslationVector();
+            Quaternion rotation = result.toRotationQuat();
+            Vector3f scale = this.getScale(result);
+            
+			float y = translation.y;
+			translation.y = translation.z;
+			translation.z = -y;
+			
+			y = rotation.getY();
+			float z = rotation.getZ();
+			rotation.set(rotation.getX(), z, -y, rotation.getW());
+			
+			y=scale.y;
+			scale.y = scale.z;
+			scale.z = y;
+			
+			result.loadIdentity();
+			result.setTranslation(translation);
+			result.setRotationQuaternion(rotation);
+			result.setScale(scale);
+        }
 		return result;
 	}
 
+	/**
+	 * This method returns the scale from the given matrix.
+	 * 
+	 * @param matrix
+	 *            the transformation matrix
+	 * @return the scale from the given matrix
+	 */
+	public Vector3f getScale(Matrix4f matrix) {
+		float scaleX = (float) Math.sqrt(matrix.m00 * matrix.m00 + matrix.m10 * matrix.m10 + matrix.m20 * matrix.m20);
+		float scaleY = (float) Math.sqrt(matrix.m01 * matrix.m01 + matrix.m11 * matrix.m11 + matrix.m21 * matrix.m21);
+		float scaleZ = (float) Math.sqrt(matrix.m02 * matrix.m02 + matrix.m12 * matrix.m12 + matrix.m22 * matrix.m22);
+		return new Vector3f(scaleX, scaleY, scaleZ);
+	}
+	
 	@Override
 	public void clearState() {
 		fixUpAxis = false;

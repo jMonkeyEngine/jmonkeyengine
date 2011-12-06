@@ -1,5 +1,11 @@
 package com.jme3.scene.plugins.blender.modifiers;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import com.jme3.animation.AnimControl;
 import com.jme3.animation.Animation;
 import com.jme3.animation.SpatialTrack;
@@ -7,17 +13,11 @@ import com.jme3.scene.Node;
 import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.animations.Ipo;
 import com.jme3.scene.plugins.blender.animations.IpoHelper;
-import com.jme3.scene.plugins.blender.constraints.Constraint;
 import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
 import com.jme3.scene.plugins.blender.file.FileBlockHeader;
 import com.jme3.scene.plugins.blender.file.Pointer;
 import com.jme3.scene.plugins.blender.file.Structure;
 import com.jme3.scene.plugins.ogre.AnimData;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * This modifier allows to add animation to the object.
@@ -51,21 +51,22 @@ import java.util.logging.Logger;
 	 *             corrupted
 	 */
 	public ObjectAnimationModifier(Structure objectStructure, BlenderContext blenderContext) throws BlenderFileException {
-		LOGGER.warning("Object animation modifier not yet implemented!");
-		
+		objectOMA = objectStructure.getOldMemoryAddress();
 		Pointer pIpo = (Pointer) objectStructure.getFieldValue("ipo");
 		if (pIpo.isNotNull()) {
 			// check if there is an action name connected with this ipo
 			String objectAnimationName = null;
 			List<FileBlockHeader> actionBlocks = blenderContext.getFileBlocks(Integer.valueOf(FileBlockHeader.BLOCK_AC00));
-			for (FileBlockHeader actionBlock : actionBlocks) {
-				Structure action = actionBlock.getStructure(blenderContext);
-				List<Structure> actionChannels = ((Structure) action.getFieldValue("chanbase")).evaluateListBase(blenderContext);
-				if (actionChannels.size() == 1) {// object's animtion action has only one channel
-					Pointer pChannelIpo = (Pointer) actionChannels.get(0).getFieldValue("ipo");
-					if (pChannelIpo.equals(pIpo)) {
-						objectAnimationName = action.getName();
-						break;
+			if(actionBlocks != null) {
+				for (FileBlockHeader actionBlock : actionBlocks) {
+					Structure action = actionBlock.getStructure(blenderContext);
+					List<Structure> actionChannels = ((Structure) action.getFieldValue("chanbase")).evaluateListBase(blenderContext);
+					if (actionChannels.size() == 1) {// object's animtion action has only one channel
+						Pointer pChannelIpo = (Pointer) actionChannels.get(0).getFieldValue("ipo");
+						if (pChannelIpo.equals(pIpo)) {
+							objectAnimationName = action.getName();
+							break;
+						}
 					}
 				}
 			}
@@ -79,7 +80,7 @@ import java.util.logging.Logger;
 			Structure ipoStructure = pIpo.fetchData(blenderContext.getInputStream()).get(0);
 			Ipo ipo = ipoHelper.createIpo(ipoStructure, blenderContext);
 			int fps = blenderContext.getBlenderKey().getFps();
-
+			
 			// calculating track for the only bone in this skeleton
 			SpatialTrack track = (SpatialTrack) ipo.calculateTrack(-1, 0, ipo.getLastFrame(), fps);
 			
@@ -89,7 +90,7 @@ import java.util.logging.Logger;
 			animations.add(animation);
 
 			animData = new AnimData(null, animations);
-			objectOMA = objectStructure.getOldMemoryAddress();
+			blenderContext.setAnimData(objectOMA, animData);
 		}
 	}
 	
@@ -98,30 +99,20 @@ import java.util.logging.Logger;
 		if(invalid) {
 			LOGGER.log(Level.WARNING, "Armature modifier is invalid! Cannot be applied to: {0}", node.getName());
 		}//if invalid, animData will be null
-		if(animData == null) {
-			return node;
-		}
-		
-		ArrayList<Animation> animList = animData.anims;
-		if (animList != null && animList.size() > 0) {
-			List<Constraint> constraints = blenderContext.getConstraints(this.objectOMA);
-			HashMap<String, Animation> anims = new HashMap<String, Animation>();
-			for (int i = 0; i < animList.size(); ++i) {
-				Animation animation = (Animation) animList.get(i).clone();
-
-				// baking constraints into animations
-				if (constraints != null && constraints.size() > 0) {
-					for (Constraint constraint : constraints) {
-						constraint.affectAnimation(animation, 0);
-					}
+		if(animData != null) {
+			//INFO: constraints for this modifier are applied in the ObjectHelper when the whole object is loaded
+			ArrayList<Animation> animList = animData.anims;
+			if (animList != null && animList.size() > 0) {
+				HashMap<String, Animation> anims = new HashMap<String, Animation>();
+				for (int i = 0; i < animList.size(); ++i) {
+					Animation animation = animList.get(i);
+					anims.put(animation.getName(), animation);
 				}
 
-				anims.put(animation.getName(), animation);
+				AnimControl control = new AnimControl(null);
+				control.setAnimations(anims);
+				node.addControl(control);
 			}
-
-			AnimControl control = new AnimControl(null);
-			control.setAnimations(anims);
-			node.addControl(control);
 		}
 		return node;
 	}

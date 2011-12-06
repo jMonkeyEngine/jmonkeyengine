@@ -1,12 +1,15 @@
 package com.jme3.scene.plugins.blender.constraints;
 
 import com.jme3.animation.Animation;
-import com.jme3.animation.BoneTrack;
+import com.jme3.animation.Bone;
+import com.jme3.math.Matrix4f;
 import com.jme3.math.Vector3f;
+import com.jme3.scene.Spatial;
 import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.animations.Ipo;
 import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
 import com.jme3.scene.plugins.blender.file.Structure;
+import com.jme3.scene.plugins.ogre.AnimData;
 
 /**
  * This class represents 'Dist limit' constraint type in blender.
@@ -17,12 +20,15 @@ import com.jme3.scene.plugins.blender.file.Structure;
 	private static final int LIMITDIST_OUTSIDE = 1;
 	private static final int LIMITDIST_ONSURFACE = 2;
     
-    /**
+	protected int mode;
+	protected float dist;
+	
+	/**
 	 * This constructor creates the constraint instance.
 	 * 
 	 * @param constraintStructure
 	 *            the constraint's structure (bConstraint clss in blender 2.49).
-	 * @param boneOMA
+	 * @param ownerOMA
 	 *            the old memory address of the constraint owner
 	 * @param influenceIpo
 	 *            the ipo curve of the influence factor
@@ -32,52 +38,89 @@ import com.jme3.scene.plugins.blender.file.Structure;
 	 *             this exception is thrown when the blender file is somehow
 	 *             corrupted
 	 */
-	public ConstraintDistLimit(Structure constraintStructure, Long boneOMA,
+	public ConstraintDistLimit(Structure constraintStructure, Long ownerOMA,
 			Ipo influenceIpo, BlenderContext blenderContext) throws BlenderFileException {
-		super(constraintStructure, boneOMA, influenceIpo, blenderContext);
+		super(constraintStructure, ownerOMA, influenceIpo, blenderContext);
+		
+		mode = ((Number) data.getFieldValue("mode")).intValue();
+		dist = ((Number) data.getFieldValue("dist")).floatValue();
 	}
 
 	@Override
-	public void affectAnimation(Animation animation, int targetIndex) {
-		Vector3f targetLocation = this.getTargetLocation();
-		BoneTrack boneTrack = (BoneTrack) this.getTrack(animation, targetIndex);
-		if (boneTrack != null) {
-			//TODO: target vertex group !!!
-			float dist = ((Number) data.getFieldValue("dist")).floatValue();
-			int mode = ((Number) data.getFieldValue("mode")).intValue();
-
-			int maxFrames = boneTrack.getTimes().length;
-			Vector3f[] translations = boneTrack.getTranslations();
-			for (int frame = 0; frame < maxFrames; ++frame) {
-				Vector3f v = translations[frame].subtract(targetLocation);
-				float currentDistance = v.length();
-				float influence = ipo.calculateValue(frame);
-				float modifier = 0.0f;
-				switch (mode) {
-					case LIMITDIST_INSIDE:
-						if (currentDistance >= dist) {
-							modifier = (dist - currentDistance) / currentDistance;
-						}
-						break;
-					case LIMITDIST_ONSURFACE:
-						modifier = (dist - currentDistance) / currentDistance;
-						break;
-					case LIMITDIST_OUTSIDE:
-						if (currentDistance <= dist) {
-							modifier = (dist - currentDistance) / currentDistance;
-						}
-						break;
-					default:
-						throw new IllegalStateException("Unknown distance limit constraint mode: " + mode);
+	public void bakeDynamic() {
+		AnimData animData = blenderContext.getAnimData(this.owner.getOma());
+		if(animData != null) {
+			Object owner = this.owner.getObject();
+			if(owner instanceof Spatial) {
+				Vector3f targetLocation = ((Spatial) owner).getWorldTranslation();
+				for(Animation animation : animData.anims) {
+					BlenderTrack blenderTrack = this.getTrack(owner, animData.skeleton, animation);
+					int maxFrames = blenderTrack.getTimes().length;
+					Vector3f[] translations = blenderTrack.getTranslations();
+					for (int frame = 0; frame < maxFrames; ++frame) {
+						Vector3f v = translations[frame].subtract(targetLocation);
+						this.distLimit(v, targetLocation, ipo.calculateValue(frame));
+						translations[frame].addLocal(v);
+					}
+					blenderTrack.setKeyframes(blenderTrack.getTimes(), translations, blenderTrack.getRotations(), blenderTrack.getScales());
 				}
-				translations[frame].addLocal(v.multLocal(modifier * influence));
 			}
-			boneTrack.setKeyframes(boneTrack.getTimes(), translations, boneTrack.getRotations(), boneTrack.getScales());
 		}
 	}
 	
 	@Override
-	public ConstraintType getType() {
-		return ConstraintType.CONSTRAINT_TYPE_DISTLIMIT;
+	public void bakeStatic() {
+		Matrix4f targetWorldMatrix = target.getWorldTransformMatrix();
+		Vector3f targetLocation = targetWorldMatrix.toTranslationVector();
+		Matrix4f m = owner.getParentWorldTransformMatrix();
+		m.invertLocal();
+		Matrix4f ownerWorldMatrix = owner.getWorldTransformMatrix();
+		Vector3f ownerLocation = ownerWorldMatrix.toTranslationVector();
+		this.distLimit(ownerLocation, targetLocation, ipo.calculateValue(0));
+		Object owner = this.owner.getObject();
+		if(owner instanceof Spatial) {
+			((Spatial) owner).setLocalTranslation(m.mult(ownerLocation));
+		} else {
+			((Bone) owner).setBindTransforms(m.mult(ownerLocation), ((Bone) owner).getLocalRotation(), ((Bone) owner).getLocalScale());
+		}
+	}
+	
+	/**
+	 * 
+	 * @param currentLocation
+	 * @param targetLocation
+	 * @param influence
+	 */
+	private void distLimit(Vector3f currentLocation, Vector3f targetLocation, float influence) {
+		Vector3f v = currentLocation.subtract(targetLocation);
+		float currentDistance = v.length();
+		
+		switch (mode) {
+			case LIMITDIST_INSIDE:
+				if (currentDistance >= dist) {
+					v.normalizeLocal();
+					v.multLocal(dist + (currentDistance - dist) * (1.0f - influence));
+					currentLocation.set(v.addLocal(targetLocation));
+				}
+				break;
+			case LIMITDIST_ONSURFACE:
+				if (currentDistance > dist) {
+					v.normalizeLocal();
+					v.multLocal(dist + (currentDistance - dist) * (1.0f - influence));
+					currentLocation.set(v.addLocal(targetLocation));
+				} else if(currentDistance < dist) {
+					v.normalizeLocal().multLocal(dist * influence);
+					currentLocation.set(targetLocation.add(v));
+				}
+				break;
+			case LIMITDIST_OUTSIDE:
+				if (currentDistance <= dist) {
+					v = targetLocation.subtract(currentLocation).normalizeLocal().multLocal(dist * influence);
+					currentLocation.set(targetLocation.add(v));
+				}
+				break;
+			default:
+				throw new IllegalStateException("Unknown distance limit constraint mode: " + mode);
+		}
 	}
 }

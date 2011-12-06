@@ -1,12 +1,13 @@
 package com.jme3.scene.plugins.blender.constraints;
 
 import com.jme3.animation.Animation;
-import com.jme3.animation.BoneTrack;
+import com.jme3.math.Transform;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.animations.Ipo;
 import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
 import com.jme3.scene.plugins.blender.file.Structure;
+import com.jme3.scene.plugins.ogre.AnimData;
 
 /**
  * This class represents 'Size limit' constraint type in blender.
@@ -20,12 +21,15 @@ import com.jme3.scene.plugins.blender.file.Structure;
 	private static final int LIMIT_ZMIN = 0x10;
 	private static final int LIMIT_ZMAX = 0x20;
 	
+	protected float[][] limits = new float[3][2];
+    protected int flag;
+	
 	/**
 	 * This constructor creates the constraint instance.
 	 * 
 	 * @param constraintStructure
 	 *            the constraint's structure (bConstraint clss in blender 2.49).
-	 * @param boneOMA
+	 * @param ownerOMA
 	 *            the old memory address of the constraint owner
 	 * @param influenceIpo
 	 *            the ipo curve of the influence factor
@@ -35,63 +39,93 @@ import com.jme3.scene.plugins.blender.file.Structure;
 	 *             this exception is thrown when the blender file is somehow
 	 *             corrupted
 	 */
-	public ConstraintSizeLimit(Structure constraintStructure, Long boneOMA,
+	public ConstraintSizeLimit(Structure constraintStructure, Long ownerOMA,
 			Ipo influenceIpo, BlenderContext blenderContext) throws BlenderFileException {
-		super(constraintStructure, boneOMA, influenceIpo, blenderContext);
+		super(constraintStructure, ownerOMA, influenceIpo, blenderContext);
+		
+		flag = ((Number) data.getFieldValue("flag")).intValue();
+		if(blenderContext.getBlenderKey().isFixUpAxis()) {
+			limits[0][0] = ((Number) data.getFieldValue("xmin")).floatValue();
+			limits[0][1] = ((Number) data.getFieldValue("xmax")).floatValue();
+			limits[2][0] = -((Number) data.getFieldValue("ymin")).floatValue();
+			limits[2][1] = -((Number) data.getFieldValue("ymax")).floatValue();
+			limits[1][0] = ((Number) data.getFieldValue("zmin")).floatValue();
+			limits[1][1] = ((Number) data.getFieldValue("zmax")).floatValue();
+			
+			//swapping Y and X limits flag in the bitwise flag
+			int ymin = flag & LIMIT_YMIN;
+			int ymax = flag & LIMIT_YMAX;
+			int zmin = flag & LIMIT_ZMIN;
+			int zmax = flag & LIMIT_ZMAX;
+			flag &= LIMIT_XMIN | LIMIT_XMAX;//clear the other flags to swap them
+			flag |= ymin << 2;
+			flag |= ymax << 2;
+			flag |= zmin >> 2;
+			flag |= zmax >> 2;
+		} else {
+			limits[0][0] = ((Number) data.getFieldValue("xmin")).floatValue();
+			limits[0][1] = ((Number) data.getFieldValue("xmax")).floatValue();
+			limits[1][0] = ((Number) data.getFieldValue("ymin")).floatValue();
+			limits[1][1] = ((Number) data.getFieldValue("ymax")).floatValue();
+			limits[2][0] = ((Number) data.getFieldValue("zmin")).floatValue();
+			limits[2][1] = ((Number) data.getFieldValue("zmax")).floatValue();
+		}
 	}
 
 	@Override
-	public void affectAnimation(Animation animation, int targetIndex) {
-		BoneTrack track = (BoneTrack) this.getTrack(animation, targetIndex);
-		if (track != null) {
-			int flag = ((Number) data.getFieldValue("flag")).intValue();
-			Vector3f[] scales = track.getScales();
-			int maxFrames = scales.length;
-			for (int frame = 0; frame < maxFrames; ++frame) {
-				float influence = ipo.calculateValue(frame);
-				if ((flag & LIMIT_XMIN) != 0) {
-					float xmin = ((Number) data.getFieldValue("xmin")).floatValue();
-					if (scales[frame].x < xmin) {
-						scales[frame].x -= (scales[frame].x - xmin) * influence;
-					}
+	public void bakeDynamic() {
+		AnimData animData = blenderContext.getAnimData(this.owner.getOma());
+		if(animData != null) {
+			Object owner = this.owner.getObject();
+			for(Animation animation : animData.anims) {
+				BlenderTrack track = this.getTrack(owner, animData.skeleton, animation);
+				Vector3f[] scales = track.getScales();
+				int maxFrames = scales.length;
+				for (int frame = 0; frame < maxFrames; ++frame) {
+					this.sizeLimit(scales[frame], ipo.calculateValue(frame));
 				}
-				if ((flag & LIMIT_XMAX) != 0) {
-					float xmax = ((Number) data.getFieldValue("xmax")).floatValue();
-					if (scales[frame].x > xmax) {
-						scales[frame].x -= (scales[frame].x - xmax) * influence;
-					}
-				}
-				if ((flag & LIMIT_YMIN) != 0) {
-					float ymin = ((Number) data.getFieldValue("ymin")).floatValue();
-					if (scales[frame].y < ymin) {
-						scales[frame].y -= (scales[frame].y - ymin) * influence;
-					}
-				}
-				if ((flag & LIMIT_YMAX) != 0) {
-					float ymax = ((Number) data.getFieldValue("ymax")).floatValue();
-					if (scales[frame].y > ymax) {
-						scales[frame].y -= (scales[frame].y - ymax) * influence;
-					}
-				}
-				if ((flag & LIMIT_ZMIN) != 0) {
-					float zmin = ((Number) data.getFieldValue("zmin")).floatValue();
-					if (scales[frame].z < zmin) {
-						scales[frame].z -= (scales[frame].z - zmin) * influence;
-					}
-				}
-				if ((flag & LIMIT_ZMAX) != 0) {
-					float zmax = ((Number) data.getFieldValue("zmax")).floatValue();
-					if (scales[frame].z > zmax) {
-						scales[frame].z -= (scales[frame].z - zmax) * influence;
-					}
-				}//TODO: consider constraint space !!!
+				track.setKeyframes(track.getTimes(), track.getTranslations(), track.getRotations(), scales);
 			}
-			track.setKeyframes(track.getTimes(), track.getTranslations(), track.getRotations(), scales);
 		}
 	}
 	
 	@Override
-	public ConstraintType getType() {
-		return ConstraintType.CONSTRAINT_TYPE_SIZELIMIT;
+	public void bakeStatic() {
+		Transform ownerTransform = this.owner.getTransform();
+		this.sizeLimit(ownerTransform.getScale(), ipo.calculateValue(0));
+		this.owner.applyTransform(ownerTransform);
+	}
+	
+	private void sizeLimit(Vector3f scale, float influence) {
+		if ((flag & LIMIT_XMIN) != 0) {
+			if (scale.x < limits[0][0]) {
+				scale.x -= (scale.x - limits[0][0]) * influence;
+			}
+		}
+		if ((flag & LIMIT_XMAX) != 0) {
+			if (scale.x > limits[0][1]) {
+				scale.x -= (scale.x - limits[0][1]) * influence;
+			}
+		}
+		if ((flag & LIMIT_YMIN) != 0) {
+			if (scale.y < limits[1][0]) {
+				scale.y -= (scale.y - limits[1][0]) * influence;
+			}
+		}
+		if ((flag & LIMIT_YMAX) != 0) {
+			if (scale.y > limits[1][1]) {
+				scale.y -= (scale.y - limits[1][1]) * influence;
+			}
+		}
+		if ((flag & LIMIT_ZMIN) != 0) {
+			if (scale.z < limits[2][0]) {
+				scale.z -= (scale.z - limits[2][0]) * influence;
+			}
+		}
+		if ((flag & LIMIT_ZMAX) != 0) {
+			if (scale.z > limits[2][1]) {
+				scale.z -= (scale.z - limits[2][1]) * influence;
+			}
+		}
 	}
 }

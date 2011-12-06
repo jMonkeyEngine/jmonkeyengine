@@ -189,30 +189,20 @@ public class BlenderLoader extends AbstractBlenderLoader {
 		blenderContext.setBlenderKey(blenderKey);
 
 		// creating helpers
-		blenderContext.putHelper(ArmatureHelper.class, new ArmatureHelper(inputStream.getVersionNumber()));
-		blenderContext.putHelper(TextureHelper.class, new TextureHelper(inputStream.getVersionNumber()));
-		blenderContext.putHelper(MeshHelper.class, new MeshHelper(inputStream.getVersionNumber()));
-		blenderContext.putHelper(ObjectHelper.class, new ObjectHelper(inputStream.getVersionNumber()));
-		blenderContext.putHelper(CurvesHelper.class, new CurvesHelper(inputStream.getVersionNumber()));
-		blenderContext.putHelper(LightHelper.class, new LightHelper(inputStream.getVersionNumber()));
-		blenderContext.putHelper(CameraHelper.class, new CameraHelper(inputStream.getVersionNumber()));
-		blenderContext.putHelper(ModifierHelper.class, new ModifierHelper(inputStream.getVersionNumber()));
-		blenderContext.putHelper(MaterialHelper.class, new MaterialHelper(inputStream.getVersionNumber()));
-		blenderContext.putHelper(ConstraintHelper.class, new ConstraintHelper(inputStream.getVersionNumber(), blenderContext));
-		blenderContext.putHelper(IpoHelper.class, new IpoHelper(inputStream.getVersionNumber()));
-		blenderContext.putHelper(ParticlesHelper.class, new ParticlesHelper(inputStream.getVersionNumber()));
+		blenderContext.putHelper(ArmatureHelper.class, new ArmatureHelper(inputStream.getVersionNumber(), blenderKey.isFixUpAxis()));
+		blenderContext.putHelper(TextureHelper.class, new TextureHelper(inputStream.getVersionNumber(), blenderKey.isFixUpAxis()));
+		blenderContext.putHelper(MeshHelper.class, new MeshHelper(inputStream.getVersionNumber(), blenderKey.isFixUpAxis()));
+		blenderContext.putHelper(ObjectHelper.class, new ObjectHelper(inputStream.getVersionNumber(), blenderKey.isFixUpAxis()));
+		blenderContext.putHelper(CurvesHelper.class, new CurvesHelper(inputStream.getVersionNumber(), blenderKey.isFixUpAxis()));
+		blenderContext.putHelper(LightHelper.class, new LightHelper(inputStream.getVersionNumber(), blenderKey.isFixUpAxis()));
+		blenderContext.putHelper(CameraHelper.class, new CameraHelper(inputStream.getVersionNumber(), blenderKey.isFixUpAxis()));
+		blenderContext.putHelper(ModifierHelper.class, new ModifierHelper(inputStream.getVersionNumber(), blenderKey.isFixUpAxis()));
+		blenderContext.putHelper(MaterialHelper.class, new MaterialHelper(inputStream.getVersionNumber(), blenderKey.isFixUpAxis()));
+		blenderContext.putHelper(ConstraintHelper.class, new ConstraintHelper(inputStream.getVersionNumber(), blenderContext, blenderKey.isFixUpAxis()));
+		blenderContext.putHelper(IpoHelper.class, new IpoHelper(inputStream.getVersionNumber(), blenderKey.isFixUpAxis()));
+		blenderContext.putHelper(ParticlesHelper.class, new ParticlesHelper(inputStream.getVersionNumber(), blenderKey.isFixUpAxis()));
 
 		// setting additional data to helpers
-		if (blenderKey.isFixUpAxis()) {
-			AbstractBlenderHelper helper = blenderContext.getHelper(ObjectHelper.class);
-			helper.setyIsUpAxis(true);
-			helper = blenderContext.getHelper(CurvesHelper.class);
-			helper.setyIsUpAxis(true);
-			helper = blenderContext.getHelper(ArmatureHelper.class);
-			helper.setyIsUpAxis(true);
-			helper = blenderContext.getHelper(MeshHelper.class);
-			helper.setyIsUpAxis(true);
-		}
 		MaterialHelper materialHelper = blenderContext.getHelper(MaterialHelper.class);
 		materialHelper.setFaceCullMode(blenderKey.getFaceCullMode());
 

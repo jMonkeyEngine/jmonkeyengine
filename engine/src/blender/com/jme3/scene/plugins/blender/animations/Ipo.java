@@ -3,6 +3,7 @@ package com.jme3.scene.plugins.blender.animations;
 import com.jme3.animation.BoneTrack;
 import com.jme3.animation.SpatialTrack;
 import com.jme3.animation.Track;
+import com.jme3.math.FastMath;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.plugins.blender.curves.BezierCurve;
@@ -28,23 +29,21 @@ public class Ipo {
     public static final int AC_QUAT_Y = 27;
     public static final int AC_QUAT_Z = 28;
     
-    /** 
-     * A list of bezier curves for this interpolation object. 
-     */
+    /** A list of bezier curves for this interpolation object. */
     private BezierCurve[] bezierCurves;
-    
-    /** 
-     * Each ipo contains one bone track. 
-     */
+    /** Each ipo contains one bone track. */
     private Track calculatedTrack;
-
+    /** This variable indicates if the Y asxis is the UP axis or not. */
+	protected boolean	fixUpAxis;
+	
     /**
      * Constructor. Stores the bezier curves.
      * @param bezierCurves
      *        a table of bezier curves
      */
-    public Ipo(BezierCurve[] bezierCurves) {
+    public Ipo(BezierCurve[] bezierCurves, boolean fixUpAxis) {
         this.bezierCurves = bezierCurves;
+        this.fixUpAxis = fixUpAxis;
     }
 
     /**
@@ -93,26 +92,6 @@ public class Ipo {
         return result;
     }
 
-    /*
-    public void modifyTranslation(int frame, Vector3f translation) {
-        if (calculatedTrack != null) {
-            calculatedTrack.getTranslations()[frame].set(translation);
-        }
-    }
-
-    public void modifyRotation(int frame, Quaternion rotation) {
-        if (calculatedTrack != null) {
-            calculatedTrack.getRotations()[frame].set(rotation);
-        }
-    }
-
-    public void modifyScale(int frame, Vector3f scale) {
-        if (calculatedTrack != null) {
-            calculatedTrack.getScales()[frame].set(scale);
-        }
-    }
-    */
-
     /**
      * This method calculates the value of the curves as a bone track between the specified frames.
      * @param targetIndex
@@ -141,40 +120,85 @@ public class Ipo {
             float[] objectRotation = new float[3];
             boolean bSpatialTrack = targetIndex < 0;
             Vector3f[] scales = new Vector3f[framesAmount + 1];
-            float[] scale = new float[3];
-
+            float[] scale = new float[] {1.0f, 1.0f, 1.0f};
+            float degreeToRadiansFactor = FastMath.DEG_TO_RAD * 10;//the values in blender are divided by 10, so we need to mult it here
+            
             //calculating track data
             for (int frame = startFrame; frame <= stopFrame; ++frame) {
                 int index = frame - startFrame;
                 times[index] = start + (frame - 1) * timeBetweenFrames;
-                for (int j = 0; j < bezierCurves.length; ++j) {
+            	for (int j = 0; j < bezierCurves.length; ++j) {
                     double value = bezierCurves[j].evaluate(frame, BezierCurve.Y_VALUE);
                     switch (bezierCurves[j].getType()) {
+                    	//LOCATION
                         case AC_LOC_X:
+                        	translation[0] = (float) value;
+                        	break;
                         case AC_LOC_Y:
+                        	if(fixUpAxis) {
+                        		translation[2] = (float) -value;
+                        	} else {
+                        		translation[1] = (float) value;
+                        	}
+                        	break;
                         case AC_LOC_Z:
-                            translation[bezierCurves[j].getType() - 1] = (float) value;
+                        	translation[fixUpAxis ? 1 : 2] = (float) value;
                             break;
+                            
+                        //ROTATION (used with object animation)
+                        //the value here is in degrees divided by 10 (so in example: 9 = PI/2)
                         case OB_ROT_X:
+                        	objectRotation[0] = (float) value * degreeToRadiansFactor;
+                            break;
                         case OB_ROT_Y:
+                        	if(fixUpAxis) {
+                        		objectRotation[2] = (float) -value * degreeToRadiansFactor;
+                        	} else {
+                        		objectRotation[1] = (float) value * degreeToRadiansFactor;
+                        	}
+                        	break;
                         case OB_ROT_Z:
-                            objectRotation[bezierCurves[j].getType() - 7] = (float) value;
+                        	objectRotation[fixUpAxis ? 1 : 2] = (float) value * degreeToRadiansFactor;
                             break;
+                            
+                        //SIZE
                         case AC_SIZE_X:
+                        	scale[0] = (float) value;
+                        	break;
                         case AC_SIZE_Y:
+                        	if(fixUpAxis) {
+                        		scale[2] = (float) value;
+                        	} else {
+                        		scale[1] = (float) value;
+                        	}
+                        	break;
                         case AC_SIZE_Z:
-                            scale[bezierCurves[j].getType() - 13] = (float) value;
+                        	scale[fixUpAxis ? 1 : 2] = (float) value;
                             break;
+                            
+                        //QUATERNION ROTATION (used with bone animation)
                         case AC_QUAT_W:
                             quaternionRotation[3] = (float) value;
                             break;
                         case AC_QUAT_X:
+                        	quaternionRotation[0] = (float) value;
+                        	break;
                         case AC_QUAT_Y:
+                        	if(fixUpAxis) {
+                        		quaternionRotation[2] = -(float) value;
+                        	} else {
+                        		quaternionRotation[1] = (float) value;
+                        	}
+                        	break;
                         case AC_QUAT_Z:
-                            quaternionRotation[bezierCurves[j].getType() - 26] = (float) value;
+                        	if(fixUpAxis) {
+                        		quaternionRotation[1] = (float) value;
+                        	} else {
+                        		quaternionRotation[2] = (float) value;
+                        	}
                             break;
                         default:
-                        //TODO: error? info? warning?
+                        	throw new IllegalStateException("Unknown ipo curve type: " + bezierCurves[j].getType());
                     }
                 }
                 translations[index] = new Vector3f(translation[0], translation[1], translation[2]);

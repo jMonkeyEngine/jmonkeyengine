@@ -60,17 +60,11 @@ public abstract class AbstractBlenderHelper {
 	 * versions.
 	 * @param blenderVersion
 	 *        the version read from the blend file
-	 */
-	public AbstractBlenderHelper(String blenderVersion) {
-		this.blenderVersion = Integer.parseInt(blenderVersion);
-	}
-
-	/**
-	 * This method sets the Y is UP axis. By default the UP axis is Z (just like in blender).
 	 * @param fixUpAxis
-	 *        a variable that indicates if the Y asxis is the UP axis or not
+     *        a variable that indicates if the Y asxis is the UP axis or not
 	 */
-	public void setyIsUpAxis(boolean fixUpAxis) {
+	public AbstractBlenderHelper(String blenderVersion, boolean fixUpAxis) {
+		this.blenderVersion = Integer.parseInt(blenderVersion);
 		this.fixUpAxis = fixUpAxis;
 		if(fixUpAxis) {
 			upAxisRotationQuaternion = new Quaternion().fromAngles(-FastMath.HALF_PI, 0, 0);

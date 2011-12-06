@@ -135,9 +135,11 @@ public class TextureHelper extends AbstractBlenderHelper {
 	 * 
 	 * @param blenderVersion
 	 *        the version read from the blend file
+	 * @param fixUpAxis
+     *        a variable that indicates if the Y asxis is the UP axis or not
 	 */
-	public TextureHelper(String blenderVersion) {
-		super(blenderVersion);
+	public TextureHelper(String blenderVersion, boolean fixUpAxis) {
+		super(blenderVersion, false);
 		noiseGenerator = new NoiseGenerator(blenderVersion);
 		textureGenerators.put(Integer.valueOf(TEX_BLEND), new TextureGeneratorBlend(noiseGenerator));
 		textureGenerators.put(Integer.valueOf(TEX_CLOUDS), new TextureGeneratorClouds(noiseGenerator));

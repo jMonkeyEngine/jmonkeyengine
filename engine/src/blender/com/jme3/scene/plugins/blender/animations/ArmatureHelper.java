@@ -31,16 +31,6 @@
  */
 package com.jme3.scene.plugins.blender.animations;
 
-import com.jme3.animation.Bone;
-import com.jme3.animation.BoneTrack;
-import com.jme3.math.Matrix4f;
-import com.jme3.math.Quaternion;
-import com.jme3.math.Vector3f;
-import com.jme3.scene.plugins.blender.AbstractBlenderHelper;
-import com.jme3.scene.plugins.blender.BlenderContext;
-import com.jme3.scene.plugins.blender.curves.BezierCurve;
-import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
-import com.jme3.scene.plugins.blender.file.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -48,33 +38,119 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.jme3.animation.Bone;
+import com.jme3.animation.BoneTrack;
+import com.jme3.animation.Skeleton;
+import com.jme3.math.Matrix4f;
+import com.jme3.math.Quaternion;
+import com.jme3.math.Transform;
+import com.jme3.scene.plugins.blender.AbstractBlenderHelper;
+import com.jme3.scene.plugins.blender.BlenderContext;
+import com.jme3.scene.plugins.blender.curves.BezierCurve;
+import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
+import com.jme3.scene.plugins.blender.file.BlenderInputStream;
+import com.jme3.scene.plugins.blender.file.DynamicArray;
+import com.jme3.scene.plugins.blender.file.FileBlockHeader;
+import com.jme3.scene.plugins.blender.file.Pointer;
+import com.jme3.scene.plugins.blender.file.Structure;
+import com.jme3.scene.plugins.blender.objects.ObjectHelper;
+
 /**
  * This class defines the methods to calculate certain aspects of animation and armature functionalities.
- * @author Marcin Roguski
+ * @author Marcin Roguski (Kaelthas)
  */
 public class ArmatureHelper extends AbstractBlenderHelper {
-
     private static final Logger LOGGER = Logger.getLogger(ArmatureHelper.class.getName());
-
+    
+    /** A map of bones and their old memory addresses. */
+    private Map<Bone, Long> 		bonesOMAs = new HashMap<Bone, Long>();
+    /** Bone transforms need to be applied after the model is attached to the skeleton. Otherwise it will have no effect. */
+	private Map<Bone, Transform>	boneBindTransforms = new HashMap<Bone, Transform>();
+	
     /**
      * This constructor parses the given blender version and stores the result. Some functionalities may differ in
      * different blender versions.
      * @param blenderVersion
      *        the version read from the blend file
+     * @param fixUpAxis
+     *        a variable that indicates if the Y asxis is the UP axis or not
      */
-    public ArmatureHelper(String blenderVersion) {
-        super(blenderVersion);
+    public ArmatureHelper(String blenderVersion, boolean fixUpAxis) {
+        super(blenderVersion, fixUpAxis);
     }
-
+    
     /**
-     * The map of the bones. Maps a bone name to its index in the armature. Should be cleared after the object had been
-     * read. TODO: probably bones can have identical names in different armatures
-     */
-    protected Map<String, Integer> bonesMap = new HashMap<String, Integer>();
-    /** A map of bones and their old memory addresses. */
-    protected Map<Bone, Long> bonesOMAs = new HashMap<Bone, Long>();
-    /** This list contains bones hierarchy and their matrices. It is later converted into jme bones. */
-    protected List<BoneTransformationData> boneDataRoots = new ArrayList<BoneTransformationData>();
+	 * This method builds the object's bones structure.
+	 * 
+	 * @param boneStructure
+	 *            the structure containing the bones' data
+	 * @param parent
+	 *            the parent bone
+	 * @param result
+	 *            the list where the newly created bone will be added
+	 * @param bonesPoseChannels
+	 *            a map of bones poses channels
+	 * @param blenderContext
+	 *            the blender context
+	 * @throws BlenderFileException
+	 *             an exception is thrown when there is problem with the blender
+	 *             file
+	 */
+	@SuppressWarnings("unchecked")
+	public void buildBones(Structure boneStructure, Bone parent, List<Bone> result, Matrix4f arbt,
+			final Map<Long, Structure> bonesPoseChannels, BlenderContext blenderContext) throws BlenderFileException {
+		String boneName = boneStructure.getFieldValue("name").toString();
+		Long boneOMA = boneStructure.getOldMemoryAddress();
+		Bone bone = new Bone(boneName);
+		this.bonesOMAs.put(bone, boneOMA);
+		blenderContext.addLoadedFeatures(boneStructure.getOldMemoryAddress(), boneName, boneStructure, bone);
+		
+		ObjectHelper objectHelper = blenderContext.getHelper(ObjectHelper.class);
+		Matrix4f boneMatrix = arbt.mult(objectHelper.getMatrix(boneStructure, "arm_mat", true));
+		Pointer pParentStructure = (Pointer) boneStructure.getFieldValue("parent");
+		if(pParentStructure.isNotNull()) {
+			Structure parentStructure = pParentStructure.fetchData(blenderContext.getInputStream()).get(0);
+			Matrix4f parentArmMat = objectHelper.getMatrix(parentStructure, "arm_mat", true);
+			parentArmMat = arbt.mult(parentArmMat).invertLocal();
+			boneMatrix = parentArmMat.multLocal(boneMatrix);
+		}
+		
+		Transform baseTransform = new Transform(boneMatrix.toTranslationVector(), boneMatrix.toRotationQuat());
+		baseTransform.setScale(objectHelper.getScale(boneMatrix));
+		bone.setBindTransforms(baseTransform.getTranslation(), baseTransform.getRotation(), baseTransform.getScale());
+		
+		// loading poses
+		Structure poseChannel = bonesPoseChannels.get(boneStructure.getOldMemoryAddress());
+		DynamicArray<Number> loc = (DynamicArray<Number>) poseChannel.getFieldValue("loc");
+		DynamicArray<Number> size = (DynamicArray<Number>) poseChannel.getFieldValue("size");
+		DynamicArray<Number> quat = (DynamicArray<Number>) poseChannel.getFieldValue("quat");
+		Transform transform = new Transform();
+		if (blenderContext.getBlenderKey().isFixUpAxis()) {
+			transform.setTranslation(loc.get(0).floatValue(), -loc.get(2).floatValue(), loc.get(1).floatValue());
+			transform.setRotation(new Quaternion(quat.get(1).floatValue(), -quat.get(3).floatValue(), quat.get(2).floatValue(), quat.get(0).floatValue()));
+			transform.setScale(size.get(0).floatValue(), size.get(2).floatValue(), size.get(1).floatValue());
+		} else {
+			transform.setTranslation(loc.get(0).floatValue(), loc.get(1).floatValue(), loc.get(2).floatValue());
+			transform.setRotation(new Quaternion(quat.get(0).floatValue(), quat.get(1).floatValue(), quat.get(2).floatValue(), quat.get(3).floatValue()));
+			transform.setScale(size.get(0).floatValue(), size.get(1).floatValue(), size.get(2).floatValue());
+		}
+		
+		this.boneBindTransforms.put(bone, transform);
+		if (parent != null) {
+			parent.addChild(bone);
+		}
+		result.add(bone);
+		List<Structure> childbase = ((Structure) boneStructure.getFieldValue("childbase")).evaluateListBase(blenderContext);
+		for (Structure child : childbase) {
+			this.buildBones(child, bone, result, arbt, bonesPoseChannels, blenderContext);
+		}
+	}
+	
+	public Transform getLocalTransform(Bone bone) {
+		Transform transform = new Transform(bone.getLocalPosition(), bone.getLocalRotation());
+		transform.setScale(bone.getLocalScale());
+		return transform;
+	}
 
     /**
      * This method returns the old memory address of a bone. If the bone does not exist in the blend file - zero is
@@ -90,6 +166,16 @@ public class ArmatureHelper extends AbstractBlenderHelper {
         }
         return result;
     }
+    
+	/**
+	 * This method returns the bind transform for the specified bone.
+	 * @param bone
+	 *            the bone
+	 * @return bone's bind transform
+	 */
+    public Transform getBoneBindTransform(Bone bone) {
+    	return boneBindTransforms.get(bone);
+    }
 
     /**
      * This method returns a map where the key is the object's group index that is used by a bone and the key is the
@@ -100,15 +186,15 @@ public class ArmatureHelper extends AbstractBlenderHelper {
      * @throws BlenderFileException
      *         this exception is thrown when the blender file is somehow corrupted
      */
-    public Map<Integer, Integer> getGroupToBoneIndexMap(Structure defBaseStructure, BlenderContext blenderContext) throws BlenderFileException {
+    public Map<Integer, Integer> getGroupToBoneIndexMap(Structure defBaseStructure, Skeleton skeleton, BlenderContext blenderContext) throws BlenderFileException {
         Map<Integer, Integer> result = null;
-        if (bonesMap != null && bonesMap.size() != 0) {
+        if (skeleton.getBoneCount() != 0) {
             result = new HashMap<Integer, Integer>();
             List<Structure> deformGroups = defBaseStructure.evaluateListBase(blenderContext);//bDeformGroup
             int groupIndex = 0;
             for (Structure deformGroup : deformGroups) {
                 String deformGroupName = deformGroup.getFieldValue("name").toString();
-                Integer boneIndex = bonesMap.get(deformGroupName);
+                Integer boneIndex = this.getBoneIndex(skeleton, deformGroupName);
                 if (boneIndex != null) {
                     result.put(Integer.valueOf(groupIndex), boneIndex);
                 }
@@ -118,191 +204,6 @@ public class ArmatureHelper extends AbstractBlenderHelper {
         return result;
     }
 
-    /**
-     * This bone returns transformation matrix of the bone that is relative to
-     * its armature object.
-     * @param boneStructure the bone's structure
-     * @return bone's transformation matrix in armature space
-     */
-    @SuppressWarnings("unchecked")
-    protected Matrix4f getArmatureMatrix(Structure boneStructure) {
-        DynamicArray<Number> boneMat = (DynamicArray<Number>) boneStructure.getFieldValue("arm_mat");
-        Matrix4f m = new Matrix4f();
-        for (int i = 0; i < 4; ++i) {
-            for (int j = 0; j < 4; ++j) {
-                m.set(i, j, boneMat.get(j, i).floatValue());
-            }
-        }
-        
-        if(fixUpAxis) {
-        	Vector3f translation = m.toTranslationVector();
-            Quaternion rotation = m.toRotationQuat();
-            
-            float y = translation.y;
-    		translation.y = translation.z;
-    		translation.z = -y;
-    		
-    		rotation = upAxisRotationQuaternion.mult(rotation);
-    		
-    		m.setRotationQuaternion(rotation);
-    		m.setTranslation(translation);
-    		//TODO: what about scale ??
-        }     
-        return m;
-    }
-
-    /**
-     * This method reads the bone with its children.
-     * @param boneStructure
-     *        a structure containing the bone data
-     * @param parent
-     *        the bone parent; if null then we read the root bone
-     * @param blenderContext
-     *        the blender context
-     * @return the bone transformation data; contains bone chierarchy and the bone's matrices
-     * @throws BlenderFileException
-     *         this exception is thrown when the blender file is somehow corrupted
-     */
-    @SuppressWarnings("unchecked")
-    public BoneTransformationData readBoneAndItsChildren(Structure boneStructure, BoneTransformationData parent, BlenderContext blenderContext) throws BlenderFileException {
-        String name = boneStructure.getFieldValue("name").toString();
-        Bone bone = new Bone(name);
-        int bonesAmount = bonesOMAs.size();
-        bonesOMAs.put(bone, boneStructure.getOldMemoryAddress());
-        if (bonesAmount == bonesOMAs.size()) {
-            throw new IllegalStateException("Two bones has the same hash value and thereforw a bone was overriden in the bones<->OMA map! Improve the hash algorithm!");
-        }
-        Matrix4f boneArmatureMatrix = this.getArmatureMatrix(boneStructure);
-        DynamicArray<Float> sizeArray = (DynamicArray<Float>) boneStructure.getFieldValue("size");
-        Vector3f size = new Vector3f(sizeArray.get(0), sizeArray.get(1), sizeArray.get(2));
-        BoneTransformationData boneTransformationData = new BoneTransformationData(boneArmatureMatrix, size, bone, parent);
-        blenderContext.addLoadedFeatures(boneStructure.getOldMemoryAddress(), name, boneStructure, bone);
-
-        Structure childbase = (Structure) boneStructure.getFieldValue("childbase");
-        List<Structure> children = childbase.evaluateListBase(blenderContext);//Bone
-        for (Structure boneChild : children) {
-            this.readBoneAndItsChildren(boneChild, boneTransformationData, blenderContext);
-        }
-        return boneTransformationData;
-    }
-
-    /**
-     * This method assigns transformations to the bone.
-     * @param btd
-     *        the bone data containing the bone we assign transformation to
-     * @param additionalRootBoneTransformation
-     *        additional bone transformation which indicates it's mesh parent and armature object transformations
-     * @param boneList
-     *        a list of all read bones
-     */
-    protected void assignBonesMatrices(BoneTransformationData btd, Matrix4f additionalRootBoneTransformation, List<Bone> boneList) {
-        LOGGER.info("[" + btd.bone.getName() + "]  additionalRootBoneTransformation =\n" + additionalRootBoneTransformation);
-        Matrix4f totalInverseParentMatrix = btd.parent != null ? btd.parent.totalInverseBoneParentMatrix : Matrix4f.IDENTITY;
-        LOGGER.info("[" + btd.bone.getName() + "]  totalInverseParentMatrix =\n" + totalInverseParentMatrix);
-        Matrix4f restMatrix = additionalRootBoneTransformation.mult(btd.boneArmatureMatrix);
-        LOGGER.info("[" + btd.bone.getName() + "]  restMatrix =\n" + restMatrix);
-        btd.totalInverseBoneParentMatrix = restMatrix.clone().invert();
-        restMatrix = totalInverseParentMatrix.mult(restMatrix);
-        LOGGER.info("[" + btd.bone.getName() + "]  resultMatrix =\n" + restMatrix);
-        btd.bone.setBindTransforms(restMatrix.toTranslationVector(), restMatrix.toRotationQuat(), btd.size);
-        boneList.add(btd.bone);
-        bonesMap.put(btd.bone.getName(), Integer.valueOf(boneList.size() - 1));
-        if (btd.children != null && btd.children.size() > 0) {
-            for (BoneTransformationData child : btd.children) {
-                this.assignBonesMatrices(child, additionalRootBoneTransformation, boneList);
-                btd.bone.addChild(child.bone);
-            }
-        }
-    }
-
-    public void addBoneDataRoot(BoneTransformationData dataRoot) {
-    	this.boneDataRoots.add(dataRoot);
-    }
-    
-    /**
-     * This method returns bone transformation data for the bone of a given index.
-     * @param index
-     *        the index of the bone
-     * @return bone's transformation data
-     */
-    public BoneTransformationData getBoneTransformationDataRoot(int index) {
-        return boneDataRoots.get(index);
-    }
-
-    /**
-     * This method returns the amount of bones transformations roots.
-     * @return the amount of bones transformations roots
-     */
-    public int getBoneTransformationDataRootsSize() {
-        return boneDataRoots.size();
-    }
-
-    /**
-     * This class holds the data needed later for bone transformation calculation and to bind parent with children.
-     * @author Marcin Roguski
-     */
-    public static class BoneTransformationData {
-
-        /** Inverse matrix of bone's parent bone. */
-        private Matrix4f totalInverseBoneParentMatrix;
-        /** Bone's matrix in armature's space. */
-        private Matrix4f boneArmatureMatrix;
-        /** Bone's size (apparently it is held outside the transformation matrix. */
-        private Vector3f size;
-        /** The bone the data applies to. */
-        private Bone bone;
-        /** The parent of the above mentioned bone (not assigned yet). */
-        private BoneTransformationData parent;
-        /** The children of the current bone. */
-        private List<BoneTransformationData> children;
-
-        /**
-         * Private constructor creates the object and assigns the given data.
-         * @param boneArmatureMatrix
-         *        the matrix of the current bone
-         * @param size
-         * 		  the bone's size
-         * @param bone
-         *        the current bone
-         * @param parent
-         *        the parent structure of the bone
-         */
-        private BoneTransformationData(Matrix4f boneArmatureMatrix, Vector3f size, Bone bone, BoneTransformationData parent) {
-            this.boneArmatureMatrix = boneArmatureMatrix;
-            this.size = size;
-            this.bone = bone;
-            this.parent = parent;
-            this.children = new ArrayList<ArmatureHelper.BoneTransformationData>();
-            if (this.parent != null) {
-                this.parent.children.add(this);
-            }
-        }
-    }
-
-    /**
-     * This method creates the whole bones structure. Assignes transformations to bones and combines children with
-     * parents.
-     * @param armatureOMA
-     *        old memory address of bones' armature object
-     * @param additionalRootBoneTransformation
-     *        additional bone transformation which indicates it's mesh parent and armature object transformations
-     * @return
-     */
-    public Bone[] buildBonesStructure(Long armatureOMA, Matrix4f additionalRootBoneTransformation) {
-        List<Bone> bones = new ArrayList<Bone>(boneDataRoots.size() + 1);
-        bones.add(new Bone(""));
-        for (BoneTransformationData btd : boneDataRoots) {
-            this.assignBonesMatrices(btd, additionalRootBoneTransformation, bones);
-        }
-        return bones.toArray(new Bone[bones.size()]);
-    }
-
-    @Override
-    public void clearState() {
-        bonesMap.clear();
-        boneDataRoots.clear();
-    }
-    
     @Override
     public boolean shouldBeLoaded(Structure structure, BlenderContext blenderContext) {
     	return true;
@@ -320,11 +221,11 @@ public class ArmatureHelper extends AbstractBlenderHelper {
 	 *             an exception is thrown when there are problems with the blend
 	 *             file
 	 */
-    public BoneTrack[] getTracks(Structure actionStructure, BlenderContext blenderContext) throws BlenderFileException {
+    public BoneTrack[] getTracks(Structure actionStructure, Skeleton skeleton, BlenderContext blenderContext) throws BlenderFileException {
     	if (blenderVersion < 250) {
-            return this.getTracks249(actionStructure, blenderContext);
+            return this.getTracks249(actionStructure, skeleton, blenderContext);
         } else {
-        	return this.getTracks250(actionStructure, blenderContext);
+        	return this.getTracks250(actionStructure, skeleton, blenderContext);
         }
     }
     
@@ -340,19 +241,15 @@ public class ArmatureHelper extends AbstractBlenderHelper {
 	 *             an exception is thrown when there are problems with the blend
 	 *             file
 	 */
-    private BoneTrack[] getTracks250(Structure actionStructure, BlenderContext blenderContext) throws BlenderFileException {
+    private BoneTrack[] getTracks250(Structure actionStructure, Skeleton skeleton, BlenderContext blenderContext) throws BlenderFileException {
         LOGGER.log(Level.INFO, "Getting tracks!");
         int fps = blenderContext.getBlenderKey().getFps();
         Structure groups = (Structure) actionStructure.getFieldValue("groups");
         List<Structure> actionGroups = groups.evaluateListBase(blenderContext);//bActionGroup
-        if (actionGroups != null && actionGroups.size() > 0 && (bonesMap == null || bonesMap.size() == 0)) {
-            throw new IllegalStateException("No bones found! Cannot proceed to calculating tracks!");
-        }
-
         List<BoneTrack> tracks = new ArrayList<BoneTrack>();
         for (Structure actionGroup : actionGroups) {
             String name = actionGroup.getFieldValue("name").toString();
-            Integer boneIndex = bonesMap.get(name);
+            Integer boneIndex = this.getBoneIndex(skeleton, name);
             if (boneIndex != null) {
                 List<Structure> channels = ((Structure) actionGroup.getFieldValue("channels")).evaluateListBase(blenderContext);
                 BezierCurve[] bezierCurves = new BezierCurve[channels.size()];
@@ -374,8 +271,8 @@ public class ArmatureHelper extends AbstractBlenderHelper {
                     bezierCurves[channelCounter++] = new BezierCurve(type, bezTriples, 2);
                 }
 
-                Ipo ipo = new Ipo(bezierCurves);
-                tracks.add( (BoneTrack) ipo.calculateTrack(boneIndex.intValue(), 0, ipo.getLastFrame(), fps) );
+                Ipo ipo = new Ipo(bezierCurves, fixUpAxis);
+                tracks.add((BoneTrack) ipo.calculateTrack(boneIndex.intValue(), 0, ipo.getLastFrame(), fps));
             }
         }
         return tracks.toArray(new BoneTrack[tracks.size()]);
@@ -393,31 +290,44 @@ public class ArmatureHelper extends AbstractBlenderHelper {
 	 *             an exception is thrown when there are problems with the blend
 	 *             file
 	 */
-    private BoneTrack[] getTracks249(Structure actionStructure, BlenderContext blenderContext) throws BlenderFileException {
+    private BoneTrack[] getTracks249(Structure actionStructure, Skeleton skeleton, BlenderContext blenderContext) throws BlenderFileException {
     	LOGGER.log(Level.INFO, "Getting tracks!");
         IpoHelper ipoHelper = blenderContext.getHelper(IpoHelper.class);
         int fps = blenderContext.getBlenderKey().getFps();
         Structure chanbase = (Structure) actionStructure.getFieldValue("chanbase");
         List<Structure> actionChannels = chanbase.evaluateListBase(blenderContext);//bActionChannel
-        if (actionChannels != null && actionChannels.size() > 0 && (bonesMap == null || bonesMap.size() == 0)) {
-            throw new IllegalStateException("No bones found! Cannot proceed to calculating tracks!");
-        }
         List<BoneTrack> tracks = new ArrayList<BoneTrack>();
         for (Structure bActionChannel : actionChannels) {
             String name = bActionChannel.getFieldValue("name").toString();
-            Integer boneIndex = bonesMap.get(name);
-            if (boneIndex != null) {
+            Integer boneIndex = this.getBoneIndex(skeleton, name);
+            if (boneIndex != null && boneIndex.intValue() >= 0) {
                 Pointer p = (Pointer) bActionChannel.getFieldValue("ipo");
                 if (!p.isNull()) {
                     Structure ipoStructure = p.fetchData(blenderContext.getInputStream()).get(0);
                     Ipo ipo = ipoHelper.createIpo(ipoStructure, blenderContext);
-                    tracks.add( (BoneTrack) ipo.calculateTrack(boneIndex.intValue(), 0, ipo.getLastFrame(), fps));
+                    tracks.add((BoneTrack) ipo.calculateTrack(boneIndex.intValue(), 0, ipo.getLastFrame(), fps));
                 }
             }
         }
         return tracks.toArray(new BoneTrack[tracks.size()]);
     }
 
+    /**
+     * This method returns the index of the bone in the given skeleton.
+     * @param skeleton the skeleton
+     * @param boneName the name of the bone
+     * @return the index of the bone
+     */
+    private int getBoneIndex(Skeleton skeleton, String boneName) {
+    	int result = -1;
+    	for(int i=0;i<skeleton.getBoneCount() && result==-1;++i) {
+    		if(boneName.equals(skeleton.getBone(i).getName())) {
+    			result = i;
+    		}
+    	}
+    	return result;
+    }
+    
     /**
      * This method parses the information stored inside the curve rna path and returns the proper type
      * of the curve.

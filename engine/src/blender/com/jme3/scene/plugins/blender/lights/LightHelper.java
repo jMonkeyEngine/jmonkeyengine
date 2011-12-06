@@ -59,9 +59,11 @@ public class LightHelper extends AbstractBlenderHelper {
      * different blender versions.
      * @param blenderVersion
      *        the version read from the blend file
+     * @param fixUpAxis
+     *        a variable that indicates if the Y asxis is the UP axis or not
      */
-    public LightHelper(String blenderVersion) {
-        super(blenderVersion);
+    public LightHelper(String blenderVersion, boolean fixUpAxis) {
+        super(blenderVersion, fixUpAxis);
     }
 
     public Light toLight(Structure structure, BlenderContext blenderContext) throws BlenderFileException {
