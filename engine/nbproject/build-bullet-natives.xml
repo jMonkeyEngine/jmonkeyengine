@@ -51,7 +51,7 @@
         <fileset refid="lib.jme.jars"/>
     </pathconvert>
 
-    <target name="build-bullet-natives" description="builds the native bullet library for the platform being run on" depends="-compile-bullet-sources, -create-folders, create-native-headers, -nativelib-osx, -nativelib-windows, -nativelib-linux, -nativelib-solaris, -nativelib-android">
+    <target name="build-bullet-natives" description="builds the native bullet library for the platform being run on and for android if NDK available" depends="create-native-headers, compile-native-library, compile-android">
         <echo message="Updating native jME3-bullet-natives.jar"/>
         <zip basedir="${bullet.output.base}/jarcontent" file="${bullet.output.base}/jME3-bullet-natives.jar" compress="true"/>
         <zip basedir="${bullet.output.base}/android" file="${bullet.output.base}/jME3-bullet-natives-android.jar" compress="true"/>
@@ -59,7 +59,7 @@
         <copy file="${bullet.output.base}/jME3-bullet-natives-android.jar" todir="dist/opt/native-bullet/lib/"/>
     </target>
     
-    <target name="create-native-headers" description="creates the native headers">
+    <target name="create-native-headers" description="creates the native C++ headers for the java native methods">
         <javah destdir="${bullet.source.dir}" classpath="${bullet.build.dir}${path.separator}${lib.importpath}">
             <class name="com.jme3.bullet.PhysicsSpace"/>
 
@@ -102,7 +102,7 @@
     </target>
 
     <!-- compares the API of native bullet and java version-->
-    <target name="bullet-api-diff">
+    <target name="bullet-api-diff" description="creates a html file showing the differences between the native and jbullet based jme3-bullet api">
         <echo message="Comparing bullet and jbullet API"/>
         <property name="dependencyfinder.home" value="lib/antlibs/depfinder"/>
         <path id="dependencyfinder">
@@ -133,11 +133,14 @@
         <delete file="bullet-api-diff.xml"/>
     </target>
 
-    <target name="-create-folders" description="creates the native headers">
+    <target name="compile-native-library" description="compiles the native libbulletjme binary for the current platform" depends="compile-bullet-source, -create-folders, -nativelib-osx, -nativelib-windows, -nativelib-linux, -nativelib-linux-64, -nativelib-solaris"/>
+    
+    <target name="-create-folders" description="creates the needed folders">
         <mkdir dir="${bullet.source.dir}"/>
         <mkdir dir="${bullet.build.dir}"/>
         <mkdir dir="${bullet.output.dir}"/>
         <mkdir dir="build/bullet-native"/>
+        <mkdir dir="build/bullet-native-64"/>
     </target>
     
     <target name="-nativelib-osx" if="isMac">
@@ -158,11 +161,7 @@
             <compilerarg value="-arch"/>
             <compilerarg value="x86_64"/>
             <linker name="${bullet.osx.compiler}">
-                <!--libset dir="${bullet.folder}/src/BulletSoftBody" libs="BulletSoftBody"/-->
-                <libset dir="${bullet.folder}/src/BulletMultiThreaded" libs="BulletMultiThreaded"/>
-                <libset dir="${bullet.folder}/src/BulletDynamics" libs="BulletDynamics"/>
-                <libset dir="${bullet.folder}/src/BulletCollision" libs="BulletCollision"/>
-                <libset dir="${bullet.folder}/src/LinearMath" libs="LinearMath"/>
+                <libset dir="build/bullet-base" libs="BulletMultiThreaded,BulletDynamics,BulletCollision,LinearMath"/>
                 <!--linkerarg value="-arch"/>
                 <linkerarg value="ppc"/-->
                 <linkerarg value="-arch"/>
@@ -186,15 +185,28 @@
             <includepath path="${bullet.java.include}"/>
             <includepath path="${bullet.java.include}/linux"/>
             <includepath path="${bullet.bullet.include}"/>
-            <!--compilerarg value="-m32"/-->
-            <!--compilerarg value="-static-libgcc"/>
-            <compilerarg value="-fPIC"/-->
+            <compilerarg value="-m32"/>
             <linker name="${bullet.linux.compiler}">
-                <!-- linkerarg value="-static-libgcc"/ -->
-                <libset dir="${bullet.folder}/src/BulletMultiThreaded" libs="BulletMultiThreaded"/>
-                <libset dir="${bullet.folder}/src/BulletDynamics" libs="BulletDynamics"/>
-                <libset dir="${bullet.folder}/src/BulletCollision" libs="BulletCollision"/>
-                <libset dir="${bullet.folder}/src/LinearMath" libs="LinearMath"/>
+                <linkerarg value="-m32"/>
+                <libset dir="build/bullet-base" libs="BulletMultiThreaded,BulletDynamics,BulletCollision,LinearMath"/>
+            </linker>
+        </cc>
+        <delete file="${bullet.output.dir}/linux/history.xml"/>
+    </target>
+    
+    <target name="-nativelib-linux-64" if="isLinux,isx86_64">
+        <echo message="Building Linux version of native bullet"/>
+        <mkdir dir="${bullet.output.dir}/linux"/>
+        <cc name="${bullet.linux.compiler}" warnings="severe" debug="${bullet.compile.debug}" link="shared" outfile="${bullet.output.dir}/linux/${bullet.library.name}64" objdir="build/bullet-native64">
+            <fileset dir="${bullet.source.dir}">
+                <include name="*.cpp">
+                </include>
+            </fileset>
+            <includepath path="${bullet.java.include}"/>
+            <includepath path="${bullet.java.include}/linux"/>
+            <includepath path="${bullet.bullet.include}"/>
+            <linker name="${bullet.linux.compiler}">
+                <libset dir="build/bullet-base-64" libs="BulletMultiThreaded,BulletDynamics,BulletCollision,LinearMath"/>
             </linker>
         </cc>
         <delete file="${bullet.output.dir}/linux/history.xml"/>
@@ -253,7 +265,7 @@
         <delete file="${bullet.output.dir}/windows/history.xml"/>
     </target>
 
-    <target name="-nativelib-android" depends="-check-android-ndk" if="haveAndoidNdk">
+    <target name="compile-android" description="compiles libbulletjme using the Android NDK" depends="-check-android-ndk" if="haveAndoidNdk">
         <!-- delete previous android jni, libs, and obj subdirectories for a clean start -->
         <delete dir="build/bullet-android/jni" failonerror="false"/>
         <delete dir="build/bullet-android/libs" failonerror="false"/>
@@ -302,7 +314,7 @@
         <available file="${ndk.dir}/${ndk-build-name}" property="haveAndoidNdk"/>
     </target>
     
-    <target name="-compile-bullet-sources" depends="-get-bullet-sources, -compile-bullet-sources-windows, -compile-bullet-sources-macosx, -compile-bullet-sources-linux"/>
+    <target name="compile-bullet-sources" description="downloads and compiles the bullet native library to static binaries to be included in the final libbulletjme" depends="-get-bullet-sources, -compile-bullet-sources-windows, -compile-bullet-sources-macosx, -compile-bullet-sources-linux, -compile-bullet-sources-linux-64"/>
 
     <target name="-get-bullet-sources" depends="-check-bullet-sources" unless="haveBulletSource">
         <echo>Downloading bullet source..</echo>
@@ -313,10 +325,12 @@
 
     <target name="-check-bullet-sources">
         <available file="${bullet.folder}" property="haveBulletSource"/>
+        <available file="build/bullet-base/libBulletMultiThreaded.a" property="haveBulletLibrary"/>
+        <available file="build/bullet-base-64/libBulletMultiThreaded.a" property="haveBulletLibrary64"/>
     </target>
     
     <target name="-compile-bullet-sources-windows" if="isWindows">
-        <exec executable="${cmake.windows}" dir="${bullet.folder}">
+        <exec executable="${cmake.windows}" dir="${bullet.folder}" failonerror="true">
             <arg value="."/>
             <arg value="-DBUILD_SHARED_LIBS=OFF"/>
             <arg value="-DBUILD_EXTRAS:BOOL=OFF"/>
@@ -329,10 +343,12 @@
         <exec executable="${make.windows}" dir="${bullet.folder}"/>
     </target>
     
-    <target name="-compile-bullet-sources-macosx" if="isMac">
-        <exec executable="${cmake.osx}" dir="${bullet.folder}">
+    <target name="-compile-bullet-sources-macosx" if="isMac" unless="haveBulletLibrary">
+        <mkdir dir="build/bullet-base"/>
+        <property location="build/bullet-base" name="build.folder.resolved"/>
+        <exec executable="${cmake.osx}" dir="${bullet.folder}" failonerror="true">
+            <arg value="-DLIBRARY_OUTPUT_PATH='${build.folder.resolved}'"/>
             <arg value="-DBUILD_SHARED_LIBS=OFF"/>
-            <arg value="-DBUILD_STATIC_LIBS=ON"/>
             <arg value="-DCMAKE_OSX_ARCHITECTURES='i386;x86_64'"/>
             <arg value="-DBUILD_EXTRAS=off"/>
             <arg value="-DBUILD_DEMOS=off"/>
@@ -341,8 +357,29 @@
         <exec executable="${make.osx}" dir="${bullet.folder}"/>
     </target>
     
-    <target name="-compile-bullet-sources-linux" if="isLinux">
-        <exec executable="${cmake.linux}" dir="${bullet.folder}">
+    <target name="-compile-bullet-sources-linux" if="isLinux" unless="haveBulletLibrary">
+        <mkdir dir="build/bullet-base"/>
+        <property location="build/bullet-base" name="build.folder.resolved"/>
+        <exec executable="${cmake.linux}" dir="${bullet.folder}" failonerror="true">
+            <arg value="-DLIBRARY_OUTPUT_PATH='${build.folder.resolved}'"/>
+            <arg value="-DBUILD_SHARED_LIBS=OFF"/>
+            <arg value="-DBUILD_STATIC_LIBS=ON"/>
+            <arg value="-DCMAKE_C_FLAGS=-fPIC"/>
+            <arg value="-DCMAKE_CXX_FLAGS=-fPIC"/>
+            <arg value="-DCMAKE_C_FLAGS=-m32"/>
+            <arg value="-DCMAKE_CXX_FLAGS=-m32"/>
+            <arg value="-DBUILD_EXTRAS=off"/>
+            <arg value="-DBUILD_DEMOS=off"/>
+            <arg value="-DCMAKE_BUILD_TYPE=Release"/>
+        </exec>
+        <exec executable="${make.linux}" dir="${bullet.folder}"/>
+    </target>
+
+    <target name="-compile-bullet-sources-linux-64" if="isLinux,isx86_64" unless="haveBulletLibrary64">
+        <mkdir dir="build/bullet-base-64"/>
+        <property location="build/bullet-base-64" name="build64.folder.resolved"/>
+        <exec executable="${cmake.linux}" dir="${bullet.folder}" failonerror="true">
+            <arg value="-DLIBRARY_OUTPUT_PATH='${build64.folder.resolved}'"/>
             <arg value="-DBUILD_SHARED_LIBS=OFF"/>
             <arg value="-DBUILD_STATIC_LIBS=ON"/>
             <arg value="-DCMAKE_C_FLAGS=-fPIC"/>
@@ -353,4 +390,5 @@
         </exec>
         <exec executable="${make.linux}" dir="${bullet.folder}"/>
     </target>
+
 </project>
