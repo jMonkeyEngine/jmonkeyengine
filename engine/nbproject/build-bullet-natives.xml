@@ -368,6 +368,7 @@
             <arg value="-DCMAKE_CXX_FLAGS=-fPIC"/>
             <arg value="-DCMAKE_C_FLAGS=-m32"/>
             <arg value="-DCMAKE_CXX_FLAGS=-m32"/>
+            <arg value="-DCMAKE_LD_FLAGS=-m32"/>
             <arg value="-DBUILD_EXTRAS=off"/>
             <arg value="-DBUILD_DEMOS=off"/>
             <arg value="-DCMAKE_BUILD_TYPE=Release"/>
