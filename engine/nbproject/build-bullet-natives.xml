@@ -133,7 +133,7 @@
         <delete file="bullet-api-diff.xml"/>
     </target>
 
-    <target name="compile-native-library" description="compiles the native libbulletjme binary for the current platform" depends="compile-bullet-source, -create-folders, -nativelib-osx, -nativelib-windows, -nativelib-linux, -nativelib-linux-64, -nativelib-solaris"/>
+    <target name="compile-native-library" description="compiles the native libbulletjme binary for the current platform" depends="compile-bullet-sources, -create-folders, -nativelib-osx, -nativelib-windows, -nativelib-linux, -nativelib-linux-64, -nativelib-solaris"/>
     
     <target name="-create-folders" description="creates the needed folders">
         <mkdir dir="${bullet.source.dir}"/>
