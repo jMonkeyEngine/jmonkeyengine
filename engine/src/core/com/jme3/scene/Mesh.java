@@ -260,7 +260,7 @@ public class Mesh implements Savable, Cloneable {
      * Clone the mesh for animation use.
      * This creates a shallow clone of the mesh, sharing most
      * of the {@link VertexBuffer vertex buffer} data, however the
-     * {@link Type#BindPosePosition} and {@link Type#BindPoseNormal} buffers
+     * {@link Type#Position}, {@link Type#Normal}, and {@link Type#Tangent} buffers
      * are deeply cloned.
      * 
      * @return A clone of the mesh for animation use.
@@ -269,6 +269,7 @@ public class Mesh implements Savable, Cloneable {
         Mesh clone = clone();
         if (getBuffer(Type.BindPosePosition) != null){
             VertexBuffer oldPos = getBuffer(Type.Position);
+            
             // NOTE: creates deep clone
             VertexBuffer newPos = oldPos.clone();
             clone.clearBuffer(Type.Position);
@@ -279,6 +280,13 @@ public class Mesh implements Savable, Cloneable {
                 VertexBuffer newNorm = oldNorm.clone();
                 clone.clearBuffer(Type.Normal);
                 clone.setBuffer(newNorm);
+                
+                if (getBuffer(Type.BindPoseTangent) != null){
+                    VertexBuffer oldTang = getBuffer(Type.Tangent);
+                    VertexBuffer newTang = oldTang.clone();
+                    clone.clearBuffer(Type.Tangent);
+                    clone.setBuffer(newTang);
+                }
             }
         }
         return clone;
