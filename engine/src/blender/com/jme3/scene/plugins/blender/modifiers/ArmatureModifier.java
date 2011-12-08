@@ -103,7 +103,7 @@ import com.jme3.util.BufferUtils;
 				}
 
 				ObjectHelper objectHelper = blenderContext.getHelper(ObjectHelper.class);
-				Matrix4f armatureObjectMatrix = objectHelper.getMatrix(armatureObject, "obmat", true);//TODO: fixupaxis ???
+				Matrix4f armatureObjectMatrix = objectHelper.getMatrix(armatureObject, "obmat", true);
 				Matrix4f inverseMeshObjectMatrix = objectHelper.getMatrix(objectStructure, "obmat", true).invertLocal();
 				Matrix4f objectToArmatureTransformation = armatureObjectMatrix.multLocal(inverseMeshObjectMatrix);
 				
@@ -218,8 +218,8 @@ import com.jme3.util.BufferUtils;
 			AnimControl control = new AnimControl(animData.skeleton);
 			control.setAnimations(anims);
 			node.addControl(control);
-			node.addControl(new SkeletonControl(animData.skeleton));
 		}
+		node.addControl(new SkeletonControl(animData.skeleton));
 
 		return node;
 	}

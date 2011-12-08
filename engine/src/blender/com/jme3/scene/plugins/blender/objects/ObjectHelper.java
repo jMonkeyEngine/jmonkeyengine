@@ -31,6 +31,11 @@
  */
 package com.jme3.scene.plugins.blender.objects;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import com.jme3.asset.BlenderKey.FeaturesToLoad;
 import com.jme3.light.DirectionalLight;
 import com.jme3.light.Light;
@@ -60,15 +65,10 @@ import com.jme3.scene.plugins.blender.lights.LightHelper;
 import com.jme3.scene.plugins.blender.meshes.MeshHelper;
 import com.jme3.scene.plugins.blender.modifiers.Modifier;
 import com.jme3.scene.plugins.blender.modifiers.ModifierHelper;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * A class that is used in object calculations.
- * @author Marcin Roguski
+ * @author Marcin Roguski (Kaelthas)
  */
 public class ObjectHelper extends AbstractBlenderHelper {
 	private static final Logger			LOGGER		= Logger.getLogger(ObjectHelper.class.getName());
@@ -84,16 +84,6 @@ public class ObjectHelper extends AbstractBlenderHelper {
 	protected static final int		OBJECT_TYPE_WAVE			= 21;
 	protected static final int		OBJECT_TYPE_LATTICE			= 22;
 	protected static final int		OBJECT_TYPE_ARMATURE		= 25;
-	
-	/**
-	 * This collection contains types of features that are not visible to the user.
-	 * These will be loaded regardless the layer they reside in.
-	 */
-	protected static final Collection<Integer> invisibleTypes = new ArrayList<Integer>();
-	static {
-		invisibleTypes.add(OBJECT_TYPE_EMPTY);
-		invisibleTypes.add(OBJECT_TYPE_ARMATURE);
-	}
 	
 	/**
 	 * This constructor parses the given blender version and stores the result. Some functionalities may differ in
@@ -137,7 +127,7 @@ public class ObjectHelper extends AbstractBlenderHelper {
 		Pointer pParent = (Pointer)objectStructure.getFieldValue("parent");
 		Object parent = blenderContext.getLoadedFeature(pParent.getOldMemoryAddress(), LoadedFeatureDataType.LOADED_FEATURE);
 		if(parent == null && pParent.isNotNull()) {
-			Structure parentStructure = pParent.fetchData(blenderContext.getInputStream()).get(0);//TODO: what if there are more parents ??
+			Structure parentStructure = pParent.fetchData(blenderContext.getInputStream()).get(0);
 			parent = this.toObject(parentStructure, blenderContext);
 		}
 
@@ -166,10 +156,10 @@ public class ObjectHelper extends AbstractBlenderHelper {
 					List<Structure> meshesArray = pMesh.fetchData(blenderContext.getInputStream());
 					List<Geometry> geometries = meshHelper.toMesh(meshesArray.get(0), blenderContext);
 					if (geometries != null){
-                                            for(Geometry geometry : geometries) {
-                                                    node.attachChild(geometry);
-                                            }
-                                        }
+                        for(Geometry geometry : geometries) {
+                            node.attachChild(geometry);
+                        }
+                    }
 					node.setLocalTransform(t);
 
 					//reading and applying all modifiers
@@ -243,7 +233,15 @@ public class ObjectHelper extends AbstractBlenderHelper {
 					}
 					break;
 				case OBJECT_TYPE_ARMATURE:
-					//Do nothing, the object with all needed data is loaded when armature modifier loads
+					//need to create an empty node to properly create parent-children relationships between nodes
+					Node armature = new Node(name);
+					armature.setLocalTransform(t);
+					//TODO: modifiers for armature ????
+					if(parent instanceof Node) {
+						((Node)parent).attachChild(armature);
+					}
+					armature.updateModelBound();//I prefer do calculate bounding box here than read it from the file
+					result = armature;
 					break;
 				default:
 					LOGGER.log(Level.WARNING, "Unknown object type: {0}", type);
