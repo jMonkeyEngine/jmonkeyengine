@@ -427,6 +427,15 @@
     </target>
 
     <target name="-compile-bullet-sources-linux-mingw-64" if="isLinux64" unless="haveBulletLibraryMingw64">
+        <replace file="${bullet.folder}/CMakeLists.txt" token="#TODO add better GLUT detection for MinGW"
+                value="INCLUDE_DIRECTORIES($${BULLET_PHYSICS_SOURCE_DIR}/Glut)${line.separator}
+                        IF (CMAKE_CL_64)${line.separator}
+                                message('Win64 using Glut/glut64.lib')${line.separator}
+                                SET(GLUT_glut_LIBRARY ${BULLET_PHYSICS_SOURCE_DIR}/Glut/glut64.lib)${line.separator}
+                        ELSE(CMAKE_CL_64)${line.separator}
+                                message('Win32 using Glut/glut32.lib')${line.separator}
+                                SET(GLUT_glut_LIBRARY ${BULLET_PHYSICS_SOURCE_DIR}/Glut/glut32.lib)${line.separator}
+                        ENDIF (CMAKE_CL_64)${line.separator}"/>
         <property name="cross.compile.target" value="x86_64-w64-mingw32"/>
         <mkdir dir="build/bullet-base-mingw-64"/>
         <property location="build/bullet-base-mingw-64" name="build-mingw64.folder.resolved"/>
