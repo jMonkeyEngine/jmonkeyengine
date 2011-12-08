@@ -268,6 +268,7 @@
     </target>
 
     <target name="-nativelib-windows" if="isWindows">
+        <replace file="${bullet.folder}/CMakeLists.txt" token="#TODO add better GLUT detection for MinGW" value="           INCLUDE_DIRECTORIES(${BULLET_PHYSICS_SOURCE_DIR}/Glut)${line.separator}SET(GLUT_glut_LIBRARY ${BULLET_PHYSICS_SOURCE_DIR}/Glut/glut32.lib)"/>
         <echo message="Building Windows version of native bullet"/>
         <mkdir dir="${bullet.output.dir}/windows"/>
         <cc multithreaded="" name="${bullet.windows.compiler}" warnings="none" debug="${bullet.compile.debug}" outtype="shared" outfile="${bullet.output.dir}/windows/${bullet.library.name}" objdir="build/bullet-native">
