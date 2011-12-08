@@ -221,7 +221,7 @@
     <target name="-nativelib-linux-64" if="isLinux64">
         <echo message="Building Linux version of native bullet"/>
         <mkdir dir="${bullet.output.dir}/linux"/>
-        <cc name="${bullet.linux.compiler}" warnings="severe" debug="${bullet.compile.debug}" link="shared" outfile="${bullet.output.dir}/linux/${bullet.library.name}64" objdir="build/bullet-native64">
+        <cc name="${bullet.linux.compiler}" warnings="severe" debug="${bullet.compile.debug}" link="shared" outfile="${bullet.output.dir}/linux/${bullet.library.name}64" objdir="build/bullet-native-64">
             <fileset dir="${bullet.source.dir}">
                 <include name="*.cpp">
                 </include>
