@@ -303,13 +303,20 @@ public class MeshHelper extends AbstractBlenderHelper {
 
             // creating vertices indices for this mesh
             List<Integer> indexList = meshEntry.getValue();
-            int[] indices = new int[indexList.size()];
-            for (int i = 0; i < indexList.size(); ++i) {
-                indices[i] = indexList.get(i).intValue();
+            if(verticesAmount < Short.MAX_VALUE * 2) {
+            	short[] indices = new short[indexList.size()];
+                for (int i = 0; i < indexList.size(); ++i) {
+                    indices[i] = indexList.get(i).shortValue();
+                }
+                mesh.setBuffer(Type.Index, 1, indices);
+            } else {
+            	int[] indices = new int[indexList.size()];
+                for (int i = 0; i < indexList.size(); ++i) {
+                    indices[i] = indexList.get(i).intValue();
+                }
+                mesh.setBuffer(Type.Index, 1, indices);
             }
-
-            // setting vertices
-            mesh.setBuffer(Type.Index, 1, indices);
+            
             mesh.setBuffer(verticesBuffer);
             mesh.setBuffer(verticesBind);
 
