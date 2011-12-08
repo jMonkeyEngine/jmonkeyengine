@@ -249,9 +249,7 @@
             <includepath path="${bullet.java.include}"/>
             <includepath path="${bullet.java.include}/win32"/>
             <includepath path="${bullet.bullet.include}"/>
-            <compilerarg value="--target=i686-w64-mingw32"/>
             <linker name="${bullet.linux.compiler}" libtool="i686-w64-mingw32">
-                <linkerarg value="--target=i686-w64-mingw32"/>
                 <libset dir="build/bullet-base-mingw-64" libs="BulletMultiThreaded,BulletDynamics,BulletCollision,LinearMath"/>
             </linker>
         </cc>
@@ -458,8 +456,8 @@
         <exec executable="${cmake.linux}" dir="${bullet.folder}" failonerror="true">
             <arg value="-DLIBRARY_OUTPUT_PATH='${build-mingw64.folder.resolved}'"/>
             <arg value="-DBUILD_SHARED_LIBS=OFF"/>
-            <arg value="-DBUILD_EXTRAS=OFF"/>
-            <arg value="-DBUILD_DEMOS=OFF"/>
+            <arg value="-DBUILD_EXTRAS:BOOL=OFF"/>
+            <arg value="-DBUILD_DEMOS:BOOL=OFF"/>
             <arg value="-DCMAKE_BUILD_TYPE=Release"/>
 
             <arg value="-DCMAKE_SYSTEM_NAME=Windows"/>
