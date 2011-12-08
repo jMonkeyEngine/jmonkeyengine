@@ -363,7 +363,7 @@
             <arg value="-DCMAKE_BUILD_TYPE=Release"/>
             <arg value="."/>
             <arg value="-G"/>
-            <arg value="'MinGW Makefiles'"/>
+            <arg value='"MinGW Makefiles"'/>
         </exec>
         <exec executable="${make.windows}" dir="${bullet.folder}"/>
     </target>
