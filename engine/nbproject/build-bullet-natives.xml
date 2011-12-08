@@ -157,7 +157,7 @@
         <delete file="bullet-api-diff.xml"/>
     </target>
 
-    <target name="compile-native-library" description="compiles the native libbulletjme binary for the current platform" depends="compile-bullet-sources, -create-folders, -nativelib-osx, -nativelib-windows, -nativelib-linux, -nativelib-linux-64, -nativelib-solaris"/>
+    <target name="compile-native-library" description="compiles the native libbulletjme binary for the current platform" depends="compile-bullet-sources, -create-folders, -nativelib-osx, -nativelib-windows, -nativelib-linux, -nativelib-linux-64, -nativelib-solaris, -nativelib-linux-mingw-64"/>
     
     <target name="-create-folders" description="creates the needed folders">
         <mkdir dir="${bullet.source.dir}"/>
@@ -236,6 +236,26 @@
             </linker>
         </cc>
         <delete file="${bullet.output.dir}/linux/history.xml"/>
+    </target>
+    
+    <target name="-nativelib-linux-mingw-64" if="isLinux64">
+        <echo message="Building 64 bit Linux version of native bullet"/>
+        <mkdir dir="${bullet.output.dir}/windows"/>
+        <cc libtool="i686-w64-mingw32" name="${bullet.linux.compiler}" warnings="severe" debug="${bullet.compile.debug}" link="shared" outfile="${bullet.output.dir}/windows/${bullet.library.name}64" objdir="build/bullet-native-mingw-64">
+            <fileset dir="${bullet.source.dir}">
+                <include name="*.cpp">
+                </include>
+            </fileset>
+            <includepath path="${bullet.java.include}"/>
+            <includepath path="${bullet.java.include}/win32"/>
+            <includepath path="${bullet.bullet.include}"/>
+            <compilerarg value="--target=i686-w64-mingw32"/>
+            <linker name="${bullet.linux.compiler}" libtool="i686-w64-mingw32">
+                <linkerarg value="--target=i686-w64-mingw32"/>
+                <libset dir="build/bullet-base-mingw-64" libs="BulletMultiThreaded,BulletDynamics,BulletCollision,LinearMath"/>
+            </linker>
+        </cc>
+        <delete file="${bullet.output.dir}/windows/history.xml"/>
     </target>
     
     <target name="-nativelib-solaris" if="isSolaris">
