@@ -83,7 +83,11 @@ import com.jme3.util.BufferUtils;
 	 *             corrupted
 	 */
 	public ArmatureModifier(Structure objectStructure, Structure modifierStructure, BlenderContext blenderContext) throws BlenderFileException {
-		if (this.validate(modifierStructure, blenderContext)) {
+		Structure meshStructure = ((Pointer) objectStructure.getFieldValue("data")).fetchData(blenderContext.getInputStream()).get(0);
+		Pointer pDvert = (Pointer) meshStructure.getFieldValue("dvert");// dvert = DeformVERTices
+		
+		//if pDvert==null then there are not vertex groups and no need to load skeleton (untill bone envelopes are supported)
+		if (this.validate(modifierStructure, blenderContext) && pDvert.isNotNull()) {
 			Pointer pArmatureObject = (Pointer) modifierStructure.getFieldValue("object");
 			if (pArmatureObject.isNotNull()) {
 				ArmatureHelper armatureHelper = blenderContext.getHelper(ArmatureHelper.class);
@@ -116,7 +120,6 @@ import com.jme3.util.BufferUtils;
 				Skeleton skeleton = new Skeleton(bonesList.toArray(new Bone[bonesList.size()]));
 
 				// read mesh indexes
-				Structure meshStructure = ((Pointer) objectStructure.getFieldValue("data")).fetchData(blenderContext.getInputStream()).get(0);
 				this.meshOMA = meshStructure.getOldMemoryAddress();
 				this.readVerticesWeightsData(objectStructure, meshStructure, skeleton, blenderContext);
 
