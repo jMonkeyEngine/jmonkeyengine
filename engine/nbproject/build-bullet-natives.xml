@@ -338,7 +338,7 @@
         <available file="${ndk.dir}/${ndk-build-name}" property="haveAndoidNdk"/>
     </target>
     
-    <target name="compile-bullet-sources" description="downloads and compiles the bullet native library to static binaries to be included in the final libbulletjme" depends="-get-bullet-sources, -compile-bullet-sources-windows, -compile-bullet-sources-macosx, -compile-bullet-sources-linux, -compile-bullet-sources-linux-64"/>
+    <target name="compile-bullet-sources" description="downloads and compiles the bullet native library to static binaries to be included in the final libbulletjme" depends="-get-bullet-sources, -compile-bullet-sources-windows, -compile-bullet-sources-macosx, -compile-bullet-sources-linux, -compile-bullet-sources-linux-64, -compile-bullet-sources-linux-mingw-64"/>
 
     <target name="-get-bullet-sources" depends="-check-bullet-sources" unless="haveBulletSource">
         <echo>Downloading bullet source..</echo>
@@ -351,19 +351,28 @@
         <available file="${bullet.folder}" property="haveBulletSource"/>
         <available file="build/bullet-base/libBulletMultiThreaded.a" property="haveBulletLibrary"/>
         <available file="build/bullet-base-64/libBulletMultiThreaded.a" property="haveBulletLibrary64"/>
+        <available file="build/bullet-base-mingw/libBulletMultiThreaded.a" property="haveBulletLibraryMingw"/>
+        <available file="build/bullet-base-mingw-64/libBulletMultiThreaded.a" property="haveBulletLibraryMingw64"/>
     </target>
     
     <target name="-compile-bullet-sources-windows" if="isWindows">
         <replace file="${bullet.folder}/CMakeLists.txt" token="#TODO add better GLUT detection for MinGW" value="           INCLUDE_DIRECTORIES($${BULLET_PHYSICS_SOURCE_DIR}/Glut)${line.separator}SET(GLUT_glut_LIBRARY $${BULLET_PHYSICS_SOURCE_DIR}/Glut/glut32.lib)"/>
+        <!--property name="cross.compile.target" value="x86_64-w64-mingw32"/-->
+        <property name="cross.compile.target" value="x86_64-w64-mingw32"/>
         <exec executable="${cmake.windows}" dir="${bullet.folder}" failonerror="true">
-            <arg value="."/>
             <arg value="-DBUILD_SHARED_LIBS=OFF"/>
             <arg value="-DBUILD_EXTRAS:BOOL=OFF"/>
             <arg value="-DBUILD_DEMOS:BOOL=OFF"/>
             <arg value="-DCMAKE_BUILD_TYPE=Release"/>
-            <arg value="."/>
-            <arg value="-G"/>
-            <arg value='"MinGW Makefiles"'/>
+
+            <arg value="-DCMAKE_SYSTEM_NAME=Windows"/>
+            <arg value="-DCMAKE_C_COMPILER=${cross.compile.target}-gcc"/>
+            <arg value="-DCMAKE_CXX_COMPILER=${cross.compile.target}-g++"/>
+            <arg value="-DCMAKE_RC_COMPILER=${cross.compile.target}-windres"/>
+            <arg value="-DCMAKE_FIND_ROOT_PATH=/usr/${cross.compile.target}"/>
+            <arg value="-DCMAKE_FIND_ROOT_PATH_MODE_PROGRAM=NEVER"/>
+            <arg value="-DCMAKE_FIND_ROOT_PATH_MODE_LIBRARY=ONLY"/>
+            <arg value="-DCMAKE_FIND_ROOT_PATH_MODE_INCLUDE=ONLY"/>
         </exec>
         <exec executable="${make.windows}" dir="${bullet.folder}"/>
     </target>
@@ -417,4 +426,26 @@
         <exec executable="${make.linux}" dir="${bullet.folder}"/>
     </target>
 
+    <target name="-compile-bullet-sources-linux-mingw-64" if="isLinux64" unless="haveBulletLibraryMingw64">
+        <property name="cross.compile.target" value="x86_64-w64-mingw32"/>
+        <mkdir dir="build/bullet-base-mingw-64"/>
+        <property location="build/bullet-base-mingw-64" name="build-mingw64.folder.resolved"/>
+        <exec executable="${cmake.linux}" dir="${bullet.folder}" failonerror="true">
+            <arg value="-DLIBRARY_OUTPUT_PATH='${build-mingw64.folder.resolved}'"/>
+            <arg value="-DBUILD_SHARED_LIBS=OFF"/>
+            <arg value="-DBUILD_EXTRAS=OFF"/>
+            <arg value="-DBUILD_DEMOS=OFF"/>
+            <arg value="-DCMAKE_BUILD_TYPE=Release"/>
+
+            <arg value="-DCMAKE_SYSTEM_NAME=Windows"/>
+            <arg value="-DCMAKE_C_COMPILER=${cross.compile.target}-gcc"/>
+            <arg value="-DCMAKE_CXX_COMPILER=${cross.compile.target}-g++"/>
+            <arg value="-DCMAKE_RC_COMPILER=${cross.compile.target}-windres"/>
+            <arg value="-DCMAKE_FIND_ROOT_PATH=/usr/${cross.compile.target}"/>
+            <arg value="-DCMAKE_FIND_ROOT_PATH_MODE_PROGRAM=NEVER"/>
+            <arg value="-DCMAKE_FIND_ROOT_PATH_MODE_LIBRARY=ONLY"/>
+            <arg value="-DCMAKE_FIND_ROOT_PATH_MODE_INCLUDE=ONLY"/>
+        </exec>
+        <exec executable="${make.linux}" dir="${bullet.folder}"/>
+    </target>
 </project>
