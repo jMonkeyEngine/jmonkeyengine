@@ -63,7 +63,6 @@ public final class MaterialContext {
 		int mode = ((Number) structure.getFieldValue("mode")).intValue();
 		shadeless = (mode & 0x4) != 0;
 		vertexColor = (mode & 0x80) != 0;
-		transparent = (mode & 0x10000) != 0;
 		vTangent = (mode & 0x4000000) != 0; // NOTE: Requires tangents
 
 		int diff_shader = ((Number) structure.getFieldValue("diff_shader")).intValue();
@@ -90,6 +89,7 @@ public final class MaterialContext {
 			float shininess = ((Number) structure.getFieldValue("emit")).floatValue();
 			this.shininess = shininess > 0.0f ? shininess : MaterialHelper.DEFAULT_SHININESS;
 		}
+		
 		float[] diffuseColorArray = new float[] {diffuseColor.r, diffuseColor.g, diffuseColor.b, diffuseColor.a};//TODO: czy trzeba wstawiac te dane?
 		
 		mTexs = new ArrayList<Structure>();
@@ -161,6 +161,21 @@ public final class MaterialContext {
 
 		this.texturesCount = mTexs.size();
 		this.textureType = firstTextureType;
+		
+		//veryfying if  the transparency is present
+		//(in blender transparent mask is 0x10000 but its better to verify it because blender can indicate transparency when
+		//it is not required
+		boolean transparent = false;
+		if(diffuseColor != null) {
+			transparent = diffuseColor.a < 1.0f;
+		}
+		if(specularColor != null) {
+			transparent = transparent || specularColor.a < 1.0f;
+		}
+		if(ambientColor != null) {
+			transparent = transparent || ambientColor.a < 1.0f;
+		}
+		this.transparent = transparent;
 	}
 	
 	/**
