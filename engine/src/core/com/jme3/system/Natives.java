@@ -268,7 +268,7 @@ public final class Natives {
                     extractNativeLib("linux", "openal64");
                 }
                 if (needNativeBullet) {
-                    extractNativeLib("linux", "bulletjme", true, false);
+                    extractNativeLib("linux", "bulletjme64", true, false);
                 }
                 break;
             case Linux32:
