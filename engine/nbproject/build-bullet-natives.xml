@@ -165,6 +165,8 @@
         <mkdir dir="${bullet.output.dir}"/>
         <mkdir dir="build/bullet-native"/>
         <mkdir dir="build/bullet-native-64"/>
+        <mkdir dir="build/bullet-native-mingw"/>
+        <mkdir dir="build/bullet-native-mingw-64"/>
     </target>
     
     <target name="-nativelib-osx" if="isMac">
@@ -430,7 +432,7 @@
                                 message('Win64 using Glut/glut64.lib')${line.separator}
                                 SET(GLUT_glut_LIBRARY $${BULLET_PHYSICS_SOURCE_DIR}/Glut/glut64.lib)${line.separator}
                         ENDIF (WIN32)${line.separator}"/>
-        <property name="cross.compile.target" value="x86_64-w64-mingw32"/>
+        <property name="cross.compile.target" value="i686-w64-mingw32"/>
         <mkdir dir="build/bullet-base-mingw-64"/>
         <property location="build/bullet-base-mingw-64" name="build-mingw64.folder.resolved"/>
         <exec executable="${cmake.linux}" dir="${bullet.folder}" failonerror="true">
