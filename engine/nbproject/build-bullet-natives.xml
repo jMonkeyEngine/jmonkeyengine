@@ -14,11 +14,9 @@
             <os family="unix" />
         </and>
     </condition>
-    <!-- condition for windows platform check -->
     <condition property="isWindows">
         <os family="windows" />
     </condition>
-    <!-- condition for linux platform check -->
     <condition property="isLinux">
         <and>
             <os family="unix"/>
@@ -30,14 +28,37 @@
             </not>
         </and>
     </condition>
-    <!-- condition for x86_64 check -->
     <condition property="is64bit">
         <or>
             <os arch="x86_64" />
             <os arch="amd64" />
         </or>
     </condition>
-    
+    <condition property="isWindows64">
+        <and>
+            <os family="windows" />
+            <or>
+                <os arch="x86_64" />
+                <os arch="amd64" />
+            </or>
+        </and>
+    </condition>
+    <condition property="isLinux64">
+        <and>
+            <os family="unix"/>
+            <not>
+                <os family="mac"/>
+            </not>
+            <not>
+                <os name="SunOS"/>
+            </not>
+            <or>
+                <os arch="x86_64" />
+                <os arch="amd64" />
+            </or>
+        </and>
+    </condition>
+
     <condition property="ndk-build-name" value="ndk-build.cmd" else="ndk-build">
         <os family="windows" />
     </condition>
@@ -197,7 +218,7 @@
         <delete file="${bullet.output.dir}/linux/history.xml"/>
     </target>
     
-    <target name="-nativelib-linux-64" if="isLinux,is64bit">
+    <target name="-nativelib-linux-64" if="isLinux64">
         <echo message="Building Linux version of native bullet"/>
         <mkdir dir="${bullet.output.dir}/linux"/>
         <cc name="${bullet.linux.compiler}" warnings="severe" debug="${bullet.compile.debug}" link="shared" outfile="${bullet.output.dir}/linux/${bullet.library.name}64" objdir="build/bullet-native64">
@@ -379,7 +400,7 @@
         <exec executable="${make.linux}" dir="${bullet.folder}"/>
     </target>
 
-    <target name="-compile-bullet-sources-linux-64" if="isLinux,is64bit" unless="haveBulletLibrary64">
+    <target name="-compile-bullet-sources-linux-64" if="isLinux64" unless="haveBulletLibrary64">
         <mkdir dir="build/bullet-base-64"/>
         <property location="build/bullet-base-64" name="build64.folder.resolved"/>
         <exec executable="${cmake.linux}" dir="${bullet.folder}" failonerror="true">
