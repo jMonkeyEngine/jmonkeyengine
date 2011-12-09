@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<nifty xmlns="http://nifty-gui.sourceforge.net/nifty.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://nifty-gui.sourceforge.net/nifty.xsd http://nifty-gui.sourceforge.net/nifty.xsd">
-  <screen id="start" controller="de.lessvoid.nifty.examples.helloworld.HelloWorldStartScreen">
+<nifty>
+  <screen id="start" controller="jme3test.niftygui.TestNiftyGui">
     <layer id="layer" backgroundColor="#0000" childLayout="center">
-      <panel id="panel"  width="100%"  backgroundColor="#0000" childLayout="center" visibleToMouse="true" >
+      <panel id="panel"  width="100%" height="100%" backgroundColor="#0000" childLayout="center" visibleToMouse="true" >
           <text id="text" font="aurulent-sans-16.fnt" color="#000f" text="" align="center" valign="bottom"  />
       </panel>
     </layer>

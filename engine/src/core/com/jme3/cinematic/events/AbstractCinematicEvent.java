@@ -320,4 +320,23 @@ public abstract class AbstractCinematicEvent implements CinematicEvent {
     public void removeListener(CinematicEventListener listener) {
         getListeners().remove(listener);
     }
+
+    /**
+     * When this method is invoked, the event should fast forward to the given time according tim 0 is the start of the event.
+     * @param time the time to fast forward to
+     */
+    public void setTime(float time) {
+        elapsedTimePause = time/speed;
+        if(playState == PlayState.Playing){
+            start = timer.getTimeInSeconds();
+        }
+    }
+
+    public float getTime() {
+        return time;
+    }
+    
+    
+    
+    
 }

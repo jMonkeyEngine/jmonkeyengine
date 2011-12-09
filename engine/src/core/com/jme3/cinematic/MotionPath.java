@@ -38,6 +38,7 @@ import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Spline;
 import com.jme3.math.Spline.SplineType;
+import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
@@ -68,39 +69,60 @@ public class MotionPath implements Savable {
     }
 
     /**
-     * interpolate the path giving the tpf and the motionControl     
+     * interpolate the path giving the time since the beginnin and the motionControl     
      * this methods sets the new localTranslation to the spatial of the motionTrack control.
-     * @param tpf
-     * @param control   
+     * @param time the time since the animation started
+     * @param control the ocntrol over the moving spatial
      */
-    public void interpolatePath(float tpf, MotionTrack control) {
+    public float interpolatePath(float time, MotionTrack control) {
 
         float val;
+        float traveledDistance = 0;
         TempVars vars = TempVars.get();
         Vector3f temp = vars.vect1;
         Vector3f tmpVector = vars.vect2;
         switch (spline.getType()) {
             case CatmullRom:
 
-                val = tpf * (spline.getTotalLength() / control.getDuration());
-                control.setCurrentValue(control.getCurrentValue() + eps);
-                spline.interpolate(control.getCurrentValue(), control.getCurrentWayPoint(), temp);
-                float dist = getDist(control,temp, tmpVector);
+                //this iterative process is done to keep the spatial travel at a constant speed on the path even if 
+                //waypoints are not equally spread over the path
 
+                // we compute the theorical distance that the spatial should travel on this frame
+                val = (time * (spline.getTotalLength() / control.getDuration())) - control.getTraveledDistance();
+                //adding and epsilon value to the control currents value
+                control.setCurrentValue(control.getCurrentValue() + eps);
+                //computing the new position at current value
+                spline.interpolate(control.getCurrentValue(), control.getCurrentWayPoint(), temp);
+                //computing traveled distance at current value
+                float dist = getDist(control, temp, tmpVector);
+
+                //While the distance traveled this frame is below the theorical distance we iterate the obove computation
                 while (dist < val) {
+                    //storing the distance traveled this frame
+                    traveledDistance = dist;
                     control.setCurrentValue(control.getCurrentValue() + eps);
                     spline.interpolate(control.getCurrentValue(), control.getCurrentWayPoint(), temp);
-                    dist = getDist(control,temp, tmpVector);
+                    dist = getDist(control, temp, tmpVector);
                 }
+                //compute the direction of the spline
                 if (control.needsDirection()) {
                     tmpVector.set(temp);
                     control.setDirection(tmpVector.subtractLocal(control.getSpatial().getLocalTranslation()).normalizeLocal());
                 }
+                //updating traveled distance to the total distance traveled by the spatial since the start
+                traveledDistance += control.getTraveledDistance();
                 break;
             case Linear:
-                val = control.getDuration() * spline.getSegmentsLength().get(control.getCurrentWayPoint()) / spline.getTotalLength();
-                control.setCurrentValue(Math.min(control.getCurrentValue() + tpf / val, 1.0f));
+                //distance traveled this frame
+                val = (time * (spline.getTotalLength() / control.getDuration())) - control.getTraveledDistance();
+                // computing total traveled distance
+                traveledDistance = control.getTraveledDistance() + val;
+                //computing interpolation ratio for this frame
+                val = val / spline.getSegmentsLength().get(control.getCurrentWayPoint());
+                control.setCurrentValue(Math.min(control.getCurrentValue() + val, 1.0f));
+                //interpolationg position
                 spline.interpolate(control.getCurrentValue(), control.getCurrentWayPoint(), temp);
+                //computing line direction
                 if (control.needsDirection()) {
                     tmpVector.set(spline.getControlPoints().get(control.getCurrentWayPoint() + 1));
                     control.setDirection(tmpVector.subtractLocal(spline.getControlPoints().get(control.getCurrentWayPoint())).normalizeLocal());
@@ -111,11 +133,19 @@ public class MotionPath implements Savable {
         }
         control.getSpatial().setLocalTranslation(temp);
         vars.release();
+        return traveledDistance;
     }
 
-    private float getDist(MotionTrack control,Vector3f temp, Vector3f tmpVector) {
-        tmpVector.set(temp);
-        return tmpVector.subtractLocal(control.getSpatial().getLocalTranslation()).length();
+    /**
+     * computes the distance between the spatial position and the temp vector.
+     * @param control the control holding the psatial 
+     * @param temp the temp position
+     * @param store a temp vector3f to store the result
+     * @return 
+     */
+    private float getDist(MotionTrack control, Vector3f temp, Vector3f store) {
+        store.set(temp);
+        return store.subtractLocal(control.getSpatial().getLocalTranslation()).length();
     }
 
     private void attachDebugNode(Node root) {
@@ -176,6 +206,26 @@ public class MotionPath implements Savable {
         InputCapsule in = im.getCapsule(this);
         spline = (Spline) in.readSavable("spline", null);
 
+    }
+
+    /**
+     * compute the index of the waypoint and the interpolation value according to a distance
+     * returns a vector 2 containing the index in the x field and the interpolation value in the y field
+     * @param distance the distance traveled on this path
+     * @return the waypoint index and the interpolation value in a vector2
+     */
+    public Vector2f getWayPointIndexForDistance(float distance) {
+        float sum = 0;
+        distance = distance % spline.getTotalLength();
+        int i = 0;
+        for (Float len : spline.getSegmentsLength()) {
+            if (sum + len >= distance) {
+                return new Vector2f((float) i, (distance - sum) / len);
+            }
+            sum += len;
+            i++;
+        }
+        return new Vector2f((float) spline.getControlPoints().size() - 1, 1.0f);
     }
 
     /**
@@ -332,10 +382,10 @@ public class MotionPath implements Savable {
         }
     }
 
-    public void clearWayPoints(){
+    public void clearWayPoints() {
         spline.clearControlPoints();
     }
-    
+
     /**
      * Sets the path to be a cycle
      * @param cycle
@@ -359,5 +409,9 @@ public class MotionPath implements Savable {
      */
     public boolean isCycle() {
         return spline.isCycle();
+    }
+
+    public Spline getSpline() {
+        return spline;
     }
 }

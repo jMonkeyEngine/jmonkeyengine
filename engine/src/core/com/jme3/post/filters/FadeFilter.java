@@ -136,6 +136,10 @@ public class FadeFilter extends Filter {
 
     }
 
+    public void pause() {
+        playing = false;
+    }
+    
     @Override
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
@@ -165,6 +169,9 @@ public class FadeFilter extends Filter {
      * @param value 
      */
     public void setValue(float value) {
-        this.value = value;
+        this.value = value;       
+        if (material != null) {
+            material.setFloat("Value", value);
+        }
     }
 }

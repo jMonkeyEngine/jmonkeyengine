@@ -110,13 +110,17 @@ public class SoundTrack extends AbstractCinematicEvent {
         super.initEvent(app, cinematic);
         audioNode = new AudioNode(app.getAssetManager(), path, stream);
         setLoopMode(loopMode);
+    }
 
+    @Override
+    public void setTime(float time) {
+        super.setTime(time);
+        //TODO has to be implemented in the audioRenderer
     }
 
     @Override
     public void onPlay() {
-        audioNode.play();
-        
+        audioNode.play();        
     }
 
     @Override

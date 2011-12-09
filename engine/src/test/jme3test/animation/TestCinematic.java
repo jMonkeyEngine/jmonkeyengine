@@ -57,7 +57,6 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Box;
 import com.jme3.shadow.PssmShadowRenderer;
-import com.jme3.system.NanoTimer;
 import de.lessvoid.nifty.Nifty;
 
 public class TestCinematic extends SimpleApplication {
@@ -70,6 +69,7 @@ public class TestCinematic extends SimpleApplication {
     private ChaseCamera chaseCam;
     private FilterPostProcessor fpp;
     private FadeFilter fade;
+    private float time = 0;
 
     public static void main(String[] args) {
         TestCinematic app = new TestCinematic();
@@ -101,33 +101,13 @@ public class TestCinematic extends SimpleApplication {
         createScene();
 
         cinematic = new Cinematic(rootNode, 20);
-//        cinematic.bindUi("Interface/Nifty/CinematicTest.xml");
         stateManager.attach(cinematic);
 
         createCameraMotion();
 
 
-        cinematic.addCinematicEvent(0, new AbstractCinematicEvent() {
-
-            @Override
-            public void onPlay() {
-                fade.setDuration(1f / cinematic.getSpeed());
-                fade.setValue(0);
-                fade.fadeIn();
-            }
-
-            @Override
-            public void onUpdate(float tpf) {
-            }
-
-            @Override
-            public void onStop() {
-            }
-
-            @Override
-            public void onPause() {
-            }
-        });
+        //fade in
+        cinematic.addCinematicEvent(0, new FadeEvent(true));
         cinematic.addCinematicEvent(0, new PositionTrack(teapot, new Vector3f(10, 0, 10), 0));
         cinematic.addCinematicEvent(0, new ScaleTrack(teapot, new Vector3f(1, 1, 1), 0));
         Quaternion q = new Quaternion();
@@ -143,46 +123,45 @@ public class TestCinematic extends SimpleApplication {
         cinematic.activateCamera(0, "aroundCam");
         cinematic.addCinematicEvent(0, cameraMotionTrack);
         cinematic.addCinematicEvent(0, new SoundTrack("Sound/Environment/Nature.ogg", LoopMode.Loop));
-        cinematic.addCinematicEvent(3, new SoundTrack("Sound/Effects/kick.wav"));
+        cinematic.addCinematicEvent(3f, new SoundTrack("Sound/Effects/kick.wav"));
         cinematic.addCinematicEvent(3, new SubtitleTrack(nifty, "start", 3, "jMonkey engine really kicks A..."));
-        cinematic.addCinematicEvent(5.0f, new SoundTrack("Sound/Effects/Beep.ogg", 1));
-        cinematic.addCinematicEvent(6, new AnimationTrack(model, "Walk", LoopMode.Loop));
+        cinematic.addCinematicEvent(5.1f, new SoundTrack("Sound/Effects/Beep.ogg", 1));
+        cinematic.addCinematicEvent(2, new AnimationTrack(model, "Walk", LoopMode.Loop));
         cinematic.activateCamera(6, "topView");
         cinematic.activateCamera(10, "aroundCam");
 
-        cinematic.addCinematicEvent(19, new AbstractCinematicEvent() {
+        //fade out
+        cinematic.addCinematicEvent(19, new FadeEvent(false));
+//        cinematic.addCinematicEvent(19, new AbstractCinematicEvent() {
+//
+//            @Override
+//            public void onPlay() {
+//                fade.setDuration(1f / cinematic.getSpeed());
+//                fade.fadeOut();
+//
+//            }
+//
+//            @Override
+//            public void onUpdate(float tpf) {
+//            }
+//
+//            @Override
+//            public void onStop() {
+//            }
+//
+//            @Override
+//            public void onPause() {
+//            }
+//        });
 
-            @Override
-            public void onPlay() {
-                fade.setDuration(1f / cinematic.getSpeed());
-                fade.fadeOut();
-            }
-
-            @Override
-            public void onUpdate(float tpf) {
-            }
-
-            @Override
-            public void onStop() {
-            }
-
-            @Override
-            public void onPause() {
-            }
-        });
-
-        final NanoTimer myTimer = new NanoTimer();
         cinematic.addListener(new CinematicEventListener() {
 
             public void onPlay(CinematicEvent cinematic) {
                 chaseCam.setEnabled(false);
-                myTimer.reset();
-
                 System.out.println("play");
             }
 
             public void onPause(CinematicEvent cinematic) {
-                chaseCam.setEnabled(true);
                 System.out.println("pause");
             }
 
@@ -190,12 +169,10 @@ public class TestCinematic extends SimpleApplication {
                 chaseCam.setEnabled(true);
                 fade.setValue(1);
                 System.out.println("stop");
-                System.out.println((float) myTimer.getTime() / (float) myTimer.getResolution());
-
             }
         });
 
-        cinematic.setSpeed(2);
+        //cinematic.setSpeed(2);
         flyCam.setEnabled(false);
         chaseCam = new ChaseCamera(cam, model, inputManager);
         initInputs();
@@ -269,19 +246,90 @@ public class TestCinematic extends SimpleApplication {
 
     private void initInputs() {
         inputManager.addMapping("togglePause", new KeyTrigger(keyInput.KEY_RETURN));
+        inputManager.addMapping("navFwd", new KeyTrigger(keyInput.KEY_RIGHT));
+        inputManager.addMapping("navBack", new KeyTrigger(keyInput.KEY_LEFT));
         ActionListener acl = new ActionListener() {
 
             public void onAction(String name, boolean keyPressed, float tpf) {
                 if (name.equals("togglePause") && keyPressed) {
                     if (cinematic.getPlayState() == PlayState.Playing) {
                         cinematic.pause();
+                        time = cinematic.getTime();
                     } else {
                         cinematic.play();
                     }
                 }
 
+                if (cinematic.getPlayState() != PlayState.Playing) {
+                    if (name.equals("navFwd") && keyPressed) {
+                        time += 0.25;
+                        FastMath.clamp(time, 0, cinematic.getInitialDuration());
+                        cinematic.setTime(time);
+                    }
+                    if (name.equals("navBack") && keyPressed) {
+                        time -= 0.25;
+                        FastMath.clamp(time, 0, cinematic.getInitialDuration());
+                        cinematic.setTime(time);
+                    }
+
+                }
             }
         };
-        inputManager.addListener(acl, "togglePause");
+        inputManager.addListener(acl, "togglePause", "navFwd", "navBack");
+    }
+
+    private class FadeEvent extends AbstractCinematicEvent {
+
+        boolean in = true;
+        float value = 0;        
+
+        public FadeEvent(boolean in) {
+            super(1);
+            this.in = in;
+            value = in ? 0 : 1;
+        }
+
+        @Override
+        public void onPlay() {
+            
+            fade.setDuration(1f / cinematic.getSpeed());
+            if (in) {
+                fade.fadeIn();
+            } else {
+                fade.fadeOut();
+            }
+            fade.setValue(value);
+
+        }
+
+        @Override
+        public void setTime(float time) {
+            super.setTime(time);
+            if (time >= fade.getDuration()) {
+                value = in ? 1 : 0;
+                fade.setValue(value);
+            } else {
+                value = time;
+                if (in) {
+                    fade.setValue(time / cinematic.getSpeed());
+                } else {
+                    fade.setValue(1 - time / cinematic.getSpeed());
+                }
+            }
+        }
+
+        @Override
+        public void onUpdate(float tpf) {
+        }
+
+        @Override
+        public void onStop() {
+        }
+
+        @Override
+        public void onPause() {
+            value = fade.getValue();
+            fade.pause();
+        }
     }
 }

@@ -60,7 +60,7 @@ public interface CinematicEvent extends Savable {
 
     /**
      * Returns the actual duration of the animation
-     * @return
+     * @return the duration
      */
     public float getDuration();
 
@@ -72,13 +72,13 @@ public interface CinematicEvent extends Savable {
 
     /**
      * returns the speed of the animation
-     * @return
+     * @return the speed
      */
     public float getSpeed();
 
     /**
      * returns the PlayState of the animation
-     * @return
+     * @return the plat state
      */
     public PlayState getPlayState();
 
@@ -104,7 +104,7 @@ public interface CinematicEvent extends Savable {
 
     /**
      * returns the initial duration of the animation at speed = 1 in seconds.
-     * @return
+     * @return the initial duration
      */
     public float getInitialDuration();
 
@@ -114,8 +114,30 @@ public interface CinematicEvent extends Savable {
      */
     public void setInitialDuration(float initialDuration);
 
+    /**
+     * called internally in the update method, place here anything you want to run in the update loop
+     * @param tpf time per frame
+     */
     public void internalUpdate(float tpf);
 
+    /**
+     * initialize this event
+     * @param app the application
+     * @param cinematic the cinematic
+     */
     public void initEvent(Application app, Cinematic cinematic);
-
+    
+    /**
+     * When this method is invoked, the event should fast forward to the given time according tim 0 is the start of the event.
+     * @param time the time to fast forward to
+     */
+    public void setTime(float time);
+    
+    /**
+     * returns the current time of the cinematic event
+     * @return the time
+     */
+    public float getTime();
+        
+    
 }

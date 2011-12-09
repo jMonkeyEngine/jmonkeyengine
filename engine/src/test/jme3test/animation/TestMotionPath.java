@@ -83,7 +83,7 @@ public class TestMotionPath extends SimpleApplication {
         motionControl.setDirectionType(MotionTrack.Direction.PathAndRotation);
         motionControl.setRotation(new Quaternion().fromAngleNormalAxis(-FastMath.HALF_PI, Vector3f.UNIT_Y));
         motionControl.setInitialDuration(10f);
-        motionControl.setSpeed(0.1f);
+        motionControl.setSpeed(2f);
 
         guiFont = assetManager.loadFont("Interface/Fonts/Default.fnt");
         final BitmapText wayPointsText = new BitmapText(guiFont, false);

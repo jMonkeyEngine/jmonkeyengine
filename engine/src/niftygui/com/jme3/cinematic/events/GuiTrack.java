@@ -52,36 +52,34 @@ public class GuiTrack extends AbstractCinematicEvent {
 
     public GuiTrack() {
     }
-    
+
     public GuiTrack(Nifty nifty, String screen) {
         this.screen = screen;
+        this.nifty = nifty;
     }
 
     public GuiTrack(Nifty nifty, String screen, float initialDuration) {
         super(initialDuration);
         this.screen = screen;
-
+        this.nifty = nifty;
     }
 
     public GuiTrack(Nifty nifty, String screen, LoopMode loopMode) {
         super(loopMode);
         this.screen = screen;
+        this.nifty = nifty;
     }
 
     public GuiTrack(Nifty nifty, String screen, float initialDuration, LoopMode loopMode) {
         super(initialDuration, loopMode);
         this.screen = screen;
-    }
-
-    @Override
-    public void initEvent(Application app, Cinematic cinematic) {
-        super.initEvent(app, cinematic);
-//        nifty = cinematic.getNifty();
+        this.nifty = nifty;
     }
 
     @Override
     public void onPlay() {
-        nifty.gotoScreen(screen);        
+        System.out.println("screen should be "+screen);
+        nifty.gotoScreen(screen);
     }
 
     @Override

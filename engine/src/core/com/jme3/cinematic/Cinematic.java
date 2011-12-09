@@ -37,11 +37,13 @@ import com.jme3.app.state.AppState;
 import com.jme3.app.state.AppStateManager;
 import com.jme3.cinematic.events.AbstractCinematicEvent;
 import com.jme3.cinematic.events.CinematicEvent;
+import com.jme3.cinematic.events.CinematicEventListener;
 import com.jme3.export.*;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.RenderManager;
 import com.jme3.scene.CameraNode;
 import com.jme3.scene.Node;
+import com.jme3.scene.control.CameraControl;
 import com.jme3.scene.control.CameraControl.ControlDirection;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -58,7 +60,6 @@ import java.util.logging.Logger;
 public class Cinematic extends AbstractCinematicEvent implements AppState {
 
     private static final Logger logger = Logger.getLogger(Application.class.getName());
-    private String niftyXmlPath = null;
     private Node scene;
     protected TimeLine timeLine = new TimeLine();
     private int lastFetchedKeyFrame = -1;
@@ -66,8 +67,8 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
     private Map<String, CameraNode> cameras = new HashMap<String, CameraNode>();
     private CameraNode currentCam;
     private boolean initialized = false;
-//    private Nifty nifty = null;
     private Map<String, Map<String, Object>> eventsData;
+    private int scheduledPause = -1;
 
     public Cinematic() {
     }
@@ -94,7 +95,8 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
     @Override
     public void onPlay() {
         if (isInitialized()) {
-            enableCurrentCam(true);
+            scheduledPause = -1;
+            //enableCurrentCam(true);
             if (playState == PlayState.Paused) {
                 for (int i = 0; i < cinematicEvents.size(); i++) {
                     CinematicEvent ce = cinematicEvents.get(i);
@@ -125,7 +127,6 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
                 ce.pause();
             }
         }
-        enableCurrentCam(false);
     }
 
     @Override
@@ -136,8 +137,6 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
         oc.writeSavableArrayList((ArrayList) cinematicEvents, "cinematicEvents", null);
         oc.writeStringSavableMap(cameras, "cameras", null);
         oc.write(timeLine, "timeLine", null);
-        oc.write(niftyXmlPath, "niftyXmlPath", null);
-
 
     }
 
@@ -149,12 +148,6 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
         cinematicEvents = ic.readSavableArrayList("cinematicEvents", null);
         cameras = (Map<String, CameraNode>) ic.readStringSavableMap("cameras", null);
         timeLine = (TimeLine) ic.readSavable("timeLine", null);
-        niftyXmlPath = ic.readString("niftyXmlPath", null);
-
-    }
-
-    public void bindUi(String xmlPath) {
-        niftyXmlPath = xmlPath;
     }
 
     @Override
@@ -169,21 +162,10 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
     }
 
     public void initialize(AppStateManager stateManager, Application app) {
-        if (niftyXmlPath != null) {
-//            NiftyJmeDisplay niftyDisplay = new NiftyJmeDisplay(app.getAssetManager(),
-//                    app.getInputManager(),
-//                    app.getAudioRenderer(),
-//                    app.getGuiViewPort());
-//            nifty = niftyDisplay.getNifty();
-//            nifty.fromXmlWithoutStartScreen(niftyXmlPath);
-//            app.getGuiViewPort().addProcessor(niftyDisplay);
-        }
         initEvent(app, this);
         for (CinematicEvent cinematicEvent : cinematicEvents) {
             cinematicEvent.initEvent(app, this);
         }
-
-
 
         initialized = true;
     }
@@ -215,8 +197,22 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
         }
     }
 
+    private void step() {
+        if (playState != PlayState.Playing) {
+            play();
+            scheduledPause = 2;
+        }
+    }
+
     @Override
     public void onUpdate(float tpf) {
+        if (scheduledPause >= 0) {
+            if (scheduledPause == 0) {
+                pause();
+            }
+            scheduledPause--;
+        }
+
         for (int i = 0; i < cinematicEvents.size(); i++) {
             CinematicEvent ce = cinematicEvents.get(i);
             ce.internalUpdate(tpf);
@@ -233,6 +229,28 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
         }
 
         lastFetchedKeyFrame = keyFrameIndex;
+    }
+
+    @Override
+    public void setTime(float time) {
+        super.setTime(time);     
+        int keyFrameIndex = timeLine.getKeyFrameIndexFromTime(time);
+
+        //triggering all the event from start to "time" 
+        //then computing timeOffset for each event
+        for (int i = 0; i <= keyFrameIndex; i++) {
+            KeyFrame keyFrame = timeLine.get(i);
+            if (keyFrame != null) {
+                for (CinematicEvent ce : keyFrame.getCinematicEvents()) {
+                    if (playState == PlayState.Playing) {
+                        ce.play();
+                    }
+                    ce.setTime(time - timeLine.getKeyFrameTime(keyFrame));
+                }
+            }
+        }
+
+        step();
     }
 
     public KeyFrame addCinematicEvent(float timeStamp, CinematicEvent cinematicEvent) {
@@ -255,6 +273,9 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
     public void cleanup() {
     }
 
+    /**
+     * fits the duration of the cinamatic to the duration of all its child cinematic events
+     */
     public void fitDuration() {
         KeyFrame kf = timeLine.getKeyFrameAtTime(timeLine.getLastKeyFrameIndex());
         float d = 0;
@@ -271,7 +292,7 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
     public CameraNode bindCamera(String cameraName, Camera cam) {
         CameraNode node = new CameraNode(cameraName, cam);
         node.setControlDir(ControlDirection.SpatialToCamera);
-        node.getControl(0).setEnabled(false);
+        node.getControl(CameraControl.class).setEnabled(false);
         cameras.put(cameraName, node);
         scene.attachChild(node);
         return node;
@@ -283,7 +304,7 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
 
     private void enableCurrentCam(boolean enabled) {
         if (currentCam != null) {
-            currentCam.getControl(0).setEnabled(enabled);
+            currentCam.getControl(CameraControl.class).setEnabled(enabled);
         }
     }
 
@@ -296,13 +317,18 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
         enableCurrentCam(true);
     }
 
-    public void activateCamera(float timeStamp, final String cameraName) {
+    public void activateCamera(final float timeStamp, final String cameraName) {
         addCinematicEvent(timeStamp, new AbstractCinematicEvent() {
+
+            @Override
+            public void play() {
+                super.play();
+                stop();
+            }
 
             @Override
             public void onPlay() {
                 setActiveCamera(cameraName);
-                stop();
             }
 
             @Override
@@ -316,16 +342,17 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
             @Override
             public void onPause() {
             }
+
+            @Override
+            public void setTime(float time) {
+                play();
+            }
         });
     }
 
     public void setScene(Node scene) {
         this.scene = scene;
     }
-
-//    public Nifty getNifty() {
-//        return nifty;
-//    }
 
     private Map<String, Map<String, Object>> getEventsData() {
         if (eventsData == null) {

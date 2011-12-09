@@ -41,11 +41,13 @@ import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
 import com.jme3.math.Quaternion;
+import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.control.Control;
+import com.jme3.util.TempVars;
 import java.io.IOException;
 
 /**
@@ -67,6 +69,11 @@ public class MotionTrack extends AbstractCinematicEvent implements Control {
     protected Direction directionType = Direction.None;
     protected MotionPath path;
     private boolean isControl = true;
+    
+    /**
+     * the distance traveled by the spatial on the path
+     */
+    protected float traveledDistance = 0;
 
 
     /**
@@ -167,18 +174,39 @@ public class MotionTrack extends AbstractCinematicEvent implements Control {
                 }
             }
         }
-
     }
 
     @Override
     public void initEvent(Application app, Cinematic cinematic) {
         super.initEvent(app, cinematic);
         isControl = false;
-       // timer = null;
     }
 
+    @Override
+    public void setTime(float time) {
+        super.setTime(time);        
+       
+        //computing traveled distance according to new time
+        traveledDistance = time * (path.getLength() / initialDuration);
+        
+        TempVars vars = TempVars.get();
+        Vector3f temp = vars.vect1;
+        //getting waypoint index and current value from new traveled distance
+        Vector2f v = path.getWayPointIndexForDistance(traveledDistance);
+        //setting values
+        currentWayPoint = (int)v.x;
+        setCurrentValue(v.y);
+        //interpolating new position
+        path.getSpline().interpolate(getCurrentValue(), getCurrentWayPoint(), temp);
+        //setting new position to the spatial
+        spatial.setLocalTranslation(temp);
+        vars.release();
+    }
+    
+   
+
     public void onUpdate(float tpf) {
-        path.interpolatePath(tpf * speed, this);
+        traveledDistance = path.interpolatePath(time, this);
         computeTargetDirection();
 
         if (currentValue >= 1.0f) {
@@ -192,7 +220,7 @@ public class MotionTrack extends AbstractCinematicEvent implements Control {
             } else {
                 stop();
             }
-        }
+        }       
     }
 
     @Override
@@ -423,4 +451,14 @@ public class MotionTrack extends AbstractCinematicEvent implements Control {
     public Spatial getSpatial() {
         return spatial;
     }
+    
+    /**
+     * return the distance traveled by the spatial on the path
+     * @return 
+     */
+    public float getTraveledDistance() {
+        return traveledDistance;
+    }
+
+    
 }
