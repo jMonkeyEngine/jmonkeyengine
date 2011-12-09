@@ -34,30 +34,6 @@
             <os arch="amd64" />
         </or>
     </condition>
-    <condition property="isWindows64">
-        <and>
-            <os family="windows" />
-            <or>
-                <os arch="x86_64" />
-                <os arch="amd64" />
-            </or>
-        </and>
-    </condition>
-    <condition property="isLinux64">
-        <and>
-            <os family="unix"/>
-            <not>
-                <os family="mac"/>
-            </not>
-            <not>
-                <os name="SunOS"/>
-            </not>
-            <or>
-                <os arch="x86_64" />
-                <os arch="amd64" />
-            </or>
-        </and>
-    </condition>
 
     <condition property="ndk-build-name" value="ndk-build.cmd" else="ndk-build">
         <os family="windows" />
@@ -74,8 +50,130 @@
         <fileset refid="lib.jars"/>
         <fileset refid="lib.jme.jars"/>
     </pathconvert>
+    
+    <target name="-check-conditions-pre">
+        <available file="${bullet.folder}" property="haveBulletSource"/>
+        <available file="build/bullet-base/libLinearMath.a" property="haveBulletLibrary"/>
+        <available file="build/bullet-base-64/libLinearMath.a" property="haveBulletLibrary64"/>
+        <available file="build/bullet-base-mingw/libLinearMath.a" property="haveBulletLibraryMingw"/>
+        <available file="build/bullet-base-mingw-64/libLinearMath.a" property="haveBulletLibraryMingw64"/>
+        <condition property="doDownloadBulletSource">
+            <not><istrue value="${haveBulletSource}"/></not>
+        </condition>
+        <condition property="doBuildMacBase">
+            <and>
+                <istrue value="${isMac}"/>
+                <isfalse value="${haveBulletLibrary}"/>
+            </and>
+        </condition>
+        <condition property="doBuildLinuxBase">
+            <and>
+                <istrue value="${isLinux}"/>
+                <or>
+                    <isfalse value="${is64bit}"/>
+                    <istrue value="${cross.compile}"/>
+                </or>
+                <isfalse value="${haveBulletLibrary}"/>
+            </and>
+        </condition>
+        <condition property="doBuildLinuxBase64">
+            <and>
+                <istrue value="${isLinux}"/>
+                <or>
+                    <istrue value="${is64bit}"/>
+                    <istrue value="${cross.compile}"/>
+                </or>
+                <isfalse value="${haveBulletLibrary64}"/>
+            </and>
+        </condition>
+        <condition property="doBuildLinuxBaseMingw">
+            <and>
+                <istrue value="${isLinux}"/>
+                <istrue value="${cross.compile}"/>
+                <isfalse value="${haveBulletLibraryMingw}"/>
+            </and>
+        </condition>
+        <condition property="doBuildLinuxBaseMingw64">
+            <and>
+                <istrue value="${isLinux}"/>
+                <istrue value="${cross.compile}"/>
+                <isfalse value="${haveBulletLibraryMingw64}"/>
+            </and>
+        </condition>
+        <condition property="doBuildWindowsBase">
+            <and>
+                <istrue value="${isWindows}"/>
+                <isfalse value="${haveBulletLibrary}"/>
+            </and>
+        </condition>
+        <condition property="doBuildSolarisBase">
+            <and>
+                <istrue value="${isSolaris}"/>
+                <isfalse value="${haveBulletLibrary}"/>
+            </and>
+        </condition>
+    </target>
 
-    <target name="build-bullet-natives" description="builds the native bullet library for the platform being run on and for android if NDK available" depends="create-native-headers, compile-native-library, compile-android">
+    <target name="-check-conditions-post">
+        <available file="build/bullet-base/libLinearMath.a" property="haveBuiltBulletLibrary"/>
+        <available file="build/bullet-base-64/libLinearMath.a" property="haveBuiltBulletLibrary64"/>
+        <available file="build/bullet-base-mingw/libLinearMath.a" property="haveBuiltBulletLibraryMingw"/>
+        <available file="build/bullet-base-mingw-64/libLinearMath.a" property="haveBuiltBulletLibraryMingw64"/>
+        <condition property="doBuildMacBinary">
+            <and>
+                <istrue value="${isMac}"/>
+                <istrue value="${haveBuiltBulletLibrary}"/>
+            </and>
+        </condition>
+        <condition property="doBuildLinuxBinary">
+            <and>
+                <istrue value="${isLinux}"/>
+                <or>
+                    <isfalse value="${is64bit}"/>
+                    <istrue value="${cross.compile}"/>
+                </or>
+                <istrue value="${haveBuiltBulletLibrary}"/>
+            </and>
+        </condition>
+        <condition property="doBuildLinuxBinary64">
+            <and>
+                <istrue value="${isLinux}"/>
+                <or>
+                    <istrue value="${is64bit}"/>
+                    <istrue value="${cross.compile}"/>
+                </or>
+                <istrue value="${haveBuiltBulletLibrary64}"/>
+            </and>
+        </condition>
+        <condition property="doBuildLinuxBinaryMingw">
+            <and>
+                <istrue value="${isLinux}"/>
+                <istrue value="${cross.compile}"/>
+                <istrue value="${haveBuiltBulletLibraryMingw}"/>
+            </and>
+        </condition>
+        <condition property="doBuildLinuxBinaryMingw64">
+            <and>
+                <istrue value="${isLinux}"/>
+                <istrue value="${cross.compile}"/>
+                <istrue value="${haveBuiltBulletLibraryMingw64}"/>
+            </and>
+        </condition>
+        <condition property="doBuildWindowsBinary">
+            <and>
+                <istrue value="${isWindows}"/>
+                <istrue value="${haveBuiltBulletLibrary}"/>
+            </and>
+        </condition>
+        <condition property="doBuildSolarisBinary">
+            <and>
+                <istrue value="${isSolaris}"/>
+                <istrue value="${haveBuiltBulletLibrary}"/>
+            </and>
+        </condition>        
+    </target>
+    
+    <target name="build-bullet-natives" description="builds the native bullet library for the platform being run on and for android if NDK available" depends="create-native-headers, compile-bullet-sources, compile-native-library, compile-android">
         <echo message="Updating native jME3-bullet-natives.jar"/>
         <zip basedir="${bullet.output.base}/jarcontent" file="${bullet.output.base}/jME3-bullet-natives.jar" compress="true"/>
         <zip basedir="${bullet.output.base}/android" file="${bullet.output.base}/jME3-bullet-natives-android.jar" compress="true"/>
@@ -157,7 +255,7 @@
         <delete file="bullet-api-diff.xml"/>
     </target>
 
-    <target name="compile-native-library" description="compiles the native libbulletjme binary for the current platform" depends="compile-bullet-sources, -create-folders, -nativelib-osx, -nativelib-windows, -nativelib-linux, -nativelib-linux-64, -nativelib-solaris, -nativelib-linux-mingw-64"/>
+    <target name="compile-native-library" description="compiles the native libbulletjme binary for the current platform" depends="-check-conditions-post, -create-folders, -nativelib-osx, -nativelib-windows, -nativelib-linux, -nativelib-linux-64, -nativelib-solaris, -nativelib-linux-mingw-64"/>
     
     <target name="-create-folders" description="creates the needed folders">
         <mkdir dir="${bullet.source.dir}"/>
@@ -167,7 +265,7 @@
         <mkdir dir="build/bullet-native-64"/>
     </target>
     
-    <target name="-nativelib-osx" if="isMac">
+    <target name="-nativelib-osx" if="doBuildMacBinary">
         <echo message="Building MacOSX version of native bullet"/>
         <mkdir dir="${bullet.output.dir}/macosx"/>
         <cc name="${bullet.osx.compiler}" warnings="none" debug="${bullet.compile.debug}" link="shared" outfile="${bullet.output.dir}/macosx/${bullet.library.name}" objdir="build/bullet-native">
@@ -198,7 +296,7 @@
         <delete file="${bullet.output.dir}/macosx/history.xml"/>
     </target>
     
-    <target name="-nativelib-linux" if="isLinux">
+    <target name="-nativelib-linux" if="doBuildLinuxBinary">
         <echo message="Building 32 bit Linux version of native bullet"/>
         <mkdir dir="${bullet.output.dir}/linux"/>
         <cc name="${bullet.linux.compiler}" warnings="severe" debug="${bullet.compile.debug}" link="shared" outfile="${bullet.output.dir}/linux/${bullet.library.name}" objdir="build/bullet-native">
@@ -218,7 +316,7 @@
         <delete file="${bullet.output.dir}/linux/history.xml"/>
     </target>
     
-    <target name="-nativelib-linux-64" if="isLinux64">
+    <target name="-nativelib-linux-64" if="doBuildLinuxBinary64">
         <echo message="Building 64 bit Linux version of native bullet"/>
         <mkdir dir="${bullet.output.dir}/linux"/>
         <cc name="${bullet.linux.compiler}" warnings="severe" debug="${bullet.compile.debug}" link="shared" outfile="${bullet.output.dir}/linux/${bullet.library.name}64" objdir="build/bullet-native-64">
@@ -236,12 +334,35 @@
         <delete file="${bullet.output.dir}/linux/history.xml"/>
     </target>
     
-    <target name="-nativelib-linux-mingw-64" if="isLinux64">
+    <target name="-nativelib-linux-mingw" if="doBuildLinuxBinaryMingw">
+        <echo message="Building 32 bit Windows version of native bullet"/>
+        <mkdir dir="build/bullet-native-mingw"/>
+        <mkdir dir="${bullet.output.dir}/windows"/>
+        <cc compilertarget="${cross.compile.target}" name="${bullet.linux.crosscompiler}" warnings="severe" debug="${bullet.compile.debug}"
+            outfile="${bullet.output.dir}/windows/${bullet.library.name}.dll" objdir="build/bullet-native-mingw">
+            <fileset dir="${bullet.source.dir}">
+                <include name="*.cpp">
+                </include>
+            </fileset>
+            <sysincludepath path="/usr/${cross.compile.target}/include"/>
+            <includepath path="${bullet.java.include}"/>
+            <includepath path="${bullet.java.include}/win32"/>
+            <includepath path="${bullet.bullet.include}"/>
+            <compilerarg value="-m32"/>
+            <linker name="${bullet.linux.crosscompiler}">
+                <linkerarg value="-mdll"/>
+                <libset dir="build/bullet-base-mingw" libs="BulletMultiThreaded,BulletDynamics,BulletCollision,LinearMath"/>
+            </linker>
+        </cc>
+        <delete file="${bullet.output.dir}/windows/history.xml"/>
+    </target>
+    
+    <target name="-nativelib-linux-mingw-64" if="doBuildLinuxBinaryMingw64">
         <echo message="Building 64 bit Windows version of native bullet"/>
-        <!--mkdir dir="build/bullet-native-mingw"/-->
         <mkdir dir="build/bullet-native-mingw-64"/>
         <mkdir dir="${bullet.output.dir}/windows"/>
-        <cc compilertarget="${cross.compile.target64}" name="${bullet.linux.crosscompiler}" warnings="severe" debug="${bullet.compile.debug}" outfile="${bullet.output.dir}/windows/${bullet.library.name}64.dll" objdir="build/bullet-native-mingw-64">
+        <cc compilertarget="${cross.compile.target64}" name="${bullet.linux.crosscompiler}" warnings="severe" debug="${bullet.compile.debug}"
+            outfile="${bullet.output.dir}/windows/${bullet.library.name}64.dll" objdir="build/bullet-native-mingw-64">
             <fileset dir="${bullet.source.dir}">
                 <include name="*.cpp">
                 </include>
@@ -250,7 +371,6 @@
             <includepath path="${bullet.java.include}"/>
             <includepath path="${bullet.java.include}/win32"/>
             <includepath path="${bullet.bullet.include}"/>
-            <compilerarg value="-m32"/>
             <linker name="${bullet.linux.crosscompiler}">
                 <linkerarg value="-mdll"/>
                 <libset dir="build/bullet-base-mingw-64" libs="BulletMultiThreaded,BulletDynamics,BulletCollision,LinearMath"/>
@@ -259,7 +379,7 @@
         <delete file="${bullet.output.dir}/windows/history.xml"/>
     </target>
     
-    <target name="-nativelib-solaris" if="isSolaris">
+    <target name="-nativelib-solaris" if="doBuildSolarisBinary">
         <echo message="Building Solaris version of native bullet"/>
         <mkdir dir="${bullet.output.dir}/linux"/>
         <cc name="${bullet.solaris.compiler}" warnings="severe" debug="${bullet.compile.debug}" link="shared" outfile="${bullet.output.dir}/solaris/${bullet.library.name}" objdir="build/bullet-native">
@@ -290,7 +410,7 @@
         <delete file="${bullet.output.dir}/solaris/history.xml"/>
     </target>
 
-    <target name="-nativelib-windows" if="isWindows">
+    <target name="-nativelib-windows" if="doBuildWindowsBinary">
         <echo message="Building Windows version of native bullet"/>
         <mkdir dir="${bullet.output.dir}/windows"/>
         <cc multithreaded="" name="${bullet.windows.compiler}" warnings="none" debug="${bullet.compile.debug}" outtype="shared" outfile="${bullet.output.dir}/windows/${bullet.library.name}" objdir="build/bullet-native">
@@ -361,24 +481,17 @@
         <available file="${ndk.dir}/${ndk-build-name}" property="haveAndoidNdk"/>
     </target>
     
-    <target name="compile-bullet-sources" description="downloads and compiles the bullet native library to static binaries to be included in the final libbulletjme" depends="-get-bullet-sources, -compile-bullet-sources-windows, -compile-bullet-sources-macosx, -compile-bullet-sources-linux, -compile-bullet-sources-linux-64, -compile-bullet-sources-linux-mingw-64"/>
+    <target name="compile-bullet-sources" description="downloads and compiles the bullet native library to static binaries to be included in the final libbulletjme" depends="-check-conditions-pre, -get-bullet-sources, -compile-bullet-sources-windows, -compile-bullet-sources-macosx, -compile-bullet-sources-linux, -compile-bullet-sources-linux-64, -compile-bullet-sources-linux-mingw, -compile-bullet-sources-linux-mingw-64"/>
 
-    <target name="-get-bullet-sources" depends="-check-bullet-sources" unless="haveBulletSource">
+    <target name="-get-bullet-sources" unless="haveBulletSource">
         <echo>Downloading bullet source..</echo>
         <get src="${bullet.download}" dest="../bullet.zip"/>
         <unzip src="../bullet.zip" dest="../"/>
         <delete file="../bullet.zip"/>
     </target>
 
-    <target name="-check-bullet-sources">
-        <available file="${bullet.folder}" property="haveBulletSource"/>
-        <available file="build/bullet-base/libLinearMath.a" property="haveBulletLibrary"/>
-        <available file="build/bullet-base-64/libLinearMath.a" property="haveBulletLibrary64"/>
-        <available file="build/bullet-base-mingw/libLinearMath.a" property="haveBulletLibraryMingw"/>
-        <available file="build/bullet-base-mingw-64/libLinearMath.a" property="haveBulletLibraryMingw64"/>
-    </target>
-    
-    <target name="-compile-bullet-sources-windows" if="isWindows">
+    <target name="-compile-bullet-sources-windows" if="doBuildWindowsBase">
+        <!--TODO: doesn't use build folder..-->
         <replace file="${bullet.folder}/CMakeLists.txt" token="#TODO add better GLUT detection for MinGW" value="           INCLUDE_DIRECTORIES($${BULLET_PHYSICS_SOURCE_DIR}/Glut)${line.separator}SET(GLUT_glut_LIBRARY $${BULLET_PHYSICS_SOURCE_DIR}/Glut/glut32.lib)"/>
         <exec executable="${cmake.windows}" dir="${bullet.folder}" failonerror="true">
             <arg value="."/>
@@ -393,7 +506,7 @@
         <exec executable="${make.windows}" dir="${bullet.folder}"/>
     </target>
     
-    <target name="-compile-bullet-sources-macosx" if="isMac" unless="haveBulletLibrary">
+    <target name="-compile-bullet-sources-macosx" if="doBuildMacBase">
         <mkdir dir="build/bullet-base"/>
         <property location="build/bullet-base" name="build.folder.resolved"/>
         <exec executable="${cmake.osx}" dir="${bullet.folder}" failonerror="true">
@@ -407,9 +520,19 @@
         <exec executable="${make.osx}" dir="${bullet.folder}"/>
     </target>
     
-    <target name="-compile-bullet-sources-linux" if="isLinux" unless="haveBulletLibrary">
+    <target name="-compile-bullet-sources-linux" if="doBuildLinuxBase">
         <mkdir dir="build/bullet-base"/>
         <property location="build/bullet-base" name="build.folder.resolved"/>
+        <exec executable="${make.linux}" dir="${bullet.folder}">
+        	<arg value="clean"/>
+        </exec>
+        <exec executable="${cmake.linux}" dir="${bullet.folder}" failonerror="true">
+            <arg value="-DCMAKE_SYSTEM_NAME=Linux"/>
+            <arg value="-DCMAKE_C_COMPILER=gcc"/>
+            <arg value="-DCMAKE_CXX_COMPILER=g++"/>
+            <arg value="-DCMAKE_RC_COMPILER=windres"/>
+            <arg value="-DCMAKE_FIND_ROOT_PATH=/usr"/>
+        </exec>
         <exec executable="${cmake.linux}" dir="${bullet.folder}" failonerror="true">
             <arg value="-DLIBRARY_OUTPUT_PATH='${build.folder.resolved}'"/>
             <arg value="-DBUILD_SHARED_LIBS=OFF"/>
@@ -424,17 +547,39 @@
             <arg value="-DCMAKE_BUILD_TYPE=Release"/>
         </exec>
         <exec executable="${make.linux}" dir="${bullet.folder}"/>
+        <exec executable="ranlib">
+        	<arg value="${basedir}/build/bullet-base-mingw/libBulletMultiThreaded.a"/>
+        </exec>
+        <exec executable="ranlib">
+        	<arg value="${basedir}/build/bullet-base-mingw/libBulletDynamics.a"/>
+        </exec>
+        <exec executable="ranlib">
+        	<arg value="${basedir}/build/bullet-base-mingw/libBulletCollision.a"/>
+        </exec>
+        <exec executable="ranlib">
+        	<arg value="${basedir}/build/bullet-base-mingw/libLinearMath.a"/>
+        </exec>
     </target>
 
-    <target name="-compile-bullet-sources-linux-64" if="isLinux64" unless="haveBulletLibrary64">
+    <target name="-compile-bullet-sources-linux-64" if="doBuildLinuxBase64">
         <mkdir dir="build/bullet-base-64"/>
         <property location="build/bullet-base-64" name="build64.folder.resolved"/>
+        <exec executable="${make.linux}" dir="${bullet.folder}">
+        	<arg value="clean"/>
+        </exec>
+        <exec executable="${cmake.linux}" dir="${bullet.folder}" failonerror="true">
+            <arg value="-DCMAKE_SYSTEM_NAME=Linux"/>
+            <arg value="-DCMAKE_C_COMPILER=gcc"/>
+            <arg value="-DCMAKE_CXX_COMPILER=g++"/>
+            <arg value="-DCMAKE_RC_COMPILER=windres"/>
+            <arg value="-DCMAKE_FIND_ROOT_PATH=/usr"/>
+        </exec>
         <exec executable="${cmake.linux}" dir="${bullet.folder}" failonerror="true">
             <arg value="-DLIBRARY_OUTPUT_PATH='${build64.folder.resolved}'"/>
             <arg value="-DBUILD_SHARED_LIBS=OFF"/>
             <arg value="-DBUILD_STATIC_LIBS=ON"/>
-            <arg value="-DCMAKE_C_FLAGS=-fPIC"/>
-            <arg value="-DCMAKE_CXX_FLAGS=-fPIC"/>
+            <!--arg value="-DCMAKE_C_FLAGS=-fPIC"/>
+            <arg value="-DCMAKE_CXX_FLAGS=-fPIC"/-->
             <arg value="-DBUILD_EXTRAS=off"/>
             <arg value="-DBUILD_DEMOS=off"/>
             <arg value="-DCMAKE_BUILD_TYPE=Release"/>
@@ -442,7 +587,45 @@
         <exec executable="${make.linux}" dir="${bullet.folder}"/>
     </target>
 
-    <target name="-compile-bullet-sources-linux-mingw-64" depends="-fix-bullet-sources" if="isLinux64" unless="haveBulletLibraryMingw64">
+    <target name="-compile-bullet-sources-linux-mingw" depends="-fix-bullet-sources" if="doBuildLinuxBaseMingw">
+        <exec executable="${make.linux}" dir="${bullet.folder}">
+        	<arg value="clean"/>
+        </exec>
+        <exec executable="${cmake.linux}" dir="${bullet.folder}" failonerror="true">
+            <arg value="-DCMAKE_SYSTEM_NAME=Windows"/>
+            <arg value="-DCMAKE_C_COMPILER=${cross.compile.target}-gcc"/>
+            <arg value="-DCMAKE_CXX_COMPILER=${cross.compile.target}-g++"/>
+            <arg value="-DCMAKE_RC_COMPILER=${cross.compile.target}-windres"/>
+            <arg value="-DCMAKE_FIND_ROOT_PATH=/usr/${cross.compile.target}"/>
+            <arg value="-DCMAKE_FIND_ROOT_PATH_MODE_PROGRAM=NEVER"/>
+            <arg value="-DCMAKE_FIND_ROOT_PATH_MODE_LIBRARY=ONLY"/>
+            <arg value="-DCMAKE_FIND_ROOT_PATH_MODE_INCLUDE=ONLY"/>
+        </exec>
+        <mkdir dir="build/bullet-base-mingw"/>
+        <property location="build/bullet-base-mingw" name="build-mingw.folder.resolved"/>
+        <exec executable="${cmake.linux}" dir="${bullet.folder}" failonerror="true">
+            <arg value="-DCMAKE_BUILD_TYPE=Release"/>
+            <arg value="-DBUILD_SHARED_LIBS=OFF"/>
+            <arg value="-DBUILD_EXTRAS=OFF"/>
+            <arg value="-DBUILD_DEMOS=OFF"/>
+            <arg value="-DLIBRARY_OUTPUT_PATH='${build-mingw.folder.resolved}'"/>
+        </exec>
+        <exec executable="${make.linux}" dir="${bullet.folder}"/>
+        <exec executable="${cross.compile.target}-ranlib">
+        	<arg value="${basedir}/build/bullet-base-mingw/libBulletMultiThreaded.a"/>
+        </exec>
+        <exec executable="${cross.compile.target}-ranlib">
+        	<arg value="${basedir}/build/bullet-base-mingw/libBulletDynamics.a"/>
+        </exec>
+        <exec executable="${cross.compile.target}-ranlib">
+        	<arg value="${basedir}/build/bullet-base-mingw/libBulletCollision.a"/>
+        </exec>
+        <exec executable="${cross.compile.target}-ranlib">
+        	<arg value="${basedir}/build/bullet-base-mingw/libLinearMath.a"/>
+        </exec>
+    </target>
+    
+    <target name="-compile-bullet-sources-linux-mingw-64" depends="-fix-bullet-sources" if="doBuildLinuxBaseMingw64">
         <exec executable="${make.linux}" dir="${bullet.folder}">
         	<arg value="clean"/>
         </exec>
