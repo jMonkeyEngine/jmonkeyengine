@@ -58,7 +58,7 @@
         <available file="build/bullet-base-mingw/libLinearMath.a" property="haveBulletLibraryMingw"/>
         <available file="build/bullet-base-mingw-64/libLinearMath.a" property="haveBulletLibraryMingw64"/>
         <condition property="doDownloadBulletSource">
-            <not><istrue value="${haveBulletSource}"/></not>
+            <isfalse value="${haveBulletSource}"/>
         </condition>
         <condition property="doBuildMacBase">
             <and>
