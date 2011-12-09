@@ -433,10 +433,6 @@
     </target>
 
     <target name="compile-android" description="compiles libbulletjme using the Android NDK" depends="-check-android-ndk" if="haveAndoidNdk">
-        <!-- delete previous android jni, libs, and obj subdirectories for a clean start -->
-        <delete dir="build/bullet-android/jni" failonerror="false"/>
-        <delete dir="build/bullet-android/libs" failonerror="false"/>
-        <delete dir="build/bullet-android/obj" failonerror="false"/>
         <!-- create the android subdirectory in jarcontent for the libbulletjme.so shared library -->
         <mkdir dir="${bullet.output.base}/android"/>
         <!-- create the jni subdirectory -->
@@ -454,7 +450,7 @@
         </copy>
 
         <!-- copy Bullet-2.79 files into jni directory -->
-        <copy todir="build/bullet-android/jni" verbose="true" flatten="false">
+        <copy todir="build/bullet-android/jni" verbose="true" flatten="false" overwrite="false">
             <fileset dir="${bullet.bullet.include}">
                 <include name="**/*.cpp"/>
                 <include name="**/*.h"/>
