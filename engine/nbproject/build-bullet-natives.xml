@@ -255,7 +255,7 @@
         <delete file="bullet-api-diff.xml"/>
     </target>
 
-    <target name="compile-native-library" description="compiles the native libbulletjme binary for the current platform" depends="-check-conditions-post, -create-folders, -nativelib-osx, -nativelib-windows, -nativelib-linux, -nativelib-linux-64, -nativelib-solaris, -nativelib-linux-mingw-64"/>
+    <target name="compile-native-library" description="compiles the native libbulletjme binary for the current platform" depends="-check-conditions-post, -create-folders, -nativelib-osx, -nativelib-windows, -nativelib-linux, -nativelib-linux-64, -nativelib-linux-mingw, -nativelib-linux-mingw-64, -nativelib-solaris"/>
     
     <target name="-create-folders" description="creates the needed folders">
         <mkdir dir="${bullet.source.dir}"/>
@@ -523,9 +523,6 @@
     <target name="-compile-bullet-sources-linux" if="doBuildLinuxBase">
         <mkdir dir="build/bullet-base"/>
         <property location="build/bullet-base" name="build.folder.resolved"/>
-        <exec executable="${make.linux}" dir="${bullet.folder}">
-        	<arg value="clean"/>
-        </exec>
         <exec executable="${cmake.linux}" dir="${bullet.folder}" failonerror="true">
             <arg value="-DCMAKE_SYSTEM_NAME=Linux"/>
             <arg value="-DCMAKE_C_COMPILER=gcc"/>
@@ -537,8 +534,8 @@
             <arg value="-DLIBRARY_OUTPUT_PATH='${build.folder.resolved}'"/>
             <arg value="-DBUILD_SHARED_LIBS=OFF"/>
             <arg value="-DBUILD_STATIC_LIBS=ON"/>
-            <arg value="-DCMAKE_C_FLAGS=-fPIC"/>
-            <arg value="-DCMAKE_CXX_FLAGS=-fPIC"/>
+            <!--arg value="-DCMAKE_C_FLAGS=-fPIC"/>
+            <arg value="-DCMAKE_CXX_FLAGS=-fPIC"/-->
             <arg value="-DCMAKE_C_FLAGS=-m32"/>
             <arg value="-DCMAKE_CXX_FLAGS=-m32"/>
             <arg value="-DCMAKE_LD_FLAGS=-m32"/>
@@ -548,25 +545,22 @@
         </exec>
         <exec executable="${make.linux}" dir="${bullet.folder}"/>
         <exec executable="ranlib">
-        	<arg value="${basedir}/build/bullet-base-mingw/libBulletMultiThreaded.a"/>
+        	<arg value="${basedir}/build/bullet-base/libBulletMultiThreaded.a"/>
         </exec>
         <exec executable="ranlib">
-        	<arg value="${basedir}/build/bullet-base-mingw/libBulletDynamics.a"/>
+        	<arg value="${basedir}/build/bullet-base/libBulletDynamics.a"/>
         </exec>
         <exec executable="ranlib">
-        	<arg value="${basedir}/build/bullet-base-mingw/libBulletCollision.a"/>
+        	<arg value="${basedir}/build/bullet-base/libBulletCollision.a"/>
         </exec>
         <exec executable="ranlib">
-        	<arg value="${basedir}/build/bullet-base-mingw/libLinearMath.a"/>
+        	<arg value="${basedir}/build/bullet-base/libLinearMath.a"/>
         </exec>
     </target>
 
     <target name="-compile-bullet-sources-linux-64" if="doBuildLinuxBase64">
         <mkdir dir="build/bullet-base-64"/>
         <property location="build/bullet-base-64" name="build64.folder.resolved"/>
-        <exec executable="${make.linux}" dir="${bullet.folder}">
-        	<arg value="clean"/>
-        </exec>
         <exec executable="${cmake.linux}" dir="${bullet.folder}" failonerror="true">
             <arg value="-DCMAKE_SYSTEM_NAME=Linux"/>
             <arg value="-DCMAKE_C_COMPILER=gcc"/>
@@ -578,8 +572,8 @@
             <arg value="-DLIBRARY_OUTPUT_PATH='${build64.folder.resolved}'"/>
             <arg value="-DBUILD_SHARED_LIBS=OFF"/>
             <arg value="-DBUILD_STATIC_LIBS=ON"/>
-            <!--arg value="-DCMAKE_C_FLAGS=-fPIC"/>
-            <arg value="-DCMAKE_CXX_FLAGS=-fPIC"/-->
+            <arg value="-DCMAKE_C_FLAGS=-fPIC"/>
+            <arg value="-DCMAKE_CXX_FLAGS=-fPIC"/>
             <arg value="-DBUILD_EXTRAS=off"/>
             <arg value="-DBUILD_DEMOS=off"/>
             <arg value="-DCMAKE_BUILD_TYPE=Release"/>
@@ -588,9 +582,6 @@
     </target>
 
     <target name="-compile-bullet-sources-linux-mingw" depends="-fix-bullet-sources" if="doBuildLinuxBaseMingw">
-        <exec executable="${make.linux}" dir="${bullet.folder}">
-        	<arg value="clean"/>
-        </exec>
         <exec executable="${cmake.linux}" dir="${bullet.folder}" failonerror="true">
             <arg value="-DCMAKE_SYSTEM_NAME=Windows"/>
             <arg value="-DCMAKE_C_COMPILER=${cross.compile.target}-gcc"/>
@@ -626,9 +617,6 @@
     </target>
     
     <target name="-compile-bullet-sources-linux-mingw-64" depends="-fix-bullet-sources" if="doBuildLinuxBaseMingw64">
-        <exec executable="${make.linux}" dir="${bullet.folder}">
-        	<arg value="clean"/>
-        </exec>
         <exec executable="${cmake.linux}" dir="${bullet.folder}" failonerror="true">
             <arg value="-DCMAKE_SYSTEM_NAME=Windows"/>
             <arg value="-DCMAKE_C_COMPILER=${cross.compile.target64}-gcc"/>
