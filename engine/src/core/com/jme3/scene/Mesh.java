@@ -293,7 +293,8 @@ public class Mesh implements Savable, Cloneable {
     }
 
     /**
-     * Generates the {@link Type#BindPosePosition} and {@link Type#BindPoseNormal}
+     * Generates the {@link Type#BindPosePosition}, {@link Type#BindPoseNormal},
+     * and {@link Type#BindPoseTangent} 
      * buffers for this mesh by duplicating them based on the position and normal
      * buffers already set on the mesh.
      * This method does nothing if the mesh has no bone weight or index
