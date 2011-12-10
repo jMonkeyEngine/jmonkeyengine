@@ -4,6 +4,8 @@
     <description>Builds, tests, and runs the jMonkeyEngine3 core engine.</description>
     <import file="nbproject/build-impl.xml"/>
 
+    <target depends="jar,javadoc" description="Build and test whole project." name="default"/>
+    
     <target name="build-bullet-natives" description="uses native build tools to build the bulletjme binary (read bullet-native-build.txt for more info)" depends="jar">
         <ant antfile="nbproject/build-bullet-natives.xml" target="build-bullet-natives"/>
     </target>
