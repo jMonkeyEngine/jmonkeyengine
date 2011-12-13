@@ -44,7 +44,7 @@ import java.util.logging.Logger;
 //			Bone ownerBone = (Bone) blenderContext.getLoadedFeature(ownerOMA, LoadedFeatureDataType.LOADED_FEATURE);
 //			AnimData animData = blenderContext.getAnimData(ownerOMA);
 //			if(animData == null) {
-				//TODO: to nie mo¿e byæ null, utworzyæ dane bez ruchu, w zale¿noœci czy target siê rusza
+				//TODO: to nie moxe byx null, utworzyx dane bez ruchu, w zalexnoxci czy target six rusza
 //			}
 			
 			//prepare a list of all parents of this bone
