@@ -90,7 +90,7 @@ public class AWTLoader implements AssetLoader {
     private void flipImage(short[] img, int width, int height, int bpp){
         int scSz = (width * bpp) / 8;
         scSz /= 2; // Because shorts are 2 bytes
-        byte[] sln = new byte[scSz];
+        short[] sln = new short[scSz];
         int y2 = 0;
         for (int y1 = 0; y1 < height / 2; y1++){
             y2 = height - y1 - 1;
