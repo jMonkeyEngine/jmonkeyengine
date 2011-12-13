@@ -76,7 +76,7 @@ public class TestTransparentShadow extends SimpleApplication {
         rootNode.attachChild(geom);
 
         // create the geometry and attach it
-        Spatial teaGeom = assetManager.loadModel("Models/Tree/Tree2.mesh.xml");
+        Spatial teaGeom = assetManager.loadModel("Models/Tree/Tree.mesh.j3o");
         teaGeom.setQueueBucket(Bucket.Transparent);
         teaGeom.setShadowMode(ShadowMode.Cast);
 
