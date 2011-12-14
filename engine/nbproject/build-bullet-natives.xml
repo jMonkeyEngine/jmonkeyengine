@@ -339,7 +339,7 @@
         <mkdir dir="build/bullet-native-mingw"/>
         <mkdir dir="${bullet.output.dir}/windows"/>
         <cc compilertarget="${cross.compile.target}" name="${bullet.linux.crosscompiler}" warnings="severe" debug="${bullet.compile.debug}"
-            outfile="${bullet.output.dir}/windows/${bullet.library.name}.dll" objdir="build/bullet-native-mingw">
+            outfile="${bullet.output.dir}/windows/${bullet.library.name}" objdir="build/bullet-native-mingw" outtype="shared">
             <fileset dir="${bullet.source.dir}">
                 <include name="*.cpp">
                 </include>
@@ -351,11 +351,11 @@
             <compilerarg value="-m32"/>
             <compilerarg value="-static-libgcc"/>
             <linker name="${bullet.linux.crosscompiler}">
-                <linkerarg value="-mdll"/>
                 <linkerarg value="-static"/>
                 <libset dir="build/bullet-base-mingw" libs="BulletMultiThreaded,BulletDynamics,BulletCollision,LinearMath"/>
             </linker>
         </cc>
+        <move file="${bullet.output.dir}/windows/lib${bullet.library.name}.so" tofile="${bullet.output.dir}/windows/${bullet.library.name}.dll" failonerror="false"/>
         <delete file="${bullet.output.dir}/windows/history.xml"/>
     </target>
     
@@ -364,7 +364,7 @@
         <mkdir dir="build/bullet-native-mingw-64"/>
         <mkdir dir="${bullet.output.dir}/windows"/>
         <cc compilertarget="${cross.compile.target64}" name="${bullet.linux.crosscompiler}" warnings="severe" debug="${bullet.compile.debug}"
-            outfile="${bullet.output.dir}/windows/${bullet.library.name}64.dll" objdir="build/bullet-native-mingw-64">
+            outfile="${bullet.output.dir}/windows/${bullet.library.name}64" objdir="build/bullet-native-mingw-64" outtype="shared">
             <fileset dir="${bullet.source.dir}">
                 <include name="*.cpp">
                 </include>
@@ -375,11 +375,11 @@
             <includepath path="${bullet.bullet.include}"/>
             <compilerarg value="-static-libgcc"/>
             <linker name="${bullet.linux.crosscompiler}">
-                <linkerarg value="-mdll"/>
                 <linkerarg value="-static"/>
                 <libset dir="build/bullet-base-mingw-64" libs="BulletMultiThreaded,BulletDynamics,BulletCollision,LinearMath"/>
             </linker>
         </cc>
+        <move file="${bullet.output.dir}/windows/lib${bullet.library.name}64.so" tofile="${bullet.output.dir}/windows/${bullet.library.name}64.dll" failonerror="false"/>
         <delete file="${bullet.output.dir}/windows/history.xml"/>
     </target>
     
