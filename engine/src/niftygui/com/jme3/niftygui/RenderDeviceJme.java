@@ -54,6 +54,7 @@ import de.lessvoid.nifty.spi.render.RenderDevice;
 import de.lessvoid.nifty.spi.render.RenderFont;
 import de.lessvoid.nifty.spi.render.RenderImage;
 import de.lessvoid.nifty.tools.Color;
+import de.lessvoid.nifty.tools.resourceloader.NiftyResourceLoader;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.util.HashMap;
@@ -94,6 +95,9 @@ public class RenderDeviceJme implements RenderDevice {
 
         niftyMat = new Material(display.getAssetManager(), "Common/MatDefs/Nifty/Nifty.j3md");
         niftyMat.getAdditionalRenderState().setDepthTest(false);
+    }
+
+    public void setResourceLoader(NiftyResourceLoader niftyResourceLoader) {
     }
 
     public void setRenderManager(RenderManager rm){

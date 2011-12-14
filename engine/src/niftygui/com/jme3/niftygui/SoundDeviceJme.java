@@ -38,6 +38,7 @@ import com.jme3.audio.AudioRenderer;
 import de.lessvoid.nifty.sound.SoundSystem;
 import de.lessvoid.nifty.spi.sound.SoundDevice;
 import de.lessvoid.nifty.spi.sound.SoundHandle;
+import de.lessvoid.nifty.tools.resourceloader.NiftyResourceLoader;
 
 public class SoundDeviceJme implements SoundDevice {
 
@@ -47,6 +48,9 @@ public class SoundDeviceJme implements SoundDevice {
     public SoundDeviceJme(AssetManager assetManager, AudioRenderer ar){
         this.assetManager = assetManager;
         this.ar = ar;
+    }
+
+    public void setResourceLoader(NiftyResourceLoader niftyResourceLoader) {
     }
 
     public SoundHandle loadSound(SoundSystem soundSystem, String filename) {

@@ -97,6 +97,14 @@ public class RenderFontJme implements RenderFont {
         return result;
     }
 
+    public int getWidth(final String str, final float size) {
+      // Note: This is supposed to return the width of the String when scaled
+      //       with the size factor. Since I don't know how to do that with
+      //       the font rendering in jme this will only work correctly with
+      //       a size value of 1.f and will return inaccurate values otherwise.
+      return getWidth(str);
+    }
+
     /**
      * Return the width of the given character including kerning information.
      * @param currentCharacter current character
