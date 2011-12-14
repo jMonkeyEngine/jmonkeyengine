@@ -191,11 +191,11 @@ public class TerrainGridAlphaMapTest extends SimpleApplication {
 
             public void tileAttached(Vector3f cell, TerrainQuad quad) {
                 Texture alpha = null;
-                //try {
-                //    alpha = assetManager.loadTexture("TerrainAlphaTest/alpha_" + (int)cell.x+ "_" + (int)cell.z + ".png");
-                //} catch (Exception e) {
+                try {
+                    alpha = assetManager.loadTexture("TerrainAlphaTest/alpha_" + (int)cell.x+ "_" + (int)cell.z + ".png");
+                } catch (Exception e) {
                     alpha = assetManager.loadTexture("TerrainAlphaTest/alpha_default.png");
-                //}
+                }
                 quad.getMaterial().setTexture("AlphaMap", alpha);
                 if (usePhysics) {
                     quad.addControl(new RigidBodyControl(new HeightfieldCollisionShape(quad.getHeightMap(), terrain.getLocalScale()), 0));

@@ -4,7 +4,7 @@
  */
 package com.jme3.terrain.heightmap;
 
-import java.awt.Image;
+import com.jme3.texture.Image;
 
 /**
  * A heightmap that is built off an image.
@@ -13,17 +13,18 @@ import java.awt.Image;
  * and have that class extend Abstract heightmap.
  * 
  * @author bowens
+ * @deprecated
  */
 public interface ImageHeightmap {
     
     /**
      * Set the image to use for this heightmap
      */
-    public void setImage(Image image);
+    //public void setImage(Image image);
     
     /**
      * The BufferedImage.TYPE_ that is supported
      * by this ImageHeightmap
      */
-    public int getSupportedImageType();
+    //public int getSupportedImageType();
 }

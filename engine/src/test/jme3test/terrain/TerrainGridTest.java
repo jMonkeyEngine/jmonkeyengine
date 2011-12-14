@@ -12,6 +12,7 @@ import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
+import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
@@ -33,7 +34,7 @@ public class TerrainGridTest extends SimpleApplication {
     private float grassScale = 64;
     private float dirtScale = 16;
     private float rockScale = 128;
-    private boolean usePhysics = true;
+    private boolean usePhysics = false;
     private boolean physicsAdded = false;
 
     public static void main(final String[] args) {
@@ -100,8 +101,8 @@ public class TerrainGridTest extends SimpleApplication {
                 return "Scenes/TerrainMountains/terrain_" + x + "_" + y + ".png";
             }
         }));
-
-        this.terrain.setMaterial(this.mat_terrain);
+        
+        this.terrain.setMaterial(mat_terrain);
         this.terrain.setLocalTranslation(0, 0, 0);
         this.terrain.setLocalScale(1f, 1f, 1f);
         this.rootNode.attachChild(this.terrain);
@@ -113,10 +114,14 @@ public class TerrainGridTest extends SimpleApplication {
         final BulletAppState bulletAppState = new BulletAppState();
         stateManager.attach(bulletAppState);
 
-        this.getCamera().setLocation(new Vector3f(0, 256, 0));
+        this.getCamera().setLocation(new Vector3f(0, 200, 0));
 
         this.viewPort.setBackgroundColor(new ColorRGBA(0.7f, 0.8f, 1f, 1f));
 
+        DirectionalLight light = new DirectionalLight();
+        light.setDirection((new Vector3f(-0.5f, -1f, -0.5f)).normalize());
+        rootNode.addLight(light);
+        
         if (usePhysics) {
             CapsuleCollisionShape capsuleShape = new CapsuleCollisionShape(0.5f, 1.8f, 1);
             player3 = new CharacterControl(capsuleShape, 0.5f);
@@ -141,12 +146,6 @@ public class TerrainGridTest extends SimpleApplication {
                     while(quad.getControl(RigidBodyControl.class)!=null){
                         quad.removeControl(RigidBodyControl.class);
                     }
-//                    try {
-//                        BinaryExporter.getInstance().save(quad, new File("/Users/normenhansen/Documents/Code/jme3/engine/src/test-data/TerrainGrid/"
-//                                + "testgrid_" + Math.round(cell.x) + "_" + Math.round(cell.y) + "_" + Math.round(cell.z) + ".j3o"));
-//                    } catch (IOException ex) {
-//                        Logger.getLogger(TerrainFractalGridTest.class.getName()).log(Level.SEVERE, null, ex);
-//                    }
                     quad.addControl(new RigidBodyControl(new HeightfieldCollisionShape(quad.getHeightMap(), terrain.getLocalScale()), 0));
                     bulletAppState.getPhysicsSpace().add(quad);
                 }

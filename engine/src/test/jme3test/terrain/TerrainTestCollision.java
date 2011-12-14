@@ -31,6 +31,7 @@
  */
 package jme3test.terrain;
 
+import com.jme3.bullet.collision.shapes.SphereCollisionShape;
 import com.jme3.app.SimpleApplication;
 import com.jme3.bounding.BoundingBox;
 import com.jme3.bullet.BulletAppState;
@@ -127,7 +128,7 @@ public class TerrainTestCollision extends SimpleApplication {
         matWire.setColor("Color", ColorRGBA.Green);
         AbstractHeightMap heightmap = null;
         try {
-            heightmap = new ImageBasedHeightMap(ImageToAwt.convert(heightMapImage.getImage(), false, true, 0), 0.25f);
+            heightmap = new ImageBasedHeightMap(heightMapImage.getImage(), 0.25f);
             heightmap.load();
 
         } catch (Exception e) {

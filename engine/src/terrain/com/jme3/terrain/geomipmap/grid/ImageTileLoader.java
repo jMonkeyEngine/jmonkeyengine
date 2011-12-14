@@ -4,22 +4,19 @@
  */
 package com.jme3.terrain.geomipmap.grid;
 
-import com.jme3.asset.AssetInfo;
-import com.jme3.asset.AssetKey;
 import com.jme3.asset.AssetManager;
 import com.jme3.asset.AssetNotFoundException;
+import com.jme3.asset.TextureKey;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.math.Vector3f;
 import com.jme3.terrain.geomipmap.TerrainGridTileLoader;
 import com.jme3.terrain.geomipmap.TerrainQuad;
 import com.jme3.terrain.heightmap.*;
-import java.awt.image.BufferedImage;
+import com.jme3.texture.Texture;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.imageio.ImageIO;
 
 /**
  *
@@ -31,8 +28,9 @@ public class ImageTileLoader implements TerrainGridTileLoader{
     private final Namer namer;
     private int patchSize;
     private int quadSize;
-    private int imageType = BufferedImage.TYPE_USHORT_GRAY; // 16 bit grayscale
-    private ImageHeightmap customImageHeightmap;
+    private float heightScale = 1;
+    //private int imageType = BufferedImage.TYPE_USHORT_GRAY; // 16 bit grayscale
+    //private ImageHeightmap customImageHeightmap;
 
     public ImageTileLoader(final String textureBase, final String textureExt, AssetManager assetManager) {
         this(assetManager, new Namer() {
@@ -47,27 +45,35 @@ public class ImageTileLoader implements TerrainGridTileLoader{
         this.assetManager = assetManager;
         this.namer = namer;
     }
+
+    /**
+     * Effects vertical scale of the height of the terrain when loaded.
+     */
+    public void setHeightScale(float heightScale) {
+        this.heightScale = heightScale;
+    }
+    
     
     /**
      * Lets you specify the type of images that are being loaded. All images
      * must be the same type.
      * @param imageType eg. BufferedImage.TYPE_USHORT_GRAY
      */
-    public void setImageType(int imageType) {
+    /*public void setImageType(int imageType) {
         this.imageType = imageType;
-    }
+    }*/
 
     /**
      * The ImageHeightmap that will parse the image type that you 
      * specify with setImageType().
      * @param customImageHeightmap must extend AbstractHeightmap
      */
-    public void setCustomImageHeightmap(ImageHeightmap customImageHeightmap) {
+    /*public void setCustomImageHeightmap(ImageHeightmap customImageHeightmap) {
         if (!(customImageHeightmap instanceof AbstractHeightMap)) {
             throw new IllegalArgumentException("customImageHeightmap must be an AbstractHeightMap!");
         }
         this.customImageHeightmap = customImageHeightmap;
-    }
+    }*/
 
     private HeightMap getHeightMapAt(Vector3f location) {
         // HEIGHTMAP image (for the terrain heightmap)
@@ -75,21 +81,23 @@ public class ImageTileLoader implements TerrainGridTileLoader{
         int z = (int) location.z;
         
         AbstractHeightMap heightmap = null;
-        BufferedImage im = null;
+        //BufferedImage im = null;
         
+        String name = null;
         try {
-            String name = namer.getName(x, z);
+            name = namer.getName(x, z);
             logger.log(Level.INFO, "Loading heightmap from file: {0}", name);
-            final AssetInfo assetInfo = assetManager.locateAsset(new AssetKey(name));
-            if (assetInfo != null){
+            final Texture texture = assetManager.loadTexture(new TextureKey(name));
+            heightmap = new ImageBasedHeightMap(texture.getImage());
+            /*if (assetInfo != null){
                 InputStream in = assetInfo.openStream();
                 im = ImageIO.read(in);
             } else {
                 im = new BufferedImage(patchSize, patchSize, imageType);
                 logger.log(Level.WARNING, "File: {0} not found, loading zero heightmap instead", name);
-            }
+            }*/
             // CREATE HEIGHTMAP
-            if (imageType == BufferedImage.TYPE_USHORT_GRAY) {
+            /*if (imageType == BufferedImage.TYPE_USHORT_GRAY) {
                 heightmap = new Grayscale16BitHeightMap(im);
             } else if (imageType == BufferedImage.TYPE_3BYTE_BGR) {
                 heightmap = new ImageBasedHeightMap(im);
@@ -106,11 +114,13 @@ public class ImageTileLoader implements TerrainGridTileLoader{
                 if (!(customImageHeightmap instanceof AbstractHeightMap))
                     logger.severe("customImageHeightmap must be an AbstractHeightMap!");
                 return null;
-            }
-            heightmap.setHeightScale(256);
+            }*/
+            heightmap.setHeightScale(1);
             heightmap.load();
-        } catch (IOException e) {
+        //} catch (IOException e) {
+        //    e.printStackTrace();
         } catch (AssetNotFoundException e) {
+            logger.log(Level.WARNING, "Asset {0} not found, loading zero heightmap instead", name);
         }
         return heightmap;
     }

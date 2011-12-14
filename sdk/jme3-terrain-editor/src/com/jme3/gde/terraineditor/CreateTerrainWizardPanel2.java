@@ -31,6 +31,7 @@
  */
 package com.jme3.gde.terraineditor;
 
+import com.jme3.asset.AssetManager;
 import com.jme3.asset.TextureKey;
 import com.jme3.gde.core.scene.SceneApplication;
 import com.jme3.terrain.heightmap.AbstractHeightMap;
@@ -38,21 +39,11 @@ import com.jme3.terrain.heightmap.HillHeightMap;
 import com.jme3.terrain.heightmap.ImageBasedHeightMap;
 import com.jme3.texture.Texture;
 import java.awt.Component;
-import java.awt.Toolkit;
-import java.awt.image.BufferedImage;
-import java.awt.image.ImageObserver;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.net.URL;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
-import javax.imageio.ImageIO;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import jme3tools.converters.ImageToAwt;
 import org.openide.WizardDescriptor;
 import org.openide.util.Exceptions;
 import org.openide.util.HelpCtx;
@@ -143,21 +134,14 @@ public class CreateTerrainWizardPanel2 implements WizardDescriptor.Panel {
     public void storeSettings(Object settings) {
 
         CreateTerrainVisualPanel2 comp = (CreateTerrainVisualPanel2) getComponent();
-
+        
         if ("Flat".equals(comp.getHeightmapTypeComboBox().getSelectedItem()) ) {
             heightmap = new FlatHeightmap(terrainTotalSize);
         }
         else if ("Image Based".equals(comp.getHeightmapTypeComboBox().getSelectedItem()) ) {
-            
-            BufferedImage bi = null;
-            try {
-                bi = ImageIO.read(new File(comp.getImageBrowseTextField().getText()));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-                ImageBasedHeightMap ibhm = new ImageBasedHeightMap(bi, 1f);
-
-            heightmap = ibhm;
+            AssetManager assetManager = SceneApplication.getApplication().getAssetManager();
+            Texture tex = assetManager.loadTexture(new TextureKey(comp.getImageBrowseTextField().getText()));
+            heightmap = new ImageBasedHeightMap(tex.getImage());
         }
         else if ("Hill".equals(comp.getHeightmapTypeComboBox().getSelectedItem()) ) {
             int iterations = new Integer(comp.getHillIterationsTextField().getText());

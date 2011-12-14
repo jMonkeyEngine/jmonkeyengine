@@ -182,7 +182,7 @@ public class TestSpotLightTerrain extends SimpleApplication {
         try {
             //heightmap = new HillHeightMap(1025, 1000, 50, 100, (byte) 3);
 
-            heightmap = new ImageBasedHeightMap(ImageToAwt.convert(heightMapImage.getImage(), false, true, 0), 1f);
+            heightmap = new ImageBasedHeightMap(heightMapImage.getImage(), 1f);
             heightmap.load();
 
         } catch (Exception e) {

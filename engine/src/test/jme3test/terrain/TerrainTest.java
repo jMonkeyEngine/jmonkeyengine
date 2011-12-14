@@ -49,7 +49,7 @@ import com.jme3.terrain.heightmap.AbstractHeightMap;
 import com.jme3.terrain.heightmap.ImageBasedHeightMap;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
-import jme3tools.converters.ImageToAwt;
+import com.jme3.asset.TextureKey;
 
 /**
  * Demonstrates how to use terrain.
@@ -140,7 +140,7 @@ public class TerrainTest extends SimpleApplication {
         try {
             //heightmap = new HillHeightMap(1025, 1000, 50, 100, (byte) 3);
 
-            heightmap = new ImageBasedHeightMap(ImageToAwt.convert(heightMapImage.getImage(), false, true, 0), 1f);
+            heightmap = new ImageBasedHeightMap(heightMapImage.getImage(), 1f);
             heightmap.load();
 
         } catch (Exception e) {

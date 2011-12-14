@@ -55,7 +55,6 @@ import com.jme3.texture.Texture.WrapMode;
 import java.io.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import jme3tools.converters.ImageToAwt;
 
 /**
  * Saves and loads terrain.
@@ -142,7 +141,7 @@ public class TerrainTestReadWrite extends SimpleApplication {
         // CREATE HEIGHTMAP
         AbstractHeightMap heightmap = null;
         try {
-            heightmap = new ImageBasedHeightMap(ImageToAwt.convert(heightMapImage.getImage(), false, true, 0), 1f);
+            heightmap = new ImageBasedHeightMap(heightMapImage.getImage(), 1f);
             heightmap.load();
 
         } catch (Exception e) {

@@ -62,7 +62,6 @@ import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
 import java.util.ArrayList;
 import java.util.List;
-import jme3tools.converters.ImageToAwt;
 import org.novyon.noise.ShaderUtils;
 import org.novyon.noise.basis.FilteredBasis;
 import org.novyon.noise.filter.IterativeFilter;
@@ -307,7 +306,7 @@ public class TerrainTestModifyHeight extends SimpleApplication {
         Texture heightMapImage = assetManager.loadTexture("Textures/Terrain/splat/mountains512.png");
         AbstractHeightMap heightmap = null;
         try {
-            heightmap = new ImageBasedHeightMap(ImageToAwt.convert(heightMapImage.getImage(), false, true, 0), 0.5f);
+            heightmap = new ImageBasedHeightMap(heightMapImage.getImage(), 0.5f);
             heightmap.load();
             heightmap.smooth(0.9f, 1);
 

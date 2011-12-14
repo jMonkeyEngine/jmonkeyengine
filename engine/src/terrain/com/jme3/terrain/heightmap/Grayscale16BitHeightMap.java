@@ -41,6 +41,7 @@ import javax.imageio.ImageIO;
 /**
  *
  * @author Anthyon
+ * @deprecated use assetManager instead
  */
 public class Grayscale16BitHeightMap extends AbstractHeightMap {
 
