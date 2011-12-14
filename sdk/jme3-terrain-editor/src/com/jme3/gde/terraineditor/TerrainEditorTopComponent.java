@@ -1376,8 +1376,8 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
             addRow(new Object[]{"", newIndex, null, scale}); // add to the table model
 
             // and add it to the actual material
-            setTexture(newIndex, (String) null);
             setTextureScale(newIndex, scale);
+            setTexture(newIndex, (String) null);
             editorController.enableTextureButtons();
         }
 
