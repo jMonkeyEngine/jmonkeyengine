@@ -49,7 +49,6 @@ import com.jme3.texture.FrameBuffer;
 import de.lessvoid.nifty.Nifty;
 import de.lessvoid.nifty.spi.input.InputSystem;
 import de.lessvoid.nifty.tools.TimeProvider;
-import de.lessvoid.nifty.tools.resourceloader.ResourceLoader;
 import de.lessvoid.nifty.tools.resourceloader.ResourceLocation;
 import java.io.InputStream;
 import java.net.URL;
@@ -92,7 +91,7 @@ public class NiftyJmeDisplay extends com.jme3.niftygui.NiftyJmeDisplay implement
 
     @Override
     public void initialize(RenderManager rm, ViewPort vp) {
-        ResourceLoader.addResourceLocation(resourceLocation);
+        nifty.getResourceLoader().addResourceLocation(resourceLocation);
         this.renderManager = rm;
         renderDev.setRenderManager(rm);
         inited = true;
@@ -160,7 +159,7 @@ public class NiftyJmeDisplay extends com.jme3.niftygui.NiftyJmeDisplay implement
 
     @Override
     public void cleanup() {
-        ResourceLoader.removeResourceLocation(resourceLocation);
+        nifty.getResourceLoader().removeResourceLocation(resourceLocation);
         inited = false;
 //        nifty.exit();
     }

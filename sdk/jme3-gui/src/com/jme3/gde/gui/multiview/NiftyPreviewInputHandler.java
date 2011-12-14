@@ -6,6 +6,7 @@ package com.jme3.gde.gui.multiview;
 
 import de.lessvoid.nifty.NiftyInputConsumer;
 import de.lessvoid.nifty.input.keyboard.KeyboardInputEvent;
+import de.lessvoid.nifty.tools.resourceloader.NiftyResourceLoader;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -45,4 +46,8 @@ public class NiftyPreviewInputHandler implements de.lessvoid.nifty.spi.input.Inp
     public void setMousePosition(int i, int i1) {
 //        throw new UnsupportedOperationException("Not supported yet.");
     }
+
+    public void setResourceLoader(NiftyResourceLoader nrl) {
+    }
+    
 }
