@@ -47,7 +47,7 @@ Let&#039;s have a look at the abstract project structure in the Project Explorer
 </li>
 <li><div> <strong>Source Packages node:</strong> This is where you manage your packages and classes. For a newly created project, it contains one package and one class, <code>Main.java</code>. Double click <code>Main.java</code> to open it in the editor.</div>
 </li>
-<li><div> <strong>Libraries node:</strong> An overview of all libraies on your game&#039;s classpath. The classpath is already set-up for the jme3 framework (including LWJGL, JOGG, JOAL, JOGL, etc).</div>
+<li><div> <strong>Libraries node:</strong> An overview of all libraies on your game&#039;s classpath. The classpath is already set-up for the jme3 framework (including LWJGL, Bullet, Nifty <acronym title="Graphical User Interface">GUI</acronym>, etc).</div>
 </li>
 </ul>
 
@@ -128,22 +128,24 @@ Right-Click the project to open the Project properties.
 
 <p>
 
+You may want to use external Java libraries in your jME project, for example content generators or artificial intelligence implementations.
+</p>
+
+<p>
 Add the library to the global library list:
 </p>
 <ul>
 <li><div> Select Tools→Libraries in the main menu.</div>
 </li>
-<li><div> Click &quot;New Library&quot;, enter a name for the library and press OK</div>
+<li><div> Click &quot;New Library&quot;, enter a name for the library, and press OK</div>
 </li>
 <li><div> In the &quot;Classpath&quot; tab, press &quot;Add JAR/Folder&quot; and select the jar file(s) needed for the library</div>
 </li>
-<li><div> In the &quot;JavaDoc&quot; tab, press &quot;Add ZIP/Folder&quot; and select the javadoc for the library (zipped or folder)</div>
+<li><div> (Optional) In the &quot;JavaDoc&quot; tab, press &quot;Add ZIP/Folder&quot; and select the javadoc for the library, as zip file or folder.</div>
 </li>
-<li><div> In the &quot;Sources&quot; tab you can select a folder or jar file containing the source files of the library if available</div>
+<li><div> (Optional) In the &quot;Sources&quot; tab you can select a folder or jar file containing the source files of the library.</div>
 </li>
 <li><div> Press OK</div>
-</li>
-<li><div> Right-Click your project</div>
 </li>
 </ul>
 
@@ -162,7 +164,7 @@ Add the library to a project:
 
 <p>
 
-Thats it, your project can now use the external library.
+That&#039;s it, your project can now use the external library. If you also linked the javadoc and sources, the <acronym title="Software Development Kit">SDK</acronym> will assist you with javadoc popups, code completion (ctrl-space) and source navigation (ctrl-click).
 </p>
 
 </div>
@@ -170,9 +172,9 @@ Thats it, your project can now use the external library.
 <h3><a>Development Process</a></h3>
 <div>
 <ul>
-<li><div> <strong>Creating new files and packages:</strong> Select the Source Packages node (or any of its subnodes), and press ctrl-N (File&gt;New File): Use the New File wizard to create new Java classes, Java packages, Java beans, Swing forms, Junit files, JME3 Materials and Models, and many more.</div>
+<li><div> <strong>Creating new files and packages:</strong> Select the Source Packages node (or any of its subnodes), and press ctrl-N (File→New File): Use the New File wizard to create new Java classes, Java packages, Java beans, Swing forms, JUnit files, j3m Materials, j3o scenes, j3f filters, and many more.</div>
 </li>
-<li><div> <strong>Editing files:</strong> Open the Projects Explorer and double-click a Java file from the Source Packages to open it in the Editor. The <a href="/com/jme3/gde/core/docs/sdk/code_editor.html">jMonkeyEngine SDK Code Editor</a> assists you in many ways, including Syntactic and semantic code coloring, code completion, and javadoc. <a href="/com/jme3/gde/core/docs/sdk/code_editor.html">(More...)</a></div>
+<li><div> <strong>Editing files:</strong> Open the Projects Explorer and double-click a Java file from the Source Packages to open it in the Editor. The <a href="/com/jme3/gde/core/docs/sdk/code_editor.html">jMonkeyEngine SDK Code Editor</a> assists you in many ways, including syntactic and semantic code coloring, code completion, and javadoc. <a href="/com/jme3/gde/core/docs/sdk/code_editor.html">(More...)</a></div>
 </li>
 <li><div> <strong>Adding Assets:</strong></div>
 <ul>
@@ -182,7 +184,7 @@ Thats it, your project can now use the external library.
 </li>
 </ul>
 </li>
-<li><div> <strong>ToDo List:</strong> The tasks window automatically lists all lines containing errors and warnings, and all lines that you have marked with comment keywords such as <code>FIXME</code>, @todo, TODO.</div>
+<li><div> <strong>ToDo List:</strong> The tasks window automatically lists all lines containing errors and warnings, and all lines that you have marked with the comment keywords <code>FIXME</code>, @todo, or TODO.</div>
 </li>
 <li><div> <strong>Integrated tools:</strong> <a href="/com/jme3/gde/core/docs/sdk/debugging_profiling_testing.html">Debugging, Testing, Profiling</a>.</div>
 </li>
@@ -230,30 +232,24 @@ Thats it, your project can now use the external library.
 
 <h2><a>Running Sample Projects</a></h2>
 <div>
-<ol>
-<li><div> Choose File &gt; New Project from the main menu.</div>
-</li>
-<li><div> In the New Project Wizard, select JME3 &gt; JME3 Tests</div>
-</li>
-<li><div> Click next to pick a path where to store the <code>JME3Tests</code> project.</div>
-</li>
-<li><div> Click Finish. The sample project opens. </div>
-</li>
-<li><div> Right-click the <code>JME3Tests</code> project and choose Run.</div>
+
+<p>
+
+The <acronym title="Software Development Kit">SDK</acronym> contains <a href="/com/jme3/gde/core/docs/sdk/sample_code.html">Sample Code</a> (read more).
+</p>
+
+<p>
+Open the Source Packages node of the JmeTests project.
+</p>
 <ul>
-<li><div> Use the TestChooser to try out the included jMonkeyEngine demos!</div>
+<li><div> Right-click the <code>JME3Tests</code> project and choose Run. <br/>
+Choose samples from the TestChooser and try out the included demos.</div>
 </li>
-</ul>
-</li>
-<li><div> Open the Source Packages node of the sample&#039;s project.</div>
-<ul>
-<li><div> Browse a demo&#039;s source code to learn how a feature is implemented.</div>
+<li><div> Browse a demo&#039;s source code in the <acronym title="Software Development Kit">SDK</acronym>&#039;s Project window to learn how a feature is implemented and used.</div>
 </li>
 <li><div> Feel free to modify the code samples and experiment! If you break something, you can always recreate the packaged samples from the <code>JME3 Tests</code> template.</div>
 </li>
 </ul>
-</li>
-</ol>
 
 </div>
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/sdk:project_creation?do=export_xhtmlbody">view online version</a></em></p>

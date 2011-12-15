@@ -43,8 +43,9 @@ Set the boolean in the AppSettings contructor to true if you want to keep the de
 		<th>Settings Property (Video)</th><th>Description</th><th>Default</th>
 	</tr>
 	<tr>
-		<td>setRenderer(AppSettings.LWJGL_OPENGL2) <br/>
-setRenderer(AppSettings.LWJGL_OPENGL3)</td><td>Switch Video Renderer</td><td>OpenGL 2</td>
+		<td>setRenderer(AppSettings.LWJGL_OPENGL1) <br/>
+setRenderer(AppSettings.LWJGL_OPENGL2) <br/>
+setRenderer(AppSettings.LWJGL_OPENGL3)</td><td>Switch Video Renderer to OpenGL 1.1, OpenGL 2, or OpenGL 3.3. If your graphic card does not support all OpenGL2 features (<code>UnsupportedOperationException: GLSL and OpenGL2 is required for the LWJGL renderer</code>), then you can force your SimpleApplication to use OpenGL1 compatibility. (Then you still can&#039;t use special OpenGL2 features, but at least the error goes away and you can continue with the rest.) </td><td> OpenGL 2 </td>
 	</tr>
 	<tr>
 		<td>setBitsPerPixel(32)</td><td>Set the color depth. <br/>
@@ -74,7 +75,7 @@ Set VSync to false to deactivate vertical syncing (faster, but possible page tea
 60 fps</td>
 	</tr>
 </table></div>
-<!-- EDIT1 TABLE [1406-3199] --><div><table>
+<!-- EDIT1 TABLE [1406-3627] --><div><table>
 	<tr>
 		<th>Settings Property (Input)</th><th>Description</th><th>Default</th>
 	</tr>
@@ -85,7 +86,7 @@ Set VSync to false to deactivate vertical syncing (faster, but possible page tea
 		<td>setUseJoysticks(true)</td><td>Activate optional joystick support</td><td>false</td>
 	</tr>
 </table></div>
-<!-- EDIT2 TABLE [3201-3490] --><div><table>
+<!-- EDIT2 TABLE [3629-3918] --><div><table>
 	<tr>
 		<th>Settings Property (Audio)</th><th>Description</th><th>Default</th>
 	</tr>
@@ -96,7 +97,7 @@ Set VSync to false to deactivate vertical syncing (faster, but possible page tea
 		<td>setStereo3D(true)</td><td>Enable 3D stereo. This feature requires hardware support from the GPU driver. See <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://en.wikipedia.org/wiki/Quad_buffering"><param name="text" value="<html><u>Quad Buffering</u></html>"><param name="textColor" value="blue"></object>. Currently, your everday user&#039;s hardware does not support this, so you can ignore it for now.</td><td>false</td>
 	</tr>
 </table></div>
-<!-- EDIT3 TABLE [3492-3916] --><div><table>
+<!-- EDIT3 TABLE [3920-4344] --><div><table>
 	<tr>
 		<th>Settings Property (Branding)</th><th>Description</th><th>Default</th>
 	</tr>
@@ -111,7 +112,7 @@ ImageIO.read(new File(&quot;&quot;)), …});</td><td>This specifies the little a
 		<td>setSettingsDialogImage(&quot;/path/to/splash.png&quot;)</td><td>A custom splashscreen image in the assets directory which is displayed when the settings dialog is shown.</td><td>&quot;/com/jme3/app/Monkey.png&quot;</td>
 	</tr>
 </table></div>
-<!-- EDIT4 TABLE [3918-4565] -->
+<!-- EDIT4 TABLE [4346-4993] -->
 </div>
 
 <h2><a>Saving and Loading Settings</a></h2>

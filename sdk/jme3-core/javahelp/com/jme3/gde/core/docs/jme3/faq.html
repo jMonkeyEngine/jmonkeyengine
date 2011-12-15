@@ -510,14 +510,24 @@ Use PhysicsControl&#039;s joints.
 
 </div>
 
-<h3><a>How do I get rid of the debug display (fps, stats)?</a></h3>
+<h3><a>What are these FPS/Objects/Vertices/Triangles statistics?</a></h3>
+<div>
+
+<p>
+At the bottom left of every default SimpleGame, you see the <a href="/com/jme3/gde/core/docs/jme3/advanced/statsview.html">StatsView</a> and the FPS (frames per seconds) view. It provides you with extra information during the development phase. For example, if the object count is increasing and the FPS slows down, then you now that your code attaches too many and does not detach enough objects.
+</p>
+
+</div>
+
+<h3><a>How do I get rid of the FPS/Objects statistics?</a></h3>
 <div>
 
 <p>
 In the application&#039;s simpleInitApp() method, call: 
+
 </p>
-<pre>setDisplayFps(false);
-setDisplayStatView(false);</pre>
+<pre>setDisplayFps(false); // to hide the FPS
+setDisplayStatView(false); // to hide the statistics </pre>
 
 </div>
 

@@ -90,12 +90,17 @@ If you want to create a Control that also extends an existing class, then create
 
 </p>
 <pre>public class ControlledThing extends MyThing implements MyControl &#123;
+&nbsp;
     protected Spatial spatial;
+&nbsp;
     protected boolean enabled = true;
-    public ControlledThing&#40;&#41; &#123; &#125;
-    public ControlledThing&#40;int x&#41; &#123;
+&nbsp;
+    public ControlledThing&#40;&#41; &#123; &#125; // empty serialization constructor
+&nbsp;
+    public ControlledThing&#40;int x&#41; &#123; // custom constructor
         super&#40;x&#41;;
     &#125;
+&nbsp;
     @Override
     public void update&#40;float tpf&#41; &#123;
         if &#40;enabled &amp;&amp; spatial != null&#41; &#123;
@@ -103,30 +108,36 @@ If you want to create a Control that also extends an existing class, then create
             // Write custom code to control the spatial here!
         &#125;
     &#125;
+&nbsp;
     @Override
     public void render&#40;RenderManager rm, ViewPort vp&#41; &#123;
-        // optional, e.g. to display a debug shape
+        // optional for advanced users, e.g. to display a debug shape
     &#125;
+&nbsp;
     @Override
     public Control cloneForSpatial&#40;Spatial spatial&#41; &#123;
         ControlledThing control = new ControlledThing&#40;y&#41;;
-        // ... // set custom properties
+        // set custom properties
         spatial.setControl&#40;control&#41;;
         return control;
     &#125;
+&nbsp;
     @Override
     public void setEnabled&#40;boolean enabled&#41; &#123;
         this.enabled = enabled;
         // ...
     &#125;
+&nbsp;
     @Override
     public boolean isEnabled&#40;&#41; &#123;
         return enabled;
     &#125;
+&nbsp;
     @Override
     public void setSomething&#40;int z&#41; &#123;
-        // your custom method ...
+        // You can add custom methods ...
     &#125;
+&nbsp;
     @Override
     public void write&#40;JmeExporter ex&#41; throws IOException &#123;
         super.write&#40;ex&#41;;
@@ -151,6 +162,7 @@ If you want to create a Control that also extends an existing class, then create
 <div>
 
 <p>
+
 This class can be found under <code>com.jme3.scene.control.AbstractControl</code>.
 </p>
 <ul>
@@ -163,43 +175,59 @@ This class can be found under <code>com.jme3.scene.control.AbstractControl</code
 </ul>
 
 <p>
-Usage: Your custom subclass implements the three methods <code>controlUpdate()</code>, <code>controlRender()</code>, and <code>cloneForSpatial()</code> as shown here:
 
+Usage: Your custom subclass implements the three methods <code>controlUpdate()</code>, <code>controlRender()</code>, <code>setSpatial()</code>, and <code>cloneForSpatial()</code> as shown here:
 </p>
 <pre>public class MyControl extends AbstractControl implements Savable, Cloneable &#123;
-  private Thing thing; // some custom class of yours
+&nbsp;
+  private Thing thing; // some custom field of yours
+&nbsp;
   public MyControl&#40;&#41;&#123;&#125; // empty serialization constructor
+&nbsp;
   public MyControl&#40;thing&#41; &#123; // some custom constructor
-    super&#40;spatial&#41;;
     this.thing = thing;
+    // Note: you can not access spatial here
   &#125;
+&nbsp;
+  @Override
+  public void setSpatial&#40;Spatial spatial&#41; &#123;
+    super.setSpatial&#40;spatial&#41;;
+    // optional init method
+    // you can get and set user data in the spatial here
+  &#125;
+&nbsp;
   @Override
   protected void controlUpdate&#40;float tpf&#41;&#123;
     if&#40;spatial != null &amp;&amp; thing != null&#41; &#123;
       // Implement your custom control here ...
-      // Change scene graph etc
+      // Change scene graph, access and modify userdata in the spatial, etc
     &#125;
   &#125;
+&nbsp;
   @Override
   protected void controlRender&#40;RenderManager rm, ViewPort vp&#41;&#123;
-     // optional rendering manipulation (advanced)
+     // optional rendering manipulation (for advanced users)
   &#125;
+&nbsp;
   @Override
   public Control cloneForSpatial&#40;Spatial spatial&#41;&#123;
     final MyControl control = new MyControl&#40;...&#41;;
     control.setSpatial&#40;spatial&#41;;
     return control;
   &#125;
+&nbsp;
   @Override
   public void read&#40;JmeImporter im&#41; throws IOException &#123;
       super.read&#40;im&#41;;
       // im.getCapsule(this).read(...);
   &#125;
+&nbsp;
   @Override
   public void write&#40;JmeExporter ex&#41; throws IOException &#123;
       super.write&#40;ex&#41;;
       // ex.getCapsule(this).write(...);
   &#125;
+&nbsp;
 &#125;</pre>
 
 </div>

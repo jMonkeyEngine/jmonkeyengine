@@ -13,23 +13,46 @@ Place audio files in the <code>assets/Sound/</code> directory of your project. j
 
 </div>
 
-<h2><a>Creating Audio Nodes</a></h2>
+<h2><a>Creating Audio Nodes: Streamed or Buffered</a></h2>
 <div>
 
 <p>
 
 The main class to look at is <code>com.jme3.audio.AudioNode</code>.
-By default, a new audio node is buffered, i.e. JME loads the whole file into memory before playing:
 
 </p>
-<pre>AudioNode boom = new AudioNode&#40;assetManager, &quot;Sound/boom.wav&quot;&#41;;</pre>
+<ul>
+<li><div> <strong>Buffered:</strong> By default, a new audio node is buffered. This means jME3 loads the whole file into memory before playing. You create a buffered sound  by setting the boolean to false, or using no boolean at all: <pre>AudioNode boom = new AudioNode&#40;assetManager, &quot;Sound/boom.wav&quot;&#41;;</pre>
+</div>
+</li>
+<li><div> <strong>Streamed:</strong> If it is a long file, you stream the audio, that means, you load and play in parallel until the sound is done. You create a streamed sound by setting the boolean to true:<pre>AudioNode music = new AudioNode&#40;assetManager, &quot;Sound/music.wav&quot;, true&#41;;</pre>
+</div>
+</li>
+</ul>
 
+</div>
+
+<h2><a>Getting AudioNode Properties</a></h2>
+<div>
+<div><table>
+	<tr>
+		<th>AudioNode Method</th><th>Usage</th>
+	</tr>
+	<tr>
+		<td>getStatus()</td><td>Returns either Status.Playing, Status.Stopped, or Status.Paused. </td>
+	</tr>
+	<tr>
+		<td>getVolume()</td><td>Returns the volume. </td>
+	</tr>
+	<tr>
+		<td>getPitch()</td><td>Returns the pitch. </td>
+	</tr>
+</table></div>
+<!-- EDIT1 TABLE [1068-1240] -->
 <p>
 
-If it is a long file, you set the boolean to true to stream the audio.
-
+There are other obvious getters to poll the status of corresponding setters below.
 </p>
-<pre>AudioNode music = new AudioNode&#40;assetManager, &quot;Sound/music.wav&quot;, true&#41;;</pre>
 
 </div>
 
@@ -40,24 +63,22 @@ If it is a long file, you set the boolean to true to stream the audio.
 		<th>AudioNode Method</th><th>Usage</th>
 	</tr>
 	<tr>
-		<td>getStatus()</td><td>Returns either Status.Playing, Status.Stopped, or Status.Paused.</td>
+		<td>setVolume(1)</td><td>Sets the volume gain. 1 is the default volume, 2 is twice as loud, etc. 0 is silent/mute. </td>
 	</tr>
 	<tr>
-		<td>setVolume(1)</td><td>Sets the volume gain. 1 is the default volume, 2 is twice as loud, 0 is mute. </td>
-	</tr>
-	<tr>
-		<td>setPitch(1)</td><td>Makes the sound play in a higher or lower pitch. Default is 1.</td>
+		<td>setPitch(1)</td><td>Makes the sound play in a higher or lower pitch. Default is 1. 2 is twice as high, .5f is half as low. </td>
 	</tr>
 </table></div>
-<!-- EDIT1 TABLE [814-1088] --><div><table>
+<!-- EDIT2 TABLE [1368-1616] --><div><table>
 	<tr>
 		<th>AudioNode Method</th><th>Usage</th>
 	</tr>
 	<tr>
-		<td>setLooping(false)</td><td>Configures the sound that, if it is played, it plays once and stops. This is the default.</td>
+		<td>setLooping(false)</td><td>Configures the sound so that, if it is played, it plays once and stops. This is the default.</td>
 	</tr>
 	<tr>
-		<td>setLooping(true)</td><td>Configures the sound that, if it is played, it plays repeats from the beginning, until stop() or pause() are called. Good for ambient background noises.  </td>
+		<td>setLooping(true)</td><td>Configures the sound so that, if it is played, it plays repeats from the beginning, until stop() or pause() are called. Good for ambient background noises. <br/>
+Does not work for streamed sounds! </td>
 	</tr>
 	<tr>
 		<td>setPositional(false) <br/>
@@ -70,7 +91,7 @@ setDirectional(false)</td><td>All 3D effects switched off. This sound is global 
 		<td>setMaxDistance(100f)</td><td>Maximum distance the sound can be heard, in world units. Default is 20.</td>
 	</tr>
 </table></div>
-<!-- EDIT2 TABLE [1090-1781] --><div><table>
+<!-- EDIT3 TABLE [1618-2352] --><div><table>
 	<tr>
 		<th>AudioNode Method</th><th>Usage</th>
 	</tr>
@@ -82,7 +103,7 @@ setLocalTranslation(…)</td><td>Activates 3D audio: The sound appears to come f
 		<td>setReverbEnabled(true)</td><td>A 3D echo effect that only makes sense to use with positional AudioNodes. The reverb effect is influenced by the environment that the audio renderer is in. See &quot;Setting Environment Properties&quot; below. </td>
 	</tr>
 </table></div>
-<!-- EDIT3 TABLE [1783-2255] --><div><table>
+<!-- EDIT4 TABLE [2354-2826] --><div><table>
 	<tr>
 		<th>AudioNode Method</th><th>Usage</th>
 	</tr>
@@ -95,7 +116,7 @@ setDirection(…) </td><td>Activates 3D audio: This sound can only be heard from
 setOuterAngle()</td><td>Set the angle in degrees for the directional audio. The angle is relative to the direction. Note: By default, both angles are 360° and the sound can be heard from all directions!</td>
 	</tr>
 </table></div>
-<!-- EDIT4 TABLE [2257-2784] -->
+<!-- EDIT5 TABLE [2828-3355] -->
 </div>
 
 <h2><a>Play, Pause, Stop</a></h2>
@@ -164,7 +185,7 @@ Optionally, You can choose from the following environmental presets from <code>c
 		<td>Closet      </td><td>1.00f</td><td>1.0f</td><td>1.0f</td><td>1.00f</td><td>0.15f</td><td>1.0f</td><td>0.600f</td><td>0.0025f</td><td>0.500f</td><td>0.0006f</td>
 	</tr>
 </table></div>
-<!-- EDIT5 TABLE [4359-4848] -->
+<!-- EDIT6 TABLE [4930-5419] -->
 <p>
 
 Activate the preset with setEnvironment(). E.g. in a dungeon environment: 
@@ -179,7 +200,7 @@ A sound engineer can create a custom <code>com.​jme3.​audio.Environment</cod
                 reflGain, reflDelay, lateGain, lateDelay &#41; &#41;;</pre>
 
 <p>
-You can find more info about OpenAL and its advanced features here: <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://connect.creativelabs.com/openal/Documentation/OpenAL%201.1%20Specification.pdf"><param name="text" value="<html><u>OpenAL 1.1 Specification</u></html>"><param name="textColor" value="blue"></object>
+You can find more info about OpenAL and its advanced features here: <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://connect.creativelabs.com/openal/Documentation/OpenAL%201.1%20Specification.pdf"><param name="text" value="<html><u>OpenAL 1.1 Specification</u></html>"><param name="textColor" value="blue"></object>. It depends on the hardware whether audio effects are supported (if not, you get the message <code>OpenAL EFX not available! Audio effects won&#039;t work.</code>)
 </p>
 <div><span>
 	<a href="/wiki/doku.php/tag:sound?do=showtag&amp;tag=tag%3Asound">sound</a>,

@@ -179,8 +179,7 @@ To activate it, add a jME SceneProcessor named <code>com.jme3.shadow.PssmShadowR
 ...
 public void simpleInitApp&#40;&#41; &#123;
     ....
-    pssmRenderer = new PssmShadowRenderer&#40;
-        assetManager,1024,4,PssmShadowRenderer.EDGE_FILTERING_PCF&#41;;
+    pssmRenderer = new PssmShadowRenderer&#40;assetManager, 1024, 3&#41;;
     pssmRenderer.setDirection&#40;new Vector3f&#40;-1, -1, -1&#41;.normalizeLocal&#40;&#41;&#41;;
     viewPort.addProcessor&#40;pssmRenderer&#41;;</pre>
 
@@ -194,14 +193,6 @@ The constructor expects the following values:
 <li><div> The size of the rendered shadowmaps (512, 1024, 2048, etc…)</div>
 </li>
 <li><div> The number of shadow maps rendered (the more shadow maps, the more quality, the less FPS).</div>
-</li>
-<li><div> The type of filtering for shadow edge smoothing:</div>
-<ul>
-<li><div> PSSMShadowRenderer.EDGE_FILTERING_DITHER</div>
-</li>
-<li><div> PSSMShadowRenderer.EDGE_FILTERING_PCF (default).</div>
-</li>
-</ul>
 </li>
 </ul>
 

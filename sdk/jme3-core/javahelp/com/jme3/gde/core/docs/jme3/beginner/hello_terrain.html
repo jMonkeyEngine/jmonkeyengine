@@ -23,6 +23,7 @@ One way to create a 3D landscape is to sculpt a huge terrain model. This gives y
 &nbsp;
 import com.jme3.app.SimpleApplication;
 import com.jme3.material.Material;
+import com.jme3.renderer.Camera;
 import com.jme3.terrain.geomipmap.TerrainLodControl;
 import com.jme3.terrain.heightmap.AbstractHeightMap;
 import com.jme3.terrain.geomipmap.TerrainQuad;
@@ -32,6 +33,8 @@ import com.jme3.terrain.heightmap.ImageBasedHeightMap;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
 import jme3tools.converters.ImageToAwt;
+import java.util.ArrayList;
+import java.util.List;
 &nbsp;
 public class HelloTerrain extends SimpleApplication &#123;
 &nbsp;

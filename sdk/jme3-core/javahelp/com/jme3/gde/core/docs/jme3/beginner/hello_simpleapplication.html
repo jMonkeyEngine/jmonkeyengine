@@ -9,43 +9,80 @@ Next: <a href="/com/jme3/gde/core/docs/jme3/beginner/hello_node.html">Hello Node
 </p>
 
 <p>
-<strong>Prerequisites:</strong> This tutorial assumes that:
+<strong>Prerequisites:</strong> This tutorial assumes that you have <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://jmonkeyengine.org/wiki/doku.php/"><param name="text" value="<html><u>downloaded the jMonkeyEngine SDK</u></html>"><param name="textColor" value="blue"></object>.
 </p>
-<ul>
-<li><div> You have <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://jmonkeyengine.org/wiki/doku.php/"><param name="text" value="<html><u>downloaded the jMonkeyEngine SDK</u></html>"><param name="textColor" value="blue"></object> (or set up the jMonkeyEngine3 in another IDE of your choice)</div>
-</li>
-<li><div> You are have <a href="/com/jme3/gde/core/docs/sdk/project_creation.html">created a Java SE project with the JME3 libraries on the classpath</a>.</div>
-</li>
-</ul>
 
 <p>
+In this tutorial series, we assume that you use the jMonkeyEngine <a href="/com/jme3/gde/core/docs/sdk.html">SDK</a>. As an intermediate or advanced Java developer, you will quickly see that, in general, you can develop jMonkeyEngine code in any integrated development environment (NetBeans IDE, Eclipse, IntelliJ) or even from the <a href="/com/jme3/gde/core/docs/jme3/simpleapplication_from_the_commandline.html">command line</a>. 
+</p>
 
-You are ready to create your first jMonkeyEngine3 game! You can generally use the tutorials in this introductory series with any integrated development environment (IDE), such as the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym>, NetBeans, Eclipse, or run them straight from the commandline. In the following, we will use the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym>.
+<p>
+OK, let&#039;s get ready to create our first jMonkeyEngine3 application.
 </p>
 
 </div>
 
-<h2><a>Writing a SimpleApplication</a></h2>
+<h2><a>Create a Project</a></h2>
 <div>
 
 <p>
 
-Create a <code>jme3test.helloworld</code> package and a file <code>HelloJME3.java</code> in it. 
+In the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym>:
+</p>
+<ol>
+<li><div> Choose File→New Project… from the main menu.</div>
+</li>
+<li><div> In the New Project wizard, select the template JME3→Basic Game. Click Next. </div>
+<ol>
+<li><div> Specify a project name, e.g. &quot;HelloWorldTutorial&quot;</div>
+</li>
+<li><div> Specify a path where to store your new project, e.g. a <code>jMonkeyProjects</code> directory in your home directory.</div>
+</li>
+</ol>
+</li>
+<li><div> Click Finish. </div>
+</li>
+</ol>
+
+<p>
+
+If you have questions, read more about <a href="/com/jme3/gde/core/docs/sdk/project_creation.html">Project Creation</a> here.
 </p>
 
 <p>
-In the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym>, you right-click the Source Packages node:
+<p><div>We recommend to go through the steps yourself, as described in the tutorials. Alternatively, you can create a project based on the <a href="/com/jme3/gde/core/docs/sdk/sample_code.html">JmeTests</a> template in the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym>. It will create a project that already contains the <code>jme3test.helloworld</code> samples (and many others). For example, you can use the JmeTests project to verify whether you got the solution right.
+</div></p>
 </p>
-<ul>
-<li><div> Select <code>New… &gt; Java Class</code> to create a new file.</div>
+
+</div>
+
+<h2><a>Write a SimpleApplication</a></h2>
+<div>
+
+<p>
+
+For this tutorial, you want to create a <code>jme3test.helloworld</code> package in your project, and create a file <code>HelloJME3.java</code> in it. 
+</p>
+
+<p>
+In the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym>:
+</p>
+<ol>
+<li><div> Right-click the Source Packages node of your project.</div>
 </li>
-<li><div> Enter a class name: <code>HelloJME3</code></div>
+<li><div> Choose New…→Java Class to create a new file.</div>
 </li>
-<li><div> Enter a package: <code>jme3test.helloworld</code></div>
+<li><div> Enter the class name: <code>HelloJME3</code></div>
+</li>
+<li><div> Enter the package name: <code>jme3test.helloworld</code>. </div>
 </li>
 <li><div> Click Finish.</div>
 </li>
-</ul>
+</ol>
+
+<p>
+The <acronym title="Software Development Kit">SDK</acronym> creates the file HelloJME3.java for you.
+</p>
 
 </div>
 
@@ -88,19 +125,21 @@ public class HelloJME3 extends SimpleApplication &#123;
 &#125;</pre>
 
 <p>
-Build and run the HelloJME3 class. If a jme settings dialog pops up, confirm the default settings.
+Right-click the HelloJME3 class and choose Run. If a jME3 settings dialog pops up, confirm the default settings.
 </p>
 <ol>
-<li><div> You should see a simple window displaying a 3-D cube.</div>
+<li><div> You should see a simple window displaying a 3D cube.</div>
 </li>
-<li><div> Use the WASD keys and the mouse to navigate around.</div>
+<li><div> Press the WASD keys and move the mouse to navigate around.</div>
+</li>
+<li><div> Look at the FPS text and object count information in the bottom left. You will use this information during development, and you will remove it for the release. (To read the numbers correctly, consider that the 14 lines of text counts as 14 objects with 914 vertices.)</div>
 </li>
 <li><div> Press Escape to close the application.</div>
 </li>
 </ol>
 
 <p>
-Congratulations, it works! How did we do that?
+Congratulations! Now let&#039;s find out how it works!
 </p>
 
 </div>
@@ -110,7 +149,42 @@ Congratulations, it works! How did we do that?
 
 <p>
 
-The code above has initialized the scene, and started the game.
+The code above has initialized the scene, and started the application.
+</p>
+
+</div>
+
+<h3><a>Start the SimpleApplication</a></h3>
+<div>
+
+<p>
+
+Look at the first line. The HelloJME3.java class extends <code>com.jme3.app.SimpleApplication</code>. 
+</p>
+<pre>public class HelloJME3 extends SimpleApplication &#123;
+  // your code...
+&#125;</pre>
+
+<p>
+Every JME3 game is an instance of <code>com.jme3.app.SimpleApplication</code>. The SimpleApplication class manages your 3D scene graph and automatically draws it to the screen – that is, in short, what a game engine does for you! 
+</p>
+
+<p>
+You start every JME3 game from the main() method, as every standard Java application:
+</p>
+<ol>
+<li><div> Instantiate your <code>SimpleApplication</code>-based class</div>
+</li>
+<li><div> Call the application&#039;s <code>start()</code> method to start the game engine. </div>
+</li>
+</ol>
+<pre>    public static void main&#40;String&#91;&#93; args&#41;&#123;
+        HelloJME3 app = new HelloJME3&#40;&#41;; // instantiate the game
+        app.start&#40;&#41;;                     // start the game!
+    &#125;</pre>
+
+<p>
+This code opens your application window. Let&#039;s learn how you put something into the window next.
 </p>
 
 </div>
@@ -119,44 +193,55 @@ The code above has initialized the scene, and started the game.
 <div>
 <div><table>
 	<tr>
-		<th>What you want to do</th><th>How you say it in JME3 terminology</th>
+		<th>What you want to do</th><th>How you say that in JME3 terminology</th>
 	</tr>
 	<tr>
-		<td>You want to create a cube.</td><td>You create a Geometry with a 1x1x1 Box shape.</td>
+		<td>You want to create a cube.</td><td>I create a Geometry with a 1x1x1 Box shape.</td>
 	</tr>
 	<tr>
-		<td>You want to use a blue color.</td><td>You create a Material with a blue Color property.</td>
+		<td>You want to use a blue color.</td><td>I create a Material with a blue Color property.</td>
 	</tr>
 	<tr>
-		<td>You want to colorize the cube blue.</td><td>You set the Geometry&#039;s Material.</td>
+		<td>You want to colorize the cube blue.</td><td>I set the Material of the Box Geometry.</td>
 	</tr>
 	<tr>
-		<td>You want the cube to appear in the scene.</td><td>You attach the cube to the rootNode.</td>
+		<td>You want to add the cube to the scene.</td><td>I attach the Box Geometry to the rootNode.</td>
+	</tr>
+	<tr>
+		<td>You want the cube to appear in the center.</td><td>I create the Box at the origin = at <code>Vector3f.ZERO</code>.</td>
 	</tr>
 </table></div>
-<!-- EDIT1 TABLE [2897-3262] -->
+<!-- EDIT1 TABLE [5076-5549] -->
+<p>
+
+If you are unfamiliar with the vocabulary, read more about <a href="/com/jme3/gde/core/docs/jme3/the_scene_graph.html">the Scene Graph</a> here.
+</p>
+
 </div>
 
-<h3><a>Initializing the Scene</a></h3>
+<h3><a>Initialize the Scene</a></h3>
 <div>
 
 <p>
 
-In Java, the creation of a blue cube looks as follows:
+Look at rest of the code sample. The <code>simpleInitApp()</code> method is automatically called once at the beginning when the application starts. Every JME3 game must have this method. In the <code>simpleInitApp()</code> method, you load game objects before the game starts. 
 </p>
 <pre>    public void simpleInitApp&#40;&#41; &#123;
-        Box&#40;Vector3f.ZERO, 1, 1, 1&#41;; // create cube shape at the origin
-        Geometry geom = new Geometry&#40;&quot;Box&quot;, b&#41;;  // create cube geometry from the shape
-        Material mat = new Material&#40;assetManager,
-          &quot;Common/MatDefs/Misc/Unshaded.j3md&quot;&#41;;  // create a simple material
-        mat.setColor&#40;&quot;Color&quot;, ColorRGBA.Blue&#41;;   // set color of material to blue
-        geom.setMaterial&#40;mat&#41;;                   // set the cube's material
-        rootNode.attachChild&#40;geom&#41;;              // make the cube appear in the scene
+       // your initialization code...
     &#125;</pre>
 
 <p>
-In the <code>simpleInitApp()</code> method, you create or load all game objects before the game starts. The <code>simpleInitApp()</code> method is automatically called once at the beginning of every JME3 game.
+The initialization code of a blue cube looks as follows:
 </p>
+<pre>    public void simpleInitApp&#40;&#41; &#123;
+        Box&#40;Vector3f.ZERO, 1, 1, 1&#41;; // create a 1x1x1 box shape at the origin
+        Geometry geom = new Geometry&#40;&quot;Box&quot;, b&#41;;  // create a cube geometry from the box shape
+        Material mat = new Material&#40;assetManager,
+          &quot;Common/MatDefs/Misc/Unshaded.j3md&quot;&#41;;  // create a simple material
+        mat.setColor&#40;&quot;Color&quot;, ColorRGBA.Blue&#41;;   // set color of material to blue
+        geom.setMaterial&#40;mat&#41;;                   // set the cube geometry 's material
+        rootNode.attachChild&#40;geom&#41;;              // make the cube geometry appear in the scene
+    &#125;</pre>
 
 <p>
 A typical JME3 game has the following initialization process:
@@ -168,23 +253,23 @@ A typical JME3 game has the following initialization process:
 </li>
 <li><div> You make objects appear in the scene by attaching them to the <code>rootNode</code>.</div>
 </li>
-<li><div> <strong>Examples:</strong> Load player, terrain, sky, enemies, obstacles, and place them in their start positions.</div>
+<li><div> <strong>Examples:</strong> Load player, terrain, sky, enemies, obstacles, …, and place them in their start positions.</div>
 </li>
 </ul>
 </li>
 <li><div> You initialize variables</div>
 <ul>
+<li><div> You create variables to track the game state. </div>
+</li>
 <li><div> You set variables to their start values. </div>
 </li>
-<li><div> You want to use variables track the game state. </div>
-</li>
-<li><div> <strong>Examples:</strong> Set the <code>score</code> to 0, set <code>health</code> to 100%, and so on.</div>
+<li><div> <strong>Examples:</strong> Set the <code>score</code> to 0, set <code>health</code> to 100%, …</div>
 </li>
 </ul>
 </li>
-<li><div> You initialize keys and mouse actions</div>
+<li><div> You initialize keys and mouse actions.</div>
 <ul>
-<li><div> The following input bindings are pre-configured by default:</div>
+<li><div> The following input bindings are pre-configured:</div>
 <ul>
 <li><div> W,A,S,D keys – Move around in the scene</div>
 </li>
@@ -194,35 +279,13 @@ A typical JME3 game has the following initialization process:
 </li>
 </ul>
 </li>
-<li><div> Add your own keys and mouse clicks.</div>
+<li><div> Define your own additional keys and mouse click actions.</div>
 </li>
-<li><div> <strong>Examples:</strong> Click to shoot, press Space to jump, etc.</div>
+<li><div> <strong>Examples:</strong> Click to shoot, press Space to jump, …</div>
 </li>
 </ul>
 </li>
 </ol>
-
-</div>
-
-<h3><a>Starting the Game</a></h3>
-<div>
-
-<p>
-
-The HelloJME3.java class extends <code>com.jme3.app.SimpleApplication</code>, which is a subclass of <code>com.jme3.app.Application</code>. Every JME3 game is an instance of <code>com.jme3.app.SimpleApplication</code>.
-</p>
-
-<p>
-To run a JME3 game, you first instantiate your <code>SimpleApplication</code>-based class, and then call its <code>start()</code> method:
-</p>
-<pre>    public static void main&#40;String&#91;&#93; args&#41;&#123;
-        HelloJME3 app = new HelloJME3&#40;&#41;;
-        app.start&#40;&#41;; // start the game
-    &#125;</pre>
-
-<p>
-Typically you start a game from your Java application&#039;s main() method. 
-</p>
 
 </div>
 
@@ -231,10 +294,6 @@ Typically you start a game from your Java application&#039;s main() method.
 
 <p>
 
-These few lines of code simply display a static 3D cube. You can navigate around in this 3D scene. 
-</p>
-
-<p>
 You have learned that a SimpleApplication is a good starting point because it provides you with:
 </p>
 <ul>
@@ -248,23 +307,23 @@ You have learned that a SimpleApplication is a good starting point because it pr
 
 <p>
 
-When developing a game application, you will now want to:
+When developing a game application, you want to:
 </p>
 <ol>
-<li><div> Initialize your game world,</div>
+<li><div> Initialize the game scene</div>
 </li>
-<li><div> Trigger actions in the event loop,</div>
+<li><div> Trigger game actions </div>
 </li>
 <li><div> Respond to user input.</div>
 </li>
 </ol>
 
 <p>
-In the following tutorials you learn how accomplish these tasks with the jMonkeyEngine 3.
+The now following tutorials teach how you accomplish these tasks with the jMonkeyEngine 3.
 </p>
 
 <p>
-Continue with the <a href="/com/jme3/gde/core/docs/jme3/beginner/hello_node.html">Hello Node</a> tutorial, where we will first show you more details about how to initialize the game world, also known as the scene graph.
+Continue with the <a href="/com/jme3/gde/core/docs/jme3/beginner/hello_node.html">Hello Node</a> tutorial, where you learn more details about how to initialize the game world, also known as the scene graph.
 
 </p>
 <hr />

@@ -110,10 +110,10 @@ In this tutorial, you learn some new terms:
 		<th>What you want to do</th><th>How you say it in JME3 terminology</th>
 	</tr>
 	<tr>
-		<td>Structure the 3D scene</td><td>Define the scene graph</td>
+		<td>Lay out the 3D scene</td><td>Populate the scene graph</td>
 	</tr>
 	<tr>
-		<td>Create scene objects</td><td>Create Spatials</td>
+		<td>Create scene objects</td><td>Create Spatials (e.g. create Geometries)</td>
 	</tr>
 	<tr>
 		<td>Make an object appear in the scene</td><td>Attach a Spatial to the rootNode</td>
@@ -121,8 +121,11 @@ In this tutorial, you learn some new terms:
 	<tr>
 		<td>Make an object disappear from the scene</td><td>Detach the Spatial from the rootNode</td>
 	</tr>
+	<tr>
+		<td>Position/move, turn, or resize an object</td><td>Translate, rotate, scale an object. Transform an object.</td>
+	</tr>
 </table></div>
-<!-- EDIT1 TABLE [3079-3371] -->
+<!-- EDIT1 TABLE [3079-3496] -->
 <p>
 
 Every JME3 application has a rootNode: Your game automatically inherits the <code>rootNode</code> object from SimpleApplication. Everything attached to the rootNode is part of the scene graph. The elements of the scene graph are Spatials.
@@ -149,7 +152,7 @@ Every JME3 application has a rootNode: Your game automatically inherits the <cod
 		<th> Examples: </th><td> A box, a sphere, a player, a building, a piece of terrain, a vehicle, missiles, NPCs, etc… </td><td> The <code>rootNode</code>, a floor node grouping several terrains, a custom vehicle-with-passengers node, a player-with-weapon node, an audio node, etc… </td>
 	</tr>
 </table></div>
-<!-- EDIT2 TABLE [3787-4280] -->
+<!-- EDIT2 TABLE [3912-4405] -->
 </div>
 
 <h2><a>Understanding the Code</a></h2>
@@ -201,11 +204,11 @@ What happens in the code snippet? You use the <code>simpleInitApp()</code> metho
 </li>
 </ul>
 </li>
-<li><div> You create a Node.</div>
+<li><div> You create a pivot Node. </div>
 <ul>
 <li><div> Name the Node &quot;pivot&quot;.</div>
 </li>
-<li><div> By default the Node is positioned at (0,0,0).</div>
+<li><div> By default the Node is positioned at (0,0,0). </div>
 </li>
 <li><div> Attach the Node to the rootNode.</div>
 </li>
@@ -213,13 +216,13 @@ What happens in the code snippet? You use the <code>simpleInitApp()</code> metho
     rootNode.attachChild&#40;pivot&#41;;</pre>
 
 <p>
-If you run the application with only the code up to here, the scene appears empty. This is because the Node is invisible and you have not yet attached any visible Geometries to the rootNode. 
+If you run the application with only the code up to here, the scene appears empty. This is because a Node is invisible, and you have not yet attached any visible Geometries to the rootNode. 
 </p>
 </div>
 </li>
 </ul>
 </li>
-<li><div> Attach the two boxes to the node. <pre>        pivot.attachChild&#40;blue&#41;;
+<li><div> Attach the two boxes to the pivot node. <pre>        pivot.attachChild&#40;blue&#41;;
         pivot.attachChild&#40;red&#41;;</pre>
 
 <p>
@@ -236,10 +239,24 @@ If you run the app with only the code up to here, you see two cubes: A red cube 
 </li>
 </ol>
 
+</div>
+
+<h3><a>What is a Pivot Node?</a></h3>
+<div>
+
 <p>
 
-<strong>What has happened?</strong> You have grouped two Geometries by attaching them to one pivot Node. You can now use the pivot Node as a handle to move the two Geometries. Rotating the pivot Node rotates both attached Geometries, in one step. Transforming a Node to transform attached Spatials is a common task. You will use this method a lot in your games when you move Spatials around, e.g. for game characters. You can also rotate Spatials around their own center – then you do not need a pivot Node.
+You can transform (e.g. rotate) Geometries around their own center, or around a user defined center point. A user defined center point for one or more Geometries is called pivot.
+
 </p>
+<ul>
+<li><div> In this example, you have grouped two Geometries by attaching them to one pivot Node. You use the pivot Node as a handle to rotate the two Geometries together around one common center. Rotating the pivot Node rotates all attached Geometries, in one step. The pivot node is the center of the rotation. Before attaching the other Geometries, make certain that the pivot node is at (0,0,0). Transforming a parent Node to transform all attached child Spatials is a common task. You will use this method a lot in your games when you move Spatials around. <br/>
+<strong>Examples:</strong> A vehicle and its driver move together; a planet with its moon orbits the sun. </div>
+</li>
+<li><div> Contrast this case with the other option: If you don&#039;t create an extra pivot node and transform a Geometry, then every transformation is done relative to the Geometry&#039;s origin (typically the center). <br/>
+<strong>Examples:</strong> If you rotate each cube directly (using <code>red.rotate(0.1f , 0.2f , 0.3f);</code> and <code>blue.rotate(0.5f , 0.0f , 0.25f);</code>), then each cube is rotated individually around its center. This is similar to a planet rotating around its own center.</div>
+</li>
+</ul>
 
 </div>
 
@@ -250,7 +267,7 @@ If you run the app with only the code up to here, you see two cubes: A red cube 
 		<th> Task…? </th><th> Solution! </th>
 	</tr>
 	<tr>
-		<td> Create a Spatial </td><td> Create a shape and give it a Material. For example: <pre>Box&#40;Vector3f.ZERO, 1, 1, 1&#41;;
+		<td> Create a Spatial </td><td> Create a shape, wrap it into a Geometry, and give it a Material. For example: <pre>Box&#40;Vector3f.ZERO, 1, 1, 1&#41;;
 Geometry thing = new Geometry&#40;&quot;thing&quot;, mesh&#41;;
 Material mat = new Material&#40;assetManager,
    &quot;Common/MatDefs/Misc/ShowNormals.j3md&quot;&#41;;
@@ -267,15 +284,16 @@ thing.setMaterial&#40;mat&#41;;</pre>
 </td>
 	</tr>
 	<tr>
-		<td> Find a Spatial in the scene by the object&#039;s name or ID. </td><td> Look at the node&#039;s children: <pre>Spatial thing = rootNode.getChild&#40;&quot;thing&quot;&#41;;</pre>
+		<td> Find a Spatial in the scene by the object&#039;s name, or ID, or by its position in the parent-child hierarchy. </td><td> Look at the node&#039;s children or parent: <pre>Spatial thing = rootNode.getChild&#40;&quot;thing&quot;&#41;;</pre>
 <pre>Spatial twentyThird = rootNode.getChild&#40;22&#41;;</pre>
+<pre>Spatial parent = myNode.getParent&#40;&#41;;</pre>
 </td>
 	</tr>
 	<tr>
 		<td> Specify what should be loaded at the start </td><td> Everything you initialize and attach to the <code>rootNode</code> in the <code>simpleInitApp()</code> method is part of the scene at the start of the game. </td>
 	</tr>
 </table></div>
-<!-- EDIT3 TABLE [7080-8201] -->
+<!-- EDIT3 TABLE [8042-9304] -->
 </div>
 
 <h2><a>How do I Transform Spatials?</a></h2>
@@ -301,7 +319,7 @@ To move a Spatial <em>to</em> specific coordinates, such as (0,40.2f,-2), use: <
 </td><td>+right -left</td><td>+up -down</td><td>+forward -backward</td>
 	</tr>
 </table></div>
-<!-- EDIT4 TABLE [8326-8842] --><div><table>
+<!-- EDIT4 TABLE [9429-9945] --><div><table>
 	<tr>
 		<th> Scaling resizes Spatials </th><th> X-axis </th><th> Y-axis </th><th> Z-axis </th>
 	</tr>
@@ -313,7 +331,7 @@ To scale a Spatial 10 times longer, one tenth the height, and keep the same widt
 </td><td>length</td><td>height</td><td>width</td>
 	</tr>
 </table></div>
-<!-- EDIT5 TABLE [8844-9333] --><div><table>
+<!-- EDIT5 TABLE [9947-10436] --><div><table>
 	<tr>
 		<th> Rotation turns Spatials </th><th> X-axis </th><th> Y-axis </th><th> Z-axis </th>
 	</tr>
@@ -329,7 +347,7 @@ To roll an object 180° around the z axis: <pre>thing.rotate&#40; 0f , 0f , 180*
 </td><td>pitch = nodding your head</td><td>yaw = shaking your head</td><td>roll = cocking your head</td>
 	</tr>
 </table></div>
-<!-- EDIT6 TABLE [9335-10116] -->
+<!-- EDIT6 TABLE [10438-11219] -->
 </div>
 
 <h2><a>How do I Troubleshoot Spatials?</a></h2>
@@ -360,7 +378,7 @@ Did you rotate around the right axis? </td>
 		<td> A Geometry has an unexpected Color or Material. </td><td> Did you reuse a Material from another Geometry and have inadvertently changed its properties? (If so, consider cloning it: mat2 = mat.clone(); )  </td>
 	</tr>
 </table></div>
-<!-- EDIT7 TABLE [10249-11222] -->
+<!-- EDIT7 TABLE [11352-12325] -->
 </div>
 
 <h2><a>How do I Add Custom Data to Spatials?</a></h2>

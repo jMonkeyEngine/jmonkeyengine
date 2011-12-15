@@ -70,20 +70,18 @@ mkdir HelloJME3/src/hello</pre>
 
 <p>
 
-Next we copy the necessary JAR libraries. You only have to do this set of steps once every time you download a new JME3 build.
+Next you copy the necessary JAR libraries from the download to your project. You only have to do this set of steps once every time you download a new JME3 build.
 </p>
 <pre>mkdir HelloJME3/build 
 mkdir HelloJME3/lib
-cp jme3/jMonkeyEngine3.jar HelloJME3/lib
-cp jme3/lib/*.*            HelloJME3/lib</pre>
+cp jme3/lib/*.* HelloJME3/lib</pre>
 
 <p>
-If you have built JME3 from the sources, then the paths are different:
+If you have built JME3 from the sources, then the copy paths are different:
 </p>
 <pre>mkdir HelloJME3/build 
 mkdir HelloJME3/lib
-cp jme3/dist/jMonkeyEngine3.jar HelloJME3/lib
-cp jme3/dist/*.*                HelloJME3/lib</pre>
+cp jme3/dist/*.* HelloJME3/lib</pre>
 
 </div>
 
@@ -132,13 +130,13 @@ public class HelloJME3 extends SimpleApplication &#123;
 We build the sample application into the build directory…
 </p>
 <pre>cd HelloJME3
-javac -d build -cp &quot;lib/eventbus-1.4.jar:lib/j-ogg-oggd.jar:lib/j-ogg-vorbisd.jar:lib/jME3-lwjgl-natives.jar:lib/jMonkeyEngine3.jar:lib/jbullet.jar:lib/jheora-jst-debug-0.6.0.jar:lib/jinput.jar:lib/jme3test.jar:lib/jme3testdata.jar:lib/lwjgl.jar:lib/nifty-1.3-SNAPSHOT.jar:lib/nifty-default-controls-1.3-SNAPSHOT.jar:lib/nifty-examples-1.3-SNAPSHOT.jar:lib/nifty-style-black-1.3-SNAPSHOT.jar:lib/nifty-style-grey-1.0.jar:lib/stack-alloc.jar:lib/vecmath.jar:lib/xmlpull-xpp3-1.1.4c.jar:.&quot; src/hello/HelloJME3.java </pre>
+javac -d build -cp &quot;lib/eventbus-1.4.jar:lib/j-ogg-oggd.jar:lib/j-ogg-vorbisd.jar:lib/jME3-lwjgl-natives.jar:lib/jbullet.jar:lib/jinput.jar:lib/lwjgl.jar:lib/stack-alloc.jar:lib/vecmath.jar:lib/xmlpull-xpp3-1.1.4c.jar:lib/jME3-blender.jar:lib/jME3-core.jar:lib/jME3-desktop.jar:lib/jME3-jogg.jar:lib/jME3-plugins.jar:lib/jME3-terrain.jar:lib/jME3-testdata.jar:lib/jME3-niftygui.jar:lib/nifty-default-controls.jar:lib/nifty-examples.jar:lib/nifty-style-black.jar:lib/nifty.jar:.&quot; src/hello/HelloJME3.java </pre>
 
 <p>
 … and run it.
 </p>
 <pre>cd build
-java -cp &quot;../lib/eventbus-1.4.jar:../lib/j-ogg-oggd.jar:../lib/j-ogg-vorbisd.jar:../lib/jME3-lwjgl-natives.jar:../lib/jMonkeyEngine3.jar:../lib/jbullet.jar:../lib/jheora-jst-debug-0.6.0.jar:../lib/jinput.jar:../lib/jme3test.jar:../lib/jme3testdata.jar:../lib/lwjgl.jar:../lib/nifty-1.3-SNAPSHOT.jar:../lib/nifty-default-controls-1.3-SNAPSHOT.jar:../lib/nifty-examples-1.3-SNAPSHOT.jar:../lib/nifty-style-black-1.3-SNAPSHOT.jar:../lib/nifty-style-grey-1.0.jar:../lib/stack-alloc.jar:../lib/vecmath.jar:../lib/xmlpull-xpp3-1.1.4c.jar:.&quot; hello/HelloJME3</pre>
+java -cp &quot;../lib/eventbus-1.4.jar:../lib/j-ogg-oggd.jar:../lib/j-ogg-vorbisd.jar:../lib/jME3-lwjgl-natives.jar:../lib/jbullet.jar:../lib/jinput.jar:../lib/lwjgl.jar:../lib/stack-alloc.jar:../lib/vecmath.jar:../lib/xmlpull-xpp3-1.1.4c.jar:../lib/jME3-blender.jar:../lib/jME3-core.jar:../lib/jME3-desktop.jar:../lib/jME3-jogg.jar:../lib/jME3-plugins.jar:../lib/jME3-terrain.jar:../lib/jME3-testdata.jar:../lib/jME3-niftygui.jar:../lib/nifty-default-controls.jar:../lib/nifty-examples.jar:../lib/nifty-style-black.jar:../lib/nifty.jar:.&quot; hello/HelloJME3</pre>
 
 <p>
 Note: If you use Windows, the classpath separator is &quot;;&quot; instead of &quot;:&quot;.

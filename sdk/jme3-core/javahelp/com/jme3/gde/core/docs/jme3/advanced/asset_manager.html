@@ -68,11 +68,14 @@ Creating a material instance with the definition &quot;Unshaded.j3md&quot;:
 
 </p>
 <pre>Material mat_brick = new Material&#40; 
-    assetManager, &quot;Common/MatDefs/Misc/Unshaded.j3md&quot;&#41;;
-&nbsp;
+    assetManager, &quot;Common/MatDefs/Misc/Unshaded.j3md&quot;&#41;;</pre>
+
+<p>
+
 Applying a texture to the material:
-&lt;code java&gt;
-mat_brick.setTexture&#40;&quot;ColorMap&quot;, 
+
+</p>
+<pre>mat_brick.setTexture&#40;&quot;ColorMap&quot;, 
     assetManager.loadTexture&#40;&quot;Textures/Terrain/BrickWall/BrickWall.jpg&quot;&#41;&#41;;</pre>
 
 <p>
@@ -139,7 +142,7 @@ rootNode.attachChild&#40;scene&#41;;</pre>
 </td>
 	</tr>
 </table></div>
-<!-- EDIT1 TABLE [3748-4676] -->
+<!-- EDIT1 TABLE [3755-4683] -->
 </div>
 
 <h2><a>NullPointerException: Cannot locate resource?</a></h2>

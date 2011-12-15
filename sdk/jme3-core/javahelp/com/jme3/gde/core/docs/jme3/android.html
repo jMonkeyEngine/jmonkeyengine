@@ -149,8 +149,6 @@ Open your game project in the jMonkeyEngine <acronym title="Software Development
 <strong>Building</strong>
 </p>
 <ol>
-<li><div> Right-click the project node and choose Set Main Project.</div>
-</li>
 <li><div> Right-click the project node to build your project. <br/>
 An APK file is created in the &quot;dist&quot; folder.</div>
 </li>
@@ -161,13 +159,17 @@ An APK file is created in the &quot;dist&quot; folder.</div>
 <strong>Running</strong>
 </p>
 <ol>
-<li><div> Select the project</div>
+<li><div> Right-click the project node and choose Set Main Project.</div>
 </li>
 <li><div> Select the &quot;Android Device&quot; build configuration next to the Run toolbar button.</div>
 </li>
-<li><div> Make sure &quot;Compile on Save&quot; is disabled in your project preferences.</div>
+<li><div> <em>Make sure &quot;Compile on Save&quot; is disabled in your project preferences.</em></div>
 </li>
 <li><div> Run the application on a connected phone by right-clicking it and selecting &quot;Run&quot; or press the &quot;Play&quot; button in the toolbar.</div>
+</li>
+<li><div> The application will run and output its log to the &quot;Output&quot; window of the <acronym title="Software Development Kit">SDK</acronym>.</div>
+</li>
+<li><div> When finished testing, click the &quot;x&quot; next to the run status in the lower right to quit the logging output.</div>
 </li>
 </ol>
 
@@ -178,6 +180,10 @@ The default android run target uses the default device set in the Android config
 
 <p>
 Optionally, download <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/downloads/detail?name=Jme3Beta1Demo.apk&amp;can=1&amp;q="><param name="text" value="<html><u>Jme3Beta1Demo.apk</u></html>"><param name="textColor" value="blue"></object>
+</p>
+
+<p>
+During build, the libraries and main jar file from the main project are copied to the android project libs folder for access. During this operation the desktop-specific libraries are replaced with android specific JARs.
 </p>
 
 </div>
@@ -199,12 +205,12 @@ Activating the nbandroid plugin in the jMonkeyEngine <acronym title="Software De
 
 </div>
 
-<h4><a>Beta Notes</a></h4>
+<h4><a>Notes</a></h4>
 <div>
 <ul>
 <li><div> The package name parameter is only used when creating the project and only sets the android MainActivity package name</div>
 </li>
-<li><div> The needed jMonkeyEngine3.jar for android comes with the plugin and is automatically added to the android build</div>
+<li><div> The needed android.jar comes with the plugin and is automatically added to the android build</div>
 </li>
 <li><div> All non-android project libraries are automatically excluded from the android build. This is currently hard-coded in the build script, check nbproject/mobile-impl.xml for the details.</div>
 </li>
@@ -258,6 +264,10 @@ Since the main project is not configured to access the android api directly, you
 <p>
 <img src="nbdocs:/com/jme3/gde/core/docs/jme3/android_access.png">
 Although you will use android specific api, using a camera is not exactly android specific and so you should try to design this part of the application as platform independent as possible as well. As an example, if you want to use the phones camera as an image input stream for a texture, you can create e.g. the AppState that manages the image and makes it available to the application inside the main project (no android code is needed). Then in the android part of the code you make a connection to the camera and update the image in the AppState. This also allows you to easily support cameras on other platforms in the same way or fallback to something else in case the platform doesn&#039;t support a camera.
+</p>
+
+<p>
+Note that you have to build the whole project once to make (new) classes in the main project available to the android part. 
 </p>
 
 </div>
