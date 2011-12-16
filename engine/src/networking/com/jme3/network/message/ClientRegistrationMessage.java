@@ -36,7 +36,7 @@ import com.jme3.network.AbstractMessage;
 import com.jme3.network.serializing.Serializable;
 
 /**
- * Client registration is a message that contains a unique ID. This ID
+ *  Client registration is a message that contains a unique ID. This ID
  *  is simply the current time in milliseconds, providing multiple clients
  *  will not connect to the same server within one millisecond. This is used
  *  to couple the TCP and UDP connections together into one 'Client' on the

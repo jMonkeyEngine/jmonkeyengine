@@ -32,6 +32,7 @@
 
 package com.jme3.network.base;
 
+import com.jme3.network.Filter;
 import com.jme3.network.HostedConnection;
 import com.jme3.network.Message;
 import com.jme3.network.MessageListener;
@@ -89,6 +90,22 @@ public class KernelAdapter extends Thread
         this.reliable = reliable;
         setDaemon(true);
     }
+
+    public Kernel getKernel()
+    {
+        return kernel;
+    }
+
+    public void initialize()
+    {
+        kernel.initialize();
+    }
+ 
+    public void broadcast( Filter<? super Endpoint> filter, ByteBuffer data, boolean reliable, 
+                           boolean copy )
+    {
+        kernel.broadcast( filter, data, reliable, copy );
+    }                           
  
     public void close() throws InterruptedException
     {

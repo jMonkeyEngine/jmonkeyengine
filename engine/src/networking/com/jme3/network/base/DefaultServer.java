@@ -60,9 +60,7 @@ public class DefaultServer implements Server
     private AtomicInteger nextId = new AtomicInteger(0);
     private String gameName;
     private int version;
-    private Kernel reliable;
     private KernelAdapter reliableAdapter;
-    private Kernel fast;
     private KernelAdapter fastAdapter;
     private Redispatch dispatcher = new Redispatch();
     private Map<Integer,HostedConnection> connections = new ConcurrentHashMap<Integer,HostedConnection>();
@@ -84,8 +82,6 @@ public class DefaultServer implements Server
             
         this.gameName = gameName;
         this.version = version;
-        this.reliable = reliable;
-        this.fast = fast;
         
         reliableAdapter = new KernelAdapter( this, reliable, dispatcher, true );
         if( fast != null ) {
@@ -109,9 +105,9 @@ public class DefaultServer implements Server
             throw new IllegalStateException( "Server is already started." );
             
         // Initialize the kernels
-        reliable.initialize();
-        if( fast != null ) {
-            fast.initialize();
+        reliableAdapter.initialize();
+        if( fastAdapter != null ) {
+            fastAdapter.initialize();
         }
  
         // Start em up
@@ -161,12 +157,12 @@ public class DefaultServer implements Server
         FilterAdapter adapter = filter == null ? null : new FilterAdapter(filter);
                
         // Ignore the filter for the moment
-        if( message.isReliable() || fast == null ) {
+        if( message.isReliable() || fastAdapter == null ) {
             // Don't need to copy the data because message protocol is already
             // giving us a fresh buffer
-            reliable.broadcast( adapter, buffer, true, false );
+            reliableAdapter.broadcast( adapter, buffer, true, false );
         } else {
-            fast.broadcast( adapter, buffer, false, false );
+            fastAdapter.broadcast( adapter, buffer, false, false );
         }               
     }
 
