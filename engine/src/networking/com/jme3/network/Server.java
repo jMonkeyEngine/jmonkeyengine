@@ -104,6 +104,12 @@ public interface Server
     public Collection<HostedConnection> getConnections(); 
  
     /**
+     *  Returns true if the server has active connections at the time of this
+     *  call.
+     */
+    public boolean hasConnections();
+    
+    /**
      *  Adds a listener that will be notified when new hosted connections
      *  arrive.
      */

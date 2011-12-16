@@ -153,6 +153,9 @@ public class DefaultServer implements Server
 
     public void broadcast( Filter<? super HostedConnection> filter, Message message )
     {
+        if( connections.isEmpty() )
+            return;
+            
         ByteBuffer buffer = MessageProtocol.messageToBuffer(message, null);
  
         FilterAdapter adapter = filter == null ? null : new FilterAdapter(filter);
@@ -171,6 +174,11 @@ public class DefaultServer implements Server
     {
         return connections.get(id);
     }     
+ 
+    public boolean hasConnections()
+    {
+        return !connections.isEmpty();
+    }
  
     public Collection<HostedConnection> getConnections()
     {
