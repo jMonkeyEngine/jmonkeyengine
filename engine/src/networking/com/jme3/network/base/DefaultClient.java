@@ -38,7 +38,7 @@ import com.jme3.network.kernel.Connector;
 import com.jme3.network.message.ClientRegistrationMessage;
 import com.jme3.network.message.DisconnectMessage;
 import java.nio.ByteBuffer;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.logging.Level;
@@ -55,6 +55,14 @@ public class DefaultClient implements Client
 {
     static Logger log = Logger.getLogger(DefaultClient.class.getName());
     
+    // First two channels are reserved for reliable and
+    // unreliable.  Note: channels are endpoint specific so these
+    // constants and the handling need not have anything to do with
+    // the same constants in DefaultServer... which is why they are
+    // separate.
+    private static final int CH_RELIABLE = 0;
+    private static final int CH_UNRELIABLE = 1;
+        
     private ThreadLocal<ByteBuffer> dataBuffer = new ThreadLocal<ByteBuffer>();
     
     private int id = -1;
@@ -62,14 +70,11 @@ public class DefaultClient implements Client
     private CountDownLatch connecting = new CountDownLatch(1);
     private String gameName;
     private int version;
-    private Connector reliable;
-    private Connector fast;
     private MessageListenerRegistry<Client> messageListeners = new MessageListenerRegistry<Client>();
     private List<ClientStateListener> stateListeners = new CopyOnWriteArrayList<ClientStateListener>();
     private List<ErrorListener<? super Client>> errorListeners = new CopyOnWriteArrayList<ErrorListener<? super Client>>();
     private Redispatch dispatcher = new Redispatch();
-    private ConnectorAdapter reliableAdapter;    
-    private ConnectorAdapter fastAdapter;    
+    private List<ConnectorAdapter> channels = new ArrayList<ConnectorAdapter>();    
     
     public DefaultClient( String gameName, int version )
     {
@@ -80,21 +85,24 @@ public class DefaultClient implements Client
     public DefaultClient( String gameName, int version, Connector reliable, Connector fast )
     {
         this( gameName, version );
-        setConnectors( reliable, fast );
+        setPrimaryConnectors( reliable, fast );
     }
 
-    protected void setConnectors( Connector reliable, Connector fast )
+    protected void setPrimaryConnectors( Connector reliable, Connector fast )
     {
         if( reliable == null )
             throw new IllegalArgumentException( "The reliable connector cannot be null." );            
         if( isRunning )
             throw new IllegalStateException( "Client is already started." );
+        if( !channels.isEmpty() )
+            throw new IllegalStateException( "Channels already exist." );
             
-        this.reliable = reliable;
-        this.fast = fast;
-        reliableAdapter = new ConnectorAdapter(reliable, dispatcher, dispatcher, true);
+        channels.add(new ConnectorAdapter(reliable, dispatcher, dispatcher, true));
         if( fast != null ) {
-            fastAdapter = new ConnectorAdapter(fast, dispatcher, dispatcher, false);
+            channels.add(new ConnectorAdapter(fast, dispatcher, dispatcher, false));
+        } else {
+            // Add the null adapter to keep the indexes right
+            channels.add(null);
         }
     }  
 
@@ -109,12 +117,12 @@ public class DefaultClient implements Client
         if( isRunning )
             throw new IllegalStateException( "Client is already started." );
             
-        // Start up the threads and stuff
-        if( reliableAdapter != null ) {
-            reliableAdapter.start();
-        }
-        if( fastAdapter != null ) {
-            fastAdapter.start();
+        // Start up the threads and stuff for the
+        // connectors that we have
+        for( ConnectorAdapter ca : channels ) {
+            if( ca == null )
+                continue;
+            ca.start();
         }
 
         // Send our connection message with a generated ID until
@@ -136,22 +144,23 @@ public class DefaultClient implements Client
         isRunning = true;        
                 
         ClientRegistrationMessage reg;
-        if( reliable != null ) {
-            reg = new ClientRegistrationMessage();
-            reg.setId(tempId);
-            reg.setGameName(getGameName());
-            reg.setVersion(getVersion());
-            reg.setReliable(true);
-            send(reg, false);            
+        reg = new ClientRegistrationMessage();
+        reg.setId(tempId);
+        reg.setGameName(getGameName());
+        reg.setVersion(getVersion());
+        reg.setReliable(true);
+        send(CH_RELIABLE, reg, false);
+        
+        // Send registration messages to any other configured
+        // connectors
+        reg = new ClientRegistrationMessage();
+        reg.setId(tempId);
+        reg.setReliable(false);
+        for( int ch = CH_UNRELIABLE; ch < channels.size(); ch++ ) {
+            if( channels.get(ch) == null )
+                continue;
+            send(ch, reg, false);
         }
-        if( fast != null ) {
-            // We create two different ones to prepare for someday
-            // when there will probably be threaded sending.
-            reg = new ClientRegistrationMessage();
-            reg.setId(tempId);
-            reg.setReliable(false);
-            send(reg, false); 
-        }        
     }
 
     protected void waitForConnected()
@@ -188,10 +197,14 @@ public class DefaultClient implements Client
    
     public void send( Message message )
     {
-        send( message, true );
+        if( message.isReliable() || channels.get(CH_UNRELIABLE) == null ) {
+            send(CH_RELIABLE, message, true);
+        } else {
+            send(CH_UNRELIABLE, message, true);
+        }
     }
     
-    protected void send( Message message, boolean waitForConnected )
+    protected void send( int channel, Message message, boolean waitForConnected )
     {
         checkRunning();
  
@@ -217,13 +230,7 @@ public class DefaultClient implements Client
         System.arraycopy(buffer.array(), buffer.position(), temp, 0, buffer.remaining());
         buffer = ByteBuffer.wrap(temp);
         
-        if( message.isReliable() || fast == null ) {
-            if( reliable == null )
-                throw new RuntimeException( "No reliable connector configured" );
-            reliableAdapter.write(buffer);
-        } else {
-            fastAdapter.write(buffer); 
-        }
+        channels.get(channel).write(buffer);
     }
  
     public void close()
@@ -241,11 +248,10 @@ public class DefaultClient implements Client
         // Send a close message
     
         // Tell the thread it's ok to die
-        if( fastAdapter != null ) {
-            fastAdapter.close();
-        }
-        if( reliableAdapter != null ) {
-            reliableAdapter.close();
+        for( ConnectorAdapter ca : channels ) {
+            if( ca == null )
+                continue;
+            ca.close();
         }
         
         // Wait for the threads?
