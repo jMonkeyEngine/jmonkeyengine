@@ -35,8 +35,10 @@ package com.jme3.network.base;
 import com.jme3.network.ClientStateListener.DisconnectInfo;
 import com.jme3.network.*;
 import com.jme3.network.kernel.Connector;
+import com.jme3.network.message.ChannelInfoMessage;
 import com.jme3.network.message.ClientRegistrationMessage;
 import com.jme3.network.message.DisconnectMessage;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -62,6 +64,7 @@ public class DefaultClient implements Client
     // separate.
     private static final int CH_RELIABLE = 0;
     private static final int CH_UNRELIABLE = 1;
+    private static final int CH_FIRST = 2;
         
     private ThreadLocal<ByteBuffer> dataBuffer = new ThreadLocal<ByteBuffer>();
     
@@ -75,6 +78,8 @@ public class DefaultClient implements Client
     private List<ErrorListener<? super Client>> errorListeners = new CopyOnWriteArrayList<ErrorListener<? super Client>>();
     private Redispatch dispatcher = new Redispatch();
     private List<ConnectorAdapter> channels = new ArrayList<ConnectorAdapter>();    
+ 
+    private ConnectorFactory connectorFactory;
     
     public DefaultClient( String gameName, int version )
     {
@@ -82,13 +87,14 @@ public class DefaultClient implements Client
         this.version = version;
     }
     
-    public DefaultClient( String gameName, int version, Connector reliable, Connector fast )
+    public DefaultClient( String gameName, int version, Connector reliable, Connector fast,
+                          ConnectorFactory connectorFactory )
     {
         this( gameName, version );
-        setPrimaryConnectors( reliable, fast );
+        setPrimaryConnectors( reliable, fast, connectorFactory );
     }
 
-    protected void setPrimaryConnectors( Connector reliable, Connector fast )
+    protected void setPrimaryConnectors( Connector reliable, Connector fast, ConnectorFactory connectorFactory )
     {
         if( reliable == null )
             throw new IllegalArgumentException( "The reliable connector cannot be null." );            
@@ -97,6 +103,7 @@ public class DefaultClient implements Client
         if( !channels.isEmpty() )
             throw new IllegalStateException( "Channels already exist." );
             
+        this.connectorFactory = connectorFactory;
         channels.add(new ConnectorAdapter(reliable, dispatcher, dispatcher, true));
         if( fast != null ) {
             channels.add(new ConnectorAdapter(fast, dispatcher, dispatcher, false));
@@ -202,6 +209,13 @@ public class DefaultClient implements Client
         } else {
             send(CH_UNRELIABLE, message, true);
         }
+    }
+ 
+    public void send( int channel, Message message )
+    {
+        if( channel < 0 || channel + CH_FIRST >= channels.size() )
+            throw new IllegalArgumentException( "Channel is undefined:" + channel );
+        send( channel + CH_FIRST, message, true );
     }
     
     protected void send( int channel, Message message, boolean waitForConnected )
@@ -340,6 +354,29 @@ public class DefaultClient implements Client
         } 
     }
  
+    protected void configureChannels( long tempId, int[] ports ) {
+
+        try {               
+            for( int i = 0; i < ports.length; i++ ) {
+                Connector c = connectorFactory.createConnector( i, ports[i] );
+                ConnectorAdapter ca = new ConnectorAdapter(c, dispatcher, dispatcher, true);
+                int ch = channels.size(); 
+                channels.add( ca );
+                
+                // Need to send the connection its hook-up registration
+                // and start it.
+                ca.start(); 
+                ClientRegistrationMessage reg;
+                reg = new ClientRegistrationMessage();
+                reg.setId(tempId);
+                reg.setReliable(true);
+                send( ch, reg, false );
+            }
+        } catch( IOException e ) {
+            throw new RuntimeException( "Error configuring channels", e );
+        }
+    }
+ 
     protected void dispatch( Message m )
     {
         // Pull off the connection management messages we're
@@ -351,7 +388,12 @@ public class DefaultClient implements Client
             connecting.countDown();
             fireConnected();
             return;
-        } if( m instanceof DisconnectMessage ) {
+        } else if( m instanceof ChannelInfoMessage ) {
+            // This is an interum step in the connection process and
+            // now we need to add a bunch of connections
+            configureChannels( ((ChannelInfoMessage)m).getId(), ((ChannelInfoMessage)m).getPorts() );
+            return; 
+        } else if( m instanceof DisconnectMessage ) {
             // Can't do too much else yet
             String reason = ((DisconnectMessage)m).getReason();
             log.log( Level.SEVERE, "Connection terminated, reason:{0}.", reason );

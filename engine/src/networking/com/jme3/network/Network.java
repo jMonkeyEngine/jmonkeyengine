@@ -34,6 +34,7 @@ package com.jme3.network;
 
 import com.jme3.network.base.DefaultClient;
 import com.jme3.network.base.DefaultServer;
+import com.jme3.network.base.TcpConnectorFactory;
 import com.jme3.network.kernel.tcp.SelectorKernel;
 import com.jme3.network.kernel.tcp.SocketConnector;
 import com.jme3.network.kernel.udp.UdpConnector;
@@ -85,7 +86,7 @@ public class Network
      *  @param tcpPort  The port upon which the TCP hosting will listen for new connections.
      *  @param udpPort  The port upon which the UDP hosting will listen for new 'fast' UDP 
      *                  messages.  Set to -1 if 'fast' traffic should go over TCP.  This will
-     *                  comletely disable UDP traffic for this server.
+     *                  completely disable UDP traffic for this server.
      */
     public static Server createServer( String gameName, int version, int tcpPort, int udpPort ) throws IOException
     {
@@ -164,7 +165,7 @@ public class Network
         UdpConnector fast = remoteUdpPort == -1 ? null : new UdpConnector( remoteAddress, remoteUdpPort ); 
         SocketConnector reliable = new SocketConnector( remoteAddress, hostPort );        
        
-        return new DefaultClient( gameName, version, reliable, fast );
+        return new DefaultClient( gameName, version, reliable, fast, new TcpConnectorFactory(remoteAddress) );
     }
  
  
@@ -185,7 +186,7 @@ public class Network
             UdpConnector fast = new UdpConnector( address, remoteUdpPort ); 
             SocketConnector reliable = new SocketConnector( address, port );        
             
-            setConnectors( reliable, fast );
+            setPrimaryConnectors( reliable, fast, new TcpConnectorFactory(address) );
         }                                             
     }   
 }

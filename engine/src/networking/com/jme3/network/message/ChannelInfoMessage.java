@@ -30,27 +30,45 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.jme3.network;
+package com.jme3.network.message;
 
+import com.jme3.network.AbstractMessage;
+import com.jme3.network.serializing.Serializable;
+import java.util.Arrays;
+import java.util.List;
 
 /**
- *  The source of a received message and the common abstract interface
- *  of client->server and server->client objects. 
+ *  Contains information about any extra server channels (if they exist).  
  *
- *  @version   $Revision$
- *  @author    Paul Speed
+ *  @author Paul Speed
  */
-public interface MessageConnection
-{
-    /**
-     *  Sends a message to the other end of the connection.
-     */   
-    public void send( Message message );
-    
-    /**
-     *  Sends a message to the other end of the connection using
-     *  the specified alternate channel.
-     */   
-    public void send( int channel, Message message );
-}    
+@Serializable()
+public class ChannelInfoMessage extends AbstractMessage {
+    private long id;
+    private int[] ports;
 
+    public ChannelInfoMessage() {
+        super( true );        
+    }
+
+    public ChannelInfoMessage( long id, List<Integer> ports ) {
+        super( true );
+        this.id = id;
+        this.ports = new int[ports.size()];
+        for( int i = 0; i < ports.size(); i++ ) {
+            this.ports[i] = ports.get(i);
+        }        
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public int[] getPorts() {
+        return ports;
+    }
+    
+    public String toString() {
+        return "ChannelInfoMessage[" + id + ", " + Arrays.asList(ports) + "]";
+    }
+}

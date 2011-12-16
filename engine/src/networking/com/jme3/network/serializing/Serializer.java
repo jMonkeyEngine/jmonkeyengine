@@ -33,6 +33,7 @@
 package com.jme3.network.serializing;
 
 import com.jme3.math.Vector3f;
+import com.jme3.network.message.ChannelInfoMessage;
 import com.jme3.network.message.ClientRegistrationMessage;
 import com.jme3.network.message.DisconnectMessage;
 import com.jme3.network.message.GZIPCompressedMessage;
@@ -126,6 +127,7 @@ public abstract class Serializer {
 
         registerClass(DisconnectMessage.class);
         registerClass(ClientRegistrationMessage.class);
+        registerClass(ChannelInfoMessage.class);
     }
     
     /**

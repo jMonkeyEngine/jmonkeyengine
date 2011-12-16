@@ -30,27 +30,24 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.jme3.network;
+package com.jme3.network.base;
+
+import com.jme3.network.kernel.Kernel;
+import com.jme3.network.kernel.tcp.SelectorKernel;
+import java.io.IOException;
 
 
 /**
- *  The source of a received message and the common abstract interface
- *  of client->server and server->client objects. 
+ *  KernelFactory implemention for creating TCP kernels
+ *  using the NIO selector model.
  *
  *  @version   $Revision$
  *  @author    Paul Speed
  */
-public interface MessageConnection
+public class NioKernelFactory implements KernelFactory
 {
-    /**
-     *  Sends a message to the other end of the connection.
-     */   
-    public void send( Message message );
-    
-    /**
-     *  Sends a message to the other end of the connection using
-     *  the specified alternate channel.
-     */   
-    public void send( int channel, Message message );
-}    
-
+    public Kernel createKernel( int channel, int port ) throws IOException
+    {
+        return new SelectorKernel(port);
+    }
+}

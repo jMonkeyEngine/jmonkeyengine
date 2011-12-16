@@ -35,8 +35,10 @@ package com.jme3.network.base;
 import com.jme3.network.*;
 import com.jme3.network.kernel.Endpoint;
 import com.jme3.network.kernel.Kernel;
+import com.jme3.network.message.ChannelInfoMessage;
 import com.jme3.network.message.ClientRegistrationMessage;
 import com.jme3.network.message.DisconnectMessage;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -60,15 +62,17 @@ public class DefaultServer implements Server
     // unreliable
     private static final int CH_RELIABLE = 0;
     private static final int CH_UNRELIABLE = 1;
+    private static final int CH_FIRST = 2;
     
     private boolean isRunning = false;
     private AtomicInteger nextId = new AtomicInteger(0);
     private String gameName;
     private int version;
-    //private KernelFactory kernelFactory = KernelFactory.DEFAULT;
+    private KernelFactory kernelFactory = KernelFactory.DEFAULT;
     private KernelAdapter reliableAdapter;
     private KernelAdapter fastAdapter;
     private List<KernelAdapter> channels = new ArrayList<KernelAdapter>();
+    private List<Integer> alternatePorts = new ArrayList<Integer>();
     private Redispatch dispatcher = new Redispatch();
     private Map<Integer,HostedConnection> connections = new ConcurrentHashMap<Integer,HostedConnection>();
     private Map<Endpoint,HostedConnection> endpointConnections 
@@ -107,6 +111,42 @@ public class DefaultServer implements Server
     public int getVersion()
     {
         return version;
+    }
+
+    public int addChannel( int port )
+    {
+        if( isRunning )
+            throw new IllegalStateException( "Channels cannot be added once server is started." );
+ 
+        // Note: it does bug me that channels aren't 100% universal and
+        // setup externally but it requires a more invasive set of changes
+        // for "connection types" and some kind of registry of kernel and
+        // connector factories.  This really would be the best approach and
+        // would allow all kinds of channel customization maybe... but for
+        // now, we hard-code the standard connections and treat the +2 extras
+        // differently.
+            
+        // Check for consistency with the channels list
+        if( channels.size() - CH_FIRST != alternatePorts.size() )
+            throw new IllegalStateException( "Channel and port lists do not match." ); 
+            
+        try {                                
+            int result = alternatePorts.size(); 
+            alternatePorts.add(port);
+            
+            Kernel kernel = kernelFactory.createKernel(result, port); 
+            channels.add( new KernelAdapter(this, kernel, dispatcher, true) );
+            
+            return result;
+        } catch( IOException e ) {
+            throw new RuntimeException( "Error adding channel for port:" + port, e );
+        } 
+    } 
+
+    protected void checkChannel( int channel )
+    {
+        if( channel < 0 || channel >= alternatePorts.size() )
+            throw new IllegalArgumentException( "Channel is undefined:" + channel );              
     }
 
     public void start()
@@ -163,7 +203,6 @@ public class DefaultServer implements Server
  
         FilterAdapter adapter = filter == null ? null : new FilterAdapter(filter);
                
-        // Ignore the filter for the moment
         if( message.isReliable() || fastAdapter == null ) {
             // Don't need to copy the data because message protocol is already
             // giving us a fresh buffer
@@ -171,6 +210,20 @@ public class DefaultServer implements Server
         } else {
             fastAdapter.broadcast( adapter, buffer, false, false );
         }               
+    }
+
+    public void broadcast( int channel, Filter<? super HostedConnection> filter, Message message )
+    {
+        if( connections.isEmpty() )
+            return;
+
+        checkChannel(channel);
+        
+        ByteBuffer buffer = MessageProtocol.messageToBuffer(message, null);
+ 
+        FilterAdapter adapter = filter == null ? null : new FilterAdapter(filter);
+
+        channels.get(channel+CH_FIRST).broadcast( adapter, buffer, true, false );               
     }
 
     public HostedConnection getConnection( int id )
@@ -295,7 +348,10 @@ public class DefaultServer implements Server
                 }
                 
                 // Else send the extra channel information to the client
-                // TBD                                   
+                if( !alternatePorts.isEmpty() ) {
+                    ChannelInfoMessage cim = new ChannelInfoMessage( m.getId(), alternatePorts );
+                    c.send(cim);
+                }
             }
 
             if( c.isComplete() ) {             
@@ -349,7 +405,7 @@ public class DefaultServer implements Server
         // closed already.
     
         // Also note: this method will be called multiple times per
-        // HostedConnection if it has two endpoints.
+        // HostedConnection if it has multiple endpoints.
  
         Connection removed = null;
         synchronized( this ) {             
@@ -430,6 +486,13 @@ public class DefaultServer implements Server
             } else {
                 channels[CH_UNRELIABLE].send( buffer );
             }
+        }
+
+        public void send( int channel, Message message )
+        {
+            checkChannel(channel);
+            ByteBuffer buffer = MessageProtocol.messageToBuffer(message, null);
+            channels[channel+CH_FIRST].send(buffer);
         }
  
         protected void closeConnection()

@@ -80,6 +80,12 @@ public interface Client extends MessageConnection
     public void send( Message message );
  
     /**
+     *  Sends a message to the other end of the connection using
+     *  the specified alternate channel.
+     */   
+    public void send( int channel, Message message );
+ 
+    /**
      *  Closes this connection to the server.
      */
     public void close();         

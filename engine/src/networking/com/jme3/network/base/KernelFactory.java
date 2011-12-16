@@ -30,27 +30,22 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.jme3.network;
+package com.jme3.network.base;
+
+import com.jme3.network.kernel.Kernel;
+import java.io.IOException;
 
 
 /**
- *  The source of a received message and the common abstract interface
- *  of client->server and server->client objects. 
+ *  Supplied to the DefaultServer to create any additional
+ *  channel kernels that might be required.
  *
  *  @version   $Revision$
  *  @author    Paul Speed
  */
-public interface MessageConnection
+public interface KernelFactory
 {
-    /**
-     *  Sends a message to the other end of the connection.
-     */   
-    public void send( Message message );
-    
-    /**
-     *  Sends a message to the other end of the connection using
-     *  the specified alternate channel.
-     */   
-    public void send( int channel, Message message );
-}    
+    public static final KernelFactory DEFAULT = new NioKernelFactory();
 
+    public Kernel createKernel( int channel, int port ) throws IOException;
+}
