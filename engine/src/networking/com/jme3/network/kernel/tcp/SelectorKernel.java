@@ -118,13 +118,12 @@ public class SelectorKernel extends AbstractKernel
         if( !reliable )
             throw new UnsupportedOperationException( "Unreliable send not supported by this kernel." );
 
-        if( copy )
-            {
+        if( copy ) {
             // Copy the data just once
             byte[] temp = new byte[data.remaining()];
             System.arraycopy(data.array(), data.position(), temp, 0, data.remaining());
             data = ByteBuffer.wrap(temp);
-            }
+        }
 
         // Hand it to all of the endpoints that match our routing
         for( NioEndpoint p : endpoints.values() ) {
