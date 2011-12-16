@@ -54,9 +54,9 @@ import com.jme3.scene.shape.Sphere;
 import com.jme3.terrain.geomipmap.TerrainGrid;
 import com.jme3.terrain.geomipmap.TerrainLodControl;
 import com.jme3.terrain.geomipmap.TerrainQuad;
+import com.jme3.terrain.geomipmap.grid.FractalTileLoader;
 import com.jme3.terrain.geomipmap.lodcalc.DistanceLodCalculator;
 import com.jme3.terrain.heightmap.AbstractHeightMap;
-import com.jme3.terrain.heightmap.FractalHeightMapGrid;
 import com.jme3.terrain.heightmap.ImageBasedHeightMap;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
@@ -280,6 +280,7 @@ public class TerrainTestModifyHeight extends SimpleApplication {
         matTerrain = new Material(assetManager, "Common/MatDefs/Terrain/TerrainLighting.j3md");
         matTerrain.setBoolean("useTriPlanarMapping", false);
         matTerrain.setBoolean("WardIso", true);
+        matTerrain.setFloat("Shininess", 0);
 
         // ALPHA map (for splat textures)
         matTerrain.setTexture("AlphaMap", assetManager.loadTexture("Textures/Terrain/splat/alphamap.png"));
@@ -401,7 +402,7 @@ public class TerrainTestModifyHeight extends SimpleApplication {
 
         ground.addPreFilter(iterate);
 
-        this.terrain = new TerrainGrid("terrain", 65, 257, new FractalHeightMapGrid(ground, null, 256f));
+        this.terrain = new TerrainGrid("terrain", 65, 257, new FractalTileLoader(ground, 256f));
 
 
         terrain.setMaterial(matTerrain);

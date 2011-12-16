@@ -151,7 +151,7 @@ public class TerrainGridAlphaMapTest extends SimpleApplication {
 
         ground.addPreFilter(this.iterate);
 
-        this.terrain = new TerrainGrid("terrain", 33, 257, new FractalTileLoader(ground, null, 256));
+        this.terrain = new TerrainGrid("terrain", 33, 257, new FractalTileLoader(ground, 256));
         this.terrain.setMaterial(this.material);
 
         this.terrain.setLocalTranslation(0, 0, 0);
@@ -170,7 +170,7 @@ public class TerrainGridAlphaMapTest extends SimpleApplication {
 
         this.getCamera().setLocation(new Vector3f(0, 256, 0));
 
-        //this.viewPort.setBackgroundColor(new ColorRGBA(0.7f, 0.8f, 1f, 1f));
+        this.viewPort.setBackgroundColor(new ColorRGBA(0.7f, 0.8f, 1f, 1f));
 
         if (usePhysics) {
             CapsuleCollisionShape capsuleShape = new CapsuleCollisionShape(0.5f, 1.8f, 1);

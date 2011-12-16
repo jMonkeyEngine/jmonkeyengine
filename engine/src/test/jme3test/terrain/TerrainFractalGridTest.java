@@ -121,7 +121,7 @@ public class TerrainFractalGridTest extends SimpleApplication {
 
         ground.addPreFilter(this.iterate);
 
-        this.terrain = new TerrainGrid("terrain", 33, 129, new FractalTileLoader(ground, null, 256f));
+        this.terrain = new TerrainGrid("terrain", 33, 129, new FractalTileLoader(ground, 256f));
 
         this.terrain.setMaterial(this.mat_terrain);
         this.terrain.setLocalTranslation(0, 0, 0);
