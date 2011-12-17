@@ -75,4 +75,8 @@ public final class SerializerRegistration {
     public Class getType() {
         return type;
     }
+    
+    public String toString() {
+        return "SerializerRegistration[" + id + ", " + type + ", " + serializer + "]";
+    }
 }
