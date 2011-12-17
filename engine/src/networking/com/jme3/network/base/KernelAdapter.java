@@ -120,6 +120,9 @@ public class KernelAdapter extends Thread
         // Should really be queued up so the outer thread can
         // retrieve them.  For now we'll just log it.  FIXME
         log.log( Level.SEVERE, "Unhandled error, endpoint:" + p + ", context:" + context, e );
+        
+        // In lieu of other options, at least close the endpoint
+        p.close();
     }                                                      
 
     protected HostedConnection getConnection( Endpoint p )
