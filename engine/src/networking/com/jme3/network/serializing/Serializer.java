@@ -73,6 +73,27 @@ public abstract class Serializer {
 
     private static boolean strictRegistration = true;
 
+    /****************************************************************
+     ****************************************************************
+     ****************************************************************
+     
+        READ THIS BEFORE CHANGING ANYTHING BELOW
+        
+        If a registration is moved or removed before the 
+        ClientRegistrationMessage then it screws up the application's
+        ability to gracefully warn users about bad versions. 
+ 
+        There really needs to be a version rolled into the protocol
+        and I intend to do that very soon.  In the mean time, don't
+        edit the static registrations without decrementing nextId
+        appropriately.
+        
+        Yes, that's how fragile this is.  Live and learn.       
+     
+     ****************************************************************     
+     ****************************************************************
+     ****************************************************************/
+
 
     // Registers the classes we already have serializers for.
     static {
