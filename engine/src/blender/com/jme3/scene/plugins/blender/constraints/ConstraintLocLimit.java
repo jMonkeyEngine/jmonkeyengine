@@ -1,7 +1,6 @@
 package com.jme3.scene.plugins.blender.constraints;
 
 import com.jme3.animation.Animation;
-import com.jme3.animation.Track;
 import com.jme3.math.Transform;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.plugins.blender.BlenderContext;
@@ -86,8 +85,6 @@ import com.jme3.scene.plugins.ogre.AnimData;
 					this.locLimit(translations[frame], ipo.calculateValue(frame));
 				}
 				track.setKeyframes(track.getTimes(), translations, track.getRotations(), track.getScales());
-				translations = track.getTranslations();
-				animation.setTracks(new Track[] {track.getTrack()});
 			}
 		}
 	}
