@@ -276,6 +276,7 @@ public class MaterialHelper extends AbstractBlenderHelper {
 			result.getAdditionalRenderState().setBlendMode(BlendMode.Alpha);
 		}
 		
+		result.setName(materialContext.getName());
 		blenderContext.setMaterialContext(result, materialContext);
 		blenderContext.addLoadedFeatures(structure.getOldMemoryAddress(), structure.getName(), structure, result);
 		return result;

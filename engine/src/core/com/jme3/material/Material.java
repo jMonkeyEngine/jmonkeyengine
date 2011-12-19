@@ -85,6 +85,7 @@ public class Material implements Asset, Cloneable, Savable, Comparable<Material>
         additiveLight.setDepthWrite(false);
     }
     private AssetKey key;
+    private String name;
     private MaterialDef def;
     private ListMap<String, MatParam> paramValues = new ListMap<String, MatParam>();
     private Technique technique;
@@ -132,6 +133,23 @@ public class Material implements Asset, Cloneable, Savable, Comparable<Material>
     public String getAssetName() {
         return key != null ? key.getName() : null;
     }
+    
+    /**
+     * @return the name of the material (not the same as the asset name), the returned value can be null
+     */
+    public String getName() {
+		return name;
+	}
+    
+    /**
+     * This method sets the name of the material.
+     * The name is not the same as the asset name.
+     * It can be null and there is no guarantee of its uniqness.
+     * @param name the name of the material
+     */
+    public void setName(String name) {
+		this.name = name;
+	}
 
     public void setKey(AssetKey key) {
         this.key = key;
