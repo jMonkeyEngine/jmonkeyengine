@@ -398,7 +398,11 @@ public class DefaultServer implements Server
 
     protected void connectionClosed( Endpoint p )
     {
-        log.log( Level.INFO, "Connection closed:{0}.", p );
+        if( p.isConnected() ) {
+            log.log( Level.INFO, "Connection closed:{0}.", p );
+        } else {
+            log.log( Level.FINE, "Connection closed:{0}.", p );
+        }
         
         // Try to find the endpoint in all ways that it might
         // exist.  Note: by this point the raw network channel is 
@@ -424,7 +428,9 @@ public class DefaultServer implements Server
         
         // Better not to fire events while we hold a lock
         // so always do this outside the synch block.
-        if( removed != null ) {
+        // Note: checking removed.closed just to avoid spurious log messages
+        //       since in general we are called back for every endpoint closing.
+        if( removed != null && !removed.closed ) {
         
             log.log( Level.INFO, "Client closed:{0}.", removed );
             

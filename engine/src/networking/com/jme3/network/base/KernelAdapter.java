@@ -135,6 +135,8 @@ public class KernelAdapter extends Thread
         // Remove any message buffer we've been accumulating 
         // on behalf of this endpoing
         messageBuffers.remove(p);
+
+        log.log( Level.FINE, "Buffers size:{0}", messageBuffers.size() );
     
         server.connectionClosed(p);
     }

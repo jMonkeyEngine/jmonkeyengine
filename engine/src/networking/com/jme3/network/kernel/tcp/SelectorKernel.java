@@ -160,6 +160,7 @@ public class SelectorKernel extends AbstractKernel
     protected void removeEndpoint( NioEndpoint p, SocketChannel c )
     {
         endpoints.remove( p.getId() );
+        log.log( Level.FINE, "Endpoints size:{0}", endpoints.size() );
 
         // Enqueue an endpoint event for the listeners
         addEvent( EndpointEvent.createRemove( this, p ) );
@@ -180,7 +181,7 @@ public class SelectorKernel extends AbstractKernel
      */
     protected void closeEndpoint( NioEndpoint p ) throws IOException
     {
-        log.log( Level.INFO, "Closing endpoint:{0}.", p );
+        //log.log( Level.INFO, "Closing endpoint:{0}.", p );
             
         thread.cancel(p);
     }
@@ -322,13 +323,14 @@ public class SelectorKernel extends AbstractKernel
 
         protected void cancel( NioEndpoint p ) throws IOException
         {
-            log.log( Level.INFO, "Closing endpoint:{0}.", p );
             SelectionKey key = endpointKeys.remove(p);
             if( key == null ) {
-                log.log( Level.INFO, "Endpoint already closed:{0}.", p );
+                //log.log( Level.INFO, "Endpoint already closed:{0}.", p );
                 return;  // already closed it
             }                
+            log.log( Level.FINE, "Endpoint keys size:{0}", endpointKeys.size() );
 
+            log.log( Level.INFO, "Closing endpoint:{0}.", p );
             SocketChannel c = (SocketChannel)key.channel();
 
             // Note: key.cancel() is specifically thread safe.  One of
@@ -341,9 +343,11 @@ public class SelectorKernel extends AbstractKernel
 
         protected void cancel( SelectionKey key, SocketChannel c ) throws IOException
         {
-            NioEndpoint p = (NioEndpoint)key.attachment();
+            NioEndpoint p = (NioEndpoint)key.attachment();            
             log.log( Level.INFO, "Closing channel endpoint:{0}.", p );
-            endpointKeys.remove(p);
+            Object o = endpointKeys.remove(p);
+
+            log.log( Level.FINE, "Endpoint keys size:{0}", endpointKeys.size() );
 
             key.cancel();
             c.close();

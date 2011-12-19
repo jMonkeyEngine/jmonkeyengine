@@ -120,9 +120,12 @@ public class ConnectorAdapter extends Thread
 
         // Kill the writer service
         writer.shutdown();
-        
-        // Kill the connector
-        connector.close();
+ 
+        if( connector.isConnected() )
+            {       
+            // Kill the connector
+            connector.close();
+            }
     }
  
     protected void dispatch( Message m )
