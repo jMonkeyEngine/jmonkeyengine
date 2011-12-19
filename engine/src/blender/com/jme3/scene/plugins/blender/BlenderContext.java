@@ -41,6 +41,7 @@ import java.util.Stack;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.jme3.animation.Skeleton;
 import com.jme3.asset.AssetManager;
 import com.jme3.asset.BlenderKey;
 import com.jme3.material.Material;
@@ -107,6 +108,8 @@ public class BlenderContext {
 	protected Map<Long, List<Constraint>>		constraints				= new HashMap<Long, List<Constraint>>();
 	/** Anim data loaded for features. */
 	private Map<Long, AnimData>					animData				= new HashMap<Long, AnimData>();
+	/** Loaded skeletons. */
+	private Map<Long, Skeleton>					skeletons				= new HashMap<Long, Skeleton>();
 	/** A map of mesh contexts. */
 	protected Map<Long, MeshContext>			meshContexts			= new HashMap<Long, MeshContext>();
 	/** A map of material contexts. */
@@ -493,6 +496,29 @@ public class BlenderContext {
 	 */
 	public AnimData getAnimData(Long ownerOMA) {
 		return this.animData.get(ownerOMA);
+	}
+	
+	/**
+	 * This method sets the skeleton for the specified OMA of its owner.
+	 * 
+	 * @param skeletonOMA
+	 *            the skeleton's old memory address
+	 * @param animData
+	 *            the skeleton specified by the given OMA
+	 */
+	public void setSkeleton(Long skeletonOMA, Skeleton skeleton) {
+		this.skeletons.put(skeletonOMA, skeleton);
+	}
+	
+	/**
+	 * This method returns the skeleton for the specified OMA of its owner.
+	 * 
+	 * @param skeletonOMA
+	 *            the skeleton's old memory address
+	 * @return the skeleton specified by the given OMA
+	 */
+	public Skeleton getSkeleton(Long skeletonOMA) {
+		return this.skeletons.get(skeletonOMA);
 	}
 
 	/**
