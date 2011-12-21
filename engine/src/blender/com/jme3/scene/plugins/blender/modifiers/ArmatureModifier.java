@@ -11,9 +11,11 @@ import java.util.logging.Logger;
 
 import com.jme3.animation.AnimControl;
 import com.jme3.animation.Animation;
+import com.jme3.animation.Bone;
 import com.jme3.animation.BoneTrack;
 import com.jme3.animation.Skeleton;
 import com.jme3.animation.SkeletonControl;
+import com.jme3.math.Matrix4f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
@@ -88,16 +90,33 @@ import com.jme3.util.BufferUtils;
 			Pointer pArmatureObject = (Pointer) modifierStructure.getFieldValue("object");
 			if (pArmatureObject.isNotNull()) {
 				ArmatureHelper armatureHelper = blenderContext.getHelper(ArmatureHelper.class);
-				ObjectHelper objectHelper = blenderContext.getHelper(ObjectHelper.class);
-				
+
 				Structure armatureObject = pArmatureObject.fetchData(blenderContext.getInputStream()).get(0);
 
 				// load skeleton
 				Structure armatureStructure = ((Pointer) armatureObject.getFieldValue("data")).fetchData(blenderContext.getInputStream()).get(0);
+
+				Structure pose = ((Pointer) armatureObject.getFieldValue("pose")).fetchData(blenderContext.getInputStream()).get(0);
+				List<Structure> chanbase = ((Structure) pose.getFieldValue("chanbase")).evaluateListBase(blenderContext);
+
+				Map<Long, Structure> bonesPoseChannels = new HashMap<Long, Structure>(chanbase.size());
+				for (Structure poseChannel : chanbase) {
+					Pointer pBone = (Pointer) poseChannel.getFieldValue("bone");
+					bonesPoseChannels.put(pBone.getOldMemoryAddress(), poseChannel);
+				}
+
+				ObjectHelper objectHelper = blenderContext.getHelper(ObjectHelper.class);
+				Matrix4f armatureObjectMatrix = objectHelper.getMatrix(armatureObject, "obmat", true);
+				Matrix4f inverseMeshObjectMatrix = objectHelper.getMatrix(objectStructure, "obmat", true).invertLocal();
+				Matrix4f objectToArmatureTransformation = armatureObjectMatrix.multLocal(inverseMeshObjectMatrix);
+				
 				List<Structure> bonebase = ((Structure) armatureStructure.getFieldValue("bonebase")).evaluateListBase(blenderContext);
-				//load the skeleton and its bones first
-				objectHelper.toObject(armatureObject, blenderContext);
-				Skeleton skeleton = blenderContext.getSkeleton(armatureObject.getOldMemoryAddress());
+				List<Bone> bonesList = new ArrayList<Bone>();
+				for (int i = 0; i < bonebase.size(); ++i) {
+					armatureHelper.buildBones(bonebase.get(i), null, bonesList, objectToArmatureTransformation, bonesPoseChannels, blenderContext);
+				}
+				bonesList.add(0, new Bone(""));
+				Skeleton skeleton = new Skeleton(bonesList.toArray(new Bone[bonesList.size()]));
 				
 				// read mesh indexes
 				this.meshOMA = meshStructure.getOldMemoryAddress();
@@ -179,8 +198,7 @@ import com.jme3.util.BufferUtils;
 			List<Constraint> constraints = blenderContext.getConstraints(boneOMA);
 			if (constraints != null && constraints.size() > 0) {
 				for (Constraint constraint : constraints) {
-					constraint.bakeDynamic();
-					constraint.bakeStatic();
+					constraint.bake(Constraint.BAKE_DYNAMIC | Constraint.BAKE_STATIC);
 				}
 			}
 		}

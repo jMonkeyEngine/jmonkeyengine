@@ -8,7 +8,6 @@ import com.jme3.animation.SpatialTrack;
 import com.jme3.animation.Track;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.plugins.blender.BlenderContext;
-import com.jme3.scene.plugins.blender.BlenderContext.LoadedFeatureDataType;
 import com.jme3.scene.plugins.blender.animations.Ipo;
 import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
 import com.jme3.scene.plugins.blender.file.Pointer;
@@ -21,6 +20,8 @@ import com.jme3.scene.plugins.blender.objects.ObjectHelper;
  * @author Marcin Roguski (Kaelthas)
  */
 public abstract class Constraint {
+	public static final int BAKE_DYNAMIC = 0x01;
+	public static final int BAKE_STATIC  = 0x02;
 	
 	/** The name of this constraint. */
 	protected final String name;
@@ -72,24 +73,38 @@ public abstract class Constraint {
 			throw new BlenderFileException("The constraint has no data specified!");
 		}
 		Space ownerSpace = Space.valueOf(((Number) constraintStructure.getFieldValue("ownspace")).byteValue());
-		Object owner = blenderContext.getLoadedFeature(ownerOMA, LoadedFeatureDataType.LOADED_FEATURE);
-		if(owner instanceof Spatial) {
-			this.owner = new Feature((Spatial)owner, ownerSpace, ownerOMA, blenderContext);
-		} else {
-			this.owner = new Feature((Bone)owner, ownerSpace, ownerOMA, blenderContext);
-		}
+		this.owner = new Feature(ownerSpace, ownerOMA, blenderContext);
 		this.ipo = influenceIpo;
 	}
 
 	/**
+	 * This method bakes the required sontraints into its owner.
+	 * @param bakeFlag the bake type flag support the following values:
+	 * <li> BAKE_DYNAMIC  - bake animation's constraints
+	 * <li> BAKE_STATIC   - bake static constraints
+	 */
+	public void bake(int bakeFlag) {
+		this.owner.update();
+		if(this.target != null) {
+			this.target.update();
+		}
+		if((bakeFlag & BAKE_DYNAMIC) != 0) {
+			this.bakeDynamic();
+		}
+		if((bakeFlag & BAKE_STATIC) != 0) {
+			this.bakeStatic();
+		}
+	}
+	
+	/**
 	 * Bake the animation's constraints into its owner.
 	 */
-	public abstract void bakeDynamic();
+	protected abstract void bakeDynamic();
 	
 	/**
 	 * Bake the static constraints into its owner.
 	 */
-	public abstract void bakeStatic();
+	protected abstract void bakeStatic();
 	
     /**
      * This method returns the bone traces for the bone that is affected by the given constraint.

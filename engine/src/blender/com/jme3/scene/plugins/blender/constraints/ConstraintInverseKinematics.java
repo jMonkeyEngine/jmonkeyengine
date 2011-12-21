@@ -38,7 +38,7 @@ import java.util.logging.Logger;
 	}
 
 	@Override
-	public void bakeDynamic() {
+	protected void bakeDynamic() {
 //		try {
 			// IK solver is only attached to bones
 //			Bone ownerBone = (Bone) blenderContext.getLoadedFeature(ownerOMA, LoadedFeatureDataType.LOADED_FEATURE);
@@ -128,7 +128,7 @@ import java.util.logging.Logger;
 	}
 	
 	@Override
-	public void bakeStatic() {
+	protected void bakeStatic() {
 		// TODO Auto-generated method stub
 		
 	}

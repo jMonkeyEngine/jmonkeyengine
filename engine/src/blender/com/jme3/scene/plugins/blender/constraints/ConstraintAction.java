@@ -35,13 +35,13 @@ import java.util.logging.Logger;
 	}
 	
 	@Override
-	public void bakeDynamic() {
+	protected void bakeDynamic() {
 		// TODO: implement 'Action' constraint
 		LOGGER.log(Level.WARNING, "'Action' constraint NOT implemented!");
 	}
 	
 	@Override
-	public void bakeStatic() {
+	protected void bakeStatic() {
 		// TODO: implement 'Action' constraint
 		LOGGER.log(Level.WARNING, "'Action' constraint NOT implemented!");
 	}

@@ -35,13 +35,13 @@ import java.util.logging.Logger;
 	}
 
 	@Override
-	public void bakeDynamic() {
+	protected void bakeDynamic() {
 		// TODO: implement 'Rigid body joint' constraint
 		LOGGER.log(Level.WARNING, "'Rigid body joint' constraint NOT implemented!");
 	}
 	
 	@Override
-	public void bakeStatic() {
+	protected void bakeStatic() {
 		// TODO: implement 'Rigid body joint' constraint
 		LOGGER.log(Level.WARNING, "'Rigid body joint' constraint NOT implemented!");
 	}

@@ -73,7 +73,7 @@ import com.jme3.scene.plugins.ogre.AnimData;
 	}
 
 	@Override
-	public void bakeDynamic() {
+	protected void bakeDynamic() {
 		Object owner = this.owner.getObject();
 		AnimData animData = blenderContext.getAnimData(this.owner.getOma());
 		if(animData != null) {
@@ -90,7 +90,7 @@ import com.jme3.scene.plugins.ogre.AnimData;
 	}
 	
 	@Override
-	public void bakeStatic() {
+	protected void bakeStatic() {
 		Transform ownerTransform = this.owner.getTransform();
 		Vector3f ownerLocation = ownerTransform.getTranslation();
 		this.locLimit(ownerLocation, ipo.calculateValue(0));

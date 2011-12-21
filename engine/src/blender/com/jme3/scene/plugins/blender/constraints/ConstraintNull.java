@@ -33,8 +33,8 @@ import com.jme3.scene.plugins.blender.file.Structure;
 	}
 
 	@Override
-	public void bakeDynamic() {}
+	protected void bakeDynamic() {}
 	
 	@Override
-	public void bakeStatic() {}
+	protected void bakeStatic() {}
 }

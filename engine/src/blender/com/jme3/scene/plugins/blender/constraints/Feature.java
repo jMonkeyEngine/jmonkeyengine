@@ -31,6 +31,24 @@ import com.jme3.scene.plugins.blender.file.Structure;
 	protected BlenderContext	blenderContext;
 
 	/**
+	 * Constructs the feature. This object should be loaded later
+	 * when it is read from the blender file.
+	 * The update method should be called before the feature is used.
+	 * 
+	 * @param space
+	 *            the spatial's evaluation space
+	 * @param oma
+	 *            the spatial's old memory address
+	 * @param blenderContext
+	 *            the blender context
+	 */
+	public Feature(Space space, Long oma, BlenderContext blenderContext) {
+		this.space = space;
+		this.oma = oma;
+		this.blenderContext = blenderContext;
+	}
+	
+	/**
 	 * Constructs the feature based on spatial.
 	 * 
 	 * @param spatial
@@ -43,9 +61,7 @@ import com.jme3.scene.plugins.blender.file.Structure;
 	 *            the blender context
 	 */
 	public Feature(Spatial spatial, Space space, Long oma, BlenderContext blenderContext) {
-		this.space = space;
-		this.oma = oma;
-		this.spatial = spatial;
+		this(space, oma, blenderContext);
 		this.blenderContext = blenderContext;
 	}
 
@@ -62,12 +78,26 @@ import com.jme3.scene.plugins.blender.file.Structure;
 	 *            the blender context
 	 */
 	public Feature(Bone bone, Space space, Long oma, BlenderContext blenderContext) {
-		this.space = space;
-		this.oma = oma;
-		this.blenderContext = blenderContext;
+		this(space, oma, blenderContext);
 		this.bone = bone;
 	}
-
+	
+	/**
+	 * This method should be called before the feature is used.
+	 * It may happen that the object this feature refers to was not yet loaded from blend file
+	 * when the instance of this class was created.
+	 */
+	public void update() {
+		Object owner = blenderContext.getLoadedFeature(oma, LoadedFeatureDataType.LOADED_FEATURE);
+		if(owner instanceof Spatial) {
+			this.spatial = (Spatial) owner;
+		} else if(owner instanceof Bone) {
+			this.bone = (Bone) owner;
+		} else {
+			throw new IllegalStateException("Unknown type of owner: " + owner.getClass());
+		}
+	}
+	
 	/**
 	 * @return the feature's old memory address
 	 */

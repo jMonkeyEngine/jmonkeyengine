@@ -31,16 +31,11 @@
  */
 package com.jme3.scene.plugins.blender.objects;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.jme3.animation.Bone;
-import com.jme3.animation.Skeleton;
 import com.jme3.asset.BlenderKey.FeaturesToLoad;
 import com.jme3.light.DirectionalLight;
 import com.jme3.light.Light;
@@ -58,7 +53,6 @@ import com.jme3.scene.Spatial.CullHint;
 import com.jme3.scene.plugins.blender.AbstractBlenderHelper;
 import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.BlenderContext.LoadedFeatureDataType;
-import com.jme3.scene.plugins.blender.animations.ArmatureHelper;
 import com.jme3.scene.plugins.blender.cameras.CameraHelper;
 import com.jme3.scene.plugins.blender.constraints.Constraint;
 import com.jme3.scene.plugins.blender.constraints.ConstraintHelper;
@@ -239,31 +233,6 @@ public class ObjectHelper extends AbstractBlenderHelper {
 					}
 					break;
 				case OBJECT_TYPE_ARMATURE:
-					//load the skeleton first and store it in the blender context
-					Structure armatureStructure = ((Pointer) objectStructure.getFieldValue("data")).fetchData(blenderContext.getInputStream()).get(0);
-					Structure pose = ((Pointer) objectStructure.getFieldValue("pose")).fetchData(blenderContext.getInputStream()).get(0);
-					List<Structure> chanbase = ((Structure) pose.getFieldValue("chanbase")).evaluateListBase(blenderContext);
-
-					Map<Long, Structure> bonesPoseChannels = new HashMap<Long, Structure>(chanbase.size());
-					for (Structure poseChannel : chanbase) {
-						Pointer pBone = (Pointer) poseChannel.getFieldValue("bone");
-						bonesPoseChannels.put(pBone.getOldMemoryAddress(), poseChannel);
-					}
-
-					Matrix4f armatureObjectMatrix = this.getMatrix(objectStructure, "obmat", true);
-					Matrix4f inverseMeshObjectMatrix = this.getMatrix(objectStructure, "obmat", true).invertLocal();
-					Matrix4f objectToArmatureTransformation = armatureObjectMatrix.multLocal(inverseMeshObjectMatrix);
-					
-					List<Structure> bonebase = ((Structure) armatureStructure.getFieldValue("bonebase")).evaluateListBase(blenderContext);
-					ArmatureHelper armatureHelper = blenderContext.getHelper(ArmatureHelper.class);
-					List<Bone> bonesList = new ArrayList<Bone>();
-					for (int i = 0; i < bonebase.size(); ++i) {
-						armatureHelper.buildBones(bonebase.get(i), null, bonesList, objectToArmatureTransformation, bonesPoseChannels, blenderContext);
-					}
-					bonesList.add(0, new Bone(""));
-					Skeleton skeleton = new Skeleton(bonesList.toArray(new Bone[bonesList.size()]));
-					blenderContext.setSkeleton(objectStructure.getOldMemoryAddress(), skeleton);
-					
 					//need to create an empty node to properly create parent-children relationships between nodes
 					Node armature = new Node(name);
 					armature.setLocalTransform(t);
@@ -292,7 +261,7 @@ public class ObjectHelper extends AbstractBlenderHelper {
 			List<Constraint> objectConstraints = blenderContext.getConstraints(objectStructure.getOldMemoryAddress());
 			if(objectConstraints!=null) {
 				for(Constraint objectConstraint : objectConstraints) {
-					objectConstraint.bakeStatic();
+					objectConstraint.bake(Constraint.BAKE_STATIC);
 				}
 			}
 			

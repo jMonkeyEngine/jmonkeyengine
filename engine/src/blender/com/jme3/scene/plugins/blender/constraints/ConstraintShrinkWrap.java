@@ -45,7 +45,7 @@ import com.jme3.scene.plugins.ogre.AnimData;
 	}
 
 	@Override
-	public void bakeDynamic() {
+	protected void bakeDynamic() {
 		//loading mesh points (blender ensures that the target is a mesh-object)
 		List<Vector3f> pts = new ArrayList<Vector3f>();
 		Node target = (Node) this.target.getObject();
@@ -89,7 +89,7 @@ import com.jme3.scene.plugins.ogre.AnimData;
 	}
 	
 	@Override
-	public void bakeStatic() {
+	protected void bakeStatic() {
 		// TODO Auto-generated method stub
 		
 	}

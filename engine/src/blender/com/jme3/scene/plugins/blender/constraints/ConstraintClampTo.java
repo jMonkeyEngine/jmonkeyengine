@@ -36,13 +36,13 @@ import java.util.logging.Logger;
 	}
 
 	@Override
-	public void bakeDynamic() {
+	protected void bakeDynamic() {
 		//TODO: implement when curves are implemented
 		LOGGER.log(Level.INFO, "'Clamp to' not yet implemented! Curves not yet implemented!", name);
 	}
 	
 	@Override
-	public void bakeStatic() {
+	protected void bakeStatic() {
 		//TODO: implement when curves are implemented
 		LOGGER.log(Level.INFO, "'Clamp to' not yet implemented! Curves not yet implemented!", name);
 	}

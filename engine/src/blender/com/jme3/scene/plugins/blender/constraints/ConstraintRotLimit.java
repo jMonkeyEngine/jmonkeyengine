@@ -68,7 +68,7 @@ import com.jme3.scene.plugins.ogre.AnimData;
 	}
 
 	@Override
-	public void bakeDynamic() {
+	protected void bakeDynamic() {
 		AnimData animData = blenderContext.getAnimData(owner.getOma());
 		if(animData != null) {
 			Object owner = this.owner.getObject();
@@ -88,7 +88,7 @@ import com.jme3.scene.plugins.ogre.AnimData;
 	}
 	
 	@Override
-	public void bakeStatic() {
+	protected void bakeStatic() {
 		Transform ownerTransform = this.owner.getTransform();
 		float[] angles = ownerTransform.getRotation().toAngles(null);
 		this.rotLimit(angles, ipo.calculateValue(0));

@@ -37,13 +37,13 @@ import com.jme3.scene.plugins.blender.file.Structure;
 	}
 
 	@Override
-	public void bakeDynamic() {
+	protected void bakeDynamic() {
 		// TODO Auto-generated method stub
 		LOGGER.log(Level.WARNING, "'Splie IK' constraint NOT implemented!");
 	}
 
 	@Override
-	public void bakeStatic() {
+	protected void bakeStatic() {
 		// TODO Auto-generated method stub
 		LOGGER.log(Level.WARNING, "'Spline IK' constraint NOT implemented!");
 	}
