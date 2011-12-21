@@ -186,6 +186,7 @@ import com.jme3.util.BufferUtils;
 		}
 
 		// applying animations
+		AnimControl control = new AnimControl(animData.skeleton);
 		ArrayList<Animation> animList = animData.anims;
 		if (animList != null && animList.size() > 0) {
 			HashMap<String, Animation> anims = new HashMap<String, Animation>(animList.size());
@@ -193,11 +194,9 @@ import com.jme3.util.BufferUtils;
 				Animation animation = animList.get(i);
 				anims.put(animation.getName(), animation);
 			}
-
-			AnimControl control = new AnimControl(animData.skeleton);
 			control.setAnimations(anims);
-			node.addControl(control);
 		}
+		node.addControl(control);
 		node.addControl(new SkeletonControl(animData.skeleton));
 
 		return node;
