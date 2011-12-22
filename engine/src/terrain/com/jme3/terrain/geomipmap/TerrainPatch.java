@@ -352,13 +352,7 @@ public class TerrainPatch extends Geometry {
         Vector3f topPoint = new Vector3f();
 
         Vector3f bottomPoint = new Vector3f();
-        
-        Vector2f rootTex = new Vector2f();
-        Vector2f rightTex = new Vector2f();
-        Vector2f leftTex = new Vector2f();
-        Vector2f topTex = new Vector2f();
-        Vector2f bottomTex = new Vector2f();
-        
+
         Vector3f tangent = new Vector3f();
         Vector3f binormal = new Vector3f();
         Vector3f normal = new Vector3f();
@@ -370,67 +364,51 @@ public class TerrainPatch extends Geometry {
                 rootPoint.set(s, this.getHeightmapHeight(s,i), i);
                 leftPoint.set(s-1, this.getHeightmapHeight(s-1,i), i);
                 rightPoint.set(s+1, right.getHeightmapHeight(1,i), i);
-                this.getTex(s,i, rootTex);
-                
-                rightTex.set( rootTex.add(right.getTex(1,i, rightTex).setY(0)));
-                
+
                 if (i == 0) { // top point
                     if (top == null) {
                         bottomPoint.set(s, this.getHeightmapHeight(s,i+1), i+1);
-                        this.getTex(s,i+1, bottomTex);
-                        averageNormalsTangents(null, rootPoint, leftPoint, bottomPoint, rightPoint, null, rootTex, leftTex, bottomTex, rightTex, normal, tangent, binormal);
+                        
+                        averageNormalsTangents(null, rootPoint, leftPoint, bottomPoint, rightPoint, null, null, null, null, null, normal, tangent, binormal);
                         VertexBuffer tpNB = this.getMesh().getBuffer(Type.Normal);
-                        //VertexBuffer tpTB = this.getMesh().getBuffer(Type.Tangent);
-                        //VertexBuffer tpBB = this.getMesh().getBuffer(Type.Binormal);
                         VertexBuffer rightNB = right.getMesh().getBuffer(Type.Normal);
                         BufferUtils.setInBuffer(normal, (FloatBuffer)tpNB.getData(), s);
-                        //BufferUtils.setInBuffer(tangent, (FloatBuffer)tpTB.getData(), s);
-                        //BufferUtils.setInBuffer(binormal, (FloatBuffer)tpBB.getData(), s);
-                        
                         BufferUtils.setInBuffer(normal, (FloatBuffer)rightNB.getData(), 0);
                     } else {
                         topPoint.set(s, top.getHeightmapHeight(s,s-1), i-1);
                         bottomPoint.set(s, this.getHeightmapHeight(s,i+1), i+1);
-                        this.getTex(s,i+1, bottomTex);
-                        averageNormalsTangents(topPoint, rootPoint, leftPoint, bottomPoint, rightPoint, topTex, rootTex, leftTex, bottomTex, rightTex, normal, tangent, binormal);
+                        
+                        averageNormalsTangents(topPoint, rootPoint, leftPoint, bottomPoint, rightPoint, null, null, null, null, null, normal, tangent, binormal);
                         VertexBuffer tpNB = this.getMesh().getBuffer(Type.Normal);
-                        //VertexBuffer tpTB = this.getMesh().getBuffer(Type.Tangent);
-                        //VertexBuffer tpBB = this.getMesh().getBuffer(Type.Binormal);
                         VertexBuffer rightNB = right.getMesh().getBuffer(Type.Normal);
                         BufferUtils.setInBuffer(normal, (FloatBuffer)tpNB.getData(), s);
-                        //BufferUtils.setInBuffer(tangent, (FloatBuffer)tpTB.getData(), s);
-                        //BufferUtils.setInBuffer(binormal, (FloatBuffer)tpBB.getData(), s);
                         BufferUtils.setInBuffer(normal, (FloatBuffer)rightNB.getData(), 0);
+                        
+                        if (topRight != null) {
+                            VertexBuffer topRightNB = topRight.getMesh().getBuffer(Type.Normal);
+                            BufferUtils.setInBuffer(normal, (FloatBuffer)topRightNB.getData(), (s+1)*s);
+                            topRightNB.setUpdateNeeded();
+                        }
                     }
                 } else if (i == s) { // bottom point
                     if (bottom == null) {
                         topPoint.set(s, this.getHeightmapHeight(s,i-1), i-1);
-                        //this.getTex(s,i-1, topTex);
-                        averageNormalsTangents(topPoint, rootPoint, leftPoint, null, rightPoint, topTex, rootTex, leftTex, null, rightTex, normal, tangent, binormal);
+                        
+                        averageNormalsTangents(topPoint, rootPoint, leftPoint, null, rightPoint, null, null, null, null, null, normal, tangent, binormal);
                         VertexBuffer tpNB = this.getMesh().getBuffer(Type.Normal);
-                        //VertexBuffer tpTB = this.getMesh().getBuffer(Type.Tangent);
-                        //VertexBuffer tpBB = this.getMesh().getBuffer(Type.Binormal);
                         VertexBuffer rightNB = right.getMesh().getBuffer(Type.Normal);
                         BufferUtils.setInBuffer(normal, (FloatBuffer)tpNB.getData(), (s+1)*(i+1)-1);
-                        //BufferUtils.setInBuffer(tangent, (FloatBuffer)tpTB.getData(), (s+1)*(i+1)-1);
-                        //BufferUtils.setInBuffer(binormal, (FloatBuffer)tpBB.getData(), (s+1)*(i+1)-1);
-                        BufferUtils.setInBuffer(normal, (FloatBuffer)rightNB.getData(), (s+1)*(i));
+                        BufferUtils.setInBuffer(normal, (FloatBuffer)rightNB.getData(), (s+1)*(s));
                     } else {
                         topPoint.set(s, this.getHeightmapHeight(s,i-1), i-1);
                         bottomPoint.set(s, bottom.getHeightmapHeight(s,1), i+1);
-                        bottom.getTex(s,1, bottomTex);
-                        averageNormalsTangents(topPoint, rootPoint, leftPoint, bottomPoint, rightPoint, topTex, rootTex, leftTex, bottomTex, rightTex, normal, tangent, binormal);
+                        averageNormalsTangents(topPoint, rootPoint, leftPoint, bottomPoint, rightPoint, null, null, null, null, null, normal, tangent, binormal);
                         VertexBuffer tpNB = this.getMesh().getBuffer(Type.Normal);
-                        //VertexBuffer tpTB = this.getMesh().getBuffer(Type.Tangent);
-                        //VertexBuffer tpBB = this.getMesh().getBuffer(Type.Binormal);
                         VertexBuffer rightNB = right.getMesh().getBuffer(Type.Normal);
                         VertexBuffer downNB = bottom.getMesh().getBuffer(Type.Normal);
 
                         BufferUtils.setInBuffer(normal, (FloatBuffer)tpNB.getData(), (s+1)*(s+1)-1);
-                        //BufferUtils.setInBuffer(tangent, (FloatBuffer)tpTB.getData(), (s+1)*(s+1)-1);
-                        //BufferUtils.setInBuffer(binormal, (FloatBuffer)tpBB.getData(), (s+1)*(s+1)-1);
                         BufferUtils.setInBuffer(normal, (FloatBuffer)rightNB.getData(), (s+1)*s);
-                        
                         BufferUtils.setInBuffer(normal, (FloatBuffer)downNB.getData(), s);
                         
                         if (bottomRight != null) {
@@ -438,54 +416,130 @@ public class TerrainPatch extends Geometry {
                             BufferUtils.setInBuffer(normal, (FloatBuffer)bottomRightNB.getData(), 0);
                             bottomRightNB.setUpdateNeeded();
                         }
-                        downNB.setUpdateNeeded();;
+                        downNB.setUpdateNeeded();
                     }
                 } else { // all in the middle
                     topPoint.set(s, this.getHeightmapHeight(s,i-1), i-1);
                     bottomPoint.set(s, this.getHeightmapHeight(s,i+1), i+1);
-                    //this.getTex(s,i-1, topTex);
-                    this.getTex(s,i+1, bottomTex);
-                    averageNormalsTangents(topPoint, rootPoint, leftPoint, bottomPoint, rightPoint, null, rootTex, null, bottomTex, rightTex, normal, tangent, binormal);
+                    averageNormalsTangents(topPoint, rootPoint, leftPoint, bottomPoint, rightPoint, null, null, null, null, null, normal, tangent, binormal);
                     VertexBuffer tpNB = this.getMesh().getBuffer(Type.Normal);
-                    //VertexBuffer tpTB = this.getMesh().getBuffer(Type.Tangent);
-                    //VertexBuffer tpBB = this.getMesh().getBuffer(Type.Binormal);
                     VertexBuffer rightNB = right.getMesh().getBuffer(Type.Normal);
-                    //VertexBuffer rightTB = right.getMesh().getBuffer(Type.Tangent);
-                    //VertexBuffer rightBB = right.getMesh().getBuffer(Type.Binormal);
                     BufferUtils.setInBuffer(normal, (FloatBuffer)tpNB.getData(), (s+1)*(i+1)-1);
-                    
                     BufferUtils.setInBuffer(normal, (FloatBuffer)rightNB.getData(), (s+1)*(i));
                 }
             }
             right.getMesh().getBuffer(Type.Normal).setUpdateNeeded();
         }
 
+        if (left != null) { // left side,    works its way down
+            for (int i=0; i<s+1; i++) {
+                rootPoint.set(0, this.getHeightmapHeight(0,i), i);
+                leftPoint.set(-1, left.getHeightmapHeight(s-1,i), i);
+                rightPoint.set(1, this.getHeightmapHeight(1,i), i);
+                
+                if (i == 0) { // top point
+                    if (top == null) {
+                        bottomPoint.set(0, this.getHeightmapHeight(0,i+1), i+1);
+                        averageNormalsTangents(null, rootPoint, leftPoint, bottomPoint, rightPoint, null, null, null, null, null, normal, tangent, binormal);
+                        VertexBuffer tpNB = this.getMesh().getBuffer(Type.Normal);
+                        VertexBuffer leftNB = left.getMesh().getBuffer(Type.Normal);
+                        BufferUtils.setInBuffer(normal, (FloatBuffer)tpNB.getData(), 0);
+                        BufferUtils.setInBuffer(normal, (FloatBuffer)leftNB.getData(), s);
+                    } else {
+                        topPoint.set(0, top.getHeightmapHeight(0,s-1), i-1);
+                        bottomPoint.set(0, this.getHeightmapHeight(0,i+1), i+1);
+                        
+                        averageNormalsTangents(topPoint, rootPoint, leftPoint, bottomPoint, rightPoint, null, null, null, null, null, normal, tangent, binormal);
+                        VertexBuffer tpNB = this.getMesh().getBuffer(Type.Normal);
+                        VertexBuffer leftNB = left.getMesh().getBuffer(Type.Normal);
+                        BufferUtils.setInBuffer(normal, (FloatBuffer)tpNB.getData(), 0);
+                        BufferUtils.setInBuffer(normal, (FloatBuffer)leftNB.getData(), s);
+                        
+                        if (topLeft != null) {
+                            VertexBuffer topLeftNB = topLeft.getMesh().getBuffer(Type.Normal);
+                            BufferUtils.setInBuffer(normal, (FloatBuffer)topLeftNB.getData(), (s+1)*(s+1)-1);
+                            topLeftNB.setUpdateNeeded();
+                        }
+                    }
+                } else if (i == s) { // bottom point
+                    if (bottom == null) {
+                        topPoint.set(0, this.getHeightmapHeight(0,i-1), i-1);
+                        
+                        averageNormalsTangents(topPoint, rootPoint, leftPoint, null, rightPoint, null, null, null, null, null, normal, tangent, binormal);
+                        VertexBuffer tpNB = this.getMesh().getBuffer(Type.Normal);
+                        VertexBuffer leftNB = left.getMesh().getBuffer(Type.Normal);
+                        BufferUtils.setInBuffer(normal, (FloatBuffer)tpNB.getData(), (s+1)*(s));
+                        BufferUtils.setInBuffer(normal, (FloatBuffer)leftNB.getData(), (s+1)*(i+1)-1);
+                    } else {
+                        topPoint.set(0, this.getHeightmapHeight(0,i-1), i-1);
+                        bottomPoint.set(0, bottom.getHeightmapHeight(0,1), i+1);
+                        
+                        averageNormalsTangents(topPoint, rootPoint, leftPoint, bottomPoint, rightPoint, null, null, null, null, null, normal, tangent, binormal);
+                        VertexBuffer tpNB = this.getMesh().getBuffer(Type.Normal);
+                        VertexBuffer leftNB = left.getMesh().getBuffer(Type.Normal);
+                        VertexBuffer downNB = bottom.getMesh().getBuffer(Type.Normal);
+
+                        BufferUtils.setInBuffer(normal, (FloatBuffer)tpNB.getData(), (s+1)*(s));
+                        BufferUtils.setInBuffer(normal, (FloatBuffer)leftNB.getData(), (s+1)*(i+1)-1);
+                        BufferUtils.setInBuffer(normal, (FloatBuffer)downNB.getData(), 0);
+                        
+                        if (bottomLeft != null) {
+                            VertexBuffer bottomLeftNB = bottomLeft.getMesh().getBuffer(Type.Normal);
+                            BufferUtils.setInBuffer(normal, (FloatBuffer)bottomLeftNB.getData(), s);
+                            bottomLeftNB.setUpdateNeeded();
+                        }
+                        downNB.setUpdateNeeded();
+                    }
+                } else { // all in the middle
+                    topPoint.set(0, this.getHeightmapHeight(0,i-1), i-1);
+                    bottomPoint.set(0, this.getHeightmapHeight(0,i+1), i+1);
+                    
+                    averageNormalsTangents(topPoint, rootPoint, leftPoint, bottomPoint, rightPoint, null, null, null, null, null, normal, tangent, binormal);
+                    VertexBuffer tpNB = this.getMesh().getBuffer(Type.Normal);
+                    VertexBuffer leftNB = left.getMesh().getBuffer(Type.Normal);
+                    BufferUtils.setInBuffer(normal, (FloatBuffer)tpNB.getData(), (s+1)*(i));
+                    BufferUtils.setInBuffer(normal, (FloatBuffer)leftNB.getData(), (s+1)*(i+1)-1);
+                }
+            }
+            left.getMesh().getBuffer(Type.Normal).setUpdateNeeded();
+        }
+        
+        if (top != null) { // top side,    works its way right
+            for (int i=0; i<s+1; i++) {
+                rootPoint.set(i, this.getHeightmapHeight(i,0), 0);
+                topPoint.set(i, top.getHeightmapHeight(i,s-1), -1);
+                bottomPoint.set(i, this.getHeightmapHeight(i,1), 1);
+                
+                if (i == 0) { // left corner
+                    // handled by left side pass
+                    
+                } else if (i == s) { // right corner
+                    
+                    // handled by this patch when it does its right side
+                    
+                } else { // all in the middle
+                    leftPoint.set(i-1, this.getHeightmapHeight(i-1,0), 0);
+                    rightPoint.set(i+1, this.getHeightmapHeight(i+1,0), 0);
+                    averageNormalsTangents(topPoint, rootPoint, leftPoint, bottomPoint, rightPoint, null, null, null, null, null, normal, tangent, binormal);
+                    VertexBuffer tpNB = this.getMesh().getBuffer(Type.Normal);
+                    BufferUtils.setInBuffer(normal, (FloatBuffer)tpNB.getData(), i);
+                    VertexBuffer topNB = top.getMesh().getBuffer(Type.Normal);
+                    BufferUtils.setInBuffer(normal, (FloatBuffer)topNB.getData(), (s+1)*(s)+i);
+                }
+            }
+            top.getMesh().getBuffer(Type.Normal).setUpdateNeeded();
+            
+        }
+        
         if (bottom != null) { // bottom side,    works its way right
             for (int i=0; i<s+1; i++) {
                 rootPoint.set(i, this.getHeightmapHeight(i,s), s);
                 topPoint.set(i, this.getHeightmapHeight(i,s-1), s-1);
                 bottomPoint.set(i, bottom.getHeightmapHeight(i,1), s+1);
-                this.getTex(i,s, rootTex);
-                this.getTex(i,s-1, topTex);
-                
-                bottomTex.set( rootTex.add(bottom.getTex(i,1, bottomTex).setX(0)) );
+
                 if (i == 0) { // left
-                    // handled by the left neighbour, on its right-side pass
-                    if (left == null) {
-                        rightPoint.set(i+1, this.getHeightmapHeight(i+1,s), s);
-                        
-                        // no left neighbour so we have to do it in this one
-                        averageNormalsTangents(topPoint, rootPoint, null, bottomPoint, rightPoint, topTex, rootTex, null, bottomTex, rightTex, normal, tangent, binormal);
-                        VertexBuffer tpNB = this.getMesh().getBuffer(Type.Normal);
-                        VertexBuffer tpTB = this.getMesh().getBuffer(Type.Tangent);
-                        VertexBuffer tpBB = this.getMesh().getBuffer(Type.Binormal);
-                        BufferUtils.setInBuffer(normal, (FloatBuffer)tpNB.getData(), (s+1)*(s)+i);
-                        BufferUtils.setInBuffer(tangent, (FloatBuffer)tpTB.getData(), (s+1)*(s)+i);
-                        BufferUtils.setInBuffer(binormal, (FloatBuffer)tpBB.getData(), (s+1)*(s)+i);
-                        
-                        VertexBuffer downNB = bottom.getMesh().getBuffer(Type.Normal);
-                        BufferUtils.setInBuffer(normal, (FloatBuffer)downNB.getData(), i);
-                    }
+                    // handled by the left side pass
+                    
                 } else if (i == s) { // right
                     
                     // handled by this patch when it does its right side
@@ -493,17 +547,9 @@ public class TerrainPatch extends Geometry {
                 } else { // all in the middle
                     leftPoint.set(i-1, this.getHeightmapHeight(i-1,s), s);
                     rightPoint.set(i+1, this.getHeightmapHeight(i+1,s), s);
-                    this.getTex(i-1,s, leftTex);
-                    this.getTex(i+1,s, rightTex);
-                    averageNormalsTangents(topPoint, rootPoint, leftPoint, bottomPoint, rightPoint, topTex, rootTex, leftTex, bottomTex, rightTex, normal, tangent, binormal);
-                    VertexBuffer tpNB = this.getMesh().getBuffer(Type.Normal);
-                    VertexBuffer tpTB = this.getMesh().getBuffer(Type.Tangent);
-                    VertexBuffer tpBB = this.getMesh().getBuffer(Type.Binormal);
-                    BufferUtils.setInBuffer(normal, (FloatBuffer)tpNB.getData(), (s+1)*(s)+i);
-                    BufferUtils.setInBuffer(tangent, (FloatBuffer)tpTB.getData(), (s+1)*(s)+i);
-                    BufferUtils.setInBuffer(binormal, (FloatBuffer)tpBB.getData(), (s+1)*(s)+i);
-                    
                     averageNormalsTangents(topPoint, rootPoint, leftPoint, bottomPoint, rightPoint, null, null, null, null, null, normal, tangent, binormal);
+                    VertexBuffer tpNB = this.getMesh().getBuffer(Type.Normal);
+                    BufferUtils.setInBuffer(normal, (FloatBuffer)tpNB.getData(), (s+1)*(s)+i);
                     VertexBuffer downNB = bottom.getMesh().getBuffer(Type.Normal);
                     BufferUtils.setInBuffer(normal, (FloatBuffer)downNB.getData(), i);
                 }

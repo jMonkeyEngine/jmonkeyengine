@@ -954,10 +954,10 @@ public class TerrainQuad extends Node implements Terrain {
         }
 
         if (affectedAreaBBox == null) {
-            affectedAreaBBox = new BoundingBox(new Vector3f(changedPoint.x, 0, changedPoint.y), 0.5f, Float.MAX_VALUE, 0.5f); // unit length
+            affectedAreaBBox = new BoundingBox(new Vector3f(changedPoint.x, 0, changedPoint.y), 1f, Float.MAX_VALUE, 1f); // unit length
         } else {
             // adjust size of box to be larger
-            affectedAreaBBox.mergeLocal(new BoundingBox(new Vector3f(changedPoint.x, 0, changedPoint.y), 0.5f, Float.MAX_VALUE, 0.5f));
+            affectedAreaBBox.mergeLocal(new BoundingBox(new Vector3f(changedPoint.x, 0, changedPoint.y), 1f, Float.MAX_VALUE, 1f));
         }
     }
 
