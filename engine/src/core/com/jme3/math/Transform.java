@@ -56,6 +56,11 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
         this.translation.set(translation);
         this.rot.set(rot);
     }
+    
+    public Transform(Vector3f translation, Quaternion rot, Vector3f scale){
+        this(translation, rot);
+        this.scale.set(scale);
+    }
 
     public Transform(Vector3f translation){
         this(translation, Quaternion.IDENTITY);
