@@ -70,21 +70,17 @@ public final class AnimControl extends AbstractControl implements Cloneable {
      * Skeleton object must contain corresponding data for the targets' weight buffers.
      */
     Skeleton skeleton;
-
     /** only used for backward compatibility */
     @Deprecated
     private SkeletonControl skeletonControl;
-
     /**
      * List of animations
      */
     HashMap<String, Animation> animationMap;
-
     /**
      * Animation channels
      */
     private transient ArrayList<AnimChannel> channels = new ArrayList<AnimChannel>();
-
     /**
      * Animation event listeners
      */
@@ -117,14 +113,14 @@ public final class AnimControl extends AbstractControl implements Cloneable {
             clone.spatial = spatial;
             clone.channels = new ArrayList<AnimChannel>();
             clone.listeners = new ArrayList<AnimEventListener>();
-            
-            if (skeleton != null){
+
+            if (skeleton != null) {
                 clone.skeleton = new Skeleton(skeleton);
             }
-            
+
             // animationMap is reference-copied, animation data should be shared
             // to reduce memory usage.
-            
+
             return clone;
         } catch (CloneNotSupportedException ex) {
             throw new AssertionError();
@@ -147,6 +143,9 @@ public final class AnimControl extends AbstractControl implements Cloneable {
      * such named animation exists.
      */
     public Animation getAnim(String name) {
+        if (animationMap == null) {
+            animationMap = new HashMap<String, Animation>();
+        }
         return animationMap.get(name);
     }
 
@@ -156,6 +155,9 @@ public final class AnimControl extends AbstractControl implements Cloneable {
      * @param anim The animation to add.
      */
     public void addAnim(Animation anim) {
+        if (animationMap == null) {
+            animationMap = new HashMap<String, Animation>();
+        }
         animationMap.put(anim.getName(), anim);
     }
 
@@ -273,7 +275,7 @@ public final class AnimControl extends AbstractControl implements Cloneable {
      */
     @Override
     public void setSpatial(Spatial spatial) {
-        if (spatial == null && skeletonControl != null){
+        if (spatial == null && skeletonControl != null) {
             this.spatial.removeControl(skeletonControl);
         }
 
@@ -313,13 +315,13 @@ public final class AnimControl extends AbstractControl implements Cloneable {
 
         return a.getLength();
     }
-    
+
     /**
      * Internal use only.
      */
     @Override
     protected void controlUpdate(float tpf) {
-        if (skeleton != null){
+        if (skeleton != null) {
             skeleton.reset(); // reset skeleton to bind pose
         }
 
@@ -329,7 +331,7 @@ public final class AnimControl extends AbstractControl implements Cloneable {
         }
         vars.release();
 
-        if (skeleton != null){
+        if (skeleton != null) {
             skeleton.updateWorldVectors();
         }
     }
@@ -356,10 +358,10 @@ public final class AnimControl extends AbstractControl implements Cloneable {
         skeleton = (Skeleton) in.readSavable("skeleton", null);
         animationMap = (HashMap<String, Animation>) in.readStringSavableMap("animations", null);
 
-        if (im.getFormatVersion() == 0){
+        if (im.getFormatVersion() == 0) {
             // Changed for backward compatibility with j3o files generated 
             // before the AnimControl/SkeletonControl split.
-            
+
             // If we find a target mesh array the AnimControl creates the 
             // SkeletonControl for old files and add it to the spatial.        
             // When backward compatibility won't be needed anymore this can deleted        
