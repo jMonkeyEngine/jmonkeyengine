@@ -69,12 +69,10 @@ public class MotionTrack extends AbstractCinematicEvent implements Control {
     protected Direction directionType = Direction.None;
     protected MotionPath path;
     private boolean isControl = true;
-    
     /**
      * the distance traveled by the spatial on the path
      */
     protected float traveledDistance = 0;
-
 
     /**
      * Enum for the different type of target direction behavior
@@ -184,17 +182,17 @@ public class MotionTrack extends AbstractCinematicEvent implements Control {
 
     @Override
     public void setTime(float time) {
-        super.setTime(time);        
-       
+        super.setTime(time);
+
         //computing traveled distance according to new time
         traveledDistance = time * (path.getLength() / initialDuration);
-        
+
         TempVars vars = TempVars.get();
         Vector3f temp = vars.vect1;
         //getting waypoint index and current value from new traveled distance
         Vector2f v = path.getWayPointIndexForDistance(traveledDistance);
         //setting values
-        currentWayPoint = (int)v.x;
+        currentWayPoint = (int) v.x;
         setCurrentValue(v.y);
         //interpolating new position
         path.getSpline().interpolate(getCurrentValue(), getCurrentWayPoint(), temp);
@@ -202,8 +200,6 @@ public class MotionTrack extends AbstractCinematicEvent implements Control {
         spatial.setLocalTranslation(temp);
         vars.release();
     }
-    
-   
 
     public void onUpdate(float tpf) {
         traveledDistance = path.interpolatePath(time, this);
@@ -220,7 +216,7 @@ public class MotionTrack extends AbstractCinematicEvent implements Control {
             } else {
                 stop();
             }
-        }       
+        }
     }
 
     @Override
@@ -434,7 +430,11 @@ public class MotionTrack extends AbstractCinematicEvent implements Control {
     }
 
     public void setEnabled(boolean enabled) {
-        play();
+        if (enabled) {
+            play();
+        } else {
+            pause();
+        }
     }
 
     public boolean isEnabled() {
@@ -451,7 +451,7 @@ public class MotionTrack extends AbstractCinematicEvent implements Control {
     public Spatial getSpatial() {
         return spatial;
     }
-    
+
     /**
      * return the distance traveled by the spatial on the path
      * @return 
@@ -459,6 +459,4 @@ public class MotionTrack extends AbstractCinematicEvent implements Control {
     public float getTraveledDistance() {
         return traveledDistance;
     }
-
-    
 }
