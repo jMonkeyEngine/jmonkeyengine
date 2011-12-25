@@ -31,6 +31,8 @@
  */
 package jme3test.animation;
 
+import com.jme3.animation.AnimControl;
+import com.jme3.animation.AnimationHelper;
 import com.jme3.animation.LoopMode;
 import com.jme3.app.SimpleApplication;
 import com.jme3.cinematic.Cinematic;
@@ -104,23 +106,22 @@ public class TestCinematic extends SimpleApplication {
         stateManager.attach(cinematic);
 
         createCameraMotion();
-
-
+        
+        //creating spatial animation for the teapot
+        AnimationHelper helper = new AnimationHelper(20, "teapotAnim");
+        helper.addTimeTranslation(0, new Vector3f(10, 0, 10)); 
+        helper.addTimeTranslation(20, new Vector3f(10, 0, -10));
+        helper.addTimeScale(10, new Vector3f(4, 4, 4));
+        helper.addTimeScale(20, new Vector3f(1, 1, 1));
+        helper.addTimeRotation(20, new Quaternion().fromAngleAxis(FastMath.PI, Vector3f.UNIT_Y));
+        AnimControl control = new AnimControl();
+        control.addAnim(helper.buildAnimation());
+        teapot.addControl(control);
+        
         //fade in
-        cinematic.addCinematicEvent(0, new FadeEvent(true));
-        cinematic.addCinematicEvent(0, new PositionTrack(teapot, new Vector3f(10, 0, 10), 0));
-        cinematic.addCinematicEvent(0, new ScaleTrack(teapot, new Vector3f(1, 1, 1), 0));
-        Quaternion q = new Quaternion();
-        q.loadIdentity();
-        cinematic.addCinematicEvent(0, new RotationTrack(teapot, q, 0));
-
-        cinematic.addCinematicEvent(0, new PositionTrack(teapot, new Vector3f(10, 0, -10), 20));
-        cinematic.addCinematicEvent(0, new ScaleTrack(teapot, new Vector3f(4, 4, 4), 10));
-        cinematic.addCinematicEvent(10, new ScaleTrack(teapot, new Vector3f(1, 1, 1), 10));
-        Quaternion rotation2 = new Quaternion().fromAngleAxis(FastMath.PI, Vector3f.UNIT_Y);
-        cinematic.addCinematicEvent(0, new RotationTrack(teapot, rotation2, 20));
-
+        cinematic.addCinematicEvent(0, new FadeEvent(true));             
         cinematic.activateCamera(0, "aroundCam");
+        cinematic.addCinematicEvent(0,  new AnimationTrack(teapot, "teapotAnim", LoopMode.DontLoop));
         cinematic.addCinematicEvent(0, cameraMotionTrack);
         cinematic.addCinematicEvent(0, new SoundTrack("Sound/Environment/Nature.ogg", LoopMode.Loop));
         cinematic.addCinematicEvent(3f, new SoundTrack("Sound/Effects/kick.wav"));
