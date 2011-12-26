@@ -63,6 +63,7 @@ public class TestMusicPlayer extends javax.swing.JFrame {
         ar = JmeSystem.newAudioRenderer(settings);
         ar.initialize();
         ar.setListener(listener);
+        AudioContext.setAudioRenderer(ar);
     }
 
     /** This method is called from within the constructor to
