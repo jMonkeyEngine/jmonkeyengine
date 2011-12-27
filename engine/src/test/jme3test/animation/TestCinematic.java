@@ -32,7 +32,7 @@
 package jme3test.animation;
 
 import com.jme3.animation.AnimControl;
-import com.jme3.animation.AnimationHelper;
+import com.jme3.animation.AnimationFactory;
 import com.jme3.animation.LoopMode;
 import com.jme3.app.SimpleApplication;
 import com.jme3.cinematic.Cinematic;
@@ -106,30 +106,30 @@ public class TestCinematic extends SimpleApplication {
         stateManager.attach(cinematic);
 
         createCameraMotion();
-        
+
         //creating spatial animation for the teapot
-        AnimationHelper helper = new AnimationHelper(20, "teapotAnim");
-        helper.addTimeTranslation(0, new Vector3f(10, 0, 10)); 
-        helper.addTimeTranslation(20, new Vector3f(10, 0, -10));
-        helper.addTimeScale(10, new Vector3f(4, 4, 4));
-        helper.addTimeScale(20, new Vector3f(1, 1, 1));
-        helper.addTimeRotation(20, new Quaternion().fromAngleAxis(FastMath.PI, Vector3f.UNIT_Y));
+        AnimationFactory factory = new AnimationFactory(20, "teapotAnim");
+        factory.addTimeTranslation(0, new Vector3f(10, 0, 10));
+        factory.addTimeTranslation(20, new Vector3f(10, 0, -10));
+        factory.addTimeScale(10, new Vector3f(4, 4, 4));
+        factory.addTimeScale(20, new Vector3f(1, 1, 1));
+        factory.addTimeRotationAngles(20, 0, 4 * FastMath.TWO_PI, 0);
         AnimControl control = new AnimControl();
-        control.addAnim(helper.buildAnimation());
+        control.addAnim(factory.buildAnimation());
         teapot.addControl(control);
-        
+
         //fade in
-        cinematic.addCinematicEvent(0, new FadeEvent(true));             
-        cinematic.activateCamera(0, "aroundCam");
-        cinematic.addCinematicEvent(0,  new AnimationTrack(teapot, "teapotAnim", LoopMode.DontLoop));
+        cinematic.addCinematicEvent(0, new FadeEvent(true));
+       // cinematic.activateCamera(0, "aroundCam");
+        cinematic.addCinematicEvent(0, new AnimationTrack(teapot, "teapotAnim", LoopMode.DontLoop));
         cinematic.addCinematicEvent(0, cameraMotionTrack);
         cinematic.addCinematicEvent(0, new SoundTrack("Sound/Environment/Nature.ogg", LoopMode.Loop));
         cinematic.addCinematicEvent(3f, new SoundTrack("Sound/Effects/kick.wav"));
         cinematic.addCinematicEvent(3, new SubtitleTrack(nifty, "start", 3, "jMonkey engine really kicks A..."));
         cinematic.addCinematicEvent(5.1f, new SoundTrack("Sound/Effects/Beep.ogg", 1));
         cinematic.addCinematicEvent(2, new AnimationTrack(model, "Walk", LoopMode.Loop));
-        cinematic.activateCamera(6, "topView");
-        cinematic.activateCamera(10, "aroundCam");
+        cinematic.activateCamera(0, "topView");
+      //  cinematic.activateCamera(10, "aroundCam");
 
         //fade out
         cinematic.addCinematicEvent(19, new FadeEvent(false));
@@ -184,7 +184,7 @@ public class TestCinematic extends SimpleApplication {
 
         CameraNode camNode = cinematic.bindCamera("topView", cam);
         camNode.setLocalTranslation(new Vector3f(0, 50, 0));
-        camNode.lookAt(model.getLocalTranslation(), Vector3f.UNIT_Y);
+        camNode.lookAt(teapot.getLocalTranslation(), Vector3f.UNIT_Y);
 
         CameraNode camNode2 = cinematic.bindCamera("aroundCam", cam);
         path = new MotionPath();
@@ -282,7 +282,7 @@ public class TestCinematic extends SimpleApplication {
     private class FadeEvent extends AbstractCinematicEvent {
 
         boolean in = true;
-        float value = 0;        
+        float value = 0;
 
         public FadeEvent(boolean in) {
             super(1);
@@ -292,7 +292,7 @@ public class TestCinematic extends SimpleApplication {
 
         @Override
         public void onPlay() {
-            
+
             fade.setDuration(1f / cinematic.getSpeed());
             if (in) {
                 fade.fadeIn();

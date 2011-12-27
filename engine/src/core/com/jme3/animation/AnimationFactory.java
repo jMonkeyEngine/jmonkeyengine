@@ -52,7 +52,7 @@ import com.jme3.math.Vector3f;
  * 
  * @author Nehon
  */
-public class AnimationHelper {
+public class AnimationFactory {
 
     /**
      * step for splitting rotation that have a n ange above PI/2
@@ -150,7 +150,7 @@ public class AnimationHelper {
      * @param duration the desired duration for the resulting animation
      * @param name the name of the resulting animation
      */
-    public AnimationHelper(float duration, String name) {
+    public AnimationFactory(float duration, String name) {
         this(duration, name, 30);
     }
 
@@ -160,7 +160,7 @@ public class AnimationHelper {
      * @param name the name of the resulting animation
      * @param fps the number of frames per second for this animation (default is 30)
      */
-    public AnimationHelper(float duration, String name, int fps) {
+    public AnimationFactory(float duration, String name, int fps) {
         this.name = name;
         this.duration = duration;
         this.fps = fps;
