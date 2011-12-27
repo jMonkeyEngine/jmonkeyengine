@@ -15,7 +15,7 @@ import com.jme3.terrain.heightmap.AbstractHeightMap;
 import com.jme3.terrain.heightmap.HeightMap;
 import java.io.IOException;
 import java.nio.FloatBuffer;
-import org.novyon.noise.Basis;
+import com.jme3.terrain.noise.Basis;
 
 /**
  *

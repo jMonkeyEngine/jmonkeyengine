@@ -34,14 +34,14 @@ import com.jme3.texture.Texture.WrapMode;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import org.novyon.noise.ShaderUtils;
-import org.novyon.noise.basis.FilteredBasis;
-import org.novyon.noise.filter.IterativeFilter;
-import org.novyon.noise.filter.OptimizedErode;
-import org.novyon.noise.filter.PerturbFilter;
-import org.novyon.noise.filter.SmoothFilter;
-import org.novyon.noise.fractal.FractalSum;
-import org.novyon.noise.modulator.NoiseModulator;
+import com.jme3.terrain.noise.ShaderUtils;
+import com.jme3.terrain.noise.basis.FilteredBasis;
+import com.jme3.terrain.noise.filter.IterativeFilter;
+import com.jme3.terrain.noise.filter.OptimizedErode;
+import com.jme3.terrain.noise.filter.PerturbFilter;
+import com.jme3.terrain.noise.filter.SmoothFilter;
+import com.jme3.terrain.noise.fractal.FractalSum;
+import com.jme3.terrain.noise.modulator.NoiseModulator;
 
 public class TerrainGridAlphaMapTest extends SimpleApplication {
 
