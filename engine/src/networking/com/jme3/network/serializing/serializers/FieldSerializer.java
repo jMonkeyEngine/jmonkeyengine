@@ -179,8 +179,7 @@ public class FieldSerializer extends Serializer {
             } catch (BufferOverflowException boe) {
                 throw boe;
             } catch (Exception e) {
-                log.log(Level.WARNING, "[FieldSerializer][???] Exception occurred on writing. Maybe you've forgotten to register a class, or maybe a class member does not have a serializer.");
-                throw new SerializerException( "Error writing object", e);
+                throw new SerializerException( "Error writing object for field:" + savedField.field, e );
             }
         }
     }
