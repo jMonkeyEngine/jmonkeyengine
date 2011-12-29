@@ -78,6 +78,8 @@ public class BatchNode extends Node implements Savable {
     private float[] tmpFloat;
     private float[] tmpFloatN;
     private float[] tmpFloatT;
+    int maxVertCount = 0;
+    boolean useTangents = false;
 
     /**
      * Construct a batchNode
@@ -178,7 +180,7 @@ public class BatchNode extends Node implements Savable {
     protected void doBatch() {
         ///List<Geometry> tmpList = new ArrayList<Geometry>();
         Map<Material, List<Geometry>> matMap = new HashMap<Material, List<Geometry>>();
-
+        maxVertCount = 0;
         gatherGeomerties(matMap, this);
         batches.clear();
         int nbGeoms = 0;
@@ -199,6 +201,12 @@ public class BatchNode extends Node implements Savable {
             batch.geometry.getMesh().updateCounts();
             batch.geometry.getMesh().updateBound();
             batches.put(material, batch);
+        }
+        //init temp float arrays
+        tmpFloat = new float[maxVertCount * 3];
+        tmpFloatN = new float[maxVertCount * 3];
+        if (useTangents) {
+            tmpFloatT = new float[maxVertCount * 4];
         }
         logger.log(Level.INFO, "Batched {0} geometries in {1} batches.", new Object[]{nbGeoms, batches.size()});
     }
@@ -352,7 +360,6 @@ public class BatchNode extends Node implements Savable {
         int totalVerts = 0;
         int totalTris = 0;
         int totalLodLevels = 0;
-        int maxVertCount = 0;
 
         Mesh.Mode mode = null;
         for (Geometry geom : geometries) {
@@ -415,9 +422,9 @@ public class BatchNode extends Node implements Savable {
 
             Buffer data;
             if (i == VertexBuffer.Type.Index.ordinal()) {
-                data = VertexBuffer.createBuffer(formatForBuf[i], compsForBuf[i], totalTris);                
+                data = VertexBuffer.createBuffer(formatForBuf[i], compsForBuf[i], totalTris);
             } else {
-                data = VertexBuffer.createBuffer(formatForBuf[i], compsForBuf[i], totalVerts);                
+                data = VertexBuffer.createBuffer(formatForBuf[i], compsForBuf[i], totalVerts);
             }
 
             VertexBuffer vb = new VertexBuffer(VertexBuffer.Type.values()[i]);
@@ -464,6 +471,9 @@ public class BatchNode extends Node implements Savable {
                     FloatBuffer inPos = (FloatBuffer) inBuf.getData();
                     FloatBuffer outPos = (FloatBuffer) outBuf.getData();
                     doCopyBuffer(inPos, globalVertIndex, outPos);
+                    if (VertexBuffer.Type.Tangent.ordinal() == bufType) {
+                        useTangents = true;
+                    }
                 } else {
                     for (int vert = 0; vert < geomVertCount; vert++) {
                         int curGlobalVertIndex = globalVertIndex + vert;
@@ -475,9 +485,6 @@ public class BatchNode extends Node implements Savable {
             globalVertIndex += geomVertCount;
             globalTriIndex += geomTriCount;
         }
-        tmpFloat = new float[maxVertCount * 3];
-        tmpFloatN = new float[maxVertCount * 3];
-        tmpFloatT = new float[maxVertCount * 4];
     }
 
     private void doTransforms(FloatBuffer bufPos, FloatBuffer bufNorm, int start, int end, Matrix4f transform) {
@@ -491,7 +498,7 @@ public class BatchNode extends Node implements Savable {
         // convert to be in component units
         int offset = start * 3;
         bufPos.position(offset);
-        bufNorm.position(offset);     
+        bufNorm.position(offset);
         bufPos.get(tmpFloat, 0, length);
         bufNorm.get(tmpFloatN, 0, length);
         int index = 0;
@@ -537,14 +544,14 @@ public class BatchNode extends Node implements Savable {
         // convert to be in component units
         int offset = start * 3;
         int tanOffset = start * 4;
-        
+
         bufPos.position(offset);
         bufNorm.position(offset);
         bufTangents.position(tanOffset);
         bufPos.get(tmpFloat, 0, length);
-        bufNorm.get(tmpFloatN, 0, length);               
+        bufNorm.get(tmpFloatN, 0, length);
         bufTangents.get(tmpFloatT, 0, tanLength);
-        
+
         int index = 0;
         int tanIndex = 0;
         while (index < length) {
@@ -554,11 +561,11 @@ public class BatchNode extends Node implements Savable {
             norm.y = tmpFloatN[index++];
             pos.z = tmpFloat[index];
             norm.z = tmpFloatN[index];
-            
+
             tan.x = tmpFloatT[tanIndex++];
             tan.y = tmpFloatT[tanIndex++];
             tan.z = tmpFloatT[tanIndex++];
-                        
+
 
             transform.mult(pos, pos);
             transform.multNormal(norm, norm);
@@ -566,18 +573,18 @@ public class BatchNode extends Node implements Savable {
 
             index -= 2;
             tanIndex -= 3;
-            
+
             tmpFloat[index] = pos.x;
             tmpFloatN[index++] = norm.x;
             tmpFloat[index] = pos.y;
             tmpFloatN[index++] = norm.y;
             tmpFloat[index] = pos.z;
             tmpFloatN[index++] = norm.z;
-            
+
             tmpFloatT[tanIndex++] = tan.x;
             tmpFloatT[tanIndex++] = tan.y;
             tmpFloatT[tanIndex++] = tan.z;
-            
+
             tanIndex++;
 
         }
@@ -587,13 +594,11 @@ public class BatchNode extends Node implements Savable {
         bufPos.put(tmpFloat, 0, length);
         bufNorm.position(offset);
         //using bulk put as it's faster
-        bufNorm.put(tmpFloatN, 0, length);        
+        bufNorm.put(tmpFloatN, 0, length);
         bufTangents.position(tanOffset);
         //using bulk put as it's faster
         bufTangents.put(tmpFloatT, 0, tanLength);
     }
-
-  
 
     private void doCopyBuffer(FloatBuffer inBuf, int offset, FloatBuffer outBuf) {
         TempVars vars = TempVars.get();
