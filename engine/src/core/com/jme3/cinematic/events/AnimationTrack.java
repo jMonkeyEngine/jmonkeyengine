@@ -63,6 +63,7 @@ public class AnimationTrack extends AbstractCinematicEvent {
     public AnimationTrack(Spatial model, String animationName) {
         modelName = model.getName();
         this.animationName = animationName;
+        initialDuration = model.getControl(AnimControl.class).getAnimationLength(animationName);
     }
 
     public AnimationTrack(Spatial model, String animationName, float initialDuration) {
@@ -73,6 +74,7 @@ public class AnimationTrack extends AbstractCinematicEvent {
 
     public AnimationTrack(Spatial model, String animationName, LoopMode loopMode) {
         super(loopMode);
+        initialDuration = model.getControl(AnimControl.class).getAnimationLength(animationName);
         modelName = model.getName();
         this.animationName = animationName;
     }
