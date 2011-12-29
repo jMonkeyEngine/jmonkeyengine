@@ -448,6 +448,13 @@ public class AudioNode extends Node {
         }
 
         this.timeOffset = timeOffset;
+        if (data instanceof AudioStream) {
+            System.out.println("request setTime");
+            ((AudioStream) data).setTime(timeOffset);
+        }else if(status == Status.Playing){
+            stop();
+            play();
+        }
     }
 
     /**

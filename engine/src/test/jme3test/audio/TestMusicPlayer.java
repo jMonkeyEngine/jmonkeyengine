@@ -33,9 +33,11 @@
 package jme3test.audio;
 
 import com.jme3.asset.AssetInfo;
+import com.jme3.asset.AssetLoader;
 import com.jme3.audio.AudioNode.Status;
 import com.jme3.audio.*;
 import com.jme3.audio.plugins.OGGLoader;
+import com.jme3.audio.plugins.WAVLoader;
 import com.jme3.system.AppSettings;
 import com.jme3.system.JmeSystem;
 import java.io.*;
@@ -172,7 +174,13 @@ public class TestMusicPlayer extends javax.swing.JFrame {
             btnStopActionPerformed(null);
             
             final File selected = chooser.getSelectedFile();
-            OGGLoader loader = new OGGLoader();
+            AssetLoader loader = null;
+            if(selected.getName().endsWith(".wav")){
+                loader = new WAVLoader();
+            }else{
+                loader = new OGGLoader();
+            }
+             
             AudioKey key = new AudioKey(selected.getName(), true, true);
             try{
                 musicData = (AudioData) loader.load(new AssetInfo(null, key) {
@@ -255,10 +263,10 @@ public class TestMusicPlayer extends javax.swing.JFrame {
                 curTime = 0;
             
             musicSource.setTimeOffset(curTime);
-            if (musicSource.getStatus() == Status.Playing){
-                musicSource.stop();
-                musicSource.play();
-            }
+//            if (musicSource.getStatus() == Status.Playing){
+//                musicSource.stop();               
+//                musicSource.play();
+//            }
             updateTime();
         }
     }//GEN-LAST:event_sldBarStateChanged

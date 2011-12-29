@@ -38,6 +38,7 @@ import com.jme3.audio.AudioBuffer;
 import com.jme3.audio.AudioData;
 import com.jme3.audio.AudioKey;
 import com.jme3.audio.AudioStream;
+import com.jme3.audio.SeekableStream;
 import com.jme3.util.BufferUtils;
 import de.jarnbjo.ogg.EndOfOggStreamException;
 import de.jarnbjo.ogg.LogicalOggStream;
@@ -49,6 +50,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.util.Collection;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class OGGLoader implements AssetLoader {
 
@@ -64,10 +67,10 @@ public class OGGLoader implements AssetLoader {
     private static class JOggInputStream extends InputStream {
 
         private boolean endOfStream = false;
-        private final VorbisStream vs;
+        protected final VorbisStream vs;
 
-        public JOggInputStream(VorbisStream vs){
-            this.vs = vs;
+        public JOggInputStream(VorbisStream vs){           
+            this.vs = vs;       
         }
 
         @Override
@@ -88,14 +91,25 @@ public class OGGLoader implements AssetLoader {
             int bytesRead = 0, cnt = 0;
             assert length % 2 == 0; // read buffer should be even
             
-            while (bytesRead < buf.length) {
-                if ((cnt = vs.readPcm(buf, offset + bytesRead, buf.length - bytesRead)) <= 0) {
-                    endOfStream = true;
+            while (bytesRead <length) {
+                if ((cnt = vs.readPcm(buf, offset + bytesRead,length - bytesRead)) <= 0) {
+                    System.out.println("Read "+cnt+" bytes");
+                    System.out.println("offset "+offset);
+                    System.out.println("bytesRead "+bytesRead);
+                    System.out.println("buf length "+length);
+                    for (int i = 0; i < bytesRead; i++) {
+                       System.out.print(buf[i]);
+                    }
+                    System.out.println("");
+                    
+                    
+                    System.out.println("EOS");
+                    endOfStream = true;                    
                     break;
-                }
-                bytesRead += cnt;
-            }
-
+                }               
+                bytesRead += cnt;               
+           }
+                         
             swapBytes(buf, offset, bytesRead);
             return bytesRead;
 
@@ -106,6 +120,36 @@ public class OGGLoader implements AssetLoader {
             vs.close();
         }
 
+    }
+    
+    private static class SeekableJOggInputStream extends JOggInputStream implements SeekableStream {
+      
+        private LogicalOggStream los;
+        private float duration;
+        
+        public SeekableJOggInputStream(VorbisStream vs, LogicalOggStream los, float duration){           
+            super(vs);
+            this.los = los;
+            this.duration = duration;
+        }
+
+        public void setTime(float time) {
+            System.out.println("--setTime--)");
+            System.out.println("max granule : "+los.getMaximumGranulePosition());
+            System.out.println("current granule : "+los.getTime());
+            System.out.println("asked Time : "+time);
+            System.out.println("new granule : "+(time/duration*los.getMaximumGranulePosition()));
+            System.out.println("new granule2 : "+(time*vs.getIdentificationHeader().getSampleRate()));
+            
+             
+            
+            try {
+                los.setTime((long)(time*vs.getIdentificationHeader().getSampleRate()));                
+            } catch (IOException ex) {
+                Logger.getLogger(OGGLoader.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        
     }
     
     /**
@@ -194,8 +238,12 @@ public class OGGLoader implements AssetLoader {
         }
     }
 
-    private InputStream readToStream(){
-        return new JOggInputStream(vorbisStream);
+    private InputStream readToStream(boolean seekable,float streamDuration){
+        if(seekable){
+            return new SeekableJOggInputStream(vorbisStream,loStream,streamDuration);
+        }else{
+            return new JOggInputStream(vorbisStream);
+        }
     }
     
     private AudioData load(InputStream in, boolean readStream, boolean streamCache) throws IOException{
@@ -228,7 +276,7 @@ public class OGGLoader implements AssetLoader {
             // might return -1 if unknown
             float streamDuration = computeStreamDuration();
             
-            audioStream.updateData(readToStream(), streamDuration);
+            audioStream.updateData(readToStream(oggStream.isSeekable(),streamDuration), streamDuration);
             return audioStream;
         }
     }

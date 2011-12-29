@@ -36,6 +36,8 @@ import com.jme3.util.NativeObject;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * <code>AudioStream</code> is an implementation of AudioData that
@@ -47,20 +49,20 @@ import java.io.InputStream;
  */
 public class AudioStream extends AudioData implements Closeable{
 
+    private final static Logger logger = Logger.getLogger(AudioStream.class.getName());
     protected InputStream in;
     protected float duration = -1f;
     protected boolean open = false;
     protected int[] ids;
-
+    
     public AudioStream(){
-        super();
+        super();        
     }
     
     protected AudioStream(int[] ids){
         // Pass some dummy ID so handle
         // doesn't get created.
-        super(-1);
-        
+        super(-1);      
         // This is what gets destroyed in reality
         this.ids = ids;
     }
@@ -189,4 +191,14 @@ public class AudioStream extends AudioData implements Closeable{
         }
     }
 
+  
+    public void setTime(float time){
+        if(in instanceof SeekableStream){
+            ((SeekableStream)in).setTime(time);
+        }else{
+            logger.log(Level.WARNING,"Cannot use setTime on a stream that is not seekable. You must load the file with the streamCache option set to true");
+        }
+    }
+
+    
 }
