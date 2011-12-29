@@ -33,6 +33,7 @@ package com.jme3.gde.terraineditor.tools;
 
 import com.jme3.asset.AssetManager;
 import com.jme3.gde.core.sceneexplorer.nodes.AbstractSceneExplorerNode;
+import com.jme3.gde.terraineditor.ExtraToolParams;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
@@ -180,5 +181,16 @@ public abstract class TerrainTool {
         this.toolHintTextKey = toolHintTextKey;
     }
 
+    public void setExtraParams(ExtraToolParams params) {
+        // override in subclasses that need it
+    }
     
+    public ExtraToolParams getExtraParams() {
+        // override in subclasses that need it
+        return null;
+    }
+
+    public void extraParamsChanged(ExtraToolParams params) {
+        // override in subclasses that need it
+    }
 }

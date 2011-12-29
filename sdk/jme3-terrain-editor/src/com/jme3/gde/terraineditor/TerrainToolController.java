@@ -56,6 +56,7 @@ public class TerrainToolController extends SceneToolController {
     private TerrainTool terrainTool;
     private TerrainEditorController editorController;
     private TerrainCameraController cameraController;
+    private TerrainEditorTopComponent topComponent;
     
     private float toolRadius;
     private float toolWeight;
@@ -73,6 +74,10 @@ public class TerrainToolController extends SceneToolController {
 
     public void setCameraController(TerrainCameraController cameraController) {
         this.cameraController = cameraController;
+    }
+
+    public void setTopComponent(TerrainEditorTopComponent topComponent) {
+        this.topComponent = topComponent;
     }
 
     /**
@@ -171,6 +176,7 @@ public class TerrainToolController extends SceneToolController {
         if (terrainTool != null) {
             Vector3f point = getMarkerLocation();
             if (point != null) {
+                topComponent.getExtraToolParams();
                 terrainTool.actionPrimary(point, selectedTextureIndex, jmeRootNode, editorController.getCurrentDataObject());
             }
             
@@ -190,6 +196,16 @@ public class TerrainToolController extends SceneToolController {
             
         }
 
+    }
+
+    void setExtraToolParams(ExtraToolParams params) {
+        if (terrainTool != null) {
+            terrainTool.setExtraParams(params);
+        }
+    }
+
+    public TerrainTool getCurrentTerrainTool() {
+        return terrainTool;
     }
 
 }
