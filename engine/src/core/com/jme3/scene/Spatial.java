@@ -96,7 +96,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Asset {
     }
 
     /**
-     * Specifies is this spatial should be batched
+     * Specifies if this spatial should be batched
      */
     public enum BatchHint {
 
@@ -105,11 +105,11 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Asset {
          */
         Inherit,
         /** 
-         * this spatial will always be batched when attached to a BatchNode
+         * This spatial will always be batched when attached to a BatchNode.
          */
         Always,
         /** 
-         * this spatial will naver be batched when attached to a BatchNode
+         * This spatial will never be batched when attached to a BatchNode.
          */
         Never;
     }
