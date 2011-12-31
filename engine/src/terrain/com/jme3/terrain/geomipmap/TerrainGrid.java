@@ -147,7 +147,8 @@ public class TerrainGrid extends TerrainQuad {
                             log.log(Level.FINE, "Loaded TerrainQuad {0} from HeightMapGrid", q.getName());
                         } else if (gridTileLoader != null) {
                             q = gridTileLoader.getTerrainQuadAt(quadCell);
-                            q.setMaterial(material.clone());
+                            // only clone the material to the quad if it doesn't have a material of its own
+                            if(q.getMaterial()==null) q.setMaterial(material.clone());
                             log.log(Level.FINE, "Loaded TerrainQuad {0} from TerrainQuadGrid", q.getName());
                         }
                     }
