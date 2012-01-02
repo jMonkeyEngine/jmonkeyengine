@@ -201,10 +201,8 @@ public class MotionTrack extends AbstractCinematicEvent implements Control {
         vars.release();
     }
 
-    public void onUpdate(float tpf) {
-        System.out.println("time "+time);
+    public void onUpdate(float tpf) {       
         traveledDistance = path.interpolatePath(time, this);
-        System.out.println("dist "+traveledDistance);
         computeTargetDirection();
 
         if (currentValue >= 1.0f) {
