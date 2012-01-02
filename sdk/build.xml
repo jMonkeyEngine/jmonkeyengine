@@ -120,8 +120,8 @@
        ****************************************************************
       -->
       
-    <!--creates update center version via hudson build server-->
-    <target name="hudson-nightly" depends="suite.clean, update-help-sets, set-impl-version, suite.nbms, unset-impl-version">
+    <!--creates update center version via hudson build server (update-help-sets, )-->
+    <target name="hudson-nightly" depends="suite.clean, set-impl-version, suite.nbms, unset-impl-version">
     </target>
 
     <!--to be used after release, sets version number sans svn revision-->
