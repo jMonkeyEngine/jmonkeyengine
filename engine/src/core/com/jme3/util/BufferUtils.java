@@ -1156,7 +1156,7 @@ public final class BufferUtils {
     *          The DirectByteBuffer that will be "cleaned". Utilizes reflection.
     *          
     */
-    public static void destroyDirectByteBuffer(ByteBuffer toBeDestroyed) {
+    public static void destroyByteBuffer(ByteBuffer toBeDestroyed) {
         try {
             Method cleanerMethod = toBeDestroyed.getClass().getMethod("cleaner");
             cleanerMethod.setAccessible(true);
