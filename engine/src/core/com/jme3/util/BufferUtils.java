@@ -35,11 +35,15 @@ import com.jme3.math.ColorRGBA;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.nio.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Map;
 import java.util.WeakHashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * <code>BufferUtils</code> is a helper class for generating nio buffers from
@@ -1139,4 +1143,38 @@ public final class BufferUtils {
             System.out.println(store.toString());
         }
     }
+    
+    /**
+    * DirectByteBuffers are garbage collected by using a phantom reference and a
+    * reference queue. Every once a while, the JVM checks the reference queue and
+    * cleans the DirectByteBuffers. However, as this doesn't happen
+    * immediately after discarding all references to a DirectByteBuffer, it's
+    * easy to OutOfMemoryError yourself using DirectByteBuffers. This function
+    * explicitly calls the Cleaner method of a DirectByteBuffer.
+    * 
+    * @param toBeDestroyed
+    *          The DirectByteBuffer that will be "cleaned". Utilizes reflection.
+    *          
+    */
+    public static void destroyDirectByteBuffer(ByteBuffer toBeDestroyed) {
+        try {
+            Method cleanerMethod = toBeDestroyed.getClass().getMethod("cleaner");
+            cleanerMethod.setAccessible(true);
+            Object cleaner = cleanerMethod.invoke(toBeDestroyed);
+            Method cleanMethod = cleaner.getClass().getMethod("clean");
+            cleanMethod.setAccessible(true);
+            cleanMethod.invoke(cleaner);
+        } catch (IllegalAccessException ex) {
+            Logger.getLogger(BufferUtils.class.getName()).log(Level.SEVERE, "{0}", ex);
+        } catch (IllegalArgumentException ex) {
+            Logger.getLogger(BufferUtils.class.getName()).log(Level.SEVERE, "{0}", ex);
+        } catch (InvocationTargetException ex) {
+            Logger.getLogger(BufferUtils.class.getName()).log(Level.SEVERE, "{0}", ex);
+        } catch (NoSuchMethodException ex) {
+            Logger.getLogger(BufferUtils.class.getName()).log(Level.SEVERE, "{0}", ex);
+        } catch (SecurityException ex) {
+            Logger.getLogger(BufferUtils.class.getName()).log(Level.SEVERE, "{0}", ex);
+        }
+    }
+
 }
