@@ -1,114 +1,4 @@
-
-<h1><a>TerraMonkey - The jMonkeyEngine Terrain System</a></h1>
-<div>
-
-<p>
-
-The goal of TerraMonkey is to provide a base implementation that will be usable for 80% of people&#039;s goals, while providing tools and a good foundation for the other 20% to build off of. Check out the videos in the following announcements:
-</p>
-<ul>
-<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://jmonkeyengine.org/2011/06/17/infinite-terrains-with-terraingrid-new-features-in-terramonkey/"><param name="text" value="<html><u>New features</u></html>"><param name="textColor" value="blue"></object></div>
-</li>
-<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://jmonkeyengine.org/2011/07/03/terramonkey-more-textures-tools-and-undo/"><param name="text" value="<html><u>More textures and Tools</u></html>"><param name="textColor" value="blue"></object></div>
-</li>
-</ul>
-
-</div>
-
-<h2><a>Overview</a></h2>
-<div>
-
-<p>
-
-TerraMonkey is a GeoMipMapping quad tree of terrain tiles that supports real time editing and texture splatting. That&#039;s a mouth full! Lets look at each part:
-</p>
-<ul>
-<li><div> <strong>GeoMipMapping:</strong> a method of changing the level of detail (LOD) of geometry tiles based on how far away they are from the camera. Between the edges of two tiles, it will seam those edges together so you don&#039;t get gaps or holes. For an in-depth read on how it works, here is a pdf <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://www.flipcode.com/archives/article_geomipmaps.pdf"><param name="text" value="<html><u>http://www.flipcode.com/archives/article_geomipmaps.pdf</u></html>"><param name="textColor" value="blue"></object>.</div>
-</li>
-<li><div> <strong>Quad Tree:</strong> The entire terrain structure is made up of TerrainPatches (these hold the actual meshes) as leaves in a quad tree (TerrainQuad). TerrainQuads are subdivided by 4 until they reach minimum size, then a TerrainPatch is created, and that is where the actual geometry mesh lives. This allows for fast culling of the terrain that you can&#039;t see.</div>
-</li>
-<li><div> <strong>Splatting:</strong> The ability to paint multiple textures onto your terrain. What differs here from JME2 is that this is all done in a shader, no more render passes. So it performs much faster.</div>
-</li>
-<li><div> <strong>Real-time editing:</strong> TerraMonkey terrains are editable in jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym>, and you are able to modify them in real time: raising and lowering terrain.</div>
-</li>
-</ul>
-
-</div>
-
-<h3><a>Current Features:</a></h3>
-<div>
-<ul>
-<li><div> Support for 16 splat textures. You use a custom combination of Diffuse, Normal, Specular, and Glow Maps.</div>
-</li>
-<li><div> GeoMipMapping: LodControl optimizes the level of detail</div>
-</li>
-<li><div> Terrain can be randomized or generated from a heightmap</div>
-</li>
-<li><div> jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> terrain editor</div>
-</li>
-<li><div> Streaming <a href="/com/jme3/gde/core/docs/jme3/advanced/endless_terraingrid.html">terrain grid</a> (ie. &quot;infinite&quot; terrain)</div>
-</li>
-</ul>
-
-</div>
-
-<h3><a>Planned Features:</a></h3>
-<div>
-<ul>
-<li><div> Hydraulic erosion and procedural texture generation</div>
-</li>
-<li><div> Holes: caves, cliffs</div>
-</li>
-</ul>
-
-</div>
-
-<h2><a>Sample Code</a></h2>
-<div>
-<ul>
-<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/terrain/TerrainTest.java"><param name="text" value="<html><u>TerrainTest.java</u></html>"><param name="textColor" value="blue"></object></div>
-</li>
-<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/terrain/TerrainTestAdvanced.java"><param name="text" value="<html><u>TerrainTestAdvanced.java</u></html>"><param name="textColor" value="blue"></object></div>
-</li>
-<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/terrain/TerrainTestCollision.java"><param name="text" value="<html><u>TerrainTestCollision.java</u></html>"><param name="textColor" value="blue"></object></div>
-</li>
-<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/terrain/TerrainTestModifyHeight.java"><param name="text" value="<html><u>TerrainTestModifyHeight.java</u></html>"><param name="textColor" value="blue"></object></div>
-</li>
-<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/terrain/TerrainTestReadWrite.java"><param name="text" value="<html><u>TerrainTestReadWrite.java</u></html>"><param name="textColor" value="blue"></object></div>
-</li>
-</ul>
-
-</div>
-
-<h2><a>Geo Mip Mapping</a></h2>
-<div>
-
-<p>
-
-You have seen GeoMipMapping implemented in games before. This is where the farther away terrain has fewer polygons, and as you move closer, more polygons fill in. The whole terrain is divided into a grid of patches, and each one has its own level of detail (LOD). The GeoMipMapping algorithm looks at each patch, and its neighbours, to determine how to render the geometry. It will seam the edges between two patches with different LOD.
-</p>
-
-<p>
-GeoMipMapping often leads to &quot;popping&quot; where you see the terrain switch from one LOD to another. TerraMonkey has been designed so you can swap out different LOD calculation algorithms based on what will look best for your game. You can do this with the LodCalculator interface.
-</p>
-
-<p>
-GeoMipMapping in TerraMonkey has been split into several parts: the terrain quad tree, and the LODGeomap. The geomap deals with the actual LOD and seaming algorithm. So if you want a different data structure for your terrain system, you can re-use this piece of code. The quad tree (TerrainQuad and TerrainPatch) provide a means to organize the LODGeomaps, notify them of their neighbour&#039;s LOD change, and to update the geometry when the LOD does change. To change the LOD it does this by changing the index buffer of the triangle strip, so the whole geometry doesn&#039;t have to be re-loaded onto the video card. If you are eager, you can read up more detail how GeoMipMapping works here: <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://www.flipcode.com/archives/article_geomipmaps.pdf"><param name="text" value="<html><u>www.flipcode.com/archives/article_geomipmaps.pdf</u></html>"><param name="textColor" value="blue"></object>
-</p>
-
-</div>
-
-<h2><a>Terrain Quad Tree</a></h2>
-<div>
-
-<p>
-
-TerraMonkey is a quad tree. Each node is a TerrainQuad, and each leaf is a TerrainPatch. A TerrainQuad has either 4 child TerrainQuads, or 4 child TerrainPatches. The TerrainPatch holds the actual mesh geometry. This structure is almost exactly the same as JME2&#039;s TerrainPage system. Except now each leaf has a reference to its neighbours, so it doesn&#039;t ever have to traverse the tree to get them.
-</p>
-
-</div>
-
-<h2><a>Texture Splatting</a></h2>
+<h1><a>TerraMonkey - The jMonkeyEngine Terrain System</a></h1><div><p>The goal of TerraMonkey is to provide a base implementation that will be usable for 80% of people&#039;s goals, while providing tools and a good foundation for the other 20% to build off of. Check out the videos in the following announcements:</p><ul><li><div><object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://jmonkeyengine.org/2011/06/17/infinite-terrains-with-terraingrid-new-features-in-terramonkey/"><param name="text" value="<html><u>New features</u></html>"><param name="textColor" value="blue"></object></div></li><li><div><object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://jmonkeyengine.org/2011/07/03/terramonkey-more-textures-tools-and-undo/"><param name="text" value="<html><u>More textures and Tools</u></html>"><param name="textColor" value="blue"></object></div></li></ul></div><h2><a>Overview</a></h2><div><p>TerraMonkey is a GeoMipMapping quad tree of terrain tiles that supports real time editing and texture splatting. That&#039;s a mouth full! Lets look at each part:</p><ul><li><div><strong>GeoMipMapping:</strong> a method of changing the level of detail (LOD) of geometry tiles based on how far away they are from the camera. Between the edges of two tiles, it will seam those edges together so you don&#039;t get gaps or holes. For an in-depth read on how it works, here is a pdf <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://www.flipcode.com/archives/article_geomipmaps.pdf"><param name="text" value="<html><u>http://www.flipcode.com/archives/article_geomipmaps.pdf</u></html>"><param name="textColor" value="blue"></object>.</div></li><li><div><strong>Quad Tree:</strong> The entire terrain structure is made up of TerrainPatches (these hold the actual meshes) as leaves in a quad tree (TerrainQuad). TerrainQuads are subdivided by 4 until they reach minimum size, then a TerrainPatch is created, and that is where the actual geometry mesh lives. This allows for fast culling of the terrain that you can&#039;t see.</div></li><li><div><strong>Splatting:</strong> The ability to paint multiple textures onto your terrain. What differs here from JME2 is that this is all done in a shader, no more render passes. So it performs much faster.</div></li><li><div><strong>Real-time editing:</strong> TerraMonkey terrains are editable in jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym>, and you are able to modify them in real time: raising and lowering terrain.</div></li></ul></div><h3><a>Current Features:</a></h3><div><ul><li><div>Support for 16 splat textures. You use a custom combination of Diffuse, Normal, Specular, and Glow Maps.</div></li><li><div>GeoMipMapping: LodControl optimizes the level of detail</div></li><li><div>Terrain can be randomized or generated from a heightmap</div></li><li><div>jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> terrain editor</div></li><li><div>Streaming <a href="/com/jme3/gde/core/docs/jme3/advanced/endless_terraingrid.html">terrain grid</a> (ie. &quot;infinite&quot; terrain)</div></li></ul></div><h3><a>Planned Features:</a></h3><div><ul><li><div>Hydraulic erosion and procedural texture generation</div></li><li><div>Holes: caves, cliffs</div></li></ul></div><h2><a>Sample Code</a></h2><div><ul><li><div><object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/terrain/TerrainTest.java"><param name="text" value="<html><u>TerrainTest.java</u></html>"><param name="textColor" value="blue"></object></div></li><li><div><object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/terrain/TerrainTestAdvanced.java"><param name="text" value="<html><u>TerrainTestAdvanced.java</u></html>"><param name="textColor" value="blue"></object></div></li><li><div><object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/terrain/TerrainTestCollision.java"><param name="text" value="<html><u>TerrainTestCollision.java</u></html>"><param name="textColor" value="blue"></object></div></li><li><div><object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/terrain/TerrainTestModifyHeight.java"><param name="text" value="<html><u>TerrainTestModifyHeight.java</u></html>"><param name="textColor" value="blue"></object></div></li><li><div><object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/terrain/TerrainTestReadWrite.java"><param name="text" value="<html><u>TerrainTestReadWrite.java</u></html>"><param name="textColor" value="blue"></object></div></li></ul></div><h2><a>Geo Mip Mapping</a></h2><div><p>You have seen GeoMipMapping implemented in games before. This is where the farther away terrain has fewer polygons, and as you move closer, more polygons fill in. The whole terrain is divided into a grid of patches, and each one has its own level of detail (LOD). The GeoMipMapping algorithm looks at each patch, and its neighbours, to determine how to render the geometry. It will seam the edges between two patches with different LOD.</p><p>GeoMipMapping often leads to &quot;popping&quot; where you see the terrain switch from one LOD to another. TerraMonkey has been designed so you can swap out different LOD calculation algorithms based on what will look best for your game. You can do this with the LodCalculator interface.</p><p>GeoMipMapping in TerraMonkey has been split into several parts: the terrain quad tree, and the LODGeomap. The geomap deals with the actual LOD and seaming algorithm. So if you want a different data structure for your terrain system, you can re-use this piece of code. The quad tree (TerrainQuad and TerrainPatch) provide a means to organize the LODGeomaps, notify them of their neighbour&#039;s LOD change, and to update the geometry when the LOD does change. To change the LOD it does this by changing the index buffer of the triangle strip, so the whole geometry doesn&#039;t have to be re-loaded onto the video card. If you are eager, you can read up more detail how GeoMipMapping works here: <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://www.flipcode.com/archives/article_geomipmaps.pdf"><param name="text" value="<html><u>www.flipcode.com/archives/article_geomipmaps.pdf</u></html>"><param name="textColor" value="blue"></object></p></div><h2><a>Terrain Quad Tree</a></h2><div><p>TerraMonkey is a quad tree. Each node is a TerrainQuad, and each leaf is a TerrainPatch. A TerrainQuad has either 4 child TerrainQuads, or 4 child TerrainPatches. The TerrainPatch holds the actual mesh geometry. This structure is almost exactly the same as JME2&#039;s TerrainPage system. Except now each leaf has a reference to its neighbours, so it doesn&#039;t ever have to traverse the tree to get them.</p></div><h2><a>Texture Splatting</a></h2>
 <div>
 
 <p>
@@ -255,8 +145,7 @@ matRock.setFloat&#40;&quot;m_Tex3Scale&quot;, 128f&#41;;</pre>
 We create the heightmap from the <code>heightMapImage</code>.
 </p>
 <pre>AbstractHeightMap heightmap = null;
-heightmap = new ImageBasedHeightMap&#40;
-    ImageToAwt.convert&#40;heightMapImage.getImage&#40;&#41;, false, true, 0&#41;, 1f&#41;;
+heightmap = new ImageBasedHeightMap&#40;heightMapImage.getImage&#40;&#41;, 1f&#41;;
 heightmap.load&#40;&#41;;</pre>
 
 <p>

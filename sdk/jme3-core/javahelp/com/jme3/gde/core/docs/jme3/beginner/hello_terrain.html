@@ -83,8 +83,7 @@ public class HelloTerrain extends SimpleApplication &#123;
     AbstractHeightMap heightmap = null;
     Texture heightMapImage = assetManager.loadTexture&#40;
             &quot;Textures/Terrain/splat/mountains512.png&quot;&#41;;
-    heightmap = new ImageBasedHeightMap&#40;
-      ImageToAwt.convert&#40;heightMapImage.getImage&#40;&#41;, false, true, 0&#41;&#41;;
+    heightmap = new ImageBasedHeightMap&#40;heightMapImage.getImage&#40;&#41;&#41;;
     heightmap.load&#40;&#41;;
 &nbsp;
     <span>/** 3. We have prepared material and heightmap. 
@@ -105,9 +104,7 @@ public class HelloTerrain extends SimpleApplication &#123;
     rootNode.attachChild&#40;terrain&#41;;
 &nbsp;
     /** 5. The LOD (level of detail) depends on were the camera is: */
-    List&lt;Camera&gt; cameras = new ArrayList&lt;Camera&gt;&#40;&#41;;
-    cameras.add&#40;getCamera&#40;&#41;&#41;;
-    TerrainLodControl control = new TerrainLodControl&#40;terrain, cameras&#41;;
+    TerrainLodControl control = new TerrainLodControl&#40;terrain, getCamera&#40;&#41;&#41;;
     terrain.addControl&#40;control&#41;;
   &#125;
 &#125;</pre>
@@ -214,15 +211,7 @@ Here is how you create the heightmap object in your jME code:
 <li><div> Load your prepared heightmap image into the texture object.</div>
 </li>
 <li><div> Create an AbstractHeightmap object from an ImageBasedHeightMap. <br/>
-ImageBasedHeightMap expects the following parameters:</div>
-<ol>
-<li><div> An <code>ImageToAwt.convert()</code>ed image file.</div>
-</li>
-<li><div> A boolean whether you are using 16-bit – here: false, this image is 8-bit.</div>
-</li>
-<li><div> A boolean whether you are using an alphamap – here: true, you will use one.</div>
-</li>
-</ol>
+It requires an image from a JME Texture.</div>
 </li>
 <li><div> Load the heightmap.</div>
 </li>
@@ -230,8 +219,7 @@ ImageBasedHeightMap expects the following parameters:</div>
 <pre>AbstractHeightMap heightmap = null;
     Texture heightMapImage = assetManager.loadTexture&#40;
             &quot;Textures/Terrain/splat/mountains512.png&quot;&#41;;
-    heightmap = new ImageBasedHeightMap&#40;
-      ImageToAwt.convert&#40;heightMapImage.getImage&#40;&#41;, false, true, 0&#41;&#41;;
+    heightmap = new ImageBasedHeightMap&#40;heightMapImage.getImage&#40;&#41;&#41;;
     heightmap.load&#40;&#41;;</pre>
 
 </div>
@@ -440,9 +428,7 @@ You have created the terrain object.
 
 JME3 includes an optimization that adjusts the level of detail (LOD) of the rendered terrain depending on how close or far the camera is.
 </p>
-<pre>    List&lt;Camera&gt; cameras = new ArrayList&lt;Camera&gt;&#40;&#41;;
-    cameras.add&#40;getCamera&#40;&#41;&#41;;
-    TerrainLodControl control = new TerrainLodControl&#40;terrain, cameras&#41;;
+<pre>    TerrainLodControl control = new TerrainLodControl&#40;terrain, getCamera&#40;&#41;&#41;;
     terrain.addControl&#40;control&#41;;</pre>
 
 <p>

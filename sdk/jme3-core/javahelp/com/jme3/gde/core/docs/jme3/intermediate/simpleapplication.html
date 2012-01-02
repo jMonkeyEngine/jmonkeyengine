@@ -1,20 +1,4 @@
-
-<h1><a>SimpleApplication and Application</a></h1>
-<div>
-
-<p>
-
-The base class of the jMonkeyEngine3 is <code>com.jme3.app.SimpleApplication</code>. Your first game&#039;s Main class extends SimpleApplication directly. When you feel confident you understand the features, you will typically extend SimpleApplication to create a custom base class for the type of games that you want to develop. 
-</p>
-
-<p>
-SimpleApplication offers standard game features such as a scene graph, input handling, and a fly-by camera. You call app.start() and app.stop() on your game instance to start or quit the application. 
-</p>
-
-<p>
-The following code sample shows the typical base structure of a jME3 game:
-</p>
-<pre>import com.jme3.app.SimpleApplication;
+<h1><a>SimpleApplication and Application</a></h1><div><p>The base class of the jMonkeyEngine3 is <code>com.jme3.app.SimpleApplication</code>. Your first game&#039;s Main class extends SimpleApplication directly. When you feel confident you understand the features, you will typically extend SimpleApplication to create a custom base class for the type of games that you want to develop.</p><p>SimpleApplication offers standard game features such as a scene graph, input handling, and a fly-by camera. You call app.start() and app.stop() on your game instance to start or quit the application.</p><p>The following code sample shows the typical base structure of a jME3 game:</p><pre>import com.jme3.app.SimpleApplication;
 &nbsp;
 public class MyBaseGame extends SimpleApplication &#123;
 &nbsp;
@@ -37,29 +21,7 @@ public class MyBaseGame extends SimpleApplication &#123;
     public void simpleRender&#40;RenderManager rm&#41; &#123;
        /* (optional) Make advanced modifications to frameBuffer and scene graph. */
     &#125;
-&#125;</pre>
-
-<p>
-Let&#039;s have a look at the <acronym title="Application Programming Interface">API</acronym> of the base class.
-</p>
-
-</div>
-
-<h2><a>Application Class</a></h2>
-<div>
-
-<p>
-
-Internally, com.jme3.app.SimpleApplication extends com.jme3.app.Application. The Application class represents a generic real-time 3D rendering jME3 application (i.e., not necessarily a game). Typically, you do not extend com.jme3.app.Application directly to create a game.
-
-</p>
-<div><table>
-	<tr>
-		<th>Application class fields</th><th>Purpose</th>
-	</tr>
-	<tr>
-		<td>viewPort <br/>
-getViewPort()</td><td>The view object for the default camera. You can register advanced <a href="/com/jme3/gde/core/docs/jme3/advanced/effects_overview.html">post-processor filters</a> here.</td>
+&#125;</pre><p>Let&#039;s have a look at the <acronym title="Application Programming Interface">API</acronym> of the base class.</p></div><h2><a>Application Class</a></h2><div><p>Internally, com.jme3.app.SimpleApplication extends com.jme3.app.Application. The Application class represents a generic real-time 3D rendering jME3 application (i.e., not necessarily a game). Typically, you do not extend com.jme3.app.Application directly to create a game.</p><div><table><tr><th>Application class fields</th><th>Purpose</th></tr><tr><td>viewPort <br/> getViewPort()</td><td>The view object for the default camera. You can register advanced <a href="/com/jme3/gde/core/docs/jme3/advanced/effects_overview.html">post-processor filters</a> here.</td>
 	</tr>
 	<tr>
 		<td>settings <br/>

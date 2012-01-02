@@ -1,44 +1,4 @@
-
-<h1><a>The SceneExplorer</a></h1>
-<div>
-
-</div>
-
-<h2><a>Adding Node types to SceneExplorer</a></h2>
-<div>
-
-<p>
-
-If your plugin brings in its own SceneGraph objects you can still have them work like any other SceneExplorer item, including its special properties.
-</p>
-
-<p>
-You will have to create your own class that extends org.openide.nodes.Node and implement the interface com.jme3.gde.core.sceneexplorer.nodes.SceneExplorerNode. Then you register that class by adding 
-</p>
-<pre>@org.openide.util.lookup.ServiceProvider(service=SceneExplorerNode.class)</pre>
-
-<p>
- above the body of your class. Thats all, your Spatial type will automatically be used and displayed in the SceneExplorer. Make sure you register a jar with the used classes in the plugin preferences under &quot;wrapped libraries&quot;, otherwise the IDE cannot access those classes.
-</p>
-
-<p>
-Theres also AbstractSceneExplorerNode which brings some other useful features you might want to include like automatic creation of properly threaded properties etc. JmeSpatial for example bases on it. A simple SceneExplorerNode example for an object extending Spatial would be JmeGeometry (see below). Editors for special variable types can be added using the SceneExplorerPropertyEditor interface, which can be registered as a ServiceProvider as well.
-</p>
-
-<p>
-The SceneExplorerNode can be used for Spatial and Control type objects.
-
-</p>
-<ul>
-<li><div><em>Add the &quot;Nodes <acronym title="Application Programming Interface">API</acronym>&quot; and &quot;Lookup <acronym title="Application Programming Interface">API</acronym>&quot; libraries to your project when you want to use this</em></div>
-</li>
-</ul>
-
-</div>
-
-<h3><a>Spatial Example</a></h3>
-<div>
-<pre>@org.openide.util.lookup.ServiceProvider&#40;service=SceneExplorerNode.class&#41;
+<h1><a>The SceneExplorer</a></h1><div></div><h2><a>Adding Node types to SceneExplorer</a></h2><div><p>If your plugin brings in its own SceneGraph objects you can still have them work like any other SceneExplorer item, including its special properties.</p><p>You will have to create your own class that extends org.openide.nodes.Node and implement the interface com.jme3.gde.core.sceneexplorer.nodes.SceneExplorerNode. Then you register that class by adding</p><pre>@org.openide.util.lookup.ServiceProvider(service=SceneExplorerNode.class)</pre><p>above the body of your class. Thats all, your Spatial type will automatically be used and displayed in the SceneExplorer. Make sure you register a jar with the used classes in the plugin preferences under &quot;wrapped libraries&quot;, otherwise the IDE cannot access those classes.</p><p>Theres also AbstractSceneExplorerNode which brings some other useful features you might want to include like automatic creation of properly threaded properties etc. JmeSpatial for example bases on it. A simple SceneExplorerNode example for an object extending Spatial would be JmeGeometry (see below). Editors for special variable types can be added using the SceneExplorerPropertyEditor interface, which can be registered as a ServiceProvider as well.</p><p>The SceneExplorerNode can be used for Spatial and Control type objects.</p><ul><li><div><em>Add the &quot;Nodes <acronym title="Application Programming Interface">API</acronym>&quot; and &quot;Lookup <acronym title="Application Programming Interface">API</acronym>&quot; libraries to your project when you want to use this</em></div></li></ul></div><h3><a>Spatial Example</a></h3><div><pre>@org.openide.util.lookup.ServiceProvider&#40;service=SceneExplorerNode.class&#41;
 public class JmeGeometry extends JmeSpatial &#123;
 &nbsp;
     private static Image smallImage =
@@ -98,13 +58,7 @@ public class JmeGeometry extends JmeSpatial &#123;
         children.setReadOnly&#40;readOnly&#41;;
         return new org.openide.nodes.Node&#91;&#93;&#123;new JmeGeometry&#40;&#40;Geometry&#41; key, children&#41;.setReadOnly&#40;readOnly&#41;&#125;;
     &#125;
-&#125;</pre>
-
-</div>
-
-<h3><a>Control Example</a></h3>
-<div>
-<pre>@org.openide.util.lookup.ServiceProvider&#40;service=SceneExplorerNode.class&#41;
+&#125;</pre></div><h3><a>Control Example</a></h3><div><pre>@org.openide.util.lookup.ServiceProvider&#40;service=SceneExplorerNode.class&#41;
 public class JmeGhostControl extends AbstractSceneExplorerNode &#123;
 &nbsp;
     private static Image smallImage =
@@ -200,26 +154,7 @@ public class JmeGhostControl extends AbstractSceneExplorerNode &#123;
     public org.openide.nodes.Node&#91;&#93; createNodes&#40;Object key, DataObject key2, boolean cookie&#41; &#123;
         return new org.openide.nodes.Node&#91;&#93;&#123;new JmeGhostControl&#40;&#40;GhostControl&#41; key, key2&#41;.setReadOnly&#40;cookie&#41;&#125;;
     &#125;
-&#125;</pre>
-
-</div>
-
-<h2><a>Adding items to the add and tools menus</a></h2>
-<div>
-
-<p>
-For adding Spatials, Contols and for general tools theres premade abstract classes that you can use to extend the options. Undo/Redo is handled by the abstract class. AbstractNewSpatial<strong>Wizard</strong>Action allows you to show an AWT wizard before creating the Spatial. You can also just implement the base ServiceProvider class and return any kind of action (such as a wizard), in this case you have to handle the threading yourself!
-</p>
-
-<p>
-<p><div>Note that the classes you create are singletons which are used across multiple nodes and you should not store any data in local variables!
-</div></p>
-</p>
-
-<p>
-To add a new Tool, create a new AbstractToolAction:
-</p>
-<pre>@org.openide.util.lookup.ServiceProvider&#40;service = ToolAction.class&#41;
+&#125;</pre></div><h2><a>Adding items to the add and tools menus</a></h2><div><p>For adding Spatials, Contols and for general tools theres premade abstract classes that you can use to extend the options. Undo/Redo is handled by the abstract class. AbstractNewSpatial<strong>Wizard</strong>Action allows you to show an AWT wizard before creating the Spatial. You can also just implement the base ServiceProvider class and return any kind of action (such as a wizard), in this case you have to handle the threading yourself!</p><p><p><div>Note that the classes you create are singletons which are used across multiple nodes and you should not store any data in local variables! </div></p></p><p>To add a new Tool, create a new AbstractToolAction:</p><pre>@org.openide.util.lookup.ServiceProvider&#40;service = ToolAction.class&#41;
 public class GenerateTangentsTool extends AbstractToolAction &#123;
 &nbsp;
     public GenerateTangentsTool&#40;&#41; &#123;
@@ -249,12 +184,7 @@ public class GenerateTangentsTool extends AbstractToolAction &#123;
         return JmeGeometry.class;
     &#125;
 &nbsp;
-&#125;</pre>
-
-<p>
-For a new Spatial or Control, use AbstractNewSpatialAction
-</p>
-<pre>@org.openide.util.lookup.ServiceProvider&#40;service = NewSpatialAction.class&#41;
+&#125;</pre><p>For a new Spatial or Control, use AbstractNewSpatialAction</p><pre>@org.openide.util.lookup.ServiceProvider&#40;service = NewSpatialAction.class&#41;
 public class NewSpecialSpatialAction extends AbstractNewSpatialAction &#123;
 &nbsp;
     public NewSpecialSpatialAction&#40;&#41; &#123;
@@ -266,12 +196,7 @@ public class NewSpecialSpatialAction extends AbstractNewSpatialAction &#123;
         Spatial spatial=new Node&#40;&#41;;
         return spatial;
     &#125;
-&#125;</pre>
-
-<p>
-or AbstractNewControlAction:
-</p>
-<pre>@org.openide.util.lookup.ServiceProvider&#40;service = NewControlAction.class&#41;
+&#125;</pre><p>or AbstractNewControlAction:</p><pre>@org.openide.util.lookup.ServiceProvider&#40;service = NewControlAction.class&#41;
 public class NewRigidBodyAction extends AbstractNewControlAction &#123;
 &nbsp;
     public NewRigidBodyAction&#40;&#41; &#123;

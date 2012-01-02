@@ -1,36 +1,4 @@
-
-<h3><a>Nifty Loading Screen (Progress Bar)</a></h3>
-<div>
-
-<p>
-
-There is a good tutorial about creating a nifty progress bar here:
-<object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://sourceforge.net/apps/mediawiki/nifty-gui/index.php?title=Create_your_own_Control_%28A_Nifty_Progressbar%29"><param name="text" value="<html><u>http://sourceforge.net/apps/mediawiki/nifty-gui/index.php?title=Create_your_own_Control_%28A_Nifty_Progressbar%29</u></html>"><param name="textColor" value="blue"></object>
-</p>
-
-<p>
-This example will use the existing hello terrain as an example.
-It will require these 2 images inside Assets/Interface/ (save them as border.png and inner.png respectively)
-</p>
-
-<p>
-<img src="nbdocs:/com/jme3/gde/core/docs/jme3/advanced/inner1.png">
-<img src="nbdocs:/com/jme3/gde/core/docs/jme3/advanced/border1.png">
-</p>
-
-<p>
-This is the progress bar at 90%:
-</p>
-
-<p>
-<img src="nbdocs:/com/jme3/gde/core/docs/jme3/advanced/loadingscreen.png">
-</p>
-
-<p>
-nifty_loading.xml
-
-</p>
-<pre><span>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
+<h3><a>Nifty Loading Screen (Progress Bar)</a></h3><div><p>There is a good tutorial about creating a nifty progress bar here: <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://sourceforge.net/apps/mediawiki/nifty-gui/index.php?title=Create_your_own_Control_%28A_Nifty_Progressbar%29"><param name="text" value="<html><u>http://sourceforge.net/apps/mediawiki/nifty-gui/index.php?title=Create_your_own_Control_%28A_Nifty_Progressbar%29</u></html>"><param name="textColor" value="blue"></object></p><p>This example will use the existing hello terrain as an example. It will require these 2 images inside Assets/Interface/ (save them as border.png and inner.png respectively)</p><p><img src="nbdocs:/com/jme3/gde/core/docs/jme3/advanced/inner1.png"> <img src="nbdocs:/com/jme3/gde/core/docs/jme3/advanced/border1.png"></p><p>This is the progress bar at 90%:</p><p><img src="nbdocs:/com/jme3/gde/core/docs/jme3/advanced/loadingscreen.png"></p><p>nifty_loading.xml</p><pre><span>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
 <span><span>&lt;nifty&gt;</span></span>
     <span>&lt;useStyles filename=&quot;nifty-default-styles.xml&quot; /&gt;</span>
     <span>&lt;useControls filename=&quot;nifty-default-controls.xml&quot; /&gt;</span>
@@ -67,32 +35,13 @@ nifty_loading.xml
     <span>&lt;screen id=&quot;end&quot; controller = &quot;jme3test.TestLoadingScreen&quot;&gt;</span>
     <span><span>&lt;/screen&gt;</span></span>
 &nbsp;
-<span><span>&lt;/nifty&gt;</span></span></pre>
-
-</div>
-
-<h4><a>Understanding Nifty XML</a></h4>
-<div>
-
-<p>
-
-The progress bar and text is done statically using nifty <acronym title="Extensible Markup Language">XML</acronym>.
-A custom control is created, which represents the progress bar.
-
-</p>
-<pre>    <span>&lt;controlDefinition name = &quot;loadingbar&quot; controller = &quot;jme3test.TestLoadingScreen&quot;&gt;</span>
+<span><span>&lt;/nifty&gt;</span></span></pre></div><h4><a>Understanding Nifty XML</a></h4><div><p>The progress bar and text is done statically using nifty <acronym title="Extensible Markup Language">XML</acronym>. A custom control is created, which represents the progress bar.</p><pre>    <span>&lt;controlDefinition name = &quot;loadingbar&quot; controller = &quot;jme3test.TestLoadingScreen&quot;&gt;</span>
         <span>&lt;image filename=&quot;Interface/border.png&quot; childLayout=&quot;absolute&quot; </span>
 <span>               imageMode=&quot;resize:15,2,15,15,15,2,15,2,15,2,15,15&quot;&gt;</span>
             <span>&lt;image id=&quot;progressbar&quot; x=&quot;0&quot; y=&quot;0&quot; filename=&quot;Interface/inner.png&quot; width=&quot;32px&quot; height=&quot;100%&quot;</span>
 <span>                   imageMode=&quot;resize:15,2,15,15,15,2,15,2,15,2,15,15&quot;/&gt;</span>
         <span><span>&lt;/image&gt;</span></span>
-    <span><span>&lt;/controlDefinition&gt;</span></span></pre>
-
-<p>
-This screen simply displays a button in the middle of the screen, which could be seen as a simple main menu UI.
-
-</p>
-<pre>    <span>&lt;screen id=&quot;start&quot; controller = &quot;jme3test.TestLoadingScreen&quot;&gt;</span>
+    <span><span>&lt;/controlDefinition&gt;</span></span></pre><p>This screen simply displays a button in the middle of the screen, which could be seen as a simple main menu UI.</p><pre>    <span>&lt;screen id=&quot;start&quot; controller = &quot;jme3test.TestLoadingScreen&quot;&gt;</span>
         <span>&lt;layer id=&quot;layer&quot; childLayout=&quot;center&quot;&gt;</span>
             <span>&lt;panel id = &quot;panel2&quot; height=&quot;30%&quot; width=&quot;50%&quot; align=&quot;center&quot; valign=&quot;center&quot; childLayout=&quot;vertical&quot;</span>
 <span>                   visibleToMouse=&quot;true&quot;&gt;</span>
@@ -101,13 +50,7 @@ This screen simply displays a button in the middle of the screen, which could be
                 <span><span>&lt;/control&gt;</span></span>
             <span><span>&lt;/panel&gt;</span></span>
         <span><span>&lt;/layer&gt;</span></span>
-    <span><span>&lt;/screen&gt;</span></span></pre>
-
-<p>
-This screen displays our custom progress bar control with a text control
-
-</p>
-<pre>    <span>&lt;screen id=&quot;loadlevel&quot; controller = &quot;jme3test.TestLoadingScreen&quot;&gt;</span>
+    <span><span>&lt;/screen&gt;</span></span></pre><p>This screen displays our custom progress bar control with a text control</p><pre>    <span>&lt;screen id=&quot;loadlevel&quot; controller = &quot;jme3test.TestLoadingScreen&quot;&gt;</span>
         <span>&lt;layer id=&quot;loadinglayer&quot; childLayout=&quot;center&quot; backgroundColor=&quot;#000000&quot;&gt;</span>
             <span>&lt;panel id = &quot;loadingpanel&quot; childLayout=&quot;vertical&quot; align=&quot;center&quot; valign=&quot;center&quot; height=&quot;32px&quot; width=&quot;400px&quot;&gt;</span>
                 <span>&lt;control name=&quot;loadingbar&quot; align=&quot;center&quot; valign=&quot;center&quot; width=&quot;400px&quot; height=&quot;32px&quot; /&gt;</span>
@@ -115,15 +58,7 @@ This screen displays our custom progress bar control with a text control
 <span>                          text=&quot;                                                  &quot;/&gt;</span>
             <span><span>&lt;/panel&gt;</span></span>
         <span><span>&lt;/layer&gt;</span></span>
-    <span><span>&lt;/screen&gt;</span></span></pre>
-
-</div>
-
-<h3><a>Creating the bindings to use the Nifty XML</a></h3>
-<div>
-
-<p>
-There are 3 main ways to update a progress bar. To understand why these methods are necessary, an understanding of the graphics pipeline is needed. 
+    <span><span>&lt;/screen&gt;</span></span></pre></div><h3><a>Creating the bindings to use the Nifty XML</a></h3><div><p>There are 3 main ways to update a progress bar. To understand why these methods are necessary, an understanding of the graphics pipeline is needed. 
 </p>
 
 <p>
@@ -223,7 +158,7 @@ public class TestLoadingScreen extends SimpleApplication implements ScreenContro
     @Override
     public void simpleUpdate&#40;float tpf&#41; &#123;
 &nbsp;
-        if &#40;load == true&#41; &#123; //loading is done over many frames
+        if &#40;load&#41; &#123; //loading is done over many frames
             if &#40;frameCount == 1&#41; &#123;
                 Element element = nifty.getScreen&#40;&quot;loadlevel&quot;&#41;.findElementByName&#40;&quot;loadingtext&quot;&#41;;
                 textRenderer = element.getRenderer&#40;TextRenderer.class&#41;;

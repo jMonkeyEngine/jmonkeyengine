@@ -1,21 +1,4 @@
-
-<h1><a>Starting a JME3 application from the Commandline</a></h1>
-<div>
-
-<p>
-
-Although we recommend the jMonkeyEngine <a href="/com/jme3/gde/core/docs/sdk.html">SDK</a> for developing JME3 games, you can use any IDE (integrated development environment) such as <a href="/com/jme3/gde/core/docs/jme3/setting_up_netbeans_and_jme3.html">NetBeans</a> or <a href="/com/jme3/gde/core/docs/jme3/setting_up_jme3_in_eclipse.html">Eclipse</a>, and even work freely from the commandline. Here is a generic IDE-independent &quot;getting started&quot; tutorial. 
-</p>
-
-<p>
-This example shows how to set up and run a simple application (HelloJME3) that depends on the jMonkeyEngine3 libraries. 
-</p>
-
-<p>
-The directory structure will look as follows:
-
-</p>
-<pre>jme3/
+<h1><a>Starting a JME3 application from the Commandline</a></h1><div><p>Although we recommend the jMonkeyEngine <a href="/com/jme3/gde/core/docs/sdk.html">SDK</a> for developing JME3 games, you can use any IDE (integrated development environment) such as <a href="/com/jme3/gde/core/docs/jme3/setting_up_netbeans_and_jme3.html">NetBeans</a> or <a href="/com/jme3/gde/core/docs/jme3/setting_up_jme3_in_eclipse.html">Eclipse</a>, and even work freely from the commandline. Here is a generic IDE-independent &quot;getting started&quot; tutorial.</p><p>This example shows how to set up and run a simple application (HelloJME3) that depends on the jMonkeyEngine3 libraries.</p><p>The directory structure will look as follows:</p><pre>jme3/
 jme3/lib
 jme3/src
 ...
@@ -23,76 +6,18 @@ HelloJME3/
 HelloJME3/lib
 HelloJME3/assets
 HelloJME3/src
-...</pre>
-
-</div>
-
-<h2><a>Installing the JME3 Framework</a></h2>
-<div>
-
-<p>
-
-To install the development version of jme3, <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://www.jmonkeyengine.com/nightly/"><param name="text" value="<html><u>download the nightly build</u></html>"><param name="textColor" value="blue"></object>, unzip the folder into a directory named <code>jme3</code>. The filenames here are just an example, but they will always be something like <code>jME3_xx-xx-2011</code>. 
-</p>
-<pre>mkdir jme3
+...</pre></div><h2><a>Installing the JME3 Framework</a></h2><div><p>To install the development version of jme3, <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://www.jmonkeyengine.com/nightly/"><param name="text" value="<html><u>download the nightly build</u></html>"><param name="textColor" value="blue"></object>, unzip the folder into a directory named <code>jme3</code>. The filenames here are just an example, but they will always be something like <code>jME3_xx-xx-2011</code>.</p><pre>mkdir jme3
 cd jme3
-unzip jME3_01-18-2011.zip</pre>
-
-<p>
-Alternatively, you can build JME3 from the sources. (Recommended for JME3 developers.)
-</p>
-<pre>svn checkout https://jmonkeyengine.googlecode.com/svn/trunk/engine jme3
+unzip jME3_01-18-2011.zip</pre><p>Alternatively, you can build JME3 from the sources. (Recommended for JME3 developers.)</p><pre>svn checkout https://jmonkeyengine.googlecode.com/svn/trunk/engine jme3
 cd jme3
 ant run
-cd ..</pre>
-
-<p>
-If you see a Test Chooser open now, the build was successful. <strong>Tip:</strong> Use <code>ant</code> to build the libraries without running the demos.
-</p>
-
-</div>
-
-<h2><a>Sample Project Directory Structure</a></h2>
-<div>
-
-<p>
-
-First we set up the directory and source package structure for your game project. Note that the game project directory <code>HelloJME3</code> is on the same level as your <code>jme3</code> checkout. In this example, we create a Java package that we call <code>hello</code> in the source directory.
-</p>
-<pre>mkdir HelloJME3
+cd ..</pre><p>If you see a Test Chooser open now, the build was successful. <strong>Tip:</strong> Use <code>ant</code> to build the libraries without running the demos.</p></div><h2><a>Sample Project Directory Structure</a></h2><div><p>First we set up the directory and source package structure for your game project. Note that the game project directory <code>HelloJME3</code> is on the same level as your <code>jme3</code> checkout. In this example, we create a Java package that we call <code>hello</code> in the source directory.</p><pre>mkdir HelloJME3
 mkdir HelloJME3/src
-mkdir HelloJME3/src/hello</pre>
-
-</div>
-
-<h2><a>Libraries</a></h2>
-<div>
-
-<p>
-
-Next you copy the necessary JAR libraries from the download to your project. You only have to do this set of steps once every time you download a new JME3 build.
-</p>
-<pre>mkdir HelloJME3/build 
+mkdir HelloJME3/src/hello</pre></div><h2><a>Libraries</a></h2><div><p>Next you copy the necessary JAR libraries from the download to your project. You only have to do this set of steps once every time you download a new JME3 build.</p><pre>mkdir HelloJME3/build 
 mkdir HelloJME3/lib
-cp jme3/lib/*.* HelloJME3/lib</pre>
-
-<p>
-If you have built JME3 from the sources, then the copy paths are different:
-</p>
-<pre>mkdir HelloJME3/build 
+cp jme3/lib/*.* HelloJME3/lib</pre><p>If you have built JME3 from the sources, then the copy paths are different:</p><pre>mkdir HelloJME3/build 
 mkdir HelloJME3/lib
-cp jme3/dist/*.* HelloJME3/lib</pre>
-
-</div>
-
-<h3><a>Sample Code</a></h3>
-<div>
-
-<p>
-
-To test your setup, create the file <code>HelloJME3/src/hello/HelloJME3.java</code> with any text editor, paste the following sample code, and save.
-</p>
-<pre>package hello;
+cp jme3/dist/*.* HelloJME3/lib</pre></div><h3><a>Sample Code</a></h3><div><p>To test your setup, create the file <code>HelloJME3/src/hello/HelloJME3.java</code> with any text editor, paste the following sample code, and save.</p><pre>package hello;
 &nbsp;
 import com.jme3.app.SimpleApplication;
 import com.jme3.material.Material;

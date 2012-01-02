@@ -1,44 +1,4 @@
-
-<h1><a>Blender importer for jMonkeyEngine 3</a></h1>
-<div>
-
-</div>
-
-<h2><a>Introduction</a></h2>
-<div>
-
-<p>
-Importing models to any game engine is as important as using them. The quality of the models depends on the abilities of the people who create it and on the tools they use.
-Blender is one of the best free tools for creating 3D enviroments. Its high amount of features attract many model designers.
-So far jMonkeyEngine used Ogre mesh files to import 3D data. These files were created by the python script that exported data from blender.
-It was important to have always the lates version of the script that is compatible with the version of blender and to use it before importing data to jme.
-Now we have an opportunity to simplify the import process by loading data directly from blender binary files: *.blend.
-</p>
-
-</div>
-
-<h2><a>Usage</a></h2>
-<div>
-
-<p>
-To use it in your game or the <acronym title="Software Development Kit">SDK</acronym> you should follow the standard asset loading instructions.
-By default a BlenderModelLoader is registered with your assetManager to load blend files. This means you can load and convert .blend model files to .j3o format, just like any other supported model format.
-</p>
-
-</div>
-
-<h2><a>Currently supported features</a></h2>
-<div>
-<ol>
-<li><div> Loading scene (only the current scene is loaded and imported as a node)</div>
-</li>
-<li><div> Loading mesh objects.</div>
-<ul>
-<li><div> Meshes are split into several geometries when they have several materials applied.</div>
-</li>
-<li><div> All faces are stored as triangles (even if blender uses quads).</div>
-</li>
-<li><div> The mesh is &#039;Smooth&#039; aware.</div>
+<h1><a>Blender importer for jMonkeyEngine 3</a></h1><div></div><h2><a>Introduction</a></h2><div><p>Importing models to any game engine is as important as using them. The quality of the models depends on the abilities of the people who create it and on the tools they use. Blender is one of the best free tools for creating 3D enviroments. Its high amount of features attract many model designers. So far jMonkeyEngine used Ogre mesh files to import 3D data. These files were created by the python script that exported data from blender. It was important to have always the lates version of the script that is compatible with the version of blender and to use it before importing data to jme. Now we have an opportunity to simplify the import process by loading data directly from blender binary files: *.blend.</p></div><h2><a>Usage</a></h2><div><p>To use it in your game or the <acronym title="Software Development Kit">SDK</acronym> you should follow the standard asset loading instructions. By default a BlenderModelLoader is registered with your assetManager to load blend files. This means you can load and convert .blend model files to .j3o format, just like any other supported model format.</p></div><h2><a>Currently supported features</a></h2><div><ol><li><div>Loading scene (only the current scene is loaded and imported as a node)</div></li><li><div>Loading mesh objects.</div><ul><li><div>Meshes are split into several geometries when they have several materials applied.</div></li><li><div>All faces are stored as triangles (even if blender uses quads).</div></li><li><div>The mesh is &#039;Smooth&#039; aware.</div>
 </li>
 <li><div> User defined UV coordinates are read.</div>
 </li>

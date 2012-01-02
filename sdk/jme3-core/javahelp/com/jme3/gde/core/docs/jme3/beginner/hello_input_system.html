@@ -1,26 +1,4 @@
-
-<h1><a>JME 3 Tutorial (5) - Hello Input System</a></h1>
-<div>
-
-<p>
-
-Previous: <a href="/com/jme3/gde/core/docs/jme3/beginner/hello_main_event_loop.html">Hello Update Loop</a>,
-Next: <a href="/com/jme3/gde/core/docs/jme3/beginner/hello_material.html">Hello Material</a>
-</p>
-
-<p>
-By default, SimpleApplication sets up an input system that allows you to steer the camera with the WASD keys, the arrow keys, and the mouse. You can use it as a flying first-person camera right away. But what if you need a third-person camera, or you want keys to trigger special game actions? 
-</p>
-
-<p>
-Every game has its custom keybindings, and this tutorial explains how you define them. We first define the key presses and mouse events, and then we define the actions they should trigger.
-</p>
-
-</div>
-
-<h2><a>Sample Code</a></h2>
-<div>
-<pre>package jme3test.helloworld;
+<h1><a>JME 3 Tutorial (5) - Hello Input System</a></h1><div><p>Previous: <a href="/com/jme3/gde/core/docs/jme3/beginner/hello_main_event_loop.html">Hello Update Loop</a>, Next: <a href="/com/jme3/gde/core/docs/jme3/beginner/hello_material.html">Hello Material</a></p><p>By default, SimpleApplication sets up an input system that allows you to steer the camera with the WASD keys, the arrow keys, and the mouse. You can use it as a flying first-person camera right away. But what if you need a third-person camera, or you want keys to trigger special game actions?</p><p>Every game has its custom keybindings, and this tutorial explains how you define them. We first define the key presses and mouse events, and then we define the actions they should trigger.</p></div><h2><a>Sample Code</a></h2><div><pre>package jme3test.helloworld;
 &nbsp;
 import com.jme3.app.SimpleApplication;
 import com.jme3.material.Material;
@@ -97,73 +75,12 @@ public class HelloInput extends SimpleApplication &#123;
       &#125;
     &#125;
   &#125;;
-&#125;</pre>
-
-<p>
-Build and run the example.
-</p>
-<ul>
-<li><div> Press the Spacebar or click to rotate the cube. </div>
-</li>
-<li><div> Press the J and K keys to move the cube.</div>
-</li>
-<li><div> Press P to pause and unpause the game. While paused, the game should not respond to any input, other than <code>P</code>.</div>
-</li>
-</ul>
-
-</div>
-
-<h2><a>Defining Mappings and Triggers</a></h2>
-<div>
-
-<p>
-
-First you register each mapping name with its trigger(s). Remember the following:
-</p>
-<ul>
-<li><div> An input trigger can be a key press or mouse action. <br/>
-For example a mouse movement, a mouse click, or pressing the letter &quot;P&quot;.</div>
-</li>
-<li><div> The mapping name is a string that you can choose. <br/>
-The name should describe the action (e.g. &quot;Rotate&quot;), and not the trigger. Because the trigger can change.</div>
-</li>
-<li><div> One named mapping can have several triggers. <br/>
-For example, the &quot;Rotate&quot; action can be triggered by a click and by pressing the spacebar.</div>
-</li>
-</ul>
-
-<p>
-
-Have a look at the code:
-</p>
-<ol>
-<li><div> You register the mapping named &quot;Rotate&quot; to the Spacebar key trigger. <br/>
-<code>new KeyTrigger(KeyInput.KEY_SPACE)</code>). </div>
-</li>
-<li><div> In the same line, you also register &quot;Rotate&quot; to an alternative mouse click trigger. <br/>
-<code>new MouseButtonTrigger(MouseInput.BUTTON_LEFT)</code></div>
-</li>
-<li><div> You map the <code>Pause</code>, <code>Left</code>, <code>Right</code> mappings to the P, J, K keys, respectively. </div>
-</li>
-</ol>
-<pre>    // You can map one or several inputs to one named action
+&#125;</pre><p>Build and run the example.</p><ul><li><div>Press the Spacebar or click to rotate the cube.</div></li><li><div>Press the J and K keys to move the cube.</div></li><li><div>Press P to pause and unpause the game. While paused, the game should not respond to any input, other than <code>P</code>.</div></li></ul></div><h2><a>Defining Mappings and Triggers</a></h2><div><p>First you register each mapping name with its trigger(s). Remember the following:</p><ul><li><div>An input trigger can be a key press or mouse action. <br/> For example a mouse movement, a mouse click, or pressing the letter &quot;P&quot;.</div></li><li><div>The mapping name is a string that you can choose. <br/> The name should describe the action (e.g. &quot;Rotate&quot;), and not the trigger. Because the trigger can change.</div></li><li><div>One named mapping can have several triggers. <br/> For example, the &quot;Rotate&quot; action can be triggered by a click and by pressing the spacebar.</div></li></ul><p>Have a look at the code:</p><ol><li><div>You register the mapping named &quot;Rotate&quot; to the Spacebar key trigger. <br/> <code>new KeyTrigger(KeyInput.KEY_SPACE)</code>).</div></li><li><div>In the same line, you also register &quot;Rotate&quot; to an alternative mouse click trigger. <br/> <code>new MouseButtonTrigger(MouseInput.BUTTON_LEFT)</code></div></li><li><div>You map the <code>Pause</code>, <code>Left</code>, <code>Right</code> mappings to the P, J, K keys, respectively.</div></li></ol><pre>    // You can map one or several inputs to one named action
     inputManager.addMapping&#40;&quot;Pause&quot;,  new KeyTrigger&#40;KeyInput.KEY_P&#41;&#41;;
     inputManager.addMapping&#40;&quot;Left&quot;,   new KeyTrigger&#40;KeyInput.KEY_J&#41;&#41;;
     inputManager.addMapping&#40;&quot;Right&quot;,  new KeyTrigger&#40;KeyInput.KEY_K&#41;&#41;;
     inputManager.addMapping&#40;&quot;Rotate&quot;, new KeyTrigger&#40;KeyInput.KEY_SPACE&#41;,
-                                      new MouseButtonTrigger&#40;MouseInput.BUTTON_LEFT&#41;&#41;;</pre>
-
-<p>
-
-Now you need to register your trigger mappings.
-</p>
-<ol>
-<li><div> You register the pause action to the ActionListener, because it is an &quot;on/off&quot; action.</div>
-</li>
-<li><div> You register the movement actions to the AnalogListener, because they are gradual actions.</div>
-</li>
-</ol>
-<pre>    // Add the names to the action listener.
+                                      new MouseButtonTrigger&#40;MouseInput.BUTTON_LEFT&#41;&#41;;</pre><p>Now you need to register your trigger mappings.</p><ol><li><div>You register the pause action to the ActionListener, because it is an &quot;on/off&quot; action.</div></li><li><div>You register the movement actions to the AnalogListener, because they are gradual actions.</div></li></ol><pre>    // Add the names to the action listener.
     inputManager.addListener&#40;actionListener, new String&#91;&#93;&#123;&quot;Pause&quot;&#125;&#41;;
     inputManager.addListener&#40;analogListener, new String&#91;&#93;&#123;&quot;Left&quot;, &quot;Right&quot;, &quot;Rotate&quot;&#125;&#41;;</pre>
 

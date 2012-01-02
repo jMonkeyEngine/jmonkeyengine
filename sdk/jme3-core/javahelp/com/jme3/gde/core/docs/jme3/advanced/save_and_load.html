@@ -1,26 +1,4 @@
-
-<h1><a>Saving and Loading Games</a></h1>
-<div>
-
-<p>
-
-You can save and load scenes and individual Nodes using com.jme3.export.binary.BinaryExporter and com.jme3.export.binary.BinaryImporter. Use standard Java serialization to load game data or use the Savable interface. The jMonkeyEngine binary file format is .j3o. You can open, view, and edit .j3o files in the jMonkeyEngine <a href="/com/jme3/gde/core/docs/jme3/advanced/sdk.html">SDK</a>.
-</p>
-
-</div>
-
-<h2><a>Sample Code</a></h2>
-<div>
-<ul>
-<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/tools/TestSaveGame.java"><param name="text" value="<html><u>TestSaveGame.java</u></html>"><param name="textColor" value="blue"></object></div>
-</li>
-</ul>
-
-</div>
-
-<h2><a>Saving a Node</a></h2>
-<div>
-<pre>  @Override
+<h1><a>Saving and Loading Games</a></h1><div><p>You can save and load scenes and individual Nodes using com.jme3.export.binary.BinaryExporter and com.jme3.export.binary.BinaryImporter. Use standard Java serialization to load game data or use the Savable interface. The jMonkeyEngine binary file format is .j3o. You can open, view, and edit .j3o files in the jMonkeyEngine <a href="/com/jme3/gde/core/docs/jme3/advanced/sdk.html">SDK</a>.</p></div><h2><a>Sample Code</a></h2><div><ul><li><div><object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/tools/TestSaveGame.java"><param name="text" value="<html><u>TestSaveGame.java</u></html>"><param name="textColor" value="blue"></object></div></li></ul></div><h2><a>Saving a Node</a></h2><div><pre>  @Override
   public void destroy&#40;&#41; &#123;
     System.getProperty&#40;&quot;user.home&quot;&#41;;
     BinaryExporter exporter = BinaryExporter.getInstance&#40;&#41;;
@@ -31,13 +9,7 @@ You can save and load scenes and individual Nodes using com.jme3.export.binary.B
       Logger.getLogger&#40;Main.class.getName&#40;&#41;&#41;.log&#40;Level.SEVERE, &quot;Failed to save node!&quot;, ex&#41;;
     &#125;
     super.destroy&#40;&#41;;
-  &#125;</pre>
-
-</div>
-
-<h2><a>Loading a Node</a></h2>
-<div>
-<pre>  @Override
+  &#125;</pre></div><h2><a>Loading a Node</a></h2><div><pre>  @Override
   public void simpleInitApp&#40;&#41; &#123;
     System.getProperty&#40;&quot;user.home&quot;&#41;;
     BinaryImporter importer = BinaryImporter.getInstance&#40;&#41;;
@@ -51,18 +23,7 @@ You can save and load scenes and individual Nodes using com.jme3.export.binary.B
       Logger.getLogger&#40;Main.class.getName&#40;&#41;&#41;.log&#40;Level.SEVERE, &quot;No saved node loaded.&quot;, ex&#41;;
     &#125;
     ...
-&nbsp;</pre>
-
-</div>
-
-<h2><a>Custom Savable</a></h2>
-<div>
-
-<p>
-
-If you have a custom class that you want to save or assign using <code>setUserData()</code>, the class must implement the <code>com.jme3.export.Savable</code> interface.
-</p>
-<pre>import com.jme3.export.InputCapsule;
+&nbsp;</pre></div><h2><a>Custom Savable</a></h2><div><p>If you have a custom class that you want to save or assign using <code>setUserData()</code>, the class must implement the <code>com.jme3.export.Savable</code> interface.</p><pre>import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;

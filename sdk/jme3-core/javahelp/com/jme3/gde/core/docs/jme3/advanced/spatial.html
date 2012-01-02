@@ -1,39 +1,4 @@
-
-<h1><a>Spatial</a></h1>
-<div>
-
-<p>
-
-This is an introduction to the concept of Spatials, the elements of the 3D scene graph. The scene graph is a data structure that manages all objects in your 3D world. For example, the scene graph keeps track of the 3D models that you load and position. When you extend a Java class from com.jme3.app.SimpleApplication, you automatically inherit the scene graph and its rootNode. 
-</p>
-
-<p>
-The rootNode is the central element of the scene graph. Even if the scenegraph is empty, it always has at least its rootNode. All other Spatials are <em>attached</em> to the rootNode in a parent-child relationship. If you think you need to understand the scene graph concept better, please read <a href="/com/jme3/gde/core/docs/jme3/scenegraph_for_dummies.html">Scenegraph for dummies</a> first.
-</p>
-
-</div>
-
-<h2><a>Node versus Geometry</a></h2>
-<div>
-
-<p>
-
-In your Java code, a Spatial is either a com.jme3.scene.Node or a com.jme3.scene.Geometry. You use the two for different purposes:
-</p>
-
-<p>
-<img src="nbdocs:/com/jme3/gde/core/docs/jme3/intermediate/scene-graph.png">
-
-</p>
-<div><table>
-	<tr>
-		<td> </td><th>com.jme3.scene.Spatial </th>
-	</tr>
-	<tr>
-		<th> Purpose: </th><td> A Spatial is an abstract data structure that stores transformations (translation, rotation, scale) of elements of the scene graph. Spatials can be saved and loaded using the AssetManager. </td>
-	</tr>
-	<tr>
-		<td>  </td><th> com.jme3.scene.Geometry </th><th> com.jme3.scene.Node </th>
+<h1><a>Spatial</a></h1><div><p>This is an introduction to the concept of Spatials, the elements of the 3D scene graph. The scene graph is a data structure that manages all objects in your 3D world. For example, the scene graph keeps track of the 3D models that you load and position. When you extend a Java class from com.jme3.app.SimpleApplication, you automatically inherit the scene graph and its rootNode.</p><p>The rootNode is the central element of the scene graph. Even if the scenegraph is empty, it always has at least its rootNode. All other Spatials are <em>attached</em> to the rootNode in a parent-child relationship. If you think you need to understand the scene graph concept better, please read <a href="/com/jme3/gde/core/docs/jme3/scenegraph_for_dummies.html">Scenegraph for dummies</a> first.</p></div><h2><a>Node versus Geometry</a></h2><div><p>In your Java code, a Spatial is either a com.jme3.scene.Node or a com.jme3.scene.Geometry. You use the two for different purposes:</p><p><img src="nbdocs:/com/jme3/gde/core/docs/jme3/intermediate/scene-graph.png"></p><div><table><tr><td></td><th>com.jme3.scene.Spatial</th></tr><tr><th>Purpose:</th><td>A Spatial is an abstract data structure that stores transformations (translation, rotation, scale) of elements of the scene graph. Spatials can be saved and loaded using the AssetManager.</td></tr><tr><td></td><th>com.jme3.scene.Geometry</th><th>com.jme3.scene.Node </th>
 	</tr>
 	<tr>
 		<th> Visibility: </th><td> A Geometry represents a visible 3-D object in the scene graph. </td><td> A Node is an invisible &quot;handle&quot; for a group of objects in the scene graph. </td>

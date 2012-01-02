@@ -1,36 +1,4 @@
-
-<h1><a>Interacting with the GUI from Java</a></h1>
-<div>
-<ol>
-<li><div> <a href="/com/jme3/gde/core/docs/jme3/advanced/nifty_gui.html">Nifty GUI Concepts</a></div>
-</li>
-<li><div> <a href="/com/jme3/gde/core/docs/jme3/advanced/nifty_gui_xml_layout.html">Nifty GUI XML Layout</a> or <a href="/com/jme3/gde/core/docs/jme3/advanced/nifty_gui_java_layout.html">Nifty GUI Java Layout</a></div>
-</li>
-<li><div> <a href="/com/jme3/gde/core/docs/jme3/advanced/nifty_gui_overlay.html">Nifty GUI Overlay</a> or <a href="/com/jme3/gde/core/docs/jme3/advanced/nifty_gui_projection.html">Nifty GUI Projection</a></div>
-</li>
-<li><div> <strong>Nifty <acronym title="Graphical User Interface">GUI</acronym> Java Interaction</strong></div>
-</li>
-</ol>
-
-<p>
-
-In the previous parts of the tutorial, you created a two-screen user interface. But it is still static, and when you click the buttons, nothing happens yet. The purpose of the <acronym title="Graphical User Interface">GUI</acronym> is to communicate with your Java classes: Your game needs to know what the users clicked, which settings they chose, which values they entered into a field, etc. Similarly, the user needs to know what the currently game state is (score, health, etc). 
-</p>
-
-</div>
-
-<h2><a>Connect GUI to Java Controller</a></h2>
-<div>
-
-<p>
-
-To let a Nifty screen communicate with the Java application, you register a <code>ScreenController</code> to every NiftyGUI screen. You create a ScreenController by creating a Java class that implements the <code>de.lessvoid.nifty.screen.ScreenController</code> interface and its abtract methods.
-</p>
-
-<p>
-<strong>Pro Tip:</strong> Since you are writing a jME3 application, you can additionally make the ScreenController class extend the <a href="/com/jme3/gde/core/docs/jme3/advanced/application_states.html">AbstractAppState</a> class! This gives the ScreenController access to the application object and to the update loop!
-</p>
-<pre>package tutorial;
+<h1><a>Interacting with the GUI from Java</a></h1><div><ol><li><div><a href="/com/jme3/gde/core/docs/jme3/advanced/nifty_gui.html">Nifty GUI Concepts</a></div></li><li><div><a href="/com/jme3/gde/core/docs/jme3/advanced/nifty_gui_xml_layout.html">Nifty GUI XML Layout</a> or <a href="/com/jme3/gde/core/docs/jme3/advanced/nifty_gui_java_layout.html">Nifty GUI Java Layout</a></div></li><li><div><a href="/com/jme3/gde/core/docs/jme3/advanced/nifty_gui_overlay.html">Nifty GUI Overlay</a> or <a href="/com/jme3/gde/core/docs/jme3/advanced/nifty_gui_projection.html">Nifty GUI Projection</a></div></li><li><div><strong>Nifty <acronym title="Graphical User Interface">GUI</acronym> Java Interaction</strong></div></li></ol><p>In the previous parts of the tutorial, you created a two-screen user interface. But it is still static, and when you click the buttons, nothing happens yet. The purpose of the <acronym title="Graphical User Interface">GUI</acronym> is to communicate with your Java classes: Your game needs to know what the users clicked, which settings they chose, which values they entered into a field, etc. Similarly, the user needs to know what the currently game state is (score, health, etc).</p></div><h2><a>Connect GUI to Java Controller</a></h2><div><p>To let a Nifty screen communicate with the Java application, you register a <code>ScreenController</code> to every NiftyGUI screen. You create a ScreenController by creating a Java class that implements the <code>de.lessvoid.nifty.screen.ScreenController</code> interface and its abtract methods.</p><p><strong>Pro Tip:</strong> Since you are writing a jME3 application, you can additionally make the ScreenController class extend the <a href="/com/jme3/gde/core/docs/jme3/advanced/application_states.html">AbstractAppState</a> class! This gives the ScreenController access to the application object and to the update loop!</p><pre>package tutorial;
 &nbsp;
 import com.jme3.app.Application;
 import com.jme3.app.SimpleApplication;
@@ -76,44 +44,12 @@ public class MyStartScreen extends AbstractAppState implements ScreenController 
     /** jME update loop! */ 
   &#125;
 &nbsp;
-&#125;</pre>
-
-<p>
-The name and package of your custom ScreenController class (here <code>tutorial.MyStartScreen</code>) goes into the controller parameter of the respective <acronym title="Extensible Markup Language">XML</acronym> screen it belongs to. For example:
-</p>
-<pre><span><span>&lt;nifty&gt;</span></span>
+&#125;</pre><p>The name and package of your custom ScreenController class (here <code>tutorial.MyStartScreen</code>) goes into the controller parameter of the respective <acronym title="Extensible Markup Language">XML</acronym> screen it belongs to. For example:</p><pre><span><span>&lt;nifty&gt;</span></span>
   <span>&lt;screen id=&quot;start&quot; controller=&quot;tutorial.MyStartScreen&quot;&gt;</span>
       &lt;!-- layer and panel code ... --&gt;
   <span><span>&lt;/screen&gt;</span></span>
-<span><span>&lt;/nifty&gt;</span></span></pre>
-
-<p>
-Or the same in a Java syntax, respectively:
-</p>
-<pre>    nifty.addScreen&#40;&quot;start&quot;, new ScreenBuilder&#40;&quot;start&quot;&#41; &#123;&#123;
-        controller&#40;new tutorial.MyStartScreen&#40;&#41;&#41;;</pre>
-
-<p>
-Now the Java class <code>MyStartScreen</code> and this <acronym title="Graphical User Interface">GUI</acronym> screen (<code>start</code>) are connected. For this example you can also connect the <code>hud</code> screen to MyStartScreen.
-</p>
-
-</div>
-
-<h2><a>Make GUI and Java Interact</a></h2>
-<div>
-
-<p>
-
-In most cases, you will want to pass game data in and out of the ScreenController. Note that you can pass any custom arguments from your Java class into your ScreenController constructor (<code>public MyStartScreen(GameData data) {}</code>).
-</p>
-
-<p>
-Use any combination of the three following approaches to make Java classes interact with the <acronym title="Graphical User Interface">GUI</acronym>.
-</p>
-
-</div>
-
-<h3><a>GUI Calls a Void Java Method</a></h3>
+<span><span>&lt;/nifty&gt;</span></span></pre><p>Or the same in a Java syntax, respectively:</p><pre>    nifty.addScreen&#40;&quot;start&quot;, new ScreenBuilder&#40;&quot;start&quot;&#41; &#123;&#123;
+        controller&#40;new tutorial.MyStartScreen&#40;&#41;&#41;;</pre><p>Now the Java class <code>MyStartScreen</code> and this <acronym title="Graphical User Interface">GUI</acronym> screen (<code>start</code>) are connected. For this example you can also connect the <code>hud</code> screen to MyStartScreen.</p></div><h2><a>Make GUI and Java Interact</a></h2><div><p>In most cases, you will want to pass game data in and out of the ScreenController. Note that you can pass any custom arguments from your Java class into your ScreenController constructor (<code>public MyStartScreen(GameData data) {}</code>).</p><p>Use any combination of the three following approaches to make Java classes interact with the <acronym title="Graphical User Interface">GUI</acronym>.</p></div><h3><a>GUI Calls a Void Java Method</a></h3>
 <div>
 
 <p>

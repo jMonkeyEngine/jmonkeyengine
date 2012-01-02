@@ -1,31 +1,4 @@
-
-<h1><a>JME 3 Tutorial (3) - Hello Assets</a></h1>
-<div>
-
-<p>
-
-Previous: <a href="/com/jme3/gde/core/docs/jme3/beginner/hello_node.html">Hello Node</a>,
-Next: <a href="/com/jme3/gde/core/docs/jme3/beginner/hello_main_event_loop.html">Hello Update Loop</a>
-</p>
-
-<p>
-In this tutorial we will learn to load 3-D models and text into the scene graph, using the jME asset manager. You also learn how to arrive at the correct paths, and which file formats to use.
-</p>
-
-<p>
-<img src="nbdocs:/com/jme3/gde/core/docs/jme3/beginner/beginner-assets-models.png">
-</p>
-
-<p>
-<p><div>To use the example assets in a new jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> project, right-click your project, select &quot;Properties&quot;, go to &quot;Libraries&quot;, press &quot;Add Library&quot; and add the &quot;jme3-test-data&quot; library.
-</div></p>
-</p>
-
-</div>
-
-<h2><a>Code Sample</a></h2>
-<div>
-<pre>package jme3test.helloworld;
+<h1><a>JME 3 Tutorial (3) - Hello Assets</a></h1><div><p>Previous: <a href="/com/jme3/gde/core/docs/jme3/beginner/hello_node.html">Hello Node</a>, Next: <a href="/com/jme3/gde/core/docs/jme3/beginner/hello_main_event_loop.html">Hello Update Loop</a></p><p>In this tutorial we will learn to load 3-D models and text into the scene graph, using the jME asset manager. You also learn how to arrive at the correct paths, and which file formats to use.</p><p><img src="nbdocs:/com/jme3/gde/core/docs/jme3/beginner/beginner-assets-models.png"></p><p><p><div>To use the example assets in a new jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> project, right-click your project, select &quot;Properties&quot;, go to &quot;Libraries&quot;, press &quot;Add Library&quot; and add the &quot;jme3-test-data&quot; library.</div></p></p></div><h2><a>Code Sample</a></h2><div><pre>package jme3test.helloworld;
 &nbsp;
 import com.jme3.app.SimpleApplication;
 import com.jme3.font.BitmapText;
@@ -86,36 +59,7 @@ public class HelloAssets extends SimpleApplication &#123;
         rootNode.addLight&#40;sun&#41;;
 &nbsp;
     &#125;
-&#125;</pre>
-
-<p>
-Build and run the code sample. You should see a green Ninja with a colorful teapot standing behind a wall. The text on the screen should say &quot;Hello World&quot;.
-</p>
-
-</div>
-
-<h2><a>The Asset Manager</a></h2>
-<div>
-
-<p>
-
-JME3 comes with a handy asset manager that helps you keep your assets organized. Project assets are media files such as models, materials, textures, scenes, shaders, sounds, and fonts. 
-The Asset manager can load files from:
-</p>
-<ul>
-<li><div> the current classpath (the top level of your project directory), </div>
-</li>
-<li><div> the <code>assets</code> directory of your project, and</div>
-</li>
-<li><div> optionally, custom paths.</div>
-</li>
-</ul>
-
-<p>
-
-This is our recommended directory structure for storing assets:
-</p>
-<pre>MyGame/assets/Interface/
+&#125;</pre><p>Build and run the code sample. You should see a green Ninja with a colorful teapot standing behind a wall. The text on the screen should say &quot;Hello World&quot;.</p></div><h2><a>The Asset Manager</a></h2><div><p>JME3 comes with a handy asset manager that helps you keep your assets organized. Project assets are media files such as models, materials, textures, scenes, shaders, sounds, and fonts. The Asset manager can load files from:</p><ul><li><div>the current classpath (the top level of your project directory),</div></li><li><div>the <code>assets</code> directory of your project, and</div></li><li><div>optionally, custom paths.</div></li></ul><p>This is our recommended directory structure for storing assets:</p><pre>MyGame/assets/Interface/
 MyGame/assets/MatDefs/
 MyGame/assets/Materials/
 MyGame/assets/Models/
@@ -125,22 +69,7 @@ MyGame/assets/Sounds/
 MyGame/assets/Textures/
 MyGame/build.xml
 MyGame/src/...
-MyGame/...</pre>
-
-<p>
-This is just a suggested best practice, you can name the directories in the assets directory what ever you like.
-</p>
-
-</div>
-
-<h3><a>Loading Textures</a></h3>
-<div>
-
-<p>
-
-Place your textures in a subdirectory of <code>assets/Textures/</code>. Load the texture into the material before you set the Material. The following code sample is from the <code>simpleInitApp()</code> method and loads a simple wall model:
-</p>
-<pre>// Create a wall with a simple texture from test_data
+MyGame/...</pre><p>This is just a suggested best practice, you can name the directories in the assets directory what ever you like.</p></div><h3><a>Loading Textures</a></h3><div><p>Place your textures in a subdirectory of <code>assets/Textures/</code>. Load the texture into the material before you set the Material. The following code sample is from the <code>simpleInitApp()</code> method and loads a simple wall model:</p><pre>// Create a wall with a simple texture from test_data
 Box&#40;Vector3f.ZERO, 2.5f,2.5f,1.0f&#41;;
 Spatial wall = new Geometry&#40;&quot;Box&quot;, box &#41;;
 Material mat_brick = new Material&#40; 
