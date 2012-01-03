@@ -71,8 +71,6 @@ public class Torus extends Mesh {
      * Constructs a new Torus. Center is the origin, but the Torus may be
      * transformed.
      * 
-     * @param name
-     *            The name of the Torus.
      * @param circleSamples
      *            The number of samples along the circles.
      * @param radialSamples

@@ -48,7 +48,7 @@ public class MapModel3D {
     /**
      * Constructor.
      * 
-     * @param viewportWidth         The world unit width the map's area
+     * @param worldWidth         The world unit width the map's area
      * @since 1.0
      */
     public MapModel3D(int worldWidth) {
@@ -236,7 +236,7 @@ public class MapModel3D {
     /**
      * Converts a world position into a Mercator position.
      *
-     * @param p                     <code>Vector</code> containing the world unit 
+     * @param posVec                     <code>Vector</code> containing the world unit 
      *                              coordinates that are to be converted into
      *                              longitude / latitude coordinates.
      * @return                      The resulting <code>Position</code> in degrees of
@@ -295,7 +295,7 @@ public class MapModel3D {
     /**
      * Defines the centre of the map in pixels.
      *
-     * @param p             <code>Vector3f</code> object denoting the map's new centre.
+     * @param posVec             <code>Vector3f</code> object denoting the map's new centre.
      * @since 1.0
      */
     public void setCentre(Vector3f posVec) {

@@ -429,7 +429,7 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
      * Constructor instantiates a new <code>Image</code> object. The
      * attributes of the image are defined during construction.
      *
-     * @param type
+     * @param format
      *            the data format of the image.
      * @param width
      *            the width of the image.
@@ -446,7 +446,7 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
      * Constructor instantiates a new <code>Image</code> object. The
      * attributes of the image are defined during construction.
      *
-     * @param type
+     * @param format
      *            the data format of the image.
      * @param width
      *            the width of the image.
@@ -535,7 +535,7 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
      * Some system implementations are more efficient at operating
      * on data other than ByteBuffers, in that case, this method can be used.
      *
-     * @param efficentData
+     * @param efficientData
      */
     public void setEfficentData(Object efficientData){
         this.efficientData = efficientData;

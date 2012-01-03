@@ -151,9 +151,9 @@ public class Network
      *  @param version  This is a game-specific verison that helps detect when out-of-date
      *                  clients have connected to an incompatible server.  This must match
      *                  the server's version of this client will be turned away.
-     *  @param tcpPort  The remote TCP port on the server to which this client should
+     *  @param hostPort  The remote TCP port on the server to which this client should
      *                  send reliable messages. 
-     *  @param udpPort  The remote UDP port on the server to which this client should
+     *  @param remoteUdpPort  The remote UDP port on the server to which this client should
      *                  send 'fast'/unreliable messages.   Set to -1 if 'fast' traffic should 
      *                  go over TCP.  This will completely disable UDP traffic for this
      *                  client.

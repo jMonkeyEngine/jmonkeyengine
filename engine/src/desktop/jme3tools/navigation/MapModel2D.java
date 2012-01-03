@@ -206,7 +206,7 @@ public class MapModel2D {
 
     /**
      * Converts a pixel position into a mercator position
-     * @param p {@Point} object that you wish to convert into
+     * @param p {@link Point} object that you wish to convert into
      *        longitude / latiude
      * @return the converted {@code Position} object
      * @since 1.0
@@ -295,7 +295,7 @@ public class MapModel2D {
 
     /**
      * Returns the pixel (x,y) centre of the map
-     * @return {@code Point) object marking the map's (x,y) centre
+     * @return {@link Point) object marking the map's (x,y) centre
      * @since 1.0
      */
     public Point getPixelCentre() {

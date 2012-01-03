@@ -270,8 +270,8 @@ public final class BufferUtils {
      * Sets the data contained in the given quaternion into the FloatBuffer at the
      * specified index.
      *
-     * @param color
-     *            the data to insert
+     * @param quat
+     *            the {@link Quaternion} to insert
      * @param buf
      *            the buffer to insert into
      * @param index

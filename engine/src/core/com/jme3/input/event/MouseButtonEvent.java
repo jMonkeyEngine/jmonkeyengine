@@ -32,6 +32,8 @@
 
 package com.jme3.input.event;
 
+import com.jme3.input.MouseInput;
+
 /**
  * Mouse button press/release event.
  * 

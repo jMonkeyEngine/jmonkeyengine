@@ -180,7 +180,7 @@ public class ArmatureHelper extends AbstractBlenderHelper {
     /**
      * This method returns a map where the key is the object's group index that is used by a bone and the key is the
      * bone index in the armature.
-     * @param poseStructure
+     * @param defBaseStructure
      *        a bPose structure of the object
      * @return bone group-to-index map
      * @throws BlenderFileException
