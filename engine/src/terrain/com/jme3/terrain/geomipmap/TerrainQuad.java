@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2010 jMonkeyEngine
+ * Copyright (c) 2009-2012 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -138,10 +138,12 @@ public class TerrainQuad extends Node implements Terrain {
 
     /**
      * 
-     * @param name
+     * @param name the name of the scene element. This is required for
+     * identification and comparison purposes.
      * @param patchSize size of the individual patches
      * @param totalSize the size of this entire terrain tree (on one side)
-     * @param heightMap
+     * @param heightMap The height map to generate the terrain from (a flat
+     * height map will be generated if this is null)
      */
     public TerrainQuad(String name, int patchSize, int totalSize, float[] heightMap) {
         this(name, patchSize, totalSize, Vector3f.UNIT_XYZ, heightMap);
@@ -149,11 +151,13 @@ public class TerrainQuad extends Node implements Terrain {
     
     /**
      * 
-     * @param name
+     * @param name the name of the scene element. This is required for
+     * identification and comparison purposes.
      * @param patchSize size of the individual patches
      * @param quadSize
      * @param totalSize the size of this entire terrain tree (on one side)
-     * @param heightMap
+     * @param heightMap The height map to generate the terrain from (a flat
+     * height map will be generated if this is null)
      */
     public TerrainQuad(String name, int patchSize, int quadSize, int totalSize, float[] heightMap) {
         this(name, patchSize, totalSize, quadSize, Vector3f.UNIT_XYZ, heightMap);
@@ -161,11 +165,13 @@ public class TerrainQuad extends Node implements Terrain {
 
     /**
      * 
-     * @param name
+     * @param name the name of the scene element. This is required for
+     * identification and comparison purposes.
      * @param patchSize size of the individual patches
      * @param size size of this quad, can be between totalSize and patchSize
      * @param scale
-     * @param heightMap
+     * @param heightMap The height map to generate the terrain from (a flat
+     * height map will be generated if this is null)
      */
     public TerrainQuad(String name, int patchSize, int size, Vector3f scale, float[] heightMap) {
         this(name, patchSize, size, scale, heightMap, size, new Vector2f(), 0);
@@ -176,12 +182,14 @@ public class TerrainQuad extends Node implements Terrain {
     
     /**
      * 
-     * @param name
+     * @param name the name of the scene element. This is required for
+     * identification and comparison purposes.
      * @param patchSize size of the individual patches
      * @param totalSize the size of this entire terrain tree (on one side)
      * @param quadSize
      * @param scale
-     * @param heightMap
+     * @param heightMap The height map to generate the terrain from (a flat
+     * height map will be generated if this is null)
      */
     public TerrainQuad(String name, int patchSize, int totalSize, int quadSize, Vector3f scale, float[] heightMap) {
         this(name, patchSize, quadSize, scale, heightMap, totalSize, new Vector2f(), 0);
