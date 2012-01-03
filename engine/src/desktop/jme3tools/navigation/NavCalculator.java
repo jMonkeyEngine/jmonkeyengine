@@ -142,8 +142,8 @@ public class NavCalculator {
     /**
      * Converts a course from cardinal XddY to ddd notation
      * @param tc
-     * @param dLong
-     * @param dLat
+     * @param p1 position one
+     * @param p2 position two
      * @return
      * @since 1.0
      */

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2010 jMonkeyEngine
+ * Copyright (c) 2009-2012 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -140,7 +140,7 @@ public abstract class PhysicsCollisionObject implements Savable {
 
     /**
      * Directly set the bitmask for collision groups that this object collides with.
-     * @param collisionGroup
+     * @param collisionGroups
      */
     public void setCollideWithGroups(int collisionGroups) {
         this.collisionGroupsMask = collisionGroups;

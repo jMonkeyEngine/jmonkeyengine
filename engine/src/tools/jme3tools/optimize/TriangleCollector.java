@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2010 jMonkeyEngine
+ * Copyright (c) 2009-2012 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -92,7 +92,7 @@ public class TriangleCollector {
      * (using the indices OCTTriangle.getGeometryIndex() & OCTTriangle.getTriangleIndex())
      * then organizes them into output geometry.
      *
-     * @param geoms
+     * @param inGeoms
      * @param tris
      * @return
      */

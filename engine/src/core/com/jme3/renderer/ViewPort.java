@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2010 jMonkeyEngine
+ * Copyright (c) 2009-2012 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -182,7 +182,7 @@ public class ViewPort {
      * <p>
      * By default color clearing is disabled.
      * 
-     * @param clearDepth Enable/disable color buffer clearing.
+     * @param clearColor Enable/disable color buffer clearing.
      */
     public void setClearColor(boolean clearColor) {
         this.clearColor = clearColor;
@@ -204,7 +204,7 @@ public class ViewPort {
      * <p>
      * By default stencil clearing is disabled.
      * 
-     * @param clearDepth Enable/disable stencil buffer clearing.
+     * @param clearStencil Enable/disable stencil buffer clearing.
      */
     public void setClearStencil(boolean clearStencil) {
         this.clearStencil = clearStencil;

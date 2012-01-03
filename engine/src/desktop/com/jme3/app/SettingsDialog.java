@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2010 jMonkeyEngine
+ * Copyright (c) 2009-2012 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -117,7 +117,7 @@ public final class SettingsDialog extends JDialog {
      * @param imageFile
      *            the image file to use as the title of the dialog;
      *            <code>null</code> will result in to image being displayed
-     * @param mainThreadTasks 
+     * @param loadSettings 
      * @throws JmeException
      *             if the source is <code>null</code>
      */

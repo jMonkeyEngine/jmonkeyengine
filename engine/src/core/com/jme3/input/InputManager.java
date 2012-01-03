@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2010 jMonkeyEngine
+ * Copyright (c) 2009-2012 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -122,9 +122,10 @@ public class InputManager implements RawInputListener {
      * 
      * <p>This should only be called internally in {@link Application}.
      *
-     * @param mouseInput
-     * @param keyInput
-     * @param joyInput
+     * @param mouse
+     * @param keys
+     * @param joystick
+     * @param touch
      * @throws IllegalArgumentException If either mouseInput or keyInput are null.
      */
     public InputManager(MouseInput mouse, KeyInput keys, JoyInput joystick, TouchInput touch) {
@@ -614,7 +615,7 @@ public class InputManager implements RawInputListener {
      * 
      * <p>By default the cursor is visible.
      * 
-     * @param visible whether the mouse cursor is visible or not.
+     * @return whether the mouse cursor is visible or not.
      * 
      * @see InputManager#setCursorVisible(boolean) 
      */

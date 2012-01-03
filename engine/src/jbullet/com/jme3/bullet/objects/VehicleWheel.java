@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2010 jMonkeyEngine
+ * Copyright (c) 2009-2012 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -238,7 +238,7 @@ public class VehicleWheel implements Savable {
     /**
      * The maximum suspension force, raise this above the default 6000 if your suspension cannot
      * handle the weight of your vehcile.
-     * @param maxSuspensionTravelCm
+     * @param maxSuspensionForce
      */
     public void setMaxSuspensionForce(float maxSuspensionForce) {
         this.maxSuspensionForce = maxSuspensionForce;

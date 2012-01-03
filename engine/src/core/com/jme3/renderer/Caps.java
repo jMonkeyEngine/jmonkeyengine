@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2010 jMonkeyEngine
+ * Copyright (c) 2009-2012 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -328,7 +328,7 @@ public enum Caps {
      * can be supported by the renderer.
      * 
      * @param caps The collection of renderer capabilities {@link Renderer#getCaps() }.
-     * @param fb The shader to check
+     * @param shader The shader to check
      * @return True if it is supported, false otherwise.
      */
     public static boolean supports(Collection<Caps> caps, Shader shader){

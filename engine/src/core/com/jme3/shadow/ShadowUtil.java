@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2010 jMonkeyEngine
+ * Copyright (c) 2009-2012 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -271,8 +271,7 @@ public class ShadowUtil {
      * Updates the shadow camera to properly contain the given
      * points (which contain the eye camera frustum corners)
      *
-     * @param occluders
-     * @param lightCam
+     * @param shadowCam
      * @param points
      */
     public static void updateShadowCamera(Camera shadowCam, Vector3f[] points) {
@@ -325,7 +324,8 @@ public class ShadowUtil {
      * shadow occluder objects.
      *
      * @param occluders
-     * @param lightCam
+     * @param receivers
+     * @param shadowCam
      * @param points
      */
     public static void updateShadowCamera(GeometryList occluders,
@@ -341,7 +341,7 @@ public class ShadowUtil {
      * shadow occluder objects.
      * 
      * @param occluders
-     * @param lightCam
+     * @param shadowCam
      * @param points
      */
     public static void updateShadowCamera(GeometryList occluders,

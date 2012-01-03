@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2010 jMonkeyEngine
+ * Copyright (c) 2009-2012 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -1003,7 +1003,6 @@ public class Mesh implements Savable, Cloneable {
      * Acquires an index buffer that will read the vertices on the mesh
      * as a list.
      * 
-     * @param mesh The mesh to read from
      * @return A virtual or wrapped index buffer to read the data as a list
      */
     public IndexBuffer getIndicesAsList(){

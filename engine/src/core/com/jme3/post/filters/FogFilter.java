@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2010 jMonkeyEngine
+ * Copyright (c) 2009-2012 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -122,7 +122,7 @@ public class FogFilter extends Filter {
 
     /**
      * Sets the density of the fog, a high value gives a thick fog
-     * @param fogColor
+     * @param fogDensity
      */
     public void setFogDensity(float fogDensity) {
         if (material != null) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2010 jMonkeyEngine
+ * Copyright (c) 2009-2012 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -63,8 +63,6 @@ public class HillHeightMap extends AbstractHeightMap {
      *            the minimum radius of a hill
      * @param maxRadius
      *            the maximum radius of a hill
-     * @param flattening
-     *            the power of flattening done, 1 means none
      * @param seed
      *            the seed to generate the same heightmap again
      * @throws Exception
@@ -105,8 +103,6 @@ public class HillHeightMap extends AbstractHeightMap {
      *            the minimum radius of a hill
      * @param maxRadius
      *            the maximum radius of a hill
-     * @param flattening
-     *            the power of flattening done, 1 means none
      * @throws Exception
      * @throws JmeException
      *             if size of the terrain is not greater that zero, or number of
@@ -252,7 +248,7 @@ public class HillHeightMap extends AbstractHeightMap {
      * @param minRadius
      *            the minimum radius of a hill
      * @throws Exception
-     * @throw JmeException if the minimum radius is not greater than zero or not
+     * @throws JmeException if the minimum radius is not greater than zero or not
      *        lower than the maximum radius
      */
     public void setMinRadius(float minRadius) throws Exception {

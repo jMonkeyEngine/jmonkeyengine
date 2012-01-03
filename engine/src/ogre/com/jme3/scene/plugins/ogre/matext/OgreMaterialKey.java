@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2010 jMonkeyEngine
+ * Copyright (c) 2009-2012 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -56,7 +56,7 @@ public class OgreMaterialKey extends AssetKey<MaterialList> {
      * base materials to jME3 matdefs when loading.
      * Set to <code>null</code> to disable this functionality.
      *
-     * @param extension The {@link MaterialExtensionSet} to use
+     * @param matExts The {@link MaterialExtensionSet} to use
      */
     public void setMaterialExtensionSet(MaterialExtensionSet matExts){
         this.matExts = matExts;

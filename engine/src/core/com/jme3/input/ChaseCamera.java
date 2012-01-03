@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2010 jMonkeyEngine
+ * Copyright (c) 2009-2012 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -857,7 +857,7 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control {
 
     /**
      * invert the Horizontal axis movement of the mouse
-     * @param invertYaxis
+     * @param invertXaxis
      */
     public void setInvertHorizontalAxis(boolean invertXaxis) {
         this.invertXaxis = invertXaxis;

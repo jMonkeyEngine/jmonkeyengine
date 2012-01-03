@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2010 jMonkeyEngine
+ * Copyright (c) 2009-2012 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -68,7 +68,6 @@ public class PQTorus extends Mesh {
      * <p>
      * Steps and radialSamples are both degree of accuracy values.
      * 
-     * @param name the name of the torus.
      * @param p the x/z oscillation.
      * @param q the y oscillation.
      * @param radius the radius of the PQTorus.

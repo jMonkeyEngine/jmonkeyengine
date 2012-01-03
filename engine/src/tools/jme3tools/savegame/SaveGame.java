@@ -83,7 +83,7 @@ public class SaveGame {
      * Loads a savable that has been saved on this system with saveGame() before.
      * @param gamePath A unique path for this game, e.g. com/mycompany/mygame
      * @param dataName A unique name for this savegame, e.g. "save_001"
-     * @param assetManager Link to an AssetManager if required for loading the data (e.g. models with textures)
+     * @param manager Link to an AssetManager if required for loading the data (e.g. models with textures)
      * @return The savable that was saved or null if none was found
      */
     public static Savable loadGame(String gamePath, String dataName, AssetManager manager) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2010 jMonkeyEngine
+ * Copyright (c) 2009-2012 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -268,8 +268,8 @@ public class TerrainPatch extends Geometry {
     
     /**
      * Get the triangle of this geometry at the specified local coordinate.
-     * @param gridX local to the terrain patch
-     * @param gridY local to the terrain patch
+     * @param x local to the terrain patch
+     * @param z local to the terrain patch
      * @return the triangle in world coordinates, or null if the point does intersect this patch on the XZ axis
      */
     public Triangle getTriangle(float x, float z) {
@@ -278,8 +278,8 @@ public class TerrainPatch extends Geometry {
 
     /**
      * Get the triangles at the specified grid point. Probably only 2 triangles
-     * @param gridX local to the terrain patch
-     * @param gridY local to the terrain patch
+     * @param x local to the terrain patch
+     * @param z local to the terrain patch
      * @return the triangles in world coordinates, or null if the point does intersect this patch on the XZ axis
      */
     public Triangle[] getGridTriangles(float x, float z) {

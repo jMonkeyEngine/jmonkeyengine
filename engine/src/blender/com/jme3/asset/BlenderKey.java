@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2010 jMonkeyEngine
+ * Copyright (c) 2009-2012 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -244,7 +244,7 @@ public class BlenderKey extends ModelKey {
 
 	/**
 	 * This method removes features from being loaded.
-	 * @param featuresToLoad
+	 * @param featuresNotToLoad
 	 *        bitwise flag of FeaturesToLoad interface values
 	 */
 	public void excludeFromLoading(int featuresNotToLoad) {

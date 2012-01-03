@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2010 jMonkeyEngine
+ * Copyright (c) 2009-2012 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -152,7 +152,7 @@ public class RenderManager {
     /**
      * Removes the main ViewPort with the specified name.
      * 
-     * @param view The main ViewPort name to remove
+     * @param viewName The main ViewPort name to remove
      * @return True if the ViewPort was removed successfully.
      * 
      * @see #createMainView(java.lang.String, com.jme3.renderer.Camera) 
@@ -199,7 +199,7 @@ public class RenderManager {
     /**
      * Removes the post ViewPort with the specified name.
      * 
-     * @param view The post ViewPort name to remove
+     * @param viewName The post ViewPort name to remove
      * @return True if the ViewPort was removed successfully.
      * 
      * @see #createPostView(java.lang.String, com.jme3.renderer.Camera) 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2010 jMonkeyEngine
+ * Copyright (c) 2009-2012 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -68,8 +68,6 @@ public class ModifierHelper extends AbstractBlenderHelper {
      *        the object structure
      * @param blenderContext
      *        the blender context
-     * @param converter
-     *        the converter object (in some cases we need to read an object first before loading the modifier)
      * @throws BlenderFileException
      *         this exception is thrown when the blender file is somehow corrupted
      */

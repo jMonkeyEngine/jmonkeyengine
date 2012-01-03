@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2010 jMonkeyEngine
+ * Copyright (c) 2009-2012 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -766,7 +766,7 @@ public class WaterFilter extends Filter {
      * Sets the color of the water
      * see setDeepWaterColor for deep water color
      * default is (0.0078f, 0.5176f, 0.5f,1.0f) (greenish blue)
-     * @param waterColour
+     * @param waterColor
      */
     public void setWaterColor(ColorRGBA waterColor) {
         this.waterColor = waterColor;

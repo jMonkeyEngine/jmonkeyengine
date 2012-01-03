@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2010 jMonkeyEngine
+ * Copyright (c) 2009-2012 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -463,8 +463,12 @@ public class MaterialHelper extends AbstractBlenderHelper {
 	/**
 	 * This method converts rgb values to hsv values.
 	 * 
-	 * @param rgb
-	 *        rgb values of the color
+	 * @param r
+	 *        red value of the color
+         * @param g
+         *        green value of the color
+         * @param b
+         *        blue value of the color
 	 * @param hsv
 	 *        hsv values of a color (this table contains the result of the transformation)
 	 */

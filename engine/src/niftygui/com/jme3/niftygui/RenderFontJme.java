@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2010 jMonkeyEngine
+ * Copyright (c) 2009-2012 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -76,7 +76,7 @@ public class RenderFontJme implements RenderFont {
 
     /**
      * get font width of the given string.
-     * @param text text
+     * @param str text
      * @return width of the given text for the current font
      */
     public int getWidth(final String str) {

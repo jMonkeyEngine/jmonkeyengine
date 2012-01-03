@@ -52,7 +52,6 @@ public class RigidBodyControl extends PhysicsRigidBody implements PhysicsControl
 
     /**
      * Creates a new PhysicsNode with the supplied collision shape and mass 1
-     * @param child
      * @param shape
      */
     public RigidBodyControl(CollisionShape shape) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2010 jMonkeyEngine
+ * Copyright (c) 2009-2012 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -131,7 +131,7 @@ public interface Terrain {
      * This is where the Terrain's LOD algorithm will change the detail of
      * the terrain based on how far away this position is from the particular
      * terrain patch.
-     * @param location: the Camera's location. A list of one camera location is normal 
+     * @param location the Camera's location. A list of one camera location is normal 
      *  if you just have one camera in your scene.
      */
     public void update(List<Vector3f> location, LodCalculator lodCalculator);

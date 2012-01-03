@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2010 jMonkeyEngine
+ * Copyright (c) 2009-2012 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -82,7 +82,6 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
 
     /**
      * Creates a new PhysicsRigidBody with the supplied collision shape
-     * @param child
      * @param shape
      */
     public PhysicsRigidBody(CollisionShape shape) {
@@ -181,7 +180,6 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
 
     /**
      * Gets the physics object location, instantiates a new Vector3f object
-     * @param location the location of the actual physics object is stored in this Vector3f
      */
     public Vector3f getPhysicsLocation() {
         return getPhysicsLocation(null);
@@ -189,7 +187,6 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
 
     /**
      * Gets the physics object rotation
-     * @param rotation the rotation of the actual physics object is stored in this Matrix3f
      */
     public Matrix3f getPhysicsRotationMatrix() {
         return getPhysicsRotationMatrix(null);
@@ -222,7 +219,6 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
     /**
      * Gets the physics object rotation as a quaternion, converts the bullet Matrix3f value,
      * instantiates new object
-     * @param rotation the rotation of the actual physics object is stored in this Quaternion
      */
     public Quaternion getPhysicsRotation(){
         return getPhysicsRotation(null);

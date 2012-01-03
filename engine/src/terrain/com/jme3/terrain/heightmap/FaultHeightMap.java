@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2010 jMonkeyEngine
+ * Copyright (c) 2009-2012 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -96,7 +96,6 @@ public class FaultHeightMap extends AbstractHeightMap {
      * @param faultShape Shape of the fault -line or circle
      * @param minFaultHeight Height modified on each side
      * @param maxFaultHeight Height modified on each side
-     * @param faultHeight Height modified on each side
      * @param seed A seed to feed the Random generator
      * @see setFaultRange, setMinRadius, setMaxRadius
      */
@@ -122,7 +121,8 @@ public class FaultHeightMap extends AbstractHeightMap {
      * Create an heightmap with linear step faults.
      * @param size size of heightmap
      * @param iterations number of iterations
-     * @param faultHeight height to modify
+     * @param minFaultHeight Height modified on each side
+     * @param maxFaultHeight Height modified on each side
      */
     public FaultHeightMap(int size, int iterations, float minFaultHeight, float maxFaultHeight) throws Exception {
         this(size, iterations, FAULTTYPE_STEP, FAULTSHAPE_LINE, minFaultHeight, maxFaultHeight, new Random().nextLong());

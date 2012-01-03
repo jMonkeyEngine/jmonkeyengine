@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2010 jMonkeyEngine
+ * Copyright (c) 2009-2012 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -112,7 +112,7 @@ public class ImplHandler {
      * gets a hint that it should suppress {@link AssetNotFoundException}s
      * and instead call the listener callback (if set).
      * 
-     * @param key The parent key  
+     * @param parentKey The parent key  
      */
     public void establishParentKey(AssetKey parentKey){
         if (parentAssetKey.get() == null){
@@ -132,7 +132,7 @@ public class ImplHandler {
     
     /**
      * Attempts to locate the given resource name.
-     * @param name The full name of the resource.
+     * @param key The full name of the resource.
      * @return The AssetInfo containing resource information required for
      * access, or null if not found.
      */

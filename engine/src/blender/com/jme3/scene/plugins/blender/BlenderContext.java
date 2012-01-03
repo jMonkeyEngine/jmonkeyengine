@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2010 jMonkeyEngine
+ * Copyright (c) 2009-2012 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -383,10 +383,8 @@ public class BlenderContext {
 	/**
 	 * This method removes the ipo curve from the feature.
 	 * 
-	 * @param ownerOMA
+	 * @param ownerOma
 	 *            the OMA of blender feature that owns the ipo
-	 * @param ipo
-	 *            the ipo that was just removed
 	 */
 	public Ipo removeIpo(Long ownerOma) {
 		return loadedIpos.remove(ownerOma);
@@ -397,8 +395,6 @@ public class BlenderContext {
 	 * 
 	 * @param ownerOMA
 	 *            the OMA of blender feature that owns the ipo
-	 * @param ipo
-	 *            the ipo that belongs to the specified owner
 	 */
 	public Ipo getIpo(Long ownerOMA) {
 		return loadedIpos.get(ownerOMA);
@@ -503,7 +499,7 @@ public class BlenderContext {
 	 * 
 	 * @param skeletonOMA
 	 *            the skeleton's old memory address
-	 * @param animData
+	 * @param skeleton
 	 *            the skeleton specified by the given OMA
 	 */
 	public void setSkeleton(Long skeletonOMA, Skeleton skeleton) {

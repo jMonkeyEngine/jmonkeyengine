@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2010 jMonkeyEngine
+ * Copyright (c) 2009-2012 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -83,7 +83,7 @@ public interface CinematicEvent extends Savable {
     public PlayState getPlayState();
 
     /**
-     * @param loopMode Set the loop mode for the channel. The loop mode
+     * @param loop Set the loop mode for the channel. The loop mode
      * determines what will happen to the animation once it finishes
      * playing.
      *

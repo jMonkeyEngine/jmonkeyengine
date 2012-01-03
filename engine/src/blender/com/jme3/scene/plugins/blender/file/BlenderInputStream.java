@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2010 jMonkeyEngine
+ * Copyright (c) 2009-2012 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -76,8 +76,6 @@ public class BlenderInputStream extends InputStream {
      *        the stream we read data from
      * @param assetManager
      *        the application's asset manager
-     * @param endianess
-     *        type of byte ordering used; 'v' means little endian and 'V' means big endian
      * @throws BlenderFileException
      *         this exception is thrown if the file header has some invalid data
      */

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2010 jMonkeyEngine
+ * Copyright (c) 2009-2012 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -185,7 +185,7 @@ public class SSAOFilter extends Filter {
 
     /**
      * Return the bias<br>
-     * see {@link  setBias(float bias)}
+     * see {@link  #setBias(float bias)}
      * @return 
      */
     public float getBias() {
@@ -246,7 +246,7 @@ public class SSAOFilter extends Filter {
 
     /**
      * returns the scale<br>
-     * see {@link setScale(float scale)}
+     * see {@link #setScale(float scale)}
      * @return 
      */
     public float getScale() {
@@ -275,7 +275,6 @@ public class SSAOFilter extends Filter {
 
     /**
      * debugging only , will be removed
-     * @return 
      */
     public void setUseAo(boolean useAo) {
         this.useAo = useAo;
@@ -295,7 +294,6 @@ public class SSAOFilter extends Filter {
 
     /**
      * debugging only , will be removed
-     * @return 
      */
     public void setUseOnlyAo(boolean useOnlyAo) {
         this.useOnlyAo = useOnlyAo;

@@ -40,7 +40,6 @@ public class VehicleControl extends PhysicsVehicle implements PhysicsControl {
 
     /**
      * Creates a new PhysicsNode with the supplied collision shape
-     * @param child
      * @param shape
      */
     public VehicleControl(CollisionShape shape) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2010 jMonkeyEngine
+ * Copyright (c) 2009-2012 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,7 +46,7 @@ import com.jme3.renderer.ViewPort;
  * Based on an article from Geeks3D:
  *    <a href="http://www.geeks3d.com/20110219/shader-library-crosshatching-glsl-filter/" rel="nofollow">http://www.geeks3d.com/20110219/shader-library-crosshatching-glsl-filter/</a>
  *
- * @author: Roy Straver a.k.a. Baal Garnaal
+ * @author Roy Straver a.k.a. Baal Garnaal
  */
 public class CrossHatchFilter extends Filter {
 

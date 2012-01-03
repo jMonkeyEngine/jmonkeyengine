@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2010 jMonkeyEngine
+ * Copyright (c) 2009-2012 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -182,8 +182,10 @@ public final class BoneTrack implements Track {
      * The transforms can be interpolated in some method from the keyframes.
      *
      * @param time the current time of the animation
-     * @param skeleton the skeleton to which the bone belong
      * @param weight the weight of the animation
+     * @param control
+     * @param channel
+     * @param vars
      */
     public void setTime(float time, float weight, AnimControl control, AnimChannel channel, TempVars vars) {
         BitSet affectedBones = channel.getAffectedBones();
