@@ -227,9 +227,9 @@ final public class FastMath {
      * @return catmull-Rom interpolation
      */
     public static float interpolateCatmullRom(float u, float T, float p0, float p1, float p2, float p3) {
-        double c1, c2, c3, c4;
+        float c1, c2, c3, c4;
         c1 = p1;
-        c2 = -1.0 * T * p0 + T * p2;
+        c2 = -1.0f * T * p0 + T * p2;
         c3 = 2 * T * p0 + (T - 3) * p1 + (3 - 2 * T) * p2 + -T * p3;
         c4 = -T * p0 + (2 - T) * p1 + (T - 2) * p2 + T * p3;
 
