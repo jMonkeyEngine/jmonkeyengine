@@ -158,10 +158,10 @@ public class GeometryBatchFactory {
                 VertexBuffer inBuf = inMesh.getBuffer(Type.values()[bufType]);
                 VertexBuffer outBuf = outMesh.getBuffer(Type.values()[bufType]);
 
-                if (outBuf == null) {
+                if (inBuf == null || outBuf == null) {
                     continue;
                 }
-
+                
                 if (Type.Index.ordinal() == bufType) {
                     int components = compsForBuf[bufType];
 
