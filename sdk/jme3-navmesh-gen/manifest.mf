@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+OpenIDE-Module: com.jme3.gde.nmgen
+OpenIDE-Module-Implementation-Version: 0
+OpenIDE-Module-Layer: com/jme3/gde/nmgen/layer.xml
+OpenIDE-Module-Localizing-Bundle: com/jme3/gde/nmgen/Bundle.properties
+OpenIDE-Module-Requires: org.openide.windows.WindowManager
+
