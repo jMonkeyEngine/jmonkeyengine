@@ -227,6 +227,10 @@ public class AssetDataObject extends MultiDataObject {
         setModified(false);
     }
 
+    public synchronized void closeAsset() {
+        savable = null;
+    }
+
     public synchronized AssetKey<?> getAssetKey() {
         if (assetKey == null) {
             ProjectAssetManager mgr = getLookup().lookup(ProjectAssetManager.class);

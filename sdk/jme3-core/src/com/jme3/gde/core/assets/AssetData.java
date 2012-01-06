@@ -79,6 +79,10 @@ public class AssetData extends Properties {
         file.saveAsset();
     }
     
+    public void closeAsset(){
+        file.closeAsset();
+    }
+    
     public List<FileObject> getAssetList(){
         return file.getAssetList();
     }
