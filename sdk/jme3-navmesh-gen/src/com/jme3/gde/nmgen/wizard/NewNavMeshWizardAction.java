@@ -8,6 +8,8 @@ import com.jme3.bounding.BoundingBox;
 import com.jme3.gde.core.sceneexplorer.nodes.actions.AbstractNewSpatialWizardAction;
 import com.jme3.gde.core.sceneexplorer.nodes.actions.NewSpatialAction;
 import com.jme3.gde.nmgen.NavMeshGenerator;
+import com.jme3.material.Material;
+import com.jme3.math.ColorRGBA;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
@@ -73,6 +75,10 @@ public final class NewNavMeshWizardAction extends AbstractNewSpatialWizardAction
         Mesh optiMesh = generator.optimize(mesh);
 
         final Geometry navMesh = new Geometry("NavMesh");
+        Material material = new Material(pm, "Common/MatDefs/Misc/Unshaded.j3md");
+        material.getAdditionalRenderState().setWireframe(true);
+        material.setColor("Color", ColorRGBA.Green);
+        navMesh.setMaterial(material);
         navMesh.setMesh(optiMesh);
         navMesh.setCullHint(CullHint.Always);
         navMesh.setModelBound(new BoundingBox());
