@@ -25,7 +25,7 @@ import java.util.logging.Logger;
  *
  */
 public class AndroidInput extends GLSurfaceView implements TouchInput,
-        GestureDetector.OnGestureListener, ScaleGestureDetector.OnScaleGestureListener {
+        GestureDetector.OnGestureListener, GestureDetector.OnDoubleTapListener, ScaleGestureDetector.OnScaleGestureListener {
 
     final private static int MAX_EVENTS = 1024;
     // Custom settings
@@ -220,7 +220,7 @@ public class AndroidInput extends GLSurfaceView implements TouchInput,
         boolean bWasHandled = false;
         TouchEvent touch;
 
-        // Try to detect gestures
+        // Try to detect gestures        
         this.detector.onTouchEvent(event);
         this.scaledetector.onTouchEvent(event);
 
@@ -568,6 +568,10 @@ public class AndroidInput extends GLSurfaceView implements TouchInput,
         touch.setTime(event.getEventTime());
         processEvent(touch);
         return true;
+    }
+
+    public boolean onDoubleTapEvent(MotionEvent event) {
+        return false;
     }
 
     public boolean onScaleBegin(ScaleGestureDetector scaleGestureDetector) {
