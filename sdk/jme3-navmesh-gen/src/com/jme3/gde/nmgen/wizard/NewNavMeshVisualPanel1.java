@@ -24,7 +24,7 @@ public final class NewNavMeshVisualPanel1 extends JPanel {
 
     @Override
     public String getName() {
-        return "Step #1";
+        return "Specify Settings";
     }
     
     public void loadSettings(WizardDescriptor wiz){

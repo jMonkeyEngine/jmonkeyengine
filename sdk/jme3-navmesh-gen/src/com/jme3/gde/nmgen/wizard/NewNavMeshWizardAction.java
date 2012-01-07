@@ -42,7 +42,7 @@ public final class NewNavMeshWizardAction extends AbstractNewSpatialWizardAction
         WizardDescriptor wizardDescriptor = new WizardDescriptor(getPanels());
         // {0} will be replaced by WizardDesriptor.Panel.getComponent().getName()
         wizardDescriptor.setTitleFormat(new MessageFormat("{0}"));
-        wizardDescriptor.setTitle("Your wizard dialog title here");
+        wizardDescriptor.setTitle("Create NavMesh");
         NavMeshGenerator gen = new NavMeshGenerator();
         wizardDescriptor.putProperty("generator", gen);
 
