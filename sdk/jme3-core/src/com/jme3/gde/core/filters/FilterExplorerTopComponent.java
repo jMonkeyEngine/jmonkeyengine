@@ -74,7 +74,7 @@ public final class FilterExplorerTopComponent extends TopComponent implements Ex
     private transient ExplorerManager explorerManager = new ExplorerManager();
     private FilterDataObject currentFile;
     private FilterPostProcessorNode node;
-    private boolean added = false;
+    private boolean filterEnabled = false;
 
     public FilterExplorerTopComponent() {
         initComponents();
@@ -133,8 +133,7 @@ public final class FilterExplorerTopComponent extends TopComponent implements Ex
     @Override
     public void componentClosed() {
         // TODO add custom code on component closing
-        //explorerManager.setRootContext(Node.EMPTY);
-        setActivatedNodes(new Node[]{});
+        closeFile();
     }
 
     void writeProperties(java.util.Properties p) {
@@ -150,50 +149,58 @@ public final class FilterExplorerTopComponent extends TopComponent implements Ex
     }
 
     public void loadFile(FilterDataObject object) {
-        explorerManager.setRootContext(object.getLookup().lookup(FilterPostProcessorNode.class));
-        node = object.getLookup().lookup(FilterPostProcessorNode.class);
-        setActivatedNodes(new Node[]{object.getNodeDelegate()});
-        open();
-        boolean wasAdded = added;
-        if (currentFile != null && added) {
-            setFilterEnabled(false);
-        }
         currentFile = object;
-        if (wasAdded) {
-            setFilterEnabled(true);
-        }
+        node = object.getLookup().lookup(FilterPostProcessorNode.class);
+        explorerManager.setRootContext(node);
+        setActivatedNodes(new Node[]{object.getNodeDelegate()});
+        updateFilterState();
+        open();
         requestVisible();
     }
 
+    public void closeFile() {
+        currentFile = null;
+        node = null;
+        explorerManager.setRootContext(Node.EMPTY);
+        setActivatedNodes(new Node[]{});
+        updateFilterState();
+    }
+
     public synchronized void setFilterEnabled(final boolean enabled) {
-        if (added == enabled) {
-            return;
-        }
-        if (currentFile != null) {
-            added = enabled;
-            final FilterPostProcessor fpp = this.node.getFilterPostProcessor();
+        filterEnabled = enabled;
+        updateFilterState();
+    }
+
+    private synchronized void updateFilterState() {
+        final FilterPostProcessor fpp = this.node != null ? this.node.getFilterPostProcessor() : null;
+        clearFilters();
+        if (filterEnabled && fpp != null) {
             SceneApplication.getApplication().enqueue(new Callable() {
 
                 public Object call() throws Exception {
-                    if (enabled) {
-                        SceneApplication.getApplication().getViewPort().addProcessor(fpp);
-                        Logger.getLogger(FilterExplorerTopComponent.class.getName()).log(Level.INFO, "Enabled post filters");
-                    } else {
-                        for (Iterator<SceneProcessor> it = SceneApplication.getApplication().getViewPort().getProcessors().iterator(); it.hasNext();) {
-                            SceneProcessor proc = it.next();
-                            if (proc instanceof FilterPostProcessor) {
-                                it.remove();
-                                proc.cleanup();
-                            }
-                        }
-                        //  SceneApplication.getApplication().getViewPort().removeProcessor(fpp);
-                        Logger.getLogger(FilterExplorerTopComponent.class.getName()).log(Level.INFO, "Disabled post filters");
-                    }
+                    SceneApplication.getApplication().getViewPort().addProcessor(fpp);
+                    Logger.getLogger(FilterExplorerTopComponent.class.getName()).log(Level.INFO, "Enabled post filters");
                     return null;
                 }
             });
-
         }
+    }
+
+    private synchronized void clearFilters() {
+        SceneApplication.getApplication().enqueue(new Callable() {
+
+            public Object call() throws Exception {
+                for (Iterator<SceneProcessor> it = SceneApplication.getApplication().getViewPort().getProcessors().iterator(); it.hasNext();) {
+                    SceneProcessor proc = it.next();
+                    if (proc instanceof FilterPostProcessor) {
+                        it.remove();
+                        proc.cleanup();
+                    }
+                    Logger.getLogger(FilterExplorerTopComponent.class.getName()).log(Level.INFO, "Disabled post filters");
+                }
+                return null;
+            }
+        });
     }
 
     /**
