@@ -402,6 +402,15 @@ public class MeshHelper extends AbstractBlenderHelper {
                 }
             }
         }
+        
+        // if there are multiple materials used, extract the shared
+        // vertex data
+        if (geometries.size() > 1){
+            // extract from itself
+            for (Geometry geom : geometries){
+                geom.getMesh().extractVertexData(geom.getMesh());
+            }
+        }
 
         blenderContext.addLoadedFeatures(structure.getOldMemoryAddress(), structure.getName(), structure, geometries);
         blenderContext.setMeshContext(structure.getOldMemoryAddress(), meshContext);
