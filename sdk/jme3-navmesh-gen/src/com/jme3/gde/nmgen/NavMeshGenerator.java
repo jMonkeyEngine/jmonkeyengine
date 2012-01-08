@@ -17,6 +17,8 @@ import java.nio.FloatBuffer;
 import org.critterai.nmgen.IntermediateData;
 import org.critterai.nmgen.NavmeshGenerator;
 import org.critterai.nmgen.TriangleMesh;
+import org.openide.DialogDisplayer;
+import org.openide.NotifyDescriptor;
 
 public class NavMeshGenerator implements Savable {
 
@@ -37,8 +39,8 @@ public class NavMeshGenerator implements Savable {
     private int maxVertsPerPoly = 6;
     private float contourSampleDistance = 25;
     private float contourMaxDeviation = 25;
-    
     private IntermediateData intermediateData;
+    private int timeout = 10000;
 
     public NavMeshGenerator() {
     }
@@ -61,7 +63,7 @@ public class NavMeshGenerator implements Savable {
         System.out.println("Contour Sample Dist: " + contourSampleDistance);
         System.out.println("Contour Max Dev.: " + contourMaxDeviation);
     }
-    
+
     public void setIntermediateData(IntermediateData data) {
         this.intermediateData = data;
     }
@@ -89,7 +91,8 @@ public class NavMeshGenerator implements Savable {
             indices[i] = ib.get(i);
         }
 
-        TriangleMesh triMesh = nmgen.build(positions, indices, intermediateData);
+
+        TriangleMesh triMesh = buildNavMesh(positions, indices, intermediateData);
         if (triMesh == null) {
             return null;
         }
@@ -106,51 +109,79 @@ public class NavMeshGenerator implements Savable {
         return mesh2;
     }
 
+    private TriangleMesh buildNavMesh(float[] positions, int[] indices, IntermediateData intermediateData) {
+        MeshBuildRunnable runnable = new MeshBuildRunnable(positions, indices, intermediateData);
+        try {
+            execute(runnable, timeout);
+        } catch (TimeoutException ex) {
+            DialogDisplayer.getDefault().notifyLater(new NotifyDescriptor.Message("NavMesh Generation timed out."));
+        }
+        return runnable.getTriMesh();
+    }
+
+    private static void execute(Thread task, long timeout) throws TimeoutException {
+        task.start();
+        try {
+            task.join(timeout);
+        } catch (InterruptedException e) {
+        }
+        if (task.isAlive()) {
+            task.interrupt();
+            throw new TimeoutException();
+        }
+    }
+
+    private static void execute(Runnable task, long timeout) throws TimeoutException {
+        Thread t = new Thread(task, "Timeout guard");
+        t.setDaemon(true);
+        execute(t, timeout);
+    }
+
     public Mesh terrain2mesh(Terrain terr) {
         float[] heights = terr.getHeightMap();
         int length = heights.length;
         int side = (int) FastMath.sqrt(heights.length);
         float[] vertices = new float[length * 3];
-        int[] indices = new int[(side-1)*(side-1)*6];
-        
-        Vector3f scale = ((Node)terr).getWorldScale().clone();
-        Vector3f trans = ((Node)terr).getWorldTranslation().clone();
-        trans.x -= terr.getTerrainSize()/2f;
-        trans.z -= terr.getTerrainSize()/2f;
+        int[] indices = new int[(side - 1) * (side - 1) * 6];
+
+        Vector3f scale = ((Node) terr).getWorldScale().clone();
+        Vector3f trans = ((Node) terr).getWorldTranslation().clone();
+        trans.x -= terr.getTerrainSize() / 2f;
+        trans.z -= terr.getTerrainSize() / 2f;
         float offsetX = trans.x * scale.x;
         float offsetZ = trans.z * scale.z;
 
         // do vertices
-        int i=0;
-        for (int z=0; z<side; z++) {
-            for (int x=0; x<side; x++) {
-                vertices[i++] = x+offsetX;
-                vertices[i++] = heights[z*side+x]*scale.y;
-                vertices[i++] = z+offsetZ;
+        int i = 0;
+        for (int z = 0; z < side; z++) {
+            for (int x = 0; x < side; x++) {
+                vertices[i++] = x + offsetX;
+                vertices[i++] = heights[z * side + x] * scale.y;
+                vertices[i++] = z + offsetZ;
             }
         }
-        
+
         // do indexes
-        i=0;
-        for (int z=0; z<side-1; z++) {
-            for (int x=0; x<side-1; x++) {
+        i = 0;
+        for (int z = 0; z < side - 1; z++) {
+            for (int x = 0; x < side - 1; x++) {
                 // triangle 1
-                indices[i++] = z*side+x;
-                indices[i++] = (z+1)*side+x;
-                indices[i++] = (z+1)*side+x+1;
+                indices[i++] = z * side + x;
+                indices[i++] = (z + 1) * side + x;
+                indices[i++] = (z + 1) * side + x + 1;
                 // triangle 2
-                indices[i++] = z*side+x;
-                indices[i++] = (z+1)*side+x+1;
-                indices[i++] = z*side+x+1;
+                indices[i++] = z * side + x;
+                indices[i++] = (z + 1) * side + x + 1;
+                indices[i++] = z * side + x + 1;
             }
         }
-        
+
         Mesh mesh2 = new Mesh();
         mesh2.setBuffer(Type.Position, 3, vertices);
         mesh2.setBuffer(Type.Index, 3, indices);
         mesh2.updateBound();
         mesh2.updateCounts();
-        
+
         return mesh2;
     }
 
@@ -302,6 +333,14 @@ public class NavMeshGenerator implements Savable {
         this.useConservativeExpansion = useConservativeExpansion;
     }
 
+    public int getTimeout() {
+        return timeout;
+    }
+
+    public void setTimeout(int timeout) {
+        this.timeout = timeout;
+    }
+    
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule oc = ex.getCapsule(this);
         oc.write(cellSize, "cellSize", 1f);
@@ -331,14 +370,44 @@ public class NavMeshGenerator implements Savable {
         maxTraversableSlope = ic.readFloat("maxTraversableSlope", 48f);
         clipLedges = ic.readBoolean("clipLedges", false);
         traversableAreaBorderSize = ic.readFloat("traversableAreaBorderSize", 1.2f);
-        smoothingThreshold = (int)ic.readFloat("smoothingThreshold", 2);
+        smoothingThreshold = (int) ic.readFloat("smoothingThreshold", 2);
         useConservativeExpansion = ic.readBoolean("useConservativeExpansion", true);
-        minUnconnectedRegionSize = (int)ic.readFloat("minUnconnectedRegionSize", 3);
-        mergeRegionSize = (int)ic.readFloat("mergeRegionSize", 10);
+        minUnconnectedRegionSize = (int) ic.readFloat("minUnconnectedRegionSize", 3);
+        mergeRegionSize = (int) ic.readFloat("mergeRegionSize", 10);
         maxEdgeLength = ic.readFloat("maxEdgeLength", 0);
         edgeMaxDeviation = ic.readFloat("edgeMaxDeviation", 2.4f);
-        maxVertsPerPoly = (int)ic.readFloat("maxVertsPerPoly", 6);
+        maxVertsPerPoly = (int) ic.readFloat("maxVertsPerPoly", 6);
         contourSampleDistance = ic.readFloat("contourSampleDistance", 25);
         contourMaxDeviation = ic.readFloat("contourMaxDeviation", 25);
+    }
+
+    private class MeshBuildRunnable implements Runnable {
+
+        private float[] positions;
+        private int[] indices;
+        private IntermediateData intermediateData;
+        private TriangleMesh triMesh;
+
+        public MeshBuildRunnable(float[] positions, int[] indices, IntermediateData intermediateData) {
+            this.positions = positions;
+            this.indices = indices;
+            this.intermediateData = intermediateData;
+        }
+
+        @Override
+        public void run() {
+            triMesh = nmgen.build(positions, indices, intermediateData);
+        }
+
+        public TriangleMesh getTriMesh() {
+            return triMesh;
+        }
+    }
+
+    public static class TimeoutException extends Exception {
+
+        /** Create an instance */
+        public TimeoutException() {
+        }
     }
 }

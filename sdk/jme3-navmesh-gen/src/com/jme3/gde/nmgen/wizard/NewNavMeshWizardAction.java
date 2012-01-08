@@ -73,6 +73,7 @@ public final class NewNavMeshWizardAction extends AbstractNewSpatialWizardAction
 
         GeometryBatchFactory.mergeGeometries(findGeometries(rootNode, new LinkedList<Geometry>(), generator), mesh);
         Mesh optiMesh = generator.optimize(mesh);
+        if(optiMesh == null) return null;
 
         final Geometry navMesh = new Geometry("NavMesh");
         Material material = new Material(pm, "Common/MatDefs/Misc/Unshaded.j3md");
