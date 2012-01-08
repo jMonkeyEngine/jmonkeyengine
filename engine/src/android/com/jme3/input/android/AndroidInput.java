@@ -147,14 +147,14 @@ public class AndroidInput extends GLSurfaceView implements TouchInput,
 
     public AndroidInput(Context ctx, AttributeSet attribs) {
         super(ctx, attribs);
-        detector = new GestureDetector(this);
+        detector = new GestureDetector(null, this, null, false);
         scaledetector = new ScaleGestureDetector(ctx, this);
 
     }
 
     public AndroidInput(Context ctx) {
         super(ctx);
-        detector = new GestureDetector(this);
+        detector = new GestureDetector(null, this, null, false);
         scaledetector = new ScaleGestureDetector(ctx, this);
     }
 
@@ -219,15 +219,18 @@ public class AndroidInput extends GLSurfaceView implements TouchInput,
     public boolean onTouchEvent(MotionEvent event) {
         boolean bWasHandled = false;
         TouchEvent touch;
+        //    System.out.println("native : " + event.getAction());
 
-        // Try to detect gestures        
-        this.detector.onTouchEvent(event);
-        this.scaledetector.onTouchEvent(event);
 
         final int historySize = event.getHistorySize();
         final int pointerCount = event.getPointerCount();
 
+
         switch (event.getAction()) {
+
+            case MotionEvent.ACTION_POINTER_1_DOWN:
+            case MotionEvent.ACTION_POINTER_2_DOWN:
+            case MotionEvent.ACTION_POINTER_3_DOWN:
             case MotionEvent.ACTION_DOWN:
 
                 if (!dontSendHistory) {
@@ -245,19 +248,25 @@ public class AndroidInput extends GLSurfaceView implements TouchInput,
 
                     }
                 }
-                // Convert all pointers into events
-                for (int p = 0; p < pointerCount; p++) {
-                    touch = getNextFreeTouchEvent();
-                    touch.set(Type.DOWN, event.getX(p), this.getHeight() - event.getY(p), 0, 0);
-                    touch.setPointerId(event.getPointerId(p));
-                    touch.setTime(event.getEventTime());
-                    touch.setPressure(event.getPressure(p));
-                    processEvent(touch);
-                }
+
+                //   System.out.println("DOWN : " + pointerCount);
+
+                // only considering the primary pointer event. other pointers will have their own event
+                //for (int p = 0; p < pointerCount; p++) {
+                touch = getNextFreeTouchEvent();
+                touch.set(Type.DOWN, event.getX(0), this.getHeight() - event.getY(0), 0, 0);
+                touch.setPointerId(event.getPointerId(0));
+                touch.setTime(event.getEventTime());
+                touch.setPressure(event.getPressure(0));
+                processEvent(touch);
+                //}
 
                 bWasHandled = true;
                 break;
 
+            case MotionEvent.ACTION_POINTER_1_UP:
+            case MotionEvent.ACTION_POINTER_2_UP:
+            case MotionEvent.ACTION_POINTER_3_UP:
             case MotionEvent.ACTION_UP:
 
                 if (!dontSendHistory) {
@@ -276,15 +285,16 @@ public class AndroidInput extends GLSurfaceView implements TouchInput,
                     }
                 }
 
-                // Convert all pointers into events
-                for (int p = 0; p < pointerCount; p++) {
-                    touch = getNextFreeTouchEvent();
-                    touch.set(Type.UP, event.getX(p), this.getHeight() - event.getY(p), 0, 0);
-                    touch.setPointerId(event.getPointerId(p));
-                    touch.setTime(event.getEventTime());
-                    touch.setPressure(event.getPressure(p));
-                    processEvent(touch);
-                }
+
+                // only considering the primary pointer event. other pointers will have their own event
+                //for (int p = 0; p < pointerCount; p++) {
+                touch = getNextFreeTouchEvent();
+                touch.set(Type.UP, event.getX(0), this.getHeight() - event.getY(0), 0, 0);
+                touch.setPointerId(event.getPointerId(0));
+                touch.setTime(event.getEventTime());
+                touch.setPressure(event.getPressure(0));
+                processEvent(touch);
+                //}
 
                 bWasHandled = true;
                 break;
@@ -313,7 +323,9 @@ public class AndroidInput extends GLSurfaceView implements TouchInput,
 
                     }
                 }
-
+//                if (event.getPointerCount() > 1) {
+//                    System.out.println("MOVE : " + event.getPointerCount());
+//                }
                 // Convert all pointers into events
                 for (int p = 0; p < event.getPointerCount(); p++) {
                     Vector2f lastPos = lastPositions.get(event.getPointerId(p));
@@ -332,12 +344,12 @@ public class AndroidInput extends GLSurfaceView implements TouchInput,
                 bWasHandled = true;
                 break;
 
-            // TODO: implement motion events
-            case MotionEvent.ACTION_POINTER_UP:
-                break;
-
-            case MotionEvent.ACTION_POINTER_DOWN:
-                break;
+//            // TODO: implement motion events
+//            case MotionEvent.ACTION_POINTER_UP:
+//                break;
+//
+//            case MotionEvent.ACTION_POINTER_DOWN:
+//                break;
 
             case MotionEvent.ACTION_OUTSIDE:
                 break;
@@ -345,6 +357,11 @@ public class AndroidInput extends GLSurfaceView implements TouchInput,
             case MotionEvent.ACTION_CANCEL:
                 break;
         }
+
+        // Try to detect gestures        
+        this.detector.onTouchEvent(event);
+        this.scaledetector.onTouchEvent(event);
+
         return bWasHandled;
     }
 
@@ -551,7 +568,6 @@ public class AndroidInput extends GLSurfaceView implements TouchInput,
         return true;
     }
 
-    
     public boolean onSingleTapConfirmed(MotionEvent event) {
         //Nothing to do here the tap has already been detected.
         return false;
@@ -578,6 +594,7 @@ public class AndroidInput extends GLSurfaceView implements TouchInput,
         touch.setScaleSpan(scaleGestureDetector.getCurrentSpan());
         touch.setScaleFactor(scaleGestureDetector.getScaleFactor());
         processEvent(touch);
+        //    System.out.println("scaleBegin");
 
         return true;
     }
@@ -590,6 +607,7 @@ public class AndroidInput extends GLSurfaceView implements TouchInput,
         touch.setScaleSpan(scaleGestureDetector.getCurrentSpan());
         touch.setScaleFactor(scaleGestureDetector.getScaleFactor());
         processEvent(touch);
+        //   System.out.println("scale");
 
         return false;
     }
@@ -610,6 +628,7 @@ public class AndroidInput extends GLSurfaceView implements TouchInput,
         touch.setPointerId(0);
         touch.setTime(e1.getEventTime());
         processEvent(touch);
+        //System.out.println("scroll " + e1.getPointerCount());
         return false;
     }
 
