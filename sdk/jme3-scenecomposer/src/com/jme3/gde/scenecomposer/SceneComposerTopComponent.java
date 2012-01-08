@@ -964,15 +964,15 @@ private void scaleButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
                     new Thread(call).start();
                 }
             };
-            currentRequest.getManager().addClassPathEventListener(listener);
+//            currentRequest.getManager().addClassPathEventListener(listener);
         }
     }
 
     public void sceneClosed(SceneRequest request) {
         if (request.equals(currentRequest)) {
             setActivatedNodes(new org.openide.nodes.Node[]{});
-            if (request != null) {
-                request.getManager().removeClassPathEventListener(listener);
+            if (listener != null && request.getManager() != null) {
+//                request.getManager().removeClassPathEventListener(listener);
                 listener = null;
             }
             SceneApplication.getApplication().removeSceneListener(this);
