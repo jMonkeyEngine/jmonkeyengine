@@ -241,6 +241,12 @@ public class MaterialHelper extends AbstractBlenderHelper {
 		} else {
 			if (materialContext.shadeless) {
 				result = new Material(blenderContext.getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
+                                
+                                if (!materialContext.transparent) {
+                                    materialContext.diffuseColor.a = 1;
+                                }
+                                
+                                result.setColor("Color", materialContext.diffuseColor);
 			} else {
 				result = new Material(blenderContext.getAssetManager(), "Common/MatDefs/Light/Lighting.j3md");
 				result.setBoolean("UseMaterialColors", Boolean.TRUE);

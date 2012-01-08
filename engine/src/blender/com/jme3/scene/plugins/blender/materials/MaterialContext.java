@@ -69,7 +69,12 @@ public final class MaterialContext {
 		diffuseShader = DiffuseShader.values()[diff_shader];
 		
 		if(this.shadeless) {
-			diffuseColor = ColorRGBA.White.clone();
+                        float r = ((Number) structure.getFieldValue("r")).floatValue();
+                        float g = ((Number) structure.getFieldValue("g")).floatValue();
+                        float b = ((Number) structure.getFieldValue("b")).floatValue();
+                        float alpha = ((Number) structure.getFieldValue("alpha")).floatValue();
+
+			diffuseColor = new ColorRGBA(r, g, b, alpha);
 			specularShader = null;
 			specularColor = ambientColor = null;
 			shininess = 0.0f;
