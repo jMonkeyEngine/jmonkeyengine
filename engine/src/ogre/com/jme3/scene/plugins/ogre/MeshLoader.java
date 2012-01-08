@@ -107,6 +107,7 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
     private int texCoordIndex = 0;
     private String ignoreUntilEnd = null;
     private List<Geometry> geoms = new ArrayList<Geometry>();
+    private ArrayList<Boolean> usesSharedMesh = new ArrayList<Boolean>();
     private IntMap<List<VertexBuffer>> lodLevels = new IntMap<List<VertexBuffer>>();
     private AnimData animData;
 
@@ -127,6 +128,7 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
         geom = null;
         sharedMesh = null;
 
+        usesSharedMesh.clear();
         usesSharedVerts = false;
         vertCount = 0;
         meshIndex = 0;
@@ -170,9 +172,10 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
         }
     }
 
-    private boolean isUsingSharedVerts(Geometry geom) {
-        return geom.getUserData(UserData.JME_SHAREDMESH) != null;
-    }
+//    private boolean isUsingSharedVerts(Geometry geom) {
+        // Old code for buffer sharer
+        //return geom.getUserData(UserData.JME_SHAREDMESH) != null;
+//    }
 
     private void startFaces(String count) throws SAXException {
         int numFaces = parseInt(count);
@@ -215,6 +218,9 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
                 mat = assetManager.loadMaterial(matName);
             } catch (AssetNotFoundException ex){
                 // Warning will be raised (see below)
+                if (!ex.getMessage().equals(matName)){
+                    throw ex;
+                }
             }
         } else {
             if (materialList != null) {
@@ -251,11 +257,16 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
         usesBigIndices = parseBool(use32bitIndices, false);
         usesSharedVerts = parseBool(usesharedvertices, false);
         if (usesSharedVerts) {
+            usesSharedMesh.add(true);
+            
+            // Old code for buffer sharer
             // import vertexbuffers from shared geom
-            IntMap<VertexBuffer> sharedBufs = sharedMesh.getBuffers();
-            for (Entry<VertexBuffer> entry : sharedBufs) {
-                mesh.setBuffer(entry.getValue());
-            }
+//            IntMap<VertexBuffer> sharedBufs = sharedMesh.getBuffers();
+//            for (Entry<VertexBuffer> entry : sharedBufs) {
+//                mesh.setBuffer(entry.getValue());
+//            }
+        }else{
+            usesSharedMesh.add(false);
         }
 
         if (meshName == null) {
@@ -265,8 +276,9 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
         }
 
         if (usesSharedVerts) {
+            // Old code for buffer sharer
             // this mesh is shared!
-            geom.setUserData(UserData.JME_SHAREDMESH, sharedMesh);
+            //geom.setUserData(UserData.JME_SHAREDMESH, sharedMesh);
         }
 
         applyMaterial(geom, matName);
@@ -291,9 +303,9 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
      * for all vertices in the buffer.
      */
     private void endBoneAssigns() {
-        if (mesh != sharedMesh && isUsingSharedVerts(geom)) {
-            return;
-        }
+//        if (mesh != sharedMesh && isUsingSharedVerts(geom)) {
+//            return;
+//        }
 
         if (!actuallyHasWeights){
             // No weights were actually written (the tag didn't have any entries)
@@ -725,9 +737,16 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
         for (int i = 0; i < geoms.size(); i++) {
             Geometry g = geoms.get(i);
             Mesh m = g.getMesh();
-            if (sharedMesh != null && isUsingSharedVerts(g)) {
-                m.setBound(sharedMesh.getBound().clone());
+            
+            // New code for buffer extract
+            if (sharedMesh != null && usesSharedMesh.get(i)) {
+                m.extractVertexData(sharedMesh);
             }
+            
+            // Old code for buffer sharer
+            //if (sharedMesh != null && isUsingSharedVerts(g)) {
+            //    m.setBound(sharedMesh.getBound().clone());
+            //}
             model.attachChild(geoms.get(i));
         }
 
@@ -736,45 +755,26 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
         if (animData != null) {
             // This model uses animation
 
+            // Old code for buffer sharer
             // generate bind pose for mesh
             // ONLY if not using shared geometry
             // This includes the shared geoemtry itself actually
-            if (sharedMesh != null) {
-                sharedMesh.generateBindPose(!HARDWARE_SKINNING);
-            }
+            //if (sharedMesh != null) {
+            //    sharedMesh.generateBindPose(!HARDWARE_SKINNING);
+            //}
 
             for (int i = 0; i < geoms.size(); i++) {
                 Geometry g = geoms.get(i);
                 Mesh m = geoms.get(i).getMesh();
-                boolean useShared = isUsingSharedVerts(g);
-
-
-                if (!useShared) {
+                
+                m.generateBindPose(!HARDWARE_SKINNING);
+                
+                // Old code for buffer sharer
+                //boolean useShared = isUsingSharedVerts(g);
+                //if (!useShared) {
                     // create bind pose
-                    m.generateBindPose(!HARDWARE_SKINNING);
-//                } else {
-                    // Inherit animation data from shared mesh
-//                    VertexBuffer bindPos = sharedMesh.getBuffer(Type.BindPosePosition);
-//                    VertexBuffer bindNorm = sharedMesh.getBuffer(Type.BindPoseNormal);
-//                    VertexBuffer boneIndex = sharedMesh.getBuffer(Type.BoneIndex);
-//                    VertexBuffer boneWeight = sharedMesh.getBuffer(Type.BoneWeight);
-//
-//                    if (bindPos != null) {
-//                        m.setBuffer(bindPos);
-//                    }
-//
-//                    if (bindNorm != null) {
-//                        m.setBuffer(bindNorm);
-//                    }
-//
-//                    if (boneIndex != null) {
-//                        m.setBuffer(boneIndex);
-//                    }
-//
-//                    if (boneWeight != null) {
-//                        m.setBuffer(boneWeight);
-//                    }
-                }
+                    //m.generateBindPose(!HARDWARE_SKINNING);
+                //}
             }
 
             // Put the animations in the AnimControl
