@@ -126,7 +126,8 @@ public class NavMeshGenerator implements Savable {
         } catch (InterruptedException e) {
         }
         if (task.isAlive()) {
-            task.interrupt();
+//            task.interrupt();
+            task.stop();
             throw new TimeoutException();
         }
     }
