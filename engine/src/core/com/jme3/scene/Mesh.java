@@ -43,6 +43,7 @@ import com.jme3.math.Matrix4f;
 import com.jme3.math.Triangle;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
+import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.VertexBuffer.Format;
 import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.scene.VertexBuffer.Usage;
@@ -54,6 +55,8 @@ import com.jme3.util.SafeArrayList;
 import java.io.IOException;
 import java.nio.*;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * <code>Mesh</code> is used to store rendering data.
@@ -1052,6 +1055,110 @@ public class Mesh implements Savable, Cloneable {
     }
 
     /**
+     * Extracts the vertex attributes from the given mesh into
+     * this mesh, by using this mesh's {@link #getIndexBuffer() index buffer}
+     * to index into the attributes of the other mesh.
+     * Note that this will also change this mesh's index buffer so that
+     * the references to the vertex data match the new indices.
+     * 
+     * @param other The mesh to extract the vertex data from
+     */
+    public void extractVertexData(Mesh other) {
+        // Determine the number of unique vertices need to
+        // be created. Also determine the mappings
+        // between old indices to new indices (since we avoid duplicating
+        // vertices, this is a map and not an array).
+        VertexBuffer oldIdxBuf = getBuffer(Type.Index);
+        IndexBuffer indexBuf = getIndexBuffer();
+        int numIndices = indexBuf.size();
+
+        IntMap<Integer> oldIndicesToNewIndices = new IntMap<Integer>(numIndices);
+        ArrayList<Integer> newIndicesToOldIndices = new ArrayList<Integer>();
+        int newIndex = 0;
+
+        for (int i = 0; i < numIndices; i++) {
+            int oldIndex = indexBuf.get(i);
+
+            if (!oldIndicesToNewIndices.containsKey(oldIndex)) {
+                // this vertex has not been added, so allocate a 
+                // new index for it and add it to the map
+                oldIndicesToNewIndices.put(oldIndex, newIndex);
+                newIndicesToOldIndices.add(oldIndex);
+
+                // increment to have the next index
+                newIndex++;
+            }
+        }
+
+        // Number of unique verts to be created now available
+        int newNumVerts = newIndicesToOldIndices.size();
+
+        if (newIndex != newNumVerts) {
+            throw new AssertionError();
+        }
+
+        // Create the new index buffer. 
+        // Do not overwrite the old one because we might be able to 
+        // convert from int index buffer to short index buffer
+        IndexBuffer newIndexBuf;
+        if (newNumVerts >= 65536) {
+            newIndexBuf = new IndexIntBuffer(BufferUtils.createIntBuffer(numIndices));
+        } else {
+            newIndexBuf = new IndexShortBuffer(BufferUtils.createShortBuffer(numIndices));
+        }
+
+        for (int i = 0; i < numIndices; i++) {
+            // Map the old indices to the new indices
+            int oldIndex = indexBuf.get(i);
+            newIndex = oldIndicesToNewIndices.get(oldIndex);
+
+            newIndexBuf.put(i, newIndex);
+        }
+        
+        VertexBuffer newIdxBuf = new VertexBuffer(Type.Index);
+        newIdxBuf.setupData(oldIdxBuf.getUsage(), 
+                            oldIdxBuf.getNumComponents(), 
+                            newIndexBuf instanceof IndexIntBuffer ? Format.UnsignedInt : Format.UnsignedShort,
+                            newIndexBuf.getBuffer());
+        clearBuffer(Type.Index);
+        setBuffer(newIdxBuf);
+
+        // Now, create the vertex buffers
+        SafeArrayList<VertexBuffer> oldVertexData = other.getBufferList();
+        for (VertexBuffer oldVb : oldVertexData) {
+            if (oldVb.getBufferType() == VertexBuffer.Type.Index) {
+                // ignore the index buffer
+                continue;
+            }
+
+            // Create a new vertex buffer with similar configuration, but
+            // with the capacity of number of unique vertices
+            Buffer buffer = VertexBuffer.createBuffer(oldVb.getFormat(), oldVb.getNumComponents(), newNumVerts);
+
+            VertexBuffer newVb = new VertexBuffer(oldVb.getBufferType());
+            newVb.setNormalized(oldVb.isNormalized());
+            newVb.setupData(oldVb.getUsage(), oldVb.getNumComponents(), oldVb.getFormat(), buffer);
+
+            // Copy the vertex data from the old buffer into the new buffer
+            for (int i = 0; i < newNumVerts; i++) {
+                int oldIndex = newIndicesToOldIndices.get(i);
+
+                // Copy the vertex attribute from the old index
+                // to the new index
+                oldVb.copyElement(oldIndex, newVb, i);
+            }
+            
+            // Set the buffer on the mesh
+            clearBuffer(newVb.getBufferType());
+            setBuffer(newVb);
+        }
+        
+        // The data has been copied over, update informations
+        updateCounts();
+        updateBound();
+    }
+    
+    /**
      * Scales the texture coordinate buffer on this mesh by the given
      * scale factor. 
      * <p>
@@ -1138,6 +1245,15 @@ public class Mesh implements Savable, Cloneable {
         return buffers;
     }
     
+    /**
+     * Returns a list of all {@link VertexBuffer vertex buffers} on this Mesh.
+     * Using a list instead an IntMap via the {@link #getBuffers() } method is
+     * better for iteration as there's no need to create an iterator instance.
+     * Note that the returned list is a reference to the list used internally,
+     * modifying it will cause undefined results.
+     * 
+     * @return list of vertex buffers on this mesh.
+     */
     public SafeArrayList<VertexBuffer> getBufferList(){
         return buffersList;
     }
