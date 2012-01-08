@@ -551,14 +551,10 @@ public class AndroidInput extends GLSurfaceView implements TouchInput,
         return true;
     }
 
+    
     public boolean onSingleTapConfirmed(MotionEvent event) {
-        TouchEvent touch = getNextFreeTouchEvent();
-        touch.set(Type.TAP, event.getX(), this.getHeight() - event.getY(), 0f, 0f);
-        touch.setPointerId(0);
-        touch.setTime(event.getEventTime());
-        processEvent(touch);
-
-        return true;
+        //Nothing to do here the tap has already been detected.
+        return false;
     }
 
     public boolean onDoubleTap(MotionEvent event) {
