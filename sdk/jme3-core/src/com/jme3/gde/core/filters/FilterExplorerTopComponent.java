@@ -154,11 +154,12 @@ public final class FilterExplorerTopComponent extends TopComponent implements Ex
         node = object.getLookup().lookup(FilterPostProcessorNode.class);
         setActivatedNodes(new Node[]{object.getNodeDelegate()});
         open();
+        boolean wasAdded = added;
         if (currentFile != null && added) {
             setFilterEnabled(false);
         }
         currentFile = object;
-        if (added) {
+        if (wasAdded) {
             setFilterEnabled(true);
         }
         requestVisible();
