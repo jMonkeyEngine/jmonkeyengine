@@ -59,6 +59,10 @@ import java.util.logging.Logger;
  */
 public class Geometry extends Spatial {
 
+    // Version #1: removed shared meshes. 
+    // models loaded with shared mesh will be automatically fixed.
+    public static final int SAVABLE_VERSION = 1;
+    
     private static final Logger logger = Logger.getLogger(Geometry.class.getName());
     protected Mesh mesh;
     protected transient int lodLevel = 0;
@@ -549,5 +553,13 @@ public class Geometry extends Spatial {
             material = (Material) ic.readSavable("material", null);
         }
         ignoreTransform = ic.readBoolean("ignoreTransform", false);
+        
+        if (ic.getSavableVersion(Geometry.class) == 0){
+            // Fix shared mesh (if set)
+            Mesh sharedMesh = getUserData(UserData.JME_SHAREDMESH);
+            if (sharedMesh != null){
+                getMesh().extractVertexData(sharedMesh);
+            }
+        }
     }
 }
