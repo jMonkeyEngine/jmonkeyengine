@@ -38,6 +38,7 @@ import com.jme3.scene.plugins.blender.file.Pointer;
 import com.jme3.scene.plugins.blender.file.Structure;
 import com.jme3.scene.plugins.blender.objects.Properties;
 import com.jme3.util.BufferUtils;
+import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.util.List;
 
@@ -94,6 +95,28 @@ public abstract class AbstractBlenderHelper {
 		return true;
 	}
 
+        /**
+	 * Generate a new ByteBuffer using the given array of byte[4] objects. The ByteBuffer will be 4 * data.length
+	 * long and contain the vector data as data[0][0], data[0][1], data[0][2], data[0][3], data[1][0]... etc.
+	 * @param data
+	 *        list of byte[4] objects to place into a new ByteBuffer
+	 */
+	protected ByteBuffer createByteBuffer(List<byte[]> data) {
+		if (data == null) {
+			return null;
+		}
+		ByteBuffer buff = BufferUtils.createByteBuffer(4 * data.size());
+		for (byte[] v : data) {
+			if (v != null) {
+				buff.put(v[0]).put(v[1]).put(v[2]).put(v[3]);
+			} else {
+				buff.put((byte)0).put((byte)0).put((byte)0).put((byte)0);
+			}
+		}
+		buff.flip();
+		return buff;
+	}
+        
 	/**
 	 * Generate a new FloatBuffer using the given array of float[4] objects. The FloatBuffer will be 4 * data.length
 	 * long and contain the vector data as data[0][0], data[0][1], data[0][2], data[0][3], data[1][0]... etc.
