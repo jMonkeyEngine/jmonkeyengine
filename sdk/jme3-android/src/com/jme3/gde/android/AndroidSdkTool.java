@@ -285,13 +285,29 @@ public class AndroidSdkTool {
             Document configuration = XMLUtil.parse(new InputSource(in), false, false, null, null);
             in.close();
             in = null;
+            boolean changed = false;
             Element sdkElement = XmlHelper.findChildElement(configuration.getDocumentElement(), "uses-sdk");
             if (sdkElement == null) {
                 sdkElement = configuration.createElement("uses-sdk");
                 configuration.getDocumentElement().appendChild(sdkElement);
+                changed = true;
             }
-            if (!sdkElement.getAttribute("android:minSdkVersion").equals("8")) {
+            if (!"8".equals(sdkElement.getAttribute("android:minSdkVersion"))) {
                 sdkElement.setAttribute("android:minSdkVersion", "8");
+                changed = true;
+            }
+            Element screensElement = XmlHelper.findChildElement(configuration.getDocumentElement(), "supports-screens");
+            if (screensElement == null) {
+                screensElement = configuration.createElement("supports-screens");
+                screensElement.setAttribute("android:anyDensity", "true");
+                screensElement.setAttribute("android:xlargeScreens", "true");
+                screensElement.setAttribute("android:largeScreens", "true");
+                screensElement.setAttribute("android:smallScreens", "true");
+                screensElement.setAttribute("android:normalScreens", "true");
+                configuration.getDocumentElement().appendChild(screensElement);
+                changed = true;
+            }
+            if (changed) {
                 lock = manifest.lock();
                 out = manifest.getOutputStream(lock);
                 XMLUtil.write(configuration, out, "UTF-8");
