@@ -415,6 +415,9 @@ public class BIHTree implements CollisionData {
 
             if (r.getLimit() < Float.POSITIVE_INFINITY) {
                 tMax = Math.min(tMax, r.getLimit());
+                if (tMin > tMax){
+                    return 0;
+                }
             }
 
 //            return root.intersectBrute(r, worldMatrix, this, tMin, tMax, results);
