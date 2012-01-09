@@ -796,6 +796,10 @@ public class TextureHelper extends AbstractBlenderHelper {
 	 * @return the loaded image or null if the image cannot be found
 	 */
 	protected Texture loadTextureFromFile(String name, BlenderContext blenderContext) {
+                if (!name.contains(".")){
+                    return null; // no extension means not a valid image
+                }
+                
 		AssetManager assetManager = blenderContext.getAssetManager();
 		name = name.replaceAll("\\\\", "\\/");
 		Texture result = null;
