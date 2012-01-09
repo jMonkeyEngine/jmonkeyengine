@@ -1153,6 +1153,9 @@ public class Mesh implements Savable, Cloneable {
             setBuffer(newVb);
         }
         
+        // Copy max weights per vertex as well
+        setMaxNumWeights(other.getMaxNumWeights());
+        
         // The data has been copied over, update informations
         updateCounts();
         updateBound();
