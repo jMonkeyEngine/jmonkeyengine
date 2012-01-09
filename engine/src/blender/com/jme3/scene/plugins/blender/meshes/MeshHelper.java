@@ -480,10 +480,10 @@ public class MeshHelper extends AbstractBlenderHelper {
             verticesColors = new LinkedList<float[]>();
             mCol = pMCol.fetchData(blenderContext.getInputStream());
             for (Structure color : mCol) {
-                float r = ((Number) color.getFieldValue("r")).byteValue() / 256.0f;
-                float g = ((Number) color.getFieldValue("g")).byteValue() / 256.0f;
-                float b = ((Number) color.getFieldValue("b")).byteValue() / 256.0f;
-                float a = ((Number) color.getFieldValue("a")).byteValue() / 256.0f;
+                float r = (((Number)color.getFieldValue("r")).byteValue() & 0xFF) / 256.0f;
+                float g = (((Number)color.getFieldValue("g")).byteValue() & 0xFF) / 256.0f;
+                float b = (((Number)color.getFieldValue("b")).byteValue() & 0xFF) / 256.0f;
+                float a = (((Number)color.getFieldValue("a")).byteValue() & 0xFF) / 256.0f;
                 verticesColors.add(new float[]{b, g, r, a});
             }
         }
