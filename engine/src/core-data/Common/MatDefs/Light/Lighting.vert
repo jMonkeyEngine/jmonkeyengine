@@ -42,7 +42,7 @@ varying vec3 lightVec;
   #ifndef NORMALMAP
     varying vec3 vNormal;
   #endif
-  varying vec3 vPosition;
+  //varying vec3 vPosition;
   varying vec3 vViewDir;
   varying vec4 vLightDir;
 #else
@@ -157,14 +157,14 @@ void main(){
 
      mat3 tbnMat = mat3(wvTangent, wvBinormal * -inTangent.w,wvNormal);
      
-     vPosition = wvPosition * tbnMat;
+     //vPosition = wvPosition * tbnMat;
      vViewDir  = viewDir * tbnMat;
      lightComputeDir(wvPosition, lightColor, wvLightPos, vLightDir);
      vLightDir.xyz = (vLightDir.xyz * tbnMat).xyz;
    #elif !defined(VERTEX_LIGHTING)
      vNormal = wvNormal;
 
-     vPosition = wvPosition;
+     //vPosition = wvPosition;
      vViewDir = viewDir;
 
      lightComputeDir(wvPosition, lightColor, wvLightPos, vLightDir);
