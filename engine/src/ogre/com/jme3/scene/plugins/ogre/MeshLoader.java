@@ -513,21 +513,31 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
 
     private void startLodFaceList(String submeshindex, String numfaces) {
         int index = Integer.parseInt(submeshindex);
+        mesh = geoms.get(index).getMesh();
         int faceCount = Integer.parseInt(numfaces);
-
+        
+        VertexBuffer originalIndexBuffer = mesh.getBuffer(Type.Index);
         vb = new VertexBuffer(VertexBuffer.Type.Index);
-        sb = BufferUtils.createShortBuffer(faceCount * 3);
-        ib = null;
-        vb.setupData(Usage.Static, 3, Format.UnsignedShort, sb);
+        if (originalIndexBuffer.getFormat() == Format.UnsignedInt){
+            // LOD buffer should also be integer
+            ib = BufferUtils.createIntBuffer(faceCount * 3);
+            sb = null;
+            vb.setupData(Usage.Static, 3, Format.UnsignedInt, ib);
+        }else{
+            sb = BufferUtils.createShortBuffer(faceCount * 3);
+            ib = null;
+            vb.setupData(Usage.Static, 3, Format.UnsignedShort, sb);
+        }
 
         List<VertexBuffer> levels = lodLevels.get(index);
         if (levels == null) {
+            // Create the LOD levels list
             levels = new ArrayList<VertexBuffer>();
-            Mesh submesh = geoms.get(index).getMesh();
-            levels.add(submesh.getBuffer(Type.Index));
+            
+            // Add the first LOD level (always the original index buffer)
+            levels.add(originalIndexBuffer);
             lodLevels.put(index, levels);
         }
-
         levels.add(vb);
     }
 
