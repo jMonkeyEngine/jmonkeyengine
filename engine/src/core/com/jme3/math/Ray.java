@@ -442,11 +442,11 @@ public final class Ray implements Savable, Cloneable, Collidable, java.io.Serial
     }
 
     /**
-     * <code>getLimit</code> returns the limit or the ray, aka the length.
+     * <code>getLimit</code> returns the limit of the ray, aka the length.
      * If the limit is not infinity, then this ray is a line with length <code>
      * limit</code>.
      * 
-     * @return the limit or the ray, aka the length.
+     * @return the limit of the ray, aka the length.
      */
     public float getLimit() {
         return limit;
