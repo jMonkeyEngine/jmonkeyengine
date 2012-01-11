@@ -262,7 +262,7 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
 
     /**
      * Sets the node to kinematic mode. in this mode the node is not affected by physics
-     * but affects other physics objects. Iits kinetic force is calculated by the amount
+     * but affects other physics objects. Its kinetic force is calculated by the amount
      * of movement it is exposed to and its weight.
      * @param kinematic
      */
