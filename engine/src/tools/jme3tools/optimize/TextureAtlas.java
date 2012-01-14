@@ -32,14 +32,18 @@
 package jme3tools.optimize;
 
 import com.jme3.asset.AssetKey;
+import com.jme3.math.Vector2f;
 import com.jme3.texture.Image;
 import com.jme3.texture.Image.Format;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture2D;
 import com.jme3.util.BufferUtils;
 import java.nio.ByteBuffer;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -47,78 +51,139 @@ import java.util.TreeMap;
  */
 public class TextureAtlas {
 
-    private byte[] image;
+    private static final Logger logger = Logger.getLogger(TextureAtlas.class.getName());
+    private Map<String, byte[]> images;
     private int width, height;
     private Format format;
     private Node root;
-    private Map<String, TextureLocation> rectangleMap;
+    private Map<String, TextureLocation> locationMap;
+    private String rootMapName;
 
     public TextureAtlas(int width, int height) {
-        this(Format.RGBA8, width, height);
+        this(Format.ABGR8, width, height);
     }
 
     public TextureAtlas(Format format, int width, int height) {
         this.format = format;
         this.width = width;
         this.height = height;
-        image = new byte[width * height * 4];//new Image(format, width, height, BufferUtils.createByteBuffer(width * height * 4));
         root = new Node(0, 0, width, height);
-        rectangleMap = new TreeMap<String, TextureLocation>();
+        locationMap = new TreeMap<String, TextureLocation>();
     }
 
-    public boolean addTexture(Texture texture) {
+    /**
+     * Add a texture for a specific map name
+     * @param texture A texture to add to the atlas
+     * @param mapName A freely chosen map name that can be later retrieved as a Texture. The first map name supplied will be the master texture.
+     * @return 
+     */
+    public boolean addTexture(Texture texture, String mapName) {
+        return addTexture(texture, mapName, null);
+    }
+
+    /**
+     * Add a texture for a specific map name at the location of another existing texture.
+     * @param texture A texture to add to the atlas.
+     * @param mapName A freely chosen map name that can be later retrieved as a Texture.
+     * @param sourceTextureName Name of the original texture location.
+     * @return 
+     */
+    public boolean addTexture(Texture texture, String mapName, String sourceTextureName) {
+        if (texture == null) {
+            return false;
+        }
         AssetKey key = texture.getKey();
         if (texture.getImage() != null && key != null && key.getName() != null) {
-            return addImage(texture.getImage(), key.getName());
+            return addImage(texture.getImage(), key.getName(), mapName, sourceTextureName);
         } else {
             return false;
         }
     }
 
-    private boolean addImage(Image image, String name) {
-        Node node = root.insert(image);
-        if (node == null) {
+    private boolean addImage(Image image, String name, String mapName, String sourceTextureName) {
+        if (rootMapName == null) {
+            rootMapName = mapName;
+        }
+        if (sourceTextureName == null && !rootMapName.equals(mapName)) {
+            throw new IllegalStateException("Cannot add texture to new map without source texture");
+        }
+        TextureLocation location;
+        if (sourceTextureName == null) {
+            Node node = root.insert(image);
+            if (node == null) {
+                return false;
+            }
+            location = node.location;
+        } else {
+            location = locationMap.get(sourceTextureName);
+        }
+        if (location == null) {
+            logger.log(Level.WARNING, "Source texture not found");
             return false;
         }
-        rectangleMap.put(name, node.rect);
-        drawImage(image, node.rect.getX(), node.rect.getY());
+        locationMap.put(name, location);
+        drawImage(image, location.getX(), location.getY(), mapName);
         return true;
     }
 
-    private void drawImage(Image source, int x, int y) {
-        //TODO: all buffers
+    private void drawImage(Image source, int x, int y, String mapName) {
+        //TODO: all buffers?
+        if (images == null) {
+            images = new HashMap<String, byte[]>();
+        }
+        byte[] image = images.get(mapName);
+        if (image == null) {
+            image = new byte[width * height * 4];
+            images.put(mapName, image);
+        }
         ByteBuffer sourceData = source.getData(0);
         int height = source.getHeight();
         int width = source.getWidth();
-        int index = 0;
-        for (int yPos = y; yPos < height + y; yPos++) {
-            for (int xPos = x; xPos < width + x; xPos++) {
-                int i = (xPos + yPos * width) * 4;
-                image[i] = sourceData.get(index); //r
-                image[i + 1] = sourceData.get(index + 1); //g
-                image[i + 2] = sourceData.get(index + 2); //b
-                image[i + 3] = sourceData.get(index + 3); //a
-                index += 4;
+        for (int yPos = 0; yPos < height; yPos++) {
+            for (int xPos = 0; xPos < width; xPos++) {
+                int i = ((xPos + x) + (yPos + y) * this.width) * 4;
+                if (source.getFormat() == Format.ABGR8) {
+                    int j = (xPos + yPos * width) * 4;
+                    image[i] = sourceData.get(j); //a
+                    image[i + 1] = sourceData.get(j + 1); //b
+                    image[i + 2] = sourceData.get(j + 2); //g
+                    image[i + 3] = sourceData.get(j + 3); //r
+                } else if (source.getFormat() == Format.BGR8) {
+                    int j = (xPos + yPos * width) * 3;
+                    image[i] = 0; //b
+                    image[i + 1] = sourceData.get(j); //b
+                    image[i + 2] = sourceData.get(j + 1); //g
+                    image[i + 3] = sourceData.get(j + 2); //r
+                }else{
+                    logger.log(Level.WARNING, "Could not draw texture {0} ", mapName);
+                }
             }
         }
     }
 
     public TextureLocation getTextureLocation(String assetName) {
-        return rectangleMap.get(assetName);
+        return locationMap.get(assetName);
     }
 
-    public Texture getAtlasTexture() {
-        return new Texture2D(new Image(format, width, height, BufferUtils.createByteBuffer(image)));
+    public Texture getAtlasTexture(String mapName) {
+        if (images == null) {
+            return null;
+        }
+        byte[] image = images.get(mapName);
+        if (image != null) {
+            return new Texture2D(new Image(format, width, height, BufferUtils.createByteBuffer(image)));
+        }
+        return null;
     }
 
     private static class Node {
 
-        public TextureLocation rect;
+        public TextureLocation location;
         public Node child[];
         public Image image;
 
         public Node(int x, int y, int width, int height) {
-            rect = new TextureLocation(x, y, width, height);
+            location = new TextureLocation(x, y, width, height);
             child = new Node[2];
             child[0] = null;
             child[1] = null;
@@ -144,24 +209,24 @@ public class TextureAtlas {
                     return null; // occupied
                 }
 
-                if (image.getWidth() > rect.getWidth() || image.getHeight() > rect.getHeight()) {
+                if (image.getWidth() > location.getWidth() || image.getHeight() > location.getHeight()) {
                     return null; // does not fit
                 }
 
-                if (image.getWidth() == rect.getWidth() && image.getHeight() == rect.getHeight()) {
+                if (image.getWidth() == location.getWidth() && image.getHeight() == location.getHeight()) {
                     this.image = image; // perfect fit
                     return this;
                 }
 
-                int dw = rect.getWidth() - image.getWidth();
-                int dh = rect.getHeight() - image.getHeight();
+                int dw = location.getWidth() - image.getWidth();
+                int dh = location.getHeight() - image.getHeight();
 
                 if (dw > dh) {
-                    child[0] = new Node(rect.getX(), rect.getY(), image.getWidth(), rect.getHeight());
-                    child[1] = new Node(rect.getX() + image.getWidth(), rect.getY(), rect.getWidth() - image.getWidth(), rect.getHeight());
+                    child[0] = new Node(location.getX(), location.getY(), image.getWidth(), location.getHeight());
+                    child[1] = new Node(location.getX() + image.getWidth(), location.getY(), location.getWidth() - image.getWidth(), location.getHeight());
                 } else {
-                    child[0] = new Node(rect.getX(), rect.getY(), rect.getWidth(), image.getHeight());
-                    child[1] = new Node(rect.getX(), rect.getY() + image.getHeight(), rect.getWidth(), rect.getHeight() - image.getHeight());
+                    child[0] = new Node(location.getX(), location.getY(), location.getWidth(), image.getHeight());
+                    child[1] = new Node(location.getX(), location.getY() + image.getHeight(), location.getWidth(), location.getHeight() - image.getHeight());
                 }
 
                 return child[0].insert(image);
@@ -181,6 +246,16 @@ public class TextureAtlas {
             this.y = y;
             this.width = width;
             this.height = height;
+        }
+
+        public Vector2f getLocation(Vector2f previousLocation) {
+            float x = (float) getX() / (float) width;
+            float y = (float) getY() / (float) height;
+            float w = (float) getWidth() / (float) width;
+            float h = (float) getHeight() / (float) height;
+            Vector2f location = new Vector2f(x, y);
+            Vector2f scale = new Vector2f(w, h);
+            return location.add(previousLocation.multLocal(scale));
         }
 
         public int getX() {
