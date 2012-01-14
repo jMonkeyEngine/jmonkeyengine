@@ -141,26 +141,12 @@ public class OGLESShaderRenderer implements Renderer {
 
     public void initialize() {
 
-        logger.info("Vendor: " + GLES20.glGetString(GLES20.GL_VENDOR));
-        logger.info("Renderer: " + GLES20.glGetString(GLES20.GL_RENDERER));
-        logger.info("Version: " + GLES20.glGetString(GLES20.GL_VERSION));
+        logger.log(Level.INFO, "Vendor: {0}", GLES20.glGetString(GLES20.GL_VENDOR));
+        logger.log(Level.INFO, "Renderer: {0}", GLES20.glGetString(GLES20.GL_RENDERER));
+        logger.log(Level.INFO, "Version: {0}", GLES20.glGetString(GLES20.GL_VERSION));
 
-        String shadingLanguageVersion = GLES20.glGetString(GLES20.GL_SHADING_LANGUAGE_VERSION);
-        logger.log(Level.INFO, "GLES20.Shading Language Version: {0}", shadingLanguageVersion);
-
-        /*
-        ContextCapabilities ctxCaps = GLContext.getCapabilities();
-        if (ctxCaps.OpenGL20){
-        caps.add(Caps.OpenGL20);
-        }
-        if (ctxCaps.OpenGL21){
-        caps.add(Caps.OpenGL21);
-        }
-        if (ctxCaps.OpenGL30){
-        caps.add(Caps.OpenGL30);
-        }
-         */
         String versionStr = GLES20.glGetString(GLES20.GL_SHADING_LANGUAGE_VERSION);
+        logger.log(Level.INFO, "GLES20.Shading Language Version: {0}", versionStr);
         if (versionStr == null || versionStr.equals("")) {
             glslVer = -1;
             throw new UnsupportedOperationException("GLSL and OpenGL2 is "
@@ -174,42 +160,25 @@ public class OGLESShaderRenderer implements Renderer {
 //        initialDrawBuf = GLES20.glGetIntegeri(GLES20.GL_DRAW_BUFFER);
 //        initialReadBuf = GLES20.glGetIntegeri(GLES20.GL_READ_BUFFER);
 
-        int spaceIdx = versionStr.lastIndexOf(" ");
+        String openGlEsStr = "OpenGL ES GLSL ES ";
+        int spaceIdx = versionStr.indexOf(" ", openGlEsStr.length());
         if (spaceIdx >= 1) {
-            versionStr = versionStr.substring(spaceIdx, versionStr.length());
+            versionStr = versionStr.substring(openGlEsStr.length(), spaceIdx).trim();
         }
 
         float version = Float.parseFloat(versionStr);
         glslVer = (int) (version * 100);
 
         switch (glslVer) {
+            // TODO: When new versions of OpenGL ES shader language come out, 
+            // update this.
             default:
-                if (glslVer < 400) {
-                    break;
-                }
-
-            // so that future OpenGL revisions wont break jme3
-
-            // fall through intentional
-            case 400:
-            case 330:
-            case 150:
-                caps.add(Caps.GLSL150);
-            case 140:
-                caps.add(Caps.GLSL140);
-            case 130:
-                caps.add(Caps.GLSL130);
-            case 120:
-                caps.add(Caps.GLSL120);
-            case 110:
-                caps.add(Caps.GLSL110);
-            case 100:
                 caps.add(Caps.GLSL100);
                 break;
         }
 
         if (!caps.contains(Caps.GLSL100)) {
-            logger.info("Force-adding GLSL100 support, since OpenGL is supported.");
+            logger.info("Force-adding GLSL100 support, since OpenGL2 is supported.");
             caps.add(Caps.GLSL100);
         }
 
@@ -369,8 +338,6 @@ public class OGLESShaderRenderer implements Renderer {
         if (extensions.contains("GL_OES_texture_npot")) {
             powerOf2 = true;
         }
-
-
 
         applyRenderState(RenderState.DEFAULT);
 //        GLES20.glClearDepthf(1.0f);
