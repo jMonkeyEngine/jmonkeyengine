@@ -182,7 +182,7 @@ public class TextureAtlas {
             Texture2D tex = new Texture2D(new Image(format, atlasWidth, atlasHeight, BufferUtils.createByteBuffer(image)));
             tex.setMagFilter(Texture.MagFilter.Bilinear);
             tex.setMinFilter(Texture.MinFilter.BilinearNearestMipMap);
-            tex.setWrap(Texture.WrapMode.Repeat);
+            tex.setWrap(Texture.WrapMode.Clamp);
             return tex;
         }
         return null;
@@ -267,6 +267,12 @@ public class TextureAtlas {
             float h = (float) getHeight() / (float) atlasHeight;
             Vector2f location = new Vector2f(x, y);
             Vector2f scale = new Vector2f(w, h);
+//            if (previousLocation.x > 1) {
+//                previousLocation.x = previousLocation.x - (int) previousLocation.x;
+//            }
+//            if (previousLocation.y > 1) {
+//                previousLocation.y = previousLocation.y - (int) previousLocation.y;
+//            }
             return location.addLocal(previousLocation.multLocal(scale));
         }
 

@@ -1,5 +1,7 @@
 package jme3tools.optimize;
 
+import com.jme3.asset.AssetManager;
+import com.jme3.material.MatParamTexture;
 import com.jme3.material.Material;
 import com.jme3.math.Matrix4f;
 import com.jme3.math.Transform;
@@ -10,14 +12,21 @@ import com.jme3.scene.VertexBuffer.Format;
 import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.scene.VertexBuffer.Usage;
 import com.jme3.scene.mesh.IndexBuffer;
+import com.jme3.texture.Texture;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.IntMap.Entry;
+import com.jme3.util.TangentBinormalGenerator;
 import java.nio.Buffer;
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import jme3tools.optimize.TextureAtlas.TextureAtlasTile;
 
 public class GeometryBatchFactory {
+
+    private static final Logger logger = Logger.getLogger(GeometryBatchFactory.class.getName());
 
     private static void doTransformVerts(FloatBuffer inBuf, int offset, FloatBuffer outBuf, Matrix4f transform) {
         Vector3f pos = new Vector3f();
@@ -61,12 +70,24 @@ public class GeometryBatchFactory {
 
     /**
      * Merges all geometries in the collection into
-     * the output mesh. Does not take into account materials.
+     * the output mesh. Creates a new material using the TextureAtlas.
      * 
      * @param geometries
      * @param outMesh
      */
     public static void mergeGeometries(Collection<Geometry> geometries, Mesh outMesh) {
+        mergeGeometries(geometries, outMesh, null);
+    }
+
+    /**
+     * Merges all geometries in the collection into
+     * the output mesh. Creates a new material using the TextureAtlas.
+     * 
+     * @param geometries
+     * @param outMesh
+     * @param atlas the TextureAtlas to use
+     */
+    public static void mergeGeometries(Collection<Geometry> geometries, Mesh outMesh, TextureAtlas atlas) {
         int[] compsForBuf = new int[VertexBuffer.Type.values().length];
         Format[] formatForBuf = new Format[compsForBuf.length];
 
@@ -161,7 +182,7 @@ public class GeometryBatchFactory {
                 if (inBuf == null || outBuf == null) {
                     continue;
                 }
-                
+
                 if (Type.Index.ordinal() == bufType) {
                     int components = compsForBuf[bufType];
 
@@ -182,6 +203,20 @@ public class GeometryBatchFactory {
                     FloatBuffer inPos = (FloatBuffer) inBuf.getData();
                     FloatBuffer outPos = (FloatBuffer) outBuf.getData();
                     doTransformNorms(inPos, globalVertIndex, outPos, worldMatrix);
+                } else if (Type.TexCoord.ordinal() == bufType && atlas != null) {
+                    Texture tex = getMaterialTexture(geom, "DiffuseMap");
+                    if (tex == null) {
+                        tex = getMaterialTexture(geom, "ColorMap");
+
+                    }
+                    if (tex != null && tex.getKey() != null) {
+                        TextureAtlasTile tile = atlas.getAtlasTile(tex.getKey().getName());
+                        if (tile != null) {
+                            FloatBuffer inPos = (FloatBuffer) inBuf.getData();
+                            FloatBuffer outPos = (FloatBuffer) outBuf.getData();
+                            tile.transformTextureCoords(inPos, globalVertIndex, outPos);
+                        }
+                    }
                 } else {
                     for (int vert = 0; vert < geomVertCount; vert++) {
                         int curGlobalVertIndex = globalVertIndex + vert;
@@ -288,6 +323,76 @@ public class GeometryBatchFactory {
         return retVal;
     }
 
+    public static Geometry makeAtlasBatch(Spatial spat, AssetManager mgr, int atlasSize) {
+        List<Geometry> geometries = new ArrayList<Geometry>();
+        gatherGeoms(spat, geometries);
+        //TODO: specular etc. maps, needs to use main atlas for locations
+        TextureAtlas atlas = new TextureAtlas(atlasSize, atlasSize);
+        for (Geometry geometry : geometries) {
+            Texture diffuse = getMaterialTexture(geometry, "DiffuseMap");
+            Texture normal = getMaterialTexture(geometry, "NormalMap");
+            Texture specular = getMaterialTexture(geometry, "SpecularMap");
+            if (diffuse == null) {
+                diffuse = getMaterialTexture(geometry, "ColorMap");
+
+            }
+            if (diffuse != null && diffuse.getKey() != null) {
+                String keyName = diffuse.getKey().getName();
+                if (!atlas.addTexture(diffuse, "DiffuseMap")) {
+                    logger.log(Level.WARNING, "Adding diffuse texture {0} to atlas failed, atlas full?", keyName);
+                }
+                if (normal != null && normal.getKey() != null) {
+                    atlas.addTexture(diffuse, "NormalMap", keyName);
+                }
+                if (specular != null && specular.getKey() != null) {
+                    atlas.addTexture(specular, "SpecularMap", keyName);
+                }
+            }
+        }
+        Geometry geom = new Geometry();
+        Mesh mesh = new Mesh();
+        mergeGeometries(geometries, mesh, atlas);
+        TangentBinormalGenerator.generate(mesh);
+        mesh.updateCounts();
+        mesh.updateBound();
+        geom.setMesh(mesh);
+//        geom.setMesh(new Box(1,1,1));
+
+//        Material mat = new Material(mgr, "Common/MatDefs/Light/Lighting.j3md");
+//        Texture diffuseMap = atlas.getAtlasTexture("DiffuseMap");
+//        Texture normalMap = atlas.getAtlasTexture("NormalMap");
+//        Texture specularMap = atlas.getAtlasTexture("SpecularMap");
+//        if (diffuseMap != null) {
+//            mat.setTexture("DiffuseMap", diffuseMap);
+//        }
+//        if (normalMap != null) {
+//            mat.setTexture("NormalMap", normalMap);
+//        }
+//        if (specularMap != null) {
+//            mat.setTexture("SpecularMap", specularMap);
+//        }
+//        mat.setFloat("Shininess", 16.0f);
+        
+        Material mat = new Material(mgr, "Common/MatDefs/Misc/Unshaded.j3md");
+        mat.setTexture("ColorMap", atlas.getAtlasTexture("DiffuseMap"));
+        
+        geom.setMaterial(mat);
+        return geom;
+    }
+
+    private static Texture getMaterialTexture(Geometry geometry, String mapName) {
+        Material mat = geometry.getMaterial();
+        if (mat == null || mat.getParam(mapName) == null || !(mat.getParam(mapName) instanceof MatParamTexture)) {
+            return null;
+        }
+        MatParamTexture param = (MatParamTexture) mat.getParam(mapName);
+        Texture texture = param.getTextureValue();
+        if (texture == null) {
+            return null;
+        }
+        return texture;
+    }
+
     private static void gatherGeoms(Spatial scene, List<Geometry> geoms) {
         if (scene instanceof Node) {
             Node node = (Node) scene;
@@ -335,7 +440,7 @@ public class GeometryBatchFactory {
 
         // Since the scene is returned unaltered the transform must be reset
         scene.setLocalTransform(Transform.IDENTITY);
-        
+
         return scene;
     }
 
