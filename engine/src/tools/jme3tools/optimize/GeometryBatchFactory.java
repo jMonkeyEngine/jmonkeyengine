@@ -209,8 +209,8 @@ public class GeometryBatchFactory {
                         tex = getMaterialTexture(geom, "ColorMap");
 
                     }
-                    if (tex != null && tex.getKey() != null) {
-                        TextureAtlasTile tile = atlas.getAtlasTile(tex.getKey().getName());
+                    if (tex != null) {
+                        TextureAtlasTile tile = atlas.getAtlasTile(tex);
                         if (tile != null) {
                             FloatBuffer inPos = (FloatBuffer) inBuf.getData();
                             FloatBuffer outPos = (FloatBuffer) outBuf.getData();
@@ -356,25 +356,21 @@ public class GeometryBatchFactory {
         mesh.updateCounts();
         mesh.updateBound();
         geom.setMesh(mesh);
-//        geom.setMesh(new Box(1,1,1));
 
-//        Material mat = new Material(mgr, "Common/MatDefs/Light/Lighting.j3md");
-//        Texture diffuseMap = atlas.getAtlasTexture("DiffuseMap");
-//        Texture normalMap = atlas.getAtlasTexture("NormalMap");
-//        Texture specularMap = atlas.getAtlasTexture("SpecularMap");
-//        if (diffuseMap != null) {
-//            mat.setTexture("DiffuseMap", diffuseMap);
-//        }
-//        if (normalMap != null) {
-//            mat.setTexture("NormalMap", normalMap);
-//        }
-//        if (specularMap != null) {
-//            mat.setTexture("SpecularMap", specularMap);
-//        }
-//        mat.setFloat("Shininess", 16.0f);
-        
-        Material mat = new Material(mgr, "Common/MatDefs/Misc/Unshaded.j3md");
-        mat.setTexture("ColorMap", atlas.getAtlasTexture("DiffuseMap"));
+        Material mat = new Material(mgr, "Common/MatDefs/Light/Lighting.j3md");
+        Texture diffuseMap = atlas.getAtlasTexture("DiffuseMap");
+        Texture normalMap = atlas.getAtlasTexture("NormalMap");
+        Texture specularMap = atlas.getAtlasTexture("SpecularMap");
+        if (diffuseMap != null) {
+            mat.setTexture("DiffuseMap", diffuseMap);
+        }
+        if (normalMap != null) {
+            mat.setTexture("NormalMap", normalMap);
+        }
+        if (specularMap != null) {
+            mat.setTexture("SpecularMap", specularMap);
+        }
+        mat.setFloat("Shininess", 16.0f);
         
         geom.setMaterial(mat);
         return geom;

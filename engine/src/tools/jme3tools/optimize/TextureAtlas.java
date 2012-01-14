@@ -70,29 +70,57 @@ public class TextureAtlas {
     /**
      * Add a texture for a specific map name
      * @param texture A texture to add to the atlas
-     * @param mapName A freely chosen map name that can be later retrieved as a Texture. The first map name supplied will be the master texture.
+     * @param mapName A freely chosen map name that can be later retrieved as a Texture. The first map name supplied will be the master map.
      * @return 
      */
     public boolean addTexture(Texture texture, String mapName) {
-        return addTexture(texture, mapName, null);
+        return addTexture(texture, mapName, (String) null);
     }
 
     /**
-     * Add a texture for a specific map name at the location of another existing texture.
+     * Add a texture for a specific map name at the location of another existing texture (on the master map).
      * @param texture A texture to add to the atlas.
      * @param mapName A freely chosen map name that can be later retrieved as a Texture.
-     * @param sourceTextureName Name of the original texture location.
+     * @param sourceTexture The base texture for determining the location.
+     * @return 
+     */
+    public boolean addTexture(Texture texture, String mapName, Texture sourceTexture) {
+        String sourceTextureName = textureName(sourceTexture);
+        if (sourceTextureName == null) {
+            return false;
+        } else {
+            return addTexture(texture, mapName, sourceTextureName);
+        }
+    }
+
+    /**
+     * Add a texture for a specific map name at the location of another existing texture (on the master map).
+     * @param texture A texture to add to the atlas.
+     * @param mapName A freely chosen map name that can be later retrieved as a Texture.
+     * @param sourceTextureName Name of the base texture for the location.
      * @return 
      */
     public boolean addTexture(Texture texture, String mapName, String sourceTextureName) {
         if (texture == null) {
             return false;
         }
-        AssetKey key = texture.getKey();
-        if (texture.getImage() != null && key != null && key.getName() != null) {
-            return addImage(texture.getImage(), key.getName(), mapName, sourceTextureName);
+        String name = textureName(texture);
+        if (texture.getImage() != null && name != null) {
+            return addImage(texture.getImage(), name, mapName, sourceTextureName);
         } else {
             return false;
+        }
+    }
+
+    private String textureName(Texture texture) {
+        if (texture == null) {
+            return null;
+        }
+        AssetKey key = texture.getKey();
+        if (key != null) {
+            return key.getName();
+        } else {
+            return null;
         }
     }
 
@@ -169,10 +197,33 @@ public class TextureAtlas {
         }
     }
 
-    public TextureAtlasTile getAtlasTile(String assetName) {
+    /**
+     * Get the <code>TextureAtlasTile</code> for the given Texture
+     * @param texture The texture to retrieve the <code>TextureAtlasTile</code> for.
+     * @return 
+     */
+    public TextureAtlasTile getAtlasTile(Texture texture) {
+        String sourceTextureName = textureName(texture);
+        if (sourceTextureName != null) {
+            return getAtlasTile(sourceTextureName);
+        }
+        return null;
+    }
+
+    /**
+     * Get the <code>TextureAtlasTile</code> for the given Texture
+     * @param assetName The texture to retrieve the <code>TextureAtlasTile</code> for.
+     * @return 
+     */
+    private TextureAtlasTile getAtlasTile(String assetName) {
         return locationMap.get(assetName);
     }
 
+    /**
+     * Gets a new atlas texture for the given map name.
+     * @param mapName
+     * @return 
+     */
     public Texture getAtlasTexture(String mapName) {
         if (images == null) {
             return null;
@@ -260,6 +311,11 @@ public class TextureAtlas {
             this.height = height;
         }
 
+        /**
+         * Get the transformed texture location for a given input location
+         * @param previousLocation
+         * @return 
+         */
         public Vector2f getLocation(Vector2f previousLocation) {
             float x = (float) getX() / (float) atlasWidth;
             float y = (float) getY() / (float) atlasHeight;
@@ -267,15 +323,15 @@ public class TextureAtlas {
             float h = (float) getHeight() / (float) atlasHeight;
             Vector2f location = new Vector2f(x, y);
             Vector2f scale = new Vector2f(w, h);
-//            if (previousLocation.x > 1) {
-//                previousLocation.x = previousLocation.x - (int) previousLocation.x;
-//            }
-//            if (previousLocation.y > 1) {
-//                previousLocation.y = previousLocation.y - (int) previousLocation.y;
-//            }
             return location.addLocal(previousLocation.multLocal(scale));
         }
 
+        /**
+         * Transforms a whole texture coordinates buffer
+         * @param inBuf The input texture buffer
+         * @param offset The offset in the output buffer
+         * @param outBuf The output buffer
+         */
         public void transformTextureCoords(FloatBuffer inBuf, int offset, FloatBuffer outBuf) {
             Vector2f tex = new Vector2f();
 

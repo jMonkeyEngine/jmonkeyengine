@@ -58,12 +58,12 @@ public class TestTextureAtlas extends SimpleApplication {
         Geometry geom = GeometryBatchFactory.makeAtlasBatch(scene, assetManager, 4096);
         
         AmbientLight al = new AmbientLight();
-        scene.addLight(al);
+        rootNode.addLight(al);
 
         DirectionalLight sun = new DirectionalLight();
         sun.setDirection(new Vector3f(0.69077975f, -0.6277887f, -0.35875428f).normalizeLocal());
         sun.setColor(ColorRGBA.White.clone().multLocal(2));
-        scene.addLight(sun);
+        rootNode.addLight(sun);
 
         rootNode.attachChild(geom);
     }
