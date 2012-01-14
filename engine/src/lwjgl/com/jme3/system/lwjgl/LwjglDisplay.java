@@ -81,11 +81,15 @@ public class LwjglDisplay extends LwjglAbstractDisplay {
             displayMode = new DisplayMode(settings.getWidth(), settings.getHeight());
         }
 
+	   int samples = 0;
+        if (settings.getSamples() > 1){
+            samples = settings.getSamples();
+        }
         PixelFormat pf = new PixelFormat(settings.getBitsPerPixel(),
                                          0,
                                          settings.getDepthBits(),
                                          settings.getStencilBits(),
-                                         settings.getSamples());
+                                         samples);
 
         frameRate = settings.getFrameRate();
         logger.log(Level.INFO, "Selected display mode: {0}", displayMode);

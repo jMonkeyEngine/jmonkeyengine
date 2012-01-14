@@ -1,4 +1,4 @@
-/*
+F/*
  * Copyright (c) 2009-2010 jMonkeyEngine
  * All rights reserved.
  *
@@ -307,11 +307,15 @@ public class LwjglCanvas extends LwjglAbstractDisplay implements JmeCanvasContex
             return pbufferFormat;
         }else{
             if (canvasFormat == null){
+			int samples = 0;
+		      if (settings.getSamples() > 1){
+                    samples = settings.getSamples();
+                }
                 canvasFormat = new PixelFormat(settings.getBitsPerPixel(),
                                                0,
                                                settings.getDepthBits(),
                                                settings.getStencilBits(),
-                                               settings.getSamples());
+                                               samples);
             }
             return canvasFormat;
         }
