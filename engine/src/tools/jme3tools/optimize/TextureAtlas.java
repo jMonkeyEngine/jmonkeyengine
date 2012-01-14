@@ -150,8 +150,20 @@ public class TextureAtlas {
                     image[i + 1] = sourceData.get(j); //b
                     image[i + 2] = sourceData.get(j + 1); //g
                     image[i + 3] = sourceData.get(j + 2); //r
+                } else if (source.getFormat() == Format.RGB8) {
+                    int j = (xPos + yPos * width) * 3;
+                    image[i] = 0; //b
+                    image[i + 1] = sourceData.get(j + 2); //b
+                    image[i + 2] = sourceData.get(j + 1); //g
+                    image[i + 3] = sourceData.get(j); //r
+                } else if (source.getFormat() == Format.RGBA8) {
+                    int j = (xPos + yPos * width) * 4;
+                    image[i] = sourceData.get(j + 3); //a
+                    image[i + 1] = sourceData.get(j + 2); //b
+                    image[i + 2] = sourceData.get(j + 1); //g
+                    image[i + 3] = sourceData.get(j); //r
                 } else {
-                    logger.log(Level.WARNING, "Could not draw texture {0} ", mapName);
+                    logger.log(Level.WARNING, "Could not draw texture with format {0}", source.getFormat());
                 }
             }
         }
