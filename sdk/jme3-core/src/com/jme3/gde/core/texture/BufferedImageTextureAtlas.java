@@ -47,14 +47,14 @@ import org.openide.util.Exceptions;
  *
  * @author Lukasz Bruun - lukasz.dk, normenhansen
  */
-public class TextureAtlas {
+public class BufferedImageTextureAtlas {
 
     private BufferedImage image;
     private Graphics2D graphics;
     private Node root;
     private Map<String, Rectangle> rectangleMap;
 
-    public TextureAtlas(int width, int height) {
+    public BufferedImageTextureAtlas(int width, int height) {
         image = new BufferedImage(width, height, BufferedImage.TYPE_4BYTE_ABGR);
         graphics = image.createGraphics();
 
