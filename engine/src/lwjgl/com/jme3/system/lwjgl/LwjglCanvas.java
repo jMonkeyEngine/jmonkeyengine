@@ -1,4 +1,4 @@
-F/*
+/*
  * Copyright (c) 2009-2010 jMonkeyEngine
  * All rights reserved.
  *
