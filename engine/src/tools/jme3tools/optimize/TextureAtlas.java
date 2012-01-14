@@ -39,6 +39,7 @@ import com.jme3.texture.Texture;
 import com.jme3.texture.Texture2D;
 import com.jme3.util.BufferUtils;
 import java.nio.ByteBuffer;
+import java.nio.FloatBuffer;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
@@ -53,22 +54,17 @@ public class TextureAtlas {
 
     private static final Logger logger = Logger.getLogger(TextureAtlas.class.getName());
     private Map<String, byte[]> images;
-    private int width, height;
-    private Format format;
+    private int atlasWidth, atlasHeight;
+    private Format format = Format.ABGR8;
     private Node root;
-    private Map<String, TextureLocation> locationMap;
+    private Map<String, TextureAtlasTile> locationMap;
     private String rootMapName;
 
     public TextureAtlas(int width, int height) {
-        this(Format.ABGR8, width, height);
-    }
-
-    public TextureAtlas(Format format, int width, int height) {
-        this.format = format;
-        this.width = width;
-        this.height = height;
+        this.atlasWidth = width;
+        this.atlasHeight = height;
         root = new Node(0, 0, width, height);
-        locationMap = new TreeMap<String, TextureLocation>();
+        locationMap = new TreeMap<String, TextureAtlasTile>();
     }
 
     /**
@@ -107,7 +103,7 @@ public class TextureAtlas {
         if (sourceTextureName == null && !rootMapName.equals(mapName)) {
             throw new IllegalStateException("Cannot add texture to new map without source texture");
         }
-        TextureLocation location;
+        TextureAtlasTile location;
         if (sourceTextureName == null) {
             Node node = root.insert(image);
             if (node == null) {
@@ -133,7 +129,7 @@ public class TextureAtlas {
         }
         byte[] image = images.get(mapName);
         if (image == null) {
-            image = new byte[width * height * 4];
+            image = new byte[atlasWidth * atlasHeight * 4];
             images.put(mapName, image);
         }
         ByteBuffer sourceData = source.getData(0);
@@ -141,7 +137,7 @@ public class TextureAtlas {
         int width = source.getWidth();
         for (int yPos = 0; yPos < height; yPos++) {
             for (int xPos = 0; xPos < width; xPos++) {
-                int i = ((xPos + x) + (yPos + y) * this.width) * 4;
+                int i = ((xPos + x) + (yPos + y) * atlasWidth) * 4;
                 if (source.getFormat() == Format.ABGR8) {
                     int j = (xPos + yPos * width) * 4;
                     image[i] = sourceData.get(j); //a
@@ -154,14 +150,14 @@ public class TextureAtlas {
                     image[i + 1] = sourceData.get(j); //b
                     image[i + 2] = sourceData.get(j + 1); //g
                     image[i + 3] = sourceData.get(j + 2); //r
-                }else{
+                } else {
                     logger.log(Level.WARNING, "Could not draw texture {0} ", mapName);
                 }
             }
         }
     }
 
-    public TextureLocation getTextureLocation(String assetName) {
+    public TextureAtlasTile getAtlasTile(String assetName) {
         return locationMap.get(assetName);
     }
 
@@ -171,19 +167,23 @@ public class TextureAtlas {
         }
         byte[] image = images.get(mapName);
         if (image != null) {
-            return new Texture2D(new Image(format, width, height, BufferUtils.createByteBuffer(image)));
+            Texture2D tex = new Texture2D(new Image(format, atlasWidth, atlasHeight, BufferUtils.createByteBuffer(image)));
+            tex.setMagFilter(Texture.MagFilter.Bilinear);
+            tex.setMinFilter(Texture.MinFilter.BilinearNearestMipMap);
+            tex.setWrap(Texture.WrapMode.Repeat);
+            return tex;
         }
         return null;
     }
 
-    private static class Node {
+    private class Node {
 
-        public TextureLocation location;
+        public TextureAtlasTile location;
         public Node child[];
         public Image image;
 
         public Node(int x, int y, int width, int height) {
-            location = new TextureLocation(x, y, width, height);
+            location = new TextureAtlasTile(x, y, width, height);
             child = new Node[2];
             child[0] = null;
             child[1] = null;
@@ -234,14 +234,14 @@ public class TextureAtlas {
         }
     }
 
-    public static class TextureLocation {
+    public class TextureAtlasTile {
 
         private int x;
         private int y;
         private int width;
         private int height;
 
-        public TextureLocation(int x, int y, int width, int height) {
+        public TextureAtlasTile(int x, int y, int width, int height) {
             this.x = x;
             this.y = y;
             this.width = width;
@@ -249,13 +249,29 @@ public class TextureAtlas {
         }
 
         public Vector2f getLocation(Vector2f previousLocation) {
-            float x = (float) getX() / (float) width;
-            float y = (float) getY() / (float) height;
-            float w = (float) getWidth() / (float) width;
-            float h = (float) getHeight() / (float) height;
+            float x = (float) getX() / (float) atlasWidth;
+            float y = (float) getY() / (float) atlasHeight;
+            float w = (float) getWidth() / (float) atlasWidth;
+            float h = (float) getHeight() / (float) atlasHeight;
             Vector2f location = new Vector2f(x, y);
             Vector2f scale = new Vector2f(w, h);
-            return location.add(previousLocation.multLocal(scale));
+            return location.addLocal(previousLocation.multLocal(scale));
+        }
+
+        public void transformTextureCoords(FloatBuffer inBuf, int offset, FloatBuffer outBuf) {
+            Vector2f tex = new Vector2f();
+
+            // offset is given in element units
+            // convert to be in component units
+            offset *= 2;
+
+            for (int i = 0; i < inBuf.capacity() / 2; i++) {
+                tex.x = inBuf.get(i * 2 + 0);
+                tex.y = inBuf.get(i * 2 + 1);
+                Vector2f outLoc = getLocation(tex);
+                outBuf.put(offset + i * 2 + 0, outLoc.x);
+                outBuf.put(offset + i * 2 + 1, outLoc.y);
+            }
         }
 
         public int getX() {
