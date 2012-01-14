@@ -284,9 +284,9 @@ public class FrameBuffer extends NativeObject {
      */
     public void setTargetIndex(int index){
         if (index < 0 || index >= 16)
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("Target index must be between 0 and 16");
 
-        if (colorBufs.size() >= index)
+        if (colorBufs.size() < index)
             throw new IllegalArgumentException("The target at " + index + " is not set!");
 
         colorBufIndex = index;
