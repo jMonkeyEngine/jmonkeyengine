@@ -137,7 +137,7 @@ public class TextureAtlas {
             rootMapName = mapName;
         }
         if (sourceTextureName == null && !rootMapName.equals(mapName)) {
-            throw new IllegalStateException("Cannot add texture to new map without source texture");
+            throw new IllegalStateException("Cannot add texture " + name + " to new map without source texture.");
         }
         TextureAtlasTile location = locationMap.get(name);
         if (location != null) {
@@ -152,7 +152,9 @@ public class TextureAtlas {
         } else {
             location = locationMap.get(sourceTextureName);
             if (location == null) {
-                throw new IllegalStateException("Cannot find location for source texture");
+                throw new IllegalStateException("Cannot find source texture for " + name + ".");
+            } else if (location.width != image.getWidth() || location.height != image.getHeight()) {
+                throw new IllegalStateException("Secondary texture " + name + " does not fit main texture size.");
             }
         }
         locationMap.put(name, location);
