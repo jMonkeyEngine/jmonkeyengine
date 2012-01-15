@@ -301,6 +301,18 @@ public class TextureAtlas {
                     image[i + 1] = sourceData.get(j + 2); //b
                     image[i + 2] = sourceData.get(j + 1); //g
                     image[i + 3] = sourceData.get(j); //r
+                } else if (source.getFormat() == Format.Luminance8) {
+                    int j = (xPos + yPos * width) * 1;
+                    image[i] = 1; //a
+                    image[i + 1] = sourceData.get(j); //b
+                    image[i + 2] = sourceData.get(j); //g
+                    image[i + 3] = sourceData.get(j); //r
+                }  else if (source.getFormat() == Format.Luminance8Alpha8) {
+                    int j = (xPos + yPos * width) * 2;
+                    image[i] = sourceData.get(j + 1); //a
+                    image[i + 1] = sourceData.get(j); //b
+                    image[i + 2] = sourceData.get(j); //g
+                    image[i + 3] = sourceData.get(j); //r
                 } else {
                     throw new UnsupportedOperationException("Cannot draw textures with format " + source.getFormat());
                 }
