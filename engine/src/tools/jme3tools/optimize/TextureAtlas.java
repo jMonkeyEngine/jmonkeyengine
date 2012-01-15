@@ -43,8 +43,6 @@ import java.nio.FloatBuffer;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -52,7 +50,6 @@ import java.util.logging.Logger;
  */
 public class TextureAtlas {
 
-    private static final Logger logger = Logger.getLogger(TextureAtlas.class.getName());
     private Map<String, byte[]> images;
     private int atlasWidth, atlasHeight;
     private Format format = Format.ABGR8;
@@ -203,7 +200,7 @@ public class TextureAtlas {
                     image[i + 2] = sourceData.get(j + 1); //g
                     image[i + 3] = sourceData.get(j); //r
                 } else {
-                    logger.log(Level.WARNING, "Could not draw texture with format {0}", source.getFormat());
+                    throw new UnsupportedOperationException("Could not draw texture with format " + source.getFormat());
                 }
             }
         }
@@ -336,19 +333,6 @@ public class TextureAtlas {
             Vector2f location = new Vector2f(x, y);
             float prevX = previousLocation.x;
             float prevY = previousLocation.y;
-            //TODO: remove workaround for texture wrap
-            if (prevX > 1) {
-                prevX = 1;
-            }
-            if (prevY > 1) {
-                prevY = 1;
-            }
-            if (prevX < 0) {
-                prevX = 0;
-            }
-            if (prevY < 0) {
-                prevY = 0;
-            }
             location.addLocal(prevX * w, prevY * h);
             return location;
         }
