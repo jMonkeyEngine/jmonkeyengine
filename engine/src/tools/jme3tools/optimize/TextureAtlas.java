@@ -53,6 +53,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -60,6 +62,7 @@ import java.util.TreeMap;
  */
 public class TextureAtlas {
 
+    private static final Logger logger = Logger.getLogger(TextureAtlas.class.getName());
     private Map<String, byte[]> images;
     private int atlasWidth, atlasHeight;
     private Format format = Format.ABGR8;
@@ -348,7 +351,10 @@ public class TextureAtlas {
         GeometryBatchFactory.gatherGeoms(root, geometries);
         TextureAtlas atlas = new TextureAtlas(atlasSize, atlasSize);
         for (Geometry geometry : geometries) {
-            atlas.addGeometry(geometry);
+            if(!atlas.addGeometry(geometry)){
+                logger.log(Level.WARNING, "Texture atlas size too small, cannot add all textures");
+                return null;
+            }
         }
         return atlas;
     }
