@@ -57,7 +57,46 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
+ * <b><code>TextureAtlas</code></b> allows combining multiple textures to one texture atlas.
+ * <p>After the TextureAtlas has been created with a certain size, textures can be added for
+ * freely chosen "map names". The textures are automatically placed on the atlas map and the
+ * image data is stored in a byte array for each map name. Later each map can be retrieved as
+ * a Texture to be used further in materials.</p>
+ * <p>The texture asset key name for each tile as well as its location inside the atlas is stored
+ * and a texture with an existing key name is not added more than once to the atlas. You can access
+ * the information for each texture or geometries texture via helper methods.</p>
+ * <p>For each texture name you can also adapt a set of texture coordinates of a mesh or geometry
+ * to point at the new locations of the texture inside the atlas if the geometries texture
+ * exists inside the atlas.</p>
+ * <p>Note that models that use texture coordinates out of the 0-1 range (repeating/wrapping textures)
+ * will not work correctly as their new coordinates leak into other parts of the atlas and thus display
+ * other textures instead of repeating the texture.</p>
+ * 
+ * <p><b>Usage examples</b></p>
+ * Create one geometry out of several geometries that are loaded from a j3o file:
+ * <pre>
+ * Node scene = assetManager.loadModel("Scenes/MyScene.j3o");
+ * Geometry geom = TextureAtlas.makeAtlasBatch(scene);
+ * rootNode.attachChild(geom);
+ * </pre>
+ * Create a texture atlas and change the texture coordinates of one geometry:
+ * <pre>
+ * Node scene = assetManager.loadModel("Scenes/MyScene.j3o");
+ * //either auto-create from node:
+ * TextureAtlas atlas = TextureAtlas.createAtlas(scene);
+ * //or create manually by adding textures or geometries with textures
+ * TextureAtlas atlas = new TextureAtlas(1024,1024);
+ * atlas.addTexture(myTexture, "DiffuseMap");
+ * atlas.addGeometry(myGeometry);
+ * //create material and set texture
+ * Material mat = new Material(mgr, "Common/MatDefs/Light/Lighting.j3md");
+ * mat.setTexture("DiffuseMap", atlas.getAtlasTexture("DiffuseMap"));
+ * //change one geometry to use atlas, apply texture coordinates and replace material.
+ * Geometry geom = scene.getChild("MyGeometry");
+ * atlas.applyCoords(geom);
+ * geom.setMaterial(mat);
+ * </pre></
+ * 
  * @author normenhansen, Lukasz Bruun - lukasz.dk
  */
 public class TextureAtlas {
@@ -115,13 +154,13 @@ public class TextureAtlas {
      */
     public boolean addTexture(Texture texture, String mapName) {
         if (texture == null) {
-            throw new IllegalStateException("Texture cannot be null");
+            throw new IllegalStateException("Texture cannot be null!");
         }
         String name = textureName(texture);
         if (texture.getImage() != null && name != null) {
             return addImage(texture.getImage(), name, mapName, null);
         } else {
-            throw new IllegalStateException("Texture has no asset name");
+            throw new IllegalStateException("Texture has no asset key name!");
         }
     }
 
@@ -135,7 +174,7 @@ public class TextureAtlas {
     public void addTexture(Texture texture, String mapName, Texture masterTexture) {
         String sourceTextureName = textureName(masterTexture);
         if (sourceTextureName == null) {
-            throw new IllegalStateException("Master texture has no asset name");
+            throw new IllegalStateException("Supplied master map texture has no asset key name!");
         } else {
             addTexture(texture, mapName, sourceTextureName);
         }
@@ -149,13 +188,13 @@ public class TextureAtlas {
      */
     public void addTexture(Texture texture, String mapName, String sourceTextureName) {
         if (texture == null) {
-            throw new IllegalStateException("Texture cannot be null");
+            throw new IllegalStateException("Texture cannot be null!");
         }
         String name = textureName(texture);
         if (texture.getImage() != null && name != null) {
             addImage(texture.getImage(), name, mapName, sourceTextureName);
         } else {
-            throw new IllegalStateException("Texture has no asset name");
+            throw new IllegalStateException("Texture has no asset key name!");
         }
     }
 
@@ -176,7 +215,8 @@ public class TextureAtlas {
             rootMapName = mapName;
         }
         if (sourceTextureName == null && !rootMapName.equals(mapName)) {
-            throw new IllegalStateException("Cannot add texture " + name + " to new map without source texture.");
+            throw new IllegalStateException("Atlas already has a master map called " + rootMapName + "."
+                    + " Textures for new maps have to use a texture from the master map for their location.");
         }
         TextureAtlasTile location = locationMap.get(name);
         if (location != null) {
@@ -191,9 +231,9 @@ public class TextureAtlas {
         } else {
             location = locationMap.get(sourceTextureName);
             if (location == null) {
-                throw new IllegalStateException("Cannot find source texture for " + name + ".");
+                throw new IllegalStateException("Cannot find master map texture for " + name + ".");
             } else if (location.width != image.getWidth() || location.height != image.getHeight()) {
-                throw new IllegalStateException("Secondary texture " + name + " does not fit main texture size.");
+                throw new IllegalStateException(mapName + " " + name + " does not fit " + rootMapName + " tile size. Make sure all textures (diffuse, normal, specular) for one model are the same size.");
             }
         }
         locationMap.put(name, location);
@@ -242,7 +282,7 @@ public class TextureAtlas {
                     image[i + 2] = sourceData.get(j + 1); //g
                     image[i + 3] = sourceData.get(j); //r
                 } else {
-                    throw new UnsupportedOperationException("Could not draw texture with format " + source.getFormat());
+                    throw new UnsupportedOperationException("Cannot draw textures with format " + source.getFormat());
                 }
             }
         }
@@ -350,7 +390,7 @@ public class TextureAtlas {
         GeometryBatchFactory.gatherGeoms(root, geometries);
         TextureAtlas atlas = new TextureAtlas(atlasSize, atlasSize);
         for (Geometry geometry : geometries) {
-            if(!atlas.addGeometry(geometry)){
+            if (!atlas.addGeometry(geometry)) {
                 logger.log(Level.WARNING, "Texture atlas size too small, cannot add all textures");
                 return null;
             }
