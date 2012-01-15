@@ -62,15 +62,25 @@ import java.util.logging.Logger;
  * freely chosen "map names". The textures are automatically placed on the atlas map and the
  * image data is stored in a byte array for each map name. Later each map can be retrieved as
  * a Texture to be used further in materials.</p>
+ * <p>The first map name used is the "master map" that defines a new location on the atlas. Secondary
+ * textures (other map names) have to reference one texture of the master map whose position is used
+ * to position the texture on the secondary map. This is necessary as textures share texture coordinates
+ * and thus need to be placed at the same location on both maps.<br/>
+ * The helper methods that work with geometries handle the DiffuseMap or ColorMap as the master map and
+ * additionally handle NormalMap and SpecularMap as secondary maps.</p>
  * <p>The texture asset key name for each tile as well as its location inside the atlas is stored
- * and a texture with an existing key name is not added more than once to the atlas. You can access
- * the information for each texture or geometries texture via helper methods.</p>
- * <p>For each texture name you can also adapt a set of texture coordinates of a mesh or geometry
+ * and a texture with an existing key name is never added more than once to the atlas. You can access
+ * the information for each texture or geometry texture via helper methods.</p>
+ * <p>For each texture name you can also change the texture coordinates of a mesh or geometry
  * to point at the new locations of the texture inside the atlas if the geometries texture
  * exists inside the atlas.</p>
- * <p>Note that models that use texture coordinates out of the 0-1 range (repeating/wrapping textures)
+ * <p>Note that models that use texture coordinates outside the 0-1 range (repeating/wrapping textures)
  * will not work correctly as their new coordinates leak into other parts of the atlas and thus display
  * other textures instead of repeating the texture.</p>
+ * <p>Also note that textures are not scaled and the atlas needs to be large enough to hold all textures.
+ * All methods that allow adding textures return false if the texture could not be added due to the
+ * atlas being full. Furthermore secondary textures (normal, spcular maps etc. have to be the same size
+ * as the main DiffuseMap texture.</p>
  * 
  * <p><b>Usage examples</b></p>
  * Create one geometry out of several geometries that are loaded from a j3o file:
@@ -107,6 +117,7 @@ public class TextureAtlas {
     private Format format = Format.ABGR8;
     private Node root;
     private Map<String, TextureAtlasTile> locationMap;
+    private Map<String, String> mapNameMap;
     private String rootMapName;
 
     public TextureAtlas(int width, int height) {
@@ -114,6 +125,7 @@ public class TextureAtlas {
         this.atlasHeight = height;
         root = new Node(0, 0, width, height);
         locationMap = new TreeMap<String, TextureAtlasTile>();
+        mapNameMap = new HashMap<String, String>();
     }
 
     /**
@@ -219,15 +231,23 @@ public class TextureAtlas {
         }
         TextureAtlasTile location = locationMap.get(name);
         if (location != null) {
-            locationMap.put(name, location);
-            return true;
+            //have location for texture
+            if (!mapName.equals(mapNameMap.get(name))) {
+                logger.log(Level.WARNING, "Same texture " + name + " is used in different maps! (" + mapName + " and " + mapNameMap.get(name) + "). Location will be based on location in " + mapNameMap.get(name) + "!");
+                drawImage(image, location.getX(), location.getY(), mapName);
+                return true;
+            } else {
+                return true;
+            }
         } else if (sourceTextureName == null) {
+            //need to make new tile
             Node node = root.insert(image);
             if (node == null) {
                 return false;
             }
             location = node.location;
         } else {
+            //got old tile to align to
             location = locationMap.get(sourceTextureName);
             if (location == null) {
                 throw new IllegalStateException("Cannot find master map texture for " + name + ".");
@@ -235,6 +255,7 @@ public class TextureAtlas {
                 throw new IllegalStateException(mapName + " " + name + " does not fit " + rootMapName + " tile size. Make sure all textures (diffuse, normal, specular) for one model are the same size.");
             }
         }
+        mapNameMap.put(name, mapName);
         locationMap.put(name, location);
         drawImage(image, location.getX(), location.getY(), mapName);
         return true;
