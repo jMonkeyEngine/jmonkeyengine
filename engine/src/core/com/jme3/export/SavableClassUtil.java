@@ -124,15 +124,21 @@ public class SavableClassUtil {
     public static int getSavedSavableVersion(Object savable, Class<? extends Savable> desiredClass, int[] versions){
         Class thisClass = savable.getClass();
         int count = 0;
-        while (thisClass != null && thisClass != desiredClass){
+        
+        while (true) {
             thisClass = thisClass.getSuperclass();
-            count ++;
+            if (thisClass != null && SavableClassUtil.isImplementingSavable(thisClass)){
+                count ++;
+            }else{
+                break;
+            }
         }
+
         if (thisClass == null){
             throw new IllegalArgumentException(savable.getClass().getName() + 
                                                " does not extend " + 
                                                desiredClass.getName() + "!");
-        }else if (count > versions.length){
+        }else if (count >= versions.length){
             throw new IllegalArgumentException(savable.getClass().getName() + 
                                                " cannot access version of " +
                                                desiredClass.getName() + 
