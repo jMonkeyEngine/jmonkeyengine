@@ -40,7 +40,7 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Quad;
-import jme3tools.optimize.GeometryBatchFactory;
+import jme3tools.optimize.TextureAtlas;
 
 public class TestTextureAtlas extends SimpleApplication {
 
@@ -69,7 +69,7 @@ public class TestTextureAtlas extends SimpleApplication {
         scene.attachChild(obj4);
         scene.attachChild(obj5);
 
-        Geometry geom = GeometryBatchFactory.makeAtlasBatch(scene, assetManager, 2048);
+        Geometry geom = TextureAtlas.makeAtlasBatch(scene, assetManager, 2048);
 
         AmbientLight al = new AmbientLight();
         rootNode.addLight(al);
