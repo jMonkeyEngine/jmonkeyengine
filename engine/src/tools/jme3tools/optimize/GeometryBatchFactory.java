@@ -364,7 +364,6 @@ public class GeometryBatchFactory {
             mat.setTexture("DiffuseMap", diffuseMap);
         }
         if (normalMap != null) {
-            TangentBinormalGenerator.generate(mesh);
             mat.setTexture("NormalMap", normalMap);
         }
         if (specularMap != null) {
