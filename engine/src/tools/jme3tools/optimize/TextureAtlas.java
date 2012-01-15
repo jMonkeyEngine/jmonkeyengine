@@ -35,14 +35,12 @@ import com.jme3.asset.AssetKey;
 import com.jme3.asset.AssetManager;
 import com.jme3.material.MatParamTexture;
 import com.jme3.material.Material;
-import com.jme3.math.Matrix4f;
 import com.jme3.math.Vector2f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.VertexBuffer.Type;
-import com.jme3.scene.mesh.IndexBuffer;
 import com.jme3.texture.Image;
 import com.jme3.texture.Image.Format;
 import com.jme3.texture.Texture;
@@ -261,17 +259,63 @@ public class TextureAtlas {
     }
 
     /**
-     * Creates one geometry out of the given root spatial and merges all single
-     * textures into one texture of the given size.
-     * @param spat The root spatial of the scene to batch
-     * @param mgr An assetmanager that can be used to create the material
-     * @param atlasSize A size for the atlas texture, it has to be large enough to hold all single textures
-     * @return 
+     * Applies the texture coordinates to the given geometry
+     * if its DiffuseMap or ColorMap exists in the atlas.
+     * @param geom The geometry to change the texture coordinate buffer on.
+     * @return true if texture has been found and coords have been changed, false otherwise
      */
-    public static Geometry makeAtlasBatch(Spatial spat, AssetManager mgr, int atlasSize) {
+    public boolean applyCoords(Geometry geom) {
+        return applyCoords(geom, 0, geom.getMesh());
+    }
+
+    /**
+     * Applies the texture coordinates to the given geometry
+     * if its DiffuseMap or ColorMap exists in the atlas.
+     * @param geom The geometry to change the texture coordinate buffer on.
+     * @param offset Target buffer offset
+     * @param outMesh The mesh to set the coords in (can be same as input)
+     * @return true if texture has been found and coords have been changed, false otherwise
+     */
+    public boolean applyCoords(Geometry geom, int offset, Mesh outMesh) {
+        Mesh inMesh = geom.getMesh();
+        geom.computeWorldMatrix();
+
+        VertexBuffer inBuf = inMesh.getBuffer(Type.TexCoord);
+        VertexBuffer outBuf = outMesh.getBuffer(Type.TexCoord);
+
+        if (inBuf == null || outBuf == null) {
+            throw new IllegalStateException("Geometry mesh has no texture coordinate buffer.");
+        }
+
+        Texture tex = getMaterialTexture(geom, "DiffuseMap");
+        if (tex == null) {
+            tex = getMaterialTexture(geom, "ColorMap");
+
+        }
+        if (tex != null) {
+            TextureAtlasTile tile = getAtlasTile(tex);
+            if (tile != null) {
+                FloatBuffer inPos = (FloatBuffer) inBuf.getData();
+                FloatBuffer outPos = (FloatBuffer) outBuf.getData();
+                tile.transformTextureCoords(inPos, offset, outPos);
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            throw new IllegalStateException("Geometry has no proper texture.");
+        }
+    }
+
+    /**
+     * Create a texture atlas for the given root node, containing DiffuseMap, NormalMap and SpecularMap.
+     * @param root The rootNode to create the atlas for
+     * @param atlasSize The size of the atlas (width and height)
+     * @return Null if the atlas cannot be created because not all textures fit
+     */
+    public static TextureAtlas createAtlas(Spatial root, int atlasSize) {
         List<Geometry> geometries = new ArrayList<Geometry>();
-        GeometryBatchFactory.gatherGeoms(spat, geometries);
-        //TODO: specular etc. maps, needs to use main atlas for locations
+        GeometryBatchFactory.gatherGeoms(root, geometries);
         TextureAtlas atlas = new TextureAtlas(atlasSize, atlasSize);
         for (Geometry geometry : geometries) {
             Texture diffuse = getMaterialTexture(geometry, "DiffuseMap");
@@ -284,7 +328,7 @@ public class TextureAtlas {
             if (diffuse != null && diffuse.getKey() != null) {
                 String keyName = diffuse.getKey().getName();
                 if (!atlas.addTexture(diffuse, "DiffuseMap")) {
-                    throw new IllegalStateException("Adding diffuse texture" + keyName + "to atlas failed, atlas full.");
+                    return null;
                 } else {
                     if (normal != null && normal.getKey() != null) {
                         atlas.addTexture(diffuse, "NormalMap", keyName);
@@ -294,6 +338,24 @@ public class TextureAtlas {
                     }
                 }
             }
+        }
+        return atlas;
+    }
+
+    /**
+     * Creates one geometry out of the given root spatial and merges all single
+     * textures into one texture of the given size.
+     * @param spat The root spatial of the scene to batch
+     * @param mgr An assetmanager that can be used to create the material
+     * @param atlasSize A size for the atlas texture, it has to be large enough to hold all single textures
+     * @return A new geometry that uses the generated texture atlas and merges all meshes of the root spatial, null if the atlas cannot be created because not all textures fit
+     */
+    public static Geometry makeAtlasBatch(Spatial spat, AssetManager mgr, int atlasSize) {
+        List<Geometry> geometries = new ArrayList<Geometry>();
+        GeometryBatchFactory.gatherGeoms(spat, geometries);
+        TextureAtlas atlas = createAtlas(spat, atlasSize);
+        if (atlas == null) {
+            return null;
         }
         Geometry geom = new Geometry();
         Mesh mesh = new Mesh();
@@ -339,19 +401,7 @@ public class TextureAtlas {
                 continue;
             }
 
-            Texture tex = getMaterialTexture(geom, "DiffuseMap");
-            if (tex == null) {
-                tex = getMaterialTexture(geom, "ColorMap");
-
-            }
-            if (tex != null) {
-                TextureAtlasTile tile = atlas.getAtlasTile(tex);
-                if (tile != null) {
-                    FloatBuffer inPos = (FloatBuffer) inBuf.getData();
-                    FloatBuffer outPos = (FloatBuffer) outBuf.getData();
-                    tile.transformTextureCoords(inPos, globalVertIndex, outPos);
-                }
-            }
+            atlas.applyCoords(geom, globalVertIndex, outMesh);
 
             globalVertIndex += geomVertCount;
         }
