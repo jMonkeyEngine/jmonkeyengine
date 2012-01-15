@@ -169,7 +169,6 @@ public class TextureAtlas {
      * @param texture A texture to add to the atlas.
      * @param mapName A freely chosen map name that can be later retrieved as a Texture.
      * @param masterTexture The master texture for determining the location, it has to exist in tha master map.
-     * @return false if the atlas is full
      */
     public void addTexture(Texture texture, String mapName, Texture masterTexture) {
         String sourceTextureName = textureName(masterTexture);
@@ -551,9 +550,9 @@ public class TextureAtlas {
         }
 
         /**
-         * Get the transformed texture location for a given input location.
-         * @param previousLocation.
-         * @return 
+         * Get the transformed texture coordinate for a given input location.
+         * @param previousLocation The old texture coordinate.
+         * @return The new texture coordinate inside the atlas.
          */
         public Vector2f getLocation(Vector2f previousLocation) {
             float x = (float) getX() / (float) atlasWidth;
