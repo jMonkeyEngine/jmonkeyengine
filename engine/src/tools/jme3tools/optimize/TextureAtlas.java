@@ -269,8 +269,8 @@ public class TextureAtlas {
     }
 
     /**
-     * Applies the texture coordinates to the given geometry
-     * if its DiffuseMap or ColorMap exists in the atlas.
+     * Applies the texture coordinates to the given output mesh
+     * if the DiffuseMap or ColorMap of the input geometry exist in the atlas.
      * @param geom The geometry to change the texture coordinate buffer on.
      * @param offset Target buffer offset
      * @param outMesh The mesh to set the coords in (can be same as input)
