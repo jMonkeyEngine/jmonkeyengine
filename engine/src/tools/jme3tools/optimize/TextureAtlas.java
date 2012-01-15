@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2009-2010 jMonkeyEngine
+ *  Copyright (c) 2009-2012 jMonkeyEngine
  *  All rights reserved.
  * 
  *  Redistribution and use in source and binary forms, with or without
@@ -58,7 +58,7 @@ import java.util.logging.Logger;
 
 /**
  *
- * @author Lukasz Bruun - lukasz.dk, normenhansen
+ * @author normenhansen, Lukasz Bruun - lukasz.dk
  */
 public class TextureAtlas {
 
@@ -78,9 +78,9 @@ public class TextureAtlas {
     }
 
     /**
-     * Add a geometries DiffuseMap (or ColorMap), NormalMap and SpecularMap to the atlas
+     * Add a geometries DiffuseMap (or ColorMap), NormalMap and SpecularMap to the atlas.
      * @param geometry
-     * @return false if the atlas is full
+     * @return false if the atlas is full.
      */
     public boolean addGeometry(Geometry geometry) {
         Texture diffuse = getMaterialTexture(geometry, "DiffuseMap");
@@ -109,9 +109,9 @@ public class TextureAtlas {
 
     /**
      * Add a texture for a specific map name
-     * @param texture A texture to add to the atlas
+     * @param texture A texture to add to the atlas.
      * @param mapName A freely chosen map name that can be later retrieved as a Texture. The first map name supplied will be the master map.
-     * @return false if the atlas is full
+     * @return false if the atlas is full.
      */
     public boolean addTexture(Texture texture, String mapName) {
         if (texture == null) {
@@ -121,21 +121,21 @@ public class TextureAtlas {
         if (texture.getImage() != null && name != null) {
             return addImage(texture.getImage(), name, mapName, null);
         } else {
-            throw new IllegalStateException("Source texture has no asset name");
+            throw new IllegalStateException("Texture has no asset name");
         }
     }
 
     /**
-     * Add a texture for a specific map name at the location of another existing texture (on the master map).
+     * Add a texture for a specific map name at the location of another existing texture on the master map.
      * @param texture A texture to add to the atlas.
      * @param mapName A freely chosen map name that can be later retrieved as a Texture.
-     * @param sourceTexture The base texture for determining the location.
+     * @param masterTexture The master texture for determining the location, it has to exist in tha master map.
      * @return false if the atlas is full
      */
-    public void addTexture(Texture texture, String mapName, Texture sourceTexture) {
-        String sourceTextureName = textureName(sourceTexture);
+    public void addTexture(Texture texture, String mapName, Texture masterTexture) {
+        String sourceTextureName = textureName(masterTexture);
         if (sourceTextureName == null) {
-            throw new IllegalStateException("Source texture has no asset name");
+            throw new IllegalStateException("Master texture has no asset name");
         } else {
             addTexture(texture, mapName, sourceTextureName);
         }
@@ -145,8 +145,7 @@ public class TextureAtlas {
      * Add a texture for a specific map name at the location of another existing texture (on the master map).
      * @param texture A texture to add to the atlas.
      * @param mapName A freely chosen map name that can be later retrieved as a Texture.
-     * @param sourceTextureName Name of the base texture for the location.
-     * @return false if the atlas is full
+     * @param sourceTextureName Name of the master map used for the location.
      */
     public void addTexture(Texture texture, String mapName, String sourceTextureName) {
         if (texture == null) {
@@ -272,7 +271,7 @@ public class TextureAtlas {
     }
 
     /**
-     * Gets a new atlas texture for the given map name.
+     * Creates a new atlas texture for the given map name.
      * @param mapName
      * @return 
      */
@@ -295,7 +294,7 @@ public class TextureAtlas {
      * Applies the texture coordinates to the given geometry
      * if its DiffuseMap or ColorMap exists in the atlas.
      * @param geom The geometry to change the texture coordinate buffer on.
-     * @return true if texture has been found and coords have been changed, false otherwise
+     * @return true if texture has been found and coords have been changed, false otherwise.
      */
     public boolean applyCoords(Geometry geom) {
         return applyCoords(geom, 0, geom.getMesh());
@@ -305,9 +304,9 @@ public class TextureAtlas {
      * Applies the texture coordinates to the given output mesh
      * if the DiffuseMap or ColorMap of the input geometry exist in the atlas.
      * @param geom The geometry to change the texture coordinate buffer on.
-     * @param offset Target buffer offset
-     * @param outMesh The mesh to set the coords in (can be same as input)
-     * @return true if texture has been found and coords have been changed, false otherwise
+     * @param offset Target buffer offset.
+     * @param outMesh The mesh to set the coords in (can be same as input).
+     * @return true if texture has been found and coords have been changed, false otherwise.
      */
     public boolean applyCoords(Geometry geom, int offset, Mesh outMesh) {
         Mesh inMesh = geom.getMesh();
@@ -342,9 +341,9 @@ public class TextureAtlas {
 
     /**
      * Create a texture atlas for the given root node, containing DiffuseMap, NormalMap and SpecularMap.
-     * @param root The rootNode to create the atlas for
-     * @param atlasSize The size of the atlas (width and height)
-     * @return Null if the atlas cannot be created because not all textures fit
+     * @param root The rootNode to create the atlas for.
+     * @param atlasSize The size of the atlas (width and height).
+     * @return Null if the atlas cannot be created because not all textures fit.
      */
     public static TextureAtlas createAtlas(Spatial root, int atlasSize) {
         List<Geometry> geometries = new ArrayList<Geometry>();
@@ -363,9 +362,9 @@ public class TextureAtlas {
      * Creates one geometry out of the given root spatial and merges all single
      * textures into one texture of the given size.
      * @param spat The root spatial of the scene to batch
-     * @param mgr An assetmanager that can be used to create the material
-     * @param atlasSize A size for the atlas texture, it has to be large enough to hold all single textures
-     * @return A new geometry that uses the generated texture atlas and merges all meshes of the root spatial, null if the atlas cannot be created because not all textures fit
+     * @param mgr An assetmanager that can be used to create the material.
+     * @param atlasSize A size for the atlas texture, it has to be large enough to hold all single textures.
+     * @return A new geometry that uses the generated texture atlas and merges all meshes of the root spatial, null if the atlas cannot be created because not all textures fit.
      */
     public static Geometry makeAtlasBatch(Spatial spat, AssetManager mgr, int atlasSize) {
         List<Geometry> geometries = new ArrayList<Geometry>();
@@ -512,8 +511,8 @@ public class TextureAtlas {
         }
 
         /**
-         * Get the transformed texture location for a given input location
-         * @param previousLocation
+         * Get the transformed texture location for a given input location.
+         * @param previousLocation.
          * @return 
          */
         public Vector2f getLocation(Vector2f previousLocation) {
@@ -529,10 +528,10 @@ public class TextureAtlas {
         }
 
         /**
-         * Transforms a whole texture coordinates buffer
-         * @param inBuf The input texture buffer
+         * Transforms a whole texture coordinates buffer.
+         * @param inBuf The input texture buffer.
          * @param offset The offset in the output buffer
-         * @param outBuf The output buffer
+         * @param outBuf The output buffer.
          */
         public void transformTextureCoords(FloatBuffer inBuf, int offset, FloatBuffer outBuf) {
             Vector2f tex = new Vector2f();
@@ -545,7 +544,7 @@ public class TextureAtlas {
                 tex.x = inBuf.get(i * 2 + 0);
                 tex.y = inBuf.get(i * 2 + 1);
                 Vector2f location = getLocation(tex);
-                //TODO: replace with proper texture wrapping for atlases..
+                //TODO: add proper texture wrapping for atlases..
                 outBuf.put(offset + i * 2 + 0, location.x);
                 outBuf.put(offset + i * 2 + 1, location.y);
             }
