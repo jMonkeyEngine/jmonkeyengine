@@ -300,7 +300,7 @@ public class AndroidSdkTool {
             if (screensElement == null) {
                 screensElement = configuration.createElement("supports-screens");
                 screensElement.setAttribute("android:anyDensity", "true");
-                screensElement.setAttribute("android:xlargeScreens", "true");
+//                screensElement.setAttribute("android:xlargeScreens", "true");
                 screensElement.setAttribute("android:largeScreens", "true");
                 screensElement.setAttribute("android:smallScreens", "true");
                 screensElement.setAttribute("android:normalScreens", "true");
