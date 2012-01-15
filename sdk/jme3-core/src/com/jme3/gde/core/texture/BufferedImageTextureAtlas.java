@@ -83,19 +83,20 @@ public class BufferedImageTextureAtlas {
         graphics.drawImage(image, null, node.rect.x, node.rect.y);
         return true;
     }
-    
-    public Rectangle getTextureRectangle(String name){
+
+    public Rectangle getTextureRectangle(String name) {
         return rectangleMap.get(name);
     }
 
     public void write(FileObject file) {
+        BufferedWriter atlas = null;
         try {
             ImageIO.write(image, "png", file.getOutputStream());
             FileObject atlasFile = file.getParent().getFileObject(file.getName(), "atl");
             if (atlasFile == null) {
                 atlasFile = file.getParent().createData(file.getName(), "atl");
             }
-            BufferedWriter atlas = new BufferedWriter(new OutputStreamWriter(atlasFile.getOutputStream()));
+            atlas = new BufferedWriter(new OutputStreamWriter(atlasFile.getOutputStream()));
 
             for (Map.Entry<String, Rectangle> e : rectangleMap.entrySet()) {
                 Rectangle r = e.getValue();
@@ -103,9 +104,16 @@ public class BufferedImageTextureAtlas {
                 atlas.newLine();
             }
 
-            atlas.close();
         } catch (IOException e) {
             Exceptions.printStackTrace(e);
+        } finally {
+            if (atlas != null) {
+                try {
+                    atlas.close();
+                } catch (IOException ex) {
+                    Exceptions.printStackTrace(ex);
+                }
+            }
         }
     }
 
