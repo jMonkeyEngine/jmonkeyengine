@@ -771,12 +771,8 @@ public class LwjglRenderer implements Renderer {
         }
     }
 
-    protected void updateUniform(Shader shader, Uniform uniform) {
+    protected void bindProgram(Shader shader){
         int shaderId = shader.getId();
-
-        assert uniform.getName() != null;
-        assert shader.getId() > 0;
-
         if (context.boundShaderProgram != shaderId) {
             glUseProgram(shaderId);
             statistics.onShaderUse(shader, true);
@@ -785,6 +781,15 @@ public class LwjglRenderer implements Renderer {
         } else {
             statistics.onShaderUse(shader, false);
         }
+    }
+    
+    protected void updateUniform(Shader shader, Uniform uniform) {
+        int shaderId = shader.getId();
+
+        assert uniform.getName() != null;
+        assert shader.getId() > 0;
+
+        bindProgram(shader);
 
         int loc = uniform.getLocation();
         if (loc == -1) {
@@ -1046,6 +1051,7 @@ public class LwjglRenderer implements Renderer {
         }
 
         if (caps.contains(Caps.OpenGL30)) {
+            // Check if GLSL version is 1.5 for shader
             GL30.glBindFragDataLocation(id, 0, "outFragColor");
         }
 
@@ -1126,27 +1132,7 @@ public class LwjglRenderer implements Renderer {
             assert shader.getId() > 0;
 
             updateShaderUniforms(shader);
-            if (context.boundShaderProgram != shader.getId()) {
-                if (VALIDATE_SHADER) {
-                    // check if shader can be used
-                    // with current state
-                    glValidateProgram(shader.getId());
-                    glGetProgram(shader.getId(), GL_VALIDATE_STATUS, intBuf1);
-                    boolean validateOK = intBuf1.get(0) == GL_TRUE;
-                    if (validateOK) {
-                        logger.fine("shader validate success");
-                    } else {
-                        logger.warning("shader validate failure");
-                    }
-                }
-
-                glUseProgram(shader.getId());
-                statistics.onShaderUse(shader, true);
-                context.boundShaderProgram = shader.getId();
-                boundShader = shader;
-            } else {
-                statistics.onShaderUse(shader, false);
-            }
+            bindProgram(shader);
         }
     }
 
@@ -2162,10 +2148,6 @@ public class LwjglRenderer implements Renderer {
             throw new IllegalArgumentException("Index buffers not allowed to be set to vertex attrib");
         }
 
-        if (vb.isUpdateNeeded() && idb == null) {
-            updateBufferData(vb);
-        }
-
         int programId = context.boundShaderProgram;
         if (programId > 0) {
             Attribute attrib = boundShader.getAttribute(vb.getBufferType());
@@ -2188,7 +2170,11 @@ public class LwjglRenderer implements Renderer {
                     attrib.setLocation(loc);
                 }
             }
-
+            
+            if (vb.isUpdateNeeded() && idb == null) {
+                updateBufferData(vb);
+            }
+            
             VertexBuffer[] attribs = context.boundAttribs;
             if (!context.attribIndexList.moveToNew(loc)) {
                 glEnableVertexAttribArray(loc);
@@ -2409,7 +2395,7 @@ public class LwjglRenderer implements Renderer {
             updateBufferData(interleavedData);
         }
 
-        //IntMap<VertexBuffer> buffers = mesh.getBuffers();
+//        IntMap<VertexBuffer> buffers = mesh.getBuffers();
         SafeArrayList<VertexBuffer> buffersList = mesh.getBufferList();
 
         if (mesh.getNumLodLevels() > 0) {
@@ -2417,10 +2403,10 @@ public class LwjglRenderer implements Renderer {
         } else {
             indices = mesh.getBuffer(Type.Index);
         }
-        //for (Entry<VertexBuffer> entry : buffers) {
-        //     VertexBuffer vb = entry.getValue();
-        for (VertexBuffer vb : mesh.getBufferList().getArray()){               
-
+        
+//        for (Entry<VertexBuffer> entry : buffers) {
+//             VertexBuffer vb = entry.getValue();
+        for (VertexBuffer vb : mesh.getBufferList().getArray()){
             if (vb.getBufferType() == Type.InterleavedData
                     || vb.getUsage() == Usage.CpuOnly // ignore cpu-only buffers
                     || vb.getBufferType() == Type.Index) {
