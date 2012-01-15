@@ -352,6 +352,8 @@ public class GeometryBatchFactory {
         Geometry geom = new Geometry();
         Mesh mesh = new Mesh();
         mergeGeometries(geometries, mesh, atlas);
+        mesh.updateCounts();
+        mesh.updateBound();
         geom.setMesh(mesh);
 
         Material mat = new Material(mgr, "Common/MatDefs/Light/Lighting.j3md");
