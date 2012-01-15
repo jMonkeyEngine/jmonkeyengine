@@ -339,13 +339,14 @@ public class GeometryBatchFactory {
             if (diffuse != null && diffuse.getKey() != null) {
                 String keyName = diffuse.getKey().getName();
                 if (!atlas.addTexture(diffuse, "DiffuseMap")) {
-                    logger.log(Level.WARNING, "Adding diffuse texture {0} to atlas failed, atlas full?", keyName);
-                }
-                if (normal != null && normal.getKey() != null) {
-                    atlas.addTexture(diffuse, "NormalMap", keyName);
-                }
-                if (specular != null && specular.getKey() != null) {
-                    atlas.addTexture(specular, "SpecularMap", keyName);
+                    throw new IllegalStateException("Adding diffuse texture" + keyName + "to atlas failed, atlas full.");
+                } else {
+                    if (normal != null && normal.getKey() != null) {
+                        atlas.addTexture(diffuse, "NormalMap", keyName);
+                    }
+                    if (specular != null && specular.getKey() != null) {
+                        atlas.addTexture(specular, "SpecularMap", keyName);
+                    }
                 }
             }
         }
@@ -370,7 +371,7 @@ public class GeometryBatchFactory {
             mat.setTexture("SpecularMap", specularMap);
         }
         mat.setFloat("Shininess", 16.0f);
-        
+
         geom.setMaterial(mat);
         return geom;
     }
