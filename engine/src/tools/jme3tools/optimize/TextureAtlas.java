@@ -46,6 +46,7 @@ import com.jme3.texture.Image.Format;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture2D;
 import com.jme3.util.BufferUtils;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
@@ -274,6 +275,7 @@ public class TextureAtlas {
         ByteBuffer sourceData = source.getData(0);
         int height = source.getHeight();
         int width = source.getWidth();
+        Image newImage = null;
         for (int yPos = 0; yPos < height; yPos++) {
             for (int xPos = 0; xPos < width; xPos++) {
                 int i = ((xPos + x) + (yPos + y) * atlasWidth) * 4;
@@ -307,17 +309,54 @@ public class TextureAtlas {
                     image[i + 1] = sourceData.get(j); //b
                     image[i + 2] = sourceData.get(j); //g
                     image[i + 3] = sourceData.get(j); //r
-                }  else if (source.getFormat() == Format.Luminance8Alpha8) {
+                } else if (source.getFormat() == Format.Luminance8Alpha8) {
                     int j = (xPos + yPos * width) * 2;
                     image[i] = sourceData.get(j + 1); //a
                     image[i + 1] = sourceData.get(j); //b
                     image[i + 2] = sourceData.get(j); //g
                     image[i + 3] = sourceData.get(j); //r
                 } else {
-                    throw new UnsupportedOperationException("Cannot draw textures with format " + source.getFormat());
+                    //ImageToAwt conversion
+                    if (newImage == null) {
+                        newImage = convertImageToAwt(source);
+                        if (newImage != null) {
+                            source = newImage;
+                            sourceData = source.getData(0);
+                            int j = (xPos + yPos * width) * 4;
+                            image[i] = sourceData.get(j); //a
+                            image[i + 1] = sourceData.get(j + 1); //b
+                            image[i + 2] = sourceData.get(j + 2); //g
+                            image[i + 3] = sourceData.get(j + 3); //r
+                        }else{
+                            throw new UnsupportedOperationException("Cannot draw or convert textures with format " + source.getFormat());
+                        }
+                    } else {
+                        throw new UnsupportedOperationException("Cannot draw textures with format " + source.getFormat());
+                    }
                 }
             }
         }
+    }
+
+    private Image convertImageToAwt(Image source) {
+        //use awt dependent classes without actual dependency via reflection
+        try {
+            Class clazz = Class.forName("jme3tools.converters.ImageToAwt");
+            if (clazz == null) {
+                return null;
+            }
+            Image newImage = new Image(format, source.getWidth(), source.getHeight(), BufferUtils.createByteBuffer(source.getWidth() * source.getHeight() * 4));
+            clazz.getMethod("convert", Image.class, Image.class).invoke(clazz.newInstance(), source, newImage);
+            return newImage;
+        } catch (InstantiationException ex) {
+        } catch (IllegalAccessException ex) {
+        } catch (IllegalArgumentException ex) {
+        } catch (InvocationTargetException ex) {
+        } catch (NoSuchMethodException ex) {
+        } catch (SecurityException ex) {
+        } catch (ClassNotFoundException ex) {
+        }
+        return null;
     }
 
     /**
