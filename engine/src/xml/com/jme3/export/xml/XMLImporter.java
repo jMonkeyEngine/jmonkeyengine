@@ -54,12 +54,13 @@ public class XMLImporter implements JmeImporter {
 
     private AssetManager assetManager;
     private DOMInputCapsule domIn;
+    int formatVersion = 0;
     
     public XMLImporter() {
     }
 
     public int getFormatVersion() {
-        return 0;
+        return formatVersion;
     }
     
     public AssetManager getAssetManager(){

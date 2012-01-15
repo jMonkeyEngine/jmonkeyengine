@@ -70,12 +70,15 @@ public class DOMInputCapsule implements InputCapsule {
         this.doc = doc;
         this.importer = importer;
         currentElem = doc.getDocumentElement();
+        
+        String version = currentElem.getAttribute("format_version");
+        importer.formatVersion = version.equals("") ? 0 : Integer.parseInt(version);
     }
 
     public int getSavableVersion(Class<? extends Savable> desiredClass) {
         if (classHierarchyVersions != null){
             return SavableClassUtil.getSavedSavableVersion(savable, desiredClass, 
-                                                        classHierarchyVersions);
+                                                        classHierarchyVersions, importer.getFormatVersion());
         }else{
             return 0;
         }

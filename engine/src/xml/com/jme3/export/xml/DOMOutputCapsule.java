@@ -32,6 +32,7 @@
 
 package com.jme3.export.xml;
 
+import com.jme3.export.FormatVersion;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.OutputCapsule;
 import com.jme3.export.Savable;
@@ -77,9 +78,9 @@ public class DOMOutputCapsule implements OutputCapsule {
      * currentElement to be new Element, and returns the new Element as well
      */
     private Element appendElement(String name) {
-        Element ret = null;
-            ret = doc.createElement(name);
+        Element ret = doc.createElement(name);
         if (currentElement == null) {
+            ret.setAttribute("format_version", Integer.toString(FormatVersion.VERSION));
             doc.appendChild(ret);
         } else {
             currentElement.appendChild(ret);

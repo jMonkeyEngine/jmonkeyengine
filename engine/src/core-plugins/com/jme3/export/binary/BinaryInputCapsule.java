@@ -260,7 +260,7 @@ final class BinaryInputCapsule implements InputCapsule {
     
     public int getSavableVersion(Class<? extends Savable> desiredClass){
         return SavableClassUtil.getSavedSavableVersion(savable, desiredClass, 
-                                            cObj.classHierarchyVersions);
+                                            cObj.classHierarchyVersions, importer.getFormatVersion());
     }
 
     public BitSet readBitSet(String name, BitSet defVal) throws IOException {

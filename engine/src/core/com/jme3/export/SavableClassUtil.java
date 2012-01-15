@@ -82,13 +82,8 @@ public class SavableClassUtil {
     }
     
     public static boolean isImplementingSavable(Class clazz){
-        Class[] interfaces = clazz.getInterfaces();
-        for (Class interfaceClass : interfaces){
-            if (interfaceClass == Savable.class){
-                return true;
-            }
-        }
-        return false;
+        boolean result = Savable.class.isAssignableFrom(clazz);
+        return result;
     }
 
     public static int[] getSavableVersions(Class<? extends Savable> clazz) throws IOException{
@@ -109,7 +104,12 @@ public class SavableClassUtil {
     public static int getSavableVersion(Class<? extends Savable> clazz) throws IOException{
         try {
             Field field = clazz.getField("SAVABLE_VERSION");
-            return field.getInt(null);
+            Class<? extends Savable> declaringClass = (Class<? extends Savable>) field.getDeclaringClass();
+            if (declaringClass == clazz){
+                return field.getInt(null); 
+            }else{
+                return 0; // This class doesn't declare this field, e.g. version == 0
+            }
         } catch (IllegalAccessException ex) {
             IOException ioEx = new IOException();
             ioEx.initCause(ex);
@@ -121,11 +121,11 @@ public class SavableClassUtil {
         }
     }
     
-    public static int getSavedSavableVersion(Object savable, Class<? extends Savable> desiredClass, int[] versions){
+    public static int getSavedSavableVersion(Object savable, Class<? extends Savable> desiredClass, int[] versions, int formatVersion){
         Class thisClass = savable.getClass();
         int count = 0;
         
-        while (true) {
+        while (thisClass != desiredClass) {
             thisClass = thisClass.getSuperclass();
             if (thisClass != null && SavableClassUtil.isImplementingSavable(thisClass)){
                 count ++;
@@ -139,10 +139,15 @@ public class SavableClassUtil {
                                                " does not extend " + 
                                                desiredClass.getName() + "!");
         }else if (count >= versions.length){
-            throw new IllegalArgumentException(savable.getClass().getName() + 
-                                               " cannot access version of " +
-                                               desiredClass.getName() + 
-                                               " because it doesn't implement Savable");
+            if (formatVersion <= 1){
+                System.out.println("BUGGY J3O ALERT");
+                return 0; // for buggy versions of j3o
+            }else{
+                throw new IllegalArgumentException(savable.getClass().getName() + 
+                                                   " cannot access version of " +
+                                                   desiredClass.getName() + 
+                                                   " because it doesn't implement Savable");
+            }
         }
         return versions[count];
     }

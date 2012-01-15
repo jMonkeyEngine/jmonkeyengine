@@ -10,7 +10,7 @@ public final class FormatVersion {
     /**
      * Version number of the format
      */
-    public static final int VERSION = 1;
+    public static final int VERSION = 2;
     
     /**
      * Signature of the format. Currently "JME3" as ASCII
