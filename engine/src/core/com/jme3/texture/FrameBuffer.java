@@ -290,6 +290,7 @@ public class FrameBuffer extends NativeObject {
             throw new IllegalArgumentException("The target at " + index + " is not set!");
 
         colorBufIndex = index;
+        setRefreshNeeded();
     }
 
     /**
