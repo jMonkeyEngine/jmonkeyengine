@@ -91,7 +91,7 @@ public class TextureAtlas {
 
         }
         if (diffuse != null && diffuse.getKey() != null) {
-            String keyName = diffuse.getKey().getName();
+            String keyName = diffuse.getKey().toString();
             if (!addTexture(diffuse, "DiffuseMap")) {
                 return false;
             } else {
@@ -165,7 +165,7 @@ public class TextureAtlas {
         }
         AssetKey key = texture.getKey();
         if (key != null) {
-            return key.getName();
+            return key.toString();
         } else {
             return null;
         }
