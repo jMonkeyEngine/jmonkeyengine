@@ -352,9 +352,6 @@ public class GeometryBatchFactory {
         Geometry geom = new Geometry();
         Mesh mesh = new Mesh();
         mergeGeometries(geometries, mesh, atlas);
-        TangentBinormalGenerator.generate(mesh);
-        mesh.updateCounts();
-        mesh.updateBound();
         geom.setMesh(mesh);
 
         Material mat = new Material(mgr, "Common/MatDefs/Light/Lighting.j3md");
@@ -365,6 +362,7 @@ public class GeometryBatchFactory {
             mat.setTexture("DiffuseMap", diffuseMap);
         }
         if (normalMap != null) {
+            TangentBinormalGenerator.generate(mesh);
             mat.setTexture("NormalMap", normalMap);
         }
         if (specularMap != null) {

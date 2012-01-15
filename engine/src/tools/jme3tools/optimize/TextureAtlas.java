@@ -151,7 +151,6 @@ public class TextureAtlas {
     }
 
     private void drawImage(Image source, int x, int y, String mapName) {
-        //TODO: all buffers?
         if (images == null) {
             images = new HashMap<String, byte[]>();
         }
@@ -160,6 +159,7 @@ public class TextureAtlas {
             image = new byte[atlasWidth * atlasHeight * 4];
             images.put(mapName, image);
         }
+        //TODO: all buffers?
         ByteBuffer sourceData = source.getData(0);
         int height = source.getHeight();
         int width = source.getWidth();
@@ -174,13 +174,13 @@ public class TextureAtlas {
                     image[i + 3] = sourceData.get(j + 3); //r
                 } else if (source.getFormat() == Format.BGR8) {
                     int j = (xPos + yPos * width) * 3;
-                    image[i] = 0; //b
+                    image[i] = 0; //a
                     image[i + 1] = sourceData.get(j); //b
                     image[i + 2] = sourceData.get(j + 1); //g
                     image[i + 3] = sourceData.get(j + 2); //r
                 } else if (source.getFormat() == Format.RGB8) {
                     int j = (xPos + yPos * width) * 3;
-                    image[i] = 0; //b
+                    image[i] = 0; //a
                     image[i + 1] = sourceData.get(j + 2); //b
                     image[i + 2] = sourceData.get(j + 1); //g
                     image[i + 3] = sourceData.get(j); //r
@@ -322,8 +322,23 @@ public class TextureAtlas {
             float w = (float) getWidth() / (float) atlasWidth;
             float h = (float) getHeight() / (float) atlasHeight;
             Vector2f location = new Vector2f(x, y);
-            Vector2f scale = new Vector2f(w, h);
-            return location.addLocal(previousLocation.multLocal(scale));
+            float prevX = previousLocation.x;
+            float prevY = previousLocation.y;
+            //TODO: remove workaround for texture wrap
+            if (prevX > 1) {
+                prevX = 1;
+            }
+            if (prevY > 1) {
+                prevY = 1;
+            }
+            if (prevX < 0) {
+                prevX = 0;
+            }
+            if (prevY < 0) {
+                prevY = 0;
+            }
+            location.addLocal(prevX * w, prevY * h);
+            return location;
         }
 
         /**
@@ -342,9 +357,10 @@ public class TextureAtlas {
             for (int i = 0; i < inBuf.capacity() / 2; i++) {
                 tex.x = inBuf.get(i * 2 + 0);
                 tex.y = inBuf.get(i * 2 + 1);
-                Vector2f outLoc = getLocation(tex);
-                outBuf.put(offset + i * 2 + 0, outLoc.x);
-                outBuf.put(offset + i * 2 + 1, outLoc.y);
+                Vector2f location = getLocation(tex);
+                //TODO: replace with proper texture wrapping for atlases..
+                outBuf.put(offset + i * 2 + 0, location.x);
+                outBuf.put(offset + i * 2 + 1, location.y);
             }
         }
 

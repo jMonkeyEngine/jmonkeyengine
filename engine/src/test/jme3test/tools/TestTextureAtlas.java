@@ -29,10 +29,8 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package jme3test.tools;
 
-import jme3test.model.shape.*;
 import com.jme3.app.SimpleApplication;
 import com.jme3.asset.plugins.ZipLocator;
 import com.jme3.light.AmbientLight;
@@ -41,22 +39,24 @@ import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
+import com.jme3.scene.shape.Quad;
 import jme3tools.optimize.GeometryBatchFactory;
 
 public class TestTextureAtlas extends SimpleApplication {
 
-    public static void main(String[] args){
+    public static void main(String[] args) {
         TestTextureAtlas app = new TestTextureAtlas();
         app.start();
     }
 
     @Override
     public void simpleInitApp() {
-        assetManager.registerLocator("wildhouse.zip", ZipLocator.class.getName());
+        flyCam.setMoveSpeed(50);
+        assetManager.registerLocator("town.zip", ZipLocator.class.getName());
         Spatial scene = assetManager.loadModel("main.scene");
-        
-        Geometry geom = GeometryBatchFactory.makeAtlasBatch(scene, assetManager, 4096);
-        
+
+        Geometry geom = GeometryBatchFactory.makeAtlasBatch(scene, assetManager, 2048);
+
         AmbientLight al = new AmbientLight();
         rootNode.addLight(al);
 
@@ -66,6 +66,11 @@ public class TestTextureAtlas extends SimpleApplication {
         rootNode.addLight(sun);
 
         rootNode.attachChild(geom);
-    }
 
+        //quad to display material
+        Geometry box = new Geometry("displayquad", new Quad(4, 4));
+        box.setMaterial(geom.getMaterial());
+        box.setLocalTranslation(0, 1, 0);
+        rootNode.attachChild(box);
+    }
 }
