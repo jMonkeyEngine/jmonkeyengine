@@ -139,8 +139,11 @@ public class TextureAtlas {
         if (sourceTextureName == null && !rootMapName.equals(mapName)) {
             throw new IllegalStateException("Cannot add texture to new map without source texture");
         }
-        TextureAtlasTile location;
-        if (sourceTextureName == null) {
+        TextureAtlasTile location = locationMap.get(name);
+        if (location != null) {
+            locationMap.put(name, location);
+            return true;
+        } else if (sourceTextureName == null) {
             Node node = root.insert(image);
             if (node == null) {
                 return false;

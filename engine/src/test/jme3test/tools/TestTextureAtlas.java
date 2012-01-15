@@ -32,12 +32,12 @@
 package jme3test.tools;
 
 import com.jme3.app.SimpleApplication;
-import com.jme3.asset.plugins.ZipLocator;
 import com.jme3.light.AmbientLight;
 import com.jme3.light.DirectionalLight;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
+import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Quad;
 import jme3tools.optimize.GeometryBatchFactory;
@@ -52,8 +52,22 @@ public class TestTextureAtlas extends SimpleApplication {
     @Override
     public void simpleInitApp() {
         flyCam.setMoveSpeed(50);
-        assetManager.registerLocator("town.zip", ZipLocator.class.getName());
-        Spatial scene = assetManager.loadModel("main.scene");
+        Node scene = new Node("Scene");
+        Spatial obj1 = assetManager.loadModel("Models/Ferrari/Car.scene");
+        obj1.setLocalTranslation(-4, 0, 0);
+        Spatial obj2 = assetManager.loadModel("Models/Oto/Oto.mesh.xml");
+        obj2.setLocalTranslation(-2, 0, 0);
+        Spatial obj3 = assetManager.loadModel("Models/Ninja/Ninja.mesh.xml");
+        obj3.setLocalTranslation(-0, 0, 0);
+        Spatial obj4 = assetManager.loadModel("Models/Sinbad/Sinbad.mesh.xml");
+        obj4.setLocalTranslation(2, 0, 0);
+        Spatial obj5 = assetManager.loadModel("Models/Tree/Tree.mesh.j3o");
+        obj5.setLocalTranslation(4, 0, 0);
+        scene.attachChild(obj1);
+        scene.attachChild(obj2);
+        scene.attachChild(obj3);
+        scene.attachChild(obj4);
+        scene.attachChild(obj5);
 
         Geometry geom = GeometryBatchFactory.makeAtlasBatch(scene, assetManager, 2048);
 
@@ -70,7 +84,7 @@ public class TestTextureAtlas extends SimpleApplication {
         //quad to display material
         Geometry box = new Geometry("displayquad", new Quad(4, 4));
         box.setMaterial(geom.getMaterial());
-        box.setLocalTranslation(0, 1, 0);
+        box.setLocalTranslation(0, 1, 3);
         rootNode.attachChild(box);
     }
 }
