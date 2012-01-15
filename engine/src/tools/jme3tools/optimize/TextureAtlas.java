@@ -59,29 +59,35 @@ import java.util.logging.Logger;
 
 /**
  * <b><code>TextureAtlas</code></b> allows combining multiple textures to one texture atlas.
+ * 
  * <p>After the TextureAtlas has been created with a certain size, textures can be added for
  * freely chosen "map names". The textures are automatically placed on the atlas map and the
  * image data is stored in a byte array for each map name. Later each map can be retrieved as
  * a Texture to be used further in materials.</p>
- * <p>The first map name used is the "master map" that defines a new location on the atlas. Secondary
- * textures (other map names) have to reference one texture of the master map whose position is used
- * to position the texture on the secondary map. This is necessary as textures share texture coordinates
- * and thus need to be placed at the same location on both maps.<br/>
- * The helper methods that work with geometries handle the DiffuseMap or ColorMap as the master map and
- * additionally handle NormalMap and SpecularMap as secondary maps.</p>
- * <p>The texture asset key name for each tile as well as its location inside the atlas is stored
- * and a texture with an existing key name is never added more than once to the atlas. You can access
- * the information for each texture or geometry texture via helper methods.</p>
- * <p>For each texture name you can also change the texture coordinates of a mesh or geometry
- * to point at the new locations of the texture inside the atlas if the geometries texture
- * exists inside the atlas.</p>
+ * 
+ * <p>The first map name used is the "master map" that defines new locations on the atlas. Secondary
+ * textures (other map names) have to reference a texture of the master map to position the texture
+ * on the secondary map. This is necessary as the maps share texture coordinates and thus need to be
+ * placed at the same location on both maps.</p>
+ * 
+ * <p>The helper methods that work with <code>Geometry</code> objects handle the <em>DiffuseMap</em> or <em>ColorMap</em> as the master map and
+ * additionally handle <em>NormalMap</em> and <em>SpecularMap</em> as secondary maps.</p>
+ * 
+ * <p>The textures are referenced by their <b>asset key name</b> and for each texture the location
+ * inside the atlas is stored. A texture with an existing key name is never added more than once
+ * to the atlas. You can access the information for each texture or geometry texture via helper methods.</p>
+ * 
+ * <p>The TextureAtlas also allows you to change the texture coordinates of a mesh or geometry
+ * to point at the new locations of its texture inside the atlas (if the texture exists inside the atlas).</p>
+ * 
  * <p>Note that models that use texture coordinates outside the 0-1 range (repeating/wrapping textures)
  * will not work correctly as their new coordinates leak into other parts of the atlas and thus display
  * other textures instead of repeating the texture.</p>
+ * 
  * <p>Also note that textures are not scaled and the atlas needs to be large enough to hold all textures.
  * All methods that allow adding textures return false if the texture could not be added due to the
- * atlas being full. Furthermore secondary textures (normal, spcular maps etc. have to be the same size
- * as the main DiffuseMap texture.</p>
+ * atlas being full. Furthermore secondary textures (normal, spcular maps etc.) have to be the same size
+ * as the main (e.g. DiffuseMap) texture.</p>
  * 
  * <p><b>Usage examples</b></p>
  * Create one geometry out of several geometries that are loaded from a j3o file:
