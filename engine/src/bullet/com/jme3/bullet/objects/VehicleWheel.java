@@ -349,6 +349,16 @@ public class VehicleWheel implements Savable {
     }
 
     public native float getSkidInfo(long wheelId, int wheelIndex);
+    
+    /**
+     * returns how many degrees the wheel has turned since the last physics
+     * step.
+     */
+    public float getDeltaRotation() {
+        return getDeltaRotation(wheelId, wheelIndex);
+    }
+    
+    public native float getDeltaRotation(long wheelId, int wheelIndex);
 
     @Override
     public void read(JmeImporter im) throws IOException {

@@ -142,6 +142,22 @@ extern "C" {
         return vehicle->getWheelInfo(wheelIndex).m_skidInfo;
     }
 
+    /*
+     * Class:     com_jme3_bullet_objects_VehicleWheel
+     * Method:    getDeltaRotation
+     * Signature: (J)F
+     */
+    JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_objects_VehicleWheel_getDeltaRotation
+    (JNIEnv *env, jobject object, jlong vehicleId, jint wheelIndex) {
+        btRaycastVehicle* vehicle = reinterpret_cast<btRaycastVehicle*>(vehicleId);
+        if (vehicle == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return 0;
+        }
+        return vehicle->getWheelInfo(wheelIndex).m_deltaRotation;
+    }
+
 #ifdef __cplusplus
 }
 #endif

@@ -55,6 +55,14 @@ JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_VehicleWheel_getCollisionNor
 JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_objects_VehicleWheel_getSkidInfo
   (JNIEnv *, jobject, jlong, jint);
 
+/*
+ * Class:     com_jme3_bullet_objects_VehicleWheel
+ * Method:    getDeltaRotation
+ * Signature: (JI)F
+ */
+JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_objects_VehicleWheel_getDeltaRotation
+  (JNIEnv *, jobject, jlong, jint);
+
 #ifdef __cplusplus
 }
 #endif
