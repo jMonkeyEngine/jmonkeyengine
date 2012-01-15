@@ -45,11 +45,17 @@ public class SceneComposerToolController extends SceneToolController {
     private Material lightMarkerMaterial;
     private Material audioMarkerMaterial;
 
-    public SceneComposerToolController(Node toolsNode, AssetManager manager, JmeNode rootNode) {
+    public SceneComposerToolController(final Node toolsNode, AssetManager manager, JmeNode rootNode) {
         super(toolsNode, manager);
         this.rootNode = rootNode;
         nonSpatialMarkersNode = new Node("lightMarkersNode");
-        toolsNode.attachChild(nonSpatialMarkersNode);
+        SceneApplication.getApplication().enqueue(new Callable<Object>() {
+
+            public Object call() throws Exception {
+                toolsNode.attachChild(nonSpatialMarkersNode);
+                return null;
+            }
+        });
     }
 
     public SceneComposerToolController(AssetManager manager) {
