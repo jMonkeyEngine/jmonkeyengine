@@ -2,6 +2,7 @@ package com.jme3.system.android;
 
 import android.app.Activity;
 import android.content.res.Resources;
+import android.os.Environment;
 import com.jme3.asset.AndroidAssetManager;
 import com.jme3.asset.AssetManager;
 import com.jme3.audio.AudioRenderer;
@@ -13,11 +14,12 @@ import com.jme3.system.JmeSystemDelegate;
 import com.jme3.system.Platform;
 import com.jme3.util.AndroidLogHandler;
 import com.jme3.util.JmeFormatter;
+import java.io.File;
 import java.net.URL;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 
-public class JmeAndroidSystem extends JmeSystemDelegate{
+public class JmeAndroidSystem extends JmeSystemDelegate {
 
     private static Resources res;
     private static Activity activity;
@@ -71,21 +73,49 @@ public class JmeAndroidSystem extends JmeSystemDelegate{
     @Override
     public Platform getPlatform() {
         String arch = System.getProperty("os.arch").toLowerCase();
-        if (arch.contains("arm")){
-            if (arch.contains("v5")){
+        if (arch.contains("arm")) {
+            if (arch.contains("v5")) {
                 return Platform.Android_ARM5;
-            }else if (arch.contains("v6")){
+            } else if (arch.contains("v6")) {
                 return Platform.Android_ARM6;
-            }else if (arch.contains("v7")){
+            } else if (arch.contains("v7")) {
                 return Platform.Android_ARM7;
-            }else{
+            } else {
                 return Platform.Android_ARM5; // unknown ARM
             }
-        }else{
+        } else {
             throw new UnsupportedOperationException("Unsupported Android Platform");
         }
     }
-    
+
+    @Override
+    public synchronized File getStorageFolder() {
+        //http://developer.android.com/reference/android/content/Context.html#getExternalFilesDir
+        //http://developer.android.com/guide/topics/data/data-storage.html
+
+        boolean mExternalStorageWriteable = false;
+        String state = Environment.getExternalStorageState();
+        if (Environment.MEDIA_MOUNTED.equals(state)) {
+            mExternalStorageWriteable = true;
+        } else {
+            mExternalStorageWriteable = false;
+        }
+
+        if (mExternalStorageWriteable) {
+            //getExternalFilesDir automatically creates the directory if necessary.
+            //directory structure should be: /mnt/sdcard/Android/data/<packagename>/files
+            //when created this way, the directory is automatically removed by the Android
+            //  system when the app is uninstalled
+            storageFolder = activity.getApplicationContext().getExternalFilesDir(null);
+            logger.log(Level.INFO, "Storage Folder Path: {0}", storageFolder.getAbsolutePath());
+
+            return storageFolder;
+        } else {
+            return null;
+        }
+
+    }
+
     public static void setResources(Resources res) {
         JmeAndroidSystem.res = res;
     }
