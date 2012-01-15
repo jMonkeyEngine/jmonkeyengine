@@ -15,12 +15,10 @@ import com.jme3.scene.mesh.IndexBuffer;
 import com.jme3.texture.Texture;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.IntMap.Entry;
-import com.jme3.util.TangentBinormalGenerator;
 import java.nio.Buffer;
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
 import java.util.*;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import jme3tools.optimize.TextureAtlas.TextureAtlasTile;
 
@@ -358,6 +356,7 @@ public class GeometryBatchFactory {
         geom.setMesh(mesh);
 
         Material mat = new Material(mgr, "Common/MatDefs/Light/Lighting.j3md");
+        mat.getAdditionalRenderState().setAlphaTest(true);
         Texture diffuseMap = atlas.getAtlasTexture("DiffuseMap");
         Texture normalMap = atlas.getAtlasTexture("NormalMap");
         Texture specularMap = atlas.getAtlasTexture("SpecularMap");

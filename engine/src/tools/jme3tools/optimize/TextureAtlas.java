@@ -183,13 +183,13 @@ public class TextureAtlas {
                     image[i + 3] = sourceData.get(j + 3); //r
                 } else if (source.getFormat() == Format.BGR8) {
                     int j = (xPos + yPos * width) * 3;
-                    image[i] = 0; //a
+                    image[i] = 1; //a
                     image[i + 1] = sourceData.get(j); //b
                     image[i + 2] = sourceData.get(j + 1); //g
                     image[i + 3] = sourceData.get(j + 2); //r
                 } else if (source.getFormat() == Format.RGB8) {
                     int j = (xPos + yPos * width) * 3;
-                    image[i] = 0; //a
+                    image[i] = 1; //a
                     image[i + 1] = sourceData.get(j + 2); //b
                     image[i + 2] = sourceData.get(j + 1); //g
                     image[i + 3] = sourceData.get(j); //r
