@@ -140,7 +140,6 @@ public class SavableClassUtil {
                                                desiredClass.getName() + "!");
         }else if (count >= versions.length){
             if (formatVersion <= 1){
-                System.out.println("BUGGY J3O ALERT");
                 return 0; // for buggy versions of j3o
             }else{
                 throw new IllegalArgumentException(savable.getClass().getName() + 
