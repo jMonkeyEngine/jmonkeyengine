@@ -71,10 +71,18 @@ public class TextureAtlas {
      * Add a texture for a specific map name
      * @param texture A texture to add to the atlas
      * @param mapName A freely chosen map name that can be later retrieved as a Texture. The first map name supplied will be the master map.
-     * @return 
+     * @return false If texture cannot be added to atlas because it does not fit
      */
     public boolean addTexture(Texture texture, String mapName) {
-        return addTexture(texture, mapName, (String) null);
+        if (texture == null) {
+            throw new IllegalStateException("Texture cannot be null");
+        }
+        String name = textureName(texture);
+        if (texture.getImage() != null && name != null) {
+            return addImage(texture.getImage(), name, mapName, null);
+        } else {
+            throw new IllegalStateException("Source texture has no asset name");
+        }
     }
 
     /**
@@ -82,14 +90,14 @@ public class TextureAtlas {
      * @param texture A texture to add to the atlas.
      * @param mapName A freely chosen map name that can be later retrieved as a Texture.
      * @param sourceTexture The base texture for determining the location.
-     * @return 
+     * @return false If texture cannot be added to atlas because it does not fit
      */
-    public boolean addTexture(Texture texture, String mapName, Texture sourceTexture) {
+    public void addTexture(Texture texture, String mapName, Texture sourceTexture) {
         String sourceTextureName = textureName(sourceTexture);
         if (sourceTextureName == null) {
-            return false;
+            throw new IllegalStateException("Source texture has no asset name");
         } else {
-            return addTexture(texture, mapName, sourceTextureName);
+            addTexture(texture, mapName, sourceTextureName);
         }
     }
 
@@ -98,17 +106,17 @@ public class TextureAtlas {
      * @param texture A texture to add to the atlas.
      * @param mapName A freely chosen map name that can be later retrieved as a Texture.
      * @param sourceTextureName Name of the base texture for the location.
-     * @return 
+     * @return false If texture cannot be added to atlas because it does not fit
      */
-    public boolean addTexture(Texture texture, String mapName, String sourceTextureName) {
+    public void addTexture(Texture texture, String mapName, String sourceTextureName) {
         if (texture == null) {
-            return false;
+            throw new IllegalStateException("Texture cannot be null");
         }
         String name = textureName(texture);
         if (texture.getImage() != null && name != null) {
-            return addImage(texture.getImage(), name, mapName, sourceTextureName);
+            addImage(texture.getImage(), name, mapName, sourceTextureName);
         } else {
-            return false;
+            throw new IllegalStateException("Texture has no asset name");
         }
     }
 
@@ -140,10 +148,9 @@ public class TextureAtlas {
             location = node.location;
         } else {
             location = locationMap.get(sourceTextureName);
-        }
-        if (location == null) {
-            logger.log(Level.WARNING, "Source texture not found");
-            return false;
+            if (location == null) {
+                throw new IllegalStateException("Cannot find location for source texture");
+            }
         }
         locationMap.put(name, location);
         drawImage(image, location.getX(), location.getY(), mapName);
