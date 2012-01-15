@@ -75,10 +75,40 @@ public class TextureAtlas {
     }
 
     /**
+     * Add a geometries DiffuseMap (or ColorMap), NormalMap and SpecularMap to the atlas
+     * @param geometry
+     * @return false if the atlas is full
+     */
+    public boolean addGeometry(Geometry geometry) {
+        Texture diffuse = getMaterialTexture(geometry, "DiffuseMap");
+        Texture normal = getMaterialTexture(geometry, "NormalMap");
+        Texture specular = getMaterialTexture(geometry, "SpecularMap");
+        if (diffuse == null) {
+            diffuse = getMaterialTexture(geometry, "ColorMap");
+
+        }
+        if (diffuse != null && diffuse.getKey() != null) {
+            String keyName = diffuse.getKey().getName();
+            if (!addTexture(diffuse, "DiffuseMap")) {
+                return false;
+            } else {
+                if (normal != null && normal.getKey() != null) {
+                    addTexture(diffuse, "NormalMap", keyName);
+                }
+                if (specular != null && specular.getKey() != null) {
+                    addTexture(specular, "SpecularMap", keyName);
+                }
+            }
+            return true;
+        }
+        return true;
+    }
+
+    /**
      * Add a texture for a specific map name
      * @param texture A texture to add to the atlas
      * @param mapName A freely chosen map name that can be later retrieved as a Texture. The first map name supplied will be the master map.
-     * @return false If texture cannot be added to atlas because it does not fit
+     * @return false if the atlas is full
      */
     public boolean addTexture(Texture texture, String mapName) {
         if (texture == null) {
@@ -97,7 +127,7 @@ public class TextureAtlas {
      * @param texture A texture to add to the atlas.
      * @param mapName A freely chosen map name that can be later retrieved as a Texture.
      * @param sourceTexture The base texture for determining the location.
-     * @return false If texture cannot be added to atlas because it does not fit
+     * @return false if the atlas is full
      */
     public void addTexture(Texture texture, String mapName, Texture sourceTexture) {
         String sourceTextureName = textureName(sourceTexture);
@@ -113,7 +143,7 @@ public class TextureAtlas {
      * @param texture A texture to add to the atlas.
      * @param mapName A freely chosen map name that can be later retrieved as a Texture.
      * @param sourceTextureName Name of the base texture for the location.
-     * @return false If texture cannot be added to atlas because it does not fit
+     * @return false if the atlas is full
      */
     public void addTexture(Texture texture, String mapName, String sourceTextureName) {
         if (texture == null) {
@@ -318,26 +348,7 @@ public class TextureAtlas {
         GeometryBatchFactory.gatherGeoms(root, geometries);
         TextureAtlas atlas = new TextureAtlas(atlasSize, atlasSize);
         for (Geometry geometry : geometries) {
-            Texture diffuse = getMaterialTexture(geometry, "DiffuseMap");
-            Texture normal = getMaterialTexture(geometry, "NormalMap");
-            Texture specular = getMaterialTexture(geometry, "SpecularMap");
-            if (diffuse == null) {
-                diffuse = getMaterialTexture(geometry, "ColorMap");
-
-            }
-            if (diffuse != null && diffuse.getKey() != null) {
-                String keyName = diffuse.getKey().getName();
-                if (!atlas.addTexture(diffuse, "DiffuseMap")) {
-                    return null;
-                } else {
-                    if (normal != null && normal.getKey() != null) {
-                        atlas.addTexture(diffuse, "NormalMap", keyName);
-                    }
-                    if (specular != null && specular.getKey() != null) {
-                        atlas.addTexture(specular, "SpecularMap", keyName);
-                    }
-                }
-            }
+            atlas.addGeometry(geometry);
         }
         return atlas;
     }
