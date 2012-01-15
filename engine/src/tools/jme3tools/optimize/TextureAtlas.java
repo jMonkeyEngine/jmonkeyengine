@@ -437,14 +437,14 @@ public class TextureAtlas {
 
         public TextureAtlasTile location;
         public Node child[];
-        public Image image;
+        public boolean occupied;
 
         public Node(int x, int y, int width, int height) {
             location = new TextureAtlasTile(x, y, width, height);
             child = new Node[2];
             child[0] = null;
             child[1] = null;
-            image = null;
+            occupied = false;
         }
 
         public boolean isLeaf() {
@@ -462,7 +462,7 @@ public class TextureAtlas {
 
                 return child[1].insert(image);
             } else {
-                if (this.image != null) {
+                if (occupied) {
                     return null; // occupied
                 }
 
@@ -471,7 +471,7 @@ public class TextureAtlas {
                 }
 
                 if (image.getWidth() == location.getWidth() && image.getHeight() == location.getHeight()) {
-                    this.image = image; // perfect fit
+                    occupied = true; // perfect fit
                     return this;
                 }
 
