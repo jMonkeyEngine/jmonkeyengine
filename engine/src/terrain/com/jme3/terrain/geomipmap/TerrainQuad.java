@@ -1092,8 +1092,8 @@ public class TerrainQuad extends Node implements Terrain {
 
     public float getHeight(Vector2f xz) {
         // offset
-        float x = (float)(((xz.x - getLocalTranslation().x) / getWorldScale().x) + (float)totalSize / 2f);
-        float z = (float)(((xz.y - getLocalTranslation().z) / getWorldScale().z) + (float)totalSize / 2f);
+        float x = (float)(((xz.x - getWorldTranslation().x) / getWorldScale().x) + (float)totalSize / 2f);
+        float z = (float)(((xz.y - getWorldTranslation().z) / getWorldScale().z) + (float)totalSize / 2f);
         float height = getHeight(x, z);
         height *= getWorldScale().y;
         return height;
@@ -1132,8 +1132,8 @@ public class TerrainQuad extends Node implements Terrain {
 
     public Vector3f getNormal(Vector2f xz) {
         // offset
-        float x = (float)(((xz.x - getLocalTranslation().x) / getWorldScale().x) + (float)totalSize / 2f);
-        float z = (float)(((xz.y - getLocalTranslation().z) / getWorldScale().z) + (float)totalSize / 2f);
+        float x = (float)(((xz.x - getWorldTranslation().x) / getWorldScale().x) + (float)totalSize / 2f);
+        float z = (float)(((xz.y - getWorldTranslation().z) / getWorldScale().z) + (float)totalSize / 2f);
         Vector3f normal = getNormal(x, z, xz);
         
         return normal;
