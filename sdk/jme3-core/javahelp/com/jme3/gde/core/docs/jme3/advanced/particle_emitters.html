@@ -1,6 +1,82 @@
-<h1><a>Particle Emmitter Settings</a></h1><div><p>You cannot create a 3D model for delicate things like fire, smoke, or explosions. Particle Emitters are quite an efficient solution to create these kinds of effects: The emitter renders a series of flat orthogonal images and manipulates them in a way that creates the illusion of a anything from a delicate smoke cloud to individual flames, etc. Creating an effect involves some trial and error to get the settings <em>just right</em>, and it&#039;s worth exploring the expressiveness of the options described below.</p><p><p><div>Use the <a href="/com/jme3/gde/core/docs/sdk/scene_explorer.html">Scene Explorer</a> in the <a href="/com/jme3/gde/core/docs/sdk.html">SDK</a> to design and preview effects.</div></p></p><p><img src="nbdocs:/com/jme3/gde/core/docs/jme3/advanced/explosion-5.png"> <img src="nbdocs:/com/jme3/gde/core/docs/jme3/advanced/particle.png"> <img src="nbdocs:/com/jme3/gde/core/docs/jme3/beginner/beginner-effect-fire.png"> <img src="nbdocs:/com/jme3/gde/core/docs/jme3/advanced/butterfly-particle-emitter.png"></p></div><h2><a>Create an Emitter</a></h2><div><ol><li><div>Create one emitter for each effect:<pre>ParticleEmitter explosion = new ParticleEmitter&#40;
-&quot;My explosion effect&quot;, ParticleMesh.Type.Triangle, 30&#41;;</pre></div></li><li><div>Attach the emitter to the rootNode and position it in the scene:<pre>rootNode.attachChild&#40;explosion&#41;;
-explosion.setLocalTranslation&#40;bomb.getLocalTranslation&#40;&#41;&#41;;</pre></div></li><li><div>Trigger the effect by calling<pre>explosion.emitAllParticles&#40;&#41;</pre></div></li><li><div>End the effect by calling<pre>explosion.killAllParticles&#40;&#41;</pre></div></li></ol><p>Choose one of the following mesh shapes</p><ul><li><div>ParticleMesh.Type.Triangle</div></li><li><div>ParticleMesh.Type.Point</div></li></ul></div><h2><a>Configure Parameters</a></h2><div><p>Not all of these parameters are required for all kinds of effects. If you don&#039;t specify one of them, a default value will be used.</p><div><table><tr><th>Parameter</th><th>Method</th><th>Default</th><th>Description</th></tr><tr><td>number</td><td><code>setNumParticles()</code></td><td></td><td>The maximum number of particles visible at the same time. Specified by user in constructor.</td></tr><tr><td>emission rate</td><td><code>setParticlesPerSec()</code></td><td>20</td><td>Density of the effect, how many new particles are emitted per second. <br/> Set to zero to control the start/end of the effect. <br/> Set to a number for a constantly running effect.</td></tr><tr><td>size</td><td><code>setStartSize()</code>, <code>setEndSize()</code></td><td>0.2f, 2f</td><td>The radius of the scaled sprite image. Set both to same value for constant size effect. <br/> Set to different values for shrink/grow effect.</td></tr><tr><td>color</td><td><code>setStartColor()</code>, <code>setEndColor()</code></td><td>gray</td><td>Controls how the opaque (non-black) parts of the texture are colorized. <br/> Set both to the same color for single-colored effects (e.g. fog, debris). <br/> Set both to different colors for a gradient effect (e.g. fire).</td></tr>
+
+<h1><a>Particle Emmitter Settings</a></h1>
+<div>
+
+<p>
+
+You cannot create a 3D model for delicate things like fire, smoke, or explosions. Particle Emitters are quite an efficient solution to create these kinds of effects: The emitter renders a series of flat orthogonal images and manipulates them in a way that creates the illusion of a anything from a delicate smoke cloud to individual flames, etc.
+Creating an effect involves some trial and error to get the settings <em>just right</em>, and it&#039;s worth exploring the expressiveness of the options described below. 
+</p>
+
+<p>
+<p><div>Use the <a href="/com/jme3/gde/core/docs/sdk/scene_explorer.html">Scene Explorer</a> in the <a href="/com/jme3/gde/core/docs/sdk.html">SDK</a> to design and preview effects.
+</div></p>
+</p>
+
+<p>
+<img src="nbdocs:/com/jme3/gde/core/docs/jme3/advanced/explosion-5.png">  <img src="nbdocs:/com/jme3/gde/core/docs/jme3/advanced/particle.png">  <img src="nbdocs:/com/jme3/gde/core/docs/jme3/beginner/beginner-effect-fire.png"> <img src="nbdocs:/com/jme3/gde/core/docs/jme3/advanced/butterfly-particle-emitter.png">
+</p>
+
+</div>
+
+<h2><a>Create an Emitter</a></h2>
+<div>
+<ol>
+<li><div> Create one emitter for each effect: <pre>ParticleEmitter explosion = new ParticleEmitter&#40;
+&quot;My explosion effect&quot;, ParticleMesh.Type.Triangle, 30&#41;;</pre>
+</div>
+</li>
+<li><div> Attach the emitter to the rootNode and position it in the scene: <pre>rootNode.attachChild&#40;explosion&#41;;
+explosion.setLocalTranslation&#40;bomb.getLocalTranslation&#40;&#41;&#41;;</pre>
+</div>
+</li>
+<li><div> Trigger the effect by calling <pre>explosion.emitAllParticles&#40;&#41;</pre>
+</div>
+</li>
+<li><div> End the effect by calling <pre>explosion.killAllParticles&#40;&#41;</pre>
+</div>
+</li>
+</ol>
+
+<p>
+Choose one of the following mesh shapes
+</p>
+<ul>
+<li><div> ParticleMesh.Type.Triangle</div>
+</li>
+<li><div> ParticleMesh.Type.Point</div>
+</li>
+</ul>
+
+</div>
+
+<h2><a>Configure Parameters</a></h2>
+<div>
+
+<p>
+Not all of these parameters are required for all kinds of effects. If you don&#039;t specify one of them, a default value will be used.
+</p>
+<div><table>
+	<tr>
+		<th> Parameter           </th><th> Method                </th><th> Default </th><th> Description </th>
+	</tr>
+	<tr>
+		<td> number              </td><td> <code>setNumParticles()</code> </td><td>  </td><td> The maximum number of particles visible at the same time. Specified by user in constructor. </td>
+	</tr>
+	<tr>
+		<td> emission rate       </td><td> <code>setParticlesPerSec()</code> </td><td> 20 </td><td> Density of the effect, how many new particles are emitted per second. <br/>
+Set to zero to control the start/end of the effect. <br/>
+Set to a number for a constantly running effect. </td>
+	</tr>
+	<tr>
+		<td> size                </td><td> <code>setStartSize()</code>, <code>setEndSize()</code> </td><td> 0.2f, 2f </td><td> The radius of the scaled sprite image. Set both to same value for constant size effect. <br/>
+Set to different values for shrink/grow effect. </td>
+	</tr>
+	<tr>
+		<td> color               </td><td> <code>setStartColor()</code>, <code>setEndColor()</code> </td><td> gray </td><td> Controls how the opaque (non-black) parts of the texture are colorized. <br/>
+Set both to the same color for single-colored effects (e.g. fog, debris). <br/>
+Set both to different colors for a gradient effect (e.g. fire). </td>
+	</tr>
 	<tr>
 		<td> direction/velocity  </td><td> <code>getParticleInfluencer(). setInitialVelocity(initialVelocity)</code> </td><td> Vector3f(0,0,0) </td><td> A vector specifying the initial direction and speed of particles. The longer the vector, the faster. </td>
 	</tr>

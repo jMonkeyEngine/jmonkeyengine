@@ -64,10 +64,10 @@ The camera object is created with the following defaults:
 		<td>cam.resize(width, height, fixAspect)</td><td>Resize an existing camera object while keeping all other settings. Set fixAspect to true to adjust the aspect ratio (?)</td>
 	</tr>
 	<tr>
-		<td>cam.setFrustum( near, far, left, right, top, bottom )</td><td>The frustrum is defined by the near/far plane, left/rught plane, top/bottom plane (all distances as float values)</td>
+		<td>cam.setFrustum( near, far, left, right, top, bottom )</td><td>The frustum is defined by the near/far plane, left/rught plane, top/bottom plane (all distances as float values)</td>
 	</tr>
 	<tr>
-		<td>cam.setFrustumPerspective( fovY, aspect ratio, near, far)</td><td>The frustrum is defined by view angle along the Y axis (in degrees), aspect ratio, and the near/far plane.</td>
+		<td>cam.setFrustumPerspective( fovY, aspect ratio, near, far)</td><td>The frustum is defined by view angle along the Y axis (in degrees), aspect ratio, and the near/far plane.</td>
 	</tr>
 	<tr>
 		<td>cam.lookAt(target,up)</td><td>Turn the camera to look at Coordinate target, and rotate it around the up axis.</td>
@@ -82,9 +82,9 @@ The camera object is created with the following defaults:
 		<td>cam.getScreenCoordinates()</td><td>?</td>
 	</tr>
 </table></div>
-<!-- EDIT1 TABLE [583-1860] -->
+<!-- EDIT1 TABLE [583-1858] -->
 <p>
-<strong>Tip:</strong> After you change view port, frustrum, or frame, call <code>cam.update();</code>
+<strong>Tip:</strong> After you change view port, frustum, or frame, call <code>cam.update();</code>
 </p>
 
 </div>
@@ -114,7 +114,7 @@ The flyby camera is an extension of the default camera in com.jme3.app.SimpleApp
 		<td>flyCam.setDragToRotate(true)</td><td>Must keep mouse button pressed to rotate camera. Used e.g. for Applets. if false, all mouse movement will be captured and interpreted as rotations.</td>
 	</tr>
 </table></div>
-<!-- EDIT2 TABLE [2298-2649] -->
+<!-- EDIT2 TABLE [2295-2646] -->
 </div>
 
 <h2><a>Chase Camera</a></h2>
@@ -164,7 +164,7 @@ ChaseCamera chaseCam = new ChaseCamera&#40;cam, target, inputManager&#41;;</pre>
 		<td>chaseCam.setDefaultHorizontalRotation(-FastMath.PI/2);</td><td>The default horizontal rotation angle of the camera around the target at the start of the application.</td>
 	</tr>
 </table></div>
-<!-- EDIT3 TABLE [2958-4430] --><div><span>
+<!-- EDIT3 TABLE [2955-4427] --><div><span>
 	<a href="/wiki/doku.php/tag:camera?do=showtag&amp;tag=tag%3Acamera">camera</a>,
 	<a href="/wiki/doku.php/tag:documentation?do=showtag&amp;tag=tag%3Adocumentation">documentation</a>
 </span></div>

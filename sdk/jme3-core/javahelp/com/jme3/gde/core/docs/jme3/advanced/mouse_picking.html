@@ -1,4 +1,45 @@
-<h1><a>Mouse Picking</a></h1><div><p>Mouse picking means that the user clicks an object in the scene to select it, or to interact with it otherwise. Games use picking to implement aiming and shooting, casting spells, picking up objects, selecting targets, dragging and moving objects, etc. Mouse picking can be done using fixed crosshairs, or using the mouse pointer.</p><p><img src="nbdocs:/com/jme3/gde/core/docs/jme3/advanced/mouse-picking.png"></p><p>See <a href="/com/jme3/gde/core/docs/jme3/advanced/input_handling.html">Input Handling</a> for details on how to define the necessary input triggers, input mappings, and input listeners.</p></div><h2><a>Pick a Target Using Fixed Crosshairs</a></h2><div><p>The following <code>pick target</code> input mapping implements an action that determines what a user clicked. It assumes that the mouse pointer is invisible and there are crosshairs painted in the center of the screen. It assumes that the user aims the crosshairs at an object in the scene and clicks. You use Ray Casting to identify the geometry that was picked by the user. Use use this method together with a first-person flyCam.</p><ol><li><div>Activate the first-person camera: <code>flyCam.setEnabled(true);</code></div></li><li><div>Keep mouse pointer invisible using <code>inputManager.setCursorVisible(false)</code>.</div></li><li><div>Map the <code>pick target</code> action to a MouseButtonTrigger.</div></li><li><div>Implement the action in the Listener.</div></li></ol><p>The following example rotates Spatials named &quot;Red Box&quot; or &quot;Blue Box&quot; when they are clicked. Modify this code to do whatever your game needs to do with the identified target (shoot it, take it, move it, etc).</p><pre>  private AnalogListener analogListener = new AnalogListener&#40;&#41; &#123;
+
+<h1><a>Mouse Picking</a></h1>
+<div>
+
+<p>
+
+Mouse picking means that the user clicks an object in the scene to select it, or to interact with it otherwise. Games use picking to implement aiming and shooting, casting spells, picking up objects, selecting targets, dragging and moving objects, etc. Mouse picking can be done using fixed crosshairs, or using the mouse pointer.
+</p>
+
+<p>
+<img src="nbdocs:/com/jme3/gde/core/docs/jme3/advanced/mouse-picking.png">
+</p>
+
+<p>
+See <a href="/com/jme3/gde/core/docs/jme3/advanced/input_handling.html">Input Handling</a> for details on how to define the necessary input triggers, input mappings, and input listeners.
+</p>
+
+</div>
+
+<h2><a>Pick a Target Using Fixed Crosshairs</a></h2>
+<div>
+
+<p>
+
+The following <code>pick target</code> input mapping implements an action that determines what a user clicked. It assumes that the mouse pointer is invisible and there are crosshairs painted in the center of the screen. It assumes that the user aims the crosshairs at an object in the scene and clicks. You use Ray Casting to identify the geometry that was picked by the user. Use use this method together with a first-person flyCam. 
+
+</p>
+<ol>
+<li><div> Activate the first-person camera: <code>flyCam.setEnabled(true);</code></div>
+</li>
+<li><div> Keep mouse pointer invisible using <code>inputManager.setCursorVisible(false)</code>.</div>
+</li>
+<li><div> Map the <code>pick target</code> action to a MouseButtonTrigger. </div>
+</li>
+<li><div> Implement the action in the Listener.</div>
+</li>
+</ol>
+
+<p>
+The following example rotates Spatials named &quot;Red Box&quot; or &quot;Blue Box&quot; when they are clicked. Modify this code to do whatever your game needs to do with the identified target (shoot it, take it, move it, etc).
+</p>
+<pre>  private AnalogListener analogListener = new AnalogListener&#40;&#41; &#123;
     public void onAnalog&#40;String name, float intensity, float tpf&#41; &#123;
         if &#40;name.equals&#40;&quot;pick target&quot;&#41;&#41; &#123;
          // Reset results list.

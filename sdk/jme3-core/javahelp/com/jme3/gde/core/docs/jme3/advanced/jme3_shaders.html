@@ -282,23 +282,31 @@ You simply add it in the Defines section of your Technique in the definition fil
 
 </p>
 <pre>    Defines &#123;
-        COLORMAP: ColorMap
+        COLORMAP : ColorMap
     &#125;</pre>
 
 <p>
+For integer and floating point parameters, the define will contain the value that was set.<br/>
 
-Those material parameters will be sent from the engine to the shader as follow
-Note that there is a setXXXX method for any type of uniform you want to pass.<br/>
+For all other types of parameters, the value 1 is defined.<br/>
+
+If no value is set for that parameter, the define is not declared in the shader.<br/>
+
+</p>
+
+<p>
+Those material parameters will be sent from the engine to the shader as follows, 
+there are setXXXX methods for any type of uniform you want to pass.<br/>
 
 
 </p>
-<pre>   material.setColor&#40;&quot;Color&quot;, new ColorRGBA&#40;1.0f, 0.0f, 0.0f, 1.0f&#41;; //red color
-   material.setTexture&#40;&quot;ColorMap&quot;, myTexture&#41;; </pre>
+<pre>   material.setColor&#40;&quot;Color&quot;, new ColorRGBA&#40;1.0f, 0.0f, 0.0f, 1.0f&#41;; // red color
+   material.setTexture&#40;&quot;ColorMap&quot;, myTexture&#41;; // bind myTexture for that sampler uniform</pre>
 
 <p>
-To use this uniform in the shader, you need to declare it in the .frag or in the .vert files (depending on where you need it).
+To use this uniform in the shader, you need to declare it in the .frag or .vert files (depending on where you need it).
 You can make use of the defines here and later in the code:
-<strong>Note the &quot;m_&quot; prefix that specifies that the uniform is a material parameter.</strong><br/>
+<strong>Note that the &quot;m_&quot; prefix specifies that the uniform is a material parameter.</strong><br/>
 
 
 </p>
@@ -327,7 +335,7 @@ color to add in its alpha channel. <br/>
 
 Here I will use this color map: <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://wstaw.org/m/2011/10/24/plasma-desktopxB2787.jpg"><param name="text" value="<html><u>http://wstaw.org/m/2011/10/24/plasma-desktopxB2787.jpg</u></html>"><param name="textColor" value="blue"></object> <br/>
 
-to bend color on this texture: <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://wstaw.org/m/2011/10/24/plasma-desktopbq2787.jpg"><param name="text" value="<html><u>http://wstaw.org/m/2011/10/24/plasma-desktopbq2787.jpg</u></html>"><param name="textColor" value="blue"></object> <br/>
+to blend color on this texture: <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://wstaw.org/m/2011/10/24/plasma-desktopbq2787.jpg"><param name="text" value="<html><u>http://wstaw.org/m/2011/10/24/plasma-desktopbq2787.jpg</u></html>"><param name="textColor" value="blue"></object> <br/>
 
 <br/>
 
@@ -444,7 +452,7 @@ Those attributes are deprecated since GLSL 1.3 (opengl 3), hence JME3 global uni
 		<td>gl_NormalMatrix	</td><td>g_NormalMatrix</td>
 	</tr>
 </table></div>
-<!-- EDIT1 TABLE [11121-11432] -->
+<!-- EDIT1 TABLE [11389-11700] -->
 </div>
 
 <h3><a>Useful links</a></h3>

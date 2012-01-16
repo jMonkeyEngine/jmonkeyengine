@@ -1,4 +1,40 @@
-<h1><a>jMonkeyEngine SDK: Debugging, Profiling, Testing</a></h1><div><p>Debugging, testing and profiling are important parts of the development cycle. This documentation shows you how to make the most of the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym>&#039;s assistive features.</p><p><strong>Note:</strong> Since the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> is based on the NetBeans Platform framework, you can learn about certain jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> features by reading the corresponding NetBeans IDE tutorials (in the &quot;see also links&quot;).</p></div><h2><a>Testing</a></h2><div><p>The jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> supports the JUnit testing framework. It is a good practice to write tests (assertions) for each of your classes. Each test makes certain this &quot;unit&quot; (e.g. method) meets its design and behaves as intended. Run your tests after each major change and you immediately see if you broke something.</p></div><h4><a>Creating Tests</a></h4><div><ol><li><div>Right-click a Java file in the Projects window and choose Tools &gt; Create JUnit Tests.</div></li><li><div>Click OK. The jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> creates a JUnit test skeleton in the Test Package directory.</div></li><li><div>The body of each generated test method is provided solely as a guide. In their place, you need to write your actual test cases!</div></li><li><div>You can use tests such as <code>assertTrue(), assertFalse(), assertEquals()</code>, or <code>assert()</code>.</div><ul><li><div> The following example assertions test an addition method: <code>assert( add(1, 1) == 2); assertTrue( add(7,-5) == add(-5,7) )…</code></div>
+
+<h1><a>jMonkeyEngine SDK: Debugging, Profiling, Testing</a></h1>
+<div>
+
+<p>
+
+Debugging, testing and profiling are important parts of the development cycle. This documentation shows you how to make the most of the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym>&#039;s assistive features.
+</p>
+
+<p>
+<strong>Note:</strong> Since the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> is based on the NetBeans Platform framework, you can learn about certain jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> features by reading the corresponding NetBeans IDE tutorials (in the &quot;see also links&quot;). 
+</p>
+
+</div>
+
+<h2><a>Testing</a></h2>
+<div>
+
+<p>
+
+The jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> supports the JUnit testing framework. It is a good practice to write tests (assertions) for each of your classes. Each test makes certain this &quot;unit&quot; (e.g. method) meets its design and behaves as intended. Run your tests after each major change and you immediately see if you broke something.
+</p>
+
+</div>
+
+<h4><a>Creating Tests</a></h4>
+<div>
+<ol>
+<li><div> Right-click a Java file in the Projects window and choose Tools &gt; Create JUnit Tests.</div>
+</li>
+<li><div> Click OK. The jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> creates a JUnit test skeleton in the Test Package directory.</div>
+</li>
+<li><div> The body of each generated test method is provided solely as a guide. In their place, you need to write your actual test cases!</div>
+</li>
+<li><div> You can use tests such as <code>assertTrue(), assertFalse(), assertEquals()</code>, or <code>assert()</code>.</div>
+<ul>
+<li><div> The following example assertions test an addition method: <code>assert( add(1, 1) == 2); assertTrue( add(7,-5) == add(-5,7) )…</code></div>
 </li>
 </ul>
 </li>

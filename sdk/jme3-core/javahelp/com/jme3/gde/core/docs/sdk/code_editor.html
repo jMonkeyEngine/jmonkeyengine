@@ -1,4 +1,94 @@
-<h1><a>jMonkeyEngine SDK: Code Editor and Palette</a></h1><div><p>The Source Code Editor is the central part of the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym>. This documentation shows you how to make the most of the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym>&#039;s assistive features.</p><p>Note: Since the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> is based on the NetBeans Platform framework, you can learn about certain jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> features by reading the corresponding NetBeans IDE tutorials (in the &quot;see also links&quot;).</p></div><h2><a>Code Completion and Code Generation</a></h2><div><p>While typing Java code in the source code editor, you will see popups that help you to write more quickly by completing keywords, and generating code snippets. Additionally, they will let you see the javadoc for the classes you are working with.</p><p><img src="nbdocs:/com/jme3/gde/core/docs/sdk/netbeans_code_completion.png"></p><p>Code Completion</p><ul><li><div>Complete keyword / method / variable: <strong>Ctrl-Space</strong> (Alternatively use <strong>Ctrl-\</strong>)</div><ul><li><div>Customize Code Completion options: Tools &gt; Options &gt; Editor &gt; Code Completion</div></li></ul></li><li><div>Show expected parameters of this method in a tooltip: <strong>Ctrl-P</strong></div></li><li><div>Complete any string (even non-Java) that has been used before: <strong>(Shift-)Ctrl-K</strong></div></li></ul><p>Code Generation</p><ul><li><div>Auto-fix import statements: <strong>Ctrl-Shift-I</strong></div></li><li><div>Auto-generate getters/setters, try/catch, equals/hashCode: <strong>Alt-Insert</strong></div><ul><li><div>Customize code completion: Choose Tools &gt; Options &gt; Editor &gt; Code Completion</div></li></ul></li><li><div>Auto-generate common code snippets such as loops, declarations, println, by typing the <strong>template name + TabKey</strong></div><ul><li><div>Customize code templates: Choose Tools &gt; Options &gt; Editor &gt; Code Templates</div></li></ul></li><li><div>Rename, move, or introduce methods, fields, and variables, without breaking the project: <strong>Refactoring menu</strong></div></li></ul></div><h2><a>Semantic and Syntactic Coloring</a></h2><div><p><img src="nbdocs:/com/jme3/gde/core/docs/sdk/jmonkeyplatform-docu-5.png"></p><p>The text color in the editor gives you important hints how the compiler will interpret what you typed, even before you compiled it.</p><p>Examples:</p><ul><li><div>Java keywords are <strong>blue</strong>, variables and fields are <strong>green</strong>, parameters are <strong>orange</strong>.</div></li><li><div><del>Strikethrough</del> means deprecated method or field.</div></li><li><div><em>Gray underline</em> means unused variable or method.</div></li><li><div>Place the caret in a method or variable and all its ocurrences are marked <strong>tan</strong>.</div>
+
+<h1><a>jMonkeyEngine SDK: Code Editor and Palette</a></h1>
+<div>
+
+<p>
+
+The Source Code Editor is the central part of the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym>. This documentation shows you how to make the most of the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym>&#039;s assistive features.
+</p>
+
+<p>
+Note: Since the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> is based on the NetBeans Platform framework, you can learn about certain jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> features by reading the corresponding NetBeans IDE tutorials (in the &quot;see also links&quot;). 
+</p>
+
+</div>
+
+<h2><a>Code Completion and Code Generation</a></h2>
+<div>
+
+<p>
+
+While typing Java code in the source code editor, you will see popups that help you to write more quickly by completing keywords, and generating code snippets. Additionally, they will let you see the javadoc for the classes you are working with.
+</p>
+
+<p>
+<img src="nbdocs:/com/jme3/gde/core/docs/sdk/netbeans_code_completion.png">
+</p>
+
+<p>
+Code Completion
+</p>
+<ul>
+<li><div> Complete keyword / method / variable: <strong>Ctrl-Space</strong> (Alternatively use <strong>Ctrl-\</strong>)</div>
+<ul>
+<li><div> Customize Code Completion options: Tools &gt; Options &gt; Editor &gt; Code Completion </div>
+</li>
+</ul>
+</li>
+<li><div> Show expected parameters of this method in a tooltip: <strong>Ctrl-P</strong> </div>
+</li>
+<li><div> Complete any string (even non-Java) that has been used before: <strong>(Shift-)Ctrl-K</strong></div>
+</li>
+</ul>
+
+<p>
+
+Code Generation
+</p>
+<ul>
+<li><div> Auto-fix import statements: <strong>Ctrl-Shift-I</strong></div>
+</li>
+<li><div> Auto-generate getters/setters, try/catch, equals/hashCode: <strong>Alt-Insert</strong></div>
+<ul>
+<li><div> Customize code completion: Choose Tools &gt; Options &gt; Editor &gt; Code Completion</div>
+</li>
+</ul>
+</li>
+<li><div> Auto-generate common code snippets such as loops, declarations, println, by typing the <strong>template name + TabKey</strong> </div>
+<ul>
+<li><div> Customize code templates: Choose Tools &gt; Options &gt; Editor &gt; Code Templates</div>
+</li>
+</ul>
+</li>
+<li><div> Rename, move, or introduce methods, fields, and variables, without breaking the project: <strong>Refactoring menu</strong></div>
+</li>
+</ul>
+
+</div>
+
+<h2><a>Semantic and Syntactic Coloring</a></h2>
+<div>
+
+<p>
+
+<img src="nbdocs:/com/jme3/gde/core/docs/sdk/jmonkeyplatform-docu-5.png">
+</p>
+
+<p>
+The text color in the editor gives you important hints how the compiler will interpret what you typed, even before you compiled it.
+</p>
+
+<p>
+Examples:
+</p>
+<ul>
+<li><div> Java keywords are <strong>blue</strong>, variables and fields are <strong>green</strong>, parameters are <strong>orange</strong>. </div>
+</li>
+<li><div> <del>Strikethrough</del> means deprecated method or field. </div>
+</li>
+<li><div> <em>Gray underline</em> means unused variable or method.</div>
+</li>
+<li><div> Place the caret in a method or variable and all its ocurrences are marked <strong>tan</strong>.</div>
 </li>
 <li><div> Place the caret in a method&#039;s return type to highlight all exit points</div>
 </li>

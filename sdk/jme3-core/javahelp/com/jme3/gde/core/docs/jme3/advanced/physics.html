@@ -1,7 +1,166 @@
-<h1><a>Physics: Gravity, Collisions, Forces</a></h1><div><p>The jMonkeyEngine3 has built-in support for <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://jbullet.advel.cz"><param name="text" value="<html><u>jBullet physics</u></html>"><param name="textColor" value="blue"></object> via the <code>com.jme3.bullet</code> package.</p><p>Game Physics are used in applications that simulate mass/gravity, collisions, and friction. Think of pool billiard or car racing simulations.</p><p>If you are looking for info on how to respond to physics events, read about <a href="/com/jme3/gde/core/docs/jme3/advanced/physics_listeners.html">Physics Listeners</a>.</p></div><h2><a>Technical Overview</a></h2><div><p>Bullet physics runs internally at 60fps by default. This rate is not dependent on the actual framerate and it does not lock the framerate at 60fps. Instead, when the actual fps is higher than the physics framerate the system will display interpolated positions for the physics entities. When the framerate is lower than the physics framerate the physics space will be stepped multiple times per frame to make up for the missing calculations.</p><p>A bullet physics space can be created with a BulletAppState. The updating and syncing of the actual physics entities happens in the following way:</p><p>A &quot;normal&quot; update loop with physics looks like this:</p><ol><li><div>collision callbacks (BulletAppState.update())</div></li><li><div>user update (simpleUpdate / update)</div></li><li><div>physics to scenegraph syncing/applying (updateLogicalState())</div></li><li><div>stepping physics (before / in parallel to Application.render())</div></li></ol><p>When you use physics, 1 unit (1.0f) equals 1 meter, weight is expressed in kilograms, most torque and rotation values are expressed in radians.</p></div><h2><a>Sample Code</a></h2><div><p>Full code samples are here:</p><ul><li><div><object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/bullet/TestBrickWall.java"><param name="text" value="<html><u>TestBrickWall.java</u></html>"><param name="textColor" value="blue"></object></div></li><li><div><object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/bullet/TestQ3.java"><param name="text" value="<html><u>TestQ3.java</u></html>"><param name="textColor" value="blue"></object></div></li><li><div><object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/bullet/TestSimplePhysics.java"><param name="text" value="<html><u>TestSimplePhysics.java</u></html>"><param name="textColor" value="blue"></object></div></li><li><div><object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/bullet/TestWalkingChar.java"><param name="text" value="<html><u>TestWalkingChar.java</u></html>"><param name="textColor" value="blue"></object></div></li></ul></div><h2><a>Physics Application</a></h2><div><p>A short overview of how to write a jME application with Physics capabilities:</p><p>Do the following once per application to gain access to the <code>physicsSpace</code> object:</p><ol><li><div>Make you application extend <code>com.jme3.app.SimpleApplication</code>.</div></li><li><div>Create a BulletAppState field:<pre>private BulletAppState bulletAppState;</pre></div></li><li><div>Initialize your bulletAppState and attach it to the state manager:<pre>public void simpleInitApp&#40;&#41; &#123;
+
+<h1><a>Physics: Gravity, Collisions, Forces</a></h1>
+<div>
+
+<p>
+
+The jMonkeyEngine3 has built-in support for <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://jbullet.advel.cz"><param name="text" value="<html><u>jBullet physics</u></html>"><param name="textColor" value="blue"></object> via the <code>com.jme3.bullet</code> package.
+</p>
+
+<p>
+Game Physics are used in applications that simulate mass/gravity, collisions, and friction. Think of pool billiard or car racing simulations.
+</p>
+
+<p>
+If you are looking for info on how to respond to physics events, read about <a href="/com/jme3/gde/core/docs/jme3/advanced/physics_listeners.html">Physics Listeners</a>.
+</p>
+
+</div>
+
+<h2><a>Technical Overview</a></h2>
+<div>
+
+<p>
+
+Bullet physics runs internally at 60fps by default. This rate is not dependent on the actual framerate and it does not lock the framerate at 60fps. Instead, when the actual fps is higher than the physics framerate the system will display interpolated positions for the physics entities. When the framerate is lower than the physics framerate the physics space will be stepped multiple times per frame to make up for the missing calculations.
+</p>
+
+<p>
+A bullet physics space can be created with a BulletAppState. The updating and syncing of the actual physics entities happens in the following way:
+</p>
+
+<p>
+A &quot;normal&quot; update loop with physics looks like this:
+</p>
+<ol>
+<li><div> collision callbacks (BulletAppState.update())</div>
+</li>
+<li><div> user update (simpleUpdate / update)</div>
+</li>
+<li><div> physics to scenegraph syncing/applying (updateLogicalState())</div>
+</li>
+<li><div> stepping physics (before / in parallel to Application.render())</div>
+</li>
+</ol>
+
+<p>
+When you use physics, 1 unit (1.0f) equals 1 meter, weight is expressed in kilograms, most torque and rotation values are expressed in radians.
+</p>
+
+</div>
+
+<h2><a>Sample Code</a></h2>
+<div>
+
+<p>
+
+Full code samples are here:
+</p>
+<ul>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/bullet/TestBrickWall.java"><param name="text" value="<html><u>TestBrickWall.java</u></html>"><param name="textColor" value="blue"></object></div>
+</li>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/bullet/TestQ3.java"><param name="text" value="<html><u>TestQ3.java</u></html>"><param name="textColor" value="blue"></object></div>
+</li>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/bullet/TestSimplePhysics.java"><param name="text" value="<html><u>TestSimplePhysics.java</u></html>"><param name="textColor" value="blue"></object></div>
+</li>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/bullet/TestWalkingChar.java"><param name="text" value="<html><u>TestWalkingChar.java</u></html>"><param name="textColor" value="blue"></object></div>
+</li>
+</ul>
+
+</div>
+
+<h2><a>Physics Application</a></h2>
+<div>
+
+<p>
+
+A short overview of how to write a jME application with Physics capabilities:
+</p>
+
+<p>
+Do the following once per application to gain access to the <code>physicsSpace</code> object:
+</p>
+<ol>
+<li><div> Make you application extend <code>com.jme3.app.SimpleApplication</code>.</div>
+</li>
+<li><div> Create a BulletAppState field: <pre>private BulletAppState bulletAppState;</pre>
+</div>
+</li>
+<li><div> Initialize your bulletAppState and attach it to the state manager: <pre>public void simpleInitApp&#40;&#41; &#123;
     bulletAppState = new BulletAppState&#40;&#41;;
     stateManager.attach&#40;bulletAppState&#41;;
-    ...</pre></div></li></ol><p>You can also access the BulletAppState via the state manager:</p><pre>stateManager.getState&#40;BulletAppState.class&#41;</pre><p>For each Spatial that you want to be physical:</p><ol><li><div>Create a CollisionShape.</div></li><li><div>Create a PhysicsControl by supplying the CollisionShape and mass.</div><ul><li><div>E.g. <code>com.jme3.bullet.control.RigidBodyControl</code></div></li></ul></li><li><div>Add the PhysicsControl to the Spatial.</div></li><li><div>Add the PhysicsControl to the physicsSpace object.</div></li><li><div>Attach the Spatial to the rootNode, as usual.</div></li><li><div>(Optional) Implement the <code>PhysicsCollisionListener</code> interface to respond to <code>PhysicsCollisionEvent</code>s if desired.</div></li></ol></div><h3><a>Collision Shapes</a></h3><div><p>A Collision Shape is a simplified shape for which physics are easier to calculate than for the true shape of the model. This simplication approach speeds up the simulation greatly.</p><p>Before you can create a Physics Control, you must create a Collision Shape from the <code>com.jme3.bullet.collision.shapes</code> package. (Read the tip under &quot;PhysicsControls Code Samples&quot; to learn how to use default CollisionShapes for Boxes and Spheres.)</p><div><table><tr><th>Shape</th><th>Usage</th><th>Examples</th></tr><tr><td>BoxCollisionShape</td><td>Box shaped entities Does not roll.</td><td>Bricks, crates, simple oblong entities.</td></tr><tr><td>SphereCollisionShape</td><td>Spherical entities. Can roll.</td><td>Balls, simple compact entities.</td></tr><tr><td>CylinderCollisionShape</td><td>Tube-shaped and disc-shaped entities. Can roll on one side.</td><td>Pillars, wheels.</td></tr><tr><td>CapsuleCollisionShape</td><td>A compound of a cylinder plus two spheres at the top and bottom. Is locked to stay upright, does not roll.</td><td>Optimized for CharacterControls: A cylinder-shaped body does not get stuck at corners and vertical obstacles; the rounded top and bottom do not get stuck on stair steps and ground obstacles.</td></tr><tr><td>CompoundCollisionShape</td><td>A CompoundCollisionShape allows custom combinations of box/sphere/cylinder shapes to form another more complex shape.</td><td>Complex shapes.</td></tr><tr><td>MeshCollisionShape</td><td>A free-form mesh-accurate shape that wraps itself around a static entity. <br/> <strong>Limitations:</strong> Only non-mesh collision shapes (sphere, box, cylinder, compound) can collide with mesh-accurate collision shapes. Only works for static obstacles.</td><td>A whole static game level model.</td></tr><tr><td>GImpactCollisionShape</td><td>This free-form Mesh Collision Shape that wraps itself around dynamically moving entities. Uses <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://gimpact.sourceforge.net/"><param name="text" value="<html><u>http://gimpact.sourceforge.net/</u></html>"><param name="textColor" value="blue"></object>. <br/>
+    ...</pre>
+</div>
+</li>
+</ol>
+
+<p>
+
+You can also access the BulletAppState via the state manager:
+</p>
+<pre>stateManager.getState&#40;BulletAppState.class&#41;</pre>
+
+<p>
+For each Spatial that you want to be physical:
+</p>
+<ol>
+<li><div> Create a CollisionShape.</div>
+</li>
+<li><div> Create a PhysicsControl by supplying the CollisionShape and mass.</div>
+<ul>
+<li><div> E.g. <code>com.jme3.bullet.control.RigidBodyControl</code></div>
+</li>
+</ul>
+</li>
+<li><div> Add the PhysicsControl to the Spatial.</div>
+</li>
+<li><div> Add the PhysicsControl to the physicsSpace object.</div>
+</li>
+<li><div> Attach the Spatial to the rootNode, as usual.</div>
+</li>
+<li><div> (Optional) Implement the <code>PhysicsCollisionListener</code> interface to respond to <code>PhysicsCollisionEvent</code>s if desired.</div>
+</li>
+</ol>
+
+</div>
+
+<h3><a>Collision Shapes</a></h3>
+<div>
+
+<p>
+
+A Collision Shape is a simplified shape for which physics are easier to calculate than for the true shape of the model. This simplication approach speeds up the simulation greatly.
+</p>
+
+<p>
+Before you can create a Physics Control, you must create a Collision Shape from the <code>com.jme3.bullet.collision.shapes</code> package. (Read the tip under &quot;PhysicsControls Code Samples&quot; to learn how to use default CollisionShapes for Boxes and Spheres.)
+
+</p>
+<div><table>
+	<tr>
+		<th> Shape                     </th><th> Usage               </th><th> Examples </th>
+	</tr>
+	<tr>
+		<td> BoxCollisionShape         </td><td> Box shaped entities Does not roll.</td><td> Bricks, crates, simple oblong entities.  </td>
+	</tr>
+	<tr>
+		<td> SphereCollisionShape      </td><td> Spherical entities. Can roll. </td><td> Balls, simple compact entities. </td>
+	</tr>
+	<tr>
+		<td> CylinderCollisionShape    </td><td> Tube-shaped and disc-shaped entities. Can roll on one side. </td><td> Pillars, wheels. </td>
+	</tr>
+	<tr>
+		<td> CapsuleCollisionShape     </td><td> A compound of a cylinder plus two spheres at the top and bottom. Is locked to stay upright, does not roll. </td><td> Optimized for CharacterControls: A cylinder-shaped body does not get stuck at corners and vertical obstacles; the rounded top and bottom do not get stuck on stair steps and ground obstacles. </td>
+	</tr>
+	<tr>
+		<td> CompoundCollisionShape    </td><td> A CompoundCollisionShape allows custom combinations of box/sphere/cylinder shapes to form another more complex shape. </td><td> Complex shapes. </td>
+	</tr>
+	<tr>
+		<td> MeshCollisionShape        </td><td> A free-form mesh-accurate shape that wraps itself around a static entity. <br/>
+<strong>Limitations:</strong> Only non-mesh collision shapes (sphere, box, cylinder, compound) can collide with mesh-accurate collision shapes. Only works for static obstacles. </td><td> A whole static game level model. </td>
+	</tr>
+	<tr>
+		<td> GImpactCollisionShape     </td><td> This free-form Mesh Collision Shape that wraps itself around dynamically moving entities. Uses <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://gimpact.sourceforge.net/"><param name="text" value="<html><u>http://gimpact.sourceforge.net/</u></html>"><param name="textColor" value="blue"></object>. <br/>
 <strong>Limitations:</strong> CPU intensive, use sparingly! We recommend using HullCollisionShapes or CompoundShapes made of simple shapes if you need improved performance. </td><td> Physics simulation of a complex object. </td>
 	</tr>
 	<tr>

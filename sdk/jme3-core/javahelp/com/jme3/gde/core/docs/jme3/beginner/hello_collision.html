@@ -1,8 +1,41 @@
-<h1><a>JME 3 Tutorial (9) - Hello Collision</a></h1><div><p>Previous: <a href="/com/jme3/gde/core/docs/jme3/beginner/hello_picking.html">Hello Picking</a>, Next: <a href="/com/jme3/gde/core/docs/jme3/beginner/hello_terrain.html">Hello Terrain</a></p><p>This tutorial demonstrates how you load a scene model and give it solid walls and floors for a character to walk around. You use a <code>RigidBodyControl</code> for the static collidable scene, and a <code>CharacterControl</code> for the mobile first-person character. You also learn how to set up the default first-person camera to work with physics-controlled navigation. You can use the solution shown here for first-person shooters, mazes, and similar games.</p><p><img src="nbdocs:/com/jme3/gde/core/docs/jme3/beginner/beginner-scene.png"></p></div><h2><a>Sample Code</a></h2><div><p>If you don&#039;t have it yet, <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://jmonkeyengine.googlecode.com/svn/trunk/engine/town.zip"><param name="text" value="<html><u>download the town.zip</u></html>"><param name="textColor" value="blue"></object> sample scene.</p><pre>jMonkeyProjects$ ls -1 BasicGame
+
+<h1><a>JME 3 Tutorial (9) - Hello Collision</a></h1>
+<div>
+
+<p>
+Previous: <a href="/com/jme3/gde/core/docs/jme3/beginner/hello_picking.html">Hello Picking</a>,
+Next: <a href="/com/jme3/gde/core/docs/jme3/beginner/hello_terrain.html">Hello Terrain</a>
+</p>
+
+<p>
+This tutorial demonstrates how you load a scene model and give it solid walls and floors for a character to walk around.
+You use a <code>RigidBodyControl</code> for the static collidable scene, and a <code>CharacterControl</code> for the mobile first-person character. You also learn how to set up the default first-person camera to work with physics-controlled navigation.
+You can use the solution shown here for first-person shooters, mazes, and similar games.
+</p>
+
+<p>
+<img src="nbdocs:/com/jme3/gde/core/docs/jme3/beginner/beginner-scene.png">
+</p>
+
+</div>
+
+<h2><a>Sample Code</a></h2>
+<div>
+
+<p>
+
+If you don&#039;t have it yet, <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://jmonkeyengine.googlecode.com/svn/trunk/engine/town.zip"><param name="text" value="<html><u>download the town.zip</u></html>"><param name="textColor" value="blue"></object> sample scene.
+</p>
+<pre>jMonkeyProjects$ ls -1 BasicGame
 assets/
 build.xml
 town.zip
-src/</pre><p>Place town.zip in the root directory of your JME3 project. Here is the code:</p><pre>package jme3test.helloworld;
+src/</pre>
+
+<p>
+Place town.zip in the root directory of your JME3 project. Here is the code:
+</p>
+<pre>package jme3test.helloworld;
 &nbsp;
 import com.jme3.app.SimpleApplication;
 import com.jme3.asset.plugins.ZipLocator;
@@ -147,16 +180,70 @@ public class HelloCollision extends SimpleApplication
     player.setWalkDirection&#40;walkDirection&#41;;
     cam.setLocation&#40;player.getPhysicsLocation&#40;&#41;&#41;;
   &#125;
-&#125;</pre><p>Run the sample. You should see a town square with houses and a monument. Use the WASD keys and the mouse to navigate around with a first-person perspective. Run forward and jump by pressing W and Space. Note how you step over the sidewalk, and up the steps to the monument. You can walk in the alleys between the houses, but the walls are solid. Don&#039;t walk over the edge of the world! <img src="/wiki/lib/images/smileys/icon_smile.gif" class="middle" alt=":-)" /></p></div><h2><a>Understanding the Code</a></h2><div><p>Let&#039;s start with the class declaration:</p><pre>public class HelloCollision extends SimpleApplication
-        implements ActionListener &#123; ... &#125;</pre><p>You already know that SimpleApplication is the base class for all jME3 games. You make this class implement the <code>ActionListener</code> interface because you want to customize the navigational inputs later.</p><pre>  private Spatial sceneModel;
+&#125;</pre>
+
+<p>
+Run the sample. You should see a town square with houses and a monument. Use the WASD keys and the mouse to navigate around with a first-person perspective. Run forward and jump by pressing W and Space. Note how you step over the sidewalk, and up the steps to the monument. You can walk in the alleys between the houses, but the walls are solid. Don&#039;t walk over the edge of the world! <img src="/wiki/lib/images/smileys/icon_smile.gif" class="middle" alt=":-)" />
+</p>
+
+</div>
+
+<h2><a>Understanding the Code</a></h2>
+<div>
+
+<p>
+
+Let&#039;s start with the class declaration:
+</p>
+<pre>public class HelloCollision extends SimpleApplication
+        implements ActionListener &#123; ... &#125;</pre>
+
+<p>
+You already know that SimpleApplication is the base class for all jME3 games. You make this class implement the <code>ActionListener</code> interface because you want to customize the navigational inputs later.
+</p>
+<pre>  private Spatial sceneModel;
   private BulletAppState bulletAppState;
   private RigidBodyControl landscape;
   private CharacterControl player;
   private Vector3f walkDirection = new Vector3f&#40;&#41;;
-  private boolean left = false, right = false, up = false, down = false;</pre><p>You initialize a few private fields:</p><ul><li><div>The BulletAppState gives this SimpleApplication access to physics features (such as collision detection) supplied by jME3&#039;s jBullet integration</div></li><li><div>The Spatial sceneModel is for loading an OgreXML model of a town.</div></li><li><div>You need a RigidBodyControl to make the town model solid.</div></li><li><div>The (invisible) first-person player is represented by a CharacterControl object.</div></li><li><div>The fields <code>walkDirection</code> and the four Booleans are used for physics-controlled navigation.</div></li></ul><p>Let&#039;s have a look at all the details:</p></div><h2><a>Initializing the Game</a></h2><div><p>As usual, you initialize the game in the <code>simpleInitApp()</code> method.</p><pre>    viewPort.setBackgroundColor&#40;new ColorRGBA&#40;0.7f,0.8f,1f,1f&#41;&#41;;
+  private boolean left = false, right = false, up = false, down = false;</pre>
+
+<p>
+You initialize a few private fields:
+</p>
+<ul>
+<li><div> The BulletAppState gives this SimpleApplication access to physics features (such as collision detection) supplied by jME3&#039;s jBullet integration</div>
+</li>
+<li><div> The Spatial sceneModel is for loading an OgreXML model of a town.</div>
+</li>
+<li><div> You need a RigidBodyControl to make the town model solid.</div>
+</li>
+<li><div> The (invisible) first-person player is represented by a CharacterControl object.</div>
+</li>
+<li><div> The fields <code>walkDirection</code> and the four Booleans are used for physics-controlled navigation.</div>
+</li>
+</ul>
+
+<p>
+
+Let&#039;s have a look at all the details:
+</p>
+
+</div>
+
+<h2><a>Initializing the Game</a></h2>
+<div>
+
+<p>
+
+As usual, you initialize the game in the <code>simpleInitApp()</code> method.
+</p>
+<pre>    viewPort.setBackgroundColor&#40;new ColorRGBA&#40;0.7f,0.8f,1f,1f&#41;&#41;;
     flyCam.setMoveSpeed&#40;100&#41;;
     setUpKeys&#40;&#41;;
-    setUpLight&#40;&#41;;</pre><ol><li><div> You set the background color to light blue, since this is a scene with a sky.</div>
+    setUpLight&#40;&#41;;</pre>
+<ol>
+<li><div> You set the background color to light blue, since this is a scene with a sky.</div>
 </li>
 <li><div> You repurpose the default camera control &quot;flyCam&quot; as first-person camera and set its speed.</div>
 </li>

@@ -1,4 +1,128 @@
-<h1><a>jMonkeyEngine SDK: Version Control</a></h1><div><p>Whether you work in a development team or alone: File versioning is a handy method to keep your code consistent, compare files line-by-line, and even roll back unwanted changes. This documentation shows you how to make the most of the <acronym title="Software Development Kit">SDK</acronym>&#039;s integrated version control features for Subversion, Mercurial, and <acronym title="Concurrent Versions System">CVS</acronym>.</p><p>Note: Since the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> is based on the NetBeans Platform framework, you can learn about certain jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> features by reading the corresponding NetBeans IDE tutorials (in the &quot;see also links&quot;).</p></div><h2><a>Version Control Systems</a></h2><div><p>The jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> supports various Version Control Systems such as Subversion, Mercurial, and <acronym title="Concurrent Versions System">CVS</acronym>. No matter which of them you use, they all share a common user interface.</p><p>You can use file versioning alone or in a team. The advantages are that you can keep track of changes (who did it, when, and why), you can compare versions line-by-line, you can revert changes to files and lines, merge multiple changes to one file, and you can even undelete files.</p></div><h2><a>Creating a Repository (Upload)</a></h2><div><p>Requirements:</p><ul><li><div>You must have a project that you want to version.</div></li><li><div>You must have version control software installed (Subversion, Mercurial, or <acronym title="Concurrent Versions System">CVS</acronym>) and have initialized a repository.</div><ul><li><div>Tip: For Subversion, the init command looks like this example: <code>svnadmin create /home/joe/mysvnrepo</code></div></li></ul></li><li><div>The computer where the repository is to be hosted must be available in your network, or you will only be able to use your repo locally.</div><ul><li><div>Tip: Hosts such as SourceForge, GoogleCode, dev.java.net offer free version control services for open-source projects.</div></li></ul></li></ul><p>Now you create a repository to store your project&#039;s files.</p><ol><li><div>In the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym>, right-click the project in the Projects window and choose Versioning &gt; Import Into <acronym title="Concurrent Versions System">CVS</acronym>/Subversion Repository (or initialize Mercurial Project, respectively).</div><ul><li><div>Tip: If you haven&#039;t evaluated yet which system to choose, start with Subversion for now.</div></li></ul></li><li><div>Go through the wizard and fill in the fields to set up the repository.</div></li></ol></div><h2><a>Checking Out a Repository (Download)</a></h2><div><p>You and your team mates check out (download) the repository to their individual workstations.</p><ol><li><div>Go to the Team menu and choose Subversion &gt; Checkout (or <acronym title="Concurrent Versions System">CVS</acronym>/Mercurial&gt;Checkout respectively)</div></li><li><div>Fill in your repo data into the wizard and click Finish.</div><ul><li><div>A typical repository <acronym title="Uniform Resource Locator">URL</acronym> looks like this example: <code><object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://jmonkeyengine.googlecode.com/svn/trunk/engine"><param name="text" value="<html><u>http://jmonkeyengine.googlecode.com/svn/trunk/engine</u></html>"><param name="textColor" value="blue"></object></code></div></li><li><div>If you want to be able to submit changes, you must have a username and password to this repository. Otherwise leave these fields blank.</div></li></ul></li><li><div>The repository is downloaded and stored in the location you chose.</div></li><li><div>Use the File &gt; Open Project menu to open the checkout as project and start working.</div><ul><li><div>If the checkout is not recognized you need to choose File &gt; New Project from Existing Sources</div></li></ul></li></ol><p><br/> Of course you can also check out existing repositories and access code from other open-source projects (e.g. SourceForge, GoogleCode, dev.java.net).</p></div><h2><a>Updating and Committing Changes (Send and Receive)</a></h2><div><p>Receiving the latest changes from the team&#039;s repository is referred to as <code>updating</code>. Sending your changes to the team&#039;s repository is refered to as <code>commiting</code>.</p><ol><li><div>Before making changes, right-click the project and select Subversion &gt; Update to make sure you have the latest revision.</div><ul><li><div>Get in the habit of updating regularly, always before you edit a version controlled file. It will spare you much grief.</div></li></ul></li><li><div>After making changes to the project, make certain your change did not break anything.</div>
+
+<h1><a>jMonkeyEngine SDK: Version Control</a></h1>
+<div>
+
+<p>
+
+Whether you work in a development team or alone: File versioning is a handy method to keep your code consistent, compare files line-by-line, and even roll back unwanted changes. This documentation shows you how to make the most of the <acronym title="Software Development Kit">SDK</acronym>&#039;s integrated version control features for Subversion, Mercurial, and <acronym title="Concurrent Versions System">CVS</acronym>.
+</p>
+
+<p>
+Note: Since the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> is based on the NetBeans Platform framework, you can learn about certain jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> features by reading the corresponding NetBeans IDE tutorials (in the &quot;see also links&quot;). 
+</p>
+
+</div>
+
+<h2><a>Version Control Systems</a></h2>
+<div>
+
+<p>
+
+The jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> supports various Version Control Systems such as Subversion, Mercurial, and <acronym title="Concurrent Versions System">CVS</acronym>. No matter which of them you use, they all share a common user interface.
+</p>
+
+<p>
+You can use file versioning alone or in a team. The advantages are that you can keep track of changes (who did it, when, and why), you can compare versions line-by-line, you can revert changes to files and lines, merge multiple changes to one file, and you can even undelete files.
+</p>
+
+</div>
+
+<h2><a>Creating a Repository (Upload)</a></h2>
+<div>
+
+<p>
+
+Requirements:
+</p>
+<ul>
+<li><div> You must have a project that you want to version. </div>
+</li>
+<li><div> You must have version control software installed (Subversion, Mercurial, or <acronym title="Concurrent Versions System">CVS</acronym>) and have initialized a repository.</div>
+<ul>
+<li><div> Tip: For Subversion, the init command looks like this example: <code>svnadmin create /home/joe/mysvnrepo</code></div>
+</li>
+</ul>
+</li>
+<li><div> The computer where the repository is to be hosted must be available in your network, or you will only be able to use your repo locally.</div>
+<ul>
+<li><div> Tip: Hosts such as SourceForge, GoogleCode, dev.java.net offer free version control services for open-source projects.</div>
+</li>
+</ul>
+</li>
+</ul>
+
+<p>
+
+Now you create a repository to store your project&#039;s files. 
+
+</p>
+<ol>
+<li><div> In the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym>, right-click the project in the Projects window and choose Versioning &gt; Import Into <acronym title="Concurrent Versions System">CVS</acronym>/Subversion Repository (or initialize Mercurial Project, respectively). </div>
+<ul>
+<li><div> Tip: If you haven&#039;t evaluated yet which system to choose, start with Subversion for now.</div>
+</li>
+</ul>
+</li>
+<li><div> Go through the wizard and fill in the fields to set up the repository.</div>
+</li>
+</ol>
+
+</div>
+
+<h2><a>Checking Out a Repository (Download)</a></h2>
+<div>
+
+<p>
+
+You and your team mates check out (download) the repository to their individual workstations. 
+
+</p>
+<ol>
+<li><div> Go to the Team menu and choose Subversion &gt; Checkout (or <acronym title="Concurrent Versions System">CVS</acronym>/Mercurial&gt;Checkout respectively)</div>
+</li>
+<li><div> Fill in your repo data into the wizard and click Finish.</div>
+<ul>
+<li><div> A typical repository <acronym title="Uniform Resource Locator">URL</acronym> looks like this example: <code><object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://jmonkeyengine.googlecode.com/svn/trunk/engine"><param name="text" value="<html><u>http://jmonkeyengine.googlecode.com/svn/trunk/engine</u></html>"><param name="textColor" value="blue"></object></code></div>
+</li>
+<li><div> If you want to be able to submit changes, you must have a username and password to this repository. Otherwise leave these fields blank.</div>
+</li>
+</ul>
+</li>
+<li><div> The repository is downloaded and stored in the location you chose. </div>
+</li>
+<li><div> Use the File &gt; Open Project menu to open the checkout as project and start working. </div>
+<ul>
+<li><div> If the checkout is not recognized you need to choose File &gt; New Project from Existing Sources</div>
+</li>
+</ul>
+</li>
+</ol>
+
+<p>
+
+<br/>
+
+Of course you can also check out existing repositories and access code from other open-source projects (e.g. SourceForge, GoogleCode, dev.java.net). 
+</p>
+
+</div>
+
+<h2><a>Updating and Committing Changes (Send and Receive)</a></h2>
+<div>
+
+<p>
+
+Receiving the latest changes from the team&#039;s repository is referred to as <code>updating</code>. Sending your changes to the team&#039;s repository is refered to as <code>commiting</code>.
+
+</p>
+<ol>
+<li><div> Before making changes, right-click the project and select Subversion &gt; Update to make sure you have the latest revision.</div>
+<ul>
+<li><div> Get in the habit of updating regularly, always before you edit a version controlled file. It will spare you much grief.</div>
+</li>
+</ul>
+</li>
+<li><div> After making changes to the project, make certain your change did not break anything.</div>
 <ol>
 <li><div> Update, build, run, test.</div>
 </li>

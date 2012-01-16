@@ -1,4 +1,22 @@
-<h1><a>Saving and Loading Materials with .j3m Files</a></h1><div><p>In the <a href="/com/jme3/gde/core/docs/jme3/advanced/material_definitions.html">Material Definitions</a> article you learned how to configure <a href="/com/jme3/gde/core/docs/jme3/advanced/materials_overview.html">Materials</a> programmatically in Java code. If you have certain commonly used Materials that never change, you can clean up the amount of Java code that clutters your init method, by moving material settings into .j3m files. Then later in your code, you only need to call one setter instead of several to apply the material.</p></div><h2><a>Writing the .j3m File</a></h2><div><ol><li><div>For every Material, create a file and give it a name that describes it: e.g. <code>SimpleBump.j3m</code></div></li><li><div>Place the file in your project&#039;s <code>assets/Materials/</code> directory, e.g. <code>MyGame/src/assets/Materials/SimpleBump.j3m</code></div></li><li><div>Edit the file and add content using the following Syntax, e.g.:<pre>Material shiny bumpy rock : Common/MatDefs/Light/Lighting.j3md {
+
+<h1><a>Saving and Loading Materials with .j3m Files</a></h1>
+<div>
+
+<p>
+
+In the <a href="/com/jme3/gde/core/docs/jme3/advanced/material_definitions.html">Material Definitions</a> article you learned how to configure <a href="/com/jme3/gde/core/docs/jme3/advanced/materials_overview.html">Materials</a>  programmatically in Java code. If you have certain commonly used Materials that never change, you can clean up the amount of Java code that clutters your init method, by moving material settings into .j3m files. Then later in your code, you only need to call one setter instead of several to apply the material.
+</p>
+
+</div>
+
+<h2><a>Writing the .j3m File</a></h2>
+<div>
+<ol>
+<li><div> For every Material, create a file and give it a name that describes it: e.g. <code>SimpleBump.j3m</code></div>
+</li>
+<li><div> Place the file in your project&#039;s <code>assets/Materials/</code> directory, e.g. <code>MyGame/src/assets/Materials/SimpleBump.j3m</code></div>
+</li>
+<li><div> Edit the file and add content using the following Syntax, e.g.:<pre>Material shiny bumpy rock : Common/MatDefs/Light/Lighting.j3md {
      MaterialParameters {
          Shininess: 8.0
          NormalMap: Textures/bump_rock_normal.png
@@ -7,7 +25,21 @@
          Diffuse  : 1.0 1.0 1.0 1.0
          Specular : 0.0 0.0 0.0 1.0
      }
-}</pre></div></li></ol><p>How to this file is structured:</p><ol><li><div>Header</div><ol><li><div><code>Material</code> is a fixed keyword, keep it.</div></li><li><div><code>shiny bumpy rock</code> is a descriptive string that you can make up. Choose a name to help you remember for what you intend to use this material.</div>
+}</pre>
+</div>
+</li>
+</ol>
+
+<p>
+
+How to this file is structured:
+</p>
+<ol>
+<li><div> Header</div>
+<ol>
+<li><div> <code>Material</code> is a fixed keyword, keep it.</div>
+</li>
+<li><div> <code>shiny bumpy rock</code> is a descriptive string that you can make up. Choose a name to help you remember for what you intend to use this material.</div>
 </li>
 <li><div> After the colon, specify on which <a href="/com/jme3/gde/core/docs/jme3/advanced/materials_overview.html">Material</a> definition you base this Material.</div>
 </li>

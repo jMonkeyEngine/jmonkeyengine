@@ -1,19 +1,118 @@
-<h1><a>SpiderMonkey: Multi-Player Networking</a></h1><div><p>This document introduces you to the SpiderMonkey networking <acronym title="Application Programming Interface">API</acronym>. You use this <acronym title="Application Programming Interface">API</acronym> when you develop games where several players compete with one another in real time. A multi-player game is made up of several clients connecting to a server:</p><ul><li><div>The central server (one headless SimpleApplication) coordinates the game in the background.</div></li><li><div>Each player runs a game client (a standard SimpleApplications) and connects to the central server.</div></li></ul><p>Each Client keeps the the Server informed about its player&#039;s moves and actions. The Server centrally maintains the game state and broadcasts the state info back to all connected clients. This network synchronization allows all clients share the same game world. Each client then displays the game state to one player from this player&#039;s perspective.</p></div><h2><a>SpiderMonkey API Overview</a></h2><div><p>The SpiderMonkey <acronym title="Application Programming Interface">API</acronym> is a set of interfaces and helper classes in the &#039;com.jme3.network&#039; package. For most users, this package and the &#039;message&#039; package is all they need to worry about. (The &#039;base&#039; and &#039;kernel&#039; packages only come into play when implementing custom network transports or alternate client/server protocols, which is now possible).</p><p>The SpiderMonkey <acronym title="Application Programming Interface">API</acronym> assists you in creating a Server, Clients, and Messages. Once a Server instance is created and started, the Server accepts remote connections from Clients, and you can send and receive Messages. Client objects represent the client-side of the client-server connection. Within the Server, these Client objects are referred to as HostedConnections. HostedConnections can hold application-defined client-specific session attributes that the server-side listeners and services can use to track player information, etc.</p><div><table><tr><th>Seen from the Client</th><th></th><th>Seen from the Server</th></tr><tr><td>com.jme3.network.Client</td><td>==</td><td>com.jme3.network.HostedConnection</td></tr></table></div><p>You can register several types of listeners to be notified of changes.</p><ul><li><div>MessageListeners on both the Client and the Server are notified when new messages arrive. You can use MessageListeners to be notified about only specific types of messages.</div></li><li><div>ClientStateListeners inform the Client of changes in its connection state, e.g. when the client gets kicked from the server.</div></li><li><div>ConnectionListeners inform the Server about HostedConnection arrivals and removals, e.g. if a client joins or quits.</div></li></ul></div><h2><a>Client and Server</a></h2><div></div><h3><a>Creating a Server</a></h3><div><p>The game server is a &quot;headless&quot; com.jme3.app.SimpleApplication:</p><pre>public class MyGameServer extends SimpleApplication &#123;
+
+<h1><a>SpiderMonkey: Multi-Player Networking</a></h1>
+<div>
+
+<p>
+
+This document introduces you to the SpiderMonkey networking <acronym title="Application Programming Interface">API</acronym>. You use this <acronym title="Application Programming Interface">API</acronym> when you develop games where several players compete with one another in real time. A multi-player game is made up of several clients connecting to a server:
+
+</p>
+<ul>
+<li><div> The central server (one headless SimpleApplication) coordinates the game in the background.</div>
+</li>
+<li><div> Each player runs a game client (a standard SimpleApplications) and connects to the central server.</div>
+</li>
+</ul>
+
+<p>
+
+Each Client keeps the the Server informed about its player&#039;s moves and actions. The Server centrally maintains the game state and broadcasts the state info back to all connected clients. This network synchronization allows all clients share the same game world. Each client then displays the game state to one player from this player&#039;s perspective.
+</p>
+
+</div>
+
+<h2><a>SpiderMonkey API Overview</a></h2>
+<div>
+
+<p>
+
+The SpiderMonkey <acronym title="Application Programming Interface">API</acronym> is a set of interfaces and helper classes in the &#039;com.jme3.network&#039; package.  For most users, this package and the &#039;message&#039; package is all they need to worry about.  (The &#039;base&#039; and &#039;kernel&#039; packages only come into play when implementing custom network transports or alternate client/server protocols, which is now possible).
+</p>
+
+<p>
+The SpiderMonkey <acronym title="Application Programming Interface">API</acronym> assists you in creating a Server, Clients, and Messages. Once a Server instance is created and started, the Server accepts remote connections from Clients, and you can send and receive Messages. Client objects represent the client-side of the client-server connection.  Within the Server, these Client objects are referred to as HostedConnections. HostedConnections can hold application-defined client-specific session attributes that the server-side listeners and services can use to track player information, etc.
+
+</p>
+<div><table>
+	<tr>
+		<th> Seen from the Client </th><th> </th><th> Seen from the Server </th>
+	</tr>
+	<tr>
+		<td> com.jme3.network.Client </td><td> == </td><td> com.jme3.network.HostedConnection </td>
+	</tr>
+</table></div>
+<!-- EDIT1 TABLE [1769-1887] -->
+<p>
+
+You can register several types of listeners to be notified of changes.
+</p>
+<ul>
+<li><div> MessageListeners on both the Client and the Server are notified when new messages arrive.  You can use MessageListeners to be notified about only specific types of messages.</div>
+</li>
+<li><div> ClientStateListeners inform the Client of changes in its connection state, e.g. when the client gets kicked from the server.</div>
+</li>
+<li><div> ConnectionListeners inform the Server about HostedConnection arrivals and removals, e.g. if a client joins or quits.</div>
+</li>
+</ul>
+
+</div>
+
+<h2><a>Client and Server</a></h2>
+<div>
+
+</div>
+
+<h3><a>Creating a Server</a></h3>
+<div>
+
+<p>
+
+The game server is a &quot;headless&quot; com.jme3.app.SimpleApplication:
+</p>
+<pre>public class MyGameServer extends SimpleApplication &#123;
   public static void main&#40;String&#91;&#93; args&#41; &#123;
     ServerMain app = new ServerMain&#40;&#41;;
     app.start&#40;JmeContext.Type.Headless&#41;; // headless type for servers!
   &#125;
-&#125;</pre><p><p><div>A <code>Headless</code> SimpleApplication executes the simpleInitApp() method and runs the update loop normally. But the application does not open a window, and it does not listen to user input. This is the typical behavior for a server application.</div></p></p><p>Create a com.jme3.network.Server in the <code>simpleInitApp()</code> method and specify a communication port, for example 6143.</p><pre>  public void simpleInitApp&#40;&#41; &#123;
+&#125;</pre>
+
+<p>
+<p><div>A <code>Headless</code> SimpleApplication executes the simpleInitApp() method and runs the update loop normally. But the application does not open a window, and it does not listen to user input. This is the typical behavior for a server application.
+</div></p>
+</p>
+
+<p>
+Create a com.jme3.network.Server in the <code>simpleInitApp()</code> method and specify a communication port, for example 6143.
+</p>
+<pre>  public void simpleInitApp&#40;&#41; &#123;
     ...
     Server myServer = Network.createServer&#40;6143&#41;;
     myServer.start&#40;&#41;;
     ...
-  &#125;</pre><p>When you run this app on a host, the server is ready to accept clients. Let&#039;s create a client next.</p></div><h3><a>Creating a Client</a></h3><div><p>A game client is a standard com.jme3.app.SimpleApplication.</p><pre>public class MyGameClient extends SimpleApplication &#123;
+  &#125;</pre>
+
+<p>
+When you run this app on a host, the server is ready to accept clients. Let&#039;s create a client next.
+</p>
+
+</div>
+
+<h3><a>Creating a Client</a></h3>
+<div>
+
+<p>
+
+A game client is a standard com.jme3.app.SimpleApplication.
+</p>
+<pre>public class MyGameClient extends SimpleApplication &#123;
   public static void main&#40;String&#91;&#93; args&#41; &#123;
     ClientMain app = new ClientMain&#40;&#41;;
     app.start&#40;JmeContext.Type.Display&#41;; // standard display type
   &#125;
-&#125;</pre><p><p><div>A standard SimpleApplication in <code>Display</code> mode executes the simpleInitApp() method, runs the update loop, opens a window for the rendered video output, and listens to user input. This is the typical behavior for a client application.
+&#125;</pre>
+
+<p>
+<p><div>A standard SimpleApplication in <code>Display</code> mode executes the simpleInitApp() method, runs the update loop, opens a window for the rendered video output, and listens to user input. This is the typical behavior for a client application.
 </div></p>
 </p>
 

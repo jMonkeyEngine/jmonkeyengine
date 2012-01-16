@@ -1,13 +1,103 @@
-<h1><a>Physical Hinges and Joints</a></h1><div><p>The jMonkeyEngine3 has built-in support for <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://jbullet.advel.cz"><param name="text" value="<html><u>jBullet physics</u></html>"><param name="textColor" value="blue"></object> via the <code>com.jme3.bullet</code> package.</p><p>Game Physics are not only employed to calculate collisions, but they can also simulate hinges and joints. Think of pulley chains, shaky rope bridges, swinging pendulums, or (trap)door and chest hinges. Physics are a great addition to e.g. an action or puzzle game.</p><p>In this example, we will create a pendulum. The joint is the (invisible) connection between the pendulum body and the hook. You will see that you can use what you learn from the simple pendulum and apply it to other joint/hinge objects (rope bridges, etc).</p></div><h2><a>Sample Code</a></h2><div><ul><li><div><object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/bullet/TestPhysicsHingeJoint.java"><param name="text" value="<html><u>TestPhysicsHingeJoint.java</u></html>"><param name="textColor" value="blue"></object></div></li></ul></div><h2><a>Overview of this Physics Application</a></h2><div><ol><li><div>Create a SimpleApplication with a <a href="/com/jme3/gde/core/docs/jme3/advanced/physics.html">BulletAppState</a></div><ul><li><div>This gives us a PhysicsSpace for PhysicsControls</div></li></ul></li><li><div>For the pendulum, we use a Spatial with a PhysicsControl, and we apply physical forces to them.</div><ul><li><div>The parts of the &quot;pendulum&quot; are Physics Control&#039;ed Spatials with Collision Shapes.</div></li><li><div>We create a fixed <code>hookNode</code> and a dynamic <code>pendulumNode</code>.</div></li></ul></li><li><div>We can &quot;crank the handle&quot; and rotate the joint like a hinge, or we can let loose and expose the joints freely to gravity.</div><ul><li><div>For physical forces we will use the method <code>joint.enableMotor();</code></div></li></ul></li></ol></div><h2><a>Creating a Fixed Node</a></h2><div><p>The hookNode is the fixed point from which the pendulum hangs. It has no mass.</p><pre>Node hookNode=PhysicsTestHelper.createPhysicsTestNode&#40;
+
+<h1><a>Physical Hinges and Joints</a></h1>
+<div>
+
+<p>
+
+The jMonkeyEngine3 has built-in support for <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://jbullet.advel.cz"><param name="text" value="<html><u>jBullet physics</u></html>"><param name="textColor" value="blue"></object> via the <code>com.jme3.bullet</code> package.
+</p>
+
+<p>
+Game Physics are not only employed to calculate collisions, but they can also simulate hinges and joints. Think of pulley chains, shaky rope bridges, swinging pendulums, or (trap)door and chest hinges. Physics are a great addition to e.g. an action or puzzle game.
+</p>
+
+<p>
+In this example, we will create a pendulum. The joint is the (invisible) connection between the pendulum body and the hook. You will see that you can use what you learn from the simple pendulum and apply it to other joint/hinge objects (rope bridges, etc).
+</p>
+
+</div>
+
+<h2><a>Sample Code</a></h2>
+<div>
+<ul>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/bullet/TestPhysicsHingeJoint.java"><param name="text" value="<html><u>TestPhysicsHingeJoint.java</u></html>"><param name="textColor" value="blue"></object></div>
+</li>
+</ul>
+
+</div>
+
+<h2><a>Overview of this Physics Application</a></h2>
+<div>
+<ol>
+<li><div> Create a SimpleApplication with a <a href="/com/jme3/gde/core/docs/jme3/advanced/physics.html">BulletAppState</a> </div>
+<ul>
+<li><div> This gives us a PhysicsSpace for PhysicsControls</div>
+</li>
+</ul>
+</li>
+<li><div> For the pendulum, we use a Spatial with a PhysicsControl, and we apply physical forces to them.</div>
+<ul>
+<li><div> The parts of the &quot;pendulum&quot; are Physics Control&#039;ed Spatials with Collision Shapes. </div>
+</li>
+<li><div> We create a fixed <code>hookNode</code> and a dynamic <code>pendulumNode</code>. </div>
+</li>
+</ul>
+</li>
+<li><div> We can &quot;crank the handle&quot; and rotate the joint like a hinge, or we can let loose and expose the joints freely to gravity. </div>
+<ul>
+<li><div> For physical forces we will use the method <code>joint.enableMotor();</code></div>
+</li>
+</ul>
+</li>
+</ol>
+
+</div>
+
+<h2><a>Creating a Fixed Node</a></h2>
+<div>
+
+<p>
+
+The hookNode is the fixed point from which the pendulum hangs. It has no mass. 
+</p>
+<pre>Node hookNode=PhysicsTestHelper.createPhysicsTestNode&#40;
     assetManager, new BoxCollisionShape&#40;new Vector3f&#40; .1f, .1f, .1f&#41;&#41;,0&#41;;
 hookNode.getControl&#40;RigidBodyControl.class&#41;.setPhysicsLocation&#40;new Vector3f&#40;0f,0,0f&#41;&#41;;
 &nbsp;
 rootNode.attachChild&#40;hookNode&#41;;
-getPhysicsSpace&#40;&#41;.add&#40;hookNode&#41;;</pre><p>For a rope bridge, there would be two fixed nodes where the bridge is attached to the mountainside.</p></div><h2><a>Creating a Dynamic Node</a></h2><div><p>The pendulumNode is the dynamic part of the construction. It has a mass.</p><pre>Node pendulumNode=PhysicsTestHelper.createPhysicsTestNode&#40;
+getPhysicsSpace&#40;&#41;.add&#40;hookNode&#41;;</pre>
+
+<p>
+For a rope bridge, there would be two fixed nodes where the bridge is attached to the mountainside.
+</p>
+
+</div>
+
+<h2><a>Creating a Dynamic Node</a></h2>
+<div>
+
+<p>
+
+The pendulumNode is the dynamic part of the construction. It has a mass. 
+</p>
+<pre>Node pendulumNode=PhysicsTestHelper.createPhysicsTestNode&#40;
     assetManager, new BoxCollisionShape&#40;new Vector3f&#40; .3f, .3f, .3f&#41;&#41;,1&#41;;
 pendulumNode.getControl&#40;RigidBodyControl.class&#41;.setPhysicsLocation&#40;new Vector3f&#40;0f,-1,0f&#41;&#41;;
 rootNode.attachChild&#40;pendulumNode&#41;;
-getPhysicsSpace&#40;&#41;.add&#40;pendulumNode&#41;;</pre><p>For a rope bridge, each set of planks would be one dynamic node.</p></div><h2><a>Understanding DOF, Joints, and Hinges</a></h2><div><p>A PhysicsHingeJoint is an invisible connection between two nodes – here between the pendulum body and the hook. Why are hinges and joints represented by the same class? Hinges and joints have something in common: They constrain the <em>mechanical degree of freedom</em> (DOF) of another object. 
+getPhysicsSpace&#40;&#41;.add&#40;pendulumNode&#41;;</pre>
+
+<p>
+For a rope bridge, each set of planks would be one dynamic node. 
+</p>
+
+</div>
+
+<h2><a>Understanding DOF, Joints, and Hinges</a></h2>
+<div>
+
+<p>
+
+A PhysicsHingeJoint is an invisible connection between two nodes – here between the pendulum body and the hook. Why are hinges and joints represented by the same class? Hinges and joints have something in common: They constrain the <em>mechanical degree of freedom</em> (DOF) of another object. 
 </p>
 
 <p>

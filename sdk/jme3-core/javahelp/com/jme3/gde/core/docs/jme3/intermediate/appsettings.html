@@ -1,4 +1,21 @@
-<h1><a>jME3 Application Display Settings</a></h1><div><p>Every class that extends jme3.app.SimpleApplication has properties that can be configured by customizing a <code>com.jme3.system.AppSettings</code> object. Configure the settings before you call <code>app.start()</code> on the application object. If you change display settings during runtime, call <code>app.restart()</code> to make them take effect.</p><p><strong>Note:</strong> Other runtime settings are covered in <a href="/com/jme3/gde/core/docs/jme3/intermediate/simpleapplication.html">SimpleApplication</a>.</p></div><h2><a>Code Sample</a></h2><div><pre>public static void main&#40;String&#91;&#93; args&#41; &#123;
+
+<h1><a>jME3 Application Display Settings</a></h1>
+<div>
+
+<p>
+
+Every class that extends jme3.app.SimpleApplication has properties that can be configured by customizing a <code>com.jme3.system.AppSettings</code> object. Configure the settings before you call <code>app.start()</code> on the application object. If you change display settings during runtime, call <code>app.restart()</code> to make them take effect.
+</p>
+
+<p>
+<strong>Note:</strong> Other runtime settings are covered in <a href="/com/jme3/gde/core/docs/jme3/intermediate/simpleapplication.html">SimpleApplication</a>.
+</p>
+
+</div>
+
+<h2><a>Code Sample</a></h2>
+<div>
+<pre>public static void main&#40;String&#91;&#93; args&#41; &#123;
   AppSettings settings = new AppSettings&#40;true&#41;;
   settings.setResolution&#40;640,480&#41;;
   ... // other properties see below
@@ -6,7 +23,86 @@
   MyGame app = new MyGame&#40;&#41;; // or Main or whatever you called your SimpleApplication
   app.setSettings&#40;settings&#41;;
   app.start&#40;&#41;;
-&#125;</pre><p>Set the boolean in the AppSettings contructor to true if you want to keep the default settings for everything that you do not specify. Set this parameter to false if you want to change some of the settings, but otherwise want the application to load user settings from previous launches.</p><p><p><div>Use <code>app.setShowSettings(true);</code> to present the user with a splashscreen and display settings dialog when starting the game, or <code>app.setShowSettings(false);</code> to hide the custom splashscreen. Set this boolean before calling <code>app.start()</code> on the SimpleApplication.</div></p></p></div><h2><a>Properties</a></h2><div><div><table><tr><th>Settings Property (Video)</th><th>Description</th><th>Default</th></tr><tr><td>setRenderer(AppSettings.LWJGL_OPENGL1) <br/> setRenderer(AppSettings.LWJGL_OPENGL2) <br/> setRenderer(AppSettings.LWJGL_OPENGL3)</td><td>Switch Video Renderer to OpenGL 1.1, OpenGL 2, or OpenGL 3.3. If your graphic card does not support all OpenGL2 features (<code>UnsupportedOperationException: GLSL and OpenGL2 is required for the LWJGL renderer</code>), then you can force your SimpleApplication to use OpenGL1 compatibility. (Then you still can&#039;t use special OpenGL2 features, but at least the error goes away and you can continue with the rest.)</td><td>OpenGL 2</td></tr><tr><td>setBitsPerPixel(32)</td><td>Set the color depth. <br/> 1 bpp = black and white, 2 bpp = gray, <br/> 4 bpp = 16 colors, 8 bpp = 256 colors, 24 or 32 bpp = &quot;truecolor&quot;.</td><td>24</td></tr><tr><td>setFramerate(60)</td><td>How often per second the engine should try to refresh the frame. For the release, usually 60 fps. Can be lower (30) if you need to free up the CPU for other applications. No use setting it to a higher value than the screen frequency! If the framerate goes below 30 fps, viewers start to notice choppiness or flickering.</td><td>-1 (unlimited)</td></tr><tr><td>setFullscreen(true)</td><td>Set this to true to make the game window fill the whole screen; you need to provide a key that calls app.stop() to exit the fullscreen view gracefully (default: escape). <br/> Set this to false to play the game in a normal window of its own.</td><td>False (windowed)</td></tr><tr><td>setHeight(480), setWidth(640) <br/> setResolution(640,480)</td><td>Two equivalent ways of setting the display resolution.</td><td>640x480 pixels</td></tr><tr><td>setSamples(4)</td><td>Set multisampling to 0 to switch antialiasing off (harder edges, faster.) <br/> Set multisampling to 2 or 4 to activate antialising (softer edges, may be slower.) <br/> Depending on your graphic card, you may be able to set multisampling to higher values such as 8, 16, or 32 samples.</td><td>0</td></tr><tr><td>setVSync(true) <br/> setFrequency(60)</td><td>Set vertical syncing to true to time the frame buffer to coincide with the refresh frequency of the screen. VSync prevents ugly page tearing artefacts, but is a bit slower; recommened for release build. <br/> Set VSync to false to deactivate vertical syncing (faster, but possible page tearing artifacts); can remain deactivated during development or for slower PCs.</td><td>false <br/> 60 fps</td></tr></table></div><div><table><tr><th>Settings Property (Input)</th><th>Description</th><th>Default</th></tr><tr><td>setUseInput(false)</td><td>Respond to user input by mouse and keyboard. Can be deactivated for use cases where you only display a 3D scene on the canvas without any interaction.</td><td>true</td></tr><tr><td>setUseJoysticks(true)</td><td>Activate optional joystick support</td><td>false</td></tr></table></div><div><table><tr><th>Settings Property (Audio)</th><th>Description</th><th>Default</th></tr><tr><td>setAudioRenderer(AppSettings.LWJGL_OPENAL)</td><td>Switch Audio Renderer. Currently there is only one option.</td><td>OpenAL</td></tr><tr><td>setStereo3D(true)</td><td>Enable 3D stereo. This feature requires hardware support from the GPU driver. See <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://en.wikipedia.org/wiki/Quad_buffering"><param name="text" value="<html><u>Quad Buffering</u></html>"><param name="textColor" value="blue"></object>. Currently, your everday user&#039;s hardware does not support this, so you can ignore it for now.</td><td>false</td></tr></table></div><div><table><tr><th>Settings Property (Branding)</th><th>Description</th><th>Default</th></tr><tr><td>setTitle(&quot;My Game&quot;)</td><td>This string will be visible in the titlebar, unless the window is fullscreen.</td><td>&quot;jMonkey Engine 3.0&quot;</td>
+&#125;</pre>
+
+<p>
+Set the boolean in the AppSettings contructor to true if you want to keep the default settings for everything that you do not specify. Set this parameter to false if you want to change some of the settings, but otherwise want the application to load user settings from previous launches.
+</p>
+
+<p>
+<p><div>Use <code>app.setShowSettings(true);</code> to present the user with a splashscreen and display settings dialog when starting the game, or <code>app.setShowSettings(false);</code> to hide the custom splashscreen. Set this boolean before calling <code>app.start()</code> on the SimpleApplication.
+</div></p>
+</p>
+
+</div>
+
+<h2><a>Properties</a></h2>
+<div>
+<div><table>
+	<tr>
+		<th>Settings Property (Video)</th><th>Description</th><th>Default</th>
+	</tr>
+	<tr>
+		<td>setRenderer(AppSettings.LWJGL_OPENGL1) <br/>
+setRenderer(AppSettings.LWJGL_OPENGL2) <br/>
+setRenderer(AppSettings.LWJGL_OPENGL3)</td><td>Switch Video Renderer to OpenGL 1.1, OpenGL 2, or OpenGL 3.3. If your graphic card does not support all OpenGL2 features (<code>UnsupportedOperationException: GLSL and OpenGL2 is required for the LWJGL renderer</code>), then you can force your SimpleApplication to use OpenGL1 compatibility. (Then you still can&#039;t use special OpenGL2 features, but at least the error goes away and you can continue with the rest.) </td><td> OpenGL 2 </td>
+	</tr>
+	<tr>
+		<td>setBitsPerPixel(32)</td><td>Set the color depth. <br/>
+1 bpp = black and white, 2 bpp = gray, <br/>
+4 bpp = 16 colors, 8 bpp = 256 colors, 24 or 32 bpp = &quot;truecolor&quot;.</td><td>24</td>
+	</tr>
+	<tr>
+		<td>setFramerate(60)</td><td>How often per second the engine should try to refresh the frame. For the release, usually 60 fps. Can be lower (30) if you need to free up the CPU for other applications. No use setting it to a higher value than the screen frequency! If the framerate goes below 30 fps, viewers start to notice choppiness or flickering.</td><td>-1 (unlimited)</td>
+	</tr>
+	<tr>
+		<td>setFullscreen(true)</td><td>Set this to true to make the game window fill the whole screen; you need to provide a key that calls app.stop() to exit the fullscreen view gracefully (default: escape). <br/>
+Set this to false to play the game in a normal window of its own.</td><td>False (windowed)</td>
+	</tr>
+	<tr>
+		<td>setHeight(480), setWidth(640) <br/>
+setResolution(640,480)</td><td>Two equivalent ways of setting the display resolution.</td><td>640x480 pixels</td>
+	</tr>
+	<tr>
+		<td>setSamples(4)</td><td>Set multisampling to 0 to switch antialiasing off (harder edges, faster.) <br/>
+Set multisampling to 2 or 4 to activate antialising (softer edges, may be slower.) <br/>
+Depending on your graphic card, you may be able to set multisampling to higher values such as 8, 16, or 32 samples.</td><td>0</td>
+	</tr>
+	<tr>
+		<td>setVSync(true) <br/>
+setFrequency(60)</td><td>Set vertical syncing to true to time the frame buffer to coincide with the refresh frequency of the screen. VSync prevents ugly page tearing artefacts, but is a bit slower; recommened for release build. <br/>
+Set VSync to false to deactivate vertical syncing (faster, but possible page tearing artifacts); can remain deactivated during development or for slower PCs.</td><td>false <br/>
+60 fps</td>
+	</tr>
+</table></div>
+<!-- EDIT1 TABLE [1406-3627] --><div><table>
+	<tr>
+		<th>Settings Property (Input)</th><th>Description</th><th>Default</th>
+	</tr>
+	<tr>
+		<td>setUseInput(false)</td><td>Respond to user input by mouse and keyboard. Can be deactivated for use cases where you only display a 3D scene on the canvas without any interaction.</td><td>true</td>
+	</tr>
+	<tr>
+		<td>setUseJoysticks(true)</td><td>Activate optional joystick support</td><td>false</td>
+	</tr>
+</table></div>
+<!-- EDIT2 TABLE [3629-3918] --><div><table>
+	<tr>
+		<th>Settings Property (Audio)</th><th>Description</th><th>Default</th>
+	</tr>
+	<tr>
+		<td>setAudioRenderer(AppSettings.LWJGL_OPENAL)</td><td>Switch Audio Renderer. Currently there is only one option. </td><td>OpenAL</td>
+	</tr>
+	<tr>
+		<td>setStereo3D(true)</td><td>Enable 3D stereo. This feature requires hardware support from the GPU driver. See <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://en.wikipedia.org/wiki/Quad_buffering"><param name="text" value="<html><u>Quad Buffering</u></html>"><param name="textColor" value="blue"></object>. Currently, your everday user&#039;s hardware does not support this, so you can ignore it for now.</td><td>false</td>
+	</tr>
+</table></div>
+<!-- EDIT3 TABLE [3920-4344] --><div><table>
+	<tr>
+		<th>Settings Property (Branding)</th><th>Description</th><th>Default</th>
+	</tr>
+	<tr>
+		<td>setTitle(&quot;My Game&quot;)</td><td>This string will be visible in the titlebar, unless the window is fullscreen.</td><td>&quot;jMonkey Engine 3.0&quot;</td>
 	</tr>
 	<tr>
 		<td>setIcons(new BufferedImage[]{ <br/>
