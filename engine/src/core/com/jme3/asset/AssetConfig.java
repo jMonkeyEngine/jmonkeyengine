@@ -36,6 +36,8 @@ import java.io.DataInput;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * <code>AssetConfig</code> loads a config file to configure the asset manager.
@@ -71,14 +73,31 @@ public class AssetConfig {
                 for (int i = 0; i < extensions.length; i++){
                     extensions[i] = extensions[i].trim();
                 }
-                manager.registerLoader(loaderClass, extensions);
-            }else if (cmd.equals("LOCATOR")){
+                if (hasClass(loaderClass)) {
+                    manager.registerLoader(loaderClass, extensions);
+                } else {
+                    Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "Cannot find loader {0}", loaderClass);
+                }
+            } else if (cmd.equals("LOCATOR")) {
                 String rootPath = scan.next();
                 String locatorClass = scan.nextLine().trim();
-                manager.registerLocator(rootPath, locatorClass);
-            }else{
-                throw new IOException("Expected command, got '"+cmd+"'");
+                if (hasClass(locatorClass)) {
+                    manager.registerLocator(rootPath, locatorClass);
+                } else {
+                    Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "Cannot find locator {0}", locatorClass);
+                }
+            } else {
+                throw new IOException("Expected command, got '" + cmd + "'");
             }
+        }
+    }
+    
+    private boolean hasClass(String name) {
+        try {
+            Class clazz = Class.forName(name);
+            return clazz != null;
+        } catch (ClassNotFoundException ex) {
+            return false;
         }
     }
 
