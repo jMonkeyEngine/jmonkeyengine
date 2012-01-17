@@ -153,8 +153,8 @@ public class NavMeshGenerator implements Savable {
         Vector3f trans = ((Node) terr).getWorldTranslation().clone();
         trans.x -= terr.getTerrainSize() / 2f;
         trans.z -= terr.getTerrainSize() / 2f;
-        float offsetX = trans.x * scale.x;
-        float offsetZ = trans.z * scale.z;
+        float offsetX = trans.x;// * scale.x;
+        float offsetZ = trans.z;// * scale.z;
 
         // do vertices
         int i = 0;

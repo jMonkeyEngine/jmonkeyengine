@@ -10,6 +10,7 @@ import com.jme3.gde.core.sceneexplorer.nodes.actions.NewSpatialAction;
 import com.jme3.gde.nmgen.NavMeshGenerator;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
+import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
@@ -77,7 +78,7 @@ public final class NewNavMeshWizardAction extends AbstractNewSpatialWizardAction
 
             Mesh mesh = new Mesh();
 
-            GeometryBatchFactory.mergeGeometries(findGeometries(rootNode, new LinkedList<Geometry>(), generator), mesh);
+            GeometryBatchFactory.mergeGeometries(findGeometries(rootNode, new LinkedList<Geometry>(), generator, rootNode), mesh);
             Mesh optiMesh = generator.optimize(mesh);
             if(optiMesh == null) return null;
 
@@ -95,20 +96,24 @@ public final class NewNavMeshWizardAction extends AbstractNewSpatialWizardAction
         return navMesh;
     }
 
-    private List<Geometry> findGeometries(Node node, List<Geometry> geoms, NavMeshGenerator generator) {
+    private List<Geometry> findGeometries(Node node, List<Geometry> geoms, NavMeshGenerator generator, Node originalRoot) {
+        if (node instanceof Terrain) {
+            Terrain terr = (Terrain)node;
+            Mesh merged = generator.terrain2mesh(terr);
+            Geometry g = new Geometry("mergedTerrain");
+            g.setMesh(merged);
+            if (node != originalRoot)
+                g.setLocalScale(((Node)terr).getLocalScale());
+            geoms.add(g);
+            return geoms;
+        }
+        
         for (Iterator<Spatial> it = node.getChildren().iterator(); it.hasNext();) {
             Spatial spatial = it.next();
             if (spatial instanceof Geometry) {
                 geoms.add((Geometry) spatial);
             } else if (spatial instanceof Node) {
-                if (spatial instanceof Terrain) {
-                    Mesh merged = generator.terrain2mesh((Terrain) spatial);
-                    Geometry g = new Geometry("mergedTerrain");
-                    g.setMesh(merged);
-                    geoms.add(g);
-                } else {
-                    findGeometries((Node) spatial, geoms, generator);
-                }
+                findGeometries((Node) spatial, geoms, generator, originalRoot);
             }
         }
         return geoms;
