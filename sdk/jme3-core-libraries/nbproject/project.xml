@@ -183,32 +183,28 @@
                 <binary-origin>release/modules/ext/j-ogg-vorbisd.jar</binary-origin>
             </class-path-extension>
             <class-path-extension>
-                <runtime-relative-path>ext/j-ogg-oggd.jar</runtime-relative-path>
-                <binary-origin>release/modules/ext/j-ogg-oggd.jar</binary-origin>
-            </class-path-extension>
-            <class-path-extension>
                 <runtime-relative-path>ext/jinput.jar</runtime-relative-path>
                 <binary-origin>release/modules/ext/jinput.jar</binary-origin>
             </class-path-extension>
             <class-path-extension>
-                <runtime-relative-path>ext/nifty.jar</runtime-relative-path>
-                <binary-origin>release/modules/ext/nifty.jar</binary-origin>
+                <runtime-relative-path>ext/j-ogg-oggd.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/j-ogg-oggd.jar</binary-origin>
             </class-path-extension>
             <class-path-extension>
                 <runtime-relative-path>ext/stack-alloc.jar</runtime-relative-path>
                 <binary-origin>release/modules/ext/stack-alloc.jar</binary-origin>
             </class-path-extension>
             <class-path-extension>
-                <runtime-relative-path>ext/noise-0.0.1-SNAPSHOT.jar</runtime-relative-path>
-                <binary-origin>release/modules/ext/noise-0.0.1-SNAPSHOT.jar</binary-origin>
-            </class-path-extension>
-            <class-path-extension>
-                <runtime-relative-path>ext/nifty-default-controls.jar</runtime-relative-path>
-                <binary-origin>release/modules/ext/nifty-default-controls.jar</binary-origin>
+                <runtime-relative-path>ext/nifty.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/nifty.jar</binary-origin>
             </class-path-extension>
             <class-path-extension>
                 <runtime-relative-path>ext/vecmath.jar</runtime-relative-path>
                 <binary-origin>release/modules/ext/vecmath.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/nifty-default-controls.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/nifty-default-controls.jar</binary-origin>
             </class-path-extension>
             <class-path-extension>
                 <runtime-relative-path>ext/eventbus.jar</runtime-relative-path>
@@ -223,12 +219,12 @@
                 <binary-origin>release/modules/ext/jbullet.jar</binary-origin>
             </class-path-extension>
             <class-path-extension>
-                <runtime-relative-path>ext/nifty-style-black.jar</runtime-relative-path>
-                <binary-origin>release/modules/ext/nifty-style-black.jar</binary-origin>
-            </class-path-extension>
-            <class-path-extension>
                 <runtime-relative-path>ext/lwjgl.jar</runtime-relative-path>
                 <binary-origin>release/modules/ext/lwjgl.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/nifty-style-black.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/nifty-style-black.jar</binary-origin>
             </class-path-extension>
         </data>
     </configuration>
