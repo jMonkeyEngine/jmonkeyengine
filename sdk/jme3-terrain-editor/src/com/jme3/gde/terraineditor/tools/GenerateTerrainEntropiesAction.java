@@ -38,12 +38,12 @@ public class GenerateTerrainEntropiesAction extends AbstractToolAction {
                     private float max = 0;
 
                     public void incrementProgress(float f) {
-                        progress += f;
+                        progress += f * 100.0f;
                         progressHandle.progress((int) progress);
                     }
 
                     public void setMonitorMax(float f) {
-                        max = f;
+                        max = f * 100.0f;
                         progressHandle.switchToDeterminate((int) (f));
                     }
 
@@ -59,7 +59,8 @@ public class GenerateTerrainEntropiesAction extends AbstractToolAction {
         } finally {
             progressHandle.finish();
         }
-        return true;
+        //return null, no undo entry created
+        return null;
     }
 
     @Override
