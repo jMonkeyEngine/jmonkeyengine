@@ -164,6 +164,8 @@ public class OGLESShaderRenderer implements Renderer {
         int spaceIdx = versionStr.indexOf(" ", openGlEsStr.length());
         if (spaceIdx >= 1) {
             versionStr = versionStr.substring(openGlEsStr.length(), spaceIdx).trim();
+        }else{
+            versionStr = versionStr.substring(openGlEsStr.length()).trim();
         }
 
         float version = Float.parseFloat(versionStr);
