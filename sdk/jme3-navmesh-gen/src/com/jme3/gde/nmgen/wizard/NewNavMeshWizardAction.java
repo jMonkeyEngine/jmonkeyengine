@@ -102,8 +102,10 @@ public final class NewNavMeshWizardAction extends AbstractNewSpatialWizardAction
             Mesh merged = generator.terrain2mesh(terr);
             Geometry g = new Geometry("mergedTerrain");
             g.setMesh(merged);
-            if (node != originalRoot)
+            if (node != originalRoot) {
                 g.setLocalScale(((Node)terr).getLocalScale());
+                g.setLocalTranslation(((Node)terr).getLocalTranslation());
+            }
             geoms.add(g);
             return geoms;
         }
