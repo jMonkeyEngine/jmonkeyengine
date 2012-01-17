@@ -33,7 +33,8 @@ package com.jme3.gde.core.sceneexplorer.nodes;
 
 import com.jme3.asset.ModelKey;
 import com.jme3.gde.core.scene.SceneApplication;
-import com.jme3.gde.core.sceneexplorer.nodes.SceneExplorerNode;
+import com.jme3.gde.core.sceneexplorer.nodes.actions.AddUserDataAction;
+import com.jme3.gde.core.sceneexplorer.nodes.actions.NewControlPopup;
 import com.jme3.scene.AssetLinkNode;
 import java.awt.Image;
 import java.io.IOException;
@@ -42,7 +43,12 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import javax.swing.Action;
+import org.openide.actions.CopyAction;
+import org.openide.actions.CutAction;
 import org.openide.actions.DeleteAction;
+import org.openide.actions.PasteAction;
+import org.openide.actions.RenameAction;
+import org.openide.awt.Actions;
 import org.openide.loaders.DataObject;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
@@ -62,6 +68,7 @@ public class JmeAssetLinkNode extends JmeNode {
     private static Image smallImage =
             ImageUtilities.loadImage("com/jme3/gde/core/sceneexplorer/nodes/icons/linknode.gif");
     private AssetLinkNode geom;
+    private AssetLinkChildren linkChildren;
 
     public JmeAssetLinkNode() {
     }
@@ -69,6 +76,8 @@ public class JmeAssetLinkNode extends JmeNode {
     public JmeAssetLinkNode(AssetLinkNode spatial, JmeSpatialChildren children) {
         super(spatial, new AssetLinkChildren(spatial));
         getLookupContents().add(spatial);
+        linkChildren = (AssetLinkChildren)getChildren();
+        linkChildren.setReadOnly(children.readOnly);
         this.geom = spatial;
         setName(spatial.getName());
     }
@@ -97,6 +106,24 @@ public class JmeAssetLinkNode extends JmeNode {
         sheet.put(set);
         return sheet;
 
+    }
+
+    @Override
+    public Action[] getActions(boolean context) {
+        if (linkChildren.readOnly) {
+            return new Action[]{
+                        SystemAction.get(CopyAction.class),};
+        } else {
+            return new Action[]{
+                        new NewControlPopup(this),
+                        Actions.alwaysEnabled(new AddUserDataAction(this), "Add User Data", "", false),
+                        SystemAction.get(RenameAction.class),
+                        SystemAction.get(CopyAction.class),
+                        SystemAction.get(CutAction.class),
+                        SystemAction.get(PasteAction.class),
+                        SystemAction.get(DeleteAction.class)
+                    };
+        }
     }
 
     public Class getExplorerObjectClass() {
