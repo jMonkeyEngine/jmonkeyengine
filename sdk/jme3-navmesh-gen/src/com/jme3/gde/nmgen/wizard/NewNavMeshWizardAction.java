@@ -25,6 +25,8 @@ import java.util.List;
 import javax.swing.JComponent;
 import jme3tools.optimize.GeometryBatchFactory;
 import org.critterai.nmgen.IntermediateData;
+import org.netbeans.api.progress.ProgressHandle;
+import org.netbeans.api.progress.ProgressHandleFactory;
 import org.openide.DialogDisplayer;
 import org.openide.WizardDescriptor;
 
@@ -61,28 +63,34 @@ public final class NewNavMeshWizardAction extends AbstractNewSpatialWizardAction
         if (configuration == null) {
             return null;
         }
-        //TODO: maybe offload to other thread..
-        WizardDescriptor wizardDescriptor = (WizardDescriptor) configuration;
-
-        NavMeshGenerator generator = (NavMeshGenerator) wizardDescriptor.getProperty("generator");
-        IntermediateData id = new IntermediateData();
-
-        generator.setIntermediateData(null);
-
-        Mesh mesh = new Mesh();
-
-        GeometryBatchFactory.mergeGeometries(findGeometries(rootNode, new LinkedList<Geometry>(), generator), mesh);
-        Mesh optiMesh = generator.optimize(mesh);
-        if(optiMesh == null) return null;
-
+        ProgressHandle progressHandle = ProgressHandleFactory.createHandle("Generating NavMesh");
+        progressHandle.start();
         final Geometry navMesh = new Geometry("NavMesh");
-        Material material = new Material(pm, "Common/MatDefs/Misc/Unshaded.j3md");
-        material.getAdditionalRenderState().setWireframe(true);
-        material.setColor("Color", ColorRGBA.Green);
-        navMesh.setMaterial(material);
-        navMesh.setMesh(optiMesh);
-        navMesh.setCullHint(CullHint.Always);
-        navMesh.setModelBound(new BoundingBox());
+        try {
+            //TODO: maybe offload to other thread..
+            WizardDescriptor wizardDescriptor = (WizardDescriptor) configuration;
+
+            NavMeshGenerator generator = (NavMeshGenerator) wizardDescriptor.getProperty("generator");
+            IntermediateData id = new IntermediateData();
+
+            generator.setIntermediateData(null);
+
+            Mesh mesh = new Mesh();
+
+            GeometryBatchFactory.mergeGeometries(findGeometries(rootNode, new LinkedList<Geometry>(), generator), mesh);
+            Mesh optiMesh = generator.optimize(mesh);
+            if(optiMesh == null) return null;
+
+            Material material = new Material(pm, "Common/MatDefs/Misc/Unshaded.j3md");
+            material.getAdditionalRenderState().setWireframe(true);
+            material.setColor("Color", ColorRGBA.Green);
+            navMesh.setMaterial(material);
+            navMesh.setMesh(optiMesh);
+            navMesh.setCullHint(CullHint.Always);
+            navMesh.setModelBound(new BoundingBox());
+        } finally {
+            progressHandle.finish();
+        }
 
         return navMesh;
     }
