@@ -52,7 +52,7 @@ public class GenerateTerrainEntropiesAction extends AbstractToolAction {
                     }
 
                     public void progressComplete() {
-                        progressHandle.finish();
+                        progressHandle.switchToIndeterminate();
                     }
                 });
             }
