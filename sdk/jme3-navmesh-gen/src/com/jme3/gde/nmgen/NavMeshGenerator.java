@@ -161,7 +161,7 @@ public class NavMeshGenerator implements Savable {
         for (int z = 0; z < side; z++) {
             for (int x = 0; x < side; x++) {
                 vertices[i++] = x + offsetX;
-                vertices[i++] = heights[z * side + x] * scale.y;
+                vertices[i++] = heights[z * side + x];// * scale.y;
                 vertices[i++] = z + offsetZ;
             }
         }
