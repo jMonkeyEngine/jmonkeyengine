@@ -21,7 +21,6 @@
                 <package>com.bulletphysics.linearmath</package>
                 <package>com.bulletphysics.linearmath.convexhull</package>
                 <package>com.bulletphysics.util</package>
-                <package>com.jme3.gde.core.libraries</package>
                 <package>cz.advel.stack</package>
                 <package>cz.advel.stack.instrument</package>
                 <package>de.jarnbjo.ogg</package>
@@ -51,6 +50,8 @@
                 <package>de.lessvoid.nifty.controls.listbox</package>
                 <package>de.lessvoid.nifty.controls.listbox.builder</package>
                 <package>de.lessvoid.nifty.controls.menu</package>
+                <package>de.lessvoid.nifty.controls.messagebox</package>
+                <package>de.lessvoid.nifty.controls.messagebox.builder</package>
                 <package>de.lessvoid.nifty.controls.nullobjects</package>
                 <package>de.lessvoid.nifty.controls.radiobutton</package>
                 <package>de.lessvoid.nifty.controls.radiobutton.builder</package>
@@ -65,6 +66,8 @@
                 <package>de.lessvoid.nifty.controls.tabs.builder</package>
                 <package>de.lessvoid.nifty.controls.textfield</package>
                 <package>de.lessvoid.nifty.controls.textfield.builder</package>
+                <package>de.lessvoid.nifty.controls.treebox</package>
+                <package>de.lessvoid.nifty.controls.treebox.builder</package>
                 <package>de.lessvoid.nifty.controls.window</package>
                 <package>de.lessvoid.nifty.controls.window.builder</package>
                 <package>de.lessvoid.nifty.effects</package>
@@ -73,43 +76,6 @@
                 <package>de.lessvoid.nifty.elements.events</package>
                 <package>de.lessvoid.nifty.elements.render</package>
                 <package>de.lessvoid.nifty.elements.tools</package>
-                <package>de.lessvoid.nifty.examples</package>
-                <package>de.lessvoid.nifty.examples.all</package>
-                <package>de.lessvoid.nifty.examples.allcontrols</package>
-                <package>de.lessvoid.nifty.examples.console</package>
-                <package>de.lessvoid.nifty.examples.controls</package>
-                <package>de.lessvoid.nifty.examples.defaultcontrols</package>
-                <package>de.lessvoid.nifty.examples.defaultcontrols.chatcontrol</package>
-                <package>de.lessvoid.nifty.examples.defaultcontrols.common</package>
-                <package>de.lessvoid.nifty.examples.defaultcontrols.dragndrop</package>
-                <package>de.lessvoid.nifty.examples.defaultcontrols.dropdown</package>
-                <package>de.lessvoid.nifty.examples.defaultcontrols.listbox</package>
-                <package>de.lessvoid.nifty.examples.defaultcontrols.scrollpanel</package>
-                <package>de.lessvoid.nifty.examples.defaultcontrols.sliderandscrollbar</package>
-                <package>de.lessvoid.nifty.examples.defaultcontrols.tabs</package>
-                <package>de.lessvoid.nifty.examples.defaultcontrols.textfield</package>
-                <package>de.lessvoid.nifty.examples.defaultcontrolsxml</package>
-                <package>de.lessvoid.nifty.examples.dragndrop</package>
-                <package>de.lessvoid.nifty.examples.falloff</package>
-                <package>de.lessvoid.nifty.examples.helloniftybuilder</package>
-                <package>de.lessvoid.nifty.examples.helloworld</package>
-                <package>de.lessvoid.nifty.examples.hint</package>
-                <package>de.lessvoid.nifty.examples.localize</package>
-                <package>de.lessvoid.nifty.examples.menu</package>
-                <package>de.lessvoid.nifty.examples.mouse</package>
-                <package>de.lessvoid.nifty.examples.multiplayer</package>
-                <package>de.lessvoid.nifty.examples.progressbar</package>
-                <package>de.lessvoid.nifty.examples.reload</package>
-                <package>de.lessvoid.nifty.examples.resolution</package>
-                <package>de.lessvoid.nifty.examples.scroll</package>
-                <package>de.lessvoid.nifty.examples.style.dynamic</package>
-                <package>de.lessvoid.nifty.examples.style.label</package>
-                <package>de.lessvoid.nifty.examples.table</package>
-                <package>de.lessvoid.nifty.examples.test</package>
-                <package>de.lessvoid.nifty.examples.textalign</package>
-                <package>de.lessvoid.nifty.examples.textfield</package>
-                <package>de.lessvoid.nifty.examples.tutorial</package>
-                <package>de.lessvoid.nifty.examples.tutorial.screen</package>
                 <package>de.lessvoid.nifty.input</package>
                 <package>de.lessvoid.nifty.input.keyboard</package>
                 <package>de.lessvoid.nifty.input.mapping</package>
@@ -160,11 +126,6 @@
                 <package>org.lwjgl.opencl.api</package>
                 <package>org.lwjgl.opengl</package>
                 <package>org.lwjgl.opengles</package>
-                <package>org.novyon.noise</package>
-                <package>org.novyon.noise.basis</package>
-                <package>org.novyon.noise.filter</package>
-                <package>org.novyon.noise.fractal</package>
-                <package>org.novyon.noise.modulator</package>
                 <package>org.xmlpull.mxp1</package>
                 <package>org.xmlpull.mxp1_serializer</package>
                 <package>org.xmlpull.v1</package>
