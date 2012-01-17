@@ -351,6 +351,11 @@ public class TerrainQuad extends Node implements Terrain {
             return 0;
     }
 
+    /**
+     * Generate the entropy values for the terrain for the "perspective" LOD
+     * calculator. This routine can take a long time to run!
+     * @param progressMonitor optional
+     */
     public void generateEntropy(ProgressMonitor progressMonitor) {
         // only check this on the root quad
         if (isRootQuad())
