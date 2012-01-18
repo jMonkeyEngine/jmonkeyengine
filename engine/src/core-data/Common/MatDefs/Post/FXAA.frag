@@ -1,5 +1,4 @@
-///#extension GL_EXT_gpu_shader4 : disable
-#extension all : disable
+#extension GL_EXT_gpu_shader4 : enable
 
 uniform sampler2D m_Texture;
 uniform vec2 g_Resolution;
@@ -11,8 +10,18 @@ uniform float m_ReduceMul;
 varying vec2 texCoord;
 varying vec4 posPos;
 
-#define FxaaTexLod0(t, p) textureLod(t, p, 0.0)
-#define FxaaTexOff(t, p, o, r) textureLodOffset(t, p, 0.0, o)
+#define FxaaTex(t, p) texture2D(t, p)
+
+#if __VERSION_ >= 130
+    #define OffsetVec(a, b) ivec2(a, b)
+    #define FxaaTexOff(t, p, o, r) textureOffset(t, p, o)
+#elif defined(GL_EXT_gpu_shader4)
+    #define OffsetVec(a, b) ivec2(a, b)
+    #define FxaaTexOff(t, p, o, r) texture2DLodOffset(t, p, 0.0, o)
+#else
+    #define OffsetVec(a, b) vec2(a, b)
+    #define FxaaTexOff(t, p, o, r) texture2D(t, p + o * r)
+#endif
 
 vec3 FxaaPixelShader(
   vec4 posPos,   // Output of FxaaVertexShader interpolated across screen.
@@ -24,12 +33,12 @@ vec3 FxaaPixelShader(
     //#define FXAA_REDUCE_MUL   (1.0/8.0)
     //#define FXAA_SPAN_MAX     8.0
 
-    vec3 rgbNW = FxaaTexLod0(tex, posPos.zw).xyz;
-    vec3 rgbNE = FxaaTexOff(tex, posPos.zw, ivec2(1,0), rcpFrame.xy).xyz;
-    vec3 rgbSW = FxaaTexOff(tex, posPos.zw, ivec2(0,1), rcpFrame.xy).xyz;
-    vec3 rgbSE = FxaaTexOff(tex, posPos.zw, ivec2(1,1), rcpFrame.xy).xyz;
+    vec3 rgbNW = FxaaTex(tex, posPos.zw).xyz;
+    vec3 rgbNE = FxaaTexOff(tex, posPos.zw, OffsetVec(1,0), rcpFrame.xy).xyz;
+    vec3 rgbSW = FxaaTexOff(tex, posPos.zw, OffsetVec(0,1), rcpFrame.xy).xyz;
+    vec3 rgbSE = FxaaTexOff(tex, posPos.zw, OffsetVec(1,1), rcpFrame.xy).xyz;
 
-    vec3 rgbM  = FxaaTexLod0(tex, posPos.xy).xyz;
+    vec3 rgbM  = FxaaTex(tex, posPos.xy).xyz;
 
     vec3 luma = vec3(0.299, 0.587, 0.114);
     float lumaNW = dot(rgbNW, luma);
@@ -54,11 +63,11 @@ vec3 FxaaPixelShader(
           dir * rcpDirMin)) * rcpFrame.xy;
 
     vec3 rgbA = (1.0/2.0) * (
-        FxaaTexLod0(tex, posPos.xy + dir * vec2(1.0/3.0 - 0.5)).xyz +
-        FxaaTexLod0(tex, posPos.xy + dir * vec2(2.0/3.0 - 0.5)).xyz);
+        FxaaTex(tex, posPos.xy + dir * vec2(1.0/3.0 - 0.5)).xyz +
+        FxaaTex(tex, posPos.xy + dir * vec2(2.0/3.0 - 0.5)).xyz);
     vec3 rgbB = rgbA * (1.0/2.0) + (1.0/4.0) * (
-        FxaaTexLod0(tex, posPos.xy + dir * vec2(0.0/3.0 - 0.5)).xyz +
-        FxaaTexLod0(tex, posPos.xy + dir * vec2(3.0/3.0 - 0.5)).xyz);
+        FxaaTex(tex, posPos.xy + dir * vec2(0.0/3.0 - 0.5)).xyz +
+        FxaaTex(tex, posPos.xy + dir * vec2(3.0/3.0 - 0.5)).xyz);
 
     float lumaB = dot(rgbB, luma);
 
