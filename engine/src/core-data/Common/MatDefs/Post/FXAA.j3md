@@ -9,7 +9,7 @@ MaterialDef FXAA {
     }
     Technique {
         VertexShader GLSL100:   Common/MatDefs/Post/FXAA.vert
-        FragmentShader GLSL120: Common/MatDefs/Post/FXAA.frag
+        FragmentShader GLSL130: Common/MatDefs/Post/FXAA.frag
         WorldParameters {
             WorldViewProjectionMatrix
             Resolution
