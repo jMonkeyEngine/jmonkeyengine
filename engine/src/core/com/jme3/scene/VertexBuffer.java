@@ -764,6 +764,22 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
      * match.
      */
     public void copyElement(int inIndex, VertexBuffer outVb, int outIndex){
+        copyElements(inIndex, outVb, outIndex, 1);
+    }
+
+    /**
+     * Copies a sequence of elements of data from this <code>VertexBuffer</code>
+     * to the given output VertexBuffer.
+     * 
+     * @param inIndex The input element index
+     * @param outVb The buffer to copy to
+     * @param outIndex The output element index
+     * @param len The number of elements to copy
+     * 
+     * @throws IllegalArgumentException If the formats of the buffers do not
+     * match.
+     */
+    public void copyElements(int inIndex, VertexBuffer outVb, int outIndex, int len){
         if (outVb.format != format || outVb.components != components)
             throw new IllegalArgumentException("Buffer format mismatch. Cannot copy");
 
@@ -789,37 +805,39 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
             case Half:
                 ByteBuffer bin = (ByteBuffer) srcData;
                 ByteBuffer bout = (ByteBuffer) outVb.data;
-                bin.position(inPos).limit(inPos + elementSz);
-                bout.position(outPos).limit(outPos + elementSz);
-                bout.put(bin);
+                bin.position(inPos).limit(inPos + elementSz * len);
+                bout.position(outPos).limit(outPos + elementSz * len);
+                bout.put(bin);                        
                 break;
             case Short:
             case UnsignedShort:
                 ShortBuffer sin = (ShortBuffer) srcData;
                 ShortBuffer sout = (ShortBuffer) outVb.data;
-                sin.position(inPos).limit(inPos + elementSz);
-                sout.position(outPos).limit(outPos + elementSz);
+                sin.position(inPos).limit(inPos + elementSz * len);
+                sout.position(outPos).limit(outPos + elementSz * len);
                 sout.put(sin);
                 break;
             case Int:
             case UnsignedInt:
                 IntBuffer iin = (IntBuffer) srcData;
                 IntBuffer iout = (IntBuffer) outVb.data;
-                iin.position(inPos).limit(inPos + elementSz);
-                iout.position(outPos).limit(outPos + elementSz);
+                iin.position(inPos).limit(inPos + elementSz * len);
+                iout.position(outPos).limit(outPos + elementSz * len);
                 iout.put(iin);
                 break;
             case Float:
                 FloatBuffer fin = (FloatBuffer) srcData;
                 FloatBuffer fout = (FloatBuffer) outVb.data;
-                fin.position(inPos).limit(inPos + elementSz);
-                fout.position(outPos).limit(outPos + elementSz);
+                fin.position(inPos).limit(inPos + elementSz * len);
+                fout.position(outPos).limit(outPos + elementSz * len);
                 fout.put(fin);
                 break;
             default:
                 throw new UnsupportedOperationException("Unrecognized buffer format: "+format);
         }
 
+        // Clear the output buffer to rewind it and reset its
+        // limit from where we shortened it above.
         outVb.data.clear();
     }
 
