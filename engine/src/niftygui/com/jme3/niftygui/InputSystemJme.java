@@ -191,7 +191,7 @@ public class InputSystemJme implements InputSystem, RawInputListener {
     }
 
     public void onMouseButtonEvent(MouseButtonEvent evt) {
-        if (inputManager.isCursorVisible() && evt.getButtonIndex() >= 0 || evt.getButtonIndex() <= 2){
+        if (inputManager.isCursorVisible() && evt.getButtonIndex() >= 0 && evt.getButtonIndex() <= 2){
             inputQueue.add(evt);
         }
     }
