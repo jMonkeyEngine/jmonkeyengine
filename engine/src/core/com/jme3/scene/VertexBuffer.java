@@ -374,10 +374,60 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
     }
 
     /**
+     * Returns the raw internal data buffer used by this VertexBuffer.
+     * This buffer is not safe to call from multiple threads since buffers
+     * have their own internal position state that cannot be shared.
+     * Call getData().duplicate(), getData().asReadOnlyBuffer(), or 
+     * the more convenient getDataReadOnly() if the buffer may be accessed 
+     * from multiple threads.
+     * 
      * @return A native buffer, in the specified {@link Format format}.
      */
     public Buffer getData(){
         return data;
+    }
+    
+    /** 
+     * Returns a safe read-only version of this VertexBuffer's data.  The
+     * contents of the buffer will reflect whatever changes are made on
+     * other threads (eventually) but these should not be used in that way.
+     * This method provides a read-only buffer that is safe to _read_ from
+     * a separate thread since it has its own book-keeping state (position, limit, etc.)
+     *
+     * @return A rewound native buffer in the specified {@link Format format}
+     *         that is safe to read from a separate thread from other readers. 
+     */
+    public Buffer getDataReadOnly() {
+    
+        if (data == null) {
+            return null;
+        }
+        
+        // Create a read-only duplicate().  Note: this does not copy
+        // the underlying memory, it just creates a new read-only wrapper
+        // with its own buffer position state.
+        
+        // Unfortunately, this is not 100% straight forward since Buffer
+        // does not have an asReadOnlyBuffer() method.
+        Buffer result;
+        if( data instanceof ByteBuffer ) {
+            result = ((ByteBuffer)data).asReadOnlyBuffer();
+        } else if( data instanceof FloatBuffer ) {
+            result = ((FloatBuffer)data).asReadOnlyBuffer();
+        } else if( data instanceof ShortBuffer ) {
+            result = ((ShortBuffer)data).asReadOnlyBuffer();
+        } else if( data instanceof IntBuffer ) {
+            result = ((IntBuffer)data).asReadOnlyBuffer();
+        } else {
+            throw new UnsupportedOperationException( "Cannot get read-only view of buffer type:" + data );
+        }
+        
+        // Make sure the caller gets a consistent view since we may
+        // have grabbed this buffer while another thread was reading
+        // the raw data.
+        result.rewind();
+        
+        return result;
     }
 
     /**
@@ -470,6 +520,9 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
         if (usage == null || format == null || data == null)
             throw new IllegalArgumentException("None of the arguments can be null");
             
+        if (data.isReadOnly()) 
+            throw new IllegalArgumentException( "VertexBuffer data cannot be read-only." );
+
         if (components < 1 || components > 4)
             throw new IllegalArgumentException("components must be between 1 and 4");
 
@@ -497,6 +550,12 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
     public void updateData(Buffer data){
         if (id != -1){
             // request to update data is okay
+        }
+
+        // Check if the data buffer is read-only which is a sign
+        // of a bug on the part of the caller
+        if (data != null && data.isReadOnly()) {
+            throw new IllegalArgumentException( "VertexBuffer data cannot be read-only." );
         }
 
         // will force renderer to call glBufferData again
@@ -669,24 +728,24 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
             elementPos *= 2;
         }
 
-        data.clear();
+        Buffer srcData = getDataReadOnly();
 
         switch (format){
             case Byte:
             case UnsignedByte:
             case Half:
-                ByteBuffer bin = (ByteBuffer) data;
+                ByteBuffer bin = (ByteBuffer) srcData;
                 return bin.get(inPos + elementPos);
             case Short:
             case UnsignedShort:
-                ShortBuffer sin = (ShortBuffer) data;
+                ShortBuffer sin = (ShortBuffer) srcData;
                 return sin.get(inPos + elementPos);
             case Int:
             case UnsignedInt:
-                IntBuffer iin = (IntBuffer) data;
+                IntBuffer iin = (IntBuffer) srcData;
                 return iin.get(inPos + elementPos);
             case Float:
-                FloatBuffer fin = (FloatBuffer) data;
+                FloatBuffer fin = (FloatBuffer) srcData;
                 return fin.get(inPos + elementPos);
             default:
                 throw new UnsupportedOperationException("Unrecognized buffer format: "+format);
@@ -718,14 +777,17 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
             elementSz *= 2;
         }
 
-        data.clear();
+        // Make sure to grab a read-only copy in case some other
+        // thread is also accessing the buffer and messing with its
+        // position()
+        Buffer srcData = getDataReadOnly();
         outVb.data.clear();
 
         switch (format){
             case Byte:
             case UnsignedByte:
             case Half:
-                ByteBuffer bin = (ByteBuffer) data;
+                ByteBuffer bin = (ByteBuffer) srcData;
                 ByteBuffer bout = (ByteBuffer) outVb.data;
                 bin.position(inPos).limit(inPos + elementSz);
                 bout.position(outPos).limit(outPos + elementSz);
@@ -733,7 +795,7 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
                 break;
             case Short:
             case UnsignedShort:
-                ShortBuffer sin = (ShortBuffer) data;
+                ShortBuffer sin = (ShortBuffer) srcData;
                 ShortBuffer sout = (ShortBuffer) outVb.data;
                 sin.position(inPos).limit(inPos + elementSz);
                 sout.position(outPos).limit(outPos + elementSz);
@@ -741,14 +803,14 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
                 break;
             case Int:
             case UnsignedInt:
-                IntBuffer iin = (IntBuffer) data;
+                IntBuffer iin = (IntBuffer) srcData;
                 IntBuffer iout = (IntBuffer) outVb.data;
                 iin.position(inPos).limit(inPos + elementSz);
                 iout.position(outPos).limit(outPos + elementSz);
                 iout.put(iin);
                 break;
             case Float:
-                FloatBuffer fin = (FloatBuffer) data;
+                FloatBuffer fin = (FloatBuffer) srcData;
                 FloatBuffer fout = (FloatBuffer) outVb.data;
                 fin.position(inPos).limit(inPos + elementSz);
                 fout.position(outPos).limit(outPos + elementSz);
@@ -758,7 +820,6 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
                 throw new UnsupportedOperationException("Unrecognized buffer format: "+format);
         }
 
-        data.clear();
         outVb.data.clear();
     }
 
@@ -807,8 +868,13 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
         VertexBuffer vb = (VertexBuffer) super.clone();
         vb.handleRef = new Object();
         vb.id = -1;
-        if (data != null)
-            vb.updateData(BufferUtils.clone(data));
+        if (data != null) {
+            // Make sure to pass a read-only buffer to clone so that
+            // the position information doesn't get clobbered by another
+            // reading thread during cloning (and vice versa) since this is
+            // a purely read-only operation.
+            vb.updateData(BufferUtils.clone(getDataReadOnly()));
+        }
         
         return vb;
     }
@@ -824,7 +890,12 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
         VertexBuffer vb = new VertexBuffer(overrideType);
         vb.components = components;
         vb.componentsLength = componentsLength;
-        vb.data = BufferUtils.clone(data);
+        
+        // Make sure to pass a read-only buffer to clone so that
+        // the position information doesn't get clobbered by another
+        // reading thread during cloning (and vice versa) since this is
+        // a purely read-only operation.
+        vb.data = BufferUtils.clone(getDataReadOnly());
         vb.format = format;
         vb.handleRef = new Object();
         vb.id = -1;
@@ -876,22 +947,23 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
         oc.write(stride, "stride", 0);
 
         String dataName = "data" + format.name();
+        Buffer roData = getDataReadOnly();
         switch (format){
             case Float:
-                oc.write((FloatBuffer) data, dataName, null);
+                oc.write((FloatBuffer) roData, dataName, null);
                 break;
             case Short:
             case UnsignedShort:
-                oc.write((ShortBuffer) data, dataName, null);
+                oc.write((ShortBuffer) roData, dataName, null);
                 break;
             case UnsignedByte:
             case Byte:
             case Half:
-                oc.write((ByteBuffer) data, dataName, null);
+                oc.write((ByteBuffer) roData, dataName, null);
                 break;
             case Int:
             case UnsignedInt:
-                oc.write((IntBuffer) data, dataName, null);
+                oc.write((IntBuffer) roData, dataName, null);
                 break;
             default:
                 throw new IOException("Unsupported export buffer format: "+format);
