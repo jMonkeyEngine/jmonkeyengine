@@ -178,11 +178,11 @@ public class GeometryBatchFactory {
                         }
                     }
                 } else if (Type.Position.ordinal() == bufType) {
-                    FloatBuffer inPos = (FloatBuffer) inBuf.getData();
+                    FloatBuffer inPos = (FloatBuffer) inBuf.getDataReadOnly();
                     FloatBuffer outPos = (FloatBuffer) outBuf.getData();
                     doTransformVerts(inPos, globalVertIndex, outPos, worldMatrix);
                 } else if (Type.Normal.ordinal() == bufType || Type.Tangent.ordinal() == bufType) {
-                    FloatBuffer inPos = (FloatBuffer) inBuf.getData();
+                    FloatBuffer inPos = (FloatBuffer) inBuf.getDataReadOnly();
                     FloatBuffer outPos = (FloatBuffer) outBuf.getData();
                     doTransformNorms(inPos, globalVertIndex, outPos, worldMatrix);
                 } else {
@@ -229,8 +229,7 @@ public class GeometryBatchFactory {
                 numOfVertices = g.getVertexCount();
             }
             for (int i = 0; i < lodLevels; i++) {
-                ShortBuffer buffer = (ShortBuffer) g.getMesh().getLodLevel(i).getData();
-                buffer.rewind();
+                ShortBuffer buffer = (ShortBuffer) g.getMesh().getLodLevel(i).getDataReadOnly();
                 //System.out.println("buffer: " + buffer.capacity() + " limit: " + lodSize[i] + " " + index);
                 for (int j = 0; j < buffer.capacity(); j++) {
                     lodData[i][bufferPos[i] + j] = buffer.get() + numOfVertices * curGeom;
