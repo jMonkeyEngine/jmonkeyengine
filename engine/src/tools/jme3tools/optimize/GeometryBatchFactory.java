@@ -186,10 +186,7 @@ public class GeometryBatchFactory {
                     FloatBuffer outPos = (FloatBuffer) outBuf.getData();
                     doTransformNorms(inPos, globalVertIndex, outPos, worldMatrix);
                 } else {
-                    for (int vert = 0; vert < geomVertCount; vert++) {
-                        int curGlobalVertIndex = globalVertIndex + vert;
-                        inBuf.copyElement(vert, outBuf, curGlobalVertIndex);
-                    }
+                    inBuf.copyElements(0, outBuf, globalVertIndex, geomVertCount);
                 }
             }
 
