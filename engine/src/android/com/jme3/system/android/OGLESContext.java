@@ -83,6 +83,7 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer
     protected boolean autoFlush = true;
 
     protected AndroidInput view;
+    private boolean firstDrawFrame = true;
     
     private long milliStart;
     private long milliDelta;
@@ -411,6 +412,16 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer
     
             listener.update();
             
+             // call to AndroidHarness to remove the splash screen, if present.
+             // call after listener.update() to make sure no gap between
+             //   splash screen going away and app display being shown.
+             if (firstDrawFrame) {
+                final Context ctx = this.view.getContext();
+                if (ctx instanceof AndroidHarness) {
+                    ((AndroidHarness)ctx).removeSplashScreen();
+                }
+                firstDrawFrame = false;  
+             }
             
             if (autoFlush)
             {
@@ -431,7 +442,7 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer
             
         }
         
-        
+     
     }
     
     @Override

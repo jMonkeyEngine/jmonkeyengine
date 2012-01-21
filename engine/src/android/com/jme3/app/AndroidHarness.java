@@ -4,11 +4,18 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.pm.ActivityInfo;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.NinePatchDrawable;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.view.Display;
+import android.view.Gravity;
+import android.view.View;
+import android.view.ViewGroup.LayoutParams;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.TextView;
 import com.jme3.input.android.AndroidInput;
 import com.jme3.input.controls.TouchListener;
@@ -86,6 +93,13 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
     protected boolean screenShowTitle = true;
     
     /**
+     * Splash Screen picture Resource ID.  If a Splash Screen is desired, set
+     * splashPicID to the value of the Resource ID (i.e. R.drawable.picname).
+     * If splashPicID = 0, then no splash screen will be displayed.
+     */
+    protected int splashPicID = 0;
+
+    /**
      * Set the screen orientation, default is SENSOR
      * ActivityInfo.SCREEN_ORIENTATION_* constants
      * package android.content.pm.ActivityInfo
@@ -102,6 +116,8 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
     protected OGLESContext ctx;
     protected GLSurfaceView view = null;
     protected boolean isGLThreadPaused = true;
+    private ImageView splashImageView = null;   
+    private FrameLayout frameLayout = null;
     final private String ESCAPE_EVENT = "TouchEscape";
 
     static {
@@ -167,7 +183,6 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
             app.start();
             ctx = (OGLESContext) app.getContext();
             view = ctx.createView(input, eglConfigType, eglConfigVerboseLogging);
-            setContentView(view);
 
             // Set the screen reolution
             WindowManager wind = this.getWindowManager();
@@ -176,6 +191,9 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
 
             AppSettings s = ctx.getSettings();
             logger.log(Level.INFO, "Settings: Width {0} Height {1}", new Object[]{s.getWidth(), s.getHeight()});
+
+            layoutDisplay();
+
         } catch (Exception ex) {
             handleError("Class " + appClass + " init failed", ex);
             setContentView(new TextView(this));
@@ -309,5 +327,58 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
             }
         }
 
+    }
+
+    public void layoutDisplay() {
+            logger.log(Level.INFO, "Splash Screen Picture Resource ID: {0}", splashPicID);
+            if (splashPicID != 0) {
+                FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(
+                        LayoutParams.FILL_PARENT,
+                        LayoutParams.FILL_PARENT,
+                        Gravity.CENTER
+                        );
+
+                frameLayout = new FrameLayout(this);
+
+                splashImageView = new ImageView(this);
+
+                Drawable drawable = this.getResources().getDrawable(splashPicID);
+                if (drawable instanceof NinePatchDrawable) {
+                    splashImageView.setBackgroundDrawable(drawable);
+                } else {
+                    splashImageView.setImageResource(splashPicID);
+}
+
+                frameLayout.addView(view);
+                frameLayout.addView(splashImageView, lp);
+
+                setContentView(frameLayout);
+                logger.log(Level.INFO, "Splash Screen Created");
+            } else {
+                logger.log(Level.INFO, "Splash Screen Skipped.");
+                setContentView(view);
+            }
+
+    }
+
+    public void removeSplashScreen() {
+        logger.log(Level.INFO, "Splash Screen Picture Resource ID: {0}", splashPicID);
+        if (splashPicID != 0) {
+            if (frameLayout != null) {
+                if (splashImageView != null) {
+                    this.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            splashImageView.setVisibility(View.INVISIBLE);
+                            frameLayout.removeView(splashImageView);
+                        }
+                    });
+                } else {
+                    logger.log(Level.INFO, "splashImageView is null");
+                }
+            } else {
+                logger.log(Level.INFO, "frameLayout is null");
+            }
+        }
     }
 }
