@@ -89,8 +89,7 @@ public class JInputJoyInput implements JoyInput {
 
         for (int i = 0; i < cs.length; i++){
             Controller c = cs[i];
-            if (c.getType() == Controller.Type.UNKNOWN
-             || c.getType() == Controller.Type.KEYBOARD
+            if (c.getType() == Controller.Type.KEYBOARD
              || c.getType() == Controller.Type.MOUSE)
                 continue;
 
