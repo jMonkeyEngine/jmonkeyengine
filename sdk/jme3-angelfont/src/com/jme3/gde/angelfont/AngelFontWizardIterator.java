@@ -77,17 +77,23 @@ public final class AngelFontWizardIterator implements WizardDescriptor.Instantia
      */
     @SuppressWarnings("unchecked")
     public Set<FileObject> instantiate() throws IOException {
-        String name = (String) wizard.getProperty("font_name");
+
+        String fontName = (String) wizard.getProperty("font_name");
+        String fileName = (String) wizard.getProperty("file_name");
         int fontSize = (Integer) wizard.getProperty("font_size");
         int imageSize = (Integer) wizard.getProperty("image_size");
         int style = (Integer) wizard.getProperty("font_style");
+        int paddingX = (Integer) wizard.getProperty("padding_x");
+        int paddingY = (Integer) wizard.getProperty("padding_y");
+        int letterSpacing = (Integer) wizard.getProperty("letter_spacing");
+
         Project project = (Project) wizard.getProperty("project");
         ProjectAssetManager pm = project.getLookup().lookup(ProjectAssetManager.class);
         if (pm == null) {
             Logger.getLogger(AngelFontWizardIterator.class.getName()).log(Level.WARNING, "No ProjectAssetManager found!");
             return Collections.EMPTY_SET;
         }
-        AngelFont font = FontCreator.buildFont(name, imageSize, fontSize, style);
+        AngelFont font = FontCreator.buildFont(fontName, fileName, imageSize, fontSize, style, paddingX, paddingY, letterSpacing, false);
         BufferedImage fontImage = font.getImage();
         ByteBuffer scratch = ByteBuffer.allocateDirect(4 * fontImage.getWidth() * fontImage.getHeight());
         byte[] data = (byte[]) fontImage.getRaster().getDataElements(0, 0,
@@ -95,17 +101,17 @@ public final class AngelFontWizardIterator implements WizardDescriptor.Instantia
         scratch.clear();
         scratch.put(data);
         scratch.rewind();
-        name = name.replaceAll(" ", "");
+        fileName = fileName.replaceAll(" ", "");
         FileObject imageFile;
         FileObject descriptionFile;
         try {
             //create PNG file
-            imageFile = FileUtil.createData(pm.getAssetFolder(), "Interface/Fonts/" + name + ".png");
+            imageFile = FileUtil.createData(pm.getAssetFolder(), "Interface/Fonts/" + fileName + ".png");
             OutputStream out = imageFile.getOutputStream();
             ImageIO.write(fontImage, "PNG", out);
             out.close();
             //create fnt file
-            descriptionFile = FileUtil.createData(pm.getAssetFolder(), "Interface/Fonts/" + name + ".fnt");
+            descriptionFile = FileUtil.createData(pm.getAssetFolder(), "Interface/Fonts/" + fileName + ".fnt");
             OutputStreamWriter out2 = new OutputStreamWriter(descriptionFile.getOutputStream());
             out2.write(font.getDescription());
             out2.close();

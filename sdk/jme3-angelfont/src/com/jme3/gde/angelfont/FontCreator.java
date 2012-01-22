@@ -41,6 +41,10 @@ public abstract class FontCreator {
     }
 
     public static AngelFont buildFont(String fontName, int bitmapSize, int fontSize, int style, boolean debug) {
+        return buildFont(fontName, fontName, bitmapSize, fontSize, style, 0, 0, 0, debug);
+    }
+
+    public static AngelFont buildFont(String fontName, String fileName, int bitmapSize, int fontSize, int style, int paddingX, int paddingY, int letterSpacing, boolean debug) {
         BufferedImage fontImage;
         Font font;
 
@@ -74,30 +78,30 @@ public abstract class FontCreator {
             Rectangle2D bounds = fm.getStringBounds(temp, g);
             height = fm.getDescent() + fm.getAscent();
             if (yPos == 0) {
-                yPos = height;
+                yPos = height + (paddingY * 2);
             }
-            if (xPos + bounds.getWidth() > bitmapSize) {
+            if (xPos + bounds.getWidth() + (paddingX * 2) > bitmapSize) {
                 xPos = 0;
-                yPos += height;
+                yPos += height + (paddingY * 2);
             }
-            g.drawString(temp, xPos, yPos);
+            g.drawString(temp, xPos + paddingX, yPos + paddingY);
             if (debug) {
                 g.setColor(Color.BLUE);
-                g.drawRect(xPos, yPos - fm.getAscent(), (int) bounds.getWidth(), height);
+                g.drawRect(xPos, yPos - fm.getAscent(), (int) bounds.getWidth() + (paddingX * 2), height + (paddingY * 2));
                 g.setColor(Color.WHITE);
             }
             charLocs = charLocs
                     + "char id=" + i
                     + "    x=" + xPos
                     + "    y=" + (yPos - fm.getAscent())
-                    + "    width=" + (int) bounds.getWidth()
-                    + "    height=" + (int) bounds.getHeight()
+                    + "    width=" + ((int) bounds.getWidth() + (paddingX * 2))
+                    + "    height=" + ((int) bounds.getHeight() + (paddingY * 2))
                     + "    xoffset=0"
                     + "    yoffset=0"
-                    + "    xadvance=" + ((int) bounds.getWidth() - 1) + " "
+                    + "    xadvance=" + (((int) bounds.getWidth() + letterSpacing) - 1) + " "
                     + "    page=0"
                     + "    chnl=0\n";
-            xPos += bounds.getWidth();
+            xPos += bounds.getWidth() + (paddingX * 2);
         }
         charLocs = "info face=null "
                 + "size=" + fontSize + " "
@@ -118,7 +122,7 @@ public abstract class FontCreator {
                 + "pages=1 "
                 + "packed=0 "
                 + "\n"
-                + "page id=0 file=\"" + fontName.replaceAll(" ", "") + ".png\"\n"
+                + "page id=0 file=\"" + fileName.replaceAll(" ", "") + ".png\"\n"
                 + "chars count=255\n"
                 + charLocs;
         return new AngelFont(fontImage, charLocs);

@@ -86,5 +86,10 @@ public class AngelFontWizardPanel2 implements WizardDescriptor.Panel {
         ((WizardDescriptor)settings).putProperty("font_style", component.style);
         ((WizardDescriptor)settings).putProperty("font_size", component.fontSize);
         ((WizardDescriptor)settings).putProperty("image_size", component.imageSize);
+        ((WizardDescriptor)settings).putProperty("file_name", component.getFileName());
+        ((WizardDescriptor)settings).putProperty("padding_x", component.paddingX);
+        ((WizardDescriptor)settings).putProperty("padding_y", component.paddingY);
+        ((WizardDescriptor)settings).putProperty("letter_spacing", component.letterSpacing);
+        
     }
 }
