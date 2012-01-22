@@ -466,11 +466,11 @@ public class BatchNode extends Node implements Savable {
                 } else if (VertexBuffer.Type.Position.ordinal() == bufType) {
                     FloatBuffer inPos = (FloatBuffer) inBuf.getData();
                     FloatBuffer outPos = (FloatBuffer) outBuf.getData();
-                    doCopyBuffer(inPos, globalVertIndex, outPos);
+                    doCopyBuffer(inPos, globalVertIndex, outPos,3);
                 } else if (VertexBuffer.Type.Normal.ordinal() == bufType || VertexBuffer.Type.Tangent.ordinal() == bufType) {
                     FloatBuffer inPos = (FloatBuffer) inBuf.getData();
-                    FloatBuffer outPos = (FloatBuffer) outBuf.getData();
-                    doCopyBuffer(inPos, globalVertIndex, outPos);
+                    FloatBuffer outPos = (FloatBuffer) outBuf.getData();                  
+                    doCopyBuffer(inPos, globalVertIndex, outPos,compsForBuf[bufType]);
                     if (VertexBuffer.Type.Tangent.ordinal() == bufType) {
                         useTangents = true;
                     }
@@ -567,7 +567,6 @@ public class BatchNode extends Node implements Savable {
             tan.y = tmpFloatT[tanIndex++];
             tan.z = tmpFloatT[tanIndex++];
 
-
             transform.mult(pos, pos);
             transform.multNormal(norm, norm);
             transform.multNormal(tan, tan);
@@ -585,8 +584,9 @@ public class BatchNode extends Node implements Savable {
             tmpFloatT[tanIndex++] = tan.x;
             tmpFloatT[tanIndex++] = tan.y;
             tmpFloatT[tanIndex++] = tan.z;
-
-            tanIndex++;
+            
+            //Skipping 4th element of tangent buffer (handedness)
+            tanIndex++;  
 
         }
         vars.release();
@@ -601,22 +601,22 @@ public class BatchNode extends Node implements Savable {
         bufTangents.put(tmpFloatT, 0, tanLength);
     }
 
-    private void doCopyBuffer(FloatBuffer inBuf, int offset, FloatBuffer outBuf) {
+    private void doCopyBuffer(FloatBuffer inBuf, int offset, FloatBuffer outBuf, int componentSize) {
         TempVars vars = TempVars.get();
         Vector3f pos = vars.vect1;
 
         // offset is given in element units
         // convert to be in component units
-        offset *= 3;
+        offset *= componentSize;
 
-        for (int i = 0; i < inBuf.capacity() / 3; i++) {
-            pos.x = inBuf.get(i * 3 + 0);
-            pos.y = inBuf.get(i * 3 + 1);
-            pos.z = inBuf.get(i * 3 + 2);
+        for (int i = 0; i < inBuf.capacity() / componentSize; i++) {
+            pos.x = inBuf.get(i * componentSize + 0);
+            pos.y = inBuf.get(i * componentSize + 1);
+            pos.z = inBuf.get(i * componentSize + 2);
 
-            outBuf.put(offset + i * 3 + 0, pos.x);
-            outBuf.put(offset + i * 3 + 1, pos.y);
-            outBuf.put(offset + i * 3 + 2, pos.z);
+            outBuf.put(offset + i * componentSize + 0, pos.x);
+            outBuf.put(offset + i * componentSize + 1, pos.y);
+            outBuf.put(offset + i * componentSize + 2, pos.z);
         }
         vars.release();
     }
