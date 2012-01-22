@@ -61,6 +61,29 @@ public class GeometryBatchFactory {
             outBuf.put(offset + i * 3 + 2, norm.z);
         }
     }
+    
+    private static void doTransformTangents(FloatBuffer inBuf, int offset, FloatBuffer outBuf, Matrix4f transform) {
+        Vector3f tan = new Vector3f();
+        float handedness = 0;
+        // offset is given in element units
+        // convert to be in component units
+        offset *= 4;
+
+        for (int i = 0; i < inBuf.capacity() / 4; i++) {
+            tan.x = inBuf.get(i * 4 + 0);
+            tan.y = inBuf.get(i * 4 + 1);
+            tan.z = inBuf.get(i * 4 + 2);
+            handedness = inBuf.get(i * 4 + 3);
+
+            transform.multNormal(tan, tan);
+
+            outBuf.put(offset + i * 4 + 0, tan.x);
+            outBuf.put(offset + i * 4 + 1, tan.y);
+            outBuf.put(offset + i * 4 + 2, tan.z);
+            outBuf.put(offset + i * 4 + 3, handedness);
+             
+        }
+    }
 
     /**
      * Merges all geometries in the collection into
@@ -181,10 +204,14 @@ public class GeometryBatchFactory {
                     FloatBuffer inPos = (FloatBuffer) inBuf.getDataReadOnly();
                     FloatBuffer outPos = (FloatBuffer) outBuf.getData();
                     doTransformVerts(inPos, globalVertIndex, outPos, worldMatrix);
-                } else if (Type.Normal.ordinal() == bufType || Type.Tangent.ordinal() == bufType) {
+                } else if (Type.Normal.ordinal() == bufType) {
                     FloatBuffer inPos = (FloatBuffer) inBuf.getDataReadOnly();
                     FloatBuffer outPos = (FloatBuffer) outBuf.getData();
                     doTransformNorms(inPos, globalVertIndex, outPos, worldMatrix);
+                }else if(Type.Tangent.ordinal() == bufType){                    
+                    FloatBuffer inPos = (FloatBuffer) inBuf.getDataReadOnly();
+                    FloatBuffer outPos = (FloatBuffer) outBuf.getData();
+                    doTransformTangents(inPos, globalVertIndex, outPos, worldMatrix);
                 } else {
                     inBuf.copyElements(0, outBuf, globalVertIndex, geomVertCount);
                 }
