@@ -19,6 +19,8 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.concurrent.Callable;
@@ -124,8 +126,10 @@ public class NiftyPreviewPanel extends PanelView {
         if (pm == null) {
             Logger.getLogger(NiftyPreviewPanel.class.getName()).log(Level.WARNING, "No Project AssetManager found!");
         }
+        InputStream in = null;
         try {
-            doc = XMLUtil.parse(new InputSource(niftyObject.getPrimaryFile().getInputStream()), false, false, null, null);
+            in = niftyObject.getPrimaryFile().getInputStream();
+            doc = XMLUtil.parse(new InputSource(in), false, false, null, null);
             NiftyFileNode rootContext = new NiftyFileNode(doc.getDocumentElement());
             setRoot(rootContext);
             comp.setRootContext(rootContext);
@@ -136,6 +140,14 @@ public class NiftyPreviewPanel extends PanelView {
             DialogDisplayer.getDefault().notifyLater(msg);
             Exceptions.printStackTrace(ex);
             return;
+        } finally {
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException ex) {
+                    Exceptions.printStackTrace(ex);
+                }
+            }
         }
         SceneApplication.getApplication().enqueue(new Callable<Object>() {
 
