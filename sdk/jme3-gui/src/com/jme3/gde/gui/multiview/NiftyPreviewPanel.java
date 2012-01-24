@@ -33,20 +33,22 @@ import javax.swing.JToolBar;
 import org.netbeans.modules.xml.multiview.Error;
 import org.netbeans.modules.xml.multiview.ui.PanelView;
 import org.netbeans.modules.xml.multiview.ui.ToolBarDesignEditor;
-import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.NotifyDescriptor.Message;
 import org.openide.nodes.Node;
 import org.openide.util.Exceptions;
 import org.openide.xml.XMLUtil;
 import org.w3c.dom.Document;
+import org.xml.sax.ErrorHandler;
 import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
 
 /**
  *
  * @author normenhansen
  */
-public class NiftyPreviewPanel extends PanelView {
+public class NiftyPreviewPanel extends PanelView implements ErrorHandler {
 
     private NiftyGuiDataObject niftyObject;
     private OffScenePanel offPanel;
@@ -58,6 +60,7 @@ public class NiftyPreviewPanel extends PanelView {
     private NiftyJmeDisplay niftyDisplay;
     private JScrollPane scrollPanel;
     private int width = 640, height = 480;
+    private ErrorPanel errors;
 
     public NiftyPreviewPanel(NiftyGuiDataObject niftyObject, ToolBarDesignEditor comp) {
         super();
@@ -102,6 +105,7 @@ public class NiftyPreviewPanel extends PanelView {
                     height = 480;
                 }
                 offPanel.resizeGLView(width, height);
+
                 SceneApplication.getApplication().enqueue(new Callable<Object>() {
 
                     public Object call() throws Exception {
@@ -109,12 +113,20 @@ public class NiftyPreviewPanel extends PanelView {
                         return null;
                     }
                 });
+
 //                updatePreView();
             }
         });
         toolBar.add(comboBox);
         toolBar.add(new JPanel());
-        add(toolBar);
+        setLayout(new java.awt.BorderLayout());
+        add(toolBar, java.awt.BorderLayout.NORTH);
+        errors = new ErrorPanel();
+        errors.setPreferredSize(new Dimension(0, 80));
+
+
+        add(errors, java.awt.BorderLayout.SOUTH);
+
     }
 
     public void updatePreView() {
@@ -122,36 +134,53 @@ public class NiftyPreviewPanel extends PanelView {
     }
 
     public void updatePreView(final String screen) {
+        errors.clear();
         final ProjectAssetManager pm = niftyObject.getLookup().lookup(ProjectAssetManager.class);
         if (pm == null) {
             Logger.getLogger(NiftyPreviewPanel.class.getName()).log(Level.WARNING, "No Project AssetManager found!");
         }
-        InputStream in = null;
+        InputStream stream = null;
         try {
-            in = niftyObject.getPrimaryFile().getInputStream();
-            doc = XMLUtil.parse(new InputSource(in), false, false, null, null);
+            stream = niftyObject.getPrimaryFile().getInputStream();
+            doc = XMLUtil.parse(new InputSource(stream), false, false, this, null);
             NiftyFileNode rootContext = new NiftyFileNode(doc.getDocumentElement());
             setRoot(rootContext);
             comp.setRootContext(rootContext);
         } catch (Exception ex) {
-            Message msg = new NotifyDescriptor.Message(
-                    "Error parsing File:" + ex,
-                    NotifyDescriptor.ERROR_MESSAGE);
-            DialogDisplayer.getDefault().notifyLater(msg);
-            Exceptions.printStackTrace(ex);
-            return;
+//            Message msg = new NotifyDescriptor.Message(
+//                    "Error parsing File:" + ex,
+//                    NotifyDescriptor.ERROR_MESSAGE);
+            //  DialogDisplayer.getDefault().notifyLater(msg);
+            Exceptions.printStackTrace(ex);            
+            // return;
         } finally {
-            if (in != null) {
-                try {
-                    in.close();
-                } catch (IOException ex) {
-                    Exceptions.printStackTrace(ex);
+            try {
+                if (stream != null) {
+                    stream.close();
                 }
+            } catch (IOException ex) {
+                Exceptions.printStackTrace(ex);
             }
+        }
+        try {
+
+            if (nifty != null) {
+                nifty.validateXml(niftyObject.getPrimaryFile().getPath());
+
+            }
+        } catch (Exception e) {
+            if (e instanceof SAXParseException) {
+                SAXParseException spe = (SAXParseException) e;
+                errors.addError("Line " + spe.getLineNumber() + " col :" + spe.getColumnNumber() + " : " + spe.getMessage());
+            } else {
+                errors.addError(e.getMessage());
+            }
+            Exceptions.printStackTrace(e);
         }
         SceneApplication.getApplication().enqueue(new Callable<Object>() {
 
             public Object call() throws Exception {
+
                 try {
                     nifty.fromXml(pm.getRelativeAssetPath(niftyObject.getPrimaryFile().getPath()), screen);
                     if (screen == null || screen.length() == 0) {
@@ -166,8 +195,9 @@ public class NiftyPreviewPanel extends PanelView {
                     Message msg = new NotifyDescriptor.Message(
                             "Error opening File:" + ex,
                             NotifyDescriptor.ERROR_MESSAGE);
-                    DialogDisplayer.getDefault().notifyLater(msg);
+                    //  DialogDisplayer.getDefault().notifyLater(msg);                   
                     Exceptions.printStackTrace(ex);
+                    errors.addError(ex.getMessage());
                 }
                 return null;
             }
@@ -289,5 +319,17 @@ public class NiftyPreviewPanel extends PanelView {
                 return null;
             }
         });
+    }
+
+    public void warning(SAXParseException exception) throws SAXException {
+        //errors.addWarning("Line " + exception.getLineNumber() + " : " + exception.getMessage());
+    }
+
+    public void error(SAXParseException exception) throws SAXException {
+        //errors.addError("Line " + exception.getLineNumber() + " : " + exception.getMessage());
+    }
+
+    public void fatalError(SAXParseException exception) throws SAXException {
+        //errors.addError("Line " + exception.getLineNumber() + " : " + exception.getMessage());
     }
 }
