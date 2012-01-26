@@ -181,7 +181,7 @@ extern "C" {
         virtual ~jmeGhostOverlapCallback() {}
         virtual bool    processOverlap(btBroadphasePair& pair)
         {
-            btCollisionObject *co1 = (btCollisionObject *)pair.m_pProxy0->m_clientObject;
+            btCollisionObject *co1 = (btCollisionObject *)pair.m_pProxy1->m_clientObject;
             jmeUserPointer *up1 = (jmeUserPointer*)co1 -> getUserPointer();
             jobject javaCollisionObject1 = m_env->NewLocalRef(up1->javaCollisionObject);
             m_env->CallVoidMethod(m_object, jmeClasses::PhysicsGhostObject_addOverlappingObject, javaCollisionObject1);
