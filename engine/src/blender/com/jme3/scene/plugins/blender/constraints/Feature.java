@@ -1,6 +1,7 @@
 package com.jme3.scene.plugins.blender.constraints;
 
 import com.jme3.animation.Bone;
+import com.jme3.math.FastMath;
 import com.jme3.math.Matrix4f;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Transform;
@@ -8,6 +9,7 @@ import com.jme3.math.Vector3f;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.BlenderContext.LoadedFeatureDataType;
+import com.jme3.scene.plugins.blender.animations.BoneContext;
 import com.jme3.scene.plugins.blender.constraints.Constraint.Space;
 import com.jme3.scene.plugins.blender.file.DynamicArray;
 import com.jme3.scene.plugins.blender.file.Structure;
@@ -156,6 +158,7 @@ import com.jme3.scene.plugins.blender.file.Structure;
 			}
 		}
 		// Bone
+		BoneContext boneContext = blenderContext.getBoneContext(oma);
 		switch (space) {
 			case CONSTRAINT_SPACE_LOCAL:
 				Transform localTransform = new Transform(bone.getLocalPosition(), bone.getLocalRotation());
@@ -173,8 +176,9 @@ import com.jme3.scene.plugins.blender.file.Structure;
 				worldTransform.setScale(bone.getWorldBindScale());
 				return worldTransform;
 			case CONSTRAINT_SPACE_POSE:
-				// TODO
-				return null;
+				Transform poseTransform = new Transform(bone.getLocalPosition(), bone.getLocalRotation());
+				poseTransform.setScale(bone.getLocalScale());
+				return poseTransform;
 			case CONSTRAINT_SPACE_PARLOCAL:
 				Transform parentLocalTransform = new Transform(bone.getLocalPosition(), bone.getLocalRotation());
 				parentLocalTransform.setScale(bone.getLocalScale());
@@ -228,11 +232,15 @@ import com.jme3.scene.plugins.blender.file.Structure;
 					break;
 				case CONSTRAINT_SPACE_WORLD:
 					Matrix4f m = this.getParentWorldTransformMatrix();
-					m.invertLocal();
+//					m.invertLocal();
 					transform.setTranslation(m.mult(transform.getTranslation()));
 					transform.setRotation(m.mult(transform.getRotation(), null));
 					transform.setScale(transform.getScale());
 					bone.setBindTransforms(transform.getTranslation(), transform.getRotation(), transform.getScale());
+//					float x = FastMath.HALF_PI/2;
+//					float y = -FastMath.HALF_PI;
+//					float z = -FastMath.HALF_PI/2;
+//					bone.setBindTransforms(new Vector3f(0,0,0), new Quaternion().fromAngles(x, y, z), new Vector3f(1,1,1));
 					break;
 				case CONSTRAINT_SPACE_PARLOCAL:
 					Vector3f parentLocalTranslation = bone.getLocalPosition().add(transform.getTranslation());
@@ -240,7 +248,7 @@ import com.jme3.scene.plugins.blender.file.Structure;
 					bone.setBindTransforms(parentLocalTranslation, parentLocalRotation, transform.getScale());
 					break;
 				case CONSTRAINT_SPACE_POSE:
-					// TODO:
+					bone.setBindTransforms(transform.getTranslation(), transform.getRotation(), transform.getScale());
 					break;
 				default:
 					throw new IllegalStateException("Invalid space type for target object: " + space.toString());

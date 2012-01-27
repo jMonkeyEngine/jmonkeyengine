@@ -1,8 +1,11 @@
 package com.jme3.scene.plugins.blender.constraints;
 
+import java.util.Arrays;
+
 import com.jme3.animation.Animation;
 import com.jme3.math.Transform;
 import com.jme3.math.Vector3f;
+import com.jme3.scene.Spatial;
 import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.animations.Ipo;
 import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
@@ -73,7 +76,7 @@ import com.jme3.scene.plugins.ogre.AnimData;
 	}
 
 	@Override
-	protected void bakeDynamic() {
+	protected void bakeConstraint() {
 		Object owner = this.owner.getObject();
 		AnimData animData = blenderContext.getAnimData(this.owner.getOma());
 		if(animData != null) {
@@ -82,19 +85,20 @@ import com.jme3.scene.plugins.ogre.AnimData;
 				Vector3f[] translations = track.getTranslations();
 				int maxFrames = translations.length;
 				for (int frame = 0; frame < maxFrames; ++frame) {
+					System.out.print(translations[frame] + "\t\t");
 					this.locLimit(translations[frame], ipo.calculateValue(frame));
+					System.out.println(translations[frame]);
 				}
 				track.setKeyframes(track.getTimes(), translations, track.getRotations(), track.getScales());
 			}
 		}
-	}
-	
-	@Override
-	protected void bakeStatic() {
-		Transform ownerTransform = this.owner.getTransform();
-		Vector3f ownerLocation = ownerTransform.getTranslation();
-		this.locLimit(ownerLocation, ipo.calculateValue(0));
-		this.owner.applyTransform(ownerTransform);
+		
+		if(owner instanceof Spatial) {
+			Transform ownerTransform = this.owner.getTransform();
+			Vector3f ownerLocation = ownerTransform.getTranslation();
+			this.locLimit(ownerLocation, ipo.calculateValue(0));
+			this.owner.applyTransform(ownerTransform);
+		}
 	}
 	
 	/**

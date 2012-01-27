@@ -35,13 +35,7 @@ import java.util.logging.Logger;
 	}
 
 	@Override
-	protected void bakeDynamic() {
-		// TODO: implement 'Min max' constraint
-		LOGGER.log(Level.WARNING, "'Min max' constraint NOT implemented!");
-	}
-	
-	@Override
-	protected void bakeStatic() {
+	protected void bakeConstraint() {
 		// TODO: implement 'Min max' constraint
 		LOGGER.log(Level.WARNING, "'Min max' constraint NOT implemented!");
 	}

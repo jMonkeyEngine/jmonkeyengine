@@ -38,7 +38,7 @@ import java.util.logging.Logger;
 	}
 
 	@Override
-	protected void bakeDynamic() {
+	protected void bakeConstraint() {
 //		try {
 			// IK solver is only attached to bones
 //			Bone ownerBone = (Bone) blenderContext.getLoadedFeature(ownerOMA, LoadedFeatureDataType.LOADED_FEATURE);
@@ -125,12 +125,6 @@ import java.util.logging.Logger;
 //		} catch(BlenderFileException e) {
 //			LOGGER.severe(e.getLocalizedMessage());
 //		}
-	}
-	
-	@Override
-	protected void bakeStatic() {
-		// TODO Auto-generated method stub
-		
 	}
 	
 	/**

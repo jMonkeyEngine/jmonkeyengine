@@ -35,13 +35,7 @@ import java.util.logging.Logger;
 	}
 
 	@Override
-	protected void bakeDynamic() {
-		// TODO: implement 'Python' constraint
-		LOGGER.log(Level.WARNING, "'Python' constraint NOT implemented!");
-	}
-	
-	@Override
-	protected void bakeStatic() {
+	protected void bakeConstraint() {
 		// TODO: implement 'Python' constraint
 		LOGGER.log(Level.WARNING, "'Python' constraint NOT implemented!");
 	}

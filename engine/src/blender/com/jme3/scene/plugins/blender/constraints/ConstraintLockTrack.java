@@ -36,13 +36,7 @@ import java.util.logging.Logger;
 	}
 
 	@Override
-	protected void bakeDynamic() {
-		// TODO: implement 'Lock track' constraint
-		LOGGER.log(Level.WARNING, "'Lock track' constraint NOT implemented!");
-	}
-	
-	@Override
-	protected void bakeStatic() {
+	protected void bakeConstraint() {
 		// TODO: implement 'Lock track' constraint
 		LOGGER.log(Level.WARNING, "'Lock track' constraint NOT implemented!");
 	}

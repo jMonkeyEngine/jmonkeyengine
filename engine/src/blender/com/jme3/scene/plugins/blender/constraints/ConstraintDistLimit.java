@@ -1,7 +1,6 @@
 package com.jme3.scene.plugins.blender.constraints;
 
 import com.jme3.animation.Animation;
-import com.jme3.animation.Bone;
 import com.jme3.math.Matrix4f;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Spatial;
@@ -47,10 +46,10 @@ import com.jme3.scene.plugins.ogre.AnimData;
 	}
 
 	@Override
-	protected void bakeDynamic() {
+	protected void bakeConstraint() {
+		Object owner = this.owner.getObject();
 		AnimData animData = blenderContext.getAnimData(this.owner.getOma());
 		if(animData != null) {
-			Object owner = this.owner.getObject();
 			if(owner instanceof Spatial) {
 				Vector3f targetLocation = ((Spatial) owner).getWorldTranslation();
 				for(Animation animation : animData.anims) {
@@ -66,22 +65,17 @@ import com.jme3.scene.plugins.ogre.AnimData;
 				}
 			}
 		}
-	}
-	
-	@Override
-	protected void bakeStatic() {
-		Matrix4f targetWorldMatrix = target.getWorldTransformMatrix();
-		Vector3f targetLocation = targetWorldMatrix.toTranslationVector();
-		Matrix4f m = owner.getParentWorldTransformMatrix();
-		m.invertLocal();
-		Matrix4f ownerWorldMatrix = owner.getWorldTransformMatrix();
-		Vector3f ownerLocation = ownerWorldMatrix.toTranslationVector();
-		this.distLimit(ownerLocation, targetLocation, ipo.calculateValue(0));
-		Object owner = this.owner.getObject();
+		
+		// apply static constraint only to spatials
 		if(owner instanceof Spatial) {
+			Matrix4f targetWorldMatrix = target.getWorldTransformMatrix();
+			Vector3f targetLocation = targetWorldMatrix.toTranslationVector();
+			Matrix4f m = this.owner.getParentWorldTransformMatrix();
+			m.invertLocal();
+			Matrix4f ownerWorldMatrix = this.owner.getWorldTransformMatrix();
+			Vector3f ownerLocation = ownerWorldMatrix.toTranslationVector();
+			this.distLimit(ownerLocation, targetLocation, ipo.calculateValue(0));
 			((Spatial) owner).setLocalTranslation(m.mult(ownerLocation));
-		} else {
-			((Bone) owner).setBindTransforms(m.mult(ownerLocation), ((Bone) owner).getLocalRotation(), ((Bone) owner).getLocalScale());
 		}
 	}
 	

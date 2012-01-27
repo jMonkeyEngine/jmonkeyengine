@@ -35,13 +35,7 @@ import java.util.logging.Logger;
 	}
 
 	@Override
-	protected void bakeDynamic() {
-		// TODO: implement 'Transform' constraint
-		LOGGER.log(Level.WARNING, "'Transform' constraint NOT implemented!");
-	}
-	
-	@Override
-	protected void bakeStatic() {
+	protected void bakeConstraint() {
 		// TODO: implement 'Transform' constraint
 		LOGGER.log(Level.WARNING, "'Transform' constraint NOT implemented!");
 	}

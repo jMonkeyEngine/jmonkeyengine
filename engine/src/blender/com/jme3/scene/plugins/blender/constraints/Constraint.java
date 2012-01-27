@@ -20,9 +20,6 @@ import com.jme3.scene.plugins.blender.objects.ObjectHelper;
  * @author Marcin Roguski (Kaelthas)
  */
 public abstract class Constraint {
-	public static final int BAKE_DYNAMIC = 0x01;
-	public static final int BAKE_STATIC  = 0x02;
-	
 	/** The name of this constraint. */
 	protected final String name;
 	/** The constraint's owner. */
@@ -79,32 +76,19 @@ public abstract class Constraint {
 
 	/**
 	 * This method bakes the required sontraints into its owner.
-	 * @param bakeFlag the bake type flag support the following values:
-	 * <li> BAKE_DYNAMIC  - bake animation's constraints
-	 * <li> BAKE_STATIC   - bake static constraints
 	 */
-	public void bake(int bakeFlag) {
+	public void bake() {
 		this.owner.update();
 		if(this.target != null) {
 			this.target.update();
 		}
-		if((bakeFlag & BAKE_DYNAMIC) != 0) {
-			this.bakeDynamic();
-		}
-		if((bakeFlag & BAKE_STATIC) != 0) {
-			this.bakeStatic();
-		}
+		this.bakeConstraint();
 	}
 	
 	/**
 	 * Bake the animation's constraints into its owner.
 	 */
-	protected abstract void bakeDynamic();
-	
-	/**
-	 * Bake the static constraints into its owner.
-	 */
-	protected abstract void bakeStatic();
+	protected abstract void bakeConstraint();
 	
     /**
      * This method returns the bone traces for the bone that is affected by the given constraint.

@@ -35,13 +35,7 @@ import java.util.logging.Logger;
 	}
 
 	@Override
-	protected void bakeDynamic() {
-		// TODO: implement ChildOf constraint
-		LOGGER.log(Level.WARNING, "ChildOf constraint NOT implemented!");
-	}
-	
-	@Override
-	protected void bakeStatic() {
+	protected void bakeConstraint() {
 		// TODO: implement ChildOf constraint
 		LOGGER.log(Level.WARNING, "ChildOf constraint NOT implemented!");
 	}

@@ -261,7 +261,7 @@ public class ObjectHelper extends AbstractBlenderHelper {
 			List<Constraint> objectConstraints = blenderContext.getConstraints(objectStructure.getOldMemoryAddress());
 			if(objectConstraints!=null) {
 				for(Constraint objectConstraint : objectConstraints) {
-					objectConstraint.bake(Constraint.BAKE_STATIC);
+					objectConstraint.bake();
 				}
 			}
 			

@@ -1,9 +1,12 @@
 package com.jme3.scene.plugins.blender.constraints;
 
+import java.util.Arrays;
+
 import com.jme3.animation.Animation;
 import com.jme3.math.FastMath;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Transform;
+import com.jme3.scene.Spatial;
 import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.animations.Ipo;
 import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
@@ -68,10 +71,10 @@ import com.jme3.scene.plugins.ogre.AnimData;
 	}
 
 	@Override
-	protected void bakeDynamic() {
-		AnimData animData = blenderContext.getAnimData(owner.getOma());
+	protected void bakeConstraint() {
+		Object owner = this.owner.getObject();
+		AnimData animData = blenderContext.getAnimData(this.owner.getOma());
 		if(animData != null) {
-			Object owner = this.owner.getObject();
 			for(Animation animation : animData.anims) {
 				BlenderTrack track = this.getTrack(owner, animData.skeleton, animation);
 				Quaternion[] rotations = track.getRotations();
@@ -79,21 +82,22 @@ import com.jme3.scene.plugins.ogre.AnimData;
 				int maxFrames = rotations.length;
 				for (int frame = 0; frame < maxFrames; ++frame) {
 					rotations[frame].toAngles(angles);
+					System.out.print(Arrays.toString(angles) + "\t\t");
 					this.rotLimit(angles, ipo.calculateValue(frame));
+					System.out.println(Arrays.toString(angles));
 					rotations[frame].fromAngles(angles);
 				}
 				track.setKeyframes(track.getTimes(), track.getTranslations(), rotations, track.getScales());
 			}
 		}
-	}
-	
-	@Override
-	protected void bakeStatic() {
-		Transform ownerTransform = this.owner.getTransform();
-		float[] angles = ownerTransform.getRotation().toAngles(null);
-		this.rotLimit(angles, ipo.calculateValue(0));
-		ownerTransform.getRotation().fromAngles(angles);
-		this.owner.applyTransform(ownerTransform);
+		
+		if(owner instanceof Spatial) {
+			Transform ownerTransform = this.owner.getTransform();
+			float[] angles = ownerTransform.getRotation().toAngles(null);
+			this.rotLimit(angles, ipo.calculateValue(0));
+			ownerTransform.getRotation().fromAngles(angles);
+			this.owner.applyTransform(ownerTransform);
+		}
 	}
 	
 	/**
@@ -114,7 +118,7 @@ import com.jme3.scene.plugins.ogre.AnimData;
 			}
 			angles[0] -= difference;
 		}
-		if ((flag & LIMIT_YROT) != 0) {
+		if ((flag & LIMIT_ZROT) != 0) {
 			float difference = 0.0f;
 			if (angles[1] < limits[1][0]) {
 				difference = (angles[1] - limits[1][0]) * influence;
@@ -123,7 +127,7 @@ import com.jme3.scene.plugins.ogre.AnimData;
 			}
 			angles[1] -= difference;
 		}
-		if ((flag & LIMIT_ZROT) != 0) {
+		/*if ((flag & LIMIT_ZROT) != 0) {
 			float difference = 0.0f;
 			if (angles[2] < limits[2][0]) {
 				difference = (angles[2] - limits[2][0]) * influence;
@@ -131,6 +135,6 @@ import com.jme3.scene.plugins.ogre.AnimData;
 				difference = (angles[2] - limits[2][1]) * influence;
 			}
 			angles[2] -= difference;
-		}
+		}*/
 	}
 }

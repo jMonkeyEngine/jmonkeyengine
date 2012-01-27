@@ -93,7 +93,7 @@ public class ConstraintHelper extends AbstractBlenderHelper {
 						Pointer pIpo = (Pointer) constraintChannel.getFieldValue("ipo");
 						if (pIpo.isNotNull()) {
 							String constraintName = constraintChannel.getFieldValue("name").toString();
-							Ipo ipo = ipoHelper.createIpo(pIpo.fetchData(blenderContext.getInputStream()).get(0), blenderContext);
+							Ipo ipo = ipoHelper.fromIpoStructure(pIpo.fetchData(blenderContext.getInputStream()).get(0), blenderContext);
 							ipos.put(constraintName, ipo);
 						}
 					}
@@ -120,7 +120,7 @@ public class ConstraintHelper extends AbstractBlenderHelper {
 					Ipo ipo = ipoMap==null ? null : ipoMap.get(constraintName);
 					if (ipo == null) {
 						float enforce = ((Number) constraint.getFieldValue("enforce")).floatValue();
-						ipo = ipoHelper.createIpo(enforce);
+						ipo = ipoHelper.fromValue(enforce);
 					}
 					constraintsList.add(this.createConstraint(constraint, boneOMA, ipo, blenderContext));
 				}
@@ -140,7 +140,7 @@ public class ConstraintHelper extends AbstractBlenderHelper {
 			Ipo ipo = objectConstraintsIpos!=null ? objectConstraintsIpos.get(constraintName) : null;
 			if (ipo == null) {
 				float enforce = ((Number) constraint.getFieldValue("enforce")).floatValue();
-				ipo = ipoHelper.createIpo(enforce);
+				ipo = ipoHelper.fromValue(enforce);
 			}
 			constraintsList.add(this.createConstraint(constraint, objectStructure.getOldMemoryAddress(), ipo, blenderContext));
 		}

@@ -42,8 +42,8 @@ import com.jme3.util.BufferUtils;
  * @author Marcin Roguski (Kaelthas)
  */
 /* package */class ArmatureModifier extends Modifier {
-	private static final Logger		LOGGER						= Logger.getLogger(ArmatureModifier.class.getName());
-	private static final int		MAXIMUM_WEIGHTS_PER_VERTEX	= 4;	
+	private static final Logger	LOGGER						= Logger.getLogger(ArmatureModifier.class.getName());
+	private static final int	MAXIMUM_WEIGHTS_PER_VERTEX	= 4;
 	// @Marcin it was an Ogre limitation, but as long as we use a MaxNumWeight
 	// variable in mesh,
 	// i guess this limitation has no sense for the blender loader...so i guess
@@ -55,17 +55,18 @@ import com.jme3.util.BufferUtils;
 	// Rémy
 
 	/** Loaded animation data. */
-	private AnimData				animData;
+	private AnimData			animData;
 	/** Old memory address of the mesh that will have the skeleton applied. */
-	private Long					meshOMA;
+	private Long				meshOMA;
 	/**
-	 * The maxiumum amount of bone groups applied to a single vertex (max = MAXIMUM_WEIGHTS_PER_VERTEX).
+	 * The maxiumum amount of bone groups applied to a single vertex (max =
+	 * MAXIMUM_WEIGHTS_PER_VERTEX).
 	 */
-	private int						boneGroups;
+	private int					boneGroups;
 	/** The weights of vertices. */
-	private VertexBuffer			verticesWeights;
+	private VertexBuffer		verticesWeights;
 	/** The indexes of bones applied to vertices. */
-	private VertexBuffer			verticesWeightsIndices;
+	private VertexBuffer		verticesWeightsIndices;
 
 	/**
 	 * This constructor reads animation data from the object structore. The
@@ -83,9 +84,12 @@ import com.jme3.util.BufferUtils;
 	 */
 	public ArmatureModifier(Structure objectStructure, Structure modifierStructure, BlenderContext blenderContext) throws BlenderFileException {
 		Structure meshStructure = ((Pointer) objectStructure.getFieldValue("data")).fetchData(blenderContext.getInputStream()).get(0);
-		Pointer pDvert = (Pointer) meshStructure.getFieldValue("dvert");// dvert = DeformVERTices
-		
-		//if pDvert==null then there are not vertex groups and no need to load skeleton (untill bone envelopes are supported)
+		Pointer pDvert = (Pointer) meshStructure.getFieldValue("dvert");// dvert
+																		// =
+																		// DeformVERTices
+
+		// if pDvert==null then there are not vertex groups and no need to load
+		// skeleton (untill bone envelopes are supported)
 		if (this.validate(modifierStructure, blenderContext) && pDvert.isNotNull()) {
 			Pointer pArmatureObject = (Pointer) modifierStructure.getFieldValue("object");
 			if (pArmatureObject.isNotNull()) {
@@ -109,15 +113,16 @@ import com.jme3.util.BufferUtils;
 				Matrix4f armatureObjectMatrix = objectHelper.getMatrix(armatureObject, "obmat", true);
 				Matrix4f inverseMeshObjectMatrix = objectHelper.getMatrix(objectStructure, "obmat", true).invertLocal();
 				Matrix4f objectToArmatureTransformation = armatureObjectMatrix.multLocal(inverseMeshObjectMatrix);
-				
+
 				List<Structure> bonebase = ((Structure) armatureStructure.getFieldValue("bonebase")).evaluateListBase(blenderContext);
 				List<Bone> bonesList = new ArrayList<Bone>();
 				for (int i = 0; i < bonebase.size(); ++i) {
 					armatureHelper.buildBones(bonebase.get(i), null, bonesList, objectToArmatureTransformation, bonesPoseChannels, blenderContext);
 				}
 				bonesList.add(0, new Bone(""));
-				Skeleton skeleton = new Skeleton(bonesList.toArray(new Bone[bonesList.size()]));
-				
+				Bone[] bones = bonesList.toArray(new Bone[bonesList.size()]);
+				Skeleton skeleton = new Skeleton(bones);
+
 				// read mesh indexes
 				this.meshOMA = meshStructure.getOldMemoryAddress();
 				this.readVerticesWeightsData(objectStructure, meshStructure, skeleton, blenderContext);
@@ -132,25 +137,30 @@ import com.jme3.util.BufferUtils;
 						String actionName = actionStructure.getName();
 
 						BoneTrack[] tracks = armatureHelper.getTracks(actionStructure, skeleton, blenderContext);
-						// determining the animation time
-						float maximumTrackLength = 0;
-						for (BoneTrack track : tracks) {
-							float length = track.getLength();
-							if (length > maximumTrackLength) {
-								maximumTrackLength = length;
+						if(tracks != null && tracks.length > 0) {
+							// determining the animation time
+							float maximumTrackLength = 0;
+							for (BoneTrack track : tracks) {
+								float length = track.getLength();
+								if (length > maximumTrackLength) {
+									maximumTrackLength = length;
+								}
 							}
-						}
 
-						Animation boneAnimation = new Animation(actionName, maximumTrackLength);
-						boneAnimation.setTracks(tracks);
-						animations.add(boneAnimation);
+							Animation boneAnimation = new Animation(actionName, maximumTrackLength);
+							boneAnimation.setTracks(tracks);
+							animations.add(boneAnimation);
+						}
 					}
 				}
 				animData = new AnimData(skeleton, animations);
 
 				// store the animation data for each bone
-				for (Structure boneStructure : bonebase) {
-					blenderContext.setAnimData(boneStructure.getOldMemoryAddress(), animData);
+				for (Bone bone : bones) {
+					Long boneOma = armatureHelper.getBoneOMA(bone);
+					if (boneOma != null) {
+						blenderContext.setAnimData(boneOma, animData);
+					}
 				}
 			}
 		}
@@ -177,28 +187,14 @@ import com.jme3.util.BufferUtils;
 			}
 		}
 
-		// applying bone transforms before constraints are baked
+		// applying constraints to Bones
 		ArmatureHelper armatureHelper = blenderContext.getHelper(ArmatureHelper.class);
-		//TODO: should we apply static bone poses ??? (this breaks the animation)
-//		for (int i = 0; i < animData.skeleton.getBoneCount(); ++i) {
-//			Bone bone = animData.skeleton.getBone(i);
-//			Transform transform = armatureHelper.getBoneBindTransform(bone);
-//			Transform boneTransform = armatureHelper.getLocalTransform(bone);
-//			if(transform!=null && boneTransform!=null) {
-//				bone.setBindTransforms(boneTransform.getTranslation().addLocal(transform.getTranslation()), 
-//						boneTransform.getRotation().multLocal(transform.getRotation()),
-//						boneTransform.getScale().multLocal(transform.getScale()));
-//			}
-//		}
-
-		// applying constraints to Bones (and only to bones, object constraints
-		// are applied in the ObjectHelper)
 		for (int i = 0; i < animData.skeleton.getBoneCount(); ++i) {
 			Long boneOMA = armatureHelper.getBoneOMA(animData.skeleton.getBone(i));
 			List<Constraint> constraints = blenderContext.getConstraints(boneOMA);
 			if (constraints != null && constraints.size() > 0) {
 				for (Constraint constraint : constraints) {
-					constraint.bake(Constraint.BAKE_DYNAMIC | Constraint.BAKE_STATIC);
+					constraint.bake();
 				}
 			}
 		}

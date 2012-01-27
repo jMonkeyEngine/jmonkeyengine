@@ -3,6 +3,7 @@ package com.jme3.scene.plugins.blender.constraints;
 import com.jme3.animation.Animation;
 import com.jme3.math.Transform;
 import com.jme3.math.Vector3f;
+import com.jme3.scene.Spatial;
 import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.animations.Ipo;
 import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
@@ -52,10 +53,10 @@ import com.jme3.scene.plugins.ogre.AnimData;
 	}
 
 	@Override
-	protected void bakeDynamic() {
+	protected void bakeConstraint() {
+		Object owner = this.owner.getObject();
 		AnimData animData = blenderContext.getAnimData(this.owner.getOma());
 		if(animData != null) {
-			Object owner = this.owner.getObject();
 			Transform targetTransform = this.target.getTransform();
 			Vector3f targetScale = targetTransform.getScale();
 			for(Animation animation : animData.anims) {
@@ -68,14 +69,13 @@ import com.jme3.scene.plugins.ogre.AnimData;
 				track.setKeyframes(track.getTimes(), track.getTranslations(), track.getRotations(), scales);
 			}
 		}
-	}
-	
-	@Override
-	protected void bakeStatic() {
-		Transform targetTransform = this.target.getTransform();
-		Transform ownerTransform = this.owner.getTransform();
-		this.sizeLike(ownerTransform.getScale(), targetTransform.getScale(), ipo.calculateValue(0));
-		this.owner.applyTransform(ownerTransform);
+		
+		if(owner instanceof Spatial) {
+			Transform targetTransform = this.target.getTransform();
+			Transform ownerTransform = this.owner.getTransform();
+			this.sizeLike(ownerTransform.getScale(), targetTransform.getScale(), ipo.calculateValue(0));
+			this.owner.applyTransform(ownerTransform);
+		}
 	}
 	
 	private void sizeLike(Vector3f ownerScale, Vector3f targetScale, float influence) {

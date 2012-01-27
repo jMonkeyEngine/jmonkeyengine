@@ -36,13 +36,7 @@ import com.jme3.scene.plugins.blender.file.Structure;
 	}
 
 	@Override
-	protected void bakeDynamic() {
-		// TODO Auto-generated method stub
-		LOGGER.log(Level.WARNING, "'Damp Track' constraint NOT implemented!");
-	}
-
-	@Override
-	protected void bakeStatic() {
+	protected void bakeConstraint() {
 		// TODO Auto-generated method stub
 		LOGGER.log(Level.WARNING, "'Damp Track' constraint NOT implemented!");
 	}

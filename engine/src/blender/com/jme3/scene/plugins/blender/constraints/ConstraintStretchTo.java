@@ -35,13 +35,7 @@ import java.util.logging.Logger;
 	}
 
 	@Override
-	protected void bakeDynamic() {
-		// TODO: implement 'Stretch to' constraint
-		LOGGER.log(Level.WARNING, "'Stretch to' constraint NOT implemented!");
-	}
-	
-	@Override
-	protected void bakeStatic() {
+	protected void bakeConstraint() {
 		// TODO: implement 'Stretch to' constraint
 		LOGGER.log(Level.WARNING, "'Stretch to' constraint NOT implemented!");
 	}

@@ -35,13 +35,7 @@ import java.util.logging.Logger;
 	}
 
 	@Override
-	protected void bakeDynamic() {
-		//TODO: implement when curves are implemented
-		LOGGER.log(Level.INFO, "'Follow path' not implemented! Curves not yet implemented!");
-	}
-	
-	@Override
-	protected void bakeStatic() {
+	protected void bakeConstraint() {
 		//TODO: implement when curves are implemented
 		LOGGER.log(Level.INFO, "'Follow path' not implemented! Curves not yet implemented!");
 	}

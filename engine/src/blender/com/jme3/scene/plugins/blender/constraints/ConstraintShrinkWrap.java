@@ -45,7 +45,7 @@ import com.jme3.scene.plugins.ogre.AnimData;
 	}
 
 	@Override
-	protected void bakeDynamic() {
+	protected void bakeConstraint() {
 		//loading mesh points (blender ensures that the target is a mesh-object)
 		List<Vector3f> pts = new ArrayList<Vector3f>();
 		Node target = (Node) this.target.getObject();
@@ -86,11 +86,7 @@ import com.jme3.scene.plugins.ogre.AnimData;
 				track.setKeyframes(track.getTimes(), translations, rotations, track.getScales());
 			}
 		}
-	}
-	
-	@Override
-	protected void bakeStatic() {
-		// TODO Auto-generated method stub
 		
+		//TODO: static constraint for spatials
 	}
 }
