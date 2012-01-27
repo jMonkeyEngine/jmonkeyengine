@@ -95,12 +95,11 @@ public class DefaultServer implements Server
         this.version = version;
         
         reliableAdapter = new KernelAdapter( this, reliable, dispatcher, true );
+        channels.add( reliableAdapter );
         if( fast != null ) {
             fastAdapter = new KernelAdapter( this, fast, dispatcher, false );
+            channels.add( fastAdapter );
         }
-        
-        channels.add( reliableAdapter );
-        channels.add( fastAdapter );
     }   
 
     public String getGameName()
