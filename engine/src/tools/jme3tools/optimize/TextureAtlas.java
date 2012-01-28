@@ -112,7 +112,7 @@ import java.util.logging.Logger;
  * Geometry geom = scene.getChild("MyGeometry");
  * atlas.applyCoords(geom);
  * geom.setMaterial(mat);
- * </pre></
+ * </pre>
  * 
  * @author normenhansen, Lukasz Bruun - lukasz.dk
  */
