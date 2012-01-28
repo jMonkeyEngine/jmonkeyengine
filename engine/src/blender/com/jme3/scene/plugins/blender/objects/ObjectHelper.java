@@ -207,14 +207,22 @@ public class ObjectHelper extends AbstractBlenderHelper {
 							Quaternion quaternion = t.getRotation();
 							Vector3f[] axes = new Vector3f[3];
 							quaternion.toAxes(axes);
-							((DirectionalLight)light).setDirection(axes[2].negate());//-Z is the direction axis of area lamp in blender
+							if(fixUpAxis) {
+								((DirectionalLight)light).setDirection(axes[1].negate());//-Z is the direction axis of area lamp in blender
+							} else {
+								((DirectionalLight)light).setDirection(axes[2].negate());
+							}
 						} else if(light instanceof SpotLight) {
 							((SpotLight)light).setPosition(t.getTranslation());
 							
 							Quaternion quaternion = t.getRotation();
 							Vector3f[] axes = new Vector3f[3];
 							quaternion.toAxes(axes);
-							((SpotLight)light).setDirection(axes[2].negate());//-Z is the direction axis of area lamp in blender
+							if(fixUpAxis) {
+								((SpotLight)light).setDirection(axes[1].negate());//-Z is the direction axis of area lamp in blender
+							} else {
+								((SpotLight)light).setDirection(axes[2].negate());
+							}
 						} else {
 							LOGGER.log(Level.WARNING, "Unknown type of light: {0}", light);
 						}

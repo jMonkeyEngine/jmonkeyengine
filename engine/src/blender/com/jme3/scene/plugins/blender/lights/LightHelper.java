@@ -86,13 +86,12 @@ public class LightHelper extends AbstractBlenderHelper {
             	//range
             	((SpotLight)result).setSpotRange(((Number) structure.getFieldValue("dist")).floatValue());
             	//outer angle
-            	float outerAngle = ((Number) structure.getFieldValue("spotsize")).floatValue()*FastMath.DEG_TO_RAD;
+            	float outerAngle = ((Number) structure.getFieldValue("spotsize")).floatValue()*FastMath.DEG_TO_RAD * 0.5f;
             	((SpotLight)result).setSpotOuterAngle(outerAngle);
             	
             	//inner angle
             	float spotblend = ((Number) structure.getFieldValue("spotblend")).floatValue();
                 spotblend = FastMath.clamp(spotblend, 0, 1);
-            	//float innerAngle = 2.0f * (float)Math.atan((1.0f-spotblend)*Math.tan(spotblend/2.0f));
                 float innerAngle = outerAngle * (1 - spotblend);
             	((SpotLight)result).setSpotInnerAngle(innerAngle);
                 break;
