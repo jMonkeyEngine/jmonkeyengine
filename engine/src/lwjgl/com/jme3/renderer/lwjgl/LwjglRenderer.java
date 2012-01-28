@@ -1027,7 +1027,7 @@ public class LwjglRenderer implements Renderer {
         if (id == -1) {
             // create program
             id = glCreateProgram();
-            if (id <= 0) {
+            if (id == 0) {
                 throw new RendererException("Invalid ID (" + id + ") received when trying to create shader program.");
             }
 

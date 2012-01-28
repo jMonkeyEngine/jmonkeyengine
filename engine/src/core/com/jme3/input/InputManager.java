@@ -651,6 +651,9 @@ public class InputManager implements RawInputListener {
      * @return an array of all joysticks installed on the system.
      */
     public Joystick[] getJoysticks() {
+	   if (joyInput == null){
+            throw new InvalidStateException("Joystick Input is disabled");
+        }
         return joysticks;
     }
 
