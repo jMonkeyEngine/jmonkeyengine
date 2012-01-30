@@ -133,8 +133,8 @@ public abstract class AbstractCinematicEvent implements CinematicEvent {
      */
     public void internalUpdate(float tpf) {
         if (playState == PlayState.Playing) {
-            //time = time+ (tpf * speed);
-            time = elapsedTimePause + (timer.getTimeInSeconds() - start) * speed;
+            time = time+ (tpf * speed);
+            //time = elapsedTimePause + (timer.getTimeInSeconds() - start) * speed;
 
             onUpdate(tpf);
             if (time >= initialDuration && loopMode == loopMode.DontLoop) {
