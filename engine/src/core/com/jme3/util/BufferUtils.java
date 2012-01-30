@@ -1145,18 +1145,18 @@ public final class BufferUtils {
     }
     
     /**
-    * DirectByteBuffers are garbage collected by using a phantom reference and a
+    * Direct buffers are garbage collected by using a phantom reference and a
     * reference queue. Every once a while, the JVM checks the reference queue and
-    * cleans the DirectByteBuffers. However, as this doesn't happen
-    * immediately after discarding all references to a DirectByteBuffer, it's
-    * easy to OutOfMemoryError yourself using DirectByteBuffers. This function
-    * explicitly calls the Cleaner method of a DirectByteBuffer.
+    * cleans the direct buffers. However, as this doesn't happen
+    * immediately after discarding all references to a direct buffer, it's
+    * easy to OutOfMemoryError yourself using direct buffers. This function
+    * explicitly calls the Cleaner method of a direct buffer.
     * 
     * @param toBeDestroyed
-    *          The DirectByteBuffer that will be "cleaned". Utilizes reflection.
+    *          The direct buffer that will be "cleaned". Utilizes reflection.
     *          
     */
-    public static void destroyByteBuffer(Buffer toBeDestroyed) {
+    public static void destroyDirectBuffer(Buffer toBeDestroyed) {
     
         if (!toBeDestroyed.isDirect()) {
             return;

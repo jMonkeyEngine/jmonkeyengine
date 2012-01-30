@@ -60,7 +60,7 @@ public class TestReleaseDirectMemory extends SimpleApplication {
     @Override
     public void simpleUpdate(float tpf) {
         ByteBuffer buf = BufferUtils.createByteBuffer(500000);
-        BufferUtils.destroyByteBuffer(buf);
+        BufferUtils.destroyDirectBuffer(buf);
     }
     
 }
