@@ -147,8 +147,23 @@ public class PssmShadowRenderer implements SceneProcessor {
      * @param manager the application asset manager
      * @param size the size of the rendered shadowmaps (512,1024,2048, etc...)
      * @param nbSplits the number of shadow maps rendered (the more shadow maps the more quality, the less fps). 
+     *  @param nbSplits the number of shadow maps rendered (the more shadow maps the more quality, the less fps). 
      */
     public PssmShadowRenderer(AssetManager manager, int size, int nbSplits) {
+        this(manager, size, nbSplits, new Material(manager, "Common/MatDefs/Shadow/PostShadowPSSM.j3md"));
+
+    }
+
+    /**
+     * Create a PSSM Shadow Renderer 
+     * More info on the technique at <a href="http://http.developer.nvidia.com/GPUGems3/gpugems3_ch10.html">http://http.developer.nvidia.com/GPUGems3/gpugems3_ch10.html</a>
+     * @param manager the application asset manager
+     * @param size the size of the rendered shadowmaps (512,1024,2048, etc...)
+     * @param nbSplits the number of shadow maps rendered (the more shadow maps the more quality, the less fps). 
+     * @param postShadowMat the material used for post shadows if you need to override it      * 
+     */
+    //TODO remove the postShadowMat when we have shader injection....or remove this todo if we are in 2020.
+    public PssmShadowRenderer(AssetManager manager, int size, int nbSplits, Material postShadowMat) {
         assetManager = manager;
         nbSplits = Math.max(Math.min(nbSplits, 4), 1);
         this.nbSplits = nbSplits;
@@ -164,7 +179,7 @@ public class PssmShadowRenderer implements SceneProcessor {
         dummyTex = new Texture2D(size, size, Format.RGBA8);
 
         preshadowMat = new Material(manager, "Common/MatDefs/Shadow/PreShadow.j3md");
-        postshadowMat = new Material(manager, "Common/MatDefs/Shadow/PostShadowPSSM.j3md");
+        this.postshadowMat = postShadowMat;
 
         for (int i = 0; i < nbSplits; i++) {
             lightViewProjectionsMatrices[i] = new Matrix4f();
