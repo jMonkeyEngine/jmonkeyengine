@@ -1165,9 +1165,21 @@ public final class BufferUtils {
             Method cleanerMethod = toBeDestroyed.getClass().getMethod("cleaner");
             cleanerMethod.setAccessible(true);
             Object cleaner = cleanerMethod.invoke(toBeDestroyed);
-            Method cleanMethod = cleaner.getClass().getMethod("clean");
-            cleanMethod.setAccessible(true);
-            cleanMethod.invoke(cleaner);
+            if (cleaner != null) {
+                Method cleanMethod = cleaner.getClass().getMethod("clean");
+                cleanMethod.setAccessible(true);
+                cleanMethod.invoke(cleaner);
+            } else {
+                // Try the alternate approach of getting the viewed buffer
+                Method viewedBufferMethod = toBeDestroyed.getClass().getMethod("viewedBuffer");
+                viewedBufferMethod.setAccessible(true);
+                Object viewedBuffer = viewedBufferMethod.invoke(toBeDestroyed);
+                if (viewedBuffer != null) {
+                    destroyDirectBuffer( (Buffer)viewedBuffer );
+                } else {
+                    Logger.getLogger(BufferUtils.class.getName()).log(Level.SEVERE, "Buffer cannot be destroyed: {0}", toBeDestroyed);
+                }
+            }
         } catch (IllegalAccessException ex) {
             Logger.getLogger(BufferUtils.class.getName()).log(Level.SEVERE, "{0}", ex);
         } catch (IllegalArgumentException ex) {
