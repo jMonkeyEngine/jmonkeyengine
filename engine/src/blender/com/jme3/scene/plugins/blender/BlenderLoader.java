@@ -184,6 +184,7 @@ public class BlenderLoader extends AbstractBlenderLoader {
 		blocks = new ArrayList<FileBlockHeader>();
 		FileBlockHeader fileBlock;
 		blenderContext = new BlenderContext();
+		blenderContext.setBlenderVersion(inputStream.getVersionNumber());
 		blenderContext.setAssetManager(assetInfo.getManager());
 		blenderContext.setInputStream(inputStream);
 		blenderContext.setBlenderKey(blenderKey);

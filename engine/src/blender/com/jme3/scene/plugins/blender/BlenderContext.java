@@ -68,6 +68,8 @@ import com.jme3.scene.plugins.ogre.AnimData;
 public class BlenderContext {
 	private static final Logger					LOGGER					= Logger.getLogger(BlenderContext.class.getName());
 
+	/** The blender file version. */
+	private int									blenderVersion;
 	/** The blender key. */
 	private BlenderKey							blenderKey;
 	/** The header of the file block. */
@@ -119,6 +121,23 @@ public class BlenderContext {
 	protected Map<Material, MaterialContext>	materialContexts		= new HashMap<Material, MaterialContext>();
 	/** A map og helpers that perform loading. */
 	private Map<String, AbstractBlenderHelper>	helpers					= new HashMap<String, AbstractBlenderHelper>();
+
+	/**
+	 * This method sets the blender file version.
+	 * 
+	 * @param blenderVersion
+	 *            the blender file version
+	 */
+	public void setBlenderVersion(String blenderVersion) {
+		this.blenderVersion = Integer.parseInt(blenderVersion);
+	}
+
+	/**
+	 * @return the blender file version
+	 */
+	public int getBlenderVersion() {
+		return blenderVersion;
+	}
 
 	/**
 	 * This method sets the blender key.
@@ -496,7 +515,7 @@ public class BlenderContext {
 	public AnimData getAnimData(Long ownerOMA) {
 		return this.animData.get(ownerOMA);
 	}
-	
+
 	/**
 	 * This method sets the skeleton for the specified OMA of its owner.
 	 * 
@@ -508,7 +527,7 @@ public class BlenderContext {
 	public void setSkeleton(Long skeletonOMA, Skeleton skeleton) {
 		this.skeletons.put(skeletonOMA, skeleton);
 	}
-	
+
 	/**
 	 * This method returns the skeleton for the specified OMA of its owner.
 	 * 
@@ -544,7 +563,7 @@ public class BlenderContext {
 	public MeshContext getMeshContext(Long meshOMA) {
 		return this.meshContexts.get(meshOMA);
 	}
-	
+
 	/**
 	 * This method sets the bone context for the given bone old memory address.
 	 * If the context is already set it will be replaced.
@@ -569,7 +588,7 @@ public class BlenderContext {
 	public BoneContext getBoneContext(Long boneOMA) {
 		return boneContexts.get(boneOMA);
 	}
-	
+
 	/**
 	 * This method sets the material context for the given material. If the
 	 * context is already set it will be replaced.

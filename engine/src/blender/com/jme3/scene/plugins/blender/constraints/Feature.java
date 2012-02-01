@@ -1,7 +1,6 @@
 package com.jme3.scene.plugins.blender.constraints;
 
 import com.jme3.animation.Bone;
-import com.jme3.math.FastMath;
 import com.jme3.math.Matrix4f;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Transform;
@@ -9,7 +8,6 @@ import com.jme3.math.Vector3f;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.BlenderContext.LoadedFeatureDataType;
-import com.jme3.scene.plugins.blender.animations.BoneContext;
 import com.jme3.scene.plugins.blender.constraints.Constraint.Space;
 import com.jme3.scene.plugins.blender.file.DynamicArray;
 import com.jme3.scene.plugins.blender.file.Structure;
@@ -158,20 +156,12 @@ import com.jme3.scene.plugins.blender.file.Structure;
 			}
 		}
 		// Bone
-		BoneContext boneContext = blenderContext.getBoneContext(oma);
 		switch (space) {
 			case CONSTRAINT_SPACE_LOCAL:
 				Transform localTransform = new Transform(bone.getLocalPosition(), bone.getLocalRotation());
 				localTransform.setScale(bone.getLocalScale());
 				return localTransform;
 			case CONSTRAINT_SPACE_WORLD:
-				if(bone.getParent()!=null) {
-					System.out.println(bone.getParent().getLocalRotation());
-					System.out.println(bone.getParent().getWorldBindRotation());
-					System.out.println(bone.getParent().getModelSpaceRotation());
-					System.out.println(bone.getParent().getWorldBindInverseRotation());
-				}
-				
 				Transform worldTransform = new Transform(bone.getWorldBindPosition(), bone.getWorldBindRotation());
 				worldTransform.setScale(bone.getWorldBindScale());
 				return worldTransform;
