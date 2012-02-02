@@ -1063,7 +1063,7 @@ public class LODGeomap extends GeoMap {
     protected Triangle getTriangleAtPoint(float x, float z) {
         Triangle[] triangles = getGridTrianglesAtPoint(x, z);
         if (triangles == null) {
-            System.out.println("x,z: " + x + "," + z);
+            //System.out.println("x,z: " + x + "," + z);
             return null;
         }
         Vector2f point = new Vector2f(x, z);
