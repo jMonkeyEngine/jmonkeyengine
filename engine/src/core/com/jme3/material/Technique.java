@@ -228,13 +228,14 @@ public class Technique implements Savable {
 
         // register the world bound uniforms
         worldBindUniforms.clear();
-        for (UniformBinding binding : def.getWorldBindings()) {
-            Uniform uniform = shader.getUniform("g_" + binding.name());
-            uniform.setBinding(binding);
-            if (uniform != null) {
-                worldBindUniforms.add(uniform);
-
-            }
+        if (def.getWorldBindings() != null) {
+           for (UniformBinding binding : def.getWorldBindings()) {
+               Uniform uniform = shader.getUniform("g_" + binding.name());
+               uniform.setBinding(binding);
+               if (uniform != null) {
+                   worldBindUniforms.add(uniform);
+               }
+           }
         }
 
         needReload = false;
