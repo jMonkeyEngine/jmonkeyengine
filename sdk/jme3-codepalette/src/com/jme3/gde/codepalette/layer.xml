@@ -2,19 +2,17 @@
 <!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
 <filesystem>
     <folder name="JavaPalette">
-        <folder name="JME Effects">
-            <file name="Explosion.xml" url="nbresloc:/com/jme3/gde/codepalette/scene/Explosion.xml">
-                <attr name="position" intvalue="150"/>
-            </file>
-            <file name="Fire.xml" url="nbresloc:/com/jme3/gde/codepalette/scene/Fire.xml">
-                <attr name="position" intvalue="150"/>
-            </file>
-        </folder>
         <folder name="JME Material">
-            <file name="BleedCube.xml" url="nbresloc:/com/jme3/gde/codepalette/scene/BleedCube.xml">
+            <file name="SetJ3M.xml" url="nbresloc:/com/jme3/gde/codepalette/scene/SetJ3M.xml">
                 <attr name="position" intvalue="150"/>
             </file>
-            <file name="SetJ3M.xml" url="nbresloc:/com/jme3/gde/codepalette/scene/SetJ3M.xml">
+            <file name="SetShowNormals.xml" url="nbresloc:/com/jme3/gde/codepalette/scene/SetShowNormals.xml">
+                <attr name="position" intvalue="150"/>
+            </file>
+            <file name="SetWireframe.xml" url="nbresloc:/com/jme3/gde/codepalette/scene/SetWireframe.xml">
+                <attr name="position" intvalue="150"/>
+            </file>
+            <file name="BleedCube.xml" url="nbresloc:/com/jme3/gde/codepalette/scene/BleedCube.xml">
                 <attr name="position" intvalue="150"/>
             </file>
             <file name="ShinySphere.xml" url="nbresloc:/com/jme3/gde/codepalette/scene/ShinySphere.xml">
@@ -34,7 +32,29 @@
             <file name="Model.xml" url="nbresloc:/com/jme3/gde/codepalette/scene/Model.xml">
                 <attr name="position" intvalue="150"/>
             </file>
+            <file name="J3OLoad.xml" url="nbresloc:/com/jme3/gde/codepalette/scene/J3OLoad.xml">
+                <attr name="position" intvalue="150"/>
+            </file>
+            <file name="J3OSave.xml" url="nbresloc:/com/jme3/gde/codepalette/scene/J3OSave.xml">
+                <attr name="position" intvalue="150"/>
+            </file>
+        </folder>
+        <folder name="Interface">
+            <file name="ClickPointer.xml" url="nbresloc:/com/jme3/gde/codepalette/scene/ClickPointer.xml">
+                <attr name="position" intvalue="150"/>
+            </file>
+            <file name="ClickCrosshairs.xml" url="nbresloc:/com/jme3/gde/codepalette/scene/ClickCrosshairs.xml">
+                <attr name="position" intvalue="150"/>
+            </file>
+            <file name="HUDText.xml" url="nbresloc:/com/jme3/gde/codepalette/scene/HUDText.xml">
+                <attr name="position" intvalue="150"/>
+            </file>
+        </folder>
+        <folder name="Light&amp;Shadow">
             <file name="SunLight.xml" url="nbresloc:/com/jme3/gde/codepalette/scene/SunLight.xml">
+                <attr name="position" intvalue="150"/>
+            </file>
+            <file name="SpotLight.xml" url="nbresloc:/com/jme3/gde/codepalette/scene/SpotLight.xml">
                 <attr name="position" intvalue="150"/>
             </file>
             <file name="AmbLight.xml" url="nbresloc:/com/jme3/gde/codepalette/scene/AmbLight.xml">
@@ -43,11 +63,31 @@
             <file name="PointLight.xml" url="nbresloc:/com/jme3/gde/codepalette/scene/PointLight.xml">
                 <attr name="position" intvalue="150"/>
             </file>
-            <file name="HUDText.xml" url="nbresloc:/com/jme3/gde/codepalette/scene/HUDText.xml">
+            <file name="LightScatter.xml" url="nbresloc:/com/jme3/gde/codepalette/scene/LightScatter.xml">
+                <attr name="position" intvalue="150"/>
+            </file>
+            <file name="ShadowBasic.xml" url="nbresloc:/com/jme3/gde/codepalette/scene/ShadowBasic.xml">
+                <attr name="position" intvalue="150"/>
+            </file>
+            <file name="ShadowPSSM.xml" url="nbresloc:/com/jme3/gde/codepalette/scene/ShadowPSSM.xml">
+                <attr name="position" intvalue="150"/>
+            </file>
+            <file name="ShadowAO.xml" url="nbresloc:/com/jme3/gde/codepalette/scene/ShadowAO.xml">
                 <attr name="position" intvalue="150"/>
             </file>
         </folder>
-        <folder name="JME Quaternions">
+        <folder name="JME Effects">
+            <file name="Fog.xml" url="nbresloc:/com/jme3/gde/codepalette/scene/Fog.xml">
+                <attr name="position" intvalue="150"/>
+            </file>
+            <file name="Explosion.xml" url="nbresloc:/com/jme3/gde/codepalette/scene/Explosion.xml">
+                <attr name="position" intvalue="150"/>
+            </file>
+            <file name="Fire.xml" url="nbresloc:/com/jme3/gde/codepalette/scene/Fire.xml">
+                <attr name="position" intvalue="150"/>
+            </file>
+        </folder>
+        <folder name="Rotation Quaternions">
             <file name="Yaw270.xml" url="nbresloc:/com/jme3/gde/codepalette/scene/Yaw270.xml">
                 <attr name="position" intvalue="150"/>
             </file>
