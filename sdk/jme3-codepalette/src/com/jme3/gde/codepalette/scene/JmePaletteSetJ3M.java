@@ -40,14 +40,14 @@ import org.openide.text.ActiveEditorDrop;
  *
  * @author normenhansen, zathras
  */
-public class JmePaletteWireframe implements ActiveEditorDrop {
+public class JmePaletteSetJ3M implements ActiveEditorDrop {
 
-    public JmePaletteWireframe() {
+    public JmePaletteSetJ3M() {
     }
 
     private String createBody() {
 
-        String body = "mat.getAdditionalRenderState().setWireframe(true);\n";
+        String body = "Material mat = assetManager.loadMaterial(\"Common/Materials/RedColor.j3m\");\n";
         return body;
     }
 
