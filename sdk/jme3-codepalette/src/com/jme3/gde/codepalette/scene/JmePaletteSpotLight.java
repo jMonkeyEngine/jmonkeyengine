@@ -40,14 +40,14 @@ import org.openide.text.ActiveEditorDrop;
  *
  * @author normenhansen, zathras
  */
-public class JmePaletteSunLight implements ActiveEditorDrop {
+public class JmePaletteSpotLight implements ActiveEditorDrop {
 
-    public JmePaletteSunLight() {
+    public JmePaletteSpotLight() {
     }
 
     private String createBody() {
 
-        String body = "    /** A white, directional light source */ \n    DirectionalLight sun = new DirectionalLight();\n    sun.setDirection((new Vector3f(-0.5f, -0.5f, -0.5f)).normalize());\n    sun.setColor(ColorRGBA.White);\n    rootNode.addLight(sun); ";
+        String body = "    /** A cone-shaped spotlight with location, direction, range */\n    SpotLight spot = new SpotLight(); \n    spot = new SpotLight(); \n    spot.setSpotRange(100); \n    spot.setSpotOuterAngle(20 * FastMath.DEG_TO_RAD); \n    spot.setSpotInnerAngle(15 * FastMath.DEG_TO_RAD); \n    spot.setDirection(cam.getDirection()); \n    spot.setPosition(cam.getLocation()); \n    rootNode.addLight(spot); \n";
         return body;
     }
 

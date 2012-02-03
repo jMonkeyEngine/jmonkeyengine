@@ -11,7 +11,7 @@
 
     <inline-description>
        <display-name>Fire</display-name>
-       <tooltip>fire effect</tooltip>
+       <tooltip>Particle effect - fire flames</tooltip>
     </inline-description>
 
 </editor_palette_item>

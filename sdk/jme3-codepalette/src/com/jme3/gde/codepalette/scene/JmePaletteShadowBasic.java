@@ -40,14 +40,14 @@ import org.openide.text.ActiveEditorDrop;
  *
  * @author normenhansen, zathras
  */
-public class JmePaletteSunLight implements ActiveEditorDrop {
+public class JmePaletteShadowBasic implements ActiveEditorDrop {
 
-    public JmePaletteSunLight() {
+    public JmePaletteShadowBasic() {
     }
 
     private String createBody() {
 
-        String body = "    /** A white, directional light source */ \n    DirectionalLight sun = new DirectionalLight();\n    sun.setDirection((new Vector3f(-0.5f, -0.5f, -0.5f)).normalize());\n    sun.setColor(ColorRGBA.White);\n    rootNode.addLight(sun); ";
+        String body = "  /** Basic shadow for even surfaces */ \n BasicShadowRenderer bsr = new BasicShadowRenderer(assetManager, 256);\n bsr.setDirection(new Vector3f(-.5f,-.5f,-.5f).normalizeLocal());\n viewPort.addProcessor(bsr); \n ";
         return body;
     }
 

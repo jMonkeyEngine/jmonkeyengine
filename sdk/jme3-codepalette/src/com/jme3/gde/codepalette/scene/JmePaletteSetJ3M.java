@@ -40,14 +40,14 @@ import org.openide.text.ActiveEditorDrop;
  *
  * @author normenhansen, zathras
  */
-public class JmePaletteSetJ3M implements ActiveEditorDrop {
+public class JmePaletteWireframe implements ActiveEditorDrop {
 
-    public JmePaletteSetJ3M() {
+    public JmePaletteWireframe() {
     }
 
     private String createBody() {
 
-        String body = "    myj3oModel.setMaterial( (Material)assetManager.loadAsset( \"mymaterial.j3m\") );\n";
+        String body = "mat.getAdditionalRenderState().setWireframe(true);\n";
         return body;
     }
 

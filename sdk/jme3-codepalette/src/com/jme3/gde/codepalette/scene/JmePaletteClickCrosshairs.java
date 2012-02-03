@@ -40,14 +40,14 @@ import org.openide.text.ActiveEditorDrop;
  *
  * @author normenhansen, zathras
  */
-public class JmePaletteSunLight implements ActiveEditorDrop {
+public class JmePaletteClickCrosshairs implements ActiveEditorDrop {
 
-    public JmePaletteSunLight() {
+    public JmePaletteClickCrosshairs() {
     }
 
     private String createBody() {
 
-        String body = "    /** A white, directional light source */ \n    DirectionalLight sun = new DirectionalLight();\n    sun.setDirection((new Vector3f(-0.5f, -0.5f, -0.5f)).normalize());\n    sun.setColor(ColorRGBA.White);\n    rootNode.addLight(sun); ";
+        String body = " /**Pick a Target Using Fixed Crosshairs.<ol><li>Map the \"pick target\" action to a MouseButtonTrigger. <li>flyCam.setEnabled(true); <li>inputManager.setCursorVisible(false); <li>Implement click action in AnalogListener (TODO).</ol>\n */\n private AnalogListener analogListener = new AnalogListener() {\n   public void onAnalog(String name, float intensity, float tpf) {\n     if (name.equals(\"pick target\")) {\n       // Reset results list.\n       CollisionResults results = new CollisionResults();\n       // Aim the ray from camera location in camera direction\n       // (assuming crosshairs are in center of screen).\n       Ray ray = new Ray(cam.getLocation(), cam.getDirection());\n       // Collect intersections between ray and all nodes in results list.\n       rootNode.collideWith(ray, results);\n       // (Print the results so we see what is going on:)\n       for (int i = 0; i < results.size(); i++) {\n         // For each \"hit\", we know distance, impact point, geometry name.\n         float dist = results.getCollision(i).getDistance();\n         Vector3f pt = results.getCollision(i).getContactPoint();\n         String target = results.getCollision(i).getGeometry().getName();\n         System.out.println(\"Selection #\" + i + \": \" + target + \" at \" + pt + \", \" + dist + \" WU away.\");\n       }\n       // 5. Interact with target -- e.g. rotate the clicked geometry.\n       if (results.size() > 0) {\n         // The closest result is the target that the player picked:\n         Geometry target = results.getClosestCollision().getGeometry();\n         // Here comes the action:\n         target.rotate(0, - intensity, 0); // TODO\n       }\n     } \n   }\n }; \n";
         return body;
     }
 

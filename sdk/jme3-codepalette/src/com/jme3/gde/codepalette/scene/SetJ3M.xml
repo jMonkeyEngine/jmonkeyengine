@@ -10,8 +10,8 @@
     <icon32 urlvalue="com/jme3/gde/core/sceneviewer/jme-logo.png" />
 
     <inline-description>
-       <display-name>Set j3m</display-name>
-       <tooltip>Set j3m Material</tooltip>
+       <display-name>Set J3M</display-name>
+       <tooltip>Set J3M Material</tooltip>
     </inline-description>
 
 </editor_palette_item>

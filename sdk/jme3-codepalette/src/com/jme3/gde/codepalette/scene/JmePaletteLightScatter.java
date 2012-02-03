@@ -40,14 +40,14 @@ import org.openide.text.ActiveEditorDrop;
  *
  * @author normenhansen, zathras
  */
-public class JmePaletteSunLight implements ActiveEditorDrop {
+public class JmePaletteLightScatter implements ActiveEditorDrop {
 
-    public JmePaletteSunLight() {
+    public JmePaletteLightScatter() {
     }
 
     private String createBody() {
 
-        String body = "    /** A white, directional light source */ \n    DirectionalLight sun = new DirectionalLight();\n    sun.setDirection((new Vector3f(-0.5f, -0.5f, -0.5f)).normalize());\n    sun.setColor(ColorRGBA.White);\n    rootNode.addLight(sun); ";
+        String body = " /** Show scattered light beams when camera looks into \"sun\". */\n FilterPostProcessor fpp=new FilterPostProcessor(assetManager);\n LightScatteringFilter sunlight = new LightScatteringFilter(new Vector3f(.5f,.5f,.5f).multLocal(-3000));\n fpp.addFilter(sunlight);\n viewPort.addProcessor(fpp); \n";
         return body;
     }
 

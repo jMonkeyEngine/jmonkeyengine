@@ -40,14 +40,14 @@ import org.openide.text.ActiveEditorDrop;
  *
  * @author normenhansen, zathras
  */
-public class JmePaletteSunLight implements ActiveEditorDrop {
+public class JmePaletteJ3OSave implements ActiveEditorDrop {
 
-    public JmePaletteSunLight() {
+    public JmePaletteJ3OSave() {
     }
 
     private String createBody() {
 
-        String body = "    /** A white, directional light source */ \n    DirectionalLight sun = new DirectionalLight();\n    sun.setDirection((new Vector3f(-0.5f, -0.5f, -0.5f)).normalize());\n    sun.setColor(ColorRGBA.White);\n    rootNode.addLight(sun); ";
+        String body = " /** Save a Node to a .j3o file. */\n String userHome = System.getProperty(\"user.home\");\n BinaryExporter exporter = BinaryExporter.getInstance();\n File file = new File(userHome+\"/somefile.j3o\");\n try {\n   exporter.save(rootNode, file);\n } catch (IOException ex) {\n   Logger.getLogger(Main.class.getName()).log(Level.SEVERE, \"Failed to save node!\", ex);\n } \n";
         return body;
     }
 

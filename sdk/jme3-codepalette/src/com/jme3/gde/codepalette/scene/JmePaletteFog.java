@@ -40,14 +40,15 @@ import org.openide.text.ActiveEditorDrop;
  *
  * @author normenhansen, zathras
  */
-public class JmePaletteSunLight implements ActiveEditorDrop {
+public class JmePaletteFog implements ActiveEditorDrop {
 
-    public JmePaletteSunLight() {
+    public JmePaletteFog() {
     }
 
     private String createBody() {
 
-        String body = "    /** A white, directional light source */ \n    DirectionalLight sun = new DirectionalLight();\n    sun.setDirection((new Vector3f(-0.5f, -0.5f, -0.5f)).normalize());\n    sun.setColor(ColorRGBA.White);\n    rootNode.addLight(sun); ";
+        String body = " /** Add fog to a scene */\n FilterPostProcessor fpp=new FilterPostProcessor(assetManager);\n FogFilter fog=new FogFilter();\n fog.setFogColor(new ColorRGBA(0.9f, 0.9f, 0.9f, 1.0f));\n fog.setFogDistance(155);\n fog.setFogDensity(2.0f);\n fpp.addFilter(fog);\n viewPort.addProcessor(fpp);
+ \n";
         return body;
     }
 

@@ -11,7 +11,7 @@
 
     <inline-description>
        <display-name>Explosion</display-name>
-       <tooltip>explosion effect</tooltip>
+       <tooltip>Particle effect - Explosion</tooltip>
     </inline-description>
 
 </editor_palette_item>

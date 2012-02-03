@@ -11,7 +11,7 @@
 
     <inline-description>
        <display-name>AmbientLight</display-name>
-       <tooltip>light source (ambient)</tooltip>
+       <tooltip>Light source - ambient light only</tooltip>
     </inline-description>
 
 </editor_palette_item>
