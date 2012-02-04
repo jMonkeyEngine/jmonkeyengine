@@ -38,8 +38,17 @@
             <file name="J3OSave.xml" url="nbresloc:/com/jme3/gde/codepalette/scene/J3OSave.xml">
                 <attr name="position" intvalue="150"/>
             </file>
+            <file name="Enqueue.xml" url="nbresloc:/com/jme3/gde/codepalette/scene/Enqueue.xml">
+                <attr name="position" intvalue="150"/>
+            </file>
         </folder>
         <folder name="Interface">
+            <file name="InputMapping.xml" url="nbresloc:/com/jme3/gde/codepalette/scene/InputMapping.xml">
+                <attr name="position" intvalue="150"/>
+            </file>
+            <file name="InputListener.xml" url="nbresloc:/com/jme3/gde/codepalette/scene/InputListener.xml">
+                <attr name="position" intvalue="150"/>
+            </file>
             <file name="ClickPointer.xml" url="nbresloc:/com/jme3/gde/codepalette/scene/ClickPointer.xml">
                 <attr name="position" intvalue="150"/>
             </file>
