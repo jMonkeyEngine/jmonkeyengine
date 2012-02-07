@@ -81,7 +81,9 @@ public class DefineList implements Savable {
     }
 
     public String get(String key){
-        compiled = null;
+        // I do not see the point of forcing a rebuild on get()
+        // so I'm commenting it out. -pspeed
+        //compiled = null;
         return defines.get(key);
     }
 
@@ -90,41 +92,62 @@ public class DefineList implements Savable {
 //        defines.put(key, val);
 //    }
 
-    public void set(String key, VarType type, Object val){
-        compiled = null;
+    public boolean set(String key, VarType type, Object val){    
         if (val == null){
             defines.remove(key);
-            return;
+            compiled = null;
+            return true;
         }
 
         switch (type){
             case Boolean:
-                if ( ((Boolean) val).booleanValue() )
-                    defines.put(key, "1");
-                else if (defines.containsKey(key))
+                if ( ((Boolean) val).booleanValue() ) {
+                    // same literal, != should work
+                    if( defines.put(key, "1") != "1" ) {  
+                        compiled = null;
+                        return true;
+                    }                    
+                } else if (defines.containsKey(key)) {
                     defines.remove(key);
+                    compiled = null;
+                    return true;            
+                }
                 
                 break;
             case Float:
             case Int:
-                defines.put(key, val.toString());
+                String original = defines.put(key, val.toString());
+                if (!val.equals(original)) {
+                    compiled = null;
+                    return true;            
+                }
                 break;
             default:
-                defines.put(key, "1");
+                // same literal, != should work
+                if (defines.put(key, "1") != "1") {  
+                    compiled = null;
+                    return true;            
+                }
                 break;
         }
+        
+        return false;
     }
 
-    public void remove(String key){
-        compiled = null;
-        defines.remove(key);
+    public boolean remove(String key){   
+        if (defines.remove(key) != null) {
+            compiled = null;
+            return true;
+        }
+        
+        return false;
     }
 
-    public void addFrom(DefineList other){
-        compiled = null;
+    public void addFrom(DefineList other){    
         if (other == null)
             return;
         
+        compiled = null;
         defines.putAll(other.defines);
     }
 
