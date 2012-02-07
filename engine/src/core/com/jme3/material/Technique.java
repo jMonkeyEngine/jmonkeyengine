@@ -114,8 +114,7 @@ public class Technique implements Savable {
     void notifySetParam(String paramName, VarType type, Object value) {
         String defineName = def.getShaderParamDefine(paramName);
         if (defineName != null) {
-            defines.set(defineName, type, value);
-            needReload = true;
+            needReload = defines.set(defineName, type, value);
         }
         if (shader != null) {
             updateUniformParam(paramName, type, value);
@@ -128,8 +127,7 @@ public class Technique implements Savable {
     void notifyClearParam(String paramName) {
         String defineName = def.getShaderParamDefine(paramName);
         if (defineName != null) {
-            defines.remove(defineName);
-            needReload = true;
+            needReload = defines.remove(defineName);
         }
         if (shader != null) {
             if (!paramName.startsWith("m_")) {
