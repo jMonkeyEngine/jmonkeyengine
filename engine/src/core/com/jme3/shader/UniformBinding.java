@@ -73,7 +73,7 @@ public enum UniformBinding {
     WorldViewProjectionMatrix,
 
     /**
-     * The view projection matrix. Converts View space to Clip/Projection
+     * The view projection matrix. Converts Model space to Clip/Projection
      * space.
      * Type: mat4
      */
