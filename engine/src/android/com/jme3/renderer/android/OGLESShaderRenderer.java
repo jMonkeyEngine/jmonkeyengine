@@ -102,6 +102,7 @@ public class OGLESShaderRenderer implements Renderer {
     private int vpX, vpY, vpW, vpH;
     private int clipX, clipY, clipW, clipH;
     //private final GL10 gl;
+    private boolean powerVr = false;
     private boolean powerOf2 = false;
     private boolean verboseLogging = false;
     private boolean useVBO = false;
@@ -145,6 +146,8 @@ public class OGLESShaderRenderer implements Renderer {
         logger.log(Level.INFO, "Renderer: {0}", GLES20.glGetString(GLES20.GL_RENDERER));
         logger.log(Level.INFO, "Version: {0}", GLES20.glGetString(GLES20.GL_VERSION));
 
+        powerVr = GLES20.glGetString(GLES20.GL_RENDERER).contains("PowerVR");
+        
         String versionStr = GLES20.glGetString(GLES20.GL_SHADING_LANGUAGE_VERSION);
         logger.log(Level.INFO, "GLES20.Shading Language Version: {0}", versionStr);
         if (versionStr == null || versionStr.equals("")) {
@@ -987,11 +990,19 @@ public class OGLESShaderRenderer implements Renderer {
             logger.info("GLES20.glShaderSource(" + id + ")");
         }
 
-        GLES20.glShaderSource(
-                id,
-                "precision mediump float;\n"
-                + source.getDefines()
-                + source.getSource());
+        if (powerVr) {
+            // XXX: This is to fix a bug in old PowerVR, remove
+            // when no longer applicable.
+            GLES20.glShaderSource(
+                    id, source.getDefines()
+                    + source.getSource());
+        } else {
+            GLES20.glShaderSource(
+                    id,
+                    "precision mediump float;\n"
+                    + source.getDefines()
+                    + source.getSource());
+        }
 
         checkGLError();
 
