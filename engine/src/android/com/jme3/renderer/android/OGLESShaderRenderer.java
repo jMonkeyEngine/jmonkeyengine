@@ -106,6 +106,7 @@ public class OGLESShaderRenderer implements Renderer {
     private boolean powerOf2 = false;
     private boolean verboseLogging = false;
     private boolean useVBO = false;
+    private boolean checkErrors = false;
 
     public OGLESShaderRenderer() {
     }
@@ -130,6 +131,19 @@ public class OGLESShaderRenderer implements Renderer {
         }
 
         nameBuf.rewind();
+    }
+    
+    private void checkGLError() {
+        if (!checkErrors) return;
+        int error;
+        while ((error = GLES20.glGetError()) != GLES20.GL_NO_ERROR) {
+            throw new RendererException("OpenGL Error " + error);
+        }
+    }
+
+    private boolean log(String message) {
+        logger.info(message);
+        return true;
     }
 
     public Statistics getStatistics() {
@@ -990,7 +1004,7 @@ public class OGLESShaderRenderer implements Renderer {
             logger.info("GLES20.glShaderSource(" + id + ")");
         }
 
-        if (powerVr) {
+        if (powerVr && source.getType() == ShaderType.Vertex) {
             // XXX: This is to fix a bug in old PowerVR, remove
             // when no longer applicable.
             GLES20.glShaderSource(
@@ -2749,19 +2763,6 @@ public class OGLESShaderRenderer implements Renderer {
         }
 
 //        }
-    }
-
-    private void checkGLError() {
-        int error;
-        while ((error = GLES20.glGetError()) != GLES20.GL_NO_ERROR) {
-            logger.log(Level.WARNING, "glError {0}", error);
-            //	throw new RuntimeException("glError " + error);
-        }
-    }
-
-    private boolean log(String message) {
-        logger.info(message);
-        return true;
     }
 
     /**
