@@ -1,74 +1,90 @@
 package com.jme3.asset.plugins;
 
-import android.content.res.Resources;
-import com.jme3.asset.AssetInfo;
-import com.jme3.asset.AssetKey;
-import com.jme3.asset.AssetLocator;
+import com.jme3.asset.*;
 import com.jme3.system.android.JmeAndroidSystem;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class AndroidLocator implements AssetLocator {
 
     private static final Logger logger = Logger.getLogger(AndroidLocator.class.getName());
-    private Resources resources;
+    
     private android.content.res.AssetManager androidManager;
     private String rootPath = "";
 
     private class AndroidAssetInfo extends AssetInfo {
 
-        private final InputStream in;
+        private InputStream in;
+        private final String assetPath;
 
-        public AndroidAssetInfo(com.jme3.asset.AssetManager manager, AssetKey<?> key, InputStream in)
-        {
-            super(manager, key);
+        public AndroidAssetInfo(com.jme3.asset.AssetManager assetManager, AssetKey<?> key, String assetPath, InputStream in) {
+            super(assetManager, key);
+            this.assetPath = assetPath;
             this.in = in;
         }
-
+        
         @Override
         public InputStream openStream() {
-            return in;
+            if (in != null){
+                // Reuse the already existing stream (only once)
+                InputStream in2 = in;
+                in = null;
+                return in2;
+            }else{
+                // Create a new stream for subsequent invocations.
+                try {
+                    return androidManager.open(assetPath);
+                } catch (IOException ex) {
+                    throw new AssetLoadException("Failed to open asset " + assetPath, ex);
+                }
+            }
         }
     }
 
-
-    public AndroidLocator()
-    {
-        resources = JmeAndroidSystem.getResources();
-        androidManager = resources.getAssets();
+    private AndroidAssetInfo create(AssetManager assetManager, AssetKey key, String assetPath) throws IOException {
+        try {
+            InputStream in = androidManager.open(assetPath);
+            if (in == null){
+                return null;
+            }else{
+                return new AndroidAssetInfo(assetManager, key, assetPath, in);
+            }
+        } catch (IOException ex) {
+            // XXX: Prefer to show warning here?
+            // Should only surpress exceptions for "file missing" type errors.
+            return null;
+        }
     }
     
-    public void setRootPath(String rootPath) 
-    {
+    public AndroidLocator() {
+        androidManager = JmeAndroidSystem.getResources().getAssets();
+    }
+
+    public void setRootPath(String rootPath) {
         this.rootPath = rootPath;
     }
 
     @SuppressWarnings("rawtypes")
     @Override
-    public AssetInfo locate(com.jme3.asset.AssetManager manager, AssetKey key) 
-    {
-        InputStream in = null;
-        String sAssetPath = rootPath + key.getName();
+    public AssetInfo locate(com.jme3.asset.AssetManager manager, AssetKey key) {
+        String assetPath = rootPath + key.getName();
         // Fix path issues
-        if (sAssetPath.startsWith("/"))
-        {
+        if (assetPath.startsWith("/")) {
             // Remove leading /
-            sAssetPath = sAssetPath.substring(1);
+            assetPath = assetPath.substring(1);
         }
-        sAssetPath = sAssetPath.replace("//", "/");
-        try {      
-            in = androidManager.open(sAssetPath);
-            if (in == null)
-                return null;
-
-            return new AndroidAssetInfo(manager, key, in);
-        } 
-        catch (IOException ex) 
-        {
-            //logger.log(Level.WARNING, "Failed to locate {0} ", sAssetPath);
+        assetPath = assetPath.replace("//", "/");
+        try {
+            return create(manager, key, assetPath);
+        }catch (IOException ex){
+            // This is different handling than URL locator
+            // since classpath locating would return null at the getResource() 
+            // call, otherwise there's a more critical error...
+            throw new AssetLoadException("Failed to open asset " + assetPath, ex);
         }
-        return null;
     }
-
 }

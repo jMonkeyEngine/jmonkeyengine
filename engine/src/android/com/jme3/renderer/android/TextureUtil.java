@@ -3,6 +3,7 @@ package com.jme3.renderer.android;
 import android.graphics.Bitmap;
 import android.opengl.GLES20;
 import android.opengl.GLUtils;
+import com.jme3.asset.AndroidImageInfo;
 import com.jme3.math.FastMath;
 import com.jme3.texture.Image;
 import com.jme3.texture.Image.Format;
@@ -118,12 +119,16 @@ public class TextureUtil {
                                      boolean generateMips,
                                      boolean powerOf2){
 
-        if (img.getEfficentData() instanceof Bitmap){
-            Bitmap bitmap = (Bitmap) img.getEfficentData();
-            uploadTextureBitmap(target, bitmap, generateMips, powerOf2);
+        if (img.getEfficentData() instanceof AndroidImageInfo){
+            // If image was loaded from asset manager, use fast path
+            AndroidImageInfo imageInfo = (AndroidImageInfo) img.getEfficentData();
+            uploadTextureBitmap(target, imageInfo.getBitmap(), generateMips, powerOf2);
             return;
         }
 
+        // Otherwise upload image directly. 
+        // Prefer to only use power of 2 textures here to avoid errors.
+        
         Image.Format fmt = img.getFormat();
         ByteBuffer data;
         if (index >= 0 || img.getData() != null && img.getData().size() > 0){

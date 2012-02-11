@@ -36,6 +36,7 @@ import android.opengl.GLES10;
 import android.opengl.GLES11;
 import android.opengl.GLES20;
 import android.os.Build;
+import com.jme3.asset.AndroidImageInfo;
 import com.jme3.light.LightList;
 import com.jme3.material.RenderState;
 import com.jme3.math.*;
@@ -1915,7 +1916,7 @@ public class OGLESShaderRenderer implements Renderer {
         if (target == GLES20.GL_TEXTURE_CUBE_MAP) {
             // Upload a cube map / sky box
             @SuppressWarnings("unchecked")
-            List<Bitmap> bmps = (List<Bitmap>) img.getEfficentData();
+            List<AndroidImageInfo> bmps = (List<AndroidImageInfo>) img.getEfficentData();
             if (bmps != null) {
                 // Native android bitmap                                       
                 if (bmps.size() != 6) {
@@ -1923,7 +1924,7 @@ public class OGLESShaderRenderer implements Renderer {
                             + "Cubemap textures must contain 6 data units.");
                 }
                 for (int i = 0; i < 6; i++) {
-                    TextureUtil.uploadTextureBitmap(GLES20.GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, bmps.get(i), false, powerOf2);
+                    TextureUtil.uploadTextureBitmap(GLES20.GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, bmps.get(i).getBitmap(), false, powerOf2);
                 }
             } else {
                 // Standard jme3 image data

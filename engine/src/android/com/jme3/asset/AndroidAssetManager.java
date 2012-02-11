@@ -37,8 +37,6 @@ import com.jme3.audio.plugins.AndroidAudioLoader;
 import com.jme3.texture.Texture;
 import com.jme3.texture.plugins.AndroidImageLoader;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Logger;
 
 /**
@@ -49,7 +47,6 @@ import java.util.logging.Logger;
 public class AndroidAssetManager extends DesktopAssetManager {
 
     private static final Logger logger = Logger.getLogger(AndroidAssetManager.class.getName());
-    private List<ClassLoader> classLoaders;
 
     public AndroidAssetManager() {
         this(null);
@@ -67,9 +64,7 @@ public class AndroidAssetManager extends DesktopAssetManager {
      * @param configFile
      */
     public AndroidAssetManager(URL configFile) {
-
         System.setProperty("org.xml.sax.driver", "org.xmlpull.v1.sax2.Driver");
-
 
         // Set Default Android config        	       
         this.registerLocator("", AndroidLocator.class);
@@ -92,25 +87,9 @@ public class AndroidAssetManager extends DesktopAssetManager {
         this.registerLoader(com.jme3.scene.plugins.ogre.SceneLoader.class, "scene");
         this.registerLoader(com.jme3.shader.plugins.GLSLLoader.class, "vert", "frag", "glsl", "glsllib");
 
-
         logger.info("AndroidAssetManager created.");
     }
 
-    public void addClassLoader(ClassLoader loader){
-        if(classLoaders == null)
-            classLoaders = new ArrayList<ClassLoader>();
-        classLoaders.add(loader);
-    }
-    
-    public void removeClassLoader(ClassLoader loader){
-        if(classLoaders != null)
-            classLoaders.remove(loader);
-    }
-
-    public List<ClassLoader> getClassLoaders(){
-        return classLoaders;
-    }
-    
     /**
      * Loads a texture. 
      *
@@ -120,7 +99,10 @@ public class AndroidAssetManager extends DesktopAssetManager {
     public Texture loadTexture(TextureKey key) {
         Texture tex = (Texture) loadAsset(key);
 
-        // Needed for Android
+        // XXX: This will improve performance on some really
+        // low end GPUs (e.g. ones with OpenGL ES 1 support only)
+        // but otherwise won't help on the higher ones. 
+        // Strongly consider removing this.
         tex.setMagFilter(Texture.MagFilter.Nearest);
         tex.setAnisotropicFilter(0);
         if (tex.getMinFilter().usesMipMapLevels()) {
