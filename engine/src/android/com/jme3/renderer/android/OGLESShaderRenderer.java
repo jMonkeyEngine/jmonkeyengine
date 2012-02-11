@@ -739,8 +739,14 @@ public class OGLESShaderRenderer implements Renderer {
     }
 
     public void onFrame() {
+        if (!checkErrors){
+            int error = GLES20.glGetError();
+            if (error != GLES20.GL_NO_ERROR){
+                throw new RendererException("OpenGL Error " + error + ". Enable error checking for more info.");
+            }
+        }
         objManager.deleteUnused(this);
-//        statistics.clearFrame();
+//      statistics.clearFrame();
     }
 
     public void setWorldMatrix(Matrix4f worldMatrix) {
