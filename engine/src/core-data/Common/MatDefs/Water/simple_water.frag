@@ -102,7 +102,8 @@ void main(void)
     vec4 E=normalize(viewCamDir);
      vec4 vRef = normalize(reflect(-L,vNorm));
      float stemp =max(0.0, dot( vRef,E) );
-     vec4 specular;
+     //initializing to 0 to avoid artifacts on old intel cards
+     vec4 specular = vec4(0.0,0.0,0.0,0.0);
     if(stemp>0.0){
          stemp = pow(stemp, exponent);
          specular = vec4(stemp);
