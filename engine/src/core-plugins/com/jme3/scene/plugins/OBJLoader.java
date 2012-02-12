@@ -235,7 +235,7 @@ public final class OBJLoader implements AssetLoader {
         vertList.clear();
 
         String line = scan.nextLine().trim();
-        String[] verticies = line.split(" ");
+        String[] verticies = line.split("\\s ");
         for (String vertex : verticies){
             int v = 0;
             int vt = 0;
@@ -243,17 +243,17 @@ public final class OBJLoader implements AssetLoader {
 
             String[] split = vertex.split("/");
             if (split.length == 1){
-                v = Integer.parseInt(split[0]);
+                v = Integer.parseInt(split[0].trim());
             }else if (split.length == 2){
-                v = Integer.parseInt(split[0]);
-                vt = Integer.parseInt(split[1]);
+                v = Integer.parseInt(split[0].trim());
+                vt = Integer.parseInt(split[1].trim());
             }else if (split.length == 3 && !split[1].equals("")){
-                v = Integer.parseInt(split[0]);
-                vt = Integer.parseInt(split[1]);
-                vn = Integer.parseInt(split[2]);
+                v = Integer.parseInt(split[0].trim());
+                vt = Integer.parseInt(split[1].trim());
+                vn = Integer.parseInt(split[2].trim());
             }else if (split.length == 3){
-                v = Integer.parseInt(split[0]);
-                vn = Integer.parseInt(split[2]);
+                v = Integer.parseInt(split[0].trim());
+                vn = Integer.parseInt(split[2].trim());
             }
 
             Vertex vx = new Vertex();
@@ -297,9 +297,9 @@ public final class OBJLoader implements AssetLoader {
         Vector2f v = new Vector2f();
 
         String line = scan.nextLine().trim();
-        String[] split = line.split(" ");
-        v.setX( Float.parseFloat(split[0]) );
-        v.setY( Float.parseFloat(split[1]) );
+        String[] split = line.split("\\s");
+        v.setX( Float.parseFloat(split[0].trim()) );
+        v.setY( Float.parseFloat(split[1].trim()) );
 
 //        v.setX(scan.nextFloat());
 //        if (scan.hasNextFloat()){
