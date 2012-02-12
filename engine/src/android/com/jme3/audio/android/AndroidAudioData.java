@@ -7,7 +7,7 @@ import com.jme3.util.NativeObject;
 
 public class AndroidAudioData extends AudioData {
 
-    protected AssetKey assetKey;
+    protected AssetKey<?> assetKey;
     protected float currentVolume = 0f;
 
     public AndroidAudioData(){
@@ -18,11 +18,11 @@ public class AndroidAudioData extends AudioData {
         super(id);
     }
     
-    public AssetKey getAssetKey() {
+    public AssetKey<?> getAssetKey() {
         return assetKey;
     }
 
-    public void setAssetKey(AssetKey assetKey) {
+    public void setAssetKey(AssetKey<?> assetKey) {
         this.assetKey = assetKey;
     }
 
