@@ -235,7 +235,7 @@ public final class OBJLoader implements AssetLoader {
         vertList.clear();
 
         String line = scan.nextLine().trim();
-        String[] verticies = line.split("\\s ");
+        String[] verticies = line.split("\\s");
         for (String vertex : verticies){
             int v = 0;
             int vt = 0;
