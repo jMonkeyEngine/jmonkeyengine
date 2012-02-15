@@ -73,7 +73,7 @@ public class MaterialLoader implements AssetLoader {
     private int texUnit = 0;
 
     private ColorRGBA readColor(String content){
-        String[] split = content.split(" ");
+        String[] split = content.split("\\s");
         
         ColorRGBA color = new ColorRGBA();
         color.r = Float.parseFloat(split[0]);
@@ -228,7 +228,7 @@ public class MaterialLoader implements AssetLoader {
         }else if (keyword.equals("emissive")){
             emissive = readColor(split[1]);
         }else if (keyword.equals("specular")){
-            String[] subsplit = split[1].split(" ");
+            String[] subsplit = split[1].split("\\s");
             specular = new ColorRGBA();
             specular.r = Float.parseFloat(subsplit[0]);
             specular.g = Float.parseFloat(subsplit[1]);
@@ -304,7 +304,7 @@ public class MaterialLoader implements AssetLoader {
         if (statement.getLine().startsWith("technique")){
             readTechnique(statement);
         }else if (statement.getLine().startsWith("receive_shadows")){
-            String isOn = statement.getLine().split(" ")[1];
+            String isOn = statement.getLine().split("\\s")[1];
             if (isOn != null && isOn.equals("true")){
             }
         }

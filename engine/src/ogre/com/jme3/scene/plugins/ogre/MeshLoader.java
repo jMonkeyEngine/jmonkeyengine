@@ -493,7 +493,7 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
     private void pushColor(Attributes attribs) throws SAXException {
         FloatBuffer buf = (FloatBuffer) mesh.getBuffer(Type.Color).getData();
         String value = parseString(attribs.getValue("value"));
-        String[] vals = value.split(" ");
+        String[] vals = value.split("\\s");
         if (vals.length != 3 && vals.length != 4) {
             throw new SAXException("Color value must contain 3 or 4 components");
         }

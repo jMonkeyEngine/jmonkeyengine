@@ -67,15 +67,16 @@ public class BIHTree implements CollisionData {
     private int numTris;
     private float[] pointData;
     private int[] triIndices;
+    
     private transient CollisionResults boundResults = new CollisionResults();
     private transient float[] bihSwapTmp;
-    private static final TriangleAxisComparator[] comparators = new TriangleAxisComparator[3];
-
-    static {
-        comparators[0] = new TriangleAxisComparator(0);
-        comparators[1] = new TriangleAxisComparator(1);
-        comparators[2] = new TriangleAxisComparator(2);
-    }
+    
+    private static final TriangleAxisComparator[] comparators = new TriangleAxisComparator[]
+    {
+        new TriangleAxisComparator(0),
+        new TriangleAxisComparator(1),
+        new TriangleAxisComparator(2)
+    };
 
     private void initTriList(FloatBuffer vb, IndexBuffer ib) {
         pointData = new float[numTris * 3 * 3];

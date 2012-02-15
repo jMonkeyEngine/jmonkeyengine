@@ -180,7 +180,7 @@ public class BoundingBox extends BoundingVolume {
         vars.release();
     }
 
-    public static final void checkMinMax(Vector3f min, Vector3f max, Vector3f point) {
+    public static void checkMinMax(Vector3f min, Vector3f max, Vector3f point) {
         if (point.x < min.x) {
             min.x = point.x;
         }

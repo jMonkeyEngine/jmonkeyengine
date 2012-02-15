@@ -237,7 +237,7 @@ public class HDRLoader implements AssetLoader {
                 continue; // comment or empty statement
             } else if (ln.startsWith("+") || ln.startsWith("-")){
                 // + or - mark image resolution and start of data
-                String[] resData = ln.split(" ");
+                String[] resData = ln.split("\\s");
                 if (resData.length != 4){
                     throw new IOException("Invalid resolution string in HDR file");
                 }

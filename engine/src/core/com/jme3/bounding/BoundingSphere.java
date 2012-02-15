@@ -207,12 +207,12 @@ public class BoundingSphere extends BoundingVolume {
      *            in <code>points</code>.
      */
     private void recurseMini(FloatBuffer points, int p, int b, int ap) {
-        TempVars vars = TempVars.get();
+        //TempVars vars = TempVars.get();
 
-        Vector3f tempA = vars.vect1;
-        Vector3f tempB = vars.vect2;
-        Vector3f tempC = vars.vect3;
-        Vector3f tempD = vars.vect4;
+        Vector3f tempA = new Vector3f(); //vars.vect1;
+        Vector3f tempB = new Vector3f(); //vars.vect2;
+        Vector3f tempC = new Vector3f(); //vars.vect3;
+        Vector3f tempD = new Vector3f(); //vars.vect4;
 
         switch (b) {
             case 0:
@@ -240,7 +240,7 @@ public class BoundingSphere extends BoundingVolume {
                 BufferUtils.populateFromBuffer(tempC, points, ap - 3);
                 BufferUtils.populateFromBuffer(tempD, points, ap - 4);
                 setSphere(tempA, tempB, tempC, tempD);
-                vars.release();
+                //vars.release();
                 return;
         }
         for (int i = 0; i < p; i++) {
@@ -253,10 +253,9 @@ public class BoundingSphere extends BoundingVolume {
                     BufferUtils.setInBuffer(tempB, points, j - 1 + ap);
                 }
                 recurseMini(points, i, b + 1, ap + 1);
-
             }
         }
-        vars.release();
+        //vars.release();
     }
 
     /**
@@ -744,7 +743,7 @@ public class BoundingSphere extends BoundingVolume {
      *
      * @see com.jme.bounding.BoundingVolume#intersectsWhere(com.jme.math.Ray)
      */
-    public int collideWithRay(Ray ray, CollisionResults results) {
+    private int collideWithRay(Ray ray, CollisionResults results) {
         TempVars vars = TempVars.get();
 
         Vector3f diff = vars.vect1.set(ray.getOrigin()).subtractLocal(
@@ -792,11 +791,27 @@ public class BoundingSphere extends BoundingVolume {
             return 1;
         }
     }
-
+    
     public int collideWith(Collidable other, CollisionResults results) {
         if (other instanceof Ray) {
             Ray ray = (Ray) other;
             return collideWithRay(ray, results);
+        } else if (other instanceof Triangle){
+            Triangle t = (Triangle) other;
+            
+            float r2 = radius * radius;
+            float d1 = center.distanceSquared(t.get1());
+            float d2 = center.distanceSquared(t.get2());
+            float d3 = center.distanceSquared(t.get3());
+            
+            if (d1 <= r2 || d2 <= r2 || d3 <= r2) {
+                CollisionResult r = new CollisionResult();
+                r.setDistance(FastMath.sqrt(Math.min(Math.min(d1, d2), d3)) - radius);
+                results.addCollision(r);
+                return 1;
+            }
+
+            return 0;
         } else {
             throw new UnsupportedCollisionException();
         }
