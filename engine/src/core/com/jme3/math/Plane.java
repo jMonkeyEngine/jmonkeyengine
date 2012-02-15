@@ -111,9 +111,6 @@ public class Plane implements Savable, Cloneable, java.io.Serializable {
      *
      */
     public void setNormal(float x, float y, float z) {
-        if (normal == null) {
-            throw new IllegalArgumentException("normal cannot be null");
-        }
         this.normal.set(x,y,z);
     }
 
