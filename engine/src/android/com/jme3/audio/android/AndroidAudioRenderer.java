@@ -408,6 +408,27 @@ public class AndroidAudioRenderer implements AudioRenderer,
 		}
 	}
 
+	/**
+	 * Pause the current playing sounds. Both from the {@link SoundPool} and the
+	 * active {@link MediaPlayer}s
+	 */
+	public void pauseAll() {
+		soundPool.autoPause();
+		for (MediaPlayer mp : musicPlaying.values()) {
+			mp.pause();
+		}
+	}
+	
+	/**
+	 * Resume all paused sounds.
+	 */
+	public void resumeAll() {
+		soundPool.autoResume();
+		for (MediaPlayer mp : musicPlaying.values()) {
+			mp.start(); //no resume -> api says call start to resume
+		}
+	}
+
 	public void pauseSource(AudioNode src) {
 		if (audioDisabled) {
 			return;
@@ -460,7 +481,7 @@ public class AndroidAudioRenderer implements AudioRenderer,
 				break;
 			}
 		}
-		
+
 		if (ad.getId() > 0) {
 			soundPool.unload(ad.getId());
 			ad.setId(-1);
@@ -469,7 +490,7 @@ public class AndroidAudioRenderer implements AudioRenderer,
 
 	@Override
 	public void setEnvironment(Environment env) {
-		//not yet supported
+		// not yet supported
 	}
 
 	@Override

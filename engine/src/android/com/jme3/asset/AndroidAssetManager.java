@@ -70,7 +70,7 @@ public class AndroidAssetManager extends DesktopAssetManager {
         this.registerLocator("", AndroidLocator.class);
         this.registerLocator("", ClasspathLocator.class);
         this.registerLoader(AndroidImageLoader.class, "jpg", "bmp", "gif", "png", "jpeg");
-        this.registerLoader(AndroidAudioLoader.class, "ogg", "mp3");
+        this.registerLoader(AndroidAudioLoader.class, "ogg", "mp3", "wav");
         this.registerLoader(com.jme3.material.plugins.J3MLoader.class, "j3m");
         this.registerLoader(com.jme3.material.plugins.J3MLoader.class, "j3md");
         this.registerLoader(com.jme3.font.plugins.BitmapFontLoader.class, "fnt");

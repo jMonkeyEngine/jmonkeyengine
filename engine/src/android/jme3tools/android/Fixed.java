@@ -13,7 +13,11 @@ import java.util.Random;
  *
  *	@version 1.0
  *	@author CW
+ * 
+ * @deprecated Most devices with OpenGL ES 2.0 have an FPU. Please use
+ * floats instead of this class for decimal math.
  */
+@Deprecated
 public final class Fixed {
 
     /**

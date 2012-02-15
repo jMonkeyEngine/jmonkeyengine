@@ -8,15 +8,13 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.NinePatchDrawable;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
-import android.view.Display;
-import android.view.Gravity;
-import android.view.View;
 import android.view.ViewGroup.LayoutParams;
-import android.view.Window;
-import android.view.WindowManager;
+import android.view.*;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
+import com.jme3.audio.AudioRenderer;
+import com.jme3.audio.android.AndroidAudioRenderer;
 import com.jme3.input.android.AndroidInput;
 import com.jme3.input.controls.TouchListener;
 import com.jme3.input.event.TouchEvent;
@@ -26,7 +24,6 @@ import com.jme3.system.android.AndroidConfigChooser.ConfigType;
 import com.jme3.system.android.JmeAndroidSystem;
 import com.jme3.system.android.OGLESContext;
 import com.jme3.util.JmeFormatter;
-import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.logging.Handler;
@@ -43,76 +40,63 @@ import java.util.logging.Logger;
 public class AndroidHarness extends Activity implements TouchListener, DialogInterface.OnClickListener {
 
     protected final static Logger logger = Logger.getLogger(AndroidHarness.class.getName());
-    
     /**
      * The application class to start
      */
     protected String appClass = "jme3test.android.Test";
-    
     /**
      * The jme3 application object
      */
     protected Application app = null;
-    
     /**
      * ConfigType.FASTEST is RGB565, GLSurfaceView default ConfigType.BEST is
      * RGBA8888 or better if supported by the hardware
      */
     protected ConfigType eglConfigType = ConfigType.FASTEST;
-    
     /**
      * If true all valid and not valid egl configs are logged
      */
     protected boolean eglConfigVerboseLogging = false;
-    
     /**
      * If true MouseEvents are generated from TouchEvents
      */
     protected boolean mouseEventsEnabled = true;
-    
     /**
      * Flip X axis
      */
     protected boolean mouseEventsInvertX = true;
-    
     /**
      * Flip Y axis
      */
     protected boolean mouseEventsInvertY = true;
-    
     /**
      * Title of the exit dialog, default is "Do you want to exit?"
      */
     protected String exitDialogTitle = "Do you want to exit?";
-    
     /**
      * Message of the exit dialog, default is "Use your home key to bring this
      * app into the background or exit to terminate it."
      */
     protected String exitDialogMessage = "Use your home key to bring this app into the background or exit to terminate it.";
     /**
-     * Set the screen window mode. 
-     * If screenFullSize is true, then the notification bar and title bar are 
-     * removed and the screen covers the entire display.  
-     * If screenFullSize is false, then the notification bar remains visible if 
-     * screenShowTitle is true while screenFullScreen is false, 
-     * then the title bar is also displayed under the notification bar.
+     * Set the screen window mode. If screenFullSize is true, then the
+     * notification bar and title bar are removed and the screen covers the
+     * entire display.   If screenFullSize is false, then the notification bar
+     * remains visible if screenShowTitle is true while screenFullScreen is
+     * false, then the title bar is also displayed under the notification bar.
      */
     protected boolean screenFullScreen = true;
-    
     /**
      * if screenShowTitle is true while screenFullScreen is false, then the
      * title bar is also displayed under the notification bar
      */
     protected boolean screenShowTitle = true;
-    
     /**
      * Splash Screen picture Resource ID. If a Splash Screen is desired, set
      * splashPicID to the value of the Resource ID (i.e. R.drawable.picname). If
      * splashPicID = 0, then no splash screen will be displayed.
      */
     protected int splashPicID = 0;
-    
     /**
      * Set the screen orientation, default is SENSOR
      * ActivityInfo.SCREEN_ORIENTATION_* constants package
@@ -216,6 +200,7 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
         if (app != null) {
             app.restart();
         }
+
         logger.info("onRestart");
     }
 
@@ -231,6 +216,14 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
         if (view != null) {
             view.onResume();
         }
+
+        //resume the audio
+        AudioRenderer result = app.getAudioRenderer();
+        if (result instanceof AndroidAudioRenderer) {
+            AndroidAudioRenderer renderer = (AndroidAudioRenderer) result;
+            renderer.resumeAll();
+        }
+
         isGLThreadPaused = false;
         logger.info("onResume");
     }
@@ -241,6 +234,15 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
         if (view != null) {
             view.onPause();
         }
+
+        //pause the audio
+        AudioRenderer result = app.getAudioRenderer();
+        logger.info("pause: " + result.getClass().getSimpleName());
+        if (result instanceof AndroidAudioRenderer) {
+            AndroidAudioRenderer renderer = (AndroidAudioRenderer) result;
+            renderer.pauseAll();
+        }
+
         isGLThreadPaused = true;
         logger.info("onPause");
     }
@@ -248,6 +250,7 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
     @Override
     protected void onStop() {
         super.onStop();
+
         logger.info("onStop");
     }
 
@@ -256,6 +259,7 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
         if (app != null) {
             app.stop(!isGLThreadPaused);
         }
+
         logger.info("onDestroy");
         super.onDestroy();
     }
@@ -265,35 +269,35 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
     }
 
     /**
-     * Called when an error has occurred. 
-     * By default, will show an error message to the user 
-     * and print the exception/error to the log.
+     * Called when an error has occurred. By default, will show an error message
+     * to the user and print the exception/error to the log.
      */
     public void handleError(final String errorMsg, final Throwable t) {
         String stackTrace = "";
         String title = "Error";
-        
-        if (t != null){
+
+        if (t != null) {
             // Convert exception to string
             StringWriter sw = new StringWriter(100);
             t.printStackTrace(new PrintWriter(sw));
             stackTrace = sw.toString();
             title = t.toString();
         }
-        
-        final String finalTitle = title; 
-        final String finalMsg = (errorMsg != null ? errorMsg : "Uncaught Exception") 
-                                + "\n" + stackTrace;
+
+        final String finalTitle = title;
+        final String finalMsg = (errorMsg != null ? errorMsg : "Uncaught Exception")
+                + "\n" + stackTrace;
 
         logger.log(Level.SEVERE, finalMsg);
 
         runOnUiThread(new Runnable() {
+
             @Override
             public void run() {
                 AlertDialog dialog = new AlertDialog.Builder(AndroidHarness.this) // .setIcon(R.drawable.alert_dialog_icon)
-                                        .setTitle(finalTitle)
-                                        .setPositiveButton("Kill", AndroidHarness.this)
-                                        .setMessage(finalMsg).create();
+                         .setTitle(finalTitle)
+                         .setPositiveButton("Kill", AndroidHarness.this)
+                         .setMessage(finalMsg).create();
                 dialog.show();
             }
         });
@@ -324,6 +328,7 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
             switch (evt.getType()) {
                 case KEY_UP:
                     runOnUiThread(new Runnable() {
+
                         @Override
                         public void run() {
                             AlertDialog dialog = new AlertDialog.Builder(AndroidHarness.this) // .setIcon(R.drawable.alert_dialog_icon)
