@@ -31,6 +31,7 @@
  */
 package com.jme3.app;
 
+import com.jme3.app.state.AppState;
 import com.jme3.font.BitmapFont;
 import com.jme3.font.BitmapText;
 import com.jme3.input.FlyByCamera;
@@ -72,14 +73,10 @@ public abstract class SimpleApplication extends Application {
                                                                          
     protected Node rootNode = new Node("Root Node");
     protected Node guiNode = new Node("Gui Node");
-    protected float secondCounter = 0.0f;
-    protected int frameCounter = 0;
     protected BitmapText fpsText;
     protected BitmapFont guiFont;
-    protected StatsView statsView;
     protected FlyByCamera flyCam;
     protected boolean showSettings = true;
-    private  boolean showFps = true;
     private AppActionListener actionListener = new AppActionListener();
     
     private class AppActionListener implements ActionListener {
@@ -103,15 +100,22 @@ public abstract class SimpleApplication extends Application {
             } else if (name.equals(INPUT_MAPPING_MEMORY)) {
                 BufferUtils.printCurrentDirectMemory(null);
             }else if (name.equals(INPUT_MAPPING_HIDE_STATS)){
-                boolean show = showFps;
-                setDisplayFps(!show);
-                setDisplayStatView(!show);
+                if (stateManager.getState(StatsAppState.class) != null) {
+                    stateManager.getState(StatsAppState.class).toggleStats();
+                }
             }
         }
     }
 
     public SimpleApplication() {
+        this( new StatsAppState() );
+    }
+
+    public SimpleApplication( AppState... initialStates ) {
         super();
+        for (AppState a : initialStates) {
+            stateManager.attach(a);
+        }
     }
 
     @Override
@@ -175,38 +179,12 @@ public abstract class SimpleApplication extends Application {
         this.showSettings = showSettings;
     }
 
-    /**
-     * Attaches FPS statistics to guiNode and displays it on the screen.
-     *
-     */
-    public void loadFPSText() {
-        guiFont = assetManager.loadFont("Interface/Fonts/Default.fnt");
-        fpsText = new BitmapText(guiFont, false);
-        fpsText.setLocalTranslation(0, fpsText.getLineHeight(), 0);
-        fpsText.setText("Frames per second");
-        guiNode.attachChild(fpsText);
-    }
-
-    /**
-     * Attaches Statistics View to guiNode and displays it on the screen
-     * above FPS statistics line.
-     *
-     */
-    public void loadStatsView() {
-        statsView = new StatsView("Statistics View", assetManager, renderer.getStatistics());
-//         move it up so it appears above fps text
-        statsView.setLocalTranslation(0, fpsText.getLineHeight(), 0);
-        guiNode.attachChild(statsView);
-    }
-
     @Override
     public void initialize() {
         super.initialize();
 
         guiNode.setQueueBucket(Bucket.Gui);
         guiNode.setCullHint(CullHint.Never);
-        loadFPSText();
-        loadStatsView();
         viewPort.attachScene(rootNode);
         guiViewPort.attachScene(guiNode);
 
@@ -221,10 +199,18 @@ public abstract class SimpleApplication extends Application {
 
             inputManager.addMapping(INPUT_MAPPING_CAMERA_POS, new KeyTrigger(KeyInput.KEY_C));
             inputManager.addMapping(INPUT_MAPPING_MEMORY, new KeyTrigger(KeyInput.KEY_M));
-            inputManager.addMapping(INPUT_MAPPING_HIDE_STATS, new KeyTrigger(KeyInput.KEY_F5));
+            if (stateManager.getState(StatsAppState.class) != null) {
+                inputManager.addMapping(INPUT_MAPPING_HIDE_STATS, new KeyTrigger(KeyInput.KEY_F5));
+            }
             inputManager.addListener(actionListener, INPUT_MAPPING_EXIT,
                     INPUT_MAPPING_CAMERA_POS, INPUT_MAPPING_MEMORY, INPUT_MAPPING_HIDE_STATS);
             
+        }
+
+        if (stateManager.getState(StatsAppState.class) != null) {
+            // Some of the tests rely on having access to fpsText
+            // for quick display.  Maybe a different way would be better.
+            fpsText = stateManager.getState(StatsAppState.class).getFpsText();
         }
 
         // call user code
@@ -240,42 +226,42 @@ public abstract class SimpleApplication extends Application {
 
         float tpf = timer.getTimePerFrame() * speed;
 
-        if (showFps) {
-            secondCounter += timer.getTimePerFrame();
-            frameCounter ++;
-            if (secondCounter >= 1.0f) {
-                int fps = (int) (frameCounter / secondCounter);
-                fpsText.setText("Frames per second: " + fps);
-                secondCounter = 0.0f;
-                frameCounter = 0;
-            }          
-        }
-
         // update states
         stateManager.update(tpf);
 
         // simple update and root node
         simpleUpdate(tpf);
+ 
         rootNode.updateLogicalState(tpf);
         guiNode.updateLogicalState(tpf);
+        
         rootNode.updateGeometricState();
         guiNode.updateGeometricState();
 
+        // Moving this here to make sure it is always done.
+        // Now the sets are cleared every frame (guaranteed)
+        // and more than one viewer can access the data.  This
+        // used to be cleared by StatsView but then only StatsView
+        // could get accurate counts.
+        renderer.getStatistics().clearFrame();        
+                
         // render states
         stateManager.render(renderManager);
         renderManager.render(tpf, context.isRenderable());
         simpleRender(renderManager);
-        stateManager.postRender();
+        stateManager.postRender();        
     }
 
     public void setDisplayFps(boolean show) {
-        showFps = show;
-        fpsText.setCullHint(show ? CullHint.Never : CullHint.Always);
+        if (stateManager.getState(StatsAppState.class) != null) {
+            stateManager.getState(StatsAppState.class).setDisplayFps(show);
+        }
     }
 
     public void setDisplayStatView(boolean show) {
-        statsView.setEnabled(show);
-        statsView.setCullHint(show ? CullHint.Never : CullHint.Always);
+        if (stateManager.getState(StatsAppState.class) != null) {
+            stateManager.getState(StatsAppState.class).setDisplayStatView(show);
+        }
     }
 
     public abstract void simpleInitApp();

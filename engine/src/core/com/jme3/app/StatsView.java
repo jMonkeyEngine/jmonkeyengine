@@ -108,7 +108,7 @@ public class StatsView extends Node implements Control {
         // Moved to SimpleApplication to make sure it is
         // done even if there is no StatsView or the StatsView
         // is disable.
-        statistics.clearFrame();
+        //statistics.clearFrame();
     }
 
     public Control cloneForSpatial(Spatial spatial) {
