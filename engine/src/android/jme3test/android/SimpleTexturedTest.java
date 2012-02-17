@@ -139,8 +139,9 @@ public class SimpleTexturedTest extends SimpleApplication {
 	@Override
 	public void simpleUpdate(float tpf) {
 
-		if (secondCounter == 0)
-			logger.info("Frames per second: " + timer.getFrameRate());
+		// secondCounter has been removed from SimpleApplication
+                //if (secondCounter == 0)
+		//	logger.info("Frames per second: " + timer.getFrameRate());
 
 		spheresContainer.rotate(0.2f * tpf, 0.4f * tpf, 0.8f * tpf);
 	}
