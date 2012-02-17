@@ -99,6 +99,7 @@ public class Application implements SystemListener {
      * Create a new instance of <code>Application</code>.
      */
     public Application(){
+        initStateManager();
     }
 
     /**
@@ -206,6 +207,10 @@ public class Application implements SystemListener {
         if (renderManager != null) {
             renderManager.setTimer(timer);
         }
+    }
+    
+    public Timer getTimer(){
+        return timer;
     } 
 
     private void initDisplay(){
@@ -497,7 +502,6 @@ public class Application implements SystemListener {
             initInput();
         }
         initAudio();
-        initStateManager();
 
         // update timer so that the next delta is not too large
 //        timer.update();
