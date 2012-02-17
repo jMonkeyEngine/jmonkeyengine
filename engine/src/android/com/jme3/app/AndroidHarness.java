@@ -219,9 +219,11 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
 
         //resume the audio
         AudioRenderer result = app.getAudioRenderer();
-        if (result instanceof AndroidAudioRenderer) {
-            AndroidAudioRenderer renderer = (AndroidAudioRenderer) result;
-            renderer.resumeAll();
+        if (result != null) {
+            if (result instanceof AndroidAudioRenderer) {
+                AndroidAudioRenderer renderer = (AndroidAudioRenderer) result;
+                renderer.resumeAll();
+            }
         }
 
         isGLThreadPaused = false;
@@ -237,10 +239,12 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
 
         //pause the audio
         AudioRenderer result = app.getAudioRenderer();
-        logger.info("pause: " + result.getClass().getSimpleName());
-        if (result instanceof AndroidAudioRenderer) {
-            AndroidAudioRenderer renderer = (AndroidAudioRenderer) result;
-            renderer.pauseAll();
+        if (result != null) {
+            logger.info("pause: " + result.getClass().getSimpleName());
+            if (result instanceof AndroidAudioRenderer) {
+                AndroidAudioRenderer renderer = (AndroidAudioRenderer) result;
+                renderer.pauseAll();
+            }
         }
 
         isGLThreadPaused = true;
@@ -295,9 +299,7 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
             @Override
             public void run() {
                 AlertDialog dialog = new AlertDialog.Builder(AndroidHarness.this) // .setIcon(R.drawable.alert_dialog_icon)
-                         .setTitle(finalTitle)
-                         .setPositiveButton("Kill", AndroidHarness.this)
-                         .setMessage(finalMsg).create();
+                        .setTitle(finalTitle).setPositiveButton("Kill", AndroidHarness.this).setMessage(finalMsg).create();
                 dialog.show();
             }
         });
@@ -332,10 +334,7 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
                         @Override
                         public void run() {
                             AlertDialog dialog = new AlertDialog.Builder(AndroidHarness.this) // .setIcon(R.drawable.alert_dialog_icon)
-                                    .setTitle(exitDialogTitle)
-                                    .setPositiveButton("Yes", AndroidHarness.this)
-                                    .setNegativeButton("No", AndroidHarness.this)
-                                    .setMessage(exitDialogMessage).create();
+                                    .setTitle(exitDialogTitle).setPositiveButton("Yes", AndroidHarness.this).setNegativeButton("No", AndroidHarness.this).setMessage(exitDialogMessage).create();
                             dialog.show();
                         }
                     });
