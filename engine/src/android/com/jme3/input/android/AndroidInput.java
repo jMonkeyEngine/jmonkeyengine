@@ -220,142 +220,70 @@ public class AndroidInput extends GLSurfaceView implements TouchInput,
         boolean bWasHandled = false;
         TouchEvent touch;
         //    System.out.println("native : " + event.getAction());
+        int action = event.getAction() & MotionEvent.ACTION_MASK;
+        int pointerIndex = (event.getAction() & MotionEvent.ACTION_POINTER_INDEX_MASK)
+                >> MotionEvent.ACTION_POINTER_INDEX_SHIFT;
+        int pointerId = event.getPointerId(pointerIndex);
+
+        // final int historySize = event.getHistorySize();
+        //final int pointerCount = event.getPointerCount();
 
 
-        final int historySize = event.getHistorySize();
-        final int pointerCount = event.getPointerCount();
+        switch (action) {
 
-
-        switch (event.getAction()) {
-
-            case MotionEvent.ACTION_POINTER_1_DOWN:
-            case MotionEvent.ACTION_POINTER_2_DOWN:
-            case MotionEvent.ACTION_POINTER_3_DOWN:
+            case MotionEvent.ACTION_POINTER_DOWN:
             case MotionEvent.ACTION_DOWN:
 
-                if (!dontSendHistory) {
-                    // Process history
-                    for (int h = 0; h < historySize; h++) {
-                        // Convert all pointers into events
-                        for (int p = 0; p < pointerCount; p++) {
-                            touch = getNextFreeTouchEvent();
-                            touch.set(Type.DOWN, event.getHistoricalX(p, h), this.getHeight() - event.getHistoricalY(p, h), 0, 0);
-                            touch.setPointerId(event.getPointerId(p));
-                            touch.setTime(event.getHistoricalEventTime(h));
-                            touch.setPressure(event.getHistoricalPressure(p, h));
-                            processEvent(touch);
-                        }
 
-                    }
-                }
-
-                //   System.out.println("DOWN : " + pointerCount);
-
-                // only considering the primary pointer event. other pointers will have their own event
-                //for (int p = 0; p < pointerCount; p++) {
                 touch = getNextFreeTouchEvent();
-                touch.set(Type.DOWN, event.getX(0), this.getHeight() - event.getY(0), 0, 0);
-                touch.setPointerId(event.getPointerId(0));
+                touch.set(Type.DOWN, event.getX(pointerIndex), this.getHeight() - event.getY(pointerIndex), 0, 0);
+                touch.setPointerId(pointerId);
                 touch.setTime(event.getEventTime());
-                touch.setPressure(event.getPressure(0));
+                touch.setPressure(event.getPressure(pointerIndex));
                 processEvent(touch);
-                //}
 
                 bWasHandled = true;
                 break;
 
-            case MotionEvent.ACTION_POINTER_1_UP:
-            case MotionEvent.ACTION_POINTER_2_UP:
-            case MotionEvent.ACTION_POINTER_3_UP:
+            case MotionEvent.ACTION_POINTER_UP:
+            case MotionEvent.ACTION_CANCEL:
             case MotionEvent.ACTION_UP:
 
-                if (!dontSendHistory) {
-                    // Process history
-                    for (int h = 0; h < historySize; h++) {
-                        // Convert all pointers into events
-                        for (int p = 0; p < pointerCount; p++) {
-                            touch = getNextFreeTouchEvent();
-                            touch.set(Type.UP, event.getHistoricalX(p, h), this.getHeight() - event.getHistoricalY(p, h), 0, 0);
-                            touch.setPointerId(event.getPointerId(p));
-                            touch.setTime(event.getHistoricalEventTime(h));
-                            touch.setPressure(event.getHistoricalPressure(p, h));
-                            processEvent(touch);
-                        }
-
-                    }
-                }
-
-
-                // only considering the primary pointer event. other pointers will have their own event
-                //for (int p = 0; p < pointerCount; p++) {
                 touch = getNextFreeTouchEvent();
-                touch.set(Type.UP, event.getX(0), this.getHeight() - event.getY(0), 0, 0);
-                touch.setPointerId(event.getPointerId(0));
+                touch.set(Type.UP, event.getX(pointerIndex), this.getHeight() - event.getY(pointerIndex), 0, 0);
+                touch.setPointerId(pointerId);
                 touch.setTime(event.getEventTime());
-                touch.setPressure(event.getPressure(0));
+                touch.setPressure(event.getPressure(pointerIndex));
                 processEvent(touch);
-                //}
+
 
                 bWasHandled = true;
                 break;
             case MotionEvent.ACTION_MOVE:
 
-                if (!dontSendHistory) {
-                    // Process history
-                    for (int h = 0; h < historySize; h++) {
-                        // Convert all pointers into events
-                        for (int p = 0; p < pointerCount; p++) {
-                            Vector2f lastPos = lastPositions.get(event.getPointerId(p));
-                            if (lastPos == null) {
-                                lastPos = new Vector2f(event.getHistoricalX(p, h), this.getHeight() - event.getHistoricalY(p, h));
-                                lastPositions.put(event.getPointerId(p), lastPos);
-                            }
 
-                            touch = getNextFreeTouchEvent();
-                            touch.set(Type.MOVE, event.getHistoricalX(p, h), this.getHeight() - event.getHistoricalY(p, h),
-                                    event.getHistoricalX(p, h) - lastPos.x, this.getHeight() - event.getHistoricalY(p, h) - lastPos.y);
-                            touch.setPointerId(event.getPointerId(p));
-                            touch.setTime(event.getHistoricalEventTime(h));
-                            touch.setPressure(event.getHistoricalPressure(p, h));
-                            processEvent(touch);
-                            lastPos.set(event.getHistoricalX(p, h), this.getHeight() - event.getHistoricalY(p, h));
-                        }
-
-                    }
-                }
-//                if (event.getPointerCount() > 1) {
-//                    System.out.println("MOVE : " + event.getPointerCount());
-//                }
                 // Convert all pointers into events
                 for (int p = 0; p < event.getPointerCount(); p++) {
-                    Vector2f lastPos = lastPositions.get(event.getPointerId(p));
+                    Vector2f lastPos = lastPositions.get(pointerIndex);
                     if (lastPos == null) {
-                        lastPos = new Vector2f(event.getX(p), this.getHeight() - event.getY(p));
-                        lastPositions.put(event.getPointerId(p), lastPos);
+                        lastPos = new Vector2f(event.getX(pointerIndex), this.getHeight() - event.getY(pointerIndex));
+                        lastPositions.put(pointerId, lastPos);
                     }
                     touch = getNextFreeTouchEvent();
-                    touch.set(Type.MOVE, event.getX(p), this.getHeight() - event.getY(p), event.getX(p) - lastPos.x, this.getHeight() - event.getY(p) - lastPos.y);
-                    touch.setPointerId(event.getPointerId(p));
+                    touch.set(Type.MOVE, event.getX(pointerIndex), this.getHeight() - event.getY(pointerIndex), event.getX(pointerIndex) - lastPos.x, this.getHeight() - event.getY(pointerIndex) - lastPos.y);
+                    touch.setPointerId(pointerId);
                     touch.setTime(event.getEventTime());
-                    touch.setPressure(event.getPressure(p));
+                    touch.setPressure(event.getPressure(pointerIndex));
                     processEvent(touch);
-                    lastPos.set(event.getX(p), this.getHeight() - event.getY(p));
+                    lastPos.set(event.getX(pointerIndex), this.getHeight() - event.getY(pointerIndex));
                 }
                 bWasHandled = true;
                 break;
 
-//            // TODO: implement motion events
-//            case MotionEvent.ACTION_POINTER_UP:
-//                break;
-//
-//            case MotionEvent.ACTION_POINTER_DOWN:
-//                break;
 
             case MotionEvent.ACTION_OUTSIDE:
                 break;
 
-            case MotionEvent.ACTION_CANCEL:
-                break;
         }
 
         // Try to detect gestures        
