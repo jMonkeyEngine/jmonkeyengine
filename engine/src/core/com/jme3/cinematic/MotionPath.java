@@ -76,7 +76,6 @@ public class MotionPath implements Savable {
      */
     public float interpolatePath(float time, MotionTrack control) {
 
-        float val;
         float traveledDistance = 0;
         TempVars vars = TempVars.get();
         Vector3f temp = vars.vect1;
@@ -101,18 +100,6 @@ public class MotionPath implements Savable {
         control.getSpatial().setLocalTranslation(temp);
         vars.release();
         return traveledDistance;
-    }
-
-    /**
-     * computes the distance between the spatial position and the temp vector.
-     * @param control the control holding the psatial 
-     * @param temp the temp position
-     * @param store a temp vector3f to store the result
-     * @return 
-     */
-    private float getDist(MotionTrack control, Vector3f temp, Vector3f store) {
-        store.set(temp);
-        return store.subtractLocal(control.getSpatial().getLocalTranslation()).length();
     }
 
     private void attachDebugNode(Node root) {
