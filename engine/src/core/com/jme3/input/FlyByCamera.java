@@ -124,7 +124,7 @@ public class FlyByCamera implements AnalogListener, ActionListener {
      */
     public void setEnabled(boolean enable){
         if (enabled && !enable){
-            if (!dragToRotate || (dragToRotate && canRotate)){
+            if (inputManager!= null && (!dragToRotate || (dragToRotate && canRotate))){
                 inputManager.setCursorVisible(true);
             }
         }
@@ -161,7 +161,9 @@ public class FlyByCamera implements AnalogListener, ActionListener {
      */
     public void setDragToRotate(boolean dragToRotate) {
         this.dragToRotate = dragToRotate;
-        inputManager.setCursorVisible(dragToRotate);
+        if (inputManager != null) {
+            inputManager.setCursorVisible(dragToRotate);
+        }
     }
 
     /**
@@ -199,7 +201,7 @@ public class FlyByCamera implements AnalogListener, ActionListener {
         inputManager.addMapping("FLYCAM_Lower", new KeyTrigger(KeyInput.KEY_Z));
 
         inputManager.addListener(this, mappings);
-        inputManager.setCursorVisible(dragToRotate);
+        inputManager.setCursorVisible(dragToRotate || !isEnabled());
 
         Joystick[] joysticks = inputManager.getJoysticks();
         if (joysticks != null && joysticks.length > 0){
@@ -217,6 +219,10 @@ public class FlyByCamera implements AnalogListener, ActionListener {
      * @param inputManager
      */
     public void unregisterInput(){
+    
+        if (inputManager == null) {
+            return;
+        }
     
         for (String s : mappings) {
             inputManager.deleteMapping( s );
