@@ -102,8 +102,13 @@ public abstract class SimpleApplication extends Application {
 
     public SimpleApplication( AppState... initialStates ) {
         super();
-        for (AppState a : initialStates) {
-            stateManager.attach(a);
+        
+        if (initialStates != null) {
+            for (AppState a : initialStates) {
+                if (a != null) {
+                    stateManager.attach(a);
+                }
+            }
         }
     }
 
