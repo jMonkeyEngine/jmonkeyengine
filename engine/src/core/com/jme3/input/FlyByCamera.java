@@ -225,7 +225,9 @@ public class FlyByCamera implements AnalogListener, ActionListener {
         }
     
         for (String s : mappings) {
-            inputManager.deleteMapping( s );
+            if (inputManager.hasMapping(s)) {
+                inputManager.deleteMapping( s );
+            }
         }
 
         inputManager.removeListener(this);
