@@ -108,7 +108,7 @@ public abstract class SimpleApplication extends Application {
     }
 
     public SimpleApplication() {
-        this( new StatsAppState() );
+        this( new StatsAppState(), new FlyCamAppState() );
     }
 
     public SimpleApplication( AppState... initialStates ) {
@@ -189,9 +189,16 @@ public abstract class SimpleApplication extends Application {
         guiViewPort.attachScene(guiNode);
 
         if (inputManager != null) {
-            flyCam = new FlyByCamera(cam);
-            flyCam.setMoveSpeed(1f);
-            flyCam.registerWithInput(inputManager);
+        
+            // We have to special-case the FlyCamAppState because too
+            // many SimpleApplication subclasses expect it to exist in
+            // simpleInit().  But at least it only gets initialized if
+            // the app state is added.
+            if (stateManager.getState(FlyCamAppState.class) != null) {
+                flyCam = new FlyByCamera(cam);
+                flyCam.setMoveSpeed(1f); // odd to set this here but it did it before
+                stateManager.getState(FlyCamAppState.class).setCamera( flyCam ); 
+            }
 
             if (context.getType() == Type.Display) {
                 inputManager.addMapping(INPUT_MAPPING_EXIT, new KeyTrigger(KeyInput.KEY_ESCAPE));
