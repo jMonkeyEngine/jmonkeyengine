@@ -53,6 +53,25 @@ import com.jme3.renderer.Camera;
  */
 public class FlyByCamera implements AnalogListener, ActionListener {
 
+    private static String[] mappings = new String[]{
+            "FLYCAM_Left",
+            "FLYCAM_Right",
+            "FLYCAM_Up",
+            "FLYCAM_Down",
+
+            "FLYCAM_StrafeLeft",
+            "FLYCAM_StrafeRight",
+            "FLYCAM_Forward",
+            "FLYCAM_Backward",
+
+            "FLYCAM_ZoomIn",
+            "FLYCAM_ZoomOut",
+            "FLYCAM_RotateDrag",
+
+            "FLYCAM_Rise",
+            "FLYCAM_Lower"
+        };
+
     protected Camera cam;
     protected Vector3f initialUpVec;
     protected float rotationSpeed = 1f;
@@ -153,25 +172,6 @@ public class FlyByCamera implements AnalogListener, ActionListener {
     public void registerWithInput(InputManager inputManager){
         this.inputManager = inputManager;
         
-        String[] mappings = new String[]{
-            "FLYCAM_Left",
-            "FLYCAM_Right",
-            "FLYCAM_Up",
-            "FLYCAM_Down",
-
-            "FLYCAM_StrafeLeft",
-            "FLYCAM_StrafeRight",
-            "FLYCAM_Forward",
-            "FLYCAM_Backward",
-
-            "FLYCAM_ZoomIn",
-            "FLYCAM_ZoomOut",
-            "FLYCAM_RotateDrag",
-
-            "FLYCAM_Rise",
-            "FLYCAM_Lower"
-        };
-
         // both mouse and button - rotation of cam
         inputManager.addMapping("FLYCAM_Left", new MouseAxisTrigger(MouseInput.AXIS_X, true),
                                                new KeyTrigger(KeyInput.KEY_LEFT));
@@ -208,6 +208,28 @@ public class FlyByCamera implements AnalogListener, ActionListener {
             joystick.assignAxis("FLYCAM_Forward", "FLYCAM_Backward", JoyInput.AXIS_POV_Y);
             joystick.assignAxis("FLYCAM_Right", "FLYCAM_Left", joystick.getXAxisIndex());
             joystick.assignAxis("FLYCAM_Down", "FLYCAM_Up", joystick.getYAxisIndex());
+        }
+    }
+
+    /**
+     * Registers the FlyByCamera to receive input events from the provided
+     * Dispatcher.
+     * @param inputManager
+     */
+    public void unregisterInput(){
+    
+        for (String s : mappings) {
+            inputManager.deleteMapping( s );
+        }
+
+        inputManager.removeListener(this);
+        inputManager.setCursorVisible(!dragToRotate);
+
+        Joystick[] joysticks = inputManager.getJoysticks();
+        if (joysticks != null && joysticks.length > 0){
+            Joystick joystick = joysticks[0];
+            
+            // No way to unassing axis
         }
     }
 
