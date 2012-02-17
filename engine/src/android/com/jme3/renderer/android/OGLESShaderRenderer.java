@@ -107,7 +107,7 @@ public class OGLESShaderRenderer implements Renderer {
     private boolean powerOf2 = false;
     private boolean verboseLogging = false;
     private boolean useVBO = false;
-    private boolean checkErrors = false;
+    private boolean checkErrors = true;
 
     public OGLESShaderRenderer() {
     }
@@ -373,8 +373,9 @@ public class OGLESShaderRenderer implements Renderer {
         if (verboseLogging) {
             logger.info("GLES20.glHint(GL10.GL_PERSPECTIVE_CORRECTION_HINT, GL10.GL_FASTEST)");
         }
-
-        GLES20.glHint(GL10.GL_PERSPECTIVE_CORRECTION_HINT, GL10.GL_FASTEST);
+         
+        //It seems that GL10.GL_PERSPECTIVE_CORRECTION_HINT gives invalid_enum error on android.        
+//        GLES20.glHint(GL10.GL_PERSPECTIVE_CORRECTION_HINT, GL10.GL_FASTEST);
 
 //	checkGLError();
 
@@ -387,7 +388,7 @@ public class OGLESShaderRenderer implements Renderer {
             useVBO = true;
         }
         
-        logger.log(Level.INFO, "Caps: {0}", caps);
+        logger.log(Level.INFO, "Caps: {0}", caps);        
     }
 
     /**
