@@ -67,6 +67,8 @@ public class StatsView extends Node implements Control {
     private String[] statLabels;
     private int[] statData;
 
+    private boolean enabled = true;
+    
     private final StringBuilder stringBuilder = new StringBuilder();
 
     public StatsView(String name, AssetManager manager, Statistics stats){
@@ -92,12 +94,20 @@ public class StatsView extends Node implements Control {
     }
 
     public void update(float tpf) {
+    
+        if (!isEnabled()) 
+            return;
+            
         statistics.getData(statData);
         for (int i = 0; i < labels.length; i++) {
             stringBuilder.setLength(0);
             stringBuilder.append(statLabels[i]).append(" = ").append(statData[i]);
             labels[i].setText(stringBuilder);
         }
+        
+        // Moved to SimpleApplication to make sure it is
+        // done even if there is no StatsView or the StatsView
+        // is disable.
         statistics.clearFrame();
     }
 
@@ -109,10 +119,11 @@ public class StatsView extends Node implements Control {
     }
 
     public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
     }
 
     public boolean isEnabled() {
-        return true;
+        return enabled;
     }
 
     public void render(RenderManager rm, ViewPort vp) {
