@@ -74,8 +74,8 @@ public class TestComboMoves extends SimpleApplication implements ActionListener 
 
     @Override
     public void simpleInitApp() {
-        fpsText.setCullHint(CullHint.Always);
-        statsView.setCullHint(CullHint.Always);
+        setDisplayFps(false);
+        setDisplayStatView(false);
 
         // Create debug text
         BitmapText helpText = new BitmapText(guiFont);
@@ -145,7 +145,6 @@ public class TestComboMoves extends SimpleApplication implements ActionListener 
     @Override
     public void simpleUpdate(float tpf){
         time += tpf;
-        secondCounter = 0;
 
         // check every frame if any executions are expired
         shurikenExec.updateExpiration(time);
