@@ -179,14 +179,6 @@ public class StatsAppState extends AbstractAppState {
     }
 
     @Override
-    public void render(RenderManager rm) {
-    }
-
-    @Override
-    public void postRender(){
-    }
-
-    @Override
     public void cleanup() {
         super.cleanup();
         
