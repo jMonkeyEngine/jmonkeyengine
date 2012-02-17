@@ -122,6 +122,7 @@ public class AnimationTrack extends AbstractCinematicEvent {
             
         }
         channel.setTime(t);
+        channel.getControl().update(0);
     }
 
     @Override

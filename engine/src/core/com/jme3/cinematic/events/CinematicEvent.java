@@ -131,8 +131,8 @@ public interface CinematicEvent extends Savable {
      * When this method is invoked, the event should fast forward to the given time according tim 0 is the start of the event.
      * @param time the time to fast forward to
      */
-    public void setTime(float time);
-    
+    public void setTime(float time);    
+   
     /**
      * returns the current time of the cinematic event
      * @return the time

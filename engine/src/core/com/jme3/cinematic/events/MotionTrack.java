@@ -165,10 +165,12 @@ public class MotionTrack extends AbstractCinematicEvent implements Control {
         if (isControl) {
 
             if (playState == PlayState.Playing) {
-                time = (elapsedTimePause + timer.getTimeInSeconds() - start) * speed;
-                onUpdate(tpf);
+                time = time + (tpf * speed);
+
                 if (time >= initialDuration && loopMode == loopMode.DontLoop) {
                     stop();
+                } else {
+                    onUpdate(tpf);
                 }
             }
         }
@@ -183,40 +185,12 @@ public class MotionTrack extends AbstractCinematicEvent implements Control {
     @Override
     public void setTime(float time) {
         super.setTime(time);
-
-        //computing traveled distance according to new time
-        traveledDistance = time * (path.getLength() / initialDuration);
-
-        TempVars vars = TempVars.get();
-        Vector3f temp = vars.vect1;
-        //getting waypoint index and current value from new traveled distance
-        Vector2f v = path.getWayPointIndexForDistance(traveledDistance);
-        //setting values
-        currentWayPoint = (int) v.x;
-        setCurrentValue(v.y);
-        //interpolating new position
-        path.getSpline().interpolate(getCurrentValue(), getCurrentWayPoint(), temp);
-        //setting new position to the spatial
-        spatial.setLocalTranslation(temp);
-        vars.release();
+        onUpdate(0);
     }
 
-    public void onUpdate(float tpf) {       
+    public void onUpdate(float tpf) {
         traveledDistance = path.interpolatePath(time, this);
         computeTargetDirection();
-
-        if (currentValue >= 1.0f) {
-            currentValue = 0;
-            currentWayPoint++;
-            path.triggerWayPointReach(currentWayPoint, this);
-        }
-        if (currentWayPoint == path.getNbWayPoints() - 1) {
-            if (loopMode == LoopMode.Loop) {
-                currentWayPoint = 0;
-            } else {
-                stop();
-            }
-        }
     }
 
     @Override
@@ -346,7 +320,10 @@ public class MotionTrack extends AbstractCinematicEvent implements Control {
      *
      */
     public void setCurrentWayPoint(int currentWayPoint) {
-        this.currentWayPoint = currentWayPoint;
+        if (this.currentWayPoint != currentWayPoint) {
+            this.currentWayPoint = currentWayPoint;
+            path.triggerWayPointReach(currentWayPoint, this);
+        }
     }
 
     /**

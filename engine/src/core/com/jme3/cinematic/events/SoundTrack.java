@@ -48,7 +48,7 @@ import java.io.IOException;
 public class SoundTrack extends AbstractCinematicEvent {
 
     protected String path;
-    protected AudioNode audioNode;    
+    protected AudioNode audioNode;
     protected boolean stream = false;
 
     /**
@@ -82,7 +82,7 @@ public class SoundTrack extends AbstractCinematicEvent {
     }
 
     public SoundTrack(String path, boolean stream, float initialDuration, LoopMode loopMode) {
-        super(initialDuration, loopMode);        
+        super(initialDuration, loopMode);
         this.path = path;
         this.stream = stream;
     }
@@ -93,12 +93,12 @@ public class SoundTrack extends AbstractCinematicEvent {
     }
 
     public SoundTrack(String path, LoopMode loopMode) {
-        super(loopMode);        
+        super(loopMode);
         this.path = path;
     }
 
     public SoundTrack(String path, float initialDuration, LoopMode loopMode) {
-        super(initialDuration, loopMode);        
+        super(initialDuration, loopMode);
         this.path = path;
     }
 
@@ -106,7 +106,7 @@ public class SoundTrack extends AbstractCinematicEvent {
     }
 
     @Override
-    public void initEvent(Application app, Cinematic cinematic) {    
+    public void initEvent(Application app, Cinematic cinematic) {
         super.initEvent(app, cinematic);
         audioNode = new AudioNode(app.getAssetManager(), path, stream);
         setLoopMode(loopMode);
@@ -115,23 +115,27 @@ public class SoundTrack extends AbstractCinematicEvent {
     @Override
     public void setTime(float time) {
         super.setTime(time);
-        //TODO has to be implemented in the audioRenderer
+        //can occur on rewind
+        if (time < 0) {            
+            stop();
+        }
+        audioNode.setTimeOffset(time);
     }
 
     @Override
     public void onPlay() {
-        audioNode.play();        
+        audioNode.play();
     }
 
     @Override
     public void onStop() {
         audioNode.stop();
-        
+
     }
 
     @Override
     public void onPause() {
-        audioNode.pause();        
+        audioNode.pause();
     }
 
     @Override
@@ -152,7 +156,7 @@ public class SoundTrack extends AbstractCinematicEvent {
     @Override
     public void setLoopMode(LoopMode loopMode) {
         super.setLoopMode(loopMode);
-        
+
         if (loopMode != LoopMode.DontLoop) {
             audioNode.setLooping(true);
         } else {

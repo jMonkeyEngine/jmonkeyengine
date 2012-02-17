@@ -81,56 +81,23 @@ public class MotionPath implements Savable {
         TempVars vars = TempVars.get();
         Vector3f temp = vars.vect1;
         Vector3f tmpVector = vars.vect2;
-        switch (spline.getType()) {
-            case CatmullRom:
+        //computing traveled distance according to new time
+        traveledDistance = time * (getLength() / control.getInitialDuration());
 
-                //this iterative process is done to keep the spatial travel at a constant speed on the path even if 
-                //waypoints are not equally spread over the path
+        //getting waypoint index and current value from new traveled distance
+        Vector2f v = getWayPointIndexForDistance(traveledDistance);
 
-                // we compute the theorical distance that the spatial should travel on this frame
-                val = (time * (spline.getTotalLength() / control.getDuration())) - control.getTraveledDistance();
-                //adding and epsilon value to the control currents value
-                control.setCurrentValue(control.getCurrentValue() + eps);
-                //computing the new position at current value
-                spline.interpolate(control.getCurrentValue(), control.getCurrentWayPoint(), temp);
-                //computing traveled distance at current value
-                float dist = getDist(control, temp, tmpVector);
-
-                //While the distance traveled this frame is below the theorical distance we iterate the obove computation
-                while (dist < val) {
-                    //storing the distance traveled this frame
-                    traveledDistance = dist;
-                    control.setCurrentValue(control.getCurrentValue() + eps);
-                    spline.interpolate(control.getCurrentValue(), control.getCurrentWayPoint(), temp);
-                    dist = getDist(control, temp, tmpVector);
-                }
-                //compute the direction of the spline
-                if (control.needsDirection()) {
-                    tmpVector.set(temp);
-                    control.setDirection(tmpVector.subtractLocal(control.getSpatial().getLocalTranslation()).normalizeLocal());
-                }
-                //updating traveled distance to the total distance traveled by the spatial since the start
-                traveledDistance += control.getTraveledDistance();
-                break;
-            case Linear:
-                //distance traveled this frame
-                val = (time * (spline.getTotalLength() / control.getDuration())) - control.getTraveledDistance();
-                // computing total traveled distance
-                traveledDistance = control.getTraveledDistance() + val;
-                //computing interpolation ratio for this frame
-                val = val / spline.getSegmentsLength().get(control.getCurrentWayPoint());
-                control.setCurrentValue(Math.min(control.getCurrentValue() + val, 1.0f));
-                //interpolationg position
-                spline.interpolate(control.getCurrentValue(), control.getCurrentWayPoint(), temp);
-                //computing line direction
-                if (control.needsDirection()) {
-                    tmpVector.set(spline.getControlPoints().get(control.getCurrentWayPoint() + 1));
-                    control.setDirection(tmpVector.subtractLocal(spline.getControlPoints().get(control.getCurrentWayPoint())).normalizeLocal());
-                }
-                break;
-            default:
-                break;
+        //setting values
+        control.setCurrentWayPoint((int) v.x);
+        control.setCurrentValue(v.y);
+        
+        //interpolating new position
+        getSpline().interpolate(control.getCurrentValue(), control.getCurrentWayPoint(), temp);
+        if (control.needsDirection()) {
+            tmpVector.set(temp);
+            control.setDirection(tmpVector.subtractLocal(control.getSpatial().getLocalTranslation()).normalizeLocal());
         }
+
         control.getSpatial().setLocalTranslation(temp);
         vars.release();
         return traveledDistance;
