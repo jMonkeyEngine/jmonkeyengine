@@ -544,6 +544,19 @@ public class InputManager implements RawInputListener {
     }
 
     /**
+     * Returns true if this InputManager has a mapping registered
+     * for the given mappingName.
+     *
+     * @param mappingName The mapping name to check.
+     *
+     * @see InputManager#addMapping(java.lang.String, com.jme3.input.controls.Trigger[]) 
+     * @see InputManager#deleteMapping(java.lang.String) 
+     */ 
+    public boolean hasMapping(String mappingName) {
+        return mappings.containsKey(mappingName);
+    }
+    
+    /**
      * Deletes a mapping from receiving trigger events.
      * 
      * <p>
