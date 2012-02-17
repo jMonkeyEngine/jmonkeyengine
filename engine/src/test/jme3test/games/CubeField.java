@@ -89,7 +89,7 @@ public class CubeField extends SimpleApplication implements AnalogListener {
         Logger.getLogger("com.jme3").setLevel(Level.WARNING);
 
         flyCam.setEnabled(false);
-        statsView.setCullHint(CullHint.Always);
+        setDisplayStatView(false);
 
         Keys();
 
