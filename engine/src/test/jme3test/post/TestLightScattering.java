@@ -58,22 +58,6 @@ public class TestLightScattering extends SimpleApplication {
         app.start();
     }
 
-   public void loadFPSText(){
-        guiFont = assetManager.loadFont("Interface/Fonts/Default.fnt");
-        fpsText = new BitmapText(guiFont, false);
-        fpsText.setSize(guiFont.getCharSet().getRenderedSize());
-        fpsText.setLocalTranslation(0, fpsText.getLineHeight(), 0);
-        fpsText.setText("Frames per second");
-        guiNode.attachChild(fpsText);
-    }
-
-    public void loadStatsView(){
-        statsView = new StatsView("Statistics View", assetManager, renderer.getStatistics());
-//         move it up so it appears above fps text
-        statsView.setLocalTranslation(0, fpsText.getLineHeight(), 0);
-        guiNode.attachChild(statsView);
-    }
-
     @Override
     public void simpleInitApp() {
         // put the camera in a bad position
