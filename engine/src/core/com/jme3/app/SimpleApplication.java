@@ -67,8 +67,8 @@ import com.jme3.util.BufferUtils;
 public abstract class SimpleApplication extends Application {
 
     public static final String INPUT_MAPPING_EXIT = "SIMPLEAPP_Exit";
-    public static final String INPUT_MAPPING_CAMERA_POS = "SIMPLEAPP_CameraPos";
-    public static final String INPUT_MAPPING_MEMORY = "SIMPLEAPP_Memory";
+    public static final String INPUT_MAPPING_CAMERA_POS = DebugKeysAppState.INPUT_MAPPING_CAMERA_POS;
+    public static final String INPUT_MAPPING_MEMORY = DebugKeysAppState.INPUT_MAPPING_MEMORY;
     public static final String INPUT_MAPPING_HIDE_STATS = "SIMPLEAPP_HideStats";
                                                                          
     protected Node rootNode = new Node("Root Node");
@@ -88,17 +88,6 @@ public abstract class SimpleApplication extends Application {
 
             if (name.equals(INPUT_MAPPING_EXIT)) {
                 stop();
-            } else if (name.equals(INPUT_MAPPING_CAMERA_POS)) {
-                if (cam != null) {
-                    Vector3f loc = cam.getLocation();
-                    Quaternion rot = cam.getRotation();
-                    System.out.println("Camera Position: ("
-                            + loc.x + ", " + loc.y + ", " + loc.z + ")");
-                    System.out.println("Camera Rotation: " + rot);
-                    System.out.println("Camera Direction: " + cam.getDirection());
-                }
-            } else if (name.equals(INPUT_MAPPING_MEMORY)) {
-                BufferUtils.printCurrentDirectMemory(null);
             }else if (name.equals(INPUT_MAPPING_HIDE_STATS)){
                 if (stateManager.getState(StatsAppState.class) != null) {
                     stateManager.getState(StatsAppState.class).toggleStats();
@@ -108,7 +97,7 @@ public abstract class SimpleApplication extends Application {
     }
 
     public SimpleApplication() {
-        this( new StatsAppState(), new FlyCamAppState() );
+        this( new StatsAppState(), new FlyCamAppState(), new DebugKeysAppState() );
     }
 
     public SimpleApplication( AppState... initialStates ) {
@@ -183,6 +172,9 @@ public abstract class SimpleApplication extends Application {
     public void initialize() {
         super.initialize();
 
+        // Several things rely on having this
+        guiFont = assetManager.loadFont("Interface/Fonts/Default.fnt");
+
         guiNode.setQueueBucket(Bucket.Gui);
         guiNode.setCullHint(CullHint.Never);
         viewPort.attachScene(rootNode);
@@ -204,19 +196,18 @@ public abstract class SimpleApplication extends Application {
                 inputManager.addMapping(INPUT_MAPPING_EXIT, new KeyTrigger(KeyInput.KEY_ESCAPE));
             }
 
-            inputManager.addMapping(INPUT_MAPPING_CAMERA_POS, new KeyTrigger(KeyInput.KEY_C));
-            inputManager.addMapping(INPUT_MAPPING_MEMORY, new KeyTrigger(KeyInput.KEY_M));
             if (stateManager.getState(StatsAppState.class) != null) {
                 inputManager.addMapping(INPUT_MAPPING_HIDE_STATS, new KeyTrigger(KeyInput.KEY_F5));
+                inputManager.addListener(actionListener, INPUT_MAPPING_HIDE_STATS);            
             }
-            inputManager.addListener(actionListener, INPUT_MAPPING_EXIT,
-                    INPUT_MAPPING_CAMERA_POS, INPUT_MAPPING_MEMORY, INPUT_MAPPING_HIDE_STATS);
             
+            inputManager.addListener(actionListener, INPUT_MAPPING_EXIT);            
         }
 
         if (stateManager.getState(StatsAppState.class) != null) {
             // Some of the tests rely on having access to fpsText
             // for quick display.  Maybe a different way would be better.
+            stateManager.getState(StatsAppState.class).setFont(guiFont);
             fpsText = stateManager.getState(StatsAppState.class).getFpsText();
         }
 

@@ -68,6 +68,17 @@ public class StatsAppState extends AbstractAppState {
         this.guiFont = guiFont;
     }
 
+    /**
+     *  Called by SimpleApplication to provide an early font
+     *  so that the fpsText can be created before init.  This
+     *  is because several applications expect to directly access
+     *  fpsText... unfortunately.
+     */
+    void setFont( BitmapFont guiFont ) {
+        this.guiFont = guiFont;
+        this.fpsText = new BitmapText(guiFont, false);
+    }
+
     public BitmapText getFpsText() {
         return fpsText;
     }
@@ -126,7 +137,10 @@ public class StatsAppState extends AbstractAppState {
      *
      */
     public void loadFpsText() {
-        fpsText = new BitmapText(guiFont, false);
+        if (fpsText == null) {
+            fpsText = new BitmapText(guiFont, false);
+        }
+        
         fpsText.setLocalTranslation(0, fpsText.getLineHeight(), 0);
         fpsText.setText("Frames per second");
         fpsText.setCullHint(showFps ? CullHint.Never : CullHint.Always);
