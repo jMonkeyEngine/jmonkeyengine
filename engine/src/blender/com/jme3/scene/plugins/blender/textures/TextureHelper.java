@@ -31,8 +31,25 @@
  */
 package com.jme3.scene.plugins.blender.textures;
 
+import java.awt.color.ColorSpace;
+import java.awt.image.BufferedImage;
+import java.awt.image.ColorConvertOp;
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import jme3tools.converters.ImageToAwt;
+
+import com.jme3.asset.AssetManager;
+import com.jme3.asset.AssetNotFoundException;
+import com.jme3.asset.BlenderKey;
 import com.jme3.asset.BlenderKey.FeaturesToLoad;
-import com.jme3.asset.*;
+import com.jme3.asset.GeneratedTextureKey;
+import com.jme3.asset.TextureKey;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
@@ -53,17 +70,6 @@ import com.jme3.texture.Texture.WrapMode;
 import com.jme3.texture.Texture2D;
 import com.jme3.texture.Texture3D;
 import com.jme3.util.BufferUtils;
-import java.awt.color.ColorSpace;
-import java.awt.image.BufferedImage;
-import java.awt.image.ColorConvertOp;
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import jme3tools.converters.ImageToAwt;
 
 /**
  * A class that is used in texture calculations.
@@ -245,7 +251,11 @@ public class TextureHelper extends AbstractBlenderHelper {
 		float[] materialColorClone = materialColor.clone();//this array may change, so we copy it
 		Format format = texture.getImage().getFormat();
 		ByteBuffer data = texture.getImage().getData(0);
-		data.rewind();
+		
+		Image decompressedImage = TextureDecompressor.decompress(texture.getImage());
+		data = decompressedImage.getData(0);
+		format = decompressedImage.getFormat();
+		
 		int width = texture.getImage().getWidth();
 		int height = texture.getImage().getHeight();
 		int depth = texture.getImage().getDepth();
@@ -356,7 +366,7 @@ public class TextureHelper extends AbstractBlenderHelper {
 	 * For example the color remains untouched if the texture is of Luminance type.
 	 * The luminance defines the interaction between the material color and color defined
 	 * for texture blending.
-	 * If the type has 3 or more color channels then the material color is replaces with the texture's
+	 * If the type has 3 or more color channels then the material color is replaced with the texture's
 	 * color and later blended with the defined blend color.
 	 * All alpha values (if present) are ignored and not used during blending.
 	 * @param data
@@ -419,6 +429,13 @@ public class TextureHelper extends AbstractBlenderHelper {
 			pixelValue = data.get(); // ignore alpha
 			materialColor[3] = pixelValue >= 0 ? pixelValue / 255.0f : 1.0f - (~pixelValue) / 255.0f;
 			break;
+		case DXT1:
+			
+			break;
+		case DXT1A:
+		case DXT3:
+		case DXT5:
+			break;
 		case Luminance16:
 		case Luminance16Alpha16:
 		case Alpha16:
@@ -429,10 +446,6 @@ public class TextureHelper extends AbstractBlenderHelper {
 		case Depth24:
 		case Depth32:
 		case Depth32F:
-		case DXT1:
-		case DXT1A:
-		case DXT3:
-		case DXT5:
 		case Intensity16:
 		case Intensity8:
 		case LATC:
