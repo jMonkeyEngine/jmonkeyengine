@@ -322,8 +322,8 @@ public class Geometry extends Spatial {
         this.startIndex = 0;
         prevBatchTransforms = null;
         cachedOffsetMat = null;
-        //once the geometry is removed from the screnegraph we call batch on the batchNode before unreferencing it.
-        this.batchNode.batch();
+        //once the geometry is removed from the screnegraph the batchNode needs to be rebatched.
+        this.batchNode.setNeedsFullRebatch(true);
         this.batchNode = null;
         setCullHint(CullHint.Dynamic);
     }
