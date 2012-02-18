@@ -45,6 +45,7 @@ import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
+import com.jme3.scene.shape.Quad;
 import com.jme3.texture.Texture.WrapMode;
 import com.jme3.util.SkyFactory;
 import com.jme3.util.TangentBinormalGenerator;
@@ -78,12 +79,21 @@ public class TestParallax extends SimpleApplication {
         mat.getTextureParam("NormalMap").getTextureValue().setWrap(WrapMode.Repeat);
         mat.setFloat("Shininess", 0);
 
-        Node floorGeom = (Node) assetManager.loadAsset("Models/WaterTest/WaterTest.mesh.xml");
-        Geometry g = ((Geometry) floorGeom.getChild(0));
-        g.getMesh().scaleTextureCoordinates(new Vector2f(10, 10));
+       // Node floorGeom = (Node) assetManager.loadAsset("Models/WaterTest/WaterTest.mesh.xml");
+        //Geometry g = ((Geometry) floorGeom.getChild(0));
+        //g.getMesh().scaleTextureCoordinates(new Vector2f(10, 10));
+                
+        Node floorGeom = new Node("floorGeom");
+        Quad q = new Quad(100, 100);
+        q.scaleTextureCoordinates(new Vector2f(10, 10));
+        Geometry g = new Geometry("geom", q);
+        g.setLocalRotation(new Quaternion().fromAngleAxis(-FastMath.HALF_PI, Vector3f.UNIT_X));
+        floorGeom.attachChild(g);
+        
+        
         TangentBinormalGenerator.generate(floorGeom);
-        floorGeom.setLocalTranslation(0, 22, 0);
-        floorGeom.setLocalScale(100);
+        floorGeom.setLocalTranslation(-50, 22, 60);
+        //floorGeom.setLocalScale(100);
 
         floorGeom.setMaterial(mat);        
         rootNode.attachChild(floorGeom);

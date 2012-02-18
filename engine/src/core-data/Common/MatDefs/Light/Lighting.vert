@@ -158,7 +158,8 @@ void main(){
      mat3 tbnMat = mat3(wvTangent, wvBinormal * -inTangent.w,wvNormal);
      
      //vPosition = wvPosition * tbnMat;
-     vViewDir  = viewDir * tbnMat;
+     //vViewDir  = viewDir * tbnMat;
+     vViewDir  = -wvPosition * tbnMat;
      lightComputeDir(wvPosition, lightColor, wvLightPos, vLightDir);
      vLightDir.xyz = (vLightDir.xyz * tbnMat).xyz;
    #elif !defined(VERTEX_LIGHTING)

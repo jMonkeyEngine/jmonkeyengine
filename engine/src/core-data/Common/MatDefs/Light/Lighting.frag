@@ -249,8 +249,9 @@ void main(){
     #else
        vec4 lightDir = vLightDir;
        lightDir.xyz = normalize(lightDir.xyz);
+       vec3 viewDir = normalize(vViewDir);
 
-       vec2   light = computeLighting(normal, vViewDir.xyz, lightDir.xyz) * spotFallOff;
+       vec2   light = computeLighting(normal, viewDir, lightDir.xyz) * spotFallOff;
        #ifdef COLORRAMP
            diffuseColor.rgb  *= texture2D(m_ColorRamp, vec2(light.x, 0.0)).rgb;
            specularColor.rgb *= texture2D(m_ColorRamp, vec2(light.y, 0.0)).rgb;
