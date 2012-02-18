@@ -95,6 +95,9 @@ public class HelloMaterial extends SimpleApplication {
     Material mat_lit = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
     mat_lit.setTexture("DiffuseMap", assetManager.loadTexture("Textures/Terrain/Pond/Pond.jpg"));
     mat_lit.setTexture("NormalMap", assetManager.loadTexture("Textures/Terrain/Pond/Pond_normal.png"));
+    mat_lit.setBoolean("UseMaterialColors",true);    
+    mat_lit.setColor("Specular",ColorRGBA.White);
+    mat_lit.setColor("Diffuse",ColorRGBA.White);
     mat_lit.setFloat("Shininess", 5f); // [0,128]
     shiny_rock.setMaterial(mat_lit);
     shiny_rock.setLocalTranslation(0,2,-2); // Move it a bit
