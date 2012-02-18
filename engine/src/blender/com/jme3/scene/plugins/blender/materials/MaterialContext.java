@@ -69,10 +69,10 @@ public final class MaterialContext {
 		diffuseShader = DiffuseShader.values()[diff_shader];
 		
 		if(this.shadeless) {
-                        float r = ((Number) structure.getFieldValue("r")).floatValue();
-                        float g = ((Number) structure.getFieldValue("g")).floatValue();
-                        float b = ((Number) structure.getFieldValue("b")).floatValue();
-                        float alpha = ((Number) structure.getFieldValue("alpha")).floatValue();
+            float r = ((Number) structure.getFieldValue("r")).floatValue();
+            float g = ((Number) structure.getFieldValue("g")).floatValue();
+            float b = ((Number) structure.getFieldValue("b")).floatValue();
+            float alpha = ((Number) structure.getFieldValue("alpha")).floatValue();
 
 			diffuseColor = new ColorRGBA(r, g, b, alpha);
 			specularShader = null;
@@ -94,8 +94,6 @@ public final class MaterialContext {
 			float shininess = ((Number) structure.getFieldValue("emit")).floatValue();
 			this.shininess = shininess > 0.0f ? shininess : MaterialHelper.DEFAULT_SHININESS;
 		}
-		
-		float[] diffuseColorArray = new float[] {diffuseColor.r, diffuseColor.g, diffuseColor.b, diffuseColor.a};//TODO: czy trzeba wstawiac te dane?
 		
 		mTexs = new ArrayList<Structure>();
 		textures = new ArrayList<Structure>();
@@ -142,6 +140,10 @@ public final class MaterialContext {
 		Map<Number, List<Structure[]>> sortedTextures = this.sortAndFilterTextures();
 		loadedTextures = new HashMap<Number, Texture>(sortedTextures.size());
 		textureToMTexMap = new HashMap<Texture, Structure>();
+		if(sortedTextures.size() > 0) {//texutre covers the material color
+			diffuseColor.set(1, 1, 1, 1);
+		}
+		float[] diffuseColorArray = new float[] {diffuseColor.r, diffuseColor.g, diffuseColor.b, diffuseColor.a};
 		TextureHelper textureHelper = blenderContext.getHelper(TextureHelper.class);
 		for(Entry<Number, List<Structure[]>> entry : sortedTextures.entrySet()) {
 			if(entry.getValue().size()>0) {

@@ -198,7 +198,7 @@ public class MaterialHelper extends AbstractBlenderHelper {
 		MaterialContext materialContext = new MaterialContext(structure, blenderContext);
 		LOGGER.log(Level.INFO, "Material's name: {0}", materialContext.name);
 		
-		if(materialContext.textures.size() > 0) {
+		if(materialContext.textures.size() > 1) {
 			LOGGER.log(Level.WARNING, "Attetion! Many textures found for material: {0}. Only the first of each supported mapping types will be used!", materialContext.name);
 		}
 		
@@ -241,12 +241,12 @@ public class MaterialHelper extends AbstractBlenderHelper {
 		} else {
 			if (materialContext.shadeless) {
 				result = new Material(blenderContext.getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
-                                
-                                if (!materialContext.transparent) {
-                                    materialContext.diffuseColor.a = 1;
-                                }
-                                
-                                result.setColor("Color", materialContext.diffuseColor);
+                
+                if (!materialContext.transparent) {
+                    materialContext.diffuseColor.a = 1;
+                }
+                
+                result.setColor("Color", materialContext.diffuseColor);
 			} else {
 				result = new Material(blenderContext.getAssetManager(), "Common/MatDefs/Light/Lighting.j3md");
 				result.setBoolean("UseMaterialColors", Boolean.TRUE);
