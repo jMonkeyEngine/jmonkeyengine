@@ -98,6 +98,7 @@
             <tocitem text="Best Practices" target="jme3.intermediate.best_practices"/>
             <tocitem text="FAQ" target="jme3.faq"/>
             <tocitem text="SimpleApplication" target="jme3.intermediate.simpleapplication"/>
+            <tocitem text="How to Use Materials" target="jme3/intermediate/how_to_use_materials.html"/>
             <tocitem text="Application Settings" target="jme3.intermediate.appsettings"/>
             <tocitem text="File Types" target="jme3.intermediate.file_types"/>
             <tocitem text="Math in jME3" target="jme3.math"/>
