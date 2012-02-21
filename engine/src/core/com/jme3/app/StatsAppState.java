@@ -82,6 +82,10 @@ public class StatsAppState extends AbstractAppState {
     public BitmapText getFpsText() {
         return fpsText;
     }
+    
+    public StatsView getStatsView() {
+        return statsView;
+    }
 
     public float getSecondCounter() {
         return secondCounter;
