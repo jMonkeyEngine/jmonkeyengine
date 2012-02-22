@@ -47,7 +47,7 @@ public class JmePaletteInputListener implements ActiveEditorDrop {
 
     private String createBody() {
 
-        String body = "/**Use ActionListener to respond to pressed/released inputs (keys presses, mouse clicks) */ \n private ActionListener actionListener = new ActionListener(){\n        public void onAction(String name, boolean pressed, float tpf){\n            System.out.println(name + \" = \" + pressed);\n        }\n};\n /** Use AnalogListener to respond to continuous inputs (key presses, mouse clicks) */\n private AnalogListener analogListener = new AnalogListener() {\n        public void onAnalog(String name, float value, float tpf) {\n            System.out.println(name + \" = \" + value);\n        }\n}; \n";
+        String body = "/**Use ActionListener to respond to pressed/released inputs (key presses, mouse clicks) */ \n private ActionListener actionListener = new ActionListener(){\n        public void onAction(String name, boolean pressed, float tpf){\n            System.out.println(name + \" = \" + pressed);\n        }\n};\n /** Use AnalogListener to respond to continuous inputs (key presses, mouse clicks) */\n private AnalogListener analogListener = new AnalogListener() {\n        public void onAnalog(String name, float value, float tpf) {\n            System.out.println(name + \" = \" + value);\n        }\n};";
         return body;
     }
 
