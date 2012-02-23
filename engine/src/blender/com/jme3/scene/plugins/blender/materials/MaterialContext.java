@@ -9,6 +9,8 @@ import com.jme3.scene.plugins.blender.file.Structure;
 import com.jme3.scene.plugins.blender.materials.MaterialHelper.DiffuseShader;
 import com.jme3.scene.plugins.blender.materials.MaterialHelper.SpecularShader;
 import com.jme3.scene.plugins.blender.textures.TextureHelper;
+import com.jme3.scene.plugins.blender.textures.blending.TextureBlender;
+import com.jme3.scene.plugins.blender.textures.blending.TextureBlenderFactory;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.Type;
 import com.jme3.texture.Texture.WrapMode;
@@ -140,9 +142,6 @@ public final class MaterialContext {
 		Map<Number, List<Structure[]>> sortedTextures = this.sortAndFilterTextures();
 		loadedTextures = new HashMap<Number, Texture>(sortedTextures.size());
 		textureToMTexMap = new HashMap<Texture, Structure>();
-		if(sortedTextures.size() > 0) {//texutre covers the material color
-			diffuseColor.set(1, 1, 1, 1);
-		}
 		float[] diffuseColorArray = new float[] {diffuseColor.r, diffuseColor.g, diffuseColor.b, diffuseColor.a};
 		TextureHelper textureHelper = blenderContext.getHelper(TextureHelper.class);
 		for(Entry<Number, List<Structure[]>> entry : sortedTextures.entrySet()) {
@@ -157,7 +156,8 @@ public final class MaterialContext {
 												  ((Number) mtexAndTex[0].getFieldValue("g")).floatValue(), 
 												  ((Number) mtexAndTex[0].getFieldValue("b")).floatValue() };
 					float colfac = ((Number) mtexAndTex[0].getFieldValue("colfac")).floatValue();
-					texture = textureHelper.blendTexture(diffuseColorArray, texture, color, colfac, blendType, negateTexture, blenderContext);
+					TextureBlender textureBlender = TextureBlenderFactory.createTextureBlender(texture.getImage().getFormat());
+					texture = textureBlender.blend(diffuseColorArray, texture, color, colfac, blendType, negateTexture, blenderContext);
 					texture.setWrap(WrapMode.Repeat);
 					textures.add(texture);
 					textureToMTexMap.put(texture, mtexAndTex[0]);
@@ -175,6 +175,9 @@ public final class MaterialContext {
 		boolean transparent = false;
 		if(diffuseColor != null) {
 			transparent = diffuseColor.a < 1.0f;
+			if(sortedTextures.size() > 0) {//texutre covers the material color
+				diffuseColor.set(1, 1, 1, 1);
+			}
 		}
 		if(specularColor != null) {
 			transparent = transparent || specularColor.a < 1.0f;

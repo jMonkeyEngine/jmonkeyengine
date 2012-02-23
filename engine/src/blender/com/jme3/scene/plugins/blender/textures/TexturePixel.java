@@ -12,7 +12,7 @@ import java.util.logging.Logger;
  * 
  * @author Marcin Roguski (Kaelthas)
  */
-/* package */class TexturePixel implements Cloneable {
+public class TexturePixel implements Cloneable {
 	private static final Logger	LOGGER	= Logger.getLogger(TexturePixel.class.getName());
 
 	/** The pixel data. */
@@ -148,6 +148,19 @@ import java.util.logging.Logger;
 	}
 
 	/**
+	 * Stores RGBA values in the given array.
+	 * 
+	 * @param result
+	 *            the array to store values
+	 */
+	public void toRGBA(float[] result) {
+		result[0] = this.red;
+		result[1] = this.green;
+		result[2] = this.blue;
+		result[3] = this.alpha;
+	}
+
+	/**
 	 * Stores the data in the given table.
 	 * 
 	 * @param result
@@ -158,6 +171,24 @@ import java.util.logging.Logger;
 		result[1] = (byte) (this.green * 255.0f);
 		result[2] = (byte) (this.blue * 255.0f);
 		result[3] = (byte) (this.alpha * 255.0f);
+	}
+
+	/**
+	 * Stores the pixel values in the integer.
+	 * 
+	 * @return the integer that stores the pixel values
+	 */
+	public int toARGB8() {
+		int result = 0;
+		int b = (int) (this.alpha * 255.0f);
+		result |= b << 24;
+		b = (int) (this.red * 255.0f);
+		result |= b << 16;
+		b = (int) (this.green * 255.0f);
+		result |= b << 8;
+		b = (int) (this.blue * 255.0f);
+		result |= b;
+		return result;
 	}
 
 	/**
@@ -172,6 +203,16 @@ import java.util.logging.Logger;
 		this.green = oneMinusAlpha * this.green + pixel.alpha * pixel.green;
 		this.blue = oneMinusAlpha * this.blue + pixel.alpha * pixel.blue;
 		// alpha should be always 1.0f as a result
+	}
+
+	/**
+	 * This method negates the colors.
+	 */
+	public void negate() {
+		this.red = 1.0f - this.red;
+		this.green = 1.0f - this.green;
+		this.blue = 1.0f - this.blue;
+		this.alpha = 1.0f - this.alpha;
 	}
 
 	/**
