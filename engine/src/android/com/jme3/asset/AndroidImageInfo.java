@@ -8,11 +8,19 @@ import com.jme3.texture.Image.Format;
 import java.io.IOException;
 import java.io.InputStream;
 
+/**
+  * <code>AndroidImageInfo</code> is set in a jME3 image via the {@link Image#setEfficientData(java.lang.Object)}
+  * method to retrieve a {@link Bitmap} when it is needed by the renderer. 
+  * User code may extend <code>AndroidImageInfo</code> and provide their own implementation of the 
+  * {@link AndroidImageInfo#loadBitmap()} method to acquire a bitmap by their own means.
+  *
+  * @author Kirill Vainer
+  */
 public class AndroidImageInfo {
     
-    private AssetInfo assetInfo;
-    private Bitmap bitmap;
-    private Format format;
+    protected AssetInfo assetInfo;
+    protected Bitmap bitmap;
+    protected Format format;
 
     public AndroidImageInfo(AssetInfo assetInfo) {
         this.assetInfo = assetInfo;
@@ -42,7 +50,7 @@ public class AndroidImageInfo {
      * Loads the bitmap directly from the asset info, possibly updating
      * or creating the image object.
      */
-    private void loadBitmap() throws IOException{
+    protected void loadBitmap() throws IOException{
         InputStream in = null;
         try {
             in = assetInfo.openStream();
