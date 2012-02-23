@@ -285,6 +285,7 @@ public class Structure implements Cloneable {
             PRIMARY_TYPES.put("int", INTEGER);
             PRIMARY_TYPES.put("long", LONG);
             PRIMARY_TYPES.put("ulong", LONG);
+            PRIMARY_TYPES.put("uint64_t", LONG);
             PRIMARY_TYPES.put("float", FLOAT);
             PRIMARY_TYPES.put("double", DOUBLE);
             PRIMARY_TYPES.put("void", VOID);
