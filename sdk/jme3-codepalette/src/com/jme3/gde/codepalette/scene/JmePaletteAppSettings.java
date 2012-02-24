@@ -40,14 +40,14 @@ import org.openide.text.ActiveEditorDrop;
  *
  * @author normenhansen, zathras
  */
-public class JmePaletteTextureCube implements ActiveEditorDrop {
+public class JmePaletteAppSettings implements ActiveEditorDrop {
 
-    public JmePaletteTextureCube() {
+    public JmePaletteAppSettings() {
     }
 
     private String createBody() {
 
-        String body = "/** An unshaded textured cube. \n *  Uses texture from jme3-test-data library! */ \nBox boxshape1 = new Box(Vector3f.ZERO, 1f,1f,1f); \nGeometry cube_tex = new Geometry(\"A Textured Box\", boxshape1); \nMaterial mat_tex = new Material(assetManager, \"Common/MatDefs/Misc/Unshaded.j3md\"); \nTexture tex = assetManager.loadTexture(\"Interface/Logo/Monkey.jpg\"); \nmat_tex.setTexture(\"ColorMap\", tex); \ncube_tex.setMaterial(mat_tex); \nrootNode.attachChild(cube_tex); ";
+        String body = "Main app = new Main();\nAppSettings cfg = new AppSettings(true);\ncfg.setFrameRate(60); // set to less than or equal screen refresh rate\ncfg.setVSync(true);   // prevents page tearing\ncfg.setFrequency(60); // set to screen refresh rate\ncfg.setResolution(1024, 768);   \ncfg.setFullscreen(true); \ncfg.setSamples(2);    // anti-aliasing\ncfg.setTitle(\"My jMonkeyEngine 3 Game\"); // branding: window name\ntry {\n  // Branding: window icon\n  cfg.setIcons(new BufferedImage[]{ImageIO.read(new File(\"assets/Interface/icon.gif\"))});\n} catch (IOException ex) {\n  Logger.getLogger(Main.class.getName()).log(Level.SEVERE, \"Icon missing.\", ex);\n}\n// branding: load splashscreen from assets\ncfg.setSettingsDialogImage(\"Interface/MySplashscreen.png\"); \n//app.setShowSettings(false); // or don't display splashscreen\napp.setSettings(cfg);\napp.start();";
         return body;
     }
 

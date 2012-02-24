@@ -11,7 +11,7 @@
 
     <inline-description>
        <display-name>TextureCube</display-name>
-       <tooltip>plain textured Cube</tooltip>
+       <tooltip>Unshaded, textured</tooltip>
     </inline-description>
 
 </editor_palette_item>

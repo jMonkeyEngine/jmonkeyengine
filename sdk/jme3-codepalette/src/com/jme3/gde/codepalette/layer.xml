@@ -38,6 +38,9 @@
             <file name="J3OSave.xml" url="nbresloc:/com/jme3/gde/codepalette/scene/J3OSave.xml">
                 <attr name="position" intvalue="150"/>
             </file>
+            <file name="BackgroundColor.xml" url="nbresloc:/com/jme3/gde/codepalette/scene/BackgroundColor.xml">
+                <attr name="position" intvalue="150"/>
+            </file>
             <file name="Enqueue.xml" url="nbresloc:/com/jme3/gde/codepalette/scene/Enqueue.xml">
                 <attr name="position" intvalue="150"/>
             </file>
@@ -58,8 +61,11 @@
             <file name="HUDText.xml" url="nbresloc:/com/jme3/gde/codepalette/scene/HUDText.xml">
                 <attr name="position" intvalue="150"/>
             </file>
+            <file name="AppSettings.xml" url="nbresloc:/com/jme3/gde/codepalette/scene/AppSettings.xml">
+                <attr name="position" intvalue="150"/>
+            </file>
         </folder>
-        <folder name="Light&amp;Shadow">
+        <folder name="Light and Shadow">
             <file name="SunLight.xml" url="nbresloc:/com/jme3/gde/codepalette/scene/SunLight.xml">
                 <attr name="position" intvalue="150"/>
             </file>
@@ -85,7 +91,7 @@
                 <attr name="position" intvalue="150"/>
             </file>
         </folder>
-        <folder name="JME Effects">
+        <folder name="Special Effects">
             <file name="Fog.xml" url="nbresloc:/com/jme3/gde/codepalette/scene/Fog.xml">
                 <attr name="position" intvalue="150"/>
             </file>
