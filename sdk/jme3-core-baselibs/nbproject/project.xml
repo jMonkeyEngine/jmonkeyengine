@@ -139,12 +139,20 @@
                 <binary-origin>release/modules/ext/jME3-blender.jar</binary-origin>
             </class-path-extension>
             <class-path-extension>
+                <runtime-relative-path>ext/jME3-effects.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/jME3-effects.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
                 <runtime-relative-path>ext/jME3-desktop.jar</runtime-relative-path>
                 <binary-origin>release/modules/ext/jME3-desktop.jar</binary-origin>
             </class-path-extension>
             <class-path-extension>
                 <runtime-relative-path>ext/jME3-lwjgl.jar</runtime-relative-path>
                 <binary-origin>release/modules/ext/jME3-lwjgl.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/jME3-networking.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/jME3-networking.jar</binary-origin>
             </class-path-extension>
             <class-path-extension>
                 <runtime-relative-path>ext/jME3-terrain.jar</runtime-relative-path>
