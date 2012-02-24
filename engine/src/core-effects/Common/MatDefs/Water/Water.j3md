@@ -1,0 +1,90 @@
+MaterialDef Advanced Water {
+
+    MaterialParameters {
+        Int NumSamples
+        Int NumSamplesDepth
+        Texture2D FoamMap
+        Texture2D CausticsMap
+        Texture2D NormalMap
+        Texture2D ReflectionMap
+        Texture2D HeightMap
+        Texture2D Texture
+        Texture2D DepthTexture        
+        Vector3 CameraPosition
+        Float Time
+        Vector3 frustumCorner
+        Matrix4 TextureProjMatrix
+        Matrix4 ViewProjectionMatrixInverse
+        Float WaterHeight
+        Vector3 LightDir
+        Float WaterTransparency
+        Float NormalScale
+        Float R0
+        Float MaxAmplitude
+        Color LightColor
+        Float ShoreHardness
+        Float FoamHardness
+        Float RefractionStrength
+        Float WaveScale
+        Vector3 FoamExistence
+        Float SunScale
+        Vector3 ColorExtinction
+        Float Shininess
+        Color WaterColor
+        Color DeepWaterColor
+        Vector2 WindDirection
+        Float ReflectionDisplace
+        Float FoamIntensity
+        Float CausticsIntensity
+        Float UnderWaterFogDistance
+
+        Boolean UseRipples
+        Boolean UseHQShoreline
+        Boolean UseSpecular
+        Boolean UseFoam
+        Boolean UseCaustics 
+        Boolean UseRefraction
+
+    }
+
+    Technique {
+        VertexShader   GLSL150 : Common/MatDefs/Post/Post15.vert
+        FragmentShader GLSL150 : Common/MatDefs/Water/Water15.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+        }
+
+        Defines {
+          RESOLVE_MS : NumSamples
+            RESOLVE_DEPTH_MS : NumSamplesDepth
+            ENABLE_RIPPLES : UseRipples
+            ENABLE_HQ_SHORELINE : UseHQShoreline
+            ENABLE_SPECULAR : UseSpecular
+            ENABLE_FOAM : UseFoam
+            ENABLE_CAUSTICS : UseCaustics
+            ENABLE_REFRACTION : UseRefraction
+        }
+    }
+
+    Technique {
+        VertexShader   GLSL100 : Common/MatDefs/Post/Post.vert
+        FragmentShader GLSL120 : Common/MatDefs/Water/Water.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+        }
+        Defines {
+            ENABLE_RIPPLES : UseRipples
+            ENABLE_HQ_SHORELINE : UseHQShoreline
+            ENABLE_SPECULAR : UseSpecular
+            ENABLE_FOAM : UseFoam
+            ENABLE_CAUSTICS : UseCaustics
+            ENABLE_REFRACTION : UseRefraction
+
+        }
+    }
+
+    Technique FixedFunc {
+    }
+}

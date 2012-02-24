@@ -1,0 +1,20 @@
+MaterialDef FXAA {
+    MaterialParameters {
+        Int NumSamples
+        Texture2D Texture
+        Float SubPixelShift
+        Float VxOffset
+        Float SpanMax
+        Float ReduceMul
+    }
+    Technique {
+        VertexShader GLSL100:   Common/MatDefs/Post/FXAA.vert
+        FragmentShader GLSL100: Common/MatDefs/Post/FXAA.frag
+        WorldParameters {
+            WorldViewProjectionMatrix
+            Resolution
+        }
+    }
+    Technique FixedFunc {
+    }
+}

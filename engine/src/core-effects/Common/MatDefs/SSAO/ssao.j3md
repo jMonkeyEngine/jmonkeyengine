@@ -1,0 +1,51 @@
+MaterialDef SSAO {
+
+    MaterialParameters {
+        Int NumSamples
+        Int NumSamplesDepth
+        Texture2D Texture
+        Texture2D RandomMap
+        Texture2D Normals
+        Texture2D DepthTexture
+        Vector3 FrustumCorner
+        Float SampleRadius
+        Float Intensity
+        Float Scale
+        Float Bias
+        Vector2 FrustumNearFar
+        Vector2Array Samples
+    }
+
+    Technique {
+        VertexShader GLSL150:   Common/MatDefs/Post/Post15.vert
+        FragmentShader GLSL150: Common/MatDefs/SSAO/ssao15.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+            WorldViewMatrix
+            Resolution
+        }
+
+        Defines {
+            RESOLVE_MS : NumSamples
+            RESOLVE_DEPTH_MS : NumSamplesDepth
+        }
+    }
+
+    Technique {
+        VertexShader GLSL120:   Common/MatDefs/Post/Post.vert
+        FragmentShader GLSL120: Common/MatDefs/SSAO/ssao.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+            WorldViewMatrix
+            Resolution
+
+        }
+    }
+
+
+
+    Technique FixedFunc {
+    }
+}

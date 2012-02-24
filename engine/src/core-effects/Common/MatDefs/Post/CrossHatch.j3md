@@ -1,0 +1,41 @@
+MaterialDef CrossHatch {
+ 
+    MaterialParameters {
+        Int NumSamples
+        Texture2D Texture;
+        Vector4 LineColor;
+        Vector4 PaperColor;
+        Float ColorInfluenceLine;
+        Float ColorInfluencePaper;
+        Float FillValue;
+        Float Luminance1;
+        Float Luminance2;
+        Float Luminance3;
+        Float Luminance4;
+        Float Luminance5;
+        Float LineThickness;
+        Float LineDistance;
+    }
+ 
+    Technique {
+        VertexShader GLSL150:   Common/MatDefs/Post/Post15.vert
+        FragmentShader GLSL150: Common/MatDefs/Post/CrossHatch15.frag
+ 
+        WorldParameters {
+            WorldViewProjectionMatrix
+        }
+    }
+ 
+    Technique {
+        VertexShader GLSL100:   Common/MatDefs/Post/Post.vert
+        FragmentShader GLSL100: Common/MatDefs/Post/CrossHatch.frag
+ 
+        WorldParameters {
+            WorldViewProjectionMatrix
+        }
+    }
+ 
+    Technique FixedFunc {
+    }
+ 
+}

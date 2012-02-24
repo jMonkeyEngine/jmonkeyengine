@@ -1,0 +1,32 @@
+MaterialDef Posterization {
+ 
+    MaterialParameters {
+        Int NumSamples
+        Texture2D Texture;
+        Int NumColors;
+        Float Gamma;
+        Float Strength;
+    }
+ 
+    Technique {
+        VertexShader GLSL150:   Common/MatDefs/Post/Post15.vert
+        FragmentShader GLSL150: Common/MatDefs/Post/Posterization15.frag
+ 
+        WorldParameters {
+            WorldViewProjectionMatrix
+        }
+    }
+ 
+    Technique {
+        VertexShader GLSL100:   Common/MatDefs/Post/Post.vert
+        FragmentShader GLSL100: Common/MatDefs/Post/Posterization.frag
+ 
+        WorldParameters {
+            WorldViewProjectionMatrix
+        }
+    }
+ 
+    Technique FixedFunc {
+    }
+ 
+}

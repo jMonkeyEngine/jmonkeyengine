@@ -1,0 +1,36 @@
+MaterialDef Bloom Final {
+
+    MaterialParameters {
+          Int NumSamples
+        Texture2D Texture
+        Texture2D BloomTex
+        Float BloomIntensity
+    }
+
+    Technique {
+        VertexShader GLSL100:   Common/MatDefs/Post/Post15.vert
+        FragmentShader GLSL150: Common/MatDefs/Post/bloomFinal15.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+        }
+
+        Defines {
+            RESOLVE_MS : NumSamples
+        }
+    }
+
+    Technique {
+        VertexShader GLSL100:   Common/MatDefs/Post/Post.vert
+        FragmentShader GLSL100: Common/MatDefs/Post/bloomFinal.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+        }
+    }
+
+
+
+    Technique FixedFunc {
+    }
+}

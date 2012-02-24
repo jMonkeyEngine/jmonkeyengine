@@ -13,6 +13,7 @@
             <source-roots>
                 <root id="src.core.dir" name="Core"/>
                 <root id="src.core-data.dir" name="Core-Data"/>
+                <root id="src.core-effects.dir" name="Core-Effects"/>
                 <root id="src.core-plugins.dir" name="Core-Plugins"/>
                 <root id="src.desktop.dir" name="Desktop"/>
                 <root id="src.terrain.dir" name="Terrain"/>

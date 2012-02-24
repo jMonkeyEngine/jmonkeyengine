@@ -1,0 +1,39 @@
+MaterialDef GammaCorrection {
+ 
+    MaterialParameters {
+        Int NumSamples
+        Texture2D Texture
+        Float gamma
+        Boolean computeLuma
+    }
+ 
+    Technique {
+        VertexShader GLSL150:   Common/MatDefs/Post/Post15.vert
+        FragmentShader GLSL150: Common/MatDefs/Post/GammaCorrection15.frag
+ 
+        WorldParameters {
+            WorldViewProjectionMatrix
+        }
+        
+        Defines {
+            COMPUTE_LUMA : computeLuma
+        }
+    }
+ 
+    Technique {
+        VertexShader GLSL100:   Common/MatDefs/Post/Post.vert
+        FragmentShader GLSL100: Common/MatDefs/Post/GammaCorrection.frag
+ 
+        WorldParameters {
+            WorldViewProjectionMatrix
+        }
+        
+         Defines {
+            COMPUTE_LUMA : computeLuma
+        }
+    }
+ 
+    Technique FixedFunc {
+    }
+ 
+}

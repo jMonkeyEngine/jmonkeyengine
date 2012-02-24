@@ -1,0 +1,41 @@
+MaterialDef Light Scattering {
+ MaterialParameters {
+        Int NumSamples
+        Int NumSamplesDepth
+        Texture2D Texture
+        Texture2D DepthTexture       
+        Vector3 LightPosition
+        Int NbSamples
+        Float BlurStart
+        Float BlurWidth
+        Float LightDensity
+        Boolean Display
+        Boolean multiSampledDepth
+    }
+
+    Technique {
+        VertexShader GLSL150:   Common/MatDefs/Post/LightScattering15.vert
+        FragmentShader GLSL150: Common/MatDefs/Post/LightScattering15.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+        }
+
+        Defines {
+            RESOLVE_MS : NumSamples
+            RESOLVE_DEPTH_MS : NumSamplesDepth
+        }
+    }
+
+    Technique {
+        VertexShader GLSL120:   Common/MatDefs/Post/LightScattering.vert
+        FragmentShader GLSL120: Common/MatDefs/Post/LightScattering.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+        }
+    }
+
+    Technique FixedFunc {
+    }
+}
