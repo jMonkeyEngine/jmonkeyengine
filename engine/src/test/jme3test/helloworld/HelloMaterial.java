@@ -80,7 +80,7 @@ public class HelloMaterial extends SimpleApplication {
     /** A cube with its base color "leaking" through a partially transparent texture */
     Box boxshape4 = new Box(new Vector3f(3f,-1f,0f), 1f,1f,1f);
     Geometry cube_leak = new Geometry("Leak-through color cube", boxshape4);
-    Material mat_tl = new Material(assetManager, "Common/MatDefs/Misc/ColoredTextured.j3md");
+    Material mat_tl = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
     mat_tl.setTexture("ColorMap", assetManager.loadTexture("Textures/ColoredTex/Monkey.png"));
     mat_tl.setColor("Color", new ColorRGBA(1f,0f,1f, 1f)); // purple
     cube_leak.setMaterial(mat_tl);
@@ -103,6 +103,7 @@ public class HelloMaterial extends SimpleApplication {
     shiny_rock.setLocalTranslation(0,2,-2); // Move it a bit
     shiny_rock.rotate(1.6f, 0, 0);          // Rotate it a bit
     rootNode.attachChild(shiny_rock);
+    
     /** Must add a light to make the lit object visible! */
     DirectionalLight sun = new DirectionalLight();
     sun.setDirection(new Vector3f(1,0,-2).normalizeLocal());
