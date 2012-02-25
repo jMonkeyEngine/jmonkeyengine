@@ -1179,7 +1179,7 @@ public final class BufferUtils {
             viewedBufferMethod = loadMethod("sun.nio.ch.DirectBuffer", "viewedBuffer");
             
             // Apache Harmony
-            freeMethod = loadMethod("java.nio.DirectByteBuffer", "free");
+            freeMethod = loadMethod("org.apache.harmony.nio.internal.DirectBuffer", "free");
             
             // GUN Classpath (not likely)
             //finalizeMethod = loadMethod("java.nio.DirectByteBufferImpl", "finalize");
