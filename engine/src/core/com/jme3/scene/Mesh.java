@@ -572,6 +572,7 @@ public class Mesh implements Savable, Cloneable {
      * Some GPUs may prefer the data in this format, however it is a good idea
      * to <em>avoid</em> using this method as it disables some engine features.
      */
+    @Deprecated
     public void setInterleaved(){
         ArrayList<VertexBuffer> vbs = new ArrayList<VertexBuffer>();
         for (Entry<VertexBuffer> entry : buffers){
@@ -860,6 +861,65 @@ public class Mesh implements Savable, Cloneable {
     }
 
     /**
+     * Sets the {@link VertexBuffer} on the mesh.
+     * This will update the vertex/triangle counts if needed.
+     * 
+     * @param vb The buffer to set
+     * @throws IllegalArgumentException If the buffer type is already set
+     */
+    public void setBuffer(VertexBuffer vb){
+        if (buffers.containsKey(vb.getBufferType().ordinal()))
+            throw new IllegalArgumentException("Buffer type already set: "+vb.getBufferType());
+
+        buffers.put(vb.getBufferType().ordinal(), vb);
+        buffersList.add(vb);
+        updateCounts();
+    }
+    
+    /**
+     * Unsets the {@link VertexBuffer} set on this mesh
+     * with the given type. Does nothing if the vertex buffer type is not set 
+     * initially.
+     * 
+     * @param type The buffer type to remove
+     */
+    public void clearBuffer(VertexBuffer.Type type){
+        VertexBuffer vb = buffers.remove(type.ordinal());
+        if (vb != null){
+            buffersList.remove(vb);
+            updateCounts();
+        }
+    }
+    
+    /**
+     * Creates a {@link VertexBuffer} for the mesh or modifies
+     * the existing one per the parameters given.
+     * 
+     * @param type The type of the buffer
+     * @param components Number of components
+     * @param format Data format
+     * @param buf The buffer data
+     * 
+     * @throws UnsupportedOperationException If the buffer already set is 
+     * incompatible with the parameters given.
+     */
+    public void setBuffer(Type type, int components, Format format, Buffer buf){
+        VertexBuffer vb = buffers.get(type.ordinal());
+        if (vb == null){
+            vb = new VertexBuffer(type);
+            vb.setupData(Usage.Dynamic, components, format, buf);
+            setBuffer(vb);
+        }else{
+            if (vb.getNumComponents() != components || vb.getFormat() != format){
+                throw new UnsupportedOperationException("The buffer already set "
+                        + "is incompatible with the given parameters");
+            }
+            vb.updateData(buf);
+            updateCounts();
+        }
+    }
+    
+    /**
      * Set a floating point {@link VertexBuffer} on the mesh. 
      * 
      * @param type The type of {@link VertexBuffer}, 
@@ -871,21 +931,7 @@ public class Mesh implements Savable, Cloneable {
      * @param buf The floating point data to contain
      */
     public void setBuffer(Type type, int components, FloatBuffer buf) {
-//        VertexBuffer vb = buffers.get(type);
-        VertexBuffer vb = buffers.get(type.ordinal());
-        if (vb == null){
-            if (buf == null)
-                return;
-
-            vb = new VertexBuffer(type);
-            vb.setupData(Usage.Dynamic, components, Format.Float, buf);
-//            buffers.put(type, vb);
-            buffers.put(type.ordinal(), vb);
-            buffersList.add(vb);
-        }else{
-            vb.setupData(Usage.Dynamic, components, Format.Float, buf);
-        }
-        updateCounts();
+        setBuffer(type, components, Format.Float, buf);
     }
 
     public void setBuffer(Type type, int components, float[] buf){
@@ -893,14 +939,7 @@ public class Mesh implements Savable, Cloneable {
     }
 
     public void setBuffer(Type type, int components, IntBuffer buf) {
-        VertexBuffer vb = buffers.get(type.ordinal());
-        if (vb == null){
-            vb = new VertexBuffer(type);
-            vb.setupData(Usage.Dynamic, components, Format.UnsignedInt, buf);
-            buffers.put(type.ordinal(), vb);
-            buffersList.add(vb);
-            updateCounts();
-        }
+        setBuffer(type, components, Format.UnsignedInt, buf);
     }
 
     public void setBuffer(Type type, int components, int[] buf){
@@ -908,14 +947,7 @@ public class Mesh implements Savable, Cloneable {
     }
 
     public void setBuffer(Type type, int components, ShortBuffer buf) {
-        VertexBuffer vb = buffers.get(type.ordinal());
-        if (vb == null){
-            vb = new VertexBuffer(type);
-            vb.setupData(Usage.Dynamic, components, Format.UnsignedShort, buf);
-            buffers.put(type.ordinal(), vb);
-            buffersList.add(vb);
-            updateCounts();
-        }
+        setBuffer(type, components, Format.UnsignedShort, buf);
     }
 
     public void setBuffer(Type type, int components, byte[] buf){
@@ -923,38 +955,7 @@ public class Mesh implements Savable, Cloneable {
     }
 
     public void setBuffer(Type type, int components, ByteBuffer buf) {
-        VertexBuffer vb = buffers.get(type.ordinal());
-        if (vb == null){
-            vb = new VertexBuffer(type);
-            vb.setupData(Usage.Dynamic, components, Format.UnsignedByte, buf);
-            buffers.put(type.ordinal(), vb);
-            buffersList.add(vb);
-            updateCounts();
-        }
-    }
-
-    public void setBuffer(VertexBuffer vb){
-        if (buffers.containsKey(vb.getBufferType().ordinal()))
-            throw new IllegalArgumentException("Buffer type already set: "+vb.getBufferType());
-
-        buffers.put(vb.getBufferType().ordinal(), vb);
-        buffersList.add(vb);
-        updateCounts();
-    }
-
-    /**
-     * Clears or unsets the {@link VertexBuffer} set on this mesh
-     * with the given type.
-     * Does nothing if the vertex buffer type is not set initially
-     * 
-     * @param type The type to remove
-     */
-    public void clearBuffer(VertexBuffer.Type type){
-        VertexBuffer vb = buffers.remove(type.ordinal());
-        if (vb != null){
-            buffersList.remove(vb);
-            updateCounts();
-        }
+        setBuffer(type, components, Format.UnsignedByte, buf);
     }
 
     public void setBuffer(Type type, int components, short[] buf){
