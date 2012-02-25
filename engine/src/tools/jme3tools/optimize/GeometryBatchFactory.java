@@ -64,24 +64,25 @@ public class GeometryBatchFactory {
     
     private static void doTransformTangents(FloatBuffer inBuf, int offset, int components, FloatBuffer outBuf, Matrix4f transform) {
         Vector3f tan = new Vector3f();
-        float handedness;
         
         // offset is given in element units
         // convert to be in component units
         offset *= components;
 
         for (int i = 0; i < inBuf.capacity() / components; i++) {
-            tan.x = inBuf.get(i * 4 + 0);
-            tan.y = inBuf.get(i * 4 + 1);
-            tan.z = inBuf.get(i * 4 + 2);
-            handedness = inBuf.get(i * 4 + 3);
+            tan.x = inBuf.get(i * components + 0);
+            tan.y = inBuf.get(i * components + 1);
+            tan.z = inBuf.get(i * components + 2);
 
             transform.multNormal(tan, tan);
 
-            outBuf.put(offset + i * 4 + 0, tan.x);
-            outBuf.put(offset + i * 4 + 1, tan.y);
-            outBuf.put(offset + i * 4 + 2, tan.z);
-            outBuf.put(offset + i * 4 + 3, handedness);
+            outBuf.put(offset + i * components + 0, tan.x);
+            outBuf.put(offset + i * components + 1, tan.y);
+            outBuf.put(offset + i * components + 2, tan.z);
+            
+            if (components == 4){
+                outBuf.put(offset + i * components + 3, inBuf.get(i * components + 3));
+            }
         }
     }
 
