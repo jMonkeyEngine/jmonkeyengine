@@ -380,6 +380,11 @@ public class RenderManager {
                     tempMat4.invertLocal();
                     u.setValue(VarType.Matrix4, tempMat4);
                     break;
+                case WorldMatrixInverseTranspose:
+                    worldMatrix.toRotationMatrix(tempMat3);
+                    tempMat3.invertLocal().transposeLocal();
+                    u.setValue(VarType.Matrix3, tempMat3);
+                    break;
                 case ViewMatrixInverse:
                     tempMat4.set(viewMatrix);
                     tempMat4.invertLocal();

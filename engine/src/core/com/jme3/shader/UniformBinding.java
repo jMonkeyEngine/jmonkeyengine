@@ -79,6 +79,14 @@ public enum UniformBinding {
      */
     ViewProjectionMatrix,
 
+    /**
+     * The world matrix inverse transpose. Converts a normals from Model space
+     * to world space.
+     * Type: mat3
+     */
+    WorldMatrixInverseTranspose,      
+
+
 
     WorldMatrixInverse,
     ViewMatrixInverse,
