@@ -66,7 +66,7 @@
             <fileset dir="${src.networking.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
         </copy>
 
-        <echo>Compile Plugins (Ogre, XML)</echo>
+        <echo>Compile Plugins</echo>
         <j2seproject3:javac 
             destdir="${build.dir}/plugins"
             srcdir="${src.ogre.dir}:${src.xml.dir}"
@@ -201,59 +201,31 @@
         <echo>Building TestData JAR file..</echo>
         <jar jarfile="${build.dir}/jME3-testdata.jar" basedir="test-data" compress="true"/>
         
-        <property location="test-data" name="testdata.dir.resolved"/>
-        <property location="${build.dir}/jME3-testdata.jar" name="testdata.jar.resolved"/>
-        <property location="lib/android/android.jar" name="android.jar.resolved"/>
         <property location="${build.classes.dir}" name="build.classes.dir.resolved"/>
+        <property location="${build.dir}" name="build.dir.resolved"/>
         
-        <property location="${build.dir}/core" name="build.core.dir.resolved"/>
-        <property location="${build.dir}/effects" name="build.effects.dir.resolved"/>
-        <property location="${build.dir}/networking" name="build.networking.dir.resolved"/>
-        <property location="${build.dir}/plugins" name="build.plugins.dir.resolved"/>
-        <property location="${build.dir}/jogg" name="build.jogg.dir.resolved"/>
-        <property location="${build.dir}/desktop" name="build.desktop.dir.resolved"/>
-        <property location="${build.dir}/blender" name="build.blender.dir.resolved"/>
-        <property location="${build.dir}/terrain" name="build.terrain.dir.resolved"/>
-        <property location="${build.dir}/jbullet" name="build.jbullet.dir.resolved"/>
-        <property location="${build.dir}/bullet" name="build.bullet.dir.resolved"/>
-        <property location="${build.dir}/niftygui" name="build.niftygui.dir.resolved"/>
-        <property location="${build.dir}/lwjgl" name="build.lwjgl.dir.resolved"/>
-        <property location="${build.dir}/android" name="build.android.dir.resolved"/>
+        <property location="test-data" name="testdata.dir.resolved"/>
+        <property location="lib/android/android.jar" name="android.jar.resolved"/>
         
         <pathconvert property="run.classpath.without.build.classes.dir">
             <path path="${run.classpath}"/>
-            <map from="${build.classes.dir.resolved}" to=""/>
-            
-            <map from="${build.core.dir.resolved}" to=""/>
-            <map from="${build.effects.dir.resolved}" to=""/>
-            <map from="${build.networking.dir.resolved}" to=""/>
-            <map from="${build.plugins.dir.resolved}" to=""/>
-            <map from="${build.jogg.dir.resolved}" to=""/>
-            <map from="${build.desktop.dir.resolved}" to=""/>
-            <map from="${build.blender.dir.resolved}" to=""/>
-            <map from="${build.terrain.dir.resolved}" to=""/>
-            <map from="${build.jbullet.dir.resolved}" to=""/>
-            <map from="${build.bullet.dir.resolved}" to=""/>
-            <map from="${build.niftygui.dir.resolved}" to=""/>
-            <map from="${build.lwjgl.dir.resolved}" to=""/>
-            <map from="${build.android.dir.resolved}" to=""/>
-            
-            <map from="${testdata.dir.resolved}" to="${testdata.jar.resolved}"/>
-            <map from="${android.jar.resolved}" to=""/>
 
-            <path path="${build.dir}/jME3-core.jar"/>
-            <path path="${build.dir}/jME3-effects.jar"/>
-            <path path="${build.dir}/jME3-networking.jar"/>
-            <path path="${build.dir}/jME3-plugins.jar"/>
-            <path path="${build.dir}/jME3-jogg.jar"/>
-            <path path="${build.dir}/jME3-desktop.jar"/>
-            <path path="${build.dir}/jME3-blender.jar"/>
-            <path path="${build.dir}/jME3-terrain.jar"/>
-            <path path="${build.dir}/jME3-jbullet.jar"/>
-            <path path="${build.dir}/jME3-bullet.jar"/>
-            <path path="${build.dir}/jME3-niftygui.jar"/>
-            <path path="${build.dir}/jME3-lwjgl.jar"/>
-            <!--path path="${build.dir}/jME3-android.jar"/-->
+            <map from="${build.classes.dir.resolved}" to=""/>
+            <map from="${build.dir.resolved}/core" to="${build.dir}/jME3-core.jar"/>
+            <map from="${build.dir.resolved}/effects" to="${build.dir}/jME3-effects.jar"/>
+            <map from="${build.dir.resolved}/networking" to="${build.dir}/jME3-networking.jar"/>
+            <map from="${build.dir.resolved}/plugins" to="${build.dir}/jME3-plugins.jar"/>
+            <map from="${build.dir.resolved}/jogg" to="${build.dir}/jME3-jogg.jar"/>
+            <map from="${build.dir.resolved}/desktop" to="${build.dir}/jME3-desktop.jar"/>
+            <map from="${build.dir.resolved}/blender" to="${build.dir}/jME3-blender.jar"/>
+            <map from="${build.dir.resolved}/terrain" to="${build.dir}/jME3-terrain.jar"/>
+            <map from="${build.dir.resolved}/jbullet" to="${build.dir}/jME3-jbullet.jar"/>
+            <map from="${build.dir.resolved}/bullet" to="${build.dir}/jME3-bullet.jar"/>
+            <map from="${build.dir.resolved}/niftygui" to="${build.dir}/jME3-niftygui.jar"/>
+            <map from="${build.dir.resolved}/lwjgl" to="${build.dir}/jME3-lwjgl.jar"/>
+            <map from="${build.dir.resolved}/android" to=""/>
+            <map from="${testdata.dir.resolved}" to="${build.dir.resolved}/jME3-testdata.jar"/>
+            <map from="${android.jar.resolved}" to=""/>
 
         </pathconvert>        
     </target>
