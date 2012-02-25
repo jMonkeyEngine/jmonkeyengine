@@ -4,9 +4,6 @@ import com.jme3.asset.*;
 import com.jme3.system.android.JmeAndroidSystem;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
-import java.net.URLConnection;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class AndroidLocator implements AssetLocator {
@@ -80,7 +77,7 @@ public class AndroidLocator implements AssetLocator {
         assetPath = assetPath.replace("//", "/");
         try {
             return create(manager, key, assetPath);
-        }catch (IOException ex){
+        } catch (IOException ex) {
             // This is different handling than URL locator
             // since classpath locating would return null at the getResource() 
             // call, otherwise there's a more critical error...

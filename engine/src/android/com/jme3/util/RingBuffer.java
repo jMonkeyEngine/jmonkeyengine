@@ -4,20 +4,21 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 /**
- * Ring buffer (fixed size queue) implementation using a circular array (array with wrap-around).
+ * Ring buffer (fixed size queue) implementation using a circular array (array
+ * with wrap-around).
  */
 // suppress unchecked warnings in Java 1.5.0_6 and later
 @SuppressWarnings("unchecked")
-public class RingBuffer<Item> implements Iterable<Item> {
+public class RingBuffer<T> implements Iterable<T> {
 
-    private Item[] buffer;          // queue elements
+    private T[] buffer;          // queue elements
     private int count = 0;          // number of elements on queue
     private int indexOut = 0;       // index of first element of queue
     private int indexIn = 0;       // index of next available slot
 
     // cast needed since no generic array creation in Java
     public RingBuffer(int capacity) {
-        buffer = (Item[]) new Object[capacity];
+        buffer = (T[]) new Object[capacity];
     }
 
     public boolean isEmpty() {
@@ -28,7 +29,7 @@ public class RingBuffer<Item> implements Iterable<Item> {
         return count;
     }
 
-    public void push(Item item) {
+    public void push(T item) {
         if (count == buffer.length) {
             throw new RuntimeException("Ring buffer overflow");
         }
@@ -37,23 +38,23 @@ public class RingBuffer<Item> implements Iterable<Item> {
         count++;
     }
 
-    public Item pop() {
+    public T pop() {
         if (isEmpty()) {
             throw new RuntimeException("Ring buffer underflow");
         }
-        Item item = buffer[indexOut];
+        T item = buffer[indexOut];
         buffer[indexOut] = null;                  // to help with garbage collection
         count--;
         indexOut = (indexOut + 1) % buffer.length; // wrap-around
         return item;
     }
 
-    public Iterator<Item> iterator() {
+    public Iterator<T> iterator() {
         return new RingBufferIterator();
     }
 
     // an iterator, doesn't implement remove() since it's optional
-    private class RingBufferIterator implements Iterator<Item> {
+    private class RingBufferIterator implements Iterator<T> {
 
         private int i = 0;
 
@@ -65,7 +66,7 @@ public class RingBuffer<Item> implements Iterable<Item> {
             throw new UnsupportedOperationException();
         }
 
-        public Item next() {
+        public T next() {
             if (!hasNext()) {
                 throw new NoSuchElementException();
             }

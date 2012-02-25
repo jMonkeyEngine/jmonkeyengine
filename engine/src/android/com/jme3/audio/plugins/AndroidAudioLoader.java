@@ -5,15 +5,16 @@ import com.jme3.asset.AssetLoader;
 import com.jme3.audio.android.AndroidAudioData;
 import java.io.IOException;
 
-public class AndroidAudioLoader implements AssetLoader 
-{
+/**
+ * <code>AndroidAudioLoader</code> will create an 
+ * {@link AndroidAudioData} object with the specified asset key.
+ */
+public class AndroidAudioLoader implements AssetLoader {
 
     @Override
-    public Object load(AssetInfo assetInfo) throws IOException 
-    {
+    public Object load(AssetInfo assetInfo) throws IOException {
         AndroidAudioData result = new AndroidAudioData();
-        result.setAssetKey( assetInfo.getKey() );
+        result.setAssetKey(assetInfo.getKey());
         return result;
     }
-
 }

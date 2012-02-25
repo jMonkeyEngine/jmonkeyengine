@@ -24,8 +24,11 @@ import java.util.logging.Logger;
  * @author larynx
  *
  */
-public class AndroidInput extends GLSurfaceView implements TouchInput,
-        GestureDetector.OnGestureListener, GestureDetector.OnDoubleTapListener, ScaleGestureDetector.OnScaleGestureListener {
+public class AndroidInput extends GLSurfaceView implements 
+        TouchInput,
+        GestureDetector.OnGestureListener, 
+        GestureDetector.OnDoubleTapListener, 
+        ScaleGestureDetector.OnScaleGestureListener {
 
     final private static int MAX_EVENTS = 1024;
     // Custom settings
@@ -164,7 +167,9 @@ public class AndroidInput extends GLSurfaceView implements TouchInput,
 
     /**
      * Fetches a touch event from the reuse pool
-     * @param wait if true waits for a reusable event to get available/released by an other thread, if false returns a new one if needed
+     * @param wait if true waits for a reusable event to get available/released 
+     * by an other thread, if false returns a new one if needed.
+     * 
      * @return a usable TouchEvent
      */
     private TouchEvent getNextFreeTouchEvent(boolean wait) {
@@ -182,7 +187,6 @@ public class AndroidInput extends GLSurfaceView implements TouchInput,
                 size--;
             }
         }
-
 
         if (evt == null) {
             if (eventPool.isEmpty() && wait) {
@@ -228,13 +232,9 @@ public class AndroidInput extends GLSurfaceView implements TouchInput,
         // final int historySize = event.getHistorySize();
         //final int pointerCount = event.getPointerCount();
 
-
         switch (action) {
-
             case MotionEvent.ACTION_POINTER_DOWN:
             case MotionEvent.ACTION_DOWN:
-
-
                 touch = getNextFreeTouchEvent();
                 touch.set(Type.DOWN, event.getX(pointerIndex), this.getHeight() - event.getY(pointerIndex), 0, 0);
                 touch.setPointerId(pointerId);
@@ -279,8 +279,6 @@ public class AndroidInput extends GLSurfaceView implements TouchInput,
                 }
                 bWasHandled = true;
                 break;
-
-
             case MotionEvent.ACTION_OUTSIDE:
                 break;
 
@@ -311,7 +309,6 @@ public class AndroidInput extends GLSurfaceView implements TouchInput,
         } else {
             return true;
         }
-
     }
 
     @Override

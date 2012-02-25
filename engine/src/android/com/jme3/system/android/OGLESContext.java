@@ -52,6 +52,7 @@ import com.jme3.system.SystemListener;
 import com.jme3.system.Timer;
 import com.jme3.system.android.AndroidConfigChooser.ConfigType;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.microedition.khronos.egl.EGL10;
 import javax.microedition.khronos.egl.EGLConfig;
@@ -145,12 +146,12 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer {
 
             int[] version = new int[2];
             if (egl.eglInitialize(display, version) == true) {
-                logger.info("Display EGL Version: " + version[0] + "." + version[1]);
+                logger.log(Level.INFO, "Display EGL Version: {0}.{1}", new Object[]{version[0], version[1]});
             }
 
             try {
                 // Create a config chooser
-                AndroidConfigChooser configChooser = new AndroidConfigChooser(configType, eglConfigVerboseLogging);
+                AndroidConfigChooser configChooser = new AndroidConfigChooser(configType);
                 // Init chooser
                 if (!configChooser.findConfig(egl, display)) {
                     listener.handleError("Unable to find suitable EGL config", null);
