@@ -376,7 +376,7 @@ public class RenderManager {
                     u.setValue(VarType.Matrix4, tempMat4);
                     break;
                 case WorldMatrixInverse:
-                    tempMat4.multLocal(worldMatrix);
+                    tempMat4.set(worldMatrix);
                     tempMat4.invertLocal();
                     u.setValue(VarType.Matrix4, tempMat4);
                     break;
