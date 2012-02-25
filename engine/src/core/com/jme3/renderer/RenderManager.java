@@ -429,6 +429,10 @@ public class RenderManager {
                     tempVec2.set(viewWidth, viewHeight);
                     u.setValue(VarType.Vector2, tempVec2);
                     break;
+                case ResolutionInverse:
+                    tempVec2.set(1f / viewWidth, 1f / viewHeight);
+                    u.setValue(VarType.Vector2, tempVec2);
+                    break;
                 case Aspect:
                     float aspect = ((float) viewWidth) / viewHeight;
                     u.setValue(VarType.Float, aspect);

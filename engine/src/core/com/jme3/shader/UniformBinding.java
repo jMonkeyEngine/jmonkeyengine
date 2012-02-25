@@ -119,6 +119,12 @@ public enum UniformBinding {
      * Type: vec2
      */
     Resolution,
+    
+    /**
+     * The inverse of the resolution, 1/width and 1/height. 
+     * Type: vec2
+     */
+    ResolutionInverse,
 
     /**
      * Aspect ratio of the resolution currently set. Width/Height.
