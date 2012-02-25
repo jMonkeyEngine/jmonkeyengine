@@ -1675,8 +1675,9 @@ public class TerrainQuad extends Node implements Terrain {
                             }
                         }
                     }
-                    else
+                    else if (children.get(i) instanceof TerrainQuad) {
                         ((TerrainQuad) children.get(i)).findPick(toTest, results);
+                    }
                 }
             }
         }

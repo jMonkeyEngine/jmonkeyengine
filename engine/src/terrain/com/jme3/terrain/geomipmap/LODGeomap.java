@@ -34,6 +34,7 @@ package com.jme3.terrain.geomipmap;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.math.FastMath;
+import com.jme3.math.Plane;
 import com.jme3.math.Triangle;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
@@ -87,7 +88,7 @@ public class LODGeomap extends GeoMap {
         IntBuffer ib = writeIndexArrayLodDiff(null, lod, rightLod, topLod, leftLod, bottomLod);
         FloatBuffer bb = BufferUtils.createFloatBuffer(getWidth() * getHeight() * 3);
         FloatBuffer tanb = BufferUtils.createFloatBuffer(getWidth() * getHeight() * 3);
-        writeTangentArray(tanb, bb, texb, scale);
+        writeTangentArray(nb, tanb, bb, texb, scale);
         Mesh m = new Mesh();
         m.setMode(Mode.TriangleStrip);
         m.setBuffer(Type.Position, 3, pb);
@@ -627,7 +628,7 @@ public class LODGeomap extends GeoMap {
         return num;
     }
 
-    public FloatBuffer[] writeTangentArray(FloatBuffer tangentStore, FloatBuffer binormalStore, FloatBuffer textureBuffer, Vector3f scale) {
+    public FloatBuffer[] writeTangentArray(FloatBuffer normalBuffer, FloatBuffer tangentStore, FloatBuffer binormalStore, FloatBuffer textureBuffer, Vector3f scale) {
         if (!isLoaded()) {
             throw new NullPointerException();
         }
@@ -650,18 +651,30 @@ public class LODGeomap extends GeoMap {
         }
         binormalStore.rewind();
 
+        Vector3f normal = new Vector3f();
         Vector3f tangent = new Vector3f();
         Vector3f binormal = new Vector3f();
-        Vector3f v1 = new Vector3f();
+        /*Vector3f v1 = new Vector3f();
         Vector3f v2 = new Vector3f();
         Vector3f v3 = new Vector3f();
         Vector2f t1 = new Vector2f();
         Vector2f t2 = new Vector2f();
-        Vector2f t3 = new Vector2f();
-
-        //scale = Vector3f.UNIT_XYZ;
+        Vector2f t3 = new Vector2f();*/
 
         for (int r = 0; r < getHeight(); r++) {
+            for (int c = 0; c < getWidth(); c++) {
+                
+                int idx = (r * getWidth() + c) * 3;
+                normal.set(normalBuffer.get(idx), normalBuffer.get(idx+1), normalBuffer.get(idx+2));
+                tangent.set(normal.cross(new Vector3f(0,0,1)));
+                binormal.set(new Vector3f(1,0,0).cross(normal));
+                
+                BufferUtils.setInBuffer(tangent.normalizeLocal(), tangentStore, (r * getWidth() + c)); // save the tangent
+                BufferUtils.setInBuffer(binormal.normalizeLocal(), binormalStore, (r * getWidth() + c)); // save the binormal
+            }
+        }
+
+/*        for (int r = 0; r < getHeight(); r++) {
             for (int c = 0; c < getWidth(); c++) {
 
                 int texIdx = ((getHeight() - 1 - r) * getWidth() + c) * 2; // pull from the end
@@ -702,7 +715,7 @@ public class LODGeomap extends GeoMap {
                 BufferUtils.setInBuffer(binormal, binormalStore, (r * getWidth() + c)); // save the binormal
             }
         }
-
+        */
         return new FloatBuffer[]{tangentStore, binormalStore};
     }
 
