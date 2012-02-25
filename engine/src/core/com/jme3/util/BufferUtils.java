@@ -42,6 +42,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Map;
 import java.util.WeakHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -1144,6 +1145,47 @@ public final class BufferUtils {
         }
     }
     
+    private static final AtomicBoolean loadedMethods = new AtomicBoolean(false);
+    private static Method cleanerMethod = null;
+    private static Method cleanMethod = null;
+    private static Method viewedBufferMethod = null;
+    private static Method freeMethod = null;
+    
+    private static Method loadMethod(String className, String methodName){
+        try {
+            Method method = Class.forName(className).getMethod(methodName);
+            method.setAccessible(true);
+            return method;
+        } catch (NoSuchMethodException ex) {
+            return null; // the method was not found
+        } catch (SecurityException ex) {
+            return null; // setAccessible not allowed by security policy
+        } catch (ClassNotFoundException ex) {
+            return null; // the direct buffer implementation was not found
+        }
+    }
+    
+    private static void loadCleanerMethods() {
+        // If its already true, exit, if not, set it to true.
+        if (loadedMethods.getAndSet(true)) {
+            return;
+        }
+        // This could potentially be called many times if used from multiple
+        // threads
+        synchronized (loadedMethods) {
+            // Oracle JRE / OpenJDK
+            cleanerMethod = loadMethod("sun.nio.ch.DirectBuffer", "cleaner");
+            cleanMethod = loadMethod("sun.misc.Cleaner", "clean");
+            viewedBufferMethod = loadMethod("sun.nio.ch.DirectBuffer", "viewedBuffer");
+            
+            // Apache Harmony
+            freeMethod = loadMethod("java.nio.DirectByteBuffer", "free");
+            
+            // GUN Classpath (not likely)
+            //finalizeMethod = loadMethod("java.nio.DirectByteBufferImpl", "finalize");
+        }
+    }
+    
     /**
     * Direct buffers are garbage collected by using a phantom reference and a
     * reference queue. Every once a while, the JVM checks the reference queue and
@@ -1157,27 +1199,27 @@ public final class BufferUtils {
     *          
     */
     public static void destroyDirectBuffer(Buffer toBeDestroyed) {
-    
         if (!toBeDestroyed.isDirect()) {
             return;
         }
+        
+        loadCleanerMethods();
+        
         try {
-            Method cleanerMethod = toBeDestroyed.getClass().getMethod("cleaner");
-            cleanerMethod.setAccessible(true);
-            Object cleaner = cleanerMethod.invoke(toBeDestroyed);
-            if (cleaner != null) {
-                Method cleanMethod = cleaner.getClass().getMethod("clean");
-                cleanMethod.setAccessible(true);
-                cleanMethod.invoke(cleaner);
+            if (freeMethod != null) {
+                freeMethod.invoke(toBeDestroyed);
             } else {
-                // Try the alternate approach of getting the viewed buffer
-                Method viewedBufferMethod = toBeDestroyed.getClass().getMethod("viewedBuffer");
-                viewedBufferMethod.setAccessible(true);
-                Object viewedBuffer = viewedBufferMethod.invoke(toBeDestroyed);
-                if (viewedBuffer != null) {
-                    destroyDirectBuffer( (Buffer)viewedBuffer );
+                Object cleaner = cleanerMethod.invoke(toBeDestroyed);
+                if (cleaner != null) {
+                    cleanMethod.invoke(cleaner);
                 } else {
-                    Logger.getLogger(BufferUtils.class.getName()).log(Level.SEVERE, "Buffer cannot be destroyed: {0}", toBeDestroyed);
+                    // Try the alternate approach of getting the viewed buffer first
+                    Object viewedBuffer = viewedBufferMethod.invoke(toBeDestroyed);
+                    if (viewedBuffer != null) {
+                        destroyDirectBuffer((Buffer) viewedBuffer);
+                    } else {
+                        Logger.getLogger(BufferUtils.class.getName()).log(Level.SEVERE, "Buffer cannot be destroyed: {0}", toBeDestroyed);
+                    }
                 }
             }
         } catch (IllegalAccessException ex) {
@@ -1186,11 +1228,8 @@ public final class BufferUtils {
             Logger.getLogger(BufferUtils.class.getName()).log(Level.SEVERE, "{0}", ex);
         } catch (InvocationTargetException ex) {
             Logger.getLogger(BufferUtils.class.getName()).log(Level.SEVERE, "{0}", ex);
-        } catch (NoSuchMethodException ex) {
-            Logger.getLogger(BufferUtils.class.getName()).log(Level.SEVERE, "{0}", ex);
         } catch (SecurityException ex) {
             Logger.getLogger(BufferUtils.class.getName()).log(Level.SEVERE, "{0}", ex);
         }
     }
-
 }
