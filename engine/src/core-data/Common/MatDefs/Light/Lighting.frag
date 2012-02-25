@@ -126,6 +126,10 @@ vec2 computeLighting(in vec3 wvNorm, in vec3 wvViewDir, in vec3 wvLightDir){
     float att = vLightDir.w;
    #endif
 
+   if (m_Shininess <= 1.0) {
+       specularFactor = 0.0; // should be one instruction on most cards ..
+   }
+
    specularFactor *= diffuseFactor;
 
    return vec2(diffuseFactor, specularFactor) * vec2(att);
