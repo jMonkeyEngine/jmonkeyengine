@@ -241,13 +241,6 @@ public abstract class SimpleApplication extends Application {
         rootNode.updateGeometricState();
         guiNode.updateGeometricState();
 
-        // Moving this here to make sure it is always done.
-        // Now the sets are cleared every frame (guaranteed)
-        // and more than one viewer can access the data.  This
-        // used to be cleared by StatsView but then only StatsView
-        // could get accurate counts.
-        renderer.getStatistics().clearFrame();        
-                
         // render states
         stateManager.render(renderManager);
         renderManager.render(tpf, context.isRenderable());

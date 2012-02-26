@@ -105,7 +105,7 @@ public class StatsView extends Node implements Control {
             labels[i].setText(stringBuilder);
         }
         
-        // Moved to SimpleApplication to make sure it is
+        // Moved to ResetStatsState to make sure it is
         // done even if there is no StatsView or the StatsView
         // is disable.
         //statistics.clearFrame();

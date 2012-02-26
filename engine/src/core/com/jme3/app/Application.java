@@ -290,6 +290,10 @@ public class Application implements SystemListener {
 
     private void initStateManager(){
         stateManager = new AppStateManager(this);
+        
+        // Always register a ResetStatsState to make sure
+        // that the stats are cleared every frame
+        stateManager.attach(new ResetStatsState());
     }
 
     /**
