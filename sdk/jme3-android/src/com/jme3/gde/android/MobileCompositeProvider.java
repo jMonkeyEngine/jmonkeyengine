@@ -66,7 +66,7 @@ public class MobileCompositeProvider implements ProjectCustomizer.CompositeCateg
         public SavePropsListener(ProjectExtensionProperties props, Project project) {
             this.properties = props;
             this.project = project;
-            manager.setAntTaskLibrary("jme3-android");
+            manager.setAntTaskLibrary("android-base");
         }
 
         public void actionPerformed(ActionEvent e) {

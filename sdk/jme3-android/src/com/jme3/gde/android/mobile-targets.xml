@@ -47,7 +47,7 @@
         <echo>Adding libraries for android.</echo>
         <copy todir="mobile/libs" flatten="true">
             <path>
-                <pathelement path="${libs.jme3-android.classpath}"/>
+                <pathelement path="${libs.android-base.classpath}"/>
             </path>
         </copy>
         <antcall target="-unzip-bullet-libs"/>
