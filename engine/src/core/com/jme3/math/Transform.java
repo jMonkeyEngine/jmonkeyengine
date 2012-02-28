@@ -261,7 +261,7 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     }
 
     /**
-     * Loads the identity.  Equal to translation=1,1,1 scale=0,0,0 rot=0,0,0,1.
+     * Loads the identity.  Equal to translation=0,0,0 scale=1,1,1 rot=0,0,0,1.
      */
     public void loadIdentity() {
         translation.set(0,0,0);
