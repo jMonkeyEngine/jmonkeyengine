@@ -712,9 +712,8 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
         } else if (qName.equals("geometry")
                 || qName.equals("sharedgeometry")) {
             // finish writing to buffers
-            IntMap<VertexBuffer> bufs = mesh.getBuffers();
-            for (Entry<VertexBuffer> entry : bufs) {
-                Buffer data = entry.getValue().getData();
+            for (VertexBuffer buf : mesh.getBufferList().getArray()) {
+                Buffer data = buf.getData();
                 if (data.position() != 0) {
                     data.flip();
                 }

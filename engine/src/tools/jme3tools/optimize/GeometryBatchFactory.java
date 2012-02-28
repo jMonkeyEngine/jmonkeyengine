@@ -130,9 +130,9 @@ public class GeometryBatchFactory {
                     throw new UnsupportedOperationException();
             }
 
-            for (Entry<VertexBuffer> entry : geom.getMesh().getBuffers()) {
-                compsForBuf[entry.getKey()] = entry.getValue().getNumComponents();
-                formatForBuf[entry.getKey()] = entry.getValue().getFormat();
+            for (VertexBuffer vb : geom.getMesh().getBufferList().getArray()){
+                compsForBuf[vb.getBufferType().ordinal()] = vb.getNumComponents();
+                formatForBuf[vb.getBufferType().ordinal()] = vb.getFormat();
             }
 
             if (mode != null && mode != listMode) {
@@ -209,7 +209,7 @@ public class GeometryBatchFactory {
                     FloatBuffer inPos = (FloatBuffer) inBuf.getDataReadOnly();
                     FloatBuffer outPos = (FloatBuffer) outBuf.getData();
                     doTransformNorms(inPos, globalVertIndex, outPos, worldMatrix);
-                }else if(Type.Tangent.ordinal() == bufType){                    
+                }else if(Type.Tangent.ordinal() == bufType){                
                     FloatBuffer inPos = (FloatBuffer) inBuf.getDataReadOnly();
                     FloatBuffer outPos = (FloatBuffer) outBuf.getData();
                     int components = inBuf.getNumComponents();

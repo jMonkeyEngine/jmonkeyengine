@@ -69,7 +69,7 @@ public class ModelConverter {
         ts.setListsOnly(listOnly);
         ts.setMinStripSize(minStripSize);
 
-        IndexBuffer ib = mesh.getIndexBuffer();
+        IndexBuffer ib = mesh.getIndicesAsList();
         int[] indices = new int[ib.size()];
         for (int i = 0; i < indices.length; i++)
             indices[i] = ib.get(i);
@@ -157,7 +157,7 @@ public class ModelConverter {
                 mesh.setBuffer(vb);
             }
         }
-        mesh.setInterleaved();
+        //mesh.setInterleaved();
     }
 
     private static void optimizeScene(Spatial source, boolean toFixed){

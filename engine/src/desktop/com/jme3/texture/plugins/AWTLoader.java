@@ -33,6 +33,7 @@
 package com.jme3.texture.plugins;
 
 import com.jme3.asset.AssetInfo;
+import com.jme3.asset.AssetLoadException;
 import com.jme3.asset.AssetLoader;
 import com.jme3.asset.TextureKey;
 import com.jme3.texture.Image;
@@ -185,27 +186,30 @@ public class AWTLoader implements AssetLoader {
     public Image load(InputStream in, boolean flipY) throws IOException{
         ImageIO.setUseCache(false);
         BufferedImage img = ImageIO.read(in);
-        if (img == null)
+        if (img == null){
             return null;
-
+        }
         return load(img, flipY);
     }
 
     public Object load(AssetInfo info) throws IOException {
-        if (ImageIO.getImageWritersBySuffix(info.getKey().getExtension()) != null){
-            
+        if (ImageIO.getImageReadersBySuffix(info.getKey().getExtension()) != null){
             boolean flip = ((TextureKey) info.getKey()).isFlipY();
             InputStream in = null;
             try {
                 in = info.openStream();
                 Image img = load(in, flip);
+                if (img == null){
+                    throw new AssetLoadException("The given image cannot be loaded " + info.getKey());
+                }
                 return img;
             } finally {
                 if (in != null){
                     in.close();
                 }
             }
+        }else{
+            throw new AssetLoadException("The extension " + info.getKey().getExtension() + " is not supported");
         }
-        return null;
     }
 }

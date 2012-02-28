@@ -730,10 +730,9 @@ public class RenderManager {
             gm.getMaterial().preload(this);
             Mesh mesh = gm.getMesh();
             if (mesh != null) {
-                for (Entry<VertexBuffer> entry : mesh.getBuffers()) {
-                    VertexBuffer buf = entry.getValue();
-                    if (buf.getData() != null) {
-                        renderer.updateBufferData(buf);
+                for (VertexBuffer vb : mesh.getBufferList().getArray()) {
+                    if (vb.getData() != null) {
+                        renderer.updateBufferData(vb);
                     }
                 }
             }

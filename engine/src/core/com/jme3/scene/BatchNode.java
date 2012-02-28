@@ -408,9 +408,9 @@ public class BatchNode extends Node implements Savable {
                     throw new UnsupportedOperationException();
             }
 
-            for (Entry<VertexBuffer> entry : geom.getMesh().getBuffers()) {
-                compsForBuf[entry.getKey()] = entry.getValue().getNumComponents();
-                formatForBuf[entry.getKey()] = entry.getValue().getFormat();
+            for (VertexBuffer vb : geom.getMesh().getBufferList().getArray()) {
+                compsForBuf[vb.getBufferType().ordinal()] = vb.getNumComponents();
+                formatForBuf[vb.getBufferType().ordinal()] = vb.getFormat();
             }
 
             if (mode != null && mode != listMode) {

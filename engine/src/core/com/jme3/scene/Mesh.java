@@ -43,7 +43,6 @@ import com.jme3.math.Matrix4f;
 import com.jme3.math.Triangle;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
-import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.VertexBuffer.Format;
 import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.scene.VertexBuffer.Usage;
@@ -55,8 +54,6 @@ import com.jme3.util.SafeArrayList;
 import java.io.IOException;
 import java.nio.*;
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * <code>Mesh</code> is used to store rendering data.
@@ -237,9 +234,9 @@ public class Mesh implements Savable, Cloneable {
 
             clone.buffers = new IntMap<VertexBuffer>();
             clone.buffersList = new SafeArrayList<VertexBuffer>(VertexBuffer.class);
-            for (Entry<VertexBuffer> ent : buffers){
-                VertexBuffer bufClone = ent.getValue().clone();
-                clone.buffers.put(ent.getKey(), bufClone);
+            for (VertexBuffer vb : buffersList.getArray()){
+                VertexBuffer bufClone = vb.clone();
+                clone.buffers.put(vb.getBufferType().ordinal(), bufClone);
                 clone.buffersList.add(bufClone);
             }
             
@@ -540,8 +537,8 @@ public class Mesh implements Savable, Cloneable {
      * for all {@link VertexBuffer vertex buffers} on this Mesh.
      */
     public void setStatic() {
-        for (Entry<VertexBuffer> entry : buffers){
-            entry.getValue().setUsage(Usage.Static);
+        for (VertexBuffer vb : buffersList.getArray()){
+            vb.setUsage(Usage.Static);
         }
     }
 
@@ -551,8 +548,8 @@ public class Mesh implements Savable, Cloneable {
      * for all {@link VertexBuffer vertex buffers} on this Mesh.
      */
     public void setDynamic() {
-        for (Entry<VertexBuffer> entry : buffers){
-            entry.getValue().setUsage(Usage.Dynamic);
+        for (VertexBuffer vb : buffersList.getArray()){
+            vb.setUsage(Usage.Dynamic);
         }
     }
 
@@ -562,8 +559,8 @@ public class Mesh implements Savable, Cloneable {
      * for all {@link VertexBuffer vertex buffers} on this Mesh.
      */
     public void setStreamed(){
-        for (Entry<VertexBuffer> entry : buffers){
-            entry.getValue().setUsage(Usage.Stream);
+        for (VertexBuffer vb : buffersList.getArray()){
+            vb.setUsage(Usage.Stream);
         }
     }
 
@@ -575,9 +572,8 @@ public class Mesh implements Savable, Cloneable {
     @Deprecated
     public void setInterleaved(){
         ArrayList<VertexBuffer> vbs = new ArrayList<VertexBuffer>();
-        for (Entry<VertexBuffer> entry : buffers){
-            vbs.add(entry.getValue());
-        }
+        vbs.addAll(buffersList);
+        
 //        ArrayList<VertexBuffer> vbs = new ArrayList<VertexBuffer>(buffers.values());
         // index buffer not included when interleaving
         vbs.remove(getBuffer(Type.Index));

@@ -117,7 +117,13 @@ public class TangentBinormalGenerator {
             }
         } else {
             Geometry geom = (Geometry) scene;
-            generate(geom.getMesh());
+            Mesh mesh = geom.getMesh();
+            
+            // Check to ensure mesh has texcoords and normals before generating
+            if (mesh.getBuffer(Type.TexCoord) != null 
+             && mesh.getBuffer(Type.Normal) != null){
+                generate(geom.getMesh());
+            }
         }
     }
     
@@ -640,7 +646,7 @@ public class TangentBinormalGenerator {
         lineMesh.setBuffer(Type.Color, 4, lineColor);
         
         lineMesh.setStatic();
-        lineMesh.setInterleaved();
+        //lineMesh.setInterleaved();
         return lineMesh;
     }
     
@@ -733,7 +739,7 @@ public class TangentBinormalGenerator {
         lineMesh.setBuffer(Type.Color, 4, lineColor);
         
         lineMesh.setStatic();
-        lineMesh.setInterleaved();
+        //lineMesh.setInterleaved();
         return lineMesh;
     }
 }
