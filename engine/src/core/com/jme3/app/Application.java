@@ -584,6 +584,17 @@ public class Application implements SystemListener {
             }
             task.invoke();
         } while (((task = taskQueue.poll()) != null));
+        
+        /* I think the above is really just doing this:
+        AppTask<?> task;
+        while( (task = taskQueue.poll()) != null ) {
+            if (!task.isCancelled()) {
+                task.invoke();
+            }
+        }
+        //...but it's hard to say for sure.  It's so twisted
+        //up that I don't trust my eyes.  -pspeed
+        */ 
     
         if (speed == 0 || paused)
             return;
