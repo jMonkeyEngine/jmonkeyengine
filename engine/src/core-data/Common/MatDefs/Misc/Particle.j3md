@@ -4,6 +4,10 @@ MaterialDef Point Sprite {
         Texture2D Texture
         Float Quadratic
         Boolean PointSprite
+        
+        //only used for soft particles
+        Texture2D DepthTexture
+        Float Softness
 
         // Texture of the glowing parts of the material
         Texture2D GlowMap
@@ -40,6 +44,28 @@ MaterialDef Point Sprite {
 
         VertexShader   GLSL100 : Common/MatDefs/Misc/Particle.vert
         FragmentShader GLSL100 : Common/MatDefs/Misc/Particle.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+            WorldViewMatrix
+            WorldMatrix
+            CameraPosition
+        }
+
+        RenderState {
+            Blend AlphaAdditive
+            DepthWrite Off
+        }
+
+        Defines {
+            USE_TEXTURE : Texture
+        }
+    }
+
+    Technique SoftParticles{
+
+        VertexShader   GLSL100 : Common/MatDefs/Misc/SoftParticle.vert
+        FragmentShader GLSL100 : Common/MatDefs/Misc/SoftParticle.frag
 
         WorldParameters {
             WorldViewProjectionMatrix

@@ -40,6 +40,7 @@ import com.jme3.renderer.Renderer;
 import com.jme3.renderer.ViewPort;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Image.Format;
+import com.jme3.texture.Texture;
 import com.jme3.texture.Texture2D;
 import java.io.IOException;
 import java.util.Collection;
@@ -236,7 +237,7 @@ public abstract class Filter implements Savable {
      * cleanup this filter
      * @param r
      */
-    protected final void cleanup(Renderer r) {
+    protected final void cleanup(Renderer r) {   
         processor = null;
         if (defaultPass != null) {
             defaultPass.cleanup(r);
@@ -269,8 +270,6 @@ public abstract class Filter implements Savable {
     protected void cleanUpFilter(Renderer r) {
     }
 
-    ;
-
     /**
      * Must return the material used for this filter.
      * this method is called every frame.
@@ -278,6 +277,14 @@ public abstract class Filter implements Savable {
      * @return the material used for this filter.
      */
     protected abstract Material getMaterial();
+    
+    /**
+     * Override if you want to do something special with the depth texture;
+     * @param depthTexture 
+     */
+    protected void setDepthTexture(Texture depthTexture){
+        getMaterial().setTexture("DepthTexture", depthTexture);
+    }
 
     /**
      * Override this method if you want to make a pre pass, before the actual rendering of the frame

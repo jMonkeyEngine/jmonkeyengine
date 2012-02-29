@@ -77,7 +77,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
     private int originalHeight;
     private int lastFilterIndex = -1;
     private boolean cameraInit = false;
-
+    
     /**
      * Create a FilterProcessor 
      * @param assetManager the assetManager
@@ -98,8 +98,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
      * @param filter the filter to add
      */
     public void addFilter(Filter filter) {
-        filters.add(filter);
-        filter.setProcessor(this);
+        filters.add(filter);        
 
         if (isInitialized()) {
             initFilter(filter, viewPort);
@@ -148,14 +147,17 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
      * @param vp 
      */
     private void initFilter(Filter filter, ViewPort vp) {
-        filter.init(assetManager, renderManager, vp, width, height);
+        filter.setProcessor(this);
         if (filter.isRequiresDepthTexture()) {
-            if (!computeDepth && renderFrameBuffer != null) {
+            if (!computeDepth && renderFrameBuffer != null) {                
                 depthTexture = new Texture2D(width, height, Format.Depth24);
                 renderFrameBuffer.setDepthTexture(depthTexture);
             }
             computeDepth = true;
-            filter.getMaterial().setTexture("DepthTexture", depthTexture);
+            filter.init(assetManager, renderManager, vp, width, height);
+            filter.setDepthTexture(depthTexture);
+        } else {
+            filter.init(assetManager, renderManager, vp, width, height);
         }
     }
 
@@ -281,9 +283,9 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
         } else if (renderFrameBufferMS != null) {
             sceneBuffer = renderFrameBufferMS;
         }
-        renderFilterChain(renderer, sceneBuffer);        
+        renderFilterChain(renderer, sceneBuffer);
         renderer.setFrameBuffer(outputBuffer);
-        
+
         //viewport can be null if no filters are enabled
         if (viewPort != null) {
             renderManager.setCamera(viewPort.getCamera(), false);
@@ -356,8 +358,11 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
             //reseting the viewport camera viewport to its initial value
             viewPort.getCamera().resize(originalWidth, originalHeight, true);
             viewPort.getCamera().setViewPort(left, right, bottom, top);
-            viewPort.setOutputFrameBuffer(outputBuffer);          
+            viewPort.setOutputFrameBuffer(outputBuffer);            
             viewPort = null;
+            for (Filter filter : filters) {
+                filter.cleanup(renderer);
+            }
         }
 
     }
@@ -484,7 +489,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
      * For internal use only<br>
      * returns the depth texture of the scene
      * @return 
-     */
+     */    
     public Texture2D getDepthTexture() {
         return depthTexture;
     }
