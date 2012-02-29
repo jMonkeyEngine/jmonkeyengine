@@ -56,8 +56,8 @@ public class TextureBlenderAWT extends AbstractTextureBlender {
 		float[] resultPixel = new float[4];
 		int dataIndex = 0;
 		while (data.hasRemaining()) {
-			float tin = this.setupMaterialColor(data, format, neg, pixelColor);
-			this.blendPixel(resultPixel, materialColor, color, tin, blendType, blenderContext);
+			this.setupMaterialColor(data, format, neg, pixelColor);
+			this.blendPixel(resultPixel, materialColor, pixelColor, affectFactor, blendType, blenderContext);
 			newData.put(dataIndex++, (byte) (resultPixel[0] * 255.0f));
 			newData.put(dataIndex++, (byte) (resultPixel[1] * 255.0f));
 			newData.put(dataIndex++, (byte) (resultPixel[2] * 255.0f));
