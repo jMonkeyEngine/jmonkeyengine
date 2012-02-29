@@ -31,9 +31,7 @@
  */
 package com.jme3.renderer.android;
 
-import android.graphics.Bitmap;
 import android.opengl.GLES10;
-import android.opengl.GLES11;
 import android.opengl.GLES20;
 import android.os.Build;
 import com.jme3.asset.AndroidImageInfo;
@@ -60,14 +58,11 @@ import com.jme3.texture.Texture.WrapAxis;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.ListMap;
 import com.jme3.util.NativeObjectManager;
-import com.jme3.util.SafeArrayList;
 import java.nio.*;
-import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.microedition.khronos.opengles.GL10;
 
 public class OGLESShaderRenderer implements Renderer {
 
@@ -360,24 +355,9 @@ public class OGLESShaderRenderer implements Renderer {
         }
 
         applyRenderState(RenderState.DEFAULT);
-//        GLES20.glClearDepthf(1.0f);
-
-        if (verboseLogging) {
-            logger.info("GLES20.glDisable(GL10.GL_DITHER)");
-        }
-
-        GLES20.glDisable(GL10.GL_DITHER);
+        GLES20.glDisable(GLES20.GL_DITHER);
 
         checkGLError();
-
-        if (verboseLogging) {
-            logger.info("GLES20.glHint(GL10.GL_PERSPECTIVE_CORRECTION_HINT, GL10.GL_FASTEST)");
-        }
-         
-        //It seems that GL10.GL_PERSPECTIVE_CORRECTION_HINT gives invalid_enum error on android.        
-//        GLES20.glHint(GL10.GL_PERSPECTIVE_CORRECTION_HINT, GL10.GL_FASTEST);
-
-//	checkGLError();
 
         useVBO = false;
         
@@ -1779,10 +1759,8 @@ public class OGLESShaderRenderer implements Renderer {
 
     private int convertWrapMode(Texture.WrapMode mode) {
         switch (mode) {
-//            case BorderClamp:
-//                return GLES20.GL_CLAMP_TO_BORDER;
-//            case Clamp:
-//                return GLES20.GL_CLAMP;
+            case BorderClamp:
+            case Clamp:
             case EdgeClamp:
                 return GLES20.GL_CLAMP_TO_EDGE;
             case Repeat:
@@ -2557,7 +2535,7 @@ public class OGLESShaderRenderer implements Renderer {
                     logger.log(Level.INFO, "glDrawElements(), indexBuf.capacity ({0}), vertCount ({1})", new Object[]{indexBuf.getData().capacity(), vertCount});
                 }
 
-                GLES11.glDrawElements(
+                GLES20.glDrawElements(
                         convertElementMode(mesh.getMode()),
                         indexBuf.getData().capacity(),
                         convertFormat(indexBuf.getFormat()),
