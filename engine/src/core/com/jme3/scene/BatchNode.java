@@ -46,6 +46,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -190,10 +191,10 @@ public class BatchNode extends Node implements Savable {
             }
             batches.clear();
         }
-        
-        for (Material material : matMap.keySet()) {
+        for (Map.Entry<Material, List<Geometry>> entry : matMap.entrySet()) {
             Mesh m = new Mesh();
-            List<Geometry> list = matMap.get(material);
+            Material material = entry.getKey();
+            List<Geometry> list = entry.getValue();
             nbGeoms += list.size();
             if (!needsFullRebatch) {
                 list.add(batches.get(material).geometry);
