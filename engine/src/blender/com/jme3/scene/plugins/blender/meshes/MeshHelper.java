@@ -31,6 +31,14 @@
  */
 package com.jme3.scene.plugins.blender.meshes;
 
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
 import com.jme3.asset.BlenderKey.FeaturesToLoad;
 import com.jme3.material.Material;
 import com.jme3.math.FastMath;
@@ -57,10 +65,6 @@ import com.jme3.scene.plugins.blender.textures.TextureHelper;
 import com.jme3.scene.plugins.blender.textures.UVCoordinatesGenerator;
 import com.jme3.texture.Texture;
 import com.jme3.util.BufferUtils;
-import java.nio.ByteBuffer;
-import java.nio.FloatBuffer;
-import java.util.*;
-import java.util.Map.Entry;
 
 /**
  * A class that is used in mesh calculations.
@@ -300,12 +304,13 @@ public class MeshHelper extends AbstractBlenderHelper {
         // generating meshes
         //FloatBuffer verticesColorsBuffer = this.createFloatBuffer(verticesColors);
         ByteBuffer verticesColorsBuffer = createByteBuffer(verticesColors);
+        verticesAmount = vertexList.size();
         for (Entry<Integer, List<Integer>> meshEntry : meshesMap.entrySet()) {
             Mesh mesh = new Mesh();
 
             // creating vertices indices for this mesh
             List<Integer> indexList = meshEntry.getValue();
-            if(verticesAmount < Short.MAX_VALUE * 2) {
+            if(verticesAmount <= Short.MAX_VALUE) {
             	short[] indices = new short[indexList.size()];
                 for (int i = 0; i < indexList.size(); ++i) {
                     indices[i] = indexList.get(i).shortValue();
