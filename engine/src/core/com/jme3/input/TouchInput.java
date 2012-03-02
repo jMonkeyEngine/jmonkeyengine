@@ -73,6 +73,12 @@ public interface TouchInput extends Input {
      * @param simulate if mouse events should be generated
      */
     public void setSimulateMouse(boolean simulate);
+    
+    /**
+     * Get if mouse events are generated
+     *
+     */
+    public boolean getSimulateMouse();
 
     /**
      * Set if keyboard events should be generated

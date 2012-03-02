@@ -578,6 +578,10 @@ public class AndroidInput extends GLSurfaceView implements
     public void setSimulateMouse(boolean simulate) {
         mouseEventsEnabled = simulate;
     }
+    @Override
+    public boolean getSimulateMouse() {
+        return mouseEventsEnabled;
+    }
 
     @Override
     public void setSimulateKeyboard(boolean simulate) {
