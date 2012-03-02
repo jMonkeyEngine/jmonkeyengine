@@ -736,7 +736,7 @@ public class InputManager implements RawInputListener {
      *
      */
     public boolean getSimulateMouse() {
-        if (touch != null) {
+        if (touch != null) {           
             return touch.getSimulateMouse();
         } else {
             return false;

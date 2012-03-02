@@ -32,22 +32,32 @@
 package com.jme3.system.android;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.opengl.GLSurfaceView;
+import android.text.InputType;
+import android.view.Gravity;
 import android.view.SurfaceHolder;
+import android.view.ViewGroup.LayoutParams;
+import android.widget.EditText;
+import android.widget.FrameLayout;
 import com.jme3.app.AndroidHarness;
 import com.jme3.app.Application;
 import com.jme3.input.JoyInput;
 import com.jme3.input.KeyInput;
 import com.jme3.input.MouseInput;
+import com.jme3.input.SoftTextDialogInput;
 import com.jme3.input.TouchInput;
 import com.jme3.input.android.AndroidInput;
+import com.jme3.input.controls.SoftTextDialogInputListener;
 import com.jme3.input.controls.TouchTrigger;
 import com.jme3.input.dummy.DummyKeyInput;
 import com.jme3.input.dummy.DummyMouseInput;
 import com.jme3.renderer.android.OGLESShaderRenderer;
 import com.jme3.system.AppSettings;
 import com.jme3.system.JmeContext;
+import com.jme3.system.JmeSystem;
 import com.jme3.system.SystemListener;
 import com.jme3.system.Timer;
 import com.jme3.system.android.AndroidConfigChooser.ConfigType;
@@ -60,7 +70,7 @@ import javax.microedition.khronos.egl.EGLContext;
 import javax.microedition.khronos.egl.EGLDisplay;
 import javax.microedition.khronos.opengles.GL10;
 
-public class OGLESContext implements JmeContext, GLSurfaceView.Renderer {
+public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTextDialogInput {
 
     private static final Logger logger = Logger.getLogger(OGLESContext.class.getName());
     protected final AtomicBoolean created = new AtomicBoolean(false);
@@ -77,7 +87,6 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer {
     protected boolean autoFlush = true;
     protected AndroidInput view;
     private boolean firstDrawFrame = true;
-
     //protected int minFrameDuration = 1000 / frameRate;  // Set a max FPS of 33
     protected int minFrameDuration = 0;                   // No FPS cap
     /**
@@ -163,7 +172,7 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer {
                     listener.handleError("OpenGL ES 2.0 is not supported on this device", null);
                     return null;
                 }
-                
+
                 // Requesting client version from GLSurfaceView which is extended by
                 // AndroidInput.
                 view.setEGLContextClientVersion(clientOpenGLESVersion);
@@ -211,12 +220,14 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer {
         // Setup unhandled Exception Handler
         if (ctx instanceof AndroidHarness) {
             Thread.currentThread().setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+
                 public void uncaughtException(Thread thread, Throwable thrown) {
                     ((AndroidHarness) ctx).handleError("Exception thrown in " + thread.toString(), thrown);
                 }
             });
         } else {
             Thread.currentThread().setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+
                 public void uncaughtException(Thread thread, Throwable thrown) {
                     listener.handleError("Exception thrown in " + thread.toString(), thrown);
                 }
@@ -244,6 +255,8 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer {
                 app.getInputManager().addListener((AndroidHarness) ctx, new String[]{ESCAPE_EVENT});
             }
         }
+
+        JmeSystem.setSoftTextDialogInput(this);
 
         needClose.set(false);
         renderable.set(true);
@@ -442,5 +455,68 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer {
 
     public int getClientOpenGLESVersion() {
         return clientOpenGLESVersion;
+    }
+
+    public void requestDialog(final int id, final String title, final String initialValue, final SoftTextDialogInputListener listener) {
+        logger.log(Level.INFO, "requestDialog: title: {0}, initialValue: {1}",
+                new Object[]{title, initialValue});
+
+        JmeAndroidSystem.getActivity().runOnUiThread(new Runnable() {
+
+            @Override
+            public void run() {
+
+                final FrameLayout layoutTextDialogInput = new FrameLayout(JmeAndroidSystem.getActivity());
+                final EditText editTextDialogInput = new EditText(JmeAndroidSystem.getActivity());
+                editTextDialogInput.setWidth(LayoutParams.FILL_PARENT);
+                editTextDialogInput.setHeight(LayoutParams.FILL_PARENT);
+                editTextDialogInput.setPadding(20, 20, 20, 20);
+                editTextDialogInput.setGravity(Gravity.FILL_HORIZONTAL);
+
+                editTextDialogInput.setText(initialValue);
+
+                switch (id) {
+                    case SoftTextDialogInput.TEXT_ENTRY_DIALOG:
+
+                        editTextDialogInput.setInputType(InputType.TYPE_CLASS_TEXT);
+                        break;
+
+                    case SoftTextDialogInput.NUMERIC_ENTRY_DIALOG:
+
+                        editTextDialogInput.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL | InputType.TYPE_NUMBER_FLAG_SIGNED);
+                        break;
+
+                    case SoftTextDialogInput.NUMERIC_KEYPAD_DIALOG:
+
+                        editTextDialogInput.setInputType(InputType.TYPE_CLASS_PHONE);
+                        break;
+
+                    default:
+                        break;
+                }
+
+                layoutTextDialogInput.addView(editTextDialogInput);
+
+                AlertDialog dialogTextInput = new AlertDialog.Builder(JmeAndroidSystem.getActivity()).setTitle(title).setView(layoutTextDialogInput).setPositiveButton("OK",
+                        new DialogInterface.OnClickListener() {
+
+                            public void onClick(DialogInterface dialog, int whichButton) {
+                                /* User clicked OK, send COMPLETE action
+                                 * and text */
+                                listener.onSoftText(SoftTextDialogInputListener.COMPLETE, editTextDialogInput.getText().toString());
+                            }
+                        }).setNegativeButton("Cancel",
+                        new DialogInterface.OnClickListener() {
+
+                            public void onClick(DialogInterface dialog, int whichButton) {
+                                /* User clicked CANCEL, send CANCEL action
+                                 * and text */
+                                listener.onSoftText(SoftTextDialogInputListener.CANCEL, editTextDialogInput.getText().toString());
+                            }
+                        }).create();
+
+                dialogTextInput.show();
+            }
+        });
     }
 }

@@ -33,6 +33,7 @@ package com.jme3.system;
 
 import com.jme3.asset.AssetManager;
 import com.jme3.audio.AudioRenderer;
+import com.jme3.input.SoftTextDialogInput;
 import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
@@ -80,6 +81,16 @@ public class JmeSystem {
     public static boolean isLowPermissions() {
         checkDelegate();
         return systemDelegate.isLowPermissions();
+    }
+
+    public static void setSoftTextDialogInput(SoftTextDialogInput input) {
+        checkDelegate();
+        systemDelegate.setSoftTextDialogInput(input);
+    }
+
+    public static SoftTextDialogInput getSoftTextDialogInput() {
+        checkDelegate();
+        return systemDelegate.getSoftTextDialogInput();
     }
 
     public static AssetManager newAssetManager(URL configFile) {
