@@ -454,9 +454,11 @@ public final class OBJLoader implements AssetLoader {
 
         if (hasNormals){
             normBuf = BufferUtils.createFloatBuffer(vertIndexMap.size() * 3);
+            m.setBuffer(VertexBuffer.Type.Normal, 3, normBuf);
         }
         if (hasTexCoord){
             tcBuf = BufferUtils.createFloatBuffer(vertIndexMap.size() * 2);
+            m.setBuffer(VertexBuffer.Type.TexCoord, 2, tcBuf);
         }
 
         IndexBuffer indexBuf = null;
@@ -517,9 +519,7 @@ public final class OBJLoader implements AssetLoader {
         }
 
         m.setBuffer(VertexBuffer.Type.Position, 3, posBuf);
-        m.setBuffer(VertexBuffer.Type.Normal,   3, normBuf);
-        m.setBuffer(VertexBuffer.Type.TexCoord, 2, tcBuf);
-        // index buffer was set on creation
+        // index buffer and others were set on creation
 
         m.setStatic();
         m.updateBound();
