@@ -1,4 +1,5 @@
 uniform mat4 g_WorldViewProjectionMatrix;
+uniform vec4 m_Color; 
 
 attribute vec4 inPosition;
 attribute vec4 inColor;
@@ -12,5 +13,5 @@ void main() {
     gl_Position = vec4(pos, 0.0, 1.0);
 
     texCoord = inTexCoord;
-    color = inColor;
+    color = inColor * m_Color;
 }
