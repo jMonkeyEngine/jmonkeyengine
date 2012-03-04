@@ -236,16 +236,8 @@ public class RenderDeviceJme implements RenderDevice {
 //        niftyMat.getAdditionalRenderState().setBlendMode(convertBlend());
         text.setMaterial(niftyMat);
 
-        float width = text.getLineWidth();
-        float height = text.getLineHeight();        
-
-//        System.out.println("----------------------------------------------------");
-//        System.out.println("POS "+x+" "+width+" "+sizeX);
-        float x0 = x + 0.5f * width  * (1.0f - sizeX);
-        float y0 = y + 0.5f * height * (1.0f - sizeY);
-
         tempMat.loadIdentity();
-        tempMat.setTranslation(x0, getHeight() - y0, 0);
+        tempMat.setTranslation(x, getHeight() - y, 0);
         tempMat.setScale(sizeX, sizeY, 0);
 
         rm.setWorldMatrix(tempMat);
