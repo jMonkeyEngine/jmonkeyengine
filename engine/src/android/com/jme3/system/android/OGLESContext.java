@@ -282,6 +282,13 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
             logger.info("Display destroyed.");
 
             renderable.set(false);
+            final Context ctx = this.view.getContext();
+            if (ctx instanceof AndroidHarness) {
+                AndroidHarness harness = (AndroidHarness) ctx;
+                if (harness.isFinishOnAppStop()) {
+                    harness.finish();
+                }
+            }
         }
     }
 

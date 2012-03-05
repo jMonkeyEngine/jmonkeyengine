@@ -70,6 +70,10 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
      */
     protected boolean mouseEventsInvertY = true;
     /**
+     * if true finish this activity when the jme app is stopped
+     */
+    protected boolean finishOnAppStop = true;
+    /**
      * Title of the exit dialog, default is "Do you want to exit?"
      */
     protected String exitDialogTitle = "Do you want to exit?";
@@ -395,4 +399,10 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
             }
         }
     }
+
+    public boolean isFinishOnAppStop() {
+        return finishOnAppStop;
+    }
+    
+    
 }
