@@ -202,6 +202,9 @@ public class AppStateManager {
 
     protected void initializePending(){
         AppState[] array = getInitializing();
+        if (array.length == 0)
+            return;
+            
         synchronized( states ) {
             // Move the states that will be initialized
             // into the active array.  In all but one case the
@@ -219,6 +222,9 @@ public class AppStateManager {
     
     protected void terminatePending(){
         AppState[] array = getTerminating();
+        if (array.length == 0)
+            return;
+            
         for (AppState state : array) {
             state.cleanup();
         }        
