@@ -412,9 +412,8 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
         org.openide.awt.Mnemonics.setLocalizedText(radiusLabel, org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.radiusLabel.text")); // NOI18N
         jToolBar1.add(radiusLabel);
 
-        radiusSlider.setMajorTickSpacing(5);
-        radiusSlider.setMaximum(20);
-        radiusSlider.setMinorTickSpacing(1);
+        radiusSlider.setMajorTickSpacing(10);
+        radiusSlider.setMinorTickSpacing(5);
         radiusSlider.setPaintTicks(true);
         radiusSlider.setSnapToTicks(true);
         radiusSlider.setToolTipText(org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.radiusSlider.toolTipText")); // NOI18N

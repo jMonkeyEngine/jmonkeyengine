@@ -91,6 +91,9 @@ public class AddTerrainAction extends AbstractNewSpatialWizardAction {
             heightmap = (AbstractHeightMap) wizardDescriptor.getProperty("abstractHeightMap");
         if (heightmap != null) {
             heightmap.load(); // can take a while
+            Float smooth = (Float) wizardDescriptor.getProperty("heightMapSmooth");
+            if (smooth > 0)
+                heightmap.smooth(smooth, 2);
             heightmapData = heightmap.getHeightMap();
         }
 

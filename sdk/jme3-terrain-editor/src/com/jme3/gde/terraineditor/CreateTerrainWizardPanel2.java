@@ -31,9 +31,6 @@
  */
 package com.jme3.gde.terraineditor;
 
-import com.jme3.asset.AssetManager;
-import com.jme3.asset.TextureKey;
-import com.jme3.gde.core.scene.SceneApplication;
 import com.jme3.terrain.heightmap.AbstractHeightMap;
 import com.jme3.terrain.heightmap.HillHeightMap;
 import com.jme3.terrain.heightmap.ImageBasedHeightMap;
@@ -66,6 +63,7 @@ public class CreateTerrainWizardPanel2 implements WizardDescriptor.Panel {
     public Component getComponent() {
         if (component == null) {
             component = new CreateTerrainVisualPanel2();
+            ((CreateTerrainVisualPanel2)component).setWizardPanel(this);
         }
         return component;
     }
@@ -82,7 +80,7 @@ public class CreateTerrainWizardPanel2 implements WizardDescriptor.Panel {
         CreateTerrainVisualPanel2 comp = (CreateTerrainVisualPanel2) getComponent();
 
         if ("Image Based".equals(comp.getHeightmapTypeComboBox().getSelectedItem())) {
-            //new File(comp.getImageBrowseTextField().getText())
+            return comp.getImageBrowseTexture() != null;
         }
 
         return true;
@@ -104,6 +102,7 @@ public class CreateTerrainWizardPanel2 implements WizardDescriptor.Panel {
     synchronized (listeners) {
     listeners.add(l);
     }
+    System.out.println("############ Wizard panel listener added: "+l.toString());
     }
     public final void removeChangeListener(ChangeListener l) {
     synchronized (listeners) {
@@ -135,13 +134,21 @@ public class CreateTerrainWizardPanel2 implements WizardDescriptor.Panel {
 
         CreateTerrainVisualPanel2 comp = (CreateTerrainVisualPanel2) getComponent();
         
+        WizardDescriptor wiz = (WizardDescriptor) settings;
+        wiz.putProperty("abstractHeightMap", heightmap);
+        wiz.putProperty("heightMapSmooth", 0f);
+        
         if ("Flat".equals(comp.getHeightmapTypeComboBox().getSelectedItem()) ) {
             heightmap = new FlatHeightmap(terrainTotalSize);
         }
         else if ("Image Based".equals(comp.getHeightmapTypeComboBox().getSelectedItem()) ) {
-            AssetManager assetManager = SceneApplication.getApplication().getAssetManager();
-            Texture tex = assetManager.loadTexture(new TextureKey(comp.getImageBrowseTextField().getText()));
-            heightmap = new ImageBasedHeightMap(tex.getImage());
+            Texture tex = comp.getImageBrowseTexture();
+            float heightScale = comp.getHeightScale();
+            if (tex != null) {
+                heightmap = new ImageBasedHeightMap(tex.getImage(), heightScale);
+                Float smooth = comp.getSmoothEffect();
+                wiz.putProperty("heightMapSmooth", smooth);
+            }
         }
         else if ("Hill".equals(comp.getHeightmapTypeComboBox().getSelectedItem()) ) {
             int iterations = new Integer(comp.getHillIterationsTextField().getText());
@@ -155,7 +162,6 @@ public class CreateTerrainWizardPanel2 implements WizardDescriptor.Panel {
             }
         }
 
-        WizardDescriptor wiz = (WizardDescriptor) settings;
-        wiz.putProperty("abstractHeightMap", heightmap);
+        
     }
 }

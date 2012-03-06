@@ -4,9 +4,9 @@
  */
 package com.jme3.gde.terraineditor;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import com.jme3.gde.core.properties.TexturePropertyEditor;
+import com.jme3.texture.Texture;
+import java.awt.Component;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -14,7 +14,8 @@ import javax.swing.JTextField;
 public final class CreateTerrainVisualPanel2 extends JPanel {
 
     //String[] types = {"Flat", "Image Based", "Hill", "Fault Fractal"};
-
+    private Texture browsedTexture;
+    private CreateTerrainWizardPanel2 wizardPanel;
 
     /** Creates new form CreateTerrainVisualPanel2 */
     public CreateTerrainVisualPanel2() {
@@ -50,6 +51,11 @@ public final class CreateTerrainVisualPanel2 extends JPanel {
         _imageDescriptionLabel = new javax.swing.JLabel();
         _imageBrowseTextField = new javax.swing.JTextField();
         _imageBrowseButton = new javax.swing.JButton();
+        smoothIterationsLabel = new javax.swing.JLabel();
+        smoothSlider = new javax.swing.JSlider();
+        jLabel6 = new javax.swing.JLabel();
+        jLabel7 = new javax.swing.JLabel();
+        heightScale = new javax.swing.JTextField();
         _hillPanel = new javax.swing.JPanel();
         _hillDescriptionLabel = new javax.swing.JLabel();
         _hillIterationsTextField = new javax.swing.JTextField();
@@ -65,7 +71,7 @@ public final class CreateTerrainVisualPanel2 extends JPanel {
 
         imageFileChooser.setApproveButtonText(org.openide.util.NbBundle.getMessage(CreateTerrainVisualPanel2.class, "CreateTerrainVisualPanel2.imageFileChooser.approveButtonText")); // NOI18N
         imageFileChooser.setApproveButtonToolTipText(org.openide.util.NbBundle.getMessage(CreateTerrainVisualPanel2.class, "CreateTerrainVisualPanel2.imageFileChooser.approveButtonToolTipText")); // NOI18N
-        imageFileChooser.setCurrentDirectory(new java.io.File("C:\\Java\\NetBeans 6.9.1"));
+        imageFileChooser.setCurrentDirectory(new java.io.File("C:\\Program Files\\NetBeans 7.0"));
         imageFileChooser.setDialogTitle(org.openide.util.NbBundle.getMessage(CreateTerrainVisualPanel2.class, "CreateTerrainVisualPanel2.imageFileChooser.dialogTitle")); // NOI18N
 
         jLabel1.setFont(new java.awt.Font("Tahoma", 1, 12));
@@ -87,7 +93,7 @@ public final class CreateTerrainVisualPanel2 extends JPanel {
             .addGroup(_flatPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(_flatDescriptionLabel)
-                .addContainerGap(267, Short.MAX_VALUE))
+                .addContainerGap(269, Short.MAX_VALUE))
         );
         _flatPanelLayout.setVerticalGroup(
             _flatPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -99,6 +105,7 @@ public final class CreateTerrainVisualPanel2 extends JPanel {
 
         org.openide.awt.Mnemonics.setLocalizedText(_imageDescriptionLabel, org.openide.util.NbBundle.getMessage(CreateTerrainVisualPanel2.class, "CreateTerrainVisualPanel2._imageDescriptionLabel.text")); // NOI18N
 
+        _imageBrowseTextField.setEditable(false);
         _imageBrowseTextField.setText(org.openide.util.NbBundle.getMessage(CreateTerrainVisualPanel2.class, "CreateTerrainVisualPanel2._imageBrowseTextField.text")); // NOI18N
 
         org.openide.awt.Mnemonics.setLocalizedText(_imageBrowseButton, org.openide.util.NbBundle.getMessage(CreateTerrainVisualPanel2.class, "CreateTerrainVisualPanel2._imageBrowseButton.text")); // NOI18N
@@ -108,19 +115,50 @@ public final class CreateTerrainVisualPanel2 extends JPanel {
             }
         });
 
+        org.openide.awt.Mnemonics.setLocalizedText(smoothIterationsLabel, org.openide.util.NbBundle.getMessage(CreateTerrainVisualPanel2.class, "CreateTerrainVisualPanel2.smoothIterationsLabel.text")); // NOI18N
+
+        smoothSlider.setMinorTickSpacing(10);
+        smoothSlider.setPaintLabels(true);
+        smoothSlider.setPaintTicks(true);
+
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel6, org.openide.util.NbBundle.getMessage(CreateTerrainVisualPanel2.class, "CreateTerrainVisualPanel2.jLabel6.text")); // NOI18N
+
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel7, org.openide.util.NbBundle.getMessage(CreateTerrainVisualPanel2.class, "CreateTerrainVisualPanel2.jLabel7.text")); // NOI18N
+
+        heightScale.setText(org.openide.util.NbBundle.getMessage(CreateTerrainVisualPanel2.class, "CreateTerrainVisualPanel2.heightScale.text")); // NOI18N
+
         javax.swing.GroupLayout _imagePanelLayout = new javax.swing.GroupLayout(_imagePanel);
         _imagePanel.setLayout(_imagePanelLayout);
         _imagePanelLayout.setHorizontalGroup(
             _imagePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(_imagePanelLayout.createSequentialGroup()
-                .addContainerGap()
                 .addGroup(_imagePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(_imagePanelLayout.createSequentialGroup()
-                        .addComponent(_imageBrowseTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 246, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(_imageBrowseButton))
-                    .addComponent(_imageDescriptionLabel))
-                .addContainerGap(99, Short.MAX_VALUE))
+                        .addContainerGap()
+                        .addGroup(_imagePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(_imageDescriptionLabel)
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, _imagePanelLayout.createSequentialGroup()
+                                .addComponent(_imageBrowseTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 246, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(6, 6, 6)
+                                .addComponent(_imageBrowseButton)
+                                .addGap(606, 606, 606))))
+                    .addGroup(_imagePanelLayout.createSequentialGroup()
+                        .addContainerGap()
+                        .addGroup(_imagePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(_imagePanelLayout.createSequentialGroup()
+                                .addComponent(jLabel7)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(heightScale, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(_imagePanelLayout.createSequentialGroup()
+                                .addComponent(smoothIterationsLabel)
+                                .addGroup(_imagePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(_imagePanelLayout.createSequentialGroup()
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(smoothSlider, javax.swing.GroupLayout.PREFERRED_SIZE, 113, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addGroup(_imagePanelLayout.createSequentialGroup()
+                                        .addGap(119, 119, 119)
+                                        .addComponent(jLabel6)))))))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         _imagePanelLayout.setVerticalGroup(
             _imagePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -131,7 +169,17 @@ public final class CreateTerrainVisualPanel2 extends JPanel {
                 .addGroup(_imagePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(_imageBrowseTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(_imageBrowseButton))
-                .addContainerGap(44, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(_imagePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(smoothSlider, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(_imagePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(smoothIterationsLabel)
+                        .addComponent(jLabel6)))
+                .addGap(35, 35, 35)
+                .addGroup(_imagePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel7)
+                    .addComponent(heightScale, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(64, 64, 64))
         );
 
         org.openide.awt.Mnemonics.setLocalizedText(_hillDescriptionLabel, org.openide.util.NbBundle.getMessage(CreateTerrainVisualPanel2.class, "CreateTerrainVisualPanel2._hillDescriptionLabel.text")); // NOI18N
@@ -152,6 +200,25 @@ public final class CreateTerrainVisualPanel2 extends JPanel {
 
         _hillMaxRadiusTextField.setText(org.openide.util.NbBundle.getMessage(CreateTerrainVisualPanel2.class, "CreateTerrainVisualPanel2._hillMaxRadiusTextField.text")); // NOI18N
 
+        org.openide.awt.Mnemonics.setLocalizedText(_faultDescriptionLabel, org.openide.util.NbBundle.getMessage(CreateTerrainVisualPanel2.class, "CreateTerrainVisualPanel2._faultDescriptionLabel.text")); // NOI18N
+
+        javax.swing.GroupLayout _faultPanelLayout = new javax.swing.GroupLayout(_faultPanel);
+        _faultPanel.setLayout(_faultPanelLayout);
+        _faultPanelLayout.setHorizontalGroup(
+            _faultPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(_faultPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(_faultDescriptionLabel)
+                .addContainerGap(64, Short.MAX_VALUE))
+        );
+        _faultPanelLayout.setVerticalGroup(
+            _faultPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(_faultPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(_faultDescriptionLabel)
+                .addContainerGap(75, Short.MAX_VALUE))
+        );
+
         javax.swing.GroupLayout _hillPanelLayout = new javax.swing.GroupLayout(_hillPanel);
         _hillPanel.setLayout(_hillPanelLayout);
         _hillPanelLayout.setHorizontalGroup(
@@ -159,27 +226,30 @@ public final class CreateTerrainVisualPanel2 extends JPanel {
             .addGroup(_hillPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(_hillPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(_hillDescriptionLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, _hillPanelLayout.createSequentialGroup()
-                        .addGroup(_hillPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, _hillPanelLayout.createSequentialGroup()
-                                .addComponent(jLabel5)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(_hillFlatteningTextField))
-                            .addGroup(_hillPanelLayout.createSequentialGroup()
-                                .addComponent(jLabel2)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(_hillIterationsTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addGap(70, 70, 70)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(_hillPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jLabel3)
-                    .addComponent(jLabel4))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(_hillPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(_hillMinRadiusTextField)
-                    .addComponent(_hillMaxRadiusTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 55, Short.MAX_VALUE))
-                .addContainerGap(23, Short.MAX_VALUE))
+                    .addGroup(_hillPanelLayout.createSequentialGroup()
+                        .addGroup(_hillPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(_hillDescriptionLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, _hillPanelLayout.createSequentialGroup()
+                                .addGroup(_hillPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, _hillPanelLayout.createSequentialGroup()
+                                        .addComponent(jLabel5)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                        .addComponent(_hillFlatteningTextField))
+                                    .addGroup(_hillPanelLayout.createSequentialGroup()
+                                        .addComponent(jLabel2)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                        .addComponent(_hillIterationsTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                .addGap(70, 70, 70)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(_hillPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jLabel3)
+                            .addComponent(jLabel4))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(_hillPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(_hillMinRadiusTextField)
+                            .addComponent(_hillMaxRadiusTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 55, Short.MAX_VALUE)))
+                    .addComponent(_faultPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
         );
         _hillPanelLayout.setVerticalGroup(
             _hillPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -198,26 +268,9 @@ public final class CreateTerrainVisualPanel2 extends JPanel {
                     .addComponent(_hillFlatteningTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel4)
                     .addComponent(_hillMaxRadiusTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(31, Short.MAX_VALUE))
-        );
-
-        org.openide.awt.Mnemonics.setLocalizedText(_faultDescriptionLabel, org.openide.util.NbBundle.getMessage(CreateTerrainVisualPanel2.class, "CreateTerrainVisualPanel2._faultDescriptionLabel.text")); // NOI18N
-
-        javax.swing.GroupLayout _faultPanelLayout = new javax.swing.GroupLayout(_faultPanel);
-        _faultPanel.setLayout(_faultPanelLayout);
-        _faultPanelLayout.setHorizontalGroup(
-            _faultPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(_faultPanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(_faultDescriptionLabel)
-                .addContainerGap(37, Short.MAX_VALUE))
-        );
-        _faultPanelLayout.setVerticalGroup(
-            _faultPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(_faultPanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(_faultDescriptionLabel)
-                .addContainerGap(75, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(_faultPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
@@ -225,15 +278,17 @@ public final class CreateTerrainVisualPanel2 extends JPanel {
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
-                .addGap(30, 30, 30)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jLabel1)
-                    .addComponent(_hillPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(_imagePanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(_flatPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(heightmapTypeComboBox, 0, 428, Short.MAX_VALUE)
-                    .addComponent(_faultPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap()
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(_imagePanel, javax.swing.GroupLayout.Alignment.LEADING, 0, 455, Short.MAX_VALUE)
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addComponent(jLabel1)
+                        .addComponent(_flatPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(heightmapTypeComboBox, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                .addGap(34, 34, 34))
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addComponent(_hillPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGap(24, 24, 24))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -245,19 +300,19 @@ public final class CreateTerrainVisualPanel2 extends JPanel {
                 .addGap(18, 18, 18)
                 .addComponent(_flatPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(_imagePanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(_imagePanel, javax.swing.GroupLayout.PREFERRED_SIZE, 192, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(_hillPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(_faultPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(27, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -265,20 +320,21 @@ public final class CreateTerrainVisualPanel2 extends JPanel {
         );
     }// </editor-fold>//GEN-END:initComponents
 
-
+    protected void setWizardPanel(CreateTerrainWizardPanel2 wizardPanel) {
+        this.wizardPanel = wizardPanel;
+    }
+    
     private void openFileActionPerformed(java.awt.event.ActionEvent evt) {
-        int returnVal = imageFileChooser.showOpenDialog(this);
-        if (returnVal == imageFileChooser.APPROVE_OPTION) {
-            File file = imageFileChooser.getSelectedFile();
-            //try {
-              // What to do with the file, e.g. display it in a TextArea
-            _imageBrowseTextField.setText( file.getAbsolutePath() );
-            //} catch (IOException ex) {
-            //  System.out.println("problem accessing file"+file.getAbsolutePath());
-            //}
-        } else {
-            System.out.println("File access cancelled by user.");
-        }
+        TexturePropertyEditor editor = new TexturePropertyEditor();
+        Component view = editor.getCustomEditor();
+        view.setVisible(true);
+        Texture tex = (Texture) editor.getValue();
+        browsedTexture = tex;
+        if (tex != null)
+            _imageBrowseTextField.setText(tex.getName());
+        else
+            _imageBrowseTextField.setText("...");
+        wizardPanel.fireChangeEvent();
     }
 
     private void heightmapTypeComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_heightmapTypeComboBoxActionPerformed
@@ -306,7 +362,7 @@ public final class CreateTerrainVisualPanel2 extends JPanel {
             _hillPanel.setVisible(false);
             _faultPanel.setVisible(true);
         }
-
+        wizardPanel.fireChangeEvent();
         this.validate();
     }//GEN-LAST:event_heightmapTypeComboBoxActionPerformed
 
@@ -329,6 +385,7 @@ public final class CreateTerrainVisualPanel2 extends JPanel {
     private javax.swing.JTextField _imageBrowseTextField;
     private javax.swing.JLabel _imageDescriptionLabel;
     private javax.swing.JPanel _imagePanel;
+    private javax.swing.JTextField heightScale;
     private javax.swing.JComboBox heightmapTypeComboBox;
     private javax.swing.JFileChooser imageFileChooser;
     private javax.swing.JLabel jLabel1;
@@ -336,7 +393,11 @@ public final class CreateTerrainVisualPanel2 extends JPanel {
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
     private javax.swing.JPanel jPanel2;
+    private javax.swing.JLabel smoothIterationsLabel;
+    private javax.swing.JSlider smoothSlider;
     // End of variables declaration//GEN-END:variables
 
     public JComboBox getHeightmapTypeComboBox() {
@@ -359,9 +420,25 @@ public final class CreateTerrainVisualPanel2 extends JPanel {
         return _hillMinRadiusTextField;
     }
 
-    public JTextField getImageBrowseTextField() {
-        return _imageBrowseTextField;
+    public Texture getImageBrowseTexture() {
+        return browsedTexture;
     }
 
+    public float getSmoothEffect() {
+        float smooth = smoothSlider.getValue()/100f;
+        if (smooth > 1.0f)
+            smooth = 1.0f;
+        if (smooth < 0)
+            smooth = 0;
+        return smooth;
+    }
     
+    public float getHeightScale() {
+        try {
+            Float scale = new Float(heightScale.getText());
+            return Math.abs(scale);
+        } catch (NumberFormatException e) {
+            return 1;
+        }
+    }
 }
