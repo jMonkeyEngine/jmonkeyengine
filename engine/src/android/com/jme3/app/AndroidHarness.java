@@ -15,11 +15,14 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import com.jme3.audio.AudioRenderer;
 import com.jme3.audio.android.AndroidAudioRenderer;
+import com.jme3.input.TouchInput;
 import com.jme3.input.android.AndroidInput;
 import com.jme3.input.controls.TouchListener;
+import com.jme3.input.controls.TouchTrigger;
 import com.jme3.input.event.TouchEvent;
 import com.jme3.system.AppSettings;
 import com.jme3.system.JmeSystem;
+import com.jme3.system.SystemListener;
 import com.jme3.system.android.AndroidConfigChooser.ConfigType;
 import com.jme3.system.android.JmeAndroidSystem;
 import com.jme3.system.android.OGLESContext;
@@ -37,7 +40,7 @@ import java.util.logging.Logger;
  * @author Kirill
  * @author larynx
  */
-public class AndroidHarness extends Activity implements TouchListener, DialogInterface.OnClickListener {
+public class AndroidHarness extends Activity implements TouchListener, DialogInterface.OnClickListener, SystemListener {
 
     protected final static Logger logger = Logger.getLogger(AndroidHarness.class.getName());
     /**
@@ -73,6 +76,10 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
      * if true finish this activity when the jme app is stopped
      */
     protected boolean finishOnAppStop = true;
+    /**
+     * set to false if you don't want the harness to handle the exit hook
+     */
+    protected boolean handleExitHook = true;
     /**
      * Title of the exit dialog, default is "Do you want to exit?"
      */
@@ -118,6 +125,7 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
     private ImageView splashImageView = null;
     private FrameLayout frameLayout = null;
     final private String ESCAPE_EVENT = "TouchEscape";
+    private boolean firstDrawFrame = true;
 
     static {
         try {
@@ -190,7 +198,8 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
 
             AppSettings s = ctx.getSettings();
             logger.log(Level.INFO, "Settings: Width {0} Height {1}", new Object[]{s.getWidth(), s.getHeight()});
-
+            //setting the Harness as the system listener
+            ctx.setSystemListener(this);
             layoutDisplay();
         } catch (Exception ex) {
             handleError("Class " + appClass + " init failed", ex);
@@ -244,7 +253,7 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
         //pause the audio
         AudioRenderer result = app.getAudioRenderer();
         if (result != null) {
-            logger.info("pause: " + result.getClass().getSimpleName());
+            logger.log(Level.INFO, "pause: {0}", result.getClass().getSimpleName());
             if (result instanceof AndroidAudioRenderer) {
                 AndroidAudioRenderer renderer = (AndroidAudioRenderer) result;
                 renderer.pauseAll();
@@ -321,6 +330,7 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
             if (app != null) {
                 app.stop(true);
             }
+            app = null;
             this.finish();
         }
     }
@@ -400,9 +410,47 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
         }
     }
 
-    public boolean isFinishOnAppStop() {
-        return finishOnAppStop;
+    public void initialize() {
+        app.initialize();
+        if (handleExitHook) {
+            app.getInputManager().addMapping(ESCAPE_EVENT, new TouchTrigger(TouchInput.KEYCODE_BACK));
+            app.getInputManager().addListener(this, new String[]{ESCAPE_EVENT});
+        }
     }
-    
-    
+
+    public void reshape(int width, int height) {
+        app.reshape(width, height);
+    }
+
+    public void update() {
+        app.update();
+        // call to remove the splash screen, if present.
+        // call after app.update() to make sure no gap between
+        // splash screen going away and app display being shown.
+        if (firstDrawFrame) {
+            removeSplashScreen();
+            firstDrawFrame = false;
+        }
+    }
+
+    public void requestClose(boolean esc) {
+        app.requestClose(esc);
+    }
+
+    public void gainFocus() {
+        app.gainFocus();
+    }
+
+    public void loseFocus() {
+        app.loseFocus();
+    }
+
+    public void destroy() {
+        if (app != null) {
+            app.destroy();
+        }       
+        if (finishOnAppStop) {
+            finish();
+        }
+    }
 }

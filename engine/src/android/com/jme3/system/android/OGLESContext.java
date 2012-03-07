@@ -86,7 +86,6 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
     protected SystemListener listener;
     protected boolean autoFlush = true;
     protected AndroidInput view;
-    private boolean firstDrawFrame = true;
     //protected int minFrameDuration = 1000 / frameRate;  // Set a max FPS of 33
     protected int minFrameDuration = 0;                   // No FPS cap
     /**
@@ -95,7 +94,6 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
      */
     protected int clientOpenGLESVersion = 1;
     protected boolean verboseLogging = false;
-    final private String ESCAPE_EVENT = "TouchEscape";
 
     public OGLESContext() {
     }
@@ -215,24 +213,15 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
         logger.info("OGLESContext create");
         logger.info("Running on thread: " + Thread.currentThread().getName());
 
-        final Context ctx = this.view.getContext();
 
         // Setup unhandled Exception Handler
-        if (ctx instanceof AndroidHarness) {
-            Thread.currentThread().setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
 
-                public void uncaughtException(Thread thread, Throwable thrown) {
-                    ((AndroidHarness) ctx).handleError("Exception thrown in " + thread.toString(), thrown);
-                }
-            });
-        } else {
-            Thread.currentThread().setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+        Thread.currentThread().setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
 
-                public void uncaughtException(Thread thread, Throwable thrown) {
-                    listener.handleError("Exception thrown in " + thread.toString(), thrown);
-                }
-            });
-        }
+            public void uncaughtException(Thread thread, Throwable thrown) {
+                listener.handleError("Exception thrown in " + thread.toString(), thrown);
+            }
+        });
 
         if (clientOpenGLESVersion < 2) {
             throw new UnsupportedOperationException("OpenGL ES 2.0 is not supported on this device");
@@ -247,14 +236,6 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
         renderer.initialize();
         listener.initialize();
 
-        // Setup exit hook
-        if (ctx instanceof AndroidHarness) {
-            Application app = ((AndroidHarness) ctx).getJmeApplication();
-            if (app.getInputManager() != null) {
-                app.getInputManager().addMapping(ESCAPE_EVENT, new TouchTrigger(TouchInput.KEYCODE_BACK));
-                app.getInputManager().addListener((AndroidHarness) ctx, new String[]{ESCAPE_EVENT});
-            }
-        }
 
         JmeSystem.setSoftTextDialogInput(this);
 
@@ -282,13 +263,7 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
             logger.info("Display destroyed.");
 
             renderable.set(false);
-            final Context ctx = this.view.getContext();
-            if (ctx instanceof AndroidHarness) {
-                AndroidHarness harness = (AndroidHarness) ctx;
-                if (harness.isFinishOnAppStop()) {
-                    harness.finish();
-                }
-            }
+
         }
     }
 
@@ -371,6 +346,7 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
         logger.info("GL Surface changed, width: " + width + " height: " + height);
         settings.setResolution(width, height);
         listener.reshape(width, height);
+        //     androidListener.reshape(width, height);
     }
 
     // SystemListener:update
@@ -390,16 +366,6 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
 
             listener.update();
 
-            // call to AndroidHarness to remove the splash screen, if present.
-            // call after listener.update() to make sure no gap between
-            //   splash screen going away and app display being shown.
-            if (firstDrawFrame) {
-                final Context ctx = this.view.getContext();
-                if (ctx instanceof AndroidHarness) {
-                    ((AndroidHarness) ctx).removeSplashScreen();
-                }
-                firstDrawFrame = false;
-            }
 
             if (autoFlush) {
                 renderer.onFrame();
