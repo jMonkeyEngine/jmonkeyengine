@@ -238,7 +238,13 @@ public class TerrainQuad extends Node implements Terrain {
         }
     }*/
 
-
+    /**
+     * Forces the recalculation of all normals on the terrain.
+     */
+    public void recalculateAllNormals() {
+        affectedAreaBBox = new BoundingBox(new Vector3f(0,0,0), totalSize*2, Float.MAX_VALUE, totalSize*2);
+    }
+    
     /**
      * Create just a flat heightmap
      */
