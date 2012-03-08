@@ -116,10 +116,11 @@ public class SoundTrack extends AbstractCinematicEvent {
     public void setTime(float time) {
         super.setTime(time);
         //can occur on rewind
-        if (time < 0) {            
+        if (time < 0f) {            
             stop();
+        }else{
+            audioNode.setTimeOffset(time);
         }
-        audioNode.setTimeOffset(time);
     }
 
     @Override

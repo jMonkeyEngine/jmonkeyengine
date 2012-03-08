@@ -32,13 +32,13 @@
 package com.jme3.cinematic.events;
 
 import com.jme3.animation.LoopMode;
-import com.jme3.app.Application;
-import com.jme3.cinematic.Cinematic;
 import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
 import de.lessvoid.nifty.Nifty;
+import de.lessvoid.nifty.screen.NullScreen;
+import de.lessvoid.nifty.screen.Screen;
 import java.io.IOException;
 
 /**
@@ -78,13 +78,14 @@ public class GuiTrack extends AbstractCinematicEvent {
 
     @Override
     public void onPlay() {
-        System.out.println("screen should be "+screen);
+        System.out.println("screen should be " + screen);
         nifty.gotoScreen(screen);
     }
 
     @Override
-    public void onStop() {
-        nifty.gotoScreen("");
+    public void onStop() {        if (!(nifty.getCurrentScreen() instanceof NullScreen)) {
+            nifty.getCurrentScreen().endScreen(null);
+        }
     }
 
     @Override

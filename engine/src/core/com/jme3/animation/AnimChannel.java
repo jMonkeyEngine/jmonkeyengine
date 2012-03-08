@@ -316,6 +316,20 @@ public final class AnimChannel {
     BitSet getAffectedBones(){
         return affectedBones;
     }
+    
+    public void reset(boolean rewind){
+        if(rewind){
+            setTime(0);        
+            if(control.getSkeleton()!=null){
+                control.getSkeleton().resetAndUpdate();
+            }else{
+                TempVars vars = TempVars.get();
+                update(0, vars);
+                vars.release();    
+            }
+        }
+        animation = null;
+    }
 
     void update(float tpf, TempVars vars) {
         if (animation == null)

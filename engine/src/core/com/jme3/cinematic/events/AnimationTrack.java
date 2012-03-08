@@ -109,17 +109,17 @@ public class AnimationTrack extends AbstractCinematicEvent {
     public void setTime(float time) {
         super.setTime(time);
         float t = time;
-        if(loopMode == loopMode.Loop){
+        if (loopMode == loopMode.Loop) {
             t = t % channel.getAnimMaxTime();
         }
-        if(loopMode == loopMode.Cycle){
-            float parity = (float)Math.ceil(time / channel.getAnimMaxTime());
-            if(parity >0 && parity%2 ==0){
+        if (loopMode == loopMode.Cycle) {
+            float parity = (float) Math.ceil(time / channel.getAnimMaxTime());
+            if (parity > 0 && parity % 2 == 0) {
                 t = channel.getAnimMaxTime() - t % channel.getAnimMaxTime();
-            }else{
+            } else {
                 t = t % channel.getAnimMaxTime();
             }
-            
+
         }
         channel.setTime(t);
         channel.getControl().update(0);
@@ -142,8 +142,8 @@ public class AnimationTrack extends AbstractCinematicEvent {
 
     @Override
     public void onStop() {
-        channel.getControl().setEnabled(false);
         channel.setTime(0);
+        channel.reset(false);
     }
 
     @Override

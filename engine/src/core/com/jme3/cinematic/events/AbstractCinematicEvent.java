@@ -100,7 +100,7 @@ public abstract class AbstractCinematicEvent implements CinematicEvent {
      * Play this event
      */
     public void play() {
-        onPlay();
+        onPlay();        
         playState = PlayState.Playing;
         if (listeners != null) {
             for (int i = 0; i < listeners.size(); i++) {
@@ -121,9 +121,7 @@ public abstract class AbstractCinematicEvent implements CinematicEvent {
      */
     public void internalUpdate(float tpf) {
         if (playState == PlayState.Playing) {
-            time = time + (tpf * speed);
-            //time = elapsedTimePause + (timer.getTimeInSeconds() - start) * speed;
-
+            time = time + (tpf * speed);         
             onUpdate(tpf);
             if (time >= initialDuration && loopMode == loopMode.DontLoop) {
                 stop();
@@ -311,7 +309,7 @@ public abstract class AbstractCinematicEvent implements CinematicEvent {
      * @param time the time to fast forward to
      */
     public void setTime(float time) {
-        this.time = time / speed;
+        this.time = time ;
     }
 
     public float getTime() {
