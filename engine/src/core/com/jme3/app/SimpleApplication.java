@@ -173,12 +173,20 @@ public abstract class SimpleApplication extends Application {
         this.showSettings = showSettings;
     }
 
+    /**
+     *  Creates the font that will be set to the guiFont field
+     *  and subsequently set as the font for the stats text.
+     */
+    protected BitmapFont loadGuiFont() {
+        return assetManager.loadFont("Interface/Fonts/Default.fnt");
+    }
+
     @Override
     public void initialize() {
         super.initialize();
 
         // Several things rely on having this
-        guiFont = assetManager.loadFont("Interface/Fonts/Default.fnt");
+        guiFont = loadGuiFont();
 
         guiNode.setQueueBucket(Bucket.Gui);
         guiNode.setCullHint(CullHint.Never);
