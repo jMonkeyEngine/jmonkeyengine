@@ -328,7 +328,13 @@ public class AndroidAudioRenderer implements AudioRenderer,
         AudioKey assetKey = (AudioKey) audioData.getAssetKey();
 
         try {
+            
             if (audioData.getId() < 0) { // found something to load
+                System.out.println("Loading "+ assetKey.getName());
+                String[] files = assetManager.list(".");
+                for (String string : files) {
+                    System.out.println("file "+ string);
+                }
                 int soundId = soundPool.load(
                         assetManager.openFd(assetKey.getName()), 1);
                 audioData.setId(soundId);
@@ -385,7 +391,7 @@ public class AndroidAudioRenderer implements AudioRenderer,
 
         try {
             AssetKey<?> key = audioData.getAssetKey();
-
+            
             AssetFileDescriptor afd = assetManager.openFd(key.getName()); // assetKey.getName()
             mp.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(),
                     afd.getLength());
@@ -455,7 +461,8 @@ public class AndroidAudioRenderer implements AudioRenderer,
         MediaPlayer mp = musicPlaying.get(src);
         if (mp != null) {
             mp.stop();
-            src.setStatus(Status.Paused);
+            mp.reset();
+            src.setStatus(Status.Stopped);
         } else {
             int channel = src.getChannel();
             if (channel != -1) {
