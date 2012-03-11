@@ -329,12 +329,7 @@ public class AndroidAudioRenderer implements AudioRenderer,
 
         try {
             
-            if (audioData.getId() < 0) { // found something to load
-                System.out.println("Loading "+ assetKey.getName());
-                String[] files = assetManager.list(".");
-                for (String string : files) {
-                    System.out.println("file "+ string);
-                }
+            if (audioData.getId() < 0) { // found something to load                                
                 int soundId = soundPool.load(
                         assetManager.openFd(assetKey.getName()), 1);
                 audioData.setId(soundId);
