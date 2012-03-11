@@ -230,12 +230,14 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
             view.onResume();
         }
 
-        //resume the audio
-        AudioRenderer result = app.getAudioRenderer();
-        if (result != null) {
-            if (result instanceof AndroidAudioRenderer) {
-                AndroidAudioRenderer renderer = (AndroidAudioRenderer) result;
-                renderer.resumeAll();
+        if (app != null) {
+            //resume the audio
+            AudioRenderer result = app.getAudioRenderer();
+            if (result != null) {
+                if (result instanceof AndroidAudioRenderer) {
+                    AndroidAudioRenderer renderer = (AndroidAudioRenderer) result;
+                    renderer.resumeAll();
+                }
             }
         }
 
@@ -250,18 +252,20 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
             view.onPause();
         }
 
-        //pause the audio
-        AudioRenderer result = app.getAudioRenderer();
-        if (result != null) {
-            logger.log(Level.INFO, "pause: {0}", result.getClass().getSimpleName());
-            if (result instanceof AndroidAudioRenderer) {
-                AndroidAudioRenderer renderer = (AndroidAudioRenderer) result;
-                renderer.pauseAll();
+        if (app != null) {
+            //pause the audio
+            AudioRenderer result = app.getAudioRenderer();
+            if (result != null) {
+                logger.log(Level.INFO, "pause: {0}", result.getClass().getSimpleName());
+                if (result instanceof AndroidAudioRenderer) {
+                    AndroidAudioRenderer renderer = (AndroidAudioRenderer) result;
+                    renderer.pauseAll();
+                }
             }
         }
-
         isGLThreadPaused = true;
         logger.info("onPause");
+
     }
 
     @Override
@@ -448,7 +452,7 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
     public void destroy() {
         if (app != null) {
             app.destroy();
-        }       
+        }
         if (finishOnAppStop) {
             finish();
         }
