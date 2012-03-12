@@ -276,32 +276,34 @@ public class AnimationFactory {
         // if the delta of euler angles is higher than PI, we create intermediate keyframes
         // since we are using quaternions and slerp for rotation interpolation, we cannot interpolate over an angle higher than PI
         int prev = getPreviousKeyFrame(keyFrameIndex, keyFramesRotation);
-        //previous rotation keyframe
-        Rotation prevRot = keyFramesRotation[prev];
-        //the maximum delta angle (x,y or z)
-        float delta = Math.max(Math.abs(x - prevRot.eulerAngles.x), Math.abs(y - prevRot.eulerAngles.y));
-        delta = Math.max(delta, Math.abs(z - prevRot.eulerAngles.z));
-        //if delta > PI we have to create intermediates key frames
-        if (delta >= FastMath.PI) {
-            //frames delta
-            int dF = keyFrameIndex - prev;
-            //angle per frame for x,y ,z
-            float dXAngle = (x - prevRot.eulerAngles.x) / (float) dF;
-            float dYAngle = (y - prevRot.eulerAngles.y) / (float) dF;
-            float dZAngle = (z - prevRot.eulerAngles.z) / (float) dF;
+        if (prev != -1) {
+            //previous rotation keyframe
+            Rotation prevRot = keyFramesRotation[prev];
+            //the maximum delta angle (x,y or z)
+            float delta = Math.max(Math.abs(x - prevRot.eulerAngles.x), Math.abs(y - prevRot.eulerAngles.y));
+            delta = Math.max(delta, Math.abs(z - prevRot.eulerAngles.z));
+            //if delta > PI we have to create intermediates key frames
+            if (delta >= FastMath.PI) {
+                //frames delta
+                int dF = keyFrameIndex - prev;
+                //angle per frame for x,y ,z
+                float dXAngle = (x - prevRot.eulerAngles.x) / (float) dF;
+                float dYAngle = (y - prevRot.eulerAngles.y) / (float) dF;
+                float dZAngle = (z - prevRot.eulerAngles.z) / (float) dF;
 
-            // the keyFrame step
-            int keyStep = (int) (((float) (dF)) / delta * (float) EULER_STEP);
-            // the current keyFrame
-            int cursor = prev + keyStep;
-            while (cursor < keyFrameIndex) {
-                //for each step we create a new rotation by interpolating the angles
-                Rotation dr = getRotationForFrame(cursor);
-                dr.masterKeyFrame = keyFrameIndex;
-                dr.set(prevRot.eulerAngles.x + cursor * dXAngle, prevRot.eulerAngles.y + cursor * dYAngle, prevRot.eulerAngles.z + cursor * dZAngle);
-                cursor += keyStep;
+                // the keyFrame step
+                int keyStep = (int) (((float) (dF)) / delta * (float) EULER_STEP);
+                // the current keyFrame
+                int cursor = prev + keyStep;
+                while (cursor < keyFrameIndex) {
+                    //for each step we create a new rotation by interpolating the angles
+                    Rotation dr = getRotationForFrame(cursor);
+                    dr.masterKeyFrame = keyFrameIndex;
+                    dr.set(prevRot.eulerAngles.x + cursor * dXAngle, prevRot.eulerAngles.y + cursor * dYAngle, prevRot.eulerAngles.z + cursor * dZAngle);
+                    cursor += keyStep;
+                }
+
             }
-
         }
 
     }
