@@ -35,10 +35,8 @@ import com.jme3.animation.LoopMode;
 import com.jme3.app.Application;
 import com.jme3.app.state.AppState;
 import com.jme3.app.state.AppStateManager;
-import com.jme3.asset.TextureKey;
 import com.jme3.cinematic.events.AbstractCinematicEvent;
 import com.jme3.cinematic.events.CinematicEvent;
-import com.jme3.cinematic.events.CinematicEventListener;
 import com.jme3.export.*;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.RenderManager;
@@ -112,6 +110,7 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
         lastFetchedKeyFrame = -1;
         for (int i = 0; i < cinematicEvents.size(); i++) {
             CinematicEvent ce = cinematicEvents.get(i);
+            ce.setTime(0);
             ce.stop();
         }
         enableCurrentCam(false);
@@ -217,26 +216,27 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
 
     @Override
     public void setTime(float time) {
-        super.setTime(time);                      
-        //stopping all events
-        for (CinematicEvent ce : cinematicEvents) {
-            ce.stop();
-        }
 
+        //stopping all events
+        onStop();
+        super.setTime(time);
+
+        int keyFrameIndex = timeLine.getKeyFrameIndexFromTime(time);
         //triggering all the event from start to "time" 
-        //then computing timeOffset for each event        
-        for (KeyFrame keyFrame : timeLine.values()) {
-            //KeyFrame keyFrame = timeLine.get(timeLine.keySet());
+        //then computing timeOffset for each event
+        for (int i = 0; i <= keyFrameIndex; i++) {
+            KeyFrame keyFrame = timeLine.get(i);
             if (keyFrame != null) {
                 for (CinematicEvent ce : keyFrame.getCinematicEvents()) {
                     float t = this.time - timeLine.getKeyFrameTime(keyFrame);
                     if (t >= 0 && (t <= ce.getInitialDuration() || ce.getLoopMode() != LoopMode.DontLoop)) {
                         ce.play();
-                        ce.setTime(t);
                     }
+                    ce.setTime(t);
                 }
             }
         }
+        lastFetchedKeyFrame = keyFrameIndex;
         if (playState != PlayState.Playing) {
             pause();
         }
