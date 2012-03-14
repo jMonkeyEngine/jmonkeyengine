@@ -82,6 +82,7 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control {
     protected boolean zooming = false;
     protected boolean trailing = false;
     protected boolean chasing = false;
+    protected boolean veryCloseRotation = true;
     protected boolean canRotate;
     protected float offsetDistance = 0.002f;
     protected Vector3f prevPos;
@@ -297,8 +298,10 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control {
         if (targetDistance < minDistance) {
             targetDistance = minDistance;
         }
-        if ((targetVRotation < minVerticalRotation) && (targetDistance > (minDistance + 1.0f))) {
-            targetVRotation = minVerticalRotation;
+        if (veryCloseRotation) {
+            if ((targetVRotation < minVerticalRotation) && (targetDistance > (minDistance + 1.0f))) {
+                targetVRotation = minVerticalRotation;
+            }
         }
     }
 
@@ -308,12 +311,21 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control {
             return;
         }
         vRotating = true;
+        float lastGoodRot = targetVRotation;
         targetVRotation += value * rotationSpeed;
         if (targetVRotation > maxVerticalRotation) {
-            targetVRotation = maxVerticalRotation;
+            targetVRotation = lastGoodRot;
         }
-        if ((targetVRotation < minVerticalRotation) && (targetDistance > (minDistance + 1.0f))) {
-            targetVRotation = minVerticalRotation;
+        if (veryCloseRotation) {
+            if ((targetVRotation < minVerticalRotation) && (targetDistance > (minDistance + 1.0f))) {
+                targetVRotation = minVerticalRotation;
+            } else if (targetVRotation < -FastMath.DEG_TO_RAD * 90) {
+                targetVRotation = lastGoodRot;
+            }
+        } else {
+            if ((targetVRotation < minVerticalRotation)) {
+                targetVRotation = lastGoodRot;
+            }
         }
     }
 
@@ -576,15 +588,14 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control {
     }
 
     /**
-     * returns the maximal vertical rotation angle of the camera around the target
-     * @return
+     * @return The maximal vertical rotation angle in radian of the camera around the target
      */
     public float getMaxVerticalRotation() {
         return maxVerticalRotation;
     }
 
     /**
-     * sets the maximal vertical rotation angle of the camera around the target default is Pi/2;
+     * Sets the maximal vertical rotation angle in radian of the camera around the target. Default is Pi/2;
      * @param maxVerticalRotation
      */
     public void setMaxVerticalRotation(float maxVerticalRotation) {
@@ -592,15 +603,15 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control {
     }
 
     /**
-     * returns the minimal vertical rotation angle of the camera around the target
-     * @return
+     * 
+     * @return The minimal vertical rotation angle in radian of the camera around the target
      */
     public float getMinVerticalRotation() {
         return minVerticalRotation;
     }
 
     /**
-     * sets the minimal vertical rotation angle of the camera around the target default is 0;
+     * Sets the minimal vertical rotation angle in radian of the camera around the target default is 0;
      * @param minHeight
      */
     public void setMinVerticalRotation(float minHeight) {
@@ -608,8 +619,7 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control {
     }
 
     /**
-     * returns true is smmoth motion is enabled for this chase camera
-     * @return
+     * @return True is smooth motion is enabled for this chase camera
      */
     public boolean isSmoothMotion() {
         return smoothMotion;
@@ -742,21 +752,21 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control {
     }
 
     /**
-     * sets the default horizontal rotation of the camera at start of the application
-     * @param angle
+     * sets the default horizontal rotation in radian of the camera at start of the application
+     * @param angleInRad
      */
-    public void setDefaultHorizontalRotation(float angle) {
-        rotation = angle;
-        targetRotation = angle;
+    public void setDefaultHorizontalRotation(float angleInRad) {
+        rotation = angleInRad;
+        targetRotation = angleInRad;
     }
 
     /**
-     * sets the default vertical rotation of the camera at start of the application
-     * @param angle
+     * sets the default vertical rotation in radian of the camera at start of the application
+     * @param angleInRad
      */
-    public void setDefaultVerticalRotation(float angle) {
-        vRotation = angle;
-        targetVRotation = angle;
+    public void setDefaultVerticalRotation(float angleInRad) {
+        vRotation = angleInRad;
+        targetVRotation = angleInRad;
     }
 
     /**
@@ -779,6 +789,26 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control {
         this.dragToRotate = dragToRotate;
         this.canRotate = !dragToRotate;
         inputManager.setCursorVisible(dragToRotate);
+    }
+
+    /**
+     * @param rotateOnlyWhenClose When this flag is set to false the chase 
+     * camera will always rotate around its spatial independently of their
+     * distance to one another. If set to true, the chase camera will only
+     * be allowed to rotated below the "horizon" when the distance is smaller
+     * than minDistance + 1.0f (when fully zoomed-in).
+     */
+    public void setDownRotateOnCloseViewOnly(boolean rotateOnlyWhenClose) {
+        veryCloseRotation = rotateOnlyWhenClose;
+    }
+
+    /**
+     * @return True if rotation below the vertical plane of the spatial tied 
+     * to the camera is allowed only when zoomed in at minDistance + 1.0f. 
+     * False if vertical rotation is always allowed.
+     */
+    public boolean getDownRotateOnCloseViewOnly() {
+        return veryCloseRotation;
     }
 
     /**
