@@ -103,6 +103,7 @@
             <tocitem text="File Types" target="jme3.intermediate.file_types"/>
             <tocitem text="Math in jME3" target="jme3.math"/>
             <tocitem text="Math Formulas" target="jme3.intermediate.math"/>
+            <tocitem text="Multi-Media Assets Pipeline" target="jme3.intermediate.multi-media_asset_pipeline"/>
             <tocitem text="Optimization" target="jme3.intermediate.optimization"/>
         </tocitem>
 <!--        <tocitem text="Advanced" expand="false">-->
