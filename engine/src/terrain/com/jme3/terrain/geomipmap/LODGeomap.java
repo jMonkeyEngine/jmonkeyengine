@@ -798,76 +798,71 @@ public class LODGeomap extends GeoMap {
         for (int r = 0; r < getHeight(); r++) {
             for (int c = 0; c < getWidth(); c++) {
 
-                rootPoint.set(c, getValue(c, r), r);
+                rootPoint.set(0, getValue(c, r), 0);
                 Vector3f normal = vars.vect8;
 
                 if (r == 0) { // first row
                     if (c == 0) { // first column
-                        rightPoint.set(c + 1, getValue(c + 1, r), r);
-                        bottomPoint.set(c, getValue(c, r + 1), r + 1);
+                        rightPoint.set(1, getValue(c + 1, r), 0);
+                        bottomPoint.set(0, getValue(c, r + 1), 1);
                         getNormal(bottomPoint, rootPoint, rightPoint, scale, normal);
                     } else if (c == getWidth() - 1) { // last column
-                        leftPoint.set(c - 1, getValue(c - 1, r), r);
-                        bottomPoint.set(c, getValue(c, r + 1), r + 1);
+                        leftPoint.set(-1, getValue(c - 1, r), 0);
+                        bottomPoint.set(0, getValue(c, r + 1), 1);
                         getNormal(leftPoint, rootPoint, bottomPoint, scale, normal);
                     } else { // all middle columns
-                        leftPoint.set(c - 1, getValue(c - 1, r), r);
-                        rightPoint.set(c + 1, getValue(c + 1, r), r);
-                        bottomPoint.set(c, getValue(c, r + 1), r + 1);
+                        leftPoint.set(-1, getValue(c - 1, r), 0);
+                        rightPoint.set(1, getValue(c + 1, r), 0);
+                        bottomPoint.set(0, getValue(c, r + 1), 1);
                         
                         normal.set( getNormal(leftPoint, rootPoint, bottomPoint, scale, tmp1) );
-                        normal.add( getNormal(bottomPoint, rootPoint, rightPoint, scale, tmp1) );
-                        normal.normalizeLocal();
+                        normal.addLocal( getNormal(bottomPoint, rootPoint, rightPoint, scale, tmp1) );
                     }
                 } else if (r == getHeight() - 1) { // last row
                     if (c == 0) { // first column
-                        topPoint.set(c, getValue(c, r - 1), r - 1);
-                        rightPoint.set(c + 1, getValue(c + 1, r), r);
+                        topPoint.set(0, getValue(c, r - 1), -1);
+                        rightPoint.set(1, getValue(c + 1, r), 0);
                         getNormal(rightPoint, rootPoint, topPoint, scale, normal);
                     } else if (c == getWidth() - 1) { // last column
-                        topPoint.set(c, getValue(c, r - 1), r - 1);
-                        leftPoint.set(c - 1, getValue(c - 1, r), r);
+                        topPoint.set(0, getValue(c, r - 1), -1);
+                        leftPoint.set(-1, getValue(c - 1, r), 0);
                         getNormal(topPoint, rootPoint, leftPoint, scale, normal);
                     } else { // all middle columns
-                        topPoint.set(c, getValue(c, r - 1), r - 1);
-                        leftPoint.set(c - 1, getValue(c - 1, r), r);
-                        rightPoint.set(c + 1, getValue(c + 1, r), r);
+                        topPoint.set(0, getValue(c, r - 1), -1);
+                        leftPoint.set(-1, getValue(c - 1, r), 0);
+                        rightPoint.set(1, getValue(c + 1, r), 0);
                         
                         normal.set( getNormal(topPoint, rootPoint, leftPoint, scale, tmp1) );
-                        normal.add( getNormal(rightPoint, rootPoint, topPoint, scale, tmp1) );
-                        normal.normalizeLocal();
+                        normal.addLocal( getNormal(rightPoint, rootPoint, topPoint, scale, tmp1) );
                     }
                 } else { // all middle rows
                     if (c == 0) { // first column
-                        topPoint.set(c, getValue(c, r - 1), r - 1);
-                        rightPoint.set(c + 1, getValue(c + 1, r), r);
-                        bottomPoint.set(c, getValue(c, r + 1), r + 1);
+                        topPoint.set(0, getValue(c, r - 1), -1);
+                        rightPoint.set(1, getValue(c + 1, r), 0);
+                        bottomPoint.set(0, getValue(c, r + 1), 1);
                         
                         normal.set( getNormal(rightPoint, rootPoint, topPoint, scale, tmp1) );
-                        normal.add( getNormal(bottomPoint, rootPoint, rightPoint, scale, tmp1) );
-                        normal.normalizeLocal();
+                        normal.addLocal( getNormal(bottomPoint, rootPoint, rightPoint, scale, tmp1) );
                     } else if (c == getWidth() - 1) { // last column
-                        topPoint.set(c, getValue(c, r - 1), r - 1);
-                        leftPoint.set(c - 1, getValue(c - 1, r), r);
-                        bottomPoint.set(c, getValue(c, r + 1), r + 1); //XXX wrong
+                        topPoint.set(0, getValue(c, r - 1), -1);
+                        leftPoint.set(-1, getValue(c - 1, r), 0);
+                        bottomPoint.set(0, getValue(c, r + 1), 1);
 
                         normal.set( getNormal(topPoint, rootPoint, leftPoint, scale, tmp1) );
-                        normal.add( getNormal(leftPoint, rootPoint, bottomPoint, scale, tmp1) );
-                        normal.normalizeLocal();
+                        normal.addLocal( getNormal(leftPoint, rootPoint, bottomPoint, scale, tmp1) );
                     } else { // all middle columns
-                        topPoint.set(c, getValue(c, r - 1), r - 1);
-                        leftPoint.set(c - 1, getValue(c - 1, r), r);
-                        rightPoint.set(c + 1, getValue(c + 1, r), r);
-                        bottomPoint.set(c, getValue(c, r + 1), r + 1);
+                        topPoint.set(0, getValue(c, r - 1), -1);
+                        leftPoint.set(-1, getValue(c - 1, r), 0);
+                        rightPoint.set(1, getValue(c + 1, r), 0);
+                        bottomPoint.set(0, getValue(c, r + 1), 1);
                         
                         normal.set( getNormal(topPoint,  rootPoint, leftPoint, scale, tmp1 ) );
-                        normal.add( getNormal(leftPoint, rootPoint, bottomPoint, scale, tmp1) );
-                        normal.add( getNormal(bottomPoint, rootPoint, rightPoint, scale, tmp1) );
-                        normal.add( getNormal(rightPoint, rootPoint, topPoint, scale, tmp1) );
-                        normal.normalizeLocal();
+                        normal.addLocal( getNormal(leftPoint, rootPoint, bottomPoint, scale, tmp1) );
+                        normal.addLocal( getNormal(bottomPoint, rootPoint, rightPoint, scale, tmp1) );
+                        normal.addLocal( getNormal(rightPoint, rootPoint, topPoint, scale, tmp1) );
                     }
                 }
-                
+                normal.normalizeLocal();
                 BufferUtils.setInBuffer(normal, store, (r * getWidth() + c)); // save the normal
             }
         }
@@ -897,11 +892,15 @@ public class LODGeomap extends GeoMap {
         store.x = x3 * inv;
         store.y = y3 * inv;
         store.z = z3 * inv;
+        
+        
+        /*firstPoint.multLocal(scale);
+        rootPoint.multLocal(scale);
+        secondPoint.multLocal(scale);
+        firstPoint.subtractLocal(rootPoint);
+        secondPoint.subtractLocal(rootPoint);
+        firstPoint.cross(secondPoint, store);*/
         return store;
-        
-        /*store.set( firstPoint.subtractLocal(rootPoint).multLocal(scale).crossLocal(secondPoint.subtractLocal(rootPoint).multLocal(scale)).normalizeLocal() );
-        return store;*/
-        
     }
 
     /**
