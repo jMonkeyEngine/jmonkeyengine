@@ -110,6 +110,14 @@ public class FlyByCamera implements AnalogListener, ActionListener {
     public void setMoveSpeed(float moveSpeed){
         this.moveSpeed = moveSpeed;
     }
+    
+    /**
+     * Gets the move speed. The speed is given in world units per second.
+     * @return moveSpeed
+     */
+    public float getMoveSpeed(){
+        return moveSpeed;
+    }
 
     /**
      * Sets the rotation speed.
@@ -117,6 +125,14 @@ public class FlyByCamera implements AnalogListener, ActionListener {
      */
     public void setRotationSpeed(float rotationSpeed){
         this.rotationSpeed = rotationSpeed;
+    }
+    
+    /**
+     * Gets the move speed. The speed is given in world units per second.
+     * @return rotationSpeed
+     */
+    public float getRotationSpeed(){
+        return rotationSpeed;
     }
 
     /**
