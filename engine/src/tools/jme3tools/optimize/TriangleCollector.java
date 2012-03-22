@@ -94,7 +94,7 @@ public class TriangleCollector {
      *
      * @param inGeoms
      * @param tris
-     * @return
+     * @return The optimized geometries
      */
     public static final List<Geometry> gatherTris(Geometry[] inGeoms, List<OCTTriangle> tris){
         Collections.sort(tris, comparator);

@@ -186,7 +186,7 @@ public class SSAOFilter extends Filter {
     /**
      * Return the bias<br>
      * see {@link  #setBias(float bias)}
-     * @return 
+     * @return  bias
      */
     public float getBias() {
         return bias;
@@ -205,7 +205,7 @@ public class SSAOFilter extends Filter {
 
     /**
      * returns the ambient occlusion intensity
-     * @return 
+     * @return intensity
      */
     public float getIntensity() {
         return intensity;
@@ -226,7 +226,7 @@ public class SSAOFilter extends Filter {
     /**
      * returns the sample radius<br>
      * see {link setSampleRadius(float sampleRadius)}
-     * @return 
+     * @return the sample radius
      */
     public float getSampleRadius() {
         return sampleRadius;
@@ -247,7 +247,7 @@ public class SSAOFilter extends Filter {
     /**
      * returns the scale<br>
      * see {@link #setScale(float scale)}
-     * @return 
+     * @return scale
      */
     public float getScale() {
         return scale;
@@ -267,7 +267,7 @@ public class SSAOFilter extends Filter {
 
     /**
      * debugging only , will be removed
-     * @return 
+     * @return Whether or not
      */
     public boolean isUseAo() {
         return useAo;
@@ -286,7 +286,7 @@ public class SSAOFilter extends Filter {
 
     /**
      * debugging only , will be removed
-     * @return 
+     * @return useOnlyAo
      */
     public boolean isUseOnlyAo() {
         return useOnlyAo;

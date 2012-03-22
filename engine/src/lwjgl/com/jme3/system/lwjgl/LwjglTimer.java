@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2010 jMonkeyEngine
+ * Copyright (c) 2009-2012 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -81,14 +81,14 @@ public class LwjglTimer extends Timer {
     }
 
     /**
-     * @see com.jme.util.Timer#getTime()
+     * @see Timer#getTime() 
      */
     public long getTime() {
         return Sys.getTime() - startTime;
     }
 
     /**
-     * @see com.jme.util.Timer#getResolution()
+     * @see Timer#getResolution() 
      */
     public long getResolution() {
         return LWJGL_TIMER_RES;

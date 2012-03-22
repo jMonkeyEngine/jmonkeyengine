@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2010 jMonkeyEngine
+ * Copyright (c) 2009-2012 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -98,7 +98,7 @@ public class AssetCache {
      * <br/><br/>
      * <font color="red">Thread-safe.</font>
      * @param key
-     * @return
+     * @return the object matching the {@link AssetKey}
      */
     public Object getFromCache(AssetKey key){
         synchronized (regularCache){

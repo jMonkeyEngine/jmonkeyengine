@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2010 jMonkeyEngine
+ * Copyright (c) 2009-2012 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -87,7 +87,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
     }
 
     /**
-     * Don't use this constructor use {@link FilterPostProcessor(AssetManager assetManager)}<br>
+     * Don't use this constructor, use {@link #FilterPostProcessor(AssetManager assetManager)}<br>
      * This constructor is used for serialization only
      */
     public FilterPostProcessor() {
@@ -488,7 +488,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
     /**
      * For internal use only<br>
      * returns the depth texture of the scene
-     * @return 
+     * @return the depth texture
      */    
     public Texture2D getDepthTexture() {
         return depthTexture;
@@ -497,7 +497,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
     /**
      * For internal use only<br>
      * returns the rendered texture of the scene
-     * @return 
+     * @return the filter texture
      */
     public Texture2D getFilterTexture() {
         return filterTexture;

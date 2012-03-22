@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2010 jMonkeyEngine
+ * Copyright (c) 2009-2012 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -218,7 +218,7 @@ public class DesktopAssetManager implements AssetManager {
      *
      * @param <T>
      * @param key
-     * @return
+     * @return the loaded asset
      */
       public <T> T loadAsset(AssetKey<T> key){
         if (key == null)
@@ -319,7 +319,7 @@ public class DesktopAssetManager implements AssetManager {
     /**
      * Loads a texture.
      *
-     * @return
+     * @return the texture
      */
     public Texture loadTexture(TextureKey key){
         return (Texture) loadAsset(key);
@@ -335,7 +335,7 @@ public class DesktopAssetManager implements AssetManager {
      * @param name
      * @param generateMipmaps Enable if applying texture to 3D objects, disable
      * for GUI/HUD elements.
-     * @return
+     * @return the loaded texture
      */
     public Texture loadTexture(String name, boolean generateMipmaps){
         TextureKey key = new TextureKey(name, true);
@@ -368,7 +368,7 @@ public class DesktopAssetManager implements AssetManager {
      * Loads a bitmap font with the given name.
      *
      * @param name
-     * @return
+     * @return the loaded {@link BitmapFont}
      */
     public BitmapFont loadFont(String name){
         return (BitmapFont) loadAsset(new AssetKey(name));
@@ -382,7 +382,7 @@ public class DesktopAssetManager implements AssetManager {
      * Load a vertex/fragment shader combo.
      *
      * @param key
-     * @return
+     * @return the loaded {@link Shader}
      */
     public Shader loadShader(ShaderKey key){
         // cache abuse in method
@@ -412,7 +412,7 @@ public class DesktopAssetManager implements AssetManager {
      * Load a model.
      *
      * @param name
-     * @return
+     * @return the loaded model
      */
     public Spatial loadModel(String name){
         return loadModel(new ModelKey(name));

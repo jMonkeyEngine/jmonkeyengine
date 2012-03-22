@@ -218,7 +218,7 @@ public class TerrainPatch extends Geometry {
      * If the patch size is 32 then the returned value would be log2(32)-2 = 3
      * You can then use that value, 3, to see how many times you can divide 32 by 2
      * before the terrain gets too un-detailed (can't stitch it any further).
-     * @return
+     * @return the maximum LOD
      */
     public int getMaxLod() {
         if (maxLod < 0)

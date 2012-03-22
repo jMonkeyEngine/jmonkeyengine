@@ -65,7 +65,7 @@ public class OgreMaterialKey extends AssetKey<MaterialList> {
     /**
      * Returns the {@link MaterialExtensionSet} previously set using
      * {@link OgreMaterialKey#setMaterialExtensionSet(com.jme3.scene.plugins.ogre.matext.MaterialExtensionSet) } method.
-     * @return
+     * @return the {@link MaterialExtensionSet}
      */
     public MaterialExtensionSet getMaterialExtensionSet() {
         return matExts;

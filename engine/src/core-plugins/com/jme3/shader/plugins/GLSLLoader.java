@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2010 jMonkeyEngine
+ * Copyright (c) 2009-2012 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -185,11 +185,8 @@ public class GLSLLoader implements AssetLoader {
 
     /**
      *
-     * @param owner
-     * @param in
-     * @param extension
-     * @param key
-     * @return
+     * @param info
+     * @return String of GLSL code
      * @throws java.io.IOException
      */
     public Object load(AssetInfo info) throws IOException {

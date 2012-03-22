@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2010 jMonkeyEngine
+ * Copyright (c) 2009-2012 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -376,7 +376,7 @@ public class PhysicsSpace {
      * calls the callable on the next physics tick (ensuring e.g. force applying)
      * @param <V>
      * @param callable
-     * @return
+     * @return Future object
      */
     public <V> Future<V> enqueue(Callable<V> callable) {
         AppTask<V> task = new AppTask<V>(callable);

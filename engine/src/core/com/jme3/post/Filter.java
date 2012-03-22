@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2010 jMonkeyEngine
+ * Copyright (c) 2009-2012 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -338,7 +338,7 @@ public abstract class Filter implements Savable {
 
     /**
      * returns the name of the filter
-     * @return
+     * @return the Filter's name
      */
     public String getName() {
         return name;

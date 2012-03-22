@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2010 jMonkeyEngine
+ * Copyright (c) 2009-2012 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -128,7 +128,7 @@ public class BitmapFont implements Savable {
     /**
      * Gets the line height of a StringBlock.
      * @param sb
-     * @return
+     * @return the line height
      */
     public float getLineHeight(StringBlock sb) {
         return charSet.getLineHeight() * (sb.getSize() / charSet.getRenderedSize());
@@ -261,7 +261,7 @@ public class BitmapFont implements Savable {
     /**
      * Merge two fonts.
      * If two font have the same style, merge will fail.
-     * @param styleSet Style must be assigned to this.
+     * @param newFont Style must be assigned to this.
      * @author Yonghoon
      */
     public void merge(BitmapFont newFont) {

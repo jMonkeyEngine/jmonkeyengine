@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2010 jMonkeyEngine
+ * Copyright (c) 2009-2012 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,7 +29,6 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package com.jme3.texture.plugins;
 
 import com.jme3.asset.AssetInfo;
@@ -59,37 +58,32 @@ public final class TGALoader implements AssetLoader {
 
     // 0 - no image data in file
     public static final int TYPE_NO_IMAGE = 0;
-
     // 1 - uncompressed, color-mapped image
     public static final int TYPE_COLORMAPPED = 1;
-
     // 2 - uncompressed, true-color image
     public static final int TYPE_TRUECOLOR = 2;
-
     // 3 - uncompressed, black and white image
     public static final int TYPE_BLACKANDWHITE = 3;
-
     // 9 - run-length encoded, color-mapped image
     public static final int TYPE_COLORMAPPED_RLE = 9;
-
     // 10 - run-length encoded, true-color image
     public static final int TYPE_TRUECOLOR_RLE = 10;
-
     // 11 - run-length encoded, black and white image
     public static final int TYPE_BLACKANDWHITE_RLE = 11;
 
-    public Object load(AssetInfo info) throws IOException{
-        if (!(info.getKey() instanceof TextureKey))
+    public Object load(AssetInfo info) throws IOException {
+        if (!(info.getKey() instanceof TextureKey)) {
             throw new IllegalArgumentException("Texture assets must be loaded using a TextureKey");
+        }
 
-        boolean flip = ((TextureKey)info.getKey()).isFlipY();
+        boolean flip = ((TextureKey) info.getKey()).isFlipY();
         InputStream in = null;
         try {
             in = info.openStream();
             Image img = load(in, flip);
             return img;
         } finally {
-            if (in != null){
+            if (in != null) {
                 in.close();
             }
         }
@@ -99,14 +93,14 @@ public final class TGALoader implements AssetLoader {
      * <code>loadImage</code> is a manual image loader which is entirely
      * independent of AWT. OUT: RGB888 or RGBA8888 Image object
      * 
-     * @return <code>Image</code> object that contains the
-     *         image, either as a RGB888 or RGBA8888
+     * 
+    
+     * @param in
+     *            InputStream of an uncompressed 24b RGB or 32b RGBA TGA
      * @param flip
      *            Flip the image vertically
-     * @param exp32
-     *            Add a dummy Alpha channel to 24b RGB image.
-     * @param fis
-     *            InputStream of an uncompressed 24b RGB or 32b RGBA TGA
+     * @return <code>Image</code> object that contains the
+     *         image, either as a RGB888 or RGBA8888
      * @throws java.io.IOException
      */
     public static Image load(InputStream in, boolean flip) throws IOException {
@@ -151,49 +145,55 @@ public final class TGALoader implements AssetLoader {
         int pixelDepth = dis.readUnsignedByte();
         int imageDescriptor = dis.readUnsignedByte();
         if ((imageDescriptor & 32) != 0) // bit 5 : if 1, flip top/bottom ordering
+        {
             flip = !flip;
+        }
         if ((imageDescriptor & 16) != 0) // bit 4 : if 1, flip left/right ordering
+        {
             flipH = !flipH;
-        
+        }
+
         // ---------- Done Reading the TGA header ---------- //
-        
+
         // Skip image ID
-        if (idLength > 0)
+        if (idLength > 0) {
             in.skip(idLength);
-        
+        }
+
         ColorMapEntry[] cMapEntries = null;
         if (colorMapType != 0) {
             // read the color map.
             int bytesInColorMap = (cMapDepth * cMapLength) >> 3;
-            int bitsPerColor = Math.min(cMapDepth/3 , 8);
-            
+            int bitsPerColor = Math.min(cMapDepth / 3, 8);
+
             byte[] cMapData = new byte[bytesInColorMap];
             in.read(cMapData);
-            
+
             // Only go to the trouble of constructing the color map
             // table if this is declared a color mapped image.
             if (imageType == TYPE_COLORMAPPED || imageType == TYPE_COLORMAPPED_RLE) {
                 cMapEntries = new ColorMapEntry[cMapLength];
-                int alphaSize = cMapDepth - (3*bitsPerColor);
+                int alphaSize = cMapDepth - (3 * bitsPerColor);
                 float scalar = 255f / (FastMath.pow(2, bitsPerColor) - 1);
                 float alphaScalar = 255f / (FastMath.pow(2, alphaSize) - 1);
                 for (int i = 0; i < cMapLength; i++) {
                     ColorMapEntry entry = new ColorMapEntry();
                     int offset = cMapDepth * i;
-                    entry.red = (byte)(int)(getBitsAsByte(cMapData, offset, bitsPerColor) * scalar);
-                    entry.green = (byte)(int)(getBitsAsByte(cMapData, offset+bitsPerColor, bitsPerColor) * scalar);
-                    entry.blue = (byte)(int)(getBitsAsByte(cMapData, offset+(2*bitsPerColor), bitsPerColor) * scalar);
-                    if (alphaSize <= 0)
-                        entry.alpha = (byte)255;
-                    else
-                        entry.alpha = (byte)(int)(getBitsAsByte(cMapData, offset+(3*bitsPerColor), alphaSize) * alphaScalar);
-                    
+                    entry.red = (byte) (int) (getBitsAsByte(cMapData, offset, bitsPerColor) * scalar);
+                    entry.green = (byte) (int) (getBitsAsByte(cMapData, offset + bitsPerColor, bitsPerColor) * scalar);
+                    entry.blue = (byte) (int) (getBitsAsByte(cMapData, offset + (2 * bitsPerColor), bitsPerColor) * scalar);
+                    if (alphaSize <= 0) {
+                        entry.alpha = (byte) 255;
+                    } else {
+                        entry.alpha = (byte) (int) (getBitsAsByte(cMapData, offset + (3 * bitsPerColor), alphaSize) * alphaScalar);
+                    }
+
                     cMapEntries[i] = entry;
                 }
             }
         }
-        
-        
+
+
         // Allocate image data array
         Format format;
         byte[] rawData = null;
@@ -212,41 +212,45 @@ public final class TGALoader implements AssetLoader {
             byte green = 0;
             byte blue = 0;
             byte alpha = 0;
-            
+
             // Faster than doing a 16-or-24-or-32 check on each individual pixel,
             // just make a seperate loop for each.
             if (pixelDepth == 16) {
                 byte[] data = new byte[2];
-                float scalar = 255f/31f;
+                float scalar = 255f / 31f;
                 for (int i = 0; i <= (height - 1); i++) {
-                    if (!flip)
+                    if (!flip) {
                         rawDataIndex = (height - 1 - i) * width * dl;
+                    }
                     for (int j = 0; j < width; j++) {
                         data[1] = dis.readByte();
                         data[0] = dis.readByte();
-                        rawData[rawDataIndex++] = (byte)(int)(getBitsAsByte(data, 1, 5) * scalar);
-                        rawData[rawDataIndex++] = (byte)(int)(getBitsAsByte(data, 6, 5) * scalar);
-                        rawData[rawDataIndex++] = (byte)(int)(getBitsAsByte(data, 11, 5) * scalar);
+                        rawData[rawDataIndex++] = (byte) (int) (getBitsAsByte(data, 1, 5) * scalar);
+                        rawData[rawDataIndex++] = (byte) (int) (getBitsAsByte(data, 6, 5) * scalar);
+                        rawData[rawDataIndex++] = (byte) (int) (getBitsAsByte(data, 11, 5) * scalar);
                         if (dl == 4) {
                             // create an alpha channel
                             alpha = getBitsAsByte(data, 0, 1);
-                            if (alpha == 1) alpha = (byte)255;
+                            if (alpha == 1) {
+                                alpha = (byte) 255;
+                            }
                             rawData[rawDataIndex++] = alpha;
                         }
                     }
                 }
 
                 format = dl == 4 ? Format.RGBA8 : Format.RGB8;
-            } else if (pixelDepth == 24){
+            } else if (pixelDepth == 24) {
                 for (int y = 0; y < height; y++) {
-                    if (!flip)
+                    if (!flip) {
                         rawDataIndex = (height - 1 - y) * width * dl;
-                    else
+                    } else {
                         rawDataIndex = y * width * dl;
+                    }
 
                     dis.readFully(rawData, rawDataIndex, width * dl);
 //                    for (int x = 0; x < width; x++) {
-                        //read scanline
+                    //read scanline
 //                        blue = dis.readByte();
 //                        green = dis.readByte();
 //                        red = dis.readByte();
@@ -256,10 +260,11 @@ public final class TGALoader implements AssetLoader {
 //                    }
                 }
                 format = Format.BGR8;
-            } else if (pixelDepth == 32){
+            } else if (pixelDepth == 32) {
                 for (int i = 0; i <= (height - 1); i++) {
-                    if (!flip)
+                    if (!flip) {
                         rawDataIndex = (height - 1 - i) * width * dl;
+                    }
 
                     for (int j = 0; j < width; j++) {
                         blue = dis.readByte();
@@ -273,26 +278,26 @@ public final class TGALoader implements AssetLoader {
                     }
                 }
                 format = Format.RGBA8;
-            }else{
-                throw new IOException("Unsupported TGA true color depth: "+pixelDepth);
+            } else {
+                throw new IOException("Unsupported TGA true color depth: " + pixelDepth);
             }
-        } else if( imageType == TYPE_TRUECOLOR_RLE ) {
+        } else if (imageType == TYPE_TRUECOLOR_RLE) {
             byte red = 0;
             byte green = 0;
             byte blue = 0;
             byte alpha = 0;
             // Faster than doing a 16-or-24-or-32 check on each individual pixel,
             // just make a seperate loop for each.
-            if( pixelDepth == 32 ){
-                for( int i = 0; i <= ( height - 1 ); ++i ){
-                    if( !flip ){
-                        rawDataIndex = ( height - 1 - i ) * width * dl;
+            if (pixelDepth == 32) {
+                for (int i = 0; i <= (height - 1); ++i) {
+                    if (!flip) {
+                        rawDataIndex = (height - 1 - i) * width * dl;
                     }
 
-                    for( int j = 0; j < width; ++j ){
+                    for (int j = 0; j < width; ++j) {
                         // Get the number of pixels the next chunk covers (either packed or unpacked)
                         int count = dis.readByte();
-                        if( ( count & 0x80 ) != 0 ){
+                        if ((count & 0x80) != 0) {
                             // Its an RLE packed block - use the following 1 pixel for the next <count> pixels
                             count &= 0x07f;
                             j += count;
@@ -300,16 +305,16 @@ public final class TGALoader implements AssetLoader {
                             green = dis.readByte();
                             red = dis.readByte();
                             alpha = dis.readByte();
-                            while( count-- >= 0 ){
+                            while (count-- >= 0) {
                                 rawData[rawDataIndex++] = red;
                                 rawData[rawDataIndex++] = green;
                                 rawData[rawDataIndex++] = blue;
                                 rawData[rawDataIndex++] = alpha;
                             }
-                        } else{
+                        } else {
                             // Its not RLE packed, but the next <count> pixels are raw.
                             j += count;
-                            while( count-- >= 0 ){
+                            while (count-- >= 0) {
                                 blue = dis.readByte();
                                 green = dis.readByte();
                                 red = dis.readByte();
@@ -323,30 +328,30 @@ public final class TGALoader implements AssetLoader {
                     }
                 }
                 format = Format.RGBA8;
-            } else if( pixelDepth == 24 ){
-                for( int i = 0; i <= ( height - 1 ); i++ ){
-                    if( !flip ){
-                        rawDataIndex = ( height - 1 - i ) * width * dl;
+            } else if (pixelDepth == 24) {
+                for (int i = 0; i <= (height - 1); i++) {
+                    if (!flip) {
+                        rawDataIndex = (height - 1 - i) * width * dl;
                     }
-                    for( int j = 0; j < width; ++j ){
+                    for (int j = 0; j < width; ++j) {
                         // Get the number of pixels the next chunk covers (either packed or unpacked)
                         int count = dis.readByte();
-                        if( ( count & 0x80 ) != 0 ){
+                        if ((count & 0x80) != 0) {
                             // Its an RLE packed block - use the following 1 pixel for the next <count> pixels
                             count &= 0x07f;
                             j += count;
                             blue = dis.readByte();
                             green = dis.readByte();
                             red = dis.readByte();
-                            while( count-- >= 0 ){
+                            while (count-- >= 0) {
                                 rawData[rawDataIndex++] = red;
                                 rawData[rawDataIndex++] = green;
                                 rawData[rawDataIndex++] = blue;
                             }
-                        } else{
+                        } else {
                             // Its not RLE packed, but the next <count> pixels are raw.
                             j += count;
-                            while( count-- >= 0 ){
+                            while (count-- >= 0) {
                                 blue = dis.readByte();
                                 green = dis.readByte();
                                 red = dis.readByte();
@@ -358,39 +363,39 @@ public final class TGALoader implements AssetLoader {
                     }
                 }
                 format = Format.RGB8;
-            } else if( pixelDepth == 16 ){
-                byte[] data = new byte[ 2 ];
+            } else if (pixelDepth == 16) {
+                byte[] data = new byte[2];
                 float scalar = 255f / 31f;
-                for( int i = 0; i <= ( height - 1 ); i++ ){
-                    if( !flip ){
-                        rawDataIndex = ( height - 1 - i ) * width * dl;
+                for (int i = 0; i <= (height - 1); i++) {
+                    if (!flip) {
+                        rawDataIndex = (height - 1 - i) * width * dl;
                     }
-                    for( int j = 0; j < width; j++ ){
+                    for (int j = 0; j < width; j++) {
                         // Get the number of pixels the next chunk covers (either packed or unpacked)
                         int count = dis.readByte();
-                        if( ( count & 0x80 ) != 0 ){
+                        if ((count & 0x80) != 0) {
                             // Its an RLE packed block - use the following 1 pixel for the next <count> pixels
                             count &= 0x07f;
                             j += count;
                             data[1] = dis.readByte();
                             data[0] = dis.readByte();
-                            blue = (byte) (int) ( getBitsAsByte( data, 1, 5 ) * scalar );
-                            green = (byte) (int) ( getBitsAsByte( data, 6, 5 ) * scalar );
-                            red = (byte) (int) ( getBitsAsByte( data, 11, 5 ) * scalar );
-                            while( count-- >= 0 ){
+                            blue = (byte) (int) (getBitsAsByte(data, 1, 5) * scalar);
+                            green = (byte) (int) (getBitsAsByte(data, 6, 5) * scalar);
+                            red = (byte) (int) (getBitsAsByte(data, 11, 5) * scalar);
+                            while (count-- >= 0) {
                                 rawData[rawDataIndex++] = red;
                                 rawData[rawDataIndex++] = green;
                                 rawData[rawDataIndex++] = blue;
                             }
-                        } else{
+                        } else {
                             // Its not RLE packed, but the next <count> pixels are raw.
                             j += count;
-                            while( count-- >= 0 ){
+                            while (count-- >= 0) {
                                 data[1] = dis.readByte();
                                 data[0] = dis.readByte();
-                                blue = (byte) (int) ( getBitsAsByte( data, 1, 5 ) * scalar );
-                                green = (byte) (int) ( getBitsAsByte( data, 6, 5 ) * scalar );
-                                red = (byte) (int) ( getBitsAsByte( data, 11, 5 ) * scalar );
+                                blue = (byte) (int) (getBitsAsByte(data, 1, 5) * scalar);
+                                green = (byte) (int) (getBitsAsByte(data, 6, 5) * scalar);
+                                red = (byte) (int) (getBitsAsByte(data, 11, 5) * scalar);
                                 rawData[rawDataIndex++] = red;
                                 rawData[rawDataIndex++] = green;
                                 rawData[rawDataIndex++] = blue;
@@ -399,21 +404,23 @@ public final class TGALoader implements AssetLoader {
                     }
                 }
                 format = Format.RGB8;
-            } else{
-                throw new IOException( "Unsupported TGA true color depth: " + pixelDepth );
+            } else {
+                throw new IOException("Unsupported TGA true color depth: " + pixelDepth);
             }
 
-        } else if( imageType == TYPE_COLORMAPPED ){
+        } else if (imageType == TYPE_COLORMAPPED) {
             int bytesPerIndex = pixelDepth / 8;
-            
+
             if (bytesPerIndex == 1) {
                 for (int i = 0; i <= (height - 1); i++) {
-                    if (!flip)
+                    if (!flip) {
                         rawDataIndex = (height - 1 - i) * width * dl;
+                    }
                     for (int j = 0; j < width; j++) {
                         int index = dis.readUnsignedByte();
-                        if (index >= cMapEntries.length || index < 0)
-                            throw new IOException("TGA: Invalid color map entry referenced: "+index);
+                        if (index >= cMapEntries.length || index < 0) {
+                            throw new IOException("TGA: Invalid color map entry referenced: " + index);
+                        }
 
                         ColorMapEntry entry = cMapEntries[index];
                         rawData[rawDataIndex++] = entry.red;
@@ -422,17 +429,19 @@ public final class TGALoader implements AssetLoader {
                         if (dl == 4) {
                             rawData[rawDataIndex++] = entry.alpha;
                         }
-    
+
                     }
                 }
             } else if (bytesPerIndex == 2) {
                 for (int i = 0; i <= (height - 1); i++) {
-                    if (!flip)
+                    if (!flip) {
                         rawDataIndex = (height - 1 - i) * width * dl;
+                    }
                     for (int j = 0; j < width; j++) {
                         int index = flipEndian(dis.readShort());
-                        if (index >= cMapEntries.length || index < 0)
-                            throw new IOException("TGA: Invalid color map entry referenced: "+index);
+                        if (index >= cMapEntries.length || index < 0) {
+                            throw new IOException("TGA: Invalid color map entry referenced: " + index);
+                        }
 
                         ColorMapEntry entry = cMapEntries[index];
                         rawData[rawDataIndex++] = entry.red;
@@ -444,15 +453,15 @@ public final class TGALoader implements AssetLoader {
                     }
                 }
             } else {
-                throw new IOException("TGA: unknown colormap indexing size used: "+bytesPerIndex);
+                throw new IOException("TGA: unknown colormap indexing size used: " + bytesPerIndex);
             }
 
             format = dl == 4 ? Format.RGBA8 : Format.RGB8;
         } else {
             throw new IOException("Grayscale TGA not supported");
         }
-        
-        
+
+
         in.close();
         // Get a pointer to the image memory
         ByteBuffer scratch = BufferUtils.createByteBuffer(rawData.length);
@@ -472,16 +481,17 @@ public final class TGALoader implements AssetLoader {
         int offsetBytes = offset / 8;
         int indexBits = offset % 8;
         int rVal = 0;
-        
+
         // start at data[offsetBytes]...  spill into next byte as needed.
-        for (int i = length; --i >=0;) {
+        for (int i = length; --i >= 0;) {
             byte b = data[offsetBytes];
-            int test = indexBits == 7 ? 1 : 2 << (6-indexBits);
+            int test = indexBits == 7 ? 1 : 2 << (6 - indexBits);
             if ((b & test) != 0) {
-                if (i == 0)
+                if (i == 0) {
                     rVal++;
-                else
-                    rVal += (2 << i-1);
+                } else {
+                    rVal += (2 << i - 1);
+                }
             }
             indexBits++;
             if (indexBits == 8) {
@@ -489,8 +499,8 @@ public final class TGALoader implements AssetLoader {
                 offsetBytes++;
             }
         }
-        
-        return (byte)rVal;
+
+        return (byte) rVal;
     }
 
     /**
@@ -507,11 +517,12 @@ public final class TGALoader implements AssetLoader {
     }
 
     static class ColorMapEntry {
+
         byte red, green, blue, alpha;
-        
+
         @Override
         public String toString() {
-            return "entry: "+red+","+green+","+blue+","+alpha;
+            return "entry: " + red + "," + green + "," + blue + "," + alpha;
         }
     }
 }

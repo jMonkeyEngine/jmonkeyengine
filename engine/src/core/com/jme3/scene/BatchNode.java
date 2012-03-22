@@ -56,7 +56,7 @@ import java.util.logging.Logger;
  * this geometries are directly attached to the node in the scene graph.
  * usage is like any other node except you have to call the {@link #batch()} method once all geoms have been attached to the sub scene graph and theire material set
  * (see todo more automagic for further enhancements)
- * all the geometry that have been batched are set to {@link CullHint#Always} to not render them.
+ * all the geometry that have been batched are set to {@link Spatial.CullHint#Always} to not render them.
  * the sub geometries can be transformed as usual their transforms are used to update the mesh of the geometryBatch.
  * sub geoms can be removed but it may be slower than the normal spatial removing
  * Sub geoms can be added after the batch() method has been called but won't be batched and will be rendered as normal geometries.

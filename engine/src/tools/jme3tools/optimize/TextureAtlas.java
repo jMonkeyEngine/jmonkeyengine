@@ -368,7 +368,7 @@ public class TextureAtlas {
     /**
      * Get the <code>TextureAtlasTile</code> for the given Texture
      * @param texture The texture to retrieve the <code>TextureAtlasTile</code> for.
-     * @return 
+     * @return the atlas tile
      */
     public TextureAtlasTile getAtlasTile(Texture texture) {
         String sourceTextureName = textureName(texture);
@@ -390,7 +390,7 @@ public class TextureAtlas {
     /**
      * Creates a new atlas texture for the given map name.
      * @param mapName
-     * @return 
+     * @return the atlas texture
      */
     public Texture getAtlasTexture(String mapName) {
         if (images == null) {

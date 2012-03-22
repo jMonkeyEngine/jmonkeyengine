@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2010 jMonkeyEngine
+ * Copyright (c) 2009-2012 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -270,7 +270,7 @@ public interface Renderer {
     public void renderMesh(Mesh mesh, int lod, int count);
 
     /**
-     * Resets all previously used {@link GLObject}s on this Renderer.
+     * Resets all previously used GLObjects on this Renderer.
      * The state of the GLObjects is reset in such way, that using
      * them again will cause the renderer to reupload them.
      * Call this method when you know the GL context is going to shutdown.
@@ -280,14 +280,14 @@ public interface Renderer {
     public void resetGLObjects();
 
     /**
-     * Deletes all previously used {@link GLObject}s on this Renderer, and
+     * Deletes all previously used GLObjects on this Renderer, and
      * then resets the GLObjects.
      * 
      * @see #resetGLObjects() 
      * @see GLObject#deleteObject(com.jme3.renderer.Renderer) 
      */
     public void cleanup();
-
+    
     /**
      * Sets the alpha to coverage state.
      * <p>
