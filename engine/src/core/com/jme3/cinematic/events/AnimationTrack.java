@@ -150,6 +150,16 @@ public class AnimationTrack extends AbstractCinematicEvent {
     }
 
     @Override
+    public void setSpeed(float speed) {
+        super.setSpeed(speed);
+        if(channel!=null){
+            channel.setSpeed(speed);
+        }
+    }
+    
+    
+
+    @Override
     public void onUpdate(float tpf) {
     }
 
