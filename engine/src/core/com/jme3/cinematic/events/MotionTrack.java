@@ -284,6 +284,7 @@ public class MotionTrack extends AbstractCinematicEvent implements Control {
 
     @Override
     public void onStop() {
+        setCurrentWayPoint(path.getNbWayPoints()-1);
         currentWayPoint = 0;
     }
 
