@@ -237,6 +237,14 @@ public class BatchNode extends Node implements Savable {
                     }
                     List<Geometry> list = map.get(g.getMaterial());
                     if (list == null) {
+                        //trying to compare materials with the isEqual method 
+                        for (Material mat : map.keySet()) {
+                            if (g.getMaterial().isEqual(mat)) {
+                                list = map.get(mat);
+                            }
+                        }
+                    }
+                    if (list == null) {
                         list = new ArrayList<Geometry>();
                         map.put(g.getMaterial(), list);
                     }
@@ -482,7 +490,7 @@ public class BatchNode extends Node implements Savable {
                     }
                 } else if (VertexBuffer.Type.Position.ordinal() == bufType) {
                     FloatBuffer inPos = (FloatBuffer) inBuf.getData();
-                    FloatBuffer outPos = (FloatBuffer) outBuf.getData();                    
+                    FloatBuffer outPos = (FloatBuffer) outBuf.getData();
                     doCopyBuffer(inPos, globalVertIndex, outPos, 3);
                 } else if (VertexBuffer.Type.Normal.ordinal() == bufType || VertexBuffer.Type.Tangent.ordinal() == bufType) {
                     FloatBuffer inPos = (FloatBuffer) inBuf.getData();
@@ -647,8 +655,8 @@ public class BatchNode extends Node implements Savable {
     protected void setNeedsFullRebatch(boolean needsFullRebatch) {
         this.needsFullRebatch = needsFullRebatch;
     }
-    
-    public int getOffsetIndex(Geometry batchedGeometry){
+
+    public int getOffsetIndex(Geometry batchedGeometry) {
         return batchedGeometry.startIndex;
     }
 }

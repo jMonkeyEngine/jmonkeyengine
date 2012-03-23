@@ -61,10 +61,10 @@ public class GeometryBatchFactory {
             outBuf.put(offset + i * 3 + 2, norm.z);
         }
     }
-    
+
     private static void doTransformTangents(FloatBuffer inBuf, int offset, int components, FloatBuffer outBuf, Matrix4f transform) {
         Vector3f tan = new Vector3f();
-        
+
         // offset is given in element units
         // convert to be in component units
         offset *= components;
@@ -79,8 +79,8 @@ public class GeometryBatchFactory {
             outBuf.put(offset + i * components + 0, tan.x);
             outBuf.put(offset + i * components + 1, tan.y);
             outBuf.put(offset + i * components + 2, tan.z);
-            
-            if (components == 4){
+
+            if (components == 4) {
                 outBuf.put(offset + i * components + 3, inBuf.get(i * components + 3));
             }
         }
@@ -130,7 +130,7 @@ public class GeometryBatchFactory {
                     throw new UnsupportedOperationException();
             }
 
-            for (VertexBuffer vb : geom.getMesh().getBufferList().getArray()){
+            for (VertexBuffer vb : geom.getMesh().getBufferList().getArray()) {
                 compsForBuf[vb.getBufferType().ordinal()] = vb.getNumComponents();
                 formatForBuf[vb.getBufferType().ordinal()] = vb.getFormat();
             }
@@ -209,7 +209,7 @@ public class GeometryBatchFactory {
                     FloatBuffer inPos = (FloatBuffer) inBuf.getDataReadOnly();
                     FloatBuffer outPos = (FloatBuffer) outBuf.getData();
                     doTransformNorms(inPos, globalVertIndex, outPos, worldMatrix);
-                }else if(Type.Tangent.ordinal() == bufType){                
+                } else if (Type.Tangent.ordinal() == bufType) {
                     FloatBuffer inPos = (FloatBuffer) inBuf.getDataReadOnly();
                     FloatBuffer outPos = (FloatBuffer) outBuf.getData();
                     int components = inBuf.getNumComponents();
@@ -288,6 +288,14 @@ public class GeometryBatchFactory {
 
         for (Geometry geom : geometries) {
             List<Geometry> outList = matToGeom.get(geom.getMaterial());
+            if (outList == null) {
+                //trying to compare materials with the isEqual method 
+                for (Material mat : matToGeom.keySet()) {
+                    if (geom.getMaterial().isEqual(mat)) {
+                        outList = matToGeom.get(mat);
+                    }
+                }
+            }
             if (outList == null) {
                 outList = new ArrayList<Geometry>();
                 matToGeom.put(geom.getMaterial(), outList);
