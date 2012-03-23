@@ -69,7 +69,6 @@ public class Material implements Asset, Cloneable, Savable, Comparable<Material>
 
     // Version #2: Fixed issue with RenderState.apply*** flags not getting exported
     public static final int SAVABLE_VERSION = 2;
-    
     private static final Logger logger = Logger.getLogger(Material.class.getName());
     private static final RenderState additiveLight = new RenderState();
     private static final RenderState depthOnly = new RenderState();
@@ -105,8 +104,8 @@ public class Material implements Asset, Cloneable, Savable, Comparable<Material>
         this.def = def;
 
         // Load default values from definition (if any)
-        for (MatParam param : def.getMaterialParams()){
-            if (param.getValue() != null){
+        for (MatParam param : def.getMaterialParams()) {
+            if (param.getValue() != null) {
                 setParam(param.getName(), param.getVarType(), param.getValue());
             }
         }
@@ -133,14 +132,14 @@ public class Material implements Asset, Cloneable, Savable, Comparable<Material>
     public String getAssetName() {
         return key != null ? key.getName() : null;
     }
-    
+
     /**
      * @return the name of the material (not the same as the asset name), the returned value can be null
      */
     public String getName() {
-		return name;
-	}
-    
+        return name;
+    }
+
     /**
      * This method sets the name of the material.
      * The name is not the same as the asset name.
@@ -148,8 +147,8 @@ public class Material implements Asset, Cloneable, Savable, Comparable<Material>
      * @param name the name of the material
      */
     public void setName(String name) {
-		this.name = name;
-	}
+        this.name = name;
+    }
 
     public void setKey(AssetKey key) {
         this.key = key;
@@ -204,12 +203,12 @@ public class Material implements Asset, Cloneable, Savable, Comparable<Material>
 
     @Override
     public boolean equals(Object obj) {
-        if(obj instanceof Material){
-            return ((Material)obj).compareTo(this) == 0;
+        if (obj instanceof Material) {
+            return ((Material) obj).compareTo(this) == 0;
         }
         return super.equals(obj);
     }
-    
+
     /**
      * Clones this material. The result is returned.
      */
@@ -232,8 +231,83 @@ public class Material implements Asset, Cloneable, Savable, Comparable<Material>
 
             return mat;
         } catch (CloneNotSupportedException ex) {
-            throw new AssertionError();
+            throw new AssertionError(ex);
         }
+    }
+
+    /**
+     * Compares two materials and returns true if they are equal.
+     * This methods compare definition,  params, additional render states
+     * The difference with the equals method is that it's truely comaring the objects. (equals compare the sort ids for geometry sorting)
+     * @param mat the material to cmpare to this material
+     * @return true if the materials are equal.
+     */
+    public boolean isEqual(Material mat) {
+        //early exit if the material are the same object
+        if (this == mat) {
+            return true;
+        }
+
+
+        //comparing matrial definition        
+        if (this.getMaterialDef() != mat.getMaterialDef()) {
+            return false;
+        }
+
+        //early exit if the size of the params is different
+        if (paramValues.size() != mat.paramValues.size()) {
+            return false;
+        }
+
+        //comparing params
+        for (String paramKey : paramValues.keySet()) {
+            MatParam paramOrig = getParam(paramKey);
+            MatParam param = mat.getParam(paramKey);
+            //this param does not exist in compared mat
+            if (param == null) {
+                return false;
+            }
+
+            //params exist in both materials but they not of the same type
+            if (param.type != paramOrig.type) {
+                return false;
+            }
+
+            if (param instanceof MatParamTexture) {
+                MatParamTexture tex = (MatParamTexture) param;
+                MatParamTexture texOrig = (MatParamTexture) paramOrig;
+                //comparing textures
+                if (getTextureId(tex) != getTextureId(texOrig)) {
+                    return false;
+                }
+            } else {
+                if (!param.getValue().equals(paramOrig.getValue())) {
+                    return false;
+                }
+            }
+        }
+
+
+        //comparing additional render states
+        if (additionalState == null) {
+            if (mat.additionalState != null) {
+                return false;
+            }
+        } else {
+            if (!additionalState.equals(mat.additionalState)) {
+                return false;
+            }
+        }
+
+
+        return true;
+    }
+
+    private int getTextureId(MatParamTexture param) {
+        if (param.getTextureValue() != null && param.getTextureValue().getImage() != null) {
+            return param.getTextureValue().getImage().getId();
+        }
+        return -1;
     }
 
     /**
@@ -386,7 +460,7 @@ public class Material implements Asset, Cloneable, Savable, Comparable<Material>
 
         if (type != null && paramDef.getVarType() != type) {
             logger.log(Level.WARNING, "Material parameter being set: {0} with "
-                    + "type {1} doesn''t match definition types {2}", new Object[]{name, type.name(), paramDef.getVarType()} );
+                    + "type {1} doesn''t match definition types {2}", new Object[]{name, type.name(), paramDef.getVarType()});
         }
 
         return newName;
@@ -785,7 +859,7 @@ public class Material implements Asset, Cloneable, Savable, Comparable<Material>
                     //We transform the spot directoin in view space here to save 5 varying later in the lighting shader
                     //one vec4 less and a vec4 that becomes a vec3
                     //the downside is that spotAngleCos decoding happen now in the frag shader.
-                    tmpVec.set(dir2.getX(), dir2.getY(), dir2.getZ(),0);
+                    tmpVec.set(dir2.getX(), dir2.getY(), dir2.getZ(), 0);
                     rm.getCurrentCamera().getViewMatrix().mult(tmpVec, tmpVec);
                     tmpLightDirection.set(tmpVec.getX(), tmpVec.getY(), tmpVec.getZ(), spotAngleCos);
 
@@ -1064,10 +1138,10 @@ public class Material implements Asset, Cloneable, Savable, Comparable<Material>
         boolean guessRenderStateApply = false;
 
         int ver = ic.getSavableVersion(Material.class);
-        if (ver < 1){
+        if (ver < 1) {
             applyDefaultValues = true;
         }
-        if (ver < 2){
+        if (ver < 2) {
             guessRenderStateApply = true;
         }
         if (im.getFormatVersion() == 0) {
@@ -1117,24 +1191,24 @@ public class Material implements Asset, Cloneable, Savable, Comparable<Material>
             param.setName(checkSetParam(param.getVarType(), param.getName()));
             paramValues.put(param.getName(), param);
         }
-        
-        if (applyDefaultValues){
+
+        if (applyDefaultValues) {
             // compatability with old versions where default vars were
             // not available
-            for (MatParam param : def.getMaterialParams()){
-                if (param.getValue() != null && paramValues.get(param.getName()) == null){
+            for (MatParam param : def.getMaterialParams()) {
+                if (param.getValue() != null && paramValues.get(param.getName()) == null) {
                     setParam(param.getName(), param.getVarType(), param.getValue());
                 }
             }
         }
-        if (guessRenderStateApply && additionalState != null){
+        if (guessRenderStateApply && additionalState != null) {
             // Try to guess values of "apply" render state based on defaults
             // if value != default then set apply to true
             additionalState.applyPolyOffset = additionalState.offsetEnabled;
             additionalState.applyAlphaFallOff = additionalState.alphaTest;
             additionalState.applyAlphaTest = additionalState.alphaTest;
             additionalState.applyBlendMode = additionalState.blendMode != BlendMode.Off;
-            additionalState.applyColorWrite = !additionalState.colorWrite; 
+            additionalState.applyColorWrite = !additionalState.colorWrite;
             additionalState.applyCullMode = additionalState.cullMode != FaceCullMode.Back;
             additionalState.applyDepthTest = !additionalState.depthTest;
             additionalState.applyDepthWrite = !additionalState.depthWrite;

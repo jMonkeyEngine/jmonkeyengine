@@ -59,13 +59,11 @@ public class RenderState implements Cloneable, Savable {
      * </ul>
      */
     public static final RenderState DEFAULT = new RenderState();
-
     /**
      * The <code>NULL</code> render state is identical to the {@link RenderState#DEFAULT}
      * render state except that depth testing and face culling are disabled.
      */
     public static final RenderState NULL = new RenderState();
-
     /**
      * The <code>ADDITIONAL</code> render state is identical to the
      * {@link RenderState#DEFAULT} render state except that all apply
@@ -232,13 +230,11 @@ public class RenderState implements Cloneable, Savable {
          * Replace the value in the stencil buffer with the reference value.
          */
         Replace,
-
         /**
          * Increment the value in the stencil buffer, clamp once reaching
          * the maximum value.
          */
         Increment,
-
         /**
          * Increment the value in the stencil buffer and wrap to 0 when
          * reaching the maximum value.
@@ -253,7 +249,6 @@ public class RenderState implements Cloneable, Savable {
          * value when reaching 0.
          */
         DecrementWrap,
-
         /**
          * Does a bitwise invert of the value in the stencil buffer.
          */
@@ -277,39 +272,28 @@ public class RenderState implements Cloneable, Savable {
         ADDITIONAL.applyAlphaFallOff = false;
         ADDITIONAL.applyPolyOffset = false;
     }
-
     boolean pointSprite = false;
     boolean applyPointSprite = true;
-
     boolean wireframe = false;
     boolean applyWireFrame = true;
-
     FaceCullMode cullMode = FaceCullMode.Back;
     boolean applyCullMode = true;
-
     boolean depthWrite = true;
     boolean applyDepthWrite = true;
-
     boolean depthTest = true;
     boolean applyDepthTest = true;
-
     boolean colorWrite = true;
     boolean applyColorWrite = true;
-
     BlendMode blendMode = BlendMode.Off;
     boolean applyBlendMode = true;
-
     boolean alphaTest = false;
     boolean applyAlphaTest = true;
-
     float alphaFallOff = 0;
     boolean applyAlphaFallOff = true;
-
     float offsetFactor = 0;
     float offsetUnits = 0;
     boolean offsetEnabled = false;
     boolean applyPolyOffset = true;
-
     boolean stencilTest = false;
     boolean applyStencilTest = false;
     StencilOperation frontStencilStencilFailOperation = StencilOperation.Keep;
@@ -320,7 +304,7 @@ public class RenderState implements Cloneable, Savable {
     StencilOperation backStencilDepthPassOperation = StencilOperation.Keep;
     TestFunction frontStencilFunction = TestFunction.Always;
     TestFunction backStencilFunction = TestFunction.Always;
-    
+
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule oc = ex.getCapsule(this);
         oc.write(pointSprite, "pointSprite", false);
@@ -344,19 +328,19 @@ public class RenderState implements Cloneable, Savable {
         oc.write(backStencilDepthPassOperation, "backStencilDepthPassOperation", StencilOperation.Keep);
         oc.write(frontStencilFunction, "frontStencilFunction", TestFunction.Always);
         oc.write(backStencilFunction, "backStencilFunction", TestFunction.Always);
-        
+
         // Only "additional render state" has them set to false by default
-        oc.write(applyPointSprite,  "applyPointSprite",  true);
-        oc.write(applyWireFrame,    "applyWireFrame",    true);
-        oc.write(applyCullMode,     "applyCullMode",     true);
-        oc.write(applyDepthWrite,   "applyDepthWrite",   true);
-        oc.write(applyDepthTest,    "applyDepthTest",    true);
-        oc.write(applyColorWrite,   "applyColorWrite",   true);
-        oc.write(applyBlendMode,    "applyBlendMode",    true);
-        oc.write(applyAlphaTest,    "applyAlphaTest",    true);
+        oc.write(applyPointSprite, "applyPointSprite", true);
+        oc.write(applyWireFrame, "applyWireFrame", true);
+        oc.write(applyCullMode, "applyCullMode", true);
+        oc.write(applyDepthWrite, "applyDepthWrite", true);
+        oc.write(applyDepthTest, "applyDepthTest", true);
+        oc.write(applyColorWrite, "applyColorWrite", true);
+        oc.write(applyBlendMode, "applyBlendMode", true);
+        oc.write(applyAlphaTest, "applyAlphaTest", true);
         oc.write(applyAlphaFallOff, "applyAlphaFallOff", true);
-        oc.write(applyPolyOffset,   "applyPolyOffset",   true);
-        
+        oc.write(applyPolyOffset, "applyPolyOffset", true);
+
     }
 
     public void read(JmeImporter im) throws IOException {
@@ -382,17 +366,17 @@ public class RenderState implements Cloneable, Savable {
         backStencilDepthPassOperation = ic.readEnum("backStencilDepthPassOperation", StencilOperation.class, StencilOperation.Keep);
         frontStencilFunction = ic.readEnum("frontStencilFunction", TestFunction.class, TestFunction.Always);
         backStencilFunction = ic.readEnum("backStencilFunction", TestFunction.class, TestFunction.Always);
-        
-        applyPointSprite =  ic.readBoolean("applyPointSprite",  true);
-        applyWireFrame =    ic.readBoolean("applyWireFrame",    true);
-        applyCullMode =     ic.readBoolean("applyCullMode",     true);
-        applyDepthWrite =   ic.readBoolean("applyDepthWrite",   true);
-        applyDepthTest =    ic.readBoolean("applyDepthTest",    true);
-        applyColorWrite =   ic.readBoolean("applyColorWrite",   true);
-        applyBlendMode =    ic.readBoolean("applyBlendMode",    true);
-        applyAlphaTest =    ic.readBoolean("applyAlphaTest",    true);
+
+        applyPointSprite = ic.readBoolean("applyPointSprite", true);
+        applyWireFrame = ic.readBoolean("applyWireFrame", true);
+        applyCullMode = ic.readBoolean("applyCullMode", true);
+        applyDepthWrite = ic.readBoolean("applyDepthWrite", true);
+        applyDepthTest = ic.readBoolean("applyDepthTest", true);
+        applyColorWrite = ic.readBoolean("applyColorWrite", true);
+        applyBlendMode = ic.readBoolean("applyBlendMode", true);
+        applyAlphaTest = ic.readBoolean("applyAlphaTest", true);
         applyAlphaFallOff = ic.readBoolean("applyAlphaFallOff", true);
-        applyPolyOffset =   ic.readBoolean("applyPolyOffset",   true);
+        applyPolyOffset = ic.readBoolean("applyPolyOffset", true);
     }
 
     /**
@@ -407,6 +391,103 @@ public class RenderState implements Cloneable, Savable {
         } catch (CloneNotSupportedException ex) {
             throw new AssertionError();
         }
+    }
+
+    /**
+     * returns true if the given renderState is equall to this one
+     * @param o the renderState to compate to
+     * @return true if the renderStates are equal
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (o == null) {
+            return false;
+        }
+        if (!(o instanceof RenderState)) {
+            return false;
+        }
+        RenderState rs = (RenderState) o;
+        if (pointSprite != rs.pointSprite) {
+            return false;
+        }
+
+        if (wireframe != rs.wireframe) {
+            return false;
+        }
+
+        if (cullMode != rs.cullMode) {
+            return false;
+        }
+
+        if (depthWrite != rs.depthWrite) {
+            return false;
+        }
+
+        if (depthTest != rs.depthTest) {
+            return false;
+        }
+
+        if (colorWrite != rs.colorWrite) {
+            return false;
+        }
+
+        if (blendMode != rs.blendMode) {
+            return false;
+        }
+
+        if (alphaTest != rs.alphaTest) {
+            return false;
+        }
+
+        if (alphaFallOff != rs.alphaFallOff) {
+            return false;
+        }
+
+        if (offsetEnabled != rs.offsetEnabled) {
+            return false;
+        }
+
+        if (offsetFactor != rs.offsetFactor) {
+            return false;
+        }
+
+        if (offsetUnits != rs.offsetUnits) {
+            return false;
+        }
+
+        if (stencilTest != rs.stencilTest) {
+            return false;
+        }
+
+        if (stencilTest) {
+            if (frontStencilStencilFailOperation != rs.frontStencilStencilFailOperation) {
+                return false;
+            }
+            if (frontStencilDepthFailOperation != rs.frontStencilDepthFailOperation) {
+                return false;
+            }
+            if (frontStencilDepthPassOperation != rs.frontStencilDepthPassOperation) {
+                return false;
+            }
+            if (backStencilStencilFailOperation != rs.backStencilStencilFailOperation) {
+                return false;
+            }
+            if (backStencilDepthFailOperation != rs.backStencilDepthFailOperation) {
+                return false;
+            }
+
+            if (backStencilDepthPassOperation != rs.backStencilDepthPassOperation) {
+                return false;
+            }
+            if (frontStencilFunction != rs.frontStencilFunction) {
+                return false;
+            }
+            if (backStencilFunction != rs.backStencilFunction) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**
@@ -1033,29 +1114,29 @@ public class RenderState implements Cloneable, Savable {
             state.offsetFactor = offsetFactor;
             state.offsetUnits = offsetUnits;
         }
-        if (additionalState.applyStencilTest){
+        if (additionalState.applyStencilTest) {
             state.stencilTest = additionalState.stencilTest;
 
             state.frontStencilStencilFailOperation = additionalState.frontStencilStencilFailOperation;
-            state.frontStencilDepthFailOperation   = additionalState.frontStencilDepthFailOperation;
-            state.frontStencilDepthPassOperation   = additionalState.frontStencilDepthPassOperation;
+            state.frontStencilDepthFailOperation = additionalState.frontStencilDepthFailOperation;
+            state.frontStencilDepthPassOperation = additionalState.frontStencilDepthPassOperation;
 
             state.backStencilStencilFailOperation = additionalState.backStencilStencilFailOperation;
-            state.backStencilDepthFailOperation   = additionalState.backStencilDepthFailOperation;
-            state.backStencilDepthPassOperation   = additionalState.backStencilDepthPassOperation;
+            state.backStencilDepthFailOperation = additionalState.backStencilDepthFailOperation;
+            state.backStencilDepthPassOperation = additionalState.backStencilDepthPassOperation;
 
             state.frontStencilFunction = additionalState.frontStencilFunction;
             state.backStencilFunction = additionalState.backStencilFunction;
-        }else{
+        } else {
             state.stencilTest = stencilTest;
 
             state.frontStencilStencilFailOperation = frontStencilStencilFailOperation;
-            state.frontStencilDepthFailOperation   = frontStencilDepthFailOperation;
-            state.frontStencilDepthPassOperation   = frontStencilDepthPassOperation;
+            state.frontStencilDepthFailOperation = frontStencilDepthFailOperation;
+            state.frontStencilDepthPassOperation = frontStencilDepthPassOperation;
 
             state.backStencilStencilFailOperation = backStencilStencilFailOperation;
-            state.backStencilDepthFailOperation   = backStencilDepthFailOperation;
-            state.backStencilDepthPassOperation   = backStencilDepthPassOperation;
+            state.backStencilDepthFailOperation = backStencilDepthFailOperation;
+            state.backStencilDepthPassOperation = backStencilDepthPassOperation;
 
             state.frontStencilFunction = frontStencilFunction;
             state.backStencilFunction = backStencilFunction;
