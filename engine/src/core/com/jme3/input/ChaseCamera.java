@@ -107,6 +107,7 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control {
     protected final static String ChaseCamMoveLeft = "ChaseCamMoveLeft";
     protected final static String ChaseCamMoveRight = "ChaseCamMoveRight";
     protected final static String ChaseCamToggleRotate = "ChaseCamToggleRotate";
+    protected boolean zoomin;
 
     /**
      * Constructs the chase camera
@@ -166,7 +167,7 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control {
         }
 
     }
-    private boolean zoomin;
+    
 
     public void onAnalog(String name, float value, float tpf) {
         if (name.equals(ChaseCamMoveLeft)) {
@@ -266,7 +267,7 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control {
         inputManager.addListener(this, ChaseCamZoomOut);
     }
 
-    private void computePosition() {
+    protected void computePosition() {
 
         float hDistance = (distance) * FastMath.sin((FastMath.PI / 2) - vRotation);
         pos.set(hDistance * FastMath.cos(rotation), (distance) * FastMath.sin(vRotation), hDistance * FastMath.sin(rotation));
@@ -274,7 +275,7 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control {
     }
 
     //rotate the camera around the target on the horizontal plane
-    private void rotateCamera(float value) {
+    protected void rotateCamera(float value) {
         if (!canRotate || !enabled) {
             return;
         }
@@ -285,7 +286,7 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control {
     }
 
     //move the camera toward or away the target
-    private void zoomCamera(float value) {
+    protected void zoomCamera(float value) {
         if (!enabled) {
             return;
         }
@@ -306,7 +307,7 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control {
     }
 
     //rotate the camera around the target on the vertical plane
-    private void vRotateCamera(float value) {
+    protected void vRotateCamera(float value) {
         if (!canRotate || !enabled) {
             return;
         }
