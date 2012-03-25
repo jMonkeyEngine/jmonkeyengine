@@ -68,31 +68,53 @@ public final class AnimChannel {
     private float blendRate   = 0;
 
     private static float clampWrapTime(float t, float max, LoopMode loopMode){
-        if (max == Float.POSITIVE_INFINITY)
-            return t;
-        
-        if (t < 0f){
-            //float tMod = -(-t % max);
-            switch (loopMode){
-                case DontLoop:
-                    return 0;
-                case Cycle:
-                    return t;
-                case Loop:
-                    return max - t;
-            }
-        }else if (t > max){
-            switch (loopMode){
-                case DontLoop:
-                    return max;
-                case Cycle:
-                    return /*-max;*/-(2f * max - t);
-                case Loop:
-                    return t - max;
-            }
+        if (t == 0) {
+            return 0; // prevent division by 0 errors
         }
-
+        
+        switch (loopMode) {
+            case Cycle:
+                boolean sign = ((int) (t / max) % 2) != 0;
+                float result;
+                if (t < 0){
+                    result = sign ? t % max : -(max + (t % max));
+                } else {
+                    result = sign ? -(max - (t % max)) : t % max;
+                }
+                return result;
+            case DontLoop:
+                return t > max ? max : (t < 0 ? 0 : t);
+            case Loop:
+                return t % max;
+        }
         return t;
+        
+        
+//        if (max == Float.POSITIVE_INFINITY)
+//            return t;
+//        
+//        if (t < 0f){
+//            //float tMod = -(-t % max);
+//            switch (loopMode){
+//                case DontLoop:
+//                    return 0;
+//                case Cycle:
+//                    return t;
+//                case Loop:
+//                    return max - t;
+//            }
+//        }else if (t > max){
+//            switch (loopMode){
+//                case DontLoop:
+//                    return max;
+//                case Cycle:
+//                    return -(2f * max - t) % max;
+//                case Loop:
+//                    return t % max;
+//            }
+//        }
+//
+//        return t;
     }
 
     AnimChannel(AnimControl control){
@@ -225,6 +247,8 @@ public final class AnimChannel {
             loopModeBlendFrom = loopMode;
             blendAmount = 0f;
             blendRate   = 1f / blendTime;
+        }else{
+            blendFrom = null;
         }
 
         animation = anim;
@@ -335,9 +359,12 @@ public final class AnimChannel {
         if (animation == null)
             return;
 
-        if (blendFrom != null){
-            blendFrom.setTime(timeBlendFrom, 1f - blendAmount, control, this, vars);
-            //blendFrom.setTime(timeBlendFrom, control.skeleton, 1f - blendAmount, affectedBones);
+        if (blendFrom != null && blendAmount != 1.0f){
+            // The blendFrom anim is set, the actual animation
+            // playing will be set 
+            blendFrom.setTime(timeBlendFrom, 1f, control, this, vars);
+//            blendFrom.setTime(timeBlendFrom, 1f - blendAmount, control, this, vars);
+            
             timeBlendFrom += tpf * speedBlendFrom;
             timeBlendFrom = clampWrapTime(timeBlendFrom,
                                           blendFrom.getLength(),
@@ -353,9 +380,8 @@ public final class AnimChannel {
                 blendFrom = null;
             }
         }
-
+        
         animation.setTime(time, blendAmount, control, this, vars);
-        //animation.setTime(time, control.skeleton, blendAmount, affectedBones);
         time += tpf * speed;
 
         if (animation.getLength() > 0){
@@ -368,10 +394,10 @@ public final class AnimChannel {
 
         time = clampWrapTime(time, animation.getLength(), loopMode);
         if (time < 0){
+            // Negative time indicates that speed should be inverted
+            // (for cycle loop mode only)
             time = -time;
             speed = -speed;
         }
-
-        
     }
 }

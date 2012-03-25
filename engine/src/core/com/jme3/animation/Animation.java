@@ -107,37 +107,6 @@ public class Animation implements Savable, Cloneable {
         for (int i = 0; i < tracks.length; i++){
             tracks[i].setTime(time, blendAmount, control, channel, vars);
         }
-        
-        /*
-        if (tracks != null && tracks.length > 0) {
-            Track<?> trackInstance = tracks[0];
-            
-            if (trackInstance instanceof SpatialTrack) {
-                Spatial spatial = control.getSpatial();
-                if (spatial != null) {
-                    ((SpatialTrack) tracks[0]).setTime(time, spatial, blendAmount);
-                }
-            } else if (trackInstance instanceof BoneTrack) {
-                BitSet affectedBones = channel.getAffectedBones();
-                Skeleton skeleton = control.getSkeleton();
-                for (int i = 0; i < tracks.length; ++i) {
-                    if (affectedBones == null || affectedBones.get(((BoneTrack) tracks[i]).getTargetIndex())) {
-                        ((BoneTrack) tracks[i]).setTime(time, skeleton, blendAmount);
-                    }
-                }
-            } else if (trackInstance instanceof PoseTrack) {
-                Spatial spatial = control.getSpatial();
-                List<Mesh> meshes = new ArrayList<Mesh>();
-                this.getMeshes(spatial, meshes);
-                if (meshes.size() > 0) {
-                    Mesh[] targets = meshes.toArray(new Mesh[meshes.size()]);
-                    for (int i = 0; i < tracks.length; ++i) {
-                        ((PoseTrack) tracks[i]).setTime(time, targets, blendAmount);
-                    }
-                }
-            }
-        }
-        */
     }
     
     /**
