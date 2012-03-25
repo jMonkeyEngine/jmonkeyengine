@@ -1177,6 +1177,10 @@ public final class BufferUtils {
             cleanerMethod = loadMethod("sun.nio.ch.DirectBuffer", "cleaner");
             cleanMethod = loadMethod("sun.misc.Cleaner", "clean");
             viewedBufferMethod = loadMethod("sun.nio.ch.DirectBuffer", "viewedBuffer");
+            if (viewedBufferMethod == null){
+                // They changed the name in Java 7 (???)
+                viewedBufferMethod = loadMethod("sun.nio.ch.DirectBuffer", "attachment");
+            }
             
             // Apache Harmony
             freeMethod = loadMethod("org.apache.harmony.nio.internal.DirectBuffer", "free");
