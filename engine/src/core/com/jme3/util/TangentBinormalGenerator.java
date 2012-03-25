@@ -67,11 +67,13 @@ public class TangentBinormalGenerator {
     private static class VertexInfo {
         public final Vector3f position;
         public final Vector3f normal;
+        public final Vector2f texCoord;
         public final ArrayList<Integer> indices = new ArrayList<Integer>();
         
-        public VertexInfo(Vector3f position, Vector3f normal) {
+        public VertexInfo(Vector3f position, Vector3f normal, Vector2f texCoord) {
             this.position = position;
             this.normal = normal;
+            this.texCoord = texCoord;
         }
     }
     
@@ -387,27 +389,37 @@ public class TangentBinormalGenerator {
                (FastMath.abs(u.z - v.z) < tolerance);
     }
     
+    private static boolean approxEqual(Vector2f u, Vector2f v) {
+        float tolerance = 1E-4f;
+        return (FastMath.abs(u.x - v.x) < tolerance) &&
+               (FastMath.abs(u.y - v.y) < tolerance);
+    }
+    
     private static ArrayList<VertexInfo> linkVertices(Mesh mesh) {
         ArrayList<VertexInfo> vertexMap = new ArrayList<VertexInfo>();
         
-        FloatBuffer vertexBuffer = (FloatBuffer) mesh.getBuffer(Type.Position).getData();
-        FloatBuffer normalBuffer = (FloatBuffer) mesh.getBuffer(Type.Normal).getData();
+        FloatBuffer vertexBuffer = mesh.getFloatBuffer(Type.Position);
+        FloatBuffer normalBuffer = mesh.getFloatBuffer(Type.Normal);
+        FloatBuffer texcoordBuffer = mesh.getFloatBuffer(Type.TexCoord);
         
         Vector3f position = new Vector3f();
         Vector3f normal = new Vector3f();
+        Vector2f texCoord = new Vector2f();
         
         final int size = vertexBuffer.capacity() / 3;
         for (int i = 0; i < size; i++) {
             
             populateFromBuffer(position, vertexBuffer, i);
             populateFromBuffer(normal, normalBuffer, i);
+            populateFromBuffer(texCoord, texcoordBuffer, i);
             
             boolean found = false;
             
             for (int j = 0; j < vertexMap.size(); j++) {
                 VertexInfo vertexInfo = vertexMap.get(j);
                 if (approxEqual(vertexInfo.position, position) &&
-                    approxEqual(vertexInfo.normal, normal))
+                    approxEqual(vertexInfo.normal, normal) &&
+                    approxEqual(vertexInfo.texCoord, texCoord))
                 {
                     vertexInfo.indices.add(i);
                     found = true;
@@ -416,7 +428,7 @@ public class TangentBinormalGenerator {
             }
             
             if (!found) {
-                VertexInfo vertexInfo = new VertexInfo(position.clone(), normal.clone());
+                VertexInfo vertexInfo = new VertexInfo(position.clone(), normal.clone(), texCoord.clone());
                 vertexInfo.indices.add(i);
                 vertexMap.add(vertexInfo);
             }
