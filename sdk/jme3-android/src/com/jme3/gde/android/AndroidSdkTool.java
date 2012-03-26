@@ -12,8 +12,9 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.netbeans.api.project.Project;
-import org.netbeans.api.project.ProjectInformation;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.NotifyDescriptor.Message;
@@ -220,6 +221,7 @@ public class AndroidSdkTool {
             outReader.start();
             errReader.start();
             proc.waitFor();
+            folder.refresh();
             String mainActName = "mobile/src/" + packag.replaceAll("\\.", "/") + "/MainActivity.java";
             FileObject mainAct = project.getProjectDirectory().getFileObject(mainActName);
             if (mainAct != null) {
@@ -229,7 +231,7 @@ public class AndroidSdkTool {
                 out.close();
                 lock.releaseLock();
             } else {
-                throw new IOException("Cannot find " + mainActName);
+                Logger.getLogger(AndroidSdkTool.class.getName()).log(Level.WARNING, "Cannot find {0}", mainActName);
             }
         } catch (InterruptedException ex) {
             Exceptions.printStackTrace(ex);
@@ -264,6 +266,7 @@ public class AndroidSdkTool {
             outReader.start();
             errReader.start();
             proc.waitFor();
+            folder.refresh();
         } catch (InterruptedException ex) {
             Exceptions.printStackTrace(ex);
         } catch (IOException ex) {
@@ -275,6 +278,7 @@ public class AndroidSdkTool {
     private static void updateAndroidManifest(Project project) {
         FileObject manifest = project.getProjectDirectory().getFileObject("mobile/AndroidManifest.xml");
         if (manifest == null) {
+            Logger.getLogger(AndroidSdkTool.class.getName()).log(Level.WARNING, "Could not find AndroidManifest.xml");
             return;
         }
         InputStream in = null;
