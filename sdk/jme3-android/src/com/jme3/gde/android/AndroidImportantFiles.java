@@ -5,6 +5,7 @@
 package com.jme3.gde.android;
 
 import com.jme3.gde.core.importantfiles.ImportantFiles;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import org.netbeans.api.project.Project;
@@ -34,10 +35,16 @@ public class AndroidImportantFiles implements ImportantFiles {
                 in = manifest.getInputStream();
                 Document configuration = XMLUtil.parse(new InputSource(in), false, false, null, null);
                 mainActivity = "mobile/src/" + configuration.getDocumentElement().getAttribute("package").replaceAll("\\.", "/") + "/MainActivity.java";
-                in.close();
             } catch (Exception ex) {
                 Exceptions.printStackTrace(ex);
             } finally {
+                try {
+                    if (in != null) {
+                        in.close();
+                    }
+                } catch (IOException ex) {
+                    Exceptions.printStackTrace(ex);
+                }
             }
         }
         ArrayList<Node> list = new ArrayList<Node>();
@@ -73,5 +80,4 @@ public class AndroidImportantFiles implements ImportantFiles {
         }
         return false;
     }
-
 }
