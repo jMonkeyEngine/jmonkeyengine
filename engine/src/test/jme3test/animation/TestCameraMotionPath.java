@@ -73,7 +73,7 @@ public class TestCameraMotionPath extends SimpleApplication {
         cam.setLocation(new Vector3f(8.4399185f, 11.189463f, 14.267577f));
         camNode = new CameraNode("Motion cam", cam);
         camNode.setControlDir(ControlDirection.SpatialToCamera);
-        camNode.getControl(0).setEnabled(false);
+        camNode.setEnabled(false);
         path = new MotionPath();
         path.setCycle(true);
         path.addWayPoint(new Vector3f(20, 3, 0));
@@ -170,11 +170,11 @@ public class TestCameraMotionPath extends SimpleApplication {
                         playing = false;
                         cameraMotionControl.stop();
                         chaser.setEnabled(true);
-                        camNode.getControl(0).setEnabled(false);
+                        camNode.setEnabled(false);
                     } else {
                         playing = true;
                         chaser.setEnabled(false);
-                        camNode.getControl(0).setEnabled(true);
+                        camNode.setEnabled(true);
                         cameraMotionControl.play();
                     }
                 }
