@@ -62,18 +62,6 @@ public interface Control extends Savable {
     public void setSpatial(Spatial spatial);
 
     /**
-     * @param enabled Enable or disable the control. If disabled, update()
-     * should do nothing.
-     */
-    public void setEnabled(boolean enabled);
-
-    /**
-     * @return True if enabled, false otherwise.
-     * @see Control#setEnabled(boolean)
-     */
-    public boolean isEnabled();
-
-    /**
      * Updates the control. This should not be called from user code.
      * @param tpf Time per frame.
      */
