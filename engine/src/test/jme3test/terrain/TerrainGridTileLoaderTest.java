@@ -17,6 +17,7 @@ import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.terrain.geomipmap.TerrainGrid;
 import com.jme3.terrain.geomipmap.TerrainGridListener;
+import com.jme3.terrain.geomipmap.TerrainGridLodControl;
 import com.jme3.terrain.geomipmap.TerrainLodControl;
 import com.jme3.terrain.geomipmap.TerrainQuad;
 import com.jme3.terrain.geomipmap.grid.AssetTileLoader;
@@ -108,7 +109,7 @@ public class TerrainGridTileLoaderTest extends SimpleApplication {
         
         this.rootNode.attachChild(this.terrain);
         
-        TerrainLodControl control = new TerrainLodControl(this.terrain, getCamera());
+        TerrainLodControl control = new TerrainGridLodControl(this.terrain, getCamera());
         control.setLodCalculator( new DistanceLodCalculator(65, 2.7f) ); // patch size, and a multiplier
         this.terrain.addControl(control);
         

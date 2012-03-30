@@ -126,17 +126,6 @@ public interface Terrain {
     public int getMaxLod();
 
     /**
-     * Called by an LodControl.
-     * Calculates the level of detail of the terrain and adjusts its geometry.
-     * This is where the Terrain's LOD algorithm will change the detail of
-     * the terrain based on how far away this position is from the particular
-     * terrain patch.
-     * @param location the Camera's location. A list of one camera location is normal 
-     *  if you just have one camera in your scene.
-     */
-    public void update(List<Vector3f> location, LodCalculator lodCalculator);
-
-    /**
      * Lock or unlock the meshes of this terrain.
      * Locked meshes are un-editable but have better performance.
      * This should call the underlying getMesh().setStatic()/setDynamic() methods.

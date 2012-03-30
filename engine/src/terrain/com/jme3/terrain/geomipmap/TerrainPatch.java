@@ -106,6 +106,9 @@ public class TerrainPatch extends Geometry {
     protected TerrainPatch leftNeighbour, topNeighbour, rightNeighbour, bottomNeighbour;
     protected boolean searchedForNeighboursAlready = false;
 
+    // these two vectors are calculated on the GL thread, but used in the outside LOD thread
+    protected Vector3f worldTranslationCached;
+    protected Vector3f worldScaleCached;
 
     protected float[] lodEntropy;
 
@@ -942,6 +945,22 @@ public class TerrainPatch extends Geometry {
         }
     }
 
+    /**
+     * Caches the transforms (except rotation) so the LOD calculator,
+     * which runs on a separate thread, can access them safely.
+     */
+    protected void cacheTerrainTransforms() {
+        this.worldScaleCached = getWorldScale().clone();
+        this.worldTranslationCached = getWorldTranslation().clone();
+    }
+
+    public Vector3f getWorldScaleCached() {
+        return worldScaleCached;
+    }
+
+    public Vector3f getWorldTranslationCached() {
+        return worldTranslationCached;
+    }
 
 
 }

@@ -61,9 +61,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -104,33 +101,11 @@ public class TerrainQuad extends Node implements Terrain {
     protected float offsetAmount;
 
     protected int quadrant = 0; // 1=upper left, 2=lower left, 3=upper right, 4=lower right
-
-    //protected LodCalculatorFactory lodCalculatorFactory;
-    //protected LodCalculator lodCalculator;
-    
-    protected List<Vector3f> lastCameraLocations; // used for LOD calc
-    private boolean lodCalcRunning = false;
-    private int lodOffCount = 0;
     private int maxLod = -1;
-    private HashMap<String,UpdatedTerrainPatch> updatedPatches;
-    private final Object updatePatchesLock = new Object();
     private BoundingBox affectedAreaBBox; // only set in the root quad
 
     private TerrainPicker picker;
     private Vector3f lastScale = Vector3f.UNIT_XYZ;
-
-    protected ExecutorService executor;
-
-    protected ExecutorService createExecutorService() {
-        return Executors.newSingleThreadExecutor(new ThreadFactory() {
-            public Thread newThread(Runnable r) {
-                Thread th = new Thread(r);
-                th.setName("jME Terrain Thread");
-                th.setDaemon(true);
-                return th;
-            }
-        });
-    }
 
     public TerrainQuad() {
         super("Terrain");
@@ -220,23 +195,8 @@ public class TerrainQuad extends Node implements Terrain {
         this.size = quadSize;
         this.patchSize = patchSize;
         this.stepScale = scale;
-        //this.lodCalculatorFactory = lodCalculatorFactory;
-        //this.lodCalculator = lodCalculator;
         split(patchSize, heightMap);
     }
-
-    /*public void setLodCalculatorFactory(LodCalculatorFactory lodCalculatorFactory) {
-        if (children != null) {
-            for (int i = children.size(); --i >= 0;) {
-                Spatial child = children.get(i);
-                if (child instanceof TerrainQuad) {
-                    ((TerrainQuad) child).setLodCalculatorFactory(lodCalculatorFactory);
-                } else if (child instanceof TerrainPatch) {
-                    ((TerrainPatch) child).setLodCalculator(lodCalculatorFactory.createCalculator((TerrainPatch) child));
-                }
-            }
-        }
-    }*/
 
     /**
      * Forces the recalculation of all normals on the terrain.
@@ -253,16 +213,6 @@ public class TerrainQuad extends Node implements Terrain {
         return heightMap;
     }
 
-     /**
-      * Call from the update() method of a terrain controller to update
-      * the LOD values of each patch.
-      * This will perform the geometry calculation in a background thread and
-      * do the actual update on the opengl thread.
-      */
-    public void update(List<Vector3f> locations, LodCalculator lodCalculator) {
-        updateLOD(locations, lodCalculator);
-    }
-
     /**
      * update the normals if there were any height changes recently.
      * Should only be called on the root quad
@@ -277,73 +227,20 @@ public class TerrainQuad extends Node implements Terrain {
             setNormalRecalcNeeded(null); // set to false
         }
     }
-
-    // do all of the LOD calculations
-    protected void updateLOD(List<Vector3f> locations, LodCalculator lodCalculator) {
-        // update any existing ones that need updating
-        updateQuadLODs();
-
-        if (lodCalculator.isLodOff()) {
-            // we want to calculate the base lod at least once
-            if (lodOffCount == 1)
-                return;
-            else
-                lodOffCount++;
-        } else 
-            lodOffCount = 0;
-        
-        if (lastCameraLocations != null) {
-            if (lastCameraLocationsTheSame(locations) && !lodCalculator.isLodOff())
-                return; // don't update if in same spot
-            else
-                lastCameraLocations = cloneVectorList(locations);
-        }
-        else {
-            lastCameraLocations = cloneVectorList(locations);
-            return;
-        }
-
-        if (isLodCalcRunning()) {
-            return;
-        }
-
-        if (getParent() instanceof TerrainQuad) {
-            return; // we just want the root quad to perform this.
-        }
-
-        if (executor == null)
-            executor = createExecutorService();
-        
-        UpdateLOD updateLodThread = new UpdateLOD(locations, lodCalculator);
-        executor.execute(updateLodThread);
-    }
-
-    private synchronized boolean isLodCalcRunning() {
-        return lodCalcRunning;
-    }
-
-    private synchronized void setLodCalcRunning(boolean running) {
-        lodCalcRunning = running;
-    }
-
-    private List<Vector3f> cloneVectorList(List<Vector3f> locations) {
-        List<Vector3f> cloned = new ArrayList<Vector3f>();
-        for(Vector3f l : locations)
-            cloned.add(l.clone());
-        return cloned;
-    }
-
-    private boolean lastCameraLocationsTheSame(List<Vector3f> locations) {
-        boolean theSame = true;
-        for (Vector3f l : locations) {
-            for (Vector3f v : lastCameraLocations) {
-                if (!v.equals(l) ) {
-                    theSame = false;
-                    return false;
-                }
+    
+    /**
+     * Caches the transforms (except rotation) so the LOD calculator,
+     * which runs on a separate thread, can access them safely.
+     */
+    protected void cacheTerrainTransforms() {
+        for (int i = children.size(); --i >= 0;) {
+            Spatial child = children.get(i);
+            if (child instanceof TerrainQuad) {
+                ((TerrainQuad) child).cacheTerrainTransforms();
+            } else if (child instanceof TerrainPatch) {
+                ((TerrainPatch) child).cacheTerrainTransforms();
             }
         }
-        return theSame;
     }
 
     private int collideWithRay(Ray ray, CollisionResults results) {
@@ -412,86 +309,10 @@ public class TerrainQuad extends Node implements Terrain {
         return null;
     }
 
-    //public float getTextureCoordinateScale() {
-    //    return 1f/(float)totalSize;
-    //}
     public int getNumMajorSubdivisions() {
         return 1;
     }
-
-    /**
-     * Calculates the LOD of all child terrain patches.
-     */
-    private class UpdateLOD implements Runnable {
-        private List<Vector3f> camLocations;
-        private LodCalculator lodCalculator;
-
-        UpdateLOD(List<Vector3f> camLocations, LodCalculator lodCalculator) {
-            this.camLocations = camLocations;
-            this.lodCalculator = lodCalculator;
-        }
-
-        public void run() {
-            long start = System.currentTimeMillis();
-            if (isLodCalcRunning()) {
-                //System.out.println("thread already running");
-                return;
-            }
-            //System.out.println("spawned thread "+toString());
-            setLodCalcRunning(true);
-
-            // go through each patch and calculate its LOD based on camera distance
-            HashMap<String,UpdatedTerrainPatch> updated = new HashMap<String,UpdatedTerrainPatch>();
-            boolean lodChanged = calculateLod(camLocations, updated, lodCalculator); // 'updated' gets populated here
-
-            if (!lodChanged) {
-                // not worth updating anything else since no one's LOD changed
-                setLodCalcRunning(false);
-                return;
-            }
-            // then calculate its neighbour LOD values for seaming in the shader
-            findNeighboursLod(updated);
-
-            fixEdges(updated); // 'updated' can get added to here
-
-            reIndexPages(updated, lodCalculator.usesVariableLod());
-
-            setUpdateQuadLODs(updated); // set back to main ogl thread
-
-            setLodCalcRunning(false);
-            //double duration = (System.currentTimeMillis()-start);
-            //System.out.println("terminated in "+duration);
-        }
-    }
-
-    private void setUpdateQuadLODs(HashMap<String,UpdatedTerrainPatch> updated) {
-        synchronized (updatePatchesLock) {
-            updatedPatches = updated;
-        }
-    }
-
-    /**
-     * Back on the ogl thread: update the terrain patch geometries
-     * @param updatedPatches to be updated
-     */
-    private void updateQuadLODs() {
-        synchronized (updatePatchesLock) {
-            
-            if (updatedPatches == null || updatedPatches.isEmpty())
-                return;
-
-            // do the actual geometry update here
-            for (UpdatedTerrainPatch utp : updatedPatches.values()) {
-                utp.updateAll();
-            }
-
-            updatedPatches.clear();
-        }
-    }
     
-    public boolean hasPatchesToUpdate() {
-        return updatedPatches != null && !updatedPatches.isEmpty();
-    }
 
     protected boolean calculateLod(List<Vector3f> location, HashMap<String,UpdatedTerrainPatch> updates, LodCalculator lodCalculator) {
 

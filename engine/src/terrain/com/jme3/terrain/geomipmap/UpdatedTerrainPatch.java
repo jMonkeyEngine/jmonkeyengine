@@ -44,140 +44,140 @@ import java.nio.IntBuffer;
  */
 public class UpdatedTerrainPatch {
 
-	private TerrainPatch updatedPatch;
-	private int newLod;
-	private int previousLod;
-	private int rightLod,topLod,leftLod,bottomLod;
-	private IntBuffer newIndexBuffer;
-	private boolean reIndexNeeded = false;
-	private boolean fixEdges = false;
+    private TerrainPatch updatedPatch;
+    private int newLod;
+    private int previousLod;
+    private int rightLod,topLod,leftLod,bottomLod;
+    private IntBuffer newIndexBuffer;
+    private boolean reIndexNeeded = false;
+    private boolean fixEdges = false;
 
-	public UpdatedTerrainPatch(TerrainPatch updatedPatch, int newLod) {
-		this.updatedPatch = updatedPatch;
-		this.newLod = newLod;
-	}
+    public UpdatedTerrainPatch(TerrainPatch updatedPatch, int newLod) {
+        this.updatedPatch = updatedPatch;
+        this.newLod = newLod;
+    }
 
-	public UpdatedTerrainPatch(TerrainPatch updatedPatch, int newLod, int prevLOD, boolean reIndexNeeded) {
-		this.updatedPatch = updatedPatch;
-		this.newLod = newLod;
-		this.previousLod = prevLOD;
-		this.reIndexNeeded = reIndexNeeded;
-		if (this.newLod <= 0)
-                    throw new IllegalArgumentException();
-	}
+    public UpdatedTerrainPatch(TerrainPatch updatedPatch, int newLod, int prevLOD, boolean reIndexNeeded) {
+        this.updatedPatch = updatedPatch;
+        this.newLod = newLod;
+        this.previousLod = prevLOD;
+        this.reIndexNeeded = reIndexNeeded;
+        if (this.newLod <= 0)
+            throw new IllegalArgumentException();
+    }
 
-	public String getName() {
-		return updatedPatch.getName();
-	}
+    public String getName() {
+        return updatedPatch.getName();
+    }
 
-	protected boolean lodChanged() {
-		if (reIndexNeeded && previousLod != newLod)
-			return true;
-		else
-			return false;
-	}
+    protected boolean lodChanged() {
+        if (reIndexNeeded && previousLod != newLod)
+            return true;
+        else
+            return false;
+    }
 
-	protected TerrainPatch getUpdatedPatch() {
-		return updatedPatch;
-	}
+    protected TerrainPatch getUpdatedPatch() {
+        return updatedPatch;
+    }
 
-	protected void setUpdatedPatch(TerrainPatch updatedPatch) {
-		this.updatedPatch = updatedPatch;
-	}
+    protected void setUpdatedPatch(TerrainPatch updatedPatch) {
+        this.updatedPatch = updatedPatch;
+    }
 
-	protected int getNewLod() {
-		return newLod;
-	}
+    protected int getNewLod() {
+        return newLod;
+    }
 
-	public void setNewLod(int newLod) {
-		this.newLod = newLod;
-                if (this.newLod < 0)
-                    throw new IllegalArgumentException();
-	}
+    public void setNewLod(int newLod) {
+        this.newLod = newLod;
+        if (this.newLod < 0)
+            throw new IllegalArgumentException();
+    }
 
-	protected IntBuffer getNewIndexBuffer() {
-		return newIndexBuffer;
-	}
+    protected IntBuffer getNewIndexBuffer() {
+        return newIndexBuffer;
+    }
 
-	protected void setNewIndexBuffer(IntBuffer newIndexBuffer) {
-		this.newIndexBuffer = newIndexBuffer;
-	}
-
-
-	protected int getRightLod() {
-		return rightLod;
-	}
+    protected void setNewIndexBuffer(IntBuffer newIndexBuffer) {
+        this.newIndexBuffer = newIndexBuffer;
+    }
 
 
-	protected void setRightLod(int rightLod) {
-		this.rightLod = rightLod;
-	}
+    protected int getRightLod() {
+        return rightLod;
+    }
 
 
-	protected int getTopLod() {
-		return topLod;
-	}
+    protected void setRightLod(int rightLod) {
+        this.rightLod = rightLod;
+    }
 
 
-	protected void setTopLod(int topLod) {
-		this.topLod = topLod;
-	}
+    protected int getTopLod() {
+        return topLod;
+    }
 
 
-	protected int getLeftLod() {
-		return leftLod;
-	}
+    protected void setTopLod(int topLod) {
+        this.topLod = topLod;
+    }
 
 
-	protected void setLeftLod(int leftLod) {
-		this.leftLod = leftLod;
-	}
+    protected int getLeftLod() {
+        return leftLod;
+    }
 
 
-	protected int getBottomLod() {
-		return bottomLod;
-	}
+    protected void setLeftLod(int leftLod) {
+        this.leftLod = leftLod;
+    }
 
 
-	protected void setBottomLod(int bottomLod) {
-		this.bottomLod = bottomLod;
-	}
+    protected int getBottomLod() {
+        return bottomLod;
+    }
 
-	public boolean isReIndexNeeded() {
-		return reIndexNeeded;
-	}
 
-	public void setReIndexNeeded(boolean reIndexNeeded) {
-		this.reIndexNeeded = reIndexNeeded;
-	}
+    protected void setBottomLod(int bottomLod) {
+        this.bottomLod = bottomLod;
+    }
 
-	public boolean isFixEdges() {
-		return fixEdges;
-	}
+    public boolean isReIndexNeeded() {
+        return reIndexNeeded;
+    }
 
-	public void setFixEdges(boolean fixEdges) {
-		this.fixEdges = fixEdges;
-	}
+    public void setReIndexNeeded(boolean reIndexNeeded) {
+        this.reIndexNeeded = reIndexNeeded;
+    }
 
-	public int getPreviousLod() {
-		return previousLod;
-	}
+    public boolean isFixEdges() {
+        return fixEdges;
+    }
 
-	public void setPreviousLod(int previousLod) {
-		this.previousLod = previousLod;
-	}
+    public void setFixEdges(boolean fixEdges) {
+        this.fixEdges = fixEdges;
+    }
 
-	public void updateAll() {
-		updatedPatch.setLod(newLod);
-		updatedPatch.setLodRight(rightLod);
-		updatedPatch.setLodTop(topLod);
-		updatedPatch.setLodLeft(leftLod);
-		updatedPatch.setLodBottom(bottomLod);
-		if (newIndexBuffer != null && (reIndexNeeded || fixEdges)) {
-			updatedPatch.setPreviousLod(previousLod);
-			updatedPatch.getMesh().clearBuffer(Type.Index);
-			updatedPatch.getMesh().setBuffer(Type.Index, 3, newIndexBuffer);
-		}
-	}
+    public int getPreviousLod() {
+        return previousLod;
+    }
+
+    public void setPreviousLod(int previousLod) {
+        this.previousLod = previousLod;
+    }
+
+    public void updateAll() {
+        updatedPatch.setLod(newLod);
+        updatedPatch.setLodRight(rightLod);
+        updatedPatch.setLodTop(topLod);
+        updatedPatch.setLodLeft(leftLod);
+        updatedPatch.setLodBottom(bottomLod);
+        if (newIndexBuffer != null && (reIndexNeeded || fixEdges)) {
+            updatedPatch.setPreviousLod(previousLod);
+            updatedPatch.getMesh().clearBuffer(Type.Index);
+            updatedPatch.getMesh().setBuffer(Type.Index, 3, newIndexBuffer);
+        }
+    }
 
 }
