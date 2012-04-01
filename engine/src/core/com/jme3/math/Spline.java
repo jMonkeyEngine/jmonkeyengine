@@ -154,9 +154,9 @@ public class Spline implements Savable {
         if (controlPoints.size() > 2 && this.cycle) {
             controlPoints.remove(controlPoints.size() - 1);
         }
-        controlPoints.add(controlPoint);
+        controlPoints.add(controlPoint.clone());
         if (controlPoints.size() >= 2 && this.cycle) {
-            controlPoints.add(controlPoints.get(0));
+            controlPoints.add(controlPoints.get(0).clone());
         }
         if (controlPoints.size() > 1) {
             this.computeTotalLentgh();
