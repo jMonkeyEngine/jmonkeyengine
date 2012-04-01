@@ -238,13 +238,13 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
      * @see <a href="http://www.euclideanspace.com/maths/geometry/rotations/conversions/eulerToQuaternion/index.htm">http://www.euclideanspace.com/maths/geometry/rotations/conversions/eulerToQuaternion/index.htm</a>
      * 
      * @param xAngle
-     *            the Euler pitch of rotation (in radians). (aka Bank, often rot
+     *            the Euler pitch of rotation (in radians). (aka Attitude, often rot
      *            around x)
      * @param yAngle
      *            the Euler yaw of rotation (in radians). (aka Heading, often
      *            rot around y)
      * @param zAngle
-     *            the Euler roll of rotation (in radians). (aka Attitude, often
+     *            the Euler roll of rotation (in radians). (aka Bank, often
      *            rot around z)
      */
     public Quaternion fromAngles(float xAngle, float yAngle, float zAngle) {
