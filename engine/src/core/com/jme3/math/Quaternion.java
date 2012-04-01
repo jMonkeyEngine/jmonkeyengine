@@ -233,45 +233,45 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
 
     /**
      * <code>fromAngles</code> builds a Quaternion from the Euler rotation
-     * angles (y,r,p). Note that we are applying in order: roll, pitch, yaw but
+     * angles (x,y,z) aka (pitch, yaw, rall)). Note that we are applying in order: roll, yaw, pitch but
      * we've ordered them in x, y, and z for convenience.
      * @see <a href="http://www.euclideanspace.com/maths/geometry/rotations/conversions/eulerToQuaternion/index.htm">http://www.euclideanspace.com/maths/geometry/rotations/conversions/eulerToQuaternion/index.htm</a>
      * 
-     * @param yaw
-     *            the Euler yaw of rotation (in radians). (aka Bank, often rot
+     * @param xAngle
+     *            the Euler pitch of rotation (in radians). (aka Bank, often rot
      *            around x)
-     * @param roll
-     *            the Euler roll of rotation (in radians). (aka Heading, often
+     * @param yAngle
+     *            the Euler yaw of rotation (in radians). (aka Heading, often
      *            rot around y)
-     * @param pitch
-     *            the Euler pitch of rotation (in radians). (aka Attitude, often
+     * @param zAngle
+     *            the Euler roll of rotation (in radians). (aka Attitude, often
      *            rot around z)
      */
-    public Quaternion fromAngles(float yaw, float roll, float pitch) {
+    public Quaternion fromAngles(float xAngle, float yAngle, float zAngle) {
         float angle;
-        float sinRoll, sinPitch, sinYaw, cosRoll, cosPitch, cosYaw;
-        angle = pitch * 0.5f;
-        sinPitch = FastMath.sin(angle);
-        cosPitch = FastMath.cos(angle);
-        angle = roll * 0.5f;
-        sinRoll = FastMath.sin(angle);
-        cosRoll = FastMath.cos(angle);
-        angle = yaw * 0.5f;
-        sinYaw = FastMath.sin(angle);
-        cosYaw = FastMath.cos(angle);
+        float sinY, sinZ, sinX, cosY, cosZ, cosX;
+        angle = zAngle * 0.5f;
+        sinZ = FastMath.sin(angle);
+        cosZ = FastMath.cos(angle);
+        angle = yAngle * 0.5f;
+        sinY = FastMath.sin(angle);
+        cosY = FastMath.cos(angle);
+        angle = xAngle * 0.5f;
+        sinX = FastMath.sin(angle);
+        cosX = FastMath.cos(angle);
 
         // variables used to reduce multiplication calls.
-        float cosRollXcosPitch = cosRoll * cosPitch;
-        float sinRollXsinPitch = sinRoll * sinPitch;
-        float cosRollXsinPitch = cosRoll * sinPitch;
-        float sinRollXcosPitch = sinRoll * cosPitch;
+        float cosYXcosZ = cosY * cosZ;
+        float sinYXsinZ = sinY * sinZ;
+        float cosYXsinZ = cosY * sinZ;
+        float sinYXcosZ = sinY * cosZ;
 
-        w = (cosRollXcosPitch * cosYaw - sinRollXsinPitch * sinYaw);
-        x = (cosRollXcosPitch * sinYaw + sinRollXsinPitch * cosYaw);
-        y = (sinRollXcosPitch * cosYaw + cosRollXsinPitch * sinYaw);
-        z = (cosRollXsinPitch * cosYaw - sinRollXcosPitch * sinYaw);
+        w = (cosYXcosZ * cosX - sinYXsinZ * sinX);
+        x = (cosYXcosZ * sinX + sinYXsinZ * cosX);
+        y = (sinYXcosZ * cosX + cosYXsinZ * sinX);
+        z = (cosYXsinZ * cosX - sinYXcosZ * sinX);
 
-        normalize();
+        normalizeLocal();
         return this;
     }
 

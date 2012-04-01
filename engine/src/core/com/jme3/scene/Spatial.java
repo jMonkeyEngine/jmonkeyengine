@@ -983,15 +983,15 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Asset {
     }
 
     /**
-     * Rotates the spatial by the yaw, roll and pitch angles (in radians),
-     * in the local coordinate space.
+     * Rotates the spatial by the xAngle, yAngle and zAngle angles (in radians),
+     * (aka pitch, yaw, roll) in the local coordinate space.
      *
      * @return The spatial on which this method is called, e.g <code>this</code>.
      */
-    public Spatial rotate(float yaw, float roll, float pitch) {
+    public Spatial rotate(float xAngle, float yAngle, float zAngle) {
         TempVars vars = TempVars.get();
         Quaternion q = vars.quat1;
-        q.fromAngles(yaw, roll, pitch);
+        q.fromAngles(xAngle, yAngle, zAngle);
         rotate(q);
         vars.release();
 
