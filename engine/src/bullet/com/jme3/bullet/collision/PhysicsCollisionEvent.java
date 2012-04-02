@@ -53,6 +53,9 @@ public class PhysicsCollisionEvent extends EventObject {
 
     public PhysicsCollisionEvent(int type, PhysicsCollisionObject nodeA, PhysicsCollisionObject nodeB, long manifoldPointObjectId) {
         super(nodeA);
+        this.type = type;
+        this.nodeA = nodeA;
+        this.nodeB = nodeB;
         this.manifoldPointObjectId = manifoldPointObjectId;
     }
     
