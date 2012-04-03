@@ -930,6 +930,61 @@ public class LODGeomap extends GeoMap {
     }
 
     /**
+     * Get the two triangles that make up the grid section at the specified point.
+     *
+     * For every grid space there are two triangles oriented like this:
+     *  *----*
+     *  |a / |
+     *  | / b|
+     *  *----*
+     * The corners of the mesh have differently oriented triangles. The two
+     * corners that we have to special-case are the top left and bottom right
+     * corners. They are oriented inversely:
+     *  *----*
+     *  | \ b|
+     *  |a \ |
+     *  *----*
+     */
+    protected float getHeight(int x, int z, float xm, float zm) {
+        
+        int index = findClosestHeightIndex(x, z);
+        if (index < 0) {
+            return Float.NaN;
+        }
+        
+        float h1 = hdata[index];                // top left
+        float h2 = hdata[index + 1];            // top right
+        float h3 = hdata[index + width];        // bottom left
+        float h4 = hdata[index + width + 1];    // bottom right
+
+        //float dix = (x % 1f) ;
+        //float diz = (z % 1f) ;
+            
+        if ((x == 0 && z == 0) || (x == width - 2 && z == width - 2)) {
+            // top left or bottom right grid point
+            /*  1----2
+             *  | \ b|
+             *  |a \ |
+             *  3----4 */
+            if (xm<zm)
+                return h1 + xm*(h4-h3) + zm*(h3-h1);
+            else
+                return h1 + xm*(h2-h1) + zm*(h4-h2);
+            
+        } else {
+            // all other grid points
+            /*  1----2
+             *  |a / |
+             *  | / b|
+             *  3----4 */
+            if (xm<(1-zm))
+                return h3 + (xm)*(h2-h1) + (1f-zm)*(h1-h3);
+            else
+                return h3 + (xm)*(h4-h3) + (1f-zm)*(h2-h4);
+        }
+    }
+    
+    /**
      * Get a representation of the underlying triangle at the given point,
      * translated to world coordinates.
      * 
@@ -1010,7 +1065,7 @@ public class LODGeomap extends GeoMap {
         float h4 = hdata[index + width + 1];    // bottom right
 
 
-        if ((gridX == 0 && gridY == 0) || (gridX == width - 1 && gridY == width - 1)) {
+        if ((gridX == 0 && gridY == 0) || (gridX == width - 2 && gridY == width - 2)) {
             // top left or bottom right grid point
             t.get(0).x = (gridX);
             t.get(0).y = (h1);

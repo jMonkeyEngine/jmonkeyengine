@@ -590,6 +590,10 @@ public class TerrainPatch extends Geometry {
         return normal;
     }
 
+    protected float getHeight(int x, int z, float xm, float zm) {
+        return geomap.getHeight(x,z,xm,zm);
+    }
+    
     /**
      * Locks the mesh (sets it static) to improve performance.
      * But it it not editable then. Set unlock to make it editable.

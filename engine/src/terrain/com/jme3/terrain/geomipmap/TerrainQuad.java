@@ -922,44 +922,88 @@ public class TerrainQuad extends Node implements Terrain {
         return null;
     }
 
+    /**
+     * Used for searching for a child and keeping
+     * track of its quadrant
+     */
+    private class QuadrantChild {
+        int col;
+        int row;
+        Spatial child;
+        
+        QuadrantChild(int col, int row, Spatial child) {
+            this.col = col;
+            this.row = row;
+            this.child = child;
+        }
+    }
+    
+    private QuadrantChild findMatchingChild(int x, int z) {
+        int quad = findQuadrant(x, z);
+        int split = (size + 1) >> 1;
+        if (children != null) {
+            for (int i = children.size(); --i >= 0;) {
+                Spatial spat = children.get(i);
+                int col = x;
+                int row = z;
+                boolean match = false;
+
+                // get the childs quadrant
+                int childQuadrant = 0;
+                if (spat instanceof TerrainQuad) {
+                    childQuadrant = ((TerrainQuad) spat).getQuadrant();
+                } else if (spat instanceof TerrainPatch) {
+                    childQuadrant = ((TerrainPatch) spat).getQuadrant();
+                }
+
+                if (childQuadrant == 1 && (quad & 1) != 0) {
+                    match = true;
+                } else if (childQuadrant == 2 && (quad & 2) != 0) {
+                    row = z - split + 1;
+                    match = true;
+                } else if (childQuadrant == 3 && (quad & 4) != 0) {
+                    col = x - split + 1;
+                    match = true;
+                } else if (childQuadrant == 4 && (quad & 8) != 0) {
+                    col = x - split + 1;
+                    row = z - split + 1;
+                    match = true;
+                }
+                if (match)
+                    return new QuadrantChild(col, row, spat);
+            }
+        }
+        return null;
+    }
+    
+    /**
+     * Get the interpolated height of the terrain at the specified point.
+     * @param xz the location to get the height for
+     * @return Float.NAN if the value does not exist, or the coordinates are outside of the terrain
+     */
     public float getHeight(Vector2f xz) {
         // offset
-        float x = (float)(((xz.x - getWorldTranslation().x) / getWorldScale().x) + (float)totalSize / 2f);
-        float z = (float)(((xz.y - getWorldTranslation().z) / getWorldScale().z) + (float)totalSize / 2f);
-        float height = getHeight(x, z);
+        float x = (float)(((xz.x - getWorldTranslation().x) / getWorldScale().x) + (float)(totalSize-1) / 2f);
+        float z = (float)(((xz.y - getWorldTranslation().z) / getWorldScale().z) + (float)(totalSize-1) / 2f);
+        float height = getHeight((int)x, (int)z, (x%1f), (z%1f));
         height *= getWorldScale().y;
         return height;
     }
 
     /*
      * gets an interpolated value at the specified point
-     * @param x coordinate translated into actual (positive) terrain grid coordinates
-     * @param y coordinate translated into actual (positive) terrain grid coordinates
      */
-    protected float getHeight(float x, float z) {
-        x-=0.5f;
-        z-=0.5f;
-        float col = FastMath.floor(x);
-        float row = FastMath.floor(z);
-        boolean onX = false;
-        if(1 - (x - col)-(z - row) < 0) // what triangle to interpolate on
-            onX = true;
-        // v1--v2  ^
-        // |  / |  |
-        // | /  |  |
-        // v3--v4  | Z
-        //         |
-        // <-------Y
-        //     X 
-        float v1 = getHeightmapHeight((int) FastMath.ceil(x), (int) FastMath.ceil(z));
-        float v2 = getHeightmapHeight((int) FastMath.floor(x), (int) FastMath.ceil(z));
-        float v3 = getHeightmapHeight((int) FastMath.ceil(x), (int) FastMath.floor(z));
-        float v4 = getHeightmapHeight((int) FastMath.floor(x), (int) FastMath.floor(z));
-        if (onX) {
-            return ((x - col) + (z - row) - 1f)*v1 + (1f - (x - col))*v2 + (1f - (z - row))*v3;
-        } else {
-            return (1f - (x - col) - (z - row))*v4 + (z - row)*v2 + (x - col)*v3;
+    protected float getHeight(int x, int z, float xm, float zm) {
+        
+        QuadrantChild match = findMatchingChild(x,z);
+        if (match != null) {
+            if (match.child instanceof TerrainQuad) {
+                return ((TerrainQuad) match.child).getHeight(match.col, match.row, xm, zm);
+            } else if (match.child instanceof TerrainPatch) {
+                return ((TerrainPatch) match.child).getHeight(match.col, match.row, xm, zm);
+            }
         }
+        return Float.NaN;
     }
 
     public Vector3f getNormal(Vector2f xz) {
