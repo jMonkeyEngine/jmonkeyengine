@@ -47,6 +47,9 @@ import java.util.prefs.Preferences;
  * <p>
  * By default only the {@link JmeContext context} uses the configuration,
  * however the user may set and retrieve the settings as well. 
+ * The settings can be stored either in the Java preferences 
+ * (using {@link #save(java.lang.String) } or
+ * a .properties file (using {@link #save(java.io.OutputStream) }.
  * 
  * @author Kirill Vainer
  */
@@ -94,27 +97,6 @@ public final class AppSettings extends HashMap<String, Object> {
      * @see AppSettings#setRenderer(java.lang.String) 
      */
     public static final String LWJGL_OPENGL_ANY = "LWJGL-OpenGL-Any";
-    
-    /**
-     * The JOGL renderer is no longer supported by jME.
-     * 
-     * @deprecated Use the LWJGL renderer instead.
-     * 
-     * @see AppSettings#setRenderer(java.lang.String) 
-     */
-    @Deprecated
-    public static final String JOGL = "JOGL";
-    
-    /**
-     * The "NULL" option is no longer supported
-     * 
-     * @deprecated Specify the "null" value instead
-     * 
-     * @see AppSettings#setRenderer(java.lang.String) 
-     * @see AppSettings#setAudioRenderer(java.lang.String) 
-     */
-    @Deprecated
-    public static final String NULL = "NULL";
     
     /**
      * Use the LWJGL OpenAL based renderer for audio capabilities.
@@ -212,6 +194,9 @@ public final class AppSettings extends HashMap<String, Object> {
             } else if (key.endsWith("(bool)")) {
                 boolean bVal = Boolean.parseBoolean(val);
                 putBoolean(key.substring(0, key.length() - 6), bVal);
+            } else if (key.endsWith("(float)")) {
+                float fVal = Float.parseFloat(val);
+                putFloat(key.substring(0, key.length() - 7), fVal);
             } else {
                 throw new IOException("Cannot parse key: " + key);
             }
@@ -237,8 +222,12 @@ public final class AppSettings extends HashMap<String, Object> {
                 type = "(string)";
             } else if (val instanceof Boolean) {
                 type = "(bool)";
+            } else if (val instanceof Float) {
+                type = "(float)";
             } else {
-                throw new UnsupportedEncodingException();
+                // See the note in the AppSettings.save(String)
+                // method regarding object type settings.
+                continue;
             }
             props.setProperty(entry.getKey() + type, val.toString());
         }
@@ -258,13 +247,35 @@ public final class AppSettings extends HashMap<String, Object> {
         String[] keys = prefs.keys();
         if (keys != null) {
             for (String key : keys) {
-                Object defaultValue = defaults.get(key);
-                if (defaultValue instanceof Integer) {
-                    put(key, prefs.getInt(key, (Integer) defaultValue));
-                } else if (defaultValue instanceof String) {
-                    put(key, prefs.get(key, (String) defaultValue));
-                } else if (defaultValue instanceof Boolean) {
-                    put(key, prefs.getBoolean(key, (Boolean) defaultValue));
+                if (key.charAt(1) == '_') {
+                    // Try loading using new method
+                    switch (key.charAt(0)) {
+                        case 'I':
+                            put(key.substring(2), prefs.getInt(key, (Integer) 0));
+                            break;
+                        case 'F':
+                            put(key.substring(2), prefs.getFloat(key, (Float) 0f));
+                            break;
+                        case 'S':
+                            put(key.substring(2), prefs.get(key, (String) null));
+                            break;
+                        case 'B':
+                            put(key.substring(2), prefs.getBoolean(key, (Boolean) false));
+                            break;
+                        default:
+                            throw new UnsupportedOperationException("Undefined setting type: " + key.charAt(0));
+                    }
+                } else {
+                    // Use old method for compatibility with older preferences
+                    // TODO: Remove when no longer neccessary
+                    Object defaultValue = defaults.get(key);
+                    if (defaultValue instanceof Integer) {
+                        put(key, prefs.getInt(key, (Integer) defaultValue));
+                    } else if (defaultValue instanceof String) {
+                        put(key, prefs.get(key, (String) defaultValue));
+                    } else if (defaultValue instanceof Boolean) {
+                        put(key, prefs.getBoolean(key, (Boolean) defaultValue));
+                    }
                 }
             }
         }
@@ -284,9 +295,32 @@ public final class AppSettings extends HashMap<String, Object> {
      */
     public void save(String preferencesKey) throws BackingStoreException {
         Preferences prefs = Preferences.userRoot().node(preferencesKey);
-        for (String key : keySet()) {         
-            prefs.put(key, get(key).toString());
+
+        // Clear any previous settings set before saving, this will
+        // purge any other parameters set in older versions of the app, so
+        // that they don't leak onto the AppSettings of newer versions.
+        prefs.clear();
+        
+        for (String key : keySet()) {
+            Object val = get(key);
+            if (val instanceof Integer) {
+                prefs.putInt("I_" + key, (Integer) val);
+            } else if (val instanceof Float) {
+                prefs.putFloat("F_" + key, (Float) val);
+            } else if (val instanceof String) {
+                prefs.put("S_" + key, (String) val);
+            } else if (val instanceof Boolean) {
+                prefs.putBoolean("B_" + key, (Boolean) val);
+            }
+            // NOTE: Ignore any parameters of unsupported types instead 
+            // of throwing exception. This is specifically for handling 
+            // BufferedImage which is used in setIcons(), as you do not
+            // want to export such data in the preferences.
         }
+        
+        // Ensure the data is properly written into preferences before
+        // continuing.
+        prefs.sync();
     }
 
     /**
@@ -330,6 +364,20 @@ public final class AppSettings extends HashMap<String, Object> {
 
         return s;
     }
+    
+    /**
+     * Get a float from the settings.
+     * <p>
+     * If the key is not set, then 0.0 is returned.
+     */
+    public float getFloat(String key) {
+        Float f = (Float) get(key);
+        if (f == null) {
+            return 0f;
+        }
+
+        return f.floatValue();
+    }
 
     /**
      * Set an integer on the settings.
@@ -350,6 +398,13 @@ public final class AppSettings extends HashMap<String, Object> {
      */
     public void putString(String key, String value) {
         put(key, value);
+    }
+    
+    /**
+     * Set a float on the settings.
+     */
+    public void putFloat(String key, float value) {
+        put(key, Float.valueOf(value));
     }
 
     /**
