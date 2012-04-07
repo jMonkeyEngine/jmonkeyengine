@@ -1062,7 +1062,7 @@ public final class BufferUtils {
             int position = (buffer != null ? buffer.position() : 0);
             FloatBuffer newVerts = createFloatBuffer(position + required);
             if (buffer != null) {
-                buffer.rewind();
+                buffer.flip();
                 newVerts.put(buffer);
                 newVerts.position(position);
             }
@@ -1076,7 +1076,7 @@ public final class BufferUtils {
             int position = (buffer != null ? buffer.position() : 0);
             ShortBuffer newVerts = createShortBuffer(position + required);
             if (buffer != null) {
-                buffer.rewind();
+                buffer.flip();
                 newVerts.put(buffer);
                 newVerts.position(position);
             }
@@ -1090,7 +1090,7 @@ public final class BufferUtils {
             int position = (buffer != null ? buffer.position() : 0);
             ByteBuffer newVerts = createByteBuffer(position + required);
             if (buffer != null) {
-                buffer.rewind();
+                buffer.flip();
                 newVerts.put(buffer);
                 newVerts.position(position);
             }
