@@ -42,10 +42,9 @@ import com.jme3.math.*;
 import com.jme3.renderer.queue.RenderQueue.Bucket;
 import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.Geometry;
-import com.jme3.scene.SceneGraphVisitorAdapter;
 import com.jme3.scene.Spatial;
-import com.jme3.scene.control.LodControl;
 import com.jme3.scene.shape.Quad;
+import com.jme3.scene.shape.Sphere;
 import com.jme3.shadow.PssmShadowRenderer;
 import com.jme3.shadow.PssmShadowRenderer.CompareMode;
 import com.jme3.shadow.PssmShadowRenderer.FilterMode;
@@ -59,15 +58,16 @@ public class TestTransparentShadow extends SimpleApplication {
 
     public void simpleInitApp() {
 
-        cam.setLocation(new Vector3f(2.0606942f, 3.20342f, 6.7860126f));
-        cam.setRotation(new Quaternion(-0.017481906f, 0.98241085f, -0.12393151f, -0.13857932f));
+        cam.setLocation(new Vector3f(5.700248f, 6.161693f, 5.1404157f));
+        cam.setRotation(new Quaternion(-0.09441641f, 0.8993388f, -0.24089815f, -0.35248178f));
 
         viewPort.setBackgroundColor(ColorRGBA.DarkGray);
 
         Quad q = new Quad(20, 20);
-        q.scaleTextureCoordinates(Vector2f.UNIT_XY.mult(5));
+        q.scaleTextureCoordinates(Vector2f.UNIT_XY.mult(10));
         Geometry geom = new Geometry("floor", q);
         Material mat = assetManager.loadMaterial("Textures/Terrain/Pond/Pond.j3m");
+        mat.setFloat("Shininess", 0);
         geom.setMaterial(mat);
         
         geom.rotate(-FastMath.HALF_PI, 0, 0);
@@ -76,34 +76,21 @@ public class TestTransparentShadow extends SimpleApplication {
         rootNode.attachChild(geom);
 
         // create the geometry and attach it
-        Spatial teaGeom = assetManager.loadModel("Models/Tree/Tree.mesh.j3o");
-        teaGeom.setQueueBucket(Bucket.Transparent);
-        teaGeom.setShadowMode(ShadowMode.Cast);
+        Spatial tree = assetManager.loadModel("Models/Tree/Tree.mesh.j3o");
+        tree.setQueueBucket(Bucket.Transparent);
+        tree.setShadowMode(ShadowMode.CastAndReceive);
 
-        teaGeom.depthFirstTraversal(new SceneGraphVisitorAdapter(){
-            @Override
-             public void visit(Geometry geom) {
-                 LodControl lodCtrl = new LodControl();
-                 lodCtrl.setTrisPerPixel(0.25f);
-                 geom.addControl(lodCtrl);
-             }
-        });
-        
+           
         AmbientLight al = new AmbientLight();
-        al.setColor(ColorRGBA.White.mult(2));
+        al.setColor(ColorRGBA.White.mult(0.7f));
         rootNode.addLight(al);
 
         DirectionalLight dl1 = new DirectionalLight();
-        dl1.setDirection(new Vector3f(1, -1, 1).normalizeLocal());
-        dl1.setColor(new ColorRGBA(0.965f, 0.949f, 0.772f, 1f).mult(0.7f));
+        dl1.setDirection(new Vector3f(0, -1, 0.5f).normalizeLocal());
+        dl1.setColor(ColorRGBA.White.mult(1.5f));
         rootNode.addLight(dl1);
 
-        DirectionalLight dl = new DirectionalLight();
-        dl.setDirection(new Vector3f(-1, -1, -1).normalizeLocal());
-        dl.setColor(new ColorRGBA(0.965f, 0.949f, 0.772f, 1f).mult(0.7f));
-        rootNode.addLight(dl);
-
-        rootNode.attachChild(teaGeom);    
+        rootNode.attachChild(tree);    
         
         /** Uses Texture from jme3-test-data library! */
         ParticleEmitter fire = new ParticleEmitter("Emitter", ParticleMesh.Type.Triangle, 30);
@@ -125,16 +112,26 @@ public class TestTransparentShadow extends SimpleApplication {
         fire.setLocalTranslation(1.0f, 0, 1.0f);
         fire.setLocalScale(0.3f);
         fire.setQueueBucket(Bucket.Translucent);
-        rootNode.attachChild(fire);
+      //  rootNode.attachChild(fire);
 
         
+        Material mat2 = assetManager.loadMaterial("Common/Materials/RedColor.j3m");  
+ 
+
+        Geometry ball = new Geometry("sphere", new Sphere(16, 16, 0.5f));
+        ball.setMaterial(mat2);
+        ball.setShadowMode(ShadowMode.CastAndReceive);
+        rootNode.attachChild(ball);
+        ball.setLocalTranslation(-1.0f, 1.5f, 1.0f);
+         
+         
         PssmShadowRenderer pssmRenderer = new PssmShadowRenderer(assetManager, 1024, 1);
-        pssmRenderer.setDirection(new Vector3f(0.01f, -1f, 0.01f).normalizeLocal());
+        pssmRenderer.setDirection(dl1.getDirection());
         pssmRenderer.setLambda(0.55f);
-        pssmRenderer.setShadowIntensity(0.6f);
+        pssmRenderer.setShadowIntensity(0.8f);
         pssmRenderer.setCompareMode(CompareMode.Software);
         pssmRenderer.setFilterMode(FilterMode.PCF4);
-        pssmRenderer.displayDebug();
+        //pssmRenderer.displayDebug();
         viewPort.addProcessor(pssmRenderer);
     }
 }

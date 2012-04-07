@@ -1,6 +1,6 @@
 #ifdef HARDWARE_SHADOWS
     #define SHADOWMAP sampler2DShadow
-    #define SHADOWCOMPARE(tex,coord) shadow2DProj(tex, coord).r
+    #define SHADOWCOMPARE(tex,coord) shadow2DProj(tex, coord).r 
 #else
     #define SHADOWMAP sampler2D
     #define SHADOWCOMPARE(tex,coord) step(coord.z, texture2DProj(tex, coord).r)
@@ -27,6 +27,7 @@
     #define KERNEL 8.0
 #endif
 
+
 uniform SHADOWMAP m_ShadowMap0;
 uniform SHADOWMAP m_ShadowMap1;
 uniform SHADOWMAP m_ShadowMap2;
@@ -43,7 +44,7 @@ varying vec4 projCoord3;
 
 varying float shadowPosition;
 
-const float texSize = 1024.0;
+float texSize = 1024.0;
 const float pixSize = 1.0 / texSize;
 const vec2 pixSize2 = vec2(pixSize);
 
@@ -64,6 +65,11 @@ float Shadow_BorderCheck(in vec2 coord){
 }
 
 float Shadow_DoDither_2x2(in SHADOWMAP tex, in vec4 projCoord){
+    float border = Shadow_BorderCheck(projCoord.xy);
+    if (border > 0.0)
+        return 1.0;
+  
+
     float shadow = 0.0;
     vec2 o = mod(floor(gl_FragCoord.xy), 2.0);
     shadow += Shadow_DoShadowCompareOffset(tex,projCoord,vec2(-1.5,  1.5) + o);
@@ -75,6 +81,9 @@ float Shadow_DoDither_2x2(in SHADOWMAP tex, in vec4 projCoord){
 }
 
 float Shadow_DoBilinear_2x2(in SHADOWMAP tex, in vec4 projCoord){
+    float border = Shadow_BorderCheck(projCoord.xy);
+    if (border > 0.0)
+        return 1.0;
     vec4 gather = vec4(0.0);
     gather.x = Shadow_DoShadowCompareOffset(tex, projCoord, vec2(0.0, 0.0));
     gather.y = Shadow_DoShadowCompareOffset(tex, projCoord, vec2(1.0, 0.0));
@@ -88,12 +97,15 @@ float Shadow_DoBilinear_2x2(in SHADOWMAP tex, in vec4 projCoord){
 
 float Shadow_DoPCF(in SHADOWMAP tex, in vec4 projCoord){
     float shadow = 0.0;
+    float border = Shadow_BorderCheck(projCoord.xy);
+    if (border > 0.0)
+        return 1.0;
     float bound = KERNEL * 0.5 - 0.5;
     bound *= PCFEDGE;
     for (float y = -bound; y <= bound; y += PCFEDGE){
         for (float x = -bound; x <= bound; x += PCFEDGE){
             shadow += clamp(Shadow_DoShadowCompareOffset(tex,projCoord,vec2(x,y)) +
-                            Shadow_BorderCheck(projCoord.xy),
+                            border,
                             0.0, 1.0);
         }
     }
@@ -102,18 +114,46 @@ float Shadow_DoPCF(in SHADOWMAP tex, in vec4 projCoord){
     return shadow;
 }
 
-void main(){
+#ifdef DISCARD_ALPHA
+    #ifdef COLOR_MAP
+        uniform sampler2D m_ColorMap;
+    #else    
+        uniform sampler2D m_DiffuseMap;
+    #endif
+    uniform float m_AlphaDiscardThreshold;
+    varying vec2 texCoord;
+#endif
+
+void main(){   
+ 
+    #ifdef DISCARD_ALPHA
+        #ifdef COLOR_MAP
+            float alpha = texture2D(m_ColorMap,texCoord).a;
+        #else    
+            float alpha = texture2D(m_DiffuseMap,texCoord).a;
+        #endif
+        if(alpha<=m_AlphaDiscardThreshold){
+            discard;
+        }
+
+    #endif
+   
+
     vec4 shadowPerSplit = vec4(0.0);
     shadowPerSplit.x = GETSHADOW(m_ShadowMap0, projCoord0);
     shadowPerSplit.y = GETSHADOW(m_ShadowMap1, projCoord1);
     shadowPerSplit.z = GETSHADOW(m_ShadowMap2, projCoord2);
     shadowPerSplit.w = GETSHADOW(m_ShadowMap3, projCoord3);
+ 
 
     vec4 less = step( shadowPosition, m_Splits );
     vec4 more = vec4(1.0) - step( shadowPosition, vec4(0.0, m_Splits.xyz) );
     float shadow = dot(shadowPerSplit, less * more );
     
     shadow = shadow * m_ShadowIntensity + (1.0 - m_ShadowIntensity);
-    gl_FragColor = vec4(shadow, shadow, shadow, 1.0);
+  
+
+  gl_FragColor = vec4(shadow, shadow, shadow, 1.0);
+  //gl_FragColor = vec4(alpha, alpha, alpha, 1.0);
 }
 

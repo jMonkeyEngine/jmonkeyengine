@@ -120,9 +120,31 @@ float Shadow_DoPCF(in SHADOWMAP tex, in vec4 projCoord){
     return shadow;
 }
 
+#ifdef DISCARD_ALPHA
+    #ifdef COLOR_MAP
+        uniform sampler2D m_ColorMap;
+    #else    
+        uniform sampler2D m_DiffuseMap;
+    #endif
+    uniform float m_AlphaDiscardThreshold;
+    varying vec2 texCoord;
+#endif
+
 void main(){
     float shadow = 0.0;
 
+    
+    #ifdef DISCARD_ALPHA
+        #ifdef COLOR_MAP
+             float alpha = texture2D(m_ColorMap,texCoord).a;
+        #else    
+             float alpha = texture2D(m_DiffuseMap,texCoord).a;
+        #endif
+      
+        if(alpha < m_AlphaDiscardThreshold){
+            discard;
+        }
+    #endif
     if(shadowPosition < m_Splits.x){
         shadow = GETSHADOW(m_ShadowMap0, projCoord0);
     }else if( shadowPosition <  m_Splits.y){
@@ -134,6 +156,6 @@ void main(){
     }
     
     shadow = shadow * m_ShadowIntensity + (1.0 - m_ShadowIntensity);
-    outFragColor = vec4(shadow, shadow, shadow, 1.0);
+    outFragColor =  vec4(shadow, shadow, shadow, 1.0);
 }
 

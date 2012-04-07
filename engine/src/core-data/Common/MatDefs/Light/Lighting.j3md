@@ -99,6 +99,25 @@ MaterialDef Phong Lighting {
 
         // the env map is a spheremap and not a cube map
         Boolean EnvMapAsSphereMap
+
+        //shadows
+         Int FilterMode
+        Boolean HardwareShadows
+
+        Texture2D ShadowMap0
+        Texture2D ShadowMap1
+        Texture2D ShadowMap2
+        Texture2D ShadowMap3
+        
+        Float ShadowIntensity
+        Vector4 Splits
+
+        Matrix4 LightViewProjectionMatrix0
+        Matrix4 LightViewProjectionMatrix1
+        Matrix4 LightViewProjectionMatrix2
+        Matrix4 LightViewProjectionMatrix3
+
+        Float PCFEdge
     }
 
     Technique {
@@ -141,7 +160,7 @@ MaterialDef Phong Lighting {
             SEPARATE_TEXCOORD : SeparateTexCoord
 
             USE_REFLECTION : EnvMap
-            SPHERE_MAP : SphereMap
+            SPHERE_MAP : SphereMap            
         }
     }
 
@@ -156,7 +175,8 @@ MaterialDef Phong Lighting {
         }
 
         Defines {
-            DIFFUSEMAP_ALPHA : DiffuseMap
+            COLOR_MAP : ColorMap
+            DISCARD_ALPHA : AlphaDiscardThreshold
         }
 
         RenderState {
@@ -167,6 +187,51 @@ MaterialDef Phong Lighting {
             ColorWrite Off
         }
 
+    }
+
+
+    Technique PostShadow15{
+        VertexShader GLSL150:   Common/MatDefs/Shadow/PostShadowPSSM.vert
+        FragmentShader GLSL150: Common/MatDefs/Shadow/PostShadowPSSM15.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+            WorldMatrix
+        }
+
+        Defines {
+            HARDWARE_SHADOWS : HardwareShadows
+            FILTER_MODE : FilterMode
+            PCFEDGE : PCFEdge
+            DISCARD_ALPHA : AlphaDiscardThreshold
+            COLOR_MAP : ColorMap
+        }
+
+        RenderState {
+            Blend Modulate
+        }
+    }
+
+    Technique PostShadow{
+        VertexShader GLSL100:   Common/MatDefs/Shadow/PostShadowPSSM.vert
+        FragmentShader GLSL100: Common/MatDefs/Shadow/PostShadowPSSM.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+            WorldMatrix
+        }
+
+        Defines {
+            HARDWARE_SHADOWS : HardwareShadows
+            FILTER_MODE : FilterMode
+            PCFEDGE : PCFEdge
+            DISCARD_ALPHA : AlphaDiscardThreshold
+            COLOR_MAP : ColorMap
+        }
+
+        RenderState {
+            Blend Modulate
+        }
     }
 
   Technique PreNormalPass {

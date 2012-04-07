@@ -31,11 +31,13 @@ package com.jme3.shadow;
 
 import com.jme3.asset.AssetManager;
 import com.jme3.material.Material;
+import com.jme3.material.RenderState;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Matrix4f;
 import com.jme3.math.Vector3f;
 import com.jme3.post.SceneProcessor;
 import com.jme3.renderer.Camera;
+import com.jme3.renderer.Caps;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.Renderer;
 import com.jme3.renderer.ViewPort;
@@ -140,6 +142,12 @@ public class PssmShadowRenderer implements SceneProcessor {
     private Picture[] dispPic;
     private Vector3f[] points = new Vector3f[8];
     private boolean flushQueues = true;
+    //render state for post shadow pass
+    private RenderState state = new RenderState();
+    // define if the fallback material should be used.
+    private boolean needsfallBackMaterial = false;
+    //Name of the post material technique
+    private String postTechniqueName = "PostShadow";
 
     /**
      * Create a PSSM Shadow Renderer 
@@ -208,13 +216,17 @@ public class PssmShadowRenderer implements SceneProcessor {
         for (int i = 0; i < points.length; i++) {
             points[i] = new Vector3f();
         }
+
+        //initializing render state for post shadow pass (modulade blending and cullmode of for back faces )
+        state.setBlendMode(RenderState.BlendMode.Modulate);
+        state.setFaceCullMode(RenderState.FaceCullMode.Off);
     }
 
     /**
      * Sets the filtering mode for shadow edges see {@link FilterMode} for more info
      * @param filterMode 
      */
-    public void setFilterMode(FilterMode filterMode) {
+    final public void setFilterMode(FilterMode filterMode) {
         if (filterMode == null) {
             throw new NullPointerException();
         }
@@ -243,7 +255,7 @@ public class PssmShadowRenderer implements SceneProcessor {
      * sets the shadow compare mode see {@link CompareMode} for more info
      * @param compareMode 
      */
-    public void setCompareMode(CompareMode compareMode) {
+    final public void setCompareMode(CompareMode compareMode) {
         if (compareMode == null) {
             throw new NullPointerException();
         }
@@ -306,6 +318,12 @@ public class PssmShadowRenderer implements SceneProcessor {
     public void initialize(RenderManager rm, ViewPort vp) {
         renderManager = rm;
         viewPort = vp;
+        //checking for caps to chosse the appropriate post material technique
+        if (renderManager.getRenderer().getCaps().contains(Caps.GLSL150)) {
+            postTechniqueName = "PostShadow15";
+        }else{
+            postTechniqueName = "PostShadow";
+        }
     }
 
     public boolean isInitialized() {
@@ -430,21 +448,66 @@ public class PssmShadowRenderer implements SceneProcessor {
     public void postFrame(FrameBuffer out) {
         Camera cam = viewPort.getCamera();
         if (!noOccluders) {
-            postshadowMat.setColor("Splits", splits);
-            for (int i = 0; i < nbSplits; i++) {
-                postshadowMat.setMatrix4("LightViewProjectionMatrix" + i, lightViewProjectionsMatrices[i]);
+            //setting params to recieving geometry list
+            setMatParams();
+            //some materials in the scene does not have a post shadow technique so we're using the fall back material
+            if (needsfallBackMaterial) {
+                renderManager.setForcedMaterial(postshadowMat);
             }
-            renderManager.setForcedMaterial(postshadowMat);
-
+            
+            //forcing the post shadow technique and render state
+            renderManager.setForcedTechnique(postTechniqueName);
+            renderManager.setForcedRenderState(state);
+            
+            //rendering the post shadow pass
             viewPort.getQueue().renderShadowQueue(ShadowMode.Receive, renderManager, cam, flushQueues);
 
+            //resetting renderManager settings
+            renderManager.setForcedTechnique(null);
             renderManager.setForcedMaterial(null);
+            renderManager.setForcedRenderState(null);
             renderManager.setCamera(cam, false);
 
         }
         if (debug) {
             displayShadowMap(renderManager.getRenderer());
         }
+    }
+
+    private void setMatParams() {
+
+        GeometryList l = viewPort.getQueue().getShadowQueueContent(ShadowMode.Receive);
+        
+        //iteratin throught all the geometries of the list to set the material params
+        for (int i = 0; i < l.size(); i++) {
+            Material mat = l.get(i).getMaterial();
+            //checking if the material has the post technique and setting the params.
+            if (mat.getMaterialDef().getTechniqueDef(postTechniqueName) != null) {
+                mat.setColor("Splits", splits);
+                postshadowMat.setColor("Splits", splits);
+                for (int j = 0; j < nbSplits; j++) {
+                    mat.setMatrix4("LightViewProjectionMatrix" + j, lightViewProjectionsMatrices[j]);
+                    mat.setTexture("ShadowMap" + j, shadowMaps[j]);
+                }
+                mat.setBoolean("HardwareShadows", compareMode == CompareMode.Hardware);
+                mat.setInt("FilterMode", filterMode.ordinal());
+                mat.setFloat("PCFEdge", edgesThickness);
+                mat.setFloat("ShadowIntensity", shadowIntensity);
+            } else {                
+                needsfallBackMaterial = true;
+            }
+        }
+
+
+        //At least one material of the receiving geoms does not support the post shadow techniques
+        //so we fall back to the forced material solution (transparent shadows won't be supported for these objects)
+        if (needsfallBackMaterial) {
+            postshadowMat.setColor("Splits", splits);
+            for (int j = 0; j < nbSplits; j++) {
+                postshadowMat.setMatrix4("LightViewProjectionMatrix" + j, lightViewProjectionsMatrices[j]);
+            }
+        }
+
     }
 
     public void preFrame(float tpf) {
@@ -511,7 +574,7 @@ public class PssmShadowRenderer implements SceneProcessor {
      * default is 0.7
      * @param shadowIntensity the darkness of the shadow
      */
-    public void setShadowIntensity(float shadowIntensity) {
+    final public void setShadowIntensity(float shadowIntensity) {
         this.shadowIntensity = shadowIntensity;
         postshadowMat.setFloat("ShadowIntensity", shadowIntensity);
     }
