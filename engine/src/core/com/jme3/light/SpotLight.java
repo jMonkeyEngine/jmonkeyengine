@@ -206,6 +206,7 @@ public class SpotLight extends Light implements Savable {
         InputCapsule ic = im.getCapsule(this);
         spotInnerAngle = ic.readFloat("spotInnerAngle", FastMath.QUARTER_PI / 8);
         spotOuterAngle = ic.readFloat("spotOuterAngle", FastMath.QUARTER_PI / 6);
+        computePackedCos();
         direction = (Vector3f) ic.readSavable("direction", new Vector3f());
         position = (Vector3f) ic.readSavable("position", new Vector3f());
         spotRange = ic.readFloat("spotRange", 100);
