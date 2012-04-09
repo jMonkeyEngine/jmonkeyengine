@@ -44,7 +44,7 @@ varying vec4 projCoord3;
 
 varying float shadowPosition;
 
-float texSize = 1024.0;
+const float texSize = 1024.0;
 const float pixSize = 1.0 / texSize;
 const vec2 pixSize2 = vec2(pixSize);
 
