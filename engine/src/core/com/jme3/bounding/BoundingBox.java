@@ -357,12 +357,12 @@ public class BoundingBox extends BoundingVolume {
     }
 
     /**
-     * <code>merge</code> combines this sphere with a second bounding sphere.
-     * This new sphere contains both bounding spheres and is returned.
+     * <code>merge</code> combines this bounding box with a second bounding box.
+     * This new box contains both bounding box and is returned.
      * 
      * @param volume
-     *            the sphere to combine with this sphere.
-     * @return the new sphere
+     *            the bounding box to combine with this bounding box.
+     * @return the new bounding box
      */
     public BoundingVolume merge(BoundingVolume volume) {
         if (volume == null) {
