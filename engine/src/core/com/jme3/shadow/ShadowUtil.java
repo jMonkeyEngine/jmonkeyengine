@@ -40,6 +40,7 @@ import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.queue.GeometryList;
 import com.jme3.scene.Geometry;
+import com.jme3.util.TempVars;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 import java.util.ArrayList;
@@ -247,7 +248,8 @@ public class ShadowUtil {
     public static BoundingBox computeBoundForPoints(Vector3f[] pts, Matrix4f mat) {
         Vector3f min = new Vector3f(Vector3f.POSITIVE_INFINITY);
         Vector3f max = new Vector3f(Vector3f.NEGATIVE_INFINITY);
-        Vector3f temp = new Vector3f();
+        TempVars vars = TempVars.get();
+        Vector3f temp = vars.vect1;
 
         for (int i = 0; i < pts.length; i++) {
             float w = mat.multProj(pts[i], temp);
@@ -260,7 +262,7 @@ public class ShadowUtil {
             min.minLocal(temp);
             max.maxLocal(temp);
         }
-
+        vars.release();
         Vector3f center = min.add(max).multLocal(0.5f);
         Vector3f extent = max.subtract(min).multLocal(0.5f);
         //Nehon 08/18/2010 : Added an offset to the extend to avoid banding artifacts when the frustum are aligned
@@ -288,9 +290,11 @@ public class ShadowUtil {
         Matrix4f projMatrix = shadowCam.getProjectionMatrix();
 
         BoundingBox splitBB = computeBoundForPoints(points, viewProjMatrix);
+        
+        TempVars vars = TempVars.get();
 
-        Vector3f splitMin = splitBB.getMin(null);
-        Vector3f splitMax = splitBB.getMax(null);
+        Vector3f splitMin = splitBB.getMin(vars.vect1);
+        Vector3f splitMax = splitBB.getMax(vars.vect2);
 
 //        splitMin.z = 0;
 
@@ -305,7 +309,8 @@ public class ShadowUtil {
         scaleZ = 1.0f / (splitMax.z - splitMin.z);
         offsetZ = -splitMin.z * scaleZ;
 
-        Matrix4f cropMatrix = new Matrix4f(scaleX, 0f, 0f, offsetX,
+        Matrix4f cropMatrix = vars.tempMat4;
+        cropMatrix.set(scaleX, 0f, 0f, offsetX,
                 0f, scaleY, 0f, offsetY,
                 0f, 0f, scaleZ, offsetZ,
                 0f, 0f, 0f, 1f);
@@ -315,6 +320,7 @@ public class ShadowUtil {
         result.set(cropMatrix);
         result.multLocal(projMatrix);
 
+        vars.release();
         shadowCam.setProjectionMatrix(result);
     }
 
@@ -424,14 +430,16 @@ public class ShadowUtil {
             casterBB.setZExtent(casterBB.getZExtent() + 2.0f);
         }
 
-        Vector3f casterMin = casterBB.getMin(null);
-        Vector3f casterMax = casterBB.getMax(null);
+        TempVars vars = TempVars.get();
 
-        Vector3f receiverMin = receiverBB.getMin(null);
-        Vector3f receiverMax = receiverBB.getMax(null);
+        Vector3f casterMin = casterBB.getMin(vars.vect1);
+        Vector3f casterMax = casterBB.getMax(vars.vect2);
 
-        Vector3f splitMin = splitBB.getMin(null);
-        Vector3f splitMax = splitBB.getMax(null);
+        Vector3f receiverMin = receiverBB.getMin(vars.vect3);
+        Vector3f receiverMax = receiverBB.getMax(vars.vect4);
+
+        Vector3f splitMin = splitBB.getMin(vars.vect5);
+        Vector3f splitMax = splitBB.getMax(vars.vect6);
 
         splitMin.z = 0;
 
@@ -441,8 +449,8 @@ public class ShadowUtil {
 
         Matrix4f projMatrix = shadowCam.getProjectionMatrix();
 
-        Vector3f cropMin = new Vector3f();
-        Vector3f cropMax = new Vector3f();
+        Vector3f cropMin = vars.vect7;
+        Vector3f cropMax = vars.vect8;
 
         // IMPORTANT: Special handling for Z values
         cropMin.x = max(max(casterMin.x, receiverMin.x), splitMin.x);
@@ -470,7 +478,9 @@ public class ShadowUtil {
 
 
 
-        Matrix4f cropMatrix = new Matrix4f(scaleX, 0f, 0f, offsetX,
+
+        Matrix4f cropMatrix = vars.tempMat4;
+        cropMatrix.set(scaleX, 0f, 0f, offsetX,
                 0f, scaleY, 0f, offsetY,
                 0f, 0f, scaleZ, offsetZ,
                 0f, 0f, 0f, 1f);
@@ -479,6 +489,7 @@ public class ShadowUtil {
         Matrix4f result = new Matrix4f();
         result.set(cropMatrix);
         result.multLocal(projMatrix);
+        vars.release();
 
         shadowCam.setProjectionMatrix(result);
 
