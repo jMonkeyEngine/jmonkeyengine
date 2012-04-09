@@ -11,11 +11,15 @@ import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
+import javax.imageio.ImageWriteParam;
+import javax.imageio.ImageWriter;
+import javax.imageio.stream.ImageOutputStream;
 
 /**
  * Released under BSD License
- * @author monceaux, normenhansen
+ * @author monceaux, normenhansen, entrusC
  */
 public class MjpegFileWriter {
 
@@ -56,7 +60,11 @@ public class MjpegFileWriter {
     }
 
     public void addImage(Image image) throws Exception {
-        addImage(writeImageToBytes(image));
+        addImage(image, 0.8f);
+    }
+    
+    public void addImage(Image image, float quality) throws Exception {
+        addImage(writeImageToBytes(image, quality));
     }
 
     public void addImage(byte[] imagedata) throws Exception {
@@ -79,18 +87,29 @@ public class MjpegFileWriter {
             }
         }
         imagedata = null;
+        
+        numFrames++; //add a frame
     }
 
     public void finishAVI() throws Exception {
         byte[] indexlistBytes = indexlist.toBytes();
         aviOutput.write(indexlistBytes);
         aviOutput.close();
-        long size = aviFile.length();
+        int fileSize = (int)aviFile.length();
+        int listSize = (int) (fileSize - 8 - aviMovieOffset - indexlistBytes.length);
+        
         RandomAccessFile raf = new RandomAccessFile(aviFile, "rw");
-        raf.seek(4);
-        raf.write(intBytes(swapInt((int) size - 8)));
-        raf.seek(aviMovieOffset + 4);
-        raf.write(intBytes(swapInt((int) (size - 8 - aviMovieOffset - indexlistBytes.length))));
+        
+        //add header and length by writing the headers again
+        //with the now available information
+        raf.write(new RIFFHeader(fileSize).toBytes());
+        raf.write(new AVIMainHeader().toBytes());
+        raf.write(new AVIStreamList().toBytes());
+        raf.write(new AVIStreamHeader().toBytes());
+        raf.write(new AVIStreamFormat().toBytes());
+        raf.write(new AVIJunk().toBytes());
+        raf.write(new AVIMovieList(listSize).toBytes());     
+        
         raf.close();
     }
 
@@ -141,6 +160,10 @@ public class MjpegFileWriter {
         public byte[] fcc4 = new byte[]{'h', 'd', 'r', 'l'};
 
         public RIFFHeader() {
+        }
+        
+        public RIFFHeader(int fileSize) {
+            this.fileSize = fileSize;
         }
 
         public byte[] toBytes() throws Exception {
@@ -382,6 +405,10 @@ public class MjpegFileWriter {
         public AVIMovieList() {
         }
 
+        public AVIMovieList(int listSize) {
+            this.listSize = listSize;
+        }
+        
         public byte[] toBytes() throws Exception {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             baos.write(fcc);
@@ -473,7 +500,7 @@ public class MjpegFileWriter {
         }
     }
 
-    public byte[] writeImageToBytes(Image image) throws Exception {
+    public byte[] writeImageToBytes(Image image, float quality) throws Exception {
         BufferedImage bi;
         if (image instanceof BufferedImage && ((BufferedImage) image).getType() == BufferedImage.TYPE_INT_RGB) {
             bi = (BufferedImage) image;
@@ -483,7 +510,17 @@ public class MjpegFileWriter {
             g.drawImage(image, 0, 0, width, height, null);
         }
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ImageIO.write(bi, "jpg", baos);
+
+        ImageWriter imgWrtr = ImageIO.getImageWritersByFormatName("jpg").next();        
+        ImageOutputStream imgOutStrm = ImageIO.createImageOutputStream(baos);
+        imgWrtr.setOutput(imgOutStrm);
+        
+        ImageWriteParam jpgWrtPrm = imgWrtr.getDefaultWriteParam();
+        jpgWrtPrm.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
+        jpgWrtPrm.setCompressionQuality(quality);        
+        imgWrtr.write(null, new IIOImage(bi, null, null), jpgWrtPrm);
+        imgOutStrm.close();
+        
         baos.close();
         return baos.toByteArray();
     }

@@ -1,6 +1,8 @@
 package com.jme3.app.state;
 
 import com.jme3.app.Application;
+import com.jme3.app.state.AbstractAppState;
+import com.jme3.app.state.AppStateManager;
 import com.jme3.post.SceneProcessor;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.RenderManager;
@@ -27,7 +29,7 @@ import java.util.logging.Logger;
  * state is detached, else the old file will be overwritten. If you specify no file
  * the AppState will attempt to write a file into the user home directory, made unique
  * by a timestamp.
- * @author normenhansen, Robert McIntyre
+ * @author normenhansen, Robert McIntyre, entrusC
  */
 public class VideoRecorderAppState extends AbstractAppState {
 
@@ -46,13 +48,41 @@ public class VideoRecorderAppState extends AbstractAppState {
     });
     private int numCpus = Runtime.getRuntime().availableProcessors();
     private ViewPort lastViewPort;
+    private float quality;
 
+    /**
+     * Using this constructor the video files will be written sequentially to the user's home directory with
+     * a quality of 0.8
+     */
     public VideoRecorderAppState() {
-        Logger.getLogger(this.getClass().getName()).log(Level.INFO, "JME3 VideoRecorder running on {0} CPU's", numCpus);
+        this(null, 0.8f);
+    }
+    
+    /**
+     * Using this constructor the video files will be written sequentially to the user's home directory.
+     * @param quality the quality of the jpegs in the video stream (0.0 smallest file - 1.0 largest file)
+     */
+    public VideoRecorderAppState(float quality) {
+        this(null, quality);
     }
 
+    /**
+     * This constructor allows you to specify the output file of the video. The quality is set
+     * to 0.8
+     * @param file the video file
+     */
     public VideoRecorderAppState(File file) {
+        this(file, 0.8f);
+    }
+    
+    /**
+     * This constructor allows you to specify the output file of the video as well as the quality
+     * @param file the video file
+     * @param quality the quality of the jpegs in the video stream (0.0 smallest file - 1.0 largest file)
+     */
+    public VideoRecorderAppState(File file, float quality) {
         this.file = file;
+        this.quality = quality;
         Logger.getLogger(this.getClass().getName()).log(Level.INFO, "JME3 VideoRecorder running on {0} CPU's", numCpus);
     }
 
@@ -67,6 +97,22 @@ public class VideoRecorderAppState extends AbstractAppState {
         this.file = file;
     }
 
+    /**
+     * Get the quality used to compress the video images.
+     * @return the quality of the jpegs in the video stream (0.0 smallest file - 1.0 largest file)
+     */
+    public float getQuality() {
+        return quality;
+    }
+
+    /**
+     * Set the video image quality from 0(worst/smallest) to 1(best/largest).
+     * @param quality the quality of the jpegs in the video stream (0.0 smallest file - 1.0 largest file)
+     */
+    public void setQuality(float quality) {
+        this.quality = quality;
+    }
+    
     @Override
     public void initialize(AppStateManager stateManager, Application app) {
         super.initialize(stateManager, app);
@@ -128,7 +174,7 @@ public class VideoRecorderAppState extends AbstractAppState {
 
                     public Void call() throws Exception {
                         Screenshots.convertScreenShot(item.buffer, item.image);
-                        item.data = writer.writeImageToBytes(item.image);
+                        item.data = writer.writeImageToBytes(item.image, quality);
                         while (usedItems.peek() != item) {
                             Thread.sleep(1);
                         }
