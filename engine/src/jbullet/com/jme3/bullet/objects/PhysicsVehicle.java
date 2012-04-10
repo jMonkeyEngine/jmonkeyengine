@@ -460,8 +460,9 @@ public class PhysicsVehicle extends PhysicsRigidBody {
 
     /**
      * Get the current forward vector of the vehicle in world coordinates
-     * @param vector
-     * @return
+     * @param vector The object to write the forward vector values to.
+     * Passing null will cause a new {@link Vector3f) to be created.
+     * @return The forward vector
      */
     public Vector3f getForwardVector(Vector3f vector) {
         if (vector == null) {
