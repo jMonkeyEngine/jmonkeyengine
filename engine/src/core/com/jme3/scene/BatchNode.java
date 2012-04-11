@@ -37,7 +37,6 @@ import com.jme3.math.Matrix4f;
 import com.jme3.math.Transform;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.mesh.IndexBuffer;
-import com.jme3.util.IntMap.Entry;
 import com.jme3.util.TempVars;
 import java.io.IOException;
 import java.nio.Buffer;
@@ -46,7 +45,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -73,6 +71,10 @@ public class BatchNode extends Node implements Savable {
      * the map of geometry holding the batched meshes
      */
     protected Map<Material, Batch> batches = new HashMap<Material, Batch>();
+    /**
+     * a map storing he batches by geometry to qickly acces the batch when updating
+     */
+    protected Map<Geometry, Batch> batchesByGeom = new HashMap<Geometry, Batch>();
     /**
      * used to store transformed vectors before proceeding to a bulk put into the FloatBuffer 
      */
@@ -141,7 +143,7 @@ public class BatchNode extends Node implements Savable {
     }
 
     protected void updateSubBatch(Geometry bg) {
-        Batch batch = batches.get(bg.getMaterial());
+        Batch batch = batchesByGeom.get(bg);
         if (batch != null) {
             Mesh mesh = batch.geometry.getMesh();
 
@@ -190,6 +192,7 @@ public class BatchNode extends Node implements Savable {
                 batch.geometry.removeFromParent();
             }
             batches.clear();
+            batchesByGeom.clear();
         }
         for (Map.Entry<Material, List<Geometry>> entry : matMap.entrySet()) {
             Mesh m = new Mesh();
@@ -202,7 +205,8 @@ public class BatchNode extends Node implements Savable {
             mergeGeometries(m, list);
             m.setDynamic();
             Batch batch = new Batch();
-
+            batch.updateGeomList(list);
+            
             batch.geometry = new Geometry(name + "-batch" + batches.size());
             batch.geometry.setMaterial(material);
             this.attachChild(batch.geometry);
@@ -648,6 +652,15 @@ public class BatchNode extends Node implements Savable {
 
     protected class Batch {
 
+        /**
+         * update the batchesByGeom map for this batch with the given List of geometries
+         * @param list 
+         */
+        void updateGeomList(List<Geometry> list) {
+            for (Geometry geom : list) {
+                batchesByGeom.put(geom, this);
+            }
+        }
         Geometry geometry;
         boolean needMeshUpdate = false;
     }
