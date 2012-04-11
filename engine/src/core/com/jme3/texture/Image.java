@@ -33,6 +33,7 @@
 package com.jme3.texture;
 
 import com.jme3.export.*;
+import com.jme3.renderer.Caps;
 import com.jme3.renderer.Renderer;
 import com.jme3.util.NativeObject;
 import java.io.IOException;
@@ -255,7 +256,13 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
          * Luminance/grayscale texture compression. 
          * Called BC4 in DirectX10.
          */
-        LTC(4, false, true, false);
+        LTC(4, false, true, false),
+        
+        /**
+         * 24-bit depth with 8-bit stencil. 
+         * Check the cap {@link Caps#PackedDepthStencilBuffer}.
+         */
+        Depth24Stencil8(32, true, false, false);
 
         private int bpp;
         private boolean isDepth;

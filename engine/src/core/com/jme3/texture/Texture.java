@@ -32,9 +32,9 @@
 
 package com.jme3.texture;
 
-import com.jme3.asset.Asset;
 import com.jme3.asset.AssetKey;
 import com.jme3.asset.AssetNotFoundException;
+import com.jme3.asset.CloneableSmartAsset;
 import com.jme3.asset.TextureKey;
 import com.jme3.export.*;
 import com.jme3.util.PlaceholderAssets;
@@ -57,7 +57,7 @@ import java.util.logging.Logger;
  * @author Joshua Slack
  * @version $Id: Texture.java 4131 2009-03-19 20:15:28Z blaine.dev $
  */
-public abstract class Texture implements Asset, Savable, Cloneable {
+public abstract class Texture implements CloneableSmartAsset, Savable, Cloneable {
 
     public enum Type {
 
@@ -502,7 +502,11 @@ public abstract class Texture implements Asset, Savable, Cloneable {
             return false;
         }
         final Texture other = (Texture) obj;
-        if (this.image != other.image && (this.image == null || !this.image.equals(other.image))) {
+        
+        // NOTE: Since images are generally considered unique assets in jME3,
+        // using the image's equals() implementation is not neccessary here
+        // (would be too slow)
+        if (this.image != other.image) {
             return false;
         }
         if (this.minificationFilter != other.minificationFilter) {
@@ -523,7 +527,10 @@ public abstract class Texture implements Asset, Savable, Cloneable {
     @Override
     public int hashCode() {
         int hash = 5;
-        hash = 67 * hash + (this.image != null ? this.image.hashCode() : 0);
+        // NOTE: Since images are generally considered unique assets in jME3,
+        // using the image's hashCode() implementation is not neccessary here
+        // (would be too slow)
+        hash = 67 * hash + (this.image != null ? System.identityHashCode(this.image) : 0);
         hash = 67 * hash + (this.minificationFilter != null ? this.minificationFilter.hashCode() : 0);
         hash = 67 * hash + (this.magnificationFilter != null ? this.magnificationFilter.hashCode() : 0);
         hash = 67 * hash + (this.shadowCompareMode != null ? this.shadowCompareMode.hashCode() : 0);
@@ -531,33 +538,29 @@ public abstract class Texture implements Asset, Savable, Cloneable {
         return hash;
     }
 
-    
-
-//    public abstract Texture createSimpleClone();
-
-
    /** Retrieve a basic clone of this Texture (ie, clone everything but the
      * image data, which is shared)
      *
      * @return Texture
+     * 
+     * @deprecated Use {@link Texture#clone()} instead.
      */
+    @Deprecated
     public Texture createSimpleClone(Texture rVal) {
         rVal.setMinFilter(minificationFilter);
         rVal.setMagFilter(magnificationFilter);
         rVal.setShadowCompareMode(shadowCompareMode);
-//        rVal.setHasBorder(hasBorder);
         rVal.setAnisotropicFilter(anisotropicFilter);
         rVal.setImage(image); // NOT CLONED.
-//        rVal.memReq = memReq;
         rVal.setKey(key);
         rVal.setName(name);
-//        rVal.setBlendColor(blendColor != null ? blendColor.clone() : null);
-//        if (getTextureKey() != null) {
-//            rVal.setTextureKey(getTextureKey());
-//        }
         return rVal;
     }
 
+    /**
+     * @deprecated Use {@link Texture#clone()} instead.
+     */
+    @Deprecated
     public abstract Texture createSimpleClone();
 
     public void write(JmeExporter e) throws IOException {

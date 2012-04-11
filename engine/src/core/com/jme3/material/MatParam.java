@@ -328,21 +328,36 @@ When arrays can be inserted in J3M files
     }
 
     @Override
-    public boolean equals(Object other) {
-        if (!(other instanceof MatParam)) {
+    public boolean equals(Object obj) {
+        if (obj == null) {
             return false;
         }
-
-        MatParam otherParam = (MatParam) other;
-        return otherParam.type == type
-                && otherParam.name.equals(name);
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final MatParam other = (MatParam) obj;
+        if (this.type != other.type) {
+            return false;
+        }
+        if ((this.name == null) ? (other.name != null) : !this.name.equals(other.name)) {
+            return false;
+        }
+        if (this.value != other.value && (this.value == null || !this.value.equals(other.value))) {
+            return false;
+        }
+        if (this.ffBinding != other.ffBinding) {
+            return false;
+        }
+        return true;
     }
 
     @Override
     public int hashCode() {
-        int hash = 5;
-        hash = 17 * hash + (this.type != null ? this.type.hashCode() : 0);
-        hash = 17 * hash + (this.name != null ? this.name.hashCode() : 0);
+        int hash = 7;
+        hash = 59 * hash + (this.type != null ? this.type.hashCode() : 0);
+        hash = 59 * hash + (this.name != null ? this.name.hashCode() : 0);
+        hash = 59 * hash + (this.value != null ? this.value.hashCode() : 0);
+        hash = 59 * hash + (this.ffBinding != null ? this.ffBinding.hashCode() : 0);
         return hash;
     }
 

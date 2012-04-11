@@ -203,7 +203,7 @@ public enum Caps {
      * Supports Format.RGB9E5 for FBO color buffers
      */
     SharedExponentColorBuffer,
-
+    
     /**
      * Supports Format.LATC for textures, this includes
      * support for ATI's 3Dc texture compression.
@@ -226,7 +226,12 @@ public enum Caps {
     /**
      * Supports multisampling on the screen
      */
-    Multisample;
+    Multisample,
+    
+    /**
+     * Supports FBO with Depth24Stencil8 image format
+     */
+    PackedDepthStencilBuffer;
 
     /**
      * Returns true if given the renderer capabilities, the texture
@@ -251,6 +256,8 @@ public enum Caps {
 
         Format fmt = img.getFormat();
         switch (fmt){
+            case Depth24Stencil8:
+                return caps.contains(Caps.PackedDepthStencilBuffer);
             case Depth32F:
                 return caps.contains(Caps.FloatDepthBuffer);
             case LATC:
@@ -265,6 +272,29 @@ public enum Caps {
                 if (fmt.isFloatingPont())
                     return caps.contains(Caps.FloatTexture);
                         
+                return true;
+        }
+    }
+    
+    private static boolean supportsColorBuffer(Collection<Caps> caps, RenderBuffer colorBuf){
+        Format colorFmt = colorBuf.getFormat();
+        if (colorFmt.isDepthFormat())
+            return false;
+
+        if (colorFmt.isCompressed())
+            return false;
+
+        switch (colorFmt){
+            case RGB111110F:
+                return caps.contains(Caps.PackedFloatColorBuffer);
+            case RGB16F_to_RGB111110F:
+            case RGB16F_to_RGB9E5:
+            case RGB9E5:
+                return false;
+            default:
+                if (colorFmt.isFloatingPont())
+                    return caps.contains(Caps.FloatColorBuffer);
+
                 return true;
         }
     }
@@ -285,9 +315,7 @@ public enum Caps {
          && !caps.contains(Caps.FrameBufferMultisample))
             return false;
 
-        RenderBuffer colorBuf = fb.getColorBuffer();
         RenderBuffer depthBuf = fb.getDepthBuffer();
-
         if (depthBuf != null){
             Format depthFmt = depthBuf.getFormat();
             if (!depthFmt.isDepthFormat()){
@@ -296,28 +324,15 @@ public enum Caps {
                 if (depthFmt == Format.Depth32F
                  && !caps.contains(Caps.FloatDepthBuffer))
                     return false;
+                
+                if (depthFmt == Format.Depth24Stencil8
+                 && !caps.contains(Caps.PackedDepthStencilBuffer))
+                    return false;
             }
         }
-        if (colorBuf != null){
-            Format colorFmt = colorBuf.getFormat();
-            if (colorFmt.isDepthFormat())
+        for (int i = 0; i < fb.getNumColorBuffers(); i++){
+            if (!supportsColorBuffer(caps, fb.getColorBuffer(i))){
                 return false;
-
-            if (colorFmt.isCompressed())
-                return false;
-
-            switch (colorFmt){
-                case RGB111110F:
-                    return caps.contains(Caps.PackedFloatColorBuffer);
-                case RGB16F_to_RGB111110F:
-                case RGB16F_to_RGB9E5:
-                case RGB9E5:
-                    return false;
-                default:
-                    if (colorFmt.isFloatingPont())
-                        return caps.contains(Caps.FloatColorBuffer);
-
-                    return true;
             }
         }
         return true;

@@ -33,11 +33,8 @@
 package com.jme3.util;
 
 import java.io.Serializable;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Implementation of a Map that favors iteration speed rather than
@@ -45,7 +42,7 @@ import java.util.Set;
  *
  * @author Kirill Vainer
  */
-public final class ListMap<K, V> implements Map<K, V>, Cloneable, Serializable {
+public final class ListMap<K, V> extends AbstractMap<K, V> implements Cloneable, Serializable {
 
     public static void main(String[] args){
         Map<String, String> map = new ListMap<String, String>();
@@ -89,6 +86,29 @@ public final class ListMap<K, V> implements Map<K, V>, Cloneable, Serializable {
             return new ListMapEntry<K, V>(key, value);
         }
 
+        @Override
+        public boolean equals(Object obj) {
+            if (obj == null) {
+                return false;
+            }
+            if (getClass() != obj.getClass()) {
+                return false;
+            }
+            final ListMapEntry<K, V> other = (ListMapEntry<K, V>) obj;
+            if (this.key != other.key && (this.key == null || !this.key.equals(other.key))) {
+                return false;
+            }
+            if (this.value != other.value && (this.value == null || !this.value.equals(other.value))) {
+                return false;
+            }
+            return true;
+        }
+
+        @Override
+        public int hashCode() {
+            return (this.key != null ? this.key.hashCode() : 0) ^
+                   (this.value != null ? this.value.hashCode() : 0);
+        }
     }
     
     private final HashMap<K, V> backingMap;
@@ -115,6 +135,7 @@ public final class ListMap<K, V> implements Map<K, V>, Cloneable, Serializable {
         putAll(map);
     }
 
+    @Override
     public int size() {
 //        return entries.size();
         return backingMap.size();
@@ -135,6 +156,7 @@ public final class ListMap<K, V> implements Map<K, V>, Cloneable, Serializable {
         return entries[index].key;
     }
 
+    @Override
     public boolean isEmpty() {
         return size() == 0;
     }
@@ -147,6 +169,7 @@ public final class ListMap<K, V> implements Map<K, V>, Cloneable, Serializable {
 //        return a == null ? (b == null) : a.equals(b);
 //    }
 
+    @Override
     public boolean containsKey(Object key) {
         return backingMap.containsKey( (K) key); 
 //        if (key == null)
@@ -160,6 +183,7 @@ public final class ListMap<K, V> implements Map<K, V>, Cloneable, Serializable {
 //        return false;
     }
 
+    @Override
     public boolean containsValue(Object value) {
         return backingMap.containsValue( (V) value); 
 //        for (int i = 0; i < entries.size(); i++){
@@ -169,6 +193,7 @@ public final class ListMap<K, V> implements Map<K, V>, Cloneable, Serializable {
 //        return false;
     }
 
+    @Override
     public V get(Object key) {
         return backingMap.get( (K) key); 
 //        if (key == null)
@@ -182,6 +207,7 @@ public final class ListMap<K, V> implements Map<K, V>, Cloneable, Serializable {
 //        return null;
     }
 
+    @Override
     public V put(K key, V value) {
         if (backingMap.containsKey(key)){
             // set the value on the entry
@@ -222,6 +248,7 @@ public final class ListMap<K, V> implements Map<K, V>, Cloneable, Serializable {
 //        return null;
     }
 
+    @Override
     public V remove(Object key) {
         V element = backingMap.remove( (K) key);
         if (element != null){
@@ -255,6 +282,7 @@ public final class ListMap<K, V> implements Map<K, V>, Cloneable, Serializable {
 //        return null;
     }
 
+    @Override
     public void putAll(Map<? extends K, ? extends V> map) {
         for (Entry<? extends K, ? extends V> entry : map.entrySet()){
             put(entry.getKey(), entry.getValue());
@@ -275,6 +303,7 @@ public final class ListMap<K, V> implements Map<K, V>, Cloneable, Serializable {
 //        }
     }
 
+    @Override
     public void clear() {
         backingMap.clear();
 //        entries.clear();
@@ -287,6 +316,7 @@ public final class ListMap<K, V> implements Map<K, V>, Cloneable, Serializable {
         return clone;
     }
 
+    @Override
     public Set<K> keySet() {
         return backingMap.keySet();
 //        HashSet<K> keys = new HashSet<K>();
@@ -297,6 +327,7 @@ public final class ListMap<K, V> implements Map<K, V>, Cloneable, Serializable {
 //        return keys;
     }
 
+    @Override
     public Collection<V> values() {
         return backingMap.values();
 //        ArrayList<V> values = new ArrayList<V>();

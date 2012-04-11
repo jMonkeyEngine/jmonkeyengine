@@ -74,9 +74,8 @@ public class OpaqueComparator implements GeometryComparator {
         Material m1 = o1.getMaterial();
         Material m2 = o2.getMaterial();
 
-        int sortId = m1.compareTo(m2);
-
-        if (sortId == 0){
+        int compareResult = m2.getSortId() - m1.getSortId();
+        if (compareResult == 0){
             // use the same shader.
             // sort front-to-back then.
             float d1 = distanceToCam(o1);
@@ -89,7 +88,7 @@ public class OpaqueComparator implements GeometryComparator {
             else
                 return 1;
         }else{
-            return sortId;
+            return compareResult;
         }
     }
 

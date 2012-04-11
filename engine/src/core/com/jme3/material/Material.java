@@ -29,7 +29,7 @@
  */
 package com.jme3.material;
 
-import com.jme3.asset.Asset;
+import com.jme3.asset.CloneableSmartAsset;
 import com.jme3.asset.AssetKey;
 import com.jme3.asset.AssetManager;
 import com.jme3.export.*;
@@ -63,9 +63,10 @@ import java.util.logging.Logger;
  * Setting the parameters can modify the behavior of a
  * shader.
  * <p/>
+ * 
  * @author Kirill Vainer
  */
-public class Material implements Asset, Cloneable, Savable, Comparable<Material> {
+public class Material implements CloneableSmartAsset, Cloneable, Savable {
 
     // Version #2: Fixed issue with RenderState.apply*** flags not getting exported
     public static final int SAVABLE_VERSION = 2;
@@ -139,7 +140,7 @@ public class Material implements Asset, Cloneable, Savable, Comparable<Material>
     public String getName() {
         return name;
     }
-
+    
     /**
      * This method sets the name of the material.
      * The name is not the same as the asset name.
@@ -189,27 +190,6 @@ public class Material implements Asset, Cloneable, Savable, Comparable<Material>
     }
 
     /**
-     * Uses the sorting ID for each material to compare them.
-     *
-     * @param m The other material to compare to.
-     *
-     * @return zero if the materials are equal, returns a negative value
-     * if <code>this</code> has a lower sorting ID than <code>m</code>,
-     * otherwise returns a positive value.
-     */
-    public int compareTo(Material m) {
-        return m.getSortId() - getSortId();
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj instanceof Material) {
-            return ((Material) obj).compareTo(this) == 0;
-        }
-        return super.equals(obj);
-    }
-
-    /**
      * Clones this material. The result is returned.
      */
     @Override
@@ -237,77 +217,84 @@ public class Material implements Asset, Cloneable, Savable, Comparable<Material>
 
     /**
      * Compares two materials and returns true if they are equal.
-     * This methods compare definition,  params, additional render states
-     * The difference with the equals method is that it's truely comaring the objects. (equals compare the sort ids for geometry sorting)
-     * @param mat the material to cmpare to this material
+     * This methods compare definition, parameters, additional render states
+     * 
+     * @param otherObj the material to compare to this material
      * @return true if the materials are equal.
      */
-    public boolean isEqual(Material mat) {
-        //early exit if the material are the same object
-        if (this == mat) {
+    @Override
+    public boolean equals(Object otherObj) {
+        if (!(otherObj instanceof Material)) {
+            return false;
+        }
+        
+        Material other = (Material) otherObj;
+        
+        // Early exit if the material are the same object
+        if (this == other) {
             return true;
         }
 
-
-        //comparing matrial definition        
-        if (this.getMaterialDef() != mat.getMaterialDef()) {
+        // Check material definition        
+        if (this.getMaterialDef() != other.getMaterialDef()) {
             return false;
         }
 
-        //early exit if the size of the params is different
-        if (paramValues.size() != mat.paramValues.size()) {
+        // Early exit if the size of the params is different
+        if (this.paramValues.size() != other.paramValues.size()) {
             return false;
         }
+        
+        // Checking technique
+        if (this.technique != null || other.technique != null) {
+            // Techniques are considered equal if their names are the same
+            // E.g. if user chose custom technique for one material but 
+            // uses default technique for other material, the materials 
+            // are not equal.
+            String thisDefName = this.technique != null ? this.technique.getDef().getName() : null;
+            String otherDefName = other.technique != null ? other.technique.getDef().getName() : null;
+            if (!thisDefName.equals(otherDefName)) {
+                return false;
+            }
+        }
 
-        //comparing params
+        // Comparing parameters
         for (String paramKey : paramValues.keySet()) {
-            MatParam paramOrig = getParam(paramKey);
-            MatParam param = mat.getParam(paramKey);
-            //this param does not exist in compared mat
-            if (param == null) {
+            MatParam thisParam = this.getParam(paramKey);
+            MatParam otherParam = other.getParam(paramKey);
+
+            // This param does not exist in compared mat
+            if (otherParam == null) {
                 return false;
             }
 
-            //params exist in both materials but they not of the same type
-            if (param.type != paramOrig.type) {
+            if (!otherParam.equals(thisParam)) {
                 return false;
-            }
-
-            if (param instanceof MatParamTexture) {
-                MatParamTexture tex = (MatParamTexture) param;
-                MatParamTexture texOrig = (MatParamTexture) paramOrig;
-                //comparing textures
-                if (getTextureId(tex) != getTextureId(texOrig)) {
-                    return false;
-                }
-            } else {
-                if (!param.getValue().equals(paramOrig.getValue())) {
-                    return false;
-                }
             }
         }
 
-
-        //comparing additional render states
+        // Comparing additional render states
         if (additionalState == null) {
-            if (mat.additionalState != null) {
+            if (other.additionalState != null) {
                 return false;
             }
         } else {
-            if (!additionalState.equals(mat.additionalState)) {
+            if (!additionalState.equals(other.additionalState)) {
                 return false;
             }
         }
-
-
+        
         return true;
     }
 
-    private int getTextureId(MatParamTexture param) {
-        if (param.getTextureValue() != null && param.getTextureValue().getImage() != null) {
-            return param.getTextureValue().getImage().getId();
-        }
-        return -1;
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 29 * hash + (this.def != null ? this.def.hashCode() : 0);
+        hash = 29 * hash + (this.paramValues != null ? this.paramValues.hashCode() : 0);
+        hash = 29 * hash + (this.technique != null ? this.technique.getDef().getName().hashCode() : 0);
+        hash = 29 * hash + (this.additionalState != null ? this.additionalState.hashCode() : 0);
+        return hash;
     }
 
     /**
@@ -701,18 +688,17 @@ public class Material implements Asset, Cloneable, Savable, Comparable<Material>
     }
 
     /**
-     * Uploads the lights in the light list as two uniform arrays.<br/><br/>
-     *      * <p>
-     * <code>uniform vec4 g_LightColor[numLights];</code><br/>
-     * // g_LightColor.rgb is the diffuse/specular color of the light.<br/>
-     * // g_Lightcolor.a is the type of light, 0 = Directional, 1 = Point, <br/>
-     * // 2 = Spot. <br/>
-     * <br/>
-     * <code>uniform vec4 g_LightPosition[numLights];</code><br/>
-     * // g_LightPosition.xyz is the position of the light (for point lights)<br/>
-     * // or the direction of the light (for directional lights).<br/>
-     * // g_LightPosition.w is the inverse radius (1/r) of the light (for attenuation) <br/>
-     * </p>
+     * Uploads the lights in the light list as two uniform arrays.<br/><br/> *
+     * <p>
+     * <code>uniform vec4 g_LightColor[numLights];</code><br/> //
+     * g_LightColor.rgb is the diffuse/specular color of the light.<br/> //
+     * g_Lightcolor.a is the type of light, 0 = Directional, 1 = Point, <br/> //
+     * 2 = Spot. <br/> <br/>
+     * <code>uniform vec4 g_LightPosition[numLights];</code><br/> //
+     * g_LightPosition.xyz is the position of the light (for point lights)<br/>
+     * // or the direction of the light (for directional lights).<br/> //
+     * g_LightPosition.w is the inverse radius (1/r) of the light (for
+     * attenuation) <br/> </p>
      */
     protected void updateLightListUniforms(Shader shader, Geometry g, int numLights) {
         if (numLights == 0) { // this shader does not do lighting, ignore.

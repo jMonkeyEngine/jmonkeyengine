@@ -304,6 +304,7 @@ public class RenderState implements Cloneable, Savable {
     StencilOperation backStencilDepthPassOperation = StencilOperation.Keep;
     TestFunction frontStencilFunction = TestFunction.Always;
     TestFunction backStencilFunction = TestFunction.Always;
+    int cachedHashCode = -1;
 
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule oc = ex.getCapsule(this);
@@ -505,6 +506,7 @@ public class RenderState implements Cloneable, Savable {
     public void setPointSprite(boolean pointSprite) {
         applyPointSprite = true;
         this.pointSprite = pointSprite;
+        cachedHashCode = -1;
     }
 
     /**
@@ -522,6 +524,7 @@ public class RenderState implements Cloneable, Savable {
     public void setAlphaFallOff(float alphaFallOff) {
         applyAlphaFallOff = true;
         this.alphaFallOff = alphaFallOff;
+        cachedHashCode = -1;
     }
 
     /**
@@ -539,6 +542,7 @@ public class RenderState implements Cloneable, Savable {
     public void setAlphaTest(boolean alphaTest) {
         applyAlphaTest = true;
         this.alphaTest = alphaTest;
+        cachedHashCode = -1;
     }
 
     /**
@@ -553,6 +557,7 @@ public class RenderState implements Cloneable, Savable {
     public void setColorWrite(boolean colorWrite) {
         applyColorWrite = true;
         this.colorWrite = colorWrite;
+        cachedHashCode = -1;
     }
 
     /**
@@ -570,6 +575,7 @@ public class RenderState implements Cloneable, Savable {
     public void setFaceCullMode(FaceCullMode cullMode) {
         applyCullMode = true;
         this.cullMode = cullMode;
+        cachedHashCode = -1;
     }
 
     /**
@@ -589,6 +595,7 @@ public class RenderState implements Cloneable, Savable {
     public void setBlendMode(BlendMode blendMode) {
         applyBlendMode = true;
         this.blendMode = blendMode;
+        cachedHashCode = -1;
     }
 
     /**
@@ -604,6 +611,7 @@ public class RenderState implements Cloneable, Savable {
     public void setDepthTest(boolean depthTest) {
         applyDepthTest = true;
         this.depthTest = depthTest;
+        cachedHashCode = -1;
     }
 
     /**
@@ -618,6 +626,7 @@ public class RenderState implements Cloneable, Savable {
     public void setDepthWrite(boolean depthWrite) {
         applyDepthWrite = true;
         this.depthWrite = depthWrite;
+        cachedHashCode = -1;
     }
 
     /**
@@ -632,6 +641,7 @@ public class RenderState implements Cloneable, Savable {
     public void setWireframe(boolean wireframe) {
         applyWireFrame = true;
         this.wireframe = wireframe;
+        cachedHashCode = -1;
     }
 
     /**
@@ -651,6 +661,7 @@ public class RenderState implements Cloneable, Savable {
         offsetEnabled = true;
         offsetFactor = factor;
         offsetUnits = units;
+        cachedHashCode = -1;
     }
 
     /**
@@ -699,6 +710,7 @@ public class RenderState implements Cloneable, Savable {
         this.backStencilDepthPassOperation = _backStencilDepthPassOperation;
         this.frontStencilFunction = _frontStencilFunction;
         this.backStencilFunction = _backStencilFunction;
+        cachedHashCode = -1;
     }
 
     /**
@@ -1032,6 +1044,36 @@ public class RenderState implements Cloneable, Savable {
         return applyWireFrame;
     }
 
+    @Override
+    public int hashCode() {
+        if (cachedHashCode == -1){
+            int hash = 7;
+            hash = 79 * hash + (this.pointSprite ? 1 : 0);
+            hash = 79 * hash + (this.wireframe ? 1 : 0);
+            hash = 79 * hash + (this.cullMode != null ? this.cullMode.hashCode() : 0);
+            hash = 79 * hash + (this.depthWrite ? 1 : 0);
+            hash = 79 * hash + (this.depthTest ? 1 : 0);
+            hash = 79 * hash + (this.colorWrite ? 1 : 0);
+            hash = 79 * hash + (this.blendMode != null ? this.blendMode.hashCode() : 0);
+            hash = 79 * hash + (this.alphaTest ? 1 : 0);
+            hash = 79 * hash + Float.floatToIntBits(this.alphaFallOff);
+            hash = 79 * hash + Float.floatToIntBits(this.offsetFactor);
+            hash = 79 * hash + Float.floatToIntBits(this.offsetUnits);
+            hash = 79 * hash + (this.offsetEnabled ? 1 : 0);
+            hash = 79 * hash + (this.stencilTest ? 1 : 0);
+            hash = 79 * hash + (this.frontStencilStencilFailOperation != null ? this.frontStencilStencilFailOperation.hashCode() : 0);
+            hash = 79 * hash + (this.frontStencilDepthFailOperation != null ? this.frontStencilDepthFailOperation.hashCode() : 0);
+            hash = 79 * hash + (this.frontStencilDepthPassOperation != null ? this.frontStencilDepthPassOperation.hashCode() : 0);
+            hash = 79 * hash + (this.backStencilStencilFailOperation != null ? this.backStencilStencilFailOperation.hashCode() : 0);
+            hash = 79 * hash + (this.backStencilDepthFailOperation != null ? this.backStencilDepthFailOperation.hashCode() : 0);
+            hash = 79 * hash + (this.backStencilDepthPassOperation != null ? this.backStencilDepthPassOperation.hashCode() : 0);
+            hash = 79 * hash + (this.frontStencilFunction != null ? this.frontStencilFunction.hashCode() : 0);
+            hash = 79 * hash + (this.backStencilFunction != null ? this.backStencilFunction.hashCode() : 0);
+            cachedHashCode = hash;
+        }
+        return cachedHashCode;
+    }
+
     /**
      * Merges <code>this</code> state and <code>additionalState</code> into
      * the parameter <code>state</code> based on a specific criteria.
@@ -1141,11 +1183,35 @@ public class RenderState implements Cloneable, Savable {
             state.frontStencilFunction = frontStencilFunction;
             state.backStencilFunction = backStencilFunction;
         }
+        state.cachedHashCode = -1;
         return state;
     }
 
     @Override
     public String toString() {
-        return "RenderState[\n" + "pointSprite=" + pointSprite + "\napplyPointSprite=" + applyPointSprite + "\nwireframe=" + wireframe + "\napplyWireFrame=" + applyWireFrame + "\ncullMode=" + cullMode + "\napplyCullMode=" + applyCullMode + "\ndepthWrite=" + depthWrite + "\napplyDepthWrite=" + applyDepthWrite + "\ndepthTest=" + depthTest + "\napplyDepthTest=" + applyDepthTest + "\ncolorWrite=" + colorWrite + "\napplyColorWrite=" + applyColorWrite + "\nblendMode=" + blendMode + "\napplyBlendMode=" + applyBlendMode + "\nalphaTest=" + alphaTest + "\napplyAlphaTest=" + applyAlphaTest + "\nalphaFallOff=" + alphaFallOff + "\napplyAlphaFallOff=" + applyAlphaFallOff + "\noffsetEnabled=" + offsetEnabled + "\napplyPolyOffset=" + applyPolyOffset + "\noffsetFactor=" + offsetFactor + "\noffsetUnits=" + offsetUnits + "\n]";
+        return "RenderState[\n"
+                + "pointSprite=" + pointSprite
+                + "\napplyPointSprite=" + applyPointSprite
+                + "\nwireframe=" + wireframe
+                + "\napplyWireFrame=" + applyWireFrame
+                + "\ncullMode=" + cullMode
+                + "\napplyCullMode=" + applyCullMode
+                + "\ndepthWrite=" + depthWrite
+                + "\napplyDepthWrite=" + applyDepthWrite
+                + "\ndepthTest=" + depthTest
+                + "\napplyDepthTest=" + applyDepthTest
+                + "\ncolorWrite=" + colorWrite
+                + "\napplyColorWrite=" + applyColorWrite
+                + "\nblendMode=" + blendMode
+                + "\napplyBlendMode=" + applyBlendMode
+                + "\nalphaTest=" + alphaTest
+                + "\napplyAlphaTest=" + applyAlphaTest
+                + "\nalphaFallOff=" + alphaFallOff
+                + "\napplyAlphaFallOff=" + applyAlphaFallOff
+                + "\noffsetEnabled=" + offsetEnabled
+                + "\napplyPolyOffset=" + applyPolyOffset
+                + "\noffsetFactor=" + offsetFactor
+                + "\noffsetUnits=" + offsetUnits
+                + "\n]";
     }
 }
