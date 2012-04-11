@@ -86,7 +86,7 @@ public class TestMaterialCompare extends SimpleApplication {
     }
 
     private void testMats(Material mat1, Material mat2, boolean expected) {
-        if (mat2.isEqual(mat1)) {
+        if (mat2.equals(mat1)) {
             System.out.print(mat1.getName() + " equals " + mat2.getName());
             if(expected){
                 System.out.println(" success");
