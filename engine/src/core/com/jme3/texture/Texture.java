@@ -34,7 +34,7 @@ package com.jme3.texture;
 
 import com.jme3.asset.AssetKey;
 import com.jme3.asset.AssetNotFoundException;
-import com.jme3.asset.CloneableSmartAsset;
+import com.jme3.asset.Asset;
 import com.jme3.asset.TextureKey;
 import com.jme3.export.*;
 import com.jme3.util.PlaceholderAssets;
@@ -57,7 +57,7 @@ import java.util.logging.Logger;
  * @author Joshua Slack
  * @version $Id: Texture.java 4131 2009-03-19 20:15:28Z blaine.dev $
  */
-public abstract class Texture implements CloneableSmartAsset, Savable, Cloneable {
+public abstract class Texture implements Asset, Savable, Cloneable {
 
     public enum Type {
 
